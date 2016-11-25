@@ -1,0 +1,69 @@
+/* Copyright 2001-2016 Outright Mental, Inc. */
+
+@import "bootstrap";
+
+$gray: #a0a0a0;
+$yellow: #ffc000;
+$green: #00c000;
+$red: #c00000;
+
+@font-face {
+  font-family: OxygenMono;
+  src: local("Oxygen Mono"),
+  local("Oxygen Mono"),
+  url(OxygenMono-Regular.ttf);
+  font-weight: bold;
+}
+
+body {
+  background: #000000;
+  color: $gray;
+  font-family: OxygenMono, monospace;
+}
+
+a {
+  color: lighten($yellow,10%);
+}
+
+img {
+  width:100%;
+  height: auto;
+}
+
+.engine {
+  background: #202020;
+  padding: 20px;
+  h1 {
+    font-weight: bold;
+  }
+  h3 {
+    text-transform: uppercase;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    margin-top: 0;
+  }
+  .metric {
+    margin-top:2em;
+    margin-bottom: 0;
+    font-size: 0.8em;
+    letter-spacing: 0.2em;
+    font-weight:bold;
+    text-transform: uppercase;
+  }
+  .yellow {
+    color: $yellow;
+  }
+  .red {
+    color: $red;
+  }
+  .green {
+    color: $green;
+  }
+}
+
+#timeline {
+  margin-bottom: 20px;
+  .placeholder {
+    opacity: 0.25;
+  }
+}

@@ -1,0 +1,35 @@
+<h1>Engines</h1>
+
+<div class="container-fluid row" id="engines">
+{{#each model as |engine|}}
+    <div class="col-md-3">
+        <div class="engine">
+            <h3>{{engine.name}}</h3>
+
+            <p class="metric green">Offset</p>
+            <h1 class="green">{{engine.chainOffset}}</h1>
+
+            <p class="metric">Feel</p>
+            <h4>{{engine.feel}}</h4>
+
+            <p class="metric">Signature</p>
+            <h4>{{engine.signature}}</h4>
+
+            <p class="metric">Beats</p>
+            <h4>
+              {{engine.beatIn}}
+              {{engine.beatMain}}
+              {{engine.beatOut}}
+            </h4>
+
+            <p class="metric">Songs</p>
+            <h4>
+              {{engine.songIn}}
+              {{engine.songMain}}
+              {{engine.songOut}}
+            </h4>
+
+        </div>
+    </div>
+{{/each}}
+</div>
