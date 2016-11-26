@@ -1,0 +1,68 @@
+#!/usr/bin/env bash
+
+# base path
+BASEPATH=$(pwd)
+
+# cool ascii bro █▓▒░
+intro () {
+    echo ''
+    echo '───────▐▀▄──────▄▀▌───▄▄▄▄▄▄▄─────────────────'
+    echo '───────▌▒▒▀▄▄▄▄▀▒▒▐▄▀▀▒██▒██▒▀▀▄──────────────'
+    echo '──────▐▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▀▄────────────'
+    echo '──────▌▒$$▒▒▒▒▒$$▒▒▒▄▒▒▒▒▒▒▒▒▒▒▒▒▒▀▄──────────'
+    echo '────▀█▒$█▌$▒█▒$▐█$▒▀▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▌─────────'
+    echo '────▀▌▒▒$$▒▀▒▀▒$$▒▒▀▀▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▐───▄▄────'
+    echo '────▐▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▌▄█▒█────'
+    echo '────▐▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▐▒█▀─────'
+    echo '────▐▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▐▀───────'
+    echo '────▐▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▌────────'
+    echo '─────▌▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▐─────────'
+    echo '─────▐▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▌─────────'
+    echo '──────▌▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▐──────────'
+    echo '──────▐▄▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▄▌──────────'
+    echo '────────▀▄▄▀▀▀▀▄▄▀▀▀▀▀▀▄▄▀▀▀▀▀▀▄▄▀────────────'
+    echo ''
+    }
+step () {
+  TEXT=${1}
+  printf "\\n██ ${TEXT}\n"
+}
+step_ok () { printf "░░ OK\\n\n"; }
+finished_ok () {
+  cd ${BASEPATH}
+  printf "\\n██ Finished OK\n\n"
+}
+indent () {
+  TEXT=${1}
+  printf "${TEXT}\n" | sed '/^$/d' | sed 's/^/      /g'
+}
+ensure_version () {
+  CMD=${1}
+  TEXT=${2}
+  step "Ensure ${TEXT}"
+  VERSION=$(${CMD}) || exit 1
+  indent "${VERSION}"
+  step_ok
+}
+ensure_nslookup () {
+  ADDR=${1}
+  TEXT=${2}
+  step "Ensure ${TEXT}"
+  if ! nslookup ${ADDR} &> /dev/null
+  then
+    printf "Cannot lookup ${ADDR}! Please ensure ${TEXT}.\n"
+    exit 1
+  fi
+  step_ok
+}
+
+# Dependencies
+deps() {
+  ensure_version "docker version" " Docker Engine"
+  ensure_version "docker-compose version" " Docker Compose"
+  ensure_version "java -version" "Java"
+  # ensure_nslookup "code.outright.io" "Outright Mental VPN"
+}
+
+# Docker Compose
+DOCKER_COMPOSE="docker-compose -f container/docker-compose.yml"

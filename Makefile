@@ -16,8 +16,6 @@
 
 .PHONY: clean distclean
 
-all: .setup .build
-
 setup: .setup
 
 build: .build

@@ -1,13 +1,10 @@
 #!/usr/bin/env bash
 
-# base path
-BASEPATH="$(pwd)"
+# Include common functions
+. $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/common/core
 
-# cool ascii bro █▓▒░
-SECTION_IN="\\n██"
-SECTION=" ■"
-SECTION_MINI="  "
-SECTION_DONE_OK="░░ OK\\n"
+#
+deps
 
 # options flags
 FLAGS="d"
@@ -33,18 +30,18 @@ done
 function gitcheck() {
   target=${1}
   if [ ! -d ${target} ]; then
-    printf "${SECTION}  no files found \n"
+    step "no files found"
     return
   fi
   diffs=$(cd ${target} && git diff --name-only origin/master..HEAD)
   if [ -n "$diffs" ]; then
-    printf "${SECTION}  git CHANGES DETECTED \n"
-    printf "${SECTION_MINI}  ${target}\n"
-    printf "\n$(cd ${target} && git status)\n"
+    step "git CHANGES DETECTED"
+    step "${target}"
+    printf "\n$(cd ${target} && git status)"
     exit 1
   else
-    printf "${SECTION}  git check OK \n"
-    printf "${SECTION_MINI}  ${target}\n"
+    step "git check OK"
+    step "${target}"
   fi
 }
 
@@ -70,12 +67,12 @@ function clean_all_named() {
 
 
 # Begin
-printf "${SECTION_IN} Cleaning...\n"
+step "Clean\n"
 
 
 # do the default clean vs. distribution clean
 if [ "${OPTION_DISTRIBUTION}" == "YES" ]; then
-  printf "${SECTION}  everything but the distribution\n"
+  step "Clean everything but the distribution"
   destroy ui/node_modules
   destroy ui_bower_components
 fi
@@ -86,6 +83,5 @@ destroy ui/tmp
 destroy core/target
 clean_all_named *.pyc
 
-# Done
-cd ${BASEPATH}
-printf "${SECTION_DONE_OK}\n"
+#
+finished_ok

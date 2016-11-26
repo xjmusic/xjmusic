@@ -1,21 +1,18 @@
 #!/usr/bin/env bash
 
-# base path
-BASEPATH="$(pwd)"
+# Include common functions
+. $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/common/core
 
-# cool ascii bro █▓▒░
-SECTION_IN="\\n██"
-SECTION=" ■"
-SECTION_MINI=" »"
-SECTION_DONE_OK="░░ OK\\n"
+#
+deps
 
-# UI builds with Ember.js
-printf "${SECTION_IN} Building UI artifacts into Core webapp...\n"
-cd ${BASEPATH}/ui
+#
+step "Build UI\n"
+cd ui || exit 1
 npm install || exit 1
 bower install || exit 1
 ember build || exit 1
-printf "${SECTION_DONE_OK}\n"
+step_ok
 
-# Done
-cd ${BASEPATH}
+#
+finished_ok
