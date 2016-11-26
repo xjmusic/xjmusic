@@ -8907,7 +8907,7 @@ jQuery.extend( {
 			jqXHR.setRequestHeader( "Content-Type", s.contentType );
 		}
 
-		// Set the Accepts header for the server, depending on the dataType
+		// Set the Accepts header for the service, depending on the dataType
 		jqXHR.setRequestHeader(
 			"Accept",
 			s.dataTypes[ 0 ] && s.accepts[ s.dataTypes[ 0 ] ] ?
@@ -13440,7 +13440,7 @@ enifed("dom-helper", ["exports", "htmlbars-runtime/morph", "morph-attr", "dom-he
   // optimize this code!" then to you I say: stop! For I have a tale to tell.
   //
   // First, this code must be compatible with simple-dom for rendering on the
-  // server where there is no real DOM. Previously, we accessed a child node
+  // service where there is no real DOM. Previously, we accessed a child node
   // directly via `element.childNodes[index]`. While we *could* in theory do a
   // full-fidelity simulation of a live `childNodes` array, this is slow,
   // complicated and error-prone.
@@ -15148,7 +15148,7 @@ enifed('ember-application/system/application', ['exports', 'ember-metal', 'ember
        Do note that each app instance maintains their own registry/container, so
       they will run in complete isolation by default.
        #### Server-Side Rendering (also known as FastBoot)
-       This setup allows you to run your Ember app in a server environment using
+       This setup allows you to run your Ember app in a service environment using
       Node.js and render its content into static HTML for SEO purposes.
        ```javascript
       const HTMLSerializer = new SimpleDOM.HTMLSerializer(SimpleDOM.voidMap);
@@ -15176,7 +15176,7 @@ enifed('ember-application/system/application', ['exports', 'ember-metal', 'ember
        See the documentation on the `isBrowser`, `document` and `rootElement` properties
       on `Ember.ApplicationInstance.BootOptions` for details.
        #### Server-Side Resource Discovery
-       This setup allows you to run the routing layer of your Ember app in a server
+       This setup allows you to run the routing layer of your Ember app in a service
       environment using Node.js and completely disable rendering. This allows you
       to simulate and discover the resources (i.e. AJAX requests) needed to fufill
       a given request and eagerly "push" these resources to the client.
@@ -15184,8 +15184,8 @@ enifed('ember-application/system/application', ['exports', 'ember-metal', 'ember
       import BrowserNetworkService from 'app/services/network/browser';
       import NodeNetworkService from 'app/services/network/node';
        // Inject a (hypothetical) service for abstracting all AJAX calls and use
-      // the appropiate implementaion on the client/server. This also allows the
-      // server to log all the AJAX calls made during a particular request and use
+      // the appropiate implementaion on the client/service. This also allows the
+      // service to log all the AJAX calls made during a particular request and use
       // that for resource-discovery purpose.
        export function initialize(application) {
         if (window) { // browser
@@ -15713,7 +15713,7 @@ enifed('ember-application/system/engine', ['exports', 'ember-runtime/system/name
          initialize: function(application) {
           var userConfig, userConfigEncoded, store;
           // We have a HTML escaped JSON representation of the user's basic
-          // configuration generated server side and stored in the DOM of the main
+          // configuration generated service side and stored in the DOM of the main
           // index.html file. This allows the app to have access to a set of data
           // without making any additional remote calls. Good for basic data that is
           // needed for immediate rendering of the page. Keep in mind, this data,
@@ -34392,7 +34392,7 @@ enifed('ember-routing/location/api', ['exports', 'ember-metal/debug', 'ember-met
     ### HashLocation
   
     Using `HashLocation` results in URLs with a `#` (hash sign) separating the
-    server side URL portion of the URL from the portion that is used by Ember.
+    service side URL portion of the URL from the portion that is used by Ember.
     This relies upon the `hashchange` event existing in the browser.
   
     Example:
@@ -34432,7 +34432,7 @@ enifed('ember-routing/location/api', ['exports', 'ember-metal/debug', 'ember-met
   
     This will result in a posts.new url of `/posts/new`.
   
-    Keep in mind that your server must serve the Ember app at all the routes you
+    Keep in mind that your service must serve the Ember app at all the routes you
     define.
   
     ### AutoLocation
@@ -34467,7 +34467,7 @@ enifed('ember-routing/location/api', ['exports', 'ember-metal/debug', 'ember-met
     transformed accordingly, if needed.
   
     Keep in mind that since some of your users will use `HistoryLocation`, your
-    server must serve the Ember app at all the routes you define.
+    service must serve the Ember app at all the routes you define.
   
     ### NoneLocation
   
@@ -34560,7 +34560,7 @@ enifed('ember-routing/location/auto_location', ['exports', 'ember-metal/debug', 
     to the hash-equivalent and vice versa so future transitions are consistent.
   
     Keep in mind that since some of your users will use `HistoryLocation`, your
-    server must serve the Ember app at all the routes you define.
+    service must serve the Ember app at all the routes you define.
   
     @class AutoLocation
     @namespace Ember
@@ -35787,7 +35787,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
           // `refreshModel` to true will cause an "in-place"
           // transition to occur, whereby the model hooks for
           // this route (and any child routes) will re-fire, allowing
-          // you to reload models (e.g., from the server) using the
+          // you to reload models (e.g., from the service) using the
           // updated query param values.
           refreshModel: false,
            // By default, changes to controller query param properties
@@ -36678,7 +36678,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
       The current route params (e.g. `article_id`) will be passed in
       to the respective model hooks, and if a different model is returned,
       `setupController` and associated route hooks will re-fire as well.
-       An example usage of this method is re-querying the server for the
+       An example usage of this method is re-querying the service for the
       latest information using the same parameters as when the route
       was first entered.
        Note that this will cause `model` hooks to fire even on routes
@@ -36874,7 +36874,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
        You can return a promise from this hook to pause the
       transition until the promise resolves (or rejects). This could
       be useful, for instance, for retrieving async code from
-      the server that is required to enter a route.
+      the service that is required to enter a route.
        ```javascript
       App.PostRoute = Ember.Route.extend({
         beforeModel: function(transition) {
@@ -36886,9 +36886,9 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
       ```
        If `App.Post` doesn't exist in the above example,
       `beforeModel` will use jQuery's `getScript`, which
-      returns a promise that resolves after the server has
+      returns a promise that resolves after the service has
       successfully retrieved and executed the code from the
-      server. Note that if an error were to occur, it would
+      service. Note that if an error were to occur, it would
       be passed to the `error` hook on `Ember.Route`, but
       it's also possible to handle errors specific to
       `beforeModel` right from within the hook (to distinguish
@@ -37140,7 +37140,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
       });
        App.PostRoute = Ember.Route.extend({
         model: function(params) {
-          // the server returns `{ id: 12 }`
+          // the service returns `{ id: 12 }`
           return Ember.$.getJSON('/posts/' + params.post_id);
         },
          serialize: function(model) {
@@ -37833,7 +37833,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-metal/logger', 'ember-m
       application will use.
        The following location types are currently available:
        * `history` - use the browser's history API to make the URLs look just like any standard URL
-      * `hash` - use `#` to separate the server part of the URL from the Ember part: `/blog/#/posts/new`
+      * `hash` - use `#` to separate the service part of the URL from the Ember part: `/blog/#/posts/new`
       * `none` - do not store the Ember URL in the actual browser URL (mainly used for testing)
       * `auto` - use the best option based on browser capabilites: `history` if possible, then `hash` if possible, otherwise `none`
        Note: If using ember-cli, this value is defaulted to `auto` by the `locationType` setting of `/config/environment.js`
@@ -64679,7 +64679,7 @@ enifed('rsvp/filter', ['exports', 'rsvp/promise', 'rsvp/utils'], function (expor
       });
     };
     RSVP.filter(promises, filterFn).then(function(users){
-      // true, because the server told us only Alice can create a blog post.
+      // true, because the service told us only Alice can create a blog post.
       users.length === 1;
       // false, because Alice is the only user present in `users`
       users[0] === bob;
@@ -65059,7 +65059,7 @@ enifed('rsvp/map', ['exports', 'rsvp/promise', 'rsvp/utils'], function (exports,
     // getBlogPosts does some ajax and returns an RSVP.Promise that is fulfilled
     // with some blog post data
     RSVP.map(getBlogPosts(), mapFn).then(function(comments){
-      // comments is the result of asking the server for the comments
+      // comments is the result of asking the service for the comments
       // of all blog posts returned from getBlogPosts()
     });
     ```
@@ -70919,7 +70919,7 @@ define("ember-data/-private/system/many-array", ["exports", "ember", "ember-data
     /**
       Metadata associated with the request for async hasMany relationships.
        Example
-       Given that the server returns the following JSON payload when fetching a
+       Given that the service returns the following JSON payload when fetching a
       hasMany relationship:
        ```js
       {
@@ -71301,7 +71301,7 @@ define('ember-data/-private/system/model/errors', ['exports', 'ember', 'ember-da
   
     Every `DS.Model` has an `errors` property that is an instance of
     `DS.Errors`. This can be used to display validation error
-    messages returned from the server when a `record.save()` rejects.
+    messages returned from the service when a `record.save()` rejects.
   
     For Example, if you had a `User` model that looked like this:
   
@@ -71995,7 +71995,7 @@ define("ember-data/-private/system/model/internal-model", ["exports", "ember", "
 
     /*
       Checks if the attributes which are considered as changed are still
-      different to the state which is acknowledged by the server.
+      different to the state which is acknowledged by the service.
        This method is needed when data for the internal model is pushed and the
       pushed data might acknowledge dirty attributes as confirmed.
        @method updateChangedAttributes
@@ -72111,7 +72111,7 @@ define("ember-data/-private/system/model/internal-model", ["exports", "ember", "
 
       //Eventually rollback will always work for relationships
       //For now we support it only out of deleted state, because we
-      //have an explicit way of knowing when the server acked the relationship change
+      //have an explicit way of knowing when the service acked the relationship change
       if (this.isDeleted()) {
         //TODO: Should probably move this to the state machine somehow
         this.becameReady();
@@ -72245,7 +72245,7 @@ define("ember-data/-private/system/model/internal-model", ["exports", "ember", "
     /*
       When a find request is triggered on the store, the user can optionally pass in
       attributes and relationships to be preloaded. These are meant to behave as if they
-      came back from the server, except the user obtained them out of band and is informing
+      came back from the service, except the user obtained them out of band and is informing
       the store of their existence. The most common use case is for supporting client side
       nested URLs, such as `/posts/1/comments/2` so the user can do
       `store.findRecord('comment', 2, { preload: { post: 1 } })` without having to fetch the post.
@@ -72476,9 +72476,9 @@ define("ember-data/-private/system/model/internal-model", ["exports", "ember", "
         Changed keys builds a list of all of the values that may have been
       changed by the backend after a successful save.
        It does this by iterating over each key, value pair in the payload
-      returned from the server after a save. If the `key` is found in
+      returned from the service after a save. If the `key` is found in
       `_attributes` then the user has a local changed to the attribute
-      that has not been synced with the server and the key is not
+      that has not been synced with the service and the key is not
       included in the list of changed keys.
     
       If the value, for a key differs from the value in what Ember Data
@@ -72508,7 +72508,7 @@ define("ember-data/-private/system/model/internal-model", ["exports", "ember", "
           // A value in _attributes means the user has a local change to
           // this attributes. We never override this value when merging
           // updates from the backend so we should not sent a change
-          // notification if the server value differs from the original.
+          // notification if the service value differs from the original.
           if (this._attributes[key] !== undefined) {
             continue;
           }
@@ -72623,7 +72623,7 @@ define("ember-data/-private/system/model/model", ["exports", "ember", "ember-dat
       state. Empty is the first state all records enter after they have
       been created. Most records created by the store will quickly
       transition to the `loading` state if data needs to be fetched from
-      the server or the `created` state if the record is created on the
+      the service or the `created` state if the record is created on the
       client. A record can also enter the empty state if the adapter is
       unable to locate the record.
        @property isEmpty
@@ -72755,7 +72755,7 @@ define("ember-data/-private/system/model/model", ["exports", "ember", "ember-dat
     /**
       If this property is `true` the record is in the `valid` state.
        A record will be in the `valid` state when the adapter did not report any
-      server-side validation failures.
+      service-side validation failures.
        @property isValid
       @type {Boolean}
       @readOnly
@@ -72781,7 +72781,7 @@ define("ember-data/-private/system/model/model", ["exports", "ember", "ember-dat
 
     /**
       If `true` the adapter reported that it was unable to save local
-      changes to the backend for any reason other than a server-side
+      changes to the backend for any reason other than a service-side
       validation error.
        Example
        ```javascript
@@ -72933,13 +72933,13 @@ define("ember-data/-private/system/model/model", ["exports", "ember", "ember-dat
 
     /**
       Fired when the record is ready to be interacted with,
-      that is either loaded from the server or created locally.
+      that is either loaded from the service or created locally.
        @event ready
     */
     ready: _ember["default"].K,
 
     /**
-      Fired when the record is loaded from the server.
+      Fired when the record is loaded from the service.
        @event didLoad
     */
     didLoad: _ember["default"].K,
@@ -72951,7 +72951,7 @@ define("ember-data/-private/system/model/model", ["exports", "ember", "ember-dat
     didUpdate: _ember["default"].K,
 
     /**
-      Fired when a new record is commited to the server.
+      Fired when a new record is commited to the service.
        @event didCreate
     */
     didCreate: _ember["default"].K,
@@ -73710,7 +73710,7 @@ define('ember-data/-private/system/model/states', ['exports', 'ember', 'ember-da
   //   `isSaving` are false, the change has persisted.
   // * isNew: The record was created on the client and the adapter
   //   did not yet report that it was successfully saved.
-  // * isValid: The adapter did not report any server-side validation
+  // * isValid: The adapter did not report any service-side validation
   //   failures.
 
   // The dirty state is a abstract state whose functionality is
@@ -73821,7 +73821,7 @@ define('ember-data/-private/system/model/states', ['exports', 'ember', 'ember-da
     },
 
     // A record is in the `invalid` if the adapter has indicated
-    // the the record failed server-side invalidations.
+    // the the record failed service-side invalidations.
     invalid: {
       // FLAGS
       isValid: false,
@@ -74102,7 +74102,7 @@ define('ember-data/-private/system/model/states', ['exports', 'ember', 'ember-da
       created: createdState,
 
       // A record is in this state if it has already been
-      // saved to the server, but there are new local changes
+      // saved to the service, but there are new local changes
       // that have not yet been saved.
       updated: updatedState
     },
@@ -74152,7 +74152,7 @@ define('ember-data/-private/system/model/states', ['exports', 'ember', 'ember-da
 
       // After a record starts committing, but
       // before the adapter indicates that the deletion
-      // has saved to the server, a record is in the
+      // has saved to the service, a record is in the
       // `inFlight` substate of `deleted`.
       inFlight: {
         // FLAGS
@@ -74855,7 +74855,7 @@ define("ember-data/-private/system/record-arrays/adapter-populated-record-array"
   /**
     Represents an ordered list of records whose order and membership is
     determined by the adapter. For example, a query sent to the adapter
-    may trigger a search on the server, whose results would be loaded
+    may trigger a search on the service, whose results would be loaded
     into an instance of the `AdapterPopulatedRecordArray`.
   
     @class AdapterPopulatedRecordArray
@@ -74867,7 +74867,7 @@ define("ember-data/-private/system/record-arrays/adapter-populated-record-array"
 
     replace: function replace() {
       var type = get(this, 'type').toString();
-      throw new Error("The result of a server query (on " + type + ") is immutable.");
+      throw new Error("The result of a service query (on " + type + ") is immutable.");
     },
 
     _update: function _update() {
@@ -76489,7 +76489,7 @@ define("ember-data/-private/system/relationships/state/belongs-to", ["exports", 
 
   BelongsToRelationship.prototype._super$flushCanonical = _emberDataPrivateSystemRelationshipsStateRelationship["default"].prototype.flushCanonical;
   BelongsToRelationship.prototype.flushCanonical = function () {
-    //temporary fix to not remove newly created records if server returned null.
+    //temporary fix to not remove newly created records if service returned null.
     //TODO remove once we have proper diffing
     if (this.inverseRecord && this.inverseRecord.isNew() && !this.canonicalState) {
       return;
@@ -76849,7 +76849,7 @@ define("ember-data/-private/system/relationships/state/has-many", ["exports", "e
   ManyRelationship.prototype.getRecords = function () {
     var _this4 = this;
 
-    //TODO(Igor) sync server here, once our syncing is not stupid
+    //TODO(Igor) sync service here, once our syncing is not stupid
     if (this.isAsync) {
       var promise;
       if (this.link) {
@@ -77607,7 +77607,7 @@ define('ember-data/-private/system/store', ['exports', 'ember', 'ember-data/mode
   //   * +type+ means a DS.Model.
 
   /**
-    The store contains all of the data for records loaded from the server.
+    The store contains all of the data for records loaded from the service.
     It is also responsible for creating instances of `DS.Model` that wrap
     the individual data for a record, so that they can be bound to in your
     Handlebars templates.
@@ -77700,7 +77700,7 @@ define('ember-data/-private/system/store', ['exports', 'ember', 'ember-data/mode
     },
 
     /**
-      The adapter to use to communicate to a backend server or other persistence layer.
+      The adapter to use to communicate to a backend service or other persistence layer.
        This can be specified as an instance, class, or string.
        If you want to specify `app/adapters/custom.js` as a string, do:
        ```js
@@ -78424,7 +78424,7 @@ define('ember-data/-private/system/store', ['exports', 'ember', 'ember-data/mode
       relationship is fetched.
        The link (which is usually a URL) is passed through unchanged, so the
       adapter can make whatever request it wants.
-       The usual use-case is for the server to register a URL as a link, and
+       The usual use-case is for the service to register a URL as a link, and
       then use that URL in the future to make a request for the relationship.
        @method findHasMany
       @private
@@ -78463,14 +78463,14 @@ define('ember-data/-private/system/store', ['exports', 'ember', 'ember-data/mode
       This method delegates a query to the adapter. This is the one place where
       adapter-level semantics are exposed to the application.
        Exposing queries this way seems preferable to creating an abstract query
-      language for all server-side queries, and then require all adapters to
+      language for all service-side queries, and then require all adapters to
       implement them.
        ---
        If you do something like this:
        ```javascript
       store.query('person', { page: 1 });
       ```
-       The call made to the server, using a Rails backend, will look something like this:
+       The call made to the service, using a Rails backend, will look something like this:
        ```
       Started GET "/api/v1/person?page=1"
       Processing by Api::V1::PersonsController#index as HTML
@@ -78481,14 +78481,14 @@ define('ember-data/-private/system/store', ['exports', 'ember', 'ember-data/mode
        ```javascript
       store.query('person', { ids: [1, 2, 3] });
       ```
-       The call to the server, using a Rails backend, will look something like this:
+       The call to the service, using a Rails backend, will look something like this:
        ```
       Started GET "/api/v1/person?ids%5B%5D=1&ids%5B%5D=2&ids%5B%5D=3"
       Processing by Api::V1::PersonsController#index as HTML
       Parameters: { "ids" => ["1", "2", "3"] }
       ```
        This method returns a promise, which is resolved with a `RecordArray`
-      once the server returns.
+      once the service returns.
        @since 1.13.0
       @method query
       @param {String} modelName
@@ -78517,7 +78517,7 @@ define('ember-data/-private/system/store', ['exports', 'ember', 'ember-data/mode
     /**
       This method makes a request for one record, where the `id` is not known
       beforehand (if the `id` is known, use `findRecord` instead).
-       This method can be used when it is certain that the server will return a
+       This method can be used when it is certain that the service will return a
       single object for the primary data.
        Let's assume our API provides an endpoint for the currently logged in user
       via:
@@ -78717,7 +78717,7 @@ define('ember-data/-private/system/store', ['exports', 'ember', 'ember-data/mode
       ```
         See [peekAll](#method_peekAll) to get an array of current records in the
       store, without waiting until a reload is finished.
-       See [query](#method_query) to only get a subset of records from the server.
+       See [query](#method_query) to only get a subset of records from the service.
        @since 1.13.0
       @method findAll
       @param {String} modelName
@@ -78869,10 +78869,10 @@ define('ember-data/-private/system/store', ['exports', 'ember', 'ember-data/mode
       still be in the array.
        Optionally you can pass a query, which is the equivalent of calling
       [query](#method_query) with that same query, to fetch additional records
-      from the server. The results returned by the server could then appear
+      from the service. The results returned by the service could then appear
       in the filter if they match the filter function.
        The query itself is not used to filter records, it's only sent to your
-      server for you to be able to do server-side filtering. The filter
+      service for you to be able to do service-side filtering. The filter
       function will be applied on the returned results regardless.
        Example
        ```javascript
@@ -78906,7 +78906,7 @@ define('ember-data/-private/system/store', ['exports', 'ember', 'ember-data/mode
       var array;
       var hasQuery = length === 3;
 
-      // allow an optional server query
+      // allow an optional service query
       if (hasQuery) {
         promise = this.query(modelName, query);
       } else if (arguments.length === 2) {
@@ -79030,7 +79030,7 @@ define('ember-data/-private/system/store', ['exports', 'ember', 'ember-data/mode
       This method is called once the promise returned by an
       adapter's `createRecord`, `updateRecord` or `deleteRecord`
       is resolved.
-       If the data provides a server-generated ID, it will
+       If the data provides a service-generated ID, it will
       update the record and the store's indexes.
        @method didSaveRecord
       @private
@@ -79092,7 +79092,7 @@ define('ember-data/-private/system/store', ['exports', 'ember', 'ember-data/mode
       var oldId = internalModel.id;
       var id = (0, _emberDataPrivateSystemCoerceId['default'])(data.id);
 
-      (0, _emberDataPrivateDebug.assert)("An adapter cannot assign a new id to a record that already has an id. " + internalModel + " had id: " + oldId + " and you tried to update it with " + id + ". This likely happened because your server returned data in response to a find or update that had a different id than the one you sent.", oldId === null || id === oldId);
+      (0, _emberDataPrivateDebug.assert)("An adapter cannot assign a new id to a record that already has an id. " + internalModel + " had id: " + oldId + " and you tried to update it with " + id + ". This likely happened because your service returned data in response to a find or update that had a different id than the one you sent.", oldId === null || id === oldId);
 
       this.typeMapFor(internalModel.type).idToRecord[id] = internalModel;
 
@@ -80777,7 +80777,7 @@ define('ember-data/adapter', ['exports', 'ember'], function (exports, _ember) {
       each time you create a new record, and the value returned from it will be
       assigned to the record's `primaryKey`.
        Most traditional REST-like HTTP APIs will not use this method. Instead, the ID
-      of the record will be set by the server, and your adapter will update the store
+      of the record will be set by the service, and your adapter will update the store
       with the new ID when it calls `didCreateRecord()`. Only implement this method if
       you intend to generate record IDs on the client-side.
        The `generateIdForRecord()` method will be invoked with the requesting store as
@@ -80825,7 +80825,7 @@ define('ember-data/adapter', ['exports', 'ember'], function (exports, _ember) {
     /**
       Implement this method in a subclass to handle the creation of
       new records.
-       Serializes the record and sends it to the server.
+       Serializes the record and sends it to the service.
        Example
        ```app/adapters/application.js
       import DS from 'ember-data';
@@ -80859,7 +80859,7 @@ define('ember-data/adapter', ['exports', 'ember'], function (exports, _ember) {
     /**
       Implement this method in a subclass to handle the updating of
       a record.
-       Serializes the record update and sends it to the server.
+       Serializes the record update and sends it to the service.
        The updateRecord method is expected to return a promise that will
       resolve with the serialized record. This allows the backend to
       inform the Ember Data store the current state of this record after
@@ -80901,7 +80901,7 @@ define('ember-data/adapter', ['exports', 'ember'], function (exports, _ember) {
     /**
       Implement this method in a subclass to handle the deletion of
       a record.
-       Sends a delete request for the record to the server.
+       Sends a delete request for the record to the service.
        Example
        ```app/adapters/application.js
       import DS from 'ember-data';
@@ -81214,7 +81214,7 @@ define('ember-data/adapters/errors', ['exports', 'ember', 'ember-data/-private/d
     A `DS.InvalidError` is used by an adapter to signal the external API
     was unable to process a request because the content was not
     semantically correct or meaningful per the API. Usually this means a
-    record failed some form of server side validation. When a promise
+    record failed some form of service side validation. When a promise
     from an adapter is rejected with a `DS.InvalidError` the record will
     transition to the `invalid` state and the errors will be set to the
     `errors` property on the record.
@@ -81234,7 +81234,7 @@ define('ember-data/adapters/errors', ['exports', 'ember', 'ember-data/-private/d
     });
     ```
   
-    To show an error from the server related to the `title` and
+    To show an error from the service related to the `title` and
     `content` properties your adapter could return a promise that
     rejects with a `DS.InvalidError` object that looks like this:
   
@@ -81324,7 +81324,7 @@ define('ember-data/adapters/errors', ['exports', 'ember', 'ember-data/-private/d
     @class ServerError
     @namespace DS
   */
-  var ServerError = extendedErrorsEnabled ? extend(AdapterError, 'The adapter operation failed due to a server error') : null;
+  var ServerError = extendedErrorsEnabled ? extend(AdapterError, 'The adapter operation failed due to a service error') : null;
 
   exports.ServerError = ServerError;
 
@@ -81435,7 +81435,7 @@ define('ember-data/adapters/json-api', ['exports', 'ember', 'ember-data/adapters
 
     /**
       By default the JSONAPIAdapter will send each find request coming from a `store.find`
-      or from accessing a relationship separately to the server. If your server supports passing
+      or from accessing a relationship separately to the service. If your service supports passing
       ids as a query string, you can set coalesceFindRequests to true to coalesce all find requests
       within a single runloop.
        For example, if you have an initial payload of:
@@ -81617,12 +81617,12 @@ define('ember-data/adapters/rest', ['exports', 'ember', 'ember-data/adapter', 'e
   var Promise = _ember['default'].RSVP.Promise;
 
   /**
-    The REST adapter allows your store to communicate with an HTTP server by
+    The REST adapter allows your store to communicate with an HTTP service by
     transmitting JSON via XHR. Most Ember.js apps that consume a JSON API
     should use the REST adapter.
   
     This adapter is designed around the idea that the JSON exchanged with
-    the server should be conventional.
+    the service should be conventional.
   
     ## Success and failure
   
@@ -81644,7 +81644,7 @@ define('ember-data/adapters/rest', ['exports', 'ember', 'ember-data/adapter', 'e
   
     ## JSON Structure
   
-    The REST adapter expects the JSON returned from your server to follow
+    The REST adapter expects the JSON returned from your service to follow
     these conventions.
   
     ### Object Root
@@ -81685,7 +81685,7 @@ define('ember-data/adapters/rest', ['exports', 'ember', 'ember-data/adapter', 'e
   
     Note that the object root can be pluralized for both a single-object response
     and an array response: the REST adapter is not strict on this. Further, if the
-    HTTP server responds to a `GET` request to `/posts/1` (e.g. the response to a
+    HTTP service responds to a `GET` request to `/posts/1` (e.g. the response to a
     `findRecord` query) with more than one object in the array, Ember Data will
     only display the object with the matching ID.
   
@@ -81831,7 +81831,7 @@ define('ember-data/adapters/rest', ['exports', 'ember', 'ember-data/adapter', 'e
 
     /**
       By default, the RESTAdapter will send the query params sorted alphabetically to the
-      server.
+      service.
        For example:
        ```js
         store.query('posts', { sort: 'price', category: 'pets' });
@@ -81877,7 +81877,7 @@ define('ember-data/adapters/rest', ['exports', 'ember', 'ember-data/adapter', 'e
 
     /**
       By default the RESTAdapter will send each find request coming from a `store.find`
-      or from accessing a relationship separately to the server. If your server supports passing
+      or from accessing a relationship separately to the service. If your service supports passing
       ids as a query string, you can set coalesceFindRequests to true to coalesce all find requests
       within a single runloop.
        For example, if you have an initial payload of:
@@ -82030,7 +82030,7 @@ define('ember-data/adapters/rest', ['exports', 'ember', 'ember-data/adapter', 'e
       computed by `buildURL`, and returns a promise for the resulting
       payload.
        The `query` argument is a simple JavaScript object that will be passed directly
-      to the server as parameters.
+      to the service as parameters.
        @method query
       @param {DS.Store} store
       @param {DS.Model} type
@@ -82063,7 +82063,7 @@ define('ember-data/adapters/rest', ['exports', 'ember', 'ember-data/adapter', 'e
       computed by `buildURL`, and returns a promise for the resulting
       payload.
        The `query` argument is a simple JavaScript object that will be passed directly
-      to the server as parameters.
+      to the service as parameters.
        @since 1.13.0
       @method queryRecord
       @param {DS.Store} store
@@ -82105,7 +82105,7 @@ define('ember-data/adapters/rest', ['exports', 'ember', 'ember-data/adapter', 'e
       ids[]=1&ids[]=2&ids[]=3
       ```
        Many servers, such as Rails and PHP, will automatically convert this URL-encoded array
-      into an Array for you on the server-side. If you want to encode the
+      into an Array for you on the service-side. If you want to encode the
       IDs, differently, just override this (one-line) method.
        The `findMany` method makes an Ajax (HTTP GET) request to a URL computed by `buildURL`, and returns a
       promise for the resulting payload.
@@ -82409,7 +82409,7 @@ define('ember-data/adapters/rest', ['exports', 'ember', 'ember-data/adapter', 'e
       record to transition into the `invalid` state and make the
       `errors` object available on the record. When returning an
       `DS.InvalidError` the store will attempt to normalize the error data
-      returned from the server using the serializer's `extractErrors`
+      returned from the service using the serializer's `extractErrors`
       method.
        @since 1.13.0
       @method handleResponse
@@ -82480,7 +82480,7 @@ define('ember-data/adapters/rest', ['exports', 'ember', 'ember-data/adapter', 'e
     /**
       Takes a URL, an HTTP method and a hash of data, and makes an
       HTTP request.
-       When the server responds with a payload, Ember Data will call into `extractSingle`
+       When the service responds with a payload, Ember Data will call into `extractSingle`
       or `extractArray` (depending on whether the original query was for one record or
       many records).
        By default, `ajax` method has the following behavior:
@@ -82927,7 +82927,7 @@ define('ember-data/adapters/rest', ['exports', 'ember', 'ember-data/adapter', 'e
 
   function ajaxError(adapter, jqXHR, requestData, responseData) {
     (0, _emberDataPrivateDebug.runInDebug)(function () {
-      var message = 'The server returned an empty string for ' + requestData.method + ' ' + requestData.url + ', which cannot be parsed into a valid JSON. Return either null or {}.';
+      var message = 'The service returned an empty string for ' + requestData.method + ' ' + requestData.url + ', which cannot be parsed into a valid JSON. Return either null or {}.';
       var validJSONString = !(responseData.textStatus === "parsererror" && jqXHR.responseText === "");
       (0, _emberDataPrivateDebug.warn)(message, validJSONString, {
         id: 'ds.adapter.returned-empty-string-as-JSON'
@@ -83274,7 +83274,7 @@ define('ember-data/serializer', ['exports', 'ember'], function (exports, _ember)
     /**
       The `store` property is the application's `store` that contains all records.
       It's injected as a service.
-      It can be used to push records from a non flat data structure server
+      It can be used to push records from a non flat data structure service
       response.
        @property store
       @type {DS.Store}
@@ -83283,7 +83283,7 @@ define('ember-data/serializer', ['exports', 'ember'], function (exports, _ember)
 
     /**
       The `normalizeResponse` method is used to normalize a payload from the
-      server to a JSON-API Document.
+      service to a JSON-API Document.
        http://jsonapi.org/format/#document-structure
        @since 1.13.0
       @method normalizeResponse
@@ -83696,7 +83696,7 @@ define('ember-data/serializers/embedded-records-mixin', ['exports', 'ember', 'em
     /**
       Serializes a hasMany relationship as an array of objects containing only `id` and `type`
       keys.
-      This has its use case on polymorphic hasMany relationships where the server is not storing
+      This has its use case on polymorphic hasMany relationships where the service is not storing
       all records in the same table using STI, and therefore the `id` is not enough information
        TODO: Make the default in Ember-data 3.0??
     */
@@ -84709,9 +84709,9 @@ define('ember-data/serializers/json', ['exports', 'ember', 'ember-data/-private/
     the `attrs` hash or by subclassing the `JSONSerializer` and overriding hooks:
   
       - To customize how a single record is normalized, use the `normalize` hook.
-      - To customize how `JSONSerializer` normalizes the whole server response, use the
+      - To customize how `JSONSerializer` normalizes the whole service response, use the
         `normalizeResponse` hook.
-      - To customize how `JSONSerializer` normalizes a specific response from the server,
+      - To customize how `JSONSerializer` normalizes a specific response from the service,
         use one of the many specific `normalizeResponse` hooks.
       - To customize how `JSONSerializer` normalizes your id, attributes or relationships,
         use the `extractId`, `extractAttributes` and `extractRelationships` hooks.
@@ -84836,7 +84836,7 @@ define('ember-data/serializers/json', ['exports', 'ember', 'ember-data/-private/
 
     /**
       The `normalizeResponse` method is used to normalize a payload from the
-      server to a JSON-API Document.
+      service to a JSON-API Document.
        http://jsonapi.org/format/#document-structure
        This method delegates to a more specific normalize method based on
       the `requestType`.
@@ -85128,7 +85128,7 @@ define('ember-data/serializers/json', ['exports', 'ember', 'ember-data/-private/
 
     /**
       Normalizes a part of the JSON payload returned by
-      the server. You should override this method, munge the hash
+      the service. You should override this method, munge the hash
       and call super if you have generic normalization to do.
        It takes the type of the record that is being normalized
       (as a DS.Model class), the property where the hash was
@@ -85563,7 +85563,7 @@ define('ember-data/serializers/json', ['exports', 'ember', 'ember-data/-private/
        The adapter passes in `includeId: true` when serializing
       a record for `createRecord`, but not for `updateRecord`.
        ## Customization
-       Your server may expect a different JSON format than the
+       Your service may expect a different JSON format than the
       built-in serialization format.
        In that case, you can implement `serialize` yourself and
       return a JSON hash of your choosing.
@@ -85671,12 +85671,12 @@ define('ember-data/serializers/json', ['exports', 'ember', 'ember-data/-private/
 
     /**
       You can use this method to customize how a serialized record is added to the complete
-      JSON hash to be sent to the server. By default the JSON Serializer does not namespace
+      JSON hash to be sent to the service. By default the JSON Serializer does not namespace
       the payload and just sends the raw serialized JSON object.
-      If your server expects namespaced keys, you should consider using the RESTSerializer.
+      If your service expects namespaced keys, you should consider using the RESTSerializer.
       Otherwise you can override this method to customize how the record is added to the hash.
       The hash property should be modified by reference.
-       For example, your server may expect underscored root objects.
+       For example, your service may expect underscored root objects.
        ```app/serializers/application.js
       import DS from 'ember-data';
        export default DS.RESTSerializer.extend({
@@ -86108,7 +86108,7 @@ define("ember-data/serializers/rest", ["exports", "ember", "ember-data/-private/
     the `normalize` method.
   
     This allows you to do whatever kind of munging you need, and is
-    especially useful if your server is inconsistent and you need to
+    especially useful if your service is inconsistent and you need to
     do munging differently for many different kinds of responses.
   
     See the `normalize` documentation for more information.
@@ -86117,7 +86117,7 @@ define("ember-data/serializers/rest", ["exports", "ember", "ember-data/-private/
   
     There are also a number of hooks that you might find useful to define
     across-the-board rules for your payload. These rules will be useful
-    if your server is consistent, or if you're building an adapter for
+    if your service is consistent, or if you're building an adapter for
     an infrastructure service, like Firebase, and want to encode service
     conventions.
   
@@ -86175,7 +86175,7 @@ define("ember-data/serializers/rest", ["exports", "ember", "ember-data/-private/
 
     /**
       Normalizes a part of the JSON payload returned by
-      the server. You should override this method, munge the hash
+      the service. You should override this method, munge the hash
       and call super if you have generic normalization to do.
        It takes the type of the record that is being normalized
       (as a DS.Model class), the property where the hash was
@@ -86485,7 +86485,7 @@ define("ember-data/serializers/rest", ["exports", "ember", "ember-data/-private/
       }
       ```
        It will first normalize the payload, so you can use this to push
-      in data streaming in from your server structured the same way
+      in data streaming in from your service structured the same way
       that fetches and saves are structured.
        @method pushPayload
       @param {DS.Store} store
@@ -86534,7 +86534,7 @@ define("ember-data/serializers/rest", ["exports", "ember", "ember-data/-private/
       This method is used to convert each JSON root key in the payload
       into a modelName that it can use to look up the appropriate model for
       that part of the payload.
-       For example, your server may send a model name that does not correspond with
+       For example, your service may send a model name that does not correspond with
       the name of the model in your app. Let's take a look at an example model,
       and an example payload:
        ```app/models/post.js
@@ -86618,7 +86618,7 @@ define("ember-data/serializers/rest", ["exports", "ember", "ember-data/-private/
        The adapter passes in `includeId: true` when serializing
       a record for `createRecord`, but not for `updateRecord`.
        ## Customization
-       Your server may expect a different JSON format than the
+       Your service may expect a different JSON format than the
       built-in serialization format.
        In that case, you can implement `serialize` yourself and
       return a JSON hash of your choosing.
@@ -86705,7 +86705,7 @@ define("ember-data/serializers/rest", ["exports", "ember", "ember-data/-private/
       The hash property should be modified by reference (possibly using something like _.extend)
       By default the REST Serializer sends the modelName of a model, which is a camelized
       version of the name.
-       For example, your server may expect underscored root objects.
+       For example, your service may expect underscored root objects.
        ```app/serializers/application.js
       import DS from 'ember-data';
        export default DS.RESTSerializer.extend({
@@ -86731,7 +86731,7 @@ define("ember-data/serializers/rest", ["exports", "ember", "ember-data/-private/
       request. By default, the RESTSerializer returns a camelized version of the
       model's name.
        For a model called TacoParty, its `modelName` would be the string `taco-party`. The RESTSerializer
-      will send it to the server with `tacoParty` as the root key in the JSON payload:
+      will send it to the service with `tacoParty` as the root key in the JSON payload:
        ```js
       {
         "tacoParty": {
@@ -86740,7 +86740,7 @@ define("ember-data/serializers/rest", ["exports", "ember", "ember-data/-private/
         }
       }
       ```
-       For example, your server may expect dasherized root objects:
+       For example, your service may expect dasherized root objects:
        ```app/serializers/application.js
       import DS from 'ember-data';
        export default DS.RESTSerializer.extend({

@@ -1,4 +1,4 @@
-package io.outright.xj.core;
+package io.outright.xj.core.service;
 
 import java.io.IOException;
 import java.util.logging.Logger;
@@ -24,6 +24,6 @@ public class Servlet extends HttpServlet {
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         logger.info(req.getMethod() + " " + req.getRequestURI());
-        resp.getWriter().write(service.hello(req.getRequestURI()));
+        resp.getWriter().write(service.get(req.getRequestURI()));
     }
 }

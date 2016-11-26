@@ -1,5 +1,5 @@
 package io.outright.xj.core.service;
 
 public interface Service {
-    String hello(String name);
+    String get(String name);
 }

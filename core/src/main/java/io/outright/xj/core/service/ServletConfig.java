@@ -1,11 +1,9 @@
-package io.outright.xj.core;
+package io.outright.xj.core.service;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.servlet.GuiceServletContextListener;
 import com.google.inject.servlet.ServletModule;
-import io.outright.xj.core.service.Service;
-import io.outright.xj.core.service.HelloService;
 
 /**
  * taken from https://github.com/google/guice/wiki/ServletModule
@@ -17,7 +15,7 @@ public class ServletConfig extends GuiceServletContextListener {
             @Override
             protected void configureServlets() {
                 serve("/api/*").with(Servlet.class);
-                bind(Service.class).to(HelloService.class);
+                bind(Service.class).to(ServiceImpl.class);
             }
         });
     }

@@ -18,19 +18,15 @@ SECTION_DONE_OK    := "░░ OK\\n"
 
 .setup:
 	@cmd/setup
-	@echo ""
 
 .build:
 	@cmd/build
-	@echo ""
 
 .clean:
 	@cmd/clean
-	@echo ""
 
 .distclean:
 	@cmd/clean -d
-	@echo ""
 
 #
 # commands

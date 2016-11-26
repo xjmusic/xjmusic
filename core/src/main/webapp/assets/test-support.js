@@ -2333,7 +2333,7 @@ function verifyLoggingCallbacks() {
 	};
 }() );
 
-// Figure out if we're running the tests from a server or not
+// Figure out if we're running the tests from a service or not
 QUnit.isLocal = !( defined.document && window.location.protocol !== "file:" );
 
 // Expose the current QUnit version

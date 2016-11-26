@@ -3,7 +3,7 @@ package io.outright.xj.core.service
 import org.junit.Test
 
 // Copyright (c) 2016, Outright Mental Inc. (http://outright.io) All Rights Reserved.
-class HelloServiceTest extends GroovyTestCase {
+class ServiceImplTest extends GroovyTestCase {
     void setUp() {
         super.setUp()
 
@@ -15,6 +15,6 @@ class HelloServiceTest extends GroovyTestCase {
 
     @Test
     void testHello() {
-        assert new HelloService().hello("nuBBub 15%").toString() == "Hello, Nubbub15!";
+        assert new ServiceImpl().get("nuBBub 15%").toString() == "Hello, Nubbub15!";
     }
 }
