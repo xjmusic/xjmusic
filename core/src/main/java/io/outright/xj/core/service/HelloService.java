@@ -1,6 +1,6 @@
-package io.outright.moshimosh.service;
+package io.outright.xj.core.service;
 
-import io.outright.moshimosh.util.Purify;
+import io.outright.xj.core.util.Purify;
 
 public class HelloService implements Service {
 

@@ -1,4 +1,4 @@
-package io.outright.moshimosh.service;
+package io.outright.xj.core.service;
 
 public interface Service {
     String hello(String name);

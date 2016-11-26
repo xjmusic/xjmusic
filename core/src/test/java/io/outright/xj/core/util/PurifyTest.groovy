@@ -1,4 +1,4 @@
-package io.outright.moshimosh.util
+package io.outright.xj.core.util
 
 import org.junit.Test
 

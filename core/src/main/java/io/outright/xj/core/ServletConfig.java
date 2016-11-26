@@ -1,11 +1,11 @@
-package io.outright.moshimosh;
+package io.outright.xj.core;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.servlet.GuiceServletContextListener;
 import com.google.inject.servlet.ServletModule;
-import io.outright.moshimosh.service.Service;
-import io.outright.moshimosh.service.HelloService;
+import io.outright.xj.core.service.Service;
+import io.outright.xj.core.service.HelloService;
 
 /**
  * taken from https://github.com/google/guice/wiki/ServletModule

@@ -1,4 +1,4 @@
-package io.outright.moshimosh;
+package io.outright.xj.core;
 
 import java.io.IOException;
 import java.util.logging.Logger;
@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.google.inject.Inject;
 
-import io.outright.moshimosh.service.Service;
+import io.outright.xj.core.service.Service;
 
 @javax.inject.Singleton
 public class Servlet extends HttpServlet {

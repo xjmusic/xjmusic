@@ -1,5 +1,5 @@
 // Copyright (c) 2016, Outright Mental Inc. (http://outright.io) All Rights Reserved.
-package io.outright.moshimosh.util;
+package io.outright.xj.core.util;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
