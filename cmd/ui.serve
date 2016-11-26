@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+# base path
+BASEPATH="$(pwd)"
+
+ember serve --proxy http://127.0.0.1:8080
