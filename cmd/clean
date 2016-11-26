@@ -78,6 +78,8 @@ if [ "${OPTION_DISTRIBUTION}" == "YES" ]; then
   printf "${SECTION}  everything but the distribution\n"
   destroy ui/node_modules
   destroy ui_bower_components
+  clean_all_named *.iml
+  clean_all_named .idea
 fi
 
 # do some cleanup anyway

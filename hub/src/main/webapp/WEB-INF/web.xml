@@ -6,7 +6,7 @@
     <!-- taken Slug https://github.com/google/guice/wiki/Servlets -->
 
     <listener>
-        <listener-class>io.outright.xj.engine.service.ServletConfig</listener-class>
+        <listener-class>io.outright.xj.hub.service.ServletConfig</listener-class>
     </listener>
 
     <filter>

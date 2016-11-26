@@ -2,13 +2,22 @@
 
 Continuous Music Platform
 
-## core
-
-The main Java application. When built and deployed as .war, this includes all artifacts from ui.
-
 ## ui
 
-Ember Javascript web app for user interface.
+User interface web application. Built with Javascript, Ember, Bower, Node.
+
+Connects to:
+
+  * hub
+
+## hub
+
+Central structured data and business logic. Built with Java, Guice, Tomcat, Maven.
+
+Connects to:
+
+  * MySQL
+  * Messaging
 
 ## cmd
 
