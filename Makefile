@@ -18,31 +18,31 @@ SECTION_DONE_OK    := "░░ OK\\n"
 
 .setup:
 	@cmd/setup
+	@echo ""
+
+.build:
+	@cmd/build
+	@echo ""
 
 .clean:
 	@cmd/clean
+	@echo ""
 
 .distclean:
 	@cmd/clean -d
+	@echo ""
 
 #
 # commands
 
-.PHONY: clean distclean core ui
+.PHONY: clean distclean
+
+all: .setup .build
 
 setup: .setup
-	@echo ""
 
-core:
-	@cmd/build_core
-	@echo ""
-
-ui:
-	@cmd/build_ui
-	@echo ""
+build: .build
 
 clean: .clean
-	@echo ""
 
 distclean: .distclean
-	@echo ""

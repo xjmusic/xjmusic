@@ -63,10 +63,9 @@ function destroy() {
 }
 
 
-# python clean-up
-function clean_all_python() {
-  printf "${SECTION}  python artifacts\n"
-  execute "find ${1} -name \"*.pyc\" -exec rm -fr \"{}\" \;"
+# generic clean-up recursively by file name
+function clean_all_named() {
+  execute "find ${BASEPATH} -name \"${1}\" -exec rm -fr \"{}\" \;"
 }
 
 
@@ -81,10 +80,11 @@ if [ "${OPTION_DISTRIBUTION}" == "YES" ]; then
   destroy ui_bower_components
 fi
 
-
 # do some cleanup anyway
-clean_all_python ${BASEPATH}
-
+destroy ui/dist
+destroy ui/tmp
+destroy core/target
+clean_all_named *.pyc
 
 # Done
 cd ${BASEPATH}

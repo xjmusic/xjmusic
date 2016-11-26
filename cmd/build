@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+# base path
+BASEPATH="$(pwd)"
+
+# cool ascii bro █▓▒░
+SECTION_IN="\\n██"
+SECTION=" ■"
+SECTION_MINI=" »"
+SECTION_DONE_OK="░░ OK\\n"
+
+# UI builds with Ember.js; copy artifacts into Core
+printf "${SECTION_IN} Building UI artifacts into Core webapp...\n"
+cd ${BASEPATH}/ui
+npm install || exit 1
+bower install || exit 1
+ember build || exit 1
+cp -fr dist/* ${BASEPATH}/core/src/main/webapp/
+printf "${SECTION_DONE_OK}\n"
+
+# Done
+cd ${BASEPATH}
