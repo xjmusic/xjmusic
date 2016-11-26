@@ -817,7 +817,7 @@ define("xj-control/templates/navbar", ["exports"], function (exports) {
             },
             "end": {
               "line": 10,
-              "column": 63
+              "column": 53
             }
           },
           "moduleName": "xj-control/templates/navbar.hbs"
@@ -828,7 +828,7 @@ define("xj-control/templates/navbar", ["exports"], function (exports) {
         hasRendered: false,
         buildFragment: function buildFragment(dom) {
           var el0 = dom.createDocumentFragment();
-          var el1 = dom.createTextNode("x.j. control");
+          var el1 = dom.createTextNode("XJ");
           dom.appendChild(el0, el1);
           return el0;
         },
@@ -1038,7 +1038,7 @@ define("xj-control/templates/navbar", ["exports"], function (exports) {
         morphs[2] = dom.createMorphAt(element1, 3, 3);
         return morphs;
       },
-      statements: [["block", "link-to", ["index"], ["class", "navbar-brand"], 0, null, ["loc", [null, [10, 10], [10, 75]]]], ["block", "link-to", ["index"], ["tagName", "li"], 1, null, ["loc", [null, [15, 14], [15, 78]]]], ["block", "link-to", ["engines"], ["tagName", "li"], 2, null, ["loc", [null, [16, 14], [16, 83]]]]],
+      statements: [["block", "link-to", ["index"], ["class", "navbar-brand"], 0, null, ["loc", [null, [10, 10], [10, 65]]]], ["block", "link-to", ["index"], ["tagName", "li"], 1, null, ["loc", [null, [15, 14], [15, 78]]]], ["block", "link-to", ["engines"], ["tagName", "li"], 2, null, ["loc", [null, [16, 14], [16, 83]]]]],
       locals: [],
       templates: [child0, child1, child2]
     };
@@ -1076,7 +1076,7 @@ catch(err) {
 /* jshint ignore:start */
 
 if (!runningTests) {
-  require("xj-control/app")["default"].create({"LOG_RESOLVER":false,"LOG_ACTIVE_GENERATION":false,"LOG_TRANSITIONS":false,"LOG_TRANSITIONS_INTERNAL":false,"LOG_VIEW_LOOKUPS":false,"name":"xj-control","version":"0.0.0+927fd593"});
+  require("xj-control/app")["default"].create({"LOG_RESOLVER":false,"LOG_ACTIVE_GENERATION":false,"LOG_TRANSITIONS":false,"LOG_TRANSITIONS_INTERNAL":false,"LOG_VIEW_LOOKUPS":false,"name":"xj-control","version":"0.0.0+4c861f85"});
 }
 
 /* jshint ignore:end */

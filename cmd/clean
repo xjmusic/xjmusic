@@ -1,0 +1,91 @@
+#!/usr/bin/env bash
+
+# base path
+BASEPATH="$(pwd)"
+
+# cool ascii bro █▓▒░
+SECTION_IN="\\n██"
+SECTION=" ■"
+SECTION_MINI="  "
+SECTION_DONE_OK="░░ OK\\n"
+
+# options flags
+FLAGS="d"
+OPTION_DISTRIBUTION="NO"
+USAGE="Usage:\t$(basename ${0}) [-d]
+\t-d\tClean everything but the original distribution.
+"
+while getopts ":${FLAGS}" opt; do
+  case ${opt} in
+    d)
+      OPTION_DISTRIBUTION="YES"
+      ;;
+    \?)
+      printf "${USAGE}" >&2
+      exit 1
+      ;;
+  esac
+  shift $((OPTIND-1))
+done
+
+
+# git check for un-committed/pushed changes
+function gitcheck() {
+  target=${1}
+  if [ ! -d ${target} ]; then
+    printf "${SECTION}  no files found \n"
+    return
+  fi
+  diffs=$(cd ${target} && git diff --name-only origin/master..HEAD)
+  if [ -n "$diffs" ]; then
+    printf "${SECTION}  git CHANGES DETECTED \n"
+    printf "${SECTION_MINI}  ${target}\n"
+    printf "\n$(cd ${target} && git status)\n"
+    exit 1
+  else
+    printf "${SECTION}  git check OK \n"
+    printf "${SECTION_MINI}  ${target}\n"
+  fi
+}
+
+
+# execute
+function execute() {
+  cmd=${1}
+  printf "${cmd}\n"
+	eval ${cmd}
+}
+
+
+# destroy folder
+function destroy() {
+  execute "rm -fr ${1}"
+}
+
+
+# python clean-up
+function clean_all_python() {
+  printf "${SECTION}  python artifacts\n"
+  execute "find ${1} -name \"*.pyc\" -exec rm -fr \"{}\" \;"
+}
+
+
+# Begin
+printf "${SECTION_IN} Cleaning...\n"
+
+
+# do the default clean vs. distribution clean
+if [ "${OPTION_DISTRIBUTION}" == "YES" ]; then
+  printf "${SECTION}  everything but the distribution\n"
+  destroy ui/node_modules
+  destroy ui_bower_components
+fi
+
+
+# do some cleanup anyway
+clean_all_python ${BASEPATH}
+
+
+# Done
+cd ${BASEPATH}
+printf "${SECTION_DONE_OK}\n"

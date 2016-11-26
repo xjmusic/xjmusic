@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+# base path
+BASEPATH="$(pwd)"
+
+# cool ascii bro █▓▒░
+SECTION_IN="\\n██"
+SECTION=" ■"
+SECTION_MINI=" »"
+SECTION_DONE_OK="░░ OK\\n"
+
+# Java
+printf "${SECTION_IN} Ensure presence of Java...\n"
+java -version || exit 1
+printf "${SECTION_DONE_OK}\n"
+
+# Done
+cd ${BASEPATH}

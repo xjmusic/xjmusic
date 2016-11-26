@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+# base path
+BASEPATH="$(pwd)"
+
+# cool ascii bro █▓▒░
+SECTION_IN="\\n██"
+SECTION=" ■"
+SECTION_MINI=" »"
+SECTION_DONE_OK="░░ OK\\n"
+
+# TODO
+echo "TODO build UI artifacts into core"
+
+# Done
+cd ${BASEPATH}

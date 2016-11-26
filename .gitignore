@@ -1,4 +1,6 @@
 target/
 
-# IntelliJ workspace changes too much
-.idea/workspace.xml
+# IDE
+.idea/
+*/.idea
+*.iml
