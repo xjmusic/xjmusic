@@ -1,6 +1,6 @@
 import Ember from 'ember';
 
-var pollIntervalMilliseconds = 1000;
+const pollIntervalMilliseconds = 1000;
 
 export default Ember.Route.extend({
 
@@ -14,7 +14,7 @@ export default Ember.Route.extend({
   },
 
   poll: function() {
-    var _this = this;
+    let _this = this;
     Ember.run.later( function() {
       // _this.reload();
       _this.refresh();
