@@ -14,7 +14,7 @@
 
 ### COMMANDS
 
-.PHONY: clean distclean
+.PHONY: setup build clean distclean
 
 setup: .setup
 
