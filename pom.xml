@@ -8,9 +8,9 @@
   <name>XJ Master Build</name>
   <modules>
     <module>core</module>
-    <module>hub</module>
+    <!--<module>hub</module>-->
     <!--<module>craft</module>-->
-    <!--<module>ship</module>-->
+    <module>ship</module>
   </modules>
 
 </project>

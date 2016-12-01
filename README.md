@@ -57,7 +57,31 @@ Connects to:
 
 Workflow tooling
 
+# App Standards
+
+## System Properties
+ 
+### host
+
+Default `localhost`
+
+### port
+
+Default `8080`
+
+## Healthcheck Endpoint
+
+**GET /o2**
+
 # References
+
+## Intro to Jersey and Grizzly2
+
+See [Java SE 8: Creating a Basic REST Web Service using Grizzly, Jersey, and Maven](http://www.oracle.com/webfolder/technetwork/tutorials/obe/java/griz_jersey_intro/Grizzly-Jersey-Intro.html)
+
+Bootstrap a Grizzly2 quickstart with:
+
+mvn archetype:generate -DarchetypeArtifactId=jersey-quickstart-grizzly2 -DarchetypeGroupId=org.glassfish.jersey.archetypes -DinteractiveMode=false -DgroupId=io.outright.xj -DartifactId=strap -Dpackage=io.outright.xj.strap -DarchetypeVersion=2.17
 
 ## Jersey
 

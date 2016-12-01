@@ -1,24 +1,20 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version="1.0"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
 
   <!-- io.outright.xj [parent] -->
-
   <parent>
     <groupId>io.outright</groupId>
     <artifactId>xj</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <relativePath>../</relativePath>
   </parent>
 
-  <!-- io.outright.xj.core -->
-
+  <!-- io.outright.xj.ship -->
   <groupId>io.outright.xj</groupId>
-  <artifactId>core</artifactId>
+  <artifactId>ship</artifactId>
   <version>1.0-SNAPSHOT</version>
-  <packaging>jar</packaging>
+  <name>ship</name>
 
   <!-- props -->
   <properties>
@@ -61,12 +57,6 @@
     </dependency>
 
     <!-- 3rd party test deps -->
-
-    <dependency>
-      <groupId>org.codehaus.groovy</groupId>
-      <artifactId>groovy-all</artifactId>
-      <version>2.4.6</version>
-    </dependency>
 
     <dependency>
       <groupId>org.glassfish.jersey.containers</groupId>
