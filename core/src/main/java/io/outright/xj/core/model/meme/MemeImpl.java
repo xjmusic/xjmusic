@@ -6,11 +6,11 @@ public class MemeImpl implements Meme {
   private int order;
 
   public MemeImpl(
-    String _name,
-    int _order
+    String name,
+    int order
   ) {
-    name = _name;
-    order = _order;
+    this.name = name;
+    this.order = order;
   }
 
   @Override

@@ -1,38 +1,43 @@
 // Copyright Outright Mental, Inc. All Rights Reserved.
 package io.outright.xj.core.model.idea;
 
+import io.outright.xj.core.primitive.density.Density;
+import io.outright.xj.core.primitive.key.Key;
+import io.outright.xj.core.primitive.name.Name;
+import io.outright.xj.core.primitive.tempo.Tempo;
+
 import io.outright.xj.core.model.credit.Credit;
 import io.outright.xj.core.model.meme.Meme;
 import io.outright.xj.core.model.phase.Phase;
 
 public class IdeaImpl implements Idea {
-  private String name;
+  private Name name;
   private Credit credit;
   private Type type;
-  private float density;
-  private String key;
-  private float tempo;
+  private Density density;
+  private Key key;
+  private Tempo tempo;
   private Meme[] memes = new Meme[0];
   private Phase[] phases = new Phase[0];
 
   public IdeaImpl(
-    String _name,
-    Credit _credit,
-    Type _type,
-    float _density,
-    String _key,
-    float _tempo
+    Name name,
+    Credit credit,
+    Type type,
+    Density density,
+    Key key,
+    Tempo tempo
   ) {
-    name = _name;
-    credit = _credit;
-    type = _type;
-    density = _density;
-    key = _key;
-    tempo = _tempo;
+    this.name = name;
+    this.credit = credit;
+    this.type = type;
+    this.density = density;
+    this.key = key;
+    this.tempo = tempo;
   }
 
   @Override
-  public String Name() {
+  public Name Name() {
     return name;
   }
 
@@ -47,17 +52,17 @@ public class IdeaImpl implements Idea {
   }
 
   @Override
-  public float Density() {
+  public Density Density() {
     return density;
   }
 
   @Override
-  public String Key() {
+  public Key Key() {
     return key;
   }
 
   @Override
-  public float Tempo() {
+  public Tempo Tempo() {
     return tempo;
   }
 

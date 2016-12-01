@@ -1,52 +1,52 @@
 // Copyright Outright Mental, Inc. All Rights Reserved.
 package io.outright.xj.core.model.event;
 
+import io.outright.xj.core.primitive.beat.Beat;
+import io.outright.xj.core.primitive.inflection.Inflection;
+import io.outright.xj.core.primitive.note.Note;
+import io.outright.xj.core.primitive.tonality.Tonality;
+import io.outright.xj.core.primitive.velocity.Velocity;
+
 public interface Event {
   /**
    * Event Velocity (ratio)
    *
-   * @return float
-   * TODO replace with Velocity (ratio) type
+   * @return Velocity
    */
-  float Velocity();
+  Velocity Velocity();
 
   /**
    * Event Tonality (ratio)
    *
-   * @return float
-   * TODO replace with Tonality (ratio) type
+   * @return Tonality
    */
-  float Tonality();
+  Tonality Tonality();
 
   /**
    * Event Tonality (ratio)
    *
-   * @return String
-   * TODO replace with Inflection (String) type
+   * @return Inflection
    */
-  String Inflection();
+  Inflection Inflection();
 
   /**
    * Event Position (beats)
    *
-   * @return float
-   * TODO replace with Position (beats) type
+   * @return Beat
    */
-  float Position();
+  Beat Position();
 
   /**
    * Event Duration (beats)
    *
-   * @return float
-   * TODO replace with Duration (beats) type
+   * @return Beat
    */
-  float Duration();
+  Beat Duration();
 
   /**
    * Event Note (music theory)
    *
-   * @return String
-   * TODO replace with Note (music theory) type
+   * @return Note
    */
-  String Note();
+  Note Note();
 }

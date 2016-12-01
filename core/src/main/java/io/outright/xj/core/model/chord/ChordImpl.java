@@ -1,22 +1,28 @@
 // Copyright Outright Mental, Inc. All Rights Reserved.
 package io.outright.xj.core.model.chord;
 
-public class ChordImpl implements Chord {
-  private String name = null;
-  private float position = 0;
+import io.outright.xj.core.primitive.beat.Beat;
+import io.outright.xj.core.primitive.name.Name;
 
-  public ChordImpl(String _name, float _position) {
-    name = _name;
-    position = _position;
+public class ChordImpl implements Chord {
+  private Name name;
+  private Beat position;
+
+  public ChordImpl(
+    Name name,
+    Beat position
+  ) {
+    this.name = name;
+    this.position = position;
   }
 
   @Override
-  public String Name() {
+  public Name Name() {
     return name;
   }
 
   @Override
-  public float Position() {
+  public Beat Position() {
     return position;
   }
 }

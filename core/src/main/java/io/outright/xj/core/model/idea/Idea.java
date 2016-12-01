@@ -4,6 +4,9 @@ package io.outright.xj.core.model.idea;
 import io.outright.xj.core.model.credit.Credit;
 import io.outright.xj.core.model.meme.Meme;
 import io.outright.xj.core.model.phase.Phase;
+import io.outright.xj.core.primitive.density.Density;
+import io.outright.xj.core.primitive.key.Key;
+import io.outright.xj.core.primitive.tempo.Tempo;
 
 public interface Idea {
   /**
@@ -30,22 +33,21 @@ public interface Idea {
   /**
    * Idea Density
    */
-  float Density();
+  Density Density();
 
   /**
    * Idea Key
    *
    * @return String
-   * TODO replace with Key (music theory) type
    */
-  String Key();
+  Key Key();
 
   /**
    * Idea Tempo
    *
    * @return float
    */
-  float Tempo();
+  Tempo Tempo();
 
   /**
    * Idea Memes (ordered)

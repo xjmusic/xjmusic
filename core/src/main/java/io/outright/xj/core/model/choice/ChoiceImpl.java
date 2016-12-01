@@ -3,26 +3,28 @@ package io.outright.xj.core.model.choice;
 
 import io.outright.xj.core.model.arrangement.Arrangement;
 import io.outright.xj.core.model.idea.Idea;
+import io.outright.xj.core.primitive.offset.Offset;
+import io.outright.xj.core.primitive.transpose.Transpose;
 
 public class ChoiceImpl implements Choice {
   private Type type;
   private Idea idea;
-  private int phaseOffset;
-  private int transpose;
+  private Offset phaseOffset;
+  private Transpose transpose;
   private Arrangement arrangement;
 
   public ChoiceImpl(
-    Type _type,
-    Idea _idea,
-    Arrangement _arrangement,
-    int _phaseOffset,
-    int _transpose
+    Type type,
+    Idea idea,
+    Arrangement arrangement,
+    Offset phaseOffset,
+    Transpose transpose
   ) {
-    type = _type;
-    idea = _idea;
-    arrangement = _arrangement;
-    phaseOffset = _phaseOffset;
-    transpose = _transpose;
+    this.type = type;
+    this.idea = idea;
+    this.arrangement = arrangement;
+    this.phaseOffset = phaseOffset;
+    this.transpose = transpose;
   }
 
   @Override
@@ -41,12 +43,12 @@ public class ChoiceImpl implements Choice {
   }
 
   @Override
-  public int PhaseOffset() {
+  public Offset PhaseOffset() {
     return phaseOffset;
   }
 
   @Override
-  public int Transpose() {
+  public Transpose Transpose() {
     return transpose;
   }
 }
