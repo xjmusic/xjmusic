@@ -18,19 +18,20 @@ public class Main {
      * @throws IOException
      */
     public static void main(String[] args) throws IOException {
+
+      // Application
       app = new ApplicationImpl(
         new String[]{"io.outright.xj.ship"}
       );
-      app.Start();
 
-      System.out.println(String.format("Jersey app started with WADL available at "
-              + app.BaseURI() + "application.wadl"));
-
+      // Shutdown Hook
       Runtime.getRuntime().addShutdownHook(new Thread(() -> {
         app.Stop();
       }));
-    }
 
+      // Start
+      app.Start();
+    }
 
 }
 

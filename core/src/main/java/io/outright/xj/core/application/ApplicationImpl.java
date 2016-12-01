@@ -5,9 +5,13 @@ import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.net.URI;
 
 public class ApplicationImpl implements Application {
+  static Logger log = LogManager.getLogger(Application.class);
 
   // Packages of JAX-RS resources and providers
   private final String[] packages;
@@ -48,12 +52,17 @@ public class ApplicationImpl implements Application {
 
     // create and start a new instance of grizzly http server
     // exposing the Jersey application at BASE_URI
+    log.info("Server starting");
     server = GrizzlyHttpServerFactory.createHttpServer(URI.create(BaseURI()), rc);
+    log.info("Server started at " + BaseURI());
+    log.info("Jersey app started with WADL available at " + BaseURI() + "application.wadl");
   }
 
   @Override
   public void Stop() {
+    log.info("Server shutting down now");
     server.shutdownNow();
+    log.info("Server gone");
   }
 
   @Override
