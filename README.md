@@ -10,11 +10,11 @@ Connects to:
 
   * xj/hub
 
-## xj/core
+## core
 
 Common models and utilities. Built with Java, Guice, Tomcat, Maven.
 
-## xj/hub
+## hub
 
 Central structured data and business logic. Built with Java, Guice, Tomcat, Maven.
 
@@ -26,9 +26,8 @@ Connects to:
 
   * SQL Database
   * Filesystem
-  * Messaging
 
-## xj/engine
+## craft
 
 Fabricates a continuous musical audio composite from source ideas and instrument-audio. Built with Java, Guice, Tomcat, Maven.
 
@@ -40,8 +39,26 @@ Connects to:
 
   * SQL Database
   * Filesystem
-  * Messaging
+
+## ship
+
+Ships finished audio data to any destination. Built with Java, Guice, Tomcat, Maven.
+
+Depends on:
+
+  * xj/core
+
+Connects to:
+
+  * SQL Database
+  * Filesystem
 
 ## cmd
 
 Workflow tooling
+
+# References
+
+## Jersey
+
+[Latest User Guide](https://jersey.java.net/documentation/latest/user-guide.html)

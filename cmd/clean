@@ -7,15 +7,19 @@
 deps
 
 # options flags
-FLAGS="d"
+FLAGS="di"
 OPTION_DISTRIBUTION="NO"
-USAGE="Usage:\t$(basename ${0}) [-d]
+USAGE="Usage:\t$(basename ${0}) [-d/i]
 \t-d\tClean everything but the original distribution.
+\t-i\tClean IntelliJ IDEA files.
 "
 while getopts ":${FLAGS}" opt; do
   case ${opt} in
     d)
       OPTION_DISTRIBUTION="YES"
+      ;;
+    i)
+      OPTION_IDEA="YES"
       ;;
     \?)
       printf "${USAGE}" >&2
@@ -70,11 +74,19 @@ function clean_all_named() {
 step "Clean\n"
 
 
-# do the default clean vs. distribution clean
+# distribution option only
 if [ "${OPTION_DISTRIBUTION}" == "YES" ]; then
   step "Clean everything but the distribution"
   destroy ui/node_modules
   destroy ui_bower_components
+fi
+
+# IDEA clean option only
+if [ "${OPTION_DISTRIBUTION}" == "YES" ]; then
+  step "Clean IntelliJ IDEA related files"
+  clean_all_named *.iml
+  clean_all_named .idea
+  destroy .idea
 fi
 
 # do some cleanup anyway

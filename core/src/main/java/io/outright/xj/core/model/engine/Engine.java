@@ -1,5 +1,5 @@
 // Copyright Outright Mental, Inc. All Rights Reserved.
-package io.outright.xj.engine;
+package io.outright.xj.core.model.engine;
 
 import io.outright.xj.core.model.chain.Chain;
 
