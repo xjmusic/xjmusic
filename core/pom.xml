@@ -162,7 +162,7 @@
             </database>
             <target>
               <packageName>io.outright.xj.core</packageName>
-              <directory>target/generated-sources/xj-core-jooq</directory>
+              <directory>target/generated-sources/db</directory>
             </target>
           </generator>
         </configuration>
