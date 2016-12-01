@@ -4,6 +4,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
+<!-- io.outright.xj [parent] -->
+
   <parent>
     <groupId>io.outright</groupId>
     <artifactId>xj</artifactId>
@@ -11,16 +13,24 @@
     <relativePath>../</relativePath>
   </parent>
 
+<!-- io.outright.xj.hub [info] -->
+
   <groupId>io.outright.xj</groupId>
   <artifactId>hub</artifactId>
   <version>1.0-SNAPSHOT</version>
   <packaging>war</packaging>
 
+<!-- properties -->
+
   <properties>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
+    <jersey.repository.core>org.glassfish.jersey.core</jersey.repository.core>
+    <jersey.repository.containers>org.glassfish.jersey.containers</jersey.repository.containers>
     <jersey.version>2.24.1</jersey.version>
   </properties>
+
+<!-- dependencies -->
 
   <dependencies>
     <dependency>
@@ -61,21 +71,21 @@
     </dependency>
 
     <dependency>
-      <groupId>com.sun.jersey</groupId>
+      <groupId>${jersey.repository.core}</groupId>
       <artifactId>jersey-server</artifactId>
       <version>${jersey.version}</version>
     </dependency>
 
     <dependency>
-      <groupId>com.sun.jersey.contribs</groupId>
-      <artifactId>jersey-guice</artifactId>
-      <version>${jersey.version}</version>
+      <groupId>com.squarespace.jersey2-guice</groupId>
+      <artifactId>jersey2-guice</artifactId>
+      <version>0.10</version>
     </dependency>
 
     <!--  Test Dependencies  -->
 
     <dependency>
-      <groupId>com.sun.jersey</groupId>
+      <groupId>${jersey.repository.core}</groupId>
       <artifactId>jersey-client</artifactId>
       <version>${jersey.version}</version>
       <scope>test</scope>
@@ -89,11 +99,25 @@
     </dependency>
 
     <dependency>
-      <groupId>com.sun.jersey</groupId>
-      <artifactId>jersey-grizzly2</artifactId>
-      <version>${jersey.version}</version>
+      <groupId>com.sun.jersey.jersey-test-framework</groupId>
+      <artifactId>jersey-test-framework-grizzly2</artifactId>
+      <version>1.19.3</version>
       <scope>test</scope>
     </dependency>
+
   </dependencies>
+
+<!-- Repositories -->
+
+  <!--<repositories>-->
+
+    <!--<repository>-->
+      <!--<id>snapshot-repository.java.net</id>-->
+      <!--<name>Java.net Snapshot Repository for Maven</name>-->
+      <!--<url>https://maven.java.net/content/repositories/snapshots/</url>-->
+      <!--<layout>default</layout>-->
+    <!--</repository>-->
+
+  <!--</repositories>-->
 
 </project>
