@@ -3,8 +3,31 @@
 # Include common functions
 . $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/common/core
 
-#
-deps
+# options flags
+FLAGS="u"
+OPTION_ONLY_UI="NO"
+USAGE="Usage:\t$(basename ${0}) [-u]
+\t-u\tUI build only.
+"
+while getopts ":${FLAGS}" opt; do
+  case ${opt} in
+    u)
+      OPTION_ONLY_UI="YES"
+      ;;
+    \?)
+      printf "${USAGE}" >&2
+      exit 1
+      ;;
+  esac
+  shift $((OPTIND-1))
+done
+
+# things to do besides building the UI
+if [ "${OPTION_ONLY_UI}" == "NO" ]; then
+  step "Clean Compile (Maven) Java Project\n"
+  mvn clean compile || exit 1
+  step_ok
+fi
 
 #
 step "Build UI\n"

@@ -1,35 +1,28 @@
-### DEFINITIONS
-
-.setup:
+default:
 	@cmd/setup
-
-.build:
 	@cmd/build
 
-.clean:
+setup:
+	@cmd/setup
+
+.PHONY: ui
+ui:
+	@cmd/build -u
+
+build:
+	@cmd/build
+
+clean:
 	@cmd/clean
 
-.distclean:
+distclean:
 	@cmd/clean -d
 
-.ideaclean:
+ideaclean:
 	@cmd/clean -i
 
-.install:
+install:
 	@cmd/install
 
-### COMMANDS
-
-.PHONY: setup build clean distclean ideaclean install
-
-setup: .setup
-
-build: .build
-
-clean: .clean
-
-distclean: .distclean
-
-ideaclean: .ideaclean
-
-install: .install
+package:
+	@cmd/package

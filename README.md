@@ -2,6 +2,13 @@
 
 Continuous Music Platform
 
+# Usage
+
+To c
+
+
+# Components
+
 ## ui
 
 User interface web application. Built with Javascript, Ember, Bower, Node.

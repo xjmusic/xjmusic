@@ -28,8 +28,7 @@
   <!-- deps -->
   <dependencies>
 
-    <!-- internal deps -->
-
+    <!-- internal -->
     <dependency>
       <groupId>io.outright.xj</groupId>
       <artifactId>core</artifactId>

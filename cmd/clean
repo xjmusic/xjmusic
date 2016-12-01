@@ -9,6 +9,7 @@ deps
 # options flags
 FLAGS="di"
 OPTION_DISTRIBUTION="NO"
+OPTION_IDEA="NO"
 USAGE="Usage:\t$(basename ${0}) [-d/i]
 \t-d\tClean everything but the original distribution.
 \t-i\tClean IntelliJ IDEA files.
@@ -94,6 +95,9 @@ destroy ui/dist
 destroy ui/tmp
 destroy core/target
 clean_all_named *.pyc
+
+# maven clean
+mvn clean
 
 #
 finished_ok

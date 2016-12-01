@@ -6,6 +6,7 @@ import io.outright.xj.core.model.meme.Meme;
 import io.outright.xj.core.model.phase.Phase;
 import io.outright.xj.core.primitive.density.Density;
 import io.outright.xj.core.primitive.key.Key;
+import io.outright.xj.core.primitive.name.Name;
 import io.outright.xj.core.primitive.tempo.Tempo;
 
 public interface Idea {
@@ -14,7 +15,7 @@ public interface Idea {
    *
    * @return String
    */
-  String Name();
+  Name Name();
 
   /**
    * Idea Credit

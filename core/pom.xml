@@ -26,47 +26,70 @@
     <maven.compiler.target>1.8</maven.compiler.target>
     <jersey.version>2.17</jersey.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <db.url>jdbc:mysql://localhost:3306/xj</db.url>
+    <db.username>root</db.username>
+    <db.driver>com.mysql.cj.jdbc.Driver</db.driver>
+    <org.jooq.version>3.8.6</org.jooq.version>
   </properties>
 
   <!-- deps -->
   <dependencies>
 
-    <!-- internal deps -->
-
+    <!-- internal -->
     <dependency>
       <groupId>io.outright.xj</groupId>
       <artifactId>core</artifactId>
       <version>1.0-SNAPSHOT</version>
     </dependency>
 
-    <!-- 3rd party deps -->
-
+    <!-- grizzly2 jersey container -->
     <dependency>
       <groupId>org.glassfish.jersey.containers</groupId>
       <artifactId>jersey-container-grizzly2-http</artifactId>
       <version>${jersey.version}</version>
     </dependency>
 
-    <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core -->
+    <!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
     <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-core</artifactId>
-      <version>2.7</version>
+      <groupId>mysql</groupId>
+      <artifactId>mysql-connector-java</artifactId>
+      <version>6.0.5</version>
     </dependency>
 
-    <!-- test deps -->
+    <!-- https://mvnrepository.com/artifact/org.jooq/jooq -->
+    <dependency>
+      <groupId>org.jooq</groupId>
+      <artifactId>jooq</artifactId>
+      <version>${org.jooq.version}</version>
+    </dependency>
 
+    <!-- test: junit -->
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.9</version>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- test: groovy -->
     <dependency>
       <groupId>org.codehaus.groovy</groupId>
       <artifactId>groovy-all</artifactId>
       <version>2.4.6</version>
     </dependency>
 
+    <!-- logging: https://mvnrepository.com/artifact/log4j/log4j -->
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.9</version>
-      <scope>test</scope>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <version>1.2.17</version>
+    </dependency>
+
+    <!-- logging: https://mvnrepository.com/artifact/org.slf4j/slf4j-api -->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>1.7.21</version>
     </dependency>
 
   </dependencies>
@@ -75,6 +98,75 @@
 
   <build>
     <plugins>
+
+      <plugin>
+        <groupId>org.flywaydb</groupId>
+        <artifactId>flyway-maven-plugin</artifactId>
+        <version>3.0</version>
+
+        <!-- Note that we're executing the Flyway
+             plugin in the "generate-sources" phase -->
+        <executions>
+          <execution>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>migrate</goal>
+            </goals>
+          </execution>
+        </executions>
+
+        <!-- Note that we need to prefix the db/migration
+             path with filesystem: to prevent Flyway
+             from looking for our migration scripts
+             only on the classpath -->
+        <configuration>
+          <driver>${db.driver}</driver>
+          <url>${db.url}</url>
+          <user>${db.username}</user>
+          <locations>
+            <location>filesystem:src/main/resources/db/migrations</location>
+          </locations>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.jooq</groupId>
+        <artifactId>jooq-codegen-maven</artifactId>
+        <version>${org.jooq.version}</version>
+
+        <!-- The jOOQ code generation plugin is also
+             executed in the generate-sources phase,
+             prior to compilation -->
+        <executions>
+          <execution>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+          </execution>
+        </executions>
+
+        <!-- This is a minimal working configuration.
+             See the manual's section about the code
+             generator for more details -->
+        <configuration>
+          <jdbc>
+            <driver>${db.driver}</driver>
+            <url>${db.url}</url>
+            <user>${db.username}</user>
+          </jdbc>
+          <generator>
+            <database>
+              <includes>.*</includes>
+              <inputSchema>xj</inputSchema>
+            </database>
+            <target>
+              <packageName>io.outright.xj.core</packageName>
+              <directory>target/generated-sources/xj-core-jooq</directory>
+            </target>
+          </generator>
+        </configuration>
+      </plugin>
 
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
@@ -98,7 +190,7 @@
           </execution>
         </executions>
         <configuration>
-          <mainClass>io.outright.xj.ship.Main</mainClass>
+          <mainClass>io.outright.xj.core.Main</mainClass>
         </configuration>
       </plugin>
 
