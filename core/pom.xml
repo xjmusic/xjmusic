@@ -28,21 +28,6 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
-  <!-- deps' deps -->
-  <dependencyManagement>
-    <dependencies>
-
-      <dependency>
-        <groupId>org.glassfish.jersey</groupId>
-        <artifactId>jersey-bom</artifactId>
-        <version>${jersey.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
-
   <!-- deps -->
   <dependencies>
 
@@ -59,6 +44,7 @@
     <dependency>
       <groupId>org.glassfish.jersey.containers</groupId>
       <artifactId>jersey-container-grizzly2-http</artifactId>
+      <version>${jersey.version}</version>
     </dependency>
 
     <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core -->
@@ -68,17 +54,12 @@
       <version>2.7</version>
     </dependency>
 
-    <!-- 3rd party test deps -->
+    <!-- test deps -->
 
     <dependency>
       <groupId>org.codehaus.groovy</groupId>
       <artifactId>groovy-all</artifactId>
       <version>2.4.6</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.glassfish.jersey.containers</groupId>
-      <artifactId>jersey-container-grizzly2-http</artifactId>
     </dependency>
 
     <dependency>

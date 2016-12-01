@@ -10,11 +10,11 @@
     <version>1.0-SNAPSHOT</version>
   </parent>
 
-  <!-- io.outright.xj.ship -->
+  <!-- io.outright.xj.hub -->
   <groupId>io.outright.xj</groupId>
-  <artifactId>ship</artifactId>
+  <artifactId>hub</artifactId>
   <version>1.0-SNAPSHOT</version>
-  <name>ship</name>
+  <name>hub</name>
 
   <!-- props -->
   <properties>
@@ -82,7 +82,7 @@
           </execution>
         </executions>
         <configuration>
-          <mainClass>io.outright.xj.ship.Main</mainClass>
+          <mainClass>io.outright.xj.hub.Main</mainClass>
         </configuration>
       </plugin>
 

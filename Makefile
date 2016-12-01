@@ -15,9 +15,12 @@
 .ideaclean:
 	@cmd/clean -i
 
+.install:
+	@cmd/install
+
 ### COMMANDS
 
-.PHONY: setup build clean distclean ideaclean
+.PHONY: setup build clean distclean ideaclean install
 
 setup: .setup
 
@@ -28,3 +31,5 @@ clean: .clean
 distclean: .distclean
 
 ideaclean: .ideaclean
+
+install: .install
