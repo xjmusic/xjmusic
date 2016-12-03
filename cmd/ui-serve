@@ -3,12 +3,16 @@
 # Include common functions
 . $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/common/core
 
+# config
+HUB_PORT=8042
+PROXY_URL="http://127.0.0.1:${HUB_PORT}"
+
 #
 deps
 
 #
 cd ui || exit 1
-ember serve --proxy http://127.0.0.1:8080
+ember serve --proxy ${PROXY_URL}
 
 #
 finished_ok

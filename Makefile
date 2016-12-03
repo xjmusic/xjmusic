@@ -1,4 +1,4 @@
 default:
 	@cmd/setup
-	@cmd/build
+	@cmd/package
 	@cmd/ui-build

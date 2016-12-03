@@ -13,14 +13,16 @@ import static org.junit.Assert.assertEquals;
 
 public class ApplicationTest {
 
-    private Application app;
+  private Application app;
     private WebTarget target;
 
     @Before
     public void setUp() throws Exception {
-        // start the server
+      // start the server
+      int testPort = 8001;
       app = new ApplicationImpl(
-        new String[0]
+        new String[0],
+        testPort
       );
       app.Start();
 

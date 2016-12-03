@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+# Include common functions
+. $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/common/core
+
+# Expected JAR files
+CORE_JAR=${PWD}/core/target/core-1.0-SNAPSHOT.jar
+HUB_JAR=${PWD}/hub/target/hub-1.0-SNAPSHOT.jar
+CLASSPATH=${HUB_JAR}:${CORE_JAR}
+MAIN=io.outright.xj.hub.Main
+
+# ensure platform is packaged
+ensure_file ${HUB_JAR} "io.outright.xj.hub is packaged"
+ensure_file ${CORE_JAR} "io.outright.xj.core is packaged"
+
+# start up a hub
+CMD="/usr/bin/java -classpath ${CLASSPATH} ${MAIN}"
+step "${CMD}"
+exec ${CMD}
+
+#
+finished_ok

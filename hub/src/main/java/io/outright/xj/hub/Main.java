@@ -14,24 +14,28 @@ public class Main {
 
     /**
      * Main method.
-     * @param args
-     * @throws IOException
+     * @param args arguments
+     * @throws IOException if execution fails
      */
     public static void main(String[] args) throws IOException {
+      int defaultPort = 8042;
 
       // Application
       app = new ApplicationImpl(
-        new String[]{"io.outright.xj.hub"}
+        new String[]{"io.outright.xj.hub"},
+        defaultPort
       );
 
       // Shutdown Hook
-      Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-        app.Stop();
-      }));
+      Runtime.getRuntime().addShutdownHook(new Thread(Main::shutdown));
 
       // Start
       app.Start();
     }
+
+  private static void shutdown() {
+    app.Stop();
+  }
 
 }
 

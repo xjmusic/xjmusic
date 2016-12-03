@@ -73,6 +73,22 @@ ensure_nslookup () {
   fi
   step_ok
 }
+ensure_file () {
+  PATH=${1}
+  TEXT=${2}
+  if [ ! -f ${PATH} ]; then
+    printf "Cannot find ${PATH}! Please ensure ${TEXT}.\n"
+    exit 1
+  fi
+}
+ensure_dir () {
+  PATH=${1}
+  TEXT=${2}
+  if [ ! -d ${PATH} ]; then
+    printf "Cannot find ${PATH}! Please ensure ${TEXT}.\n"
+    exit 1
+  fi
+}
 
 # git check for un-committed/pushed changes
 function gitcheck() {

@@ -2,7 +2,9 @@
 
 Continuous Music Platform
 
-# Usage
+## Usage
+
+### Setup
 
 Setup workflow, and build Java server-side application and build Web user interface:
  
@@ -11,6 +13,8 @@ Setup workflow, and build Java server-side application and build Web user interf
 Setup workflow:
  
     cmd/setup
+
+### Compile server-side platform
 
 Compile the Java server-side application:
 
@@ -23,18 +27,38 @@ Compile & Install the Java server-side application:
 Compile & Package the Java server-side application, e.g. as JAR files:
 
     cmd/package
+
+### Database migration
     
-Compile & Package the Java server-side application, e.g. as JAR files:
-
-    cmd/package
-
-Migration on local database (also run before compile tasks):
+Migrate the local database (also run before compile tasks):
     
     cmd/migrate
+
+### Web user interface (UI)    
     
 Build the Web user interface:
  
     cmd/ui-build
+    
+Build and serve (with live updates) the Web user interface:
+ 
+    cmd/ui-serve
+
+### Run local platform
+
+Run a local **Hub** on its default port 8042:
+ 
+    cmd/hub    
+
+Run a local **Craft** on its default port 8043:
+ 
+    cmd/craft    
+
+Run a local **Ship** on its default port 8044:
+ 
+    cmd/ship    
+
+### Cleanup    
     
 Clean all build targets:
 
@@ -139,13 +163,21 @@ Default `localhost`
 
 ### port
 
-Default `8080`
+Default:
+
+  * hub: 8042
+  * craft: 8043
+  * ship: 8044
 
 ## Healthcheck Endpoint
 
 **GET /o2**
 
 # References
+
+## Intro to Google OAuth2
+
+https://developers.google.com/+/web/samples/java
 
 ## Intro to Jersey and Grizzly2
 

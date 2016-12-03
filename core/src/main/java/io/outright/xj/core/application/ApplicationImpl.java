@@ -11,7 +11,7 @@ import org.apache.log4j.Logger;
 import java.net.URI;
 
 public class ApplicationImpl implements Application {
-  static Logger log = LogManager.getLogger(Application.class);
+  private static Logger log = LogManager.getLogger(Application.class);
 
   // Packages of JAX-RS resources and providers
   private final String[] packages;
@@ -29,7 +29,8 @@ public class ApplicationImpl implements Application {
    * Application Constructor
    */
   public ApplicationImpl(
-    final String[] _packages
+    final String[] _packages,
+    int defaultPort
   ) {
     // Use specified packages plus default resource package
     packages = new String[_packages.length+1];
@@ -37,7 +38,7 @@ public class ApplicationImpl implements Application {
     System.arraycopy(_packages, 0, packages, 1, _packages.length);
 
     host = System.getProperty("host","localhost");
-    port = Integer.parseInt(System.getProperty("port","8080"));
+    port = Integer.parseInt(System.getProperty("port",String.valueOf(defaultPort)));
     server = null;
   }
 
