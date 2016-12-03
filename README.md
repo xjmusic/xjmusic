@@ -4,8 +4,45 @@ Continuous Music Platform
 
 # Usage
 
-To c
+## Makefile
 
+To check workflow dependencies, setup filesystem and build both the Java server-side application and Web user interface:
+ 
+    make
+    
+To build both the Java server-side application and Web user interface:
+
+    make build
+    
+To build only the Web user interface:
+ 
+    make ui
+    
+To clean all build targets:
+
+    make clean
+    
+To clean even more thoroughly "down to the distribution":
+
+    make distclean
+    
+To clean away all IntelliJ IDEA related files:
+
+    make ideaclean
+
+## Maven
+
+To clean, build and install all artifacts:
+
+    mvn clean install
+    
+To clean, build and package artifacts for shipment:
+
+    mvn clean package
+    
+To run local migrations (in the `core` submodule via the Flyway plugin):
+
+    mvn flyway:migrate
 
 # Components
 

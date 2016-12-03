@@ -5,12 +5,12 @@ default:
 setup:
 	@cmd/setup
 
+build:
+	@cmd/build
+
 .PHONY: ui
 ui:
 	@cmd/build -u
-
-build:
-	@cmd/build
 
 clean:
 	@cmd/clean
@@ -20,9 +20,3 @@ distclean:
 
 ideaclean:
 	@cmd/clean -i
-
-install:
-	@cmd/install
-
-package:
-	@cmd/package
