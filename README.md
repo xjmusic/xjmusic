@@ -4,31 +4,49 @@ Continuous Music Platform
 
 # Usage
 
-## Makefile
-
-To check workflow dependencies, setup filesystem and build both the Java server-side application and Web user interface:
+Setup workflow, and build Java server-side application and build Web user interface:
  
     make
-    
-To build both the Java server-side application and Web user interface:
 
-    make build
-    
-To build only the Web user interface:
+Setup workflow:
  
-    make ui
-    
-To clean all build targets:
+    cmd/setup
 
-    make clean
-    
-To clean even more thoroughly "down to the distribution":
+Compile the Java server-side application:
 
-    make distclean
+    cmd/build
     
-To clean away all IntelliJ IDEA related files:
+Compile & Install the Java server-side application:
 
-    make ideaclean
+    cmd/install
+    
+Compile & Package the Java server-side application, e.g. as JAR files:
+
+    cmd/package
+    
+Compile & Package the Java server-side application, e.g. as JAR files:
+
+    cmd/package
+
+Migration on local database (also run before compile tasks):
+    
+    cmd/migrate
+    
+Build the Web user interface:
+ 
+    cmd/ui-build
+    
+Clean all build targets:
+
+    cmd/clean
+    
+Clean even more thoroughly "down to the distribution":
+
+    cmd/clean-distro
+
+Clean away all IntelliJ IDEA related files:
+
+    cmd/clean-idea
 
 ## Maven
 
@@ -43,6 +61,16 @@ To clean, build and package artifacts for shipment:
 To run local migrations (in the `core` submodule via the Flyway plugin):
 
     mvn flyway:migrate
+
+## DNS
+
+For development, your local machine needs to have the domain `xj.outright.dev` pointed to `127.0.0.1` in `/etc/hosts` like:
+
+    127.0.0.1 xj.outright.dev
+
+## Google Authentication
+
+Login to the app using Google authentication. The redirect URL for local development is http://xj.outright.io/auth/google/callback
 
 # Components
 

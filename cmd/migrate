@@ -4,8 +4,9 @@
 . $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/common/core
 
 #
-step "Compile Platform\n"
-mvn clean compile || exit 1
+step "Migrate local database\n"
+cd core || exit 1
+mvn flyway:migrate || exit 1
 step_ok
 
 #

@@ -4,8 +4,8 @@
 . $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/common/core
 
 #
-step "Compile Platform\n"
-mvn clean compile || exit 1
+step "Compile & Install Platform\n"
+mvn clean install || exit 1
 step_ok
 
 #

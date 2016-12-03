@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+# Include common functions
+. $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/common/core
+
+#
+step "Clean everything but the distribution"
+destroy ui/node_modules
+destroy ui_bower_components
+finished_ok
+
+# Plus basic cleanup
+cmd/clean

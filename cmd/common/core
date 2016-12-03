@@ -1,5 +1,21 @@
 #!/usr/bin/env bash
 
+# Workflow Dependencies
+deps() {
+  ensure_version "docker version" " Docker Engine"
+  ensure_version "docker-compose version" " Docker Compose"
+  ensure_version "java -version" "Java"
+  ensure_version "mvn -version" "Maven"
+  ensure_version "node -v" "NodeJS"
+  ensure_version "npm -v" "NPM"
+  ensure_version "bower -v" "NPM"
+  ensure_version "ember -v" "EmberJS CLI"
+  # ensure_nslookup "code.outright.io" "Outright Mental VPN"
+}
+
+# Docker Compose
+DOCKER_COMPOSE="docker-compose -f container/docker-compose.yml"
+
 # base path
 BASEPATH=$(pwd)
 
@@ -36,6 +52,8 @@ indent () {
   TEXT=${1}
   printf "${TEXT}\n" | sed '/^$/d' | sed 's/^/      /g'
 }
+
+# Ensuring Workflow Dependencies
 ensure_version () {
   CMD=${1}
   TEXT=${2}
@@ -56,18 +74,39 @@ ensure_nslookup () {
   step_ok
 }
 
-# Dependencies
-deps() {
-  ensure_version "docker version" " Docker Engine"
-  ensure_version "docker-compose version" " Docker Compose"
-  ensure_version "java -version" "Java"
-  ensure_version "mvn -version" "Maven"
-  ensure_version "node -v" "NodeJS"
-  ensure_version "npm -v" "NPM"
-  ensure_version "bower -v" "NPM"
-  ensure_version "ember -v" "EmberJS CLI"
-  # ensure_nslookup "code.outright.io" "Outright Mental VPN"
+# git check for un-committed/pushed changes
+function gitcheck() {
+  target=${1}
+  if [ ! -d ${target} ]; then
+    step "no files found"
+    return
+  fi
+  diffs=$(cd ${target} && git diff --name-only origin/master..HEAD)
+  if [ -n "$diffs" ]; then
+    step "git CHANGES DETECTED"
+    step "${target}"
+    printf "\n$(cd ${target} && git status)"
+    exit 1
+  else
+    step "git check OK"
+    step "${target}"
+  fi
 }
 
-# Docker Compose
-DOCKER_COMPOSE="docker-compose -f container/docker-compose.yml"
+# execute
+function execute() {
+  cmd=${1}
+  printf "${cmd}\n"
+	eval ${cmd}
+}
+
+# destroy folder
+function destroy() {
+  execute "rm -fr ${1}"
+}
+
+# generic clean-up recursively by file name
+function clean_all_named() {
+  execute "find ${BASEPATH} -name \"${1}\" -exec rm -fr \"{}\" \;"
+}
+

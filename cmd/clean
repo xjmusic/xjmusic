@@ -4,100 +4,14 @@
 . $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/common/core
 
 #
-deps
-
-# options flags
-FLAGS="di"
-OPTION_DISTRIBUTION="NO"
-OPTION_IDEA="NO"
-USAGE="Usage:\t$(basename ${0}) [-d/i]
-\t-d\tClean everything but the original distribution.
-\t-i\tClean IntelliJ IDEA files.
-"
-while getopts ":${FLAGS}" opt; do
-  case ${opt} in
-    d)
-      OPTION_DISTRIBUTION="YES"
-      ;;
-    i)
-      OPTION_IDEA="YES"
-      ;;
-    \?)
-      printf "${USAGE}" >&2
-      exit 1
-      ;;
-  esac
-  shift $((OPTIND-1))
-done
-
-
-# git check for un-committed/pushed changes
-function gitcheck() {
-  target=${1}
-  if [ ! -d ${target} ]; then
-    step "no files found"
-    return
-  fi
-  diffs=$(cd ${target} && git diff --name-only origin/master..HEAD)
-  if [ -n "$diffs" ]; then
-    step "git CHANGES DETECTED"
-    step "${target}"
-    printf "\n$(cd ${target} && git status)"
-    exit 1
-  else
-    step "git check OK"
-    step "${target}"
-  fi
-}
-
-
-# execute
-function execute() {
-  cmd=${1}
-  printf "${cmd}\n"
-	eval ${cmd}
-}
-
-
-# destroy folder
-function destroy() {
-  execute "rm -fr ${1}"
-}
-
-
-# generic clean-up recursively by file name
-function clean_all_named() {
-  execute "find ${BASEPATH} -name \"${1}\" -exec rm -fr \"{}\" \;"
-}
-
-
-# Begin
-step "Clean\n"
-
-
-# distribution option only
-if [ "${OPTION_DISTRIBUTION}" == "YES" ]; then
-  step "Clean everything but the distribution"
-  destroy ui/node_modules
-  destroy ui_bower_components
-fi
-
-# IDEA clean option only
-if [ "${OPTION_DISTRIBUTION}" == "YES" ]; then
-  step "Clean IntelliJ IDEA related files"
-  clean_all_named *.iml
-  clean_all_named .idea
-  destroy .idea
-fi
-
-# do some cleanup anyway
+step "Basic cleanup\n"
 destroy ui/dist
 destroy ui/tmp
 destroy core/target
 clean_all_named *.pyc
-
-# maven clean
-mvn clean
+finished_ok
 
 #
+step "Maven Clean"
+mvn clean
 finished_ok

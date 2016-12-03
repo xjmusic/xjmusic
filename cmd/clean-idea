@@ -4,9 +4,8 @@
 . $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/common/core
 
 #
-step "Compile Platform\n"
-mvn clean compile || exit 1
-step_ok
-
-#
+step "Clean IntelliJ IDEA related files"
+clean_all_named *.iml
+clean_all_named .idea
+destroy .idea
 finished_ok

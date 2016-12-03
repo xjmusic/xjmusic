@@ -4,8 +4,11 @@
 . $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/common/core
 
 #
-step "Compile Platform\n"
-mvn clean compile || exit 1
+step "Build UI\n"
+cd ui || exit 1
+npm install || exit 1
+bower install || exit 1
+ember build || exit 1
 step_ok
 
 #
