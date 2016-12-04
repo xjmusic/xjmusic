@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+
+# Include common functions
+. $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/common/core
+
+# Title & Usage
+TITLE="Run App"
+USAGE="
+   Usage:
+     cmd/run <app> <arguments...>
+
+   <app> to run, as in: java io.outright.xj.<app>
+   <arguments...> (optional) passed to 'java'
+"
+
+# Must specify <app> argument
+APP=$1
+if [ "${APP}" == "" ]; then
+  printf "${RED}ERROR!${RESET} Please specify a app.\n"
+  echo "${USAGE}"
+  exit 1
+fi
+shift
+
+# App Arguments
+APP_ARGS=$@
+
+# Expected JAR files
+CORE_JAR=${PWD}/core/target/core-1.0-SNAPSHOT.jar
+APP_JAR=${PWD}/${APP}/target/${APP}-1.0-SNAPSHOT.jar
+CLASSPATH=${APP_JAR}:${CORE_JAR}
+MAIN=io.outright.xj.${APP}.Main
+
+# ensure platform is packaged
+ensure_file ${APP_JAR} "io.outright.xj.${APP} is packaged"
+ensure_file ${CORE_JAR} "io.outright.xj.core is packaged"
+
+# start up a ${APP}
+if ["$@" == ""]; then
+  CMD="
+  /usr/bin/java
+    -classpath ${CLASSPATH}
+    ${MAIN}
+  "
+else
+  CMD="
+  /usr/bin/java
+    -classpath ${CLASSPATH}
+    $@
+    ${MAIN}
+  "
+fi
+
+step "Java Execution"
+execute "${CMD}"
+
+#
+finished_ok

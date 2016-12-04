@@ -1,22 +1,4 @@
 #!/usr/bin/env bash
 
-# Include common functions
-. $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/common/core
-
-# Expected JAR files
-CORE_JAR=${PWD}/core/target/core-1.0-SNAPSHOT.jar
-SHIP_JAR=${PWD}/ship/target/ship-1.0-SNAPSHOT.jar
-CLASSPATH=${SHIP_JAR}:${CORE_JAR}
-MAIN=io.outright.xj.ship.Main
-
-# ensure platform is packaged
-ensure_file ${SHIP_JAR} "io.outright.xj.ship is packaged"
-ensure_file ${CORE_JAR} "io.outright.xj.core is packaged"
-
-# start up a ship
-CMD="/usr/bin/java -classpath ${CLASSPATH} ${MAIN}"
-step "${CMD}"
-exec ${CMD}
-
 #
-finished_ok
+cmd/run ship

@@ -89,6 +89,10 @@ ensure_dir () {
     exit 1
   fi
 }
+# color output
+RED=`tput setaf 1`
+GREEN=`tput setaf 2`
+RESET=`tput sgr0`
 
 # git check for un-committed/pushed changes
 function gitcheck() {
