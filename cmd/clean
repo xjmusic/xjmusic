@@ -8,6 +8,7 @@ step "Basic cleanup\n"
 destroy ui/dist
 destroy ui/tmp
 destroy core/target
+destroy target
 clean_all_named *.pyc
 finished_ok
 

@@ -26,28 +26,24 @@ shift
 APP_ARGS=$@
 
 # Expected JAR files
-CORE_JAR=${PWD}/core/target/core-1.0-SNAPSHOT.jar
 APP_JAR=${PWD}/${APP}/target/${APP}-1.0-SNAPSHOT.jar
-CLASSPATH=${APP_JAR}:${CORE_JAR}
+CLASSPATH=${APP_JAR}
 MAIN=io.outright.xj.${APP}.Main
 
 # ensure platform is packaged
 ensure_file ${APP_JAR} "io.outright.xj.${APP} is packaged"
-ensure_file ${CORE_JAR} "io.outright.xj.core is packaged"
 
 # start up a ${APP}
 if ["$@" == ""]; then
   CMD="
   /usr/bin/java
-    -classpath ${CLASSPATH}
-    ${MAIN}
+    -jar ${APP_JAR}
   "
 else
   CMD="
   /usr/bin/java
-    -classpath ${CLASSPATH}
     $@
-    ${MAIN}
+    -jar ${APP_JAR}
   "
 fi
 
