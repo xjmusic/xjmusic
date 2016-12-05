@@ -101,7 +101,11 @@ function gitcheck() {
     step "no files found"
     return
   fi
-  diffs=$(cd ${target} && git diff --name-only origin/master..HEAD)
+
+  BRANCH=$(git symbolic-ref -q HEAD)
+  BRANCH=${BRANCH##refs/heads/}
+  BRANCH=${BRANCH:-HEAD}
+  diffs=$(cd ${target} && git diff --name-only origin/${BRANCH}..HEAD)
   if [ -n "$diffs" ]; then
     printf "\n${RED}ERROR!${RESET} Outstanding git changes detected. Details follow:\n\n"
     cd ${target} && git status
