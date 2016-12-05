@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
 #
-cmd/run ship
+cmd/run ship $@

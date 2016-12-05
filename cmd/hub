@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
 #
-cmd/run hub
+cmd/run hub $@
