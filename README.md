@@ -60,9 +60,13 @@ Run a local **Ship** on its default port 8044:
 
 ## Release Java platform for deployment to AWS Elastic Beanstalk
 
-Release <version> (e.g. 0.5.12) as a zip file (e.g. target/xj-release-0.5.12.zip) containing the Procfile and shaded .JAR files required to run the application.
+Release as a zip file (e.g. target/xj-release-2016.12.05-UTC.00.37.07.zip) containing the Procfile and shaded .JAR files required to run the application.
 
-    cmd/release 0.5.12
+    cmd/release
+    
+To skip the build and just repeat the packaging:
+
+    cmd/release-package
 
 ## Cleanup    
     
@@ -192,6 +196,10 @@ See [Java SE 8: Creating a Basic REST Web Service using Grizzly, Jersey, and Mav
 Bootstrap a Grizzly2 quickstart with:
 
 mvn archetype:generate -DarchetypeArtifactId=jersey-quickstart-grizzly2 -DarchetypeGroupId=org.glassfish.jersey.archetypes -DinteractiveMode=false -DgroupId=io.outright.xj -DartifactId=strap -Dpackage=io.outright.xj.strap -DarchetypeVersion=2.17
+
+## AWS Elastic Beanstalk
+
+The `.ebextensions` and `.ebsettings` folder contain configurations proprietary to [AWS Elastic Beanstalk](http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/java-tomcat-platform.html#java-tomcat-proxy).
 
 ## Jersey
 

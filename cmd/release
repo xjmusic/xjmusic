@@ -3,33 +3,8 @@
 # Include common functions
 . $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/common/core
 
-# Title & Usage
-APPS="hub craft ship"
-CONFIGS=".ebsettings .ebextensions"
-STATICS="ui/dist"
-TITLE="Release Version"
-USAGE="
-   Usage:
-     cmd/release <version> <arguments...>
-
-   <version> to release, as in 0.5.12
-   <arguments...> (optional) passed to 'mvn package'
-"
-
-# Must specify <version> argument
-VERSION=$1
-if [ "${VERSION}" == "" ]; then
-  printf "${RED}ERROR!${RESET} Please specify a version.\n"
-  echo "${USAGE}"
-  exit 1
-fi
-shift
-
-# Version Arguments
-MVN_ARGS=$@
-
-# Zip file
-ZIP_FILE=${PWD}/target/xj-release-${VERSION}.zip
+# Must not have outstanding git changes
+gitcheck ${PWD}
 
 # Build Java Platform
 cmd/package
@@ -37,39 +12,5 @@ cmd/package
 # Build Static content
 cmd/ui-build
 
-#
-step "Clean target"
-rm -fr ${PWD}/target
-mkdir ${PWD}/target
-step_ok
-
-#
-step "Add Procfile to target"
-indent "$(cat Procfile)"
-zip ${ZIP_FILE} Procfile
-step_ok
-
-#
-step "Add artifacts to target"
-for APP in ${APPS}; do
-  JAR=${APP}/target/${APP}-1.0-SNAPSHOT.jar
-  indent "${JAR}"
-  zip -r ${ZIP_FILE} ${JAR}
-done
-
-#
-step "Add configurations to target"
-for DIR in ${CONFIGS}; do
-  indent "${DIR}"
-  zip -r ${ZIP_FILE} ${DIR}
-done
-
-#
-step "Add static content to target"
-for DIR in ${STATICS}; do
-  indent "${DIR}"
-  zip -r ${ZIP_FILE} ${DIR}
-done
-
-#
-finished_ok
+# Package the release
+cmd/release-package

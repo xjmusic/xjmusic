@@ -103,9 +103,8 @@ function gitcheck() {
   fi
   diffs=$(cd ${target} && git diff --name-only origin/master..HEAD)
   if [ -n "$diffs" ]; then
-    step "git CHANGES DETECTED"
-    step "${target}"
-    printf "\n$(cd ${target} && git status)"
+    printf "\n${RED}ERROR!${RESET} Un-committed git changes detected. Details follow:\n\n"
+    cd ${target} && git status
     exit 1
   else
     step "git check OK"

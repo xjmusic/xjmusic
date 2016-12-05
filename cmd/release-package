@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+
+# Include common functions
+. $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/common/core
+
+# apps, configs, static assets
+APPS="hub craft ship"
+CONFIGS=".ebsettings .ebextensions"
+STATICS="ui/dist"
+
+# Must not have outstanding git changes
+gitcheck ${PWD}
+
+#
+DATE="$(date -u +%Y.%m.%d-UTC.%H.%M.%S)"
+COMMIT="$(git rev-parse --verify HEAD)"
+VERSION="${DATE}-${COMMIT}"
+ZIP_FILE=${PWD}/target/xj-release-${VERSION}.zip
+step "Release ${VERSION}"
+indent "${ZIP_FILE}"
+step_ok
+
+#
+step "Clean target"
+rm -fr ${PWD}/target
+mkdir ${PWD}/target
+step_ok
+
+#
+step "Add Procfile to target"
+indent "$(cat Procfile)"
+zip ${ZIP_FILE} Procfile
+step_ok
+
+#
+step "Add artifacts to target"
+for APP in ${APPS}; do
+  JAR=${APP}/target/${APP}-1.0-SNAPSHOT.jar
+  indent "${JAR}"
+  zip -r ${ZIP_FILE} ${JAR}
+done
+
+#
+step "Add configurations to target"
+for DIR in ${CONFIGS}; do
+  indent "${DIR}"
+  zip -r ${ZIP_FILE} ${DIR}
+done
+
+#
+step "Add static content to target"
+for DIR in ${STATICS}; do
+  indent "${DIR}"
+  zip -r ${ZIP_FILE} ${DIR}
+done
+
+#
+step "Released ${VERSION}"
+unzip -l ${ZIP_FILE}
+step_ok
+
+#
+finished_ok
