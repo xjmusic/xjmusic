@@ -5,6 +5,8 @@
 
 # Title & Usage
 APPS="hub craft ship"
+CONFIGS=".ebsettings .ebextensions"
+STATICS="ui/dist"
 TITLE="Release Version"
 USAGE="
    Usage:
@@ -29,10 +31,11 @@ MVN_ARGS=$@
 # Zip file
 ZIP_FILE=${PWD}/target/xj-release-${VERSION}.zip
 
-#
-step "Compile & Package Platform"
-mvn clean package ${MVN_ARGS} || exit 1
-step_ok
+# Build Java Platform
+cmd/package
+
+# Build Static content
+cmd/ui-build
 
 #
 step "Clean target"
@@ -49,7 +52,23 @@ step_ok
 #
 step "Add artifacts to target"
 for APP in ${APPS}; do
-  zip -r ${ZIP_FILE} ${APP}/target/${APP}-1.0-SNAPSHOT.jar
+  JAR=${APP}/target/${APP}-1.0-SNAPSHOT.jar
+  indent "${JAR}"
+  zip -r ${ZIP_FILE} ${JAR}
+done
+
+#
+step "Add configurations to target"
+for DIR in ${CONFIGS}; do
+  indent "${DIR}"
+  zip -r ${ZIP_FILE} ${DIR}
+done
+
+#
+step "Add static content to target"
+for DIR in ${STATICS}; do
+  indent "${DIR}"
+  zip -r ${ZIP_FILE} ${DIR}
 done
 
 #

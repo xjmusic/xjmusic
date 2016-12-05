@@ -2,9 +2,9 @@
 
 Continuous Music Platform
 
-## Usage
+# Usage
 
-### Setup
+## Setup
 
 Setup workflow, and build Java server-side application and build Web user interface:
  
@@ -14,7 +14,7 @@ Setup workflow:
  
     cmd/setup
 
-### Compile server-side platform
+## Compile server-side platform
 
 Compile the Java server-side application:
 
@@ -28,13 +28,13 @@ Compile & Package the Java server-side application, e.g. as JAR files:
 
     cmd/package
 
-### Database migration
+## Database migration
     
 Migrate the local database (also run before compile tasks):
     
     cmd/migrate
 
-### Web user interface (UI)    
+## Web user interface (UI)    
     
 Build the Web user interface:
  
@@ -44,7 +44,7 @@ Build and serve (with live updates) the Web user interface:
  
     cmd/ui-serve
 
-### Run local platform
+## Run local platform
 
 Run a local **Hub** on its default port 8042:
  
@@ -58,7 +58,13 @@ Run a local **Ship** on its default port 8044:
  
     cmd/ship    
 
-### Cleanup    
+## Release Java platform for deployment to AWS Elastic Beanstalk
+
+Release <version> (e.g. 0.5.12) as a zip file (e.g. target/xj-release-0.5.12.zip) containing the Procfile and shaded .JAR files required to run the application.
+
+    cmd/release 0.5.12
+
+## Cleanup    
     
 Clean all build targets:
 
