@@ -2,7 +2,8 @@
 
 bg_java_app() {
   APP=${1}
-  java -jar /var/app/current/${APP}/target/${APP}-1.0-SNAPSHOT.jar &
+  mkdir -p /var/log/${APP}
+  java -jar /var/app/current/${APP}/target/${APP}-1.0-SNAPSHOT.jar &>/var/log/${APP}/${APP}.log &
 }
 
 #
