@@ -4,7 +4,11 @@ bg_java_app() {
   APP=${1}
   mkdir -p /var/log/${APP}
   java -jar /var/app/current/${APP}/target/${APP}-1.0-SNAPSHOT.jar &>/var/log/${APP}/${APP}.log &
+  printf "Starting java: /var/app/current/${APP}/target/${APP}-1.0-SNAPSHOT.jar >>> /var/log/${APP}/${APP}.log\n"
 }
+
+#
+printf "\n[xj:docker]\n"
 
 #
 service nginx start
@@ -15,4 +19,5 @@ bg_java_app hub
 #bg_java_app ship
 
 # Terminal
+printf "\nLogging in...\n"
 /bin/bash
