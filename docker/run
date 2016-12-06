@@ -18,11 +18,9 @@ TAG="run_${APP}"
 #
 step "docker run tag[${TAG}] name[${NAME}]"
 docker run \
-  --volume ${BASE}/hub:/home/ontic/hub \
+  --volume ${BASE}:/var/app/current \
   --expose 8042 \
-  --volume ${BASE}/craft:/home/ontic/craft \
   --expose 8043 \
-  --volume ${BASE}/ship:/home/ontic/ship \
   --expose 8044 \
   -i \
   --name ${NAME} \

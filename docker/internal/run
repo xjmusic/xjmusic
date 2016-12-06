@@ -1,15 +1,17 @@
 #!/usr/bin/env bash
 
-background_start() {
+bg_java_app() {
   APP=${1}
-  mkdir -p logs
-  java -jar ${APP}/target/${APP}-1.0-SNAPSHOT.jar &
+  java -jar /var/app/current/${APP}/target/${APP}-1.0-SNAPSHOT.jar &
 }
 
-# apps
-background_start hub
-background_start craft
-background_start ship
+#
+service nginx start
 
-# Stay up
-wait
+# apps
+bg_java_app hub
+bg_java_app craft
+bg_java_app ship
+
+# Terminal
+/bin/bash

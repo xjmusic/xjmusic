@@ -44,7 +44,23 @@ Build and serve (with live updates) the Web user interface:
  
     cmd/ui-serve
 
-## Run local platform
+## Run local platform in Docker container
+
+First build the container:
+
+    docker/build
+    
+By default, this will run an Nginx server on port 80, which proxies backend requests to its own Hub (port 8042):
+ 
+    docker/run
+    
+The script uses `--expose` and `--volume` flags at `docker run` runtime in order to have the latest build artifacts available without having to rebuild the docker container. The container runs as user `root` by default. Project folders are available inside the container as:
+
+    /var/app/current/
+
+Also, it ought to be possible to proxy UI content to a local host machine port, e.g. `ember server` running on local machine. (instead of static serving from /var/app/current/ui/dist).
+
+## Run local platform manually
 
 Run a local **Hub** on its default port 8042:
  

@@ -56,22 +56,19 @@ ENV JAVA_HOME /usr/lib/jvm/java-8-oracle
 # Tomcat 6
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install tomcat6
 
-# Linux User `ontic`
-RUN useradd -ms /bin/bash ontic
-USER ontic
-WORKDIR /home/ontic
+# Nginx
+RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install nginx
+EXPOSE 80
 
-## hub
-#VOLUME [ "hub":"/home/ontic/hub" ]
-#EXPOSE 8042
-#
-## craft
-#VOLUME [ "craft":"/home/ontic/craft" ]
-#EXPOSE 8043
-#
-## ship
-#VOLUME [ "ship":"/home/ontic/ship" ]
-#EXPOSE 8044
+# Nginx config (parity with AWS Elastic Beanstalk deployment)
+ADD \
+  docker/nginx/nginx.conf \
+  /etc/nginx/nginx.conf
+ADD \
+  .ebextensions/nginx/conf.d/elasticbeanstalk \
+  /etc/nginx/conf.d/elasticbeanstalk
 
 # App run script
-ADD docker/internal/run /home/ontic/run
+ADD \
+  docker/internal/run \
+  /data/run
