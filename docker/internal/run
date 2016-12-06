@@ -10,8 +10,8 @@ service nginx start
 
 # apps
 bg_java_app hub
-bg_java_app craft
-bg_java_app ship
+#bg_java_app craft
+#bg_java_app ship
 
 # Terminal
 /bin/bash

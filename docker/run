@@ -16,6 +16,9 @@ NAME="${APP}01"
 TAG="run_${APP}"
 
 #
+ensure_no_docker_named ${NAME}
+
+#
 step "docker run tag[${TAG}] name[${NAME}]"
 docker run \
   --volume ${BASE}:/var/app/current \
