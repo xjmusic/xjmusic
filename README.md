@@ -169,7 +169,7 @@ Workflow tooling
  
 ### host
 
-Default `localhost`
+Default `0.0.0.0`
 
 ### port
 

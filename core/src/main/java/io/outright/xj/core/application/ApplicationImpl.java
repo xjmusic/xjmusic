@@ -38,7 +38,7 @@ public class ApplicationImpl implements Application {
     packages[0] = "io.outright.xj.core.application.resource";
     System.arraycopy(_packages, 0, packages, 1, _packages.length);
 
-    host = System.getProperty("host","localhost");
+    host = System.getProperty("host","0.0.0.0");
     port = Integer.parseInt(System.getProperty("port",String.valueOf(defaultPort)));
     server = null;
   }
