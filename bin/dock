@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Include common functions
-. $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/../z/common/core
+. $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/../bin/common/core
 
 # Container Arguments
 APP=xj
@@ -17,6 +17,13 @@ TAG="run_${APP}"
 
 #
 ensure_no_docker_named ${NAME}
+
+#
+step "docker build tag[${TAG}] name[${NAME}]"
+docker build \
+    -t ${TAG} \
+    . || exit 1
+step_ok
 
 #
 step "docker run tag[${TAG}] name[${NAME}]"

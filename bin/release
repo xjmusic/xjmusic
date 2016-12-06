@@ -7,10 +7,10 @@
 gitcheck ${PWD}
 
 # Build Java Platform
-z/package
+bin/package
 
 # Build Static content
-z/ui-build
+bin/ui-build
 
 # Package the release
-z/release-package
+bin/release-package

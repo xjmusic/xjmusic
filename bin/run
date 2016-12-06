@@ -7,7 +7,7 @@
 TITLE="Run App"
 USAGE="
    Usage:
-     z/run <app> <arguments...>
+     bin/run <app> <arguments...>
 
    <app> to run, as in: java io.outright.xj.<app>
    <arguments...> (optional) passed to 'java'

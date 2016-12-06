@@ -62,7 +62,7 @@ EXPOSE 80
 
 # Nginx config (parity with AWS Elastic Beanstalk deployment)
 ADD \
-  docker/nginx/nginx.conf \
+  .docker/nginx/nginx.conf \
   /etc/nginx/nginx.conf
 ADD \
   .ebextensions/nginx/conf.d/elasticbeanstalk \
@@ -70,5 +70,5 @@ ADD \
 
 # App run script
 ADD \
-  docker/internal/run \
+  .docker/internal/run \
   /data/run
