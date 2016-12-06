@@ -123,9 +123,9 @@ function gitcheck() {
 
 # execute
 function execute() {
-  cmd=${1}
-  printf "${cmd}\n"
-	eval ${cmd}
+  z=${1}
+  printf "${z}\n"
+	eval ${z}
 }
 
 # destroy folder

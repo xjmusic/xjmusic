@@ -7,7 +7,7 @@
 TITLE="Run App"
 USAGE="
    Usage:
-     cmd/run <app> <arguments...>
+     z/run <app> <arguments...>
 
    <app> to run, as in: java io.outright.xj.<app>
    <arguments...> (optional) passed to 'java'

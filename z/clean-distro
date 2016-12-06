@@ -10,4 +10,4 @@ destroy ui_bower_components
 finished_ok
 
 # Plus basic cleanup
-cmd/clean
+z/clean

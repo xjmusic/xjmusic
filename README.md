@@ -12,39 +12,41 @@ Setup workflow, and build Java server-side application and build Web user interf
 
 Setup workflow:
  
-    cmd/setup
+    z/setup
 
 ## Compile server-side platform
 
 Compile the Java server-side application:
 
-    cmd/build
+    z/build
     
 Compile & Install the Java server-side application:
 
-    cmd/install
+    z/install
     
 Compile & Package the Java server-side application, e.g. as JAR files:
 
-    cmd/package
+    z/package
 
 ## Database migration
     
 Migrate the local database (also run before compile tasks):
     
-    cmd/migrate
+    z/migrate
 
 ## Web user interface (UI)    
     
 Build the Web user interface:
  
-    cmd/ui-build
+    z/ui-build
     
 Build and serve (with live updates) the Web user interface:
  
-    cmd/ui-serve
+    z/ui-serve
 
 ## Run local platform in Docker container
+
+Before running the docker container, be sure to `z/`
 
 First build the container:
 
@@ -64,39 +66,39 @@ Also, it ought to be possible to proxy UI content to a local host machine port, 
 
 Run a local **Hub** on its default port 8042:
  
-    cmd/hub    
+    z/hub    
 
 Run a local **Craft** on its default port 8043:
  
-    cmd/craft    
+    z/craft    
 
 Run a local **Ship** on its default port 8044:
  
-    cmd/ship    
+    z/ship    
 
 ## Release Java platform for deployment to AWS Elastic Beanstalk
 
 Release as a zip file (e.g. target/xj-release-2016.12.05-UTC.00.37.07.zip) containing the Procfile and shaded .JAR files required to run the application.
 
-    cmd/release
+    z/release
     
 To skip the build and just repeat the packaging:
 
-    cmd/release-package
+    z/release-package
 
 ## Cleanup    
     
 Clean all build targets:
 
-    cmd/clean
+    z/clean
     
 Clean even more thoroughly "down to the distribution":
 
-    cmd/clean-distro
+    z/clean-distro
 
 Clean away all IntelliJ IDEA related files:
 
-    cmd/clean-idea
+    z/clean-idea
 
 ## Maven
 
@@ -175,7 +177,7 @@ Connects to:
   * SQL Database
   * Filesystem
 
-## cmd
+## z
 
 Workflow tooling
 
