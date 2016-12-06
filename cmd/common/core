@@ -13,8 +13,16 @@ deps() {
   # ensure_nslookup "code.outright.io" "Outright Mental VPN"
 }
 
-# Docker Compose
+# Docker
 DOCKER_COMPOSE="docker-compose -f container/docker-compose.yml"
+ensure_no_docker_named() {
+    NAME=${1}
+    if [[ $(docker ps --all --format '{{.Names}}' | grep ${NAME}) ]]; then
+        step "Removing ${NAME}"
+        indent "$(docker rm -f ${NAME})"
+        step_ok
+    fi
+}
 
 # base path
 BASEPATH=$(pwd)

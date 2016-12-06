@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+background_start() {
+  APP=${1}
+  mkdir -p logs
+  java -jar ${APP}/target/${APP}-1.0-SNAPSHOT.jar &
+}
+
+# apps
+background_start hub
+background_start craft
+background_start ship
+
+# Stay up
+wait

@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+
+# Include common functions
+. $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/../cmd/common/core
+
+# Container Arguments
+APP=xj
+DOCKER_ARGS=$@
+if [ "${DOCKER_ARGS}" == "" ]; then
+  DOCKER_ARGS="./run"
+fi
+
+# assumes run from the xj folder
+BASE="${PWD}"
+NAME="${APP}01"
+TAG="run_${APP}"
+
+#
+step "docker run tag[${TAG}] name[${NAME}]"
+docker run \
+  --volume ${BASE}/hub:/home/ontic/hub \
+  --expose 8042 \
+  --volume ${BASE}/craft:/home/ontic/craft \
+  --expose 8043 \
+  --volume ${BASE}/ship:/home/ontic/ship \
+  --expose 8044 \
+  -i \
+  --name ${NAME} \
+  -t ${TAG} \
+  ${DOCKER_ARGS}
+step_ok
+
+#
+finished_ok
