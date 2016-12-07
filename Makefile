@@ -1,4 +1,4 @@
 default:
-	@.z/setup
-	@.z/package
-	@.z/ui-build
+	@bin/setup
+	@bin/package
+	@bin/ui-build

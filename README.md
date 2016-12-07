@@ -12,41 +12,41 @@ Setup workflow, and build Java server-side application and build Web user interf
 
 Setup workflow:
  
-    .z/setup
+    bin/setup
 
 ## Compile server-side platform
 
 Compile the Java server-side application:
 
-    .z/build
+    bin/build
     
 Compile & Install the Java server-side application:
 
-    .z/install
+    bin/install
     
 Compile & Package the Java server-side application, e.g. as JAR files:
 
-    .z/package
+    bin/package
 
 ## Database migration
     
 Migrate the local database (also run before compile tasks):
     
-    .z/migrate
+    bin/migrate
 
 ## Web user interface (UI)    
     
 Build the Web user interface:
  
-    .z/ui-build
+    bin/ui-build
     
 Build and serve (with live updates) the Web user interface:
  
-    .z/ui-serve
+    bin/ui-serve
 
 ## Run local platform in Docker containers
 
-Before running the docker container, be sure to `.z/package` the latest Java build artifacts.
+Before running the docker container, be sure to `bin/package` the latest Java build artifacts.
 
 This will build and run the docker container with an Nginx server on port 80, which proxies backend requests to its own Hub (port 8042):
  
@@ -66,39 +66,39 @@ Also, it ought to be possible to proxy UI content to a local host machine port, 
 
 Run a local **Hub** on its default port 8042:
  
-    .z/hub    
+    bin/hub    
 
 Run a local **Craft** on its default port 8043:
  
-    .z/craft    
+    bin/craft    
 
 Run a local **Ship** on its default port 8044:
  
-    .z/ship    
+    bin/ship    
 
 ## Release Java platform for deployment to AWS Elastic Beanstalk
 
 Release as a zip file (e.g. target/xj-release-2016.12.05-UTC.00.37.07.zip) containing the Procfile and shaded .JAR files required to run the application.
 
-    .z/release
+    bin/release
     
 To skip the build and just repeat the packaging:
 
-    .z/release-package
+    bin/release-package
 
 ## Cleanup    
     
 Clean all build targets:
 
-    .z/clean
+    bin/clean
     
 Clean even more thoroughly "down to the distribution":
 
-    .z/clean-distro
+    bin/clean-distro
 
 Clean away all IntelliJ IDEA related files:
 
-    .z/clean-idea
+    bin/clean-idea
 
 ## Maven
 
