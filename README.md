@@ -12,47 +12,51 @@ Setup workflow, and build Java server-side application and build Web user interf
 
 Setup workflow:
  
-    bin/setup
+    .z/setup
 
 ## Compile server-side platform
 
 Compile the Java server-side application:
 
-    bin/build
+    .z/build
     
 Compile & Install the Java server-side application:
 
-    bin/install
+    .z/install
     
 Compile & Package the Java server-side application, e.g. as JAR files:
 
-    bin/package
+    .z/package
 
 ## Database migration
     
 Migrate the local database (also run before compile tasks):
     
-    bin/migrate
+    .z/migrate
 
 ## Web user interface (UI)    
     
 Build the Web user interface:
  
-    bin/ui-build
+    .z/ui-build
     
 Build and serve (with live updates) the Web user interface:
  
-    bin/ui-serve
+    .z/ui-serve
 
-## Run local platform in Docker container
+## Run local platform in Docker containers
 
-Before running the docker container, be sure to `bin/package` the latest Java build artifacts.
+Before running the docker container, be sure to `.z/package` the latest Java build artifacts.
 
 This will build and run the docker container with an Nginx server on port 80, which proxies backend requests to its own Hub (port 8042):
  
-    bin/dock
+    docker-compose run xj
     
-The script uses `--expose` and `--volume` flags at `docker run` runtime in order to have the latest build artifacts available without having to rebuild the docker container. The container runs as user `root` by default. Project folders are available inside the container as:
+To start that and the resources it needs in the background:
+
+    docker-compose up -d
+    
+The configuration uses volumes such that the latest build artifacts are available without having to rebuild the docker container. The container runs as user `root` by default. Project folders are available inside the container as:
 
     /var/app/current/
 
@@ -62,39 +66,39 @@ Also, it ought to be possible to proxy UI content to a local host machine port, 
 
 Run a local **Hub** on its default port 8042:
  
-    bin/hub    
+    .z/hub    
 
 Run a local **Craft** on its default port 8043:
  
-    bin/craft    
+    .z/craft    
 
 Run a local **Ship** on its default port 8044:
  
-    bin/ship    
+    .z/ship    
 
 ## Release Java platform for deployment to AWS Elastic Beanstalk
 
 Release as a zip file (e.g. target/xj-release-2016.12.05-UTC.00.37.07.zip) containing the Procfile and shaded .JAR files required to run the application.
 
-    bin/release
+    .z/release
     
 To skip the build and just repeat the packaging:
 
-    bin/release-package
+    .z/release-package
 
 ## Cleanup    
     
 Clean all build targets:
 
-    bin/clean
+    .z/clean
     
 Clean even more thoroughly "down to the distribution":
 
-    bin/clean-distro
+    .z/clean-distro
 
 Clean away all IntelliJ IDEA related files:
 
-    bin/clean-idea
+    .z/clean-idea
 
 ## Maven
 

@@ -1,0 +1,22 @@
+# This file is sub-module of docker-compose.yml
+version: '2'
+services:
+
+  xj:
+    tty: true
+    volumes:
+      - .:/var/app/current
+
+  builder:
+    extends: xj
+    build:
+      context: .
+      dockerfile: Dockerfile.builder
+    volumes:
+      - ${HOME}/.m2/:/home/bright/.m2/
+
+  runner:
+    extends: xj
+    build:
+      context: .
+      dockerfile: Dockerfile.runner

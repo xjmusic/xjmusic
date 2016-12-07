@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
 #
-bin/run hub $@
+.z/run craft $@

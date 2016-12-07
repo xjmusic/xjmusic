@@ -2,8 +2,13 @@
 
 bg_java_app() {
   APP=${1}
+  JAR=/var/app/current/${APP}/target/${APP}-1.0-SNAPSHOT.jar
+  if [ -n ${JAR} ]; then
+    printf "\n\nCan't find ${JAR}!\nPlease package the build artifacts.\n\n"
+    exit 1
+  fi
   mkdir -p /var/log/${APP}
-  java -jar /var/app/current/${APP}/target/${APP}-1.0-SNAPSHOT.jar &>/var/log/${APP}/${APP}.log &
+  java -jar ${JAR} &>/var/log/${APP}/${APP}.log &
   printf "Starting java: /var/app/current/${APP}/target/${APP}-1.0-SNAPSHOT.jar >>> /var/log/${APP}/${APP}.log\n"
 }
 

@@ -2,6 +2,6 @@
 
 These commands are meant to be run from the parent folder, e.g.
 
-    bin/build
+    .z/build
 
 See the main README for further information.
