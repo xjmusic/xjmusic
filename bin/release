@@ -6,11 +6,11 @@
 # Must not have outstanding git changes
 gitcheck ${PWD}
 
+# Build Web Frontened
+bin/ui-build
+
 # Build Java Platform
 bin/package
-
-# Build Static content
-bin/ui-build
 
 # Package the release
 bin/release-elasticbeanstalk
