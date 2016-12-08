@@ -1,18 +1,20 @@
 // Copyright (c) 2016, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 package io.outright.xj.core.application;
 
-import org.glassfish.grizzly.http.server.HttpServer;
-import org.glassfish.grizzly.http.server.NetworkListener;
-import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
-import org.glassfish.jersey.server.ResourceConfig;
-
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
-
+import java.io.IOException;
 import java.net.URI;
 
+import io.outright.xj.core.application.logger.FileLogger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.glassfish.grizzly.http.server.HttpServer;
+import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
+import org.glassfish.jersey.filter.LoggingFilter;
+import org.glassfish.jersey.server.ResourceConfig;
+
 public class ApplicationImpl implements Application {
-  private static Logger log = LogManager.getLogger(Application.class);
+  private final static Logger log = LoggerFactory.getLogger(Application.class);
 
   // Packages of JAX-RS resources and providers
   private final String[] packages;
@@ -23,8 +25,11 @@ public class ApplicationImpl implements Application {
   // Port the Grizzly HTTP server will listen on
   private final int port;
 
+  // Path to write access.log of Grizzly HTTP server
+  private final String pathToWriteAccessLog;
+
   // Grizzly HTTP server
-  private HttpServer server;
+  private HttpServer server = null;
 
   /**
    * Application Constructor
@@ -38,9 +43,10 @@ public class ApplicationImpl implements Application {
     packages[0] = "io.outright.xj.core.application.resource";
     System.arraycopy(_packages, 0, packages, 1, _packages.length);
 
-    host = System.getProperty("host","0.0.0.0");
-    port = Integer.parseInt(System.getProperty("port",String.valueOf(defaultPort)));
-    server = null;
+    // Parse system properties
+    pathToWriteAccessLog = System.getProperty("log.access.filename","/tmp/access.log");
+    host = System.getProperty("app.host","0.0.0.0");
+    port = Integer.parseInt(System.getProperty("app.port",String.valueOf(defaultPort)));
   }
 
   /**
@@ -50,14 +56,21 @@ public class ApplicationImpl implements Application {
   public void Start() {
     // create a resource config that scans for
     // in io.outright.xj.ship package
-    final ResourceConfig rc = new ResourceConfig().packages(packages);
+    final ResourceConfig config = new ResourceConfig().packages(packages);
 
-    // create and start a new instance of grizzly http server
+    // access log
+    log.info("Writing access log to {}", pathToWriteAccessLog);
+    try {
+      config.register(new LoggingFilter(FileLogger.getLogger(Application.class, pathToWriteAccessLog), true));
+    } catch (IOException e) {
+      log.error("Failed to register access log writer", e);
+    }
+
+    // create a new instance of grizzly http server
     // exposing the Jersey application at BASE_URI
-    log.info("Server starting");
-    server = GrizzlyHttpServerFactory.createHttpServer(URI.create(BaseURI()), rc);
-    log.info("Server started at " + BaseURI());
-    log.info("Jersey app started with WADL available at " + BaseURI() + "application.wadl");
+    log.info("STARTING");
+    server = GrizzlyHttpServerFactory.createHttpServer(URI.create(BaseURI()), config);
+    log.info("UP");
   }
 
   @Override

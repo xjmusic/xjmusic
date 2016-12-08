@@ -14,6 +14,12 @@ To only setup the workflow and check dependencies:
 
     bin/setup
 
+## System properties
+
+To see all Java `System.getProperty` references in project modules:
+
+    bin/props
+
 ## Run local platform in Docker containers
 
 Before running the docker container, be sure to package the latest Java build artifacts, with `make` or `bin/package`.
@@ -207,15 +213,7 @@ Workflow tooling
 
 # App Standards
 
-## System Properties
-
-### host
-
-Default `0.0.0.0`
-
-### port
-
-Default:
+### Port
 
   * hub: 8042
   * craft: 8043

@@ -1,25 +1,38 @@
-package io.outright.xj.core.application;
+package io.outright.xj.core.application.resources;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 
-//import org.glassfish.grizzly.http.server.HttpServer;
-
+import io.outright.xj.core.application.Application;
+import io.outright.xj.core.application.ApplicationImpl;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.io.File;
+import java.io.IOException;
+
 import static org.junit.Assert.assertEquals;
 
-public class ApplicationTest {
+public class HealthcheckResourceTest {
 
   private Application app;
     private WebTarget target;
+  private File tempFile;
 
     @Before
     public void setUp() throws Exception {
+      // tempFile file for access log
+      try {
+        tempFile = File.createTempFile("access-log-", ".tmp");
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+
       // start the server
       int testPort = 8001;
+      System.setProperty("log.access.filename",tempFile.getAbsolutePath());
       app = new ApplicationImpl(
         new String[0],
         testPort
@@ -36,6 +49,7 @@ public class ApplicationTest {
       // c.configuration().enable(new org.glassfish.jersey.media.json.JsonJaxbFeature());
 
       target = c.target(app.BaseURI());
+      System.out.println("[TEST] target BaseURI: " + app.BaseURI());
     }
 
     @After
@@ -44,11 +58,11 @@ public class ApplicationTest {
     }
 
     /**
-     * Test to see that the message "Got it!" is sent in the response.
+     * Test basic Healthcheck endpoint
      */
     @Test
     public void testGetHealthcheck() {
-        String responseMsg = target.path("o2").request().get(String.class);
-        assertEquals("OK", responseMsg);
+      String responseMsg = target.path("o2").request().get(String.class);
+      assertEquals("OK", responseMsg);
     }
 }

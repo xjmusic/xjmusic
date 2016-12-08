@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+# Include common functions
+. $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/common/functions
+
+#
+APPS=$(grep -oE '<module>([a-z]*)</module>' ${PWD}/pom.xml | sed 's/<module>//g' | sed 's/<\/module>//g')
+
+#
+step "Modules:"
+indent "${APPS}"
+step_ok
+
+#
+step "System properties:"
+for APP in ${APPS}; do
+  ack-grep --heading --color -o 'System.getProperty\(\"([^\"]+)\"' ${PWD}/${APP} | sed 's/System.getProperty(//g'
+done
+step_ok
+
+#
+finished_ok

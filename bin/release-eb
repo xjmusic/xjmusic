@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Include common functions
-. $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/common/core
+. $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/common/functions
 
 ## Require AWS Elastic Beanstalk CLI
 #ensure_version "eb --version" "AWS Elastic Beanstalk CLI"
@@ -31,7 +31,7 @@ step_ok
 #
 step "Add Procfile to target"
 indent "$(cat Procfile)"
-cp Procfile ${PWD}/target/Procfile
+cp ${PWD}/.elasticbeanstalk/Procfile ${PWD}/target/Procfile
 step_ok
 
 #
@@ -63,6 +63,13 @@ step "Add static content to target"
 indent "${PWD}/target/ui/dist"
 mkdir -p ${PWD}/target/ui
 cp -r ui/dist ${PWD}/target/ui/
+step_ok
+
+#
+step "Add app bootstrap to target"
+indent "${PWD}/target/bin/bootstrap"
+mkdir -p ${PWD}/target/bin/
+cp ${PWD}/bin/common/bootstrap ${PWD}/target/bin/
 step_ok
 
 #

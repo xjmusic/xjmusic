@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Include common functions
-. $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/common/core
+. $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/common/functions
 
 # Must not have outstanding git changes
 gitcheck ${PWD}
@@ -12,5 +12,5 @@ bin/ui-build
 # Build Java Platform
 bin/package
 
-# Package the release
-bin/release-elasticbeanstalk
+# Package the release for AWS Elastic Beanstalk
+bin/release-eb

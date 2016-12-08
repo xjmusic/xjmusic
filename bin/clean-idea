@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Include common functions
-. $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/common/core
+. $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/common/functions
 
 #
 step "Clean IntelliJ IDEA related files"

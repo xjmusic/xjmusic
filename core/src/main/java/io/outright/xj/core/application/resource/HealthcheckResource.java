@@ -20,6 +20,6 @@ public class HealthcheckResource {
     @GET
     @Produces(MediaType.TEXT_PLAIN)
     public String getIt() {
-        return "OK";
+      return "OK";
     }
 }
