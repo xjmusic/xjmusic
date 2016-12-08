@@ -8,7 +8,6 @@
 
 # apps, configs, static assets
 APPS="hub craft ship"
-STATICS="ui/dist"
 
 # Must not have outstanding git changes
 gitcheck ${PWD}
@@ -61,11 +60,9 @@ step_ok
 
 #
 step "Add static content to target"
-for DIR in ${STATICS}; do
-  indent "${DIR}"
-  mkdir -p ${PWD}/target/${DIR}
-  cp -fr ${DIR} ${PWD}/target/${DIR}
-done
+indent "${PWD}/target/ui/dist"
+mkdir -p ${PWD}/target/ui
+cp -r ui/dist ${PWD}/target/ui/
 step_ok
 
 #
