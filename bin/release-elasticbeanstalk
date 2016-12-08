@@ -5,7 +5,6 @@
 
 # apps, configs, static assets
 APPS="hub craft ship"
-CONFIGS=".ebsettings .ebextensions"
 STATICS="ui/dist"
 
 # Must not have outstanding git changes
@@ -29,7 +28,7 @@ step_ok
 #
 step "Add Procfile to target"
 indent "$(cat Procfile)"
-zip ${ZIP_FILE} Procfile
+cp Procfile ${PWD}/target/Procfile
 step_ok
 
 #
@@ -37,22 +36,41 @@ step "Add artifacts to target"
 for APP in ${APPS}; do
   JAR=${APP}/target/${APP}-1.0-SNAPSHOT.jar
   indent "${JAR}"
-  zip -r ${ZIP_FILE} ${JAR}
+  cp ${JAR} ${PWD}/target/${JAR}
 done
+step_ok
 
 #
-step "Add configurations to target"
-for DIR in ${CONFIGS}; do
-  indent "${DIR}"
-  zip -r ${ZIP_FILE} ${DIR}
-done
+step "Add nginx locations for Elastic Beanstalk config to target"
+mkdir -p ${PWD}/target/.ebextensions/nginx/conf.d/elasticbeanstalk
+cp ${PWD}/.nginx/locations.conf \
+   ${PWD}/target/.ebextensions/nginx/conf.d/elasticbeanstalk/00_application.conf
+step_ok
+
+#
+step "Add Tomcat settings for Elastic Beanstalk config to target"
+mkdir -p ${PWD}/target/.ebsettings
+cp ${PWD}/.elasticbeanstalk/tomcat-settings.config \
+   ${PWD}/target/.ebsettings/tomcat-settings.config
+step_ok
 
 #
 step "Add static content to target"
 for DIR in ${STATICS}; do
   indent "${DIR}"
-  zip -r ${ZIP_FILE} ${DIR}
+  cp -r ${DIR} ${PWD}/target/${DIR}
 done
+step_ok
+
+#
+step "ZIP target"
+cd ${PWD}/target
+FILES=$(ls -a | grep -v '^\.$' | grep -v '^\.\.$')
+for FILE in ${FILES}; do
+  indent ${FILE}
+  zip -r ${ZIP_FILE} ${FILE}
+done
+step_ok
 
 #
 step "Released ${VERSION}"

@@ -13,4 +13,4 @@ bin/package
 bin/ui-build
 
 # Package the release
-bin/release-package
+bin/release-elasticbeanstalk

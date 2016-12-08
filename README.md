@@ -6,13 +6,55 @@ Continuous Music Platform
 
 ## Setup
 
-Setup workflow, and build Java server-side application and build Web user interface:
+Setup workflow, build and package Java server-side application and build Web user interface:
 
     make
 
-Setup workflow:
+To only setup the workflow and check dependencies:
 
     bin/setup
+
+## Run local platform in Docker containers
+
+Before running the docker container, be sure to package the latest Java build artifacts, with `make` or `bin/package`.
+
+Bring up the `xj01er1` docker container (with an Nginx server on port 80, which proxies backend requests to its own Hub via port 8042) and its required resource containers:
+
+    docker-compose up -d
+
+The `-d` option above runs containers as background daemons, instead of seeing all their `stdin`. Use `docker-compose` or `docker` to manage containers from there.
+
+To see running containers:
+
+    docker ps --format 
+
+To attach to a container by `<name>`:
+
+    docker attach <name>
+
+To stop all containers:
+
+    docker-compose down
+
+To remove all containers:
+
+    docker-compose rm
+
+To bring up containers with a forced build: 
+
+    docker-compose up --build
+
+To run just the `xj01er1` container, attached via tty:
+
+    docker-compose run xj
+
+The configuration uses volumes such that the latest build artifacts are available without having to rebuild the docker container. The container runs as user `root` by default. Project folders are available inside the container as:
+
+    /var/app/current/
+
+There is only one Nginx server locations configuration, shared by the local Docker configuration and the production AWS Elastic Beanstalk configuration:
+
+    /.nginx/locations.conf
 
 ## Compile server-side platform
 
@@ -43,36 +85,6 @@ Build the Web user interface:
 Build and serve (with live updates) the Web user interface:
 
     bin/ui-serve
-
-## Run local platform in Docker containers
-
-Before running the docker container, be sure to `bin/package` the latest Java build artifacts.
-
-This will bring up the `xj01er1` docker container (with an Nginx server on port 80, which proxies backend requests to its own Hub via port 8042) and its required resource containers:
-
-    docker-compose up
-
-Detach from that process with `ctrl + z` and use `docker-compose` or `docker` to manage containers from there.
-
-To stop all containers:
-
-    docker-compose down
-
-To remove all containers:
-
-    docker-compose rm
-
-To bring up containers with a forced build: 
-
-    docker-compose up --build
-
-To run just the `xj01er1` container, attached via tty:
-
-    docker-compose run xj
-
-The configuration uses volumes such that the latest build artifacts are available without having to rebuild the docker container. The container runs as user `root` by default. Project folders are available inside the container as:
-
-    /var/app/current/
 
 ## Run local platform manually
 
