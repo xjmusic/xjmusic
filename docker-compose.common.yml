@@ -3,7 +3,6 @@ version: '2'
 services:
 
   xj:
-    tty: true
     volumes:
       - .:/var/app/current
 
@@ -20,3 +19,5 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.runner
+    tty: true
+    stdin_open: true

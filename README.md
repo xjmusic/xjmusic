@@ -7,11 +7,11 @@ Continuous Music Platform
 ## Setup
 
 Setup workflow, and build Java server-side application and build Web user interface:
- 
+
     make
 
 Setup workflow:
- 
+
     bin/setup
 
 ## Compile server-side platform
@@ -19,61 +19,73 @@ Setup workflow:
 Compile the Java server-side application:
 
     bin/build
-    
+
 Compile & Install the Java server-side application:
 
     bin/install
-    
+
 Compile & Package the Java server-side application, e.g. as JAR files:
 
     bin/package
 
 ## Database migration
-    
+
 Migrate the local database (also run before compile tasks):
-    
+
     bin/migrate
 
 ## Web user interface (UI)    
-    
+
 Build the Web user interface:
- 
+
     bin/ui-build
-    
+
 Build and serve (with live updates) the Web user interface:
- 
+
     bin/ui-serve
 
 ## Run local platform in Docker containers
 
 Before running the docker container, be sure to `bin/package` the latest Java build artifacts.
 
-This will build and run the docker container with an Nginx server on port 80, which proxies backend requests to its own Hub (port 8042):
- 
-    docker-compose run xj
-    
-To start that and the resources it needs in the background:
+This will bring up the `xj01er1` docker container (with an Nginx server on port 80, which proxies backend requests to its own Hub via port 8042) and its required resource containers:
 
-    docker-compose up -d
-    
+    docker-compose up
+
+Detach from that process with `ctrl + z` and use `docker-compose` or `docker` to manage containers from there.
+
+To stop all containers:
+
+    docker-compose down
+
+To remove all containers:
+
+    docker-compose rm
+
+To bring up containers with a forced build: 
+
+    docker-compose up --build
+
+To run just the `xj01er1` container, attached via tty:
+
+    docker-compose run xj
+
 The configuration uses volumes such that the latest build artifacts are available without having to rebuild the docker container. The container runs as user `root` by default. Project folders are available inside the container as:
 
     /var/app/current/
 
-Also, it ought to be possible to proxy UI content to a local host machine port, e.g. `ember server` running on local machine. (instead of static serving from /var/app/current/ui/dist).
-
 ## Run local platform manually
 
 Run a local **Hub** on its default port 8042:
- 
+
     bin/hub    
 
 Run a local **Craft** on its default port 8043:
- 
+
     bin/craft    
 
 Run a local **Ship** on its default port 8044:
- 
+
     bin/ship    
 
 ## Release Java platform for deployment to AWS Elastic Beanstalk
@@ -81,17 +93,17 @@ Run a local **Ship** on its default port 8044:
 Release as a zip file (e.g. target/xj-release-2016.12.05-UTC.00.37.07.zip) containing the Procfile and shaded .JAR files required to run the application.
 
     bin/release
-    
+
 To skip the build and just repeat the packaging:
 
     bin/release-package
 
 ## Cleanup    
-    
+
 Clean all build targets:
 
     bin/clean
-    
+
 Clean even more thoroughly "down to the distribution":
 
     bin/clean-distro
@@ -105,11 +117,11 @@ Clean away all IntelliJ IDEA related files:
 To clean, build and install all artifacts:
 
     mvn clean install
-    
+
 To clean, build and package artifacts for shipment:
 
     mvn clean package
-    
+
 To run local migrations (in the `core` submodule via the Flyway plugin):
 
     mvn flyway:migrate
@@ -184,7 +196,7 @@ Workflow tooling
 # App Standards
 
 ## System Properties
- 
+
 ### host
 
 Default `0.0.0.0`

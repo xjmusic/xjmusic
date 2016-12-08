@@ -9,7 +9,7 @@ services:
       file: docker-compose.common.yml
       service: runner
 #    user: "1000:1000"
-    privileged: true
+#    privileged: true
     networks:
       app_net:
         ipv4_address: 172.16.238.10
