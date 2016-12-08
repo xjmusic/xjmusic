@@ -1,0 +1,14 @@
+branch-defaults:
+  master:
+    environment: Custom-env
+environment-defaults:
+  Custom-env:
+    branch: null
+    repository: null
+global:
+  application_name: xj Production
+  default_ec2_keyname: o2prd
+  default_platform: 64bit Amazon Linux 2016.09 v2.2.0 running Java 8
+  default_region: us-east-1
+  profile: eb-cli
+  sc: git

@@ -3,6 +3,9 @@
 # Include common functions
 . $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/common/core
 
+## Require AWS Elastic Beanstalk CLI
+#ensure_version "eb --version" "AWS Elastic Beanstalk CLI"
+
 # apps, configs, static assets
 APPS="hub craft ship"
 STATICS="ui/dist"
@@ -15,6 +18,7 @@ DATE="$(date -u +%Y.%m.%d-UTC.%H.%M.%S)"
 COMMIT="$(git rev-parse --verify HEAD)"
 VERSION="${DATE}-${COMMIT}"
 ZIP_FILE=${PWD}/target/xj-release-${VERSION}.zip
+#ZIP_FILE=${PWD}/target/xj-release.zip
 step "Release ${VERSION}"
 indent "${ZIP_FILE}"
 step_ok
@@ -36,6 +40,7 @@ step "Add artifacts to target"
 for APP in ${APPS}; do
   JAR=${APP}/target/${APP}-1.0-SNAPSHOT.jar
   indent "${JAR}"
+  mkdir -p ${PWD}/target/${APP}/target
   cp ${JAR} ${PWD}/target/${JAR}
 done
 step_ok
@@ -58,12 +63,13 @@ step_ok
 step "Add static content to target"
 for DIR in ${STATICS}; do
   indent "${DIR}"
-  cp -r ${DIR} ${PWD}/target/${DIR}
+  mkdir -p ${PWD}/target/${DIR}
+  cp -fr ${DIR} ${PWD}/target/${DIR}
 done
 step_ok
 
 #
-step "ZIP target"
+step "Compress target to ZIP file"
 cd ${PWD}/target
 FILES=$(ls -a | grep -v '^\.$' | grep -v '^\.\.$')
 for FILE in ${FILES}; do
@@ -73,9 +79,16 @@ done
 step_ok
 
 #
-step "Released ${VERSION}"
+step "Ready to release ZIP file"
 unzip -l ${ZIP_FILE}
 step_ok
+
+##
+#step "Deploy with Elastic Beanstalk"
+#RELEASE="xj-release-${VERSION}"
+#indent "${RELEASE}"
+#eb deploy --label "${RELEASE}"
+#step_ok
 
 #
 finished_ok

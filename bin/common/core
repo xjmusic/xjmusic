@@ -2,8 +2,8 @@
 
 # Workflow Dependencies
 deps() {
-  ensure_version "docker version" " Docker Engine"
-  ensure_version "docker-compose version" " Docker Compose"
+  ensure_version "docker version" "Docker Engine"
+  ensure_version "docker-compose version" "Docker Compose"
   ensure_version "java -version" "Java"
   ensure_version "mvn -version" "Maven"
   ensure_version "node -v" "NodeJS"
@@ -110,10 +110,10 @@ function gitcheck() {
     return
   fi
 
-  BRANCH=$(git symbolic-ref -q HEAD)
+  BRANCH=$(cd ${target} && git symbolic-ref -q HEAD)
   BRANCH=${BRANCH##refs/heads/}
   BRANCH=${BRANCH:-HEAD}
-  diffs=$(cd ${target} && git diff --name-only origin/${BRANCH}..HEAD)
+  diffs=$(cd ${target} && git diff ${BRANCH})
   if [ -n "$diffs" ]; then
     printf "\n${RED}ERROR!${RESET} Outstanding git changes detected. Details follow:\n\n"
     cd ${target} && git status
