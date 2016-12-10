@@ -5,7 +5,7 @@ import org.glassfish.jersey.filter.LoggingFilter;
 
 import java.io.IOException;
 
-public interface LogFilterFactory {
+public interface LogFilterProvider {
   LoggingFilter newFilter(String path, int maxEntitySize) throws IOException;
 
   LoggingFilter newFilter(String path, boolean printEntity) throws IOException;

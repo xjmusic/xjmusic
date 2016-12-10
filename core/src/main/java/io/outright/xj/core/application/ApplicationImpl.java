@@ -1,9 +1,9 @@
 // Copyright (c) 2016, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 package io.outright.xj.core.application;
 
-import io.outright.xj.core.application.server.LogFilterFactory;
-import io.outright.xj.core.application.server.HttpServerFactory;
-import io.outright.xj.core.application.server.ResourceConfigFactory;
+import io.outright.xj.core.application.server.LogFilterProvider;
+import io.outright.xj.core.application.server.HttpServerProvider;
+import io.outright.xj.core.application.server.ResourceConfigProvider;
 
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.filter.LoggingFilter;
@@ -23,9 +23,9 @@ public class ApplicationImpl implements Application {
   private final Integer maxSizeEntitiesInAccessLog;
   private final String pathToWriteAccessLog;
   private final Boolean showEntitiesInAccessLog;
-  private final HttpServerFactory httpServerFactory;
-  private final ResourceConfigFactory resourceConfigFactory;
-  private final LogFilterFactory logFilterFactory;
+  private final HttpServerProvider httpServerProvider;
+  private final ResourceConfigProvider resourceConfigProvider;
+  private final LogFilterProvider logFilterProvider;
   private HttpServer server = null;
 
   /**
@@ -35,15 +35,15 @@ public class ApplicationImpl implements Application {
    * @param defaultPort to serve HTTP endpoints
    */
   public ApplicationImpl(
-    HttpServerFactory httpServerFactory,
-    ResourceConfigFactory resourceConfigFactory,
-    LogFilterFactory logFilterFactory,
+    HttpServerProvider httpServerProvider,
+    ResourceConfigProvider resourceConfigProvider,
+    LogFilterProvider logFilterProvider,
     final String[] packages,
     int defaultPort
   ) {
-    this.httpServerFactory = httpServerFactory;
-    this.resourceConfigFactory = resourceConfigFactory;
-    this.logFilterFactory = logFilterFactory;
+    this.httpServerProvider = httpServerProvider;
+    this.resourceConfigProvider = resourceConfigProvider;
+    this.logFilterProvider = logFilterProvider;
 
     // Use specified packages plus default resource package
     this.packages = new String[packages.length + 1];
@@ -71,16 +71,16 @@ public class ApplicationImpl implements Application {
   public void Start() {
     // create a resource config that scans for
     // in io.outright.xj.ship package
-    final ResourceConfig config = resourceConfigFactory.createResourceConfig(packages);
+    final ResourceConfig config = resourceConfigProvider.createResourceConfig(packages);
 
     // access log
     log.info("Writing access log to {}", pathToWriteAccessLog);
     try {
       LoggingFilter loggingFilter;
       if (maxSizeEntitiesInAccessLog > 0) {
-        loggingFilter = logFilterFactory.newFilter(pathToWriteAccessLog, maxSizeEntitiesInAccessLog);
+        loggingFilter = logFilterProvider.newFilter(pathToWriteAccessLog, maxSizeEntitiesInAccessLog);
       } else {
-        loggingFilter = logFilterFactory.newFilter(pathToWriteAccessLog, showEntitiesInAccessLog);
+        loggingFilter = logFilterProvider.newFilter(pathToWriteAccessLog, showEntitiesInAccessLog);
       }
       config.register(loggingFilter);
     } catch (IOException e) {
@@ -90,7 +90,7 @@ public class ApplicationImpl implements Application {
     // create a new instance of grizzly http server
     // exposing the Jersey application at BASE_URI
     log.info("Server starting now");
-    server = httpServerFactory.createHttpServer(URI.create(BaseURI()), config);
+    server = httpServerProvider.createHttpServer(URI.create(BaseURI()), config);
     try {
       server.start();
     } catch (IOException e) {

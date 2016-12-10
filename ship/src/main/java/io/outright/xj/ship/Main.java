@@ -21,15 +21,15 @@ public class Main {
    */
   public static void main(String[] args) throws IOException {
     int defaultPort = 8044;
-    HttpServerFactory httpServerFactory = new HttpServerFactoryImpl();
-    ResourceConfigFactory resourceConfigFactory = new ResourceConfigFactoryImpl();
-    LogFilterFactory logFilterFactory = new LogFilterFactoryImpl();
+    HttpServerProvider httpServerProvider = new HttpServerProviderImpl();
+    ResourceConfigProvider resourceConfigProvider = new ResourceConfigProviderImpl();
+    LogFilterProvider logFilterProvider = new LogFilterProviderImpl();
 
     // Application
     app = new ApplicationImpl(
-      httpServerFactory,
-      resourceConfigFactory,
-      logFilterFactory,
+      httpServerProvider,
+      resourceConfigProvider,
+      logFilterProvider,
       new String[]{"io.outright.xj.hub"},
       defaultPort
     );

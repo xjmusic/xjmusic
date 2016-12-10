@@ -70,6 +70,20 @@
       <version>2.0.1</version>
     </dependency>
 
+    <!-- https://mvnrepository.com/artifact/com.google.api-client/google-api-client -->
+    <dependency>
+      <groupId>com.google.api-client</groupId>
+      <artifactId>google-api-client</artifactId>
+      <version>1.22.0</version>
+    </dependency>
+
+    <!-- https://mvnrepository.com/artifact/com.google.apis/google-api-services-plus -->
+    <dependency>
+      <groupId>com.google.apis</groupId>
+      <artifactId>google-api-services-plus</artifactId>
+      <version>v1-rev477-1.22.0</version>
+    </dependency>
+
     <!-- test: junit -->
     <dependency>
       <groupId>junit</groupId>

@@ -35,13 +35,13 @@ public class HealthcheckResourceTest {
       // start the server
       int testPort = 8001;
       System.setProperty("log.access.filename",tempFile.getAbsolutePath());
-      HttpServerFactory httpServerFactory = new HttpServerFactoryImpl();
-      ResourceConfigFactory resourceConfigFactory = new ResourceConfigFactoryImpl();
-      LogFilterFactory logFilterFactory = new LogFilterFactoryImpl();
+      HttpServerProvider httpServerProvider = new HttpServerProviderImpl();
+      ResourceConfigProvider resourceConfigProvider = new ResourceConfigProviderImpl();
+      LogFilterProvider logFilterProvider = new LogFilterProviderImpl();
       app = new ApplicationImpl(
-        httpServerFactory,
-        resourceConfigFactory,
-        logFilterFactory,
+        httpServerProvider,
+        resourceConfigProvider,
+        logFilterProvider,
         new String[0],
         testPort
       );

@@ -1,8 +1,8 @@
 package io.outright.xj.core.application
 
-import io.outright.xj.core.application.server.HttpServerFactory
-import io.outright.xj.core.application.server.LogFilterFactory
-import io.outright.xj.core.application.server.ResourceConfigFactory
+import io.outright.xj.core.application.server.HttpServerProvider
+import io.outright.xj.core.application.server.LogFilterProvider
+import io.outright.xj.core.application.server.ResourceConfigProvider
 import org.glassfish.grizzly.http.server.HttpServer
 import org.glassfish.jersey.filter.LoggingFilter
 import org.glassfish.jersey.server.ResourceConfig
@@ -28,19 +28,19 @@ class ApplicationImplTest extends GroovyTestCase {
   }
 
   void testStart_AccessLogEntitiesMaxSize() {
-    ResourceConfigFactory mockResourceConfigFactory = mock(ResourceConfigFactory.class)
+    ResourceConfigProvider mockResourceConfigFactory = mock(ResourceConfigProvider.class)
     ResourceConfig mockResourceConfig = mock(ResourceConfig.class)
     doReturn(mockResourceConfig)
       .when(mockResourceConfigFactory)
       .createResourceConfig(expectPackages)
 
-    HttpServerFactory mockHttpServerFactory = mock(HttpServerFactory.class)
+    HttpServerProvider mockHttpServerFactory = mock(HttpServerProvider.class)
     HttpServer mockHttpServer = mock(HttpServer.class)
     doReturn(mockHttpServer)
       .when(mockHttpServerFactory)
       .createHttpServer(URI.create("http://0.0.0.0:8002/"), mockResourceConfig)
 
-    LogFilterFactory mockLogFilterFactory = mock(LogFilterFactory.class)
+    LogFilterProvider mockLogFilterFactory = mock(LogFilterProvider.class)
     LoggingFilter mockLoggingFilter = mock(LoggingFilter.class)
     doReturn(mockLoggingFilter)
       .when(mockLogFilterFactory)
@@ -65,19 +65,19 @@ class ApplicationImplTest extends GroovyTestCase {
   }
 
   void testStart_AccessLogEntitiesAll() {
-    ResourceConfigFactory mockResourceConfigFactory = mock(ResourceConfigFactory.class)
+    ResourceConfigProvider mockResourceConfigFactory = mock(ResourceConfigProvider.class)
     ResourceConfig mockResourceConfig = mock(ResourceConfig.class)
     doReturn(mockResourceConfig)
       .when(mockResourceConfigFactory)
       .createResourceConfig(expectPackages)
 
-    HttpServerFactory mockHttpServerFactory = mock(HttpServerFactory.class)
+    HttpServerProvider mockHttpServerFactory = mock(HttpServerProvider.class)
     HttpServer mockHttpServer = mock(HttpServer.class)
     doReturn(mockHttpServer)
       .when(mockHttpServerFactory)
       .createHttpServer(URI.create("http://0.0.0.0:8002/"), mockResourceConfig)
 
-    LogFilterFactory mockLogFilterFactory = mock(LogFilterFactory.class)
+    LogFilterProvider mockLogFilterFactory = mock(LogFilterProvider.class)
     LoggingFilter mockLoggingFilter = mock(LoggingFilter.class)
     doReturn(mockLoggingFilter)
       .when(mockLogFilterFactory)
@@ -102,19 +102,19 @@ class ApplicationImplTest extends GroovyTestCase {
   }
 
   void testStart_ThrowsErrorOpeningAccessLog() {
-    ResourceConfigFactory mockResourceConfigFactory = mock(ResourceConfigFactory.class)
+    ResourceConfigProvider mockResourceConfigFactory = mock(ResourceConfigProvider.class)
     ResourceConfig mockResourceConfig = mock(ResourceConfig.class)
     doReturn(mockResourceConfig)
       .when(mockResourceConfigFactory)
       .createResourceConfig(expectPackages)
 
-    HttpServerFactory mockHttpServerFactory = mock(HttpServerFactory.class)
+    HttpServerProvider mockHttpServerFactory = mock(HttpServerProvider.class)
     HttpServer mockHttpServer = mock(HttpServer.class)
     doReturn(mockHttpServer)
       .when(mockHttpServerFactory)
       .createHttpServer(URI.create("http://0.0.0.0:8002/"), mockResourceConfig)
 
-    LogFilterFactory mockLogFilterFactory = mock(LogFilterFactory.class)
+    LogFilterProvider mockLogFilterFactory = mock(LogFilterProvider.class)
     doThrow(new IOException("tragedy"))
       .when(mockLogFilterFactory)
       .newFilter(tempFile.getAbsolutePath(), false)
@@ -135,19 +135,19 @@ class ApplicationImplTest extends GroovyTestCase {
   }
 
   void testStop() {
-    ResourceConfigFactory mockResourceConfigFactory = mock(ResourceConfigFactory.class)
+    ResourceConfigProvider mockResourceConfigFactory = mock(ResourceConfigProvider.class)
     ResourceConfig mockResourceConfig = mock(ResourceConfig.class)
     doReturn(mockResourceConfig)
       .when(mockResourceConfigFactory)
       .createResourceConfig(expectPackages)
 
-    HttpServerFactory mockHttpServerFactory = mock(HttpServerFactory.class)
+    HttpServerProvider mockHttpServerFactory = mock(HttpServerProvider.class)
     HttpServer mockHttpServer = mock(HttpServer.class)
     doReturn(mockHttpServer)
       .when(mockHttpServerFactory)
       .createHttpServer(URI.create("http://0.0.0.0:8002/"), mockResourceConfig)
 
-    LogFilterFactory mockLogFilterFactory = mock(LogFilterFactory.class)
+    LogFilterProvider mockLogFilterFactory = mock(LogFilterProvider.class)
     LoggingFilter mockLoggingFilter = mock(LoggingFilter.class)
     doReturn(mockLoggingFilter)
       .when(mockLogFilterFactory)
@@ -167,9 +167,9 @@ class ApplicationImplTest extends GroovyTestCase {
   }
 
   void testBaseURI_Default() {
-    ResourceConfigFactory mockResourceConfigFactory = mock(ResourceConfigFactory.class)
-    HttpServerFactory mockHttpServerFactory = mock(HttpServerFactory.class)
-    LogFilterFactory mockLogFilterFactory = mock(LogFilterFactory.class)
+    ResourceConfigProvider mockResourceConfigFactory = mock(ResourceConfigProvider.class)
+    HttpServerProvider mockHttpServerFactory = mock(HttpServerProvider.class)
+    LogFilterProvider mockLogFilterFactory = mock(LogFilterProvider.class)
     assert new ApplicationImpl(
       mockHttpServerFactory,
       mockResourceConfigFactory,
@@ -180,9 +180,9 @@ class ApplicationImplTest extends GroovyTestCase {
   }
 
   void testBaseURI_CustomHost() {
-    ResourceConfigFactory mockResourceConfigFactory = mock(ResourceConfigFactory.class)
-    HttpServerFactory mockHttpServerFactory = mock(HttpServerFactory.class)
-    LogFilterFactory mockLogFilterFactory = mock(LogFilterFactory.class)
+    ResourceConfigProvider mockResourceConfigFactory = mock(ResourceConfigProvider.class)
+    HttpServerProvider mockHttpServerFactory = mock(HttpServerProvider.class)
+    LogFilterProvider mockLogFilterFactory = mock(LogFilterProvider.class)
     System.setProperty("app.host","special")
     assert new ApplicationImpl(
       mockHttpServerFactory,

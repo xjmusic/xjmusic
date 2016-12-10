@@ -6,6 +6,6 @@ import org.glassfish.jersey.server.ResourceConfig;
 
 import java.net.URI;
 
-public interface HttpServerFactory {
+public interface HttpServerProvider {
   HttpServer createHttpServer(URI uri, ResourceConfig config);
 }

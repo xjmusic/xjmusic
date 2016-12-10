@@ -7,7 +7,7 @@ import org.glassfish.jersey.filter.LoggingFilter;
 
 import java.io.IOException;
 
-public class LogFilterFactoryImpl implements LogFilterFactory {
+public class LogFilterProviderImpl implements LogFilterProvider {
   @Override
   public LoggingFilter newFilter(String path, int maxEntitySize) throws IOException {
     return new LoggingFilter(FileLogger.getLogger(Application.class, path), maxEntitySize);

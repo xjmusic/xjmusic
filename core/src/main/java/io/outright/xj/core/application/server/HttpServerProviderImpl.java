@@ -7,7 +7,7 @@ import org.glassfish.jersey.server.ResourceConfig;
 
 import java.net.URI;
 
-public class HttpServerFactoryImpl implements HttpServerFactory {
+public class HttpServerProviderImpl implements HttpServerProvider {
   @Override
   public HttpServer createHttpServer(URI uri, ResourceConfig config) {
     return GrizzlyHttpServerFactory.createHttpServer(uri, config);
