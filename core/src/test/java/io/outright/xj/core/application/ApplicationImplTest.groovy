@@ -1,14 +1,15 @@
 package io.outright.xj.core.application
 
+import io.outright.xj.core.application.server.HttpServerFactory
+import io.outright.xj.core.application.server.LogFilterFactory
+import io.outright.xj.core.application.server.ResourceConfigFactory
 import org.glassfish.grizzly.http.server.HttpServer
 import org.glassfish.jersey.filter.LoggingFilter
 import org.glassfish.jersey.server.ResourceConfig
 
-import static org.mockito.Matchers.any
 import static org.mockito.Mockito.doReturn
 import static org.mockito.Mockito.doThrow
 import static org.mockito.Mockito.mock
-import static org.mockito.Mockito.spy
 import static org.mockito.Mockito.verify
 
 class ApplicationImplTest extends GroovyTestCase {
@@ -27,100 +28,166 @@ class ApplicationImplTest extends GroovyTestCase {
   }
 
   void testStart_AccessLogEntitiesMaxSize() {
+    ResourceConfigFactory mockResourceConfigFactory = mock(ResourceConfigFactory.class)
+    ResourceConfig mockResourceConfig = mock(ResourceConfig.class)
+    doReturn(mockResourceConfig)
+      .when(mockResourceConfigFactory)
+      .createResourceConfig(expectPackages)
+
+    HttpServerFactory mockHttpServerFactory = mock(HttpServerFactory.class)
+    HttpServer mockHttpServer = mock(HttpServer.class)
+    doReturn(mockHttpServer)
+      .when(mockHttpServerFactory)
+      .createHttpServer(URI.create("http://0.0.0.0:8002/"), mockResourceConfig)
+
+    LogFilterFactory mockLogFilterFactory = mock(LogFilterFactory.class)
+    LoggingFilter mockLoggingFilter = mock(LoggingFilter.class)
+    doReturn(mockLoggingFilter)
+      .when(mockLogFilterFactory)
+      .newFilter(tempFile.getAbsolutePath(), 5)
+
     System.setProperty("log.access.entities.maxsize", "5")
-    ApplicationImpl appSpy = spy(new ApplicationImpl(
+    ApplicationImpl app = new ApplicationImpl(
+      mockHttpServerFactory,
+      mockResourceConfigFactory,
+      mockLogFilterFactory,
       mockPackages,
       8002
-    ))
-
-    ResourceConfig mockResourceConfig = mock(ResourceConfig.class)
-    doReturn(mockResourceConfig).when(appSpy).newResourceConfig(expectPackages)
-
-    HttpServer mockHttpServer = mock(HttpServer.class)
-    doReturn(mockHttpServer).when(appSpy).createHttpServer(mockResourceConfig)
-
-    LoggingFilter mockLoggingFilter = mock(LoggingFilter.class)
-    doReturn(mockLoggingFilter).when(appSpy).newFileLoggingFilter(tempFile.getAbsolutePath(), 5)
-
-    appSpy.Start()
+    )
+    app.Start()
 
     System.clearProperty("log.access.entities.maxsize")
-    verify(appSpy).newResourceConfig(expectPackages)
-    verify(appSpy).newFileLoggingFilter(tempFile.getAbsolutePath(), 5)
+    verify(mockResourceConfigFactory).createResourceConfig(expectPackages)
+    verify(mockHttpServerFactory).createHttpServer(URI.create("http://0.0.0.0:8002/"), mockResourceConfig)
+    verify(mockLogFilterFactory).newFilter(tempFile.getAbsolutePath(), 5)
     verify(mockResourceConfig).register(mockLoggingFilter)
+    verify(mockHttpServer).start()
   }
 
   void testStart_AccessLogEntitiesAll() {
-    System.setProperty("log.access.entities.all", "false")
-    ApplicationImpl appSpy = spy(new ApplicationImpl(
+    ResourceConfigFactory mockResourceConfigFactory = mock(ResourceConfigFactory.class)
+    ResourceConfig mockResourceConfig = mock(ResourceConfig.class)
+    doReturn(mockResourceConfig)
+      .when(mockResourceConfigFactory)
+      .createResourceConfig(expectPackages)
+
+    HttpServerFactory mockHttpServerFactory = mock(HttpServerFactory.class)
+    HttpServer mockHttpServer = mock(HttpServer.class)
+    doReturn(mockHttpServer)
+      .when(mockHttpServerFactory)
+      .createHttpServer(URI.create("http://0.0.0.0:8002/"), mockResourceConfig)
+
+    LogFilterFactory mockLogFilterFactory = mock(LogFilterFactory.class)
+    LoggingFilter mockLoggingFilter = mock(LoggingFilter.class)
+    doReturn(mockLoggingFilter)
+      .when(mockLogFilterFactory)
+      .newFilter(tempFile.getAbsolutePath(), true)
+
+    System.setProperty("log.access.entities.all", "true")
+    ApplicationImpl app = new ApplicationImpl(
+      mockHttpServerFactory,
+      mockResourceConfigFactory,
+      mockLogFilterFactory,
       mockPackages,
       8002
-    ))
-
-    ResourceConfig mockResourceConfig = mock(ResourceConfig.class)
-    doReturn(mockResourceConfig).when(appSpy).newResourceConfig(expectPackages)
-
-    HttpServer mockHttpServer = mock(HttpServer.class)
-    doReturn(mockHttpServer).when(appSpy).createHttpServer(mockResourceConfig)
-
-    LoggingFilter mockLoggingFilter = mock(LoggingFilter.class)
-    doReturn(mockLoggingFilter).when(appSpy).newFileLoggingFilter(tempFile.getAbsolutePath(), false)
-
-    appSpy.Start()
+    )
+    app.Start()
 
     System.clearProperty("log.access.entities.all")
-    verify(appSpy).newResourceConfig(expectPackages)
-    verify(appSpy).newFileLoggingFilter(tempFile.getAbsolutePath(), false)
+    verify(mockResourceConfigFactory).createResourceConfig(expectPackages)
+    verify(mockHttpServerFactory).createHttpServer(URI.create("http://0.0.0.0:8002/"), mockResourceConfig)
+    verify(mockLogFilterFactory).newFilter(tempFile.getAbsolutePath(), true)
     verify(mockResourceConfig).register(mockLoggingFilter)
+    verify(mockHttpServer).start()
   }
 
   void testStart_ThrowsErrorOpeningAccessLog() {
-    System.setProperty("log.access.entities.maxsize", "5")
-    ApplicationImpl appSpy = spy(new ApplicationImpl(
+    ResourceConfigFactory mockResourceConfigFactory = mock(ResourceConfigFactory.class)
+    ResourceConfig mockResourceConfig = mock(ResourceConfig.class)
+    doReturn(mockResourceConfig)
+      .when(mockResourceConfigFactory)
+      .createResourceConfig(expectPackages)
+
+    HttpServerFactory mockHttpServerFactory = mock(HttpServerFactory.class)
+    HttpServer mockHttpServer = mock(HttpServer.class)
+    doReturn(mockHttpServer)
+      .when(mockHttpServerFactory)
+      .createHttpServer(URI.create("http://0.0.0.0:8002/"), mockResourceConfig)
+
+    LogFilterFactory mockLogFilterFactory = mock(LogFilterFactory.class)
+    doThrow(new IOException("tragedy"))
+      .when(mockLogFilterFactory)
+      .newFilter(tempFile.getAbsolutePath(), false)
+
+    ApplicationImpl app = new ApplicationImpl(
+      mockHttpServerFactory,
+      mockResourceConfigFactory,
+      mockLogFilterFactory,
       mockPackages,
       8002
-    ))
+    )
+    app.Start()
 
-    ResourceConfig mockResourceConfig = mock(ResourceConfig.class)
-    doReturn(mockResourceConfig).when(appSpy).newResourceConfig(expectPackages)
-
-    HttpServer mockHttpServer = mock(HttpServer.class)
-    doReturn(mockHttpServer).when(appSpy).createHttpServer(mockResourceConfig)
-
-    doThrow(new IOException()).when(appSpy).newFileLoggingFilter(tempFile.getAbsolutePath(), 5)
-
-    appSpy.Start()
-
-    System.clearProperty("log.access.entities.maxsize")
-    verify(appSpy).newResourceConfig(expectPackages)
-    verify(appSpy).newFileLoggingFilter(tempFile.getAbsolutePath(), 5)
+    verify(mockResourceConfigFactory).createResourceConfig(expectPackages)
+    verify(mockHttpServerFactory).createHttpServer(URI.create("http://0.0.0.0:8002/"), mockResourceConfig)
+    verify(mockLogFilterFactory).newFilter(tempFile.getAbsolutePath(), false)
+    verify(mockHttpServer).start()
   }
 
   void testStop() {
-    ApplicationImpl appSpy = spy(new ApplicationImpl(
+    ResourceConfigFactory mockResourceConfigFactory = mock(ResourceConfigFactory.class)
+    ResourceConfig mockResourceConfig = mock(ResourceConfig.class)
+    doReturn(mockResourceConfig)
+      .when(mockResourceConfigFactory)
+      .createResourceConfig(expectPackages)
+
+    HttpServerFactory mockHttpServerFactory = mock(HttpServerFactory.class)
+    HttpServer mockHttpServer = mock(HttpServer.class)
+    doReturn(mockHttpServer)
+      .when(mockHttpServerFactory)
+      .createHttpServer(URI.create("http://0.0.0.0:8002/"), mockResourceConfig)
+
+    LogFilterFactory mockLogFilterFactory = mock(LogFilterFactory.class)
+    LoggingFilter mockLoggingFilter = mock(LoggingFilter.class)
+    doReturn(mockLoggingFilter)
+      .when(mockLogFilterFactory)
+      .newFilter(tempFile.getAbsolutePath(), false)
+
+    ApplicationImpl app = new ApplicationImpl(
+      mockHttpServerFactory,
+      mockResourceConfigFactory,
+      mockLogFilterFactory,
       mockPackages,
       8002
-    ))
+    )
+    app.Start()
+    app.Stop()
 
-    HttpServer mockHttpServer = mock(HttpServer.class)
-    doReturn(mockHttpServer).when(appSpy).getHttpServer()
-
-    appSpy.Stop()
-
-    verify(appSpy).getHttpServer()
     verify(mockHttpServer).shutdownNow()
   }
 
   void testBaseURI_Default() {
+    ResourceConfigFactory mockResourceConfigFactory = mock(ResourceConfigFactory.class)
+    HttpServerFactory mockHttpServerFactory = mock(HttpServerFactory.class)
+    LogFilterFactory mockLogFilterFactory = mock(LogFilterFactory.class)
     assert new ApplicationImpl(
+      mockHttpServerFactory,
+      mockResourceConfigFactory,
+      mockLogFilterFactory,
       mockPackages,
       8002
     ).BaseURI() == "http://0.0.0.0:8002/"
   }
 
   void testBaseURI_CustomHost() {
+    ResourceConfigFactory mockResourceConfigFactory = mock(ResourceConfigFactory.class)
+    HttpServerFactory mockHttpServerFactory = mock(HttpServerFactory.class)
+    LogFilterFactory mockLogFilterFactory = mock(LogFilterFactory.class)
     System.setProperty("app.host","special")
     assert new ApplicationImpl(
+      mockHttpServerFactory,
+      mockResourceConfigFactory,
+      mockLogFilterFactory,
       mockPackages,
       8002
     ).BaseURI() == "http://special:8002/"

@@ -3,6 +3,7 @@ package io.outright.xj.hub;
 
 import io.outright.xj.core.application.Application;
 import io.outright.xj.core.application.ApplicationImpl;
+import io.outright.xj.core.application.server.*;
 
 import java.io.IOException;
 
@@ -20,9 +21,15 @@ public class Main {
      */
     public static void main(String[] args) throws IOException {
       int defaultPort = 8042;
+      HttpServerFactory httpServerFactory = new HttpServerFactoryImpl();
+      ResourceConfigFactory resourceConfigFactory = new ResourceConfigFactoryImpl();
+      LogFilterFactory logFilterFactory = new LogFilterFactoryImpl();
 
       // Application
       app = new ApplicationImpl(
+        httpServerFactory,
+        resourceConfigFactory,
+        logFilterFactory,
         new String[]{"io.outright.xj.hub"},
         defaultPort
       );

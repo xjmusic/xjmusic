@@ -1,11 +1,12 @@
 // Copyright (c) 2016, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 package io.outright.xj.core.application;
 
-import io.outright.xj.core.application.logger.FileLogger;
+import io.outright.xj.core.application.server.LogFilterFactory;
+import io.outright.xj.core.application.server.HttpServerFactory;
+import io.outright.xj.core.application.server.ResourceConfigFactory;
 
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.filter.LoggingFilter;
-import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 
 import org.slf4j.Logger;
@@ -22,6 +23,9 @@ public class ApplicationImpl implements Application {
   private final Integer maxSizeEntitiesInAccessLog;
   private final String pathToWriteAccessLog;
   private final Boolean showEntitiesInAccessLog;
+  private final HttpServerFactory httpServerFactory;
+  private final ResourceConfigFactory resourceConfigFactory;
+  private final LogFilterFactory logFilterFactory;
   private HttpServer server = null;
 
   /**
@@ -31,9 +35,16 @@ public class ApplicationImpl implements Application {
    * @param defaultPort to serve HTTP endpoints
    */
   public ApplicationImpl(
+    HttpServerFactory httpServerFactory,
+    ResourceConfigFactory resourceConfigFactory,
+    LogFilterFactory logFilterFactory,
     final String[] packages,
     int defaultPort
   ) {
+    this.httpServerFactory = httpServerFactory;
+    this.resourceConfigFactory = resourceConfigFactory;
+    this.logFilterFactory = logFilterFactory;
+
     // Use specified packages plus default resource package
     this.packages = new String[packages.length + 1];
     this.packages[0] = "io.outright.xj.core.application.resource";
@@ -60,16 +71,16 @@ public class ApplicationImpl implements Application {
   public void Start() {
     // create a resource config that scans for
     // in io.outright.xj.ship package
-    final ResourceConfig config = newResourceConfig(packages);
+    final ResourceConfig config = resourceConfigFactory.createResourceConfig(packages);
 
     // access log
     log.info("Writing access log to {}", pathToWriteAccessLog);
     try {
       LoggingFilter loggingFilter;
       if (maxSizeEntitiesInAccessLog > 0) {
-        loggingFilter = newFileLoggingFilter(pathToWriteAccessLog, maxSizeEntitiesInAccessLog);
+        loggingFilter = logFilterFactory.newFilter(pathToWriteAccessLog, maxSizeEntitiesInAccessLog);
       } else {
-        loggingFilter = newFileLoggingFilter(pathToWriteAccessLog, showEntitiesInAccessLog);
+        loggingFilter = logFilterFactory.newFilter(pathToWriteAccessLog, showEntitiesInAccessLog);
       }
       config.register(loggingFilter);
     } catch (IOException e) {
@@ -79,38 +90,25 @@ public class ApplicationImpl implements Application {
     // create a new instance of grizzly http server
     // exposing the Jersey application at BASE_URI
     log.info("Server starting now");
-    server=createHttpServer(config);
+    server = httpServerFactory.createHttpServer(URI.create(BaseURI()), config);
+    try {
+      server.start();
+    } catch (IOException e) {
+      log.error("Failed to start server", e);
+    }
     log.info("Server up");
   }
 
   @Override
   public void Stop() {
     log.info("Server shutting down now");
-    this.getHttpServer().shutdownNow();
+    server.shutdownNow();
     log.info("Server gone");
   }
 
   @Override
   public String BaseURI() {
     return "http://" + host + ":" + port + "/";
-  }
-
-  public HttpServer createHttpServer(ResourceConfig config) {
-    return GrizzlyHttpServerFactory.createHttpServer(URI.create(BaseURI()), config);
-  }
-
-  public HttpServer getHttpServer() { return this.server; }
-
-  public ResourceConfig newResourceConfig(String[] packages) {
-    return new ResourceConfig().packages(packages);
-  }
-
-  public LoggingFilter newFileLoggingFilter(String path, int maxEntitySize) throws IOException {
-    return new LoggingFilter(FileLogger.getLogger(Application.class, path), maxEntitySize);
-  }
-
-  public LoggingFilter newFileLoggingFilter(String path, boolean printEntity) throws IOException {
-    return new LoggingFilter(FileLogger.getLogger(Application.class, path), printEntity);
   }
 
 }

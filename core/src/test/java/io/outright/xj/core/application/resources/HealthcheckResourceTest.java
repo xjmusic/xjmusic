@@ -6,6 +6,7 @@ import javax.ws.rs.client.WebTarget;
 
 import io.outright.xj.core.application.Application;
 import io.outright.xj.core.application.ApplicationImpl;
+import io.outright.xj.core.application.server.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,6 +15,7 @@ import java.io.File;
 import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
 
 public class HealthcheckResourceTest {
 
@@ -33,7 +35,13 @@ public class HealthcheckResourceTest {
       // start the server
       int testPort = 8001;
       System.setProperty("log.access.filename",tempFile.getAbsolutePath());
+      HttpServerFactory httpServerFactory = new HttpServerFactoryImpl();
+      ResourceConfigFactory resourceConfigFactory = new ResourceConfigFactoryImpl();
+      LogFilterFactory logFilterFactory = new LogFilterFactoryImpl();
       app = new ApplicationImpl(
+        httpServerFactory,
+        resourceConfigFactory,
+        logFilterFactory,
         new String[0],
         testPort
       );
