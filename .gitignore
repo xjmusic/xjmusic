@@ -1,3 +1,7 @@
+# Environment
+.env
+
+# Build artifacts
 target/
 */target/
 
@@ -5,4 +9,3 @@ target/
 .idea/
 */.idea
 *.iml
-

@@ -89,9 +89,18 @@ ADD \
   .nginx/locations.conf \
   /etc/nginx/conf.d/elasticbeanstalk/00_application.conf
 
+# Netcat (traditional)
+RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install netcat-traditional
+
+# MySQL Client
+RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install mysql-client
+
 ###
 ### App-specific content follows
 ###
+
+# Environment variables
+ADD .env /data/.env
 
 # 'hub'
 EXPOSE 8042

@@ -17,7 +17,6 @@ DATE="$(date -u +%Y.%m.%d-UTC.%H.%M.%S)"
 COMMIT="$(git rev-parse --verify HEAD)"
 VERSION="${DATE}-${COMMIT}"
 ZIP_FILE=${PWD}/target/xj-release-${VERSION}.zip
-#ZIP_FILE=${PWD}/target/xj-release.zip
 step "Release ${VERSION}"
 indent "${ZIP_FILE}"
 step_ok
@@ -70,6 +69,12 @@ step "Add app bootstrap to target"
 indent "${PWD}/target/bin/bootstrap"
 mkdir -p ${PWD}/target/bin/
 cp ${PWD}/bin/common/bootstrap ${PWD}/target/bin/
+step_ok
+
+#
+step "Add empty .env environment variables file to target"
+indent "${PWD}/target/.env"
+echo "" > "${PWD}/target/.env"
 step_ok
 
 #

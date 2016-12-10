@@ -1,7 +1,51 @@
 #!/usr/bin/env bash
 
 #
+mysql_ok () {
+  HOST="${1}"
+  PORT="${2}"
+  if mysql \
+    -h "${HOST}" \
+    -P "${PORT}" \
+    -uroot \
+    --connect-timeout=1 \
+    -e 'show status;' \
+    &> /dev/null; then
+    return 0
+  else
+    return 1
+  fi
+}
+#
+redis_ok () {
+  HOST="${1}"
+  PORT="${2}"
+  if timeout 1 redis-cli \
+    -h "${HOST}" \
+    -p "${PORT}" \
+    lpush test 1
+    &> /dev/null; then
+    return 0
+  else
+    return 1
+  fi
+}
+#
+wait_until () {
+  CMD="${1}"
+  while ! eval "${CMD}"; do
+    printf "Waiting for ${CMD}...\n"
+    sleep 1
+  done
+  printf "${CMD}.\n"
+}
+
+#
 printf "\n[xj:docker]\n"
+
+#
+wait_until "mysql_ok mysql01er1 3306"
+wait_until "redis_ok redis01er1 6379"
 
 # serve static frontend with nginx
 chmod -R +r /var/app/current/ui/dist

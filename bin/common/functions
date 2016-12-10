@@ -10,6 +10,7 @@ deps() {
   ensure_version "npm -v" "NPM"
   ensure_version "bower -v" "Bower"
   ensure_version "ember -v" "EmberJS CLI"
+  ensure_or_create_file "${PWD}/.env" "Environment variables file"
   # ensure_nslookup "code.outright.io" "Outright Mental VPN"
 }
 
@@ -87,6 +88,16 @@ ensure_file () {
   if [ ! -f ${PATH} ]; then
     printf "Cannot find ${PATH}! Please ensure ${TEXT}.\n"
     exit 1
+  fi
+}
+ensure_or_create_file () {
+  PATH=${1}
+  TEXT=${2}
+  if [ ! -f ${PATH} ]; then
+    step "Creating a blank ${TEXT}."
+    printf "      ${PATH}\n"
+    echo "" > ${PATH}
+    step_ok
   fi
 }
 ensure_dir () {

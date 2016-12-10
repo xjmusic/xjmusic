@@ -10,6 +10,8 @@ Setup workflow, build and package Java server-side application and build Web use
 
     make
 
+The preceding command will also create a blank environment variables file called **.env** which is never checked in to version control or released with the distribution. It is up to you, the developer, to obtain keys and fill in the values of your own environment variables. Because the application only has **one single common bootstrap** (located at bin/common/bootstrap) the use of environment variables is federated across development and production deployments, while all actual configurations are kept outside the scope of the code.
+
 To only setup the workflow and check dependencies:
 
     bin/setup

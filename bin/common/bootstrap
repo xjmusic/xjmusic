@@ -27,6 +27,14 @@ require () {
 APP=${1}
 require "${APP}" "app"
 
+# Load environment variables
+if [ -a ${PWD}/.env ]; then
+  . ${PWD}/.env
+else
+  printf "\n\nCan't find ${PWD}/.env!\nPlease create one; it's not included with the distribution!\n\n"
+  exit 1
+fi
+
 #
 JAR=/var/app/current/${APP}/target/${APP}-1.0-SNAPSHOT.jar
 if [ ! -e ${JAR} ]; then
@@ -41,13 +49,13 @@ STDERR_LOG=${LOG_DIR}/${APP}.err.log
 ACCESS_LOG=${LOG_DIR}/access.log
 mkdir -p ${LOG_DIR}
 
+# Java System Properties
+PROPS="-Dlog.access.filename=${ACCESS_LOG}"
+PROPS="${PROPS} -D"
+
 #
 printf "Starting java: ${JAR}\n"
 printf "   stdout log: ${STDOUT_LOG}\n"
 printf "   stderr log: ${STDERR_LOG}\n"
 printf "   access log: ${ACCESS_LOG}\n"
-java \
-  -Dlog.access.filename=${ACCESS_LOG} \
-  -jar ${JAR} \
-    1> ${STDOUT_LOG} \
-    2> ${STDERR_LOG}
+java ${PROPS} -jar ${JAR} 1> ${STDOUT_LOG} 2> ${STDERR_LOG}
