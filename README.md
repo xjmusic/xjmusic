@@ -16,11 +16,13 @@ To only setup the workflow and check dependencies:
 
     bin/setup
 
-## System properties
+## Environment (System) properties
 
 To see all Java `System.getProperty` references in project modules:
 
     bin/props
+    
+The default environment variables are in the file **/default.env** which is copied to a new file **/.env** on project setup. Developers modify their local .env file with private keys and configuration. The .env is never committed to the repository. The **default.env** file is kept up-to-date with all environment variables expected by **bin/common/bootstrap**.
 
 ## Run local platform in Docker containers
 

@@ -27,7 +27,7 @@ require () {
 APP=${1}
 require "${APP}" "app"
 
-# Load environment variables
+# Load environment variables; defaults are in /default.env
 if [ -a ${PWD}/.env ]; then
   . ${PWD}/.env
 else
@@ -49,9 +49,22 @@ STDERR_LOG=${LOG_DIR}/${APP}.err.log
 ACCESS_LOG=${LOG_DIR}/access.log
 mkdir -p ${LOG_DIR}
 
-# Java System Properties
+# Environment (System) Properties
+#
+# The default environment variables are in the file **/default.env**
+# which is copied to a new file **/.env** on project setup. Developers
+# modify their local .env file with private keys and configuration.
+#
+# The **default.env** file is kept up-to-date with all
+# environment variables expected by this script.
+#
 PROPS="-Dlog.access.filename=${ACCESS_LOG}"
-PROPS="${PROPS} -D"
+PROPS="${PROPS} -Dauth.google.id=${AUTH_GOOGLE_ID}"
+PROPS="${PROPS} -Dauth.google.secret=${AUTH_GOOGLE_SECRET}"
+PROPS="${PROPS} -Ddb.mysql.host=${DB_MYSQL_HOST}"
+PROPS="${PROPS} -Ddb.mysql.port=${DB_MYSQL_PORT}"
+PROPS="${PROPS} -Ddb.mysql.user=${DB_MYSQL_USER}"
+PROPS="${PROPS} -Ddb.mysql.pass=${DB_MYSQL_PASS}"
 
 #
 printf "Starting java: ${JAR}\n"

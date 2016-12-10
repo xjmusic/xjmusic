@@ -17,6 +17,7 @@ DATE="$(date -u +%Y.%m.%d-UTC.%H.%M.%S)"
 COMMIT="$(git rev-parse --verify HEAD)"
 VERSION="${DATE}-${COMMIT}"
 ZIP_FILE=${PWD}/target/xj-release-${VERSION}.zip
+#ZIP_FILE=${PWD}/target/xj-release.zip
 step "Release ${VERSION}"
 indent "${ZIP_FILE}"
 step_ok

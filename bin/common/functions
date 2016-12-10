@@ -10,7 +10,7 @@ deps() {
   ensure_version "npm -v" "NPM"
   ensure_version "bower -v" "Bower"
   ensure_version "ember -v" "EmberJS CLI"
-  ensure_or_create_file "${PWD}/.env" "Environment variables file"
+  ensure_or_copy_file "${PWD}/.env" "Environment variables file" "${PWD}/default.env"
   # ensure_nslookup "code.outright.io" "Outright Mental VPN"
 }
 
@@ -90,13 +90,14 @@ ensure_file () {
     exit 1
   fi
 }
-ensure_or_create_file () {
+ensure_or_copy_file () {
   PATH=${1}
   TEXT=${2}
+  SRC_PATH=${3}
   if [ ! -f ${PATH} ]; then
-    step "Creating a blank ${TEXT}."
+    step "Creating new ${TEXT} from template ${SRC_PATH}."
     printf "      ${PATH}\n"
-    echo "" > ${PATH}
+    /bin/cp ${SRC_PATH} ${PATH}
     step_ok
   fi
 }
