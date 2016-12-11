@@ -20,6 +20,7 @@ public class AuthResource {
   @GET
   @WebResult
   public JSONObject getCurrentAuthentication() {
+    // TODO implement GET /auth
     throw new ForbiddenException();
   }
 
@@ -31,6 +32,7 @@ public class AuthResource {
   @DELETE
   @WebResult
   public Response deleteCurrentAuthentication() {
+    // TODO implement DELETE /auth
     return Response.noContent().build();
   }
 }

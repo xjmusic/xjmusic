@@ -18,14 +18,15 @@ import java.net.URI;
 public class AuthGoogleResource {
 
     /**
-     * Method handling HTTP GET requests. The returned object will be sent
-     * to the client as "text/plain" media type.
+     * Begin user OAuth2 authentication via Google.
      *
-     * @return String that will be returned as a text/plain response.
+     * @return Response temporary redirection to auth URL
      */
     @GET
     @WebResult
-    public String authGoogleBegin() {
-      throw new RedirectionException(Response.Status.TEMPORARY_REDIRECT, URI.create("https://www.google.com"));
+    public Response authGoogleBegin() {
+      URI uri = URI.create("https://www.google.com");
+      return Response.temporaryRedirect(uri).build();
+      // TODO implement GET /auth/google
     }
 }
