@@ -6,7 +6,7 @@ import org.glassfish.jersey.filter.LoggingFilter;
 import java.io.IOException;
 
 public interface LogFilterProvider {
-  LoggingFilter newFilter(String path, int maxEntitySize) throws IOException;
-
-  LoggingFilter newFilter(String path, boolean printEntity) throws IOException;
+  void setup(String path, int maxEntitySize) throws IOException;
+  void setup(String path, boolean printEntity) throws IOException;
+  LoggingFilter get();
 }

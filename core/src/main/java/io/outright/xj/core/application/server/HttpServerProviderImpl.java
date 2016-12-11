@@ -8,8 +8,15 @@ import org.glassfish.jersey.server.ResourceConfig;
 import java.net.URI;
 
 public class HttpServerProviderImpl implements HttpServerProvider {
+  private static HttpServer instance;
+
   @Override
-  public HttpServer createHttpServer(URI uri, ResourceConfig config) {
-    return GrizzlyHttpServerFactory.createHttpServer(uri, config);
+  public void setup(URI uri, ResourceConfig config) {
+    instance = GrizzlyHttpServerFactory.createHttpServer(uri, config);
+  }
+
+  @Override
+  public HttpServer get() {
+    return instance;
   }
 }

@@ -4,8 +4,15 @@ package io.outright.xj.core.application.server;
 import org.glassfish.jersey.server.ResourceConfig;
 
 public class ResourceConfigProviderImpl implements ResourceConfigProvider {
+  private static ResourceConfig instance;
+
   @Override
-  public final ResourceConfig createResourceConfig(final String... packages) {
-    return new ResourceConfig().packages(packages);
+  public void setup(final String... packages) {
+    instance = new ResourceConfig().packages(packages);
+  }
+
+  @Override
+  public ResourceConfig get() {
+    return instance;
   }
 }

@@ -7,5 +7,6 @@ import org.glassfish.jersey.server.ResourceConfig;
 import java.net.URI;
 
 public interface ResourceConfigProvider {
-  ResourceConfig createResourceConfig(final String... packages);
+  void setup(final String... packages);
+  ResourceConfig get();
 }

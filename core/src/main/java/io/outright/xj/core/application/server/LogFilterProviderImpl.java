@@ -8,13 +8,20 @@ import org.glassfish.jersey.filter.LoggingFilter;
 import java.io.IOException;
 
 public class LogFilterProviderImpl implements LogFilterProvider {
+  private static LoggingFilter instance;
+
   @Override
-  public LoggingFilter newFilter(String path, int maxEntitySize) throws IOException {
-    return new LoggingFilter(FileLogger.getLogger(Application.class, path), maxEntitySize);
+  public void setup(String path, int maxEntitySize) throws IOException {
+    instance = new LoggingFilter(FileLogger.getLogger(Application.class, path), maxEntitySize);
   }
 
   @Override
-  public LoggingFilter newFilter(String path, boolean printEntity) throws IOException {
-    return new LoggingFilter(FileLogger.getLogger(Application.class, path), printEntity);
+  public void setup(String path, boolean printEntity) throws IOException {
+    instance = new LoggingFilter(FileLogger.getLogger(Application.class, path), printEntity);
+  }
+
+  @Override
+  public LoggingFilter get() {
+    return instance;
   }
 }
