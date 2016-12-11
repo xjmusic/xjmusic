@@ -1,4 +1,4 @@
-package io.outright.xj.hub.resource;
+package io.outright.xj.hub.resource.auth.google;
 
 import javax.jws.WebMethod;
 import javax.jws.WebResult;
