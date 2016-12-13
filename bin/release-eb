@@ -73,9 +73,10 @@ cp ${PWD}/bin/common/bootstrap ${PWD}/target/bin/
 step_ok
 
 #
-step "Add empty .env environment variables file to target"
-indent "${PWD}/target/.env"
-echo "" > "${PWD}/target/.env"
+step "Add .elasticbeanstalk/production.env"
+indent "(set secret environment vars via the 'eb' CLI)"
+indent "${PWD}/target/runtime.env"
+cp ${PWD}/.elasticbeanstalk/production.env ${PWD}/target/runtime.env
 step_ok
 
 #

@@ -1,5 +1,5 @@
-# Environment
-.env
+# Java Properties
+runtime.env
 
 # Build artifacts
 target/

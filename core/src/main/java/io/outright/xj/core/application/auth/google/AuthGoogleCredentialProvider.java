@@ -5,5 +5,6 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.services.plus.Plus;
 
 public interface AuthGoogleCredentialProvider {
-  GoogleCredential getCredential(String accessToken);
+  void setup(String accessToken);
+  GoogleCredential get();
 }

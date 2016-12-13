@@ -10,7 +10,7 @@ Setup workflow, build and package Java server-side application and build Web use
 
     make
 
-The preceding command will also create a blank environment variables file called **.env** which is never checked in to version control or released with the distribution. It is up to you, the developer, to obtain keys and fill in the values of your own environment variables. Because the application only has **one single common bootstrap** (located at bin/common/bootstrap) the use of environment variables is federated across development and production deployments, while all actual configurations are kept outside the scope of the code.
+The preceding command will also create a blank environment variables file called **runtime.env** which is never checked in to version control or released with the distribution. It is up to you, the developer, to obtain keys and fill in the values of your own environment variables. Because the application only has **one single common bootstrap** (located at bin/common/bootstrap) the use of environment variables is federated across development and production deployments, while all actual configurations are kept outside the scope of the code.
 
 To only setup the workflow and check dependencies:
 
@@ -22,7 +22,7 @@ To see all Java `System.getProperty` references in project modules:
 
     bin/props
     
-The default environment variables are in the file **/default.env** which is copied to a new file **/.env** on project setup. Developers modify their local .env file with private keys and configuration. The .env is never committed to the repository. The **default.env** file is kept up-to-date with all environment variables expected by **bin/common/bootstrap**.
+The default java properties are in the file **/default.env** which is copied to a new file **/runtime.env** on project setup. Developers modify their local runtime.env file with private keys and configuration. The runtime.env file is never committed to the repository. The **default.env** file is kept up-to-date with all environment variables expected by **bin/common/bootstrap**.
 
 ## Run local platform in Docker containers
 

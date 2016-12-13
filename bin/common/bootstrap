@@ -27,14 +27,6 @@ require () {
 APP=${1}
 require "${APP}" "app"
 
-# Load environment variables; defaults are in /default.env
-if [ -a ${PWD}/.env ]; then
-  . ${PWD}/.env
-else
-  printf "\n\nCan't find ${PWD}/.env!\nPlease create one; it's not included with the distribution!\n\n"
-  exit 1
-fi
-
 #
 JAR=/var/app/current/${APP}/target/${APP}-1.0-SNAPSHOT.jar
 if [ ! -e ${JAR} ]; then
@@ -44,31 +36,33 @@ fi
 
 #
 LOG_DIR=/var/log/${APP}
+mkdir -p ${LOG_DIR}
+
+#
 STDOUT_LOG=${LOG_DIR}/${APP}.out.log
 STDERR_LOG=${LOG_DIR}/${APP}.err.log
 ACCESS_LOG=${LOG_DIR}/access.log
-mkdir -p ${LOG_DIR}
+EXTRA_JAVA_ARGS="-Dlog.access.filename=${ACCESS_LOG}"
 
-# Environment (System) Properties
+# Java System Properties
 #
-# The default environment variables are in the file **/default.env**
-# which is copied to a new file **/.env** on project setup. Developers
-# modify their local .env file with private keys and configuration.
+# The default system properties are in the file: /default.env
+# which is copied to a new file on project setup: /runtime.env
 #
-# The **default.env** file is kept up-to-date with all
-# environment variables expected by this script.
+# Developers modify the .gitignored file: /runtime.env
+# (e.g. to add private keys and test specific configurations)
 #
-PROPS="-Dlog.access.filename=${ACCESS_LOG}"
-PROPS="${PROPS} -Dauth.google.id=${AUTH_GOOGLE_ID}"
-PROPS="${PROPS} -Dauth.google.secret=${AUTH_GOOGLE_SECRET}"
-PROPS="${PROPS} -Ddb.mysql.host=${DB_MYSQL_HOST}"
-PROPS="${PROPS} -Ddb.mysql.port=${DB_MYSQL_PORT}"
-PROPS="${PROPS} -Ddb.mysql.user=${DB_MYSQL_USER}"
-PROPS="${PROPS} -Ddb.mysql.pass=${DB_MYSQL_PASS}"
+if [ -a ${PWD}/runtime.env ]; then
+  printf "Loaded Java Properties from ${PWD}/runtime.env\n\n"
+  . ${PWD}/runtime.env
+else
+  printf "\n\nCan't find ${PWD}/runtime.env!\nPlease create one based on default.env.\n\n"
+  exit 1
+fi
 
 #
 printf "Starting java: ${JAR}\n"
 printf "   stdout log: ${STDOUT_LOG}\n"
 printf "   stderr log: ${STDERR_LOG}\n"
 printf "   access log: ${ACCESS_LOG}\n"
-java ${PROPS} -jar ${JAR} 1> ${STDOUT_LOG} 2> ${STDERR_LOG}
+java ${JAVA_ARGS} ${EXTRA_JAVA_ARGS} -jar ${JAR} 1> ${STDOUT_LOG} 2> ${STDERR_LOG}
