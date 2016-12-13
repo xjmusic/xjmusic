@@ -2,8 +2,7 @@ package io.outright.xj.core.application.resource;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 /**
  * Root resource (exposed at "o2" path)
@@ -18,8 +17,7 @@ public class HealthcheckResource {
      * @return String that will be returned as a text/plain response.
      */
     @GET
-    @Produces(MediaType.TEXT_PLAIN)
-    public String healthcheck() {
-      return "OK";
+    public Response healthcheck() {
+      return Response.noContent().build();
     }
 }

@@ -13,6 +13,7 @@ import static org.junit.Assert.assertEquals;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.Response;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,8 +31,8 @@ public class HealthcheckResourceTest {
 
   @Test
   public void GetHealthcheck() {
-    String responseMsg = target.path("o2").request().get(String.class);
-    assertEquals("OK", responseMsg);
+    Response response = target.path("o2").request().get(Response.class);
+    assert response.getStatus()==204;
   }
 
   @Before
