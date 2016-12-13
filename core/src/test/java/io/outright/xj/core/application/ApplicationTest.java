@@ -14,6 +14,7 @@ import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.filter.LoggingFilter;
 import org.glassfish.jersey.server.ResourceConfig;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -81,8 +82,6 @@ public class ApplicationTest extends Mockito {
     verify(resourceConfigProvider).get();
     verify(logFilterProvider).setup("/tmp/access.log", 5);
     verify(resourceConfigProvider).setup("io.outright.xj.core.application.resource", "one", "two", "three");
-    System.clearProperty("log.access.entities.maxsize");
-    System.clearProperty("log.access.filename");
   }
 
   @Test
@@ -101,8 +100,6 @@ public class ApplicationTest extends Mockito {
     verify(resourceConfigProvider).get();
     verify(logFilterProvider).setup("/tmp/access.log", 5);
     verify(resourceConfigProvider).setup("io.outright.xj.core.application.resource");
-    System.clearProperty("log.access.entities.maxsize");
-    System.clearProperty("log.access.filename");
   }
 
   @Test
@@ -121,8 +118,6 @@ public class ApplicationTest extends Mockito {
     verify(resourceConfigProvider).get();
     verify(logFilterProvider).setup("/tmp/access.log", true);
     verify(resourceConfigProvider).setup("io.outright.xj.core.application.resource", "one", "two", "three");
-    System.clearProperty("log.access.entities.all");
-    System.clearProperty("log.access.filename");
   }
 
   @Test
@@ -137,8 +132,6 @@ public class ApplicationTest extends Mockito {
 
     verify(logFilterProvider).setup("/tmp/access.log", 5);
     verify(resourceConfigProvider).setup("io.outright.xj.core.application.resource", "one", "two", "three");
-    System.clearProperty("log.access.entities.maxsize");
-    System.clearProperty("log.access.filename");
   }
 
   @Test
@@ -163,7 +156,6 @@ public class ApplicationTest extends Mockito {
     System.setProperty("app.host","special");
     Application app = injector.getInstance(Application.class);
     assert app.BaseURI().equals("http://special:80/");
-    System.clearProperty("app.host");
   }
 
   @Test
@@ -171,12 +163,20 @@ public class ApplicationTest extends Mockito {
     System.setProperty("app.port","7000");
     Application app = injector.getInstance(Application.class);
     assert app.BaseURI().equals("http://0.0.0.0:7000/");
-    System.clearProperty("app.port");
   }
 
   @Before
-  public void before() throws Exception {
+  public void setup() throws Exception {
     createInjector();
+  }
+
+  @After
+  public void cleanup() {
+    System.clearProperty("app.port");
+    System.clearProperty("app.host");
+    System.clearProperty("log.access.entities.all");
+    System.clearProperty("log.access.entities.maxsize");
+    System.clearProperty("log.access.filename");
   }
 
   private void createInjector() {

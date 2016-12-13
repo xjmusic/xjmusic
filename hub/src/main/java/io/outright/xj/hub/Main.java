@@ -2,8 +2,11 @@
 package io.outright.xj.hub;
 
 import io.outright.xj.core.application.Application;
-import io.outright.xj.core.application.ApplicationImpl;
-import io.outright.xj.core.application.server.*;
+import io.outright.xj.core.application.ApplicationModule;
+import io.outright.xj.core.util.DefaultProperty;
+
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 
 import java.io.IOException;
 
@@ -13,6 +16,7 @@ import java.io.IOException;
  */
 public class Main {
   private static Application app;
+    private static final Injector injector = Guice.createInjector(new ApplicationModule());
 
     /**
      * Main method.
@@ -20,19 +24,12 @@ public class Main {
      * @throws IOException if execution fails
      */
     public static void main(String[] args) throws IOException {
-      int defaultPort = 8042;
-      HttpServerProvider httpServerProvider = new HttpServerProviderImpl();
-      ResourceConfigProvider resourceConfigProvider = new ResourceConfigProviderImpl();
-      LogFilterProvider logFilterProvider = new LogFilterProviderImpl();
+      // Default port
+      DefaultProperty.setIfNotAlready("app.port","8042");
 
       // Application
-      app = new ApplicationImpl(
-        httpServerProvider,
-        resourceConfigProvider,
-        logFilterProvider,
-        new String[]{"io.outright.xj.hub"},
-        defaultPort
-      );
+      app = injector.getInstance(Application.class);
+      app.Configure("io.outright.xj.hub");
 
       // Shutdown Hook
       Runtime.getRuntime().addShutdownHook(new Thread(Main::shutdown));
