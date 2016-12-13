@@ -33,6 +33,13 @@
       <artifactId>core</artifactId>
       <version>1.0-SNAPSHOT</version>
     </dependency>
+    <dependency>
+      <groupId>io.outright.xj</groupId>
+      <artifactId>core</artifactId>
+      <version>1.0-SNAPSHOT</version>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
 
     <!-- grizzly2 jersey container -->
     <dependency>
@@ -117,6 +124,7 @@
         </configuration>
       </plugin>
 
+<!--
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>exec-maven-plugin</artifactId>
@@ -132,6 +140,7 @@
           <mainClass>io.outright.xj.hub.Main</mainClass>
         </configuration>
       </plugin>
+-->
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>

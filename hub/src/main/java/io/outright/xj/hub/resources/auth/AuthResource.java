@@ -1,4 +1,4 @@
-package io.outright.xj.hub.resource.auth;
+package io.outright.xj.hub.resources.auth;
 
 import org.jooq.tools.json.JSONObject;
 

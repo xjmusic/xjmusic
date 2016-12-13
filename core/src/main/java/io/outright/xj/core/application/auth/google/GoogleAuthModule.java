@@ -10,9 +10,9 @@ import com.google.api.client.util.store.DataStoreFactory;
 import com.google.api.client.util.store.MemoryDataStoreFactory;
 import com.google.inject.AbstractModule;
 
-public class AuthGoogleModule extends AbstractModule {
+public class GoogleAuthModule extends AbstractModule {
   protected void configure() {
-    bind(AuthGoogleProvider.class).to(AuthGoogleProviderImpl.class);
+    bind(GoogleAuthProvider.class).to(GoogleAuthProviderImpl.class);
     bind(JsonFactory.class).to(JacksonFactory.class);
     bind(HttpTransport.class).to(NetHttpTransport.class);
     bind(DataStoreFactory.class).to(MemoryDataStoreFactory.class);
