@@ -27,11 +27,11 @@ public class AuthGoogleResource {
   /**
    * Begin user OAuth2 authentication via Google.
    *
-   * @return Response temporary redirection to auth URL
+   * @return Response redirection to auth code request URL
    */
   @GET
   @WebResult
-  public Response authGoogleBegin() {
+  public Response redirectToAuthCodeRequestUrl() {
     GoogleAuthProvider googleAuthProvider = injector.getInstance(GoogleAuthProvider.class);
     String url;
     try {

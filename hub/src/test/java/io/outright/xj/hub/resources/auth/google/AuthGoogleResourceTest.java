@@ -21,7 +21,9 @@ public class AuthGoogleResourceTest extends ResourceEndpointTest {
         "?client_id=12345" +
         "&redirect_uri=http://xj.outright.io/auth/google/callback" +
         "&response_type=code" +
-        "&scope=profile");
+        "&scope=profile" +
+        "&state=xj-music"
+      );
   }
 
   @Before
