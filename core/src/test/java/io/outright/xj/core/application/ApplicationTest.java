@@ -54,7 +54,7 @@ public class ApplicationTest extends Mockito {
   public void Start_Failed() throws IOException {
     when(httpServerProvider.get())
       .thenReturn(httpServer);
-    doThrow(new IOException("testing: application start failed"))
+    doThrow(new IOException("this is a test of application start failed"))
       .when(httpServer).start();
     when(resourceConfigProvider.get())
       .thenReturn(resourceConfig);
@@ -124,7 +124,7 @@ public class ApplicationTest extends Mockito {
   public void Configure_ThrowsErrorOpeningAccessLog() throws IOException {
     System.setProperty("log.access.filename", "/tmp/access.log");
     System.setProperty("log.access.entities.maxsize", "5");
-    doThrow(new IOException("testing: application configuration fails to open access log for writing"))
+    doThrow(new IOException("This is a test of application configuration fails to open access log for writing"))
       .when(logFilterProvider).setup("/tmp/access.log", 5);
 
     Application app = injector.getInstance(Application.class);
