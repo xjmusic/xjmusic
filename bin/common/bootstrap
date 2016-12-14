@@ -61,6 +61,7 @@ else
 fi
 
 #
+printf "[$(date)]\n"
 printf "Starting java: ${JAR}\n"
 printf "   stdout log: ${STDOUT_LOG}\n"
 printf "   stderr log: ${STDERR_LOG}\n"
