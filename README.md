@@ -16,6 +16,10 @@ To only setup the workflow and check dependencies:
 
     bin/setup
 
+To compile the Java server-side applications and package them for deployment:
+
+    bin/package
+
 ## Environment (System) properties
 
 To see all Java `System.getProperty` references in project modules:
