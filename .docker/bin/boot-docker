@@ -17,6 +17,24 @@ mysql_ok () {
   fi
 }
 #
+mysql_create_database () {
+  HOST="${1}"
+  PORT="${2}"
+  NAME="${3}"
+  if mysql \
+    -h "${HOST}" \
+    -P "${PORT}" \
+    -uroot \
+    --connect-timeout=1 \
+    -e "create database if not exists ${NAME};"; then
+    echo "Created MySQL database ${NAME}"
+    return 0
+  else
+    echo "Failed to create MySQL database ${NAME}"
+    return 1
+  fi
+}
+#
 redis_ok () {
   HOST="${1}"
   PORT="${2}"
@@ -46,6 +64,11 @@ printf "\n[xj:docker]\n"
 #
 wait_until "mysql_ok mysql01er1 3306"
 wait_until "redis_ok redis01er1 6379"
+
+#
+if ! mysql_create_database mysql01er1 3306 xj; then
+  exit 1
+fi
 
 # serve static frontend with nginx
 chmod -R +r /var/app/current/ui/dist

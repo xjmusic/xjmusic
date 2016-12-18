@@ -5,7 +5,6 @@
   <modelVersion>4.0.0</modelVersion>
 
   <!-- io.outright.xj [parent] -->
-
   <parent>
     <groupId>io.outright</groupId>
     <artifactId>xj</artifactId>
@@ -14,7 +13,6 @@
   </parent>
 
   <!-- io.outright.xj.core -->
-
   <groupId>io.outright.xj</groupId>
   <artifactId>core</artifactId>
   <version>1.0-SNAPSHOT</version>
@@ -26,62 +24,79 @@
     <maven.compiler.target>1.8</maven.compiler.target>
     <jersey.version>2.17</jersey.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <db.url>jdbc:mysql://localhost:3306/xj</db.url>
+    <db.database>xj</db.database>
     <db.username>root</db.username>
     <db.driver>com.mysql.cj.jdbc.Driver</db.driver>
+    <db.url>jdbc:mysql://localhost:3306/${db.database}</db.url>
     <org.jooq.version>3.8.6</org.jooq.version>
   </properties>
 
   <!-- deps -->
   <dependencies>
 
-    <!-- grizzly2 jersey container -->
+    <!-- HTTP server container: grizzly2 jersey container -->
     <dependency>
       <groupId>org.glassfish.jersey.containers</groupId>
       <artifactId>jersey-container-grizzly2-http</artifactId>
       <version>${jersey.version}</version>
     </dependency>
 
-    <!-- https://mvnrepository.com/artifact/org.glassfish.jersey.core/jersey-common -->
+    <!-- HTTP server: https://mvnrepository.com/artifact/org.glassfish.jersey.core/jersey-common -->
     <dependency>
       <groupId>org.glassfish.jersey.core</groupId>
       <artifactId>jersey-common</artifactId>
       <version>${jersey.version}</version>
     </dependency>
 
-    <!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
-    <dependency>
-      <groupId>mysql</groupId>
-      <artifactId>mysql-connector-java</artifactId>
-      <version>6.0.5</version>
-    </dependency>
-
-    <!-- https://mvnrepository.com/artifact/org.jooq/jooq -->
-    <dependency>
-      <groupId>org.jooq</groupId>
-      <artifactId>jooq</artifactId>
-      <version>${org.jooq.version}</version>
-    </dependency>
-
-    <!-- https://mvnrepository.com/artifact/javax.ws.rs/javax.ws.rs-api -->
+    <!-- HTTP server REST webservice: https://mvnrepository.com/artifact/javax.ws.rs/javax.ws.rs-api -->
     <dependency>
       <groupId>javax.ws.rs</groupId>
       <artifactId>javax.ws.rs-api</artifactId>
       <version>2.0.1</version>
     </dependency>
 
-    <!-- https://mvnrepository.com/artifact/com.google.api-client/google-api-client -->
+    <!-- database connection: https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
+    <dependency>
+      <groupId>mysql</groupId>
+      <artifactId>mysql-connector-java</artifactId>
+      <version>6.0.5</version>
+    </dependency>
+
+    <!-- database access structures: https://mvnrepository.com/artifact/org.jooq/jooq -->
+    <dependency>
+      <groupId>org.jooq</groupId>
+      <artifactId>jooq</artifactId>
+      <version>${org.jooq.version}</version>
+    </dependency>
+
+    <!-- database access: https://github.com/xetorthio/jedis -->
+    <dependency>
+      <groupId>redis.clients</groupId>
+      <artifactId>jedis</artifactId>
+      <version>2.9.0</version>
+      <type>jar</type>
+      <scope>compile</scope>
+    </dependency>
+
+    <!-- external authentication: https://mvnrepository.com/artifact/com.google.api-client/google-api-client -->
     <dependency>
       <groupId>com.google.api-client</groupId>
       <artifactId>google-api-client</artifactId>
       <version>1.22.0</version>
     </dependency>
 
-    <!-- https://mvnrepository.com/artifact/com.google.apis/google-api-services-plus -->
+    <!-- external authentication: https://mvnrepository.com/artifact/com.google.apis/google-api-services-plus -->
     <dependency>
       <groupId>com.google.apis</groupId>
       <artifactId>google-api-services-plus</artifactId>
       <version>v1-rev477-1.22.0</version>
+    </dependency>
+
+    <!-- database migration: https://flywaydb.org/documentation/api/ -->
+    <dependency>
+      <groupId>org.flywaydb</groupId>
+      <artifactId>flyway-core</artifactId>
+      <version>4.0.3</version>
     </dependency>
 
     <!-- injection: https://mvnrepository.com/artifact/com.google.inject/guice -->
@@ -134,9 +149,11 @@
     <plugins>
 
       <plugin>
+        <!-- Note that we are running migrations during the build process
+             solely to ensure that jOOQ generates the latest tables -->
         <groupId>org.flywaydb</groupId>
         <artifactId>flyway-maven-plugin</artifactId>
-        <version>3.0</version>
+        <version>4.0.3</version>
 
         <!-- Note that we're executing the Flyway
              plugin in the "generate-sources" phase -->
@@ -158,7 +175,7 @@
           <url>${db.url}</url>
           <user>${db.username}</user>
           <locations>
-            <location>filesystem:src/main/resources/db/migrations</location>
+            <location>filesystem:src/main/resources/db/migration</location>
           </locations>
         </configuration>
       </plugin>
@@ -192,7 +209,7 @@
           <generator>
             <database>
               <includes>.*</includes>
-              <inputSchema>xj</inputSchema>
+              <inputSchema>${db.database}</inputSchema>
             </database>
             <target>
               <packageName>io.outright.xj.core</packageName>
@@ -211,24 +228,6 @@
           <target>${maven.compiler.target}</target>
         </configuration>
       </plugin>
-
-<!--
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>exec-maven-plugin</artifactId>
-        <version>1.2.1</version>
-        <executions>
-          <execution>
-            <goals>
-              <goal>java</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <mainClass>io.outright.xj.core.Main</mainClass>
-        </configuration>
-      </plugin>
--->
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -255,6 +254,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
+        <version>3.0.2</version>
         <executions>
           <execution>
             <phase>package</phase>

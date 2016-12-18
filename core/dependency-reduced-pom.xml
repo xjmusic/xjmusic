@@ -14,7 +14,7 @@
       <plugin>
         <groupId>org.flywaydb</groupId>
         <artifactId>flyway-maven-plugin</artifactId>
-        <version>3.0</version>
+        <version>4.0.3</version>
         <executions>
           <execution>
             <phase>generate-sources</phase>
@@ -28,7 +28,7 @@
           <url>${db.url}</url>
           <user>${db.username}</user>
           <locations>
-            <location>filesystem:src/main/resources/db/migrations</location>
+            <location>filesystem:src/main/resources/db/migration</location>
           </locations>
         </configuration>
       </plugin>
@@ -53,7 +53,7 @@
           <generator>
             <database>
               <includes>.*</includes>
-              <inputSchema>xj</inputSchema>
+              <inputSchema>${db.database}</inputSchema>
             </database>
             <target>
               <packageName>io.outright.xj.core</packageName>
@@ -90,6 +90,7 @@
       </plugin>
       <plugin>
         <artifactId>maven-jar-plugin</artifactId>
+        <version>3.0.2</version>
         <executions>
           <execution>
             <phase>package</phase>
@@ -103,13 +104,14 @@
   </build>
   <properties>
     <jersey.version>2.17</jersey.version>
-    <db.url>jdbc:mysql://localhost:3306/xj</db.url>
+    <db.url>jdbc:mysql://localhost:3306/${db.database}</db.url>
     <org.jooq.version>3.8.6</org.jooq.version>
+    <db.driver>com.mysql.cj.jdbc.Driver</db.driver>
+    <maven.compiler.target>1.8</maven.compiler.target>
     <db.username>root</db.username>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>1.8</maven.compiler.source>
-    <db.driver>com.mysql.cj.jdbc.Driver</db.driver>
-    <maven.compiler.target>1.8</maven.compiler.target>
+    <db.database>xj</db.database>
   </properties>
 </project>
 

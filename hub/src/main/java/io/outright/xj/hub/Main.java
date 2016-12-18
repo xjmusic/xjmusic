@@ -1,12 +1,16 @@
 // Copyright (c) 2016, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 package io.outright.xj.hub;
 
-import io.outright.xj.core.application.Application;
-import io.outright.xj.core.application.ApplicationModule;
-import io.outright.xj.core.util.DefaultProperty;
+import io.outright.xj.core.app.App;
+import io.outright.xj.core.app.AppModule;
+import io.outright.xj.core.app.config.Config;
+import io.outright.xj.hub.controller.migration.MigrationController;
+import io.outright.xj.core.app.exception.ConfigException;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
@@ -15,31 +19,41 @@ import java.io.IOException;
  *
  */
 public class Main {
-  private static Application app;
-    private static final Injector injector = Guice.createInjector(new ApplicationModule());
+  private static App app;
+  private static final Injector injector = Guice.createInjector(new AppModule());
+  private static Logger log = LoggerFactory.getLogger(Main.class);
 
-    /**
+  /**
      * Main method.
      * @param args arguments
      * @throws IOException if execution fails
      */
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, ConfigException {
       // Default port
-      DefaultProperty.setIfNotAlready("app.port","8042");
+      Config.setDefault("app.port", "8042");
 
-      // Application
-      app = injector.getInstance(Application.class);
-      app.Configure("io.outright.xj.hub");
+      // App
+      app = injector.getInstance(App.class);
+      app.configure("io.outright.xj.hub");
+
+      // Database migrations
+      MigrationController migrationController = injector.getInstance(MigrationController.class);
+      try {
+        migrationController.migrate();
+      } catch (ConfigException e) {
+        log.error("Migrations failed! App will not start.", e);
+        System.exit(1);
+      }
 
       // Shutdown Hook
       Runtime.getRuntime().addShutdownHook(new Thread(Main::shutdown));
 
-      // Start
-      app.Start();
+      // start
+      app.start();
     }
 
   private static void shutdown() {
-    app.Stop();
+    app.stop();
   }
 
 }

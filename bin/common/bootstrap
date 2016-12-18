@@ -41,8 +41,6 @@ mkdir -p ${LOG_DIR}
 #
 STDOUT_LOG=${LOG_DIR}/${APP}.out.log
 STDERR_LOG=${LOG_DIR}/${APP}.err.log
-ACCESS_LOG=${LOG_DIR}/access.log
-EXTRA_JAVA_ARGS="-Dlog.access.filename=${ACCESS_LOG}"
 
 # Java System Properties
 #
@@ -72,4 +70,4 @@ printf "Starting java: ${JAR}\n"
 printf "   stdout log: ${STDOUT_LOG}\n"
 printf "   stderr log: ${STDERR_LOG}\n"
 printf "   access log: ${ACCESS_LOG}\n"
-java ${JAVA_ARGS} ${EXTRA_JAVA_ARGS} -jar ${JAR} 1> ${STDOUT_LOG} 2> ${STDERR_LOG}
+java ${JAVA_ARGS} -jar ${JAR} 1> ${STDOUT_LOG} 2> ${STDERR_LOG}

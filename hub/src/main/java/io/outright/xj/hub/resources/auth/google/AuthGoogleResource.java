@@ -1,8 +1,8 @@
 package io.outright.xj.hub.resources.auth.google;
 
-import io.outright.xj.core.application.auth.google.GoogleAuthModule;
-import io.outright.xj.core.application.auth.google.GoogleAuthProvider;
-import io.outright.xj.core.application.exception.ConfigException;
+import io.outright.xj.core.external.google.GoogleModule;
+import io.outright.xj.core.external.google.GoogleProvider;
+import io.outright.xj.core.app.exception.ConfigException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
+import javax.annotation.security.PermitAll;
 import javax.jws.WebResult;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -21,8 +22,8 @@ import java.net.URI;
  */
 @Path("auth/google")
 public class AuthGoogleResource {
-  private Injector injector = Guice.createInjector(new GoogleAuthModule());
-  private Logger log = LoggerFactory.getLogger(AuthGoogleResource.class);
+  private Injector injector = Guice.createInjector(new GoogleModule());
+  private static Logger log = LoggerFactory.getLogger(AuthGoogleResource.class);
 
   /**
    * Begin user OAuth2 authentication via Google.
@@ -31,11 +32,12 @@ public class AuthGoogleResource {
    */
   @GET
   @WebResult
+  @PermitAll
   public Response redirectToAuthCodeRequestUrl() {
-    GoogleAuthProvider googleAuthProvider = injector.getInstance(GoogleAuthProvider.class);
+    GoogleProvider authGoogleProvider = injector.getInstance(GoogleProvider.class);
     String url;
     try {
-      url = googleAuthProvider.getAuthCodeRequestUrl();
+      url = authGoogleProvider.getAuthCodeRequestUrl();
     } catch (ConfigException e) {
       log.error("Google Auth Provider Failed!", e);
       return Response.serverError().build();

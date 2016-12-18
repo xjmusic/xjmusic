@@ -55,7 +55,7 @@ step () {
 step_ok () { printf "░░ OK\\n\n"; }
 finished_ok () {
   cd ${BASEPATH}
-  printf "\\n██ Finished OK\n\n"
+  printf "\\n██ Finished ${0} OK\n\n"
 }
 indent () {
   TEXT=${1}

@@ -1,0 +1,11 @@
+// Copyright Outright Mental, Inc. All Rights Reserved.
+package io.outright.xj.core.util.token;
+
+import java.util.UUID;
+
+public class TokenGeneratorImpl implements TokenGenerator {
+  @Override
+  public String generate() {
+    return  String.valueOf(System.nanoTime()) + "-" + UUID.randomUUID().toString();
+  }
+}

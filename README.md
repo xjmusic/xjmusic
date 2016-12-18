@@ -154,9 +154,9 @@ To run local migrations (in the `core` submodule via the Flyway plugin):
 
 ## DNS
 
-For development, your local machine needs to have the domain `xj.outright.dev` pointed to `127.0.0.1` in `/etc/hosts` like:
+For development, your local machine needs to have the domain `xj.outright.dev` pointed to `172.16.238.10` (the address set for xj01er1 in the docker-compose.yml file) in `/etc/hosts` like:
 
-    127.0.0.1 xj.outright.dev
+    172.16.238.10 xj.outright.dev
 
 ## Google Authentication
 

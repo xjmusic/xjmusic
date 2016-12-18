@@ -1,0 +1,79 @@
+// Copyright Outright Mental, Inc. All Rights Reserved.
+package io.outright.xj.core.app.access;
+
+import io.outright.xj.core.app.config.Config;
+import io.outright.xj.core.app.db.RedisDatabaseProvider;
+import io.outright.xj.core.app.exception.AccessException;
+import io.outright.xj.core.app.exception.ConfigException;
+import io.outright.xj.core.tables.records.AccountUserRecord;
+import io.outright.xj.core.tables.records.UserAuthRecord;
+import io.outright.xj.core.tables.records.UserRoleRecord;
+import io.outright.xj.core.util.token.TokenGenerator;
+
+import com.google.inject.Inject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.ws.rs.core.NewCookie;
+import java.util.Collection;
+
+public class UserAccessProviderImpl implements UserAccessProvider {
+  private final static Logger log = LoggerFactory.getLogger(UserAccessProviderImpl.class);
+  private final RedisDatabaseProvider redisDatabaseProvider;
+  private final TokenGenerator tokenGenerator;
+
+  private final String tokenName = Config.accessTokenName();
+  private final String tokenDomain = Config.accessTokenDomain();
+  private final String tokenPath = Config.accessTokenPath();
+  private final String tokenMaxAge = String.valueOf(Config.accessTokenMaxAge());
+
+  @Inject
+  public UserAccessProviderImpl(
+    RedisDatabaseProvider redisDatabaseProvider,
+    TokenGenerator tokenGenerator
+  ) {
+    this.redisDatabaseProvider = redisDatabaseProvider;
+    this.tokenGenerator = tokenGenerator;
+  }
+
+  @Override
+  public String create(UserAuthRecord userAuthRecord, Collection<AccountUserRecord> userAccountRecords, Collection<UserRoleRecord> userRoleRecords) throws AccessException {
+    String accessToken = tokenGenerator.generate();
+    UserAccess userAccess = new UserAccess(userAuthRecord, userAccountRecords,userRoleRecords);
+    try {
+      redisDatabaseProvider.getConnection().hmset(accessToken, userAccess.getMap());
+    } catch (ConfigException e) {
+      log.error("Redis database connection is not get properly!", e);
+      throw new AccessException("Redis database connection is not get properly: "+e);
+    }
+
+    return accessToken;
+  }
+
+  @Override
+  public void expire(String token) {
+    // TODO: expire access token in redis database
+  }
+
+  @Override
+  public UserAccess get(String accessToken) throws AccessException {
+    try {
+      return new UserAccess(redisDatabaseProvider.getConnection().hgetAll(accessToken));
+    } catch (ConfigException e) {
+      log.error("Redis database connection is not get properly!", e);
+      throw new AccessException("Redis database connection is not get properly: "+e);
+    }
+  }
+
+  @Override
+  public NewCookie newCookie(String accessToken) {
+    return NewCookie.valueOf(
+      tokenName + "=" + accessToken + ";" +
+        (tokenDomain.length() > 0 ? "Domain=" + tokenDomain + ";" : "" ) +
+        "Path=" + tokenPath + ";" +
+        "Max-Age=" + tokenMaxAge
+    );
+  }
+
+
+}

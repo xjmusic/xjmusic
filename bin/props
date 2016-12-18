@@ -12,10 +12,22 @@ indent "${APPS}"
 step_ok
 
 #
-step "System properties:"
+step "Searching for loose system properties"
 for APP in ${APPS}; do
-  ack-grep --ignore-file='match:/Test.java/' --heading --color -o 'System.getProperty\(\"([^\"]+)\"' ${PWD}/${APP} | sed 's/System.getProperty(//g'
+  if ack-grep --ignore-file='match:/Test.java/' \
+              --ignore-file='match:/Config.java/' \
+              --heading --color -o \
+              'System.getProperty\(([^\)]+)\)' \
+              ${PWD}/${APP}; then
+    printf "\n${RED}ERROR!${RESET}\nPlease ensure that all app configuration implements ${GREEN}io.outright.xj.core.app.config${RESET}.\nThere should be no loose System.getProperty().\n\n"
+    exit 1
+  fi
 done
+step_ok
+
+#
+step "io.outright.xj.core.app.config.Config properties:"
+indent "$(grep -oE "\"[a-z]+\.[a-z\.]+\"" core/src/main/java/io/outright/xj/core/app/config/Config.java)"
 step_ok
 
 #
