@@ -1,14 +1,4 @@
 -- -----------------------------------------------------
--- Table `xj`.`user`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `xj`.`user` (
-  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `google_token` VARCHAR(5000) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE INDEX `id_UNIQUE` (`id` ASC))
-  ENGINE = InnoDB;
-
--- -----------------------------------------------------
 -- Table `xj`.`credit`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `xj`.`credit` (

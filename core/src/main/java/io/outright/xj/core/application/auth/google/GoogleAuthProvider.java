@@ -12,7 +12,6 @@ public interface GoogleAuthProvider {
    * Requires these System Properties to be set:
    *   auth.google.id
    *   auth.google.secret
-   *   auth.google.email
    *
    * @throws ConfigException if required system properties are not set
    * @return String authorization code request URL

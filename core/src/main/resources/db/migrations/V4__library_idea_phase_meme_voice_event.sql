@@ -3,8 +3,15 @@
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `xj`.`library` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `account_id` INT UNSIGNED NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE INDEX `id_UNIQUE` (`id` ASC))
+  UNIQUE INDEX `id_UNIQUE` (`id` ASC),
+  INDEX `library_fk_account_idx` (`account_id` ASC),
+  CONSTRAINT `library_fk_account`
+  FOREIGN KEY (`account_id`)
+  REFERENCES `xj`.`account` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
   ENGINE = InnoDB;
 
 

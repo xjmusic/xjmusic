@@ -6,5 +6,4 @@ import io.outright.xj.core.application.exception.ConfigException;
 public interface GoogleOAuth2Credentials {
   String getClientId() throws ConfigException;
   String getClientSecret() throws ConfigException;
-  String getEmail() throws ConfigException;
 }

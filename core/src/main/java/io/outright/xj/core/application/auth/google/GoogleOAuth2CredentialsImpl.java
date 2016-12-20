@@ -14,9 +14,4 @@ public class GoogleOAuth2CredentialsImpl implements GoogleOAuth2Credentials {
   public String getClientSecret() throws ConfigException {
     return RequiredProperty.get("auth.google.secret");
   }
-
-  @Override
-  public String getEmail() throws ConfigException {
-    return RequiredProperty.get("auth.google.email");
-  }
 }
