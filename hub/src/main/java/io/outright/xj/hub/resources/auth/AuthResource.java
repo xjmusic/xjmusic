@@ -1,11 +1,11 @@
 package io.outright.xj.hub.resources.auth;
 
-import io.outright.xj.core.app.AppModule;
+import io.outright.xj.core.app.CoreModule;
 import io.outright.xj.core.app.access.Role;
 import io.outright.xj.core.app.access.UserAccess;
 import io.outright.xj.core.external.google.GoogleModule;
 import io.outright.xj.core.tables.records.UserRecord;
-import io.outright.xj.hub.controller.ControllerModule;
+import io.outright.xj.hub.HubModule;
 import io.outright.xj.hub.controller.user.UserController;
 
 import com.google.api.client.json.JsonFactory;
@@ -27,7 +27,7 @@ import java.io.IOException;
  */
 @Path("auth")
 public class AuthResource {
-  private static final Injector injector = Guice.createInjector(new AppModule(), new ControllerModule(), new GoogleModule());
+  private static final Injector injector = Guice.createInjector(new CoreModule(), new HubModule(), new GoogleModule());
 //  private static Logger log = LoggerFactory.getLogger(AuthResource.class);
   private final JsonFactory jsonFactory = injector.getInstance(JsonFactory.class);
   private final UserController userController = injector.getInstance(UserController.class);

@@ -1,6 +1,6 @@
 package io.outright.xj.core.app.access;
 
-import io.outright.xj.core.app.AppModule;
+import io.outright.xj.core.app.CoreModule;
 import io.outright.xj.core.app.config.Config;
 import io.outright.xj.core.app.exception.AccessException;
 
@@ -25,7 +25,7 @@ import java.util.Map;
 @Priority(Priorities.AUTHORIZATION) // authorization filter - should go after any authentication filters
 public class AccessTokenAuthFilterImpl implements AccessTokenAuthFilter {
   private final Logger log = LoggerFactory.getLogger(AccessTokenAuthFilterImpl.class);
-  private final static Injector injector = Guice.createInjector(new AppModule());
+  private final static Injector injector = Guice.createInjector(new CoreModule());
   private final UserAccessProvider userAccessProvider = injector.getInstance(UserAccessProvider.class);
 
   private final String accessTokenName = Config.accessTokenName();

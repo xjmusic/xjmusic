@@ -24,7 +24,7 @@ import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.inject.AbstractModule;
 
-public class AppModule extends AbstractModule {
+public class CoreModule extends AbstractModule {
   protected void configure() {
     bind(JsonFactory.class).to(JacksonFactory.class);
     bind(UserAccessProvider.class).to(UserAccessProviderImpl.class);

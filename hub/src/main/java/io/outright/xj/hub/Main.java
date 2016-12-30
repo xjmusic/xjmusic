@@ -2,7 +2,7 @@
 package io.outright.xj.hub;
 
 import io.outright.xj.core.app.App;
-import io.outright.xj.core.app.AppModule;
+import io.outright.xj.core.app.CoreModule;
 import io.outright.xj.core.app.config.Config;
 import io.outright.xj.hub.controller.migration.MigrationController;
 import io.outright.xj.core.app.exception.ConfigException;
@@ -20,7 +20,7 @@ import java.io.IOException;
  */
 public class Main {
   private static App app;
-  private static final Injector injector = Guice.createInjector(new AppModule());
+  private static final Injector injector = Guice.createInjector(new CoreModule());
   private static Logger log = LoggerFactory.getLogger(Main.class);
 
   /**

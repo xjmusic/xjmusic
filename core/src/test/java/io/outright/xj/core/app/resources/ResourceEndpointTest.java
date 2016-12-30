@@ -2,7 +2,7 @@
 package io.outright.xj.core.app.resources;
 
 import io.outright.xj.core.app.App;
-import io.outright.xj.core.app.AppModule;
+import io.outright.xj.core.app.CoreModule;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -19,7 +19,7 @@ public class ResourceEndpointTest {
   private App app;
   private WebTarget target;
   private File tempFile;
-  private Injector injector = Guice.createInjector(new AppModule());
+  private Injector injector = Guice.createInjector(new CoreModule());
 
   @Before
   public void before() throws Exception {

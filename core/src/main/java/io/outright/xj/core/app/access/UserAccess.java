@@ -23,7 +23,7 @@ public class UserAccess {
   private static final String ACCOUNTS_KEY = "accounts";
   private static final String ROLES_KEY = "roles";
   static final String CONTEXT_KEY = "userAccess";
-  //  private final static Injector injector = Guice.createInjector(new AppModule());
+  //  private final static Injector injector = Guice.createInjector(new CoreModule());
   private Map<String, String> innerMap;
 
   UserAccess(

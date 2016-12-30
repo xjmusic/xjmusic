@@ -1,6 +1,6 @@
 package io.outright.xj.hub.resources.auth.google;
 
-import io.outright.xj.core.app.AppModule;
+import io.outright.xj.core.app.CoreModule;
 import io.outright.xj.core.app.access.UserAccessProvider;
 import io.outright.xj.core.app.config.Config;
 import io.outright.xj.core.app.exception.AccessException;
@@ -8,6 +8,7 @@ import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.app.exception.DatabaseException;
 import io.outright.xj.core.app.server.HttpResponseProvider;
 import io.outright.xj.core.external.google.GoogleModule;
+import io.outright.xj.hub.HubModule;
 import io.outright.xj.hub.controller.auth.GoogleAuthController;
 
 import com.google.api.client.auth.oauth2.AuthorizationCodeResponseUrl;
@@ -30,7 +31,7 @@ import javax.ws.rs.core.UriInfo;
 @Path("auth/google/callback")
 public class AuthGoogleCallbackResource {
   private final Logger log = LoggerFactory.getLogger(AuthGoogleCallbackResource.class);
-  private final Injector injector = Guice.createInjector(new AppModule(), new GoogleModule());
+  private final Injector injector = Guice.createInjector(new CoreModule(), new HubModule(), new GoogleModule());
   private final GoogleAuthController googleAuthController = injector.getInstance(GoogleAuthController.class);
   private final UserAccessProvider userAccessProvider = injector.getInstance(UserAccessProvider.class);
   private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);

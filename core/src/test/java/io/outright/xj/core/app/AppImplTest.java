@@ -160,7 +160,7 @@ public class AppImplTest extends Mockito {
   }
 
   private void createInjector() {
-    injector = Guice.createInjector(Modules.override(new AppModule()).with(
+    injector = Guice.createInjector(Modules.override(new CoreModule()).with(
         new AbstractModule() {
           @Override
           public void configure() {
