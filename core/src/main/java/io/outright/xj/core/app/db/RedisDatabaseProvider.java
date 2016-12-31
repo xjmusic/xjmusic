@@ -6,5 +6,5 @@ import io.outright.xj.core.app.exception.ConfigException;
 import redis.clients.jedis.Jedis;
 
 public interface RedisDatabaseProvider {
-  Jedis getConnection() throws ConfigException;
+  Jedis getClient() throws ConfigException;
 }

@@ -87,7 +87,7 @@ public class UserAccessProviderImplTest {
 
   @Test
   public void create() throws Exception {
-    when(redisDatabaseProvider.getConnection())
+    when(redisDatabaseProvider.getClient())
       .thenReturn(redisConnection);
     when(tokenGenerator.generate())
       .thenReturn("token123");

@@ -2,6 +2,8 @@
 package io.outright.xj.core.app.access;
 
 import io.outright.xj.core.app.exception.AccessException;
+import io.outright.xj.core.app.exception.ConfigException;
+import io.outright.xj.core.app.exception.DatabaseException;
 import io.outright.xj.core.tables.records.AccountUserRecord;
 import io.outright.xj.core.tables.records.UserAuthRecord;
 import io.outright.xj.core.tables.records.UserRoleRecord;
@@ -33,8 +35,9 @@ public interface UserAccessProvider {
    *
    * @param token to fetch.
    * @return User who is granted access by this token
+   * @throws DatabaseException if something goes wrong with storage access.
    */
-  UserAccess get(String token) throws AccessException;
+  UserAccess get(String token) throws DatabaseException;
 
   /**
    * Create a new cookie to set access token.

@@ -11,7 +11,7 @@ public class RedisDatabaseProviderImpl implements RedisDatabaseProvider {
   private final String host = Config.dbRedisHost();
 
   @Override
-  public Jedis getConnection() throws ConfigException {
+  public Jedis getClient() throws ConfigException {
     return new Jedis(host, port);
   }
 }

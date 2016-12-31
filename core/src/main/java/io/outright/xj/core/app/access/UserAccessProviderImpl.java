@@ -5,6 +5,7 @@ import io.outright.xj.core.app.config.Config;
 import io.outright.xj.core.app.db.RedisDatabaseProvider;
 import io.outright.xj.core.app.exception.AccessException;
 import io.outright.xj.core.app.exception.ConfigException;
+import io.outright.xj.core.app.exception.DatabaseException;
 import io.outright.xj.core.tables.records.AccountUserRecord;
 import io.outright.xj.core.tables.records.UserAuthRecord;
 import io.outright.xj.core.tables.records.UserRoleRecord;
@@ -15,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.NewCookie;
+import java.io.IOException;
 import java.util.Collection;
 
 public class UserAccessProviderImpl implements UserAccessProvider {
@@ -41,7 +43,7 @@ public class UserAccessProviderImpl implements UserAccessProvider {
     String accessToken = tokenGenerator.generate();
     UserAccess userAccess = new UserAccess(userAuthRecord, userAccountRecords,userRoleRecords);
     try {
-      redisDatabaseProvider.getConnection().hmset(accessToken, userAccess.getMap());
+      redisDatabaseProvider.getClient().hmset(accessToken, userAccess.getMap());
     } catch (ConfigException e) {
       log.error("Redis database connection is not get properly!", e);
       throw new AccessException("Redis database connection is not get properly: "+e);
@@ -56,12 +58,11 @@ public class UserAccessProviderImpl implements UserAccessProvider {
   }
 
   @Override
-  public UserAccess get(String accessToken) throws AccessException {
+  public UserAccess get(String accessToken) throws DatabaseException {
     try {
-      return new UserAccess(redisDatabaseProvider.getConnection().hgetAll(accessToken));
-    } catch (ConfigException e) {
-      log.error("Redis database connection is not get properly!", e);
-      throw new AccessException("Redis database connection is not get properly: "+e);
+      return new UserAccess(redisDatabaseProvider.getClient().hgetAll(accessToken));
+    } catch (Exception e) {
+      throw new DatabaseException("Redis error: "+e.toString());
     }
   }
 

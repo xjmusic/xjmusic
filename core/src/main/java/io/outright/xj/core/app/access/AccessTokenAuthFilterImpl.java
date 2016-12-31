@@ -2,7 +2,7 @@ package io.outright.xj.core.app.access;
 
 import io.outright.xj.core.app.CoreModule;
 import io.outright.xj.core.app.config.Config;
-import io.outright.xj.core.app.exception.AccessException;
+import io.outright.xj.core.app.exception.DatabaseException;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -36,7 +36,11 @@ public class AccessTokenAuthFilterImpl implements AccessTokenAuthFilter {
 
   @Override
   public void filter(ContainerRequestContext context) throws IOException {
-     authenticate(context);
+    try {
+      authenticate(context);
+    } catch (Exception e) {
+      failed(context, e.getMessage());
+    }
   }
 
   /**
@@ -45,7 +49,7 @@ public class AccessTokenAuthFilterImpl implements AccessTokenAuthFilter {
    * @param context of request.
    * @return whether authentication is okay.
    */
-  private Boolean authenticate(ContainerRequestContext context) {
+  private Boolean authenticate(ContainerRequestContext context) throws Exception {
     // use reflection to get resource method annotation values
     Method method = resourceInfo.getResourceMethod();
     RolesAllowed aRolesAllowed = method.getAnnotation(RolesAllowed.class);
@@ -71,8 +75,8 @@ public class AccessTokenAuthFilterImpl implements AccessTokenAuthFilter {
     UserAccess userAccess;
     try {
       userAccess = userAccessProvider.get(accessTokenCookie.getValue());
-    } catch (AccessException e) {
-      return denied(context, "cannot get access_token: "+e.toString());
+    } catch (DatabaseException e) {
+      return failed(context, "cannot get access_token: "+e.toString());
     }
     if (!userAccess.valid()) {
       return denied(context, "invalid access_token");
@@ -81,7 +85,7 @@ public class AccessTokenAuthFilterImpl implements AccessTokenAuthFilter {
     if (!userAccess.matchRoles(aRolesAllowed.value())) {
       return denied(context, "user has no accessible role");
     }
-    
+
     // set UserAccess in context for use by resource
     context.setProperty(UserAccess.CONTEXT_KEY,userAccess);
     return allowed();
@@ -101,6 +105,18 @@ public class AccessTokenAuthFilterImpl implements AccessTokenAuthFilter {
         .status(Response.Status.UNAUTHORIZED)
         .build()
     );
+    return false;
+  }
+
+  /**
+   * Access failure implements this central method for logging.
+   *
+   * @param msg pertaining to internal server error.
+   * @return Boolean
+   */
+  private Boolean failed(ContainerRequestContext context, String msg) {
+    log.error("Failed " + context.getRequest().getMethod() + " /" + context.getUriInfo().getPath() + " ("+msg+")");
+    context.abortWith(Response.serverError().build());
     return false;
   }
 
