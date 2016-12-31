@@ -8,6 +8,7 @@ step "Build UI\n"
 cd ui || exit 1
 npm install || exit 1
 bower install || exit 1
+ember test || exit 1
 ember build || exit 1
 step_ok
 

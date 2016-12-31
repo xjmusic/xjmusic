@@ -1,12 +1,12 @@
 import { moduleFor, test } from 'ember-qunit';
 
-moduleFor('controller:console/engines', 'Unit | Controller | console/engines', {
+moduleFor('service:xj-auth', 'Unit | Service | xj auth', {
   // Specify the other units that are required for this test.
-  // needs: ['controller:foo']
+  // needs: ['service:foo']
 });
 
 // Replace this with your real tests.
 test('it exists', function(assert) {
-  let controller = this.subject();
-  assert.ok(controller);
+  let service = this.subject();
+  assert.ok(service);
 });
