@@ -59,7 +59,7 @@ public class AccessTokenAuthFilterImpl implements AccessTokenAuthFilter {
     // denied-all is exactly that
     if (aDenyAll != null) { return denied(context, "all access"); }
 
-    // permit-all is (unless denied-less) exactly that
+    // permit-all is exactly that (but overridden by deny-all)
     if (aPermitAll != null) { return allowed(); }
 
     // roles required from here on

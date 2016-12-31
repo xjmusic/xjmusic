@@ -76,7 +76,17 @@ RUN \
   cp src/redis-cli /usr/local/bin/ && \
   chmod 755 /usr/local/bin/redis-cli
 
-# Nginx
+# Netcat (traditional)
+RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install netcat-traditional
+
+# MySQL Client
+RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install mysql-client
+
+###
+### Nginx
+###
+
+# Install Nginx
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install nginx
 EXPOSE 80
 
@@ -88,12 +98,6 @@ RUN mkdir -p /etc/nginx/conf.d/elasticbeanstalk
 ADD \
   .nginx/locations.conf \
   /etc/nginx/conf.d/elasticbeanstalk/00_application.conf
-
-# Netcat (traditional)
-RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install netcat-traditional
-
-# MySQL Client
-RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install mysql-client
 
 ###
 ### App-specific content follows

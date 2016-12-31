@@ -10,6 +10,9 @@ Router.map(function() {
   });
 
   this.route('login');
+
+  this.route('welcome');
+  this.route('unauthorized');
 });
 
 export default Router;

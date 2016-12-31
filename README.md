@@ -70,6 +70,11 @@ There is only one Nginx server locations configuration, shared by the local Dock
 
     /.nginx/locations.conf
 
+The front-end user interface (ui) is served via Nginx from the local ui/dist/ folder. While developing (and the docker-compose containers are up), run the Ember build in watch-mode to keep the front-end ui rebuilt as your local code changes automatically:
+
+    cd ui
+    ember build --watch
+
 ## Compile server-side platform
 
 Compile the Java server-side application:

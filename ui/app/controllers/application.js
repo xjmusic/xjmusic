@@ -6,9 +6,10 @@ export default Ember.Controller.extend({
 
   actions: {
     login() {
-      this.get('session').authenticate('authenticator:xj','google');
+      window.location.replace("/auth/google");
     },
     logout() {
+      // TODO: send DELETE /auth to backend
       this.get('session').invalidate();
     }
   }
