@@ -161,6 +161,10 @@ For development, your local machine needs to have the domain `xj.outright.dev` p
     172.16.238.10 xj01er1
     xj01er1 xj.outright.dev
 
+To automatically update /etc/hosts:
+
+    bin/docker-hosts
+
 ## Google Authentication
 
 Login to the app using Google authentication. The redirect URL for local development is http://xj.outright.io/auth/google/callback
