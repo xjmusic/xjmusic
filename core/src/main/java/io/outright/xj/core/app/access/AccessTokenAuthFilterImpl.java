@@ -18,11 +18,12 @@ import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ResourceInfo;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Cookie;
+import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.Map;
 
-@Priority(Priorities.AUTHORIZATION) // authorization filter - should go after any authentication filters
+@Priority(Priorities.AUTHENTICATION)
 public class AccessTokenAuthFilterImpl implements AccessTokenAuthFilter {
   private final Logger log = LoggerFactory.getLogger(AccessTokenAuthFilterImpl.class);
   private final static Injector injector = Guice.createInjector(new CoreModule());
@@ -35,50 +36,80 @@ public class AccessTokenAuthFilterImpl implements AccessTokenAuthFilter {
 
   @Override
   public void filter(ContainerRequestContext context) throws IOException {
+     authenticate(context);
+  }
+
+  /**
+   * Authenticates a request by access token.
+   *
+   * @param context of request.
+   * @return whether authentication is okay.
+   */
+  private Boolean authenticate(ContainerRequestContext context) {
     // use reflection to get resource method annotation values
     Method method = resourceInfo.getResourceMethod();
     RolesAllowed aRolesAllowed = method.getAnnotation(RolesAllowed.class);
     PermitAll aPermitAll = method.getAnnotation(PermitAll.class);
     DenyAll aDenyAll = method.getAnnotation(DenyAll.class);
 
-    // deny-all is exactly that
-    if (aDenyAll != null) { throw new IOException("All access denied."); }
+    // denied-all is exactly that
+    if (aDenyAll != null) { return denied(context, "all access"); }
 
-    // permit-all is (unless deny-less) exactly that
-    if (aPermitAll != null) { return; }
+    // permit-all is (unless denied-less) exactly that
+    if (aPermitAll != null) { return allowed(); }
 
     // roles required from here on
-    if (aRolesAllowed == null) { throw new IOException("No roles allowed; access denied."); }
+    if (aRolesAllowed == null) { return denied(context, "resource allows no roles"); }
 
-    // get UserAccess from (required from here on) access token; throw exceptions.
-    UserAccess userAccess = userAccess(context);
-    if (!userAccess.matchRoles(aRolesAllowed.value())) {
-      throw new IOException("User has no accessible role; access denied.");
-    }
-
-    // set UserAccess in context for use by resource
-    context.setProperty(UserAccess.CONTEXT_KEY,userAccess);
-  }
-
-  /**
-   * Get user access from the access token cookie in a container request context.
-   *
-   * @param context from which to get the access token cookie.
-   * @return user access for that token.
-   * @throws IOException if user access is denied.
-   */
-  private UserAccess userAccess(ContainerRequestContext context) throws IOException {
+    // get UserAccess from (required from here on) access token
     Map<String, Cookie> cookies = context.getCookies();
     Cookie accessTokenCookie = cookies.get(accessTokenName);
     if (accessTokenCookie == null) {
-      throw new IOException("Token-less access denied.");
+      return denied(context, "token-less access");
     }
+
+    UserAccess userAccess;
     try {
-      return userAccessProvider.get(accessTokenCookie.getValue());
+      userAccess = userAccessProvider.get(accessTokenCookie.getValue());
     } catch (AccessException e) {
-      log.warn("Invalid access_token!", e);
-      throw new IOException("Invalid access_token: "+e.toString());
+      return denied(context, "cannot get access_token: "+e.toString());
     }
+    if (!userAccess.valid()) {
+      return denied(context, "invalid access_token");
+    }
+
+    if (!userAccess.matchRoles(aRolesAllowed.value())) {
+      return denied(context, "user has no accessible role");
+    }
+    
+    // set UserAccess in context for use by resource
+    context.setProperty(UserAccess.CONTEXT_KEY,userAccess);
+    return allowed();
   }
 
+  /**
+   * Access denial implements this central method for logging.
+   *
+   * @param msg pertaining to denial.
+   * @return Boolean
+   */
+  private Boolean denied(ContainerRequestContext context, String msg) {
+    log.warn("Denied " + context.getRequest().getMethod() + " /" + context.getUriInfo().getPath() + " ("+msg+")");
+    context.abortWith(
+      Response
+        .noContent()
+        .status(Response.Status.UNAUTHORIZED)
+        .build()
+    );
+    return false;
+  }
+
+  /**
+   * Allow access.
+   *
+   * @return Boolean
+   */
+  private Boolean allowed() {
+    return true;
+  }
 }

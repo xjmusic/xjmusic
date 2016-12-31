@@ -95,4 +95,12 @@ public class UserAccess {
   public static UserAccess fromContext(ContainerRequestContext crc) {
     return (UserAccess) crc.getProperty(UserAccess.CONTEXT_KEY);
   }
+
+  public boolean valid() {
+    return
+      innerMap.containsKey(USER_ID_KEY) &&
+        innerMap.containsKey(USER_AUTH_ID_KEY) &&
+        innerMap.containsKey(ROLES_KEY) &&
+        innerMap.containsKey(ACCOUNTS_KEY);
+  }
 }
