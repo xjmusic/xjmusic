@@ -23,7 +23,7 @@ public class SQLDatabaseProviderImpl implements SQLDatabaseProvider {
   private final String pass = Config.dbMysqlPass();
 
   @Override
-  public Connection getConnection() throws ConfigException {
+  public Connection getConnectionTransaction() throws ConfigException {
     try {
       Connection connection = DriverManager.getConnection(url, user, pass);
       connection.setAutoCommit(false);
@@ -38,27 +38,47 @@ public class SQLDatabaseProviderImpl implements SQLDatabaseProvider {
   public void commitAndClose(Connection conn) throws DatabaseException {
     try {
       conn.commit();
-    } catch (SQLException e) {
-      log.error("Failed to commit database transaction", e);
-      rollback(conn);
-    }
-
-    try {
       conn.close();
-    } catch (SQLException e) {
-      log.error("Failed to close database transaction", e);
-      throw new DatabaseException("Failed to close database connection");
+    } catch (Exception eCommitClose) {
+      try {
+        conn.rollback();
+        conn.close();
+        throw databaseFailure(
+          "to commit and close database transaction (" +eCommitClose.toString()+"); " +
+          "rolled back and closed OK");
+      } catch (Exception eRollbackClose) {
+        try {
+          conn.close();
+          throw databaseFailure(
+            "to commit database transaction (" +eCommitClose.toString()+"), " +
+            "to rollback and close (" + eRollbackClose.toString() + "); " +
+            "closed OK");
+        } catch (Exception eClose) {
+          throw databaseFailure(
+            "to commit database transaction (" +eCommitClose.toString()+", " +
+            "to rollback and close (" + eRollbackClose.toString() + "), " +
+            "to close ("+ eClose.toString() + ")");
+        }
+      }
     }
   }
 
   @Override
-  public void rollback(Connection conn) throws DatabaseException {
+  public void rollbackAndClose(Connection conn) throws DatabaseException {
     try {
       conn.rollback();
-      throw new DatabaseException("Failed to commit database transaction");
-    } catch (SQLException f) {
-      log.error("Failed to rollback database transaction", f);
-      throw new DatabaseException("Failed to commit database transaction, and failed to rollback");
+      conn.close();
+    } catch (SQLException eRollbackClose) {
+      try {
+        conn.close();
+        throw databaseFailure(
+          "to rollback and close (" + eRollbackClose.toString() + "); " +
+          "closed OK");
+      } catch (SQLException eClose) {
+        throw databaseFailure(
+          "to rollback and close (" + eRollbackClose.toString() + "), " +
+          "to close ("+ eClose.toString() + ")");
+      }
     }
   }
 
@@ -77,5 +97,14 @@ public class SQLDatabaseProviderImpl implements SQLDatabaseProvider {
     return pass;
   }
 
+  /**
+   * All Database failure uses this for central logging and exception
+   * @param toDoSomething that failed "to do something"
+   * @return DatabaseException
+   */
+  private DatabaseException databaseFailure(String toDoSomething) {
+    log.error("Failure " + toDoSomething);
+    return new DatabaseException("Failure " + toDoSomething);
+  }
 
 }

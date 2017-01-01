@@ -1,17 +1,10 @@
 import Ember from "ember";
 import Base from "ember-simple-auth/authenticators/base";
 
-// const ACCESS_TOKEN_NAME="access_token";
-
 /**
- Authenticator that works with token-based authentication like JWT.
-
- _The factory for this authenticator is registered as
- `'authenticator:token'` in Ember's container._
+ Authenticator for server API via access token token implied by browser.
 
  @class Token
- @namespace SimpleAuth.Authenticators
- @module ember-simple-auth-token/authenticators/token
  @extends Base
  */
 export default Base.extend({
@@ -25,21 +18,11 @@ export default Base.extend({
   serverTokenEndpoint: '/auth',
 
   /**
-   The access token used for authorization.
-
-   @property tokenPropertyName
-   @type String
-   @default 'token'
-   */
-  accessToken: 'token',
-
-  /**
    @method init
    @private
    */
   init() {
-    console.log("INIT xj-auth authenticator");
-    // TODO remove this log
+
   },
 
   /**
@@ -52,29 +35,22 @@ export default Base.extend({
    @return {Ember.RSVP.Promise} A promise that when it resolves results in the session being authenticated
    */
   restore(properties) {
-    const propertiesObject = Ember.Object.create(properties);
-
-    return new Ember.RSVP.Promise((resolve, reject) => {
-      if (!Ember.isEmpty(propertiesObject.get(this.tokenPropertyName))) {
-        resolve(properties);
-      } else {
-        reject();
-      }
-    });
+    return properties;
+    // TODO determine strategy for local storage of user session in frontend, and implementation of ember session restore.
   },
 
   /**
-   Authorizes a session with the specified `accessToken`; the access token cookie
-   is used in a GET request to the server auth endpoint to retrieve the user info
+   Authorizes a session with the access token implied by browser cookie,
+   used in a GET request to the server auth endpoint to retrieve the user info
    for this access token, if valid.
 
    @method authenticate
-   @param {Object} accessToken to authenticate the session with
    @return {Ember.RSVP.Promise} A promise that resolves when an auth token is successfully acquired from the server and rejects otherwise
    */
-  authenticate(accessToken) {
+  authenticate(data) {
+    console.log(data);
     return new Ember.RSVP.Promise((resolve, reject) => {
-      this.makeRequest(accessToken).then(response => {
+      this.makeRequest().then(response => {
         Ember.run(() => {
           resolve(this.getResponseData(response));
         });
@@ -106,12 +82,10 @@ export default Base.extend({
   },
 
   /**
-   @method makeRequest
-   @param {Object} accessToken to send with request
+   @method makeRequest; access_token implied by browser cookie
    @private
    */
-  makeRequest(accesstoken) {
-    console.log("NOTHING TO DO WITH", accesstoken);
+  makeRequest() {
     return Ember.$.ajax({
       url: this.serverTokenEndpoint,
       method: 'GET',

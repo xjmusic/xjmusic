@@ -44,4 +44,12 @@ public interface UserController {
    */
   @Nullable
   UserRecord fetchOneUser(ULong userId);
+
+  /**
+   * Destroy all access tokens for a specified user
+   *
+   * @param userId to destroy all access tokens for.
+   * @return Boolean if any tokens were found and destroyed
+   */
+  void destroyAllTokens(ULong userId) throws AccessException;
 }

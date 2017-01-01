@@ -15,6 +15,7 @@ import io.outright.xj.core.tables.records.UserRoleRecord;
 
 import com.google.inject.Inject;
 import org.jooq.DSLContext;
+import org.jooq.Result;
 import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
 import org.jooq.types.ULong;
@@ -46,8 +47,9 @@ public class UserControllerImpl implements UserController {
     this.userAccessProvider = userAccessProvider;
   }
 
+  @Override
   public String authenticate(String authType, String account, String externalAccessToken, String externalRefreshToken, String name, String avatarUrl, String email) throws AccessException, ConfigException {
-    Connection conn = this.dbProvider.getConnection();
+    Connection conn = this.dbProvider.getConnectionTransaction();
     DSLContext db = DSL.using(conn, SQLDialect.MYSQL);
     Collection<AccountUserRecord> accounts;
     Collection<UserRoleRecord> roles;
@@ -64,7 +66,7 @@ public class UserControllerImpl implements UserController {
         userAuth = newUserAuth(db, user.getId(), authType, account, externalAccessToken, externalRefreshToken);
       } catch (DatabaseException e) {
         try {
-          dbProvider.rollback(conn);
+          dbProvider.rollbackAndClose(conn);
         } catch (DatabaseException e1) {
           throw new AccessException(e1);
         }
@@ -97,17 +99,67 @@ public class UserControllerImpl implements UserController {
   public UserRecord fetchOneUser(ULong userId) {
     Connection conn;
     try {
-      conn = this.dbProvider.getConnection();
+      conn = this.dbProvider.getConnectionTransaction();
     } catch (ConfigException e) {
       log.warn("Database exception", e);
       return null;
     }
     DSLContext db = DSL.using(conn, SQLDialect.MYSQL);
+
     return db.selectFrom(USER)
       .where(USER.ID.equal(userId))
       .fetchOne();
   }
 
+  @Override
+  public void destroyAllTokens(ULong userId) throws AccessException {
+    Connection conn;
+    try {
+      conn = this.dbProvider.getConnectionTransaction();
+    } catch (ConfigException e) {
+      log.warn("Database exception", e);
+      return;
+    }
+    DSLContext db = DSL.using(conn, SQLDialect.MYSQL);
+
+    Result<UserAccessTokenRecord> userAccessTokens = db.selectFrom(USER_ACCESS_TOKEN)
+      .where(USER_ACCESS_TOKEN.USER_ID.eq(userId))
+      .fetch();
+    userAccessTokens.forEach(userAccessToken -> destroyToken(db, userAccessToken));
+
+    try {
+      dbProvider.commitAndClose(conn);
+    } catch (DatabaseException e) {
+      throw new AccessException(e);
+    }
+  }
+
+  /**
+   * Destroy an access token, first in Redis, then (if successful) in SQL.
+   * @param db context
+   * @param userAccessToken record of user access token to destroy
+   */
+  private void destroyToken(DSLContext db, UserAccessTokenRecord userAccessToken) {
+    try {
+      userAccessProvider.expire(userAccessToken.getAccessToken());
+      db.deleteFrom(USER_ACCESS_TOKEN)
+        .where(USER_ACCESS_TOKEN.ID.eq(userAccessToken.getId()))
+        .execute();
+      log.info("Deleted UserAccessToken, id:{}, userId:{}, userAuthId:{}, accessToken:{}", userAccessToken.getId(), userAccessToken.getUserId(), userAccessToken.getUserAuthId(), userAccessToken.getAccessToken());
+    } catch (DatabaseException e) {
+      log.error("Failed to expire access token!", e);
+    }
+  }
+
+  /**
+   * New UserAccessToken record
+   * @param db context
+   * @param userId user record id
+   * @param userAuthId userAuth record id
+   * @param accessToken for user access to this system
+   * @return record of newly create UserAccessToken record
+   * @throws DatabaseException if anything goes wrong
+   */
   private UserAccessTokenRecord newUserAccessTokenRecord(DSLContext db, ULong userId, ULong userAuthId, String accessToken) throws DatabaseException {
     UserAccessTokenRecord userAccessToken = db.insertInto(USER_ACCESS_TOKEN,
       USER_ACCESS_TOKEN.USER_ID,

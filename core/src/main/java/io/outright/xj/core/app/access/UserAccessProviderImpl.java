@@ -16,7 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.NewCookie;
-import java.io.IOException;
 import java.util.Collection;
 
 public class UserAccessProviderImpl implements UserAccessProvider {
@@ -53,8 +52,12 @@ public class UserAccessProviderImpl implements UserAccessProvider {
   }
 
   @Override
-  public void expire(String token) {
-    // TODO: expire access token in redis database
+  public void expire(String accessToken) throws DatabaseException {
+    try {
+      redisDatabaseProvider.getClient().del(accessToken);
+    } catch (Exception e) {
+      throw new DatabaseException("Redis error: "+e.toString());
+    }
   }
 
   @Override
@@ -69,12 +72,36 @@ public class UserAccessProviderImpl implements UserAccessProvider {
   @Override
   public NewCookie newCookie(String accessToken) {
     return NewCookie.valueOf(
-      tokenName + "=" + accessToken + ";" +
-        (tokenDomain.length() > 0 ? "Domain=" + tokenDomain + ";" : "" ) +
-        "Path=" + tokenPath + ";" +
-        "Max-Age=" + tokenMaxAge
+      cookieSetToken(accessToken) +
+      cookieSetDomainPath() +
+      "Max-Age=" + tokenMaxAge
     );
   }
 
+  @Override
+  public NewCookie newExpiredCookie() {
+    return NewCookie.valueOf(
+      cookieSetToken("expired") +
+      cookieSetDomainPath() +
+      "Expires=Thu, 01 Jan 1970 00:00:00 GMT"
+    );
+  }
 
+  /**
+   * Access cookieSetToken value setter
+   * @param value to set
+   * @return name=value pair
+   */
+  private String cookieSetToken(String value) {
+    return tokenName + "=" + value + ";";
+  }
+
+  /**
+   * Access cookieSetToken cookie Domain and Path
+   * @return String
+   */
+  private String cookieSetDomainPath() {
+    return (tokenDomain.length() > 0 ? "Domain=" + tokenDomain + ";" : "" ) +
+      "Path=" + tokenPath + ";";
+  }
 }

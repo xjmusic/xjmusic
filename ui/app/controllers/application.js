@@ -9,8 +9,7 @@ export default Ember.Controller.extend({
       window.location.replace("/auth/google");
     },
     logout() {
-      // TODO: send DELETE /auth to backend
-      this.get('session').invalidate();
+      window.location.replace("/auth/no");
     }
   }
 });

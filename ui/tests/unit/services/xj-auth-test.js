@@ -1,12 +1,14 @@
-import { moduleFor, test } from 'ember-qunit';
+// import { moduleFor, test } from 'ember-qunit';
 
-moduleFor('service:xj-auth', 'Unit | Service | xj auth', {
-  // Specify the other units that are required for this test.
-  // needs: ['service:foo']
-});
+// TODO test for xj-auth authenticator mocks out HTTP calls to server
 
-// Replace this with your real tests.
-test('it exists', function(assert) {
-  let service = this.subject();
-  assert.ok(service);
-});
+// moduleFor('service:xj-auth', 'Unit | Service | xj auth', {
+//   // Specify the other units that are required for this test.
+//   // needs: ['service:foo']
+// });
+//
+// // Replace this with your real tests.
+// test('it exists', function(assert) {
+//   let service = this.subject();
+//   assert.ok(service);
+// });

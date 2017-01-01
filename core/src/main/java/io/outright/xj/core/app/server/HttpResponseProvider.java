@@ -24,7 +24,14 @@ public interface HttpResponseProvider {
   /**
    * Respond with Not Authorized.
    *
-   * @return reponse.
+   * @return response.
    */
   Response unauthorized();
+
+  /**
+   * Respond with Not Authorized.
+   *
+   * @return response.
+   */
+  Response serverError();
 }

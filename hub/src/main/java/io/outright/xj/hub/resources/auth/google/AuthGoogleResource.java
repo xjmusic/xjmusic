@@ -18,7 +18,7 @@ import javax.ws.rs.core.Response;
 import java.net.URI;
 
 /**
- * Root resource (exposed at "o2" path)
+ * Authenticate via Google OAuth2
  */
 @Path("auth/google")
 public class AuthGoogleResource {

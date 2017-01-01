@@ -27,7 +27,7 @@ public interface UserAccessProvider {
    *
    * @param token to expire.
    */
-  void expire(String token);
+  void expire(String token) throws DatabaseException;
 
   /**
    * Fetch a token to determine if it is valid,
@@ -46,4 +46,11 @@ public interface UserAccessProvider {
    * @return new cookie to set access token.
    */
   NewCookie newCookie(String accessToken);
+
+  /**
+   * Create a new cookie to set an expired access token.
+   *
+   * @return new cookie to set expired access token.
+   */
+  NewCookie newExpiredCookie();
 }

@@ -29,4 +29,11 @@ public class HttpResponseProviderImpl implements HttpResponseProvider {
       .build();
   }
 
+  @Override
+  public Response serverError() {
+    return Response
+      .serverError()
+      .build();
+  }
+
 }

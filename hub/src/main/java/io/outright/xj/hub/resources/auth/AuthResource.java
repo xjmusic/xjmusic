@@ -14,7 +14,6 @@ import com.google.inject.Injector;
 
 import javax.annotation.security.RolesAllowed;
 import javax.jws.WebResult;
-import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.container.ContainerRequestContext;
@@ -48,17 +47,5 @@ public class AuthResource {
     } else {
       return Response.noContent().build();
     }
-  }
-
-  /**
-   * Delete currently authenticated session.
-   *
-   * @return Response with no content, that is used to delete cookies
-   */
-  @DELETE
-  @WebResult
-  public Response deleteCurrentAuthentication() {
-    // TODO implement DELETE /auth
-    return Response.noContent().build();
   }
 }
