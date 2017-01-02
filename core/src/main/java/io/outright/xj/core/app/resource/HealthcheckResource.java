@@ -22,6 +22,9 @@ public class HealthcheckResource {
     @Context
     @PermitAll
     public Response healthcheck() {
-      return Response.noContent().build();
+      return Response
+        .accepted()
+        .status(Response.Status.OK)
+        .build();
     }
 }
