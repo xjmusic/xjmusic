@@ -1,1 +1,5 @@
-web: bin/bootstrap hub
+web: \
+  for pid in $(ps -aef | grep java | grep -oE "^webapp\s+[0-9]+" | grep -oE "[0-9]+"); do \
+    sudo kill ${pid} \
+  done; \
+  bin/bootstrap hub

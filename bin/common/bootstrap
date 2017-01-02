@@ -64,12 +64,6 @@ else
 fi
 
 #
-printf "\nKilling any process currently running ${JAR}..."
-pkill -f '${JAR}'
-sleep 2
-printf "OK\n\n"
-
-#
 printf "[$(date)]\n"
 printf "Starting java: ${JAR}\n"
 printf "   stdout log: ${STDOUT_LOG}\n"
