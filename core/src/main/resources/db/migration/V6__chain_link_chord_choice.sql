@@ -1,7 +1,7 @@
 -- -----------------------------------------------------
--- Table `xj`.`chain`
+-- Table `chain`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `xj`.`chain` (
+CREATE TABLE IF NOT EXISTS `chain` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   PRIMARY KEY (`id`),
   UNIQUE INDEX `id_UNIQUE` (`id` ASC))
@@ -9,9 +9,9 @@ CREATE TABLE IF NOT EXISTS `xj`.`chain` (
 
 
 -- -----------------------------------------------------
--- Table `xj`.`link`
+-- Table `link`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `xj`.`link` (
+CREATE TABLE IF NOT EXISTS `link` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `chain_id` BIGINT UNSIGNED NOT NULL,
   `offset` INT UNSIGNED NOT NULL,
@@ -27,16 +27,16 @@ CREATE TABLE IF NOT EXISTS `xj`.`link` (
   INDEX `link_fk_chain_idx` (`chain_id` ASC),
   CONSTRAINT `link_fk_chain`
   FOREIGN KEY (`chain_id`)
-  REFERENCES `xj`.`chain` (`id`)
+  REFERENCES `chain` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
   ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `xj`.`link_chord`
+-- Table `link_chord`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `xj`.`link_chord` (
+CREATE TABLE IF NOT EXISTS `link_chord` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `link_id` BIGINT UNSIGNED NOT NULL,
   `name` VARCHAR(255) NOT NULL,
@@ -46,16 +46,16 @@ CREATE TABLE IF NOT EXISTS `xj`.`link_chord` (
   INDEX `chord_fk_link_idx` (`link_id` ASC),
   CONSTRAINT `chord_fk_link`
   FOREIGN KEY (`link_id`)
-  REFERENCES `xj`.`link` (`id`)
+  REFERENCES `link` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
   ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `xj`.`choice`
+-- Table `choice`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `xj`.`choice` (
+CREATE TABLE IF NOT EXISTS `choice` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `link_id` BIGINT UNSIGNED NOT NULL,
   `idea_id` BIGINT UNSIGNED NOT NULL,
@@ -68,12 +68,12 @@ CREATE TABLE IF NOT EXISTS `xj`.`choice` (
   INDEX `choice_fk_idea_idx` (`idea_id` ASC),
   CONSTRAINT `choice_fk_link`
   FOREIGN KEY (`link_id`)
-  REFERENCES `xj`.`link` (`id`)
+  REFERENCES `link` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `choice_fk_idea`
   FOREIGN KEY (`idea_id`)
-  REFERENCES `xj`.`idea` (`id`)
+  REFERENCES `idea` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
   ENGINE = InnoDB;

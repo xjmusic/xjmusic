@@ -1,7 +1,7 @@
 -- -----------------------------------------------------
--- Table `xj`.`user_access_token`
+-- Table `user_access_token`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `xj`.`user_access_token` (
+CREATE TABLE IF NOT EXISTS `user_access_token` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `user_auth_id` BIGINT UNSIGNED NOT NULL,
   `user_id` BIGINT UNSIGNED NOT NULL,
@@ -12,12 +12,12 @@ CREATE TABLE IF NOT EXISTS `xj`.`user_access_token` (
   INDEX `user_access_token_fk_user_auth_idx` (`user_auth_id` ASC),
   CONSTRAINT `user_access_token_fk_user`
   FOREIGN KEY (`user_id`)
-  REFERENCES `xj`.`user` (`id`)
+  REFERENCES `user` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `user_access_token_fk_user_auth`
   FOREIGN KEY (`user_auth_id`)
-  REFERENCES `xj`.`user_auth` (`id`)
+  REFERENCES `user_auth` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
   ENGINE = InnoDB;

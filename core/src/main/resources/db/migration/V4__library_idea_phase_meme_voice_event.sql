@@ -1,7 +1,7 @@
 -- -----------------------------------------------------
--- Table `xj`.`library`
+-- Table `library`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `xj`.`library` (
+CREATE TABLE IF NOT EXISTS `library` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `account_id` BIGINT UNSIGNED NOT NULL,
   PRIMARY KEY (`id`),
@@ -9,16 +9,16 @@ CREATE TABLE IF NOT EXISTS `xj`.`library` (
   INDEX `library_fk_account_idx` (`account_id` ASC),
   CONSTRAINT `library_fk_account`
   FOREIGN KEY (`account_id`)
-  REFERENCES `xj`.`account` (`id`)
+  REFERENCES `account` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
   ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `xj`.`idea`
+-- Table `idea`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `xj`.`idea` (
+CREATE TABLE IF NOT EXISTS `idea` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `library_id` BIGINT UNSIGNED NOT NULL,
   `credit_id` BIGINT UNSIGNED NOT NULL,
@@ -33,21 +33,21 @@ CREATE TABLE IF NOT EXISTS `xj`.`idea` (
   INDEX `idea_fk_credit_idx` (`credit_id` ASC),
   CONSTRAINT `idea_fk_library`
   FOREIGN KEY (`library_id`)
-  REFERENCES `xj`.`library` (`id`)
+  REFERENCES `library` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `idea_fk_credit`
   FOREIGN KEY (`credit_id`)
-  REFERENCES `xj`.`credit` (`id`)
+  REFERENCES `credit` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
   ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `xj`.`idea_meme`
+-- Table `idea_meme`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `xj`.`idea_meme` (
+CREATE TABLE IF NOT EXISTS `idea_meme` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `idea_id` BIGINT UNSIGNED NOT NULL,
   `name` VARCHAR(255) NOT NULL,
@@ -57,16 +57,16 @@ CREATE TABLE IF NOT EXISTS `xj`.`idea_meme` (
   INDEX `meme_fk_idea_idx` (`idea_id` ASC),
   CONSTRAINT `meme_fk_idea`
   FOREIGN KEY (`idea_id`)
-  REFERENCES `xj`.`idea` (`id`)
+  REFERENCES `idea` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
   ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `xj`.`phase`
+-- Table `phase`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `xj`.`phase` (
+CREATE TABLE IF NOT EXISTS `phase` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `idea_id` BIGINT UNSIGNED NOT NULL,
   `name` VARCHAR(255) NOT NULL,
@@ -80,16 +80,16 @@ CREATE TABLE IF NOT EXISTS `xj`.`phase` (
   INDEX `phase_fk_idea_idx` (`idea_id` ASC),
   CONSTRAINT `phase_fk_idea`
   FOREIGN KEY (`idea_id`)
-  REFERENCES `xj`.`idea` (`id`)
+  REFERENCES `idea` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
   ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `xj`.`phase_meme`
+-- Table `phase_meme`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `xj`.`phase_meme` (
+CREATE TABLE IF NOT EXISTS `phase_meme` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `phase_id` BIGINT UNSIGNED NOT NULL,
   `name` VARCHAR(255) NOT NULL,
@@ -99,7 +99,7 @@ CREATE TABLE IF NOT EXISTS `xj`.`phase_meme` (
   INDEX `meme_fk_phase_idx` (`phase_id` ASC),
   CONSTRAINT `meme_fk_phase`
   FOREIGN KEY (`phase_id`)
-  REFERENCES `xj`.`phase` (`id`)
+  REFERENCES `phase` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
   ENGINE = InnoDB;
@@ -107,9 +107,9 @@ CREATE TABLE IF NOT EXISTS `xj`.`phase_meme` (
 
 
 -- -----------------------------------------------------
--- Table `xj`.`phase_chord`
+-- Table `phase_chord`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `xj`.`phase_chord` (
+CREATE TABLE IF NOT EXISTS `phase_chord` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `phase_id` BIGINT UNSIGNED NOT NULL,
   `name` VARCHAR(255) NOT NULL,
@@ -119,16 +119,16 @@ CREATE TABLE IF NOT EXISTS `xj`.`phase_chord` (
   INDEX `chord_fk_phase_idx` (`phase_id` ASC),
   CONSTRAINT `chord_fk_phase`
   FOREIGN KEY (`phase_id`)
-  REFERENCES `xj`.`phase` (`id`)
+  REFERENCES `phase` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
   ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `xj`.`voice`
+-- Table `voice`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `xj`.`voice` (
+CREATE TABLE IF NOT EXISTS `voice` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `phase_id` BIGINT UNSIGNED NOT NULL,
   `type` VARCHAR(255) NOT NULL,
@@ -138,16 +138,16 @@ CREATE TABLE IF NOT EXISTS `xj`.`voice` (
   INDEX `voice_fk_phase_idx` (`phase_id` ASC),
   CONSTRAINT `voice_fk_phase`
   FOREIGN KEY (`phase_id`)
-  REFERENCES `xj`.`phase` (`id`)
+  REFERENCES `phase` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
   ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `xj`.`voice_event`
+-- Table `voice_event`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `xj`.`voice_event` (
+CREATE TABLE IF NOT EXISTS `voice_event` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `voice_id` BIGINT UNSIGNED NOT NULL,
   `velocity` FLOAT UNSIGNED NOT NULL,
@@ -161,7 +161,7 @@ CREATE TABLE IF NOT EXISTS `xj`.`voice_event` (
   INDEX `event_fk_voice_idx` (`voice_id` ASC),
   CONSTRAINT `event_fk_voice`
   FOREIGN KEY (`voice_id`)
-  REFERENCES `xj`.`voice` (`id`)
+  REFERENCES `voice` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
   ENGINE = InnoDB;

@@ -1,7 +1,7 @@
 -- -----------------------------------------------------
--- Table `xj`.`user`
+-- Table `user`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `xj`.`user` (
+CREATE TABLE IF NOT EXISTS `user` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `admin` BOOLEAN DEFAULT false,
   `name` VARCHAR(255) NOT NULL,
@@ -12,9 +12,9 @@ CREATE TABLE IF NOT EXISTS `xj`.`user` (
   ENGINE = InnoDB;
 
 -- -----------------------------------------------------
--- Table `xj`.`user_auth`
+-- Table `user_auth`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `xj`.`user_auth` (
+CREATE TABLE IF NOT EXISTS `user_auth` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `type` VARCHAR(255) NOT NULL,
   `access_token` VARCHAR(1023) NOT NULL,
@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS `xj`.`user_auth` (
   INDEX `user_auth_fk_user_idx` (`user_id` ASC),
   CONSTRAINT `user_auth_fk_user`
   FOREIGN KEY (`user_id`)
-  REFERENCES `xj`.`user` (`id`)
+  REFERENCES `user` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
   ENGINE = InnoDB;

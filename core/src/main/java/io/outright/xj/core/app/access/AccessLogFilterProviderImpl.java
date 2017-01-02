@@ -31,7 +31,7 @@ public class AccessLogFilterProviderImpl implements AccessLogFilterProvider {
       resourceConfig.register(instance);
       log.info("Writing access log to {}", pathToWriteAccessLog);
     } catch (IOException e) {
-      log.error("Failed to registerTo access log writer", e);
+      log.warn("Failed to registerTo access log writer:" + e.toString());
     }
   }
 

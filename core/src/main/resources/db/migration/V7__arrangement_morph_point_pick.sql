@@ -1,7 +1,7 @@
 -- -----------------------------------------------------
--- Table `xj`.`arrangement`
+-- Table `arrangement`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `xj`.`arrangement` (
+CREATE TABLE IF NOT EXISTS `arrangement` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `choice_id` BIGINT UNSIGNED NOT NULL,
   `voice_id` BIGINT UNSIGNED NOT NULL,
@@ -16,26 +16,26 @@ CREATE TABLE IF NOT EXISTS `xj`.`arrangement` (
   INDEX `arrangement_fk_instrument_idx` (`instrument_id` ASC),
   CONSTRAINT `arrangement_fk_choice`
   FOREIGN KEY (`choice_id`)
-  REFERENCES `xj`.`choice` (`id`)
+  REFERENCES `choice` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `arrangement_fk_voice`
   FOREIGN KEY (`voice_id`)
-  REFERENCES `xj`.`voice` (`id`)
+  REFERENCES `voice` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `arrangement_fk_instrument`
   FOREIGN KEY (`instrument_id`)
-  REFERENCES `xj`.`instrument` (`id`)
+  REFERENCES `instrument` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
   ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `xj`.`morph`
+-- Table `morph`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `xj`.`morph` (
+CREATE TABLE IF NOT EXISTS `morph` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `arrangement_id` BIGINT UNSIGNED NOT NULL,
   `position` FLOAT UNSIGNED NOT NULL,
@@ -46,7 +46,7 @@ CREATE TABLE IF NOT EXISTS `xj`.`morph` (
   INDEX `morph_fk_arrangement_idx` (`arrangement_id` ASC),
   CONSTRAINT `morph_fk_arrangement`
   FOREIGN KEY (`arrangement_id`)
-  REFERENCES `xj`.`arrangement` (`id`)
+  REFERENCES `arrangement` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
   ENGINE = InnoDB;
@@ -54,9 +54,9 @@ CREATE TABLE IF NOT EXISTS `xj`.`morph` (
 
 
 -- -----------------------------------------------------
--- Table `xj`.`point`
+-- Table `point`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `xj`.`point` (
+CREATE TABLE IF NOT EXISTS `point` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `morph_id` BIGINT UNSIGNED NOT NULL,
   `voice_event_id` BIGINT UNSIGNED NOT NULL,
@@ -69,12 +69,12 @@ CREATE TABLE IF NOT EXISTS `xj`.`point` (
   INDEX `point_fk_voice_event_idx` (`voice_event_id` ASC),
   CONSTRAINT `point_fk_morph`
   FOREIGN KEY (`morph_id`)
-  REFERENCES `xj`.`morph` (`id`)
+  REFERENCES `morph` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `point_fk_voice_event`
   FOREIGN KEY (`voice_event_id`)
-  REFERENCES `xj`.`voice_event` (`id`)
+  REFERENCES `voice_event` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
   ENGINE = InnoDB;
@@ -82,9 +82,9 @@ CREATE TABLE IF NOT EXISTS `xj`.`point` (
 
 
 -- -----------------------------------------------------
--- Table `xj`.`pick`
+-- Table `pick`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `xj`.`pick` (
+CREATE TABLE IF NOT EXISTS `pick` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `morph_id` BIGINT UNSIGNED NOT NULL,
   `audio_id` BIGINT UNSIGNED NOT NULL,
@@ -98,12 +98,12 @@ CREATE TABLE IF NOT EXISTS `xj`.`pick` (
   INDEX `pick_fk_audio_idx` (`audio_id` ASC),
   CONSTRAINT `pick_fk_morph`
   FOREIGN KEY (`morph_id`)
-  REFERENCES `xj`.`morph` (`id`)
+  REFERENCES `morph` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `pick_fk_audio`
   FOREIGN KEY (`audio_id`)
-  REFERENCES `xj`.`audio` (`id`)
+  REFERENCES `audio` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
   ENGINE = InnoDB;

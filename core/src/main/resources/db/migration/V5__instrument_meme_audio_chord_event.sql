@@ -1,7 +1,7 @@
 -- -----------------------------------------------------
--- Table `xj`.`instrument`
+-- Table `instrument`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `xj`.`instrument` (
+CREATE TABLE IF NOT EXISTS `instrument` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `library_id` BIGINT UNSIGNED NOT NULL,
   `credit_id` BIGINT UNSIGNED NOT NULL,
@@ -14,21 +14,21 @@ CREATE TABLE IF NOT EXISTS `xj`.`instrument` (
   INDEX `instrument_fk_credit_idx` (`credit_id` ASC),
   CONSTRAINT `instrument_fk_library`
   FOREIGN KEY (`library_id`)
-  REFERENCES `xj`.`library` (`id`)
+  REFERENCES `library` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `instrument_fk_credit`
   FOREIGN KEY (`credit_id`)
-  REFERENCES `xj`.`credit` (`id`)
+  REFERENCES `credit` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
   ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `xj`.`instrument_meme`
+-- Table `instrument_meme`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `xj`.`instrument_meme` (
+CREATE TABLE IF NOT EXISTS `instrument_meme` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `instrument_id` BIGINT UNSIGNED NOT NULL,
   `name` VARCHAR(255) NOT NULL,
@@ -38,16 +38,16 @@ CREATE TABLE IF NOT EXISTS `xj`.`instrument_meme` (
   INDEX `meme_fk_instrument_idx` (`instrument_id` ASC),
   CONSTRAINT `meme_fk_instrument`
   FOREIGN KEY (`instrument_id`)
-  REFERENCES `xj`.`instrument` (`id`)
+  REFERENCES `instrument` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
   ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `xj`.`audio`
+-- Table `audio`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `xj`.`audio` (
+CREATE TABLE IF NOT EXISTS `audio` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `instrument_id` BIGINT UNSIGNED NOT NULL,
   `name` VARCHAR(255) NOT NULL,
@@ -61,16 +61,16 @@ CREATE TABLE IF NOT EXISTS `xj`.`audio` (
   INDEX `audio_fk_instrument_idx` (`instrument_id` ASC),
   CONSTRAINT `audio_fk_instrument`
   FOREIGN KEY (`instrument_id`)
-  REFERENCES `xj`.`instrument` (`id`)
+  REFERENCES `instrument` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
   ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `xj`.`audio_event`
+-- Table `audio_event`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `xj`.`audio_event` (
+CREATE TABLE IF NOT EXISTS `audio_event` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `audio_id` BIGINT UNSIGNED NOT NULL,
   `velocity` FLOAT UNSIGNED NOT NULL,
@@ -84,16 +84,16 @@ CREATE TABLE IF NOT EXISTS `xj`.`audio_event` (
   INDEX `event_fk_audio_idx` (`audio_id` ASC),
   CONSTRAINT `event_fk_audio`
   FOREIGN KEY (`audio_id`)
-  REFERENCES `xj`.`audio` (`id`)
+  REFERENCES `audio` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
   ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `xj`.`audio_chord`
+-- Table `audio_chord`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `xj`.`audio_chord` (
+CREATE TABLE IF NOT EXISTS `audio_chord` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `audio_id` BIGINT UNSIGNED NOT NULL,
   `name` VARCHAR(255) NOT NULL,
@@ -103,7 +103,7 @@ CREATE TABLE IF NOT EXISTS `xj`.`audio_chord` (
   INDEX `chord_fk_audio_idx` (`audio_id` ASC),
   CONSTRAINT `chord_fk_audio`
   FOREIGN KEY (`audio_id`)
-  REFERENCES `xj`.`audio` (`id`)
+  REFERENCES `audio` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
   ENGINE = InnoDB;
