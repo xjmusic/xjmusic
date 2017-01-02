@@ -67,6 +67,9 @@ public class AuthGoogleCallbackResource {
     } catch (DatabaseException e) {
       log.error("Database error", e);
       return httpResponseProvider.temporaryRedirect(redirectPathUnauthorized);
+    } catch (Exception e) {
+      log.error("Error", e);
+      return httpResponseProvider.temporaryRedirect(redirectPathUnauthorized);
     }
 
     return httpResponseProvider.temporaryRedirectWithCookie(redirectPathSuccess, userAccessProvider.newCookie(accessToken));
