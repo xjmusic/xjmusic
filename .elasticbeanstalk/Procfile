@@ -1,4 +1,1 @@
 web: bin/bootstrap hub
-craft: java -jar craft/target/craft-1.0-SNAPSHOT.jar
-ship: java -jar ship/target/ship-1.0-SNAPSHOT.jar
-
