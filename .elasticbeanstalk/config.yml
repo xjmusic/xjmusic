@@ -1,6 +1,8 @@
 branch-defaults:
   master:
     environment: Custom-env
+  wip-user-types:
+    environment: Custom-env
 environment-defaults:
   Custom-env:
     branch: null
