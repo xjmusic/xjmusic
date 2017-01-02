@@ -80,6 +80,13 @@ cp ${PWD}/.elasticbeanstalk/production.env ${PWD}/target/runtime.env
 step_ok
 
 #
+step "Add .elasticbeanstalk/eb-bootstrap"
+indent "(this pre-bootstrap wraps the common bootstrap)"
+indent "${PWD}/target/bin/eb-bootstrap"
+cp ${PWD}/.elasticbeanstalk/eb-bootstrap ${PWD}/target/eb-bootstrap
+step_ok
+
+#
 step "Compress target to ZIP file"
 cd ${PWD}/target
 FILES=$(ls -a | grep -v '^\.$' | grep -v '^\.\.$')

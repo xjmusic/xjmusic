@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+
+TITLE="Elastic Beanstalk App Pre-Bootstrap (Wraps common bootstrap)"
+USAGE="
+   Usage:
+     bin/eb-bootstrap <app> <arguments...>
+
+   <app> to run, as in: java io.outright.xj.<app>
+   <arguments...> (optional) passed to 'bin/bootstrap'
+"
+
+#
+require () {
+  VALUE="${1}"
+  NAME="${2}"
+  if [ "${VALUE}" == "" ]; then
+    printf "\nERROR! <${NAME}> is required.\n${USAGE}\n"
+    exit 1
+  fi
+}
+
+#
+APP=${1}
+require "${APP}" "app"
+JAR=${APP}-1.0-SNAPSHOT.jar
+
+#
+printf "\nKilling any process currently running Java ${JAR}...\n"
+java_pids="$(ps -aef | grep java | grep ${JAR} | grep -oE "^webapp\s+[0-9]+" | grep -oE "[0-9]+")"
+for pid in ${java_pids}; do
+ printf "\nKilling ${pid}...\n"
+ sudo kill ${pid}
+done
+
+sleep 2
+printf "OK\n\n"
+
+# common bootstrap
+bin/bootstrap ${APP} ${2} ${3} ${4} ${5} ${6} ${7} ${8} ${9}
