@@ -42,6 +42,11 @@ mkdir -p ${LOG_DIR}
 STDOUT_LOG=${LOG_DIR}/${APP}.out.log
 STDERR_LOG=${LOG_DIR}/${APP}.err.log
 
+#
+ACCESS_LOG=${LOG_DIR}/${APP}.access.log
+touch ${ACCESS_LOG}
+chmod +w ${ACCESS_LOG}
+
 # Java System Properties
 #
 # The default system properties are in the file: /default.env
