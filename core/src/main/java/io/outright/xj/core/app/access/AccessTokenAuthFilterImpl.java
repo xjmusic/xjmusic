@@ -98,7 +98,7 @@ public class AccessTokenAuthFilterImpl implements AccessTokenAuthFilter {
    * @return Boolean
    */
   private Boolean denied(ContainerRequestContext context, String msg) {
-    log.warn("Denied " + context.getRequest().getMethod() + " /" + context.getUriInfo().getPath() + " ("+msg+")");
+    log.debug("Denied " + context.getRequest().getMethod() + " /" + context.getUriInfo().getPath() + " ("+msg+")");
     context.abortWith(
       Response
         .noContent()
