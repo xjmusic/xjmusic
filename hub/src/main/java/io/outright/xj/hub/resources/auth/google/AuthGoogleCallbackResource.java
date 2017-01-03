@@ -49,30 +49,59 @@ public class AuthGoogleCallbackResource {
   @PermitAll
   public Response authGoogleCallback(@Context UriInfo ui) {
     AuthorizationCodeResponseUrl authResponse;
-    authResponse = new AuthorizationCodeResponseUrl(ui.getRequestUri().toString());
-    if (authResponse.getError() != null) {
-      log.error("Authorization denied: {}", authResponse.getErrorDescription());
-      return httpResponseProvider.temporaryRedirect(redirectPathUnauthorized);
+    try {
+      authResponse = new AuthorizationCodeResponseUrl(ui.getRequestUri().toString());
+      if (authResponse.getError() != null) {
+        return errorResponse("Authorization denied: " + authResponse.getErrorDescription());
+      }
+    } catch (java.lang.IllegalArgumentException e) {
+      return errorResponse("Authorization code response URL missing required parameter(s)");
+    } catch (Exception e) {
+      return errorResponse("Unknown error while parse authorization code response URL", e);
     }
 
     String accessToken;
     try {
       accessToken = googleAuthController.authenticate(authResponse.getCode());
     } catch (AccessException e) {
-      log.error("Authentication failed", e);
-      return httpResponseProvider.temporaryRedirect(redirectPathUnauthorized);
+      return errorResponse("Authentication failed:"+ e.getMessage());
     } catch (ConfigException e) {
-      log.error("Configuration error", e);
-      return httpResponseProvider.temporaryRedirect(redirectPathUnauthorized);
+      return errorResponse("Configuration error"+ e.getMessage());
     } catch (DatabaseException e) {
-      log.error("Database error", e);
-      return httpResponseProvider.temporaryRedirect(redirectPathUnauthorized);
+      return errorResponse("Database error"+ e.getMessage());
     } catch (Exception e) {
-      log.error("Error", e);
-      return httpResponseProvider.temporaryRedirect(redirectPathUnauthorized);
+      return errorResponse("Unknown error with authenticating access code", e);
     }
 
     return httpResponseProvider.temporaryRedirectWithCookie(redirectPathSuccess, userAccessProvider.newCookie(accessToken));
   }
 
+  /**
+   * Returns a redirect-to-unauthorized-path Response, and logs the error message with an Exception.
+   * @param msg to log
+   * @param e Exception to log
+   * @return Response
+   */
+  private Response errorResponse(String msg, Exception e) {
+    log.error(msg, e);
+    return errorResponse();
+  }
+
+  /**
+   * Returns a redirect-to-unauthorized-path Response, and logs the error message.
+   * @param msg to log
+   * @return Response
+   */
+  private Response errorResponse(String msg) {
+    log.error(msg);
+    return errorResponse();
+  }
+
+  /**
+   * Returns a redirect-to-unauthorized-path Response.
+   * @return Response
+   */
+  private Response errorResponse() {
+    return httpResponseProvider.temporaryRedirect(redirectPathUnauthorized);
+  }
 }
