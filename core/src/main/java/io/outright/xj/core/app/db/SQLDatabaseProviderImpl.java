@@ -1,10 +1,17 @@
 // Copyright Outright Mental, Inc. All Rights Reserved.
 package io.outright.xj.core.app.db;
 
+import io.outright.xj.core.Xj;
 import io.outright.xj.core.app.config.Config;
 import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.app.exception.DatabaseException;
 
+import org.jooq.DSLContext;
+import org.jooq.SQLDialect;
+import org.jooq.conf.MappedSchema;
+import org.jooq.conf.RenderMapping;
+import org.jooq.conf.Settings;
+import org.jooq.impl.DSL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,9 +22,10 @@ import java.sql.SQLException;
 public class SQLDatabaseProviderImpl implements SQLDatabaseProvider {
   private static Logger log = LoggerFactory.getLogger(SQLDatabaseProviderImpl.class);
 
+  private final String dbSchemaName = Config.dbMysqlDatabase();
   private final String url = "jdbc:mysql://" + Config.dbMysqlHost()
     + ":" + Config.dbMysqlPort()
-    + "/" + Config.dbMysqlDatabase()
+    + "/" + dbSchemaName
     + "?useSSL=false";
   private final String user = Config.dbMysqlUser();
   private final String pass = Config.dbMysqlPass();
@@ -43,18 +51,18 @@ public class SQLDatabaseProviderImpl implements SQLDatabaseProvider {
       try {
         conn.rollback();
         conn.close();
-        throw databaseFailure(
+        throw failureException(
           "to commit and close database transaction (" +eCommitClose.toString()+"); " +
           "rolled back and closed OK");
       } catch (Exception eRollbackClose) {
         try {
           conn.close();
-          throw databaseFailure(
+          throw failureException(
             "to commit database transaction (" +eCommitClose.toString()+"), " +
             "to rollback and close (" + eRollbackClose.toString() + "); " +
             "closed OK");
         } catch (Exception eClose) {
-          throw databaseFailure(
+          throw failureException(
             "to commit database transaction (" +eCommitClose.toString()+", " +
             "to rollback and close (" + eRollbackClose.toString() + "), " +
             "to close ("+ eClose.toString() + ")");
@@ -64,18 +72,18 @@ public class SQLDatabaseProviderImpl implements SQLDatabaseProvider {
   }
 
   @Override
-  public void rollbackAndClose(Connection conn) throws DatabaseException {
+  public void rollbackAndClose(Connection conn) {
     try {
       conn.rollback();
       conn.close();
     } catch (SQLException eRollbackClose) {
       try {
         conn.close();
-        throw databaseFailure(
+        logFailed(
           "to rollback and close (" + eRollbackClose.toString() + "); " +
           "closed OK");
       } catch (SQLException eClose) {
-        throw databaseFailure(
+        logFailed(
           "to rollback and close (" + eRollbackClose.toString() + "), " +
           "to close ("+ eClose.toString() + ")");
       }
@@ -97,14 +105,41 @@ public class SQLDatabaseProviderImpl implements SQLDatabaseProvider {
     return pass;
   }
 
+  @Override
+  public DSLContext getContext(Connection conn) {
+    return DSL.using(conn, SQLDialect.MYSQL, getSettings());
+  }
+
+  /**
+   * Get SQL Database jOOQ settings
+   * @return jOOQ Settings
+   */
+  private Settings getSettings() {
+    return new Settings()
+      .withRenderMapping(new RenderMapping()
+        .withSchemata(
+          new MappedSchema().withInput(Xj.XJ.getName())
+            .withOutput(dbSchemaName)
+        )
+      );
+  }
+
   /**
    * All Database failure uses this for central logging and exception
    * @param toDoSomething that failed "to do something"
    * @return DatabaseException
    */
-  private DatabaseException databaseFailure(String toDoSomething) {
-    log.error("Failure " + toDoSomething);
-    return new DatabaseException("Failure " + toDoSomething);
+  private DatabaseException failureException(String toDoSomething) {
+    logFailed(toDoSomething);
+    return new DatabaseException("Failed " + toDoSomething);
+  }
+
+  /**
+   * All Database failure uses this for central logging
+   * @param toDoSomething that failed "to do something"
+   */
+  private void logFailed(String toDoSomething) {
+    log.error("Failed " + toDoSomething);
   }
 
 }

@@ -4,6 +4,9 @@ package io.outright.xj.core.app.db;
 import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.app.exception.DatabaseException;
 
+import org.jooq.DSLContext;
+import org.jooq.conf.Settings;
+
 import java.sql.Connection;
 
 public interface SQLDatabaseProvider {
@@ -23,11 +26,10 @@ public interface SQLDatabaseProvider {
   void commitAndClose(Connection conn) throws DatabaseException;
 
   /**
-   * Commit the SQL Database transaction and close the connection.
+   * Commit the SQL Database transaction and close the connection. Eats exceptions, to simplify implementation logic since this will be the final action taken.
    * @param conn Connection to SQL Database
-   * @throws DatabaseException if something goes wrong
    */
-  void rollbackAndClose(Connection conn) throws DatabaseException;
+  void rollbackAndClose(Connection conn);
 
   /**
    * Get the SQL Database URL
@@ -49,4 +51,11 @@ public interface SQLDatabaseProvider {
    * @throws ConfigException if the application is not configured correctly
    */
   String getPass() throws ConfigException;
+
+  /**
+   * Get the Database DSL Context with SQL Database jOOQ settings
+   * @param conn database connection
+   * @return DSL Context
+   */
+  DSLContext getContext(Connection conn);
 }

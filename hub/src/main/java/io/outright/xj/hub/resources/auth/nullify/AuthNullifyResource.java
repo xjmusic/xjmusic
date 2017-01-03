@@ -5,6 +5,7 @@ import io.outright.xj.core.app.access.Role;
 import io.outright.xj.core.app.access.UserAccess;
 import io.outright.xj.core.app.access.UserAccessProvider;
 import io.outright.xj.core.app.exception.AccessException;
+import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.app.server.HttpResponseProvider;
 import io.outright.xj.core.external.google.GoogleModule;
 import io.outright.xj.hub.HubModule;
@@ -12,6 +13,8 @@ import io.outright.xj.hub.controller.user.UserController;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.security.RolesAllowed;
 import javax.jws.WebResult;
@@ -28,7 +31,7 @@ import java.io.IOException;
 @Path("auth/no")
 public class AuthNullifyResource {
   private Injector injector = Guice.createInjector(new CoreModule(), new HubModule(), new GoogleModule());
-//  private static Logger log = LoggerFactory.getLogger(AuthNullifyResource.class);
+  private static Logger log = LoggerFactory.getLogger(AuthNullifyResource.class);
 //  private final JsonFactory jsonFactory = injector.getInstance(JsonFactory.class);
   private final UserController userController = injector.getInstance(UserController.class);
   private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
@@ -47,6 +50,9 @@ public class AuthNullifyResource {
     try {
       userController.destroyAllTokens(userAccess.getUserId());
     } catch (AccessException e) {
+      return httpResponseProvider.serverError();
+    } catch (ConfigException e) {
+      log.error("configuration error", e);
       return httpResponseProvider.serverError();
     }
     return httpResponseProvider.temporaryRedirectWithCookie("", userAccessProvider.newExpiredCookie());

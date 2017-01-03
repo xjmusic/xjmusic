@@ -10,4 +10,8 @@ public class AccessException extends Exception {
   public AccessException(DatabaseException e) {
     super("Database exception: " + e.getMessage());
   }
+
+  public AccessException(Exception e) {
+    super(e);
+  }
 }

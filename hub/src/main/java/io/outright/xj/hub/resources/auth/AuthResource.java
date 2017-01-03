@@ -3,6 +3,7 @@ package io.outright.xj.hub.resources.auth;
 import io.outright.xj.core.app.CoreModule;
 import io.outright.xj.core.app.access.Role;
 import io.outright.xj.core.app.access.UserAccess;
+import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.external.google.GoogleModule;
 import io.outright.xj.core.tables.records.UserRecord;
 import io.outright.xj.hub.HubModule;
@@ -11,6 +12,8 @@ import io.outright.xj.hub.controller.user.UserController;
 import com.google.api.client.json.JsonFactory;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.security.RolesAllowed;
 import javax.jws.WebResult;
@@ -27,7 +30,7 @@ import java.io.IOException;
 @Path("auth")
 public class AuthResource {
   private static final Injector injector = Guice.createInjector(new CoreModule(), new HubModule(), new GoogleModule());
-//  private static Logger log = LoggerFactory.getLogger(AuthResource.class);
+  private static Logger log = LoggerFactory.getLogger(AuthResource.class);
   private final JsonFactory jsonFactory = injector.getInstance(JsonFactory.class);
   private final UserController userController = injector.getInstance(UserController.class);
 
@@ -41,7 +44,13 @@ public class AuthResource {
   @RolesAllowed({Role.USER})
   public Response getCurrentAuthentication(@Context ContainerRequestContext crc) throws IOException {
     UserAccess userAccess = UserAccess.fromContext(crc);
-    UserRecord user = userController.fetchOneUser(userAccess.getUserId());
+    UserRecord user;
+    try {
+      user = userController.fetchOneUser(userAccess.getUserId());
+    } catch (ConfigException e) {
+      log.error("configuration error", e);
+      return Response.serverError().build();
+    }
     if (user != null) {
       return Response.accepted(jsonFactory.toString(user.intoMap())).build();
     } else {

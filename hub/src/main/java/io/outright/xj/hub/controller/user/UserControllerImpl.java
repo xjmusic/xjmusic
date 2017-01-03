@@ -16,8 +16,6 @@ import io.outright.xj.core.tables.records.UserRoleRecord;
 import com.google.inject.Inject;
 import org.jooq.DSLContext;
 import org.jooq.Result;
-import org.jooq.SQLDialect;
-import org.jooq.impl.DSL;
 import org.jooq.types.ULong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,11 +47,11 @@ public class UserControllerImpl implements UserController {
 
   @Override
   public String authenticate(String authType, String account, String externalAccessToken, String externalRefreshToken, String name, String avatarUrl, String email) throws AccessException, ConfigException {
-    Connection conn = this.dbProvider.getConnectionTransaction();
-    DSLContext db = DSL.using(conn, SQLDialect.MYSQL);
+    Connection conn = dbProvider.getConnectionTransaction();
+    DSLContext db = dbProvider.getContext(conn);
+
     Collection<AccountUserRecord> accounts;
     Collection<UserRoleRecord> roles;
-
     UserAuthRecord userAuth = fetchOneUserAuth(db, authType, account);
     if (userAuth != null) {
       accounts = fetchAccounts(db, userAuth.getUserId());
@@ -65,11 +63,7 @@ public class UserControllerImpl implements UserController {
         roles = newRoles(db, user.getId());
         userAuth = newUserAuth(db, user.getId(), authType, account, externalAccessToken, externalRefreshToken);
       } catch (DatabaseException e) {
-        try {
-          dbProvider.rollbackAndClose(conn);
-        } catch (DatabaseException e1) {
-          throw new AccessException(e1);
-        }
+        dbProvider.rollbackAndClose(conn);
         throw new AccessException(e);
       }
     }
@@ -96,15 +90,9 @@ public class UserControllerImpl implements UserController {
 
   @Override
   @Nullable
-  public UserRecord fetchOneUser(ULong userId) {
-    Connection conn;
-    try {
-      conn = this.dbProvider.getConnectionTransaction();
-    } catch (ConfigException e) {
-      log.warn("Database exception", e);
-      return null;
-    }
-    DSLContext db = DSL.using(conn, SQLDialect.MYSQL);
+  public UserRecord fetchOneUser(ULong userId) throws ConfigException {
+    Connection conn = dbProvider.getConnectionTransaction();
+    DSLContext db = dbProvider.getContext(conn);
 
     return db.selectFrom(USER)
       .where(USER.ID.equal(userId))
@@ -112,24 +100,20 @@ public class UserControllerImpl implements UserController {
   }
 
   @Override
-  public void destroyAllTokens(ULong userId) throws AccessException {
-    Connection conn;
-    try {
-      conn = this.dbProvider.getConnectionTransaction();
-    } catch (ConfigException e) {
-      log.warn("Database exception", e);
-      return;
-    }
-    DSLContext db = DSL.using(conn, SQLDialect.MYSQL);
-
-    Result<UserAccessTokenRecord> userAccessTokens = db.selectFrom(USER_ACCESS_TOKEN)
-      .where(USER_ACCESS_TOKEN.USER_ID.eq(userId))
-      .fetch();
-    userAccessTokens.forEach(userAccessToken -> destroyToken(db, userAccessToken));
+  public void destroyAllTokens(ULong userId) throws AccessException, ConfigException {
+    Connection tx = dbProvider.getConnectionTransaction();
+    DSLContext db = dbProvider.getContext(tx);
 
     try {
-      dbProvider.commitAndClose(conn);
-    } catch (DatabaseException e) {
+      Result<UserAccessTokenRecord> userAccessTokens = db.selectFrom(USER_ACCESS_TOKEN)
+        .where(USER_ACCESS_TOKEN.USER_ID.eq(userId))
+        .fetch();
+      for (UserAccessTokenRecord userAccessToken : userAccessTokens) {
+        destroyToken(db, userAccessToken);
+      }
+      dbProvider.commitAndClose(tx);
+    } catch (DatabaseException  e) {
+      dbProvider.rollbackAndClose(tx);
       throw new AccessException(e);
     }
   }
@@ -139,16 +123,12 @@ public class UserControllerImpl implements UserController {
    * @param db context
    * @param userAccessToken record of user access token to destroy
    */
-  private void destroyToken(DSLContext db, UserAccessTokenRecord userAccessToken) {
-    try {
+  private void destroyToken(DSLContext db, UserAccessTokenRecord userAccessToken) throws DatabaseException {
       userAccessProvider.expire(userAccessToken.getAccessToken());
       db.deleteFrom(USER_ACCESS_TOKEN)
         .where(USER_ACCESS_TOKEN.ID.eq(userAccessToken.getId()))
         .execute();
       log.info("Deleted UserAccessToken, id:{}, userId:{}, userAuthId:{}, accessToken:{}", userAccessToken.getId(), userAccessToken.getUserId(), userAccessToken.getUserAuthId(), userAccessToken.getAccessToken());
-    } catch (DatabaseException e) {
-      log.error("Failed to expire access token!", e);
-    }
   }
 
   /**
