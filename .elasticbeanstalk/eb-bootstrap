@@ -28,8 +28,9 @@ JAR=${APP}-1.0-SNAPSHOT.jar
 printf "\nKilling any process currently running Java ${JAR}...\n"
 java_pids="$(ps -aef | grep java | grep ${JAR} | grep -oE "^webapp\s+[0-9]+" | grep -oE "[0-9]+")"
 for pid in ${java_pids}; do
- printf "\nKilling ${pid}...\n"
- sudo kill ${pid}
+ printf "\nKilling ${pid}..."
+ kill ${pid}
+ printf "OK\n"
 done
 
 sleep 2
