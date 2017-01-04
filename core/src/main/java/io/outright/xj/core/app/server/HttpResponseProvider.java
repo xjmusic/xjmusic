@@ -10,7 +10,7 @@ public interface HttpResponseProvider {
    * @param path of redirection target.
    * @return response.
    */
-  Response temporaryRedirect(String path);
+  Response internalRedirect(String path);
 
   /**
    * Respond with a set-cookie in addition to a temporary redirect.
@@ -19,19 +19,13 @@ public interface HttpResponseProvider {
    * @param cookies to set before redirection.
    * @return response.
    */
-  Response temporaryRedirectWithCookie(String path, NewCookie... cookies);
+  Response internalRedirectWithCookie(String path, NewCookie... cookies);
 
   /**
-   * Respond with Not Authorized.
+   * Respond with a set-cookie in addition to unauthorized
    *
+   * @param cookies to set before unauthorized.
    * @return response.
    */
-  Response unauthorized();
-
-  /**
-   * Respond with Not Authorized.
-   *
-   * @return response.
-   */
-  Response serverError();
+  Response unauthorizedWithCookie(NewCookie... cookies);
 }

@@ -2,8 +2,8 @@ package io.outright.xj.hub.resources.auth.nullify;
 
 import io.outright.xj.core.app.CoreModule;
 import io.outright.xj.core.app.access.Role;
-import io.outright.xj.core.app.access.UserAccess;
-import io.outright.xj.core.app.access.UserAccessProvider;
+import io.outright.xj.core.app.access.UserAccessModel;
+import io.outright.xj.core.app.access.UserAccessModelProvider;
 import io.outright.xj.core.app.exception.AccessException;
 import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.app.server.HttpResponseProvider;
@@ -35,7 +35,7 @@ public class AuthNullifyResource {
 //  private final JsonFactory jsonFactory = injector.getInstance(JsonFactory.class);
   private final UserController userController = injector.getInstance(UserController.class);
   private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
-  private final UserAccessProvider userAccessProvider = injector.getInstance(UserAccessProvider.class);
+  private final UserAccessModelProvider userAccessModelProvider = injector.getInstance(UserAccessModelProvider.class);
 
   /**
    * Get current authentication, destroy all known access_tokens for that user, and delete the access token browser cookie.
@@ -46,15 +46,15 @@ public class AuthNullifyResource {
   @WebResult
   @RolesAllowed({Role.USER})
   public Response getCurrentAuthentication(@Context ContainerRequestContext crc) throws IOException {
-    UserAccess userAccess = UserAccess.fromContext(crc);
+    UserAccessModel userAccessModel = UserAccessModel.fromContext(crc);
     try {
-      userController.destroyAllTokens(userAccess.getUserId());
+      userController.destroyAllTokens(userAccessModel.getUserId());
     } catch (AccessException e) {
-      return httpResponseProvider.serverError();
+      return Response.serverError().build();
     } catch (ConfigException e) {
       log.error("configuration error", e);
-      return httpResponseProvider.serverError();
+      return Response.serverError().build();
     }
-    return httpResponseProvider.temporaryRedirectWithCookie("", userAccessProvider.newExpiredCookie());
+    return httpResponseProvider.internalRedirectWithCookie("", userAccessModelProvider.newExpiredCookie());
   }
 }

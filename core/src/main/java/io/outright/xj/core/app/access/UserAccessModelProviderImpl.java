@@ -17,9 +17,10 @@ import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.NewCookie;
 import java.util.Collection;
+import java.util.Map;
 
-public class UserAccessProviderImpl implements UserAccessProvider {
-  private final static Logger log = LoggerFactory.getLogger(UserAccessProviderImpl.class);
+public class UserAccessModelProviderImpl implements UserAccessModelProvider {
+  private final static Logger log = LoggerFactory.getLogger(UserAccessModelProviderImpl.class);
   private final RedisDatabaseProvider redisDatabaseProvider;
   private final TokenGenerator tokenGenerator;
 
@@ -29,7 +30,7 @@ public class UserAccessProviderImpl implements UserAccessProvider {
   private final String tokenMaxAge = String.valueOf(Config.accessTokenMaxAge());
 
   @Inject
-  public UserAccessProviderImpl(
+  public UserAccessModelProviderImpl(
     RedisDatabaseProvider redisDatabaseProvider,
     TokenGenerator tokenGenerator
   ) {
@@ -40,16 +41,23 @@ public class UserAccessProviderImpl implements UserAccessProvider {
   @Override
   public String create(UserAuthRecord userAuthRecord, Collection<AccountUserRoleRecord> userAccountRoleRecords, Collection<UserRoleRecord> userRoleRecords) throws AccessException {
     String accessToken = tokenGenerator.generate();
-    UserAccess userAccess = new UserAccess(userAuthRecord, userAccountRoleRecords, userRoleRecords);
+    update(accessToken,userAuthRecord,userAccountRoleRecords,userRoleRecords);
+    return accessToken;
+  }
+
+  @Override
+  public Map<String, String> update(String accessToken, UserAuthRecord userAuthRecord, Collection<AccountUserRoleRecord> userAccountRoleRecords, Collection<UserRoleRecord> userRoleRecords) throws AccessException {
+    UserAccessModel userAccessModel = new UserAccessModel(userAuthRecord, userAccountRoleRecords, userRoleRecords);
+    Map<String, String> userMap = userAccessModel.getMap();
     try {
-      redisDatabaseProvider.getClient().hmset(accessToken, userAccess.getMap());
+      redisDatabaseProvider.getClient().hmset(accessToken, userMap);
     } catch (ConfigException e) {
       log.error("Redis database connection is not get properly!", e);
       throw new AccessException("Redis database connection is not get properly: " + e);
     }
-
-    return accessToken;
+    return userMap;
   }
+
 
   @Override
   public void expire(String accessToken) throws DatabaseException {
@@ -61,9 +69,9 @@ public class UserAccessProviderImpl implements UserAccessProvider {
   }
 
   @Override
-  public UserAccess get(String accessToken) throws DatabaseException {
+  public UserAccessModel get(String accessToken) throws DatabaseException {
     try {
-      return new UserAccess(redisDatabaseProvider.getClient().hgetAll(accessToken));
+      return new UserAccessModel(redisDatabaseProvider.getClient().hgetAll(accessToken));
     } catch (Exception e) {
       throw new DatabaseException("Redis error: " + e.toString());
     }

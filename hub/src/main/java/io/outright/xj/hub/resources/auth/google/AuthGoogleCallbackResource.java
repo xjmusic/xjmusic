@@ -1,7 +1,7 @@
 package io.outright.xj.hub.resources.auth.google;
 
 import io.outright.xj.core.app.CoreModule;
-import io.outright.xj.core.app.access.UserAccessProvider;
+import io.outright.xj.core.app.access.UserAccessModelProvider;
 import io.outright.xj.core.app.config.Config;
 import io.outright.xj.core.app.exception.AccessException;
 import io.outright.xj.core.app.exception.ConfigException;
@@ -33,7 +33,7 @@ public class AuthGoogleCallbackResource {
   private final Logger log = LoggerFactory.getLogger(AuthGoogleCallbackResource.class);
   private final Injector injector = Guice.createInjector(new CoreModule(), new HubModule(), new GoogleModule());
   private final GoogleAuthController googleAuthController = injector.getInstance(GoogleAuthController.class);
-  private final UserAccessProvider userAccessProvider = injector.getInstance(UserAccessProvider.class);
+  private final UserAccessModelProvider userAccessModelProvider = injector.getInstance(UserAccessModelProvider.class);
   private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
 
   private static final String redirectPathUnauthorized = Config.appPathUnauthorized();
@@ -73,7 +73,7 @@ public class AuthGoogleCallbackResource {
       return errorResponse("Unknown error with authenticating access code", e);
     }
 
-    return httpResponseProvider.temporaryRedirectWithCookie(redirectPathSuccess, userAccessProvider.newCookie(accessToken));
+    return httpResponseProvider.internalRedirectWithCookie(redirectPathSuccess, userAccessModelProvider.newCookie(accessToken));
   }
 
   /**
@@ -102,6 +102,6 @@ public class AuthGoogleCallbackResource {
    * @return Response
    */
   private Response errorResponse() {
-    return httpResponseProvider.temporaryRedirect(redirectPathUnauthorized);
+    return httpResponseProvider.internalRedirect(redirectPathUnauthorized);
   }
 }

@@ -5,8 +5,8 @@ import io.outright.xj.core.app.access.AccessLogFilterProvider;
 import io.outright.xj.core.app.access.AccessLogFilterProviderImpl;
 import io.outright.xj.core.app.access.AccessTokenAuthFilter;
 import io.outright.xj.core.app.access.AccessTokenAuthFilterImpl;
-import io.outright.xj.core.app.access.UserAccessProvider;
-import io.outright.xj.core.app.access.UserAccessProviderImpl;
+import io.outright.xj.core.app.access.UserAccessModelProvider;
+import io.outright.xj.core.app.access.UserAccessModelProviderImpl;
 import io.outright.xj.core.app.db.RedisDatabaseProvider;
 import io.outright.xj.core.app.db.RedisDatabaseProviderImpl;
 import io.outright.xj.core.app.db.SQLDatabaseProvider;
@@ -27,7 +27,7 @@ import com.google.inject.AbstractModule;
 public class CoreModule extends AbstractModule {
   protected void configure() {
     bind(JsonFactory.class).to(JacksonFactory.class);
-    bind(UserAccessProvider.class).to(UserAccessProviderImpl.class);
+    bind(UserAccessModelProvider.class).to(UserAccessModelProviderImpl.class);
     bind(App.class).to(AppImpl.class);
     bind(SQLDatabaseProvider.class).to(SQLDatabaseProviderImpl.class);
     bind(RedisDatabaseProvider.class).to(RedisDatabaseProviderImpl.class);

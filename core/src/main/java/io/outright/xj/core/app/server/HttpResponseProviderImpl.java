@@ -10,12 +10,12 @@ public class HttpResponseProviderImpl implements HttpResponseProvider {
   private final String appUrl = Config.appUrl();
 
   @Override
-  public Response temporaryRedirect(String path) {
+  public Response internalRedirect(String path) {
     return Response.temporaryRedirect(URI.create(appUrl+path)).build();
   }
 
   @Override
-  public Response temporaryRedirectWithCookie(String path, NewCookie... cookies) {
+  public Response internalRedirectWithCookie(String path, NewCookie... cookies) {
     return Response
       .temporaryRedirect(URI.create(appUrl+path))
       .cookie(cookies)
@@ -23,16 +23,10 @@ public class HttpResponseProviderImpl implements HttpResponseProvider {
   }
 
   @Override
-  public Response unauthorized() {
+  public Response unauthorizedWithCookie(NewCookie... cookies) {
     return Response
       .status(Response.Status.UNAUTHORIZED)
-      .build();
-  }
-
-  @Override
-  public Response serverError() {
-    return Response
-      .serverError()
+      .cookie(cookies)
       .build();
   }
 

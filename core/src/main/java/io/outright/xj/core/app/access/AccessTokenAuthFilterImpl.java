@@ -27,7 +27,7 @@ import java.util.Map;
 public class AccessTokenAuthFilterImpl implements AccessTokenAuthFilter {
   private final Logger log = LoggerFactory.getLogger(AccessTokenAuthFilterImpl.class);
   private final static Injector injector = Guice.createInjector(new CoreModule());
-  private final UserAccessProvider userAccessProvider = injector.getInstance(UserAccessProvider.class);
+  private final UserAccessModelProvider userAccessModelProvider = injector.getInstance(UserAccessModelProvider.class);
 
   private final String accessTokenName = Config.accessTokenName();
 
@@ -65,29 +65,29 @@ public class AccessTokenAuthFilterImpl implements AccessTokenAuthFilter {
     // roles required from here on
     if (aRolesAllowed == null) { return denied(context, "resource allows no roles"); }
 
-    // get UserAccess from (required from here on) access token
+    // get UserAccessModel from (required from here on) access token
     Map<String, Cookie> cookies = context.getCookies();
     Cookie accessTokenCookie = cookies.get(accessTokenName);
     if (accessTokenCookie == null) {
       return denied(context, "token-less access");
     }
 
-    UserAccess userAccess;
+    UserAccessModel userAccessModel;
     try {
-      userAccess = userAccessProvider.get(accessTokenCookie.getValue());
+      userAccessModel = userAccessModelProvider.get(accessTokenCookie.getValue());
     } catch (DatabaseException e) {
       return failed(context, "cannot get access_token: "+e.toString());
     }
-    if (!userAccess.valid()) {
+    if (!userAccessModel.valid()) {
       return denied(context, "invalid access_token");
     }
 
-    if (!userAccess.matchRoles(aRolesAllowed.value())) {
+    if (!userAccessModel.matchRoles(aRolesAllowed.value())) {
       return denied(context, "user has no accessible role");
     }
 
-    // set UserAccess in context for use by resource
-    context.setProperty(UserAccess.CONTEXT_KEY,userAccess);
+    // set UserAccessModel in context for use by resource
+    context.setProperty(UserAccessModel.CONTEXT_KEY, userAccessModel);
     return allowed();
   }
 

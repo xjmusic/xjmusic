@@ -2,7 +2,7 @@
 package io.outright.xj.hub.controller.user;
 
 import io.outright.xj.core.app.access.Role;
-import io.outright.xj.core.app.access.UserAccessProvider;
+import io.outright.xj.core.app.access.UserAccessModelProvider;
 import io.outright.xj.core.app.db.SQLDatabaseProvider;
 import io.outright.xj.core.app.exception.AccessException;
 import io.outright.xj.core.app.exception.ConfigException;
@@ -34,15 +34,15 @@ import static io.outright.xj.core.Tables.USER_ROLE;
 public class UserControllerImpl implements UserController {
   private static Logger log = LoggerFactory.getLogger(UserControllerImpl.class);
   private SQLDatabaseProvider dbProvider;
-  private UserAccessProvider userAccessProvider;
+  private UserAccessModelProvider userAccessModelProvider;
 
   @Inject
   public UserControllerImpl(
     SQLDatabaseProvider dbProvider,
-    UserAccessProvider userAccessProvider
+    UserAccessModelProvider userAccessModelProvider
   ) {
     this.dbProvider = dbProvider;
-    this.userAccessProvider = userAccessProvider;
+    this.userAccessModelProvider = userAccessModelProvider;
   }
 
   @Override
@@ -68,7 +68,7 @@ public class UserControllerImpl implements UserController {
       }
     }
 
-    String accessToken = userAccessProvider.create(userAuth, accounts, roles);
+    String accessToken = userAccessModelProvider.create(userAuth, accounts, roles);
     try {
       newUserAccessTokenRecord(db,
         userAuth.getUserId(),
@@ -124,7 +124,7 @@ public class UserControllerImpl implements UserController {
    * @param userAccessToken record of user access token to destroy
    */
   private void destroyToken(DSLContext db, UserAccessTokenRecord userAccessToken) throws DatabaseException {
-      userAccessProvider.expire(userAccessToken.getAccessToken());
+      userAccessModelProvider.expire(userAccessToken.getAccessToken());
       db.deleteFrom(USER_ACCESS_TOKEN)
         .where(USER_ACCESS_TOKEN.ID.eq(userAccessToken.getId()))
         .execute();

@@ -9,8 +9,9 @@ import io.outright.xj.core.tables.records.UserRoleRecord;
 
 import javax.ws.rs.core.NewCookie;
 import java.util.Collection;
+import java.util.Map;
 
-public interface UserAccessProvider {
+public interface UserAccessModelProvider {
   /**
    * Create a token to grant a user access to resources.
    *
@@ -20,6 +21,16 @@ public interface UserAccessProvider {
    * @return access token
    */
   String create(UserAuthRecord userAuthRecord, Collection<AccountUserRoleRecord> userAccountRoleRecords, Collection<UserRoleRecord> userRoleRecords) throws AccessException;
+
+  /**
+   * Update an access token to grant a user access to resources.
+   *
+   * @param userAuthRecord to create a token for.
+   * @param userRoleRecords roles that this user has access to.
+   * @param userAccountRoleRecords accounts that this user has access to.
+   * @return map of cached properties for this user
+   */
+  Map<String, String> update(String accessToken, UserAuthRecord userAuthRecord, Collection<AccountUserRoleRecord> userAccountRoleRecords, Collection<UserRoleRecord> userRoleRecords) throws AccessException;
 
   /**
    * Expire an access token.
@@ -36,7 +47,7 @@ public interface UserAccessProvider {
    * @return User who is granted access by this token
    * @throws DatabaseException if something goes wrong with storage access.
    */
-  UserAccess get(String token) throws DatabaseException;
+  UserAccessModel get(String token) throws DatabaseException;
 
   /**
    * Create a new cookie to set access token.
