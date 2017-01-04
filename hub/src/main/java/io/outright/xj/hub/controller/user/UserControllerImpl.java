@@ -7,7 +7,7 @@ import io.outright.xj.core.app.db.SQLDatabaseProvider;
 import io.outright.xj.core.app.exception.AccessException;
 import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.app.exception.DatabaseException;
-import io.outright.xj.core.tables.records.AccountUserRecord;
+import io.outright.xj.core.tables.records.AccountUserRoleRecord;
 import io.outright.xj.core.tables.records.UserAccessTokenRecord;
 import io.outright.xj.core.tables.records.UserAuthRecord;
 import io.outright.xj.core.tables.records.UserRecord;
@@ -25,7 +25,7 @@ import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static io.outright.xj.core.Tables.ACCOUNT_USER;
+import static io.outright.xj.core.Tables.ACCOUNT_USER_ROLE;
 import static io.outright.xj.core.Tables.USER;
 import static io.outright.xj.core.Tables.USER_ACCESS_TOKEN;
 import static io.outright.xj.core.Tables.USER_AUTH;
@@ -50,7 +50,7 @@ public class UserControllerImpl implements UserController {
     Connection conn = dbProvider.getConnectionTransaction();
     DSLContext db = dbProvider.getContext(conn);
 
-    Collection<AccountUserRecord> accounts;
+    Collection<AccountUserRoleRecord> accounts;
     Collection<UserRoleRecord> roles;
     UserAuthRecord userAuth = fetchOneUserAuth(db, authType, account);
     if (userAuth != null) {
@@ -183,11 +183,11 @@ public class UserControllerImpl implements UserController {
    *
    * @param db context of database access.
    * @param userId of existing User.
-   * @return collection of AccountUserRecord.
+   * @return collection of AccountUserRoleRecord.
    */
-  private Collection<AccountUserRecord> fetchAccounts(DSLContext db, ULong userId) {
-    return db.selectFrom(ACCOUNT_USER)
-      .where(ACCOUNT_USER.USER_ID.equal(userId))
+  private Collection<AccountUserRoleRecord> fetchAccounts(DSLContext db, ULong userId) {
+    return db.selectFrom(ACCOUNT_USER_ROLE)
+      .where(ACCOUNT_USER_ROLE.USER_ID.equal(userId))
       .fetch();
   }
 

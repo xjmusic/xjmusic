@@ -1,6 +1,6 @@
 package io.outright.xj.core.app.access;
 
-import io.outright.xj.core.tables.records.AccountUserRecord;
+import io.outright.xj.core.tables.records.AccountUserRoleRecord;
 import io.outright.xj.core.tables.records.UserAuthRecord;
 import io.outright.xj.core.tables.records.UserRoleRecord;
 import io.outright.xj.core.util.CSV.CSV;
@@ -20,28 +20,34 @@ public class UserAccess {
   private final static Logger log = LoggerFactory.getLogger(UserAccess.class);
   private static final String USER_ID_KEY = "userId";
   private static final String USER_AUTH_ID_KEY = "userAuthId";
-  private static final String ACCOUNTS_KEY = "accounts";
+  private static final String ACCOUNTS_KEY = "accountRoles";
   private static final String ROLES_KEY = "roles";
   static final String CONTEXT_KEY = "userAccess";
-  //  private final static Injector injector = Guice.createInjector(new CoreModule());
   private Map<String, String> innerMap;
 
   UserAccess(
     UserAuthRecord userAuthRecord,
-    Collection<AccountUserRecord> userAccountRecords,
+    Collection<AccountUserRoleRecord> userAccountRoleRecords,
     Collection<UserRoleRecord> userRoleRecords
   ) {
     this.innerMap = new HashMap<>();
-    this.innerMap.put(USER_ID_KEY,String.valueOf(userAuthRecord.getUserId()));
-    this.innerMap.put(USER_AUTH_ID_KEY,String.valueOf(userAuthRecord.getId()));
+    this.innerMap.put(USER_ID_KEY, String.valueOf(userAuthRecord.getUserId()));
+    this.innerMap.put(USER_AUTH_ID_KEY, String.valueOf(userAuthRecord.getId()));
 
     List<String> accounts = new ArrayList<>();
-    userAccountRecords.forEach(account -> accounts.add(String.valueOf(account.getAccountId().toBigInteger())));
-    this.innerMap.put(ACCOUNTS_KEY,CSV.join(accounts));
+    for (AccountUserRoleRecord accountRole : userAccountRoleRecords) {
+      accounts.add(
+        String.valueOf(accountRole.getAccountId().toBigInteger()) +
+          ":" + accountRole.getType()
+      );
+    }
+    this.innerMap.put(ACCOUNTS_KEY, CSV.join(accounts));
 
     List<String> roles = new ArrayList<>();
-    userRoleRecords.forEach(role -> roles.add(role.getType()));
-    this.innerMap.put(ROLES_KEY,CSV.join(roles));
+    for (UserRoleRecord role : userRoleRecords) {
+      roles.add(role.getType());
+    }
+    this.innerMap.put(ROLES_KEY, CSV.join(roles));
 
     // TODO don't need to log this
     log.info("UserAccess(<fromRecords>): {}", innerMap.toString());
@@ -63,7 +69,7 @@ public class UserAccess {
     // inefficient
 
     for (String matchRole : matchRoles) {
-      for (String userRole: getRoles()) {
+      for (String userRole : getRoles()) {
         if (userRole.equals(matchRole)) {
           return true;
         }
@@ -72,7 +78,7 @@ public class UserAccess {
     return false;
   }
 
-  public Map<String, String> getMap() {
+  Map<String, String> getMap() {
     return innerMap;
   }
 
@@ -80,23 +86,23 @@ public class UserAccess {
     return ULong.valueOf(innerMap.get(USER_ID_KEY));
   }
 
-  public String getUserAuthId() {
-    return innerMap.get(USER_AUTH_ID_KEY);
-  }
+//  public String getUserAuthId() {
+//    return innerMap.get(USER_AUTH_ID_KEY);
+//  }
 
-  public List<String> getRoles() {
+  private List<String> getRoles() {
     return CSV.split(innerMap.get(ROLES_KEY));
   }
 
-  public List<String> getAccounts() {
-    return CSV.split(innerMap.get(ACCOUNTS_KEY));
-  }
+//  public List<String> getAccounts() {
+//    return CSV.split(innerMap.get(ACCOUNTS_KEY));
+//  }
 
   public static UserAccess fromContext(ContainerRequestContext crc) {
     return (UserAccess) crc.getProperty(UserAccess.CONTEXT_KEY);
   }
 
-  public boolean valid() {
+  boolean valid() {
     return
       innerMap.containsKey(USER_ID_KEY) &&
         innerMap.containsKey(USER_AUTH_ID_KEY) &&

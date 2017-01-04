@@ -3,7 +3,7 @@ package io.outright.xj.core.app.access;
 
 import io.outright.xj.core.app.db.RedisDatabaseProvider;
 import io.outright.xj.core.external.google.GoogleModule;
-import io.outright.xj.core.tables.records.AccountUserRecord;
+import io.outright.xj.core.tables.records.AccountUserRoleRecord;
 import io.outright.xj.core.tables.records.UserAuthRecord;
 import io.outright.xj.core.tables.records.UserRoleRecord;
 import io.outright.xj.core.util.token.TokenGenerator;
@@ -41,7 +41,7 @@ public class UserAccessProviderImplTest {
   private Injector injector;
   private UserAccessProvider userAccessProvider;
   private UserAuthRecord userAuth;
-  private Collection<AccountUserRecord> accounts;
+  private Collection<AccountUserRoleRecord> accountRoles;
   private Collection<UserRoleRecord> roles;
 
   @Before
@@ -57,13 +57,15 @@ public class UserAccessProviderImplTest {
     userAuth.setUserId(ULong.valueOf(5609877));
     userAuth.setId(ULong.valueOf(12363));
 
-    accounts = new LinkedList<>();
-    AccountUserRecord accountUser1 = new AccountUserRecord();
-    accountUser1.setAccountId(ULong.valueOf(790809874));
-    AccountUserRecord accountUser2 = new AccountUserRecord();
-    accountUser2.setAccountId(ULong.valueOf(90888932));
-    accounts.add(accountUser1);
-    accounts.add(accountUser2);
+    accountRoles = new LinkedList<>();
+    AccountUserRoleRecord accountRole1 = new AccountUserRoleRecord();
+    accountRole1.setAccountId(ULong.valueOf(790809874));
+    accountRole1.setType(Role.USER);
+    AccountUserRoleRecord accountRole2 = new AccountUserRoleRecord();
+    accountRole2.setAccountId(ULong.valueOf(90888932));
+    accountRole2.setType(Role.USER);
+    accountRoles.add(accountRole1);
+    accountRoles.add(accountRole2);
 
     roles = new LinkedList<>();
     UserRoleRecord role1 = new UserRoleRecord();
@@ -77,7 +79,7 @@ public class UserAccessProviderImplTest {
   @After
   public void tearDown() throws Exception {
     userAuth = null;
-    accounts = null;
+    accountRoles = null;
     roles = null;
     System.clearProperty("access.token.domain");
     System.clearProperty("access.token.path");
@@ -92,13 +94,13 @@ public class UserAccessProviderImplTest {
     when(tokenGenerator.generate())
       .thenReturn("token123");
 
-    userAccessProvider.create(userAuth,accounts,roles);
+    userAccessProvider.create(userAuth, accountRoles,roles);
 
     Map<String, String> expectUserAccess = new HashMap<>();
     expectUserAccess.put("userId", "5609877");
     expectUserAccess.put("userAuthId", "12363");
     expectUserAccess.put("roles","user,musician");
-    expectUserAccess.put("accounts","790809874,90888932");
+    expectUserAccess.put("accountRoles","790809874:user,90888932:user");
     verify(redisConnection).hmset("token123", expectUserAccess);
   }
 

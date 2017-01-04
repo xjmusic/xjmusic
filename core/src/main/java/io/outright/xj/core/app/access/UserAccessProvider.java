@@ -2,9 +2,8 @@
 package io.outright.xj.core.app.access;
 
 import io.outright.xj.core.app.exception.AccessException;
-import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.app.exception.DatabaseException;
-import io.outright.xj.core.tables.records.AccountUserRecord;
+import io.outright.xj.core.tables.records.AccountUserRoleRecord;
 import io.outright.xj.core.tables.records.UserAuthRecord;
 import io.outright.xj.core.tables.records.UserRoleRecord;
 
@@ -17,10 +16,10 @@ public interface UserAccessProvider {
    *
    * @param userAuthRecord to create a token for.
    * @param userRoleRecords roles that this user has access to.
-   * @param userAccountRecords accounts that this user has access to.
+   * @param userAccountRoleRecords accounts that this user has access to.
    * @return access token
    */
-  String create(UserAuthRecord userAuthRecord, Collection<AccountUserRecord> userAccountRecords, Collection<UserRoleRecord> userRoleRecords) throws AccessException;
+  String create(UserAuthRecord userAuthRecord, Collection<AccountUserRoleRecord> userAccountRoleRecords, Collection<UserRoleRecord> userRoleRecords) throws AccessException;
 
   /**
    * Expire an access token.

@@ -6,7 +6,7 @@ import io.outright.xj.core.app.db.RedisDatabaseProvider;
 import io.outright.xj.core.app.exception.AccessException;
 import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.app.exception.DatabaseException;
-import io.outright.xj.core.tables.records.AccountUserRecord;
+import io.outright.xj.core.tables.records.AccountUserRoleRecord;
 import io.outright.xj.core.tables.records.UserAuthRecord;
 import io.outright.xj.core.tables.records.UserRoleRecord;
 import io.outright.xj.core.util.token.TokenGenerator;
@@ -38,14 +38,14 @@ public class UserAccessProviderImpl implements UserAccessProvider {
   }
 
   @Override
-  public String create(UserAuthRecord userAuthRecord, Collection<AccountUserRecord> userAccountRecords, Collection<UserRoleRecord> userRoleRecords) throws AccessException {
+  public String create(UserAuthRecord userAuthRecord, Collection<AccountUserRoleRecord> userAccountRoleRecords, Collection<UserRoleRecord> userRoleRecords) throws AccessException {
     String accessToken = tokenGenerator.generate();
-    UserAccess userAccess = new UserAccess(userAuthRecord, userAccountRecords,userRoleRecords);
+    UserAccess userAccess = new UserAccess(userAuthRecord, userAccountRoleRecords, userRoleRecords);
     try {
       redisDatabaseProvider.getClient().hmset(accessToken, userAccess.getMap());
     } catch (ConfigException e) {
       log.error("Redis database connection is not get properly!", e);
-      throw new AccessException("Redis database connection is not get properly: "+e);
+      throw new AccessException("Redis database connection is not get properly: " + e);
     }
 
     return accessToken;
@@ -56,7 +56,7 @@ public class UserAccessProviderImpl implements UserAccessProvider {
     try {
       redisDatabaseProvider.getClient().del(accessToken);
     } catch (Exception e) {
-      throw new DatabaseException("Redis error: "+e.toString());
+      throw new DatabaseException("Redis error: " + e.toString());
     }
   }
 
@@ -65,7 +65,7 @@ public class UserAccessProviderImpl implements UserAccessProvider {
     try {
       return new UserAccess(redisDatabaseProvider.getClient().hgetAll(accessToken));
     } catch (Exception e) {
-      throw new DatabaseException("Redis error: "+e.toString());
+      throw new DatabaseException("Redis error: " + e.toString());
     }
   }
 
@@ -73,8 +73,8 @@ public class UserAccessProviderImpl implements UserAccessProvider {
   public NewCookie newCookie(String accessToken) {
     return NewCookie.valueOf(
       cookieSetToken(accessToken) +
-      cookieSetDomainPath() +
-      "Max-Age=" + tokenMaxAge
+        cookieSetDomainPath() +
+        "Max-Age=" + tokenMaxAge
     );
   }
 
@@ -82,13 +82,14 @@ public class UserAccessProviderImpl implements UserAccessProvider {
   public NewCookie newExpiredCookie() {
     return NewCookie.valueOf(
       cookieSetToken("expired") +
-      cookieSetDomainPath() +
-      "Expires=Thu, 01 Jan 1970 00:00:00 GMT"
+        cookieSetDomainPath() +
+        "Expires=Thu, 01 Jan 1970 00:00:00 GMT"
     );
   }
 
   /**
    * Access cookieSetToken value setter
+   *
    * @param value to set
    * @return name=value pair
    */
@@ -98,10 +99,11 @@ public class UserAccessProviderImpl implements UserAccessProvider {
 
   /**
    * Access cookieSetToken cookie Domain and Path
+   *
    * @return String
    */
   private String cookieSetDomainPath() {
-    return (tokenDomain.length() > 0 ? "Domain=" + tokenDomain + ";" : "" ) +
+    return (tokenDomain.length() > 0 ? "Domain=" + tokenDomain + ";" : "") +
       "Path=" + tokenPath + ";";
   }
 }
