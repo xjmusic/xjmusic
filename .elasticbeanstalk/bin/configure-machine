@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+
+install() {
+  PKG="${1}"
+  sudo yum -y install "${PKG}"
+}
+
+build_from_source() {
+  BASEURL="${1}"
+  PATH="${2}"
+  PKG="${3}"
+  EXT="${4}"
+  cd ${HOME}
+  wget "${BASEURL}${PATH}${PKG}${EXT}"
+  tar xvzf "${PKG}${EXT}"
+  cd "${PKG}"
+  sudo make install
+  cd ${HOME}
+  rm -fr "${PKG}"
+  rm "${PKG}${EXT}"
+}
+
+# gcc
+install gcc
+
+# redis client (requires gcc)
+build_from_source "http://download.redis.io/" "" "redis-stable" ".tar.gz"
+
+# telnet
+install telnet
+
+# mysql client
+install mysql
+
+# htop
+install htop

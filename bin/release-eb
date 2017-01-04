@@ -80,10 +80,9 @@ cp ${PWD}/.elasticbeanstalk/production.env ${PWD}/target/runtime.env
 step_ok
 
 #
-step "Add .elasticbeanstalk/eb-bootstrap"
-indent "(this pre-bootstrap wraps the common bootstrap)"
-indent "${PWD}/target/bin/eb-bootstrap"
-cp ${PWD}/.elasticbeanstalk/eb-bootstrap ${PWD}/target/bin/eb-bootstrap
+step "Add .elasticbeanstalk/bin/*"
+indent "$(ls ${PWD}/.elasticbeanstalk/bin/*)"
+cp ${PWD}/.elasticbeanstalk/bin/* ${PWD}/target/bin/
 step_ok
 
 #
