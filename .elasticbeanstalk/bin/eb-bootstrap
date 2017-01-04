@@ -31,17 +31,6 @@ kill_javas_running () {
   done
 }
 
-write_script() {
-  PATH="${1}"
-  BODY="${2}"
-  rm "${PATH}"
-  printf "#!/usr/bin/env bash\n\n" > "${PATH}"
-  printf "${BODY}\n" >> "${PATH}"
-  chmod +x "${PATH}"
-  printf "Wrote script ${PATH}\n"
-  printf "OK\n\n"
-}
-
 #
 APP="${1}"
 require "${APP}" "app"
@@ -52,14 +41,8 @@ sleep 2
 printf "OK\n\n"
 
 #
-write_script "bin/mysql" "mysql --host=${DB_MYSQL_HOST} \
-                            --port=${DB_MYSQL_PORT} \
-                            --user=${DB_MYSQL_USER} \
-                            --password=${DB_MYSQL_PASS}"
-
-#
-write_script "bin/redis" "redis-cli -h ${DB_REDIS_HOST}\
-                                -p ${DB_REDIS_PORT}"
+echo "mysql --host=${DB_MYSQL_HOST} --port=${DB_MYSQL_PORT} --user=${DB_MYSQL_USER} --password=${DB_MYSQL_PASS}"
+echo "redis-cli -h ${DB_REDIS_HOST} -p ${DB_REDIS_PORT}"
 
 # common bootstrap
 bin/bootstrap ${APP} ${2} ${3} ${4} ${5} ${6} ${7} ${8} ${9}
