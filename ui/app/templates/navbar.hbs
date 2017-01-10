@@ -1,3 +1,4 @@
+<!-- Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved. -->
 <nav class="navbar navbar-inverse">
     <div class="container-fluid">
         <div class="navbar-header">
@@ -11,10 +12,12 @@
         </div>
 
         <div class="collapse navbar-collapse" id="main-navbar">
-          {{#if session.isAuthenticated}}
+          {{#if auth.isUser}}
             <ul class="nav navbar-nav">
-              {{#link-to 'index' tagName="li"}}<a href="">Home</a>{{/link-to}}
-              {{#link-to 'engines' tagName="li"}}<a href="">Engines</a>{{/link-to}}
+              {{#link-to 'index' tagName="li"}}<a href="">Dash</a>{{/link-to}}
+              {{#if auth.isAdmin}}
+                {{#link-to 'admin' tagName="li"}}<a href="">Admin</a>{{/link-to}}
+              {{/if}}
               <li><button {{action 'logout'}}>Logout</button></li>
             </ul>
           {{else}}

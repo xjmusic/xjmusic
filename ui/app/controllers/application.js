@@ -1,8 +1,7 @@
-// Copyright (c) 2016, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 import Ember from 'ember';
 
 export default Ember.Controller.extend({
-  session: Ember.inject.service("session"),
   auth: Ember.inject.service("auth"),
   actions: {
     login() {

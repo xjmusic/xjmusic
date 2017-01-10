@@ -1,4 +1,4 @@
-// Copyright (c) 2016, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 package io.outright.xj.core.util;
 
 import org.junit.Test;
