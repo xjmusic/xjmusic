@@ -1,15 +1,12 @@
 {
-  "predef": [
-    "document",
-    "window",
-    "-Promise"
-  ],
-  "browser": true,
   "boss": true,
+  "browser": true,
   "curly": true,
   "debug": false,
   "devel": true,
   "eqeqeq": true,
+  "eqnull": true,
+  "esnext": true,
   "evil": true,
   "forin": false,
   "immed": false,
@@ -17,16 +14,19 @@
   "newcap": true,
   "noarg": true,
   "noempty": false,
-  "nonew": false,
   "nomen": false,
+  "nonew": false,
   "onevar": false,
   "plusplus": false,
+  "predef": [
+    "-Promise",
+    "document",
+    "window"
+  ],
   "regexp": false,
-  "undef": true,
-  "sub": true,
   "strict": false,
-  "white": false,
-  "eqnull": true,
-  "esnext": true,
-  "unused": true
+  "sub": true,
+  "undef": true,
+  "unused": true,
+  "white": false
 }
