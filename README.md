@@ -32,7 +32,7 @@ The default java properties are in the file **/default.env** which is copied to 
 
 Before running the docker container, be sure to package the latest Java build artifacts, with `make` or `bin/package`.
 
-Bring up the `xj01er1` docker container (with an Nginx server on port 80, which proxies backend requests to its own Hub via port 8042) and its required resource containers:
+Bring up the `hub01xj1` docker container (with an Nginx server on port 80, which proxies backend requests to its own Hub via port 8042) and its required resource containers:
 
     docker-compose up -d
 
@@ -58,7 +58,7 @@ To bring up containers with a forced build:
 
     docker-compose up --build
 
-To run just the `xj01er1` container, attached via tty:
+To run just the `hub01xj1` container, attached via tty:
 
     docker-compose run xj
 
@@ -159,12 +159,12 @@ To run local migrations (in the `core` submodule via the Flyway plugin):
 
 ## DNS
 
-For development, your local machine needs to have the domain `xj.outright.dev` pointed to `172.16.238.10` (the address set for xj01er1 in the docker-compose.yml file) in `/etc/hosts`; it's helpful to have `redis01er1` and `mysql01er1` as well:
+For development, your local machine needs to have the domain `xj.outright.dev` pointed to `172.16.217.10` (the address set for hub01xj1 in the docker-compose.yml file) in `/etc/hosts`; it's helpful to have `redis01xj1` and `mysql01xj1` as well:
 
-    172.16.238.50 mysql01er1
-    172.16.238.60 redis01er1
-    172.16.238.10 xj01er1
-    xj01er1 xj.outright.dev
+    172.16.217.50 mysql01xj1
+    172.16.217.60 redis01xj1
+    172.16.217.10 hub01xj1
+    hub01xj1 xj.outright.dev
 
 To automatically update /etc/hosts:
 

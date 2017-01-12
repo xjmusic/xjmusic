@@ -62,11 +62,11 @@ wait_until () {
 printf "\n[xj:docker]\n"
 
 #
-wait_until "mysql_ok mysql01er1 3306"
-wait_until "redis_ok redis01er1 6379"
+wait_until "mysql_ok mysql01xj1 3306"
+wait_until "redis_ok redis01xj1 6379"
 
 #
-if ! mysql_create_database mysql01er1 3306 xj; then
+if ! mysql_create_database mysql01xj1 3306 xj; then
   exit 1
 fi
 
