@@ -34,12 +34,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class UserAccessModelProviderImplTest {
+public class JSONOutputProviderImplTest {
   @Mock private TokenGenerator tokenGenerator;
   @Mock private RedisDatabaseProvider redisDatabaseProvider;
   @Mock private Jedis redisConnection;
   private Injector injector;
-  private UserAccessModelProvider userAccessModelProvider;
+  private AccessControlModuleProvider accessControlModuleProvider;
   private UserAuthRecord userAuth;
   private Collection<AccountUserRoleRecord> accountRoles;
   private Collection<UserRoleRecord> roles;
@@ -51,7 +51,7 @@ public class UserAccessModelProviderImplTest {
     System.setProperty("access.token.max.age","60");
     System.setProperty("access.token.name","access_token_jammy");
     createInjector();
-    userAccessModelProvider = injector.getInstance(UserAccessModelProvider.class);
+    accessControlModuleProvider = injector.getInstance(AccessControlModuleProvider.class);
 
     userAuth = new UserAuthRecord();
     userAuth.setUserId(ULong.valueOf(5609877));
@@ -94,7 +94,7 @@ public class UserAccessModelProviderImplTest {
     when(tokenGenerator.generate())
       .thenReturn("token123");
 
-    userAccessModelProvider.create(userAuth, accountRoles,roles);
+    accessControlModuleProvider.create(userAuth, accountRoles,roles);
 
     Map<String, String> expectUserAccess = new HashMap<>();
     expectUserAccess.put("userId", "5609877");
@@ -106,7 +106,7 @@ public class UserAccessModelProviderImplTest {
 
   @Test
   public void newCookie() throws Exception {
-    Cookie cookie = userAccessModelProvider.newCookie("12345");
+    Cookie cookie = accessControlModuleProvider.newCookie("12345");
 
     assertEquals("access_token_jammy",cookie.getName());
     assertEquals("com.manuts",cookie.getDomain());
@@ -131,7 +131,7 @@ public class UserAccessModelProviderImplTest {
         public void configure() {
           bind(TokenGenerator.class).toInstance(tokenGenerator);
           bind(RedisDatabaseProvider.class).toInstance(redisDatabaseProvider);
-          bind(UserAccessModelProvider.class).to(UserAccessModelProviderImpl.class);
+          bind(AccessControlModuleProvider.class).to(AccessControlModuleProviderImpl.class);
           bind(JsonFactory.class).to(JacksonFactory.class);
         }
       }));

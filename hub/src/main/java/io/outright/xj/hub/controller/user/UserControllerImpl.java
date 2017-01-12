@@ -1,8 +1,8 @@
 // Copyright Outright Mental, Inc. All Rights Reserved.
 package io.outright.xj.hub.controller.user;
 
+import io.outright.xj.core.app.access.AccessControlModuleProvider;
 import io.outright.xj.core.app.access.Role;
-import io.outright.xj.core.app.access.UserAccessModelProvider;
 import io.outright.xj.core.app.db.SQLDatabaseProvider;
 import io.outright.xj.core.app.exception.AccessException;
 import io.outright.xj.core.app.exception.ConfigException;
@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -34,15 +35,15 @@ import static io.outright.xj.core.Tables.USER_ROLE;
 public class UserControllerImpl implements UserController {
   private static Logger log = LoggerFactory.getLogger(UserControllerImpl.class);
   private SQLDatabaseProvider dbProvider;
-  private UserAccessModelProvider userAccessModelProvider;
+  private AccessControlModuleProvider accessControlModuleProvider;
 
   @Inject
   public UserControllerImpl(
     SQLDatabaseProvider dbProvider,
-    UserAccessModelProvider userAccessModelProvider
+    AccessControlModuleProvider accessControlModuleProvider
   ) {
     this.dbProvider = dbProvider;
-    this.userAccessModelProvider = userAccessModelProvider;
+    this.accessControlModuleProvider = accessControlModuleProvider;
   }
 
   @Override
@@ -68,7 +69,7 @@ public class UserControllerImpl implements UserController {
       }
     }
 
-    String accessToken = userAccessModelProvider.create(userAuth, accounts, roles);
+    String accessToken = accessControlModuleProvider.create(userAuth, accounts, roles);
     try {
       newUserAccessTokenRecord(db,
         userAuth.getUserId(),
@@ -90,13 +91,23 @@ public class UserControllerImpl implements UserController {
 
   @Override
   @Nullable
-  public UserRecord fetchOneUser(ULong userId) throws ConfigException {
+  public UserRecord fetchUser(ULong userId) throws ConfigException {
     Connection conn = dbProvider.getConnectionTransaction();
     DSLContext db = dbProvider.getContext(conn);
 
     return db.selectFrom(USER)
       .where(USER.ID.equal(userId))
       .fetchOne();
+  }
+
+  @Override
+  @Nullable
+  public ResultSet fetchUsers() throws ConfigException {
+    Connection conn = dbProvider.getConnectionTransaction();
+    DSLContext db = dbProvider.getContext(conn);
+
+    return db.selectFrom(USER)
+      .fetchResultSet();
   }
 
   @Override
@@ -124,7 +135,7 @@ public class UserControllerImpl implements UserController {
    * @param userAccessToken record of user access token to destroy
    */
   private void destroyToken(DSLContext db, UserAccessTokenRecord userAccessToken) throws DatabaseException {
-      userAccessModelProvider.expire(userAccessToken.getAccessToken());
+      accessControlModuleProvider.expire(userAccessToken.getAccessToken());
       db.deleteFrom(USER_ACCESS_TOKEN)
         .where(USER_ACCESS_TOKEN.ID.eq(userAccessToken.getId()))
         .execute();

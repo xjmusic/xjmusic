@@ -7,16 +7,14 @@ const Router = Ember.Router.extend({
 });
 
 Router.map(function() {
-  this.route('engines', function() {
-  });
-
-  this.route('login');
-
-  this.route('welcome');
-  this.route('unauthorized');
   this.route('admin', function() {
     this.route('users');
   });
+  this.route('engines', function() {});
+  this.route('login');
+  this.route('logout');
+  this.route('unauthorized');
+  this.route('yo');
 });
 
 export default Router;

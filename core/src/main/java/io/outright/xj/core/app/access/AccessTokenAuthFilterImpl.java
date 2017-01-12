@@ -27,7 +27,7 @@ import java.util.Map;
 public class AccessTokenAuthFilterImpl implements AccessTokenAuthFilter {
   private final Logger log = LoggerFactory.getLogger(AccessTokenAuthFilterImpl.class);
   private final static Injector injector = Guice.createInjector(new CoreModule());
-  private final UserAccessModelProvider userAccessModelProvider = injector.getInstance(UserAccessModelProvider.class);
+  private final AccessControlModuleProvider accessControlModuleProvider = injector.getInstance(AccessControlModuleProvider.class);
 
   private final String accessTokenName = Config.accessTokenName();
 
@@ -65,29 +65,29 @@ public class AccessTokenAuthFilterImpl implements AccessTokenAuthFilter {
     // roles required from here on
     if (aRolesAllowed == null) { return denied(context, "resource allows no roles"); }
 
-    // get UserAccessModel from (required from here on) access token
+    // get AccessControlModule from (required from here on) access token
     Map<String, Cookie> cookies = context.getCookies();
     Cookie accessTokenCookie = cookies.get(accessTokenName);
     if (accessTokenCookie == null) {
       return denied(context, "token-less access");
     }
 
-    UserAccessModel userAccessModel;
+    AccessControlModule accessControlModule;
     try {
-      userAccessModel = userAccessModelProvider.get(accessTokenCookie.getValue());
+      accessControlModule = accessControlModuleProvider.get(accessTokenCookie.getValue());
     } catch (DatabaseException e) {
       return failed(context, "cannot get access_token: "+e.toString());
     }
-    if (!userAccessModel.valid()) {
+    if (!accessControlModule.valid()) {
       return denied(context, "invalid access_token");
     }
 
-    if (!userAccessModel.matchRoles(aRolesAllowed.value())) {
+    if (!accessControlModule.matchRoles(aRolesAllowed.value())) {
       return denied(context, "user has no accessible role");
     }
 
-    // set UserAccessModel in context for use by resource
-    context.setProperty(UserAccessModel.CONTEXT_KEY, userAccessModel);
+    // set AccessControlModule in context for use by resource
+    context.setProperty(AccessControlModule.CONTEXT_KEY, accessControlModule);
     return allowed();
   }
 

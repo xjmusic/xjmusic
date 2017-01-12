@@ -1,11 +1,8 @@
 /* Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved. */
 
 @import "bootstrap";
-
-$gray: #a0a0a0;
-$yellow: #ffc000;
-$green: #00c000;
-$red: #c00000;
+@import "navbar";
+@import "palette";
 
 @font-face {
   font-family: OxygenMono;

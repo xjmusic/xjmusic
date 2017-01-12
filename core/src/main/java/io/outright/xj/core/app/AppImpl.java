@@ -42,7 +42,7 @@ public class AppImpl implements App {
   }
 
   /**
-   * @param packages    containing JAX-RS resources and providers
+   * @param packages containing JAX-RS resources and providers
    */
   @Override
   public void configure(

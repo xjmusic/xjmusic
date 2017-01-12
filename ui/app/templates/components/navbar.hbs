@@ -1,0 +1,46 @@
+<!-- Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved. -->
+<nav class="navbar navbar-inverse">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#main-navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+
+    <div class="collapse navbar-collapse" id="main-navbar">
+      {{#if auth.isUser}}
+        <ul class="nav navbar-nav navbar-left">
+          {{#link-to 'index' tagName="li"}}<a href="">Home</a>{{/link-to}}
+          {{#if auth.isAdmin}}
+            {{#link-to 'admin' tagName="li"}}<a href="">Admin</a>{{/link-to}}
+          {{/if}}
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+          {{#link-to 'yo' tagName="li"}}<a href="">Yo</a>{{/link-to}}
+        </ul>
+      {{else}}
+        <ul class="nav navbar-nav">
+          {{#link-to 'login' tagName="li"}}<a href="">Login</a>{{/link-to}}
+        </ul>
+      {{/if}}
+    </div>
+
+    {{#if isRouteAdmin}}
+      <div class="container-fluid navbar-sub">
+        <ul class="nav navbar-nav">
+          {{#link-to 'admin.users' tagName="li"}}<a href="">Users</a>{{/link-to}}
+        </ul>
+      </div>
+    {{/if}}
+
+  {{#if isRouteYo}}
+    <div class="container-fluid navbar-sub">
+      <ul class="nav navbar-nav navbar-right">
+        {{#link-to 'logout' tagName="li"}}<a href="">Logout</a>{{/link-to}}
+      </ul>
+    </div>
+  {{/if}}
+
+</nav>

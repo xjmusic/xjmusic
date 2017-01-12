@@ -30,4 +30,11 @@ public class HttpResponseProviderImpl implements HttpResponseProvider {
       .build();
   }
 
+  @Override
+  public Response unauthorized() {
+    return Response
+      .status(Response.Status.UNAUTHORIZED)
+      .build();
+  }
+
 }

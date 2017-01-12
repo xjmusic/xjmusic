@@ -22,8 +22,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class UserAccessModel {
-  private static final Logger log = LoggerFactory.getLogger(UserAccessModel.class);
+public class AccessControlModule {
+  private static final Logger log = LoggerFactory.getLogger(AccessControlModule.class);
   private static final Injector injector = Guice.createInjector(new CoreModule(), new GoogleModule());
   private static final String USER_ID_KEY = "userId";
   private static final String USER_AUTH_ID_KEY = "userAuthId";
@@ -33,7 +33,7 @@ public class UserAccessModel {
   static final String CONTEXT_KEY = "userAccess";
   private Map<String, String> innerMap;
 
-  UserAccessModel(
+  AccessControlModule(
     UserAuthRecord userAuthRecord,
     Collection<AccountUserRoleRecord> userAccountRoleRecords,
     Collection<UserRoleRecord> userRoleRecords
@@ -58,7 +58,7 @@ public class UserAccessModel {
     this.innerMap.put(ROLES_KEY, CSV.join(roles));
   }
 
-  UserAccessModel(
+  AccessControlModule(
     Map<String, String> innerMap
   ) {
     this.innerMap = innerMap;
@@ -103,8 +103,8 @@ public class UserAccessModel {
 //    return CSV.split(innerMap.get(ACCOUNTS_KEY));
 //  }
 
-  public static UserAccessModel fromContext(ContainerRequestContext crc) {
-    return (UserAccessModel) crc.getProperty(UserAccessModel.CONTEXT_KEY);
+  public static AccessControlModule fromContext(ContainerRequestContext crc) {
+    return (AccessControlModule) crc.getProperty(AccessControlModule.CONTEXT_KEY);
   }
 
   boolean valid() {

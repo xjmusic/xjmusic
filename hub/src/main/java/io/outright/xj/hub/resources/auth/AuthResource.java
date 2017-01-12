@@ -1,7 +1,7 @@
 package io.outright.xj.hub.resources.auth;
 
 import io.outright.xj.core.app.access.Role;
-import io.outright.xj.core.app.access.UserAccessModel;
+import io.outright.xj.core.app.access.AccessControlModule;
 
 import javax.annotation.security.RolesAllowed;
 import javax.jws.WebResult;
@@ -28,9 +28,9 @@ public class AuthResource {
   @WebResult
   @RolesAllowed({Role.USER})
   public Response getCurrentAuthentication(@Context ContainerRequestContext crc) throws IOException {
-    UserAccessModel userAccessModel = UserAccessModel.fromContext(crc);
+    AccessControlModule accessControlModule = AccessControlModule.fromContext(crc);
      return Response
-        .accepted(userAccessModel.toJSON())
+        .accepted(accessControlModule.toJSON())
         .type(MediaType.APPLICATION_JSON)
         .build();
   }

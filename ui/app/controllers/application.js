@@ -3,12 +3,7 @@ import Ember from 'ember';
 
 export default Ember.Controller.extend({
   auth: Ember.inject.service("auth"),
-  actions: {
-    login() {
-      window.location.replace("/auth/google");
-    },
-    logout() {
-      window.location.replace("/auth/no");
-    }
-  }
+  needs: ['application'],
+  isRouteAdmin: Ember.computed.match('currentRouteName', /^admin/),
+  isRouteYo: Ember.computed.match('currentRouteName', /^yo/)
 });

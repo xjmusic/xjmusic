@@ -1,9 +1,8 @@
 package io.outright.xj.hub.resources.users;
 
 import io.outright.xj.core.app.CoreModule;
+import io.outright.xj.core.app.access.AccessControlModule;
 import io.outright.xj.core.app.access.Role;
-import io.outright.xj.core.app.access.UserAccessModel;
-import io.outright.xj.core.app.access.UserAccessModelProvider;
 import io.outright.xj.core.app.server.HttpResponseProvider;
 import io.outright.xj.core.external.google.GoogleModule;
 import io.outright.xj.core.tables.records.UserRecord;
@@ -13,8 +12,6 @@ import io.outright.xj.hub.controller.user.UserController;
 import com.google.api.client.json.JsonFactory;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.annotation.security.RolesAllowed;
 import javax.jws.WebResult;
@@ -32,9 +29,9 @@ import java.io.IOException;
 @Path("users/me")
 public class UsersMeResource {
   private static final Injector injector = Guice.createInjector(new CoreModule(), new HubModule(), new GoogleModule());
-  private static Logger log = LoggerFactory.getLogger(UsersMeResource.class);
+//  private static Logger log = LoggerFactory.getLogger(UsersMeResource.class);
   private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
-  private final UserAccessModelProvider userAccessModelProvider = injector.getInstance(UserAccessModelProvider.class);
+//  private final JSONOutputProvider accessControlModuleProvider = injector.getInstance(JSONOutputProvider.class);
   private final UserController userController = injector.getInstance(UserController.class);
   private final JsonFactory jsonFactory = injector.getInstance(JsonFactory.class);
 
@@ -46,14 +43,14 @@ public class UsersMeResource {
   @GET
   @WebResult
   @RolesAllowed({Role.USER})
-  public Response getCurrentAuthentication(@Context ContainerRequestContext crc) throws IOException {
-    UserAccessModel userAccessModel = UserAccessModel.fromContext(crc);
+  public Response getCurrentlyAuthenticatedUser(@Context ContainerRequestContext crc) throws IOException {
+    AccessControlModule accessControlModule = AccessControlModule.fromContext(crc);
 
     UserRecord user;
     try {
-      user = userController.fetchOneUser(userAccessModel.getUserId());
+      user = userController.fetchUser(accessControlModule.getUserId());
     } catch (Exception e) {
-      return errorDestroysToken("fetching user: "+ e.getMessage());
+      return httpResponseProvider.unauthorized();
     }
 
     if (user != null) {
@@ -61,18 +58,7 @@ public class UsersMeResource {
         .accepted(jsonFactory.toString(user.intoMap()))
         .type(MediaType.APPLICATION_JSON)
         .build();
-    } else {
-      return errorDestroysToken("retrieved null user");
     }
-  }
-
-  /**
-   * Returns an authorized Response that also destroys the access_token cookies
-   * @param message to log
-   * @return Response
-   */
-  private Response errorDestroysToken(String message) {
-    log.error("error: " + message);
-    return httpResponseProvider.unauthorizedWithCookie(userAccessModelProvider.newExpiredCookie());
+    return httpResponseProvider.unauthorized();
   }
 }

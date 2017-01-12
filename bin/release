@@ -4,13 +4,13 @@
 . $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/common/functions
 
 # Must not have outstanding git changes
-gitcheck ${PWD}
+gitcheck ${PWD} || exit 1
 
 # Build Web Frontened
-bin/ui-build
+bin/ui-build || exit 1
 
 # Build Java Platform
-bin/package
+bin/package || exit 1
 
 # Package the release for AWS Elastic Beanstalk
-bin/release-eb
+bin/release-eb || exit 1

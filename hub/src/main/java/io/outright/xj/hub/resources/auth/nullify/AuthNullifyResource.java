@@ -2,8 +2,8 @@ package io.outright.xj.hub.resources.auth.nullify;
 
 import io.outright.xj.core.app.CoreModule;
 import io.outright.xj.core.app.access.Role;
-import io.outright.xj.core.app.access.UserAccessModel;
-import io.outright.xj.core.app.access.UserAccessModelProvider;
+import io.outright.xj.core.app.access.AccessControlModule;
+import io.outright.xj.core.app.access.AccessControlModuleProvider;
 import io.outright.xj.core.app.exception.AccessException;
 import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.app.server.HttpResponseProvider;
@@ -35,7 +35,7 @@ public class AuthNullifyResource {
 //  private final JsonFactory jsonFactory = injector.getInstance(JsonFactory.class);
   private final UserController userController = injector.getInstance(UserController.class);
   private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
-  private final UserAccessModelProvider userAccessModelProvider = injector.getInstance(UserAccessModelProvider.class);
+  private final AccessControlModuleProvider accessControlModuleProvider = injector.getInstance(AccessControlModuleProvider.class);
 
   /**
    * Get current authentication, destroy all known access_tokens for that user, and delete the access token browser cookie.
@@ -46,15 +46,15 @@ public class AuthNullifyResource {
   @WebResult
   @RolesAllowed({Role.USER})
   public Response getCurrentAuthentication(@Context ContainerRequestContext crc) throws IOException {
-    UserAccessModel userAccessModel = UserAccessModel.fromContext(crc);
+    AccessControlModule accessControlModule = AccessControlModule.fromContext(crc);
     try {
-      userController.destroyAllTokens(userAccessModel.getUserId());
+      userController.destroyAllTokens(accessControlModule.getUserId());
     } catch (AccessException e) {
       return Response.serverError().build();
     } catch (ConfigException e) {
       log.error("configuration error", e);
       return Response.serverError().build();
     }
-    return httpResponseProvider.internalRedirectWithCookie("", userAccessModelProvider.newExpiredCookie());
+    return httpResponseProvider.internalRedirectWithCookie("", accessControlModuleProvider.newExpiredCookie());
   }
 }

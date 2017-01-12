@@ -6,6 +6,10 @@ export default DS.JSONAPIAdapter.extend(DataAdapterMixin, {
   authorizer: 'authorizer:some'
 });
 
+export default DS.RESTAdapter.extend({
+  namespace: 'api/1'
+});
+
 // App.ApplicationAdapter = DS.RESTAdapter.extend({
 //   namespace: 'hub'
 // });

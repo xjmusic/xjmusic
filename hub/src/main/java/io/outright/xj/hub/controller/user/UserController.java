@@ -9,6 +9,7 @@ import io.outright.xj.core.tables.records.UserRecord;
 import org.jooq.types.ULong;
 
 import javax.annotation.Nullable;
+import java.sql.ResultSet;
 
 public interface UserController {
   /**
@@ -43,7 +44,15 @@ public interface UserController {
    * @return UserRecord.
    */
   @Nullable
-  UserRecord fetchOneUser(ULong userId) throws ConfigException;
+  UserRecord fetchUser(ULong userId) throws ConfigException;
+
+  /**
+   * Fetch many Users
+   *
+   * @return UserRecord.
+   */
+  @Nullable
+  ResultSet fetchUsers() throws ConfigException;
 
   /**
    * Destroy all access tokens for a specified user

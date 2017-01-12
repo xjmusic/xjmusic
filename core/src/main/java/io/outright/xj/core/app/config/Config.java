@@ -3,10 +3,29 @@ package io.outright.xj.core.app.config;
 
 import io.outright.xj.core.app.exception.ConfigException;
 
+import com.google.common.collect.ImmutableMap;
+
+import java.util.Map;
+
 /**
  * ALL APPLICATION CONFIGURATION MUST IMPLEMENT THIS CENTRAL CLASS.
  */
 public abstract class Config {
+
+  /**
+   * This config property is how SQL column names become JSON key names.
+   *
+   * This is also a whitelist for publicly visible properties.
+   *
+   * If a SQL column name is not found in this map,
+   * it will never be exposed as JSON.
+   */
+  public static final Map<String, String> jsonNameForSqlColumn = ImmutableMap.of(
+    "avatar_url", "avatarUrl",
+    "email", "email",
+    "id", "id",
+    "name", "name"
+  );
 
   public static String authGoogleId() throws ConfigException {
     return get("auth.google.id");
@@ -33,7 +52,7 @@ public abstract class Config {
   }
 
   public static String appPathSuccess() {
-    return getOrDefault("app.path.welcome","welcome");
+    return getOrDefault("app.path.welcome","");
   }
   public static String logAccessFilename() {
     return getOrDefault("log.access.filename", "/tmp/access.log");

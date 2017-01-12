@@ -1,0 +1,28 @@
+@import 'palette';
+
+.navbar.navbar-inverse {
+  background-color: $darker-gray;
+
+  .navbar-header {
+    background-color: $dark-gray;
+  }
+
+  .navbar-nav {
+    margin-top:0;
+    margin-bottom:0;
+
+    > .active > a {
+      background-color: $dark-gray;
+    }
+  }
+
+  .navbar-sub {
+    background-color: $lower-gray;
+
+    .navbar-nav > .active > a {
+      background-color: $low-gray;
+    }
+  }
+
+}
+

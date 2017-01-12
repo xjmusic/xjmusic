@@ -1,2 +1,25 @@
 <!-- Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved. -->
 {{outlet}}
+
+<div class="user-list">
+  <table class="table">
+    <thead>
+    <tr>
+      <th>#</th>
+      <th width="50">Pic</th>
+      <th>Name</th>
+      <th>Email</th>
+    </tr>
+    </thead>
+    <tbody>
+    {{#each users as |user|}}
+      <tr>
+        <th scope="row">{{user.id}}</th>
+        <td><img class="avatar" src="{{user.avatarUrl}}"/></td>
+        <td>{{user.name}}</td>
+        <td>{{user.email}}</td>
+      </tr>
+    {{/each}}
+    </tbody>
+  </table>
+</div>

@@ -28,4 +28,10 @@ public interface HttpResponseProvider {
    * @return response.
    */
   Response unauthorizedWithCookie(NewCookie... cookies);
+
+  /**
+   * Response with unauthorized
+   * @return response.
+   */
+  Response unauthorized();
 }

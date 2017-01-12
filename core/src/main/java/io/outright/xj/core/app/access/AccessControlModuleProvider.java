@@ -11,7 +11,7 @@ import javax.ws.rs.core.NewCookie;
 import java.util.Collection;
 import java.util.Map;
 
-public interface UserAccessModelProvider {
+public interface AccessControlModuleProvider {
   /**
    * Create a token to grant a user access to resources.
    *
@@ -47,7 +47,7 @@ public interface UserAccessModelProvider {
    * @return User who is granted access by this token
    * @throws DatabaseException if something goes wrong with storage access.
    */
-  UserAccessModel get(String token) throws DatabaseException;
+  AccessControlModule get(String token) throws DatabaseException;
 
   /**
    * Create a new cookie to set access token.
