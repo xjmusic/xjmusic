@@ -1,7 +1,7 @@
 // Copyright Outright Mental, Inc. All Rights Reserved.
 package io.outright.xj.core.app.output;
 
-import io.outright.xj.core.app.config.Config;
+import io.outright.xj.core.app.config.Exposure;
 
 import com.google.inject.Inject;
 import org.json.JSONArray;
@@ -11,6 +11,7 @@ import org.json.JSONObject;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.Map;
 
 public class JSONOutputProviderImpl implements JSONOutputProvider {
 //  private final static Logger log = LoggerFactory.getLogger(JSONOutputProviderImpl.class);
@@ -80,8 +81,36 @@ public class JSONOutputProviderImpl implements JSONOutputProvider {
     return json;
   }
 
+  @Override
+  public JSONObject Record(String rootName, Map<String, Object> data) {
+    JSONObject jsonSub = new JSONObject();
+    data.forEach((k,v)->{
+      String colName = jsonNameOfColumn(k);
+      if (colName != null) {
+        jsonSub.put(colName,v);
+      }
+    });
+
+    JSONObject json = new JSONObject();
+    json.put(rootName, jsonSub);
+    return json;
+  }
+
+  @Override
+  public JSONObject Error(String message) {
+    JSONObject error = new JSONObject();
+    error.put(Exposure.ERROR_DETAIL_KEY, message);
+
+    JSONArray errorsArr = new JSONArray();
+    errorsArr.put(error);
+
+    JSONObject json = new JSONObject();
+    json.put(Exposure.ERRORS_KEY, errorsArr);
+    return json;
+  }
+
   private String jsonNameOfColumn(String columnName) {
-    return Config.jsonNameForSqlColumn.get(columnName);
+    return Exposure.keyDatabaseColumnsInJSON.get(columnName);
   }
 
 }

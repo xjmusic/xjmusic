@@ -64,3 +64,17 @@ img {
     opacity: 0.25;
   }
 }
+
+.table-list {
+  table, tr, th, td, thead, tbody { background: transparent; }
+  .item {
+    cursor: pointer;
+  }
+}
+
+.placeholder-field {
+  opacity: 0.6;
+  text-align: left;
+  margin-bottom: 0;
+  padding-top: 7px;
+}

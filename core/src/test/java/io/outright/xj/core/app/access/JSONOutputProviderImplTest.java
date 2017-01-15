@@ -71,7 +71,7 @@ public class JSONOutputProviderImplTest {
     UserRoleRecord role1 = new UserRoleRecord();
     role1.setType(Role.USER);
     UserRoleRecord role2= new UserRoleRecord();
-    role2.setType(Role.MUSICIAN);
+    role2.setType(Role.ARTIST);
     roles.add(role1);
     roles.add(role2);
   }
@@ -99,7 +99,7 @@ public class JSONOutputProviderImplTest {
     Map<String, String> expectUserAccess = new HashMap<>();
     expectUserAccess.put("userId", "5609877");
     expectUserAccess.put("userAuthId", "12363");
-    expectUserAccess.put("roles","user,musician");
+    expectUserAccess.put("roles","user,artist");
     expectUserAccess.put("accountRoles","790809874:user,90888932:user");
     verify(redisConnection).hmset("token123", expectUserAccess);
   }

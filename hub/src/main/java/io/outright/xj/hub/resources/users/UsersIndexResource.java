@@ -38,7 +38,7 @@ public class UsersIndexResource {
   private final JSONOutputProvider jsonOutputProvider = injector.getInstance(JSONOutputProvider.class);
 
   /**
-   * Get current authentication.
+   * Get all users.
    *
    * @return application/json response.
    */
@@ -50,7 +50,7 @@ public class UsersIndexResource {
 
     ResultSet users;
     try {
-      users = userController.fetchUsers();
+      users = userController.fetchUsersAndRoles();
     } catch (Exception e) {
       return Response.serverError().build();
     }

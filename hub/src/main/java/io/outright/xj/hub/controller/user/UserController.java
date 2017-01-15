@@ -2,10 +2,12 @@
 package io.outright.xj.hub.controller.user;
 
 import io.outright.xj.core.app.exception.AccessException;
+import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.app.exception.DatabaseException;
-import io.outright.xj.core.tables.records.UserRecord;
+import io.outright.xj.hub.model.user.EditUser;
 
+import org.jooq.Record;
 import org.jooq.types.ULong;
 
 import javax.annotation.Nullable;
@@ -44,7 +46,7 @@ public interface UserController {
    * @return UserRecord.
    */
   @Nullable
-  UserRecord fetchUser(ULong userId) throws ConfigException;
+  Record fetchUserAndRoles(ULong userId) throws ConfigException;
 
   /**
    * Fetch many Users
@@ -52,13 +54,19 @@ public interface UserController {
    * @return UserRecord.
    */
   @Nullable
-  ResultSet fetchUsers() throws ConfigException;
+  ResultSet fetchUsersAndRoles() throws ConfigException;
 
   /**
-   * Destroy all access tokens for a specified user
+   * Destroy all access tokens for a specified User
    *
    * @param userId to destroy all access tokens for.
-   * @return Boolean if any tokens were found and destroyed
    */
-  void destroyAllTokens(ULong userId) throws AccessException, ConfigException;
+  void destroyAllTokens(ULong userId) throws ConfigException, DatabaseException;
+
+  /**
+   * Update a specified User's roles, and destroy all their tokens.
+   * @param userId of specific User to update.
+   * @param data for the updated User.
+   */
+  void updateUserRolesAndDestroyTokens(ULong userId, EditUser data) throws DatabaseException, ConfigException, BusinessException;
 }

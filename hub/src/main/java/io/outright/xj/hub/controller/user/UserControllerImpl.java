@@ -5,6 +5,7 @@ import io.outright.xj.core.app.access.AccessControlModuleProvider;
 import io.outright.xj.core.app.access.Role;
 import io.outright.xj.core.app.db.SQLDatabaseProvider;
 import io.outright.xj.core.app.exception.AccessException;
+import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.app.exception.DatabaseException;
 import io.outright.xj.core.tables.records.AccountUserRoleRecord;
@@ -12,9 +13,12 @@ import io.outright.xj.core.tables.records.UserAccessTokenRecord;
 import io.outright.xj.core.tables.records.UserAuthRecord;
 import io.outright.xj.core.tables.records.UserRecord;
 import io.outright.xj.core.tables.records.UserRoleRecord;
+import io.outright.xj.core.util.CSV.CSV;
+import io.outright.xj.hub.model.user.EditUser;
 
 import com.google.inject.Inject;
 import org.jooq.DSLContext;
+import org.jooq.Record;
 import org.jooq.Result;
 import org.jooq.types.ULong;
 import org.slf4j.Logger;
@@ -25,12 +29,14 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import static io.outright.xj.core.Tables.ACCOUNT_USER_ROLE;
 import static io.outright.xj.core.Tables.USER;
 import static io.outright.xj.core.Tables.USER_ACCESS_TOKEN;
 import static io.outright.xj.core.Tables.USER_AUTH;
 import static io.outright.xj.core.Tables.USER_ROLE;
+import static org.jooq.impl.DSL.groupConcat;
 
 public class UserControllerImpl implements UserController {
   private static Logger log = LoggerFactory.getLogger(UserControllerImpl.class);
@@ -91,41 +97,121 @@ public class UserControllerImpl implements UserController {
 
   @Override
   @Nullable
-  public UserRecord fetchUser(ULong userId) throws ConfigException {
+  public Record fetchUserAndRoles(ULong userId) throws ConfigException {
     Connection conn = dbProvider.getConnectionTransaction();
     DSLContext db = dbProvider.getContext(conn);
 
-    return db.selectFrom(USER)
-      .where(USER.ID.equal(userId))
+    return db.select(
+      USER.ID,
+      USER.NAME,
+      USER.AVATAR_URL,
+      USER.EMAIL,
+      USER_ROLE.USER_ID,
+      groupConcat(USER_ROLE.TYPE,",").as(Role.KEY_MANY)
+    )
+      .from(USER_ROLE)
+      .join(USER).on(USER.ID.eq(USER_ROLE.USER_ID))
+      .where(USER_ROLE.USER_ID.equal(userId))
+      .groupBy(USER_ROLE.USER_ID)
       .fetchOne();
   }
 
-  @Override
   @Nullable
-  public ResultSet fetchUsers() throws ConfigException {
+  public ResultSet fetchUsersAndRoles() throws ConfigException {
     Connection conn = dbProvider.getConnectionTransaction();
     DSLContext db = dbProvider.getContext(conn);
 
-    return db.selectFrom(USER)
+    return db.select(
+      USER.ID,
+      USER.NAME,
+      USER.AVATAR_URL,
+      USER.EMAIL,
+      USER_ROLE.USER_ID,
+      groupConcat(USER_ROLE.TYPE,",").as(Role.KEY_MANY)
+    )
+      .from(USER_ROLE)
+      .join(USER).on(USER.ID.eq(USER_ROLE.USER_ID))
+      .groupBy(USER_ROLE.USER_ID)
       .fetchResultSet();
   }
 
   @Override
-  public void destroyAllTokens(ULong userId) throws AccessException, ConfigException {
+  public void destroyAllTokens(ULong userId) throws DatabaseException, ConfigException {
     Connection tx = dbProvider.getConnectionTransaction();
     DSLContext db = dbProvider.getContext(tx);
 
     try {
-      Result<UserAccessTokenRecord> userAccessTokens = db.selectFrom(USER_ACCESS_TOKEN)
-        .where(USER_ACCESS_TOKEN.USER_ID.eq(userId))
-        .fetch();
-      for (UserAccessTokenRecord userAccessToken : userAccessTokens) {
-        destroyToken(db, userAccessToken);
-      }
+      destroyAllTokens(db, userId);
       dbProvider.commitAndClose(tx);
-    } catch (DatabaseException  e) {
+    } catch (Exception  e) {
       dbProvider.rollbackAndClose(tx);
-      throw new AccessException(e);
+      throw e;
+    }
+  }
+
+  @Override
+  public void updateUserRolesAndDestroyTokens(ULong userId, EditUser editUser) throws DatabaseException, ConfigException, BusinessException {
+    Connection conn = dbProvider.getConnectionTransaction();
+    DSLContext db = dbProvider.getContext(conn);
+
+    try {
+      updateUserRoles(db, userId, CSV.split(editUser.getUserRoles()));
+      destroyAllTokens(db, userId);
+      dbProvider.commitAndClose(conn);
+    } catch (Exception e) {
+      dbProvider.rollbackAndClose(conn);
+      throw e;
+    }
+  }
+
+  /**
+   * Update all roles for a specified User, by providing a list of roles to grant;
+   * all other roles will be denied to this User.
+   *
+   * @param db context.
+   * @param userId specific User to update.
+   * @param newRoles list to grant; all other roles will be denied to this User.
+   */
+  private void updateUserRoles(DSLContext db, ULong userId, List<String> newRoles) throws BusinessException {
+    String userIdString = String.valueOf(userId);
+
+    // First check all provided roles for validity.
+    for (String checkRole: newRoles) {
+      if (!Role.isValid(checkRole)) {
+        throw new BusinessException("'"+checkRole+"' is not a valid role.");
+      }
+    }
+
+    // Iterate through all rows; each will produce either an INSERT WHERE NOT EXISTS or a DELETE IF EXISTS.
+    for (String role: Role.ALL) {
+      if (newRoles.contains(role)) {
+        db.execute("INSERT INTO `user_role` (`user_id`, `type`) " +
+          "SELECT " + userIdString  + ", \"" + role + "\" FROM dual " +
+          "WHERE NOT EXISTS (" +
+            "SELECT `id` FROM `user_role` " +
+            "WHERE `user_id`=" + userIdString + " " +
+            "AND `type`=\"" + role + "\"" +
+          ");");
+      } else {
+        db.deleteFrom(USER_ROLE)
+          .where(USER_ROLE.USER_ID.eq(userId))
+          .and(USER_ROLE.TYPE.eq(role))
+          .execute();
+      }
+    }
+  }
+
+  /**
+   * Destroy all access tokens for a specified User
+   *
+   * @param userId to destroy all access tokens for.
+   */
+  private void destroyAllTokens(DSLContext db, ULong userId) throws DatabaseException {
+    Result<UserAccessTokenRecord> userAccessTokens = db.selectFrom(USER_ACCESS_TOKEN)
+      .where(USER_ACCESS_TOKEN.USER_ID.eq(userId))
+      .fetch();
+    for (UserAccessTokenRecord userAccessToken : userAccessTokens) {
+      destroyToken(db, userAccessToken);
     }
   }
 

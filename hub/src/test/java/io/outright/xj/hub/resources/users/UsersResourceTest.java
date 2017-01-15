@@ -7,6 +7,10 @@ public class UsersResourceTest extends ResourceEndpointTest {
 
   // TODO write tests for /users endpoint via HTTP
 
+  // TODO write tests for GET /users/<userId> endpoint via HTTP
+
+  // TODO write tests for PUT /users/<userId> endpoint via HTTP
+
 //  @Test
 //  public void GetAuth() {
 //    Response response = target().path("auth").request().get(Response.class);

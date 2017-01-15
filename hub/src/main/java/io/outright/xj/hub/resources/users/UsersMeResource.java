@@ -5,13 +5,13 @@ import io.outright.xj.core.app.access.AccessControlModule;
 import io.outright.xj.core.app.access.Role;
 import io.outright.xj.core.app.server.HttpResponseProvider;
 import io.outright.xj.core.external.google.GoogleModule;
-import io.outright.xj.core.tables.records.UserRecord;
 import io.outright.xj.hub.HubModule;
 import io.outright.xj.hub.controller.user.UserController;
 
 import com.google.api.client.json.JsonFactory;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.jooq.Record;
 
 import javax.annotation.security.RolesAllowed;
 import javax.jws.WebResult;
@@ -46,9 +46,9 @@ public class UsersMeResource {
   public Response getCurrentlyAuthenticatedUser(@Context ContainerRequestContext crc) throws IOException {
     AccessControlModule accessControlModule = AccessControlModule.fromContext(crc);
 
-    UserRecord user;
+    Record user;
     try {
-      user = userController.fetchUser(accessControlModule.getUserId());
+      user = userController.fetchUserAndRoles(accessControlModule.getUserId());
     } catch (Exception e) {
       return httpResponseProvider.unauthorized();
     }

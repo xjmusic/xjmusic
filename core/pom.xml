@@ -48,6 +48,13 @@
       <version>${jersey.version}</version>
     </dependency>
 
+    <!-- JSON for server interactions -->
+    <dependency>
+      <groupId>org.glassfish.jersey.media</groupId>
+      <artifactId>jersey-media-json-jackson</artifactId>
+      <version>${jersey.version}</version>
+    </dependency>
+
     <!-- HTTP server REST webservice: https://mvnrepository.com/artifact/javax.ws.rs/javax.ws.rs-api -->
     <dependency>
       <groupId>javax.ws.rs</groupId>

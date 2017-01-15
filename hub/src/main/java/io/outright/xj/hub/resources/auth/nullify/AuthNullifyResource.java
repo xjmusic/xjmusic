@@ -1,11 +1,11 @@
 package io.outright.xj.hub.resources.auth.nullify;
 
 import io.outright.xj.core.app.CoreModule;
-import io.outright.xj.core.app.access.Role;
 import io.outright.xj.core.app.access.AccessControlModule;
 import io.outright.xj.core.app.access.AccessControlModuleProvider;
-import io.outright.xj.core.app.exception.AccessException;
+import io.outright.xj.core.app.access.Role;
 import io.outright.xj.core.app.exception.ConfigException;
+import io.outright.xj.core.app.exception.DatabaseException;
 import io.outright.xj.core.app.server.HttpResponseProvider;
 import io.outright.xj.core.external.google.GoogleModule;
 import io.outright.xj.hub.HubModule;
@@ -32,7 +32,6 @@ import java.io.IOException;
 public class AuthNullifyResource {
   private Injector injector = Guice.createInjector(new CoreModule(), new HubModule(), new GoogleModule());
   private static Logger log = LoggerFactory.getLogger(AuthNullifyResource.class);
-//  private final JsonFactory jsonFactory = injector.getInstance(JsonFactory.class);
   private final UserController userController = injector.getInstance(UserController.class);
   private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
   private final AccessControlModuleProvider accessControlModuleProvider = injector.getInstance(AccessControlModuleProvider.class);
@@ -49,10 +48,11 @@ public class AuthNullifyResource {
     AccessControlModule accessControlModule = AccessControlModule.fromContext(crc);
     try {
       userController.destroyAllTokens(accessControlModule.getUserId());
-    } catch (AccessException e) {
+    } catch (DatabaseException e) {
+      log.error("DatabaseException", e);
       return Response.serverError().build();
     } catch (ConfigException e) {
-      log.error("configuration error", e);
+      log.error("ConfigException", e);
       return Response.serverError().build();
     }
     return httpResponseProvider.internalRedirectWithCookie("", accessControlModuleProvider.newExpiredCookie());

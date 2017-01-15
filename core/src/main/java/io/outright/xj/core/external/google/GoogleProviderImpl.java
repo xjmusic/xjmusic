@@ -51,9 +51,8 @@ public class GoogleProviderImpl implements GoogleProvider {
     try {
       this.clientId = Config.authGoogleId();
       this.clientSecret = Config.authGoogleSecret();
-      log.info("Initialized Google Provider, id {}", clientId);
     } catch (ConfigException e) {
-      log.error("Failed to initialize Google Provider", e);
+      log.error("Failed to initialize Google Provider: " + e.getMessage());
     }
     appUrl = Config.appUrl();
   }

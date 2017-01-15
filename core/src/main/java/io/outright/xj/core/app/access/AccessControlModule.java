@@ -28,7 +28,7 @@ public class AccessControlModule {
   private static final String USER_ID_KEY = "userId";
   private static final String USER_AUTH_ID_KEY = "userAuthId";
   private static final String ACCOUNTS_KEY = "accountRoles";
-  private static final String ROLES_KEY = "roles";
+  private static final String ROLES_KEY = Role.KEY_MANY;
   private final JsonFactory jsonFactory = injector.getInstance(JsonFactory.class);
   static final String CONTEXT_KEY = "userAccess";
   private Map<String, String> innerMap;
