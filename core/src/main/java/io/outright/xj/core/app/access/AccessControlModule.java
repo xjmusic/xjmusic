@@ -1,30 +1,24 @@
 package io.outright.xj.core.app.access;
 
-import io.outright.xj.core.app.CoreModule;
-import io.outright.xj.core.external.google.GoogleModule;
+import com.google.api.client.json.JsonFactory;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import io.outright.xj.core.CoreModule;
 import io.outright.xj.core.tables.records.AccountUserRoleRecord;
 import io.outright.xj.core.tables.records.UserAuthRecord;
 import io.outright.xj.core.tables.records.UserRoleRecord;
 import io.outright.xj.core.util.CSV.CSV;
-
-import com.google.api.client.json.JsonFactory;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
 import org.jooq.types.ULong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.container.ContainerRequestContext;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class AccessControlModule {
   private static final Logger log = LoggerFactory.getLogger(AccessControlModule.class);
-  private static final Injector injector = Guice.createInjector(new CoreModule(), new GoogleModule());
+  private static final Injector injector = Guice.createInjector(new CoreModule());
   private static final String USER_ID_KEY = "userId";
   private static final String USER_AUTH_ID_KEY = "userAuthId";
   private static final String ACCOUNTS_KEY = "accountRoles";

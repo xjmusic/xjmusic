@@ -1,12 +1,11 @@
 // Copyright Outright Mental, Inc. All Rights Reserved.
 package io.outright.xj.core.util.token;
 
-import io.outright.xj.core.external.google.GoogleModule;
-
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.util.Modules;
+import io.outright.xj.core.CoreModule;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,7 +34,7 @@ public class TokenGeneratorImplTest {
   }
 
   private void createInjector() {
-    injector = Guice.createInjector(Modules.override(new GoogleModule()).with(
+    injector = Guice.createInjector(Modules.override(new CoreModule()).with(
       new AbstractModule() {
         @Override
         public void configure() {

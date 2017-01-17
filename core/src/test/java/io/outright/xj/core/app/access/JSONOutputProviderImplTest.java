@@ -1,19 +1,18 @@
 // Copyright Outright Mental, Inc. All Rights Reserved.
 package io.outright.xj.core.app.access;
 
-import io.outright.xj.core.app.db.RedisDatabaseProvider;
-import io.outright.xj.core.external.google.GoogleModule;
-import io.outright.xj.core.tables.records.AccountUserRoleRecord;
-import io.outright.xj.core.tables.records.UserAuthRecord;
-import io.outright.xj.core.tables.records.UserRoleRecord;
-import io.outright.xj.core.util.token.TokenGenerator;
-
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.util.Modules;
+import io.outright.xj.core.CoreModule;
+import io.outright.xj.core.app.db.RedisDatabaseProvider;
+import io.outright.xj.core.tables.records.AccountUserRoleRecord;
+import io.outright.xj.core.tables.records.UserAuthRecord;
+import io.outright.xj.core.tables.records.UserRoleRecord;
+import io.outright.xj.core.util.token.TokenGenerator;
 import org.jooq.types.ULong;
 import org.junit.After;
 import org.junit.Before;
@@ -125,7 +124,7 @@ public class JSONOutputProviderImplTest {
   }
 
   private void createInjector() {
-    injector = Guice.createInjector(Modules.override(new GoogleModule()).with(
+    injector = Guice.createInjector(Modules.override(new CoreModule()).with(
       new AbstractModule() {
         @Override
         public void configure() {

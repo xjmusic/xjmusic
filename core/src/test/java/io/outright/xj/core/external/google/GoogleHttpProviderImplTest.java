@@ -7,6 +7,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.util.Modules;
+import io.outright.xj.core.CoreModule;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,7 +40,7 @@ public class GoogleHttpProviderImplTest extends Mockito {
   }
 
   private void createInjector() {
-    injector = Guice.createInjector(Modules.override(new GoogleModule()).with(
+    injector = Guice.createInjector(Modules.override(new CoreModule()).with(
       new AbstractModule() {
         @Override
         public void configure() {

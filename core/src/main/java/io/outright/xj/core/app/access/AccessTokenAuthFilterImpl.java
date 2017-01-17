@@ -1,6 +1,6 @@
 package io.outright.xj.core.app.access;
 
-import io.outright.xj.core.app.CoreModule;
+import io.outright.xj.core.CoreModule;
 import io.outright.xj.core.app.config.Config;
 import io.outright.xj.core.app.exception.DatabaseException;
 

@@ -14,7 +14,7 @@ import io.outright.xj.core.tables.records.UserAuthRecord;
 import io.outright.xj.core.tables.records.UserRecord;
 import io.outright.xj.core.tables.records.UserRoleRecord;
 import io.outright.xj.core.util.CSV.CSV;
-import io.outright.xj.hub.model.user.EditUser;
+import io.outright.xj.core.model.user.EditUser;
 
 import com.google.inject.Inject;
 import org.jooq.DSLContext;
@@ -53,7 +53,7 @@ public class UserControllerImpl implements UserController {
   }
 
   @Override
-  public String authenticate(String authType, String account, String externalAccessToken, String externalRefreshToken, String name, String avatarUrl, String email) throws AccessException, ConfigException {
+  public String authenticate(String authType, String account, String externalAccessToken, String externalRefreshToken, String name, String avatarUrl, String email) throws AccessException, DatabaseException {
     Connection conn = dbProvider.getConnectionTransaction();
     DSLContext db = dbProvider.getContext(conn);
 
@@ -97,7 +97,7 @@ public class UserControllerImpl implements UserController {
 
   @Override
   @Nullable
-  public Record fetchUserAndRoles(ULong userId) throws ConfigException {
+  public Record fetchUserAndRoles(ULong userId) throws DatabaseException {
     Connection conn = dbProvider.getConnectionTransaction();
     DSLContext db = dbProvider.getContext(conn);
 
@@ -117,7 +117,7 @@ public class UserControllerImpl implements UserController {
   }
 
   @Nullable
-  public ResultSet fetchUsersAndRoles() throws ConfigException {
+  public ResultSet fetchUsersAndRoles() throws DatabaseException {
     Connection conn = dbProvider.getConnectionTransaction();
     DSLContext db = dbProvider.getContext(conn);
 

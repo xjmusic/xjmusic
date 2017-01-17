@@ -1,5 +1,19 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
-import Ember from 'ember';
+import Ember from "ember";
 
 export default Ember.Route.extend({
+
+  model: function() {
+    return this.store.findAll('user').catch(function(){
+      this.transitionTo('');
+    });
+  },
+
+  actions: {
+
+    edit(user) {
+      this.transitionTo('admin.users.edit', user);
+    }
+
+  }
 });

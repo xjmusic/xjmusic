@@ -2,7 +2,7 @@
 package io.outright.xj.craft;
 
 import io.outright.xj.core.app.App;
-import io.outright.xj.core.app.CoreModule;
+import io.outright.xj.core.CoreModule;
 import io.outright.xj.core.app.config.Config;
 import io.outright.xj.core.app.exception.ConfigException;
 

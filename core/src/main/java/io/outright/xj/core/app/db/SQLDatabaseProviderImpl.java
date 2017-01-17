@@ -31,43 +31,35 @@ public class SQLDatabaseProviderImpl implements SQLDatabaseProvider {
   private final String pass = Config.dbMysqlPass();
 
   @Override
-  public Connection getConnectionTransaction() throws ConfigException {
+  public Connection getConnectionTransaction() throws DatabaseException {
     try {
-      Connection connection = DriverManager.getConnection(url, user, pass);
+      Connection connection = getConnection();
       connection.setAutoCommit(false);
       return connection;
     } catch (SQLException e) {
       log.error(e.getMessage(), e);
-      throw new ConfigException(e.getMessage());
+      throw new DatabaseException("SQLException: " + e.getMessage());
+    }
+  }
+
+  @Override
+  public Connection getConnection() throws DatabaseException {
+    try {
+      return DriverManager.getConnection(url, user, pass);
+    } catch (SQLException e) {
+      log.error(e.getMessage(), e);
+      throw new DatabaseException("SQLException: " + e.getMessage());
     }
   }
 
   @Override
   public void commitAndClose(Connection conn) throws DatabaseException {
     try {
-      conn.commit();
-      conn.close();
-    } catch (Exception eCommitClose) {
-      try {
-        conn.rollback();
-        conn.close();
-        throw failureException(
-          "to commit and close database transaction (" +eCommitClose.toString()+"); " +
-          "rolled back and closed OK");
-      } catch (Exception eRollbackClose) {
-        try {
-          conn.close();
-          throw failureException(
-            "to commit database transaction (" +eCommitClose.toString()+"), " +
-            "to rollback and close (" + eRollbackClose.toString() + "); " +
-            "closed OK");
-        } catch (Exception eClose) {
-          throw failureException(
-            "to commit database transaction (" +eCommitClose.toString()+", " +
-            "to rollback and close (" + eRollbackClose.toString() + "), " +
-            "to close ("+ eClose.toString() + ")");
-        }
-      }
+      commit(conn);
+      close(conn);
+    } catch (Exception e) {
+      close(conn);
+      throw e;
     }
   }
 
@@ -108,6 +100,35 @@ public class SQLDatabaseProviderImpl implements SQLDatabaseProvider {
   @Override
   public DSLContext getContext(Connection conn) {
     return DSL.using(conn, SQLDialect.MYSQL, getSettings());
+  }
+
+  @Override
+  public void commit(Connection conn) throws DatabaseException{
+    try {
+      conn.commit();
+    } catch (Exception eCommit) {
+      try {
+        conn.rollback();
+        throw failureException(
+          "to commit transaction (" +eCommit.toString()+"); " +
+            "rolled back OK");
+      } catch (Exception eRollback) {
+        throw failureException(
+          "to commit database transaction (" +eCommit.toString()+", " +
+            "to rollback (" + eRollback.toString() + ") ");
+      }
+    }
+  }
+
+  @Override
+  public void close(Connection conn) throws DatabaseException{
+    try {
+      conn.close();
+    } catch (Exception eClose) {
+      throw failureException(
+        "to close connection (" +eClose.toString()+"); " +
+          "rolled back and closed OK");
+    }
   }
 
   /**

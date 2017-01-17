@@ -1,4 +1,4 @@
-// app/routes/libraries/edit.js
+// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 import Ember from "ember";
 
 export default Ember.Route.extend({
@@ -6,13 +6,15 @@ export default Ember.Route.extend({
   flashMessages: Ember.inject.service(),
 
   model(params) {
-    return this.store.findRecord('user', params.user_id);
+    return this.store.findRecord('user', params.user_id).catch(function(){
+      this.transitionTo('users');
+    });
   },
 
   actions: {
 
-    saveUser(newUser) {
-      newUser.save().then(() => {
+    updateUser(model) {
+      model.save().then(() => {
         Ember.get(this, 'flashMessages').success('User updated.');
         this.transitionTo('admin.users');
       }).catch((adapterError) => {

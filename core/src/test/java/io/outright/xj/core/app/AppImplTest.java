@@ -1,6 +1,7 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 package io.outright.xj.core.app;
 
+import io.outright.xj.core.CoreModule;
 import io.outright.xj.core.app.access.AccessTokenAuthFilter;
 import io.outright.xj.core.app.access.AccessLogFilterProvider;
 import io.outright.xj.core.app.exception.ConfigException;

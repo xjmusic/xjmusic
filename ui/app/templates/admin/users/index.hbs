@@ -13,14 +13,14 @@
     </tr>
     </thead>
     <tbody>
-    {{#each users as |user|}}
-      {{#link-to 'admin.users.edit' user tagName="tr" class="item"}}
+    {{#each model as |user|}}
+      <tr class="item" {{action "edit" user}}>
         <th scope="row">{{user.id}}</th>
         <td><img class="avatar" src="{{user.avatarUrl}}"/></td>
         <td>{{user.name}}</td>
         <td>{{user.email}}</td>
         <td>{{user.roles}}</td>
-      {{/link-to}}
+      </tr>
     {{/each}}
     </tbody>
   </table>

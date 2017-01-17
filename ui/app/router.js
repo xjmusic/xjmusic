@@ -11,6 +11,10 @@ Router.map(function() {
     this.route('users', function() {
       this.route('edit', { path: '/:user_id/edit' });
     });
+    this.route('accounts', function() {
+      this.route('edit', { path: '/:account_id/edit' });
+      this.route('new');
+    });
   });
   this.route('engines', function() {});
   this.route('login');

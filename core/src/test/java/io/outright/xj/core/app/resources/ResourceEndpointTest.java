@@ -2,7 +2,7 @@
 package io.outright.xj.core.app.resources;
 
 import io.outright.xj.core.app.App;
-import io.outright.xj.core.app.CoreModule;
+import io.outright.xj.core.CoreModule;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;

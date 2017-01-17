@@ -5,7 +5,7 @@ import io.outright.xj.core.app.exception.AccessException;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.app.exception.DatabaseException;
-import io.outright.xj.hub.model.user.EditUser;
+import io.outright.xj.core.model.user.EditUser;
 
 import org.jooq.Record;
 import org.jooq.types.ULong;
@@ -35,9 +35,8 @@ public interface UserController {
    * @param avatarUrl to display for user
    * @param email to contact user
    * @return UserRecord confirmed authenticated
-   * @throws ConfigException if authentication fails internally
    */
-  String authenticate(String authType, String account, String externalAccessToken, String externalRefreshToken, String name, String avatarUrl, String email) throws DatabaseException, AccessException, ConfigException;
+  String authenticate(String authType, String account, String externalAccessToken, String externalRefreshToken, String name, String avatarUrl, String email) throws DatabaseException, AccessException;
 
   /**
    * Fetch one User by id
@@ -46,7 +45,7 @@ public interface UserController {
    * @return UserRecord.
    */
   @Nullable
-  Record fetchUserAndRoles(ULong userId) throws ConfigException;
+  Record fetchUserAndRoles(ULong userId) throws DatabaseException;
 
   /**
    * Fetch many Users
@@ -54,7 +53,7 @@ public interface UserController {
    * @return UserRecord.
    */
   @Nullable
-  ResultSet fetchUsersAndRoles() throws ConfigException;
+  ResultSet fetchUsersAndRoles() throws DatabaseException;
 
   /**
    * Destroy all access tokens for a specified User

@@ -11,12 +11,19 @@ import java.sql.Connection;
 
 public interface SQLDatabaseProvider {
   /**
-   * Get a SQL Database connection.
+   * Get a SQL Database connection, in a transaction.
    * IMPORTANT NOTE: When finished, be sure to commitAndClose() or rollbackAndClose().
    * @return Connection to SQL Database
-   * @throws ConfigException if the application is not configured correctly
+   * @throws DatabaseException if the application is not configured correctly
    */
-  Connection getConnectionTransaction() throws ConfigException;
+  Connection getConnectionTransaction() throws DatabaseException;
+
+  /**
+   * Get a SQL Database connection.
+   * @return Connection to SQL Database
+   * @throws DatabaseException if the application is not configured correctly
+   */
+  Connection getConnection() throws DatabaseException;
 
   /**
    * Commit the SQL Database transaction and close the connection.
@@ -58,4 +65,18 @@ public interface SQLDatabaseProvider {
    * @return DSL Context
    */
   DSLContext getContext(Connection conn);
+
+  /**
+   * Commit the database transaction.
+   * @param conn Connection
+   * @throws DatabaseException on failure.
+   */
+  void commit(Connection conn) throws DatabaseException;
+
+  /**
+   * Close the database connection.
+   * @param conn Connection
+   * @throws DatabaseException on failure.
+   */
+  void close(Connection conn) throws DatabaseException;
 }
