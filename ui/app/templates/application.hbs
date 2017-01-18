@@ -1,8 +1,10 @@
 <!-- Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved. -->
 {{partial 'components/navbar'}}
-<div class="container-fluid">
+<div class="alert-fixed">
   {{#each flashMessages.queue as |flash|}}
     {{flash-message flash=flash}}
   {{/each}}
+</div>
+<div class="container-fluid">
   {{outlet}}
 </div>
