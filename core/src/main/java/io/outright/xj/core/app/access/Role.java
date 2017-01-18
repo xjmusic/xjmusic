@@ -1,5 +1,7 @@
 package io.outright.xj.core.app.access;
 
+import io.outright.xj.core.util.CSV.CSV;
+
 public interface Role {
 
   /**
@@ -8,6 +10,8 @@ public interface Role {
   String ADMIN="admin";
   String ARTIST ="artist";
   String USER="user";
+  //
+  String BANNED="banned";
 
   /**
    * List of all Roles
@@ -15,8 +19,15 @@ public interface Role {
   String[] ALL={
     ADMIN,
     ARTIST,
-    USER
+    USER,
+    //
+    BANNED
   };
+
+  /**
+   * CSV generated from list of all roles
+   */
+  String ALL_CSV = CSV.join(ALL);
 
   /**
    * For use in maps.

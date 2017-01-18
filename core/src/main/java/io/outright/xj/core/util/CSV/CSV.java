@@ -11,4 +11,8 @@ public abstract class CSV {
   public static String join(List<String> parts) {
     return String.join(",", parts);
   }
+
+  public static String join(String[] parts) {
+    return String.join(",", parts);
+  }
 }

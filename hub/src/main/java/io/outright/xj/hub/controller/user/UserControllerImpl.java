@@ -178,7 +178,7 @@ public class UserControllerImpl implements UserController {
     // First check all provided roles for validity.
     for (String checkRole: newRoles) {
       if (!Role.isValid(checkRole)) {
-        throw new BusinessException("'"+checkRole+"' is not a valid role.");
+        throw new BusinessException("'"+checkRole+"' is not a valid role. Try one of: " + Role.ALL_CSV);
       }
     }
 
