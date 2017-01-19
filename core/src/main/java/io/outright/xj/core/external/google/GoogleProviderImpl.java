@@ -2,6 +2,7 @@
 package io.outright.xj.core.external.google;
 
 import io.outright.xj.core.app.config.Config;
+import io.outright.xj.core.app.config.Exposure;
 import io.outright.xj.core.app.exception.AccessException;
 import io.outright.xj.core.app.exception.ConfigException;
 
@@ -35,7 +36,6 @@ public class GoogleProviderImpl implements GoogleProvider {
   private GoogleProvider googleProvider;
   private JsonFactory jsonFactory;
 
-  private static String appUrl;
   private String clientId;
   private String clientSecret;
 
@@ -54,7 +54,6 @@ public class GoogleProviderImpl implements GoogleProvider {
     } catch (ConfigException e) {
       log.error("Failed to initialize Google Provider: " + e.getMessage());
     }
-    appUrl = Config.appBaseUrl() + Config.apiPath();
   }
 
   @Override
@@ -69,7 +68,7 @@ public class GoogleProviderImpl implements GoogleProvider {
 
   @Override
   public String getCallbackUrl() throws ConfigException {
-    return appUrl + CALLBACK_PATH;
+    return Exposure.apiUrlString(CALLBACK_PATH);
   }
 
   @Override

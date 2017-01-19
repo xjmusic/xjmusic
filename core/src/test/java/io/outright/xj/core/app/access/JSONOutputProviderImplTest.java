@@ -1,18 +1,20 @@
 // Copyright Outright Mental, Inc. All Rights Reserved.
 package io.outright.xj.core.app.access;
 
+import io.outright.xj.core.CoreModule;
+import io.outright.xj.core.app.db.RedisDatabaseProvider;
+import io.outright.xj.core.model.role.Role;
+import io.outright.xj.core.tables.records.AccountUserRecord;
+import io.outright.xj.core.tables.records.UserAuthRecord;
+import io.outright.xj.core.tables.records.UserRoleRecord;
+import io.outright.xj.core.util.token.TokenGenerator;
+
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.util.Modules;
-import io.outright.xj.core.CoreModule;
-import io.outright.xj.core.app.db.RedisDatabaseProvider;
-import io.outright.xj.core.tables.records.AccountUserRoleRecord;
-import io.outright.xj.core.tables.records.UserAuthRecord;
-import io.outright.xj.core.tables.records.UserRoleRecord;
-import io.outright.xj.core.util.token.TokenGenerator;
 import org.jooq.types.ULong;
 import org.junit.After;
 import org.junit.Before;
@@ -40,7 +42,7 @@ public class JSONOutputProviderImplTest {
   private Injector injector;
   private AccessControlModuleProvider accessControlModuleProvider;
   private UserAuthRecord userAuth;
-  private Collection<AccountUserRoleRecord> accountRoles;
+  private Collection<AccountUserRecord> accounts;
   private Collection<UserRoleRecord> roles;
 
   @Before
@@ -56,15 +58,13 @@ public class JSONOutputProviderImplTest {
     userAuth.setUserId(ULong.valueOf(5609877));
     userAuth.setId(ULong.valueOf(12363));
 
-    accountRoles = new LinkedList<>();
-    AccountUserRoleRecord accountRole1 = new AccountUserRoleRecord();
+    accounts = new LinkedList<>();
+    AccountUserRecord accountRole1 = new AccountUserRecord();
     accountRole1.setAccountId(ULong.valueOf(790809874));
-    accountRole1.setType(Role.USER);
-    AccountUserRoleRecord accountRole2 = new AccountUserRoleRecord();
+    AccountUserRecord accountRole2 = new AccountUserRecord();
     accountRole2.setAccountId(ULong.valueOf(90888932));
-    accountRole2.setType(Role.USER);
-    accountRoles.add(accountRole1);
-    accountRoles.add(accountRole2);
+    accounts.add(accountRole1);
+    accounts.add(accountRole2);
 
     roles = new LinkedList<>();
     UserRoleRecord role1 = new UserRoleRecord();
@@ -78,7 +78,7 @@ public class JSONOutputProviderImplTest {
   @After
   public void tearDown() throws Exception {
     userAuth = null;
-    accountRoles = null;
+    accounts = null;
     roles = null;
     System.clearProperty("access.token.domain");
     System.clearProperty("access.token.path");
@@ -93,13 +93,13 @@ public class JSONOutputProviderImplTest {
     when(tokenGenerator.generate())
       .thenReturn("token123");
 
-    accessControlModuleProvider.create(userAuth, accountRoles,roles);
+    accessControlModuleProvider.create(userAuth, accounts,roles);
 
     Map<String, String> expectUserAccess = new HashMap<>();
     expectUserAccess.put("userId", "5609877");
     expectUserAccess.put("userAuthId", "12363");
     expectUserAccess.put("roles","user,artist");
-    expectUserAccess.put("accountRoles","790809874:user,90888932:user");
+    expectUserAccess.put("accounts","790809874,90888932");
     verify(redisConnection).hmset("token123", expectUserAccess);
   }
 

@@ -1,6 +1,6 @@
 package io.outright.xj.hub.resource.auth;
 
-import io.outright.xj.core.app.access.Role;
+import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.app.access.AccessControlModule;
 
 import javax.annotation.security.RolesAllowed;

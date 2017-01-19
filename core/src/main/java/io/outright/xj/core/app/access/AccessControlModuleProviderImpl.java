@@ -6,7 +6,7 @@ import io.outright.xj.core.app.db.RedisDatabaseProvider;
 import io.outright.xj.core.app.exception.AccessException;
 import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.app.exception.DatabaseException;
-import io.outright.xj.core.tables.records.AccountUserRoleRecord;
+import io.outright.xj.core.tables.records.AccountUserRecord;
 import io.outright.xj.core.tables.records.UserAuthRecord;
 import io.outright.xj.core.tables.records.UserRoleRecord;
 import io.outright.xj.core.util.token.TokenGenerator;
@@ -39,14 +39,14 @@ public class AccessControlModuleProviderImpl implements AccessControlModuleProvi
   }
 
   @Override
-  public String create(UserAuthRecord userAuthRecord, Collection<AccountUserRoleRecord> userAccountRoleRecords, Collection<UserRoleRecord> userRoleRecords) throws AccessException {
+  public String create(UserAuthRecord userAuthRecord, Collection<AccountUserRecord> userAccountRoleRecords, Collection<UserRoleRecord> userRoleRecords) throws AccessException {
     String accessToken = tokenGenerator.generate();
     update(accessToken,userAuthRecord,userAccountRoleRecords,userRoleRecords);
     return accessToken;
   }
 
   @Override
-  public Map<String, String> update(String accessToken, UserAuthRecord userAuthRecord, Collection<AccountUserRoleRecord> userAccountRoleRecords, Collection<UserRoleRecord> userRoleRecords) throws AccessException {
+  public Map<String, String> update(String accessToken, UserAuthRecord userAuthRecord, Collection<AccountUserRecord> userAccountRoleRecords, Collection<UserRoleRecord> userRoleRecords) throws AccessException {
     AccessControlModule accessControlModule = new AccessControlModule(userAuthRecord, userAccountRoleRecords, userRoleRecords);
     Map<String, String> userMap = accessControlModule.getMap();
     try {

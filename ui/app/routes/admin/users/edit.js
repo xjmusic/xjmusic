@@ -3,29 +3,28 @@ import Ember from "ember";
 
 export default Ember.Route.extend({
 
-  flashMessages: Ember.inject.service(),
+  display: Ember.inject.service(),
 
   model(params) {
-    return this.store.findRecord('user', params.user_id).catch(function(){
-      this.transitionTo('users');
+    return this.store.findRecord('user', params.user_id).catch((error)=>{
+      Ember.get(this, 'display').error(error);
+      this.transitionTo('admin.users');
     });
   },
 
   actions: {
 
-    updateUser(model) {
+    saveUser(model) {
       model.save().then(() => {
-        Ember.get(this, 'flashMessages').success('User updated.');
+        Ember.get(this, 'display').success('Updated user '+model.get('name')+'.');
         this.transitionTo('admin.users');
-      }).catch((adapterError) => {
-        Ember.get(this, 'flashMessages').danger('Error: ' + adapterError.errors[0].detail);
+      }).catch((error) => {
+        Ember.get(this, 'display').error(error);
       });
     },
 
     willTransition(transition) {
-
       let model = this.controller.get('model');
-
       if (model.get('hasDirtyAttributes')) {
         let confirmation = confirm("Your changes haven't saved yet. Would you like to leave this form?");
 
@@ -35,6 +34,8 @@ export default Ember.Route.extend({
           transition.abort();
         }
       }
-    }
-  }
+    },
+
+  },
+
 });

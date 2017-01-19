@@ -2,19 +2,19 @@
 package io.outright.xj.hub.controller.user;
 
 import io.outright.xj.core.app.access.AccessControlModuleProvider;
-import io.outright.xj.core.app.access.Role;
+import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.app.db.SQLDatabaseProvider;
 import io.outright.xj.core.app.exception.AccessException;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.app.exception.DatabaseException;
-import io.outright.xj.core.tables.records.AccountUserRoleRecord;
+import io.outright.xj.core.model.user.UserWrapper;
+import io.outright.xj.core.tables.records.AccountUserRecord;
 import io.outright.xj.core.tables.records.UserAccessTokenRecord;
 import io.outright.xj.core.tables.records.UserAuthRecord;
 import io.outright.xj.core.tables.records.UserRecord;
 import io.outright.xj.core.tables.records.UserRoleRecord;
 import io.outright.xj.core.util.CSV.CSV;
-import io.outright.xj.core.model.user.EditUser;
 
 import com.google.inject.Inject;
 import org.jooq.DSLContext;
@@ -31,7 +31,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static io.outright.xj.core.Tables.ACCOUNT_USER_ROLE;
+import static io.outright.xj.core.Tables.ACCOUNT_USER;
 import static io.outright.xj.core.Tables.USER;
 import static io.outright.xj.core.Tables.USER_ACCESS_TOKEN;
 import static io.outright.xj.core.Tables.USER_AUTH;
@@ -57,7 +57,7 @@ public class UserControllerImpl implements UserController {
     Connection conn = dbProvider.getConnectionTransaction();
     DSLContext db = dbProvider.getContext(conn);
 
-    Collection<AccountUserRoleRecord> accounts;
+    Collection<AccountUserRecord> accounts;
     Collection<UserRoleRecord> roles;
     UserAuthRecord userAuth = fetchOneUserAuth(db, authType, account);
     if (userAuth != null) {
@@ -150,12 +150,12 @@ public class UserControllerImpl implements UserController {
   }
 
   @Override
-  public void updateUserRolesAndDestroyTokens(ULong userId, EditUser editUser) throws DatabaseException, ConfigException, BusinessException {
+  public void updateUserRolesAndDestroyTokens(ULong userId, UserWrapper data) throws DatabaseException, ConfigException, BusinessException {
     Connection conn = dbProvider.getConnectionTransaction();
     DSLContext db = dbProvider.getContext(conn);
 
     try {
-      updateUserRoles(db, userId, CSV.split(editUser.getUserRoles()));
+      updateUserRoles(db, userId, data);
       destroyAllTokens(db, userId);
       dbProvider.commitAndClose(conn);
     } catch (Exception e) {
@@ -172,8 +172,12 @@ public class UserControllerImpl implements UserController {
    * @param userId specific User to update.
    * @param newRoles list to grant; all other roles will be denied to this User.
    */
-  private void updateUserRoles(DSLContext db, ULong userId, List<String> newRoles) throws BusinessException {
+  private void updateUserRoles(DSLContext db, ULong userId, UserWrapper data) throws BusinessException {
+    data.validate();
+
+    // Prepare key data
     String userIdString = String.valueOf(userId);
+    List<String> newRoles = CSV.split(data.getUser().getRoles());
 
     // First check all provided roles for validity.
     for (String checkRole: newRoles) {
@@ -280,11 +284,11 @@ public class UserControllerImpl implements UserController {
    *
    * @param db context of database access.
    * @param userId of existing User.
-   * @return collection of AccountUserRoleRecord.
+   * @return collection of AccountUserRecord.
    */
-  private Collection<AccountUserRoleRecord> fetchAccounts(DSLContext db, ULong userId) {
-    return db.selectFrom(ACCOUNT_USER_ROLE)
-      .where(ACCOUNT_USER_ROLE.USER_ID.equal(userId))
+  private Collection<AccountUserRecord> fetchAccounts(DSLContext db, ULong userId) {
+    return db.selectFrom(ACCOUNT_USER)
+      .where(ACCOUNT_USER.USER_ID.equal(userId))
       .fetch();
   }
 

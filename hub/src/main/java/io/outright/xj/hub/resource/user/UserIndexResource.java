@@ -1,10 +1,11 @@
-package io.outright.xj.hub.resource.users;
+package io.outright.xj.hub.resource.user;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import io.outright.xj.core.CoreModule;
-import io.outright.xj.core.app.access.Role;
+import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.app.output.JSONOutputProvider;
+import io.outright.xj.core.model.user.User;
 import io.outright.xj.hub.HubModule;
 import io.outright.xj.hub.controller.user.UserController;
 import org.slf4j.Logger;
@@ -26,13 +27,10 @@ import java.sql.SQLException;
  * Current user
  */
 @Path("users")
-public class UsersIndexResource {
+public class UserIndexResource {
   private static final Injector injector = Guice.createInjector(new CoreModule(), new HubModule());
-  private static Logger log = LoggerFactory.getLogger(UsersIndexResource.class);
-//  private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
-//  private final JSONOutputProvider accessControlModuleProvider = injector.getInstance(JSONOutputProvider.class);
+  private static Logger log = LoggerFactory.getLogger(UserIndexResource.class);
   private final UserController userController = injector.getInstance(UserController.class);
-//  private final JsonFactory jsonFactory = injector.getInstance(JsonFactory.class);
   private final JSONOutputProvider jsonOutputProvider = injector.getInstance(JSONOutputProvider.class);
 
   /**
@@ -44,7 +42,6 @@ public class UsersIndexResource {
   @WebResult
   @RolesAllowed({Role.ADMIN})
   public Response getAllUsers(@Context ContainerRequestContext crc) throws IOException {
-//    AccessControlModule accessControlModule = AccessControlModule.fromContext(crc);
 
     ResultSet users;
     try {
@@ -56,11 +53,11 @@ public class UsersIndexResource {
     if (users != null) {
       try {
         return Response
-          .accepted(jsonOutputProvider.ListOf("users", users).toString())
+          .accepted(jsonOutputProvider.ListOf(User.KEY_MANY, users).toString())
           .type(MediaType.APPLICATION_JSON)
           .build();
-      } catch (SQLException e) {
-        log.error("BuildJSON.from(<ResultSet>)",e);
+      } catch (Exception e) {
+        log.error(e.getClass().getName(), e);
         return Response.serverError().build();
       }
     } else {

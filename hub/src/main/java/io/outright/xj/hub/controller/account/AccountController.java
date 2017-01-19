@@ -7,7 +7,6 @@ import io.outright.xj.core.app.exception.DatabaseException;
 import io.outright.xj.core.model.account.AccountWrapper;
 import io.outright.xj.core.tables.records.AccountRecord;
 
-import org.jooq.Record;
 import org.jooq.types.ULong;
 
 import javax.annotation.Nullable;
@@ -15,39 +14,41 @@ import java.sql.ResultSet;
 
 public interface AccountController {
   /**
+   * Create a new Account
+   * @param data for the new Account.
+   * @return newly created Account record.
+   */
+  AccountRecord create(AccountWrapper data) throws DatabaseException, ConfigException, BusinessException;
+
+  /**
    * Fetch one Account by id
    *
    * @param accountId to fetch.
    * @return Account Record.
+   * @throws DatabaseException on failure
    */
   @Nullable
-  Record fetchAccount(ULong accountId) throws DatabaseException;
+  AccountRecord read(ULong accountId) throws DatabaseException;
 
   /**
    * Fetch many Accounts
    *
-   * @return AccountRecord.
+   * @return ResultSet of accounts
+   * @throws DatabaseException on failure
    */
   @Nullable
-  ResultSet fetchAccounts() throws DatabaseException;
-
-  /**
-   * Create a new Account
-   * @param data for the createAccount.
-   * @return accountId of newly created Account record.
-   */
-  AccountRecord createAccount(AccountWrapper data) throws DatabaseException, ConfigException, BusinessException;
+  ResultSet readAll() throws DatabaseException;
 
   /**
    * Update a specified Account
    * @param accountId of specific Account to update.
    * @param data for the updated Account.
    */
-  void updateAccount(ULong accountId, AccountWrapper data) throws DatabaseException, ConfigException, BusinessException;
+  void update(ULong accountId, AccountWrapper data) throws DatabaseException, ConfigException, BusinessException;
 
   /**
    * Delete a specified Account
    * @param accountId of specific Account to delete.
    */
-  void deleteAccount(ULong accountId) throws DatabaseException, ConfigException, BusinessException;
+  void delete(ULong accountId) throws DatabaseException, ConfigException, BusinessException;
 }

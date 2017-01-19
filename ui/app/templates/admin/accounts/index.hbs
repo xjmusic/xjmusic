@@ -12,7 +12,7 @@
     </thead>
     <tbody>
     {{#each model as |account|}}
-      <tr class="item" {{action "edit" account}}>
+      <tr class="item" {{action "editAccount" account}}>
         <th scope="row">{{account.id}}</th>
         <td>{{account.name}}</td>
       </tr>

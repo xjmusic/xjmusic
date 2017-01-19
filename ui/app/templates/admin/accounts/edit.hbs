@@ -1,6 +1,12 @@
 <!-- Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved. -->
 
+<!-- Form to rename Account -->
 <div class="form-horizontal">
+  <div class="form-group">
+    <div class="col-sm-offset-2 col-sm-10">
+      <h3>Account "{{model.name}}" (#{{model.id}})</h3>
+    </div>
+  </div>
   <div class="form-group">
     <label class="col-sm-2 control-label">Name</label>
     <div class="col-sm-10">
@@ -10,17 +16,28 @@
   </div>
   <div class="form-group">
     <div class="col-sm-offset-2 col-sm-10">
-      <button type="submit" class="btn btn-default" {{action 'updateAccount' model}}>Save changes</button>
+      <button type="submit" class="btn btn-default" {{action 'saveAccount' model}}>Save changes</button>
     </div>
   </div>
+</div>
+
+<!-- Inner Content -->
+{{outlet}}
+
+<!-- Horizontal Rule -->
+<div class="col-sm-12"><hr/></div>
+
+<!-- Form to delete Account -->
+<div class="form-horizontal">
   <div class="form-group">
     <div class="col-sm-offset-2 col-sm-10">
-      <hr/>
+      <h4>Danger Zone</h4>
     </div>
   </div>
+
   <div class="form-group">
-    <div class="col-sm-offset-2 col-sm-10 text-right">
-      <button class="btn btn-danger btn-xs" {{action 'deleteAccount' model}}>Delete Account</button>
+    <div class="col-sm-offset-2 col-sm-10">
+      <button class="btn btn-danger btn-xs" {{action 'destroyAccount' model}}>Delete Account</button>
     </div>
   </div>
 </div>

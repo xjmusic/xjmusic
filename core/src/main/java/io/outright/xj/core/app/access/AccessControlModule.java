@@ -1,27 +1,34 @@
 package io.outright.xj.core.app.access;
 
-import com.google.api.client.json.JsonFactory;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
 import io.outright.xj.core.CoreModule;
-import io.outright.xj.core.tables.records.AccountUserRoleRecord;
+import io.outright.xj.core.model.account.Account;
+import io.outright.xj.core.model.role.Role;
+import io.outright.xj.core.tables.records.AccountUserRecord;
 import io.outright.xj.core.tables.records.UserAuthRecord;
 import io.outright.xj.core.tables.records.UserRoleRecord;
 import io.outright.xj.core.util.CSV.CSV;
+
+import com.google.api.client.json.JsonFactory;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import org.jooq.types.ULong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.container.ContainerRequestContext;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class AccessControlModule {
   private static final Logger log = LoggerFactory.getLogger(AccessControlModule.class);
   private static final Injector injector = Guice.createInjector(new CoreModule());
   private static final String USER_ID_KEY = "userId";
   private static final String USER_AUTH_ID_KEY = "userAuthId";
-  private static final String ACCOUNTS_KEY = "accountRoles";
+  private static final String ACCOUNTS_KEY = Account.KEY_MANY;
   private static final String ROLES_KEY = Role.KEY_MANY;
   private final JsonFactory jsonFactory = injector.getInstance(JsonFactory.class);
   static final String CONTEXT_KEY = "userAccess";
@@ -29,7 +36,7 @@ public class AccessControlModule {
 
   AccessControlModule(
     UserAuthRecord userAuthRecord,
-    Collection<AccountUserRoleRecord> userAccountRoleRecords,
+    Collection<AccountUserRecord> userAccountRoleRecords,
     Collection<UserRoleRecord> userRoleRecords
   ) {
     this.innerMap = new HashMap<>();
@@ -37,11 +44,8 @@ public class AccessControlModule {
     this.innerMap.put(USER_AUTH_ID_KEY, String.valueOf(userAuthRecord.getId()));
 
     List<String> accounts = new ArrayList<>();
-    for (AccountUserRoleRecord accountRole : userAccountRoleRecords) {
-      accounts.add(
-        String.valueOf(accountRole.getAccountId().toBigInteger()) +
-          ":" + accountRole.getType()
-      );
+    for (AccountUserRecord accountRole : userAccountRoleRecords) {
+      accounts.add(accountRole.getAccountId().toString());
     }
     this.innerMap.put(ACCOUNTS_KEY, CSV.join(accounts));
 

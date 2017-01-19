@@ -5,7 +5,7 @@ import io.outright.xj.core.app.exception.AccessException;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.app.exception.DatabaseException;
-import io.outright.xj.core.model.user.EditUser;
+import io.outright.xj.core.model.user.UserWrapper;
 
 import org.jooq.Record;
 import org.jooq.types.ULong;
@@ -67,5 +67,5 @@ public interface UserController {
    * @param userId of specific User to update.
    * @param data for the updated User.
    */
-  void updateUserRolesAndDestroyTokens(ULong userId, EditUser data) throws DatabaseException, ConfigException, BusinessException;
+  void updateUserRolesAndDestroyTokens(ULong userId, UserWrapper data) throws DatabaseException, ConfigException, BusinessException;
 }

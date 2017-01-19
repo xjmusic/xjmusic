@@ -3,17 +3,21 @@ import Ember from "ember";
 
 export default Ember.Route.extend({
 
+  display: Ember.inject.service(),
+
   model: function() {
-    return this.store.findAll('user').catch(function(){
+    return this.store.findAll('user').catch((error)=>{
+      Ember.get(this, 'display').error(error);
       this.transitionTo('');
     });
   },
 
   actions: {
 
-    edit(user) {
+    editUser(user) {
       this.transitionTo('admin.users.edit', user);
-    }
+    },
 
-  }
+  },
+
 });

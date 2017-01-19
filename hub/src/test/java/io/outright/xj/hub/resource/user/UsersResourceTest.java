@@ -1,5 +1,5 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
-package io.outright.xj.hub.resource.users;
+package io.outright.xj.hub.resource.user;
 
 import io.outright.xj.core.app.resources.ResourceEndpointTest;
 

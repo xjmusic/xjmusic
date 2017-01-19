@@ -1,5 +1,7 @@
 /* Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved. */
 
+
+@import "ember-power-select";
 @import "bootstrap";
 @import "navbar";
 @import "palette";
@@ -81,9 +83,24 @@ img {
 
 .alert-fixed {
   position:fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
+  top: 5px;
+  right: 25%;
+  width: 50%;
   z-index:9999;
-  border-radius:0;
+  border-radius:5px;
+  .alert {
+    margin-bottom: 5px;
+  }
+}
+
+hr {
+  border-top: 4px $dark-gray solid;
+}
+
+.ember-power-select-options,
+.ember-power-select-selected-item {
+    img {
+      width: 1.6em;
+      height: 1.6em;
+    }
 }

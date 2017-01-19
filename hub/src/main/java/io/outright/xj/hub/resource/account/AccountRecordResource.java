@@ -1,12 +1,13 @@
-package io.outright.xj.hub.resource.accounts;
+package io.outright.xj.hub.resource.account;
 
 import io.outright.xj.core.CoreModule;
-import io.outright.xj.core.app.access.Role;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.app.exception.DatabaseException;
 import io.outright.xj.core.app.output.JSONOutputProvider;
+import io.outright.xj.core.model.account.Account;
 import io.outright.xj.core.model.account.AccountWrapper;
+import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.tables.records.AccountRecord;
 import io.outright.xj.hub.HubModule;
 import io.outright.xj.hub.controller.account.AccountController;
@@ -14,79 +15,77 @@ import io.outright.xj.hub.controller.account.AccountController;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.apache.http.HttpStatus;
+import org.jooq.types.ULong;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.security.RolesAllowed;
 import javax.jws.WebResult;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
-import javax.ws.rs.container.ContainerRequestContext;
-import javax.ws.rs.core.Context;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.net.URI;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 
 /**
- * Accounts
+ * Account record
  */
-@Path("accounts")
-public class AccountsIndexResource {
+@Path("accounts/{id}")
+public class AccountRecordResource {
   private static final Injector injector = Guice.createInjector(new CoreModule(), new HubModule());
-  private static Logger log = LoggerFactory.getLogger(AccountsIndexResource.class);
+  private static Logger log = LoggerFactory.getLogger(AccountRecordResource.class);
   private final AccountController accountController = injector.getInstance(AccountController.class);
   private final JSONOutputProvider jsonOutputProvider = injector.getInstance(JSONOutputProvider.class);
 
+  @PathParam("id") String accountId;
+
   /**
-   * Get all accounts.
+   * Get one account.
+   * TODO: Return 404 if the account is not found.
    *
    * @return application/json response.
    */
   @GET
   @WebResult
   @RolesAllowed({Role.ADMIN})
-  public Response readAllAccounts(@Context ContainerRequestContext crc) throws IOException {
-
-    ResultSet accounts;
+  public Response readOneAccount() throws IOException {
+    AccountRecord account;
     try {
-      accounts = accountController.fetchAccounts();
+      account = accountController.read(ULong.valueOf(accountId));
     } catch (Exception e) {
       return Response.serverError().build();
     }
 
-    if (accounts != null) {
-      try {
-        return Response
-          .accepted(jsonOutputProvider.ListOf("accounts", accounts).toString())
-          .type(MediaType.APPLICATION_JSON)
-          .build();
-      } catch (SQLException e) {
-        log.error("BuildJSON.from(<ResultSet>)",e);
-        return Response.serverError().build();
-      }
+    if (account != null) {
+      JSONObject jsonAccount;
+      jsonAccount = jsonOutputProvider.Record(Account.KEY_ONE, account.intoMap());
+
+      return Response
+        .accepted(jsonAccount.toString())
+        .type(MediaType.APPLICATION_JSON)
+        .build();
     } else {
       return Response.noContent().build();
     }
   }
 
   /**
-   * Create new account
+   * Update one account
    * @param data with which to update Account record.
    * @return Response
    */
-  @POST
+  @PUT
   @Consumes(MediaType.APPLICATION_JSON)
   @RolesAllowed({Role.ADMIN})
-  public Response createAccount(AccountWrapper data) {
-    AccountRecord newAccount;
+  public Response updateAccount(AccountWrapper data) {
 
     try {
-      newAccount = accountController.createAccount(data);
+      accountController.update(ULong.valueOf(accountId), data);
     } catch (BusinessException e) {
       log.warn("BusinessException: " + e.getMessage());
       return Response
@@ -104,12 +103,31 @@ public class AccountsIndexResource {
       return Response.serverError().build();
     }
 
-
-    return Response
-      .created(URI.create("accounts/" + newAccount.getId().toString()))
-      .entity(jsonOutputProvider.Record("account", newAccount.intoMap()).toString())
-      .build();
+    return Response.accepted("{}").build();
   }
 
+  /**
+   * Delete one account
+   * @return Response
+   */
+  @DELETE
+  @RolesAllowed({Role.ADMIN})
+  public Response deleteAccount() {
+
+    try {
+      accountController.delete(ULong.valueOf(accountId));
+    } catch (BusinessException e) {
+      log.warn("BusinessException: " + e.getMessage());
+      return Response
+        .status(HttpStatus.SC_BAD_REQUEST)
+        .entity(jsonOutputProvider.Error(e.getMessage()).toString())
+        .build();
+    } catch (Exception e) {
+      log.error(e.getClass().getName(), e);
+      return Response.serverError().build();
+    }
+
+    return Response.accepted("{}").build();
+  }
 
 }

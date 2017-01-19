@@ -14,7 +14,7 @@
     </thead>
     <tbody>
     {{#each model as |user|}}
-      <tr class="item" {{action "edit" user}}>
+      <tr class="item" {{action "editUser" user}}>
         <th scope="row">{{user.id}}</th>
         <td><img class="avatar" src="{{user.avatarUrl}}"/></td>
         <td>{{user.name}}</td>

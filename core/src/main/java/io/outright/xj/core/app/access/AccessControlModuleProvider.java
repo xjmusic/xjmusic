@@ -3,7 +3,7 @@ package io.outright.xj.core.app.access;
 
 import io.outright.xj.core.app.exception.AccessException;
 import io.outright.xj.core.app.exception.DatabaseException;
-import io.outright.xj.core.tables.records.AccountUserRoleRecord;
+import io.outright.xj.core.tables.records.AccountUserRecord;
 import io.outright.xj.core.tables.records.UserAuthRecord;
 import io.outright.xj.core.tables.records.UserRoleRecord;
 
@@ -20,7 +20,7 @@ public interface AccessControlModuleProvider {
    * @param userAccountRoleRecords accounts that this user has access to.
    * @return access token
    */
-  String create(UserAuthRecord userAuthRecord, Collection<AccountUserRoleRecord> userAccountRoleRecords, Collection<UserRoleRecord> userRoleRecords) throws AccessException;
+  String create(UserAuthRecord userAuthRecord, Collection<AccountUserRecord> userAccountRoleRecords, Collection<UserRoleRecord> userRoleRecords) throws AccessException;
 
   /**
    * Update an access token to grant a user access to resources.
@@ -30,7 +30,7 @@ public interface AccessControlModuleProvider {
    * @param userAccountRoleRecords accounts that this user has access to.
    * @return map of cached properties for this user
    */
-  Map<String, String> update(String accessToken, UserAuthRecord userAuthRecord, Collection<AccountUserRoleRecord> userAccountRoleRecords, Collection<UserRoleRecord> userRoleRecords) throws AccessException;
+  Map<String, String> update(String accessToken, UserAuthRecord userAuthRecord, Collection<AccountUserRecord> userAccountRoleRecords, Collection<UserRoleRecord> userRoleRecords) throws AccessException;
 
   /**
    * Expire an access token.

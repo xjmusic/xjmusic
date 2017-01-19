@@ -1,11 +1,11 @@
-package io.outright.xj.hub.resource.users;
+package io.outright.xj.hub.resource.user;
 
 import com.google.api.client.json.JsonFactory;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import io.outright.xj.core.CoreModule;
 import io.outright.xj.core.app.access.AccessControlModule;
-import io.outright.xj.core.app.access.Role;
+import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.app.server.HttpResponseProvider;
 import io.outright.xj.hub.HubModule;
 import io.outright.xj.hub.controller.user.UserController;

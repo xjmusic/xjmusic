@@ -9,12 +9,18 @@ const Router = Ember.Router.extend({
 Router.map(function() {
   this.route('admin', function() {
     this.route('users', function() {
-      this.route('edit', { path: '/:user_id/edit' });
+      this.route('edit', { path: '/:user_id' });
     });
     this.route('accounts', function() {
-      this.route('edit', { path: '/:account_id/edit' });
+      this.route('edit', { path: '/:account_id' }, function() {
+        this.route('users');
+      });
       this.route('new');
     });
+    // this.route('account', { path: '/:account_id' }, function() {
+    //   this.route('users');
+    // });
+    // this.route('account/new');
   });
   this.route('engines', function() {});
   this.route('login');

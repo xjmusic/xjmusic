@@ -54,6 +54,12 @@ Attach to the shell on the main server `hub01xj1` while it's running, and tail t
     # now inside shell
     tail -f /var/log/nginx/*.log /var/log/hub/*.log
     
+After logging in via Google, there will be a user created with an `id` of 1. To grant the `admin` user role, you'll connect directly to the database on `mysql01xj1`:
+ 
+    mysql -uroot -hmysql01xj1 xj
+    # now inside mysql shell 
+    insert into user_role (user_id, type) values (1, "admin"); 
+
 Only between major platform configuration changes (e.g. to **.nginx/locations.conf**), it may be necessary to force Docker to rebuild the container using `--build`:
 
     docker-compose up -d --build    

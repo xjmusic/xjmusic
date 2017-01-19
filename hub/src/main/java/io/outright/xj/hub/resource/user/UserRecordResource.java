@@ -1,16 +1,17 @@
-package io.outright.xj.hub.resource.users;
+package io.outright.xj.hub.resource.user;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import io.outright.xj.core.CoreModule;
-import io.outright.xj.core.app.access.Role;
+import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.app.exception.DatabaseException;
 import io.outright.xj.core.app.output.JSONOutputProvider;
+import io.outright.xj.core.model.user.User;
 import io.outright.xj.hub.HubModule;
 import io.outright.xj.hub.controller.user.UserController;
-import io.outright.xj.core.model.user.EditUser;
+import io.outright.xj.core.model.user.UserWrapper;
 import org.apache.http.HttpStatus;
 import org.jooq.Record;
 import org.jooq.types.ULong;
@@ -27,15 +28,14 @@ import java.io.IOException;
 /**
  * User record
  */
-@Path("users/{userId}")
+@Path("users/{id}")
 public class UserRecordResource {
   private static final Injector injector = Guice.createInjector(new CoreModule(), new HubModule());
   private static Logger log = LoggerFactory.getLogger(UserRecordResource.class);
   private final UserController userController = injector.getInstance(UserController.class);
   private final JSONOutputProvider jsonOutputProvider = injector.getInstance(JSONOutputProvider.class);
 
-  @PathParam("userId")
-  private String userId;
+  @PathParam("id") String userId;
 
   /**
    * Get one user.
@@ -56,7 +56,7 @@ public class UserRecordResource {
 
     if (user != null) {
       return Response
-        .accepted(jsonOutputProvider.Record("user", user.intoMap()).toString())
+        .accepted(jsonOutputProvider.Record(User.KEY_ONE, user.intoMap()).toString())
         .type(MediaType.APPLICATION_JSON)
         .build();
     } else {
@@ -72,7 +72,7 @@ public class UserRecordResource {
   @PUT
   @Consumes(MediaType.APPLICATION_JSON)
   @RolesAllowed({Role.ADMIN})
-  public Response putUser(EditUser data) {
+  public Response putUser(UserWrapper data) {
 
     try {
       userController.updateUserRolesAndDestroyTokens(ULong.valueOf(userId), data);
@@ -82,14 +82,8 @@ public class UserRecordResource {
         .status(HttpStatus.SC_UNPROCESSABLE_ENTITY)
         .entity(jsonOutputProvider.Error(e.getMessage()).toString())
         .build();
-    } catch (DatabaseException e) {
-      log.error("DatabaseException", e);
-      return Response.serverError().build();
-    } catch (ConfigException e) {
-      log.error("ConfigException", e);
-      return Response.serverError().build();
     } catch (Exception e) {
-      log.error("Exception", e);
+      log.error(e.getClass().getName(), e);
       return Response.serverError().build();
     }
 

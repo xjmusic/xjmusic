@@ -3,33 +3,35 @@ import Ember from "ember";
 
 export default Ember.Route.extend({
 
-  flashMessages: Ember.inject.service(),
+  display: Ember.inject.service(),
 
   model(params) {
-    return this.store.findRecord('account', params.account_id).catch(function(){
-      this.transitionTo('accounts');
-    });
+    return this.store.findRecord('account', params.account_id)
+      .catch((error) => {
+        Ember.get(this, 'display').error(error);
+        this.transitionTo('admin.accounts');
+      });
   },
 
   actions: {
 
-    updateAccount(model) {
+    saveAccount(model) {
       model.save().then(() => {
-        Ember.get(this, 'flashMessages').success('Account updated.');
+        Ember.get(this, 'display').success('Updated account ' + model.get('name') + '.');
         this.transitionTo('admin.accounts');
-      }).catch((adapterError) => {
-        Ember.get(this, 'flashMessages').danger('Error: ' + adapterError.errors[0].detail);
+      }).catch((error) => {
+        Ember.get(this, 'display').error(error);
       });
     },
 
-    deleteAccount(model) {
+    destroyAccount(model) {
       let confirmation = confirm("Are you fucking sure? If there are users or libraries belonging to this account, deletion will fail anyway.");
       if (confirmation) {
         model.destroyRecord().then(() => {
-          Ember.get(this, 'flashMessages').success('Account deleted.');
+          Ember.get(this, 'display').success('Deleted account ' + model.get('name') + '.');
           this.transitionTo('admin.accounts');
-        }).catch((adapterError) => {
-          Ember.get(this, 'flashMessages').danger('Error: ' + adapterError.errors[0].detail);
+        }).catch((error) => {
+          Ember.get(this, 'display').error(error);
         });
       }
     },

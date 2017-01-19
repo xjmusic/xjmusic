@@ -2,6 +2,9 @@
 import Ember from 'ember';
 
 export default Ember.Route.extend({
+
+  display: Ember.inject.service(),
+
   model: function() {
     return this.store.createRecord('account');
   },
@@ -10,10 +13,10 @@ export default Ember.Route.extend({
 
     createAccount(model) {
       model.save().then(() => {
-        Ember.get(this, 'flashMessages').success('Account created.');
+        Ember.get(this, 'display').success('Created account '+model.get('name')+'.');
         this.transitionTo('admin.accounts');
-      }).catch((adapterError) => {
-        Ember.get(this, 'flashMessages').danger('Error: ' + adapterError.errors[0].detail);
+      }).catch((error) => {
+        Ember.get(this, 'display').error(error);
       });
     },
 

@@ -2,7 +2,9 @@
 package io.outright.xj.core.app.output;
 
 import io.outright.xj.core.app.config.Exposure;
+import io.outright.xj.core.util.CamelCasify;
 
+import com.google.common.base.CaseFormat;
 import com.google.inject.Inject;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -32,7 +34,7 @@ public class JSONOutputProviderImpl implements JSONOutputProvider {
     */
     String[] key = new String[maxCol];
     for (int i = 1; i < maxCol; i++) {
-      key[i] = jsonNameOfColumn(data.getColumnName(i));
+      key[i] = CamelCasify.ifNeeded(data.getColumnName(i));
     }
 
     while (rs.next()) {
@@ -85,7 +87,7 @@ public class JSONOutputProviderImpl implements JSONOutputProvider {
   public JSONObject Record(String rootName, Map<String, Object> data) {
     JSONObject jsonSub = new JSONObject();
     data.forEach((k,v)->{
-      String colName = jsonNameOfColumn(k);
+      String colName = CamelCasify.ifNeeded(k);
       if (colName != null) {
         jsonSub.put(colName,v);
       }
@@ -109,8 +111,5 @@ public class JSONOutputProviderImpl implements JSONOutputProvider {
     return json;
   }
 
-  private String jsonNameOfColumn(String columnName) {
-    return Exposure.keyDatabaseColumnsInJSON.get(columnName);
-  }
 
 }
