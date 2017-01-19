@@ -54,7 +54,7 @@ public class GoogleProviderImpl implements GoogleProvider {
     } catch (ConfigException e) {
       log.error("Failed to initialize Google Provider: " + e.getMessage());
     }
-    appUrl = Config.appUrl();
+    appUrl = Config.appBaseUrl() + Config.apiPath();
   }
 
   @Override

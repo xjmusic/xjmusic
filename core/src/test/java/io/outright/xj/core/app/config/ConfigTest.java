@@ -1,7 +1,5 @@
 package io.outright.xj.core.app.config;
 
-import io.outright.xj.core.app.exception.ConfigException;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,17 +23,17 @@ public class ConfigTest {
 
   @Test
   public void getRequiredProperty() throws Exception {
-    assertEquals("http://mush/", Config.appUrl());
+    assertEquals("http://mush/", Config.appBaseUrl());
   }
 
   @After
   public void cleanup() {
     System.clearProperty("bun");
-    System.clearProperty("app.url");
+    System.clearProperty("app.url.base");
   }
 
   @Before
   public void setup() {
-    System.setProperty("app.url","http://mush/");
+    System.setProperty("app.url.base","http://mush/");
   }
 }

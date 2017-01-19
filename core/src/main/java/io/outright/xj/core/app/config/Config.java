@@ -16,8 +16,12 @@ public abstract class Config {
     return get("auth.google.secret");
   }
 
-  public static String appUrl() {
-    return getOrDefault("app.url","http://localhost/");
+  public static String appBaseUrl() {
+    return getOrDefault("app.url.base","http://localhost/");
+  }
+
+  public static String apiPath() {
+    return getOrDefault("app.url.api","api/1/");
   }
 
   public static String appHost() {

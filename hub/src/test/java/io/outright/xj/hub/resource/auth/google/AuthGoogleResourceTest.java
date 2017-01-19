@@ -22,7 +22,7 @@ public class AuthGoogleResourceTest extends ResourceEndpointTest {
     assertEquals(
       "https://accounts.google.com/o/oauth2/auth" +
         "?client_id=12345" +
-        "&redirect_uri=https://xj.outright.io/auth/google/callback" +
+        "&redirect_uri=https://xj.outright.io/api/69/auth/google/callback" +
         "&response_type=code" +
         "&scope=profile%20email" +
         "&state=xj-music",
@@ -34,7 +34,8 @@ public class AuthGoogleResourceTest extends ResourceEndpointTest {
   public void before() throws Exception {
     System.setProperty("auth.google.id","12345");
     System.setProperty("auth.google.secret","i9hghj");
-    System.setProperty("app.url","https://xj.outright.io/");
+    System.setProperty("app.url.base","https://xj.outright.io/");
+    System.setProperty("app.url.api", "api/69/");
     super.before();
   }
 
@@ -43,7 +44,8 @@ public class AuthGoogleResourceTest extends ResourceEndpointTest {
     super.after();
     System.clearProperty("auth.google.id");
     System.clearProperty("auth.google.secret");
-    System.clearProperty("app.url");
+    System.clearProperty("app.url.base");
+    System.clearProperty("app.url.api");
   }
 
   @Override

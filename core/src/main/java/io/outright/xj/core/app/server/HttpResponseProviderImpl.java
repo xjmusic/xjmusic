@@ -7,7 +7,7 @@ import javax.ws.rs.core.Response;
 import java.net.URI;
 
 public class HttpResponseProviderImpl implements HttpResponseProvider {
-  private final String appUrl = Config.appUrl();
+  private final String appUrl = Config.appBaseUrl();
 
   @Override
   public Response internalRedirect(String path) {

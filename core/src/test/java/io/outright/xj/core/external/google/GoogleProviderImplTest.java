@@ -34,7 +34,8 @@ public class GoogleProviderImplTest extends Mockito {
   public void setUp() throws Exception {
     System.setProperty("auth.google.id","12345");
     System.setProperty("auth.google.secret","abcdefg");
-    System.setProperty("app.url", "http://mishmash/");
+    System.setProperty("app.url.base", "http://shammy/");
+    System.setProperty("app.url.api", "api/69/");
 
     createInjector();
     googleProvider = injector.getInstance(GoogleProvider.class);
@@ -45,7 +46,8 @@ public class GoogleProviderImplTest extends Mockito {
     googleProvider = null;
     System.clearProperty("auth.google.id");
     System.clearProperty("auth.google.secret");
-    System.clearProperty("app.url");
+    System.clearProperty("app.url.base");
+    System.clearProperty("app.url.api");
   }
 
   @Test
@@ -53,7 +55,7 @@ public class GoogleProviderImplTest extends Mockito {
     String url = googleProvider.getAuthCodeRequestUrl();
     assertEquals(url, "https://accounts.google.com/o/oauth2/auth" +
       "?client_id=12345" +
-      "&redirect_uri=http://mishmash/auth/google/callback" +
+      "&redirect_uri=http://shammy/api/69/auth/google/callback" +
       "&response_type=code" +
       "&scope=profile%20email" +
       "&state=xj-music");

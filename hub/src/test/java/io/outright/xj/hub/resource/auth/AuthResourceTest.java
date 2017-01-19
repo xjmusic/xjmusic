@@ -30,7 +30,7 @@ public class AuthResourceTest extends ResourceEndpointTest {
 //  public void before() throws Exception {
 //    System.setProperty("auth.google.id","12345");
 //    System.setProperty("auth.google.secret","i9hghj");
-//    System.setProperty("app.url","https://xj.outright.io/");
+//    System.setProperty("app.url.base","https://xj.outright.io/");
 //    super.before();
 //  }
 //
@@ -39,7 +39,7 @@ public class AuthResourceTest extends ResourceEndpointTest {
 //    super.after();
 //    System.clearProperty("auth.google.id");
 //    System.clearProperty("auth.google.secret");
-//    System.clearProperty("app.url");
+//    System.clearProperty("app.url.base");
 //  }
 //
 //  @Override
