@@ -4,21 +4,65 @@ Continuous Music Platform
 
 # Usage
 
-## Setup
+## Getting Started
 
-Setup workflow, build and package Java server-side application and build Web user interface:
+Setup workflow, build and package Java server-side application and build Web front-end user interface:
 
     make
 
 The preceding command will also create a blank environment variables file called **runtime.env** which is never checked in to version control or released with the distribution. It is up to you, the developer, to obtain keys and fill in the values of your own environment variables. Because the application only has **one single common bootstrap** (located at bin/common/bootstrap) the use of environment variables is federated across development and production deployments, while all actual configurations are kept outside the scope of the code.
 
-To only setup the workflow and check dependencies:
+We use [Docker](https://www.docker.com/) and [Docker Compose](https://docs.docker.com/compose/) for local development with uncanny parity to production. Once your **runtime.env** file is configured, it's time to bring up the `hub01xj1` server and its supporting resources such as `mysql01xj1` and `redis01xj1`:
 
-    bin/setup
+    docker-compose up -d
+    
+In the above example, `-d` tells Docker to start the containers in the background (as Daemons).
+
+You'll want to have hostnames defined to point at the docker-compose network. To automatically update /etc/hosts:
+
+    sudo bin/update-hosts
+
+Your **/etc/hosts** file should now contain these lines at the end:
+
+    172.16.217.10 hub01xj1
+    172.16.217.10 xj.outright.dev
+    172.16.217.50 mysql01xj1
+    172.16.217.60 redis01xj1
+
+Assuming the docker containers are up and the hosts configured, you'll be able to open the main UI in a browser at [http://xj.outright.dev/](http://xj.outright.dev/)
+
+The front-end UI is served by the Nginx server on `hub01xj1` via the local `ui/dist` volume. During development, use the [Ember CLI](https://ember-cli.com/) to keep the front-end continuously re-built in real time:
+ 
+    cd ui
+    ember build --watch
 
 To compile the Java server-side applications and package them for deployment:
 
     bin/package
+    
+To build and deploy the platform during local development, we run this a lot:
+
+    docker rm -f hub01xj1 && \
+      bin/package && \
+      docker-compose up -d
+
+The data on `mysql01xj1` and `redis01xj1` persists until those containers are explicitly destroyed. 
+
+Attach to the shell on the main server `hub01xj1` while it's running, and tail the logs:
+
+    docker attach hub01xj1
+    # now inside shell
+    tail -f /var/log/nginx/*.log /var/log/hub/*.log
+    
+Only between major platform configuration changes (e.g. to **.nginx/locations.conf**), it may be necessary to force Docker to rebuild the container using `--build`:
+
+    docker-compose up -d --build    
+
+## Additional commands
+
+To only setup the workflow and check dependencies:
+
+    bin/setup
 
 ## Environment (System) properties
 
@@ -91,7 +135,7 @@ Compile & Package the Java server-side application, e.g. as JAR files:
 
 ## Database migration
 
-Migrate the local database (also run before compile tasks):
+Migrate the local database (not usually necessary; migration happens automatically on application start):
 
     bin/migrate
 
@@ -159,16 +203,16 @@ To run local migrations (in the `core` submodule via the Flyway plugin):
 
 ## DNS
 
+To automatically update /etc/hosts:
+
+    sudo bin/update-hosts
+
 For development, your local machine needs to have the domain `xj.outright.dev` pointed to `172.16.217.10` (the address set for hub01xj1 in the docker-compose.yml file) in `/etc/hosts`; it's helpful to have `redis01xj1` and `mysql01xj1` as well:
 
     172.16.217.50 mysql01xj1
     172.16.217.60 redis01xj1
     172.16.217.10 hub01xj1
-    hub01xj1 xj.outright.dev
-
-To automatically update /etc/hosts:
-
-    bin/docker-hosts
+    172.16.217.10 xj.outright.dev
 
 ## Google Authentication
 
