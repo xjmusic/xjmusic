@@ -13,9 +13,7 @@
       {{#if auth.isUser}}
         <ul class="nav navbar-nav navbar-left">
           {{#link-to 'index' tagName="li"}}<a href="">Home</a>{{/link-to}}
-          {{#if auth.isAdmin}}
-            {{#link-to 'admin' tagName="li"}}<a href="">Admin</a>{{/link-to}}
-          {{/if}}
+          {{#link-to 'access' tagName="li"}}<a href="">Access</a>{{/link-to}}
         </ul>
         <ul class="nav navbar-nav navbar-right">
           {{#link-to 'yo' tagName="li"}}<a href="">Yo</a>{{/link-to}}
@@ -27,11 +25,11 @@
       {{/if}}
     </div>
 
-    {{#if isRouteAdmin}}
+    {{#if isRouteAccess}}
       <div class="container-fluid navbar-sub">
         <ul class="nav navbar-nav">
-          {{#link-to 'admin.users' tagName="li"}}<a href="">Users</a>{{/link-to}}
-          {{#link-to 'admin.accounts' tagName="li"}}<a href="">Accounts</a>{{/link-to}}
+          {{#link-to 'access.users' tagName="li"}}<a href="">Users</a>{{/link-to}}
+          {{#link-to 'access.accounts' tagName="li"}}<a href="">Accounts</a>{{/link-to}}
         </ul>
       </div>
     {{/if}}

@@ -7,11 +7,11 @@ import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.app.output.JSONOutputProvider;
 import io.outright.xj.core.model.account_user.AccountUser;
 import io.outright.xj.core.model.role.Role;
-import io.outright.xj.core.tables.records.AccountUserRecord;
 import io.outright.xj.hub.HubModule;
 import io.outright.xj.hub.controller.account_user.AccountUserController;
 import org.apache.http.HttpStatus;
 import org.jooq.types.ULong;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,17 +48,17 @@ public class AccountUserRecordResource {
   @WebResult
   @RolesAllowed({Role.ADMIN})
   public Response read() throws IOException {
-    AccountUserRecord accountUser;
+    JSONObject result;
+
     try {
-      accountUser = accountUserController.read(ULong.valueOf(accountUserId));
+      result = accountUserController.read(ULong.valueOf(accountUserId));
     } catch (Exception e) {
       return Response.serverError().build();
     }
 
-    if (accountUser != null) {
+    if (result != null) {
       return Response
-        .accepted(jsonOutputProvider.wrap(AccountUser.KEY_ONE,
-          jsonOutputProvider.objectFromMap(accountUser.intoMap())).toString())
+        .accepted(jsonOutputProvider.wrap(AccountUser.KEY_ONE, result).toString())
         .type(MediaType.APPLICATION_JSON)
         .build();
     } else {

@@ -12,6 +12,7 @@ import io.outright.xj.core.tables.records.AccountRecord;
 import org.jooq.DSLContext;
 import org.jooq.types.ULong;
 import org.json.JSONArray;
+import org.json.JSONObject;
 
 import javax.annotation.Nullable;
 import java.sql.Connection;
@@ -37,34 +38,52 @@ public class AccountControllerImpl implements AccountController {
   }
 
   @Override
-  public AccountRecord create(AccountWrapper data) throws DatabaseException, ConfigException, BusinessException {
+  public JSONObject create(AccountWrapper data) throws DatabaseException, ConfigException, BusinessException {
     Connection conn = dbProvider.getConnectionTransaction();
     DSLContext db = dbProvider.getContext(conn);
-    AccountRecord newAccount;
+    AccountRecord newRecord;
 
     try {
       data.validate();
 
-      newAccount = db.newRecord(ACCOUNT);
-      newAccount.setName(data.getAccount().getName());
-      newAccount.store();
+      newRecord = db.newRecord(ACCOUNT);
+      newRecord.setName(data.getAccount().getName());
+      newRecord.store();
 
       dbProvider.commitAndClose(conn);
     } catch (Exception e) {
       dbProvider.rollbackAndClose(conn);
       throw e;
     }
-    return newAccount;
+
+    return jsonOutputProvider.objectFromRecord(newRecord);
   }
 
   @Override
   @Nullable
-  public AccountRecord read(ULong accountId) throws DatabaseException {
+  public JSONObject readOne(ULong accountId) throws DatabaseException {
     Connection conn = dbProvider.getConnection();
     DSLContext db = dbProvider.getContext(conn);
-    AccountRecord result = db.selectFrom(ACCOUNT)
+
+    JSONObject result = jsonOutputProvider.objectFromRecord(db.selectFrom(ACCOUNT)
       .where(ACCOUNT.ID.eq(accountId))
-      .fetchOne();
+      .fetchOne());
+
+    dbProvider.close(conn);
+    return result;
+  }
+
+  @Nullable
+  @Override
+  public JSONObject readOneVisible(ULong fromUserId, ULong accountId) throws DatabaseException {
+    Connection conn = dbProvider.getConnection();
+    DSLContext db = dbProvider.getContext(conn);
+
+    JSONObject result = jsonOutputProvider.objectFromRecord(db.select()
+      .from(ACCOUNT)
+      .join(ACCOUNT_USER).on(ACCOUNT_USER.USER_ID.eq(fromUserId)).and(ACCOUNT_USER.ACCOUNT_ID.eq(ACCOUNT.ID))
+      .where(ACCOUNT.ID.eq(accountId))
+      .fetchOne());
 
     dbProvider.close(conn);
     return result;
@@ -83,6 +102,30 @@ public class AccountControllerImpl implements AccountController {
         ACCOUNT.NAME
       )
         .from(ACCOUNT)
+        .fetchResultSet());
+    } catch (SQLException e) {
+      dbProvider.close(conn);
+      throw new DatabaseException("SQLException: " + e);
+    }
+
+    dbProvider.close(conn);
+    return result;
+  }
+
+  @Nullable
+  @Override
+  public JSONArray readAllVisible(ULong fromUserId) throws DatabaseException {
+    Connection conn = dbProvider.getConnection();
+    DSLContext db = dbProvider.getContext(conn);
+
+    JSONArray result;
+    try {
+      result = jsonOutputProvider.arrayFromResultSet(db.select(
+        ACCOUNT.ID,
+        ACCOUNT.NAME
+      )
+        .from(ACCOUNT)
+        .join(ACCOUNT_USER).on(ACCOUNT_USER.USER_ID.eq(fromUserId)).and(ACCOUNT_USER.ACCOUNT_ID.eq(ACCOUNT.ID))
         .fetchResultSet());
     } catch (SQLException e) {
       dbProvider.close(conn);

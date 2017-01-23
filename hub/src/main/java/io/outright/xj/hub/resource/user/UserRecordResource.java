@@ -3,16 +3,16 @@ package io.outright.xj.hub.resource.user;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import io.outright.xj.core.CoreModule;
-import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.app.output.JSONOutputProvider;
+import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.model.user.User;
+import io.outright.xj.core.model.user.UserWrapper;
 import io.outright.xj.hub.HubModule;
 import io.outright.xj.hub.controller.user.UserController;
-import io.outright.xj.core.model.user.UserWrapper;
 import org.apache.http.HttpStatus;
-import org.jooq.Record;
 import org.jooq.types.ULong;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,20 +42,19 @@ public class UserRecordResource {
    */
   @GET
   @WebResult
-  @RolesAllowed({Role.ADMIN})
-  public Response getOneUser() throws IOException {
+  @RolesAllowed({Role.USER})
+  public Response readOne() throws IOException {
 
-    Record user;
+    JSONObject result;
     try {
-      user = userController.fetchUserAndRoles(ULong.valueOf(userId));
+      result = userController.readOne(ULong.valueOf(userId));
     } catch (Exception e) {
       return Response.serverError().build();
     }
 
-    if (user != null) {
+    if (result != null) {
       return Response
-        .accepted(jsonOutputProvider.wrap(User.KEY_ONE,
-          jsonOutputProvider.objectFromMap(user.intoMap())).toString())
+        .accepted(jsonOutputProvider.wrap(User.KEY_ONE, result).toString())
         .type(MediaType.APPLICATION_JSON)
         .build();
     } else {
@@ -71,7 +70,7 @@ public class UserRecordResource {
   @PUT
   @Consumes(MediaType.APPLICATION_JSON)
   @RolesAllowed({Role.ADMIN})
-  public Response putUser(UserWrapper data) {
+  public Response update(UserWrapper data) {
 
     try {
       userController.updateUserRolesAndDestroyTokens(ULong.valueOf(userId), data);

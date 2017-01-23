@@ -3,8 +3,9 @@ package io.outright.xj.hub.resource.user;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import io.outright.xj.core.CoreModule;
-import io.outright.xj.core.model.role.Role;
+import io.outright.xj.core.app.access.AccessControlModule;
 import io.outright.xj.core.app.output.JSONOutputProvider;
+import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.model.user.User;
 import io.outright.xj.hub.HubModule;
 import io.outright.xj.hub.controller.user.UserController;
@@ -21,7 +22,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.sql.ResultSet;
 
 /**
  * Current user
@@ -40,12 +40,17 @@ public class UserIndexResource {
    */
   @GET
   @WebResult
-  @RolesAllowed({Role.ADMIN})
-  public Response getAllUsers(@Context ContainerRequestContext crc) throws IOException {
+  @RolesAllowed({Role.USER})
+  public Response readAll(@Context ContainerRequestContext crc) throws IOException {
+    AccessControlModule accessControlModule = AccessControlModule.fromContext(crc);
 
     JSONArray result;
     try {
-      result = userController.fetchUsersAndRoles();
+      if (accessControlModule.matchRoles(new String[]{Role.ADMIN})) {
+        result = userController.readAll();
+      } else {
+        result = userController.readAllVisible(accessControlModule.getUserId());
+      }
     } catch (Exception e) {
       return Response.serverError().build();
     }

@@ -3,17 +3,19 @@ package io.outright.xj.hub.resource.account;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import io.outright.xj.core.CoreModule;
+import io.outright.xj.core.app.access.AccessControlModule;
 import io.outright.xj.core.app.config.Exposure;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.app.output.JSONOutputProvider;
+import io.outright.xj.core.model.Entity;
 import io.outright.xj.core.model.account.Account;
 import io.outright.xj.core.model.account.AccountWrapper;
 import io.outright.xj.core.model.role.Role;
-import io.outright.xj.core.tables.records.AccountRecord;
 import io.outright.xj.hub.HubModule;
 import io.outright.xj.hub.controller.account.AccountController;
 import org.apache.http.HttpStatus;
 import org.json.JSONArray;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,20 +48,25 @@ public class AccountIndexResource {
    */
   @GET
   @WebResult
-  @RolesAllowed({Role.ADMIN})
-  public Response readAllAccounts(@Context ContainerRequestContext crc) throws IOException {
+  @RolesAllowed({Role.USER})
+  public Response readAll(@Context ContainerRequestContext crc) throws IOException {
+    AccessControlModule accessControlModule = AccessControlModule.fromContext(crc);
 
-    JSONArray accounts;
+    JSONArray result;
     try {
-      accounts = accountController.readAll();
+      if (accessControlModule.matchRoles(new String[]{Role.ADMIN})) {
+        result = accountController.readAll();
+      } else {
+        result = accountController.readAllVisible(accessControlModule.getUserId());
+      }
     } catch (Exception e) {
       log.error("Exception", e);
       return Response.serverError().build();
     }
 
-    if (accounts != null) {
+    if (result != null) {
       return Response
-        .accepted(jsonOutputProvider.wrap(Account.KEY_MANY, accounts).toString())
+        .accepted(jsonOutputProvider.wrap(Account.KEY_MANY, result).toString())
         .type(MediaType.APPLICATION_JSON)
         .build();
     } else {
@@ -76,11 +83,11 @@ public class AccountIndexResource {
   @POST
   @Consumes(MediaType.APPLICATION_JSON)
   @RolesAllowed({Role.ADMIN})
-  public Response createAccount(AccountWrapper data) {
-    AccountRecord newAccount;
+  public Response create(AccountWrapper data) {
+    JSONObject newEntity;
 
     try {
-      newAccount = accountController.create(data);
+      newEntity = accountController.create(data);
     } catch (BusinessException e) {
       log.warn("BusinessException: " + e.getMessage());
       return Response
@@ -93,9 +100,8 @@ public class AccountIndexResource {
     }
 
     return Response
-      .created(Exposure.apiURI(Account.KEY_MANY + "/" + newAccount.getId().toString()))
-      .entity(jsonOutputProvider.wrap(Account.KEY_ONE,
-        jsonOutputProvider.objectFromMap(newAccount.intoMap())).toString())
+      .created(Exposure.apiURI(Account.KEY_MANY + "/" + newEntity.get(Entity.KEY_ID)))
+      .entity(jsonOutputProvider.wrap(Account.KEY_ONE, newEntity).toString())
       .build();
   }
 

@@ -7,12 +7,11 @@ import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.app.exception.DatabaseException;
 import io.outright.xj.core.model.user.UserWrapper;
 
-import org.jooq.Record;
 import org.jooq.types.ULong;
 import org.json.JSONArray;
+import org.json.JSONObject;
 
 import javax.annotation.Nullable;
-import java.sql.ResultSet;
 
 public interface UserController {
   /**
@@ -43,18 +42,38 @@ public interface UserController {
    * Fetch one User by id
    *
    * @param userId to fetch.
-   * @return UserRecord.
+   * @return Record.
    */
   @Nullable
-  Record fetchUserAndRoles(ULong userId) throws DatabaseException;
+  JSONObject readOne(ULong userId) throws DatabaseException;
 
   /**
-   * Fetch many Users
+   * Fetch one User by id
    *
-   * @return UserRecord.
+   * @param fromUserId of User from which user must be visible
+   * @param userId to fetch
+   * @return User if found and visible
+   * @throws DatabaseException on failure
    */
   @Nullable
-  JSONArray fetchUsersAndRoles() throws DatabaseException;
+  JSONObject readOneVisible(ULong fromUserId, ULong userId) throws DatabaseException;
+
+  /**
+   * Read all Users and their roles
+   *
+   * @return array of results as JSON.
+   */
+  @Nullable
+  JSONArray readAll() throws DatabaseException;
+
+  /**
+   * Read Users visible-to the specified user, and their roles
+   *
+   * @param fromUserId to whom resulting-users are visible.
+   * @return array of results as JSON.
+   */
+  @Nullable
+  JSONArray readAllVisible(ULong fromUserId) throws DatabaseException;
 
   /**
    * Destroy all access tokens for a specified User
@@ -69,4 +88,5 @@ public interface UserController {
    * @param data for the updated User.
    */
   void updateUserRolesAndDestroyTokens(ULong userId, UserWrapper data) throws DatabaseException, ConfigException, BusinessException;
+
 }

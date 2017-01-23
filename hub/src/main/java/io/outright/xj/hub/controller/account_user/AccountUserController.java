@@ -5,32 +5,31 @@ import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.app.exception.DatabaseException;
 import io.outright.xj.core.model.account_user.AccountUserWrapper;
-import io.outright.xj.core.tables.records.AccountUserRecord;
-
 import org.jooq.types.ULong;
 import org.json.JSONArray;
+import org.json.JSONObject;
 
 import javax.annotation.Nullable;
-import java.sql.ResultSet;
 
 public interface AccountUserController {
 
   /**
    * Create a new Account User
+   *
    * @param data for the new Account User.
-   * @return newly created AccountUser record.
+   * @return newly created record as JSON
    */
-  AccountUserRecord create(AccountUserWrapper data) throws DatabaseException, ConfigException, BusinessException;
+  JSONObject create(AccountUserWrapper data) throws DatabaseException, ConfigException, BusinessException;
 
   /**
-   * Fetch one AccountUser.
+   * Fetch one AccountUser
    *
-   * @param id of AccountUser.
-   * @return AccountUserRecord.
+   * @param id of AccountUser
+   * @return retrieved record as JSON
    * @throws DatabaseException on failure
    */
   @Nullable
-  AccountUserRecord read(ULong id) throws DatabaseException;
+  JSONObject read(ULong id) throws DatabaseException;
 
   /**
    * Fetch many AccountUser for one Account by id

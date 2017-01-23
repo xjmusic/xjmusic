@@ -11,13 +11,14 @@ import io.outright.xj.core.app.exception.DatabaseException;
 import io.outright.xj.core.app.output.JSONOutputProvider;
 import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.model.user.UserWrapper;
+import io.outright.xj.core.tables.AccountUser;
 import io.outright.xj.core.tables.records.*;
 import io.outright.xj.core.util.CSV.CSV;
 import org.jooq.DSLContext;
-import org.jooq.Record;
 import org.jooq.Result;
 import org.jooq.types.ULong;
 import org.json.JSONArray;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -95,10 +96,11 @@ public class UserControllerImpl implements UserController {
 
   @Override
   @Nullable
-  public Record fetchUserAndRoles(ULong userId) throws DatabaseException {
+  public JSONObject readOne(ULong userId) throws DatabaseException {
     Connection conn = dbProvider.getConnectionTransaction();
     DSLContext db = dbProvider.getContext(conn);
-    Record result = db.select(
+
+    JSONObject result = jsonOutputProvider.objectFromRecord(db.select(
       USER.ID,
       USER.NAME,
       USER.AVATAR_URL,
@@ -110,14 +112,43 @@ public class UserControllerImpl implements UserController {
       .join(USER).on(USER.ID.eq(USER_ROLE.USER_ID))
       .where(USER_ROLE.USER_ID.equal(userId))
       .groupBy(USER_ROLE.USER_ID)
-      .fetchOne();
+      .fetchOne());
 
     dbProvider.close(conn);
     return result;
   }
 
   @Nullable
-  public JSONArray fetchUsersAndRoles() throws DatabaseException {
+  @Override
+  public JSONObject readOneVisible(ULong fromUserId, ULong toUserId) throws DatabaseException {
+    Connection conn = dbProvider.getConnectionTransaction();
+    DSLContext db = dbProvider.getContext(conn);
+
+    AccountUser userFrom = ACCOUNT_USER.as("userFrom");
+    AccountUser userTo = ACCOUNT_USER.as("userTo");
+    JSONObject result = jsonOutputProvider.objectFromRecord(db.select(
+      USER.ID,
+      USER.NAME,
+      USER.AVATAR_URL,
+      USER.EMAIL,
+      USER_ROLE.USER_ID,
+      groupConcat(USER_ROLE.TYPE,",").as(Role.KEY_MANY)
+    )
+      .from(USER_ROLE)
+      .join(USER).on(USER.ID.eq(USER_ROLE.USER_ID))
+      .join(userFrom).on(userFrom.USER_ID.eq(fromUserId))
+      .join(userTo).on(userTo.USER_ID.eq(USER_ROLE.USER_ID))
+      .where(USER_ROLE.USER_ID.equal(toUserId))
+      .and(userFrom.ACCOUNT_ID.eq(userTo.ACCOUNT_ID))
+      .groupBy(USER_ROLE.USER_ID)
+      .fetchOne());
+
+    dbProvider.close(conn);
+    return result;
+  }
+
+  @Nullable
+  public JSONArray readAll() throws DatabaseException {
     Connection conn = dbProvider.getConnectionTransaction();
     DSLContext db = dbProvider.getContext(conn);
     JSONArray result;
@@ -133,6 +164,38 @@ public class UserControllerImpl implements UserController {
         .from(USER_ROLE)
         .join(USER).on(USER.ID.eq(USER_ROLE.USER_ID))
         .groupBy(USER_ROLE.USER_ID)
+        .fetchResultSet());
+    } catch (SQLException e) {
+      dbProvider.close(conn);
+      throw new DatabaseException("SQLException: " + e);
+    }
+
+    dbProvider.close(conn);
+    return result;
+  }
+
+  @Nullable
+  public JSONArray readAllVisible(ULong fromUserId) throws DatabaseException {
+    Connection conn = dbProvider.getConnectionTransaction();
+    DSLContext db = dbProvider.getContext(conn);
+    JSONArray result;
+    try {
+      AccountUser userFrom = ACCOUNT_USER.as("userFrom");
+      AccountUser userTo = ACCOUNT_USER.as("userTo");
+      result = jsonOutputProvider.arrayFromResultSet(db.select(
+        USER.ID,
+        USER.NAME,
+        USER.AVATAR_URL,
+        USER.EMAIL,
+        USER_ROLE.USER_ID,
+        groupConcat(USER_ROLE.TYPE,",").as(Role.KEY_MANY)
+      )
+        .from(USER_ROLE)
+        .join(USER).on(USER.ID.eq(USER_ROLE.USER_ID))
+        .join(userFrom).on(userFrom.USER_ID.eq(fromUserId))
+        .join(userTo).on(userTo.USER_ID.eq(USER.ID))
+        .where(userFrom.ACCOUNT_ID.eq(userTo.ACCOUNT_ID))
+        .groupBy(USER.ID)
         .fetchResultSet());
     } catch (SQLException e) {
       dbProvider.close(conn);

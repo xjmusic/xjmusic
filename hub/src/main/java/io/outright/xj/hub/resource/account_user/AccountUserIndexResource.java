@@ -3,24 +3,29 @@ package io.outright.xj.hub.resource.account_user;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import io.outright.xj.core.CoreModule;
+import io.outright.xj.core.app.access.AccessControlModule;
 import io.outright.xj.core.app.config.Exposure;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.app.output.JSONOutputProvider;
+import io.outright.xj.core.app.server.HttpResponseProvider;
+import io.outright.xj.core.model.Entity;
 import io.outright.xj.core.model.account_user.AccountUser;
 import io.outright.xj.core.model.account_user.AccountUserWrapper;
 import io.outright.xj.core.model.role.Role;
-import io.outright.xj.core.tables.records.AccountUserRecord;
 import io.outright.xj.hub.HubModule;
 import io.outright.xj.hub.controller.account_user.AccountUserController;
 import org.apache.http.HttpStatus;
 import org.jooq.types.ULong;
 import org.json.JSONArray;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.security.RolesAllowed;
 import javax.jws.WebResult;
 import javax.ws.rs.*;
+import javax.ws.rs.container.ContainerRequestContext;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
@@ -33,6 +38,7 @@ public class AccountUserIndexResource {
   private static final Injector injector = Guice.createInjector(new CoreModule(), new HubModule());
   private static Logger log = LoggerFactory.getLogger(AccountUserIndexResource.class);
   private final AccountUserController accountUserController = injector.getInstance(AccountUserController.class);
+  private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
   private final JSONOutputProvider jsonOutputProvider = injector.getInstance(JSONOutputProvider.class);
 
   @QueryParam("account")
@@ -46,18 +52,24 @@ public class AccountUserIndexResource {
    */
   @GET
   @WebResult
-  @RolesAllowed({Role.ADMIN})
-  public Response readAll() throws IOException {
+  @RolesAllowed({Role.USER})
+  public Response readAll(@Context ContainerRequestContext crc) throws IOException {
+    AccessControlModule access = AccessControlModule.fromContext(crc);
     JSONArray result;
 
     if (accountId == null || accountId.length() == 0) {
-      return notAcceptableAccountIdRequired();
+      return notAcceptable("Account id is required");
+    }
+
+    if (!access.isGrantedAccount(accountId)) {
+      return httpResponseProvider.unauthorized();
     }
 
     try {
       result = accountUserController.readAll(ULong.valueOf(accountId));
     } catch (Exception e) {
-      return notAcceptableAccountIdRequired();
+      log.error(e.getClass().getName(), e);
+      return Response.serverError().build();
     }
 
     if (result != null) {
@@ -80,10 +92,10 @@ public class AccountUserIndexResource {
   @Consumes(MediaType.APPLICATION_JSON)
   @RolesAllowed({Role.ADMIN})
   public Response create(AccountUserWrapper data) {
-    AccountUserRecord newAccountUser;
+    JSONObject result;
 
     try {
-      newAccountUser = accountUserController.create(data);
+      result = accountUserController.create(data);
     } catch (BusinessException e) {
       log.warn("BusinessException: " + e.getMessage());
       return Response
@@ -96,9 +108,8 @@ public class AccountUserIndexResource {
     }
 
     return Response
-      .created(Exposure.apiURI(AccountUser.KEY_MANY + "/" + newAccountUser.getId().toString()))
-      .entity(jsonOutputProvider.wrap(AccountUser.KEY_ONE,
-        jsonOutputProvider.objectFromMap(newAccountUser.intoMap())).toString())
+      .created(Exposure.apiURI(AccountUser.KEY_MANY + "/" + result.get(Entity.KEY_ID)))
+      .entity(jsonOutputProvider.wrap(AccountUser.KEY_ONE, result).toString())
       .build();
   }
 
@@ -107,10 +118,10 @@ public class AccountUserIndexResource {
    *
    * @return Response
    */
-  private Response notAcceptableAccountIdRequired() {
+  private Response notAcceptable(String message) {
     return Response
       .status(HttpStatus.SC_NOT_ACCEPTABLE)
-      .entity(jsonOutputProvider.wrapError("Account id is required").toString())
+      .entity(jsonOutputProvider.wrapError(message).toString())
       .build();
   }
 

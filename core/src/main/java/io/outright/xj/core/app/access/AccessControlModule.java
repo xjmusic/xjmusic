@@ -1,5 +1,8 @@
 package io.outright.xj.core.app.access;
 
+import com.google.api.client.json.JsonFactory;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import io.outright.xj.core.CoreModule;
 import io.outright.xj.core.model.account.Account;
 import io.outright.xj.core.model.role.Role;
@@ -7,21 +10,13 @@ import io.outright.xj.core.tables.records.AccountUserRecord;
 import io.outright.xj.core.tables.records.UserAuthRecord;
 import io.outright.xj.core.tables.records.UserRoleRecord;
 import io.outright.xj.core.util.CSV.CSV;
-
-import com.google.api.client.json.JsonFactory;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
 import org.jooq.types.ULong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.container.ContainerRequestContext;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class AccessControlModule {
   private static final Logger log = LoggerFactory.getLogger(AccessControlModule.class);
@@ -33,6 +28,7 @@ public class AccessControlModule {
   private final JsonFactory jsonFactory = injector.getInstance(JsonFactory.class);
   static final String CONTEXT_KEY = "userAccess";
   private Map<String, String> innerMap;
+  private List<String> accountIds;
 
   AccessControlModule(
     UserAuthRecord userAuthRecord,
@@ -43,11 +39,11 @@ public class AccessControlModule {
     this.innerMap.put(USER_ID_KEY, String.valueOf(userAuthRecord.getUserId()));
     this.innerMap.put(USER_AUTH_ID_KEY, String.valueOf(userAuthRecord.getId()));
 
-    List<String> accounts = new ArrayList<>();
+    this.accountIds = new ArrayList<>();
     for (AccountUserRecord accountRole : userAccountRoleRecords) {
-      accounts.add(accountRole.getAccountId().toString());
+      accountIds.add(accountRole.getAccountId().toString());
     }
-    this.innerMap.put(ACCOUNTS_KEY, CSV.join(accounts));
+    this.innerMap.put(ACCOUNTS_KEY, CSV.join(accountIds));
 
     List<String> roles = new ArrayList<>();
     for (UserRoleRecord role : userRoleRecords) {
@@ -60,6 +56,7 @@ public class AccessControlModule {
     Map<String, String> innerMap
   ) {
     this.innerMap = innerMap;
+    this.accountIds = CSV.split(innerMap.get(ACCOUNTS_KEY));
   }
 
   /**
@@ -68,7 +65,7 @@ public class AccessControlModule {
    * @param matchRoles of the resource to match.
    * @return whether user access roles match resource access roles.
    */
-  boolean matchRoles(String[] matchRoles) {
+  public boolean matchRoles(String[] matchRoles) {
     // inefficient
 
     for (String matchRole : matchRoles) {
@@ -120,5 +117,9 @@ public class AccessControlModule {
       log.error("failed JSON serialization", e);
       return "{}";
     }
+  }
+
+  public boolean isGrantedAccount(String accountId) {
+    return accountIds.contains(accountId);
   }
 }

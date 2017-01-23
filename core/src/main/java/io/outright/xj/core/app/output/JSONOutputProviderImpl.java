@@ -4,10 +4,12 @@ package io.outright.xj.core.app.output;
 import com.google.inject.Inject;
 import io.outright.xj.core.app.config.Exposure;
 import io.outright.xj.core.util.CamelCasify;
+import org.jooq.Record;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import javax.annotation.Nullable;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -76,11 +78,15 @@ public class JSONOutputProviderImpl implements JSONOutputProvider {
 
     return result;
   }
-  
+
+  @Nullable
   @Override
-  public JSONObject objectFromMap(Map<String, Object> data) {
+  public JSONObject objectFromRecord(Record record) {
+    if (record == null) {
+      return null;
+    }
     JSONObject result = new JSONObject();
-    data.forEach((k,v)->{
+    record.intoMap().forEach((k,v)->{
       String colName = CamelCasify.ifNeeded(k);
       if (colName != null) {
         result.put(colName,v);

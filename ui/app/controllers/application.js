@@ -4,6 +4,6 @@ import Ember from 'ember';
 export default Ember.Controller.extend({
   auth: Ember.inject.service("auth"),
   needs: ['application'],
-  isRouteAdmin: Ember.computed.match('currentRouteName', /^admin/),
+  isRouteAccess: Ember.computed.match('currentRouteName', /^access/),
   isRouteYo: Ember.computed.match('currentRouteName', /^yo/)
 });

@@ -3,6 +3,7 @@ package io.outright.xj.hub.resource.account;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import io.outright.xj.core.CoreModule;
+import io.outright.xj.core.app.access.AccessControlModule;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.app.exception.DatabaseException;
@@ -10,17 +11,19 @@ import io.outright.xj.core.app.output.JSONOutputProvider;
 import io.outright.xj.core.model.account.Account;
 import io.outright.xj.core.model.account.AccountWrapper;
 import io.outright.xj.core.model.role.Role;
-import io.outright.xj.core.tables.records.AccountRecord;
 import io.outright.xj.hub.HubModule;
 import io.outright.xj.hub.controller.account.AccountController;
 import org.apache.http.HttpStatus;
 import org.jooq.types.ULong;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.security.RolesAllowed;
 import javax.jws.WebResult;
 import javax.ws.rs.*;
+import javax.ws.rs.container.ContainerRequestContext;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
@@ -45,19 +48,24 @@ public class AccountRecordResource {
    */
   @GET
   @WebResult
-  @RolesAllowed({Role.ADMIN})
-  public Response readOneAccount() throws IOException {
-    AccountRecord account;
+  @RolesAllowed({Role.USER})
+  public Response readOne(@Context ContainerRequestContext crc) throws IOException {
+    AccessControlModule accessControlModule = AccessControlModule.fromContext(crc);
+
+    JSONObject result;
     try {
-      account = accountController.read(ULong.valueOf(accountId));
+      if (accessControlModule.matchRoles(new String[]{Role.ADMIN})) {
+        result = accountController.readOne(ULong.valueOf(accountId));
+      } else {
+        result = accountController.readOneVisible(accessControlModule.getUserId(), ULong.valueOf(accountId));
+      }
     } catch (Exception e) {
       return Response.serverError().build();
     }
 
-    if (account != null) {
+    if (result != null) {
       return Response
-        .accepted(jsonOutputProvider.wrap(Account.KEY_ONE,
-          jsonOutputProvider.objectFromMap(account.intoMap())).toString())
+        .accepted(jsonOutputProvider.wrap(Account.KEY_ONE, result).toString())
         .type(MediaType.APPLICATION_JSON)
         .build();
     } else {
@@ -73,7 +81,7 @@ public class AccountRecordResource {
   @PUT
   @Consumes(MediaType.APPLICATION_JSON)
   @RolesAllowed({Role.ADMIN})
-  public Response updateAccount(AccountWrapper data) {
+  public Response update(AccountWrapper data) {
 
     try {
       accountController.update(ULong.valueOf(accountId), data);
@@ -103,7 +111,7 @@ public class AccountRecordResource {
    */
   @DELETE
   @RolesAllowed({Role.ADMIN})
-  public Response deleteAccount() {
+  public Response delete() {
 
     try {
       accountController.delete(ULong.valueOf(accountId));

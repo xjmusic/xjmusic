@@ -1,15 +1,16 @@
 package io.outright.xj.hub.resource.user;
 
-import com.google.api.client.json.JsonFactory;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import io.outright.xj.core.CoreModule;
 import io.outright.xj.core.app.access.AccessControlModule;
-import io.outright.xj.core.model.role.Role;
+import io.outright.xj.core.app.output.JSONOutputProvider;
 import io.outright.xj.core.app.server.HttpResponseProvider;
+import io.outright.xj.core.model.role.Role;
+import io.outright.xj.core.model.user.User;
 import io.outright.xj.hub.HubModule;
 import io.outright.xj.hub.controller.user.UserController;
-import org.jooq.Record;
+import org.json.JSONObject;
 
 import javax.annotation.security.RolesAllowed;
 import javax.jws.WebResult;
@@ -27,11 +28,9 @@ import java.io.IOException;
 @Path("users/me")
 public class MeResource {
   private static final Injector injector = Guice.createInjector(new CoreModule(), new HubModule());
-//  private static Logger log = LoggerFactory.getLogger(UsersMeResource.class);
   private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
-//  private final JSONOutputProvider accessControlModuleProvider = injector.getInstance(JSONOutputProvider.class);
   private final UserController userController = injector.getInstance(UserController.class);
-  private final JsonFactory jsonFactory = injector.getInstance(JsonFactory.class);
+  private final JSONOutputProvider jsonOutputProvider = injector.getInstance(JSONOutputProvider.class);
 
   /**
    * Get current authentication.
@@ -44,16 +43,16 @@ public class MeResource {
   public Response getCurrentlyAuthenticatedUser(@Context ContainerRequestContext crc) throws IOException {
     AccessControlModule accessControlModule = AccessControlModule.fromContext(crc);
 
-    Record user;
+    JSONObject result;
     try {
-      user = userController.fetchUserAndRoles(accessControlModule.getUserId());
+      result = userController.readOne(accessControlModule.getUserId());
     } catch (Exception e) {
       return httpResponseProvider.unauthorized();
     }
 
-    if (user != null) {
+    if (result != null) {
       return Response
-        .accepted(jsonFactory.toString(user.intoMap()))
+        .accepted(jsonOutputProvider.wrap(User.KEY_ONE, result).toString())
         .type(MediaType.APPLICATION_JSON)
         .build();
     }

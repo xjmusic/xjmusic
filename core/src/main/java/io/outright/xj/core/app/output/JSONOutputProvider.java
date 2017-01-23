@@ -1,13 +1,14 @@
 // Copyright Outright Mental, Inc. All Rights Reserved.
 package io.outright.xj.core.app.output;
 
+import org.jooq.Record;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import javax.annotation.Nullable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Map;
 
 public interface JSONOutputProvider {
   /**
@@ -20,11 +21,12 @@ public interface JSONOutputProvider {
   JSONArray arrayFromResultSet(ResultSet data) throws SQLException, JSONException;
 
   /**
-   * Build a JSONObject containing a record, from a map of SQL columns and values.
-   * @param objectMap to build object from
+   * Build a JSONObject from a jOOQ Record
+   * @param record to build object from
    * @return JSONObject
    */
-  JSONObject objectFromMap(Map<String, Object> objectMap);
+  @Nullable
+  JSONObject objectFromRecord(Record record);
 
   /**
    * Build a JSONObject with root property containing a JSONObject
@@ -49,4 +51,5 @@ public interface JSONOutputProvider {
    * @return JSONObject
    */
   JSONObject wrapError(String message);
+
 }

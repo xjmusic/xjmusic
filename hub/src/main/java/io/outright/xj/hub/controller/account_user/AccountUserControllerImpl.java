@@ -12,6 +12,7 @@ import io.outright.xj.core.tables.records.AccountUserRecord;
 import org.jooq.DSLContext;
 import org.jooq.types.ULong;
 import org.json.JSONArray;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,12 +38,12 @@ public class AccountUserControllerImpl implements AccountUserController {
 
   @Nullable
   @Override
-  public AccountUserRecord read(ULong id) throws DatabaseException {
+  public JSONObject read(ULong id) throws DatabaseException {
     Connection conn = dbProvider.getConnection();
     DSLContext db = dbProvider.getContext(conn);
-    AccountUserRecord result = db.selectFrom(ACCOUNT_USER)
+    JSONObject result = jsonOutputProvider.objectFromRecord(db.selectFrom(ACCOUNT_USER)
       .where(ACCOUNT_USER.ID.eq(id))
-      .fetchOne();
+      .fetchOne());
 
     dbProvider.close(conn);
     return result;
@@ -88,13 +89,13 @@ public class AccountUserControllerImpl implements AccountUserController {
   }
 
   @Override
-  public AccountUserRecord create(AccountUserWrapper data) throws DatabaseException, ConfigException, BusinessException {
+  public JSONObject create(AccountUserWrapper data) throws DatabaseException, ConfigException, BusinessException {
     Connection conn = dbProvider.getConnectionTransaction();
     DSLContext db = dbProvider.getContext(conn);
-    AccountUserRecord result;
+    JSONObject result;
 
     try {
-      result = create(db, data);
+      result = jsonOutputProvider.objectFromRecord(create(db, data));
       dbProvider.commitAndClose(conn);
     } catch (Exception e) {
       dbProvider.rollbackAndClose(conn);
