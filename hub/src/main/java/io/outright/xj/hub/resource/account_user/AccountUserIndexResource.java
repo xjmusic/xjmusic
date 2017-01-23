@@ -1,37 +1,29 @@
 package io.outright.xj.hub.resource.account_user;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import io.outright.xj.core.CoreModule;
 import io.outright.xj.core.app.config.Exposure;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.app.output.JSONOutputProvider;
-import io.outright.xj.core.model.account.Account;
 import io.outright.xj.core.model.account_user.AccountUser;
 import io.outright.xj.core.model.account_user.AccountUserWrapper;
 import io.outright.xj.core.model.role.Role;
-import io.outright.xj.core.model.user.User;
 import io.outright.xj.core.tables.records.AccountUserRecord;
 import io.outright.xj.hub.HubModule;
 import io.outright.xj.hub.controller.account_user.AccountUserController;
-
-import com.google.inject.Guice;
-import com.google.inject.Injector;
 import org.apache.http.HttpStatus;
 import org.jooq.types.ULong;
+import org.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.security.RolesAllowed;
 import javax.jws.WebResult;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 
 /**
  * Account record
@@ -56,28 +48,23 @@ public class AccountUserIndexResource {
   @WebResult
   @RolesAllowed({Role.ADMIN})
   public Response readAll() throws IOException {
-    ResultSet accountUsers;
+    JSONArray result;
 
     if (accountId == null || accountId.length() == 0) {
       return notAcceptableAccountIdRequired();
     }
 
     try {
-      accountUsers = accountUserController.readAll(ULong.valueOf(accountId));
+      result = accountUserController.readAll(ULong.valueOf(accountId));
     } catch (Exception e) {
       return notAcceptableAccountIdRequired();
     }
 
-    if (accountUsers != null) {
-      try {
-        return Response
-          .accepted(jsonOutputProvider.ListOf(AccountUser.KEY_MANY, accountUsers).toString())
-          .type(MediaType.APPLICATION_JSON)
-          .build();
-      } catch (SQLException e) {
-        log.error("SQLException", e);
-        return Response.serverError().build();
-      }
+    if (result != null) {
+      return Response
+        .accepted(jsonOutputProvider.wrap(AccountUser.KEY_MANY, result).toString())
+        .type(MediaType.APPLICATION_JSON)
+        .build();
     } else {
       return Response.noContent().build();
     }
@@ -101,7 +88,7 @@ public class AccountUserIndexResource {
       log.warn("BusinessException: " + e.getMessage());
       return Response
         .status(HttpStatus.SC_UNPROCESSABLE_ENTITY)
-        .entity(jsonOutputProvider.Error(e.getMessage()).toString())
+        .entity(jsonOutputProvider.wrapError(e.getMessage()).toString())
         .build();
     } catch (Exception e) {
       log.error(e.getClass().getName(), e);
@@ -110,7 +97,8 @@ public class AccountUserIndexResource {
 
     return Response
       .created(Exposure.apiURI(AccountUser.KEY_MANY + "/" + newAccountUser.getId().toString()))
-      .entity(jsonOutputProvider.Record(AccountUser.KEY_ONE, newAccountUser.intoMap()).toString())
+      .entity(jsonOutputProvider.wrap(AccountUser.KEY_ONE,
+        jsonOutputProvider.objectFromMap(newAccountUser.intoMap())).toString())
       .build();
   }
 
@@ -122,7 +110,7 @@ public class AccountUserIndexResource {
   private Response notAcceptableAccountIdRequired() {
     return Response
       .status(HttpStatus.SC_NOT_ACCEPTABLE)
-      .entity(jsonOutputProvider.Error("Account id is required").toString())
+      .entity(jsonOutputProvider.wrapError("Account id is required").toString())
       .build();
   }
 

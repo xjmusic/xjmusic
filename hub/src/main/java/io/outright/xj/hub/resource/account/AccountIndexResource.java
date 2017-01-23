@@ -1,19 +1,19 @@
 package io.outright.xj.hub.resource.account;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import io.outright.xj.core.CoreModule;
 import io.outright.xj.core.app.config.Exposure;
-import io.outright.xj.core.model.account.Account;
-import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.app.output.JSONOutputProvider;
+import io.outright.xj.core.model.account.Account;
 import io.outright.xj.core.model.account.AccountWrapper;
+import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.tables.records.AccountRecord;
 import io.outright.xj.hub.HubModule;
 import io.outright.xj.hub.controller.account.AccountController;
-
-import com.google.inject.Guice;
-import com.google.inject.Injector;
 import org.apache.http.HttpStatus;
+import org.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,8 +28,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 
 /**
  * Accounts
@@ -51,23 +49,19 @@ public class AccountIndexResource {
   @RolesAllowed({Role.ADMIN})
   public Response readAllAccounts(@Context ContainerRequestContext crc) throws IOException {
 
-    ResultSet accounts;
+    JSONArray accounts;
     try {
       accounts = accountController.readAll();
     } catch (Exception e) {
+      log.error("Exception", e);
       return Response.serverError().build();
     }
 
     if (accounts != null) {
-      try {
-        return Response
-          .accepted(jsonOutputProvider.ListOf(Account.KEY_MANY, accounts).toString())
-          .type(MediaType.APPLICATION_JSON)
-          .build();
-      } catch (SQLException e) {
-        log.error("SQLException", e);
-        return Response.serverError().build();
-      }
+      return Response
+        .accepted(jsonOutputProvider.wrap(Account.KEY_MANY, accounts).toString())
+        .type(MediaType.APPLICATION_JSON)
+        .build();
     } else {
       return Response.noContent().build();
     }
@@ -91,7 +85,7 @@ public class AccountIndexResource {
       log.warn("BusinessException: " + e.getMessage());
       return Response
         .status(HttpStatus.SC_UNPROCESSABLE_ENTITY)
-        .entity(jsonOutputProvider.Error(e.getMessage()).toString())
+        .entity(jsonOutputProvider.wrapError(e.getMessage()).toString())
         .build();
     } catch (Exception e) {
       log.error(e.getClass().getName(), e);
@@ -100,7 +94,8 @@ public class AccountIndexResource {
 
     return Response
       .created(Exposure.apiURI(Account.KEY_MANY + "/" + newAccount.getId().toString()))
-      .entity(jsonOutputProvider.Record(Account.KEY_ONE, newAccount.intoMap()).toString())
+      .entity(jsonOutputProvider.wrap(Account.KEY_ONE,
+        jsonOutputProvider.objectFromMap(newAccount.intoMap())).toString())
       .build();
   }
 

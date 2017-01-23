@@ -9,7 +9,7 @@ import java.net.URI;
 public abstract class Exposure {
 
   /**
-   * Error message as JSON output payload.
+   * wrapError message as JSON output payload.
    */
   public static final String ERRORS_KEY = "errors";
   public static final String ERROR_DETAIL_KEY = "detail";

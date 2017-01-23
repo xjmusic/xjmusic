@@ -1,11 +1,9 @@
 // Copyright Outright Mental, Inc. All Rights Reserved.
 package io.outright.xj.core.app.output;
 
+import com.google.inject.Inject;
 import io.outright.xj.core.app.config.Exposure;
 import io.outright.xj.core.util.CamelCasify;
-
-import com.google.common.base.CaseFormat;
-import com.google.inject.Inject;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -22,8 +20,8 @@ public class JSONOutputProviderImpl implements JSONOutputProvider {
   public JSONOutputProviderImpl(){}
 
   @Override
-  public JSONObject ListOf(String rootName, ResultSet rs) throws SQLException, JSONException {
-    JSONArray jsonSub = new JSONArray();
+  public JSONArray arrayFromResultSet(ResultSet rs) throws SQLException, JSONException {
+    JSONArray result = new JSONArray();
     ResultSetMetaData data = rs.getMetaData();
     int maxCol = data.getColumnCount() + 1;
 
@@ -73,42 +71,47 @@ public class JSONOutputProviderImpl implements JSONOutputProvider {
           }
         }
       }
-
-      jsonSub.put(obj);
+      result.put(obj);
     }
 
-    JSONObject json = new JSONObject();
-    json.put(rootName, jsonSub);
-
-    return json;
+    return result;
   }
-
+  
   @Override
-  public JSONObject Record(String rootName, Map<String, Object> data) {
-    JSONObject jsonSub = new JSONObject();
+  public JSONObject objectFromMap(Map<String, Object> data) {
+    JSONObject result = new JSONObject();
     data.forEach((k,v)->{
       String colName = CamelCasify.ifNeeded(k);
       if (colName != null) {
-        jsonSub.put(colName,v);
+        result.put(colName,v);
       }
     });
-
-    JSONObject json = new JSONObject();
-    json.put(rootName, jsonSub);
-    return json;
+    return result;
   }
 
   @Override
-  public JSONObject Error(String message) {
+  public JSONObject wrap(String rootName, JSONObject data) {
+    JSONObject result = new JSONObject();
+    result.put(rootName, data);
+    return result;
+  }
+
+  @Override
+  public JSONObject wrap(String rootName, JSONArray data) {
+    JSONObject result = new JSONObject();
+    result.put(rootName, data);
+    return result;
+  }
+
+  @Override
+  public JSONObject wrapError(String message) {
     JSONObject error = new JSONObject();
     error.put(Exposure.ERROR_DETAIL_KEY, message);
 
     JSONArray errorsArr = new JSONArray();
     errorsArr.put(error);
 
-    JSONObject json = new JSONObject();
-    json.put(Exposure.ERRORS_KEY, errorsArr);
-    return json;
+    return wrap(Exposure.ERRORS_KEY, errorsArr);
   }
 
 

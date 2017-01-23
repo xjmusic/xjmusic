@@ -8,6 +8,7 @@ import io.outright.xj.core.app.output.JSONOutputProvider;
 import io.outright.xj.core.model.user.User;
 import io.outright.xj.hub.HubModule;
 import io.outright.xj.hub.controller.user.UserController;
+import org.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,7 +22,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 
 /**
  * Current user
@@ -43,17 +43,17 @@ public class UserIndexResource {
   @RolesAllowed({Role.ADMIN})
   public Response getAllUsers(@Context ContainerRequestContext crc) throws IOException {
 
-    ResultSet users;
+    JSONArray result;
     try {
-      users = userController.fetchUsersAndRoles();
+      result = userController.fetchUsersAndRoles();
     } catch (Exception e) {
       return Response.serverError().build();
     }
 
-    if (users != null) {
+    if (result != null) {
       try {
         return Response
-          .accepted(jsonOutputProvider.ListOf(User.KEY_MANY, users).toString())
+          .accepted(jsonOutputProvider.wrap(User.KEY_MANY, result).toString())
           .type(MediaType.APPLICATION_JSON)
           .build();
       } catch (Exception e) {

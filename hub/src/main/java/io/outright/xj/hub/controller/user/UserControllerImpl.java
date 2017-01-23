@@ -1,55 +1,51 @@
 // Copyright Outright Mental, Inc. All Rights Reserved.
 package io.outright.xj.hub.controller.user;
 
+import com.google.inject.Inject;
 import io.outright.xj.core.app.access.AccessControlModuleProvider;
-import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.app.db.SQLDatabaseProvider;
 import io.outright.xj.core.app.exception.AccessException;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.app.exception.DatabaseException;
+import io.outright.xj.core.app.output.JSONOutputProvider;
+import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.model.user.UserWrapper;
-import io.outright.xj.core.tables.records.AccountUserRecord;
-import io.outright.xj.core.tables.records.UserAccessTokenRecord;
-import io.outright.xj.core.tables.records.UserAuthRecord;
-import io.outright.xj.core.tables.records.UserRecord;
-import io.outright.xj.core.tables.records.UserRoleRecord;
+import io.outright.xj.core.tables.records.*;
 import io.outright.xj.core.util.CSV.CSV;
-
-import com.google.inject.Inject;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.Result;
 import org.jooq.types.ULong;
+import org.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.sql.Connection;
-import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static io.outright.xj.core.Tables.ACCOUNT_USER;
-import static io.outright.xj.core.Tables.USER;
-import static io.outright.xj.core.Tables.USER_ACCESS_TOKEN;
-import static io.outright.xj.core.Tables.USER_AUTH;
-import static io.outright.xj.core.Tables.USER_ROLE;
+import static io.outright.xj.core.Tables.*;
 import static org.jooq.impl.DSL.groupConcat;
 
 public class UserControllerImpl implements UserController {
   private static Logger log = LoggerFactory.getLogger(UserControllerImpl.class);
   private SQLDatabaseProvider dbProvider;
   private AccessControlModuleProvider accessControlModuleProvider;
+  private JSONOutputProvider jsonOutputProvider;
 
   @Inject
   public UserControllerImpl(
     SQLDatabaseProvider dbProvider,
-    AccessControlModuleProvider accessControlModuleProvider
+    AccessControlModuleProvider accessControlModuleProvider,
+    JSONOutputProvider jsonOutputProvider
   ) {
     this.dbProvider = dbProvider;
     this.accessControlModuleProvider = accessControlModuleProvider;
+    this.jsonOutputProvider = jsonOutputProvider;
   }
 
   @Override
@@ -83,12 +79,14 @@ public class UserControllerImpl implements UserController {
         accessToken
       );
     } catch (DatabaseException e) {
+      dbProvider.rollbackAndClose(conn);
       throw new AccessException(e);
     }
 
     try {
       dbProvider.commitAndClose(conn);
     } catch (DatabaseException e) {
+      dbProvider.rollbackAndClose(conn);
       throw new AccessException(e);
     }
 
@@ -100,8 +98,7 @@ public class UserControllerImpl implements UserController {
   public Record fetchUserAndRoles(ULong userId) throws DatabaseException {
     Connection conn = dbProvider.getConnectionTransaction();
     DSLContext db = dbProvider.getContext(conn);
-
-    return db.select(
+    Record result = db.select(
       USER.ID,
       USER.NAME,
       USER.AVATAR_URL,
@@ -114,25 +111,36 @@ public class UserControllerImpl implements UserController {
       .where(USER_ROLE.USER_ID.equal(userId))
       .groupBy(USER_ROLE.USER_ID)
       .fetchOne();
+
+    dbProvider.close(conn);
+    return result;
   }
 
   @Nullable
-  public ResultSet fetchUsersAndRoles() throws DatabaseException {
+  public JSONArray fetchUsersAndRoles() throws DatabaseException {
     Connection conn = dbProvider.getConnectionTransaction();
     DSLContext db = dbProvider.getContext(conn);
+    JSONArray result;
+    try {
+      result = jsonOutputProvider.arrayFromResultSet(db.select(
+        USER.ID,
+        USER.NAME,
+        USER.AVATAR_URL,
+        USER.EMAIL,
+        USER_ROLE.USER_ID,
+        groupConcat(USER_ROLE.TYPE,",").as(Role.KEY_MANY)
+      )
+        .from(USER_ROLE)
+        .join(USER).on(USER.ID.eq(USER_ROLE.USER_ID))
+        .groupBy(USER_ROLE.USER_ID)
+        .fetchResultSet());
+    } catch (SQLException e) {
+      dbProvider.close(conn);
+      throw new DatabaseException("SQLException: " + e);
+    }
 
-    return db.select(
-      USER.ID,
-      USER.NAME,
-      USER.AVATAR_URL,
-      USER.EMAIL,
-      USER_ROLE.USER_ID,
-      groupConcat(USER_ROLE.TYPE,",").as(Role.KEY_MANY)
-    )
-      .from(USER_ROLE)
-      .join(USER).on(USER.ID.eq(USER_ROLE.USER_ID))
-      .groupBy(USER_ROLE.USER_ID)
-      .fetchResultSet();
+    dbProvider.close(conn);
+    return result;
   }
 
   @Override
@@ -170,7 +178,6 @@ public class UserControllerImpl implements UserController {
    *
    * @param db context.
    * @param userId specific User to update.
-   * @param newRoles list to grant; all other roles will be denied to this User.
    */
   private void updateUserRoles(DSLContext db, ULong userId, UserWrapper data) throws BusinessException {
     data.validate();

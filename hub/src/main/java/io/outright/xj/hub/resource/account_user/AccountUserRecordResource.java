@@ -1,5 +1,7 @@
 package io.outright.xj.hub.resource.account_user;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import io.outright.xj.core.CoreModule;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.app.output.JSONOutputProvider;
@@ -8,12 +10,8 @@ import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.tables.records.AccountUserRecord;
 import io.outright.xj.hub.HubModule;
 import io.outright.xj.hub.controller.account_user.AccountUserController;
-
-import com.google.inject.Guice;
-import com.google.inject.Injector;
 import org.apache.http.HttpStatus;
 import org.jooq.types.ULong;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +35,8 @@ public class AccountUserRecordResource {
   private final AccountUserController accountUserController = injector.getInstance(AccountUserController.class);
   private final JSONOutputProvider jsonOutputProvider = injector.getInstance(JSONOutputProvider.class);
 
-  @PathParam("id") String accountUserId;
+  @PathParam("id")
+  String accountUserId;
 
   /**
    * Get one AccountUser by accountId and userId
@@ -57,11 +56,9 @@ public class AccountUserRecordResource {
     }
 
     if (accountUser != null) {
-      JSONObject jsonAccount;
-      jsonAccount = jsonOutputProvider.Record(AccountUser.KEY_ONE, accountUser.intoMap());
-
       return Response
-        .accepted(jsonAccount.toString())
+        .accepted(jsonOutputProvider.wrap(AccountUser.KEY_ONE,
+          jsonOutputProvider.objectFromMap(accountUser.intoMap())).toString())
         .type(MediaType.APPLICATION_JSON)
         .build();
     } else {
@@ -85,7 +82,7 @@ public class AccountUserRecordResource {
       log.warn("BusinessException: " + e.getMessage());
       return Response
         .status(HttpStatus.SC_BAD_REQUEST)
-        .entity(jsonOutputProvider.Error(e.getMessage()).toString())
+        .entity(jsonOutputProvider.wrapError(e.getMessage()).toString())
         .build();
     } catch (Exception e) {
       log.error(e.getClass().getName(), e);

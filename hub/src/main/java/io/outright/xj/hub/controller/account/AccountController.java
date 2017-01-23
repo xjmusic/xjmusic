@@ -8,6 +8,7 @@ import io.outright.xj.core.model.account.AccountWrapper;
 import io.outright.xj.core.tables.records.AccountRecord;
 
 import org.jooq.types.ULong;
+import org.json.JSONArray;
 
 import javax.annotation.Nullable;
 import java.sql.ResultSet;
@@ -24,7 +25,7 @@ public interface AccountController {
    * Fetch one Account by id
    *
    * @param accountId to fetch.
-   * @return Account Record.
+   * @return Account WrapRecord.
    * @throws DatabaseException on failure
    */
   @Nullable
@@ -37,7 +38,7 @@ public interface AccountController {
    * @throws DatabaseException on failure
    */
   @Nullable
-  ResultSet readAll() throws DatabaseException;
+  JSONArray readAll() throws DatabaseException;
 
   /**
    * Update a specified Account

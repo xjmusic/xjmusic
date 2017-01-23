@@ -5,8 +5,6 @@ import com.google.inject.Injector;
 import io.outright.xj.core.CoreModule;
 import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.app.exception.BusinessException;
-import io.outright.xj.core.app.exception.ConfigException;
-import io.outright.xj.core.app.exception.DatabaseException;
 import io.outright.xj.core.app.output.JSONOutputProvider;
 import io.outright.xj.core.model.user.User;
 import io.outright.xj.hub.HubModule;
@@ -56,7 +54,8 @@ public class UserRecordResource {
 
     if (user != null) {
       return Response
-        .accepted(jsonOutputProvider.Record(User.KEY_ONE, user.intoMap()).toString())
+        .accepted(jsonOutputProvider.wrap(User.KEY_ONE,
+          jsonOutputProvider.objectFromMap(user.intoMap())).toString())
         .type(MediaType.APPLICATION_JSON)
         .build();
     } else {
@@ -80,7 +79,7 @@ public class UserRecordResource {
       log.warn("BusinessException: " + e.getMessage());
       return Response
         .status(HttpStatus.SC_UNPROCESSABLE_ENTITY)
-        .entity(jsonOutputProvider.Error(e.getMessage()).toString())
+        .entity(jsonOutputProvider.wrapError(e.getMessage()).toString())
         .build();
     } catch (Exception e) {
       log.error(e.getClass().getName(), e);

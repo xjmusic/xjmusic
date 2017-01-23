@@ -1,5 +1,7 @@
 package io.outright.xj.hub.resource.account;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import io.outright.xj.core.CoreModule;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.app.exception.ConfigException;
@@ -11,23 +13,14 @@ import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.tables.records.AccountRecord;
 import io.outright.xj.hub.HubModule;
 import io.outright.xj.hub.controller.account.AccountController;
-
-import com.google.inject.Guice;
-import com.google.inject.Injector;
 import org.apache.http.HttpStatus;
 import org.jooq.types.ULong;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.security.RolesAllowed;
 import javax.jws.WebResult;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
@@ -62,11 +55,9 @@ public class AccountRecordResource {
     }
 
     if (account != null) {
-      JSONObject jsonAccount;
-      jsonAccount = jsonOutputProvider.Record(Account.KEY_ONE, account.intoMap());
-
       return Response
-        .accepted(jsonAccount.toString())
+        .accepted(jsonOutputProvider.wrap(Account.KEY_ONE,
+          jsonOutputProvider.objectFromMap(account.intoMap())).toString())
         .type(MediaType.APPLICATION_JSON)
         .build();
     } else {
@@ -90,7 +81,7 @@ public class AccountRecordResource {
       log.warn("BusinessException: " + e.getMessage());
       return Response
         .status(HttpStatus.SC_UNPROCESSABLE_ENTITY)
-        .entity(jsonOutputProvider.Error(e.getMessage()).toString())
+        .entity(jsonOutputProvider.wrapError(e.getMessage()).toString())
         .build();
     } catch (DatabaseException e) {
       log.error("DatabaseException", e);
@@ -120,7 +111,7 @@ public class AccountRecordResource {
       log.warn("BusinessException: " + e.getMessage());
       return Response
         .status(HttpStatus.SC_BAD_REQUEST)
-        .entity(jsonOutputProvider.Error(e.getMessage()).toString())
+        .entity(jsonOutputProvider.wrapError(e.getMessage()).toString())
         .build();
     } catch (Exception e) {
       log.error(e.getClass().getName(), e);

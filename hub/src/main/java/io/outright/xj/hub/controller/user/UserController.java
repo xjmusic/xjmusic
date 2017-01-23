@@ -9,6 +9,7 @@ import io.outright.xj.core.model.user.UserWrapper;
 
 import org.jooq.Record;
 import org.jooq.types.ULong;
+import org.json.JSONArray;
 
 import javax.annotation.Nullable;
 import java.sql.ResultSet;
@@ -53,7 +54,7 @@ public interface UserController {
    * @return UserRecord.
    */
   @Nullable
-  ResultSet fetchUsersAndRoles() throws DatabaseException;
+  JSONArray fetchUsersAndRoles() throws DatabaseException;
 
   /**
    * Destroy all access tokens for a specified User

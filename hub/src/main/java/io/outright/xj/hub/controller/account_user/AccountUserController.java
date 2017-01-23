@@ -8,6 +8,7 @@ import io.outright.xj.core.model.account_user.AccountUserWrapper;
 import io.outright.xj.core.tables.records.AccountUserRecord;
 
 import org.jooq.types.ULong;
+import org.json.JSONArray;
 
 import javax.annotation.Nullable;
 import java.sql.ResultSet;
@@ -35,11 +36,11 @@ public interface AccountUserController {
    * Fetch many AccountUser for one Account by id
    *
    * @param accountId to fetch accountUsers for.
-   * @return ResultSet of accountUsers.
+   * @return JSONArray of accountUsers.
    * @throws DatabaseException on failure
    */
   @Nullable
-  ResultSet readAll(ULong accountId) throws DatabaseException;
+  JSONArray readAll(ULong accountId) throws DatabaseException;
 
   /**
    * Delete a specified AccountUser

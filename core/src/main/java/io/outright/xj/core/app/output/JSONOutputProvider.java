@@ -1,8 +1,7 @@
 // Copyright Outright Mental, Inc. All Rights Reserved.
 package io.outright.xj.core.app.output;
 
-import io.outright.xj.core.tables.records.UserRecord;
-
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -12,22 +11,36 @@ import java.util.Map;
 
 public interface JSONOutputProvider {
   /**
-   * Build a JSONObject with root property containing array of records, from a standard JDBC ResultSet.
-   * @param rootName root property name
+   * Build a JSONArray of records from a standard JDBC ResultSet.
    * @param data ResultSet to convert into JSON records
-   * @return JSONObject
+   * @return JSONArray
    * @throws SQLException if SQL failure
    * @throws JSONException if JSON failure
    */
-  JSONObject ListOf(String rootName, ResultSet data) throws SQLException, JSONException;
+  JSONArray arrayFromResultSet(ResultSet data) throws SQLException, JSONException;
 
   /**
-   * Build a JSONObject with root property containing a record, from a map of SQL columns and values.
-   * @param rootName root property name
-   * @param data SQL columns and row values
+   * Build a JSONObject containing a record, from a map of SQL columns and values.
+   * @param objectMap to build object from
    * @return JSONObject
    */
-  JSONObject Record(String rootName, Map<String, Object> data);
+  JSONObject objectFromMap(Map<String, Object> objectMap);
+
+  /**
+   * Build a JSONObject with root property containing a JSONObject
+   * @param rootName root property name
+   * @param data inner JSONObject
+   * @return JSONObject
+   */
+  JSONObject wrap(String rootName, JSONObject data);
+
+  /**
+   * Build a JSONObject with root property containing a JSONArray
+   * @param rootName root property name
+   * @param data inner JSONArray
+   * @return JSONObject
+   */
+  JSONObject wrap(String rootName, JSONArray data);
 
   /**
    * Build a JSONObject with root property containing an error message.
@@ -35,5 +48,5 @@ public interface JSONOutputProvider {
    * @param message for single error message
    * @return JSONObject
    */
-  JSONObject Error(String message);
+  JSONObject wrapError(String message);
 }
