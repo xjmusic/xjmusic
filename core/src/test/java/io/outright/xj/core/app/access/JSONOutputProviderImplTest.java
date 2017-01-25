@@ -9,13 +9,15 @@ import io.outright.xj.core.tables.records.UserAuthRecord;
 import io.outright.xj.core.tables.records.UserRoleRecord;
 import io.outright.xj.core.util.token.TokenGenerator;
 
+import org.jooq.types.ULong;
+
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.util.Modules;
-import org.jooq.types.ULong;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

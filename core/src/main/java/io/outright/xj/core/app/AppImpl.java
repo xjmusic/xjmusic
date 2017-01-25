@@ -1,14 +1,15 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 package io.outright.xj.core.app;
 
+import io.outright.xj.core.app.access.AccessLogFilterProvider;
 import io.outright.xj.core.app.access.AccessTokenAuthFilter;
 import io.outright.xj.core.app.config.Config;
 import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.app.server.HttpServerProvider;
-import io.outright.xj.core.app.access.AccessLogFilterProvider;
 import io.outright.xj.core.app.server.ResourceConfigProvider;
 
 import com.google.inject.Inject;
+
 import org.glassfish.jersey.server.ResourceConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

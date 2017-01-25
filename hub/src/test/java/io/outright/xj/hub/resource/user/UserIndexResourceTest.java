@@ -1,9 +1,9 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 package io.outright.xj.hub.resource.user;
 
-import io.outright.xj.core.app.resources.ResourceEndpointTest;
+import io.outright.xj.core.app.resource.ResourceEndpointTest;
 
-public class UsersResourceTest extends ResourceEndpointTest {
+public class UserIndexResourceTest extends ResourceEndpointTest {
 
   // TODO write tests for /users endpoint via HTTP
 

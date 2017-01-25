@@ -1,5 +1,5 @@
 // Copyright Outright Mental, Inc. All Rights Reserved.
-package io.outright.xj.hub.controller.user;
+package io.outright.xj.core.dao;
 
 import io.outright.xj.core.app.exception.AccessException;
 import io.outright.xj.core.app.exception.BusinessException;
@@ -8,12 +8,13 @@ import io.outright.xj.core.app.exception.DatabaseException;
 import io.outright.xj.core.model.user.UserWrapper;
 
 import org.jooq.types.ULong;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.annotation.Nullable;
 
-public interface UserController {
+public interface UserDAO {
   /**
    * Authenticates a User using external credentials:
    *
@@ -34,7 +35,7 @@ public interface UserController {
    * @param name to call user
    * @param avatarUrl to display for user
    * @param email to contact user
-   * @return UserRecord confirmed authenticated
+   * @return access token
    */
   String authenticate(String authType, String account, String externalAccessToken, String externalRefreshToken, String name, String avatarUrl, String email) throws DatabaseException, AccessException;
 
@@ -42,7 +43,7 @@ public interface UserController {
    * Fetch one User by id
    *
    * @param userId to fetch.
-   * @return Record.
+   * @return User as JSON object
    */
   @Nullable
   JSONObject readOne(ULong userId) throws DatabaseException;
@@ -52,7 +53,7 @@ public interface UserController {
    *
    * @param fromUserId of User from which user must be visible
    * @param userId to fetch
-   * @return User if found and visible
+   * @return User if found and visible, as JSON object
    * @throws DatabaseException on failure
    */
   @Nullable
@@ -61,7 +62,7 @@ public interface UserController {
   /**
    * Read all Users and their roles
    *
-   * @return array of results as JSON.
+   * @return Users as JSON array.
    */
   @Nullable
   JSONArray readAll() throws DatabaseException;
@@ -70,7 +71,7 @@ public interface UserController {
    * Read Users visible-to the specified user, and their roles
    *
    * @param fromUserId to whom resulting-users are visible.
-   * @return array of results as JSON.
+   * @return Users as JSON array.
    */
   @Nullable
   JSONArray readAllVisible(ULong fromUserId) throws DatabaseException;

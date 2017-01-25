@@ -1,27 +1,35 @@
 package io.outright.xj.hub.resource.account;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
 import io.outright.xj.core.CoreModule;
 import io.outright.xj.core.app.access.AccessControlModule;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.app.exception.DatabaseException;
-import io.outright.xj.core.app.output.JSONOutputProvider;
 import io.outright.xj.core.model.account.Account;
 import io.outright.xj.core.model.account.AccountWrapper;
 import io.outright.xj.core.model.role.Role;
+import io.outright.xj.core.transport.JSON;
 import io.outright.xj.hub.HubModule;
-import io.outright.xj.hub.controller.account.AccountController;
-import org.apache.http.HttpStatus;
+import io.outright.xj.core.dao.AccountDAO;
+
 import org.jooq.types.ULong;
+
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+
+import org.apache.http.HttpStatus;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.security.RolesAllowed;
 import javax.jws.WebResult;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -35,8 +43,7 @@ import java.io.IOException;
 public class AccountRecordResource {
   private static final Injector injector = Guice.createInjector(new CoreModule(), new HubModule());
   private static Logger log = LoggerFactory.getLogger(AccountRecordResource.class);
-  private final AccountController accountController = injector.getInstance(AccountController.class);
-  private final JSONOutputProvider jsonOutputProvider = injector.getInstance(JSONOutputProvider.class);
+  private final AccountDAO accountDAO = injector.getInstance(AccountDAO.class);
 
   @PathParam("id") String accountId;
 
@@ -55,9 +62,9 @@ public class AccountRecordResource {
     JSONObject result;
     try {
       if (accessControlModule.matchRoles(new String[]{Role.ADMIN})) {
-        result = accountController.readOne(ULong.valueOf(accountId));
+        result = accountDAO.readOne(ULong.valueOf(accountId));
       } else {
-        result = accountController.readOneVisible(accessControlModule.getUserId(), ULong.valueOf(accountId));
+        result = accountDAO.readOneVisible(accessControlModule.getUserId(), ULong.valueOf(accountId));
       }
     } catch (Exception e) {
       return Response.serverError().build();
@@ -65,16 +72,21 @@ public class AccountRecordResource {
 
     if (result != null) {
       return Response
-        .accepted(jsonOutputProvider.wrap(Account.KEY_ONE, result).toString())
+        .accepted(JSON.wrap(Account.KEY_ONE, result).toString())
         .type(MediaType.APPLICATION_JSON)
         .build();
     } else {
-      return Response.noContent().build();
+      return Response
+        .status(HttpStatus.SC_NOT_FOUND)
+        .entity(JSON.wrapError("Account not found").toString())
+        .type(MediaType.APPLICATION_JSON)
+        .build();
     }
   }
 
   /**
    * Update one account
+   *
    * @param data with which to update Account record.
    * @return Response
    */
@@ -84,12 +96,12 @@ public class AccountRecordResource {
   public Response update(AccountWrapper data) {
 
     try {
-      accountController.update(ULong.valueOf(accountId), data);
+      accountDAO.update(ULong.valueOf(accountId), data);
     } catch (BusinessException e) {
       log.warn("BusinessException: " + e.getMessage());
       return Response
         .status(HttpStatus.SC_UNPROCESSABLE_ENTITY)
-        .entity(jsonOutputProvider.wrapError(e.getMessage()).toString())
+        .entity(JSON.wrapError(e.getMessage()).toString())
         .build();
     } catch (DatabaseException e) {
       log.error("DatabaseException", e);
@@ -107,6 +119,7 @@ public class AccountRecordResource {
 
   /**
    * Delete one account
+   *
    * @return Response
    */
   @DELETE
@@ -114,12 +127,12 @@ public class AccountRecordResource {
   public Response delete() {
 
     try {
-      accountController.delete(ULong.valueOf(accountId));
+      accountDAO.delete(ULong.valueOf(accountId));
     } catch (BusinessException e) {
       log.warn("BusinessException: " + e.getMessage());
       return Response
         .status(HttpStatus.SC_BAD_REQUEST)
-        .entity(jsonOutputProvider.wrapError(e.getMessage()).toString())
+        .entity(JSON.wrapError(e.getMessage()).toString())
         .build();
     } catch (Exception e) {
       log.error(e.getClass().getName(), e);

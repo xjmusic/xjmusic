@@ -1,14 +1,16 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 package io.outright.xj.hub;
 
-import io.outright.xj.core.app.App;
 import io.outright.xj.core.CoreModule;
+import io.outright.xj.core.app.App;
 import io.outright.xj.core.app.config.Config;
-import io.outright.xj.hub.controller.migration.MigrationController;
+import io.outright.xj.core.app.db.SQLDatabaseProvider;
 import io.outright.xj.core.app.exception.ConfigException;
+import io.outright.xj.core.migration.MigrationService;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,9 +39,8 @@ public class Main {
       app.configure("io.outright.xj.hub");
 
       // Database migrations
-      MigrationController migrationController = injector.getInstance(MigrationController.class);
       try {
-        migrationController.migrate();
+        MigrationService.GLOBAL.migrate(injector.getInstance(SQLDatabaseProvider.class));
       } catch (ConfigException e) {
         log.error("Migrations failed! App will not start.", e);
         System.exit(1);

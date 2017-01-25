@@ -1,16 +1,20 @@
 // Copyright Outright Mental, Inc. All Rights Reserved.
-package io.outright.xj.hub.controller.account_user;
+package io.outright.xj.core.dao.jooq;
 
-import com.google.inject.Inject;
 import io.outright.xj.core.app.db.SQLDatabaseProvider;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.app.exception.DatabaseException;
-import io.outright.xj.core.app.output.JSONOutputProvider;
 import io.outright.xj.core.model.account_user.AccountUserWrapper;
 import io.outright.xj.core.tables.records.AccountUserRecord;
+import io.outright.xj.core.transport.JSON;
+import io.outright.xj.core.dao.AccountUserDAO;
+
 import org.jooq.DSLContext;
 import org.jooq.types.ULong;
+
+import com.google.inject.Inject;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -22,18 +26,15 @@ import java.sql.SQLException;
 
 import static io.outright.xj.core.tables.AccountUser.ACCOUNT_USER;
 
-public class AccountUserControllerImpl implements AccountUserController {
-  private static Logger log = LoggerFactory.getLogger(AccountUserControllerImpl.class);
+public class AccountUserDAOImpl implements AccountUserDAO {
+  private static Logger log = LoggerFactory.getLogger(AccountUserDAOImpl.class);
   private SQLDatabaseProvider dbProvider;
-  private JSONOutputProvider jsonOutputProvider;
 
   @Inject
-  public AccountUserControllerImpl(
-    SQLDatabaseProvider dbProvider,
-    JSONOutputProvider jsonOutputProvider
+  public AccountUserDAOImpl(
+    SQLDatabaseProvider dbProvider
   ) {
     this.dbProvider = dbProvider;
-    this.jsonOutputProvider = jsonOutputProvider;
   }
 
   @Nullable
@@ -41,7 +42,7 @@ public class AccountUserControllerImpl implements AccountUserController {
   public JSONObject read(ULong id) throws DatabaseException {
     Connection conn = dbProvider.getConnection();
     DSLContext db = dbProvider.getContext(conn);
-    JSONObject result = jsonOutputProvider.objectFromRecord(db.selectFrom(ACCOUNT_USER)
+    JSONObject result = JSON.objectFromRecord(db.selectFrom(ACCOUNT_USER)
       .where(ACCOUNT_USER.ID.eq(id))
       .fetchOne());
 
@@ -56,7 +57,7 @@ public class AccountUserControllerImpl implements AccountUserController {
     DSLContext db = dbProvider.getContext(conn);
     JSONArray result;
     try {
-      result = jsonOutputProvider.arrayFromResultSet(db.selectFrom(ACCOUNT_USER)
+      result = JSON.arrayFromResultSet(db.selectFrom(ACCOUNT_USER)
         .where(ACCOUNT_USER.ACCOUNT_ID.eq(accountId))
         .fetchResultSet());
     } catch (SQLException e) {
@@ -95,7 +96,7 @@ public class AccountUserControllerImpl implements AccountUserController {
     JSONObject result;
 
     try {
-      result = jsonOutputProvider.objectFromRecord(create(db, data));
+      result = JSON.objectFromRecord(create(db, data));
       dbProvider.commitAndClose(conn);
     } catch (Exception e) {
       dbProvider.rollbackAndClose(conn);

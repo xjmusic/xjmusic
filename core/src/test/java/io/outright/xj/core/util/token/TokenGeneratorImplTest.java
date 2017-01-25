@@ -1,17 +1,20 @@
 // Copyright Outright Mental, Inc. All Rights Reserved.
 package io.outright.xj.core.util.token;
 
+import io.outright.xj.core.CoreModule;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.util.Modules;
-import io.outright.xj.core.CoreModule;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.Objects;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TokenGeneratorImplTest {
@@ -28,9 +31,9 @@ public class TokenGeneratorImplTest {
   public void generate_UniqueTokens() throws Exception {
     String t1 = tokenGenerator.generate();
     String t2 = tokenGenerator.generate();
-    assert Objects.nonNull(t1);
-    assert Objects.nonNull(t2);
-    assert !Objects.equals(t1,t2);
+    assertNotNull(t1);
+    assertNotNull(t2);
+    assertNotSame(t1,t2);
   }
 
   private void createInjector() {

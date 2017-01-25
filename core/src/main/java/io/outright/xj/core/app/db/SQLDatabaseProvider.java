@@ -5,7 +5,6 @@ import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.app.exception.DatabaseException;
 
 import org.jooq.DSLContext;
-import org.jooq.conf.Settings;
 
 import java.sql.Connection;
 

@@ -1,10 +1,12 @@
 package io.outright.xj.hub.resource.auth.google;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
 import io.outright.xj.core.CoreModule;
 import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.external.google.GoogleProvider;
+
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

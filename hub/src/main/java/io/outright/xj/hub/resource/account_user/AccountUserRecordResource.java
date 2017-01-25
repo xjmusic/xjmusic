@@ -1,16 +1,19 @@
 package io.outright.xj.hub.resource.account_user;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
 import io.outright.xj.core.CoreModule;
 import io.outright.xj.core.app.exception.BusinessException;
-import io.outright.xj.core.app.output.JSONOutputProvider;
 import io.outright.xj.core.model.account_user.AccountUser;
 import io.outright.xj.core.model.role.Role;
+import io.outright.xj.core.transport.JSON;
 import io.outright.xj.hub.HubModule;
-import io.outright.xj.hub.controller.account_user.AccountUserController;
-import org.apache.http.HttpStatus;
+import io.outright.xj.core.dao.AccountUserDAO;
+
 import org.jooq.types.ULong;
+
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+
+import org.apache.http.HttpStatus;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,8 +35,7 @@ import java.io.IOException;
 public class AccountUserRecordResource {
   private static final Injector injector = Guice.createInjector(new CoreModule(), new HubModule());
   private static Logger log = LoggerFactory.getLogger(AccountUserRecordResource.class);
-  private final AccountUserController accountUserController = injector.getInstance(AccountUserController.class);
-  private final JSONOutputProvider jsonOutputProvider = injector.getInstance(JSONOutputProvider.class);
+  private final AccountUserDAO accountUserDAO = injector.getInstance(AccountUserDAO.class);
 
   @PathParam("id")
   String accountUserId;
@@ -51,14 +53,14 @@ public class AccountUserRecordResource {
     JSONObject result;
 
     try {
-      result = accountUserController.read(ULong.valueOf(accountUserId));
+      result = accountUserDAO.read(ULong.valueOf(accountUserId));
     } catch (Exception e) {
       return Response.serverError().build();
     }
 
     if (result != null) {
       return Response
-        .accepted(jsonOutputProvider.wrap(AccountUser.KEY_ONE, result).toString())
+        .accepted(JSON.wrap(AccountUser.KEY_ONE, result).toString())
         .type(MediaType.APPLICATION_JSON)
         .build();
     } else {
@@ -77,12 +79,12 @@ public class AccountUserRecordResource {
   public Response deleteAccountUser() {
 
     try {
-      accountUserController.delete(ULong.valueOf(accountUserId));
+      accountUserDAO.delete(ULong.valueOf(accountUserId));
     } catch (BusinessException e) {
       log.warn("BusinessException: " + e.getMessage());
       return Response
         .status(HttpStatus.SC_BAD_REQUEST)
-        .entity(jsonOutputProvider.wrapError(e.getMessage()).toString())
+        .entity(JSON.wrapError(e.getMessage()).toString())
         .build();
     } catch (Exception e) {
       log.error(e.getClass().getName(), e);

@@ -4,8 +4,8 @@
 . $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/common/functions
 
 #
-step "Verify, Compile & Package Platform\n"
-mvn clean verify package || exit 1
+step "Platform Integration Tests\n"
+mvn verify || exit 1
 step_ok
 
 #

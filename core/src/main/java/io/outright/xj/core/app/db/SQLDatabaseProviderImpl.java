@@ -12,6 +12,7 @@ import org.jooq.conf.MappedSchema;
 import org.jooq.conf.RenderMapping;
 import org.jooq.conf.Settings;
 import org.jooq.impl.DSL;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

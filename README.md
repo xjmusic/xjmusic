@@ -139,6 +139,25 @@ Compile & Package the Java server-side application, e.g. as JAR files:
 
     bin/package
 
+## MySQL database
+
+By default, you'll need to create two local MySQL databases: 
+
+  * `xj` (for running services locally)
+  * `xj_test` (for running integration tests locally)
+
+These databases must be accessible by user `root`@`localhost`.
+
+## Integration testing
+
+We use `maven-failsafe` to kick off integration tests. There's a helper script:
+
+    bin/verify
+    
+Also, the integration test suite is run by default during a `bin/package` or `bin/release` and will block the build if integration tests fail.
+
+Integration testing requires a MySQL database `xj_test` locally, as well as a Redis server.
+
 ## Database migration
 
 Migrate the local database (not usually necessary; migration happens automatically on application start):

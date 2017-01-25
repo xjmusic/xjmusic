@@ -1,13 +1,15 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
-package io.outright.xj.core.app.resources;
+package io.outright.xj.core.app.resource;
 
-import io.outright.xj.core.app.App;
 import io.outright.xj.core.CoreModule;
+import io.outright.xj.core.app.App;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+
 import org.junit.After;
 import org.junit.Before;
+import org.mockito.Mockito;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -15,7 +17,7 @@ import javax.ws.rs.client.WebTarget;
 import java.io.File;
 import java.io.IOException;
 
-public class ResourceEndpointTest {
+public class ResourceEndpointTest extends Mockito {
   private App app;
   private WebTarget target;
   private File tempFile;

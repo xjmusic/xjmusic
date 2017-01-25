@@ -1,17 +1,19 @@
 // Copyright Outright Mental, Inc. All Rights Reserved.
-package io.outright.xj.hub.controller.account_user;
+package io.outright.xj.core.dao;
 
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.app.exception.DatabaseException;
 import io.outright.xj.core.model.account_user.AccountUserWrapper;
+
 import org.jooq.types.ULong;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.annotation.Nullable;
 
-public interface AccountUserController {
+public interface AccountUserDAO {
 
   /**
    * Create a new Account User

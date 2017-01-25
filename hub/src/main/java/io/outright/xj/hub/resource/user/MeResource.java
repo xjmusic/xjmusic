@@ -1,15 +1,17 @@
 package io.outright.xj.hub.resource.user;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
 import io.outright.xj.core.CoreModule;
 import io.outright.xj.core.app.access.AccessControlModule;
-import io.outright.xj.core.app.output.JSONOutputProvider;
 import io.outright.xj.core.app.server.HttpResponseProvider;
 import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.model.user.User;
+import io.outright.xj.core.transport.JSON;
 import io.outright.xj.hub.HubModule;
-import io.outright.xj.hub.controller.user.UserController;
+import io.outright.xj.core.dao.UserDAO;
+
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+
 import org.json.JSONObject;
 
 import javax.annotation.security.RolesAllowed;
@@ -29,8 +31,7 @@ import java.io.IOException;
 public class MeResource {
   private static final Injector injector = Guice.createInjector(new CoreModule(), new HubModule());
   private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
-  private final UserController userController = injector.getInstance(UserController.class);
-  private final JSONOutputProvider jsonOutputProvider = injector.getInstance(JSONOutputProvider.class);
+  private final UserDAO userDAO = injector.getInstance(UserDAO.class);
 
   /**
    * Get current authentication.
@@ -45,14 +46,14 @@ public class MeResource {
 
     JSONObject result;
     try {
-      result = userController.readOne(accessControlModule.getUserId());
+      result = userDAO.readOne(accessControlModule.getUserId());
     } catch (Exception e) {
       return httpResponseProvider.unauthorized();
     }
 
     if (result != null) {
       return Response
-        .accepted(jsonOutputProvider.wrap(User.KEY_ONE, result).toString())
+        .accepted(JSON.wrap(User.KEY_ONE, result).toString())
         .type(MediaType.APPLICATION_JSON)
         .build();
     }

@@ -1,6 +1,9 @@
 // Copyright Outright Mental, Inc. All Rights Reserved.
 package io.outright.xj.core.external.google;
 
+import io.outright.xj.core.CoreModule;
+import io.outright.xj.core.app.exception.AccessException;
+
 import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
@@ -12,8 +15,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.util.Modules;
-import io.outright.xj.core.CoreModule;
-import io.outright.xj.core.app.exception.AccessException;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

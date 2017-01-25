@@ -1,18 +1,20 @@
 package io.outright.xj.hub.resource.account;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
 import io.outright.xj.core.CoreModule;
 import io.outright.xj.core.app.access.AccessControlModule;
 import io.outright.xj.core.app.config.Exposure;
 import io.outright.xj.core.app.exception.BusinessException;
-import io.outright.xj.core.app.output.JSONOutputProvider;
 import io.outright.xj.core.model.Entity;
 import io.outright.xj.core.model.account.Account;
 import io.outright.xj.core.model.account.AccountWrapper;
 import io.outright.xj.core.model.role.Role;
+import io.outright.xj.core.transport.JSON;
 import io.outright.xj.hub.HubModule;
-import io.outright.xj.hub.controller.account.AccountController;
+import io.outright.xj.core.dao.AccountDAO;
+
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+
 import org.apache.http.HttpStatus;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -38,8 +40,7 @@ import java.io.IOException;
 public class AccountIndexResource {
   private static final Injector injector = Guice.createInjector(new CoreModule(), new HubModule());
   private static Logger log = LoggerFactory.getLogger(AccountIndexResource.class);
-  private final AccountController accountController = injector.getInstance(AccountController.class);
-  private final JSONOutputProvider jsonOutputProvider = injector.getInstance(JSONOutputProvider.class);
+  private final AccountDAO accountDAO = injector.getInstance(AccountDAO.class);
 
   /**
    * Get all accounts.
@@ -55,9 +56,9 @@ public class AccountIndexResource {
     JSONArray result;
     try {
       if (accessControlModule.matchRoles(new String[]{Role.ADMIN})) {
-        result = accountController.readAll();
+        result = accountDAO.readAll();
       } else {
-        result = accountController.readAllVisible(accessControlModule.getUserId());
+        result = accountDAO.readAllVisible(accessControlModule.getUserId());
       }
     } catch (Exception e) {
       log.error("Exception", e);
@@ -66,7 +67,7 @@ public class AccountIndexResource {
 
     if (result != null) {
       return Response
-        .accepted(jsonOutputProvider.wrap(Account.KEY_MANY, result).toString())
+        .accepted(JSON.wrap(Account.KEY_MANY, result).toString())
         .type(MediaType.APPLICATION_JSON)
         .build();
     } else {
@@ -87,12 +88,12 @@ public class AccountIndexResource {
     JSONObject newEntity;
 
     try {
-      newEntity = accountController.create(data);
+      newEntity = accountDAO.create(data);
     } catch (BusinessException e) {
       log.warn("BusinessException: " + e.getMessage());
       return Response
         .status(HttpStatus.SC_UNPROCESSABLE_ENTITY)
-        .entity(jsonOutputProvider.wrapError(e.getMessage()).toString())
+        .entity(JSON.wrapError(e.getMessage()).toString())
         .build();
     } catch (Exception e) {
       log.error(e.getClass().getName(), e);
@@ -101,7 +102,7 @@ public class AccountIndexResource {
 
     return Response
       .created(Exposure.apiURI(Account.KEY_MANY + "/" + newEntity.get(Entity.KEY_ID)))
-      .entity(jsonOutputProvider.wrap(Account.KEY_ONE, newEntity).toString())
+      .entity(JSON.wrap(Account.KEY_ONE, newEntity).toString())
       .build();
   }
 

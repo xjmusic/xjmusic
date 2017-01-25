@@ -1,11 +1,11 @@
 // Copyright Outright Mental, Inc. All Rights Reserved.
-package io.outright.xj.hub.controller.auth;
+package io.outright.xj.core.dao;
 
 import io.outright.xj.core.app.exception.AccessException;
 import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.app.exception.DatabaseException;
 
-public interface AuthController {
+public interface AuthDAO {
   /**
    * Authenticate a user by OAuth2 Access Code,
    * store the access token for the remote (authenticating) system

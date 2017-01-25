@@ -6,7 +6,7 @@
 # Must not have outstanding git changes
 gitcheck ${PWD} || exit 1
 
-# Build Web Frontened
+# Build Web Front-end
 bin/ui-build || exit 1
 
 # Build Java Platform

@@ -1,8 +1,5 @@
 package io.outright.xj.core.app.access;
 
-import com.google.api.client.json.JsonFactory;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
 import io.outright.xj.core.CoreModule;
 import io.outright.xj.core.model.account.Account;
 import io.outright.xj.core.model.role.Role;
@@ -10,13 +7,23 @@ import io.outright.xj.core.tables.records.AccountUserRecord;
 import io.outright.xj.core.tables.records.UserAuthRecord;
 import io.outright.xj.core.tables.records.UserRoleRecord;
 import io.outright.xj.core.util.CSV.CSV;
+
 import org.jooq.types.ULong;
+
+import com.google.api.client.json.JsonFactory;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.container.ContainerRequestContext;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class AccessControlModule {
   private static final Logger log = LoggerFactory.getLogger(AccessControlModule.class);

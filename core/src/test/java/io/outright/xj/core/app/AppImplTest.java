@@ -2,8 +2,8 @@
 package io.outright.xj.core.app;
 
 import io.outright.xj.core.CoreModule;
-import io.outright.xj.core.app.access.AccessTokenAuthFilter;
 import io.outright.xj.core.app.access.AccessLogFilterProvider;
+import io.outright.xj.core.app.access.AccessTokenAuthFilter;
 import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.app.server.HttpServerProvider;
 import io.outright.xj.core.app.server.ResourceConfigProvider;
@@ -12,6 +12,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.util.Modules;
+
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.junit.After;
@@ -148,29 +149,29 @@ public class AppImplTest extends Mockito {
 
   @Test
   public void BaseURI_CustomHost() {
-    System.setProperty("app.host","special");
+    System.setProperty("app.host", "special");
     app = injector.getInstance(App.class);
     assertEquals("http://special:80/", app.baseURI());
   }
 
   @Test
   public void BaseURI_CustomPort() {
-    System.setProperty("app.port","7000");
+    System.setProperty("app.port", "7000");
     app = injector.getInstance(App.class);
     assertEquals("http://0.0.0.0:7000/", app.baseURI());
   }
 
   private void createInjector() {
     injector = Guice.createInjector(Modules.override(new CoreModule()).with(
-        new AbstractModule() {
-          @Override
-          public void configure() {
-            bind(App.class).to(AppImpl.class);
-            bind(AccessTokenAuthFilter.class).toInstance(accessTokenAuthFilter);
-            bind(HttpServerProvider.class).toInstance(httpServerProvider);
-            bind(ResourceConfigProvider.class).toInstance(resourceConfigProvider);
-            bind(AccessLogFilterProvider.class).toInstance(accessLogFilterProvider);
-          }
-        }));
+      new AbstractModule() {
+        @Override
+        public void configure() {
+          bind(App.class).to(AppImpl.class);
+          bind(AccessTokenAuthFilter.class).toInstance(accessTokenAuthFilter);
+          bind(HttpServerProvider.class).toInstance(httpServerProvider);
+          bind(ResourceConfigProvider.class).toInstance(resourceConfigProvider);
+          bind(AccessLogFilterProvider.class).toInstance(accessLogFilterProvider);
+        }
+      }));
   }
 }

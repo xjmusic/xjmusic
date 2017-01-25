@@ -1,22 +1,30 @@
 // Copyright Outright Mental, Inc. All Rights Reserved.
-package io.outright.xj.hub.controller.user;
+package io.outright.xj.core.dao.jooq;
 
-import com.google.inject.Inject;
 import io.outright.xj.core.app.access.AccessControlModuleProvider;
 import io.outright.xj.core.app.db.SQLDatabaseProvider;
 import io.outright.xj.core.app.exception.AccessException;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.app.exception.DatabaseException;
-import io.outright.xj.core.app.output.JSONOutputProvider;
 import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.model.user.UserWrapper;
 import io.outright.xj.core.tables.AccountUser;
-import io.outright.xj.core.tables.records.*;
+import io.outright.xj.core.tables.records.AccountUserRecord;
+import io.outright.xj.core.tables.records.UserAccessTokenRecord;
+import io.outright.xj.core.tables.records.UserAuthRecord;
+import io.outright.xj.core.tables.records.UserRecord;
+import io.outright.xj.core.tables.records.UserRoleRecord;
+import io.outright.xj.core.transport.JSON;
 import io.outright.xj.core.util.CSV.CSV;
+import io.outright.xj.core.dao.UserDAO;
+
 import org.jooq.DSLContext;
 import org.jooq.Result;
 import org.jooq.types.ULong;
+
+import com.google.inject.Inject;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -29,24 +37,25 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static io.outright.xj.core.Tables.*;
+import static io.outright.xj.core.Tables.ACCOUNT_USER;
+import static io.outright.xj.core.Tables.USER;
+import static io.outright.xj.core.Tables.USER_ACCESS_TOKEN;
+import static io.outright.xj.core.Tables.USER_AUTH;
+import static io.outright.xj.core.Tables.USER_ROLE;
 import static org.jooq.impl.DSL.groupConcat;
 
-public class UserControllerImpl implements UserController {
-  private static Logger log = LoggerFactory.getLogger(UserControllerImpl.class);
+public class UserDAOImpl implements UserDAO {
+  private static Logger log = LoggerFactory.getLogger(UserDAOImpl.class);
   private SQLDatabaseProvider dbProvider;
   private AccessControlModuleProvider accessControlModuleProvider;
-  private JSONOutputProvider jsonOutputProvider;
 
   @Inject
-  public UserControllerImpl(
+  public UserDAOImpl(
     SQLDatabaseProvider dbProvider,
-    AccessControlModuleProvider accessControlModuleProvider,
-    JSONOutputProvider jsonOutputProvider
+    AccessControlModuleProvider accessControlModuleProvider
   ) {
     this.dbProvider = dbProvider;
     this.accessControlModuleProvider = accessControlModuleProvider;
-    this.jsonOutputProvider = jsonOutputProvider;
   }
 
   @Override
@@ -100,7 +109,7 @@ public class UserControllerImpl implements UserController {
     Connection conn = dbProvider.getConnectionTransaction();
     DSLContext db = dbProvider.getContext(conn);
 
-    JSONObject result = jsonOutputProvider.objectFromRecord(db.select(
+    JSONObject result = JSON.objectFromRecord(db.select(
       USER.ID,
       USER.NAME,
       USER.AVATAR_URL,
@@ -126,7 +135,7 @@ public class UserControllerImpl implements UserController {
 
     AccountUser userFrom = ACCOUNT_USER.as("userFrom");
     AccountUser userTo = ACCOUNT_USER.as("userTo");
-    JSONObject result = jsonOutputProvider.objectFromRecord(db.select(
+    JSONObject result = JSON.objectFromRecord(db.select(
       USER.ID,
       USER.NAME,
       USER.AVATAR_URL,
@@ -153,7 +162,7 @@ public class UserControllerImpl implements UserController {
     DSLContext db = dbProvider.getContext(conn);
     JSONArray result;
     try {
-      result = jsonOutputProvider.arrayFromResultSet(db.select(
+      result = JSON.arrayFromResultSet(db.select(
         USER.ID,
         USER.NAME,
         USER.AVATAR_URL,
@@ -182,7 +191,7 @@ public class UserControllerImpl implements UserController {
     try {
       AccountUser userFrom = ACCOUNT_USER.as("userFrom");
       AccountUser userTo = ACCOUNT_USER.as("userTo");
-      result = jsonOutputProvider.arrayFromResultSet(db.select(
+      result = JSON.arrayFromResultSet(db.select(
         USER.ID,
         USER.NAME,
         USER.AVATAR_URL,

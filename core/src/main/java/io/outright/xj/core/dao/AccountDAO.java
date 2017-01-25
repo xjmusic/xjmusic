@@ -1,5 +1,5 @@
 // Copyright Outright Mental, Inc. All Rights Reserved.
-package io.outright.xj.hub.controller.account;
+package io.outright.xj.core.dao;
 
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.app.exception.ConfigException;
@@ -7,12 +7,13 @@ import io.outright.xj.core.app.exception.DatabaseException;
 import io.outright.xj.core.model.account.AccountWrapper;
 
 import org.jooq.types.ULong;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.annotation.Nullable;
 
-public interface AccountController {
+public interface AccountDAO {
   /**
    * Create a new Account
    * @param data for the new Account.

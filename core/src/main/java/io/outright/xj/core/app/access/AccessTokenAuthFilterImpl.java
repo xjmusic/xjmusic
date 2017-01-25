@@ -6,6 +6,7 @@ import io.outright.xj.core.app.exception.DatabaseException;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

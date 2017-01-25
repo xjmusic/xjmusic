@@ -1,10 +1,11 @@
-// Copyright Outright Mental, Inc. All Rights Reserved.
-package io.outright.xj.core.app.output;
+// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+package io.outright.xj.core.transport;
 
-import com.google.inject.Inject;
 import io.outright.xj.core.app.config.Exposure;
 import io.outright.xj.core.util.CamelCasify;
+
 import org.jooq.Record;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -13,16 +14,10 @@ import javax.annotation.Nullable;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.util.Map;
 
-public class JSONOutputProviderImpl implements JSONOutputProvider {
-//  private final static Logger log = LoggerFactory.getLogger(JSONOutputProviderImpl.class);
+public abstract class JSON {
 
-  @Inject
-  public JSONOutputProviderImpl(){}
-
-  @Override
-  public JSONArray arrayFromResultSet(ResultSet rs) throws SQLException, JSONException {
+  public static JSONArray arrayFromResultSet(ResultSet rs) throws SQLException, JSONException {
     JSONArray result = new JSONArray();
     ResultSetMetaData data = rs.getMetaData();
     int maxCol = data.getColumnCount() + 1;
@@ -80,8 +75,7 @@ public class JSONOutputProviderImpl implements JSONOutputProvider {
   }
 
   @Nullable
-  @Override
-  public JSONObject objectFromRecord(Record record) {
+  public static JSONObject objectFromRecord(Record record) {
     if (record == null) {
       return null;
     }
@@ -95,22 +89,19 @@ public class JSONOutputProviderImpl implements JSONOutputProvider {
     return result;
   }
 
-  @Override
-  public JSONObject wrap(String rootName, JSONObject data) {
+  public static JSONObject wrap(String rootName, JSONObject data) {
     JSONObject result = new JSONObject();
     result.put(rootName, data);
     return result;
   }
 
-  @Override
-  public JSONObject wrap(String rootName, JSONArray data) {
+  public static JSONObject wrap(String rootName, JSONArray data) {
     JSONObject result = new JSONObject();
     result.put(rootName, data);
     return result;
   }
 
-  @Override
-  public JSONObject wrapError(String message) {
+  public static JSONObject wrapError(String message) {
     JSONObject error = new JSONObject();
     error.put(Exposure.ERROR_DETAIL_KEY, message);
 
@@ -119,6 +110,4 @@ public class JSONOutputProviderImpl implements JSONOutputProvider {
 
     return wrap(Exposure.ERRORS_KEY, errorsArr);
   }
-
-
 }

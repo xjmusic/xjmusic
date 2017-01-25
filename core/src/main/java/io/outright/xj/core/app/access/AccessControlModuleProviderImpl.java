@@ -12,6 +12,7 @@ import io.outright.xj.core.tables.records.UserRoleRecord;
 import io.outright.xj.core.util.token.TokenGenerator;
 
 import com.google.inject.Inject;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

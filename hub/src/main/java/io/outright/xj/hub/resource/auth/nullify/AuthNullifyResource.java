@@ -1,16 +1,18 @@
 package io.outright.xj.hub.resource.auth.nullify;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
 import io.outright.xj.core.CoreModule;
 import io.outright.xj.core.app.access.AccessControlModule;
 import io.outright.xj.core.app.access.AccessControlModuleProvider;
-import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.app.exception.DatabaseException;
 import io.outright.xj.core.app.server.HttpResponseProvider;
+import io.outright.xj.core.model.role.Role;
 import io.outright.xj.hub.HubModule;
-import io.outright.xj.hub.controller.user.UserController;
+import io.outright.xj.core.dao.UserDAO;
+
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +32,7 @@ import java.io.IOException;
 public class AuthNullifyResource {
   private Injector injector = Guice.createInjector(new CoreModule(), new HubModule());
   private static Logger log = LoggerFactory.getLogger(AuthNullifyResource.class);
-  private final UserController userController = injector.getInstance(UserController.class);
+  private final UserDAO userDAO = injector.getInstance(UserDAO.class);
   private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
   private final AccessControlModuleProvider accessControlModuleProvider = injector.getInstance(AccessControlModuleProvider.class);
 
@@ -45,7 +47,7 @@ public class AuthNullifyResource {
   public Response getCurrentAuthentication(@Context ContainerRequestContext crc) throws IOException {
     AccessControlModule accessControlModule = AccessControlModule.fromContext(crc);
     try {
-      userController.destroyAllTokens(accessControlModule.getUserId());
+      userDAO.destroyAllTokens(accessControlModule.getUserId());
     } catch (DatabaseException e) {
       log.error("DatabaseException", e);
       return Response.serverError().build();

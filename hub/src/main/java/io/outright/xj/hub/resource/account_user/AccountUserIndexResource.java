@@ -1,21 +1,24 @@
 package io.outright.xj.hub.resource.account_user;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
 import io.outright.xj.core.CoreModule;
 import io.outright.xj.core.app.access.AccessControlModule;
 import io.outright.xj.core.app.config.Exposure;
 import io.outright.xj.core.app.exception.BusinessException;
-import io.outright.xj.core.app.output.JSONOutputProvider;
 import io.outright.xj.core.app.server.HttpResponseProvider;
 import io.outright.xj.core.model.Entity;
 import io.outright.xj.core.model.account_user.AccountUser;
 import io.outright.xj.core.model.account_user.AccountUserWrapper;
 import io.outright.xj.core.model.role.Role;
+import io.outright.xj.core.transport.JSON;
 import io.outright.xj.hub.HubModule;
-import io.outright.xj.hub.controller.account_user.AccountUserController;
-import org.apache.http.HttpStatus;
+import io.outright.xj.core.dao.AccountUserDAO;
+
 import org.jooq.types.ULong;
+
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+
+import org.apache.http.HttpStatus;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -23,7 +26,11 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.security.RolesAllowed;
 import javax.jws.WebResult;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -37,9 +44,8 @@ import java.io.IOException;
 public class AccountUserIndexResource {
   private static final Injector injector = Guice.createInjector(new CoreModule(), new HubModule());
   private static Logger log = LoggerFactory.getLogger(AccountUserIndexResource.class);
-  private final AccountUserController accountUserController = injector.getInstance(AccountUserController.class);
+  private final AccountUserDAO accountUserDAO = injector.getInstance(AccountUserDAO.class);
   private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
-  private final JSONOutputProvider jsonOutputProvider = injector.getInstance(JSONOutputProvider.class);
 
   @QueryParam("account")
   String accountId;
@@ -66,7 +72,7 @@ public class AccountUserIndexResource {
     }
 
     try {
-      result = accountUserController.readAll(ULong.valueOf(accountId));
+      result = accountUserDAO.readAll(ULong.valueOf(accountId));
     } catch (Exception e) {
       log.error(e.getClass().getName(), e);
       return Response.serverError().build();
@@ -74,7 +80,7 @@ public class AccountUserIndexResource {
 
     if (result != null) {
       return Response
-        .accepted(jsonOutputProvider.wrap(AccountUser.KEY_MANY, result).toString())
+        .accepted(JSON.wrap(AccountUser.KEY_MANY, result).toString())
         .type(MediaType.APPLICATION_JSON)
         .build();
     } else {
@@ -95,12 +101,12 @@ public class AccountUserIndexResource {
     JSONObject result;
 
     try {
-      result = accountUserController.create(data);
+      result = accountUserDAO.create(data);
     } catch (BusinessException e) {
       log.warn("BusinessException: " + e.getMessage());
       return Response
         .status(HttpStatus.SC_UNPROCESSABLE_ENTITY)
-        .entity(jsonOutputProvider.wrapError(e.getMessage()).toString())
+        .entity(JSON.wrapError(e.getMessage()).toString())
         .build();
     } catch (Exception e) {
       log.error(e.getClass().getName(), e);
@@ -109,7 +115,7 @@ public class AccountUserIndexResource {
 
     return Response
       .created(Exposure.apiURI(AccountUser.KEY_MANY + "/" + result.get(Entity.KEY_ID)))
-      .entity(jsonOutputProvider.wrap(AccountUser.KEY_ONE, result).toString())
+      .entity(JSON.wrap(AccountUser.KEY_ONE, result).toString())
       .build();
   }
 
@@ -121,7 +127,7 @@ public class AccountUserIndexResource {
   private Response notAcceptable(String message) {
     return Response
       .status(HttpStatus.SC_NOT_ACCEPTABLE)
-      .entity(jsonOutputProvider.wrapError(message).toString())
+      .entity(JSON.wrapError(message).toString())
       .build();
   }
 
