@@ -29,7 +29,9 @@
       <div class="container-fluid navbar-sub">
         <ul class="nav navbar-nav">
           {{#link-to 'access.users' tagName="li"}}<a href="">Users</a>{{/link-to}}
-          {{#link-to 'access.accounts' tagName="li"}}<a href="">Accounts</a>{{/link-to}}
+          {{#if auth.hasAccounts}}
+            {{#link-to 'access.accounts' tagName="li"}}<a href="">Accounts</a>{{/link-to}}
+          {{/if}}
         </ul>
       </div>
     {{/if}}

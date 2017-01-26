@@ -21,6 +21,9 @@ export default Ember.Service.extend({
        re-authenticate to ensure they still are. */
     session.authenticate('authenticator:xj-auth').then(function(){
       auth.parseRolesCSV(session.getData().roles);
+      if (session.getData().accounts.length>0) {
+        auth.hasAccounts = true;
+      }
     }, xhr => {
       console.log("auth failure", xhr);
     });
@@ -55,13 +58,18 @@ export default Ember.Service.extend({
   },
 
   /**
-   * @returns {boolean} if session has 'user' role
+   * {boolean} if session user has 'user' role
    */
   isUser: false,
 
   /**
-   * @returns {boolean} if session has 'admin' role
+   * {boolean} if session user has 'admin' role
    */
-  isAdmin: false
+  isAdmin: false,
+
+  /**
+   * {boolean} if session user has any account membership
+   */
+  hasAccounts: false
 
 });
