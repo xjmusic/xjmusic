@@ -2,11 +2,10 @@
 package io.outright.xj.core.dao;
 
 import io.outright.xj.core.CoreModule;
+import io.outright.xj.core.app.access.AccessControl;
 import io.outright.xj.core.external.AuthType;
 import io.outright.xj.core.integration.IntegrationTestEntity;
 import io.outright.xj.core.integration.IntegrationTestService;
-import io.outright.xj.core.model.account.Account;
-import io.outright.xj.core.model.account.AccountWrapper;
 import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.model.user.User;
 import io.outright.xj.core.model.user.UserWrapper;
@@ -14,10 +13,10 @@ import io.outright.xj.core.tables.records.UserAccessTokenRecord;
 import io.outright.xj.core.tables.records.UserAuthRecord;
 import io.outright.xj.core.tables.records.UserRecord;
 import io.outright.xj.core.tables.records.UserRoleRecord;
-import io.outright.xj.core.util.CSV.CSV;
 
 import org.jooq.types.ULong;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
@@ -157,7 +156,12 @@ public class UserIT {
 
   @Test
   public void readOne() throws Exception {
-    JSONObject actualResult = testDAO.readOne(ULong.valueOf(2));
+    AccessControl access = new AccessControl(ImmutableMap.of(
+      "roles","user",
+      "accounts","1"
+    ));
+
+    JSONObject actualResult = testDAO.readOneAble(access, ULong.valueOf(2));
 
     assertNotNull(actualResult);
     assertEquals(ULong.valueOf(2), actualResult.get("id"));
@@ -168,8 +172,13 @@ public class UserIT {
   }
 
   @Test
-  public void readOneVisible_UserSeesAnotherUserWithCommonAccountMembership() throws Exception {
-    JSONObject actualResult = testDAO.readOneVisible(ULong.valueOf(2), ULong.valueOf(3));
+  public void readOneAble_UserSeesAnotherUserWithCommonAccountMembership() throws Exception {
+    AccessControl access = new AccessControl(ImmutableMap.of(
+      "roles","user",
+      "accounts","1"
+    ));
+
+    JSONObject actualResult = testDAO.readOneAble(access, ULong.valueOf(3));
 
     assertNotNull(actualResult);
     assertEquals(ULong.valueOf(3), actualResult.get("id"));
@@ -180,31 +189,51 @@ public class UserIT {
   }
 
   @Test
-  public void readOneVisible_UserCannotSeeUserWithoutCommonAccountMembership() throws Exception {
-    JSONObject actualResult = testDAO.readOneVisible(ULong.valueOf(2), ULong.valueOf(4));
+  public void readOneAble_UserCannotSeeUserWithoutCommonAccountMembership() throws Exception {
+    AccessControl access = new AccessControl(ImmutableMap.of(
+      "roles","user",
+      "accounts","1"
+    ));
+
+    JSONObject actualResult = testDAO.readOneAble(access, ULong.valueOf(4));
 
     assertNull(actualResult);
   }
 
   @Test
-  public void readAll() throws Exception {
-    JSONArray actualResult = testDAO.readAll();
+  public void readAllAble() throws Exception {
+    AccessControl access = new AccessControl(ImmutableMap.of(
+      "roles","user,admin",
+      "accounts","1"
+    ));
+
+    JSONArray actualResult = testDAO.readAllAble(access);
 
     assertNotNull(actualResult);
     assertEquals(3, actualResult.length());
   }
 
   @Test
-  public void readAllVisible_UserSeesSelfAndOtherUsersInSameAccount() throws Exception {
-    JSONArray actualResult = testDAO.readAllVisible(ULong.valueOf(2));
+  public void readAllAble_UserSeesSelfAndOtherUsersInSameAccount() throws Exception {
+    AccessControl access = new AccessControl(ImmutableMap.of(
+      "roles","user",
+      "accounts","1"
+    ));
+
+    JSONArray actualResult = testDAO.readAllAble(access);
 
     assertNotNull(actualResult);
     assertEquals(2, actualResult.length());
   }
 
   @Test
-  public void readAllVisible_UserWithoutAccountMembershipSeesNothing() throws Exception {
-    JSONArray actualResult = testDAO.readAllVisible(ULong.valueOf(4));
+  public void readAllAble_UserWithoutAccountMembershipSeesNothing() throws Exception {
+    AccessControl access = new AccessControl(ImmutableMap.of(
+      "roles","user",
+      "accounts",""
+    ));
+
+    JSONArray actualResult = testDAO.readAllAble(access);
 
     assertNotNull(actualResult);
     assertEquals(0, actualResult.length());

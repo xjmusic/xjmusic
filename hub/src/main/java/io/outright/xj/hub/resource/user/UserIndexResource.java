@@ -1,7 +1,9 @@
+// Copyright Outright Mental, Inc. All Rights Reserved.
 package io.outright.xj.hub.resource.user;
 
 import io.outright.xj.core.CoreModule;
-import io.outright.xj.core.app.access.AccessControlModule;
+import io.outright.xj.core.app.access.AccessControl;
+import io.outright.xj.core.app.server.HttpResponseProvider;
 import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.model.user.User;
 import io.outright.xj.core.transport.JSON;
@@ -33,6 +35,7 @@ public class UserIndexResource {
   private static final Injector injector = Guice.createInjector(new CoreModule(), new HubModule());
   private static Logger log = LoggerFactory.getLogger(UserIndexResource.class);
   private final UserDAO userDAO = injector.getInstance(UserDAO.class);
+  private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
 
   /**
    * Get all users.
@@ -43,31 +46,27 @@ public class UserIndexResource {
   @WebResult
   @RolesAllowed({Role.USER})
   public Response readAll(@Context ContainerRequestContext crc) throws IOException {
-    AccessControlModule accessControlModule = AccessControlModule.fromContext(crc);
+    AccessControl access = AccessControl.fromContext(crc);
 
     JSONArray result;
     try {
-      if (accessControlModule.matchRoles(new String[]{Role.ADMIN})) {
-        result = userDAO.readAll();
+      result = userDAO.readAllAble(access);
+      if (result != null) {
+        try {
+          return Response
+            .accepted(JSON.wrap(User.KEY_MANY, result).toString())
+            .type(MediaType.APPLICATION_JSON)
+            .build();
+        } catch (Exception e) {
+          log.error(e.getClass().getName(), e);
+          return Response.serverError().build();
+        }
       } else {
-        result = userDAO.readAllVisible(accessControlModule.getUserId());
+        return httpResponseProvider.notFound("Users");
       }
+
     } catch (Exception e) {
       return Response.serverError().build();
-    }
-
-    if (result != null) {
-      try {
-        return Response
-          .accepted(JSON.wrap(User.KEY_MANY, result).toString())
-          .type(MediaType.APPLICATION_JSON)
-          .build();
-      } catch (Exception e) {
-        log.error(e.getClass().getName(), e);
-        return Response.serverError().build();
-      }
-    } else {
-      return Response.noContent().build();
     }
   }
 

@@ -1,16 +1,17 @@
+// Copyright Outright Mental, Inc. All Rights Reserved.
 package io.outright.xj.hub.resource.account;
 
 import io.outright.xj.core.CoreModule;
-import io.outright.xj.core.app.access.AccessControlModule;
+import io.outright.xj.core.app.access.AccessControl;
 import io.outright.xj.core.app.config.Exposure;
 import io.outright.xj.core.app.exception.BusinessException;
+import io.outright.xj.core.dao.AccountDAO;
 import io.outright.xj.core.model.Entity;
 import io.outright.xj.core.model.account.Account;
 import io.outright.xj.core.model.account.AccountWrapper;
 import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.transport.JSON;
 import io.outright.xj.hub.HubModule;
-import io.outright.xj.core.dao.AccountDAO;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -51,27 +52,23 @@ public class AccountIndexResource {
   @WebResult
   @RolesAllowed({Role.USER})
   public Response readAll(@Context ContainerRequestContext crc) throws IOException {
-    AccessControlModule accessControlModule = AccessControlModule.fromContext(crc);
+    AccessControl access = AccessControl.fromContext(crc);
 
     JSONArray result;
     try {
-      if (accessControlModule.matchRoles(new String[]{Role.ADMIN})) {
-        result = accountDAO.readAll();
+      result = accountDAO.readAllAble(access);
+      if (result != null) {
+        return Response
+          .accepted(JSON.wrap(Account.KEY_MANY, result).toString())
+          .type(MediaType.APPLICATION_JSON)
+          .build();
       } else {
-        result = accountDAO.readAllVisible(accessControlModule.getUserId());
+        return Response.noContent().build();
       }
+
     } catch (Exception e) {
       log.error("Exception", e);
       return Response.serverError().build();
-    }
-
-    if (result != null) {
-      return Response
-        .accepted(JSON.wrap(Account.KEY_MANY, result).toString())
-        .type(MediaType.APPLICATION_JSON)
-        .build();
-    } else {
-      return Response.noContent().build();
     }
   }
 

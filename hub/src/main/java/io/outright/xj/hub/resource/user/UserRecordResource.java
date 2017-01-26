@@ -1,8 +1,10 @@
+// Copyright Outright Mental, Inc. All Rights Reserved.
 package io.outright.xj.hub.resource.user;
 
 import io.outright.xj.core.CoreModule;
-import io.outright.xj.core.app.access.AccessControlModule;
+import io.outright.xj.core.app.access.AccessControl;
 import io.outright.xj.core.app.exception.BusinessException;
+import io.outright.xj.core.app.server.HttpResponseProvider;
 import io.outright.xj.core.dao.UserDAO;
 import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.model.user.User;
@@ -41,6 +43,7 @@ public class UserRecordResource {
   private static final Injector injector = Guice.createInjector(new CoreModule(), new HubModule());
   private static Logger log = LoggerFactory.getLogger(UserRecordResource.class);
   private final UserDAO userDAO = injector.getInstance(UserDAO.class);
+  private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
 
   @PathParam("id") String userId;
 
@@ -53,35 +56,28 @@ public class UserRecordResource {
   @WebResult
   @RolesAllowed({Role.USER})
   public Response readOne(@Context ContainerRequestContext crc) throws IOException {
-    AccessControlModule accessControlModule = AccessControlModule.fromContext(crc);
+    AccessControl access = AccessControl.fromContext(crc);
 
     JSONObject result;
     try {
-      if (accessControlModule.matchRoles(new String[]{Role.ADMIN})) {
-        result = userDAO.readOne(ULong.valueOf(userId));
+      result = userDAO.readOneAble(access, ULong.valueOf(userId));
+      if (result != null) {
+        return Response
+          .accepted(JSON.wrap(User.KEY_ONE, result).toString())
+          .type(MediaType.APPLICATION_JSON)
+          .build();
       } else {
-        result = userDAO.readOneVisible(accessControlModule.getUserId(), ULong.valueOf(userId));
+        return httpResponseProvider.notFound("User");
       }
+
     } catch (Exception e) {
       return Response.serverError().build();
-    }
-
-    if (result != null) {
-      return Response
-        .accepted(JSON.wrap(User.KEY_ONE, result).toString())
-        .type(MediaType.APPLICATION_JSON)
-        .build();
-    } else {
-      return Response
-        .status(HttpStatus.SC_NOT_FOUND)
-        .entity(JSON.wrapError("User not found").toString())
-        .type(MediaType.APPLICATION_JSON)
-        .build();
     }
   }
 
   /**
    * Update one User.
+   *
    * @param data with which to update User record.
    * @return Response.
    */

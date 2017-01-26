@@ -1,6 +1,7 @@
 // Copyright Outright Mental, Inc. All Rights Reserved.
 package io.outright.xj.core.dao;
 
+import io.outright.xj.core.app.access.AccessControl;
 import io.outright.xj.core.app.exception.AccessException;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.app.exception.ConfigException;
@@ -40,43 +41,27 @@ public interface UserDAO {
   String authenticate(String authType, String account, String externalAccessToken, String externalRefreshToken, String name, String avatarUrl, String email) throws DatabaseException, AccessException;
 
   /**
-   * Fetch one User by id
+   * Fetch one User by id, if accessible
    *
-   * @param userId to fetch.
-   * @return User as JSON object
-   */
-  @Nullable
-  JSONObject readOne(ULong userId) throws DatabaseException;
-
-  /**
-   * Fetch one User by id
-   *
-   * @param fromUserId of User from which user must be visible
+   * @param access control
    * @param userId to fetch
    * @return User if found and visible, as JSON object
    * @throws DatabaseException on failure
    */
   @Nullable
-  JSONObject readOneVisible(ULong fromUserId, ULong userId) throws DatabaseException;
+  JSONObject readOneAble(AccessControl access, ULong userId) throws DatabaseException;
 
   /**
-   * Read all Users and their roles
+   * Read Users accessible, and their roles
    *
+   * @param access control
    * @return Users as JSON array.
    */
   @Nullable
-  JSONArray readAll() throws DatabaseException;
+  JSONArray readAllAble(AccessControl access) throws DatabaseException;
 
   /**
-   * Read Users visible-to the specified user, and their roles
-   *
-   * @param fromUserId to whom resulting-users are visible.
-   * @return Users as JSON array.
-   */
-  @Nullable
-  JSONArray readAllVisible(ULong fromUserId) throws DatabaseException;
-
-  /**
+   * (ADMIN ONLY)
    * Destroy all access tokens for a specified User
    *
    * @param userId to destroy all access tokens for.
@@ -84,6 +69,7 @@ public interface UserDAO {
   void destroyAllTokens(ULong userId) throws ConfigException, DatabaseException;
 
   /**
+   * (ADMIN ONLY)
    * Update a specified User's roles, and destroy all their tokens.
    * @param userId of specific User to update.
    * @param data for the updated User.

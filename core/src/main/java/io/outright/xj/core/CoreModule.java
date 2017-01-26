@@ -3,8 +3,8 @@ package io.outright.xj.core;
 
 import io.outright.xj.core.app.App;
 import io.outright.xj.core.app.AppImpl;
-import io.outright.xj.core.app.access.AccessControlModuleProvider;
-import io.outright.xj.core.app.access.AccessControlModuleProviderImpl;
+import io.outright.xj.core.app.access.AccessControlProvider;
+import io.outright.xj.core.app.access.AccessControlProviderImpl;
 import io.outright.xj.core.app.access.AccessLogFilterProvider;
 import io.outright.xj.core.app.access.AccessLogFilterProviderImpl;
 import io.outright.xj.core.app.access.AccessTokenAuthFilter;
@@ -44,7 +44,7 @@ import com.google.inject.AbstractModule;
 
 public class CoreModule extends AbstractModule {
   protected void configure() {
-    bind(AccessControlModuleProvider.class).to(AccessControlModuleProviderImpl.class);
+    bind(AccessControlProvider.class).to(AccessControlProviderImpl.class);
     bind(AccessLogFilterProvider.class).to(AccessLogFilterProviderImpl.class);
     bind(AccessTokenAuthFilter.class).to(AccessTokenAuthFilterImpl.class);
     bind(AccountDAO.class).to(AccountDAOImpl.class);

@@ -1,10 +1,12 @@
+// Copyright Outright Mental, Inc. All Rights Reserved.
 package io.outright.xj.hub.resource.account;
 
 import io.outright.xj.core.CoreModule;
-import io.outright.xj.core.app.access.AccessControlModule;
+import io.outright.xj.core.app.access.AccessControl;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.app.exception.DatabaseException;
+import io.outright.xj.core.app.server.HttpResponseProvider;
 import io.outright.xj.core.model.account.Account;
 import io.outright.xj.core.model.account.AccountWrapper;
 import io.outright.xj.core.model.role.Role;
@@ -44,6 +46,7 @@ public class AccountRecordResource {
   private static final Injector injector = Guice.createInjector(new CoreModule(), new HubModule());
   private static Logger log = LoggerFactory.getLogger(AccountRecordResource.class);
   private final AccountDAO accountDAO = injector.getInstance(AccountDAO.class);
+  private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
 
   @PathParam("id") String accountId;
 
@@ -57,30 +60,22 @@ public class AccountRecordResource {
   @WebResult
   @RolesAllowed({Role.USER})
   public Response readOne(@Context ContainerRequestContext crc) throws IOException {
-    AccessControlModule accessControlModule = AccessControlModule.fromContext(crc);
+    AccessControl access = AccessControl.fromContext(crc);
 
     JSONObject result;
     try {
-      if (accessControlModule.matchRoles(new String[]{Role.ADMIN})) {
-        result = accountDAO.readOne(ULong.valueOf(accountId));
+      result = accountDAO.readOneAble(access, ULong.valueOf(accountId));
+      if (result != null) {
+        return Response
+          .accepted(JSON.wrap(Account.KEY_ONE, result).toString())
+          .type(MediaType.APPLICATION_JSON)
+          .build();
       } else {
-        result = accountDAO.readOneVisible(accessControlModule.getUserId(), ULong.valueOf(accountId));
+        return httpResponseProvider.notFound("Account");
       }
+
     } catch (Exception e) {
       return Response.serverError().build();
-    }
-
-    if (result != null) {
-      return Response
-        .accepted(JSON.wrap(Account.KEY_ONE, result).toString())
-        .type(MediaType.APPLICATION_JSON)
-        .build();
-    } else {
-      return Response
-        .status(HttpStatus.SC_NOT_FOUND)
-        .entity(JSON.wrapError("Account not found").toString())
-        .type(MediaType.APPLICATION_JSON)
-        .build();
     }
   }
 
@@ -97,24 +92,27 @@ public class AccountRecordResource {
 
     try {
       accountDAO.update(ULong.valueOf(accountId), data);
+      return Response.accepted("{}").build();
+
     } catch (BusinessException e) {
       log.warn("BusinessException: " + e.getMessage());
       return Response
         .status(HttpStatus.SC_UNPROCESSABLE_ENTITY)
         .entity(JSON.wrapError(e.getMessage()).toString())
         .build();
+
     } catch (DatabaseException e) {
       log.error("DatabaseException", e);
       return Response.serverError().build();
+
     } catch (ConfigException e) {
       log.error("ConfigException", e);
       return Response.serverError().build();
+
     } catch (Exception e) {
       log.error("Exception", e);
       return Response.serverError().build();
     }
-
-    return Response.accepted("{}").build();
   }
 
   /**
@@ -128,18 +126,19 @@ public class AccountRecordResource {
 
     try {
       accountDAO.delete(ULong.valueOf(accountId));
+      return Response.accepted("{}").build();
+
     } catch (BusinessException e) {
       log.warn("BusinessException: " + e.getMessage());
       return Response
         .status(HttpStatus.SC_BAD_REQUEST)
         .entity(JSON.wrapError(e.getMessage()).toString())
         .build();
+
     } catch (Exception e) {
       log.error(e.getClass().getName(), e);
       return Response.serverError().build();
     }
-
-    return Response.accepted("{}").build();
   }
 
 }

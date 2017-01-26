@@ -1,7 +1,11 @@
 package io.outright.xj.core.app.server;
 
 import io.outright.xj.core.app.config.Config;
+import io.outright.xj.core.transport.JSON;
 
+import org.apache.http.HttpStatus;
+
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import java.net.URI;
@@ -34,6 +38,15 @@ public class HttpResponseProviderImpl implements HttpResponseProvider {
   public Response unauthorized() {
     return Response
       .status(Response.Status.UNAUTHORIZED)
+      .build();
+  }
+
+  @Override
+  public Response notFound(String entityName) {
+    return Response
+      .status(HttpStatus.SC_NOT_FOUND)
+      .entity(JSON.wrapError(entityName + " not found").toString())
+      .type(MediaType.APPLICATION_JSON)
       .build();
   }
 

@@ -28,7 +28,7 @@ import java.util.Map;
 public class AccessTokenAuthFilterImpl implements AccessTokenAuthFilter {
   private final Logger log = LoggerFactory.getLogger(AccessTokenAuthFilterImpl.class);
   private final static Injector injector = Guice.createInjector(new CoreModule());
-  private final AccessControlModuleProvider accessControlModuleProvider = injector.getInstance(AccessControlModuleProvider.class);
+  private final AccessControlProvider accessControlProvider = injector.getInstance(AccessControlProvider.class);
 
   private final String accessTokenName = Config.accessTokenName();
 
@@ -66,29 +66,29 @@ public class AccessTokenAuthFilterImpl implements AccessTokenAuthFilter {
     // roles required from here on
     if (aRolesAllowed == null) { return denied(context, "resource allows no roles"); }
 
-    // get AccessControlModule from (required from here on) access token
+    // get AccessControl from (required from here on) access token
     Map<String, Cookie> cookies = context.getCookies();
     Cookie accessTokenCookie = cookies.get(accessTokenName);
     if (accessTokenCookie == null) {
       return denied(context, "token-less access");
     }
 
-    AccessControlModule accessControlModule;
+    AccessControl accessControl;
     try {
-      accessControlModule = accessControlModuleProvider.get(accessTokenCookie.getValue());
+      accessControl = accessControlProvider.get(accessTokenCookie.getValue());
     } catch (DatabaseException e) {
       return failed(context, "cannot get access_token: "+e.toString());
     }
-    if (!accessControlModule.valid()) {
+    if (!accessControl.valid()) {
       return denied(context, "invalid access_token");
     }
 
-    if (!accessControlModule.matchRoles(aRolesAllowed.value())) {
+    if (!accessControl.matchRoles(aRolesAllowed.value())) {
       return denied(context, "user has no accessible role");
     }
 
-    // set AccessControlModule in context for use by resource
-    context.setProperty(AccessControlModule.CONTEXT_KEY, accessControlModule);
+    // set AccessControl in context for use by resource
+    context.setProperty(AccessControl.CONTEXT_KEY, accessControl);
     return allowed();
   }
 

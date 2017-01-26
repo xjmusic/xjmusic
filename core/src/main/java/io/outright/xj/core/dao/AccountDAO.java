@@ -1,6 +1,7 @@
 // Copyright Outright Mental, Inc. All Rights Reserved.
 package io.outright.xj.core.dao;
 
+import io.outright.xj.core.app.access.AccessControl;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.app.exception.DatabaseException;
@@ -15,6 +16,7 @@ import javax.annotation.Nullable;
 
 public interface AccountDAO {
   /**
+   * (ADMIN ONLY)
    * Create a new Account
    * @param data for the new Account.
    * @return newly created Account record.
@@ -22,46 +24,28 @@ public interface AccountDAO {
   JSONObject create(AccountWrapper data) throws DatabaseException, ConfigException, BusinessException;
 
   /**
-   * Fetch one Account by id
+   * Fetch one Account by id, if accessible
    *
+   * @param access control
    * @param accountId to fetch
    * @return Account if found
    * @throws DatabaseException on failure
    */
   @Nullable
-  JSONObject readOne(ULong accountId) throws DatabaseException;
+  JSONObject readOneAble(AccessControl access, ULong accountId) throws DatabaseException;
 
   /**
-   * Fetch one Account by id
+   * Read all Accounts that are accessible
    *
-   * @param fromUserId of User from which account must be visible
-   * @param accountId to fetch
-   * @return Account if found and visible
-   * @throws DatabaseException on failure
-   */
-  @Nullable
-  JSONObject readOneVisible(ULong fromUserId, ULong accountId) throws DatabaseException;
-
-  /**
-   * Read all Accounts
-   *
+   * @param access control
    * @return array of accounts as JSON
    * @throws DatabaseException on failure
    */
   @Nullable
-  JSONArray readAll() throws DatabaseException;
+  JSONArray readAllAble(AccessControl access) throws DatabaseException;
 
   /**
-   * Read all Accounts visible to a specified User
-   *
-   * @param fromUserId accounts must be visible-to
-   * @return array of accounts as JSON
-   * @throws DatabaseException on failure
-   */
-  @Nullable
-  JSONArray readAllVisible(ULong fromUserId) throws DatabaseException;
-
-  /**
+   * (ADMIN ONLY)
    * Update a specified Account
    * @param accountId of specific Account to update.
    * @param data for the updated Account.
@@ -69,6 +53,7 @@ public interface AccountDAO {
   void update(ULong accountId, AccountWrapper data) throws DatabaseException, ConfigException, BusinessException;
 
   /**
+   * (ADMIN ONLY)
    * Delete a specified Account
    * @param accountId of specific Account to delete.
    */

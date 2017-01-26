@@ -1,7 +1,8 @@
+// Copyright Outright Mental, Inc. All Rights Reserved.
 package io.outright.xj.hub.resource.auth.google;
 
 import io.outright.xj.core.CoreModule;
-import io.outright.xj.core.app.access.AccessControlModuleProvider;
+import io.outright.xj.core.app.access.AccessControlProvider;
 import io.outright.xj.core.app.config.Config;
 import io.outright.xj.core.app.exception.AccessException;
 import io.outright.xj.core.app.exception.ConfigException;
@@ -33,7 +34,7 @@ public class AuthGoogleCallbackResource {
   private final Logger log = LoggerFactory.getLogger(AuthGoogleCallbackResource.class);
   private final Injector injector = Guice.createInjector(new CoreModule(), new HubModule());
   private final AuthDAOImpl googleAuthController = injector.getInstance(AuthDAOImpl.class);
-  private final AccessControlModuleProvider accessControlModuleProvider = injector.getInstance(AccessControlModuleProvider.class);
+  private final AccessControlProvider accessControlProvider = injector.getInstance(AccessControlProvider.class);
   private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
 
   private static final String redirectPathUnauthorized = Config.appPathUnauthorized();
@@ -73,7 +74,7 @@ public class AuthGoogleCallbackResource {
       return errorResponse("Unknown error with authenticating access code", e);
     }
 
-    return httpResponseProvider.internalRedirectWithCookie(redirectPathSuccess, accessControlModuleProvider.newCookie(accessToken));
+    return httpResponseProvider.internalRedirectWithCookie(redirectPathSuccess, accessControlProvider.newCookie(accessToken));
   }
 
   /**

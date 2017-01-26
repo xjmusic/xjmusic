@@ -2,6 +2,7 @@
 package io.outright.xj.core.dao.jooq;
 
 import io.outright.xj.core.CoreModule;
+import io.outright.xj.core.app.access.AccessControl;
 import io.outright.xj.core.app.db.SQLDatabaseProvider;
 import io.outright.xj.core.app.exception.DatabaseException;
 import io.outright.xj.core.dao.AccountDAO;
@@ -18,6 +19,7 @@ import org.jooq.tools.jdbc.MockConnection;
 import org.jooq.tools.jdbc.MockResult;
 import org.jooq.types.ULong;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -90,7 +92,11 @@ public class AccountDAOImplTest extends Mockito {
   }
 
   @Test
-  public void readOne() throws Exception {
+  public void readOneAble() throws Exception {
+    AccessControl access = new AccessControl(ImmutableMap.of(
+      "roles","user",
+      "accounts","1"
+    ));
     Connection connection = new MockConnection(c -> {
       AccountRecord record= DSL.using(SQLDialect.MYSQL).newRecord(ACCOUNT);
       record.setId(ULong.valueOf(5));
@@ -103,7 +109,7 @@ public class AccountDAOImplTest extends Mockito {
     when(sqlDatabaseProvider.getContext(connection))
       .thenReturn(mockContext);
 
-    JSONObject actualResult = testDAO.readOne(ULong.valueOf(5));
+    JSONObject actualResult = testDAO.readOneAble(access, ULong.valueOf(5));
 
     verify(sqlDatabaseProvider).close(connection);
     assertNotNull(actualResult);
@@ -112,7 +118,11 @@ public class AccountDAOImplTest extends Mockito {
   }
 
   @Test(expected = DatabaseException.class)
-  public void readOne_FailureConnectionToDatabase() throws Exception {
+  public void readOneAble_FailureConnectionToDatabase() throws Exception {
+    AccessControl access = new AccessControl(ImmutableMap.of(
+      "roles","user",
+      "accounts","1"
+    ));
     Connection connection = new MockConnection(c -> {
       throw new SQLException("network failure");
     });
@@ -123,7 +133,7 @@ public class AccountDAOImplTest extends Mockito {
       .thenReturn(mockContext);
 
     try {
-      testDAO.readOne(ULong.valueOf(5));
+      testDAO.readOneAble(access, ULong.valueOf(5));
     } catch (Exception e) {
       // Even if SQL statement execution throws exception, connection ought to be closed afterwards.
       verify(sqlDatabaseProvider).close(connection);

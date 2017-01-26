@@ -1,7 +1,8 @@
 // Copyright Outright Mental, Inc. All Rights Reserved.
 package io.outright.xj.core.dao.jooq;
 
-import io.outright.xj.core.app.access.AccessControlModuleProvider;
+import io.outright.xj.core.app.access.AccessControl;
+import io.outright.xj.core.app.access.AccessControlProvider;
 import io.outright.xj.core.app.db.SQLDatabaseProvider;
 import io.outright.xj.core.app.exception.AccessException;
 import io.outright.xj.core.app.exception.BusinessException;
@@ -47,15 +48,15 @@ import static org.jooq.impl.DSL.groupConcat;
 public class UserDAOImpl implements UserDAO {
   private static Logger log = LoggerFactory.getLogger(UserDAOImpl.class);
   private SQLDatabaseProvider dbProvider;
-  private AccessControlModuleProvider accessControlModuleProvider;
+  private AccessControlProvider accessControlProvider;
 
   @Inject
   public UserDAOImpl(
     SQLDatabaseProvider dbProvider,
-    AccessControlModuleProvider accessControlModuleProvider
+    AccessControlProvider accessControlProvider
   ) {
     this.dbProvider = dbProvider;
-    this.accessControlModuleProvider = accessControlModuleProvider;
+    this.accessControlProvider = accessControlProvider;
   }
 
   @Override
@@ -81,7 +82,7 @@ public class UserDAOImpl implements UserDAO {
       }
     }
 
-    String accessToken = accessControlModuleProvider.create(userAuth, accounts, roles);
+    String accessToken = accessControlProvider.create(userAuth, accounts, roles);
     try {
       newUserAccessTokenRecord(db,
         userAuth.getUserId(),
@@ -104,79 +105,41 @@ public class UserDAOImpl implements UserDAO {
   }
 
   @Override
-  @Nullable
-  public JSONObject readOne(ULong userId) throws DatabaseException {
+  public JSONObject readOneAble(AccessControl access, ULong userId) throws DatabaseException {
     Connection conn = dbProvider.getConnectionTransaction();
     DSLContext db = dbProvider.getContext(conn);
 
-    JSONObject result = JSON.objectFromRecord(db.select(
-      USER.ID,
-      USER.NAME,
-      USER.AVATAR_URL,
-      USER.EMAIL,
-      USER_ROLE.USER_ID,
-      groupConcat(USER_ROLE.TYPE,",").as(Role.KEY_MANY)
-    )
-      .from(USER_ROLE)
-      .join(USER).on(USER.ID.eq(USER_ROLE.USER_ID))
-      .where(USER_ROLE.USER_ID.equal(userId))
-      .groupBy(USER_ROLE.USER_ID)
-      .fetchOne());
-
-    dbProvider.close(conn);
-    return result;
-  }
-
-  @Nullable
-  @Override
-  public JSONObject readOneVisible(ULong fromUserId, ULong toUserId) throws DatabaseException {
-    Connection conn = dbProvider.getConnectionTransaction();
-    DSLContext db = dbProvider.getContext(conn);
-
-    AccountUser userFrom = ACCOUNT_USER.as("userFrom");
-    AccountUser userTo = ACCOUNT_USER.as("userTo");
-    JSONObject result = JSON.objectFromRecord(db.select(
-      USER.ID,
-      USER.NAME,
-      USER.AVATAR_URL,
-      USER.EMAIL,
-      USER_ROLE.USER_ID,
-      groupConcat(USER_ROLE.TYPE,",").as(Role.KEY_MANY)
-    )
-      .from(USER_ROLE)
-      .join(USER).on(USER.ID.eq(USER_ROLE.USER_ID))
-      .join(userFrom).on(userFrom.USER_ID.eq(fromUserId))
-      .join(userTo).on(userTo.USER_ID.eq(USER_ROLE.USER_ID))
-      .where(USER_ROLE.USER_ID.equal(toUserId))
-      .and(userFrom.ACCOUNT_ID.eq(userTo.ACCOUNT_ID))
-      .groupBy(USER_ROLE.USER_ID)
-      .fetchOne());
-
-    dbProvider.close(conn);
-    return result;
-  }
-
-  @Nullable
-  public JSONArray readAll() throws DatabaseException {
-    Connection conn = dbProvider.getConnectionTransaction();
-    DSLContext db = dbProvider.getContext(conn);
-    JSONArray result;
-    try {
-      result = JSON.arrayFromResultSet(db.select(
+    JSONObject result;
+    if (access.isAdmin()) {
+      result = JSON.objectFromRecord(db.select(
         USER.ID,
         USER.NAME,
         USER.AVATAR_URL,
         USER.EMAIL,
         USER_ROLE.USER_ID,
-        groupConcat(USER_ROLE.TYPE,",").as(Role.KEY_MANY)
+        groupConcat(USER_ROLE.TYPE, ",").as(Role.KEY_MANY)
       )
         .from(USER_ROLE)
         .join(USER).on(USER.ID.eq(USER_ROLE.USER_ID))
+        .where(USER_ROLE.USER_ID.equal(userId))
         .groupBy(USER_ROLE.USER_ID)
-        .fetchResultSet());
-    } catch (SQLException e) {
-      dbProvider.close(conn);
-      throw new DatabaseException("SQLException: " + e);
+        .fetchOne());
+    } else {
+      result = JSON.objectFromRecord(db.select(
+        USER.ID,
+        USER.NAME,
+        USER.AVATAR_URL,
+        USER.EMAIL,
+        USER_ROLE.USER_ID,
+        groupConcat(USER_ROLE.TYPE, ",").as(Role.KEY_MANY)
+      )
+        .from(USER_ROLE)
+        .join(USER).on(USER.ID.eq(USER_ROLE.USER_ID))
+        .join(ACCOUNT_USER).on(ACCOUNT_USER.USER_ID.eq(USER_ROLE.USER_ID))
+        .where(USER_ROLE.USER_ID.equal(userId))
+        .and(ACCOUNT_USER.ACCOUNT_ID.in(access.getAccounts()))
+        .groupBy(USER_ROLE.USER_ID)
+        .fetchOne());
     }
 
     dbProvider.close(conn);
@@ -184,35 +147,48 @@ public class UserDAOImpl implements UserDAO {
   }
 
   @Nullable
-  public JSONArray readAllVisible(ULong fromUserId) throws DatabaseException {
+  public JSONArray readAllAble(AccessControl access) throws DatabaseException {
     Connection conn = dbProvider.getConnectionTransaction();
     DSLContext db = dbProvider.getContext(conn);
+
     JSONArray result;
     try {
-      AccountUser userFrom = ACCOUNT_USER.as("userFrom");
-      AccountUser userTo = ACCOUNT_USER.as("userTo");
-      result = JSON.arrayFromResultSet(db.select(
-        USER.ID,
-        USER.NAME,
-        USER.AVATAR_URL,
-        USER.EMAIL,
-        USER_ROLE.USER_ID,
-        groupConcat(USER_ROLE.TYPE,",").as(Role.KEY_MANY)
-      )
-        .from(USER_ROLE)
-        .join(USER).on(USER.ID.eq(USER_ROLE.USER_ID))
-        .join(userFrom).on(userFrom.USER_ID.eq(fromUserId))
-        .join(userTo).on(userTo.USER_ID.eq(USER.ID))
-        .where(userFrom.ACCOUNT_ID.eq(userTo.ACCOUNT_ID))
-        .groupBy(USER.ID)
-        .fetchResultSet());
+      if (access.isAdmin()) {
+        result = JSON.arrayFromResultSet(db.select(
+          USER.ID,
+          USER.NAME,
+          USER.AVATAR_URL,
+          USER.EMAIL,
+          USER_ROLE.USER_ID,
+          groupConcat(USER_ROLE.TYPE, ",").as(Role.KEY_MANY)
+        )
+          .from(USER_ROLE)
+          .join(USER).on(USER.ID.eq(USER_ROLE.USER_ID))
+          .groupBy(USER_ROLE.USER_ID)
+          .fetchResultSet());
+      } else {
+        result = JSON.arrayFromResultSet(db.select(
+          USER.ID,
+          USER.NAME,
+          USER.AVATAR_URL,
+          USER.EMAIL,
+          USER_ROLE.USER_ID,
+          groupConcat(USER_ROLE.TYPE, ",").as(Role.KEY_MANY)
+        )
+          .from(USER_ROLE)
+          .join(USER).on(USER.ID.eq(USER_ROLE.USER_ID))
+          .join(ACCOUNT_USER).on(ACCOUNT_USER.USER_ID.eq(USER_ROLE.USER_ID))
+          .where(ACCOUNT_USER.ACCOUNT_ID.in(access.getAccounts()))
+          .groupBy(USER.ID)
+          .fetchResultSet());
+      }
+      dbProvider.close(conn);
+      return result;
+
     } catch (SQLException e) {
       dbProvider.close(conn);
       throw new DatabaseException("SQLException: " + e);
     }
-
-    dbProvider.close(conn);
-    return result;
   }
 
   @Override
@@ -223,7 +199,7 @@ public class UserDAOImpl implements UserDAO {
     try {
       destroyAllTokens(db, userId);
       dbProvider.commitAndClose(tx);
-    } catch (Exception  e) {
+    } catch (Exception e) {
       dbProvider.rollbackAndClose(tx);
       throw e;
     }
@@ -248,7 +224,7 @@ public class UserDAOImpl implements UserDAO {
    * Update all roles for a specified User, by providing a list of roles to grant;
    * all other roles will be denied to this User.
    *
-   * @param db context.
+   * @param db     context.
    * @param userId specific User to update.
    */
   private void updateUserRoles(DSLContext db, ULong userId, UserWrapper data) throws BusinessException {
@@ -259,21 +235,21 @@ public class UserDAOImpl implements UserDAO {
     List<String> newRoles = CSV.split(data.getUser().getRoles());
 
     // First check all provided roles for validity.
-    for (String checkRole: newRoles) {
+    for (String checkRole : newRoles) {
       if (!Role.isValid(checkRole)) {
-        throw new BusinessException("'"+checkRole+"' is not a valid role. Try one of: " + Role.ALL_CSV);
+        throw new BusinessException("'" + checkRole + "' is not a valid role. Try one of: " + Role.ALL_CSV);
       }
     }
 
     // Iterate through all rows; each will produce either an INSERT WHERE NOT EXISTS or a DELETE IF EXISTS.
-    for (String role: Role.ALL) {
+    for (String role : Role.ALL) {
       if (newRoles.contains(role)) {
         db.execute("INSERT INTO `user_role` (`user_id`, `type`) " +
-          "SELECT " + userIdString  + ", \"" + role + "\" FROM dual " +
+          "SELECT " + userIdString + ", \"" + role + "\" FROM dual " +
           "WHERE NOT EXISTS (" +
-            "SELECT `id` FROM `user_role` " +
-            "WHERE `user_id`=" + userIdString + " " +
-            "AND `type`=\"" + role + "\"" +
+          "SELECT `id` FROM `user_role` " +
+          "WHERE `user_id`=" + userIdString + " " +
+          "AND `type`=\"" + role + "\"" +
           ");");
       } else {
         db.deleteFrom(USER_ROLE)
@@ -300,22 +276,24 @@ public class UserDAOImpl implements UserDAO {
 
   /**
    * Destroy an access token, first in Redis, then (if successful) in SQL.
-   * @param db context
+   *
+   * @param db              context
    * @param userAccessToken record of user access token to destroy
    */
   private void destroyToken(DSLContext db, UserAccessTokenRecord userAccessToken) throws DatabaseException {
-      accessControlModuleProvider.expire(userAccessToken.getAccessToken());
-      db.deleteFrom(USER_ACCESS_TOKEN)
-        .where(USER_ACCESS_TOKEN.ID.eq(userAccessToken.getId()))
-        .execute();
-      log.info("Deleted UserAccessToken, id:{}, userId:{}, userAuthId:{}, accessToken:{}", userAccessToken.getId(), userAccessToken.getUserId(), userAccessToken.getUserAuthId(), userAccessToken.getAccessToken());
+    accessControlProvider.expire(userAccessToken.getAccessToken());
+    db.deleteFrom(USER_ACCESS_TOKEN)
+      .where(USER_ACCESS_TOKEN.ID.eq(userAccessToken.getId()))
+      .execute();
+    log.info("Deleted UserAccessToken, id:{}, userId:{}, userAuthId:{}, accessToken:{}", userAccessToken.getId(), userAccessToken.getUserId(), userAccessToken.getUserAuthId(), userAccessToken.getAccessToken());
   }
 
   /**
    * New UserAccessToken record
-   * @param db context
-   * @param userId user record id
-   * @param userAuthId userAuth record id
+   *
+   * @param db          context
+   * @param userId      user record id
+   * @param userAuthId  userAuth record id
    * @param accessToken for user access to this system
    * @return record of newly create UserAccessToken record
    * @throws DatabaseException if anything goes wrong
@@ -335,7 +313,7 @@ public class UserDAOImpl implements UserDAO {
       USER_ACCESS_TOKEN.USER_AUTH_ID,
       USER_ACCESS_TOKEN.ACCESS_TOKEN
     ).fetchOne();
-    if (userAccessToken==null) {
+    if (userAccessToken == null) {
       throw new DatabaseException("Failed to create new UserAccessToken record.");
     }
 
@@ -346,9 +324,9 @@ public class UserDAOImpl implements UserDAO {
   /**
    * Select existing UserAuth by type + account
    *
-   * @param db context of authentication request
+   * @param db       context of authentication request
    * @param authType of external auth
-   * @param account identifier in external system
+   * @param account  identifier in external system
    * @return UserAuthRecord, or null
    */
   private UserAuthRecord fetchOneUserAuth(DSLContext db, String authType, String account) {
@@ -361,7 +339,7 @@ public class UserDAOImpl implements UserDAO {
   /**
    * Select existing Account-User memberships by User id.
    *
-   * @param db context of database access.
+   * @param db     context of database access.
    * @param userId of existing User.
    * @return collection of AccountUserRecord.
    */
@@ -374,7 +352,7 @@ public class UserDAOImpl implements UserDAO {
   /**
    * Select existing User roles by User id.
    *
-   * @param db context of database access.
+   * @param db     context of database access.
    * @param userId of existing User.
    * @return collection of UserRoleRecord.
    */
@@ -390,10 +368,10 @@ public class UserDAOImpl implements UserDAO {
    * (storing access_token and refresh_token),
    * and return the user
    *
-   * @param db context of authentication request
-   * @param name to call new user
+   * @param db        context of authentication request
+   * @param name      to call new user
    * @param avatarUrl to display for new user
-   * @param email to contact new user
+   * @param email     to contact new user
    * @return new User record, including actual id
    */
   private UserRecord newUser(DSLContext db, String name, String avatarUrl, String email) throws DatabaseException {
@@ -401,7 +379,7 @@ public class UserDAOImpl implements UserDAO {
       .values(name, avatarUrl, email)
       .returning(USER.ID, USER.NAME, USER.AVATAR_URL, USER.EMAIL)
       .fetchOne();
-    if (user==null) {
+    if (user == null) {
       throw new DatabaseException("Failed to create new User record.");
     }
 
@@ -412,7 +390,7 @@ public class UserDAOImpl implements UserDAO {
   /**
    * Create a new default set of UserRoleRecord for an existing new User id.
    *
-   * @param db context of authentication request
+   * @param db     context of authentication request
    * @param userId of new User.
    * @return collection of new UserRole records, including actual id
    */
@@ -421,7 +399,7 @@ public class UserDAOImpl implements UserDAO {
       .values(userId, Role.USER)
       .returning(USER_ROLE.ID, USER_ROLE.USER_ID, USER_ROLE.TYPE)
       .fetchOne();
-    if (userRole1==null) {
+    if (userRole1 == null) {
       throw new DatabaseException("Failed to create new UserRole record.");
     }
 
@@ -435,11 +413,11 @@ public class UserDAOImpl implements UserDAO {
    * If user_auth exists for this account,
    * retrieve its user record and return the user
    *
-   * @param db context of authentication request
-   * @param userId of User that this auth record belongs to
-   * @param authType of external auth
-   * @param account identifier in external system
-   * @param externalAccessToken for OAuth2 access
+   * @param db                   context of authentication request
+   * @param userId               of User that this auth record belongs to
+   * @param authType             of external auth
+   * @param account              identifier in external system
+   * @param externalAccessToken  for OAuth2 access
    * @param externalRefreshToken for refreshing OAuth2 access
    * @return new UserAuth record, including actual id
    */
@@ -448,7 +426,7 @@ public class UserDAOImpl implements UserDAO {
       .values(userId, authType, account, externalAccessToken, externalRefreshToken)
       .returning(USER_AUTH.ID, USER_AUTH.USER_ID, USER_AUTH.TYPE, USER_AUTH.EXTERNAL_ACCOUNT, USER_AUTH.EXTERNAL_ACCESS_TOKEN, USER_AUTH.EXTERNAL_REFRESH_TOKEN)
       .fetchOne();
-    if (userAuth==null) {
+    if (userAuth == null) {
       throw new DatabaseException("Failed to create new UserAuth record.");
     }
 

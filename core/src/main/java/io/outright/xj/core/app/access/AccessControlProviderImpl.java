@@ -20,8 +20,8 @@ import javax.ws.rs.core.NewCookie;
 import java.util.Collection;
 import java.util.Map;
 
-public class AccessControlModuleProviderImpl implements AccessControlModuleProvider {
-  private final static Logger log = LoggerFactory.getLogger(AccessControlModuleProviderImpl.class);
+public class AccessControlProviderImpl implements AccessControlProvider {
+  private final static Logger log = LoggerFactory.getLogger(AccessControlProviderImpl.class);
   private final RedisDatabaseProvider redisDatabaseProvider;
   private final TokenGenerator tokenGenerator;
 
@@ -31,7 +31,7 @@ public class AccessControlModuleProviderImpl implements AccessControlModuleProvi
   private final String tokenMaxAge = String.valueOf(Config.accessTokenMaxAge());
 
   @Inject
-  public AccessControlModuleProviderImpl(
+  public AccessControlProviderImpl(
     RedisDatabaseProvider redisDatabaseProvider,
     TokenGenerator tokenGenerator
   ) {
@@ -48,8 +48,8 @@ public class AccessControlModuleProviderImpl implements AccessControlModuleProvi
 
   @Override
   public Map<String, String> update(String accessToken, UserAuthRecord userAuthRecord, Collection<AccountUserRecord> userAccountRoleRecords, Collection<UserRoleRecord> userRoleRecords) throws AccessException {
-    AccessControlModule accessControlModule = new AccessControlModule(userAuthRecord, userAccountRoleRecords, userRoleRecords);
-    Map<String, String> userMap = accessControlModule.getMap();
+    AccessControl accessControl = new AccessControl(userAuthRecord, userAccountRoleRecords, userRoleRecords);
+    Map<String, String> userMap = accessControl.getMap();
     try {
       redisDatabaseProvider.getClient().hmset(accessToken, userMap);
     } catch (ConfigException e) {
@@ -70,9 +70,9 @@ public class AccessControlModuleProviderImpl implements AccessControlModuleProvi
   }
 
   @Override
-  public AccessControlModule get(String accessToken) throws DatabaseException {
+  public AccessControl get(String accessToken) throws DatabaseException {
     try {
-      return new AccessControlModule(redisDatabaseProvider.getClient().hgetAll(accessToken));
+      return new AccessControl(redisDatabaseProvider.getClient().hgetAll(accessToken));
     } catch (Exception e) {
       throw new DatabaseException("Redis error: " + e.toString());
     }

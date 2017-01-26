@@ -34,4 +34,11 @@ public interface HttpResponseProvider {
    * @return response.
    */
   Response unauthorized();
+
+  /**
+   * Response with entity (named) not found
+   * @param entityName not found
+   * @return response
+   */
+  Response notFound(String entityName);
 }

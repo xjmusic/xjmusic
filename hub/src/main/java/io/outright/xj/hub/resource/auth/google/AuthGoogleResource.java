@@ -1,3 +1,4 @@
+// Copyright Outright Mental, Inc. All Rights Reserved.
 package io.outright.xj.hub.resource.auth.google;
 
 import io.outright.xj.core.CoreModule;

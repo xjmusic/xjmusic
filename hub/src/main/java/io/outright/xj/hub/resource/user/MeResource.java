@@ -1,7 +1,8 @@
+// Copyright Outright Mental, Inc. All Rights Reserved.
 package io.outright.xj.hub.resource.user;
 
 import io.outright.xj.core.CoreModule;
-import io.outright.xj.core.app.access.AccessControlModule;
+import io.outright.xj.core.app.access.AccessControl;
 import io.outright.xj.core.app.server.HttpResponseProvider;
 import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.model.user.User;
@@ -42,11 +43,11 @@ public class MeResource {
   @WebResult
   @RolesAllowed({Role.USER})
   public Response getCurrentlyAuthenticatedUser(@Context ContainerRequestContext crc) throws IOException {
-    AccessControlModule accessControlModule = AccessControlModule.fromContext(crc);
+    AccessControl access = AccessControl.fromContext(crc);
 
     JSONObject result;
     try {
-      result = userDAO.readOne(accessControlModule.getUserId());
+      result = userDAO.readOneAble(access, access.getUserId());
     } catch (Exception e) {
       return httpResponseProvider.unauthorized();
     }

@@ -1,14 +1,15 @@
 // Copyright Outright Mental, Inc. All Rights Reserved.
 package io.outright.xj.core.dao.jooq;
 
+import io.outright.xj.core.app.access.AccessControl;
 import io.outright.xj.core.app.db.SQLDatabaseProvider;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.app.exception.DatabaseException;
+import io.outright.xj.core.dao.AccountUserDAO;
 import io.outright.xj.core.model.account_user.AccountUserWrapper;
 import io.outright.xj.core.tables.records.AccountUserRecord;
 import io.outright.xj.core.transport.JSON;
-import io.outright.xj.core.dao.AccountUserDAO;
 
 import org.jooq.DSLContext;
 import org.jooq.types.ULong;
@@ -20,7 +21,6 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -37,38 +37,50 @@ public class AccountUserDAOImpl implements AccountUserDAO {
     this.dbProvider = dbProvider;
   }
 
-  @Nullable
   @Override
-  public JSONObject read(ULong id) throws DatabaseException {
+  public JSONObject readOneAble(AccessControl access, ULong id) throws DatabaseException {
     Connection conn = dbProvider.getConnection();
     DSLContext db = dbProvider.getContext(conn);
-    JSONObject result = JSON.objectFromRecord(db.selectFrom(ACCOUNT_USER)
-      .where(ACCOUNT_USER.ID.eq(id))
-      .fetchOne());
 
+    JSONObject result;
+    if (access.isAdmin()) {
+      result = JSON.objectFromRecord(db.selectFrom(ACCOUNT_USER)
+        .where(ACCOUNT_USER.ID.eq(id))
+        .fetchOne());
+    } else {
+      result = JSON.objectFromRecord(db.selectFrom(ACCOUNT_USER)
+        .where(ACCOUNT_USER.ID.eq(id))
+        .and(ACCOUNT_USER.ACCOUNT_ID.in(access.getAccounts()))
+        .fetchOne());
+    }
     dbProvider.close(conn);
     return result;
   }
 
   @Override
-  @Nullable
-  public JSONArray readAll(ULong accountId) throws DatabaseException {
+  public JSONArray readAllAble(AccessControl access, ULong accountId) throws DatabaseException {
     Connection conn = dbProvider.getConnection();
     DSLContext db = dbProvider.getContext(conn);
+
     JSONArray result;
     try {
-      result = JSON.arrayFromResultSet(db.selectFrom(ACCOUNT_USER)
-        .where(ACCOUNT_USER.ACCOUNT_ID.eq(accountId))
-        .fetchResultSet());
+      if (access.isAdmin()) {
+        result = JSON.arrayFromResultSet(db.selectFrom(ACCOUNT_USER)
+          .where(ACCOUNT_USER.ACCOUNT_ID.eq(accountId))
+          .fetchResultSet());
+      } else {
+        result = JSON.arrayFromResultSet(db.selectFrom(ACCOUNT_USER)
+          .where(ACCOUNT_USER.ACCOUNT_ID.eq(accountId))
+          .and(ACCOUNT_USER.ACCOUNT_ID.in(access.getAccounts()))
+          .fetchResultSet());
+      }
+      dbProvider.close(conn);
+      return result;
+
     } catch (SQLException e) {
       dbProvider.close(conn);
       throw new DatabaseException("SQLException: " + e);
     }
-
-    dbProvider.close(conn);
-    return result;
-
-
   }
 
   @Override
@@ -81,8 +93,8 @@ public class AccountUserDAOImpl implements AccountUserDAO {
       db.deleteFrom(ACCOUNT_USER)
         .where(ACCOUNT_USER.ID.eq(id))
         .execute();
-
       dbProvider.commitAndClose(conn);
+
     } catch (Exception e) {
       dbProvider.rollbackAndClose(conn);
       throw e;

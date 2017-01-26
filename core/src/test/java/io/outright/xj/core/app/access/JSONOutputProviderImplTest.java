@@ -42,19 +42,19 @@ public class JSONOutputProviderImplTest {
   @Mock private RedisDatabaseProvider redisDatabaseProvider;
   @Mock private Jedis redisConnection;
   private Injector injector;
-  private AccessControlModuleProvider accessControlModuleProvider;
+  private AccessControlProvider accessControlProvider;
   private UserAuthRecord userAuth;
   private Collection<AccountUserRecord> accounts;
   private Collection<UserRoleRecord> roles;
 
   @Before
   public void setUp() throws Exception {
-    System.setProperty("access.token.domain","com.manuts");
-    System.setProperty("access.token.path","/deez");
-    System.setProperty("access.token.max.age","60");
-    System.setProperty("access.token.name","access_token_jammy");
+    System.setProperty("access.token.domain", "com.manuts");
+    System.setProperty("access.token.path", "/deez");
+    System.setProperty("access.token.max.age", "60");
+    System.setProperty("access.token.name", "access_token_jammy");
     createInjector();
-    accessControlModuleProvider = injector.getInstance(AccessControlModuleProvider.class);
+    accessControlProvider = injector.getInstance(AccessControlProvider.class);
 
     userAuth = new UserAuthRecord();
     userAuth.setUserId(ULong.valueOf(5609877));
@@ -71,7 +71,7 @@ public class JSONOutputProviderImplTest {
     roles = new LinkedList<>();
     UserRoleRecord role1 = new UserRoleRecord();
     role1.setType(Role.USER);
-    UserRoleRecord role2= new UserRoleRecord();
+    UserRoleRecord role2 = new UserRoleRecord();
     role2.setType(Role.ARTIST);
     roles.add(role1);
     roles.add(role2);
@@ -95,24 +95,24 @@ public class JSONOutputProviderImplTest {
     when(tokenGenerator.generate())
       .thenReturn("token123");
 
-    accessControlModuleProvider.create(userAuth, accounts,roles);
+    accessControlProvider.create(userAuth, accounts, roles);
 
     Map<String, String> expectUserAccess = new HashMap<>();
     expectUserAccess.put("userId", "5609877");
     expectUserAccess.put("userAuthId", "12363");
-    expectUserAccess.put("roles","user,artist");
-    expectUserAccess.put("accounts","790809874,90888932");
+    expectUserAccess.put("roles", "user,artist");
+    expectUserAccess.put("accounts", "790809874,90888932");
     verify(redisConnection).hmset("token123", expectUserAccess);
   }
 
   @Test
   public void newCookie() throws Exception {
-    Cookie cookie = accessControlModuleProvider.newCookie("12345");
+    Cookie cookie = accessControlProvider.newCookie("12345");
 
-    assertEquals("access_token_jammy",cookie.getName());
-    assertEquals("com.manuts",cookie.getDomain());
-    assertEquals("/deez",cookie.getPath());
-    assertEquals("12345",cookie.getValue());
+    assertEquals("access_token_jammy", cookie.getName());
+    assertEquals("com.manuts", cookie.getDomain());
+    assertEquals("/deez", cookie.getPath());
+    assertEquals("12345", cookie.getValue());
   }
 
   @Test
@@ -132,7 +132,7 @@ public class JSONOutputProviderImplTest {
         public void configure() {
           bind(TokenGenerator.class).toInstance(tokenGenerator);
           bind(RedisDatabaseProvider.class).toInstance(redisDatabaseProvider);
-          bind(AccessControlModuleProvider.class).to(AccessControlModuleProviderImpl.class);
+          bind(AccessControlProvider.class).to(AccessControlProviderImpl.class);
           bind(JsonFactory.class).to(JacksonFactory.class);
         }
       }));

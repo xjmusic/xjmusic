@@ -1,14 +1,15 @@
 // Copyright Outright Mental, Inc. All Rights Reserved.
 package io.outright.xj.core.dao.jooq;
 
+import io.outright.xj.core.app.access.AccessControl;
 import io.outright.xj.core.app.db.SQLDatabaseProvider;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.app.exception.DatabaseException;
+import io.outright.xj.core.dao.AccountDAO;
 import io.outright.xj.core.model.account.AccountWrapper;
 import io.outright.xj.core.tables.records.AccountRecord;
 import io.outright.xj.core.transport.JSON;
-import io.outright.xj.core.dao.AccountDAO;
 
 import org.jooq.DSLContext;
 import org.jooq.types.ULong;
@@ -66,37 +67,23 @@ public class AccountDAOImpl implements AccountDAO {
 
   @Override
   @Nullable
-  public JSONObject readOne(ULong accountId) throws DatabaseException {
+  public JSONObject readOneAble(AccessControl access, ULong accountId) throws DatabaseException {
     Connection conn = dbProvider.getConnection();
     DSLContext db = dbProvider.getContext(conn);
 
     JSONObject result;
     try {
-      result = JSON.objectFromRecord(db.selectFrom(ACCOUNT)
-        .where(ACCOUNT.ID.eq(accountId))
-        .fetchOne());
-    } catch (Exception e) {
-      dbProvider.close(conn);
-      throw new DatabaseException(e.getClass().getName() +": "+ e.getMessage());
-    }
-
-    dbProvider.close(conn);
-    return result;
-  }
-
-  @Nullable
-  @Override
-  public JSONObject readOneVisible(ULong fromUserId, ULong accountId) throws DatabaseException {
-    Connection conn = dbProvider.getConnection();
-    DSLContext db = dbProvider.getContext(conn);
-
-    JSONObject result;
-    try {
-      result = JSON.objectFromRecord(db.select()
-      .from(ACCOUNT)
-      .join(ACCOUNT_USER).on(ACCOUNT_USER.USER_ID.eq(fromUserId)).and(ACCOUNT_USER.ACCOUNT_ID.eq(ACCOUNT.ID))
-      .where(ACCOUNT.ID.eq(accountId))
-      .fetchOne());
+      if (access.isAdmin()) {
+        result = JSON.objectFromRecord(db.selectFrom(ACCOUNT)
+          .where(ACCOUNT.ID.eq(accountId))
+          .fetchOne());
+      } else {
+        result = JSON.objectFromRecord(db.select()
+          .from(ACCOUNT)
+          .where(ACCOUNT.ID.eq(accountId))
+          .and(ACCOUNT.ID.in(access.getAccounts()))
+          .fetchOne());
+      }
     } catch (Exception e) {
       dbProvider.close(conn);
       throw new DatabaseException(e.getClass().getName() +": "+ e.getMessage());
@@ -108,42 +95,29 @@ public class AccountDAOImpl implements AccountDAO {
 
   @Override
   @Nullable
-  public JSONArray readAll() throws DatabaseException {
+  public JSONArray readAllAble(AccessControl access) throws DatabaseException {
     Connection conn = dbProvider.getConnection();
     DSLContext db = dbProvider.getContext(conn);
 
     JSONArray result;
     try {
-      result = JSON.arrayFromResultSet(db.select(
-        ACCOUNT.ID,
-        ACCOUNT.NAME
-      )
-        .from(ACCOUNT)
-        .fetchResultSet());
-    } catch (SQLException e) {
-      dbProvider.close(conn);
-      throw new DatabaseException("SQLException: " + e);
-    }
+      if (access.isAdmin()) {
+        result = JSON.arrayFromResultSet(db.select(
+          ACCOUNT.ID,
+          ACCOUNT.NAME
+        )
+          .from(ACCOUNT)
+          .fetchResultSet());
+      } else {
+        result = JSON.arrayFromResultSet(db.select(
+          ACCOUNT.ID,
+          ACCOUNT.NAME
+        )
+          .from(ACCOUNT)
+          .where(ACCOUNT.ID.in(access.getAccounts()))
+          .fetchResultSet());
+      }
 
-    dbProvider.close(conn);
-    return result;
-  }
-
-  @Nullable
-  @Override
-  public JSONArray readAllVisible(ULong fromUserId) throws DatabaseException {
-    Connection conn = dbProvider.getConnection();
-    DSLContext db = dbProvider.getContext(conn);
-
-    JSONArray result;
-    try {
-      result = JSON.arrayFromResultSet(db.select(
-        ACCOUNT.ID,
-        ACCOUNT.NAME
-      )
-        .from(ACCOUNT)
-        .join(ACCOUNT_USER).on(ACCOUNT_USER.USER_ID.eq(fromUserId)).and(ACCOUNT_USER.ACCOUNT_ID.eq(ACCOUNT.ID))
-        .fetchResultSet());
     } catch (SQLException e) {
       dbProvider.close(conn);
       throw new DatabaseException("SQLException: " + e);

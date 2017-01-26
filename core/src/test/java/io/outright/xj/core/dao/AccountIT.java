@@ -2,11 +2,13 @@
 package io.outright.xj.core.dao;
 
 import io.outright.xj.core.CoreModule;
+import io.outright.xj.core.app.access.AccessControl;
 import io.outright.xj.core.integration.IntegrationTestEntity;
 import io.outright.xj.core.integration.IntegrationTestService;
 
 import org.jooq.types.ULong;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
@@ -14,6 +16,9 @@ import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -44,8 +49,13 @@ public class AccountIT {
   }
 
   @Test
-  public void readOne() throws Exception {
-    JSONObject actualResult = testDAO.readOne(ULong.valueOf(1));
+  public void readOneAble() throws Exception {
+    AccessControl access = new AccessControl(ImmutableMap.of(
+      "roles","user",
+      "accounts","1"
+    ));
+
+    JSONObject actualResult = testDAO.readOneAble(access, ULong.valueOf(1));
 
     assertNotNull(actualResult);
     assertEquals(ULong.valueOf(1), actualResult.get("id"));
@@ -53,18 +63,8 @@ public class AccountIT {
   }
 
   @Test
-  public void readOneVisible() throws Exception {
-    // TODO: test AccountDAOImpl readOneVisible()
-  }
-
-  @Test
-  public void readAll() throws Exception {
-    // TODO: test AccountDAOImpl readAll()
-  }
-
-  @Test
-  public void readAllVisible() throws Exception {
-    // TODO: test AccountDAOImpl readAllVisible()
+  public void readAllAble() throws Exception {
+    // TODO: test AccountDAOImpl readAllAble()
   }
 
   @Test
