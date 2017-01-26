@@ -157,8 +157,8 @@ public class UserIT {
   @Test
   public void readOne() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
-      "roles","user",
-      "accounts","1"
+      "roles", "user",
+      "accounts", "1"
     ));
 
     JSONObject actualResult = testDAO.readOneAble(access, ULong.valueOf(2));
@@ -174,8 +174,8 @@ public class UserIT {
   @Test
   public void readOneAble_UserSeesAnotherUserWithCommonAccountMembership() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
-      "roles","user",
-      "accounts","1"
+      "roles", "user",
+      "accounts", "1"
     ));
 
     JSONObject actualResult = testDAO.readOneAble(access, ULong.valueOf(3));
@@ -191,8 +191,8 @@ public class UserIT {
   @Test
   public void readOneAble_UserCannotSeeUserWithoutCommonAccountMembership() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
-      "roles","user",
-      "accounts","1"
+      "roles", "user",
+      "accounts", "1"
     ));
 
     JSONObject actualResult = testDAO.readOneAble(access, ULong.valueOf(4));
@@ -201,10 +201,24 @@ public class UserIT {
   }
 
   @Test
+  public void readOneAble_UserWithNoAccountMembershipCanStillSeeSelf() throws Exception {
+    AccessControl access = new AccessControl(ImmutableMap.of(
+      "userId", "4", // Bill has no account membership
+      "roles", "user",
+      "accounts", ""
+    ));
+
+    JSONObject actualResult = testDAO.readOneAble(access, ULong.valueOf(4));
+
+    assertNotNull(actualResult);
+    assertEquals("bill", actualResult.get("name"));
+  }
+
+  @Test
   public void readAllAble() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
-      "roles","user,admin",
-      "accounts","1"
+      "roles", "user,admin",
+      "accounts", "1"
     ));
 
     JSONArray actualResult = testDAO.readAllAble(access);
@@ -216,8 +230,8 @@ public class UserIT {
   @Test
   public void readAllAble_UserSeesSelfAndOtherUsersInSameAccount() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
-      "roles","user",
-      "accounts","1"
+      "roles", "user",
+      "accounts", "1"
     ));
 
     JSONArray actualResult = testDAO.readAllAble(access);
@@ -227,16 +241,19 @@ public class UserIT {
   }
 
   @Test
-  public void readAllAble_UserWithoutAccountMembershipSeesNothing() throws Exception {
+  public void readAllAble_UserWithoutAccountMembershipSeesOnlySelf() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
-      "roles","user",
-      "accounts",""
+      "userId", "4", // Bill is in no accounts
+      "roles", "user",
+      "accounts", ""
     ));
 
-    JSONArray actualResult = testDAO.readAllAble(access);
+    JSONArray actualResultList = testDAO.readAllAble(access);
 
-    assertNotNull(actualResult);
-    assertEquals(0, actualResult.length());
+    assertNotNull(actualResultList);
+    assertEquals(1, actualResultList.length());
+    JSONObject actualResult = (JSONObject) actualResultList.get(0);
+    assertEquals("bill", actualResult.get("name"));
   }
 
   @Test

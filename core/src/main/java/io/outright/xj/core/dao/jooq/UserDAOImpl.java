@@ -8,9 +8,9 @@ import io.outright.xj.core.app.exception.AccessException;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.app.exception.DatabaseException;
+import io.outright.xj.core.dao.UserDAO;
 import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.model.user.UserWrapper;
-import io.outright.xj.core.tables.AccountUser;
 import io.outright.xj.core.tables.records.AccountUserRecord;
 import io.outright.xj.core.tables.records.UserAccessTokenRecord;
 import io.outright.xj.core.tables.records.UserAuthRecord;
@@ -18,7 +18,6 @@ import io.outright.xj.core.tables.records.UserRecord;
 import io.outright.xj.core.tables.records.UserRoleRecord;
 import io.outright.xj.core.transport.JSON;
 import io.outright.xj.core.util.CSV.CSV;
-import io.outright.xj.core.dao.UserDAO;
 
 import org.jooq.DSLContext;
 import org.jooq.Result;
@@ -124,7 +123,7 @@ public class UserDAOImpl implements UserDAO {
         .where(USER_ROLE.USER_ID.equal(userId))
         .groupBy(USER_ROLE.USER_ID)
         .fetchOne());
-    } else {
+    } else if (access.getAccounts().length> 0) {
       result = JSON.objectFromRecord(db.select(
         USER.ID,
         USER.NAME,
@@ -140,6 +139,22 @@ public class UserDAOImpl implements UserDAO {
         .and(ACCOUNT_USER.ACCOUNT_ID.in(access.getAccounts()))
         .groupBy(USER_ROLE.USER_ID)
         .fetchOne());
+    } else if (access.getUserId().equals(userId)) {
+      result = JSON.objectFromRecord(db.select(
+        USER.ID,
+        USER.NAME,
+        USER.AVATAR_URL,
+        USER.EMAIL,
+        USER_ROLE.USER_ID,
+        groupConcat(USER_ROLE.TYPE, ",").as(Role.KEY_MANY)
+      )
+        .from(USER_ROLE)
+        .join(USER).on(USER.ID.eq(USER_ROLE.USER_ID))
+        .where(USER_ROLE.USER_ID.equal(userId))
+        .groupBy(USER_ROLE.USER_ID)
+        .fetchOne());
+    } else {
+      result = null;
     }
 
     dbProvider.close(conn);
@@ -166,7 +181,7 @@ public class UserDAOImpl implements UserDAO {
           .join(USER).on(USER.ID.eq(USER_ROLE.USER_ID))
           .groupBy(USER_ROLE.USER_ID)
           .fetchResultSet());
-      } else {
+      } else if (access.getAccounts().length> 0) {
         result = JSON.arrayFromResultSet(db.select(
           USER.ID,
           USER.NAME,
@@ -179,6 +194,20 @@ public class UserDAOImpl implements UserDAO {
           .join(USER).on(USER.ID.eq(USER_ROLE.USER_ID))
           .join(ACCOUNT_USER).on(ACCOUNT_USER.USER_ID.eq(USER_ROLE.USER_ID))
           .where(ACCOUNT_USER.ACCOUNT_ID.in(access.getAccounts()))
+          .groupBy(USER.ID)
+          .fetchResultSet());
+      } else {
+        result = JSON.arrayFromResultSet(db.select(
+          USER.ID,
+          USER.NAME,
+          USER.AVATAR_URL,
+          USER.EMAIL,
+          USER_ROLE.USER_ID,
+          groupConcat(USER_ROLE.TYPE, ",").as(Role.KEY_MANY)
+        )
+          .from(USER_ROLE)
+          .join(USER).on(USER.ID.eq(USER_ROLE.USER_ID))
+          .where(USER_ROLE.USER_ID.eq(access.getUserId()))
           .groupBy(USER.ID)
           .fetchResultSet());
       }
