@@ -2,6 +2,8 @@ import Ember from 'ember';
 
 export default Ember.Service.extend({
 
+  store: Ember.inject.service('store'),
+
   display: Ember.inject.service(),
 
   messageBus: Ember.inject.service(),
@@ -33,9 +35,18 @@ export default Ember.Service.extend({
    */
   parseAccountsCSV: function (accounts) {
     this.accounts = accounts.split(",");
+    let currentAccountId = this.accounts[0];
     if (this.accounts.length > 0) {
       this.set('isPresent', true);
-      this.set('currentAccountId', this.accounts[0]);
+      let accountSvc = this;
+      return this.get('store').findRecord('account', currentAccountId)
+        .then((record) => {
+          console.log("MY NUTS ARE RETRIEVED", record);
+          accountSvc.set('current', record);
+        })
+        .catch((error) => {
+          Ember.get(this, 'display').error(error);
+        });
     }
     if (this.accounts.length > 1) {
       this.set('isMultiAccount', true);
@@ -47,7 +58,7 @@ export default Ember.Service.extend({
    * @param account
    */
   switchTo(account) {
-    this.set('currentAccountId', account.id);
+    this.set('current', account);
     Ember.get(this, 'display').success('Switched to ' + account.get('name'));
   },
 
@@ -62,8 +73,8 @@ export default Ember.Service.extend({
   isMultiAccount: false,
 
   /**
-   * {int} id of current account
+   * {Account} current account
    */
-  currentAccountId: null,
+  current: null,
 
 });

@@ -6,30 +6,30 @@ export default Ember.Route.extend({
   display: Ember.inject.service(),
 
   model(params) {
-    return this.store.findRecord('account', params.account_id)
+    return this.store.findRecord('library', params.library_id)
       .catch((error) => {
         Ember.get(this, 'display').error(error);
-        this.transitionTo('access.accounts');
+        this.transitionTo('library');
       });
   },
 
   actions: {
 
-    saveAccount(model) {
+    saveLibrary(model) {
       model.save().then(() => {
-        Ember.get(this, 'display').success('Updated account ' + model.get('name') + '.');
-        this.transitionTo('access.accounts');
+        Ember.get(this, 'display').success('Updated library ' + model.get('name') + '.');
+        this.transitionTo('library');
       }).catch((error) => {
         Ember.get(this, 'display').error(error);
       });
     },
 
-    destroyAccount(model) {
-      let confirmation = confirm("Are you fucking sure? If there are Users or Libraries belonging to this account, deletion will fail anyway.");
+    destroyLibrary(model) {
+      let confirmation = confirm("Are you fucking sure? If there are Ideas or Instruments belonging to this Library, deletion will fail anyway.");
       if (confirmation) {
         model.destroyRecord().then(() => {
-          Ember.get(this, 'display').success('Deleted account ' + model.get('name') + '.');
-          this.transitionTo('access.accounts');
+          Ember.get(this, 'display').success('Deleted library ' + model.get('name') + '.');
+          this.transitionTo('library');
         }).catch((error) => {
           Ember.get(this, 'display').error(error);
         });

@@ -7,6 +7,7 @@ const Router = Ember.Router.extend({
 });
 
 Router.map(function() {
+  // Access
   this.route('access', function() {
     this.route('users', function() {
       this.route('edit', { path: '/:user_id' });
@@ -17,16 +18,22 @@ Router.map(function() {
       });
       this.route('new');
     });
-    // this.route('account', { path: '/:account_id' }, function() {
-    //   this.route('users');
-    // });
-    // this.route('account/new');
   });
-  this.route('engines', function() {});
+
+  // Library
+  this.route('library', function() {
+    this.route('edit', { path: '/:library_id' }, function() {
+    });
+    this.route('new');
+  });
+
+  // Me
+  this.route('yo');
+
+  // Authentication
   this.route('login');
   this.route('logout');
   this.route('unauthorized');
-  this.route('yo');
 });
 
 export default Router;

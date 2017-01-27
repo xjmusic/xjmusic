@@ -22,10 +22,12 @@ import io.outright.xj.core.app.server.ResourceConfigProviderImpl;
 import io.outright.xj.core.dao.AccountDAO;
 import io.outright.xj.core.dao.AccountUserDAO;
 import io.outright.xj.core.dao.AuthDAO;
+import io.outright.xj.core.dao.LibraryDAO;
 import io.outright.xj.core.dao.UserDAO;
 import io.outright.xj.core.dao.jooq.AccountDAOImpl;
 import io.outright.xj.core.dao.jooq.AccountUserDAOImpl;
 import io.outright.xj.core.dao.jooq.AuthDAOImpl;
+import io.outright.xj.core.dao.jooq.LibraryDAOImpl;
 import io.outright.xj.core.dao.jooq.UserDAOImpl;
 import io.outright.xj.core.external.google.GoogleHttpProvider;
 import io.outright.xj.core.external.google.GoogleHttpProviderImpl;
@@ -64,5 +66,6 @@ public class CoreModule extends AbstractModule {
     bind(SQLDatabaseProvider.class).to(SQLDatabaseProviderImpl.class);
     bind(TokenGenerator.class).to(TokenGeneratorImpl.class);
     bind(UserDAO.class).to(UserDAOImpl.class);
+    bind(LibraryDAO.class).to(LibraryDAOImpl.class);
   }
 }

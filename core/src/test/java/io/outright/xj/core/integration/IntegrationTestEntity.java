@@ -2,6 +2,9 @@ package io.outright.xj.core.integration;
 
 import io.outright.xj.core.tables.records.AccountRecord;
 import io.outright.xj.core.tables.records.AccountUserRecord;
+import io.outright.xj.core.tables.records.CreditRecord;
+import io.outright.xj.core.tables.records.IdeaRecord;
+import io.outright.xj.core.tables.records.LibraryRecord;
 import io.outright.xj.core.tables.records.UserAccessTokenRecord;
 import io.outright.xj.core.tables.records.UserAuthRecord;
 import io.outright.xj.core.tables.records.UserRecord;
@@ -11,10 +14,13 @@ import org.jooq.types.ULong;
 
 import static io.outright.xj.core.Tables.ACCOUNT;
 import static io.outright.xj.core.Tables.ACCOUNT_USER;
+import static io.outright.xj.core.Tables.CREDIT;
 import static io.outright.xj.core.Tables.USER;
 import static io.outright.xj.core.Tables.USER_ACCESS_TOKEN;
 import static io.outright.xj.core.Tables.USER_AUTH;
 import static io.outright.xj.core.Tables.USER_ROLE;
+import static io.outright.xj.core.tables.Idea.IDEA;
+import static io.outright.xj.core.tables.Library.LIBRARY;
 
 public interface IntegrationTestEntity {
 
@@ -35,6 +41,13 @@ public interface IntegrationTestEntity {
     record.setName(name);
     record.setEmail(email);
     record.setAvatarUrl(avatarUrl);
+    record.store();
+  }
+
+  static void insertCredit(int id, int userId) {
+    CreditRecord record = IntegrationTestService.getDb().newRecord(CREDIT);
+    record.setId(ULong.valueOf(id));
+    record.setUserId(ULong.valueOf(userId));
     record.store();
   }
 
@@ -66,4 +79,26 @@ public interface IntegrationTestEntity {
     record.setAccessToken(accessToken);
     record.store();
   }
+
+  static void insertLibrary(int id, int accountId, String name) {
+    LibraryRecord record = IntegrationTestService.getDb().newRecord(LIBRARY);
+    record.setId(ULong.valueOf(id));
+    record.setAccountId(ULong.valueOf(accountId));
+    record.setName(name);
+    record.store();
+  }
+
+  static void insertIdea(int id, int creditId, int libraryId, String type, String name, double density, String key, double tempo) {
+    IdeaRecord record = IntegrationTestService.getDb().newRecord(IDEA);
+    record.setId(ULong.valueOf(id));
+    record.setCreditId(ULong.valueOf(creditId));
+    record.setLibraryId(ULong.valueOf(libraryId));
+    record.setType(type);
+    record.setName(name);
+    record.setDensity(density);
+    record.setKey(key);
+    record.setTempo(tempo);
+    record.store();
+  }
+
 }

@@ -43,7 +43,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 @RunWith(MockitoJUnitRunner.class)
-public class AccountDAOImplTest extends Mockito {
+public class LibraryDAOImplTest extends Mockito {
   @Mock private SQLDatabaseProvider sqlDatabaseProvider;
   private Injector injector;
   private AccountDAO testDAO;

@@ -75,6 +75,7 @@ public class AccountIT {
   @Test
   public void delete() throws Exception {
     // TODO: test AccountDAOImpl delete()
+    // TODO: test AccountDAOImpl delete() fails if account has child records
   }
 
 }

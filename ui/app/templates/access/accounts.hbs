@@ -18,7 +18,7 @@
             <th scope="row">{{A.id}}</th>
             <td>{{A.name}}</td>
             <td>
-              {{#if (eq A.id account.currentAccountId) }}
+              {{#if (eq A.id account.current.id) }}
                 (Active)
               {{else}}
                 <button {{action "selectAccount" A}}>Switch to</button>

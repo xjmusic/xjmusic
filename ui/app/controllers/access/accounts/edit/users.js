@@ -4,11 +4,6 @@ export default Ember.Controller.extend({
 
   display: Ember.inject.service(),
 
-  hasAccountUsers() {
-    console.log("GOT BALLS");
-    return this.model.accountUser.length > 0;
-  },
-
   actions: {
 
     /**

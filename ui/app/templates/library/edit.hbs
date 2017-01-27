@@ -1,0 +1,58 @@
+<!-- Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved. -->
+
+<!-- Upper Container -->
+<div class="form-horizontal">
+
+  <!-- Header -->
+  <div class="form-group">
+    <div class="col-sm-12">
+      <hr/>
+      <h4>Library "{{model.name}}" (#{{model.id}})</h4>
+    </div>
+  </div>
+
+  <!-- Form to rename Library -->
+  <div class="form-group">
+    <label class="col-sm-2 control-label">Name</label>
+    <div class="col-sm-10">
+      {{#if auth.isAdmin}}
+        {{input type="text" value=model.name class="form-control" autofocus="autofocus"
+                placeholder="The name of the Library"}}
+      {{else}}
+        <div class="readonly-field">{{model.name}}</div>
+      {{/if}}
+
+    </div>
+  </div>
+  {{#if auth.isAdmin}}
+    <div class="form-group">
+      <div class="col-sm-offset-2 col-sm-10">
+        <button type="submit" class="btn btn-default" {{action 'saveLibrary' model}}>Save changes</button>
+      </div>
+    </div>
+  {{/if}}
+</div>
+
+<!-- Inner Content -->
+{{outlet}}
+
+{{#if auth.isAdmin}}
+  <!-- Lower Container -->
+  <div class="form-horizontal">
+
+    <!-- Header -->
+    <div class="form-group">
+      <div class="col-sm-12">
+        <hr/>
+        <h4>Danger Zone</h4>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <div class="col-sm-offset-2 col-sm-10">
+        <button class="btn btn-danger btn-xs" {{action 'destroyLibrary' model}}>Delete Library</button>
+      </div>
+    </div>
+
+  </div>
+{{/if}}
