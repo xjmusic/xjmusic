@@ -2,8 +2,16 @@
 import Ember from 'ember';
 
 export default Ember.Controller.extend({
-  auth: Ember.inject.service("auth"),
+  auth: Ember.inject.service(),
+  account: Ember.inject.service(),
   needs: ['application'],
-  isRouteAccess: Ember.computed.match('currentRouteName', /^access/),
-  isRouteYo: Ember.computed.match('currentRouteName', /^yo/)
+
+  actions: {
+
+    openAccountSelector() {
+      // TODO: Launch account-selector modal component
+      this.transitionToRoute('access.accounts');
+    },
+
+  }
 });

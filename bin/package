@@ -5,7 +5,9 @@
 
 #
 step "Verify, Compile & Package Platform\n"
-mvn clean verify package || exit 1
+mvn clean || exit 1
+mvn verify || exit 1
+mvn package -DskipTests || exit 1
 step_ok
 
 #

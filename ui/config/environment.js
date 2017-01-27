@@ -15,10 +15,10 @@ module.exports = function(environment) {
         Date: false,
       }
     },
-    flashMessageDefaults: {
-      timeout: 6000,
-      extendedTimeout: 6000
-    },
+    // flashMessageDefaults: {
+    //   timeout: 6000,
+    //   extendedTimeout: 6000
+    // },
 
     APP: {
       // Here you can pass flags/options to your application instance

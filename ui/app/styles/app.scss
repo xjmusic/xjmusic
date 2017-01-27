@@ -103,3 +103,22 @@ hr {
       height: 1.6em;
     }
 }
+
+.inverse-dropdown{
+  background-color: #222;
+  border-color: #080808;
+  &>li>a{
+    color: #999;
+    &:hover{
+      color: #fff;
+      background-color: #000;
+    }
+  }
+  &>.divider {
+    background-color: #000;
+  }
+}
+
+button {
+  color: $much-darker-gray;
+}

@@ -3,6 +3,8 @@ import Ember from "ember";
 
 export default Ember.Route.extend({
 
+  account: Ember.inject.service(),
+
   display: Ember.inject.service(),
 
   model: function() {
@@ -16,6 +18,10 @@ export default Ember.Route.extend({
 
     editAccount(account) {
       this.transitionTo('access.accounts.edit.users', account);
+    },
+
+    selectAccount(account) {
+      Ember.get(this, 'account').switchTo(account);
     }
 
   }

@@ -1,8 +1,8 @@
 // import { moduleFor, test } from 'ember-qunit';
 
-// TODO test for xj-auth authenticator mocks out HTTP calls to server
+// TODO: tests for account service and message bus
 
-// moduleFor('service:xj-auth', 'Unit | Service | xj auth', {
+// moduleFor('service:account', 'Unit | Service | account', {
 //   // Specify the other units that are required for this test.
 //   // needs: ['service:foo']
 // });

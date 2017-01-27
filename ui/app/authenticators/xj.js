@@ -36,7 +36,7 @@ export default Base.extend({
    @return {Ember.RSVP.Promise} A promise that when it resolves results in the session being authenticated
    */
   restore(properties) {
-    // console.log("authenticators/xj-auth restore(...)", properties);
+    // console.log("authenticators/xj restore(...)", properties);
     return properties;
     // TODO determine strategy for local storage of user session in frontend, and implementation of ember session restore.
   },
@@ -50,7 +50,7 @@ export default Base.extend({
    @return {Ember.RSVP.Promise} A promise that resolves when an auth token is successfully acquired from the server and rejects otherwise
    */
   authenticate(/*data*/) {
-    // console.log("authenticators/xj-auth authenticate(...)", data);
+    // console.log("authenticators/xj authenticate(...)", data);
     return new Ember.RSVP.Promise((resolve, reject) => {
       this.makeRequest().then(response => {
         Ember.run(() => {
@@ -70,7 +70,7 @@ export default Base.extend({
    @return {object} An object with properties for the session.
    */
   getResponseData(response) {
-    // console.log("authenticators/xj-auth getResponseData(...)", response);
+    // console.log("authenticators/xj getResponseData(...)", response);
     return response;
   },
 

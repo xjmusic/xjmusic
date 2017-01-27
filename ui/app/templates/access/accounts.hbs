@@ -9,13 +9,22 @@
         <tr>
           <th>#</th>
           <th>Name</th>
+          <th>Action</th>
         </tr>
         </thead>
         <tbody>
-        {{#each model as |account|}}
-          <tr class="item" {{action "editAccount" account}}>
-            <th scope="row">{{account.id}}</th>
-            <td>{{account.name}}</td>
+        {{#each model as |A|}}
+          <tr class="item" {{action "editAccount" A}}>
+            <th scope="row">{{A.id}}</th>
+            <td>{{A.name}}</td>
+            <td>
+              {{#if (eq A.id account.currentAccountId) }}
+                (Active)
+              {{else}}
+                <button {{action "selectAccount" A}}>Switch to</button>
+              {{/if}}
+            </td>
+
           </tr>
         {{/each}}
         </tbody>

@@ -1,47 +1,54 @@
 <!-- Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved. -->
 <nav class="navbar navbar-inverse">
-    <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#main-navbar">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-    </div>
+  <div class="navbar-header">
+    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#main-navbar">
+      <span class="sr-only">Toggle navigation</span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </button>
+  </div>
 
-    <div class="collapse navbar-collapse" id="main-navbar">
-      {{#if auth.isUser}}
-        <ul class="nav navbar-nav navbar-left">
-          {{#link-to 'index' tagName="li"}}<a href="">Home</a>{{/link-to}}
-          {{#link-to 'access' tagName="li"}}<a href="">Access</a>{{/link-to}}
-        </ul>
-        <ul class="nav navbar-nav navbar-right">
-          {{#link-to 'yo' tagName="li"}}<a href="">Yo</a>{{/link-to}}
-        </ul>
-      {{else}}
-        <ul class="nav navbar-nav">
-          {{#link-to 'login' tagName="li"}}<a href="">Login</a>{{/link-to}}
-        </ul>
-      {{/if}}
-    </div>
-
-    {{#if isRouteAccess}}
-      <div class="container-fluid navbar-sub">
-        <ul class="nav navbar-nav">
-          {{#link-to 'access.users' tagName="li"}}<a href="">Users</a>{{/link-to}}
-          {{#if auth.hasAccounts}}
-            {{#link-to 'access.accounts' tagName="li"}}<a href="">Accounts</a>{{/link-to}}
-          {{/if}}
-        </ul>
-      </div>
+  <div class="collapse navbar-collapse" id="main-navbar">
+    {{#if auth.isUser}}
+      <ul class="nav navbar-nav navbar-left">
+        {{#link-to 'index' tagName="li"}}<a href="">Home</a>{{/link-to}}
+        <li class="dropdown">
+          <a href="#" data-toggle="dropdown" class="dropdown-toggle">View <b class="caret"></b></a>
+          <ul class="dropdown-menu inverse-dropdown">
+            {{#link-to 'access.users' tagName="li"}}<a href="">Users</a>{{/link-to}}
+            {{#if account.isPresent}}
+              {{#link-to 'access.accounts' tagName="li"}}<a href="">Accounts</a>{{/link-to}}
+            {{/if}}
+          </ul>
+        </li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li class="dropdown">
+          <a href="#" data-toggle="dropdown" class="dropdown-toggle">
+            {{#if auth.isUser}}User #{{auth.userId}}{{/if}}
+            {{#if auth.isAdmin}}(Admin){{/if}}
+            {{#if auth.isArtist}}(Artist){{/if}}
+            {{#if account.isPresent}}
+              Account {{account.currentAccountId}}
+            {{/if}}
+            <b class="caret"></b>
+          </a>
+          <ul class="dropdown-menu inverse-dropdown">
+            {{#if account.isMultiAccount}}
+              <li {{action 'openAccountSelector'}}><a href="">Switch Account</a></li>
+              <li role="separator" class="divider"></li>
+            {{/if}}
+            {{#link-to 'logout' tagName="li"}}<a href="">Logout</a>{{/link-to}}
+          </ul>
+        </li>
+      </ul>
+    {{else}}
+      <ul class="nav navbar-nav navbar-right">
+        {{#link-to 'login' tagName="li"}}<a href="">Login</a>{{/link-to}}
+      </ul>
     {{/if}}
 
-  {{#if isRouteYo}}
-    <div class="container-fluid navbar-sub">
-      <ul class="nav navbar-nav navbar-right">
-        {{#link-to 'logout' tagName="li"}}<a href="">Logout</a>{{/link-to}}
-      </ul>
-    </div>
-  {{/if}}
+  </div>
 
 </nav>
