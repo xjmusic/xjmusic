@@ -1,6 +1,6 @@
 # XJ
 
-Continuous Music Platform
+Music Audio Composite Fabrication Platform
 
 # Usage
 
@@ -272,7 +272,7 @@ Connects to:
 
 ## craft
 
-Fabricates a continuous musical audio composite from source ideas and instrument-audio. Built with Java, Guice, Tomcat, Maven.
+Fabricates a musical audio composite from source ideas and instrument-audio. Built with Java, Guice, Tomcat, Maven.
 
 Depends on:
 

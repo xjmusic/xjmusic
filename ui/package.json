@@ -1,7 +1,7 @@
 {
   "name": "xj-control",
   "version": "0.0.1",
-  "description": "User Interface (UI) for Continuous Music",
+  "description": "User Interface (UI) for for the XJ Music Audio Fabrication Platform",
   "private": true,
   "directories": {
     "doc": "doc",
