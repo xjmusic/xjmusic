@@ -26,7 +26,6 @@ import static io.outright.xj.core.Tables.AUDIO_EVENT;
 import static io.outright.xj.core.Tables.CHAIN;
 import static io.outright.xj.core.Tables.CHAIN_LIBRARY;
 import static io.outright.xj.core.Tables.CHOICE;
-import static io.outright.xj.core.Tables.CREDIT;
 import static io.outright.xj.core.Tables.IDEA;
 import static io.outright.xj.core.Tables.IDEA_MEME;
 import static io.outright.xj.core.Tables.INSTRUMENT;
@@ -152,9 +151,6 @@ public enum IntegrationTestService {
 
       // Library (before Account)
       INSTANCE.db.deleteFrom(LIBRARY).execute();
-
-      // Credit (before User)
-      INSTANCE.db.deleteFrom(CREDIT).execute();
 
       // Account (before User)
       INSTANCE.db.deleteFrom(ACCOUNT_USER).execute();

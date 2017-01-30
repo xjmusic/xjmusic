@@ -17,7 +17,7 @@ export default Ember.Route.extend({
     saveLibrary(model) {
       model.save().then(() => {
         Ember.get(this, 'display').success('Updated library ' + model.get('name') + '.');
-        this.transitionTo('accounts.one.libraries.one', model);
+        this.transitionTo('accounts.one.libraries', model.get('account'));
       }).catch((error) => {
         Ember.get(this, 'display').error(error);
       });

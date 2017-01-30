@@ -37,10 +37,15 @@ Router.map(function () {
 
         // Library (in Account)
         this.route('one', {path: '/:library_id'}, function () {
-
           // Edit Library
           this.route('edit');
 
+          this.route('ideas', function() {
+            this.route('one', function() {
+              this.route('edit');
+            });
+            this.route('new');
+          });
         });
       });
     });

@@ -230,8 +230,7 @@ public class LibraryIT {
   @Test(expected = BusinessException.class)
   public void delete_FailsIfLibraryHasChildRecords() throws Exception {
     IntegrationTestEntity.insertUser(101, "bill", "bill@email.com", "http://pictures.com/bill.gif");
-    IntegrationTestEntity.insertCredit(201, 101);
-    IntegrationTestEntity.insertIdea(301, 201, 2, Idea.MAIN, "brilliant", 0.342, "C#", 0.286);
+    IntegrationTestEntity.insertIdea(301, 101, 2, Idea.MAIN, "brilliant", 0.342, "C#", 0.286);
 
     testDAO.delete(ULong.valueOf(2));
 

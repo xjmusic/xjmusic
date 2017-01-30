@@ -24,6 +24,7 @@
         <tr>
           <th>#</th>
           <th>Name</th>
+          <th>Action</th>
         </tr>
         </thead>
         <tbody>
@@ -31,6 +32,11 @@
           <tr class="item">
             <th scope="row">{{#link-to "accounts.one.libraries.one" library}}{{library.id}}{{/link-to}}</th>
             <td>{{#link-to "accounts.one.libraries.one" library}}{{library.name}}{{/link-to}}</td>
+            <td>
+              {{#link-to 'accounts.one.libraries.one.edit' library}}Edit{{/link-to}}
+              |
+              {{#link-to 'accounts.one.libraries.one.ideas' library}}Ideas{{/link-to}}
+            </td>
           </tr>
         {{/each}}
         </tbody>
