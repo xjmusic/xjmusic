@@ -39,9 +39,8 @@ export default Ember.Service.extend({
     if (this.accounts.length > 0) {
       this.set('isPresent', true);
       let accountSvc = this;
-      return this.get('store').findRecord('account', currentAccountId)
+      this.get('store').findRecord('account', currentAccountId)
         .then((record) => {
-          console.log("MY NUTS ARE RETRIEVED", record);
           accountSvc.set('current', record);
         })
         .catch((error) => {
