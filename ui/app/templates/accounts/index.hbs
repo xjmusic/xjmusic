@@ -19,13 +19,13 @@
         {{#each model as |A|}}
           <tr class="item">
             <th scope="row">{{A.id}}</th>
-            <td>{{#link-to 'accounts.account' A}}{{A.name}}{{/link-to}}</td>
+            <td>{{#link-to 'accounts.one' A}}{{A.name}}{{/link-to}}</td>
             <td>
-              {{#link-to 'accounts.account.edit' A}}Edit{{/link-to}}
+              {{#link-to 'accounts.one.edit' A}}Edit{{/link-to}}
               |
-              {{#link-to 'accounts.account.users' A}}Users{{/link-to}}
+              {{#link-to 'accounts.one.users' A}}Users{{/link-to}}
               |
-              {{#link-to 'accounts.account.libraries' A}}Libraries{{/link-to}}
+              {{#link-to 'accounts.one.libraries' A}}Libraries{{/link-to}}
             </td>
           </tr>
         {{/each}}

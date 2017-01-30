@@ -6,26 +6,26 @@ export default Ember.Route.extend({
   display: Ember.inject.service(),
 
   model() {
-    return this.modelFor('accounts.account.libraries.library');
+    return this.modelFor('accounts.one');
   },
 
   actions: {
 
-    saveLibrary(model) {
+    saveAccount(model) {
       model.save().then(() => {
-        Ember.get(this, 'display').success('Updated library ' + model.get('name') + '.');
-        this.transitionTo('accounts.account.libraries.library', model);
+        Ember.get(this, 'display').success('Updated account ' + model.get('name') + '.');
+        this.transitionTo('accounts');
       }).catch((error) => {
         Ember.get(this, 'display').error(error);
       });
     },
 
-    destroyLibrary(model) {
-      let confirmation = confirm("Are you fucking sure? If there are Ideas or Instruments belonging to this Library, deletion will fail anyway.");
+    destroyAccount(model) {
+      let confirmation = confirm("Are you fucking sure? If there are Users or Libraries belonging to this account, deletion will fail anyway.");
       if (confirmation) {
         model.destroyRecord().then(() => {
-          Ember.get(this, 'display').success('Deleted library ' + model.get('name') + '.');
-          this.transitionTo('accounts.account.libraries');
+          Ember.get(this, 'display').success('Deleted account ' + model.get('name') + '.');
+          this.transitionTo('accounts');
         }).catch((error) => {
           Ember.get(this, 'display').error(error);
         });

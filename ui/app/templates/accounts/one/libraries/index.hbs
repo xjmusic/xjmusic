@@ -11,7 +11,7 @@
   <!-- Header -->
   <div class="form-group">
     <div class="col-sm-12">
-      <h5>{{#link-to "accounts.account" model.account}}{{model.account.name}}{{/link-to}}</h5>
+      <h5>{{#link-to "accounts.one" model.account}}{{model.account.name}}{{/link-to}}</h5>
       <h1>Libraries</h1>
     </div>
   </div>
@@ -29,8 +29,8 @@
         <tbody>
         {{#each model.libraries as |library|}}
           <tr class="item">
-            <th scope="row">{{#link-to "accounts.account.libraries.library" library}}{{library.id}}{{/link-to}}</th>
-            <td>{{#link-to "accounts.account.libraries.library" library}}{{library.name}}{{/link-to}}</td>
+            <th scope="row">{{#link-to "accounts.one.libraries.one" library}}{{library.id}}{{/link-to}}</th>
+            <td>{{#link-to "accounts.one.libraries.one" library}}{{library.name}}{{/link-to}}</td>
           </tr>
         {{/each}}
         </tbody>
@@ -40,7 +40,7 @@
 
   {{#if auth.isAdmin}}
     <div class="sm-col-12">
-      Or: {{#link-to 'accounts.account.libraries.new'}}Create New Library{{/link-to}}
+      Or: {{#link-to 'accounts.one.libraries.new'}}Create New Library{{/link-to}}
     </div>
   {{/if}}
 </div>

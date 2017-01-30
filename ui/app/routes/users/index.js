@@ -15,7 +15,7 @@ export default Ember.Route.extend({
   actions: {
 
     editUser(user) {
-      this.transitionTo('users.user', user);
+      this.transitionTo('users.one', user);
     },
 
   },

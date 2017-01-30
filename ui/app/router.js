@@ -11,7 +11,7 @@ Router.map(function () {
   this.route('users', {path: '/u'}, function () {
 
     // User
-    this.route('user', {path: '/:user_id'});
+    this.route('one', {path: '/:user_id'});
   });
 
   // Accounts
@@ -21,7 +21,7 @@ Router.map(function () {
     this.route('new');
 
     // Account
-    this.route('account', {path: '/:account_id'}, function () {
+    this.route('one', {path: '/:account_id'}, function () {
 
       // Edit Account
       this.route('edit');
@@ -36,7 +36,7 @@ Router.map(function () {
         this.route('new');
 
         // Library (in Account)
-        this.route('library', {path: '/:library_id'}, function () {
+        this.route('one', {path: '/:library_id'}, function () {
 
           // Edit Library
           this.route('edit');

@@ -4,7 +4,7 @@ import Ember from "ember";
 export default Ember.Route.extend({
 
   model() {
-    let account = this.modelFor('accounts.account');
+    let account = this.modelFor('accounts.one');
     return Ember.RSVP.hash({
       account: account,
       users: this.store.findAll('user'),

@@ -9,7 +9,7 @@
   <!-- Header -->
   <div class="form-group">
     <div class="col-sm-12">
-      <h5>{{#link-to "accounts.account" model.account}}{{model.account.name}}{{/link-to}}</h5>
+      <h5>{{#link-to "accounts.one" model.account}}{{model.account.name}}{{/link-to}}</h5>
       <h1>Users</h1>
     </div>
   </div>
@@ -34,8 +34,8 @@
           {{#each model.accountUsers as |accountUser|}}
             <tr>
               <th scope="row">{{accountUser.user.id}}</th>
-              <td>{{#link-to "users.user" accountUser.user}}<img class="avatar" src="{{accountUser.user.avatarUrl}}"/>{{/link-to}}</td>
-              <td>{{#link-to "users.user" accountUser.user}}{{accountUser.user.name}}{{/link-to}}</td>
+              <td>{{#link-to "users.one" accountUser.user}}<img class="avatar" src="{{accountUser.user.avatarUrl}}"/>{{/link-to}}</td>
+              <td>{{#link-to "users.one" accountUser.user}}{{accountUser.user.name}}{{/link-to}}</td>
               {{#if auth.isAdmin}}
                 <td>
                   <button {{action "destroyAccountUser" accountUser}}>Remove</button>

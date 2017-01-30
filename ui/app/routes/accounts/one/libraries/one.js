@@ -9,7 +9,7 @@ export default Ember.Route.extend({
     return this.store.findRecord('library', params.library_id)
       .catch((error) => {
         Ember.get(this, 'display').error(error);
-        this.transitionTo('accounts.account.libraries');
+        this.transitionTo('accounts.one.libraries');
       });
 
   },

@@ -6,7 +6,7 @@ export default Ember.Route.extend({
   display: Ember.inject.service(),
 
   model: function() {
-    let account = this.modelFor('accounts.account');
+    let account = this.modelFor('accounts.one');
     return this.store.createRecord('library', {
       account: account
     });
@@ -17,7 +17,7 @@ export default Ember.Route.extend({
     createLibrary(model) {
       model.save().then(() => {
         Ember.get(this, 'display').success('Created library '+model.get('name')+'.');
-        this.transitionTo('accounts.account.libraries.library', model);
+        this.transitionTo('accounts.one.libraries.one', model);
       }).catch((error) => {
         Ember.get(this, 'display').error(error);
       });

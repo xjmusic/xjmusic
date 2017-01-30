@@ -6,7 +6,7 @@ export default Ember.Route.extend({
   display: Ember.inject.service(),
 
   model: function() {
-    let account = this.modelFor('accounts.account');
+    let account = this.modelFor('accounts.one');
     let libraries = this.store.query('library', { account: account.get('id') }).catch((error)=>{
       Ember.get(this, 'display').error(error);
       this.transitionTo('');
@@ -20,7 +20,7 @@ export default Ember.Route.extend({
   actions: {
 
     editLibrary(library) {
-      this.transitionTo('accounts.account.libraries.library', library);
+      this.transitionTo('accounts.one.libraries.one', library);
     },
 
   }

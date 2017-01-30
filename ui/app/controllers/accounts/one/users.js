@@ -31,7 +31,7 @@ export default Ember.Controller.extend({
       });
       accountUser.save().then(() => {
         Ember.get(this, 'display').success('Added ' + model.userToAdd.get('name') + ' to ' + model.account.get('name') + '.');
-        // this.transitionToRoute('accounts.account.users',model.account);
+        // this.transitionToRoute('accounts.one.users',model.account);
         this.send("sessionChanged");
       }).catch((error) => {
         Ember.get(this, 'display').error(error);
