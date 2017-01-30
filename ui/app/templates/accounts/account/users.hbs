@@ -1,0 +1,85 @@
+<!-- Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved. -->
+
+<!-- Inner Content -->
+{{outlet}}
+
+<!-- Container -->
+<div class="form-horizontal">
+
+  <!-- Header -->
+  <div class="form-group">
+    <div class="col-sm-12">
+      <h5>{{#link-to "accounts.account" model.account}}{{model.account.name}}{{/link-to}}</h5>
+      <h1>Users</h1>
+    </div>
+  </div>
+
+  <!-- Only show list of records if non-empty -->
+  {{#if model.accountUsers.length}}
+
+    <!-- List of Records -->
+    <div class="col-sm-offset-2 sm-col-12">
+      <div class="table-list">
+        <table class="table">
+          <thead>
+          <tr>
+            <th>#</th>
+            <th width="50">Pic</th>
+            <th>Name</th>
+            {{#if auth.isAdmin}}
+              <th>Action</th>{{/if}}
+          </tr>
+          </thead>
+          <tbody>
+          {{#each model.accountUsers as |accountUser|}}
+            <tr>
+              <th scope="row">{{accountUser.user.id}}</th>
+              <td>{{#link-to "users.user" accountUser.user}}<img class="avatar" src="{{accountUser.user.avatarUrl}}"/>{{/link-to}}</td>
+              <td>{{#link-to "users.user" accountUser.user}}{{accountUser.user.name}}{{/link-to}}</td>
+              {{#if auth.isAdmin}}
+                <td>
+                  <button {{action "destroyAccountUser" accountUser}}>Remove</button>
+                </td>{{/if}}
+            </tr>
+          {{/each}}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  {{/if}}
+
+  {{#if auth.isAdmin}}
+    <!-- Add a User to this Account -->
+    <!-- Header -->
+    <div class="form-group">
+      <div class="col-sm-12">
+        <hr/>
+        <h4>Add User to Account #{{model.account.id}}</h4>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="col-sm-2 control-label">Select User</label>
+      <div class="col-sm-10">
+        <!--input type="text" value=model.newAccountUser.userId class="form-control" autofocus="autofocus"-->
+        <!--placeholder="User ID to grant access"}}-->
+        {{#power-select
+          placeholder="Select User"
+          options=model.users
+          selected=model.userToAdd
+          onchange=(action "setUserToAdd")
+        as |user| }}
+          <img src="{{user.avatarUrl}}"/> {{user.name}} (#{{user.id}})
+        {{/power-select}}
+      </div>
+    </div>
+    <div class="form-group">
+      <div class="col-sm-offset-2 col-sm-10">
+        <button type="submit" class="btn btn-default" {{action 'addUserToAccount' model}}>Add User to
+          Account
+        </button>
+      </div>
+    </div>
+  {{/if}}
+
+</div>
+

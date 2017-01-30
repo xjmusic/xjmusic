@@ -1,8 +1,8 @@
+// TODO [ui] tests for route /users
+
 // import { moduleFor, test } from 'ember-qunit';
-
-// TODO [ui] test for library route
-
-// moduleFor('route:library', 'Unit | Route | library', {
+//
+// moduleFor('route:admin/users', 'Unit | Route | admin/users', {
 //   // Specify the other units that are required for this test.
 //   // needs: ['controller:foo']
 // });

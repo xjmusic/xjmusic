@@ -1,0 +1,42 @@
+<!-- Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved. -->
+
+<!-- Inner content above -->
+{{outlet}}
+
+<!-- List of Accounts -->
+<div class="form-horizontal">
+  <div class="sm-col-12">
+    <div class="table-list">
+      <table class="table">
+        <thead>
+        <tr>
+          <th>#</th>
+          <th>Name</th>
+          <th>Action</th>
+        </tr>
+        </thead>
+        <tbody>
+        {{#each model as |A|}}
+          <tr class="item">
+            <th scope="row">{{A.id}}</th>
+            <td>{{#link-to 'accounts.account' A}}{{A.name}}{{/link-to}}</td>
+            <td>
+              {{#link-to 'accounts.account.edit' A}}Edit{{/link-to}}
+              |
+              {{#link-to 'accounts.account.users' A}}Users{{/link-to}}
+              |
+              {{#link-to 'accounts.account.libraries' A}}Libraries{{/link-to}}
+            </td>
+          </tr>
+        {{/each}}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  {{#if auth.isAdmin}}
+    <div class="sm-col-12">
+      Or: {{#link-to 'accounts.new'}}Create New Account{{/link-to}}
+    </div>
+  {{/if}}
+</div>

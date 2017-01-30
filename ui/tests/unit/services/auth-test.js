@@ -1,6 +1,6 @@
 // import { moduleFor, test } from 'ember-qunit';
 
-// TODO test for xj authenticator mocks out HTTP calls to server
+// TODO [ui] test for xj authenticator mocks out HTTP calls to server
 
 // moduleFor('service:xj', 'Unit | Service | xj auth', {
 //   // Specify the other units that are required for this test.

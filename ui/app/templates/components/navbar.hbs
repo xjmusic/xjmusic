@@ -12,18 +12,9 @@
   <div class="collapse navbar-collapse" id="main-navbar">
     {{#if auth.isUser}}
       <ul class="nav navbar-nav navbar-left">
-        {{#link-to 'index' tagName="li"}}<a href="">Home</a>{{/link-to}}
-        <li class="dropdown">
-          <a href="#" data-toggle="dropdown" class="dropdown-toggle">View <b class="caret"></b></a>
-          <ul class="dropdown-menu inverse-dropdown">
-            {{#link-to 'library' tagName="li"}}<a href="">Library</a>{{/link-to}}
-            <li role="separator" class="divider"></li>
-            {{#link-to 'access.users' tagName="li"}}<a href="">Users</a>{{/link-to}}
-            {{#if account.isPresent}}
-              {{#link-to 'access.accounts' tagName="li"}}<a href="">Accounts</a>{{/link-to}}
-            {{/if}}
-          </ul>
-        </li>
+        <!-- {{#link-to 'index' tagName="li"}}<a href="">Home</a>{{/link-to}} -->
+        {{#link-to 'users' tagName="li"}}<a href="">People</a>{{/link-to}}
+        {{#link-to 'accounts' tagName="li"}}<a href="">Account</a>{{/link-to}}
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li class="dropdown">
@@ -31,16 +22,9 @@
             {{#if auth.isUser}}User #{{auth.userId}}{{/if}}
             {{#if auth.isAdmin}}(Admin){{/if}}
             {{#if auth.isArtist}}(Artist){{/if}}
-            {{#if account.isPresent}}
-              Account {{account.current.id}}
-            {{/if}}
             <b class="caret"></b>
           </a>
           <ul class="dropdown-menu inverse-dropdown">
-            {{#if account.isMultiAccount}}
-              <li {{action 'openAccountSelector'}}><a href="">Switch Account</a></li>
-              <li role="separator" class="divider"></li>
-            {{/if}}
             {{#link-to 'logout' tagName="li"}}<a href="">Logout</a>{{/link-to}}
           </ul>
         </li>

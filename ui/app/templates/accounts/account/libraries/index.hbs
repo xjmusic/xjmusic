@@ -1,0 +1,46 @@
+<!-- Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved. -->
+
+<!-- Inner Content -->
+{{outlet}}
+
+<!-- Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved. -->
+
+<!-- Upper Container -->
+<div class="form-horizontal">
+
+  <!-- Header -->
+  <div class="form-group">
+    <div class="col-sm-12">
+      <h5>{{#link-to "accounts.account" model.account}}{{model.account.name}}{{/link-to}}</h5>
+      <h1>Libraries</h1>
+    </div>
+  </div>
+
+  <!-- List of Libraries -->
+  <div class="sm-col-12">
+    <div class="table-list">
+      <table class="table">
+        <thead>
+        <tr>
+          <th>#</th>
+          <th>Name</th>
+        </tr>
+        </thead>
+        <tbody>
+        {{#each model.libraries as |library|}}
+          <tr class="item">
+            <th scope="row">{{#link-to "accounts.account.libraries.library" library}}{{library.id}}{{/link-to}}</th>
+            <td>{{#link-to "accounts.account.libraries.library" library}}{{library.name}}{{/link-to}}</td>
+          </tr>
+        {{/each}}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  {{#if auth.isAdmin}}
+    <div class="sm-col-12">
+      Or: {{#link-to 'accounts.account.libraries.new'}}Create New Library{{/link-to}}
+    </div>
+  {{/if}}
+</div>

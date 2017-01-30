@@ -1,0 +1,67 @@
+<!-- Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved. -->
+
+<!-- Inner Content -->
+{{outlet}}
+
+<!-- Upper Container -->
+<div class="form-horizontal">
+
+  <!-- Header -->
+  <div class="form-group">
+    <div class="col-sm-12">
+      <h5>{{#link-to "accounts.account" model}}{{model.name}}{{/link-to}}</h5>
+      <h1>Edit</h1>
+    </div>
+  </div>
+
+  <!-- Form to rename Account -->
+  <div class="form-group">
+    <label class="col-sm-2 control-label">Account ID</label>
+    <div class="col-sm-10">
+      <div class="readonly-field">{{model.id}}</div>
+    </div>
+  </div>
+
+  <!-- Form to rename Account -->
+  <div class="form-group">
+    <label class="col-sm-2 control-label">Name</label>
+    <div class="col-sm-10">
+      {{#if auth.isAdmin}}
+        {{input type="text" value=model.name class="form-control" autofocus="autofocus"
+                placeholder="The name of the Account"}}
+      {{else}}
+        <div class="readonly-field">{{model.name}}</div>
+      {{/if}}
+    </div>
+  </div>
+
+  {{#if auth.isAdmin}}
+    <div class="form-group">
+      <div class="col-sm-offset-2 col-sm-10">
+        <button type="submit" class="btn btn-default" {{action 'saveAccount' model}}>Save changes</button>
+      </div>
+    </div>
+  {{/if}}
+
+</div>
+
+{{#if auth.isAdmin}}
+  <!-- Lower Container -->
+  <div class="form-horizontal">
+
+    <!-- Header -->
+    <div class="form-group">
+      <div class="col-sm-12">
+        <hr/>
+        <h4>Danger Zone</h4>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <div class="col-sm-offset-2 col-sm-10">
+        <button class="btn btn-danger btn-xs" {{action 'destroyAccount' model}}>Delete Account</button>
+      </div>
+    </div>
+
+  </div>
+{{/if}}

@@ -6,25 +6,44 @@ const Router = Ember.Router.extend({
   location: config.locationType
 });
 
-Router.map(function() {
-  // Access
-  this.route('access', function() {
-    this.route('users', function() {
-      this.route('edit', { path: '/:user_id' });
-    });
-    this.route('accounts', function() {
-      this.route('edit', { path: '/:account_id' }, function() {
-        this.route('users');
-      });
-      this.route('new');
-    });
+Router.map(function () {
+  // Users
+  this.route('users', {path: '/u'}, function () {
+
+    // User
+    this.route('user', {path: '/:user_id'});
   });
 
-  // Library
-  this.route('library', function() {
-    this.route('edit', { path: '/:library_id' }, function() {
-    });
+  // Accounts
+  this.route('accounts', {path: '/a'}, function () {
+
+    // New Account
     this.route('new');
+
+    // Account
+    this.route('account', {path: '/:account_id'}, function () {
+
+      // Edit Account
+      this.route('edit');
+
+      // Users (in Account)
+      this.route('users', {path: '/u'});
+
+      // Libraries (in Account)
+      this.route('libraries', {path: '/lib'}, function () {
+
+        // New Library
+        this.route('new');
+
+        // Library (in Account)
+        this.route('library', {path: '/:library_id'}, function () {
+
+          // Edit Library
+          this.route('edit');
+
+        });
+      });
+    });
   });
 
   // Me

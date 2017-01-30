@@ -1,0 +1,34 @@
+<!-- Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved. -->
+
+<!-- Inner content above -->
+{{outlet}}
+
+<!-- List of Users -->
+<div class="form-horizontal">
+  <div class="sm-col-12">
+    <div class="table-list">
+      <table class="table">
+        <thead>
+        <tr>
+          <th>#</th>
+          <th width="50">Pic</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Roles</th>
+        </tr>
+        </thead>
+        <tbody>
+        {{#each model as |user|}}
+          <tr class="item">
+            <th scope="row">{{#link-to "users.user" user}}{{user.id}}{{/link-to}}</th>
+            <td>{{#link-to "users.user" user}}<img class="avatar" src="{{user.avatarUrl}}"/>{{/link-to}}</td>
+            <td>{{#link-to "users.user" user}}{{user.name}}{{/link-to}}</td>
+            <td>{{user.email}}</td>
+            <td>{{user.roles}}</td>
+          </tr>
+        {{/each}}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
