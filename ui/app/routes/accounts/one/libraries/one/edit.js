@@ -6,7 +6,10 @@ export default Ember.Route.extend({
   display: Ember.inject.service(),
 
   model() {
-    return this.modelFor('accounts.one.libraries.one');
+    let account = this.modelFor('accounts.one');
+    let library = this.modelFor('accounts.one.libraries.one');
+    library.set('account', account);
+    return library;
   },
 
   actions: {
