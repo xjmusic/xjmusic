@@ -36,7 +36,7 @@ public class LibraryIT {
 
   @Before
   public void setUp() throws Exception {
-    IntegrationTestService.setup();
+    IntegrationTestEntity.deleteAll();
 
     // Account "palm tree" has library "leaves" and library "coconuts"
     IntegrationTestEntity.insertAccount(1, "palm tree");

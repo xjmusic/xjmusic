@@ -12,8 +12,9 @@ public class LibraryWrapper {
   public Library getLibrary() {
     return library;
   }
-  public void setLibrary(Library library) {
+  public LibraryWrapper setLibrary(Library library) {
     this.library = library;
+    return this;
   }
 
   /**

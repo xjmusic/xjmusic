@@ -18,8 +18,8 @@
         <tbody>
         {{#each model as |A|}}
           <tr class="item">
-            <th scope="row">{{A.id}}</th>
-            <td>{{#link-to 'accounts.one' A}}{{A.name}}{{/link-to}}</td>
+            <th scope="row">{{#link-to 'accounts.one' A}}{{A.id}}{{/link-to}}</th>
+            <td>{{A.name}}</td>
             <td>
               {{#link-to 'accounts.one.edit' A}}Edit{{/link-to}}
               |

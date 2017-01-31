@@ -11,12 +11,10 @@ import io.outright.xj.core.model.library.LibraryWrapper;
 import io.outright.xj.core.tables.records.LibraryRecord;
 import io.outright.xj.core.transport.JSON;
 
+import com.google.inject.Inject;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.types.ULong;
-
-import com.google.inject.Inject;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -45,19 +43,14 @@ public class LibraryDAOImpl implements LibraryDAO {
   public JSONObject create(LibraryWrapper data) throws DatabaseException, ConfigException, BusinessException {
     Connection conn = dbProvider.getConnectionTransaction();
     DSLContext db = dbProvider.getContext(conn);
-    LibraryRecord newRecord;
+    LibraryRecord record;
 
     try {
       data.validate();
 
-      newRecord = db.newRecord(LIBRARY);
-      newRecord.setName(data.getLibrary().getName());
-      newRecord.setAccountId(data.getLibrary().getAccountId());
-      db.insertInto(LIBRARY)
-        .columns(LIBRARY.ACCOUNT_ID, LIBRARY.NAME)
-        .values(newRecord.getAccountId(), newRecord.getName())
-        .execute();
-      newRecord.setId(ULong.valueOf(db.lastID()));
+      record = db.newRecord(LIBRARY);
+      data.getLibrary().intoFieldValueMap().forEach(record::setValue);
+      record.store();
 
       dbProvider.commitAndClose(conn);
     } catch (Exception e) {
@@ -65,7 +58,7 @@ public class LibraryDAOImpl implements LibraryDAO {
       throw e;
     }
 
-    return JSON.objectFromRecord(newRecord);
+    return JSON.objectFromRecord(record);
   }
 
   @Override
@@ -81,7 +74,7 @@ public class LibraryDAOImpl implements LibraryDAO {
           .where(LIBRARY.ID.eq(libraryId))
           .fetchOne());
       } else {
-        result = JSON.objectFromRecord(db.select()
+        result = JSON.objectFromRecord(db.select(LIBRARY.fields())
           .from(LIBRARY)
           .where(LIBRARY.ID.eq(libraryId))
           .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
@@ -105,18 +98,12 @@ public class LibraryDAOImpl implements LibraryDAO {
     JSONArray result;
     try {
       if (access.isAdmin()) {
-        result = JSON.arrayFromResultSet(db.select(
-          LIBRARY.ID,
-          LIBRARY.NAME
-        )
+        result = JSON.arrayFromResultSet(db.select(LIBRARY.fields())
           .from(LIBRARY)
           .where(LIBRARY.ACCOUNT_ID.eq(accountId))
           .fetchResultSet());
       } else {
-        result = JSON.arrayFromResultSet(db.select(
-          LIBRARY.ID,
-          LIBRARY.NAME
-        )
+        result = JSON.arrayFromResultSet(db.select(LIBRARY.fields())
           .from(LIBRARY)
           .where(LIBRARY.ACCOUNT_ID.eq(accountId))
           .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))

@@ -12,8 +12,9 @@ public class AccountUserWrapper {
   public AccountUser getAccountUser() {
     return accountUser;
   }
-  public void setAccountUser(AccountUser accountUser) {
+  public AccountUserWrapper setAccountUser(AccountUser accountUser) {
     this.accountUser = accountUser;
+    return this;
   }
 
   /**

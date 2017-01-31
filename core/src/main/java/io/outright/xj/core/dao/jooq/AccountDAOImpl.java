@@ -11,11 +11,9 @@ import io.outright.xj.core.model.account.AccountWrapper;
 import io.outright.xj.core.tables.records.AccountRecord;
 import io.outright.xj.core.transport.JSON;
 
+import com.google.inject.Inject;
 import org.jooq.DSLContext;
 import org.jooq.types.ULong;
-
-import com.google.inject.Inject;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -43,18 +41,14 @@ public class AccountDAOImpl implements AccountDAO {
   public JSONObject create(AccountWrapper data) throws DatabaseException, ConfigException, BusinessException {
     Connection conn = dbProvider.getConnectionTransaction();
     DSLContext db = dbProvider.getContext(conn);
-    AccountRecord newRecord;
+    AccountRecord record;
 
     try {
       data.validate();
 
-      newRecord = db.newRecord(ACCOUNT);
-      newRecord.setName(data.getAccount().getName());
-      db.insertInto(ACCOUNT)
-        .columns(ACCOUNT.NAME)
-        .values(data.getAccount().getName())
-        .execute();
-      newRecord.setId(ULong.valueOf(db.lastID()));
+      record = db.newRecord(ACCOUNT);
+      data.getAccount().intoFieldValueMap().forEach(record::setValue);
+      record.store();
 
       dbProvider.commitAndClose(conn);
     } catch (Exception e) {
@@ -62,7 +56,7 @@ public class AccountDAOImpl implements AccountDAO {
       throw e;
     }
 
-    return JSON.objectFromRecord(newRecord);
+    return JSON.objectFromRecord(record);
   }
 
   @Override
@@ -78,7 +72,7 @@ public class AccountDAOImpl implements AccountDAO {
           .where(ACCOUNT.ID.eq(accountId))
           .fetchOne());
       } else {
-        result = JSON.objectFromRecord(db.select()
+        result = JSON.objectFromRecord(db.select(ACCOUNT.fields())
           .from(ACCOUNT)
           .where(ACCOUNT.ID.eq(accountId))
           .and(ACCOUNT.ID.in(access.getAccounts()))
@@ -102,17 +96,11 @@ public class AccountDAOImpl implements AccountDAO {
     JSONArray result;
     try {
       if (access.isAdmin()) {
-        result = JSON.arrayFromResultSet(db.select(
-          ACCOUNT.ID,
-          ACCOUNT.NAME
-        )
+        result = JSON.arrayFromResultSet(db.select(ACCOUNT.fields())
           .from(ACCOUNT)
           .fetchResultSet());
       } else {
-        result = JSON.arrayFromResultSet(db.select(
-          ACCOUNT.ID,
-          ACCOUNT.NAME
-        )
+        result = JSON.arrayFromResultSet(db.select(ACCOUNT.fields())
           .from(ACCOUNT)
           .where(ACCOUNT.ID.in(access.getAccounts()))
           .fetchResultSet());

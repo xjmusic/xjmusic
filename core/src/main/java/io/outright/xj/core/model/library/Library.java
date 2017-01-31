@@ -3,9 +3,16 @@ package io.outright.xj.core.model.library;
 
 import io.outright.xj.core.app.exception.BusinessException;
 
+import org.jooq.Field;
 import org.jooq.types.ULong;
 
+import com.google.common.collect.ImmutableMap;
+
 import java.math.BigInteger;
+import java.util.Map;
+
+import static io.outright.xj.core.Tables.IDEA;
+import static io.outright.xj.core.tables.Library.LIBRARY;
 
 public class Library {
 
@@ -14,8 +21,9 @@ public class Library {
   public String getName() {
     return name;
   }
-  public void setName(String name) {
+  public Library setName(String name) {
     this.name = name;
+    return this;
   }
 
   // Account
@@ -23,8 +31,9 @@ public class Library {
   public ULong getAccountId() {
     return accountId;
   }
-  public void setAccountId(BigInteger accountId) {
+  public Library setAccountId(BigInteger accountId) {
     this.accountId = ULong.valueOf(accountId);
+    return this;
   }
 
   /**
@@ -39,6 +48,17 @@ public class Library {
     if (this.accountId == null) {
       throw new BusinessException("Account ID is required.");
     }
+  }
+
+  /**
+   * Model info jOOQ-field : Value map
+   * @return map
+   */
+  public Map<Field, Object> intoFieldValueMap() {
+    return new ImmutableMap.Builder<Field, Object>()
+      .put(LIBRARY.NAME, name)
+      .put(LIBRARY.ACCOUNT_ID, accountId)
+      .build();
   }
 
   @Override

@@ -12,8 +12,9 @@ public class User {
     return roles;
   }
 
-  public void setRoles(String roles) {
+  public User setRoles(String roles) {
     this.roles = roles;
+    return this;
   }
 
   /**

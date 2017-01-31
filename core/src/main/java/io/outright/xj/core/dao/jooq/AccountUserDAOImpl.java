@@ -11,11 +11,9 @@ import io.outright.xj.core.model.account_user.AccountUserWrapper;
 import io.outright.xj.core.tables.records.AccountUserRecord;
 import io.outright.xj.core.transport.JSON;
 
+import com.google.inject.Inject;
 import org.jooq.DSLContext;
 import org.jooq.types.ULong;
-
-import com.google.inject.Inject;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -139,18 +137,18 @@ public class AccountUserDAOImpl implements AccountUserDAO {
       throw new BusinessException("Account User already exists!");
     }
 
-    AccountUserRecord result;
-    result = db.newRecord(ACCOUNT_USER);
-    result.setAccountId(accountId);
-    result.setUserId(userId);
+    AccountUserRecord record;
+    record = db.newRecord(ACCOUNT_USER);
+    data.getAccountUser().intoFieldValueMap().forEach(record::setValue);
+
     try {
-      result.store();
+      record.store();
     } catch (Exception e) {
       log.warn("Cannot create AccountUser", e.getMessage());
       throw new BusinessException("Cannot create Account User. Please ensure userId+accountId are valid and unique.");
     }
 
-    return result;
+    return record;
   }
 
 }

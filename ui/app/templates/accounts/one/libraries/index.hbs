@@ -31,7 +31,7 @@
         {{#each model.libraries as |library|}}
           <tr class="item">
             <th scope="row">{{#link-to "accounts.one.libraries.one" library}}{{library.id}}{{/link-to}}</th>
-            <td>{{#link-to "accounts.one.libraries.one" library}}{{library.name}}{{/link-to}}</td>
+            <td>{{library.name}}</td>
             <td>
               {{#link-to 'accounts.one.libraries.one.edit' library}}Edit{{/link-to}}
               |

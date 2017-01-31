@@ -22,11 +22,13 @@ import io.outright.xj.core.app.server.ResourceConfigProviderImpl;
 import io.outright.xj.core.dao.AccountDAO;
 import io.outright.xj.core.dao.AccountUserDAO;
 import io.outright.xj.core.dao.AuthDAO;
+import io.outright.xj.core.dao.IdeaDAO;
 import io.outright.xj.core.dao.LibraryDAO;
 import io.outright.xj.core.dao.UserDAO;
 import io.outright.xj.core.dao.jooq.AccountDAOImpl;
 import io.outright.xj.core.dao.jooq.AccountUserDAOImpl;
 import io.outright.xj.core.dao.jooq.AuthDAOImpl;
+import io.outright.xj.core.dao.jooq.IdeaDAOImpl;
 import io.outright.xj.core.dao.jooq.LibraryDAOImpl;
 import io.outright.xj.core.dao.jooq.UserDAOImpl;
 import io.outright.xj.core.external.google.GoogleHttpProvider;
@@ -46,16 +48,18 @@ import com.google.inject.AbstractModule;
 
 public class CoreModule extends AbstractModule {
   protected void configure() {
+    configureApp();
+    configureUtil();
+    configureDAO();
+    configureExternal();
+  }
+
+  private void configureApp() {
     bind(AccessControlProvider.class).to(AccessControlProviderImpl.class);
     bind(AccessLogFilterProvider.class).to(AccessLogFilterProviderImpl.class);
     bind(AccessTokenAuthFilter.class).to(AccessTokenAuthFilterImpl.class);
-    bind(AccountDAO.class).to(AccountDAOImpl.class);
-    bind(AccountUserDAO.class).to(AccountUserDAOImpl.class);
     bind(App.class).to(AppImpl.class);
-    bind(AuthDAO.class).to(AuthDAOImpl.class);
     bind(DataStoreFactory.class).to(MemoryDataStoreFactory.class);
-    bind(GoogleHttpProvider.class).to(GoogleHttpProviderImpl.class);
-    bind(GoogleProvider.class).to(GoogleProviderImpl.class);
     bind(HttpResponseProvider.class).to(HttpResponseProviderImpl.class);
     bind(HttpServerProvider.class).to(HttpServerProviderImpl.class);
     bind(HttpTransport.class).to(NetHttpTransport.class);
@@ -64,8 +68,23 @@ public class CoreModule extends AbstractModule {
     bind(RedisDatabaseProvider.class).to(RedisDatabaseProviderImpl.class);
     bind(ResourceConfigProvider.class).to(ResourceConfigProviderImpl.class);
     bind(SQLDatabaseProvider.class).to(SQLDatabaseProviderImpl.class);
+  }
+
+  private void configureUtil() {
     bind(TokenGenerator.class).to(TokenGeneratorImpl.class);
+  }
+
+  private void configureExternal() {
+    bind(GoogleHttpProvider.class).to(GoogleHttpProviderImpl.class);
+    bind(GoogleProvider.class).to(GoogleProviderImpl.class);
+  }
+
+  private void configureDAO() {
+    bind(IdeaDAO.class).to(IdeaDAOImpl.class);
     bind(UserDAO.class).to(UserDAOImpl.class);
     bind(LibraryDAO.class).to(LibraryDAOImpl.class);
+    bind(AccountDAO.class).to(AccountDAOImpl.class);
+    bind(AccountUserDAO.class).to(AccountUserDAOImpl.class);
+    bind(AuthDAO.class).to(AuthDAOImpl.class);
   }
 }

@@ -40,7 +40,7 @@ public class UserIT {
 
   @Before
   public void setUp() throws Exception {
-    IntegrationTestService.setup();
+    IntegrationTestEntity.deleteAll();
 
     // Account "bananas"
     IntegrationTestEntity.insertAccount(1, "bananas");

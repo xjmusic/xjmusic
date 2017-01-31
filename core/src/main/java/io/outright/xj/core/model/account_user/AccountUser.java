@@ -3,7 +3,15 @@ package io.outright.xj.core.model.account_user;
 
 import io.outright.xj.core.app.exception.BusinessException;
 
+import org.jooq.Field;
+
+import com.google.common.collect.ImmutableMap;
+
 import java.math.BigInteger;
+import java.util.Map;
+
+import static io.outright.xj.core.Tables.ACCOUNT_USER;
+import static io.outright.xj.core.Tables.IDEA;
 
 public class AccountUser {
 
@@ -12,8 +20,9 @@ public class AccountUser {
   public BigInteger getAccountId() {
     return accountId;
   }
-  public void setAccountId(BigInteger accountId) {
+  public AccountUser setAccountId(BigInteger accountId) {
     this.accountId = accountId;
+    return this;
   }
 
   // User ID
@@ -21,8 +30,9 @@ public class AccountUser {
   public BigInteger getUserId() {
     return userId;
   }
-  public void setUserId(BigInteger userId) {
+  public AccountUser setUserId(BigInteger userId) {
     this.userId = userId;
+    return this;
   }
 
   /**
@@ -37,6 +47,17 @@ public class AccountUser {
     if (this.userId == null) {
       throw new BusinessException("User ID is required.");
     }
+  }
+
+  /**
+   * Model info jOOQ-field : Value map
+   * @return map
+   */
+  public Map<Field, Object> intoFieldValueMap() {
+    return new ImmutableMap.Builder<Field, Object>()
+      .put(ACCOUNT_USER.ACCOUNT_ID, accountId)
+      .put(ACCOUNT_USER.USER_ID, userId)
+      .build();
   }
 
   @Override

@@ -1,1 +1,50 @@
+<!-- Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved. -->
+
+<!-- Inner Content -->
 {{outlet}}
+
+<!-- Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved. -->
+
+<!-- Upper Container -->
+<div class="form-horizontal">
+
+  <!-- Header -->
+  <div class="form-group">
+    <div class="col-sm-12">
+      <h5>{{#link-to "accounts.one.libraries.one" model.library}}{{model.library.name}}{{/link-to}}</h5>
+      <h1>Ideas</h1>
+    </div>
+  </div>
+
+  <!-- List of Ideas -->
+  <div class="sm-col-12">
+    <div class="table-list">
+      <table class="table">
+        <thead>
+        <tr>
+          <th>#</th>
+          <th>Name</th>
+          <th>Action</th>
+        </tr>
+        </thead>
+        <tbody>
+        {{#each model.ideas as |idea|}}
+          <tr class="item">
+            <th scope="row">{{#link-to "accounts.one.libraries.one.ideas.one" idea}}{{idea.id}}{{/link-to}}</th>
+            <td>{{idea.name}}</td>
+            <td>
+              {{#link-to 'accounts.one.libraries.one.ideas.one.edit' idea}}Edit{{/link-to}}
+            </td>
+          </tr>
+        {{/each}}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  {{#if (or auth.isArtist auth.isAdmin)}}
+    <div class="sm-col-12">
+      Or: {{#link-to 'accounts.one.libraries.one.ideas.new'}}Create New Idea{{/link-to}}
+    </div>
+  {{/if}}
+</div>
