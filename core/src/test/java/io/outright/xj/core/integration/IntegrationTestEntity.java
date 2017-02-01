@@ -7,6 +7,7 @@ import io.outright.xj.core.tables.records.AccountUserRecord;
 import io.outright.xj.core.tables.records.IdeaMemeRecord;
 import io.outright.xj.core.tables.records.IdeaRecord;
 import io.outright.xj.core.tables.records.LibraryRecord;
+import io.outright.xj.core.tables.records.PhaseMemeRecord;
 import io.outright.xj.core.tables.records.PhaseRecord;
 import io.outright.xj.core.tables.records.UserAccessTokenRecord;
 import io.outright.xj.core.tables.records.UserAuthRecord;
@@ -56,64 +57,64 @@ public abstract class IntegrationTestEntity {
   public static void deleteAll() throws DatabaseException {
     DSLContext db = IntegrationTestService.getDb();
     try {
-      // Point (before Morph & Voice Event)
-      db.deleteFrom(POINT).execute();
+      // Point
+      db.deleteFrom(POINT).execute(); // before Morph & Voice Event
 
-      // Pick (before Morph & Audio)
-      db.deleteFrom(PICK).execute();
+      // Pick
+      db.deleteFrom(PICK).execute(); // before Morph & Audio
 
-      // Morph (before Arrangement)
-      db.deleteFrom(MORPH).execute();
+      // Morph
+      db.deleteFrom(MORPH).execute(); // before Arrangement
 
-      // Arrangement (before Instrument, Voice & Choice)
-      db.deleteFrom(ARRANGEMENT).execute();
+      // Arrangement
+      db.deleteFrom(ARRANGEMENT).execute(); // before Instrument, Voice & Choice
 
-      // Audio (before Instrument)
-      db.deleteFrom(AUDIO_CHORD).execute();
-      db.deleteFrom(AUDIO_EVENT).execute();
-      db.deleteFrom(AUDIO).execute();
+      // Audio
+      db.deleteFrom(AUDIO_CHORD).execute(); // before Audio
+      db.deleteFrom(AUDIO_EVENT).execute(); // before Audio
+      db.deleteFrom(AUDIO).execute(); // before Instrument
 
-      // Voice (before Phase)
-      db.deleteFrom(VOICE_EVENT).execute();
-      db.deleteFrom(VOICE).execute();
+      // Voice
+      db.deleteFrom(VOICE_EVENT).execute(); // before Voice
+      db.deleteFrom(VOICE).execute(); // before Phase
 
-      // Instrument (before Library & Credit)
-      db.deleteFrom(INSTRUMENT_MEME).execute();
-      db.deleteFrom(INSTRUMENT).execute();
+      // Instrument
+      db.deleteFrom(INSTRUMENT_MEME).execute(); // before Instrument
+      db.deleteFrom(INSTRUMENT).execute(); // before Library & Credit
 
-      // Choice (before Link & Idea)
-      db.deleteFrom(CHOICE).execute();
+      // Choice
+      db.deleteFrom(CHOICE).execute(); // before Link & Idea
 
-      // Link (before Chain)
-      db.deleteFrom(LINK_CHORD).execute();
-      db.deleteFrom(LINK).execute();
+      // Link
+      db.deleteFrom(LINK_CHORD).execute(); // before Link
+      db.deleteFrom(LINK).execute(); // before Chain
 
-      // Chain (before Library & Account)
-      db.deleteFrom(CHAIN_LIBRARY).execute();
-      db.deleteFrom(CHAIN).execute();
+      // Chain
+      db.deleteFrom(CHAIN_LIBRARY).execute(); // before Chain & Library
+      db.deleteFrom(CHAIN).execute(); // before Account
 
-      // Phase (before Idea)
-      db.deleteFrom(PHASE_MEME).execute();
-      db.deleteFrom(PHASE_CHORD).execute();
-      db.deleteFrom(PHASE).execute();
+      // Phase
+      db.deleteFrom(PHASE_MEME).execute(); // before Phase
+      db.deleteFrom(PHASE_CHORD).execute(); // before Phase
+      db.deleteFrom(PHASE).execute(); // before Idea
 
-      // Idea (before Library & Credit)
-      db.deleteFrom(IDEA_MEME).execute();
-      db.deleteFrom(Tables.IDEA).execute();
+      // Idea
+      db.deleteFrom(IDEA_MEME).execute(); // before Idea
+      db.deleteFrom(Tables.IDEA).execute(); // before Library & Credit
 
-      // Library (before Account)
-      db.deleteFrom(Tables.LIBRARY).execute();
+      // Library
+      db.deleteFrom(Tables.LIBRARY).execute(); // before Account
 
-      // Account (before User)
-      db.deleteFrom(ACCOUNT_USER).execute();
-      db.deleteFrom(ACCOUNT).execute();
+      // Account
+      db.deleteFrom(ACCOUNT_USER).execute(); // before Account
+      db.deleteFrom(ACCOUNT).execute(); //before User
 
-      // User Access Token (before User & User Auth)
-      db.deleteFrom(USER_ACCESS_TOKEN).execute();
+      // User Access Token
+      db.deleteFrom(USER_ACCESS_TOKEN).execute(); // before User & User Auth
 
-      // User (last)
-      db.deleteFrom(USER_AUTH).execute();
-      db.deleteFrom(USER_ROLE).execute();
+      // User
+      db.deleteFrom(USER_AUTH).execute(); // before User
+      db.deleteFrom(USER_ROLE).execute(); // before User
       db.deleteFrom(USER).execute();
 
     } catch (Exception e) {
@@ -194,6 +195,14 @@ public abstract class IntegrationTestEntity {
     record.store();
   }
 
+  public static void insertIdeaMeme(int id, int ideaId, String name) {
+    IdeaMemeRecord record = IntegrationTestService.getDb().newRecord(IDEA_MEME);
+    record.setId(ULong.valueOf(id));
+    record.setIdeaId(ULong.valueOf(ideaId));
+    record.setName(name);
+    record.store();
+  }
+
   public static void insertPhase(int id, int ideaId, int offset, int total, String name, double density, String key, double tempo) {
     PhaseRecord record = IntegrationTestService.getDb().newRecord(PHASE);
     record.setId(ULong.valueOf(id));
@@ -207,11 +216,10 @@ public abstract class IntegrationTestEntity {
     record.store();
   }
 
-
-  public static void insertIdeaMeme(int id, int ideaId, String name) {
-    IdeaMemeRecord record = IntegrationTestService.getDb().newRecord(IDEA_MEME);
+  public static void insertPhaseMeme(int id, int phaseId, String name) {
+    PhaseMemeRecord record = IntegrationTestService.getDb().newRecord(PHASE_MEME);
     record.setId(ULong.valueOf(id));
-    record.setIdeaId(ULong.valueOf(ideaId));
+    record.setPhaseId(ULong.valueOf(phaseId));
     record.setName(name);
     record.store();
   }

@@ -25,6 +25,7 @@ import java.sql.SQLException;
 
 import static io.outright.xj.core.Tables.CHOICE;
 import static io.outright.xj.core.Tables.IDEA;
+import static io.outright.xj.core.tables.IdeaMeme.IDEA_MEME;
 import static io.outright.xj.core.tables.Library.LIBRARY;
 import static io.outright.xj.core.tables.Phase.PHASE;
 
@@ -206,6 +207,11 @@ public class IdeaDAOImpl implements IdeaDAO {
       .where(CHOICE.IDEA_ID.eq(ideaId))
       .fetchResultSet());
 
+    assertEmptyResultSet(db.select(IDEA_MEME.ID)
+      .from(IDEA_MEME)
+      .where(IDEA_MEME.IDEA_ID.eq(ideaId))
+      .fetchResultSet());
+
     db.deleteFrom(IDEA)
       .where(IDEA.ID.eq(ideaId))
       .andNotExists(
@@ -217,6 +223,11 @@ public class IdeaDAOImpl implements IdeaDAO {
         db.select(CHOICE.ID)
           .from(CHOICE)
           .where(CHOICE.IDEA_ID.eq(ideaId))
+      )
+      .andNotExists(
+        db.select(IDEA_MEME.ID)
+          .from(IDEA_MEME)
+          .where(IDEA_MEME.IDEA_ID.eq(ideaId))
       )
       .execute();
   }

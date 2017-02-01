@@ -14,9 +14,9 @@ export default Base.extend({
 
    @property serverTokenEndpoint
    @type String
-   @default '/auth'
+   @default '/api/1/auth'
    */
-  serverTokenEndpoint: '/auth',
+  serverTokenEndpoint: '/api/1/auth',
 
   /**
    @method init

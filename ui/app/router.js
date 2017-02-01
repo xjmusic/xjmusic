@@ -7,67 +7,57 @@ const Router = Ember.Router.extend({
 });
 
 Router.map(function () {
-  // Users
-  this.route('users', {path: '/u'}, function () {
-
-    // User
-    this.route('one', {path: '/:user_id'});
-  });
-
-  // Accounts
-  this.route('accounts', {path: '/a'}, function () {
-
-    // New Account
-    this.route('new');
-
-    // Account
-    this.route('one', {path: '/:account_id'}, function () {
-
-      // Edit Account
-      this.route('edit');
-
-      // Users (in Account)
-      this.route('users', {path: '/u'});
-
-      // Libraries (in Account)
-      this.route('libraries', {path: '/lib'}, function () {
-
-        // New Library
-        this.route('new');
-
-        // Library
-        this.route('one', {path: '/:library_id'}, function () {
-
-          // Edit Library
-          this.route('edit');
-
-          // Ideas (in Library)
-          this.route('ideas', function() {
-
-            // Idea
-            this.route('one', {path: '/:idea_id'}, function() {
-
-              // Edit Idea
-              this.route('edit');
-
-              // Memes (in Idea)
-              this.route('memes');
-
-            });
-            this.route('new');
-          });
-        });
-      });
-    });
-  });
-
-  // Me
-  this.route('yo');
-
-  // Authentication
+  this.route('users', {path: '/u'}, users);
+  this.route('accounts', {path: '/a'}, accounts);
   this.route('login');
   this.route('logout');
   this.route('unauthorized');
 });
+
+function users() {
+  this.route('one', {path: '/:user_id'});
+}
+
+function accounts() {
+  this.route('new'); // New Account
+  this.route('one', {path: '/:account_id'}, account); // One Account
+}
+
+function account() {
+  this.route('edit'); // Edit Account
+  this.route('users', {path: '/u'}); // Users in Account
+  this.route('libraries', {path: '/lib'}, accountLibraries); // Libraries in Account
+}
+
+function accountLibraries() {
+  this.route('new'); // New Library
+  this.route('one', {path: '/:library_id'}, accountLibrary); // One Library
+}
+
+function accountLibrary() {
+  this.route('edit'); // Edit Library
+  this.route('ideas', accountLibraryIdeas); // Ideas in Library
+}
+
+function accountLibraryIdeas() {
+  this.route('new'); // New Idea
+  this.route('one', {path: '/:idea_id'}, accountLibraryIdea); // One Idea
+}
+
+function accountLibraryIdea() {
+  this.route('edit'); // Edit Idea
+  this.route('memes'); // Memes in Idea
+  this.route('phases', accountLibraryIdeaPhases); // Phases in Idea
+}
+
+function accountLibraryIdeaPhases() {
+  this.route('new'); // New Phase
+  this.route('one', {path: '/:phase_id'}, accountLibraryIdeaPhase); // One Phase
+}
+
+function accountLibraryIdeaPhase() {
+  this.route('edit'); // Edit Phase
+  // this.route('memes'); // Memes in Phase
+}
 
 export default Router;

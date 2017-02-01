@@ -10,32 +10,32 @@ export default Ember.Route.extend({
   model() {
     let auth = this.get('auth');
     if (auth.isArtist || auth.isAdmin) {
-      let library = this.modelFor('accounts.one.libraries.one');
       let idea = this.modelFor('accounts.one.libraries.one.ideas.one');
-      idea.set('library', library);
-      return idea;
+      let phase = this.modelFor('accounts.one.libraries.one.ideas.one.phases.one');
+      phase.set('idea', idea);
+      return phase;
     } else {
-      this.transitionTo('accounts.one.libraries.one.ideas.one');
+      this.transitionTo('accounts.one.libraries.one.ideas.one.phases.one');
     }
   },
 
   actions: {
 
-    saveIdea(model) {
+    savePhase(model) {
       model.save().then(() => {
-        Ember.get(this, 'display').success('Updated idea ' + model.get('name') + '.');
-        this.transitionTo('accounts.one.libraries.one.ideas', model.get('library'));
+        Ember.get(this, 'display').success('Updated phase ' + model.get('name') + '.');
+        this.transitionTo('accounts.one.libraries.one.ideas.one.phases', model.get('idea'));
       }).catch((error) => {
         Ember.get(this, 'display').error(error);
       });
     },
 
-    destroyIdea(model) {
-      let confirmation = confirm("Are you sure? If there are Ideas or Instruments belonging to this Idea, deletion will fail anyway.");
+    destroyPhase(model) {
+      let confirmation = confirm("Are you sure? If there are Phases or Instruments belonging to this Phase, deletion will fail anyway.");
       if (confirmation) {
         model.destroyRecord().then(() => {
-          Ember.get(this, 'display').success('Deleted idea ' + model.get('name') + '.');
-          this.transitionTo('accounts.one.libraries.one.ideas');
+          Ember.get(this, 'display').success('Deleted phase ' + model.get('name') + '.');
+          this.transitionTo('accounts.one.libraries.one.ideas.one.phases');
         }).catch((error) => {
           Ember.get(this, 'display').error(error);
         });

@@ -99,21 +99,7 @@ public class IdeaMemeDAOImpl implements IdeaMemeDAO {
     DSLContext db = dbProvider.getContext(conn);
 
     try {
-      // TODO: fail if no ideaMeme is deleted
-      if (!access.isAdmin()) {
-        Record record = db.select(IDEA_MEME.ID).from(IDEA_MEME)
-          .join(IDEA).on(IDEA.ID.eq(IDEA_MEME.IDEA_ID))
-          .join(LIBRARY).on(IDEA.LIBRARY_ID.eq(LIBRARY.ID))
-          .where(IDEA_MEME.ID.eq(id))
-          .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-          .fetchOne();
-        assertRecordExists(record, "Idea Meme");
-      }
-
-      db.deleteFrom(IDEA_MEME)
-        .where(IDEA_MEME.ID.eq(id))
-        .execute();
-
+      delete(db, access, id);
       dbProvider.commitAndClose(conn);
 
     } catch (Exception e) {
@@ -131,6 +117,7 @@ public class IdeaMemeDAOImpl implements IdeaMemeDAO {
     try {
       result = JSON.objectFromRecord(create(db, access, data));
       dbProvider.commitAndClose(conn);
+
     } catch (Exception e) {
       dbProvider.rollbackAndClose(conn);
       throw e;
@@ -186,6 +173,30 @@ public class IdeaMemeDAOImpl implements IdeaMemeDAO {
     }
 
     return record;
+  }
+
+  /**
+   * Delete an IdeaMeme record
+   * @param db context
+   * @param access control
+   * @param id to delete
+   * @throws BusinessException if failure
+   */
+  // TODO: fail if no ideaMeme is deleted
+  private void delete(DSLContext db, AccessControl access, ULong id) throws BusinessException {
+    if (!access.isAdmin()) {
+      Record record = db.select(IDEA_MEME.ID).from(IDEA_MEME)
+        .join(IDEA).on(IDEA.ID.eq(IDEA_MEME.IDEA_ID))
+        .join(LIBRARY).on(IDEA.LIBRARY_ID.eq(LIBRARY.ID))
+        .where(IDEA_MEME.ID.eq(id))
+        .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
+        .fetchOne();
+      assertRecordExists(record, "Idea Meme");
+    }
+
+    db.deleteFrom(IDEA_MEME)
+      .where(IDEA_MEME.ID.eq(id))
+      .execute();
   }
 
   /**

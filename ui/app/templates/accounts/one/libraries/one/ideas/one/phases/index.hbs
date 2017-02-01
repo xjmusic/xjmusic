@@ -11,19 +11,20 @@
   <!-- Header -->
   <div class="form-group">
     <div class="col-sm-12">
-      <h5>{{#link-to "accounts.one.libraries.one" model.library}}{{model.library.name}}{{/link-to}}</h5>
-      <h1>Ideas</h1>
+      <h5>{{#link-to "accounts.one.libraries.one.ideas.one" model.idea}}{{model.idea.name}}{{/link-to}}</h5>
+      <h1>Phases</h1>
     </div>
   </div>
 
-  <!-- List of Ideas -->
+  <!-- List of Phases -->
   <div class="sm-col-12">
     <div class="table-list">
       <table class="table">
         <thead>
         <tr>
           <th>#</th>
-          <th>Type</th>
+          <th>Offset</th>
+          <th>Total</th>
           <th>Name</th>
           <th>Key</th>
           <th>Density</th>
@@ -32,20 +33,17 @@
         </tr>
         </thead>
         <tbody>
-        {{#each model.ideas as |idea|}}
+        {{#each model.phases as |phase|}}
           <tr class="item">
-            <th scope="row">{{#link-to "accounts.one.libraries.one.ideas.one" idea}}{{idea.id}}{{/link-to}}</th>
-            <td>{{idea.type}}</td>
-            <td>{{idea.name}}</td>
-            <td>{{idea.key}}</td>
-            <td>{{idea.density}}</td>
-            <td>{{idea.tempo}}</td>
+            <th scope="row">{{#link-to "accounts.one.libraries.one.ideas.one.phases.one" phase}}{{phase.id}}{{/link-to}}</th>
+            <td>{{phase.offset}}</td>
+            <td>{{phase.total}}</td>
+            <td>{{phase.name}}</td>
+            <td>{{phase.key}}</td>
+            <td>{{phase.density}}</td>
+            <td>{{phase.tempo}}</td>
             <td>
-              {{#link-to 'accounts.one.libraries.one.ideas.one.edit' idea}}Edit{{/link-to}}
-              |
-              {{#link-to 'accounts.one.libraries.one.ideas.one.memes' idea}}Memes{{/link-to}}
-              |
-              {{#link-to 'accounts.one.libraries.one.ideas.one.phases' idea}}Phases{{/link-to}}
+              {{#link-to 'accounts.one.libraries.one.ideas.one.phases.one.edit' phase}}Edit{{/link-to}}
             </td>
           </tr>
         {{/each}}
@@ -56,7 +54,7 @@
 
   {{#if (or auth.isArtist auth.isAdmin)}}
     <div class="sm-col-12">
-      Or: {{#link-to 'accounts.one.libraries.one.ideas.new'}}Create New Idea{{/link-to}}
+      Or: {{#link-to 'accounts.one.libraries.one.ideas.one.phases.new'}}Create New Phase{{/link-to}}
     </div>
   {{/if}}
 </div>
