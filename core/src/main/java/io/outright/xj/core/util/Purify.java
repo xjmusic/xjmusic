@@ -5,10 +5,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public interface Purify {
-    Pattern nonAlphanumeric = Pattern.compile("[^0-9a-zA-Z]");
+    Pattern nonAlphabet = Pattern.compile("[^a-zA-Z]");
 
     static String Slug(String raw) {
-        Matcher m = nonAlphanumeric.matcher(raw);
+        Matcher m = nonAlphabet.matcher(raw);
         return m.replaceAll("");
     }
 

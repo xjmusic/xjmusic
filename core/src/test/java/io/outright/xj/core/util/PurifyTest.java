@@ -8,23 +8,25 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Objects;
 
+import static org.junit.Assert.assertEquals;
+
 @RunWith(MockitoJUnitRunner.class)
 public class PurifyTest extends Mockito {
 
   @Test
   public void testToString() {
-    assert Objects.equals(Purify.Slug("jim"), "jim");
-    assert Objects.equals(Purify.Slug("jim-251"), "jim251");
-    assert Objects.equals(Purify.Slug("j i m - 2 5 1"), "jim251");
-    assert Objects.equals(Purify.Slug("j!i$m%-^2%5*1"), "jim251");
+    assertEquals("jim", Purify.Slug("jim"));
+    assertEquals("jim", Purify.Slug("jim-251"));
+    assertEquals("jim", Purify.Slug("j i m - 2 5 1"));
+    assertEquals("jim", Purify.Slug("j!i$m%-^2%5*1"));
   }
 
   @Test
   public void testProperSlug() {
-    assert Objects.equals(Purify.ProperSlug("jaMMy"), "Jammy");
-    assert Objects.equals(Purify.ProperSlug("j#MMy", "neuf"), "Jmmy");
-    assert Objects.equals(Purify.ProperSlug("%&(#", "neuf"), "Neuf");
-    assert Objects.equals(Purify.ProperSlug("%&(#p"), "P");
-    assert Objects.equals(Purify.ProperSlug("%&(#"), "");
+    assertEquals("Jammy", Purify.ProperSlug("jaMMy"));
+    assertEquals("Jmmy", Purify.ProperSlug("j#MMy", "neuf"));
+    assertEquals("Neuf", Purify.ProperSlug("%&(#", "neuf"));
+    assertEquals("P", Purify.ProperSlug("%&(#p"));
+    assertEquals("", Purify.ProperSlug("%&(#"));
   }
 }

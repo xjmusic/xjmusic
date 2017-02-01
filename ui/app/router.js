@@ -35,15 +35,24 @@ Router.map(function () {
         // New Library
         this.route('new');
 
-        // Library (in Account)
+        // Library
         this.route('one', {path: '/:library_id'}, function () {
 
           // Edit Library
           this.route('edit');
 
+          // Ideas (in Library)
           this.route('ideas', function() {
+
+            // Idea
             this.route('one', {path: '/:idea_id'}, function() {
+
+              // Edit Idea
               this.route('edit');
+
+              // Memes (in Idea)
+              this.route('memes');
+
             });
             this.route('new');
           });

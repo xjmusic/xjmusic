@@ -23,12 +23,14 @@ import io.outright.xj.core.dao.AccountDAO;
 import io.outright.xj.core.dao.AccountUserDAO;
 import io.outright.xj.core.dao.AuthDAO;
 import io.outright.xj.core.dao.IdeaDAO;
+import io.outright.xj.core.dao.IdeaMemeDAO;
 import io.outright.xj.core.dao.LibraryDAO;
 import io.outright.xj.core.dao.UserDAO;
 import io.outright.xj.core.dao.jooq.AccountDAOImpl;
 import io.outright.xj.core.dao.jooq.AccountUserDAOImpl;
 import io.outright.xj.core.dao.jooq.AuthDAOImpl;
 import io.outright.xj.core.dao.jooq.IdeaDAOImpl;
+import io.outright.xj.core.dao.jooq.IdeaMemeDAOImpl;
 import io.outright.xj.core.dao.jooq.LibraryDAOImpl;
 import io.outright.xj.core.dao.jooq.UserDAOImpl;
 import io.outright.xj.core.external.google.GoogleHttpProvider;
@@ -81,6 +83,7 @@ public class CoreModule extends AbstractModule {
 
   private void configureDAO() {
     bind(IdeaDAO.class).to(IdeaDAOImpl.class);
+    bind(IdeaMemeDAO.class).to(IdeaMemeDAOImpl.class);
     bind(UserDAO.class).to(UserDAOImpl.class);
     bind(LibraryDAO.class).to(LibraryDAOImpl.class);
     bind(AccountDAO.class).to(AccountDAOImpl.class);

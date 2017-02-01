@@ -4,6 +4,7 @@ import io.outright.xj.core.Tables;
 import io.outright.xj.core.app.exception.DatabaseException;
 import io.outright.xj.core.tables.records.AccountRecord;
 import io.outright.xj.core.tables.records.AccountUserRecord;
+import io.outright.xj.core.tables.records.IdeaMemeRecord;
 import io.outright.xj.core.tables.records.IdeaRecord;
 import io.outright.xj.core.tables.records.LibraryRecord;
 import io.outright.xj.core.tables.records.PhaseRecord;
@@ -207,4 +208,11 @@ public abstract class IntegrationTestEntity {
   }
 
 
+  public static void insertIdeaMeme(int id, int ideaId, String name) {
+    IdeaMemeRecord record = IntegrationTestService.getDb().newRecord(IDEA_MEME);
+    record.setId(ULong.valueOf(id));
+    record.setIdeaId(ULong.valueOf(ideaId));
+    record.setName(name);
+    record.store();
+  }
 }
