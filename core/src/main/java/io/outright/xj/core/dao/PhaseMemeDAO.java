@@ -22,7 +22,7 @@ public interface PhaseMemeDAO {
    * @param data   for the new Phase Meme.
    * @return newly created record as JSON
    */
-  JSONObject create(AccessControl access, PhaseMemeWrapper data) throws DatabaseException, ConfigException, BusinessException;
+  JSONObject create(AccessControl access, PhaseMemeWrapper data) throws Exception;
 
   /**
    * Fetch one PhaseMeme if accessible
@@ -30,10 +30,10 @@ public interface PhaseMemeDAO {
    * @param access control
    * @param id     of PhaseMeme
    * @return retrieved record as JSON
-   * @throws DatabaseException on failure
+   * @throws Exception on failure
    */
   @Nullable
-  JSONObject readOneAble(AccessControl access, ULong id) throws DatabaseException;
+  JSONObject readOne(AccessControl access, ULong id) throws Exception;
 
   /**
    * Fetch many PhaseMeme for one Phase by id, if accessible
@@ -41,10 +41,10 @@ public interface PhaseMemeDAO {
    * @param access control
    * @param phaseId to fetch phaseMemes for.
    * @return JSONArray of phaseMemes.
-   * @throws DatabaseException on failure
+   * @throws Exception on failure
    */
   @Nullable
-  JSONArray readAllAble(AccessControl access, ULong phaseId) throws DatabaseException;
+  JSONArray readAllIn(AccessControl access, ULong phaseId) throws Exception;
 
   /**
    * Delete a specified PhaseMeme
@@ -52,5 +52,5 @@ public interface PhaseMemeDAO {
    * @param access control
    * @param id     of specific PhaseMeme to delete.
    */
-  void delete(AccessControl access, ULong id) throws DatabaseException, ConfigException, BusinessException;
+  void delete(AccessControl access, ULong id) throws Exception;
 }

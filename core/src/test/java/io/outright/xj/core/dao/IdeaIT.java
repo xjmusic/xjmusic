@@ -4,7 +4,6 @@ package io.outright.xj.core.dao;
 import io.outright.xj.core.CoreModule;
 import io.outright.xj.core.app.access.AccessControl;
 import io.outright.xj.core.app.exception.BusinessException;
-import io.outright.xj.core.external.AuthType;
 import io.outright.xj.core.integration.IntegrationTestEntity;
 import io.outright.xj.core.integration.IntegrationTestService;
 import io.outright.xj.core.model.idea.Idea;
@@ -50,14 +49,14 @@ public class IdeaIT {
     IntegrationTestEntity.insertUserRole(3, Role.USER);
     IntegrationTestEntity.insertAccountUser(1, 3);
 
-    // Library "palm tree" has idea "leaves" and idea "coconuts"
+    // Library "palm tree" has idea "fonds" and idea "nuts"
     IntegrationTestEntity.insertLibrary(1, 1, "palm tree");
-    IntegrationTestEntity.insertIdea(1, 2, 1, Idea.MAIN, "leaves", 0.342, "C#", 0.286);
-    IntegrationTestEntity.insertIdea(2, 2, 1, Idea.MAIN, "coconuts", 0.342, "C#", 0.286);
+    IntegrationTestEntity.insertIdea(1, 2, 1, Idea.MAIN, "fonds", 0.342, "C#", 0.286);
+    IntegrationTestEntity.insertIdea(2, 2, 1, Idea.MAIN, "nuts", 0.342, "C#", 0.286);
 
     // Library "boat" has idea "helm" and idea "sail"
     IntegrationTestEntity.insertLibrary(2, 1, "boat");
-    IntegrationTestEntity.insertIdea(3, 3, 2, Idea.MAIN, "leaves", 0.342, "C#", 0.286);
+    IntegrationTestEntity.insertIdea(3, 3, 2, Idea.MAIN, "fonds", 0.342, "C#", 0.286);
 
     // Instantiate the test subject
     testDAO = injector.getInstance(IdeaDAO.class);
@@ -86,7 +85,7 @@ public class IdeaIT {
         .setUserId(BigInteger.valueOf(2))
       );
 
-    JSONObject actualResult = testDAO.create(access,inputDataWrapper);
+    JSONObject actualResult = testDAO.create(access, inputDataWrapper);
 
     assertNotNull(actualResult);
     assertEquals(0.42, actualResult.get("density"));
@@ -133,22 +132,22 @@ public class IdeaIT {
         .setLibraryId(BigInteger.valueOf(2))
       );
 
-    testDAO.create(access,inputDataWrapper);
+    testDAO.create(access, inputDataWrapper);
   }
 
   @Test
-  public void readOneAble() throws Exception {
+  public void readOne() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
       "roles", "user",
       "accounts", "1"
     ));
 
-    JSONObject actualResult = testDAO.readOneAble(access, ULong.valueOf(2));
+    JSONObject actualResult = testDAO.readOne(access, ULong.valueOf(2));
 
     assertNotNull(actualResult);
     assertEquals(ULong.valueOf(2), actualResult.get("id"));
     assertEquals(ULong.valueOf(1), actualResult.get("libraryId"));
-    assertEquals("coconuts", actualResult.get("name"));
+    assertEquals("nuts", actualResult.get("name"));
   }
 
   @Test
@@ -158,7 +157,7 @@ public class IdeaIT {
       "accounts", "326"
     ));
 
-    JSONObject actualResult = testDAO.readOneAble(access, ULong.valueOf(1));
+    JSONObject actualResult = testDAO.readOne(access, ULong.valueOf(1));
 
     assertNull(actualResult);
   }
@@ -166,18 +165,18 @@ public class IdeaIT {
   @Test
   public void readAllAble() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
-      "roles", "user",
+      "roles", "admin",
       "accounts", "1"
     ));
 
-    JSONArray actualResultList = testDAO.readAllAble(access, ULong.valueOf(1));
+    JSONArray actualResultList = testDAO.readAllIn(access, ULong.valueOf(1));
 
     assertNotNull(actualResultList);
     assertEquals(2, actualResultList.length());
     JSONObject actualResult1 = (JSONObject) actualResultList.get(0);
-    assertEquals("leaves", actualResult1.get("name"));
+    assertEquals("fonds", actualResult1.get("name"));
     JSONObject actualResult2 = (JSONObject) actualResultList.get(1);
-    assertEquals("coconuts", actualResult2.get("name"));
+    assertEquals("nuts", actualResult2.get("name"));
   }
 
   @Test
@@ -187,7 +186,7 @@ public class IdeaIT {
       "accounts", "345"
     ));
 
-    JSONArray actualResultList = testDAO.readAllAble(access, ULong.valueOf(1));
+    JSONArray actualResultList = testDAO.readAllIn(access, ULong.valueOf(1));
 
     assertNotNull(actualResultList);
     assertEquals(0, actualResultList.length());
@@ -233,7 +232,7 @@ public class IdeaIT {
     IdeaWrapper inputDataWrapper = new IdeaWrapper();
     inputDataWrapper.setIdea(inputData);
 
-    testDAO.update(access,ULong.valueOf(3), inputDataWrapper);
+    testDAO.update(access, ULong.valueOf(3), inputDataWrapper);
 
     IdeaRecord updatedRecord = IntegrationTestService.getDb()
       .selectFrom(IDEA)
@@ -262,7 +261,7 @@ public class IdeaIT {
         .setUserId(BigInteger.valueOf(2))
       );
 
-    testDAO.update(access,ULong.valueOf(3), inputDataWrapper);
+    testDAO.update(access, ULong.valueOf(3), inputDataWrapper);
 
     IdeaRecord updatedRecord = IntegrationTestService.getDb()
       .selectFrom(IDEA)
@@ -277,7 +276,11 @@ public class IdeaIT {
 
   @Test
   public void delete() throws Exception {
-    testDAO.delete(ULong.valueOf(1));
+    AccessControl access = new AccessControl(ImmutableMap.of(
+      "roles", "admin"
+    ));
+
+    testDAO.delete(access, ULong.valueOf(1));
 
     IdeaRecord deletedRecord = IntegrationTestService.getDb()
       .selectFrom(IDEA)
@@ -288,10 +291,13 @@ public class IdeaIT {
 
   @Test(expected = BusinessException.class)
   public void delete_FailsIfIdeaHasChildRecords() throws Exception {
+    AccessControl access = new AccessControl(ImmutableMap.of(
+      "roles", "admin"
+    ));
     IntegrationTestEntity.insertPhase(1, 2, 0, 14, "testPhase", 0.524, "F#", 125.49);
 
     try {
-      testDAO.delete(ULong.valueOf(2));
+      testDAO.delete(access, ULong.valueOf(2));
 
     } catch (Exception e) {
       IdeaRecord stillExistingRecord = IntegrationTestService.getDb()

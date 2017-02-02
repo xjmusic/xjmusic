@@ -9,7 +9,6 @@ import io.outright.xj.core.dao.PhaseMemeDAO;
 import io.outright.xj.core.model.phase_meme.PhaseMeme;
 import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.transport.JSON;
-import io.outright.xj.hub.HubModule;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -36,13 +35,13 @@ import java.io.IOException;
  */
 @Path("phase-memes/{id}")
 public class PhaseMemeRecordResource {
-  private static final Injector injector = Guice.createInjector(new CoreModule(), new HubModule());
+  private static final Injector injector = Guice.createInjector(new CoreModule());
   private static Logger log = LoggerFactory.getLogger(PhaseMemeRecordResource.class);
   private final PhaseMemeDAO phaseMemeDAO = injector.getInstance(PhaseMemeDAO.class);
   private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
 
   @PathParam("id")
-  String phaseMemeId;
+  String id;
 
   /**
    * Get one PhaseMeme by phaseId and memeId
@@ -58,7 +57,7 @@ public class PhaseMemeRecordResource {
 
     JSONObject result;
     try {
-      result = phaseMemeDAO.readOneAble(access, ULong.valueOf(phaseMemeId));
+      result = phaseMemeDAO.readOne(access, ULong.valueOf(id));
       if (result != null) {
         return Response
           .accepted(JSON.wrap(PhaseMeme.KEY_ONE, result).toString())
@@ -74,7 +73,7 @@ public class PhaseMemeRecordResource {
   }
 
   /**
-   * Delete one PhaseMeme by phaseId and memeId
+   * Delete one PhaseMeme by id
    * TODO: Return 404 if the phase is not found.
    *
    * @return application/json response.
@@ -85,7 +84,7 @@ public class PhaseMemeRecordResource {
     AccessControl access = AccessControl.fromContext(crc);
 
     try {
-      phaseMemeDAO.delete(access, ULong.valueOf(phaseMemeId));
+      phaseMemeDAO.delete(access, ULong.valueOf(id));
     } catch (BusinessException e) {
       log.warn("BusinessException: " + e.getMessage());
       return Response

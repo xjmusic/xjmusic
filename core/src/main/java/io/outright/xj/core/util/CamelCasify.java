@@ -15,4 +15,15 @@ public interface CamelCasify {
       key;
   }
 
+  /**
+   * Convert underscore to upper-camelcase only if underscores are present, else return original key.
+   * @param key to convert.
+   * @return converted or original key.
+   */
+  static String ifNeededUpper(String key) {
+    return key.contains("_") ?
+      CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, key) :
+      key;
+  }
+
 }

@@ -8,13 +8,11 @@ import io.outright.xj.core.app.exception.AccessException;
 import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.app.exception.DatabaseException;
 import io.outright.xj.core.app.server.HttpResponseProvider;
-import io.outright.xj.hub.HubModule;
-import io.outright.xj.core.dao.jooq.AuthDAOImpl;
+import io.outright.xj.core.dao.impl.AuthDAOImpl;
 
 import com.google.api.client.auth.oauth2.AuthorizationCodeResponseUrl;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +30,7 @@ import javax.ws.rs.core.UriInfo;
 @Path("auth/google/callback")
 public class AuthGoogleCallbackResource {
   private final Logger log = LoggerFactory.getLogger(AuthGoogleCallbackResource.class);
-  private final Injector injector = Guice.createInjector(new CoreModule(), new HubModule());
+  private final Injector injector = Guice.createInjector(new CoreModule());
   private final AuthDAOImpl googleAuthController = injector.getInstance(AuthDAOImpl.class);
   private final AccessControlProvider accessControlProvider = injector.getInstance(AccessControlProvider.class);
   private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);

@@ -4,18 +4,16 @@ package io.outright.xj.hub.resource.idea_meme;
 import io.outright.xj.core.CoreModule;
 import io.outright.xj.core.app.access.AccessControl;
 import io.outright.xj.core.app.config.Exposure;
-import io.outright.xj.core.app.exception.BusinessException;
+import io.outright.xj.core.app.server.HttpResponseProvider;
 import io.outright.xj.core.dao.IdeaMemeDAO;
 import io.outright.xj.core.model.Entity;
 import io.outright.xj.core.model.idea_meme.IdeaMeme;
 import io.outright.xj.core.model.idea_meme.IdeaMemeWrapper;
 import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.transport.JSON;
-import io.outright.xj.hub.HubModule;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.apache.http.HttpStatus;
 import org.jooq.types.ULong;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -40,9 +38,10 @@ import java.io.IOException;
  */
 @Path("idea-memes")
 public class IdeaMemeIndexResource {
-  private static final Injector injector = Guice.createInjector(new CoreModule(), new HubModule());
+  private static final Injector injector = Guice.createInjector(new CoreModule());
   private static Logger log = LoggerFactory.getLogger(IdeaMemeIndexResource.class);
   private final IdeaMemeDAO ideaMemeDAO = injector.getInstance(IdeaMemeDAO.class);
+  private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
 
   @QueryParam("idea")
   String ideaId;
@@ -58,26 +57,24 @@ public class IdeaMemeIndexResource {
   @RolesAllowed({Role.ARTIST})
   public Response readAll(@Context ContainerRequestContext crc) throws IOException {
     AccessControl access = AccessControl.fromContext(crc);
-    JSONArray result;
 
     if (ideaId == null || ideaId.length() == 0) {
-      return notAcceptable("Idea id is required");
+      return httpResponseProvider.notAcceptable("Idea id is required");
     }
 
     try {
-      result = ideaMemeDAO.readAllAble(access, ULong.valueOf(ideaId));
-    } catch (Exception e) {
-      log.error(e.getClass().getName(), e);
-      return Response.serverError().build();
-    }
+      JSONArray result = ideaMemeDAO.readAllIn(access, ULong.valueOf(ideaId));
+      if (result != null) {
+        return Response
+          .accepted(JSON.wrap(IdeaMeme.KEY_MANY, result).toString())
+          .type(MediaType.APPLICATION_JSON)
+          .build();
+      } else {
+        return Response.noContent().build();
+      }
 
-    if (result != null) {
-      return Response
-        .accepted(JSON.wrap(IdeaMeme.KEY_MANY, result).toString())
-        .type(MediaType.APPLICATION_JSON)
-        .build();
-    } else {
-      return Response.noContent().build();
+    } catch (Exception e) {
+      return httpResponseProvider.failure(e);
     }
   }
 
@@ -92,37 +89,16 @@ public class IdeaMemeIndexResource {
   @RolesAllowed({Role.ARTIST})
   public Response create(IdeaMemeWrapper data, @Context ContainerRequestContext crc) {
     AccessControl access = AccessControl.fromContext(crc);
-    JSONObject result;
-
     try {
-      result = ideaMemeDAO.create(access, data);
-    } catch (BusinessException e) {
-      log.warn("BusinessException: " + e.getMessage());
+      JSONObject result = ideaMemeDAO.create(access, data);
       return Response
-        .status(HttpStatus.SC_UNPROCESSABLE_ENTITY)
-        .entity(JSON.wrapError(e.getMessage()).toString())
+        .created(Exposure.apiURI(IdeaMeme.KEY_MANY + "/" + result.get(Entity.KEY_ID)))
+        .entity(JSON.wrap(IdeaMeme.KEY_ONE, result).toString())
         .build();
+
     } catch (Exception e) {
-      log.error(e.getClass().getName(), e);
-      return Response.serverError().build();
+      return httpResponseProvider.failureToCreate(e);
     }
-
-    return Response
-      .created(Exposure.apiURI(IdeaMeme.KEY_MANY + "/" + result.get(Entity.KEY_ID)))
-      .entity(JSON.wrap(IdeaMeme.KEY_ONE, result).toString())
-      .build();
-  }
-
-  /**
-   * Respond with not acceptable, idea id required.
-   *
-   * @return Response
-   */
-  private Response notAcceptable(String message) {
-    return Response
-      .status(HttpStatus.SC_NOT_ACCEPTABLE)
-      .entity(JSON.wrapError(message).toString())
-      .build();
   }
 
 }

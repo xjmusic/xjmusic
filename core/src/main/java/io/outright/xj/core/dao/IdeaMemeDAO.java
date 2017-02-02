@@ -22,7 +22,7 @@ public interface IdeaMemeDAO {
    * @param data   for the new Idea Meme.
    * @return newly created record as JSON
    */
-  JSONObject create(AccessControl access, IdeaMemeWrapper data) throws DatabaseException, ConfigException, BusinessException;
+  JSONObject create(AccessControl access, IdeaMemeWrapper data) throws Exception;
 
   /**
    * Fetch one IdeaMeme if accessible
@@ -30,10 +30,10 @@ public interface IdeaMemeDAO {
    * @param access control
    * @param id     of IdeaMeme
    * @return retrieved record as JSON
-   * @throws DatabaseException on failure
+   * @throws Exception on failure
    */
   @Nullable
-  JSONObject readOneAble(AccessControl access, ULong id) throws DatabaseException;
+  JSONObject readOne(AccessControl access, ULong id) throws Exception;
 
   /**
    * Fetch many IdeaMeme for one Idea by id, if accessible
@@ -41,10 +41,10 @@ public interface IdeaMemeDAO {
    * @param access control
    * @param ideaId to fetch ideaMemes for.
    * @return JSONArray of ideaMemes.
-   * @throws DatabaseException on failure
+   * @throws Exception on failure
    */
   @Nullable
-  JSONArray readAllAble(AccessControl access, ULong ideaId) throws DatabaseException;
+  JSONArray readAllIn(AccessControl access, ULong ideaId) throws Exception;
 
   /**
    * Delete a specified IdeaMeme
@@ -52,5 +52,5 @@ public interface IdeaMemeDAO {
    * @param access control
    * @param id     of specific IdeaMeme to delete.
    */
-  void delete(AccessControl access, ULong id) throws DatabaseException, ConfigException, BusinessException;
+  void delete(AccessControl access, ULong id) throws Exception;
 }

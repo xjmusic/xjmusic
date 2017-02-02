@@ -4,15 +4,13 @@ package io.outright.xj.hub.resource.user;
 import io.outright.xj.core.CoreModule;
 import io.outright.xj.core.app.access.AccessControl;
 import io.outright.xj.core.app.server.HttpResponseProvider;
+import io.outright.xj.core.dao.UserDAO;
 import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.model.user.User;
 import io.outright.xj.core.transport.JSON;
-import io.outright.xj.hub.HubModule;
-import io.outright.xj.core.dao.UserDAO;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-
 import org.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +30,7 @@ import java.io.IOException;
  */
 @Path("users")
 public class UserIndexResource {
-  private static final Injector injector = Guice.createInjector(new CoreModule(), new HubModule());
+  private static final Injector injector = Guice.createInjector(new CoreModule());
   private static Logger log = LoggerFactory.getLogger(UserIndexResource.class);
   private final UserDAO userDAO = injector.getInstance(UserDAO.class);
   private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
@@ -47,10 +45,8 @@ public class UserIndexResource {
   @RolesAllowed({Role.USER})
   public Response readAll(@Context ContainerRequestContext crc) throws IOException {
     AccessControl access = AccessControl.fromContext(crc);
-
-    JSONArray result;
     try {
-      result = userDAO.readAllAble(access);
+      JSONArray result = userDAO.readAll(access);
       if (result != null) {
         try {
           return Response
@@ -66,7 +62,7 @@ public class UserIndexResource {
       }
 
     } catch (Exception e) {
-      return Response.serverError().build();
+      return httpResponseProvider.failure(e);
     }
   }
 

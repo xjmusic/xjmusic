@@ -10,17 +10,9 @@ export default Ember.Route.extend({
   model: function () {
     let auth = this.get('auth');
     if (auth.isArtist || auth.isAdmin) {
-
-      let phase = this.store.createRecord('phase', {
+      return this.store.createRecord('phase', {
         idea: this.modelFor('accounts.one.libraries.one.ideas.one')
       });
-
-      // resolves the user *after* closure
-      this.store.findRecord('user', this.get('auth').userId).then((record) => {
-        phase.set('user', record);
-      });
-
-      return phase;
     } else {
       this.transitionTo('accounts.one.libraries.one.ideas.one.phases');
     }

@@ -24,7 +24,7 @@ public interface IdeaDAO {
    * @param data   for the new Account User.
    * @return newly created record as JSON
    */
-  JSONObject create(AccessControl access, IdeaWrapper data) throws DatabaseException, ConfigException, BusinessException;
+  JSONObject create(AccessControl access, IdeaWrapper data) throws Exception;
 
   /**
    * Fetch one idea if accessible
@@ -32,10 +32,10 @@ public interface IdeaDAO {
    * @param access control
    * @param id     of idea
    * @return retrieved record as JSON
-   * @throws DatabaseException on failure
+   * @throws Exception on failure
    */
   @Nullable
-  JSONObject readOneAble(AccessControl access, ULong id) throws DatabaseException;
+  JSONObject readOne(AccessControl access, ULong id) throws Exception;
 
   /**
    * Fetch many idea for one Account by id, if accessible
@@ -43,10 +43,10 @@ public interface IdeaDAO {
    * @param access    control
    * @param libraryId to fetch ideas for.
    * @return JSONArray of ideas.
-   * @throws DatabaseException on failure
+   * @throws Exception on failure
    */
   @Nullable
-  JSONArray readAllAble(AccessControl access, ULong libraryId) throws DatabaseException;
+  JSONArray readAllIn(AccessControl access, ULong libraryId) throws Exception;
 
   /**
    * (ADMIN ONLY)
@@ -56,13 +56,14 @@ public interface IdeaDAO {
    * @param ideaId of specific Idea to update.
    * @param data   for the updated Idea.
    */
-  void update(AccessControl access, ULong ideaId, IdeaWrapper data) throws DatabaseException, ConfigException, BusinessException;
+  void update(AccessControl access, ULong ideaId, IdeaWrapper data) throws Exception;
 
   /**
    * (ADMIN ONLY)
    * Delete a specified idea
    *
+   * @param access control
    * @param id of specific idea to delete.
    */
-  void delete(ULong id) throws DatabaseException, ConfigException, BusinessException;
+  void delete(AccessControl access, ULong id) throws Exception;
 }

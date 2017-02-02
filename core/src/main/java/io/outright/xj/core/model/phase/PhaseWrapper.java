@@ -2,8 +2,9 @@
 package io.outright.xj.core.model.phase;
 
 import io.outright.xj.core.app.exception.BusinessException;
+import io.outright.xj.core.model.EntityWrapper;
 
-public class PhaseWrapper {
+public class PhaseWrapper extends EntityWrapper {
 
   // Phase
   private Phase phase;
@@ -19,6 +20,7 @@ public class PhaseWrapper {
    * Validate data.
    * @throws BusinessException if invalid.
    */
+  @Override
   public void validate() throws BusinessException{
     if (this.phase == null) {
       throw new BusinessException("Phase is required.");

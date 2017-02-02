@@ -2,6 +2,7 @@
 package io.outright.xj.core.model.phase;
 
 import io.outright.xj.core.app.exception.BusinessException;
+import io.outright.xj.core.model.Entity;
 
 import com.google.common.collect.ImmutableMap;
 import org.jooq.Field;
@@ -12,7 +13,7 @@ import java.util.Map;
 
 import static io.outright.xj.core.Tables.PHASE;
 
-public class Phase {
+public class Phase extends Entity {
   public final static String MAIN = "main";
 
   /**
@@ -118,7 +119,8 @@ public class Phase {
    *
    * @throws BusinessException if invalid.
    */
-  void validate() throws BusinessException {
+  @Override
+  public void validate() throws BusinessException {
     if (this.name == null || this.name.length() == 0) {
       throw new BusinessException("Name is required.");
     }
@@ -147,6 +149,7 @@ public class Phase {
    *
    * @return map
    */
+  @Override
   public Map<Field, Object> intoFieldValueMap() {
     return new ImmutableMap.Builder<Field, Object>()
       .put(PHASE.NAME, name)

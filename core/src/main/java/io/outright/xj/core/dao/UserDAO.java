@@ -38,7 +38,7 @@ public interface UserDAO {
    * @param email to contact user
    * @return access token
    */
-  String authenticate(String authType, String account, String externalAccessToken, String externalRefreshToken, String name, String avatarUrl, String email) throws DatabaseException, AccessException;
+  String authenticate(String authType, String account, String externalAccessToken, String externalRefreshToken, String name, String avatarUrl, String email) throws Exception, AccessException;
 
   /**
    * Fetch one User by id, if accessible
@@ -46,10 +46,10 @@ public interface UserDAO {
    * @param access control
    * @param userId to fetch
    * @return User if found and visible, as JSON object
-   * @throws DatabaseException on failure
+   * @throws Exception on failure
    */
   @Nullable
-  JSONObject readOneAble(AccessControl access, ULong userId) throws DatabaseException;
+  JSONObject readOne(AccessControl access, ULong userId) throws Exception;
 
   /**
    * Read Users accessible, and their roles
@@ -58,7 +58,7 @@ public interface UserDAO {
    * @return Users as JSON array.
    */
   @Nullable
-  JSONArray readAllAble(AccessControl access) throws DatabaseException;
+  JSONArray readAll(AccessControl access) throws Exception;
 
   /**
    * (ADMIN ONLY)
@@ -66,7 +66,7 @@ public interface UserDAO {
    *
    * @param userId to destroy all access tokens for.
    */
-  void destroyAllTokens(ULong userId) throws ConfigException, DatabaseException;
+  void destroyAllTokens(ULong userId) throws Exception;
 
   /**
    * (ADMIN ONLY)
@@ -74,6 +74,5 @@ public interface UserDAO {
    * @param userId of specific User to update.
    * @param data for the updated User.
    */
-  void updateUserRolesAndDestroyTokens(ULong userId, UserWrapper data) throws DatabaseException, ConfigException, BusinessException;
-
+  void updateUserRolesAndDestroyTokens(AccessControl access, ULong userId, UserWrapper data) throws Exception;
 }

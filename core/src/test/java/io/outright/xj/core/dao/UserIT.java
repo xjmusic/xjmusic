@@ -161,7 +161,7 @@ public class UserIT {
       "accounts", "1"
     ));
 
-    JSONObject actualResult = testDAO.readOneAble(access, ULong.valueOf(2));
+    JSONObject actualResult = testDAO.readOne(access, ULong.valueOf(2));
 
     assertNotNull(actualResult);
     assertEquals(ULong.valueOf(2), actualResult.get("id"));
@@ -178,7 +178,7 @@ public class UserIT {
       "accounts", "1"
     ));
 
-    JSONObject actualResult = testDAO.readOneAble(access, ULong.valueOf(3));
+    JSONObject actualResult = testDAO.readOne(access, ULong.valueOf(3));
 
     assertNotNull(actualResult);
     assertEquals(ULong.valueOf(3), actualResult.get("id"));
@@ -195,7 +195,7 @@ public class UserIT {
       "accounts", "1"
     ));
 
-    JSONObject actualResult = testDAO.readOneAble(access, ULong.valueOf(4));
+    JSONObject actualResult = testDAO.readOne(access, ULong.valueOf(4));
 
     assertNull(actualResult);
   }
@@ -208,20 +208,20 @@ public class UserIT {
       "accounts", ""
     ));
 
-    JSONObject actualResult = testDAO.readOneAble(access, ULong.valueOf(4));
+    JSONObject actualResult = testDAO.readOne(access, ULong.valueOf(4));
 
     assertNotNull(actualResult);
     assertEquals("bill", actualResult.get("name"));
   }
 
   @Test
-  public void readAllAble() throws Exception {
+  public void readAll() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
       "roles", "user,admin",
       "accounts", "1"
     ));
 
-    JSONArray actualResult = testDAO.readAllAble(access);
+    JSONArray actualResult = testDAO.readAll(access);
 
     assertNotNull(actualResult);
     assertEquals(3, actualResult.length());
@@ -234,7 +234,7 @@ public class UserIT {
       "accounts", "1"
     ));
 
-    JSONArray actualResult = testDAO.readAllAble(access);
+    JSONArray actualResult = testDAO.readAll(access);
 
     assertNotNull(actualResult);
     assertEquals(2, actualResult.length());
@@ -248,7 +248,7 @@ public class UserIT {
       "accounts", ""
     ));
 
-    JSONArray actualResultList = testDAO.readAllAble(access);
+    JSONArray actualResultList = testDAO.readAll(access);
 
     assertNotNull(actualResultList);
     assertEquals(1, actualResultList.length());
@@ -270,12 +270,15 @@ public class UserIT {
 
   @Test
   public void updateUserRolesAndDestroyTokens() throws Exception {
+    AccessControl access = new AccessControl(ImmutableMap.of(
+      "roles", "admin"
+    ));
     User inputData = new User();
     inputData.setRoles("user,artist");
     UserWrapper inputDataWrapper = new UserWrapper();
     inputDataWrapper.setUser(inputData);
 
-    testDAO.updateUserRolesAndDestroyTokens(ULong.valueOf(2), inputDataWrapper);
+    testDAO.updateUserRolesAndDestroyTokens(access, ULong.valueOf(2), inputDataWrapper);
 
     // Access Token deleted
     UserAccessTokenRecord deletedRecord = IntegrationTestService.getDb()

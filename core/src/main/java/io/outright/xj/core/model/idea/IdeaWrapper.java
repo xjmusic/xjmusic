@@ -2,8 +2,9 @@
 package io.outright.xj.core.model.idea;
 
 import io.outright.xj.core.app.exception.BusinessException;
+import io.outright.xj.core.model.EntityWrapper;
 
-public class IdeaWrapper {
+public class IdeaWrapper extends EntityWrapper {
 
   // Idea
   private Idea idea;

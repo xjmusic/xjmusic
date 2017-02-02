@@ -75,7 +75,7 @@ public class PhaseIT {
   @Test
   public void create() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
-      "roles", "user",
+      "roles", "artist",
       "accounts", "1"
     ));
     PhaseWrapper inputDataWrapper = new PhaseWrapper()
@@ -104,7 +104,7 @@ public class PhaseIT {
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutIdeaID() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
-      "roles", "user",
+      "roles", "artist",
       "accounts", "1"
     ));
     PhaseWrapper inputDataWrapper = new PhaseWrapper()
@@ -123,7 +123,7 @@ public class PhaseIT {
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutKey() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
-      "roles", "user",
+      "roles", "artist",
       "accounts", "1"
     ));
     PhaseWrapper inputDataWrapper = new PhaseWrapper()
@@ -140,13 +140,13 @@ public class PhaseIT {
   }
 
   @Test
-  public void readOneAble() throws Exception {
+  public void readOne() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
-      "roles", "user",
+      "roles", "artist",
       "accounts", "1"
     ));
 
-    JSONObject actualResult = testDAO.readOneAble(access, ULong.valueOf(2));
+    JSONObject actualResult = testDAO.readOne(access, ULong.valueOf(2));
 
     assertNotNull(actualResult);
     assertEquals(ULong.valueOf(2), actualResult.get("id"));
@@ -157,23 +157,23 @@ public class PhaseIT {
   @Test
   public void readOneAble_FailsWhenUserIsNotInAccount() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
-      "roles", "user",
+      "roles", "artist",
       "accounts", "326"
     ));
 
-    JSONObject actualResult = testDAO.readOneAble(access, ULong.valueOf(1));
+    JSONObject actualResult = testDAO.readOne(access, ULong.valueOf(1));
 
     assertNull(actualResult);
   }
 
   @Test
-  public void readAllAble() throws Exception {
+  public void readAll() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
-      "roles", "user",
+      "roles", "artist",
       "accounts", "1"
     ));
 
-    JSONArray actualResultList = testDAO.readAllAble(access, ULong.valueOf(1));
+    JSONArray actualResultList = testDAO.readAllIn(access, ULong.valueOf(1));
 
     assertNotNull(actualResultList);
     assertEquals(2, actualResultList.length());
@@ -186,11 +186,11 @@ public class PhaseIT {
   @Test
   public void readAllAble_SeesNothingOutsideOfLibrary() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
-      "roles", "user",
+      "roles", "artist",
       "accounts", "345"
     ));
 
-    JSONArray actualResultList = testDAO.readAllAble(access, ULong.valueOf(1));
+    JSONArray actualResultList = testDAO.readAllIn(access, ULong.valueOf(1));
 
     assertNotNull(actualResultList);
     assertEquals(0, actualResultList.length());
@@ -199,7 +199,7 @@ public class PhaseIT {
   @Test(expected = BusinessException.class)
   public void update_FailsWithoutIdeaID() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
-      "roles", "user",
+      "roles", "artist",
       "accounts", "1"
     ));
     PhaseWrapper inputDataWrapper = new PhaseWrapper()
@@ -218,7 +218,7 @@ public class PhaseIT {
   @Test(expected = BusinessException.class)
   public void update_FailsWithoutName() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
-      "roles", "user",
+      "roles", "artist",
       "accounts", "1"
     ));
     PhaseWrapper inputDataWrapper = new PhaseWrapper()
@@ -237,7 +237,7 @@ public class PhaseIT {
   @Test(expected = BusinessException.class)
   public void update_FailsUpdatingToNonexistentIdea() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
-      "roles", "user",
+      "roles", "artist",
       "accounts", "1"
     ));
     PhaseWrapper inputDataWrapper = new PhaseWrapper()
@@ -265,7 +265,7 @@ public class PhaseIT {
   @Test
   public void update() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
-      "roles", "user",
+      "roles", "artist",
       "accounts", "1"
     ));
     PhaseWrapper inputDataWrapper = new PhaseWrapper()
@@ -300,7 +300,7 @@ public class PhaseIT {
   @Test
   public void delete() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
-      "roles", "user",
+      "roles", "artist",
       "accounts", "1"
     ));
 
@@ -314,10 +314,20 @@ public class PhaseIT {
   }
 
   @Test(expected = BusinessException.class)
+  public void delete_failsIfNotInAccount() throws Exception {
+    AccessControl access = new AccessControl(ImmutableMap.of(
+      "roles", "artist",
+      "accounts", "2"
+    ));
+
+    testDAO.delete(access, ULong.valueOf(1));
+  }
+
+  @Test(expected = BusinessException.class)
   public void delete_FailsIfIdeaHasChildRecords() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
       "userId", "2",
-      "roles", "user",
+      "roles", "artist",
       "accounts", "1"
     ));
     IntegrationTestEntity.insertPhaseMeme(1, 1, "mashup");

@@ -58,6 +58,16 @@ function accountLibraryIdeaPhases() {
 function accountLibraryIdeaPhase() {
   this.route('edit'); // Edit Phase
   this.route('memes'); // Memes in Phase
+  this.route('chords', accountLibraryIdeaPhaseChords); // Phases in Idea
+}
+
+function accountLibraryIdeaPhaseChords() {
+  this.route('new'); // New Chord
+  this.route('one', {path: '/:chord_id'}, accountLibraryIdeaPhaseChord); // One Chord
+}
+
+function accountLibraryIdeaPhaseChord() {
+  this.route('edit'); // Edit Phase
 }
 
 export default Router;

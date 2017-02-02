@@ -4,13 +4,12 @@ package io.outright.xj.hub;
 import io.outright.xj.core.CoreModule;
 import io.outright.xj.core.app.App;
 import io.outright.xj.core.app.config.Config;
-import io.outright.xj.core.app.db.SQLDatabaseProvider;
 import io.outright.xj.core.app.exception.ConfigException;
+import io.outright.xj.core.db.sql.SQLDatabaseProvider;
 import io.outright.xj.core.migration.MigrationService;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

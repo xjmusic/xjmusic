@@ -3,21 +3,16 @@ package io.outright.xj.hub.resource.idea_meme;
 
 import io.outright.xj.core.CoreModule;
 import io.outright.xj.core.app.access.AccessControl;
-import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.app.server.HttpResponseProvider;
 import io.outright.xj.core.dao.IdeaMemeDAO;
 import io.outright.xj.core.model.idea_meme.IdeaMeme;
 import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.transport.JSON;
-import io.outright.xj.hub.HubModule;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.apache.http.HttpStatus;
 import org.jooq.types.ULong;
 import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.annotation.security.RolesAllowed;
 import javax.jws.WebResult;
@@ -36,17 +31,16 @@ import java.io.IOException;
  */
 @Path("idea-memes/{id}")
 public class IdeaMemeRecordResource {
-  private static final Injector injector = Guice.createInjector(new CoreModule(), new HubModule());
-  private static Logger log = LoggerFactory.getLogger(IdeaMemeRecordResource.class);
+  private static final Injector injector = Guice.createInjector(new CoreModule());
+  //  private static Logger log = LoggerFactory.getLogger(IdeaMemeRecordResource.class);
   private final IdeaMemeDAO ideaMemeDAO = injector.getInstance(IdeaMemeDAO.class);
   private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
 
   @PathParam("id")
-  String ideaMemeId;
+  String id;
 
   /**
    * Get one IdeaMeme by ideaId and memeId
-   * TODO: Return 404 if the idea is not found.
    *
    * @return application/json response.
    */
@@ -56,9 +50,8 @@ public class IdeaMemeRecordResource {
   public Response readOne(@Context ContainerRequestContext crc) throws IOException {
     AccessControl access = AccessControl.fromContext(crc);
 
-    JSONObject result;
     try {
-      result = ideaMemeDAO.readOneAble(access, ULong.valueOf(ideaMemeId));
+      JSONObject result = ideaMemeDAO.readOne(access, ULong.valueOf(id));
       if (result != null) {
         return Response
           .accepted(JSON.wrap(IdeaMeme.KEY_ONE, result).toString())
@@ -69,7 +62,7 @@ public class IdeaMemeRecordResource {
       }
 
     } catch (Exception e) {
-      return Response.serverError().build();
+      return httpResponseProvider.failure(e);
     }
   }
 
@@ -83,21 +76,12 @@ public class IdeaMemeRecordResource {
   @RolesAllowed({Role.ARTIST})
   public Response deleteIdeaMeme(@Context ContainerRequestContext crc) {
     AccessControl access = AccessControl.fromContext(crc);
-
     try {
-      ideaMemeDAO.delete(access, ULong.valueOf(ideaMemeId));
-    } catch (BusinessException e) {
-      log.warn("BusinessException: " + e.getMessage());
-      return Response
-        .status(HttpStatus.SC_BAD_REQUEST)
-        .entity(JSON.wrapError(e.getMessage()).toString())
-        .build();
+      ideaMemeDAO.delete(access, ULong.valueOf(id));
+      return Response.accepted("{}").build();
     } catch (Exception e) {
-      log.error(e.getClass().getName(), e);
-      return Response.serverError().build();
+      return httpResponseProvider.failure(e);
     }
-
-    return Response.accepted("{}").build();
   }
 
 }

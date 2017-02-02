@@ -4,7 +4,6 @@ package io.outright.xj.core.dao;
 import io.outright.xj.core.CoreModule;
 import io.outright.xj.core.app.access.AccessControl;
 import io.outright.xj.core.integration.IntegrationTestEntity;
-import io.outright.xj.core.integration.IntegrationTestService;
 
 import org.jooq.types.ULong;
 
@@ -16,9 +15,6 @@ import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -49,13 +45,13 @@ public class AccountIT {
   }
 
   @Test
-  public void readOneAble() throws Exception {
+  public void readOne() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
       "roles","user",
       "accounts","1"
     ));
 
-    JSONObject actualResult = testDAO.readOneAble(access, ULong.valueOf(1));
+    JSONObject actualResult = testDAO.readOne(access, ULong.valueOf(1));
 
     assertNotNull(actualResult);
     assertEquals(ULong.valueOf(1), actualResult.get("id"));
@@ -63,8 +59,8 @@ public class AccountIT {
   }
 
   @Test
-  public void readAllAble() throws Exception {
-    // TODO: test AccountDAOImpl readAllAble()
+  public void readAll() throws Exception {
+    // TODO: test AccountDAOImpl readAll()
   }
 
   @Test

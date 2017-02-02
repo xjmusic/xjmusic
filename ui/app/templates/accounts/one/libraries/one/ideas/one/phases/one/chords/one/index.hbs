@@ -1,0 +1,24 @@
+<!-- Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved. -->
+
+<!-- Inner Content -->
+{{outlet}}
+
+<!-- Upper Container -->
+<div class="form-horizontal">
+
+  <!-- Header -->
+  <div class="form-group">
+    <div class="col-sm-12">
+      <h5>{{#link-to 'accounts.one.libraries.one.ideas.one.phases.one.chords' model.phase}}{{model.phase.name}} Chords{{/link-to}}</h5>
+      <h1>{{model.chord.name}}</h1>
+    </div>
+  </div>
+
+  <!-- Links to actions -->
+  <div class="form-group">
+    <div class="col-sm-2">
+      <h4>{{#link-to 'accounts.one.libraries.one.ideas.one.phases.one.chords.one.edit' model.chord}}Edit{{/link-to}}</h4>
+    </div>
+  </div>
+
+</div>

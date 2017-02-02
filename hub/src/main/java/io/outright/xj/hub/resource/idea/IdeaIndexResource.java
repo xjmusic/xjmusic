@@ -4,23 +4,19 @@ package io.outright.xj.hub.resource.idea;
 import io.outright.xj.core.CoreModule;
 import io.outright.xj.core.app.access.AccessControl;
 import io.outright.xj.core.app.config.Exposure;
-import io.outright.xj.core.app.exception.BusinessException;
+import io.outright.xj.core.app.server.HttpResponseProvider;
 import io.outright.xj.core.dao.IdeaDAO;
 import io.outright.xj.core.model.Entity;
 import io.outright.xj.core.model.idea.Idea;
 import io.outright.xj.core.model.idea.IdeaWrapper;
 import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.transport.JSON;
-import io.outright.xj.hub.HubModule;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.apache.http.HttpStatus;
 import org.jooq.types.ULong;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.annotation.security.RolesAllowed;
 import javax.jws.WebResult;
@@ -40,9 +36,10 @@ import java.io.IOException;
  */
 @Path("ideas")
 public class IdeaIndexResource {
-  private static final Injector injector = Guice.createInjector(new CoreModule(), new HubModule());
-  private static Logger log = LoggerFactory.getLogger(IdeaIndexResource.class);
+  private static final Injector injector = Guice.createInjector(new CoreModule());
+//  private static Logger log = LoggerFactory.getLogger(IdeaIndexResource.class);
   private final IdeaDAO ideaDAO = injector.getInstance(IdeaDAO.class);
+  private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
 
   @QueryParam("library")
   String libraryId;
@@ -59,12 +56,11 @@ public class IdeaIndexResource {
     AccessControl access = AccessControl.fromContext(crc);
 
     if (libraryId == null || libraryId.length() == 0) {
-      return notAcceptable("Library id is required");
+      return httpResponseProvider.notAcceptable("Library id is required");
     }
 
-    JSONArray result;
     try {
-      result = ideaDAO.readAllAble(access, ULong.valueOf(libraryId));
+      JSONArray result = ideaDAO.readAllIn(access, ULong.valueOf(libraryId));
       if (result != null) {
         return Response
           .accepted(JSON.wrap(Idea.KEY_MANY, result).toString())
@@ -75,8 +71,7 @@ public class IdeaIndexResource {
       }
 
     } catch (Exception e) {
-      log.error("Exception", e);
-      return Response.serverError().build();
+      return httpResponseProvider.failure(e);
     }
   }
 
@@ -91,37 +86,16 @@ public class IdeaIndexResource {
   @RolesAllowed({Role.ARTIST})
   public Response create(IdeaWrapper data, @Context ContainerRequestContext crc) {
     AccessControl access = AccessControl.fromContext(crc);
-    JSONObject newEntity;
-
     try {
-      newEntity = ideaDAO.create(access, data);
-    } catch (BusinessException e) {
-      log.warn("BusinessException: " + e.getMessage());
+      JSONObject newEntity = ideaDAO.create(access, data);
       return Response
-        .status(HttpStatus.SC_UNPROCESSABLE_ENTITY)
-        .entity(JSON.wrapError(e.getMessage()).toString())
+        .created(Exposure.apiURI(Idea.KEY_MANY + "/" + newEntity.get(Entity.KEY_ID)))
+        .entity(JSON.wrap(Idea.KEY_ONE, newEntity).toString())
         .build();
+
     } catch (Exception e) {
-      log.error(e.getClass().getName(), e);
-      return Response.serverError().build();
+      return httpResponseProvider.failureToCreate(e);
     }
-
-    return Response
-      .created(Exposure.apiURI(Idea.KEY_MANY + "/" + newEntity.get(Entity.KEY_ID)))
-      .entity(JSON.wrap(Idea.KEY_ONE, newEntity).toString())
-      .build();
-  }
-
-  /**
-   * Respond with not acceptable, library id required.
-   *
-   * @return Response
-   */
-  private Response notAcceptable(String message) {
-    return Response
-      .status(HttpStatus.SC_NOT_ACCEPTABLE)
-      .entity(JSON.wrapError(message).toString())
-      .build();
   }
 
 }

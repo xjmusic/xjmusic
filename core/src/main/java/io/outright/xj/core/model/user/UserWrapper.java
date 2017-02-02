@@ -2,10 +2,11 @@
 package io.outright.xj.core.model.user;
 
 import io.outright.xj.core.app.exception.BusinessException;
+import io.outright.xj.core.model.EntityWrapper;
 
 import org.jooq.Record;
 
-public class UserWrapper {
+public class UserWrapper extends EntityWrapper {
 
   // User
   private User user;

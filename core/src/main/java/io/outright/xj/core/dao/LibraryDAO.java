@@ -21,7 +21,7 @@ public interface LibraryDAO {
    * @param data for the new Library.
    * @return newly created Library record.
    */
-  JSONObject create(LibraryWrapper data) throws DatabaseException, ConfigException, BusinessException;
+  JSONObject create(AccessControl access, LibraryWrapper data) throws Exception;
 
   /**
    * Fetch one Library by id, if accessible
@@ -29,20 +29,20 @@ public interface LibraryDAO {
    * @param access control
    * @param libraryId to fetch
    * @return Library if found
-   * @throws DatabaseException on failure
+   * @throws Exception on failure
    */
   @Nullable
-  JSONObject readOneAble(AccessControl access, ULong libraryId) throws DatabaseException;
+  JSONObject readOne(AccessControl access, ULong libraryId) throws Exception;
 
   /**
    * Read all Libraries that are accessible
    *
    * @param access control
    * @return array of libraries as JSON
-   * @throws DatabaseException on failure
+   * @throws Exception on failure
    */
   @Nullable
-  JSONArray readAllAble(AccessControl access, ULong accountId) throws DatabaseException;
+  JSONArray readAllIn(AccessControl access, ULong accountId) throws Exception;
 
   /**
    * (ADMIN ONLY)
@@ -50,12 +50,12 @@ public interface LibraryDAO {
    * @param libraryId of specific Library to update.
    * @param data for the updated Library.
    */
-  void update(ULong libraryId, LibraryWrapper data) throws DatabaseException, ConfigException, BusinessException;
+  void update(AccessControl access, ULong libraryId, LibraryWrapper data) throws Exception;
 
   /**
    * (ADMIN ONLY)
    * Delete a specified Library
    * @param libraryId of specific Library to delete.
    */
-  void delete(ULong libraryId) throws DatabaseException, ConfigException, BusinessException;
+  void delete(AccessControl access, ULong libraryId) throws Exception;
 }

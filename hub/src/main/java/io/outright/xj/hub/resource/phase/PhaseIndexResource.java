@@ -4,18 +4,16 @@ package io.outright.xj.hub.resource.phase;
 import io.outright.xj.core.CoreModule;
 import io.outright.xj.core.app.access.AccessControl;
 import io.outright.xj.core.app.config.Exposure;
-import io.outright.xj.core.app.exception.BusinessException;
+import io.outright.xj.core.app.server.HttpResponseProvider;
 import io.outright.xj.core.dao.PhaseDAO;
 import io.outright.xj.core.model.Entity;
 import io.outright.xj.core.model.phase.Phase;
 import io.outright.xj.core.model.phase.PhaseWrapper;
 import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.transport.JSON;
-import io.outright.xj.hub.HubModule;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.apache.http.HttpStatus;
 import org.jooq.types.ULong;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -40,9 +38,10 @@ import java.io.IOException;
  */
 @Path("phases")
 public class PhaseIndexResource {
-  private static final Injector injector = Guice.createInjector(new CoreModule(), new HubModule());
+  private static final Injector injector = Guice.createInjector(new CoreModule());
   private static Logger log = LoggerFactory.getLogger(PhaseIndexResource.class);
   private final PhaseDAO phaseDAO = injector.getInstance(PhaseDAO.class);
+  private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
 
   @QueryParam("idea")
   String ideaId;
@@ -59,12 +58,11 @@ public class PhaseIndexResource {
     AccessControl access = AccessControl.fromContext(crc);
 
     if (ideaId == null || ideaId.length() == 0) {
-      return notAcceptable("Idea id is required");
+      return httpResponseProvider.notAcceptable("Idea id is required");
     }
 
-    JSONArray result;
     try {
-      result = phaseDAO.readAllAble(access, ULong.valueOf(ideaId));
+      JSONArray result = phaseDAO.readAllIn(access, ULong.valueOf(ideaId));
       if (result != null) {
         return Response
           .accepted(JSON.wrap(Phase.KEY_MANY, result).toString())
@@ -75,8 +73,7 @@ public class PhaseIndexResource {
       }
 
     } catch (Exception e) {
-      log.error("Exception", e);
-      return Response.serverError().build();
+      return httpResponseProvider.failure(e);
     }
   }
 
@@ -91,37 +88,16 @@ public class PhaseIndexResource {
   @RolesAllowed({Role.ARTIST})
   public Response create(PhaseWrapper data, @Context ContainerRequestContext crc) {
     AccessControl access = AccessControl.fromContext(crc);
-    JSONObject newEntity;
-
     try {
-      newEntity = phaseDAO.create(access, data);
-    } catch (BusinessException e) {
-      log.warn("BusinessException: " + e.getMessage());
+      JSONObject newEntity = phaseDAO.create(access, data);
       return Response
-        .status(HttpStatus.SC_UNPROCESSABLE_ENTITY)
-        .entity(JSON.wrapError(e.getMessage()).toString())
+        .created(Exposure.apiURI(Phase.KEY_MANY + "/" + newEntity.get(Entity.KEY_ID)))
+        .entity(JSON.wrap(Phase.KEY_ONE, newEntity).toString())
         .build();
+
     } catch (Exception e) {
-      log.error(e.getClass().getName(), e);
-      return Response.serverError().build();
+      return httpResponseProvider.failureToCreate(e);
     }
-
-    return Response
-      .created(Exposure.apiURI(Phase.KEY_MANY + "/" + newEntity.get(Entity.KEY_ID)))
-      .entity(JSON.wrap(Phase.KEY_ONE, newEntity).toString())
-      .build();
-  }
-
-  /**
-   * Respond with not acceptable, idea id required.
-   *
-   * @return Response
-   */
-  private Response notAcceptable(String message) {
-    return Response
-      .status(HttpStatus.SC_NOT_ACCEPTABLE)
-      .entity(JSON.wrapError(message).toString())
-      .build();
   }
 
 }

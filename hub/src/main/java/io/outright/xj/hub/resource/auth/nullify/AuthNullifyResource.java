@@ -4,18 +4,12 @@ package io.outright.xj.hub.resource.auth.nullify;
 import io.outright.xj.core.CoreModule;
 import io.outright.xj.core.app.access.AccessControl;
 import io.outright.xj.core.app.access.AccessControlProvider;
-import io.outright.xj.core.app.exception.ConfigException;
-import io.outright.xj.core.app.exception.DatabaseException;
 import io.outright.xj.core.app.server.HttpResponseProvider;
-import io.outright.xj.core.model.role.Role;
-import io.outright.xj.hub.HubModule;
 import io.outright.xj.core.dao.UserDAO;
+import io.outright.xj.core.model.role.Role;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.annotation.security.RolesAllowed;
 import javax.jws.WebResult;
@@ -31,8 +25,8 @@ import java.io.IOException;
  */
 @Path("auth/no")
 public class AuthNullifyResource {
-  private Injector injector = Guice.createInjector(new CoreModule(), new HubModule());
-  private static Logger log = LoggerFactory.getLogger(AuthNullifyResource.class);
+  private Injector injector = Guice.createInjector(new CoreModule());
+  //  private static Logger log = LoggerFactory.getLogger(AuthNullifyResource.class);
   private final UserDAO userDAO = injector.getInstance(UserDAO.class);
   private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
   private final AccessControlProvider accessControlProvider = injector.getInstance(AccessControlProvider.class);
@@ -49,13 +43,10 @@ public class AuthNullifyResource {
     AccessControl accessControl = AccessControl.fromContext(crc);
     try {
       userDAO.destroyAllTokens(accessControl.getUserId());
-    } catch (DatabaseException e) {
-      log.error("DatabaseException", e);
-      return Response.serverError().build();
-    } catch (ConfigException e) {
-      log.error("ConfigException", e);
-      return Response.serverError().build();
+      return httpResponseProvider.internalRedirectWithCookie("", accessControlProvider.newExpiredCookie());
+
+    } catch (Exception e) {
+      return httpResponseProvider.failure(e);
     }
-    return httpResponseProvider.internalRedirectWithCookie("", accessControlProvider.newExpiredCookie());
   }
 }

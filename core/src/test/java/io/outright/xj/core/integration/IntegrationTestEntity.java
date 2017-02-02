@@ -7,6 +7,7 @@ import io.outright.xj.core.tables.records.AccountUserRecord;
 import io.outright.xj.core.tables.records.IdeaMemeRecord;
 import io.outright.xj.core.tables.records.IdeaRecord;
 import io.outright.xj.core.tables.records.LibraryRecord;
+import io.outright.xj.core.tables.records.PhaseChordRecord;
 import io.outright.xj.core.tables.records.PhaseMemeRecord;
 import io.outright.xj.core.tables.records.PhaseRecord;
 import io.outright.xj.core.tables.records.UserAccessTokenRecord;
@@ -220,6 +221,15 @@ public abstract class IntegrationTestEntity {
     PhaseMemeRecord record = IntegrationTestService.getDb().newRecord(PHASE_MEME);
     record.setId(ULong.valueOf(id));
     record.setPhaseId(ULong.valueOf(phaseId));
+    record.setName(name);
+    record.store();
+  }
+
+  public static void insertPhaseChord(int id, int phaseId, double position, String name) {
+    PhaseChordRecord record = IntegrationTestService.getDb().newRecord(PHASE_CHORD);
+    record.setId(ULong.valueOf(id));
+    record.setPhaseId(ULong.valueOf(phaseId));
+    record.setPosition(position);
     record.setName(name);
     record.store();
   }

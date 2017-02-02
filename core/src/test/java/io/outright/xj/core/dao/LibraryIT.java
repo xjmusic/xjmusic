@@ -59,13 +59,16 @@ public class LibraryIT {
 
   @Test
   public void create() throws Exception {
+    AccessControl access = new AccessControl(ImmutableMap.of(
+      "roles", "admin"
+    ));
     Library inputData = new Library();
     inputData.setName("manuts");
     inputData.setAccountId(BigInteger.valueOf(1));
     LibraryWrapper inputDataWrapper = new LibraryWrapper();
     inputDataWrapper.setLibrary(inputData);
 
-    JSONObject actualResult = testDAO.create(inputDataWrapper);
+    JSONObject actualResult = testDAO.create(access, inputDataWrapper);
 
     assertNotNull(actualResult);
     assertEquals(ULong.valueOf(1), actualResult.get("accountId"));
@@ -74,22 +77,25 @@ public class LibraryIT {
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutAccountID() throws Exception {
+    AccessControl access = new AccessControl(ImmutableMap.of(
+      "roles", "admin"
+    ));
     Library inputData = new Library();
     inputData.setName("manuts");
     LibraryWrapper inputDataWrapper = new LibraryWrapper();
     inputDataWrapper.setLibrary(inputData);
 
-    testDAO.create(inputDataWrapper);
+    testDAO.create(access, inputDataWrapper);
   }
 
   @Test
-  public void readOneAble() throws Exception {
+  public void readOne() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
       "roles", "user",
       "accounts", "1"
     ));
 
-    JSONObject actualResult = testDAO.readOneAble(access, ULong.valueOf(2));
+    JSONObject actualResult = testDAO.readOne(access, ULong.valueOf(2));
 
     assertNotNull(actualResult);
     assertEquals(ULong.valueOf(2), actualResult.get("id"));
@@ -104,19 +110,19 @@ public class LibraryIT {
       "accounts", "326"
     ));
 
-    JSONObject actualResult = testDAO.readOneAble(access, ULong.valueOf(1));
+    JSONObject actualResult = testDAO.readOne(access, ULong.valueOf(1));
 
     assertNull(actualResult);
   }
 
   @Test
-  public void readAllAble() throws Exception {
+  public void readAll() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
       "roles", "user",
       "accounts", "1"
     ));
 
-    JSONArray actualResultList = testDAO.readAllAble(access, ULong.valueOf(1));
+    JSONArray actualResultList = testDAO.readAllIn(access, ULong.valueOf(1));
 
     assertNotNull(actualResultList);
     assertEquals(2, actualResultList.length());
@@ -133,7 +139,7 @@ public class LibraryIT {
       "accounts", "345"
     ));
 
-    JSONArray actualResultList = testDAO.readAllAble(access, ULong.valueOf(1));
+    JSONArray actualResultList = testDAO.readAllIn(access, ULong.valueOf(1));
 
     assertNotNull(actualResultList);
     assertEquals(0, actualResultList.length());
@@ -141,33 +147,42 @@ public class LibraryIT {
 
   @Test(expected = BusinessException.class)
   public void update_FailsWithoutAccountID() throws Exception {
+    AccessControl access = new AccessControl(ImmutableMap.of(
+      "roles", "admin"
+    ));
     Library inputData = new Library();
     inputData.setName("cannons");
     LibraryWrapper inputDataWrapper = new LibraryWrapper();
     inputDataWrapper.setLibrary(inputData);
 
-    testDAO.update(ULong.valueOf(3), inputDataWrapper);
+    testDAO.update(access, ULong.valueOf(3), inputDataWrapper);
   }
 
   @Test(expected = BusinessException.class)
   public void update_FailsWithoutName() throws Exception {
+    AccessControl access = new AccessControl(ImmutableMap.of(
+      "roles", "admin"
+    ));
     Library inputData = new Library();
     inputData.setAccountId(BigInteger.valueOf(3));
     LibraryWrapper inputDataWrapper = new LibraryWrapper();
     inputDataWrapper.setLibrary(inputData);
 
-    testDAO.update(ULong.valueOf(3), inputDataWrapper);
+    testDAO.update(access, ULong.valueOf(3), inputDataWrapper);
   }
 
   @Test(expected = BusinessException.class)
   public void update_FailsUpdatingToNonexistentAccount() throws Exception {
+    AccessControl access = new AccessControl(ImmutableMap.of(
+      "roles", "admin"
+    ));
     Library inputData = new Library();
     inputData.setName("cannons");
     inputData.setAccountId(BigInteger.valueOf(3));
     LibraryWrapper inputDataWrapper = new LibraryWrapper();
     inputDataWrapper.setLibrary(inputData);
 
-    testDAO.update(ULong.valueOf(3), inputDataWrapper);
+    testDAO.update(access, ULong.valueOf(3), inputDataWrapper);
 
     LibraryRecord updatedRecord = IntegrationTestService.getDb()
       .selectFrom(LIBRARY)
@@ -180,13 +195,16 @@ public class LibraryIT {
 
   @Test
   public void update_Name() throws Exception {
+    AccessControl access = new AccessControl(ImmutableMap.of(
+      "roles", "admin"
+    ));
     Library inputData = new Library();
     inputData.setName("cannons");
     inputData.setAccountId(BigInteger.valueOf(2));
     LibraryWrapper inputDataWrapper = new LibraryWrapper();
     inputDataWrapper.setLibrary(inputData);
 
-    testDAO.update(ULong.valueOf(3), inputDataWrapper);
+    testDAO.update(access, ULong.valueOf(3), inputDataWrapper);
 
     LibraryRecord updatedRecord = IntegrationTestService.getDb()
       .selectFrom(LIBRARY)
@@ -199,13 +217,16 @@ public class LibraryIT {
 
   @Test
   public void update_NameAndAccount() throws Exception {
+    AccessControl access = new AccessControl(ImmutableMap.of(
+      "roles", "admin"
+    ));
     Library inputData = new Library();
     inputData.setName("trunk");
     inputData.setAccountId(BigInteger.valueOf(1));
     LibraryWrapper inputDataWrapper = new LibraryWrapper();
     inputDataWrapper.setLibrary(inputData);
 
-    testDAO.update(ULong.valueOf(3), inputDataWrapper);
+    testDAO.update(access, ULong.valueOf(3), inputDataWrapper);
 
     LibraryRecord updatedRecord = IntegrationTestService.getDb()
       .selectFrom(LIBRARY)
@@ -218,7 +239,11 @@ public class LibraryIT {
 
   @Test
   public void delete() throws Exception {
-    testDAO.delete(ULong.valueOf(1));
+    AccessControl access = new AccessControl(ImmutableMap.of(
+      "roles", "admin"
+    ));
+
+    testDAO.delete(access, ULong.valueOf(1));
 
     LibraryRecord deletedRecord = IntegrationTestService.getDb()
       .selectFrom(LIBRARY)
@@ -229,10 +254,13 @@ public class LibraryIT {
 
   @Test(expected = BusinessException.class)
   public void delete_FailsIfLibraryHasChildRecords() throws Exception {
+    AccessControl access = new AccessControl(ImmutableMap.of(
+      "roles", "admin"
+    ));
     IntegrationTestEntity.insertUser(101, "bill", "bill@email.com", "http://pictures.com/bill.gif");
     IntegrationTestEntity.insertIdea(301, 101, 2, Idea.MAIN, "brilliant", 0.342, "C#", 0.286);
 
-    testDAO.delete(ULong.valueOf(2));
+    testDAO.delete(access, ULong.valueOf(2));
 
     LibraryRecord stillExistingRecord = IntegrationTestService.getDb()
       .selectFrom(LIBRARY)
@@ -240,5 +268,4 @@ public class LibraryIT {
       .fetchOne();
     assertNotNull(stillExistingRecord);
   }
-
 }

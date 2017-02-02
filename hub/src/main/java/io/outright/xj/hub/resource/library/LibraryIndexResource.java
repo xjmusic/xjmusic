@@ -4,18 +4,16 @@ package io.outright.xj.hub.resource.library;
 import io.outright.xj.core.CoreModule;
 import io.outright.xj.core.app.access.AccessControl;
 import io.outright.xj.core.app.config.Exposure;
-import io.outright.xj.core.app.exception.BusinessException;
+import io.outright.xj.core.app.server.HttpResponseProvider;
 import io.outright.xj.core.dao.LibraryDAO;
 import io.outright.xj.core.model.Entity;
 import io.outright.xj.core.model.library.Library;
 import io.outright.xj.core.model.library.LibraryWrapper;
 import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.transport.JSON;
-import io.outright.xj.hub.HubModule;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.apache.http.HttpStatus;
 import org.jooq.types.ULong;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -40,9 +38,10 @@ import java.io.IOException;
  */
 @Path("libraries")
 public class LibraryIndexResource {
-  private static final Injector injector = Guice.createInjector(new CoreModule(), new HubModule());
+  private static final Injector injector = Guice.createInjector(new CoreModule());
   private static Logger log = LoggerFactory.getLogger(LibraryIndexResource.class);
   private final LibraryDAO libraryDAO = injector.getInstance(LibraryDAO.class);
+  private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
 
   @QueryParam("account")
   String accountId;
@@ -59,12 +58,11 @@ public class LibraryIndexResource {
     AccessControl access = AccessControl.fromContext(crc);
 
     if (accountId == null || accountId.length() == 0) {
-      return notAcceptable("Account id is required");
+      return httpResponseProvider.notAcceptable("Account id is required");
     }
 
-    JSONArray result;
     try {
-      result = libraryDAO.readAllAble(access, ULong.valueOf(accountId));
+      JSONArray result = libraryDAO.readAllIn(access, ULong.valueOf(accountId));
       if (result != null) {
         return Response
           .accepted(JSON.wrap(Library.KEY_MANY, result).toString())
@@ -76,7 +74,7 @@ public class LibraryIndexResource {
 
     } catch (Exception e) {
       log.error("Exception", e);
-      return Response.serverError().build();
+      return httpResponseProvider.failure(e);
     }
   }
 
@@ -89,38 +87,18 @@ public class LibraryIndexResource {
   @POST
   @Consumes(MediaType.APPLICATION_JSON)
   @RolesAllowed({Role.ADMIN})
-  public Response create(LibraryWrapper data) {
-    JSONObject newEntity;
-
+  public Response create(LibraryWrapper data, @Context ContainerRequestContext crc) {
+    AccessControl access = AccessControl.fromContext(crc);
     try {
-      newEntity = libraryDAO.create(data);
-    } catch (BusinessException e) {
-      log.warn("BusinessException: " + e.getMessage());
+      JSONObject newEntity = libraryDAO.create(access, data);
       return Response
-        .status(HttpStatus.SC_UNPROCESSABLE_ENTITY)
-        .entity(JSON.wrapError(e.getMessage()).toString())
+        .created(Exposure.apiURI(Library.KEY_MANY + "/" + newEntity.get(Entity.KEY_ID)))
+        .entity(JSON.wrap(Library.KEY_ONE, newEntity).toString())
         .build();
+
     } catch (Exception e) {
-      log.error(e.getClass().getName(), e);
-      return Response.serverError().build();
+      return httpResponseProvider.failureToCreate(e);
     }
-
-    return Response
-      .created(Exposure.apiURI(Library.KEY_MANY + "/" + newEntity.get(Entity.KEY_ID)))
-      .entity(JSON.wrap(Library.KEY_ONE, newEntity).toString())
-      .build();
-  }
-
-  /**
-   * Respond with not acceptable, account id required.
-   *
-   * @return Response
-   */
-  private Response notAcceptable(String message) {
-    return Response
-      .status(HttpStatus.SC_NOT_ACCEPTABLE)
-      .entity(JSON.wrapError(message).toString())
-      .build();
   }
 
 }

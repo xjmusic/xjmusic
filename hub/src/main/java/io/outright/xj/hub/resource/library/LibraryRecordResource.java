@@ -3,26 +3,17 @@ package io.outright.xj.hub.resource.library;
 
 import io.outright.xj.core.CoreModule;
 import io.outright.xj.core.app.access.AccessControl;
-import io.outright.xj.core.app.exception.BusinessException;
-import io.outright.xj.core.app.exception.ConfigException;
-import io.outright.xj.core.app.exception.DatabaseException;
 import io.outright.xj.core.app.server.HttpResponseProvider;
 import io.outright.xj.core.dao.LibraryDAO;
 import io.outright.xj.core.model.library.Library;
 import io.outright.xj.core.model.library.LibraryWrapper;
 import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.transport.JSON;
-import io.outright.xj.hub.HubModule;
-
-import org.jooq.types.ULong;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-
-import org.apache.http.HttpStatus;
+import org.jooq.types.ULong;
 import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.annotation.security.RolesAllowed;
 import javax.jws.WebResult;
@@ -43,16 +34,16 @@ import java.io.IOException;
  */
 @Path("libraries/{id}")
 public class LibraryRecordResource {
-  private static final Injector injector = Guice.createInjector(new CoreModule(), new HubModule());
-  private static Logger log = LoggerFactory.getLogger(LibraryRecordResource.class);
+  private static final Injector injector = Guice.createInjector(new CoreModule());
+  //  private static Logger log = LoggerFactory.getLogger(LibraryRecordResource.class);
   private final LibraryDAO libraryDAO = injector.getInstance(LibraryDAO.class);
   private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
 
-  @PathParam("id") String libraryId;
+  @PathParam("id")
+  String id;
 
   /**
    * Get one library.
-   * TODO: Return 404 if the library is not found.
    *
    * @return application/json response.
    */
@@ -64,7 +55,7 @@ public class LibraryRecordResource {
 
     JSONObject result;
     try {
-      result = libraryDAO.readOneAble(access, ULong.valueOf(libraryId));
+      result = libraryDAO.readOne(access, ULong.valueOf(id));
       if (result != null) {
         return Response
           .accepted(JSON.wrap(Library.KEY_ONE, result).toString())
@@ -75,7 +66,7 @@ public class LibraryRecordResource {
       }
 
     } catch (Exception e) {
-      return Response.serverError().build();
+      return httpResponseProvider.failure(e);
     }
   }
 
@@ -88,30 +79,14 @@ public class LibraryRecordResource {
   @PUT
   @Consumes(MediaType.APPLICATION_JSON)
   @RolesAllowed({Role.ADMIN})
-  public Response update(LibraryWrapper data) {
-
+  public Response update(LibraryWrapper data, @Context ContainerRequestContext crc) {
+    AccessControl access = AccessControl.fromContext(crc);
     try {
-      libraryDAO.update(ULong.valueOf(libraryId), data);
+      libraryDAO.update(access, ULong.valueOf(id), data);
       return Response.accepted("{}").build();
 
-    } catch (BusinessException e) {
-      log.warn("BusinessException: " + e.getMessage());
-      return Response
-        .status(HttpStatus.SC_UNPROCESSABLE_ENTITY)
-        .entity(JSON.wrapError(e.getMessage()).toString())
-        .build();
-
-    } catch (DatabaseException e) {
-      log.error("DatabaseException", e);
-      return Response.serverError().build();
-
-    } catch (ConfigException e) {
-      log.error("ConfigException", e);
-      return Response.serverError().build();
-
     } catch (Exception e) {
-      log.error("Exception", e);
-      return Response.serverError().build();
+      return httpResponseProvider.failureToUpdate(e);
     }
   }
 
@@ -122,22 +97,14 @@ public class LibraryRecordResource {
    */
   @DELETE
   @RolesAllowed({Role.ADMIN})
-  public Response delete() {
-
+  public Response delete(@Context ContainerRequestContext crc) {
+    AccessControl access = AccessControl.fromContext(crc);
     try {
-      libraryDAO.delete(ULong.valueOf(libraryId));
+      libraryDAO.delete(access, ULong.valueOf(id));
       return Response.accepted("{}").build();
 
-    } catch (BusinessException e) {
-      log.warn("BusinessException: " + e.getMessage());
-      return Response
-        .status(HttpStatus.SC_BAD_REQUEST)
-        .entity(JSON.wrapError(e.getMessage()).toString())
-        .build();
-
     } catch (Exception e) {
-      log.error(e.getClass().getName(), e);
-      return Response.serverError().build();
+      return httpResponseProvider.failure(e);
     }
   }
 

@@ -2,10 +2,11 @@
 package io.outright.xj.core.model.phase_meme;
 
 import io.outright.xj.core.app.exception.BusinessException;
+import io.outright.xj.core.model.EntityWrapper;
 
 import org.jooq.Record;
 
-public class PhaseMemeWrapper {
+public class PhaseMemeWrapper extends EntityWrapper {
 
   // Phase
   private PhaseMeme phaseMeme;
@@ -23,7 +24,7 @@ public class PhaseMemeWrapper {
    */
   public void validate() throws BusinessException{
     if (this.phaseMeme == null) {
-      throw new BusinessException("Phase is required.");
+      throw new BusinessException("phaseMeme is required.");
     }
     this.phaseMeme.validate();
   }

@@ -4,15 +4,13 @@ package io.outright.xj.hub.resource.user;
 import io.outright.xj.core.CoreModule;
 import io.outright.xj.core.app.access.AccessControl;
 import io.outright.xj.core.app.server.HttpResponseProvider;
+import io.outright.xj.core.dao.UserDAO;
 import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.model.user.User;
 import io.outright.xj.core.transport.JSON;
-import io.outright.xj.hub.HubModule;
-import io.outright.xj.core.dao.UserDAO;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-
 import org.json.JSONObject;
 
 import javax.annotation.security.RolesAllowed;
@@ -30,7 +28,7 @@ import java.io.IOException;
  */
 @Path("users/me")
 public class MeResource {
-  private static final Injector injector = Guice.createInjector(new CoreModule(), new HubModule());
+  private static final Injector injector = Guice.createInjector(new CoreModule());
   private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
   private final UserDAO userDAO = injector.getInstance(UserDAO.class);
 
@@ -44,20 +42,18 @@ public class MeResource {
   @RolesAllowed({Role.USER})
   public Response getCurrentlyAuthenticatedUser(@Context ContainerRequestContext crc) throws IOException {
     AccessControl access = AccessControl.fromContext(crc);
-
-    JSONObject result;
     try {
-      result = userDAO.readOneAble(access, access.getUserId());
+      JSONObject result = userDAO.readOne(access, access.getUserId());
+      if (result != null) {
+        return Response
+          .accepted(JSON.wrap(User.KEY_ONE, result).toString())
+          .type(MediaType.APPLICATION_JSON)
+          .build();
+      } else {
+        return httpResponseProvider.unauthorized();      }
+
     } catch (Exception e) {
       return httpResponseProvider.unauthorized();
     }
-
-    if (result != null) {
-      return Response
-        .accepted(JSON.wrap(User.KEY_ONE, result).toString())
-        .type(MediaType.APPLICATION_JSON)
-        .build();
-    }
-    return httpResponseProvider.unauthorized();
   }
 }

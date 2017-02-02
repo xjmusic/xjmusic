@@ -12,7 +12,6 @@ import io.outright.xj.core.model.idea_meme.IdeaMeme;
 import io.outright.xj.core.model.idea_meme.IdeaMemeWrapper;
 import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.tables.records.IdeaMemeRecord;
-import io.outright.xj.core.tables.records.IdeaRecord;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Guice;
@@ -26,7 +25,6 @@ import org.junit.Test;
 
 import java.math.BigInteger;
 
-import static io.outright.xj.core.tables.Idea.IDEA;
 import static io.outright.xj.core.tables.IdeaMeme.IDEA_MEME;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -132,13 +130,13 @@ public class IdeaMemeIT {
   }
 
   @Test
-  public void readOneAble() throws Exception {
+  public void readOne() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
 
-    JSONObject actualResult = testDAO.readOneAble(access, ULong.valueOf(2));
+    JSONObject actualResult = testDAO.readOne(access, ULong.valueOf(2));
 
     assertNotNull(actualResult);
     assertEquals(ULong.valueOf(2), actualResult.get("id"));
@@ -153,19 +151,19 @@ public class IdeaMemeIT {
       "accounts", "326"
     ));
 
-    JSONObject actualResult = testDAO.readOneAble(access, ULong.valueOf(1));
+    JSONObject actualResult = testDAO.readOne(access, ULong.valueOf(1));
 
     assertNull(actualResult);
   }
 
   @Test
-  public void readAllAble() throws Exception {
+  public void readAll() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
 
-    JSONArray actualResultList = testDAO.readAllAble(access, ULong.valueOf(1));
+    JSONArray actualResultList = testDAO.readAllIn(access, ULong.valueOf(1));
 
     assertNotNull(actualResultList);
     assertEquals(2, actualResultList.length());
@@ -182,7 +180,7 @@ public class IdeaMemeIT {
       "accounts", "345"
     ));
 
-    JSONArray actualResultList = testDAO.readAllAble(access, ULong.valueOf(1));
+    JSONArray actualResultList = testDAO.readAllIn(access, ULong.valueOf(1));
 
     assertNotNull(actualResultList);
     assertEquals(0, actualResultList.length());

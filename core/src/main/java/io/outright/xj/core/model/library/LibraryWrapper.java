@@ -2,10 +2,11 @@
 package io.outright.xj.core.model.library;
 
 import io.outright.xj.core.app.exception.BusinessException;
+import io.outright.xj.core.model.EntityWrapper;
 
 import org.jooq.Record;
 
-public class LibraryWrapper {
+public class LibraryWrapper extends EntityWrapper {
 
   // Library
   private Library library;

@@ -7,9 +7,9 @@ public class UserIndexResourceTest extends ResourceEndpointTest {
 
   // TODO write tests for /users endpoint via HTTP
 
-  // TODO write tests for GET /users/<userId> endpoint via HTTP
+  // TODO write tests for GET /users/<id> endpoint via HTTP
 
-  // TODO write tests for PUT /users/<userId> endpoint via HTTP
+  // TODO write tests for PUT /users/<id> endpoint via HTTP
 
 //  @Test
 //  public void GetAuth() {

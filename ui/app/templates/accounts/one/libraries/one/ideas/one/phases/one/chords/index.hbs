@@ -1,0 +1,51 @@
+<!-- Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved. -->
+
+<!-- Inner Content -->
+{{outlet}}
+
+<!-- Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved. -->
+
+<!-- Upper Container -->
+<div class="form-horizontal">
+
+  <!-- Header -->
+  <div class="form-group">
+    <div class="col-sm-12">
+      <h5>{{#link-to "accounts.one.libraries.one.ideas.one.phases.one" model.phase}}{{model.phase.name}}{{/link-to}}</h5>
+      <h1>Chords</h1>
+    </div>
+  </div>
+
+  <!-- List of Chords -->
+  <div class="sm-col-12">
+    <div class="table-list">
+      <table class="table">
+        <thead>
+        <tr>
+          <th>#</th>
+          <th>Position</th>
+          <th>Name</th>
+        </tr>
+        </thead>
+        <tbody>
+        {{#each model.chords as |chord|}}
+          <tr class="item">
+            <th scope="row">{{#link-to "accounts.one.libraries.one.ideas.one.phases.one.chords.one" chord}}{{chord.id}}{{/link-to}}</th>
+            <td>{{chord.position}}</td>
+            <td>{{chord.name}}</td>
+            <td>
+              {{#link-to 'accounts.one.libraries.one.ideas.one.phases.one.chords.one.edit' chord}}Edit{{/link-to}}
+            </td>
+          </tr>
+        {{/each}}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  {{#if (or auth.isArtist auth.isAdmin)}}
+    <div class="sm-col-12">
+      Or: {{#link-to 'accounts.one.libraries.one.ideas.one.phases.one.chords.new'}}Create New Chord{{/link-to}}
+    </div>
+  {{/if}}
+</div>

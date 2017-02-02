@@ -23,32 +23,32 @@ public interface AccountUserDAO {
    * @param data for the new Account User.
    * @return newly created record as JSON
    */
-  JSONObject create(AccountUserWrapper data) throws DatabaseException, ConfigException, BusinessException;
+  JSONObject create(AccessControl access, AccountUserWrapper data) throws Exception;
 
   /**
    * Fetch one AccountUser if accessible
    *
    * @param id of AccountUser
    * @return retrieved record as JSON
-   * @throws DatabaseException on failure
+   * @throws Exception on failure
    */
   @Nullable
-  JSONObject readOneAble(AccessControl access, ULong id) throws DatabaseException;
+  JSONObject readOne(AccessControl access, ULong id) throws Exception;
 
   /**
    * Fetch many AccountUser for one Account by id, if accessible
    *
    * @param accountId to fetch accountUsers for.
    * @return JSONArray of accountUsers.
-   * @throws DatabaseException on failure
+   * @throws Exception on failure
    */
   @Nullable
-  JSONArray readAllAble(AccessControl access, ULong accountId) throws DatabaseException;
+  JSONArray readAllIn(AccessControl access, ULong accountId) throws Exception;
 
   /**
    * (ADMIN ONLY)
    * Delete a specified AccountUser
    * @param id of specific AccountUser to delete.
    */
-  void delete(ULong id) throws DatabaseException, ConfigException, BusinessException;
+  void delete(AccessControl access, ULong id) throws Exception;
 }

@@ -1,12 +1,13 @@
 // Copyright Outright Mental, Inc. All Rights Reserved.
-package io.outright.xj.core.dao.jooq;
+package io.outright.xj.core.dao.impl;
 
 import io.outright.xj.core.app.access.AccessControl;
-import io.outright.xj.core.app.db.SQLDatabaseProvider;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.app.exception.DatabaseException;
 import io.outright.xj.core.dao.IdeaMemeDAO;
+import io.outright.xj.core.db.sql.SQLConnection;
+import io.outright.xj.core.db.sql.SQLDatabaseProvider;
 import io.outright.xj.core.model.idea_meme.IdeaMemeWrapper;
 import io.outright.xj.core.tables.records.IdeaMemeRecord;
 import io.outright.xj.core.transport.JSON;
@@ -20,7 +21,6 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 
 import static io.outright.xj.core.tables.Idea.IDEA;
@@ -32,9 +32,8 @@ import static io.outright.xj.core.tables.Library.LIBRARY;
  * <p>
  * TODO [core] more specific permissions of user (artist) access by per-entity ownership
  */
-public class IdeaMemeDAOImpl implements IdeaMemeDAO {
+public class IdeaMemeDAOImpl extends DAOImpl implements IdeaMemeDAO {
   private static Logger log = LoggerFactory.getLogger(IdeaMemeDAOImpl.class);
-  private SQLDatabaseProvider dbProvider;
 
   @Inject
   public IdeaMemeDAOImpl(
@@ -44,61 +43,43 @@ public class IdeaMemeDAOImpl implements IdeaMemeDAO {
   }
 
   @Override
-  public JSONObject create(AccessControl access, IdeaMemeWrapper data) throws DatabaseException, ConfigException, BusinessException {
-    Connection conn = dbProvider.getConnectionTransaction();
-    DSLContext db = dbProvider.getContext(conn);
+  public JSONObject create(AccessControl access, IdeaMemeWrapper data) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
     try {
-      JSONObject result = JSON.objectFromRecord(create(db, access, data));
-      dbProvider.commitAndClose(conn);
-      return result;
-
+      return tx.success(create(tx.getContext(), access, data));
     } catch (Exception e) {
-      dbProvider.rollbackAndClose(conn);
-      throw e;
+      throw tx.failure(e);
     }
   }
 
   @Override
-  public JSONObject readOneAble(AccessControl access, ULong id) throws DatabaseException {
-    Connection conn = dbProvider.getConnection();
-    DSLContext db = dbProvider.getContext(conn);
+  public JSONObject readOne(AccessControl access, ULong id) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
     try {
-      JSONObject result = readOneAble(db, access, id);
-      dbProvider.close(conn);
-      return result;
-
-    } catch (SQLException e) {
-      dbProvider.close(conn);
-      throw new DatabaseException("SQLException: " + e);
-    }
-  }
-
-  @Override
-  public JSONArray readAllAble(AccessControl access, ULong ideaId) throws DatabaseException {
-    Connection conn = dbProvider.getConnection();
-    DSLContext db = dbProvider.getContext(conn);
-    try {
-      JSONArray result = readAllAble(db, access, ideaId);
-      dbProvider.close(conn);
-      return result;
-
-    } catch (SQLException e) {
-      dbProvider.close(conn);
-      throw new DatabaseException("SQLException: " + e);
-    }
-  }
-
-  @Override
-  public void delete(AccessControl access, ULong id) throws DatabaseException, ConfigException, BusinessException {
-    Connection conn = dbProvider.getConnectionTransaction();
-    DSLContext db = dbProvider.getContext(conn);
-    try {
-      delete(db, access, id);
-      dbProvider.commitAndClose(conn);
-
+      return tx.success(readOneAble(tx.getContext(), access, id));
     } catch (Exception e) {
-      dbProvider.rollbackAndClose(conn);
-      throw e;
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public JSONArray readAllIn(AccessControl access, ULong ideaId) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readAllIn(tx.getContext(), access, ideaId));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public void delete(AccessControl access, ULong id) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      delete(tx.getContext(), access, id);
+      tx.success();
+    } catch (Exception e) {
+      throw tx.failure(e);
     }
   }
 
@@ -109,11 +90,11 @@ public class IdeaMemeDAOImpl implements IdeaMemeDAO {
    * @param access control
    * @param data   for new IdeaMeme
    * @return new record
-   * @throws DatabaseException if database failure
+   * @throws Exception if database failure
    * @throws ConfigException   if not configured properly
    * @throws BusinessException if fails business rule
    */
-  private IdeaMemeRecord create(DSLContext db, AccessControl access, IdeaMemeWrapper data) throws DatabaseException, ConfigException, BusinessException {
+  private JSONObject create(DSLContext db, AccessControl access, IdeaMemeWrapper data) throws Exception {
     data.validate();
 
     ULong ideaId = ULong.valueOf(data.getIdeaMeme().getIdeaId());
@@ -149,7 +130,7 @@ public class IdeaMemeDAOImpl implements IdeaMemeDAO {
       throw new BusinessException("Cannot create Idea Meme. Please ensure name+ideaId are valid and unique.");
     }
 
-    return record;
+    return JSON.objectFromRecord(record);
   }
 
   /**
@@ -184,7 +165,7 @@ public class IdeaMemeDAOImpl implements IdeaMemeDAO {
    * @return array of idea memes
    * @throws SQLException if failure
    */
-  private JSONArray readAllAble(DSLContext db, AccessControl access, ULong ideaId) throws SQLException {
+  private JSONArray readAllIn(DSLContext db, AccessControl access, ULong ideaId) throws SQLException {
     if (access.isAdmin()) {
       return JSON.arrayFromResultSet(db.selectFrom(IDEA_MEME)
         .where(IDEA_MEME.IDEA_ID.eq(ideaId))

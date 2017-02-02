@@ -15,7 +15,7 @@ public interface AuthDAO {
    * @return token for access to this system.
    * @throws AccessException if user is not authenticated.
    * @throws ConfigException if the application is not configured properly.
-   * @throws DatabaseException if database connection(s) fail.
+   * @throws Exception if database connection(s) fail.
    */
-  String authenticate(String accessCode) throws AccessException, ConfigException, DatabaseException;
+  String authenticate(String accessCode) throws Exception;
 }

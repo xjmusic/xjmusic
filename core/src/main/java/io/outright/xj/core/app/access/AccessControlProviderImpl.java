@@ -2,7 +2,7 @@
 package io.outright.xj.core.app.access;
 
 import io.outright.xj.core.app.config.Config;
-import io.outright.xj.core.app.db.RedisDatabaseProvider;
+import io.outright.xj.core.db.RedisDatabaseProvider;
 import io.outright.xj.core.app.exception.AccessException;
 import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.app.exception.DatabaseException;

@@ -2,26 +2,21 @@
 package io.outright.xj.core.integration;
 
 import io.outright.xj.core.CoreModule;
-import io.outright.xj.core.app.db.SQLDatabaseProvider;
 import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.app.exception.DatabaseException;
+import io.outright.xj.core.db.sql.SQLConnection;
+import io.outright.xj.core.db.sql.SQLDatabaseProvider;
 import io.outright.xj.core.migration.MigrationService;
 
-import org.jooq.DSLContext;
-
 import com.google.inject.Guice;
-
+import org.jooq.DSLContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.sql.Connection;
-import java.sql.SQLException;
 
 public enum IntegrationTestService {
   INSTANCE;
   private Logger log = LoggerFactory.getLogger(IntegrationTestService.class);
-  private Connection dbConnection;
-  private DSLContext db;
+  private SQLConnection sqlConnection;
 
   IntegrationTestService() {
     log.info("Will prepare integration database.");
@@ -31,12 +26,11 @@ public enum IntegrationTestService {
     SQLDatabaseProvider dbProvider = Guice.createInjector(new CoreModule())
       .getInstance(SQLDatabaseProvider.class);
     try {
-      dbConnection = dbProvider.getConnection();
+      sqlConnection = dbProvider.getConnection();
     } catch (DatabaseException e) {
       log.error("DatabaseException: " + e);
       System.exit(1);
     }
-    db = dbProvider.getContext(dbConnection);
 
     // Shut it down before program exit
     Runtime.getRuntime().addShutdownHook(new Thread(IntegrationTestService::shutdown));
@@ -59,7 +53,7 @@ public enum IntegrationTestService {
    * @return DSL Context
    */
   public static DSLContext getDb() {
-    return INSTANCE.db;
+    return INSTANCE.sqlConnection.getContext();
   }
 
   /**
@@ -67,9 +61,9 @@ public enum IntegrationTestService {
    */
   private static void shutdown() {
     try {
-      INSTANCE.dbConnection.close();
+      INSTANCE.sqlConnection.success();
       INSTANCE.log.info("Did close master connection to integration database.");
-    } catch (SQLException e) {
+    } catch (DatabaseException e) {
       e.printStackTrace();
     }
   }

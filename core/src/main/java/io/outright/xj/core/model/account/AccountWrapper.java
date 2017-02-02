@@ -2,16 +2,19 @@
 package io.outright.xj.core.model.account;
 
 import io.outright.xj.core.app.exception.BusinessException;
+import io.outright.xj.core.model.EntityWrapper;
 
 import org.jooq.Record;
 
-public class AccountWrapper {
+public class AccountWrapper extends EntityWrapper {
 
   // Account
   private Account account;
+
   public Account getAccount() {
     return account;
   }
+
   public AccountWrapper setAccount(Account account) {
     this.account = account;
     return this;
@@ -19,9 +22,10 @@ public class AccountWrapper {
 
   /**
    * Validate data.
+   *
    * @throws BusinessException if invalid.
    */
-  public void validate() throws BusinessException{
+  public void validate() throws BusinessException {
     if (this.account == null) {
       throw new BusinessException("Account is required.");
     }

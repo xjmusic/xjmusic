@@ -16,53 +16,50 @@ import javax.annotation.Nullable;
 public interface PhaseDAO {
 
   /**
-   * (ADMIN ONLY)
-   * Create a new Account User
+   * Create a new Phase
    *
    * @param access control
    * @param data   for the new Account User.
    * @return newly created record as JSON
    */
-  JSONObject create(AccessControl access, PhaseWrapper data) throws DatabaseException, ConfigException, BusinessException;
+  JSONObject create(AccessControl access, PhaseWrapper data) throws Exception;
 
   /**
-   * Fetch one phase if accessible
+   * Fetch one Phase if accessible
    *
    * @param access control
    * @param id     of phase
    * @return retrieved record as JSON
-   * @throws DatabaseException on failure
+   * @throws Exception on failure
    */
   @Nullable
-  JSONObject readOneAble(AccessControl access, ULong id) throws DatabaseException;
+  JSONObject readOne(AccessControl access, ULong id) throws Exception;
 
   /**
-   * Fetch many phase for one Account by id, if accessible
+   * Fetch all accessible Phase for one Account by id
    *
    * @param access    control
    * @param ideaId to fetch phases for.
    * @return JSONArray of phases.
-   * @throws DatabaseException on failure
+   * @throws Exception on failure
    */
   @Nullable
-  JSONArray readAllAble(AccessControl access, ULong ideaId) throws DatabaseException;
+  JSONArray readAllIn(AccessControl access, ULong ideaId) throws Exception;
 
   /**
-   * (ADMIN ONLY)
-   * Update a specified Phase
+   * Update a specified Phase if accessible
    *
    * @param access control
    * @param id of specific Phase to update.
    * @param data   for the updated Phase.
    */
-  void update(AccessControl access, ULong id, PhaseWrapper data) throws DatabaseException, ConfigException, BusinessException;
+  void update(AccessControl access, ULong id, PhaseWrapper data) throws Exception;
 
   /**
-   * (ADMIN ONLY)
-   * Delete a specified phase
+   * Delete a specified Phase if accessible
    *
    * @param access control
    * @param id of specific phase to delete.
    */
-  void delete(AccessControl access, ULong id) throws DatabaseException, ConfigException, BusinessException;
+  void delete(AccessControl access, ULong id) throws Exception;
 }

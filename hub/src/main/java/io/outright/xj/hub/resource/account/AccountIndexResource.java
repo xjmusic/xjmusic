@@ -4,19 +4,16 @@ package io.outright.xj.hub.resource.account;
 import io.outright.xj.core.CoreModule;
 import io.outright.xj.core.app.access.AccessControl;
 import io.outright.xj.core.app.config.Exposure;
-import io.outright.xj.core.app.exception.BusinessException;
+import io.outright.xj.core.app.server.HttpResponseProvider;
 import io.outright.xj.core.dao.AccountDAO;
 import io.outright.xj.core.model.Entity;
 import io.outright.xj.core.model.account.Account;
 import io.outright.xj.core.model.account.AccountWrapper;
 import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.transport.JSON;
-import io.outright.xj.hub.HubModule;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-
-import org.apache.http.HttpStatus;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -39,9 +36,10 @@ import java.io.IOException;
  */
 @Path("accounts")
 public class AccountIndexResource {
-  private static final Injector injector = Guice.createInjector(new CoreModule(), new HubModule());
+  private static final Injector injector = Guice.createInjector(new CoreModule());
   private static Logger log = LoggerFactory.getLogger(AccountIndexResource.class);
   private final AccountDAO accountDAO = injector.getInstance(AccountDAO.class);
+  private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
 
   /**
    * Get all accounts.
@@ -53,10 +51,8 @@ public class AccountIndexResource {
   @RolesAllowed({Role.USER})
   public Response readAll(@Context ContainerRequestContext crc) throws IOException {
     AccessControl access = AccessControl.fromContext(crc);
-
-    JSONArray result;
     try {
-      result = accountDAO.readAllAble(access);
+      JSONArray result = accountDAO.readAll(access);
       if (result != null) {
         return Response
           .accepted(JSON.wrap(Account.KEY_MANY, result).toString())
@@ -67,8 +63,7 @@ public class AccountIndexResource {
       }
 
     } catch (Exception e) {
-      log.error("Exception", e);
-      return Response.serverError().build();
+      return httpResponseProvider.failure(e);
     }
   }
 
@@ -81,26 +76,18 @@ public class AccountIndexResource {
   @POST
   @Consumes(MediaType.APPLICATION_JSON)
   @RolesAllowed({Role.ADMIN})
-  public Response create(AccountWrapper data) {
-    JSONObject newEntity;
-
+  public Response create(AccountWrapper data, @Context ContainerRequestContext crc) {
+    AccessControl access = AccessControl.fromContext(crc);
     try {
-      newEntity = accountDAO.create(data);
-    } catch (BusinessException e) {
-      log.warn("BusinessException: " + e.getMessage());
+      JSONObject newEntity = accountDAO.create(access, data);
       return Response
-        .status(HttpStatus.SC_UNPROCESSABLE_ENTITY)
-        .entity(JSON.wrapError(e.getMessage()).toString())
+        .created(Exposure.apiURI(Account.KEY_MANY + "/" + newEntity.get(Entity.KEY_ID)))
+        .entity(JSON.wrap(Account.KEY_ONE, newEntity).toString())
         .build();
-    } catch (Exception e) {
-      log.error(e.getClass().getName(), e);
-      return Response.serverError().build();
-    }
 
-    return Response
-      .created(Exposure.apiURI(Account.KEY_MANY + "/" + newEntity.get(Entity.KEY_ID)))
-      .entity(JSON.wrap(Account.KEY_ONE, newEntity).toString())
-      .build();
+    } catch (Exception e) {
+      return httpResponseProvider.failureToCreate(e);
+    }
   }
 
 
