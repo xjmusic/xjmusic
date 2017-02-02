@@ -6,9 +6,9 @@ import io.outright.xj.core.app.db.SQLDatabaseProvider;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.app.exception.DatabaseException;
-import io.outright.xj.core.dao.IdeaMemeDAO;
-import io.outright.xj.core.model.idea_meme.IdeaMemeWrapper;
-import io.outright.xj.core.tables.records.IdeaMemeRecord;
+import io.outright.xj.core.dao.PhaseMemeDAO;
+import io.outright.xj.core.model.phase_meme.PhaseMemeWrapper;
+import io.outright.xj.core.tables.records.PhaseMemeRecord;
 import io.outright.xj.core.transport.JSON;
 
 import com.google.inject.Inject;
@@ -24,27 +24,28 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 import static io.outright.xj.core.tables.Idea.IDEA;
-import static io.outright.xj.core.tables.IdeaMeme.IDEA_MEME;
+import static io.outright.xj.core.tables.Phase.PHASE;
+import static io.outright.xj.core.tables.PhaseMeme.PHASE_MEME;
 import static io.outright.xj.core.tables.Library.LIBRARY;
 
 /**
- * IdeaMeme DAO
+ * PhaseMeme DAO
  * <p>
  * TODO [core] more specific permissions of user (artist) access by per-entity ownership
  */
-public class IdeaMemeDAOImpl implements IdeaMemeDAO {
-  private static Logger log = LoggerFactory.getLogger(IdeaMemeDAOImpl.class);
+public class PhaseMemeDAOImpl implements PhaseMemeDAO {
+  private static Logger log = LoggerFactory.getLogger(PhaseMemeDAOImpl.class);
   private SQLDatabaseProvider dbProvider;
 
   @Inject
-  public IdeaMemeDAOImpl(
+  public PhaseMemeDAOImpl(
     SQLDatabaseProvider dbProvider
   ) {
     this.dbProvider = dbProvider;
   }
 
   @Override
-  public JSONObject create(AccessControl access, IdeaMemeWrapper data) throws DatabaseException, ConfigException, BusinessException {
+  public JSONObject create(AccessControl access, PhaseMemeWrapper data) throws DatabaseException, ConfigException, BusinessException {
     Connection conn = dbProvider.getConnectionTransaction();
     DSLContext db = dbProvider.getContext(conn);
     try {
@@ -74,11 +75,11 @@ public class IdeaMemeDAOImpl implements IdeaMemeDAO {
   }
 
   @Override
-  public JSONArray readAllAble(AccessControl access, ULong ideaId) throws DatabaseException {
+  public JSONArray readAllAble(AccessControl access, ULong phaseId) throws DatabaseException {
     Connection conn = dbProvider.getConnection();
     DSLContext db = dbProvider.getContext(conn);
     try {
-      JSONArray result = readAllAble(db, access, ideaId);
+      JSONArray result = readAllAble(db, access, phaseId);
       dbProvider.close(conn);
       return result;
 
@@ -103,57 +104,58 @@ public class IdeaMemeDAOImpl implements IdeaMemeDAO {
   }
 
   /**
-   * Create a new Idea Meme record
+   * Create a new Phase Meme record
    *
    * @param db     context
    * @param access control
-   * @param data   for new IdeaMeme
+   * @param data   for new PhaseMeme
    * @return new record
    * @throws DatabaseException if database failure
    * @throws ConfigException   if not configured properly
    * @throws BusinessException if fails business rule
    */
-  private IdeaMemeRecord create(DSLContext db, AccessControl access, IdeaMemeWrapper data) throws DatabaseException, ConfigException, BusinessException {
+  private PhaseMemeRecord create(DSLContext db, AccessControl access, PhaseMemeWrapper data) throws DatabaseException, ConfigException, BusinessException {
     data.validate();
 
-    ULong ideaId = ULong.valueOf(data.getIdeaMeme().getIdeaId());
-    String name = data.getIdeaMeme().getName();
+    ULong phaseId = ULong.valueOf(data.getPhaseMeme().getPhaseId());
+    String name = data.getPhaseMeme().getName();
 
     if (access.isAdmin()) {
-      assertRecordExists(db.select(IDEA.ID).from(IDEA)
-        .where(IDEA.ID.eq(ideaId))
-        .fetchOne(), "Idea");
+      assertRecordExists(db.select(PHASE.ID).from(PHASE)
+        .where(PHASE.ID.eq(phaseId))
+        .fetchOne(), "Phase");
     } else {
-      assertRecordExists(db.select(IDEA.ID).from(IDEA)
+      assertRecordExists(db.select(PHASE.ID).from(PHASE)
+        .join(IDEA).on(IDEA.ID.eq(PHASE.IDEA_ID))
         .join(LIBRARY).on(IDEA.LIBRARY_ID.eq(LIBRARY.ID))
-        .where(IDEA.ID.eq(ideaId))
+        .where(PHASE.ID.eq(phaseId))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-        .fetchOne(), "Idea");
+        .fetchOne(), "Phase");
     }
 
-    if (db.selectFrom(IDEA_MEME)
-      .where(IDEA_MEME.IDEA_ID.eq(ideaId))
-      .and(IDEA_MEME.NAME.eq(name))
+    if (db.selectFrom(PHASE_MEME)
+      .where(PHASE_MEME.PHASE_ID.eq(phaseId))
+      .and(PHASE_MEME.NAME.eq(name))
       .fetchOne() != null) {
-      throw new BusinessException("Idea Meme already exists!");
+      throw new BusinessException("Phase Meme already exists!");
     }
 
-    IdeaMemeRecord record;
-    record = db.newRecord(IDEA_MEME);
-    data.getIdeaMeme().intoFieldValueMap().forEach(record::setValue);
+    PhaseMemeRecord record;
+    record = db.newRecord(PHASE_MEME);
+    data.getPhaseMeme().intoFieldValueMap().forEach(record::setValue);
 
     try {
       record.store();
     } catch (Exception e) {
-      log.warn("Cannot create IdeaMeme", e.getMessage());
-      throw new BusinessException("Cannot create Idea Meme. Please ensure name+ideaId are valid and unique.");
+      log.warn("Cannot create PhaseMeme", e.getMessage());
+      throw new BusinessException("Cannot create Phase Meme. Please ensure name+phaseId are valid and unique.");
     }
 
     return record;
   }
 
   /**
-   * Read one Idea Meme where able
+   * Read one Phase Meme where able
    *
    * @param db     context
    * @param access control
@@ -162,65 +164,68 @@ public class IdeaMemeDAOImpl implements IdeaMemeDAO {
    */
   private JSONObject readOneAble(DSLContext db, AccessControl access, ULong id) throws SQLException {
     if (access.isAdmin()) {
-      return JSON.objectFromRecord(db.selectFrom(IDEA_MEME)
-        .where(IDEA_MEME.ID.eq(id))
+      return JSON.objectFromRecord(db.selectFrom(PHASE_MEME)
+        .where(PHASE_MEME.ID.eq(id))
         .fetchOne());
     } else {
-      return JSON.objectFromRecord(db.select(IDEA_MEME.fields()).from(IDEA_MEME)
-        .join(IDEA).on(IDEA.ID.eq(IDEA_MEME.IDEA_ID))
+      return JSON.objectFromRecord(db.select(PHASE_MEME.fields()).from(PHASE_MEME)
+        .join(PHASE).on(PHASE.ID.eq(PHASE_MEME.PHASE_ID))
+        .join(IDEA).on(IDEA.ID.eq(PHASE.IDEA_ID))
         .join(LIBRARY).on(IDEA.LIBRARY_ID.eq(LIBRARY.ID))
-        .where(IDEA_MEME.ID.eq(id))
+        .where(PHASE_MEME.ID.eq(id))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .fetchOne());
     }
   }
 
   /**
-   * Read all Memes of an Idea where able
+   * Read all Memes of an Phase where able
    *
    * @param db     context
    * @param access control
-   * @param ideaId to read memes for
-   * @return array of idea memes
+   * @param phaseId to read memes for
+   * @return array of phase memes
    * @throws SQLException if failure
    */
-  private JSONArray readAllAble(DSLContext db, AccessControl access, ULong ideaId) throws SQLException {
+  private JSONArray readAllAble(DSLContext db, AccessControl access, ULong phaseId) throws SQLException {
     if (access.isAdmin()) {
-      return JSON.arrayFromResultSet(db.selectFrom(IDEA_MEME)
-        .where(IDEA_MEME.IDEA_ID.eq(ideaId))
+      return JSON.arrayFromResultSet(db.selectFrom(PHASE_MEME)
+        .where(PHASE_MEME.PHASE_ID.eq(phaseId))
         .fetchResultSet());
     } else {
-      return JSON.arrayFromResultSet(db.select(IDEA_MEME.fields()).from(IDEA_MEME)
-        .join(IDEA).on(IDEA.ID.eq(IDEA_MEME.IDEA_ID))
+      return JSON.arrayFromResultSet(db.select(PHASE_MEME.fields()).from(PHASE_MEME)
+        .join(PHASE).on(PHASE.ID.eq(PHASE_MEME.PHASE_ID))
+        .join(IDEA).on(IDEA.ID.eq(PHASE.IDEA_ID))
         .join(LIBRARY).on(IDEA.LIBRARY_ID.eq(LIBRARY.ID))
-        .where(IDEA.ID.eq(ideaId))
+        .where(PHASE.ID.eq(phaseId))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .fetchResultSet());
     }
   }
 
   /**
-   * Delete an IdeaMeme record
+   * Delete an PhaseMeme record
    *
    * @param db     context
    * @param access control
    * @param id     to delete
    * @throws BusinessException if failure
    */
-  // TODO: fail if no ideaMeme is deleted
+  // TODO: fail if no phaseMeme is deleted
   private void delete(DSLContext db, AccessControl access, ULong id) throws BusinessException {
     if (!access.isAdmin()) {
-      Record record = db.select(IDEA_MEME.ID).from(IDEA_MEME)
-        .join(IDEA).on(IDEA.ID.eq(IDEA_MEME.IDEA_ID))
+      Record record = db.select(PHASE_MEME.ID).from(PHASE_MEME)
+        .join(PHASE).on(PHASE.ID.eq(PHASE_MEME.PHASE_ID))
+        .join(IDEA).on(IDEA.ID.eq(PHASE.IDEA_ID))
         .join(LIBRARY).on(IDEA.LIBRARY_ID.eq(LIBRARY.ID))
-        .where(IDEA_MEME.ID.eq(id))
+        .where(PHASE_MEME.ID.eq(id))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .fetchOne();
-      assertRecordExists(record, "Idea Meme");
+      assertRecordExists(record, "Phase Meme");
     }
 
-    db.deleteFrom(IDEA_MEME)
-      .where(IDEA_MEME.ID.eq(id))
+    db.deleteFrom(PHASE_MEME)
+      .where(PHASE_MEME.ID.eq(id))
       .execute();
   }
 

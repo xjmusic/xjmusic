@@ -57,7 +57,7 @@ function accountLibraryIdeaPhases() {
 
 function accountLibraryIdeaPhase() {
   this.route('edit'); // Edit Phase
-  // this.route('memes'); // Memes in Phase
+  this.route('memes'); // Memes in Phase
 }
 
 export default Router;

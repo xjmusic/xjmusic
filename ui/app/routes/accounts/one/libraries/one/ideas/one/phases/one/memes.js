@@ -6,7 +6,7 @@ export default Ember.Route.extend({
   display: Ember.inject.service(),
 
   model() {
-    let phase = this.modelFor('accounts.one.libraries.one.phases.one');
+    let phase = this.modelFor('accounts.one.libraries.one.ideas.one.phases.one');
     return Ember.RSVP.hash({
       phase: phase,
       memeToAdd: null,
