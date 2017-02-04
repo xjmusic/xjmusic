@@ -26,6 +26,7 @@ import io.outright.xj.core.dao.PhaseDAO;
 import io.outright.xj.core.dao.PhaseMemeDAO;
 import io.outright.xj.core.dao.UserDAO;
 import io.outright.xj.core.dao.VoiceDAO;
+import io.outright.xj.core.dao.VoiceEventDAO;
 import io.outright.xj.core.dao.impl.AccountDAOImpl;
 import io.outright.xj.core.dao.impl.AccountUserDAOImpl;
 import io.outright.xj.core.dao.impl.AuthDAOImpl;
@@ -37,6 +38,7 @@ import io.outright.xj.core.dao.impl.PhaseDAOImpl;
 import io.outright.xj.core.dao.impl.PhaseMemeDAOImpl;
 import io.outright.xj.core.dao.impl.UserDAOImpl;
 import io.outright.xj.core.dao.impl.VoiceDAOImpl;
+import io.outright.xj.core.dao.impl.VoiceEventDAOImpl;
 import io.outright.xj.core.db.RedisDatabaseProvider;
 import io.outright.xj.core.db.RedisDatabaseProviderImpl;
 import io.outright.xj.core.db.sql.SQLDatabaseProvider;
@@ -101,5 +103,6 @@ public class CoreModule extends AbstractModule {
     bind(PhaseMemeDAO.class).to(PhaseMemeDAOImpl.class);
     bind(UserDAO.class).to(UserDAOImpl.class);
     bind(VoiceDAO.class).to(VoiceDAOImpl.class);
+    bind(VoiceEventDAO.class).to(VoiceEventDAOImpl.class);
   }
 }

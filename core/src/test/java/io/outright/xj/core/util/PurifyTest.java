@@ -39,4 +39,19 @@ public class PurifyTest extends Mockito {
     assertEquals("", Purify.LowerSlug("%&(#"));
   }
 
+  @Test
+  public void upperSlug() throws Exception {
+    assertEquals("JAMMY", Purify.UpperSlug("jaMMy"));
+    assertEquals("JMMY", Purify.UpperSlug("j#MMy", "neuf"));
+    assertEquals("NEUF", Purify.UpperSlug(null, "neuf"));
+    assertEquals("NEUF", Purify.UpperSlug("%&(#", "neuf"));
+    assertEquals("P", Purify.UpperSlug("%&(#p"));
+    assertEquals("", Purify.UpperSlug("%&(#"));
+  }
+
+  @Test
+  public void note() throws Exception {
+    assertEquals("C# major", Purify.Note("   C# m___ajor "));
+  }
+
 }

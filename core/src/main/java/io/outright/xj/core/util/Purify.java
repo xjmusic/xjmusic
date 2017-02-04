@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 
 public interface Purify {
   Pattern nonAlphabet = Pattern.compile("[^a-zA-Z]");
+  Pattern nonNote = Pattern.compile("[^#0-9a-zA-Z ]");
 
   static String Slug(String raw) {
     Matcher m = nonAlphabet.matcher(raw);
@@ -52,4 +53,24 @@ public interface Purify {
     }
   }
 
+  static String UpperSlug(String raw) {
+    return Slug(raw).toUpperCase();
+  }
+
+  static String UpperSlug(String raw, String defaultValue) {
+    if (raw == null) {
+      return defaultValue.toUpperCase();
+    }
+    String out = Slug(raw).toUpperCase();
+    if (out.length() > 0) {
+      return out;
+    } else {
+      return defaultValue.toUpperCase();
+    }
+  }
+
+  static String Note(String raw) {
+    Matcher m = nonNote.matcher(raw);
+    return m.replaceAll("").trim();
+  }
 }

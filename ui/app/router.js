@@ -78,6 +78,16 @@ function accountLibraryIdeaPhaseVoices() {
 
 function accountLibraryIdeaPhaseVoice() {
   this.route('edit'); // Edit Phase
+  this.route('events', accountLibraryIdeaPhaseVoiceEvents); // Events in Voice
+}
+
+function accountLibraryIdeaPhaseVoiceEvents() {
+  this.route('new'); // New Event
+  this.route('one', {path: '/:event_id'}, accountLibraryIdeaPhaseVoiceEvent); // One Event
+}
+
+function accountLibraryIdeaPhaseVoiceEvent() {
+  this.route('edit'); // Edit Event
 }
 
 export default Router;

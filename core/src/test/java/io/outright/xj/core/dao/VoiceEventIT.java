@@ -7,16 +7,18 @@ import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.integration.IntegrationTestEntity;
 import io.outright.xj.core.integration.IntegrationTestService;
 import io.outright.xj.core.model.idea.Idea;
-import io.outright.xj.core.model.phase_chord.PhaseChord;
-import io.outright.xj.core.model.phase_chord.PhaseChordWrapper;
 import io.outright.xj.core.model.role.Role;
-import io.outright.xj.core.tables.records.IdeaRecord;
-import io.outright.xj.core.tables.records.PhaseChordRecord;
+import io.outright.xj.core.model.voice.Voice;
+import io.outright.xj.core.model.voice_event.VoiceEvent;
+import io.outright.xj.core.model.voice_event.VoiceEventWrapper;
+import io.outright.xj.core.tables.records.VoiceEventRecord;
+
+import org.jooq.types.ULong;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.jooq.types.ULong;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.After;
@@ -25,16 +27,15 @@ import org.junit.Test;
 
 import java.math.BigInteger;
 
-import static io.outright.xj.core.Tables.PHASE_CHORD;
-import static io.outright.xj.core.tables.Idea.IDEA;
+import static io.outright.xj.core.Tables.VOICE_EVENT;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 // TODO [core] test permissions of different users to read vs. create vs. update or delete ideas
-public class PhaseChordIT {
+public class VoiceEventIT {
   private Injector injector = Guice.createInjector(new CoreModule());
-  private PhaseChordDAO testDAO;
+  private VoiceEventDAO testDAO;
 
   @Before
   public void setUp() throws Exception {
@@ -51,16 +52,22 @@ public class PhaseChordIT {
     IntegrationTestEntity.insertLibrary(1, 1, "palm tree");
     IntegrationTestEntity.insertIdea(1, 2, 1, Idea.MAIN, "leaves", 0.342, "C#", 110.286);
 
-    // Idea "leaves" has phases "Ants" and "Caterpillars"
-    IntegrationTestEntity.insertPhase(1, 1, 0, 16, "Ants", 0.583, "D minor", 120.0);
-    IntegrationTestEntity.insertPhase(2, 1, 1, 16, "Caterpillars", 0.583, "E major", 140.0);
+    // Idea "leaves" has voices "Intro" and "Outro"
+    IntegrationTestEntity.insertPhase(1, 1, 0, 4, "Intro", 0.583, "D minor", 120.0);
+    IntegrationTestEntity.insertPhase(2, 1, 1, 4, "Outro", 0.583, "E major", 140.0);
 
-    // Phase "Caterpillars" has chords "C minor" and "D major"
-    IntegrationTestEntity.insertPhaseChord(1, 2, 0, "C minor");
-    IntegrationTestEntity.insertPhaseChord(2, 2, 4, "D major");
+    // Voice "Caterpillars" has voices "Drums" and "Bass"
+    IntegrationTestEntity.insertVoice(1, 2, Voice.PERCUSSIVE, "Drums");
+    IntegrationTestEntity.insertVoice(2, 2, Voice.HARMONIC, "Bass");
+
+    // Voice "Drums" has events "KICK" and "SNARE" 2x each
+    IntegrationTestEntity.insertVoiceEvent(1, 1, 0, 1, "KICK", "C", 0.8, 1.0);
+    IntegrationTestEntity.insertVoiceEvent(2, 1, 1, 1, "SNARE", "G", 0.1, 0.8);
+    IntegrationTestEntity.insertVoiceEvent(3, 1, 2.5, 1, "KICK", "C", 0.8, 0.6);
+    IntegrationTestEntity.insertVoiceEvent(4, 1, 3, 1, "SNARE", "G", 0.1, 0.9);
 
     // Instantiate the test subject
-    testDAO = injector.getInstance(PhaseChordDAO.class);
+    testDAO = injector.getInstance(VoiceEventDAO.class);
   }
 
   @After
@@ -68,7 +75,7 @@ public class PhaseChordIT {
     testDAO = null;
   }
 
-  // TODO cannot create or update a phase to an offset that already exists for that idea
+  // TODO cannot create or update a voice to an offset that already exists for that idea
 
   @Test
   public void create() throws Exception {
@@ -76,46 +83,62 @@ public class PhaseChordIT {
       "roles", "artist",
       "accounts", "1"
     ));
-    PhaseChordWrapper inputDataWrapper = new PhaseChordWrapper()
-      .setPhaseChord(new PhaseChord()
+    VoiceEventWrapper inputDataWrapper = new VoiceEventWrapper()
+      .setVoiceEvent(new VoiceEvent()
+        .setDuration(1.4)
+        .setInflection("KICK")
+        .setNote("C")
         .setPosition(0.42)
-        .setName("G minor 7")
-        .setPhaseId(BigInteger.valueOf(2))
+        .setTonality(0.92)
+        .setVelocity(0.72)
+        .setVoiceId(BigInteger.valueOf(2))
       );
 
     JSONObject actualResult = testDAO.create(access, inputDataWrapper);
 
     assertNotNull(actualResult);
+    assertEquals(1.4, actualResult.get("duration"));
     assertEquals(0.42, actualResult.get("position"));
-    assertEquals("G minor 7", actualResult.get("name"));
-    assertEquals(ULong.valueOf(2), actualResult.get("phaseId"));
+    assertEquals("C", actualResult.get("note"));
+    assertEquals("KICK", actualResult.get("inflection"));
+    assertEquals(0.92, actualResult.get("tonality"));
+    assertEquals(0.72, actualResult.get("velocity"));
+    assertEquals(ULong.valueOf(2), actualResult.get("voiceId"));
   }
 
   @Test(expected = BusinessException.class)
-  public void create_FailsWithoutPhaseID() throws Exception {
+  public void create_FailsWithoutVoiceID() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
-    PhaseChordWrapper inputDataWrapper = new PhaseChordWrapper()
-      .setPhaseChord(new PhaseChord()
-        .setPosition(0.42)
-        .setName("G minor 7")
+    VoiceEventWrapper inputDataWrapper = new VoiceEventWrapper()
+      .setVoiceEvent(new VoiceEvent()
+        .setDuration(1.0)
+        .setInflection("KICK")
+        .setNote("C")
+        .setPosition(0.0)
+        .setTonality(1.0)
+        .setVelocity(1.0)
       );
 
     testDAO.create(access, inputDataWrapper);
   }
 
   @Test(expected = BusinessException.class)
-  public void create_FailsWithoutName() throws Exception {
+  public void create_FailsWithoutNote() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
-    PhaseChordWrapper inputDataWrapper = new PhaseChordWrapper()
-      .setPhaseChord(new PhaseChord()
-        .setPosition(0.42)
-        .setPhaseId(BigInteger.valueOf(2))
+    VoiceEventWrapper inputDataWrapper = new VoiceEventWrapper()
+      .setVoiceEvent(new VoiceEvent()
+        .setDuration(1.0)
+        .setInflection("KICK")
+        .setPosition(0.0)
+        .setTonality(1.0)
+        .setVelocity(1.0)
+        .setVoiceId(BigInteger.valueOf(2))
       );
 
     testDAO.create(access, inputDataWrapper);
@@ -132,8 +155,13 @@ public class PhaseChordIT {
 
     assertNotNull(actualResult);
     assertEquals(ULong.valueOf(2), actualResult.get("id"));
-    assertEquals(ULong.valueOf(2), actualResult.get("phaseId"));
-    assertEquals("D major", actualResult.get("name"));
+    assertEquals(ULong.valueOf(1), actualResult.get("voiceId"));
+    assertEquals(1.0, actualResult.get("duration"));
+    assertEquals("SNARE", actualResult.get("inflection"));
+    assertEquals("G", actualResult.get("note"));
+    assertEquals(1.0, actualResult.get("position"));
+    assertEquals(0.1, actualResult.get("tonality"));
+    assertEquals(0.8, actualResult.get("velocity"));
   }
 
   @Test
@@ -155,14 +183,18 @@ public class PhaseChordIT {
       "accounts", "1"
     ));
 
-    JSONArray actualResultList = testDAO.readAllIn(access, ULong.valueOf(2));
+    JSONArray actualResultList = testDAO.readAllIn(access, ULong.valueOf(1));
 
     assertNotNull(actualResultList);
-    assertEquals(2, actualResultList.length());
+    assertEquals(4, actualResultList.length());
     JSONObject actualResult1 = (JSONObject) actualResultList.get(0);
-    assertEquals("C minor", actualResult1.get("name"));
+    assertEquals("KICK", actualResult1.get("inflection"));
     JSONObject actualResult2 = (JSONObject) actualResultList.get(1);
-    assertEquals("D major", actualResult2.get("name"));
+    assertEquals("SNARE", actualResult2.get("inflection"));
+    JSONObject actualResult3 = (JSONObject) actualResultList.get(2);
+    assertEquals("KICK", actualResult3.get("inflection"));
+    JSONObject actualResult4 = (JSONObject) actualResultList.get(3);
+    assertEquals("SNARE", actualResult4.get("inflection"));
   }
 
   @Test
@@ -179,57 +211,69 @@ public class PhaseChordIT {
   }
 
   @Test(expected = BusinessException.class)
-  public void update_FailsWithoutPhaseID() throws Exception {
+  public void update_FailsWithoutVoiceID() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
-    PhaseChordWrapper inputDataWrapper = new PhaseChordWrapper()
-      .setPhaseChord(new PhaseChord()
-        .setPosition(0.42)
-        .setName("G minor 7")
+    VoiceEventWrapper inputDataWrapper = new VoiceEventWrapper()
+      .setVoiceEvent(new VoiceEvent()
+        .setDuration(1.0)
+        .setInflection("KICK")
+        .setNote("C")
+        .setPosition(0.0)
+        .setTonality(1.0)
+        .setVelocity(1.0)
       );
 
     testDAO.update(access, ULong.valueOf(3), inputDataWrapper);
   }
 
   @Test(expected = BusinessException.class)
-  public void update_FailsWithoutName() throws Exception {
+  public void update_FailsWithoutNote() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
-    PhaseChordWrapper inputDataWrapper = new PhaseChordWrapper()
-      .setPhaseChord(new PhaseChord()
-        .setPosition(0.42)
-        .setPhaseId(BigInteger.valueOf(2))
+    VoiceEventWrapper inputDataWrapper = new VoiceEventWrapper()
+      .setVoiceEvent(new VoiceEvent()
+        .setDuration(1.0)
+        .setInflection("KICK")
+        .setPosition(0.0)
+        .setTonality(1.0)
+        .setVelocity(1.0)
+        .setVoiceId(BigInteger.valueOf(2))
       );
 
     testDAO.update(access, ULong.valueOf(2), inputDataWrapper);
   }
 
   @Test(expected = BusinessException.class)
-  public void update_FailsUpdatingToNonexistentIdea() throws Exception {
+  public void update_FailsUpdatingToNonexistentVoice() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
-    PhaseChordWrapper inputDataWrapper = new PhaseChordWrapper()
-      .setPhaseChord(new PhaseChord()
-        .setPosition(0.42)
-        .setPhaseId(BigInteger.valueOf(57))
-        .setName("cannons")
+    VoiceEventWrapper inputDataWrapper = new VoiceEventWrapper()
+      .setVoiceEvent(new VoiceEvent()
+        .setDuration(1.0)
+        .setInflection("SNARE")
+        .setNote("C")
+        .setPosition(0.0)
+        .setTonality(1.0)
+        .setVelocity(1.0)
+        .setVoiceId(BigInteger.valueOf(287))
       );
 
     testDAO.update(access, ULong.valueOf(3), inputDataWrapper);
 
-    IdeaRecord updatedRecord = IntegrationTestService.getDb()
-      .selectFrom(IDEA)
-      .where(IDEA.ID.eq(ULong.valueOf(3)))
+    VoiceEventRecord updatedRecord = IntegrationTestService.getDb()
+      .selectFrom(VOICE_EVENT)
+      .where(VOICE_EVENT.ID.eq(ULong.valueOf(3)))
       .fetchOne();
     assertNotNull(updatedRecord);
-    assertEquals("cannons", updatedRecord.getName());
-    assertEquals(ULong.valueOf(2), updatedRecord.getLibraryId());
+    assertEquals("KICK", updatedRecord.getInflection());
+    assertEquals(ULong.valueOf(2), updatedRecord.getVoiceId());
   }
 
   @Test
@@ -238,23 +282,30 @@ public class PhaseChordIT {
       "roles", "artist",
       "accounts", "1"
     ));
-    PhaseChordWrapper inputDataWrapper = new PhaseChordWrapper()
-      .setPhaseChord(new PhaseChord()
-        .setPhaseId(BigInteger.valueOf(1))
-        .setName("POPPYCOCK")
+    VoiceEventWrapper inputDataWrapper = new VoiceEventWrapper()
+      .setVoiceEvent(new VoiceEvent()
+        .setDuration(1.2)
+        .setInflection("POPPYCOCK")
+        .setNote("C")
         .setPosition(0.42)
+        .setTonality(0.92)
+        .setVelocity(0.72)
+        .setVoiceId(BigInteger.valueOf(1))
       );
 
     testDAO.update(access, ULong.valueOf(1), inputDataWrapper);
 
-    PhaseChordRecord updatedRecord = IntegrationTestService.getDb()
-      .selectFrom(PHASE_CHORD)
-      .where(PHASE_CHORD.ID.eq(ULong.valueOf(1)))
+    VoiceEventRecord updatedRecord = IntegrationTestService.getDb()
+      .selectFrom(VOICE_EVENT)
+      .where(VOICE_EVENT.ID.eq(ULong.valueOf(1)))
       .fetchOne();
     assertNotNull(updatedRecord);
-    assertEquals("POPPYCOCK", updatedRecord.getName());
+    assertEquals("POPPYCOCK", updatedRecord.getInflection());
+    assertEquals((Double) 1.2, updatedRecord.getDuration());
     assertEquals((Double) 0.42, updatedRecord.getPosition());
-    assertEquals(ULong.valueOf(1), updatedRecord.getPhaseId());
+    assertEquals(0.92, updatedRecord.get("tonality"));
+    assertEquals(0.72, updatedRecord.get("velocity"));
+    assertEquals(ULong.valueOf(1), updatedRecord.getVoiceId());
   }
 
   // TODO: [core] test DAO cannot update Idea to a User or Library not owned by current session
@@ -268,9 +319,9 @@ public class PhaseChordIT {
 
     testDAO.delete(access, ULong.valueOf(1));
 
-    PhaseChordRecord deletedRecord = IntegrationTestService.getDb()
-      .selectFrom(PHASE_CHORD)
-      .where(PHASE_CHORD.ID.eq(ULong.valueOf(1)))
+    VoiceEventRecord deletedRecord = IntegrationTestService.getDb()
+      .selectFrom(VOICE_EVENT)
+      .where(VOICE_EVENT.ID.eq(ULong.valueOf(1)))
       .fetchOne();
     assertNull(deletedRecord);
   }
