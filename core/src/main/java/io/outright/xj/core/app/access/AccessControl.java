@@ -8,12 +8,11 @@ import io.outright.xj.core.tables.records.UserAuthRecord;
 import io.outright.xj.core.tables.records.UserRoleRecord;
 import io.outright.xj.core.util.CSV.CSV;
 
-import org.jooq.types.ULong;
-
 import com.google.api.client.json.JsonFactory;
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-
+import org.jooq.types.ULong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,8 +61,10 @@ public class AccessControl {
     Map<String, String> innerMap
   ) {
     this.innerMap = innerMap;
-    this.accountIds = accountIdsFromCSV(innerMap.get(ACCOUNTS_KEY));
-    this.isAdmin = matchRoles(Role.ADMIN);
+    if (innerMap != null) {
+      this.accountIds = accountIdsFromCSV(innerMap.get(ACCOUNTS_KEY));
+      this.isAdmin = matchRoles(Role.ADMIN);
+    }
   }
 
   /**
@@ -87,6 +88,7 @@ public class AccessControl {
 
   /**
    * Get user ID of this access control
+   *
    * @return id
    */
   public ULong getUserId() {
@@ -95,6 +97,7 @@ public class AccessControl {
 
   /**
    * Create an access control object from request context
+   *
    * @param crc container request context
    * @return access control
    */
@@ -104,6 +107,7 @@ public class AccessControl {
 
   /**
    * Get a representation of this access control
+   *
    * @return JSON
    */
   public String toJSON() {
@@ -117,6 +121,7 @@ public class AccessControl {
 
   /**
    * Get Accounts
+   *
    * @return array of account id
    */
   public ULong[] getAccounts() {
@@ -125,6 +130,7 @@ public class AccessControl {
 
   /**
    * Is Admin?
+   *
    * @return boolean
    */
   public Boolean isAdmin() {
@@ -134,7 +140,7 @@ public class AccessControl {
   /**
    * Inner map
    */
-  Map<String, String> getMap() {
+  Map<String, String> intoMap() {
     return innerMap;
   }
 
@@ -143,7 +149,8 @@ public class AccessControl {
    */
   boolean valid() {
     return
-      innerMap.containsKey(USER_ID_KEY) &&
+      innerMap != null &&
+        innerMap.containsKey(USER_ID_KEY) &&
         innerMap.containsKey(USER_AUTH_ID_KEY) &&
         innerMap.containsKey(ROLES_KEY) &&
         innerMap.containsKey(ACCOUNTS_KEY);
@@ -154,7 +161,7 @@ public class AccessControl {
    */
   private ULong[] accountIdsFromRoleRecords(Collection<AccountUserRecord> userAccountRoleRecords) {
     ULong[] result = new ULong[userAccountRoleRecords.size()];
-    int i=0;
+    int i = 0;
     for (AccountUserRecord accountRole : userAccountRoleRecords) {
       result[i] = accountRole.getAccountId();
       ++i;
@@ -171,7 +178,7 @@ public class AccessControl {
     }
     String result = accountIds[0].toString();
     if (accountIds.length > 1) {
-      for (int i=1; i < accountIds.length; i++) {
+      for (int i = 1; i < accountIds.length; i++) {
         result += "," + accountIds[i].toString();
       }
     }
@@ -182,19 +189,24 @@ public class AccessControl {
    * Get a list of roles for this access control
    */
   private List<String> getRoles() {
-    return CSV.split(innerMap.get(ROLES_KEY));
+    String roles = innerMap.get(ROLES_KEY);
+    if (roles != null) {
+      return CSV.split(roles);
+    } else {
+      return ImmutableList.of();
+    }
   }
 
   /**
    * Get an array of account ids from a CSV string
    */
   private ULong[] accountIdsFromCSV(String csv) {
-    if (csv==null || csv.length() == 0) {
+    if (csv == null || csv.length() == 0) {
       return new ULong[0];
     }
     List<String> accountIdList = CSV.split(csv);
     ULong[] result = new ULong[accountIdList.size()];
-    int i=0;
+    int i = 0;
     for (String accountId : accountIdList) {
       result[i] = ULong.valueOf(accountId);
       ++i;

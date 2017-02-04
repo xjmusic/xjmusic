@@ -1,12 +1,12 @@
 // Copyright Outright Mental, Inc. All Rights Reserved.
-package io.outright.xj.hub.resource.phase_chord;
+package io.outright.xj.hub.resource.voice;
 
 import io.outright.xj.core.CoreModule;
 import io.outright.xj.core.app.access.AccessControl;
 import io.outright.xj.core.app.server.HttpResponseProvider;
-import io.outright.xj.core.dao.PhaseChordDAO;
-import io.outright.xj.core.model.phase_chord.PhaseChord;
-import io.outright.xj.core.model.phase_chord.PhaseChordWrapper;
+import io.outright.xj.core.dao.VoiceDAO;
+import io.outright.xj.core.model.voice.Voice;
+import io.outright.xj.core.model.voice.VoiceWrapper;
 import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.transport.JSON;
 
@@ -30,20 +30,20 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 
 /**
- * PhaseChord record
+ * Voice record
  */
-@Path("phase-chords/{id}")
-public class PhaseChordRecordResource {
+@Path("voices/{id}")
+public class VoiceRecordResource {
   private static final Injector injector = Guice.createInjector(new CoreModule());
-  //  private static Logger log = LoggerFactory.getLogger(PhaseChordRecordResource.class);
-  private final PhaseChordDAO phaseChordDAO = injector.getInstance(PhaseChordDAO.class);
+  //  private static Logger log = LoggerFactory.getLogger(VoiceRecordResource.class);
+  private final VoiceDAO voiceDAO = injector.getInstance(VoiceDAO.class);
   private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
 
   @PathParam("id")
   String id;
 
   /**
-   * Get one phaseChord.
+   * Get one voice.
    *
    * @return application/json response.
    */
@@ -52,16 +52,15 @@ public class PhaseChordRecordResource {
   @RolesAllowed({Role.ARTIST})
   public Response readOne(@Context ContainerRequestContext crc) throws IOException {
     AccessControl access = AccessControl.fromContext(crc);
-
     try {
-      JSONObject result = phaseChordDAO.readOne(access, ULong.valueOf(id));
+      JSONObject result = voiceDAO.readOne(access, ULong.valueOf(id));
       if (result != null) {
         return Response
-          .accepted(JSON.wrap(PhaseChord.KEY_ONE, result).toString())
+          .accepted(JSON.wrap(Voice.KEY_ONE, result).toString())
           .type(MediaType.APPLICATION_JSON)
           .build();
       } else {
-        return httpResponseProvider.notFound("Phase Chord");
+        return httpResponseProvider.notFound("Voice");
       }
 
     } catch (Exception e) {
@@ -70,18 +69,18 @@ public class PhaseChordRecordResource {
   }
 
   /**
-   * Update one phaseChord
+   * Update one voice
    *
-   * @param data with which to update PhaseChord record.
+   * @param data with which to update Voice record.
    * @return Response
    */
   @PUT
   @Consumes(MediaType.APPLICATION_JSON)
   @RolesAllowed({Role.ARTIST})
-  public Response update(PhaseChordWrapper data, @Context ContainerRequestContext crc) {
+  public Response update(VoiceWrapper data, @Context ContainerRequestContext crc) {
     AccessControl access = AccessControl.fromContext(crc);
     try {
-      phaseChordDAO.update(access, ULong.valueOf(id), data);
+      voiceDAO.update(access, ULong.valueOf(id), data);
       return Response.accepted("{}").build();
 
     } catch (Exception e) {
@@ -90,7 +89,7 @@ public class PhaseChordRecordResource {
   }
 
   /**
-   * Delete one phaseChord
+   * Delete one voice
    *
    * @return Response
    */
@@ -98,8 +97,9 @@ public class PhaseChordRecordResource {
   @RolesAllowed({Role.ARTIST})
   public Response delete(@Context ContainerRequestContext crc) {
     AccessControl access = AccessControl.fromContext(crc);
+
     try {
-      phaseChordDAO.delete(access, ULong.valueOf(id));
+      voiceDAO.delete(access, ULong.valueOf(id));
       return Response.accepted("{}").build();
 
     } catch (Exception e) {

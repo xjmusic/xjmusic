@@ -58,7 +58,8 @@ function accountLibraryIdeaPhases() {
 function accountLibraryIdeaPhase() {
   this.route('edit'); // Edit Phase
   this.route('memes'); // Memes in Phase
-  this.route('chords', accountLibraryIdeaPhaseChords); // Phases in Idea
+  this.route('chords', accountLibraryIdeaPhaseChords); // Chords in Phase
+  this.route('voices', accountLibraryIdeaPhaseVoices); // Voices in Phase
 }
 
 function accountLibraryIdeaPhaseChords() {
@@ -67,6 +68,15 @@ function accountLibraryIdeaPhaseChords() {
 }
 
 function accountLibraryIdeaPhaseChord() {
+  this.route('edit'); // Edit Phase
+}
+
+function accountLibraryIdeaPhaseVoices() {
+  this.route('new'); // New Voice
+  this.route('one', {path: '/:voice_id'}, accountLibraryIdeaPhaseVoice); // One Voice
+}
+
+function accountLibraryIdeaPhaseVoice() {
   this.route('edit'); // Edit Phase
 }
 

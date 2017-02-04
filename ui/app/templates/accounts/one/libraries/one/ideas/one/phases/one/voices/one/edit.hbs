@@ -1,0 +1,66 @@
+<!-- Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved. -->
+
+<!-- Inner Content -->
+{{outlet}}
+
+<!-- Upper Container -->
+<div class="form-horizontal">
+
+  <!-- Header -->
+  <div class="form-group">
+    <div class="col-sm-12">
+      <h5>{{#link-to "accounts.one.libraries.one.ideas.one.phases.one.voices.one" model}}{{model.name}}{{/link-to}}</h5>
+      <h1>Edit</h1>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label class="col-sm-2 control-label">Voice ID</label>
+    <div class="col-sm-10">
+      <div class="readonly-field">{{model.id}}</div>
+    </div>
+  </div>
+
+  <!-- Type -->
+  <div class="form-group">
+    <label class="col-sm-2 control-label">Type</label>
+    <div class="col-sm-10">
+      {{input type="text" value=model.type class="form-control" autofocus="autofocus"
+              placeholder="The type of the Voice"}}
+    </div>
+  </div>
+
+  <!-- Description -->
+  <div class="form-group">
+    <label class="col-sm-2 control-label">Description</label>
+    <div class="col-sm-10">
+      {{input type="text" value=model.description class="form-control" autofocus="autofocus"
+              placeholder="The description of the Voice"}}
+    </div>
+  </div>
+
+  <div class="form-group">
+    <div class="col-sm-offset-2 col-sm-10">
+      <button type="submit" class="btn btn-default" {{action 'saveVoice' model}}>Save changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- Lower Container -->
+<div class="form-horizontal">
+
+  <!-- Header -->
+  <div class="form-group">
+    <div class="col-sm-12">
+      <hr/>
+      <h4>Danger Zone</h4>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <div class="col-sm-offset-2 col-sm-10">
+      <button class="btn btn-danger btn-xs" {{action 'destroyVoice' model}}>Delete Voice</button>
+    </div>
+  </div>
+
+</div>

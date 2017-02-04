@@ -14,11 +14,15 @@ import io.outright.xj.core.tables.records.UserAccessTokenRecord;
 import io.outright.xj.core.tables.records.UserAuthRecord;
 import io.outright.xj.core.tables.records.UserRecord;
 import io.outright.xj.core.tables.records.UserRoleRecord;
+import io.outright.xj.core.tables.records.VoiceEventRecord;
+import io.outright.xj.core.tables.records.VoiceRecord;
 
 import org.jooq.DSLContext;
 import org.jooq.types.ULong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.math.BigInteger;
 
 import static io.outright.xj.core.Tables.ACCOUNT;
 import static io.outright.xj.core.Tables.ACCOUNT_USER;
@@ -231,6 +235,28 @@ public abstract class IntegrationTestEntity {
     record.setPhaseId(ULong.valueOf(phaseId));
     record.setPosition(position);
     record.setName(name);
+    record.store();
+  }
+
+  public static void insertVoice(int id, int phaseId, String type, String description) {
+    VoiceRecord record = IntegrationTestService.getDb().newRecord(VOICE);
+    record.setId(ULong.valueOf(id));
+    record.setPhaseId(ULong.valueOf(phaseId));
+    record.setType(type);
+    record.setDescription(description);
+    record.store();
+  }
+
+  public static void insertVoiceEvent(int id, int voiceId, double position, double duration, String inflection, String note, double tonality, double velocity) {
+    VoiceEventRecord record = IntegrationTestService.getDb().newRecord(VOICE_EVENT);
+    record.setId(ULong.valueOf(id));
+    record.setVoiceId(ULong.valueOf(voiceId));
+    record.setPosition(position);
+    record.setDuration(duration);
+    record.setInflection(inflection);
+    record.setNote(note);
+    record.setTonality(tonality);
+    record.setVelocity(velocity);
     record.store();
   }
 }

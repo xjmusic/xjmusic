@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.NewCookie;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 
@@ -49,7 +50,7 @@ public class AccessControlProviderImpl implements AccessControlProvider {
   @Override
   public Map<String, String> update(String accessToken, UserAuthRecord userAuthRecord, Collection<AccountUserRecord> userAccountRoleRecords, Collection<UserRoleRecord> userRoleRecords) throws AccessException {
     AccessControl accessControl = new AccessControl(userAuthRecord, userAccountRoleRecords, userRoleRecords);
-    Map<String, String> userMap = accessControl.getMap();
+    Map<String, String> userMap = accessControl.intoMap();
     try {
       redisDatabaseProvider.getClient().hmset(accessToken, userMap);
     } catch (ConfigException e) {
@@ -74,7 +75,7 @@ public class AccessControlProviderImpl implements AccessControlProvider {
     try {
       return new AccessControl(redisDatabaseProvider.getClient().hgetAll(accessToken));
     } catch (Exception e) {
-      throw new DatabaseException("Redis error: " + e.toString());
+      throw new DatabaseException("Redis error(" + e.getClass().getName() + "): " + Arrays.toString(e.getStackTrace()));
     }
   }
 

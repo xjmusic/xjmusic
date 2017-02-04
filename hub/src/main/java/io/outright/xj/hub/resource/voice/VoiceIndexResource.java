@@ -1,15 +1,15 @@
 // Copyright Outright Mental, Inc. All Rights Reserved.
-package io.outright.xj.hub.resource.phase;
+package io.outright.xj.hub.resource.voice;
 
 import io.outright.xj.core.CoreModule;
 import io.outright.xj.core.app.access.AccessControl;
 import io.outright.xj.core.app.config.Exposure;
 import io.outright.xj.core.app.server.HttpResponseProvider;
-import io.outright.xj.core.dao.PhaseDAO;
+import io.outright.xj.core.dao.VoiceDAO;
 import io.outright.xj.core.model.Entity;
-import io.outright.xj.core.model.phase.Phase;
-import io.outright.xj.core.model.phase.PhaseWrapper;
 import io.outright.xj.core.model.role.Role;
+import io.outright.xj.core.model.voice.Voice;
+import io.outright.xj.core.model.voice.VoiceWrapper;
 import io.outright.xj.core.transport.JSON;
 
 import org.jooq.types.ULong;
@@ -34,20 +34,20 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 
 /**
- * Phases
+ * Voices
  */
-@Path("phases")
-public class PhaseIndexResource {
+@Path("voices")
+public class VoiceIndexResource {
   private static final Injector injector = Guice.createInjector(new CoreModule());
-  //  private static Logger log = LoggerFactory.getLogger(PhaseIndexResource.class);
-  private final PhaseDAO phaseDAO = injector.getInstance(PhaseDAO.class);
+//  private static Logger log = LoggerFactory.getLogger(VoiceIndexResource.class);
+  private final VoiceDAO voiceDAO = injector.getInstance(VoiceDAO.class);
   private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
 
-  @QueryParam("idea")
-  String ideaId;
+  @QueryParam("phase")
+  String phaseId;
 
   /**
-   * Get all phases.
+   * Get all voices.
    *
    * @return application/json response.
    */
@@ -57,15 +57,15 @@ public class PhaseIndexResource {
   public Response readAll(@Context ContainerRequestContext crc) throws IOException {
     AccessControl access = AccessControl.fromContext(crc);
 
-    if (ideaId == null || ideaId.length() == 0) {
-      return httpResponseProvider.notAcceptable("Idea id is required");
+    if (phaseId == null || phaseId.length() == 0) {
+      return httpResponseProvider.notAcceptable("Phase id is required");
     }
 
     try {
-      JSONArray result = phaseDAO.readAllIn(access, ULong.valueOf(ideaId));
+      JSONArray result = voiceDAO.readAllIn(access, ULong.valueOf(phaseId));
       if (result != null) {
         return Response
-          .accepted(JSON.wrap(Phase.KEY_MANY, result).toString())
+          .accepted(JSON.wrap(Voice.KEY_MANY, result).toString())
           .type(MediaType.APPLICATION_JSON)
           .build();
       } else {
@@ -78,21 +78,21 @@ public class PhaseIndexResource {
   }
 
   /**
-   * Create new phase
+   * Create new voice
    *
-   * @param data with which to update Phase record.
+   * @param data with which to update Voice record.
    * @return Response
    */
   @POST
   @Consumes(MediaType.APPLICATION_JSON)
   @RolesAllowed({Role.ARTIST})
-  public Response create(PhaseWrapper data, @Context ContainerRequestContext crc) {
+  public Response create(VoiceWrapper data, @Context ContainerRequestContext crc) {
     AccessControl access = AccessControl.fromContext(crc);
     try {
-      JSONObject newEntity = phaseDAO.create(access, data);
+      JSONObject newEntity = voiceDAO.create(access, data);
       return Response
-        .created(Exposure.apiURI(Phase.KEY_MANY + "/" + newEntity.get(Entity.KEY_ID)))
-        .entity(JSON.wrap(Phase.KEY_ONE, newEntity).toString())
+        .created(Exposure.apiURI(Voice.KEY_MANY + "/" + newEntity.get(Entity.KEY_ID)))
+        .entity(JSON.wrap(Voice.KEY_ONE, newEntity).toString())
         .build();
 
     } catch (Exception e) {

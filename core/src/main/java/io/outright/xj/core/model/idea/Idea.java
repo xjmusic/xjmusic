@@ -2,19 +2,32 @@
 package io.outright.xj.core.model.idea;
 
 import io.outright.xj.core.app.exception.BusinessException;
+import io.outright.xj.core.util.Purify;
 
+import com.google.common.collect.ImmutableList;
 import org.jooq.Field;
 import org.jooq.types.ULong;
 
 import com.google.common.collect.ImmutableMap;
 
 import java.math.BigInteger;
+import java.util.List;
 import java.util.Map;
 
 import static io.outright.xj.core.Tables.IDEA;
 
 public class Idea {
+  public final static String MACRO = "macro";
   public final static String MAIN = "main";
+  public final static String RHYTHM = "rhythm";
+  public final static String SUPPORT = "support";
+
+  public final static List<String> allTypes = ImmutableList.of(
+    MACRO,
+    MAIN,
+    RHYTHM,
+    SUPPORT
+  );
 
   // Name
   private String name;
@@ -32,7 +45,7 @@ public class Idea {
     return type;
   }
   public Idea setType(String type) {
-    this.type = type;
+    this.type = Purify.LowerSlug(type);
     return this;
   }
 
@@ -101,9 +114,11 @@ public class Idea {
     if (this.userId == null) {
       throw new BusinessException("User ID is required.");
     }
-    // TODO: [core] Idea validate type is of acceptable idea-type
     if (this.type == null || this.type.length() == 0) {
       throw new BusinessException("Type is required.");
+    }
+    if (!allTypes.contains(this.type)) {
+      throw new BusinessException("'" + this.type + "' is not a valid type.");
     }
     if (this.key == null || this.key.length() == 0) {
       throw new BusinessException("Key is required.");

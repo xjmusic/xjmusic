@@ -2,11 +2,9 @@ package io.outright.xj.core.app.access;
 
 import io.outright.xj.core.CoreModule;
 import io.outright.xj.core.app.config.Config;
-import io.outright.xj.core.app.exception.DatabaseException;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,13 +56,19 @@ public class AccessTokenAuthFilterImpl implements AccessTokenAuthFilter {
     DenyAll aDenyAll = method.getAnnotation(DenyAll.class);
 
     // denied-all is exactly that
-    if (aDenyAll != null) { return denied(context, "all access"); }
+    if (aDenyAll != null) {
+      return denied(context, "all access");
+    }
 
     // permit-all is exactly that (but overridden by deny-all)
-    if (aPermitAll != null) { return allowed(); }
+    if (aPermitAll != null) {
+      return allowed();
+    }
 
     // roles required from here on
-    if (aRolesAllowed == null) { return denied(context, "resource allows no roles"); }
+    if (aRolesAllowed == null) {
+      return denied(context, "resource allows no roles");
+    }
 
     // get AccessControl from (required from here on) access token
     Map<String, Cookie> cookies = context.getCookies();
@@ -76,8 +80,8 @@ public class AccessTokenAuthFilterImpl implements AccessTokenAuthFilter {
     AccessControl accessControl;
     try {
       accessControl = accessControlProvider.get(accessTokenCookie.getValue());
-    } catch (DatabaseException e) {
-      return failed(context, "cannot get access_token: "+e.toString());
+    } catch (Exception e) {
+      return failed(context, "cannot get access token (" + e.getClass().getName() + "): " + e);
     }
     if (!accessControl.valid()) {
       return denied(context, "invalid access_token");
@@ -99,7 +103,7 @@ public class AccessTokenAuthFilterImpl implements AccessTokenAuthFilter {
    * @return Boolean
    */
   private Boolean denied(ContainerRequestContext context, String msg) {
-    log.debug("Denied " + context.getRequest().getMethod() + " /" + context.getUriInfo().getPath() + " ("+msg+")");
+    log.debug("Denied " + context.getRequest().getMethod() + " /" + context.getUriInfo().getPath() + " (" + msg + ")");
     context.abortWith(
       Response
         .noContent()
@@ -116,7 +120,7 @@ public class AccessTokenAuthFilterImpl implements AccessTokenAuthFilter {
    * @return Boolean
    */
   private Boolean failed(ContainerRequestContext context, String msg) {
-    log.error("Failed " + context.getRequest().getMethod() + " /" + context.getUriInfo().getPath() + " ("+msg+")");
+    log.error("Failed " + context.getRequest().getMethod() + " /" + context.getUriInfo().getPath() + " (" + msg + ")");
     context.abortWith(Response.serverError().build());
     return false;
   }

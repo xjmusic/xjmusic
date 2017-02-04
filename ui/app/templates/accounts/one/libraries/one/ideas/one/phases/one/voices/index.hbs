@@ -11,30 +11,30 @@
   <!-- Header -->
   <div class="form-group">
     <div class="col-sm-12">
-      <h5>{{#link-to "accounts.one" model.account}}{{model.account.name}}{{/link-to}}</h5>
-      <h1>Libraries</h1>
+      <h5>{{#link-to "accounts.one.libraries.one.ideas.one.phases.one" model.phase}}{{model.phase.name}}{{/link-to}}</h5>
+      <h1>Voices</h1>
     </div>
   </div>
 
-  <!-- List of Libraries -->
+  <!-- List of Voices -->
   <div class="sm-col-12">
     <div class="table-list">
       <table class="table">
         <thead>
         <tr>
           <th>#</th>
-          <th>Name</th>
-          <th>Action</th>
+          <th>Type</th>
+          <th>Description</th>
         </tr>
         </thead>
         <tbody>
-        {{#each model.libraries as |library|}}
+        {{#each model.voices as |voice|}}
           <tr class="item">
-            <th scope="row">{{#link-to "accounts.one.libraries.one" library}}{{library.id}}{{/link-to}}</th>
-            <td>{{library.name}}</td>
+            <th scope="row">{{#link-to "accounts.one.libraries.one.ideas.one.phases.one.voices.one" voice}}{{voice.id}}{{/link-to}}</th>
+            <td>{{voice.type}}</td>
+            <td>{{voice.description}}</td>
             <td>
-              {{#link-to 'accounts.one.libraries.one.edit' library}}Edit{{/link-to}}&nbsp;|
-              {{#link-to 'accounts.one.libraries.one.ideas' library}}Ideas{{/link-to}}
+              {{#link-to 'accounts.one.libraries.one.ideas.one.phases.one.voices.one.edit' voice}}Edit{{/link-to}}
             </td>
           </tr>
         {{/each}}
@@ -43,9 +43,9 @@
     </div>
   </div>
 
-  {{#if auth.isAdmin}}
+  {{#if (or auth.isArtist auth.isAdmin)}}
     <div class="sm-col-12">
-      Or: {{#link-to 'accounts.one.libraries.new'}}Create New Library{{/link-to}}
+      Or: {{#link-to 'accounts.one.libraries.one.ideas.one.phases.one.voices.new'}}Create New Voice{{/link-to}}
     </div>
   {{/if}}
 </div>

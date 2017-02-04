@@ -7,15 +7,15 @@ install() {
 
 build_from_source() {
   BASEURL="${1}"
-  PATH="${2}"
+  TARGET="${2}"
   PKG="${3}"
   EXT="${4}"
-  cd ${HOME}
-  wget "${BASEURL}${PATH}${PKG}${EXT}"
+  cd "${HOME}"
+  wget "${BASEURL}${TARGET}${PKG}${EXT}"
   tar xvzf "${PKG}${EXT}"
   cd "${PKG}"
   sudo make install
-  cd ${HOME}
+  cd "${HOME}"
   rm -fr "${PKG}"
   rm "${PKG}${EXT}"
 }
