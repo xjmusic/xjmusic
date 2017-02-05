@@ -1,0 +1,12 @@
+<!-- Name -->
+<div class="form-group">
+  <label class="col-sm-2 control-label">Name</label>
+  <div class="col-sm-10">
+    {{#if auth.isAdmin}}
+      {{input type="text" value=model.name class="form-control" autofocus="autofocus"
+              placeholder="The name of the Account"}}
+    {{else}}
+      <div class="readonly-field">{{model.name}}</div>
+    {{/if}}
+  </div>
+</div>

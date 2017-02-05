@@ -15,7 +15,7 @@ export default Ember.Route.extend({
       event.set('voice', voice);
       return event;
     } else {
-      this.transitionTo('accounts.one.libraries.one.ideas.one.phases.one.voices.one.events.one');
+      this.transitionTo('accounts.one.libraries.one.ideas.one.phases.one.voices.one.events');
     }
   },
 

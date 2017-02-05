@@ -15,7 +15,7 @@ export default Ember.Route.extend({
       chord.set('phase', phase);
       return chord;
     } else {
-      this.transitionTo('accounts.one.libraries.one.ideas.one.phases.one.chords.one');
+      this.transitionTo('accounts.one.libraries.one.ideas.one.phases.one.chords');
     }
   },
 

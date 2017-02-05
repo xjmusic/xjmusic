@@ -15,7 +15,7 @@ export default Ember.Route.extend({
       voice.set('phase', phase);
       return voice;
     } else {
-      this.transitionTo('accounts.one.libraries.one.ideas.one.phases.one.voices.one');
+      this.transitionTo('accounts.one.libraries.one.ideas.one.phases.one.voices');
     }
   },
 

@@ -15,7 +15,7 @@ export default Ember.Route.extend({
       phase.set('idea', idea);
       return phase;
     } else {
-      this.transitionTo('accounts.one.libraries.one.ideas.one.phases.one');
+      this.transitionTo('accounts.one.libraries.one.ideas.one.phases');
     }
   },
 

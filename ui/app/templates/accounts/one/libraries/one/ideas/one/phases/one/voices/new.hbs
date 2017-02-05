@@ -14,30 +14,7 @@
     </div>
   </div>
 
-  <div class="form-group">
-    <label class="col-sm-2 control-label">Phase</label>
-    <div class="col-sm-10">
-      <div class="readonly-field">{{model.phase.name}}</div>
-    </div>
-  </div>
-
-  <!-- Type -->
-  <div class="form-group">
-    <label class="col-sm-2 control-label">Type</label>
-    <div class="col-sm-10">
-      {{input type="text" value=model.type class="form-control" autofocus="autofocus"
-              placeholder="The type of the Voice"}}
-    </div>
-  </div>
-
-  <!-- Description -->
-  <div class="form-group">
-    <label class="col-sm-2 control-label">Description</label>
-    <div class="col-sm-10">
-      {{input type="text" value=model.description class="form-control" autofocus="autofocus"
-              placeholder="The description of the Voice"}}
-    </div>
-  </div>
+  {{partial "accounts/one/libraries/one/ideas/one/phases/one/voices/one/form"}}
 
   <div class="form-group">
     <div class="col-sm-offset-2 col-sm-10">

@@ -35,7 +35,6 @@ export default Ember.Route.extend({
       });
       ideaMeme.save().then(() => {
         Ember.get(this, 'display').success('Added ' + ideaMeme.get('name') + ' to ' + model.idea.get('name') + '.');
-        // this.transitionToRoute('ideas.one.memes',model.idea);
         this.send("sessionChanged");
       }).catch((error) => {
         Ember.get(this, 'display').error(error);

@@ -16,6 +16,8 @@ import io.outright.xj.core.tables.records.PhaseRecord;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+
+import org.jooq.impl.DSL;
 import org.jooq.types.ULong;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -28,6 +30,7 @@ import java.math.BigInteger;
 import static io.outright.xj.core.tables.Idea.IDEA;
 import static io.outright.xj.core.tables.Phase.PHASE;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
@@ -85,7 +88,7 @@ public class PhaseIT {
         .setIdeaId(BigInteger.valueOf(2))
         .setName("cannons")
         .setTempo(129.4)
-        .setOffset(0)
+        .setOffset(16)
         .setTotal(16)
       );
 
@@ -97,6 +100,35 @@ public class PhaseIT {
     assertEquals(ULong.valueOf(2), actualResult.get("ideaId"));
     assertEquals("cannons", actualResult.get("name"));
     assertEquals(129.4, actualResult.get("tempo"));
+    assertEquals(16, actualResult.get("offset"));
+    assertEquals(16, actualResult.get("total"));
+  }
+
+  @Test
+  public void create_NullOptionalFieldsAllowed() throws Exception {
+    AccessControl access = new AccessControl(ImmutableMap.of(
+      "roles", "artist",
+      "accounts", "1"
+    ));
+    PhaseWrapper inputDataWrapper = new PhaseWrapper()
+      .setPhase(new Phase()
+        .setDensity(null)
+        .setKey(null)
+        .setIdeaId(BigInteger.valueOf(2))
+        .setName(null)
+        .setTempo(null)
+        .setOffset(0)
+        .setTotal(16)
+      );
+
+    JSONObject actualResult = testDAO.create(access, inputDataWrapper);
+
+    assertNotNull(actualResult);
+    assertEquals(ULong.valueOf(2), actualResult.get("ideaId"));
+    assertEquals(DSL.val((String) null), actualResult.get("density"));
+    assertEquals(DSL.val((String) null), actualResult.get("key"));
+    assertEquals(DSL.val((String) null), actualResult.get("name"));
+    assertEquals(DSL.val((String) null), actualResult.get("tempo"));
     assertEquals(0, actualResult.get("offset"));
     assertEquals(16, actualResult.get("total"));
   }
@@ -121,7 +153,7 @@ public class PhaseIT {
   }
 
   @Test(expected = BusinessException.class)
-  public void create_FailsWithoutKey() throws Exception {
+  public void create_FailsWithoutOffset() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
@@ -130,10 +162,28 @@ public class PhaseIT {
       .setPhase(new Phase()
         .setDensity(0.42)
         .setIdeaId(BigInteger.valueOf(2))
+        .setKey("G minor 7")
         .setName("cannons")
         .setTempo(129.4)
-        .setOffset(0)
         .setTotal(16)
+      );
+
+    testDAO.create(access, inputDataWrapper);
+  }
+
+  @Test(expected = BusinessException.class)
+  public void create_FailsWithoutTotal() throws Exception {
+    AccessControl access = new AccessControl(ImmutableMap.of(
+      "roles", "artist",
+      "accounts", "1"
+    ));
+    PhaseWrapper inputDataWrapper = new PhaseWrapper()
+      .setPhase(new Phase()
+        .setDensity(0.42)
+        .setIdeaId(BigInteger.valueOf(2))
+        .setKey("G minor 7")
+        .setName("cannons")
+        .setTempo(129.4)
       );
 
     testDAO.create(access, inputDataWrapper);
@@ -216,7 +266,7 @@ public class PhaseIT {
   }
 
   @Test(expected = BusinessException.class)
-  public void update_FailsWithoutName() throws Exception {
+  public void update_FailsWithoutOffset() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
@@ -227,7 +277,6 @@ public class PhaseIT {
         .setKey("G minor 7")
         .setIdeaId(BigInteger.valueOf(2))
         .setTempo(129.4)
-        .setOffset(0)
         .setTotal(16)
       );
 
@@ -273,10 +322,10 @@ public class PhaseIT {
         .setIdeaId(BigInteger.valueOf(1))
         .setOffset(7)
         .setTotal(32)
-        .setName("POPPYCOCK")
-        .setDensity(0.42)
-        .setKey("G major")
-        .setTempo(169.0)
+        .setName(null)
+        .setDensity(null)
+        .setKey("")
+        .setTempo((double) 0)
       );
 
     testDAO.update(access, ULong.valueOf(1), inputDataWrapper);
@@ -286,10 +335,10 @@ public class PhaseIT {
       .where(PHASE.ID.eq(ULong.valueOf(1)))
       .fetchOne();
     assertNotNull(updatedRecord);
-    assertEquals("POPPYCOCK", updatedRecord.getName());
-    assertEquals((Double) 0.42, updatedRecord.getDensity());
-    assertEquals((Double) 169.0, updatedRecord.getTempo());
-    assertEquals("G major", updatedRecord.getKey());
+    assertEquals(null, updatedRecord.getName());
+    assertEquals(null, updatedRecord.getDensity());
+    assertEquals(null, updatedRecord.getTempo());
+    assertEquals(null, updatedRecord.getKey());
     assertEquals(ULong.valueOf(7), updatedRecord.getOffset());
     assertEquals(ULong.valueOf(32), updatedRecord.getTotal());
     assertEquals(ULong.valueOf(1), updatedRecord.getIdeaId());

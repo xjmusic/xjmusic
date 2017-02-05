@@ -11,7 +11,6 @@ export default Ember.Route.extend({
         Ember.get(this, 'display').error(error);
         this.transitionTo('accounts.one.libraries');
       });
-
   },
 
 });

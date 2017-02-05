@@ -5,7 +5,9 @@ import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.model.Entity;
 
 import com.google.common.collect.ImmutableMap;
+
 import org.jooq.Field;
+import org.jooq.impl.DSL;
 import org.jooq.types.ULong;
 
 import java.math.BigInteger;
@@ -121,14 +123,14 @@ public class Phase extends Entity {
    */
   @Override
   public void validate() throws BusinessException {
-    if (this.name == null || this.name.length() == 0) {
-      throw new BusinessException("Name is required.");
+    if (this.name != null && this.name.length() == 0) {
+      this.name = null;
     }
     if (this.ideaId == null) {
       throw new BusinessException("Idea ID is required.");
     }
-    if (this.key == null || this.key.length() == 0) {
-      throw new BusinessException("Key is required.");
+    if (this.key != null && this.key.length() == 0) {
+      this.key = null;
     }
     if (this.total == null) {
       throw new BusinessException("Total is required.");
@@ -136,11 +138,11 @@ public class Phase extends Entity {
     if (this.offset == null) {
       throw new BusinessException("Offset is required.");
     }
-    if (this.density == null) {
-      throw new BusinessException("Density is required.");
+    if (this.density != null && this.density == 0) {
+      this.density = null;
     }
-    if (this.tempo == null) {
-      throw new BusinessException("Tempo is required.");
+    if (this.tempo != null && this.tempo == 0) {
+      this.tempo = null;
     }
   }
 
@@ -152,13 +154,13 @@ public class Phase extends Entity {
   @Override
   public Map<Field, Object> intoFieldValueMap() {
     return new ImmutableMap.Builder<Field, Object>()
-      .put(PHASE.NAME, name)
       .put(PHASE.IDEA_ID, ideaId)
-      .put(PHASE.KEY, key)
-      .put(PHASE.TOTAL, total)
       .put(PHASE.OFFSET, offset)
-      .put(PHASE.TEMPO, tempo)
-      .put(PHASE.DENSITY, density)
+      .put(PHASE.TOTAL, total)
+      .put(PHASE.NAME, name != null ? name : DSL.val((String) null))
+      .put(PHASE.KEY, key != null ? key : DSL.val((String) null))
+      .put(PHASE.TEMPO, tempo != null ? tempo : DSL.val((String) null))
+      .put(PHASE.DENSITY, density != null ? density : DSL.val((String) null))
       .build();
   }
 

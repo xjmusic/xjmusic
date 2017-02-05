@@ -15,7 +15,7 @@ export default Ember.Route.extend({
       idea.set('library', library);
       return idea;
     } else {
-      this.transitionTo('accounts.one.libraries.one.ideas.one');
+      this.transitionTo('accounts.one.libraries.one.ideas');
     }
   },
 
