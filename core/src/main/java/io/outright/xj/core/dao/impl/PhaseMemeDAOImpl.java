@@ -102,16 +102,16 @@ public class PhaseMemeDAOImpl extends DAOImpl implements PhaseMemeDAO {
     String name = data.getPhaseMeme().getName();
 
     if (access.isAdmin()) {
-      assertRecordExists(db.select(PHASE.ID).from(PHASE)
+      requireRecordExists("Phase", db.select(PHASE.ID).from(PHASE)
         .where(PHASE.ID.eq(phaseId))
-        .fetchOne(), "Phase");
+        .fetchOne());
     } else {
-      assertRecordExists(db.select(PHASE.ID).from(PHASE)
+      requireRecordExists("Phase", db.select(PHASE.ID).from(PHASE)
         .join(IDEA).on(IDEA.ID.eq(PHASE.IDEA_ID))
         .join(LIBRARY).on(IDEA.LIBRARY_ID.eq(LIBRARY.ID))
         .where(PHASE.ID.eq(phaseId))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-        .fetchOne(), "Phase");
+        .fetchOne());
     }
 
     if (db.selectFrom(PHASE_MEME)
@@ -202,25 +202,12 @@ public class PhaseMemeDAOImpl extends DAOImpl implements PhaseMemeDAO {
         .where(PHASE_MEME.ID.eq(id))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .fetchOne();
-      assertRecordExists(record, "Phase Meme");
+      requireRecordExists("Phase Meme", record);
     }
 
     db.deleteFrom(PHASE_MEME)
       .where(PHASE_MEME.ID.eq(id))
       .execute();
-  }
-
-  /**
-   * Assert that a record exists
-   *
-   * @param record     to assert
-   * @param recordName name of record (for error message)
-   * @throws BusinessException if not exists
-   */
-  private void assertRecordExists(Record record, String recordName) throws BusinessException {
-    if (record == null) {
-      throw new BusinessException(recordName + " not found");
-    }
   }
 
 }

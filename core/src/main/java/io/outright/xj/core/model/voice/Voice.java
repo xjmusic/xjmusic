@@ -3,6 +3,7 @@ package io.outright.xj.core.model.voice;
 
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.model.Entity;
+import io.outright.xj.core.util.CSV.CSV;
 import io.outright.xj.core.util.Purify;
 
 import com.google.common.collect.ImmutableList;
@@ -85,7 +86,7 @@ public class Voice extends Entity {
       throw new BusinessException("Type is required.");
     }
     if (!allTypes.contains(this.type)) {
-      throw new BusinessException("'" + this.type + "' is not a valid type.");
+      throw new BusinessException("'" + this.type + "' is not a valid type (" + CSV.join(allTypes) +").");
     }
     if (this.description == null || this.description.length() == 0) {
       throw new BusinessException("Description is required.");

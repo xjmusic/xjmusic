@@ -19,34 +19,16 @@
   <label class="col-sm-2 control-label">Type</label>
   <div class="col-sm-10">
     {{input type="text" value=model.type class="form-control" autofocus="autofocus"
-            placeholder="The type of the Idea"}}
+            placeholder="The type of the Instrument"}}
   </div>
 </div>
 
-<!-- Name -->
+<!-- Description -->
 <div class="form-group">
-  <label class="col-sm-2 control-label">Name</label>
+  <label class="col-sm-2 control-label">Description</label>
   <div class="col-sm-10">
-    {{input type="text" value=model.name class="form-control" autofocus="autofocus"
-            placeholder="The name of the Idea"}}
-  </div>
-</div>
-
-<!-- Key -->
-<div class="form-group">
-  <label class="col-sm-2 control-label">Key</label>
-  <div class="col-sm-10">
-    {{input type="text" value=model.key class="form-control" autofocus="autofocus"
-            placeholder="The key of the Idea"}}
-  </div>
-</div>
-
-<!-- Tempo -->
-<div class="form-group">
-  <label class="col-sm-2 control-label">Tempo</label>
-  <div class="col-sm-10">
-    {{input type="number" step="any" value=model.tempo class="form-control"
-            placeholder="The tempo of the Idea"}}
+    {{input type="text" value=model.description class="form-control" autofocus="autofocus"
+            placeholder="The description of the Instrument"}}
   </div>
 </div>
 
@@ -55,7 +37,6 @@
   <label class="col-sm-2 control-label">Density</label>
   <div class="col-sm-10">
     {{input type="number" step="any" value=model.density class="form-control"
-            placeholder="The density of the Idea"}}
+            placeholder="The density of the Instrument"}}
   </div>
 </div>
-

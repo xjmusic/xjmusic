@@ -121,3 +121,15 @@ hr {
 button {
   color: $much-darker-gray;
 }
+
+.table-list {
+  .table {
+    .item {
+      img.avatar {
+        width:24px;
+        height: 24px;
+        border: 1px solid $low-gray;
+      }
+    }
+  }
+}

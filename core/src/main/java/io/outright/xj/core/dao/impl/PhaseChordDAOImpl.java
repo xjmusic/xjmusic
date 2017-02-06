@@ -107,16 +107,16 @@ public class PhaseChordDAOImpl extends DAOImpl implements PhaseChordDAO {
     data.getPhaseChord().intoFieldValueMap().forEach(record::setValue);
 
     if (access.isAdmin()) {
-      assertRecordExists(db.select(PHASE.ID).from(PHASE)
+      requireRecordExists("Phase", db.select(PHASE.ID).from(PHASE)
         .where(PHASE.ID.eq(data.getPhaseChord().getPhaseId()))
-        .fetchOne(), "Phase");
+        .fetchOne());
     } else {
-      assertRecordExists(db.select(PHASE.ID).from(PHASE)
+      requireRecordExists("Phase", db.select(PHASE.ID).from(PHASE)
         .join(IDEA).on(IDEA.ID.eq(PHASE.IDEA_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(IDEA.LIBRARY_ID))
         .where(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .and(PHASE.ID.eq(data.getPhaseChord().getPhaseId()))
-        .fetchOne(), "Phase");
+        .fetchOne());
     }
 
     record.store();
@@ -199,16 +199,16 @@ public class PhaseChordDAOImpl extends DAOImpl implements PhaseChordDAO {
     data.getPhaseChord().intoFieldValueMap().forEach(record::setValue);
 
     if (access.isAdmin()) {
-      assertRecordExists(db.select(PHASE.ID).from(PHASE)
+      requireRecordExists("Phase", db.select(PHASE.ID).from(PHASE)
         .where(PHASE.ID.eq(data.getPhaseChord().getPhaseId()))
-        .fetchOne(), "Phase");
+        .fetchOne());
     } else {
-      assertRecordExists(db.select(PHASE.ID).from(PHASE)
+      requireRecordExists("Phase", db.select(PHASE.ID).from(PHASE)
         .join(IDEA).on(IDEA.ID.eq(PHASE.IDEA_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(IDEA.LIBRARY_ID))
         .where(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .and(PHASE.ID.eq(data.getPhaseChord().getPhaseId()))
-        .fetchOne(), "Phase");
+        .fetchOne());
     }
 
     if (db.executeUpdate(record) == 0) {
@@ -234,25 +234,12 @@ public class PhaseChordDAOImpl extends DAOImpl implements PhaseChordDAO {
         .where(PHASE_CHORD.ID.eq(id))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .fetchOne();
-      assertRecordExists(record, "Phase Meme");
+      requireRecordExists("Phase Meme", record);
     }
 
     db.deleteFrom(PHASE_CHORD)
       .where(PHASE_CHORD.ID.eq(id))
       .execute();
-  }
-
-  /**
-   * Assert that a record exists
-   *
-   * @param record     to assert
-   * @param recordName name of record (for error message)
-   * @throws BusinessException if not exists
-   */
-  private void assertRecordExists(Record record, String recordName) throws BusinessException {
-    if (record == null) {
-      throw new BusinessException(recordName + " not found");
-    }
   }
 
 }

@@ -5,11 +5,11 @@ import io.outright.xj.core.app.access.AccessControl;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.app.exception.DatabaseException;
-import io.outright.xj.core.dao.IdeaDAO;
+import io.outright.xj.core.dao.InstrumentDAO;
 import io.outright.xj.core.db.sql.SQLConnection;
 import io.outright.xj.core.db.sql.SQLDatabaseProvider;
-import io.outright.xj.core.model.idea.IdeaWrapper;
-import io.outright.xj.core.tables.records.IdeaRecord;
+import io.outright.xj.core.model.instrument.InstrumentWrapper;
+import io.outright.xj.core.tables.records.InstrumentRecord;
 import io.outright.xj.core.transport.JSON;
 
 import org.jooq.DSLContext;
@@ -24,24 +24,23 @@ import org.json.JSONObject;
 import javax.annotation.Nullable;
 import java.sql.SQLException;
 
-import static io.outright.xj.core.Tables.CHOICE;
-import static io.outright.xj.core.Tables.IDEA;
-import static io.outright.xj.core.tables.IdeaMeme.IDEA_MEME;
+import static io.outright.xj.core.Tables.AUDIO;
+import static io.outright.xj.core.Tables.INSTRUMENT;
+import static io.outright.xj.core.tables.InstrumentMeme.INSTRUMENT_MEME;
 import static io.outright.xj.core.tables.Library.LIBRARY;
-import static io.outright.xj.core.tables.Phase.PHASE;
 
-public class IdeaDAOImpl extends DAOImpl implements IdeaDAO {
-  //  private static Logger log = LoggerFactory.getLogger(IdeaDAOImpl.class);
+public class InstrumentDAOImpl extends DAOImpl implements InstrumentDAO {
+  //  private static Logger log = LoggerFactory.getLogger(InstrumentDAOImpl.class);
 
   @Inject
-  public IdeaDAOImpl(
+  public InstrumentDAOImpl(
     SQLDatabaseProvider dbProvider
   ) {
     this.dbProvider = dbProvider;
   }
 
   @Override
-  public JSONObject create(AccessControl access, IdeaWrapper data) throws Exception {
+  public JSONObject create(AccessControl access, InstrumentWrapper data) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(create(tx.getContext(), access, data));
@@ -73,7 +72,7 @@ public class IdeaDAOImpl extends DAOImpl implements IdeaDAO {
   }
 
   @Override
-  public void update(AccessControl access, ULong id, IdeaWrapper data) throws Exception {
+  public void update(AccessControl access, ULong id, InstrumentWrapper data) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
       update(tx.getContext(), access, id, data);
@@ -96,29 +95,30 @@ public class IdeaDAOImpl extends DAOImpl implements IdeaDAO {
 
   /**
    * Create a record
-   * @param db context
+   *
+   * @param db     context
    * @param access control
-   * @param data for new record
+   * @param data   for new record
    * @return newly created record
    * @throws BusinessException on failure
    */
-  private JSONObject create(DSLContext db, AccessControl access, IdeaWrapper data) throws BusinessException {
-    IdeaRecord record;
-    record = db.newRecord(IDEA);
+  private JSONObject create(DSLContext db, AccessControl access, InstrumentWrapper data) throws BusinessException {
+    InstrumentRecord record;
+    record = db.newRecord(INSTRUMENT);
     data.validate();
-    data.getIdea().intoFieldValueMap().forEach(record::setValue);
+    data.getInstrument().intoFieldValueMap().forEach(record::setValue);
     if (access.isAdmin()) {
-      // Admin can create idea in any existing library, with any user.
+      // Admin can create instrument in any existing library, with any user.
       requireRecordExists("Library",
         db.select(LIBRARY.ID).from(LIBRARY)
-          .where(LIBRARY.ID.eq(data.getIdea().getLibraryId()))
+          .where(LIBRARY.ID.eq(data.getInstrument().getLibraryId()))
           .fetchOne());
     } else {
       // Not admin, must have account access, created by self user.
       requireRecordExists("Library",
         db.select(LIBRARY.ID).from(LIBRARY)
           .where(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-          .and(LIBRARY.ID.eq(data.getIdea().getLibraryId()))
+          .and(LIBRARY.ID.eq(data.getInstrument().getLibraryId()))
           .fetchOne());
       record.setUserId(access.getUserId());
     }
@@ -130,22 +130,23 @@ public class IdeaDAOImpl extends DAOImpl implements IdeaDAO {
 
   /**
    * Read one record
-   * @param db context
+   *
+   * @param db     context
    * @param access control
-   * @param id of record
+   * @param id     of record
    * @return record
    */
   @Nullable
   private JSONObject readOne(DSLContext db, AccessControl access, ULong id) {
     if (access.isAdmin()) {
-      return JSON.objectFromRecord(db.selectFrom(IDEA)
-        .where(IDEA.ID.eq(id))
+      return JSON.objectFromRecord(db.selectFrom(INSTRUMENT)
+        .where(INSTRUMENT.ID.eq(id))
         .fetchOne());
     } else {
-      return JSON.objectFromRecord(db.select(IDEA.fields())
-        .from(IDEA)
-        .join(LIBRARY).on(LIBRARY.ID.eq(IDEA.LIBRARY_ID))
-        .where(IDEA.ID.eq(id))
+      return JSON.objectFromRecord(db.select(INSTRUMENT.fields())
+        .from(INSTRUMENT)
+        .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
+        .where(INSTRUMENT.ID.eq(id))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .fetchOne());
     }
@@ -153,22 +154,23 @@ public class IdeaDAOImpl extends DAOImpl implements IdeaDAO {
 
   /**
    * Read all records in parent record by id
-   * @param db context
-   * @param access control
+   *
+   * @param db        context
+   * @param access    control
    * @param libraryId of parent
    * @return array of records
    */
   private JSONArray readAllIn(DSLContext db, AccessControl access, ULong libraryId) throws SQLException {
     if (access.isAdmin()) {
-      return JSON.arrayFromResultSet(db.select(IDEA.fields())
-        .from(IDEA)
-        .where(IDEA.LIBRARY_ID.eq(libraryId))
+      return JSON.arrayFromResultSet(db.select(INSTRUMENT.fields())
+        .from(INSTRUMENT)
+        .where(INSTRUMENT.LIBRARY_ID.eq(libraryId))
         .fetchResultSet());
     } else {
-      return JSON.arrayFromResultSet(db.select(IDEA.fields())
-        .from(IDEA)
-        .join(LIBRARY).on(LIBRARY.ID.eq(IDEA.LIBRARY_ID))
-        .where(IDEA.LIBRARY_ID.eq(libraryId))
+      return JSON.arrayFromResultSet(db.select(INSTRUMENT.fields())
+        .from(INSTRUMENT)
+        .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
+        .where(INSTRUMENT.LIBRARY_ID.eq(libraryId))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .fetchResultSet());
     }
@@ -176,93 +178,94 @@ public class IdeaDAOImpl extends DAOImpl implements IdeaDAO {
 
   /**
    * Update a record
-   * @param db context
+   *
+   * @param db     context
    * @param access control
-   * @param id of record
-   * @param data to update with
+   * @param id     of record
+   * @param data   to update with
    * @throws BusinessException if a Business Rule is violated
-   * @throws Exception on database failure
+   * @throws Exception         on database failure
    */
-  private void update(DSLContext db, AccessControl access, ULong id, IdeaWrapper data) throws Exception {
+  private void update(DSLContext db, AccessControl access, ULong id, InstrumentWrapper data) throws Exception {
     data.validate();
 
-    IdeaRecord record;
-    record = db.newRecord(IDEA);
+    InstrumentRecord record;
+    record = db.newRecord(INSTRUMENT);
     record.setId(id);
-    data.getIdea().intoFieldValueMap().forEach(record::setValue);
+    data.getInstrument().intoFieldValueMap().forEach(record::setValue);
 
     if (access.isAdmin()) {
-      // Admin can create idea in any existing library, with any user.
+      // Admin can create instrument in any existing library, with any user.
       requireRecordExists("Library",
         db.select(LIBRARY.ID).from(LIBRARY)
-          .where(LIBRARY.ID.eq(data.getIdea().getLibraryId()))
+          .where(LIBRARY.ID.eq(data.getInstrument().getLibraryId()))
           .fetchOne());
     } else {
       // Not admin, must have account access, created by self user.
       requireRecordExists("Library",
         db.select(LIBRARY.ID).from(LIBRARY)
           .where(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-          .and(LIBRARY.ID.eq(data.getIdea().getLibraryId()))
+          .and(LIBRARY.ID.eq(data.getInstrument().getLibraryId()))
           .fetchOne());
       record.setUserId(access.getUserId());
     }
 
-    if (db.executeUpdate(record)==0) {
+    if (db.executeUpdate(record) == 0) {
       throw new DatabaseException("No records updated.");
     }
   }
 
   /**
-   * Delete an Idea
+   * Delete an Instrument
    *
-   * @param db     context
+   * @param db context
    * @param id to delete
-   * @throws Exception if database failure
+   * @throws Exception         if database failure
    * @throws ConfigException   if not configured properly
    * @throws BusinessException if fails business rule
    */
   private void delete(DSLContext db, AccessControl access, ULong id) throws Exception {
     if (!access.isAdmin()) {
-      Record record = db.select(IDEA.fields()).from(IDEA)
-        .join(LIBRARY).on(IDEA.LIBRARY_ID.eq(LIBRARY.ID))
-        .where(IDEA.ID.eq(id))
+      Record record = db.select(INSTRUMENT.fields()).from(INSTRUMENT)
+        .join(LIBRARY).on(INSTRUMENT.LIBRARY_ID.eq(LIBRARY.ID))
+        .where(INSTRUMENT.ID.eq(id))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-        .and(IDEA.USER_ID.eq(access.getUserId()))
+        .and(INSTRUMENT.USER_ID.eq(access.getUserId()))
         .fetchOne();
-      requireRecordExists("Idea belonging to you", record);
+      requireRecordExists("Instrument belonging to you", record);
     }
 
-    requireEmptyResultSet(db.select(PHASE.ID)
-      .from(PHASE)
-      .where(PHASE.IDEA_ID.eq(id))
+    requireEmptyResultSet(db.select(INSTRUMENT_MEME.ID)
+      .from(INSTRUMENT_MEME)
+      .where(INSTRUMENT_MEME.INSTRUMENT_ID.eq(id))
       .fetchResultSet());
 
-    requireEmptyResultSet(db.select(CHOICE.ID)
-      .from(CHOICE)
-      .where(CHOICE.IDEA_ID.eq(id))
+    requireEmptyResultSet(db.select(AUDIO.ID)
+      .from(AUDIO)
+      .where(AUDIO.INSTRUMENT_ID.eq(id))
       .fetchResultSet());
 
-    requireEmptyResultSet(db.select(IDEA_MEME.ID)
-      .from(IDEA_MEME)
-      .where(IDEA_MEME.IDEA_ID.eq(id))
+    requireEmptyResultSet(db.select(INSTRUMENT_MEME.ID)
+      .from(INSTRUMENT_MEME)
+      .where(INSTRUMENT_MEME.INSTRUMENT_ID.eq(id))
       .fetchResultSet());
 
-    db.deleteFrom(IDEA)
-      .where(IDEA.ID.eq(id))
+    db.deleteFrom(INSTRUMENT)
+      .where(INSTRUMENT.ID.eq(id))
       .andNotExists(
-        db.select(PHASE.ID)
-          .from(PHASE)
-          .where(PHASE.IDEA_ID.eq(id))
+        db.select(INSTRUMENT_MEME.ID)
+          .from(INSTRUMENT_MEME)
+          .where(INSTRUMENT_MEME.INSTRUMENT_ID.eq(id))
       )
       .andNotExists(
-        db.select(CHOICE.ID)
-          .from(CHOICE)
-          .where(CHOICE.IDEA_ID.eq(id))
+        db.select(AUDIO.ID)
+          .from(AUDIO)
+          .where(AUDIO.INSTRUMENT_ID.eq(id))
       )
       .andNotExists(
-        db.select(IDEA_MEME.ID)
-          .from(IDEA_MEME)
-          .where(IDEA_MEME.IDEA_ID.eq(id))
+        db.select(INSTRUMENT_MEME.ID)
+          .from(INSTRUMENT_MEME)
+          .where(INSTRUMENT_MEME.INSTRUMENT_ID.eq(id))
       )
       .execute();
   }

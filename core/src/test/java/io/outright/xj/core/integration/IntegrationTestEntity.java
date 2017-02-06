@@ -6,6 +6,8 @@ import io.outright.xj.core.tables.records.AccountRecord;
 import io.outright.xj.core.tables.records.AccountUserRecord;
 import io.outright.xj.core.tables.records.IdeaMemeRecord;
 import io.outright.xj.core.tables.records.IdeaRecord;
+import io.outright.xj.core.tables.records.InstrumentMemeRecord;
+import io.outright.xj.core.tables.records.InstrumentRecord;
 import io.outright.xj.core.tables.records.LibraryRecord;
 import io.outright.xj.core.tables.records.PhaseChordRecord;
 import io.outright.xj.core.tables.records.PhaseMemeRecord;
@@ -19,10 +21,9 @@ import io.outright.xj.core.tables.records.VoiceRecord;
 
 import org.jooq.DSLContext;
 import org.jooq.types.ULong;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.math.BigInteger;
 
 import static io.outright.xj.core.Tables.ACCOUNT;
 import static io.outright.xj.core.Tables.ACCOUNT_USER;
@@ -259,4 +260,24 @@ public abstract class IntegrationTestEntity {
     record.setVelocity(velocity);
     record.store();
   }
+
+  public static void insertInstrument(int id, int libraryId, int userId, String description, String type, double density) {
+    InstrumentRecord record = IntegrationTestService.getDb().newRecord(INSTRUMENT);
+    record.setId(ULong.valueOf(id));
+    record.setUserId(ULong.valueOf(userId));
+    record.setLibraryId(ULong.valueOf(libraryId));
+    record.setType(type);
+    record.setDescription(description);
+    record.setDensity(density);
+    record.store();
+  }
+
+  public static void insertInstrumentMeme(int id, int instrumentId, String name) {
+    InstrumentMemeRecord record = IntegrationTestService.getDb().newRecord(INSTRUMENT_MEME);
+    record.setId(ULong.valueOf(id));
+    record.setInstrumentId(ULong.valueOf(instrumentId));
+    record.setName(name);
+    record.store();
+  }
+
 }

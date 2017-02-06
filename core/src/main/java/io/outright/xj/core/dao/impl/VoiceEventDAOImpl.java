@@ -110,17 +110,17 @@ public class VoiceEventDAOImpl extends DAOImpl implements VoiceEventDAO {
     data.getVoiceEvent().intoFieldValueMap().forEach(record::setValue);
 
     if (access.isAdmin()) {
-      assertRecordExists(db.select(VOICE.ID).from(VOICE)
+      requireRecordExists("Voice", db.select(VOICE.ID).from(VOICE)
         .where(VOICE.ID.eq(data.getVoiceEvent().getVoiceId()))
-        .fetchOne(), "Voice");
+        .fetchOne());
     } else {
-      assertRecordExists(db.select(VOICE.ID).from(VOICE)
+      requireRecordExists("Voice", db.select(VOICE.ID).from(VOICE)
         .join(PHASE).on(PHASE.ID.eq(VOICE.PHASE_ID))
         .join(IDEA).on(IDEA.ID.eq(PHASE.IDEA_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(IDEA.LIBRARY_ID))
         .where(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .and(VOICE.ID.eq(data.getVoiceEvent().getVoiceId()))
-        .fetchOne(), "Voice");
+        .fetchOne());
     }
 
     record.store();
@@ -205,17 +205,17 @@ public class VoiceEventDAOImpl extends DAOImpl implements VoiceEventDAO {
     data.getVoiceEvent().intoFieldValueMap().forEach(record::setValue);
 
     if (access.isAdmin()) {
-      assertRecordExists(db.select(VOICE.ID).from(VOICE)
+      requireRecordExists("Voice", db.select(VOICE.ID).from(VOICE)
         .where(VOICE.ID.eq(data.getVoiceEvent().getVoiceId()))
-        .fetchOne(), "Voice");
+        .fetchOne());
     } else {
-      assertRecordExists(db.select(VOICE.ID).from(VOICE)
+      requireRecordExists("Voice", db.select(VOICE.ID).from(VOICE)
         .join(PHASE).on(PHASE.ID.eq(VOICE.PHASE_ID))
         .join(IDEA).on(IDEA.ID.eq(PHASE.IDEA_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(IDEA.LIBRARY_ID))
         .where(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .and(VOICE.ID.eq(data.getVoiceEvent().getVoiceId()))
-        .fetchOne(), "Voice");
+        .fetchOne());
     }
 
     if (db.executeUpdate(record) == 0) {
@@ -242,25 +242,12 @@ public class VoiceEventDAOImpl extends DAOImpl implements VoiceEventDAO {
         .where(VOICE_EVENT.ID.eq(id))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .fetchOne();
-      assertRecordExists(record, "Voice Meme");
+      requireRecordExists("Voice Meme", record);
     }
 
     db.deleteFrom(VOICE_EVENT)
       .where(VOICE_EVENT.ID.eq(id))
       .execute();
-  }
-
-  /**
-   * Assert that a record exists
-   *
-   * @param record     to assert
-   * @param recordName name of record (for error message)
-   * @throws BusinessException if not exists
-   */
-  private void assertRecordExists(Record record, String recordName) throws BusinessException {
-    if (record == null) {
-      throw new BusinessException(recordName + " not found");
-    }
   }
 
 }

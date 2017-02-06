@@ -37,6 +37,7 @@ function accountLibraries() {
 function accountLibrary() {
   this.route('edit'); // Edit Library
   this.route('ideas', accountLibraryIdeas); // Ideas in Library
+  this.route('instruments', accountLibraryInstruments); // Instruments in Library
 }
 
 function accountLibraryIdeas() {
@@ -88,6 +89,16 @@ function accountLibraryIdeaPhaseVoiceEvents() {
 
 function accountLibraryIdeaPhaseVoiceEvent() {
   this.route('edit'); // Edit Event
+}
+
+function accountLibraryInstruments() {
+  this.route('new'); // New Instrument
+  this.route('one', {path: '/:instrument_id'}, accountLibraryInstrument); // One Instrument
+}
+
+function accountLibraryInstrument() {
+  this.route('edit'); // Edit Instrument
+  this.route('memes'); // Memes in Instrument
 }
 
 export default Router;

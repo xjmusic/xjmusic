@@ -4,7 +4,6 @@ package io.outright.xj.core.dao.impl;
 import io.outright.xj.core.app.access.AccessControl;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.app.exception.ConfigException;
-import io.outright.xj.core.app.exception.DatabaseException;
 import io.outright.xj.core.dao.IdeaMemeDAO;
 import io.outright.xj.core.db.sql.SQLConnection;
 import io.outright.xj.core.db.sql.SQLDatabaseProvider;
@@ -12,10 +11,12 @@ import io.outright.xj.core.model.idea_meme.IdeaMemeWrapper;
 import io.outright.xj.core.tables.records.IdeaMemeRecord;
 import io.outright.xj.core.transport.JSON;
 
-import com.google.inject.Inject;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.types.ULong;
+
+import com.google.inject.Inject;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -90,7 +91,7 @@ public class IdeaMemeDAOImpl extends DAOImpl implements IdeaMemeDAO {
    * @param access control
    * @param data   for new IdeaMeme
    * @return new record
-   * @throws Exception if database failure
+   * @throws Exception         if database failure
    * @throws ConfigException   if not configured properly
    * @throws BusinessException if fails business rule
    */
@@ -101,15 +102,15 @@ public class IdeaMemeDAOImpl extends DAOImpl implements IdeaMemeDAO {
     String name = data.getIdeaMeme().getName();
 
     if (access.isAdmin()) {
-      assertRecordExists(db.select(IDEA.ID).from(IDEA)
+      requireRecordExists("Idea", db.select(IDEA.ID).from(IDEA)
         .where(IDEA.ID.eq(ideaId))
-        .fetchOne(), "Idea");
+        .fetchOne());
     } else {
-      assertRecordExists(db.select(IDEA.ID).from(IDEA)
+      requireRecordExists("Idea", db.select(IDEA.ID).from(IDEA)
         .join(LIBRARY).on(IDEA.LIBRARY_ID.eq(LIBRARY.ID))
         .where(IDEA.ID.eq(ideaId))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-        .fetchOne(), "Idea");
+        .fetchOne());
     }
 
     if (db.selectFrom(IDEA_MEME)
@@ -197,25 +198,12 @@ public class IdeaMemeDAOImpl extends DAOImpl implements IdeaMemeDAO {
         .where(IDEA_MEME.ID.eq(id))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .fetchOne();
-      assertRecordExists(record, "Idea Meme");
+      requireRecordExists("Idea Meme", record);
     }
 
     db.deleteFrom(IDEA_MEME)
       .where(IDEA_MEME.ID.eq(id))
       .execute();
-  }
-
-  /**
-   * Assert that a record exists
-   *
-   * @param record     to assert
-   * @param recordName name of record (for error message)
-   * @throws BusinessException if not exists
-   */
-  private void assertRecordExists(Record record, String recordName) throws BusinessException {
-    if (record == null) {
-      throw new BusinessException(recordName + " not found");
-    }
   }
 
 }

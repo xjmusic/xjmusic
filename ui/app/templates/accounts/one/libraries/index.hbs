@@ -33,8 +33,9 @@
             <th scope="row">{{#link-to "accounts.one.libraries.one" library}}{{library.id}}{{/link-to}}</th>
             <td>{{library.name}}</td>
             <td>
-              {{#link-to 'accounts.one.libraries.one.edit' library}}Edit{{/link-to}}&nbsp;|
-              {{#link-to 'accounts.one.libraries.one.ideas' library}}Ideas{{/link-to}}
+              {{#link-to 'accounts.one.libraries.one.edit' library}}Edit{{/link-to}}
+              |&nbsp;{{#link-to 'accounts.one.libraries.one.ideas' library}}Ideas{{/link-to}}
+              |&nbsp;{{#link-to 'accounts.one.libraries.one.instruments' library}}Instruments{{/link-to}}
             </td>
           </tr>
         {{/each}}
