@@ -1,6 +1,7 @@
 import Ember from 'ember';
 
 export default Ember.Route.extend({
+
   model(params) {
     return this.store.findRecord('phase-chord', params.chord_id)
       .catch((error) => {
@@ -8,4 +9,9 @@ export default Ember.Route.extend({
         this.transitionTo('accounts.one.libraries.one.ideas.one.phases.one.chords');
       });
   },
+
+  afterModel(model) {
+    Ember.set(this, 'breadCrumb', model);
+  }
+
 });

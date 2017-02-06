@@ -1,0 +1,13 @@
+<!--bread-crumbs tagName="ol" outputStyle="bootstrap" linkable=true}}-->
+
+{{#bread-crumbs outputStyle="bootstrap" linkable=true as |component entity|}}
+  {{#bread-crumb route=entity breadCrumbs=component}}
+    {{#if entity.title}}
+      {{entity.title}}
+    {{else if entity.name}}
+      {{entity.name}}
+    {{else if entity.description}}
+      {{entity.description}}
+    {{/if}}
+  {{/bread-crumb}}
+{{/bread-crumbs}}

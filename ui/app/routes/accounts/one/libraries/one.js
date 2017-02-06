@@ -13,4 +13,8 @@ export default Ember.Route.extend({
       });
   },
 
+  afterModel(model) {
+    Ember.set(this, 'breadCrumb', model);
+  }
+
 });

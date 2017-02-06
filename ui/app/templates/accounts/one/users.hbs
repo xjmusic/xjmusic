@@ -6,14 +6,6 @@
 <!-- Container -->
 <div class="form-horizontal">
 
-  <!-- Header -->
-  <div class="form-group">
-    <div class="col-sm-12">
-      <h5>{{#link-to "accounts.one" model.account}}{{model.account.name}}{{/link-to}}</h5>
-      <h1>Users</h1>
-    </div>
-  </div>
-
   <!-- Only show list of records if non-empty -->
   {{#if model.accountUsers.length}}
 
