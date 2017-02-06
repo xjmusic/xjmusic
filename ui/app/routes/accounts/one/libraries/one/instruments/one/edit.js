@@ -23,7 +23,7 @@ export default Ember.Route.extend({
 
     saveInstrument(model) {
       model.save().then(() => {
-        Ember.get(this, 'display').success('Updated instrument ' + model.get('name') + '.');
+        Ember.get(this, 'display').success('Updated instrument ' + model.get('description') + '.');
         this.transitionTo('accounts.one.libraries.one.instruments', model.get('library'));
       }).catch((error) => {
         Ember.get(this, 'display').error(error);
@@ -34,7 +34,7 @@ export default Ember.Route.extend({
       let confirmation = confirm("Are you sure? If there are Instruments or Instruments belonging to this Instrument, deletion will fail anyway.");
       if (confirmation) {
         model.destroyRecord().then(() => {
-          Ember.get(this, 'display').success('Deleted instrument ' + model.get('name') + '.');
+          Ember.get(this, 'display').success('Deleted instrument ' + model.get('description') + '.');
           this.transitionTo('accounts.one.libraries.one.instruments');
         }).catch((error) => {
           Ember.get(this, 'display').error(error);

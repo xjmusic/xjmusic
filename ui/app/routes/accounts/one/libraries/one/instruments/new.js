@@ -30,7 +30,7 @@ export default Ember.Route.extend({
 
     createInstrument(model) {
       model.save().then(() => {
-        Ember.get(this, 'display').success('Created instrument ' + model.get('name') + '.');
+        Ember.get(this, 'display').success('Created instrument ' + model.get('description') + '.');
         this.transitionTo('accounts.one.libraries.one.instruments');
       }).catch((error) => {
         Ember.get(this, 'display').error(error);
