@@ -31,7 +31,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
-// TODO [core] test permissions of different users to read vs. create vs. update or delete ideas
+// TODO [core] test permissions of different users to read vs. create vs. update or delete phase chords
 public class PhaseChordIT {
   private Injector injector = Guice.createInjector(new CoreModule());
   private PhaseChordDAO testDAO;

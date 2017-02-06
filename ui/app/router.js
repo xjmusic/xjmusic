@@ -99,6 +99,36 @@ function accountLibraryInstruments() {
 function accountLibraryInstrument() {
   this.route('edit'); // Edit Instrument
   this.route('memes'); // Memes in Instrument
+  this.route('audios', accountLibraryInstrumentAudios);
+}
+
+function accountLibraryInstrumentAudios() {
+  this.route('new'); // New Audio
+  this.route('one', {path: '/:audio_id'}, accountLibraryInstrumentAudio); // One Audio
+}
+
+function accountLibraryInstrumentAudio() {
+  this.route('edit'); // Edit Audio
+  this.route('events', accountLibraryInstrumentAudioEvents); // Events in Audio
+  this.route('chords', accountLibraryInstrumentAudioChords); // Chords in Audio
+}
+
+function accountLibraryInstrumentAudioEvents() {
+  this.route('new'); // New Event
+  this.route('one', {path: '/:event_id'}, accountLibraryInstrumentAudioEvent); // One Event
+}
+
+function accountLibraryInstrumentAudioEvent() {
+  this.route('edit'); // Edit Event
+}
+
+function accountLibraryInstrumentAudioChords() {
+  this.route('new'); // New Chord
+  this.route('one', {path: '/:chord_id'}, accountLibraryInstrumentAudioChord); // One Chord
+}
+
+function accountLibraryInstrumentAudioChord() {
+  this.route('edit'); // Edit Chord
 }
 
 export default Router;

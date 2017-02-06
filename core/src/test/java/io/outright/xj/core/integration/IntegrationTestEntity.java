@@ -4,6 +4,9 @@ import io.outright.xj.core.Tables;
 import io.outright.xj.core.app.exception.DatabaseException;
 import io.outright.xj.core.tables.records.AccountRecord;
 import io.outright.xj.core.tables.records.AccountUserRecord;
+import io.outright.xj.core.tables.records.AudioChordRecord;
+import io.outright.xj.core.tables.records.AudioEventRecord;
+import io.outright.xj.core.tables.records.AudioRecord;
 import io.outright.xj.core.tables.records.IdeaMemeRecord;
 import io.outright.xj.core.tables.records.IdeaRecord;
 import io.outright.xj.core.tables.records.InstrumentMemeRecord;
@@ -276,6 +279,41 @@ public abstract class IntegrationTestEntity {
     InstrumentMemeRecord record = IntegrationTestService.getDb().newRecord(INSTRUMENT_MEME);
     record.setId(ULong.valueOf(id));
     record.setInstrumentId(ULong.valueOf(instrumentId));
+    record.setName(name);
+    record.store();
+  }
+
+  public static void insertAudio(int id, int instrumentId, String name, String waveformUrl, double start, double length, double tempo, double pitch) {
+    AudioRecord record = IntegrationTestService.getDb().newRecord(AUDIO);
+    record.setId(ULong.valueOf(id));
+    record.setInstrumentId(ULong.valueOf(instrumentId));
+    record.setName(name);
+    record.setWaveformUrl(waveformUrl);
+    record.setStart(start);
+    record.setLength(length);
+    record.setTempo(tempo);
+    record.setPitch(pitch);
+    record.store();
+  }
+
+  public static void insertAudioEvent(int id, int audioId, double position, double duration, String inflection, String note, double tonality, double velocity) {
+    AudioEventRecord record = IntegrationTestService.getDb().newRecord(AUDIO_EVENT);
+    record.setId(ULong.valueOf(id));
+    record.setAudioId(ULong.valueOf(audioId));
+    record.setPosition(position);
+    record.setDuration(duration);
+    record.setInflection(inflection);
+    record.setNote(note);
+    record.setTonality(tonality);
+    record.setVelocity(velocity);
+    record.store();
+  }
+
+  public static void insertAudioChord(int id, int audioId, double position, String name) {
+    AudioChordRecord record = IntegrationTestService.getDb().newRecord(AUDIO_CHORD);
+    record.setId(ULong.valueOf(id));
+    record.setAudioId(ULong.valueOf(audioId));
+    record.setPosition(position);
     record.setName(name);
     record.store();
   }

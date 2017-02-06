@@ -23,7 +23,7 @@ export default Ember.Route.extend({
 
     saveVoice(model) {
       model.save().then(() => {
-        Ember.get(this, 'display').success('Updated voice "' + model.get('description') + '" voice.');
+        Ember.get(this, 'display').success('Updated "' + model.get('description') + '" voice.');
         this.transitionTo('accounts.one.libraries.one.ideas.one.phases.one.voices', model.get('phase'));
       }).catch((error) => {
         Ember.get(this, 'display').error(error);

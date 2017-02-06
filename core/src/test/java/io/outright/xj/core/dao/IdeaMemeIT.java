@@ -30,7 +30,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
-// TODO [core] test permissions of different users to read vs. create vs. update or delete ideas
+// TODO [core] test permissions of different users to read vs. create vs. update or delete idea memes
 public class IdeaMemeIT {
   private Injector injector = Guice.createInjector(new CoreModule());
   private IdeaMemeDAO testDAO;
