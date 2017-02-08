@@ -4,7 +4,6 @@ package io.outright.xj.core.dao.impl;
 import io.outright.xj.core.app.access.AccessControl;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.app.exception.ConfigException;
-import io.outright.xj.core.app.exception.DatabaseException;
 import io.outright.xj.core.dao.LibraryDAO;
 import io.outright.xj.core.db.sql.SQLConnection;
 import io.outright.xj.core.db.sql.SQLDatabaseProvider;
@@ -100,12 +99,12 @@ public class LibraryDAOImpl extends DAOImpl implements LibraryDAO {
    * @throws BusinessException if a Business Rule is violated
    */
   private JSONObject create(DSLContext db, AccessControl access, LibraryWrapper data) throws BusinessException {
-    requireAdmin(access);
-
-    data.validate();
-
     LibraryRecord record = db.newRecord(LIBRARY);
+    data.validate();
     data.getLibrary().intoFieldValueMap().forEach(record::setValue);
+
+    requireTopLevel(access);
+
     record.store();
 
     return JSON.objectFromRecord(record);
@@ -120,7 +119,7 @@ public class LibraryDAOImpl extends DAOImpl implements LibraryDAO {
    * @return record
    */
   private JSONObject readOne(DSLContext db, AccessControl access, ULong id) {
-    if (access.isAdmin()) {
+    if (access.isTopLevel()) {
       return JSON.objectFromRecord(db.selectFrom(LIBRARY)
         .where(LIBRARY.ID.eq(id))
         .fetchOne());
@@ -142,7 +141,7 @@ public class LibraryDAOImpl extends DAOImpl implements LibraryDAO {
    * @return array of records
    */
   private JSONArray readAllIn(DSLContext db, AccessControl access, ULong accountId) throws SQLException {
-    if (access.isAdmin()) {
+    if (access.isTopLevel()) {
       return JSON.arrayFromResultSet(db.select(LIBRARY.fields())
         .from(LIBRARY)
         .where(LIBRARY.ACCOUNT_ID.eq(accountId))
@@ -166,9 +165,9 @@ public class LibraryDAOImpl extends DAOImpl implements LibraryDAO {
    * @throws BusinessException if a Business Rule is violated
    */
   private void update(DSLContext db, AccessControl access, ULong id, LibraryWrapper data) throws BusinessException {
-    requireAdmin(access);
-
     data.validate();
+
+    requireTopLevel(access);
 
     requireRecordExists("Account",
       db.selectFrom(ACCOUNT)
@@ -193,7 +192,7 @@ public class LibraryDAOImpl extends DAOImpl implements LibraryDAO {
    * @throws BusinessException if fails business rule
    */
   private void delete(DSLContext db, AccessControl access, ULong libraryId) throws Exception {
-    requireAdmin(access);
+    requireTopLevel(access);
 
     requireEmptyResultSet(db.select(IDEA.ID)
       .from(IDEA)

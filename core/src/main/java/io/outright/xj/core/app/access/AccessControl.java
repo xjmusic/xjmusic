@@ -129,12 +129,12 @@ public class AccessControl {
   }
 
   /**
-   * Is Admin?
+   * Is Top Level?
    *
    * @return boolean
    */
-  public Boolean isAdmin() {
-    return isAdmin;
+  public Boolean isTopLevel() {
+    return isAdmin; // TODO: OR isWorker
   }
 
   /**

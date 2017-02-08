@@ -5,7 +5,6 @@ import io.outright.xj.core.tables.records.AccountUserRecord;
 import io.outright.xj.core.tables.records.UserAuthRecord;
 import io.outright.xj.core.tables.records.UserRoleRecord;
 
-import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
@@ -87,7 +86,7 @@ public class AccessControlTest extends Mockito {
       "roles", "user,admin"
     ));
 
-    assertTrue(access.isAdmin());
+    assertTrue(access.isTopLevel());
   }
 
   @Test
@@ -96,7 +95,7 @@ public class AccessControlTest extends Mockito {
       "roles", "user,artist"
     ));
 
-    assertFalse(access.isAdmin());
+    assertFalse(access.isTopLevel());
   }
 
   @Test

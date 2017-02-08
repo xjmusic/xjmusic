@@ -14,7 +14,9 @@ import io.outright.xj.core.tables.records.IdeaRecord;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+
 import org.jooq.types.ULong;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.After;
@@ -42,12 +44,12 @@ public class IdeaIT {
 
     // John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
     IntegrationTestEntity.insertUser(2, "john", "john@email.com", "http://pictures.com/john.gif");
-    IntegrationTestEntity.insertUserRole(2, Role.ADMIN);
+    IntegrationTestEntity.insertUserRole(1, 2, Role.ADMIN);
 
     // Jenny has a "user" role and belongs to account "bananas"
     IntegrationTestEntity.insertUser(3, "jenny", "jenny@email.com", "http://pictures.com/jenny.gif");
-    IntegrationTestEntity.insertUserRole(3, Role.USER);
-    IntegrationTestEntity.insertAccountUser(1, 3);
+    IntegrationTestEntity.insertUserRole(2, 3, Role.USER);
+    IntegrationTestEntity.insertAccountUser(3, 1, 3);
 
     // Library "palm tree" has idea "fonds" and idea "nuts"
     IntegrationTestEntity.insertLibrary(1, 1, "palm tree");
@@ -164,7 +166,7 @@ public class IdeaIT {
   }
 
   @Test
-  public void readAllAble() throws Exception {
+  public void readAll() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
       "roles", "admin",
       "accounts", "1"
@@ -181,7 +183,7 @@ public class IdeaIT {
   }
 
   @Test
-  public void readAllAble_SeesNothingOutsideOfLibrary() throws Exception {
+  public void readAll_SeesNothingOutsideOfLibrary() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
       "roles", "user",
       "accounts", "345"
@@ -233,15 +235,19 @@ public class IdeaIT {
     IdeaWrapper inputDataWrapper = new IdeaWrapper();
     inputDataWrapper.setIdea(inputData);
 
-    testDAO.update(access, ULong.valueOf(3), inputDataWrapper);
+    try {
+      testDAO.update(access, ULong.valueOf(3), inputDataWrapper);
 
-    IdeaRecord updatedRecord = IntegrationTestService.getDb()
-      .selectFrom(IDEA)
-      .where(IDEA.ID.eq(ULong.valueOf(3)))
-      .fetchOne();
-    assertNotNull(updatedRecord);
-    assertEquals("cannons", updatedRecord.getName());
-    assertEquals(ULong.valueOf(2), updatedRecord.getLibraryId());
+    } catch (Exception e) {
+      IdeaRecord updatedRecord = IntegrationTestService.getDb()
+        .selectFrom(IDEA)
+        .where(IDEA.ID.eq(ULong.valueOf(3)))
+        .fetchOne();
+      assertNotNull(updatedRecord);
+      assertEquals("fonds", updatedRecord.getName());
+      assertEquals(ULong.valueOf(2), updatedRecord.getLibraryId());
+      throw e;
+    }
   }
 
   @Test

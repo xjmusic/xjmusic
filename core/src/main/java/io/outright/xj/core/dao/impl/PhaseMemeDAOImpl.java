@@ -4,7 +4,6 @@ package io.outright.xj.core.dao.impl;
 import io.outright.xj.core.app.access.AccessControl;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.app.exception.ConfigException;
-import io.outright.xj.core.app.exception.DatabaseException;
 import io.outright.xj.core.dao.PhaseMemeDAO;
 import io.outright.xj.core.db.sql.SQLConnection;
 import io.outright.xj.core.db.sql.SQLDatabaseProvider;
@@ -101,7 +100,7 @@ public class PhaseMemeDAOImpl extends DAOImpl implements PhaseMemeDAO {
     ULong phaseId = ULong.valueOf(data.getPhaseMeme().getPhaseId());
     String name = data.getPhaseMeme().getName();
 
-    if (access.isAdmin()) {
+    if (access.isTopLevel()) {
       requireRecordExists("Phase", db.select(PHASE.ID).from(PHASE)
         .where(PHASE.ID.eq(phaseId))
         .fetchOne());
@@ -144,7 +143,7 @@ public class PhaseMemeDAOImpl extends DAOImpl implements PhaseMemeDAO {
    * @return record
    */
   private JSONObject readOne(DSLContext db, AccessControl access, ULong id) throws SQLException {
-    if (access.isAdmin()) {
+    if (access.isTopLevel()) {
       return JSON.objectFromRecord(db.selectFrom(PHASE_MEME)
         .where(PHASE_MEME.ID.eq(id))
         .fetchOne());
@@ -169,7 +168,7 @@ public class PhaseMemeDAOImpl extends DAOImpl implements PhaseMemeDAO {
    * @throws SQLException if failure
    */
   private JSONArray readAllAble(DSLContext db, AccessControl access, ULong phaseId) throws SQLException {
-    if (access.isAdmin()) {
+    if (access.isTopLevel()) {
       return JSON.arrayFromResultSet(db.selectFrom(PHASE_MEME)
         .where(PHASE_MEME.PHASE_ID.eq(phaseId))
         .fetchResultSet());
@@ -194,7 +193,7 @@ public class PhaseMemeDAOImpl extends DAOImpl implements PhaseMemeDAO {
    */
   // TODO: fail if no phaseMeme is deleted
   private void delete(DSLContext db, AccessControl access, ULong id) throws BusinessException {
-    if (!access.isAdmin()) {
+    if (!access.isTopLevel()) {
       Record record = db.select(PHASE_MEME.ID).from(PHASE_MEME)
         .join(PHASE).on(PHASE.ID.eq(PHASE_MEME.PHASE_ID))
         .join(IDEA).on(IDEA.ID.eq(PHASE.IDEA_ID))

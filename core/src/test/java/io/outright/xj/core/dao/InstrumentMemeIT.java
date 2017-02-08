@@ -46,20 +46,20 @@ public class InstrumentMemeIT {
 
     // John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
     IntegrationTestEntity.insertUser(2, "john", "john@email.com", "http://pictures.com/john.gif");
-    IntegrationTestEntity.insertUserRole(2, Role.USER);
-    IntegrationTestEntity.insertUserRole(2, Role.ADMIN);
-    IntegrationTestEntity.insertAccountUser(1, 2);
+    IntegrationTestEntity.insertUserRole(1, 2, Role.USER);
+    IntegrationTestEntity.insertUserRole(2, 2, Role.ADMIN);
+    IntegrationTestEntity.insertAccountUser(3, 1, 2);
     IntegrationTestEntity.insertUserAuth(102, 2, AuthType.GOOGLE, "external_access_token_123", "external_refresh_token_123", "22222");
     IntegrationTestEntity.insertUserAccessToken(2, 102, "this-is-my-actual-access-token");
 
     // Jenny has a "user" role and belongs to account "bananas"
     IntegrationTestEntity.insertUser(3, "jenny", "jenny@email.com", "http://pictures.com/jenny.gif");
-    IntegrationTestEntity.insertUserRole(3, Role.USER);
-    IntegrationTestEntity.insertAccountUser(1, 3);
+    IntegrationTestEntity.insertUserRole(4, 3, Role.USER);
+    IntegrationTestEntity.insertAccountUser(5, 1, 3);
 
     // Bill has a "user" role but no account membership
     IntegrationTestEntity.insertUser(4, "bill", "bill@email.com", "http://pictures.com/bill.gif");
-    IntegrationTestEntity.insertUserRole(4, Role.USER);
+    IntegrationTestEntity.insertUserRole(6, 4, Role.USER);
 
     // Library "whiskey tango fox" has instrument "jams", "buns" and "mush"
     IntegrationTestEntity.insertLibrary(1, 1, "whiskey tango fox");
@@ -176,7 +176,7 @@ public class InstrumentMemeIT {
   }
 
   @Test
-  public void readAllAble_SeesNothingOutsideOfAccount() throws Exception {
+  public void readAll_SeesNothingOutsideOfAccount() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
       "roles", "artist",
       "accounts", "345"

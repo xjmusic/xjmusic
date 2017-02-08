@@ -48,12 +48,12 @@ public class PhaseIT {
 
     // John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
     IntegrationTestEntity.insertUser(2, "john", "john@email.com", "http://pictures.com/john.gif");
-    IntegrationTestEntity.insertUserRole(2, Role.ADMIN);
+    IntegrationTestEntity.insertUserRole(1,2, Role.ADMIN);
 
     // Jenny has a "user" role and belongs to account "bananas"
     IntegrationTestEntity.insertUser(3, "jenny", "jenny@email.com", "http://pictures.com/jenny.gif");
-    IntegrationTestEntity.insertUserRole(3, Role.USER);
-    IntegrationTestEntity.insertAccountUser(1, 3);
+    IntegrationTestEntity.insertUserRole(2,3, Role.USER);
+    IntegrationTestEntity.insertAccountUser(3, 1, 3);
 
     // Library "palm tree" has idea "leaves" and idea "coconuts"
     IntegrationTestEntity.insertLibrary(1, 1, "palm tree");
@@ -234,7 +234,7 @@ public class PhaseIT {
   }
 
   @Test
-  public void readAllAble_SeesNothingOutsideOfLibrary() throws Exception {
+  public void readAll_SeesNothingOutsideOfLibrary() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
       "roles", "artist",
       "accounts", "345"
@@ -294,21 +294,25 @@ public class PhaseIT {
         .setDensity(0.42)
         .setKey("G minor 7")
         .setIdeaId(BigInteger.valueOf(57))
-        .setName("cannons")
+        .setName("Smash!")
         .setTempo(129.4)
         .setOffset(0)
         .setTotal(16)
       );
 
-    testDAO.update(access, ULong.valueOf(3), inputDataWrapper);
+    try {
+      testDAO.update(access, ULong.valueOf(2), inputDataWrapper);
 
-    IdeaRecord updatedRecord = IntegrationTestService.getDb()
-      .selectFrom(IDEA)
-      .where(IDEA.ID.eq(ULong.valueOf(3)))
-      .fetchOne();
-    assertNotNull(updatedRecord);
-    assertEquals("cannons", updatedRecord.getName());
-    assertEquals(ULong.valueOf(2), updatedRecord.getLibraryId());
+    } catch (Exception e) {
+      PhaseRecord updatedRecord = IntegrationTestService.getDb()
+        .selectFrom(PHASE)
+        .where(PHASE.ID.eq(ULong.valueOf(2)))
+        .fetchOne();
+      assertNotNull(updatedRecord);
+      assertEquals("Caterpillars", updatedRecord.getName());
+      assertEquals(ULong.valueOf(1), updatedRecord.getIdeaId());
+      throw e;
+    }
   }
 
   @Test

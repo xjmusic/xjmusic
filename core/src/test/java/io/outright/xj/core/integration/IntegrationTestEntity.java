@@ -7,6 +7,8 @@ import io.outright.xj.core.tables.records.AccountUserRecord;
 import io.outright.xj.core.tables.records.AudioChordRecord;
 import io.outright.xj.core.tables.records.AudioEventRecord;
 import io.outright.xj.core.tables.records.AudioRecord;
+import io.outright.xj.core.tables.records.ChainLibraryRecord;
+import io.outright.xj.core.tables.records.ChainRecord;
 import io.outright.xj.core.tables.records.IdeaMemeRecord;
 import io.outright.xj.core.tables.records.IdeaRecord;
 import io.outright.xj.core.tables.records.InstrumentMemeRecord;
@@ -27,6 +29,8 @@ import org.jooq.types.ULong;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.sql.Timestamp;
 
 import static io.outright.xj.core.Tables.ACCOUNT;
 import static io.outright.xj.core.Tables.ACCOUNT_USER;
@@ -154,15 +158,17 @@ public abstract class IntegrationTestEntity {
     record.store();
   }
 
-  public static void insertUserRole(Integer userId, String type) {
+  public static void insertUserRole(Integer id, Integer userId, String type) {
     UserRoleRecord record = IntegrationTestService.getDb().newRecord(USER_ROLE);
+    record.setId(ULong.valueOf(id));
     record.setUserId(ULong.valueOf(userId));
     record.setType(type);
     record.store();
   }
 
-  public static void insertAccountUser(Integer accountId, Integer userId) {
+  public static void insertAccountUser(Integer id, Integer accountId, Integer userId) {
     AccountUserRecord record = IntegrationTestService.getDb().newRecord(ACCOUNT_USER);
+    record.setId(ULong.valueOf(id));
     record.setAccountId(ULong.valueOf(accountId));
     record.setUserId(ULong.valueOf(userId));
     record.store();
@@ -318,4 +324,22 @@ public abstract class IntegrationTestEntity {
     record.store();
   }
 
+  public static void insertChain(int id, int accountId, String name, String state, Timestamp startAt, Timestamp stopAt) {
+    ChainRecord record = IntegrationTestService.getDb().newRecord(CHAIN);
+    record.setId(ULong.valueOf(id));
+    record.setAccountId(ULong.valueOf(accountId));
+    record.setName(name);
+    record.setState(state);
+    record.setStartAt(startAt);
+    record.setStopAt(stopAt);
+    record.store();
+  }
+
+  public static void insertChainLibrary(int id, int chainId, int libraryId) {
+    ChainLibraryRecord record = IntegrationTestService.getDb().newRecord(CHAIN_LIBRARY);
+    record.setId(ULong.valueOf(id));
+    record.setChainId(ULong.valueOf(chainId));
+    record.setLibraryId(ULong.valueOf(libraryId));
+    record.store();
+  }
 }

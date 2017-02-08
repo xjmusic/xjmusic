@@ -129,7 +129,7 @@ public class UserDAOImpl extends DAOImpl implements UserDAO {
     SQLConnection tx = dbProvider.getConnection();
 
     try {
-      requireAdmin(access);
+      requireTopLevel(access);
       updateUserRoles(tx.getContext(), userId, data);
       destroyAllTokens(tx.getContext(), userId);
       tx.success();
@@ -293,7 +293,7 @@ public class UserDAOImpl extends DAOImpl implements UserDAO {
    * @return record
    */
   private JSONObject readOne(DSLContext db, AccessControl access, ULong userId) {
-    if (access.isAdmin()) {
+    if (access.isTopLevel()) {
       return JSON.objectFromRecord(db.select(
         USER.ID,
         USER.NAME,
@@ -351,7 +351,7 @@ public class UserDAOImpl extends DAOImpl implements UserDAO {
    * @throws SQLException on database failure
    */
   private JSONArray readAll(DSLContext db, AccessControl access) throws SQLException {
-    if (access.isAdmin()) {
+    if (access.isTopLevel()) {
       return JSON.arrayFromResultSet(db.select(
         USER.ID,
         USER.NAME,

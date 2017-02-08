@@ -133,7 +133,7 @@ public class LibraryIT {
   }
 
   @Test
-  public void readAllAble_SeesNothingOutsideOfAccount() throws Exception {
+  public void readAll_SeesNothingOutsideOfAccount() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
       "roles", "user",
       "accounts", "345"
@@ -171,14 +171,14 @@ public class LibraryIT {
     testDAO.update(access, ULong.valueOf(3), inputDataWrapper);
   }
 
-  @Test(expected = BusinessException.class)
-  public void update_FailsUpdatingToNonexistentAccount() throws Exception {
+  @Test
+  public void update() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
       "roles", "admin"
     ));
     Library inputData = new Library();
     inputData.setName("cannons");
-    inputData.setAccountId(BigInteger.valueOf(3));
+    inputData.setAccountId(BigInteger.valueOf(1));
     LibraryWrapper inputDataWrapper = new LibraryWrapper();
     inputDataWrapper.setLibrary(inputData);
 
@@ -190,7 +190,33 @@ public class LibraryIT {
       .fetchOne();
     assertNotNull(updatedRecord);
     assertEquals("cannons", updatedRecord.getName());
-    assertEquals(ULong.valueOf(2), updatedRecord.getAccountId());
+    assertEquals(ULong.valueOf(1), updatedRecord.getAccountId());
+  }
+
+  @Test(expected = BusinessException.class)
+  public void update_FailsUpdatingToNonexistentAccount() throws Exception {
+    AccessControl access = new AccessControl(ImmutableMap.of(
+      "roles", "admin"
+    ));
+    Library inputData = new Library();
+    inputData.setName("cannons");
+    inputData.setAccountId(BigInteger.valueOf(3978));
+    LibraryWrapper inputDataWrapper = new LibraryWrapper();
+    inputDataWrapper.setLibrary(inputData);
+
+    try {
+      testDAO.update(access, ULong.valueOf(3), inputDataWrapper);
+
+    } catch (Exception e){
+      LibraryRecord updatedRecord = IntegrationTestService.getDb()
+        .selectFrom(LIBRARY)
+        .where(LIBRARY.ID.eq(ULong.valueOf(3)))
+        .fetchOne();
+      assertNotNull(updatedRecord);
+      assertEquals("helm", updatedRecord.getName());
+      assertEquals(ULong.valueOf(2), updatedRecord.getAccountId());
+      throw e;
+    }
   }
 
   @Test
@@ -260,12 +286,15 @@ public class LibraryIT {
     IntegrationTestEntity.insertUser(101, "bill", "bill@email.com", "http://pictures.com/bill.gif");
     IntegrationTestEntity.insertIdea(301, 101, 2, Idea.MAIN, "brilliant", 0.342, "C#", 0.286);
 
-    testDAO.delete(access, ULong.valueOf(2));
-
-    LibraryRecord stillExistingRecord = IntegrationTestService.getDb()
-      .selectFrom(LIBRARY)
-      .where(LIBRARY.ID.eq(ULong.valueOf(1)))
-      .fetchOne();
-    assertNotNull(stillExistingRecord);
+    try {
+      testDAO.delete(access, ULong.valueOf(2));
+    } catch (Exception e) {
+      LibraryRecord stillExistingRecord = IntegrationTestService.getDb()
+        .selectFrom(LIBRARY)
+        .where(LIBRARY.ID.eq(ULong.valueOf(2)))
+        .fetchOne();
+      assertNotNull(stillExistingRecord);
+      throw e;
+    }
   }
 }

@@ -50,8 +50,8 @@ public class DAOImpl {
    * @param access control
    * @throws BusinessException if not admin
    */
-  void requireAdmin(AccessControl access) throws BusinessException {
-    if (!access.isAdmin()) {
+  void requireTopLevel(AccessControl access) throws BusinessException {
+    if (!access.isTopLevel()) {
       throw new BusinessException("not admin");
     }
   }

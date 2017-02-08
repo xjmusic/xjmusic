@@ -105,7 +105,7 @@ public class VoiceDAOImpl extends DAOImpl implements VoiceDAO {
     data.validate();
     data.getVoice().intoFieldValueMap().forEach(record::setValue);
 
-    if (access.isAdmin()) {
+    if (access.isTopLevel()) {
       // Admin can create voice in any existing phase
       requireRecordExists("Phase", db.select(PHASE.ID).from(PHASE)
         .where(PHASE.ID.eq(data.getVoice().getPhaseId()))
@@ -134,7 +134,7 @@ public class VoiceDAOImpl extends DAOImpl implements VoiceDAO {
    */
   private JSONObject readOne(DSLContext db, AccessControl access, ULong id) {
     JSONObject result;
-    if (access.isAdmin()) {
+    if (access.isTopLevel()) {
       result = JSON.objectFromRecord(db.selectFrom(VOICE)
         .where(VOICE.ID.eq(id))
         .fetchOne());
@@ -162,7 +162,7 @@ public class VoiceDAOImpl extends DAOImpl implements VoiceDAO {
    */
   private JSONArray readAllIn(DSLContext db, AccessControl access, ULong phaseId) throws SQLException {
     JSONArray result;
-    if (access.isAdmin()) {
+    if (access.isTopLevel()) {
       result = JSON.arrayFromResultSet(db.select(VOICE.fields())
         .from(VOICE)
         .where(VOICE.PHASE_ID.eq(phaseId))
@@ -195,7 +195,7 @@ public class VoiceDAOImpl extends DAOImpl implements VoiceDAO {
       .where(VOICE_EVENT.VOICE_ID.eq(id))
       .fetchResultSet());
 
-    if (!access.isAdmin()) {
+    if (!access.isTopLevel()) {
       requireRecordExists("Voice", db.select(VOICE.ID).from(VOICE)
         .join(PHASE).on(PHASE.ID.eq(VOICE.PHASE_ID))
         .join(IDEA).on(IDEA.ID.eq(PHASE.IDEA_ID))
@@ -232,7 +232,7 @@ public class VoiceDAOImpl extends DAOImpl implements VoiceDAO {
     data.validate();
     data.getVoice().intoFieldValueMap().forEach(record::setValue);
 
-    if (access.isAdmin()) {
+    if (access.isTopLevel()) {
       // Admin can create voice in any existing phase
       requireRecordExists("Phase", db.select(PHASE.ID).from(PHASE)
         .where(PHASE.ID.eq(data.getVoice().getPhaseId()))

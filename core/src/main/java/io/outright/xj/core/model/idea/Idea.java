@@ -23,7 +23,7 @@ public class Idea {
   public final static String RHYTHM = "rhythm";
   public final static String SUPPORT = "support";
 
-  public final static List<String> allTypes = ImmutableList.of(
+  private final static List<String> allTypes = ImmutableList.of(
     MACRO,
     MAIN,
     RHYTHM,

@@ -107,7 +107,7 @@ public class InstrumentDAOImpl extends DAOImpl implements InstrumentDAO {
     record = db.newRecord(INSTRUMENT);
     data.validate();
     data.getInstrument().intoFieldValueMap().forEach(record::setValue);
-    if (access.isAdmin()) {
+    if (access.isTopLevel()) {
       // Admin can create instrument in any existing library, with any user.
       requireRecordExists("Library",
         db.select(LIBRARY.ID).from(LIBRARY)
@@ -138,7 +138,7 @@ public class InstrumentDAOImpl extends DAOImpl implements InstrumentDAO {
    */
   @Nullable
   private JSONObject readOne(DSLContext db, AccessControl access, ULong id) {
-    if (access.isAdmin()) {
+    if (access.isTopLevel()) {
       return JSON.objectFromRecord(db.selectFrom(INSTRUMENT)
         .where(INSTRUMENT.ID.eq(id))
         .fetchOne());
@@ -161,7 +161,7 @@ public class InstrumentDAOImpl extends DAOImpl implements InstrumentDAO {
    * @return array of records
    */
   private JSONArray readAllIn(DSLContext db, AccessControl access, ULong libraryId) throws SQLException {
-    if (access.isAdmin()) {
+    if (access.isTopLevel()) {
       return JSON.arrayFromResultSet(db.select(INSTRUMENT.fields())
         .from(INSTRUMENT)
         .where(INSTRUMENT.LIBRARY_ID.eq(libraryId))
@@ -194,7 +194,7 @@ public class InstrumentDAOImpl extends DAOImpl implements InstrumentDAO {
     record.setId(id);
     data.getInstrument().intoFieldValueMap().forEach(record::setValue);
 
-    if (access.isAdmin()) {
+    if (access.isTopLevel()) {
       // Admin can create instrument in any existing library, with any user.
       requireRecordExists("Library",
         db.select(LIBRARY.ID).from(LIBRARY)
@@ -225,7 +225,7 @@ public class InstrumentDAOImpl extends DAOImpl implements InstrumentDAO {
    * @throws BusinessException if fails business rule
    */
   private void delete(DSLContext db, AccessControl access, ULong id) throws Exception {
-    if (!access.isAdmin()) {
+    if (!access.isTopLevel()) {
       Record record = db.select(INSTRUMENT.fields()).from(INSTRUMENT)
         .join(LIBRARY).on(INSTRUMENT.LIBRARY_ID.eq(LIBRARY.ID))
         .where(INSTRUMENT.ID.eq(id))

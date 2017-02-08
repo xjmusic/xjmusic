@@ -4,7 +4,6 @@ package io.outright.xj.core.dao.impl;
 import io.outright.xj.core.app.access.AccessControl;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.app.exception.ConfigException;
-import io.outright.xj.core.app.exception.DatabaseException;
 import io.outright.xj.core.dao.AccountUserDAO;
 import io.outright.xj.core.db.sql.SQLConnection;
 import io.outright.xj.core.db.sql.SQLDatabaseProvider;
@@ -86,7 +85,7 @@ public class AccountUserDAOImpl extends DAOImpl implements AccountUserDAO {
    * @throws BusinessException if fails business rule
    */
   private JSONObject create(DSLContext db, AccessControl access, AccountUserWrapper data) throws Exception {
-    requireAdmin(access);
+    requireTopLevel(access);
     data.validate();
 
     ULong accountId = ULong.valueOf(data.getAccountUser().getAccountId());
@@ -122,7 +121,7 @@ public class AccountUserDAOImpl extends DAOImpl implements AccountUserDAO {
    * @return record
    */
   private JSONObject readOne(DSLContext db, AccessControl access, ULong id) {
-    if (access.isAdmin()) {
+    if (access.isTopLevel()) {
       return JSON.objectFromRecord(db.selectFrom(ACCOUNT_USER)
         .where(ACCOUNT_USER.ID.eq(id))
         .fetchOne());
@@ -144,7 +143,7 @@ public class AccountUserDAOImpl extends DAOImpl implements AccountUserDAO {
    * @throws SQLException on failure
    */
   private JSONArray readAllIn(DSLContext db, AccessControl access, ULong accountId) throws SQLException {
-    if (access.isAdmin()) {
+    if (access.isTopLevel()) {
       return JSON.arrayFromResultSet(db.selectFrom(ACCOUNT_USER)
         .where(ACCOUNT_USER.ACCOUNT_ID.eq(accountId))
         .fetchResultSet());
@@ -165,7 +164,7 @@ public class AccountUserDAOImpl extends DAOImpl implements AccountUserDAO {
    * @throws BusinessException on failure
    */
   private void delete(DSLContext db, AccessControl access, ULong id) throws BusinessException {
-    requireAdmin(access);
+    requireTopLevel(access);
     // TODO: fail if no accountUser is deleted
     db.deleteFrom(ACCOUNT_USER)
       .where(ACCOUNT_USER.ID.eq(id))

@@ -101,7 +101,7 @@ public class InstrumentMemeDAOImpl extends DAOImpl implements InstrumentMemeDAO 
     ULong instrumentId = ULong.valueOf(data.getInstrumentMeme().getInstrumentId());
     String name = data.getInstrumentMeme().getName();
 
-    if (access.isAdmin()) {
+    if (access.isTopLevel()) {
       requireRecordExists("Instrument", db.select(INSTRUMENT.ID).from(INSTRUMENT)
         .where(INSTRUMENT.ID.eq(instrumentId))
         .fetchOne());
@@ -143,7 +143,7 @@ public class InstrumentMemeDAOImpl extends DAOImpl implements InstrumentMemeDAO 
    * @return record
    */
   private JSONObject readOneAble(DSLContext db, AccessControl access, ULong id) throws SQLException {
-    if (access.isAdmin()) {
+    if (access.isTopLevel()) {
       return JSON.objectFromRecord(db.selectFrom(INSTRUMENT_MEME)
         .where(INSTRUMENT_MEME.ID.eq(id))
         .fetchOne());
@@ -167,7 +167,7 @@ public class InstrumentMemeDAOImpl extends DAOImpl implements InstrumentMemeDAO 
    * @throws SQLException if failure
    */
   private JSONArray readAllIn(DSLContext db, AccessControl access, ULong instrumentId) throws SQLException {
-    if (access.isAdmin()) {
+    if (access.isTopLevel()) {
       return JSON.arrayFromResultSet(db.selectFrom(INSTRUMENT_MEME)
         .where(INSTRUMENT_MEME.INSTRUMENT_ID.eq(instrumentId))
         .fetchResultSet());
@@ -191,7 +191,7 @@ public class InstrumentMemeDAOImpl extends DAOImpl implements InstrumentMemeDAO 
    */
   // TODO: fail if no instrumentMeme is deleted
   private void delete(DSLContext db, AccessControl access, ULong id) throws BusinessException {
-    if (!access.isAdmin()) {
+    if (!access.isTopLevel()) {
       Record record = db.select(INSTRUMENT_MEME.ID).from(INSTRUMENT_MEME)
         .join(INSTRUMENT).on(INSTRUMENT.ID.eq(INSTRUMENT_MEME.INSTRUMENT_ID))
         .join(LIBRARY).on(INSTRUMENT.LIBRARY_ID.eq(LIBRARY.ID))

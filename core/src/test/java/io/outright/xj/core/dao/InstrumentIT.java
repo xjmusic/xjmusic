@@ -44,12 +44,12 @@ public class InstrumentIT {
 
     // John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
     IntegrationTestEntity.insertUser(2, "john", "john@email.com", "http://pictures.com/john.gif");
-    IntegrationTestEntity.insertUserRole(2, Role.ADMIN);
+    IntegrationTestEntity.insertUserRole(1, 2, Role.ADMIN);
 
     // Jenny has a "user" role and belongs to account "bananas"
     IntegrationTestEntity.insertUser(3, "jenny", "jenny@email.com", "http://pictures.com/jenny.gif");
-    IntegrationTestEntity.insertUserRole(3, Role.USER);
-    IntegrationTestEntity.insertAccountUser(1, 3);
+    IntegrationTestEntity.insertUserRole(2, 3, Role.USER);
+    IntegrationTestEntity.insertAccountUser(3, 1, 3);
 
     // Library "sandwich" has instrument "jams" and instrument "buns"
     IntegrationTestEntity.insertLibrary(1, 1, "sandwich");
@@ -153,7 +153,7 @@ public class InstrumentIT {
   }
 
   @Test
-  public void readAllAble() throws Exception {
+  public void readAll() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
       "roles", "admin",
       "accounts", "1"
@@ -170,7 +170,7 @@ public class InstrumentIT {
   }
 
   @Test
-  public void readAllAble_SeesNothingOutsideOfLibrary() throws Exception {
+  public void readAll_SeesNothingOutsideOfLibrary() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
       "roles", "user",
       "accounts", "345"
@@ -218,19 +218,23 @@ public class InstrumentIT {
     ));
     Instrument inputData = new Instrument();
     inputData.setDescription("bimmies");
-    inputData.setLibraryId(BigInteger.valueOf(3));
+    inputData.setLibraryId(BigInteger.valueOf(387));
     InstrumentWrapper inputDataWrapper = new InstrumentWrapper();
     inputDataWrapper.setInstrument(inputData);
 
-    testDAO.update(access, ULong.valueOf(3), inputDataWrapper);
+    try {
+      testDAO.update(access, ULong.valueOf(2), inputDataWrapper);
 
-    InstrumentRecord updatedRecord = IntegrationTestService.getDb()
-      .selectFrom(INSTRUMENT)
-      .where(INSTRUMENT.ID.eq(ULong.valueOf(3)))
-      .fetchOne();
-    assertNotNull(updatedRecord);
-    assertEquals("bimmies", updatedRecord.getDescription());
-    assertEquals(ULong.valueOf(2), updatedRecord.getLibraryId());
+    } catch (Exception e) {
+      InstrumentRecord updatedRecord = IntegrationTestService.getDb()
+        .selectFrom(INSTRUMENT)
+        .where(INSTRUMENT.ID.eq(ULong.valueOf(2)))
+        .fetchOne();
+      assertNotNull(updatedRecord);
+      assertEquals("buns", updatedRecord.getDescription());
+      assertEquals(ULong.valueOf(1), updatedRecord.getLibraryId());
+      throw e;
+    }
   }
 
   @Test

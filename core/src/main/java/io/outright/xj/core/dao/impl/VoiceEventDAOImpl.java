@@ -109,7 +109,7 @@ public class VoiceEventDAOImpl extends DAOImpl implements VoiceEventDAO {
     data.validate();
     data.getVoiceEvent().intoFieldValueMap().forEach(record::setValue);
 
-    if (access.isAdmin()) {
+    if (access.isTopLevel()) {
       requireRecordExists("Voice", db.select(VOICE.ID).from(VOICE)
         .where(VOICE.ID.eq(data.getVoiceEvent().getVoiceId()))
         .fetchOne());
@@ -137,7 +137,7 @@ public class VoiceEventDAOImpl extends DAOImpl implements VoiceEventDAO {
    */
   private JSONObject readOne(DSLContext db, AccessControl access, ULong id) {
     JSONObject result;
-    if (access.isAdmin()) {
+    if (access.isTopLevel()) {
       result = JSON.objectFromRecord(db.selectFrom(VOICE_EVENT)
         .where(VOICE_EVENT.ID.eq(id))
         .fetchOne());
@@ -166,7 +166,7 @@ public class VoiceEventDAOImpl extends DAOImpl implements VoiceEventDAO {
    */
   private JSONArray readAllIn(DSLContext db, AccessControl access, ULong voiceId) throws SQLException {
     JSONArray result;
-    if (access.isAdmin()) {
+    if (access.isTopLevel()) {
       result = JSON.arrayFromResultSet(db.select(VOICE_EVENT.fields())
         .from(VOICE_EVENT)
         .where(VOICE_EVENT.VOICE_ID.eq(voiceId))
@@ -204,7 +204,7 @@ public class VoiceEventDAOImpl extends DAOImpl implements VoiceEventDAO {
     data.validate();
     data.getVoiceEvent().intoFieldValueMap().forEach(record::setValue);
 
-    if (access.isAdmin()) {
+    if (access.isTopLevel()) {
       requireRecordExists("Voice", db.select(VOICE.ID).from(VOICE)
         .where(VOICE.ID.eq(data.getVoiceEvent().getVoiceId()))
         .fetchOne());
@@ -233,7 +233,7 @@ public class VoiceEventDAOImpl extends DAOImpl implements VoiceEventDAO {
    * @throws BusinessException if fails business rule
    */
   private void delete(AccessControl access, DSLContext db, ULong id) throws Exception {
-    if (!access.isAdmin()) {
+    if (!access.isTopLevel()) {
       Record record = db.select(VOICE_EVENT.ID).from(VOICE_EVENT)
         .join(Voice.VOICE).on(Voice.VOICE.ID.eq(VOICE_EVENT.VOICE_ID))
         .join(PHASE).on(PHASE.ID.eq(VOICE.PHASE_ID))

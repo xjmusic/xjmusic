@@ -45,7 +45,7 @@ public class AudioChordIT {
 
     // John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
     IntegrationTestEntity.insertUser(2, "john", "john@email.com", "http://pictures.com/john.gif");
-    IntegrationTestEntity.insertUserRole(2, Role.ADMIN);
+    IntegrationTestEntity.insertUserRole(1,2, Role.ADMIN);
 
     // Library "palm tree" has idea "leaves" and idea "coconuts"
     IntegrationTestEntity.insertLibrary(1, 1, "palm tree");
@@ -168,7 +168,7 @@ public class AudioChordIT {
   }
 
   @Test
-  public void readAllAble_SeesNothingOutsideOfLibrary() throws Exception {
+  public void readAll_SeesNothingOutsideOfLibrary() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
       "roles", "artist",
       "accounts", "345"
@@ -223,15 +223,19 @@ public class AudioChordIT {
         .setName("cannons")
       );
 
-    testDAO.update(access, ULong.valueOf(3), inputDataWrapper);
+    try {
+      testDAO.update(access, ULong.valueOf(2), inputDataWrapper);
 
-    AudioChordRecord updatedRecord = IntegrationTestService.getDb()
-      .selectFrom(AUDIO_CHORD)
-      .where(AUDIO_CHORD.ID.eq(ULong.valueOf(3)))
-      .fetchOne();
-    assertNotNull(updatedRecord);
-    assertEquals("cannons", updatedRecord.getName());
-    assertEquals(ULong.valueOf(2), updatedRecord.getAudioId());
+    } catch (Exception e) {
+      AudioChordRecord updatedRecord = IntegrationTestService.getDb()
+        .selectFrom(AUDIO_CHORD)
+        .where(AUDIO_CHORD.ID.eq(ULong.valueOf(2)))
+        .fetchOne();
+      assertNotNull(updatedRecord);
+      assertEquals("C minor", updatedRecord.getName());
+      assertEquals(ULong.valueOf(1), updatedRecord.getAudioId());
+      throw e;
+    }
   }
 
   @Test

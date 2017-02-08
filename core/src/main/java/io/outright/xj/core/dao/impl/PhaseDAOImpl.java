@@ -105,7 +105,7 @@ public class PhaseDAOImpl extends DAOImpl implements PhaseDAO {
     data.validate();
     data.getPhase().intoFieldValueMap().forEach(record::setValue);
 
-    if (access.isAdmin()) {
+    if (access.isTopLevel()) {
       // Admin can create phase in any existing idea
       requireRecordExists("Idea", db.select(IDEA.ID).from(IDEA)
         .where(IDEA.ID.eq(data.getPhase().getIdeaId()))
@@ -132,7 +132,7 @@ public class PhaseDAOImpl extends DAOImpl implements PhaseDAO {
    */
   private JSONObject readOne(DSLContext db, AccessControl access, ULong id) {
     JSONObject result;
-    if (access.isAdmin()) {
+    if (access.isTopLevel()) {
       result = JSON.objectFromRecord(db.selectFrom(PHASE)
         .where(PHASE.ID.eq(id))
         .fetchOne());
@@ -158,7 +158,7 @@ public class PhaseDAOImpl extends DAOImpl implements PhaseDAO {
    */
   private JSONArray readAllIn(DSLContext db, AccessControl access, ULong ideaId) throws SQLException {
     JSONArray result;
-    if (access.isAdmin()) {
+    if (access.isTopLevel()) {
       result = JSON.arrayFromResultSet(db.select(PHASE.fields())
         .from(PHASE)
         .where(PHASE.IDEA_ID.eq(ideaId))
@@ -200,7 +200,7 @@ public class PhaseDAOImpl extends DAOImpl implements PhaseDAO {
       .where(PHASE_CHORD.PHASE_ID.eq(id))
       .fetchResultSet());
 
-    if (!access.isAdmin()) {
+    if (!access.isTopLevel()) {
       requireRecordExists("Phase", db.select(PHASE.ID).from(PHASE)
         .join(IDEA).on(IDEA.ID.eq(PHASE.IDEA_ID))
         .join(LIBRARY).on(IDEA.LIBRARY_ID.eq(LIBRARY.ID))
@@ -245,7 +245,7 @@ public class PhaseDAOImpl extends DAOImpl implements PhaseDAO {
     data.validate();
     data.getPhase().intoFieldValueMap().forEach(record::setValue);
 
-    if (access.isAdmin()) {
+    if (access.isTopLevel()) {
       // Admin can create phase in any existing idea
       requireRecordExists("Idea",db.select(IDEA.ID).from(IDEA)
         .where(IDEA.ID.eq(data.getPhase().getIdeaId()))

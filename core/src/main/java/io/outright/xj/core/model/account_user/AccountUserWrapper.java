@@ -24,7 +24,7 @@ public class AccountUserWrapper extends EntityWrapper {
    */
   public void validate() throws BusinessException{
     if (this.accountUser == null) {
-      throw new BusinessException("Account is required.");
+      throw new BusinessException("Account User is required.");
     }
     this.accountUser.validate();
   }

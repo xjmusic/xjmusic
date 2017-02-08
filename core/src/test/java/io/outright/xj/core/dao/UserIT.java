@@ -47,20 +47,20 @@ public class UserIT {
 
     // John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
     IntegrationTestEntity.insertUser(2, "john", "john@email.com", "http://pictures.com/john.gif");
-    IntegrationTestEntity.insertUserRole(2, Role.USER);
-    IntegrationTestEntity.insertUserRole(2, Role.ADMIN);
-    IntegrationTestEntity.insertAccountUser(1, 2);
+    IntegrationTestEntity.insertUserRole(1, 2, Role.USER);
+    IntegrationTestEntity.insertUserRole(2, 2, Role.ADMIN);
+    IntegrationTestEntity.insertAccountUser(3, 1, 2);
     IntegrationTestEntity.insertUserAuth(102, 2, AuthType.GOOGLE, "external_access_token_123", "external_refresh_token_123", "22222");
     IntegrationTestEntity.insertUserAccessToken(2, 102, "this-is-my-actual-access-token");
 
     // Jenny has a "user" role and belongs to account "bananas"
-    IntegrationTestEntity.insertUser(3, "jenny", "jenny@email.com", "http://pictures.com/jenny.gif");
-    IntegrationTestEntity.insertUserRole(3, Role.USER);
-    IntegrationTestEntity.insertAccountUser(1, 3);
+    IntegrationTestEntity.insertUser( 3, "jenny", "jenny@email.com", "http://pictures.com/jenny.gif");
+    IntegrationTestEntity.insertUserRole(5, 3, Role.USER);
+    IntegrationTestEntity.insertAccountUser(6, 1, 3);
 
     // Bill has a "user" role but no account membership
     IntegrationTestEntity.insertUser(4, "bill", "bill@email.com", "http://pictures.com/bill.gif");
-    IntegrationTestEntity.insertUserRole(4, Role.USER);
+    IntegrationTestEntity.insertUserRole(7,4, Role.USER);
 
     // Instantiate the test subject
     testDAO = injector.getInstance(UserDAO.class);
@@ -228,7 +228,7 @@ public class UserIT {
   }
 
   @Test
-  public void readAllAble_UserSeesSelfAndOtherUsersInSameAccount() throws Exception {
+  public void readAll_UserSeesSelfAndOtherUsersInSameAccount() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
       "roles", "user",
       "accounts", "1"
@@ -241,7 +241,7 @@ public class UserIT {
   }
 
   @Test
-  public void readAllAble_UserWithoutAccountMembershipSeesOnlySelf() throws Exception {
+  public void readAll_UserWithoutAccountMembershipSeesOnlySelf() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
       "userId", "4", // Bill is in no accounts
       "roles", "user",

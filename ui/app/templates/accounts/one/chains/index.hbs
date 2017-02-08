@@ -1,0 +1,43 @@
+<!-- Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved. -->
+
+<!-- Inner Content -->
+{{outlet}}
+
+<!-- Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved. -->
+
+<!-- Upper Container -->
+<div class="form-horizontal">
+
+  <!-- List of Chains -->
+  <div class="sm-col-12">
+    <div class="table-list">
+      <table class="table">
+        <thead>
+        <tr>
+          <th>#</th>
+          <th>Name</th>
+          <th>Action</th>
+        </tr>
+        </thead>
+        <tbody>
+        {{#each model.chains as |chain|}}
+          <tr class="item">
+            <th scope="row">{{#link-to "accounts.one.chains.one" chain}}{{chain.id}}{{/link-to}}</th>
+            <td>{{chain.name}}</td>
+            <td>
+              {{#link-to 'accounts.one.chains.one.edit' chain}}Edit{{/link-to}}
+              |&nbsp;{{#link-to 'accounts.one.chains.one.libraries' chain}}Libraries{{/link-to}}
+            </td>
+          </tr>
+        {{/each}}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  {{#if auth.isAdmin}}
+    <div class="sm-col-12">
+      Or: {{#link-to 'accounts.one.chains.new'}}Create New Chain{{/link-to}}
+    </div>
+  {{/if}}
+</div>

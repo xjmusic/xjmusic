@@ -106,7 +106,7 @@ public class PhaseChordDAOImpl extends DAOImpl implements PhaseChordDAO {
     data.validate();
     data.getPhaseChord().intoFieldValueMap().forEach(record::setValue);
 
-    if (access.isAdmin()) {
+    if (access.isTopLevel()) {
       requireRecordExists("Phase", db.select(PHASE.ID).from(PHASE)
         .where(PHASE.ID.eq(data.getPhaseChord().getPhaseId()))
         .fetchOne());
@@ -133,7 +133,7 @@ public class PhaseChordDAOImpl extends DAOImpl implements PhaseChordDAO {
    */
   private JSONObject readOne(DSLContext db, AccessControl access, ULong id) {
     JSONObject result;
-    if (access.isAdmin()) {
+    if (access.isTopLevel()) {
       result = JSON.objectFromRecord(db.selectFrom(PHASE_CHORD)
         .where(PHASE_CHORD.ID.eq(id))
         .fetchOne());
@@ -161,7 +161,7 @@ public class PhaseChordDAOImpl extends DAOImpl implements PhaseChordDAO {
    */
   private JSONArray readAllIn(DSLContext db, AccessControl access, ULong phaseId) throws SQLException {
     JSONArray result;
-    if (access.isAdmin()) {
+    if (access.isTopLevel()) {
       result = JSON.arrayFromResultSet(db.select(PHASE_CHORD.fields())
         .from(PHASE_CHORD)
         .where(PHASE_CHORD.PHASE_ID.eq(phaseId))
@@ -198,7 +198,7 @@ public class PhaseChordDAOImpl extends DAOImpl implements PhaseChordDAO {
     data.validate();
     data.getPhaseChord().intoFieldValueMap().forEach(record::setValue);
 
-    if (access.isAdmin()) {
+    if (access.isTopLevel()) {
       requireRecordExists("Phase", db.select(PHASE.ID).from(PHASE)
         .where(PHASE.ID.eq(data.getPhaseChord().getPhaseId()))
         .fetchOne());
@@ -226,7 +226,7 @@ public class PhaseChordDAOImpl extends DAOImpl implements PhaseChordDAO {
    * @throws BusinessException if fails business rule
    */
   private void delete(AccessControl access, DSLContext db, ULong id) throws Exception {
-    if (!access.isAdmin()) {
+    if (!access.isTopLevel()) {
       Record record = db.select(PHASE_CHORD.ID).from(PHASE_CHORD)
         .join(Phase.PHASE).on(Phase.PHASE.ID.eq(PHASE_CHORD.PHASE_ID))
         .join(IDEA).on(IDEA.ID.eq(Phase.PHASE.IDEA_ID))

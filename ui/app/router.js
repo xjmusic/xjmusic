@@ -25,8 +25,9 @@ function accounts() {
 
 function account() {
   this.route('edit'); // Edit Account
-  this.route('users', {path: '/u'}); // Users in Account
+  this.route('users'); // Users in Account
   this.route('libraries', {path: '/lib'}, accountLibraries); // Libraries in Account
+  this.route('chains', accountChains); // Chains in Account
 }
 
 function accountLibraries() {
@@ -129,6 +130,16 @@ function accountLibraryInstrumentAudioChords() {
 
 function accountLibraryInstrumentAudioChord() {
   this.route('edit'); // Edit Chord
+}
+
+function accountChains() {
+  this.route('new'); // New Chain
+  this.route('one', {path: '/:chain_id'}, accountChain); // One Chain
+}
+
+function accountChain() {
+  this.route('edit'); // Edit Chain
+  this.route('libraries'); // Libraries in Chain
 }
 
 export default Router;

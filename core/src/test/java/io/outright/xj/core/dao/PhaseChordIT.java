@@ -10,13 +10,14 @@ import io.outright.xj.core.model.idea.Idea;
 import io.outright.xj.core.model.phase_chord.PhaseChord;
 import io.outright.xj.core.model.phase_chord.PhaseChordWrapper;
 import io.outright.xj.core.model.role.Role;
-import io.outright.xj.core.tables.records.IdeaRecord;
 import io.outright.xj.core.tables.records.PhaseChordRecord;
+
+import org.jooq.types.ULong;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.jooq.types.ULong;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.After;
@@ -26,7 +27,6 @@ import org.junit.Test;
 import java.math.BigInteger;
 
 import static io.outright.xj.core.Tables.PHASE_CHORD;
-import static io.outright.xj.core.tables.Idea.IDEA;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -45,7 +45,7 @@ public class PhaseChordIT {
 
     // John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
     IntegrationTestEntity.insertUser(2, "john", "john@email.com", "http://pictures.com/john.gif");
-    IntegrationTestEntity.insertUserRole(2, Role.ADMIN);
+    IntegrationTestEntity.insertUserRole(1, 2, Role.ADMIN);
 
     // Library "palm tree" has idea "leaves" and idea "coconuts"
     IntegrationTestEntity.insertLibrary(1, 1, "palm tree");
@@ -166,7 +166,7 @@ public class PhaseChordIT {
   }
 
   @Test
-  public void readAllAble_SeesNothingOutsideOfLibrary() throws Exception {
+  public void readAll_SeesNothingOutsideOfLibrary() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
       "roles", "artist",
       "accounts", "345"
@@ -209,7 +209,7 @@ public class PhaseChordIT {
   }
 
   @Test(expected = BusinessException.class)
-  public void update_FailsUpdatingToNonexistentIdea() throws Exception {
+  public void update_FailsUpdatingToNonexistentPhase() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
@@ -218,18 +218,22 @@ public class PhaseChordIT {
       .setPhaseChord(new PhaseChord()
         .setPosition(0.42)
         .setPhaseId(BigInteger.valueOf(57))
-        .setName("cannons")
+        .setName("D minor")
       );
 
-    testDAO.update(access, ULong.valueOf(3), inputDataWrapper);
+    try {
+      testDAO.update(access, ULong.valueOf(2), inputDataWrapper);
 
-    IdeaRecord updatedRecord = IntegrationTestService.getDb()
-      .selectFrom(IDEA)
-      .where(IDEA.ID.eq(ULong.valueOf(3)))
-      .fetchOne();
-    assertNotNull(updatedRecord);
-    assertEquals("cannons", updatedRecord.getName());
-    assertEquals(ULong.valueOf(2), updatedRecord.getLibraryId());
+    } catch (Exception e) {
+      PhaseChordRecord updatedRecord = IntegrationTestService.getDb()
+        .selectFrom(PHASE_CHORD)
+        .where(PHASE_CHORD.ID.eq(ULong.valueOf(2)))
+        .fetchOne();
+      assertNotNull(updatedRecord);
+      assertEquals("D major", updatedRecord.getName());
+      assertEquals(ULong.valueOf(2), updatedRecord.getPhaseId());
+      throw e;
+    }
   }
 
   @Test

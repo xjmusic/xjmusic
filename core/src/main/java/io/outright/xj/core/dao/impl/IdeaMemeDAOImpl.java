@@ -101,7 +101,7 @@ public class IdeaMemeDAOImpl extends DAOImpl implements IdeaMemeDAO {
     ULong ideaId = ULong.valueOf(data.getIdeaMeme().getIdeaId());
     String name = data.getIdeaMeme().getName();
 
-    if (access.isAdmin()) {
+    if (access.isTopLevel()) {
       requireRecordExists("Idea", db.select(IDEA.ID).from(IDEA)
         .where(IDEA.ID.eq(ideaId))
         .fetchOne());
@@ -143,7 +143,7 @@ public class IdeaMemeDAOImpl extends DAOImpl implements IdeaMemeDAO {
    * @return record
    */
   private JSONObject readOneAble(DSLContext db, AccessControl access, ULong id) throws SQLException {
-    if (access.isAdmin()) {
+    if (access.isTopLevel()) {
       return JSON.objectFromRecord(db.selectFrom(IDEA_MEME)
         .where(IDEA_MEME.ID.eq(id))
         .fetchOne());
@@ -167,7 +167,7 @@ public class IdeaMemeDAOImpl extends DAOImpl implements IdeaMemeDAO {
    * @throws SQLException if failure
    */
   private JSONArray readAllIn(DSLContext db, AccessControl access, ULong ideaId) throws SQLException {
-    if (access.isAdmin()) {
+    if (access.isTopLevel()) {
       return JSON.arrayFromResultSet(db.selectFrom(IDEA_MEME)
         .where(IDEA_MEME.IDEA_ID.eq(ideaId))
         .fetchResultSet());
@@ -191,7 +191,7 @@ public class IdeaMemeDAOImpl extends DAOImpl implements IdeaMemeDAO {
    */
   // TODO: fail if no ideaMeme is deleted
   private void delete(DSLContext db, AccessControl access, ULong id) throws BusinessException {
-    if (!access.isAdmin()) {
+    if (!access.isTopLevel()) {
       Record record = db.select(IDEA_MEME.ID).from(IDEA_MEME)
         .join(IDEA).on(IDEA.ID.eq(IDEA_MEME.IDEA_ID))
         .join(LIBRARY).on(IDEA.LIBRARY_ID.eq(LIBRARY.ID))

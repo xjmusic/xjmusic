@@ -4,7 +4,6 @@ package io.outright.xj.core.dao.impl;
 import io.outright.xj.core.app.access.AccessControl;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.app.exception.ConfigException;
-import io.outright.xj.core.app.exception.DatabaseException;
 import io.outright.xj.core.dao.AccountDAO;
 import io.outright.xj.core.db.sql.SQLConnection;
 import io.outright.xj.core.db.sql.SQLDatabaseProvider;
@@ -97,7 +96,7 @@ public class AccountDAOImpl extends DAOImpl implements AccountDAO {
    * @throws BusinessException if a business rule is violated
    */
   private JSONObject create(DSLContext db, AccessControl access, AccountWrapper data) throws BusinessException {
-    requireAdmin(access);
+    requireTopLevel(access);
     data.validate();
 
     AccountRecord record = db.newRecord(ACCOUNT);
@@ -116,7 +115,7 @@ public class AccountDAOImpl extends DAOImpl implements AccountDAO {
    * @return record
    */
   private JSONObject readOneAble(DSLContext db, AccessControl access, ULong id) throws SQLException {
-    if (access.isAdmin()) {
+    if (access.isTopLevel()) {
       return JSON.objectFromRecord(db.selectFrom(ACCOUNT)
         .where(ACCOUNT.ID.eq(id))
         .fetchOne());
@@ -138,7 +137,7 @@ public class AccountDAOImpl extends DAOImpl implements AccountDAO {
    * @throws SQLException on failure
    */
   private JSONArray readAllAble(DSLContext db, AccessControl access) throws SQLException {
-    if (access.isAdmin()) {
+    if (access.isTopLevel()) {
       return JSON.arrayFromResultSet(db.select(ACCOUNT.fields())
         .from(ACCOUNT)
         .fetchResultSet());
@@ -160,7 +159,7 @@ public class AccountDAOImpl extends DAOImpl implements AccountDAO {
    * @throws BusinessException if a business rule is violated
    */
   private void update(DSLContext db, AccessControl access, ULong id, AccountWrapper data) throws BusinessException {
-    requireAdmin(access);
+    requireTopLevel(access);
     data.validate();
 
     db.update(ACCOUNT)
@@ -179,7 +178,7 @@ public class AccountDAOImpl extends DAOImpl implements AccountDAO {
    * @throws BusinessException if fails business rule
    */
   private void delete(DSLContext db, AccessControl access, ULong accountId) throws Exception {
-    requireAdmin(access);
+    requireTopLevel(access);
 
     requireEmptyResultSet(db.select(LIBRARY.ID)
       .from(LIBRARY)

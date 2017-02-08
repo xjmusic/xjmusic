@@ -45,7 +45,7 @@ public class VoiceIT {
 
     // John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
     IntegrationTestEntity.insertUser(2, "john", "john@email.com", "http://pictures.com/john.gif");
-    IntegrationTestEntity.insertUserRole(2, Role.ADMIN);
+    IntegrationTestEntity.insertUserRole(1, 2, Role.ADMIN);
 
     // Library "palm tree" has idea "leaves" and idea "coconuts"
     IntegrationTestEntity.insertLibrary(1, 1, "palm tree");
@@ -58,7 +58,7 @@ public class VoiceIT {
     // Phase "Ants" has Voices "Head" and "Body"
     IntegrationTestEntity.insertVoice(1, 1, Voice.PERCUSSIVE, "This is a percussive voice");
     IntegrationTestEntity.insertVoice(2, 1, Voice.MELODIC, "This is melodious");
-    IntegrationTestEntity.insertVoice(3, 1, Voice.HARMONIC, "This is a harmonic voice");
+    IntegrationTestEntity.insertVoice(3, 1, Voice.HARMONIC, "This is harmonious");
     IntegrationTestEntity.insertVoice(4, 1, Voice.VOCAL, "This is a vocal voice");
 
     // Instantiate the test subject
@@ -167,13 +167,13 @@ public class VoiceIT {
     JSONObject actualResult2 = (JSONObject) actualResultList.get(1);
     assertEquals("This is melodious", actualResult2.get("description"));
     JSONObject actualResult3 = (JSONObject) actualResultList.get(2);
-    assertEquals("This is a harmonic voice", actualResult3.get("description"));
+    assertEquals("This is harmonious", actualResult3.get("description"));
     JSONObject actualResult4 = (JSONObject) actualResultList.get(3);
     assertEquals("This is a vocal voice", actualResult4.get("description"));
   }
 
   @Test
-  public void readAllAble_SeesNothingOutsideOfLibrary() throws Exception {
+  public void readAll_SeesNothingOutsideOfLibrary() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
       "roles", "artist",
       "accounts", "345"
@@ -224,19 +224,24 @@ public class VoiceIT {
     VoiceWrapper inputDataWrapper = new VoiceWrapper()
       .setVoice(new Voice()
         .setPhaseId(BigInteger.valueOf(7))
-        .setType(Voice.HARMONIC)
-        .setDescription("This is harmonious")
+        .setType(Voice.MELODIC)
+        .setDescription("This is melodious")
       );
 
-    testDAO.update(access, ULong.valueOf(3), inputDataWrapper);
+    try {
+      testDAO.update(access, ULong.valueOf(3), inputDataWrapper);
 
-    IdeaRecord updatedRecord = IntegrationTestService.getDb()
-      .selectFrom(IDEA)
-      .where(IDEA.ID.eq(ULong.valueOf(3)))
-      .fetchOne();
-    assertNotNull(updatedRecord);
-    assertEquals("cannons", updatedRecord.getName());
-    assertEquals(ULong.valueOf(2), updatedRecord.getLibraryId());
+    } catch (Exception e) {
+      VoiceRecord updatedRecord = IntegrationTestService.getDb()
+        .selectFrom(VOICE)
+        .where(VOICE.ID.eq(ULong.valueOf(3)))
+        .fetchOne();
+      assertNotNull(updatedRecord);
+      assertEquals(Voice.HARMONIC, updatedRecord.getType());
+      assertEquals("This is harmonious", updatedRecord.getDescription());
+      assertEquals(ULong.valueOf(1), updatedRecord.getPhaseId());
+      throw e;
+    }
   }
 
   @Test
@@ -249,7 +254,7 @@ public class VoiceIT {
       .setVoice(new Voice()
         .setPhaseId(BigInteger.valueOf(1))
         .setType(Voice.MELODIC)
-        .setDescription("This is melodic; Yoza!")
+        .setDescription("This is melodious; Yoza!")
       );
 
     testDAO.update(access, ULong.valueOf(1), inputDataWrapper);
@@ -259,7 +264,7 @@ public class VoiceIT {
       .where(VOICE.ID.eq(ULong.valueOf(1)))
       .fetchOne();
     assertNotNull(updatedRecord);
-    assertEquals("This is melodic; Yoza!", updatedRecord.getDescription());
+    assertEquals("This is melodious; Yoza!", updatedRecord.getDescription());
     assertEquals(Voice.MELODIC, updatedRecord.getType());
     assertEquals(ULong.valueOf(1), updatedRecord.getPhaseId());
   }

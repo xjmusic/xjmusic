@@ -43,7 +43,7 @@ public class Library {
    */
   void validate() throws BusinessException {
     if (this.name == null || this.name.length() == 0) {
-      throw new BusinessException("Library name is required.");
+      throw new BusinessException("Name is required.");
     }
     if (this.accountId == null) {
       throw new BusinessException("Account ID is required.");

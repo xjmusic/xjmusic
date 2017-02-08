@@ -108,7 +108,7 @@ public class AudioEventDAOImpl extends DAOImpl implements AudioEventDAO {
     data.validate();
     data.getAudioEvent().intoFieldValueMap().forEach(record::setValue);
 
-    if (access.isAdmin()) {
+    if (access.isTopLevel()) {
       requireRecordExists("Audio", db.select(AUDIO.ID).from(AUDIO)
         .where(AUDIO.ID.eq(data.getAudioEvent().getAudioId()))
         .fetchOne());
@@ -135,7 +135,7 @@ public class AudioEventDAOImpl extends DAOImpl implements AudioEventDAO {
    */
   private JSONObject readOne(DSLContext db, AccessControl access, ULong id) {
     JSONObject result;
-    if (access.isAdmin()) {
+    if (access.isTopLevel()) {
       result = JSON.objectFromRecord(db.selectFrom(AUDIO_EVENT)
         .where(AUDIO_EVENT.ID.eq(id))
         .fetchOne());
@@ -163,7 +163,7 @@ public class AudioEventDAOImpl extends DAOImpl implements AudioEventDAO {
    */
   private JSONArray readAllIn(DSLContext db, AccessControl access, ULong audioId) throws SQLException {
     JSONArray result;
-    if (access.isAdmin()) {
+    if (access.isTopLevel()) {
       result = JSON.arrayFromResultSet(db.select(AUDIO_EVENT.fields())
         .from(AUDIO_EVENT)
         .where(AUDIO_EVENT.AUDIO_ID.eq(audioId))
@@ -200,7 +200,7 @@ public class AudioEventDAOImpl extends DAOImpl implements AudioEventDAO {
     data.validate();
     data.getAudioEvent().intoFieldValueMap().forEach(record::setValue);
 
-    if (access.isAdmin()) {
+    if (access.isTopLevel()) {
       requireRecordExists("Audio", db.select(AUDIO.ID).from(AUDIO)
         .where(AUDIO.ID.eq(data.getAudioEvent().getAudioId()))
         .fetchOne());
@@ -228,7 +228,7 @@ public class AudioEventDAOImpl extends DAOImpl implements AudioEventDAO {
    * @throws BusinessException if fails business rule
    */
   private void delete(AccessControl access, DSLContext db, ULong id) throws Exception {
-    if (!access.isAdmin()) {
+    if (!access.isTopLevel()) {
       Record record = db.select(AUDIO_EVENT.ID).from(AUDIO_EVENT)
         .join(Audio.AUDIO).on(Audio.AUDIO.ID.eq(AUDIO_EVENT.AUDIO_ID))
         .join(INSTRUMENT).on(INSTRUMENT.ID.eq(AUDIO.INSTRUMENT_ID))

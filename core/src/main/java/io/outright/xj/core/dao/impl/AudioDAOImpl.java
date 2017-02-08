@@ -106,7 +106,7 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
     data.validate();
     data.getAudio().intoFieldValueMap().forEach(record::setValue);
 
-    if (access.isAdmin()) {
+    if (access.isTopLevel()) {
       // Admin can create audio in any existing instrument
       requireRecordExists("Instrument", db.select(INSTRUMENT.ID).from(INSTRUMENT)
         .where(INSTRUMENT.ID.eq(data.getAudio().getInstrumentId()))
@@ -134,7 +134,7 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
    */
   private JSONObject readOne(DSLContext db, AccessControl access, ULong id) {
     JSONObject result;
-    if (access.isAdmin()) {
+    if (access.isTopLevel()) {
       result = JSON.objectFromRecord(db.selectFrom(AUDIO)
         .where(AUDIO.ID.eq(id))
         .fetchOne());
@@ -161,7 +161,7 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
    */
   private JSONArray readAllIn(DSLContext db, AccessControl access, ULong instrumentId) throws SQLException {
     JSONArray result;
-    if (access.isAdmin()) {
+    if (access.isTopLevel()) {
       result = JSON.arrayFromResultSet(db.select(AUDIO.fields())
         .from(AUDIO)
         .where(AUDIO.INSTRUMENT_ID.eq(instrumentId))
@@ -193,7 +193,7 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
       .where(AUDIO_EVENT.AUDIO_ID.eq(id))
       .fetchResultSet());
 
-    if (!access.isAdmin()) {
+    if (!access.isTopLevel()) {
       requireRecordExists("Audio", db.select(AUDIO.ID).from(AUDIO)
         .join(INSTRUMENT).on(INSTRUMENT.ID.eq(AUDIO.INSTRUMENT_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
@@ -229,7 +229,7 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
     data.validate();
     data.getAudio().intoFieldValueMap().forEach(record::setValue);
 
-    if (access.isAdmin()) {
+    if (access.isTopLevel()) {
       // Admin can create audio in any existing instrument
       requireRecordExists("Instrument", db.select(INSTRUMENT.ID).from(INSTRUMENT)
         .where(INSTRUMENT.ID.eq(record.getInstrumentId()))

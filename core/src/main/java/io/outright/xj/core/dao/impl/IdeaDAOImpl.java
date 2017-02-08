@@ -107,7 +107,7 @@ public class IdeaDAOImpl extends DAOImpl implements IdeaDAO {
     record = db.newRecord(IDEA);
     data.validate();
     data.getIdea().intoFieldValueMap().forEach(record::setValue);
-    if (access.isAdmin()) {
+    if (access.isTopLevel()) {
       // Admin can create idea in any existing library, with any user.
       requireRecordExists("Library",
         db.select(LIBRARY.ID).from(LIBRARY)
@@ -137,7 +137,7 @@ public class IdeaDAOImpl extends DAOImpl implements IdeaDAO {
    */
   @Nullable
   private JSONObject readOne(DSLContext db, AccessControl access, ULong id) {
-    if (access.isAdmin()) {
+    if (access.isTopLevel()) {
       return JSON.objectFromRecord(db.selectFrom(IDEA)
         .where(IDEA.ID.eq(id))
         .fetchOne());
@@ -159,7 +159,7 @@ public class IdeaDAOImpl extends DAOImpl implements IdeaDAO {
    * @return array of records
    */
   private JSONArray readAllIn(DSLContext db, AccessControl access, ULong libraryId) throws SQLException {
-    if (access.isAdmin()) {
+    if (access.isTopLevel()) {
       return JSON.arrayFromResultSet(db.select(IDEA.fields())
         .from(IDEA)
         .where(IDEA.LIBRARY_ID.eq(libraryId))
@@ -191,7 +191,7 @@ public class IdeaDAOImpl extends DAOImpl implements IdeaDAO {
     record.setId(id);
     data.getIdea().intoFieldValueMap().forEach(record::setValue);
 
-    if (access.isAdmin()) {
+    if (access.isTopLevel()) {
       // Admin can create idea in any existing library, with any user.
       requireRecordExists("Library",
         db.select(LIBRARY.ID).from(LIBRARY)
@@ -222,7 +222,7 @@ public class IdeaDAOImpl extends DAOImpl implements IdeaDAO {
    * @throws BusinessException if fails business rule
    */
   private void delete(DSLContext db, AccessControl access, ULong id) throws Exception {
-    if (!access.isAdmin()) {
+    if (!access.isTopLevel()) {
       Record record = db.select(IDEA.fields()).from(IDEA)
         .join(LIBRARY).on(IDEA.LIBRARY_ID.eq(LIBRARY.ID))
         .where(IDEA.ID.eq(id))
