@@ -4,8 +4,6 @@ package io.outright.xj.core.model.account;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.model.EntityWrapper;
 
-import org.jooq.Record;
-
 public class AccountWrapper extends EntityWrapper {
 
   // Account
@@ -25,11 +23,12 @@ public class AccountWrapper extends EntityWrapper {
    *
    * @throws BusinessException if invalid.
    */
-  public void validate() throws BusinessException {
+  public Account validate() throws BusinessException {
     if (this.account == null) {
       throw new BusinessException("Account is required.");
     }
     this.account.validate();
+    return this.account;
   }
 
   @Override
@@ -37,9 +36,5 @@ public class AccountWrapper extends EntityWrapper {
     return "{" +
       Account.KEY_ONE + ":" + this.account +
       "}";
-  }
-
-  public Record intoRecord() {
-    return null;
   }
 }

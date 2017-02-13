@@ -4,21 +4,25 @@ package io.outright.xj.core.dao.impl;
 import io.outright.xj.core.app.access.AccessControl;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.app.exception.ConfigException;
+import io.outright.xj.core.app.exception.DatabaseException;
 import io.outright.xj.core.dao.LibraryDAO;
 import io.outright.xj.core.db.sql.SQLConnection;
 import io.outright.xj.core.db.sql.SQLDatabaseProvider;
+import io.outright.xj.core.model.library.Library;
 import io.outright.xj.core.model.library.LibraryWrapper;
 import io.outright.xj.core.tables.records.LibraryRecord;
 import io.outright.xj.core.transport.JSON;
 
 import com.google.inject.Inject;
 import org.jooq.DSLContext;
+import org.jooq.Field;
 import org.jooq.types.ULong;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.annotation.Nullable;
 import java.sql.SQLException;
+import java.util.Map;
 
 import static io.outright.xj.core.Tables.IDEA;
 import static io.outright.xj.core.Tables.LIBRARY;
@@ -26,7 +30,6 @@ import static io.outright.xj.core.tables.Account.ACCOUNT;
 import static io.outright.xj.core.tables.Instrument.INSTRUMENT;
 
 public class LibraryDAOImpl extends DAOImpl implements LibraryDAO {
-  //  private static Logger log = LoggerFactory.getLogger(LibraryDAOImpl.class);
 
   @Inject
   public LibraryDAOImpl(
@@ -99,15 +102,12 @@ public class LibraryDAOImpl extends DAOImpl implements LibraryDAO {
    * @throws BusinessException if a Business Rule is violated
    */
   private JSONObject create(DSLContext db, AccessControl access, LibraryWrapper data) throws BusinessException {
-    LibraryRecord record = db.newRecord(LIBRARY);
-    data.validate();
-    data.getLibrary().intoFieldValueMap().forEach(record::setValue);
+    Library model = data.validate();
+    Map<Field, Object> fieldValues = model.intoFieldValueMap();
 
     requireTopLevel(access);
 
-    record.store();
-
-    return JSON.objectFromRecord(record);
+    return JSON.objectFromRecord(executeCreate(db, LIBRARY, fieldValues));
   }
 
   /**
@@ -164,21 +164,21 @@ public class LibraryDAOImpl extends DAOImpl implements LibraryDAO {
    * @param data   to update with
    * @throws BusinessException if a Business Rule is violated
    */
-  private void update(DSLContext db, AccessControl access, ULong id, LibraryWrapper data) throws BusinessException {
-    data.validate();
+  private void update(DSLContext db, AccessControl access, ULong id, LibraryWrapper data) throws BusinessException, DatabaseException {
+    Library model = data.validate();
+    Map<Field, Object> fieldValues = model.intoFieldValueMap();
+    fieldValues.put(LIBRARY.ID, id);
 
     requireTopLevel(access);
 
     requireRecordExists("Account",
       db.selectFrom(ACCOUNT)
-        .where(ACCOUNT.ID.eq(data.getLibrary().getAccountId()))
+        .where(ACCOUNT.ID.eq(model.getAccountId()))
         .fetchOne());
 
-    db.update(LIBRARY)
-      .set(LIBRARY.NAME, data.getLibrary().getName())
-      .set(LIBRARY.ACCOUNT_ID, data.getLibrary().getAccountId())
-      .where(LIBRARY.ID.eq(id))
-      .execute();
+    if (executeUpdate(db, LIBRARY, fieldValues) == 0) {
+      throw new BusinessException("No records updated.");
+    }
   }
 
   /**

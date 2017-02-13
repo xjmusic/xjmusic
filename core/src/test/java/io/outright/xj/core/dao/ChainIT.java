@@ -40,8 +40,8 @@ public class ChainIT {
 
     // Account "fish" has chain "school" and chain "bucket"
     IntegrationTestEntity.insertAccount(1, "fish");
-    IntegrationTestEntity.insertChain(1, 1, "school", Chain.READY, Timestamp.valueOf("2014-08-12 12:17:02.52714"), Timestamp.valueOf("2014-09-11 12:17:01.0475"));
-    IntegrationTestEntity.insertChain(2, 1, "bucket", Chain.PRODUCTION, Timestamp.valueOf("2015-05-10 12:17:02.52714"), Timestamp.valueOf("2015-06-09 12:17:01.0475"));
+    IntegrationTestEntity.insertChain(1, 1, "school", Chain.READY, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"));
+    IntegrationTestEntity.insertChain(2, 1, "bucket", Chain.PRODUCTION, Timestamp.valueOf("2015-05-10 12:17:02.527142"), Timestamp.valueOf("2015-06-09 12:17:01.047563"));
 
     // Account "boat" has no chains
     IntegrationTestEntity.insertAccount(2, "boat");
@@ -65,8 +65,8 @@ public class ChainIT {
         .setAccountId(BigInteger.valueOf(1))
         .setName("manuts")
         .setState(Chain.DRAFT)
-        .setStartAt("2009-08-12 12:17:02.52714")
-        .setStopAt("2009-09-11 12:17:01.0475")
+        .setStartAt("2009-08-12 12:17:02.527142")
+        .setStopAt("2009-09-11 12:17:01.047563")
       );
 
     JSONObject actualResult = testDAO.create(access, inputDataWrapper);
@@ -75,8 +75,8 @@ public class ChainIT {
     assertEquals(ULong.valueOf(1), actualResult.get("accountId"));
     assertEquals("manuts", actualResult.get("name"));
     assertEquals(Chain.DRAFT, actualResult.get("state"));
-    assertEquals(Timestamp.valueOf("2009-08-12 12:17:02.52714"), actualResult.get("startAt"));
-    assertEquals(Timestamp.valueOf("2009-09-11 12:17:01.0475"), actualResult.get("stopAt"));
+    assertEquals(Timestamp.valueOf("2009-08-12 12:17:02.527142"), actualResult.get("startAt"));
+    assertEquals(Timestamp.valueOf("2009-09-11 12:17:01.047563"), actualResult.get("stopAt"));
   }
 
   @Test(expected = BusinessException.class)
@@ -88,8 +88,8 @@ public class ChainIT {
       .setChain(new Chain()
         .setName("manuts")
         .setState(Chain.DRAFT)
-        .setStartAt("2009-08-12 12:17:02.52714")
-        .setStopAt("2009-09-11 12:17:01.0475")
+        .setStartAt("2009-08-12 12:17:02.527142")
+        .setStopAt("2009-09-11 12:17:01.047563")
       );
 
     testDAO.create(access, inputDataWrapper);
@@ -105,8 +105,8 @@ public class ChainIT {
         .setAccountId(BigInteger.valueOf(1))
         .setName("manuts")
         .setState("bullshit state")
-        .setStartAt("2009-08-12 12:17:02.52714")
-        .setStopAt("2009-09-11 12:17:01.0475")
+        .setStartAt("2009-08-12 12:17:02.527142")
+        .setStopAt("2009-09-11 12:17:01.047563")
       );
 
     testDAO.create(access, inputDataWrapper);
@@ -126,8 +126,8 @@ public class ChainIT {
     assertEquals(ULong.valueOf(1), actualResult.get("accountId"));
     assertEquals("bucket", actualResult.get("name"));
     assertEquals(Chain.PRODUCTION, actualResult.get("state"));
-    assertEquals(Timestamp.valueOf("2015-05-10 12:17:03.0"), actualResult.get("startAt"));
-    assertEquals(Timestamp.valueOf("2015-06-09 12:17:01.0"), actualResult.get("stopAt"));
+    assertEquals(Timestamp.valueOf("2015-05-10 12:17:02.527142"), actualResult.get("startAt"));
+    assertEquals(Timestamp.valueOf("2015-06-09 12:17:01.047563"), actualResult.get("stopAt"));
   }
 
   @Test
@@ -181,8 +181,8 @@ public class ChainIT {
       .setChain(new Chain()
         .setName("manuts")
         .setState(Chain.DRAFT)
-        .setStartAt("2009-08-12 12:17:02.52714")
-        .setStopAt("2009-09-11 12:17:01.0475")
+        .setStartAt("2009-08-12 12:17:02.527142")
+        .setStopAt("2009-09-11 12:17:01.047563")
       );
 
     testDAO.update(access, ULong.valueOf(2), inputDataWrapper);
@@ -197,8 +197,8 @@ public class ChainIT {
       .setChain(new Chain()
         .setAccountId(BigInteger.valueOf(1))
         .setState(Chain.DRAFT)
-        .setStartAt("2009-08-12 12:17:02.52714")
-        .setStopAt("2009-09-11 12:17:01.0475")
+        .setStartAt("2009-08-12 12:17:02.527142")
+        .setStopAt("2009-09-11 12:17:01.047563")
       );
 
     testDAO.update(access, ULong.valueOf(2), inputDataWrapper);
@@ -214,8 +214,8 @@ public class ChainIT {
         .setAccountId(BigInteger.valueOf(75))
         .setName("manuts")
         .setState(Chain.DRAFT)
-        .setStartAt("2009-08-12 12:17:02.52714")
-        .setStopAt("2009-09-11 12:17:01.0475")
+        .setStartAt("2009-08-12 12:17:02.527142")
+        .setStopAt("2009-09-11 12:17:01.047563")
       );
 
     try {
@@ -243,8 +243,8 @@ public class ChainIT {
         .setAccountId(BigInteger.valueOf(1))
         .setName("manuts")
         .setState(Chain.COMPLETE)
-        .setStartAt("2009-08-12 12:17:02.52714")
-        .setStopAt("2009-09-11 12:17:01.0475")
+        .setStartAt("2009-08-12 12:17:02.687327")
+        .setStopAt("2009-09-11 12:17:01.989941")
       );
 
     testDAO.update(access, ULong.valueOf(2), inputDataWrapper);
@@ -256,6 +256,9 @@ public class ChainIT {
     assertNotNull(updatedRecord);
     assertEquals("manuts", updatedRecord.getName());
     assertEquals(ULong.valueOf(1), updatedRecord.getAccountId());
+    assertEquals(Chain.COMPLETE, updatedRecord.getState());
+    assertEquals(Timestamp.valueOf("2009-08-12 12:17:02.687327"), updatedRecord.getStartAt());
+    assertEquals(Timestamp.valueOf("2009-09-11 12:17:01.989941"), updatedRecord.getStopAt());
   }
 
   @Test
@@ -284,7 +287,7 @@ public class ChainIT {
     try {
       testDAO.delete(access, ULong.valueOf(1));
 
-    } catch (Exception e){
+    } catch (Exception e) {
       ChainRecord stillExistingRecord = IntegrationTestService.getDb()
         .selectFrom(CHAIN)
         .where(CHAIN.ID.eq(ULong.valueOf(1)))

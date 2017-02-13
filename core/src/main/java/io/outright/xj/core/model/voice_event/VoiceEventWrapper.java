@@ -20,11 +20,12 @@ public class VoiceEventWrapper extends EntityWrapper {
    * Validate data.
    * @throws BusinessException if invalid.
    */
-  public void validate() throws BusinessException{
+  public VoiceEvent validate() throws BusinessException{
     if (this.voiceEvent == null) {
       throw new BusinessException("voiceEvent is required.");
     }
     this.voiceEvent.validate();
+    return this.voiceEvent;
   }
 
   @Override

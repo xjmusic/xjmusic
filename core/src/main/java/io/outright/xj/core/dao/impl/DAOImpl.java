@@ -6,13 +6,66 @@ import io.outright.xj.core.app.exception.DatabaseException;
 import io.outright.xj.core.db.sql.SQLDatabaseProvider;
 import io.outright.xj.core.util.CamelCasify;
 
+import org.jooq.DSLContext;
+import org.jooq.Field;
 import org.jooq.Record;
+import org.jooq.Table;
+import org.jooq.UpdatableRecord;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Map;
 
 public class DAOImpl {
+  private static Logger log = LoggerFactory.getLogger(DAOImpl.class);
   SQLDatabaseProvider dbProvider;
+
+  /**
+   * Execute a database CREATE operation
+   *
+   * @param db            context
+   * @param table         to create
+   * @param fieldValueMap of fields to create, and values to create with
+   * @param <R>           record type dynamic
+   * @return record
+   */
+  <R extends UpdatableRecord<R>> R executeCreate(DSLContext db, Table<R> table, Map<Field, Object> fieldValueMap) throws BusinessException {
+    R record = db.newRecord(table);
+    fieldValueMap.forEach(record::setValue);
+
+    try {
+      record.store();
+    } catch (Exception e) {
+      log.warn("Database CREATE operation", e);
+      throw new BusinessException("Cannot create record.");
+    }
+
+    return record;
+  }
+
+  /**
+   * Execute a database UPDATE operation
+   *
+   * @param db            context
+   * @param table         to update
+   * @param fieldValueMap of fields to update, and values to update with
+   * @param <R>           record type dynamic
+   * @return record
+   */
+  <R extends UpdatableRecord<R>> int executeUpdate(DSLContext db, Table<R> table, Map<Field, Object> fieldValueMap) throws BusinessException {
+    R record = db.newRecord(table);
+    fieldValueMap.forEach(record::setValue);
+
+    try {
+      return db.executeUpdate(record);
+    } catch (Exception e) {
+      log.warn("Database UPDATE operation", e);
+      throw new BusinessException("Cannot update record.");
+    }
+  }
 
   /**
    * Require empty ResultSet

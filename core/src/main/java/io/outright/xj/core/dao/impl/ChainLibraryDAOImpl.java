@@ -7,28 +7,27 @@ import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.dao.ChainLibraryDAO;
 import io.outright.xj.core.db.sql.SQLConnection;
 import io.outright.xj.core.db.sql.SQLDatabaseProvider;
+import io.outright.xj.core.model.chain_library.ChainLibrary;
 import io.outright.xj.core.model.chain_library.ChainLibraryWrapper;
-import io.outright.xj.core.tables.records.ChainLibraryRecord;
 import io.outright.xj.core.transport.JSON;
 
 import org.jooq.DSLContext;
+import org.jooq.Field;
 import org.jooq.types.ULong;
 
 import com.google.inject.Inject;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
+import java.util.Map;
 
 import static io.outright.xj.core.tables.Chain.CHAIN;
 import static io.outright.xj.core.tables.ChainLibrary.CHAIN_LIBRARY;
 import static io.outright.xj.core.tables.Library.LIBRARY;
 
 public class ChainLibraryDAOImpl extends DAOImpl implements ChainLibraryDAO {
-  private static Logger log = LoggerFactory.getLogger(ChainLibraryDAOImpl.class);
 
   @Inject
   public ChainLibraryDAOImpl(
@@ -89,45 +88,35 @@ public class ChainLibraryDAOImpl extends DAOImpl implements ChainLibraryDAO {
    * @throws BusinessException if fails business rule
    */
   private JSONObject create(DSLContext db, AccessControl access, ChainLibraryWrapper data) throws Exception {
-    ChainLibraryRecord record = db.newRecord(CHAIN_LIBRARY);
-    data.validate();
-    data.getChainLibrary().intoFieldValueMap().forEach(record::setValue);
-    ULong chainId = data.getChainLibrary().getChainId();
-    ULong libraryId = data.getChainLibrary().getLibraryId();
+    ChainLibrary model = data.validate();
+    Map<Field, Object> fieldValues = model.intoFieldValueMap();
 
     if (access.isTopLevel()) {
       requireRecordExists("Chain", db.select(CHAIN.ID).from(CHAIN)
-        .where(CHAIN.ID.eq(chainId))
+        .where(CHAIN.ID.eq(model.getChainId()))
         .fetchOne());
       requireRecordExists("Library", db.select(LIBRARY.ID).from(LIBRARY)
-        .where(LIBRARY.ID.eq(libraryId))
+        .where(LIBRARY.ID.eq(model.getLibraryId()))
         .fetchOne());
     } else {
       requireRecordExists("Chain", db.select(CHAIN.ID).from(CHAIN)
         .where(CHAIN.ACCOUNT_ID.in(access.getAccounts()))
-        .and(CHAIN.ID.eq(chainId))
+        .and(CHAIN.ID.eq(model.getChainId()))
         .fetchOne());
       requireRecordExists("Library", db.select(LIBRARY.ID).from(LIBRARY)
         .where(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-        .and(LIBRARY.ID.eq(libraryId))
+        .and(LIBRARY.ID.eq(model.getLibraryId()))
         .fetchOne());
     }
 
     if (db.selectFrom(CHAIN_LIBRARY)
-      .where(CHAIN_LIBRARY.CHAIN_ID.eq(chainId))
-      .and(CHAIN_LIBRARY.LIBRARY_ID.eq(libraryId))
+      .where(CHAIN_LIBRARY.CHAIN_ID.eq(model.getChainId()))
+      .and(CHAIN_LIBRARY.LIBRARY_ID.eq(model.getLibraryId()))
       .fetchOne() != null) {
       throw new BusinessException("Chain Library already exists!");
     }
 
-    try {
-      record.store();
-    } catch (Exception e) {
-      log.warn("Cannot create ChainLibrary", e.getMessage());
-      throw new BusinessException("Cannot create Chain Library.");
-    }
-
-    return JSON.objectFromRecord(record);
+    return JSON.objectFromRecord(executeCreate(db, CHAIN_LIBRARY, fieldValues));
   }
 
   /**

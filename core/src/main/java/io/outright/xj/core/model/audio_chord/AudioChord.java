@@ -2,17 +2,19 @@
 package io.outright.xj.core.model.audio_chord;
 
 import io.outright.xj.core.app.exception.BusinessException;
+import io.outright.xj.core.model.Entity;
 
-import com.google.common.collect.ImmutableMap;
 import org.jooq.Field;
 import org.jooq.types.ULong;
+
+import com.google.api.client.util.Maps;
 
 import java.math.BigInteger;
 import java.util.Map;
 
 import static io.outright.xj.core.Tables.AUDIO_CHORD;
 
-public class AudioChord {
+public class AudioChord extends Entity {
 
   /**
    * Name
@@ -61,7 +63,7 @@ public class AudioChord {
    *
    * @throws BusinessException if invalid.
    */
-  void validate() throws BusinessException {
+  public void validate() throws BusinessException {
     if (this.name == null || this.name.length() == 0) {
       throw new BusinessException("Name is required.");
     }
@@ -79,11 +81,11 @@ public class AudioChord {
    * @return map
    */
   public Map<Field, Object> intoFieldValueMap() {
-    return new ImmutableMap.Builder<Field, Object>()
-      .put(AUDIO_CHORD.NAME, name)
-      .put(AUDIO_CHORD.AUDIO_ID, audioId)
-      .put(AUDIO_CHORD.POSITION, position)
-      .build();
+    Map<Field, Object> fieldValues = Maps.newHashMap();
+    fieldValues.put(AUDIO_CHORD.NAME, name);
+    fieldValues.put(AUDIO_CHORD.AUDIO_ID, audioId);
+    fieldValues.put(AUDIO_CHORD.POSITION, position);
+    return fieldValues;
   }
 
   @Override

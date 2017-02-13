@@ -4,22 +4,25 @@ package io.outright.xj.core.dao.impl;
 import io.outright.xj.core.app.access.AccessControl;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.app.exception.ConfigException;
-import io.outright.xj.core.app.exception.DatabaseException;
 import io.outright.xj.core.dao.PhaseDAO;
 import io.outright.xj.core.db.sql.SQLConnection;
 import io.outright.xj.core.db.sql.SQLDatabaseProvider;
+import io.outright.xj.core.model.phase.Phase;
 import io.outright.xj.core.model.phase.PhaseWrapper;
-import io.outright.xj.core.tables.records.PhaseRecord;
 import io.outright.xj.core.transport.JSON;
 
-import com.google.inject.Inject;
 import org.jooq.DSLContext;
+import org.jooq.Field;
 import org.jooq.types.ULong;
+
+import com.google.inject.Inject;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.annotation.Nullable;
 import java.sql.SQLException;
+import java.util.Map;
 
 import static io.outright.xj.core.Tables.PHASE_MEME;
 import static io.outright.xj.core.tables.Idea.IDEA;
@@ -29,7 +32,6 @@ import static io.outright.xj.core.tables.PhaseChord.PHASE_CHORD;
 import static io.outright.xj.core.tables.Voice.VOICE;
 
 public class PhaseDAOImpl extends DAOImpl implements PhaseDAO {
-  //  private static Logger log = LoggerFactory.getLogger(PhaseDAOImpl.class);
 
   @Inject
   public PhaseDAOImpl(
@@ -101,26 +103,22 @@ public class PhaseDAOImpl extends DAOImpl implements PhaseDAO {
    * @throws BusinessException if failure
    */
   private JSONObject create(DSLContext db, AccessControl access, PhaseWrapper data) throws BusinessException {
-    PhaseRecord record = db.newRecord(PHASE);
-    data.validate();
-    data.getPhase().intoFieldValueMap().forEach(record::setValue);
+    Phase model = data.validate();
+    Map<Field, Object> fieldValues = model.intoFieldValueMap();
 
     if (access.isTopLevel()) {
-      // Admin can create phase in any existing idea
       requireRecordExists("Idea", db.select(IDEA.ID).from(IDEA)
-        .where(IDEA.ID.eq(data.getPhase().getIdeaId()))
+        .where(IDEA.ID.eq(model.getIdeaId()))
         .fetchOne());
     } else {
-      // Not admin, must have account access
       requireRecordExists("Idea", db.select(IDEA.ID).from(IDEA)
         .join(LIBRARY).on(LIBRARY.ID.eq(IDEA.LIBRARY_ID))
         .where(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-        .and(IDEA.ID.eq(data.getPhase().getIdeaId()))
+        .and(IDEA.ID.eq(model.getIdeaId()))
         .fetchOne());
     }
 
-    record.store();
-    return JSON.objectFromRecord(record);
+    return JSON.objectFromRecord(executeCreate(db, PHASE, fieldValues));
   }
 
   /**
@@ -131,13 +129,12 @@ public class PhaseDAOImpl extends DAOImpl implements PhaseDAO {
    * @return phase
    */
   private JSONObject readOne(DSLContext db, AccessControl access, ULong id) {
-    JSONObject result;
     if (access.isTopLevel()) {
-      result = JSON.objectFromRecord(db.selectFrom(PHASE)
+      return JSON.objectFromRecord(db.selectFrom(PHASE)
         .where(PHASE.ID.eq(id))
         .fetchOne());
     } else {
-      result = JSON.objectFromRecord(db.select(PHASE.fields())
+      return JSON.objectFromRecord(db.select(PHASE.fields())
         .from(PHASE)
         .join(IDEA).on(IDEA.ID.eq(PHASE.IDEA_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(IDEA.LIBRARY_ID))
@@ -145,7 +142,6 @@ public class PhaseDAOImpl extends DAOImpl implements PhaseDAO {
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .fetchOne());
     }
-    return result;
   }
 
   /**
@@ -173,6 +169,36 @@ public class PhaseDAOImpl extends DAOImpl implements PhaseDAO {
         .fetchResultSet());
     }
     return result;
+  }
+
+  /**
+   * Update a Phase record
+   * @param db context
+   * @param access control
+   * @param id to update
+   * @param data to update with
+   * @throws BusinessException if failure
+   */
+  private void update(DSLContext db, AccessControl access, ULong id, PhaseWrapper data) throws Exception {
+    Phase model = data.validate();
+    Map<Field, Object> fieldValues = model.intoFieldValueMap();
+    fieldValues.put(PHASE.ID, id);
+
+    if (access.isTopLevel()) {
+      requireRecordExists("Idea",db.select(IDEA.ID).from(IDEA)
+        .where(IDEA.ID.eq(model.getIdeaId()))
+        .fetchOne());
+    } else {
+      requireRecordExists("Idea", db.select(IDEA.ID).from(IDEA)
+        .join(LIBRARY).on(LIBRARY.ID.eq(IDEA.LIBRARY_ID))
+        .where(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
+        .and(IDEA.ID.eq(model.getIdeaId()))
+        .fetchOne());
+    }
+
+    if (executeUpdate(db, PHASE, fieldValues) == 0) {
+      throw new BusinessException("No records updated.");
+    }
   }
 
   /**
@@ -229,38 +255,4 @@ public class PhaseDAOImpl extends DAOImpl implements PhaseDAO {
       .execute();
   }
 
-  /**
-   * Update a Phase record
-   * @param db context
-   * @param access control
-   * @param id to update
-   * @param data to update with
-   * @throws BusinessException if failure
-   */
-  private void update(DSLContext db, AccessControl access, ULong id, PhaseWrapper data) throws Exception {
-    PhaseRecord record;
-
-    record = db.newRecord(PHASE);
-    record.setId(id);
-    data.validate();
-    data.getPhase().intoFieldValueMap().forEach(record::setValue);
-
-    if (access.isTopLevel()) {
-      // Admin can create phase in any existing idea
-      requireRecordExists("Idea",db.select(IDEA.ID).from(IDEA)
-        .where(IDEA.ID.eq(data.getPhase().getIdeaId()))
-        .fetchOne());
-    } else {
-      // Not admin, must have account access
-      requireRecordExists("Idea", db.select(IDEA.ID).from(IDEA)
-        .join(LIBRARY).on(LIBRARY.ID.eq(IDEA.LIBRARY_ID))
-        .where(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-        .and(IDEA.ID.eq(data.getPhase().getIdeaId()))
-        .fetchOne());
-    }
-
-    if (db.executeUpdate(record)==0) {
-      throw new DatabaseException("No records updated.");
-    }
-  }
 }

@@ -7,20 +7,22 @@ import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.dao.PhaseMemeDAO;
 import io.outright.xj.core.db.sql.SQLConnection;
 import io.outright.xj.core.db.sql.SQLDatabaseProvider;
+import io.outright.xj.core.model.phase_meme.PhaseMeme;
 import io.outright.xj.core.model.phase_meme.PhaseMemeWrapper;
-import io.outright.xj.core.tables.records.PhaseMemeRecord;
 import io.outright.xj.core.transport.JSON;
 
-import com.google.inject.Inject;
 import org.jooq.DSLContext;
+import org.jooq.Field;
 import org.jooq.Record;
 import org.jooq.types.ULong;
+
+import com.google.inject.Inject;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
+import java.util.Map;
 
 import static io.outright.xj.core.tables.Idea.IDEA;
 import static io.outright.xj.core.tables.Library.LIBRARY;
@@ -33,7 +35,6 @@ import static io.outright.xj.core.tables.PhaseMeme.PHASE_MEME;
  * TODO [core] more specific permissions of user (artist) access by per-entity ownership
  */
 public class PhaseMemeDAOImpl extends DAOImpl implements PhaseMemeDAO {
-  private static Logger log = LoggerFactory.getLogger(PhaseMemeDAOImpl.class);
 
   @Inject
   public PhaseMemeDAOImpl(
@@ -95,43 +96,30 @@ public class PhaseMemeDAOImpl extends DAOImpl implements PhaseMemeDAO {
    * @throws BusinessException if fails business rule
    */
   private JSONObject create(DSLContext db, AccessControl access, PhaseMemeWrapper data) throws Exception {
-    data.validate();
-
-    ULong phaseId = ULong.valueOf(data.getPhaseMeme().getPhaseId());
-    String name = data.getPhaseMeme().getName();
+    PhaseMeme model = data.validate();
+    Map<Field, Object> fieldValues = model.intoFieldValueMap();
 
     if (access.isTopLevel()) {
       requireRecordExists("Phase", db.select(PHASE.ID).from(PHASE)
-        .where(PHASE.ID.eq(phaseId))
+        .where(PHASE.ID.eq(model.getPhaseId()))
         .fetchOne());
     } else {
       requireRecordExists("Phase", db.select(PHASE.ID).from(PHASE)
         .join(IDEA).on(IDEA.ID.eq(PHASE.IDEA_ID))
         .join(LIBRARY).on(IDEA.LIBRARY_ID.eq(LIBRARY.ID))
-        .where(PHASE.ID.eq(phaseId))
+        .where(PHASE.ID.eq(model.getPhaseId()))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .fetchOne());
     }
 
     if (db.selectFrom(PHASE_MEME)
-      .where(PHASE_MEME.PHASE_ID.eq(phaseId))
-      .and(PHASE_MEME.NAME.eq(name))
+      .where(PHASE_MEME.PHASE_ID.eq(model.getPhaseId()))
+      .and(PHASE_MEME.NAME.eq(model.getName()))
       .fetchOne() != null) {
       throw new BusinessException("Phase Meme already exists!");
     }
 
-    PhaseMemeRecord record;
-    record = db.newRecord(PHASE_MEME);
-    data.getPhaseMeme().intoFieldValueMap().forEach(record::setValue);
-
-    try {
-      record.store();
-    } catch (Exception e) {
-      log.warn("Cannot create PhaseMeme", e.getMessage());
-      throw new BusinessException("Cannot create Phase Meme. Please ensure name+phaseId are valid and unique.");
-    }
-
-    return JSON.objectFromRecord(record);
+    return JSON.objectFromRecord(executeCreate(db, PHASE_MEME, fieldValues));
   }
 
   /**

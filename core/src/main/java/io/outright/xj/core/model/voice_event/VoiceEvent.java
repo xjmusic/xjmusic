@@ -2,21 +2,20 @@
 package io.outright.xj.core.model.voice_event;
 
 import io.outright.xj.core.app.exception.BusinessException;
-import io.outright.xj.core.tables.records.VoiceEventRecord;
+import io.outright.xj.core.model.Entity;
 import io.outright.xj.core.util.Purify;
 
-import com.google.common.collect.ImmutableMap;
-
 import org.jooq.Field;
-import org.jooq.TableField;
 import org.jooq.types.ULong;
+
+import com.google.api.client.util.Maps;
 
 import java.math.BigInteger;
 import java.util.Map;
 
 import static io.outright.xj.core.Tables.VOICE_EVENT;
 
-public class VoiceEvent {
+public class VoiceEvent extends Entity {
 
   /**
    * Duration
@@ -121,7 +120,7 @@ public class VoiceEvent {
    *
    * @throws BusinessException if invalid.
    */
-  void validate() throws BusinessException {
+  public void validate() throws BusinessException {
     if (this.duration == null) {
       throw new BusinessException("Duration is required.");
     }
@@ -151,15 +150,15 @@ public class VoiceEvent {
    * @return map
    */
   public Map<Field, Object> intoFieldValueMap() {
-    return new ImmutableMap.Builder<Field, Object>()
-      .put(VOICE_EVENT.DURATION, duration)
-      .put(VOICE_EVENT.INFLECTION, inflection)
-      .put(VOICE_EVENT.NOTE, note)
-      .put(VOICE_EVENT.POSITION, position)
-      .put(VOICE_EVENT.TONALITY, tonality)
-      .put(VOICE_EVENT.VELOCITY, velocity)
-      .put(VOICE_EVENT.VOICE_ID, voiceId)
-      .build();
+    Map<Field, Object> fieldValues = Maps.newHashMap();
+    fieldValues.put(VOICE_EVENT.DURATION, duration);
+    fieldValues.put(VOICE_EVENT.INFLECTION, inflection);
+    fieldValues.put(VOICE_EVENT.NOTE, note);
+    fieldValues.put(VOICE_EVENT.POSITION, position);
+    fieldValues.put(VOICE_EVENT.TONALITY, tonality);
+    fieldValues.put(VOICE_EVENT.VELOCITY, velocity);
+    fieldValues.put(VOICE_EVENT.VOICE_ID, voiceId);
+    return fieldValues;
   }
 
   @Override

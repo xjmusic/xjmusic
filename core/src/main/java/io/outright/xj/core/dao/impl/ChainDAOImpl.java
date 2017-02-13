@@ -4,14 +4,16 @@ package io.outright.xj.core.dao.impl;
 import io.outright.xj.core.app.access.AccessControl;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.app.exception.ConfigException;
+import io.outright.xj.core.app.exception.DatabaseException;
 import io.outright.xj.core.dao.ChainDAO;
 import io.outright.xj.core.db.sql.SQLConnection;
 import io.outright.xj.core.db.sql.SQLDatabaseProvider;
+import io.outright.xj.core.model.chain.Chain;
 import io.outright.xj.core.model.chain.ChainWrapper;
-import io.outright.xj.core.tables.records.ChainRecord;
 import io.outright.xj.core.transport.JSON;
 
 import org.jooq.DSLContext;
+import org.jooq.Field;
 import org.jooq.types.ULong;
 
 import com.google.inject.Inject;
@@ -21,6 +23,7 @@ import org.json.JSONObject;
 
 import javax.annotation.Nullable;
 import java.sql.SQLException;
+import java.util.Map;
 
 import static io.outright.xj.core.Tables.CHAIN;
 import static io.outright.xj.core.tables.Account.ACCOUNT;
@@ -28,7 +31,6 @@ import static io.outright.xj.core.tables.ChainLibrary.CHAIN_LIBRARY;
 import static io.outright.xj.core.tables.Link.LINK;
 
 public class ChainDAOImpl extends DAOImpl implements ChainDAO {
-  //  private static Logger log = LoggerFactory.getLogger(ChainDAOImpl.class);
 
   @Inject
   public ChainDAOImpl(
@@ -101,24 +103,21 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
    * @throws BusinessException if a Business Rule is violated
    */
   private JSONObject create(DSLContext db, AccessControl access, ChainWrapper data) throws BusinessException {
-    ChainRecord record = db.newRecord(CHAIN);
-    data.validate();
-    data.getChain().intoFieldValueMap().forEach(record::setValue);
+    Chain model = data.validate();
+    Map<Field, Object> fieldValues = model.intoFieldValueMap();
 
     if (access.isTopLevel()) {
       requireRecordExists("Account", db.select(ACCOUNT.ID).from(ACCOUNT)
-        .where(ACCOUNT.ID.eq(data.getChain().getAccountId()))
+        .where(ACCOUNT.ID.eq(model.getAccountId()))
         .fetchOne());
     } else {
       requireRecordExists("Account", db.select(ACCOUNT.ID).from(ACCOUNT)
         .where(ACCOUNT.ID.in(access.getAccounts()))
-        .and(ACCOUNT.ID.eq(data.getChain().getAccountId()))
+        .and(ACCOUNT.ID.eq(model.getAccountId()))
         .fetchOne());
     }
 
-    record.store();
-
-    return JSON.objectFromRecord(record);
+    return JSON.objectFromRecord(executeCreate(db, CHAIN, fieldValues));
   }
 
   /**
@@ -175,27 +174,27 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
    * @param data   to update with
    * @throws BusinessException if a Business Rule is violated
    */
-  private void update(DSLContext db, AccessControl access, ULong id, ChainWrapper data) throws BusinessException {
-    data.validate();
+  private void update(DSLContext db, AccessControl access, ULong id, ChainWrapper data) throws BusinessException, DatabaseException {
+    Chain model = data.validate();
+    Map<Field, Object> fieldValues = model.intoFieldValueMap();
+    fieldValues.put(CHAIN.ID, id);
 
     if (access.isTopLevel()) {
       requireRecordExists("Account",
         db.selectFrom(ACCOUNT)
-          .where(ACCOUNT.ID.eq(data.getChain().getAccountId()))
+          .where(ACCOUNT.ID.eq(model.getAccountId()))
           .fetchOne());
     } else {
       requireRecordExists("Account",
         db.select(ACCOUNT.ID).from(ACCOUNT)
-        .where(ACCOUNT.ID.eq(data.getChain().getAccountId()))
+        .where(ACCOUNT.ID.eq(model.getAccountId()))
         .and(ACCOUNT.ID.in(access.getAccounts()))
         .fetchOne());
     }
 
-    db.update(CHAIN)
-      .set(CHAIN.NAME, data.getChain().getName())
-      .set(CHAIN.ACCOUNT_ID, data.getChain().getAccountId())
-      .where(CHAIN.ID.eq(id))
-      .execute();
+    if (executeUpdate(db, CHAIN, fieldValues) == 0) {
+      throw new BusinessException("No records updated.");
+    }
   }
 
   /**

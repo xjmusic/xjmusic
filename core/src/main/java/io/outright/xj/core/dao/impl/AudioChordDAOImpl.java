@@ -4,16 +4,16 @@ package io.outright.xj.core.dao.impl;
 import io.outright.xj.core.app.access.AccessControl;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.app.exception.ConfigException;
-import io.outright.xj.core.app.exception.DatabaseException;
 import io.outright.xj.core.dao.AudioChordDAO;
 import io.outright.xj.core.db.sql.SQLConnection;
 import io.outright.xj.core.db.sql.SQLDatabaseProvider;
+import io.outright.xj.core.model.audio_chord.AudioChord;
 import io.outright.xj.core.model.audio_chord.AudioChordWrapper;
 import io.outright.xj.core.tables.Audio;
-import io.outright.xj.core.tables.records.AudioChordRecord;
 import io.outright.xj.core.transport.JSON;
 
 import org.jooq.DSLContext;
+import org.jooq.Field;
 import org.jooq.Record;
 import org.jooq.types.ULong;
 
@@ -24,6 +24,7 @@ import org.json.JSONObject;
 
 import javax.annotation.Nullable;
 import java.sql.SQLException;
+import java.util.Map;
 
 import static io.outright.xj.core.Tables.AUDIO;
 import static io.outright.xj.core.Tables.AUDIO_CHORD;
@@ -31,7 +32,6 @@ import static io.outright.xj.core.tables.Instrument.INSTRUMENT;
 import static io.outright.xj.core.tables.Library.LIBRARY;
 
 public class AudioChordDAOImpl extends DAOImpl implements AudioChordDAO {
-  //  private static Logger log = LoggerFactory.getLogger(AudioDAOImpl.class);
 
   @Inject
   public AudioChordDAOImpl(
@@ -104,25 +104,23 @@ public class AudioChordDAOImpl extends DAOImpl implements AudioChordDAO {
    * @throws BusinessException if failure
    */
   private JSONObject create(DSLContext db, AccessControl access, AudioChordWrapper data) throws BusinessException {
-    AudioChordRecord record = db.newRecord(AUDIO_CHORD);
-    data.validate();
-    data.getAudioChord().intoFieldValueMap().forEach(record::setValue);
+    AudioChord model = data.validate();
+    Map<Field, Object> fieldValues = model.intoFieldValueMap();
 
     if (access.isTopLevel()) {
       requireRecordExists("Audio", db.select(AUDIO.ID).from(AUDIO)
-        .where(AUDIO.ID.eq(data.getAudioChord().getAudioId()))
+        .where(AUDIO.ID.eq(model.getAudioId()))
         .fetchOne());
     } else {
       requireRecordExists("Audio", db.select(AUDIO.ID).from(AUDIO)
         .join(INSTRUMENT).on(INSTRUMENT.ID.eq(AUDIO.INSTRUMENT_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
         .where(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-        .and(AUDIO.ID.eq(data.getAudioChord().getAudioId()))
+        .and(AUDIO.ID.eq(model.getAudioId()))
         .fetchOne());
     }
 
-    record.store();
-    return JSON.objectFromRecord(record);
+    return JSON.objectFromRecord(executeCreate(db, AUDIO_CHORD, fieldValues));
   }
 
   /**
@@ -134,13 +132,12 @@ public class AudioChordDAOImpl extends DAOImpl implements AudioChordDAO {
    * @return audio
    */
   private JSONObject readOne(DSLContext db, AccessControl access, ULong id) {
-    JSONObject result;
     if (access.isTopLevel()) {
-      result = JSON.objectFromRecord(db.selectFrom(AUDIO_CHORD)
+      return JSON.objectFromRecord(db.selectFrom(AUDIO_CHORD)
         .where(AUDIO_CHORD.ID.eq(id))
         .fetchOne());
     } else {
-      result = JSON.objectFromRecord(db.select(AUDIO_CHORD.fields())
+      return JSON.objectFromRecord(db.select(AUDIO_CHORD.fields())
         .from(AUDIO_CHORD)
         .join(AUDIO).on(AUDIO.ID.eq(AUDIO_CHORD.AUDIO_ID))
         .join(INSTRUMENT).on(INSTRUMENT.ID.eq(AUDIO.INSTRUMENT_ID))
@@ -149,7 +146,6 @@ public class AudioChordDAOImpl extends DAOImpl implements AudioChordDAO {
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .fetchOne());
     }
-    return result;
   }
 
   /**
@@ -162,15 +158,14 @@ public class AudioChordDAOImpl extends DAOImpl implements AudioChordDAO {
    * @throws SQLException on failure
    */
   private JSONArray readAllIn(DSLContext db, AccessControl access, ULong audioId) throws SQLException {
-    JSONArray result;
     if (access.isTopLevel()) {
-      result = JSON.arrayFromResultSet(db.select(AUDIO_CHORD.fields())
+      return JSON.arrayFromResultSet(db.select(AUDIO_CHORD.fields())
         .from(AUDIO_CHORD)
         .where(AUDIO_CHORD.AUDIO_ID.eq(audioId))
         .orderBy(AUDIO_CHORD.POSITION)
         .fetchResultSet());
     } else {
-      result = JSON.arrayFromResultSet(db.select(AUDIO_CHORD.fields())
+      return JSON.arrayFromResultSet(db.select(AUDIO_CHORD.fields())
         .from(AUDIO_CHORD)
         .join(AUDIO).on(AUDIO.ID.eq(AUDIO_CHORD.AUDIO_ID))
         .join(INSTRUMENT).on(INSTRUMENT.ID.eq(AUDIO.INSTRUMENT_ID))
@@ -180,7 +175,6 @@ public class AudioChordDAOImpl extends DAOImpl implements AudioChordDAO {
         .orderBy(AUDIO_CHORD.POSITION)
         .fetchResultSet());
     }
-    return result;
   }
 
   /**
@@ -193,28 +187,25 @@ public class AudioChordDAOImpl extends DAOImpl implements AudioChordDAO {
    * @throws BusinessException if failure
    */
   private void update(DSLContext db, AccessControl access, ULong id, AudioChordWrapper data) throws Exception {
-    AudioChordRecord record;
-
-    record = db.newRecord(AUDIO_CHORD);
-    record.setId(id);
-    data.validate();
-    data.getAudioChord().intoFieldValueMap().forEach(record::setValue);
+    AudioChord model = data.validate();
+    Map<Field, Object> fieldValues = model.intoFieldValueMap();
+    fieldValues.put(AUDIO_CHORD.ID, id);
 
     if (access.isTopLevel()) {
       requireRecordExists("Audio", db.select(AUDIO.ID).from(AUDIO)
-        .where(AUDIO.ID.eq(data.getAudioChord().getAudioId()))
+        .where(AUDIO.ID.eq(model.getAudioId()))
         .fetchOne());
     } else {
       requireRecordExists("Audio", db.select(AUDIO.ID).from(AUDIO)
         .join(INSTRUMENT).on(INSTRUMENT.ID.eq(AUDIO.INSTRUMENT_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
         .where(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-        .and(AUDIO.ID.eq(data.getAudioChord().getAudioId()))
+        .and(AUDIO.ID.eq(model.getAudioId()))
         .fetchOne());
     }
 
-    if (db.executeUpdate(record) == 0) {
-      throw new DatabaseException("No records updated.");
+    if (executeUpdate(db, AUDIO_CHORD, fieldValues) == 0) {
+      throw new BusinessException("No records updated.");
     }
   }
 

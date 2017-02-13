@@ -2,25 +2,27 @@
 package io.outright.xj.core.model.chain_library;
 
 import io.outright.xj.core.app.exception.BusinessException;
+import io.outright.xj.core.model.Entity;
 
 import org.jooq.Field;
 import org.jooq.types.ULong;
 
-import com.google.common.collect.ImmutableMap;
+import com.google.api.client.util.Maps;
 
 import java.math.BigInteger;
 import java.util.Map;
 
 import static io.outright.xj.core.Tables.CHAIN_LIBRARY;
-import static io.outright.xj.core.Tables.IDEA;
 
-public class ChainLibrary {
+public class ChainLibrary extends Entity {
 
   // Chain ID
   private BigInteger chainId;
+
   public ULong getChainId() {
     return ULong.valueOf(chainId);
   }
+
   public ChainLibrary setChainId(BigInteger chainId) {
     this.chainId = chainId;
     return this;
@@ -28,9 +30,11 @@ public class ChainLibrary {
 
   // Library ID
   private BigInteger libraryId;
+
   public ULong getLibraryId() {
     return ULong.valueOf(libraryId);
   }
+
   public ChainLibrary setLibraryId(BigInteger libraryId) {
     this.libraryId = libraryId;
     return this;
@@ -41,7 +45,7 @@ public class ChainLibrary {
    *
    * @throws BusinessException if invalid.
    */
-  void validate() throws BusinessException {
+  public void validate() throws BusinessException {
     if (this.chainId == null) {
       throw new BusinessException("Chain ID is required.");
     }
@@ -52,13 +56,14 @@ public class ChainLibrary {
 
   /**
    * Model info jOOQ-field : Value map
+   *
    * @return map
    */
   public Map<Field, Object> intoFieldValueMap() {
-    return new ImmutableMap.Builder<Field, Object>()
-      .put(CHAIN_LIBRARY.CHAIN_ID, chainId)
-      .put(CHAIN_LIBRARY.LIBRARY_ID, libraryId)
-      .build();
+    Map<Field, Object> fieldValues = Maps.newHashMap();
+    fieldValues.put(CHAIN_LIBRARY.CHAIN_ID, chainId);
+    fieldValues.put(CHAIN_LIBRARY.LIBRARY_ID, libraryId);
+    return fieldValues;
   }
 
   @Override

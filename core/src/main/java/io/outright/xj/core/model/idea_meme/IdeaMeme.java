@@ -2,23 +2,28 @@
 package io.outright.xj.core.model.idea_meme;
 
 import io.outright.xj.core.app.exception.BusinessException;
+import io.outright.xj.core.model.Entity;
 import io.outright.xj.core.util.Purify;
 
-import com.google.common.collect.ImmutableMap;
 import org.jooq.Field;
+import org.jooq.types.ULong;
+
+import com.google.api.client.util.Maps;
 
 import java.math.BigInteger;
 import java.util.Map;
 
 import static io.outright.xj.core.Tables.IDEA_MEME;
 
-public class IdeaMeme {
+public class IdeaMeme extends Entity {
 
   // Idea ID
   private BigInteger ideaId;
-  public BigInteger getIdeaId() {
-    return ideaId;
+
+  public ULong getIdeaId() {
+    return ULong.valueOf(ideaId);
   }
+
   public IdeaMeme setIdeaId(BigInteger ideaId) {
     this.ideaId = ideaId;
     return this;
@@ -26,9 +31,11 @@ public class IdeaMeme {
 
   // Name
   private String name;
+
   public String getName() {
     return name;
   }
+
   public IdeaMeme setName(String name) {
     this.name = Purify.ProperSlug(name);
     return this;
@@ -39,7 +46,7 @@ public class IdeaMeme {
    *
    * @throws BusinessException if invalid.
    */
-  void validate() throws BusinessException {
+  public void validate() throws BusinessException {
     if (this.ideaId == null) {
       throw new BusinessException("Idea ID is required.");
     }
@@ -50,13 +57,14 @@ public class IdeaMeme {
 
   /**
    * Model info jOOQ-field : Value map
+   *
    * @return map
    */
   public Map<Field, Object> intoFieldValueMap() {
-    return new ImmutableMap.Builder<Field, Object>()
-      .put(IDEA_MEME.IDEA_ID, ideaId)
-      .put(IDEA_MEME.NAME, name)
-      .build();
+    Map<Field, Object> fieldValues = Maps.newHashMap();
+    fieldValues.put(IDEA_MEME.IDEA_ID, ideaId);
+    fieldValues.put(IDEA_MEME.NAME, name);
+    return fieldValues;
   }
 
   @Override

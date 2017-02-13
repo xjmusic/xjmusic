@@ -21,11 +21,12 @@ public class PhaseWrapper extends EntityWrapper {
    * @throws BusinessException if invalid.
    */
   @Override
-  public void validate() throws BusinessException{
+  public Phase validate() throws BusinessException{
     if (this.phase == null) {
       throw new BusinessException("Phase is required.");
     }
     this.phase.validate();
+    return this.phase;
   }
 
   @Override

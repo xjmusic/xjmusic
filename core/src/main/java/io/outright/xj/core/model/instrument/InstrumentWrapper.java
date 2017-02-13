@@ -20,11 +20,12 @@ public class InstrumentWrapper extends EntityWrapper {
    * Validate data.
    * @throws BusinessException if invalid.
    */
-  public void validate() throws BusinessException{
+  public Instrument validate() throws BusinessException{
     if (this.instrument == null) {
       throw new BusinessException("Instrument is required.");
     }
     this.instrument.validate();
+    return this.instrument;
   }
 
   @Override

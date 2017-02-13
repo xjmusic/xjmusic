@@ -2,23 +2,28 @@
 package io.outright.xj.core.model.instrument_meme;
 
 import io.outright.xj.core.app.exception.BusinessException;
+import io.outright.xj.core.model.Entity;
 import io.outright.xj.core.util.Purify;
 
-import com.google.common.collect.ImmutableMap;
 import org.jooq.Field;
+import org.jooq.types.ULong;
+
+import com.google.api.client.util.Maps;
 
 import java.math.BigInteger;
 import java.util.Map;
 
 import static io.outright.xj.core.Tables.INSTRUMENT_MEME;
 
-public class InstrumentMeme {
+public class InstrumentMeme extends Entity {
 
   // Instrument ID
   private BigInteger instrumentId;
-  public BigInteger getInstrumentId() {
-    return instrumentId;
+
+  public ULong getInstrumentId() {
+    return ULong.valueOf(instrumentId);
   }
+
   public InstrumentMeme setInstrumentId(BigInteger instrumentId) {
     this.instrumentId = instrumentId;
     return this;
@@ -26,9 +31,11 @@ public class InstrumentMeme {
 
   // Name
   private String name;
+
   public String getName() {
     return name;
   }
+
   public InstrumentMeme setName(String name) {
     this.name = Purify.ProperSlug(name);
     return this;
@@ -39,7 +46,7 @@ public class InstrumentMeme {
    *
    * @throws BusinessException if invalid.
    */
-  void validate() throws BusinessException {
+  public void validate() throws BusinessException {
     if (this.instrumentId == null) {
       throw new BusinessException("Instrument ID is required.");
     }
@@ -50,13 +57,14 @@ public class InstrumentMeme {
 
   /**
    * Model info jOOQ-field : Value map
+   *
    * @return map
    */
   public Map<Field, Object> intoFieldValueMap() {
-    return new ImmutableMap.Builder<Field, Object>()
-      .put(INSTRUMENT_MEME.INSTRUMENT_ID, instrumentId)
-      .put(INSTRUMENT_MEME.NAME, name)
-      .build();
+    Map<Field, Object> fieldValues = Maps.newHashMap();
+    fieldValues.put(INSTRUMENT_MEME.INSTRUMENT_ID, instrumentId);
+    fieldValues.put(INSTRUMENT_MEME.NAME, name);
+    return fieldValues;
   }
 
   @Override

@@ -2,24 +2,27 @@
 package io.outright.xj.core.model.account_user;
 
 import io.outright.xj.core.app.exception.BusinessException;
+import io.outright.xj.core.model.Entity;
 
 import org.jooq.Field;
+import org.jooq.types.ULong;
 
-import com.google.common.collect.ImmutableMap;
+import com.google.api.client.util.Maps;
 
 import java.math.BigInteger;
 import java.util.Map;
 
 import static io.outright.xj.core.Tables.ACCOUNT_USER;
-import static io.outright.xj.core.Tables.IDEA;
 
-public class AccountUser {
+public class AccountUser extends Entity {
 
   // Account ID
   private BigInteger accountId;
-  public BigInteger getAccountId() {
-    return accountId;
+
+  public ULong getAccountId() {
+    return ULong.valueOf(accountId);
   }
+
   public AccountUser setAccountId(BigInteger accountId) {
     this.accountId = accountId;
     return this;
@@ -27,9 +30,11 @@ public class AccountUser {
 
   // User ID
   private BigInteger userId;
-  public BigInteger getUserId() {
-    return userId;
+
+  public ULong getUserId() {
+    return ULong.valueOf(userId);
   }
+
   public AccountUser setUserId(BigInteger userId) {
     this.userId = userId;
     return this;
@@ -40,7 +45,7 @@ public class AccountUser {
    *
    * @throws BusinessException if invalid.
    */
-  void validate() throws BusinessException {
+  public void validate() throws BusinessException {
     if (this.accountId == null) {
       throw new BusinessException("Account ID is required.");
     }
@@ -51,13 +56,14 @@ public class AccountUser {
 
   /**
    * Model info jOOQ-field : Value map
+   *
    * @return map
    */
   public Map<Field, Object> intoFieldValueMap() {
-    return new ImmutableMap.Builder<Field, Object>()
-      .put(ACCOUNT_USER.ACCOUNT_ID, accountId)
-      .put(ACCOUNT_USER.USER_ID, userId)
-      .build();
+    Map<Field, Object> fieldValues = Maps.newHashMap();
+    fieldValues.put(ACCOUNT_USER.ACCOUNT_ID, accountId);
+    fieldValues.put(ACCOUNT_USER.USER_ID, userId);
+    return fieldValues;
   }
 
   @Override

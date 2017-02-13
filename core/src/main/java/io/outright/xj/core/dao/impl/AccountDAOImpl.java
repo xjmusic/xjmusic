@@ -4,21 +4,26 @@ package io.outright.xj.core.dao.impl;
 import io.outright.xj.core.app.access.AccessControl;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.app.exception.ConfigException;
+import io.outright.xj.core.app.exception.DatabaseException;
 import io.outright.xj.core.dao.AccountDAO;
 import io.outright.xj.core.db.sql.SQLConnection;
 import io.outright.xj.core.db.sql.SQLDatabaseProvider;
+import io.outright.xj.core.model.account.Account;
 import io.outright.xj.core.model.account.AccountWrapper;
-import io.outright.xj.core.tables.records.AccountRecord;
 import io.outright.xj.core.transport.JSON;
 
-import com.google.inject.Inject;
 import org.jooq.DSLContext;
+import org.jooq.Field;
 import org.jooq.types.ULong;
+
+import com.google.inject.Inject;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.annotation.Nullable;
 import java.sql.SQLException;
+import java.util.Map;
 
 import static io.outright.xj.core.Tables.ACCOUNT;
 import static io.outright.xj.core.tables.AccountUser.ACCOUNT_USER;
@@ -96,14 +101,12 @@ public class AccountDAOImpl extends DAOImpl implements AccountDAO {
    * @throws BusinessException if a business rule is violated
    */
   private JSONObject create(DSLContext db, AccessControl access, AccountWrapper data) throws BusinessException {
+    Account model = data.validate();
+    Map<Field, Object> fieldValues = model.intoFieldValueMap();
+
     requireTopLevel(access);
-    data.validate();
 
-    AccountRecord record = db.newRecord(ACCOUNT);
-    data.getAccount().intoFieldValueMap().forEach(record::setValue);
-    record.store();
-
-    return JSON.objectFromRecord(record);
+    return JSON.objectFromRecord(executeCreate(db, ACCOUNT, fieldValues));
   }
 
   /**
@@ -158,14 +161,14 @@ public class AccountDAOImpl extends DAOImpl implements AccountDAO {
    * @param data   to update record with
    * @throws BusinessException if a business rule is violated
    */
-  private void update(DSLContext db, AccessControl access, ULong id, AccountWrapper data) throws BusinessException {
+  private void update(DSLContext db, AccessControl access, ULong id, AccountWrapper data) throws BusinessException, DatabaseException {
     requireTopLevel(access);
-    data.validate();
 
-    db.update(ACCOUNT)
-      .set(ACCOUNT.NAME, data.getAccount().getName())
-      .where(ACCOUNT.ID.eq(id))
-      .execute();
+    Map<Field, Object> fieldValues = data.validate().intoFieldValueMap();
+    fieldValues.put(ACCOUNT.ID, id);
+    if (executeUpdate(db, ACCOUNT, fieldValues) == 0) {
+      throw new BusinessException("No records updated.");
+    }
   }
 
   /**

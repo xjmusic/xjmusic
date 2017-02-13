@@ -2,14 +2,15 @@
 package io.outright.xj.core.model.instrument;
 
 import io.outright.xj.core.app.exception.BusinessException;
+import io.outright.xj.core.model.Entity;
 import io.outright.xj.core.util.CSV.CSV;
 import io.outright.xj.core.util.Purify;
 
 import org.jooq.Field;
 import org.jooq.types.ULong;
 
+import com.google.api.client.util.Maps;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 
 import java.math.BigInteger;
 import java.util.List;
@@ -17,7 +18,7 @@ import java.util.Map;
 
 import static io.outright.xj.core.Tables.INSTRUMENT;
 
-public class Instrument {
+public class Instrument extends Entity {
   public final static String PERCUSSIVE = "percussive";
   public final static String HARMONIC = "harmonic";
   public final static String MELODIC = "melodic";
@@ -95,7 +96,7 @@ public class Instrument {
    *
    * @throws BusinessException if invalid.
    */
-  void validate() throws BusinessException {
+  public void validate() throws BusinessException {
     if (this.description == null || this.description.length() == 0) {
       throw new BusinessException("Name is required.");
     }
@@ -122,13 +123,13 @@ public class Instrument {
    * @return map
    */
   public Map<Field, Object> intoFieldValueMap() {
-    return new ImmutableMap.Builder<Field, Object>()
-      .put(INSTRUMENT.DESCRIPTION, description)
-      .put(INSTRUMENT.LIBRARY_ID, libraryId)
-      .put(INSTRUMENT.USER_ID, userId)
-      .put(INSTRUMENT.TYPE, type)
-      .put(INSTRUMENT.DENSITY, density)
-      .build();
+    Map<Field, Object> fieldValues = Maps.newHashMap();
+    fieldValues.put(INSTRUMENT.DESCRIPTION, description);
+    fieldValues.put(INSTRUMENT.LIBRARY_ID, libraryId);
+    fieldValues.put(INSTRUMENT.USER_ID, userId);
+    fieldValues.put(INSTRUMENT.TYPE, type);
+    fieldValues.put(INSTRUMENT.DENSITY, density);
+    return fieldValues;
   }
 
   @Override

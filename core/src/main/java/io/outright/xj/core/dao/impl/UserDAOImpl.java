@@ -41,6 +41,11 @@ import static io.outright.xj.core.Tables.USER_AUTH;
 import static io.outright.xj.core.Tables.USER_ROLE;
 import static org.jooq.impl.DSL.groupConcat;
 
+/**
+ * NOTE: THIS IS AN IRREGULAR D.A.O.
+ *
+ * Conceptually, because being a User is a dependency of all other DAOs.
+ */
 public class UserDAOImpl extends DAOImpl implements UserDAO {
   private static Logger log = LoggerFactory.getLogger(UserDAOImpl.class);
   private AccessControlProvider accessControlProvider;

@@ -4,8 +4,6 @@ package io.outright.xj.core.model.user;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.model.EntityWrapper;
 
-import org.jooq.Record;
-
 public class UserWrapper extends EntityWrapper {
 
   // User
@@ -22,11 +20,12 @@ public class UserWrapper extends EntityWrapper {
    * Validate data.
    * @throws BusinessException if invalid.
    */
-  public void validate() throws BusinessException{
+  public User validate() throws BusinessException{
     if (this.user == null) {
       throw new BusinessException("User is required.");
     }
     this.user.validate();
+    return this.user;
   }
 
   @Override
@@ -34,9 +33,5 @@ public class UserWrapper extends EntityWrapper {
     return "{" +
       User.KEY_ONE + ":" + this.user +
       "}";
-  }
-
-  public Record intoRecord() {
-    return null;
   }
 }

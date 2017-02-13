@@ -4,11 +4,11 @@ package io.outright.xj.core.model.phase;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.model.Entity;
 
-import com.google.common.collect.ImmutableMap;
-
 import org.jooq.Field;
 import org.jooq.impl.DSL;
 import org.jooq.types.ULong;
+
+import com.google.api.client.util.Maps;
 
 import java.math.BigInteger;
 import java.util.Map;
@@ -153,15 +153,15 @@ public class Phase extends Entity {
    */
   @Override
   public Map<Field, Object> intoFieldValueMap() {
-    return new ImmutableMap.Builder<Field, Object>()
-      .put(PHASE.IDEA_ID, ideaId)
-      .put(PHASE.OFFSET, offset)
-      .put(PHASE.TOTAL, total)
-      .put(PHASE.NAME, name != null ? name : DSL.val((String) null))
-      .put(PHASE.KEY, key != null ? key : DSL.val((String) null))
-      .put(PHASE.TEMPO, tempo != null ? tempo : DSL.val((String) null))
-      .put(PHASE.DENSITY, density != null ? density : DSL.val((String) null))
-      .build();
+    Map<Field, Object> fieldValues = Maps.newHashMap();
+    fieldValues.put(PHASE.IDEA_ID, ideaId);
+    fieldValues.put(PHASE.OFFSET, offset);
+    fieldValues.put(PHASE.TOTAL, total);
+    fieldValues.put(PHASE.NAME, name != null ? name : DSL.val((String) null));
+    fieldValues.put(PHASE.KEY, key != null ? key : DSL.val((String) null));
+    fieldValues.put(PHASE.TEMPO, tempo != null ? tempo : DSL.val((String) null));
+    fieldValues.put(PHASE.DENSITY, density != null ? density : DSL.val((String) null));
+    return fieldValues;
   }
 
   @Override

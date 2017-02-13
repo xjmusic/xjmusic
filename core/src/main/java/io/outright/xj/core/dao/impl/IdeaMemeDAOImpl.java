@@ -7,11 +7,12 @@ import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.dao.IdeaMemeDAO;
 import io.outright.xj.core.db.sql.SQLConnection;
 import io.outright.xj.core.db.sql.SQLDatabaseProvider;
+import io.outright.xj.core.model.idea_meme.IdeaMeme;
 import io.outright.xj.core.model.idea_meme.IdeaMemeWrapper;
-import io.outright.xj.core.tables.records.IdeaMemeRecord;
 import io.outright.xj.core.transport.JSON;
 
 import org.jooq.DSLContext;
+import org.jooq.Field;
 import org.jooq.Record;
 import org.jooq.types.ULong;
 
@@ -19,10 +20,9 @@ import com.google.inject.Inject;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
+import java.util.Map;
 
 import static io.outright.xj.core.tables.Idea.IDEA;
 import static io.outright.xj.core.tables.IdeaMeme.IDEA_MEME;
@@ -34,7 +34,6 @@ import static io.outright.xj.core.tables.Library.LIBRARY;
  * TODO [core] more specific permissions of user (artist) access by per-entity ownership
  */
 public class IdeaMemeDAOImpl extends DAOImpl implements IdeaMemeDAO {
-  private static Logger log = LoggerFactory.getLogger(IdeaMemeDAOImpl.class);
 
   @Inject
   public IdeaMemeDAOImpl(
@@ -96,42 +95,29 @@ public class IdeaMemeDAOImpl extends DAOImpl implements IdeaMemeDAO {
    * @throws BusinessException if fails business rule
    */
   private JSONObject create(DSLContext db, AccessControl access, IdeaMemeWrapper data) throws Exception {
-    data.validate();
-
-    ULong ideaId = ULong.valueOf(data.getIdeaMeme().getIdeaId());
-    String name = data.getIdeaMeme().getName();
+    IdeaMeme model = data.validate();
+    Map<Field, Object> fieldValues = model.intoFieldValueMap();
 
     if (access.isTopLevel()) {
       requireRecordExists("Idea", db.select(IDEA.ID).from(IDEA)
-        .where(IDEA.ID.eq(ideaId))
+        .where(IDEA.ID.eq(model.getIdeaId()))
         .fetchOne());
     } else {
       requireRecordExists("Idea", db.select(IDEA.ID).from(IDEA)
         .join(LIBRARY).on(IDEA.LIBRARY_ID.eq(LIBRARY.ID))
-        .where(IDEA.ID.eq(ideaId))
+        .where(IDEA.ID.eq(model.getIdeaId()))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .fetchOne());
     }
 
     if (db.selectFrom(IDEA_MEME)
-      .where(IDEA_MEME.IDEA_ID.eq(ideaId))
-      .and(IDEA_MEME.NAME.eq(name))
+      .where(IDEA_MEME.IDEA_ID.eq(model.getIdeaId()))
+      .and(IDEA_MEME.NAME.eq(model.getName()))
       .fetchOne() != null) {
       throw new BusinessException("Idea Meme already exists!");
     }
 
-    IdeaMemeRecord record;
-    record = db.newRecord(IDEA_MEME);
-    data.getIdeaMeme().intoFieldValueMap().forEach(record::setValue);
-
-    try {
-      record.store();
-    } catch (Exception e) {
-      log.warn("Cannot create IdeaMeme", e.getMessage());
-      throw new BusinessException("Cannot create Idea Meme. Please ensure name+ideaId are valid and unique.");
-    }
-
-    return JSON.objectFromRecord(record);
+    return JSON.objectFromRecord(executeCreate(db, IDEA_MEME, fieldValues));
   }
 
   /**

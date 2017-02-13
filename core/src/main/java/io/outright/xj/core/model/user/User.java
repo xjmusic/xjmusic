@@ -2,8 +2,16 @@
 package io.outright.xj.core.model.user;
 
 import io.outright.xj.core.app.exception.BusinessException;
+import io.outright.xj.core.model.Entity;
 
-public class User {
+import org.jooq.Field;
+
+import com.google.api.client.util.Maps;
+import com.google.common.collect.ImmutableMap;
+
+import java.util.Map;
+
+public class User extends Entity {
 
   // Roles
   private String roles;
@@ -22,10 +30,19 @@ public class User {
    *
    * @throws BusinessException if invalid.
    */
-  void validate() throws BusinessException {
+  public void validate() throws BusinessException {
     if (this.getRoles() == null || this.getRoles().length() == 0) {
       throw new BusinessException("User roles required.");
     }
+  }
+
+  /**
+   * Model info jOOQ-field : Value map
+   * @return map
+   */
+  @Override
+  public Map<Field, Object> intoFieldValueMap() {
+    return Maps.newHashMap();
   }
 
   @Override

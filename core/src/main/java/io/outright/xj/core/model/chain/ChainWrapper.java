@@ -22,11 +22,12 @@ public class ChainWrapper extends EntityWrapper {
    * Validate data.
    * @throws BusinessException if invalid.
    */
-  public void validate() throws BusinessException{
+  public Chain validate() throws BusinessException{
     if (this.chain == null) {
       throw new BusinessException("Chain is required.");
     }
     this.chain.validate();
+    return this.chain;
   }
 
   @Override
@@ -36,7 +37,4 @@ public class ChainWrapper extends EntityWrapper {
       "}";
   }
 
-  public Record intoRecord() {
-    return null;
-  }
 }

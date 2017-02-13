@@ -8,9 +8,11 @@ public class AudioChordWrapper extends EntityWrapper {
 
   // AudioChord
   private AudioChord audioChord;
+
   public AudioChord getAudioChord() {
     return audioChord;
   }
+
   public AudioChordWrapper setAudioChord(AudioChord audioChord) {
     this.audioChord = audioChord;
     return this;
@@ -18,13 +20,15 @@ public class AudioChordWrapper extends EntityWrapper {
 
   /**
    * Validate data.
+   *
    * @throws BusinessException if invalid.
    */
-  public void validate() throws BusinessException{
+  public AudioChord validate() throws BusinessException {
     if (this.audioChord == null) {
       throw new BusinessException("audioChord is required.");
     }
     this.audioChord.validate();
+    return this.audioChord;
   }
 
   @Override
@@ -33,4 +37,5 @@ public class AudioChordWrapper extends EntityWrapper {
       AudioChord.KEY_ONE + ":" + this.audioChord +
       "}";
   }
+
 }

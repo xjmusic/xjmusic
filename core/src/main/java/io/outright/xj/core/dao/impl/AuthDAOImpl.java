@@ -15,6 +15,11 @@ import com.google.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * NOTE: THIS IS AN IRREGULAR D.A.O.
+ *
+ * Conceptually, because Authentication is a dependency of all other DAOs.
+ */
 public class AuthDAOImpl extends DAOImpl implements AuthDAO {
   private static Logger log = LoggerFactory.getLogger(AuthDAOImpl.class);
   private GoogleProvider googleProvider;

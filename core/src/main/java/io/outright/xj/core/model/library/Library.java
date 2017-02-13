@@ -2,25 +2,27 @@
 package io.outright.xj.core.model.library;
 
 import io.outright.xj.core.app.exception.BusinessException;
+import io.outright.xj.core.model.Entity;
 
 import org.jooq.Field;
 import org.jooq.types.ULong;
 
-import com.google.common.collect.ImmutableMap;
+import com.google.api.client.util.Maps;
 
 import java.math.BigInteger;
 import java.util.Map;
 
-import static io.outright.xj.core.Tables.IDEA;
 import static io.outright.xj.core.tables.Library.LIBRARY;
 
-public class Library {
+public class Library extends Entity {
 
   // Name
   private String name;
+
   public String getName() {
     return name;
   }
+
   public Library setName(String name) {
     this.name = name;
     return this;
@@ -28,9 +30,11 @@ public class Library {
 
   // Account
   private ULong accountId;
+
   public ULong getAccountId() {
     return accountId;
   }
+
   public Library setAccountId(BigInteger accountId) {
     this.accountId = ULong.valueOf(accountId);
     return this;
@@ -41,7 +45,7 @@ public class Library {
    *
    * @throws BusinessException if invalid.
    */
-  void validate() throws BusinessException {
+  public void validate() throws BusinessException {
     if (this.name == null || this.name.length() == 0) {
       throw new BusinessException("Name is required.");
     }
@@ -52,13 +56,14 @@ public class Library {
 
   /**
    * Model info jOOQ-field : Value map
+   *
    * @return map
    */
   public Map<Field, Object> intoFieldValueMap() {
-    return new ImmutableMap.Builder<Field, Object>()
-      .put(LIBRARY.NAME, name)
-      .put(LIBRARY.ACCOUNT_ID, accountId)
-      .build();
+    Map<Field, Object> fieldValues = Maps.newHashMap();
+    fieldValues.put(LIBRARY.NAME, name);
+    fieldValues.put(LIBRARY.ACCOUNT_ID, accountId);
+    return fieldValues;
   }
 
   @Override

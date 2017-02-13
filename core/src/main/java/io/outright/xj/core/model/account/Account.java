@@ -2,17 +2,17 @@
 package io.outright.xj.core.model.account;
 
 import io.outright.xj.core.app.exception.BusinessException;
+import io.outright.xj.core.model.Entity;
 
 import org.jooq.Field;
 
-import com.google.common.collect.ImmutableMap;
+import com.google.api.client.util.Maps;
 
 import java.util.Map;
 
-import static io.outright.xj.core.Tables.IDEA;
 import static io.outright.xj.core.tables.Account.ACCOUNT;
 
-public class Account {
+public class Account extends Entity {
 
   // Name
   private String name;
@@ -31,7 +31,7 @@ public class Account {
    *
    * @throws BusinessException if invalid.
    */
-  void validate() throws BusinessException {
+  public void validate() throws BusinessException {
     if (this.name == null || this.name.length() == 0) {
       throw new BusinessException("Account name is required.");
     }
@@ -43,9 +43,9 @@ public class Account {
    * @return map
    */
   public Map<Field, Object> intoFieldValueMap() {
-    return new ImmutableMap.Builder<Field, Object>()
-      .put(ACCOUNT.NAME, name)
-      .build();
+    Map<Field, Object> fieldValues = Maps.newHashMap();
+    fieldValues.put(ACCOUNT.NAME, name);
+    return fieldValues;
   }
 
   @Override

@@ -2,17 +2,19 @@
 package io.outright.xj.core.model.phase_chord;
 
 import io.outright.xj.core.app.exception.BusinessException;
+import io.outright.xj.core.model.Entity;
 
-import com.google.common.collect.ImmutableMap;
 import org.jooq.Field;
 import org.jooq.types.ULong;
+
+import com.google.api.client.util.Maps;
 
 import java.math.BigInteger;
 import java.util.Map;
 
 import static io.outright.xj.core.Tables.PHASE_CHORD;
 
-public class PhaseChord {
+public class PhaseChord extends Entity {
 
   /**
    * Name
@@ -61,7 +63,7 @@ public class PhaseChord {
    *
    * @throws BusinessException if invalid.
    */
-  void validate() throws BusinessException {
+  public void validate() throws BusinessException {
     if (this.name == null || this.name.length() == 0) {
       throw new BusinessException("Name is required.");
     }
@@ -79,11 +81,11 @@ public class PhaseChord {
    * @return map
    */
   public Map<Field, Object> intoFieldValueMap() {
-    return new ImmutableMap.Builder<Field, Object>()
-      .put(PHASE_CHORD.NAME, name)
-      .put(PHASE_CHORD.PHASE_ID, phaseId)
-      .put(PHASE_CHORD.POSITION, position)
-      .build();
+    Map<Field, Object> fieldValues = Maps.newHashMap();
+    fieldValues.put(PHASE_CHORD.NAME, name);
+    fieldValues.put(PHASE_CHORD.PHASE_ID, phaseId);
+    fieldValues.put(PHASE_CHORD.POSITION, position);
+    return fieldValues;
   }
 
   @Override

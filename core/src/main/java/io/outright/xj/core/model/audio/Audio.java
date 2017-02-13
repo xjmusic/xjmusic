@@ -3,12 +3,11 @@ package io.outright.xj.core.model.audio;
 
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.model.Entity;
-import io.outright.xj.core.util.Purify;
 
 import org.jooq.Field;
 import org.jooq.types.ULong;
 
-import com.google.common.collect.ImmutableMap;
+import com.google.api.client.util.Maps;
 
 import java.math.BigInteger;
 import java.util.Map;
@@ -154,17 +153,15 @@ public class Audio extends Entity {
    */
   @Override
   public Map<Field, Object> intoFieldValueMap() {
-    return new ImmutableMap.Builder<Field, Object>()
-      .put(AUDIO.INSTRUMENT_ID, instrumentId)
-      .put(AUDIO.NAME, name)
-      .put(AUDIO.WAVEFORM_URL, waveformUrl)
-      .put(AUDIO.START, start)
-      .put(AUDIO.LENGTH, length)
-      .put(AUDIO.TEMPO, tempo)
-      .put(AUDIO.PITCH, pitch)
-
-
-      .build();
+    Map<Field, Object> fieldValues = Maps.newHashMap();
+    fieldValues.put(AUDIO.INSTRUMENT_ID, instrumentId);
+    fieldValues.put(AUDIO.NAME, name);
+    fieldValues.put(AUDIO.WAVEFORM_URL, waveformUrl);
+    fieldValues.put(AUDIO.START, start);
+    fieldValues.put(AUDIO.LENGTH, length);
+    fieldValues.put(AUDIO.TEMPO, tempo);
+    fieldValues.put(AUDIO.PITCH, pitch);
+    return fieldValues;
   }
 
   @Override

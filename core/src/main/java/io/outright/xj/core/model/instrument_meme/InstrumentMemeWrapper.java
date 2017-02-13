@@ -4,8 +4,6 @@ package io.outright.xj.core.model.instrument_meme;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.model.EntityWrapper;
 
-import org.jooq.Record;
-
 public class InstrumentMemeWrapper extends EntityWrapper {
 
   // Instrument
@@ -25,11 +23,12 @@ public class InstrumentMemeWrapper extends EntityWrapper {
    *
    * @throws BusinessException if invalid.
    */
-  public void validate() throws BusinessException {
+  public InstrumentMeme validate() throws BusinessException {
     if (this.instrumentMeme == null) {
       throw new BusinessException("Instrument is required.");
     }
     this.instrumentMeme.validate();
+    return this.instrumentMeme;
   }
 
   @Override
@@ -37,9 +36,5 @@ public class InstrumentMemeWrapper extends EntityWrapper {
     return "{" +
       InstrumentMeme.KEY_ONE + ":" + this.instrumentMeme +
       "}";
-  }
-
-  public Record intoRecord() {
-    return null;
   }
 }

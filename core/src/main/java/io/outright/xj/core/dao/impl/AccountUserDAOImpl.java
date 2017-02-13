@@ -7,24 +7,25 @@ import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.dao.AccountUserDAO;
 import io.outright.xj.core.db.sql.SQLConnection;
 import io.outright.xj.core.db.sql.SQLDatabaseProvider;
+import io.outright.xj.core.model.account_user.AccountUser;
 import io.outright.xj.core.model.account_user.AccountUserWrapper;
-import io.outright.xj.core.tables.records.AccountUserRecord;
 import io.outright.xj.core.transport.JSON;
 
-import com.google.inject.Inject;
 import org.jooq.DSLContext;
+import org.jooq.Field;
 import org.jooq.types.ULong;
+
+import com.google.inject.Inject;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
+import java.util.Map;
 
 import static io.outright.xj.core.tables.AccountUser.ACCOUNT_USER;
 
 public class AccountUserDAOImpl extends DAOImpl implements AccountUserDAO {
-  private static Logger log = LoggerFactory.getLogger(AccountUserDAOImpl.class);
 
   @Inject
   public AccountUserDAOImpl(
@@ -85,31 +86,19 @@ public class AccountUserDAOImpl extends DAOImpl implements AccountUserDAO {
    * @throws BusinessException if fails business rule
    */
   private JSONObject create(DSLContext db, AccessControl access, AccountUserWrapper data) throws Exception {
-    requireTopLevel(access);
-    data.validate();
+    AccountUser model = data.validate();
+    Map<Field, Object> fieldValues = model.intoFieldValueMap();
 
-    ULong accountId = ULong.valueOf(data.getAccountUser().getAccountId());
-    ULong userId = ULong.valueOf(data.getAccountUser().getUserId());
+    requireTopLevel(access);
 
     if (db.selectFrom(ACCOUNT_USER)
-      .where(ACCOUNT_USER.ACCOUNT_ID.eq(accountId))
-      .and(ACCOUNT_USER.USER_ID.eq(userId))
+      .where(ACCOUNT_USER.ACCOUNT_ID.eq(model.getAccountId()))
+      .and(ACCOUNT_USER.USER_ID.eq(model.getUserId()))
       .fetchOne() != null) {
       throw new BusinessException("Account User already exists!");
     }
 
-    AccountUserRecord record;
-    record = db.newRecord(ACCOUNT_USER);
-    data.getAccountUser().intoFieldValueMap().forEach(record::setValue);
-
-    try {
-      record.store();
-    } catch (Exception e) {
-      log.warn("Cannot create AccountUser", e.getMessage());
-      throw new BusinessException("Cannot create Account User. Please ensure userId+accountId are valid and unique.");
-    }
-
-    return JSON.objectFromRecord(record);
+    return JSON.objectFromRecord(executeCreate(db, ACCOUNT_USER, fieldValues));
   }
 
   /**

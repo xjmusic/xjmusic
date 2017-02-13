@@ -6,10 +6,11 @@ import io.outright.xj.core.model.Entity;
 import io.outright.xj.core.util.CSV.CSV;
 import io.outright.xj.core.util.Purify;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import org.jooq.Field;
 import org.jooq.types.ULong;
+
+import com.google.api.client.util.Maps;
+import com.google.common.collect.ImmutableList;
 
 import java.math.BigInteger;
 import java.util.List;
@@ -86,7 +87,7 @@ public class Voice extends Entity {
       throw new BusinessException("Type is required.");
     }
     if (!allTypes.contains(this.type)) {
-      throw new BusinessException("'" + this.type + "' is not a valid type (" + CSV.join(allTypes) +").");
+      throw new BusinessException("'" + this.type + "' is not a valid type (" + CSV.join(allTypes) + ").");
     }
     if (this.description == null || this.description.length() == 0) {
       throw new BusinessException("Description is required.");
@@ -100,11 +101,11 @@ public class Voice extends Entity {
    */
   @Override
   public Map<Field, Object> intoFieldValueMap() {
-    return new ImmutableMap.Builder<Field, Object>()
-      .put(VOICE.PHASE_ID, phaseId)
-      .put(VOICE.TYPE, type)
-      .put(VOICE.DESCRIPTION, description)
-      .build();
+    Map<Field, Object> fieldValues = Maps.newHashMap();
+    fieldValues.put(VOICE.PHASE_ID, phaseId);
+    fieldValues.put(VOICE.TYPE, type);
+    fieldValues.put(VOICE.DESCRIPTION, description);
+    return fieldValues;
   }
 
   @Override

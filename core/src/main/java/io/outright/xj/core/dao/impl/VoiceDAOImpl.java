@@ -4,22 +4,25 @@ package io.outright.xj.core.dao.impl;
 import io.outright.xj.core.app.access.AccessControl;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.app.exception.ConfigException;
-import io.outright.xj.core.app.exception.DatabaseException;
 import io.outright.xj.core.dao.VoiceDAO;
 import io.outright.xj.core.db.sql.SQLConnection;
 import io.outright.xj.core.db.sql.SQLDatabaseProvider;
+import io.outright.xj.core.model.voice.Voice;
 import io.outright.xj.core.model.voice.VoiceWrapper;
-import io.outright.xj.core.tables.records.VoiceRecord;
 import io.outright.xj.core.transport.JSON;
 
-import com.google.inject.Inject;
 import org.jooq.DSLContext;
+import org.jooq.Field;
 import org.jooq.types.ULong;
+
+import com.google.inject.Inject;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.annotation.Nullable;
 import java.sql.SQLException;
+import java.util.Map;
 
 import static io.outright.xj.core.Tables.VOICE_EVENT;
 import static io.outright.xj.core.tables.Idea.IDEA;
@@ -28,7 +31,6 @@ import static io.outright.xj.core.tables.Phase.PHASE;
 import static io.outright.xj.core.tables.Voice.VOICE;
 
 public class VoiceDAOImpl extends DAOImpl implements VoiceDAO {
-  //  private static Logger log = LoggerFactory.getLogger(VoiceDAOImpl.class);
 
   @Inject
   public VoiceDAOImpl(
@@ -101,27 +103,23 @@ public class VoiceDAOImpl extends DAOImpl implements VoiceDAO {
    * @throws BusinessException if failure
    */
   private JSONObject create(DSLContext db, AccessControl access, VoiceWrapper data) throws BusinessException {
-    VoiceRecord record = db.newRecord(VOICE);
-    data.validate();
-    data.getVoice().intoFieldValueMap().forEach(record::setValue);
+    Voice model = data.validate();
+    Map<Field, Object> fieldValues = model.intoFieldValueMap();
 
     if (access.isTopLevel()) {
-      // Admin can create voice in any existing phase
       requireRecordExists("Phase", db.select(PHASE.ID).from(PHASE)
-        .where(PHASE.ID.eq(data.getVoice().getPhaseId()))
+        .where(PHASE.ID.eq(model.getPhaseId()))
         .fetchOne());
     } else {
-      // Not admin, must have account access
       requireRecordExists("Phase", db.select(PHASE.ID).from(PHASE)
         .join(IDEA).on(IDEA.ID.eq(PHASE.IDEA_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(IDEA.LIBRARY_ID))
         .where(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-        .and(PHASE.ID.eq(data.getVoice().getPhaseId()))
+        .and(PHASE.ID.eq(model.getPhaseId()))
         .fetchOne());
     }
 
-    record.store();
-    return JSON.objectFromRecord(record);
+    return JSON.objectFromRecord(executeCreate(db, VOICE, fieldValues));
   }
 
   /**
@@ -133,13 +131,12 @@ public class VoiceDAOImpl extends DAOImpl implements VoiceDAO {
    * @return voice
    */
   private JSONObject readOne(DSLContext db, AccessControl access, ULong id) {
-    JSONObject result;
     if (access.isTopLevel()) {
-      result = JSON.objectFromRecord(db.selectFrom(VOICE)
+      return JSON.objectFromRecord(db.selectFrom(VOICE)
         .where(VOICE.ID.eq(id))
         .fetchOne());
     } else {
-      result = JSON.objectFromRecord(db.select(VOICE.fields())
+      return JSON.objectFromRecord(db.select(VOICE.fields())
         .from(VOICE)
         .join(PHASE).on(PHASE.ID.eq(VOICE.PHASE_ID))
         .join(IDEA).on(IDEA.ID.eq(PHASE.IDEA_ID))
@@ -148,7 +145,6 @@ public class VoiceDAOImpl extends DAOImpl implements VoiceDAO {
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .fetchOne());
     }
-    return result;
   }
 
   /**
@@ -161,14 +157,13 @@ public class VoiceDAOImpl extends DAOImpl implements VoiceDAO {
    * @throws SQLException on failure
    */
   private JSONArray readAllIn(DSLContext db, AccessControl access, ULong phaseId) throws SQLException {
-    JSONArray result;
     if (access.isTopLevel()) {
-      result = JSON.arrayFromResultSet(db.select(VOICE.fields())
+      return JSON.arrayFromResultSet(db.select(VOICE.fields())
         .from(VOICE)
         .where(VOICE.PHASE_ID.eq(phaseId))
         .fetchResultSet());
     } else {
-      result = JSON.arrayFromResultSet(db.select(VOICE.fields())
+      return JSON.arrayFromResultSet(db.select(VOICE.fields())
         .from(VOICE)
         .join(PHASE).on(PHASE.ID.eq(VOICE.PHASE_ID))
         .join(IDEA).on(IDEA.ID.eq(PHASE.IDEA_ID))
@@ -177,7 +172,38 @@ public class VoiceDAOImpl extends DAOImpl implements VoiceDAO {
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .fetchResultSet());
     }
-    return result;
+  }
+
+  /**
+   * Update a Voice record
+   *
+   * @param db     context
+   * @param access control
+   * @param id     to update
+   * @param data   to update with
+   * @throws BusinessException if failure
+   */
+  private void update(DSLContext db, AccessControl access, ULong id, VoiceWrapper data) throws Exception {
+    Voice model = data.validate();
+    Map<Field, Object> fieldValues = model.intoFieldValueMap();
+    fieldValues.put(VOICE.ID, id);
+
+    if (access.isTopLevel()) {
+      requireRecordExists("Phase", db.select(PHASE.ID).from(PHASE)
+        .where(PHASE.ID.eq(model.getPhaseId()))
+        .fetchOne());
+    } else {
+      requireRecordExists("Phase", db.select(PHASE.ID).from(PHASE)
+        .join(IDEA).on(IDEA.ID.eq(PHASE.IDEA_ID))
+        .join(LIBRARY).on(LIBRARY.ID.eq(IDEA.LIBRARY_ID))
+        .where(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
+        .and(PHASE.ID.eq(model.getPhaseId()))
+        .fetchOne());
+    }
+
+    if (executeUpdate(db, VOICE, fieldValues) == 0) {
+      throw new BusinessException("No records updated.");
+    }
   }
 
   /**
@@ -215,40 +241,4 @@ public class VoiceDAOImpl extends DAOImpl implements VoiceDAO {
       .execute();
   }
 
-  /**
-   * Update a Voice record
-   *
-   * @param db     context
-   * @param access control
-   * @param id     to update
-   * @param data   to update with
-   * @throws BusinessException if failure
-   */
-  private void update(DSLContext db, AccessControl access, ULong id, VoiceWrapper data) throws Exception {
-    VoiceRecord record;
-
-    record = db.newRecord(VOICE);
-    record.setId(id);
-    data.validate();
-    data.getVoice().intoFieldValueMap().forEach(record::setValue);
-
-    if (access.isTopLevel()) {
-      // Admin can create voice in any existing phase
-      requireRecordExists("Phase", db.select(PHASE.ID).from(PHASE)
-        .where(PHASE.ID.eq(data.getVoice().getPhaseId()))
-        .fetchOne());
-    } else {
-      // Not admin, must have account access
-      requireRecordExists("Phase", db.select(PHASE.ID).from(PHASE)
-        .join(IDEA).on(IDEA.ID.eq(PHASE.IDEA_ID))
-        .join(LIBRARY).on(LIBRARY.ID.eq(IDEA.LIBRARY_ID))
-        .where(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-        .and(PHASE.ID.eq(data.getVoice().getPhaseId()))
-        .fetchOne());
-    }
-
-    if (db.executeUpdate(record) == 0) {
-      throw new DatabaseException("No records updated.");
-    }
-  }
 }

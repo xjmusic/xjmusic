@@ -20,11 +20,12 @@ public class PhaseChordWrapper extends EntityWrapper {
    * Validate data.
    * @throws BusinessException if invalid.
    */
-  public void validate() throws BusinessException{
+  public PhaseChord validate() throws BusinessException{
     if (this.phaseChord == null) {
       throw new BusinessException("phaseChord is required.");
     }
     this.phaseChord.validate();
+    return this.phaseChord;
   }
 
   @Override

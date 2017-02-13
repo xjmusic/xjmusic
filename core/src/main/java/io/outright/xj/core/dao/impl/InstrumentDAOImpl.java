@@ -4,15 +4,15 @@ package io.outright.xj.core.dao.impl;
 import io.outright.xj.core.app.access.AccessControl;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.app.exception.ConfigException;
-import io.outright.xj.core.app.exception.DatabaseException;
 import io.outright.xj.core.dao.InstrumentDAO;
 import io.outright.xj.core.db.sql.SQLConnection;
 import io.outright.xj.core.db.sql.SQLDatabaseProvider;
+import io.outright.xj.core.model.instrument.Instrument;
 import io.outright.xj.core.model.instrument.InstrumentWrapper;
-import io.outright.xj.core.tables.records.InstrumentRecord;
 import io.outright.xj.core.transport.JSON;
 
 import org.jooq.DSLContext;
+import org.jooq.Field;
 import org.jooq.Record;
 import org.jooq.types.ULong;
 
@@ -23,6 +23,7 @@ import org.json.JSONObject;
 
 import javax.annotation.Nullable;
 import java.sql.SQLException;
+import java.util.Map;
 
 import static io.outright.xj.core.Tables.AUDIO;
 import static io.outright.xj.core.Tables.INSTRUMENT;
@@ -30,7 +31,6 @@ import static io.outright.xj.core.tables.InstrumentMeme.INSTRUMENT_MEME;
 import static io.outright.xj.core.tables.Library.LIBRARY;
 
 public class InstrumentDAOImpl extends DAOImpl implements InstrumentDAO {
-  //  private static Logger log = LoggerFactory.getLogger(InstrumentDAOImpl.class);
 
   @Inject
   public InstrumentDAOImpl(
@@ -103,29 +103,24 @@ public class InstrumentDAOImpl extends DAOImpl implements InstrumentDAO {
    * @throws BusinessException on failure
    */
   private JSONObject create(DSLContext db, AccessControl access, InstrumentWrapper data) throws BusinessException {
-    InstrumentRecord record;
-    record = db.newRecord(INSTRUMENT);
-    data.validate();
-    data.getInstrument().intoFieldValueMap().forEach(record::setValue);
+    Instrument model = data.validate();
+    Map<Field, Object> fieldValues = model.intoFieldValueMap();
+
     if (access.isTopLevel()) {
-      // Admin can create instrument in any existing library, with any user.
       requireRecordExists("Library",
         db.select(LIBRARY.ID).from(LIBRARY)
-          .where(LIBRARY.ID.eq(data.getInstrument().getLibraryId()))
+          .where(LIBRARY.ID.eq(model.getLibraryId()))
           .fetchOne());
     } else {
-      // Not admin, must have account access, created by self user.
       requireRecordExists("Library",
         db.select(LIBRARY.ID).from(LIBRARY)
           .where(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-          .and(LIBRARY.ID.eq(data.getInstrument().getLibraryId()))
+          .and(LIBRARY.ID.eq(model.getLibraryId()))
           .fetchOne());
-      record.setUserId(access.getUserId());
+      fieldValues.put(INSTRUMENT.USER_ID, access.getUserId());
     }
 
-    record.store();
-
-    return JSON.objectFromRecord(record);
+    return JSON.objectFromRecord(executeCreate(db, INSTRUMENT, fieldValues));
   }
 
   /**
@@ -187,31 +182,26 @@ public class InstrumentDAOImpl extends DAOImpl implements InstrumentDAO {
    * @throws Exception         on database failure
    */
   private void update(DSLContext db, AccessControl access, ULong id, InstrumentWrapper data) throws Exception {
-    data.validate();
-
-    InstrumentRecord record;
-    record = db.newRecord(INSTRUMENT);
-    record.setId(id);
-    data.getInstrument().intoFieldValueMap().forEach(record::setValue);
+    Instrument model = data.validate();
+    Map<Field, Object> fieldValues = model.intoFieldValueMap();
+    fieldValues.put(INSTRUMENT.ID, id);
 
     if (access.isTopLevel()) {
-      // Admin can create instrument in any existing library, with any user.
       requireRecordExists("Library",
         db.select(LIBRARY.ID).from(LIBRARY)
-          .where(LIBRARY.ID.eq(data.getInstrument().getLibraryId()))
+          .where(LIBRARY.ID.eq(model.getLibraryId()))
           .fetchOne());
     } else {
-      // Not admin, must have account access, created by self user.
       requireRecordExists("Library",
         db.select(LIBRARY.ID).from(LIBRARY)
           .where(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-          .and(LIBRARY.ID.eq(data.getInstrument().getLibraryId()))
+          .and(LIBRARY.ID.eq(model.getLibraryId()))
           .fetchOne());
-      record.setUserId(access.getUserId());
+      fieldValues.put(INSTRUMENT.USER_ID, access.getUserId());
     }
 
-    if (db.executeUpdate(record) == 0) {
-      throw new DatabaseException("No records updated.");
+    if (executeUpdate(db, INSTRUMENT, fieldValues) == 0) {
+      throw new BusinessException("No records updated.");
     }
   }
 

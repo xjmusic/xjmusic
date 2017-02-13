@@ -21,11 +21,12 @@ public class AudioWrapper extends EntityWrapper {
    * @throws BusinessException if invalid.
    */
   @Override
-  public void validate() throws BusinessException{
+  public Audio validate() throws BusinessException{
     if (this.audio == null) {
       throw new BusinessException("Audio is required.");
     }
     this.audio.validate();
+    return this.audio;
   }
 
   @Override

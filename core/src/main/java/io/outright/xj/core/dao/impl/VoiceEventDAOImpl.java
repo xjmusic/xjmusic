@@ -4,17 +4,16 @@ package io.outright.xj.core.dao.impl;
 import io.outright.xj.core.app.access.AccessControl;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.app.exception.ConfigException;
-import io.outright.xj.core.app.exception.DatabaseException;
 import io.outright.xj.core.dao.VoiceEventDAO;
 import io.outright.xj.core.db.sql.SQLConnection;
 import io.outright.xj.core.db.sql.SQLDatabaseProvider;
+import io.outright.xj.core.model.voice_event.VoiceEvent;
 import io.outright.xj.core.model.voice_event.VoiceEventWrapper;
 import io.outright.xj.core.tables.Voice;
-import io.outright.xj.core.tables.records.VoiceEventRecord;
 import io.outright.xj.core.transport.JSON;
 
 import org.jooq.DSLContext;
-import org.jooq.Record;
+import org.jooq.Field;
 import org.jooq.types.ULong;
 
 import com.google.inject.Inject;
@@ -24,6 +23,7 @@ import org.json.JSONObject;
 
 import javax.annotation.Nullable;
 import java.sql.SQLException;
+import java.util.Map;
 
 import static io.outright.xj.core.Tables.VOICE;
 import static io.outright.xj.core.Tables.VOICE_EVENT;
@@ -32,7 +32,6 @@ import static io.outright.xj.core.tables.Library.LIBRARY;
 import static io.outright.xj.core.tables.Phase.PHASE;
 
 public class VoiceEventDAOImpl extends DAOImpl implements VoiceEventDAO {
-  //  private static Logger log = LoggerFactory.getLogger(VoiceDAOImpl.class);
 
   @Inject
   public VoiceEventDAOImpl(
@@ -105,13 +104,12 @@ public class VoiceEventDAOImpl extends DAOImpl implements VoiceEventDAO {
    * @throws BusinessException if failure
    */
   private JSONObject create(DSLContext db, AccessControl access, VoiceEventWrapper data) throws BusinessException {
-    VoiceEventRecord record = db.newRecord(VOICE_EVENT);
-    data.validate();
-    data.getVoiceEvent().intoFieldValueMap().forEach(record::setValue);
+    VoiceEvent model = data.validate();
+    Map<Field, Object> fieldValues = model.intoFieldValueMap();
 
     if (access.isTopLevel()) {
       requireRecordExists("Voice", db.select(VOICE.ID).from(VOICE)
-        .where(VOICE.ID.eq(data.getVoiceEvent().getVoiceId()))
+        .where(VOICE.ID.eq(model.getVoiceId()))
         .fetchOne());
     } else {
       requireRecordExists("Voice", db.select(VOICE.ID).from(VOICE)
@@ -119,12 +117,11 @@ public class VoiceEventDAOImpl extends DAOImpl implements VoiceEventDAO {
         .join(IDEA).on(IDEA.ID.eq(PHASE.IDEA_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(IDEA.LIBRARY_ID))
         .where(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-        .and(VOICE.ID.eq(data.getVoiceEvent().getVoiceId()))
+        .and(VOICE.ID.eq(model.getVoiceId()))
         .fetchOne());
     }
 
-    record.store();
-    return JSON.objectFromRecord(record);
+    return JSON.objectFromRecord(executeCreate(db, VOICE_EVENT, fieldValues));
   }
 
   /**
@@ -136,13 +133,12 @@ public class VoiceEventDAOImpl extends DAOImpl implements VoiceEventDAO {
    * @return voice
    */
   private JSONObject readOne(DSLContext db, AccessControl access, ULong id) {
-    JSONObject result;
     if (access.isTopLevel()) {
-      result = JSON.objectFromRecord(db.selectFrom(VOICE_EVENT)
+      return JSON.objectFromRecord(db.selectFrom(VOICE_EVENT)
         .where(VOICE_EVENT.ID.eq(id))
         .fetchOne());
     } else {
-      result = JSON.objectFromRecord(db.select(VOICE_EVENT.fields())
+      return JSON.objectFromRecord(db.select(VOICE_EVENT.fields())
         .from(VOICE_EVENT)
         .join(VOICE).on(VOICE.ID.eq(VOICE_EVENT.VOICE_ID))
         .join(PHASE).on(PHASE.ID.eq(VOICE.PHASE_ID))
@@ -152,7 +148,6 @@ public class VoiceEventDAOImpl extends DAOImpl implements VoiceEventDAO {
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .fetchOne());
     }
-    return result;
   }
 
   /**
@@ -165,15 +160,14 @@ public class VoiceEventDAOImpl extends DAOImpl implements VoiceEventDAO {
    * @throws SQLException on failure
    */
   private JSONArray readAllIn(DSLContext db, AccessControl access, ULong voiceId) throws SQLException {
-    JSONArray result;
     if (access.isTopLevel()) {
-      result = JSON.arrayFromResultSet(db.select(VOICE_EVENT.fields())
+      return JSON.arrayFromResultSet(db.select(VOICE_EVENT.fields())
         .from(VOICE_EVENT)
         .where(VOICE_EVENT.VOICE_ID.eq(voiceId))
         .orderBy(VOICE_EVENT.POSITION)
         .fetchResultSet());
     } else {
-      result = JSON.arrayFromResultSet(db.select(VOICE_EVENT.fields())
+      return JSON.arrayFromResultSet(db.select(VOICE_EVENT.fields())
         .from(VOICE_EVENT)
         .join(VOICE).on(VOICE.ID.eq(VOICE_EVENT.VOICE_ID))
         .join(PHASE).on(PHASE.ID.eq(VOICE.PHASE_ID))
@@ -184,7 +178,6 @@ public class VoiceEventDAOImpl extends DAOImpl implements VoiceEventDAO {
         .orderBy(VOICE_EVENT.POSITION)
         .fetchResultSet());
     }
-    return result;
   }
 
   /**
@@ -197,16 +190,13 @@ public class VoiceEventDAOImpl extends DAOImpl implements VoiceEventDAO {
    * @throws BusinessException if failure
    */
   private void update(DSLContext db, AccessControl access, ULong id, VoiceEventWrapper data) throws Exception {
-    VoiceEventRecord record;
-
-    record = db.newRecord(VOICE_EVENT);
-    record.setId(id);
-    data.validate();
-    data.getVoiceEvent().intoFieldValueMap().forEach(record::setValue);
+    VoiceEvent model = data.validate();
+    Map<Field, Object> fieldValues = model.intoFieldValueMap();
+    fieldValues.put(VOICE_EVENT.ID, id);
 
     if (access.isTopLevel()) {
       requireRecordExists("Voice", db.select(VOICE.ID).from(VOICE)
-        .where(VOICE.ID.eq(data.getVoiceEvent().getVoiceId()))
+        .where(VOICE.ID.eq(model.getVoiceId()))
         .fetchOne());
     } else {
       requireRecordExists("Voice", db.select(VOICE.ID).from(VOICE)
@@ -214,12 +204,12 @@ public class VoiceEventDAOImpl extends DAOImpl implements VoiceEventDAO {
         .join(IDEA).on(IDEA.ID.eq(PHASE.IDEA_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(IDEA.LIBRARY_ID))
         .where(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-        .and(VOICE.ID.eq(data.getVoiceEvent().getVoiceId()))
+        .and(VOICE.ID.eq(model.getVoiceId()))
         .fetchOne());
     }
 
-    if (db.executeUpdate(record) == 0) {
-      throw new DatabaseException("No records updated.");
+    if (executeUpdate(db, VOICE_EVENT, fieldValues) == 0) {
+      throw new BusinessException("No records updated.");
     }
   }
 
@@ -234,15 +224,15 @@ public class VoiceEventDAOImpl extends DAOImpl implements VoiceEventDAO {
    */
   private void delete(AccessControl access, DSLContext db, ULong id) throws Exception {
     if (!access.isTopLevel()) {
-      Record record = db.select(VOICE_EVENT.ID).from(VOICE_EVENT)
-        .join(Voice.VOICE).on(Voice.VOICE.ID.eq(VOICE_EVENT.VOICE_ID))
-        .join(PHASE).on(PHASE.ID.eq(VOICE.PHASE_ID))
-        .join(IDEA).on(IDEA.ID.eq(PHASE.IDEA_ID))
-        .join(LIBRARY).on(IDEA.LIBRARY_ID.eq(LIBRARY.ID))
-        .where(VOICE_EVENT.ID.eq(id))
-        .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-        .fetchOne();
-      requireRecordExists("Voice Meme", record);
+      requireRecordExists("Voice Meme",
+        db.select(VOICE_EVENT.ID).from(VOICE_EVENT)
+          .join(Voice.VOICE).on(Voice.VOICE.ID.eq(VOICE_EVENT.VOICE_ID))
+          .join(PHASE).on(PHASE.ID.eq(VOICE.PHASE_ID))
+          .join(IDEA).on(IDEA.ID.eq(PHASE.IDEA_ID))
+          .join(LIBRARY).on(IDEA.LIBRARY_ID.eq(LIBRARY.ID))
+          .where(VOICE_EVENT.ID.eq(id))
+          .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
+          .fetchOne());
     }
 
     db.deleteFrom(VOICE_EVENT)

@@ -4,15 +4,15 @@ package io.outright.xj.core.dao.impl;
 import io.outright.xj.core.app.access.AccessControl;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.app.exception.ConfigException;
-import io.outright.xj.core.app.exception.DatabaseException;
 import io.outright.xj.core.dao.AudioDAO;
 import io.outright.xj.core.db.sql.SQLConnection;
 import io.outright.xj.core.db.sql.SQLDatabaseProvider;
+import io.outright.xj.core.model.audio.Audio;
 import io.outright.xj.core.model.audio.AudioWrapper;
-import io.outright.xj.core.tables.records.AudioRecord;
 import io.outright.xj.core.transport.JSON;
 
 import org.jooq.DSLContext;
+import org.jooq.Field;
 import org.jooq.types.ULong;
 
 import com.google.inject.Inject;
@@ -22,6 +22,7 @@ import org.json.JSONObject;
 
 import javax.annotation.Nullable;
 import java.sql.SQLException;
+import java.util.Map;
 
 import static io.outright.xj.core.Tables.AUDIO_EVENT;
 import static io.outright.xj.core.tables.Audio.AUDIO;
@@ -29,7 +30,6 @@ import static io.outright.xj.core.tables.Instrument.INSTRUMENT;
 import static io.outright.xj.core.tables.Library.LIBRARY;
 
 public class AudioDAOImpl extends DAOImpl implements AudioDAO {
-  //  private static Logger log = LoggerFactory.getLogger(AudioDAOImpl.class);
 
   @Inject
   public AudioDAOImpl(
@@ -102,26 +102,22 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
    * @throws BusinessException if failure
    */
   private JSONObject create(DSLContext db, AccessControl access, AudioWrapper data) throws BusinessException {
-    AudioRecord record = db.newRecord(AUDIO);
-    data.validate();
-    data.getAudio().intoFieldValueMap().forEach(record::setValue);
+    Audio model = data.validate();
+    Map<Field, Object> fieldValues = model.intoFieldValueMap();
 
     if (access.isTopLevel()) {
-      // Admin can create audio in any existing instrument
       requireRecordExists("Instrument", db.select(INSTRUMENT.ID).from(INSTRUMENT)
-        .where(INSTRUMENT.ID.eq(data.getAudio().getInstrumentId()))
+        .where(INSTRUMENT.ID.eq(model.getInstrumentId()))
         .fetchOne());
     } else {
-      // Not admin, must have account access
       requireRecordExists("Instrument", db.select(INSTRUMENT.ID).from(INSTRUMENT)
         .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
         .where(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-        .and(INSTRUMENT.ID.eq(data.getAudio().getInstrumentId()))
+        .and(INSTRUMENT.ID.eq(model.getInstrumentId()))
         .fetchOne());
     }
 
-    record.store();
-    return JSON.objectFromRecord(record);
+    return JSON.objectFromRecord(executeCreate(db, AUDIO, fieldValues));
   }
 
   /**
@@ -133,13 +129,12 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
    * @return audio
    */
   private JSONObject readOne(DSLContext db, AccessControl access, ULong id) {
-    JSONObject result;
     if (access.isTopLevel()) {
-      result = JSON.objectFromRecord(db.selectFrom(AUDIO)
+      return JSON.objectFromRecord(db.selectFrom(AUDIO)
         .where(AUDIO.ID.eq(id))
         .fetchOne());
     } else {
-      result = JSON.objectFromRecord(db.select(AUDIO.fields())
+      return JSON.objectFromRecord(db.select(AUDIO.fields())
         .from(AUDIO)
         .join(INSTRUMENT).on(INSTRUMENT.ID.eq(AUDIO.INSTRUMENT_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
@@ -147,7 +142,6 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .fetchOne());
     }
-    return result;
   }
 
   /**
@@ -160,14 +154,13 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
    * @throws SQLException on failure
    */
   private JSONArray readAllIn(DSLContext db, AccessControl access, ULong instrumentId) throws SQLException {
-    JSONArray result;
     if (access.isTopLevel()) {
-      result = JSON.arrayFromResultSet(db.select(AUDIO.fields())
+      return JSON.arrayFromResultSet(db.select(AUDIO.fields())
         .from(AUDIO)
         .where(AUDIO.INSTRUMENT_ID.eq(instrumentId))
         .fetchResultSet());
     } else {
-      result = JSON.arrayFromResultSet(db.select(AUDIO.fields())
+      return JSON.arrayFromResultSet(db.select(AUDIO.fields())
         .from(AUDIO)
         .join(INSTRUMENT).on(INSTRUMENT.ID.eq(AUDIO.INSTRUMENT_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
@@ -175,7 +168,37 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .fetchResultSet());
     }
-    return result;
+  }
+
+  /**
+   * Update an Audio record
+   *
+   * @param db     context
+   * @param access control
+   * @param id     to update
+   * @param data   to update with
+   * @throws BusinessException if failure
+   */
+  private void update(DSLContext db, AccessControl access, ULong id, AudioWrapper data) throws Exception {
+    Audio model = data.validate();
+    Map<Field, Object> fieldValues = model.intoFieldValueMap();
+    fieldValues.put(AUDIO.ID, id);
+
+    if (access.isTopLevel()) {
+      requireRecordExists("Instrument", db.select(INSTRUMENT.ID).from(INSTRUMENT)
+        .where(INSTRUMENT.ID.eq(model.getInstrumentId()))
+        .fetchOne());
+    } else {
+      requireRecordExists("Instrument", db.select(INSTRUMENT.ID).from(INSTRUMENT)
+        .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
+        .where(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
+        .and(INSTRUMENT.ID.eq(model.getInstrumentId()))
+        .fetchOne());
+    }
+
+    if (executeUpdate(db, AUDIO, fieldValues) == 0) {
+      throw new BusinessException("No records updated.");
+    }
   }
 
   /**
@@ -212,39 +235,4 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
       .execute();
   }
 
-  /**
-   * Update a Audio record
-   *
-   * @param db     context
-   * @param access control
-   * @param id     to update
-   * @param data   to update with
-   * @throws BusinessException if failure
-   */
-  private void update(DSLContext db, AccessControl access, ULong id, AudioWrapper data) throws Exception {
-    AudioRecord record;
-
-    record = db.newRecord(AUDIO);
-    record.setId(id);
-    data.validate();
-    data.getAudio().intoFieldValueMap().forEach(record::setValue);
-
-    if (access.isTopLevel()) {
-      // Admin can create audio in any existing instrument
-      requireRecordExists("Instrument", db.select(INSTRUMENT.ID).from(INSTRUMENT)
-        .where(INSTRUMENT.ID.eq(record.getInstrumentId()))
-        .fetchOne());
-    } else {
-      // Not admin, must have account access
-      requireRecordExists("Instrument", db.select(INSTRUMENT.ID).from(INSTRUMENT)
-        .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
-        .where(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-        .and(INSTRUMENT.ID.eq(record.getInstrumentId()))
-        .fetchOne());
-    }
-
-    if (db.executeUpdate(record) == 0) {
-      throw new DatabaseException("No records updated.");
-    }
-  }
 }

@@ -20,11 +20,12 @@ public class IdeaWrapper extends EntityWrapper {
    * Validate data.
    * @throws BusinessException if invalid.
    */
-  public void validate() throws BusinessException{
+  public Idea validate() throws BusinessException{
     if (this.idea == null) {
       throw new BusinessException("Idea is required.");
     }
     this.idea.validate();
+    return this.idea;
   }
 
   @Override

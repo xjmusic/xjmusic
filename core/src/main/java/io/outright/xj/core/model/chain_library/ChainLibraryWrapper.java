@@ -4,8 +4,6 @@ package io.outright.xj.core.model.chain_library;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.model.EntityWrapper;
 
-import org.jooq.Record;
-
 public class ChainLibraryWrapper extends EntityWrapper {
 
   // Chain
@@ -22,11 +20,12 @@ public class ChainLibraryWrapper extends EntityWrapper {
    * Validate data.
    * @throws BusinessException if invalid.
    */
-  public void validate() throws BusinessException{
+  public ChainLibrary validate() throws BusinessException{
     if (this.chainLibrary == null) {
       throw new BusinessException("Chain Library is required.");
     }
     this.chainLibrary.validate();
+    return this.chainLibrary;
   }
 
   @Override
@@ -36,7 +35,4 @@ public class ChainLibraryWrapper extends EntityWrapper {
       "}";
   }
 
-  public Record intoRecord() {
-    return null;
-  }
 }

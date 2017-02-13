@@ -7,11 +7,12 @@ import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.dao.InstrumentMemeDAO;
 import io.outright.xj.core.db.sql.SQLConnection;
 import io.outright.xj.core.db.sql.SQLDatabaseProvider;
+import io.outright.xj.core.model.instrument_meme.InstrumentMeme;
 import io.outright.xj.core.model.instrument_meme.InstrumentMemeWrapper;
-import io.outright.xj.core.tables.records.InstrumentMemeRecord;
 import io.outright.xj.core.transport.JSON;
 
 import org.jooq.DSLContext;
+import org.jooq.Field;
 import org.jooq.Record;
 import org.jooq.types.ULong;
 
@@ -19,10 +20,9 @@ import com.google.inject.Inject;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
+import java.util.Map;
 
 import static io.outright.xj.core.tables.Instrument.INSTRUMENT;
 import static io.outright.xj.core.tables.InstrumentMeme.INSTRUMENT_MEME;
@@ -34,7 +34,6 @@ import static io.outright.xj.core.tables.Library.LIBRARY;
  * TODO [core] more specific permissions of user (artist) access by per-entity ownership
  */
 public class InstrumentMemeDAOImpl extends DAOImpl implements InstrumentMemeDAO {
-  private static Logger log = LoggerFactory.getLogger(InstrumentMemeDAOImpl.class);
 
   @Inject
   public InstrumentMemeDAOImpl(
@@ -96,42 +95,29 @@ public class InstrumentMemeDAOImpl extends DAOImpl implements InstrumentMemeDAO 
    * @throws BusinessException if fails business rule
    */
   private JSONObject create(DSLContext db, AccessControl access, InstrumentMemeWrapper data) throws Exception {
-    data.validate();
-
-    ULong instrumentId = ULong.valueOf(data.getInstrumentMeme().getInstrumentId());
-    String name = data.getInstrumentMeme().getName();
+    InstrumentMeme model = data.validate();
+    Map<Field, Object> fieldValues = model.intoFieldValueMap();
 
     if (access.isTopLevel()) {
       requireRecordExists("Instrument", db.select(INSTRUMENT.ID).from(INSTRUMENT)
-        .where(INSTRUMENT.ID.eq(instrumentId))
+        .where(INSTRUMENT.ID.eq(model.getInstrumentId()))
         .fetchOne());
     } else {
       requireRecordExists("Instrument", db.select(INSTRUMENT.ID).from(INSTRUMENT)
         .join(LIBRARY).on(INSTRUMENT.LIBRARY_ID.eq(LIBRARY.ID))
-        .where(INSTRUMENT.ID.eq(instrumentId))
+        .where(INSTRUMENT.ID.eq(model.getInstrumentId()))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .fetchOne());
     }
 
     if (db.selectFrom(INSTRUMENT_MEME)
-      .where(INSTRUMENT_MEME.INSTRUMENT_ID.eq(instrumentId))
-      .and(INSTRUMENT_MEME.NAME.eq(name))
+      .where(INSTRUMENT_MEME.INSTRUMENT_ID.eq(model.getInstrumentId()))
+      .and(INSTRUMENT_MEME.NAME.eq(model.getName()))
       .fetchOne() != null) {
       throw new BusinessException("Instrument Meme already exists!");
     }
 
-    InstrumentMemeRecord record;
-    record = db.newRecord(INSTRUMENT_MEME);
-    data.getInstrumentMeme().intoFieldValueMap().forEach(record::setValue);
-
-    try {
-      record.store();
-    } catch (Exception e) {
-      log.warn("Cannot create InstrumentMeme", e.getMessage());
-      throw new BusinessException("Cannot create Instrument Meme. Please ensure name+instrumentId are valid and unique.");
-    }
-
-    return JSON.objectFromRecord(record);
+    return JSON.objectFromRecord(executeCreate(db, INSTRUMENT_MEME, fieldValues));
   }
 
   /**

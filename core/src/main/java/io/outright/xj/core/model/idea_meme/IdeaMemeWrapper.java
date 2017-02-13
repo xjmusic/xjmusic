@@ -4,8 +4,6 @@ package io.outright.xj.core.model.idea_meme;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.model.EntityWrapper;
 
-import org.jooq.Record;
-
 public class IdeaMemeWrapper extends EntityWrapper {
 
   // Idea
@@ -25,11 +23,12 @@ public class IdeaMemeWrapper extends EntityWrapper {
    *
    * @throws BusinessException if invalid.
    */
-  public void validate() throws BusinessException {
+  public IdeaMeme validate() throws BusinessException {
     if (this.ideaMeme == null) {
       throw new BusinessException("Idea is required.");
     }
     this.ideaMeme.validate();
+    return this.ideaMeme;
   }
 
   @Override
@@ -37,9 +36,5 @@ public class IdeaMemeWrapper extends EntityWrapper {
     return "{" +
       IdeaMeme.KEY_ONE + ":" + this.ideaMeme +
       "}";
-  }
-
-  public Record intoRecord() {
-    return null;
   }
 }
