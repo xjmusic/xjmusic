@@ -10,7 +10,7 @@
   {{#if model.chainLibraries.length}}
 
     <!-- List of Records -->
-    <div class="col-sm-offset-2 sm-col-12">
+    <div class="sm-col-12">
       <div class="table-list">
         <table class="table">
           <thead>
@@ -36,19 +36,17 @@
         </table>
       </div>
     </div>
+  {{else}}
+    <div class="sm-col-12">
+      <h4>There are no Libraries in this Chain.</h4>
+    </div>
   {{/if}}
 
   {{#if auth.isAdmin}}
     <!-- Add a Library to this Chain -->
-    <!-- Header -->
+    <hr/>
     <div class="form-group">
-      <div class="col-sm-12">
-        <hr/>
-        <h4>Add Library to Chain #{{model.chain.id}}</h4>
-      </div>
-    </div>
-    <div class="form-group">
-      <label class="col-sm-2 control-label">Select Library</label>
+      <label class="col-sm-2 control-label">Select Library to add</label>
       <div class="col-sm-10">
         <!--input type="text" value=model.newChainLibrary.libraryId class="form-control" autofocus="autofocus"-->
         <!--placeholder="Library ID to grant access"}}-->

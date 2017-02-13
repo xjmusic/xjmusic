@@ -24,7 +24,7 @@ export default Ember.Route.extend({
     saveEvent(model) {
       model.save().then(() => {
         Ember.get(this, 'display').success('Updated event "' + model.get('inflection') + '" event in ' + model.get('note') + '.');
-        this.transitionTo('accounts.one.libraries.one.ideas.one.phases.one.voices.one.events', model.get('voice'));
+        this.transitionTo('accounts.one.libraries.one.ideas.one.phases.one.voices.one.events');
       }).catch((error) => {
         Ember.get(this, 'display').error(error);
       });

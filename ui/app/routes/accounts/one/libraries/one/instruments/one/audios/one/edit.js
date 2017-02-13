@@ -24,7 +24,7 @@ export default Ember.Route.extend({
     saveAudio(model) {
       model.save().then(() => {
         Ember.get(this, 'display').success('Updated audio "' + model.get('name') + '".');
-        this.transitionTo('accounts.one.libraries.one.instruments.one.audios', model.get('instrument'));
+        this.transitionTo('accounts.one.libraries.one.instruments.one.audios');
       }).catch((error) => {
         Ember.get(this, 'display').error(error);
       });

@@ -27,6 +27,7 @@ import java.sql.Timestamp;
 
 import static io.outright.xj.core.tables.Chain.CHAIN;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
@@ -77,6 +78,29 @@ public class ChainIT {
     assertEquals(Chain.DRAFT, actualResult.get("state"));
     assertEquals(Timestamp.valueOf("2009-08-12 12:17:02.527142"), actualResult.get("startAt"));
     assertEquals(Timestamp.valueOf("2009-09-11 12:17:01.047563"), actualResult.get("stopAt"));
+  }
+
+  @Test
+  public void create_WithoutStopAt() throws Exception {
+    AccessControl access = new AccessControl(ImmutableMap.of(
+      "roles", "admin"
+    ));
+    ChainWrapper inputDataWrapper = new ChainWrapper()
+      .setChain(new Chain()
+        .setAccountId(BigInteger.valueOf(1))
+        .setName("manuts")
+        .setState(Chain.DRAFT)
+        .setStartAt("2009-08-12 12:17:02.527142")
+      );
+
+    JSONObject actualResult = testDAO.create(access, inputDataWrapper);
+
+    assertNotNull(actualResult);
+    assertEquals(ULong.valueOf(1), actualResult.get("accountId"));
+    assertEquals("manuts", actualResult.get("name"));
+    assertEquals(Chain.DRAFT, actualResult.get("state"));
+    assertEquals(Timestamp.valueOf("2009-08-12 12:17:02.527142"), actualResult.get("startAt"));
+    assertFalse(actualResult.has("stopAt"));
   }
 
   @Test(expected = BusinessException.class)
@@ -172,6 +196,61 @@ public class ChainIT {
     assertEquals(0, actualResultList.length());
   }
 
+  @Test
+  public void update() throws Exception {
+    AccessControl access = new AccessControl(ImmutableMap.of(
+      "roles", "admin"
+    ));
+    ChainWrapper inputDataWrapper = new ChainWrapper()
+      .setChain(new Chain()
+        .setAccountId(BigInteger.valueOf(1))
+        .setName("manuts")
+        .setState(Chain.COMPLETE)
+        .setStartAt("2009-08-12 12:17:02.687327")
+        .setStopAt("2009-09-11 12:17:01.989941")
+      );
+
+    testDAO.update(access, ULong.valueOf(2), inputDataWrapper);
+
+    ChainRecord updatedRecord = IntegrationTestService.getDb()
+      .selectFrom(CHAIN)
+      .where(CHAIN.ID.eq(ULong.valueOf(2)))
+      .fetchOne();
+    assertNotNull(updatedRecord);
+    assertEquals("manuts", updatedRecord.getName());
+    assertEquals(ULong.valueOf(1), updatedRecord.getAccountId());
+    assertEquals(Chain.COMPLETE, updatedRecord.getState());
+    assertEquals(Timestamp.valueOf("2009-08-12 12:17:02.687327"), updatedRecord.getStartAt());
+    assertEquals(Timestamp.valueOf("2009-09-11 12:17:01.989941"), updatedRecord.getStopAt());
+  }
+
+  @Test
+  public void update_RemoveStopAt() throws Exception {
+    AccessControl access = new AccessControl(ImmutableMap.of(
+      "roles", "admin"
+    ));
+    ChainWrapper inputDataWrapper = new ChainWrapper()
+      .setChain(new Chain()
+        .setAccountId(BigInteger.valueOf(1))
+        .setName("manuts")
+        .setState(Chain.COMPLETE)
+        .setStartAt("2009-08-12 12:17:02.687327")
+      );
+
+    testDAO.update(access, ULong.valueOf(2), inputDataWrapper);
+
+    ChainRecord updatedRecord = IntegrationTestService.getDb()
+      .selectFrom(CHAIN)
+      .where(CHAIN.ID.eq(ULong.valueOf(2)))
+      .fetchOne();
+    assertNotNull(updatedRecord);
+    assertEquals("manuts", updatedRecord.getName());
+    assertEquals(ULong.valueOf(1), updatedRecord.getAccountId());
+    assertEquals(Chain.COMPLETE, updatedRecord.getState());
+    assertEquals(Timestamp.valueOf("2009-08-12 12:17:02.687327"), updatedRecord.getStartAt());
+    assertEquals(null, updatedRecord.getStopAt());
+  }
+
   @Test(expected = BusinessException.class)
   public void update_FailsWithoutAccountID() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
@@ -231,34 +310,6 @@ public class ChainIT {
       assertEquals(ULong.valueOf(1), updatedRecord.getAccountId());
       throw e;
     }
-  }
-
-  @Test
-  public void update() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
-      "roles", "admin"
-    ));
-    ChainWrapper inputDataWrapper = new ChainWrapper()
-      .setChain(new Chain()
-        .setAccountId(BigInteger.valueOf(1))
-        .setName("manuts")
-        .setState(Chain.COMPLETE)
-        .setStartAt("2009-08-12 12:17:02.687327")
-        .setStopAt("2009-09-11 12:17:01.989941")
-      );
-
-    testDAO.update(access, ULong.valueOf(2), inputDataWrapper);
-
-    ChainRecord updatedRecord = IntegrationTestService.getDb()
-      .selectFrom(CHAIN)
-      .where(CHAIN.ID.eq(ULong.valueOf(2)))
-      .fetchOne();
-    assertNotNull(updatedRecord);
-    assertEquals("manuts", updatedRecord.getName());
-    assertEquals(ULong.valueOf(1), updatedRecord.getAccountId());
-    assertEquals(Chain.COMPLETE, updatedRecord.getState());
-    assertEquals(Timestamp.valueOf("2009-08-12 12:17:02.687327"), updatedRecord.getStartAt());
-    assertEquals(Timestamp.valueOf("2009-09-11 12:17:01.989941"), updatedRecord.getStopAt());
   }
 
   @Test

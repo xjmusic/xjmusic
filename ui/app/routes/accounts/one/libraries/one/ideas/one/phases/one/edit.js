@@ -24,7 +24,7 @@ export default Ember.Route.extend({
     savePhase(model) {
       model.save().then(() => {
         Ember.get(this, 'display').success('Updated phase ' + model.get('name') + '.');
-        this.transitionTo('accounts.one.libraries.one.ideas.one.phases', model.get('idea'));
+        this.transitionTo('accounts.one.libraries.one.ideas.one.phases');
       }).catch((error) => {
         Ember.get(this, 'display').error(error);
       });

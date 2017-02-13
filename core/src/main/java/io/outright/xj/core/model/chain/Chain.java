@@ -124,9 +124,6 @@ public class Chain extends Entity {
     if (this.startAt == null) {
       throw new BusinessException("Start-at is required." + (startAtError != null ? " " + startAtError : ""));
     }
-    if (this.stopAt == null) {
-      throw new BusinessException("Stop-at is required." + (stopAtError != null ? " " + stopAtError : ""));
-    }
   }
 
   /**

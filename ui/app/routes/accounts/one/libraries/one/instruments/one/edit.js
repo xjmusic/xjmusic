@@ -24,7 +24,7 @@ export default Ember.Route.extend({
     saveInstrument(model) {
       model.save().then(() => {
         Ember.get(this, 'display').success('Updated instrument ' + model.get('description') + '.');
-        this.transitionTo('accounts.one.libraries.one.instruments', model.get('library'));
+        this.transitionTo('accounts.one.libraries.one.instruments');
       }).catch((error) => {
         Ember.get(this, 'display').error(error);
       });

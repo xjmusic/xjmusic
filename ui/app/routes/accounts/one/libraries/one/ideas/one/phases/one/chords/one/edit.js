@@ -24,7 +24,7 @@ export default Ember.Route.extend({
     saveChord(model) {
       model.save().then(() => {
         Ember.get(this, 'display').success('Updated chord ' + model.get('name') + '.');
-        this.transitionTo('accounts.one.libraries.one.ideas.one.phases.one.chords', model.get('phase'));
+        this.transitionTo('accounts.one.libraries.one.ideas.one.phases.one.chords');
       }).catch((error) => {
         Ember.get(this, 'display').error(error);
       });

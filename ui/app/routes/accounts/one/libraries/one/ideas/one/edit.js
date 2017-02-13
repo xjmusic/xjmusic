@@ -24,7 +24,7 @@ export default Ember.Route.extend({
     saveIdea(model) {
       model.save().then(() => {
         Ember.get(this, 'display').success('Updated idea ' + model.get('name') + '.');
-        this.transitionTo('accounts.one.libraries.one.ideas', model.get('library'));
+        this.transitionTo('accounts.one.libraries.one.ideas');
       }).catch((error) => {
         Ember.get(this, 'display').error(error);
       });
