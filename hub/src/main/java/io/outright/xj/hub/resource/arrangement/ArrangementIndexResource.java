@@ -39,7 +39,7 @@ public class ArrangementIndexResource {
   private final ArrangementDAO arrangementDAO = injector.getInstance(ArrangementDAO.class);
   private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
 
-  @QueryParam("choice")
+  @QueryParam("choiceId")
   String choiceId;
 
   /**

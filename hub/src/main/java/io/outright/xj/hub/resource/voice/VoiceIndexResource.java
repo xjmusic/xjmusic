@@ -43,7 +43,7 @@ public class VoiceIndexResource {
   private final VoiceDAO voiceDAO = injector.getInstance(VoiceDAO.class);
   private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
 
-  @QueryParam("phase")
+  @QueryParam("phaseId")
   String phaseId;
 
   /**

@@ -43,7 +43,7 @@ public class InstrumentMemeIndexResource {
   private final InstrumentMemeDAO instrumentMemeDAO = injector.getInstance(InstrumentMemeDAO.class);
   private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
 
-  @QueryParam("instrument")
+  @QueryParam("instrumentId")
   String instrumentId;
 
   /**

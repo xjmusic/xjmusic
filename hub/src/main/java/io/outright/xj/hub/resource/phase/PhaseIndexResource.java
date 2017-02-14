@@ -43,7 +43,7 @@ public class PhaseIndexResource {
   private final PhaseDAO phaseDAO = injector.getInstance(PhaseDAO.class);
   private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
 
-  @QueryParam("idea")
+  @QueryParam("ideaId")
   String ideaId;
 
   /**

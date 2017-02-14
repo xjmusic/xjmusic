@@ -43,7 +43,7 @@ public class PhaseChordIndexResource {
   private final PhaseChordDAO phaseChordDAO = injector.getInstance(PhaseChordDAO.class);
   private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
 
-  @QueryParam("phase")
+  @QueryParam("phaseId")
   String phaseId;
 
   /**

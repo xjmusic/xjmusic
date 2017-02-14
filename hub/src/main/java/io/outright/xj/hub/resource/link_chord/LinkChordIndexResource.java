@@ -39,7 +39,7 @@ public class LinkChordIndexResource {
   private final LinkChordDAO linkChordDAO = injector.getInstance(LinkChordDAO.class);
   private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
 
-  @QueryParam("link")
+  @QueryParam("linkId")
   String linkId;
 
   /**

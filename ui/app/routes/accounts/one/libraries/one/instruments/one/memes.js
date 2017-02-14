@@ -10,7 +10,7 @@ export default Ember.Route.extend({
     return Ember.RSVP.hash({
       instrument: instrument,
       memeToAdd: null,
-      instrumentMemes: this.store.query('instrument-meme', { instrument: instrument.id }),
+      instrumentMemes: this.store.query('instrument-meme', { instrumentId: instrument.id }),
     });
   },
 

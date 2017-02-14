@@ -41,7 +41,7 @@ public class ChainLibraryIndexResource {
   private final ChainLibraryDAO chainLibraryDAO = injector.getInstance(ChainLibraryDAO.class);
   private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
 
-  @QueryParam("chain")
+  @QueryParam("chainId")
   String chainId;
 
   /**

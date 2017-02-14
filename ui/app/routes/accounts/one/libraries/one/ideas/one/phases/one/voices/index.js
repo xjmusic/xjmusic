@@ -7,7 +7,7 @@ export default Ember.Route.extend({
 
   model: function() {
     let phase = this.modelFor('accounts.one.libraries.one.ideas.one.phases.one');
-    let voices = this.store.query('voice', { phase: phase.get('id') }).catch((error)=>{
+    let voices = this.store.query('voice', { phaseId: phase.get('id') }).catch((error)=>{
       Ember.get(this, 'display').error(error);
       this.transitionTo('');
     });

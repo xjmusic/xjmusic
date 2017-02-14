@@ -41,7 +41,7 @@ public class AccountUserIndexResource {
   private final AccountUserDAO accountUserDAO = injector.getInstance(AccountUserDAO.class);
   private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
 
-  @QueryParam("account")
+  @QueryParam("accountId")
   String accountId;
 
   /**

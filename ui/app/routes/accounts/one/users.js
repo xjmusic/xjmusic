@@ -9,7 +9,7 @@ export default Ember.Route.extend({
       account: account,
       users: this.store.findAll('user'),
       userToAdd: null,
-      accountUsers: this.store.query('account-user', { account: account.id }),
+      accountUsers: this.store.query('account-user', { accountId: account.id }),
     });
   },
 

@@ -39,7 +39,7 @@ public class PointIndexResource {
   private final PointDAO pointDAO = injector.getInstance(PointDAO.class);
   private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
 
-  @QueryParam("morph")
+  @QueryParam("morphId")
   String morphId;
 
   /**

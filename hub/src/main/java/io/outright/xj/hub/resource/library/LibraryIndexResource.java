@@ -43,7 +43,7 @@ public class LibraryIndexResource {
   private final LibraryDAO libraryDAO = injector.getInstance(LibraryDAO.class);
   private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
 
-  @QueryParam("account")
+  @QueryParam("accountId")
   String accountId;
 
   /**

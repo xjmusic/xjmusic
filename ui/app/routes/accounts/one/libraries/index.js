@@ -7,7 +7,7 @@ export default Ember.Route.extend({
 
   model: function() {
     let account = this.modelFor('accounts.one');
-    let libraries = this.store.query('library', { account: account.get('id') }).catch((error)=>{
+    let libraries = this.store.query('library', { accountId: account.get('id') }).catch((error)=>{
       Ember.get(this, 'display').error(error);
       this.transitionTo('');
     });

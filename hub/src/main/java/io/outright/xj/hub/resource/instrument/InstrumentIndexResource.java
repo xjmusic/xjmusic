@@ -41,7 +41,7 @@ public class InstrumentIndexResource {
   private final InstrumentDAO instrumentDAO = injector.getInstance(InstrumentDAO.class);
   private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
 
-  @QueryParam("library")
+  @QueryParam("libraryId")
   String libraryId;
 
   /**

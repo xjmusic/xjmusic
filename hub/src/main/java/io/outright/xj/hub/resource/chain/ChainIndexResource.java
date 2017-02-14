@@ -43,7 +43,7 @@ public class ChainIndexResource {
   private final ChainDAO chainDAO = injector.getInstance(ChainDAO.class);
   private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
 
-  @QueryParam("account")
+  @QueryParam("accountId")
   String accountId;
 
   /**

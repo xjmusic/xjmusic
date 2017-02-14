@@ -10,7 +10,7 @@ export default Ember.Route.extend({
     return Ember.RSVP.hash({
       phase: phase,
       memeToAdd: null,
-      phaseMemes: this.store.query('phase-meme', { phase: phase.id }),
+      phaseMemes: this.store.query('phase-meme', { phaseId: phase.id }),
     });
   },
 

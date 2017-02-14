@@ -7,7 +7,7 @@ export default Ember.Route.extend({
 
   model: function() {
     let account = this.modelFor('accounts.one');
-    let chains = this.store.query('chain', { account: account.get('id') }).catch((error)=>{
+    let chains = this.store.query('chain', { accountId: account.get('id') }).catch((error)=>{
       Ember.get(this, 'display').error(error);
       this.transitionTo('');
     });

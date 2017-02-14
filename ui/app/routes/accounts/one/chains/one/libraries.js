@@ -8,9 +8,9 @@ export default Ember.Route.extend({
     let account = this.modelFor('accounts.one');
     return Ember.RSVP.hash({
       chain: chain,
-      libraries: this.store.query('library', {account: account.id}),
+      libraries: this.store.query('library', {accountId: account.id}),
       libraryToAdd: null,
-      chainLibraries: this.store.query('chain-library', { chain: chain.id }),
+      chainLibraries: this.store.query('chain-library', { chainId: chain.id }),
     });
   },
 

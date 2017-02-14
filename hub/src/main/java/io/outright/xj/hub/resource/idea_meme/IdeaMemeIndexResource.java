@@ -43,7 +43,7 @@ public class IdeaMemeIndexResource {
   private final IdeaMemeDAO ideaMemeDAO = injector.getInstance(IdeaMemeDAO.class);
   private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
 
-  @QueryParam("idea")
+  @QueryParam("ideaId")
   String ideaId;
 
   /**

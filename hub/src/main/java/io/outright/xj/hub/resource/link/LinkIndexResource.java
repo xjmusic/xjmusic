@@ -39,7 +39,7 @@ public class LinkIndexResource {
   private final LinkDAO linkDAO = injector.getInstance(LinkDAO.class);
   private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
 
-  @QueryParam("chain")
+  @QueryParam("chainId")
   String chainId;
 
   /**

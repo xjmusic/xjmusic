@@ -43,7 +43,7 @@ public class AudioEventIndexResource {
   private final AudioEventDAO audioEventDAO = injector.getInstance(AudioEventDAO.class);
   private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
 
-  @QueryParam("audio")
+  @QueryParam("audioId")
   String audioId;
 
   /**

@@ -39,7 +39,7 @@ public class ChoiceIndexResource {
   private final ChoiceDAO choiceDAO = injector.getInstance(ChoiceDAO.class);
   private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
 
-  @QueryParam("link")
+  @QueryParam("linkId")
   String linkId;
 
   /**

@@ -43,7 +43,7 @@ public class AudioIndexResource {
   private final AudioDAO audioDAO = injector.getInstance(AudioDAO.class);
   private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
 
-  @QueryParam("instrument")
+  @QueryParam("instrumentId")
   String instrumentId;
 
   /**

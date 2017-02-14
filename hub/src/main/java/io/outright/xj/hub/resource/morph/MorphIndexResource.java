@@ -39,7 +39,7 @@ public class MorphIndexResource {
   private final MorphDAO morphDAO = injector.getInstance(MorphDAO.class);
   private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
 
-  @QueryParam("arrangement")
+  @QueryParam("arrangementId")
   String arrangementId;
 
   /**

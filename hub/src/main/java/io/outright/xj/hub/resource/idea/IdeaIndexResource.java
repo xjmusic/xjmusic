@@ -41,7 +41,7 @@ public class IdeaIndexResource {
   private final IdeaDAO ideaDAO = injector.getInstance(IdeaDAO.class);
   private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
 
-  @QueryParam("library")
+  @QueryParam("libraryId")
   String libraryId;
 
   /**

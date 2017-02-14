@@ -8,7 +8,7 @@ export default Ember.Route.extend({
     return Ember.RSVP.hash({
       idea: idea,
       phaseToAdd: null,
-      ideaPhases: this.store.query('phase', { idea: idea.id }),
+      ideaPhases: this.store.query('phase', { ideaId: idea.id }),
     });
   },
 

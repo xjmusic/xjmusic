@@ -43,7 +43,7 @@ public class VoiceEventIndexResource {
   private final VoiceEventDAO voiceEventDAO = injector.getInstance(VoiceEventDAO.class);
   private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
 
-  @QueryParam("voice")
+  @QueryParam("voiceId")
   String voiceId;
 
   /**

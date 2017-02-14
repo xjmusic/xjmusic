@@ -39,7 +39,7 @@ public class PickIndexResource {
   private final PickDAO pickDAO = injector.getInstance(PickDAO.class);
   private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
 
-  @QueryParam("morph")
+  @QueryParam("morphId")
   String morphId;
 
   /**

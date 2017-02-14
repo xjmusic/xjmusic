@@ -10,7 +10,7 @@ export default Ember.Route.extend({
     return Ember.RSVP.hash({
       idea: idea,
       memeToAdd: null,
-      ideaMemes: this.store.query('idea-meme', { idea: idea.id }),
+      ideaMemes: this.store.query('idea-meme', { ideaId: idea.id }),
     });
   },
 
