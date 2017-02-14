@@ -38,6 +38,7 @@ import org.jooq.types.ULong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.sql.Timestamp;
 
 import static io.outright.xj.core.Tables.ACCOUNT;
@@ -333,14 +334,16 @@ public abstract class IntegrationTestEntity {
     record.store();
   }
 
-  public static void insertChain(int id, int accountId, String name, String state, Timestamp startAt, Timestamp stopAt) {
+  public static void insertChain(int id, int accountId, String name, String state, Timestamp startAt, @Nullable Timestamp stopAt) {
     ChainRecord record = IntegrationTestService.getDb().newRecord(CHAIN);
     record.setId(ULong.valueOf(id));
     record.setAccountId(ULong.valueOf(accountId));
     record.setName(name);
     record.setState(state);
     record.setStartAt(startAt);
-    record.setStopAt(stopAt);
+    if (stopAt != null) {
+      record.setStopAt(stopAt);
+    }
     record.store();
   }
 
@@ -352,14 +355,16 @@ public abstract class IntegrationTestEntity {
     record.store();
   }
 
-  public static void insertLink(int id, int chainId, int offset, String state, Timestamp beginAt, Timestamp endAt, String key, int total, double density, double tempo) {
+  public static void insertLink(int id, int chainId, int offset, String state, Timestamp beginAt, @Nullable Timestamp endAt, String key, int total, double density, double tempo) {
     LinkRecord record = IntegrationTestService.getDb().newRecord(LINK);
     record.setId(ULong.valueOf(id));
     record.setChainId(ULong.valueOf(chainId));
     record.setOffset(ULong.valueOf(offset));
     record.setState(state);
     record.setBeginAt(beginAt);
-    record.setEndAt(endAt);
+    if (endAt != null) {
+      record.setEndAt(endAt);
+    }
     record.setTotal(ULong.valueOf(total));
     record.setKey(key);
     record.setDensity(density);

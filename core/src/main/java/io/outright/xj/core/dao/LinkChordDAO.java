@@ -2,7 +2,7 @@
 // Copyright Outright Mental, Inc. All Rights Reserved.
 package io.outright.xj.core.dao;
 
-import io.outright.xj.core.app.access.AccessControl;
+import io.outright.xj.core.app.access.impl.AccessControl;
 import io.outright.xj.core.model.link_chord.LinkChordWrapper;
 
 import org.jooq.types.ULong;

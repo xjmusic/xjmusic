@@ -88,15 +88,6 @@ public class LinkChord extends Entity {
     return fieldValues;
   }
 
-  @Override
-  public String toString() {
-    return "{" +
-      "name:" + this.name +
-      ", linkId:" + this.linkId +
-      ", position:" + this.position +
-      "}";
-  }
-
   /**
    * For use in maps.
    */

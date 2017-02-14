@@ -30,11 +30,4 @@ public class ChainWrapper extends EntityWrapper {
     return this.chain;
   }
 
-  @Override
-  public String toString() {
-    return "{" +
-      Chain.KEY_ONE + ":" + this.chain +
-      "}";
-  }
-
 }

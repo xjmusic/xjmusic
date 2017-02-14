@@ -1,7 +1,7 @@
 // Copyright Outright Mental, Inc. All Rights Reserved.
 package io.outright.xj.core.dao.impl;
 
-import io.outright.xj.core.app.access.AccessControl;
+import io.outright.xj.core.app.access.impl.AccessControl;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.app.exception.DatabaseException;
@@ -11,9 +11,12 @@ import io.outright.xj.core.db.sql.SQLDatabaseProvider;
 import io.outright.xj.core.model.link.Link;
 import io.outright.xj.core.model.link.LinkWrapper;
 import io.outright.xj.core.transport.JSON;
+import io.outright.xj.core.util.Purify;
+import io.outright.xj.core.util.timestamp.TimestampUTC;
 
 import org.jooq.DSLContext;
 import org.jooq.Field;
+import org.jooq.Record;
 import org.jooq.types.ULong;
 
 import com.google.inject.Inject;
@@ -23,12 +26,14 @@ import org.json.JSONObject;
 
 import javax.annotation.Nullable;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.Map;
 
-import static io.outright.xj.core.Tables.CHOICE;
-import static io.outright.xj.core.Tables.LINK;
-import static io.outright.xj.core.Tables.LINK_CHORD;
 import static io.outright.xj.core.tables.Chain.CHAIN;
+import static io.outright.xj.core.tables.Choice.CHOICE;
+import static io.outright.xj.core.tables.Link.LINK;
+import static io.outright.xj.core.tables.LinkChord.LINK_CHORD;
+import static org.jooq.impl.DSL.max;
 
 public class LinkDAOImpl extends DAOImpl implements LinkDAO {
 
@@ -60,12 +65,33 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
     }
   }
 
+  @Nullable
+  @Override
+  public JSONObject readOneInState(AccessControl access, ULong chainId, String linkState, int aheadSeconds) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readOneInState(tx.getContext(), access, chainId, linkState, aheadSeconds));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
   @Override
   @Nullable
   public JSONArray readAllIn(AccessControl access, ULong chainId) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readAllIn(tx.getContext(), access, chainId));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public JSONObject readPilotTemplateFor(AccessControl access, ULong chainId, Timestamp chainBeginAt, int aheadSeconds) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readPilotTemplateFor(tx.getContext(), access, chainId, chainBeginAt, aheadSeconds));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -138,6 +164,32 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
     }
   }
 
+
+  /**
+   * Fetch one Link by chainId and state, if present
+   *
+   * @param db           context
+   * @param access       control
+   * @param chainId      to find link in
+   * @param linkState    linkState to find link in
+   * @param aheadSeconds ahead to look for links
+   * @return Link if found
+   * @throws BusinessException on failure
+   */
+  private JSONObject readOneInState(DSLContext db, AccessControl access, ULong chainId, String linkState, int aheadSeconds) throws BusinessException {
+    requireTopLevel(access);
+
+    return JSON.objectFromRecord(
+      db.select(LINK.fields()).from(LINK)
+        .where(LINK.CHAIN_ID.eq(chainId))
+        .and(LINK.STATE.eq(Purify.LowerSlug(linkState)))
+        .and(LINK.BEGIN_AT.lessThan(TimestampUTC.nowPlusSeconds(aheadSeconds)))
+        .orderBy(LINK.OFFSET.asc())
+        .limit(1)
+        .fetchOne());
+  }
+
+
   /**
    * Read all records in parent by id
    *
@@ -151,6 +203,7 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
       return JSON.arrayFromResultSet(db.select(LINK.fields())
         .from(LINK)
         .where(LINK.CHAIN_ID.eq(chainId))
+        .orderBy(LINK.OFFSET.desc())
         .fetchResultSet());
     } else {
       return JSON.arrayFromResultSet(db.select(LINK.fields())
@@ -158,7 +211,61 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
         .join(CHAIN).on(CHAIN.ID.eq(LINK.CHAIN_ID))
         .where(LINK.CHAIN_ID.eq(chainId))
         .and(CHAIN.ACCOUNT_ID.in(access.getAccounts()))
+        .orderBy(LINK.OFFSET.desc())
         .fetchResultSet());
+    }
+  }
+
+  /**
+   * Read all records in parent by id
+   *
+   * @param db           context
+   * @param chainId      to read pilot template link for
+   * @param chainBeginAt when the chain begins
+   * @param aheadSeconds ahead of end of Chain to do work  @return array of records
+   */
+  @Nullable
+  private JSONObject readPilotTemplateFor(DSLContext db, AccessControl access, ULong chainId, Timestamp chainBeginAt, int aheadSeconds) throws SQLException, BusinessException {
+    requireTopLevel(access);
+
+    Record lastRecordWithNoEndAtTime = db.select(LINK.CHAIN_ID)
+      .from(LINK)
+      .where(LINK.END_AT.isNull())
+      .and(LINK.CHAIN_ID.eq(chainId))
+      .groupBy(LINK.CHAIN_ID, LINK.OFFSET, LINK.END_AT)
+      .orderBy(LINK.OFFSET.desc())
+      .limit(1)
+      .fetchOne();
+
+    // If there's already a no-endAt-time-having Link
+    // at the end of this Chain, get outta here
+    if (lastRecordWithNoEndAtTime != null) {
+      return null;
+    }
+
+    Record pilotRecord = db.select(
+      LINK.CHAIN_ID,
+      LINK.END_AT.as(LINK.BEGIN_AT),
+      max(LINK.OFFSET).plus(1).as(LINK.OFFSET)
+    )
+      .from(LINK)
+      .where(LINK.END_AT.lessThan(TimestampUTC.nowPlusSeconds(aheadSeconds)))
+      .and(LINK.CHAIN_ID.eq(chainId))
+      .groupBy(LINK.CHAIN_ID, LINK.OFFSET, LINK.END_AT)
+      .orderBy(LINK.OFFSET.desc())
+      .limit(1)
+      .fetchOne();
+
+    if (pilotRecord != null) {
+      return JSON.objectFromRecord(pilotRecord);
+
+    } else {
+      // the Chain must be empty. Create its first link
+      JSONObject pilotTemplate = new JSONObject();
+      pilotTemplate.put(Link.KEY_CHAIN_ID, chainId);
+      pilotTemplate.put(Link.KEY_BEGIN_AT, chainBeginAt);
+      pilotTemplate.put(Link.KEY_OFFSET, 0);
+      return pilotTemplate;
     }
   }
 

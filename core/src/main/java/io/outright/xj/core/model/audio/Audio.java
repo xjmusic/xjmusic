@@ -164,19 +164,6 @@ public class Audio extends Entity {
     return fieldValues;
   }
 
-  @Override
-  public String toString() {
-    return "{" +
-      "instrumentId:" + this.instrumentId +
-      "name:" + this.name +
-      "waveformUrl:" + this.waveformUrl +
-      "start:" + this.start +
-      "length:" + this.length +
-      "tempo:" + this.tempo +
-      "pitch:" + this.pitch +
-      "}";
-  }
-
   /**
    * For use in maps.
    */

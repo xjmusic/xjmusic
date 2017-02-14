@@ -3,7 +3,7 @@ package io.outright.xj.core.model.chain;
 
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.model.Entity;
-import io.outright.xj.core.util.CSV.CSV;
+import io.outright.xj.core.transport.CSV;
 import io.outright.xj.core.util.Purify;
 
 import org.jooq.Field;
@@ -20,11 +20,21 @@ import java.util.Map;
 import static io.outright.xj.core.tables.Chain.CHAIN;
 
 public class Chain extends Entity {
+  /**
+   * For use in maps.
+   */
+  public static final String KEY_ONE = "chain";
+  public static final String KEY_MANY = "chains";
+  public static final String KEY_START_AT = "startAt";
+
+  /**
+   * State-machine states
+   */
   public static final String DRAFT = "draft";
   public static final String READY = "ready";
   public static final String PRODUCTION = "production";
   public static final String COMPLETE = "complete";
-
+  // list of all states
   private final static List<String> allStates = ImmutableList.of(
     DRAFT,
     READY,
@@ -143,22 +153,5 @@ public class Chain extends Entity {
     fieldValues.put(CHAIN.STOP_AT, stopAt);
     return fieldValues;
   }
-
-  @Override
-  public String toString() {
-    return "{" +
-      "accountId:" + this.accountId +
-      ", name:" + this.name +
-      ", state:" + this.state +
-      ", startAt:" + this.startAt +
-      ", stopAt:" + this.stopAt +
-      "}";
-  }
-
-  /**
-   * For use in maps.
-   */
-  public static final String KEY_ONE = "chain";
-  public static final String KEY_MANY = "chains";
 
 }

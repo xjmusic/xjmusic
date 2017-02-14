@@ -31,11 +31,4 @@ public class AudioChordWrapper extends EntityWrapper {
     return this.audioChord;
   }
 
-  @Override
-  public String toString() {
-    return "{" +
-      AudioChord.KEY_ONE + ":" + this.audioChord +
-      "}";
-  }
-
 }

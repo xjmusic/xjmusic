@@ -31,10 +31,4 @@ public class AccountWrapper extends EntityWrapper {
     return this.account;
   }
 
-  @Override
-  public String toString() {
-    return "{" +
-      Account.KEY_ONE + ":" + this.account +
-      "}";
-  }
 }

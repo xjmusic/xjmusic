@@ -2,14 +2,23 @@
 package io.outright.xj.core.app;
 
 import io.outright.xj.core.app.exception.ConfigException;
+import io.outright.xj.core.work.Leader;
+import io.outright.xj.core.work.Worker;
 
 import java.io.IOException;
 
 public interface App {
   /**
-   * configure App Server
+   * configure the server
+   *
+   * @param packages containing JAX-RS resources and providers
    */
-  void configure(String... packages);
+  void configureServer(String... packages);
+
+  /**
+   * configure a workload
+   */
+  void registerWorkload(String name, Leader leader, Worker worker) throws ConfigException;
 
   /**
    * start App Server
@@ -23,6 +32,7 @@ public interface App {
 
   /**
    * Base URI of App Server
+   *
    * @return String
    */
   String baseURI();

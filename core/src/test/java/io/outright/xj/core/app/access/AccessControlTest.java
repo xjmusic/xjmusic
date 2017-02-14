@@ -1,5 +1,6 @@
 package io.outright.xj.core.app.access;
 
+import io.outright.xj.core.app.access.impl.AccessControl;
 import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.tables.records.AccountUserRecord;
 import io.outright.xj.core.tables.records.UserAuthRecord;

@@ -31,10 +31,4 @@ public class IdeaMemeWrapper extends EntityWrapper {
     return this.ideaMeme;
   }
 
-  @Override
-  public String toString() {
-    return "{" +
-      IdeaMeme.KEY_ONE + ":" + this.ideaMeme +
-      "}";
-  }
 }

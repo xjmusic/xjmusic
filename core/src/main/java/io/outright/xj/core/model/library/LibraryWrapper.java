@@ -28,10 +28,4 @@ public class LibraryWrapper extends EntityWrapper {
     return this.library;
   }
 
-  @Override
-  public String toString() {
-    return "{" +
-      Library.KEY_ONE + ":" + this.library +
-      "}";
-  }
 }

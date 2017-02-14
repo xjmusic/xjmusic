@@ -28,10 +28,4 @@ public class LinkChordWrapper extends EntityWrapper {
     return this.linkChord;
   }
 
-  @Override
-  public String toString() {
-    return "{" +
-      LinkChord.KEY_ONE + ":" + this.linkChord +
-      "}";
-  }
 }

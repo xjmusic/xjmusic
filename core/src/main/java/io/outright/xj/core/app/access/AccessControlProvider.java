@@ -1,6 +1,7 @@
 // Copyright Outright Mental, Inc. All Rights Reserved.
 package io.outright.xj.core.app.access;
 
+import io.outright.xj.core.app.access.impl.AccessControl;
 import io.outright.xj.core.app.exception.AccessException;
 import io.outright.xj.core.app.exception.DatabaseException;
 import io.outright.xj.core.tables.records.AccountUserRecord;

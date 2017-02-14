@@ -140,6 +140,13 @@ function accountChains() {
 function accountChain() {
   this.route('edit'); // Edit Chain
   this.route('libraries'); // Libraries in Chain
+  this.route('links', accountChainLinks); // Links in Chain
 }
+
+function accountChainLinks() {
+  this.route('one', {path: '/:link_id'}, accountChainLink); // One Link
+}
+
+function accountChainLink() {}
 
 export default Router;

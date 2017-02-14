@@ -2,7 +2,7 @@
 package io.outright.xj.core.dao;
 
 import io.outright.xj.core.CoreModule;
-import io.outright.xj.core.app.access.AccessControl;
+import io.outright.xj.core.app.access.impl.AccessControl;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.integration.IntegrationTestEntity;
 import io.outright.xj.core.integration.IntegrationTestService;
@@ -11,6 +11,7 @@ import io.outright.xj.core.model.link.Link;
 import io.outright.xj.core.model.link.LinkWrapper;
 import io.outright.xj.core.tables.records.LinkRecord;
 
+import org.jooq.impl.DSL;
 import org.jooq.types.ULong;
 
 import com.google.common.collect.ImmutableMap;
@@ -28,6 +29,7 @@ import java.sql.Timestamp;
 
 import static io.outright.xj.core.tables.Link.LINK;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
@@ -41,14 +43,14 @@ public class LinkIT {
 
     // Account "Testing" has chain "Test Print #1"
     IntegrationTestEntity.insertAccount(1, "Testing");
-    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", Chain.READY, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"));
+    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", Chain.PRODUCTION, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null);
 
     // Chain "Test Print #1" has 5 sequential links
-    IntegrationTestEntity.insertLink(1, 1, 0, Link.MIXED, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120);
-    IntegrationTestEntity.insertLink(2, 1, 1, Link.MIXING, Timestamp.valueOf("2017-02-14 12:01:32.000001"), Timestamp.valueOf("2017-02-14 12:02:04.000001"), "Db minor", 64, 0.85, 120);
-    IntegrationTestEntity.insertLink(3, 1, 2, Link.CHOSEN, Timestamp.valueOf("2017-02-14 12:02:04.000001"), Timestamp.valueOf("2017-02-14 12:02:36.000001"), "F major", 64, 0.30, 120);
-    IntegrationTestEntity.insertLink(4, 1, 3, Link.CHOOSING, Timestamp.valueOf("2017-02-14 12:02:36.000001"), Timestamp.valueOf("2017-02-14 12:03:08.000001"), "E minor", 64, 0.41, 120);
-    IntegrationTestEntity.insertLink(5, 1, 4, Link.PLANNED, Timestamp.valueOf("2017-02-14 12:03:08.000001"), Timestamp.valueOf("2017-02-14 12:03:40.000001"), "A major", 64, 0.52, 120);
+    IntegrationTestEntity.insertLink(1, 1, 0, Link.DUBBED, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120);
+    IntegrationTestEntity.insertLink(2, 1, 1, Link.DUBBING, Timestamp.valueOf("2017-02-14 12:01:32.000001"), Timestamp.valueOf("2017-02-14 12:02:04.000001"), "Db minor", 64, 0.85, 120);
+    IntegrationTestEntity.insertLink(3, 1, 2, Link.CRAFTED, Timestamp.valueOf("2017-02-14 12:02:04.000001"), Timestamp.valueOf("2017-02-14 12:02:36.000001"), "F major", 64, 0.30, 120);
+    IntegrationTestEntity.insertLink(4, 1, 3, Link.CRAFTING, Timestamp.valueOf("2017-02-14 12:02:36.000001"), Timestamp.valueOf("2017-02-14 12:03:08.000001"), "E minor", 64, 0.41, 120);
+    IntegrationTestEntity.insertLink(5, 1, 4, Link.PLANNED, Timestamp.valueOf("2017-02-14 12:03:08.000001"), null, "A major", 64, 0.52, 120);
 
     // Instantiate the test subject
     testDAO = injector.getInstance(LinkDAO.class);
@@ -67,8 +69,8 @@ public class LinkIT {
     LinkWrapper inputDataWrapper = new LinkWrapper()
       .setLink(new Link()
         .setChainId(BigInteger.valueOf(1))
-        .setOffset(4)
-        .setState(Link.CHOOSING)
+        .setOffset(BigInteger.valueOf(4))
+        .setState(Link.CRAFTING)
         .setBeginAt("1995-04-28 11:23:00.000001")
         .setEndAt("1995-04-28 11:23:32.000001")
         .setTotal(64)
@@ -81,8 +83,8 @@ public class LinkIT {
 
     assertNotNull(actualResult);
     assertEquals(ULong.valueOf(1), actualResult.get("chainId"));
-    assertEquals(4, actualResult.get("offset"));
-    assertEquals(Link.CHOOSING, actualResult.get("state"));
+    assertEquals(ULong.valueOf(4), actualResult.get("offset"));
+    assertEquals(Link.CRAFTING, actualResult.get("state"));
     assertEquals(Timestamp.valueOf("1995-04-28 11:23:00.000001"), actualResult.get("beginAt"));
     assertEquals(Timestamp.valueOf("1995-04-28 11:23:32.000001"), actualResult.get("endAt"));
     assertEquals(64, actualResult.get("total"));
@@ -99,8 +101,8 @@ public class LinkIT {
     LinkWrapper inputDataWrapper = new LinkWrapper()
       .setLink(new Link()
         .setChainId(BigInteger.valueOf(1))
-        .setOffset(4)
-        .setState(Link.CHOOSING)
+        .setOffset(BigInteger.valueOf(4))
+        .setState(Link.CRAFTING)
         .setBeginAt("1995-04-28 11:23:00.000001")
         .setEndAt("1995-04-28 11:23:32.000001")
         .setTotal(64)
@@ -109,7 +111,7 @@ public class LinkIT {
         .setTempo(120.0)
       );
 
-    JSONObject actualResult = testDAO.create(access, inputDataWrapper);
+    testDAO.create(access, inputDataWrapper);
   }
 
   @Test(expected = BusinessException.class)
@@ -119,8 +121,8 @@ public class LinkIT {
     ));
     LinkWrapper inputDataWrapper = new LinkWrapper()
       .setLink(new Link()
-        .setOffset(4)
-        .setState(Link.CHOOSING)
+        .setOffset(BigInteger.valueOf(4))
+        .setState(Link.CRAFTING)
         .setBeginAt("1995-04-28 11:23:00.000001")
         .setEndAt("1995-04-28 11:23:32.000001")
         .setTotal(64)
@@ -140,7 +142,7 @@ public class LinkIT {
     LinkWrapper inputDataWrapper = new LinkWrapper()
       .setLink(new Link()
         .setChainId(BigInteger.valueOf(1))
-        .setOffset(4)
+        .setOffset(BigInteger.valueOf(4))
         .setState("mushamush")
         .setBeginAt("1995-04-28 11:23:00.000001")
         .setEndAt("1995-04-28 11:23:32.000001")
@@ -166,7 +168,7 @@ public class LinkIT {
     assertEquals(ULong.valueOf(2), actualResult.get("id"));
     assertEquals(ULong.valueOf(1), actualResult.get("chainId"));
     assertEquals(ULong.valueOf(1), actualResult.get("offset"));
-    assertEquals(Link.MIXING, actualResult.get("state"));
+    assertEquals(Link.DUBBING, actualResult.get("state"));
     assertEquals(Timestamp.valueOf("2017-02-14 12:01:32.000001"), actualResult.get("beginAt"));
     assertEquals(Timestamp.valueOf("2017-02-14 12:02:04.000001"), actualResult.get("endAt"));
     assertEquals(ULong.valueOf(64), actualResult.get("total"));
@@ -199,16 +201,88 @@ public class LinkIT {
     assertNotNull(actualResultList);
     assertEquals(5, actualResultList.length());
 
-    JSONObject actualResult0 = (JSONObject) actualResultList.get(0);
-    assertEquals(Link.MIXED, actualResult0.get("state"));
-    JSONObject actualResult1 = (JSONObject) actualResultList.get(1);
-    assertEquals(Link.MIXING, actualResult1.get("state"));
-    JSONObject actualResult2 = (JSONObject) actualResultList.get(2);
-    assertEquals(Link.CHOSEN, actualResult2.get("state"));
-    JSONObject actualResult3 = (JSONObject) actualResultList.get(3);
-    assertEquals(Link.CHOOSING, actualResult3.get("state"));
     JSONObject actualResult4 = (JSONObject) actualResultList.get(4);
-    assertEquals(Link.PLANNED, actualResult4.get("state"));
+    assertEquals(Link.DUBBED, actualResult4.get("state"));
+    JSONObject actualResult3 = (JSONObject) actualResultList.get(3);
+    assertEquals(Link.DUBBING, actualResult3.get("state"));
+    JSONObject actualResult2 = (JSONObject) actualResultList.get(2);
+    assertEquals(Link.CRAFTED, actualResult2.get("state"));
+    JSONObject actualResult1 = (JSONObject) actualResultList.get(1);
+    assertEquals(Link.CRAFTING, actualResult1.get("state"));
+    JSONObject actualResult0 = (JSONObject) actualResultList.get(0);
+    assertEquals(Link.PLANNED, actualResult0.get("state"));
+  }
+
+  @Test
+  public void readOneInState() throws Exception {
+    AccessControl access = new AccessControl(ImmutableMap.of(
+      "roles", "internal"
+    ));
+
+    JSONObject actualResult = testDAO.readOneInState(access, ULong.valueOf(1), Link.PLANNED,300);
+
+    assertNotNull(actualResult);
+    assertEquals(ULong.valueOf(5), actualResult.get("id"));
+    assertEquals(ULong.valueOf(1), actualResult.get("chainId"));
+    assertEquals(ULong.valueOf(4), actualResult.get("offset"));
+    assertEquals(Link.PLANNED, actualResult.get("state"));
+    assertEquals(Timestamp.valueOf("2017-02-14 12:03:08.000001"), actualResult.get("beginAt"));
+    assertFalse(actualResult.has("endAt"));
+  }
+
+  @Test
+  public void readOneInState_nullIfNoneInChain() throws Exception {
+    AccessControl access = new AccessControl(ImmutableMap.of(
+      "roles", "internal"
+    ));
+    IntegrationTestEntity.insertChain(2, 1, "Test Print #2", Chain.PRODUCTION, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null);
+
+    JSONObject actualResult = testDAO.readOneInState(access, ULong.valueOf(2), Link.PLANNED,300);
+
+    assertNull(actualResult);
+  }
+
+  @Test
+  public void readPilotTemplateFor_chainWithLinksReadyForNextLink() throws Exception {
+    AccessControl access = new AccessControl(ImmutableMap.of(
+      "roles", "internal"
+    ));
+    IntegrationTestEntity.insertChain(2, 1, "Test Print #2", Chain.PRODUCTION, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"));
+    IntegrationTestEntity.insertLink(6, 2, 3, Link.CRAFTING, Timestamp.valueOf("2017-02-14 12:02:36.000001"), Timestamp.valueOf("2017-02-14 12:03:08.000001"), "E minor", 64, 0.41, 120);
+
+    JSONObject actualResult = testDAO.readPilotTemplateFor(access, ULong.valueOf(2), Timestamp.valueOf("2014-02-14 12:03:40.000001"), 300);
+
+    assertNotNull(actualResult);
+    assertEquals(ULong.valueOf(2), actualResult.get("chainId"));
+    assertEquals(ULong.valueOf(4), actualResult.get("offset"));
+    assertEquals(Timestamp.valueOf("2017-02-14 12:03:08.000001"), actualResult.get("beginAt"));
+  }
+
+  @Test
+  public void readPilotTemplateFor_chainWithLinksAlreadyHasNextLink() throws Exception {
+    AccessControl access = new AccessControl(ImmutableMap.of(
+      "roles", "internal"
+    ));
+    IntegrationTestEntity.insertLink(6, 1, 5, Link.PLANNED, Timestamp.valueOf("2017-02-14 12:03:08.000001"), null, "A major", 64, 0.52, 120);
+
+    JSONObject actualResult = testDAO.readPilotTemplateFor(access, ULong.valueOf(1), Timestamp.valueOf("2015-02-14 12:03:40.000001"), 300);
+
+    assertNull(actualResult);
+  }
+
+  @Test
+  public void readPilotTemplateFor_newEmptyChain() throws Exception {
+    AccessControl access = new AccessControl(ImmutableMap.of(
+      "roles", "internal"
+    ));
+    IntegrationTestEntity.insertChain(2, 1, "Test Print #2", Chain.READY, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null);
+
+    JSONObject actualResult = testDAO.readPilotTemplateFor(access, ULong.valueOf(2), Timestamp.valueOf("2014-08-12 12:17:02.527142"), 300);
+
+    assertNotNull(actualResult);
+    assertEquals(ULong.valueOf(2), actualResult.get("chainId"));
+    assertEquals(0, actualResult.get("offset"));
+    assertEquals(Timestamp.valueOf("2014-08-12 12:17:02.527142"), actualResult.get("beginAt"));
   }
 
   @Test
@@ -232,8 +306,8 @@ public class LinkIT {
     LinkWrapper inputDataWrapper = new LinkWrapper()
       .setLink(new Link()
         .setChainId(BigInteger.valueOf(1))
-        .setOffset(4)
-        .setState(Link.CHOOSING)
+        .setOffset(BigInteger.valueOf(4))
+        .setState(Link.CRAFTING)
         .setBeginAt("1995-04-28 11:23:00.000001")
         .setEndAt("1995-04-28 11:23:32.000001")
         .setTotal(64)
@@ -251,7 +325,7 @@ public class LinkIT {
     assertNotNull(updatedRecord);
     assertEquals("C# minor 7 b9", updatedRecord.getKey());
     assertEquals(ULong.valueOf(1), updatedRecord.getChainId());
-    assertEquals(Link.CHOOSING, updatedRecord.getState());
+    assertEquals(Link.CRAFTING, updatedRecord.getState());
     assertEquals(Timestamp.valueOf("1995-04-28 11:23:00.000001"), updatedRecord.getBeginAt());
     assertEquals(Timestamp.valueOf("1995-04-28 11:23:32.000001"), updatedRecord.getEndAt());
   }
@@ -263,8 +337,8 @@ public class LinkIT {
     ));
     LinkWrapper inputDataWrapper = new LinkWrapper()
       .setLink(new Link()
-        .setOffset(4)
-        .setState(Link.CHOOSING)
+        .setOffset(BigInteger.valueOf(4))
+        .setState(Link.CRAFTING)
         .setBeginAt("1995-04-28 11:23:00.000001")
         .setEndAt("1995-04-28 11:23:32.000001")
         .setTotal(64)
@@ -277,15 +351,15 @@ public class LinkIT {
   }
 
   @Test(expected = BusinessException.class)
-  public void update_FailsWithoutTotal() throws Exception {
+  public void update_FailsWithInvalidState() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
       "roles", "admin"
     ));
     LinkWrapper inputDataWrapper = new LinkWrapper()
       .setLink(new Link()
         .setChainId(BigInteger.valueOf(1))
-        .setOffset(4)
-        .setState(Link.CHOOSING)
+        .setOffset(BigInteger.valueOf(4))
+        .setState("what a dumb-ass state")
         .setBeginAt("1995-04-28 11:23:00.000001")
         .setEndAt("1995-04-28 11:23:32.000001")
         .setDensity(0.74)
@@ -304,8 +378,8 @@ public class LinkIT {
     LinkWrapper inputDataWrapper = new LinkWrapper()
       .setLink(new Link()
         .setChainId(BigInteger.valueOf(12))
-        .setOffset(4)
-        .setState(Link.CHOOSING)
+        .setOffset(BigInteger.valueOf(4))
+        .setState(Link.CRAFTING)
         .setBeginAt("1995-04-28 11:23:00.000001")
         .setEndAt("1995-04-28 11:23:32.000001")
         .setTotal(64)

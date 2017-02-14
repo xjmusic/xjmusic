@@ -37,7 +37,7 @@ public class ResourceEndpointTest extends Mockito {
     System.setProperty("log.access.filename", tempFile.getAbsolutePath());
 
     app = injector.getInstance(App.class);
-    app.configure(packages());
+    app.configureServer(packages());
     app.start();
 
     // get the client

@@ -1,7 +1,7 @@
 // Copyright Outright Mental, Inc. All Rights Reserved.
 package io.outright.xj.core.dao.impl;
 
-import io.outright.xj.core.app.access.AccessControl;
+import io.outright.xj.core.app.access.impl.AccessControl;
 import io.outright.xj.core.app.access.AccessControlProvider;
 import io.outright.xj.core.app.exception.AccessException;
 import io.outright.xj.core.app.exception.BusinessException;
@@ -17,7 +17,7 @@ import io.outright.xj.core.tables.records.UserAuthRecord;
 import io.outright.xj.core.tables.records.UserRecord;
 import io.outright.xj.core.tables.records.UserRoleRecord;
 import io.outright.xj.core.transport.JSON;
-import io.outright.xj.core.util.CSV.CSV;
+import io.outright.xj.core.transport.CSV;
 
 import com.google.inject.Inject;
 import org.jooq.DSLContext;

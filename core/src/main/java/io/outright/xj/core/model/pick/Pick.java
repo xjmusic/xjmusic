@@ -163,19 +163,6 @@ public class Pick extends Entity {
     return fieldValues;
   }
 
-  @Override
-  public String toString() {
-    return "{" +
-      "arrangementId:" + this.arrangementId +
-      ", morphId:" + this.morphId +
-      ", audioId:" + this.audioId +
-      ", start:" + this.start +
-      ", length:" + this.length +
-      ", amplitude:" + this.amplitude +
-      ", pitch:" + this.pitch +
-      "}";
-  }
-
   /**
    * For use in maps.
    */

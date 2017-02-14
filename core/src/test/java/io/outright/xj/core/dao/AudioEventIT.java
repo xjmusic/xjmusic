@@ -2,13 +2,12 @@
 package io.outright.xj.core.dao;
 
 import io.outright.xj.core.CoreModule;
-import io.outright.xj.core.app.access.AccessControl;
+import io.outright.xj.core.app.access.impl.AccessControl;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.integration.IntegrationTestEntity;
 import io.outright.xj.core.integration.IntegrationTestService;
 import io.outright.xj.core.model.audio_event.AudioEvent;
 import io.outright.xj.core.model.audio_event.AudioEventWrapper;
-import io.outright.xj.core.model.idea.Idea;
 import io.outright.xj.core.model.instrument.Instrument;
 import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.tables.records.AudioEventRecord;

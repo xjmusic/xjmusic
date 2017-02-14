@@ -31,10 +31,4 @@ public class InstrumentMemeWrapper extends EntityWrapper {
     return this.instrumentMeme;
   }
 
-  @Override
-  public String toString() {
-    return "{" +
-      InstrumentMeme.KEY_ONE + ":" + this.instrumentMeme +
-      "}";
-  }
 }

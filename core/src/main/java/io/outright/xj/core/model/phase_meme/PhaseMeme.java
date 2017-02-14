@@ -67,14 +67,6 @@ public class PhaseMeme extends Entity {
     return fieldValues;
   }
 
-  @Override
-  public String toString() {
-    return "{" +
-      "phaseId:" + this.phaseId +
-      "name:" + this.name +
-      "}";
-  }
-
   /**
    * For use in maps.
    */

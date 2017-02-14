@@ -29,10 +29,4 @@ public class PhaseWrapper extends EntityWrapper {
     return this.phase;
   }
 
-  @Override
-  public String toString() {
-    return "{" +
-      Phase.KEY_ONE + ":" + this.phase +
-      "}";
-  }
 }

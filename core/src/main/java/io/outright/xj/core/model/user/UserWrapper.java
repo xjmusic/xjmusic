@@ -28,10 +28,4 @@ public class UserWrapper extends EntityWrapper {
     return this.user;
   }
 
-  @Override
-  public String toString() {
-    return "{" +
-      User.KEY_ONE + ":" + this.user +
-      "}";
-  }
 }

@@ -29,10 +29,4 @@ public class LinkWrapper extends EntityWrapper {
     return this.link;
   }
 
-  @Override
-  public String toString() {
-    return "{" +
-      Link.KEY_ONE + ":" + this.link +
-      "}";
-  }
 }

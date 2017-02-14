@@ -9,18 +9,30 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public enum MigrationService {
-  GLOBAL;
+  INSTANCE;
   private static Logger log = LoggerFactory.getLogger(MigrationService.class);
 
-  public void migrate(SQLDatabaseProvider sqlDatabaseProvider) throws ConfigException {
+  public static void migrate(SQLDatabaseProvider sqlDatabaseProvider) throws ConfigException {
     try {
-      Flyway flyway = new Flyway();
-      flyway.setDataSource(sqlDatabaseProvider.getUrl(), sqlDatabaseProvider.getUser(), sqlDatabaseProvider.getPass());
-      flyway.migrate();
+      flyway(sqlDatabaseProvider).migrate();
     } catch (Exception e) {
-      log.error(e.getClass().getName() + ": " + e);
-      throw new ConfigException(e.getClass().getName() + ": " + e);
+      log.error("migration failed.", e);
+      throw new ConfigException("migration failed. " + e.getClass().getName() + ": " + e);
     }
   }
 
+  public static void validate(SQLDatabaseProvider sqlDatabaseProvider) throws ConfigException {
+    try {
+      flyway(sqlDatabaseProvider).validate();
+    } catch (Exception e) {
+      log.error("migration validation check failed.", e);
+      throw new ConfigException("migration validation check failed. " + e.getClass().getName() + ": " + e);
+    }
+  }
+
+  private static Flyway flyway(SQLDatabaseProvider sqlDatabaseProvider) throws ConfigException {
+    Flyway flyway = new Flyway();
+    flyway.setDataSource(sqlDatabaseProvider.getUrl(), sqlDatabaseProvider.getUser(), sqlDatabaseProvider.getPass());
+    return flyway;
+  }
 }

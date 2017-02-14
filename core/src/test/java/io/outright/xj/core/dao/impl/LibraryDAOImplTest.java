@@ -65,7 +65,7 @@ public class LibraryDAOImplTest extends Mockito {
 //    injector = Guice.createInjector(Modules.override(new CoreModule()).with(
 //      new AbstractModule() {
 //        @Override
-//        public void configure() {
+//        public void configureServer() {
 //          bind(AccountDAO.class).to(AccountDAOImpl.class);
 //          bind(SQLDatabaseProvider.class).toInstance(sqlDatabaseProvider);
 //        }

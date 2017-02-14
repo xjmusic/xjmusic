@@ -7,15 +7,26 @@ import io.outright.xj.core.app.config.Config;
 import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.app.server.HttpServerProvider;
 import io.outright.xj.core.app.server.ResourceConfigProvider;
+import io.outright.xj.core.work.Leader;
+import io.outright.xj.core.work.Worker;
 
+import com.google.api.client.util.Lists;
 import com.google.inject.Inject;
 
 import org.glassfish.jersey.server.ResourceConfig;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 public class AppImpl implements App {
   private final static Logger log = LoggerFactory.getLogger(App.class);
@@ -29,24 +40,34 @@ public class AppImpl implements App {
 
   private ResourceConfig resourceConfig;
 
+  private List<Workload> workloads = Lists.newArrayList();
+  private final int workConcurrency = Config.workConcurrency();
+  private static ScheduledExecutorService leaderExecutor;
+  private static ExecutorService workerExecutor;
+  private ScheduledFuture scheduledFuture;
+
   @Inject
   public AppImpl(
     HttpServerProvider httpServerProvider,
     ResourceConfigProvider resourceConfigProvider,
     AccessLogFilterProvider accessLogFilterProvider,
     AccessTokenAuthFilter accessTokenAuthFilter
-  ) {
+  ) throws ConfigException {
     this.httpServerProvider = httpServerProvider;
     this.resourceConfigProvider = resourceConfigProvider;
     this.accessLogFilterProvider = accessLogFilterProvider;
     this.accessTokenAuthFilter = accessTokenAuthFilter;
+
+    if (workConcurrency < 2) {
+      throw new ConfigException("Chain work must have workConcurrency >= 2");
+    }
+
+    leaderExecutor = Executors.newScheduledThreadPool(workConcurrency);
+    workerExecutor = Executors.newFixedThreadPool(workConcurrency);
   }
 
-  /**
-   * @param packages containing JAX-RS resources and providers
-   */
   @Override
-  public void configure(
+  public void configureServer(
     String[] packages
   ) {
     // Use specified packages plus default resource package
@@ -67,30 +88,101 @@ public class AppImpl implements App {
     resourceConfig.register(accessTokenAuthFilter);
   }
 
+  @Override
+  public void registerWorkload(String name, Leader leader, Worker worker) throws ConfigException {
+    workloads.add(new Workload(name, leader, worker));
+  }
+
   /**
    * Starts Grizzly HTTP server exposing JAX-RS resources defined in this application.
    */
   @Override
   public void start() throws IOException, ConfigException {
-    if (resourceConfig==null) {
-      throw new ConfigException("Failed to app.start(); must configure() first!");
+    if (resourceConfig == null) {
+      throw new ConfigException("Failed to app.start(); must configureServer() first!");
     }
+
     log.info("Server starting now");
     httpServerProvider.configure(URI.create(baseURI()), resourceConfig);
     httpServerProvider.get().start();
     log.info("Server up");
+
+    workloads.forEach((workload -> {
+      try {
+        workload.start();
+      } catch (ConfigException e) {
+        log.error("Starting workload {}", workload, e);
+      }
+    }));
   }
 
   @Override
   public void stop() {
-    log.info("Server shutting down now");
+    workloads.forEach((Workload::stop));
+
+    log.info("Server will shutdown now");
     httpServerProvider.get().shutdownNow();
-    log.info("Server gone");
+    log.info("Server did shutdown OK");
   }
 
   @Override
   public String baseURI() {
     return "http://" + host + ":" + port + "/";
   }
+
+  /**
+   * A Workload runs a Leader + Worker-group
+   */
+  private class Workload {
+    private String name;
+    private Leader leader;
+    private Worker worker;
+
+    Workload(String name, Leader leader, Worker worker) throws ConfigException {
+      this.name = name;
+      this.leader = leader;
+      this.worker = worker;
+    }
+
+    void start() throws ConfigException {
+      log.info("{} will start now", this);
+      scheduledFuture = leaderExecutor.scheduleAtFixedRate(
+        this::pollLeader,
+        Config.workBatchSleepSeconds(),
+        Config.workBatchSleepSeconds(),
+        TimeUnit.SECONDS);
+      log.info("{} up", this);
+    }
+
+    void stop() {
+      log.info("{} will shutdown now", this);
+      scheduledFuture.cancel(false);
+      log.info("{} did shutdown OK", this);
+    }
+
+    private void pollLeader() {
+      log.debug("{} polling Leader for tasks", this);
+      JSONArray tasks = leader.getTasks();
+      if (tasks.length()>0) {
+        log.debug("{} will execute {} Worker tasks", this, tasks.length());
+        for (int i = 0; i < tasks.length(); i++) {
+          try {
+            workerExecutor.execute(
+              worker.getTaskRunnable((JSONObject) tasks.get(i)));
+          } catch (Exception e) {
+            log.error("{} failed execute worker task runnable", this, e);
+          }
+        }
+      } else {
+        log.debug("{} has nothing to do", this);
+      }
+    }
+
+    @Override
+    public String toString() {
+      return "Workload[" + this.name + "]";
+    }
+  }
+
 
 }

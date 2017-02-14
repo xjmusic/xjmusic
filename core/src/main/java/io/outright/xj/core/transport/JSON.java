@@ -29,7 +29,7 @@ public abstract class JSON {
     */
     String[] key = new String[maxCol];
     for (int i = 1; i < maxCol; i++) {
-      key[i] = CamelCasify.ifNeeded(data.getColumnName(i));
+      key[i] = CamelCasify.ifNeeded(data.getColumnLabel(i));
     }
 
     while (rs.next()) {

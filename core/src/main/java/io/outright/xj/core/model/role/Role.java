@@ -1,7 +1,7 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 package io.outright.xj.core.model.role;
 
-import io.outright.xj.core.util.CSV.CSV;
+import io.outright.xj.core.transport.CSV;
 
 public interface Role {
 

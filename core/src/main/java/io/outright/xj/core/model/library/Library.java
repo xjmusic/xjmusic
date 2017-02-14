@@ -66,13 +66,6 @@ public class Library extends Entity {
     return fieldValues;
   }
 
-  @Override
-  public String toString() {
-    return "{" +
-      "name:" + this.name +
-      "}";
-  }
-
   /**
    * For use in maps.
    */

@@ -28,10 +28,4 @@ public class PhaseMemeWrapper extends EntityWrapper {
     return this.phaseMeme;
   }
 
-  @Override
-  public String toString() {
-    return "{" +
-      PhaseMeme.KEY_ONE + ":" + this.phaseMeme +
-      "}";
-  }
 }

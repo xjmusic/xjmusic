@@ -29,10 +29,4 @@ public class MorphWrapper extends EntityWrapper {
     return this.morph;
   }
 
-  @Override
-  public String toString() {
-    return "{" +
-      Morph.KEY_ONE + ":" + this.morph +
-      "}";
-  }
 }

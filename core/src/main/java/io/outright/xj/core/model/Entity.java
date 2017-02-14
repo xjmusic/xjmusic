@@ -2,9 +2,14 @@
 package io.outright.xj.core.model;
 
 import io.outright.xj.core.app.exception.BusinessException;
+import io.outright.xj.core.model.link.Link;
 
 import org.jooq.Field;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.Iterator;
 import java.util.Map;
 
 abstract public class Entity {
@@ -17,4 +22,12 @@ abstract public class Entity {
   abstract public void validate() throws BusinessException;
 
   public abstract Map<Field, Object> intoFieldValueMap();
+
+  /**
+   * For use in maps.
+   * Should be overridden by extending classes.
+   */
+  public static final String KEY_ONE = "entity";
+  public static final String KEY_MANY = "entities";
+
 }

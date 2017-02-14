@@ -29,10 +29,4 @@ public class PointWrapper extends EntityWrapper {
     return this.point;
   }
 
-  @Override
-  public String toString() {
-    return "{" +
-      Point.KEY_ONE + ":" + this.point +
-      "}";
-  }
 }

@@ -45,13 +45,6 @@ public class User extends Entity {
     return Maps.newHashMap();
   }
 
-  @Override
-  public String toString() {
-    return "{" +
-      "roles:" + this.roles +
-      "}";
-  }
-
   /**
    * For use in maps.
    */

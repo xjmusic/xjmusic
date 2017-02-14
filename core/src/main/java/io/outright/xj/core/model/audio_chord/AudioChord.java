@@ -88,15 +88,6 @@ public class AudioChord extends Entity {
     return fieldValues;
   }
 
-  @Override
-  public String toString() {
-    return "{" +
-      "name:" + this.name +
-      ", audioId:" + this.audioId +
-      ", position:" + this.position +
-      "}";
-  }
-
   /**
    * For use in maps.
    */

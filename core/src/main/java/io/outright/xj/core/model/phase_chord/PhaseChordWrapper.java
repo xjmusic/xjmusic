@@ -28,10 +28,4 @@ public class PhaseChordWrapper extends EntityWrapper {
     return this.phaseChord;
   }
 
-  @Override
-  public String toString() {
-    return "{" +
-      PhaseChord.KEY_ONE + ":" + this.phaseChord +
-      "}";
-  }
 }

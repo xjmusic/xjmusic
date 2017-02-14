@@ -110,16 +110,6 @@ public class Morph extends Entity {
     return fieldValues;
   }
 
-  @Override
-  public String toString() {
-    return "{" +
-      "arrangementId:" + this.arrangementId +
-      ", position:" + this.position +
-      ", note:" + this.note +
-      ", duration:" + this.duration +
-      "}";
-  }
-
   /**
    * For use in maps.
    */

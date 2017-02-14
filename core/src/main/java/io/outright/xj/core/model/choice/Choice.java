@@ -4,7 +4,7 @@ package io.outright.xj.core.model.choice;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.model.Entity;
 import io.outright.xj.core.model.idea.Idea;
-import io.outright.xj.core.util.CSV.CSV;
+import io.outright.xj.core.transport.CSV;
 import io.outright.xj.core.util.Purify;
 
 import org.jooq.Field;
@@ -141,17 +141,6 @@ public class Choice extends Entity {
     fieldValues.put(CHOICE.TRANSPOSE, transpose);
     fieldValues.put(CHOICE.PHASE_OFFSET, phaseOffset);
     return fieldValues;
-  }
-
-  @Override
-  public String toString() {
-    return "{" +
-      "linkId:" + this.linkId +
-      ", ideaId:" + this.ideaId +
-      ", type:" + this.type +
-      ", transpose:" + this.transpose +
-      ", phaseOffset:" + this.phaseOffset +
-      "}";
   }
 
   /**

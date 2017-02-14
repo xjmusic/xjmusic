@@ -67,19 +67,10 @@ public class IdeaMeme extends Entity {
     return fieldValues;
   }
 
-  @Override
-  public String toString() {
-    return "{" +
-      "ideaId:" + this.ideaId +
-      "name:" + this.name +
-      "}";
-  }
-
   /**
    * For use in maps.
    */
   public static final String KEY_ONE = "ideaMeme";
   public static final String KEY_MANY = "ideaMemes";
-
 
 }

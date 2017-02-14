@@ -2,17 +2,14 @@
 package io.outright.xj.core.dao;
 
 import io.outright.xj.core.CoreModule;
-import io.outright.xj.core.Tables;
-import io.outright.xj.core.app.access.AccessControl;
+import io.outright.xj.core.app.access.impl.AccessControl;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.integration.IntegrationTestEntity;
 import io.outright.xj.core.integration.IntegrationTestService;
-import io.outright.xj.core.model.idea.Idea;
 import io.outright.xj.core.model.instrument.Instrument;
 import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.model.audio.Audio;
 import io.outright.xj.core.model.audio.AudioWrapper;
-import io.outright.xj.core.tables.records.IdeaRecord;
 import io.outright.xj.core.tables.records.AudioRecord;
 
 import org.jooq.types.ULong;
@@ -29,7 +26,6 @@ import org.junit.Test;
 
 import java.math.BigInteger;
 
-import static io.outright.xj.core.tables.Idea.IDEA;
 import static io.outright.xj.core.tables.Audio.AUDIO;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;

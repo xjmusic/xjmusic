@@ -29,10 +29,4 @@ public class ChoiceWrapper extends EntityWrapper {
     return this.choice;
   }
 
-  @Override
-  public String toString() {
-    return "{" +
-      Choice.KEY_ONE + ":" + this.choice +
-      "}";
-  }
 }

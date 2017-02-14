@@ -3,7 +3,7 @@ package io.outright.xj.core.model.voice;
 
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.model.Entity;
-import io.outright.xj.core.util.CSV.CSV;
+import io.outright.xj.core.transport.CSV;
 import io.outright.xj.core.util.Purify;
 
 import org.jooq.Field;
@@ -106,15 +106,6 @@ public class Voice extends Entity {
     fieldValues.put(VOICE.TYPE, type);
     fieldValues.put(VOICE.DESCRIPTION, description);
     return fieldValues;
-  }
-
-  @Override
-  public String toString() {
-    return "{" +
-      "phaseId:" + this.phaseId +
-      ", type:" + this.type +
-      ", description:" + this.description +
-      "}";
   }
 
   /**

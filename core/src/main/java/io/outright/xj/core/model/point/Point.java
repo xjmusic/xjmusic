@@ -128,17 +128,6 @@ public class Point extends Entity {
     return fieldValues;
   }
 
-  @Override
-  public String toString() {
-    return "{" +
-      "morphId:" + this.morphId +
-      ", voiceEventId:" + this.voiceEventId +
-      ", position:" + this.position +
-      ", duration:" + this.duration +
-      ", note:" + this.note +
-      "}";
-  }
-
   /**
    * For use in maps.
    */

@@ -164,19 +164,6 @@ public class Phase extends Entity {
     return fieldValues;
   }
 
-  @Override
-  public String toString() {
-    return "{" +
-      "name:" + this.name +
-      ", ideaId:" + this.ideaId +
-      ", key:" + this.key +
-      ", total:" + this.total +
-      ", offset:" + this.offset +
-      ", density:" + this.density +
-      ", tempo:" + this.tempo +
-      "}";
-  }
-
   /**
    * For use in maps.
    */

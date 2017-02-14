@@ -29,10 +29,4 @@ public class ArrangementWrapper extends EntityWrapper {
     return this.arrangement;
   }
 
-  @Override
-  public String toString() {
-    return "{" +
-      Arrangement.KEY_ONE + ":" + this.arrangement +
-      "}";
-  }
 }

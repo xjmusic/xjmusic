@@ -66,14 +66,6 @@ public class ChainLibrary extends Entity {
     return fieldValues;
   }
 
-  @Override
-  public String toString() {
-    return "{" +
-      "libraryId:" + this.libraryId +
-      "chainId:" + this.chainId +
-      "}";
-  }
-
   /**
    * For use in maps.
    */

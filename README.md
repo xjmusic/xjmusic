@@ -1,6 +1,10 @@
-# XJ
+# xj
 
 Music Audio Composite Fabrication Platform
+
+## Chain Work
+
+This term refers (in the **xj** universe) to a layer of work performed on the Links (sequentially, by their offset) in a Chain.
 
 # Usage
 
@@ -180,13 +184,13 @@ Run a local **Hub** on its default port 8042:
 
     bin/hub    
 
-Run a local **Craft** on its default port 8043:
+Run a local **Craftworker** on its default port 8043:
 
-    bin/craft    
+    bin/craftworker    
 
-Run a local **Ship** on its default port 8044:
+Run a local **Dubworker** on its default port 8044:
 
-    bin/ship    
+    bin/dubworker    
 
 ## Release Java platform for deployment to AWS Elastic Beanstalk
 
@@ -270,7 +274,7 @@ Connects to:
   * SQL Database
   * Filesystem
 
-## craft
+## craftworker
 
 Fabricates a musical audio composite from source ideas and instrument-audio. Built with Java, Guice, Tomcat, Maven.
 
@@ -283,7 +287,7 @@ Connects to:
   * SQL Database
   * Filesystem
 
-## ship
+## dubworker
 
 Ships finished audio data to any destination. Built with Java, Guice, Tomcat, Maven.
 
@@ -302,15 +306,19 @@ Workflow tooling
 
 # App Standards
 
-### Port
+## Port
 
   * hub: 8042
-  * craft: 8043
-  * ship: 8044
+  * craftworker: 8043
+  * dubworker: 8044
 
 ## Healthcheck Endpoint
 
 **GET /o2**
+
+## The Dao of Database Access Objects (D.A.O.) in the xj universe
+
+1. ***All DAO methods require an AccessControl object!*** 
 
 # References
 

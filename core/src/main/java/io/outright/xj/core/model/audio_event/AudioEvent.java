@@ -161,19 +161,6 @@ public class AudioEvent extends Entity {
     return fieldValues;
   }
 
-  @Override
-  public String toString() {
-    return "{" +
-      "duration:" + duration +
-      ", inflection:" + inflection +
-      ", note:" + note +
-      ", position:" + position +
-      ", tonality:" + tonality +
-      ", velocity:" + velocity +
-      ", audioId:" + audioId +
-      "}";
-  }
-
   /**
    * For use in maps.
    */

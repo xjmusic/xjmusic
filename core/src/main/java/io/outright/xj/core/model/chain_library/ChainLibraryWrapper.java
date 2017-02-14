@@ -28,11 +28,4 @@ public class ChainLibraryWrapper extends EntityWrapper {
     return this.chainLibrary;
   }
 
-  @Override
-  public String toString() {
-    return "{" +
-      ChainLibrary.KEY_ONE + ":" + this.chainLibrary +
-      "}";
-  }
-
 }

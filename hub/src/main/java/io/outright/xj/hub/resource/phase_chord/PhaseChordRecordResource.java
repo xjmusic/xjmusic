@@ -2,7 +2,7 @@
 package io.outright.xj.hub.resource.phase_chord;
 
 import io.outright.xj.core.CoreModule;
-import io.outright.xj.core.app.access.AccessControl;
+import io.outright.xj.core.app.access.impl.AccessControl;
 import io.outright.xj.core.app.server.HttpResponseProvider;
 import io.outright.xj.core.dao.PhaseChordDAO;
 import io.outright.xj.core.model.phase_chord.PhaseChord;

@@ -3,7 +3,7 @@ package io.outright.xj.core.model.instrument;
 
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.model.Entity;
-import io.outright.xj.core.util.CSV.CSV;
+import io.outright.xj.core.transport.CSV;
 import io.outright.xj.core.util.Purify;
 
 import org.jooq.Field;
@@ -130,17 +130,6 @@ public class Instrument extends Entity {
     fieldValues.put(INSTRUMENT.TYPE, type);
     fieldValues.put(INSTRUMENT.DENSITY, density);
     return fieldValues;
-  }
-
-  @Override
-  public String toString() {
-    return "{" +
-      "description:" + this.description +
-      ", density:" + this.density +
-      ", libraryId:" + this.libraryId +
-      ", type:" + this.type +
-      ", userId:" + this.userId +
-      "}";
   }
 
   /**

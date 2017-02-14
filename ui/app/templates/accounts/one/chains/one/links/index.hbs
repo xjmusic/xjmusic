@@ -1,0 +1,47 @@
+<!-- Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved. -->
+
+<!-- Inner Content -->
+{{outlet}}
+
+<!-- Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved. -->
+
+<!-- Upper Container -->
+<div class="form-horizontal">
+
+  <!-- List of Links -->
+  <div class="sm-col-12">
+    <div class="table-list">
+      <table class="table">
+        <thead>
+        <tr>
+          <th>#</th>
+          <th>Offset</th>
+          <th>State</th>
+          <th>Begin At</th>
+          <th>End At</th>
+          <th>Total</th>
+          <th>Density</th>
+          <th>Key</th>
+          <th>Tempo</th>
+        </tr>
+        </thead>
+        <tbody>
+        {{#each model.links as |link|}}
+          <tr class="item">
+            <th scope="row">{{#link-to "accounts.one.chains.one.links.one" link}}{{link.id}}{{/link-to}}</th>
+            <td>{{link.offset}}</td>
+            <td>{{link.state}}</td>
+            <td>{{link.beginAt}}</td>
+            <td>{{link.endAt}}</td>
+            <td>{{link.total}}</td>
+            <td>{{link.density}}</td>
+            <td>{{link.key}}</td>
+            <td>{{link.tempo}}</td>
+          </tr>
+        {{/each}}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>

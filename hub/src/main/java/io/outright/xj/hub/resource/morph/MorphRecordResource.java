@@ -2,7 +2,7 @@
 package io.outright.xj.hub.resource.morph;
 
 import io.outright.xj.core.CoreModule;
-import io.outright.xj.core.app.access.AccessControl;
+import io.outright.xj.core.app.access.impl.AccessControl;
 import io.outright.xj.core.app.server.HttpResponseProvider;
 import io.outright.xj.core.dao.MorphDAO;
 import io.outright.xj.core.model.morph.Morph;

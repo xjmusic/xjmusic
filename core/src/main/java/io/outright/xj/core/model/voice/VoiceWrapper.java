@@ -29,10 +29,4 @@ public class VoiceWrapper extends EntityWrapper {
     return this.voice;
   }
 
-  @Override
-  public String toString() {
-    return "{" +
-      Voice.KEY_ONE + ":" + this.voice +
-      "}";
-  }
 }

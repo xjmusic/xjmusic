@@ -2,6 +2,7 @@
 package io.outright.xj.core.app.access;
 
 import io.outright.xj.core.CoreModule;
+import io.outright.xj.core.app.access.impl.AccessControlProviderImpl;
 import io.outright.xj.core.db.RedisDatabaseProvider;
 import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.tables.records.AccountUserRecord;

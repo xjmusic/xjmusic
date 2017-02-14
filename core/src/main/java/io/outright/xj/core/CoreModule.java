@@ -4,11 +4,11 @@ package io.outright.xj.core;
 import io.outright.xj.core.app.App;
 import io.outright.xj.core.app.AppImpl;
 import io.outright.xj.core.app.access.AccessControlProvider;
-import io.outright.xj.core.app.access.AccessControlProviderImpl;
 import io.outright.xj.core.app.access.AccessLogFilterProvider;
-import io.outright.xj.core.app.access.AccessLogFilterProviderImpl;
 import io.outright.xj.core.app.access.AccessTokenAuthFilter;
-import io.outright.xj.core.app.access.AccessTokenAuthFilterImpl;
+import io.outright.xj.core.app.access.impl.AccessControlProviderImpl;
+import io.outright.xj.core.app.access.impl.AccessLogFilterProviderImpl;
+import io.outright.xj.core.app.access.impl.AccessTokenAuthFilterImpl;
 import io.outright.xj.core.app.server.HttpResponseProvider;
 import io.outright.xj.core.app.server.HttpResponseProviderImpl;
 import io.outright.xj.core.app.server.HttpServerProvider;
@@ -88,13 +88,13 @@ import com.google.inject.AbstractModule;
 
 public class CoreModule extends AbstractModule {
   protected void configure() {
-    configureApp();
-    configureUtil();
-    configureDAO();
-    configureExternal();
+    bindApp();
+    bindDAO();
+    bindExternal();
+    bindUtil();
   }
 
-  private void configureApp() {
+  private void bindApp() {
     bind(AccessControlProvider.class).to(AccessControlProviderImpl.class);
     bind(AccessLogFilterProvider.class).to(AccessLogFilterProviderImpl.class);
     bind(AccessTokenAuthFilter.class).to(AccessTokenAuthFilterImpl.class);
@@ -110,16 +110,7 @@ public class CoreModule extends AbstractModule {
     bind(SQLDatabaseProvider.class).to(SQLDatabaseProviderImpl.class);
   }
 
-  private void configureUtil() {
-    bind(TokenGenerator.class).to(TokenGeneratorImpl.class);
-  }
-
-  private void configureExternal() {
-    bind(GoogleHttpProvider.class).to(GoogleHttpProviderImpl.class);
-    bind(GoogleProvider.class).to(GoogleProviderImpl.class);
-  }
-
-  private void configureDAO() {
+  private void bindDAO() {
     bind(AccountDAO.class).to(AccountDAOImpl.class);
     bind(AccountUserDAO.class).to(AccountUserDAOImpl.class);
     bind(ArrangementDAO.class).to(ArrangementDAOImpl.class);
@@ -147,4 +138,14 @@ public class CoreModule extends AbstractModule {
     bind(VoiceDAO.class).to(VoiceDAOImpl.class);
     bind(VoiceEventDAO.class).to(VoiceEventDAOImpl.class);
   }
+
+  private void bindExternal() {
+    bind(GoogleHttpProvider.class).to(GoogleHttpProviderImpl.class);
+    bind(GoogleProvider.class).to(GoogleProviderImpl.class);
+  }
+
+  private void bindUtil() {
+    bind(TokenGenerator.class).to(TokenGeneratorImpl.class);
+  }
+
 }

@@ -29,10 +29,4 @@ public class PickWrapper extends EntityWrapper {
     return this.pick;
   }
 
-  @Override
-  public String toString() {
-    return "{" +
-      Pick.KEY_ONE + ":" + this.pick +
-      "}";
-  }
 }

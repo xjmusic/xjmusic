@@ -1,5 +1,7 @@
 package io.outright.xj.core.util.CSV;
 
+import io.outright.xj.core.transport.CSV;
+
 import org.junit.Test;
 
 import java.util.Arrays;

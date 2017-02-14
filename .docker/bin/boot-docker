@@ -81,8 +81,8 @@ service nginx start
 
 # start apps in background
 bin/bootstrap hub &
-#  bin/bootstrap craft &
-#  bin/bootstrap ship &
+#  bin/bootstrap craftworker &
+#  bin/bootstrap dubworker &
 
 # interactive tty
 printf "\nLogging in...\n"

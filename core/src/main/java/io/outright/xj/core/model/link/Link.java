@@ -3,7 +3,7 @@ package io.outright.xj.core.model.link;
 
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.model.Entity;
-import io.outright.xj.core.util.CSV.CSV;
+import io.outright.xj.core.transport.CSV;
 import io.outright.xj.core.util.Purify;
 
 import org.jooq.Field;
@@ -12,6 +12,8 @@ import org.jooq.types.ULong;
 
 import com.google.api.client.util.Maps;
 import com.google.common.collect.ImmutableList;
+
+import org.json.JSONObject;
 
 import java.math.BigInteger;
 import java.sql.Timestamp;
@@ -22,19 +24,48 @@ import static io.outright.xj.core.Tables.LINK;
 
 public class Link extends Entity {
   public static final String PLANNED = "planned";
-  public static final String CHOOSING = "choosing";
-  public static final String CHOSEN = "chosen";
-  public static final String MIXING = "mixing";
-  public static final String MIXED = "mixed";
+  public static final String CRAFTING = "crafting";
+  public static final String CRAFTED = "crafted";
+  public static final String DUBBING = "dubbing";
+  public static final String DUBBED = "dubbed";
 
   private final static List<String> allStates = ImmutableList.of(
     PLANNED,
-    CHOOSING,
-    CHOSEN,
-    MIXING,
-    MIXED
+    CRAFTING,
+    CRAFTED,
+    DUBBING,
+    DUBBED
   );
 
+  /**
+   * For use in maps.
+   */
+  public static final String KEY_ONE = "link";
+  public static final String KEY_MANY = "links";
+  // attributes
+  public static final String KEY_CHAIN_ID = "chainId";
+  public static final String KEY_OFFSET = "offset";
+  public static final String KEY_STATE = "state";
+  public static final String KEY_BEGIN_AT = "beginAt";
+  public static final String KEY_END_AT = "endAt";
+  private static final String KEY_DENSITY = "density";
+  private static final String KEY_TEMPO = "tempo";
+  private static final String KEY_TOTAL = "total";
+  private static final String KEY_KEY = "key";
+
+  /**
+   * ID
+   */
+  private ULong id;
+
+  public ULong getId() {
+    return id;
+  }
+
+  public Link setId(BigInteger id) {
+    this.id = ULong.valueOf(id);
+    return this;
+  }
 
   /**
    * Chain
@@ -64,7 +95,9 @@ public class Link extends Entity {
     return this;
   }
 
-  // BeginAt
+  /**
+   * BeginAt
+   */
   private Timestamp beginAt;
   private String beginAtError;
 
@@ -81,7 +114,14 @@ public class Link extends Entity {
     return this;
   }
 
-  // EndAt
+  public Link setBeginAt(Timestamp beginAt) {
+    this.beginAt = beginAt;
+    return this;
+  }
+
+  /**
+   * EndAt (optional)
+   */
   private Timestamp endAt;
   private String endAtError;
 
@@ -95,6 +135,11 @@ public class Link extends Entity {
     } catch (Exception e) {
       endAtError = e.getMessage();
     }
+    return this;
+  }
+
+  public Link setEndAt(Timestamp endAt) {
+    this.endAt = endAt;
     return this;
   }
 
@@ -129,14 +174,18 @@ public class Link extends Entity {
   /**
    * Offset
    */
-  private Integer offset;
+  private ULong offset;
 
-  public Integer getOffset() {
+  public ULong getOffset() {
     return offset;
   }
 
-  public Link setOffset(Integer offset) {
-    this.offset = offset;
+  public Link setOffset(BigInteger offset) {
+    if (offset != null) {
+      this.offset = ULong.valueOf(offset);
+    } else {
+      this.offset = ULong.valueOf(0);
+    }
     return this;
   }
 
@@ -187,23 +236,8 @@ public class Link extends Entity {
     if (this.beginAt == null) {
       throw new BusinessException("Begin-at is required." + (beginAtError != null ? " " + beginAtError : ""));
     }
-    if (this.endAt == null) {
-      throw new BusinessException("End-at is required." + (endAtError != null ? " " + endAtError : ""));
-    }
     if (this.offset == null) {
       throw new BusinessException("Offset is required.");
-    }
-    if (this.total == null) {
-      throw new BusinessException("Total is required.");
-    }
-    if (this.density == null || this.density == 0) {
-      throw new BusinessException("Density is required.");
-    }
-    if (this.key == null || this.key.length() == 0) {
-      throw new BusinessException("Key is required.");
-    }
-    if (this.tempo == null || this.tempo == 0) {
-      throw new BusinessException("Tempo is required.");
     }
   }
 
@@ -219,30 +253,51 @@ public class Link extends Entity {
     fieldValues.put(LINK.OFFSET, offset);
     fieldValues.put(LINK.STATE, state);
     fieldValues.put(LINK.BEGIN_AT, beginAt);
-    fieldValues.put(LINK.END_AT, endAt);
-    fieldValues.put(LINK.TOTAL, total);
+    fieldValues.put(LINK.END_AT, endAt != null ? endAt : DSL.val((String) null));
+    fieldValues.put(LINK.TOTAL, total != null ? total : DSL.val((String) null));
     fieldValues.put(LINK.DENSITY, density != null ? density : DSL.val((String) null));
     fieldValues.put(LINK.KEY, key != null ? key : DSL.val((String) null));
     fieldValues.put(LINK.TEMPO, tempo != null ? tempo : DSL.val((String) null));
     return fieldValues;
   }
 
-  @Override
-  public String toString() {
-    return "{" +
-      "offset:" + this.offset +
-      ", chainId:" + this.chainId +
-      ", key:" + this.key +
-      ", total:" + this.total +
-      ", density:" + this.density +
-      ", tempo:" + this.tempo +
-      "}";
-  }
-
   /**
-   * For use in maps.
+   * Build a new Link model from a JSONObject representation
+   * @param json object
+   * @return Link model
    */
-  public static final String KEY_ONE = "link";
-  public static final String KEY_MANY = "links";
-
+  public static Link fromJSON(JSONObject json) {
+    Link link = new Link();
+    if (json.has(KEY_ID)) {
+      link.setId(json.getBigInteger(KEY_ID));
+    }
+    if (json.has(KEY_CHAIN_ID)) {
+      link.setChainId(json.getBigInteger(KEY_CHAIN_ID));
+    }
+    if (json.has(KEY_STATE)) {
+      link.setState(json.getString(KEY_STATE));
+    }
+    if (json.has(KEY_OFFSET)) {
+      link.setOffset(json.getBigInteger(KEY_OFFSET));
+    }
+    if (json.has(KEY_BEGIN_AT)) {
+      link.setBeginAt(json.get(KEY_BEGIN_AT).toString());
+    }
+    if (json.has(KEY_END_AT)) {
+      link.setEndAt(json.get(KEY_END_AT).toString());
+    }
+    if (json.has(KEY_DENSITY)) {
+      link.setDensity(json.getDouble(KEY_DENSITY));
+    }
+    if (json.has(KEY_TEMPO)) {
+      link.setTempo(json.getDouble(KEY_TEMPO));
+    }
+    if (json.has(KEY_TOTAL)) {
+      link.setTotal(json.getInt(KEY_TOTAL));
+    }
+    if (json.has(KEY_KEY)) {
+      link.setKey(json.getString(KEY_KEY));
+    }
+    return link;
+  }
 }

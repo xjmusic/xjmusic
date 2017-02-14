@@ -37,7 +37,7 @@ public enum IntegrationTestService {
 
     // Migrate the test database
     try {
-      MigrationService.GLOBAL.migrate(dbProvider);
+      MigrationService.migrate(dbProvider);
     } catch (ConfigException e) {
       log.error("ConfigException: " + e);
       System.exit(1);

@@ -28,10 +28,4 @@ public class InstrumentWrapper extends EntityWrapper {
     return this.instrument;
   }
 
-  @Override
-  public String toString() {
-    return "{" +
-      Instrument.KEY_ONE + ":" + this.instrument +
-      "}";
-  }
 }

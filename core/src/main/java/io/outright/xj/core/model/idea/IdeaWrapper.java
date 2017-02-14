@@ -28,10 +28,4 @@ public class IdeaWrapper extends EntityWrapper {
     return this.idea;
   }
 
-  @Override
-  public String toString() {
-    return "{" +
-      Idea.KEY_ONE + ":" + this.idea +
-      "}";
-  }
 }

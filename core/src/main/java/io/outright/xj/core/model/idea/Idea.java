@@ -3,7 +3,7 @@ package io.outright.xj.core.model.idea;
 
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.model.Entity;
-import io.outright.xj.core.util.CSV.CSV;
+import io.outright.xj.core.transport.CSV;
 import io.outright.xj.core.util.Purify;
 
 import org.jooq.Field;
@@ -162,19 +162,6 @@ public class Idea extends Entity {
     fieldValues.put(IDEA.TEMPO, tempo);
     fieldValues.put(IDEA.DENSITY, density);
     return fieldValues;
-  }
-
-  @Override
-  public String toString() {
-    return "{" +
-      "name:" + this.name +
-      ", density:" + this.density +
-      ", key:" + this.key +
-      ", libraryId:" + this.libraryId +
-      ", tempo:" + this.tempo +
-      ", type:" + this.type +
-      ", userId:" + this.userId +
-      "}";
   }
 
   /**

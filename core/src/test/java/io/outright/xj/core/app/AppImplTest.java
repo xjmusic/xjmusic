@@ -62,7 +62,7 @@ public class AppImplTest extends Mockito {
     when(resourceConfigProvider.get("io.outright.xj.core.app.resource"))
       .thenReturn(resourceConfig);
 
-    app.configure();
+    app.configureServer();
     app.start();
 
     verify(httpServerProvider).configure(URI.create("http://0.0.0.0:80/"), resourceConfig);
@@ -83,7 +83,7 @@ public class AppImplTest extends Mockito {
     when(resourceConfigProvider.get("io.outright.xj.core.app.resource"))
       .thenReturn(resourceConfig);
 
-    app.configure();
+    app.configureServer();
     app.start();
 
     verify(httpServerProvider).configure(URI.create("http://0.0.0.0:80/"), resourceConfig);
@@ -97,7 +97,7 @@ public class AppImplTest extends Mockito {
     when(resourceConfigProvider.get("io.outright.xj.core.app.resource"))
       .thenReturn(resourceConfig);
 
-    app.configure();
+    app.configureServer();
 
     verify(accessLogFilterProvider).registerTo(resourceConfig);
     verify(resourceConfig).register(accessTokenAuthFilter);
@@ -111,7 +111,7 @@ public class AppImplTest extends Mockito {
     when(resourceConfigProvider.get("io.outright.xj.core.app.resource", "one", "two", "three"))
       .thenReturn(resourceConfig);
 
-    app.configure("one", "two", "three");
+    app.configureServer("one", "two", "three");
 
     verify(accessLogFilterProvider).registerTo(resourceConfig);
     verify(resourceConfig).register(accessTokenAuthFilter);
@@ -125,7 +125,7 @@ public class AppImplTest extends Mockito {
     when(resourceConfigProvider.get("io.outright.xj.core.app.resource", "one", "two", "three"))
       .thenReturn(resourceConfig);
 
-    app.configure("one", "two", "three");
+    app.configureServer("one", "two", "three");
 
     verify(accessLogFilterProvider).registerTo(resourceConfig);
     verify(resourceConfig).register(accessTokenAuthFilter);

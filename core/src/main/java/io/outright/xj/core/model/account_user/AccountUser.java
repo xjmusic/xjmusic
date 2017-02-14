@@ -66,14 +66,6 @@ public class AccountUser extends Entity {
     return fieldValues;
   }
 
-  @Override
-  public String toString() {
-    return "{" +
-      "userId:" + this.userId +
-      "accountId:" + this.accountId +
-      "}";
-  }
-
   /**
    * For use in maps.
    */

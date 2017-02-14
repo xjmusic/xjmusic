@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
 #
-bin/run craft $@
+bin/run craftworker $@

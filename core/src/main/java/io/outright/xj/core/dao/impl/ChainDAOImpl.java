@@ -1,7 +1,7 @@
 // Copyright Outright Mental, Inc. All Rights Reserved.
 package io.outright.xj.core.dao.impl;
 
-import io.outright.xj.core.app.access.AccessControl;
+import io.outright.xj.core.app.access.impl.AccessControl;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.app.exception.DatabaseException;
@@ -66,6 +66,17 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readAllIn(tx.getContext(), access, accountId));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  @Nullable
+  public JSONArray readAllInProduction(AccessControl access) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readAllInProduction(tx.getContext(), access));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -166,6 +177,22 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
   }
 
   /**
+   * Read all records in parent by id
+   *
+   * @param db        context
+   * @param access    control
+   * @return array of records
+   */
+  private JSONArray readAllInProduction(DSLContext db, AccessControl access) throws SQLException, BusinessException {
+    requireTopLevel(access);
+
+    return JSON.arrayFromResultSet(db.select(CHAIN.ID, CHAIN.START_AT)
+      .from(CHAIN)
+      .where(CHAIN.STATE.eq(Chain.PRODUCTION))
+      .fetchResultSet());
+  }
+
+  /**
    * Update a record
    *
    * @param db     context
@@ -187,9 +214,9 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
     } else {
       requireRecordExists("Account",
         db.select(ACCOUNT.ID).from(ACCOUNT)
-        .where(ACCOUNT.ID.eq(model.getAccountId()))
-        .and(ACCOUNT.ID.in(access.getAccounts()))
-        .fetchOne());
+          .where(ACCOUNT.ID.eq(model.getAccountId()))
+          .and(ACCOUNT.ID.in(access.getAccounts()))
+          .fetchOne());
     }
 
     if (executeUpdate(db, CHAIN, fieldValues) == 0) {
@@ -200,10 +227,10 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
   /**
    * Delete a Chain
    *
-   * @param db        context
-   * @param access    control
-   * @param id to delete
-   * @throws Exception if database failure
+   * @param db     context
+   * @param access control
+   * @param id     to delete
+   * @throws Exception         if database failure
    * @throws ConfigException   if not configured properly
    * @throws BusinessException if fails business rule
    */

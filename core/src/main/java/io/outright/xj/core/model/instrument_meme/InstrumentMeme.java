@@ -67,14 +67,6 @@ public class InstrumentMeme extends Entity {
     return fieldValues;
   }
 
-  @Override
-  public String toString() {
-    return "{" +
-      "instrumentId:" + this.instrumentId +
-      "name:" + this.name +
-      "}";
-  }
-
   /**
    * For use in maps.
    */

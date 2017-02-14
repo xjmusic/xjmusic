@@ -1,6 +1,6 @@
 package io.outright.xj.core.dao.impl;
 
-import io.outright.xj.core.app.access.AccessControl;
+import io.outright.xj.core.app.access.impl.AccessControl;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.app.exception.DatabaseException;
 import io.outright.xj.core.db.sql.SQLDatabaseProvider;
@@ -105,7 +105,7 @@ public class DAOImpl {
    */
   void requireTopLevel(AccessControl access) throws BusinessException {
     if (!access.isTopLevel()) {
-      throw new BusinessException("not admin");
+      throw new BusinessException("does not have top-level access");
     }
   }
 

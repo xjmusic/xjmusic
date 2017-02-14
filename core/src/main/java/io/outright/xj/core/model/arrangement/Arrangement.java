@@ -91,15 +91,6 @@ public class Arrangement extends Entity {
     return fieldValues;
   }
 
-  @Override
-  public String toString() {
-    return "{" +
-      "choiceId:" + this.choiceId +
-      ", voiceId:" + this.voiceId +
-      ", instrumentId:" + this.instrumentId +
-      "}";
-  }
-
   /**
    * For use in maps.
    */

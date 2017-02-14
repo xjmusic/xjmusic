@@ -95,6 +95,14 @@ public abstract class Config {
     return getOrDefault("access.token.name", "access_token");
   }
 
+  public static int workConcurrency() { return getIntOrDefault("work.concurrency", 10); }
+
+  public static int workBatchSize() { return getIntOrDefault("work.batch.size", 10); }
+
+  public static long workBatchSleepSeconds() { return getIntOrDefault("work.batch.sleep.seconds", 1); }
+
+  public static int workAheadSeconds() { return getIntOrDefault("work.ahead.seconds", 300); }
+
   /**
    * Set a System Property if no value has yet been set for it.
    *
@@ -150,4 +158,5 @@ public abstract class Config {
       return defaultValue;
     }
   }
+
 }

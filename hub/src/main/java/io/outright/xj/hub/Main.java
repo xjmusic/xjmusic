@@ -10,6 +10,7 @@ import io.outright.xj.core.migration.MigrationService;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,13 +34,16 @@ public class Main {
       // Default port
       Config.setDefault("app.port", "8042");
 
+      // Default # seconds ahead of time to perform work
+      Config.setDefault("work.buffer.seconds", "300");
+
       // App
       app = injector.getInstance(App.class);
-      app.configure("io.outright.xj.hub");
+      app.configureServer("io.outright.xj.hub");
 
       // Database migrations
       try {
-        MigrationService.GLOBAL.migrate(injector.getInstance(SQLDatabaseProvider.class));
+        MigrationService.migrate(injector.getInstance(SQLDatabaseProvider.class));
       } catch (ConfigException e) {
         log.error("Migrations failed! App will not start.", e);
         System.exit(1);

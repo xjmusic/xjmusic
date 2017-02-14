@@ -2,7 +2,7 @@
 package io.outright.xj.core.dao;
 
 import io.outright.xj.core.CoreModule;
-import io.outright.xj.core.app.access.AccessControl;
+import io.outright.xj.core.app.access.impl.AccessControl;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.integration.IntegrationTestEntity;
 import io.outright.xj.core.integration.IntegrationTestService;
@@ -10,7 +10,6 @@ import io.outright.xj.core.model.idea.Idea;
 import io.outright.xj.core.model.phase.Phase;
 import io.outright.xj.core.model.phase.PhaseWrapper;
 import io.outright.xj.core.model.role.Role;
-import io.outright.xj.core.tables.records.IdeaRecord;
 import io.outright.xj.core.tables.records.PhaseRecord;
 
 import com.google.common.collect.ImmutableMap;
@@ -27,7 +26,6 @@ import org.junit.Test;
 
 import java.math.BigInteger;
 
-import static io.outright.xj.core.tables.Idea.IDEA;
 import static io.outright.xj.core.tables.Phase.PHASE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;

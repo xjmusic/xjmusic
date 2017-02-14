@@ -88,15 +88,6 @@ public class PhaseChord extends Entity {
     return fieldValues;
   }
 
-  @Override
-  public String toString() {
-    return "{" +
-      "name:" + this.name +
-      ", phaseId:" + this.phaseId +
-      ", position:" + this.position +
-      "}";
-  }
-
   /**
    * For use in maps.
    */

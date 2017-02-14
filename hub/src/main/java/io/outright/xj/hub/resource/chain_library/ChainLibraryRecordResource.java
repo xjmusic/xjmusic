@@ -2,7 +2,7 @@
 package io.outright.xj.hub.resource.chain_library;
 
 import io.outright.xj.core.CoreModule;
-import io.outright.xj.core.app.access.AccessControl;
+import io.outright.xj.core.app.access.impl.AccessControl;
 import io.outright.xj.core.app.server.HttpResponseProvider;
 import io.outright.xj.core.dao.ChainLibraryDAO;
 import io.outright.xj.core.model.chain_library.ChainLibrary;

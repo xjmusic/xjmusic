@@ -2,7 +2,7 @@
 package io.outright.xj.core.dao;
 
 import io.outright.xj.core.CoreModule;
-import io.outright.xj.core.app.access.AccessControl;
+import io.outright.xj.core.app.access.impl.AccessControl;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.integration.IntegrationTestEntity;
 import io.outright.xj.core.integration.IntegrationTestService;
@@ -59,7 +59,7 @@ public class PickIT {
 
     // Chain "Test Print #1" has one link
     IntegrationTestEntity.insertChain(1, 1, "Test Print #1", Chain.READY, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"));
-    IntegrationTestEntity.insertLink(1, 1, 0, Link.MIXED, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120);
+    IntegrationTestEntity.insertLink(1, 1, 0, Link.DUBBED, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120);
 
     // Link "Test Print #1" has 4 choices
     IntegrationTestEntity.insertChoice(7, 1, 1, Choice.MACRO, 2, -5);
