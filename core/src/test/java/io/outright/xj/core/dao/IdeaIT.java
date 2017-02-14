@@ -154,7 +154,7 @@ public class IdeaIT {
   }
 
   @Test
-  public void readOneAble_FailsWhenUserIsNotInLibrary() throws Exception {
+  public void readOne_FailsWhenUserIsNotInLibrary() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
       "roles", "user",
       "accounts", "326"

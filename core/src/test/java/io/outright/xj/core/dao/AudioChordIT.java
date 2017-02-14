@@ -57,7 +57,6 @@ public class AudioChordIT {
     IntegrationTestEntity.insertAudio(1, 1, "Chords Cm to D", "https://static.xj.outright.io/instrument/percussion/808/kick1.wav", 0.01, 2.123, 120.0, 440);
 
     // Audio "Drums" has events "C minor" and "D major" 2x each
-    //
     IntegrationTestEntity.insertAudioChord(1, 1, 4, "D major");
     IntegrationTestEntity.insertAudioChord(2, 1, 0, "C minor");
 
@@ -139,7 +138,7 @@ public class AudioChordIT {
   }
 
   @Test
-  public void readOneAble_FailsWhenUserIsNotInAccount() throws Exception {
+  public void readOne_FailsWhenUserIsNotInAccount() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
       "roles", "artist",
       "accounts", "326"

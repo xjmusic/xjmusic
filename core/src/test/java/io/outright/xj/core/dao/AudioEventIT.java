@@ -164,7 +164,7 @@ public class AudioEventIT {
   }
 
   @Test
-  public void readOneAble_FailsWhenUserIsNotInAccount() throws Exception {
+  public void readOne_FailsWhenUserIsNotInAccount() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
       "roles", "artist",
       "accounts", "326"

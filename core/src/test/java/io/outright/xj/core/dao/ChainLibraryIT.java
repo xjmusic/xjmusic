@@ -180,7 +180,7 @@ public class ChainLibraryIT {
   }
 
   @Test
-  public void readOneAble_FailsWhenChainIsNotInAccount() throws Exception {
+  public void readOne_FailsWhenChainIsNotInAccount() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
       "roles", "artist",
       "accounts", "326"

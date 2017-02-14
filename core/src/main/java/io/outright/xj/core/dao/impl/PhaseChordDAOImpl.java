@@ -227,7 +227,7 @@ public class PhaseChordDAOImpl extends DAOImpl implements PhaseChordDAO {
         .where(PHASE_CHORD.ID.eq(id))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .fetchOne();
-      requireRecordExists("Phase Meme", record);
+      requireRecordExists("Phase Chord", record);
     }
 
     db.deleteFrom(PHASE_CHORD)

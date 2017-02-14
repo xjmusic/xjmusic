@@ -4,19 +4,26 @@ import io.outright.xj.core.Tables;
 import io.outright.xj.core.app.exception.DatabaseException;
 import io.outright.xj.core.tables.records.AccountRecord;
 import io.outright.xj.core.tables.records.AccountUserRecord;
+import io.outright.xj.core.tables.records.ArrangementRecord;
 import io.outright.xj.core.tables.records.AudioChordRecord;
 import io.outright.xj.core.tables.records.AudioEventRecord;
 import io.outright.xj.core.tables.records.AudioRecord;
 import io.outright.xj.core.tables.records.ChainLibraryRecord;
 import io.outright.xj.core.tables.records.ChainRecord;
+import io.outright.xj.core.tables.records.ChoiceRecord;
 import io.outright.xj.core.tables.records.IdeaMemeRecord;
 import io.outright.xj.core.tables.records.IdeaRecord;
 import io.outright.xj.core.tables.records.InstrumentMemeRecord;
 import io.outright.xj.core.tables.records.InstrumentRecord;
 import io.outright.xj.core.tables.records.LibraryRecord;
+import io.outright.xj.core.tables.records.LinkChordRecord;
+import io.outright.xj.core.tables.records.LinkRecord;
+import io.outright.xj.core.tables.records.MorphRecord;
 import io.outright.xj.core.tables.records.PhaseChordRecord;
 import io.outright.xj.core.tables.records.PhaseMemeRecord;
 import io.outright.xj.core.tables.records.PhaseRecord;
+import io.outright.xj.core.tables.records.PickRecord;
+import io.outright.xj.core.tables.records.PointRecord;
 import io.outright.xj.core.tables.records.UserAccessTokenRecord;
 import io.outright.xj.core.tables.records.UserAuthRecord;
 import io.outright.xj.core.tables.records.UserRecord;
@@ -25,6 +32,7 @@ import io.outright.xj.core.tables.records.VoiceEventRecord;
 import io.outright.xj.core.tables.records.VoiceRecord;
 
 import org.jooq.DSLContext;
+import org.jooq.types.UInteger;
 import org.jooq.types.ULong;
 
 import org.slf4j.Logger;
@@ -315,6 +323,7 @@ public abstract class IntegrationTestEntity {
     record.store();
   }
 
+
   public static void insertAudioChord(int id, int audioId, double position, String name) {
     AudioChordRecord record = IntegrationTestService.getDb().newRecord(AUDIO_CHORD);
     record.setId(ULong.valueOf(id));
@@ -340,6 +349,84 @@ public abstract class IntegrationTestEntity {
     record.setId(ULong.valueOf(id));
     record.setChainId(ULong.valueOf(chainId));
     record.setLibraryId(ULong.valueOf(libraryId));
+    record.store();
+  }
+
+  public static void insertLink(int id, int chainId, int offset, String state, Timestamp beginAt, Timestamp endAt, String key, int total, double density, double tempo) {
+    LinkRecord record = IntegrationTestService.getDb().newRecord(LINK);
+    record.setId(ULong.valueOf(id));
+    record.setChainId(ULong.valueOf(chainId));
+    record.setOffset(ULong.valueOf(offset));
+    record.setState(state);
+    record.setBeginAt(beginAt);
+    record.setEndAt(endAt);
+    record.setTotal(ULong.valueOf(total));
+    record.setKey(key);
+    record.setDensity(density);
+    record.setTempo(tempo);
+    record.store();
+  }
+
+  public static void insertLinkChord(int id, int linkId, double position, String name) {
+    LinkChordRecord record = IntegrationTestService.getDb().newRecord(LINK_CHORD);
+    record.setId(ULong.valueOf(id));
+    record.setLinkId(ULong.valueOf(linkId));
+    record.setPosition(position);
+    record.setName(name);
+    record.store();
+  }
+
+  public static void insertChoice(int id, int linkId, int ideaId, String type, int phaseOffset, int transpose) {
+    ChoiceRecord record = IntegrationTestService.getDb().newRecord(CHOICE);
+    record.setId(ULong.valueOf(id));
+    record.setLinkId(ULong.valueOf(linkId));
+    record.setIdeaId(ULong.valueOf(ideaId));
+    record.setType(type);
+    record.setTranspose(transpose);
+    record.setPhaseOffset(UInteger.valueOf(phaseOffset));
+    record.store();
+  }
+
+  public static void insertArrangement(int id, int choiceId, int voiceId, int instrumentId) {
+    ArrangementRecord record = IntegrationTestService.getDb().newRecord(ARRANGEMENT);
+    record.setId(ULong.valueOf(id));
+    record.setChoiceId(ULong.valueOf(choiceId));
+    record.setVoiceId(ULong.valueOf(voiceId));
+    record.setInstrumentId(ULong.valueOf(instrumentId));
+    record.store();
+  }
+
+  public static void insertMorph(int id, int arrangementId, Double position, String note, Double duration) {
+    MorphRecord record = IntegrationTestService.getDb().newRecord(MORPH);
+    record.setId(ULong.valueOf(id));
+    record.setArrangementId(ULong.valueOf(arrangementId));
+    record.setPosition(position);
+    record.setNote(note);
+    record.setDuration(duration);
+    record.store();
+  }
+
+  public static void insertPick(int id, int arrangementId, int morphId, int audioId, double start, double length, double amplitude, double pitch) {
+    PickRecord record = IntegrationTestService.getDb().newRecord(PICK);
+    record.setId(ULong.valueOf(id));
+    record.setArrangementId(ULong.valueOf(arrangementId));
+    record.setMorphId(ULong.valueOf(morphId));
+    record.setAudioId(ULong.valueOf(audioId));
+    record.setStart(start);
+    record.setLength(length);
+    record.setAmplitude(amplitude);
+    record.setPitch(pitch);
+    record.store();
+  }
+
+  public static void insertPoint(int id, int morphId, int voiceEventId, double position, String note, double duration) {
+    PointRecord record = IntegrationTestService.getDb().newRecord(POINT);
+    record.setId(ULong.valueOf(id));
+    record.setMorphId(ULong.valueOf(morphId));
+    record.setVoiceEventId(ULong.valueOf(voiceEventId));
+    record.setPosition(position);
+    record.setNote(note);
+    record.setDuration(duration);
     record.store();
   }
 }

@@ -8,16 +8,18 @@ public interface Role {
   /**
    * Define each role.
    */
-  String ADMIN="admin";
-  String ARTIST ="artist";
-  String USER="user";
+  String INTERNAL = "internal";
+  String ADMIN = "admin";
   //
-  String BANNED="banned";
+  String ARTIST = "artist";
+  String USER = "user";
+  //
+  String BANNED = "banned";
 
   /**
    * List of all Roles
    */
-  String[] ALL={
+  String[] ALL = {
     ADMIN,
     ARTIST,
     USER,
@@ -38,6 +40,7 @@ public interface Role {
 
   /**
    * Checks whether a string is a valid role.
+   *
    * @param role to check.
    * @return true if valid; otherwise false;
    */

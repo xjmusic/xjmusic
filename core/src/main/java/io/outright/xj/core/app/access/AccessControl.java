@@ -8,11 +8,13 @@ import io.outright.xj.core.tables.records.UserAuthRecord;
 import io.outright.xj.core.tables.records.UserRoleRecord;
 import io.outright.xj.core.util.CSV.CSV;
 
+import org.jooq.types.ULong;
+
 import com.google.api.client.json.JsonFactory;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.jooq.types.ULong;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +37,8 @@ public class AccessControl {
   static final String CONTEXT_KEY = "userAccess";
   private Map<String, String> innerMap;
   private ULong[] accountIds;
-  private Boolean isAdmin;
+  private Boolean isTopLevel;
+  private final static String[] topLevelRoles = new String[]{Role.ADMIN, Role.INTERNAL};
 
   public AccessControl(
     UserAuthRecord userAuthRecord,
@@ -54,7 +57,7 @@ public class AccessControl {
       roles.add(role.getType());
     }
     this.innerMap.put(ROLES_KEY, CSV.join(roles));
-    this.isAdmin = matchRoles(Role.ADMIN);
+    this.isTopLevel = matchRoles(topLevelRoles);
   }
 
   public AccessControl(
@@ -63,7 +66,7 @@ public class AccessControl {
     this.innerMap = innerMap;
     if (innerMap != null) {
       this.accountIds = accountIdsFromCSV(innerMap.get(ACCOUNTS_KEY));
-      this.isAdmin = matchRoles(Role.ADMIN);
+      this.isTopLevel = matchRoles(topLevelRoles);
     }
   }
 
@@ -73,7 +76,7 @@ public class AccessControl {
    * @param matchRoles of the resource to match.
    * @return whether user access roles match resource access roles.
    */
-  public boolean matchRoles(String... matchRoles) {
+  boolean matchRoles(String... matchRoles) {
     // inefficient?
 
     for (String matchRole : matchRoles) {
@@ -134,7 +137,7 @@ public class AccessControl {
    * @return boolean
    */
   public Boolean isTopLevel() {
-    return isAdmin; // TODO: OR isWorker
+    return isTopLevel;
   }
 
   /**

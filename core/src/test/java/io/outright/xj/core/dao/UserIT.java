@@ -172,7 +172,7 @@ public class UserIT {
   }
 
   @Test
-  public void readOneAble_UserSeesAnotherUserWithCommonAccountMembership() throws Exception {
+  public void readOne_UserSeesAnotherUserWithCommonAccountMembership() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
       "roles", "user",
       "accounts", "1"
@@ -189,7 +189,7 @@ public class UserIT {
   }
 
   @Test
-  public void readOneAble_UserCannotSeeUserWithoutCommonAccountMembership() throws Exception {
+  public void readOne_UserCannotSeeUserWithoutCommonAccountMembership() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
       "roles", "user",
       "accounts", "1"
@@ -201,7 +201,7 @@ public class UserIT {
   }
 
   @Test
-  public void readOneAble_UserWithNoAccountMembershipCanStillSeeSelf() throws Exception {
+  public void readOne_UserWithNoAccountMembershipCanStillSeeSelf() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
       "userId", "4", // Bill has no account membership
       "roles", "user",
