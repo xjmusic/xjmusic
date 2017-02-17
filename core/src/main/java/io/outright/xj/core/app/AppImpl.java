@@ -41,7 +41,6 @@ public class AppImpl implements App {
   private ResourceConfig resourceConfig;
 
   private List<Workload> workloads = Lists.newArrayList();
-  private final int workConcurrency = Config.workConcurrency();
   private static ScheduledExecutorService leaderExecutor;
   private static ExecutorService workerExecutor;
   private ScheduledFuture scheduledFuture;
@@ -58,10 +57,10 @@ public class AppImpl implements App {
     this.accessLogFilterProvider = accessLogFilterProvider;
     this.accessTokenAuthFilter = accessTokenAuthFilter;
 
+    int workConcurrency = Config.workConcurrency();
     if (workConcurrency < 2) {
       throw new ConfigException("Chain work must have workConcurrency >= 2");
     }
-
     leaderExecutor = Executors.newScheduledThreadPool(workConcurrency);
     workerExecutor = Executors.newFixedThreadPool(workConcurrency);
   }
@@ -94,7 +93,8 @@ public class AppImpl implements App {
   }
 
   /**
-   * Starts Grizzly HTTP server exposing JAX-RS resources defined in this application.
+   * Starts Grizzly HTTP server
+   * exposing JAX-RS resources defined in this application.
    */
   @Override
   public void start() throws IOException, ConfigException {
@@ -102,8 +102,9 @@ public class AppImpl implements App {
       throw new ConfigException("Failed to app.start(); must configureServer() first!");
     }
 
-    log.info("Server starting now");
-    httpServerProvider.configure(URI.create(baseURI()), resourceConfig);
+    URI serverURI = URI.create(baseURI());
+    log.info("Server starting now at {}", serverURI);
+    httpServerProvider.configure(serverURI, resourceConfig);
     httpServerProvider.get().start();
     log.info("Server up");
 
@@ -163,7 +164,7 @@ public class AppImpl implements App {
     private void pollLeader() {
       log.debug("{} polling Leader for tasks", this);
       JSONArray tasks = leader.getTasks();
-      if (tasks.length()>0) {
+      if (tasks.length() > 0) {
         log.debug("{} will execute {} Worker tasks", this, tasks.length());
         for (int i = 0; i < tasks.length(); i++) {
           try {

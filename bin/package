@@ -4,10 +4,9 @@
 . $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/common/functions
 
 #
-step "Verify, Compile & Package Platform\n"
+step "Clean, Compile (Unit Tests ONLY!) & Package Platform\n"
 mvn clean || exit 1
-mvn verify || exit 1
-mvn package -DskipTests || exit 1
+mvn package || exit 1
 step_ok
 
 #

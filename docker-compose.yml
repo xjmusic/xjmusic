@@ -4,6 +4,8 @@ services:
 # Apps
 
   hub:
+    environment:
+      APPS: hub
     container_name: hub01xj1
     extends:
       file: docker-compose.common.yml
@@ -12,6 +14,21 @@ services:
       app_net:
         ipv4_address: 172.16.217.10
         ipv6_address: 2001:3984:3898::10
+    depends_on:
+      - mysql
+      - redis
+
+  work:
+    environment:
+      APPS: craftworker dubworker
+    container_name: work01xj1
+    extends:
+      file: docker-compose.common.yml
+      service: runner
+    networks:
+      app_net:
+        ipv4_address: 172.16.217.20
+        ipv6_address: 2001:3984:3898::20
     depends_on:
       - mysql
       - redis

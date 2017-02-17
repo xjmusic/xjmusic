@@ -79,10 +79,10 @@ fi
 chmod -R +r "${FRONTEND_PATH}"
 service nginx start
 
-# start apps in background
-bin/bootstrap hub &
-#  bin/bootstrap craftworker &
-#  bin/bootstrap dubworker &
+# spawn processes
+for APP in ${APPS}; do
+  bin/bootstrap ${APP} &
+done
 
 # interactive tty
 printf "\nLogging in...\n"

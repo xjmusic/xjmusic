@@ -32,7 +32,7 @@ public class Main {
    */
   public static void main(String[] args) throws IOException, ConfigException {
     // Default port
-    Config.setDefault("app.port", "8043");
+    Config.setDefault("app.port", "8044");
 
     // Default # seconds ahead of time to perform work
     Config.setDefault("work.buffer.seconds", "240");

@@ -3,9 +3,18 @@
 TITLE="Elastic Beanstalk App Pre-Bootstrap (Wraps common bootstrap)"
 USAGE="
    Usage:
-     bin/eb-bootstrap <app> <arguments...>
+     bin/eb-bootstrap <arguments...>
 
-   <app> to run, as in: java io.outright.xj.<app>
+   Expects an environment variable APPS
+   which is a space-separated list of apps to run.
+   For example:
+
+     APPS=\"hub\"
+       operates only the Hub frontend
+
+     APPS=\"craftworker dubworker\"
+       operates both Craftworker and Dubworker.
+
    <arguments...> (optional) passed to 'bin/bootstrap'
 "
 
@@ -32,17 +41,22 @@ kill_javas_running () {
 }
 
 #
-APP="${1}"
-require "${APP}" "app"
-
-#
-kill_javas_running "${APP}-1.0-SNAPSHOT.jar"
-sleep 2
-printf "OK\n\n"
-
-#
 echo "mysql --host=${DB_MYSQL_HOST} --port=${DB_MYSQL_PORT} --user=${DB_MYSQL_USER} --password=${DB_MYSQL_PASS}"
 echo "redis-cli -h ${DB_REDIS_HOST} -p ${DB_REDIS_PORT}"
 
-# common bootstrap
-bin/bootstrap ${APP} ${2} ${3} ${4} ${5} ${6} ${7} ${8} ${9}
+# spawn processes
+for APP in ${APPS}; do
+  require "${APP}" "app"
+  kill_javas_running "${APP}-1.0-SNAPSHOT.jar"
+  sleep 2
+  printf "OK\n\n"
+
+  bin/bootstrap ${APP} ${2} ${3} ${4} ${5} ${6} ${7} ${8} ${9} &
+done
+
+# wait for processes
+for job in `jobs -p`
+do
+  echo "Waiting for pid ${job}"
+  wait ${job}
+done

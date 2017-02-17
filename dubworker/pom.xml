@@ -24,7 +24,6 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
-
   <!-- deps -->
   <dependencies>
 
@@ -34,22 +33,62 @@
       <artifactId>core</artifactId>
       <version>1.0-SNAPSHOT</version>
     </dependency>
+    <dependency>
+      <groupId>io.outright.xj</groupId>
+      <artifactId>core</artifactId>
+      <version>1.0-SNAPSHOT</version>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
 
-    <!-- 3rd party deps -->
-
+    <!-- grizzly2 jersey container -->
     <dependency>
       <groupId>org.glassfish.jersey.containers</groupId>
       <artifactId>jersey-container-grizzly2-http</artifactId>
       <version>${jersey.version}</version>
     </dependency>
 
-    <!-- test deps -->
+    <!-- https://mvnrepository.com/artifact/org.jooq/jooq -->
+    <dependency>
+      <groupId>org.jooq</groupId>
+      <artifactId>jooq</artifactId>
+      <version>3.8.6</version>
+    </dependency>
 
+    <!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
+    <dependency>
+      <groupId>mysql</groupId>
+      <artifactId>mysql-connector-java</artifactId>
+      <version>6.0.5</version>
+    </dependency>
+
+    <!-- test: junit -->
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>4.9</version>
       <scope>test</scope>
+    </dependency>
+
+    <!-- logging: https://mvnrepository.com/artifact/log4j/log4j -->
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <version>1.2.17</version>
+    </dependency>
+
+    <!-- logging: https://mvnrepository.com/artifact/org.slf4j/slf4j-api -->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>1.7.21</version>
+    </dependency>
+
+    <!-- logging: https://mvnrepository.com/artifact/org.slf4j/slf4j-simple -->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <version>1.7.21</version>
     </dependency>
 
   </dependencies>
@@ -67,7 +106,7 @@
         <executions>
           <execution>
             <id>integration-test</id>
-            <phase>test</phase>
+            <phase>integration-test</phase>
             <goals>
               <goal>integration-test</goal>
             </goals>
@@ -89,6 +128,22 @@
         <configuration>
           <source>${maven.compiler.source}</source>
           <target>${maven.compiler.target}</target>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <!-- Build an executable JAR -->
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>3.0.2</version>
+        <configuration>
+          <archive>
+            <manifest>
+              <addClasspath>true</addClasspath>
+              <!--<classpathPrefix>lib/</classpathPrefix>-->
+              <mainClass>io.outright.xj.dubworker.Main</mainClass>
+            </manifest>
+          </archive>
         </configuration>
       </plugin>
 

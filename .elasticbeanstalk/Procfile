@@ -1,1 +1,1 @@
-web: bin/eb-bootstrap hub
+apps: bin/eb-bootstrap
