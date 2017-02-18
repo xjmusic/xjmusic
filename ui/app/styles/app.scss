@@ -130,6 +130,13 @@ button {
         height: 24px;
         border: 1px solid $low-gray;
       }
+      &.production-state {
+        background: darken(darkgreen, 10%);
+        color:lightgreen;
+        a {
+          color:lightgreen;
+        }
+      }
     }
   }
 }

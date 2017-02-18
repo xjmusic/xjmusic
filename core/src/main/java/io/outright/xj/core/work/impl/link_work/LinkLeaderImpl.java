@@ -5,6 +5,7 @@ import io.outright.xj.core.app.access.impl.AccessControl;
 import io.outright.xj.core.dao.ChainDAO;
 import io.outright.xj.core.dao.LinkDAO;
 import io.outright.xj.core.model.Entity;
+import io.outright.xj.core.util.timestamp.TimestampUTC;
 import io.outright.xj.core.work.Leader;
 
 import org.jooq.types.ULong;
@@ -61,7 +62,7 @@ public class LinkLeaderImpl implements Leader {
   public JSONArray getTasks() {
     JSONArray tasks = new JSONArray();
     try {
-      JSONArray chains = chainDAO.readAllInProduction(AccessControl.forInternalWorker());
+      JSONArray chains = chainDAO.readAllIdStartAtInProduction(AccessControl.forInternalWorker(), TimestampUTC.now(), aheadSeconds);
       if (chains != null && chains.length() > 0) {
         for (int i = 0; i < chains.length(); i++) {
           JSONObject link = readLinkFor((JSONObject) chains.get(i), fromState);
@@ -84,7 +85,7 @@ public class LinkLeaderImpl implements Leader {
       AccessControl.forInternalWorker(),
       chainId,
       linkState,
-      aheadSeconds);
+      TimestampUTC.nowPlusSeconds(aheadSeconds));
   }
 
 }

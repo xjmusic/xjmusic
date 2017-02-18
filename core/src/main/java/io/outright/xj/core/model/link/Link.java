@@ -107,7 +107,7 @@ public class Link extends Entity {
 
   public Link setBeginAt(String beginAt) {
     try {
-      this.beginAt = Timestamp.valueOf(beginAt);
+      this.beginAt = buildTimestampOf(beginAt);
     } catch (Exception e) {
       beginAtError = e.getMessage();
     }
@@ -131,7 +131,7 @@ public class Link extends Entity {
 
   public Link setEndAt(String endAt) {
     try {
-      this.endAt = Timestamp.valueOf(endAt);
+      this.endAt = buildTimestampOf(endAt);
     } catch (Exception e) {
       endAtError = e.getMessage();
     }

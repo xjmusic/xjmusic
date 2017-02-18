@@ -38,12 +38,12 @@ public interface LinkDAO {
    * @param access       control
    * @param chainId      to find link in
    * @param linkState    linkState to find link in
-   * @param aheadSeconds ahead to look for links
+   * @param beginAtUpperBoundary ahead to look for links
    * @return Link if found
    * @throws Exception on failure
    */
   @Nullable
-  JSONObject readOneInState(AccessControl access, ULong chainId, String linkState, int aheadSeconds) throws Exception;
+  JSONObject readOneInState(AccessControl access, ULong chainId, String linkState, Timestamp beginAtUpperBoundary) throws Exception;
 
   /**
    * Read all Links that are accessible
@@ -60,11 +60,11 @@ public interface LinkDAO {
    * Read array of Ids of Chains needing a Link appended to the end.
    *
    * @param chainId      to read pilot link template for
-   * @param chainBeginAt when the chain begins
-   * @param aheadSeconds ahead to create Link before end of previous Link
+   * @param chainStartAt when the chain begins
+   * @param beginAtUpperBoundary ahead to create Link before end of previous Link
    * @return array of chain Ids
    */
-  JSONObject readPilotTemplateFor(AccessControl access, ULong chainId, Timestamp chainBeginAt, int aheadSeconds) throws Exception;
+  JSONObject readPilotTemplateFor(AccessControl access, ULong chainId, Timestamp chainStartAt, Timestamp beginAtUpperBoundary) throws Exception;
 
   /**
    * Update a specified Link

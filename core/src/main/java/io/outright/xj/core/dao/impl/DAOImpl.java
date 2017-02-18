@@ -39,8 +39,7 @@ public class DAOImpl {
     try {
       record.store();
     } catch (Exception e) {
-      log.warn("Database CREATE operation", e);
-      throw new BusinessException("Cannot create record.");
+      throw new BusinessException("Cannot create record: " + e.getMessage());
     }
 
     return record;
@@ -62,8 +61,7 @@ public class DAOImpl {
     try {
       return db.executeUpdate(record);
     } catch (Exception e) {
-      log.warn("Database UPDATE operation", e);
-      throw new BusinessException("Cannot update record.");
+      throw new BusinessException("Cannot update record: " + e.getMessage());
     }
   }
 

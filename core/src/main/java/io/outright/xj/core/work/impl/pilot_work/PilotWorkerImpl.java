@@ -70,6 +70,8 @@ public class PilotWorkerImpl implements Worker {
       try {
         JSONObject newLink = linkDAO.create(AccessControl.forInternalWorker(), newLinkWrapper);
         log.info("PilotWorker[" + Thread.currentThread().getName() + "] created link: {}", newLink);
+      } catch (BusinessException e) {
+        log.debug("PilotWorker[" + Thread.currentThread().getName() + "] BusinessException: " + e.getMessage());
       } catch (Exception e) {
         log.error("PilotWorker[" + Thread.currentThread().getName() + "] processing work", e);
       }

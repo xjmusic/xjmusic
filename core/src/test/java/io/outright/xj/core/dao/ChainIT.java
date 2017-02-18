@@ -103,6 +103,30 @@ public class ChainIT {
     assertFalse(actualResult.has("stopAt"));
   }
 
+  @Test
+  public void create_WithEmptyStopAt() throws Exception {
+    AccessControl access = new AccessControl(ImmutableMap.of(
+      "roles", "admin"
+    ));
+    ChainWrapper inputDataWrapper = new ChainWrapper()
+      .setChain(new Chain()
+        .setAccountId(BigInteger.valueOf(1))
+        .setName("manuts")
+        .setState(Chain.DRAFT)
+        .setStartAt("2009-08-12 12:17:02.527142")
+        .setStopAt("")
+      );
+
+    JSONObject actualResult = testDAO.create(access, inputDataWrapper);
+
+    assertNotNull(actualResult);
+    assertEquals(ULong.valueOf(1), actualResult.get("accountId"));
+    assertEquals("manuts", actualResult.get("name"));
+    assertEquals(Chain.DRAFT, actualResult.get("state"));
+    assertEquals(Timestamp.valueOf("2009-08-12 12:17:02.527142"), actualResult.get("startAt"));
+    assertFalse(actualResult.has("stopAt"));
+  }
+
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutAccountID() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
@@ -181,6 +205,65 @@ public class ChainIT {
     assertEquals("school", actualResult1.get("name"));
     JSONObject actualResult2 = (JSONObject) actualResultList.get(1);
     assertEquals("bucket", actualResult2.get("name"));
+  }
+
+  @Test
+  public void readAllInProduction() throws Exception {
+    AccessControl access = new AccessControl(ImmutableMap.of(
+      "roles", "internal"
+    ));
+    IntegrationTestEntity.insertChain(4, 2, "smash", Chain.PRODUCTION, Timestamp.valueOf("2015-05-10 12:17:02.527142"), Timestamp.valueOf("2015-06-09 12:17:01.047563"));
+
+    JSONArray actualResultList = testDAO.readAllIdStartAtInProduction(access, Timestamp.valueOf("2015-05-20 12:00:00"), 300);
+
+    assertNotNull(actualResultList);
+    assertEquals(2, actualResultList.length());
+    JSONObject actualResult1 = (JSONObject) actualResultList.get(0);
+    assertEquals(2, actualResult1.get("id"));
+    assertEquals(Timestamp.valueOf("2015-05-10 12:17:02.527142"), actualResult1.get("startAt"));
+    JSONObject actualResult2 = (JSONObject) actualResultList.get(1);
+    assertEquals(4, actualResult2.get("id"));
+    assertEquals(Timestamp.valueOf("2015-05-10 12:17:02.527142"), actualResult2.get("startAt"));
+  }
+
+  @Test
+  public void readAllInProduction_DoesNotReturnChainBeforeBoundary() throws Exception {
+    AccessControl access = new AccessControl(ImmutableMap.of(
+      "roles", "internal"
+    ));
+    IntegrationTestEntity.insertChain(4, 2, "smash", Chain.PRODUCTION, Timestamp.valueOf("2015-05-10 12:17:02.527142"), Timestamp.valueOf("2015-06-09 12:17:01.047563"));
+
+    JSONArray actualResultList = testDAO.readAllIdStartAtInProduction(access, Timestamp.valueOf("2016-05-20 12:00:00"), 300);
+
+    assertNotNull(actualResultList);
+  }
+
+  @Test
+  public void readAllInProduction_DoesNotReturnChainAfterBoundary() throws Exception {
+    AccessControl access = new AccessControl(ImmutableMap.of(
+      "roles", "internal"
+    ));
+    IntegrationTestEntity.insertChain(4, 2, "smash", Chain.PRODUCTION, Timestamp.valueOf("2015-06-10 12:17:02.527142"), Timestamp.valueOf("2015-06-12 12:17:01.047563"));
+
+    JSONArray actualResultList = testDAO.readAllIdStartAtInProduction(access, Timestamp.valueOf("2015-05-20 12:00:00"), 300);
+
+    assertNotNull(actualResultList);
+    assertEquals(1, actualResultList.length());
+    JSONObject actualResult1 = (JSONObject) actualResultList.get(0);
+    assertEquals(2, actualResult1.get("id"));
+    assertEquals(Timestamp.valueOf("2015-05-10 12:17:02.527142"), actualResult1.get("startAt"));
+  }
+
+  @Test
+  public void readAllInProduction_ReturnsOnlyChainInBoundary() throws Exception {
+    AccessControl access = new AccessControl(ImmutableMap.of(
+      "roles", "internal"
+    ));
+    IntegrationTestEntity.insertChain(4, 2, "smash", Chain.PRODUCTION, Timestamp.valueOf("2015-05-10 12:17:02.527142"), Timestamp.valueOf("2015-06-09 12:17:01.047563"));
+
+    JSONArray actualResultList = testDAO.readAllIdStartAtInProduction(access, Timestamp.valueOf("2014-05-20 12:00:00"), 300);
+
+    assertNotNull(actualResultList);
   }
 
   @Test

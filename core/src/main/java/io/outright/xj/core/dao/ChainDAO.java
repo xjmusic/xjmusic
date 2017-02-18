@@ -10,6 +10,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.annotation.Nullable;
+import java.sql.Timestamp;
 
 public interface ChainDAO {
   /**
@@ -43,14 +44,16 @@ public interface ChainDAO {
 
   /**
    * [INTERNAL USE ONLY]
-   * Read all Chains that are active
+   * Read IDs of all Chains that are in production at a given instant
    *
    * @param access control
+   * @param at time to check for chains in production
+   * @param rangeSeconds plus or minus
    * @return array of chains as JSON
    * @throws Exception on failure
    */
   @Nullable
-  JSONArray readAllInProduction(AccessControl access) throws Exception;
+  JSONArray readAllIdStartAtInProduction(AccessControl access, Timestamp at, int rangeSeconds) throws Exception;
 
   /**
    * Update a specified Chain

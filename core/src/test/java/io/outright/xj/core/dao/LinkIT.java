@@ -11,7 +11,6 @@ import io.outright.xj.core.model.link.Link;
 import io.outright.xj.core.model.link.LinkWrapper;
 import io.outright.xj.core.tables.records.LinkRecord;
 
-import org.jooq.impl.DSL;
 import org.jooq.types.ULong;
 
 import com.google.common.collect.ImmutableMap;
@@ -32,6 +31,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public class LinkIT {
   private Injector injector = Guice.createInjector(new CoreModule());
@@ -69,7 +69,7 @@ public class LinkIT {
     LinkWrapper inputDataWrapper = new LinkWrapper()
       .setLink(new Link()
         .setChainId(BigInteger.valueOf(1))
-        .setOffset(BigInteger.valueOf(4))
+        .setOffset(BigInteger.valueOf(5))
         .setState(Link.CRAFTING)
         .setBeginAt("1995-04-28 11:23:00.000001")
         .setEndAt("1995-04-28 11:23:32.000001")
@@ -83,7 +83,7 @@ public class LinkIT {
 
     assertNotNull(actualResult);
     assertEquals(ULong.valueOf(1), actualResult.get("chainId"));
-    assertEquals(ULong.valueOf(4), actualResult.get("offset"));
+    assertEquals(ULong.valueOf(5), actualResult.get("offset"));
     assertEquals(Link.CRAFTING, actualResult.get("state"));
     assertEquals(Timestamp.valueOf("1995-04-28 11:23:00.000001"), actualResult.get("beginAt"));
     assertEquals(Timestamp.valueOf("1995-04-28 11:23:32.000001"), actualResult.get("endAt"));
@@ -91,6 +91,36 @@ public class LinkIT {
     assertEquals(0.74, actualResult.get("density"));
     assertEquals("C# minor 7 b9", actualResult.get("key"));
     assertEquals(120.0, actualResult.get("tempo"));
+  }
+
+  @Test(expected = BusinessException.class)
+  public void create_FailsIfNotUniqueChainOffset() throws Exception {
+    AccessControl access = new AccessControl(ImmutableMap.of(
+      "roles", "admin"
+    ));
+    LinkWrapper inputDataWrapper = new LinkWrapper()
+      .setLink(new Link()
+        .setChainId(BigInteger.valueOf(1))
+        .setOffset(BigInteger.valueOf(4))
+        .setState(Link.CRAFTING)
+        .setBeginAt("1995-04-28 11:23:00.000001")
+        .setEndAt("1995-04-28 11:23:32.000001")
+        .setTotal(64)
+        .setDensity(0.74)
+        .setKey("C# minor 7 b9")
+        .setTempo(120.0)
+      );
+
+    try {
+      testDAO.create(access, inputDataWrapper);
+
+    } catch (Exception e) {
+      assertNotNull(e);
+      String msg = e.getMessage();
+      assertTrue(msg.startsWith("Cannot create record"));
+      assertTrue(msg.contains("Duplicate entry"));
+      throw e;
+    }
   }
 
   @Test(expected = BusinessException.class)
@@ -219,7 +249,7 @@ public class LinkIT {
       "roles", "internal"
     ));
 
-    JSONObject actualResult = testDAO.readOneInState(access, ULong.valueOf(1), Link.PLANNED,300);
+    JSONObject actualResult = testDAO.readOneInState(access, ULong.valueOf(1), Link.PLANNED, Timestamp.valueOf("2017-02-14 12:03:08.000001"));
 
     assertNotNull(actualResult);
     assertEquals(ULong.valueOf(5), actualResult.get("id"));
@@ -237,7 +267,7 @@ public class LinkIT {
     ));
     IntegrationTestEntity.insertChain(2, 1, "Test Print #2", Chain.PRODUCTION, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null);
 
-    JSONObject actualResult = testDAO.readOneInState(access, ULong.valueOf(2), Link.PLANNED,300);
+    JSONObject actualResult = testDAO.readOneInState(access, ULong.valueOf(2), Link.PLANNED, Timestamp.valueOf("2017-02-14 12:03:08.000001"));
 
     assertNull(actualResult);
   }
@@ -247,15 +277,15 @@ public class LinkIT {
     AccessControl access = new AccessControl(ImmutableMap.of(
       "roles", "internal"
     ));
-    IntegrationTestEntity.insertChain(2, 1, "Test Print #2", Chain.PRODUCTION, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"));
-    IntegrationTestEntity.insertLink(6, 2, 3, Link.CRAFTING, Timestamp.valueOf("2017-02-14 12:02:36.000001"), Timestamp.valueOf("2017-02-14 12:03:08.000001"), "E minor", 64, 0.41, 120);
+    IntegrationTestEntity.insertChain(2, 1, "Test Print #2", Chain.PRODUCTION, Timestamp.valueOf("2014-02-14 12:03:40.000001"), Timestamp.valueOf("2014-02-14 14:03:40.000001"));
+    IntegrationTestEntity.insertLink(6, 2, 5, Link.CRAFTING, Timestamp.valueOf("2014-02-14 12:03:40.000001"), Timestamp.valueOf("2014-02-14 12:04:10.000001"), "E minor", 64, 0.41, 120);
 
-    JSONObject actualResult = testDAO.readPilotTemplateFor(access, ULong.valueOf(2), Timestamp.valueOf("2014-02-14 12:03:40.000001"), 300);
+    JSONObject actualResult = testDAO.readPilotTemplateFor(access, ULong.valueOf(2), Timestamp.valueOf("2014-02-14 12:03:40.000001"), Timestamp.valueOf("2014-02-14 12:03:40.000001"));
 
     assertNotNull(actualResult);
     assertEquals(ULong.valueOf(2), actualResult.get("chainId"));
-    assertEquals(ULong.valueOf(4), actualResult.get("offset"));
-    assertEquals(Timestamp.valueOf("2017-02-14 12:03:08.000001"), actualResult.get("beginAt"));
+    assertEquals(ULong.valueOf(6), actualResult.get("offset"));
+    assertEquals(Timestamp.valueOf("2014-02-14 12:04:10.000001"), actualResult.get("beginAt"));
   }
 
   @Test
@@ -265,9 +295,25 @@ public class LinkIT {
     ));
     IntegrationTestEntity.insertLink(6, 1, 5, Link.PLANNED, Timestamp.valueOf("2017-02-14 12:03:08.000001"), null, "A major", 64, 0.52, 120);
 
-    JSONObject actualResult = testDAO.readPilotTemplateFor(access, ULong.valueOf(1), Timestamp.valueOf("2015-02-14 12:03:40.000001"), 300);
+    JSONObject actualResult = testDAO.readPilotTemplateFor(access, ULong.valueOf(1), Timestamp.valueOf("2015-02-14 12:03:40.000001"), Timestamp.valueOf("2014-08-12 14:03:38.000001"));
 
     assertNull(actualResult);
+  }
+
+  @Test
+  public void readPilotTemplateFor_chainEndingInCraftedLink() throws Exception {
+    AccessControl access = new AccessControl(ImmutableMap.of(
+      "roles", "internal"
+    ));
+    IntegrationTestEntity.insertChain(2, 1, "Test Print #2", Chain.PRODUCTION, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"));
+    IntegrationTestEntity.insertLink(6, 2, 5, Link.CRAFTED, Timestamp.valueOf("2014-08-12 14:03:08.000001"), Timestamp.valueOf("2014-08-12 14:03:38.000001"), "A major", 64, 0.52, 120);
+
+    JSONObject actualResult = testDAO.readPilotTemplateFor(access, ULong.valueOf(2), Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-08-12 14:03:38.000001"));
+
+    assertNotNull(actualResult);
+    assertEquals(ULong.valueOf(2), actualResult.get("chainId"));
+    assertEquals(ULong.valueOf(6), actualResult.get("offset"));
+    assertEquals(Timestamp.valueOf("2014-08-12 14:03:38.000001"), actualResult.get("beginAt"));
   }
 
   @Test
@@ -277,7 +323,7 @@ public class LinkIT {
     ));
     IntegrationTestEntity.insertChain(2, 1, "Test Print #2", Chain.READY, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null);
 
-    JSONObject actualResult = testDAO.readPilotTemplateFor(access, ULong.valueOf(2), Timestamp.valueOf("2014-08-12 12:17:02.527142"), 300);
+    JSONObject actualResult = testDAO.readPilotTemplateFor(access, ULong.valueOf(2), Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-08-12 14:03:38.000001"));
 
     assertNotNull(actualResult);
     assertEquals(ULong.valueOf(2), actualResult.get("chainId"));
@@ -306,7 +352,7 @@ public class LinkIT {
     LinkWrapper inputDataWrapper = new LinkWrapper()
       .setLink(new Link()
         .setChainId(BigInteger.valueOf(1))
-        .setOffset(BigInteger.valueOf(4))
+        .setOffset(BigInteger.valueOf(5))
         .setState(Link.CRAFTING)
         .setBeginAt("1995-04-28 11:23:00.000001")
         .setEndAt("1995-04-28 11:23:32.000001")

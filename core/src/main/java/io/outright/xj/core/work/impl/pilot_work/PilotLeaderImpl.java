@@ -6,6 +6,7 @@ import io.outright.xj.core.dao.ChainDAO;
 import io.outright.xj.core.dao.LinkDAO;
 import io.outright.xj.core.model.Entity;
 import io.outright.xj.core.model.chain.Chain;
+import io.outright.xj.core.util.timestamp.TimestampUTC;
 import io.outright.xj.core.work.Leader;
 
 import org.jooq.types.ULong;
@@ -29,7 +30,7 @@ public class PilotLeaderImpl implements Leader {
   private ChainDAO chainDAO;
   private final LinkDAO linkDAO;
   private final int aheadSeconds;
-  private final int batchSize;
+  private final int batchSize; // TODO implement batch size in pilot leader getTasks
 
   @Inject
   public PilotLeaderImpl(
@@ -41,14 +42,14 @@ public class PilotLeaderImpl implements Leader {
     this.chainDAO = chainDAO;
     this.linkDAO = linkDAO;
     this.aheadSeconds = aheadSeconds;
-    this.batchSize = batchSize; // TODO implement batch size in pilot leader getTasks
+    this.batchSize = batchSize;
   }
 
   @Override
   public JSONArray getTasks() {
     JSONArray tasks = new JSONArray();
     try {
-      JSONArray chains = chainDAO.readAllInProduction(AccessControl.forInternalWorker());
+      JSONArray chains = chainDAO.readAllIdStartAtInProduction(AccessControl.forInternalWorker(), TimestampUTC.now(), aheadSeconds);
       if (chains != null && chains.length() > 0) {
         for (int i = 0; i < chains.length(); i++) {
           JSONObject pilotLink = readPilotTemplateFor((JSONObject) chains.get(i));
@@ -68,12 +69,11 @@ public class PilotLeaderImpl implements Leader {
   private JSONObject readPilotTemplateFor(JSONObject chain) throws Exception {
     Timestamp chainBeginAt = Timestamp.valueOf(chain.get(Chain.KEY_START_AT).toString());
     ULong chainId = ULong.valueOf(chain.getBigInteger(Entity.KEY_ID));
-    JSONObject link = linkDAO.readPilotTemplateFor(
+    return linkDAO.readPilotTemplateFor(
       AccessControl.forInternalWorker(),
       chainId,
       chainBeginAt,
-      aheadSeconds);
-    return link;
+      TimestampUTC.nowPlusSeconds(aheadSeconds));
   }
 
 }

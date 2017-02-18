@@ -10,9 +10,9 @@ import io.outright.xj.core.db.sql.SQLConnection;
 import io.outright.xj.core.db.sql.SQLDatabaseProvider;
 import io.outright.xj.core.model.link.Link;
 import io.outright.xj.core.model.link.LinkWrapper;
+import io.outright.xj.core.tables.records.LinkRecord;
 import io.outright.xj.core.transport.JSON;
 import io.outright.xj.core.util.Purify;
-import io.outright.xj.core.util.timestamp.TimestampUTC;
 
 import org.jooq.DSLContext;
 import org.jooq.Field;
@@ -25,6 +25,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.annotation.Nullable;
+import java.math.BigInteger;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Map;
@@ -33,7 +34,6 @@ import static io.outright.xj.core.tables.Chain.CHAIN;
 import static io.outright.xj.core.tables.Choice.CHOICE;
 import static io.outright.xj.core.tables.Link.LINK;
 import static io.outright.xj.core.tables.LinkChord.LINK_CHORD;
-import static org.jooq.impl.DSL.max;
 
 public class LinkDAOImpl extends DAOImpl implements LinkDAO {
 
@@ -67,10 +67,10 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
 
   @Nullable
   @Override
-  public JSONObject readOneInState(AccessControl access, ULong chainId, String linkState, int aheadSeconds) throws Exception {
+  public JSONObject readOneInState(AccessControl access, ULong chainId, String linkState, Timestamp beginAtUpperBoundary) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readOneInState(tx.getContext(), access, chainId, linkState, aheadSeconds));
+      return tx.success(readOneInState(tx.getContext(), access, chainId, linkState, beginAtUpperBoundary));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -88,10 +88,10 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
   }
 
   @Override
-  public JSONObject readPilotTemplateFor(AccessControl access, ULong chainId, Timestamp chainBeginAt, int aheadSeconds) throws Exception {
+  public JSONObject readPilotTemplateFor(AccessControl access, ULong chainId, Timestamp chainStartAt, Timestamp beginAtUpperBoundary) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readPilotTemplateFor(tx.getContext(), access, chainId, chainBeginAt, aheadSeconds));
+      return tx.success(readPilotTemplateFor(tx.getContext(), access, chainId, chainStartAt, beginAtUpperBoundary));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -134,10 +134,12 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
 
     requireTopLevel(access);
 
-    requireRecordExists("Chain", db.select(CHAIN.ID).from(CHAIN)
-      .where(CHAIN.ID.eq(model.getChainId()))
-      .fetchOne());
+//    prefer to let the database constraint fail on create, instead of blocking with a read beforehand
 
+//    requireRecordExists("Chain", db.select(CHAIN.ID).from(CHAIN)
+//      .where(CHAIN.ID.eq(model.getChainId()))
+//      .fetchOne());
+//
     return JSON.objectFromRecord(executeCreate(db, LINK, fieldValues));
   }
 
@@ -172,18 +174,18 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
    * @param access       control
    * @param chainId      to find link in
    * @param linkState    linkState to find link in
-   * @param aheadSeconds ahead to look for links
+   * @param beginAtUpperBoundary ahead to look for links
    * @return Link if found
    * @throws BusinessException on failure
    */
-  private JSONObject readOneInState(DSLContext db, AccessControl access, ULong chainId, String linkState, int aheadSeconds) throws BusinessException {
+  private JSONObject readOneInState(DSLContext db, AccessControl access, ULong chainId, String linkState, Timestamp beginAtUpperBoundary) throws BusinessException {
     requireTopLevel(access);
 
     return JSON.objectFromRecord(
       db.select(LINK.fields()).from(LINK)
         .where(LINK.CHAIN_ID.eq(chainId))
         .and(LINK.STATE.eq(Purify.LowerSlug(linkState)))
-        .and(LINK.BEGIN_AT.lessThan(TimestampUTC.nowPlusSeconds(aheadSeconds)))
+        .and(LINK.BEGIN_AT.lessOrEqual(beginAtUpperBoundary))
         .orderBy(LINK.OFFSET.asc())
         .limit(1)
         .fetchOne());
@@ -219,13 +221,13 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
   /**
    * Read all records in parent by id
    *
-   * @param db           context
-   * @param chainId      to read pilot template link for
-   * @param chainBeginAt when the chain begins
-   * @param aheadSeconds ahead of end of Chain to do work  @return array of records
+   * @param db                   context
+   * @param chainId              to read pilot template link for
+   * @param chainStartAt         when the chain begins
+   * @param beginAtUpperBoundary ahead of end of Chain to do work  @return array of records
    */
   @Nullable
-  private JSONObject readPilotTemplateFor(DSLContext db, AccessControl access, ULong chainId, Timestamp chainBeginAt, int aheadSeconds) throws SQLException, BusinessException {
+  private JSONObject readPilotTemplateFor(DSLContext db, AccessControl access, ULong chainId, Timestamp chainStartAt, Timestamp beginAtUpperBoundary) throws SQLException, BusinessException {
     requireTopLevel(access);
 
     Record lastRecordWithNoEndAtTime = db.select(LINK.CHAIN_ID)
@@ -243,30 +245,37 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
       return null;
     }
 
-    Record pilotRecord = db.select(
-      LINK.CHAIN_ID,
-      LINK.END_AT.as(LINK.BEGIN_AT),
-      max(LINK.OFFSET).plus(1).as(LINK.OFFSET)
-    )
-      .from(LINK)
-      .where(LINK.END_AT.lessThan(TimestampUTC.nowPlusSeconds(aheadSeconds)))
-      .and(LINK.CHAIN_ID.eq(chainId))
+    // Get the last link in the chain
+    LinkRecord lastLinkInChain = db.selectFrom(LINK)
+      .where(LINK.CHAIN_ID.eq(chainId))
+      .and(LINK.BEGIN_AT.isNotNull())
+      .and(LINK.END_AT.isNotNull())
       .groupBy(LINK.CHAIN_ID, LINK.OFFSET, LINK.END_AT)
       .orderBy(LINK.OFFSET.desc())
       .limit(1)
       .fetchOne();
 
-    if (pilotRecord != null) {
-      return JSON.objectFromRecord(pilotRecord);
-
-    } else {
-      // the Chain must be empty. Create its first link
+    // If the chain had no last link, it must be empty; return its first link
+    if (lastLinkInChain == null) {
       JSONObject pilotTemplate = new JSONObject();
       pilotTemplate.put(Link.KEY_CHAIN_ID, chainId);
-      pilotTemplate.put(Link.KEY_BEGIN_AT, chainBeginAt);
+      pilotTemplate.put(Link.KEY_BEGIN_AT, chainStartAt);
       pilotTemplate.put(Link.KEY_OFFSET, 0);
       return pilotTemplate;
     }
+
+    // If this record indicates that no work needs to be done, get outta here.
+    if (lastLinkInChain.getBeginAt().after(beginAtUpperBoundary)) {
+      return null;
+    }
+
+    // Build the template of the link that follows the last known one
+    JSONObject pilotTemplate = new JSONObject();
+    ULong pilotOffset = ULong.valueOf(lastLinkInChain.getOffset().toBigInteger().add(BigInteger.valueOf(1)));
+    pilotTemplate.put(Link.KEY_CHAIN_ID, chainId);
+    pilotTemplate.put(Link.KEY_BEGIN_AT, lastLinkInChain.getEndAt());
+    pilotTemplate.put(Link.KEY_OFFSET, pilotOffset);
+    return pilotTemplate;
   }
 
   /**

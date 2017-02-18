@@ -23,6 +23,7 @@ import org.json.JSONObject;
 
 import javax.annotation.Nullable;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.Map;
 
 import static io.outright.xj.core.Tables.CHAIN;
@@ -73,10 +74,10 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
 
   @Override
   @Nullable
-  public JSONArray readAllInProduction(AccessControl access) throws Exception {
+  public JSONArray readAllIdStartAtInProduction(AccessControl access, Timestamp at, int rangeSeconds) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readAllInProduction(tx.getContext(), access));
+      return tx.success(readAllIdStartAtInProduction(tx.getContext(), access, at, rangeSeconds));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -179,16 +180,23 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
   /**
    * Read all records in parent by id
    *
-   * @param db        context
-   * @param access    control
+   * @param db     context
+   * @param access control
+   * @param at     time to check for chains in production
+   * @param rangeSeconds plus or minus
    * @return array of records
    */
-  private JSONArray readAllInProduction(DSLContext db, AccessControl access) throws SQLException, BusinessException {
+  private JSONArray readAllIdStartAtInProduction(DSLContext db, AccessControl access, Timestamp at, int rangeSeconds) throws SQLException, BusinessException {
     requireTopLevel(access);
 
-    return JSON.arrayFromResultSet(db.select(CHAIN.ID, CHAIN.START_AT)
+    Timestamp upper = Timestamp.from(at.toInstant().plusSeconds(rangeSeconds));
+    Timestamp lower = Timestamp.from(at.toInstant().minusSeconds(rangeSeconds));
+
+    return JSON.arrayFromResultSet(db.select(CHAIN.ID,CHAIN.START_AT)
       .from(CHAIN)
       .where(CHAIN.STATE.eq(Chain.PRODUCTION))
+      .and(CHAIN.START_AT.lessOrEqual(upper).and(CHAIN.STOP_AT.isNull()))
+      .or(CHAIN.START_AT.lessOrEqual(upper).and(CHAIN.STOP_AT.greaterOrEqual(lower)))
       .fetchResultSet());
   }
 

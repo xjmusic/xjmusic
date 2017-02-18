@@ -88,7 +88,7 @@ public class Chain extends Entity {
 
   public Chain setStartAt(String startAt) {
     try {
-      this.startAt = Timestamp.valueOf(startAt);
+      this.startAt = buildTimestampOf(startAt);
     } catch (Exception e) {
       startAtError = e.getMessage();
     }
@@ -105,7 +105,7 @@ public class Chain extends Entity {
 
   public Chain setStopAt(String stopAt) {
     try {
-      this.stopAt = Timestamp.valueOf(stopAt);
+      this.stopAt = buildTimestampOf(stopAt);
     } catch (Exception e) {
       stopAtError = e.getMessage();
     }
