@@ -53,7 +53,7 @@ public interface ChainDAO {
    * @throws Exception on failure
    */
   @Nullable
-  JSONArray readAllIdStartAtInProduction(AccessControl access, Timestamp at, int rangeSeconds) throws Exception;
+  JSONArray readAllIdBoundsInProduction(AccessControl access, Timestamp at, int rangeSeconds) throws Exception;
 
   /**
    * Update a specified Chain

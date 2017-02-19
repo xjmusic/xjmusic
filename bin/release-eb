@@ -14,7 +14,7 @@ gitcheck ${PWD}
 
 #
 DATE="$(date -u +%Y.%m.%d-UTC.%H.%M.%S)"
-COMMIT="$(git rev-parse --verify HEAD)"
+COMMIT="$(git rev-parse --verify --short HEAD)"
 VERSION="${DATE}-${COMMIT}"
 ZIP_FILE=${PWD}/target/xj-release-${VERSION}.zip
 #ZIP_FILE=${PWD}/target/xj-release.zip

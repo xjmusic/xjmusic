@@ -26,6 +26,7 @@ public class Chain extends Entity {
   public static final String KEY_ONE = "chain";
   public static final String KEY_MANY = "chains";
   public static final String KEY_START_AT = "startAt";
+  public static final String KEY_STOP_AT = "stopAt";
 
   /**
    * State-machine states

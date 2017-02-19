@@ -74,10 +74,10 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
 
   @Override
   @Nullable
-  public JSONArray readAllIdStartAtInProduction(AccessControl access, Timestamp at, int rangeSeconds) throws Exception {
+  public JSONArray readAllIdBoundsInProduction(AccessControl access, Timestamp at, int rangeSeconds) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readAllIdStartAtInProduction(tx.getContext(), access, at, rangeSeconds));
+      return tx.success(readAllIdBoundsInProduction(tx.getContext(), access, at, rangeSeconds));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -186,13 +186,13 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
    * @param rangeSeconds plus or minus
    * @return array of records
    */
-  private JSONArray readAllIdStartAtInProduction(DSLContext db, AccessControl access, Timestamp at, int rangeSeconds) throws SQLException, BusinessException {
+  private JSONArray readAllIdBoundsInProduction(DSLContext db, AccessControl access, Timestamp at, int rangeSeconds) throws SQLException, BusinessException {
     requireTopLevel(access);
 
     Timestamp upper = Timestamp.from(at.toInstant().plusSeconds(rangeSeconds));
     Timestamp lower = Timestamp.from(at.toInstant().minusSeconds(rangeSeconds));
 
-    return JSON.arrayFromResultSet(db.select(CHAIN.ID,CHAIN.START_AT)
+    return JSON.arrayFromResultSet(db.select(CHAIN.ID,CHAIN.START_AT,CHAIN.STOP_AT)
       .from(CHAIN)
       .where(CHAIN.STATE.eq(Chain.PRODUCTION))
       .and(CHAIN.START_AT.lessOrEqual(upper).and(CHAIN.STOP_AT.isNull()))

@@ -280,12 +280,25 @@ public class LinkIT {
     IntegrationTestEntity.insertChain(2, 1, "Test Print #2", Chain.PRODUCTION, Timestamp.valueOf("2014-02-14 12:03:40.000001"), Timestamp.valueOf("2014-02-14 14:03:40.000001"));
     IntegrationTestEntity.insertLink(6, 2, 5, Link.CRAFTING, Timestamp.valueOf("2014-02-14 12:03:40.000001"), Timestamp.valueOf("2014-02-14 12:04:10.000001"), "E minor", 64, 0.41, 120);
 
-    JSONObject actualResult = testDAO.readPilotTemplateFor(access, ULong.valueOf(2), Timestamp.valueOf("2014-02-14 12:03:40.000001"), Timestamp.valueOf("2014-02-14 12:03:40.000001"));
+    JSONObject actualResult = testDAO.readPilotTemplateFor(access, ULong.valueOf(2), Timestamp.valueOf("2014-02-14 12:03:40.000001"), Timestamp.valueOf("2014-02-14 14:03:40.000001"), Timestamp.valueOf("2014-02-14 12:03:40.000001"));
 
     assertNotNull(actualResult);
     assertEquals(ULong.valueOf(2), actualResult.get("chainId"));
     assertEquals(ULong.valueOf(6), actualResult.get("offset"));
     assertEquals(Timestamp.valueOf("2014-02-14 12:04:10.000001"), actualResult.get("beginAt"));
+  }
+
+  @Test
+  public void readPilotTemplateFor_chainWithLinksReadyForNextLink_butChainIsAlreadyFull() throws Exception {
+    AccessControl access = new AccessControl(ImmutableMap.of(
+      "roles", "internal"
+    ));
+    IntegrationTestEntity.insertChain(2, 1, "Test Print #2", Chain.PRODUCTION, Timestamp.valueOf("2014-02-14 12:03:40.000001"), Timestamp.valueOf("2014-02-14 14:03:40.000001"));
+    IntegrationTestEntity.insertLink(6, 2, 5, Link.CRAFTING, Timestamp.valueOf("2014-02-14 14:03:15.000001"), Timestamp.valueOf("2014-02-14 14:03:45.000001"), "E minor", 64, 0.41, 120);
+
+    JSONObject actualResult = testDAO.readPilotTemplateFor(access, ULong.valueOf(2), Timestamp.valueOf("2014-02-14 12:03:40.000001"), Timestamp.valueOf("2014-02-14 14:03:40.000001"), Timestamp.valueOf("2014-02-14 14:03:50.000001"));
+
+    assertNull(actualResult);
   }
 
   @Test
@@ -295,7 +308,7 @@ public class LinkIT {
     ));
     IntegrationTestEntity.insertLink(6, 1, 5, Link.PLANNED, Timestamp.valueOf("2017-02-14 12:03:08.000001"), null, "A major", 64, 0.52, 120);
 
-    JSONObject actualResult = testDAO.readPilotTemplateFor(access, ULong.valueOf(1), Timestamp.valueOf("2015-02-14 12:03:40.000001"), Timestamp.valueOf("2014-08-12 14:03:38.000001"));
+    JSONObject actualResult = testDAO.readPilotTemplateFor(access, ULong.valueOf(1), Timestamp.valueOf("2015-02-14 12:03:40.000001"), null, Timestamp.valueOf("2014-08-12 14:03:38.000001"));
 
     assertNull(actualResult);
   }
@@ -308,7 +321,7 @@ public class LinkIT {
     IntegrationTestEntity.insertChain(2, 1, "Test Print #2", Chain.PRODUCTION, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"));
     IntegrationTestEntity.insertLink(6, 2, 5, Link.CRAFTED, Timestamp.valueOf("2014-08-12 14:03:08.000001"), Timestamp.valueOf("2014-08-12 14:03:38.000001"), "A major", 64, 0.52, 120);
 
-    JSONObject actualResult = testDAO.readPilotTemplateFor(access, ULong.valueOf(2), Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-08-12 14:03:38.000001"));
+    JSONObject actualResult = testDAO.readPilotTemplateFor(access, ULong.valueOf(2), Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"), Timestamp.valueOf("2014-08-12 14:03:38.000001"));
 
     assertNotNull(actualResult);
     assertEquals(ULong.valueOf(2), actualResult.get("chainId"));
@@ -323,7 +336,7 @@ public class LinkIT {
     ));
     IntegrationTestEntity.insertChain(2, 1, "Test Print #2", Chain.READY, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null);
 
-    JSONObject actualResult = testDAO.readPilotTemplateFor(access, ULong.valueOf(2), Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-08-12 14:03:38.000001"));
+    JSONObject actualResult = testDAO.readPilotTemplateFor(access, ULong.valueOf(2), Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, Timestamp.valueOf("2014-08-12 14:03:38.000001"));
 
     assertNotNull(actualResult);
     assertEquals(ULong.valueOf(2), actualResult.get("chainId"));

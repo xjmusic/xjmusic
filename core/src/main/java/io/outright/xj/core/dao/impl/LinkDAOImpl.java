@@ -67,10 +67,10 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
 
   @Nullable
   @Override
-  public JSONObject readOneInState(AccessControl access, ULong chainId, String linkState, Timestamp beginAtUpperBoundary) throws Exception {
+  public JSONObject readOneInState(AccessControl access, ULong chainId, String linkState, Timestamp linkBeginBefore) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readOneInState(tx.getContext(), access, chainId, linkState, beginAtUpperBoundary));
+      return tx.success(readOneInState(tx.getContext(), access, chainId, linkState, linkBeginBefore));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -88,10 +88,10 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
   }
 
   @Override
-  public JSONObject readPilotTemplateFor(AccessControl access, ULong chainId, Timestamp chainStartAt, Timestamp beginAtUpperBoundary) throws Exception {
+  public JSONObject readPilotTemplateFor(AccessControl access, ULong chainId, Timestamp chainStartAt, Timestamp chainStopAt, Timestamp linkBeginBefore) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readPilotTemplateFor(tx.getContext(), access, chainId, chainStartAt, beginAtUpperBoundary));
+      return tx.success(readPilotTemplateFor(tx.getContext(), access, chainId, chainStartAt, chainStopAt, linkBeginBefore));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -174,18 +174,18 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
    * @param access       control
    * @param chainId      to find link in
    * @param linkState    linkState to find link in
-   * @param beginAtUpperBoundary ahead to look for links
+   * @param linkBeginBefore ahead to look for links
    * @return Link if found
    * @throws BusinessException on failure
    */
-  private JSONObject readOneInState(DSLContext db, AccessControl access, ULong chainId, String linkState, Timestamp beginAtUpperBoundary) throws BusinessException {
+  private JSONObject readOneInState(DSLContext db, AccessControl access, ULong chainId, String linkState, Timestamp linkBeginBefore) throws BusinessException {
     requireTopLevel(access);
 
     return JSON.objectFromRecord(
       db.select(LINK.fields()).from(LINK)
         .where(LINK.CHAIN_ID.eq(chainId))
         .and(LINK.STATE.eq(Purify.LowerSlug(linkState)))
-        .and(LINK.BEGIN_AT.lessOrEqual(beginAtUpperBoundary))
+        .and(LINK.BEGIN_AT.lessOrEqual(linkBeginBefore))
         .orderBy(LINK.OFFSET.asc())
         .limit(1)
         .fetchOne());
@@ -220,14 +220,14 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
 
   /**
    * Read all records in parent by id
-   *
-   * @param db                   context
+   *  @param db                   context
    * @param chainId              to read pilot template link for
    * @param chainStartAt         when the chain begins
-   * @param beginAtUpperBoundary ahead of end of Chain to do work  @return array of records
+   * @param chainStopAt
+   * @param linkBeginBefore ahead of end of Chain to do work  @return array of records
    */
   @Nullable
-  private JSONObject readPilotTemplateFor(DSLContext db, AccessControl access, ULong chainId, Timestamp chainStartAt, Timestamp beginAtUpperBoundary) throws SQLException, BusinessException {
+  private JSONObject readPilotTemplateFor(DSLContext db, AccessControl access, ULong chainId, Timestamp chainStartAt, Timestamp chainStopAt, Timestamp linkBeginBefore) throws SQLException, BusinessException {
     requireTopLevel(access);
 
     Record lastRecordWithNoEndAtTime = db.select(LINK.CHAIN_ID)
@@ -264,8 +264,13 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
       return pilotTemplate;
     }
 
-    // If this record indicates that no work needs to be done, get outta here.
-    if (lastLinkInChain.getBeginAt().after(beginAtUpperBoundary)) {
+    // If the last link begins after our boundary, get outta here.
+    if (lastLinkInChain.getBeginAt().after(linkBeginBefore)) {
+      return null;
+    }
+
+    // If the last link ends after the chain stops, get outta here.
+    if (lastLinkInChain.getEndAt().after(chainStopAt)) {
       return null;
     }
 

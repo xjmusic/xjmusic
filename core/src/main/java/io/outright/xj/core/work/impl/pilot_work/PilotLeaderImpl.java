@@ -49,7 +49,7 @@ public class PilotLeaderImpl implements Leader {
   public JSONArray getTasks() {
     JSONArray tasks = new JSONArray();
     try {
-      JSONArray chains = chainDAO.readAllIdStartAtInProduction(AccessControl.forInternalWorker(), TimestampUTC.now(), aheadSeconds);
+      JSONArray chains = chainDAO.readAllIdBoundsInProduction(AccessControl.forInternalWorker(), TimestampUTC.now(), aheadSeconds);
       if (chains != null && chains.length() > 0) {
         for (int i = 0; i < chains.length(); i++) {
           JSONObject pilotLink = readPilotTemplateFor((JSONObject) chains.get(i));
@@ -67,12 +67,14 @@ public class PilotLeaderImpl implements Leader {
   }
 
   private JSONObject readPilotTemplateFor(JSONObject chain) throws Exception {
-    Timestamp chainBeginAt = Timestamp.valueOf(chain.get(Chain.KEY_START_AT).toString());
+    Timestamp chainStartAt = Timestamp.valueOf(chain.get(Chain.KEY_START_AT).toString());
+    Timestamp chainStopAt = Timestamp.valueOf(chain.get(Chain.KEY_STOP_AT).toString());
     ULong chainId = ULong.valueOf(chain.getBigInteger(Entity.KEY_ID));
     return linkDAO.readPilotTemplateFor(
       AccessControl.forInternalWorker(),
       chainId,
-      chainBeginAt,
+      chainStartAt,
+      chainStopAt,
       TimestampUTC.nowPlusSeconds(aheadSeconds));
   }
 
