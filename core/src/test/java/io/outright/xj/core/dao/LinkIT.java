@@ -296,7 +296,7 @@ public class LinkIT {
       .setLink(new Link()
         .setChainId(BigInteger.valueOf(1))
         .setOffset(BigInteger.valueOf(5))
-        .setState(Link.CRAFTING)
+        .setState(Link.DUBBED)
         .setBeginAt("1995-04-28 11:23:00.000001")
         .setEndAt("1995-04-28 11:23:32.000001")
         .setTotal(64)
@@ -314,9 +314,36 @@ public class LinkIT {
     assertNotNull(updatedRecord);
     assertEquals("C# minor 7 b9", updatedRecord.getKey());
     assertEquals(ULong.valueOf(1), updatedRecord.getChainId());
-    assertEquals(Link.CRAFTING, updatedRecord.getState());
+    assertEquals(Link.DUBBED, updatedRecord.getState());
     assertEquals(Timestamp.valueOf("1995-04-28 11:23:00.000001"), updatedRecord.getBeginAt());
     assertEquals(Timestamp.valueOf("1995-04-28 11:23:32.000001"), updatedRecord.getEndAt());
+  }
+
+  @Test(expected =  BusinessException.class)
+  public void update_failsToTransitionFromDubbingToCrafting() throws Exception {
+    AccessControl access = new AccessControl(ImmutableMap.of(
+      "roles", "admin"
+    ));
+    LinkWrapper inputDataWrapper = new LinkWrapper()
+      .setLink(new Link()
+        .setChainId(BigInteger.valueOf(1))
+        .setOffset(BigInteger.valueOf(5))
+        .setState(Link.CRAFTING)
+        .setBeginAt("1995-04-28 11:23:00.000001")
+        .setEndAt("1995-04-28 11:23:32.000001")
+        .setTotal(64)
+        .setDensity(0.74)
+        .setKey("C# minor 7 b9")
+        .setTempo(120.0)
+      );
+
+    try {
+      testDAO.update(access, ULong.valueOf(2), inputDataWrapper);
+
+    } catch(Exception e) {
+      assertTrue(e.getMessage().contains("transition to crafting not allowed"));
+      throw e;
+    }
   }
 
   @Test(expected = BusinessException.class)

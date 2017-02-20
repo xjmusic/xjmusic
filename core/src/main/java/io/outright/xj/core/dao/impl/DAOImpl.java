@@ -11,16 +11,14 @@ import org.jooq.Field;
 import org.jooq.Record;
 import org.jooq.Table;
 import org.jooq.UpdatableRecord;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.jooq.types.ULong;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Map;
 
 public class DAOImpl {
-  private static Logger log = LoggerFactory.getLogger(DAOImpl.class);
+  //  private static Logger log = LoggerFactory.getLogger(DAOImpl.class);
   SQLDatabaseProvider dbProvider;
 
   /**
@@ -73,9 +71,20 @@ public class DAOImpl {
    * @throws Exception         if something goes wrong.
    */
   void requireEmptyResultSet(ResultSet resultSet) throws Exception {
+    requireEmptyResultSet("Found " + CamelCasify.ifNeededUpper(resultSet.getMetaData().getTableName(1)), resultSet);
+  }
+
+  /**
+   * Require empty ResultSet, else throw message
+   *
+   * @param resultSet to check.
+   * @throws BusinessException if result set is not empty.
+   * @throws Exception         if something goes wrong.
+   */
+  void requireEmptyResultSet(String message, ResultSet resultSet) throws Exception {
     try {
       if (resultSet.next()) {
-        throw new BusinessException("Found " + CamelCasify.ifNeededUpper(resultSet.getMetaData().getTableName(1)));
+        throw new BusinessException(message);
       }
     } catch (SQLException e) {
       throw new DatabaseException("SQLException: " + e.getMessage());
@@ -94,6 +103,28 @@ public class DAOImpl {
   }
 
   /**
+   * Require state is in an array of states
+   *
+   * @param state    to check
+   * @param allowedStates required to be in
+   * @throws BusinessException if not in required states
+   */
+  void onlyAllowTransitions(String state, String... allowedStates) throws BusinessException {
+    prevent("transition to " + state, !arrayContains(state, allowedStates));
+  }
+
+  /**
+   * Require user has access to account #
+   *
+   * @param access    control
+   * @param accountId to check for access to
+   * @throws BusinessException if not admin
+   */
+  void requireAccount(AccessControl access, ULong accountId) throws BusinessException {
+    require("access to account #" + accountId, access.hasAccount(accountId));
+  }
+
+  /**
    * Require user has admin access
    *
    * @param access control
@@ -104,16 +135,47 @@ public class DAOImpl {
   }
 
   /**
-   * Require that a record exists
+   * Require that a condition is true
    *
-   * @param name      name of record (for error message)
-   * @param condition to require truew
-   * @throws BusinessException if not exists
+   * @param name      name of condition (for error message)
+   * @param condition to require true
+   * @throws BusinessException if not true
    */
-  void require(String name, Boolean condition) throws BusinessException {
+  private void require(String name, Boolean condition) throws BusinessException {
     if (!condition) {
-      throw new BusinessException(name + " required; not met");
+      throw new BusinessException("required " + name + " not found");
     }
+  }
+
+  /**
+   * Prevent a condition
+   *
+   * @param name      name of condition to prevent (for error message)
+   * @param conditionToPrevent to prevent
+   * @throws BusinessException if not false
+   */
+  private void prevent(String name, Boolean conditionToPrevent) throws BusinessException {
+    if (conditionToPrevent) {
+      throw new BusinessException(name + " not allowed");
+    }
+  }
+
+  /**
+   * Check if array contains an element
+   *
+   * @param findElement to check for
+   * @param elements    in which to check
+   * @return true if found
+   */
+  private Boolean arrayContains(String findElement, String[] elements) {
+    if (findElement != null) {
+      for (String element : elements) {
+        if (element.equals(findElement)) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
 }

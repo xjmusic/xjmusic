@@ -80,15 +80,15 @@ public class LinkWorkerImpl implements Worker {
       try {
         link.setState(workingState);
         linkDAO.update(AccessControl.forInternalWorker(), link.getId(), new LinkWrapper().setLink(link));
-        log.info("LinkWorker[" + Thread.currentThread().getName() + "] updated link {} to working state {}", link, workingState);
+        log.debug("LinkWorker[" + Thread.currentThread().getName() + "] updated link {} to working state {}", link, workingState);
 
         // Here's the main callback to whatever the particular client-implementor app's business is.
         operation.workOn(link);
-        // ^^^^^^^^^^^^^^^^^^^^
+        //        ^ here
 
         link.setState(finishedState);
         linkDAO.update(AccessControl.forInternalWorker(), link.getId(), new LinkWrapper().setLink(link));
-        log.info("LinkWorker[" + Thread.currentThread().getName() + "] updated link {} to finished state {}", link, finishedState);
+        log.debug("LinkWorker[" + Thread.currentThread().getName() + "] updated link {} to finished state {}", link, finishedState);
       } catch (Exception e) {
         log.error("LinkWorker[" + Thread.currentThread().getName() + "] processing work", e);
       }

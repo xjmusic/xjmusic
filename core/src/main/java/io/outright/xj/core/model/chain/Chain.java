@@ -120,13 +120,13 @@ public class Chain extends Entity {
    * @throws BusinessException if invalid.
    */
   public void validate() throws BusinessException {
+    validateState(this.state);
     if (this.accountId == null) {
       throw new BusinessException("Account ID is required.");
     }
     if (this.name == null || this.name.length() == 0) {
       throw new BusinessException("Name is required.");
     }
-    validateState(this.state);
     if (this.startAt == null) {
       throw new BusinessException("Start-at is required." + (startAtError != null ? " " + startAtError : ""));
     }

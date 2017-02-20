@@ -32,6 +32,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public class ChainIT {
   private Injector injector = Guice.createInjector(new CoreModule());
@@ -302,6 +303,59 @@ public class ChainIT {
     assertEquals(Timestamp.valueOf("2009-09-11 12:17:01.989941"), updatedRecord.getStopAt());
   }
 
+  @Test(expected = BusinessException.class)
+  public void update_failsToChangeStartAt_whenChainsHasLink() throws Exception {
+    AccessControl access = new AccessControl(ImmutableMap.of(
+      "roles", "admin"
+    ));
+    ChainWrapper inputDataWrapper = new ChainWrapper()
+      .setChain(new Chain()
+        .setAccountId(BigInteger.valueOf(1))
+        .setName("bucket")
+        .setState(Chain.PRODUCTION)
+        .setStartAt("2015-05-10 12:17:03.527142")
+        .setStopAt("2015-06-09 12:17:01.047563")
+      );
+    IntegrationTestEntity.insertLink(6, 2, 5, Link.CRAFTED, Timestamp.valueOf("2015-05-10 12:18:02.527142"), Timestamp.valueOf("2015-05-10 12:18:32.527142"), "A major", 64, 0.52, 120);
+
+    try {
+      testDAO.update(access, ULong.valueOf(2), inputDataWrapper);
+
+    } catch (Exception e) {
+      assertTrue(e.getMessage().contains("cannot change chain startAt time after it has links"));
+      throw e;
+    }
+  }
+
+  @Test
+  public void update_canChangeName_whenChainsHasLink() throws Exception {
+    AccessControl access = new AccessControl(ImmutableMap.of(
+      "roles", "admin"
+    ));
+    ChainWrapper inputDataWrapper = new ChainWrapper()
+      .setChain(new Chain()
+        .setAccountId(BigInteger.valueOf(1))
+        .setName("manuts")
+        .setState(Chain.PRODUCTION)
+        .setStartAt("2015-05-10 12:17:02.527142")
+        .setStopAt("2015-06-09 12:17:01.047563")
+      );
+    IntegrationTestEntity.insertLink(6, 2, 5, Link.CRAFTED, Timestamp.valueOf("2015-05-10 12:18:02.527142"), Timestamp.valueOf("2015-05-10 12:18:32.527142"), "A major", 64, 0.52, 120);
+
+    testDAO.update(access, ULong.valueOf(2), inputDataWrapper);
+
+    ChainRecord updatedRecord = IntegrationTestService.getDb()
+      .selectFrom(CHAIN)
+      .where(CHAIN.ID.eq(ULong.valueOf(2)))
+      .fetchOne();
+    assertNotNull(updatedRecord);
+    assertEquals("manuts", updatedRecord.getName());
+    assertEquals(ULong.valueOf(1), updatedRecord.getAccountId());
+    assertEquals(Chain.PRODUCTION, updatedRecord.getState());
+    assertEquals(Timestamp.valueOf("2015-05-10 12:17:02.527142"), updatedRecord.getStartAt());
+    assertEquals(Timestamp.valueOf("2015-06-09 12:17:01.047563"), updatedRecord.getStopAt());
+  }
+
   @Test
   public void update_RemoveStopAt() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
@@ -418,7 +472,8 @@ public class ChainIT {
   @Test(expected = BusinessException.class)
   public void updateState_FailsWithoutTopLevelAccess() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
-      "roles", "user"
+      "roles", "user",
+      "accounts", "54"
     ));
 
     testDAO.updateState(access, ULong.valueOf(2), Chain.COMPLETE);

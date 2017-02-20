@@ -1,6 +1,7 @@
 // Copyright Outright Mental, Inc. All Rights Reserved.
 package io.outright.xj.core.dao.impl;
 
+import io.outright.xj.core.Tables;
 import io.outright.xj.core.app.access.impl.AccessControl;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.app.exception.ConfigException;
@@ -16,7 +17,7 @@ import io.outright.xj.core.util.Purify;
 
 import org.jooq.DSLContext;
 import org.jooq.Field;
-import org.jooq.Record;
+import org.jooq.UpdateSetFirstStep;
 import org.jooq.types.ULong;
 
 import com.google.inject.Inject;
@@ -25,7 +26,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.annotation.Nullable;
-import java.math.BigInteger;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Map;
@@ -91,7 +91,7 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
   public void update(AccessControl access, ULong id, LinkWrapper data) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      update(tx.getContext(), access, id, data);
+      updateWrapper(tx.getContext(), access, id, data);
       tx.success();
     } catch (Exception e) {
       throw tx.failure(e);
@@ -209,28 +209,86 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
   }
 
   /**
+   * Update a record using a model wrapper
+   *
+   * @param db     context
+   * @param access control
+   * @param id     of link to update
+   * @param data   wrapper
+   * @throws BusinessException on failure
+   * @throws DatabaseException on failure
+   */
+  private void updateWrapper(DSLContext db, AccessControl access, ULong id, LinkWrapper data) throws Exception {
+    Link model = data.validate();
+    Map<Field, Object> fieldValues = model.intoFieldValueMap();
+    fieldValues.put(Tables.LINK.ID, id);
+    update(db, access, id, fieldValues);
+  }
+
+  /**
    * Update a record
    *
    * @param db     context
    * @param access control
    * @param id     of record
-   * @param data   to update with
+   * @param fieldValues   to update with
    * @throws BusinessException if a Business Rule is violated
    */
-  private void update(DSLContext db, AccessControl access, ULong id, LinkWrapper data) throws BusinessException, DatabaseException {
-    Link model = data.validate();
-    Map<Field, Object> fieldValues = model.intoFieldValueMap();
-    fieldValues.put(LINK.ID, id);
-
+  private void update(DSLContext db, AccessControl access, ULong id, Map<Field, Object> fieldValues) throws BusinessException, DatabaseException {
     requireTopLevel(access);
 
-    requireRecordExists("existing Link with immutable Chain membership",
-      db.selectFrom(LINK)
-        .where(LINK.ID.eq(id))
-        .and(LINK.CHAIN_ID.eq(model.getChainId()))
-        .fetchOne());
+    // validate and cache to-state
+    String updateState = fieldValues.get(Tables.LINK.STATE).toString();
+    Link.validateState(updateState);
 
-    if (executeUpdate(db, LINK, fieldValues) == 0) {
+    // fetch existing link; further logic is based on its current state
+    LinkRecord link = db.selectFrom(Tables.LINK).where(Tables.LINK.ID.eq(id)).fetchOne();
+    requireRecordExists("Link #" + id, link);
+    switch (link.getState()) {
+
+      case Link.PLANNED:
+        onlyAllowTransitions(updateState, Link.PLANNED, Link.CRAFTING);
+        break;
+
+      case Link.CRAFTING:
+        onlyAllowTransitions(updateState, Link.CRAFTING, Link.CRAFTED);
+        break;
+
+      case Link.CRAFTED:
+        onlyAllowTransitions(updateState, Link.CRAFTED, Link.DUBBING);
+        break;
+
+      case Link.DUBBING:
+        onlyAllowTransitions(updateState, Link.DUBBING, Link.DUBBED);
+        break;
+
+      case Link.DUBBED:
+        onlyAllowTransitions(updateState, Link.DUBBED);
+        break;
+
+      default:
+        onlyAllowTransitions(updateState, Link.PLANNED);
+        break;
+    }
+
+    // [#128] cannot change chainId of a link
+    Object updateChainId = fieldValues.get(Tables.LINK.CHAIN_ID);
+    if (updateChainId != null
+      && !updateChainId.equals(link.getChainId())
+      ) {
+      throw new BusinessException("cannot change chainId of a link");
+    }
+
+    // This "change from state to state" complexity
+    // is required in order to prevent duplicate
+    // state-changes of the same link
+    UpdateSetFirstStep<LinkRecord> update = db.update(Tables.LINK);
+    fieldValues.forEach(update::set);
+    int rowsAffected = update.set(Tables.LINK.STATE, updateState)
+      .where(Tables.LINK.ID.eq(id))
+      .and(Tables.LINK.STATE.eq(link.getState()))
+      .execute();
+    if (rowsAffected == 0) {
       throw new BusinessException("No records updated.");
     }
   }

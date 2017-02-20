@@ -172,6 +172,22 @@ public class AccessControl {
   }
 
   /**
+   * Has access to account id?
+   * @param accountId to check
+   * @return true if has access
+   */
+  public Boolean hasAccount(ULong accountId) {
+    if (accountId != null) {
+      for (ULong matchAccountId : accountIds) {
+        if (accountId.equals(matchAccountId)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  /**
    * Convert a collection of account role records into an array of account ids
    */
   private ULong[] accountIdsFromRoleRecords(Collection<AccountUserRecord> userAccountRoleRecords) {
@@ -228,4 +244,5 @@ public class AccessControl {
     }
     return result;
   }
+
 }

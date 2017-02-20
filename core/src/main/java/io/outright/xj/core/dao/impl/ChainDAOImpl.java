@@ -19,6 +19,7 @@ import org.jooq.DSLContext;
 import org.jooq.Field;
 import org.jooq.Record;
 import org.jooq.Result;
+import org.jooq.UpdateSetFirstStep;
 import org.jooq.types.ULong;
 
 import com.google.common.collect.ImmutableMap;
@@ -38,6 +39,17 @@ import static io.outright.xj.core.tables.Account.ACCOUNT;
 import static io.outright.xj.core.tables.ChainLibrary.CHAIN_LIBRARY;
 import static io.outright.xj.core.tables.Link.LINK;
 
+/**
+ * Chain D.A.O. Implementation
+ * <p>
+ * Core directive here is to keep business logic CENTRAL ("oneness")
+ * <p>
+ * All variants on an update resolve (after data transformation,
+ * or additional validation) to one singular central update(fieldValues)
+ * <p>
+ * Also note buildNextLinkOrComplete(...) is one singular central implementation
+ * of the logic around adding links to chains and updating chain state to complete.
+ */
 public class ChainDAOImpl extends DAOImpl implements ChainDAO {
 
   @Inject
@@ -94,7 +106,7 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
   public void update(AccessControl access, ULong id, ChainWrapper data) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      update(tx.getContext(), access, id, data);
+      updateWrapper(tx.getContext(), access, id, data);
       tx.success();
     } catch (Exception e) {
       throw tx.failure(e);
@@ -224,35 +236,20 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
   }
 
   /**
-   * Update a record
+   * Update a record using a model wrapper
    *
    * @param db     context
    * @param access control
-   * @param id     of record
-   * @param data   to update with
-   * @throws BusinessException if a Business Rule is violated
+   * @param id     of chain to update
+   * @param data   wrapper
+   * @throws BusinessException on failure
+   * @throws DatabaseException on failure
    */
-  private void update(DSLContext db, AccessControl access, ULong id, ChainWrapper data) throws BusinessException, DatabaseException {
+  private void updateWrapper(DSLContext db, AccessControl access, ULong id, ChainWrapper data) throws Exception {
     Chain model = data.validate();
     Map<Field, Object> fieldValues = model.intoFieldValueMap();
     fieldValues.put(CHAIN.ID, id);
-
-    if (access.isTopLevel()) {
-      requireRecordExists("Account",
-        db.selectFrom(ACCOUNT)
-          .where(ACCOUNT.ID.eq(model.getAccountId()))
-          .fetchOne());
-    } else {
-      requireRecordExists("Account",
-        db.select(ACCOUNT.ID).from(ACCOUNT)
-          .where(ACCOUNT.ID.eq(model.getAccountId()))
-          .and(ACCOUNT.ID.in(access.getAccounts()))
-          .fetchOne());
-    }
-
-    if (executeUpdate(db, CHAIN, fieldValues) == 0) {
-      throw new BusinessException("No records updated.");
-    }
+    update(db, access, id, fieldValues);
   }
 
   /**
@@ -263,16 +260,89 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
    * @param id     of record
    * @throws BusinessException if a Business Rule is violated
    */
-  private void updateState(DSLContext db, AccessControl access, ULong id, String state) throws BusinessException, DatabaseException {
-    requireTopLevel(access);
-    Chain.validateState(state);
-
+  private void updateState(DSLContext db, AccessControl access, ULong id, String state) throws Exception {
     Map<Field, Object> fieldValues = ImmutableMap.of(
       CHAIN.ID, id,
       CHAIN.STATE, state
     );
 
+    update(db, access, id, fieldValues);
+
     if (executeUpdate(db, CHAIN, fieldValues) == 0) {
+      throw new BusinessException("No records updated.");
+    }
+  }
+
+  /**
+   * Update a record
+   *
+   * @param db     context
+   * @param access control
+   * @param id     of record
+   * @throws BusinessException if a Business Rule is violated
+   */
+  private void update(DSLContext db, AccessControl access, ULong id, Map<Field, Object> fieldValues) throws Exception {
+    // If not top level access, validate access to account
+    if (!access.isTopLevel()) {
+      try {
+        requireAccount(access, ULong.valueOf(fieldValues.get(CHAIN.ACCOUNT_ID).toString()));
+      } catch (Exception e) {
+        throw new BusinessException("if not top level access, must provide account id");
+      }
+    }
+
+    // validate and cache to-state
+    String updateState = fieldValues.get(CHAIN.STATE).toString();
+    Chain.validateState(updateState);
+
+    // fetch existing chain; further logic is based on its current state
+    ChainRecord chain = db.selectFrom(CHAIN).where(CHAIN.ID.eq(id)).fetchOne();
+    requireRecordExists("Chain #" + id, chain);
+    switch (chain.getState()) {
+
+      case Chain.DRAFT:
+        onlyAllowTransitions(updateState, Chain.DRAFT, Chain.READY);
+        break;
+
+      case Chain.READY:
+        onlyAllowTransitions(updateState, Chain.DRAFT, Chain.READY, Chain.PRODUCTION);
+        break;
+
+      case Chain.PRODUCTION:
+        onlyAllowTransitions(updateState, Chain.READY, Chain.PRODUCTION, Chain.COMPLETE);
+        break;
+
+      case Chain.COMPLETE:
+        onlyAllowTransitions(updateState, Chain.COMPLETE, Chain.DRAFT, Chain.READY);
+        break;
+
+      default:
+        onlyAllowTransitions(updateState, Chain.DRAFT);
+        break;
+    }
+
+    // [#116] cannot change chain startAt time after has links
+    Object updateStartAt = fieldValues.get(CHAIN.START_AT);
+    if (updateStartAt != null
+      && !chain.getStartAt().equals(Timestamp.valueOf(updateStartAt.toString()))) {
+      requireEmptyResultSet(
+        "cannot change chain startAt time after it has links",
+        db.select(LINK.ID).from(LINK)
+          .where(LINK.CHAIN_ID.eq(chain.getId()))
+          .fetchResultSet()
+      );
+    }
+
+    // This "change from state to state" complexity
+    // is required in order to prevent duplicate
+    // state-changes of the same chain
+    UpdateSetFirstStep<ChainRecord> update = db.update(CHAIN);
+    fieldValues.forEach(update::set);
+    int rowsAffected = update.set(CHAIN.STATE, updateState)
+      .where(CHAIN.ID.eq(id))
+      .and(CHAIN.STATE.eq(chain.getState()))
+      .execute();
+    if (rowsAffected == 0) {
       throw new BusinessException("No records updated.");
     }
   }
@@ -287,7 +357,7 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
    * @return array of records
    */
   @Nullable
-  private JSONObject buildNextLinkOrComplete(DSLContext db, AccessControl access, ChainRecord chain, Timestamp linkBeginBefore, Timestamp chainStopCompleteBefore) throws SQLException, BusinessException, DatabaseException {
+  private JSONObject buildNextLinkOrComplete(DSLContext db, AccessControl access, ChainRecord chain, Timestamp linkBeginBefore, Timestamp chainStopCompleteBefore) throws Exception {
     requireTopLevel(access);
 
     Record lastRecordWithNoEndAtTime = db.select(LINK.CHAIN_ID)
