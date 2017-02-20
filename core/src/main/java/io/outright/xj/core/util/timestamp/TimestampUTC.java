@@ -26,4 +26,14 @@ public interface TimestampUTC {
   static Timestamp nowPlusSeconds(long plusSeconds) {
     return Timestamp.valueOf(LocalDateTime.now(ZoneId.of(ZONE_ID)).plusSeconds(plusSeconds));
   }
+
+  /**
+   * Timestamp for now (delta # seconds) UTC
+   *
+   * @param minusSeconds before now
+   * @return timestamp
+   */
+  static Timestamp nowMinusSeconds(long minusSeconds) {
+    return Timestamp.valueOf(LocalDateTime.now(ZoneId.of(ZONE_ID)).minusSeconds(minusSeconds));
+  }
 }

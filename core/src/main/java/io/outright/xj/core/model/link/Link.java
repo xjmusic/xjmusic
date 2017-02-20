@@ -227,17 +227,26 @@ public class Link extends Entity {
     if (this.chainId == null) {
       throw new BusinessException("Chain ID is required.");
     }
-    if (this.state == null || this.state.length() == 0) {
-      throw new BusinessException("State is required.");
-    }
-    if (!allStates.contains(this.state)) {
-      throw new BusinessException("'" + this.state + "' is not a valid state (" + CSV.join(allStates) + ").");
-    }
+    validateState(this.state);
     if (this.beginAt == null) {
       throw new BusinessException("Begin-at is required." + (beginAtError != null ? " " + beginAtError : ""));
     }
     if (this.offset == null) {
       throw new BusinessException("Offset is required.");
+    }
+  }
+
+  /**
+   * Validate a state
+   * @param state to validate
+   * @throws BusinessException if invalid
+   */
+  public static void validateState(String state) throws BusinessException {
+    if (state == null || state.length() == 0) {
+      throw new BusinessException("State is required.");
+    }
+    if (!allStates.contains(state)) {
+      throw new BusinessException("'" + state + "' is not a valid state (" + CSV.join(allStates) + ").");
     }
   }
 

@@ -56,17 +56,6 @@ public interface LinkDAO {
   JSONArray readAllIn(AccessControl access, ULong chainId) throws Exception;
 
   /**
-   * [INTERNAL USE ONLY]
-   * Read array of Ids of Chains needing a Link appended to the end.
-   *
-   * @param chainId         to read pilot link template for
-   * @param chainStartAt    when the chain start
-   * @param chainStopAt     when the chain stops
-   * @param linkBeginBefore ahead to create Link before end of previous Link  @return array of chain Ids
-   */
-  JSONObject readPilotTemplateFor(AccessControl access, ULong chainId, Timestamp chainStartAt, Timestamp chainStopAt, Timestamp linkBeginBefore) throws Exception;
-
-  /**
    * Update a specified Link
    *
    * @param linkId of specific Link to update.

@@ -88,16 +88,6 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
   }
 
   @Override
-  public JSONObject readPilotTemplateFor(AccessControl access, ULong chainId, Timestamp chainStartAt, Timestamp chainStopAt, Timestamp linkBeginBefore) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readPilotTemplateFor(tx.getContext(), access, chainId, chainStartAt, chainStopAt, linkBeginBefore));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
   public void update(AccessControl access, ULong id, LinkWrapper data) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
@@ -216,71 +206,6 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
         .orderBy(LINK.OFFSET.desc())
         .fetchResultSet());
     }
-  }
-
-  /**
-   * Read all records in parent by id
-   *  @param db                   context
-   * @param chainId              to read pilot template link for
-   * @param chainStartAt         when the chain begins
-   * @param chainStopAt
-   * @param linkBeginBefore ahead of end of Chain to do work  @return array of records
-   */
-  @Nullable
-  private JSONObject readPilotTemplateFor(DSLContext db, AccessControl access, ULong chainId, Timestamp chainStartAt, Timestamp chainStopAt, Timestamp linkBeginBefore) throws SQLException, BusinessException {
-    requireTopLevel(access);
-
-    Record lastRecordWithNoEndAtTime = db.select(LINK.CHAIN_ID)
-      .from(LINK)
-      .where(LINK.END_AT.isNull())
-      .and(LINK.CHAIN_ID.eq(chainId))
-      .groupBy(LINK.CHAIN_ID, LINK.OFFSET, LINK.END_AT)
-      .orderBy(LINK.OFFSET.desc())
-      .limit(1)
-      .fetchOne();
-
-    // If there's already a no-endAt-time-having Link
-    // at the end of this Chain, get outta here
-    if (lastRecordWithNoEndAtTime != null) {
-      return null;
-    }
-
-    // Get the last link in the chain
-    LinkRecord lastLinkInChain = db.selectFrom(LINK)
-      .where(LINK.CHAIN_ID.eq(chainId))
-      .and(LINK.BEGIN_AT.isNotNull())
-      .and(LINK.END_AT.isNotNull())
-      .groupBy(LINK.CHAIN_ID, LINK.OFFSET, LINK.END_AT)
-      .orderBy(LINK.OFFSET.desc())
-      .limit(1)
-      .fetchOne();
-
-    // If the chain had no last link, it must be empty; return its first link
-    if (lastLinkInChain == null) {
-      JSONObject pilotTemplate = new JSONObject();
-      pilotTemplate.put(Link.KEY_CHAIN_ID, chainId);
-      pilotTemplate.put(Link.KEY_BEGIN_AT, chainStartAt);
-      pilotTemplate.put(Link.KEY_OFFSET, 0);
-      return pilotTemplate;
-    }
-
-    // If the last link begins after our boundary, get outta here.
-    if (lastLinkInChain.getBeginAt().after(linkBeginBefore)) {
-      return null;
-    }
-
-    // If the last link ends after the chain stops, get outta here.
-    if (lastLinkInChain.getEndAt().after(chainStopAt)) {
-      return null;
-    }
-
-    // Build the template of the link that follows the last known one
-    JSONObject pilotTemplate = new JSONObject();
-    ULong pilotOffset = ULong.valueOf(lastLinkInChain.getOffset().toBigInteger().add(BigInteger.valueOf(1)));
-    pilotTemplate.put(Link.KEY_CHAIN_ID, chainId);
-    pilotTemplate.put(Link.KEY_BEGIN_AT, lastLinkInChain.getEndAt());
-    pilotTemplate.put(Link.KEY_OFFSET, pilotOffset);
-    return pilotTemplate;
   }
 
   /**

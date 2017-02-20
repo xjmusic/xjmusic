@@ -4,12 +4,11 @@ package io.outright.xj.core.work.impl.pilot_work;
 import io.outright.xj.core.app.access.impl.AccessControl;
 import io.outright.xj.core.dao.ChainDAO;
 import io.outright.xj.core.dao.LinkDAO;
-import io.outright.xj.core.model.Entity;
-import io.outright.xj.core.model.chain.Chain;
+import io.outright.xj.core.tables.records.ChainRecord;
 import io.outright.xj.core.util.timestamp.TimestampUTC;
 import io.outright.xj.core.work.Leader;
 
-import org.jooq.types.ULong;
+import org.jooq.Result;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
@@ -19,8 +18,6 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.Timestamp;
-
 /**
  * The pilot leader creates template entities of new Links that need to be created
  */
@@ -29,53 +26,59 @@ public class PilotLeaderImpl implements Leader {
 
   private ChainDAO chainDAO;
   private final LinkDAO linkDAO;
-  private final int aheadSeconds;
+  private final int bufferSeconds;
   private final int batchSize; // TODO implement batch size in pilot leader getTasks
 
   @Inject
   public PilotLeaderImpl(
     ChainDAO chainDAO,
     LinkDAO linkDAO,
-    @Assisted("aheadSeconds") int aheadSeconds,
+    @Assisted("bufferSeconds") int bufferSeconds,
     @Assisted("batchSize") int batchSize
   ) {
     this.chainDAO = chainDAO;
     this.linkDAO = linkDAO;
-    this.aheadSeconds = aheadSeconds;
+    this.bufferSeconds = bufferSeconds;
     this.batchSize = batchSize;
   }
 
   @Override
   public JSONArray getTasks() {
-    JSONArray tasks = new JSONArray();
     try {
-      JSONArray chains = chainDAO.readAllIdBoundsInProduction(AccessControl.forInternalWorker(), TimestampUTC.now(), aheadSeconds);
-      if (chains != null && chains.length() > 0) {
-        for (int i = 0; i < chains.length(); i++) {
-          JSONObject pilotLink = readPilotTemplateFor((JSONObject) chains.get(i));
-          if (pilotLink != null) {
-            tasks.put(pilotLink);
-          }
-        }
-      }
+      return buildNextLinksOrComplete(
+        chainDAO.readAllRecordsInProduction(
+          AccessControl.forInternalWorker(),
+          TimestampUTC.nowPlusSeconds(bufferSeconds)));
 
     } catch (Exception e) {
-      log.error("PilotLeader get tasks", e);
+      log.error("PilotLeader get chains", e);
+      return new JSONArray();
+    }
+  }
+
+  private JSONArray buildNextLinksOrComplete(Result<ChainRecord> chains) {
+    JSONArray tasks = new JSONArray();
+
+    if (chains != null && chains.size() > 0) {
+      for (ChainRecord chain : chains) {
+        try {
+          JSONObject createLinkTask = chainDAO.buildNextLinkOrComplete(
+            AccessControl.forInternalWorker(),
+            chain,
+            TimestampUTC.nowPlusSeconds(bufferSeconds),
+            TimestampUTC.nowMinusSeconds(bufferSeconds));
+
+          if (createLinkTask != null) {
+            tasks.put(createLinkTask);
+          }
+
+        } catch (Exception e) {
+          log.error("PilotLeader get tasks", e);
+        }
+      }
     }
 
     return tasks;
-  }
-
-  private JSONObject readPilotTemplateFor(JSONObject chain) throws Exception {
-    Timestamp chainStartAt = Timestamp.valueOf(chain.get(Chain.KEY_START_AT).toString());
-    Timestamp chainStopAt = Timestamp.valueOf(chain.get(Chain.KEY_STOP_AT).toString());
-    ULong chainId = ULong.valueOf(chain.getBigInteger(Entity.KEY_ID));
-    return linkDAO.readPilotTemplateFor(
-      AccessControl.forInternalWorker(),
-      chainId,
-      chainStartAt,
-      chainStopAt,
-      TimestampUTC.nowPlusSeconds(aheadSeconds));
   }
 
 }

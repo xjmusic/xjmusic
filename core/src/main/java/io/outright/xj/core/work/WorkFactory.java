@@ -12,13 +12,13 @@ public interface WorkFactory {
    * for Links in a particular state
    *
    * @param fromState    Link to be worked on
-   * @param aheadSeconds to work on Link
+   * @param bufferSeconds to work on Link
    * @return ChainWorkMaster
    * @throws ConfigException on failure
    */
   Leader createLeader(
     @Assisted("fromState") String fromState,
-    @Assisted("aheadSeconds") int aheadSeconds,
+    @Assisted("bufferSeconds") int bufferSeconds,
     @Assisted("batchSize") int batchSize
   ) throws ConfigException;
 
@@ -26,12 +26,12 @@ public interface WorkFactory {
    * Create a Work Leader
    * for nonexistent Links
    *
-   * @param aheadSeconds to create new Link
+   * @param bufferSeconds to create new Link
    * @return ChainWorkMaster
    * @throws ConfigException on failure
    */
   Leader createLeader(
-    @Assisted("aheadSeconds") int aheadSeconds,
+    @Assisted("bufferSeconds") int bufferSeconds,
     @Assisted("batchSize") int batchSize
   ) throws ConfigException;
 

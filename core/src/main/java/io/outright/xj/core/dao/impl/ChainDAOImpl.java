@@ -10,18 +10,25 @@ import io.outright.xj.core.db.sql.SQLConnection;
 import io.outright.xj.core.db.sql.SQLDatabaseProvider;
 import io.outright.xj.core.model.chain.Chain;
 import io.outright.xj.core.model.chain.ChainWrapper;
+import io.outright.xj.core.model.link.Link;
+import io.outright.xj.core.tables.records.ChainRecord;
+import io.outright.xj.core.tables.records.LinkRecord;
 import io.outright.xj.core.transport.JSON;
 
 import org.jooq.DSLContext;
 import org.jooq.Field;
+import org.jooq.Record;
+import org.jooq.Result;
 import org.jooq.types.ULong;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.annotation.Nullable;
+import java.math.BigInteger;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Map;
@@ -74,10 +81,10 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
 
   @Override
   @Nullable
-  public JSONArray readAllIdBoundsInProduction(AccessControl access, Timestamp at, int rangeSeconds) throws Exception {
+  public Result<ChainRecord> readAllRecordsInProduction(AccessControl access, Timestamp atOrBefore) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readAllIdBoundsInProduction(tx.getContext(), access, at, rangeSeconds));
+      return tx.success(readAllRecordsInProduction(tx.getContext(), access, atOrBefore));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -93,6 +100,28 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
       throw tx.failure(e);
     }
   }
+
+  @Override
+  public void updateState(AccessControl access, ULong id, String state) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      updateState(tx.getContext(), access, id, state);
+      tx.success();
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public JSONObject buildNextLinkOrComplete(AccessControl access, ChainRecord chain, Timestamp linkBeginBefore, Timestamp chainStopCompleteBefore) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(buildNextLinkOrComplete(tx.getContext(), access, chain, linkBeginBefore, chainStopCompleteBefore));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
 
   @Override
   public void delete(AccessControl access, ULong chainId) throws Exception {
@@ -178,26 +207,20 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
   }
 
   /**
-   * Read all records in parent by id
+   * Read all records now in production state
    *
-   * @param db     context
-   * @param access control
-   * @param at     time to check for chains in production
-   * @param rangeSeconds plus or minus
+   * @param db         context
+   * @param access     control
+   * @param atOrBefore time to check for chains in production
    * @return array of records
    */
-  private JSONArray readAllIdBoundsInProduction(DSLContext db, AccessControl access, Timestamp at, int rangeSeconds) throws SQLException, BusinessException {
+  private Result<ChainRecord> readAllRecordsInProduction(DSLContext db, AccessControl access, Timestamp atOrBefore) throws SQLException, BusinessException {
     requireTopLevel(access);
 
-    Timestamp upper = Timestamp.from(at.toInstant().plusSeconds(rangeSeconds));
-    Timestamp lower = Timestamp.from(at.toInstant().minusSeconds(rangeSeconds));
-
-    return JSON.arrayFromResultSet(db.select(CHAIN.ID,CHAIN.START_AT,CHAIN.STOP_AT)
-      .from(CHAIN)
+    return db.selectFrom(CHAIN)
       .where(CHAIN.STATE.eq(Chain.PRODUCTION))
-      .and(CHAIN.START_AT.lessOrEqual(upper).and(CHAIN.STOP_AT.isNull()))
-      .or(CHAIN.START_AT.lessOrEqual(upper).and(CHAIN.STOP_AT.greaterOrEqual(lower)))
-      .fetchResultSet());
+      .and(CHAIN.START_AT.lessOrEqual(atOrBefore))
+      .fetch();
   }
 
   /**
@@ -230,6 +253,100 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
     if (executeUpdate(db, CHAIN, fieldValues) == 0) {
       throw new BusinessException("No records updated.");
     }
+  }
+
+  /**
+   * Update the state of a record
+   *
+   * @param db     context
+   * @param access control
+   * @param id     of record
+   * @throws BusinessException if a Business Rule is violated
+   */
+  private void updateState(DSLContext db, AccessControl access, ULong id, String state) throws BusinessException, DatabaseException {
+    requireTopLevel(access);
+    Chain.validateState(state);
+
+    Map<Field, Object> fieldValues = ImmutableMap.of(
+      CHAIN.ID, id,
+      CHAIN.STATE, state
+    );
+
+    if (executeUpdate(db, CHAIN, fieldValues) == 0) {
+      throw new BusinessException("No records updated.");
+    }
+  }
+
+  /**
+   * Read all records in parent by id
+   *
+   * @param db                      context
+   * @param chain                   to read pilot template link for
+   * @param linkBeginBefore         time upper threshold
+   * @param chainStopCompleteBefore time upper threshold
+   * @return array of records
+   */
+  @Nullable
+  private JSONObject buildNextLinkOrComplete(DSLContext db, AccessControl access, ChainRecord chain, Timestamp linkBeginBefore, Timestamp chainStopCompleteBefore) throws SQLException, BusinessException, DatabaseException {
+    requireTopLevel(access);
+
+    Record lastRecordWithNoEndAtTime = db.select(LINK.CHAIN_ID)
+      .from(LINK)
+      .where(LINK.END_AT.isNull())
+      .and(LINK.CHAIN_ID.eq(chain.getId()))
+      .groupBy(LINK.CHAIN_ID, LINK.OFFSET, LINK.END_AT)
+      .orderBy(LINK.OFFSET.desc())
+      .limit(1)
+      .fetchOne();
+
+    // If there's already a no-endAt-time-having Link
+    // at the end of this Chain, get outta here
+    if (lastRecordWithNoEndAtTime != null) {
+      return null;
+    }
+
+    // Get the last link in the chain
+    LinkRecord lastLinkInChain = db.selectFrom(LINK)
+      .where(LINK.CHAIN_ID.eq(chain.getId()))
+      .and(LINK.BEGIN_AT.isNotNull())
+      .and(LINK.END_AT.isNotNull())
+      .groupBy(LINK.CHAIN_ID, LINK.OFFSET, LINK.END_AT)
+      .orderBy(LINK.OFFSET.desc())
+      .limit(1)
+      .fetchOne();
+
+    // If the chain had no last link, it must be empty; return its first link
+    if (lastLinkInChain == null) {
+      JSONObject pilotTemplate = new JSONObject();
+      pilotTemplate.put(Link.KEY_CHAIN_ID, chain.getId());
+      pilotTemplate.put(Link.KEY_BEGIN_AT, chain.getStartAt());
+      pilotTemplate.put(Link.KEY_OFFSET, 0);
+      return pilotTemplate;
+    }
+
+    // If the last link begins after our boundary, we're here early; get outta here.
+    if (lastLinkInChain.getBeginAt().after(linkBeginBefore)) {
+      return null;
+    }
+
+    // If the last link ends after the chain stops, our work is done;
+    if (lastLinkInChain.getEndAt().after(chain.getStopAt())) {
+      // this is where we check to see if the chain is ready to be COMPLETE.
+      if (chain.getStopAt().before(chainStopCompleteBefore)
+        // and [#122] require the last link in the chain to be in state DUBBED.
+        && lastLinkInChain.getState().equals(Link.DUBBED)) {
+        updateState(db, access, chain.getId(), Chain.COMPLETE);
+      }
+      return null;
+    }
+
+    // Build the template of the link that follows the last known one
+    JSONObject pilotTemplate = new JSONObject();
+    ULong pilotOffset = ULong.valueOf(lastLinkInChain.getOffset().toBigInteger().add(BigInteger.valueOf(1)));
+    pilotTemplate.put(Link.KEY_CHAIN_ID, chain.getId());
+    pilotTemplate.put(Link.KEY_BEGIN_AT, lastLinkInChain.getEndAt());
+    pilotTemplate.put(Link.KEY_OFFSET, pilotOffset);
+    return pilotTemplate;
   }
 
   /**

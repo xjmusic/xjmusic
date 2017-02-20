@@ -7,6 +7,11 @@ import io.outright.xj.core.app.config.Config;
 import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.db.sql.SQLDatabaseProvider;
 import io.outright.xj.core.migration.MigrationService;
+import io.outright.xj.core.model.link.Link;
+import io.outright.xj.core.work.WorkFactory;
+import io.outright.xj.core.work.WorkerOperation;
+import io.outright.xj.core.work.impl.link_work.LinkWorkFactoryModule;
+import io.outright.xj.dubworker.work.DubLinkWorkerModule;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -35,7 +40,7 @@ public class Main {
     Config.setDefault("app.port", "8044");
 
     // Default # seconds ahead of time to perform work
-    Config.setDefault("work.buffer.seconds", "240");
+    Config.setDefault("work.buffer.seconds", "180");
 
     // Database migration validation check, to avoid operations on wrong database.
     try {
@@ -49,15 +54,17 @@ public class Main {
     app = injector.getInstance(App.class);
     app.configureServer("io.outright.xj.dubworker");
 
-//    // Link Work (Dub Final Link Audio) App
-//    WorkFactory linkWorkFactory = Guice.createInjector(new CoreModule(),
-//      new LinkWorkFactoryModule()).getInstance(WorkFactory.class);
-//    linkWorkApp = new WorkApp(
-//      linkWorkFactory.createLeader(Config.workAheadSeconds(), Config.workBatchSize()),
-//      linkWorkFactory.createWorker(Link.PLANNED)
-//    );
-//    linkWorkApp.start();
-//
+    // Link-type Workload
+    WorkerOperation linkOperation = Guice.createInjector(new CoreModule(),
+      new DubLinkWorkerModule()).getInstance(WorkerOperation.class);
+    WorkFactory linkWorkFactory = Guice.createInjector(new CoreModule(),
+      new LinkWorkFactoryModule()).getInstance(WorkFactory.class);
+    app.registerWorkload(
+      "Dub Links",
+      linkWorkFactory.createLeader(Link.CRAFTED, Config.workAheadSeconds(), Config.workBatchSize()),
+      linkWorkFactory.createWorker(Link.DUBBING, Link.DUBBED, linkOperation)
+    );
+
     // Shutdown Hook
     Runtime.getRuntime().addShutdownHook(new Thread(Main::shutdown));
 

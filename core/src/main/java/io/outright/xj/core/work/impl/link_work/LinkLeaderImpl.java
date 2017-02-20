@@ -4,11 +4,11 @@ package io.outright.xj.core.work.impl.link_work;
 import io.outright.xj.core.app.access.impl.AccessControl;
 import io.outright.xj.core.dao.ChainDAO;
 import io.outright.xj.core.dao.LinkDAO;
-import io.outright.xj.core.model.Entity;
+import io.outright.xj.core.tables.records.ChainRecord;
 import io.outright.xj.core.util.timestamp.TimestampUTC;
 import io.outright.xj.core.work.Leader;
 
-import org.jooq.types.ULong;
+import org.jooq.Result;
 
 import com.google.inject.assistedinject.Assisted;
 import com.google.inject.assistedinject.AssistedInject;
@@ -27,19 +27,19 @@ public class LinkLeaderImpl implements Leader {
   private ChainDAO chainDAO;
   private final LinkDAO linkDAO;
   private String fromState;
-  private int aheadSeconds = 0;
+  private int bufferSeconds = 0;
   private int batchSize = 0; // TODO implement batch size in link leader
 
   @AssistedInject
   public LinkLeaderImpl(
     ChainDAO chainDAO,
     LinkDAO linkDAO,
-    @Assisted("aheadSeconds") int aheadSeconds,
+    @Assisted("bufferSeconds") int bufferSeconds,
     @Assisted("batchSize") int batchSize
   ) {
     this.chainDAO = chainDAO;
     this.linkDAO = linkDAO;
-    this.aheadSeconds = aheadSeconds;
+    this.bufferSeconds = bufferSeconds;
     this.batchSize = batchSize;
   }
 
@@ -48,13 +48,13 @@ public class LinkLeaderImpl implements Leader {
     ChainDAO chainDAO,
     LinkDAO linkDAO,
     @Assisted("fromState") String fromState,
-    @Assisted("aheadSeconds") int aheadSeconds,
+    @Assisted("bufferSeconds") int bufferSeconds,
     @Assisted("batchSize") int batchSize
   ) {
     this.chainDAO = chainDAO;
     this.linkDAO = linkDAO;
     this.fromState = fromState;
-    this.aheadSeconds = aheadSeconds;
+    this.bufferSeconds = bufferSeconds;
     this.batchSize = batchSize;
   }
 
@@ -62,10 +62,10 @@ public class LinkLeaderImpl implements Leader {
   public JSONArray getTasks() {
     JSONArray tasks = new JSONArray();
     try {
-      JSONArray chains = chainDAO.readAllIdBoundsInProduction(AccessControl.forInternalWorker(), TimestampUTC.now(), aheadSeconds);
-      if (chains != null && chains.length() > 0) {
-        for (int i = 0; i < chains.length(); i++) {
-          JSONObject link = readLinkFor((JSONObject) chains.get(i), fromState);
+      Result<ChainRecord> chains = chainDAO.readAllRecordsInProduction(AccessControl.forInternalWorker(), TimestampUTC.nowPlusSeconds(bufferSeconds));
+      if (chains != null && chains.size() > 0) {
+        for (ChainRecord chain : chains) {
+          JSONObject link = readLinkFor(chain, fromState);
           if (link != null) {
             tasks.put(link);
           }
@@ -79,13 +79,12 @@ public class LinkLeaderImpl implements Leader {
     return tasks;
   }
 
-  private JSONObject readLinkFor(JSONObject chain, String linkState) throws Exception {
-    ULong chainId = ULong.valueOf(chain.getBigInteger(Entity.KEY_ID));
+  private JSONObject readLinkFor(ChainRecord chain, String linkState) throws Exception {
     return linkDAO.readOneInState(
       AccessControl.forInternalWorker(),
-      chainId,
+      chain.getId(),
       linkState,
-      TimestampUTC.nowPlusSeconds(aheadSeconds));
+      TimestampUTC.nowPlusSeconds(bufferSeconds));
   }
 
 }

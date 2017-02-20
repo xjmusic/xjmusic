@@ -126,17 +126,26 @@ public class Chain extends Entity {
     if (this.name == null || this.name.length() == 0) {
       throw new BusinessException("Name is required.");
     }
-    if (this.state == null || this.state.length() == 0) {
-      throw new BusinessException("State is required.");
-    }
-    if (!allStates.contains(this.state)) {
-      throw new BusinessException("'" + this.state + "' is not a valid state (" + CSV.join(allStates) + ").");
-    }
+    validateState(this.state);
     if (this.startAt == null) {
       throw new BusinessException("Start-at is required." + (startAtError != null ? " " + startAtError : ""));
     }
     if (this.stopAtError != null) {
       throw new BusinessException("Stop-at is not valid. " + stopAtError);
+    }
+  }
+
+  /**
+   * Validate a state
+   * @param state to validate
+   * @throws BusinessException if invalid
+   */
+  public static void validateState(String state) throws BusinessException {
+    if (state == null || state.length() == 0) {
+      throw new BusinessException("State is required.");
+    }
+    if (!allStates.contains(state)) {
+      throw new BusinessException("'" + state + "' is not a valid state (" + CSV.join(allStates) + ").");
     }
   }
 

@@ -90,9 +90,7 @@ public class DAOImpl {
    * @throws BusinessException if not exists
    */
   void requireRecordExists(String name, Record record) throws BusinessException {
-    if (record == null) {
-      throw new BusinessException(name + " not found");
-    }
+    require("existence of " + name, record != null);
   }
 
   /**
@@ -102,8 +100,19 @@ public class DAOImpl {
    * @throws BusinessException if not admin
    */
   void requireTopLevel(AccessControl access) throws BusinessException {
-    if (!access.isTopLevel()) {
-      throw new BusinessException("does not have top-level access");
+    require("top-level access", access.isTopLevel());
+  }
+
+  /**
+   * Require that a record exists
+   *
+   * @param name      name of record (for error message)
+   * @param condition to require truew
+   * @throws BusinessException if not exists
+   */
+  void require(String name, Boolean condition) throws BusinessException {
+    if (!condition) {
+      throw new BusinessException(name + " required; not met");
     }
   }
 

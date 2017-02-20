@@ -8,8 +8,10 @@ import io.outright.xj.core.integration.IntegrationTestEntity;
 import io.outright.xj.core.integration.IntegrationTestService;
 import io.outright.xj.core.model.chain.Chain;
 import io.outright.xj.core.model.chain.ChainWrapper;
+import io.outright.xj.core.model.link.Link;
 import io.outright.xj.core.tables.records.ChainRecord;
 
+import org.jooq.Result;
 import org.jooq.types.ULong;
 
 import com.google.common.collect.ImmutableMap;
@@ -208,36 +210,37 @@ public class ChainIT {
   }
 
   @Test
-  public void readAllIdBoundsInProduction() throws Exception {
+  public void readAllRecordsInProduction() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
       "roles", "internal"
     ));
     IntegrationTestEntity.insertChain(4, 2, "smash", Chain.PRODUCTION, Timestamp.valueOf("2015-05-10 12:17:02.527142"), null);
 
-    JSONArray actualResultList = testDAO.readAllIdBoundsInProduction(access, Timestamp.valueOf("2015-05-20 12:00:00"), 300);
+    Result<ChainRecord> actualResults = testDAO.readAllRecordsInProduction(access, Timestamp.valueOf("2015-05-20 12:00:00"));
 
-    assertNotNull(actualResultList);
-    assertEquals(2, actualResultList.length());
-    JSONObject actualResult1 = (JSONObject) actualResultList.get(0);
-    assertEquals(2, actualResult1.get("id"));
-    assertEquals(Timestamp.valueOf("2015-05-10 12:17:02.527142"), actualResult1.get("startAt"));
-    assertEquals(Timestamp.valueOf("2015-06-09 12:17:01.047563"), actualResult1.get("stopAt"));
-    JSONObject actualResult2 = (JSONObject) actualResultList.get(1);
-    assertEquals(4, actualResult2.get("id"));
-    assertEquals(Timestamp.valueOf("2015-05-10 12:17:02.527142"), actualResult2.get("startAt"));
-    assertFalse(actualResult2.has("stopAt"));
+    assertNotNull(actualResults);
+    assertEquals(2, actualResults.size());
+    ChainRecord actualResult1 = actualResults.get(0);
+    assertEquals(ULong.valueOf(2), actualResult1.getId());
+    assertEquals(Timestamp.valueOf("2015-05-10 12:17:02.527142"), actualResult1.getStartAt());
+    assertEquals(Timestamp.valueOf("2015-06-09 12:17:01.047563"), actualResult1.getStopAt());
+    ChainRecord actualResult2 = actualResults.get(1);
+    assertEquals(ULong.valueOf(4), actualResult2.getId());
+    assertEquals(Timestamp.valueOf("2015-05-10 12:17:02.527142"), actualResult2.getStartAt());
+    assertNull(actualResult2.getStopAt());
   }
 
   @Test
-  public void readAllIdBoundsInProduction_DoesNotReturnChainBeforeBoundary() throws Exception {
+  public void readAllIdBoundsInProduction_ReturnsChainBeforeBoundary() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
       "roles", "internal"
     ));
     IntegrationTestEntity.insertChain(4, 2, "smash", Chain.PRODUCTION, Timestamp.valueOf("2015-05-10 12:17:02.527142"), Timestamp.valueOf("2015-06-09 12:17:01.047563"));
 
-    JSONArray actualResultList = testDAO.readAllIdBoundsInProduction(access, Timestamp.valueOf("2016-05-20 12:00:00"), 300);
+    Result<ChainRecord> actualResults = testDAO.readAllRecordsInProduction(access, Timestamp.valueOf("2016-05-20 12:00:00"));
 
-    assertNotNull(actualResultList);
+    assertNotNull(actualResults);
+    assertEquals(2, actualResults.size());
   }
 
   @Test
@@ -247,26 +250,15 @@ public class ChainIT {
     ));
     IntegrationTestEntity.insertChain(4, 2, "smash", Chain.PRODUCTION, Timestamp.valueOf("2015-06-10 12:17:02.527142"), Timestamp.valueOf("2015-06-12 12:17:01.047563"));
 
-    JSONArray actualResultList = testDAO.readAllIdBoundsInProduction(access, Timestamp.valueOf("2015-05-20 12:00:00"), 300);
+    Result<ChainRecord> actualResults = testDAO.readAllRecordsInProduction(access, Timestamp.valueOf("2015-05-20 12:00:00"));
 
-    assertNotNull(actualResultList);
-    assertEquals(1, actualResultList.length());
-    JSONObject actualResult1 = (JSONObject) actualResultList.get(0);
-    assertEquals(2, actualResult1.get("id"));
-    assertEquals(Timestamp.valueOf("2015-05-10 12:17:02.527142"), actualResult1.get("startAt"));
-    assertEquals(Timestamp.valueOf("2015-06-09 12:17:01.047563"), actualResult1.get("stopAt"));
-  }
+    assertNotNull(actualResults);
 
-  @Test
-  public void readAllInProduction_ReturnsOnlyChainInBoundary() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
-      "roles", "internal"
-    ));
-    IntegrationTestEntity.insertChain(4, 2, "smash", Chain.PRODUCTION, Timestamp.valueOf("2015-05-10 12:17:02.527142"), Timestamp.valueOf("2015-06-09 12:17:01.047563"));
-
-    JSONArray actualResultList = testDAO.readAllIdBoundsInProduction(access, Timestamp.valueOf("2014-05-20 12:00:00"), 300);
-
-    assertNotNull(actualResultList);
+    assertEquals(1, actualResults.size());
+    ChainRecord actualResult1 = actualResults.get(0);
+    assertEquals(ULong.valueOf(2), actualResult1.getId());
+    assertEquals(Timestamp.valueOf("2015-05-10 12:17:02.527142"), actualResult1.getStartAt());
+    assertEquals(Timestamp.valueOf("2015-06-09 12:17:01.047563"), actualResult1.getStopAt());
   }
 
   @Test
@@ -396,6 +388,181 @@ public class ChainIT {
       assertEquals(ULong.valueOf(1), updatedRecord.getAccountId());
       throw e;
     }
+  }
+
+  @Test
+  public void updateState() throws Exception {
+    AccessControl access = new AccessControl(ImmutableMap.of(
+      "roles", "internal"
+    ));
+
+    testDAO.updateState(access, ULong.valueOf(2), Chain.COMPLETE);
+
+    ChainRecord updatedRecord = IntegrationTestService.getDb()
+      .selectFrom(CHAIN)
+      .where(CHAIN.ID.eq(ULong.valueOf(2)))
+      .fetchOne();
+    assertNotNull(updatedRecord);
+    assertEquals(Chain.COMPLETE, updatedRecord.getState());
+  }
+
+  @Test(expected = BusinessException.class)
+  public void updateState_FailsOnInvalidState() throws Exception {
+    AccessControl access = new AccessControl(ImmutableMap.of(
+      "roles", "internal"
+    ));
+
+    testDAO.updateState(access, ULong.valueOf(2), "bullshit state");
+  }
+
+  @Test(expected = BusinessException.class)
+  public void updateState_FailsWithoutTopLevelAccess() throws Exception {
+    AccessControl access = new AccessControl(ImmutableMap.of(
+      "roles", "user"
+    ));
+
+    testDAO.updateState(access, ULong.valueOf(2), Chain.COMPLETE);
+  }
+
+  @Test
+  public void buildNextLinkOrComplete_chainWithLinksReadyForNextLink() throws Exception {
+    AccessControl access = new AccessControl(ImmutableMap.of(
+      "roles", "internal"
+    ));
+    IntegrationTestEntity.insertChain(12, 1, "Test Print #2", Chain.PRODUCTION, Timestamp.valueOf("2014-02-14 12:03:40.000001"), Timestamp.valueOf("2014-02-14 14:03:40.000001"));
+    IntegrationTestEntity.insertLink(6, 12, 5, Link.CRAFTING, Timestamp.valueOf("2014-02-14 12:03:40.000001"), Timestamp.valueOf("2014-02-14 12:04:10.000001"), "E minor", 64, 0.41, 120);
+
+    ChainRecord fromChain = new ChainRecord();
+    fromChain.setId(ULong.valueOf(12));
+    fromChain.setStartAt(Timestamp.valueOf("2014-02-14 12:03:40.000001"));
+    fromChain.setStopAt(Timestamp.valueOf("2014-02-14 14:03:40.000001"));
+    JSONObject actualResult = testDAO.buildNextLinkOrComplete(access, fromChain, Timestamp.valueOf("2014-02-14 12:03:40.000001"), Timestamp.valueOf("2014-02-14 11:53:40.000001"));
+
+    assertNotNull(actualResult);
+    assertEquals(ULong.valueOf(12), actualResult.get("chainId"));
+    assertEquals(ULong.valueOf(6), actualResult.get("offset"));
+    assertEquals(Timestamp.valueOf("2014-02-14 12:04:10.000001"), actualResult.get("beginAt"));
+  }
+
+  @Test
+  public void buildNextLinkOrComplete_chainWithLinksReadyForNextLink_butChainIsAlreadyFull_butNotSoLongEnoughToBeComplete() throws Exception {
+    AccessControl access = new AccessControl(ImmutableMap.of(
+      "roles", "internal"
+    ));
+    IntegrationTestEntity.insertChain(12, 1, "Test Print #2", Chain.PRODUCTION, Timestamp.valueOf("2014-02-14 12:03:40.000001"), Timestamp.valueOf("2014-02-14 14:03:40.000001"));
+    IntegrationTestEntity.insertLink(6, 12, 5, Link.CRAFTING, Timestamp.valueOf("2014-02-14 14:03:15.000001"), Timestamp.valueOf("2014-02-14 14:03:45.000001"), "E minor", 64, 0.41, 120);
+
+    ChainRecord fromChain = new ChainRecord();
+    fromChain.setId(ULong.valueOf(12));
+    fromChain.setStartAt(Timestamp.valueOf("2014-02-14 12:03:40.000001"));
+    fromChain.setStopAt(Timestamp.valueOf("2014-02-14 14:03:40.000001"));
+    JSONObject actualResult = testDAO.buildNextLinkOrComplete(access, fromChain, Timestamp.valueOf("2014-02-14 14:03:50.000001"), Timestamp.valueOf("2014-02-14 13:53:50.000001"));
+
+    assertNull(actualResult);
+    ChainRecord finalChainRecord = IntegrationTestService.getDb()
+      .selectFrom(CHAIN)
+      .where(CHAIN.ID.eq(ULong.valueOf(12)))
+      .fetchOne();
+    assertEquals(Chain.PRODUCTION, finalChainRecord.getState());
+  }
+
+  @Test
+  public void buildNextLinkOrComplete_chainWithLinksReadyForNextLink_butChainIsAlreadyFull_butLastLinkNotDubbedSoChainNotComplete() throws Exception {
+    AccessControl access = new AccessControl(ImmutableMap.of(
+      "roles", "internal"
+    ));
+    IntegrationTestEntity.insertChain(12, 1, "Test Print #2", Chain.PRODUCTION, Timestamp.valueOf("2014-02-14 12:03:40.000001"), Timestamp.valueOf("2014-02-14 14:03:40.000001"));
+    IntegrationTestEntity.insertLink(6, 12, 5, Link.DUBBING, Timestamp.valueOf("2014-02-14 14:03:15.000001"), Timestamp.valueOf("2014-02-14 14:03:45.000001"), "E minor", 64, 0.41, 120);
+
+    ChainRecord fromChain = new ChainRecord();
+    fromChain.setId(ULong.valueOf(12));
+    fromChain.setStartAt(Timestamp.valueOf("2014-02-14 12:03:40.000001"));
+    fromChain.setStopAt(Timestamp.valueOf("2014-02-14 14:03:40.000001"));
+    JSONObject actualResult = testDAO.buildNextLinkOrComplete(access, fromChain, Timestamp.valueOf("2014-02-14 14:03:50.000001"), Timestamp.valueOf("2014-02-14 14:15:50.000001"));
+
+    assertNull(actualResult);
+    ChainRecord finalChainRecord = IntegrationTestService.getDb()
+      .selectFrom(CHAIN)
+      .where(CHAIN.ID.eq(ULong.valueOf(12)))
+      .fetchOne();
+    assertEquals(Chain.PRODUCTION, finalChainRecord.getState());
+  }
+
+  @Test
+  public void buildNextLinkOrComplete_chainWithLinksReadyForNextLink_butChainIsAlreadyFull_andGetsUpdatedToComplete() throws Exception {
+    AccessControl access = new AccessControl(ImmutableMap.of(
+      "roles", "internal"
+    ));
+    IntegrationTestEntity.insertChain(12, 1, "Test Print #2", Chain.PRODUCTION, Timestamp.valueOf("2014-02-14 12:03:40.000001"), Timestamp.valueOf("2014-02-14 14:03:40.000001"));
+    IntegrationTestEntity.insertLink(6, 12, 5, Link.DUBBED, Timestamp.valueOf("2014-02-14 14:03:15.000001"), Timestamp.valueOf("2014-02-14 14:03:45.000001"), "E minor", 64, 0.41, 120);
+
+    ChainRecord fromChain = new ChainRecord();
+    fromChain.setId(ULong.valueOf(12));
+    fromChain.setStartAt(Timestamp.valueOf("2014-02-14 12:03:40.000001"));
+    fromChain.setStopAt(Timestamp.valueOf("2014-02-14 14:03:40.000001"));
+    JSONObject actualResult = testDAO.buildNextLinkOrComplete(access, fromChain, Timestamp.valueOf("2014-02-14 14:03:50.000001"), Timestamp.valueOf("2014-02-14 14:15:50.000001"));
+
+    assertNull(actualResult);
+    ChainRecord finalChainRecord = IntegrationTestService.getDb()
+      .selectFrom(CHAIN)
+      .where(CHAIN.ID.eq(ULong.valueOf(12)))
+      .fetchOne();
+    assertEquals(Chain.COMPLETE, finalChainRecord.getState());
+  }
+
+  @Test
+  public void buildNextLinkOrComplete_chainWithLinksAlreadyHasNextLink() throws Exception {
+    AccessControl access = new AccessControl(ImmutableMap.of(
+      "roles", "internal"
+    ));
+    IntegrationTestEntity.insertLink(6, 1, 5, Link.PLANNED, Timestamp.valueOf("2017-02-14 12:03:08.000001"), null, "A major", 64, 0.52, 120);
+
+    ChainRecord fromChain = new ChainRecord();
+    fromChain.setId(ULong.valueOf(1));
+    fromChain.setStartAt(Timestamp.valueOf("2015-02-14 12:03:40.000001"));
+    fromChain.setStopAt(null);
+    JSONObject actualResult = testDAO.buildNextLinkOrComplete(access, fromChain, Timestamp.valueOf("2014-08-12 14:03:38.000001"), Timestamp.valueOf("2014-08-12 13:53:38.000001"));
+
+    assertNull(actualResult);
+  }
+
+  @Test
+  public void buildNextLinkOrComplete_chainEndingInCraftedLink() throws Exception {
+    AccessControl access = new AccessControl(ImmutableMap.of(
+      "roles", "internal"
+    ));
+    IntegrationTestEntity.insertChain(12, 1, "Test Print #2", Chain.PRODUCTION, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"));
+    IntegrationTestEntity.insertLink(6, 12, 5, Link.CRAFTED, Timestamp.valueOf("2014-08-12 14:03:08.000001"), Timestamp.valueOf("2014-08-12 14:03:38.000001"), "A major", 64, 0.52, 120);
+
+    ChainRecord fromChain = new ChainRecord();
+    fromChain.setId(ULong.valueOf(12));
+    fromChain.setStartAt(Timestamp.valueOf("2014-08-12 12:17:02.527142"));
+    fromChain.setStopAt(Timestamp.valueOf("2014-09-11 12:17:01.047563"));
+    JSONObject actualResult = testDAO.buildNextLinkOrComplete(access, fromChain, Timestamp.valueOf("2014-08-12 14:03:38.000001"), Timestamp.valueOf("2014-08-12 13:53:38.000001"));
+
+    assertNotNull(actualResult);
+    assertEquals(ULong.valueOf(12), actualResult.get("chainId"));
+    assertEquals(ULong.valueOf(6), actualResult.get("offset"));
+    assertEquals(Timestamp.valueOf("2014-08-12 14:03:38.000001"), actualResult.get("beginAt"));
+  }
+
+  @Test
+  public void buildNextLinkOrComplete_newEmptyChain() throws Exception {
+    AccessControl access = new AccessControl(ImmutableMap.of(
+      "roles", "internal"
+    ));
+    IntegrationTestEntity.insertChain(12, 1, "Test Print #2", Chain.READY, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null);
+
+    ChainRecord fromChain = new ChainRecord();
+    fromChain.setId(ULong.valueOf(12));
+    fromChain.setStartAt(Timestamp.valueOf("2014-08-12 12:17:02.527142"));
+    fromChain.setStopAt(null);
+    JSONObject actualResult = testDAO.buildNextLinkOrComplete(access, fromChain, Timestamp.valueOf("2014-08-12 14:03:38.000001"), Timestamp.valueOf("2014-08-12 13:53:38.000001"));
+
+    assertNotNull(actualResult);
+    assertEquals(ULong.valueOf(12), actualResult.get("chainId"));
+    assertEquals(0, actualResult.get("offset"));
+    assertEquals(Timestamp.valueOf("2014-08-12 12:17:02.527142"), actualResult.get("beginAt"));
   }
 
   @Test

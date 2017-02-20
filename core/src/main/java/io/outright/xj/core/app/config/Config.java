@@ -101,7 +101,7 @@ public abstract class Config {
 
   public static long workBatchSleepSeconds() { return getIntOrDefault("work.batch.sleep.seconds", 1); }
 
-  public static int workAheadSeconds() { return getIntOrDefault("work.ahead.seconds", 300); }
+  public static int workAheadSeconds() { return getIntOrDefault("work.buffer.seconds", 300); }
 
   /**
    * Set a System Property if no value has yet been set for it.
