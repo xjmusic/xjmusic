@@ -304,6 +304,12 @@ Connects to:
 
 Workflow tooling
 
+# Mix
+
+**Mix** is a Java implementation of the Go project [https://github.com/go-mix/mix](mix).
+
+The project has its own [README](mix/README.md)
+
 # App Standards
 
 ## Port

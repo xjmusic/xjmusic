@@ -8,6 +8,7 @@
   <name>XJ Master Build</name>
   <modules>
     <module>core</module>
+    <module>mix</module>
     <module>hub</module>
     <module>craftworker</module>
     <module>dubworker</module>

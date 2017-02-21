@@ -4,7 +4,7 @@
 . $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/common/functions
 
 #
-step "Basic cleanup\n"
+step "Basic cleanup"
 destroy ui/dist
 destroy ui/tmp
 destroy core/target

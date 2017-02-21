@@ -52,7 +52,7 @@ step () {
   TEXT=${1}
   printf "\\n██ ${TEXT}\n"
 }
-step_ok () { printf "░░ OK\\n\n"; }
+step_ok () { printf "░░ OK\\n"; }
 finished_ok () {
   cd ${BASEPATH}
   printf "\\n██ Finished ${0} OK\n\n"

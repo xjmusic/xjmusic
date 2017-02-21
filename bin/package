@@ -4,7 +4,7 @@
 . $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/common/functions
 
 #
-step "Clean, Compile (Unit Tests ONLY!) & Package Platform\n"
+step "Clean, Compile (Unit Tests ONLY!) & Package Platform"
 mvn clean || exit 1
 mvn package || exit 1
 step_ok

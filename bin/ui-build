@@ -4,7 +4,7 @@
 . $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/common/functions
 
 #
-step "Build UI\n"
+step "Build UI"
 cd ui || exit 1
 npm install || exit 1
 bower install || exit 1

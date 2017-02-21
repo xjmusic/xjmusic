@@ -4,7 +4,7 @@
 . $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/common/functions
 
 #
-step "Migrate local database\n"
+step "Migrate local database"
 cd core || exit 1
 mvn flyway:migrate || exit 1
 step_ok

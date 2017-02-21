@@ -4,7 +4,7 @@
 . $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/common/functions
 
 #
-step "Compile & Install Platform\n"
+step "Compile & Install Platform"
 mvn clean install || exit 1
 step_ok
 
