@@ -70,6 +70,39 @@ public class LinkIT {
       .setLink(new Link()
         .setChainId(BigInteger.valueOf(1))
         .setOffset(BigInteger.valueOf(5))
+        .setState(Link.PLANNED)
+        .setBeginAt("1995-04-28 11:23:00.000001")
+        .setEndAt("1995-04-28 11:23:32.000001")
+        .setTotal(64)
+        .setDensity(0.74)
+        .setKey("C# minor 7 b9")
+        .setTempo(120.0)
+      );
+
+    JSONObject actualResult = testDAO.create(access, inputDataWrapper);
+
+    assertNotNull(actualResult);
+    assertEquals(ULong.valueOf(1), actualResult.get("chainId"));
+    assertEquals(ULong.valueOf(5), actualResult.get("offset"));
+    assertEquals(Link.PLANNED, actualResult.get("state"));
+    assertEquals(Timestamp.valueOf("1995-04-28 11:23:00.000001"), actualResult.get("beginAt"));
+    assertEquals(Timestamp.valueOf("1995-04-28 11:23:32.000001"), actualResult.get("endAt"));
+    assertEquals(64, actualResult.get("total"));
+    assertEquals(0.74, actualResult.get("density"));
+    assertEquals("C# minor 7 b9", actualResult.get("key"));
+    assertEquals(120.0, actualResult.get("tempo"));
+  }
+
+  @Test
+  // [#126] Links are always created in PLANNED state
+  public void create_alwaysInPlannedState() throws Exception {
+    AccessControl access = new AccessControl(ImmutableMap.of(
+      "roles", "admin"
+    ));
+    LinkWrapper inputDataWrapper = new LinkWrapper()
+      .setLink(new Link()
+        .setChainId(BigInteger.valueOf(1))
+        .setOffset(BigInteger.valueOf(5))
         .setState(Link.CRAFTING)
         .setBeginAt("1995-04-28 11:23:00.000001")
         .setEndAt("1995-04-28 11:23:32.000001")
@@ -84,7 +117,7 @@ public class LinkIT {
     assertNotNull(actualResult);
     assertEquals(ULong.valueOf(1), actualResult.get("chainId"));
     assertEquals(ULong.valueOf(5), actualResult.get("offset"));
-    assertEquals(Link.CRAFTING, actualResult.get("state"));
+    assertEquals(Link.PLANNED, actualResult.get("state"));
     assertEquals(Timestamp.valueOf("1995-04-28 11:23:00.000001"), actualResult.get("beginAt"));
     assertEquals(Timestamp.valueOf("1995-04-28 11:23:32.000001"), actualResult.get("endAt"));
     assertEquals(64, actualResult.get("total"));

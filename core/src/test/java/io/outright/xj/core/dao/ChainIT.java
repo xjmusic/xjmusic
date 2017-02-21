@@ -84,6 +84,31 @@ public class ChainIT {
   }
 
   @Test
+  // [#126] Chains are always created in DRAFT state
+  public void create_alwaysCreatedInDraftState() throws Exception {
+    AccessControl access = new AccessControl(ImmutableMap.of(
+      "roles", "admin"
+    ));
+    ChainWrapper inputDataWrapper = new ChainWrapper()
+      .setChain(new Chain()
+        .setAccountId(BigInteger.valueOf(1))
+        .setName("manuts")
+        .setState(Chain.PRODUCTION)
+        .setStartAt("2009-08-12 12:17:02.527142")
+        .setStopAt("2009-09-11 12:17:01.047563")
+      );
+
+    JSONObject actualResult = testDAO.create(access, inputDataWrapper);
+
+    assertNotNull(actualResult);
+    assertEquals(ULong.valueOf(1), actualResult.get("accountId"));
+    assertEquals("manuts", actualResult.get("name"));
+    assertEquals(Chain.DRAFT, actualResult.get("state"));
+    assertEquals(Timestamp.valueOf("2009-08-12 12:17:02.527142"), actualResult.get("startAt"));
+    assertEquals(Timestamp.valueOf("2009-09-11 12:17:01.047563"), actualResult.get("stopAt"));
+  }
+
+  @Test
   public void create_WithoutStopAt() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
       "roles", "admin"
@@ -563,6 +588,27 @@ public class ChainIT {
       .where(CHAIN.ID.eq(ULong.valueOf(12)))
       .fetchOne();
     assertEquals(Chain.COMPLETE, finalChainRecord.getState());
+  }
+
+  @Test
+  public void buildNextLinkOrComplete_chainWithLinksReadyForNextLink_butChainIsAlreadyFull_butCantKnowBecauseBoundsProvidedAreNull() throws Exception {
+    AccessControl access = new AccessControl(ImmutableMap.of(
+      "roles", "internal"
+    ));
+    IntegrationTestEntity.insertChain(12, 1, "Test Print #2", Chain.PRODUCTION, Timestamp.valueOf("2014-02-14 12:03:40.000001"), Timestamp.valueOf("2014-02-14 14:03:40.000001"));
+    IntegrationTestEntity.insertLink(6, 12, 5, Link.DUBBED, Timestamp.valueOf("2014-02-14 14:03:15.000001"), Timestamp.valueOf("2014-02-14 14:03:45.000001"), "E minor", 64, 0.41, 120);
+
+    ChainRecord fromChain = new ChainRecord();
+    fromChain.setId(ULong.valueOf(12));
+    fromChain.setStartAt(Timestamp.valueOf("2014-02-14 12:03:40.000001"));
+    JSONObject actualResult = testDAO.buildNextLinkOrComplete(access, fromChain, Timestamp.valueOf("2014-02-14 14:03:50.000001"), Timestamp.valueOf("2014-02-14 14:15:50.000001"));
+
+    assertNotNull(actualResult);
+    ChainRecord finalChainRecord = IntegrationTestService.getDb()
+      .selectFrom(CHAIN)
+      .where(CHAIN.ID.eq(ULong.valueOf(12)))
+      .fetchOne();
+    assertEquals(Chain.PRODUCTION, finalChainRecord.getState());
   }
 
   @Test

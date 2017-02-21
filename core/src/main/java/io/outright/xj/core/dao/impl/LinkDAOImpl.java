@@ -9,6 +9,7 @@ import io.outright.xj.core.app.exception.DatabaseException;
 import io.outright.xj.core.dao.LinkDAO;
 import io.outright.xj.core.db.sql.SQLConnection;
 import io.outright.xj.core.db.sql.SQLDatabaseProvider;
+import io.outright.xj.core.model.chain.Chain;
 import io.outright.xj.core.model.link.Link;
 import io.outright.xj.core.model.link.LinkWrapper;
 import io.outright.xj.core.tables.records.LinkRecord;
@@ -122,14 +123,12 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
     Link model = data.validate();
     Map<Field, Object> fieldValues = model.intoFieldValueMap();
 
+    // [#126] Links are always created in PLANNED state
+    fieldValues.put(LINK.STATE, Link.PLANNED);
+
+    // top-level access
     requireTopLevel(access);
 
-//    prefer to let the database constraint fail on create, instead of blocking with a read beforehand
-
-//    requireRecordExists("Chain", db.select(CHAIN.ID).from(CHAIN)
-//      .where(CHAIN.ID.eq(model.getChainId()))
-//      .fetchOne());
-//
     return JSON.objectFromRecord(executeCreate(db, LINK, fieldValues));
   }
 

@@ -33,6 +33,7 @@ import java.math.BigInteger;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Map;
+import java.util.Objects;
 
 import static io.outright.xj.core.Tables.CHAIN;
 import static io.outright.xj.core.tables.Account.ACCOUNT;
@@ -158,6 +159,9 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
   private JSONObject create(DSLContext db, AccessControl access, ChainWrapper data) throws BusinessException {
     Chain model = data.validate();
     Map<Field, Object> fieldValues = model.intoFieldValueMap();
+
+    // [#126] Chains are always created in DRAFT state
+    fieldValues.put(CHAIN.STATE, Chain.DRAFT);
 
     if (access.isTopLevel()) {
       requireRecordExists("Account", db.select(ACCOUNT.ID).from(ACCOUNT)
@@ -400,7 +404,9 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
     }
 
     // If the last link ends after the chain stops, our work is done;
-    if (lastLinkInChain.getEndAt().after(chain.getStopAt())) {
+    if ( Objects.nonNull(lastLinkInChain.getEndAt())
+        && Objects.nonNull(chain.getStopAt())
+        && lastLinkInChain.getEndAt().after(chain.getStopAt())) {
       // this is where we check to see if the chain is ready to be COMPLETE.
       if (chain.getStopAt().before(chainStopCompleteBefore)
         // and [#122] require the last link in the chain to be in state DUBBED.
