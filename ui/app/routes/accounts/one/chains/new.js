@@ -1,14 +1,17 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
-import Ember from 'ember';
+import Ember from "ember";
 
 export default Ember.Route.extend({
+
+  constants: Ember.inject.service(),
 
   display: Ember.inject.service(),
 
   model: function() {
     let account = this.modelFor('accounts.one');
     return this.store.createRecord('chain', {
-      account: account
+      account: account,
+      state:  Ember.get(this, 'constants').chainStates[0]
     });
   },
 
