@@ -17,11 +17,12 @@
         {{#link-to 'accounts' tagName="li"}}<a href="">Music</a>{{/link-to}}
       </ul>
       <ul class="nav navbar-nav navbar-right">
+        <li><a id="current-time-utc">Time UTC</a></li>
         <li class="dropdown">
           <a href="#" data-toggle="dropdown" class="dropdown-toggle">
             {{#if auth.isUser}}User #{{auth.userId}}{{/if}}
-            {{#if auth.isAdmin}}(Admin){{/if}}
-            {{#if auth.isArtist}}(Artist){{/if}}
+            {{#if auth.isAdmin}}<badge>&#9762;</badge>{{/if}}
+            {{#if auth.isArtist}}<badge>&#x266C;</badge>{{/if}}
             <b class="caret"></b>
           </a>
           <ul class="dropdown-menu inverse-dropdown">
@@ -31,6 +32,7 @@
       </ul>
     {{else}}
       <ul class="nav navbar-nav navbar-right">
+        <li><a id="current-time-utc">Time UTC</a></li>
         {{#link-to 'login' tagName="li"}}<a href="">Login</a>{{/link-to}}
       </ul>
     {{/if}}
