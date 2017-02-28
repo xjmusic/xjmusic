@@ -198,9 +198,13 @@ Release as a zip file (e.g. target/xj-release-2016.12.05-UTC.00.37.07.zip) conta
 
     bin/release
 
-To skip the build and just repeat the packaging:
+The production deployment procedure is:
 
-    bin/release-package
+  1. Release platform as .zip file.
+  2. Upload .zip file as "new application version" to `xj` application.
+  3. Deploy the new version to the `prod-hub` environment, and confirm migrations run successfully.
+  4. Deploy the new version to the `prod-work` environment.
+  5. Monitor health checks until confirmed consistently OK.  
 
 ## Cleanup    
 
