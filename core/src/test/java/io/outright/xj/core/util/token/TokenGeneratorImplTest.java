@@ -36,6 +36,15 @@ public class TokenGeneratorImplTest {
     assertNotSame(t1,t2);
   }
 
+  @Test
+  public void generate_UniqueShortTokens() throws Exception {
+    String t1 = tokenGenerator.generateShort();
+    String t2 = tokenGenerator.generateShort();
+    assertNotNull(t1);
+    assertNotNull(t2);
+    assertNotSame(t1,t2);
+  }
+
   private void createInjector() {
     injector = Guice.createInjector(Modules.override(new CoreModule()).with(
       new AbstractModule() {

@@ -30,6 +30,7 @@ import static io.outright.xj.core.tables.Audio.AUDIO;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 // TODO [core] test permissions of different users to read vs. create vs. update or delete audios
 public class AudioIT {
@@ -45,7 +46,7 @@ public class AudioIT {
 
     // John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
     IntegrationTestEntity.insertUser(2, "john", "john@email.com", "http://pictures.com/john.gif");
-    IntegrationTestEntity.insertUserRole(1,2, Role.ADMIN);
+    IntegrationTestEntity.insertUserRole(1, 2, Role.ADMIN);
 
     // Library "palm tree" has idea "leaves" and idea "coconuts"
     IntegrationTestEntity.insertLibrary(1, 1, "palm tree");
@@ -55,8 +56,8 @@ public class AudioIT {
     IntegrationTestEntity.insertInstrument(2, 1, 2, "909 Drums", Instrument.PERCUSSIVE, 0.8);
 
     // Instrument "808" has Audios "Kick" and "Snare"
-    IntegrationTestEntity.insertAudio(1, 1, "Kick", "https://static.xj.outright.io/instrument/percussion/808/kick1.wav", 0.01, 2.123, 120.0, 440);
-    IntegrationTestEntity.insertAudio(2, 1, "Snare", "https://static.xj.outright.io/instrument/percussion/808/snare.wav", 0.0023, 1.05, 131.0, 702);
+    IntegrationTestEntity.insertAudio(1, 1, "Kick", "instrument/percussion/808/kick1.wav", 0.01, 2.123, 120.0, 440);
+    IntegrationTestEntity.insertAudio(2, 1, "Snare", "instrument/percussion/808/snare.wav", 0.0023, 1.05, 131.0, 702);
 
     // Instantiate the test subject
     testDAO = injector.getInstance(AudioDAO.class);
@@ -79,7 +80,6 @@ public class AudioIT {
       .setAudio(new Audio()
         .setInstrumentId(BigInteger.valueOf(2))
         .setName("maracas")
-        .setWaveformUrl("https://static.xj.outright.io/instrument/percussion/808/maracas.wav")
         .setStart(0.009)
         .setLength(0.21)
         .setPitch(1567.0)
@@ -91,7 +91,8 @@ public class AudioIT {
     assertNotNull(actualResult);
     assertEquals(ULong.valueOf(2), actualResult.get("instrumentId"));
     assertEquals("maracas", actualResult.get("name"));
-    assertEquals("https://static.xj.outright.io/instrument/percussion/808/maracas.wav", actualResult.get("waveformUrl"));
+    assertNotNull(actualResult.get("waveformKey"));
+    assertTrue(actualResult.get("waveformKey").toString().length() > 30);
     assertEquals(0.009, actualResult.get("start"));
     assertEquals(0.21, actualResult.get("length"));
     assertEquals(80.5, actualResult.get("tempo"));
@@ -107,7 +108,7 @@ public class AudioIT {
     AudioWrapper inputDataWrapper = new AudioWrapper()
       .setAudio(new Audio()
         .setName("maracas")
-        .setWaveformUrl("https://static.xj.outright.io/instrument/percussion/808/maracas.wav")
+        .setWaveformKey("instrument/percussion/808/maracas.wav")
         .setStart(0.009)
         .setLength(0.21)
         .setPitch(1567.0)
@@ -117,8 +118,8 @@ public class AudioIT {
     testDAO.create(access, inputDataWrapper);
   }
 
-  @Test(expected = BusinessException.class)
-  public void create_FailsWithoutWaveformUrl() throws Exception {
+  @Test
+  public void create_SucceedsWithoutWaveformKey() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
@@ -148,11 +149,31 @@ public class AudioIT {
     assertNotNull(actualResult);
     assertEquals(ULong.valueOf(1), actualResult.get("instrumentId"));
     assertEquals("Snare", actualResult.get("name"));
-    assertEquals("https://static.xj.outright.io/instrument/percussion/808/snare.wav", actualResult.get("waveformUrl"));
+    assertEquals("instrument/percussion/808/snare.wav", actualResult.get("waveformKey"));
     assertEquals(0.0023, actualResult.get("start"));
     assertEquals(1.05, actualResult.get("length"));
     assertEquals(131.0, actualResult.get("tempo"));
     assertEquals(702.0, actualResult.get("pitch"));
+  }
+
+  @Test
+  public void uploadOne() throws Exception {
+    AccessControl access = new AccessControl(ImmutableMap.of(
+      "roles", "artist",
+      "accounts", "1"
+    ));
+
+    JSONObject actualResult = testDAO.uploadOne(access, ULong.valueOf(2));
+
+    assertNotNull(actualResult);
+    // TODO: test assertions on AudioDAO generate an Upload policy to upload the corresponding file to 3rd-party storage (e.g. Amazon S3)
+//    assertEquals(ULong.valueOf(1), actualResult.get("instrumentId"));
+//    assertEquals("Snare", actualResult.get("name"));
+//    assertEquals("instrument/percussion/808/snare.wav", actualResult.get("waveformKey"));
+//    assertEquals(0.0023, actualResult.get("start"));
+//    assertEquals(1.05, actualResult.get("length"));
+//    assertEquals(131.0, actualResult.get("tempo"));
+//    assertEquals(702.0, actualResult.get("pitch"));
   }
 
   @Test
@@ -206,7 +227,7 @@ public class AudioIT {
     AudioWrapper inputDataWrapper = new AudioWrapper()
       .setAudio(new Audio()
         .setName("maracas")
-        .setWaveformUrl("https://static.xj.outright.io/instrument/percussion/808/maracas.wav")
+        .setWaveformKey("instrument/percussion/808/maracas.wav")
         .setStart(0.009)
         .setLength(0.21)
         .setPitch(1567.0)
@@ -216,8 +237,9 @@ public class AudioIT {
     testDAO.update(access, ULong.valueOf(3), inputDataWrapper);
   }
 
+  // TODO: ensure that it is not possible to change the waveform key EVER!
   @Test(expected = BusinessException.class)
-  public void update_FailsWithoutWaveformUrl() throws Exception {
+  public void update_FailsWithoutWaveformKey() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
@@ -245,7 +267,7 @@ public class AudioIT {
       .setAudio(new Audio()
         .setInstrumentId(BigInteger.valueOf(7))
         .setName("maracas")
-        .setWaveformUrl("https://static.xj.outright.io/instrument/percussion/808/maracas.wav")
+        .setWaveformKey("instrument/percussion/808/maracas.wav")
         .setStart(0.009)
         .setLength(0.21)
         .setPitch(1567.0)
@@ -277,8 +299,6 @@ public class AudioIT {
       .setAudio(new Audio()
         .setInstrumentId(BigInteger.valueOf(2))
         .setName("maracas")
-
-        .setWaveformUrl("https://static.xj.outright.io/instrument/percussion/808/maracas.wav")
         .setStart(0.009)
         .setLength(0.21)
         .setPitch(1567.0)
@@ -294,7 +314,7 @@ public class AudioIT {
     assertNotNull(updatedRecord);
     assertEquals(ULong.valueOf(2), updatedRecord.getInstrumentId());
     assertEquals("maracas", updatedRecord.getName());
-    assertEquals("https://static.xj.outright.io/instrument/percussion/808/maracas.wav", updatedRecord.getWaveformUrl());
+    assertEquals("instrument/percussion/808/kick1.wav", updatedRecord.getWaveformKey());
     assertEquals(Double.valueOf(0.009), updatedRecord.getStart());
     assertEquals(Double.valueOf(0.21), updatedRecord.getLength());
     assertEquals(Double.valueOf(80.5), updatedRecord.getTempo());
@@ -352,5 +372,7 @@ public class AudioIT {
   }
 
   // TODO [core] test AudioDAO cannot delete record unless user has account access
+
+  // TODO test AudioDAO cannot write to WaveformKey value on create or update- ONLY updated by generating an upload policy
 
 }

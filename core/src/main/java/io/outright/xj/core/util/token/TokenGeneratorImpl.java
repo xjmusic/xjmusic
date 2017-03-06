@@ -8,5 +8,10 @@ public class TokenGeneratorImpl implements TokenGenerator {
   public String generate() {
     return String.valueOf(System.currentTimeMillis()) + "-" + UUID.randomUUID().toString() + "-" + new StringBuilder(String.valueOf(System.nanoTime())).reverse().toString();
   }
+
+  @Override
+  public String generateShort() {
+    return UUID.randomUUID().toString();
+  }
 }
 

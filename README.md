@@ -46,6 +46,10 @@ To compile the Java server-side applications and package them for deployment:
     
 To build and deploy the platform during local development, we run this a lot:
 
+    bin/package && docker restart hub01xj1
+
+For a more destructive complete rebuild, including configurations and front-end, we could run:
+
     docker rm -f hub01xj1 && \
       bin/package && \
       docker-compose up -d
@@ -61,7 +65,9 @@ Attach to the shell on the main server `hub01xj1` while it's running, and tail t
 After logging in via Google, there will be a user created with an `id` of 1. To grant the `admin` user role, you'll connect directly to the database on `mysql01xj1`:
  
     mysql -uroot -hmysql01xj1 xj
-    # now inside mysql shell 
+
+And inside mysql shell: 
+
     insert into user_role (user_id, type) values (1, "admin"); 
 
 Only between major platform configuration changes (e.g. to **.nginx/locations.conf**), it may be necessary to force Docker to rebuild the container using `--build`:
@@ -87,7 +93,7 @@ The default java properties are in the file **/default.env** which is copied to 
 Before running the docker container, be sure to package the latest Java build artifacts, with `make` or `bin/package`.
 
 Bring up the `hub01xj1` docker container (with an Nginx server on port 80, which proxies backend requests to its own Hub via port 8042) and its required resource containers:
-
+Xj-control
     docker-compose up -d
 
 The `-d` option above runs containers as background daemons, instead of seeing all their `stdin`. Use `docker-compose` or `docker` to manage containers from there.
@@ -251,11 +257,40 @@ For development, your local machine needs to have the domain `xj.outright.dev` p
 
 Login to the app using Google authentication. The redirect URL for local development is http://xj.outright.io/auth/google/callback
 
+# Debugging
+
+It is helpful to be able to compile and run Java components against the Docker container resources made available by Docker Compose. Assuming that the containers are running locally and addressed properly (see the 'DNS' section above) simply include the following in the Run Configuration -> Program Arguments:
+
+    -Dapp.url.base=http://localhost:8042/
+    -Dapp.url.api=
+    -Dauth.google.id=<dev google oauth client id>
+    -Dauth.google.secret=<dev google oauth client secret>
+    -Ddb.mysql.host=mysql01xj1
+    -Ddb.redis.host=redis01xj1
+
+Also remember, it is necessary to send an authentication cookie in the header of API requests:
+
+    curl -b Access-Token
+
+# Audio File Uploading
+    
+Note that after an audio file is uploaded, it can be played back (on a GNU/Linux system) like:
+    
+    curl https://s3.amazonaws.com/xj.audio.dev/instrument-1-audio-6d958fbf-4507-458a-9ab3-dfdf04dc0ba8.wav | aplay
+
+Here are the public-facing Amazon CloudFront-backed URLs for audio files, and their respective Amazon S3 backing:
+
+  * [https://audio.xj.outright.io](https://audio.xj.outright.io) is the production URL, backed by [https://xj-audio-prod.s3.amazonaws.com](https://xj-audio-prod.s3.amazonaws.com)
+  * [https://audio.stage.xj.outright.io](https://audio.stage.xj.outright.io) is the staging URL, backed by [https://xj-audio-stage.s3.amazonaws.com](https://xj-audio-stage.s3.amazonaws.com)
+  * [https://audio.dev.xj.outright.io](https://audio.dev.xj.outright.io) is the development URL, backed by [https://xj-audio-dev.s3.amazonaws.com](https://xj-audio-dev.s3.amazonaws.com)
+
 # Components
 
 ## ui
 
 User interface web application. Built with Javascript, Ember, Bower, Node.
+
+Requires Node.js version 7+
 
 Connects to:
 
@@ -304,10 +339,6 @@ Connects to:
   * SQL Database
   * Filesystem
 
-## z
-
-Workflow tooling
-
 # Mix
 
 **Mix** is a Java implementation of the Go project [https://github.com/go-mix/mix](mix).
@@ -347,6 +378,10 @@ mvn archetype:generate -DarchetypeArtifactId=jersey-quickstart-grizzly2 -Darchet
 ## AWS Elastic Beanstalk
 
 The `.ebextensions` and `.ebsettings` folder contain configurations proprietary to [AWS Elastic Beanstalk](http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/java-tomcat-platform.html#java-tomcat-proxy).
+
+Ops engineers may prefer to use the [The Elastic Beanstalk Command Line Interface](http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/eb-cli3.html) for administration of the AWS production deployment.
+
+***Look out for `eb` trying to modify and/or change git version control for the `.elasticbeanstalk` folder when you do a `eb init`-- revert anything it tries to change!***
 
 ## Jersey
 

@@ -3,7 +3,7 @@ import Ember from "ember";
 
 export default Ember.Route.extend({
 
-  constants: Ember.inject.service(),
+  config: Ember.inject.service(),
 
   display: Ember.inject.service(),
 
@@ -11,7 +11,7 @@ export default Ember.Route.extend({
     let account = this.modelFor('accounts.one');
     return this.store.createRecord('chain', {
       account: account,
-      state:  Ember.get(this, 'constants').chainStates[0]
+      state:  Ember.get(this, 'config').chainStates[0]
     });
   },
 

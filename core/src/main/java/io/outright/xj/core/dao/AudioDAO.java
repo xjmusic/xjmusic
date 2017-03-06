@@ -34,6 +34,17 @@ public interface AudioDAO {
   JSONObject readOne(AccessControl access, ULong id) throws Exception;
 
   /**
+   * Generate an Upload policy to upload the corresponding file to 3rd-party storage (e.g. Amazon S3)
+   *
+   * @param access control
+   * @param id     of audio
+   * @return retrieved record as JSON
+   * @throws Exception on failure
+   */
+  @Nullable
+  JSONObject uploadOne(AccessControl access, ULong id) throws Exception;
+
+  /**
    * Fetch all accessible Audio for one Account by id
    *
    * @param access    control

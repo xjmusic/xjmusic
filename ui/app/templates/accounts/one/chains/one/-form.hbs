@@ -12,7 +12,7 @@
   <label class="col-sm-2 control-label">State</label>
   <div class="col-sm-10">
     <select class="form-control" onchange={{action "selectChainState" value="target.value"}} title="State">
-      {{#each constants.chainStates as |state|}}
+      {{#each config.chainStates as |state|}}
         <option value={{state}} selected={{eq model.state state}}>{{state}}</option>
       {{/each}}
     </select>

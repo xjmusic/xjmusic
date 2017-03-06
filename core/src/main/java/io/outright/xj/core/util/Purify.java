@@ -73,4 +73,5 @@ public interface Purify {
     Matcher m = nonNote.matcher(raw);
     return m.replaceAll("").trim();
   }
+
 }

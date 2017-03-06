@@ -27,7 +27,7 @@ step_ok
 
 #
 step "io.outright.xj.core.app.config.Config properties:"
-indent "$(grep -oE "\"[a-z]+\.[a-z\.]+\"" core/src/main/java/io/outright/xj/core/app/config/Config.java)"
+indent "$(grep -oE "\"[a-z]+\.[a-z\.]+\"" core/src/main/java/io/outright/xj/core/app/config/Config.java | sort)"
 step_ok
 
 #

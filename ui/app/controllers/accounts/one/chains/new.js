@@ -2,7 +2,7 @@
 import Ember from 'ember';
 
 export default Ember.Controller.extend({
-  constants: Ember.inject.service(),
+  config: Ember.inject.service(),
 
   actions: {
 

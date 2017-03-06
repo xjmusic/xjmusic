@@ -71,6 +71,8 @@ import io.outright.xj.core.db.RedisDatabaseProvider;
 import io.outright.xj.core.db.RedisDatabaseProviderImpl;
 import io.outright.xj.core.db.sql.SQLDatabaseProvider;
 import io.outright.xj.core.db.sql.SQLDatabaseProviderImpl;
+import io.outright.xj.core.external.amazon.AmazonProvider;
+import io.outright.xj.core.external.amazon.AmazonProviderImpl;
 import io.outright.xj.core.external.google.GoogleHttpProvider;
 import io.outright.xj.core.external.google.GoogleHttpProviderImpl;
 import io.outright.xj.core.external.google.GoogleProvider;
@@ -126,8 +128,8 @@ public class CoreModule extends AbstractModule {
     bind(InstrumentDAO.class).to(InstrumentDAOImpl.class);
     bind(InstrumentMemeDAO.class).to(InstrumentMemeDAOImpl.class);
     bind(LibraryDAO.class).to(LibraryDAOImpl.class);
-    bind(LinkDAO.class).to(LinkDAOImpl.class);
     bind(LinkChordDAO.class).to(LinkChordDAOImpl.class);
+    bind(LinkDAO.class).to(LinkDAOImpl.class);
     bind(MorphDAO.class).to(MorphDAOImpl.class);
     bind(PhaseChordDAO.class).to(PhaseChordDAOImpl.class);
     bind(PhaseDAO.class).to(PhaseDAOImpl.class);
@@ -142,6 +144,7 @@ public class CoreModule extends AbstractModule {
   private void bindExternal() {
     bind(GoogleHttpProvider.class).to(GoogleHttpProviderImpl.class);
     bind(GoogleProvider.class).to(GoogleProviderImpl.class);
+    bind(AmazonProvider.class).to(AmazonProviderImpl.class);
   }
 
   private void bindUtil() {

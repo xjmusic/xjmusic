@@ -103,11 +103,11 @@ public abstract class JSON {
 
   public static JSONObject wrapError(String message) {
     JSONObject error = new JSONObject();
-    error.put(Exposure.ERROR_DETAIL_KEY, message);
+    error.put(Exposure.KEY_ERROR_DETAIL, message);
 
     JSONArray errorsArr = new JSONArray();
     errorsArr.put(error);
 
-    return wrap(Exposure.ERRORS_KEY, errorsArr);
+    return wrap(Exposure.KEY_ERRORS, errorsArr);
   }
 }

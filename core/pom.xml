@@ -99,6 +99,13 @@
       <version>v1-rev477-1.22.0</version>
     </dependency>
 
+    <!-- external web services: https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk -->
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-java-sdk</artifactId>
+      <version>1.11.119</version>
+    </dependency>
+
     <!-- database migration: https://flywaydb.org/documentation/api/ -->
     <dependency>
       <groupId>org.flywaydb</groupId>

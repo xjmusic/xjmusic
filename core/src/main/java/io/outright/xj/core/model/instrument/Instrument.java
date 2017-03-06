@@ -97,9 +97,6 @@ public class Instrument extends Entity {
    * @throws BusinessException if invalid.
    */
   public void validate() throws BusinessException {
-    if (this.description == null || this.description.length() == 0) {
-      throw new BusinessException("Name is required.");
-    }
     if (this.libraryId == null) {
       throw new BusinessException("Library ID is required.");
     }
@@ -108,6 +105,9 @@ public class Instrument extends Entity {
     }
     if (this.type == null || this.type.length() == 0) {
       throw new BusinessException("Type is required.");
+    }
+    if (this.description == null || this.description.length() == 0) {
+      throw new BusinessException("Description is required.");
     }
     if (!allTypes.contains(this.type)) {
       throw new BusinessException("'" + this.type + "' is not a valid type (" + CSV.join(allTypes) + ").");

@@ -298,12 +298,12 @@ public abstract class IntegrationTestEntity {
     record.store();
   }
 
-  public static void insertAudio(int id, int instrumentId, String name, String waveformUrl, double start, double length, double tempo, double pitch) {
+  public static void insertAudio(int id, int instrumentId, String name, String waveformKey, double start, double length, double tempo, double pitch) {
     AudioRecord record = IntegrationTestService.getDb().newRecord(AUDIO);
     record.setId(ULong.valueOf(id));
     record.setInstrumentId(ULong.valueOf(instrumentId));
     record.setName(name);
-    record.setWaveformUrl(waveformUrl);
+    record.setWaveformKey(waveformKey);
     record.setStart(start);
     record.setLength(length);
     record.setTempo(tempo);

@@ -34,7 +34,6 @@ public class GoogleProviderImpl implements GoogleProvider {
   private final static String API_PEOPLE_ENDPOINT = "https://www.googleapis.com/plus/v1/people/me";
   private static Logger log = LoggerFactory.getLogger(GoogleProviderImpl.class);
   private GoogleHttpProvider googleHttpProvider;
-  private GoogleProvider googleProvider;
   private JsonFactory jsonFactory;
 
   private String clientId;
@@ -43,11 +42,9 @@ public class GoogleProviderImpl implements GoogleProvider {
   @Inject
   public GoogleProviderImpl(
     GoogleHttpProvider googleHttpProvider,
-    GoogleProvider googleProvider,
     JsonFactory jsonFactory
   ) {
     this.googleHttpProvider = googleHttpProvider;
-    this.googleProvider = googleProvider;
     this.jsonFactory = jsonFactory;
     try {
       this.clientId = Config.authGoogleId();
@@ -80,7 +77,7 @@ public class GoogleProviderImpl implements GoogleProvider {
       HttpTransport httpTransport = googleHttpProvider.getTransport();
       request = new GoogleAuthorizationCodeTokenRequest(httpTransport, jsonFactory,
         clientId, clientSecret,
-        code, googleProvider.getCallbackUrl());
+        code, this.getCallbackUrl());
       response = request.execute();
     } catch (TokenResponseException e) {
       log.error("GoogleProvider.getTokenFromCode failed to retrieve token response: {}", detailsOfTokenException(e));

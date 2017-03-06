@@ -31,17 +31,17 @@ public class Audio extends Entity {
   }
 
   /**
-   * WaveformUrl
+   * WaveformKey
    */
-  private String waveformUrl;
+  private String waveformKey;
 
-  public String getWaveformUrl() {
-    return waveformUrl;
+  public String getWaveformKey() {
+    return waveformKey;
   }
 
-  public Audio setWaveformUrl(String waveformUrl) {
-    if (waveformUrl != null) {
-      this.waveformUrl = waveformUrl.trim();
+  public Audio setWaveformKey(String waveformKey) {
+    if (waveformKey != null) {
+      this.waveformKey = waveformKey.trim();
     }
     return this;
   }
@@ -129,25 +129,32 @@ public class Audio extends Entity {
     if (this.name == null || this.name.length() == 0) {
       throw new BusinessException("Name is required.");
     }
-    if (this.waveformUrl == null || this.waveformUrl.length() == 0) {
-      throw new BusinessException("Waveform URL is required.");
+    if (this.waveformKey == null || this.waveformKey.length() == 0) {
+      this.waveformKey = "";
+//      throw new BusinessException("Waveform URL is required.");
     }
-    if (this.start == null || this.start == 0) {
-      throw new BusinessException("Start is required.");
+    if (this.start == null) {
+      this.start = 0d;
+//      throw new BusinessException("Start is required.");
     }
-    if (this.length == null || this.length == 0) {
-      throw new BusinessException("Length is required.");
+    if (this.length == null) {
+      this.length = 0d;
+//      throw new BusinessException("Length is required.");
     }
-    if (this.tempo == null || this.tempo == 0) {
+    if (this.tempo == null) {
+      this.tempo = 0d;
       throw new BusinessException("Tempo is required.");
     }
-    if (this.pitch == null || this.pitch == 0) {
-      throw new BusinessException("Pitch is required.");
+    if (this.pitch == null) {
+      this.pitch = 0d;
+      throw new BusinessException("Root Pitch is required.");
     }
   }
 
   /**
    * Model info jOOQ-field : Value map
+   *
+   * NOTE: Excluding AUDIO.WAVEFORM_KEY a.k.a. waveformKey because that is read-only;
    *
    * @return map
    */
@@ -156,7 +163,6 @@ public class Audio extends Entity {
     Map<Field, Object> fieldValues = Maps.newHashMap();
     fieldValues.put(AUDIO.INSTRUMENT_ID, instrumentId);
     fieldValues.put(AUDIO.NAME, name);
-    fieldValues.put(AUDIO.WAVEFORM_URL, waveformUrl);
     fieldValues.put(AUDIO.START, start);
     fieldValues.put(AUDIO.LENGTH, length);
     fieldValues.put(AUDIO.TEMPO, tempo);

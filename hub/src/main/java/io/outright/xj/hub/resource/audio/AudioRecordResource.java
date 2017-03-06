@@ -10,9 +10,11 @@ import io.outright.xj.core.model.audio.AudioWrapper;
 import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.transport.JSON;
 
+import org.jooq.types.ULong;
+
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.jooq.types.ULong;
+
 import org.json.JSONObject;
 
 import javax.annotation.security.RolesAllowed;
@@ -23,6 +25,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -43,7 +46,7 @@ public class AudioRecordResource {
   String id;
 
   /**
-   * Get one audio.
+   * Read one audio
    *
    * @return application/json response.
    */
@@ -101,6 +104,34 @@ public class AudioRecordResource {
     try {
       audioDAO.delete(access, ULong.valueOf(id));
       return Response.accepted("{}").build();
+
+    } catch (Exception e) {
+      return httpResponseProvider.failure(e);
+    }
+  }
+
+  /**
+   * Generate an Upload policy to upload the corresponding file to 3rd-party storage (e.g. Amazon S3)
+   *
+   * @return application/json response.
+   */
+  @GET
+  @Path("/upload")
+  @WebResult
+  @RolesAllowed({Role.ARTIST})
+  public Response uploadOne(@Context ContainerRequestContext crc) throws IOException {
+    AccessControl access = AccessControl.fromContext(crc);
+    try {
+      JSONObject result = audioDAO.uploadOne(access, ULong.valueOf(id));
+      if (result != null) {
+        return Response
+          .accepted(JSON.wrap(Audio.KEY_ONE, result).toString())
+          .type(MediaType.APPLICATION_JSON)
+          .build();
+      } else {
+        return httpResponseProvider.notFound("Audio");
+      }
+
 
     } catch (Exception e) {
       return httpResponseProvider.failure(e);

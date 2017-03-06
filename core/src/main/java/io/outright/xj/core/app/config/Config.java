@@ -2,6 +2,13 @@
 package io.outright.xj.core.app.config;
 
 import io.outright.xj.core.app.exception.ConfigException;
+import io.outright.xj.core.transport.CSV;
+
+import com.google.common.collect.ImmutableList;
+
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * ALL APPLICATION CONFIGURATION MUST IMPLEMENT THIS CENTRAL CLASS.
@@ -20,8 +27,24 @@ public abstract class Config {
     return get("auth.google.secret");
   }
 
+  public static String awsFileUploadUrl() throws ConfigException {
+    return get("aws.file.upload.url");
+  }
+
+  public static String awsFileUploadKey() throws ConfigException {
+    return get("aws.file.upload.key");
+  }
+
+  public static String awsFileUploadSecret() throws ConfigException {
+    return get("aws.file.upload.secret");
+  }
+
   public static String appBaseUrl() {
     return getOrDefault("app.url.base", "http://localhost/");
+  }
+
+  public static String audioBaseUrl() {
+    return getOrDefault("audio.url.base", "https://audio.dev.xj.outright.io/");
   }
 
   public static String apiPath() {
@@ -54,6 +77,10 @@ public abstract class Config {
 
   public static Boolean logAccessEntitiesAll() {
     return getBoolOrDefault("log.access.entities.all", false);
+  }
+
+  public static List<String> chainStates() {
+    return getListOrDefault("constraint.chain.states", ImmutableList.of("draft", "ready", "production", "complete"));
   }
 
   public static String dbMysqlHost() {
@@ -162,6 +189,14 @@ public abstract class Config {
       throw new ConfigException("Must set system property: " + key);
     }
     return value;
+  }
+
+  private static List<String> getListOrDefault(String key, List<String> defaultValue) {
+    try {
+      return CSV.split(get(key));
+    } catch (ConfigException e) {
+      return defaultValue;
+    }
   }
 
   private static String getOrDefault(String key, String defaultValue) {
