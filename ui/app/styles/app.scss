@@ -1,6 +1,4 @@
 /* Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved. */
-
-
 @import "ember-power-select";
 @import "bootstrap";
 @import "navbar";
@@ -10,7 +8,15 @@
   font-family: OxygenMono;
   src: local("Oxygen Mono"),
   local("Oxygen Mono"),
-  url(OxygenMono-Regular.ttf);
+  url(fonts/OxygenMono-Regular.ttf);
+  font-weight: bold;
+}
+
+@font-face {
+  font-family: ClockMono;
+  src: local("Clock Mono"),
+  local("Clock Mono"),
+  url(fonts/digital-readout.heavy.ttf);
   font-weight: bold;
 }
 
@@ -21,11 +27,11 @@ body {
 }
 
 a {
-  color: lighten($yellow,10%);
+  color: lighten($yellow, 10%);
 }
 
 img {
-  width:100%;
+  width: 100%;
   height: auto;
 }
 
@@ -42,11 +48,11 @@ img {
     margin-top: 0;
   }
   .metric {
-    margin-top:2em;
+    margin-top: 2em;
     margin-bottom: 0;
     font-size: 0.8em;
     letter-spacing: 0.2em;
-    font-weight:bold;
+    font-weight: bold;
     text-transform: uppercase;
   }
   .yellow {
@@ -68,7 +74,9 @@ img {
 }
 
 .table-list {
-  table, tr, th, td, thead, tbody { background: transparent; }
+  table, tr, th, td, thead, tbody {
+    background: transparent;
+  }
   .item {
   }
 }
@@ -80,12 +88,12 @@ img {
 }
 
 .alert-fixed {
-  position:fixed;
+  position: fixed;
   top: 5px;
   right: 25%;
   width: 50%;
-  z-index:9999;
-  border-radius:5px;
+  z-index: 9999;
+  border-radius: 5px;
   .alert {
     margin-bottom: 5px;
   }
@@ -97,23 +105,23 @@ hr {
 
 .ember-power-select-options,
 .ember-power-select-selected-item {
-    img {
-      width: 1.6em;
-      height: 1.6em;
-    }
+  img {
+    width: 1.6em;
+    height: 1.6em;
+  }
 }
 
-.inverse-dropdown{
+.inverse-dropdown {
   background-color: #222;
   border-color: #080808;
-  &>li>a{
+  & > li > a {
     color: #999;
-    &:hover{
+    &:hover {
       color: #fff;
       background-color: #000;
     }
   }
-  &>.divider {
+  & > .divider {
     background-color: #000;
   }
 }
@@ -126,15 +134,15 @@ button {
   .table {
     .item {
       img.avatar {
-        width:24px;
+        width: 24px;
         height: 24px;
         border: 1px solid $low-gray;
       }
       &.production-state {
         background: darken(darkgreen, 10%);
-        color:lightgreen;
+        color: lightgreen;
         a {
-          color:lightgreen;
+          color: lightgreen;
         }
       }
     }
@@ -148,5 +156,12 @@ ol.breadcrumb {
 badge {
   margin: 0;
   padding: 0;
-  font-weight:bold;
+  font-weight: bold;
+}
+
+#clock {
+  letter-spacing: 4px;
+  color: $green;
+  font-family: ClockMono, monospace;
+  font-size: 30px;
 }

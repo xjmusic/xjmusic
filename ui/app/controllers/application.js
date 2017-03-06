@@ -14,7 +14,6 @@ export default Ember.Controller.extend({
 
   init() {
     let ctrl = this;
-    // moment().setTimezone('UTC');
     setInterval(function () {
       let now = new Date();
       let nowUTC = moment(
@@ -22,7 +21,7 @@ export default Ember.Controller.extend({
       ).format("YYYY-MM-DD HH:mm:ss");
       if (nowUTC !== ctrl.get('nowUTC')) {
         ctrl.set('timeNowUTC', nowUTC);
-        document.getElementById('current-time-utc').innerHTML = nowUTC;
+        document.getElementById('clock').innerHTML = nowUTC;
       }
     }, 250);
   },

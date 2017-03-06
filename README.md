@@ -206,7 +206,7 @@ The production deployment procedure is:
   4. Deploy the new version to the `prod-work` environment.
   5. Monitor health checks until confirmed consistently OK.  
 
-## Cleanup    
+## Cleanup
 
 Clean all build targets:
 
