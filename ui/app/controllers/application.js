@@ -19,9 +19,9 @@ export default Ember.Controller.extend({
       let nowUTC = moment(
         new Date(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), now.getUTCHours(), now.getUTCMinutes(), now.getUTCSeconds())
       ).format("YYYY-MM-DD HH:mm:ss");
-      if (nowUTC !== ctrl.get('nowUTC')) {
+      if (nowUTC !== ctrl.get('timeNowUTC')) {
         ctrl.set('timeNowUTC', nowUTC);
-        document.getElementById('clock').innerHTML = nowUTC;
+        document.getElementById('clock').innerHTML = nowUTC + " Z";
       }
     }, 250);
   },

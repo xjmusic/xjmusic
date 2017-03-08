@@ -26,14 +26,14 @@
             <b class="caret"></b>
           </a>
           <ul class="dropdown-menu inverse-dropdown">
-            {{#link-to 'logout' tagName="li"}}<a href="">Logout</a>{{/link-to}}
+            <li><a href="/auth/no">Logout</a></li>
           </ul>
         </li>
       </ul>
     {{else}}
       <ul class="nav navbar-nav navbar-right">
-        <li><a id="current-time-utc">Time UTC</a></li>
-        {{#link-to 'login' tagName="li"}}<a href="">Login</a>{{/link-to}}
+        <li><a id="clock"><!-- TIME UTC --></a></li>
+        <li><a href="/auth/google">Login</a></li>
       </ul>
     {{/if}}
 
