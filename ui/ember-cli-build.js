@@ -1,13 +1,9 @@
-/*jshint node:true*/
+/* jshint node:true */
 /* global require, module */
 let EmberApp = require('ember-cli/lib/broccoli/ember-app');
 
 module.exports = function(defaults) {
-  let app = new EmberApp(defaults, {
-    fingerprint: {
-      enabled: true
-    },
-  });
+  let app = getApp(defaults, process.env.EMBER_ENV);
 
   // Use `app.import` to add additional libraries to the generated
   // output files.
@@ -24,3 +20,20 @@ module.exports = function(defaults) {
 
   return app.toTree();
 };
+
+function getApp(defaults, environment) {
+  switch(environment) {
+    case "production":
+      return new EmberApp(defaults, {
+        fingerprint: {
+          enabled: true
+        },
+      });
+    default:
+      return new EmberApp(defaults, {
+        fingerprint: {
+          enabled: false
+        },
+      });
+  }
+}

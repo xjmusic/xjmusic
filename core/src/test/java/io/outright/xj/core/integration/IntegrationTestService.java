@@ -23,6 +23,7 @@ public enum IntegrationTestService {
 
     // One database connection remains open until main program exit
     System.setProperty("db.mysql.database", "xj_test");
+    System.setProperty("env.test", "true");
     SQLDatabaseProvider dbProvider = Guice.createInjector(new CoreModule())
       .getInstance(SQLDatabaseProvider.class);
     try {

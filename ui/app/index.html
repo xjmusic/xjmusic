@@ -1,34 +1,151 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <!-- Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved. -->
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>xj</title>
-    <meta name="description" content="a completely new system for music publishing and distribution">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+<head>
+  <!-- Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved. -->
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>XJ: an Entirely New Music System</title>
+  <meta name="description"
+        content="100% Original 24/7 non-stop continuous music that has never been heard before. 100% Custom mood to perfectly evoke your journey. 100% Yours, perpetual continuous audio branding.">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    {{content-for "head"}}
+  {{content-for "head"}}
 
-    <link rel="stylesheet" href="assets/vendor.css">
-    <link rel="stylesheet" href="assets/xj-control.css">
+  <link rel="stylesheet" href="assets/vendor.css">
+  <link rel="stylesheet" href="assets/xj-control.css">
 
+  <!-- these are a few of my fav icons -->
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
+  <link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+  <meta name="theme-color" content="#ffffff">
 
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
-    <link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16">
-    <link rel="manifest" href="/manifest.json">
-    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
-    <meta name="theme-color" content="#ffffff">
+  {{content-for "head-footer"}}
+</head>
+<body>
+{{content-for "body"}}
 
-    {{content-for "head-footer"}}
-  </head>
-  <body>
-    {{content-for "body"}}
+<!-- static-content gets deleted right away -->
+<div id="static-content">
+  <nav class="navbar navbar-inverse">
+    <div class="navbar-header">&nbsp;</div>
+    <div class="collapse navbar-collapse" id="main-navbar">
+      <ul class="nav navbar-nav navbar-left">
+        <li id="ember478" class="logo ember-view active"><a href=""><img src="/assets/images/brand/xj-logo.png"></a></li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li id="ember498" class="ember-view"><a href="">Sign In</a></li>
+      </ul>
+    </div>
+  </nav>
 
-    <script src="assets/vendor.js"></script>
-    <script src="assets/xj-control.js"></script>
+  <ol class="ember-view breadcrumb"><!----></ol>
 
-    {{content-for "body-footer"}}
-  </body>
+  <div class="container-fluid">
+    <!-- Marketing Lockup: Left -->
+    <div class="marketing
+            col-xs-10 col-xs-offset-1
+            col-md-5 col-md-offset-1
+            col-lg-4 col-lg-offset-2">
+
+      <div class="container-fluid">
+        <img alt="XJ" src="/assets/images/brand/xj-logo.png"/>
+      </div>
+
+      <div class="container-fluid text-center">
+        <div class="sub-mega">Background&nbsp;Music&nbsp;System</div>
+      </div>
+
+      <div class="container-fluid">
+        <img alt="by Outright Mental" src="/assets/images/brand/by-outright-mental-roger-lockup.png"/>
+      </div>
+
+    </div>
+
+    <!-- Marketing Lockup: Right -->
+    <div class="marketing
+            col-xs-10 col-xs-offset-1
+            col-md-5 col-md-offset-0
+            col-lg-4 col-lg-offset-0">
+      <div class="container-fluid text-left padding-top-md">
+        <div class="mega"><span class="number">100%</span>Original</div>
+        <div class="sub-mega top-line">24/7 non-stop continuous music unlike anything heard before.</div>
+      </div>
+      <div class="container-fluid text-left">
+        <div class="mega"><span class="number">100%</span>Custom</div>
+        <div class="sub-mega top-line">Patented audio branding A.I. sets the mood to perfectly evoke your journey.</div>
+      </div>
+      <div class="container-fluid text-left">
+        <div class="mega"><span class="number">100%</span>Yours</div>
+        <div class="sub-mega top-line">Complement top-class experience with a dynamic soundscape you own outright.
+        </div>
+      </div>
+      <div class="container-fluid text-left">
+        <div class="mega">Be First To Hear</div>
+        <div class="top-line"><!-- Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved. -->
+
+          <p class="sub-mega">Early access to the live online broadcast.</p>
+
+          <!-- Begin MailChimp Signup Form -->
+          <link href="//cdn-images.mailchimp.com/embedcode/classic-10_7.css" rel="stylesheet" type="text/css">
+          <style type="text/css">
+            #mc_embed_signup{background:#fff; clear:left; font:14px Helvetica,Arial,sans-serif; }
+            /* Add your own MailChimp form style overrides in your site stylesheet or in this style block.
+                 We recommend moving this block and the preceding CSS link to the HEAD of your HTML file. */
+          </style>
+          <div id="mc_embed_signup">
+            <form action="#" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate="">
+              <div id="mc_embed_signup_scroll">
+                <div class="indicates-required"><span class="asterisk">*</span> indicates required</div>
+                <div class="mc-field-group">
+                  <label for="mce-EMAIL">Email Address  <span class="asterisk">*</span>
+                  </label>
+                  <input type="email" value="" name="EMAIL" class="required email" id="mce-EMAIL">
+                </div>
+                <div class="mc-field-group">
+                  <label for="mce-NAME">Name  <span class="asterisk">*</span>
+                  </label>
+                  <input type="text" value="" name="NAME" class="required" id="mce-NAME">
+                </div>
+                <div class="mc-field-group">
+                  <label for="mce-TITLE">Title </label>
+                  <input type="text" value="" name="TITLE" class="" id="mce-TITLE">
+                </div>
+                <div class="mc-field-group">
+                  <label for="mce-COMPANY">Company </label>
+                  <input type="text" value="" name="COMPANY" class="" id="mce-COMPANY">
+                </div>
+                <div id="mce-responses" class="clear text-right">
+                  <div class="response" id="mce-error-response" style="display:none"></div>
+                  <div class="response" id="mce-success-response" style="display:none"></div>
+                </div>    <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+                <div style="position: absolute; left: -5000px;" aria-hidden="true"><input type="text" name="b_2a49d1dc99da3ac7ece6ea5db_4f49966ebf" tabindex="-1" value=""></div>
+                <div class="clear"><input type="submit" value="Subscribe" name="subscribe" id="mc-embedded-subscribe" class="button"></div>
+              </div>
+            </form>
+          </div>
+
+          <!--End mc_embed_signup--></div>
+      </div>
+
+  </div>
+
+  <footer class="col-xs-6 col-xs-offset-3
+               col-sm-4 col-sm-offset-4
+               col-md-3 col-md-offset-9
+               col-lg-2 col-lg-offset-10">
+    <div class="outright container-fluid">
+      <a target="_blank" href="http://w.outright.io/" title="by Outright Mental"><img alt="by Outright Mental" src="/assets/images/brand/by-outright-mental-roger-lockup.png"/></a>
+    </div>
+  </footer>
+
+</div>
+
+<script src="assets/vendor.js"></script>
+<script src="assets/xj-control.js"></script>
+
+{{content-for "body-footer"}}
+</body>
 </html>

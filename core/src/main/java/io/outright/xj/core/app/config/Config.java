@@ -8,6 +8,10 @@ import io.outright.xj.core.app.exception.ConfigException;
  */
 public abstract class Config {
 
+  public static Boolean isTestEnvironment() {
+    return getBoolOrDefault("env.test", false);
+  }
+
   public static String authGoogleId() throws ConfigException {
     return get("auth.google.id");
   }
@@ -17,11 +21,11 @@ public abstract class Config {
   }
 
   public static String appBaseUrl() {
-    return getOrDefault("app.url.base","http://localhost/");
+    return getOrDefault("app.url.base", "http://localhost/");
   }
 
   public static String apiPath() {
-    return getOrDefault("app.url.api","api/1/");
+    return getOrDefault("app.url.api", "api/1/");
   }
 
   public static String appHost() {
@@ -33,12 +37,13 @@ public abstract class Config {
   }
 
   public static String appPathUnauthorized() {
-    return getOrDefault("app.path.unauthorized","unauthorized");
+    return getOrDefault("app.path.unauthorized", "unauthorized");
   }
 
   public static String appPathSuccess() {
-    return getOrDefault("app.path.welcome","");
+    return getOrDefault("app.path.welcome", "");
   }
+
   public static String logAccessFilename() {
     return getOrDefault("log.access.filename", "/tmp/access.log");
   }
@@ -84,24 +89,32 @@ public abstract class Config {
   }
 
   public static String accessTokenPath() {
-    return getOrDefault("access.token.path","/");
+    return getOrDefault("access.token.path", "/");
   }
 
   public static int accessTokenMaxAge() {
-    return getIntOrDefault("access.token.max.age",60/*seconds*/ * 60/*minutes*/ * 24/*hours*/ * 28/*days*/);
+    return getIntOrDefault("access.token.max.age", 60/*seconds*/ * 60/*minutes*/ * 24/*hours*/ * 28/*days*/);
   }
 
   public static String accessTokenName() {
     return getOrDefault("access.token.name", "access_token");
   }
 
-  public static int workConcurrency() { return getIntOrDefault("work.concurrency", 10); }
+  public static int workConcurrency() {
+    return getIntOrDefault("work.concurrency", 10);
+  }
 
-  public static int workBatchSize() { return getIntOrDefault("work.batch.size", 10); }
+  public static int workBatchSize() {
+    return getIntOrDefault("work.batch.size", 10);
+  }
 
-  public static long workBatchSleepSeconds() { return getIntOrDefault("work.batch.sleep.seconds", 1); }
+  public static long workBatchSleepSeconds() {
+    return getIntOrDefault("work.batch.sleep.seconds", 1);
+  }
 
-  public static int workAheadSeconds() { return getIntOrDefault("work.buffer.seconds", 300); }
+  public static int workAheadSeconds() {
+    return getIntOrDefault("work.buffer.seconds", 300);
+  }
 
   /**
    * Set a System Property if no value has yet been set for it.

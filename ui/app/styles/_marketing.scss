@@ -1,0 +1,85 @@
+/* Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved. */
+@import 'palette';
+
+.marketing {
+
+  font-family: MontserratRegular, sans-serif;
+
+  .padding-top-md {
+    @media screen and (min-width: $screen-md-min) {
+      padding-top:6em;
+    }
+  }
+
+  .padding-top-xs {
+    @media screen and (max-width: $screen-sm-max) {
+      padding-top:2em;
+    }
+  }
+
+  .mega {
+    font-family: MontserratBold, sans-serif;
+    color:whitesmoke;
+    margin-top: 1em;
+    @media screen and (min-width: $screen-md-min) {
+      font-size:3em;
+    }
+    @media screen and (max-width: $screen-sm-max) {
+      font-size:2em;
+    }
+    .number {
+      font-family: MontserratBlack, sans-serif;
+      font-weight:900;
+      color:lightgray;
+      margin-right:0.3em;
+      display:inline-block;
+    }
+  }
+
+  .top-line {
+    border-top: 4px solid darken(darkgray,35%);
+    padding-top:0.1em;
+  }
+
+  .sub-mega {
+    margin-top: 0;
+    color:lightgray;
+    line-height:1.5em;
+    @media screen and (min-width: $screen-md-min) {
+      font-size:2em;
+    }
+    @media screen and (max-width: $screen-sm-max) {
+      font-size:1.4em;
+    }
+  }
+
+  .sub-sub-mega {
+    margin-top: 1em;
+    color:lightgray;
+    line-height:1.5em;
+    @media screen and (min-width: $screen-md-min) {
+      font-size:1.5em;
+    }
+    @media screen and (max-width: $screen-sm-max) {
+      font-size:1em;
+    }
+  }
+
+  #mc_embed_signup{
+    background: transparent none;
+    font-family: MontserratRegular, sans-serif;
+
+    form {
+      padding: 0 0 0 0;
+
+      .asterisk {
+        color: $green;
+      }
+
+      input[type="submit"]{
+        margin-top:0.8em;
+      }
+    }
+  }
+
+}

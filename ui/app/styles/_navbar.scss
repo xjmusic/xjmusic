@@ -1,3 +1,4 @@
+/* Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved. */
 @import 'palette';
 
 .navbar.navbar-inverse {
@@ -21,6 +22,17 @@
 
     .navbar-nav > .active > a {
       background-color: $low-gray;
+    }
+  }
+
+  .logo {
+    a {
+      padding-top:12px;
+      padding-bottom:12px;
+      img {
+        height: 24px;
+        width: auto;
+      }
     }
   }
 

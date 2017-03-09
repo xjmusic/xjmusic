@@ -12,6 +12,7 @@ import org.jooq.conf.MappedSchema;
 import org.jooq.conf.RenderMapping;
 import org.jooq.conf.Settings;
 import org.jooq.impl.DSL;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +27,9 @@ public class SQLDatabaseProviderImpl implements SQLDatabaseProvider {
   private final String url = "jdbc:mysql://" + Config.dbMysqlHost()
     + ":" + Config.dbMysqlPort()
     + "/" + dbSchemaName
-    + "?useSSL=false";
+    + (Config.isTestEnvironment() ?
+    "?useSSL=false&serverTimezone=UTC" :
+    "?serverTimezone=UTC");
   private final String user = Config.dbMysqlUser();
   private final String pass = Config.dbMysqlPass();
 

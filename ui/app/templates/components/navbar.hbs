@@ -1,4 +1,5 @@
 <!-- Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved. -->
+
 <nav class="navbar navbar-inverse">
   <div class="navbar-header">
     <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#main-navbar">
@@ -12,7 +13,7 @@
   <div class="collapse navbar-collapse" id="main-navbar">
     {{#if auth.isUser}}
       <ul class="nav navbar-nav navbar-left">
-        <!-- {{#link-to 'index' tagName="li"}}<a href="">Home</a>{{/link-to}} -->
+        {{#link-to 'index' tagName="li" class="logo"}}<a href=""><img src="/assets/images/brand/xj-logo.png"/></a>{{/link-to}}
         {{#link-to 'users' tagName="li"}}<a href="">People</a>{{/link-to}}
         {{#link-to 'accounts' tagName="li"}}<a href="">Music</a>{{/link-to}}
       </ul>
@@ -26,14 +27,17 @@
             <b class="caret"></b>
           </a>
           <ul class="dropdown-menu inverse-dropdown">
-            <li><a href="/auth/no">Logout</a></li>
+            {{#link-to 'logout' tagName="li"}}<a href="">Sign Out</a>{{/link-to}}
           </ul>
         </li>
       </ul>
     {{else}}
+      <ul class="nav navbar-nav navbar-left">
+        {{#link-to 'index' tagName="li" class="logo"}}<a href=""><img src="/assets/images/brand/xj-logo.png"/></a>{{/link-to}}
+      </ul>
       <ul class="nav navbar-nav navbar-right">
         <li><a id="clock"><!-- TIME UTC --></a></li>
-        <li><a href="/auth/google">Login</a></li>
+        {{#link-to 'login' tagName="li"}}<a href="">Sign In</a>{{/link-to}}
       </ul>
     {{/if}}
 

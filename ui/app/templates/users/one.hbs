@@ -34,8 +34,7 @@
     <label class="col-sm-2 control-label">Roles</label>
     <div class="col-sm-10">
       {{#if auth.isAdmin}}
-        {{input type="text" value=model.roles class="form-control" autofocus="autofocus"
-                placeholder="The roles of the User"}}
+        {{input type="text" value=model.roles class="form-control" placeholder="The roles of the User"}}
       {{else}}
         <div class="readonly-field">{{model.roles}}</div>
       {{/if}}

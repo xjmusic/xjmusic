@@ -16,6 +16,7 @@ public interface SQLDatabaseProvider {
   /**
    * Get a SQL Database connection, potentially in a transaction.
    * IMPORTANT NOTE: When finished, be sure to call success() or failure()
+   * @param isTransaction if it's a transaction
    * @return Connection to SQL Database
    * @throws DatabaseException if the application is not configured correctly
    */

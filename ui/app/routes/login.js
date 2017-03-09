@@ -2,7 +2,8 @@
 import Ember from 'ember';
 
 export default Ember.Route.extend({
-  renderTemplate: function() {
-    window.location.replace("/auth/google");
-  }
+  // renderTemplate: function() {
+  //   window.location.replace("/auth/google");
+  // }
+    breadCrumb: null
 });

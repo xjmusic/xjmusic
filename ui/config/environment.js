@@ -4,7 +4,7 @@ module.exports = function(environment) {
   let ENV = {
     modulePrefix: 'xj-control',
     environment: environment,
-    baseURL: '/',
+    baseURL: '/', // Testem requires deprecated "baseURL"
     locationType: 'auto',
     EmberENV: {
       FEATURES: {
@@ -35,9 +35,8 @@ module.exports = function(environment) {
   }
 
   if (environment === 'test') {
-    // Testem prefers this...
-    ENV.baseURL = '/';
-    ENV.locationType = 'none';
+    ENV.baseURL = '/'; // Testem requires deprecated "baseURL"
+    ENV.locationType = 'none'; // Testem prefers locationType none
 
     // keep test console output quieter
     ENV.APP.LOG_ACTIVE_GENERATION = false;

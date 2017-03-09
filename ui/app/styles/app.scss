@@ -2,23 +2,9 @@
 @import "ember-power-select";
 @import "bootstrap";
 @import "navbar";
+@import "marketing";
 @import "palette";
-
-@font-face {
-  font-family: OxygenMono;
-  src: local("Oxygen Mono"),
-  local("Oxygen Mono"),
-  url(fonts/OxygenMono-Regular.ttf);
-  font-weight: bold;
-}
-
-@font-face {
-  font-family: ClockMono;
-  src: local("Clock Mono"),
-  local("Clock Mono"),
-  url(fonts/digital-readout.heavy.ttf);
-  font-weight: bold;
-}
+@import "fonts";
 
 body {
   background: #000000;
@@ -27,7 +13,11 @@ body {
 }
 
 a {
-  color: lighten($yellow, 10%);
+  color: lighten($green, 20%);
+
+  &:hover {
+    color: lighten($green, 70%);
+  }
 }
 
 img {
@@ -163,4 +153,25 @@ badge {
   letter-spacing: 4px;
   font-family: ClockMono, monospace;
   font-size: 20px;
+}
+
+.headline {
+  color: whitesmoke;
+  line-height: 1.3em;
+}
+
+footer {
+  margin-top: 16em;
+  margin-bottom: 2em;
+  .outright {
+    opacity: 0.38;
+    &:hover {
+      opacity: 1.0;
+    }
+  }
+}
+
+// static content gets deleted right away, but it's vital for S.E.O. [#155]
+#static-content {
+//  margin-top: 5000px;
 }
