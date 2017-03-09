@@ -1,7 +1,7 @@
 /* jshint node: true */
 
 module.exports = function(environment) {
-  var ENV = {
+  let ENV = {
     modulePrefix: 'xj-control',
     environment: environment,
     baseURL: '/',
@@ -47,7 +47,9 @@ module.exports = function(environment) {
   }
 
   if (environment === 'production') {
-
+      ENV.googleAnalytics = {
+        webPropertyId: 'UA-8902779-14'
+      };
   }
 
   return ENV;

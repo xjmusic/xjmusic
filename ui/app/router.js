@@ -1,8 +1,9 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 import Ember from 'ember';
 import config from "./config/environment";
+import googlePageView from './mixins/google-pageview';
 
-const Router = Ember.Router.extend({
+const Router = Ember.Router.extend(googlePageView, {
   location: config.locationType
 });
 
