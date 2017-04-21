@@ -14,7 +14,6 @@
       <table class="table">
         <thead>
         <tr>
-          <th>#</th>
           <th>Position</th>
           <th>Duration</th>
           <th>Inflection</th>
@@ -22,13 +21,13 @@
           <th>Tonality</th>
           <th>Velocity</th>
           <th>Action</th>
+          <th>#</th>
         </tr>
         </thead>
         <tbody>
         {{#each model.events as |event|}}
           <tr class="item">
-            <th scope="row">{{#link-to "accounts.one.libraries.one.instruments.one.audios.one.events.one" event}}{{event.id}}{{/link-to}}</th>
-            <td>{{event.position}}</td>
+            <th scope="row">{{event.position}}</th>
             <td>{{event.duration}}</td>
             <td>{{event.inflection}}</td>
             <td>{{event.note}}</td>
@@ -37,6 +36,7 @@
             <td>
               {{#link-to 'accounts.one.libraries.one.instruments.one.audios.one.events.one.edit' event}}Edit{{/link-to}}
             </td>
+            <td>{{#link-to "accounts.one.libraries.one.instruments.one.audios.one.events.one" event}}{{event.id}}{{/link-to}}</td>
           </tr>
         {{/each}}
         </tbody>

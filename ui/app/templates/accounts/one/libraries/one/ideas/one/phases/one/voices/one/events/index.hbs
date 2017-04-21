@@ -14,29 +14,29 @@
       <table class="table">
         <thead>
         <tr>
-          <th>#</th>
-          <th>Duration</th>
-          <th>Inflection</th>
-          <th>Note</th>
           <th>Position</th>
-          <th>Tonality</th>
+          <th>Duration</th>
           <th>Velocity</th>
+          <th>Note</th>
+          <th>Inflection</th>
+          <th>Tonality</th>
           <th>Action</th>
+          <th>#</th>
         </tr>
         </thead>
         <tbody>
         {{#each model.events as |event|}}
           <tr class="item">
-            <th scope="row">{{#link-to "accounts.one.libraries.one.ideas.one.phases.one.voices.one.events.one" event}}{{event.id}}{{/link-to}}</th>
+            <th scope="row">{{event.position}}</th>
             <td>{{event.duration}}</td>
-            <td>{{event.inflection}}</td>
-            <td>{{event.note}}</td>
-            <td>{{event.position}}</td>
-            <td>{{event.tonality}}</td>
             <td>{{event.velocity}}</td>
+            <td>{{event.note}}</td>
+            <td>{{event.inflection}}</td>
+            <td>{{event.tonality}}</td>
             <td>
               {{#link-to 'accounts.one.libraries.one.ideas.one.phases.one.voices.one.events.one.edit' event}}Edit{{/link-to}}
             </td>
+            <td>{{#link-to "accounts.one.libraries.one.ideas.one.phases.one.voices.one.events.one" event}}{{event.id}}{{/link-to}}</td>
           </tr>
         {{/each}}
         </tbody>

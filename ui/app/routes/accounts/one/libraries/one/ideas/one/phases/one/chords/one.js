@@ -13,7 +13,7 @@ export default Ember.Route.extend({
 
   afterModel(model) {
     Ember.set(this, 'breadCrumb', {
-      title: model.get("name")
+      title: model.get("name") + '@' + model.get("position")
     });
   }
 

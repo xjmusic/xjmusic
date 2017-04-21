@@ -61,6 +61,8 @@ export default Ember.Route.extend({
     let self = this;
     let model = this.controller.get('model');
     let audioId = model.get('id');
+    Ember.get(this, 'display').success('Created audio "' + model.get('name') + '".');
+
     Ember.$.ajax({
       url: '/api/1/audios/' + String(audioId) + '/upload'
     }).then(
@@ -130,9 +132,7 @@ export default Ember.Route.extend({
    * @param waveformKey
    */
   didUploadFile (waveformKey) {
-    let model = this.controller.get('model');
     Ember.get(this, 'display').success('Uploaded "' + Ember.get(this, 'config.audioBaseUrl') + waveformKey);
-    Ember.get(this, 'display').success('Created audio "' + model.get('name') + '".');
     this.transitionTo('accounts.one.libraries.one.instruments.one.audios');
   },
 
