@@ -169,9 +169,24 @@ footer {
       opacity: 1.0;
     }
   }
+  .nav.navbar-nav.navbar-inverse {
+    background: transparent none;
+    &:hover, &:focus {
+      background: transparent none;
+    }
+    > li > a {
+      background: transparent none;
+      text-decoration: none;
+      color: #808080;
+      &:hover, &:focus {
+        color: lighten($green, 20%);
+        text-decoration: underline;
+      }
+    }
+  }
 }
 
 // static content gets deleted right away, but it's vital for S.E.O. [#155]
 #static-content {
-//  margin-top: 5000px;
+  //  margin-top: 5000px;
 }
