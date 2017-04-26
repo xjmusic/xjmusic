@@ -27,8 +27,8 @@ import java.util.Map;
 
 import static io.outright.xj.core.Tables.AUDIO;
 import static io.outright.xj.core.Tables.INSTRUMENT;
-import static io.outright.xj.core.tables.InstrumentMeme.INSTRUMENT_MEME;
-import static io.outright.xj.core.tables.Library.LIBRARY;
+import static io.outright.xj.core.Tables.INSTRUMENT_MEME;
+import static io.outright.xj.core.Tables.LIBRARY;
 
 public class InstrumentDAOImpl extends DAOImpl implements InstrumentDAO {
 
@@ -62,10 +62,21 @@ public class InstrumentDAOImpl extends DAOImpl implements InstrumentDAO {
 
   @Override
   @Nullable
-  public JSONArray readAllIn(AccessControl access, ULong libraryId) throws Exception {
+  public JSONArray readAllInAccount(AccessControl access, ULong accountId) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readAllIn(tx.getContext(), access, libraryId));
+      return tx.success(readAllInAccount(tx.getContext(), access, accountId));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  @Nullable
+  public JSONArray readAllInLibrary(AccessControl access, ULong libraryId) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readAllInLibrary(tx.getContext(), access, libraryId));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -152,10 +163,35 @@ public class InstrumentDAOImpl extends DAOImpl implements InstrumentDAO {
    *
    * @param db        context
    * @param access    control
+   * @param accountId of parent
+   * @return array of records
+   */
+  private JSONArray readAllInAccount(DSLContext db, AccessControl access, ULong accountId) throws SQLException {
+    if (access.isTopLevel()) {
+      return JSON.arrayFromResultSet(db.select(INSTRUMENT.fields())
+        .from(INSTRUMENT)
+        .join(LIBRARY).on(INSTRUMENT.LIBRARY_ID.eq(LIBRARY.ID))
+        .where(LIBRARY.ACCOUNT_ID.eq(accountId))
+        .fetchResultSet());
+    } else {
+      return JSON.arrayFromResultSet(db.select(INSTRUMENT.fields())
+        .from(INSTRUMENT)
+        .join(LIBRARY).on(INSTRUMENT.LIBRARY_ID.eq(LIBRARY.ID))
+        .where(LIBRARY.ACCOUNT_ID.in(accountId))
+        .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
+        .fetchResultSet());
+    }
+  }
+
+  /**
+   * Read all records in parent record by id
+   *
+   * @param db        context
+   * @param access    control
    * @param libraryId of parent
    * @return array of records
    */
-  private JSONArray readAllIn(DSLContext db, AccessControl access, ULong libraryId) throws SQLException {
+  private JSONArray readAllInLibrary(DSLContext db, AccessControl access, ULong libraryId) throws SQLException {
     if (access.isTopLevel()) {
       return JSON.arrayFromResultSet(db.select(INSTRUMENT.fields())
         .from(INSTRUMENT)

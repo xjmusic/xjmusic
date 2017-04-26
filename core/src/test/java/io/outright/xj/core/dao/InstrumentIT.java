@@ -81,14 +81,14 @@ public class InstrumentIT {
         .setUserId(BigInteger.valueOf(2))
       );
 
-    JSONObject actualResult = testDAO.create(access, inputDataWrapper);
+    JSONObject result = testDAO.create(access, inputDataWrapper);
 
-    assertNotNull(actualResult);
-    assertEquals(0.42, actualResult.get("density"));
-    assertEquals(ULong.valueOf(1), actualResult.get("libraryId"));
-    assertEquals("bimmies", actualResult.get("description"));
-    assertEquals(Instrument.PERCUSSIVE, actualResult.get("type"));
-    assertEquals(ULong.valueOf(2), actualResult.get("userId"));
+    assertNotNull(result);
+    assertEquals(0.42, result.get("density"));
+    assertEquals(ULong.valueOf(1), result.get("libraryId"));
+    assertEquals("bimmies", result.get("description"));
+    assertEquals(Instrument.PERCUSSIVE, result.get("type"));
+    assertEquals(ULong.valueOf(2), result.get("userId"));
   }
 
   @Test(expected = BusinessException.class)
@@ -132,12 +132,12 @@ public class InstrumentIT {
       "accounts", "1"
     ));
 
-    JSONObject actualResult = testDAO.readOne(access, ULong.valueOf(2));
+    JSONObject result = testDAO.readOne(access, ULong.valueOf(2));
 
-    assertNotNull(actualResult);
-    assertEquals(ULong.valueOf(2), actualResult.get("id"));
-    assertEquals(ULong.valueOf(1), actualResult.get("libraryId"));
-    assertEquals("buns", actualResult.get("description"));
+    assertNotNull(result);
+    assertEquals(ULong.valueOf(2), result.get("id"));
+    assertEquals(ULong.valueOf(1), result.get("libraryId"));
+    assertEquals("buns", result.get("description"));
   }
 
   @Test
@@ -147,10 +147,12 @@ public class InstrumentIT {
       "accounts", "326"
     ));
 
-    JSONObject actualResult = testDAO.readOne(access, ULong.valueOf(1));
+    JSONObject result = testDAO.readOne(access, ULong.valueOf(1));
 
-    assertNull(actualResult);
+    assertNull(result);
   }
+
+  // TODO: test readAllInAccount vs readAllInLibrary, positive and negative cases
 
   @Test
   public void readAll() throws Exception {
@@ -159,7 +161,7 @@ public class InstrumentIT {
       "accounts", "1"
     ));
 
-    JSONArray actualResultList = testDAO.readAllIn(access, ULong.valueOf(1));
+    JSONArray actualResultList = testDAO.readAllInLibrary(access, ULong.valueOf(1));
 
     assertNotNull(actualResultList);
     assertEquals(2, actualResultList.length());
@@ -176,7 +178,7 @@ public class InstrumentIT {
       "accounts", "345"
     ));
 
-    JSONArray actualResultList = testDAO.readAllIn(access, ULong.valueOf(1));
+    JSONArray actualResultList = testDAO.readAllInLibrary(access, ULong.valueOf(1));
 
     assertNotNull(actualResultList);
     assertEquals(0, actualResultList.length());
@@ -226,13 +228,13 @@ public class InstrumentIT {
       testDAO.update(access, ULong.valueOf(2), inputDataWrapper);
 
     } catch (Exception e) {
-      InstrumentRecord updatedRecord = IntegrationTestService.getDb()
+      InstrumentRecord result = IntegrationTestService.getDb()
         .selectFrom(INSTRUMENT)
         .where(INSTRUMENT.ID.eq(ULong.valueOf(2)))
         .fetchOne();
-      assertNotNull(updatedRecord);
-      assertEquals("buns", updatedRecord.getDescription());
-      assertEquals(ULong.valueOf(1), updatedRecord.getLibraryId());
+      assertNotNull(result);
+      assertEquals("buns", result.getDescription());
+      assertEquals(ULong.valueOf(1), result.getLibraryId());
       throw e;
     }
   }
@@ -255,13 +257,13 @@ public class InstrumentIT {
 
     testDAO.update(access, ULong.valueOf(2), inputDataWrapper);
 
-    InstrumentRecord updatedRecord = IntegrationTestService.getDb()
+    InstrumentRecord result = IntegrationTestService.getDb()
       .selectFrom(INSTRUMENT)
       .where(INSTRUMENT.ID.eq(ULong.valueOf(2)))
       .fetchOne();
-    assertNotNull(updatedRecord);
-    assertEquals("bimmies", updatedRecord.getDescription());
-    assertEquals(ULong.valueOf(1), updatedRecord.getLibraryId());
+    assertNotNull(result);
+    assertEquals("bimmies", result.getDescription());
+    assertEquals(ULong.valueOf(1), result.getLibraryId());
   }
 
   // TODO: [core] test DAO cannot update Instrument to a User or Library not owned by current session

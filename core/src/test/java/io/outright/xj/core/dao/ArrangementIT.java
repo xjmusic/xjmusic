@@ -58,7 +58,7 @@ public class ArrangementIT {
     IntegrationTestEntity.insertInstrument(9, 1, 2, "jams", Instrument.PERCUSSIVE, 0.6);
 
     // Chain "Test Print #1" has one link
-    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", Chain.READY, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"));
+    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", Chain.PRODUCTION, Chain.READY, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"));
     IntegrationTestEntity.insertLink(1, 1, 0, Link.DUBBED, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120);
 
     // Link "Test Print #1" has 4 choices
@@ -88,12 +88,12 @@ public class ArrangementIT {
         .setInstrumentId(BigInteger.valueOf(9))
       );
 
-    JSONObject actualResult = testDAO.create(access, inputDataWrapper);
+    JSONObject result = testDAO.create(access, inputDataWrapper);
 
-    assertNotNull(actualResult);
-    assertEquals(ULong.valueOf(7), actualResult.get("choiceId"));
-    assertEquals(ULong.valueOf(8), actualResult.get("voiceId"));
-    assertEquals(ULong.valueOf(9), actualResult.get("instrumentId"));
+    assertNotNull(result);
+    assertEquals(ULong.valueOf(7), result.get("choiceId"));
+    assertEquals(ULong.valueOf(8), result.get("voiceId"));
+    assertEquals(ULong.valueOf(9), result.get("instrumentId"));
   }
 
   @Test(expected = BusinessException.class)
@@ -160,12 +160,12 @@ public class ArrangementIT {
       "accounts", "1"
     ));
 
-    JSONObject actualResult = testDAO.readOne(access, ULong.valueOf(1));
+    JSONObject result = testDAO.readOne(access, ULong.valueOf(1));
 
-    assertNotNull(actualResult);
-    assertEquals(ULong.valueOf(7), actualResult.get("choiceId"));
-    assertEquals(ULong.valueOf(8), actualResult.get("voiceId"));
-    assertEquals(ULong.valueOf(9), actualResult.get("instrumentId"));
+    assertNotNull(result);
+    assertEquals(ULong.valueOf(7), result.get("choiceId"));
+    assertEquals(ULong.valueOf(8), result.get("voiceId"));
+    assertEquals(ULong.valueOf(9), result.get("instrumentId"));
   }
 
   @Test
@@ -175,9 +175,9 @@ public class ArrangementIT {
       "accounts", "326"
     ));
 
-    JSONObject actualResult = testDAO.readOne(access, ULong.valueOf(1));
+    JSONObject result = testDAO.readOne(access, ULong.valueOf(1));
 
-    assertNull(actualResult);
+    assertNull(result);
   }
 
   @Test
@@ -223,14 +223,14 @@ public class ArrangementIT {
 
     testDAO.update(access, ULong.valueOf(1), inputDataWrapper);
 
-    ArrangementRecord updatedRecord = IntegrationTestService.getDb()
+    ArrangementRecord result = IntegrationTestService.getDb()
       .selectFrom(ARRANGEMENT)
       .where(ARRANGEMENT.ID.eq(ULong.valueOf(1)))
       .fetchOne();
-    assertNotNull(updatedRecord);
-    assertEquals(ULong.valueOf(7), updatedRecord.getChoiceId());
-    assertEquals(ULong.valueOf(8), updatedRecord.getVoiceId());
-    assertEquals(ULong.valueOf(9), updatedRecord.getInstrumentId());
+    assertNotNull(result);
+    assertEquals(ULong.valueOf(7), result.getChoiceId());
+    assertEquals(ULong.valueOf(8), result.getVoiceId());
+    assertEquals(ULong.valueOf(9), result.getInstrumentId());
   }
 
   @Test(expected = BusinessException.class)
@@ -263,12 +263,12 @@ public class ArrangementIT {
       testDAO.update(access, ULong.valueOf(1), inputDataWrapper);
 
     } catch (Exception e) {
-      ArrangementRecord updatedRecord = IntegrationTestService.getDb()
+      ArrangementRecord result = IntegrationTestService.getDb()
         .selectFrom(ARRANGEMENT)
         .where(ARRANGEMENT.ID.eq(ULong.valueOf(1)))
         .fetchOne();
-      assertNotNull(updatedRecord);
-      assertEquals(ULong.valueOf(7), updatedRecord.getChoiceId());
+      assertNotNull(result);
+      assertEquals(ULong.valueOf(7), result.getChoiceId());
       throw e;
     }
   }

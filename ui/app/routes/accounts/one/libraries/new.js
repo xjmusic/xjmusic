@@ -5,7 +5,7 @@ export default Ember.Route.extend({
 
   display: Ember.inject.service(),
 
-  model: function() {
+  model: function () {
     let account = this.modelFor('accounts.one');
     return this.store.createRecord('library', {
       account: account
@@ -15,12 +15,13 @@ export default Ember.Route.extend({
   actions: {
 
     createLibrary(model) {
-      model.save().then(() => {
-        Ember.get(this, 'display').success('Created library '+model.get('name')+'.');
-        this.transitionTo('accounts.one.libraries');
-      }).catch((error) => {
-        Ember.get(this, 'display').error(error);
-      });
+      model.save().then(
+        () => {
+          Ember.get(this, 'display').success('Created library ' + model.get('name') + '.');
+          this.transitionTo('accounts.one.libraries');
+        }, (error) => {
+          Ember.get(this, 'display').error(error);
+        });
     },
 
     willTransition(transition) {

@@ -5,12 +5,13 @@ export default Ember.Route.extend({
 
   display: Ember.inject.service(),
 
-  model: function() {
+  model: function () {
     let voice = this.modelFor('accounts.one.libraries.one.ideas.one.phases.one.voices.one');
-    let events = this.store.query('voice-event', { voiceId: voice.get('id') }).catch((error)=>{
-      Ember.get(this, 'display').error(error);
-      this.transitionTo('');
-    });
+    let events = this.store.query('voice-event', {voiceId: voice.get('id')})
+      .catch((error) => {
+        Ember.get(this, 'display').error(error);
+        this.transitionTo('');
+      });
     return Ember.RSVP.hash({
       voice: voice,
       events: events,

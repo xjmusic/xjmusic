@@ -12,8 +12,11 @@ export default Ember.Route.extend({
   },
 
   afterModel(model) {
+    let name = model.get("name");
+    let title = name ? name : '';
+    title += '@' + model.get("offset");
     Ember.set(this, 'breadCrumb', {
-      title: model.get("name") + '@' + model.get("offset")
+      title: title
     });
   }
 

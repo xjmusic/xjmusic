@@ -10,22 +10,24 @@ export default Ember.Route.extend({
     return Ember.RSVP.hash({
       phase: phase,
       memeToAdd: null,
-      phaseMemes: this.store.query('phase-meme', { phaseId: phase.id }),
+      phaseMemes: this.store.query('phase-meme', {phaseId: phase.id}),
     });
   },
 
   actions: {
 
-    sessionChanged: function() {
+    sessionChanged: function () {
       this.refresh();
     },
 
     destroyPhaseMeme(model) {
-      model.destroyRecord().then(() => {
-        Ember.get(this, 'display').success('Removed Meme from Phase.');
-      }).catch((error) => {
-        Ember.get(this, 'display').error(error);
-      });
+      model.destroyRecord({}).then(
+        () => {
+          Ember.get(this, 'display').success('Removed Meme from Phase.');
+        },
+        (error) => {
+          Ember.get(this, 'display').error(error);
+        });
     },
 
     addMemeToPhase(model) {
@@ -33,12 +35,14 @@ export default Ember.Route.extend({
         phase: model.phase,
         name: model.memeToAdd,
       });
-      phaseMeme.save().then(() => {
-        Ember.get(this, 'display').success('Added ' + phaseMeme.get('name') + ' to ' + model.phase.get('name') + '.');
-        this.send("sessionChanged");
-      }).catch((error) => {
-        Ember.get(this, 'display').error(error);
-      });
+      phaseMeme.save().then(
+        () => {
+          Ember.get(this, 'display').success('Added ' + phaseMeme.get('name') + ' to ' + model.phase.get('name') + '.');
+          this.send("sessionChanged");
+        },
+        (error) => {
+          Ember.get(this, 'display').error(error);
+        });
     },
 
   }

@@ -58,7 +58,7 @@ public class PickIT {
     IntegrationTestEntity.insertInstrument(9, 1, 2, "jams", Instrument.PERCUSSIVE, 0.6);
 
     // Chain "Test Print #1" has one link
-    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", Chain.READY, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"));
+    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", Chain.PRODUCTION, Chain.READY, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"));
     IntegrationTestEntity.insertLink(1, 1, 0, Link.DUBBED, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120);
 
     // Link "Test Print #1" has 4 choices
@@ -99,16 +99,16 @@ public class PickIT {
         .setPitch(754.02)
       );
 
-    JSONObject actualResult = testDAO.create(access, inputDataWrapper);
+    JSONObject result = testDAO.create(access, inputDataWrapper);
 
-    assertNotNull(actualResult);
-    assertEquals(ULong.valueOf(1), actualResult.get("arrangementId"));
-    assertEquals(ULong.valueOf(1), actualResult.get("morphId"));
-    assertEquals(ULong.valueOf(1), actualResult.get("audioId"));
-    assertEquals(0.12, actualResult.get("start"));
-    assertEquals(1.04, actualResult.get("length"));
-    assertEquals(0.94, actualResult.get("amplitude"));
-    assertEquals(754.02, actualResult.get("pitch"));
+    assertNotNull(result);
+    assertEquals(ULong.valueOf(1), result.get("arrangementId"));
+    assertEquals(ULong.valueOf(1), result.get("morphId"));
+    assertEquals(ULong.valueOf(1), result.get("audioId"));
+    assertEquals(0.12, result.get("start"));
+    assertEquals(1.04, result.get("length"));
+    assertEquals(0.94, result.get("amplitude"));
+    assertEquals(754.02, result.get("pitch"));
   }
 
   @Test(expected = BusinessException.class)
@@ -192,16 +192,16 @@ public class PickIT {
       "accounts", "1"
     ));
 
-    JSONObject actualResult = testDAO.readOne(access, ULong.valueOf(1));
+    JSONObject result = testDAO.readOne(access, ULong.valueOf(1));
 
-    assertNotNull(actualResult);
-    assertEquals(ULong.valueOf(1), actualResult.get("arrangementId"));
-    assertEquals(ULong.valueOf(1), actualResult.get("morphId"));
-    assertEquals(ULong.valueOf(1), actualResult.get("audioId"));
-    assertEquals(0.125, actualResult.get("start"));
-    assertEquals(1.23,  actualResult.get("length"));
-    assertEquals(0.94, actualResult.get("amplitude"));
-    assertEquals(440.0, actualResult.get("pitch"));
+    assertNotNull(result);
+    assertEquals(ULong.valueOf(1), result.get("arrangementId"));
+    assertEquals(ULong.valueOf(1), result.get("morphId"));
+    assertEquals(ULong.valueOf(1), result.get("audioId"));
+    assertEquals(0.125, result.get("start"));
+    assertEquals(1.23,  result.get("length"));
+    assertEquals(0.94, result.get("amplitude"));
+    assertEquals(440.0, result.get("pitch"));
   }
 
   @Test
@@ -211,9 +211,9 @@ public class PickIT {
       "accounts", "326"
     ));
 
-    JSONObject actualResult = testDAO.readOne(access, ULong.valueOf(1));
+    JSONObject result = testDAO.readOne(access, ULong.valueOf(1));
 
-    assertNull(actualResult);
+    assertNull(result);
   }
 
   @Test
@@ -263,18 +263,18 @@ public class PickIT {
 
     testDAO.update(access, ULong.valueOf(1), inputDataWrapper);
 
-    PickRecord updatedRecord = IntegrationTestService.getDb()
+    PickRecord result = IntegrationTestService.getDb()
       .selectFrom(PICK)
       .where(PICK.ID.eq(ULong.valueOf(1)))
       .fetchOne();
-    assertNotNull(updatedRecord);
-    assertEquals(ULong.valueOf(1), updatedRecord.getArrangementId());
-    assertEquals(ULong.valueOf(1), updatedRecord.getMorphId());
-    assertEquals(ULong.valueOf(1), updatedRecord.getAudioId());
-    assertEquals(Double.valueOf(0.12), updatedRecord.getStart());
-    assertEquals(Double.valueOf(1.04), updatedRecord.getLength());
-    assertEquals(Double.valueOf(0.94), updatedRecord.getAmplitude());
-    assertEquals(Double.valueOf(754.02), updatedRecord.getPitch());
+    assertNotNull(result);
+    assertEquals(ULong.valueOf(1), result.getArrangementId());
+    assertEquals(ULong.valueOf(1), result.getMorphId());
+    assertEquals(ULong.valueOf(1), result.getAudioId());
+    assertEquals(Double.valueOf(0.12), result.getStart());
+    assertEquals(Double.valueOf(1.04), result.getLength());
+    assertEquals(Double.valueOf(0.94), result.getAmplitude());
+    assertEquals(Double.valueOf(754.02), result.getPitch());
   }
 
   @Test(expected = BusinessException.class)
@@ -315,13 +315,13 @@ public class PickIT {
       testDAO.update(access, ULong.valueOf(1), inputDataWrapper);
 
     } catch (Exception e) {
-      PickRecord updatedRecord = IntegrationTestService.getDb()
+      PickRecord result = IntegrationTestService.getDb()
         .selectFrom(PICK)
         .where(PICK.ID.eq(ULong.valueOf(1)))
         .fetchOne();
-      assertNotNull(updatedRecord);
-      assertEquals(ULong.valueOf(1), updatedRecord.getArrangementId());
-      assertEquals(ULong.valueOf(1), updatedRecord.getMorphId());
+      assertNotNull(result);
+      assertEquals(ULong.valueOf(1), result.getArrangementId());
+      assertEquals(ULong.valueOf(1), result.getMorphId());
       throw e;
     }
   }
@@ -346,13 +346,13 @@ public class PickIT {
       testDAO.update(access, ULong.valueOf(1), inputDataWrapper);
 
     } catch (Exception e) {
-      PickRecord updatedRecord = IntegrationTestService.getDb()
+      PickRecord result = IntegrationTestService.getDb()
         .selectFrom(PICK)
         .where(PICK.ID.eq(ULong.valueOf(1)))
         .fetchOne();
-      assertNotNull(updatedRecord);
-      assertEquals(ULong.valueOf(1), updatedRecord.getMorphId());
-      assertEquals(ULong.valueOf(1), updatedRecord.getArrangementId());
+      assertNotNull(result);
+      assertEquals(ULong.valueOf(1), result.getMorphId());
+      assertEquals(ULong.valueOf(1), result.getArrangementId());
       throw e;
     }
   }

@@ -15,23 +15,27 @@ export default Ember.Route.extend({
   actions: {
 
     saveLibrary(model) {
-      model.save().then(() => {
-        Ember.get(this, 'display').success('Updated library ' + model.get('name') + '.');
-        this.transitionTo('accounts.one.libraries');
-      }).catch((error) => {
-        Ember.get(this, 'display').error(error);
-      });
+      model.save().then(
+        () => {
+          Ember.get(this, 'display').success('Updated library ' + model.get('name') + '.');
+          this.transitionTo('accounts.one.libraries');
+        },
+        (error) => {
+          Ember.get(this, 'display').error(error);
+        });
     },
 
     destroyLibrary(model) {
       let confirmation = confirm("Are you fucking sure? If there are Ideas or Instruments belonging to this Library, deletion will fail anyway.");
       if (confirmation) {
-        model.destroyRecord().then(() => {
-          Ember.get(this, 'display').success('Deleted library ' + model.get('name') + '.');
-          this.transitionTo('accounts.one.libraries');
-        }).catch((error) => {
-          Ember.get(this, 'display').error(error);
-        });
+        model.destroyRecord({}).then(
+          () => {
+            Ember.get(this, 'display').success('Deleted library ' + model.get('name') + '.');
+            this.transitionTo('accounts.one.libraries');
+          },
+          (error) => {
+            Ember.get(this, 'display').error(error);
+          });
       }
     },
 

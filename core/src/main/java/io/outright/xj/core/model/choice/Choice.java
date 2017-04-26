@@ -25,12 +25,10 @@ public class Choice extends Entity {
   public static final String RHYTHM = Idea.RHYTHM;
   public static final String SUPPORT = Idea.SUPPORT;
 
-  private final static List<String> allTypes = ImmutableList.of(
-    MACRO,
-    MAIN,
-    RHYTHM,
-    SUPPORT
-  );
+  /**
+   * It is implied that choice types must equal idea types
+   */
+  public final static List<String> TYPES = Idea.TYPES;
 
 
   /**
@@ -116,8 +114,8 @@ public class Choice extends Entity {
     if (this.type == null || this.type.length() == 0) {
       throw new BusinessException("Type is required.");
     }
-    if (!allTypes.contains(this.type)) {
-      throw new BusinessException("'" + this.type + "' is not a valid type (" + CSV.join(allTypes) + ").");
+    if (!TYPES.contains(this.type)) {
+      throw new BusinessException("'" + this.type + "' is not a valid type (" + CSV.join(TYPES) + ").");
     }
     if (this.phaseOffset == null || this.phaseOffset.equals(ULong.valueOf(0))) {
       throw new BusinessException("Phase Offset is required.");

@@ -42,12 +42,12 @@ public class ChainLibraryIT {
 
     // Account "fish" has chain "school" and chain "bucket"
     IntegrationTestEntity.insertAccount(1, "fish");
-    IntegrationTestEntity.insertChain(1, 1, "school", Chain.READY, Timestamp.valueOf("2014-08-12 12:17:02.52714"), Timestamp.valueOf("2014-09-11 12:17:01.0475"));
-    IntegrationTestEntity.insertChain(2, 1, "bucket", Chain.PRODUCTION, Timestamp.valueOf("2015-05-10 12:17:02.52714"), Timestamp.valueOf("2015-06-09 12:17:01.0475"));
+    IntegrationTestEntity.insertChain(1, 1, "school", Chain.PRODUCTION, Chain.READY, Timestamp.valueOf("2014-08-12 12:17:02.52714"), Timestamp.valueOf("2014-09-11 12:17:01.0475"));
+    IntegrationTestEntity.insertChain(2, 1, "bucket", Chain.PRODUCTION, Chain.FABRICATING, Timestamp.valueOf("2015-05-10 12:17:02.52714"), Timestamp.valueOf("2015-06-09 12:17:01.0475"));
 
     // Account "blocks" has chain "red"
     IntegrationTestEntity.insertAccount(2, "blocks");
-    IntegrationTestEntity.insertChain(3, 2, "red", Chain.COMPLETE, Timestamp.valueOf("2014-08-12 12:17:02.52714"), Timestamp.valueOf("2014-09-11 12:17:01.0475"));
+    IntegrationTestEntity.insertChain(3, 2, "red", Chain.PRODUCTION, Chain.COMPLETE, Timestamp.valueOf("2014-08-12 12:17:02.52714"), Timestamp.valueOf("2014-09-11 12:17:01.0475"));
 
     // Libraries in account "fish"
     IntegrationTestEntity.insertLibrary(1, 1, "buns");
@@ -84,11 +84,11 @@ public class ChainLibraryIT {
         .setLibraryId(BigInteger.valueOf(2))
       );
 
-    JSONObject actualResult = testDAO.create(access, inputDataWrapper);
+    JSONObject result = testDAO.create(access, inputDataWrapper);
 
-    assertNotNull(actualResult);
-    assertEquals(BigInteger.valueOf(1), actualResult.get("chainId"));
-    assertEquals(BigInteger.valueOf(2), actualResult.get("libraryId"));
+    assertNotNull(result);
+    assertEquals(BigInteger.valueOf(1), result.get("chainId"));
+    assertEquals(BigInteger.valueOf(2), result.get("libraryId"));
   }
 
   @Test(expected = BusinessException.class)
@@ -171,12 +171,12 @@ public class ChainLibraryIT {
       "accounts", "1"
     ));
 
-    JSONObject actualResult = testDAO.readOne(access, ULong.valueOf(1));
+    JSONObject result = testDAO.readOne(access, ULong.valueOf(1));
 
-    assertNotNull(actualResult);
-    assertEquals(ULong.valueOf(1), actualResult.get("id"));
-    assertEquals(ULong.valueOf(1), actualResult.get("chainId"));
-    assertEquals(ULong.valueOf(1), actualResult.get("libraryId"));
+    assertNotNull(result);
+    assertEquals(ULong.valueOf(1), result.get("id"));
+    assertEquals(ULong.valueOf(1), result.get("chainId"));
+    assertEquals(ULong.valueOf(1), result.get("libraryId"));
   }
 
   @Test
@@ -186,9 +186,9 @@ public class ChainLibraryIT {
       "accounts", "326"
     ));
 
-    JSONObject actualResult = testDAO.readOne(access, ULong.valueOf(1));
+    JSONObject result = testDAO.readOne(access, ULong.valueOf(1));
 
-    assertNull(actualResult);
+    assertNull(result);
   }
 
   @Test

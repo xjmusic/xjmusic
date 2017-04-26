@@ -8,6 +8,9 @@ import io.outright.xj.core.tables.records.ArrangementRecord;
 import io.outright.xj.core.tables.records.AudioChordRecord;
 import io.outright.xj.core.tables.records.AudioEventRecord;
 import io.outright.xj.core.tables.records.AudioRecord;
+import io.outright.xj.core.tables.records.ChainConfigRecord;
+import io.outright.xj.core.tables.records.ChainIdeaRecord;
+import io.outright.xj.core.tables.records.ChainInstrumentRecord;
 import io.outright.xj.core.tables.records.ChainLibraryRecord;
 import io.outright.xj.core.tables.records.ChainRecord;
 import io.outright.xj.core.tables.records.ChoiceRecord;
@@ -48,6 +51,9 @@ import static io.outright.xj.core.Tables.AUDIO;
 import static io.outright.xj.core.Tables.AUDIO_CHORD;
 import static io.outright.xj.core.Tables.AUDIO_EVENT;
 import static io.outright.xj.core.Tables.CHAIN;
+import static io.outright.xj.core.Tables.CHAIN_CONFIG;
+import static io.outright.xj.core.Tables.CHAIN_IDEA;
+import static io.outright.xj.core.Tables.CHAIN_INSTRUMENT;
 import static io.outright.xj.core.Tables.CHAIN_LIBRARY;
 import static io.outright.xj.core.Tables.CHOICE;
 import static io.outright.xj.core.Tables.IDEA_MEME;
@@ -100,10 +106,6 @@ public abstract class IntegrationTestEntity {
       db.deleteFrom(VOICE_EVENT).execute(); // before Voice
       db.deleteFrom(VOICE).execute(); // before Phase
 
-      // Instrument
-      db.deleteFrom(INSTRUMENT_MEME).execute(); // before Instrument
-      db.deleteFrom(INSTRUMENT).execute(); // before Library & Credit
-
       // Choice
       db.deleteFrom(CHOICE).execute(); // before Link & Idea
 
@@ -112,8 +114,15 @@ public abstract class IntegrationTestEntity {
       db.deleteFrom(LINK).execute(); // before Chain
 
       // Chain
+      db.deleteFrom(CHAIN_IDEA).execute(); // before Chain & Idea
+      db.deleteFrom(CHAIN_INSTRUMENT).execute(); // before Chain & Instrument
       db.deleteFrom(CHAIN_LIBRARY).execute(); // before Chain & Library
+      db.deleteFrom(CHAIN_CONFIG).execute(); // before Chain
       db.deleteFrom(CHAIN).execute(); // before Account
+
+      // Instrument
+      db.deleteFrom(INSTRUMENT_MEME).execute(); // before Instrument
+      db.deleteFrom(INSTRUMENT).execute(); // before Library & Credit
 
       // Phase
       db.deleteFrom(PHASE_MEME).execute(); // before Phase
@@ -334,10 +343,11 @@ public abstract class IntegrationTestEntity {
     record.store();
   }
 
-  public static void insertChain(int id, int accountId, String name, String state, Timestamp startAt, @Nullable Timestamp stopAt) {
+  public static void insertChain(int id, int accountId, String name, String type, String state, Timestamp startAt, @Nullable Timestamp stopAt) {
     ChainRecord record = IntegrationTestService.getDb().newRecord(CHAIN);
     record.setId(ULong.valueOf(id));
     record.setAccountId(ULong.valueOf(accountId));
+    record.setType(type);
     record.setName(name);
     record.setState(state);
     record.setStartAt(startAt);
@@ -347,11 +357,36 @@ public abstract class IntegrationTestEntity {
     record.store();
   }
 
+  public static void insertChainConfig(int id, int chainId, String type, String value) {
+    ChainConfigRecord record = IntegrationTestService.getDb().newRecord(CHAIN_CONFIG);
+    record.setId(ULong.valueOf(id));
+    record.setChainId(ULong.valueOf(chainId));
+    record.setType(type);
+    record.setValue(value);
+    record.store();
+  }
+
   public static void insertChainLibrary(int id, int chainId, int libraryId) {
     ChainLibraryRecord record = IntegrationTestService.getDb().newRecord(CHAIN_LIBRARY);
     record.setId(ULong.valueOf(id));
     record.setChainId(ULong.valueOf(chainId));
     record.setLibraryId(ULong.valueOf(libraryId));
+    record.store();
+  }
+
+  public static void insertChainIdea(int id, int chainId, int ideaId) {
+    ChainIdeaRecord record = IntegrationTestService.getDb().newRecord(CHAIN_IDEA);
+    record.setId(ULong.valueOf(id));
+    record.setChainId(ULong.valueOf(chainId));
+    record.setIdeaId(ULong.valueOf(ideaId));
+    record.store();
+  }
+
+  public static void insertChainInstrument(int id, int chainId, int instrumentId) {
+    ChainInstrumentRecord record = IntegrationTestService.getDb().newRecord(CHAIN_INSTRUMENT);
+    record.setId(ULong.valueOf(id));
+    record.setChainId(ULong.valueOf(chainId));
+    record.setInstrumentId(ULong.valueOf(instrumentId));
     record.store();
   }
 

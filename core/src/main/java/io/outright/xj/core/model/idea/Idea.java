@@ -23,8 +23,8 @@ public class Idea extends Entity {
   public final static String MAIN = "main";
   public final static String RHYTHM = "rhythm";
   public final static String SUPPORT = "support";
-
-  private final static List<String> allTypes = ImmutableList.of(
+  // list of all types
+  public final static List<String> TYPES = ImmutableList.of(
     MACRO,
     MAIN,
     RHYTHM,
@@ -133,8 +133,8 @@ public class Idea extends Entity {
     if (this.type == null || this.type.length() == 0) {
       throw new BusinessException("Type is required.");
     }
-    if (!allTypes.contains(this.type)) {
-      throw new BusinessException("'" + this.type + "' is not a valid type (" + CSV.join(allTypes) + ").");
+    if (!TYPES.contains(this.type)) {
+      throw new BusinessException("'" + this.type + "' is not a valid type (" + CSV.join(TYPES) + ").");
     }
     if (this.key == null || this.key.length() == 0) {
       throw new BusinessException("Key is required.");

@@ -5,19 +5,21 @@ export default Ember.Route.extend({
 
   display: Ember.inject.service(),
 
-  model: function() {
+  model: function () {
     return this.store.createRecord('account');
   },
 
   actions: {
 
     createAccount(model) {
-      model.save().then(() => {
-        Ember.get(this, 'display').success('Created account '+model.get('name')+'.');
-        this.transitionTo('accounts');
-      }).catch((error) => {
-        Ember.get(this, 'display').error(error);
-      });
+      model.save().then(
+        () => {
+          Ember.get(this, 'display').success('Created account ' + model.get('name') + '.');
+          this.transitionTo('accounts');
+        },
+        (error) => {
+          Ember.get(this, 'display').error(error);
+        });
     },
 
     willTransition(transition) {

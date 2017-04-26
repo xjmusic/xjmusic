@@ -161,14 +161,14 @@ public class UserIT {
       "accounts", "1"
     ));
 
-    JSONObject actualResult = testDAO.readOne(access, ULong.valueOf(2));
+    JSONObject result = testDAO.readOne(access, ULong.valueOf(2));
 
-    assertNotNull(actualResult);
-    assertEquals(ULong.valueOf(2), actualResult.get("id"));
-    assertEquals("john@email.com", actualResult.get("email"));
-    assertEquals("http://pictures.com/john.gif", actualResult.get("avatarUrl"));
-    assertEquals("john", actualResult.get("name"));
-    assertEquals("user,admin", actualResult.get("roles"));
+    assertNotNull(result);
+    assertEquals(ULong.valueOf(2), result.get("id"));
+    assertEquals("john@email.com", result.get("email"));
+    assertEquals("http://pictures.com/john.gif", result.get("avatarUrl"));
+    assertEquals("john", result.get("name"));
+    assertEquals("user,admin", result.get("roles"));
   }
 
   @Test
@@ -178,14 +178,14 @@ public class UserIT {
       "accounts", "1"
     ));
 
-    JSONObject actualResult = testDAO.readOne(access, ULong.valueOf(3));
+    JSONObject result = testDAO.readOne(access, ULong.valueOf(3));
 
-    assertNotNull(actualResult);
-    assertEquals(ULong.valueOf(3), actualResult.get("id"));
-    assertEquals("jenny@email.com", actualResult.get("email"));
-    assertEquals("http://pictures.com/jenny.gif", actualResult.get("avatarUrl"));
-    assertEquals("jenny", actualResult.get("name"));
-    assertEquals("user", actualResult.get("roles"));
+    assertNotNull(result);
+    assertEquals(ULong.valueOf(3), result.get("id"));
+    assertEquals("jenny@email.com", result.get("email"));
+    assertEquals("http://pictures.com/jenny.gif", result.get("avatarUrl"));
+    assertEquals("jenny", result.get("name"));
+    assertEquals("user", result.get("roles"));
   }
 
   @Test
@@ -195,9 +195,9 @@ public class UserIT {
       "accounts", "1"
     ));
 
-    JSONObject actualResult = testDAO.readOne(access, ULong.valueOf(4));
+    JSONObject result = testDAO.readOne(access, ULong.valueOf(4));
 
-    assertNull(actualResult);
+    assertNull(result);
   }
 
   @Test
@@ -208,10 +208,10 @@ public class UserIT {
       "accounts", ""
     ));
 
-    JSONObject actualResult = testDAO.readOne(access, ULong.valueOf(4));
+    JSONObject result = testDAO.readOne(access, ULong.valueOf(4));
 
-    assertNotNull(actualResult);
-    assertEquals("bill", actualResult.get("name"));
+    assertNotNull(result);
+    assertEquals("bill", result.get("name"));
   }
 
   @Test
@@ -221,10 +221,10 @@ public class UserIT {
       "accounts", "1"
     ));
 
-    JSONArray actualResult = testDAO.readAll(access);
+    JSONArray result = testDAO.readAll(access);
 
-    assertNotNull(actualResult);
-    assertEquals(3, actualResult.length());
+    assertNotNull(result);
+    assertEquals(3, result.length());
   }
 
   @Test
@@ -234,10 +234,10 @@ public class UserIT {
       "accounts", "1"
     ));
 
-    JSONArray actualResult = testDAO.readAll(access);
+    JSONArray result = testDAO.readAll(access);
 
-    assertNotNull(actualResult);
-    assertEquals(2, actualResult.length());
+    assertNotNull(result);
+    assertEquals(2, result.length());
   }
 
   @Test
@@ -252,8 +252,8 @@ public class UserIT {
 
     assertNotNull(actualResultList);
     assertEquals(1, actualResultList.length());
-    JSONObject actualResult = (JSONObject) actualResultList.get(0);
-    assertEquals("bill", actualResult.get("name"));
+    JSONObject result = (JSONObject) actualResultList.get(0);
+    assertEquals("bill", result.get("name"));
   }
 
   @Test

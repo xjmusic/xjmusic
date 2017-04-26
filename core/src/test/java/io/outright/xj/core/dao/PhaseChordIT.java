@@ -83,12 +83,12 @@ public class PhaseChordIT {
         .setPhaseId(BigInteger.valueOf(2))
       );
 
-    JSONObject actualResult = testDAO.create(access, inputDataWrapper);
+    JSONObject result = testDAO.create(access, inputDataWrapper);
 
-    assertNotNull(actualResult);
-    assertEquals(0.42, actualResult.get("position"));
-    assertEquals("G minor 7", actualResult.get("name"));
-    assertEquals(ULong.valueOf(2), actualResult.get("phaseId"));
+    assertNotNull(result);
+    assertEquals(0.42, result.get("position"));
+    assertEquals("G minor 7", result.get("name"));
+    assertEquals(ULong.valueOf(2), result.get("phaseId"));
   }
 
   @Test(expected = BusinessException.class)
@@ -128,12 +128,12 @@ public class PhaseChordIT {
       "accounts", "1"
     ));
 
-    JSONObject actualResult = testDAO.readOne(access, ULong.valueOf(2));
+    JSONObject result = testDAO.readOne(access, ULong.valueOf(2));
 
-    assertNotNull(actualResult);
-    assertEquals(ULong.valueOf(2), actualResult.get("id"));
-    assertEquals(ULong.valueOf(2), actualResult.get("phaseId"));
-    assertEquals("D major", actualResult.get("name"));
+    assertNotNull(result);
+    assertEquals(ULong.valueOf(2), result.get("id"));
+    assertEquals(ULong.valueOf(2), result.get("phaseId"));
+    assertEquals("D major", result.get("name"));
   }
 
   @Test
@@ -143,9 +143,9 @@ public class PhaseChordIT {
       "accounts", "326"
     ));
 
-    JSONObject actualResult = testDAO.readOne(access, ULong.valueOf(1));
+    JSONObject result = testDAO.readOne(access, ULong.valueOf(1));
 
-    assertNull(actualResult);
+    assertNull(result);
   }
 
   @Test
@@ -225,13 +225,13 @@ public class PhaseChordIT {
       testDAO.update(access, ULong.valueOf(2), inputDataWrapper);
 
     } catch (Exception e) {
-      PhaseChordRecord updatedRecord = IntegrationTestService.getDb()
+      PhaseChordRecord result = IntegrationTestService.getDb()
         .selectFrom(PHASE_CHORD)
         .where(PHASE_CHORD.ID.eq(ULong.valueOf(2)))
         .fetchOne();
-      assertNotNull(updatedRecord);
-      assertEquals("D major", updatedRecord.getName());
-      assertEquals(ULong.valueOf(2), updatedRecord.getPhaseId());
+      assertNotNull(result);
+      assertEquals("D major", result.getName());
+      assertEquals(ULong.valueOf(2), result.getPhaseId());
       throw e;
     }
   }
@@ -251,14 +251,14 @@ public class PhaseChordIT {
 
     testDAO.update(access, ULong.valueOf(1), inputDataWrapper);
 
-    PhaseChordRecord updatedRecord = IntegrationTestService.getDb()
+    PhaseChordRecord result = IntegrationTestService.getDb()
       .selectFrom(PHASE_CHORD)
       .where(PHASE_CHORD.ID.eq(ULong.valueOf(1)))
       .fetchOne();
-    assertNotNull(updatedRecord);
-    assertEquals("POPPYCOCK", updatedRecord.getName());
-    assertEquals((Double) 0.42, updatedRecord.getPosition());
-    assertEquals(ULong.valueOf(1), updatedRecord.getPhaseId());
+    assertNotNull(result);
+    assertEquals("POPPYCOCK", result.getName());
+    assertEquals((Double) 0.42, result.getPosition());
+    assertEquals(ULong.valueOf(1), result.getPhaseId());
   }
 
   // TODO: [core] test DAO cannot update Idea to a User or Library not owned by current session

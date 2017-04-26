@@ -1,6 +1,7 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 import Ember from "ember";
 import EmberUploader from "ember-uploader";
+import RSVP from "rsvp";
 
 export default Ember.Route.extend({
 
@@ -12,11 +13,25 @@ export default Ember.Route.extend({
 
   display: Ember.inject.service(),
 
+  audioBaseUrl: '',
+
   model: function () {
+    let self = this;
     let auth = this.get('auth');
+
     if (auth.isArtist || auth.isAdmin) {
-      return this.store.createRecord('audio', {
-        instrument: this.modelFor('accounts.one.libraries.one.instruments.one')
+      return new RSVP.Promise((resolve, reject) => {
+        Ember.get(this, 'config').audioBaseUrl.then(
+          (url) => {
+            self.audioBaseUrl = url;
+          },
+          (error) => {
+            reject(error);
+          }
+        );
+        resolve(this.store.createRecord('audio', {
+          instrument: this.modelFor('accounts.one.libraries.one.instruments.one')
+        }));
       });
     } else {
       this.transitionTo('accounts.one.libraries.one.instruments.one.audios');
@@ -33,11 +48,13 @@ export default Ember.Route.extend({
 
     createAudio(model) {
       let self = this;
-      model.save().then(() => {
-        self.afterSave();
-      }).catch((error) => {
-        Ember.get(this, 'display').error(['Failed to save.', error]);
-      });
+      model.save().then(
+        () => {
+          self.afterSave();
+        },
+        (error) => {
+          Ember.get(this, 'display').error(['Failed to save.', error]);
+        });
     },
 
     willTransition(transition) {
@@ -132,7 +149,7 @@ export default Ember.Route.extend({
    * @param waveformKey
    */
   didUploadFile (waveformKey) {
-    Ember.get(this, 'display').success('Uploaded "' + Ember.get(this, 'config.audioBaseUrl') + waveformKey);
+    Ember.get(this, 'display').success('Uploaded "' + this.audioBaseUrl + waveformKey);
     this.transitionTo('accounts.one.libraries.one.instruments.one.audios');
   },
 
@@ -142,7 +159,7 @@ export default Ember.Route.extend({
    * @param waveformKey
    */
   failedToUploadFile (error, waveformKey) {
-    this.throwError('Failed to upload "' + Ember.get(this, 'config.audioBaseUrl') + waveformKey, error);
+    this.throwError('Failed to upload "' + this.audioBaseUrl + waveformKey, error);
     this.transitionTo('accounts.one.libraries.one.instruments.one.audios');
   },
 

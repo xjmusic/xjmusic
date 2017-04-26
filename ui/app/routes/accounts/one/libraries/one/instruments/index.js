@@ -5,12 +5,13 @@ export default Ember.Route.extend({
 
   display: Ember.inject.service(),
 
-  model: function() {
+  model: function () {
     let library = this.modelFor('accounts.one.libraries.one');
-    let instruments = this.store.query('instrument', { libraryId: library.get('id') }).catch((error)=>{
-      Ember.get(this, 'display').error(error);
-      this.transitionTo('');
-    });
+    let instruments = this.store.query('instrument', {libraryId: library.get('id')})
+      .catch((error) => {
+        Ember.get(this, 'display').error(error);
+        this.transitionTo('');
+      });
     return Ember.RSVP.hash({
       library: library,
       instruments: instruments,

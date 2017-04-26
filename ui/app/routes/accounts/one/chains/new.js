@@ -3,27 +3,58 @@ import Ember from "ember";
 
 export default Ember.Route.extend({
 
+  // Inject: configuration service
   config: Ember.inject.service(),
 
+  // Inject: flash message service
   display: Ember.inject.service(),
 
-  model: function() {
-    let account = this.modelFor('accounts.one');
-    return this.store.createRecord('chain', {
-      account: account,
-      state:  Ember.get(this, 'config').chainStates[0]
+  /**
+   * Model is a promise because it depends on promised configs
+   * @returns {Ember.RSVP.Promise}
+   */
+  model() {
+    return new Ember.RSVP.Promise((resolve, reject) => {
+      let self = this;
+      Ember.get(this, 'config').promises.config.then(
+        (config) => {
+          resolve(self.resolvedModel(config));
+        },
+        (error) => {
+          reject('Could not instantiate new Chain', error);
+        }
+      );
     });
   },
 
+  /**
+   * Resolved (with configs) model
+   * @param config
+   * @returns {*}
+   */
+  resolvedModel(config) {
+    let account = this.modelFor('accounts.one');
+    return this.store.createRecord('chain', {
+      account: account,
+      state: config.chainStates[0],
+      type: config.chainTypes[0]
+    });
+  },
+
+  /**
+   * Route Actions
+   */
   actions: {
 
     createChain(model) {
-      model.save().then(() => {
-        Ember.get(this, 'display').success('Created chain '+model.get('name')+'.');
-        this.transitionTo('accounts.one.chains');
-      }).catch((error) => {
-        Ember.get(this, 'display').error(error);
-      });
+      model.save().then(
+        () => {
+          Ember.get(this, 'display').success('Created chain ' + model.get('name') + '.');
+          this.transitionTo('accounts.one.chains');
+        },
+        (error) => {
+          Ember.get(this, 'display').error(error);
+        });
     },
 
     willTransition(transition) {
@@ -38,5 +69,6 @@ export default Ember.Route.extend({
       }
     }
 
-  }
+  },
+
 });

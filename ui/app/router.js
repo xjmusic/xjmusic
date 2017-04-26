@@ -141,6 +141,9 @@ function accountChains() {
 function accountChain() {
   this.route('edit'); // Edit Chain
   this.route('libraries'); // Libraries in Chain
+  this.route('configs'); // Configs in Chain
+  this.route('ideas'); // Ideas in Chain
+  this.route('instruments'); // instruments in Chain
   this.route('links', accountChainLinks); // Links in Chain
 }
 

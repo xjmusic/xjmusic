@@ -90,16 +90,16 @@ public class PhaseIT {
         .setTotal(16)
       );
 
-    JSONObject actualResult = testDAO.create(access, inputDataWrapper);
+    JSONObject result = testDAO.create(access, inputDataWrapper);
 
-    assertNotNull(actualResult);
-    assertEquals(0.42, actualResult.get("density"));
-    assertEquals("G minor 7", actualResult.get("key"));
-    assertEquals(ULong.valueOf(2), actualResult.get("ideaId"));
-    assertEquals("cannons", actualResult.get("name"));
-    assertEquals(129.4, actualResult.get("tempo"));
-    assertEquals(16, actualResult.get("offset"));
-    assertEquals(16, actualResult.get("total"));
+    assertNotNull(result);
+    assertEquals(0.42, result.get("density"));
+    assertEquals("G minor 7", result.get("key"));
+    assertEquals(ULong.valueOf(2), result.get("ideaId"));
+    assertEquals("cannons", result.get("name"));
+    assertEquals(129.4, result.get("tempo"));
+    assertEquals(16, result.get("offset"));
+    assertEquals(16, result.get("total"));
   }
 
   @Test
@@ -119,16 +119,16 @@ public class PhaseIT {
         .setTotal(16)
       );
 
-    JSONObject actualResult = testDAO.create(access, inputDataWrapper);
+    JSONObject result = testDAO.create(access, inputDataWrapper);
 
-    assertNotNull(actualResult);
-    assertEquals(ULong.valueOf(2), actualResult.get("ideaId"));
-    assertEquals(DSL.val((String) null), actualResult.get("density"));
-    assertEquals(DSL.val((String) null), actualResult.get("key"));
-    assertEquals(DSL.val((String) null), actualResult.get("name"));
-    assertEquals(DSL.val((String) null), actualResult.get("tempo"));
-    assertEquals(0, actualResult.get("offset"));
-    assertEquals(16, actualResult.get("total"));
+    assertNotNull(result);
+    assertEquals(ULong.valueOf(2), result.get("ideaId"));
+    assertEquals(DSL.val((String) null), result.get("density"));
+    assertEquals(DSL.val((String) null), result.get("key"));
+    assertEquals(DSL.val((String) null), result.get("name"));
+    assertEquals(DSL.val((String) null), result.get("tempo"));
+    assertEquals(0, result.get("offset"));
+    assertEquals(16, result.get("total"));
   }
 
   @Test(expected = BusinessException.class)
@@ -194,12 +194,12 @@ public class PhaseIT {
       "accounts", "1"
     ));
 
-    JSONObject actualResult = testDAO.readOne(access, ULong.valueOf(2));
+    JSONObject result = testDAO.readOne(access, ULong.valueOf(2));
 
-    assertNotNull(actualResult);
-    assertEquals(ULong.valueOf(2), actualResult.get("id"));
-    assertEquals(ULong.valueOf(1), actualResult.get("ideaId"));
-    assertEquals("Caterpillars", actualResult.get("name"));
+    assertNotNull(result);
+    assertEquals(ULong.valueOf(2), result.get("id"));
+    assertEquals(ULong.valueOf(1), result.get("ideaId"));
+    assertEquals("Caterpillars", result.get("name"));
   }
 
   @Test
@@ -209,9 +209,9 @@ public class PhaseIT {
       "accounts", "326"
     ));
 
-    JSONObject actualResult = testDAO.readOne(access, ULong.valueOf(1));
+    JSONObject result = testDAO.readOne(access, ULong.valueOf(1));
 
-    assertNull(actualResult);
+    assertNull(result);
   }
 
   @Test
@@ -302,13 +302,13 @@ public class PhaseIT {
       testDAO.update(access, ULong.valueOf(2), inputDataWrapper);
 
     } catch (Exception e) {
-      PhaseRecord updatedRecord = IntegrationTestService.getDb()
+      PhaseRecord result = IntegrationTestService.getDb()
         .selectFrom(PHASE)
         .where(PHASE.ID.eq(ULong.valueOf(2)))
         .fetchOne();
-      assertNotNull(updatedRecord);
-      assertEquals("Caterpillars", updatedRecord.getName());
-      assertEquals(ULong.valueOf(1), updatedRecord.getIdeaId());
+      assertNotNull(result);
+      assertEquals("Caterpillars", result.getName());
+      assertEquals(ULong.valueOf(1), result.getIdeaId());
       throw e;
     }
   }
@@ -332,18 +332,18 @@ public class PhaseIT {
 
     testDAO.update(access, ULong.valueOf(1), inputDataWrapper);
 
-    PhaseRecord updatedRecord = IntegrationTestService.getDb()
+    PhaseRecord result = IntegrationTestService.getDb()
       .selectFrom(PHASE)
       .where(PHASE.ID.eq(ULong.valueOf(1)))
       .fetchOne();
-    assertNotNull(updatedRecord);
-    assertEquals(null, updatedRecord.getName());
-    assertEquals(null, updatedRecord.getDensity());
-    assertEquals(null, updatedRecord.getTempo());
-    assertEquals(null, updatedRecord.getKey());
-    assertEquals(ULong.valueOf(7), updatedRecord.getOffset());
-    assertEquals(ULong.valueOf(32), updatedRecord.getTotal());
-    assertEquals(ULong.valueOf(1), updatedRecord.getIdeaId());
+    assertNotNull(result);
+    assertEquals(null, result.getName());
+    assertEquals(null, result.getDensity());
+    assertEquals(null, result.getTempo());
+    assertEquals(null, result.getKey());
+    assertEquals(ULong.valueOf(7), result.getOffset());
+    assertEquals(ULong.valueOf(32), result.getTotal());
+    assertEquals(ULong.valueOf(1), result.getIdeaId());
   }
 
   // TODO: [core] test DAO cannot update Idea to a User or Library not owned by current session

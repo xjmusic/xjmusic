@@ -46,7 +46,7 @@ public class PilotLeaderImpl implements Leader {
   public JSONArray getTasks() {
     try {
       return buildNextLinksOrComplete(
-        chainDAO.readAllRecordsInProduction(
+        chainDAO.readAllRecordsInStateFabricating(
           AccessControl.forInternalWorker(),
           TimestampUTC.nowPlusSeconds(bufferSeconds)));
 

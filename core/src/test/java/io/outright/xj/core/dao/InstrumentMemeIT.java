@@ -96,11 +96,11 @@ public class InstrumentMemeIT {
         .setName("  !!2gnarLY    ")
       );
 
-    JSONObject actualResult = testDAO.create(access, inputDataWrapper);
+    JSONObject result = testDAO.create(access, inputDataWrapper);
 
-    assertNotNull(actualResult);
-    assertEquals(BigInteger.valueOf(1), actualResult.get("instrumentId"));
-    assertEquals("Gnarly", actualResult.get("name"));
+    assertNotNull(result);
+    assertEquals(BigInteger.valueOf(1), result.get("instrumentId"));
+    assertEquals("Gnarly", result.get("name"));
   }
 
   @Test(expected = BusinessException.class)
@@ -138,12 +138,12 @@ public class InstrumentMemeIT {
       "accounts", "1"
     ));
 
-    JSONObject actualResult = testDAO.readOne(access, ULong.valueOf(2));
+    JSONObject result = testDAO.readOne(access, ULong.valueOf(2));
 
-    assertNotNull(actualResult);
-    assertEquals(ULong.valueOf(2), actualResult.get("id"));
-    assertEquals(ULong.valueOf(1), actualResult.get("instrumentId"));
-    assertEquals("Mold", actualResult.get("name"));
+    assertNotNull(result);
+    assertEquals(ULong.valueOf(2), result.get("id"));
+    assertEquals(ULong.valueOf(1), result.get("instrumentId"));
+    assertEquals("Mold", result.get("name"));
   }
 
   @Test
@@ -153,9 +153,9 @@ public class InstrumentMemeIT {
       "accounts", "326"
     ));
 
-    JSONObject actualResult = testDAO.readOne(access, ULong.valueOf(1));
+    JSONObject result = testDAO.readOne(access, ULong.valueOf(1));
 
-    assertNull(actualResult);
+    assertNull(result);
   }
 
   @Test

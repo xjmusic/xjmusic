@@ -1,7 +1,6 @@
 // Copyright Outright Mental, Inc. All Rights Reserved.
 package io.outright.xj.core.dao.impl;
 
-import io.outright.xj.core.Tables;
 import io.outright.xj.core.app.access.impl.AccessControl;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.app.exception.ConfigException;
@@ -9,7 +8,6 @@ import io.outright.xj.core.app.exception.DatabaseException;
 import io.outright.xj.core.dao.LinkDAO;
 import io.outright.xj.core.db.sql.SQLConnection;
 import io.outright.xj.core.db.sql.SQLDatabaseProvider;
-import io.outright.xj.core.model.chain.Chain;
 import io.outright.xj.core.model.link.Link;
 import io.outright.xj.core.model.link.LinkWrapper;
 import io.outright.xj.core.tables.records.LinkRecord;
@@ -220,7 +218,7 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
   private void updateWrapper(DSLContext db, AccessControl access, ULong id, LinkWrapper data) throws Exception {
     Link model = data.validate();
     Map<Field, Object> fieldValues = model.intoFieldValueMap();
-    fieldValues.put(Tables.LINK.ID, id);
+    fieldValues.put(LINK.ID, id);
     update(db, access, id, fieldValues);
   }
 
@@ -237,11 +235,11 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
     requireTopLevel(access);
 
     // validate and cache to-state
-    String updateState = fieldValues.get(Tables.LINK.STATE).toString();
+    String updateState = fieldValues.get(LINK.STATE).toString();
     Link.validateState(updateState);
 
     // fetch existing link; further logic is based on its current state
-    LinkRecord link = db.selectFrom(Tables.LINK).where(Tables.LINK.ID.eq(id)).fetchOne();
+    LinkRecord link = db.selectFrom(LINK).where(LINK.ID.eq(id)).fetchOne();
     requireRecordExists("Link #" + id, link);
     switch (link.getState()) {
 
@@ -271,7 +269,7 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
     }
 
     // [#128] cannot change chainId of a link
-    Object updateChainId = fieldValues.get(Tables.LINK.CHAIN_ID);
+    Object updateChainId = fieldValues.get(LINK.CHAIN_ID);
     if (updateChainId != null
       && !updateChainId.equals(link.getChainId())
       ) {
@@ -281,11 +279,11 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
     // This "change from state to state" complexity
     // is required in order to prevent duplicate
     // state-changes of the same link
-    UpdateSetFirstStep<LinkRecord> update = db.update(Tables.LINK);
+    UpdateSetFirstStep<LinkRecord> update = db.update(LINK);
     fieldValues.forEach(update::set);
-    int rowsAffected = update.set(Tables.LINK.STATE, updateState)
-      .where(Tables.LINK.ID.eq(id))
-      .and(Tables.LINK.STATE.eq(link.getState()))
+    int rowsAffected = update.set(LINK.STATE, updateState)
+      .where(LINK.ID.eq(id))
+      .and(LINK.STATE.eq(link.getState()))
       .execute();
     if (rowsAffected == 0) {
       throw new BusinessException("No records updated.");

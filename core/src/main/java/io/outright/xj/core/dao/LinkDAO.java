@@ -25,12 +25,12 @@ public interface LinkDAO {
    * Fetch one Link by id, if accessible
    *
    * @param access control
-   * @param linkId to fetch
+   * @param id to fetch
    * @return Link if found
    * @throws Exception on failure
    */
   @Nullable
-  JSONObject readOne(AccessControl access, ULong linkId) throws Exception;
+  JSONObject readOne(AccessControl access, ULong id) throws Exception;
 
   /**
    * Fetch one Link by chainId and state, if present
@@ -58,10 +58,10 @@ public interface LinkDAO {
   /**
    * Update a specified Link
    *
-   * @param linkId of specific Link to update.
+   * @param id of specific Link to update.
    * @param data   for the updated Link.
    */
-  void update(AccessControl access, ULong linkId, LinkWrapper data) throws Exception;
+  void update(AccessControl access, ULong id, LinkWrapper data) throws Exception;
 
   /**
    * Delete a specified Link

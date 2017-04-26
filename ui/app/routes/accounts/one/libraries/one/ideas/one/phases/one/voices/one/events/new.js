@@ -21,12 +21,14 @@ export default Ember.Route.extend({
   actions: {
 
     createEvent(model) {
-      model.save().then(() => {
-        Ember.get(this, 'display').success('Created "' + model.get('inflection') + '" event in ' + model.get('note') + '.');
-        this.transitionTo('accounts.one.libraries.one.ideas.one.phases.one.voices.one.events');
-      }).catch((error) => {
-        Ember.get(this, 'display').error(error);
-      });
+      model.save().then(
+        () => {
+          Ember.get(this, 'display').success('Created "' + model.get('inflection') + '" event in ' + model.get('note') + '.');
+          this.transitionTo('accounts.one.libraries.one.ideas.one.phases.one.voices.one.events');
+        },
+        (error) => {
+          Ember.get(this, 'display').error(error);
+        });
     },
 
     willTransition(transition) {

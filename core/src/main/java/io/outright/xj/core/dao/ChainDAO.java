@@ -46,15 +46,15 @@ public interface ChainDAO {
 
   /**
    * [INTERNAL USE ONLY]
-   * Read IDs of all Chains that are in production at a given instant
+   * Read IDs of all Chains that are in fabricating-state at a given instant
    *
    * @param access     control
-   * @param atOrBefore time to check for chains in production
+   * @param atOrBefore time to check for chains in fabricating-state
    * @return array of chains as JSON
    * @throws Exception on failure
    */
   @Nullable
-  Result<ChainRecord> readAllRecordsInProduction(AccessControl access, Timestamp atOrBefore) throws Exception;
+  Result<ChainRecord> readAllRecordsInStateFabricating(AccessControl access, Timestamp atOrBefore) throws Exception;
 
   /**
    * Update a specified Chain

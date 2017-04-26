@@ -28,8 +28,8 @@ public class Link extends Entity {
   public static final String CRAFTED = "crafted";
   public static final String DUBBING = "dubbing";
   public static final String DUBBED = "dubbed";
-
-  private final static List<String> allStates = ImmutableList.of(
+  // list of all states
+  public final static List<String> STATES = ImmutableList.of(
     PLANNED,
     CRAFTING,
     CRAFTED,
@@ -245,8 +245,8 @@ public class Link extends Entity {
     if (state == null || state.length() == 0) {
       throw new BusinessException("State is required.");
     }
-    if (!allStates.contains(state)) {
-      throw new BusinessException("'" + state + "' is not a valid state (" + CSV.join(allStates) + ").");
+    if (!STATES.contains(state)) {
+      throw new BusinessException("'" + state + "' is not a valid state (" + CSV.join(STATES) + ").");
     }
   }
 

@@ -128,7 +128,7 @@ button {
         height: 24px;
         border: 1px solid $low-gray;
       }
-      &.production-state {
+      &.fabricating-state {
         background: darken(darkgreen, 10%);
         color: lightgreen;
         a {
@@ -178,6 +178,7 @@ footer {
       background: transparent none;
       text-decoration: none;
       color: #808080;
+      text-align: right;
       &:hover, &:focus {
         color: lighten($green, 20%);
         text-decoration: underline;

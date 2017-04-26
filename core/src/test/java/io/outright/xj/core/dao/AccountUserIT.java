@@ -70,11 +70,11 @@ public class AccountUserIT {
         .setUserId(BigInteger.valueOf(5))
       );
 
-    JSONObject actualResult = testDAO.create(access, inputDataWrapper);
+    JSONObject result = testDAO.create(access, inputDataWrapper);
 
-    assertNotNull(actualResult);
-    assertEquals(BigInteger.valueOf(1), actualResult.get("accountId"));
-    assertEquals(BigInteger.valueOf(5), actualResult.get("userId"));
+    assertNotNull(result);
+    assertEquals(BigInteger.valueOf(1), result.get("accountId"));
+    assertEquals(BigInteger.valueOf(5), result.get("userId"));
   }
 
   @Test(expected = BusinessException.class)
@@ -138,12 +138,12 @@ public class AccountUserIT {
       "accounts", "1"
     ));
 
-    JSONObject actualResult = testDAO.readOne(access, ULong.valueOf(1));
+    JSONObject result = testDAO.readOne(access, ULong.valueOf(1));
 
-    assertNotNull(actualResult);
-    assertEquals(ULong.valueOf(1), actualResult.get("id"));
-    assertEquals(ULong.valueOf(1), actualResult.get("accountId"));
-    assertEquals(ULong.valueOf(2), actualResult.get("userId"));
+    assertNotNull(result);
+    assertEquals(ULong.valueOf(1), result.get("id"));
+    assertEquals(ULong.valueOf(1), result.get("accountId"));
+    assertEquals(ULong.valueOf(2), result.get("userId"));
   }
 
   @Test
@@ -153,9 +153,9 @@ public class AccountUserIT {
       "accounts", "326"
     ));
 
-    JSONObject actualResult = testDAO.readOne(access, ULong.valueOf(1));
+    JSONObject result = testDAO.readOne(access, ULong.valueOf(1));
 
-    assertNull(actualResult);
+    assertNull(result);
   }
 
   @Test

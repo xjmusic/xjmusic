@@ -1,4 +1,4 @@
-// Copyright Outright Mental, Inc. All Rights Reserved.
+// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 package io.outright.xj.hub.resource.chain_library;
 
 import io.outright.xj.core.CoreModule;
@@ -27,7 +27,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 
 /**
- * Chain record
+ * Chain Library record
  */
 @Path("chain-libraries/{id}")
 public class ChainLibraryRecordResource {
@@ -66,11 +66,11 @@ public class ChainLibraryRecordResource {
   }
 
   /**
-   * Delete one ChainLibrary by chainId and libraryId
+   * Delete one ChainLibrary
    *
    * @return application/json response.
    */
-  // TODO [hub] Return 404 if the chain is not found.
+  // TODO [hub] Return 404 if the chain library is not found.
   @DELETE
   @RolesAllowed({Role.ADMIN})
   public Response delete(@Context ContainerRequestContext crc) {

@@ -6,10 +6,11 @@ export default Ember.Route.extend({
   display: Ember.inject.service(),
 
   model(params) {
-    return this.store.findRecord('user', params.user_id).catch((error)=>{
-      Ember.get(this, 'display').error(error);
-      this.transitionTo('users');
-    });
+    return this.store.findRecord('user', params.user_id)
+      .catch((error) => {
+        Ember.get(this, 'display').error(error);
+        this.transitionTo('users');
+      });
   },
 
   afterModel(model) {
@@ -21,12 +22,14 @@ export default Ember.Route.extend({
   actions: {
 
     saveUser(model) {
-      model.save().then(() => {
-        Ember.get(this, 'display').success('Updated user '+model.get('name')+'.');
-        this.transitionTo('users');
-      }).catch((error) => {
-        Ember.get(this, 'display').error(error);
-      });
+      model.save().then(
+        () => {
+          Ember.get(this, 'display').success('Updated user ' + model.get('name') + '.');
+          this.transitionTo('users');
+        },
+        (error) => {
+          Ember.get(this, 'display').error(error);
+        });
     },
 
     willTransition(transition) {

@@ -58,8 +58,8 @@ public class IdeaIT {
 
     // Library "boat" has idea "helm" and idea "sail"
     IntegrationTestEntity.insertLibrary(2, 1, "boat");
-    IntegrationTestEntity.insertIdea(3, 3, 2, Idea.MACRO, "fonds", 0.342, "C#", 0.286);
-    IntegrationTestEntity.insertIdea(4, 2, 2, Idea.SUPPORT, "jams", 0.342, "C#", 0.286);
+    IntegrationTestEntity.insertIdea(3, 3, 2, Idea.MACRO, "helm", 0.342, "C#", 0.286);
+    IntegrationTestEntity.insertIdea(4, 2, 2, Idea.SUPPORT, "sail", 0.342, "C#", 0.286);
 
     // Instantiate the test subject
     testDAO = injector.getInstance(IdeaDAO.class);
@@ -88,16 +88,16 @@ public class IdeaIT {
         .setUserId(BigInteger.valueOf(2))
       );
 
-    JSONObject actualResult = testDAO.create(access, inputDataWrapper);
+    JSONObject result = testDAO.create(access, inputDataWrapper);
 
-    assertNotNull(actualResult);
-    assertEquals(0.42, actualResult.get("density"));
-    assertEquals("G minor 7", actualResult.get("key"));
-    assertEquals(ULong.valueOf(2), actualResult.get("libraryId"));
-    assertEquals("cannons", actualResult.get("name"));
-    assertEquals(129.4, actualResult.get("tempo"));
-    assertEquals(Idea.MAIN, actualResult.get("type"));
-    assertEquals(ULong.valueOf(2), actualResult.get("userId"));
+    assertNotNull(result);
+    assertEquals(0.42, result.get("density"));
+    assertEquals("G minor 7", result.get("key"));
+    assertEquals(ULong.valueOf(2), result.get("libraryId"));
+    assertEquals("cannons", result.get("name"));
+    assertEquals(129.4, result.get("tempo"));
+    assertEquals(Idea.MAIN, result.get("type"));
+    assertEquals(ULong.valueOf(2), result.get("userId"));
   }
 
   @Test(expected = BusinessException.class)
@@ -145,12 +145,12 @@ public class IdeaIT {
       "accounts", "1"
     ));
 
-    JSONObject actualResult = testDAO.readOne(access, ULong.valueOf(2));
+    JSONObject result = testDAO.readOne(access, ULong.valueOf(2));
 
-    assertNotNull(actualResult);
-    assertEquals(ULong.valueOf(2), actualResult.get("id"));
-    assertEquals(ULong.valueOf(1), actualResult.get("libraryId"));
-    assertEquals("nuts", actualResult.get("name"));
+    assertNotNull(result);
+    assertEquals(ULong.valueOf(2), result.get("id"));
+    assertEquals(ULong.valueOf(1), result.get("libraryId"));
+    assertEquals("nuts", result.get("name"));
   }
 
   @Test
@@ -160,10 +160,12 @@ public class IdeaIT {
       "accounts", "326"
     ));
 
-    JSONObject actualResult = testDAO.readOne(access, ULong.valueOf(1));
+    JSONObject result = testDAO.readOne(access, ULong.valueOf(1));
 
-    assertNull(actualResult);
+    assertNull(result);
   }
+
+  // TODO: test readAllInAccount vs readAllInLibrary, positive and negative cases
 
   @Test
   public void readAll() throws Exception {
@@ -172,7 +174,7 @@ public class IdeaIT {
       "accounts", "1"
     ));
 
-    JSONArray actualResultList = testDAO.readAllIn(access, ULong.valueOf(1));
+    JSONArray actualResultList = testDAO.readAllInLibrary(access, ULong.valueOf(1));
 
     assertNotNull(actualResultList);
     assertEquals(2, actualResultList.length());
@@ -189,7 +191,7 @@ public class IdeaIT {
       "accounts", "345"
     ));
 
-    JSONArray actualResultList = testDAO.readAllIn(access, ULong.valueOf(1));
+    JSONArray actualResultList = testDAO.readAllInLibrary(access, ULong.valueOf(1));
 
     assertNotNull(actualResultList);
     assertEquals(0, actualResultList.length());
@@ -239,13 +241,13 @@ public class IdeaIT {
       testDAO.update(access, ULong.valueOf(3), inputDataWrapper);
 
     } catch (Exception e) {
-      IdeaRecord updatedRecord = IntegrationTestService.getDb()
+      IdeaRecord result = IntegrationTestService.getDb()
         .selectFrom(IDEA)
         .where(IDEA.ID.eq(ULong.valueOf(3)))
         .fetchOne();
-      assertNotNull(updatedRecord);
-      assertEquals("fonds", updatedRecord.getName());
-      assertEquals(ULong.valueOf(2), updatedRecord.getLibraryId());
+      assertNotNull(result);
+      assertEquals("helm", result.getName());
+      assertEquals(ULong.valueOf(2), result.getLibraryId());
       throw e;
     }
   }
@@ -270,13 +272,13 @@ public class IdeaIT {
 
     testDAO.update(access, ULong.valueOf(3), inputDataWrapper);
 
-    IdeaRecord updatedRecord = IntegrationTestService.getDb()
+    IdeaRecord result = IntegrationTestService.getDb()
       .selectFrom(IDEA)
       .where(IDEA.ID.eq(ULong.valueOf(3)))
       .fetchOne();
-    assertNotNull(updatedRecord);
-    assertEquals("cannons", updatedRecord.getName());
-    assertEquals(ULong.valueOf(2), updatedRecord.getLibraryId());
+    assertNotNull(result);
+    assertEquals("cannons", result.getName());
+    assertEquals(ULong.valueOf(2), result.getLibraryId());
   }
 
   // TODO: [core] test DAO cannot update Idea to a User or Library not owned by current session

@@ -51,11 +51,11 @@ public class AccountIT {
       "accounts","1"
     ));
 
-    JSONObject actualResult = testDAO.readOne(access, ULong.valueOf(1));
+    JSONObject result = testDAO.readOne(access, ULong.valueOf(1));
 
-    assertNotNull(actualResult);
-    assertEquals(ULong.valueOf(1), actualResult.get("id"));
-    assertEquals("bananas", actualResult.get("name"));
+    assertNotNull(result);
+    assertEquals(ULong.valueOf(1), result.get("id"));
+    assertEquals("bananas", result.get("name"));
   }
 
   @Test

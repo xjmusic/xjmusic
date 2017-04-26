@@ -113,7 +113,7 @@ public class ChainLibraryDAOImpl extends DAOImpl implements ChainLibraryDAO {
       .where(CHAIN_LIBRARY.CHAIN_ID.eq(model.getChainId()))
       .and(CHAIN_LIBRARY.LIBRARY_ID.eq(model.getLibraryId()))
       .fetchOne() != null) {
-      throw new BusinessException("Chain Library already exists!");
+      throw new BusinessException("Library already added to Chain!");
     }
 
     return JSON.objectFromRecord(executeCreate(db, CHAIN_LIBRARY, fieldValues));

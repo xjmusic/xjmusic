@@ -38,12 +38,23 @@ public interface IdeaDAO {
    * Fetch many idea for one Account by id, if accessible
    *
    * @param access    control
+   * @param accountId to fetch ideas for.
+   * @return JSONArray of ideas.
+   * @throws Exception on failure
+   */
+  @Nullable
+  JSONArray readAllInAccount(AccessControl access, ULong accountId) throws Exception;
+
+  /**
+   * Fetch many idea for one Library by id, if accessible
+   *
+   * @param access    control
    * @param libraryId to fetch ideas for.
    * @return JSONArray of ideas.
    * @throws Exception on failure
    */
   @Nullable
-  JSONArray readAllIn(AccessControl access, ULong libraryId) throws Exception;
+  JSONArray readAllInLibrary(AccessControl access, ULong libraryId) throws Exception;
 
   /**
    * (ADMIN ONLY)

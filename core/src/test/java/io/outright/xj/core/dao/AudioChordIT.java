@@ -84,12 +84,12 @@ public class AudioChordIT {
         .setAudioId(BigInteger.valueOf(1))
       );
 
-    JSONObject actualResult = testDAO.create(access, inputDataWrapper);
+    JSONObject result = testDAO.create(access, inputDataWrapper);
 
-    assertNotNull(actualResult);
-    assertEquals(0.42, actualResult.get("position"));
-    assertEquals("G minor 7", actualResult.get("name"));
-    assertEquals(ULong.valueOf(1), actualResult.get("audioId"));
+    assertNotNull(result);
+    assertEquals(0.42, result.get("position"));
+    assertEquals("G minor 7", result.get("name"));
+    assertEquals(ULong.valueOf(1), result.get("audioId"));
   }
 
   @Test(expected = BusinessException.class)
@@ -129,12 +129,12 @@ public class AudioChordIT {
       "accounts", "1"
     ));
 
-    JSONObject actualResult = testDAO.readOne(access, ULong.valueOf(1));
+    JSONObject result = testDAO.readOne(access, ULong.valueOf(1));
 
-    assertNotNull(actualResult);
-    assertEquals(ULong.valueOf(1), actualResult.get("id"));
-    assertEquals(ULong.valueOf(1), actualResult.get("audioId"));
-    assertEquals("D major", actualResult.get("name"));
+    assertNotNull(result);
+    assertEquals(ULong.valueOf(1), result.get("id"));
+    assertEquals(ULong.valueOf(1), result.get("audioId"));
+    assertEquals("D major", result.get("name"));
   }
 
   @Test
@@ -144,9 +144,9 @@ public class AudioChordIT {
       "accounts", "326"
     ));
 
-    JSONObject actualResult = testDAO.readOne(access, ULong.valueOf(1));
+    JSONObject result = testDAO.readOne(access, ULong.valueOf(1));
 
-    assertNull(actualResult);
+    assertNull(result);
   }
 
   @Test
@@ -226,13 +226,13 @@ public class AudioChordIT {
       testDAO.update(access, ULong.valueOf(2), inputDataWrapper);
 
     } catch (Exception e) {
-      AudioChordRecord updatedRecord = IntegrationTestService.getDb()
+      AudioChordRecord result = IntegrationTestService.getDb()
         .selectFrom(AUDIO_CHORD)
         .where(AUDIO_CHORD.ID.eq(ULong.valueOf(2)))
         .fetchOne();
-      assertNotNull(updatedRecord);
-      assertEquals("C minor", updatedRecord.getName());
-      assertEquals(ULong.valueOf(1), updatedRecord.getAudioId());
+      assertNotNull(result);
+      assertEquals("C minor", result.getName());
+      assertEquals(ULong.valueOf(1), result.getAudioId());
       throw e;
     }
   }
@@ -252,14 +252,14 @@ public class AudioChordIT {
 
     testDAO.update(access, ULong.valueOf(1), inputDataWrapper);
 
-    AudioChordRecord updatedRecord = IntegrationTestService.getDb()
+    AudioChordRecord result = IntegrationTestService.getDb()
       .selectFrom(AUDIO_CHORD)
       .where(AUDIO_CHORD.ID.eq(ULong.valueOf(1)))
       .fetchOne();
-    assertNotNull(updatedRecord);
-    assertEquals("POPPYCOCK", updatedRecord.getName());
-    assertEquals((Double) 0.42, updatedRecord.getPosition());
-    assertEquals(ULong.valueOf(1), updatedRecord.getAudioId());
+    assertNotNull(result);
+    assertEquals("POPPYCOCK", result.getName());
+    assertEquals((Double) 0.42, result.getPosition());
+    assertEquals(ULong.valueOf(1), result.getAudioId());
   }
 
   // TODO: [core] test DAO cannot update audio chord to a User or Library not owned by current session

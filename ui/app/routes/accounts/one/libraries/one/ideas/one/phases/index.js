@@ -5,12 +5,13 @@ export default Ember.Route.extend({
 
   display: Ember.inject.service(),
 
-  model: function() {
+  model: function () {
     let idea = this.modelFor('accounts.one.libraries.one.ideas.one');
-    let phases = this.store.query('phase', { ideaId: idea.get('id') }).catch((error)=>{
-      Ember.get(this, 'display').error(error);
-      this.transitionTo('');
-    });
+    let phases = this.store.query('phase', {ideaId: idea.get('id')})
+      .catch((error) => {
+        Ember.get(this, 'display').error(error);
+        this.transitionTo('');
+      });
     return Ember.RSVP.hash({
       idea: idea,
       phases: phases,

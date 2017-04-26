@@ -3,11 +3,38 @@ import Ember from 'ember';
 
 export default Ember.Route.extend({
 
+  // Inject: authentication service
   auth: Ember.inject.service(),
 
+  // Inject: flash message service
   display: Ember.inject.service(),
 
+  // Inject: configuration service
+  config: Ember.inject.service(),
+
+  /**
+   * Model is a promise because it depends on promised configs
+   * @returns {Ember.RSVP.Promise}
+   */
   model() {
+    return new Ember.RSVP.Promise((resolve, reject) => {
+      let self = this;
+      Ember.get(this, 'config').promises.config.then(
+        () => {
+          resolve(self.resolvedModel());
+        },
+        (error) => {
+          reject('Could not instantiate Instrument model', error);
+        }
+      );
+    });
+  },
+
+  /**
+   * Resolved (with configs) model
+   * @returns {*}
+   */
+  resolvedModel() {
     let auth = this.get('auth');
     if (auth.isArtist || auth.isAdmin) {
       let library = this.modelFor('accounts.one.libraries.one');
@@ -19,26 +46,33 @@ export default Ember.Route.extend({
     }
   },
 
+  /**
+   * Route actions
+   */
   actions: {
 
     saveInstrument(model) {
-      model.save().then(() => {
-        Ember.get(this, 'display').success('Updated instrument ' + model.get('description') + '.');
-        this.transitionTo('accounts.one.libraries.one.instruments');
-      }).catch((error) => {
-        Ember.get(this, 'display').error(error);
-      });
+      model.save().then(
+        () => {
+          Ember.get(this, 'display').success('Updated instrument ' + model.get('description') + '.');
+          this.transitionTo('accounts.one.libraries.one.instruments');
+        },
+        (error) => {
+          Ember.get(this, 'display').error(error);
+        });
     },
 
     destroyInstrument(model) {
       let confirmation = confirm("Are you sure? If there are Instruments or Instruments belonging to this Instrument, deletion will fail anyway.");
       if (confirmation) {
-        model.destroyRecord().then(() => {
-          Ember.get(this, 'display').success('Deleted instrument ' + model.get('description') + '.');
-          this.transitionTo('accounts.one.libraries.one.instruments');
-        }).catch((error) => {
-          Ember.get(this, 'display').error(error);
-        });
+        model.destroyRecord({}).then(
+          () => {
+            Ember.get(this, 'display').success('Deleted instrument ' + model.get('description') + '.');
+            this.transitionTo('accounts.one.libraries.one.instruments');
+          },
+          (error) => {
+            Ember.get(this, 'display').error(error);
+          });
       }
     },
 

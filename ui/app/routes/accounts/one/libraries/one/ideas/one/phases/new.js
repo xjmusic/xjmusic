@@ -21,12 +21,14 @@ export default Ember.Route.extend({
   actions: {
 
     createPhase(model) {
-      model.save().then(() => {
-        Ember.get(this, 'display').success('Created phase ' + model.get('name') + '.');
-        this.transitionTo('accounts.one.libraries.one.ideas.one.phases');
-      }).catch((error) => {
-        Ember.get(this, 'display').error(error);
-      });
+      model.save().then(
+        () => {
+          Ember.get(this, 'display').success('Created phase ' + model.get('name') + '.');
+          this.transitionTo('accounts.one.libraries.one.ideas.one.phases');
+        },
+        (error) => {
+          Ember.get(this, 'display').error(error);
+        });
     },
 
     willTransition(transition) {

@@ -22,7 +22,10 @@ import io.outright.xj.core.dao.AudioChordDAO;
 import io.outright.xj.core.dao.AudioDAO;
 import io.outright.xj.core.dao.AudioEventDAO;
 import io.outright.xj.core.dao.AuthDAO;
+import io.outright.xj.core.dao.ChainConfigDAO;
 import io.outright.xj.core.dao.ChainDAO;
+import io.outright.xj.core.dao.ChainIdeaDAO;
+import io.outright.xj.core.dao.ChainInstrumentDAO;
 import io.outright.xj.core.dao.ChainLibraryDAO;
 import io.outright.xj.core.dao.ChoiceDAO;
 import io.outright.xj.core.dao.IdeaDAO;
@@ -48,7 +51,10 @@ import io.outright.xj.core.dao.impl.AudioChordDAOImpl;
 import io.outright.xj.core.dao.impl.AudioDAOImpl;
 import io.outright.xj.core.dao.impl.AudioEventDAOImpl;
 import io.outright.xj.core.dao.impl.AuthDAOImpl;
+import io.outright.xj.core.dao.impl.ChainConfigDAOImpl;
 import io.outright.xj.core.dao.impl.ChainDAOImpl;
+import io.outright.xj.core.dao.impl.ChainIdeaDAOImpl;
+import io.outright.xj.core.dao.impl.ChainInstrumentDAOImpl;
 import io.outright.xj.core.dao.impl.ChainLibraryDAOImpl;
 import io.outright.xj.core.dao.impl.ChoiceDAOImpl;
 import io.outright.xj.core.dao.impl.IdeaDAOImpl;
@@ -120,7 +126,10 @@ public class CoreModule extends AbstractModule {
     bind(AudioDAO.class).to(AudioDAOImpl.class);
     bind(AudioEventDAO.class).to(AudioEventDAOImpl.class);
     bind(AuthDAO.class).to(AuthDAOImpl.class);
+    bind(ChainConfigDAO.class).to(ChainConfigDAOImpl.class);
     bind(ChainDAO.class).to(ChainDAOImpl.class);
+    bind(ChainIdeaDAO.class).to(ChainIdeaDAOImpl.class);
+    bind(ChainInstrumentDAO.class).to(ChainInstrumentDAOImpl.class);
     bind(ChainLibraryDAO.class).to(ChainLibraryDAOImpl.class);
     bind(ChoiceDAO.class).to(ChoiceDAOImpl.class);
     bind(IdeaDAO.class).to(IdeaDAOImpl.class);
@@ -142,9 +151,9 @@ public class CoreModule extends AbstractModule {
   }
 
   private void bindExternal() {
+    bind(AmazonProvider.class).to(AmazonProviderImpl.class);
     bind(GoogleHttpProvider.class).to(GoogleHttpProviderImpl.class);
     bind(GoogleProvider.class).to(GoogleProviderImpl.class);
-    bind(AmazonProvider.class).to(AmazonProviderImpl.class);
   }
 
   private void bindUtil() {

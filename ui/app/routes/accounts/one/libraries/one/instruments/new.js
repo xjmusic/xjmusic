@@ -1,17 +1,46 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
-import Ember from 'ember';
+import Ember from "ember";
 
 export default Ember.Route.extend({
 
+  // Inject: authentication service
   auth: Ember.inject.service(),
 
+  // Inject: configuration service
+  config: Ember.inject.service(),
+
+  // Inject: flash message service
   display: Ember.inject.service(),
 
-  model: function () {
+  /**
+   * Model is a promise because it depends on promised configs
+   * @returns {Ember.RSVP.Promise}
+   */
+  model() {
+    return new Ember.RSVP.Promise((resolve, reject) => {
+      let self = this;
+      Ember.get(this, 'config').promises.config.then(
+        (config) => {
+          resolve(self.resolvedModel(config));
+        },
+        (error) => {
+          reject('Could not instantiate new Instrument', error);
+        }
+      );
+    });
+  },
+
+  /**
+   * Resolved (with configs) model
+   * @param config
+   * @returns {*}
+   */
+  resolvedModel(config) {
     let auth = this.get('auth');
     if (auth.isArtist || auth.isAdmin) {
 
       let instrument = this.store.createRecord('instrument', {
+        type: config.instrumentTypes[0],
         library: this.modelFor('accounts.one.libraries.one')
       });
 
@@ -26,15 +55,20 @@ export default Ember.Route.extend({
     }
   },
 
+  /**
+   * Route Actions
+   */
   actions: {
 
     createInstrument(model) {
-      model.save().then(() => {
-        Ember.get(this, 'display').success('Created instrument ' + model.get('description') + '.');
-        this.transitionTo('accounts.one.libraries.one.instruments');
-      }).catch((error) => {
-        Ember.get(this, 'display').error(error);
-      });
+      model.save().then(
+        () => {
+          Ember.get(this, 'display').success('Created instrument ' + model.get('description') + '.');
+          this.transitionTo('accounts.one.libraries.one.instruments');
+        },
+        (error) => {
+          Ember.get(this, 'display').error(error);
+        });
     },
 
     willTransition(transition) {

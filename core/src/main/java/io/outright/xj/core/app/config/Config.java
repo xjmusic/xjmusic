@@ -79,10 +79,6 @@ public abstract class Config {
     return getBoolOrDefault("log.access.entities.all", false);
   }
 
-  public static List<String> chainStates() {
-    return getListOrDefault("constraint.chain.states", ImmutableList.of("draft", "ready", "production", "complete"));
-  }
-
   public static String dbMysqlHost() {
     return getOrDefault("db.mysql.host", "localhost");
   }

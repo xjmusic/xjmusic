@@ -86,17 +86,17 @@ public class AudioIT {
         .setTempo(80.5)
       );
 
-    JSONObject actualResult = testDAO.create(access, inputDataWrapper);
+    JSONObject result = testDAO.create(access, inputDataWrapper);
 
-    assertNotNull(actualResult);
-    assertEquals(ULong.valueOf(2), actualResult.get("instrumentId"));
-    assertEquals("maracas", actualResult.get("name"));
-    assertNotNull(actualResult.get("waveformKey"));
-    assertTrue(actualResult.get("waveformKey").toString().length() > 30);
-    assertEquals(0.009, actualResult.get("start"));
-    assertEquals(0.21, actualResult.get("length"));
-    assertEquals(80.5, actualResult.get("tempo"));
-    assertEquals(1567.0, actualResult.get("pitch"));
+    assertNotNull(result);
+    assertEquals(ULong.valueOf(2), result.get("instrumentId"));
+    assertEquals("maracas", result.get("name"));
+    assertNotNull(result.get("waveformKey"));
+    assertTrue(result.get("waveformKey").toString().length() > 30);
+    assertEquals(0.009, result.get("start"));
+    assertEquals(0.21, result.get("length"));
+    assertEquals(80.5, result.get("tempo"));
+    assertEquals(1567.0, result.get("pitch"));
   }
 
   @Test(expected = BusinessException.class)
@@ -144,16 +144,16 @@ public class AudioIT {
       "accounts", "1"
     ));
 
-    JSONObject actualResult = testDAO.readOne(access, ULong.valueOf(2));
+    JSONObject result = testDAO.readOne(access, ULong.valueOf(2));
 
-    assertNotNull(actualResult);
-    assertEquals(ULong.valueOf(1), actualResult.get("instrumentId"));
-    assertEquals("Snare", actualResult.get("name"));
-    assertEquals("instrument/percussion/808/snare.wav", actualResult.get("waveformKey"));
-    assertEquals(0.0023, actualResult.get("start"));
-    assertEquals(1.05, actualResult.get("length"));
-    assertEquals(131.0, actualResult.get("tempo"));
-    assertEquals(702.0, actualResult.get("pitch"));
+    assertNotNull(result);
+    assertEquals(ULong.valueOf(1), result.get("instrumentId"));
+    assertEquals("Snare", result.get("name"));
+    assertEquals("instrument/percussion/808/snare.wav", result.get("waveformKey"));
+    assertEquals(0.0023, result.get("start"));
+    assertEquals(1.05, result.get("length"));
+    assertEquals(131.0, result.get("tempo"));
+    assertEquals(702.0, result.get("pitch"));
   }
 
   @Test
@@ -163,17 +163,17 @@ public class AudioIT {
       "accounts", "1"
     ));
 
-    JSONObject actualResult = testDAO.uploadOne(access, ULong.valueOf(2));
+    JSONObject result = testDAO.uploadOne(access, ULong.valueOf(2));
 
-    assertNotNull(actualResult);
+    assertNotNull(result);
     // TODO: test assertions on AudioDAO generate an Upload policy to upload the corresponding file to 3rd-party storage (e.g. Amazon S3)
-//    assertEquals(ULong.valueOf(1), actualResult.get("instrumentId"));
-//    assertEquals("Snare", actualResult.get("name"));
-//    assertEquals("instrument/percussion/808/snare.wav", actualResult.get("waveformKey"));
-//    assertEquals(0.0023, actualResult.get("start"));
-//    assertEquals(1.05, actualResult.get("length"));
-//    assertEquals(131.0, actualResult.get("tempo"));
-//    assertEquals(702.0, actualResult.get("pitch"));
+//    assertEquals(ULong.valueOf(1), result.get("instrumentId"));
+//    assertEquals("Snare", result.get("name"));
+//    assertEquals("instrument/percussion/808/snare.wav", result.get("waveformKey"));
+//    assertEquals(0.0023, result.get("start"));
+//    assertEquals(1.05, result.get("length"));
+//    assertEquals(131.0, result.get("tempo"));
+//    assertEquals(702.0, result.get("pitch"));
   }
 
   @Test
@@ -183,9 +183,9 @@ public class AudioIT {
       "accounts", "326"
     ));
 
-    JSONObject actualResult = testDAO.readOne(access, ULong.valueOf(1));
+    JSONObject result = testDAO.readOne(access, ULong.valueOf(1));
 
-    assertNull(actualResult);
+    assertNull(result);
   }
 
   @Test
@@ -278,13 +278,13 @@ public class AudioIT {
       testDAO.update(access, ULong.valueOf(2), inputDataWrapper);
 
     } catch (Exception e) {
-      AudioRecord updatedRecord = IntegrationTestService.getDb()
+      AudioRecord result = IntegrationTestService.getDb()
         .selectFrom(AUDIO)
         .where(AUDIO.ID.eq(ULong.valueOf(2)))
         .fetchOne();
-      assertNotNull(updatedRecord);
-      assertEquals("Snare", updatedRecord.getName());
-      assertEquals(ULong.valueOf(1), updatedRecord.getInstrumentId());
+      assertNotNull(result);
+      assertEquals("Snare", result.getName());
+      assertEquals(ULong.valueOf(1), result.getInstrumentId());
       throw e;
     }
   }
@@ -307,18 +307,18 @@ public class AudioIT {
 
     testDAO.update(access, ULong.valueOf(1), inputDataWrapper);
 
-    AudioRecord updatedRecord = IntegrationTestService.getDb()
+    AudioRecord result = IntegrationTestService.getDb()
       .selectFrom(AUDIO)
       .where(AUDIO.ID.eq(ULong.valueOf(1)))
       .fetchOne();
-    assertNotNull(updatedRecord);
-    assertEquals(ULong.valueOf(2), updatedRecord.getInstrumentId());
-    assertEquals("maracas", updatedRecord.getName());
-    assertEquals("instrument/percussion/808/kick1.wav", updatedRecord.getWaveformKey());
-    assertEquals(Double.valueOf(0.009), updatedRecord.getStart());
-    assertEquals(Double.valueOf(0.21), updatedRecord.getLength());
-    assertEquals(Double.valueOf(80.5), updatedRecord.getTempo());
-    assertEquals(Double.valueOf(1567.0), updatedRecord.getPitch());
+    assertNotNull(result);
+    assertEquals(ULong.valueOf(2), result.getInstrumentId());
+    assertEquals("maracas", result.getName());
+    assertEquals("instrument/percussion/808/kick1.wav", result.getWaveformKey());
+    assertEquals(Double.valueOf(0.009), result.getStart());
+    assertEquals(Double.valueOf(0.21), result.getLength());
+    assertEquals(Double.valueOf(80.5), result.getTempo());
+    assertEquals(Double.valueOf(1567.0), result.getPitch());
   }
 
   // TODO: [core] test DAO cannot update Idea to a User or Library not owned by current session

@@ -92,16 +92,16 @@ public class AudioEventIT {
         .setAudioId(BigInteger.valueOf(1))
       );
 
-    JSONObject actualResult = testDAO.create(access, inputDataWrapper);
+    JSONObject result = testDAO.create(access, inputDataWrapper);
 
-    assertNotNull(actualResult);
-    assertEquals(1.4, actualResult.get("duration"));
-    assertEquals(0.42, actualResult.get("position"));
-    assertEquals("C", actualResult.get("note"));
-    assertEquals("KICK", actualResult.get("inflection"));
-    assertEquals(0.92, actualResult.get("tonality"));
-    assertEquals(0.72, actualResult.get("velocity"));
-    assertEquals(ULong.valueOf(1), actualResult.get("audioId"));
+    assertNotNull(result);
+    assertEquals(1.4, result.get("duration"));
+    assertEquals(0.42, result.get("position"));
+    assertEquals("C", result.get("note"));
+    assertEquals("KICK", result.get("inflection"));
+    assertEquals(0.92, result.get("tonality"));
+    assertEquals(0.72, result.get("velocity"));
+    assertEquals(ULong.valueOf(1), result.get("audioId"));
   }
 
   @Test(expected = BusinessException.class)
@@ -149,17 +149,17 @@ public class AudioEventIT {
       "accounts", "1"
     ));
 
-    JSONObject actualResult = testDAO.readOne(access, ULong.valueOf(4));
+    JSONObject result = testDAO.readOne(access, ULong.valueOf(4));
 
-    assertNotNull(actualResult);
-    assertEquals(ULong.valueOf(4), actualResult.get("id"));
-    assertEquals(ULong.valueOf(1), actualResult.get("audioId"));
-    assertEquals(1.0, actualResult.get("duration"));
-    assertEquals("SNARE", actualResult.get("inflection"));
-    assertEquals("G", actualResult.get("note"));
-    assertEquals(1.0, actualResult.get("position"));
-    assertEquals(0.1, actualResult.get("tonality"));
-    assertEquals(0.8, actualResult.get("velocity"));
+    assertNotNull(result);
+    assertEquals(ULong.valueOf(4), result.get("id"));
+    assertEquals(ULong.valueOf(1), result.get("audioId"));
+    assertEquals(1.0, result.get("duration"));
+    assertEquals("SNARE", result.get("inflection"));
+    assertEquals("G", result.get("note"));
+    assertEquals(1.0, result.get("position"));
+    assertEquals(0.1, result.get("tonality"));
+    assertEquals(0.8, result.get("velocity"));
   }
 
   @Test
@@ -169,9 +169,9 @@ public class AudioEventIT {
       "accounts", "326"
     ));
 
-    JSONObject actualResult = testDAO.readOne(access, ULong.valueOf(1));
+    JSONObject result = testDAO.readOne(access, ULong.valueOf(1));
 
-    assertNull(actualResult);
+    assertNull(result);
   }
 
   @Test
@@ -267,13 +267,13 @@ public class AudioEventIT {
       testDAO.update(access, ULong.valueOf(3), inputDataWrapper);
 
     } catch (Exception e) {
-      AudioEventRecord updatedRecord = IntegrationTestService.getDb()
+      AudioEventRecord result = IntegrationTestService.getDb()
         .selectFrom(AUDIO_EVENT)
         .where(AUDIO_EVENT.ID.eq(ULong.valueOf(3)))
         .fetchOne();
-      assertNotNull(updatedRecord);
-      assertEquals("KICK", updatedRecord.getInflection());
-      assertEquals(ULong.valueOf(1), updatedRecord.getAudioId());
+      assertNotNull(result);
+      assertEquals("KICK", result.getInflection());
+      assertEquals(ULong.valueOf(1), result.getAudioId());
       throw e;
     }
   }
@@ -297,17 +297,17 @@ public class AudioEventIT {
 
     testDAO.update(access, ULong.valueOf(1), inputDataWrapper);
 
-    AudioEventRecord updatedRecord = IntegrationTestService.getDb()
+    AudioEventRecord result = IntegrationTestService.getDb()
       .selectFrom(AUDIO_EVENT)
       .where(AUDIO_EVENT.ID.eq(ULong.valueOf(1)))
       .fetchOne();
-    assertNotNull(updatedRecord);
-    assertEquals("POPPYCOCK", updatedRecord.getInflection());
-    assertEquals((Double) 1.2, updatedRecord.getDuration());
-    assertEquals((Double) 0.42, updatedRecord.getPosition());
-    assertEquals(0.92, updatedRecord.get("tonality"));
-    assertEquals(0.72, updatedRecord.get("velocity"));
-    assertEquals(ULong.valueOf(1), updatedRecord.getAudioId());
+    assertNotNull(result);
+    assertEquals("POPPYCOCK", result.getInflection());
+    assertEquals((Double) 1.2, result.getDuration());
+    assertEquals((Double) 0.42, result.getPosition());
+    assertEquals(0.92, result.get("tonality"));
+    assertEquals(0.72, result.get("velocity"));
+    assertEquals(ULong.valueOf(1), result.getAudioId());
   }
 
   // TODO: [core] test DAO cannot update Idea to a User or Library not owned by current session

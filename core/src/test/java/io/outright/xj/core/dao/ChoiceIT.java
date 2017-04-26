@@ -56,7 +56,7 @@ public class ChoiceIT {
     IntegrationTestEntity.insertIdea(4, 2, 1, Idea.SUPPORT, "great accompaniment", 0.342, "C#", 0.286);
 
     // Chain "Test Print #1" has one link
-    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", Chain.READY, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"));
+    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", Chain.PRODUCTION, Chain.READY, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"));
     IntegrationTestEntity.insertLink(1, 1, 0, Link.DUBBED, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120);
 
     // Link "Test Print #1" has 4 choices
@@ -88,14 +88,14 @@ public class ChoiceIT {
         .setTranspose(-3)
       );
 
-    JSONObject actualResult = testDAO.create(access, inputDataWrapper);
+    JSONObject result = testDAO.create(access, inputDataWrapper);
 
-    assertNotNull(actualResult);
-    assertEquals(ULong.valueOf(1), actualResult.get("linkId"));
-    assertEquals(ULong.valueOf(3), actualResult.get("ideaId"));
-    assertEquals(Choice.MAIN, actualResult.get("type"));
-    assertEquals(ULong.valueOf(2), actualResult.get("phaseOffset"));
-    assertEquals(-3, actualResult.get("transpose"));
+    assertNotNull(result);
+    assertEquals(ULong.valueOf(1), result.get("linkId"));
+    assertEquals(ULong.valueOf(3), result.get("ideaId"));
+    assertEquals(Choice.MAIN, result.get("type"));
+    assertEquals(ULong.valueOf(2), result.get("phaseOffset"));
+    assertEquals(-3, result.get("transpose"));
   }
 
   @Test(expected = BusinessException.class)
@@ -155,15 +155,15 @@ public class ChoiceIT {
       "accounts", "1"
     ));
 
-    JSONObject actualResult = testDAO.readOne(access, ULong.valueOf(2));
+    JSONObject result = testDAO.readOne(access, ULong.valueOf(2));
 
-    assertNotNull(actualResult);
-    assertEquals(ULong.valueOf(2), actualResult.get("id"));
-    assertEquals(ULong.valueOf(1), actualResult.get("linkId"));
-    assertEquals(ULong.valueOf(2), actualResult.get("ideaId"));
-    assertEquals(Choice.RHYTHM, actualResult.get("type"));
-    assertEquals(UInteger.valueOf(1), actualResult.get("phaseOffset"));
-    assertEquals(+2, actualResult.get("transpose"));
+    assertNotNull(result);
+    assertEquals(ULong.valueOf(2), result.get("id"));
+    assertEquals(ULong.valueOf(1), result.get("linkId"));
+    assertEquals(ULong.valueOf(2), result.get("ideaId"));
+    assertEquals(Choice.RHYTHM, result.get("type"));
+    assertEquals(UInteger.valueOf(1), result.get("phaseOffset"));
+    assertEquals(+2, result.get("transpose"));
   }
 
   @Test
@@ -173,9 +173,9 @@ public class ChoiceIT {
       "accounts", "326"
     ));
 
-    JSONObject actualResult = testDAO.readOne(access, ULong.valueOf(1));
+    JSONObject result = testDAO.readOne(access, ULong.valueOf(1));
 
-    assertNull(actualResult);
+    assertNull(result);
   }
 
   @Test
@@ -229,16 +229,16 @@ public class ChoiceIT {
 
     testDAO.update(access, ULong.valueOf(2), inputDataWrapper);
 
-    ChoiceRecord updatedRecord = IntegrationTestService.getDb()
+    ChoiceRecord result = IntegrationTestService.getDb()
       .selectFrom(CHOICE)
       .where(CHOICE.ID.eq(ULong.valueOf(2)))
       .fetchOne();
-    assertNotNull(updatedRecord);
-    assertEquals(ULong.valueOf(1), updatedRecord.getLinkId());
-    assertEquals(ULong.valueOf(3), updatedRecord.getIdeaId());
-    assertEquals(Choice.MAIN, updatedRecord.getType());
-    assertEquals(UInteger.valueOf(2), updatedRecord.getPhaseOffset());
-    assertEquals(Integer.valueOf(-3), updatedRecord.getTranspose());
+    assertNotNull(result);
+    assertEquals(ULong.valueOf(1), result.getLinkId());
+    assertEquals(ULong.valueOf(3), result.getIdeaId());
+    assertEquals(Choice.MAIN, result.getType());
+    assertEquals(UInteger.valueOf(2), result.getPhaseOffset());
+    assertEquals(Integer.valueOf(-3), result.getTranspose());
   }
 
   @Test(expected = BusinessException.class)
@@ -291,12 +291,12 @@ public class ChoiceIT {
       testDAO.update(access, ULong.valueOf(2), inputDataWrapper);
 
     } catch (Exception e) {
-      ChoiceRecord updatedRecord = IntegrationTestService.getDb()
+      ChoiceRecord result = IntegrationTestService.getDb()
         .selectFrom(CHOICE)
         .where(CHOICE.ID.eq(ULong.valueOf(2)))
         .fetchOne();
-      assertNotNull(updatedRecord);
-      assertEquals(ULong.valueOf(1), updatedRecord.getLinkId());
+      assertNotNull(result);
+      assertEquals(ULong.valueOf(1), result.getLinkId());
       throw e;
     }
   }

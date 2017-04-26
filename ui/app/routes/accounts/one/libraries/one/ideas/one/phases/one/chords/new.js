@@ -21,12 +21,14 @@ export default Ember.Route.extend({
   actions: {
 
     createChord(model) {
-      model.save().then(() => {
-        Ember.get(this, 'display').success('Created chord ' + model.get('name') + '.');
-        this.transitionTo('accounts.one.libraries.one.ideas.one.phases.one.chords');
-      }).catch((error) => {
-        Ember.get(this, 'display').error(error);
-      });
+      model.save().then(
+        () => {
+          Ember.get(this, 'display').success('Created chord ' + model.get('name') + '.');
+          this.transitionTo('accounts.one.libraries.one.ideas.one.phases.one.chords');
+        },
+        (error) => {
+          Ember.get(this, 'display').error(error);
+        });
     },
 
     willTransition(transition) {

@@ -10,22 +10,24 @@ export default Ember.Route.extend({
     return Ember.RSVP.hash({
       idea: idea,
       memeToAdd: null,
-      ideaMemes: this.store.query('idea-meme', { ideaId: idea.id }),
+      ideaMemes: this.store.query('idea-meme', {ideaId: idea.id}),
     });
   },
 
   actions: {
 
-    sessionChanged: function() {
+    sessionChanged: function () {
       this.refresh();
     },
 
     destroyIdeaMeme(model) {
-      model.destroyRecord().then(() => {
-        Ember.get(this, 'display').success('Removed Meme from Idea.');
-      }).catch((error) => {
-        Ember.get(this, 'display').error(error);
-      });
+      model.destroyRecord({}).then(
+        () => {
+          Ember.get(this, 'display').success('Removed Meme from Idea.');
+        },
+        (error) => {
+          Ember.get(this, 'display').error(error);
+        });
     },
 
     addMemeToIdea(model) {
@@ -33,12 +35,14 @@ export default Ember.Route.extend({
         idea: model.idea,
         name: model.memeToAdd,
       });
-      ideaMeme.save().then(() => {
-        Ember.get(this, 'display').success('Added ' + ideaMeme.get('name') + ' to ' + model.idea.get('name') + '.');
-        this.send("sessionChanged");
-      }).catch((error) => {
-        Ember.get(this, 'display').error(error);
-      });
+      ideaMeme.save().then(
+        () => {
+          Ember.get(this, 'display').success('Added ' + ideaMeme.get('name') + ' to ' + model.idea.get('name') + '.');
+          this.send("sessionChanged");
+        },
+        (error) => {
+          Ember.get(this, 'display').error(error);
+        });
     },
 
   }

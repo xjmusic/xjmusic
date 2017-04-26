@@ -12,9 +12,11 @@ import io.outright.xj.core.model.idea.IdeaWrapper;
 import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.transport.JSON;
 
+import org.jooq.types.ULong;
+
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.jooq.types.ULong;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -37,9 +39,12 @@ import java.io.IOException;
 @Path("ideas")
 public class IdeaIndexResource {
   private static final Injector injector = Guice.createInjector(new CoreModule());
-//  private static Logger log = LoggerFactory.getLogger(IdeaIndexResource.class);
+  //  private static Logger log = LoggerFactory.getLogger(IdeaIndexResource.class);
   private final IdeaDAO ideaDAO = injector.getInstance(IdeaDAO.class);
   private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
+
+  @QueryParam("accountId")
+  String accountId;
 
   @QueryParam("libraryId")
   String libraryId;
@@ -54,13 +59,35 @@ public class IdeaIndexResource {
   @RolesAllowed({Role.USER})
   public Response readAll(@Context ContainerRequestContext crc) throws IOException {
     AccessControl access = AccessControl.fromContext(crc);
-
-    if (libraryId == null || libraryId.length() == 0) {
-      return httpResponseProvider.notAcceptable("Library id is required");
+    if (libraryId != null && libraryId.length() > 0) {
+      return readAllInLibrary(access);
+    } else if (accountId != null && accountId.length() > 0) {
+      return readAllInAccount(access);
+    } else {
+      return httpResponseProvider.notAcceptable("Either Account or Library id is required");
     }
+  }
 
+  private Response readAllInAccount(AccessControl access) {
     try {
-      JSONArray result = ideaDAO.readAllIn(access, ULong.valueOf(libraryId));
+      JSONArray result = ideaDAO.readAllInAccount(access, ULong.valueOf(accountId));
+      if (result != null) {
+        return Response
+          .accepted(JSON.wrap(Idea.KEY_MANY, result).toString())
+          .type(MediaType.APPLICATION_JSON)
+          .build();
+      } else {
+        return Response.noContent().build();
+      }
+
+    } catch (Exception e) {
+      return httpResponseProvider.failure(e);
+    }
+  }
+
+  private Response readAllInLibrary(AccessControl access) {
+    try {
+      JSONArray result = ideaDAO.readAllInLibrary(access, ULong.valueOf(libraryId));
       if (result != null) {
         return Response
           .accepted(JSON.wrap(Idea.KEY_MANY, result).toString())

@@ -10,6 +10,10 @@ export default Ember.Controller.extend({
       Ember.get(this, 'model').set('state', state);
     },
 
+    selectChainType(type) {
+      Ember.get(this, 'model').set('type', type);
+    },
+
   }
 
 });

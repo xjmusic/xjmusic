@@ -83,12 +83,12 @@ public class VoiceIT {
         .setDescription("This is harmonious")
       );
 
-    JSONObject actualResult = testDAO.create(access, inputDataWrapper);
+    JSONObject result = testDAO.create(access, inputDataWrapper);
 
-    assertNotNull(actualResult);
-    assertEquals(Voice.HARMONIC, actualResult.get("type"));
-    assertEquals("This is harmonious", actualResult.get("description"));
-    assertEquals(ULong.valueOf(2), actualResult.get("phaseId"));
+    assertNotNull(result);
+    assertEquals(Voice.HARMONIC, result.get("type"));
+    assertEquals("This is harmonious", result.get("description"));
+    assertEquals(ULong.valueOf(2), result.get("phaseId"));
   }
 
   @Test(expected = BusinessException.class)
@@ -128,13 +128,13 @@ public class VoiceIT {
       "accounts", "1"
     ));
 
-    JSONObject actualResult = testDAO.readOne(access, ULong.valueOf(2));
+    JSONObject result = testDAO.readOne(access, ULong.valueOf(2));
 
-    assertNotNull(actualResult);
-    assertEquals(ULong.valueOf(2), actualResult.get("id"));
-    assertEquals(ULong.valueOf(1), actualResult.get("phaseId"));
-    assertEquals(Voice.MELODIC, actualResult.get("type"));
-    assertEquals("This is melodious", actualResult.get("description"));
+    assertNotNull(result);
+    assertEquals(ULong.valueOf(2), result.get("id"));
+    assertEquals(ULong.valueOf(1), result.get("phaseId"));
+    assertEquals(Voice.MELODIC, result.get("type"));
+    assertEquals("This is melodious", result.get("description"));
   }
 
   @Test
@@ -144,9 +144,9 @@ public class VoiceIT {
       "accounts", "326"
     ));
 
-    JSONObject actualResult = testDAO.readOne(access, ULong.valueOf(1));
+    JSONObject result = testDAO.readOne(access, ULong.valueOf(1));
 
-    assertNull(actualResult);
+    assertNull(result);
   }
 
   @Test
@@ -230,14 +230,14 @@ public class VoiceIT {
       testDAO.update(access, ULong.valueOf(3), inputDataWrapper);
 
     } catch (Exception e) {
-      VoiceRecord updatedRecord = IntegrationTestService.getDb()
+      VoiceRecord result = IntegrationTestService.getDb()
         .selectFrom(VOICE)
         .where(VOICE.ID.eq(ULong.valueOf(3)))
         .fetchOne();
-      assertNotNull(updatedRecord);
-      assertEquals(Voice.HARMONIC, updatedRecord.getType());
-      assertEquals("This is harmonious", updatedRecord.getDescription());
-      assertEquals(ULong.valueOf(1), updatedRecord.getPhaseId());
+      assertNotNull(result);
+      assertEquals(Voice.HARMONIC, result.getType());
+      assertEquals("This is harmonious", result.getDescription());
+      assertEquals(ULong.valueOf(1), result.getPhaseId());
       throw e;
     }
   }
@@ -257,14 +257,14 @@ public class VoiceIT {
 
     testDAO.update(access, ULong.valueOf(1), inputDataWrapper);
 
-    VoiceRecord updatedRecord = IntegrationTestService.getDb()
+    VoiceRecord result = IntegrationTestService.getDb()
       .selectFrom(VOICE)
       .where(VOICE.ID.eq(ULong.valueOf(1)))
       .fetchOne();
-    assertNotNull(updatedRecord);
-    assertEquals("This is melodious; Yoza!", updatedRecord.getDescription());
-    assertEquals(Voice.MELODIC, updatedRecord.getType());
-    assertEquals(ULong.valueOf(1), updatedRecord.getPhaseId());
+    assertNotNull(result);
+    assertEquals("This is melodious; Yoza!", result.getDescription());
+    assertEquals(Voice.MELODIC, result.getType());
+    assertEquals(ULong.valueOf(1), result.getPhaseId());
   }
 
   // TODO: [core] test DAO cannot update Idea to a User or Library not owned by current session

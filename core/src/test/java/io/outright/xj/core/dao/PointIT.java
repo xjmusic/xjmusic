@@ -59,7 +59,7 @@ public class PointIT {
     IntegrationTestEntity.insertInstrument(9, 1, 2, "jams", Instrument.PERCUSSIVE, 0.6);
 
     // Chain "Test Print #1" has one link
-    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", Chain.READY, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"));
+    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", Chain.PRODUCTION, Chain.READY, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"));
     IntegrationTestEntity.insertLink(1, 1, 0, Link.DUBBED, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120);
 
     // Link "Test Print #1" has 4 choices
@@ -98,14 +98,14 @@ public class PointIT {
         .setDuration(7.25)
       );
 
-    JSONObject actualResult = testDAO.create(access, inputDataWrapper);
+    JSONObject result = testDAO.create(access, inputDataWrapper);
 
-    assertNotNull(actualResult);
-    assertEquals(ULong.valueOf(1), actualResult.get("morphId"));
-    assertEquals(ULong.valueOf(1), actualResult.get("voiceEventId"));
-    assertEquals(12.75, actualResult.get("position"));
-    assertEquals("Db", actualResult.get("note"));
-    assertEquals(7.25, actualResult.get("duration"));
+    assertNotNull(result);
+    assertEquals(ULong.valueOf(1), result.get("morphId"));
+    assertEquals(ULong.valueOf(1), result.get("voiceEventId"));
+    assertEquals(12.75, result.get("position"));
+    assertEquals("Db", result.get("note"));
+    assertEquals(7.25, result.get("duration"));
   }
 
   @Test(expected = BusinessException.class)
@@ -164,14 +164,14 @@ public class PointIT {
       "accounts", "1"
     ));
 
-    JSONObject actualResult = testDAO.readOne(access, ULong.valueOf(1));
+    JSONObject result = testDAO.readOne(access, ULong.valueOf(1));
 
-    assertNotNull(actualResult);
-    assertEquals(ULong.valueOf(1), actualResult.get("morphId"));
-    assertEquals(ULong.valueOf(1), actualResult.get("voiceEventId"));
-    assertEquals(0.125, actualResult.get("position"));
-    assertEquals("C", actualResult.get("note"));
-    assertEquals(1.5, actualResult.get("duration"));
+    assertNotNull(result);
+    assertEquals(ULong.valueOf(1), result.get("morphId"));
+    assertEquals(ULong.valueOf(1), result.get("voiceEventId"));
+    assertEquals(0.125, result.get("position"));
+    assertEquals("C", result.get("note"));
+    assertEquals(1.5, result.get("duration"));
   }
 
   @Test
@@ -181,9 +181,9 @@ public class PointIT {
       "accounts", "326"
     ));
 
-    JSONObject actualResult = testDAO.readOne(access, ULong.valueOf(1));
+    JSONObject result = testDAO.readOne(access, ULong.valueOf(1));
 
-    assertNull(actualResult);
+    assertNull(result);
   }
 
   @Test
@@ -231,16 +231,16 @@ public class PointIT {
 
     testDAO.update(access, ULong.valueOf(1), inputDataWrapper);
 
-    PointRecord updatedRecord = IntegrationTestService.getDb()
+    PointRecord result = IntegrationTestService.getDb()
       .selectFrom(POINT)
       .where(POINT.ID.eq(ULong.valueOf(1)))
       .fetchOne();
-    assertNotNull(updatedRecord);
-    assertEquals(ULong.valueOf(1), updatedRecord.getMorphId());
-    assertEquals(ULong.valueOf(1), updatedRecord.getVoiceEventId());
-    assertEquals(Double.valueOf(12.75), updatedRecord.getPosition());
-    assertEquals("Db", updatedRecord.getNote());
-    assertEquals(Double.valueOf(7.25), updatedRecord.getDuration());
+    assertNotNull(result);
+    assertEquals(ULong.valueOf(1), result.getMorphId());
+    assertEquals(ULong.valueOf(1), result.getVoiceEventId());
+    assertEquals(Double.valueOf(12.75), result.getPosition());
+    assertEquals("Db", result.getNote());
+    assertEquals(Double.valueOf(7.25), result.getDuration());
   }
 
   @Test(expected = BusinessException.class)
@@ -277,12 +277,12 @@ public class PointIT {
       testDAO.update(access, ULong.valueOf(1), inputDataWrapper);
 
     } catch (Exception e) {
-      PointRecord updatedRecord = IntegrationTestService.getDb()
+      PointRecord result = IntegrationTestService.getDb()
         .selectFrom(POINT)
         .where(POINT.ID.eq(ULong.valueOf(1)))
         .fetchOne();
-      assertNotNull(updatedRecord);
-      assertEquals(ULong.valueOf(1), updatedRecord.getMorphId());
+      assertNotNull(result);
+      assertEquals(ULong.valueOf(1), result.getMorphId());
       throw e;
     }
   }

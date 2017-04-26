@@ -37,7 +37,7 @@ import java.util.Objects;
 
 import static io.outright.xj.core.Tables.CHAIN;
 import static io.outright.xj.core.tables.Account.ACCOUNT;
-import static io.outright.xj.core.tables.ChainLibrary.CHAIN_LIBRARY;
+import static io.outright.xj.core.tables.ChainConfig.CHAIN_CONFIG;
 import static io.outright.xj.core.tables.Link.LINK;
 
 /**
@@ -94,10 +94,10 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
 
   @Override
   @Nullable
-  public Result<ChainRecord> readAllRecordsInProduction(AccessControl access, Timestamp atOrBefore) throws Exception {
+  public Result<ChainRecord> readAllRecordsInStateFabricating(AccessControl access, Timestamp atOrBefore) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readAllRecordsInProduction(tx.getContext(), access, atOrBefore));
+      return tx.success(readAllRecordsInStateFabricating(tx.getContext(), access, atOrBefore));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -223,18 +223,18 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
   }
 
   /**
-   * Read all records now in production state
+   * Read all records now in fabricating-state
    *
    * @param db         context
    * @param access     control
-   * @param atOrBefore time to check for chains in production
+   * @param atOrBefore time to check for chains in fabricating state
    * @return array of records
    */
-  private Result<ChainRecord> readAllRecordsInProduction(DSLContext db, AccessControl access, Timestamp atOrBefore) throws SQLException, BusinessException {
+  private Result<ChainRecord> readAllRecordsInStateFabricating(DSLContext db, AccessControl access, Timestamp atOrBefore) throws SQLException, BusinessException {
     requireTopLevel(access);
 
     return db.selectFrom(CHAIN)
-      .where(CHAIN.STATE.eq(Chain.PRODUCTION))
+      .where(CHAIN.STATE.eq(Chain.FABRICATING))
       .and(CHAIN.START_AT.lessOrEqual(atOrBefore))
       .fetch();
   }
@@ -252,6 +252,12 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
   private void updateWrapper(DSLContext db, AccessControl access, ULong id, ChainWrapper data) throws Exception {
     Chain model = data.validate();
     Map<Field, Object> fieldValues = model.intoFieldValueMap();
+
+    // Cannot update TYPE of chain
+    if (fieldValues.containsKey(CHAIN.TYPE)) {
+      fieldValues.remove(CHAIN.TYPE);
+    }
+
     fieldValues.put(CHAIN.ID, id);
     update(db, access, id, fieldValues);
   }
@@ -309,11 +315,11 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
         break;
 
       case Chain.READY:
-        onlyAllowTransitions(updateState, Chain.DRAFT, Chain.READY, Chain.PRODUCTION);
+        onlyAllowTransitions(updateState, Chain.DRAFT, Chain.READY, Chain.FABRICATING);
         break;
 
-      case Chain.PRODUCTION:
-        onlyAllowTransitions(updateState, Chain.READY, Chain.PRODUCTION, Chain.COMPLETE);
+      case Chain.FABRICATING:
+        onlyAllowTransitions(updateState, Chain.READY, Chain.FABRICATING, Chain.COMPLETE);
         break;
 
       case Chain.COMPLETE:
@@ -453,9 +459,9 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
       .where(LINK.CHAIN_ID.eq(id))
       .fetchResultSet());
 
-    requireEmptyResultSet(db.select(CHAIN_LIBRARY.ID)
-      .from(CHAIN_LIBRARY)
-      .where(CHAIN_LIBRARY.CHAIN_ID.eq(id))
+    requireEmptyResultSet(db.select(CHAIN_CONFIG.ID)
+      .from(CHAIN_CONFIG)
+      .where(CHAIN_CONFIG.CHAIN_ID.eq(id))
       .fetchResultSet());
 
     db.deleteFrom(CHAIN)
@@ -466,9 +472,9 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
           .where(LINK.CHAIN_ID.eq(id))
       )
       .andNotExists(
-        db.select(CHAIN_LIBRARY.ID)
-          .from(CHAIN_LIBRARY)
-          .where(CHAIN_LIBRARY.CHAIN_ID.eq(id))
+        db.select(CHAIN_CONFIG.ID)
+          .from(CHAIN_CONFIG)
+          .where(CHAIN_CONFIG.CHAIN_ID.eq(id))
       )
       .execute();
   }

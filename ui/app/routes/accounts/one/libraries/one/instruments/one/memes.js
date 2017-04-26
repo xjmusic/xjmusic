@@ -10,22 +10,24 @@ export default Ember.Route.extend({
     return Ember.RSVP.hash({
       instrument: instrument,
       memeToAdd: null,
-      instrumentMemes: this.store.query('instrument-meme', { instrumentId: instrument.id }),
+      instrumentMemes: this.store.query('instrument-meme', {instrumentId: instrument.id}),
     });
   },
 
   actions: {
 
-    sessionChanged: function() {
+    sessionChanged: function () {
       this.refresh();
     },
 
     destroyInstrumentMeme(model) {
-      model.destroyRecord().then(() => {
-        Ember.get(this, 'display').success('Removed Meme from Instrument.');
-      }).catch((error) => {
-        Ember.get(this, 'display').error(error);
-      });
+      model.destroyRecord({}).then(
+        () => {
+          Ember.get(this, 'display').success('Removed Meme from Instrument.');
+        },
+        (error) => {
+          Ember.get(this, 'display').error(error);
+        });
     },
 
     addMemeToInstrument(model) {
@@ -33,12 +35,14 @@ export default Ember.Route.extend({
         instrument: model.instrument,
         name: model.memeToAdd,
       });
-      instrumentMeme.save().then(() => {
-        Ember.get(this, 'display').success('Added ' + instrumentMeme.get('name') + ' to ' + model.instrument.get('description') + '.');
-        this.send("sessionChanged");
-      }).catch((error) => {
-        Ember.get(this, 'display').error(error);
-      });
+      instrumentMeme.save().then(
+        () => {
+          Ember.get(this, 'display').success('Added ' + instrumentMeme.get('name') + ' to ' + model.instrument.get('description') + '.');
+          this.send("sessionChanged");
+        },
+        (error) => {
+          Ember.get(this, 'display').error(error);
+        });
     },
 
   }

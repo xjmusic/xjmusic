@@ -24,7 +24,7 @@ public class Instrument extends Entity {
   public final static String MELODIC = "melodic";
   public final static String VOCAL = "vocal";
 
-  public final static List<String> allTypes = ImmutableList.of(
+  public final static List<String> TYPES = ImmutableList.of(
     PERCUSSIVE,
     HARMONIC,
     MELODIC,
@@ -109,8 +109,8 @@ public class Instrument extends Entity {
     if (this.description == null || this.description.length() == 0) {
       throw new BusinessException("Description is required.");
     }
-    if (!allTypes.contains(this.type)) {
-      throw new BusinessException("'" + this.type + "' is not a valid type (" + CSV.join(allTypes) + ").");
+    if (!TYPES.contains(this.type)) {
+      throw new BusinessException("'" + this.type + "' is not a valid type (" + CSV.join(TYPES) + ").");
     }
     if (this.density == null) {
       throw new BusinessException("Density is required.");

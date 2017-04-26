@@ -68,11 +68,11 @@ public class LibraryIT {
     LibraryWrapper inputDataWrapper = new LibraryWrapper();
     inputDataWrapper.setLibrary(inputData);
 
-    JSONObject actualResult = testDAO.create(access, inputDataWrapper);
+    JSONObject result = testDAO.create(access, inputDataWrapper);
 
-    assertNotNull(actualResult);
-    assertEquals(ULong.valueOf(1), actualResult.get("accountId"));
-    assertEquals("manuts", actualResult.get("name"));
+    assertNotNull(result);
+    assertEquals(ULong.valueOf(1), result.get("accountId"));
+    assertEquals("manuts", result.get("name"));
   }
 
   @Test(expected = BusinessException.class)
@@ -95,12 +95,12 @@ public class LibraryIT {
       "accounts", "1"
     ));
 
-    JSONObject actualResult = testDAO.readOne(access, ULong.valueOf(2));
+    JSONObject result = testDAO.readOne(access, ULong.valueOf(2));
 
-    assertNotNull(actualResult);
-    assertEquals(ULong.valueOf(2), actualResult.get("id"));
-    assertEquals(ULong.valueOf(1), actualResult.get("accountId"));
-    assertEquals("coconuts", actualResult.get("name"));
+    assertNotNull(result);
+    assertEquals(ULong.valueOf(2), result.get("id"));
+    assertEquals(ULong.valueOf(1), result.get("accountId"));
+    assertEquals("coconuts", result.get("name"));
   }
 
   @Test
@@ -110,9 +110,9 @@ public class LibraryIT {
       "accounts", "326"
     ));
 
-    JSONObject actualResult = testDAO.readOne(access, ULong.valueOf(1));
+    JSONObject result = testDAO.readOne(access, ULong.valueOf(1));
 
-    assertNull(actualResult);
+    assertNull(result);
   }
 
   @Test
@@ -184,13 +184,13 @@ public class LibraryIT {
 
     testDAO.update(access, ULong.valueOf(3), inputDataWrapper);
 
-    LibraryRecord updatedRecord = IntegrationTestService.getDb()
+    LibraryRecord result = IntegrationTestService.getDb()
       .selectFrom(LIBRARY)
       .where(LIBRARY.ID.eq(ULong.valueOf(3)))
       .fetchOne();
-    assertNotNull(updatedRecord);
-    assertEquals("cannons", updatedRecord.getName());
-    assertEquals(ULong.valueOf(1), updatedRecord.getAccountId());
+    assertNotNull(result);
+    assertEquals("cannons", result.getName());
+    assertEquals(ULong.valueOf(1), result.getAccountId());
   }
 
   @Test(expected = BusinessException.class)
@@ -208,13 +208,13 @@ public class LibraryIT {
       testDAO.update(access, ULong.valueOf(3), inputDataWrapper);
 
     } catch (Exception e){
-      LibraryRecord updatedRecord = IntegrationTestService.getDb()
+      LibraryRecord result = IntegrationTestService.getDb()
         .selectFrom(LIBRARY)
         .where(LIBRARY.ID.eq(ULong.valueOf(3)))
         .fetchOne();
-      assertNotNull(updatedRecord);
-      assertEquals("helm", updatedRecord.getName());
-      assertEquals(ULong.valueOf(2), updatedRecord.getAccountId());
+      assertNotNull(result);
+      assertEquals("helm", result.getName());
+      assertEquals(ULong.valueOf(2), result.getAccountId());
       throw e;
     }
   }
@@ -232,13 +232,13 @@ public class LibraryIT {
 
     testDAO.update(access, ULong.valueOf(3), inputDataWrapper);
 
-    LibraryRecord updatedRecord = IntegrationTestService.getDb()
+    LibraryRecord result = IntegrationTestService.getDb()
       .selectFrom(LIBRARY)
       .where(LIBRARY.ID.eq(ULong.valueOf(3)))
       .fetchOne();
-    assertNotNull(updatedRecord);
-    assertEquals("cannons", updatedRecord.getName());
-    assertEquals(ULong.valueOf(2), updatedRecord.getAccountId());
+    assertNotNull(result);
+    assertEquals("cannons", result.getName());
+    assertEquals(ULong.valueOf(2), result.getAccountId());
   }
 
   @Test
@@ -254,13 +254,13 @@ public class LibraryIT {
 
     testDAO.update(access, ULong.valueOf(3), inputDataWrapper);
 
-    LibraryRecord updatedRecord = IntegrationTestService.getDb()
+    LibraryRecord result = IntegrationTestService.getDb()
       .selectFrom(LIBRARY)
       .where(LIBRARY.ID.eq(ULong.valueOf(3)))
       .fetchOne();
-    assertNotNull(updatedRecord);
-    assertEquals("trunk", updatedRecord.getName());
-    assertEquals(ULong.valueOf(1), updatedRecord.getAccountId());
+    assertNotNull(result);
+    assertEquals("trunk", result.getName());
+    assertEquals(ULong.valueOf(1), result.getAccountId());
   }
 
   @Test

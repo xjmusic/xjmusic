@@ -43,7 +43,7 @@ public class LinkIT {
 
     // Account "Testing" has chain "Test Print #1"
     IntegrationTestEntity.insertAccount(1, "Testing");
-    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", Chain.PRODUCTION, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null);
+    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", Chain.PRODUCTION, Chain.FABRICATING, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null);
 
     // Chain "Test Print #1" has 5 sequential links
     IntegrationTestEntity.insertLink(1, 1, 0, Link.DUBBED, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120);
@@ -79,18 +79,18 @@ public class LinkIT {
         .setTempo(120.0)
       );
 
-    JSONObject actualResult = testDAO.create(access, inputDataWrapper);
+    JSONObject result = testDAO.create(access, inputDataWrapper);
 
-    assertNotNull(actualResult);
-    assertEquals(ULong.valueOf(1), actualResult.get("chainId"));
-    assertEquals(ULong.valueOf(5), actualResult.get("offset"));
-    assertEquals(Link.PLANNED, actualResult.get("state"));
-    assertEquals(Timestamp.valueOf("1995-04-28 11:23:00.000001"), actualResult.get("beginAt"));
-    assertEquals(Timestamp.valueOf("1995-04-28 11:23:32.000001"), actualResult.get("endAt"));
-    assertEquals(64, actualResult.get("total"));
-    assertEquals(0.74, actualResult.get("density"));
-    assertEquals("C# minor 7 b9", actualResult.get("key"));
-    assertEquals(120.0, actualResult.get("tempo"));
+    assertNotNull(result);
+    assertEquals(ULong.valueOf(1), result.get("chainId"));
+    assertEquals(ULong.valueOf(5), result.get("offset"));
+    assertEquals(Link.PLANNED, result.get("state"));
+    assertEquals(Timestamp.valueOf("1995-04-28 11:23:00.000001"), result.get("beginAt"));
+    assertEquals(Timestamp.valueOf("1995-04-28 11:23:32.000001"), result.get("endAt"));
+    assertEquals(64, result.get("total"));
+    assertEquals(0.74, result.get("density"));
+    assertEquals("C# minor 7 b9", result.get("key"));
+    assertEquals(120.0, result.get("tempo"));
   }
 
   @Test
@@ -112,18 +112,18 @@ public class LinkIT {
         .setTempo(120.0)
       );
 
-    JSONObject actualResult = testDAO.create(access, inputDataWrapper);
+    JSONObject result = testDAO.create(access, inputDataWrapper);
 
-    assertNotNull(actualResult);
-    assertEquals(ULong.valueOf(1), actualResult.get("chainId"));
-    assertEquals(ULong.valueOf(5), actualResult.get("offset"));
-    assertEquals(Link.PLANNED, actualResult.get("state"));
-    assertEquals(Timestamp.valueOf("1995-04-28 11:23:00.000001"), actualResult.get("beginAt"));
-    assertEquals(Timestamp.valueOf("1995-04-28 11:23:32.000001"), actualResult.get("endAt"));
-    assertEquals(64, actualResult.get("total"));
-    assertEquals(0.74, actualResult.get("density"));
-    assertEquals("C# minor 7 b9", actualResult.get("key"));
-    assertEquals(120.0, actualResult.get("tempo"));
+    assertNotNull(result);
+    assertEquals(ULong.valueOf(1), result.get("chainId"));
+    assertEquals(ULong.valueOf(5), result.get("offset"));
+    assertEquals(Link.PLANNED, result.get("state"));
+    assertEquals(Timestamp.valueOf("1995-04-28 11:23:00.000001"), result.get("beginAt"));
+    assertEquals(Timestamp.valueOf("1995-04-28 11:23:32.000001"), result.get("endAt"));
+    assertEquals(64, result.get("total"));
+    assertEquals(0.74, result.get("density"));
+    assertEquals("C# minor 7 b9", result.get("key"));
+    assertEquals(120.0, result.get("tempo"));
   }
 
   @Test(expected = BusinessException.class)
@@ -225,19 +225,19 @@ public class LinkIT {
       "accounts", "1"
     ));
 
-    JSONObject actualResult = testDAO.readOne(access, ULong.valueOf(2));
+    JSONObject result = testDAO.readOne(access, ULong.valueOf(2));
 
-    assertNotNull(actualResult);
-    assertEquals(ULong.valueOf(2), actualResult.get("id"));
-    assertEquals(ULong.valueOf(1), actualResult.get("chainId"));
-    assertEquals(ULong.valueOf(1), actualResult.get("offset"));
-    assertEquals(Link.DUBBING, actualResult.get("state"));
-    assertEquals(Timestamp.valueOf("2017-02-14 12:01:32.000001"), actualResult.get("beginAt"));
-    assertEquals(Timestamp.valueOf("2017-02-14 12:02:04.000001"), actualResult.get("endAt"));
-    assertEquals(ULong.valueOf(64), actualResult.get("total"));
-    assertEquals(0.85, actualResult.get("density"));
-    assertEquals("Db minor", actualResult.get("key"));
-    assertEquals(120.0, actualResult.get("tempo"));
+    assertNotNull(result);
+    assertEquals(ULong.valueOf(2), result.get("id"));
+    assertEquals(ULong.valueOf(1), result.get("chainId"));
+    assertEquals(ULong.valueOf(1), result.get("offset"));
+    assertEquals(Link.DUBBING, result.get("state"));
+    assertEquals(Timestamp.valueOf("2017-02-14 12:01:32.000001"), result.get("beginAt"));
+    assertEquals(Timestamp.valueOf("2017-02-14 12:02:04.000001"), result.get("endAt"));
+    assertEquals(ULong.valueOf(64), result.get("total"));
+    assertEquals(0.85, result.get("density"));
+    assertEquals("Db minor", result.get("key"));
+    assertEquals(120.0, result.get("tempo"));
   }
 
   @Test
@@ -247,9 +247,9 @@ public class LinkIT {
       "accounts", "326"
     ));
 
-    JSONObject actualResult = testDAO.readOne(access, ULong.valueOf(1));
+    JSONObject result = testDAO.readOne(access, ULong.valueOf(1));
 
-    assertNull(actualResult);
+    assertNull(result);
   }
 
   @Test
@@ -282,15 +282,15 @@ public class LinkIT {
       "roles", "internal"
     ));
 
-    JSONObject actualResult = testDAO.readOneInState(access, ULong.valueOf(1), Link.PLANNED, Timestamp.valueOf("2017-02-14 12:03:08.000001"));
+    JSONObject result = testDAO.readOneInState(access, ULong.valueOf(1), Link.PLANNED, Timestamp.valueOf("2017-02-14 12:03:08.000001"));
 
-    assertNotNull(actualResult);
-    assertEquals(ULong.valueOf(5), actualResult.get("id"));
-    assertEquals(ULong.valueOf(1), actualResult.get("chainId"));
-    assertEquals(ULong.valueOf(4), actualResult.get("offset"));
-    assertEquals(Link.PLANNED, actualResult.get("state"));
-    assertEquals(Timestamp.valueOf("2017-02-14 12:03:08.000001"), actualResult.get("beginAt"));
-    assertFalse(actualResult.has("endAt"));
+    assertNotNull(result);
+    assertEquals(ULong.valueOf(5), result.get("id"));
+    assertEquals(ULong.valueOf(1), result.get("chainId"));
+    assertEquals(ULong.valueOf(4), result.get("offset"));
+    assertEquals(Link.PLANNED, result.get("state"));
+    assertEquals(Timestamp.valueOf("2017-02-14 12:03:08.000001"), result.get("beginAt"));
+    assertFalse(result.has("endAt"));
   }
 
   @Test
@@ -298,11 +298,11 @@ public class LinkIT {
     AccessControl access = new AccessControl(ImmutableMap.of(
       "roles", "internal"
     ));
-    IntegrationTestEntity.insertChain(2, 1, "Test Print #2", Chain.PRODUCTION, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null);
+    IntegrationTestEntity.insertChain(2, 1, "Test Print #2", Chain.PRODUCTION, Chain.FABRICATING, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null);
 
-    JSONObject actualResult = testDAO.readOneInState(access, ULong.valueOf(2), Link.PLANNED, Timestamp.valueOf("2017-02-14 12:03:08.000001"));
+    JSONObject result = testDAO.readOneInState(access, ULong.valueOf(2), Link.PLANNED, Timestamp.valueOf("2017-02-14 12:03:08.000001"));
 
-    assertNull(actualResult);
+    assertNull(result);
   }
 
 
@@ -340,16 +340,16 @@ public class LinkIT {
 
     testDAO.update(access, ULong.valueOf(2), inputDataWrapper);
 
-    LinkRecord updatedRecord = IntegrationTestService.getDb()
+    LinkRecord result = IntegrationTestService.getDb()
       .selectFrom(LINK)
       .where(LINK.ID.eq(ULong.valueOf(2)))
       .fetchOne();
-    assertNotNull(updatedRecord);
-    assertEquals("C# minor 7 b9", updatedRecord.getKey());
-    assertEquals(ULong.valueOf(1), updatedRecord.getChainId());
-    assertEquals(Link.DUBBED, updatedRecord.getState());
-    assertEquals(Timestamp.valueOf("1995-04-28 11:23:00.000001"), updatedRecord.getBeginAt());
-    assertEquals(Timestamp.valueOf("1995-04-28 11:23:32.000001"), updatedRecord.getEndAt());
+    assertNotNull(result);
+    assertEquals("C# minor 7 b9", result.getKey());
+    assertEquals(ULong.valueOf(1), result.getChainId());
+    assertEquals(Link.DUBBED, result.getState());
+    assertEquals(Timestamp.valueOf("1995-04-28 11:23:00.000001"), result.getBeginAt());
+    assertEquals(Timestamp.valueOf("1995-04-28 11:23:32.000001"), result.getEndAt());
   }
 
   @Test(expected =  BusinessException.class)
@@ -441,13 +441,13 @@ public class LinkIT {
       testDAO.update(access, ULong.valueOf(2), inputDataWrapper);
 
     } catch (Exception e) {
-      LinkRecord updatedRecord = IntegrationTestService.getDb()
+      LinkRecord result = IntegrationTestService.getDb()
         .selectFrom(LINK)
         .where(LINK.ID.eq(ULong.valueOf(2)))
         .fetchOne();
-      assertNotNull(updatedRecord);
-      assertEquals("Db minor", updatedRecord.getKey());
-      assertEquals(ULong.valueOf(1), updatedRecord.getChainId());
+      assertNotNull(result);
+      assertEquals("Db minor", result.getKey());
+      assertEquals(ULong.valueOf(1), result.getChainId());
       throw e;
     }
   }

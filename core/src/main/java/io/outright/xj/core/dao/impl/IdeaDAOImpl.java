@@ -1,6 +1,7 @@
 // Copyright Outright Mental, Inc. All Rights Reserved.
 package io.outright.xj.core.dao.impl;
 
+import io.outright.xj.core.Tables;
 import io.outright.xj.core.app.access.impl.AccessControl;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.app.exception.ConfigException;
@@ -63,10 +64,21 @@ public class IdeaDAOImpl extends DAOImpl implements IdeaDAO {
 
   @Override
   @Nullable
-  public JSONArray readAllIn(AccessControl access, ULong libraryId) throws Exception {
+  public JSONArray readAllInAccount(AccessControl access, ULong accountId) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readAllIn(tx.getContext(), access, libraryId));
+      return tx.success(readAllInAccount(tx.getContext(), access, accountId));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  @Nullable
+  public JSONArray readAllInLibrary(AccessControl access, ULong libraryId) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readAllInLibrary(tx.getContext(), access, libraryId));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -148,12 +160,37 @@ public class IdeaDAOImpl extends DAOImpl implements IdeaDAO {
 
   /**
    * Read all records in parent record by id
+   *
+   * @param db        context
+   * @param access    control
+   * @param accountId of parent
+   * @return array of records
+   */
+  private JSONArray readAllInAccount(DSLContext db, AccessControl access, ULong accountId) throws SQLException {
+    if (access.isTopLevel()) {
+      return JSON.arrayFromResultSet(db.select(IDEA.fields())
+        .from(IDEA)
+        .join(Tables.LIBRARY).on(IDEA.LIBRARY_ID.eq(Tables.LIBRARY.ID))
+        .where(Tables.LIBRARY.ACCOUNT_ID.eq(accountId))
+        .fetchResultSet());
+    } else {
+      return JSON.arrayFromResultSet(db.select(IDEA.fields())
+        .from(IDEA)
+        .join(Tables.LIBRARY).on(IDEA.LIBRARY_ID.eq(Tables.LIBRARY.ID))
+        .where(Tables.LIBRARY.ACCOUNT_ID.in(accountId))
+        .and(Tables.LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
+        .fetchResultSet());
+    }
+  }
+
+  /**
+   * Read all records in parent record by id
    * @param db context
    * @param access control
    * @param libraryId of parent
    * @return array of records
    */
-  private JSONArray readAllIn(DSLContext db, AccessControl access, ULong libraryId) throws SQLException {
+  private JSONArray readAllInLibrary(DSLContext db, AccessControl access, ULong libraryId) throws SQLException {
     if (access.isTopLevel()) {
       return JSON.arrayFromResultSet(db.select(IDEA.fields())
         .from(IDEA)

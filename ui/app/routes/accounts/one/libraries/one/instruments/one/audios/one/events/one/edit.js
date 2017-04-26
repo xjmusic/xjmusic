@@ -22,21 +22,25 @@ export default Ember.Route.extend({
   actions: {
 
     saveEvent(model) {
-      model.save().then(() => {
-        Ember.get(this, 'display').success('Updated event "' + model.get('inflection') + '" event in ' + model.get('note') + '.');
-        this.transitionTo('accounts.one.libraries.one.instruments.one.audios.one.events');
-      }).catch((error) => {
-        Ember.get(this, 'display').error(error);
-      });
+      model.save().then(
+        () => {
+          Ember.get(this, 'display').success('Updated event "' + model.get('inflection') + '" event in ' + model.get('note') + '.');
+          this.transitionTo('accounts.one.libraries.one.instruments.one.audios.one.events');
+        },
+        (error) => {
+          Ember.get(this, 'display').error(error);
+        });
     },
 
     destroyEvent(model) {
-      model.destroyRecord().then(() => {
-        Ember.get(this, 'display').success('Deleted event "' + model.get('inflection') + '" event in ' + model.get('note') + '.');
-        this.transitionTo('accounts.one.libraries.one.instruments.one.audios.one.events');
-      }).catch((error) => {
-        Ember.get(this, 'display').error(error);
-      });
+      model.destroyRecord({}).then(
+        () => {
+          Ember.get(this, 'display').success('Deleted event "' + model.get('inflection') + '" event in ' + model.get('note') + '.');
+          this.transitionTo('accounts.one.libraries.one.instruments.one.audios.one.events');
+        },
+        (error) => {
+          Ember.get(this, 'display').error(error);
+        });
     },
 
     willTransition(transition) {

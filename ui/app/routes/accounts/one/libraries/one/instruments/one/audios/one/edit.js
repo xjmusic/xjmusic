@@ -22,21 +22,25 @@ export default Ember.Route.extend({
   actions: {
 
     saveAudio(model) {
-      model.save().then(() => {
-        Ember.get(this, 'display').success('Updated audio "' + model.get('name') + '".');
-        this.transitionTo('accounts.one.libraries.one.instruments.one.audios');
-      }).catch((error) => {
-        Ember.get(this, 'display').error(error);
-      });
+      model.save().then(
+        () => {
+          Ember.get(this, 'display').success('Updated audio "' + model.get('name') + '".');
+          this.transitionTo('accounts.one.libraries.one.instruments.one.audios');
+        },
+        (error) => {
+          Ember.get(this, 'display').error(error);
+        });
     },
 
     destroyAudio(model) {
-      model.destroyRecord().then(() => {
-        Ember.get(this, 'display').success('Deleted audio "' + model.get('name') + '".');
-        this.transitionTo('accounts.one.libraries.one.instruments.one.audios');
-      }).catch((error) => {
-        Ember.get(this, 'display').error(error);
-      });
+      model.destroyRecord({}).then(
+        () => {
+          Ember.get(this, 'display').success('Deleted audio "' + model.get('name') + '".');
+          this.transitionTo('accounts.one.libraries.one.instruments.one.audios');
+        },
+        (error) => {
+          Ember.get(this, 'display').error(error);
+        });
     },
 
     willTransition(transition) {

@@ -25,21 +25,30 @@ public class Chain extends Entity {
    */
   public static final String KEY_ONE = "chain";
   public static final String KEY_MANY = "chains";
-  public static final String KEY_START_AT = "startAt";
-  public static final String KEY_STOP_AT = "stopAt";
+
+  /**
+   * Types
+   */
+  public final static String PREVIEW = "preview";
+  public final static String PRODUCTION = "production";
+  // list of all types
+  public final static List<String> TYPES = ImmutableList.of(
+    PREVIEW,
+    PRODUCTION
+  );
 
   /**
    * State-machine states
    */
   public static final String DRAFT = "draft";
   public static final String READY = "ready";
-  public static final String PRODUCTION = "production";
+  public static final String FABRICATING = "fabricating";
   public static final String COMPLETE = "complete";
   // list of all states
-  private final static List<String> allStates = ImmutableList.of(
+  public final static List<String> STATES = ImmutableList.of(
     DRAFT,
     READY,
-    PRODUCTION,
+    FABRICATING,
     COMPLETE
   );
 
@@ -76,6 +85,18 @@ public class Chain extends Entity {
 
   public Chain setState(String state) {
     this.state = Purify.LowerSlug(state);
+    return this;
+  }
+
+  // Type
+  private String type;
+
+  public String getType() {
+    return type;
+  }
+
+  public Chain setType(String type) {
+    this.type = Purify.LowerSlug(type);
     return this;
   }
 
@@ -124,6 +145,12 @@ public class Chain extends Entity {
     if (this.accountId == null) {
       throw new BusinessException("Account ID is required.");
     }
+    if (this.type == null || this.type.length() == 0) {
+      throw new BusinessException("Type is required.");
+    }
+    if (!TYPES.contains(this.type)) {
+      throw new BusinessException("'" + this.type + "' is not a valid type (" + CSV.join(TYPES) + ").");
+    }
     if (this.name == null || this.name.length() == 0) {
       throw new BusinessException("Name is required.");
     }
@@ -137,6 +164,7 @@ public class Chain extends Entity {
 
   /**
    * Validate a state
+   *
    * @param state to validate
    * @throws BusinessException if invalid
    */
@@ -144,8 +172,8 @@ public class Chain extends Entity {
     if (state == null || state.length() == 0) {
       throw new BusinessException("State is required.");
     }
-    if (!allStates.contains(state)) {
-      throw new BusinessException("'" + state + "' is not a valid state (" + CSV.join(allStates) + ").");
+    if (!STATES.contains(state)) {
+      throw new BusinessException("'" + state + "' is not a valid state (" + CSV.join(STATES) + ").");
     }
   }
 
@@ -158,6 +186,7 @@ public class Chain extends Entity {
     Map<Field, Object> fieldValues = Maps.newHashMap();
     fieldValues.put(CHAIN.ACCOUNT_ID, accountId);
     fieldValues.put(CHAIN.NAME, name);
+    fieldValues.put(CHAIN.TYPE, type);
     fieldValues.put(CHAIN.STATE, state);
     fieldValues.put(CHAIN.START_AT, startAt);
     fieldValues.put(CHAIN.STOP_AT, stopAt);

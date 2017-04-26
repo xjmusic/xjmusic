@@ -3,6 +3,7 @@ package io.outright.xj.core.model.voice;
 
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.model.Entity;
+import io.outright.xj.core.model.instrument.Instrument;
 import io.outright.xj.core.transport.CSV;
 import io.outright.xj.core.util.Purify;
 
@@ -10,7 +11,6 @@ import org.jooq.Field;
 import org.jooq.types.ULong;
 
 import com.google.api.client.util.Maps;
-import com.google.common.collect.ImmutableList;
 
 import java.math.BigInteger;
 import java.util.List;
@@ -24,12 +24,10 @@ public class Voice extends Entity {
   public final static String MELODIC = "melodic";
   public final static String VOCAL = "vocal";
 
-  public final static List<String> allTypes = ImmutableList.of(
-    PERCUSSIVE,
-    HARMONIC,
-    MELODIC,
-    VOCAL
-  );
+  /**
+   * It is implied that voice types must equal instrument types
+   */
+  public final static List<String> TYPES = Instrument.TYPES;
 
   /**
    * Phase
@@ -86,8 +84,8 @@ public class Voice extends Entity {
     if (this.type == null || this.type.length() == 0) {
       throw new BusinessException("Type is required.");
     }
-    if (!allTypes.contains(this.type)) {
-      throw new BusinessException("'" + this.type + "' is not a valid type (" + CSV.join(allTypes) + ").");
+    if (!TYPES.contains(this.type)) {
+      throw new BusinessException("'" + this.type + "' is not a valid type (" + CSV.join(TYPES) + ").");
     }
     if (this.description == null || this.description.length() == 0) {
       throw new BusinessException("Description is required.");

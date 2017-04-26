@@ -1,4 +1,4 @@
-// Copyright Outright Mental, Inc. All Rights Reserved.
+// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 package io.outright.xj.hub.resource.chain_library;
 
 import io.outright.xj.core.CoreModule;
@@ -32,7 +32,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 
 /**
- * Chain record
+ * Chain Library record
  */
 @Path("chain-libraries")
 public class ChainLibraryIndexResource {

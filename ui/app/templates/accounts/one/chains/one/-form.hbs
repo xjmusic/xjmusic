@@ -12,9 +12,13 @@
   <label class="col-sm-2 control-label">State</label>
   <div class="col-sm-10">
     <select class="form-control" onchange={{action "selectChainState" value="target.value"}} title="State">
-      {{#each config.chainStates as |state|}}
-        <option value={{state}} selected={{eq model.state state}}>{{state}}</option>
-      {{/each}}
+      {{#if config.chainStates}}
+        {{#each config.chainStates as |state|}}
+          <option value={{state}} selected={{eq model.state state}}>{{state}}</option>
+        {{/each}}
+      {{else}}
+        <option value={{model.state}} selected>{{model.state}}</option>
+      {{/if}}
     </select>
     <!--input type="text" value=model.state class="form-control" autofocus="autofocus"
             placeholder="The state of the Chain"}} -->

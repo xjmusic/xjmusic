@@ -22,21 +22,25 @@ export default Ember.Route.extend({
   actions: {
 
     saveChord(model) {
-      model.save().then(() => {
-        Ember.get(this, 'display').success('Updated chord ' + model.get('name') + '.');
-        this.transitionTo('accounts.one.libraries.one.instruments.one.audios.one.chords');
-      }).catch((error) => {
-        Ember.get(this, 'display').error(error);
-      });
+      model.save().then(
+        () => {
+          Ember.get(this, 'display').success('Updated chord ' + model.get('name') + '.');
+          this.transitionTo('accounts.one.libraries.one.instruments.one.audios.one.chords');
+        },
+        (error) => {
+          Ember.get(this, 'display').error(error);
+        });
     },
 
     destroyChord(model) {
-      model.destroyRecord().then(() => {
-        Ember.get(this, 'display').success('Deleted chord ' + model.get('name') + '.');
-        this.transitionTo('accounts.one.libraries.one.instruments.one.audios.one.chords');
-      }).catch((error) => {
-        Ember.get(this, 'display').error(error);
-      });
+      model.destroyRecord({}).then(
+        () => {
+          Ember.get(this, 'display').success('Deleted chord ' + model.get('name') + '.');
+          this.transitionTo('accounts.one.libraries.one.instruments.one.audios.one.chords');
+        },
+        (error) => {
+          Ember.get(this, 'display').error(error);
+        });
     },
 
     willTransition(transition) {

@@ -62,7 +62,7 @@ public class LinkLeaderImpl implements Leader {
   public JSONArray getTasks() {
     JSONArray tasks = new JSONArray();
     try {
-      Result<ChainRecord> chains = chainDAO.readAllRecordsInProduction(AccessControl.forInternalWorker(), TimestampUTC.nowPlusSeconds(bufferSeconds));
+      Result<ChainRecord> chains = chainDAO.readAllRecordsInStateFabricating(AccessControl.forInternalWorker(), TimestampUTC.nowPlusSeconds(bufferSeconds));
       if (chains != null && chains.size() > 0) {
         for (ChainRecord chain : chains) {
           JSONObject link = readLinkFor(chain, fromState);

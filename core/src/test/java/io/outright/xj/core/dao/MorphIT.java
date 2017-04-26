@@ -58,7 +58,7 @@ public class MorphIT {
     IntegrationTestEntity.insertInstrument(9, 1, 2, "jams", Instrument.PERCUSSIVE, 0.6);
 
     // Chain "Test Print #1" has one link
-    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", Chain.READY, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"));
+    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", Chain.PRODUCTION, Chain.READY, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"));
     IntegrationTestEntity.insertLink(1, 1, 0, Link.DUBBED, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120);
 
     // Link "Test Print #1" has 4 choices
@@ -93,13 +93,13 @@ public class MorphIT {
         .setDuration(3.75)
       );
 
-    JSONObject actualResult = testDAO.create(access, inputDataWrapper);
+    JSONObject result = testDAO.create(access, inputDataWrapper);
 
-    assertNotNull(actualResult);
-    assertEquals(ULong.valueOf(1), actualResult.get("arrangementId"));
-    assertEquals(1.75, actualResult.get("position"));
-    assertEquals("G", actualResult.get("note"));
-    assertEquals(3.75, actualResult.get("duration"));
+    assertNotNull(result);
+    assertEquals(ULong.valueOf(1), result.get("arrangementId"));
+    assertEquals(1.75, result.get("position"));
+    assertEquals("G", result.get("note"));
+    assertEquals(3.75, result.get("duration"));
   }
 
   @Test(expected = BusinessException.class)
@@ -155,13 +155,13 @@ public class MorphIT {
       "accounts", "1"
     ));
 
-    JSONObject actualResult = testDAO.readOne(access, ULong.valueOf(1));
+    JSONObject result = testDAO.readOne(access, ULong.valueOf(1));
 
-    assertNotNull(actualResult);
-    assertEquals(ULong.valueOf(1), actualResult.get("arrangementId"));
-    assertEquals(.75, actualResult.get("position"));
-    assertEquals("C", actualResult.get("note"));
-    assertEquals(0.5, actualResult.get("duration"));
+    assertNotNull(result);
+    assertEquals(ULong.valueOf(1), result.get("arrangementId"));
+    assertEquals(.75, result.get("position"));
+    assertEquals("C", result.get("note"));
+    assertEquals(0.5, result.get("duration"));
   }
 
   @Test
@@ -171,9 +171,9 @@ public class MorphIT {
       "accounts", "326"
     ));
 
-    JSONObject actualResult = testDAO.readOne(access, ULong.valueOf(1));
+    JSONObject result = testDAO.readOne(access, ULong.valueOf(1));
 
-    assertNull(actualResult);
+    assertNull(result);
   }
 
   @Test
@@ -222,15 +222,15 @@ public class MorphIT {
 
     testDAO.update(access, ULong.valueOf(1), inputDataWrapper);
 
-    MorphRecord updatedRecord = IntegrationTestService.getDb()
+    MorphRecord result = IntegrationTestService.getDb()
       .selectFrom(MORPH)
       .where(MORPH.ID.eq(ULong.valueOf(1)))
       .fetchOne();
-    assertNotNull(updatedRecord);
-    assertEquals(ULong.valueOf(1), updatedRecord.getArrangementId());
-    assertEquals(Double.valueOf(1.75), updatedRecord.getPosition());
-    assertEquals("G", updatedRecord.getNote());
-    assertEquals(Double.valueOf(3.75), updatedRecord.getDuration());
+    assertNotNull(result);
+    assertEquals(ULong.valueOf(1), result.getArrangementId());
+    assertEquals(Double.valueOf(1.75), result.getPosition());
+    assertEquals("G", result.getNote());
+    assertEquals(Double.valueOf(3.75), result.getDuration());
   }
 
   @Test(expected = BusinessException.class)
@@ -265,12 +265,12 @@ public class MorphIT {
       testDAO.update(access, ULong.valueOf(1), inputDataWrapper);
 
     } catch (Exception e) {
-      MorphRecord updatedRecord = IntegrationTestService.getDb()
+      MorphRecord result = IntegrationTestService.getDb()
         .selectFrom(MORPH)
         .where(MORPH.ID.eq(ULong.valueOf(1)))
         .fetchOne();
-      assertNotNull(updatedRecord);
-      assertEquals(ULong.valueOf(1), updatedRecord.getArrangementId());
+      assertNotNull(result);
+      assertEquals(ULong.valueOf(1), result.getArrangementId());
       throw e;
     }
   }

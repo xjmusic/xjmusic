@@ -5,12 +5,13 @@ export default Ember.Route.extend({
 
   display: Ember.inject.service(),
 
-  model: function() {
+  model: function () {
     let audio = this.modelFor('accounts.one.libraries.one.instruments.one.audios.one');
-    let events = this.store.query('audio-event', { audioId: audio.get('id') }).catch((error)=>{
-      Ember.get(this, 'display').error(error);
-      this.transitionTo('');
-    });
+    let events = this.store.query('audio-event', {audioId: audio.get('id')})
+      .catch((error) => {
+        Ember.get(this, 'display').error(error);
+        this.transitionTo('');
+      });
     return Ember.RSVP.hash({
       audio: audio,
       events: events,

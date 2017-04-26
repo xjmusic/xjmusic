@@ -38,12 +38,23 @@ public interface InstrumentDAO {
    * Fetch many instrument for one Account by id, if accessible
    *
    * @param access    control
+   * @param accountId to fetch instruments for.
+   * @return JSONArray of instruments.
+   * @throws Exception on failure
+   */
+  @Nullable
+  JSONArray readAllInAccount(AccessControl access, ULong accountId) throws Exception;
+
+  /**
+   * Fetch many instrument for one Library by id, if accessible
+   *
+   * @param access    control
    * @param libraryId to fetch instruments for.
    * @return JSONArray of instruments.
    * @throws Exception on failure
    */
   @Nullable
-  JSONArray readAllIn(AccessControl access, ULong libraryId) throws Exception;
+  JSONArray readAllInLibrary(AccessControl access, ULong libraryId) throws Exception;
 
   /**
    * (ADMIN ONLY)

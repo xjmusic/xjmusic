@@ -43,7 +43,7 @@ public class LinkChordIT {
 
     // Account "Testing" has chain "Test Print #1"
     IntegrationTestEntity.insertAccount(1, "Testing");
-    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", Chain.READY, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"));
+    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", Chain.PRODUCTION, Chain.READY, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"));
 
     // Chain "Test Print #1" has 5 sequential links
     IntegrationTestEntity.insertLink(1, 1, 0, Link.DUBBED, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120);
@@ -75,12 +75,12 @@ public class LinkChordIT {
         .setLinkId(BigInteger.valueOf(1))
       );
 
-    JSONObject actualResult = testDAO.create(access, inputDataWrapper);
+    JSONObject result = testDAO.create(access, inputDataWrapper);
 
-    assertNotNull(actualResult);
-    assertEquals(0.42, actualResult.get("position"));
-    assertEquals("G minor 7", actualResult.get("name"));
-    assertEquals(ULong.valueOf(1), actualResult.get("linkId"));
+    assertNotNull(result);
+    assertEquals(0.42, result.get("position"));
+    assertEquals("G minor 7", result.get("name"));
+    assertEquals(ULong.valueOf(1), result.get("linkId"));
   }
 
   @Test(expected = BusinessException.class)
@@ -96,7 +96,7 @@ public class LinkChordIT {
         .setLinkId(BigInteger.valueOf(2))
       );
 
-    JSONObject actualResult = testDAO.create(access, inputDataWrapper);
+    JSONObject result = testDAO.create(access, inputDataWrapper);
   }
 
   @Test(expected = BusinessException.class)
@@ -134,12 +134,12 @@ public class LinkChordIT {
       "accounts", "1"
     ));
 
-    JSONObject actualResult = testDAO.readOne(access, ULong.valueOf(2));
+    JSONObject result = testDAO.readOne(access, ULong.valueOf(2));
 
-    assertNotNull(actualResult);
-    assertEquals(ULong.valueOf(2), actualResult.get("id"));
-    assertEquals(ULong.valueOf(1), actualResult.get("linkId"));
-    assertEquals("D major", actualResult.get("name"));
+    assertNotNull(result);
+    assertEquals(ULong.valueOf(2), result.get("id"));
+    assertEquals(ULong.valueOf(1), result.get("linkId"));
+    assertEquals("D major", result.get("name"));
   }
 
   @Test
@@ -149,9 +149,9 @@ public class LinkChordIT {
       "accounts", "326"
     ));
 
-    JSONObject actualResult = testDAO.readOne(access, ULong.valueOf(1));
+    JSONObject result = testDAO.readOne(access, ULong.valueOf(1));
 
-    assertNull(actualResult);
+    assertNull(result);
   }
 
   @Test
@@ -231,13 +231,13 @@ public class LinkChordIT {
       testDAO.update(access, ULong.valueOf(2), inputDataWrapper);
 
     } catch (Exception e) {
-      LinkChordRecord updatedRecord = IntegrationTestService.getDb()
+      LinkChordRecord result = IntegrationTestService.getDb()
         .selectFrom(LINK_CHORD)
         .where(LINK_CHORD.ID.eq(ULong.valueOf(2)))
         .fetchOne();
-      assertNotNull(updatedRecord);
-      assertEquals("D major", updatedRecord.getName());
-      assertEquals(ULong.valueOf(1), updatedRecord.getLinkId());
+      assertNotNull(result);
+      assertEquals("D major", result.getName());
+      assertEquals(ULong.valueOf(1), result.getLinkId());
       throw e;
     }
   }
@@ -256,14 +256,14 @@ public class LinkChordIT {
 
     testDAO.update(access, ULong.valueOf(1), inputDataWrapper);
 
-    LinkChordRecord updatedRecord = IntegrationTestService.getDb()
+    LinkChordRecord result = IntegrationTestService.getDb()
       .selectFrom(LINK_CHORD)
       .where(LINK_CHORD.ID.eq(ULong.valueOf(1)))
       .fetchOne();
-    assertNotNull(updatedRecord);
-    assertEquals("POPPYCOCK", updatedRecord.getName());
-    assertEquals((Double) 0.42, updatedRecord.getPosition());
-    assertEquals(ULong.valueOf(1), updatedRecord.getLinkId());
+    assertNotNull(result);
+    assertEquals("POPPYCOCK", result.getName());
+    assertEquals((Double) 0.42, result.getPosition());
+    assertEquals(ULong.valueOf(1), result.getLinkId());
   }
 
   @Test(expected = BusinessException.class)
