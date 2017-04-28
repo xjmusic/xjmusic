@@ -14,19 +14,18 @@
       <table class="table">
         <thead>
         <tr>
-          <th>#</th>
-          <th>Type</th>
-          <th>Name</th>
-          <th>State</th>
-          <th>Start At</th>
-          <th>Stop At</th>
-          <th>Action</th>
+          <th width="1%">Type</th>
+          <th width="1%">Name</th>
+          <th width="1%">State</th>
+          <th width="1%">Start At</th>
+          <th width="1%">Stop At</th>
+          <th></th>
+          <th width="1%">#</th>
         </tr>
         </thead>
         <tbody>
         {{#each model.chains as |chain|}}
           <tr class="item {{chain.state}}-state">
-            <th scope="row">{{#link-to "accounts.one.chains.one" chain}}{{chain.id}}{{/link-to}}</th>
             <td>{{chain.type}}</td>
             <td>{{chain.name}}</td>
             <td>{{chain.state}}</td>
@@ -40,6 +39,7 @@
               |&nbsp;{{#link-to 'accounts.one.chains.one.ideas' chain}}Ideas{{/link-to}}
               |&nbsp;{{#link-to 'accounts.one.chains.one.links' chain}}Links{{/link-to}}
             </td>
+            <th scope="row">{{#link-to "accounts.one.chains.one" chain}}{{chain.id}}{{/link-to}}</th>
           </tr>
         {{/each}}
         </tbody>

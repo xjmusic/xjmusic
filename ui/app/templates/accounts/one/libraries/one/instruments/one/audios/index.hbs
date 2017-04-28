@@ -8,50 +8,51 @@
 <!-- Upper Container -->
 <div class="form-horizontal">
 
-    <!-- List of Audios -->
-    <div class="sm-col-12">
-        <div class="table-list">
-            <table class="table">
-                <thead>
-                <tr>
-                    <th>#</th>
-                    <th>name</th>
-                    <th>waveformKey</th>
-                    <th>tempo</th>
-                    <th>pitch</th>
-                    <th>start</th>
-                    <th>length</th>
-                </tr>
-                </thead>
-                <tbody>
-                {{#each model.audios as |audio|}}
-                    <tr class="item">
-                        <th scope="row">{{#link-to "accounts.one.libraries.one.instruments.one.audios.one"
-                                                   audio}}{{audio.id}}{{/link-to}}</th>
-                        <td>{{audio.name}}</td>
-                        <td>{{audio.waveformKey}}</td>
-                        <td>{{audio.tempo}}</td>
-                        <td>{{audio.pitch}}</td>
-                        <td>{{audio.start}}</td>
-                        <td>{{audio.length}}</td>
-                        <td>
-                            {{#link-to 'accounts.one.libraries.one.instruments.one.audios.one.edit' audio}}
-                                Edit{{/link-to}}
-                            |&nbsp;{{#link-to 'accounts.one.libraries.one.instruments.one.audios.one.events' audio}}
-                            Events{{/link-to}}
-                            |&nbsp;{{#link-to 'accounts.one.libraries.one.instruments.one.audios.one.chords' audio}}
-                            Chords{{/link-to}}
-                        </td>
-                    </tr>
-                {{/each}}
-                </tbody>
-            </table>
-        </div>
+  <!-- List of Audios -->
+  <div class="sm-col-12">
+    <div class="table-list">
+      <table class="table">
+        <thead>
+        <tr>
+          <th width="1%">name</th>
+          <th width="1%">waveformKey</th>
+          <th width="1%">tempo</th>
+          <th width="1%">pitch</th>
+          <th width="1%">start</th>
+          <th width="1%">length</th>
+          <th></th>
+          <th width="1%">#</th>
+        </tr>
+        </thead>
+        <tbody>
+        {{#each model.audios as |audio|}}
+          <tr class="item">
+            <td>{{audio.name}}</td>
+            <td>{{audio.waveformKey}}</td>
+            <td>{{audio.tempo}}</td>
+            <td>{{audio.pitch}}</td>
+            <td>{{audio.start}}</td>
+            <td>{{audio.length}}</td>
+            <td>
+              {{#link-to 'accounts.one.libraries.one.instruments.one.audios.one.edit' audio}}
+                Edit{{/link-to}}
+              |&nbsp;{{#link-to 'accounts.one.libraries.one.instruments.one.audios.one.events' audio}}
+              Events{{/link-to}}
+              |&nbsp;{{#link-to 'accounts.one.libraries.one.instruments.one.audios.one.chords' audio}}
+              Chords{{/link-to}}
+            </td>
+            <th scope="row">{{#link-to "accounts.one.libraries.one.instruments.one.audios.one"
+                                       audio}}{{audio.id}}{{/link-to}}</th>
+          </tr>
+        {{/each}}
+        </tbody>
+      </table>
     </div>
+  </div>
 
-    {{#if (or auth.isArtist auth.isAdmin)}}
-        <div class="sm-col-12">
-            Or: {{#link-to 'accounts.one.libraries.one.instruments.one.audios.new'}}Create New Audio{{/link-to}}
-        </div>
-    {{/if}}
+  {{#if (or auth.isArtist auth.isAdmin)}}
+    <div class="sm-col-12">
+      Or: {{#link-to 'accounts.one.libraries.one.instruments.one.audios.new'}}Create New Audio{{/link-to}}
+    </div>
+  {{/if}}
 </div>

@@ -14,21 +14,20 @@
       <table class="table">
         <thead>
         <tr>
-          <th>#</th>
-          <th>Offset</th>
-          <th>State</th>
+          <th width="1%">Offset</th>
+          <th width="1%">State</th>
           <th>Begin At</th>
           <th>End At</th>
-          <th>Total</th>
-          <th>Density</th>
-          <th>Key</th>
-          <th>Tempo</th>
+          <th width="1%">Total</th>
+          <th width="1%">Density</th>
+          <th width="1%">Key</th>
+          <th width="1%">Tempo</th>
+          <th width="1%">#</th>
         </tr>
         </thead>
         <tbody>
         {{#each model.links as |link|}}
           <tr class="item">
-            <th scope="row">{{#link-to "accounts.one.chains.one.links.one" link}}{{link.id}}{{/link-to}}</th>
             <td>{{link.offset}}</td>
             <td>{{link.state}}</td>
             <td>{{link.beginAt}}</td>
@@ -37,6 +36,7 @@
             <td>{{link.density}}</td>
             <td>{{link.key}}</td>
             <td>{{link.tempo}}</td>
+            <th scope="row">{{#link-to "accounts.one.chains.one.links.one" link}}{{link.id}}{{/link-to}}</th>
           </tr>
         {{/each}}
         </tbody>

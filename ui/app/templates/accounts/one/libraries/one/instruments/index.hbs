@@ -14,26 +14,27 @@
       <table class="table">
         <thead>
         <tr>
-          <th>#</th>
-          <th>Owner</th>
-          <th>Type</th>
-          <th>Description</th>
-          <th>Density</th>
+          <th width="1%">By</th>
+          <th width="1%">Description</th>
+          <th width="1%">Type</th>
+          <th width="1%">Density</th>
+          <th></th>
+          <th width="1%">#</th>
         </tr>
         </thead>
         <tbody>
         {{#each model.instruments as |instrument|}}
           <tr class="item">
-            <th scope="row">{{#link-to "accounts.one.libraries.one.instruments.one" instrument}}{{instrument.id}}{{/link-to}}</th>
-            <td>{{#link-to "users.one" instrument.user}}<img src="{{instrument.user.avatarUrl}}" class="avatar" />&nbsp;{{instrument.user.name}}{{/link-to}}</td>
-            <td>{{instrument.type}}</td>
+            <td>{{#link-to "users.one" instrument.user}}<img src="{{instrument.user.avatarUrl}}" alt="{{instrument.user.name}}" class="avatar" />{{/link-to}}</td>
             <td>{{instrument.description}}</td>
+            <td>{{instrument.type}}</td>
             <td>{{instrument.density}}</td>
             <td>
               {{#link-to 'accounts.one.libraries.one.instruments.one.edit' instrument}}Edit{{/link-to}}
               |&nbsp;{{#link-to 'accounts.one.libraries.one.instruments.one.memes' instrument}}Memes{{/link-to}}
               |&nbsp;{{#link-to 'accounts.one.libraries.one.instruments.one.audios' instrument}}Audios{{/link-to}}
             </td>
+            <th scope="row">{{#link-to "accounts.one.libraries.one.instruments.one" instrument}}{{instrument.id}}{{/link-to}}</th>
           </tr>
         {{/each}}
         </tbody>

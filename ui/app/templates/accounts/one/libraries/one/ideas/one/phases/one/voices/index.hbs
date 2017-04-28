@@ -14,21 +14,22 @@
       <table class="table">
         <thead>
         <tr>
-          <th>#</th>
-          <th>Type</th>
-          <th>Description</th>
+          <th width="1%">Type</th>
+          <th width="1%">Description</th>
+          <th></th>
+          <th width="1%">#</th>
         </tr>
         </thead>
         <tbody>
         {{#each model.voices as |voice|}}
           <tr class="item">
-            <th scope="row">{{#link-to "accounts.one.libraries.one.ideas.one.phases.one.voices.one" voice}}{{voice.id}}{{/link-to}}</th>
             <td>{{voice.type}}</td>
             <td>{{voice.description}}</td>
             <td>
               {{#link-to 'accounts.one.libraries.one.ideas.one.phases.one.voices.one.edit' voice}}Edit{{/link-to}}
               |&nbsp;{{#link-to 'accounts.one.libraries.one.ideas.one.phases.one.voices.one.events' voice}}Events{{/link-to}}
             </td>
+            <th scope="row">{{#link-to "accounts.one.libraries.one.ideas.one.phases.one.voices.one" voice}}{{voice.id}}{{/link-to}}</th>
           </tr>
         {{/each}}
         </tbody>

@@ -14,20 +14,21 @@
       <table class="table">
         <thead>
         <tr>
-          <th>#</th>
-          <th>Position</th>
-          <th>Name</th>
+          <th width="1%">Position</th>
+          <th width="1%">Name</th>
+          <th></th>
+          <th width="1%">#</th>
         </tr>
         </thead>
         <tbody>
         {{#each model.chords as |chord|}}
           <tr class="item">
-            <th scope="row">{{#link-to "accounts.one.libraries.one.instruments.one.audios.one.chords.one" chord}}{{chord.id}}{{/link-to}}</th>
             <td>{{chord.position}}</td>
             <td>{{chord.name}}</td>
             <td>
               {{#link-to 'accounts.one.libraries.one.instruments.one.audios.one.chords.one.edit' chord}}Edit{{/link-to}}
             </td>
+            <th scope="row">{{#link-to "accounts.one.libraries.one.instruments.one.audios.one.chords.one" chord}}{{chord.id}}{{/link-to}}</th>
           </tr>
         {{/each}}
         </tbody>

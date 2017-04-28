@@ -14,20 +14,19 @@
       <table class="table">
         <thead>
         <tr>
-          <th>#</th>
-          <th>Offset</th>
-          <th>Total</th>
-          <th>Name</th>
-          <th>Key</th>
-          <th>Density</th>
-          <th>Tempo</th>
-          <th>Action</th>
+          <th width="1%">Offset</th>
+          <th width="1%">Total</th>
+          <th width="1%">Name</th>
+          <th width="1%">Key</th>
+          <th width="1%">Density</th>
+          <th width="1%">Tempo</th>
+          <th></th>
+          <th width="1%">#</th>
         </tr>
         </thead>
         <tbody>
         {{#each model.phases as |phase|}}
           <tr class="item">
-            <th scope="row">{{#link-to "accounts.one.libraries.one.ideas.one.phases.one" phase}}{{phase.id}}{{/link-to}}</th>
             <td>{{phase.offset}}</td>
             <td>{{phase.total}}</td>
             <td>{{phase.name}}</td>
@@ -40,6 +39,7 @@
               |&nbsp;{{#link-to 'accounts.one.libraries.one.ideas.one.phases.one.chords' phase}}Chords{{/link-to}}
               |&nbsp;{{#link-to 'accounts.one.libraries.one.ideas.one.phases.one.voices' phase}}Voices{{/link-to}}
             </td>
+            <th scope="row">{{#link-to "accounts.one.libraries.one.ideas.one.phases.one" phase}}{{phase.id}}{{/link-to}}</th>
           </tr>
         {{/each}}
         </tbody>
