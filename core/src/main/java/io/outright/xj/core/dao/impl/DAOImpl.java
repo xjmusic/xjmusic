@@ -105,7 +105,7 @@ public class DAOImpl {
   /**
    * Require state is in an array of states
    *
-   * @param state    to check
+   * @param state         to check
    * @param allowedStates required to be in
    * @throws BusinessException if not in required states
    */
@@ -135,6 +135,16 @@ public class DAOImpl {
   }
 
   /**
+   * Require user has admin access
+   *
+   * @param access control
+   * @throws BusinessException if not admin
+   */
+  void requireRole(String message, AccessControl access, String... matchAnyOfRoles) throws BusinessException {
+    require(message, access.isTopLevel() || access.matchAnyOf(matchAnyOfRoles));
+  }
+
+  /**
    * Require that a condition is true
    *
    * @param name      name of condition (for error message)
@@ -150,7 +160,7 @@ public class DAOImpl {
   /**
    * Prevent a condition
    *
-   * @param name      name of condition to prevent (for error message)
+   * @param name               name of condition to prevent (for error message)
    * @param conditionToPrevent to prevent
    * @throws BusinessException if not false
    */

@@ -33,10 +33,10 @@ public class AccessControlTest extends Mockito {
       "roles", "user,artist"
     ));
 
-    assertTrue(access.matchRoles(Role.USER));
-    assertTrue(access.matchRoles(Role.ARTIST));
-    assertTrue(access.matchRoles(Role.USER, Role.ARTIST));
-    assertFalse(access.matchRoles(Role.ADMIN));
+    assertTrue(access.matchAnyOf(Role.USER));
+    assertTrue(access.matchAnyOf(Role.ARTIST));
+    assertTrue(access.matchAnyOf(Role.USER, Role.ARTIST));
+    assertFalse(access.matchAnyOf(Role.ADMIN));
   }
 
   @Test

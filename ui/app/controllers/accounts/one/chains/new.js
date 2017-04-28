@@ -7,11 +7,11 @@ export default Ember.Controller.extend({
   actions: {
 
     selectChainState(state) {
-      Ember.get(this, 'model').set('state', state);
+      Ember.get(this, 'model.chain').set('state', state);
     },
 
     selectChainType(type) {
-      Ember.get(this, 'model').set('type', type);
+      Ember.get(this, 'model.chain').set('type', type);
     },
 
   }

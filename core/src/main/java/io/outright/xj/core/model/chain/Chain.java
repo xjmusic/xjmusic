@@ -154,11 +154,16 @@ public class Chain extends Entity {
     if (this.name == null || this.name.length() == 0) {
       throw new BusinessException("Name is required.");
     }
-    if (this.startAt == null) {
-      throw new BusinessException("Start-at is required." + (startAtError != null ? " " + startAtError : ""));
-    }
-    if (this.stopAtError != null) {
-      throw new BusinessException("Stop-at is not valid. " + stopAtError);
+//    if (this.type.equals(PREVIEW)) {
+    // TODO: validate that stopAt - startAt is less than Config.chainPreviewLengthMax()
+//    }
+    if (this.type.equals(PRODUCTION)) {
+      if (this.startAt == null) {
+        throw new BusinessException("Start-at is required." + (startAtError != null ? " " + startAtError : ""));
+      }
+      if (this.stopAtError != null) {
+        throw new BusinessException("Stop-at is not valid. " + stopAtError);
+      }
     }
   }
 

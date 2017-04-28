@@ -89,7 +89,7 @@ public class AccessTokenAuthFilterImpl implements AccessTokenAuthFilter {
       return denied(context, "invalid access_token");
     }
 
-    if (!accessControl.isTopLevel() && !accessControl.matchRoles(aRolesAllowed.value())) {
+    if (!accessControl.isTopLevel() && !accessControl.matchAnyOf(aRolesAllowed.value())) {
       return denied(context, "user has no accessible role");
     }
 

@@ -58,7 +58,7 @@ public class AccessControl {
       roles.add(role.getType());
     }
     this.innerMap.put(ROLES_KEY, CSV.join(roles));
-    this.isTopLevel = matchRoles(topLevelRoles);
+    this.isTopLevel = matchAnyOf(topLevelRoles);
   }
 
   public AccessControl(
@@ -67,17 +67,17 @@ public class AccessControl {
     this.innerMap = innerMap;
     if (innerMap != null) {
       this.accountIds = accountIdsFromCSV(innerMap.get(ACCOUNTS_KEY));
-      this.isTopLevel = matchRoles(topLevelRoles);
+      this.isTopLevel = matchAnyOf(topLevelRoles);
     }
   }
 
   /**
-   * Determine if user access roles match resource access roles.
+   * Determine if user access roles match any of the given resource access roles.
    *
    * @param matchRoles of the resource to match.
    * @return whether user access roles match resource access roles.
    */
-  public boolean matchRoles(String... matchRoles) {
+  public boolean matchAnyOf(String... matchRoles) {
     // inefficient?
 
     for (String matchRole : matchRoles) {

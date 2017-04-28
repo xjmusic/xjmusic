@@ -67,6 +67,10 @@ public abstract class Config {
     return getOrDefault("app.path.welcome", "");
   }
 
+  public static int chainPreviewLengthMax() {
+    return getIntOrDefault("chain.preview.length.max", 300);
+  }
+
   public static String logAccessFilename() {
     return getOrDefault("log.access.filename", "/tmp/access.log");
   }

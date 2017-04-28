@@ -11,6 +11,7 @@ public interface Role {
   String INTERNAL = "internal";
   String ADMIN = "admin";
   //
+  String ENGINEER = "engineer";
   String ARTIST = "artist";
   String USER = "user";
   //
@@ -19,9 +20,10 @@ public interface Role {
   /**
    * List of all Roles
    */
-  String[] ALL = {
+  String[] TYPES = {
     ADMIN,
     ARTIST,
+    ENGINEER,
     USER,
     //
     BANNED
@@ -30,7 +32,7 @@ public interface Role {
   /**
    * CSV generated from list of all roles
    */
-  String ALL_CSV = CSV.join(ALL);
+  String TYPES_CSV = CSV.join(TYPES);
 
   /**
    * For use in maps.
@@ -45,7 +47,7 @@ public interface Role {
    * @return true if valid; otherwise false;
    */
   static boolean isValid(String role) {
-    for (String validRole : ALL) {
+    for (String validRole : TYPES) {
       if (role.equals(validRole)) {
         return true;
       }

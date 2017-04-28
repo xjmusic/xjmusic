@@ -34,10 +34,12 @@ export default Ember.Route.extend({
    */
   resolvedModel(config) {
     let account = this.modelFor('accounts.one');
-    return this.store.createRecord('chain', {
-      account: account,
-      state: config.chainStates[0],
-      type: config.chainTypes[0]
+    return Ember.RSVP.Hash({
+      chain: this.store.createRecord('chain', {
+        account: account,
+        state: config.chainStates[0],
+        type: config.chainTypes[0]
+      })
     });
   },
 

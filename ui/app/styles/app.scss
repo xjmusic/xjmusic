@@ -14,8 +14,11 @@ body {
 
 a {
   color: lighten($green, 20%);
+  &:visited {
+    color: lighten($green, 20%);
+  }
 
-  &:hover {
+  &:hover, &:active {
     color: lighten($green, 70%);
   }
 }

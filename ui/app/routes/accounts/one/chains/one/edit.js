@@ -35,10 +35,15 @@ export default Ember.Route.extend({
     let account = this.modelFor('accounts.one');
     let chain = this.modelFor('accounts.one.chains.one');
     chain.set('account', account);
-    return chain;
+    return Ember.RSVP.hash({
+      chain: chain,
+      chainFromState: chain.get('state')
+    });
   },
 
-
+  /**
+   * Route Actions
+   */
   actions: {
 
     saveChain(model) {

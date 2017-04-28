@@ -418,12 +418,12 @@ public class UserDAOImpl extends DAOImpl implements UserDAO {
     // First check all provided roles for validity.
     for (String checkRole : newRoles) {
       if (!Role.isValid(checkRole)) {
-        throw new BusinessException("'" + checkRole + "' is not a valid role. Try one of: " + Role.ALL_CSV);
+        throw new BusinessException("'" + checkRole + "' is not a valid role. Try one of: " + Role.TYPES_CSV);
       }
     }
 
     // Iterate through all rows; each will produce either an INSERT WHERE NOT EXISTS or a DELETE IF EXISTS.
-    for (String role : Role.ALL) {
+    for (String role : Role.TYPES) {
       if (newRoles.contains(role)) {
         db.execute("INSERT INTO `user_role` (`user_id`, `type`) " +
           "SELECT " + userIdString + ", \"" + role + "\" FROM dual " +

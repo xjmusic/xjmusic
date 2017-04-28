@@ -14,8 +14,8 @@
       <table class="table">
         <thead>
         <tr>
-          <th width="1%">name</th>
-          <th width="1%">waveformKey</th>
+          <th>Name</th>
+          <th>Waveform</th>
           <th width="1%">tempo</th>
           <th width="1%">pitch</th>
           <th width="1%">start</th>
@@ -28,7 +28,9 @@
         {{#each model.audios as |audio|}}
           <tr class="item">
             <td>{{audio.name}}</td>
-            <td>{{audio.waveformKey}}</td>
+            <td><a target="_blank" href="{{model.audioBaseUrl}}{{audio.waveformKey}}">
+              {{audio.waveformKey}}
+            </a></td>
             <td>{{audio.tempo}}</td>
             <td>{{audio.pitch}}</td>
             <td>{{audio.start}}</td>

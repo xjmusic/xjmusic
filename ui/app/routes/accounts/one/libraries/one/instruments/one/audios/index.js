@@ -3,19 +3,45 @@ import Ember from 'ember';
 
 export default Ember.Route.extend({
 
+  // Inject: authentication service
+  auth: Ember.inject.service(),
+
+  // Inject: configuration service
+  config: Ember.inject.service(),
+
+  // Inject: flash message service
   display: Ember.inject.service(),
 
   model: function () {
-    let instrument = this.modelFor('accounts.one.libraries.one.instruments.one');
-    let audios = this.store.query('audio', {instrumentId: instrument.get('id')})
-      .catch((error) => {
-        Ember.get(this, 'display').error(error);
-        this.transitionTo('');
+    let self = this;
+    let auth = this.get('auth');
+
+    if (auth.isArtist || auth.isAdmin) {
+      return new Ember.RSVP.Promise((resolve, reject) => {
+        Ember.get(self, 'config').promises.config.then(
+          (config) => {
+            let instrument = self.modelFor('accounts.one.libraries.one.instruments.one');
+            let audios = self.store.query('audio', {instrumentId: instrument.get('id')})
+              .catch((error) => {
+                Ember.get(self, 'display').error(error);
+                self.transitionTo('');
+              });
+            resolve(Ember.RSVP.hash({
+              instrument: instrument,
+              audioBaseUrl: config.audioBaseUrl,
+              audios: audios,
+            }));
+          },
+          (error) => {
+            reject(error);
+          }
+        );
       });
-    return Ember.RSVP.hash({
-      instrument: instrument,
-      audios: audios,
-    });
+    } else {
+      this.transitionTo('accounts.one.libraries.one.instruments.one.audios');
+    }
+
+
   },
 
   actions: {

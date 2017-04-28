@@ -5,14 +5,19 @@ import RSVP from "rsvp";
 
 export default Ember.Route.extend({
 
-  uploader: {}, // stub for instantiating an uploader
+  // stub for instantiating an uploader
+  uploader: {},
 
+  // Inject: authentication service
   auth: Ember.inject.service(),
 
+  // Inject: configuration service
   config: Ember.inject.service(),
 
+  // Inject: flash message service
   display: Ember.inject.service(),
 
+  // audio base url will be set by promise after config resolves
   audioBaseUrl: '',
 
   model: function () {
@@ -21,7 +26,7 @@ export default Ember.Route.extend({
 
     if (auth.isArtist || auth.isAdmin) {
       return new RSVP.Promise((resolve, reject) => {
-        Ember.get(this, 'config').audioBaseUrl.then(
+        Ember.get(this, 'config').promises.audioBaseUrl.then(
           (url) => {
             self.audioBaseUrl = url;
           },

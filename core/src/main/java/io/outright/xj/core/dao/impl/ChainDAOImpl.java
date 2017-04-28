@@ -2,6 +2,7 @@
 package io.outright.xj.core.dao.impl;
 
 import io.outright.xj.core.app.access.impl.AccessControl;
+import io.outright.xj.core.app.config.Config;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.app.exception.DatabaseException;
@@ -11,6 +12,7 @@ import io.outright.xj.core.db.sql.SQLDatabaseProvider;
 import io.outright.xj.core.model.chain.Chain;
 import io.outright.xj.core.model.chain.ChainWrapper;
 import io.outright.xj.core.model.link.Link;
+import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.tables.records.ChainRecord;
 import io.outright.xj.core.tables.records.LinkRecord;
 import io.outright.xj.core.transport.JSON;
@@ -32,6 +34,7 @@ import javax.annotation.Nullable;
 import java.math.BigInteger;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.Map;
 import java.util.Objects;
 
@@ -52,12 +55,14 @@ import static io.outright.xj.core.tables.Link.LINK;
  * of the logic around adding links to chains and updating chain state to complete.
  */
 public class ChainDAOImpl extends DAOImpl implements ChainDAO {
+  private final int previewLengthMax;
 
   @Inject
   public ChainDAOImpl(
     SQLDatabaseProvider dbProvider
   ) {
     this.dbProvider = dbProvider;
+    this.previewLengthMax = Config.chainPreviewLengthMax();
   }
 
   @Override
@@ -172,6 +177,22 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
         .where(ACCOUNT.ID.in(access.getAccounts()))
         .and(ACCOUNT.ID.eq(model.getAccountId()))
         .fetchOne());
+    }
+
+    // [#190] Artist "Preview" Chain
+    if (fieldValues.get(CHAIN.TYPE).equals(Chain.PREVIEW)) {
+      requireRole("Artist to create preview Chain", access, Role.ARTIST);
+      fieldValues.put(CHAIN.START_AT,
+        Timestamp.from(Instant.now().minusSeconds(previewLengthMax)));
+      fieldValues.put(CHAIN.STOP_AT,
+        Timestamp.from(Instant.now()));
+
+      // [#190] Engineer "Production" Chain
+    } else if (fieldValues.get(CHAIN.TYPE).equals(Chain.PRODUCTION)) {
+      requireRole("Engineer to create production Chain", access, Role.ENGINEER);
+
+    } else {
+      throw new BusinessException("Invalid Chain type '" + fieldValues.get(CHAIN.TYPE) + "'");
     }
 
     return JSON.objectFromRecord(executeCreate(db, CHAIN, fieldValues));
@@ -410,9 +431,9 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
     }
 
     // If the last link ends after the chain stops, our work is done;
-    if ( Objects.nonNull(lastLinkInChain.getEndAt())
-        && Objects.nonNull(chain.getStopAt())
-        && lastLinkInChain.getEndAt().after(chain.getStopAt())) {
+    if (Objects.nonNull(lastLinkInChain.getEndAt())
+      && Objects.nonNull(chain.getStopAt())
+      && lastLinkInChain.getEndAt().after(chain.getStopAt())) {
       // this is where we check to see if the chain is ready to be COMPLETE.
       if (chain.getStopAt().before(chainStopCompleteBefore)
         // and [#122] require the last link in the chain to be in state DUBBED.
