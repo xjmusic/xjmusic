@@ -8,19 +8,22 @@ public class InstrumentWrapper extends EntityWrapper {
 
   // Instrument
   private Instrument instrument;
+
   public Instrument getInstrument() {
     return instrument;
   }
+
   public InstrumentWrapper setInstrument(Instrument instrument) {
     this.instrument = instrument;
     return this;
   }
 
   /**
-   * Validate data.
-   * @throws BusinessException if invalid.
+   Validate data.
+
+   @throws BusinessException if invalid.
    */
-  public Instrument validate() throws BusinessException{
+  public Instrument validate() throws BusinessException {
     if (this.instrument == null) {
       throw new BusinessException("Instrument is required.");
     }

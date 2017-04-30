@@ -13,6 +13,7 @@ import io.outright.xj.core.dao.impl.AuthDAOImpl;
 import com.google.api.client.auth.oauth2.AuthorizationCodeResponseUrl;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +26,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 /**
- * Root resource (exposed at "o2" path)
+ Root resource (exposed at "o2" path)
  */
 @Path("auth/google/callback")
 public class AuthGoogleCallbackResource {
@@ -39,9 +40,9 @@ public class AuthGoogleCallbackResource {
   private static final String redirectPathSuccess = Config.appPathSuccess();
 
   /**
-   * Begin user OAuth2 authentication via Google.
-   *
-   * @return Response temporary redirection to auth URL
+   Begin user OAuth2 authentication via Google.
+
+   @return Response temporary redirection to auth URL
    */
   @GET
   @WebResult
@@ -63,11 +64,11 @@ public class AuthGoogleCallbackResource {
     try {
       accessToken = googleAuthController.authenticate(authResponse.getCode());
     } catch (AccessException e) {
-      return errorResponse("Authentication failed:"+ e.getMessage());
+      return errorResponse("Authentication failed:" + e.getMessage());
     } catch (ConfigException e) {
-      return errorResponse("Configuration error"+ e.getMessage());
+      return errorResponse("Configuration error" + e.getMessage());
     } catch (DatabaseException e) {
-      return errorResponse("Database error"+ e.getMessage());
+      return errorResponse("Database error" + e.getMessage());
     } catch (Exception e) {
       return errorResponse("Unknown error with authenticating access code", e);
     }
@@ -76,10 +77,11 @@ public class AuthGoogleCallbackResource {
   }
 
   /**
-   * Returns a redirect-to-unauthorized-path Response, and logs the error message with an Exception.
-   * @param msg to log
-   * @param e Exception to log
-   * @return Response
+   Returns a redirect-to-unauthorized-path Response, and logs the error message with an Exception.
+
+   @param msg to log
+   @param e   Exception to log
+   @return Response
    */
   private Response errorResponse(String msg, Exception e) {
     log.error(msg, e);
@@ -87,9 +89,10 @@ public class AuthGoogleCallbackResource {
   }
 
   /**
-   * Returns a redirect-to-unauthorized-path Response, and logs the error message.
-   * @param msg to log
-   * @return Response
+   Returns a redirect-to-unauthorized-path Response, and logs the error message.
+
+   @param msg to log
+   @return Response
    */
   private Response errorResponse(String msg) {
     log.error(msg);
@@ -97,8 +100,9 @@ public class AuthGoogleCallbackResource {
   }
 
   /**
-   * Returns a redirect-to-unauthorized-path Response.
-   * @return Response
+   Returns a redirect-to-unauthorized-path Response.
+
+   @return Response
    */
   private Response errorResponse() {
     return httpResponseProvider.internalRedirect(redirectPathUnauthorized);

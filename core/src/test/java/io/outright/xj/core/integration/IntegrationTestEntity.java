@@ -1,6 +1,5 @@
 package io.outright.xj.core.integration;
 
-import io.outright.xj.core.Tables;
 import io.outright.xj.core.app.exception.DatabaseException;
 import io.outright.xj.core.tables.records.AccountRecord;
 import io.outright.xj.core.tables.records.AccountUserRecord;
@@ -80,7 +79,7 @@ public abstract class IntegrationTestEntity {
   private static Logger log = LoggerFactory.getLogger(IntegrationTestEntity.class);
 
   /**
-   * Reset the database before an integration test.
+   Reset the database before an integration test.
    */
   public static void deleteAll() throws DatabaseException {
     DSLContext db = IntegrationTestService.getDb();
@@ -131,10 +130,10 @@ public abstract class IntegrationTestEntity {
 
       // Idea
       db.deleteFrom(IDEA_MEME).execute(); // before Idea
-      db.deleteFrom(Tables.IDEA).execute(); // before Library & Credit
+      db.deleteFrom(IDEA).execute(); // before Library & Credit
 
       // Library
-      db.deleteFrom(Tables.LIBRARY).execute(); // before Account
+      db.deleteFrom(LIBRARY).execute(); // before Account
 
       // Account
       db.deleteFrom(ACCOUNT_USER).execute(); // before Account

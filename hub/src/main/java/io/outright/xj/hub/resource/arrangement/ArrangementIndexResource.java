@@ -30,7 +30,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 
 /**
- * Arrangements
+ Arrangements
  */
 @Path("arrangements")
 public class ArrangementIndexResource {
@@ -43,9 +43,9 @@ public class ArrangementIndexResource {
   String choiceId;
 
   /**
-   * Get all arrangements.
-   *
-   * @return application/json response.
+   Get all arrangements.
+
+   @return application/json response.
    */
   @GET
   @WebResult

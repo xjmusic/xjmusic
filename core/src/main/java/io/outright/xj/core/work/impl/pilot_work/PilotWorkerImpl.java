@@ -44,7 +44,7 @@ public class PilotWorkerImpl implements Worker {
   }
 
   /**
-   * This stateless runnable is then executed in a thread pool
+   This stateless runnable is then executed in a thread pool
    */
   public class PilotWorkerTaskRunner implements Runnable {
 

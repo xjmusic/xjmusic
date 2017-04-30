@@ -34,12 +34,26 @@ export default Ember.Route.extend({
    */
   resolvedModel(config) {
     let account = this.modelFor('accounts.one');
-    return Ember.RSVP.Hash({
+    return Ember.RSVP.hash({
       chain: this.store.createRecord('chain', {
         account: account,
         state: config.chainStates[0],
         type: config.chainTypes[0]
       })
+    });
+  },
+
+  /**
+   * Headline
+   */
+  afterModel() {
+    let account = this.modelFor('accounts.one');
+    Ember.set(this, 'routeHeadline', {
+      title: 'New Chain',
+      entity: {
+        name: 'Account',
+        id: account.get('id')
+      }
     });
   },
 
@@ -60,7 +74,7 @@ export default Ember.Route.extend({
     },
 
     willTransition(transition) {
-      let model = this.controller.get('model');
+      let model = this.controller.get('model.chain');
       if (model.get('hasDirtyAttributes')) {
         let confirmation = confirm("Your changes haven't saved yet. Would you like to leave this form?");
         if (confirmation) {

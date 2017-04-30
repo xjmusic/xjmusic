@@ -17,7 +17,7 @@ import static io.outright.xj.core.Tables.PHASE_CHORD;
 public class PhaseChord extends Entity {
 
   /**
-   * Name
+   Name
    */
   private String name;
 
@@ -31,7 +31,7 @@ public class PhaseChord extends Entity {
   }
 
   /**
-   * Phase
+   Phase
    */
   private ULong phaseId;
 
@@ -45,7 +45,7 @@ public class PhaseChord extends Entity {
   }
 
   /**
-   * Position
+   Position
    */
   private Double position;
 
@@ -59,9 +59,9 @@ public class PhaseChord extends Entity {
   }
 
   /**
-   * Validate data.
-   *
-   * @throws BusinessException if invalid.
+   Validate data.
+
+   @throws BusinessException if invalid.
    */
   public void validate() throws BusinessException {
     if (this.name == null || this.name.length() == 0) {
@@ -76,9 +76,9 @@ public class PhaseChord extends Entity {
   }
 
   /**
-   * Model info jOOQ-field : Value map
-   *
-   * @return map
+   Model info jOOQ-field : Value map
+
+   @return map
    */
   public Map<Field, Object> intoFieldValueMap() {
     Map<Field, Object> fieldValues = Maps.newHashMap();
@@ -89,7 +89,7 @@ public class PhaseChord extends Entity {
   }
 
   /**
-   * For use in maps.
+   For use in maps.
    */
   public static final String KEY_ONE = "phaseChord";
   public static final String KEY_MANY = "phaseChords";

@@ -12,10 +12,12 @@ import io.outright.xj.core.model.library.Library;
 import io.outright.xj.core.model.library.LibraryWrapper;
 import io.outright.xj.core.transport.JSON;
 
-import com.google.inject.Inject;
 import org.jooq.DSLContext;
 import org.jooq.Field;
 import org.jooq.types.ULong;
+
+import com.google.inject.Inject;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -92,13 +94,13 @@ public class LibraryDAOImpl extends DAOImpl implements LibraryDAO {
   }
 
   /**
-   * Create a new record
-   *
-   * @param db     context
-   * @param access control
-   * @param data   for new record
-   * @return newly created record
-   * @throws BusinessException if a Business Rule is violated
+   Create a new record
+
+   @param db     context
+   @param access control
+   @param data   for new record
+   @return newly created record
+   @throws BusinessException if a Business Rule is violated
    */
   private JSONObject create(DSLContext db, AccessControl access, LibraryWrapper data) throws BusinessException {
     Library model = data.validate();
@@ -110,12 +112,12 @@ public class LibraryDAOImpl extends DAOImpl implements LibraryDAO {
   }
 
   /**
-   * Read one record
-   *
-   * @param db     context
-   * @param access control
-   * @param id     of record
-   * @return record
+   Read one record
+
+   @param db     context
+   @param access control
+   @param id     of record
+   @return record
    */
   private JSONObject readOne(DSLContext db, AccessControl access, ULong id) {
     if (access.isTopLevel()) {
@@ -132,12 +134,12 @@ public class LibraryDAOImpl extends DAOImpl implements LibraryDAO {
   }
 
   /**
-   * Read all records in parent by id
-   *
-   * @param db        context
-   * @param access    control
-   * @param accountId of parent
-   * @return array of records
+   Read all records in parent by id
+
+   @param db        context
+   @param access    control
+   @param accountId of parent
+   @return array of records
    */
   private JSONArray readAllIn(DSLContext db, AccessControl access, ULong accountId) throws SQLException {
     if (access.isTopLevel()) {
@@ -155,13 +157,13 @@ public class LibraryDAOImpl extends DAOImpl implements LibraryDAO {
   }
 
   /**
-   * Update a record
-   *
-   * @param db     context
-   * @param access control
-   * @param id     of record
-   * @param data   to update with
-   * @throws BusinessException if a Business Rule is violated
+   Update a record
+
+   @param db     context
+   @param access control
+   @param id     of record
+   @param data   to update with
+   @throws BusinessException if a Business Rule is violated
    */
   private void update(DSLContext db, AccessControl access, ULong id, LibraryWrapper data) throws BusinessException, DatabaseException {
     Library model = data.validate();
@@ -181,14 +183,14 @@ public class LibraryDAOImpl extends DAOImpl implements LibraryDAO {
   }
 
   /**
-   * Delete a Library
-   *
-   * @param db        context
-   * @param access    control
-   * @param libraryId to delete
-   * @throws Exception if database failure
-   * @throws ConfigException   if not configured properly
-   * @throws BusinessException if fails business rule
+   Delete a Library
+
+   @param db        context
+   @param access    control
+   @param libraryId to delete
+   @throws Exception         if database failure
+   @throws ConfigException   if not configured properly
+   @throws BusinessException if fails business rule
    */
   private void delete(DSLContext db, AccessControl access, ULong libraryId) throws Exception {
     requireTopLevel(access);

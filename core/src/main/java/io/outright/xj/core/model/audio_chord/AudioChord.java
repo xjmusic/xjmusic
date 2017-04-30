@@ -17,7 +17,7 @@ import static io.outright.xj.core.Tables.AUDIO_CHORD;
 public class AudioChord extends Entity {
 
   /**
-   * Name
+   Name
    */
   private String name;
 
@@ -31,7 +31,7 @@ public class AudioChord extends Entity {
   }
 
   /**
-   * Audio
+   Audio
    */
   private ULong audioId;
 
@@ -45,7 +45,7 @@ public class AudioChord extends Entity {
   }
 
   /**
-   * Position
+   Position
    */
   private Double position;
 
@@ -59,9 +59,9 @@ public class AudioChord extends Entity {
   }
 
   /**
-   * Validate data.
-   *
-   * @throws BusinessException if invalid.
+   Validate data.
+
+   @throws BusinessException if invalid.
    */
   public void validate() throws BusinessException {
     if (this.name == null || this.name.length() == 0) {
@@ -76,9 +76,9 @@ public class AudioChord extends Entity {
   }
 
   /**
-   * Model info jOOQ-field : Value map
-   *
-   * @return map
+   Model info jOOQ-field : Value map
+
+   @return map
    */
   public Map<Field, Object> intoFieldValueMap() {
     Map<Field, Object> fieldValues = Maps.newHashMap();
@@ -89,7 +89,7 @@ public class AudioChord extends Entity {
   }
 
   /**
-   * For use in maps.
+   For use in maps.
    */
   public static final String KEY_ONE = "audioChord";
   public static final String KEY_MANY = "audioChords";

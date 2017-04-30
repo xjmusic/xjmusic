@@ -225,23 +225,23 @@ public class ChainLibraryIT {
   public void delete() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
       "roles", "artist",
-      "accounts","1"
+      "accounts", "1"
     ));
 
     testDAO.delete(access, ULong.valueOf(1));
 
-    ChainLibraryRecord deletedRecord = IntegrationTestService.getDb()
+    ChainLibraryRecord result = IntegrationTestService.getDb()
       .selectFrom(CHAIN_LIBRARY)
       .where(CHAIN_LIBRARY.ID.eq(ULong.valueOf(1)))
       .fetchOne();
-    assertNull(deletedRecord);
+    assertNull(result);
   }
 
   @Test(expected = BusinessException.class)
   public void delete_FailIfNotInAccount() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
       "roles", "library",
-      "accounts","5"
+      "accounts", "5"
     ));
 
     testDAO.delete(access, ULong.valueOf(1));

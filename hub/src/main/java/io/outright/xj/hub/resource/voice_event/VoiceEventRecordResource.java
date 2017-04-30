@@ -5,14 +5,16 @@ import io.outright.xj.core.CoreModule;
 import io.outright.xj.core.app.access.impl.AccessControl;
 import io.outright.xj.core.app.server.HttpResponseProvider;
 import io.outright.xj.core.dao.VoiceEventDAO;
+import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.model.voice_event.VoiceEvent;
 import io.outright.xj.core.model.voice_event.VoiceEventWrapper;
-import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.transport.JSON;
+
+import org.jooq.types.ULong;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.jooq.types.ULong;
+
 import org.json.JSONObject;
 
 import javax.annotation.security.RolesAllowed;
@@ -30,7 +32,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 
 /**
- * VoiceEvent record
+ VoiceEvent record
  */
 @Path("voice-events/{id}")
 public class VoiceEventRecordResource {
@@ -43,9 +45,9 @@ public class VoiceEventRecordResource {
   String id;
 
   /**
-   * Get one voiceEvent.
-   *
-   * @return application/json response.
+   Get one voiceEvent.
+
+   @return application/json response.
    */
   @GET
   @WebResult
@@ -70,10 +72,10 @@ public class VoiceEventRecordResource {
   }
 
   /**
-   * Update one voiceEvent
-   *
-   * @param data with which to update VoiceEvent record.
-   * @return Response
+   Update one voiceEvent
+
+   @param data with which to update VoiceEvent record.
+   @return Response
    */
   @PUT
   @Consumes(MediaType.APPLICATION_JSON)
@@ -90,9 +92,9 @@ public class VoiceEventRecordResource {
   }
 
   /**
-   * Delete one voiceEvent
-   *
-   * @return Response
+   Delete one voiceEvent
+
+   @return Response
    */
   @DELETE
   @RolesAllowed({Role.ARTIST})

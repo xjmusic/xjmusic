@@ -3,14 +3,20 @@ import Ember from 'ember';
 
 export default Ember.Route.extend({
 
+  // Inject: flash message service
   display: Ember.inject.service(),
 
+  /**
+   * Route Model
+   * @returns {*}
+   */
   model: function () {
+    let self = this;
     let library = this.modelFor('accounts.one.libraries.one');
     let ideas = this.store.query('idea', {libraryId: library.get('id')})
       .catch((error) => {
-        Ember.get(this, 'display').error(error);
-        this.transitionTo('');
+        Ember.get(self, 'display').error(error);
+        self.transitionTo('');
       });
     return Ember.RSVP.hash({
       library: library,
@@ -18,6 +24,22 @@ export default Ember.Route.extend({
     });
   },
 
+  /**
+   * Headline
+   */
+  afterModel(model) {
+    Ember.set(this, 'routeHeadline', {
+      title: model.library.get('name') + ' ' + 'Ideas',
+      entity: {
+        name: 'Library',
+        id: model.library.get('id')
+      }
+    });
+  },
+
+  /**
+   * Route Actions
+   */
   actions: {
 
     editIdea(idea) {
@@ -25,4 +47,5 @@ export default Ember.Route.extend({
     },
 
   }
+
 });

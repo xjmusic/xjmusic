@@ -3,6 +3,10 @@ import Ember from 'ember';
 
 export default Ember.Route.extend({
 
+  /**
+   * Route Model
+   * @returns {*}
+   */
   model() {
     let account = this.modelFor('accounts.one');
     return Ember.RSVP.hash({
@@ -13,6 +17,22 @@ export default Ember.Route.extend({
     });
   },
 
+  /**
+   * Headline
+   */
+  afterModel(model) {
+    Ember.set(this, 'routeHeadline', {
+      title: model.account.get('name') + ' ' + 'Users',
+      entity: {
+        name: 'Account',
+        id: model.account.get('id')
+      }
+    });
+  },
+
+  /**
+   * Route Actions
+   */
   actions: {
 
     sessionChanged: function() {

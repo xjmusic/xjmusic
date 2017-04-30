@@ -25,7 +25,6 @@ import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -33,7 +32,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 
 /**
- * Audio record
+ Audio record
  */
 @Path("audios/{id}")
 public class AudioRecordResource {
@@ -46,9 +45,9 @@ public class AudioRecordResource {
   String id;
 
   /**
-   * Read one audio
-   *
-   * @return application/json response.
+   Read one audio
+
+   @return application/json response.
    */
   @GET
   @WebResult
@@ -72,10 +71,10 @@ public class AudioRecordResource {
   }
 
   /**
-   * Update one audio
-   *
-   * @param data with which to update Audio record.
-   * @return Response
+   Update one audio
+
+   @param data with which to update Audio record.
+   @return Response
    */
   @PUT
   @Consumes(MediaType.APPLICATION_JSON)
@@ -92,9 +91,9 @@ public class AudioRecordResource {
   }
 
   /**
-   * Delete one audio
-   *
-   * @return Response
+   Delete one audio
+
+   @return Response
    */
   @DELETE
   @RolesAllowed({Role.ARTIST})
@@ -111,9 +110,9 @@ public class AudioRecordResource {
   }
 
   /**
-   * Generate an Upload policy to upload the corresponding file to 3rd-party storage (e.g. Amazon S3)
-   *
-   * @return application/json response.
+   Generate an Upload policy to upload the corresponding file to 3rd-party storage (e.g. Amazon S3)
+
+   @return application/json response.
    */
   @GET
   @Path("/upload")

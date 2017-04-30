@@ -1,8 +1,8 @@
 // Copyright Outright Mental, Inc. All Rights Reserved.
 package io.outright.xj.core.dao.impl;
 
-import io.outright.xj.core.app.access.impl.AccessControl;
 import io.outright.xj.core.app.access.AccessControlProvider;
+import io.outright.xj.core.app.access.impl.AccessControl;
 import io.outright.xj.core.app.exception.AccessException;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.app.exception.DatabaseException;
@@ -16,13 +16,15 @@ import io.outright.xj.core.tables.records.UserAccessTokenRecord;
 import io.outright.xj.core.tables.records.UserAuthRecord;
 import io.outright.xj.core.tables.records.UserRecord;
 import io.outright.xj.core.tables.records.UserRoleRecord;
-import io.outright.xj.core.transport.JSON;
 import io.outright.xj.core.transport.CSV;
+import io.outright.xj.core.transport.JSON;
 
-import com.google.inject.Inject;
 import org.jooq.DSLContext;
 import org.jooq.Result;
 import org.jooq.types.ULong;
+
+import com.google.inject.Inject;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -42,9 +44,9 @@ import static io.outright.xj.core.Tables.USER_ROLE;
 import static org.jooq.impl.DSL.groupConcat;
 
 /**
- * NOTE: THIS IS AN IRREGULAR D.A.O.
- *
- * Conceptually, because being a User is a dependency of all other DAOs.
+ NOTE: THIS IS AN IRREGULAR D.A.O.
+ <p>
+ Conceptually, because being a User is a dependency of all other DAOs.
  */
 public class UserDAOImpl extends DAOImpl implements UserDAO {
   private static Logger log = LoggerFactory.getLogger(UserDAOImpl.class);
@@ -144,14 +146,14 @@ public class UserDAOImpl extends DAOImpl implements UserDAO {
   }
 
   /**
-   * New UserAccessToken record
-   *
-   * @param db          context
-   * @param userId      user record id
-   * @param userAuthId  userAuth record id
-   * @param accessToken for user access to this system
-   * @return record of newly create UserAccessToken record
-   * @throws Exception if anything goes wrong
+   New UserAccessToken record
+
+   @param db          context
+   @param userId      user record id
+   @param userAuthId  userAuth record id
+   @param accessToken for user access to this system
+   @return record of newly create UserAccessToken record
+   @throws Exception if anything goes wrong
    */
   private UserAccessTokenRecord newUserAccessTokenRecord(DSLContext db, ULong userId, ULong userAuthId, String accessToken) throws Exception {
     UserAccessTokenRecord userAccessToken = db.insertInto(USER_ACCESS_TOKEN,
@@ -177,16 +179,16 @@ public class UserDAOImpl extends DAOImpl implements UserDAO {
   }
 
   /**
-   * If no user_auth exists for this account,
-   * create a new user and user_auth record
-   * (storing access_token and refresh_token),
-   * and return the user
-   *
-   * @param db        context of authentication request
-   * @param name      to call new user
-   * @param avatarUrl to display for new user
-   * @param email     to contact new user
-   * @return new User record, including actual id
+   If no user_auth exists for this account,
+   create a new user and user_auth record
+   (storing access_token and refresh_token),
+   and return the user
+
+   @param db        context of authentication request
+   @param name      to call new user
+   @param avatarUrl to display for new user
+   @param email     to contact new user
+   @return new User record, including actual id
    */
   private UserRecord newUser(DSLContext db, String name, String avatarUrl, String email) throws Exception {
     UserRecord user = db.insertInto(USER, USER.NAME, USER.AVATAR_URL, USER.EMAIL)
@@ -202,11 +204,11 @@ public class UserDAOImpl extends DAOImpl implements UserDAO {
   }
 
   /**
-   * Create a new default set of UserRoleRecord for an existing new User id.
-   *
-   * @param db     context of authentication request
-   * @param userId of new User.
-   * @return collection of new UserRole records, including actual id
+   Create a new default set of UserRoleRecord for an existing new User id.
+
+   @param db     context of authentication request
+   @param userId of new User.
+   @return collection of new UserRole records, including actual id
    */
   private Collection<UserRoleRecord> newRoles(DSLContext db, ULong userId) throws Exception {
     UserRoleRecord userRole1 = db.insertInto(USER_ROLE, USER_ROLE.USER_ID, USER_ROLE.TYPE)
@@ -224,16 +226,16 @@ public class UserDAOImpl extends DAOImpl implements UserDAO {
   }
 
   /**
-   * If user_auth exists for this account,
-   * retrieve its user record and return the user
-   *
-   * @param db                   context of authentication request
-   * @param userId               of User that this auth record belongs to
-   * @param authType             of external auth
-   * @param account              identifier in external system
-   * @param externalAccessToken  for OAuth2 access
-   * @param externalRefreshToken for refreshing OAuth2 access
-   * @return new UserAuth record, including actual id
+   If user_auth exists for this account,
+   retrieve its user record and return the user
+
+   @param db                   context of authentication request
+   @param userId               of User that this auth record belongs to
+   @param authType             of external auth
+   @param account              identifier in external system
+   @param externalAccessToken  for OAuth2 access
+   @param externalRefreshToken for refreshing OAuth2 access
+   @return new UserAuth record, including actual id
    */
   private UserAuthRecord newUserAuth(DSLContext db, ULong userId, String authType, String account, String externalAccessToken, String externalRefreshToken) throws Exception {
     UserAuthRecord userAuth = db.insertInto(USER_AUTH, USER_AUTH.USER_ID, USER_AUTH.TYPE, USER_AUTH.EXTERNAL_ACCOUNT, USER_AUTH.EXTERNAL_ACCESS_TOKEN, USER_AUTH.EXTERNAL_REFRESH_TOKEN)
@@ -249,12 +251,12 @@ public class UserDAOImpl extends DAOImpl implements UserDAO {
   }
 
   /**
-   * Select existing UserAuth by type + account
-   *
-   * @param db       context of authentication request
-   * @param authType of external auth
-   * @param account  identifier in external system
-   * @return UserAuthRecord, or null
+   Select existing UserAuth by type + account
+
+   @param db       context of authentication request
+   @param authType of external auth
+   @param account  identifier in external system
+   @return UserAuthRecord, or null
    */
   private UserAuthRecord fetchOneUserAuth(DSLContext db, String authType, String account) {
     return db.selectFrom(USER_AUTH)
@@ -264,11 +266,11 @@ public class UserDAOImpl extends DAOImpl implements UserDAO {
   }
 
   /**
-   * Select existing Account-User memberships by User id.
-   *
-   * @param db     context of database access.
-   * @param userId of existing User.
-   * @return collection of AccountUserRecord.
+   Select existing Account-User memberships by User id.
+
+   @param db     context of database access.
+   @param userId of existing User.
+   @return collection of AccountUserRecord.
    */
   private Collection<AccountUserRecord> fetchAccounts(DSLContext db, ULong userId) {
     return db.selectFrom(ACCOUNT_USER)
@@ -277,11 +279,11 @@ public class UserDAOImpl extends DAOImpl implements UserDAO {
   }
 
   /**
-   * Select existing User roles by User id.
-   *
-   * @param db     context of database access.
-   * @param userId of existing User.
-   * @return collection of UserRoleRecord.
+   Select existing User roles by User id.
+
+   @param db     context of database access.
+   @param userId of existing User.
+   @return collection of UserRoleRecord.
    */
   private Collection<UserRoleRecord> fetchRoles(DSLContext db, ULong userId) {
     return db.selectFrom(USER_ROLE)
@@ -290,12 +292,12 @@ public class UserDAOImpl extends DAOImpl implements UserDAO {
   }
 
   /**
-   * Read one record
-   *
-   * @param db     context
-   * @param access control
-   * @param userId to read
-   * @return record
+   Read one record
+
+   @param db     context
+   @param access control
+   @param userId to read
+   @return record
    */
   private JSONObject readOne(DSLContext db, AccessControl access, ULong userId) {
     if (access.isTopLevel()) {
@@ -348,12 +350,12 @@ public class UserDAOImpl extends DAOImpl implements UserDAO {
   }
 
   /**
-   * Read all records
-   *
-   * @param db     context
-   * @param access control
-   * @return array of records
-   * @throws SQLException on database failure
+   Read all records
+
+   @param db     context
+   @param access control
+   @return array of records
+   @throws SQLException on database failure
    */
   private JSONArray readAll(DSLContext db, AccessControl access) throws SQLException {
     if (access.isTopLevel()) {
@@ -402,11 +404,11 @@ public class UserDAOImpl extends DAOImpl implements UserDAO {
   }
 
   /**
-   * Update all roles for a specified User, by providing a list of roles to grant;
-   * all other roles will be denied to this User.
-   *
-   * @param db     context.
-   * @param userId specific User to update.
+   Update all roles for a specified User, by providing a list of roles to grant;
+   all other roles will be denied to this User.
+
+   @param db     context.
+   @param userId specific User to update.
    */
   private void updateUserRoles(DSLContext db, ULong userId, UserWrapper data) throws BusinessException {
     data.validate();
@@ -442,9 +444,9 @@ public class UserDAOImpl extends DAOImpl implements UserDAO {
   }
 
   /**
-   * Destroy all access tokens for a specified User
-   *
-   * @param userId to destroy all access tokens for.
+   Destroy all access tokens for a specified User
+
+   @param userId to destroy all access tokens for.
    */
   private void destroyAllTokens(DSLContext db, ULong userId) throws Exception {
     Result<UserAccessTokenRecord> userAccessTokens = db.selectFrom(USER_ACCESS_TOKEN)
@@ -456,10 +458,10 @@ public class UserDAOImpl extends DAOImpl implements UserDAO {
   }
 
   /**
-   * Destroy an access token, first in Redis, then (if successful) in SQL.
-   *
-   * @param db              context
-   * @param userAccessToken record of user access token to destroy
+   Destroy an access token, first in Redis, then (if successful) in SQL.
+
+   @param db              context
+   @param userAccessToken record of user access token to destroy
    */
   private void destroyToken(DSLContext db, UserAccessTokenRecord userAccessToken) throws Exception {
     accessControlProvider.expire(userAccessToken.getAccessToken());

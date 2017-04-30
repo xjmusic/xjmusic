@@ -3,33 +3,59 @@ import Ember from 'ember';
 
 export default Ember.Route.extend({
 
+  // Inject: flash message service
   display: Ember.inject.service(),
 
+  /**
+   * Route Model
+   * @returns {*|DS.Model}
+   */
   model() {
     return this.modelFor('accounts.one');
   },
 
+  /**
+   * Headline
+   */
+  afterModel(model) {
+    Ember.set(this, 'routeHeadline', {
+      title: 'Edit ' + model.get('name'),
+      entity: {
+        name: 'Account',
+        id: model.get('id')
+      }
+    });
+  },
+
+  /**
+   * Route Actions
+   */
   actions: {
 
     saveAccount(model) {
-      model.save().then(() => {
-        Ember.get(this, 'display').success('Updated account ' + model.get('name') + '.');
-        this.transitionTo('accounts');
-      }).catch((error) => {
-        Ember.get(this, 'display').error(error);
-      });
+      let self = this;
+      model.save().then(
+        () => {
+          Ember.get(self, 'display').success('Updated account ' + model.get('name') + '.');
+          self.transitionTo('accounts.one');
+        },
+        (error) => {
+          Ember.get(self, 'display').error(error);
+        }
+      );
     },
 
     destroyAccount(model) {
+      let self = this;
       let confirmation = confirm("Are you fucking sure? If there are Users or Libraries belonging to this account, deletion will fail anyway.");
       if (confirmation) {
         model.destroyRecord({}).then(
           () => {
-            Ember.get(this, 'display').success('Deleted account ' + model.get('name') + '.');
-            this.transitionTo('accounts');
+            Ember.get(self, 'display').success('Deleted account ' + model.get('name') + '.');
+            self.transitionTo('accounts');
           },
           (error) => {
-            Ember.get(this, 'display').error(error);
+            Ember.get(self, 'display').error(error);
           });
       }
     },

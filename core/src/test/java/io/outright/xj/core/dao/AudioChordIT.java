@@ -45,7 +45,7 @@ public class AudioChordIT {
 
     // John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
     IntegrationTestEntity.insertUser(2, "john", "john@email.com", "http://pictures.com/john.gif");
-    IntegrationTestEntity.insertUserRole(1,2, Role.ADMIN);
+    IntegrationTestEntity.insertUserRole(1, 2, Role.ADMIN);
 
     // Library "palm tree" has idea "leaves" and idea "coconuts"
     IntegrationTestEntity.insertLibrary(1, 1, "palm tree");
@@ -273,11 +273,11 @@ public class AudioChordIT {
 
     testDAO.delete(access, ULong.valueOf(1));
 
-    AudioChordRecord deletedRecord = IntegrationTestService.getDb()
+    AudioChordRecord result = IntegrationTestService.getDb()
       .selectFrom(AUDIO_CHORD)
       .where(AUDIO_CHORD.ID.eq(ULong.valueOf(1)))
       .fetchOne();
-    assertNull(deletedRecord);
+    assertNull(result);
   }
 
   @Test(expected = BusinessException.class)

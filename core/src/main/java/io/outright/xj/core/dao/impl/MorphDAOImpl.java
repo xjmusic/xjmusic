@@ -97,13 +97,13 @@ public class MorphDAOImpl extends DAOImpl implements MorphDAO {
   }
 
   /**
-   * Create a new record
-   *
-   * @param db     context
-   * @param access control
-   * @param data   for new record
-   * @return newly created record
-   * @throws BusinessException if a Business Rule is violated
+   Create a new record
+
+   @param db     context
+   @param access control
+   @param data   for new record
+   @return newly created record
+   @throws BusinessException if a Business Rule is violated
    */
   private JSONObject create(DSLContext db, AccessControl access, MorphWrapper data) throws BusinessException {
     Morph model = data.validate();
@@ -119,12 +119,12 @@ public class MorphDAOImpl extends DAOImpl implements MorphDAO {
   }
 
   /**
-   * Read one record
-   *
-   * @param db     context
-   * @param access control
-   * @param id     of record
-   * @return record
+   Read one record
+
+   @param db     context
+   @param access control
+   @param id     of record
+   @return record
    */
   private JSONObject readOne(DSLContext db, AccessControl access, ULong id) {
     if (access.isTopLevel()) {
@@ -145,12 +145,12 @@ public class MorphDAOImpl extends DAOImpl implements MorphDAO {
   }
 
   /**
-   * Read all records in parent by id
-   *
-   * @param db      context
-   * @param access  control
-   * @param arrangementId of parent
-   * @return array of records
+   Read all records in parent by id
+
+   @param db            context
+   @param access        control
+   @param arrangementId of parent
+   @return array of records
    */
   private JSONArray readAllIn(DSLContext db, AccessControl access, ULong arrangementId) throws SQLException {
     if (access.isTopLevel()) {
@@ -172,13 +172,13 @@ public class MorphDAOImpl extends DAOImpl implements MorphDAO {
   }
 
   /**
-   * Update a record
-   *
-   * @param db     context
-   * @param access control
-   * @param id     of record
-   * @param data   to update with
-   * @throws BusinessException if a Business Rule is violated
+   Update a record
+
+   @param db     context
+   @param access control
+   @param id     of record
+   @param data   to update with
+   @throws BusinessException if a Business Rule is violated
    */
   private void update(DSLContext db, AccessControl access, ULong id, MorphWrapper data) throws BusinessException, DatabaseException {
     Morph model = data.validate();
@@ -199,14 +199,14 @@ public class MorphDAOImpl extends DAOImpl implements MorphDAO {
   }
 
   /**
-   * Delete a Morph
-   *
-   * @param db     context
-   * @param access control
-   * @param id     to delete
-   * @throws Exception         if database failure
-   * @throws ConfigException   if not configured properly
-   * @throws BusinessException if fails business rule
+   Delete a Morph
+
+   @param db     context
+   @param access control
+   @param id     to delete
+   @throws Exception         if database failure
+   @throws ConfigException   if not configured properly
+   @throws BusinessException if fails business rule
    */
   private void delete(DSLContext db, AccessControl access, ULong id) throws Exception {
     requireTopLevel(access);
@@ -232,10 +232,10 @@ public class MorphDAOImpl extends DAOImpl implements MorphDAO {
           .from(PICK)
           .where(PICK.MORPH_ID.eq(id))
       ).andNotExists(
-        db.select(POINT.ID)
-          .from(POINT)
-          .where(POINT.MORPH_ID.eq(id))
-      )
+      db.select(POINT.ID)
+        .from(POINT)
+        .where(POINT.MORPH_ID.eq(id))
+    )
       .execute();
   }
 

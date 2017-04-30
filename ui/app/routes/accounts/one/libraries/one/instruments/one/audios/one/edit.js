@@ -3,10 +3,16 @@ import Ember from 'ember';
 
 export default Ember.Route.extend({
 
+  // Inject: authentication service
   auth: Ember.inject.service(),
 
+  // Inject: flash message service
   display: Ember.inject.service(),
 
+  /**
+   * Route Model
+   * @returns {*|DS.Model}
+   */
   model() {
     let auth = this.get('auth');
     if (auth.isArtist || auth.isAdmin) {
@@ -19,13 +25,29 @@ export default Ember.Route.extend({
     }
   },
 
+  /**
+   * Headline
+   */
+  afterModel(model) {
+    Ember.set(this, 'routeHeadline', {
+      title: 'Edit ' + model.get('name'),
+      entity: {
+        name: 'Audio',
+        id: model.get('id')
+      }
+    });
+  },
+
+  /**
+   * Route Actions
+   */
   actions: {
 
     saveAudio(model) {
       model.save().then(
         () => {
           Ember.get(this, 'display').success('Updated audio "' + model.get('name') + '".');
-          this.transitionTo('accounts.one.libraries.one.instruments.one.audios');
+          this.transitionTo('accounts.one.libraries.one.instruments.one.audios.one');
         },
         (error) => {
           Ember.get(this, 'display').error(error);
@@ -54,7 +76,6 @@ export default Ember.Route.extend({
         }
       }
     }
-
   }
 
 });

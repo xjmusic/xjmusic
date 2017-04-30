@@ -25,7 +25,6 @@
     "ember-cli": "^2.12.0",
     "ember-cli-app-version": "^3.0.0",
     "ember-cli-babel": "^5.2.1",
-    "ember-cli-bootstrap-sassy": "0.5.5",
     "ember-cli-dependency-checker": "^1.2.0",
     "ember-cli-flash": "1.4.2",
     "ember-cli-google-analytics": "^1.5.0",

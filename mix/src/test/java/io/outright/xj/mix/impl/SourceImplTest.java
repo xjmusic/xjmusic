@@ -91,10 +91,10 @@ public class SourceImplTest {
   public void getInputFormat_F32LSB_48kHz_Stereo() throws Exception {
     AudioFormat audioFormat = F32LSB_48kHz_Stereo.getInputFormat();
     assertEquals(2, audioFormat.getChannels());
-    assertEquals(48000, audioFormat.getSampleRate(),0);
-    assertEquals(48000, audioFormat.getFrameRate(),0);
-    assertEquals(32,audioFormat.getSampleSizeInBits());
-    assertEquals(8,audioFormat.getFrameSize());
+    assertEquals(48000, audioFormat.getSampleRate(), 0);
+    assertEquals(48000, audioFormat.getFrameRate(), 0);
+    assertEquals(32, audioFormat.getSampleSizeInBits());
+    assertEquals(8, audioFormat.getFrameSize());
     assertEquals(false, audioFormat.isBigEndian());
   }
 
@@ -102,10 +102,10 @@ public class SourceImplTest {
   public void getInputFormat_S16LSB_44100Hz_Mono() throws Exception {
     AudioFormat audioFormat = S16LSB_44100Hz_Mono.getInputFormat();
     assertEquals(1, audioFormat.getChannels());
-    assertEquals(44100, audioFormat.getSampleRate(),0);
-    assertEquals(44100, audioFormat.getFrameRate(),0);
-    assertEquals(16,audioFormat.getSampleSizeInBits());
-    assertEquals(2,audioFormat.getFrameSize());
+    assertEquals(44100, audioFormat.getSampleRate(), 0);
+    assertEquals(44100, audioFormat.getFrameRate(), 0);
+    assertEquals(16, audioFormat.getSampleSizeInBits());
+    assertEquals(2, audioFormat.getFrameSize());
     assertEquals(false, audioFormat.isBigEndian());
   }
 

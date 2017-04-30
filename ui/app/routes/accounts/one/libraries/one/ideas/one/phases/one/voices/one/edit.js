@@ -46,13 +46,29 @@ export default Ember.Route.extend({
     }
   },
 
+  /**
+   * Headline
+   */
+  afterModel(model) {
+    Ember.set(this, 'routeHeadline', {
+      title: 'Edit ' + model.get('description'),
+      entity: {
+        name: 'Voice',
+        id: model.get('id')
+      }
+    });
+  },
+
+  /**
+   * Route Actions
+   */
   actions: {
 
     saveVoice(model) {
       model.save().then(
         () => {
           Ember.get(this, 'display').success('Updated "' + model.get('description') + '" voice.');
-          this.transitionTo('accounts.one.libraries.one.ideas.one.phases.one.voices');
+          this.transitionTo('accounts.one.libraries.one.ideas.one.phases.one.voices.one');
         },
         (error) => {
           Ember.get(this, 'display').error(error);
@@ -81,7 +97,6 @@ export default Ember.Route.extend({
         }
       }
     }
-
   }
 
 });

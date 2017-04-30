@@ -281,11 +281,11 @@ public class ArrangementIT {
 
     testDAO.delete(access, ULong.valueOf(1));
 
-    ArrangementRecord deletedRecord = IntegrationTestService.getDb()
+    ArrangementRecord result = IntegrationTestService.getDb()
       .selectFrom(ARRANGEMENT)
       .where(ARRANGEMENT.ID.eq(ULong.valueOf(1)))
       .fetchOne();
-    assertNull(deletedRecord);
+    assertNull(result);
   }
 
   @Test(expected = BusinessException.class)

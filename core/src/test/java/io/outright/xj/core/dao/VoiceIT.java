@@ -12,10 +12,12 @@ import io.outright.xj.core.model.voice.Voice;
 import io.outright.xj.core.model.voice.VoiceWrapper;
 import io.outright.xj.core.tables.records.VoiceRecord;
 
+import org.jooq.types.ULong;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.jooq.types.ULong;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.After;
@@ -278,11 +280,11 @@ public class VoiceIT {
 
     testDAO.delete(access, ULong.valueOf(1));
 
-    VoiceRecord deletedRecord = IntegrationTestService.getDb()
+    VoiceRecord result = IntegrationTestService.getDb()
       .selectFrom(VOICE)
       .where(VOICE.ID.eq(ULong.valueOf(1)))
       .fetchOne();
-    assertNull(deletedRecord);
+    assertNull(result);
   }
 
   @Test(expected = BusinessException.class)

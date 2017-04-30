@@ -46,6 +46,19 @@ export default Ember.Route.extend({
   },
 
   /**
+   * Headline
+   */
+  afterModel(model) {
+    Ember.set(this, 'routeHeadline', {
+      title: model.chain.get('name') + ' ' + 'Configs',
+      entity: {
+        name: 'Chain',
+        id: model.chain.get('id')
+      }
+    });
+  },
+
+  /**
    * Route Actions
    */
   actions: {
@@ -54,7 +67,7 @@ export default Ember.Route.extend({
       this.refresh();
     },
 
-    destroyChainConfig(model) {
+    removeConfig(model) {
       model.destroyRecord({}).then(
         () => {
           Ember.get(this, 'display').success('Removed Config from Chain.');
@@ -64,7 +77,7 @@ export default Ember.Route.extend({
         });
     },
 
-    addConfigToChain(model) {
+    addConfig(model) {
       let self = this;
       let chainConfig = model.chainConfigToAdd;
       chainConfig.save().then(

@@ -19,7 +19,7 @@ public class Morph extends Entity {
 
 
   /**
-   * Arrangement
+   Arrangement
    */
   private ULong arrangementId;
 
@@ -33,7 +33,7 @@ public class Morph extends Entity {
   }
 
   /**
-   * Position
+   Position
    */
   private Double position;
 
@@ -47,7 +47,7 @@ public class Morph extends Entity {
   }
 
   /**
-   * Note
+   Note
    */
   private String note;
 
@@ -61,7 +61,7 @@ public class Morph extends Entity {
   }
 
   /**
-   * Duration
+   Duration
    */
   private Double duration;
 
@@ -75,9 +75,9 @@ public class Morph extends Entity {
   }
 
   /**
-   * Validate data.
-   *
-   * @throws BusinessException if invalid.
+   Validate data.
+
+   @throws BusinessException if invalid.
    */
   @Override
   public void validate() throws BusinessException {
@@ -96,9 +96,9 @@ public class Morph extends Entity {
   }
 
   /**
-   * Model info jOOQ-field : Value map
-   *
-   * @return map
+   Model info jOOQ-field : Value map
+
+   @return map
    */
   @Override
   public Map<Field, Object> intoFieldValueMap() {
@@ -111,7 +111,7 @@ public class Morph extends Entity {
   }
 
   /**
-   * For use in maps.
+   For use in maps.
    */
   public static final String KEY_ONE = "morph";
   public static final String KEY_MANY = "morphs";

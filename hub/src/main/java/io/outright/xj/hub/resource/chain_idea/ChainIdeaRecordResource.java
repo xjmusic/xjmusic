@@ -29,12 +29,12 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 
 /**
- * Chain Idea record
+ Chain Idea record
  */
 @Path("chain-ideas/{id}")
 public class ChainIdeaRecordResource {
   private static final Injector injector = Guice.createInjector(new CoreModule());
-//  private static Logger log = LoggerFactory.getLogger(ChainIdeaRecordResource.class);
+  //  private static Logger log = LoggerFactory.getLogger(ChainIdeaRecordResource.class);
   private final ChainIdeaDAO chainIdeaDAO = injector.getInstance(ChainIdeaDAO.class);
   private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
 
@@ -42,9 +42,9 @@ public class ChainIdeaRecordResource {
   String id;
 
   /**
-   * Get one ChainIdea by id
-   *
-   * @return application/json response.
+   Get one ChainIdea by id
+
+   @return application/json response.
    */
   @GET
   @WebResult
@@ -68,9 +68,9 @@ public class ChainIdeaRecordResource {
   }
 
   /**
-   * Delete one ChainIdea
-   *
-   * @return application/json response.
+   Delete one ChainIdea
+
+   @return application/json response.
    */
   // TODO [hub] Return 404 if the chain idea is not found.
   @DELETE

@@ -8,11 +8,10 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 /**
- * Utilities for converting back and forth between a `double` and various `byte[]` for different bit-rates
- * a double is a single value for a channel of a frame of some audio.
- *
- * @link https://docs.oracle.com/javase/tutorial/java/nutsandbolts/datatypes.html
- */
+ Utilities for converting back and forth between a `double` and various `byte[]` for different bit-rates
+ a double is a single value for a channel of a frame of some audio.
+
+ @link https://docs.oracle.com/javase/tutorial/java/nutsandbolts/datatypes.html */
 public class AudioSample {
 
   // sample types
@@ -30,37 +29,37 @@ public class AudioSample {
   private static final AudioFormat.Encoding PCM_FLOAT = AudioFormat.Encoding.PCM_FLOAT;
 
   /**
-   * Get the proprietary (to this class) type for output audio
-   * which can be used later to quickly build sample bytes from `double` values
-   *
-   * @param format of audio from which to extract proprietary sample format
-   * @return proprietary sample format
-   * @throws FormatException if format is unsupported
+   Get the proprietary (to this class) type for output audio
+   which can be used later to quickly build sample bytes from `double` values
+
+   @param format of audio from which to extract proprietary sample format
+   @return proprietary sample format
+   @throws FormatException if format is unsupported
    */
   public static String typeOfOutput(AudioFormat format) throws FormatException {
     return typeOf(format, true);
   }
 
   /**
-   * Get the proprietary (to this class) type for input audio
-   * which can be used later to quickly build sample bytes from `double` values
-   *
-   * @param format of audio from which to extract proprietary sample format
-   * @return proprietary sample format
-   * @throws FormatException if format is unsupported
+   Get the proprietary (to this class) type for input audio
+   which can be used later to quickly build sample bytes from `double` values
+
+   @param format of audio from which to extract proprietary sample format
+   @return proprietary sample format
+   @throws FormatException if format is unsupported
    */
   public static String typeOfInput(AudioFormat format) throws FormatException {
     return typeOf(format, false);
   }
 
   /**
-   * Get the proprietary (to this class) type
-   * which can be used later to quickly build sample bytes from `double` values
-   *
-   * @param format   of audio from which to extract proprietary sample format
-   * @param isOutput whether this format will be used for output (which affects rules)
-   * @return proprietary sample format
-   * @throws FormatException if format is unsupported
+   Get the proprietary (to this class) type
+   which can be used later to quickly build sample bytes from `double` values
+
+   @param format   of audio from which to extract proprietary sample format
+   @param isOutput whether this format will be used for output (which affects rules)
+   @return proprietary sample format
+   @throws FormatException if format is unsupported
    */
   private static String typeOf(AudioFormat format, boolean isOutput) throws FormatException {
     if (format.isBigEndian()) {
@@ -112,11 +111,11 @@ public class AudioSample {
   }
 
   /**
-   * Convert a `double` value to output bytes based on its proprietary sample type
-   *
-   * @param value to convert
-   * @param type  of sample
-   * @return output bytes
+   Convert a `double` value to output bytes based on its proprietary sample type
+
+   @param value to convert
+   @param type  of sample
+   @return output bytes
    */
   public static byte[] toBytes(double value, String type) {
     switch (type) {
@@ -136,11 +135,11 @@ public class AudioSample {
   }
 
   /**
-   * Convert input bytes to a `double` value based on its proprietary sample type
-   *
-   * @param value to convert
-   * @param type  of sample
-   * @return value
+   Convert input bytes to a `double` value based on its proprietary sample type
+
+   @param value to convert
+   @param type  of sample
+   @return value
    */
   public static double fromBytes(byte[] value, String type) {
     switch (type) {
@@ -164,60 +163,60 @@ public class AudioSample {
   }
 
   /**
-   * to bytes encoded as 8-bit signed int LSB
-   *
-   * @param value to encode
-   * @return encoded bytes
+   to bytes encoded as 8-bit signed int LSB
+
+   @param value to encode
+   @return encoded bytes
    */
   private static byte[] toBytesS8(double value) {
     return new byte[]{(byte) (0x80 * value)};
   }
 
   /**
-   * to bytes encoded as 16-bit signed int LSB
-   *
-   * @param value to encode
-   * @return encoded bytes
+   to bytes encoded as 16-bit signed int LSB
+
+   @param value to encode
+   @return encoded bytes
    */
   private static byte[] toBytesS16LSB(double value) {
     return ByteBuffer.allocate(2).order(ByteOrder.LITTLE_ENDIAN).putShort((short) (0x8000 * value)).array();
   }
 
   /**
-   * to bytes encoded as 32-bit signed int LSB
-   *
-   * @param value to encode
-   * @return encoded bytes
+   to bytes encoded as 32-bit signed int LSB
+
+   @param value to encode
+   @return encoded bytes
    */
   private static byte[] toBytesS32LSB(double value) {
     return ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt((int) (0x80000000 * value)).array();
   }
 
   /**
-   * to bytes encoded as 32-bit float LSB
-   *
-   * @param value to encode
-   * @return encoded bytes
+   to bytes encoded as 32-bit float LSB
+
+   @param value to encode
+   @return encoded bytes
    */
   private static byte[] toBytesF32LSB(double value) {
     return ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putFloat((float) value).array();
   }
 
   /**
-   * to bytes encoded as 64-bit float LSB
-   *
-   * @param value to encode
-   * @return encoded bytes
+   to bytes encoded as 64-bit float LSB
+
+   @param value to encode
+   @return encoded bytes
    */
   private static byte[] toBytesF64LSB(double value) {
     return ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN).putDouble(value).array();
   }
 
   /**
-   * from bytes encoded as 8-bit unsigned int LSB
-   *
-   * @param sample to decode
-   * @return value
+   from bytes encoded as 8-bit unsigned int LSB
+
+   @param sample to decode
+   @return value
    */
   private static double fromBytesU8(byte[] sample) {
     return (double) (ByteBuffer.wrap(sample)
@@ -226,10 +225,10 @@ public class AudioSample {
   }
 
   /**
-   * from bytes encoded as 8-bit signed int LSB
-   *
-   * @param sample to decode
-   * @return value
+   from bytes encoded as 8-bit signed int LSB
+
+   @param sample to decode
+   @return value
    */
   private static double fromBytesS8(byte[] sample) {
     return (double) ByteBuffer.wrap(sample)
@@ -238,10 +237,10 @@ public class AudioSample {
   }
 
   /**
-   * from bytes encoded as 16-bit unsigned int LSB
-   *
-   * @param sample to decode
-   * @return value
+   from bytes encoded as 16-bit unsigned int LSB
+
+   @param sample to decode
+   @return value
    */
   private static double fromBytesU16LSB(byte[] sample) {
     return (double) (ByteBuffer.wrap(sample)
@@ -250,10 +249,10 @@ public class AudioSample {
   }
 
   /**
-   * from bytes encoded as 16-bit signed int LSB
-   *
-   * @param sample to decode
-   * @return value
+   from bytes encoded as 16-bit signed int LSB
+
+   @param sample to decode
+   @return value
    */
   private static double fromBytesS16LSB(byte[] sample) {
     return (double) ByteBuffer.wrap(sample)
@@ -262,10 +261,10 @@ public class AudioSample {
   }
 
   /**
-   * from bytes encoded as 32-bit signed int LSB
-   *
-   * @param sample to decode
-   * @return value
+   from bytes encoded as 32-bit signed int LSB
+
+   @param sample to decode
+   @return value
    */
   private static double fromBytesS32LSB(byte[] sample) {
     return (double) ByteBuffer.wrap(sample)
@@ -274,10 +273,10 @@ public class AudioSample {
   }
 
   /**
-   * from bytes encoded as 32-bit float LSB
-   *
-   * @param sample to decode
-   * @return value
+   from bytes encoded as 32-bit float LSB
+
+   @param sample to decode
+   @return value
    */
   private static double fromBytesF32LSB(byte[] sample) {
     return (double) ByteBuffer.wrap(sample)
@@ -286,10 +285,10 @@ public class AudioSample {
   }
 
   /**
-   * from bytes encoded as 64-bit float LSB
-   *
-   * @param sample to decode
-   * @return value
+   from bytes encoded as 64-bit float LSB
+
+   @param sample to decode
+   @return value
    */
   private static double fromBytesF64LSB(byte[] sample) {
     return ByteBuffer.wrap(sample)

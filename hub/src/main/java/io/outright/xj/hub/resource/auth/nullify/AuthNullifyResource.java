@@ -2,8 +2,8 @@
 package io.outright.xj.hub.resource.auth.nullify;
 
 import io.outright.xj.core.CoreModule;
-import io.outright.xj.core.app.access.impl.AccessControl;
 import io.outright.xj.core.app.access.AccessControlProvider;
+import io.outright.xj.core.app.access.impl.AccessControl;
 import io.outright.xj.core.app.server.HttpResponseProvider;
 import io.outright.xj.core.dao.UserDAO;
 import io.outright.xj.core.model.role.Role;
@@ -21,7 +21,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 
 /**
- * Nullify current authentication
+ Nullify current authentication
  */
 @Path("auth/no")
 public class AuthNullifyResource {
@@ -32,9 +32,9 @@ public class AuthNullifyResource {
   private final AccessControlProvider accessControlProvider = injector.getInstance(AccessControlProvider.class);
 
   /**
-   * Get current authentication, destroy all known access_tokens for that user, and delete the access token browser cookie.
-   *
-   * @return JSONObject that will be returned as an application/json response.
+   Get current authentication, destroy all known access_tokens for that user, and delete the access token browser cookie.
+
+   @return JSONObject that will be returned as an application/json response.
    */
   @GET
   @WebResult

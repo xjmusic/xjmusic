@@ -3,8 +3,13 @@ import Ember from 'ember';
 
 export default Ember.Route.extend({
 
+  // Inject: flash message service
   display: Ember.inject.service(),
 
+  /**
+   * Route Model
+   * @returns {*}
+   */
   model() {
     let instrument = this.modelFor('accounts.one.libraries.one.instruments.one');
     return Ember.RSVP.hash({
@@ -14,6 +19,22 @@ export default Ember.Route.extend({
     });
   },
 
+  /**
+   * Headline
+   */
+  afterModel(model) {
+    Ember.set(this, 'routeHeadline', {
+      title: model.instrument.get('description') + ' ' + 'Memes',
+      entity: {
+        name: 'Instrument',
+        id: model.instrument.get('id')
+      }
+    });
+  },
+
+  /**
+   * Route Actions
+   */
   actions: {
 
     sessionChanged: function () {

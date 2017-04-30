@@ -9,4 +9,12 @@ export default DS.Model.extend({
   tempo: DS.attr('number'),
   offset: DS.attr('number'),
   total: DS.attr('number'),
+
+  getTitle() {
+    let name = this.get("name");
+    let title = name ? name : '';
+    title += '@' + this.get("offset");
+    return title;
+  }
+
 });

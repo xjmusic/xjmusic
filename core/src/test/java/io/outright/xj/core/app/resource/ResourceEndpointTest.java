@@ -64,5 +64,7 @@ public class ResourceEndpointTest extends Mockito {
     return target;
   }
 
-  protected String[] packages() { return new String[0]; }
+  protected String[] packages() {
+    return new String[0];
+  }
 }

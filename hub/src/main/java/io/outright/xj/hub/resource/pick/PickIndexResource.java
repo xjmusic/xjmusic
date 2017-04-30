@@ -30,7 +30,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 
 /**
- * Picks
+ Picks
  */
 @Path("picks")
 public class PickIndexResource {
@@ -43,9 +43,9 @@ public class PickIndexResource {
   String morphId;
 
   /**
-   * Get all picks.
-   *
-   * @return application/json response.
+   Get all picks.
+
+   @return application/json response.
    */
   @GET
   @WebResult

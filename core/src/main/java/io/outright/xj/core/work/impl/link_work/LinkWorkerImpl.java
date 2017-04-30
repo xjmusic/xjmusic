@@ -9,7 +9,6 @@ import io.outright.xj.core.model.link.LinkWrapper;
 import io.outright.xj.core.work.Worker;
 import io.outright.xj.core.work.WorkerOperation;
 
-import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import com.google.inject.assistedinject.AssistedInject;
 
@@ -58,7 +57,7 @@ public class LinkWorkerImpl implements Worker {
   }
 
   /**
-   * This stateless runnable is then executed in a thread pool
+   This stateless runnable is then executed in a thread pool
    */
   public class LinkWorkerTaskRunner implements Runnable {
     private Link link;

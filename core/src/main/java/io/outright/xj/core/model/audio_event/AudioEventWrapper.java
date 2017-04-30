@@ -8,19 +8,22 @@ public class AudioEventWrapper extends EntityWrapper {
 
   // AudioEvent
   private AudioEvent audioEvent;
+
   public AudioEvent getAudioEvent() {
     return audioEvent;
   }
+
   public AudioEventWrapper setAudioEvent(AudioEvent audioEvent) {
     this.audioEvent = audioEvent;
     return this;
   }
 
   /**
-   * Validate data.
-   * @throws BusinessException if invalid.
+   Validate data.
+
+   @throws BusinessException if invalid.
    */
-  public AudioEvent validate() throws BusinessException{
+  public AudioEvent validate() throws BusinessException {
     if (this.audioEvent == null) {
       throw new BusinessException("audioEvent is required.");
     }

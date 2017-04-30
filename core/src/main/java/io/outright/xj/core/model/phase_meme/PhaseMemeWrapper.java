@@ -8,19 +8,22 @@ public class PhaseMemeWrapper extends EntityWrapper {
 
   // Phase
   private PhaseMeme phaseMeme;
+
   public PhaseMeme getPhaseMeme() {
     return phaseMeme;
   }
+
   public PhaseMemeWrapper setPhaseMeme(PhaseMeme phaseMeme) {
     this.phaseMeme = phaseMeme;
     return this;
   }
 
   /**
-   * Validate data.
-   * @throws BusinessException if invalid.
+   Validate data.
+
+   @throws BusinessException if invalid.
    */
-  public PhaseMeme validate() throws BusinessException{
+  public PhaseMeme validate() throws BusinessException {
     if (this.phaseMeme == null) {
       throw new BusinessException("phaseMeme is required.");
     }

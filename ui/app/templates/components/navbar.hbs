@@ -1,46 +1,49 @@
 <!-- Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved. -->
 
-<nav class="navbar navbar-inverse">
-  <div class="navbar-header">
-    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#main-navbar">
-      <span class="sr-only">Toggle navigation</span>
-      <span class="icon-bar"></span>
-      <span class="icon-bar"></span>
-      <span class="icon-bar"></span>
-    </button>
-  </div>
+<nav class="navbar navbar-toggleable-md navbar-inverse fixed-top bg-inverse">
 
-  <div class="collapse navbar-collapse" id="main-navbar">
+  <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarCollapse"
+          aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  {{#link-to 'index' class="navbar-brand logo"}}<img src="/assets/images/brand/xj-logo.png"/>{{/link-to}}
+
+  <div class="collapse navbar-collapse" id="navbarCollapse">
     {{#if auth.isUser}}
-      <ul class="nav navbar-nav navbar-left">
-        {{#link-to 'index' tagName="li" class="logo"}}<a href=""><img src="/assets/images/brand/xj-logo.png"/></a>{{/link-to}}
-        {{#link-to 'users' tagName="li"}}<a href="">People</a>{{/link-to}}
-        {{#link-to 'accounts' tagName="li"}}<a href="">Music</a>{{/link-to}}
+      <ul class="nav navbar-nav navbar-left mr-auto">
+        {{#link-to 'users' tagName="li" class="nav-item"}}<a class="nav-link" href="">People</a>{{/link-to}}
+        {{#link-to 'accounts' tagName="li" class="nav-item"}}<a class="nav-link" href="">Music</a>{{/link-to}}
       </ul>
       <ul class="nav navbar-nav navbar-right">
-        <li><a id="clock"><!-- TIME UTC --></a></li>
-        <li class="dropdown">
-          <a href="#" data-toggle="dropdown" class="dropdown-toggle">
-            {{#if auth.isUser}}User #{{auth.userId}}{{/if}}
-            {{#if auth.isAdmin}}<badge>&#9762;</badge>{{/if}}
-            {{#if auth.isArtist}}<badge>&#x266C;</badge>{{/if}}
+        <li id="clock"><!-- TIME UTC --></li>
+        <li class="nav-item dropdown">
+          <a href="#" data-toggle="dropdown" class="nav-link dropdown-toggle">
+            {{#if auth.isUser}}User <sup>#</sup>{{auth.userId}}{{/if}}
+            {{#if auth.isAdmin}}
+              <badge>&#9762;</badge>{{/if}}
+            {{#if auth.isArtist}}
+              <badge>&#x266C;</badge>{{/if}}
             <b class="caret"></b>
           </a>
           <ul class="dropdown-menu inverse-dropdown">
-            {{#link-to 'logout' tagName="li"}}<a href="">Sign Out</a>{{/link-to}}
+            {{#link-to 'logout' tagName="li" class="nav-item"}}<a class="nav-link" href="">Sign Out</a>{{/link-to}}
+            {{#link-to 'users.one' auth.userId tagName="li" class="nav-item"}}<a class="nav-link" href="">Me</a>{{/link-to}}
           </ul>
         </li>
       </ul>
     {{else}}
-      <ul class="nav navbar-nav navbar-left">
-        {{#link-to 'index' tagName="li" class="logo"}}<a href=""><img src="/assets/images/brand/xj-logo.png"/></a>{{/link-to}}
+      <ul class="nav navbar-nav navbar-left mr-auto">
+        <li>&nbsp;</li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
-        <li><a id="clock"><!-- TIME UTC --></a></li>
-        {{#link-to 'login' tagName="li"}}<a href="">Sign In</a>{{/link-to}}
+        <li id="clock"><!-- TIME UTC --></li>
+        {{#link-to 'login' tagName="li" class="nav-item"}}<a class="nav-link" href="">Sign In</a>{{/link-to}}
       </ul>
     {{/if}}
 
   </div>
-
 </nav>
+
+
+

@@ -8,20 +8,23 @@ public class ChoiceWrapper extends EntityWrapper {
 
   // Choice
   private Choice choice;
+
   public Choice getChoice() {
     return choice;
   }
+
   public ChoiceWrapper setChoice(Choice choice) {
     this.choice = choice;
     return this;
   }
 
   /**
-   * Validate data.
-   * @throws BusinessException if invalid.
+   Validate data.
+
+   @throws BusinessException if invalid.
    */
   @Override
-  public Choice validate() throws BusinessException{
+  public Choice validate() throws BusinessException {
     if (this.choice == null) {
       throw new BusinessException("Choice is required.");
     }

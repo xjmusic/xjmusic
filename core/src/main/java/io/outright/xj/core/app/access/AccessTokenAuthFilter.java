@@ -3,4 +3,5 @@ package io.outright.xj.core.app.access;
 
 import javax.ws.rs.container.ContainerRequestFilter;
 
-public interface AccessTokenAuthFilter extends ContainerRequestFilter {}
+public interface AccessTokenAuthFilter extends ContainerRequestFilter {
+}

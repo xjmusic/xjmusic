@@ -3,11 +3,15 @@ import Ember from 'ember';
 
 export default Ember.Route.extend({
 
+  // Inject: flash message service
+  display: Ember.inject.service(),
+
   model(params) {
+    let self = this;
     return this.store.findRecord('audio_chord', params.chord_id)
       .catch((error) => {
-        Ember.get(this, 'display').error(error);
-        this.transitionTo('accounts.one.libraries.one.instruments.one.audios.one.chords');
+        Ember.get(self, 'display').error(error);
+        self.transitionTo('accounts.one.libraries.one.instruments.one.audios.one.chords');
       });
   },
 

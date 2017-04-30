@@ -34,12 +34,12 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 
 /**
- * Voices
+ Voices
  */
 @Path("voices")
 public class VoiceIndexResource {
   private static final Injector injector = Guice.createInjector(new CoreModule());
-//  private static Logger log = LoggerFactory.getLogger(VoiceIndexResource.class);
+  //  private static Logger log = LoggerFactory.getLogger(VoiceIndexResource.class);
   private final VoiceDAO voiceDAO = injector.getInstance(VoiceDAO.class);
   private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
 
@@ -47,9 +47,9 @@ public class VoiceIndexResource {
   String phaseId;
 
   /**
-   * Get all voices.
-   *
-   * @return application/json response.
+   Get all voices.
+
+   @return application/json response.
    */
   @GET
   @WebResult
@@ -78,10 +78,10 @@ public class VoiceIndexResource {
   }
 
   /**
-   * Create new voice
-   *
-   * @param data with which to update Voice record.
-   * @return Response
+   Create new voice
+
+   @param data with which to update Voice record.
+   @return Response
    */
   @POST
   @Consumes(MediaType.APPLICATION_JSON)

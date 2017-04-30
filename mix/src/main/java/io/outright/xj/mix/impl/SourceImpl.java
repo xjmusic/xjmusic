@@ -17,8 +17,8 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 
 /**
- * models a single audio source
- * Source stores a series of Samples in Channels across Time, for audio playback.
+ models a single audio source
+ Source stores a series of Samples in Channels across Time, for audio playback.
  */
 public class SourceImpl implements Source {
   private final static Logger log = LoggerFactory.getLogger(SourceImpl.class);
@@ -103,11 +103,11 @@ public class SourceImpl implements Source {
 
 
   /**
-   * Get a 1-channel frame a specific Tz, volume (0 to 1), and pan (-1 to +1)
-   *
-   * @param atFrame since beginning of source
-   * @param volume  to mix output to
-   * @return array of samples
+   Get a 1-channel frame a specific Tz, volume (0 to 1), and pan (-1 to +1)
+
+   @param atFrame since beginning of source
+   @param volume  to mix output to
+   @return array of samples
    */
   private double[] monoFrameAt(int atFrame, double volume) {
     switch (inputChannels) {
@@ -121,12 +121,12 @@ public class SourceImpl implements Source {
   }
 
   /**
-   * Get a 2-channel frame a specific Tz, volume (0 to 1), and pan (-1 to +1)
-   *
-   * @param atFrame since beginning of source
-   * @param volume  to mix output to
-   * @param pan     to mix output to
-   * @return array of samples
+   Get a 2-channel frame a specific Tz, volume (0 to 1), and pan (-1 to +1)
+
+   @param atFrame since beginning of source
+   @param volume  to mix output to
+   @param pan     to mix output to
+   @return array of samples
    */
   private double[] stereoFrameAt(int atFrame, double volume, double pan) {
     switch (inputChannels) {
@@ -146,10 +146,10 @@ public class SourceImpl implements Source {
   }
 
   /**
-   * Volume ratio for right channel for a given pan.
-   *
-   * @param pan -1 to +1
-   * @return ratio
+   Volume ratio for right channel for a given pan.
+
+   @param pan -1 to +1
+   @return ratio
    */
   private double right(double pan) {
     if (pan >= 0) {
@@ -162,10 +162,10 @@ public class SourceImpl implements Source {
   }
 
   /**
-   * Volume ratio for left channel for a given pan.
-   *
-   * @param pan -1 to +1
-   * @return ratio
+   Volume ratio for left channel for a given pan.
+
+   @param pan -1 to +1
+   @return ratio
    */
   private double left(double pan) {
     if (pan <= 0) {
@@ -178,22 +178,22 @@ public class SourceImpl implements Source {
   }
 
   /**
-   * quick get frame at a particular duration in microseconds from beginning
-   *
-   * @param atMicros at which to get frame number
-   * @return frame number of micros
+   quick get frame at a particular duration in microseconds from beginning
+
+   @param atMicros at which to get frame number
+   @return frame number of micros
    */
   private int frameAtMicros(long atMicros) {
     return (int) Math.floor(atMicros / microsPerFrame);
   }
 
   /**
-   * Enforce a maximum
-   *
-   * @param valueMax   maximum allowable value
-   * @param entityName name of entity, for error message
-   * @param value      actual
-   * @throws SourceException if value greater than allowable
+   Enforce a maximum
+
+   @param valueMax   maximum allowable value
+   @param entityName name of entity, for error message
+   @param value      actual
+   @throws SourceException if value greater than allowable
    */
   private void enforceMax(int valueMax, String entityName, int value) throws SourceException {
     if (value > valueMax) {

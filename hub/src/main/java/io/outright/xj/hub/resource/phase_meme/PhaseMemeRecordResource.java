@@ -10,10 +10,12 @@ import io.outright.xj.core.model.phase_meme.PhaseMeme;
 import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.transport.JSON;
 
+import org.jooq.types.ULong;
+
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+
 import org.apache.http.HttpStatus;
-import org.jooq.types.ULong;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +33,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 
 /**
- * Phase record
+ Phase record
  */
 @Path("phase-memes/{id}")
 public class PhaseMemeRecordResource {
@@ -44,10 +46,10 @@ public class PhaseMemeRecordResource {
   String id;
 
   /**
-   * Get one PhaseMeme by phaseId and memeId
-   * TODO: Return 404 if the phase is not found.
-   *
-   * @return application/json response.
+   Get one PhaseMeme by phaseId and memeId
+   TODO: Return 404 if the phase is not found.
+
+   @return application/json response.
    */
   @GET
   @WebResult
@@ -73,10 +75,10 @@ public class PhaseMemeRecordResource {
   }
 
   /**
-   * Delete one PhaseMeme by id
-   * TODO: Return 404 if the phase is not found.
-   *
-   * @return application/json response.
+   Delete one PhaseMeme by id
+   TODO: Return 404 if the phase is not found.
+
+   @return application/json response.
    */
   @DELETE
   @RolesAllowed({Role.ARTIST})

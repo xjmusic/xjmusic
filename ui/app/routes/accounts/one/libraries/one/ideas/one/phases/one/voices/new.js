@@ -47,13 +47,30 @@ export default Ember.Route.extend({
     }
   },
 
+  /**
+   * Headline
+   */
+  afterModel() {
+    let phase = this.modelFor('accounts.one.libraries.one.ideas.one.phases.one');
+    Ember.set(this, 'routeHeadline', {
+      title: 'New Voice',
+      entity: {
+        name: 'Phase',
+        id: phase.get('id')
+      }
+    });
+  },
+
+  /**
+   * Route Actions
+   */
   actions: {
 
     createVoice(model) {
       model.save().then(
         () => {
           Ember.get(this, 'display').success('Created "' + model.get('description') + '" voice.');
-          this.transitionTo('accounts.one.libraries.one.ideas.one.phases.one.voices');
+          this.transitionTo('accounts.one.libraries.one.ideas.one.phases.one.voices.one');
         },
         (error) => {
           Ember.get(this, 'display').error(error);
@@ -71,6 +88,6 @@ export default Ember.Route.extend({
         }
       }
     }
-
   }
+
 });

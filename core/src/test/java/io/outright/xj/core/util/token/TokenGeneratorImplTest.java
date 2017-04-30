@@ -33,7 +33,7 @@ public class TokenGeneratorImplTest {
     String t2 = tokenGenerator.generate();
     assertNotNull(t1);
     assertNotNull(t2);
-    assertNotSame(t1,t2);
+    assertNotSame(t1, t2);
   }
 
   @Test
@@ -42,7 +42,7 @@ public class TokenGeneratorImplTest {
     String t2 = tokenGenerator.generateShort();
     assertNotNull(t1);
     assertNotNull(t2);
-    assertNotSame(t1,t2);
+    assertNotSame(t1, t2);
   }
 
   private void createInjector() {

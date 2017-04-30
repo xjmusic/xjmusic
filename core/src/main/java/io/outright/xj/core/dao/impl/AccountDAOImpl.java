@@ -93,12 +93,12 @@ public class AccountDAOImpl extends DAOImpl implements AccountDAO {
   }
 
   /**
-   * Create a new record
-   *
-   * @param db   context
-   * @param data for new record
-   * @return newly created record
-   * @throws BusinessException if a business rule is violated
+   Create a new record
+
+   @param db   context
+   @param data for new record
+   @return newly created record
+   @throws BusinessException if a business rule is violated
    */
   private JSONObject create(DSLContext db, AccessControl access, AccountWrapper data) throws BusinessException {
     Account model = data.validate();
@@ -110,12 +110,12 @@ public class AccountDAOImpl extends DAOImpl implements AccountDAO {
   }
 
   /**
-   * Read one record, if accessible
-   *
-   * @param db     context
-   * @param access control
-   * @param id     of record
-   * @return record
+   Read one record, if accessible
+
+   @param db     context
+   @param access control
+   @param id     of record
+   @return record
    */
   private JSONObject readOneAble(DSLContext db, AccessControl access, ULong id) throws SQLException {
     if (access.isTopLevel()) {
@@ -132,12 +132,12 @@ public class AccountDAOImpl extends DAOImpl implements AccountDAO {
   }
 
   /**
-   * Read all records accessible
-   *
-   * @param db     context
-   * @param access control
-   * @return array of records
-   * @throws SQLException on failure
+   Read all records accessible
+
+   @param db     context
+   @param access control
+   @return array of records
+   @throws SQLException on failure
    */
   private JSONArray readAllAble(DSLContext db, AccessControl access) throws SQLException {
     if (access.isTopLevel()) {
@@ -153,13 +153,13 @@ public class AccountDAOImpl extends DAOImpl implements AccountDAO {
   }
 
   /**
-   * Update a record
-   *
-   * @param db     context
-   * @param access control
-   * @param id     of record to update
-   * @param data   to update record with
-   * @throws BusinessException if a business rule is violated
+   Update a record
+
+   @param db     context
+   @param access control
+   @param id     of record to update
+   @param data   to update record with
+   @throws BusinessException if a business rule is violated
    */
   private void update(DSLContext db, AccessControl access, ULong id, AccountWrapper data) throws BusinessException, DatabaseException {
     requireTopLevel(access);
@@ -172,13 +172,13 @@ public class AccountDAOImpl extends DAOImpl implements AccountDAO {
   }
 
   /**
-   * Delete an Account
-   *
-   * @param db        context
-   * @param accountId to delete
-   * @throws Exception if database failure
-   * @throws ConfigException   if not configured properly
-   * @throws BusinessException if fails business rule
+   Delete an Account
+
+   @param db        context
+   @param accountId to delete
+   @throws Exception         if database failure
+   @throws ConfigException   if not configured properly
+   @throws BusinessException if fails business rule
    */
   private void delete(DSLContext db, AccessControl access, ULong accountId) throws Exception {
     requireTopLevel(access);

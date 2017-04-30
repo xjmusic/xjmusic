@@ -12,10 +12,10 @@ import io.outright.xj.core.model.instrument.InstrumentWrapper;
 import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.transport.JSON;
 
+import org.jooq.types.ULong;
+
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-
-import org.jooq.types.ULong;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -34,7 +34,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 
 /**
- * Instruments
+ Instruments
  */
 @Path("instruments")
 public class InstrumentIndexResource {
@@ -50,9 +50,9 @@ public class InstrumentIndexResource {
   String libraryId;
 
   /**
-   * Get all instruments.
-   *
-   * @return application/json response.
+   Get all instruments.
+
+   @return application/json response.
    */
   @GET
   @WebResult
@@ -103,10 +103,10 @@ public class InstrumentIndexResource {
   }
 
   /**
-   * Create new instrument
-   *
-   * @param data with which to update Instrument record.
-   * @return Response
+   Create new instrument
+
+   @param data with which to update Instrument record.
+   @return Response
    */
   @POST
   @Consumes(MediaType.APPLICATION_JSON)

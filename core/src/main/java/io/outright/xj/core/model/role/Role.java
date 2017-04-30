@@ -6,7 +6,7 @@ import io.outright.xj.core.transport.CSV;
 public interface Role {
 
   /**
-   * Define each role.
+   Define each role.
    */
   String INTERNAL = "internal";
   String ADMIN = "admin";
@@ -18,7 +18,7 @@ public interface Role {
   String BANNED = "banned";
 
   /**
-   * List of all Roles
+   List of all Roles
    */
   String[] TYPES = {
     ADMIN,
@@ -30,21 +30,21 @@ public interface Role {
   };
 
   /**
-   * CSV generated from list of all roles
+   CSV generated from list of all roles
    */
   String TYPES_CSV = CSV.join(TYPES);
 
   /**
-   * For use in maps.
+   For use in maps.
    */
   String KEY_ONE = "role";
   String KEY_MANY = "roles";
 
   /**
-   * Checks whether a string is a valid role.
-   *
-   * @param role to check.
-   * @return true if valid; otherwise false;
+   Checks whether a string is a valid role.
+
+   @param role to check.
+   @return true if valid; otherwise false;
    */
   static boolean isValid(String role) {
     for (String validRole : TYPES) {

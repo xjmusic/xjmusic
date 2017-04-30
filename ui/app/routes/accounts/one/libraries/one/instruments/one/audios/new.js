@@ -20,6 +20,10 @@ export default Ember.Route.extend({
   // audio base url will be set by promise after config resolves
   audioBaseUrl: '',
 
+  /**
+   * Route Model
+   * @returns {RSVP.Promise}
+   */
   model: function () {
     let self = this;
     let auth = this.get('auth');
@@ -43,8 +47,28 @@ export default Ember.Route.extend({
     }
   },
 
+  /**
+   * Headline
+   */
+  afterModel() {
+    let instrument = this.modelFor('accounts.one.libraries.one.instruments.one');
+    Ember.set(this, 'routeHeadline', {
+      title: 'New Audio',
+      entity: {
+        name: 'Instrument',
+        id: instrument.get('id')
+      }
+    });
+  },
+
+  /**
+   * For Uploading a file
+   */
   uploadFiles: [],
 
+  /**
+   * Route Actions
+   */
   actions: {
 
     filesChanged: function (files) {
@@ -155,7 +179,8 @@ export default Ember.Route.extend({
    */
   didUploadFile (waveformKey) {
     Ember.get(this, 'display').success('Uploaded "' + this.audioBaseUrl + waveformKey);
-    this.transitionTo('accounts.one.libraries.one.instruments.one.audios');
+    let newAudio = this.controller.get('model');
+    this.transitionTo('accounts.one.libraries.one.instruments.one.audios.one', newAudio);
   },
 
   /**

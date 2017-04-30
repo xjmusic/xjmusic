@@ -34,7 +34,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 
 /**
- * Phases
+ Phases
  */
 @Path("phases")
 public class PhaseIndexResource {
@@ -47,9 +47,9 @@ public class PhaseIndexResource {
   String ideaId;
 
   /**
-   * Get all phases.
-   *
-   * @return application/json response.
+   Get all phases.
+
+   @return application/json response.
    */
   @GET
   @WebResult
@@ -78,10 +78,10 @@ public class PhaseIndexResource {
   }
 
   /**
-   * Create new phase
-   *
-   * @param data with which to update Phase record.
-   * @return Response
+   Create new phase
+
+   @param data with which to update Phase record.
+   @return Response
    */
   @POST
   @Consumes(MediaType.APPLICATION_JSON)

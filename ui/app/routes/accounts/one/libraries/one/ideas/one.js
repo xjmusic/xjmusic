@@ -3,11 +3,15 @@ import Ember from 'ember';
 
 export default Ember.Route.extend({
 
+  // Inject: flash message service
+  display: Ember.inject.service(),
+
   model(params) {
+    let self = this;
     return this.store.findRecord('idea', params.idea_id)
       .catch((error) => {
-        Ember.get(this, 'display').error(error);
-        this.transitionTo('accounts.one.libraries.one.ideas');
+        Ember.get(self, 'display').error(error);
+        self.transitionTo('accounts.one.libraries.one.ideas');
       });
   },
 

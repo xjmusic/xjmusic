@@ -12,9 +12,11 @@ import io.outright.xj.core.model.account_user.AccountUserWrapper;
 import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.transport.JSON;
 
+import org.jooq.types.ULong;
+
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.jooq.types.ULong;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -32,7 +34,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 
 /**
- * Account record
+ Account record
  */
 @Path("account-users")
 public class AccountUserIndexResource {
@@ -45,9 +47,9 @@ public class AccountUserIndexResource {
   String accountId;
 
   /**
-   * Get Users in one account.
-   *
-   * @return application/json response.
+   Get Users in one account.
+
+   @return application/json response.
    */
   // TODO [hub] Return 404 if the account is not found.
   @GET
@@ -77,10 +79,10 @@ public class AccountUserIndexResource {
   }
 
   /**
-   * Create new account user
-   *
-   * @param data with which to update Account record.
-   * @return Response
+   Create new account user
+
+   @param data with which to update Account record.
+   @return Response
    */
   @POST
   @Consumes(MediaType.APPLICATION_JSON)

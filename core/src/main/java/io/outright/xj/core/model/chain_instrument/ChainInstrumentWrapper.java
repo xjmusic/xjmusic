@@ -8,19 +8,22 @@ public class ChainInstrumentWrapper extends EntityWrapper {
 
   // Chain
   private ChainInstrument chainInstrument;
+
   public ChainInstrument getChainInstrument() {
     return chainInstrument;
   }
+
   public ChainInstrumentWrapper setChainInstrument(ChainInstrument chainInstrument) {
     this.chainInstrument = chainInstrument;
     return this;
   }
 
   /**
-   * Validate data.
-   * @throws BusinessException if invalid.
+   Validate data.
+
+   @throws BusinessException if invalid.
    */
-  public ChainInstrument validate() throws BusinessException{
+  public ChainInstrument validate() throws BusinessException {
     if (this.chainInstrument == null) {
       throw new BusinessException("Chain Instrument is required.");
     }

@@ -8,19 +8,22 @@ public class UserWrapper extends EntityWrapper {
 
   // User
   private User user;
+
   public User getUser() {
     return user;
   }
+
   public UserWrapper setUser(User user) {
     this.user = user;
     return this;
   }
 
   /**
-   * Validate data.
-   * @throws BusinessException if invalid.
+   Validate data.
+
+   @throws BusinessException if invalid.
    */
-  public User validate() throws BusinessException{
+  public User validate() throws BusinessException {
     if (this.user == null) {
       throw new BusinessException("User is required.");
     }

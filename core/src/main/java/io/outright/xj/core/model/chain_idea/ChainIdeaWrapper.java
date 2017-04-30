@@ -8,19 +8,22 @@ public class ChainIdeaWrapper extends EntityWrapper {
 
   // Chain
   private ChainIdea chainIdea;
+
   public ChainIdea getChainIdea() {
     return chainIdea;
   }
+
   public ChainIdeaWrapper setChainIdea(ChainIdea chainIdea) {
     this.chainIdea = chainIdea;
     return this;
   }
 
   /**
-   * Validate data.
-   * @throws BusinessException if invalid.
+   Validate data.
+
+   @throws BusinessException if invalid.
    */
-  public ChainIdea validate() throws BusinessException{
+  public ChainIdea validate() throws BusinessException {
     if (this.chainIdea == null) {
       throw new BusinessException("Chain Idea is required.");
     }

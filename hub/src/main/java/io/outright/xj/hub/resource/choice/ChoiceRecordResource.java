@@ -28,7 +28,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 
 /**
- * Choice record
+ Choice record
  */
 @Path("choices/{id}")
 public class ChoiceRecordResource {
@@ -40,9 +40,9 @@ public class ChoiceRecordResource {
   String id;
 
   /**
-   * Get one choice.
-   *
-   * @return application/json response.
+   Get one choice.
+
+   @return application/json response.
    */
   @GET
   @WebResult

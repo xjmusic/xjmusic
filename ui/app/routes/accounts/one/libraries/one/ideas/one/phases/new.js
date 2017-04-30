@@ -3,10 +3,16 @@ import Ember from 'ember';
 
 export default Ember.Route.extend({
 
+  // Inject: authentication service
   auth: Ember.inject.service(),
 
+  // Inject: flash message service
   display: Ember.inject.service(),
 
+  /**
+   * Route Model
+   * @returns {*|Promise|DS.Model}
+   */
   model: function () {
     let auth = this.get('auth');
     if (auth.isArtist || auth.isAdmin) {
@@ -18,13 +24,30 @@ export default Ember.Route.extend({
     }
   },
 
+  /**
+   * Headline
+   */
+  afterModel() {
+    let idea = this.modelFor('accounts.one.libraries.one.ideas.one');
+    Ember.set(this, 'routeHeadline', {
+      title: 'New Phase',
+      entity: {
+        name: 'Idea',
+        id: idea.get('id')
+      }
+    });
+  },
+
+  /**
+   * Route Actions
+   */
   actions: {
 
     createPhase(model) {
       model.save().then(
         () => {
           Ember.get(this, 'display').success('Created phase ' + model.get('name') + '.');
-          this.transitionTo('accounts.one.libraries.one.ideas.one.phases');
+          this.transitionTo('accounts.one.libraries.one.ideas.one.phases.one');
         },
         (error) => {
           Ember.get(this, 'display').error(error);
@@ -42,6 +65,6 @@ export default Ember.Route.extend({
         }
       }
     }
-
   }
+
 });

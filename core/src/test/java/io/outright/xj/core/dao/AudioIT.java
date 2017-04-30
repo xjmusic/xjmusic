@@ -6,10 +6,10 @@ import io.outright.xj.core.app.access.impl.AccessControl;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.integration.IntegrationTestEntity;
 import io.outright.xj.core.integration.IntegrationTestService;
-import io.outright.xj.core.model.instrument.Instrument;
-import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.model.audio.Audio;
 import io.outright.xj.core.model.audio.AudioWrapper;
+import io.outright.xj.core.model.instrument.Instrument;
+import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.tables.records.AudioRecord;
 
 import org.jooq.types.ULong;
@@ -158,6 +158,10 @@ public class AudioIT {
 
   @Test
   public void uploadOne() throws Exception {
+    System.setProperty("aws.file.upload.url","https://manuts.com");
+    System.setProperty("aws.file.upload.key","totally_awesome");
+    System.setProperty("aws.file.upload.secret","much_secret_12345");
+
     AccessControl access = new AccessControl(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
@@ -166,14 +170,7 @@ public class AudioIT {
     JSONObject result = testDAO.uploadOne(access, ULong.valueOf(2));
 
     assertNotNull(result);
-    // TODO: test assertions on AudioDAO generate an Upload policy to upload the corresponding file to 3rd-party storage (e.g. Amazon S3)
-//    assertEquals(ULong.valueOf(1), result.get("instrumentId"));
-//    assertEquals("Snare", result.get("name"));
-//    assertEquals("instrument/percussion/808/snare.wav", result.get("waveformKey"));
-//    assertEquals(0.0023, result.get("start"));
-//    assertEquals(1.05, result.get("length"));
-//    assertEquals(131.0, result.get("tempo"));
-//    assertEquals(702.0, result.get("pitch"));
+    assertEquals("https://manuts.com", result.get("uploadUrl"));
   }
 
   @Test
@@ -332,11 +329,11 @@ public class AudioIT {
 
     testDAO.delete(access, ULong.valueOf(1));
 
-    AudioRecord deletedRecord = IntegrationTestService.getDb()
+    AudioRecord result = IntegrationTestService.getDb()
       .selectFrom(AUDIO)
       .where(AUDIO.ID.eq(ULong.valueOf(1)))
       .fetchOne();
-    assertNull(deletedRecord);
+    assertNull(result);
   }
 
   @Test(expected = BusinessException.class)

@@ -3,16 +3,27 @@ import Ember from 'ember';
 
 export default Ember.Route.extend({
 
+  // Inject: flash message service
   display: Ember.inject.service(),
 
+  /**
+   * Route model
+   * @param params
+   * @returns {Promise.<T>}
+   */
   model(params) {
+    let self = this;
     return this.store.findRecord('library', params.library_id)
       .catch((error) => {
-        Ember.get(this, 'display').error(error);
-        this.transitionTo('accounts.one.libraries');
+        Ember.get(self, 'display').error(error);
+        self.transitionTo('accounts.one.libraries');
       });
   },
 
+  /**
+   * Route breadcrumb
+   * @param model
+   */
   afterModel(model) {
     Ember.set(this, 'breadCrumb', {
       title: model.get("name")

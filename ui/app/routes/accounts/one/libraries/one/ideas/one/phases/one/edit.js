@@ -48,6 +48,19 @@ export default Ember.Route.extend({
   },
 
   /**
+   * Headline
+   */
+  afterModel(model) {
+    Ember.set(this, 'routeHeadline', {
+      title: 'Edit ' + model.getTitle(),
+      entity: {
+        name: 'Phase',
+        id: model.get('id')
+      }
+    });
+  },
+
+  /**
    * Route Actions
    */
   actions: {
@@ -56,7 +69,7 @@ export default Ember.Route.extend({
       model.save().then(
         () => {
           Ember.get(this, 'display').success('Updated phase ' + model.get('name') + '.');
-          this.transitionTo('accounts.one.libraries.one.ideas.one.phases');
+          this.transitionTo('accounts.one.libraries.one.ideas.one.phases.one');
         },
         (error) => {
           Ember.get(this, 'display').error(error);

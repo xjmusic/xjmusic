@@ -10,7 +10,7 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 
 /**
- * Load audio data from input stream
+ Load audio data from input stream
  */
 public class AudioStreamLoader {
 
@@ -27,12 +27,12 @@ public class AudioStreamLoader {
   private long actualFrames;
 
   /**
-   * Instantiate a stream loader,
-   * which immediately reads the audio data from the stream
-   * and caches it in-memory in the object itself.
-   *
-   * @param inputStream to read audio data from
-   * @throws FormatException if unable to read the audio format
+   Instantiate a stream loader,
+   which immediately reads the audio data from the stream
+   and caches it in-memory in the object itself.
+
+   @param inputStream to read audio data from
+   @throws FormatException if unable to read the audio format
    */
   public AudioStreamLoader(BufferedInputStream inputStream) throws FormatException {
     try {
@@ -66,9 +66,9 @@ public class AudioStreamLoader {
   }
 
   /**
-   * get frames final read from steam
-   *
-   * @return frames
+   get frames final read from steam
+
+   @return frames
    */
   public double[][] loadFrames() throws FormatException, IOException {
     String sampleType = AudioSample.typeOfInput(audioInputStream.getFormat());
@@ -94,46 +94,46 @@ public class AudioStreamLoader {
   }
 
   /**
-   * get actual # pf frames read
-   * (should match expected)
-   *
-   * @return frames
+   get actual # pf frames read
+   (should match expected)
+
+   @return frames
    */
   public long getActualFrames() {
     return actualFrames;
   }
 
   /**
-   * get total frames available in audio stream
-   *
-   * @return frames
+   get total frames available in audio stream
+
+   @return frames
    */
   long getExpectFrames() {
     return expectFrames;
   }
 
   /**
-   * get total bytes available in audio stream
-   *
-   * @return size
+   get total bytes available in audio stream
+
+   @return size
    */
   int getExpectBytes() {
     return expectBytes;
   }
 
   /**
-   * get frame size
-   *
-   * @return size
+   get frame size
+
+   @return size
    */
   int getFrameSize() {
     return frameSize;
   }
 
   /**
-   * Get Audio file format
-   *
-   * @return format
+   Get Audio file format
+
+   @return format
    */
   public AudioFormat getAudioFormat() {
     return audioFormat;

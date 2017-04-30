@@ -9,4 +9,11 @@ export default DS.Model.extend({
   position: DS.attr('number'),
   tonality: DS.attr('number'),
   velocity: DS.attr('number'),
+
+  getTitle() {
+    return this.get("note") +
+      '(' + this.get("inflection") + ')' +
+      '@' + this.get("position");
+  }
+
 });

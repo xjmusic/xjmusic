@@ -8,20 +8,23 @@ public class MorphWrapper extends EntityWrapper {
 
   // Morph
   private Morph morph;
+
   public Morph getMorph() {
     return morph;
   }
+
   public MorphWrapper setMorph(Morph morph) {
     this.morph = morph;
     return this;
   }
 
   /**
-   * Validate data.
-   * @throws BusinessException if invalid.
+   Validate data.
+
+   @throws BusinessException if invalid.
    */
   @Override
-  public Morph validate() throws BusinessException{
+  public Morph validate() throws BusinessException {
     if (this.morph == null) {
       throw new BusinessException("Morph is required.");
     }

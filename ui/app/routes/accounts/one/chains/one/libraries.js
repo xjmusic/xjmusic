@@ -43,6 +43,19 @@ export default Ember.Route.extend({
   },
 
   /**
+   * Headline
+   */
+  afterModel(model) {
+    Ember.set(this, 'routeHeadline', {
+      title: model.chain.get('name') + ' ' + 'Libraries',
+      entity: {
+        name: 'Chain',
+        id: model.chain.get('id')
+      }
+    });
+  },
+
+  /**
    * Route Actions
    */
   actions: {
@@ -51,7 +64,7 @@ export default Ember.Route.extend({
       this.refresh();
     },
 
-    destroyChainLibrary(model) {
+    removeLibrary(model) {
       model.destroyRecord({}).then(
         () => {
           Ember.get(this, 'display').success('Removed Library from Chain.');
@@ -61,12 +74,12 @@ export default Ember.Route.extend({
         });
     },
 
-    addLibraryToChain(model) {
-      let chainConfig = this.store.createRecord('chain-library', {
+    addLibrary(model) {
+      let chainLibrary = this.store.createRecord('chain-library', {
         chain: model.chain,
         library: model.libraryToAdd,
       });
-      chainConfig.save().then(
+      chainLibrary.save().then(
         () => {
           Ember.get(this, 'display').success('Added ' + model.libraryToAdd.get('name') + ' to ' + model.chain.get('name') + '.');
           // this.transitionToRoute('chains.one.libraries',model.chain);

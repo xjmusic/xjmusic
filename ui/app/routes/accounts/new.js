@@ -3,19 +3,36 @@ import Ember from 'ember';
 
 export default Ember.Route.extend({
 
+  // Inject: flash message service
   display: Ember.inject.service(),
 
+  /**
+   * Route Model
+   * @returns {*|DS.Model|Promise}
+   */
   model: function () {
     return this.store.createRecord('account');
   },
 
+  /**
+   * Headline
+   */
+  afterModel() {
+    Ember.set(this, 'routeHeadline', {
+      title: 'New Account'
+    });
+  },
+
+  /**
+   * Route Actions
+   */
   actions: {
 
     createAccount(model) {
       model.save().then(
         () => {
           Ember.get(this, 'display').success('Created account ' + model.get('name') + '.');
-          this.transitionTo('accounts');
+          this.transitionTo('accounts.one', model);
         },
         (error) => {
           Ember.get(this, 'display').error(error);

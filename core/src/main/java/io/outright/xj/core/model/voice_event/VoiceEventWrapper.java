@@ -8,19 +8,22 @@ public class VoiceEventWrapper extends EntityWrapper {
 
   // VoiceEvent
   private VoiceEvent voiceEvent;
+
   public VoiceEvent getVoiceEvent() {
     return voiceEvent;
   }
+
   public VoiceEventWrapper setVoiceEvent(VoiceEvent voiceEvent) {
     this.voiceEvent = voiceEvent;
     return this;
   }
 
   /**
-   * Validate data.
-   * @throws BusinessException if invalid.
+   Validate data.
+
+   @throws BusinessException if invalid.
    */
-  public VoiceEvent validate() throws BusinessException{
+  public VoiceEvent validate() throws BusinessException {
     if (this.voiceEvent == null) {
       throw new BusinessException("voiceEvent is required.");
     }

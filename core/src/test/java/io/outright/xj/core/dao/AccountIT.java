@@ -47,8 +47,8 @@ public class AccountIT {
   @Test
   public void readOne() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
-      "roles","user",
-      "accounts","1"
+      "roles", "user",
+      "accounts", "1"
     ));
 
     JSONObject result = testDAO.readOne(access, ULong.valueOf(1));

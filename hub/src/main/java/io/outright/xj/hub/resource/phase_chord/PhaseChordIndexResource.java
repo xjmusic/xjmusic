@@ -12,9 +12,11 @@ import io.outright.xj.core.model.phase_chord.PhaseChordWrapper;
 import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.transport.JSON;
 
+import org.jooq.types.ULong;
+
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.jooq.types.ULong;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -34,7 +36,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 
 /**
- * PhaseChords
+ PhaseChords
  */
 @Path("phase-chords")
 public class PhaseChordIndexResource {
@@ -47,9 +49,9 @@ public class PhaseChordIndexResource {
   String phaseId;
 
   /**
-   * Get all phaseChords.
-   *
-   * @return application/json response.
+   Get all phaseChords.
+
+   @return application/json response.
    */
   @GET
   @WebResult
@@ -78,10 +80,10 @@ public class PhaseChordIndexResource {
   }
 
   /**
-   * Create new phaseChord
-   *
-   * @param data with which to update PhaseChord record.
-   * @return Response
+   Create new phaseChord
+
+   @param data with which to update PhaseChord record.
+   @return Response
    */
   @POST
   @Consumes(MediaType.APPLICATION_JSON)

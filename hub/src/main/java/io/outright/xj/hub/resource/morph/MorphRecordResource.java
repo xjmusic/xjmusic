@@ -28,7 +28,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 
 /**
- * Morph record
+ Morph record
  */
 @Path("morphs/{id}")
 public class MorphRecordResource {
@@ -40,9 +40,9 @@ public class MorphRecordResource {
   String id;
 
   /**
-   * Get one morph.
-   *
-   * @return application/json response.
+   Get one morph.
+
+   @return application/json response.
    */
   @GET
   @WebResult

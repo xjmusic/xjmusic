@@ -28,7 +28,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 
 /**
- * Arrangement record
+ Arrangement record
  */
 @Path("arrangements/{id}")
 public class ArrangementRecordResource {
@@ -40,9 +40,9 @@ public class ArrangementRecordResource {
   String id;
 
   /**
-   * Get one arrangement.
-   *
-   * @return application/json response.
+   Get one arrangement.
+
+   @return application/json response.
    */
   @GET
   @WebResult

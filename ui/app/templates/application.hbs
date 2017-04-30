@@ -8,7 +8,9 @@
   {{/each}}
 </div>
 
-{{partial 'components/breadcrumb'}}
+{{bread-crumbs tagName="ul" linkable=true}}
+
+{{route-headline}}
 
 <div class="container-fluid">
   {{outlet}}

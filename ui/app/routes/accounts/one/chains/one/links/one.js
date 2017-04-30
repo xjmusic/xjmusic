@@ -3,19 +3,30 @@ import Ember from 'ember';
 
 export default Ember.Route.extend({
 
+  // Inject: flash message service
   display: Ember.inject.service(),
 
+  /**
+   * Route Model
+   * @param params
+   * @returns {Promise.<T>}
+   */
   model(params) {
+    let self = this;
     return this.store.findRecord('link', params.link_id)
       .catch((error) => {
-        Ember.get(this, 'display').error(error);
-        this.transitionTo('accounts.one.chains.one.links');
+        Ember.get(self, 'display').error(error);
+        self.transitionTo('accounts.one.chains.one.links');
       });
   },
 
+  /**
+   * Route Breadcrumb
+   * @param model
+   */
   afterModel(model) {
     Ember.set(this, 'breadCrumb', {
-      title: model.get("name")
+      title: model.getTitle()
     });
   }
 

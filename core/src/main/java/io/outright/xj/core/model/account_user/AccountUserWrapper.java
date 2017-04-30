@@ -8,19 +8,22 @@ public class AccountUserWrapper extends EntityWrapper {
 
   // Account
   private AccountUser accountUser;
+
   public AccountUser getAccountUser() {
     return accountUser;
   }
+
   public AccountUserWrapper setAccountUser(AccountUser accountUser) {
     this.accountUser = accountUser;
     return this;
   }
 
   /**
-   * Validate data.
-   * @throws BusinessException if invalid.
+   Validate data.
+
+   @throws BusinessException if invalid.
    */
-  public AccountUser validate() throws BusinessException{
+  public AccountUser validate() throws BusinessException {
     if (this.accountUser == null) {
       throw new BusinessException("Account User is required.");
     }

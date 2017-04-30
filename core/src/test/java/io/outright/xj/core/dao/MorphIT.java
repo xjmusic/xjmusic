@@ -283,11 +283,11 @@ public class MorphIT {
 
     testDAO.delete(access, ULong.valueOf(1));
 
-    MorphRecord deletedRecord = IntegrationTestService.getDb()
+    MorphRecord result = IntegrationTestService.getDb()
       .selectFrom(MORPH)
       .where(MORPH.ID.eq(ULong.valueOf(1)))
       .fetchOne();
-    assertNull(deletedRecord);
+    assertNull(result);
   }
 
   @Test(expected = BusinessException.class)
@@ -296,7 +296,7 @@ public class MorphIT {
       "roles", "admin"
     ));
     IntegrationTestEntity.insertAudio(1, 9, "Kick", "https://static.xj.outright.io/instrument/percussion/808/kick1.wav", 0.01, 2.123, 120.0, 440);
-    IntegrationTestEntity.insertPick(1,1,1,1,0.125,1.23,0.94,440);
+    IntegrationTestEntity.insertPick(1, 1, 1, 1, 0.125, 1.23, 0.94, 440);
 
     try {
       testDAO.delete(access, ULong.valueOf(1));

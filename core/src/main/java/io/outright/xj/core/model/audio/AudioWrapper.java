@@ -8,20 +8,23 @@ public class AudioWrapper extends EntityWrapper {
 
   // Audio
   private Audio audio;
+
   public Audio getAudio() {
     return audio;
   }
+
   public AudioWrapper setAudio(Audio audio) {
     this.audio = audio;
     return this;
   }
 
   /**
-   * Validate data.
-   * @throws BusinessException if invalid.
+   Validate data.
+
+   @throws BusinessException if invalid.
    */
   @Override
-  public Audio validate() throws BusinessException{
+  public Audio validate() throws BusinessException {
     if (this.audio == null) {
       throw new BusinessException("Audio is required.");
     }

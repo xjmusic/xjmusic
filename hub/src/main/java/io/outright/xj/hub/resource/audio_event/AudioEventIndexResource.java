@@ -7,9 +7,9 @@ import io.outright.xj.core.app.config.Exposure;
 import io.outright.xj.core.app.server.HttpResponseProvider;
 import io.outright.xj.core.dao.AudioEventDAO;
 import io.outright.xj.core.model.Entity;
-import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.model.audio_event.AudioEvent;
 import io.outright.xj.core.model.audio_event.AudioEventWrapper;
+import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.transport.JSON;
 
 import org.jooq.types.ULong;
@@ -34,7 +34,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 
 /**
- * AudioEvents
+ AudioEvents
  */
 @Path("audio-events")
 public class AudioEventIndexResource {
@@ -47,9 +47,9 @@ public class AudioEventIndexResource {
   String audioId;
 
   /**
-   * Get all audioEvents.
-   *
-   * @return application/json response.
+   Get all audioEvents.
+
+   @return application/json response.
    */
   @GET
   @WebResult
@@ -78,10 +78,10 @@ public class AudioEventIndexResource {
   }
 
   /**
-   * Create new audioEvent
-   *
-   * @param data with which to update AudioEvent record.
-   * @return Response
+   Create new audioEvent
+
+   @param data with which to update AudioEvent record.
+   @return Response
    */
   @POST
   @Consumes(MediaType.APPLICATION_JSON)

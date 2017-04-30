@@ -95,13 +95,13 @@ public class ArrangementDAOImpl extends DAOImpl implements ArrangementDAO {
   }
 
   /**
-   * Create a new record
-   *
-   * @param db     context
-   * @param access control
-   * @param data   for new record
-   * @return newly created record
-   * @throws BusinessException if a Business Rule is violated
+   Create a new record
+
+   @param db     context
+   @param access control
+   @param data   for new record
+   @return newly created record
+   @throws BusinessException if a Business Rule is violated
    */
   private JSONObject create(DSLContext db, AccessControl access, ArrangementWrapper data) throws BusinessException {
     Arrangement model = data.validate();
@@ -117,12 +117,12 @@ public class ArrangementDAOImpl extends DAOImpl implements ArrangementDAO {
   }
 
   /**
-   * Read one record
-   *
-   * @param db     context
-   * @param access control
-   * @param id     of record
-   * @return record
+   Read one record
+
+   @param db     context
+   @param access control
+   @param id     of record
+   @return record
    */
   private JSONObject readOne(DSLContext db, AccessControl access, ULong id) {
     if (access.isTopLevel()) {
@@ -142,12 +142,12 @@ public class ArrangementDAOImpl extends DAOImpl implements ArrangementDAO {
   }
 
   /**
-   * Read all records in parent by id
-   *
-   * @param db      context
-   * @param access  control
-   * @param choiceId of parent
-   * @return array of records
+   Read all records in parent by id
+
+   @param db       context
+   @param access   control
+   @param choiceId of parent
+   @return array of records
    */
   private JSONArray readAllIn(DSLContext db, AccessControl access, ULong choiceId) throws SQLException {
     if (access.isTopLevel()) {
@@ -168,13 +168,13 @@ public class ArrangementDAOImpl extends DAOImpl implements ArrangementDAO {
   }
 
   /**
-   * Update a record
-   *
-   * @param db     context
-   * @param access control
-   * @param id     of record
-   * @param data   to update with
-   * @throws BusinessException if a Business Rule is violated
+   Update a record
+
+   @param db     context
+   @param access control
+   @param id     of record
+   @param data   to update with
+   @throws BusinessException if a Business Rule is violated
    */
   private void update(DSLContext db, AccessControl access, ULong id, ArrangementWrapper data) throws BusinessException, DatabaseException {
     Arrangement model = data.validate();
@@ -195,14 +195,14 @@ public class ArrangementDAOImpl extends DAOImpl implements ArrangementDAO {
   }
 
   /**
-   * Delete a Arrangement
-   *
-   * @param db     context
-   * @param access control
-   * @param id     to delete
-   * @throws Exception         if database failure
-   * @throws ConfigException   if not configured properly
-   * @throws BusinessException if fails business rule
+   Delete a Arrangement
+
+   @param db     context
+   @param access control
+   @param id     to delete
+   @throws Exception         if database failure
+   @throws ConfigException   if not configured properly
+   @throws BusinessException if fails business rule
    */
   private void delete(DSLContext db, AccessControl access, ULong id) throws Exception {
     requireTopLevel(access);

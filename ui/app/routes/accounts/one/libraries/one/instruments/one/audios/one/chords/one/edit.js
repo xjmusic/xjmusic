@@ -3,10 +3,16 @@ import Ember from 'ember';
 
 export default Ember.Route.extend({
 
+  // Inject: authentication service
   auth: Ember.inject.service(),
 
+  // Inject: flash message service
   display: Ember.inject.service(),
 
+  /**
+   * Route Model
+   * @returns {*|DS.Model}
+   */
   model() {
     let auth = this.get('auth');
     if (auth.isArtist || auth.isAdmin) {
@@ -19,6 +25,22 @@ export default Ember.Route.extend({
     }
   },
 
+  /**
+   * Headline
+   */
+  afterModel(model) {
+    Ember.set(this, 'routeHeadline', {
+      title: 'Edit ' + model.getTitle(),
+      entity: {
+        name: 'Chord',
+        id: model.get('id')
+      }
+    });
+  },
+
+  /**
+   * Route Actions
+   */
   actions: {
 
     saveChord(model) {

@@ -7,6 +7,7 @@ import io.outright.xj.core.external.google.GoogleProvider;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,7 +19,7 @@ import javax.ws.rs.core.Response;
 import java.net.URI;
 
 /**
- * Authenticate via Google OAuth2
+ Authenticate via Google OAuth2
  */
 @Path("auth/google")
 public class AuthGoogleResource {
@@ -26,9 +27,9 @@ public class AuthGoogleResource {
   private static Logger log = LoggerFactory.getLogger(AuthGoogleResource.class);
 
   /**
-   * Begin user OAuth2 authentication via Google.
-   *
-   * @return Response redirection to auth code request URL
+   Begin user OAuth2 authentication via Google.
+
+   @return Response redirection to auth code request URL
    */
   @GET
   @WebResult

@@ -76,14 +76,14 @@ public class AccountUserDAOImpl extends DAOImpl implements AccountUserDAO {
   }
 
   /**
-   * Create a new Account User record
-   *
-   * @param db   context
-   * @param data for new AccountUser
-   * @return new record
-   * @throws Exception if database failure
-   * @throws ConfigException   if not configured properly
-   * @throws BusinessException if fails business rule
+   Create a new Account User record
+
+   @param db   context
+   @param data for new AccountUser
+   @return new record
+   @throws Exception         if database failure
+   @throws ConfigException   if not configured properly
+   @throws BusinessException if fails business rule
    */
   private JSONObject create(DSLContext db, AccessControl access, AccountUserWrapper data) throws Exception {
     AccountUser model = data.validate();
@@ -102,12 +102,12 @@ public class AccountUserDAOImpl extends DAOImpl implements AccountUserDAO {
   }
 
   /**
-   * Read one record
-   *
-   * @param db     context
-   * @param access control
-   * @param id     of record
-   * @return record
+   Read one record
+
+   @param db     context
+   @param access control
+   @param id     of record
+   @return record
    */
   private JSONObject readOne(DSLContext db, AccessControl access, ULong id) {
     if (access.isTopLevel()) {
@@ -123,13 +123,13 @@ public class AccountUserDAOImpl extends DAOImpl implements AccountUserDAO {
   }
 
   /**
-   * Read all records in parent record
-   *
-   * @param db        context
-   * @param access    control
-   * @param accountId of parent
-   * @return array of child records
-   * @throws SQLException on failure
+   Read all records in parent record
+
+   @param db        context
+   @param access    control
+   @param accountId of parent
+   @return array of child records
+   @throws SQLException on failure
    */
   private JSONArray readAllIn(DSLContext db, AccessControl access, ULong accountId) throws SQLException {
     if (access.isTopLevel()) {
@@ -145,12 +145,12 @@ public class AccountUserDAOImpl extends DAOImpl implements AccountUserDAO {
   }
 
   /**
-   * Delete a record
-   *
-   * @param db     context
-   * @param access control
-   * @param id     of record
-   * @throws BusinessException on failure
+   Delete a record
+
+   @param db     context
+   @param access control
+   @param id     of record
+   @throws BusinessException on failure
    */
   private void delete(DSLContext db, AccessControl access, ULong id) throws BusinessException {
     requireTopLevel(access);

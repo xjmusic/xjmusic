@@ -11,6 +11,7 @@ import io.outright.xj.core.transport.JSON;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+
 import org.json.JSONObject;
 
 import javax.annotation.security.RolesAllowed;
@@ -24,7 +25,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 
 /**
- * Current user
+ Current user
  */
 @Path("users/me")
 public class MeResource {
@@ -33,9 +34,9 @@ public class MeResource {
   private final UserDAO userDAO = injector.getInstance(UserDAO.class);
 
   /**
-   * Get current authentication.
-   *
-   * @return application/json response.
+   Get current authentication.
+
+   @return application/json response.
    */
   @GET
   @WebResult
@@ -50,7 +51,8 @@ public class MeResource {
           .type(MediaType.APPLICATION_JSON)
           .build();
       } else {
-        return httpResponseProvider.unauthorized();      }
+        return httpResponseProvider.unauthorized();
+      }
 
     } catch (Exception e) {
       return httpResponseProvider.unauthorized();

@@ -26,9 +26,9 @@ import java.sql.SQLException;
 import java.util.Map;
 
 import static io.outright.xj.core.Tables.ARRANGEMENT;
-import static io.outright.xj.core.Tables.LINK;
 import static io.outright.xj.core.Tables.CHAIN;
 import static io.outright.xj.core.Tables.CHOICE;
+import static io.outright.xj.core.Tables.LINK;
 import static io.outright.xj.core.Tables.PICK;
 
 public class PickDAOImpl extends DAOImpl implements PickDAO {
@@ -95,13 +95,13 @@ public class PickDAOImpl extends DAOImpl implements PickDAO {
   }
 
   /**
-   * Create a new record
-   *
-   * @param db     context
-   * @param access control
-   * @param data   for new record
-   * @return newly created record
-   * @throws BusinessException if a Business Rule is violated
+   Create a new record
+
+   @param db     context
+   @param access control
+   @param data   for new record
+   @return newly created record
+   @throws BusinessException if a Business Rule is violated
    */
   private JSONObject create(DSLContext db, AccessControl access, PickWrapper data) throws BusinessException {
     Pick model = data.validate();
@@ -117,12 +117,12 @@ public class PickDAOImpl extends DAOImpl implements PickDAO {
   }
 
   /**
-   * Read one record
-   *
-   * @param db     context
-   * @param access control
-   * @param id     of record
-   * @return record
+   Read one record
+
+   @param db     context
+   @param access control
+   @param id     of record
+   @return record
    */
   private JSONObject readOne(DSLContext db, AccessControl access, ULong id) {
     if (access.isTopLevel()) {
@@ -143,12 +143,12 @@ public class PickDAOImpl extends DAOImpl implements PickDAO {
   }
 
   /**
-   * Read all records in parent by id
-   *
-   * @param db            context
-   * @param access        control
-   * @param arrangementId of parent
-   * @return array of records
+   Read all records in parent by id
+
+   @param db            context
+   @param access        control
+   @param arrangementId of parent
+   @return array of records
    */
   private JSONArray readAllIn(DSLContext db, AccessControl access, ULong arrangementId) throws SQLException {
     if (access.isTopLevel()) {
@@ -170,13 +170,13 @@ public class PickDAOImpl extends DAOImpl implements PickDAO {
   }
 
   /**
-   * Update a record
-   *
-   * @param db     context
-   * @param access control
-   * @param id     of record
-   * @param data   to update with
-   * @throws BusinessException if a Business Rule is violated
+   Update a record
+
+   @param db     context
+   @param access control
+   @param id     of record
+   @param data   to update with
+   @throws BusinessException if a Business Rule is violated
    */
   private void update(DSLContext db, AccessControl access, ULong id, PickWrapper data) throws BusinessException, DatabaseException {
     Pick model = data.validate();
@@ -197,14 +197,14 @@ public class PickDAOImpl extends DAOImpl implements PickDAO {
   }
 
   /**
-   * Delete a Pick
-   *
-   * @param db     context
-   * @param access control
-   * @param id     to delete
-   * @throws Exception         if database failure
-   * @throws ConfigException   if not configured properly
-   * @throws BusinessException if fails business rule
+   Delete a Pick
+
+   @param db     context
+   @param access control
+   @param id     to delete
+   @throws Exception         if database failure
+   @throws ConfigException   if not configured properly
+   @throws BusinessException if fails business rule
    */
   private void delete(DSLContext db, AccessControl access, ULong id) throws Exception {
     requireTopLevel(access);

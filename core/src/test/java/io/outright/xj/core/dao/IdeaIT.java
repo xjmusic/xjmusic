@@ -11,11 +11,11 @@ import io.outright.xj.core.model.idea.IdeaWrapper;
 import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.tables.records.IdeaRecord;
 
+import org.jooq.types.ULong;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-
-import org.jooq.types.ULong;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -291,11 +291,11 @@ public class IdeaIT {
 
     testDAO.delete(access, ULong.valueOf(1));
 
-    IdeaRecord deletedRecord = IntegrationTestService.getDb()
+    IdeaRecord result = IntegrationTestService.getDb()
       .selectFrom(IDEA)
       .where(IDEA.ID.eq(ULong.valueOf(1)))
       .fetchOne();
-    assertNull(deletedRecord);
+    assertNull(result);
   }
 
   @Test(expected = BusinessException.class)

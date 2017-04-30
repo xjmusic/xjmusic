@@ -7,7 +7,7 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
 /**
- * Put to represent a single audio source playing at a specific time in the future.
+ Put to represent a single audio source playing at a specific time in the future.
  */
 public class PutImpl implements Put {
   private final String sourceId;

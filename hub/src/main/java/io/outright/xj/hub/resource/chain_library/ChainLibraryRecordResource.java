@@ -9,9 +9,11 @@ import io.outright.xj.core.model.chain_library.ChainLibrary;
 import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.transport.JSON;
 
+import org.jooq.types.ULong;
+
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.jooq.types.ULong;
+
 import org.json.JSONObject;
 
 import javax.annotation.security.RolesAllowed;
@@ -27,12 +29,12 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 
 /**
- * Chain Library record
+ Chain Library record
  */
 @Path("chain-libraries/{id}")
 public class ChainLibraryRecordResource {
   private static final Injector injector = Guice.createInjector(new CoreModule());
-//  private static Logger log = LoggerFactory.getLogger(ChainLibraryRecordResource.class);
+  //  private static Logger log = LoggerFactory.getLogger(ChainLibraryRecordResource.class);
   private final ChainLibraryDAO chainLibraryDAO = injector.getInstance(ChainLibraryDAO.class);
   private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
 
@@ -40,9 +42,9 @@ public class ChainLibraryRecordResource {
   String id;
 
   /**
-   * Get one ChainLibrary by id
-   *
-   * @return application/json response.
+   Get one ChainLibrary by id
+
+   @return application/json response.
    */
   @GET
   @WebResult
@@ -66,9 +68,9 @@ public class ChainLibraryRecordResource {
   }
 
   /**
-   * Delete one ChainLibrary
-   *
-   * @return application/json response.
+   Delete one ChainLibrary
+
+   @return application/json response.
    */
   // TODO [hub] Return 404 if the chain library is not found.
   @DELETE

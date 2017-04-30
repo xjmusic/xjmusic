@@ -107,12 +107,13 @@ public class IdeaDAOImpl extends DAOImpl implements IdeaDAO {
   }
 
   /**
-   * Create a record
-   * @param db context
-   * @param access control
-   * @param data for new record
-   * @return newly created record
-   * @throws BusinessException on failure
+   Create a record
+
+   @param db     context
+   @param access control
+   @param data   for new record
+   @return newly created record
+   @throws BusinessException on failure
    */
   private JSONObject create(DSLContext db, AccessControl access, IdeaWrapper data) throws BusinessException {
     Idea model = data.validate();
@@ -136,11 +137,12 @@ public class IdeaDAOImpl extends DAOImpl implements IdeaDAO {
   }
 
   /**
-   * Read one record
-   * @param db context
-   * @param access control
-   * @param id of record
-   * @return record
+   Read one record
+
+   @param db     context
+   @param access control
+   @param id     of record
+   @return record
    */
   @Nullable
   private JSONObject readOne(DSLContext db, AccessControl access, ULong id) {
@@ -159,12 +161,12 @@ public class IdeaDAOImpl extends DAOImpl implements IdeaDAO {
   }
 
   /**
-   * Read all records in parent record by id
-   *
-   * @param db        context
-   * @param access    control
-   * @param accountId of parent
-   * @return array of records
+   Read all records in parent record by id
+
+   @param db        context
+   @param access    control
+   @param accountId of parent
+   @return array of records
    */
   private JSONArray readAllInAccount(DSLContext db, AccessControl access, ULong accountId) throws SQLException {
     if (access.isTopLevel()) {
@@ -184,11 +186,12 @@ public class IdeaDAOImpl extends DAOImpl implements IdeaDAO {
   }
 
   /**
-   * Read all records in parent record by id
-   * @param db context
-   * @param access control
-   * @param libraryId of parent
-   * @return array of records
+   Read all records in parent record by id
+
+   @param db        context
+   @param access    control
+   @param libraryId of parent
+   @return array of records
    */
   private JSONArray readAllInLibrary(DSLContext db, AccessControl access, ULong libraryId) throws SQLException {
     if (access.isTopLevel()) {
@@ -207,13 +210,14 @@ public class IdeaDAOImpl extends DAOImpl implements IdeaDAO {
   }
 
   /**
-   * Update a record
-   * @param db context
-   * @param access control
-   * @param id of record
-   * @param data to update with
-   * @throws BusinessException if a Business Rule is violated
-   * @throws Exception on database failure
+   Update a record
+
+   @param db     context
+   @param access control
+   @param id     of record
+   @param data   to update with
+   @throws BusinessException if a Business Rule is violated
+   @throws Exception         on database failure
    */
   private void update(DSLContext db, AccessControl access, ULong id, IdeaWrapper data) throws Exception {
     Idea model = data.validate();
@@ -240,13 +244,13 @@ public class IdeaDAOImpl extends DAOImpl implements IdeaDAO {
   }
 
   /**
-   * Delete an Idea
-   *
-   * @param db     context
-   * @param id to delete
-   * @throws Exception if database failure
-   * @throws ConfigException   if not configured properly
-   * @throws BusinessException if fails business rule
+   Delete an Idea
+
+   @param db context
+   @param id to delete
+   @throws Exception         if database failure
+   @throws ConfigException   if not configured properly
+   @throws BusinessException if fails business rule
    */
   private void delete(DSLContext db, AccessControl access, ULong id) throws Exception {
     if (!access.isTopLevel()) {

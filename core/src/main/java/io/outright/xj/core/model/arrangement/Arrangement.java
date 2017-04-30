@@ -18,7 +18,7 @@ public class Arrangement extends Entity {
 
 
   /**
-   * Choice
+   Choice
    */
   private ULong choiceId;
 
@@ -32,7 +32,7 @@ public class Arrangement extends Entity {
   }
 
   /**
-   * Voice
+   Voice
    */
   private ULong voiceId;
 
@@ -46,7 +46,7 @@ public class Arrangement extends Entity {
   }
 
   /**
-   * Instrument
+   Instrument
    */
   private ULong instrumentId;
 
@@ -60,9 +60,9 @@ public class Arrangement extends Entity {
   }
 
   /**
-   * Validate data.
-   *
-   * @throws BusinessException if invalid.
+   Validate data.
+
+   @throws BusinessException if invalid.
    */
   @Override
   public void validate() throws BusinessException {
@@ -78,9 +78,9 @@ public class Arrangement extends Entity {
   }
 
   /**
-   * Model info jOOQ-field : Value map
-   *
-   * @return map
+   Model info jOOQ-field : Value map
+
+   @return map
    */
   @Override
   public Map<Field, Object> intoFieldValueMap() {
@@ -92,7 +92,7 @@ public class Arrangement extends Entity {
   }
 
   /**
-   * For use in maps.
+   For use in maps.
    */
   public static final String KEY_ONE = "arrangement";
   public static final String KEY_MANY = "arrangements";

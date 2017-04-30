@@ -34,8 +34,8 @@ public class GoogleProviderImplTest extends Mockito {
 
   @Before
   public void setUp() throws Exception {
-    System.setProperty("auth.google.id","12345");
-    System.setProperty("auth.google.secret","abcdefg");
+    System.setProperty("auth.google.id", "12345");
+    System.setProperty("auth.google.secret", "abcdefg");
     System.setProperty("app.url.base", "http://shammy/");
     System.setProperty("app.url.api", "api/69/");
 
@@ -83,7 +83,7 @@ public class GoogleProviderImplTest extends Mockito {
     assertEquals("abcdef", tokenResponse.getRefreshToken());
   }
 
-  @Test(expected=AccessException.class)
+  @Test(expected = AccessException.class)
   public void getTokenFromCode_IOFailure() throws Exception {
     String responseJson = "garbage response will cause IO failure";
     MockLowLevelHttpResponse httpResponse = new MockLowLevelHttpResponse();
@@ -97,7 +97,7 @@ public class GoogleProviderImplTest extends Mockito {
     googleProvider.getTokenFromCode("red");
   }
 
-  @Test(expected=AccessException.class)
+  @Test(expected = AccessException.class)
   public void getTokenFromCode_TokenResponseFailure() throws Exception {
     String responseJson = "{\"details\":{" +
       "\"error_description\":\"terrible\"," +

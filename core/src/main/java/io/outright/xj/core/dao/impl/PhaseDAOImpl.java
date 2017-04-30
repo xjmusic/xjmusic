@@ -7,12 +7,14 @@ import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.dao.PhaseDAO;
 import io.outright.xj.core.db.sql.SQLConnection;
 import io.outright.xj.core.db.sql.SQLDatabaseProvider;
+import io.outright.xj.core.model.idea.Idea;
 import io.outright.xj.core.model.phase.Phase;
 import io.outright.xj.core.model.phase.PhaseWrapper;
 import io.outright.xj.core.transport.JSON;
 
 import org.jooq.DSLContext;
 import org.jooq.Field;
+import org.jooq.Record;
 import org.jooq.types.ULong;
 
 import com.google.inject.Inject;
@@ -95,38 +97,31 @@ public class PhaseDAOImpl extends DAOImpl implements PhaseDAO {
   }
 
   /**
-   * Create a new Phase
-   * @param db context
-   * @param access control
-   * @param data for new phase
-   * @return newly created record
-   * @throws BusinessException if failure
+   Create a new Phase
+
+   @param db     context
+   @param access control
+   @param data   for new phase
+   @return newly created record
+   @throws BusinessException if failure
    */
   private JSONObject create(DSLContext db, AccessControl access, PhaseWrapper data) throws BusinessException {
     Phase model = data.validate();
     Map<Field, Object> fieldValues = model.intoFieldValueMap();
 
-    if (access.isTopLevel()) {
-      requireRecordExists("Idea", db.select(IDEA.ID).from(IDEA)
-        .where(IDEA.ID.eq(model.getIdeaId()))
-        .fetchOne());
-    } else {
-      requireRecordExists("Idea", db.select(IDEA.ID).from(IDEA)
-        .join(LIBRARY).on(LIBRARY.ID.eq(IDEA.LIBRARY_ID))
-        .where(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-        .and(IDEA.ID.eq(model.getIdeaId()))
-        .fetchOne());
-    }
+    // Common for Create/Update
+    deepValidate(db, access, model);
 
     return JSON.objectFromRecord(executeCreate(db, PHASE, fieldValues));
   }
 
   /**
-   * Read one Phase if able
-   * @param db context
-   * @param access control
-   * @param id of phase
-   * @return phase
+   Read one Phase if able
+
+   @param db     context
+   @param access control
+   @param id     of phase
+   @return phase
    */
   private JSONObject readOne(DSLContext db, AccessControl access, ULong id) {
     if (access.isTopLevel()) {
@@ -145,12 +140,13 @@ public class PhaseDAOImpl extends DAOImpl implements PhaseDAO {
   }
 
   /**
-   * Read all Phase able for an Idea
-   * @param db context
-   * @param access control
-   * @param ideaId to read all phase of
-   * @return array of phases
-   * @throws SQLException on failure
+   Read all Phase able for an Idea
+
+   @param db     context
+   @param access control
+   @param ideaId to read all phase of
+   @return array of phases
+   @throws SQLException on failure
    */
   private JSONArray readAllIn(DSLContext db, AccessControl access, ULong ideaId) throws SQLException {
     JSONArray result;
@@ -172,29 +168,21 @@ public class PhaseDAOImpl extends DAOImpl implements PhaseDAO {
   }
 
   /**
-   * Update a Phase record
-   * @param db context
-   * @param access control
-   * @param id to update
-   * @param data to update with
-   * @throws BusinessException if failure
+   Update a Phase record
+
+   @param db     context
+   @param access control
+   @param id     to update
+   @param data   to update with
+   @throws BusinessException if failure
    */
   private void update(DSLContext db, AccessControl access, ULong id, PhaseWrapper data) throws Exception {
     Phase model = data.validate();
     Map<Field, Object> fieldValues = model.intoFieldValueMap();
     fieldValues.put(PHASE.ID, id);
 
-    if (access.isTopLevel()) {
-      requireRecordExists("Idea",db.select(IDEA.ID).from(IDEA)
-        .where(IDEA.ID.eq(model.getIdeaId()))
-        .fetchOne());
-    } else {
-      requireRecordExists("Idea", db.select(IDEA.ID).from(IDEA)
-        .join(LIBRARY).on(LIBRARY.ID.eq(IDEA.LIBRARY_ID))
-        .where(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-        .and(IDEA.ID.eq(model.getIdeaId()))
-        .fetchOne());
-    }
+    // Common for Create/Update
+    deepValidate(db, access, model);
 
     if (executeUpdate(db, PHASE, fieldValues) == 0) {
       throw new BusinessException("No records updated.");
@@ -202,13 +190,13 @@ public class PhaseDAOImpl extends DAOImpl implements PhaseDAO {
   }
 
   /**
-   * Delete an Phase
-   *
-   * @param db     context
-   * @param id to delete
-   * @throws Exception if database failure
-   * @throws ConfigException   if not configured properly
-   * @throws BusinessException if fails business rule
+   Delete an Phase
+
+   @param db context
+   @param id to delete
+   @throws Exception         if database failure
+   @throws ConfigException   if not configured properly
+   @throws BusinessException if fails business rule
    */
   private void delete(AccessControl access, DSLContext db, ULong id) throws Exception {
     requireEmptyResultSet(db.select(VOICE.ID)
@@ -253,6 +241,38 @@ public class PhaseDAOImpl extends DAOImpl implements PhaseDAO {
           .where(PHASE_CHORD.PHASE_ID.eq(id))
       )
       .execute();
+  }
+
+  /**
+   Provides consistent validation of a model for Creation/Update
+
+   @param db     context
+   @param access control
+   @param model  to validate
+   @throws BusinessException if invalid
+   */
+  private void deepValidate(DSLContext db, AccessControl access, Phase model) throws BusinessException {
+    // actually select the parent idea for validation
+    Record idea;
+    if (access.isTopLevel()) {
+      idea = db.select(IDEA.ID, IDEA.TYPE).from(IDEA)
+        .where(IDEA.ID.eq(model.getIdeaId()))
+        .fetchOne();
+    } else {
+      idea = db.select(IDEA.ID, IDEA.TYPE).from(IDEA)
+        .join(LIBRARY).on(LIBRARY.ID.eq(IDEA.LIBRARY_ID))
+        .where(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
+        .and(IDEA.ID.eq(model.getIdeaId()))
+        .fetchOne();
+    }
+    requireRecordExists("Idea", idea);
+
+    // [#199] Macro-type Idea `total` not required; still is required for other types of Idea
+    if (!idea.get(IDEA.TYPE).equals(Idea.MACRO)) {
+      String d = "for a phase of a non-macro-type idea, total (# beats)";
+      requireNonNull(d, model.getTotal());
+      requireGreaterThanZero(d, model.getTotal());
+    }
   }
 
 }

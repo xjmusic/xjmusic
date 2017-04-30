@@ -54,13 +54,13 @@ public class UserIT {
     IntegrationTestEntity.insertUserAccessToken(2, 102, "this-is-my-actual-access-token");
 
     // Jenny has a "user" role and belongs to account "bananas"
-    IntegrationTestEntity.insertUser( 3, "jenny", "jenny@email.com", "http://pictures.com/jenny.gif");
+    IntegrationTestEntity.insertUser(3, "jenny", "jenny@email.com", "http://pictures.com/jenny.gif");
     IntegrationTestEntity.insertUserRole(5, 3, Role.USER);
     IntegrationTestEntity.insertAccountUser(6, 1, 3);
 
     // Bill has a "user" role but no account membership
     IntegrationTestEntity.insertUser(4, "bill", "bill@email.com", "http://pictures.com/bill.gif");
-    IntegrationTestEntity.insertUserRole(7,4, Role.USER);
+    IntegrationTestEntity.insertUserRole(7, 4, Role.USER);
 
     // Instantiate the test subject
     testDAO = injector.getInstance(UserDAO.class);
@@ -260,11 +260,11 @@ public class UserIT {
   public void destroyAllTokens() throws Exception {
     testDAO.destroyAllTokens(ULong.valueOf(2));
 
-    UserAccessTokenRecord deletedRecord = IntegrationTestService.getDb()
+    UserAccessTokenRecord result = IntegrationTestService.getDb()
       .selectFrom(USER_ACCESS_TOKEN)
       .where(USER_ACCESS_TOKEN.ACCESS_TOKEN.eq("this-is-my-actual-access-token"))
       .fetchOne();
-    assertNull(deletedRecord);
+    assertNull(result);
     // TODO: assert token destroyed in Redis
   }
 
@@ -281,11 +281,11 @@ public class UserIT {
     testDAO.updateUserRolesAndDestroyTokens(access, ULong.valueOf(2), inputDataWrapper);
 
     // Access Token deleted
-    UserAccessTokenRecord deletedRecord = IntegrationTestService.getDb()
+    UserAccessTokenRecord result = IntegrationTestService.getDb()
       .selectFrom(USER_ACCESS_TOKEN)
       .where(USER_ACCESS_TOKEN.ACCESS_TOKEN.eq("this-is-my-actual-access-token"))
       .fetchOne();
-    assertNull(deletedRecord);
+    assertNull(result);
     // TODO: assert token destroyed in Redis
     // Added artist role
     UserRoleRecord addedRole = IntegrationTestService.getDb()

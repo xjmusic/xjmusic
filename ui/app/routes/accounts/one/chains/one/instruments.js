@@ -43,6 +43,19 @@ export default Ember.Route.extend({
   },
 
   /**
+   * Headline
+   */
+  afterModel(model) {
+    Ember.set(this, 'routeHeadline', {
+      title: model.chain.get('name') + ' ' + 'Instruments',
+      entity: {
+        name: 'Chain',
+        id: model.chain.get('id')
+      }
+    });
+  },
+
+  /**
    * Route Actions
    */
   actions: {
@@ -51,7 +64,7 @@ export default Ember.Route.extend({
       this.refresh();
     },
 
-    destroyChainInstrument(model) {
+    removeInstrument(model) {
       model.destroyRecord({}).then(
         () => {
           Ember.get(this, 'display').success('Removed Instrument from Chain.');
@@ -61,7 +74,7 @@ export default Ember.Route.extend({
         });
     },
 
-    addInstrumentToChain(model) {
+    addInstrument(model) {
       let chainConfig = this.store.createRecord('chain-instrument', {
         chain: model.chain,
         instrument: model.instrumentToAdd,

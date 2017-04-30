@@ -3,14 +3,20 @@ import Ember from 'ember';
 
 export default Ember.Route.extend({
 
+  // Inject: flash message service
   display: Ember.inject.service(),
 
+  /**
+   * Route Model
+   * @returns {*}
+   */
   model: function () {
+    let self = this;
     let account = this.modelFor('accounts.one');
     let chains = this.store.query('chain', {accountId: account.get('id')})
       .catch((error) => {
-        Ember.get(this, 'display').error(error);
-        this.transitionTo('');
+        Ember.get(self, 'display').error(error);
+        self.transitionTo('');
       });
     return Ember.RSVP.hash({
       account: account,
@@ -18,11 +24,24 @@ export default Ember.Route.extend({
     });
   },
 
+  /**
+   * Headline
+   */
+  afterModel(model) {
+    Ember.set(this, 'routeHeadline', {
+      title: model.account.get('name') + ' ' + 'Chains',
+      entity: {
+        name: 'Account',
+        id: model.account.get('id')
+      }
+    });
+  },
+
+  /**
+   * Route Actions
+   */
   actions: {
 
-    editChain(chain) {
-      this.transitionTo('accounts.one.chains.one', chain);
-    },
-
   }
+
 });

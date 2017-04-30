@@ -5,14 +5,16 @@ import io.outright.xj.core.CoreModule;
 import io.outright.xj.core.app.access.impl.AccessControl;
 import io.outright.xj.core.app.server.HttpResponseProvider;
 import io.outright.xj.core.dao.VoiceDAO;
+import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.model.voice.Voice;
 import io.outright.xj.core.model.voice.VoiceWrapper;
-import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.transport.JSON;
+
+import org.jooq.types.ULong;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.jooq.types.ULong;
+
 import org.json.JSONObject;
 
 import javax.annotation.security.RolesAllowed;
@@ -30,7 +32,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 
 /**
- * Voice record
+ Voice record
  */
 @Path("voices/{id}")
 public class VoiceRecordResource {
@@ -43,9 +45,9 @@ public class VoiceRecordResource {
   String id;
 
   /**
-   * Get one voice.
-   *
-   * @return application/json response.
+   Get one voice.
+
+   @return application/json response.
    */
   @GET
   @WebResult
@@ -69,10 +71,10 @@ public class VoiceRecordResource {
   }
 
   /**
-   * Update one voice
-   *
-   * @param data with which to update Voice record.
-   * @return Response
+   Update one voice
+
+   @param data with which to update Voice record.
+   @return Response
    */
   @PUT
   @Consumes(MediaType.APPLICATION_JSON)
@@ -89,9 +91,9 @@ public class VoiceRecordResource {
   }
 
   /**
-   * Delete one voice
-   *
-   * @return Response
+   Delete one voice
+
+   @return Response
    */
   @DELETE
   @RolesAllowed({Role.ARTIST})

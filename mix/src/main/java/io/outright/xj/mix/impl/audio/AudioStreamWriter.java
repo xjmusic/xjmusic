@@ -26,21 +26,21 @@ public class AudioStreamWriter {
 //  private static final int WAVE_FORMAT_EXTENSIBLE = 0xFFFE; // Determined by SubFormat
 
   /**
-   * create a new audio stream writer instance
-   *
-   * @param outputBytes buffer of bytes to output
+   create a new audio stream writer instance
+
+   @param outputBytes buffer of bytes to output
    */
   public AudioStreamWriter(ByteBuffer outputBytes) {
     this.outputBytes = outputBytes;
   }
 
   /**
-   * write output bytes to file
-   *
-   * @param outputFilePath path
-   * @param outputFormat   format
-   * @param totalFrames    frames
-   * @throws IOException on failure
+   write output bytes to file
+
+   @param outputFilePath path
+   @param outputFormat   format
+   @param totalFrames    frames
+   @throws IOException on failure
    */
   public void writeToFile(String outputFilePath, AudioFormat outputFormat, long totalFrames) throws Exception {
     switch (outputFormat.getEncoding().toString()) {
@@ -58,12 +58,12 @@ public class AudioStreamWriter {
   }
 
   /**
-   * use AudioInputStream method to write output bytes to file
-   *
-   * @param outputFilePath path
-   * @param outputFormat   format
-   * @param totalFrames    frames
-   * @throws IOException on failure
+   use AudioInputStream method to write output bytes to file
+
+   @param outputFilePath path
+   @param outputFormat   format
+   @param totalFrames    frames
+   @throws IOException on failure
    */
   private void writeAudioInputStreamToFile(String outputFilePath, AudioFormat outputFormat, long totalFrames) throws IOException {
     AudioInputStream ais = new AudioInputStream(
@@ -75,12 +75,12 @@ public class AudioStreamWriter {
   }
 
   /**
-   * use direct method to write output bytes to file
-   *
-   * @param outputFilePath path
-   * @param outputFormat   format
-   * @param totalFrames    frames
-   * @throws IOException on failure
+   use direct method to write output bytes to file
+
+   @param outputFilePath path
+   @param outputFormat   format
+   @param totalFrames    frames
+   @throws IOException on failure
    */
   private void writeDirectToFile(String outputFilePath, AudioFormat outputFormat, long totalFrames)
     throws Exception {
@@ -93,16 +93,16 @@ public class AudioStreamWriter {
   }
 
   /**
-   * Write the format chunk to RIFF
-   * See the file `docs/Microsoft_WAVE_format.pdf` contained in this module.
-   * <p>
-   * The "WAVE" format consists of two subchunks: "fmt " and "data".
-   * The "fmt " subchunk describes the audio format and data encoding.
-   * The "data" subchunk contains the size of the data and the actual sound.
-   *
-   * @param outputStream target output stream
-   * @param outputFormat format
-   * @throws IOException on failure
+   Write the format chunk to RIFF
+   See the file `docs/Microsoft_WAVE_format.pdf` contained in this module.
+   <p>
+   The "WAVE" format consists of two subchunks: "fmt " and "data".
+   The "fmt " subchunk describes the audio format and data encoding.
+   The "data" subchunk contains the size of the data and the actual sound.
+
+   @param outputStream target output stream
+   @param outputFormat format
+   @throws IOException on failure
    */
   private void writeStreamHeader(DataOutputStream outputStream, AudioFormat outputFormat, long totalFrames)
     throws Exception {
@@ -174,12 +174,12 @@ public class AudioStreamWriter {
   }
 
   /**
-   * Get the size of SubChunk2 for a given WAVE spec
-   *
-   * @param outputFormat of WAVE
-   * @param totalFrames  to output as WAVE
-   * @return size in bytes
-   * @throws FormatException if unable to compute
+   Get the size of SubChunk2 for a given WAVE spec
+
+   @param outputFormat of WAVE
+   @param totalFrames  to output as WAVE
+   @return size in bytes
+   @throws FormatException if unable to compute
    */
   private int sizeSubChunk2(AudioFormat outputFormat, long totalFrames) throws FormatException {
     long sizeSubChunk2 = totalFrames * outputFormat.getFrameSize();
@@ -190,11 +190,11 @@ public class AudioStreamWriter {
   }
 
   /**
-   * Get integer value sample rate from audio format, or throw exception
-   *
-   * @param outputFormat to get sample rate from
-   * @return sample rate integer
-   * @throws FormatException if non-integer
+   Get integer value sample rate from audio format, or throw exception
+
+   @param outputFormat to get sample rate from
+   @return sample rate integer
+   @throws FormatException if non-integer
    */
   private int sampleRate(AudioFormat outputFormat) throws FormatException {
     float sampleRateFloat = outputFormat.getSampleRate();
@@ -207,10 +207,10 @@ public class AudioStreamWriter {
   }
 
   /**
-   * Get the RIFF format code for an audio format
-   *
-   * @param outputFormat to get code from
-   * @return code
+   Get the RIFF format code for an audio format
+
+   @param outputFormat to get code from
+   @return code
    */
   private short formatCode(AudioFormat outputFormat) {
     switch (outputFormat.getEncoding().toString()) {

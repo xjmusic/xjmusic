@@ -41,9 +41,9 @@ public class Library extends Entity {
   }
 
   /**
-   * Validate data.
-   *
-   * @throws BusinessException if invalid.
+   Validate data.
+
+   @throws BusinessException if invalid.
    */
   public void validate() throws BusinessException {
     if (this.name == null || this.name.length() == 0) {
@@ -55,9 +55,9 @@ public class Library extends Entity {
   }
 
   /**
-   * Model info jOOQ-field : Value map
-   *
-   * @return map
+   Model info jOOQ-field : Value map
+
+   @return map
    */
   public Map<Field, Object> intoFieldValueMap() {
     Map<Field, Object> fieldValues = Maps.newHashMap();
@@ -67,7 +67,7 @@ public class Library extends Entity {
   }
 
   /**
-   * For use in maps.
+   For use in maps.
    */
   public static final String KEY_ONE = "library";
   public static final String KEY_MANY = "libraries";

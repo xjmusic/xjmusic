@@ -7,9 +7,9 @@ import io.outright.xj.core.app.config.Exposure;
 import io.outright.xj.core.app.server.HttpResponseProvider;
 import io.outright.xj.core.dao.AudioDAO;
 import io.outright.xj.core.model.Entity;
-import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.model.audio.Audio;
 import io.outright.xj.core.model.audio.AudioWrapper;
+import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.transport.JSON;
 
 import org.jooq.types.ULong;
@@ -34,12 +34,12 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 
 /**
- * Audios
+ Audios
  */
 @Path("audios")
 public class AudioIndexResource {
   private static final Injector injector = Guice.createInjector(new CoreModule());
-//  private static Logger log = LoggerFactory.getLogger(AudioIndexResource.class);
+  //  private static Logger log = LoggerFactory.getLogger(AudioIndexResource.class);
   private final AudioDAO audioDAO = injector.getInstance(AudioDAO.class);
   private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
 
@@ -47,9 +47,9 @@ public class AudioIndexResource {
   String instrumentId;
 
   /**
-   * Get all audios.
-   *
-   * @return application/json response.
+   Get all audios.
+
+   @return application/json response.
    */
   @GET
   @WebResult
@@ -78,10 +78,10 @@ public class AudioIndexResource {
   }
 
   /**
-   * Create new audio
-   *
-   * @param data with which to update Audio record.
-   * @return Response
+   Create new audio
+
+   @param data with which to update Audio record.
+   @return Response
    */
   @POST
   @Consumes(MediaType.APPLICATION_JSON)

@@ -17,8 +17,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 
 /**
- * Main class.
- *
+ Main class.
  */
 public class Main {
   private static App app;
@@ -26,35 +25,36 @@ public class Main {
   private static Logger log = LoggerFactory.getLogger(Main.class);
 
   /**
-     * Main method.
-     * @param args arguments
-     * @throws IOException if execution fails
-     */
-    public static void main(String[] args) throws IOException, ConfigException {
-      // Default port
-      Config.setDefault("app.port", "8042");
+   Main method.
 
-      // Default # seconds ahead of time to perform work
-      Config.setDefault("work.buffer.seconds", "300");
+   @param args arguments
+   @throws IOException if execution fails
+   */
+  public static void main(String[] args) throws IOException, ConfigException {
+    // Default port
+    Config.setDefault("app.port", "8042");
 
-      // App
-      app = injector.getInstance(App.class);
-      app.configureServer("io.outright.xj.hub");
+    // Default # seconds ahead of time to perform work
+    Config.setDefault("work.buffer.seconds", "300");
 
-      // Database migrations
-      try {
-        MigrationService.migrate(injector.getInstance(SQLDatabaseProvider.class));
-      } catch (ConfigException e) {
-        log.error("Migrations failed! App will not start.", e);
-        System.exit(1);
-      }
+    // App
+    app = injector.getInstance(App.class);
+    app.configureServer("io.outright.xj.hub");
 
-      // Shutdown Hook
-      Runtime.getRuntime().addShutdownHook(new Thread(Main::shutdown));
-
-      // start
-      app.start();
+    // Database migrations
+    try {
+      MigrationService.migrate(injector.getInstance(SQLDatabaseProvider.class));
+    } catch (ConfigException e) {
+      log.error("Migrations failed! App will not start.", e);
+      System.exit(1);
     }
+
+    // Shutdown Hook
+    Runtime.getRuntime().addShutdownHook(new Thread(Main::shutdown));
+
+    // start
+    app.start();
+  }
 
   private static void shutdown() {
     app.stop();

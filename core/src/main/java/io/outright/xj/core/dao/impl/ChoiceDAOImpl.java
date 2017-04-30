@@ -94,13 +94,13 @@ public class ChoiceDAOImpl extends DAOImpl implements ChoiceDAO {
   }
 
   /**
-   * Create a new record
-   *
-   * @param db     context
-   * @param access control
-   * @param data   for new record
-   * @return newly created record
-   * @throws BusinessException if a Business Rule is violated
+   Create a new record
+
+   @param db     context
+   @param access control
+   @param data   for new record
+   @return newly created record
+   @throws BusinessException if a Business Rule is violated
    */
   private JSONObject create(DSLContext db, AccessControl access, ChoiceWrapper data) throws BusinessException {
     Choice model = data.validate();
@@ -116,12 +116,12 @@ public class ChoiceDAOImpl extends DAOImpl implements ChoiceDAO {
   }
 
   /**
-   * Read one record
-   *
-   * @param db     context
-   * @param access control
-   * @param id     of record
-   * @return record
+   Read one record
+
+   @param db     context
+   @param access control
+   @param id     of record
+   @return record
    */
   private JSONObject readOne(DSLContext db, AccessControl access, ULong id) {
     if (access.isTopLevel()) {
@@ -140,12 +140,12 @@ public class ChoiceDAOImpl extends DAOImpl implements ChoiceDAO {
   }
 
   /**
-   * Read all records in parent by id
-   *
-   * @param db      context
-   * @param access  control
-   * @param linkId of parent
-   * @return array of records
+   Read all records in parent by id
+
+   @param db     context
+   @param access control
+   @param linkId of parent
+   @return array of records
    */
   private JSONArray readAllIn(DSLContext db, AccessControl access, ULong linkId) throws SQLException {
     if (access.isTopLevel()) {
@@ -165,13 +165,13 @@ public class ChoiceDAOImpl extends DAOImpl implements ChoiceDAO {
   }
 
   /**
-   * Update a record
-   *
-   * @param db     context
-   * @param access control
-   * @param id     of record
-   * @param data   to update with
-   * @throws BusinessException if a Business Rule is violated
+   Update a record
+
+   @param db     context
+   @param access control
+   @param id     of record
+   @param data   to update with
+   @throws BusinessException if a Business Rule is violated
    */
   private void update(DSLContext db, AccessControl access, ULong id, ChoiceWrapper data) throws BusinessException, DatabaseException {
     Choice model = data.validate();
@@ -192,14 +192,14 @@ public class ChoiceDAOImpl extends DAOImpl implements ChoiceDAO {
   }
 
   /**
-   * Delete a Choice
-   *
-   * @param db     context
-   * @param access control
-   * @param id     to delete
-   * @throws Exception         if database failure
-   * @throws ConfigException   if not configured properly
-   * @throws BusinessException if fails business rule
+   Delete a Choice
+
+   @param db     context
+   @param access control
+   @param id     to delete
+   @throws Exception         if database failure
+   @throws ConfigException   if not configured properly
+   @throws BusinessException if fails business rule
    */
   private void delete(DSLContext db, AccessControl access, ULong id) throws Exception {
     requireTopLevel(access);

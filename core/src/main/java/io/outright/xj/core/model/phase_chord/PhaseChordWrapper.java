@@ -8,19 +8,22 @@ public class PhaseChordWrapper extends EntityWrapper {
 
   // PhaseChord
   private PhaseChord phaseChord;
+
   public PhaseChord getPhaseChord() {
     return phaseChord;
   }
+
   public PhaseChordWrapper setPhaseChord(PhaseChord phaseChord) {
     this.phaseChord = phaseChord;
     return this;
   }
 
   /**
-   * Validate data.
-   * @throws BusinessException if invalid.
+   Validate data.
+
+   @throws BusinessException if invalid.
    */
-  public PhaseChord validate() throws BusinessException{
+  public PhaseChord validate() throws BusinessException {
     if (this.phaseChord == null) {
       throw new BusinessException("phaseChord is required.");
     }

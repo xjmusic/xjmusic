@@ -276,11 +276,11 @@ public class InstrumentIT {
 
     testDAO.delete(access, ULong.valueOf(1));
 
-    InstrumentRecord deletedRecord = IntegrationTestService.getDb()
+    InstrumentRecord result = IntegrationTestService.getDb()
       .selectFrom(INSTRUMENT)
       .where(INSTRUMENT.ID.eq(ULong.valueOf(1)))
       .fetchOne();
-    assertNull(deletedRecord);
+    assertNull(result);
   }
 
   @Test(expected = BusinessException.class)

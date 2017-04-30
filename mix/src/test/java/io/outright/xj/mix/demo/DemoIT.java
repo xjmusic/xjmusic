@@ -71,9 +71,10 @@ public class DemoIT {
   };
 
   /**
-   * FLOATING-POINT OUTPUT IS NOT SUPPORTED.
-   * See [#137] Support for floating-point output encoding.
-   * @throws FormatException to prevent confusion
+   FLOATING-POINT OUTPUT IS NOT SUPPORTED.
+   See [#137] Support for floating-point output encoding.
+
+   @throws FormatException to prevent confusion
    */
   @Test(expected = FormatException.class)
   public void demo_48000Hz_Float_32bit_2ch() throws Exception {
@@ -96,13 +97,14 @@ public class DemoIT {
   }
 
   /**
-   * assert mix output equals reference audio
-   * @param encoding encoding
-   * @param frameRate frame rate
-   * @param sampleBits sample bits
-   * @param channels channels
-   * @param referenceName name
-   * @throws Exception on failure
+   assert mix output equals reference audio
+
+   @param encoding      encoding
+   @param frameRate     frame rate
+   @param sampleBits    sample bits
+   @param channels      channels
+   @param referenceName name
+   @throws Exception on failure
    */
   private void assertMixOutputEqualsReferenceAudio(AudioFormat.Encoding encoding, int frameRate, int sampleBits, int channels, String referenceName) throws Exception {
     String filename = getUniqueTempFilename(referenceName);
@@ -112,14 +114,14 @@ public class DemoIT {
   }
 
   /**
-   * Execute a mix and write output to file
-   *
-   * @param outputEncoding   encoding
-   * @param outputFrameRate  frame rate
-   * @param outputSampleBits bits per sample
-   * @param outputChannels   channels
-   * @param outputFilePath   file path to write output
-   * @throws Exception on failure
+   Execute a mix and write output to file
+
+   @param outputEncoding   encoding
+   @param outputFrameRate  frame rate
+   @param outputSampleBits bits per sample
+   @param outputChannels   channels
+   @param outputFilePath   file path to write output
+   @throws Exception on failure
    */
   private void mixAndWriteOutput(AudioFormat.Encoding outputEncoding, int outputFrameRate, int outputSampleBits, int outputChannels, String outputFilePath) throws Exception {
     Mixer demoMixer = mixFactory.createMixer(
@@ -143,10 +145,10 @@ public class DemoIT {
   }
 
   /**
-   * get a file from java resources
-   *
-   * @param filePath to get
-   * @return File
+   get a file from java resources
+
+   @param filePath to get
+   @return File
    */
   private File resourceFile(String filePath) {
     InternalResource internalResource = new InternalResource(filePath);
@@ -154,10 +156,10 @@ public class DemoIT {
   }
 
   /**
-   * get unique temp filename
-   *
-   * @param subFilename filename within this filename
-   * @return filename
+   get unique temp filename
+
+   @param subFilename filename within this filename
+   @return filename
    */
   private String getUniqueTempFilename(String subFilename) {
     return tempFilePrefex + System.nanoTime() + "-" + subFilename + fileSuffix;
@@ -165,38 +167,38 @@ public class DemoIT {
 
 
   /**
-   * get reference audio filename
-   *
-   * @param referenceName within this filename
-   * @return filename
+   get reference audio filename
+
+   @param referenceName within this filename
+   @return filename
    */
   private String getReferenceAudioFilename(String referenceName) {
     return referenceAudioFilePrefix + referenceName + fileSuffix;
   }
 
   /**
-   * get microseconds at a particular loop # and step #
-   *
-   * @param stepNum step
-   * @return microseconds
+   get microseconds at a particular loop # and step #
+
+   @param stepNum step
+   @return microseconds
    */
   private long atMicros(int stepNum) {
     return preRoll.plus(step.multipliedBy(stepNum)).toNanos() / 1000;
   }
 
   /**
-   * total length
-   *
-   * @return duration
+   total length
+
+   @return duration
    */
   private Duration totalLength() {
     return preRoll.plus(loopLength()).plus(postRoll);
   }
 
   /**
-   * loop length
-   *
-   * @return duration
+   loop length
+
+   @return duration
    */
   private Duration loopLength() {
     return step.multipliedBy(demoPattern.length);

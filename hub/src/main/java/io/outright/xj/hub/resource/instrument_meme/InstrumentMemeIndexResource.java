@@ -34,12 +34,12 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 
 /**
- * Instrument record
+ Instrument record
  */
 @Path("instrument-memes")
 public class InstrumentMemeIndexResource {
   private static final Injector injector = Guice.createInjector(new CoreModule());
-//  private static Logger log = LoggerFactory.getLogger(InstrumentMemeIndexResource.class);
+  //  private static Logger log = LoggerFactory.getLogger(InstrumentMemeIndexResource.class);
   private final InstrumentMemeDAO instrumentMemeDAO = injector.getInstance(InstrumentMemeDAO.class);
   private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
 
@@ -47,10 +47,10 @@ public class InstrumentMemeIndexResource {
   String instrumentId;
 
   /**
-   * Get Memes in one instrument.
-   * TODO: Return 404 if the instrument is not found.
-   *
-   * @return application/json response.
+   Get Memes in one instrument.
+   TODO: Return 404 if the instrument is not found.
+
+   @return application/json response.
    */
   @GET
   @WebResult
@@ -79,10 +79,10 @@ public class InstrumentMemeIndexResource {
   }
 
   /**
-   * Create new instrument meme
-   *
-   * @param data with which to update Instrument record.
-   * @return Response
+   Create new instrument meme
+
+   @param data with which to update Instrument record.
+   @return Response
    */
   @POST
   @Consumes(MediaType.APPLICATION_JSON)

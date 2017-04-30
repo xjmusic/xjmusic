@@ -6,10 +6,10 @@ import io.outright.xj.core.tables.records.AccountUserRecord;
 import io.outright.xj.core.tables.records.UserAuthRecord;
 import io.outright.xj.core.tables.records.UserRoleRecord;
 
+import org.jooq.types.ULong;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-
-import org.jooq.types.ULong;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,10 +18,12 @@ import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.ws.rs.container.ContainerRequestContext;
-
 import java.util.Collection;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AccessControlTest extends Mockito {

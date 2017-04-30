@@ -21,13 +21,13 @@ import static io.outright.xj.core.tables.Chain.CHAIN;
 
 public class Chain extends Entity {
   /**
-   * For use in maps.
+   For use in maps.
    */
   public static final String KEY_ONE = "chain";
   public static final String KEY_MANY = "chains";
 
   /**
-   * Types
+   Types
    */
   public final static String PREVIEW = "preview";
   public final static String PRODUCTION = "production";
@@ -38,7 +38,7 @@ public class Chain extends Entity {
   );
 
   /**
-   * State-machine states
+   State-machine states
    */
   public static final String DRAFT = "draft";
   public static final String READY = "ready";
@@ -136,9 +136,9 @@ public class Chain extends Entity {
 
 
   /**
-   * Validate data.
-   *
-   * @throws BusinessException if invalid.
+   Validate data.
+
+   @throws BusinessException if invalid.
    */
   public void validate() throws BusinessException {
     validateState(this.state);
@@ -168,10 +168,10 @@ public class Chain extends Entity {
   }
 
   /**
-   * Validate a state
-   *
-   * @param state to validate
-   * @throws BusinessException if invalid
+   Validate a state
+
+   @param state to validate
+   @throws BusinessException if invalid
    */
   public static void validateState(String state) throws BusinessException {
     if (state == null || state.length() == 0) {
@@ -183,9 +183,9 @@ public class Chain extends Entity {
   }
 
   /**
-   * Model info jOOQ-field : Value map
-   *
-   * @return map
+   Model info jOOQ-field : Value map
+
+   @return map
    */
   public Map<Field, Object> intoFieldValueMap() {
     Map<Field, Object> fieldValues = Maps.newHashMap();

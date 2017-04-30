@@ -30,7 +30,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 
 /**
- * LinkChords
+ LinkChords
  */
 @Path("link-chords")
 public class LinkChordIndexResource {
@@ -43,9 +43,9 @@ public class LinkChordIndexResource {
   String linkId;
 
   /**
-   * Get all linkChords.
-   *
-   * @return application/json response.
+   Get all linkChords.
+
+   @return application/json response.
    */
   @GET
   @WebResult

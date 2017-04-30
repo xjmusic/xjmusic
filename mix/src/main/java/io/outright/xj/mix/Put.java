@@ -2,7 +2,7 @@
 package io.outright.xj.mix;
 
 /**
- * Put to represent a single audio source playing at a specific time in the future.
+ Put to represent a single audio source playing at a specific time in the future.
  */
 public interface Put {
   String READY = "ready";
@@ -10,68 +10,73 @@ public interface Put {
   String DONE = "done";
 
   /**
-   * For a specific moment in the final mix, get the corresponding moment in the source audio.
-   *
-   * @param atMixOffsetMicros a moment in the final mix
-   * @return corresponding moment in the source audio
+   For a specific moment in the final mix, get the corresponding moment in the source audio.
+
+   @param atMixOffsetMicros a moment in the final mix
+   @return corresponding moment in the source audio
    */
   long sourceOffsetMicros(long atMixOffsetMicros);
 
   /**
-   * Is the put alive?
-   *
-   * @return true if not done
+   Is the put alive?
+
+   @return true if not done
    */
   boolean isAlive();
 
   /**
-   * Is the put playing?
-   *
-   * @return true if playing
+   Is the put playing?
+
+   @return true if playing
    */
   boolean isPlaying();
 
   /**
-   * Get reference source id
-   *
-   * @return source id
+   Get reference source id
+
+   @return source id
    */
   String getSourceId();
 
   /**
-   * Get State
-   *
-   * @return state
+   Get State
+
+   @return state
    */
   String getState();
 
   /**
-   * get Start-At
-   * @return Start-At
+   get Start-At
+
+   @return Start-At
    */
   long getStartAtMicros();
 
   /**
-   * get Stop-At
-   * @return Stop-At
+   get Stop-At
+
+   @return Stop-At
    */
   long getStopAtMicros();
 
   /**
-   * get Velocity
-   * @return Velocity
+   get Velocity
+
+   @return Velocity
    */
   double getVelocity();
 
   /**
-   * get Pitch Ratio
-   * @return Pitch Ratio
+   get Pitch Ratio
+
+   @return Pitch Ratio
    */
   double getPitchRatio();
 
   /**
-   * get Pan
-   * @return Pan
+   get Pan
+
+   @return Pan
    */
   double getPan();
 }

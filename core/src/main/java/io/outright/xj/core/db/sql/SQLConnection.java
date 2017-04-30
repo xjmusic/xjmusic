@@ -4,6 +4,7 @@ package io.outright.xj.core.db.sql;
 import io.outright.xj.core.app.exception.DatabaseException;
 
 import org.jooq.DSLContext;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,29 +29,29 @@ public class SQLConnection {
   }
 
   /**
-   * Get SQL DB Context
-   *
-   * @return SQL DB Context
+   Get SQL DB Context
+
+   @return SQL DB Context
    */
   public DSLContext getContext() {
     return context;
   }
 
   /**
-   * Success- this is the public action,
-   * and should be overridden by subclasses.
-   *
-   * @throws DatabaseException on failure.
+   Success- this is the public action,
+   and should be overridden by subclasses.
+
+   @throws DatabaseException on failure.
    */
   public void success() throws DatabaseException {
     commitAndClose();
   }
 
   /**
-   * Success
-   *
-   * @param result to return
-   * @throws DatabaseException on failure.
+   Success
+
+   @param result to return
+   @throws DatabaseException on failure.
    */
   public <T> T success(T result) throws DatabaseException {
     commitAndClose();
@@ -58,9 +59,9 @@ public class SQLConnection {
   }
 
   /**
-   * Failure
-   *
-   * @return DatabaseException to throw
+   Failure
+
+   @return DatabaseException to throw
    */
   public <T> T failure(T e) {
     rollbackAndClose();
@@ -68,9 +69,9 @@ public class SQLConnection {
   }
 
   /**
-   * Close the database connection.
-   *
-   * @throws DatabaseException on failure.
+   Close the database connection.
+
+   @throws DatabaseException on failure.
    */
   private void close() throws DatabaseException {
     try {
@@ -81,10 +82,10 @@ public class SQLConnection {
   }
 
   /**
-   * All Database failure uses this for central logging and exception
-   *
-   * @param toDoSomething that failed "to do something"
-   * @return DatabaseException
+   All Database failure uses this for central logging and exception
+
+   @param toDoSomething that failed "to do something"
+   @return DatabaseException
    */
   private DatabaseException failureException(String toDoSomething) {
     logFailed(toDoSomething);
@@ -92,18 +93,18 @@ public class SQLConnection {
   }
 
   /**
-   * All Database failure uses this for central logging
-   *
-   * @param toDoSomething that failed "to do something"
+   All Database failure uses this for central logging
+
+   @param toDoSomething that failed "to do something"
    */
   private void logFailed(String toDoSomething) {
     log.error("Failed " + toDoSomething);
   }
 
   /**
-   * Commit the database transaction.
-   *
-   * @throws DatabaseException on failure.
+   Commit the database transaction.
+
+   @throws DatabaseException on failure.
    */
   private void commit() throws DatabaseException {
     try {
@@ -123,9 +124,9 @@ public class SQLConnection {
   }
 
   /**
-   * Commit the SQL Database transaction and close the connection.
-   *
-   * @throws DatabaseException if something goes wrong
+   Commit the SQL Database transaction and close the connection.
+
+   @throws DatabaseException if something goes wrong
    */
   private void commitAndClose() throws DatabaseException {
     try {
@@ -140,7 +141,7 @@ public class SQLConnection {
   }
 
   /**
-   * Commit the SQL Database transaction and close the connection. Eats exceptions, to simplify implementation logic since this will be the final action taken.
+   Commit the SQL Database transaction and close the connection. Eats exceptions, to simplify implementation logic since this will be the final action taken.
    */
   private void rollbackAndClose() {
     try {

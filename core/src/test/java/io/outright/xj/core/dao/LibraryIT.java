@@ -207,7 +207,7 @@ public class LibraryIT {
     try {
       testDAO.update(access, ULong.valueOf(3), inputDataWrapper);
 
-    } catch (Exception e){
+    } catch (Exception e) {
       LibraryRecord result = IntegrationTestService.getDb()
         .selectFrom(LIBRARY)
         .where(LIBRARY.ID.eq(ULong.valueOf(3)))
@@ -271,11 +271,11 @@ public class LibraryIT {
 
     testDAO.delete(access, ULong.valueOf(1));
 
-    LibraryRecord deletedRecord = IntegrationTestService.getDb()
+    LibraryRecord result = IntegrationTestService.getDb()
       .selectFrom(LIBRARY)
       .where(LIBRARY.ID.eq(ULong.valueOf(1)))
       .fetchOne();
-    assertNull(deletedRecord);
+    assertNull(result);
   }
 
   @Test(expected = BusinessException.class)

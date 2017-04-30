@@ -1,10 +1,15 @@
 /* Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved. */
+
+@import "breadcrumb";
 @import "ember-power-select";
-@import "bootstrap";
-@import "navbar";
-@import "marketing";
-@import "palette";
 @import "fonts";
+@import "footer";
+@import "headline";
+@import "marketing";
+@import "navbar";
+@import "palette";
+@import "table";
+@import "chain";
 
 body {
   background: #000000;
@@ -14,12 +19,15 @@ body {
 
 a {
   color: lighten($green, 20%);
-  &:visited {
-    color: lighten($green, 20%);
-  }
 
   &:hover, &:active {
     color: lighten($green, 70%);
+  }
+}
+
+p {
+  strong {
+    color: $bright;
   }
 }
 
@@ -28,49 +36,10 @@ img {
   height: auto;
 }
 
-.engine {
-  background: #202020;
-  padding: 20px;
-  h1 {
-    font-weight: bold;
-  }
-  h3 {
-    text-transform: uppercase;
-  }
-  h1, h2, h3, h4, h5, h6 {
-    margin-top: 0;
-  }
-  .metric {
-    margin-top: 2em;
-    margin-bottom: 0;
-    font-size: 0.8em;
-    letter-spacing: 0.2em;
-    font-weight: bold;
-    text-transform: uppercase;
-  }
-  .yellow {
-    color: $yellow;
-  }
-  .red {
-    color: $red;
-  }
-  .green {
-    color: $green;
-  }
-}
-
 #timeline {
   margin-bottom: 20px;
   .placeholder {
     opacity: 0.25;
-  }
-}
-
-.table-list {
-  table, tr, th, td, thead, tbody {
-    background: transparent;
-  }
-  .item {
   }
 }
 
@@ -104,90 +73,9 @@ hr {
   }
 }
 
-.inverse-dropdown {
-  background-color: #222;
-  border-color: #080808;
-  & > li > a {
-    color: #999;
-    &:hover {
-      color: #fff;
-      background-color: #000;
-    }
-  }
-  & > .divider {
-    background-color: #000;
-  }
-}
-
 button {
+  cursor: pointer;
   color: $much-darker-gray;
-}
-
-.table-list {
-  .table {
-    .item {
-      img.avatar {
-        width: 24px;
-        height: 24px;
-        border: 1px solid $low-gray;
-      }
-      &.fabricating-state {
-        background: darken(darkgreen, 10%);
-        color: lightgreen;
-        a {
-          color: lightgreen;
-        }
-      }
-    }
-  }
-}
-
-ol.breadcrumb {
-  background: transparent none;
-}
-
-badge {
-  margin: 0;
-  padding: 0;
-  font-weight: bold;
-}
-
-#clock {
-  letter-spacing: 4px;
-  font-family: ClockMono, monospace;
-  font-size: 20px;
-}
-
-.headline {
-  color: whitesmoke;
-  line-height: 1.3em;
-}
-
-footer {
-  margin-top: 16em;
-  margin-bottom: 2em;
-  .outright {
-    opacity: 0.38;
-    &:hover {
-      opacity: 1.0;
-    }
-  }
-  .nav.navbar-nav.navbar-inverse {
-    background: transparent none;
-    &:hover, &:focus {
-      background: transparent none;
-    }
-    > li > a {
-      background: transparent none;
-      text-decoration: none;
-      color: #808080;
-      text-align: right;
-      &:hover, &:focus {
-        color: lighten($green, 20%);
-        text-decoration: underline;
-      }
-    }
-  }
 }
 
 // static content gets deleted right away, but it's vital for S.E.O. [#155]

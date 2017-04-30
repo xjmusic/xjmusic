@@ -3,8 +3,13 @@ import Ember from 'ember';
 
 export default Ember.Route.extend({
 
+  // Inject: flash message service
   display: Ember.inject.service(),
 
+  /**
+   * Route Model
+   * @returns {*|DS.Model|Promise}
+   */
   model: function () {
     let account = this.modelFor('accounts.one');
     return this.store.createRecord('library', {
@@ -12,13 +17,30 @@ export default Ember.Route.extend({
     });
   },
 
+  /**
+   * Headline
+   */
+  afterModel() {
+    let account = this.modelFor('accounts.one');
+    Ember.set(this, 'routeHeadline', {
+      title: 'New Library',
+      entity: {
+        name: 'Account',
+        id: account.get('id')
+      }
+    });
+  },
+
+  /**
+   * Route Actions
+   */
   actions: {
 
     createLibrary(model) {
       model.save().then(
         () => {
           Ember.get(this, 'display').success('Created library ' + model.get('name') + '.');
-          this.transitionTo('accounts.one.libraries');
+          this.transitionTo('accounts.one.libraries.one');
         }, (error) => {
           Ember.get(this, 'display').error(error);
         });

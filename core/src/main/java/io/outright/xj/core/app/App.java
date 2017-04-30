@@ -9,31 +9,31 @@ import java.io.IOException;
 
 public interface App {
   /**
-   * configure the server
-   *
-   * @param packages containing JAX-RS resources and providers
+   configure the server
+
+   @param packages containing JAX-RS resources and providers
    */
   void configureServer(String... packages);
 
   /**
-   * configure a workload
+   configure a workload
    */
   void registerWorkload(String name, Leader leader, Worker worker) throws ConfigException;
 
   /**
-   * start App Server
+   start App Server
    */
   void start() throws IOException, ConfigException;
 
   /**
-   * stop App Server
+   stop App Server
    */
   void stop();
 
   /**
-   * Base URI of App Server
-   *
-   * @return String
+   Base URI of App Server
+
+   @return String
    */
   String baseURI();
 }

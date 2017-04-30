@@ -10,9 +10,11 @@ import io.outright.xj.core.model.idea.IdeaWrapper;
 import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.transport.JSON;
 
+import org.jooq.types.ULong;
+
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.jooq.types.ULong;
+
 import org.json.JSONObject;
 
 import javax.annotation.security.RolesAllowed;
@@ -30,7 +32,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 
 /**
- * Idea record
+ Idea record
  */
 @Path("ideas/{id}")
 public class IdeaRecordResource {
@@ -43,9 +45,9 @@ public class IdeaRecordResource {
   String id;
 
   /**
-   * Get one idea.
-   *
-   * @return application/json response.
+   Get one idea.
+
+   @return application/json response.
    */
   @GET
   @WebResult
@@ -69,10 +71,10 @@ public class IdeaRecordResource {
   }
 
   /**
-   * Update one idea
-   *
-   * @param data with which to update Idea record.
-   * @return Response
+   Update one idea
+
+   @param data with which to update Idea record.
+   @return Response
    */
   @PUT
   @Consumes(MediaType.APPLICATION_JSON)
@@ -89,9 +91,9 @@ public class IdeaRecordResource {
   }
 
   /**
-   * Delete one idea
-   *
-   * @return Response
+   Delete one idea
+
+   @return Response
    */
   @DELETE
   @RolesAllowed({Role.ADMIN})

@@ -1,6 +1,7 @@
 // Copyright Outright Mental, Inc. All Rights Reserved.
 package io.outright.xj.core.dao.impl;
 
+import io.outright.xj.core.Tables;
 import io.outright.xj.core.app.access.impl.AccessControl;
 import io.outright.xj.core.app.config.Config;
 import io.outright.xj.core.app.exception.BusinessException;
@@ -38,21 +39,30 @@ import java.time.Instant;
 import java.util.Map;
 import java.util.Objects;
 
+import static io.outright.xj.core.Tables.ARRANGEMENT;
 import static io.outright.xj.core.Tables.CHAIN;
+import static io.outright.xj.core.Tables.CHAIN_IDEA;
+import static io.outright.xj.core.Tables.CHAIN_INSTRUMENT;
+import static io.outright.xj.core.Tables.CHAIN_LIBRARY;
+import static io.outright.xj.core.Tables.CHOICE;
+import static io.outright.xj.core.Tables.LINK_CHORD;
+import static io.outright.xj.core.Tables.MORPH;
+import static io.outright.xj.core.Tables.PICK;
+import static io.outright.xj.core.Tables.POINT;
 import static io.outright.xj.core.tables.Account.ACCOUNT;
 import static io.outright.xj.core.tables.ChainConfig.CHAIN_CONFIG;
 import static io.outright.xj.core.tables.Link.LINK;
 
 /**
- * Chain D.A.O. Implementation
- * <p>
- * Core directive here is to keep business logic CENTRAL ("oneness")
- * <p>
- * All variants on an update resolve (after data transformation,
- * or additional validation) to one singular central update(fieldValues)
- * <p>
- * Also note buildNextLinkOrComplete(...) is one singular central implementation
- * of the logic around adding links to chains and updating chain state to complete.
+ Chain D.A.O. Implementation
+ <p>
+ Core directive here is to keep business logic CENTRAL ("oneness")
+ <p>
+ All variants on an update resolve (after data transformation,
+ or additional validation) to one singular central update(fieldValues)
+ <p>
+ Also note buildNextLinkOrComplete(...) is one singular central implementation
+ of the logic around adding links to chains and updating chain state to complete.
  */
 public class ChainDAOImpl extends DAOImpl implements ChainDAO {
   private final int previewLengthMax;
@@ -140,7 +150,6 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
     }
   }
 
-
   @Override
   public void delete(AccessControl access, ULong chainId) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
@@ -152,14 +161,25 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
     }
   }
 
+  @Override
+  public void destroy(AccessControl access, ULong chainId) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      destroy(tx.getContext(), access, chainId);
+      tx.success();
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
   /**
-   * Create a new record
-   *
-   * @param db     context
-   * @param access control
-   * @param data   for new record
-   * @return newly created record
-   * @throws BusinessException if a Business Rule is violated
+   Create a new record
+
+   @param db     context
+   @param access control
+   @param data   for new record
+   @return newly created record
+   @throws BusinessException if a Business Rule is violated
    */
   private JSONObject create(DSLContext db, AccessControl access, ChainWrapper data) throws BusinessException {
     Chain model = data.validate();
@@ -199,12 +219,12 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
   }
 
   /**
-   * Read one record
-   *
-   * @param db     context
-   * @param access control
-   * @param id     of record
-   * @return record
+   Read one record
+
+   @param db     context
+   @param access control
+   @param id     of record
+   @return record
    */
   private JSONObject readOne(DSLContext db, AccessControl access, ULong id) {
     if (access.isTopLevel()) {
@@ -221,12 +241,12 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
   }
 
   /**
-   * Read all records in parent by id
-   *
-   * @param db        context
-   * @param access    control
-   * @param accountId of parent
-   * @return array of records
+   Read all records in parent by id
+
+   @param db        context
+   @param access    control
+   @param accountId of parent
+   @return array of records
    */
   private JSONArray readAllIn(DSLContext db, AccessControl access, ULong accountId) throws SQLException {
     if (access.isTopLevel()) {
@@ -244,12 +264,12 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
   }
 
   /**
-   * Read all records now in fabricating-state
-   *
-   * @param db         context
-   * @param access     control
-   * @param atOrBefore time to check for chains in fabricating state
-   * @return array of records
+   Read all records now in fabricating-state
+
+   @param db         context
+   @param access     control
+   @param atOrBefore time to check for chains in fabricating state
+   @return array of records
    */
   private Result<ChainRecord> readAllRecordsInStateFabricating(DSLContext db, AccessControl access, Timestamp atOrBefore) throws SQLException, BusinessException {
     requireTopLevel(access);
@@ -261,14 +281,14 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
   }
 
   /**
-   * Update a record using a model wrapper
-   *
-   * @param db     context
-   * @param access control
-   * @param id     of chain to update
-   * @param data   wrapper
-   * @throws BusinessException on failure
-   * @throws DatabaseException on failure
+   Update a record using a model wrapper
+
+   @param db     context
+   @param access control
+   @param id     of chain to update
+   @param data   wrapper
+   @throws BusinessException on failure
+   @throws DatabaseException on failure
    */
   private void updateWrapper(DSLContext db, AccessControl access, ULong id, ChainWrapper data) throws Exception {
     Chain model = data.validate();
@@ -284,12 +304,12 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
   }
 
   /**
-   * Update the state of a record
-   *
-   * @param db     context
-   * @param access control
-   * @param id     of record
-   * @throws BusinessException if a Business Rule is violated
+   Update the state of a record
+
+   @param db     context
+   @param access control
+   @param id     of record
+   @throws BusinessException if a Business Rule is violated
    */
   private void updateState(DSLContext db, AccessControl access, ULong id, String state) throws Exception {
     Map<Field, Object> fieldValues = ImmutableMap.of(
@@ -305,12 +325,12 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
   }
 
   /**
-   * Update a record
-   *
-   * @param db     context
-   * @param access control
-   * @param id     of record
-   * @throws BusinessException if a Business Rule is violated
+   Update a record
+
+   @param db     context
+   @param access control
+   @param id     of record
+   @throws BusinessException if a Business Rule is violated
    */
   private void update(DSLContext db, AccessControl access, ULong id, Map<Field, Object> fieldValues) throws Exception {
     // If not top level access, validate access to account
@@ -379,13 +399,13 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
   }
 
   /**
-   * Read all records in parent by id
-   *
-   * @param db                      context
-   * @param chain                   to read pilot template link for
-   * @param linkBeginBefore         time upper threshold
-   * @param chainStopCompleteBefore time upper threshold
-   * @return array of records
+   Read all records in parent by id
+
+   @param db                      context
+   @param chain                   to read pilot template link for
+   @param linkBeginBefore         time upper threshold
+   @param chainStopCompleteBefore time upper threshold
+   @return array of records
    */
   @Nullable
   private JSONObject buildNextLinkOrComplete(DSLContext db, AccessControl access, ChainRecord chain, Timestamp linkBeginBefore, Timestamp chainStopCompleteBefore) throws Exception {
@@ -453,14 +473,14 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
   }
 
   /**
-   * Delete a Chain
-   *
-   * @param db     context
-   * @param access control
-   * @param id     to delete
-   * @throws Exception         if database failure
-   * @throws ConfigException   if not configured properly
-   * @throws BusinessException if fails business rule
+   Delete a Chain
+
+   @param db     context
+   @param access control
+   @param id     to delete
+   @throws Exception         if database failure
+   @throws ConfigException   if not configured properly
+   @throws BusinessException if fails business rule
    */
   private void delete(DSLContext db, AccessControl access, ULong id) throws Exception {
     if (access.isTopLevel()) {
@@ -497,6 +517,111 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
           .from(CHAIN_CONFIG)
           .where(CHAIN_CONFIG.CHAIN_ID.eq(id))
       )
+      .execute();
+  }
+
+  /**
+   Destroy a Chain, and all its child entities
+
+   @param db     context
+   @param access control
+   @param id     to delete
+   @throws Exception         if database failure
+   @throws ConfigException   if not configured properly
+   @throws BusinessException if fails business rule
+   */
+  private void destroy(DSLContext db, AccessControl access, ULong id) throws Exception {
+    requireTopLevel(access);
+
+    ChainRecord chain = db.selectFrom(CHAIN)
+      .where(CHAIN.ID.eq(id))
+      .fetchOne();
+    requireRecordExists("Chain", chain);
+
+    String chainState = chain.get(CHAIN.STATE);
+    require("Chain",
+      "must be in a draft or complete state",
+      chainState.equals(Chain.DRAFT) || chainState.equals(Chain.COMPLETE));
+
+    // Point before Morph
+    db.deleteFrom(POINT)
+      .where(POINT.MORPH_ID.in(
+        db.select(MORPH.ID).from(MORPH)
+          .join(ARRANGEMENT).on(MORPH.ARRANGEMENT_ID.eq(ARRANGEMENT.ID))
+          .join(CHOICE).on(ARRANGEMENT.CHOICE_ID.eq(CHOICE.ID))
+          .join(LINK).on(CHOICE.LINK_ID.eq(LINK.ID))
+          .where(LINK.CHAIN_ID.eq(id))
+      )).execute();
+
+    // Pick before Morph
+    db.deleteFrom(PICK)
+      .where(PICK.MORPH_ID.in(
+        db.select(MORPH.ID).from(MORPH)
+          .join(ARRANGEMENT).on(MORPH.ARRANGEMENT_ID.eq(ARRANGEMENT.ID))
+          .join(CHOICE).on(ARRANGEMENT.CHOICE_ID.eq(CHOICE.ID))
+          .join(LINK).on(CHOICE.LINK_ID.eq(LINK.ID))
+          .where(LINK.CHAIN_ID.eq(id))
+      )).execute();
+
+    // Morph before Arrangement
+    db.deleteFrom(MORPH)
+      .where(MORPH.ARRANGEMENT_ID.in(
+        db.select(ARRANGEMENT.ID).from(ARRANGEMENT)
+          .join(CHOICE).on(ARRANGEMENT.CHOICE_ID.eq(CHOICE.ID))
+          .join(LINK).on(CHOICE.LINK_ID.eq(LINK.ID))
+          .where(LINK.CHAIN_ID.eq(id))
+      )).execute();
+
+    // Arrangement before Choice
+    db.deleteFrom(ARRANGEMENT)
+      .where(ARRANGEMENT.CHOICE_ID.in(
+        db.select(CHOICE.ID).from(CHOICE)
+          .join(LINK).on(CHOICE.LINK_ID.eq(LINK.ID))
+          .where(LINK.CHAIN_ID.eq(id))
+      )).execute();
+
+    // Choice before Link
+    db.deleteFrom(CHOICE)
+      .where(CHOICE.LINK_ID.in(
+        db.select(LINK.ID).from(LINK)
+          .where(LINK.CHAIN_ID.eq(id))
+      )).execute();
+
+    // Link Chord before Link
+    db.deleteFrom(LINK_CHORD)
+      .where(LINK_CHORD.LINK_ID.in(
+        db.select(LINK.ID).from(LINK)
+          .where(LINK.CHAIN_ID.eq(id))
+      )).execute();
+
+    // Link before Chain
+    db.deleteFrom(Tables.LINK)
+      .where(LINK.CHAIN_ID.eq(id))
+      .execute();
+
+    // Chain-Idea before Chain
+    db.deleteFrom(CHAIN_IDEA)
+      .where(CHAIN_IDEA.CHAIN_ID.eq(id))
+      .execute();
+
+    // Chain-Instrument before Chain
+    db.deleteFrom(CHAIN_INSTRUMENT)
+      .where(CHAIN_INSTRUMENT.CHAIN_ID.eq(id))
+      .execute();
+
+    // Chain-Library before Chain
+    db.deleteFrom(CHAIN_LIBRARY)
+      .where(CHAIN_LIBRARY.CHAIN_ID.eq(id))
+      .execute();
+
+    // Chain-Config before Chain
+    db.deleteFrom(CHAIN_CONFIG)
+      .where(CHAIN_CONFIG.CHAIN_ID.eq(id))
+      .execute();
+
+    // Chain
+    db.deleteFrom(CHAIN)
+      .where(CHAIN.ID.eq(id))
       .execute();
   }
 

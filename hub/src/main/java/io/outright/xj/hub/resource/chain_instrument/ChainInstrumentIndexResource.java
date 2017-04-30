@@ -34,7 +34,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 
 /**
- * Chain Instrument record
+ Chain Instrument record
  */
 @Path("chain-instruments")
 public class ChainInstrumentIndexResource {
@@ -47,9 +47,9 @@ public class ChainInstrumentIndexResource {
   String chainId;
 
   /**
-   * Get Instruments in one chain.
-   *
-   * @return application/json response.
+   Get Instruments in one chain.
+
+   @return application/json response.
    */
   // TODO [hub] Return 404 if the chain is not found.
   @GET
@@ -79,10 +79,10 @@ public class ChainInstrumentIndexResource {
   }
 
   /**
-   * Create new chain instrument
-   *
-   * @param data with which to update Chain record.
-   * @return Response
+   Create new chain instrument
+
+   @param data with which to update Chain record.
+   @return Response
    */
   @POST
   @Consumes(MediaType.APPLICATION_JSON)

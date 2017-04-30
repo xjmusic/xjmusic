@@ -56,6 +56,7 @@ public class PickIT {
 
     // Library has Instrument
     IntegrationTestEntity.insertInstrument(9, 1, 2, "jams", Instrument.PERCUSSIVE, 0.6);
+    IntegrationTestEntity.insertAudio(1, 9, "Kick", "https://static.xj.outright.io/instrument/percussion/808/kick1.wav", 0.01, 2.123, 120.0, 440);
 
     // Chain "Test Print #1" has one link
     IntegrationTestEntity.insertChain(1, 1, "Test Print #1", Chain.PRODUCTION, Chain.READY, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"));
@@ -71,8 +72,7 @@ public class PickIT {
     IntegrationTestEntity.insertMorph(1, 1, 0.75, "C", 0.5);
 
     // Pick is in Morph
-    IntegrationTestEntity.insertAudio(1, 9, "Kick", "https://static.xj.outright.io/instrument/percussion/808/kick1.wav", 0.01, 2.123, 120.0, 440);
-    IntegrationTestEntity.insertPick(1, 1,1, 1, 0.125, 1.23, 0.94, 440);
+    IntegrationTestEntity.insertPick(1, 1, 1, 1, 0.125, 1.23, 0.94, 440);
 
     // Instantiate the test subject
     testDAO = injector.getInstance(PickDAO.class);
@@ -199,7 +199,7 @@ public class PickIT {
     assertEquals(ULong.valueOf(1), result.get("morphId"));
     assertEquals(ULong.valueOf(1), result.get("audioId"));
     assertEquals(0.125, result.get("start"));
-    assertEquals(1.23,  result.get("length"));
+    assertEquals(1.23, result.get("length"));
     assertEquals(0.94, result.get("amplitude"));
     assertEquals(440.0, result.get("pitch"));
   }
@@ -365,11 +365,11 @@ public class PickIT {
 
     testDAO.delete(access, ULong.valueOf(1));
 
-    PickRecord deletedRecord = IntegrationTestService.getDb()
+    PickRecord result = IntegrationTestService.getDb()
       .selectFrom(PICK)
       .where(PICK.ID.eq(ULong.valueOf(1)))
       .fetchOne();
-    assertNull(deletedRecord);
+    assertNull(result);
   }
 
 }

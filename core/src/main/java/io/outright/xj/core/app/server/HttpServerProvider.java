@@ -8,5 +8,6 @@ import java.net.URI;
 
 public interface HttpServerProvider {
   void configure(URI uri, ResourceConfig config);
+
   HttpServer get();
 }

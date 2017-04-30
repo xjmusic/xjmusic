@@ -30,7 +30,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 
 /**
- * Morphs
+ Morphs
  */
 @Path("morphs")
 public class MorphIndexResource {
@@ -43,9 +43,9 @@ public class MorphIndexResource {
   String arrangementId;
 
   /**
-   * Get all morphs.
-   *
-   * @return application/json response.
+   Get all morphs.
+
+   @return application/json response.
    */
   @GET
   @WebResult

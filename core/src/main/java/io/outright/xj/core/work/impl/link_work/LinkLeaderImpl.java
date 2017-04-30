@@ -19,7 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The link leader creates template entities of new Links that need to be created
+ The link leader creates template entities of new Links that need to be created
  */
 public class LinkLeaderImpl implements Leader {
   private final static Logger log = LoggerFactory.getLogger(LinkLeaderImpl.class);

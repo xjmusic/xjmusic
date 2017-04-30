@@ -3,7 +3,6 @@ package io.outright.xj.core.model.pick;
 
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.model.Entity;
-import io.outright.xj.core.util.Purify;
 
 import org.jooq.Field;
 import org.jooq.types.ULong;
@@ -18,7 +17,7 @@ import static io.outright.xj.core.Tables.PICK;
 public class Pick extends Entity {
 
   /**
-   * Arrangement
+   Arrangement
    */
   private ULong arrangementId;
 
@@ -32,7 +31,7 @@ public class Pick extends Entity {
   }
 
   /**
-   * Morph
+   Morph
    */
   private ULong morphId;
 
@@ -46,7 +45,7 @@ public class Pick extends Entity {
   }
 
   /**
-   * Audio
+   Audio
    */
   private ULong audioId;
 
@@ -60,7 +59,7 @@ public class Pick extends Entity {
   }
 
   /**
-   * Start (seconds)
+   Start (seconds)
    */
   private Double start;
 
@@ -74,7 +73,7 @@ public class Pick extends Entity {
   }
 
   /**
-   * Length (seconds)
+   Length (seconds)
    */
   private Double length;
 
@@ -88,7 +87,7 @@ public class Pick extends Entity {
   }
 
   /**
-   * Amplitude
+   Amplitude
    */
   private Double amplitude;
 
@@ -102,7 +101,7 @@ public class Pick extends Entity {
   }
 
   /**
-   * Pitch
+   Pitch
    */
   private Double pitch;
 
@@ -116,9 +115,9 @@ public class Pick extends Entity {
   }
 
   /**
-   * Validate data.
-   *
-   * @throws BusinessException if invalid.
+   Validate data.
+
+   @throws BusinessException if invalid.
    */
   @Override
   public void validate() throws BusinessException {
@@ -146,9 +145,9 @@ public class Pick extends Entity {
   }
 
   /**
-   * Model info jOOQ-field : Value map
-   *
-   * @return map
+   Model info jOOQ-field : Value map
+
+   @return map
    */
   @Override
   public Map<Field, Object> intoFieldValueMap() {
@@ -164,7 +163,7 @@ public class Pick extends Entity {
   }
 
   /**
-   * For use in maps.
+   For use in maps.
    */
   public static final String KEY_ONE = "pick";
   public static final String KEY_MANY = "picks";

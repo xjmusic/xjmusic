@@ -10,9 +10,11 @@ import io.outright.xj.core.model.user.User;
 import io.outright.xj.core.model.user.UserWrapper;
 import io.outright.xj.core.transport.JSON;
 
+import org.jooq.types.ULong;
+
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.jooq.types.ULong;
+
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +33,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 
 /**
- * User record
+ User record
  */
 @Path("users/{id}")
 public class UserRecordResource {
@@ -43,9 +45,9 @@ public class UserRecordResource {
   @PathParam("id") String id;
 
   /**
-   * Get one user.
-   *
-   * @return application/json response.
+   Get one user.
+
+   @return application/json response.
    */
   @GET
   @WebResult
@@ -69,10 +71,10 @@ public class UserRecordResource {
   }
 
   /**
-   * Update one User.
-   *
-   * @param data with which to update User record.
-   * @return Response.
+   Update one User.
+
+   @param data with which to update User record.
+   @return Response.
    */
   @PUT
   @Consumes(MediaType.APPLICATION_JSON)

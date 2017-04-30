@@ -29,12 +29,12 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 
 /**
- * Chain Instrument record
+ Chain Instrument record
  */
 @Path("chain-instruments/{id}")
 public class ChainInstrumentRecordResource {
   private static final Injector injector = Guice.createInjector(new CoreModule());
-//  private static Logger log = LoggerFactory.getLogger(ChainInstrumentRecordResource.class);
+  //  private static Logger log = LoggerFactory.getLogger(ChainInstrumentRecordResource.class);
   private final ChainInstrumentDAO chainInstrumentDAO = injector.getInstance(ChainInstrumentDAO.class);
   private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
 
@@ -42,9 +42,9 @@ public class ChainInstrumentRecordResource {
   String id;
 
   /**
-   * Get one ChainInstrument by id
-   *
-   * @return application/json response.
+   Get one ChainInstrument by id
+
+   @return application/json response.
    */
   @GET
   @WebResult
@@ -68,9 +68,9 @@ public class ChainInstrumentRecordResource {
   }
 
   /**
-   * Delete one ChainInstrument
-   *
-   * @return application/json response.
+   Delete one ChainInstrument
+
+   @return application/json response.
    */
   // TODO [hub] Return 404 if the chain instrument is not found.
   @DELETE

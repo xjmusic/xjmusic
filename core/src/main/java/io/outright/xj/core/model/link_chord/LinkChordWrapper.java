@@ -8,19 +8,22 @@ public class LinkChordWrapper extends EntityWrapper {
 
   // LinkChord
   private LinkChord linkChord;
+
   public LinkChord getLinkChord() {
     return linkChord;
   }
+
   public LinkChordWrapper setLinkChord(LinkChord linkChord) {
     this.linkChord = linkChord;
     return this;
   }
 
   /**
-   * Validate data.
-   * @throws BusinessException if invalid.
+   Validate data.
+
+   @throws BusinessException if invalid.
    */
-  public LinkChord validate() throws BusinessException{
+  public LinkChord validate() throws BusinessException {
     if (this.linkChord == null) {
       throw new BusinessException("linkChord is required.");
     }

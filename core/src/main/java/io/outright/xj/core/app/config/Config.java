@@ -4,14 +4,10 @@ package io.outright.xj.core.app.config;
 import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.transport.CSV;
 
-import com.google.common.collect.ImmutableList;
-
-import java.lang.reflect.Array;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
- * ALL APPLICATION CONFIGURATION MUST IMPLEMENT THIS CENTRAL CLASS.
+ ALL APPLICATION CONFIGURATION MUST IMPLEMENT THIS CENTRAL CLASS.
  */
 public abstract class Config {
 
@@ -144,10 +140,10 @@ public abstract class Config {
   }
 
   /**
-   * Set a System Property if no value has yet been set for it.
-   *
-   * @param k name of system property
-   * @param v default value to set for property
+   Set a System Property if no value has yet been set for it.
+
+   @param k name of system property
+   @param v default value to set for property
    */
   public static void setDefault(String k, String v) {
     if (System.getProperty(k) == null) {

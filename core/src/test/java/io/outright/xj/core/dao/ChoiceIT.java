@@ -7,11 +7,11 @@ import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.integration.IntegrationTestEntity;
 import io.outright.xj.core.integration.IntegrationTestService;
 import io.outright.xj.core.model.chain.Chain;
+import io.outright.xj.core.model.choice.Choice;
+import io.outright.xj.core.model.choice.ChoiceWrapper;
 import io.outright.xj.core.model.idea.Idea;
 import io.outright.xj.core.model.instrument.Instrument;
 import io.outright.xj.core.model.link.Link;
-import io.outright.xj.core.model.choice.Choice;
-import io.outright.xj.core.model.choice.ChoiceWrapper;
 import io.outright.xj.core.model.voice.Voice;
 import io.outright.xj.core.tables.records.ChoiceRecord;
 
@@ -309,11 +309,11 @@ public class ChoiceIT {
 
     testDAO.delete(access, ULong.valueOf(1));
 
-    ChoiceRecord deletedRecord = IntegrationTestService.getDb()
+    ChoiceRecord result = IntegrationTestService.getDb()
       .selectFrom(CHOICE)
       .where(CHOICE.ID.eq(ULong.valueOf(1)))
       .fetchOne();
-    assertNull(deletedRecord);
+    assertNull(result);
   }
 
   @Test(expected = BusinessException.class)
@@ -324,7 +324,7 @@ public class ChoiceIT {
     IntegrationTestEntity.insertPhase(1, 1, 0, 16, "Ants", 0.583, "D minor", 120.0);
     IntegrationTestEntity.insertVoice(1, 1, Voice.PERCUSSIVE, "This is a percussive voice");
     IntegrationTestEntity.insertInstrument(1, 1, 2, "jams", Instrument.PERCUSSIVE, 0.6);
-    IntegrationTestEntity.insertArrangement(1, 1,1,1);
+    IntegrationTestEntity.insertArrangement(1, 1, 1, 1);
 
     try {
       testDAO.delete(access, ULong.valueOf(1));

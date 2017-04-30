@@ -10,9 +10,11 @@ import io.outright.xj.core.model.instrument.InstrumentWrapper;
 import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.transport.JSON;
 
+import org.jooq.types.ULong;
+
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.jooq.types.ULong;
+
 import org.json.JSONObject;
 
 import javax.annotation.security.RolesAllowed;
@@ -30,7 +32,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 
 /**
- * Instrument record
+ Instrument record
  */
 @Path("instruments/{id}")
 public class InstrumentRecordResource {
@@ -43,9 +45,9 @@ public class InstrumentRecordResource {
   String id;
 
   /**
-   * Get one instrument.
-   *
-   * @return application/json response.
+   Get one instrument.
+
+   @return application/json response.
    */
   @GET
   @WebResult
@@ -69,10 +71,10 @@ public class InstrumentRecordResource {
   }
 
   /**
-   * Update one instrument
-   *
-   * @param data with which to update Instrument record.
-   * @return Response
+   Update one instrument
+
+   @param data with which to update Instrument record.
+   @return Response
    */
   @PUT
   @Consumes(MediaType.APPLICATION_JSON)
@@ -89,9 +91,9 @@ public class InstrumentRecordResource {
   }
 
   /**
-   * Delete one instrument
-   *
-   * @return Response
+   Delete one instrument
+
+   @return Response
    */
   @DELETE
   @RolesAllowed({Role.ADMIN})

@@ -28,7 +28,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 
 /**
- * Link record
+ Link record
  */
 @Path("links/{id}")
 public class LinkRecordResource {
@@ -40,9 +40,9 @@ public class LinkRecordResource {
   String id;
 
   /**
-   * Get one link.
-   *
-   * @return application/json response.
+   Get one link.
+
+   @return application/json response.
    */
   @GET
   @WebResult

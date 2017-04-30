@@ -10,9 +10,11 @@ import io.outright.xj.core.model.audio_event.AudioEventWrapper;
 import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.transport.JSON;
 
+import org.jooq.types.ULong;
+
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.jooq.types.ULong;
+
 import org.json.JSONObject;
 
 import javax.annotation.security.RolesAllowed;
@@ -30,7 +32,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 
 /**
- * AudioEvent record
+ AudioEvent record
  */
 @Path("audio-events/{id}")
 public class AudioEventRecordResource {
@@ -43,9 +45,9 @@ public class AudioEventRecordResource {
   String id;
 
   /**
-   * Get one audioEvent.
-   *
-   * @return application/json response.
+   Get one audioEvent.
+
+   @return application/json response.
    */
   @GET
   @WebResult
@@ -70,10 +72,10 @@ public class AudioEventRecordResource {
   }
 
   /**
-   * Update one audioEvent
-   *
-   * @param data with which to update AudioEvent record.
-   * @return Response
+   Update one audioEvent
+
+   @param data with which to update AudioEvent record.
+   @return Response
    */
   @PUT
   @Consumes(MediaType.APPLICATION_JSON)
@@ -90,9 +92,9 @@ public class AudioEventRecordResource {
   }
 
   /**
-   * Delete one audioEvent
-   *
-   * @return Response
+   Delete one audioEvent
+
+   @return Response
    */
   @DELETE
   @RolesAllowed({Role.ARTIST})

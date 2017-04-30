@@ -30,7 +30,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 
 /**
- * Links
+ Links
  */
 @Path("links")
 public class LinkIndexResource {
@@ -43,9 +43,9 @@ public class LinkIndexResource {
   String chainId;
 
   /**
-   * Get all links.
-   *
-   * @return application/json response.
+   Get all links.
+
+   @return application/json response.
    */
   @GET
   @WebResult

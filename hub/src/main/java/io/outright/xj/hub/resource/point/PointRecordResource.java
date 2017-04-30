@@ -28,7 +28,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 
 /**
- * Point record
+ Point record
  */
 @Path("points/{id}")
 public class PointRecordResource {
@@ -40,9 +40,9 @@ public class PointRecordResource {
   String id;
 
   /**
-   * Get one point.
-   *
-   * @return application/json response.
+   Get one point.
+
+   @return application/json response.
    */
   @GET
   @WebResult

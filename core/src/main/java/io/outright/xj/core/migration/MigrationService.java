@@ -1,8 +1,8 @@
 // Copyright Outright Mental, Inc. All Rights Reserved.
 package io.outright.xj.core.migration;
 
-import io.outright.xj.core.db.sql.SQLDatabaseProvider;
 import io.outright.xj.core.app.exception.ConfigException;
+import io.outright.xj.core.db.sql.SQLDatabaseProvider;
 
 import org.flywaydb.core.Flyway;
 import org.slf4j.Logger;

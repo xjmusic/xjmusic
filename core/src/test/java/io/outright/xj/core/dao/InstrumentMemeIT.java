@@ -196,10 +196,10 @@ public class InstrumentMemeIT {
     ));
     testDAO.delete(access, ULong.valueOf(1));
 
-    InstrumentMemeRecord deletedRecord = IntegrationTestService.getDb()
+    InstrumentMemeRecord result = IntegrationTestService.getDb()
       .selectFrom(INSTRUMENT_MEME)
       .where(INSTRUMENT_MEME.ID.eq(ULong.valueOf(1)))
       .fetchOne();
-    assertNull(deletedRecord);
+    assertNull(result);
   }
 }

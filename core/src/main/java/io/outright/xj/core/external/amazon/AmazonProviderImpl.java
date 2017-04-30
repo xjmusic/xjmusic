@@ -8,17 +8,9 @@ import io.outright.xj.core.util.token.TokenGenerator;
 
 import com.google.inject.Inject;
 
-import com.amazonaws.SignableRequest;
-import com.amazonaws.auth.AWS4Signer;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.client.methods.RequestBuilder;
-import org.apache.http.protocol.HTTP;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.HttpMethod;
-import javax.ws.rs.core.Request;
-import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.SimpleTimeZone;
 
@@ -27,15 +19,6 @@ import java.util.SimpleTimeZone;
 public class AmazonProviderImpl implements AmazonProvider {
   private final TokenGenerator tokenGenerator;
   private static Logger log = LoggerFactory.getLogger(AmazonProviderImpl.class);
-
-  // configs
-  private String accessKey;
-  private String accessSecret;
-  private String httpMethod;
-  private String regionName;
-  private String serviceName;
-  private String url;
-  private URL endpointUrl;
 
   // constants
   private static final String SCHEME = "AWS4";
@@ -55,13 +38,6 @@ public class AmazonProviderImpl implements AmazonProvider {
     TokenGenerator tokenGenerator
   ) {
     this.tokenGenerator = tokenGenerator;
-    try {
-      this.url = Config.awsFileUploadUrl();
-      this.accessKey = Config.awsFileUploadKey();
-      this.accessSecret = Config.awsFileUploadSecret();
-    } catch (ConfigException e) {
-      log.error("Failed to initialize Amazon Provider: " + e.getMessage());
-    }
 
     dateTimeFormat = new SimpleDateFormat(ISO8601BasicFormat);
     dateTimeFormat.setTimeZone(new SimpleTimeZone(0, "UTC"));
@@ -82,13 +58,18 @@ public class AmazonProviderImpl implements AmazonProvider {
   }
 
   @Override
-  public String getUploadURL() {
-    return url;
+  public String getUploadURL() throws ConfigException {
+    return Config.awsFileUploadUrl();
   }
 
   @Override
-  public String getAccessKey() {
-    return this.accessKey;
+  public String getAccessKey() throws ConfigException {
+    return Config.awsFileUploadKey();
+  }
+
+  @Override
+  public String getAccessSecret() throws ConfigException {
+    return Config.awsFileUploadSecret();
   }
 
 }

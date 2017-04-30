@@ -9,9 +9,11 @@ import io.outright.xj.core.model.chain_config.ChainConfig;
 import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.transport.JSON;
 
+import org.jooq.types.ULong;
+
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.jooq.types.ULong;
+
 import org.json.JSONObject;
 
 import javax.annotation.security.RolesAllowed;
@@ -27,12 +29,12 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 
 /**
- * Chain record
+ Chain record
  */
 @Path("chain-configs/{id}")
 public class ChainConfigRecordResource {
   private static final Injector injector = Guice.createInjector(new CoreModule());
-//  private static Logger log = LoggerFactory.getLogger(ChainConfigRecordResource.class);
+  //  private static Logger log = LoggerFactory.getLogger(ChainConfigRecordResource.class);
   private final ChainConfigDAO chainConfigDAO = injector.getInstance(ChainConfigDAO.class);
   private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
 
@@ -40,9 +42,9 @@ public class ChainConfigRecordResource {
   String id;
 
   /**
-   * Get one ChainConfig by id
-   *
-   * @return application/json response.
+   Get one ChainConfig by id
+
+   @return application/json response.
    */
   @GET
   @WebResult
@@ -66,9 +68,9 @@ public class ChainConfigRecordResource {
   }
 
   /**
-   * Delete one ChainConfig
-   *
-   * @return application/json response.
+   Delete one ChainConfig
+
+   @return application/json response.
    */
   // TODO [hub] Return 404 if the chain config is not found.
   @DELETE

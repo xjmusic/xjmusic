@@ -18,7 +18,7 @@ import static io.outright.xj.core.Tables.AUDIO_EVENT;
 public class AudioEvent extends Entity {
 
   /**
-   * Duration
+   Duration
    */
   private Double duration;
 
@@ -32,7 +32,7 @@ public class AudioEvent extends Entity {
   }
 
   /**
-   * Inflection
+   Inflection
    */
   private String inflection;
 
@@ -46,7 +46,7 @@ public class AudioEvent extends Entity {
   }
 
   /**
-   * Note
+   Note
    */
   private String note;
 
@@ -60,7 +60,7 @@ public class AudioEvent extends Entity {
   }
 
   /**
-   * Position
+   Position
    */
   private Double position;
 
@@ -74,7 +74,7 @@ public class AudioEvent extends Entity {
   }
 
   /**
-   * Tonality
+   Tonality
    */
   private Double tonality;
 
@@ -88,7 +88,7 @@ public class AudioEvent extends Entity {
   }
 
   /**
-   * Velocity
+   Velocity
    */
   private Double velocity;
 
@@ -102,7 +102,7 @@ public class AudioEvent extends Entity {
   }
 
   /**
-   * Audio
+   Audio
    */
   private ULong audioId;
 
@@ -116,9 +116,9 @@ public class AudioEvent extends Entity {
   }
 
   /**
-   * Validate data.
-   *
-   * @throws BusinessException if invalid.
+   Validate data.
+
+   @throws BusinessException if invalid.
    */
   public void validate() throws BusinessException {
     if (this.duration == null) {
@@ -145,9 +145,9 @@ public class AudioEvent extends Entity {
   }
 
   /**
-   * Model info jOOQ-field : Value map
-   *
-   * @return map
+   Model info jOOQ-field : Value map
+
+   @return map
    */
   public Map<Field, Object> intoFieldValueMap() {
     Map<Field, Object> fieldValues = Maps.newHashMap();
@@ -162,7 +162,7 @@ public class AudioEvent extends Entity {
   }
 
   /**
-   * For use in maps.
+   For use in maps.
    */
   public static final String KEY_ONE = "audioEvent";
   public static final String KEY_MANY = "audioEvents";

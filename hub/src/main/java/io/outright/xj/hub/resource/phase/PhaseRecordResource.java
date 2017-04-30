@@ -10,9 +10,11 @@ import io.outright.xj.core.model.phase.PhaseWrapper;
 import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.transport.JSON;
 
+import org.jooq.types.ULong;
+
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.jooq.types.ULong;
+
 import org.json.JSONObject;
 
 import javax.annotation.security.RolesAllowed;
@@ -30,7 +32,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 
 /**
- * Phase record
+ Phase record
  */
 @Path("phases/{id}")
 public class PhaseRecordResource {
@@ -43,9 +45,9 @@ public class PhaseRecordResource {
   String id;
 
   /**
-   * Get one phase.
-   *
-   * @return application/json response.
+   Get one phase.
+
+   @return application/json response.
    */
   @GET
   @WebResult
@@ -69,10 +71,10 @@ public class PhaseRecordResource {
   }
 
   /**
-   * Update one phase
-   *
-   * @param data with which to update Phase record.
-   * @return Response
+   Update one phase
+
+   @param data with which to update Phase record.
+   @return Response
    */
   @PUT
   @Consumes(MediaType.APPLICATION_JSON)
@@ -89,9 +91,9 @@ public class PhaseRecordResource {
   }
 
   /**
-   * Delete one phase
-   *
-   * @return Response
+   Delete one phase
+
+   @return Response
    */
   @DELETE
   @RolesAllowed({Role.ARTIST})

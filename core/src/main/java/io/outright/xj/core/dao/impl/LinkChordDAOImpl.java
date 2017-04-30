@@ -92,13 +92,13 @@ public class LinkChordDAOImpl extends DAOImpl implements LinkChordDAO {
   }
 
   /**
-   * Create a new Link Chord
-   *
-   * @param db     context
-   * @param access control
-   * @param data   for new link
-   * @return newly created record
-   * @throws BusinessException if failure
+   Create a new Link Chord
+
+   @param db     context
+   @param access control
+   @param data   for new link
+   @return newly created record
+   @throws BusinessException if failure
    */
   private JSONObject create(DSLContext db, AccessControl access, LinkChordWrapper data) throws BusinessException {
     LinkChord model = data.validate();
@@ -114,12 +114,12 @@ public class LinkChordDAOImpl extends DAOImpl implements LinkChordDAO {
   }
 
   /**
-   * Read one Chord if able
-   *
-   * @param db     context
-   * @param access control
-   * @param id     of link
-   * @return link
+   Read one Chord if able
+
+   @param db     context
+   @param access control
+   @param id     of link
+   @return link
    */
   private JSONObject readOne(DSLContext db, AccessControl access, ULong id) {
     if (access.isTopLevel()) {
@@ -138,13 +138,13 @@ public class LinkChordDAOImpl extends DAOImpl implements LinkChordDAO {
   }
 
   /**
-   * Read all Chord able for an Chain
-   *
-   * @param db     context
-   * @param access control
-   * @param linkId to read all link of
-   * @return array of links
-   * @throws SQLException on failure
+   Read all Chord able for an Chain
+
+   @param db     context
+   @param access control
+   @param linkId to read all link of
+   @return array of links
+   @throws SQLException on failure
    */
   private JSONArray readAllIn(DSLContext db, AccessControl access, ULong linkId) throws SQLException {
     if (access.isTopLevel()) {
@@ -166,13 +166,13 @@ public class LinkChordDAOImpl extends DAOImpl implements LinkChordDAO {
   }
 
   /**
-   * Update a Chord record
-   *
-   * @param db     context
-   * @param access control
-   * @param id     to update
-   * @param data   to update with
-   * @throws BusinessException if failure
+   Update a Chord record
+
+   @param db     context
+   @param access control
+   @param id     to update
+   @param data   to update with
+   @throws BusinessException if failure
    */
   private void update(DSLContext db, AccessControl access, ULong id, LinkChordWrapper data) throws BusinessException {
     LinkChord model = data.validate();
@@ -183,9 +183,9 @@ public class LinkChordDAOImpl extends DAOImpl implements LinkChordDAO {
 
     requireRecordExists("existing LinkChord with immutable Link membership",
       db.select(LINK_CHORD.ID).from(LINK_CHORD)
-      .where(LINK_CHORD.ID.eq(id))
+        .where(LINK_CHORD.ID.eq(id))
         .and(LINK_CHORD.LINK_ID.eq(model.getLinkId()))
-      .fetchOne());
+        .fetchOne());
 
     if (executeUpdate(db, LINK_CHORD, fieldValues) == 0) {
       throw new BusinessException("No records updated.");
@@ -193,13 +193,13 @@ public class LinkChordDAOImpl extends DAOImpl implements LinkChordDAO {
   }
 
   /**
-   * Delete an Chord
-   *
-   * @param db context
-   * @param id to delete
-   * @throws Exception         if database failure
-   * @throws ConfigException   if not configured properly
-   * @throws BusinessException if fails business rule
+   Delete an Chord
+
+   @param db context
+   @param id to delete
+   @throws Exception         if database failure
+   @throws ConfigException   if not configured properly
+   @throws BusinessException if fails business rule
    */
   private void delete(AccessControl access, DSLContext db, ULong id) throws Exception {
     requireTopLevel(access);

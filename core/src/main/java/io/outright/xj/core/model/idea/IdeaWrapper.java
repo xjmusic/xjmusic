@@ -8,19 +8,22 @@ public class IdeaWrapper extends EntityWrapper {
 
   // Idea
   private Idea idea;
+
   public Idea getIdea() {
     return idea;
   }
+
   public IdeaWrapper setIdea(Idea idea) {
     this.idea = idea;
     return this;
   }
 
   /**
-   * Validate data.
-   * @throws BusinessException if invalid.
+   Validate data.
+
+   @throws BusinessException if invalid.
    */
-  public Idea validate() throws BusinessException{
+  public Idea validate() throws BusinessException {
     if (this.idea == null) {
       throw new BusinessException("Idea is required.");
     }

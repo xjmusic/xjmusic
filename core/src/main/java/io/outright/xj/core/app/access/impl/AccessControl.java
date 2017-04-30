@@ -72,10 +72,10 @@ public class AccessControl {
   }
 
   /**
-   * Determine if user access roles match any of the given resource access roles.
-   *
-   * @param matchRoles of the resource to match.
-   * @return whether user access roles match resource access roles.
+   Determine if user access roles match any of the given resource access roles.
+
+   @param matchRoles of the resource to match.
+   @return whether user access roles match resource access roles.
    */
   public boolean matchAnyOf(String... matchRoles) {
     // inefficient?
@@ -91,28 +91,28 @@ public class AccessControl {
   }
 
   /**
-   * Get user ID of this access control
-   *
-   * @return id
+   Get user ID of this access control
+
+   @return id
    */
   public ULong getUserId() {
     return ULong.valueOf(innerMap.get(USER_ID_KEY));
   }
 
   /**
-   * Create an access control object from request context
-   *
-   * @param crc container request context
-   * @return access control
+   Create an access control object from request context
+
+   @param crc container request context
+   @return access control
    */
   public static AccessControl fromContext(ContainerRequestContext crc) {
     return (AccessControl) crc.getProperty(AccessControl.CONTEXT_KEY);
   }
 
   /**
-   * Create an access control object for an internal worker with top-level access
-   *
-   * @return access control
+   Create an access control object for an internal worker with top-level access
+
+   @return access control
    */
   public static AccessControl forInternalWorker() {
     return new AccessControl(ImmutableMap.of(
@@ -121,9 +121,9 @@ public class AccessControl {
   }
 
   /**
-   * Get a representation of this access control
-   *
-   * @return JSON
+   Get a representation of this access control
+
+   @return JSON
    */
   public String toJSON() {
     try {
@@ -135,32 +135,32 @@ public class AccessControl {
   }
 
   /**
-   * Get Accounts
-   *
-   * @return array of account id
+   Get Accounts
+
+   @return array of account id
    */
   public ULong[] getAccounts() {
     return accountIds;
   }
 
   /**
-   * Is Top Level?
-   *
-   * @return boolean
+   Is Top Level?
+
+   @return boolean
    */
   public Boolean isTopLevel() {
     return isTopLevel;
   }
 
   /**
-   * Inner map
+   Inner map
    */
   public Map<String, String> intoMap() {
     return innerMap;
   }
 
   /**
-   * Validation
+   Validation
    */
   public boolean valid() {
     return
@@ -172,9 +172,10 @@ public class AccessControl {
   }
 
   /**
-   * Has access to account id?
-   * @param accountId to check
-   * @return true if has access
+   Has access to account id?
+
+   @param accountId to check
+   @return true if has access
    */
   public Boolean hasAccount(ULong accountId) {
     if (accountId != null) {
@@ -188,7 +189,7 @@ public class AccessControl {
   }
 
   /**
-   * Convert a collection of account role records into an array of account ids
+   Convert a collection of account role records into an array of account ids
    */
   private ULong[] accountIdsFromRoleRecords(Collection<AccountUserRecord> userAccountRoleRecords) {
     ULong[] result = new ULong[userAccountRoleRecords.size()];
@@ -201,7 +202,7 @@ public class AccessControl {
   }
 
   /**
-   * Convert an array of account ids into a CSV
+   Convert an array of account ids into a CSV
    */
   private String csvFromAccountIds(ULong[] accountIds) {
     if (accountIds.length == 0) {
@@ -217,7 +218,7 @@ public class AccessControl {
   }
 
   /**
-   * Get a list of roles for this access control
+   Get a list of roles for this access control
    */
   private List<String> getRoles() {
     String roles = innerMap.get(ROLES_KEY);
@@ -229,7 +230,7 @@ public class AccessControl {
   }
 
   /**
-   * Get an array of account ids from a CSV string
+   Get an array of account ids from a CSV string
    */
   private ULong[] accountIdsFromCSV(String csv) {
     if (csv == null || csv.length() == 0) {

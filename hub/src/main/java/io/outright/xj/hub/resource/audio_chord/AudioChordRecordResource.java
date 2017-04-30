@@ -10,9 +10,11 @@ import io.outright.xj.core.model.audio_chord.AudioChordWrapper;
 import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.transport.JSON;
 
+import org.jooq.types.ULong;
+
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.jooq.types.ULong;
+
 import org.json.JSONObject;
 
 import javax.annotation.security.RolesAllowed;
@@ -30,7 +32,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 
 /**
- * AudioChord record
+ AudioChord record
  */
 @Path("audio-chords/{id}")
 public class AudioChordRecordResource {
@@ -43,9 +45,9 @@ public class AudioChordRecordResource {
   String id;
 
   /**
-   * Get one audioChord.
-   *
-   * @return application/json response.
+   Get one audioChord.
+
+   @return application/json response.
    */
   @GET
   @WebResult
@@ -70,10 +72,10 @@ public class AudioChordRecordResource {
   }
 
   /**
-   * Update one audioChord
-   *
-   * @param data with which to update AudioChord record.
-   * @return Response
+   Update one audioChord
+
+   @param data with which to update AudioChord record.
+   @return Response
    */
   @PUT
   @Consumes(MediaType.APPLICATION_JSON)
@@ -90,9 +92,9 @@ public class AudioChordRecordResource {
   }
 
   /**
-   * Delete one audioChord
-   *
-   * @return Response
+   Delete one audioChord
+
+   @return Response
    */
   @DELETE
   @RolesAllowed({Role.ARTIST})

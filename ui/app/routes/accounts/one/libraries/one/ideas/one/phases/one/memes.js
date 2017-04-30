@@ -3,8 +3,13 @@ import Ember from 'ember';
 
 export default Ember.Route.extend({
 
+  // Inject: flash message service
   display: Ember.inject.service(),
 
+  /**
+   * Route Model
+   * @returns {*}
+   */
   model() {
     let phase = this.modelFor('accounts.one.libraries.one.ideas.one.phases.one');
     return Ember.RSVP.hash({
@@ -14,6 +19,22 @@ export default Ember.Route.extend({
     });
   },
 
+  /**
+   * Headline
+   */
+  afterModel(model) {
+    Ember.set(this, 'routeHeadline', {
+      title: model.phase.getTitle() + ' ' + 'Memes',
+      entity: {
+        name: 'Phase',
+        id: model.phase.get('id')
+      }
+    });
+  },
+
+  /**
+   * Route Actions
+   */
   actions: {
 
     sessionChanged: function () {
@@ -44,8 +65,6 @@ export default Ember.Route.extend({
           Ember.get(this, 'display').error(error);
         });
     },
-
   }
-
 
 });

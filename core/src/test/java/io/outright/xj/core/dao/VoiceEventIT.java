@@ -46,7 +46,7 @@ public class VoiceEventIT {
 
     // John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
     IntegrationTestEntity.insertUser(2, "john", "john@email.com", "http://pictures.com/john.gif");
-    IntegrationTestEntity.insertUserRole(1,2, Role.ADMIN);
+    IntegrationTestEntity.insertUserRole(1, 2, Role.ADMIN);
 
     // Library "palm tree" has idea "leaves" and idea "coconuts"
     IntegrationTestEntity.insertLibrary(1, 1, "palm tree");
@@ -323,11 +323,11 @@ public class VoiceEventIT {
 
     testDAO.delete(access, ULong.valueOf(1));
 
-    VoiceEventRecord deletedRecord = IntegrationTestService.getDb()
+    VoiceEventRecord result = IntegrationTestService.getDb()
       .selectFrom(VOICE_EVENT)
       .where(VOICE_EVENT.ID.eq(ULong.valueOf(1)))
       .fetchOne();
-    assertNull(deletedRecord);
+    assertNull(result);
   }
 
   @Test(expected = BusinessException.class)

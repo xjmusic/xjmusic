@@ -18,7 +18,7 @@ import static io.outright.xj.core.Tables.POINT;
 public class Point extends Entity {
 
   /**
-   * Morph
+   Morph
    */
   private ULong morphId;
 
@@ -32,7 +32,7 @@ public class Point extends Entity {
   }
 
   /**
-   * VoiceEvent
+   VoiceEvent
    */
   private ULong voiceEventId;
 
@@ -46,7 +46,7 @@ public class Point extends Entity {
   }
 
   /**
-   * Position (beats)
+   Position (beats)
    */
   private Double position;
 
@@ -60,7 +60,7 @@ public class Point extends Entity {
   }
 
   /**
-   * Duration (beats)
+   Duration (beats)
    */
   private Double duration;
 
@@ -74,7 +74,7 @@ public class Point extends Entity {
   }
 
   /**
-   * Note
+   Note
    */
   private String note;
 
@@ -88,9 +88,9 @@ public class Point extends Entity {
   }
 
   /**
-   * Validate data.
-   *
-   * @throws BusinessException if invalid.
+   Validate data.
+
+   @throws BusinessException if invalid.
    */
   @Override
   public void validate() throws BusinessException {
@@ -112,9 +112,9 @@ public class Point extends Entity {
   }
 
   /**
-   * Model info jOOQ-field : Value map
-   *
-   * @return map
+   Model info jOOQ-field : Value map
+
+   @return map
    */
   @Override
   public Map<Field, Object> intoFieldValueMap() {
@@ -129,7 +129,7 @@ public class Point extends Entity {
   }
 
   /**
-   * For use in maps.
+   For use in maps.
    */
   public static final String KEY_ONE = "point";
   public static final String KEY_MANY = "points";

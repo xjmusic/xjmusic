@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 
 /**
- * Main class.
+ Main class.
  */
 public class Main {
   private final static Logger log = LoggerFactory.getLogger(Main.class);
@@ -32,10 +32,10 @@ public class Main {
 
 
   /**
-   * Main method.
-   *
-   * @param args arguments
-   * @throws IOException if execution fails
+   Main method.
+
+   @param args arguments
+   @throws IOException if execution fails
    */
   public static void main(String[] args) throws IOException, ConfigException {
     // Default port

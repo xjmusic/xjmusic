@@ -14,7 +14,7 @@ import org.json.JSONObject;
 import java.net.URI;
 
 /**
- * ALL APPLICATION CONSTANTS MUST IMPLEMENT THIS CENTRAL CLASS.
+ ALL APPLICATION CONSTANTS MUST IMPLEMENT THIS CENTRAL CLASS.
  */
 public abstract class Exposure {
 
@@ -50,35 +50,39 @@ public abstract class Exposure {
   private static final String KEY_VOICE_TYPES = "voiceTypes";
 
   /**
-   * Get URL String for an audio file, by key
-   * @param key of audio to retrieve a URL for (empty for base URL)
-   * @return String
+   Get URL String for an audio file, by key
+
+   @param key of audio to retrieve a URL for (empty for base URL)
+   @return String
    */
   public static String audioUrl(String key) {
     return Config.audioBaseUrl() + key;
   }
 
   /**
-   * Get URL String for a path within the API
-   * @param path within API
-   * @return String
+   Get URL String for a path within the API
+
+   @param path within API
+   @return String
    */
   public static String apiUrlString(String path) {
     return Config.appBaseUrl() + Config.apiPath() + path;
   }
 
   /**
-   * Get URI object for a path within the API
-   * @param path within API
-   * @return String
+   Get URI object for a path within the API
+
+   @param path within API
+   @return String
    */
   public static URI apiURI(String path) {
     return URI.create(apiUrlString(path));
   }
 
   /**
-   * Get platform configuration
-   * @return JSON object
+   Get platform configuration
+
+   @return JSON object
    */
   public static JSONObject configJSON() {
     JSONObject config = new JSONObject();

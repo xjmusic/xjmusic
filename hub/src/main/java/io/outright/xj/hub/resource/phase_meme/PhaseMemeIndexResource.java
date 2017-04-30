@@ -12,9 +12,11 @@ import io.outright.xj.core.model.phase_meme.PhaseMemeWrapper;
 import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.transport.JSON;
 
+import org.jooq.types.ULong;
+
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.jooq.types.ULong;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -32,7 +34,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 
 /**
- * Phase record
+ Phase record
  */
 @Path("phase-memes")
 public class PhaseMemeIndexResource {
@@ -45,9 +47,9 @@ public class PhaseMemeIndexResource {
   String phaseId;
 
   /**
-   * Get Memes in one phase.
-   *
-   * @return application/json response.
+   Get Memes in one phase.
+
+   @return application/json response.
    */
   @GET
   @WebResult
@@ -76,10 +78,10 @@ public class PhaseMemeIndexResource {
   }
 
   /**
-   * Create new phase meme
-   *
-   * @param data with which to update Phase record.
-   * @return Response
+   Create new phase meme
+
+   @param data with which to update Phase record.
+   @return Response
    */
   @POST
   @Consumes(MediaType.APPLICATION_JSON)

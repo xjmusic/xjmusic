@@ -20,7 +20,7 @@
           <th width="1%">Key</th>
           <th width="1%">Density</th>
           <th width="1%">Tempo</th>
-          <th></th>
+          <th><!-- Actions --></th>
           <th width="1%">#</th>
         </tr>
         </thead>
@@ -36,10 +36,13 @@
             <td>
               {{#link-to 'accounts.one.libraries.one.ideas.one.phases.one.edit' phase}}Edit{{/link-to}}
               |&nbsp;{{#link-to 'accounts.one.libraries.one.ideas.one.phases.one.memes' phase}}Memes{{/link-to}}
-              |&nbsp;{{#link-to 'accounts.one.libraries.one.ideas.one.phases.one.chords' phase}}Chords{{/link-to}}
-              |&nbsp;{{#link-to 'accounts.one.libraries.one.ideas.one.phases.one.voices' phase}}Voices{{/link-to}}
+              {{#if (not-eq model.idea.type "macro")}}
+                |&nbsp;{{#link-to 'accounts.one.libraries.one.ideas.one.phases.one.chords' phase}}Chords{{/link-to}}
+                |&nbsp;{{#link-to 'accounts.one.libraries.one.ideas.one.phases.one.voices' phase}}Voices{{/link-to}}
+              {{/if}}
             </td>
-            <th scope="row">{{#link-to "accounts.one.libraries.one.ideas.one.phases.one" phase}}{{phase.id}}{{/link-to}}</th>
+            <th scope="row">{{#link-to "accounts.one.libraries.one.ideas.one.phases.one"
+                                       phase}}{{phase.id}}{{/link-to}}</th>
           </tr>
         {{/each}}
         </tbody>

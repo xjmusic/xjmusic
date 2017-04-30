@@ -8,20 +8,23 @@ public class VoiceWrapper extends EntityWrapper {
 
   // Voice
   private Voice voice;
+
   public Voice getVoice() {
     return voice;
   }
+
   public VoiceWrapper setVoice(Voice voice) {
     this.voice = voice;
     return this;
   }
 
   /**
-   * Validate data.
-   * @throws BusinessException if invalid.
+   Validate data.
+
+   @throws BusinessException if invalid.
    */
   @Override
-  public Voice validate() throws BusinessException{
+  public Voice validate() throws BusinessException {
     if (this.voice == null) {
       throw new BusinessException("Voice is required.");
     }

@@ -79,14 +79,14 @@ public class ChainInstrumentDAOImpl extends DAOImpl implements ChainInstrumentDA
   }
 
   /**
-   * Create a new Chain Instrument record
-   *
-   * @param db   context
-   * @param data for new ChainInstrument
-   * @return new record
-   * @throws Exception         if database failure
-   * @throws ConfigException   if not configured properly
-   * @throws BusinessException if fails business rule
+   Create a new Chain Instrument record
+
+   @param db   context
+   @param data for new ChainInstrument
+   @return new record
+   @throws Exception         if database failure
+   @throws ConfigException   if not configured properly
+   @throws BusinessException if fails business rule
    */
   private JSONObject create(DSLContext db, AccessControl access, ChainInstrumentWrapper data) throws Exception {
     ChainInstrument model = data.validate();
@@ -122,12 +122,12 @@ public class ChainInstrumentDAOImpl extends DAOImpl implements ChainInstrumentDA
   }
 
   /**
-   * Read one record
-   *
-   * @param db     context
-   * @param access control
-   * @param id     of record
-   * @return record
+   Read one record
+
+   @param db     context
+   @param access control
+   @param id     of record
+   @return record
    */
   private JSONObject readOne(DSLContext db, AccessControl access, ULong id) {
     if (access.isTopLevel()) {
@@ -145,13 +145,13 @@ public class ChainInstrumentDAOImpl extends DAOImpl implements ChainInstrumentDA
   }
 
   /**
-   * Read all records in parent record
-   *
-   * @param db      context
-   * @param access  control
-   * @param chainId of parent
-   * @return array of child records
-   * @throws SQLException on failure
+   Read all records in parent record
+
+   @param db      context
+   @param access  control
+   @param chainId of parent
+   @return array of child records
+   @throws SQLException on failure
    */
   private JSONArray readAllIn(DSLContext db, AccessControl access, ULong chainId) throws SQLException {
     if (access.isTopLevel()) {
@@ -169,12 +169,12 @@ public class ChainInstrumentDAOImpl extends DAOImpl implements ChainInstrumentDA
   }
 
   /**
-   * Delete a record
-   *
-   * @param db     context
-   * @param access control
-   * @param id     of record
-   * @throws BusinessException on failure
+   Delete a record
+
+   @param db     context
+   @param access control
+   @param id     of record
+   @throws BusinessException on failure
    */
   private void delete(DSLContext db, AccessControl access, ULong id) throws BusinessException {
     // TODO: fail if no chainInstrument is deleted

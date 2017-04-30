@@ -89,14 +89,14 @@ public class ChainConfigDAOImpl extends DAOImpl implements ChainConfigDAO {
   }
 
   /**
-   * Create a new Chain config record
-   *
-   * @param db   context
-   * @param data for new ChainConfig
-   * @return new record
-   * @throws Exception         if database failure
-   * @throws ConfigException   if not configured properly
-   * @throws BusinessException if fails business rule
+   Create a new Chain config record
+
+   @param db   context
+   @param data for new ChainConfig
+   @return new record
+   @throws Exception         if database failure
+   @throws ConfigException   if not configured properly
+   @throws BusinessException if fails business rule
    */
   private JSONObject create(DSLContext db, AccessControl access, ChainConfigWrapper data) throws Exception {
     ChainConfig model = data.validate();
@@ -124,12 +124,12 @@ public class ChainConfigDAOImpl extends DAOImpl implements ChainConfigDAO {
   }
 
   /**
-   * Read one record
-   *
-   * @param db     context
-   * @param access control
-   * @param id     of record
-   * @return record
+   Read one record
+
+   @param db     context
+   @param access control
+   @param id     of record
+   @return record
    */
   private JSONObject readOne(DSLContext db, AccessControl access, ULong id) {
     if (access.isTopLevel()) {
@@ -146,13 +146,13 @@ public class ChainConfigDAOImpl extends DAOImpl implements ChainConfigDAO {
   }
 
   /**
-   * Read all records in parent record
-   *
-   * @param db      context
-   * @param access  control
-   * @param chainId of parent
-   * @return array of child records
-   * @throws SQLException on failure
+   Read all records in parent record
+
+   @param db      context
+   @param access  control
+   @param chainId of parent
+   @return array of child records
+   @throws SQLException on failure
    */
   private JSONArray readAllIn(DSLContext db, AccessControl access, ULong chainId) throws SQLException {
     if (access.isTopLevel()) {
@@ -170,13 +170,13 @@ public class ChainConfigDAOImpl extends DAOImpl implements ChainConfigDAO {
 
 
   /**
-   * Update a record
-   *
-   * @param db     context
-   * @param access control
-   * @param id     of record
-   * @param data   to update with
-   * @throws BusinessException if a Business Rule is violated
+   Update a record
+
+   @param db     context
+   @param access control
+   @param id     of record
+   @param data   to update with
+   @throws BusinessException if a Business Rule is violated
    */
   private void update(DSLContext db, AccessControl access, ULong id, ChainConfigWrapper data) throws BusinessException, DatabaseException {
     ChainConfig model = data.validate();
@@ -209,12 +209,12 @@ public class ChainConfigDAOImpl extends DAOImpl implements ChainConfigDAO {
   }
 
   /**
-   * Delete a record
-   *
-   * @param db     context
-   * @param access control
-   * @param id     of record
-   * @throws BusinessException on failure
+   Delete a record
+
+   @param db     context
+   @param access control
+   @param id     of record
+   @throws BusinessException on failure
    */
   private void delete(DSLContext db, AccessControl access, ULong id) throws BusinessException {
     // TODO: fail if no chainConfig is deleted

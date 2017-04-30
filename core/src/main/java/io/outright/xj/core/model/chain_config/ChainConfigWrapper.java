@@ -19,9 +19,9 @@ public class ChainConfigWrapper extends EntityWrapper {
   }
 
   /**
-   * Validate data.
-   *
-   * @throws BusinessException if invalid.
+   Validate data.
+
+   @throws BusinessException if invalid.
    */
   public ChainConfig validate() throws BusinessException {
     if (this.chainConfig == null) {

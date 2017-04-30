@@ -34,7 +34,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 
 /**
- * Ideas
+ Ideas
  */
 @Path("ideas")
 public class IdeaIndexResource {
@@ -50,9 +50,9 @@ public class IdeaIndexResource {
   String libraryId;
 
   /**
-   * Get all ideas.
-   *
-   * @return application/json response.
+   Get all ideas.
+
+   @return application/json response.
    */
   @GET
   @WebResult
@@ -103,10 +103,10 @@ public class IdeaIndexResource {
   }
 
   /**
-   * Create new idea
-   *
-   * @param data with which to update Idea record.
-   * @return Response
+   Create new idea
+
+   @param data with which to update Idea record.
+   @return Response
    */
   @POST
   @Consumes(MediaType.APPLICATION_JSON)

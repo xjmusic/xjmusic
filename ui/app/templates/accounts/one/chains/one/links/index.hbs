@@ -28,7 +28,7 @@
         <tbody>
         {{#each model.links as |link|}}
           <tr class="item">
-            <td>{{link.offset}}</td>
+            <td>{{#link-to "accounts.one.chains.one.links.one" link}}{{link.offset}}{{/link-to}}</td>
             <td>{{link.state}}</td>
             <td>{{link.beginAt}}</td>
             <td>{{link.endAt}}</td>
@@ -36,7 +36,7 @@
             <td>{{link.density}}</td>
             <td>{{link.key}}</td>
             <td>{{link.tempo}}</td>
-            <th scope="row">{{#link-to "accounts.one.chains.one.links.one" link}}{{link.id}}{{/link-to}}</th>
+            <th scope="row">{{link.id}}</th>
           </tr>
         {{/each}}
         </tbody>

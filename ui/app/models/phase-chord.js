@@ -5,4 +5,9 @@ export default DS.Model.extend({
   phase: DS.belongsTo({}),
   name: DS.attr('string'),
   position: DS.attr('number'),
+
+  getTitle() {
+    return this.get("name") + '@' + this.get("position");
+  }
+
 });

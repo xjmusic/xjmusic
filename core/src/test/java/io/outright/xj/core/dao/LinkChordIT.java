@@ -246,7 +246,7 @@ public class LinkChordIT {
   public void update() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
       "roles", "admin"
-      ));
+    ));
     LinkChordWrapper inputDataWrapper = new LinkChordWrapper()
       .setLinkChord(new LinkChord()
         .setLinkId(BigInteger.valueOf(1))
@@ -292,11 +292,11 @@ public class LinkChordIT {
 
     testDAO.delete(access, ULong.valueOf(1));
 
-    LinkChordRecord deletedRecord = IntegrationTestService.getDb()
+    LinkChordRecord result = IntegrationTestService.getDb()
       .selectFrom(LINK_CHORD)
       .where(LINK_CHORD.ID.eq(ULong.valueOf(1)))
       .fetchOne();
-    assertNull(deletedRecord);
+    assertNull(result);
   }
 
   @Test(expected = BusinessException.class)

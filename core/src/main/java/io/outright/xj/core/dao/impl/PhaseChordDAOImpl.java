@@ -95,13 +95,13 @@ public class PhaseChordDAOImpl extends DAOImpl implements PhaseChordDAO {
   }
 
   /**
-   * Create a new Phase Chord
-   *
-   * @param db     context
-   * @param access control
-   * @param data   for new phase
-   * @return newly created record
-   * @throws BusinessException if failure
+   Create a new Phase Chord
+
+   @param db     context
+   @param access control
+   @param data   for new phase
+   @return newly created record
+   @throws BusinessException if failure
    */
   private JSONObject create(DSLContext db, AccessControl access, PhaseChordWrapper data) throws BusinessException {
     PhaseChord model = data.validate();
@@ -124,12 +124,12 @@ public class PhaseChordDAOImpl extends DAOImpl implements PhaseChordDAO {
   }
 
   /**
-   * Read one Chord if able
-   *
-   * @param db     context
-   * @param access control
-   * @param id     of phase
-   * @return phase
+   Read one Chord if able
+
+   @param db     context
+   @param access control
+   @param id     of phase
+   @return phase
    */
   private JSONObject readOne(DSLContext db, AccessControl access, ULong id) {
     if (access.isTopLevel()) {
@@ -149,13 +149,13 @@ public class PhaseChordDAOImpl extends DAOImpl implements PhaseChordDAO {
   }
 
   /**
-   * Read all Chord able for an Idea
-   *
-   * @param db      context
-   * @param access  control
-   * @param phaseId to read all phase of
-   * @return array of phases
-   * @throws SQLException on failure
+   Read all Chord able for an Idea
+
+   @param db      context
+   @param access  control
+   @param phaseId to read all phase of
+   @return array of phases
+   @throws SQLException on failure
    */
   private JSONArray readAllIn(DSLContext db, AccessControl access, ULong phaseId) throws SQLException {
     if (access.isTopLevel()) {
@@ -178,13 +178,13 @@ public class PhaseChordDAOImpl extends DAOImpl implements PhaseChordDAO {
   }
 
   /**
-   * Update a Chord record
-   *
-   * @param db     context
-   * @param access control
-   * @param id     to update
-   * @param data   to update with
-   * @throws BusinessException if failure
+   Update a Chord record
+
+   @param db     context
+   @param access control
+   @param id     to update
+   @param data   to update with
+   @throws BusinessException if failure
    */
   private void update(DSLContext db, AccessControl access, ULong id, PhaseChordWrapper data) throws BusinessException {
     PhaseChord model = data.validate();
@@ -210,13 +210,13 @@ public class PhaseChordDAOImpl extends DAOImpl implements PhaseChordDAO {
   }
 
   /**
-   * Delete an Chord
-   *
-   * @param db context
-   * @param id to delete
-   * @throws Exception         if database failure
-   * @throws ConfigException   if not configured properly
-   * @throws BusinessException if fails business rule
+   Delete an Chord
+
+   @param db context
+   @param id to delete
+   @throws Exception         if database failure
+   @throws ConfigException   if not configured properly
+   @throws BusinessException if fails business rule
    */
   private void delete(AccessControl access, DSLContext db, ULong id) throws Exception {
     if (!access.isTopLevel()) {

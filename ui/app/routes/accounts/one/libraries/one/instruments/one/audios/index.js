@@ -12,6 +12,10 @@ export default Ember.Route.extend({
   // Inject: flash message service
   display: Ember.inject.service(),
 
+  /**
+   * Route Model
+   * @returns {Ember.RSVP.Promise}
+   */
   model: function () {
     let self = this;
     let auth = this.get('auth');
@@ -40,15 +44,29 @@ export default Ember.Route.extend({
     } else {
       this.transitionTo('accounts.one.libraries.one.instruments.one.audios');
     }
-
-
   },
 
+  /**
+   * Headline
+   */
+  afterModel(model) {
+    Ember.set(this, 'routeHeadline', {
+      title: model.instrument.get('description') + ' ' + 'Audios',
+      entity: {
+        name: 'Instrument',
+        id: model.instrument.get('id')
+      }
+    });
+  },
+
+  /**
+   * Route Actions
+   */
   actions: {
 
     editAudio(audio) {
       this.transitionTo('accounts.one.libraries.one.instruments.one.audios.one', audio);
     },
-
   }
+
 });

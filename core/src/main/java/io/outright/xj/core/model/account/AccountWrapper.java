@@ -19,9 +19,9 @@ public class AccountWrapper extends EntityWrapper {
   }
 
   /**
-   * Validate data.
-   *
-   * @throws BusinessException if invalid.
+   Validate data.
+
+   @throws BusinessException if invalid.
    */
   public Account validate() throws BusinessException {
     if (this.account == null) {

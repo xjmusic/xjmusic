@@ -30,7 +30,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 
 /**
- * Choices
+ Choices
  */
 @Path("choices")
 public class ChoiceIndexResource {
@@ -43,9 +43,9 @@ public class ChoiceIndexResource {
   String linkId;
 
   /**
-   * Get all choices.
-   *
-   * @return application/json response.
+   Get all choices.
+
+   @return application/json response.
    */
   @GET
   @WebResult

@@ -16,7 +16,7 @@ public class AuthGoogleResourceTest extends ResourceEndpointTest {
   @Test
   public void GetAuthGoogle() {
     Response response = target().path("auth/google").request().get(Response.class);
-    assertEquals(307,response.getStatus());
+    assertEquals(307, response.getStatus());
     MultivaluedMap<String, Object> headers = response.getHeaders();
     Object redirectLocation = headers.getFirst("Location");
     assertEquals(
@@ -27,14 +27,14 @@ public class AuthGoogleResourceTest extends ResourceEndpointTest {
         "&scope=profile%20email" +
         "&state=xj-music",
       redirectLocation
-      );
+    );
   }
 
   @Before
   public void before() throws Exception {
-    System.setProperty("auth.google.id","12345");
-    System.setProperty("auth.google.secret","i9hghj");
-    System.setProperty("app.url.base","https://xj.outright.io/");
+    System.setProperty("auth.google.id", "12345");
+    System.setProperty("auth.google.secret", "i9hghj");
+    System.setProperty("app.url.base", "https://xj.outright.io/");
     System.setProperty("app.url.api", "api/69/");
     super.before();
   }

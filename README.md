@@ -74,6 +74,8 @@ Only between major platform configuration changes (e.g. to **.nginx/locations.co
 
     docker-compose up -d --build    
 
+There is a MySQL dump of a complete example database, for quickly bootstrapping a dev environment. This file is located in the root of the project, at **example-database.sql**
+
 ## Additional commands
 
 To only setup the workflow and check dependencies:

@@ -93,8 +93,8 @@ public class AppImpl implements App {
   }
 
   /**
-   * Starts Grizzly HTTP server
-   * exposing JAX-RS resources defined in this application.
+   Starts Grizzly HTTP server
+   exposing JAX-RS resources defined in this application.
    */
   @Override
   public void start() throws IOException, ConfigException {
@@ -132,7 +132,7 @@ public class AppImpl implements App {
   }
 
   /**
-   * A Workload runs a Leader + Worker-group
+   A Workload runs a Leader + Worker-group
    */
   private class Workload {
     private String name;

@@ -94,13 +94,13 @@ public class VoiceDAOImpl extends DAOImpl implements VoiceDAO {
   }
 
   /**
-   * Create a new Voice
-   *
-   * @param db     context
-   * @param access control
-   * @param data   for new voice
-   * @return newly created record
-   * @throws BusinessException if failure
+   Create a new Voice
+
+   @param db     context
+   @param access control
+   @param data   for new voice
+   @return newly created record
+   @throws BusinessException if failure
    */
   private JSONObject create(DSLContext db, AccessControl access, VoiceWrapper data) throws BusinessException {
     Voice model = data.validate();
@@ -123,12 +123,12 @@ public class VoiceDAOImpl extends DAOImpl implements VoiceDAO {
   }
 
   /**
-   * Read one Voice if able
-   *
-   * @param db     context
-   * @param access control
-   * @param id     of voice
-   * @return voice
+   Read one Voice if able
+
+   @param db     context
+   @param access control
+   @param id     of voice
+   @return voice
    */
   private JSONObject readOne(DSLContext db, AccessControl access, ULong id) {
     if (access.isTopLevel()) {
@@ -148,13 +148,13 @@ public class VoiceDAOImpl extends DAOImpl implements VoiceDAO {
   }
 
   /**
-   * Read all Voice able for an Phase
-   *
-   * @param db      context
-   * @param access  control
-   * @param phaseId to read all voice of
-   * @return array of voices
-   * @throws SQLException on failure
+   Read all Voice able for an Phase
+
+   @param db      context
+   @param access  control
+   @param phaseId to read all voice of
+   @return array of voices
+   @throws SQLException on failure
    */
   private JSONArray readAllIn(DSLContext db, AccessControl access, ULong phaseId) throws SQLException {
     if (access.isTopLevel()) {
@@ -175,13 +175,13 @@ public class VoiceDAOImpl extends DAOImpl implements VoiceDAO {
   }
 
   /**
-   * Update a Voice record
-   *
-   * @param db     context
-   * @param access control
-   * @param id     to update
-   * @param data   to update with
-   * @throws BusinessException if failure
+   Update a Voice record
+
+   @param db     context
+   @param access control
+   @param id     to update
+   @param data   to update with
+   @throws BusinessException if failure
    */
   private void update(DSLContext db, AccessControl access, ULong id, VoiceWrapper data) throws Exception {
     Voice model = data.validate();
@@ -207,13 +207,13 @@ public class VoiceDAOImpl extends DAOImpl implements VoiceDAO {
   }
 
   /**
-   * Delete an Voice
-   *
-   * @param db context
-   * @param id to delete
-   * @throws Exception         if database failure
-   * @throws ConfigException   if not configured properly
-   * @throws BusinessException if fails business rule
+   Delete an Voice
+
+   @param db context
+   @param id to delete
+   @throws Exception         if database failure
+   @throws ConfigException   if not configured properly
+   @throws BusinessException if fails business rule
    */
   private void delete(AccessControl access, DSLContext db, ULong id) throws Exception {
     requireEmptyResultSet(db.select(VOICE_EVENT.ID)

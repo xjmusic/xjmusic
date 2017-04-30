@@ -9,9 +9,11 @@ import io.outright.xj.core.model.instrument_meme.InstrumentMeme;
 import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.transport.JSON;
 
+import org.jooq.types.ULong;
+
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.jooq.types.ULong;
+
 import org.json.JSONObject;
 
 import javax.annotation.security.RolesAllowed;
@@ -27,7 +29,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 
 /**
- * Instrument record
+ Instrument record
  */
 @Path("instrument-memes/{id}")
 public class InstrumentMemeRecordResource {
@@ -40,9 +42,9 @@ public class InstrumentMemeRecordResource {
   String id;
 
   /**
-   * Get one InstrumentMeme by instrumentId and memeId
-   *
-   * @return application/json response.
+   Get one InstrumentMeme by instrumentId and memeId
+
+   @return application/json response.
    */
   @GET
   @WebResult
@@ -67,10 +69,10 @@ public class InstrumentMemeRecordResource {
   }
 
   /**
-   * Delete one InstrumentMeme by instrumentId and memeId
-   * TODO: Return 404 if the instrument is not found.
-   *
-   * @return application/json response.
+   Delete one InstrumentMeme by instrumentId and memeId
+   TODO: Return 404 if the instrument is not found.
+
+   @return application/json response.
    */
   @DELETE
   @RolesAllowed({Role.ARTIST})

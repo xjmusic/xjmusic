@@ -9,7 +9,11 @@ import io.outright.xj.core.integration.IntegrationTestService;
 import io.outright.xj.core.model.chain.Chain;
 import io.outright.xj.core.model.chain.ChainWrapper;
 import io.outright.xj.core.model.chain_config.ChainConfig;
+import io.outright.xj.core.model.choice.Choice;
+import io.outright.xj.core.model.idea.Idea;
+import io.outright.xj.core.model.instrument.Instrument;
 import io.outright.xj.core.model.link.Link;
+import io.outright.xj.core.model.voice.Voice;
 import io.outright.xj.core.tables.records.ChainRecord;
 
 import org.jooq.Result;
@@ -23,21 +27,31 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.math.BigInteger;
 import java.sql.Timestamp;
 
-import static io.outright.xj.core.tables.Chain.CHAIN;
+import static io.outright.xj.core.Tables.CHAIN;
+import static io.outright.xj.core.Tables.LINK;
+import static io.outright.xj.core.Tables.ARRANGEMENT;
+import static io.outright.xj.core.Tables.CHOICE;
+import static io.outright.xj.core.Tables.PICK;
+import static io.outright.xj.core.Tables.POINT;
+import static io.outright.xj.core.Tables.MORPH;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 
 public class ChainIT {
   private Injector injector = Guice.createInjector(new CoreModule());
   private ChainDAO testDAO;
+
+  @Rule
+  public ExpectedException failure = ExpectedException.none();
 
   @Before
   public void setUp() throws Exception {
@@ -191,7 +205,7 @@ public class ChainIT {
     assertFalse(result.has("stopAt"));
   }
 
-  @Test(expected = BusinessException.class)
+  @Test()
   public void create_FailsWithoutAccountID() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
       "roles", "admin"
@@ -205,10 +219,13 @@ public class ChainIT {
         .setStopAt("2009-09-11 12:17:01.047563")
       );
 
+    failure.expect(BusinessException.class);
+    failure.expectMessage("Account ID is required");
+
     testDAO.create(access, inputDataWrapper);
   }
 
-  @Test(expected = BusinessException.class)
+  @Test()
   public void create_FailsWithInvalidState() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
       "roles", "admin"
@@ -222,6 +239,9 @@ public class ChainIT {
         .setStartAt("2009-08-12 12:17:02.527142")
         .setStopAt("2009-09-11 12:17:01.047563")
       );
+
+    failure.expect(BusinessException.class);
+    failure.expectMessage("'bullshitstate' is not a valid state (draft,ready,fabricating,complete)");
 
     testDAO.create(access, inputDataWrapper);
   }
@@ -399,7 +419,7 @@ public class ChainIT {
     assertEquals(Timestamp.valueOf("2009-09-11 12:17:01.989941"), result.getStopAt());
   }
 
-  @Test(expected = BusinessException.class)
+  @Test()
   public void update_failsToChangeStartAt_whenChainsHasLink() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
       "roles", "admin"
@@ -415,13 +435,10 @@ public class ChainIT {
       );
     IntegrationTestEntity.insertLink(6, 2, 5, Link.CRAFTED, Timestamp.valueOf("2015-05-10 12:18:02.527142"), Timestamp.valueOf("2015-05-10 12:18:32.527142"), "A major", 64, 0.52, 120);
 
-    try {
-      testDAO.update(access, ULong.valueOf(2), inputDataWrapper);
+    failure.expect(BusinessException.class);
+    failure.expectMessage("cannot change chain startAt time after it has links");
 
-    } catch (Exception e) {
-      assertTrue(e.getMessage().contains("cannot change chain startAt time after it has links"));
-      throw e;
-    }
+    testDAO.update(access, ULong.valueOf(2), inputDataWrapper);
   }
 
   @Test
@@ -484,7 +501,7 @@ public class ChainIT {
     assertEquals(null, result.getStopAt());
   }
 
-  @Test(expected = BusinessException.class)
+  @Test()
   public void update_FailsWithoutAccountID() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
       "roles", "admin"
@@ -498,10 +515,13 @@ public class ChainIT {
         .setStopAt("2009-09-11 12:17:01.047563")
       );
 
+    failure.expect(BusinessException.class);
+    failure.expectMessage("Account ID is required");
+
     testDAO.update(access, ULong.valueOf(2), inputDataWrapper);
   }
 
-  @Test(expected = BusinessException.class)
+  @Test()
   public void update_FailsWithoutName() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
       "roles", "admin"
@@ -515,10 +535,13 @@ public class ChainIT {
         .setStopAt("2009-09-11 12:17:01.047563")
       );
 
+    failure.expect(BusinessException.class);
+    failure.expectMessage("Name is required");
+
     testDAO.update(access, ULong.valueOf(2), inputDataWrapper);
   }
 
-  @Test(expected = BusinessException.class)
+  @Test()
   public void update_FailsUpdatingToNonexistentAccount() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
       "roles", "admin"
@@ -532,6 +555,9 @@ public class ChainIT {
         .setStartAt("2009-08-12 12:17:02.527142")
         .setStopAt("2009-09-11 12:17:01.047563")
       );
+
+    failure.expect(BusinessException.class);
+    failure.expectMessage("transition to draft not allowed");
 
     try {
       testDAO.update(access, ULong.valueOf(2), inputDataWrapper);
@@ -564,21 +590,27 @@ public class ChainIT {
     assertEquals(Chain.COMPLETE, result.getState());
   }
 
-  @Test(expected = BusinessException.class)
+  @Test()
   public void updateState_FailsOnInvalidState() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
       "roles", "internal"
     ));
 
+    failure.expect(BusinessException.class);
+    failure.expectMessage("'bullshit state' is not a valid state (draft,ready,fabricating,complete)");
+
     testDAO.updateState(access, ULong.valueOf(2), "bullshit state");
   }
 
-  @Test(expected = BusinessException.class)
+  @Test()
   public void updateState_FailsWithoutTopLevelAccess() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
       "roles", "user",
       "accounts", "54"
     ));
+
+    failure.expect(BusinessException.class);
+    failure.expectMessage("if not top level access, must provide account id");
 
     testDAO.updateState(access, ULong.valueOf(2), Chain.COMPLETE);
   }
@@ -753,20 +785,23 @@ public class ChainIT {
 
     testDAO.delete(access, ULong.valueOf(1));
 
-    ChainRecord deletedRecord = IntegrationTestService.getDb()
+    ChainRecord result = IntegrationTestService.getDb()
       .selectFrom(CHAIN)
       .where(CHAIN.ID.eq(ULong.valueOf(1)))
       .fetchOne();
-    assertNull(deletedRecord);
+    assertNull(result);
   }
 
-  @Test(expected = BusinessException.class)
+  @Test()
   public void delete_FailsIfChainHasChildRecords() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
       "roles", "admin"
     ));
     IntegrationTestEntity.insertLibrary(1, 1, "nerds");
     IntegrationTestEntity.insertChainConfig(101, 1, ChainConfig.OUTPUT_SAMPLE_BITS, "3");
+
+    failure.expect(BusinessException.class);
+    failure.expectMessage("Found ChainConfig");
 
     try {
       testDAO.delete(access, ULong.valueOf(1));
@@ -780,4 +815,148 @@ public class ChainIT {
       throw e;
     }
   }
+
+  @Test
+  public void destroy_allChildEntities() throws Exception {
+    // User "bill"
+    IntegrationTestEntity.insertUser(2, "bill", "bill@email.com", "http://pictures.com/bill.gif");
+
+    // Library "test sounds"
+    IntegrationTestEntity.insertLibrary(1, 2, "test sounds");
+    IntegrationTestEntity.insertIdea(1, 2, 1, Idea.MACRO, "epic concept", 0.342, "C#", 0.286);
+    IntegrationTestEntity.insertPhase(1, 1, 0, 16, "Ants", 0.583, "D minor", 120.0);
+    IntegrationTestEntity.insertVoice(8, 1, Voice.PERCUSSIVE, "This is a percussive voice");
+    IntegrationTestEntity.insertVoiceEvent(1, 8, 0, 1, "KICK", "C", 0.8, 1.0);
+
+    // Library has Instrument with Audio
+    IntegrationTestEntity.insertInstrument(9, 1, 2, "jams", Instrument.PERCUSSIVE, 0.6);
+    IntegrationTestEntity.insertAudio(1, 9, "Kick", "https://static.xj.outright.io/instrument/percussion/808/kick1.wav", 0.01, 2.123, 120.0, 440);
+
+    // Chain "Test Print #1" has one link
+    IntegrationTestEntity.insertChain(3, 1, "Test Print #1", Chain.PRODUCTION, Chain.COMPLETE, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"));
+    IntegrationTestEntity.insertLink(1, 3, 0, Link.DUBBED, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120);
+
+    // Choice
+    IntegrationTestEntity.insertChoice(1, 1, 1, Choice.MACRO, 2, -5);
+
+    // Arrangement
+    IntegrationTestEntity.insertArrangement(1, 1, 8, 9);
+
+    // Morph is in arrangement
+    IntegrationTestEntity.insertMorph(1, 1, 0.75, "C", 0.5);
+
+    // Pick is in Morph
+    IntegrationTestEntity.insertPick(1, 1, 1, 1, 0.125, 1.23, 0.94, 440);
+
+    // Point is in Morph
+    IntegrationTestEntity.insertPoint(1, 1, 1, 0.125, "C", 1.5);
+
+    AccessControl access = new AccessControl(ImmutableMap.of(
+      "roles", "admin"
+    ));
+
+    testDAO.destroy(access, ULong.valueOf(3));
+
+    // Assert destroyed Chain
+    assertNull(IntegrationTestService.getDb()
+      .selectFrom(CHAIN)
+      .where(CHAIN.ID.eq(ULong.valueOf(3)))
+      .fetchOne());
+
+    // Assert destroyed Link
+    assertNull(IntegrationTestService.getDb()
+      .selectFrom(LINK)
+      .where(LINK.ID.eq(ULong.valueOf(1)))
+      .fetchOne());
+
+    // Assert destroyed Arrangement
+    assertNull(IntegrationTestService.getDb()
+      .selectFrom(ARRANGEMENT)
+      .where(ARRANGEMENT.ID.eq(ULong.valueOf(1)))
+      .fetchOne());
+
+    // Assert destroyed Choice
+    assertNull(IntegrationTestService.getDb()
+      .selectFrom(CHOICE)
+      .where(CHOICE.ID.eq(ULong.valueOf(1)))
+      .fetchOne());
+
+    // Assert destroyed Morph
+    assertNull(IntegrationTestService.getDb()
+      .selectFrom(MORPH)
+      .where(MORPH.ID.eq(ULong.valueOf(1)))
+      .fetchOne());
+
+    // Assert destroyed Pick
+    assertNull(IntegrationTestService.getDb()
+      .selectFrom(PICK)
+      .where(PICK.ID.eq(ULong.valueOf(1)))
+      .fetchOne());
+
+    // Assert destroyed Point
+    assertNull(IntegrationTestService.getDb()
+      .selectFrom(POINT)
+      .where(POINT.ID.eq(ULong.valueOf(1)))
+      .fetchOne());
+
+  }
+
+  @Test
+  public void destroy_inDraftState() throws Exception {
+    IntegrationTestEntity.insertChain(3, 1, "bucket", Chain.PRODUCTION, Chain.DRAFT, Timestamp.valueOf("2015-05-10 12:17:02.527142"), Timestamp.valueOf("2015-06-09 12:17:01.047563"));
+    AccessControl access = new AccessControl(ImmutableMap.of(
+      "roles", "admin"
+    ));
+
+    testDAO.destroy(access, ULong.valueOf(3));
+
+    ChainRecord result = IntegrationTestService.getDb()
+      .selectFrom(CHAIN)
+      .where(CHAIN.ID.eq(ULong.valueOf(3)))
+      .fetchOne();
+    assertNull(result);
+  }
+
+  @Test
+  public void destroy_inCompleteState() throws Exception {
+    IntegrationTestEntity.insertChain(3, 1, "bucket", Chain.PRODUCTION, Chain.COMPLETE, Timestamp.valueOf("2015-05-10 12:17:02.527142"), Timestamp.valueOf("2015-06-09 12:17:01.047563"));
+    AccessControl access = new AccessControl(ImmutableMap.of(
+      "roles", "admin"
+    ));
+
+    testDAO.destroy(access, ULong.valueOf(3));
+
+    ChainRecord result = IntegrationTestService.getDb()
+      .selectFrom(CHAIN)
+      .where(CHAIN.ID.eq(ULong.valueOf(3)))
+      .fetchOne();
+    assertNull(result);
+  }
+
+  @Test
+  public void destroy_failsInFabricatingState() throws Exception {
+    IntegrationTestEntity.insertChain(3, 1, "bucket", Chain.PRODUCTION, Chain.FABRICATING, Timestamp.valueOf("2015-05-10 12:17:02.527142"), Timestamp.valueOf("2015-06-09 12:17:01.047563"));
+    AccessControl access = new AccessControl(ImmutableMap.of(
+      "roles", "admin"
+    ));
+
+    failure.expect(BusinessException.class);
+    failure.expectMessage("Chain must be in a draft or complete state");
+
+    testDAO.destroy(access, ULong.valueOf(3));
+  }
+
+  @Test
+  public void destroy_failsInReadyState() throws Exception {
+    IntegrationTestEntity.insertChain(3, 1, "bucket", Chain.PRODUCTION, Chain.READY, Timestamp.valueOf("2015-05-10 12:17:02.527142"), Timestamp.valueOf("2015-06-09 12:17:01.047563"));
+    AccessControl access = new AccessControl(ImmutableMap.of(
+      "roles", "admin"
+    ));
+
+    failure.expect(BusinessException.class);
+    failure.expectMessage("Chain must be in a draft or complete state");
+
+    testDAO.destroy(access, ULong.valueOf(3));
+  }
+
 }

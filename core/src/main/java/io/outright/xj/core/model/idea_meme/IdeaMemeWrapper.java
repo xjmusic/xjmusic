@@ -19,9 +19,9 @@ public class IdeaMemeWrapper extends EntityWrapper {
   }
 
   /**
-   * Validate data.
-   *
-   * @throws BusinessException if invalid.
+   Validate data.
+
+   @throws BusinessException if invalid.
    */
   public IdeaMeme validate() throws BusinessException {
     if (this.ideaMeme == null) {

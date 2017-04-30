@@ -19,7 +19,7 @@ public class Phase extends Entity {
   public final static String MAIN = "main";
 
   /**
-   * Name
+   Name
    */
   private String name;
 
@@ -33,7 +33,7 @@ public class Phase extends Entity {
   }
 
   /**
-   * Idea
+   Idea
    */
   private ULong ideaId;
 
@@ -47,7 +47,7 @@ public class Phase extends Entity {
   }
 
   /**
-   * Key
+   Key
    */
   private String key;
 
@@ -61,7 +61,7 @@ public class Phase extends Entity {
   }
 
   /**
-   * Total
+   Total
    */
   private Integer total;
 
@@ -75,7 +75,7 @@ public class Phase extends Entity {
   }
 
   /**
-   * Offset
+   Offset
    */
   private Integer offset;
 
@@ -89,7 +89,7 @@ public class Phase extends Entity {
   }
 
   /**
-   * Density
+   Density
    */
   private Double density;
 
@@ -103,7 +103,7 @@ public class Phase extends Entity {
   }
 
   /**
-   * Tempo
+   Tempo
    */
   private Double tempo;
 
@@ -117,9 +117,9 @@ public class Phase extends Entity {
   }
 
   /**
-   * Validate data.
-   *
-   * @throws BusinessException if invalid.
+   Validate data.
+
+   @throws BusinessException if invalid.
    */
   @Override
   public void validate() throws BusinessException {
@@ -131,9 +131,6 @@ public class Phase extends Entity {
     }
     if (this.key != null && this.key.length() == 0) {
       this.key = null;
-    }
-    if (this.total == null) {
-      throw new BusinessException("Total is required.");
     }
     if (this.offset == null) {
       throw new BusinessException("Offset is required.");
@@ -147,16 +144,16 @@ public class Phase extends Entity {
   }
 
   /**
-   * Model info jOOQ-field : Value map
-   *
-   * @return map
+   Model info jOOQ-field : Value map
+
+   @return map
    */
   @Override
   public Map<Field, Object> intoFieldValueMap() {
     Map<Field, Object> fieldValues = Maps.newHashMap();
     fieldValues.put(PHASE.IDEA_ID, ideaId);
     fieldValues.put(PHASE.OFFSET, offset);
-    fieldValues.put(PHASE.TOTAL, total);
+    fieldValues.put(PHASE.TOTAL, total != null ? total : DSL.val((String) null));
     fieldValues.put(PHASE.NAME, name != null ? name : DSL.val((String) null));
     fieldValues.put(PHASE.KEY, key != null ? key : DSL.val((String) null));
     fieldValues.put(PHASE.TEMPO, tempo != null ? tempo : DSL.val((String) null));
@@ -165,7 +162,7 @@ public class Phase extends Entity {
   }
 
   /**
-   * For use in maps.
+   For use in maps.
    */
   public static final String KEY_ONE = "phase";
   public static final String KEY_MANY = "phases";

@@ -16,6 +16,10 @@ export default Ember.Service.extend({
 
   success(message) {
     Ember.get(this, 'flashMessages').success(message);
+  },
+
+  warning(message) {
+    Ember.get(this, 'flashMessages').warning(message);
   }
 
 });

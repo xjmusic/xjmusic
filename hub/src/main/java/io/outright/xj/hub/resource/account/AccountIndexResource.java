@@ -14,6 +14,7 @@ import io.outright.xj.core.transport.JSON;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -32,7 +33,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 
 /**
- * Accounts
+ Accounts
  */
 @Path("accounts")
 public class AccountIndexResource {
@@ -42,9 +43,9 @@ public class AccountIndexResource {
   private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
 
   /**
-   * Get all accounts.
-   *
-   * @return application/json response.
+   Get all accounts.
+
+   @return application/json response.
    */
   @GET
   @WebResult
@@ -68,10 +69,10 @@ public class AccountIndexResource {
   }
 
   /**
-   * Create new account
-   *
-   * @param data with which to update Account record.
-   * @return Response
+   Create new account
+
+   @param data with which to update Account record.
+   @return Response
    */
   @POST
   @Consumes(MediaType.APPLICATION_JSON)

@@ -8,8 +8,10 @@ import io.outright.xj.core.db.sql.SQLConnection;
 import io.outright.xj.core.db.sql.SQLDatabaseProvider;
 import io.outright.xj.core.migration.MigrationService;
 
-import com.google.inject.Guice;
 import org.jooq.DSLContext;
+
+import com.google.inject.Guice;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,16 +51,16 @@ public enum IntegrationTestService {
   }
 
   /**
-   * Get the master connection to integration database
-   *
-   * @return DSL Context
+   Get the master connection to integration database
+
+   @return DSL Context
    */
   public static DSLContext getDb() {
     return INSTANCE.sqlConnection.getContext();
   }
 
   /**
-   * Runs on program exit
+   Runs on program exit
    */
   private static void shutdown() {
     try {

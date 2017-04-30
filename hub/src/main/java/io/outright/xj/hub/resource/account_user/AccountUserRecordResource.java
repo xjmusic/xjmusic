@@ -9,9 +9,11 @@ import io.outright.xj.core.model.account_user.AccountUser;
 import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.transport.JSON;
 
+import org.jooq.types.ULong;
+
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.jooq.types.ULong;
+
 import org.json.JSONObject;
 
 import javax.annotation.security.RolesAllowed;
@@ -27,12 +29,12 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 
 /**
- * Account record
+ Account record
  */
 @Path("account-users/{id}")
 public class AccountUserRecordResource {
   private static final Injector injector = Guice.createInjector(new CoreModule());
-//  private static Logger log = LoggerFactory.getLogger(AccountUserRecordResource.class);
+  //  private static Logger log = LoggerFactory.getLogger(AccountUserRecordResource.class);
   private final AccountUserDAO accountUserDAO = injector.getInstance(AccountUserDAO.class);
   private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
 
@@ -40,9 +42,9 @@ public class AccountUserRecordResource {
   String id;
 
   /**
-   * Get one AccountUser by id
-   *
-   * @return application/json response.
+   Get one AccountUser by id
+
+   @return application/json response.
    */
   @GET
   @WebResult
@@ -66,9 +68,9 @@ public class AccountUserRecordResource {
   }
 
   /**
-   * Delete one AccountUser by accountId and userId
-   *
-   * @return application/json response.
+   Delete one AccountUser by accountId and userId
+
+   @return application/json response.
    */
   // TODO [hub] Return 404 if the account is not found.
   @DELETE

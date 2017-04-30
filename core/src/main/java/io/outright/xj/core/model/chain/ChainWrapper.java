@@ -4,25 +4,26 @@ package io.outright.xj.core.model.chain;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.model.EntityWrapper;
 
-import org.jooq.Record;
-
 public class ChainWrapper extends EntityWrapper {
 
   // Chain
   private Chain chain;
+
   public Chain getChain() {
     return chain;
   }
+
   public ChainWrapper setChain(Chain chain) {
     this.chain = chain;
     return this;
   }
 
   /**
-   * Validate data.
-   * @throws BusinessException if invalid.
+   Validate data.
+
+   @throws BusinessException if invalid.
    */
-  public Chain validate() throws BusinessException{
+  public Chain validate() throws BusinessException {
     if (this.chain == null) {
       throw new BusinessException("Chain is required.");
     }

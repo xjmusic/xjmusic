@@ -8,20 +8,23 @@ public class ArrangementWrapper extends EntityWrapper {
 
   // Arrangement
   private Arrangement arrangement;
+
   public Arrangement getArrangement() {
     return arrangement;
   }
+
   public ArrangementWrapper setArrangement(Arrangement arrangement) {
     this.arrangement = arrangement;
     return this;
   }
 
   /**
-   * Validate data.
-   * @throws BusinessException if invalid.
+   Validate data.
+
+   @throws BusinessException if invalid.
    */
   @Override
-  public Arrangement validate() throws BusinessException{
+  public Arrangement validate() throws BusinessException {
     if (this.arrangement == null) {
       throw new BusinessException("Arrangement is required.");
     }

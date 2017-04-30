@@ -10,9 +10,11 @@ import io.outright.xj.core.model.phase_chord.PhaseChordWrapper;
 import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.transport.JSON;
 
+import org.jooq.types.ULong;
+
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.jooq.types.ULong;
+
 import org.json.JSONObject;
 
 import javax.annotation.security.RolesAllowed;
@@ -30,7 +32,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 
 /**
- * PhaseChord record
+ PhaseChord record
  */
 @Path("phase-chords/{id}")
 public class PhaseChordRecordResource {
@@ -43,9 +45,9 @@ public class PhaseChordRecordResource {
   String id;
 
   /**
-   * Get one phaseChord.
-   *
-   * @return application/json response.
+   Get one phaseChord.
+
+   @return application/json response.
    */
   @GET
   @WebResult
@@ -70,10 +72,10 @@ public class PhaseChordRecordResource {
   }
 
   /**
-   * Update one phaseChord
-   *
-   * @param data with which to update PhaseChord record.
-   * @return Response
+   Update one phaseChord
+
+   @param data with which to update PhaseChord record.
+   @return Response
    */
   @PUT
   @Consumes(MediaType.APPLICATION_JSON)
@@ -90,9 +92,9 @@ public class PhaseChordRecordResource {
   }
 
   /**
-   * Delete one phaseChord
-   *
-   * @return Response
+   Delete one phaseChord
+
+   @return Response
    */
   @DELETE
   @RolesAllowed({Role.ARTIST})

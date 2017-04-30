@@ -95,13 +95,13 @@ public class VoiceEventDAOImpl extends DAOImpl implements VoiceEventDAO {
   }
 
   /**
-   * Create a new Voice Event
-   *
-   * @param db     context
-   * @param access control
-   * @param data   for new voice
-   * @return newly created record
-   * @throws BusinessException if failure
+   Create a new Voice Event
+
+   @param db     context
+   @param access control
+   @param data   for new voice
+   @return newly created record
+   @throws BusinessException if failure
    */
   private JSONObject create(DSLContext db, AccessControl access, VoiceEventWrapper data) throws BusinessException {
     VoiceEvent model = data.validate();
@@ -125,12 +125,12 @@ public class VoiceEventDAOImpl extends DAOImpl implements VoiceEventDAO {
   }
 
   /**
-   * Read one Event if able
-   *
-   * @param db     context
-   * @param access control
-   * @param id     of voice
-   * @return voice
+   Read one Event if able
+
+   @param db     context
+   @param access control
+   @param id     of voice
+   @return voice
    */
   private JSONObject readOne(DSLContext db, AccessControl access, ULong id) {
     if (access.isTopLevel()) {
@@ -151,13 +151,13 @@ public class VoiceEventDAOImpl extends DAOImpl implements VoiceEventDAO {
   }
 
   /**
-   * Read all Event able for an Idea
-   *
-   * @param db      context
-   * @param access  control
-   * @param voiceId to read all voice of
-   * @return array of voices
-   * @throws SQLException on failure
+   Read all Event able for an Idea
+
+   @param db      context
+   @param access  control
+   @param voiceId to read all voice of
+   @return array of voices
+   @throws SQLException on failure
    */
   private JSONArray readAllIn(DSLContext db, AccessControl access, ULong voiceId) throws SQLException {
     if (access.isTopLevel()) {
@@ -181,13 +181,13 @@ public class VoiceEventDAOImpl extends DAOImpl implements VoiceEventDAO {
   }
 
   /**
-   * Update a Event record
-   *
-   * @param db     context
-   * @param access control
-   * @param id     to update
-   * @param data   to update with
-   * @throws BusinessException if failure
+   Update a Event record
+
+   @param db     context
+   @param access control
+   @param id     to update
+   @param data   to update with
+   @throws BusinessException if failure
    */
   private void update(DSLContext db, AccessControl access, ULong id, VoiceEventWrapper data) throws Exception {
     VoiceEvent model = data.validate();
@@ -214,13 +214,13 @@ public class VoiceEventDAOImpl extends DAOImpl implements VoiceEventDAO {
   }
 
   /**
-   * Delete an Event
-   *
-   * @param db context
-   * @param id to delete
-   * @throws Exception         if database failure
-   * @throws ConfigException   if not configured properly
-   * @throws BusinessException if fails business rule
+   Delete an Event
+
+   @param db context
+   @param id to delete
+   @throws Exception         if database failure
+   @throws ConfigException   if not configured properly
+   @throws BusinessException if fails business rule
    */
   private void delete(AccessControl access, DSLContext db, ULong id) throws Exception {
     if (!access.isTopLevel()) {

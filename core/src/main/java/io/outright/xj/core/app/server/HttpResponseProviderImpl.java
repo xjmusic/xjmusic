@@ -2,7 +2,6 @@ package io.outright.xj.core.app.server;
 
 import io.outright.xj.core.app.config.Config;
 import io.outright.xj.core.app.exception.BusinessException;
-import io.outright.xj.core.dao.impl.AccountUserDAOImpl;
 import io.outright.xj.core.transport.JSON;
 
 import org.apache.http.HttpStatus;

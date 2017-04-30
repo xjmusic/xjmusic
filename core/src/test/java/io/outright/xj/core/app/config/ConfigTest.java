@@ -10,14 +10,14 @@ import static org.junit.Assert.assertEquals;
 public class ConfigTest {
   @Test
   public void setDefault_newProperty() throws Exception {
-    Config.setDefault("bun","tabby");
+    Config.setDefault("bun", "tabby");
     assertEquals(("tabby"), System.getProperty("bun"));
   }
 
   @Test
   public void setDefault_alreadySetProperty() throws Exception {
-    System.setProperty("bun","jammy");
-    Config.setDefault("bun","tabby");
+    System.setProperty("bun", "jammy");
+    Config.setDefault("bun", "tabby");
     assertEquals(("jammy"), System.getProperty("bun"));
   }
 
@@ -34,6 +34,6 @@ public class ConfigTest {
 
   @Before
   public void setup() {
-    System.setProperty("app.url.base","http://mush/");
+    System.setProperty("app.url.base", "http://mush/");
   }
 }

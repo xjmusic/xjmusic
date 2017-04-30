@@ -7,6 +7,7 @@ import io.outright.xj.core.app.config.Config;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,10 +46,10 @@ public class AccessTokenAuthFilterImpl implements AccessTokenAuthFilter {
   }
 
   /**
-   * Authenticates a request by access token.
-   *
-   * @param context of request.
-   * @return whether authentication is okay.
+   Authenticates a request by access token.
+
+   @param context of request.
+   @return whether authentication is okay.
    */
   private Boolean authenticate(ContainerRequestContext context) throws Exception {
     // use reflection to get resource method annotation values
@@ -99,10 +100,10 @@ public class AccessTokenAuthFilterImpl implements AccessTokenAuthFilter {
   }
 
   /**
-   * Access denial implements this central method for logging.
-   *
-   * @param msg pertaining to denial.
-   * @return Boolean
+   Access denial implements this central method for logging.
+
+   @param msg pertaining to denial.
+   @return Boolean
    */
   private Boolean denied(ContainerRequestContext context, String msg) {
     log.debug("Denied " + context.getRequest().getMethod() + " /" + context.getUriInfo().getPath() + " (" + msg + ")");
@@ -116,10 +117,10 @@ public class AccessTokenAuthFilterImpl implements AccessTokenAuthFilter {
   }
 
   /**
-   * Access failure implements this central method for logging.
-   *
-   * @param msg pertaining to internal server error.
-   * @return Boolean
+   Access failure implements this central method for logging.
+
+   @param msg pertaining to internal server error.
+   @return Boolean
    */
   private Boolean failed(ContainerRequestContext context, String msg) {
     log.error("Failed " + context.getRequest().getMethod() + " /" + context.getUriInfo().getPath() + " (" + msg + ")");
@@ -128,9 +129,9 @@ public class AccessTokenAuthFilterImpl implements AccessTokenAuthFilter {
   }
 
   /**
-   * Allow access.
-   *
-   * @return Boolean
+   Allow access.
+
+   @return Boolean
    */
   private Boolean allowed() {
     return true;

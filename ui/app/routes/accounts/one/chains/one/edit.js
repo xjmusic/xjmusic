@@ -42,6 +42,19 @@ export default Ember.Route.extend({
   },
 
   /**
+   * Headline
+   */
+  afterModel(model) {
+    Ember.set(this, 'routeHeadline', {
+      title: 'Edit ' + model.chain.get('name'),
+      entity: {
+        name: 'Chain',
+        id: model.chain.get('id')
+      }
+    });
+  },
+
+  /**
    * Route Actions
    */
   actions: {
@@ -49,16 +62,16 @@ export default Ember.Route.extend({
     saveChain(model) {
       model.save().then(
         () => {
-          Ember.get(this, 'display').success('Updated chain ' + model.get('name') + '.');
-          this.transitionTo('accounts.one.chains');
+          Ember.get(this, 'display').success('Updated chain.');
+          this.transitionTo('accounts.one.chains.one');
         },
         (error) => {
           Ember.get(this, 'display').error(error);
         });
     },
 
-    destroyChain(model) {
-      let confirmation = confirm("Are you fucking sure? If there are Ideas or Instruments belonging to this Chain, deletion will fail anyway.");
+    deleteChain(model) {
+      let confirmation = confirm("Are you sure? If there are Ideas or Instruments belonging to this Chain, deletion will fail anyway.");
       if (confirmation) {
         model.destroyRecord({}).then(
           () => {
@@ -71,8 +84,27 @@ export default Ember.Route.extend({
       }
     },
 
+    destroyChain(model) {
+      let confirmation = confirm("Are you fucking sure??");
+      if (confirmation) {
+        // Chain has a custom adapter to append query params
+        model.destroyRecord({
+          adapterOptions: {
+            destroy: true
+          }
+        }).then(
+          () => {
+            Ember.get(this, 'display').success('Destroyed chain ' + model.get('name') + '.');
+            this.transitionTo('accounts.one.chains');
+          },
+          (error) => {
+            Ember.get(this, 'display').error(error);
+          });
+      }
+    },
+
     willTransition(transition) {
-      let model = this.controller.get('model');
+      let model = this.controller.get('model.chain');
       if (model.get('hasDirtyAttributes')) {
         let confirmation = confirm("Your changes haven't saved yet. Would you like to leave this form?");
         if (confirmation) {

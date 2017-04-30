@@ -25,12 +25,12 @@ public class Voice extends Entity {
   public final static String VOCAL = "vocal";
 
   /**
-   * It is implied that voice types must equal instrument types
+   It is implied that voice types must equal instrument types
    */
   public final static List<String> TYPES = Instrument.TYPES;
 
   /**
-   * Phase
+   Phase
    */
   private ULong phaseId;
 
@@ -44,7 +44,7 @@ public class Voice extends Entity {
   }
 
   /**
-   * Type
+   Type
    */
   private String type;
 
@@ -58,7 +58,7 @@ public class Voice extends Entity {
   }
 
   /**
-   * Description
+   Description
    */
   private String description;
 
@@ -72,9 +72,9 @@ public class Voice extends Entity {
   }
 
   /**
-   * Validate data.
-   *
-   * @throws BusinessException if invalid.
+   Validate data.
+
+   @throws BusinessException if invalid.
    */
   @Override
   public void validate() throws BusinessException {
@@ -93,9 +93,9 @@ public class Voice extends Entity {
   }
 
   /**
-   * Model info jOOQ-field : Value map
-   *
-   * @return map
+   Model info jOOQ-field : Value map
+
+   @return map
    */
   @Override
   public Map<Field, Object> intoFieldValueMap() {
@@ -107,7 +107,7 @@ public class Voice extends Entity {
   }
 
   /**
-   * For use in maps.
+   For use in maps.
    */
   public static final String KEY_ONE = "voice";
   public static final String KEY_MANY = "voices";

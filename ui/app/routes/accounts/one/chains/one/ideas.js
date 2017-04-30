@@ -43,6 +43,19 @@ export default Ember.Route.extend({
   },
 
   /**
+   * Headline
+   */
+  afterModel(model) {
+    Ember.set(this, 'routeHeadline', {
+      title: model.chain.get('name') + ' ' + 'Ideas',
+      entity: {
+        name: 'Chain',
+        id: model.chain.get('id')
+      }
+    });
+  },
+
+  /**
    * Route Actions
    */
   actions: {
@@ -51,7 +64,7 @@ export default Ember.Route.extend({
       this.refresh();
     },
 
-    destroyChainIdea(model) {
+    removeIdea(model) {
       model.destroyRecord({}).then(
         () => {
           Ember.get(this, 'display').success('Removed Idea from Chain.');
@@ -61,7 +74,7 @@ export default Ember.Route.extend({
         });
     },
 
-    addIdeaToChain(model) {
+    addIdea(model) {
       let chainConfig = this.store.createRecord('chain-idea', {
         chain: model.chain,
         idea: model.ideaToAdd,

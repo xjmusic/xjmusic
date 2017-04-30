@@ -10,9 +10,11 @@ import io.outright.xj.core.model.chain.ChainWrapper;
 import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.transport.JSON;
 
+import org.jooq.types.ULong;
+
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.jooq.types.ULong;
+
 import org.json.JSONObject;
 
 import javax.annotation.security.RolesAllowed;
@@ -23,14 +25,16 @@ import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.util.Objects;
 
 /**
- * Chain record
+ Chain record
  */
 @Path("chains/{id}")
 public class ChainRecordResource {
@@ -42,10 +46,13 @@ public class ChainRecordResource {
   @PathParam("id")
   String id;
 
+  @QueryParam("destroy")
+  Boolean destroy;
+
   /**
-   * Get one chain.
-   *
-   * @return application/json response.
+   Get one chain.
+
+   @return application/json response.
    */
   @GET
   @WebResult
@@ -71,10 +78,10 @@ public class ChainRecordResource {
   }
 
   /**
-   * Update one chain
-   *
-   * @param data with which to update Chain record.
-   * @return Response
+   Update one chain
+
+   @param data with which to update Chain record.
+   @return Response
    */
   @PUT
   @Consumes(MediaType.APPLICATION_JSON)
@@ -91,16 +98,20 @@ public class ChainRecordResource {
   }
 
   /**
-   * Delete one chain
-   *
-   * @return Response
+   Delete one chain
+
+   @return Response
    */
   @DELETE
   @RolesAllowed({Role.ARTIST})
   public Response delete(@Context ContainerRequestContext crc) {
     AccessControl access = AccessControl.fromContext(crc);
     try {
-      chainDAO.delete(access, ULong.valueOf(id));
+      if (!Objects.isNull(destroy) && destroy) {
+        chainDAO.destroy(access, ULong.valueOf(id));
+      } else {
+        chainDAO.delete(access, ULong.valueOf(id));
+      }
       return Response.accepted("{}").build();
 
     } catch (Exception e) {

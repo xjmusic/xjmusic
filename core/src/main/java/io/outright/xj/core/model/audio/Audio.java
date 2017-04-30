@@ -17,7 +17,7 @@ import static io.outright.xj.core.Tables.AUDIO;
 public class Audio extends Entity {
 
   /**
-   * Instrument
+   Instrument
    */
   private ULong instrumentId;
 
@@ -31,7 +31,7 @@ public class Audio extends Entity {
   }
 
   /**
-   * WaveformKey
+   WaveformKey
    */
   private String waveformKey;
 
@@ -47,7 +47,7 @@ public class Audio extends Entity {
   }
 
   /**
-   * Name
+   Name
    */
   private String name;
 
@@ -61,7 +61,7 @@ public class Audio extends Entity {
   }
 
   /**
-   * Start
+   Start
    */
   private Double start;
 
@@ -75,7 +75,7 @@ public class Audio extends Entity {
   }
 
   /**
-   * Length
+   Length
    */
   private Double length;
 
@@ -89,7 +89,7 @@ public class Audio extends Entity {
   }
 
   /**
-   * Tempo
+   Tempo
    */
   private Double tempo;
 
@@ -103,7 +103,7 @@ public class Audio extends Entity {
   }
 
   /**
-   * Pitch
+   Pitch
    */
   private Double pitch;
 
@@ -117,9 +117,9 @@ public class Audio extends Entity {
   }
 
   /**
-   * Validate data.
-   *
-   * @throws BusinessException if invalid.
+   Validate data.
+
+   @throws BusinessException if invalid.
    */
   @Override
   public void validate() throws BusinessException {
@@ -152,11 +152,11 @@ public class Audio extends Entity {
   }
 
   /**
-   * Model info jOOQ-field : Value map
-   *
-   * NOTE: Excluding AUDIO.WAVEFORM_KEY a.k.a. waveformKey because that is read-only;
-   *
-   * @return map
+   Model info jOOQ-field : Value map
+   <p>
+   NOTE: Excluding AUDIO.WAVEFORM_KEY a.k.a. waveformKey because that is read-only;
+
+   @return map
    */
   @Override
   public Map<Field, Object> intoFieldValueMap() {
@@ -171,7 +171,7 @@ public class Audio extends Entity {
   }
 
   /**
-   * For use in maps.
+   For use in maps.
    */
   public static final String KEY_ONE = "audio";
   public static final String KEY_MANY = "audios";

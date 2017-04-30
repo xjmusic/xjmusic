@@ -8,20 +8,23 @@ public class PickWrapper extends EntityWrapper {
 
   // Pick
   private Pick pick;
+
   public Pick getPick() {
     return pick;
   }
+
   public PickWrapper setPick(Pick pick) {
     this.pick = pick;
     return this;
   }
 
   /**
-   * Validate data.
-   * @throws BusinessException if invalid.
+   Validate data.
+
+   @throws BusinessException if invalid.
    */
   @Override
-  public Pick validate() throws BusinessException{
+  public Pick validate() throws BusinessException {
     if (this.pick == null) {
       throw new BusinessException("Pick is required.");
     }

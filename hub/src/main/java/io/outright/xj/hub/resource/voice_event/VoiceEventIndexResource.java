@@ -34,7 +34,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 
 /**
- * VoiceEvents
+ VoiceEvents
  */
 @Path("voice-events")
 public class VoiceEventIndexResource {
@@ -47,9 +47,9 @@ public class VoiceEventIndexResource {
   String voiceId;
 
   /**
-   * Get all voiceEvents.
-   *
-   * @return application/json response.
+   Get all voiceEvents.
+
+   @return application/json response.
    */
   @GET
   @WebResult
@@ -78,10 +78,10 @@ public class VoiceEventIndexResource {
   }
 
   /**
-   * Create new voiceEvent
-   *
-   * @param data with which to update VoiceEvent record.
-   * @return Response
+   Create new voiceEvent
+
+   @param data with which to update VoiceEvent record.
+   @return Response
    */
   @POST
   @Consumes(MediaType.APPLICATION_JSON)

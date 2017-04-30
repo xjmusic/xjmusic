@@ -10,12 +10,12 @@ import java.util.logging.SimpleFormatter;
  */
 public class FileLogger {
   /**
-   * Get a file logger
-   *
-   * @param clazz of Logger
-   * @param pathToWriteFile to write file output to
-   * @return Logger
-   * @throws IOException when there is a problem opening the file for writing
+   Get a file logger
+
+   @param clazz           of Logger
+   @param pathToWriteFile to write file output to
+   @return Logger
+   @throws IOException when there is a problem opening the file for writing
    */
   public static Logger getLogger(Class clazz, String pathToWriteFile) throws IOException {
     String name = clazz.getName();

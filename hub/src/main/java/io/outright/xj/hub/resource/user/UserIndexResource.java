@@ -11,6 +11,7 @@ import io.outright.xj.core.transport.JSON;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+
 import org.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +27,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 
 /**
- * Current user
+ Current user
  */
 @Path("users")
 public class UserIndexResource {
@@ -36,9 +37,9 @@ public class UserIndexResource {
   private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
 
   /**
-   * Get all users.
-   *
-   * @return application/json response.
+   Get all users.
+
+   @return application/json response.
    */
   @GET
   @WebResult

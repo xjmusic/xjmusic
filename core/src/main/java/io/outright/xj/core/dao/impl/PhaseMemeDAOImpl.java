@@ -30,9 +30,9 @@ import static io.outright.xj.core.tables.Phase.PHASE;
 import static io.outright.xj.core.tables.PhaseMeme.PHASE_MEME;
 
 /**
- * PhaseMeme DAO
- * <p>
- * TODO [core] more specific permissions of user (artist) access by per-entity ownership
+ PhaseMeme DAO
+ <p>
+ TODO [core] more specific permissions of user (artist) access by per-entity ownership
  */
 public class PhaseMemeDAOImpl extends DAOImpl implements PhaseMemeDAO {
 
@@ -85,15 +85,15 @@ public class PhaseMemeDAOImpl extends DAOImpl implements PhaseMemeDAO {
   }
 
   /**
-   * Create a new Phase Meme record
-   *
-   * @param db     context
-   * @param access control
-   * @param data   for new PhaseMeme
-   * @return new record
-   * @throws Exception if database failure
-   * @throws ConfigException   if not configured properly
-   * @throws BusinessException if fails business rule
+   Create a new Phase Meme record
+
+   @param db     context
+   @param access control
+   @param data   for new PhaseMeme
+   @return new record
+   @throws Exception         if database failure
+   @throws ConfigException   if not configured properly
+   @throws BusinessException if fails business rule
    */
   private JSONObject create(DSLContext db, AccessControl access, PhaseMemeWrapper data) throws Exception {
     PhaseMeme model = data.validate();
@@ -123,12 +123,12 @@ public class PhaseMemeDAOImpl extends DAOImpl implements PhaseMemeDAO {
   }
 
   /**
-   * Read one Phase Meme where able
-   *
-   * @param db     context
-   * @param access control
-   * @param id     of record
-   * @return record
+   Read one Phase Meme where able
+
+   @param db     context
+   @param access control
+   @param id     of record
+   @return record
    */
   private JSONObject readOne(DSLContext db, AccessControl access, ULong id) throws SQLException {
     if (access.isTopLevel()) {
@@ -147,13 +147,13 @@ public class PhaseMemeDAOImpl extends DAOImpl implements PhaseMemeDAO {
   }
 
   /**
-   * Read all Memes of an Phase where able
-   *
-   * @param db     context
-   * @param access control
-   * @param phaseId to read memes for
-   * @return array of phase memes
-   * @throws SQLException if failure
+   Read all Memes of an Phase where able
+
+   @param db      context
+   @param access  control
+   @param phaseId to read memes for
+   @return array of phase memes
+   @throws SQLException if failure
    */
   private JSONArray readAllAble(DSLContext db, AccessControl access, ULong phaseId) throws SQLException {
     if (access.isTopLevel()) {
@@ -172,12 +172,12 @@ public class PhaseMemeDAOImpl extends DAOImpl implements PhaseMemeDAO {
   }
 
   /**
-   * Delete an PhaseMeme record
-   *
-   * @param db     context
-   * @param access control
-   * @param id     to delete
-   * @throws BusinessException if failure
+   Delete an PhaseMeme record
+
+   @param db     context
+   @param access control
+   @param id     to delete
+   @throws BusinessException if failure
    */
   // TODO: fail if no phaseMeme is deleted
   private void delete(DSLContext db, AccessControl access, ULong id) throws BusinessException {

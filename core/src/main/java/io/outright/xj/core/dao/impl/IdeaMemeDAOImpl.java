@@ -29,9 +29,9 @@ import static io.outright.xj.core.tables.IdeaMeme.IDEA_MEME;
 import static io.outright.xj.core.tables.Library.LIBRARY;
 
 /**
- * IdeaMeme DAO
- * <p>
- * TODO [core] more specific permissions of user (artist) access by per-entity ownership
+ IdeaMeme DAO
+ <p>
+ TODO [core] more specific permissions of user (artist) access by per-entity ownership
  */
 public class IdeaMemeDAOImpl extends DAOImpl implements IdeaMemeDAO {
 
@@ -84,15 +84,15 @@ public class IdeaMemeDAOImpl extends DAOImpl implements IdeaMemeDAO {
   }
 
   /**
-   * Create a new Idea Meme record
-   *
-   * @param db     context
-   * @param access control
-   * @param data   for new IdeaMeme
-   * @return new record
-   * @throws Exception         if database failure
-   * @throws ConfigException   if not configured properly
-   * @throws BusinessException if fails business rule
+   Create a new Idea Meme record
+
+   @param db     context
+   @param access control
+   @param data   for new IdeaMeme
+   @return new record
+   @throws Exception         if database failure
+   @throws ConfigException   if not configured properly
+   @throws BusinessException if fails business rule
    */
   private JSONObject create(DSLContext db, AccessControl access, IdeaMemeWrapper data) throws Exception {
     IdeaMeme model = data.validate();
@@ -121,12 +121,12 @@ public class IdeaMemeDAOImpl extends DAOImpl implements IdeaMemeDAO {
   }
 
   /**
-   * Read one Idea Meme where able
-   *
-   * @param db     context
-   * @param access control
-   * @param id     of record
-   * @return record
+   Read one Idea Meme where able
+
+   @param db     context
+   @param access control
+   @param id     of record
+   @return record
    */
   private JSONObject readOneAble(DSLContext db, AccessControl access, ULong id) throws SQLException {
     if (access.isTopLevel()) {
@@ -144,13 +144,13 @@ public class IdeaMemeDAOImpl extends DAOImpl implements IdeaMemeDAO {
   }
 
   /**
-   * Read all Memes of an Idea where able
-   *
-   * @param db     context
-   * @param access control
-   * @param ideaId to read memes for
-   * @return array of idea memes
-   * @throws SQLException if failure
+   Read all Memes of an Idea where able
+
+   @param db     context
+   @param access control
+   @param ideaId to read memes for
+   @return array of idea memes
+   @throws SQLException if failure
    */
   private JSONArray readAllIn(DSLContext db, AccessControl access, ULong ideaId) throws SQLException {
     if (access.isTopLevel()) {
@@ -168,12 +168,12 @@ public class IdeaMemeDAOImpl extends DAOImpl implements IdeaMemeDAO {
   }
 
   /**
-   * Delete an IdeaMeme record
-   *
-   * @param db     context
-   * @param access control
-   * @param id     to delete
-   * @throws BusinessException if failure
+   Delete an IdeaMeme record
+
+   @param db     context
+   @param access control
+   @param id     to delete
+   @throws BusinessException if failure
    */
   // TODO: fail if no ideaMeme is deleted
   private void delete(DSLContext db, AccessControl access, ULong id) throws BusinessException {

@@ -1,0 +1,52 @@
+<!-- Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved. -->
+
+<!-- Headline Container -->
+<div class="container-fluid">
+  <div class="form-horizontal">
+    <div class="form-group headline">
+      <div class="col-sm-12">
+
+        <!-- Title -->
+        <h1>
+          {{headline.title}}
+          {{#if headline.state}}&lpar;{{headline.state}}&rpar;{{/if}}
+        </h1>
+
+        <!-- Entity Name and/or Entity ID -->
+        {{#if (or headline.entity.name headline.entity.id)}}
+          <div class="entity">
+            {{#if headline.entity.name}}{{headline.entity.name}}{{/if}}
+            {{#if headline.entity.id}}<sup>#</sup>{{headline.entity.id}}{{/if}}
+          </div>
+        {{/if}}
+
+        <!-- Detail -->
+        {{#if headline.detail}}
+
+          <!-- Roles -->
+          <div class="detail roles">
+            {{#if headline.detail.roles}}
+              {{#each headline.detail.roles as |role|}}
+                <div class="role role-{{role}}">{{role}}</div>
+              {{/each}}
+            {{/if}}
+          </div>
+
+          <!-- Time -->
+          <p class="detail time">
+            {{#if headline.detail.startAt}}
+              from <strong>{{headline.detail.startAt}}</strong>
+            {{/if}}
+            {{#if headline.detail.stopAt}}
+              to <strong>{{headline.detail.stopAt}}</strong>
+            {{/if}}
+            {{#if headline.detail.total}}
+              total <strong>{{headline.detail.total}}</strong>
+            {{/if}}
+          </p>
+        {{/if}}
+
+      </div>
+    </div>
+  </div>
+</div>

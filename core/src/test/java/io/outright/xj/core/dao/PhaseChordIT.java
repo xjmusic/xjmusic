@@ -272,11 +272,11 @@ public class PhaseChordIT {
 
     testDAO.delete(access, ULong.valueOf(1));
 
-    PhaseChordRecord deletedRecord = IntegrationTestService.getDb()
+    PhaseChordRecord result = IntegrationTestService.getDb()
       .selectFrom(PHASE_CHORD)
       .where(PHASE_CHORD.ID.eq(ULong.valueOf(1)))
       .fetchOne();
-    assertNull(deletedRecord);
+    assertNull(result);
   }
 
   @Test(expected = BusinessException.class)

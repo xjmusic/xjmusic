@@ -306,7 +306,6 @@ public class LinkIT {
   }
 
 
-
   @Test
   public void readAll_SeesNothingOutsideOfChain() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
@@ -352,7 +351,7 @@ public class LinkIT {
     assertEquals(Timestamp.valueOf("1995-04-28 11:23:32.000001"), result.getEndAt());
   }
 
-  @Test(expected =  BusinessException.class)
+  @Test(expected = BusinessException.class)
   public void update_failsToTransitionFromDubbingToCrafting() throws Exception {
     AccessControl access = new AccessControl(ImmutableMap.of(
       "roles", "admin"
@@ -373,7 +372,7 @@ public class LinkIT {
     try {
       testDAO.update(access, ULong.valueOf(2), inputDataWrapper);
 
-    } catch(Exception e) {
+    } catch (Exception e) {
       assertTrue(e.getMessage().contains("transition to crafting not allowed"));
       throw e;
     }
@@ -460,11 +459,11 @@ public class LinkIT {
 
     testDAO.delete(access, ULong.valueOf(1));
 
-    LinkRecord deletedRecord = IntegrationTestService.getDb()
+    LinkRecord result = IntegrationTestService.getDb()
       .selectFrom(LINK)
       .where(LINK.ID.eq(ULong.valueOf(1)))
       .fetchOne();
-    assertNull(deletedRecord);
+    assertNull(result);
   }
 
   @Test(expected = BusinessException.class)

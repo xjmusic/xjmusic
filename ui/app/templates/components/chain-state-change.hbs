@@ -1,0 +1,15 @@
+<!-- Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved. -->
+
+{{yield}}
+
+<div class="chain-state">
+  {{#if (eq model.state 'draft')}}
+    <button type="button" class="btn btn-info" {{action 'changeState' 'ready' false}}>Ready</button>
+  {{/if}}
+  {{#if (eq model.state 'ready')}}
+    <button type="button" class="btn btn-success" {{action 'changeState' 'fabricating' true}}>Fabricate</button>
+  {{/if}}
+  {{#if (eq model.state 'fabricating')}}
+    <button type="button" class="btn btn-primary" {{action 'changeState' 'complete' true}}>Complete</button>
+  {{/if}}
+</div>

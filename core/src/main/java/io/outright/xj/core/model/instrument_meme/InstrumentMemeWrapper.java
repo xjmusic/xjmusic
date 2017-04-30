@@ -19,9 +19,9 @@ public class InstrumentMemeWrapper extends EntityWrapper {
   }
 
   /**
-   * Validate data.
-   *
-   * @throws BusinessException if invalid.
+   Validate data.
+
+   @throws BusinessException if invalid.
    */
   public InstrumentMeme validate() throws BusinessException {
     if (this.instrumentMeme == null) {

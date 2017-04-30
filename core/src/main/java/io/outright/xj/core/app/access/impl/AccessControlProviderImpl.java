@@ -3,10 +3,10 @@ package io.outright.xj.core.app.access.impl;
 
 import io.outright.xj.core.app.access.AccessControlProvider;
 import io.outright.xj.core.app.config.Config;
-import io.outright.xj.core.db.RedisDatabaseProvider;
 import io.outright.xj.core.app.exception.AccessException;
 import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.app.exception.DatabaseException;
+import io.outright.xj.core.db.RedisDatabaseProvider;
 import io.outright.xj.core.tables.records.AccountUserRecord;
 import io.outright.xj.core.tables.records.UserAuthRecord;
 import io.outright.xj.core.tables.records.UserRoleRecord;
@@ -44,7 +44,7 @@ public class AccessControlProviderImpl implements AccessControlProvider {
   @Override
   public String create(UserAuthRecord userAuthRecord, Collection<AccountUserRecord> userAccountRoleRecords, Collection<UserRoleRecord> userRoleRecords) throws AccessException {
     String accessToken = tokenGenerator.generate();
-    update(accessToken,userAuthRecord,userAccountRoleRecords,userRoleRecords);
+    update(accessToken, userAuthRecord, userAccountRoleRecords, userRoleRecords);
     return accessToken;
   }
 
@@ -99,19 +99,19 @@ public class AccessControlProviderImpl implements AccessControlProvider {
   }
 
   /**
-   * Access cookieSetToken value setter
-   *
-   * @param value to set
-   * @return name=value pair
+   Access cookieSetToken value setter
+
+   @param value to set
+   @return name=value pair
    */
   private String cookieSetToken(String value) {
     return tokenName + "=" + value + ";";
   }
 
   /**
-   * Access cookieSetToken cookie Domain and Path
-   *
-   * @return String
+   Access cookieSetToken cookie Domain and Path
+
+   @return String
    */
   private String cookieSetDomainPath() {
     return (tokenDomain.length() > 0 ? "Domain=" + tokenDomain + ";" : "") +

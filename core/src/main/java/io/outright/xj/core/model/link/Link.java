@@ -38,7 +38,7 @@ public class Link extends Entity {
   );
 
   /**
-   * For use in maps.
+   For use in maps.
    */
   public static final String KEY_ONE = "link";
   public static final String KEY_MANY = "links";
@@ -54,7 +54,7 @@ public class Link extends Entity {
   private static final String KEY_KEY = "key";
 
   /**
-   * ID
+   ID
    */
   private ULong id;
 
@@ -68,7 +68,7 @@ public class Link extends Entity {
   }
 
   /**
-   * Chain
+   Chain
    */
   private ULong chainId;
 
@@ -82,7 +82,7 @@ public class Link extends Entity {
   }
 
   /**
-   * State
+   State
    */
   private String state;
 
@@ -96,7 +96,7 @@ public class Link extends Entity {
   }
 
   /**
-   * BeginAt
+   BeginAt
    */
   private Timestamp beginAt;
   private String beginAtError;
@@ -120,7 +120,7 @@ public class Link extends Entity {
   }
 
   /**
-   * EndAt (optional)
+   EndAt (optional)
    */
   private Timestamp endAt;
   private String endAtError;
@@ -144,7 +144,7 @@ public class Link extends Entity {
   }
 
   /**
-   * Key
+   Key
    */
   private String key;
 
@@ -158,7 +158,7 @@ public class Link extends Entity {
   }
 
   /**
-   * Total
+   Total
    */
   private Integer total;
 
@@ -172,7 +172,7 @@ public class Link extends Entity {
   }
 
   /**
-   * Offset
+   Offset
    */
   private ULong offset;
 
@@ -190,7 +190,7 @@ public class Link extends Entity {
   }
 
   /**
-   * Density
+   Density
    */
   private Double density;
 
@@ -204,7 +204,7 @@ public class Link extends Entity {
   }
 
   /**
-   * Tempo
+   Tempo
    */
   private Double tempo;
 
@@ -218,9 +218,9 @@ public class Link extends Entity {
   }
 
   /**
-   * Validate data.
-   *
-   * @throws BusinessException if invalid.
+   Validate data.
+
+   @throws BusinessException if invalid.
    */
   @Override
   public void validate() throws BusinessException {
@@ -237,9 +237,10 @@ public class Link extends Entity {
   }
 
   /**
-   * Validate a state
-   * @param state to validate
-   * @throws BusinessException if invalid
+   Validate a state
+
+   @param state to validate
+   @throws BusinessException if invalid
    */
   public static void validateState(String state) throws BusinessException {
     if (state == null || state.length() == 0) {
@@ -251,9 +252,9 @@ public class Link extends Entity {
   }
 
   /**
-   * Model info jOOQ-field : Value map
-   *
-   * @return map
+   Model info jOOQ-field : Value map
+
+   @return map
    */
   @Override
   public Map<Field, Object> intoFieldValueMap() {
@@ -271,9 +272,10 @@ public class Link extends Entity {
   }
 
   /**
-   * Build a new Link model from a JSONObject representation
-   * @param json object
-   * @return Link model
+   Build a new Link model from a JSONObject representation
+
+   @param json object
+   @return Link model
    */
   public static Link fromJSON(JSONObject json) {
     Link link = new Link();

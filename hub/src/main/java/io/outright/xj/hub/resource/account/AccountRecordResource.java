@@ -10,9 +10,11 @@ import io.outright.xj.core.model.account.AccountWrapper;
 import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.transport.JSON;
 
+import org.jooq.types.ULong;
+
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.jooq.types.ULong;
+
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +34,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 
 /**
- * Account record
+ Account record
  */
 @Path("accounts/{id}")
 public class AccountRecordResource {
@@ -44,9 +46,9 @@ public class AccountRecordResource {
   @PathParam("id") String id;
 
   /**
-   * Get one account.
-   *
-   * @return application/json response.
+   Get one account.
+
+   @return application/json response.
    */
   @GET
   @WebResult
@@ -70,10 +72,10 @@ public class AccountRecordResource {
   }
 
   /**
-   * Update one account
-   *
-   * @param data with which to update Account record.
-   * @return Response
+   Update one account
+
+   @param data with which to update Account record.
+   @return Response
    */
   @PUT
   @Consumes(MediaType.APPLICATION_JSON)
@@ -90,9 +92,9 @@ public class AccountRecordResource {
   }
 
   /**
-   * Delete one account
-   *
-   * @return Response
+   Delete one account
+
+   @return Response
    */
   @DELETE
   @RolesAllowed({Role.ADMIN})

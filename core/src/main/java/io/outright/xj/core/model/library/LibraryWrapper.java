@@ -8,19 +8,22 @@ public class LibraryWrapper extends EntityWrapper {
 
   // Library
   private Library library;
+
   public Library getLibrary() {
     return library;
   }
+
   public LibraryWrapper setLibrary(Library library) {
     this.library = library;
     return this;
   }
 
   /**
-   * Validate data.
-   * @throws BusinessException if invalid.
+   Validate data.
+
+   @throws BusinessException if invalid.
    */
-  public Library validate() throws BusinessException{
+  public Library validate() throws BusinessException {
     if (this.library == null) {
       throw new BusinessException("Library is required.");
     }

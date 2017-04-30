@@ -3,15 +3,34 @@ import Ember from 'ember';
 
 export default Ember.Route.extend({
 
+  // Inject: flash message service
   display: Ember.inject.service(),
 
+  /**
+   * Route Model
+   * @returns {Promise.<T>}
+   */
   model: function () {
+    let self = this;
     return this.store.findAll('account')
       .catch((error) => {
-        Ember.get(this, 'display').error(error);
-        this.transitionTo('');
+        Ember.get(self, 'display').error(error);
+        self.transitionTo('');
       });
   },
 
+  /**
+   * Headline
+   */
+  afterModel() {
+    Ember.set(this, 'routeHeadline', {
+      title: 'Accounts'
+    });
+  },
+
+  /**
+   * Route Actions
+   */
   actions: {}
+
 });

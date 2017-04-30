@@ -3,8 +3,6 @@
 <!-- Inner Content -->
 {{outlet}}
 
-<!-- Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved. -->
-
 <!-- Upper Container -->
 <div class="form-horizontal">
 
@@ -20,14 +18,15 @@
           <th width="1%">pitch</th>
           <th width="1%">start</th>
           <th width="1%">length</th>
-          <th></th>
+          <th><!-- Actions --></th>
           <th width="1%">#</th>
         </tr>
         </thead>
         <tbody>
         {{#each model.audios as |audio|}}
           <tr class="item">
-            <td>{{audio.name}}</td>
+            <td>{{#link-to "accounts.one.libraries.one.instruments.one.audios.one"
+                                       audio}}{{audio.name}}{{/link-to}}</td>
             <td><a target="_blank" href="{{model.audioBaseUrl}}{{audio.waveformKey}}">
               {{audio.waveformKey}}
             </a></td>
@@ -36,15 +35,12 @@
             <td>{{audio.start}}</td>
             <td>{{audio.length}}</td>
             <td>
-              {{#link-to 'accounts.one.libraries.one.instruments.one.audios.one.edit' audio}}
-                Edit{{/link-to}}
-              |&nbsp;{{#link-to 'accounts.one.libraries.one.instruments.one.audios.one.events' audio}}
+              {{#link-to 'accounts.one.libraries.one.instruments.one.audios.one.events' audio}}
               Events{{/link-to}}
               |&nbsp;{{#link-to 'accounts.one.libraries.one.instruments.one.audios.one.chords' audio}}
               Chords{{/link-to}}
             </td>
-            <th scope="row">{{#link-to "accounts.one.libraries.one.instruments.one.audios.one"
-                                       audio}}{{audio.id}}{{/link-to}}</th>
+            <th scope="row">{{audio.id}}</th>
           </tr>
         {{/each}}
         </tbody>

@@ -238,11 +238,11 @@ public class ChainInstrumentIT {
 
     testDAO.delete(access, ULong.valueOf(1));
 
-    ChainInstrumentRecord deletedRecord = IntegrationTestService.getDb()
+    ChainInstrumentRecord result = IntegrationTestService.getDb()
       .selectFrom(CHAIN_INSTRUMENT)
       .where(CHAIN_INSTRUMENT.ID.eq(ULong.valueOf(1)))
       .fetchOne();
-    assertNull(deletedRecord);
+    assertNull(result);
   }
 
   @Test(expected = BusinessException.class)

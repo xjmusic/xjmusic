@@ -110,13 +110,13 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
   }
 
   /**
-   * Create a new Audio
-   *
-   * @param db     context
-   * @param access control
-   * @param data   for new audio
-   * @return newly created record
-   * @throws BusinessException if failure
+   Create a new Audio
+
+   @param db     context
+   @param access control
+   @param data   for new audio
+   @return newly created record
+   @throws BusinessException if failure
    */
   private JSONObject create(DSLContext db, AccessControl access, AudioWrapper data) throws BusinessException {
     Audio model = data.validate();
@@ -147,12 +147,12 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
   }
 
   /**
-   * Read one Audio if able
-   *
-   * @param db     context
-   * @param access control
-   * @param id     of audio
-   * @return audio
+   Read one Audio if able
+
+   @param db     context
+   @param access control
+   @param id     of audio
+   @return audio
    */
   private JSONObject readOne(DSLContext db, AccessControl access, ULong id) {
     if (access.isTopLevel()) {
@@ -171,13 +171,13 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
   }
 
   /**
-   * Read all Audio able for an Instrument
-   *
-   * @param db           context
-   * @param access       control
-   * @param instrumentId to read all audio of
-   * @return array of audios
-   * @throws SQLException on failure
+   Read all Audio able for an Instrument
+
+   @param db           context
+   @param access       control
+   @param instrumentId to read all audio of
+   @return array of audios
+   @throws SQLException on failure
    */
   private JSONArray readAllIn(DSLContext db, AccessControl access, ULong instrumentId) throws SQLException {
     if (access.isTopLevel()) {
@@ -197,16 +197,16 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
   }
 
   /**
-   * Update an Audio record
-   * <p>
-   * TODO: ensure that the user access has access to this Audio by id
-   * TODO: ensure ALL RECORDS HAVE ACCESS CONTROL that asserts the record primary id against the user access-- build a system for it and implement it over all DAO methods
-   *
-   * @param db     context
-   * @param access control
-   * @param id     to update
-   * @param data   to update with
-   * @throws BusinessException if failure
+   Update an Audio record
+   <p>
+   TODO: ensure that the user access has access to this Audio by id
+   TODO: ensure ALL RECORDS HAVE ACCESS CONTROL that asserts the record primary id against the user access-- build a system for it and implement it over all DAO methods
+
+   @param db     context
+   @param access control
+   @param id     to update
+   @param data   to update with
+   @throws BusinessException if failure
    */
   private void update(DSLContext db, AccessControl access, ULong id, AudioWrapper data) throws Exception {
     Audio model = data.validate();
@@ -231,12 +231,12 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
   }
 
   /**
-   * Update an Audio record
-   *
-   * @param db     context
-   * @param access control
-   * @param id     to update
-   * @throws BusinessException if failure
+   Update an Audio record
+
+   @param db     context
+   @param access control
+   @param id     to update
+   @throws BusinessException if failure
    */
   private JSONObject uploadOne(DSLContext db, AccessControl access, ULong id) throws Exception {
     Record audioRecord;
@@ -267,13 +267,13 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
   }
 
   /**
-   * Delete an Audio
-   *
-   * @param db context
-   * @param id to delete
-   * @throws Exception         if database failure
-   * @throws ConfigException   if not configured properly
-   * @throws BusinessException if fails business rule
+   Delete an Audio
+
+   @param db context
+   @param id to delete
+   @throws Exception         if database failure
+   @throws ConfigException   if not configured properly
+   @throws BusinessException if fails business rule
    */
   private void delete(AccessControl access, DSLContext db, ULong id) throws Exception {
     requireEmptyResultSet(db.select(AUDIO_EVENT.ID)

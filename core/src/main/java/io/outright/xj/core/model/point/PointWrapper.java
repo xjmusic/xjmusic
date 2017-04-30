@@ -8,20 +8,23 @@ public class PointWrapper extends EntityWrapper {
 
   // Point
   private Point point;
+
   public Point getPoint() {
     return point;
   }
+
   public PointWrapper setPoint(Point point) {
     this.point = point;
     return this;
   }
 
   /**
-   * Validate data.
-   * @throws BusinessException if invalid.
+   Validate data.
+
+   @throws BusinessException if invalid.
    */
   @Override
-  public Point validate() throws BusinessException{
+  public Point validate() throws BusinessException {
     if (this.point == null) {
       throw new BusinessException("Point is required.");
     }

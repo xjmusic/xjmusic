@@ -63,9 +63,9 @@ public class MixerImpl implements Mixer {
   private MixFactory mixFactory;
 
   /**
-   * Instantiate a single Mix instance
-   *
-   * @param outputFormat including the final output outputLength
+   Instantiate a single Mix instance
+
+   @param outputFormat including the final output outputLength
    */
   @Inject
   public MixerImpl(
@@ -120,7 +120,7 @@ public class MixerImpl implements Mixer {
     state = WRITING;
     long startedAt = System.nanoTime();
     log.info("Will write {} bytes of output audio", totalBytes);
-    new AudioStreamWriter(outputBytes).writeToFile(outputFilePath,outputFormat,totalFrames);
+    new AudioStreamWriter(outputBytes).writeToFile(outputFilePath, outputFormat, totalFrames);
 
     state = DONE;
     log.info("Did write {} OK in {}s", outputFilePath, String.format("%.9f", (double) (System.nanoTime() - startedAt) / nanosInASecond));
@@ -201,11 +201,11 @@ public class MixerImpl implements Mixer {
   }
 
   /**
-   * Mix
-   * runs once per Mixer
-   *
-   * @return mixed output values
-   * @throws MixerException if unable to mix
+   Mix
+   runs once per Mixer
+
+   @return mixed output values
+   @throws MixerException if unable to mix
    */
   private double[][] mix() throws Exception {
     if (!Objects.equals(state, READY)) {
@@ -226,10 +226,10 @@ public class MixerImpl implements Mixer {
   }
 
   /**
-   * Convert output values into a ByteBuffer
-   *
-   * @param mix output to convert
-   * @return output as byte buffer
+   Convert output values into a ByteBuffer
+
+   @param mix output to convert
+   @return output as byte buffer
    */
   private ByteBuffer byteBufferOf(double[][] mix) {
     ByteBuffer outputBytes = ByteBuffer.allocate(totalBytes);
@@ -242,14 +242,14 @@ public class MixerImpl implements Mixer {
   }
 
   /**
-   * mix the 64-bit floating-point sample values for the next frame across all output channels.
-   * <p>
-   * the Put only has a reference to the source--
-   * so the Mixer has to use that reference source id along with other variables from the Put,
-   * in order to arrive at the final source output value at any given microsecond
-   *
-   * @param offsetFrame of frame from start of mix
-   * @return array of samples (one per channel) constituting a frame of audio
+   mix the 64-bit floating-point sample values for the next frame across all output channels.
+   <p>
+   the Put only has a reference to the source--
+   so the Mixer has to use that reference source id along with other variables from the Put,
+   in order to arrive at the final source output value at any given microsecond
+
+   @param offsetFrame of frame from start of mix
+   @return array of samples (one per channel) constituting a frame of audio
    */
   private double[] mixFrame(long offsetFrame) {
     mixCycleBeforeEveryNthFrame(offsetFrame);
@@ -266,17 +266,17 @@ public class MixerImpl implements Mixer {
       }
     });
 
- return mixDynamicLogarithmicRangeCompression(frame);
+    return mixDynamicLogarithmicRangeCompression(frame);
   }
 
   /**
-   * mix a particular source frame to the output specifications, including volume & pan
-   *
-   * @param sourceId of source
-   * @param volume   to mix output to
-   * @param pan      to mix output to
-   * @param atMicros at which to get source frame
-   * @return mixed source frame
+   mix a particular source frame to the output specifications, including volume & pan
+
+   @param sourceId of source
+   @param volume   to mix output to
+   @param pan      to mix output to
+   @param atMicros at which to get source frame
+   @return mixed source frame
    */
   private double[] mixSourceFrameAtMicros(String sourceId, double volume, double pan, long atMicros) {
     Source source = sources.get(sourceId);
@@ -287,13 +287,13 @@ public class MixerImpl implements Mixer {
   }
 
   /**
-   * THE "MIX CYCLE"
-   * <p>
-   * move puts from ready -> live -> done
-   * <p>
-   * get rid of sources not used by ready/live puts
-   *
-   * @param frameOffset of frame from start of mix
+   THE "MIX CYCLE"
+   <p>
+   move puts from ready -> live -> done
+   <p>
+   get rid of sources not used by ready/live puts
+
+   @param frameOffset of frame from start of mix
    */
   private void mixCycleBeforeEveryNthFrame(long frameOffset) {
     if (frameOffset < nextCycleFrame) {
@@ -351,20 +351,20 @@ public class MixerImpl implements Mixer {
   }
 
   /**
-   * Get microsecond value of a frame offset
-   *
-   * @param frameOffset offset
-   * @return microseconds
+   Get microsecond value of a frame offset
+
+   @param frameOffset offset
+   @return microseconds
    */
   private long getMicros(long frameOffset) {
     return (long) Math.floor(microsInASecond * (float) frameOffset / outputFrameRate);
   }
 
   /**
-   * build a map of all source id to boolean value
-   *
-   * @param value to set all values to
-   * @return map
+   build a map of all source id to boolean value
+
+   @param value to set all values to
+   @return map
    */
   private Map<String, Boolean> buildMapAllSourceIdTo(boolean value) {
     Map<String, Boolean> result = Maps.newHashMap();
@@ -373,12 +373,12 @@ public class MixerImpl implements Mixer {
   }
 
   /**
-   * Quick implementation of "Mixing two digital audio streams
-   * with on the fly Loudness Normalization
-   * by Logarithmic Dynamic Range Compression" by Paul Vögler
-   *
-   * @param i input value
-   * @return output value
+   Quick implementation of "Mixing two digital audio streams
+   with on the fly Loudness Normalization
+   by Logarithmic Dynamic Range Compression" by Paul Vögler
+
+   @param i input value
+   @return output value
    */
   private double mixDynamicLogarithmicRangeCompression(double i) {
     if (i < -1) {
@@ -391,10 +391,10 @@ public class MixerImpl implements Mixer {
   }
 
   /**
-   * Apply logarithmic dynamic range compression to each channels of a frame
-   *
-   * @param frame to operate on
-   * @return compressed frame
+   Apply logarithmic dynamic range compression to each channels of a frame
+
+   @param frame to operate on
+   @return compressed frame
    */
   private double[] mixDynamicLogarithmicRangeCompression(double[] frame) {
     double[] out = new double[outputChannels];
@@ -405,9 +405,9 @@ public class MixerImpl implements Mixer {
   }
 
   /**
-   * generate unique ids for storage of Puts
-   *
-   * @return next unique put id
+   generate unique ids for storage of Puts
+
+   @return next unique put id
    */
   private long nextPutId() {
     uniquePutId++;
@@ -415,12 +415,12 @@ public class MixerImpl implements Mixer {
   }
 
   /**
-   * Enforce a maximum
-   *
-   * @param valueMax   maximum allowable value
-   * @param entityName name of entity, for error message
-   * @param value      actual
-   * @throws MixerException if value greater than allowable
+   Enforce a maximum
+
+   @param valueMax   maximum allowable value
+   @param entityName name of entity, for error message
+   @param value      actual
+   @throws MixerException if value greater than allowable
    */
   private void enforceMax(int valueMax, String entityName, int value) throws MixerException {
     if (value > valueMax) {
@@ -429,12 +429,12 @@ public class MixerImpl implements Mixer {
   }
 
   /**
-   * Enforce a minimum
-   *
-   * @param valueMin   minimum allowable value
-   * @param entityName name of entity, for error message
-   * @param value      actual
-   * @throws MixerException if value less than allowable
+   Enforce a minimum
+
+   @param valueMin   minimum allowable value
+   @param entityName name of entity, for error message
+   @param value      actual
+   @throws MixerException if value less than allowable
    */
   private void enforceMin(int valueMin, String entityName, int value) throws MixerException {
     if (value < valueMin) {

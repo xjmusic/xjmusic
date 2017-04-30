@@ -19,9 +19,9 @@ public class AudioChordWrapper extends EntityWrapper {
   }
 
   /**
-   * Validate data.
-   *
-   * @throws BusinessException if invalid.
+   Validate data.
+
+   @throws BusinessException if invalid.
    */
   public AudioChord validate() throws BusinessException {
     if (this.audioChord == null) {

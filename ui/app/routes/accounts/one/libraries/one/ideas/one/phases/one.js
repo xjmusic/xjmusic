@@ -3,20 +3,21 @@ import Ember from 'ember';
 
 export default Ember.Route.extend({
 
+  // Inject: flash message service
+  display: Ember.inject.service(),
+
   model(params) {
+    let self = this;
     return this.store.findRecord('phase', params.phase_id)
       .catch((error) => {
-        Ember.get(this, 'display').error(error);
-        this.transitionTo('accounts.one.libraries.one.ideas.one.phases');
+        Ember.get(self, 'display').error(error);
+        self.transitionTo('accounts.one.libraries.one.ideas.one.phases');
       });
   },
 
   afterModel(model) {
-    let name = model.get("name");
-    let title = name ? name : '';
-    title += '@' + model.get("offset");
     Ember.set(this, 'breadCrumb', {
-      title: title
+      title: model.getTitle()
     });
   }
 

@@ -3,29 +3,30 @@
 <!-- Inner content above -->
 {{outlet}}
 
-<!-- List of Accounts -->
+<!-- Upper container -->
 <div class="form-horizontal">
+
+  <!-- List of Accounts -->
   <div class="sm-col-12">
     <div class="table-list">
       <table class="table">
         <thead>
         <tr>
           <th>Name</th>
-          <th></th>
+          <th><!-- Actions --></th>
           <th width="1%">#</th>
         </tr>
         </thead>
         <tbody>
         {{#each model as |A|}}
           <tr class="item">
-            <td>{{A.name}}</td>
+            <td>{{#link-to 'accounts.one' A}}{{A.name}}{{/link-to}}</td>
             <td>
-              {{#link-to 'accounts.one.edit' A}}Edit{{/link-to}}
-              |&nbsp;{{#link-to 'accounts.one.users' A}}Users{{/link-to}}
-              |&nbsp;{{#link-to 'accounts.one.libraries' A}}Libraries{{/link-to}}
+              {{#link-to 'accounts.one.libraries' A}}Libraries{{/link-to}}
               |&nbsp;{{#link-to 'accounts.one.chains' A}}Chains{{/link-to}}
+              |&nbsp;{{#link-to 'accounts.one.users' A}}Users{{/link-to}}
             </td>
-            <th scope="row">{{#link-to 'accounts.one' A}}{{A.id}}{{/link-to}}</th>
+            <th scope="row">{{A.id}}</th>
           </tr>
         {{/each}}
         </tbody>

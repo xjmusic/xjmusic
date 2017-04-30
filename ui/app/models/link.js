@@ -11,5 +11,11 @@ export default DS.Model.extend({
   density: DS.attr('number'),
   key: DS.attr('string'),
   tempo: DS.attr('number'),
+
+  getTitle() {
+    return 'Link' +
+      '@' + this.get("offset");
+  }
+
 });
 

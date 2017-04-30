@@ -95,13 +95,13 @@ public class AudioChordDAOImpl extends DAOImpl implements AudioChordDAO {
   }
 
   /**
-   * Create a new Audio Chord
-   *
-   * @param db     context
-   * @param access control
-   * @param data   for new audio
-   * @return newly created record
-   * @throws BusinessException if failure
+   Create a new Audio Chord
+
+   @param db     context
+   @param access control
+   @param data   for new audio
+   @return newly created record
+   @throws BusinessException if failure
    */
   private JSONObject create(DSLContext db, AccessControl access, AudioChordWrapper data) throws BusinessException {
     AudioChord model = data.validate();
@@ -124,12 +124,12 @@ public class AudioChordDAOImpl extends DAOImpl implements AudioChordDAO {
   }
 
   /**
-   * Read one Chord if able
-   *
-   * @param db     context
-   * @param access control
-   * @param id     of audio
-   * @return audio
+   Read one Chord if able
+
+   @param db     context
+   @param access control
+   @param id     of audio
+   @return audio
    */
   private JSONObject readOne(DSLContext db, AccessControl access, ULong id) {
     if (access.isTopLevel()) {
@@ -149,13 +149,13 @@ public class AudioChordDAOImpl extends DAOImpl implements AudioChordDAO {
   }
 
   /**
-   * Read all Chord able for an Instrument
-   *
-   * @param db      context
-   * @param access  control
-   * @param audioId to read all audio of
-   * @return array of audios
-   * @throws SQLException on failure
+   Read all Chord able for an Instrument
+
+   @param db      context
+   @param access  control
+   @param audioId to read all audio of
+   @return array of audios
+   @throws SQLException on failure
    */
   private JSONArray readAllIn(DSLContext db, AccessControl access, ULong audioId) throws SQLException {
     if (access.isTopLevel()) {
@@ -178,13 +178,13 @@ public class AudioChordDAOImpl extends DAOImpl implements AudioChordDAO {
   }
 
   /**
-   * Update a Chord record
-   *
-   * @param db     context
-   * @param access control
-   * @param id     to update
-   * @param data   to update with
-   * @throws BusinessException if failure
+   Update a Chord record
+
+   @param db     context
+   @param access control
+   @param id     to update
+   @param data   to update with
+   @throws BusinessException if failure
    */
   private void update(DSLContext db, AccessControl access, ULong id, AudioChordWrapper data) throws Exception {
     AudioChord model = data.validate();
@@ -210,13 +210,13 @@ public class AudioChordDAOImpl extends DAOImpl implements AudioChordDAO {
   }
 
   /**
-   * Delete an Chord
-   *
-   * @param db context
-   * @param id to delete
-   * @throws Exception if database failure
-   * @throws ConfigException   if not configured properly
-   * @throws BusinessException if fails business rule
+   Delete an Chord
+
+   @param db context
+   @param id to delete
+   @throws Exception         if database failure
+   @throws ConfigException   if not configured properly
+   @throws BusinessException if fails business rule
    */
   private void delete(AccessControl access, DSLContext db, ULong id) throws Exception {
     if (!access.isTopLevel()) {

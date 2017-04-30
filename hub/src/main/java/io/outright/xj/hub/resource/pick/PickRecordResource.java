@@ -28,7 +28,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 
 /**
- * Pick record
+ Pick record
  */
 @Path("picks/{id}")
 public class PickRecordResource {
@@ -40,9 +40,9 @@ public class PickRecordResource {
   String id;
 
   /**
-   * Get one pick.
-   *
-   * @return application/json response.
+   Get one pick.
+
+   @return application/json response.
    */
   @GET
   @WebResult

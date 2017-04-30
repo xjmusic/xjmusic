@@ -73,9 +73,9 @@ public class SQLDatabaseProviderImpl implements SQLDatabaseProvider {
   }
 
   /**
-   * Get SQL Database jOOQ settings
-   *
-   * @return jOOQ Settings
+   Get SQL Database jOOQ settings
+
+   @return jOOQ Settings
    */
   private Settings getSettings() {
     return new Settings()

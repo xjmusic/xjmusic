@@ -34,7 +34,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 
 /**
- * Chain Idea record
+ Chain Idea record
  */
 @Path("chain-ideas")
 public class ChainIdeaIndexResource {
@@ -47,9 +47,9 @@ public class ChainIdeaIndexResource {
   String chainId;
 
   /**
-   * Get Ideas in one chain.
-   *
-   * @return application/json response.
+   Get Ideas in one chain.
+
+   @return application/json response.
    */
   // TODO [hub] Return 404 if the chain is not found.
   @GET
@@ -79,10 +79,10 @@ public class ChainIdeaIndexResource {
   }
 
   /**
-   * Create new chain idea
-   *
-   * @param data with which to update Chain record.
-   * @return Response
+   Create new chain idea
+
+   @param data with which to update Chain record.
+   @return Response
    */
   @POST
   @Consumes(MediaType.APPLICATION_JSON)

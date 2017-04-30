@@ -7,7 +7,6 @@ import io.outright.xj.core.model.Entity;
 import org.jooq.Field;
 
 import com.google.api.client.util.Maps;
-import com.google.common.collect.ImmutableMap;
 
 import java.util.Map;
 
@@ -26,9 +25,9 @@ public class User extends Entity {
   }
 
   /**
-   * Validate data.
-   *
-   * @throws BusinessException if invalid.
+   Validate data.
+
+   @throws BusinessException if invalid.
    */
   public void validate() throws BusinessException {
     if (this.getRoles() == null || this.getRoles().length() == 0) {
@@ -37,8 +36,9 @@ public class User extends Entity {
   }
 
   /**
-   * Model info jOOQ-field : Value map
-   * @return map
+   Model info jOOQ-field : Value map
+
+   @return map
    */
   @Override
   public Map<Field, Object> intoFieldValueMap() {
@@ -46,7 +46,7 @@ public class User extends Entity {
   }
 
   /**
-   * For use in maps.
+   For use in maps.
    */
   public static final String KEY_ONE = "user";
   public static final String KEY_MANY = "users";

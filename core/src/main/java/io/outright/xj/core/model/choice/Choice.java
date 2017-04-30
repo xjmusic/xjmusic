@@ -11,7 +11,6 @@ import org.jooq.Field;
 import org.jooq.types.ULong;
 
 import com.google.api.client.util.Maps;
-import com.google.common.collect.ImmutableList;
 
 import java.math.BigInteger;
 import java.util.List;
@@ -26,13 +25,13 @@ public class Choice extends Entity {
   public static final String SUPPORT = Idea.SUPPORT;
 
   /**
-   * It is implied that choice types must equal idea types
+   It is implied that choice types must equal idea types
    */
   public final static List<String> TYPES = Idea.TYPES;
 
 
   /**
-   * Link
+   Link
    */
   private ULong linkId;
 
@@ -46,7 +45,7 @@ public class Choice extends Entity {
   }
 
   /**
-   * Idea
+   Idea
    */
   private ULong ideaId;
 
@@ -60,7 +59,7 @@ public class Choice extends Entity {
   }
 
   /**
-   * Type
+   Type
    */
   private String type;
 
@@ -74,7 +73,7 @@ public class Choice extends Entity {
   }
 
   /**
-   * Phase Offset
+   Phase Offset
    */
   private ULong phaseOffset;
 
@@ -88,7 +87,7 @@ public class Choice extends Entity {
   }
 
   /**
-   * Transpose +/-
+   Transpose +/-
    */
   private Integer transpose;
 
@@ -102,9 +101,9 @@ public class Choice extends Entity {
   }
 
   /**
-   * Validate data.
-   *
-   * @throws BusinessException if invalid.
+   Validate data.
+
+   @throws BusinessException if invalid.
    */
   @Override
   public void validate() throws BusinessException {
@@ -126,9 +125,9 @@ public class Choice extends Entity {
   }
 
   /**
-   * Model info jOOQ-field : Value map
-   *
-   * @return map
+   Model info jOOQ-field : Value map
+
+   @return map
    */
   @Override
   public Map<Field, Object> intoFieldValueMap() {
@@ -142,7 +141,7 @@ public class Choice extends Entity {
   }
 
   /**
-   * For use in maps.
+   For use in maps.
    */
   public static final String KEY_ONE = "choice";
   public static final String KEY_MANY = "choices";

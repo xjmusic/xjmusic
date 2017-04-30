@@ -29,9 +29,9 @@ import static io.outright.xj.core.tables.InstrumentMeme.INSTRUMENT_MEME;
 import static io.outright.xj.core.tables.Library.LIBRARY;
 
 /**
- * InstrumentMeme DAO
- * <p>
- * TODO [core] more specific permissions of user (artist) access by per-entity ownership
+ InstrumentMeme DAO
+ <p>
+ TODO [core] more specific permissions of user (artist) access by per-entity ownership
  */
 public class InstrumentMemeDAOImpl extends DAOImpl implements InstrumentMemeDAO {
 
@@ -84,15 +84,15 @@ public class InstrumentMemeDAOImpl extends DAOImpl implements InstrumentMemeDAO 
   }
 
   /**
-   * Create a new Instrument Meme record
-   *
-   * @param db     context
-   * @param access control
-   * @param data   for new InstrumentMeme
-   * @return new record
-   * @throws Exception         if database failure
-   * @throws ConfigException   if not configured properly
-   * @throws BusinessException if fails business rule
+   Create a new Instrument Meme record
+
+   @param db     context
+   @param access control
+   @param data   for new InstrumentMeme
+   @return new record
+   @throws Exception         if database failure
+   @throws ConfigException   if not configured properly
+   @throws BusinessException if fails business rule
    */
   private JSONObject create(DSLContext db, AccessControl access, InstrumentMemeWrapper data) throws Exception {
     InstrumentMeme model = data.validate();
@@ -121,12 +121,12 @@ public class InstrumentMemeDAOImpl extends DAOImpl implements InstrumentMemeDAO 
   }
 
   /**
-   * Read one Instrument Meme where able
-   *
-   * @param db     context
-   * @param access control
-   * @param id     of record
-   * @return record
+   Read one Instrument Meme where able
+
+   @param db     context
+   @param access control
+   @param id     of record
+   @return record
    */
   private JSONObject readOneAble(DSLContext db, AccessControl access, ULong id) throws SQLException {
     if (access.isTopLevel()) {
@@ -144,13 +144,13 @@ public class InstrumentMemeDAOImpl extends DAOImpl implements InstrumentMemeDAO 
   }
 
   /**
-   * Read all Memes of an Instrument where able
-   *
-   * @param db     context
-   * @param access control
-   * @param instrumentId to read memes for
-   * @return array of instrument memes
-   * @throws SQLException if failure
+   Read all Memes of an Instrument where able
+
+   @param db           context
+   @param access       control
+   @param instrumentId to read memes for
+   @return array of instrument memes
+   @throws SQLException if failure
    */
   private JSONArray readAllIn(DSLContext db, AccessControl access, ULong instrumentId) throws SQLException {
     if (access.isTopLevel()) {
@@ -168,12 +168,12 @@ public class InstrumentMemeDAOImpl extends DAOImpl implements InstrumentMemeDAO 
   }
 
   /**
-   * Delete an InstrumentMeme record
-   *
-   * @param db     context
-   * @param access control
-   * @param id     to delete
-   * @throws BusinessException if failure
+   Delete an InstrumentMeme record
+
+   @param db     context
+   @param access control
+   @param id     to delete
+   @throws BusinessException if failure
    */
   // TODO: fail if no instrumentMeme is deleted
   private void delete(DSLContext db, AccessControl access, ULong id) throws BusinessException {

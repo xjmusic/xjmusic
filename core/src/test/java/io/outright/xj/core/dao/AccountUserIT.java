@@ -43,7 +43,7 @@ public class AccountUserIT {
 
     // John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
     IntegrationTestEntity.insertUser(2, "john", "john@email.com", "http://pictures.com/john.gif");
-    IntegrationTestEntity.insertAccountUser(1,1, 2);
+    IntegrationTestEntity.insertAccountUser(1, 1, 2);
 
     // Jenny has a "user" role and belongs to account "bananas"
     IntegrationTestEntity.insertUser(3, "jenny", "jenny@email.com", "http://pictures.com/jenny.gif");
@@ -63,7 +63,7 @@ public class AccountUserIT {
     AccessControl access = new AccessControl(ImmutableMap.of(
       "roles", "admin"
     ));
-    IntegrationTestEntity.insertUser(5,"Jim","jim@email.com","http://pictures.com/jim.gif");
+    IntegrationTestEntity.insertUser(5, "Jim", "jim@email.com", "http://pictures.com/jim.gif");
     AccountUserWrapper inputDataWrapper = new AccountUserWrapper()
       .setAccountUser(new AccountUser()
         .setAccountId(BigInteger.valueOf(1))
@@ -212,11 +212,11 @@ public class AccountUserIT {
 
     testDAO.delete(access, ULong.valueOf(1));
 
-    AccountUserRecord deletedRecord = IntegrationTestService.getDb()
+    AccountUserRecord result = IntegrationTestService.getDb()
       .selectFrom(ACCOUNT_USER)
       .where(ACCOUNT_USER.ID.eq(ULong.valueOf(1)))
       .fetchOne();
-    assertNull(deletedRecord);
+    assertNull(result);
   }
 
   @Test(expected = BusinessException.class)

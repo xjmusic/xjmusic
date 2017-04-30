@@ -12,9 +12,11 @@ import io.outright.xj.core.model.audio_chord.AudioChordWrapper;
 import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.transport.JSON;
 
+import org.jooq.types.ULong;
+
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.jooq.types.ULong;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -34,7 +36,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 
 /**
- * AudioChords
+ AudioChords
  */
 @Path("audio-chords")
 public class AudioChordIndexResource {
@@ -47,9 +49,9 @@ public class AudioChordIndexResource {
   String audioId;
 
   /**
-   * Get all audioChords.
-   *
-   * @return application/json response.
+   Get all audioChords.
+
+   @return application/json response.
    */
   @GET
   @WebResult
@@ -78,10 +80,10 @@ public class AudioChordIndexResource {
   }
 
   /**
-   * Create new audioChord
-   *
-   * @param data with which to update AudioChord record.
-   * @return Response
+   Create new audioChord
+
+   @param data with which to update AudioChord record.
+   @return Response
    */
   @POST
   @Consumes(MediaType.APPLICATION_JSON)

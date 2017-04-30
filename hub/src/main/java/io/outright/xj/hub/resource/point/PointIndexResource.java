@@ -30,7 +30,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 
 /**
- * Points
+ Points
  */
 @Path("points")
 public class PointIndexResource {
@@ -43,9 +43,9 @@ public class PointIndexResource {
   String morphId;
 
   /**
-   * Get all points.
-   *
-   * @return application/json response.
+   Get all points.
+
+   @return application/json response.
    */
   @GET
   @WebResult

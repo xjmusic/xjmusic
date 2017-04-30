@@ -109,13 +109,13 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
   }
 
   /**
-   * Create a new record
-   *
-   * @param db     context
-   * @param access control
-   * @param data   for new record
-   * @return newly created record
-   * @throws BusinessException if a Business Rule is violated
+   Create a new record
+
+   @param db     context
+   @param access control
+   @param data   for new record
+   @return newly created record
+   @throws BusinessException if a Business Rule is violated
    */
   private JSONObject create(DSLContext db, AccessControl access, LinkWrapper data) throws BusinessException {
     Link model = data.validate();
@@ -131,12 +131,12 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
   }
 
   /**
-   * Read one record
-   *
-   * @param db     context
-   * @param access control
-   * @param id     of record
-   * @return record
+   Read one record
+
+   @param db     context
+   @param access control
+   @param id     of record
+   @return record
    */
   private JSONObject readOne(DSLContext db, AccessControl access, ULong id) {
     if (access.isTopLevel()) {
@@ -155,15 +155,15 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
 
 
   /**
-   * Fetch one Link by chainId and state, if present
-   *
-   * @param db           context
-   * @param access       control
-   * @param chainId      to find link in
-   * @param linkState    linkState to find link in
-   * @param linkBeginBefore ahead to look for links
-   * @return Link if found
-   * @throws BusinessException on failure
+   Fetch one Link by chainId and state, if present
+
+   @param db              context
+   @param access          control
+   @param chainId         to find link in
+   @param linkState       linkState to find link in
+   @param linkBeginBefore ahead to look for links
+   @return Link if found
+   @throws BusinessException on failure
    */
   private JSONObject readOneInState(DSLContext db, AccessControl access, ULong chainId, String linkState, Timestamp linkBeginBefore) throws BusinessException {
     requireTopLevel(access);
@@ -180,12 +180,12 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
 
 
   /**
-   * Read all records in parent by id
-   *
-   * @param db      context
-   * @param access  control
-   * @param chainId of parent
-   * @return array of records
+   Read all records in parent by id
+
+   @param db      context
+   @param access  control
+   @param chainId of parent
+   @return array of records
    */
   private JSONArray readAllIn(DSLContext db, AccessControl access, ULong chainId) throws SQLException {
     if (access.isTopLevel()) {
@@ -206,14 +206,14 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
   }
 
   /**
-   * Update a record using a model wrapper
-   *
-   * @param db     context
-   * @param access control
-   * @param id     of link to update
-   * @param data   wrapper
-   * @throws BusinessException on failure
-   * @throws DatabaseException on failure
+   Update a record using a model wrapper
+
+   @param db     context
+   @param access control
+   @param id     of link to update
+   @param data   wrapper
+   @throws BusinessException on failure
+   @throws DatabaseException on failure
    */
   private void updateWrapper(DSLContext db, AccessControl access, ULong id, LinkWrapper data) throws Exception {
     Link model = data.validate();
@@ -223,13 +223,13 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
   }
 
   /**
-   * Update a record
-   *
-   * @param db     context
-   * @param access control
-   * @param id     of record
-   * @param fieldValues   to update with
-   * @throws BusinessException if a Business Rule is violated
+   Update a record
+
+   @param db          context
+   @param access      control
+   @param id          of record
+   @param fieldValues to update with
+   @throws BusinessException if a Business Rule is violated
    */
   private void update(DSLContext db, AccessControl access, ULong id, Map<Field, Object> fieldValues) throws BusinessException, DatabaseException {
     requireTopLevel(access);
@@ -291,14 +291,14 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
   }
 
   /**
-   * Delete a Link
-   *
-   * @param db     context
-   * @param access control
-   * @param id     to delete
-   * @throws Exception         if database failure
-   * @throws ConfigException   if not configured properly
-   * @throws BusinessException if fails business rule
+   Delete a Link
+
+   @param db     context
+   @param access control
+   @param id     to delete
+   @throws Exception         if database failure
+   @throws ConfigException   if not configured properly
+   @throws BusinessException if fails business rule
    */
   private void delete(DSLContext db, AccessControl access, ULong id) throws Exception {
     requireTopLevel(access);

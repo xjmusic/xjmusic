@@ -15,30 +15,30 @@
         <thead>
         <tr>
           <th width="1%">By</th>
-          <th>Name</th>
           <th width="1%">Type</th>
-          <th width="1%">Key</th>
-          <th width="1%">Density</th>
-          <th width="1%">Tempo</th>
-          <th></th>
+          <th>Name</th>
+          <th width="4%">Key</th>
+          <th width="4%">Density</th>
+          <th width="4%">Tempo</th>
+          <th><!-- Actions --></th>
           <th width="1%">#</th>
         </tr>
         </thead>
         <tbody>
         {{#each model.ideas as |idea|}}
           <tr class="item">
-            <td>{{#link-to "users.one" idea.user}}<img src="{{idea.user.avatarUrl}}" alt="{{idea.user.name}}" class="avatar" />{{/link-to}}</td>
-            <td>{{idea.name}}</td>
+            <td>{{#link-to "users.one" idea.user}}
+              <img src="{{idea.user.avatarUrl}}" alt="{{idea.user.name}}" class="avatar"/>{{/link-to}}</td>
             <td>{{idea.type}}</td>
+            <td>{{#link-to "accounts.one.libraries.one.ideas.one" idea}}{{idea.name}}{{/link-to}}</td>
             <td>{{idea.key}}</td>
-            <td>{{idea.density}}</td>
+            <td style="white-space: nowrap">{{idea.density}}</td>
             <td>{{idea.tempo}}</td>
             <td>
-              {{#link-to 'accounts.one.libraries.one.ideas.one.edit' idea}}Edit{{/link-to}}
-              |&nbsp;{{#link-to 'accounts.one.libraries.one.ideas.one.memes' idea}}Memes{{/link-to}}
+              {{#link-to 'accounts.one.libraries.one.ideas.one.memes' idea}}Memes{{/link-to}}
               |&nbsp;{{#link-to 'accounts.one.libraries.one.ideas.one.phases' idea}}Phases{{/link-to}}
             </td>
-            <th scope="row">{{#link-to "accounts.one.libraries.one.ideas.one" idea}}{{idea.id}}{{/link-to}}</th>
+            <th scope="row">{{idea.id}}</th>
           </tr>
         {{/each}}
         </tbody>

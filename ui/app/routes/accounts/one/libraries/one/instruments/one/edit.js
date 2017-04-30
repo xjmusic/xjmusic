@@ -47,6 +47,19 @@ export default Ember.Route.extend({
   },
 
   /**
+   * Headline
+   */
+  afterModel(model) {
+    Ember.set(this, 'routeHeadline', {
+      title: 'Edit ' + model.get('description'),
+      entity: {
+        name: 'Instrument',
+        id: model.get('id')
+      }
+    });
+  },
+
+  /**
    * Route actions
    */
   actions: {
@@ -54,8 +67,8 @@ export default Ember.Route.extend({
     saveInstrument(model) {
       model.save().then(
         () => {
-          Ember.get(this, 'display').success('Updated instrument ' + model.get('description') + '.');
-          this.transitionTo('accounts.one.libraries.one.instruments');
+          Ember.get(this, 'display').success('Updated instrument.');
+          this.transitionTo('accounts.one.libraries.one.instruments.one');
         },
         (error) => {
           Ember.get(this, 'display').error(error);

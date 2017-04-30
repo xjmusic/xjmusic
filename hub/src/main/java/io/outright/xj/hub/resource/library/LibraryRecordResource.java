@@ -10,9 +10,11 @@ import io.outright.xj.core.model.library.LibraryWrapper;
 import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.transport.JSON;
 
+import org.jooq.types.ULong;
+
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.jooq.types.ULong;
+
 import org.json.JSONObject;
 
 import javax.annotation.security.RolesAllowed;
@@ -30,7 +32,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 
 /**
- * Library record
+ Library record
  */
 @Path("libraries/{id}")
 public class LibraryRecordResource {
@@ -43,9 +45,9 @@ public class LibraryRecordResource {
   String id;
 
   /**
-   * Get one library.
-   *
-   * @return application/json response.
+   Get one library.
+
+   @return application/json response.
    */
   @GET
   @WebResult
@@ -71,10 +73,10 @@ public class LibraryRecordResource {
   }
 
   /**
-   * Update one library
-   *
-   * @param data with which to update Library record.
-   * @return Response
+   Update one library
+
+   @param data with which to update Library record.
+   @return Response
    */
   @PUT
   @Consumes(MediaType.APPLICATION_JSON)
@@ -91,9 +93,9 @@ public class LibraryRecordResource {
   }
 
   /**
-   * Delete one library
-   *
-   * @return Response
+   Delete one library
+
+   @return Response
    */
   @DELETE
   @RolesAllowed({Role.ADMIN})

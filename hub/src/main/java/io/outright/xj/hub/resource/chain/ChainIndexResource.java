@@ -12,9 +12,11 @@ import io.outright.xj.core.model.chain.ChainWrapper;
 import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.transport.JSON;
 
+import org.jooq.types.ULong;
+
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.jooq.types.ULong;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -34,7 +36,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 
 /**
- * Chains
+ Chains
  */
 @Path("chains")
 public class ChainIndexResource {
@@ -47,9 +49,9 @@ public class ChainIndexResource {
   String accountId;
 
   /**
-   * Get all chains.
-   *
-   * @return application/json response.
+   Get all chains.
+
+   @return application/json response.
    */
   @GET
   @WebResult
@@ -79,10 +81,10 @@ public class ChainIndexResource {
   }
 
   /**
-   * Create new chain
-   *
-   * @param data with which to update Chain record.
-   * @return Response
+   Create new chain
+
+   @param data with which to update Chain record.
+   @return Response
    */
   @POST
   @Consumes(MediaType.APPLICATION_JSON)

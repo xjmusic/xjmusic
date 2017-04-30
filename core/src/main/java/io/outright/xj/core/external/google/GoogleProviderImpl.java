@@ -30,7 +30,7 @@ import java.util.Collection;
 
 public class GoogleProviderImpl implements GoogleProvider {
   private final static String CALLBACK_PATH = "auth/google/callback";
-  private final static Collection<String> SCOPES = ImmutableList.of("profile","email");
+  private final static Collection<String> SCOPES = ImmutableList.of("profile", "email");
   private final static String API_PEOPLE_ENDPOINT = "https://www.googleapis.com/plus/v1/people/me";
   private static Logger log = LoggerFactory.getLogger(GoogleProviderImpl.class);
   private GoogleHttpProvider googleHttpProvider;
@@ -93,11 +93,11 @@ public class GoogleProviderImpl implements GoogleProvider {
   private String detailsOfTokenException(TokenResponseException e) {
     return
       (e.getMessage() != null ? e.getMessage() : "") +
-      (e.getDetails() != null ? (
-        (e.getDetails().getError() != null ? e.getDetails().getError() : "") +
-          (e.getDetails().getErrorDescription() != null ? e.getDetails().getErrorDescription() : "") +
-          (e.getDetails().getErrorUri() != null ? e.getDetails().getErrorUri() : "")
-      ) : "");
+        (e.getDetails() != null ? (
+          (e.getDetails().getError() != null ? e.getDetails().getError() : "") +
+            (e.getDetails().getErrorDescription() != null ? e.getDetails().getErrorDescription() : "") +
+            (e.getDetails().getErrorUri() != null ? e.getDetails().getErrorUri() : "")
+        ) : "");
   }
 
   @Override
@@ -115,7 +115,7 @@ public class GoogleProviderImpl implements GoogleProvider {
       responseJson = response.parseAsString();
     } catch (IOException e) {
       log.error("Failed to request profile from Google+ API: {}", e);
-      throw new AccessException("Failed to request profile from Google+ API: "+ e.getMessage());
+      throw new AccessException("Failed to request profile from Google+ API: " + e.getMessage());
     }
 
     Person person;

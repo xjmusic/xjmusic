@@ -28,7 +28,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 
 /**
- * LinkChord record
+ LinkChord record
  */
 @Path("link-chords/{id}")
 public class LinkChordRecordResource {
@@ -40,9 +40,9 @@ public class LinkChordRecordResource {
   String id;
 
   /**
-   * Get one linkChord.
-   *
-   * @return application/json response.
+   Get one linkChord.
+
+   @return application/json response.
    */
   @GET
   @WebResult

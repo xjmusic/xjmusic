@@ -80,10 +80,10 @@ public abstract class JSON {
       return null;
     }
     JSONObject result = new JSONObject();
-    record.intoMap().forEach((k,v)->{
+    record.intoMap().forEach((k, v) -> {
       String colName = CamelCasify.ifNeeded(k);
       if (colName != null) {
-        result.put(colName,v);
+        result.put(colName, v);
       }
     });
     return result;

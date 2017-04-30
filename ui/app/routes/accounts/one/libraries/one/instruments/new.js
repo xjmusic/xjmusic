@@ -56,6 +56,20 @@ export default Ember.Route.extend({
   },
 
   /**
+   * Headline
+   */
+  afterModel() {
+    let library = this.modelFor('accounts.one.libraries.one');
+    Ember.set(this, 'routeHeadline', {
+      title: 'New Instrument',
+      entity: {
+        name: 'Library',
+        id: library.get('id')
+      }
+    });
+  },
+
+  /**
    * Route Actions
    */
   actions: {
@@ -64,7 +78,7 @@ export default Ember.Route.extend({
       model.save().then(
         () => {
           Ember.get(this, 'display').success('Created instrument ' + model.get('description') + '.');
-          this.transitionTo('accounts.one.libraries.one.instruments');
+          this.transitionTo('accounts.one.libraries.one.instruments.one');
         },
         (error) => {
           Ember.get(this, 'display').error(error);

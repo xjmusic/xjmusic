@@ -34,12 +34,12 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 
 /**
- * Idea record
+ Idea record
  */
 @Path("idea-memes")
 public class IdeaMemeIndexResource {
   private static final Injector injector = Guice.createInjector(new CoreModule());
-//  private static Logger log = LoggerFactory.getLogger(IdeaMemeIndexResource.class);
+  //  private static Logger log = LoggerFactory.getLogger(IdeaMemeIndexResource.class);
   private final IdeaMemeDAO ideaMemeDAO = injector.getInstance(IdeaMemeDAO.class);
   private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
 
@@ -47,10 +47,10 @@ public class IdeaMemeIndexResource {
   String ideaId;
 
   /**
-   * Get Memes in one idea.
-   * TODO: Return 404 if the idea is not found.
-   *
-   * @return application/json response.
+   Get Memes in one idea.
+   TODO: Return 404 if the idea is not found.
+
+   @return application/json response.
    */
   @GET
   @WebResult
@@ -79,10 +79,10 @@ public class IdeaMemeIndexResource {
   }
 
   /**
-   * Create new idea meme
-   *
-   * @param data with which to update Idea record.
-   * @return Response
+   Create new idea meme
+
+   @param data with which to update Idea record.
+   @return Response
    */
   @POST
   @Consumes(MediaType.APPLICATION_JSON)

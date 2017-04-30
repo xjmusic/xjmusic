@@ -12,9 +12,11 @@ import io.outright.xj.core.model.chain_library.ChainLibraryWrapper;
 import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.transport.JSON;
 
+import org.jooq.types.ULong;
+
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.jooq.types.ULong;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -32,7 +34,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 
 /**
- * Chain Library record
+ Chain Library record
  */
 @Path("chain-libraries")
 public class ChainLibraryIndexResource {
@@ -45,9 +47,9 @@ public class ChainLibraryIndexResource {
   String chainId;
 
   /**
-   * Get Libraries in one chain.
-   *
-   * @return application/json response.
+   Get Libraries in one chain.
+
+   @return application/json response.
    */
   // TODO [hub] Return 404 if the chain is not found.
   @GET
@@ -77,10 +79,10 @@ public class ChainLibraryIndexResource {
   }
 
   /**
-   * Create new chain library
-   *
-   * @param data with which to update Chain record.
-   * @return Response
+   Create new chain library
+
+   @param data with which to update Chain record.
+   @return Response
    */
   @POST
   @Consumes(MediaType.APPLICATION_JSON)

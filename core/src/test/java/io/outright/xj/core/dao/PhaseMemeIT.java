@@ -13,11 +13,11 @@ import io.outright.xj.core.model.phase_meme.PhaseMemeWrapper;
 import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.tables.records.PhaseMemeRecord;
 
+import org.jooq.types.ULong;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-
-import org.jooq.types.ULong;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -198,11 +198,11 @@ public class PhaseMemeIT {
     ));
     testDAO.delete(access, ULong.valueOf(1));
 
-    PhaseMemeRecord deletedRecord = IntegrationTestService.getDb()
+    PhaseMemeRecord result = IntegrationTestService.getDb()
       .selectFrom(PHASE_MEME)
       .where(PHASE_MEME.ID.eq(ULong.valueOf(1)))
       .fetchOne();
-    assertNull(deletedRecord);
+    assertNull(result);
   }
 
   @Test(expected = BusinessException.class)

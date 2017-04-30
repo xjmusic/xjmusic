@@ -15,24 +15,24 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 
 /**
- * Current user authentication
+ Current user authentication
  */
 @Path("auth")
 public class AuthResource {
 
   /**
-   * Get current authentication.
-   *
-   * @return application/json response.
+   Get current authentication.
+
+   @return application/json response.
    */
   @GET
   @WebResult
   @RolesAllowed({Role.USER})
   public Response getCurrentAuthentication(@Context ContainerRequestContext crc) throws IOException {
     AccessControl accessControl = AccessControl.fromContext(crc);
-     return Response
-        .accepted(accessControl.toJSON())
-        .type(MediaType.APPLICATION_JSON)
-        .build();
+    return Response
+      .accepted(accessControl.toJSON())
+      .type(MediaType.APPLICATION_JSON)
+      .build();
   }
 }

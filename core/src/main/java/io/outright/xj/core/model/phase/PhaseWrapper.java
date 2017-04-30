@@ -8,20 +8,23 @@ public class PhaseWrapper extends EntityWrapper {
 
   // Phase
   private Phase phase;
+
   public Phase getPhase() {
     return phase;
   }
+
   public PhaseWrapper setPhase(Phase phase) {
     this.phase = phase;
     return this;
   }
 
   /**
-   * Validate data.
-   * @throws BusinessException if invalid.
+   Validate data.
+
+   @throws BusinessException if invalid.
    */
   @Override
-  public Phase validate() throws BusinessException{
+  public Phase validate() throws BusinessException {
     if (this.phase == null) {
       throw new BusinessException("Phase is required.");
     }
