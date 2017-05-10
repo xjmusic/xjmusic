@@ -1,4 +1,4 @@
-<!-- Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved. -->
+<!-- Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved. -->
 
 <!-- Inner Content -->
 {{outlet}}
@@ -33,12 +33,21 @@
 
   <!-- State change -->
   <div class="form-group row">
-    <div class="col-sm-12">
-      <p>&nbsp;</p>
-      <p>&nbsp;</p>
-      <h4>Change State</h4>
-      <p>This Chain is {{#if (eq model.chain.state 'draft')}}a {{/if}}<strong>{{model.chain.state}}</strong>.</p>
-      {{chain-state-change model.chain}}
+    <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
+      <div class="chain-state-change container-fluid {{model.chain.state}}-state">
+        <table>
+          <tbody>
+          <tr class="row">
+            <th class="align-middle">
+              {{capitalize model.chain.state}}
+            </th>
+            <td>
+              {{chain-state-change model.chain}}
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 

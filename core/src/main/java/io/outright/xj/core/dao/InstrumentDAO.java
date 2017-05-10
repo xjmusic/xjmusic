@@ -1,38 +1,36 @@
 // Copyright Outright Mental, Inc. All Rights Reserved.
 package io.outright.xj.core.dao;
 
-import io.outright.xj.core.app.access.impl.AccessControl;
-import io.outright.xj.core.model.instrument.InstrumentWrapper;
+import io.outright.xj.core.app.access.impl.Access;
+import io.outright.xj.core.model.instrument.Instrument;
+import io.outright.xj.core.tables.records.InstrumentRecord;
 
+import org.jooq.Result;
 import org.jooq.types.ULong;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import javax.annotation.Nullable;
 
 public interface InstrumentDAO {
 
   /**
-   (ADMIN ONLY)
-   Create a new Account User
+   Create a new Instrument
 
    @param access control
-   @param data   for the new Account User.
-   @return newly created record as JSON
+   @param entity for the new Account User.
+   @return newly readMany record
    */
-  JSONObject create(AccessControl access, InstrumentWrapper data) throws Exception;
+  InstrumentRecord create(Access access, Instrument entity) throws Exception;
 
   /**
    Fetch one instrument if accessible
 
    @param access control
    @param id     of instrument
-   @return retrieved record as JSON
+   @return retrieved record
    @throws Exception on failure
    */
   @Nullable
-  JSONObject readOne(AccessControl access, ULong id) throws Exception;
+  InstrumentRecord readOne(Access access, ULong id) throws Exception;
 
   /**
    Fetch many instrument for one Account by id, if accessible
@@ -42,8 +40,7 @@ public interface InstrumentDAO {
    @return JSONArray of instruments.
    @throws Exception on failure
    */
-  @Nullable
-  JSONArray readAllInAccount(AccessControl access, ULong accountId) throws Exception;
+  Result<InstrumentRecord> readAllInAccount(Access access, ULong accountId) throws Exception;
 
   /**
    Fetch many instrument for one Library by id, if accessible
@@ -53,8 +50,7 @@ public interface InstrumentDAO {
    @return JSONArray of instruments.
    @throws Exception on failure
    */
-  @Nullable
-  JSONArray readAllInLibrary(AccessControl access, ULong libraryId) throws Exception;
+  Result<InstrumentRecord> readAllInLibrary(Access access, ULong libraryId) throws Exception;
 
   /**
    (ADMIN ONLY)
@@ -62,9 +58,9 @@ public interface InstrumentDAO {
 
    @param access       control
    @param instrumentId of specific Instrument to update.
-   @param data         for the updated Instrument.
+   @param entity       for the updated Instrument.
    */
-  void update(AccessControl access, ULong instrumentId, InstrumentWrapper data) throws Exception;
+  void update(Access access, ULong instrumentId, Instrument entity) throws Exception;
 
   /**
    (ADMIN ONLY)
@@ -73,5 +69,5 @@ public interface InstrumentDAO {
    @param access control
    @param id     of specific instrument to delete.
    */
-  void delete(AccessControl access, ULong id) throws Exception;
+  void delete(Access access, ULong id) throws Exception;
 }

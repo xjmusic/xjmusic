@@ -1,13 +1,12 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
 package io.outright.xj.core.dao;
 
 import io.outright.xj.core.CoreModule;
-import io.outright.xj.core.app.access.impl.AccessControl;
+import io.outright.xj.core.app.access.impl.Access;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.integration.IntegrationTestEntity;
 import io.outright.xj.core.integration.IntegrationTestService;
 import io.outright.xj.core.model.arrangement.Arrangement;
-import io.outright.xj.core.model.arrangement.ArrangementWrapper;
 import io.outright.xj.core.model.chain.Chain;
 import io.outright.xj.core.model.choice.Choice;
 import io.outright.xj.core.model.idea.Idea;
@@ -15,6 +14,7 @@ import io.outright.xj.core.model.instrument.Instrument;
 import io.outright.xj.core.model.link.Link;
 import io.outright.xj.core.model.voice.Voice;
 import io.outright.xj.core.tables.records.ArrangementRecord;
+import io.outright.xj.core.transport.JSON;
 
 import org.jooq.types.ULong;
 
@@ -78,150 +78,138 @@ public class ArrangementIT {
 
   @Test
   public void create() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
-    ArrangementWrapper inputDataWrapper = new ArrangementWrapper()
-      .setArrangement(new Arrangement()
-        .setChoiceId(BigInteger.valueOf(7))
-        .setVoiceId(BigInteger.valueOf(8))
-        .setInstrumentId(BigInteger.valueOf(9))
-      );
+    Arrangement inputData = new Arrangement()
+      .setChoiceId(BigInteger.valueOf(7))
+      .setVoiceId(BigInteger.valueOf(8))
+      .setInstrumentId(BigInteger.valueOf(9));
 
-    JSONObject result = testDAO.create(access, inputDataWrapper);
+    ArrangementRecord result = testDAO.create(access, inputData);
 
     assertNotNull(result);
-    assertEquals(ULong.valueOf(7), result.get("choiceId"));
-    assertEquals(ULong.valueOf(8), result.get("voiceId"));
-    assertEquals(ULong.valueOf(9), result.get("instrumentId"));
+    assertEquals(ULong.valueOf(7), result.get(ARRANGEMENT.CHOICE_ID));
+    assertEquals(ULong.valueOf(8), result.get(ARRANGEMENT.VOICE_ID));
+    assertEquals(ULong.valueOf(9), result.get(ARRANGEMENT.INSTRUMENT_ID));
   }
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutTopLevelAccess() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "user"
     ));
-    ArrangementWrapper inputDataWrapper = new ArrangementWrapper()
-      .setArrangement(new Arrangement()
-        .setChoiceId(BigInteger.valueOf(7))
-        .setVoiceId(BigInteger.valueOf(8))
-        .setInstrumentId(BigInteger.valueOf(9))
-      );
+    Arrangement inputData = new Arrangement()
+      .setChoiceId(BigInteger.valueOf(7))
+      .setVoiceId(BigInteger.valueOf(8))
+      .setInstrumentId(BigInteger.valueOf(9));
 
-    testDAO.create(access, inputDataWrapper);
+    testDAO.create(access, inputData);
   }
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutChoiceID() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
-    ArrangementWrapper inputDataWrapper = new ArrangementWrapper()
-      .setArrangement(new Arrangement()
-        .setVoiceId(BigInteger.valueOf(8))
-        .setInstrumentId(BigInteger.valueOf(9))
-      );
+    Arrangement inputData = new Arrangement()
+      .setVoiceId(BigInteger.valueOf(8))
+      .setInstrumentId(BigInteger.valueOf(9));
 
-    testDAO.create(access, inputDataWrapper);
+    testDAO.create(access, inputData);
   }
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutVoiceID() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
-    ArrangementWrapper inputDataWrapper = new ArrangementWrapper()
-      .setArrangement(new Arrangement()
-        .setChoiceId(BigInteger.valueOf(7))
-        .setInstrumentId(BigInteger.valueOf(9))
-      );
+    Arrangement inputData = new Arrangement()
+      .setChoiceId(BigInteger.valueOf(7))
+      .setInstrumentId(BigInteger.valueOf(9));
 
-    testDAO.create(access, inputDataWrapper);
+    testDAO.create(access, inputData);
   }
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutInstrumentID() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
-    ArrangementWrapper inputDataWrapper = new ArrangementWrapper()
-      .setArrangement(new Arrangement()
-        .setChoiceId(BigInteger.valueOf(7))
-        .setVoiceId(BigInteger.valueOf(8))
-      );
+    Arrangement inputData = new Arrangement()
+      .setChoiceId(BigInteger.valueOf(7))
+      .setVoiceId(BigInteger.valueOf(8));
 
-    testDAO.create(access, inputDataWrapper);
+    testDAO.create(access, inputData);
   }
 
   @Test
-  public void readOne() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+  public void readOne_asRecordSetToModel() throws Exception {
+    Access access = new Access(ImmutableMap.of(
       "roles", "user",
       "accounts", "1"
     ));
 
-    JSONObject result = testDAO.readOne(access, ULong.valueOf(1));
+    Arrangement result = new Arrangement().setFromRecord(testDAO.readOne(access, ULong.valueOf(1)));
 
     assertNotNull(result);
-    assertEquals(ULong.valueOf(7), result.get("choiceId"));
-    assertEquals(ULong.valueOf(8), result.get("voiceId"));
-    assertEquals(ULong.valueOf(9), result.get("instrumentId"));
+    assertEquals(ULong.valueOf(7), result.getChoiceId());
+    assertEquals(ULong.valueOf(8), result.getVoiceId());
+    assertEquals(ULong.valueOf(9), result.getInstrumentId());
   }
 
   @Test
   public void readOne_FailsWhenUserIsNotInChoice() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "user",
       "accounts", "326"
     ));
 
-    JSONObject result = testDAO.readOne(access, ULong.valueOf(1));
+    ArrangementRecord result = testDAO.readOne(access, ULong.valueOf(1));
 
     assertNull(result);
   }
 
   @Test
   public void readAll() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "user",
       "accounts", "1"
     ));
 
-    JSONArray actualResultList = testDAO.readAllIn(access, ULong.valueOf(7));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ULong.valueOf(7)));
 
-    assertNotNull(actualResultList);
-    assertEquals(1, actualResultList.length());
+    assertNotNull(result);
+    assertEquals(1, result.length());
 
-    JSONObject actualResult0 = (JSONObject) actualResultList.get(0);
-    assertEquals(8, actualResult0.get("voiceId"));
+    JSONObject actualResult0 = (JSONObject) result.get(0);
+    assertEquals(ULong.valueOf(8), actualResult0.get("voiceId"));
   }
 
   @Test
   public void readAll_SeesNothingOutsideOfChoice() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "user",
       "accounts", "345"
     ));
 
-    JSONArray actualResultList = testDAO.readAllIn(access, ULong.valueOf(1));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ULong.valueOf(1)));
 
-    assertNotNull(actualResultList);
-    assertEquals(0, actualResultList.length());
+    assertNotNull(result);
+    assertEquals(0, result.length());
   }
 
   @Test
   public void update() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
-    ArrangementWrapper inputDataWrapper = new ArrangementWrapper()
-      .setArrangement(new Arrangement()
-        .setChoiceId(BigInteger.valueOf(7))
-        .setVoiceId(BigInteger.valueOf(8))
-        .setInstrumentId(BigInteger.valueOf(9))
-      );
+    Arrangement inputData = new Arrangement()
+      .setChoiceId(BigInteger.valueOf(7))
+      .setVoiceId(BigInteger.valueOf(8))
+      .setInstrumentId(BigInteger.valueOf(9));
 
-    testDAO.update(access, ULong.valueOf(1), inputDataWrapper);
+    testDAO.update(access, ULong.valueOf(1), inputData);
 
     ArrangementRecord result = IntegrationTestService.getDb()
       .selectFrom(ARRANGEMENT)
@@ -235,32 +223,28 @@ public class ArrangementIT {
 
   @Test(expected = BusinessException.class)
   public void update_FailsWithoutChoiceID() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
-    ArrangementWrapper inputDataWrapper = new ArrangementWrapper()
-      .setArrangement(new Arrangement()
-        .setVoiceId(BigInteger.valueOf(8))
-        .setInstrumentId(BigInteger.valueOf(9))
-      );
+    Arrangement inputData = new Arrangement()
+      .setVoiceId(BigInteger.valueOf(8))
+      .setInstrumentId(BigInteger.valueOf(9));
 
-    testDAO.update(access, ULong.valueOf(2), inputDataWrapper);
+    testDAO.update(access, ULong.valueOf(2), inputData);
   }
 
   @Test(expected = BusinessException.class)
   public void update_FailsToChangeChoice() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
-    ArrangementWrapper inputDataWrapper = new ArrangementWrapper()
-      .setArrangement(new Arrangement()
-        .setChoiceId(BigInteger.valueOf(12))
-        .setVoiceId(BigInteger.valueOf(8))
-        .setInstrumentId(BigInteger.valueOf(9))
-      );
+    Arrangement inputData = new Arrangement()
+      .setChoiceId(BigInteger.valueOf(12))
+      .setVoiceId(BigInteger.valueOf(8))
+      .setInstrumentId(BigInteger.valueOf(9));
 
     try {
-      testDAO.update(access, ULong.valueOf(1), inputDataWrapper);
+      testDAO.update(access, ULong.valueOf(1), inputData);
 
     } catch (Exception e) {
       ArrangementRecord result = IntegrationTestService.getDb()
@@ -275,7 +259,7 @@ public class ArrangementIT {
 
   @Test
   public void delete() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
 
@@ -290,7 +274,7 @@ public class ArrangementIT {
 
   @Test(expected = BusinessException.class)
   public void delete_FailsIfArrangementHasChildRecords() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
     IntegrationTestEntity.insertMorph(1, 1, 0.75, "D", 1.25);

@@ -1,4 +1,4 @@
-<!-- Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved. -->
+<!-- Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved. -->
 
 <!-- Inner Content -->
 {{outlet}}
@@ -15,6 +15,12 @@
       <h4>{{#link-to 'accounts.one.libraries.one.instruments.one.audios.one.chords' model.audio}}Chords{{/link-to}}</h4>
     </div>
   </div>
+
+  <!-- Waveform -->
+  <audio controls>
+    <source src="{{model.audioBaseUrl}}{{model.audio.waveformKey}}" type="audio/wav">
+    Your browser does not support the audio element.
+  </audio>
 
   <!-- Edit -->
   <div class="form-group row">

@@ -1,16 +1,16 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
 package io.outright.xj.core.dao;
 
 import io.outright.xj.core.CoreModule;
-import io.outright.xj.core.app.access.impl.AccessControl;
+import io.outright.xj.core.app.access.impl.Access;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.integration.IntegrationTestEntity;
 import io.outright.xj.core.integration.IntegrationTestService;
 import io.outright.xj.core.model.idea.Idea;
 import io.outright.xj.core.model.phase_chord.PhaseChord;
-import io.outright.xj.core.model.phase_chord.PhaseChordWrapper;
 import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.tables.records.PhaseChordRecord;
+import io.outright.xj.core.transport.JSON;
 
 import org.jooq.types.ULong;
 
@@ -31,7 +31,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
-// TODO [core] test permissions of different users to read vs. create vs. update or delete phase chords
+// TODO [core] test permissions of different users to readMany vs. create vs. update or delete phase chords
 public class PhaseChordIT {
   private Injector injector = Guice.createInjector(new CoreModule());
   private PhaseChordDAO testDAO;
@@ -72,18 +72,16 @@ public class PhaseChordIT {
 
   @Test
   public void create() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
-    PhaseChordWrapper inputDataWrapper = new PhaseChordWrapper()
-      .setPhaseChord(new PhaseChord()
-        .setPosition(0.42)
-        .setName("G minor 7")
-        .setPhaseId(BigInteger.valueOf(2))
-      );
+    PhaseChord inputData = new PhaseChord()
+      .setPosition(0.42)
+      .setName("G minor 7")
+      .setPhaseId(BigInteger.valueOf(2));
 
-    JSONObject result = testDAO.create(access, inputDataWrapper);
+    JSONObject result = JSON.objectFromRecord(testDAO.create(access, inputData));
 
     assertNotNull(result);
     assertEquals(0.42, result.get("position"));
@@ -93,136 +91,126 @@ public class PhaseChordIT {
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutPhaseID() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
-    PhaseChordWrapper inputDataWrapper = new PhaseChordWrapper()
-      .setPhaseChord(new PhaseChord()
-        .setPosition(0.42)
-        .setName("G minor 7")
-      );
+    PhaseChord inputData = new PhaseChord()
+      .setPosition(0.42)
+      .setName("G minor 7");
 
-    testDAO.create(access, inputDataWrapper);
+    testDAO.create(access, inputData);
   }
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutName() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
-    PhaseChordWrapper inputDataWrapper = new PhaseChordWrapper()
-      .setPhaseChord(new PhaseChord()
-        .setPosition(0.42)
-        .setPhaseId(BigInteger.valueOf(2))
-      );
+    PhaseChord inputData = new PhaseChord()
+      .setPosition(0.42)
+      .setPhaseId(BigInteger.valueOf(2));
 
-    testDAO.create(access, inputDataWrapper);
+    testDAO.create(access, inputData);
   }
 
   @Test
   public void readOne() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
 
-    JSONObject result = testDAO.readOne(access, ULong.valueOf(2));
+    PhaseChord result = new PhaseChord().setFromRecord(testDAO.readOne(access, ULong.valueOf(2)));
 
     assertNotNull(result);
-    assertEquals(ULong.valueOf(2), result.get("id"));
-    assertEquals(ULong.valueOf(2), result.get("phaseId"));
-    assertEquals("D major", result.get("name"));
+    assertEquals(ULong.valueOf(2), result.getId());
+    assertEquals(ULong.valueOf(2), result.getPhaseId());
+    assertEquals("D major", result.getName());
   }
 
   @Test
   public void readOne_FailsWhenUserIsNotInAccount() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "326"
     ));
 
-    JSONObject result = testDAO.readOne(access, ULong.valueOf(1));
+    PhaseChordRecord result = testDAO.readOne(access, ULong.valueOf(1));
 
     assertNull(result);
   }
 
   @Test
   public void readAll() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
 
-    JSONArray actualResultList = testDAO.readAllIn(access, ULong.valueOf(2));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ULong.valueOf(2)));
 
-    assertNotNull(actualResultList);
-    assertEquals(2, actualResultList.length());
-    JSONObject actualResult1 = (JSONObject) actualResultList.get(0);
-    assertEquals("C minor", actualResult1.get("name"));
-    JSONObject actualResult2 = (JSONObject) actualResultList.get(1);
-    assertEquals("D major", actualResult2.get("name"));
+    assertNotNull(result);
+    assertEquals(2, result.length());
+    JSONObject result1 = (JSONObject) result.get(0);
+    assertEquals("C minor", result1.get("name"));
+    JSONObject result2 = (JSONObject) result.get(1);
+    assertEquals("D major", result2.get("name"));
   }
 
   @Test
   public void readAll_SeesNothingOutsideOfLibrary() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "345"
     ));
 
-    JSONArray actualResultList = testDAO.readAllIn(access, ULong.valueOf(1));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ULong.valueOf(1)));
 
-    assertNotNull(actualResultList);
-    assertEquals(0, actualResultList.length());
+    assertNotNull(result);
+    assertEquals(0, result.length());
   }
 
   @Test(expected = BusinessException.class)
   public void update_FailsWithoutPhaseID() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
-    PhaseChordWrapper inputDataWrapper = new PhaseChordWrapper()
-      .setPhaseChord(new PhaseChord()
-        .setPosition(0.42)
-        .setName("G minor 7")
-      );
+    PhaseChord inputData = new PhaseChord()
+      .setPosition(0.42)
+      .setName("G minor 7");
 
-    testDAO.update(access, ULong.valueOf(3), inputDataWrapper);
+    testDAO.update(access, ULong.valueOf(3), inputData);
   }
 
   @Test(expected = BusinessException.class)
   public void update_FailsWithoutName() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
-    PhaseChordWrapper inputDataWrapper = new PhaseChordWrapper()
-      .setPhaseChord(new PhaseChord()
-        .setPosition(0.42)
-        .setPhaseId(BigInteger.valueOf(2))
-      );
+    PhaseChord inputData = new PhaseChord()
+      .setPosition(0.42)
+      .setPhaseId(BigInteger.valueOf(2));
 
-    testDAO.update(access, ULong.valueOf(2), inputDataWrapper);
+    testDAO.update(access, ULong.valueOf(2), inputData);
   }
 
   @Test(expected = BusinessException.class)
   public void update_FailsUpdatingToNonexistentPhase() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
-    PhaseChordWrapper inputDataWrapper = new PhaseChordWrapper()
-      .setPhaseChord(new PhaseChord()
-        .setPosition(0.42)
-        .setPhaseId(BigInteger.valueOf(57))
-        .setName("D minor")
-      );
+    PhaseChord inputData = new PhaseChord()
+      .setPosition(0.42)
+      .setPhaseId(BigInteger.valueOf(57))
+      .setName("D minor");
 
     try {
-      testDAO.update(access, ULong.valueOf(2), inputDataWrapper);
+      testDAO.update(access, ULong.valueOf(2), inputData);
 
     } catch (Exception e) {
       PhaseChordRecord result = IntegrationTestService.getDb()
@@ -238,18 +226,16 @@ public class PhaseChordIT {
 
   @Test
   public void update() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
-    PhaseChordWrapper inputDataWrapper = new PhaseChordWrapper()
-      .setPhaseChord(new PhaseChord()
-        .setPhaseId(BigInteger.valueOf(1))
-        .setName("POPPYCOCK")
-        .setPosition(0.42)
-      );
+    PhaseChord inputData = new PhaseChord()
+      .setPhaseId(BigInteger.valueOf(1))
+      .setName("POPPYCOCK")
+      .setPosition(0.42);
 
-    testDAO.update(access, ULong.valueOf(1), inputDataWrapper);
+    testDAO.update(access, ULong.valueOf(1), inputData);
 
     PhaseChordRecord result = IntegrationTestService.getDb()
       .selectFrom(PHASE_CHORD)
@@ -265,7 +251,7 @@ public class PhaseChordIT {
 
   @Test
   public void delete() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
@@ -281,7 +267,7 @@ public class PhaseChordIT {
 
   @Test(expected = BusinessException.class)
   public void delete_failsIfNotInAccount() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "2"
     ));

@@ -1,12 +1,13 @@
 // Copyright Outright Mental, Inc. All Rights Reserved.
 package io.outright.xj.core.dao;
 
-import io.outright.xj.core.app.access.impl.AccessControl;
-import io.outright.xj.core.model.audio.AudioWrapper;
+import io.outright.xj.core.app.access.impl.Access;
+import io.outright.xj.core.model.audio.Audio;
+import io.outright.xj.core.tables.records.AudioRecord;
 
+import org.jooq.Result;
 import org.jooq.types.ULong;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.annotation.Nullable;
@@ -17,32 +18,32 @@ public interface AudioDAO {
    Create a new Audio
 
    @param access control
-   @param data   for the new Account User.
-   @return newly created record as JSON
+   @param entity for the new Account User.
+   @return newly readMany record
    */
-  JSONObject create(AccessControl access, AudioWrapper data) throws Exception;
+  AudioRecord create(Access access, Audio entity) throws Exception;
 
   /**
    Fetch one Audio if accessible
 
    @param access control
    @param id     of audio
-   @return retrieved record as JSON
+   @return retrieved record
    @throws Exception on failure
    */
   @Nullable
-  JSONObject readOne(AccessControl access, ULong id) throws Exception;
+  AudioRecord readOne(Access access, ULong id) throws Exception;
 
   /**
    Generate an Upload policy to upload the corresponding file to 3rd-party storage (e.g. Amazon S3)
 
    @param access control
    @param id     of audio
-   @return retrieved record as JSON
+   @return retrieved record
    @throws Exception on failure
    */
   @Nullable
-  JSONObject uploadOne(AccessControl access, ULong id) throws Exception;
+  JSONObject uploadOne(Access access, ULong id) throws Exception;
 
   /**
    Fetch all accessible Audio for one Account by id
@@ -52,17 +53,16 @@ public interface AudioDAO {
    @return JSONArray of audios.
    @throws Exception on failure
    */
-  @Nullable
-  JSONArray readAllIn(AccessControl access, ULong instrumentId) throws Exception;
+  Result<AudioRecord> readAll(Access access, ULong instrumentId) throws Exception;
 
   /**
    Update a specified Audio if accessible
 
    @param access control
    @param id     of specific Audio to update.
-   @param data   for the updated Audio.
+   @param entity for the updated Audio.
    */
-  void update(AccessControl access, ULong id, AudioWrapper data) throws Exception;
+  void update(Access access, ULong id, Audio entity) throws Exception;
 
   /**
    Delete a specified Audio if accessible
@@ -70,5 +70,5 @@ public interface AudioDAO {
    @param access control
    @param id     of specific audio to delete.
    */
-  void delete(AccessControl access, ULong id) throws Exception;
+  void delete(Access access, ULong id) throws Exception;
 }

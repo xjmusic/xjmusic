@@ -1,26 +1,47 @@
 package io.outright.xj.core.dao.impl;
 
-import io.outright.xj.core.app.access.impl.AccessControl;
+import io.outright.xj.core.app.access.impl.Access;
 import io.outright.xj.core.app.exception.BusinessException;
-import io.outright.xj.core.app.exception.DatabaseException;
 import io.outright.xj.core.db.sql.SQLDatabaseProvider;
-import io.outright.xj.core.util.CamelCasify;
 
 import org.jooq.DSLContext;
 import org.jooq.Field;
 import org.jooq.Record;
+import org.jooq.Result;
 import org.jooq.Table;
 import org.jooq.UpdatableRecord;
+import org.jooq.types.UInteger;
 import org.jooq.types.ULong;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.math.BigInteger;
 import java.util.Map;
 import java.util.Objects;
 
 public class DAOImpl {
   //  private static Logger log = LoggerFactory.getLogger(DAOImpl.class);
   SQLDatabaseProvider dbProvider;
+
+  /**
+   Transform a record into a record of a particular table, if not null
+
+   @param table  to transform record into
+   @param record to transform
+   @return record of table
+   */
+  <R extends Record> R recordInto(Table<R> table, Record record) {
+    return Objects.isNull(record) ? null : record.into(table);
+  }
+
+  /**
+   Transform a result into a result of a particular table, if not null
+
+   @param table  to transform result into
+   @param result to transform
+   @return result of table
+   */
+  <R extends Record> Result<R> resultInto(Table<R> table, Result result) {
+    return Objects.isNull(result) ? null : result.into(table);
+  }
 
   /**
    Execute a database CREATE operation
@@ -65,30 +86,16 @@ public class DAOImpl {
   }
 
   /**
-   Require empty ResultSet
+   Require empty Result
 
-   @param resultSet to check.
+   @param name
+   @param result to check.
    @throws BusinessException if result set is not empty.
    @throws Exception         if something goes wrong.
    */
-  void requireEmptyResultSet(ResultSet resultSet) throws Exception {
-    requireEmptyResultSet("Found " + CamelCasify.ifNeededUpper(resultSet.getMetaData().getTableName(1)), resultSet);
-  }
-
-  /**
-   Require empty ResultSet, else throw message
-
-   @param resultSet to check.
-   @throws BusinessException if result set is not empty.
-   @throws Exception         if something goes wrong.
-   */
-  void requireEmptyResultSet(String message, ResultSet resultSet) throws Exception {
-    try {
-      if (resultSet.next()) {
-        throw new BusinessException(message);
-      }
-    } catch (SQLException e) {
-      throw new DatabaseException("SQLException: " + e.getMessage());
+  <R extends Record> void requireNotExists(String name, Result<R> result) throws Exception {
+    if (exists(result) && result.size() > 0) {
+      throw new BusinessException("Found" + " " + name);
     }
   }
 
@@ -99,8 +106,17 @@ public class DAOImpl {
    @param record to require existence of
    @throws BusinessException if not exists
    */
-  void requireRecordExists(String name, Record record) throws BusinessException {
-    require(name, "must exist", record != null);
+  void requireExists(String name, Record record) throws BusinessException {
+    require(name, "does not exist", exists(record));
+  }
+
+  /**
+   Whether a record exists
+
+   @param obj to check for existence
+   */
+  Boolean exists(Object obj) {
+    return Objects.nonNull(obj);
   }
 
   /**
@@ -121,7 +137,7 @@ public class DAOImpl {
    @param accountId to check for access to
    @throws BusinessException if not admin
    */
-  void requireAccount(AccessControl access, ULong accountId) throws BusinessException {
+  void requireAccount(Access access, ULong accountId) throws BusinessException {
     require("access to account #" + accountId, access.hasAccount(accountId));
   }
 
@@ -148,12 +164,45 @@ public class DAOImpl {
   }
 
   /**
+   Require a given integer is greater than zero
+
+   @param description           what is it
+   @param mustBeGreaterThanZero value
+   @throws BusinessException if null
+   */
+  void requireGreaterThanZero(String description, UInteger mustBeGreaterThanZero) throws BusinessException {
+    require(description, "must be greater than zero", mustBeGreaterThanZero.compareTo(UInteger.valueOf(0)) == 1);
+  }
+
+  /**
+   Require a given integer is greater than zero
+
+   @param description           what is it
+   @param mustBeGreaterThanZero value
+   @throws BusinessException if null
+   */
+  void requireGreaterThanZero(String description, BigInteger mustBeGreaterThanZero) throws BusinessException {
+    require(description, "must be greater than zero", mustBeGreaterThanZero.compareTo(BigInteger.ZERO) == 1);
+  }
+
+  /**
+   Require a given integer is greater than zero
+
+   @param description           what is it
+   @param mustBeGreaterThanZero value
+   @throws BusinessException if null
+   */
+  void requireGreaterThanZero(String description, ULong mustBeGreaterThanZero) throws BusinessException {
+    require(description, "must be greater than zero", mustBeGreaterThanZero.compareTo(ULong.valueOf(0)) == 1);
+  }
+
+  /**
    Require user has admin access
 
    @param access control
    @throws BusinessException if not admin
    */
-  void requireTopLevel(AccessControl access) throws BusinessException {
+  void requireTopLevel(Access access) throws BusinessException {
     require("top-level access", access.isTopLevel());
   }
 
@@ -163,7 +212,7 @@ public class DAOImpl {
    @param access control
    @throws BusinessException if not admin
    */
-  void requireRole(String message, AccessControl access, String... matchAnyOfRoles) throws BusinessException {
+  void requireRole(String message, Access access, String... matchAnyOfRoles) throws BusinessException {
     require(message, access.isTopLevel() || access.matchAnyOf(matchAnyOfRoles));
   }
 

@@ -23,8 +23,8 @@ import java.net.URI;
  */
 @Path("auth/google")
 public class AuthGoogleResource {
-  private Injector injector = Guice.createInjector(new CoreModule());
   private static Logger log = LoggerFactory.getLogger(AuthGoogleResource.class);
+  private Injector injector = Guice.createInjector(new CoreModule());
 
   /**
    Begin user OAuth2 authentication via Google.

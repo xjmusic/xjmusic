@@ -2,20 +2,17 @@
 package io.outright.xj.hub.resource.phase;
 
 import io.outright.xj.core.CoreModule;
-import io.outright.xj.core.app.access.impl.AccessControl;
+import io.outright.xj.core.app.access.impl.Access;
 import io.outright.xj.core.app.server.HttpResponseProvider;
 import io.outright.xj.core.dao.PhaseDAO;
 import io.outright.xj.core.model.phase.Phase;
 import io.outright.xj.core.model.phase.PhaseWrapper;
 import io.outright.xj.core.model.role.Role;
-import io.outright.xj.core.transport.JSON;
 
 import org.jooq.types.ULong;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-
-import org.json.JSONObject;
 
 import javax.annotation.security.RolesAllowed;
 import javax.jws.WebResult;
@@ -37,9 +34,8 @@ import java.io.IOException;
 @Path("phases/{id}")
 public class PhaseRecordResource {
   private static final Injector injector = Guice.createInjector(new CoreModule());
-  //  private static Logger log = LoggerFactory.getLogger(PhaseRecordResource.class);
-  private final PhaseDAO phaseDAO = injector.getInstance(PhaseDAO.class);
-  private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
+  private final PhaseDAO DAO = injector.getInstance(PhaseDAO.class);
+  private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
 
   @PathParam("id")
   String id;
@@ -53,20 +49,15 @@ public class PhaseRecordResource {
   @WebResult
   @RolesAllowed({Role.ARTIST})
   public Response readOne(@Context ContainerRequestContext crc) throws IOException {
-    AccessControl access = AccessControl.fromContext(crc);
     try {
-      JSONObject result = phaseDAO.readOne(access, ULong.valueOf(id));
-      if (result != null) {
-        return Response
-          .accepted(JSON.wrap(Phase.KEY_ONE, result).toString())
-          .type(MediaType.APPLICATION_JSON)
-          .build();
-      } else {
-        return httpResponseProvider.notFound("Phase");
-      }
+      return response.readOne(
+        Phase.KEY_ONE,
+        DAO.readOne(
+          Access.fromContext(crc),
+          ULong.valueOf(id)));
 
     } catch (Exception e) {
-      return httpResponseProvider.failure(e);
+      return response.failure(e);
     }
   }
 
@@ -80,13 +71,12 @@ public class PhaseRecordResource {
   @Consumes(MediaType.APPLICATION_JSON)
   @RolesAllowed({Role.ARTIST})
   public Response update(PhaseWrapper data, @Context ContainerRequestContext crc) {
-    AccessControl access = AccessControl.fromContext(crc);
     try {
-      phaseDAO.update(access, ULong.valueOf(id), data);
+      DAO.update(Access.fromContext(crc), ULong.valueOf(id), data.getPhase());
       return Response.accepted("{}").build();
 
     } catch (Exception e) {
-      return httpResponseProvider.failureToUpdate(e);
+      return response.failureToUpdate(e);
     }
   }
 
@@ -98,14 +88,12 @@ public class PhaseRecordResource {
   @DELETE
   @RolesAllowed({Role.ARTIST})
   public Response delete(@Context ContainerRequestContext crc) {
-    AccessControl access = AccessControl.fromContext(crc);
-
     try {
-      phaseDAO.delete(access, ULong.valueOf(id));
+      DAO.delete(Access.fromContext(crc), ULong.valueOf(id));
       return Response.accepted("{}").build();
 
     } catch (Exception e) {
-      return httpResponseProvider.failure(e);
+      return response.failure(e);
     }
   }
 

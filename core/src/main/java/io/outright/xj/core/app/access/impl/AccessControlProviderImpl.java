@@ -50,8 +50,8 @@ public class AccessControlProviderImpl implements AccessControlProvider {
 
   @Override
   public Map<String, String> update(String accessToken, UserAuthRecord userAuthRecord, Collection<AccountUserRecord> userAccountRoleRecords, Collection<UserRoleRecord> userRoleRecords) throws AccessException {
-    AccessControl accessControl = new AccessControl(userAuthRecord, userAccountRoleRecords, userRoleRecords);
-    Map<String, String> userMap = accessControl.intoMap();
+    Access access = new Access(userAuthRecord, userAccountRoleRecords, userRoleRecords);
+    Map<String, String> userMap = access.intoMap();
     try {
       redisDatabaseProvider.getClient().hmset(accessToken, userMap);
     } catch (ConfigException e) {
@@ -72,9 +72,9 @@ public class AccessControlProviderImpl implements AccessControlProvider {
   }
 
   @Override
-  public AccessControl get(String accessToken) throws DatabaseException {
+  public Access get(String accessToken) throws DatabaseException {
     try {
-      return new AccessControl(redisDatabaseProvider.getClient().hgetAll(accessToken));
+      return new Access(redisDatabaseProvider.getClient().hgetAll(accessToken));
     } catch (Exception e) {
       throw new DatabaseException("Redis error(" + e.getClass().getName() + "): " + Arrays.toString(e.getStackTrace()));
     }

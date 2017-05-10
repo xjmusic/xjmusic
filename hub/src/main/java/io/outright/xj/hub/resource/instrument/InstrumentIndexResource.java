@@ -2,8 +2,9 @@
 package io.outright.xj.hub.resource.instrument;
 
 import io.outright.xj.core.CoreModule;
-import io.outright.xj.core.app.access.impl.AccessControl;
+import io.outright.xj.core.app.access.impl.Access;
 import io.outright.xj.core.app.config.Exposure;
+import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.app.server.HttpResponseProvider;
 import io.outright.xj.core.dao.InstrumentDAO;
 import io.outright.xj.core.model.Entity;
@@ -17,7 +18,6 @@ import org.jooq.types.ULong;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.annotation.security.RolesAllowed;
@@ -39,9 +39,8 @@ import java.io.IOException;
 @Path("instruments")
 public class InstrumentIndexResource {
   private static final Injector injector = Guice.createInjector(new CoreModule());
-  //  private static Logger log = LoggerFactory.getLogger(InstrumentIndexResource.class);
-  private final InstrumentDAO instrumentDAO = injector.getInstance(InstrumentDAO.class);
-  private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
+  private final InstrumentDAO DAO = injector.getInstance(InstrumentDAO.class);
+  private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
 
   @QueryParam("accountId")
   String accountId;
@@ -58,47 +57,38 @@ public class InstrumentIndexResource {
   @WebResult
   @RolesAllowed({Role.USER})
   public Response readAll(@Context ContainerRequestContext crc) throws IOException {
-    AccessControl access = AccessControl.fromContext(crc);
     if (libraryId != null && libraryId.length() > 0) {
-      return readAllInLibrary(access);
+      return readAllInLibrary(Access.fromContext(crc));
     } else if (accountId != null && accountId.length() > 0) {
-      return readAllInAccount(access);
+      return readAllInAccount(Access.fromContext(crc));
     } else {
-      return httpResponseProvider.notAcceptable("Either Account or Library id is required");
+      return response.notAcceptable("Either Account or Library id is required");
     }
   }
 
-  private Response readAllInAccount(AccessControl access) {
+  private Response readAllInAccount(Access access) {
     try {
-      JSONArray result = instrumentDAO.readAllInAccount(access, ULong.valueOf(accountId));
-      if (result != null) {
-        return Response
-          .accepted(JSON.wrap(Instrument.KEY_MANY, result).toString())
-          .type(MediaType.APPLICATION_JSON)
-          .build();
-      } else {
-        return Response.noContent().build();
-      }
+      return response.readMany(
+        Instrument.KEY_MANY,
+        DAO.readAllInAccount(
+          access,
+          ULong.valueOf(accountId)));
 
     } catch (Exception e) {
-      return httpResponseProvider.failure(e);
+      return response.failure(e);
     }
   }
 
-  private Response readAllInLibrary(AccessControl access) {
+  private Response readAllInLibrary(Access access) {
     try {
-      JSONArray result = instrumentDAO.readAllInLibrary(access, ULong.valueOf(libraryId));
-      if (result != null) {
-        return Response
-          .accepted(JSON.wrap(Instrument.KEY_MANY, result).toString())
-          .type(MediaType.APPLICATION_JSON)
-          .build();
-      } else {
-        return Response.noContent().build();
-      }
+      return response.readMany(
+        Instrument.KEY_MANY,
+        DAO.readAllInLibrary(
+          access,
+          ULong.valueOf(libraryId)));
 
     } catch (Exception e) {
-      return httpResponseProvider.failure(e);
+      return response.failure(e);
     }
   }
 
@@ -112,16 +102,20 @@ public class InstrumentIndexResource {
   @Consumes(MediaType.APPLICATION_JSON)
   @RolesAllowed({Role.ARTIST})
   public Response create(InstrumentWrapper data, @Context ContainerRequestContext crc) {
-    AccessControl access = AccessControl.fromContext(crc);
+    Access access = Access.fromContext(crc);
     try {
-      JSONObject newEntity = instrumentDAO.create(access, data);
-      return Response
-        .created(Exposure.apiURI(Instrument.KEY_MANY + "/" + newEntity.get(Entity.KEY_ID)))
-        .entity(JSON.wrap(Instrument.KEY_ONE, newEntity).toString())
-        .build();
+      JSONObject newEntity = JSON.objectFromRecord(DAO.create(access, data.getInstrument()));
+      if (newEntity != null) {
+        return Response
+          .created(Exposure.apiURI(Instrument.KEY_MANY + "/" + newEntity.get(Entity.KEY_ID)))
+          .entity(JSON.wrap(Instrument.KEY_ONE, newEntity).toString())
+          .build();
+      } else {
+        return response.failureToCreate(new BusinessException("Could not create record"));
+      }
 
     } catch (Exception e) {
-      return httpResponseProvider.failureToCreate(e);
+      return response.failureToCreate(e);
     }
   }
 

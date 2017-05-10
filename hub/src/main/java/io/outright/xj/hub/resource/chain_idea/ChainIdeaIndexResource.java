@@ -1,24 +1,18 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
 package io.outright.xj.hub.resource.chain_idea;
 
 import io.outright.xj.core.CoreModule;
-import io.outright.xj.core.app.access.impl.AccessControl;
-import io.outright.xj.core.app.config.Exposure;
+import io.outright.xj.core.app.access.impl.Access;
 import io.outright.xj.core.app.server.HttpResponseProvider;
 import io.outright.xj.core.dao.ChainIdeaDAO;
-import io.outright.xj.core.model.Entity;
 import io.outright.xj.core.model.chain_idea.ChainIdea;
 import io.outright.xj.core.model.chain_idea.ChainIdeaWrapper;
 import io.outright.xj.core.model.role.Role;
-import io.outright.xj.core.transport.JSON;
 
 import org.jooq.types.ULong;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import javax.annotation.security.RolesAllowed;
 import javax.jws.WebResult;
@@ -39,9 +33,8 @@ import java.io.IOException;
 @Path("chain-ideas")
 public class ChainIdeaIndexResource {
   private static final Injector injector = Guice.createInjector(new CoreModule());
-  //  private static Logger log = LoggerFactory.getLogger(ChainIdeaIndexResource.class);
-  private final ChainIdeaDAO chainIdeaDAO = injector.getInstance(ChainIdeaDAO.class);
-  private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
+  private final ChainIdeaDAO DAO = injector.getInstance(ChainIdeaDAO.class);
+  private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
 
   @QueryParam("chainId")
   String chainId;
@@ -51,30 +44,23 @@ public class ChainIdeaIndexResource {
 
    @return application/json response.
    */
-  // TODO [hub] Return 404 if the chain is not found.
   @GET
   @WebResult
   @RolesAllowed({Role.USER})
   public Response readAll(@Context ContainerRequestContext crc) throws IOException {
-    AccessControl access = AccessControl.fromContext(crc);
-
     if (chainId == null || chainId.length() == 0) {
-      return httpResponseProvider.notAcceptable("Chain id is required");
+      return response.notAcceptable("Chain id is required");
     }
 
     try {
-      JSONArray result = chainIdeaDAO.readAllIn(access, ULong.valueOf(chainId));
-      if (result != null) {
-        return Response
-          .accepted(JSON.wrap(ChainIdea.KEY_MANY, result).toString())
-          .type(MediaType.APPLICATION_JSON)
-          .build();
-      } else {
-        return Response.noContent().build();
-      }
+      return response.readMany(
+        ChainIdea.KEY_MANY,
+        DAO.readAll(
+          Access.fromContext(crc),
+          ULong.valueOf(chainId)));
 
     } catch (Exception e) {
-      return httpResponseProvider.failure(e);
+      return response.failure(e);
     }
   }
 
@@ -88,16 +74,16 @@ public class ChainIdeaIndexResource {
   @Consumes(MediaType.APPLICATION_JSON)
   @RolesAllowed({Role.ADMIN})
   public Response create(ChainIdeaWrapper data, @Context ContainerRequestContext crc) {
-    AccessControl access = AccessControl.fromContext(crc);
     try {
-      JSONObject result = chainIdeaDAO.create(access, data);
-      return Response
-        .created(Exposure.apiURI(ChainIdea.KEY_MANY + "/" + result.get(Entity.KEY_ID)))
-        .entity(JSON.wrap(ChainIdea.KEY_ONE, result).toString())
-        .build();
+      return response.create(
+        ChainIdea.KEY_MANY,
+        ChainIdea.KEY_ONE,
+        DAO.create(
+          Access.fromContext(crc),
+          data.getChainIdea()));
 
     } catch (Exception e) {
-      return httpResponseProvider.failureToCreate(e);
+      return response.failureToCreate(e);
     }
   }
 

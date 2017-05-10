@@ -1,7 +1,7 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
-import Ember from 'ember';
+// Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
+import Ember from "ember";
 import config from "./config/environment";
-import googlePageView from './mixins/google-pageview';
+import googlePageView from "./mixins/google-pageview";
 
 const Router = Ember.Router.extend(googlePageView, {
   location: config.locationType
@@ -13,10 +13,15 @@ Router.map(function () {
   this.route('login');
   this.route('logout');
   this.route('unauthorized');
+  this.route('docs', docs);
 });
 
 function users() {
   this.route('one', {path: '/:user_id'});
+}
+
+function docs() {
+  this.route('one', {path: '/:doc_key'});
 }
 
 function accounts() {
@@ -151,6 +156,7 @@ function accountChainLinks() {
   this.route('one', {path: '/:link_id'}, accountChainLink); // One Link
 }
 
-function accountChainLink() {}
+function accountChainLink() {
+}
 
 export default Router;

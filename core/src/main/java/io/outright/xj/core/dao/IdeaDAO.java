@@ -1,13 +1,13 @@
 // Copyright Outright Mental, Inc. All Rights Reserved.
 package io.outright.xj.core.dao;
 
-import io.outright.xj.core.app.access.impl.AccessControl;
-import io.outright.xj.core.model.idea.IdeaWrapper;
+import io.outright.xj.core.app.access.impl.Access;
+import io.outright.xj.core.model.idea.Idea;
+import io.outright.xj.core.tables.records.IdeaRecord;
 
+import org.jooq.Record;
+import org.jooq.Result;
 import org.jooq.types.ULong;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import javax.annotation.Nullable;
 
@@ -18,21 +18,54 @@ public interface IdeaDAO {
    Create a new Account User
 
    @param access control
-   @param data   for the new Account User.
-   @return newly created record as JSON
+   @param entity for the new Account User.
+   @return newly readMany record
    */
-  JSONObject create(AccessControl access, IdeaWrapper data) throws Exception;
+  IdeaRecord create(Access access, Idea entity) throws Exception;
 
   /**
    Fetch one idea if accessible
 
    @param access control
    @param id     of idea
-   @return retrieved record as JSON
+   @return retrieved record
    @throws Exception on failure
    */
   @Nullable
-  JSONObject readOne(AccessControl access, ULong id) throws Exception;
+  IdeaRecord readOne(Access access, ULong id) throws Exception;
+
+  /**
+   Read a given type of idea for a given link
+
+   @param access control
+   @param linkId to read idea for
+   @param ideaType type of idea to read
+   @return macro-type idea; null if none found
+   */
+  @Nullable
+  IdeaRecord readOneRecordTypeInLink(Access access, ULong linkId, String ideaType) throws Exception;
+
+  /**
+   Fetch many idea for one Account by id, if accessible
+
+   @param access    control
+   @param accountId to fetch ideas for.
+   @param ideaType  to fetch
+   @return JSONArray of ideas.
+   @throws Exception on failure
+   */
+  Result<? extends Record> readAllBoundToChain(Access access, ULong accountId, String ideaType) throws Exception;
+
+  /**
+   Fetch many idea for one Account by id, if accessible
+
+   @param access    control
+   @param accountId to fetch ideas for.
+   @param ideaType  to fetch
+   @return JSONArray of ideas.
+   @throws Exception on failure
+   */
+  Result<? extends Record> readAllBoundToChainLibrary(Access access, ULong accountId, String ideaType) throws Exception;
 
   /**
    Fetch many idea for one Account by id, if accessible
@@ -42,8 +75,7 @@ public interface IdeaDAO {
    @return JSONArray of ideas.
    @throws Exception on failure
    */
-  @Nullable
-  JSONArray readAllInAccount(AccessControl access, ULong accountId) throws Exception;
+  Result<IdeaRecord> readAllInAccount(Access access, ULong accountId) throws Exception;
 
   /**
    Fetch many idea for one Library by id, if accessible
@@ -53,8 +85,7 @@ public interface IdeaDAO {
    @return JSONArray of ideas.
    @throws Exception on failure
    */
-  @Nullable
-  JSONArray readAllInLibrary(AccessControl access, ULong libraryId) throws Exception;
+  Result<IdeaRecord> readAllInLibrary(Access access, ULong libraryId) throws Exception;
 
   /**
    (ADMIN ONLY)
@@ -62,9 +93,9 @@ public interface IdeaDAO {
 
    @param access control
    @param ideaId of specific Idea to update.
-   @param data   for the updated Idea.
+   @param entity for the updated Idea.
    */
-  void update(AccessControl access, ULong ideaId, IdeaWrapper data) throws Exception;
+  void update(Access access, ULong ideaId, Idea entity) throws Exception;
 
   /**
    (ADMIN ONLY)
@@ -73,5 +104,6 @@ public interface IdeaDAO {
    @param access control
    @param id     of specific idea to delete.
    */
-  void delete(AccessControl access, ULong id) throws Exception;
+  void delete(Access access, ULong id) throws Exception;
+
 }

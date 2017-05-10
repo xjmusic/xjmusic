@@ -1,13 +1,15 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
 package io.outright.xj.core.model.choice;
 
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.model.Entity;
 import io.outright.xj.core.model.idea.Idea;
 import io.outright.xj.core.transport.CSV;
-import io.outright.xj.core.util.Purify;
+import io.outright.xj.core.util.Text;
 
 import org.jooq.Field;
+import org.jooq.Record;
+import org.jooq.types.UInteger;
 import org.jooq.types.ULong;
 
 import com.google.api.client.util.Maps;
@@ -15,9 +17,19 @@ import com.google.api.client.util.Maps;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static io.outright.xj.core.Tables.CHOICE;
 
+/**
+ Entity for use as POJO for decoding messages received by JAX-RS resources
+ a.k.a. JSON input will be stored into an instance of this object
+
+ Business logic ought to be performed beginning with an instance of this object,
+ to implement common methods.
+
+ NOTE: There can only be ONE of any getter/setter (with the same # of input params)
+ */
 public class Choice extends Entity {
   public static final String MACRO = Idea.MACRO;
   public static final String MAIN = Idea.MAIN;
@@ -28,12 +40,31 @@ public class Choice extends Entity {
    It is implied that choice types must equal idea types
    */
   public final static List<String> TYPES = Idea.TYPES;
-
-
+  /**
+   For use in maps.
+   */
+  public static final String KEY_ONE = "choice";
+  public static final String KEY_MANY = "choices";
   /**
    Link
    */
   private ULong linkId;
+  /**
+   Idea
+   */
+  private ULong ideaId;
+  /**
+   Type
+   */
+  private String type;
+  /**
+   Phase Offset
+   */
+  private ULong phaseOffset;
+  /**
+   Transpose +/-
+   */
+  private Integer transpose;
 
   public ULong getLinkId() {
     return linkId;
@@ -44,11 +75,6 @@ public class Choice extends Entity {
     return this;
   }
 
-  /**
-   Idea
-   */
-  private ULong ideaId;
-
   public ULong getIdeaId() {
     return ideaId;
   }
@@ -58,24 +84,14 @@ public class Choice extends Entity {
     return this;
   }
 
-  /**
-   Type
-   */
-  private String type;
-
   public String getType() {
     return type;
   }
 
   public Choice setType(String type) {
-    this.type = Purify.LowerSlug(type);
+    this.type = Text.LowerSlug(type);
     return this;
   }
-
-  /**
-   Phase Offset
-   */
-  private ULong phaseOffset;
 
   public ULong getPhaseOffset() {
     return phaseOffset;
@@ -86,11 +102,6 @@ public class Choice extends Entity {
     return this;
   }
 
-  /**
-   Transpose +/-
-   */
-  private Integer transpose;
-
   public Integer getTranspose() {
     return transpose;
   }
@@ -100,15 +111,13 @@ public class Choice extends Entity {
     return this;
   }
 
-  /**
-   Validate data.
-
-   @throws BusinessException if invalid.
-   */
   @Override
   public void validate() throws BusinessException {
     if (this.linkId == null) {
       throw new BusinessException("Link ID is required.");
+    }
+    if (this.ideaId == null) {
+      throw new BusinessException("Idea ID is required.");
     }
     if (this.type == null || this.type.length() == 0) {
       throw new BusinessException("Type is required.");
@@ -116,7 +125,7 @@ public class Choice extends Entity {
     if (!TYPES.contains(this.type)) {
       throw new BusinessException("'" + this.type + "' is not a valid type (" + CSV.join(TYPES) + ").");
     }
-    if (this.phaseOffset == null || this.phaseOffset.equals(ULong.valueOf(0))) {
+    if (this.phaseOffset == null || this.phaseOffset.equals(UInteger.valueOf(0))) {
       throw new BusinessException("Phase Offset is required.");
     }
     if (this.transpose == null) {
@@ -124,13 +133,24 @@ public class Choice extends Entity {
     }
   }
 
-  /**
-   Model info jOOQ-field : Value map
-
-   @return map
-   */
   @Override
-  public Map<Field, Object> intoFieldValueMap() {
+  public Choice setFromRecord(Record record) {
+    if (Objects.isNull(record)) {
+      return null;
+    }
+    id = record.get(CHOICE.ID);
+    linkId = record.get(CHOICE.LINK_ID);
+    ideaId = record.get(CHOICE.IDEA_ID);
+    type = record.get(CHOICE.TYPE);
+    transpose = record.get(CHOICE.TRANSPOSE);
+    phaseOffset = record.get(CHOICE.PHASE_OFFSET);
+    createdAt = record.get(CHOICE.CREATED_AT);
+    updatedAt = record.get(CHOICE.UPDATED_AT);
+    return this;
+  }
+
+  @Override
+  public Map<Field, Object> updatableFieldValueMap() {
     Map<Field, Object> fieldValues = Maps.newHashMap();
     fieldValues.put(CHOICE.LINK_ID, linkId);
     fieldValues.put(CHOICE.IDEA_ID, ideaId);
@@ -139,11 +159,5 @@ public class Choice extends Entity {
     fieldValues.put(CHOICE.PHASE_OFFSET, phaseOffset);
     return fieldValues;
   }
-
-  /**
-   For use in maps.
-   */
-  public static final String KEY_ONE = "choice";
-  public static final String KEY_MANY = "choices";
 
 }

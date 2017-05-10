@@ -1,16 +1,16 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
 package io.outright.xj.core.dao;
 
 import io.outright.xj.core.CoreModule;
-import io.outright.xj.core.app.access.impl.AccessControl;
+import io.outright.xj.core.app.access.impl.Access;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.integration.IntegrationTestEntity;
 import io.outright.xj.core.integration.IntegrationTestService;
 import io.outright.xj.core.model.chain.Chain;
 import io.outright.xj.core.model.chain_instrument.ChainInstrument;
-import io.outright.xj.core.model.chain_instrument.ChainInstrumentWrapper;
 import io.outright.xj.core.model.instrument.Instrument;
 import io.outright.xj.core.tables.records.ChainInstrumentRecord;
+import io.outright.xj.core.transport.JSON;
 
 import org.jooq.types.ULong;
 
@@ -32,7 +32,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
-// TODO [core] test permissions of different libraries to read vs. create vs. update or delete chain libraries
+// TODO [core] test permissions of different libraries to readMany vs. create vs. update or delete chain libraries
 public class ChainInstrumentIT {
   private Injector injector = Guice.createInjector(new CoreModule());
   private ChainInstrumentDAO testDAO;
@@ -82,156 +82,144 @@ public class ChainInstrumentIT {
 
   @Test
   public void create() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
-    ChainInstrumentWrapper inputDataWrapper = new ChainInstrumentWrapper()
-      .setChainInstrument(new ChainInstrument()
-        .setChainId(BigInteger.valueOf(1))
-        .setInstrumentId(BigInteger.valueOf(2))
-      );
+    ChainInstrument inputData = new ChainInstrument()
+      .setChainId(BigInteger.valueOf(1))
+      .setInstrumentId(BigInteger.valueOf(2));
 
-    JSONObject result = testDAO.create(access, inputDataWrapper);
+    JSONObject result = JSON.objectFromRecord(testDAO.create(access, inputData));
 
     assertNotNull(result);
-    assertEquals(BigInteger.valueOf(1), result.get("chainId"));
-    assertEquals(BigInteger.valueOf(2), result.get("instrumentId"));
+    assertEquals(ULong.valueOf(1), result.get("chainId"));
+    assertEquals(ULong.valueOf(2), result.get("instrumentId"));
   }
 
   @Test(expected = BusinessException.class)
   public void create_FailIfAlreadyExists() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
-    ChainInstrumentWrapper inputDataWrapper = new ChainInstrumentWrapper()
-      .setChainInstrument(new ChainInstrument()
-        .setChainId(BigInteger.valueOf(1))
-        .setInstrumentId(BigInteger.valueOf(3))
-      );
+    ChainInstrument inputData = new ChainInstrument()
+      .setChainId(BigInteger.valueOf(1))
+      .setInstrumentId(BigInteger.valueOf(3));
 
-    testDAO.create(access, inputDataWrapper);
+    testDAO.create(access, inputData);
   }
 
   @Test(expected = BusinessException.class)
   public void create_FailIfUserNotInChainAccount() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
-    ChainInstrumentWrapper inputDataWrapper = new ChainInstrumentWrapper()
-      .setChainInstrument(new ChainInstrument()
-        .setChainId(BigInteger.valueOf(3))
-        .setInstrumentId(BigInteger.valueOf(1))
-      );
+    ChainInstrument inputData = new ChainInstrument()
+      .setChainId(BigInteger.valueOf(3))
+      .setInstrumentId(BigInteger.valueOf(1));
 
-    testDAO.create(access, inputDataWrapper);
+    testDAO.create(access, inputData);
   }
 
   @Test(expected = BusinessException.class)
   public void create_FailIfUserNotInInstrumentAccount() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
-    ChainInstrumentWrapper inputDataWrapper = new ChainInstrumentWrapper()
-      .setChainInstrument(new ChainInstrument()
-        .setChainId(BigInteger.valueOf(1))
-        .setInstrumentId(BigInteger.valueOf(3))
-      );
+    ChainInstrument inputData = new ChainInstrument()
+      .setChainId(BigInteger.valueOf(1))
+      .setInstrumentId(BigInteger.valueOf(3));
 
-    testDAO.create(access, inputDataWrapper);
+    testDAO.create(access, inputData);
   }
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutChainID() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
-    ChainInstrumentWrapper inputDataWrapper = new ChainInstrumentWrapper()
-      .setChainInstrument(new ChainInstrument()
-        .setInstrumentId(BigInteger.valueOf(2))
-      );
+    ChainInstrument inputData = new ChainInstrument()
+      .setInstrumentId(BigInteger.valueOf(2));
 
-    testDAO.create(access, inputDataWrapper);
+    testDAO.create(access, inputData);
   }
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutInstrumentId() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
-    ChainInstrumentWrapper inputDataWrapper = new ChainInstrumentWrapper()
-      .setChainInstrument(new ChainInstrument()
-        .setChainId(BigInteger.valueOf(1))
-      );
+    ChainInstrument inputData = new ChainInstrument()
+      .setChainId(BigInteger.valueOf(1));
 
-    testDAO.create(access, inputDataWrapper);
+    testDAO.create(access, inputData);
   }
 
   @Test
   public void readOne() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "2"
     ));
 
-    JSONObject result = testDAO.readOne(access, ULong.valueOf(1));
+    ChainInstrument result = new ChainInstrument().setFromRecord(testDAO.readOne(access, ULong.valueOf(1)));
 
     assertNotNull(result);
-    assertEquals(ULong.valueOf(1), result.get("id"));
-    assertEquals(ULong.valueOf(1), result.get("chainId"));
-    assertEquals(ULong.valueOf(3), result.get("instrumentId"));
+    assertEquals(ULong.valueOf(1), result.getId());
+    assertEquals(ULong.valueOf(1), result.getChainId());
+    assertEquals(ULong.valueOf(3), result.getInstrumentId());
   }
 
   @Test
   public void readOne_FailsWhenChainIsNotInAccount() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "326"
     ));
 
-    JSONObject result = testDAO.readOne(access, ULong.valueOf(1));
+    ChainInstrumentRecord result = testDAO.readOne(access, ULong.valueOf(1));
 
     assertNull(result);
   }
 
   @Test
   public void readAll() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
 
-    JSONArray actualResultList = testDAO.readAllIn(access, ULong.valueOf(2));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ULong.valueOf(2)));
 
-    assertNotNull(actualResultList);
-    assertEquals(2, actualResultList.length());
-    JSONObject actualResult1 = (JSONObject) actualResultList.get(0);
-    assertEquals(1, actualResult1.get("instrumentId"));
-    JSONObject actualResult2 = (JSONObject) actualResultList.get(1);
-    assertEquals(2, actualResult2.get("instrumentId"));
+    assertNotNull(result);
+    assertEquals(2, result.length());
+    JSONObject result1 = (JSONObject) result.get(0);
+    assertEquals(ULong.valueOf(1), result1.get("instrumentId"));
+    JSONObject result2 = (JSONObject) result.get(1);
+    assertEquals(ULong.valueOf(2), result2.get("instrumentId"));
   }
 
   @Test
   public void readAll_SeesNothingOutsideOfAccount() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "345"
     ));
 
-    JSONArray actualResultList = testDAO.readAllIn(access, ULong.valueOf(1));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ULong.valueOf(1)));
 
-    assertNotNull(actualResultList);
-    assertEquals(0, actualResultList.length());
+    assertNotNull(result);
+    assertEquals(0, result.length());
   }
 
   @Test
   public void delete() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "2"
     ));
@@ -247,7 +235,7 @@ public class ChainInstrumentIT {
 
   @Test(expected = BusinessException.class)
   public void delete_FailIfNotInAccount() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "instrument",
       "accounts", "5"
     ));

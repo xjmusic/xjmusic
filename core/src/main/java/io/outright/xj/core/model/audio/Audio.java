@@ -1,25 +1,65 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
 package io.outright.xj.core.model.audio;
 
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.model.Entity;
 
 import org.jooq.Field;
+import org.jooq.Record;
 import org.jooq.types.ULong;
 
 import com.google.api.client.util.Maps;
 
 import java.math.BigInteger;
 import java.util.Map;
+import java.util.Objects;
 
 import static io.outright.xj.core.Tables.AUDIO;
 
+/**
+ Entity for use as POJO for decoding messages received by JAX-RS resources
+ a.k.a. JSON input will be stored into an instance of this object
+
+ Business logic ought to be performed beginning with an instance of this object,
+ to implement common methods.
+
+ NOTE: There can only be ONE of any getter/setter (with the same # of input params)
+ */
 public class Audio extends Entity {
 
+  /**
+   For use in maps.
+   */
+  public static final String KEY_ONE = "audio";
+  public static final String KEY_MANY = "audios";
   /**
    Instrument
    */
   private ULong instrumentId;
+  /**
+   WaveformKey
+   */
+  private String waveformKey;
+  /**
+   Name
+   */
+  private String name;
+  /**
+   Start
+   */
+  private Double start;
+  /**
+   Length
+   */
+  private Double length;
+  /**
+   Tempo
+   */
+  private Double tempo;
+  /**
+   Pitch
+   */
+  private Double pitch;
 
   public ULong getInstrumentId() {
     return instrumentId;
@@ -29,11 +69,6 @@ public class Audio extends Entity {
     this.instrumentId = ULong.valueOf(instrumentId);
     return this;
   }
-
-  /**
-   WaveformKey
-   */
-  private String waveformKey;
 
   public String getWaveformKey() {
     return waveformKey;
@@ -46,11 +81,6 @@ public class Audio extends Entity {
     return this;
   }
 
-  /**
-   Name
-   */
-  private String name;
-
   public String getName() {
     return name;
   }
@@ -59,11 +89,6 @@ public class Audio extends Entity {
     this.name = name;
     return this;
   }
-
-  /**
-   Start
-   */
-  private Double start;
 
   public Double getStart() {
     return start;
@@ -74,11 +99,6 @@ public class Audio extends Entity {
     return this;
   }
 
-  /**
-   Length
-   */
-  private Double length;
-
   public Double getLength() {
     return length;
   }
@@ -87,11 +107,6 @@ public class Audio extends Entity {
     this.length = length;
     return this;
   }
-
-  /**
-   Tempo
-   */
-  private Double tempo;
 
   public Double getTempo() {
     return tempo;
@@ -102,11 +117,6 @@ public class Audio extends Entity {
     return this;
   }
 
-  /**
-   Pitch
-   */
-  private Double pitch;
-
   public Double getPitch() {
     return pitch;
   }
@@ -116,11 +126,6 @@ public class Audio extends Entity {
     return this;
   }
 
-  /**
-   Validate data.
-
-   @throws BusinessException if invalid.
-   */
   @Override
   public void validate() throws BusinessException {
     if (this.instrumentId == null) {
@@ -151,17 +156,29 @@ public class Audio extends Entity {
     }
   }
 
-  /**
-   Model info jOOQ-field : Value map
-   <p>
-   NOTE: Excluding AUDIO.WAVEFORM_KEY a.k.a. waveformKey because that is read-only;
-
-   @return map
-   */
   @Override
-  public Map<Field, Object> intoFieldValueMap() {
+  public Audio setFromRecord(Record record) {
+    if (Objects.isNull(record)) {
+      return null;
+    }
+    id = record.get(AUDIO.ID);
+    instrumentId = record.get(AUDIO.INSTRUMENT_ID);
+    waveformKey = record.get(AUDIO.WAVEFORM_KEY);
+    name = record.get(AUDIO.NAME);
+    start = record.get(AUDIO.START);
+    length = record.get(AUDIO.LENGTH);
+    tempo = record.get(AUDIO.TEMPO);
+    pitch = record.get(AUDIO.PITCH);
+    createdAt = record.get(AUDIO.CREATED_AT);
+    updatedAt = record.get(AUDIO.UPDATED_AT);
+    return this;
+  }
+
+  @Override
+  public Map<Field, Object> updatableFieldValueMap() {
     Map<Field, Object> fieldValues = Maps.newHashMap();
     fieldValues.put(AUDIO.INSTRUMENT_ID, instrumentId);
+    // Excluding AUDIO.WAVEFORM_KEY a.k.a. waveformKey because that is readMany-only
     fieldValues.put(AUDIO.NAME, name);
     fieldValues.put(AUDIO.START, start);
     fieldValues.put(AUDIO.LENGTH, length);
@@ -169,11 +186,5 @@ public class Audio extends Entity {
     fieldValues.put(AUDIO.PITCH, pitch);
     return fieldValues;
   }
-
-  /**
-   For use in maps.
-   */
-  public static final String KEY_ONE = "audio";
-  public static final String KEY_MANY = "audios";
 
 }

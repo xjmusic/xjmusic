@@ -1,0 +1,53 @@
+// Copyright (c) 1517, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
+
+.table-list tr,
+div.chain-state-change,
+.badge {
+
+  &.crafting-state {
+    background: darken(#630063, 15%);
+    border-color: darken(#ed91ed, 15%);
+    color: darken(#ed91ed, 10%);
+    a {
+      color: #ed91ed;
+    }
+  }
+
+  &.crafted-state {
+    background: darken(#614e61, 15%);
+    border-color: darken(#ebd8eb, 15%);
+    color: darken(#ebd8eb, 10%);
+    a {
+      color: #ebd8eb;
+    }
+  }
+
+  &.fabricating-state,
+  &.dubbing-state {
+    background: darken(darkgreen, 15%);
+    border-color: darken(lightgreen, 15%);
+    color: darken(lightgreen, 10%);
+    a {
+      color: lightgreen;
+    }
+  }
+
+  &.dubbed-state {
+    background: darken(#4b634b, 15%);
+    border-color: darken(#b9c9b9, 15%);
+    color: darken(#b9c9b9, 10%);
+    a {
+      color: #b9c9b9;
+    }
+  }
+
+  &.failed-state {
+    background: darken(darkred, 15%);
+    border-color: darken(red, 15%);
+    color: lighten(red, 10%);
+    a {
+      color: red;
+    }
+  }
+
+}

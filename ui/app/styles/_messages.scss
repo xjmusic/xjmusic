@@ -1,0 +1,29 @@
+// Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
+
+.message {
+
+  &.launcher {
+    opacity: 0.8;
+    &:hover {
+      opacity: 1.0;
+      cursor: pointer;
+    }
+  }
+
+  &.message-debug {
+    background-color: #636c72;
+  }
+
+  &.message-info {
+    background-color: darkgreen;
+  }
+
+  &.message-warn {
+    background-color: darkorange;
+  }
+
+  &.message-error {
+    background-color: darkred;
+  }
+
+}

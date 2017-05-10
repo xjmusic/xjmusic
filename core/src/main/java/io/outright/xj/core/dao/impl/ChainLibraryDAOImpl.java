@@ -1,24 +1,21 @@
 // Copyright Outright Mental, Inc. All Rights Reserved.
 package io.outright.xj.core.dao.impl;
 
-import io.outright.xj.core.app.access.impl.AccessControl;
+import io.outright.xj.core.app.access.impl.Access;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.dao.ChainLibraryDAO;
 import io.outright.xj.core.db.sql.SQLConnection;
 import io.outright.xj.core.db.sql.SQLDatabaseProvider;
 import io.outright.xj.core.model.chain_library.ChainLibrary;
-import io.outright.xj.core.model.chain_library.ChainLibraryWrapper;
-import io.outright.xj.core.transport.JSON;
+import io.outright.xj.core.tables.records.ChainLibraryRecord;
 
 import org.jooq.DSLContext;
 import org.jooq.Field;
+import org.jooq.Result;
 import org.jooq.types.ULong;
 
 import com.google.inject.Inject;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.sql.SQLException;
 import java.util.Map;
@@ -37,37 +34,37 @@ public class ChainLibraryDAOImpl extends DAOImpl implements ChainLibraryDAO {
   }
 
   @Override
-  public JSONObject create(AccessControl access, ChainLibraryWrapper data) throws Exception {
+  public ChainLibraryRecord create(Access access, ChainLibrary entity) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(create(tx.getContext(), access, data));
+      return tx.success(createRecord(tx.getContext(), access, entity));
     } catch (Exception e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public JSONObject readOne(AccessControl access, ULong id) throws Exception {
+  public ChainLibraryRecord readOne(Access access, ULong id) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readOne(tx.getContext(), access, id));
+      return tx.success(readOneRecord(tx.getContext(), access, id));
     } catch (Exception e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public JSONArray readAllIn(AccessControl access, ULong chainId) throws Exception {
+  public Result<ChainLibraryRecord> readAll(Access access, ULong chainId) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readAllIn(tx.getContext(), access, chainId));
+      return tx.success(readAll(tx.getContext(), access, chainId));
     } catch (Exception e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public void delete(AccessControl access, ULong id) throws Exception {
+  public void delete(Access access, ULong id) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
       delete(tx.getContext(), access, id);
@@ -80,43 +77,43 @@ public class ChainLibraryDAOImpl extends DAOImpl implements ChainLibraryDAO {
   /**
    Create a new Chain Library record
 
-   @param db   context
-   @param data for new ChainLibrary
+   @param db     context
+   @param entity for new ChainLibrary
    @return new record
    @throws Exception         if database failure
    @throws ConfigException   if not configured properly
    @throws BusinessException if fails business rule
    */
-  private JSONObject create(DSLContext db, AccessControl access, ChainLibraryWrapper data) throws Exception {
-    ChainLibrary model = data.validate();
-    Map<Field, Object> fieldValues = model.intoFieldValueMap();
+  private ChainLibraryRecord createRecord(DSLContext db, Access access, ChainLibrary entity) throws Exception {
+    entity.validate();
+
+    Map<Field, Object> fieldValues = entity.updatableFieldValueMap();
 
     if (access.isTopLevel()) {
-      requireRecordExists("Chain", db.select(CHAIN.ID).from(CHAIN)
-        .where(CHAIN.ID.eq(model.getChainId()))
+      requireExists("Chain", db.select(CHAIN.ID).from(CHAIN)
+        .where(CHAIN.ID.eq(entity.getChainId()))
         .fetchOne());
-      requireRecordExists("Library", db.select(LIBRARY.ID).from(LIBRARY)
-        .where(LIBRARY.ID.eq(model.getLibraryId()))
+      requireExists("Library", db.select(LIBRARY.ID).from(LIBRARY)
+        .where(LIBRARY.ID.eq(entity.getLibraryId()))
         .fetchOne());
     } else {
-      requireRecordExists("Chain", db.select(CHAIN.ID).from(CHAIN)
+      requireExists("Chain", db.select(CHAIN.ID).from(CHAIN)
         .where(CHAIN.ACCOUNT_ID.in(access.getAccounts()))
-        .and(CHAIN.ID.eq(model.getChainId()))
+        .and(CHAIN.ID.eq(entity.getChainId()))
         .fetchOne());
-      requireRecordExists("Library", db.select(LIBRARY.ID).from(LIBRARY)
+      requireExists("Library", db.select(LIBRARY.ID).from(LIBRARY)
         .where(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-        .and(LIBRARY.ID.eq(model.getLibraryId()))
+        .and(LIBRARY.ID.eq(entity.getLibraryId()))
         .fetchOne());
     }
 
     if (db.selectFrom(CHAIN_LIBRARY)
-      .where(CHAIN_LIBRARY.CHAIN_ID.eq(model.getChainId()))
-      .and(CHAIN_LIBRARY.LIBRARY_ID.eq(model.getLibraryId()))
-      .fetchOne() != null) {
+      .where(CHAIN_LIBRARY.CHAIN_ID.eq(entity.getChainId()))
+      .and(CHAIN_LIBRARY.LIBRARY_ID.eq(entity.getLibraryId()))
+      .fetchOne() != null)
       throw new BusinessException("Library already added to Chain!");
-    }
 
-    return JSON.objectFromRecord(executeCreate(db, CHAIN_LIBRARY, fieldValues));
+    return executeCreate(db, CHAIN_LIBRARY, fieldValues);
   }
 
   /**
@@ -127,18 +124,17 @@ public class ChainLibraryDAOImpl extends DAOImpl implements ChainLibraryDAO {
    @param id     of record
    @return record
    */
-  private JSONObject readOne(DSLContext db, AccessControl access, ULong id) {
-    if (access.isTopLevel()) {
-      return JSON.objectFromRecord(db.selectFrom(CHAIN_LIBRARY)
+  private ChainLibraryRecord readOneRecord(DSLContext db, Access access, ULong id) {
+    if (access.isTopLevel())
+      return db.selectFrom(CHAIN_LIBRARY)
         .where(CHAIN_LIBRARY.ID.eq(id))
-        .fetchOne());
-    } else {
-      return JSON.objectFromRecord(db.select(CHAIN_LIBRARY.fields()).from(CHAIN_LIBRARY)
+        .fetchOne();
+    else
+      return recordInto(CHAIN_LIBRARY, db.select(CHAIN_LIBRARY.fields()).from(CHAIN_LIBRARY)
         .join(LIBRARY).on(LIBRARY.ID.eq(CHAIN_LIBRARY.LIBRARY_ID))
         .where(CHAIN_LIBRARY.ID.eq(id))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .fetchOne());
-    }
   }
 
   /**
@@ -150,18 +146,17 @@ public class ChainLibraryDAOImpl extends DAOImpl implements ChainLibraryDAO {
    @return array of child records
    @throws SQLException on failure
    */
-  private JSONArray readAllIn(DSLContext db, AccessControl access, ULong chainId) throws SQLException {
-    if (access.isTopLevel()) {
-      return JSON.arrayFromResultSet(db.selectFrom(CHAIN_LIBRARY)
+  private Result<ChainLibraryRecord> readAll(DSLContext db, Access access, ULong chainId) throws SQLException {
+    if (access.isTopLevel())
+      return db.selectFrom(CHAIN_LIBRARY)
         .where(CHAIN_LIBRARY.CHAIN_ID.eq(chainId))
-        .fetchResultSet());
-    } else {
-      return JSON.arrayFromResultSet(db.select(CHAIN_LIBRARY.fields()).from(CHAIN_LIBRARY)
+        .fetch();
+    else
+      return resultInto(CHAIN_LIBRARY, db.select(CHAIN_LIBRARY.fields()).from(CHAIN_LIBRARY)
         .join(LIBRARY).on(LIBRARY.ID.eq(CHAIN_LIBRARY.LIBRARY_ID))
         .where(CHAIN_LIBRARY.CHAIN_ID.eq(chainId))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-        .fetchResultSet());
-    }
+        .fetch());
   }
 
   /**
@@ -172,19 +167,18 @@ public class ChainLibraryDAOImpl extends DAOImpl implements ChainLibraryDAO {
    @param id     of record
    @throws BusinessException on failure
    */
-  private void delete(DSLContext db, AccessControl access, ULong id) throws BusinessException {
+  private void delete(DSLContext db, Access access, ULong id) throws BusinessException {
     // TODO: fail if no chainLibrary is deleted
-    if (access.isTopLevel()) {
-      requireRecordExists("Chain Library", db.selectFrom(CHAIN_LIBRARY)
+    if (access.isTopLevel())
+      requireExists("Chain Library", db.selectFrom(CHAIN_LIBRARY)
         .where(CHAIN_LIBRARY.ID.eq(id))
         .fetchOne());
-    } else {
-      requireRecordExists("Chain Library", db.select(CHAIN_LIBRARY.fields()).from(CHAIN_LIBRARY)
+    else
+      requireExists("Chain Library", db.select(CHAIN_LIBRARY.fields()).from(CHAIN_LIBRARY)
         .join(LIBRARY).on(LIBRARY.ID.eq(CHAIN_LIBRARY.LIBRARY_ID))
         .where(CHAIN_LIBRARY.ID.eq(id))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .fetchOne());
-    }
 
     db.deleteFrom(CHAIN_LIBRARY)
       .where(CHAIN_LIBRARY.ID.eq(id))

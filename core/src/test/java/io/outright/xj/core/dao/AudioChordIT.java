@@ -1,16 +1,16 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
 package io.outright.xj.core.dao;
 
 import io.outright.xj.core.CoreModule;
-import io.outright.xj.core.app.access.impl.AccessControl;
+import io.outright.xj.core.app.access.impl.Access;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.integration.IntegrationTestEntity;
 import io.outright.xj.core.integration.IntegrationTestService;
 import io.outright.xj.core.model.audio_chord.AudioChord;
-import io.outright.xj.core.model.audio_chord.AudioChordWrapper;
 import io.outright.xj.core.model.instrument.Instrument;
 import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.tables.records.AudioChordRecord;
+import io.outright.xj.core.transport.JSON;
 
 import org.jooq.types.ULong;
 
@@ -31,7 +31,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
-// TODO [core] test permissions of different users to read vs. create vs. update or delete audio chords
+// TODO [core] test permissions of different users to readMany vs. create vs. update or delete audio chords
 public class AudioChordIT {
   private Injector injector = Guice.createInjector(new CoreModule());
   private AudioChordDAO testDAO;
@@ -73,157 +73,145 @@ public class AudioChordIT {
 
   @Test
   public void create() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
-    AudioChordWrapper inputDataWrapper = new AudioChordWrapper()
-      .setAudioChord(new AudioChord()
-        .setPosition(0.42)
-        .setName("G minor 7")
-        .setAudioId(BigInteger.valueOf(1))
-      );
+    AudioChord inputData = new AudioChord()
+      .setPosition(0.42)
+      .setName("G minor 7")
+      .setAudioId(BigInteger.valueOf(1));
 
-    JSONObject result = testDAO.create(access, inputDataWrapper);
+    AudioChordRecord result = testDAO.create(access, inputData);
 
     assertNotNull(result);
-    assertEquals(0.42, result.get("position"));
-    assertEquals("G minor 7", result.get("name"));
-    assertEquals(ULong.valueOf(1), result.get("audioId"));
+    assertEquals(Double.valueOf(0.42), result.get(AUDIO_CHORD.POSITION));
+    assertEquals("G minor 7", result.get(AUDIO_CHORD.NAME));
+    assertEquals(ULong.valueOf(1), result.get(AUDIO_CHORD.AUDIO_ID));
   }
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutAudioID() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
-    AudioChordWrapper inputDataWrapper = new AudioChordWrapper()
-      .setAudioChord(new AudioChord()
-        .setPosition(0.42)
-        .setName("G minor 7")
-      );
+    AudioChord inputData = new AudioChord()
+      .setPosition(0.42)
+      .setName("G minor 7");
 
-    testDAO.create(access, inputDataWrapper);
+    testDAO.create(access, inputData);
   }
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutName() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
-    AudioChordWrapper inputDataWrapper = new AudioChordWrapper()
-      .setAudioChord(new AudioChord()
-        .setPosition(0.42)
-        .setAudioId(BigInteger.valueOf(2))
-      );
+    AudioChord inputData = new AudioChord()
+      .setPosition(0.42)
+      .setAudioId(BigInteger.valueOf(2));
 
-    testDAO.create(access, inputDataWrapper);
+    testDAO.create(access, inputData);
   }
 
   @Test
   public void readOne() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
 
-    JSONObject result = testDAO.readOne(access, ULong.valueOf(1));
+    AudioChord result = new AudioChord().setFromRecord(testDAO.readOne(access, ULong.valueOf(1)));
 
     assertNotNull(result);
-    assertEquals(ULong.valueOf(1), result.get("id"));
-    assertEquals(ULong.valueOf(1), result.get("audioId"));
-    assertEquals("D major", result.get("name"));
+    assertEquals(ULong.valueOf(1), result.getId());
+    assertEquals(ULong.valueOf(1), result.getAudioId());
+    assertEquals("D major", result.getName());
   }
 
   @Test
   public void readOne_FailsWhenUserIsNotInAccount() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "326"
     ));
 
-    JSONObject result = testDAO.readOne(access, ULong.valueOf(1));
+    AudioChordRecord result = testDAO.readOne(access, ULong.valueOf(1));
 
     assertNull(result);
   }
 
   @Test
   public void readAll() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
 
-    JSONArray actualResultList = testDAO.readAllIn(access, ULong.valueOf(1));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ULong.valueOf(1)));
 
-    assertNotNull(actualResultList);
-    assertEquals(2, actualResultList.length());
-    JSONObject actualResult1 = (JSONObject) actualResultList.get(0);
-    assertEquals("C minor", actualResult1.get("name"));
-    JSONObject actualResult2 = (JSONObject) actualResultList.get(1);
-    assertEquals("D major", actualResult2.get("name"));
+    assertNotNull(result);
+    assertEquals(2, result.length());
+    JSONObject result1 = (JSONObject) result.get(0);
+    assertEquals("C minor", result1.get("name"));
+    JSONObject result2 = (JSONObject) result.get(1);
+    assertEquals("D major", result2.get("name"));
   }
 
   @Test
   public void readAll_SeesNothingOutsideOfLibrary() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "345"
     ));
 
-    JSONArray actualResultList = testDAO.readAllIn(access, ULong.valueOf(1));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ULong.valueOf(1)));
 
-    assertNotNull(actualResultList);
-    assertEquals(0, actualResultList.length());
+    assertNotNull(result);
+    assertEquals(0, result.length());
   }
 
   @Test(expected = BusinessException.class)
   public void update_FailsWithoutAudioID() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
-    AudioChordWrapper inputDataWrapper = new AudioChordWrapper()
-      .setAudioChord(new AudioChord()
-        .setPosition(0.42)
-        .setName("G minor 7")
-      );
+    AudioChord inputData = new AudioChord()
+      .setPosition(0.42)
+      .setName("G minor 7");
 
-    testDAO.update(access, ULong.valueOf(3), inputDataWrapper);
+    testDAO.update(access, ULong.valueOf(3), inputData);
   }
 
   @Test(expected = BusinessException.class)
   public void update_FailsWithoutName() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
-    AudioChordWrapper inputDataWrapper = new AudioChordWrapper()
-      .setAudioChord(new AudioChord()
-        .setPosition(0.42)
-        .setAudioId(BigInteger.valueOf(2))
-      );
+    AudioChord inputData = new AudioChord()
+      .setPosition(0.42)
+      .setAudioId(BigInteger.valueOf(2));
 
-    testDAO.update(access, ULong.valueOf(2), inputDataWrapper);
+    testDAO.update(access, ULong.valueOf(2), inputData);
   }
 
   @Test(expected = BusinessException.class)
   public void update_FailsUpdatingToNonexistentAudio() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
-    AudioChordWrapper inputDataWrapper = new AudioChordWrapper()
-      .setAudioChord(new AudioChord()
-        .setPosition(0.42)
-        .setAudioId(BigInteger.valueOf(57))
-        .setName("cannons")
-      );
+    AudioChord inputData = new AudioChord()
+      .setPosition(0.42)
+      .setAudioId(BigInteger.valueOf(57))
+      .setName("cannons");
 
     try {
-      testDAO.update(access, ULong.valueOf(2), inputDataWrapper);
+      testDAO.update(access, ULong.valueOf(2), inputData);
 
     } catch (Exception e) {
       AudioChordRecord result = IntegrationTestService.getDb()
@@ -239,18 +227,16 @@ public class AudioChordIT {
 
   @Test
   public void update() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
-    AudioChordWrapper inputDataWrapper = new AudioChordWrapper()
-      .setAudioChord(new AudioChord()
-        .setAudioId(BigInteger.valueOf(1))
-        .setName("POPPYCOCK")
-        .setPosition(0.42)
-      );
+    AudioChord inputData = new AudioChord()
+      .setAudioId(BigInteger.valueOf(1))
+      .setName("POPPYCOCK")
+      .setPosition(0.42);
 
-    testDAO.update(access, ULong.valueOf(1), inputDataWrapper);
+    testDAO.update(access, ULong.valueOf(1), inputData);
 
     AudioChordRecord result = IntegrationTestService.getDb()
       .selectFrom(AUDIO_CHORD)
@@ -266,7 +252,7 @@ public class AudioChordIT {
 
   @Test
   public void delete() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
@@ -282,7 +268,7 @@ public class AudioChordIT {
 
   @Test(expected = BusinessException.class)
   public void delete_failsIfNotInAccount() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "2"
     ));

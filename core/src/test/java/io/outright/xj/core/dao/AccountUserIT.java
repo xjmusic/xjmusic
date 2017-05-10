@@ -1,14 +1,14 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
 package io.outright.xj.core.dao;
 
 import io.outright.xj.core.CoreModule;
-import io.outright.xj.core.app.access.impl.AccessControl;
+import io.outright.xj.core.app.access.impl.Access;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.integration.IntegrationTestEntity;
 import io.outright.xj.core.integration.IntegrationTestService;
 import io.outright.xj.core.model.account_user.AccountUser;
-import io.outright.xj.core.model.account_user.AccountUserWrapper;
 import io.outright.xj.core.tables.records.AccountUserRecord;
+import io.outright.xj.core.transport.JSON;
 
 import org.jooq.types.ULong;
 
@@ -29,7 +29,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
-// TODO [core] test permissions of different users to read vs. create vs. update or delete account users
+// TODO [core] test permissions of different users to readMany vs. create vs. update or delete account users
 public class AccountUserIT {
   private Injector injector = Guice.createInjector(new CoreModule());
   private AccountUserDAO testDAO;
@@ -60,153 +60,143 @@ public class AccountUserIT {
 
   @Test
   public void create() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
     IntegrationTestEntity.insertUser(5, "Jim", "jim@email.com", "http://pictures.com/jim.gif");
-    AccountUserWrapper inputDataWrapper = new AccountUserWrapper()
-      .setAccountUser(new AccountUser()
-        .setAccountId(BigInteger.valueOf(1))
-        .setUserId(BigInteger.valueOf(5))
-      );
+    AccountUser inputData = new AccountUser()
+      .setAccountId(BigInteger.valueOf(1))
+      .setUserId(BigInteger.valueOf(5));
 
-    JSONObject result = testDAO.create(access, inputDataWrapper);
+    AccountUserRecord result = testDAO.create(access, inputData);
 
     assertNotNull(result);
-    assertEquals(BigInteger.valueOf(1), result.get("accountId"));
-    assertEquals(BigInteger.valueOf(5), result.get("userId"));
+    assertEquals(ULong.valueOf(1), result.get(ACCOUNT_USER.ACCOUNT_ID));
+    assertEquals(ULong.valueOf(5), result.get(ACCOUNT_USER.USER_ID));
   }
 
   @Test(expected = BusinessException.class)
   public void create_FailIfAlreadyExists() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
-    AccountUserWrapper inputDataWrapper = new AccountUserWrapper()
-      .setAccountUser(new AccountUser()
-        .setAccountId(BigInteger.valueOf(1))
-        .setUserId(BigInteger.valueOf(2))
-      );
+    AccountUser inputData = new AccountUser()
+      .setAccountId(BigInteger.valueOf(1))
+      .setUserId(BigInteger.valueOf(2));
 
-    testDAO.create(access, inputDataWrapper);
+    testDAO.create(access, inputData);
   }
 
   @Test(expected = BusinessException.class)
   public void create_FailIfNotAdmin() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "user"
     ));
-    AccountUserWrapper inputDataWrapper = new AccountUserWrapper()
-      .setAccountUser(new AccountUser()
-        .setAccountId(BigInteger.valueOf(1))
-        .setUserId(BigInteger.valueOf(2))
-      );
+    AccountUser inputData = new AccountUser()
+      .setAccountId(BigInteger.valueOf(1))
+      .setUserId(BigInteger.valueOf(2));
 
-    testDAO.create(access, inputDataWrapper);
+    testDAO.create(access, inputData);
   }
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutAccountID() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
-    AccountUserWrapper inputDataWrapper = new AccountUserWrapper()
-      .setAccountUser(new AccountUser()
-        .setUserId(BigInteger.valueOf(2))
-      );
+    AccountUser inputData = new AccountUser()
+      .setUserId(BigInteger.valueOf(2));
 
-    testDAO.create(access, inputDataWrapper);
+    testDAO.create(access, inputData);
   }
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutUserId() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
-    AccountUserWrapper inputDataWrapper = new AccountUserWrapper()
-      .setAccountUser(new AccountUser()
-        .setAccountId(BigInteger.valueOf(1))
-      );
+    AccountUser inputData = new AccountUser()
+      .setAccountId(BigInteger.valueOf(1));
 
-    testDAO.create(access, inputDataWrapper);
+    testDAO.create(access, inputData);
   }
 
   @Test
-  public void readOne() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+  public void readOne_asRecordSetToModel() throws Exception {
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
 
-    JSONObject result = testDAO.readOne(access, ULong.valueOf(1));
+    AccountUser result = new AccountUser().setFromRecord(testDAO.readOne(access, ULong.valueOf(1)));
 
     assertNotNull(result);
-    assertEquals(ULong.valueOf(1), result.get("id"));
-    assertEquals(ULong.valueOf(1), result.get("accountId"));
-    assertEquals(ULong.valueOf(2), result.get("userId"));
+    assertEquals(ULong.valueOf(1), result.getId());
+    assertEquals(ULong.valueOf(1), result.getAccountId());
+    assertEquals(ULong.valueOf(2), result.getUserId());
   }
 
   @Test
   public void readOne_FailsWhenUserIsNotInAccount() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "326"
     ));
 
-    JSONObject result = testDAO.readOne(access, ULong.valueOf(1));
+    AccountUserRecord result = testDAO.readOne(access, ULong.valueOf(1));
 
     assertNull(result);
   }
 
   @Test
   public void readAll_Admin() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
 
-    JSONArray actualResultList = testDAO.readAllIn(access, ULong.valueOf(1));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ULong.valueOf(1)));
 
-    assertNotNull(actualResultList);
-    assertEquals(2, actualResultList.length());
-    JSONObject actualResult1 = (JSONObject) actualResultList.get(0);
-    assertEquals(2, actualResult1.get("userId"));
-    JSONObject actualResult2 = (JSONObject) actualResultList.get(1);
-    assertEquals(3, actualResult2.get("userId"));
+    assertNotNull(result);
+    assertEquals(2, result.length());
+    JSONObject result1 = (JSONObject) result.get(0);
+    assertEquals(ULong.valueOf(2), result1.get("userId"));
+    JSONObject result2 = (JSONObject) result.get(1);
+    assertEquals(ULong.valueOf(3), result2.get("userId"));
   }
 
   @Test
   public void readAll_UserCanSeeInsideOwnAccount() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "user",
       "accounts", "1"
     ));
 
-    JSONArray actualResultList = testDAO.readAllIn(access, ULong.valueOf(1));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ULong.valueOf(1)));
 
-    assertNotNull(actualResultList);
-    assertEquals(2, actualResultList.length());
-    JSONObject actualResult1 = (JSONObject) actualResultList.get(0);
-    assertEquals(2, actualResult1.get("userId"));
-    JSONObject actualResult2 = (JSONObject) actualResultList.get(1);
-    assertEquals(3, actualResult2.get("userId"));
+    assertNotNull(result);
+    assertEquals(2, result.length());
+    JSONObject result1 = (JSONObject) result.get(0);
+    assertEquals(ULong.valueOf(2), result1.get("userId"));
+    JSONObject result2 = (JSONObject) result.get(1);
+    assertEquals(ULong.valueOf(3), result2.get("userId"));
   }
 
   @Test
   public void readAll_SeesNothingOutsideOfAccount() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "345"
     ));
 
-    JSONArray actualResultList = testDAO.readAllIn(access, ULong.valueOf(1));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ULong.valueOf(1)));
 
-    assertNotNull(actualResultList);
-    assertEquals(0, actualResultList.length());
+    assertNotNull(result);
+    assertEquals(0, result.length());
   }
 
   @Test
   public void delete() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
 
@@ -221,7 +211,7 @@ public class AccountUserIT {
 
   @Test(expected = BusinessException.class)
   public void delete_FailIfNotAdmin() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "user"
     ));
 

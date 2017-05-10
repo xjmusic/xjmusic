@@ -1,13 +1,12 @@
 // Copyright Outright Mental, Inc. All Rights Reserved.
 package io.outright.xj.core.dao;
 
-import io.outright.xj.core.app.access.impl.AccessControl;
-import io.outright.xj.core.model.audio_chord.AudioChordWrapper;
+import io.outright.xj.core.app.access.impl.Access;
+import io.outright.xj.core.model.audio_chord.AudioChord;
+import io.outright.xj.core.tables.records.AudioChordRecord;
 
+import org.jooq.Result;
 import org.jooq.types.ULong;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import javax.annotation.Nullable;
 
@@ -17,21 +16,21 @@ public interface AudioChordDAO {
    Create a new AudioChord
 
    @param access control
-   @param data   for the new Account User.
-   @return newly created record as JSON
+   @param entity for the new Account User.
+   @return newly readMany record
    */
-  JSONObject create(AccessControl access, AudioChordWrapper data) throws Exception;
+  AudioChordRecord create(Access access, AudioChord entity) throws Exception;
 
   /**
    Fetch one Audio Chord if accessible
 
    @param access control
    @param id     of audio
-   @return retrieved record as JSON
+   @return retrieved record
    @throws Exception on failure
    */
   @Nullable
-  JSONObject readOne(AccessControl access, ULong id) throws Exception;
+  AudioChordRecord readOne(Access access, ULong id) throws Exception;
 
   /**
    Fetch all accessible Audio Chord for one Audio by id
@@ -41,17 +40,16 @@ public interface AudioChordDAO {
    @return JSONArray of audios.
    @throws Exception on failure
    */
-  @Nullable
-  JSONArray readAllIn(AccessControl access, ULong audioId) throws Exception;
+  Result<AudioChordRecord> readAll(Access access, ULong audioId) throws Exception;
 
   /**
    Update a specified Audio Chord if accessible
 
    @param access control
    @param id     of specific Chord to update.
-   @param data   for the updated Chord.
+   @param entity for the updated Chord.
    */
-  void update(AccessControl access, ULong id, AudioChordWrapper data) throws Exception;
+  void update(Access access, ULong id, AudioChord entity) throws Exception;
 
   /**
    Delete a specified Audio Chord if accessible
@@ -59,5 +57,5 @@ public interface AudioChordDAO {
    @param access control
    @param id     of specific audio to delete.
    */
-  void delete(AccessControl access, ULong id) throws Exception;
+  void delete(Access access, ULong id) throws Exception;
 }

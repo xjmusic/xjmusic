@@ -1,13 +1,12 @@
 // Copyright Outright Mental, Inc. All Rights Reserved.
 package io.outright.xj.core.dao;
 
-import io.outright.xj.core.app.access.impl.AccessControl;
-import io.outright.xj.core.model.library.LibraryWrapper;
+import io.outright.xj.core.app.access.impl.Access;
+import io.outright.xj.core.model.library.Library;
+import io.outright.xj.core.tables.records.LibraryRecord;
 
+import org.jooq.Result;
 import org.jooq.types.ULong;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import javax.annotation.Nullable;
 
@@ -16,10 +15,10 @@ public interface LibraryDAO {
    (ADMIN ONLY)
    Create a new Library
 
-   @param data for the new Library.
-   @return newly created Library record.
+   @param entity for the new Library.
+   @return newly readMany Library record.
    */
-  JSONObject create(AccessControl access, LibraryWrapper data) throws Exception;
+  LibraryRecord create(Access access, Library entity) throws Exception;
 
   /**
    Fetch one Library by id, if accessible
@@ -30,7 +29,7 @@ public interface LibraryDAO {
    @throws Exception on failure
    */
   @Nullable
-  JSONObject readOne(AccessControl access, ULong libraryId) throws Exception;
+  LibraryRecord readOne(Access access, ULong libraryId) throws Exception;
 
   /**
    Read all Libraries that are accessible
@@ -39,17 +38,16 @@ public interface LibraryDAO {
    @return array of libraries as JSON
    @throws Exception on failure
    */
-  @Nullable
-  JSONArray readAllIn(AccessControl access, ULong accountId) throws Exception;
+  Result<LibraryRecord> readAll(Access access, ULong accountId) throws Exception;
 
   /**
    (ADMIN ONLY)
    Update a specified Library
 
    @param libraryId of specific Library to update.
-   @param data      for the updated Library.
+   @param entity    for the updated Library.
    */
-  void update(AccessControl access, ULong libraryId, LibraryWrapper data) throws Exception;
+  void update(Access access, ULong libraryId, Library entity) throws Exception;
 
   /**
    (ADMIN ONLY)
@@ -57,5 +55,5 @@ public interface LibraryDAO {
 
    @param libraryId of specific Library to delete.
    */
-  void delete(AccessControl access, ULong libraryId) throws Exception;
+  void delete(Access access, ULong libraryId) throws Exception;
 }

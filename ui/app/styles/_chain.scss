@@ -1,12 +1,31 @@
-/* Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved. */
+/* Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved. */
+
+@import "palette";
 
 .chain-state {
   white-space: nowrap;
-  div, button {
-    display: inline-block;
-    white-space: nowrap;
-  }
-  .current-state{
+  display: inline-block;
+}
 
+.chain-state-change {
+  border: 2px #303030 solid;
+  background: #202020;
+  table {
+    width: 100%;
+    th {
+      font-weight: bolder;
+      color: $bright;
+      width: 50%;
+      vertical-align: middle;
+      padding: 27px 20px 20px 20px;
+    }
+    td {
+      width: 50%;
+      vertical-align: middle;
+      padding: 20px 20px 20px 0;
+      button {
+        width: 100%;
+      }
+    }
   }
 }

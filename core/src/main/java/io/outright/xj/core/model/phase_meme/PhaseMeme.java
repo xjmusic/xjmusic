@@ -1,77 +1,84 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
 package io.outright.xj.core.model.phase_meme;
 
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.model.Entity;
-import io.outright.xj.core.util.Purify;
+import io.outright.xj.core.model.meme.Meme;
+import io.outright.xj.core.util.Text;
 
 import org.jooq.Field;
+import org.jooq.Record;
 import org.jooq.types.ULong;
 
 import com.google.api.client.util.Maps;
 
 import java.math.BigInteger;
 import java.util.Map;
+import java.util.Objects;
 
 import static io.outright.xj.core.Tables.PHASE_MEME;
 
-public class PhaseMeme extends Entity {
+/**
+ Entity for use as POJO for decoding messages received by JAX-RS resources
+ a.k.a. JSON input will be stored into an instance of this object
 
-  // Phase ID
-  private BigInteger phaseId;
+ Business logic ought to be performed beginning with an instance of this object,
+ to implement common methods.
 
-  public ULong getPhaseId() {
-    return ULong.valueOf(phaseId);
-  }
-
-  public PhaseMeme setPhaseId(BigInteger phaseId) {
-    this.phaseId = phaseId;
-    return this;
-  }
-
-  // Name
-  private String name;
-
-  public String getName() {
-    return name;
-  }
-
-  public PhaseMeme setName(String name) {
-    this.name = Purify.ProperSlug(name);
-    return this;
-  }
-
-  /**
-   Validate data.
-
-   @throws BusinessException if invalid.
-   */
-  public void validate() throws BusinessException {
-    if (this.phaseId == null) {
-      throw new BusinessException("Phase ID is required.");
-    }
-    if (this.name == null) {
-      throw new BusinessException("Name is required.");
-    }
-  }
-
-  /**
-   Model info jOOQ-field : Value map
-
-   @return map
-   */
-  public Map<Field, Object> intoFieldValueMap() {
-    Map<Field, Object> fieldValues = Maps.newHashMap();
-    fieldValues.put(PHASE_MEME.PHASE_ID, phaseId);
-    fieldValues.put(PHASE_MEME.NAME, name);
-    return fieldValues;
-  }
+ NOTE: There can only be ONE of any getter/setter (with the same # of input params)
+ */
+public class PhaseMeme extends Meme {
 
   /**
    For use in maps.
    */
   public static final String KEY_ONE = "phaseMeme";
   public static final String KEY_MANY = "phaseMemes";
+  // Phase ID
+  private ULong phaseId;
+
+  public ULong getPhaseId() {
+    return phaseId;
+  }
+
+  public PhaseMeme setPhaseId(BigInteger phaseId) {
+    this.phaseId = ULong.valueOf(phaseId);
+    return this;
+  }
+
+  public PhaseMeme setName(String name) {
+    this.name = Text.ProperSlug(name);
+    return this;
+  }
+
+  @Override
+  public void validate() throws BusinessException {
+    if (this.phaseId == null) {
+      throw new BusinessException("Phase ID is required.");
+    }
+    super.validate();
+  }
+
+  @Override
+  public PhaseMeme setFromRecord(Record record) {
+    if (Objects.isNull(record)) {
+      return null;
+    }
+    id = record.get(PHASE_MEME.ID);
+    phaseId = record.get(PHASE_MEME.PHASE_ID);
+    name = record.get(PHASE_MEME.NAME);
+    createdAt = record.get(PHASE_MEME.CREATED_AT);
+    updatedAt = record.get(PHASE_MEME.UPDATED_AT);
+    return this;
+  }
+
+  @Override
+  public Map<Field, Object> updatableFieldValueMap() {
+    Map<Field, Object> fieldValues = Maps.newHashMap();
+    fieldValues.put(PHASE_MEME.PHASE_ID, phaseId);
+    fieldValues.put(PHASE_MEME.NAME, name);
+    return fieldValues;
+  }
 
 
 }

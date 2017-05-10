@@ -1,14 +1,12 @@
 // Copyright Outright Mental, Inc. All Rights Reserved.
 package io.outright.xj.core.dao;
 
-import io.outright.xj.core.app.access.impl.AccessControl;
-import io.outright.xj.core.app.exception.AccessException;
-import io.outright.xj.core.model.user.UserWrapper;
+import io.outright.xj.core.app.access.impl.Access;
+import io.outright.xj.core.model.user.User;
 
+import org.jooq.Record;
+import org.jooq.Result;
 import org.jooq.types.ULong;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import javax.annotation.Nullable;
 
@@ -35,7 +33,7 @@ public interface UserDAO {
    @param email                to contact user
    @return access token
    */
-  String authenticate(String authType, String account, String externalAccessToken, String externalRefreshToken, String name, String avatarUrl, String email) throws Exception, AccessException;
+  String authenticate(String authType, String account, String externalAccessToken, String externalRefreshToken, String name, String avatarUrl, String email) throws Exception;
 
   /**
    Fetch one User by id, if accessible
@@ -46,7 +44,7 @@ public interface UserDAO {
    @throws Exception on failure
    */
   @Nullable
-  JSONObject readOne(AccessControl access, ULong userId) throws Exception;
+  Record readOne(Access access, ULong userId) throws Exception;
 
   /**
    Read Users accessible, and their roles
@@ -54,8 +52,7 @@ public interface UserDAO {
    @param access control
    @return Users as JSON array.
    */
-  @Nullable
-  JSONArray readAll(AccessControl access) throws Exception;
+  Result<? extends Record> readAll(Access access) throws Exception;
 
   /**
    (ADMIN ONLY)
@@ -70,7 +67,7 @@ public interface UserDAO {
    Update a specified User's roles, and destroy all their tokens.
 
    @param userId of specific User to update.
-   @param data   for the updated User.
+   @param entity for the updated User.
    */
-  void updateUserRolesAndDestroyTokens(AccessControl access, ULong userId, UserWrapper data) throws Exception;
+  void updateUserRolesAndDestroyTokens(Access access, ULong userId, User entity) throws Exception;
 }

@@ -1,4 +1,4 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
 .table thead th {
   border-top: 0 none;
 }
@@ -18,13 +18,6 @@
         width: 24px;
         height: 24px;
         border: 1px solid $low-gray;
-      }
-      &.fabricating-state {
-        background: darken(darkgreen, 10%);
-        color: lightgreen;
-        a {
-          color: lightgreen;
-        }
       }
     }
   }

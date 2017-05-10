@@ -1,4 +1,4 @@
-<!-- Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved. -->
+<!-- Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved. -->
 
 <!-- Inner Content -->
 {{outlet}}
@@ -27,9 +27,10 @@
           <tr class="item">
             <td>{{#link-to "accounts.one.libraries.one.instruments.one.audios.one"
                                        audio}}{{audio.name}}{{/link-to}}</td>
-            <td><a target="_blank" href="{{model.audioBaseUrl}}{{audio.waveformKey}}">
-              {{audio.waveformKey}}
-            </a></td>
+            <td><audio controls>
+              <source src="{{model.audioBaseUrl}}{{audio.waveformKey}}" type="audio/wav">
+              Your browser does not support the audio element.
+            </audio></td>
             <td>{{audio.tempo}}</td>
             <td>{{audio.pitch}}</td>
             <td>{{audio.start}}</td>

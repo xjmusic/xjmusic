@@ -2,20 +2,17 @@
 package io.outright.xj.hub.resource.voice;
 
 import io.outright.xj.core.CoreModule;
-import io.outright.xj.core.app.access.impl.AccessControl;
+import io.outright.xj.core.app.access.impl.Access;
 import io.outright.xj.core.app.server.HttpResponseProvider;
 import io.outright.xj.core.dao.VoiceDAO;
 import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.model.voice.Voice;
 import io.outright.xj.core.model.voice.VoiceWrapper;
-import io.outright.xj.core.transport.JSON;
 
 import org.jooq.types.ULong;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-
-import org.json.JSONObject;
 
 import javax.annotation.security.RolesAllowed;
 import javax.jws.WebResult;
@@ -37,9 +34,8 @@ import java.io.IOException;
 @Path("voices/{id}")
 public class VoiceRecordResource {
   private static final Injector injector = Guice.createInjector(new CoreModule());
-  //  private static Logger log = LoggerFactory.getLogger(VoiceRecordResource.class);
-  private final VoiceDAO voiceDAO = injector.getInstance(VoiceDAO.class);
-  private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
+  private final VoiceDAO DAO = injector.getInstance(VoiceDAO.class);
+  private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
 
   @PathParam("id")
   String id;
@@ -53,20 +49,15 @@ public class VoiceRecordResource {
   @WebResult
   @RolesAllowed({Role.ARTIST})
   public Response readOne(@Context ContainerRequestContext crc) throws IOException {
-    AccessControl access = AccessControl.fromContext(crc);
     try {
-      JSONObject result = voiceDAO.readOne(access, ULong.valueOf(id));
-      if (result != null) {
-        return Response
-          .accepted(JSON.wrap(Voice.KEY_ONE, result).toString())
-          .type(MediaType.APPLICATION_JSON)
-          .build();
-      } else {
-        return httpResponseProvider.notFound("Voice");
-      }
+      return response.readOne(
+        Voice.KEY_ONE,
+        DAO.readOne(
+          Access.fromContext(crc),
+          ULong.valueOf(id)));
 
     } catch (Exception e) {
-      return httpResponseProvider.failure(e);
+      return response.failure(e);
     }
   }
 
@@ -80,13 +71,15 @@ public class VoiceRecordResource {
   @Consumes(MediaType.APPLICATION_JSON)
   @RolesAllowed({Role.ARTIST})
   public Response update(VoiceWrapper data, @Context ContainerRequestContext crc) {
-    AccessControl access = AccessControl.fromContext(crc);
     try {
-      voiceDAO.update(access, ULong.valueOf(id), data);
+      DAO.update(
+        Access.fromContext(crc),
+        ULong.valueOf(id),
+        data.getVoice());
       return Response.accepted("{}").build();
 
     } catch (Exception e) {
-      return httpResponseProvider.failureToUpdate(e);
+      return response.failureToUpdate(e);
     }
   }
 
@@ -98,14 +91,14 @@ public class VoiceRecordResource {
   @DELETE
   @RolesAllowed({Role.ARTIST})
   public Response delete(@Context ContainerRequestContext crc) {
-    AccessControl access = AccessControl.fromContext(crc);
-
     try {
-      voiceDAO.delete(access, ULong.valueOf(id));
+      DAO.delete(
+        Access.fromContext(crc),
+        ULong.valueOf(id));
       return Response.accepted("{}").build();
 
     } catch (Exception e) {
-      return httpResponseProvider.failure(e);
+      return response.failure(e);
     }
   }
 

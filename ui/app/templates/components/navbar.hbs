@@ -1,4 +1,4 @@
-<!-- Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved. -->
+<!-- Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved. -->
 
 <nav class="navbar navbar-toggleable-md navbar-inverse fixed-top bg-inverse">
 
@@ -17,6 +17,7 @@
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li id="clock"><!-- TIME UTC --></li>
+        {{#link-to 'docs' tagName="li" class="nav-item"}}<a class="nav-link" href="">Docs</a>{{/link-to}}
         <li class="nav-item dropdown">
           <a href="#" data-toggle="dropdown" class="nav-link dropdown-toggle">
             {{#if auth.isUser}}User <sup>#</sup>{{auth.userId}}{{/if}}
@@ -27,8 +28,10 @@
             <b class="caret"></b>
           </a>
           <ul class="dropdown-menu inverse-dropdown">
+            {{#link-to 'users.one' auth.userId tagName="li" class="nav-item"}}
+              <a class="nav-link" href="">Me</a>{{/link-to}}
+            <hr/>
             {{#link-to 'logout' tagName="li" class="nav-item"}}<a class="nav-link" href="">Sign Out</a>{{/link-to}}
-            {{#link-to 'users.one' auth.userId tagName="li" class="nav-item"}}<a class="nav-link" href="">Me</a>{{/link-to}}
           </ul>
         </li>
       </ul>

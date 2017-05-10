@@ -1,13 +1,12 @@
 // Copyright Outright Mental, Inc. All Rights Reserved.
 package io.outright.xj.core.dao;
 
-import io.outright.xj.core.app.access.impl.AccessControl;
-import io.outright.xj.core.model.point.PointWrapper;
+import io.outright.xj.core.app.access.impl.Access;
+import io.outright.xj.core.model.point.Point;
+import io.outright.xj.core.tables.records.PointRecord;
 
+import org.jooq.Result;
 import org.jooq.types.ULong;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import javax.annotation.Nullable;
 
@@ -15,10 +14,10 @@ public interface PointDAO {
   /**
    Create a new Point
 
-   @param data for the new Point.
-   @return newly created Point record.
+   @param entity for the new Point.
+   @return newly readMany Point record.
    */
-  JSONObject create(AccessControl access, PointWrapper data) throws Exception;
+  PointRecord create(Access access, Point entity) throws Exception;
 
   /**
    Fetch one Point by id, if accessible
@@ -29,7 +28,7 @@ public interface PointDAO {
    @throws Exception on failure
    */
   @Nullable
-  JSONObject readOne(AccessControl access, ULong id) throws Exception;
+  PointRecord readOne(Access access, ULong id) throws Exception;
 
   /**
    Read all Points that are accessible
@@ -38,21 +37,20 @@ public interface PointDAO {
    @return array of points as JSON
    @throws Exception on failure
    */
-  @Nullable
-  JSONArray readAllIn(AccessControl access, ULong morphId) throws Exception;
+  Result<PointRecord> readAll(Access access, ULong morphId) throws Exception;
 
   /**
    Update a specified Point
 
    @param pointId of specific Point to update.
-   @param data    for the updated Point.
+   @param entity  for the updated Point.
    */
-  void update(AccessControl access, ULong pointId, PointWrapper data) throws Exception;
+  void update(Access access, ULong pointId, Point entity) throws Exception;
 
   /**
    Delete a specified Point
 
    @param pointId of specific Point to delete.
    */
-  void delete(AccessControl access, ULong pointId) throws Exception;
+  void delete(Access access, ULong pointId) throws Exception;
 }

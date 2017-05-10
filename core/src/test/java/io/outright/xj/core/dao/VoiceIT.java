@@ -1,16 +1,16 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
 package io.outright.xj.core.dao;
 
 import io.outright.xj.core.CoreModule;
-import io.outright.xj.core.app.access.impl.AccessControl;
+import io.outright.xj.core.app.access.impl.Access;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.integration.IntegrationTestEntity;
 import io.outright.xj.core.integration.IntegrationTestService;
 import io.outright.xj.core.model.idea.Idea;
 import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.model.voice.Voice;
-import io.outright.xj.core.model.voice.VoiceWrapper;
 import io.outright.xj.core.tables.records.VoiceRecord;
+import io.outright.xj.core.transport.JSON;
 
 import org.jooq.types.ULong;
 
@@ -31,7 +31,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
-// TODO [core] test permissions of different users to read vs. create vs. update or delete ideas
+// TODO [core] test permissions of different users to readMany vs. create vs. update or delete ideas
 public class VoiceIT {
   private Injector injector = Guice.createInjector(new CoreModule());
   private VoiceDAO testDAO;
@@ -74,18 +74,16 @@ public class VoiceIT {
 
   @Test
   public void create() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
-    VoiceWrapper inputDataWrapper = new VoiceWrapper()
-      .setVoice(new Voice()
-        .setPhaseId(BigInteger.valueOf(2))
-        .setType(Voice.HARMONIC)
-        .setDescription("This is harmonious")
-      );
+    Voice inputData = new Voice()
+      .setPhaseId(BigInteger.valueOf(2))
+      .setType(Voice.HARMONIC)
+      .setDescription("This is harmonious");
 
-    JSONObject result = testDAO.create(access, inputDataWrapper);
+    JSONObject result = JSON.objectFromRecord(testDAO.create(access, inputData));
 
     assertNotNull(result);
     assertEquals(Voice.HARMONIC, result.get("type"));
@@ -95,141 +93,131 @@ public class VoiceIT {
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutPhaseID() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
-    VoiceWrapper inputDataWrapper = new VoiceWrapper()
-      .setVoice(new Voice()
-        .setType(Voice.HARMONIC)
-        .setDescription("This is harmonious")
-      );
+    Voice inputData = new Voice()
+      .setType(Voice.HARMONIC)
+      .setDescription("This is harmonious");
 
-    testDAO.create(access, inputDataWrapper);
+    testDAO.create(access, inputData);
   }
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutType() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
-    VoiceWrapper inputDataWrapper = new VoiceWrapper()
-      .setVoice(new Voice()
-        .setPhaseId(BigInteger.valueOf(2))
-        .setDescription("This is harmonious")
-      );
+    Voice inputData = new Voice()
+      .setPhaseId(BigInteger.valueOf(2))
+      .setDescription("This is harmonious");
 
-    testDAO.create(access, inputDataWrapper);
+    testDAO.create(access, inputData);
   }
 
   @Test
   public void readOne() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
 
-    JSONObject result = testDAO.readOne(access, ULong.valueOf(2));
+    Voice result = new Voice().setFromRecord(testDAO.readOne(access, ULong.valueOf(2)));
 
     assertNotNull(result);
-    assertEquals(ULong.valueOf(2), result.get("id"));
-    assertEquals(ULong.valueOf(1), result.get("phaseId"));
-    assertEquals(Voice.MELODIC, result.get("type"));
-    assertEquals("This is melodious", result.get("description"));
+    assertEquals(ULong.valueOf(2), result.getId());
+    assertEquals(ULong.valueOf(1), result.getPhaseId());
+    assertEquals(Voice.MELODIC, result.getType());
+    assertEquals("This is melodious", result.getDescription());
   }
 
   @Test
   public void readOne_FailsWhenUserIsNotInAccount() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "326"
     ));
 
-    JSONObject result = testDAO.readOne(access, ULong.valueOf(1));
+    VoiceRecord result = testDAO.readOne(access, ULong.valueOf(1));
 
     assertNull(result);
   }
 
   @Test
   public void readAll() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
 
-    JSONArray actualResultList = testDAO.readAllIn(access, ULong.valueOf(1));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ULong.valueOf(1)));
 
-    assertNotNull(actualResultList);
-    assertEquals(4, actualResultList.length());
-    JSONObject actualResult1 = (JSONObject) actualResultList.get(0);
-    assertEquals("This is a percussive voice", actualResult1.get("description"));
-    JSONObject actualResult2 = (JSONObject) actualResultList.get(1);
-    assertEquals("This is melodious", actualResult2.get("description"));
-    JSONObject actualResult3 = (JSONObject) actualResultList.get(2);
-    assertEquals("This is harmonious", actualResult3.get("description"));
-    JSONObject actualResult4 = (JSONObject) actualResultList.get(3);
-    assertEquals("This is a vocal voice", actualResult4.get("description"));
+    assertNotNull(result);
+    assertEquals(4, result.length());
+    JSONObject result1 = (JSONObject) result.get(0);
+    assertEquals("This is a percussive voice", result1.get("description"));
+    JSONObject result2 = (JSONObject) result.get(1);
+    assertEquals("This is melodious", result2.get("description"));
+    JSONObject result3 = (JSONObject) result.get(2);
+    assertEquals("This is harmonious", result3.get("description"));
+    JSONObject result4 = (JSONObject) result.get(3);
+    assertEquals("This is a vocal voice", result4.get("description"));
   }
 
   @Test
   public void readAll_SeesNothingOutsideOfLibrary() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "345"
     ));
 
-    JSONArray actualResultList = testDAO.readAllIn(access, ULong.valueOf(1));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ULong.valueOf(1)));
 
-    assertNotNull(actualResultList);
-    assertEquals(0, actualResultList.length());
+    assertNotNull(result);
+    assertEquals(0, result.length());
   }
 
   @Test(expected = BusinessException.class)
   public void update_FailsWithoutPhaseID() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
-    VoiceWrapper inputDataWrapper = new VoiceWrapper()
-      .setVoice(new Voice()
-        .setType(Voice.HARMONIC)
-        .setDescription("This is harmonious")
-      );
+    Voice inputData = new Voice()
+      .setType(Voice.HARMONIC)
+      .setDescription("This is harmonious");
 
-    testDAO.update(access, ULong.valueOf(3), inputDataWrapper);
+    testDAO.update(access, ULong.valueOf(3), inputData);
   }
 
   @Test(expected = BusinessException.class)
   public void update_FailsWithoutType() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
-    VoiceWrapper inputDataWrapper = new VoiceWrapper()
-      .setVoice(new Voice()
-        .setPhaseId(BigInteger.valueOf(2))
-        .setDescription("This is harmonious")
-      );
+    Voice inputData = new Voice()
+      .setPhaseId(BigInteger.valueOf(2))
+      .setDescription("This is harmonious");
 
-    testDAO.update(access, ULong.valueOf(3), inputDataWrapper);
+    testDAO.update(access, ULong.valueOf(3), inputData);
   }
 
   @Test(expected = BusinessException.class)
   public void update_FailsUpdatingToNonexistentPhase() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
-    VoiceWrapper inputDataWrapper = new VoiceWrapper()
-      .setVoice(new Voice()
-        .setPhaseId(BigInteger.valueOf(7))
-        .setType(Voice.MELODIC)
-        .setDescription("This is melodious")
-      );
+    Voice inputData = new Voice()
+      .setPhaseId(BigInteger.valueOf(7))
+      .setType(Voice.MELODIC)
+      .setDescription("This is melodious");
 
     try {
-      testDAO.update(access, ULong.valueOf(3), inputDataWrapper);
+      testDAO.update(access, ULong.valueOf(3), inputData);
 
     } catch (Exception e) {
       VoiceRecord result = IntegrationTestService.getDb()
@@ -246,18 +234,16 @@ public class VoiceIT {
 
   @Test
   public void update() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
-    VoiceWrapper inputDataWrapper = new VoiceWrapper()
-      .setVoice(new Voice()
-        .setPhaseId(BigInteger.valueOf(1))
-        .setType(Voice.MELODIC)
-        .setDescription("This is melodious; Yoza!")
-      );
+    Voice inputData = new Voice()
+      .setPhaseId(BigInteger.valueOf(1))
+      .setType(Voice.MELODIC)
+      .setDescription("This is melodious; Yoza!");
 
-    testDAO.update(access, ULong.valueOf(1), inputDataWrapper);
+    testDAO.update(access, ULong.valueOf(1), inputData);
 
     VoiceRecord result = IntegrationTestService.getDb()
       .selectFrom(VOICE)
@@ -273,7 +259,7 @@ public class VoiceIT {
 
   @Test
   public void delete() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
@@ -289,7 +275,7 @@ public class VoiceIT {
 
   @Test(expected = BusinessException.class)
   public void delete_failsIfNotInAccount() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "2"
     ));
@@ -299,7 +285,7 @@ public class VoiceIT {
 
   @Test(expected = BusinessException.class)
   public void delete_FailsIfIdeaHasChildRecords() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "userId", "2",
       "roles", "artist",
       "accounts", "1"

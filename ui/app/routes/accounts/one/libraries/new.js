@@ -1,4 +1,4 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
 import Ember from 'ember';
 
 export default Ember.Route.extend({
@@ -40,7 +40,7 @@ export default Ember.Route.extend({
       model.save().then(
         () => {
           Ember.get(this, 'display').success('Created library ' + model.get('name') + '.');
-          this.transitionTo('accounts.one.libraries.one');
+          this.transitionTo('accounts.one.libraries.one', model);
         }, (error) => {
           Ember.get(this, 'display').error(error);
         });

@@ -1,13 +1,12 @@
 // Copyright Outright Mental, Inc. All Rights Reserved.
 package io.outright.xj.core.dao;
 
-import io.outright.xj.core.app.access.impl.AccessControl;
-import io.outright.xj.core.model.phase.PhaseWrapper;
+import io.outright.xj.core.app.access.impl.Access;
+import io.outright.xj.core.model.phase.Phase;
+import io.outright.xj.core.tables.records.PhaseRecord;
 
+import org.jooq.Result;
 import org.jooq.types.ULong;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import javax.annotation.Nullable;
 
@@ -17,21 +16,33 @@ public interface PhaseDAO {
    Create a new Phase
 
    @param access control
-   @param data   for the new Account User.
-   @return newly created record as JSON
+   @param entity for the new Account User.
+   @return newly readMany record
    */
-  JSONObject create(AccessControl access, PhaseWrapper data) throws Exception;
+  PhaseRecord create(Access access, Phase entity) throws Exception;
 
   /**
    Fetch one Phase if accessible
 
    @param access control
    @param id     of phase
-   @return retrieved record as JSON
+   @return retrieved record
    @throws Exception on failure
    */
   @Nullable
-  JSONObject readOne(AccessControl access, ULong id) throws Exception;
+  PhaseRecord readOne(Access access, ULong id) throws Exception;
+
+  /**
+   Fetch one Phase if accessible, by Idea id and phase #
+
+   @return retrieved record
+   @throws Exception on failure
+    @param access          control
+   @param ideaId          of idea in which to read phase
+   @param ideaPhaseOffset of phase in idea
+   */
+  @Nullable
+  PhaseRecord readOneForIdea(Access access, ULong ideaId, ULong ideaPhaseOffset) throws Exception;
 
   /**
    Fetch all accessible Phase for one Account by id
@@ -41,17 +52,16 @@ public interface PhaseDAO {
    @return JSONArray of phases.
    @throws Exception on failure
    */
-  @Nullable
-  JSONArray readAllIn(AccessControl access, ULong ideaId) throws Exception;
+  Result<PhaseRecord> readAll(Access access, ULong ideaId) throws Exception;
 
   /**
    Update a specified Phase if accessible
 
    @param access control
    @param id     of specific Phase to update.
-   @param data   for the updated Phase.
+   @param entity for the updated Phase.
    */
-  void update(AccessControl access, ULong id, PhaseWrapper data) throws Exception;
+  void update(Access access, ULong id, Phase entity) throws Exception;
 
   /**
    Delete a specified Phase if accessible
@@ -59,5 +69,6 @@ public interface PhaseDAO {
    @param access control
    @param id     of specific phase to delete.
    */
-  void delete(AccessControl access, ULong id) throws Exception;
+  void delete(Access access, ULong id) throws Exception;
+
 }

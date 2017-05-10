@@ -1,6 +1,10 @@
 # xj
 
-Music Audio Composite Fabrication Platform
+Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+
+**Composite Music Fabrication Platform**
+
+Also see: Documents in `hub/src/main/resources/docs` which are exposed to Users via the front-end UI.
 
 ## Chain Work
 
@@ -75,6 +79,29 @@ Only between major platform configuration changes (e.g. to **.nginx/locations.co
     docker-compose up -d --build    
 
 There is a MySQL dump of a complete example database, for quickly bootstrapping a dev environment. This file is located in the root of the project, at **example-database.sql**
+
+Load the example database into `mysql01xj1`:
+
+    mysql -uroot -hmysql01xj1 -e"drop database if exists xj; create database xj;"
+    mysql -uroot -hmysql01xj1 xj < example-database.sql
+    
+There's a convenience script to do this, that requires only the mysql host as input:
+
+    bin/mysql-reset
+
+*note that the latest codebase may run migrations on top of that ^^^, and of course it had better pass checksum ;)*
+
+## Docs
+
+When logged into the UI, visit the "Docs" section in the top nav.
+ 
+This is an interface for documents that are actually generated from source code when the project is compiled.
+
+This mechanism allows for documents tracked to the version of the source code to be made available with permissions only to logged-in users.
+
+See also the **/docs** folder. By Accessing the contents of that folder, you agree to these terms:
+
+> Please only read that file on your machine and then delete. Please do Not email that file anywhere, or upload it to any other servers. I prefer that (because it is in its 12-month non-disclosed "provisional" state with the U.S.P.T.O.) the file only be read directly by a person with access to my VPN wherein all work pertaining to it is stored. Thanks!
 
 ## Additional commands
 
@@ -286,6 +313,31 @@ Here are the public-facing Amazon CloudFront-backed URLs for audio files, and th
   * [https://audio.stage.xj.outright.io](https://audio.stage.xj.outright.io) is the staging URL, backed by [https://xj-audio-stage.s3.amazonaws.com](https://xj-audio-stage.s3.amazonaws.com)
   * [https://audio.dev.xj.outright.io](https://audio.dev.xj.outright.io) is the development URL, backed by [https://xj-audio-dev.s3.amazonaws.com](https://xj-audio-dev.s3.amazonaws.com)
 
+# Amazon S3
+
+The `example-database.sql` is generated from data in the production environment, and refers to audio files located in the production S3 bucket, xj-audio-prod.
+
+Therefore, it is helpful to be able to sync the audio files from production into the dev environment.
+
+**Note that this command will become impractical if production grows to any significant size!**
+
+    aws s3 sync s3://xj-audio-prod/ s3://xj-audio-dev/
+
+Note that in order to use that command, the source bucket (xj-audio-prod) must grant `s3:ListBucket` and `s3:GetObject` permission, and the target bucket (xj-audio-dev) must grant `s3:ListBucket` and `s3:PutObject` to the IAM user your AWS CLI is authenticated as.
+
+## Environment Variables
+
+Certain environment variables must be set in order for the correct Upload Policy to be generated for a file upload to Amazon S3:
+
+    -Daws.file.upload.url=https://xj-audio-ENVIRONMENT.s3.amazonaws.com/
+    -Daws.file.upload.key=AKIAKJHFG789JKKS8F73
+    -Daws.file.upload.secret=07sh86hsubkuy6ykus/sd06h7fsjkdyfuk897934
+    -Daws.file.upload.acl=ec2-bundle-read
+    -Daws.file.upload.expire.minutes=60
+    -Daws.file.upload.bucket=xj-audio-ENVIRONMENT
+      
+    -Daudio.url.base=https://audio.ENVIRONMENT.xj.outright.io/
+
 # Components
 
 ## ui
@@ -293,6 +345,8 @@ Here are the public-facing Amazon CloudFront-backed URLs for audio files, and th
 User interface web application. Built with Javascript, Ember, Bower, Node.
 
 Requires Node.js version 7+
+
+Currently at Ember, Ember Data, and Ember CLI **version 2.13**
 
 Connects to:
 
@@ -343,9 +397,31 @@ Connects to:
 
 # Mix
 
-**Mix** is a Java implementation of the Go project [https://github.com/go-mix/mix](mix).
+**Mix** is a Java implementation of the Go project [https://github.com/go-mix/mix](go-mix).
 
 The project has its own [README](mix/README.md)
+
+# Music
+
+**Music** is a Java implementation of the Go project [https://github.com/go-music-theory/music-theory](go-music-theory).
+
+The project has its own [README](music/README.md)
+
+## Note
+
+A Note is used to represent the relative duration and pitch of a sound.
+
+## Key
+
+The key of a piece is a group of pitches, or scale upon which a music composition is created in classical, Western art, and Western pop music.
+
+## Chord
+
+In music theory, a chord is any harmonic set of three or more notes that is heard as if sounding simultaneously.
+
+## Scale
+
+In music theory, a scale is any set of musical notes ordered by fundamental frequency or pitch.
 
 # App Standards
 

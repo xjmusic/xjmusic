@@ -1,13 +1,12 @@
 // Copyright Outright Mental, Inc. All Rights Reserved.
 package io.outright.xj.core.dao;
 
-import io.outright.xj.core.app.access.impl.AccessControl;
-import io.outright.xj.core.model.chain_library.ChainLibraryWrapper;
+import io.outright.xj.core.app.access.impl.Access;
+import io.outright.xj.core.model.chain_library.ChainLibrary;
+import io.outright.xj.core.tables.records.ChainLibraryRecord;
 
+import org.jooq.Result;
 import org.jooq.types.ULong;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import javax.annotation.Nullable;
 
@@ -16,20 +15,20 @@ public interface ChainLibraryDAO {
   /**
    Create a new Chain Library
 
-   @param data for the new Chain Library.
-   @return newly created record as JSON
+   @param entity for the new Chain Library.
+   @return newly readMany record
    */
-  JSONObject create(AccessControl access, ChainLibraryWrapper data) throws Exception;
+  ChainLibraryRecord create(Access access, ChainLibrary entity) throws Exception;
 
   /**
    Fetch one ChainLibrary if accessible
 
    @param id of ChainLibrary
-   @return retrieved record as JSON
+   @return retrieved record
    @throws Exception on failure
    */
   @Nullable
-  JSONObject readOne(AccessControl access, ULong id) throws Exception;
+  ChainLibraryRecord readOne(Access access, ULong id) throws Exception;
 
   /**
    Fetch many ChainLibrary for one Chain by id, if accessible
@@ -38,13 +37,12 @@ public interface ChainLibraryDAO {
    @return JSONArray of chainLibraries.
    @throws Exception on failure
    */
-  @Nullable
-  JSONArray readAllIn(AccessControl access, ULong chainId) throws Exception;
+  Result<ChainLibraryRecord> readAll(Access access, ULong chainId) throws Exception;
 
   /**
    Delete a specified ChainLibrary
 
    @param id of specific ChainLibrary to delete.
    */
-  void delete(AccessControl access, ULong id) throws Exception;
+  void delete(Access access, ULong id) throws Exception;
 }

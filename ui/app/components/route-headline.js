@@ -20,12 +20,19 @@ export default Component.extend({
   headline: computed('currentUrl', 'currentRouteName', {
     get() {
       const currentRouteName = getWithDefault(this, 'currentRouteName', false);
-
-      assert('[ember-crumbly] Could not find a current route', currentRouteName);
+      assert('[route-headline] Could not find a current route', currentRouteName);
 
       return copy(getWithDefault(this._lookupRoute(currentRouteName), 'routeHeadline', {
         title: name
       }));
+    }
+  }).readOnly(),
+  docClass: computed('headline', {
+    get() {
+      const headline = getWithDefault(this, 'headline', false);
+      assert('[route-headline] Could not find a current headline', headline);
+
+      return headline.doc ? "container" : "container-fluid";
     }
   }).readOnly(),
 

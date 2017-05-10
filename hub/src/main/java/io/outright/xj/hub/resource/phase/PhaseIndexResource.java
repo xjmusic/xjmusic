@@ -2,23 +2,17 @@
 package io.outright.xj.hub.resource.phase;
 
 import io.outright.xj.core.CoreModule;
-import io.outright.xj.core.app.access.impl.AccessControl;
-import io.outright.xj.core.app.config.Exposure;
+import io.outright.xj.core.app.access.impl.Access;
 import io.outright.xj.core.app.server.HttpResponseProvider;
 import io.outright.xj.core.dao.PhaseDAO;
-import io.outright.xj.core.model.Entity;
 import io.outright.xj.core.model.phase.Phase;
 import io.outright.xj.core.model.phase.PhaseWrapper;
 import io.outright.xj.core.model.role.Role;
-import io.outright.xj.core.transport.JSON;
 
 import org.jooq.types.ULong;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import javax.annotation.security.RolesAllowed;
 import javax.jws.WebResult;
@@ -39,9 +33,8 @@ import java.io.IOException;
 @Path("phases")
 public class PhaseIndexResource {
   private static final Injector injector = Guice.createInjector(new CoreModule());
-  //  private static Logger log = LoggerFactory.getLogger(PhaseIndexResource.class);
-  private final PhaseDAO phaseDAO = injector.getInstance(PhaseDAO.class);
-  private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
+  private final PhaseDAO DAO = injector.getInstance(PhaseDAO.class);
+  private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
 
   @QueryParam("ideaId")
   String ideaId;
@@ -55,25 +48,20 @@ public class PhaseIndexResource {
   @WebResult
   @RolesAllowed({Role.ARTIST})
   public Response readAll(@Context ContainerRequestContext crc) throws IOException {
-    AccessControl access = AccessControl.fromContext(crc);
 
     if (ideaId == null || ideaId.length() == 0) {
-      return httpResponseProvider.notAcceptable("Idea id is required");
+      return response.notAcceptable("Idea id is required");
     }
 
     try {
-      JSONArray result = phaseDAO.readAllIn(access, ULong.valueOf(ideaId));
-      if (result != null) {
-        return Response
-          .accepted(JSON.wrap(Phase.KEY_MANY, result).toString())
-          .type(MediaType.APPLICATION_JSON)
-          .build();
-      } else {
-        return Response.noContent().build();
-      }
+      return response.readMany(
+        Phase.KEY_MANY,
+        DAO.readAll(
+          Access.fromContext(crc),
+          ULong.valueOf(ideaId)));
 
     } catch (Exception e) {
-      return httpResponseProvider.failure(e);
+      return response.failure(e);
     }
   }
 
@@ -87,16 +75,16 @@ public class PhaseIndexResource {
   @Consumes(MediaType.APPLICATION_JSON)
   @RolesAllowed({Role.ARTIST})
   public Response create(PhaseWrapper data, @Context ContainerRequestContext crc) {
-    AccessControl access = AccessControl.fromContext(crc);
     try {
-      JSONObject newEntity = phaseDAO.create(access, data);
-      return Response
-        .created(Exposure.apiURI(Phase.KEY_MANY + "/" + newEntity.get(Entity.KEY_ID)))
-        .entity(JSON.wrap(Phase.KEY_ONE, newEntity).toString())
-        .build();
+      return response.create(
+        Phase.KEY_MANY,
+        Phase.KEY_ONE,
+        DAO.create(
+          Access.fromContext(crc),
+          data.getPhase()));
 
     } catch (Exception e) {
-      return httpResponseProvider.failureToCreate(e);
+      return response.failureToCreate(e);
     }
   }
 

@@ -2,25 +2,17 @@
 package io.outright.xj.hub.resource.chain;
 
 import io.outright.xj.core.CoreModule;
-import io.outright.xj.core.app.access.impl.AccessControl;
-import io.outright.xj.core.app.config.Exposure;
+import io.outright.xj.core.app.access.impl.Access;
 import io.outright.xj.core.app.server.HttpResponseProvider;
 import io.outright.xj.core.dao.ChainDAO;
-import io.outright.xj.core.model.Entity;
 import io.outright.xj.core.model.chain.Chain;
 import io.outright.xj.core.model.chain.ChainWrapper;
 import io.outright.xj.core.model.role.Role;
-import io.outright.xj.core.transport.JSON;
 
 import org.jooq.types.ULong;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.annotation.security.RolesAllowed;
 import javax.jws.WebResult;
@@ -41,9 +33,8 @@ import java.io.IOException;
 @Path("chains")
 public class ChainIndexResource {
   private static final Injector injector = Guice.createInjector(new CoreModule());
-  private static Logger log = LoggerFactory.getLogger(ChainIndexResource.class);
-  private final ChainDAO chainDAO = injector.getInstance(ChainDAO.class);
-  private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
+  private final ChainDAO DAO = injector.getInstance(ChainDAO.class);
+  private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
 
   @QueryParam("accountId")
   String accountId;
@@ -57,26 +48,19 @@ public class ChainIndexResource {
   @WebResult
   @RolesAllowed({Role.USER})
   public Response readAll(@Context ContainerRequestContext crc) throws IOException {
-    AccessControl access = AccessControl.fromContext(crc);
-
     if (accountId == null || accountId.length() == 0) {
-      return httpResponseProvider.notAcceptable("Account id is required");
+      return response.notAcceptable("Account id is required");
     }
 
     try {
-      JSONArray result = chainDAO.readAllIn(access, ULong.valueOf(accountId));
-      if (result != null) {
-        return Response
-          .accepted(JSON.wrap(Chain.KEY_MANY, result).toString())
-          .type(MediaType.APPLICATION_JSON)
-          .build();
-      } else {
-        return Response.noContent().build();
-      }
+      return response.readMany(
+        Chain.KEY_MANY,
+        DAO.readAll(
+          Access.fromContext(crc),
+          ULong.valueOf(accountId)));
 
     } catch (Exception e) {
-      log.error("Exception", e);
-      return httpResponseProvider.failure(e);
+      return response.failure(e);
     }
   }
 
@@ -90,16 +74,16 @@ public class ChainIndexResource {
   @Consumes(MediaType.APPLICATION_JSON)
   @RolesAllowed({Role.ARTIST})
   public Response create(ChainWrapper data, @Context ContainerRequestContext crc) {
-    AccessControl access = AccessControl.fromContext(crc);
     try {
-      JSONObject newEntity = chainDAO.create(access, data);
-      return Response
-        .created(Exposure.apiURI(Chain.KEY_MANY + "/" + newEntity.get(Entity.KEY_ID)))
-        .entity(JSON.wrap(Chain.KEY_ONE, newEntity).toString())
-        .build();
+      return response.create(
+        Chain.KEY_MANY,
+        Chain.KEY_ONE,
+        DAO.create(
+          Access.fromContext(crc),
+          data.getChain()));
 
     } catch (Exception e) {
-      return httpResponseProvider.failureToCreate(e);
+      return response.failureToCreate(e);
     }
   }
 

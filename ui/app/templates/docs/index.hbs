@@ -1,0 +1,15 @@
+<!-- Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved. -->
+
+<!-- Inner content above -->
+{{outlet}}
+
+<!-- List of Docs -->
+<div class="container">
+  {{#each model.docs as |doc|}}
+    <div class="row">
+      <div class="col-12">
+        {{#link-to 'docs.one' doc.key}}{{doc.name}}{{/link-to}}
+      </div>
+    </div>
+  {{/each}}
+</div>

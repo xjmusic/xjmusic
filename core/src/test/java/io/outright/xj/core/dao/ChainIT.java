@@ -1,20 +1,22 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
 package io.outright.xj.core.dao;
 
 import io.outright.xj.core.CoreModule;
-import io.outright.xj.core.app.access.impl.AccessControl;
+import io.outright.xj.core.app.access.impl.Access;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.integration.IntegrationTestEntity;
 import io.outright.xj.core.integration.IntegrationTestService;
 import io.outright.xj.core.model.chain.Chain;
-import io.outright.xj.core.model.chain.ChainWrapper;
 import io.outright.xj.core.model.chain_config.ChainConfig;
 import io.outright.xj.core.model.choice.Choice;
 import io.outright.xj.core.model.idea.Idea;
 import io.outright.xj.core.model.instrument.Instrument;
 import io.outright.xj.core.model.link.Link;
+import io.outright.xj.core.model.link_message.LinkMessage;
+import io.outright.xj.core.model.message.Message;
 import io.outright.xj.core.model.voice.Voice;
 import io.outright.xj.core.tables.records.ChainRecord;
+import io.outright.xj.core.transport.JSON;
 
 import org.jooq.Result;
 import org.jooq.types.ULong;
@@ -34,24 +36,26 @@ import org.junit.rules.ExpectedException;
 import java.math.BigInteger;
 import java.sql.Timestamp;
 
-import static io.outright.xj.core.Tables.CHAIN;
-import static io.outright.xj.core.Tables.LINK;
 import static io.outright.xj.core.Tables.ARRANGEMENT;
+import static io.outright.xj.core.Tables.CHAIN;
 import static io.outright.xj.core.Tables.CHOICE;
+import static io.outright.xj.core.Tables.LINK;
+import static io.outright.xj.core.Tables.LINK_MEME;
+import static io.outright.xj.core.Tables.MORPH;
 import static io.outright.xj.core.Tables.PICK;
 import static io.outright.xj.core.Tables.POINT;
-import static io.outright.xj.core.Tables.MORPH;
+import static io.outright.xj.core.Tables.LINK_CHORD;
+import static io.outright.xj.core.Tables.LINK_MESSAGE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 public class ChainIT {
-  private Injector injector = Guice.createInjector(new CoreModule());
-  private ChainDAO testDAO;
-
   @Rule
   public ExpectedException failure = ExpectedException.none();
+  private Injector injector = Guice.createInjector(new CoreModule());
+  private ChainDAO testDAO;
 
   @Before
   public void setUp() throws Exception {
@@ -76,20 +80,18 @@ public class ChainIT {
 
   @Test
   public void create() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
-    ChainWrapper inputDataWrapper = new ChainWrapper()
-      .setChain(new Chain()
-        .setAccountId(BigInteger.valueOf(1))
-        .setName("manuts")
-        .setState(Chain.DRAFT)
-        .setType(Chain.PRODUCTION)
-        .setStartAt("2009-08-12 12:17:02.527142")
-        .setStopAt("2009-09-11 12:17:01.047563")
-      );
+    Chain inputData = new Chain()
+      .setAccountId(BigInteger.valueOf(1))
+      .setName("manuts")
+      .setState(Chain.DRAFT)
+      .setType(Chain.PRODUCTION)
+      .setStartAt("2009-08-12 12:17:02.527142")
+      .setStopAt("2009-09-11 12:17:01.047563");
 
-    JSONObject result = testDAO.create(access, inputDataWrapper);
+    JSONObject result = JSON.objectFromRecord(testDAO.create(access, inputData));
 
     assertNotNull(result);
     assertEquals(ULong.valueOf(1), result.get("accountId"));
@@ -102,20 +104,18 @@ public class ChainIT {
 
   @Test
   public void create_PreviewType() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
-    ChainWrapper inputDataWrapper = new ChainWrapper()
-      .setChain(new Chain()
-        .setAccountId(BigInteger.valueOf(1))
-        .setName("manuts")
-        .setState(Chain.DRAFT)
-        .setType(Chain.PREVIEW)
-        .setStartAt("2009-08-12 12:17:02.527142")
-        .setStopAt("2009-09-11 12:17:01.047563")
-      );
+    Chain inputData = new Chain()
+      .setAccountId(BigInteger.valueOf(1))
+      .setName("manuts")
+      .setState(Chain.DRAFT)
+      .setType(Chain.PREVIEW)
+      .setStartAt("2009-08-12 12:17:02.527142")
+      .setStopAt("2009-09-11 12:17:01.047563");
 
-    JSONObject result = testDAO.create(access, inputDataWrapper);
+    JSONObject result = JSON.objectFromRecord(testDAO.create(access, inputData));
 
     assertNotNull(result);
     assertEquals(ULong.valueOf(1), result.get("accountId"));
@@ -128,22 +128,20 @@ public class ChainIT {
   }
 
   @Test
-  // [#126] Chains are always created in DRAFT state
+  // [#126] Chains are always readMany in DRAFT state
   public void create_alwaysCreatedInDraftState() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
-    ChainWrapper inputDataWrapper = new ChainWrapper()
-      .setChain(new Chain()
-        .setAccountId(BigInteger.valueOf(1))
-        .setName("manuts")
-        .setType(Chain.PRODUCTION)
-        .setState(Chain.FABRICATING)
-        .setStartAt("2009-08-12 12:17:02.527142")
-        .setStopAt("2009-09-11 12:17:01.047563")
-      );
+    Chain inputData = new Chain()
+      .setAccountId(BigInteger.valueOf(1))
+      .setName("manuts")
+      .setType(Chain.PRODUCTION)
+      .setState(Chain.FABRICATING)
+      .setStartAt("2009-08-12 12:17:02.527142")
+      .setStopAt("2009-09-11 12:17:01.047563");
 
-    JSONObject result = testDAO.create(access, inputDataWrapper);
+    JSONObject result = JSON.objectFromRecord(testDAO.create(access, inputData));
 
     assertNotNull(result);
     assertEquals(ULong.valueOf(1), result.get("accountId"));
@@ -156,19 +154,17 @@ public class ChainIT {
 
   @Test
   public void create_WithoutStopAt() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
-    ChainWrapper inputDataWrapper = new ChainWrapper()
-      .setChain(new Chain()
-        .setAccountId(BigInteger.valueOf(1))
-        .setName("manuts")
-        .setType(Chain.PRODUCTION)
-        .setState(Chain.DRAFT)
-        .setStartAt("2009-08-12 12:17:02.527142")
-      );
+    Chain inputData = new Chain()
+      .setAccountId(BigInteger.valueOf(1))
+      .setName("manuts")
+      .setType(Chain.PRODUCTION)
+      .setState(Chain.DRAFT)
+      .setStartAt("2009-08-12 12:17:02.527142");
 
-    JSONObject result = testDAO.create(access, inputDataWrapper);
+    JSONObject result = JSON.objectFromRecord(testDAO.create(access, inputData));
 
     assertNotNull(result);
     assertEquals(ULong.valueOf(1), result.get("accountId"));
@@ -181,20 +177,18 @@ public class ChainIT {
 
   @Test
   public void create_WithEmptyStopAt() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
-    ChainWrapper inputDataWrapper = new ChainWrapper()
-      .setChain(new Chain()
-        .setAccountId(BigInteger.valueOf(1))
-        .setName("manuts")
-        .setState(Chain.DRAFT)
-        .setType(Chain.PRODUCTION)
-        .setStartAt("2009-08-12 12:17:02.527142")
-        .setStopAt("")
-      );
+    Chain inputData = new Chain()
+      .setAccountId(BigInteger.valueOf(1))
+      .setName("manuts")
+      .setState(Chain.DRAFT)
+      .setType(Chain.PRODUCTION)
+      .setStartAt("2009-08-12 12:17:02.527142")
+      .setStopAt("");
 
-    JSONObject result = testDAO.create(access, inputDataWrapper);
+    JSONObject result = JSON.objectFromRecord(testDAO.create(access, inputData));
 
     assertNotNull(result);
     assertEquals(ULong.valueOf(1), result.get("accountId"));
@@ -207,96 +201,104 @@ public class ChainIT {
 
   @Test()
   public void create_FailsWithoutAccountID() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
-    ChainWrapper inputDataWrapper = new ChainWrapper()
-      .setChain(new Chain()
-        .setName("manuts")
-        .setState(Chain.DRAFT)
-        .setType(Chain.PRODUCTION)
-        .setStartAt("2009-08-12 12:17:02.527142")
-        .setStopAt("2009-09-11 12:17:01.047563")
-      );
+    Chain inputData = new Chain()
+      .setName("manuts")
+      .setState(Chain.DRAFT)
+      .setType(Chain.PRODUCTION)
+      .setStartAt("2009-08-12 12:17:02.527142")
+      .setStopAt("2009-09-11 12:17:01.047563");
 
     failure.expect(BusinessException.class);
     failure.expectMessage("Account ID is required");
 
-    testDAO.create(access, inputDataWrapper);
+    testDAO.create(access, inputData);
   }
 
   @Test()
   public void create_FailsWithInvalidState() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
-    ChainWrapper inputDataWrapper = new ChainWrapper()
-      .setChain(new Chain()
-        .setAccountId(BigInteger.valueOf(1))
-        .setName("manuts")
-        .setType(Chain.PRODUCTION)
-        .setState("bullshit state")
-        .setStartAt("2009-08-12 12:17:02.527142")
-        .setStopAt("2009-09-11 12:17:01.047563")
-      );
+    Chain inputData = new Chain()
+      .setAccountId(BigInteger.valueOf(1))
+      .setName("manuts")
+      .setType(Chain.PRODUCTION)
+      .setState("bullshit state")
+      .setStartAt("2009-08-12 12:17:02.527142")
+      .setStopAt("2009-09-11 12:17:01.047563");
 
     failure.expect(BusinessException.class);
-    failure.expectMessage("'bullshitstate' is not a valid state (draft,ready,fabricating,complete)");
+    failure.expectMessage("'bullshitstate' is not a valid state (draft,ready,fabricating,complete,failed)");
 
-    testDAO.create(access, inputDataWrapper);
-  }
-
-  @Test
-  public void readOne() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
-      "roles", "user",
-      "accounts", "1"
-    ));
-
-    JSONObject result = testDAO.readOne(access, ULong.valueOf(2));
-
-    assertNotNull(result);
-    assertEquals(ULong.valueOf(2), result.get("id"));
-    assertEquals(ULong.valueOf(1), result.get("accountId"));
-    assertEquals("bucket", result.get("name"));
-    assertEquals(Chain.FABRICATING, result.get("state"));
-    assertEquals(Chain.PRODUCTION, result.get("type"));
-    assertEquals(Timestamp.valueOf("2015-05-10 12:17:02.527142"), result.get("startAt"));
-    assertEquals(Timestamp.valueOf("2015-06-09 12:17:01.047563"), result.get("stopAt"));
+    testDAO.create(access, inputData);
   }
 
   @Test
   public void readOne_FailsWhenUserIsNotInAccount() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "user",
       "accounts", "326"
     ));
 
-    JSONObject result = testDAO.readOne(access, ULong.valueOf(1));
+    ChainRecord result = testDAO.readOne(access, ULong.valueOf(1));
+
+    assertNull(result);
+  }
+
+  @Test
+  public void readOne() throws Exception {
+    Access access = new Access(ImmutableMap.of(
+      "roles", "user",
+      "accounts", "1"
+    ));
+
+    Chain result = new Chain().setFromRecord(testDAO.readOne(access, ULong.valueOf(2)));
+
+    assertNotNull(result);
+    assertEquals(ULong.valueOf(2), result.getId());
+    assertEquals(ULong.valueOf(1), result.getAccountId());
+    assertEquals("bucket", result.getName());
+    assertEquals(Chain.FABRICATING, result.getState());
+    assertEquals(Chain.PRODUCTION, result.getType());
+    assertEquals(Timestamp.valueOf("2015-05-10 12:17:02.527142"), result.getStartAt());
+    assertEquals(Timestamp.valueOf("2015-06-09 12:17:01.047563"), result.getStopAt());
+  }
+
+  @Test
+  public void readOneJSONObject_FailsWhenUserIsNotInAccount() throws Exception {
+    Access access = new Access(ImmutableMap.of(
+      "roles", "user",
+      "accounts", "326"
+    ));
+
+    ChainRecord result = testDAO.readOne(access, ULong.valueOf(1));
 
     assertNull(result);
   }
 
   @Test
   public void readAll() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "user",
       "accounts", "1"
     ));
 
-    JSONArray actualResultList = testDAO.readAllIn(access, ULong.valueOf(1));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ULong.valueOf(1)));
 
-    assertNotNull(actualResultList);
-    assertEquals(2, actualResultList.length());
-    JSONObject actualResult1 = (JSONObject) actualResultList.get(0);
-    assertEquals("school", actualResult1.get("name"));
-    JSONObject actualResult2 = (JSONObject) actualResultList.get(1);
-    assertEquals("bucket", actualResult2.get("name"));
+    assertNotNull(result);
+    assertEquals(2, result.length());
+    JSONObject result1 = (JSONObject) result.get(0);
+    assertEquals("school", result1.get("name"));
+    JSONObject result2 = (JSONObject) result.get(1);
+    assertEquals("bucket", result2.get("name"));
   }
 
   @Test
   public void readAllRecordsInStateFabricating() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "internal"
     ));
     IntegrationTestEntity.insertChain(4, 2, "smash", Chain.PRODUCTION, Chain.FABRICATING, Timestamp.valueOf("2015-05-10 12:17:02.527142"), null);
@@ -305,19 +307,19 @@ public class ChainIT {
 
     assertNotNull(actualResults);
     assertEquals(2, actualResults.size());
-    ChainRecord actualResult1 = actualResults.get(0);
-    assertEquals(ULong.valueOf(2), actualResult1.getId());
-    assertEquals(Timestamp.valueOf("2015-05-10 12:17:02.527142"), actualResult1.getStartAt());
-    assertEquals(Timestamp.valueOf("2015-06-09 12:17:01.047563"), actualResult1.getStopAt());
-    ChainRecord actualResult2 = actualResults.get(1);
-    assertEquals(ULong.valueOf(4), actualResult2.getId());
-    assertEquals(Timestamp.valueOf("2015-05-10 12:17:02.527142"), actualResult2.getStartAt());
-    assertNull(actualResult2.getStopAt());
+    ChainRecord result1 = actualResults.get(0);
+    assertEquals(ULong.valueOf(2), result1.getId());
+    assertEquals(Timestamp.valueOf("2015-05-10 12:17:02.527142"), result1.getStartAt());
+    assertEquals(Timestamp.valueOf("2015-06-09 12:17:01.047563"), result1.getStopAt());
+    ChainRecord result2 = actualResults.get(1);
+    assertEquals(ULong.valueOf(4), result2.getId());
+    assertEquals(Timestamp.valueOf("2015-05-10 12:17:02.527142"), result2.getStartAt());
+    assertNull(result2.getStopAt());
   }
 
   @Test
   public void readAllIdBoundsInStateFabricating_ReturnsChainBeforeBoundary() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "internal"
     ));
     IntegrationTestEntity.insertChain(4, 2, "smash", Chain.PRODUCTION, Chain.FABRICATING, Timestamp.valueOf("2015-05-10 12:17:02.527142"), Timestamp.valueOf("2015-06-09 12:17:01.047563"));
@@ -330,7 +332,7 @@ public class ChainIT {
 
   @Test
   public void readAllIdBoundsInStateFabricating_DoesNotReturnChainAfterBoundary() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "internal"
     ));
     IntegrationTestEntity.insertChain(4, 2, "smash", Chain.PRODUCTION, Chain.FABRICATING, Timestamp.valueOf("2015-06-10 12:17:02.527142"), Timestamp.valueOf("2015-06-12 12:17:01.047563"));
@@ -340,41 +342,39 @@ public class ChainIT {
     assertNotNull(actualResults);
 
     assertEquals(1, actualResults.size());
-    ChainRecord actualResult1 = actualResults.get(0);
-    assertEquals(ULong.valueOf(2), actualResult1.getId());
-    assertEquals(Timestamp.valueOf("2015-05-10 12:17:02.527142"), actualResult1.getStartAt());
-    assertEquals(Timestamp.valueOf("2015-06-09 12:17:01.047563"), actualResult1.getStopAt());
+    ChainRecord result1 = actualResults.get(0);
+    assertEquals(ULong.valueOf(2), result1.getId());
+    assertEquals(Timestamp.valueOf("2015-05-10 12:17:02.527142"), result1.getStartAt());
+    assertEquals(Timestamp.valueOf("2015-06-09 12:17:01.047563"), result1.getStopAt());
   }
 
   @Test
   public void readAll_SeesNothingOutsideOfAccount() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "user",
       "accounts", "345"
     ));
 
-    JSONArray actualResultList = testDAO.readAllIn(access, ULong.valueOf(1));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ULong.valueOf(1)));
 
-    assertNotNull(actualResultList);
-    assertEquals(0, actualResultList.length());
+    assertNotNull(result);
+    assertEquals(0, result.length());
   }
 
   @Test
   public void update() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
-    ChainWrapper inputDataWrapper = new ChainWrapper()
-      .setChain(new Chain()
-        .setAccountId(BigInteger.valueOf(1))
-        .setName("manuts")
-        .setType(Chain.PRODUCTION)
-        .setState(Chain.COMPLETE)
-        .setStartAt("2009-08-12 12:17:02.687327")
-        .setStopAt("2009-09-11 12:17:01.989941")
-      );
+    Chain inputData = new Chain()
+      .setAccountId(BigInteger.valueOf(1))
+      .setName("manuts")
+      .setType(Chain.PRODUCTION)
+      .setState(Chain.COMPLETE)
+      .setStartAt("2009-08-12 12:17:02.687327")
+      .setStopAt("2009-09-11 12:17:01.989941");
 
-    testDAO.update(access, ULong.valueOf(2), inputDataWrapper);
+    testDAO.update(access, ULong.valueOf(2), inputData);
 
     ChainRecord result = IntegrationTestService.getDb()
       .selectFrom(CHAIN)
@@ -391,20 +391,18 @@ public class ChainIT {
 
   @Test
   public void update_cannotChangeType() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
-    ChainWrapper inputDataWrapper = new ChainWrapper()
-      .setChain(new Chain()
-        .setAccountId(BigInteger.valueOf(1))
-        .setName("manuts")
-        .setType(Chain.PREVIEW)
-        .setState(Chain.COMPLETE)
-        .setStartAt("2009-08-12 12:17:02.687327")
-        .setStopAt("2009-09-11 12:17:01.989941")
-      );
+    Chain inputData = new Chain()
+      .setAccountId(BigInteger.valueOf(1))
+      .setName("manuts")
+      .setType(Chain.PREVIEW)
+      .setState(Chain.COMPLETE)
+      .setStartAt("2009-08-12 12:17:02.687327")
+      .setStopAt("2009-09-11 12:17:01.989941");
 
-    testDAO.update(access, ULong.valueOf(2), inputDataWrapper);
+    testDAO.update(access, ULong.valueOf(2), inputData);
 
     ChainRecord result = IntegrationTestService.getDb()
       .selectFrom(CHAIN)
@@ -421,43 +419,39 @@ public class ChainIT {
 
   @Test()
   public void update_failsToChangeStartAt_whenChainsHasLink() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
-    ChainWrapper inputDataWrapper = new ChainWrapper()
-      .setChain(new Chain()
-        .setAccountId(BigInteger.valueOf(1))
-        .setName("bucket")
-        .setType(Chain.PRODUCTION)
-        .setState(Chain.FABRICATING)
-        .setStartAt("2015-05-10 12:17:03.527142")
-        .setStopAt("2015-06-09 12:17:01.047563")
-      );
+    Chain inputData = new Chain()
+      .setAccountId(BigInteger.valueOf(1))
+      .setName("bucket")
+      .setType(Chain.PRODUCTION)
+      .setState(Chain.FABRICATING)
+      .setStartAt("2015-05-10 12:17:03.527142")
+      .setStopAt("2015-06-09 12:17:01.047563");
     IntegrationTestEntity.insertLink(6, 2, 5, Link.CRAFTED, Timestamp.valueOf("2015-05-10 12:18:02.527142"), Timestamp.valueOf("2015-05-10 12:18:32.527142"), "A major", 64, 0.52, 120);
 
     failure.expect(BusinessException.class);
     failure.expectMessage("cannot change chain startAt time after it has links");
 
-    testDAO.update(access, ULong.valueOf(2), inputDataWrapper);
+    testDAO.update(access, ULong.valueOf(2), inputData);
   }
 
   @Test
   public void update_canChangeName_whenChainsHasLink() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
-    ChainWrapper inputDataWrapper = new ChainWrapper()
-      .setChain(new Chain()
-        .setAccountId(BigInteger.valueOf(1))
-        .setName("manuts")
-        .setState(Chain.FABRICATING)
-        .setType(Chain.PRODUCTION)
-        .setStartAt("2015-05-10 12:17:02.527142")
-        .setStopAt("2015-06-09 12:17:01.047563")
-      );
+    Chain inputData = new Chain()
+      .setAccountId(BigInteger.valueOf(1))
+      .setName("manuts")
+      .setState(Chain.FABRICATING)
+      .setType(Chain.PRODUCTION)
+      .setStartAt("2015-05-10 12:17:02.527142")
+      .setStopAt("2015-06-09 12:17:01.047563");
     IntegrationTestEntity.insertLink(6, 2, 5, Link.CRAFTED, Timestamp.valueOf("2015-05-10 12:18:02.527142"), Timestamp.valueOf("2015-05-10 12:18:32.527142"), "A major", 64, 0.52, 120);
 
-    testDAO.update(access, ULong.valueOf(2), inputDataWrapper);
+    testDAO.update(access, ULong.valueOf(2), inputData);
 
     ChainRecord result = IntegrationTestService.getDb()
       .selectFrom(CHAIN)
@@ -474,19 +468,17 @@ public class ChainIT {
 
   @Test
   public void update_RemoveStopAt() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
-    ChainWrapper inputDataWrapper = new ChainWrapper()
-      .setChain(new Chain()
-        .setAccountId(BigInteger.valueOf(1))
-        .setName("manuts")
-        .setType(Chain.PRODUCTION)
-        .setState(Chain.COMPLETE)
-        .setStartAt("2009-08-12 12:17:02.687327")
-      );
+    Chain inputData = new Chain()
+      .setAccountId(BigInteger.valueOf(1))
+      .setName("manuts")
+      .setType(Chain.PRODUCTION)
+      .setState(Chain.COMPLETE)
+      .setStartAt("2009-08-12 12:17:02.687327");
 
-    testDAO.update(access, ULong.valueOf(2), inputDataWrapper);
+    testDAO.update(access, ULong.valueOf(2), inputData);
 
     ChainRecord result = IntegrationTestService.getDb()
       .selectFrom(CHAIN)
@@ -503,64 +495,58 @@ public class ChainIT {
 
   @Test()
   public void update_FailsWithoutAccountID() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
-    ChainWrapper inputDataWrapper = new ChainWrapper()
-      .setChain(new Chain()
-        .setName("manuts")
-        .setState(Chain.DRAFT)
-        .setType(Chain.PRODUCTION)
-        .setStartAt("2009-08-12 12:17:02.527142")
-        .setStopAt("2009-09-11 12:17:01.047563")
-      );
+    Chain inputData = new Chain()
+      .setName("manuts")
+      .setState(Chain.DRAFT)
+      .setType(Chain.PRODUCTION)
+      .setStartAt("2009-08-12 12:17:02.527142")
+      .setStopAt("2009-09-11 12:17:01.047563");
 
     failure.expect(BusinessException.class);
     failure.expectMessage("Account ID is required");
 
-    testDAO.update(access, ULong.valueOf(2), inputDataWrapper);
+    testDAO.update(access, ULong.valueOf(2), inputData);
   }
 
   @Test()
   public void update_FailsWithoutName() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
-    ChainWrapper inputDataWrapper = new ChainWrapper()
-      .setChain(new Chain()
-        .setAccountId(BigInteger.valueOf(1))
-        .setState(Chain.DRAFT)
-        .setType(Chain.PRODUCTION)
-        .setStartAt("2009-08-12 12:17:02.527142")
-        .setStopAt("2009-09-11 12:17:01.047563")
-      );
+    Chain inputData = new Chain()
+      .setAccountId(BigInteger.valueOf(1))
+      .setState(Chain.DRAFT)
+      .setType(Chain.PRODUCTION)
+      .setStartAt("2009-08-12 12:17:02.527142")
+      .setStopAt("2009-09-11 12:17:01.047563");
 
     failure.expect(BusinessException.class);
     failure.expectMessage("Name is required");
 
-    testDAO.update(access, ULong.valueOf(2), inputDataWrapper);
+    testDAO.update(access, ULong.valueOf(2), inputData);
   }
 
   @Test()
   public void update_FailsUpdatingToNonexistentAccount() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
-    ChainWrapper inputDataWrapper = new ChainWrapper()
-      .setChain(new Chain()
-        .setAccountId(BigInteger.valueOf(75))
-        .setName("manuts")
-        .setState(Chain.DRAFT)
-        .setType(Chain.PRODUCTION)
-        .setStartAt("2009-08-12 12:17:02.527142")
-        .setStopAt("2009-09-11 12:17:01.047563")
-      );
+    Chain inputData = new Chain()
+      .setAccountId(BigInteger.valueOf(75))
+      .setName("manuts")
+      .setState(Chain.DRAFT)
+      .setType(Chain.PRODUCTION)
+      .setStartAt("2009-08-12 12:17:02.527142")
+      .setStopAt("2009-09-11 12:17:01.047563");
 
     failure.expect(BusinessException.class);
     failure.expectMessage("transition to draft not allowed");
 
     try {
-      testDAO.update(access, ULong.valueOf(2), inputDataWrapper);
+      testDAO.update(access, ULong.valueOf(2), inputData);
 
     } catch (Exception e) {
       ChainRecord result = IntegrationTestService.getDb()
@@ -576,7 +562,7 @@ public class ChainIT {
 
   @Test
   public void updateState() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "internal"
     ));
 
@@ -592,19 +578,19 @@ public class ChainIT {
 
   @Test()
   public void updateState_FailsOnInvalidState() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "internal"
     ));
 
     failure.expect(BusinessException.class);
-    failure.expectMessage("'bullshit state' is not a valid state (draft,ready,fabricating,complete)");
+    failure.expectMessage("'bullshit state' is not a valid state (draft,ready,fabricating,complete,failed)");
 
     testDAO.updateState(access, ULong.valueOf(2), "bullshit state");
   }
 
   @Test()
   public void updateState_FailsWithoutTopLevelAccess() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "user",
       "accounts", "54"
     ));
@@ -617,7 +603,7 @@ public class ChainIT {
 
   @Test
   public void buildNextLinkOrComplete_chainWithLinksReadyForNextLink() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "internal"
     ));
     IntegrationTestEntity.insertChain(12, 1, "Test Print #2", Chain.PRODUCTION, Chain.FABRICATING, Timestamp.valueOf("2014-02-14 12:03:40.000001"), Timestamp.valueOf("2014-02-14 14:03:40.000001"));
@@ -637,7 +623,7 @@ public class ChainIT {
 
   @Test
   public void buildNextLinkOrComplete_chainWithLinksReadyForNextLink_butChainIsAlreadyFull_butNotSoLongEnoughToBeComplete() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "internal"
     ));
     IntegrationTestEntity.insertChain(12, 1, "Test Print #2", Chain.PRODUCTION, Chain.FABRICATING, Timestamp.valueOf("2014-02-14 12:03:40.000001"), Timestamp.valueOf("2014-02-14 14:03:40.000001"));
@@ -659,7 +645,7 @@ public class ChainIT {
 
   @Test
   public void buildNextLinkOrComplete_chainWithLinksReadyForNextLink_butChainIsAlreadyFull_butLastLinkNotDubbedSoChainNotComplete() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "internal"
     ));
     IntegrationTestEntity.insertChain(12, 1, "Test Print #2", Chain.PRODUCTION, Chain.FABRICATING, Timestamp.valueOf("2014-02-14 12:03:40.000001"), Timestamp.valueOf("2014-02-14 14:03:40.000001"));
@@ -681,7 +667,7 @@ public class ChainIT {
 
   @Test
   public void buildNextLinkOrComplete_chainWithLinksReadyForNextLink_butChainIsAlreadyFull_andGetsUpdatedToComplete() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "internal"
     ));
     IntegrationTestEntity.insertChain(12, 1, "Test Print #2", Chain.PRODUCTION, Chain.FABRICATING, Timestamp.valueOf("2014-02-14 12:03:40.000001"), Timestamp.valueOf("2014-02-14 14:03:40.000001"));
@@ -703,7 +689,7 @@ public class ChainIT {
 
   @Test
   public void buildNextLinkOrComplete_chainWithLinksReadyForNextLink_butChainIsAlreadyFull_butCantKnowBecauseBoundsProvidedAreNull() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "internal"
     ));
     IntegrationTestEntity.insertChain(12, 1, "Test Print #2", Chain.PRODUCTION, Chain.FABRICATING, Timestamp.valueOf("2014-02-14 12:03:40.000001"), Timestamp.valueOf("2014-02-14 14:03:40.000001"));
@@ -724,10 +710,10 @@ public class ChainIT {
 
   @Test
   public void buildNextLinkOrComplete_chainWithLinksAlreadyHasNextLink() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "internal"
     ));
-    IntegrationTestEntity.insertLink(6, 1, 5, Link.PLANNED, Timestamp.valueOf("2017-02-14 12:03:08.000001"), null, "A major", 64, 0.52, 120);
+    IntegrationTestEntity.insertLink_Planned(5, 1, 4, Timestamp.valueOf("2017-02-14 12:03:08.000001"));
 
     ChainRecord fromChain = new ChainRecord();
     fromChain.setId(ULong.valueOf(1));
@@ -740,7 +726,7 @@ public class ChainIT {
 
   @Test
   public void buildNextLinkOrComplete_chainEndingInCraftedLink() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "internal"
     ));
     IntegrationTestEntity.insertChain(12, 1, "Test Print #2", Chain.PRODUCTION, Chain.FABRICATING, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"));
@@ -760,7 +746,7 @@ public class ChainIT {
 
   @Test
   public void buildNextLinkOrComplete_newEmptyChain() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "internal"
     ));
     IntegrationTestEntity.insertChain(12, 1, "Test Print #2", Chain.PRODUCTION, Chain.READY, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null);
@@ -779,7 +765,7 @@ public class ChainIT {
 
   @Test
   public void delete() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
 
@@ -794,14 +780,14 @@ public class ChainIT {
 
   @Test()
   public void delete_FailsIfChainHasChildRecords() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
     IntegrationTestEntity.insertLibrary(1, 1, "nerds");
     IntegrationTestEntity.insertChainConfig(101, 1, ChainConfig.OUTPUT_SAMPLE_BITS, "3");
 
     failure.expect(BusinessException.class);
-    failure.expectMessage("Found ChainConfig");
+    failure.expectMessage("Found Config in Chain");
 
     try {
       testDAO.delete(access, ULong.valueOf(1));
@@ -836,6 +822,15 @@ public class ChainIT {
     IntegrationTestEntity.insertChain(3, 1, "Test Print #1", Chain.PRODUCTION, Chain.COMPLETE, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"));
     IntegrationTestEntity.insertLink(1, 3, 0, Link.DUBBED, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120);
 
+    // Link Meme
+    IntegrationTestEntity.insertLinkMeme(25, 1, "Jams");
+
+    // Link Chord
+    IntegrationTestEntity.insertLinkChord(25, 1, 0, "D major 7 b9");
+
+    // Link Message
+    IntegrationTestEntity.insertLinkMessage(25, 1, Message.WARN, "Consider yourself warned");
+
     // Choice
     IntegrationTestEntity.insertChoice(1, 1, 1, Choice.MACRO, 2, -5);
 
@@ -851,7 +846,7 @@ public class ChainIT {
     // Point is in Morph
     IntegrationTestEntity.insertPoint(1, 1, 1, 0.125, "C", 1.5);
 
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
 
@@ -867,6 +862,24 @@ public class ChainIT {
     assertNull(IntegrationTestService.getDb()
       .selectFrom(LINK)
       .where(LINK.ID.eq(ULong.valueOf(1)))
+      .fetchOne());
+
+    // Assert destroyed Link Meme
+    assertNull(IntegrationTestService.getDb()
+      .selectFrom(LINK_MEME)
+      .where(LINK_MEME.ID.eq(ULong.valueOf(25)))
+      .fetchOne());
+
+    // Assert destroyed Link Chord
+    assertNull(IntegrationTestService.getDb()
+      .selectFrom(LINK_CHORD)
+      .where(LINK_CHORD.ID.eq(ULong.valueOf(25)))
+      .fetchOne());
+
+    // Assert destroyed Link Message
+    assertNull(IntegrationTestService.getDb()
+      .selectFrom(LINK_MESSAGE)
+      .where(LINK_MESSAGE.ID.eq(ULong.valueOf(25)))
       .fetchOne());
 
     // Assert destroyed Arrangement
@@ -904,7 +917,7 @@ public class ChainIT {
   @Test
   public void destroy_inDraftState() throws Exception {
     IntegrationTestEntity.insertChain(3, 1, "bucket", Chain.PRODUCTION, Chain.DRAFT, Timestamp.valueOf("2015-05-10 12:17:02.527142"), Timestamp.valueOf("2015-06-09 12:17:01.047563"));
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
 
@@ -920,7 +933,23 @@ public class ChainIT {
   @Test
   public void destroy_inCompleteState() throws Exception {
     IntegrationTestEntity.insertChain(3, 1, "bucket", Chain.PRODUCTION, Chain.COMPLETE, Timestamp.valueOf("2015-05-10 12:17:02.527142"), Timestamp.valueOf("2015-06-09 12:17:01.047563"));
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
+      "roles", "admin"
+    ));
+
+    testDAO.destroy(access, ULong.valueOf(3));
+
+    ChainRecord result = IntegrationTestService.getDb()
+      .selectFrom(CHAIN)
+      .where(CHAIN.ID.eq(ULong.valueOf(3)))
+      .fetchOne();
+    assertNull(result);
+  }
+
+  @Test
+  public void destroy_inFailedState() throws Exception {
+    IntegrationTestEntity.insertChain(3, 1, "bucket", Chain.PRODUCTION, Chain.FAILED, Timestamp.valueOf("2015-05-10 12:17:02.527142"), Timestamp.valueOf("2015-06-09 12:17:01.047563"));
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
 
@@ -936,7 +965,7 @@ public class ChainIT {
   @Test
   public void destroy_failsInFabricatingState() throws Exception {
     IntegrationTestEntity.insertChain(3, 1, "bucket", Chain.PRODUCTION, Chain.FABRICATING, Timestamp.valueOf("2015-05-10 12:17:02.527142"), Timestamp.valueOf("2015-06-09 12:17:01.047563"));
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
 
@@ -949,7 +978,7 @@ public class ChainIT {
   @Test
   public void destroy_failsInReadyState() throws Exception {
     IntegrationTestEntity.insertChain(3, 1, "bucket", Chain.PRODUCTION, Chain.READY, Timestamp.valueOf("2015-05-10 12:17:02.527142"), Timestamp.valueOf("2015-06-09 12:17:01.047563"));
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
 

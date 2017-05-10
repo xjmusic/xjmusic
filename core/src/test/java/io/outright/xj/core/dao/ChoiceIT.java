@@ -1,21 +1,20 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
 package io.outright.xj.core.dao;
 
 import io.outright.xj.core.CoreModule;
-import io.outright.xj.core.app.access.impl.AccessControl;
+import io.outright.xj.core.app.access.impl.Access;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.integration.IntegrationTestEntity;
 import io.outright.xj.core.integration.IntegrationTestService;
 import io.outright.xj.core.model.chain.Chain;
 import io.outright.xj.core.model.choice.Choice;
-import io.outright.xj.core.model.choice.ChoiceWrapper;
 import io.outright.xj.core.model.idea.Idea;
 import io.outright.xj.core.model.instrument.Instrument;
 import io.outright.xj.core.model.link.Link;
 import io.outright.xj.core.model.voice.Voice;
 import io.outright.xj.core.tables.records.ChoiceRecord;
+import io.outright.xj.core.transport.JSON;
 
-import org.jooq.types.UInteger;
 import org.jooq.types.ULong;
 
 import com.google.common.collect.ImmutableMap;
@@ -76,19 +75,17 @@ public class ChoiceIT {
 
   @Test
   public void create() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
-    ChoiceWrapper inputDataWrapper = new ChoiceWrapper()
-      .setChoice(new Choice()
-        .setLinkId(BigInteger.valueOf(1))
-        .setIdeaId(BigInteger.valueOf(3))
-        .setType(Choice.MAIN)
-        .setPhaseOffset(BigInteger.valueOf(2))
-        .setTranspose(-3)
-      );
+    Choice inputData = new Choice()
+      .setLinkId(BigInteger.valueOf(1))
+      .setIdeaId(BigInteger.valueOf(3))
+      .setType(Choice.MAIN)
+      .setPhaseOffset(BigInteger.valueOf(2))
+      .setTranspose(-3);
 
-    JSONObject result = testDAO.create(access, inputDataWrapper);
+    JSONObject result = JSON.objectFromRecord(testDAO.create(access, inputData));
 
     assertNotNull(result);
     assertEquals(ULong.valueOf(1), result.get("linkId"));
@@ -100,134 +97,139 @@ public class ChoiceIT {
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutTopLevelAccess() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "user"
     ));
-    ChoiceWrapper inputDataWrapper = new ChoiceWrapper()
-      .setChoice(new Choice()
-        .setLinkId(BigInteger.valueOf(1))
-        .setIdeaId(BigInteger.valueOf(3))
-        .setType(Choice.MAIN)
-        .setPhaseOffset(BigInteger.valueOf(2))
-        .setTranspose(-3)
-      );
+    Choice inputData = new Choice()
+      .setLinkId(BigInteger.valueOf(1))
+      .setIdeaId(BigInteger.valueOf(3))
+      .setType(Choice.MAIN)
+      .setPhaseOffset(BigInteger.valueOf(2))
+      .setTranspose(-3);
 
-    testDAO.create(access, inputDataWrapper);
+    testDAO.create(access, inputData);
   }
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutLinkID() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
-    ChoiceWrapper inputDataWrapper = new ChoiceWrapper()
-      .setChoice(new Choice()
-        .setIdeaId(BigInteger.valueOf(3))
-        .setType(Choice.MAIN)
-        .setPhaseOffset(BigInteger.valueOf(2))
-        .setTranspose(-3)
-      );
+    Choice inputData = new Choice()
+      .setIdeaId(BigInteger.valueOf(3))
+      .setType(Choice.MAIN)
+      .setPhaseOffset(BigInteger.valueOf(2))
+      .setTranspose(-3);
 
-    testDAO.create(access, inputDataWrapper);
+    testDAO.create(access, inputData);
   }
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithInvalidType() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
-    ChoiceWrapper inputDataWrapper = new ChoiceWrapper()
-      .setChoice(new Choice()
-        .setLinkId(BigInteger.valueOf(1))
-        .setIdeaId(BigInteger.valueOf(3))
-        .setType("BULLSHIT TYPE!")
-        .setPhaseOffset(BigInteger.valueOf(2))
-        .setTranspose(-3)
-      );
+    Choice inputData = new Choice()
+      .setLinkId(BigInteger.valueOf(1))
+      .setIdeaId(BigInteger.valueOf(3))
+      .setType("BULLSHIT TYPE!")
+      .setPhaseOffset(BigInteger.valueOf(2))
+      .setTranspose(-3);
 
-    testDAO.create(access, inputDataWrapper);
+    testDAO.create(access, inputData);
   }
 
   @Test
   public void readOne() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "user",
       "accounts", "1"
     ));
 
-    JSONObject result = testDAO.readOne(access, ULong.valueOf(2));
+    Choice result = new Choice().setFromRecord(testDAO.readOne(access, ULong.valueOf(2)));
 
     assertNotNull(result);
-    assertEquals(ULong.valueOf(2), result.get("id"));
-    assertEquals(ULong.valueOf(1), result.get("linkId"));
-    assertEquals(ULong.valueOf(2), result.get("ideaId"));
-    assertEquals(Choice.RHYTHM, result.get("type"));
-    assertEquals(UInteger.valueOf(1), result.get("phaseOffset"));
-    assertEquals(+2, result.get("transpose"));
+    assertEquals(ULong.valueOf(2), result.getId());
+    assertEquals(ULong.valueOf(1), result.getLinkId());
+    assertEquals(ULong.valueOf(2), result.getIdeaId());
+    assertEquals(Choice.RHYTHM, result.getType());
+    assertEquals(ULong.valueOf(1), result.getPhaseOffset());
+    assertEquals(Integer.valueOf(+2), result.getTranspose());
+  }
+
+  @Test
+  public void readOne_LinkIdea() throws Exception {
+    ChoiceRecord result = testDAO.readOneLinkIdea(Access.internal(),ULong.valueOf(1),ULong.valueOf(2));
+
+    assertNotNull(result);
+    assertEquals(ULong.valueOf(2), result.getId());
+    assertEquals(ULong.valueOf(1), result.getLinkId());
+    assertEquals(ULong.valueOf(2), result.getIdeaId());
+    assertEquals(Choice.RHYTHM, result.getType());
+    assertEquals(ULong.valueOf(1), result.getPhaseOffset());
+    assertEquals(Integer.valueOf(+2), result.getTranspose());
   }
 
   @Test
   public void readOne_FailsWhenUserIsNotInLink() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "user",
       "accounts", "326"
     ));
 
-    JSONObject result = testDAO.readOne(access, ULong.valueOf(1));
+    ChoiceRecord result = testDAO.readOne(access, ULong.valueOf(1));
 
     assertNull(result);
   }
 
   @Test
   public void readAll() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "user",
       "accounts", "1"
     ));
 
-    JSONArray actualResultList = testDAO.readAllIn(access, ULong.valueOf(1));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ULong.valueOf(1)));
 
-    assertNotNull(actualResultList);
-    assertEquals(4, actualResultList.length());
+    assertNotNull(result);
+    assertEquals(4, result.length());
 
-    JSONObject actualResult0 = (JSONObject) actualResultList.get(0);
+    JSONObject actualResult0 = (JSONObject) result.get(0);
     assertEquals(Choice.MACRO, actualResult0.get("type"));
-    JSONObject actualResult1 = (JSONObject) actualResultList.get(1);
-    assertEquals(Choice.RHYTHM, actualResult1.get("type"));
-    JSONObject actualResult2 = (JSONObject) actualResultList.get(2);
-    assertEquals(Choice.SUPPORT, actualResult2.get("type"));
-    JSONObject actualResult3 = (JSONObject) actualResultList.get(3);
-    assertEquals(Choice.MAIN, actualResult3.get("type"));
+    JSONObject result1 = (JSONObject) result.get(1);
+    assertEquals(Choice.RHYTHM, result1.get("type"));
+    JSONObject result2 = (JSONObject) result.get(2);
+    assertEquals(Choice.SUPPORT, result2.get("type"));
+    JSONObject result3 = (JSONObject) result.get(3);
+    assertEquals(Choice.MAIN, result3.get("type"));
   }
 
   @Test
   public void readAll_SeesNothingOutsideOfLink() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "user",
       "accounts", "345"
     ));
 
-    JSONArray actualResultList = testDAO.readAllIn(access, ULong.valueOf(1));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ULong.valueOf(1)));
 
-    assertNotNull(actualResultList);
-    assertEquals(0, actualResultList.length());
+    assertNotNull(result);
+    assertEquals(0, result.length());
   }
 
   @Test
   public void update() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
-    ChoiceWrapper inputDataWrapper = new ChoiceWrapper()
-      .setChoice(new Choice()
-        .setLinkId(BigInteger.valueOf(1))
-        .setIdeaId(BigInteger.valueOf(3))
-        .setType(Choice.MAIN)
-        .setPhaseOffset(BigInteger.valueOf(2))
-        .setTranspose(-3)
-      );
+    Choice inputData = new Choice()
+      .setLinkId(BigInteger.valueOf(1))
+      .setIdeaId(BigInteger.valueOf(3))
+      .setType(Choice.MAIN)
+      .setPhaseOffset(BigInteger.valueOf(2))
+      .setTranspose(-3);
 
-    testDAO.update(access, ULong.valueOf(2), inputDataWrapper);
+    testDAO.update(access, ULong.valueOf(2), inputData);
 
     ChoiceRecord result = IntegrationTestService.getDb()
       .selectFrom(CHOICE)
@@ -237,58 +239,52 @@ public class ChoiceIT {
     assertEquals(ULong.valueOf(1), result.getLinkId());
     assertEquals(ULong.valueOf(3), result.getIdeaId());
     assertEquals(Choice.MAIN, result.getType());
-    assertEquals(UInteger.valueOf(2), result.getPhaseOffset());
+    assertEquals(ULong.valueOf(2), result.getPhaseOffset());
     assertEquals(Integer.valueOf(-3), result.getTranspose());
   }
 
   @Test(expected = BusinessException.class)
   public void update_FailsWithoutLinkID() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
-    ChoiceWrapper inputDataWrapper = new ChoiceWrapper()
-      .setChoice(new Choice()
-        .setIdeaId(BigInteger.valueOf(3))
-        .setType(Choice.MAIN)
-        .setPhaseOffset(BigInteger.valueOf(2))
-        .setTranspose(-3)
-      );
+    Choice inputData = new Choice()
+      .setIdeaId(BigInteger.valueOf(3))
+      .setType(Choice.MAIN)
+      .setPhaseOffset(BigInteger.valueOf(2))
+      .setTranspose(-3);
 
-    testDAO.update(access, ULong.valueOf(2), inputDataWrapper);
+    testDAO.update(access, ULong.valueOf(2), inputData);
   }
 
   @Test(expected = BusinessException.class)
   public void update_FailsWithoutType() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
-    ChoiceWrapper inputDataWrapper = new ChoiceWrapper()
-      .setChoice(new Choice()
-        .setLinkId(BigInteger.valueOf(1))
-        .setIdeaId(BigInteger.valueOf(3))
-        .setPhaseOffset(BigInteger.valueOf(2))
-        .setTranspose(-3)
-      );
+    Choice inputData = new Choice()
+      .setLinkId(BigInteger.valueOf(1))
+      .setIdeaId(BigInteger.valueOf(3))
+      .setPhaseOffset(BigInteger.valueOf(2))
+      .setTranspose(-3);
 
-    testDAO.update(access, ULong.valueOf(2), inputDataWrapper);
+    testDAO.update(access, ULong.valueOf(2), inputData);
   }
 
   @Test(expected = BusinessException.class)
   public void update_FailsToChangeLink() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
-    ChoiceWrapper inputDataWrapper = new ChoiceWrapper()
-      .setChoice(new Choice()
-        .setLinkId(BigInteger.valueOf(7))
-        .setIdeaId(BigInteger.valueOf(3))
-        .setType(Choice.MAIN)
-        .setPhaseOffset(BigInteger.valueOf(2))
-        .setTranspose(-3)
-      );
+    Choice inputData = new Choice()
+      .setLinkId(BigInteger.valueOf(7))
+      .setIdeaId(BigInteger.valueOf(3))
+      .setType(Choice.MAIN)
+      .setPhaseOffset(BigInteger.valueOf(2))
+      .setTranspose(-3);
 
     try {
-      testDAO.update(access, ULong.valueOf(2), inputDataWrapper);
+      testDAO.update(access, ULong.valueOf(2), inputData);
 
     } catch (Exception e) {
       ChoiceRecord result = IntegrationTestService.getDb()
@@ -303,7 +299,7 @@ public class ChoiceIT {
 
   @Test
   public void delete() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
 
@@ -318,7 +314,7 @@ public class ChoiceIT {
 
   @Test(expected = BusinessException.class)
   public void delete_FailsIfChoiceHasChildRecords() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
     IntegrationTestEntity.insertPhase(1, 1, 0, 16, "Ants", 0.583, "D minor", 120.0);

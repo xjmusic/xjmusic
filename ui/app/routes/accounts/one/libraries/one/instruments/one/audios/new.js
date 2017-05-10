@@ -1,4 +1,4 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
 import Ember from "ember";
 import EmberUploader from "ember-uploader";
 import RSVP from "rsvp";
@@ -128,9 +128,10 @@ export default Ember.Route.extend({
     let waveformKey = result.audio['waveformKey'];
     let uploadUrl = result.audio['uploadUrl'];
     let uploadPolicy = result.audio['uploadPolicy'];
-
-    // TODO: retrieve REAL upload policy, and use it to upload audio file
-    console.log('Retrieved upload policy "' + uploadPolicy + '" for uploading ' + waveformKey + ' to ' + uploadUrl);
+    let signature = result.audio['uploadPolicySignature'];
+    let awsAccessKeyId = result.audio['awsAccessKeyId'];
+    let bucketName = result.audio['bucketName'];
+    let acl = result.audio['acl'];
 
     self.uploader = EmberUploader.Uploader.create({
       url: uploadUrl,
@@ -144,7 +145,7 @@ export default Ember.Route.extend({
 
     let files = Ember.get(self, 'uploadFiles');
     if (!Ember.isEmpty(files)) {
-      self.uploadFile(files[0], waveformKey, uploadPolicy);
+      self.uploadFile(files[0], waveformKey, uploadPolicy, signature, awsAccessKeyId, bucketName, acl);
     }
   },
 
@@ -160,12 +161,17 @@ export default Ember.Route.extend({
    * @param file
    * @param waveformKey
    * @param uploadPolicy
+   * @param signature
    */
-  uploadFile(file, waveformKey, uploadPolicy) {
+  uploadFile(file, waveformKey, uploadPolicy, signature, awsAccessKeyId, bucketName, acl) {
     let self = this;
     self.uploader.upload(file, {
       key: waveformKey,
-      policy: uploadPolicy
+      policy: uploadPolicy,
+      signature: signature,
+      awsAccessKeyId: awsAccessKeyId,
+      bucket: bucketName,
+      acl: acl
     }).then(() => {
       self.didUploadFile(waveformKey);
     }, (error) => {
@@ -179,8 +185,8 @@ export default Ember.Route.extend({
    */
   didUploadFile (waveformKey) {
     Ember.get(this, 'display').success('Uploaded "' + this.audioBaseUrl + waveformKey);
-    let newAudio = this.controller.get('model');
-    this.transitionTo('accounts.one.libraries.one.instruments.one.audios.one', newAudio);
+    let model = this.controller.get('model');
+    this.transitionTo('accounts.one.libraries.one.instruments.one.audios.one', model);
   },
 
   /**

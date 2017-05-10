@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+
+# Include common functions
+. $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/common/functions
+
+# Title & Usage
+TITLE="Reset MySQL db to example-database.sql"
+USAGE="
+   Usage:
+     bin/mysql-reset <host> <arguments...>
+
+   <host> to run, as in: mysql -h <host>
+   <arguments...> (optional) passed to 'mysql' client
+"
+
+# Connect as root
+MYSQL_USER="root"
+
+# Must specify <host> argument
+MYSQL_HOST=$1
+if [ "${MYSQL_HOST}" == "" ]; then
+  printf "${RED}ERROR!${RESET} Please specify a host.\n"
+  echo "${USAGE}"
+  exit 1
+fi
+shift
+
+# Host Arguments
+MYSQL_ARGS="${@}"
+
+# Database
+MYSQL_DB="xj"
+
+# Reset command SQL
+RESET_CMD="
+  drop database if exists ${MYSQL_DB};
+  drop database if exists ${MYSQL_DB}_test;
+  create database ${MYSQL_DB};
+  create database ${MYSQL_DB}_test;
+  "
+
+# Expected Example MySQL database
+EXAMPLE_SQL=${PWD}/example-database.sql
+
+# ensure platform is packaged
+ensure_file ${EXAMPLE_SQL} "Example MySQL database"
+
+# connect to ${HOST}
+step "Client SQL execution"
+/usr/bin/mysql -u${MYSQL_USER} -h${MYSQL_HOST} ${MYSQL_ARGS} -e "${RESET_CMD}"
+/usr/bin/mysql -u${MYSQL_USER} -h${MYSQL_HOST} ${MYSQL_ARGS} ${MYSQL_DB} < ${EXAMPLE_SQL}
+step_ok
+
+#
+finished_ok

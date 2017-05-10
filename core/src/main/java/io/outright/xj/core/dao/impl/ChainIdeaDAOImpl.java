@@ -1,24 +1,21 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
 package io.outright.xj.core.dao.impl;
 
-import io.outright.xj.core.app.access.impl.AccessControl;
+import io.outright.xj.core.app.access.impl.Access;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.dao.ChainIdeaDAO;
 import io.outright.xj.core.db.sql.SQLConnection;
 import io.outright.xj.core.db.sql.SQLDatabaseProvider;
 import io.outright.xj.core.model.chain_idea.ChainIdea;
-import io.outright.xj.core.model.chain_idea.ChainIdeaWrapper;
-import io.outright.xj.core.transport.JSON;
+import io.outright.xj.core.tables.records.ChainIdeaRecord;
 
 import org.jooq.DSLContext;
 import org.jooq.Field;
+import org.jooq.Result;
 import org.jooq.types.ULong;
 
 import com.google.inject.Inject;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.sql.SQLException;
 import java.util.Map;
@@ -38,37 +35,37 @@ public class ChainIdeaDAOImpl extends DAOImpl implements ChainIdeaDAO {
   }
 
   @Override
-  public JSONObject create(AccessControl access, ChainIdeaWrapper data) throws Exception {
+  public ChainIdeaRecord create(Access access, ChainIdea entity) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(create(tx.getContext(), access, data));
+      return tx.success(createRecord(tx.getContext(), access, entity));
     } catch (Exception e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public JSONObject readOne(AccessControl access, ULong id) throws Exception {
+  public ChainIdeaRecord readOne(Access access, ULong id) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readOne(tx.getContext(), access, id));
+      return tx.success(readOneRecord(tx.getContext(), access, id));
     } catch (Exception e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public JSONArray readAllIn(AccessControl access, ULong chainId) throws Exception {
+  public Result<ChainIdeaRecord> readAll(Access access, ULong chainId) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readAllIn(tx.getContext(), access, chainId));
+      return tx.success(readAll(tx.getContext(), access, chainId));
     } catch (Exception e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public void delete(AccessControl access, ULong id) throws Exception {
+  public void delete(Access access, ULong id) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
       delete(tx.getContext(), access, id);
@@ -81,44 +78,44 @@ public class ChainIdeaDAOImpl extends DAOImpl implements ChainIdeaDAO {
   /**
    Create a new Chain Idea record
 
-   @param db   context
-   @param data for new ChainIdea
+   @param db     context
+   @param entity for new ChainIdea
    @return new record
    @throws Exception         if database failure
    @throws ConfigException   if not configured properly
    @throws BusinessException if fails business rule
    */
-  private JSONObject create(DSLContext db, AccessControl access, ChainIdeaWrapper data) throws Exception {
-    ChainIdea model = data.validate();
-    Map<Field, Object> fieldValues = model.intoFieldValueMap();
+  private ChainIdeaRecord createRecord(DSLContext db, Access access, ChainIdea entity) throws Exception {
+    entity.validate();
+
+    Map<Field, Object> fieldValues = entity.updatableFieldValueMap();
 
     if (access.isTopLevel()) {
-      requireRecordExists("Chain", db.select(CHAIN.ID).from(CHAIN)
-        .where(CHAIN.ID.eq(model.getChainId()))
+      requireExists("Chain", db.select(CHAIN.ID).from(CHAIN)
+        .where(CHAIN.ID.eq(entity.getChainId()))
         .fetchOne());
-      requireRecordExists("Idea", db.select(IDEA.ID).from(IDEA)
-        .where(IDEA.ID.eq(model.getIdeaId()))
+      requireExists("Idea", db.select(IDEA.ID).from(IDEA)
+        .where(IDEA.ID.eq(entity.getIdeaId()))
         .fetchOne());
     } else {
-      requireRecordExists("Chain", db.select(CHAIN.ID).from(CHAIN)
+      requireExists("Chain", db.select(CHAIN.ID).from(CHAIN)
         .where(CHAIN.ACCOUNT_ID.in(access.getAccounts()))
-        .and(CHAIN.ID.eq(model.getChainId()))
+        .and(CHAIN.ID.eq(entity.getChainId()))
         .fetchOne());
-      requireRecordExists("Idea", db.select(IDEA.ID).from(IDEA)
+      requireExists("Idea", db.select(IDEA.ID).from(IDEA)
         .join(LIBRARY).on(LIBRARY.ID.eq(IDEA.LIBRARY_ID))
-        .where(IDEA.ID.eq(model.getIdeaId()))
+        .where(IDEA.ID.eq(entity.getIdeaId()))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .fetchOne());
     }
 
     if (db.selectFrom(CHAIN_IDEA)
-      .where(CHAIN_IDEA.CHAIN_ID.eq(model.getChainId()))
-      .and(CHAIN_IDEA.IDEA_ID.eq(model.getIdeaId()))
-      .fetchOne() != null) {
+      .where(CHAIN_IDEA.CHAIN_ID.eq(entity.getChainId()))
+      .and(CHAIN_IDEA.IDEA_ID.eq(entity.getIdeaId()))
+      .fetchOne() != null)
       throw new BusinessException("Idea already added to Chain!");
-    }
 
-    return JSON.objectFromRecord(executeCreate(db, CHAIN_IDEA, fieldValues));
+    return executeCreate(db, CHAIN_IDEA, fieldValues);
   }
 
   /**
@@ -129,19 +126,18 @@ public class ChainIdeaDAOImpl extends DAOImpl implements ChainIdeaDAO {
    @param id     of record
    @return record
    */
-  private JSONObject readOne(DSLContext db, AccessControl access, ULong id) {
-    if (access.isTopLevel()) {
-      return JSON.objectFromRecord(db.selectFrom(CHAIN_IDEA)
+  private ChainIdeaRecord readOneRecord(DSLContext db, Access access, ULong id) {
+    if (access.isTopLevel())
+      return db.selectFrom(CHAIN_IDEA)
         .where(CHAIN_IDEA.ID.eq(id))
-        .fetchOne());
-    } else {
-      return JSON.objectFromRecord(db.select(CHAIN_IDEA.fields()).from(CHAIN_IDEA)
+        .fetchOne();
+    else
+      return recordInto(CHAIN_IDEA, db.select(CHAIN_IDEA.fields()).from(CHAIN_IDEA)
         .join(IDEA).on(IDEA.ID.eq(CHAIN_IDEA.IDEA_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(IDEA.LIBRARY_ID))
         .where(CHAIN_IDEA.ID.eq(id))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .fetchOne());
-    }
   }
 
   /**
@@ -153,19 +149,18 @@ public class ChainIdeaDAOImpl extends DAOImpl implements ChainIdeaDAO {
    @return array of child records
    @throws SQLException on failure
    */
-  private JSONArray readAllIn(DSLContext db, AccessControl access, ULong chainId) throws SQLException {
-    if (access.isTopLevel()) {
-      return JSON.arrayFromResultSet(db.selectFrom(CHAIN_IDEA)
+  private Result<ChainIdeaRecord> readAll(DSLContext db, Access access, ULong chainId) throws SQLException {
+    if (access.isTopLevel())
+      return db.selectFrom(CHAIN_IDEA)
         .where(CHAIN_IDEA.CHAIN_ID.eq(chainId))
-        .fetchResultSet());
-    } else {
-      return JSON.arrayFromResultSet(db.select(CHAIN_IDEA.fields()).from(CHAIN_IDEA)
+        .fetch();
+    else
+      return resultInto(CHAIN_IDEA, db.select(CHAIN_IDEA.fields()).from(CHAIN_IDEA)
         .join(IDEA).on(IDEA.ID.eq(CHAIN_IDEA.IDEA_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(IDEA.LIBRARY_ID))
         .where(CHAIN_IDEA.CHAIN_ID.eq(chainId))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-        .fetchResultSet());
-    }
+        .fetch());
   }
 
   /**
@@ -176,20 +171,19 @@ public class ChainIdeaDAOImpl extends DAOImpl implements ChainIdeaDAO {
    @param id     of record
    @throws BusinessException on failure
    */
-  private void delete(DSLContext db, AccessControl access, ULong id) throws BusinessException {
+  private void delete(DSLContext db, Access access, ULong id) throws BusinessException {
     // TODO: fail if no chainIdea is deleted
-    if (access.isTopLevel()) {
-      requireRecordExists("Chain Idea", db.selectFrom(CHAIN_IDEA)
+    if (access.isTopLevel())
+      requireExists("Chain Idea", db.selectFrom(CHAIN_IDEA)
         .where(CHAIN_IDEA.ID.eq(id))
         .fetchOne());
-    } else {
-      requireRecordExists("Chain Idea", db.select(CHAIN_IDEA.fields()).from(CHAIN_IDEA)
+    else
+      requireExists("Chain Idea", db.select(CHAIN_IDEA.fields()).from(CHAIN_IDEA)
         .join(IDEA).on(IDEA.ID.eq(CHAIN_IDEA.IDEA_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(IDEA.LIBRARY_ID))
         .where(CHAIN_IDEA.ID.eq(id))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .fetchOne());
-    }
 
     db.deleteFrom(CHAIN_IDEA)
       .where(CHAIN_IDEA.ID.eq(id))

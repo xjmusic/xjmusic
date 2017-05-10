@@ -1,4 +1,4 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
 package io.outright.xj.core.app.access.impl;
 
 import io.outright.xj.core.app.App;
@@ -14,9 +14,8 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 
 public class AccessLogFilterProviderImpl implements AccessLogFilterProvider {
-  private final Logger log = LoggerFactory.getLogger(AccessLogFilterProviderImpl.class);
   private static LoggingFilter instance;
-
+  private final Logger log = LoggerFactory.getLogger(AccessLogFilterProviderImpl.class);
   private final String pathToWriteAccessLog = Config.logAccessFilename();
   private final Integer maxSizeEntitiesInAccessLog = Config.logAccessEntitiesMaxsize();
   private final Boolean showEntitiesInAccessLog = Config.logAccessEntitiesAll();

@@ -2,20 +2,17 @@
 package io.outright.xj.hub.resource.library;
 
 import io.outright.xj.core.CoreModule;
-import io.outright.xj.core.app.access.impl.AccessControl;
+import io.outright.xj.core.app.access.impl.Access;
 import io.outright.xj.core.app.server.HttpResponseProvider;
 import io.outright.xj.core.dao.LibraryDAO;
 import io.outright.xj.core.model.library.Library;
 import io.outright.xj.core.model.library.LibraryWrapper;
 import io.outright.xj.core.model.role.Role;
-import io.outright.xj.core.transport.JSON;
 
 import org.jooq.types.ULong;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-
-import org.json.JSONObject;
 
 import javax.annotation.security.RolesAllowed;
 import javax.jws.WebResult;
@@ -37,9 +34,8 @@ import java.io.IOException;
 @Path("libraries/{id}")
 public class LibraryRecordResource {
   private static final Injector injector = Guice.createInjector(new CoreModule());
-  //  private static Logger log = LoggerFactory.getLogger(LibraryRecordResource.class);
   private final LibraryDAO libraryDAO = injector.getInstance(LibraryDAO.class);
-  private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
+  private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
 
   @PathParam("id")
   String id;
@@ -53,22 +49,15 @@ public class LibraryRecordResource {
   @WebResult
   @RolesAllowed({Role.USER})
   public Response readOne(@Context ContainerRequestContext crc) throws IOException {
-    AccessControl access = AccessControl.fromContext(crc);
-
-    JSONObject result;
     try {
-      result = libraryDAO.readOne(access, ULong.valueOf(id));
-      if (result != null) {
-        return Response
-          .accepted(JSON.wrap(Library.KEY_ONE, result).toString())
-          .type(MediaType.APPLICATION_JSON)
-          .build();
-      } else {
-        return httpResponseProvider.notFound("Library");
-      }
+      return response.readOne(
+        Library.KEY_ONE,
+        libraryDAO.readOne(
+          Access.fromContext(crc),
+          ULong.valueOf(id)));
 
     } catch (Exception e) {
-      return httpResponseProvider.failure(e);
+      return response.failure(e);
     }
   }
 
@@ -82,13 +71,12 @@ public class LibraryRecordResource {
   @Consumes(MediaType.APPLICATION_JSON)
   @RolesAllowed({Role.ADMIN})
   public Response update(LibraryWrapper data, @Context ContainerRequestContext crc) {
-    AccessControl access = AccessControl.fromContext(crc);
     try {
-      libraryDAO.update(access, ULong.valueOf(id), data);
+      libraryDAO.update(Access.fromContext(crc), ULong.valueOf(id), data.getLibrary());
       return Response.accepted("{}").build();
 
     } catch (Exception e) {
-      return httpResponseProvider.failureToUpdate(e);
+      return response.failureToUpdate(e);
     }
   }
 
@@ -100,13 +88,12 @@ public class LibraryRecordResource {
   @DELETE
   @RolesAllowed({Role.ADMIN})
   public Response delete(@Context ContainerRequestContext crc) {
-    AccessControl access = AccessControl.fromContext(crc);
     try {
-      libraryDAO.delete(access, ULong.valueOf(id));
+      libraryDAO.delete(Access.fromContext(crc), ULong.valueOf(id));
       return Response.accepted("{}").build();
 
     } catch (Exception e) {
-      return httpResponseProvider.failure(e);
+      return response.failure(e);
     }
   }
 

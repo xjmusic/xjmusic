@@ -2,23 +2,17 @@
 package io.outright.xj.hub.resource.phase_meme;
 
 import io.outright.xj.core.CoreModule;
-import io.outright.xj.core.app.access.impl.AccessControl;
-import io.outright.xj.core.app.config.Exposure;
+import io.outright.xj.core.app.access.impl.Access;
 import io.outright.xj.core.app.server.HttpResponseProvider;
 import io.outright.xj.core.dao.PhaseMemeDAO;
-import io.outright.xj.core.model.Entity;
 import io.outright.xj.core.model.phase_meme.PhaseMeme;
 import io.outright.xj.core.model.phase_meme.PhaseMemeWrapper;
 import io.outright.xj.core.model.role.Role;
-import io.outright.xj.core.transport.JSON;
 
 import org.jooq.types.ULong;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import javax.annotation.security.RolesAllowed;
 import javax.jws.WebResult;
@@ -39,9 +33,8 @@ import java.io.IOException;
 @Path("phase-memes")
 public class PhaseMemeIndexResource {
   private static final Injector injector = Guice.createInjector(new CoreModule());
-  //  private static Logger log = LoggerFactory.getLogger(PhaseMemeIndexResource.class);
-  private final PhaseMemeDAO phaseMemeDAO = injector.getInstance(PhaseMemeDAO.class);
-  private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
+  private final PhaseMemeDAO DAO = injector.getInstance(PhaseMemeDAO.class);
+  private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
 
   @QueryParam("phaseId")
   String phaseId;
@@ -55,25 +48,20 @@ public class PhaseMemeIndexResource {
   @WebResult
   @RolesAllowed({Role.ARTIST})
   public Response readAll(@Context ContainerRequestContext crc) throws IOException {
-    AccessControl access = AccessControl.fromContext(crc);
 
     if (phaseId == null || phaseId.length() == 0) {
-      return httpResponseProvider.notAcceptable("Phase id is required");
+      return response.notAcceptable("Phase id is required");
     }
 
     try {
-      JSONArray result = phaseMemeDAO.readAllIn(access, ULong.valueOf(phaseId));
-      if (result != null) {
-        return Response
-          .accepted(JSON.wrap(PhaseMeme.KEY_MANY, result).toString())
-          .type(MediaType.APPLICATION_JSON)
-          .build();
-      } else {
-        return httpResponseProvider.notFound("Phase Meme");
-      }
+      return response.readMany(
+        PhaseMeme.KEY_MANY,
+        DAO.readAll(
+          Access.fromContext(crc),
+          ULong.valueOf(phaseId)));
 
     } catch (Exception e) {
-      return httpResponseProvider.failure(e);
+      return response.failure(e);
     }
   }
 
@@ -87,16 +75,16 @@ public class PhaseMemeIndexResource {
   @Consumes(MediaType.APPLICATION_JSON)
   @RolesAllowed({Role.ARTIST})
   public Response create(PhaseMemeWrapper data, @Context ContainerRequestContext crc) {
-    AccessControl access = AccessControl.fromContext(crc);
     try {
-      JSONObject result = phaseMemeDAO.create(access, data);
-      return Response
-        .created(Exposure.apiURI(PhaseMeme.KEY_MANY + "/" + result.get(Entity.KEY_ID)))
-        .entity(JSON.wrap(PhaseMeme.KEY_ONE, result).toString())
-        .build();
+      return response.create(
+        PhaseMeme.KEY_MANY,
+        PhaseMeme.KEY_ONE,
+        DAO.create(
+          Access.fromContext(crc),
+          data.getPhaseMeme()));
 
     } catch (Exception e) {
-      return httpResponseProvider.failureToCreate(e);
+      return response.failureToCreate(e);
     }
   }
 }

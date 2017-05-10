@@ -2,7 +2,7 @@
 package io.outright.xj.hub.resource.audio;
 
 import io.outright.xj.core.CoreModule;
-import io.outright.xj.core.app.access.impl.AccessControl;
+import io.outright.xj.core.app.access.impl.Access;
 import io.outright.xj.core.app.server.HttpResponseProvider;
 import io.outright.xj.core.dao.AudioDAO;
 import io.outright.xj.core.model.audio.Audio;
@@ -37,9 +37,8 @@ import java.io.IOException;
 @Path("audios/{id}")
 public class AudioRecordResource {
   private static final Injector injector = Guice.createInjector(new CoreModule());
-  //  private static Logger log = LoggerFactory.getLogger(AudioRecordResource.class);
-  private final AudioDAO audioDAO = injector.getInstance(AudioDAO.class);
-  private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
+  private final AudioDAO DAO = injector.getInstance(AudioDAO.class);
+  private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
 
   @PathParam("id")
   String id;
@@ -53,20 +52,15 @@ public class AudioRecordResource {
   @WebResult
   @RolesAllowed({Role.ARTIST})
   public Response readOne(@Context ContainerRequestContext crc) throws IOException {
-    AccessControl access = AccessControl.fromContext(crc);
     try {
-      JSONObject result = audioDAO.readOne(access, ULong.valueOf(id));
-      if (result != null) {
-        return Response
-          .accepted(JSON.wrap(Audio.KEY_ONE, result).toString())
-          .type(MediaType.APPLICATION_JSON)
-          .build();
-      } else {
-        return httpResponseProvider.notFound("Audio");
-      }
+      return response.readOne(
+        Audio.KEY_ONE,
+        DAO.readOne(
+          Access.fromContext(crc),
+          ULong.valueOf(id)));
 
     } catch (Exception e) {
-      return httpResponseProvider.failure(e);
+      return response.failure(e);
     }
   }
 
@@ -80,13 +74,12 @@ public class AudioRecordResource {
   @Consumes(MediaType.APPLICATION_JSON)
   @RolesAllowed({Role.ARTIST})
   public Response update(AudioWrapper data, @Context ContainerRequestContext crc) {
-    AccessControl access = AccessControl.fromContext(crc);
     try {
-      audioDAO.update(access, ULong.valueOf(id), data);
+      DAO.update(Access.fromContext(crc), ULong.valueOf(id), data.getAudio());
       return Response.accepted("{}").build();
 
     } catch (Exception e) {
-      return httpResponseProvider.failureToUpdate(e);
+      return response.failureToUpdate(e);
     }
   }
 
@@ -98,14 +91,12 @@ public class AudioRecordResource {
   @DELETE
   @RolesAllowed({Role.ARTIST})
   public Response delete(@Context ContainerRequestContext crc) {
-    AccessControl access = AccessControl.fromContext(crc);
-
     try {
-      audioDAO.delete(access, ULong.valueOf(id));
+      DAO.delete(Access.fromContext(crc), ULong.valueOf(id));
       return Response.accepted("{}").build();
 
     } catch (Exception e) {
-      return httpResponseProvider.failure(e);
+      return response.failure(e);
     }
   }
 
@@ -119,21 +110,20 @@ public class AudioRecordResource {
   @WebResult
   @RolesAllowed({Role.ARTIST})
   public Response uploadOne(@Context ContainerRequestContext crc) throws IOException {
-    AccessControl access = AccessControl.fromContext(crc);
     try {
-      JSONObject result = audioDAO.uploadOne(access, ULong.valueOf(id));
+      JSONObject result = DAO.uploadOne(Access.fromContext(crc), ULong.valueOf(id));
       if (result != null) {
         return Response
           .accepted(JSON.wrap(Audio.KEY_ONE, result).toString())
           .type(MediaType.APPLICATION_JSON)
           .build();
       } else {
-        return httpResponseProvider.notFound("Audio");
+        return response.notFound("Audio");
       }
 
 
     } catch (Exception e) {
-      return httpResponseProvider.failure(e);
+      return response.failure(e);
     }
   }
 

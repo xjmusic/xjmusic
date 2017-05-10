@@ -1,40 +1,27 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
 package io.outright.xj.craftworker.work;
 
-import io.outright.xj.core.app.access.impl.AccessControl;
 import io.outright.xj.core.app.exception.BusinessException;
-import io.outright.xj.core.dao.LinkDAO;
+import io.outright.xj.core.app.exception.ConfigException;
+import io.outright.xj.core.craft.CraftFactory;
 import io.outright.xj.core.model.link.Link;
-import io.outright.xj.core.model.link.LinkWrapper;
 import io.outright.xj.core.work.WorkerOperation;
 
 import com.google.inject.Inject;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.sql.Timestamp;
-
 public class CraftLinkWorkerOperation implements WorkerOperation {
-  private final static Logger log = LoggerFactory.getLogger(CraftLinkWorkerOperation.class);
-  private LinkDAO linkDAO;
+  //  private final static Logger log = LoggerFactory.getLogger(CraftLinkWorkerOperation.class);
+  private final CraftFactory craftFactory;
 
   @Inject
   public CraftLinkWorkerOperation(
-    LinkDAO linkDAO
+    CraftFactory craftFactory
   ) {
-    this.linkDAO = linkDAO;
+    this.craftFactory = craftFactory;
   }
 
   @Override
-  public void workOn(Link link) throws BusinessException {
-    try {
-      link.setEndAt(Timestamp.from(link.getBeginAt().toInstant().plusSeconds(30)));
-      // TODO actually craft link! use real endAt!
-      linkDAO.update(AccessControl.forInternalWorker(), link.getId(), new LinkWrapper().setLink(link));
-    } catch (Exception e) {
-      throw new BusinessException("CraftLinkWorkerOperation failed (" + e.getClass().getName() + ") " + e.getMessage());
-    }
+  public void workOn(Link link) throws BusinessException, ConfigException {
+    craftFactory.createMacroCraft(link).craft();
   }
-
 }

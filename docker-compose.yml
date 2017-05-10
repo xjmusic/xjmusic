@@ -34,14 +34,6 @@ services:
       - mysql
       - redis
 
-# Builder
-
-#  builder:
-#    container_name: build01xj1
-#    extends:
-#      file: docker-compose.common.yml
-#      service: builder
-
 # Resources
 
   mysql:

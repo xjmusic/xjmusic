@@ -2,23 +2,17 @@
 package io.outright.xj.hub.resource.idea_meme;
 
 import io.outright.xj.core.CoreModule;
-import io.outright.xj.core.app.access.impl.AccessControl;
-import io.outright.xj.core.app.config.Exposure;
+import io.outright.xj.core.app.access.impl.Access;
 import io.outright.xj.core.app.server.HttpResponseProvider;
 import io.outright.xj.core.dao.IdeaMemeDAO;
-import io.outright.xj.core.model.Entity;
 import io.outright.xj.core.model.idea_meme.IdeaMeme;
 import io.outright.xj.core.model.idea_meme.IdeaMemeWrapper;
 import io.outright.xj.core.model.role.Role;
-import io.outright.xj.core.transport.JSON;
 
 import org.jooq.types.ULong;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import javax.annotation.security.RolesAllowed;
 import javax.jws.WebResult;
@@ -39,16 +33,14 @@ import java.io.IOException;
 @Path("idea-memes")
 public class IdeaMemeIndexResource {
   private static final Injector injector = Guice.createInjector(new CoreModule());
-  //  private static Logger log = LoggerFactory.getLogger(IdeaMemeIndexResource.class);
-  private final IdeaMemeDAO ideaMemeDAO = injector.getInstance(IdeaMemeDAO.class);
-  private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
+  private final IdeaMemeDAO DAO = injector.getInstance(IdeaMemeDAO.class);
+  private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
 
   @QueryParam("ideaId")
   String ideaId;
 
   /**
    Get Memes in one idea.
-   TODO: Return 404 if the idea is not found.
 
    @return application/json response.
    */
@@ -56,25 +48,20 @@ public class IdeaMemeIndexResource {
   @WebResult
   @RolesAllowed({Role.ARTIST})
   public Response readAll(@Context ContainerRequestContext crc) throws IOException {
-    AccessControl access = AccessControl.fromContext(crc);
 
     if (ideaId == null || ideaId.length() == 0) {
-      return httpResponseProvider.notAcceptable("Idea id is required");
+      return response.notAcceptable("Idea id is required");
     }
 
     try {
-      JSONArray result = ideaMemeDAO.readAllIn(access, ULong.valueOf(ideaId));
-      if (result != null) {
-        return Response
-          .accepted(JSON.wrap(IdeaMeme.KEY_MANY, result).toString())
-          .type(MediaType.APPLICATION_JSON)
-          .build();
-      } else {
-        return Response.noContent().build();
-      }
+      return response.readMany(
+        IdeaMeme.KEY_MANY,
+        DAO.readAll(
+          Access.fromContext(crc),
+          ULong.valueOf(ideaId)));
 
     } catch (Exception e) {
-      return httpResponseProvider.failure(e);
+      return response.failure(e);
     }
   }
 
@@ -88,16 +75,16 @@ public class IdeaMemeIndexResource {
   @Consumes(MediaType.APPLICATION_JSON)
   @RolesAllowed({Role.ARTIST})
   public Response create(IdeaMemeWrapper data, @Context ContainerRequestContext crc) {
-    AccessControl access = AccessControl.fromContext(crc);
     try {
-      JSONObject result = ideaMemeDAO.create(access, data);
-      return Response
-        .created(Exposure.apiURI(IdeaMeme.KEY_MANY + "/" + result.get(Entity.KEY_ID)))
-        .entity(JSON.wrap(IdeaMeme.KEY_ONE, result).toString())
-        .build();
+      return response.create(
+        IdeaMeme.KEY_MANY,
+        IdeaMeme.KEY_ONE,
+        DAO.create(
+          Access.fromContext(crc),
+          data.getIdeaMeme()));
 
     } catch (Exception e) {
-      return httpResponseProvider.failureToCreate(e);
+      return response.failureToCreate(e);
     }
   }
 

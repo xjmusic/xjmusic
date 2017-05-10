@@ -1,13 +1,12 @@
 // Copyright Outright Mental, Inc. All Rights Reserved.
 package io.outright.xj.core.dao;
 
-import io.outright.xj.core.app.access.impl.AccessControl;
-import io.outright.xj.core.model.arrangement.ArrangementWrapper;
+import io.outright.xj.core.app.access.impl.Access;
+import io.outright.xj.core.model.arrangement.Arrangement;
+import io.outright.xj.core.tables.records.ArrangementRecord;
 
+import org.jooq.Result;
 import org.jooq.types.ULong;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import javax.annotation.Nullable;
 
@@ -15,10 +14,10 @@ public interface ArrangementDAO {
   /**
    Create a new Arrangement
 
-   @param data for the new Arrangement.
-   @return newly created Arrangement record.
+   @param entity for the new Arrangement.
+   @return newly readMany Arrangement record.
    */
-  JSONObject create(AccessControl access, ArrangementWrapper data) throws Exception;
+  ArrangementRecord create(Access access, Arrangement entity) throws Exception;
 
   /**
    Fetch one Arrangement by id, if accessible
@@ -29,7 +28,7 @@ public interface ArrangementDAO {
    @throws Exception on failure
    */
   @Nullable
-  JSONObject readOne(AccessControl access, ULong arrangementId) throws Exception;
+  ArrangementRecord readOne(Access access, ULong arrangementId) throws Exception;
 
   /**
    Read all Arrangements that are accessible
@@ -38,21 +37,20 @@ public interface ArrangementDAO {
    @return array of arrangements as JSON
    @throws Exception on failure
    */
-  @Nullable
-  JSONArray readAllIn(AccessControl access, ULong choiceId) throws Exception;
+  Result<ArrangementRecord> readAll(Access access, ULong choiceId) throws Exception;
 
   /**
    Update a specified Arrangement
 
    @param arrangementId of specific Arrangement to update.
-   @param data          for the updated Arrangement.
+   @param entity        for the updated Arrangement.
    */
-  void update(AccessControl access, ULong arrangementId, ArrangementWrapper data) throws Exception;
+  void update(Access access, ULong arrangementId, Arrangement entity) throws Exception;
 
   /**
    Delete a specified Arrangement
 
    @param arrangementId of specific Arrangement to delete.
    */
-  void delete(AccessControl access, ULong arrangementId) throws Exception;
+  void delete(Access access, ULong arrangementId) throws Exception;
 }

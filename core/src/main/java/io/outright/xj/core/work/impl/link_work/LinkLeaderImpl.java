@@ -1,10 +1,11 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
 package io.outright.xj.core.work.impl.link_work;
 
-import io.outright.xj.core.app.access.impl.AccessControl;
+import io.outright.xj.core.app.access.impl.Access;
 import io.outright.xj.core.dao.ChainDAO;
 import io.outright.xj.core.dao.LinkDAO;
 import io.outright.xj.core.tables.records.ChainRecord;
+import io.outright.xj.core.transport.JSON;
 import io.outright.xj.core.util.timestamp.TimestampUTC;
 import io.outright.xj.core.work.Leader;
 
@@ -19,13 +20,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- The link leader creates template entities of new Links that need to be created
+ The link leader creates template entities of new Links that need to be readMany
  */
 public class LinkLeaderImpl implements Leader {
   private final static Logger log = LoggerFactory.getLogger(LinkLeaderImpl.class);
-
-  private ChainDAO chainDAO;
   private final LinkDAO linkDAO;
+  private ChainDAO chainDAO;
   private String fromState;
   private int bufferSeconds = 0;
   private int batchSize = 0; // TODO implement batch size in link leader
@@ -62,7 +62,7 @@ public class LinkLeaderImpl implements Leader {
   public JSONArray getTasks() {
     JSONArray tasks = new JSONArray();
     try {
-      Result<ChainRecord> chains = chainDAO.readAllRecordsInStateFabricating(AccessControl.forInternalWorker(), TimestampUTC.nowPlusSeconds(bufferSeconds));
+      Result<ChainRecord> chains = chainDAO.readAllRecordsInStateFabricating(Access.internal(), TimestampUTC.nowPlusSeconds(bufferSeconds));
       if (chains != null && chains.size() > 0) {
         for (ChainRecord chain : chains) {
           JSONObject link = readLinkFor(chain, fromState);
@@ -80,11 +80,11 @@ public class LinkLeaderImpl implements Leader {
   }
 
   private JSONObject readLinkFor(ChainRecord chain, String linkState) throws Exception {
-    return linkDAO.readOneInState(
-      AccessControl.forInternalWorker(),
+    return JSON.objectFromRecord(linkDAO.readOneInState(
+      Access.internal(),
       chain.getId(),
       linkState,
-      TimestampUTC.nowPlusSeconds(bufferSeconds));
+      TimestampUTC.nowPlusSeconds(bufferSeconds)));
   }
 
 }

@@ -1,4 +1,4 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
 import Ember from "ember";
 // import momentComputed from 'ember-moment/computeds/moment';
 // import format from 'ember-moment/computeds/format';
@@ -21,7 +21,16 @@ export default Ember.Controller.extend({
       ).format("YYYY-MM-DD HH:mm:ss");
       if (nowUTC !== ctrl.get('timeNowUTC')) {
         ctrl.set('timeNowUTC', nowUTC);
-        document.getElementById('clock').innerHTML = nowUTC + " Z";
+        let clock = document.getElementById('clock');
+        clock.innerHTML = nowUTC + " Z";
+        clock.onclick = function() {
+          let inputToCopy = document.createElement("input");
+          document.body.appendChild(inputToCopy);
+          inputToCopy.value = nowUTC;
+          inputToCopy.select();
+          document.execCommand('copy');
+          document.body.removeChild(inputToCopy);
+        };
       }
     }, 250);
   },

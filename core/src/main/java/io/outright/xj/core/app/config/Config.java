@@ -35,6 +35,18 @@ public abstract class Config {
     return get("aws.file.upload.secret");
   }
 
+  public static String awsFileUploadBucket() throws ConfigException {
+    return get("aws.file.upload.bucket");
+  }
+
+  public static int awsFileUploadExpireMinutes() throws ConfigException {
+    return getInt("aws.file.upload.expire.minutes");
+  }
+
+  public static String awsFileUploadACL() throws ConfigException {
+    return get("aws.file.upload.acl");
+  }
+
   public static String appBaseUrl() {
     return getOrDefault("app.url.base", "http://localhost/");
   }
@@ -64,7 +76,7 @@ public abstract class Config {
   }
 
   public static int chainPreviewLengthMax() {
-    return getIntOrDefault("chain.preview.length.max", 300);
+    return getIntOrDefault("chain.preview.size.max", 300);
   }
 
   public static String logAccessFilename() {

@@ -2,20 +2,17 @@
 package io.outright.xj.hub.resource.instrument;
 
 import io.outright.xj.core.CoreModule;
-import io.outright.xj.core.app.access.impl.AccessControl;
+import io.outright.xj.core.app.access.impl.Access;
 import io.outright.xj.core.app.server.HttpResponseProvider;
 import io.outright.xj.core.dao.InstrumentDAO;
 import io.outright.xj.core.model.instrument.Instrument;
 import io.outright.xj.core.model.instrument.InstrumentWrapper;
 import io.outright.xj.core.model.role.Role;
-import io.outright.xj.core.transport.JSON;
 
 import org.jooq.types.ULong;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-
-import org.json.JSONObject;
 
 import javax.annotation.security.RolesAllowed;
 import javax.jws.WebResult;
@@ -37,9 +34,8 @@ import java.io.IOException;
 @Path("instruments/{id}")
 public class InstrumentRecordResource {
   private static final Injector injector = Guice.createInjector(new CoreModule());
-  //  private static Logger log = LoggerFactory.getLogger(InstrumentRecordResource.class);
-  private final InstrumentDAO instrumentDAO = injector.getInstance(InstrumentDAO.class);
-  private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
+  private final InstrumentDAO DAO = injector.getInstance(InstrumentDAO.class);
+  private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
 
   @PathParam("id")
   String id;
@@ -53,20 +49,15 @@ public class InstrumentRecordResource {
   @WebResult
   @RolesAllowed({Role.USER})
   public Response readOne(@Context ContainerRequestContext crc) throws IOException {
-    AccessControl access = AccessControl.fromContext(crc);
     try {
-      JSONObject result = instrumentDAO.readOne(access, ULong.valueOf(id));
-      if (result != null) {
-        return Response
-          .accepted(JSON.wrap(Instrument.KEY_ONE, result).toString())
-          .type(MediaType.APPLICATION_JSON)
-          .build();
-      } else {
-        return httpResponseProvider.notFound("Instrument");
-      }
+      return response.readOne(
+        Instrument.KEY_ONE,
+        DAO.readOne(
+          Access.fromContext(crc),
+          ULong.valueOf(id)));
 
     } catch (Exception e) {
-      return httpResponseProvider.failure(e);
+      return response.failure(e);
     }
   }
 
@@ -80,13 +71,12 @@ public class InstrumentRecordResource {
   @Consumes(MediaType.APPLICATION_JSON)
   @RolesAllowed({Role.ARTIST})
   public Response update(InstrumentWrapper data, @Context ContainerRequestContext crc) {
-    AccessControl access = AccessControl.fromContext(crc);
     try {
-      instrumentDAO.update(access, ULong.valueOf(id), data);
+      DAO.update(Access.fromContext(crc), ULong.valueOf(id), data.getInstrument());
       return Response.accepted("{}").build();
 
     } catch (Exception e) {
-      return httpResponseProvider.failureToUpdate(e);
+      return response.failureToUpdate(e);
     }
   }
 
@@ -98,13 +88,12 @@ public class InstrumentRecordResource {
   @DELETE
   @RolesAllowed({Role.ADMIN})
   public Response delete(@Context ContainerRequestContext crc) {
-    AccessControl access = AccessControl.fromContext(crc);
     try {
-      instrumentDAO.delete(access, ULong.valueOf(id));
+      DAO.delete(Access.fromContext(crc), ULong.valueOf(id));
       return Response.accepted("{}").build();
 
     } catch (Exception e) {
-      return httpResponseProvider.failure(e);
+      return response.failure(e);
     }
   }
 

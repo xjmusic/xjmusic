@@ -1,8 +1,8 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
 package io.outright.xj.core.dao;
 
 import io.outright.xj.core.CoreModule;
-import io.outright.xj.core.app.access.impl.AccessControl;
+import io.outright.xj.core.app.access.impl.Access;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.integration.IntegrationTestEntity;
 import io.outright.xj.core.integration.IntegrationTestService;
@@ -12,9 +12,9 @@ import io.outright.xj.core.model.idea.Idea;
 import io.outright.xj.core.model.instrument.Instrument;
 import io.outright.xj.core.model.link.Link;
 import io.outright.xj.core.model.point.Point;
-import io.outright.xj.core.model.point.PointWrapper;
 import io.outright.xj.core.model.voice.Voice;
 import io.outright.xj.core.tables.records.PointRecord;
+import io.outright.xj.core.transport.JSON;
 
 import org.jooq.types.ULong;
 
@@ -86,19 +86,17 @@ public class PointIT {
 
   @Test
   public void create() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
-    PointWrapper inputDataWrapper = new PointWrapper()
-      .setPoint(new Point()
-        .setMorphId(BigInteger.valueOf(1))
-        .setVoiceEventId(BigInteger.valueOf(1))
-        .setPosition(12.75)
-        .setNote("Db")
-        .setDuration(7.25)
-      );
+    Point inputData = new Point()
+      .setMorphId(BigInteger.valueOf(1))
+      .setVoiceEventId(BigInteger.valueOf(1))
+      .setPosition(12.75)
+      .setNote("Db")
+      .setDuration(7.25);
 
-    JSONObject result = testDAO.create(access, inputDataWrapper);
+    JSONObject result = JSON.objectFromRecord(testDAO.create(access, inputData));
 
     assertNotNull(result);
     assertEquals(ULong.valueOf(1), result.get("morphId"));
@@ -110,126 +108,119 @@ public class PointIT {
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutTopLevelAccess() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "user"
     ));
-    PointWrapper inputDataWrapper = new PointWrapper()
-      .setPoint(new Point()
-        .setMorphId(BigInteger.valueOf(1))
-        .setVoiceEventId(BigInteger.valueOf(1))
-        .setPosition(12.75)
-        .setNote("Db")
-        .setDuration(7.25)
-      );
+    Point inputData = new Point()
+      .setMorphId(BigInteger.valueOf(1))
+      .setVoiceEventId(BigInteger.valueOf(1))
+      .setPosition(12.75)
+      .setNote("Db")
+      .setDuration(7.25);
 
-    testDAO.create(access, inputDataWrapper);
+    testDAO.create(access, inputData);
   }
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutMorphID() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
-    PointWrapper inputDataWrapper = new PointWrapper()
-      .setPoint(new Point()
-        .setVoiceEventId(BigInteger.valueOf(1))
-        .setPosition(12.75)
-        .setNote("Db")
-        .setDuration(7.25)
-      );
+    Point inputData = new Point()
+      .setVoiceEventId(BigInteger.valueOf(1))
+      .setPosition(12.75)
+      .setNote("Db")
+      .setDuration(7.25);
 
-    testDAO.create(access, inputDataWrapper);
+    testDAO.create(access, inputData);
   }
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutNote() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
-    PointWrapper inputDataWrapper = new PointWrapper()
-      .setPoint(new Point()
-        .setMorphId(BigInteger.valueOf(1))
-        .setVoiceEventId(BigInteger.valueOf(1))
-        .setPosition(12.75)
-        .setDuration(7.25)
-      );
+    Point inputData = new Point()
+      .setMorphId(BigInteger.valueOf(1))
+      .setVoiceEventId(BigInteger.valueOf(1))
+      .setPosition(12.75)
+      .setDuration(7.25);
 
-    testDAO.create(access, inputDataWrapper);
+    testDAO.create(access, inputData);
   }
 
   @Test
   public void readOne() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "user",
       "accounts", "1"
     ));
 
-    JSONObject result = testDAO.readOne(access, ULong.valueOf(1));
+    Point result = new Point().setFromRecord(testDAO.readOne(access, ULong.valueOf(1)));
 
     assertNotNull(result);
-    assertEquals(ULong.valueOf(1), result.get("morphId"));
-    assertEquals(ULong.valueOf(1), result.get("voiceEventId"));
-    assertEquals(0.125, result.get("position"));
-    assertEquals("C", result.get("note"));
-    assertEquals(1.5, result.get("duration"));
+    assertEquals(ULong.valueOf(1), result.getId());
+    assertEquals(ULong.valueOf(1), result.getMorphId());
+    assertEquals(ULong.valueOf(1), result.getVoiceEventId());
+    assertEquals(Double.valueOf(0.125), result.getPosition());
+    assertEquals("C", result.getNote());
+    assertEquals(Double.valueOf(1.5), result.getDuration());
   }
 
   @Test
   public void readOne_FailsWhenUserIsNotInMorph() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "user",
       "accounts", "326"
     ));
 
-    JSONObject result = testDAO.readOne(access, ULong.valueOf(1));
+    PointRecord result = testDAO.readOne(access, ULong.valueOf(1));
 
     assertNull(result);
   }
 
   @Test
   public void readAll() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "user",
       "accounts", "1"
     ));
 
-    JSONArray actualResultList = testDAO.readAllIn(access, ULong.valueOf(1));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ULong.valueOf(1)));
 
-    assertNotNull(actualResultList);
-    assertEquals(1, actualResultList.length());
+    assertNotNull(result);
+    assertEquals(1, result.length());
 
-    JSONObject actualResult0 = (JSONObject) actualResultList.get(0);
+    JSONObject actualResult0 = (JSONObject) result.get(0);
     assertEquals("C", actualResult0.get("note"));
   }
 
   @Test
   public void readAll_SeesNothingOutsideOfMorph() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "user",
       "accounts", "345"
     ));
 
-    JSONArray actualResultList = testDAO.readAllIn(access, ULong.valueOf(1));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ULong.valueOf(1)));
 
-    assertNotNull(actualResultList);
-    assertEquals(0, actualResultList.length());
+    assertNotNull(result);
+    assertEquals(0, result.length());
   }
 
   @Test
   public void update() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
-    PointWrapper inputDataWrapper = new PointWrapper()
-      .setPoint(new Point()
-        .setMorphId(BigInteger.valueOf(1))
-        .setVoiceEventId(BigInteger.valueOf(1))
-        .setPosition(12.75)
-        .setNote("Db")
-        .setDuration(7.25)
-      );
+    Point inputData = new Point()
+      .setMorphId(BigInteger.valueOf(1))
+      .setVoiceEventId(BigInteger.valueOf(1))
+      .setPosition(12.75)
+      .setNote("Db")
+      .setDuration(7.25);
 
-    testDAO.update(access, ULong.valueOf(1), inputDataWrapper);
+    testDAO.update(access, ULong.valueOf(1), inputData);
 
     PointRecord result = IntegrationTestService.getDb()
       .selectFrom(POINT)
@@ -245,36 +236,32 @@ public class PointIT {
 
   @Test(expected = BusinessException.class)
   public void update_FailsWithoutMorphID() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
-    PointWrapper inputDataWrapper = new PointWrapper()
-      .setPoint(new Point()
-        .setVoiceEventId(BigInteger.valueOf(1))
-        .setPosition(12.75)
-        .setNote("Db")
-        .setDuration(7.25)
-      );
+    Point inputData = new Point()
+      .setVoiceEventId(BigInteger.valueOf(1))
+      .setPosition(12.75)
+      .setNote("Db")
+      .setDuration(7.25);
 
-    testDAO.update(access, ULong.valueOf(2), inputDataWrapper);
+    testDAO.update(access, ULong.valueOf(2), inputData);
   }
 
   @Test(expected = BusinessException.class)
   public void update_FailsToChangeMorph() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
-    PointWrapper inputDataWrapper = new PointWrapper()
-      .setPoint(new Point()
-        .setMorphId(BigInteger.valueOf(12))
-        .setVoiceEventId(BigInteger.valueOf(1))
-        .setPosition(12.75)
-        .setNote("Db")
-        .setDuration(7.25)
-      );
+    Point inputData = new Point()
+      .setMorphId(BigInteger.valueOf(12))
+      .setVoiceEventId(BigInteger.valueOf(1))
+      .setPosition(12.75)
+      .setNote("Db")
+      .setDuration(7.25);
 
     try {
-      testDAO.update(access, ULong.valueOf(1), inputDataWrapper);
+      testDAO.update(access, ULong.valueOf(1), inputData);
 
     } catch (Exception e) {
       PointRecord result = IntegrationTestService.getDb()
@@ -289,7 +276,7 @@ public class PointIT {
 
   @Test
   public void delete() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
 

@@ -1,13 +1,12 @@
 // Copyright Outright Mental, Inc. All Rights Reserved.
 package io.outright.xj.core.dao;
 
-import io.outright.xj.core.app.access.impl.AccessControl;
-import io.outright.xj.core.model.choice.ChoiceWrapper;
+import io.outright.xj.core.app.access.impl.Access;
+import io.outright.xj.core.model.choice.Choice;
+import io.outright.xj.core.tables.records.ChoiceRecord;
 
+import org.jooq.Result;
 import org.jooq.types.ULong;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import javax.annotation.Nullable;
 
@@ -15,10 +14,10 @@ public interface ChoiceDAO {
   /**
    Create a new Choice
 
-   @param data for the new Choice.
-   @return newly created Choice record.
+   @param entity for the new Choice.
+   @return newly readMany Choice record.
    */
-  JSONObject create(AccessControl access, ChoiceWrapper data) throws Exception;
+  ChoiceRecord create(Access access, Choice entity) throws Exception;
 
   /**
    Fetch one Choice by id, if accessible
@@ -29,7 +28,19 @@ public interface ChoiceDAO {
    @throws Exception on failure
    */
   @Nullable
-  JSONObject readOne(AccessControl access, ULong choiceId) throws Exception;
+  ChoiceRecord readOne(Access access, ULong choiceId) throws Exception;
+
+  /**
+   Read one choice, binding a given idea to a given link
+
+   @param access control
+   @param linkId to get choice for
+   @param ideaId to get choice for
+   @return choice, or null if none exists
+   @throws Exception on failure
+   */
+  @Nullable
+  ChoiceRecord readOneLinkIdea(Access access, ULong linkId, ULong ideaId) throws  Exception;
 
   /**
    Read all Choices that are accessible
@@ -38,21 +49,20 @@ public interface ChoiceDAO {
    @return array of choices as JSON
    @throws Exception on failure
    */
-  @Nullable
-  JSONArray readAllIn(AccessControl access, ULong linkId) throws Exception;
+  Result<ChoiceRecord> readAll(Access access, ULong linkId) throws Exception;
 
   /**
    Update a specified Choice
 
    @param choiceId of specific Choice to update.
-   @param data     for the updated Choice.
+   @param entity   for the updated Choice.
    */
-  void update(AccessControl access, ULong choiceId, ChoiceWrapper data) throws Exception;
+  void update(Access access, ULong choiceId, Choice entity) throws Exception;
 
   /**
    Delete a specified Choice
 
    @param choiceId of specific Choice to delete.
    */
-  void delete(AccessControl access, ULong choiceId) throws Exception;
+  void delete(Access access, ULong choiceId) throws Exception;
 }

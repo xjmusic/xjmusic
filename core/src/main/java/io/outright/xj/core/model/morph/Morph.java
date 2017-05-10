@@ -1,27 +1,55 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
 package io.outright.xj.core.model.morph;
 
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.model.Entity;
-import io.outright.xj.core.util.Purify;
+import io.outright.xj.core.util.Text;
 
 import org.jooq.Field;
+import org.jooq.Record;
 import org.jooq.types.ULong;
 
 import com.google.api.client.util.Maps;
 
 import java.math.BigInteger;
 import java.util.Map;
+import java.util.Objects;
 
 import static io.outright.xj.core.Tables.MORPH;
 
+/**
+ Entity for use as POJO for decoding messages received by JAX-RS resources
+ a.k.a. JSON input will be stored into an instance of this object
+
+ Business logic ought to be performed beginning with an instance of this object,
+ to implement common methods.
+
+ NOTE: There can only be ONE of any getter/setter (with the same # of input params)
+ */
 public class Morph extends Entity {
 
 
   /**
+   For use in maps.
+   */
+  public static final String KEY_ONE = "morph";
+  public static final String KEY_MANY = "morphs";
+  /**
    Arrangement
    */
   private ULong arrangementId;
+  /**
+   Position
+   */
+  private Double position;
+  /**
+   Note
+   */
+  private String note;
+  /**
+   Duration
+   */
+  private Double duration;
 
   public ULong getArrangementId() {
     return arrangementId;
@@ -32,11 +60,6 @@ public class Morph extends Entity {
     return this;
   }
 
-  /**
-   Position
-   */
-  private Double position;
-
   public Double getPosition() {
     return position;
   }
@@ -46,24 +69,14 @@ public class Morph extends Entity {
     return this;
   }
 
-  /**
-   Note
-   */
-  private String note;
-
   public String getNote() {
     return note;
   }
 
   public Morph setNote(String note) {
-    this.note = Purify.Note(note);
+    this.note = Text.Note(note);
     return this;
   }
-
-  /**
-   Duration
-   */
-  private Double duration;
 
   public Double getDuration() {
     return duration;
@@ -74,11 +87,6 @@ public class Morph extends Entity {
     return this;
   }
 
-  /**
-   Validate data.
-
-   @throws BusinessException if invalid.
-   */
   @Override
   public void validate() throws BusinessException {
     if (this.arrangementId == null) {
@@ -95,13 +103,23 @@ public class Morph extends Entity {
     }
   }
 
-  /**
-   Model info jOOQ-field : Value map
-
-   @return map
-   */
   @Override
-  public Map<Field, Object> intoFieldValueMap() {
+  public Morph setFromRecord(Record record) {
+    if (Objects.isNull(record)) {
+      return null;
+    }
+    id = record.get(MORPH.ID);
+    arrangementId = record.get(MORPH.ARRANGEMENT_ID);
+    position = record.get(MORPH.POSITION);
+    note = record.get(MORPH.NOTE);
+    duration = record.get(MORPH.DURATION);
+    createdAt = record.get(MORPH.CREATED_AT);
+    updatedAt = record.get(MORPH.UPDATED_AT);
+    return this;
+  }
+
+  @Override
+  public Map<Field, Object> updatableFieldValueMap() {
     Map<Field, Object> fieldValues = Maps.newHashMap();
     fieldValues.put(MORPH.ARRANGEMENT_ID, arrangementId);
     fieldValues.put(MORPH.POSITION, position);
@@ -109,11 +127,5 @@ public class Morph extends Entity {
     fieldValues.put(MORPH.DURATION, duration);
     return fieldValues;
   }
-
-  /**
-   For use in maps.
-   */
-  public static final String KEY_ONE = "morph";
-  public static final String KEY_MANY = "morphs";
 
 }

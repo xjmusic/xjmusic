@@ -1,25 +1,49 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
 package io.outright.xj.core.model.phase_chord;
 
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.model.Entity;
 
 import org.jooq.Field;
+import org.jooq.Record;
 import org.jooq.types.ULong;
 
 import com.google.api.client.util.Maps;
 
 import java.math.BigInteger;
 import java.util.Map;
+import java.util.Objects;
 
 import static io.outright.xj.core.Tables.PHASE_CHORD;
 
+/**
+ Entity for use as POJO for decoding messages received by JAX-RS resources
+ a.k.a. JSON input will be stored into an instance of this object
+
+ Business logic ought to be performed beginning with an instance of this object,
+ to implement common methods.
+
+ NOTE: There can only be ONE of any getter/setter (with the same # of input params)
+ */
 public class PhaseChord extends Entity {
 
+  /**
+   For use in maps.
+   */
+  public static final String KEY_ONE = "phaseChord";
+  public static final String KEY_MANY = "phaseChords";
   /**
    Name
    */
   private String name;
+  /**
+   Phase
+   */
+  private ULong phaseId;
+  /**
+   Position
+   */
+  private Double position;
 
   public String getName() {
     return name;
@@ -30,11 +54,6 @@ public class PhaseChord extends Entity {
     return this;
   }
 
-  /**
-   Phase
-   */
-  private ULong phaseId;
-
   public ULong getPhaseId() {
     return phaseId;
   }
@@ -43,11 +62,6 @@ public class PhaseChord extends Entity {
     this.phaseId = ULong.valueOf(phaseId);
     return this;
   }
-
-  /**
-   Position
-   */
-  private Double position;
 
   public Double getPosition() {
     return position;
@@ -58,11 +72,7 @@ public class PhaseChord extends Entity {
     return this;
   }
 
-  /**
-   Validate data.
-
-   @throws BusinessException if invalid.
-   */
+  @Override
   public void validate() throws BusinessException {
     if (this.name == null || this.name.length() == 0) {
       throw new BusinessException("Name is required.");
@@ -75,23 +85,27 @@ public class PhaseChord extends Entity {
     }
   }
 
-  /**
-   Model info jOOQ-field : Value map
+  @Override
+  public PhaseChord setFromRecord(Record record) {
+    if (Objects.isNull(record)) {
+      return null;
+    }
+    id = record.get(PHASE_CHORD.ID);
+    name = record.get(PHASE_CHORD.NAME);
+    phaseId = record.get(PHASE_CHORD.PHASE_ID);
+    position = record.get(PHASE_CHORD.POSITION);
+    createdAt = record.get(PHASE_CHORD.CREATED_AT);
+    updatedAt = record.get(PHASE_CHORD.UPDATED_AT);
+    return this;
+  }
 
-   @return map
-   */
-  public Map<Field, Object> intoFieldValueMap() {
+  @Override
+  public Map<Field, Object> updatableFieldValueMap() {
     Map<Field, Object> fieldValues = Maps.newHashMap();
     fieldValues.put(PHASE_CHORD.NAME, name);
     fieldValues.put(PHASE_CHORD.PHASE_ID, phaseId);
     fieldValues.put(PHASE_CHORD.POSITION, position);
     return fieldValues;
   }
-
-  /**
-   For use in maps.
-   */
-  public static final String KEY_ONE = "phaseChord";
-  public static final String KEY_MANY = "phaseChords";
 
 }

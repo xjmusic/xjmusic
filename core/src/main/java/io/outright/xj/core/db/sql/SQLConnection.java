@@ -14,8 +14,8 @@ import java.sql.SQLException;
 public class SQLConnection {
 
   private static Logger log = LoggerFactory.getLogger(SQLConnection.class);
-  private final Boolean isTransaction;
   protected final DSLContext context;
+  private final Boolean isTransaction;
   private final Connection connection;
 
   SQLConnection(

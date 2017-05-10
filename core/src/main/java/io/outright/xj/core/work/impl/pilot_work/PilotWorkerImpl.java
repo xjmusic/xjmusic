@@ -1,11 +1,11 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
 package io.outright.xj.core.work.impl.pilot_work;
 
-import io.outright.xj.core.app.access.impl.AccessControl;
+import io.outright.xj.core.app.access.impl.Access;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.dao.LinkDAO;
 import io.outright.xj.core.model.link.Link;
-import io.outright.xj.core.model.link.LinkWrapper;
+import io.outright.xj.core.transport.JSON;
 import io.outright.xj.core.work.Worker;
 
 import com.google.inject.Inject;
@@ -20,8 +20,8 @@ import java.sql.Timestamp;
 
 public class PilotWorkerImpl implements Worker {
   private final static Logger log = LoggerFactory.getLogger(PilotWorkerImpl.class);
-  private String finishedState;
   private final LinkDAO linkDAO;
+  private String finishedState;
 
   @Inject
   public PilotWorkerImpl(
@@ -49,27 +49,25 @@ public class PilotWorkerImpl implements Worker {
   public class PilotWorkerTaskRunner implements Runnable {
 
     private final LinkDAO linkDAO;
-    private LinkWrapper newLinkWrapper;
+    private Link newLink;
 
     PilotWorkerTaskRunner(BigInteger chainId, BigInteger linkOffset, Timestamp linkBeginAt, String linkInitState, LinkDAO linkDAO) throws BusinessException {
       this.linkDAO = linkDAO;
 
-      this.newLinkWrapper = new LinkWrapper().setLink(
-        new Link()
-          .setChainId(chainId)
-          .setOffset(linkOffset)
-          .setBeginAt(linkBeginAt)
-          .setState(linkInitState)
-      );
+      this.newLink = new Link()
+        .setChainId(chainId)
+        .setOffset(linkOffset)
+        .setBeginAtTimestamp(linkBeginAt)
+        .setState(linkInitState);
 
-      this.newLinkWrapper.validate();
+      this.newLink.validate();
     }
 
     @Override
     public void run() {
       try {
-        JSONObject newLink = linkDAO.create(AccessControl.forInternalWorker(), newLinkWrapper);
-        log.info("PilotWorker[" + Thread.currentThread().getName() + "] created link: {}", newLink);
+        JSONObject newLink = JSON.objectFromRecord(linkDAO.create(Access.internal(), this.newLink));
+        log.info("PilotWorker[" + Thread.currentThread().getName() + "] readMany link: {}", newLink);
       } catch (BusinessException e) {
         log.debug("PilotWorker[" + Thread.currentThread().getName() + "] BusinessException: " + e.getMessage());
       } catch (Exception e) {

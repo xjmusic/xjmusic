@@ -1,13 +1,12 @@
 // Copyright Outright Mental, Inc. All Rights Reserved.
 package io.outright.xj.core.dao;
 
-import io.outright.xj.core.app.access.impl.AccessControl;
-import io.outright.xj.core.model.instrument_meme.InstrumentMemeWrapper;
+import io.outright.xj.core.app.access.impl.Access;
+import io.outright.xj.core.model.instrument_meme.InstrumentMeme;
+import io.outright.xj.core.tables.records.InstrumentMemeRecord;
 
+import org.jooq.Result;
 import org.jooq.types.ULong;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import javax.annotation.Nullable;
 
@@ -17,21 +16,21 @@ public interface InstrumentMemeDAO {
    Create a new Instrument Meme
 
    @param access control
-   @param data   for the new Instrument Meme.
-   @return newly created record as JSON
+   @param entity for the new Instrument Meme.
+   @return newly readMany record
    */
-  JSONObject create(AccessControl access, InstrumentMemeWrapper data) throws Exception;
+  InstrumentMemeRecord create(Access access, InstrumentMeme entity) throws Exception;
 
   /**
    Fetch one InstrumentMeme if accessible
 
    @param access control
    @param id     of InstrumentMeme
-   @return retrieved record as JSON
+   @return retrieved record
    @throws Exception on failure
    */
   @Nullable
-  JSONObject readOne(AccessControl access, ULong id) throws Exception;
+  InstrumentMemeRecord readOne(Access access, ULong id) throws Exception;
 
   /**
    Fetch many InstrumentMeme for one Instrument by id, if accessible
@@ -41,8 +40,7 @@ public interface InstrumentMemeDAO {
    @return JSONArray of instrumentMemes.
    @throws Exception on failure
    */
-  @Nullable
-  JSONArray readAllIn(AccessControl access, ULong instrumentId) throws Exception;
+  Result<InstrumentMemeRecord> readAll(Access access, ULong instrumentId) throws Exception;
 
   /**
    Delete a specified InstrumentMeme
@@ -50,5 +48,5 @@ public interface InstrumentMemeDAO {
    @param access control
    @param id     of specific InstrumentMeme to delete.
    */
-  void delete(AccessControl access, ULong id) throws Exception;
+  void delete(Access access, ULong id) throws Exception;
 }

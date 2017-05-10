@@ -30,10 +30,13 @@ public abstract class Exposure {
   public static final String FILE_SEPARATOR = "-";
 
   // key special resources (e.g. upload policy)
-  public static final String KEY_UPLOAD_ACCESS_KEY = "uploadAccessKey";
+  public static final String KEY_UPLOAD_ACCESS_KEY = "awsAccessKeyId";
   public static final String KEY_UPLOAD_POLICY = "uploadPolicy";
   public static final String KEY_UPLOAD_URL = "uploadUrl";
   public static final String KEY_WAVEFORM_KEY = "waveformKey";
+  public static final String KEY_UPLOAD_POLICY_SIGNATURE = "uploadPolicySignature";
+  public static final String KEY_UPLOAD_BUCKET_NAME = "bucketName";
+  public static final String KEY_UPLOAD_ACL = "acl";
 
   // configuration endpoint
   public static final String KEY_CONFIG = "config";

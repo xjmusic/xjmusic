@@ -1,16 +1,16 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
 package io.outright.xj.core.dao;
 
 import io.outright.xj.core.CoreModule;
-import io.outright.xj.core.app.access.impl.AccessControl;
+import io.outright.xj.core.app.access.impl.Access;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.integration.IntegrationTestEntity;
 import io.outright.xj.core.integration.IntegrationTestService;
 import io.outright.xj.core.model.audio.Audio;
-import io.outright.xj.core.model.audio.AudioWrapper;
 import io.outright.xj.core.model.instrument.Instrument;
 import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.tables.records.AudioRecord;
+import io.outright.xj.core.transport.JSON;
 
 import org.jooq.types.ULong;
 
@@ -30,9 +30,8 @@ import static io.outright.xj.core.tables.Audio.AUDIO;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 
-// TODO [core] test permissions of different users to read vs. create vs. update or delete audios
+// TODO [core] test permissions of different users to readMany vs. create vs. update or delete audios
 public class AudioIT {
   private Injector injector = Guice.createInjector(new CoreModule());
   private AudioDAO testDAO;
@@ -72,97 +71,94 @@ public class AudioIT {
 
   @Test
   public void create() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
-    AudioWrapper inputDataWrapper = new AudioWrapper()
-      .setAudio(new Audio()
-        .setInstrumentId(BigInteger.valueOf(2))
-        .setName("maracas")
-        .setStart(0.009)
-        .setLength(0.21)
-        .setPitch(1567.0)
-        .setTempo(80.5)
-      );
+    Audio inputData = new Audio()
+      .setInstrumentId(BigInteger.valueOf(2))
+      .setName("maracas")
+      .setStart(0.009)
+      .setLength(0.21)
+      .setPitch(1567.0)
+      .setTempo(80.5);
 
-    JSONObject result = testDAO.create(access, inputDataWrapper);
+    AudioRecord result = testDAO.create(access, inputData);
 
     assertNotNull(result);
-    assertEquals(ULong.valueOf(2), result.get("instrumentId"));
-    assertEquals("maracas", result.get("name"));
-    assertNotNull(result.get("waveformKey"));
-    assertTrue(result.get("waveformKey").toString().length() > 30);
-    assertEquals(0.009, result.get("start"));
-    assertEquals(0.21, result.get("length"));
-    assertEquals(80.5, result.get("tempo"));
-    assertEquals(1567.0, result.get("pitch"));
+    assertEquals(ULong.valueOf(2), result.get(AUDIO.INSTRUMENT_ID));
+    assertEquals("maracas", result.get(AUDIO.NAME));
+    assertNotNull(result.get(AUDIO.WAVEFORM_KEY));
+    assertEquals(59, result.get(AUDIO.WAVEFORM_KEY).length());
+    assertEquals(Double.valueOf(0.009), result.get(AUDIO.START));
+    assertEquals(Double.valueOf(0.21), result.get(AUDIO.LENGTH));
+    assertEquals(Double.valueOf(80.5), result.get(AUDIO.TEMPO));
+    assertEquals(Double.valueOf(1567.0), result.get(AUDIO.PITCH));
   }
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutInstrumentID() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
-    AudioWrapper inputDataWrapper = new AudioWrapper()
-      .setAudio(new Audio()
-        .setName("maracas")
-        .setWaveformKey("instrument/percussion/808/maracas.wav")
-        .setStart(0.009)
-        .setLength(0.21)
-        .setPitch(1567.0)
-        .setTempo(80.5)
-      );
+    Audio inputData = new Audio()
+      .setName("maracas")
+      .setWaveformKey("instrument/percussion/808/maracas.wav")
+      .setStart(0.009)
+      .setLength(0.21)
+      .setPitch(1567.0)
+      .setTempo(80.5);
 
-    testDAO.create(access, inputDataWrapper);
+    testDAO.create(access, inputData);
   }
 
   @Test
   public void create_SucceedsWithoutWaveformKey() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
-    AudioWrapper inputDataWrapper = new AudioWrapper()
-      .setAudio(new Audio()
-        .setInstrumentId(BigInteger.valueOf(2))
-        .setName("maracas")
-        .setStart(0.009)
-        .setLength(0.21)
-        .setPitch(1567.0)
-        .setTempo(80.5)
-      );
+    Audio inputData = new Audio()
+      .setInstrumentId(BigInteger.valueOf(2))
+      .setName("maracas")
+      .setStart(0.009)
+      .setLength(0.21)
+      .setPitch(1567.0)
+      .setTempo(80.5);
 
-    testDAO.create(access, inputDataWrapper);
+    testDAO.create(access, inputData);
   }
 
   @Test
   public void readOne() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
 
-    JSONObject result = testDAO.readOne(access, ULong.valueOf(2));
+    Audio result = new Audio().setFromRecord(testDAO.readOne(access, ULong.valueOf(2)));
 
     assertNotNull(result);
-    assertEquals(ULong.valueOf(1), result.get("instrumentId"));
-    assertEquals("Snare", result.get("name"));
-    assertEquals("instrument/percussion/808/snare.wav", result.get("waveformKey"));
-    assertEquals(0.0023, result.get("start"));
-    assertEquals(1.05, result.get("length"));
-    assertEquals(131.0, result.get("tempo"));
-    assertEquals(702.0, result.get("pitch"));
+    assertEquals(ULong.valueOf(1), result.getInstrumentId());
+    assertEquals("Snare", result.getName());
+    assertEquals("instrument/percussion/808/snare.wav", result.getWaveformKey());
+    assertEquals(Double.valueOf(0.0023), result.getStart());
+    assertEquals(Double.valueOf(1.05), result.getLength());
+    assertEquals(Double.valueOf(131.0), result.getTempo());
+    assertEquals(Double.valueOf(702.0), result.getPitch());
   }
 
   @Test
   public void uploadOne() throws Exception {
-    System.setProperty("aws.file.upload.url","https://manuts.com");
-    System.setProperty("aws.file.upload.key","totally_awesome");
-    System.setProperty("aws.file.upload.secret","much_secret_12345");
+    System.setProperty("aws.file.upload.url", "https://manuts.com");
+    System.setProperty("aws.file.upload.key", "totally_awesome");
+    System.setProperty("aws.file.upload.secret", "much_secret_12345");
+    System.setProperty("aws.file.upload.acl", "ec2-bundle-read");
+    System.setProperty("aws.file.upload.expire.minutes", "60");
+    System.setProperty("aws.file.upload.bucket", "xj-audio-dev");
 
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
@@ -175,104 +171,98 @@ public class AudioIT {
 
   @Test
   public void readOne_FailsWhenUserIsNotInAccount() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "326"
     ));
 
-    JSONObject result = testDAO.readOne(access, ULong.valueOf(1));
+    AudioRecord result = testDAO.readOne(access, ULong.valueOf(1));
 
     assertNull(result);
   }
 
   @Test
   public void readAll() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
 
-    JSONArray actualResultList = testDAO.readAllIn(access, ULong.valueOf(1));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ULong.valueOf(1)));
 
-    assertNotNull(actualResultList);
-    assertEquals(2, actualResultList.length());
-    JSONObject actualResult1 = (JSONObject) actualResultList.get(0);
-    assertEquals("Kick", actualResult1.get("name"));
-    JSONObject actualResult2 = (JSONObject) actualResultList.get(1);
-    assertEquals("Snare", actualResult2.get("name"));
+    assertNotNull(result);
+    assertEquals(2, result.length());
+    JSONObject result1 = (JSONObject) result.get(0);
+    assertEquals("Kick", result1.get("name"));
+    JSONObject result2 = (JSONObject) result.get(1);
+    assertEquals("Snare", result2.get("name"));
   }
 
   @Test
   public void readAll_SeesNothingOutsideOfLibrary() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "345"
     ));
 
-    JSONArray actualResultList = testDAO.readAllIn(access, ULong.valueOf(1));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ULong.valueOf(1)));
 
-    assertNotNull(actualResultList);
-    assertEquals(0, actualResultList.length());
+    assertNotNull(result);
+    assertEquals(0, result.length());
   }
 
   @Test(expected = BusinessException.class)
   public void update_FailsWithoutInstrumentID() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
-    AudioWrapper inputDataWrapper = new AudioWrapper()
-      .setAudio(new Audio()
-        .setName("maracas")
-        .setWaveformKey("instrument/percussion/808/maracas.wav")
-        .setStart(0.009)
-        .setLength(0.21)
-        .setPitch(1567.0)
-        .setTempo(80.5)
-      );
+    Audio inputData = new Audio()
+      .setName("maracas")
+      .setWaveformKey("instrument/percussion/808/maracas.wav")
+      .setStart(0.009)
+      .setLength(0.21)
+      .setPitch(1567.0)
+      .setTempo(80.5);
 
-    testDAO.update(access, ULong.valueOf(3), inputDataWrapper);
+    testDAO.update(access, ULong.valueOf(3), inputData);
   }
 
   // TODO: ensure that it is not possible to change the waveform key EVER!
   @Test(expected = BusinessException.class)
   public void update_FailsWithoutWaveformKey() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
-    AudioWrapper inputDataWrapper = new AudioWrapper()
-      .setAudio(new Audio()
-        .setInstrumentId(BigInteger.valueOf(2))
-        .setName("maracas")
-        .setStart(0.009)
-        .setLength(0.21)
-        .setPitch(1567.0)
-        .setTempo(80.5)
-      );
+    Audio inputData = new Audio()
+      .setInstrumentId(BigInteger.valueOf(2))
+      .setName("maracas")
+      .setStart(0.009)
+      .setLength(0.21)
+      .setPitch(1567.0)
+      .setTempo(80.5);
 
-    testDAO.update(access, ULong.valueOf(3), inputDataWrapper);
+    testDAO.update(access, ULong.valueOf(3), inputData);
   }
 
   @Test(expected = BusinessException.class)
   public void update_FailsUpdatingToNonexistentInstrument() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
-    AudioWrapper inputDataWrapper = new AudioWrapper()
-      .setAudio(new Audio()
-        .setInstrumentId(BigInteger.valueOf(7))
-        .setName("maracas")
-        .setWaveformKey("instrument/percussion/808/maracas.wav")
-        .setStart(0.009)
-        .setLength(0.21)
-        .setPitch(1567.0)
-        .setTempo(80.5)
-      );
+    Audio inputData = new Audio()
+      .setInstrumentId(BigInteger.valueOf(7))
+      .setName("maracas")
+      .setWaveformKey("instrument/percussion/808/maracas.wav")
+      .setStart(0.009)
+      .setLength(0.21)
+      .setPitch(1567.0)
+      .setTempo(80.5);
 
     try {
-      testDAO.update(access, ULong.valueOf(2), inputDataWrapper);
+      testDAO.update(access, ULong.valueOf(2), inputData);
 
     } catch (Exception e) {
       AudioRecord result = IntegrationTestService.getDb()
@@ -288,21 +278,19 @@ public class AudioIT {
 
   @Test
   public void update() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
-    AudioWrapper inputDataWrapper = new AudioWrapper()
-      .setAudio(new Audio()
-        .setInstrumentId(BigInteger.valueOf(2))
-        .setName("maracas")
-        .setStart(0.009)
-        .setLength(0.21)
-        .setPitch(1567.0)
-        .setTempo(80.5)
-      );
+    Audio inputData = new Audio()
+      .setInstrumentId(BigInteger.valueOf(2))
+      .setName("maracas")
+      .setStart(0.009)
+      .setLength(0.21)
+      .setPitch(1567.0)
+      .setTempo(80.5);
 
-    testDAO.update(access, ULong.valueOf(1), inputDataWrapper);
+    testDAO.update(access, ULong.valueOf(1), inputData);
 
     AudioRecord result = IntegrationTestService.getDb()
       .selectFrom(AUDIO)
@@ -322,7 +310,7 @@ public class AudioIT {
 
   @Test
   public void delete() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
@@ -338,7 +326,7 @@ public class AudioIT {
 
   @Test(expected = BusinessException.class)
   public void delete_failsIfNotInAccount() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "2"
     ));
@@ -348,7 +336,7 @@ public class AudioIT {
 
   @Test(expected = BusinessException.class)
   public void delete_FailsIfIdeaHasChildRecords() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "userId", "2",
       "roles", "artist",
       "accounts", "1"

@@ -29,9 +29,9 @@ add_host() {
 # Loop through all docker containers
 for HOST in $(docker ps --format '{{.Names}}'); do
     IP=$(docker inspect ${HOST} | grep -oE "${DOCKER_IP_REGEX}" | sed 's/[^0-9\.]//g')
+    add_host "${HOST}" "${IP}"
     if [[ ${HOST} =~ ${SPECIAL_MATCH} ]]; then
       add_host "${SPECIAL_HOST}" "${IP}"
     fi
-    add_host "${HOST}" "${IP}"
 done
 echo "${HOSTS_FILE} updated."

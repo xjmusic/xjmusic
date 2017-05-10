@@ -1,7 +1,7 @@
 // Copyright Outright Mental, Inc. All Rights Reserved.
 package io.outright.xj.core.dao.impl;
 
-import io.outright.xj.core.app.access.impl.AccessControl;
+import io.outright.xj.core.app.access.impl.Access;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.app.exception.DatabaseException;
@@ -9,17 +9,14 @@ import io.outright.xj.core.dao.PointDAO;
 import io.outright.xj.core.db.sql.SQLConnection;
 import io.outright.xj.core.db.sql.SQLDatabaseProvider;
 import io.outright.xj.core.model.point.Point;
-import io.outright.xj.core.model.point.PointWrapper;
-import io.outright.xj.core.transport.JSON;
+import io.outright.xj.core.tables.records.PointRecord;
 
 import org.jooq.DSLContext;
 import org.jooq.Field;
+import org.jooq.Result;
 import org.jooq.types.ULong;
 
 import com.google.inject.Inject;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import javax.annotation.Nullable;
 import java.sql.SQLException;
@@ -42,10 +39,10 @@ public class PointDAOImpl extends DAOImpl implements PointDAO {
   }
 
   @Override
-  public JSONObject create(AccessControl access, PointWrapper data) throws Exception {
+  public PointRecord create(Access access, Point entity) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(create(tx.getContext(), access, data));
+      return tx.success(createRecord(tx.getContext(), access, entity));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -53,10 +50,10 @@ public class PointDAOImpl extends DAOImpl implements PointDAO {
 
   @Override
   @Nullable
-  public JSONObject readOne(AccessControl access, ULong id) throws Exception {
+  public PointRecord readOne(Access access, ULong id) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readOne(tx.getContext(), access, id));
+      return tx.success(readOneRecord(tx.getContext(), access, id));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -64,20 +61,20 @@ public class PointDAOImpl extends DAOImpl implements PointDAO {
 
   @Override
   @Nullable
-  public JSONArray readAllIn(AccessControl access, ULong morphId) throws Exception {
+  public Result<PointRecord> readAll(Access access, ULong morphId) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readAllIn(tx.getContext(), access, morphId));
+      return tx.success(readAll(tx.getContext(), access, morphId));
     } catch (Exception e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public void update(AccessControl access, ULong id, PointWrapper data) throws Exception {
+  public void update(Access access, ULong id, Point entity) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      update(tx.getContext(), access, id, data);
+      update(tx.getContext(), access, id, entity);
       tx.success();
     } catch (Exception e) {
       throw tx.failure(e);
@@ -85,7 +82,7 @@ public class PointDAOImpl extends DAOImpl implements PointDAO {
   }
 
   @Override
-  public void delete(AccessControl access, ULong pointId) throws Exception {
+  public void delete(Access access, ULong pointId) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
       delete(tx.getContext(), access, pointId);
@@ -100,21 +97,22 @@ public class PointDAOImpl extends DAOImpl implements PointDAO {
 
    @param db     context
    @param access control
-   @param data   for new record
-   @return newly created record
+   @param entity for new record
+   @return newly readMany record
    @throws BusinessException if a Business Rule is violated
    */
-  private JSONObject create(DSLContext db, AccessControl access, PointWrapper data) throws BusinessException {
-    Point model = data.validate();
-    Map<Field, Object> fieldValues = model.intoFieldValueMap();
+  private PointRecord createRecord(DSLContext db, Access access, Point entity) throws BusinessException {
+    entity.validate();
+
+    Map<Field, Object> fieldValues = entity.updatableFieldValueMap();
 
     requireTopLevel(access);
 
-    requireRecordExists("Morph", db.select(MORPH.ID).from(MORPH)
-      .where(MORPH.ID.eq(model.getMorphId()))
+    requireExists("Morph", db.select(MORPH.ID).from(MORPH)
+      .where(MORPH.ID.eq(entity.getMorphId()))
       .fetchOne());
 
-    return JSON.objectFromRecord(executeCreate(db, POINT, fieldValues));
+    return executeCreate(db, POINT, fieldValues);
   }
 
   /**
@@ -125,13 +123,13 @@ public class PointDAOImpl extends DAOImpl implements PointDAO {
    @param id     of record
    @return record
    */
-  private JSONObject readOne(DSLContext db, AccessControl access, ULong id) {
-    if (access.isTopLevel()) {
-      return JSON.objectFromRecord(db.selectFrom(POINT)
+  private PointRecord readOneRecord(DSLContext db, Access access, ULong id) {
+    if (access.isTopLevel())
+      return db.selectFrom(POINT)
         .where(POINT.ID.eq(id))
-        .fetchOne());
-    } else {
-      return JSON.objectFromRecord(db.select(POINT.fields())
+        .fetchOne();
+    else
+      return recordInto(POINT, db.select(POINT.fields())
         .from(POINT)
         .join(MORPH).on(MORPH.ID.eq(POINT.MORPH_ID))
         .join(ARRANGEMENT).on(ARRANGEMENT.ID.eq(MORPH.ARRANGEMENT_ID))
@@ -141,7 +139,6 @@ public class PointDAOImpl extends DAOImpl implements PointDAO {
         .where(POINT.ID.eq(id))
         .and(CHAIN.ACCOUNT_ID.in(access.getAccounts()))
         .fetchOne());
-    }
   }
 
   /**
@@ -152,14 +149,14 @@ public class PointDAOImpl extends DAOImpl implements PointDAO {
    @param morphId of parent
    @return array of records
    */
-  private JSONArray readAllIn(DSLContext db, AccessControl access, ULong morphId) throws SQLException {
-    if (access.isTopLevel()) {
-      return JSON.arrayFromResultSet(db.select(POINT.fields())
+  private Result<PointRecord> readAll(DSLContext db, Access access, ULong morphId) throws SQLException {
+    if (access.isTopLevel())
+      return resultInto(POINT, db.select(POINT.fields())
         .from(POINT)
         .where(POINT.MORPH_ID.eq(morphId))
-        .fetchResultSet());
-    } else {
-      return JSON.arrayFromResultSet(db.select(POINT.fields())
+        .fetch());
+    else
+      return resultInto(POINT, db.select(POINT.fields())
         .from(POINT)
         .join(MORPH).on(MORPH.ID.eq(POINT.MORPH_ID))
         .join(ARRANGEMENT).on(ARRANGEMENT.ID.eq(MORPH.ARRANGEMENT_ID))
@@ -168,8 +165,7 @@ public class PointDAOImpl extends DAOImpl implements PointDAO {
         .join(CHAIN).on(CHAIN.ID.eq(LINK.CHAIN_ID))
         .where(POINT.MORPH_ID.eq(morphId))
         .and(CHAIN.ACCOUNT_ID.in(access.getAccounts()))
-        .fetchResultSet());
-    }
+        .fetch());
   }
 
   /**
@@ -178,25 +174,25 @@ public class PointDAOImpl extends DAOImpl implements PointDAO {
    @param db     context
    @param access control
    @param id     of record
-   @param data   to update with
+   @param entity to update with
    @throws BusinessException if a Business Rule is violated
    */
-  private void update(DSLContext db, AccessControl access, ULong id, PointWrapper data) throws BusinessException, DatabaseException {
-    Point model = data.validate();
-    Map<Field, Object> fieldValues = model.intoFieldValueMap();
+  private void update(DSLContext db, Access access, ULong id, Point entity) throws BusinessException, DatabaseException {
+    entity.validate();
+
+    Map<Field, Object> fieldValues = entity.updatableFieldValueMap();
     fieldValues.put(POINT.ID, id);
 
     requireTopLevel(access);
 
-    requireRecordExists("existing Point with immutable Morph membership",
+    requireExists("existing Point with immutable Morph membership",
       db.selectFrom(POINT)
         .where(POINT.ID.eq(id))
-        .and(POINT.MORPH_ID.eq(model.getMorphId()))
+        .and(POINT.MORPH_ID.eq(entity.getMorphId()))
         .fetchOne());
 
-    if (executeUpdate(db, POINT, fieldValues) == 0) {
+    if (executeUpdate(db, POINT, fieldValues) == 0)
       throw new BusinessException("No records updated.");
-    }
   }
 
   /**
@@ -209,10 +205,10 @@ public class PointDAOImpl extends DAOImpl implements PointDAO {
    @throws ConfigException   if not configured properly
    @throws BusinessException if fails business rule
    */
-  private void delete(DSLContext db, AccessControl access, ULong id) throws Exception {
+  private void delete(DSLContext db, Access access, ULong id) throws Exception {
     requireTopLevel(access);
 
-    requireRecordExists("Point", db.selectFrom(POINT)
+    requireExists("Point", db.selectFrom(POINT)
       .where(POINT.ID.eq(id))
       .fetchOne());
 

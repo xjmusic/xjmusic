@@ -1,17 +1,17 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
 package io.outright.xj.core.dao;
 
 import io.outright.xj.core.CoreModule;
-import io.outright.xj.core.app.access.impl.AccessControl;
+import io.outright.xj.core.app.access.impl.Access;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.external.AuthType;
 import io.outright.xj.core.integration.IntegrationTestEntity;
 import io.outright.xj.core.integration.IntegrationTestService;
 import io.outright.xj.core.model.idea.Idea;
 import io.outright.xj.core.model.phase_meme.PhaseMeme;
-import io.outright.xj.core.model.phase_meme.PhaseMemeWrapper;
 import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.tables.records.PhaseMemeRecord;
+import io.outright.xj.core.transport.JSON;
 
 import org.jooq.types.ULong;
 
@@ -32,7 +32,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
-// TODO [core] test permissions of different users to read vs. create vs. update or delete phase memes
+// TODO [core] test permissions of different users to readMany vs. create vs. update or delete phase memes
 public class PhaseMemeIT {
   private Injector injector = Guice.createInjector(new CoreModule());
   private PhaseMemeDAO testDAO;
@@ -70,8 +70,8 @@ public class PhaseMemeIT {
     IntegrationTestEntity.insertPhase(2, 1, 1, 16, "decay", 0.25, "F#", 110.3);
 
     // Phase "growth" has memes "ants" and "mold"
-    IntegrationTestEntity.insertPhaseMeme(1, 1, "Ants");
-    IntegrationTestEntity.insertPhaseMeme(2, 1, "Mold");
+    IntegrationTestEntity.insertPhaseMeme(1, 1, "Gravel");
+    IntegrationTestEntity.insertPhaseMeme(2, 1, "Fuzz");
 
     // Phase "decay" has meme "peel"
     IntegrationTestEntity.insertPhaseMeme(3, 2, "Peel");
@@ -87,112 +87,106 @@ public class PhaseMemeIT {
 
   @Test
   public void create() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "userId", "2",
       "roles", "artist",
       "accounts", "1"
     ));
-    PhaseMemeWrapper inputDataWrapper = new PhaseMemeWrapper()
-      .setPhaseMeme(new PhaseMeme()
-        .setPhaseId(BigInteger.valueOf(1))
-        .setName("  !!2gnarLY    ")
-      );
+    PhaseMeme inputData = new PhaseMeme()
+      .setPhaseId(BigInteger.valueOf(1))
+      .setName("  !!2gnarLY    ");
 
-    JSONObject result = testDAO.create(access, inputDataWrapper);
+    JSONObject result = JSON.objectFromRecord(testDAO.create(access, inputData));
 
     assertNotNull(result);
-    assertEquals(BigInteger.valueOf(1), result.get("phaseId"));
+    assertEquals(ULong.valueOf(1), result.get("phaseId"));
     assertEquals("Gnarly", result.get("name"));
   }
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutPhaseID() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
-    PhaseMemeWrapper inputDataWrapper = new PhaseMemeWrapper()
-      .setPhaseMeme(new PhaseMeme()
-        .setName("gnarly")
-      );
+    PhaseMeme inputData = new PhaseMeme()
+      .setName("gnarly");
 
-    testDAO.create(access, inputDataWrapper);
+    testDAO.create(access, inputData);
   }
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutName() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
-    PhaseMemeWrapper inputDataWrapper = new PhaseMemeWrapper()
-      .setPhaseMeme(new PhaseMeme()
-        .setPhaseId(BigInteger.valueOf(1))
-      );
+    PhaseMeme inputData = new PhaseMeme()
+      .setPhaseId(BigInteger.valueOf(1));
 
-    testDAO.create(access, inputDataWrapper);
+    testDAO.create(access, inputData);
   }
 
   @Test
   public void readOne() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
 
-    JSONObject result = testDAO.readOne(access, ULong.valueOf(2));
+    PhaseMeme result = new PhaseMeme().setFromRecord(testDAO.readOne(access, ULong.valueOf(2)));
 
     assertNotNull(result);
-    assertEquals(ULong.valueOf(2), result.get("id"));
-    assertEquals(ULong.valueOf(1), result.get("phaseId"));
-    assertEquals("Mold", result.get("name"));
+    assertEquals(ULong.valueOf(2), result.getId());
+    assertEquals(ULong.valueOf(1), result.getPhaseId());
+    assertEquals("Fuzz", result.getName());
   }
 
   @Test
   public void readOne_FailsWhenUserIsNotInAccount() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "326"
     ));
 
-    JSONObject result = testDAO.readOne(access, ULong.valueOf(1));
+    PhaseMemeRecord result = testDAO.readOne(access, ULong.valueOf(1));
 
     assertNull(result);
   }
 
   @Test
   public void readAll() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
 
-    JSONArray actualResultList = testDAO.readAllIn(access, ULong.valueOf(1));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ULong.valueOf(1)));
 
-    assertNotNull(actualResultList);
-    assertEquals(2, actualResultList.length());
-    JSONObject actualResult1 = (JSONObject) actualResultList.get(0);
-    assertEquals("Ants", actualResult1.get("name"));
-    JSONObject actualResult2 = (JSONObject) actualResultList.get(1);
-    assertEquals("Mold", actualResult2.get("name"));
+    assertNotNull(result);
+    assertEquals(2, result.length());
+    JSONObject result1 = (JSONObject) result.get(0);
+    assertEquals("Gravel", result1.get("name"));
+    JSONObject result2 = (JSONObject) result.get(1);
+    assertEquals("Fuzz", result2.get("name"));
   }
 
   @Test
   public void readAll_SeesNothingOutsideOfAccount() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "345"
     ));
 
-    JSONArray actualResultList = testDAO.readAllIn(access, ULong.valueOf(1));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ULong.valueOf(1)));
 
-    assertNotNull(actualResultList);
-    assertEquals(0, actualResultList.length());
+    assertNotNull(result);
+    assertEquals(0, result.length());
   }
 
   @Test
   public void delete() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
@@ -207,7 +201,7 @@ public class PhaseMemeIT {
 
   @Test(expected = BusinessException.class)
   public void delete_failsIfNotInAccount() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "2"
     ));

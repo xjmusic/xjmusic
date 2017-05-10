@@ -2,25 +2,17 @@
 package io.outright.xj.hub.resource.phase_chord;
 
 import io.outright.xj.core.CoreModule;
-import io.outright.xj.core.app.access.impl.AccessControl;
-import io.outright.xj.core.app.config.Exposure;
+import io.outright.xj.core.app.access.impl.Access;
 import io.outright.xj.core.app.server.HttpResponseProvider;
 import io.outright.xj.core.dao.PhaseChordDAO;
-import io.outright.xj.core.model.Entity;
 import io.outright.xj.core.model.phase_chord.PhaseChord;
 import io.outright.xj.core.model.phase_chord.PhaseChordWrapper;
 import io.outright.xj.core.model.role.Role;
-import io.outright.xj.core.transport.JSON;
 
 import org.jooq.types.ULong;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.annotation.security.RolesAllowed;
 import javax.jws.WebResult;
@@ -41,9 +33,8 @@ import java.io.IOException;
 @Path("phase-chords")
 public class PhaseChordIndexResource {
   private static final Injector injector = Guice.createInjector(new CoreModule());
-  private static Logger log = LoggerFactory.getLogger(PhaseChordIndexResource.class);
-  private final PhaseChordDAO phaseChordDAO = injector.getInstance(PhaseChordDAO.class);
-  private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
+  private final PhaseChordDAO DAO = injector.getInstance(PhaseChordDAO.class);
+  private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
 
   @QueryParam("phaseId")
   String phaseId;
@@ -57,25 +48,20 @@ public class PhaseChordIndexResource {
   @WebResult
   @RolesAllowed({Role.ARTIST})
   public Response readAll(@Context ContainerRequestContext crc) throws IOException {
-    AccessControl access = AccessControl.fromContext(crc);
 
     if (phaseId == null || phaseId.length() == 0) {
-      return httpResponseProvider.notAcceptable("Phase id is required");
+      return response.notAcceptable("Phase id is required");
     }
 
     try {
-      JSONArray result = phaseChordDAO.readAllIn(access, ULong.valueOf(phaseId));
-      if (result != null) {
-        return Response
-          .accepted(JSON.wrap(PhaseChord.KEY_MANY, result).toString())
-          .type(MediaType.APPLICATION_JSON)
-          .build();
-      } else {
-        return Response.noContent().build();
-      }
+      return response.readMany(
+        PhaseChord.KEY_MANY,
+        DAO.readAll(
+          Access.fromContext(crc),
+          ULong.valueOf(phaseId)));
 
     } catch (Exception e) {
-      return httpResponseProvider.failure(e);
+      return response.failure(e);
     }
   }
 
@@ -89,16 +75,16 @@ public class PhaseChordIndexResource {
   @Consumes(MediaType.APPLICATION_JSON)
   @RolesAllowed({Role.ARTIST})
   public Response create(PhaseChordWrapper data, @Context ContainerRequestContext crc) {
-    AccessControl access = AccessControl.fromContext(crc);
     try {
-      JSONObject newEntity = phaseChordDAO.create(access, data);
-      return Response
-        .created(Exposure.apiURI(PhaseChord.KEY_MANY + "/" + newEntity.get(Entity.KEY_ID)))
-        .entity(JSON.wrap(PhaseChord.KEY_ONE, newEntity).toString())
-        .build();
+      return response.create(
+        PhaseChord.KEY_MANY,
+        PhaseChord.KEY_ONE,
+        DAO.create(
+          Access.fromContext(crc),
+          data.getPhaseChord()));
 
     } catch (Exception e) {
-      return httpResponseProvider.failureToCreate(e);
+      return response.failureToCreate(e);
     }
   }
 

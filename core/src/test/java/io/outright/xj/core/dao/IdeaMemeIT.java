@@ -1,17 +1,17 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
 package io.outright.xj.core.dao;
 
 import io.outright.xj.core.CoreModule;
-import io.outright.xj.core.app.access.impl.AccessControl;
+import io.outright.xj.core.app.access.impl.Access;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.external.AuthType;
 import io.outright.xj.core.integration.IntegrationTestEntity;
 import io.outright.xj.core.integration.IntegrationTestService;
 import io.outright.xj.core.model.idea.Idea;
 import io.outright.xj.core.model.idea_meme.IdeaMeme;
-import io.outright.xj.core.model.idea_meme.IdeaMemeWrapper;
 import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.tables.records.IdeaMemeRecord;
+import io.outright.xj.core.transport.JSON;
 
 import org.jooq.types.ULong;
 
@@ -32,7 +32,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
-// TODO [core] test permissions of different users to read vs. create vs. update or delete idea memes
+// TODO [core] test permissions of different users to readMany vs. create vs. update or delete idea memes
 public class IdeaMemeIT {
   private Injector injector = Guice.createInjector(new CoreModule());
   private IdeaMemeDAO testDAO;
@@ -85,112 +85,106 @@ public class IdeaMemeIT {
 
   @Test
   public void create() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "userId", "2",
       "roles", "artist",
       "accounts", "1"
     ));
-    IdeaMemeWrapper inputDataWrapper = new IdeaMemeWrapper()
-      .setIdeaMeme(new IdeaMeme()
-        .setIdeaId(BigInteger.valueOf(1))
-        .setName("  !!2gnarLY    ")
-      );
+    IdeaMeme inputData = new IdeaMeme()
+      .setIdeaId(BigInteger.valueOf(1))
+      .setName("  !!2gnarLY    ");
 
-    JSONObject result = testDAO.create(access, inputDataWrapper);
+    JSONObject result = JSON.objectFromRecord(testDAO.create(access, inputData));
 
     assertNotNull(result);
-    assertEquals(BigInteger.valueOf(1), result.get("ideaId"));
+    assertEquals(ULong.valueOf(1), result.get("ideaId"));
     assertEquals("Gnarly", result.get("name"));
   }
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutIdeaID() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
-    IdeaMemeWrapper inputDataWrapper = new IdeaMemeWrapper()
-      .setIdeaMeme(new IdeaMeme()
-        .setName("gnarly")
-      );
+    IdeaMeme inputData = new IdeaMeme()
+      .setName("gnarly");
 
-    testDAO.create(access, inputDataWrapper);
+    testDAO.create(access, inputData);
   }
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutName() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
-    IdeaMemeWrapper inputDataWrapper = new IdeaMemeWrapper()
-      .setIdeaMeme(new IdeaMeme()
-        .setIdeaId(BigInteger.valueOf(1))
-      );
+    IdeaMeme inputData = new IdeaMeme()
+      .setIdeaId(BigInteger.valueOf(1));
 
-    testDAO.create(access, inputDataWrapper);
+    testDAO.create(access, inputData);
   }
 
   @Test
   public void readOne() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
 
-    JSONObject result = testDAO.readOne(access, ULong.valueOf(2));
+    IdeaMeme result = new IdeaMeme().setFromRecord(testDAO.readOne(access, ULong.valueOf(2)));
 
     assertNotNull(result);
-    assertEquals(ULong.valueOf(2), result.get("id"));
-    assertEquals(ULong.valueOf(1), result.get("ideaId"));
-    assertEquals("Mold", result.get("name"));
+    assertEquals(ULong.valueOf(2), result.getId());
+    assertEquals(ULong.valueOf(1), result.getIdeaId());
+    assertEquals("Mold", result.getName());
   }
 
   @Test
   public void readOne_FailsWhenUserIsNotInAccount() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "326"
     ));
 
-    JSONObject result = testDAO.readOne(access, ULong.valueOf(1));
+    IdeaMemeRecord result = testDAO.readOne(access, ULong.valueOf(1));
 
     assertNull(result);
   }
 
   @Test
   public void readAll() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
 
-    JSONArray actualResultList = testDAO.readAllIn(access, ULong.valueOf(1));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ULong.valueOf(1)));
 
-    assertNotNull(actualResultList);
-    assertEquals(2, actualResultList.length());
-    JSONObject actualResult1 = (JSONObject) actualResultList.get(0);
-    assertEquals("Ants", actualResult1.get("name"));
-    JSONObject actualResult2 = (JSONObject) actualResultList.get(1);
-    assertEquals("Mold", actualResult2.get("name"));
+    assertNotNull(result);
+    assertEquals(2, result.length());
+    JSONObject result1 = (JSONObject) result.get(0);
+    assertEquals("Ants", result1.get("name"));
+    JSONObject result2 = (JSONObject) result.get(1);
+    assertEquals("Mold", result2.get("name"));
   }
 
   @Test
   public void readAll_SeesNothingOutsideOfAccount() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "345"
     ));
 
-    JSONArray actualResultList = testDAO.readAllIn(access, ULong.valueOf(1));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ULong.valueOf(1)));
 
-    assertNotNull(actualResultList);
-    assertEquals(0, actualResultList.length());
+    assertNotNull(result);
+    assertEquals(0, result.length());
   }
 
   @Test
   public void delete() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));

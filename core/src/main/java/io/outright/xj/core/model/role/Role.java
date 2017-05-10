@@ -1,8 +1,12 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
 package io.outright.xj.core.model.role;
 
 import io.outright.xj.core.transport.CSV;
 
+/**
+ This is purely a reference model for Role as a concept,
+ more specifically the constants and methods pertaining.
+ */
 public interface Role {
 
   /**

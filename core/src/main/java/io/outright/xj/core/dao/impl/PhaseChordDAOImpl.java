@@ -1,26 +1,22 @@
 // Copyright Outright Mental, Inc. All Rights Reserved.
 package io.outright.xj.core.dao.impl;
 
-import io.outright.xj.core.app.access.impl.AccessControl;
+import io.outright.xj.core.app.access.impl.Access;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.dao.PhaseChordDAO;
 import io.outright.xj.core.db.sql.SQLConnection;
 import io.outright.xj.core.db.sql.SQLDatabaseProvider;
 import io.outright.xj.core.model.phase_chord.PhaseChord;
-import io.outright.xj.core.model.phase_chord.PhaseChordWrapper;
 import io.outright.xj.core.tables.Phase;
-import io.outright.xj.core.transport.JSON;
+import io.outright.xj.core.tables.records.PhaseChordRecord;
 
 import org.jooq.DSLContext;
 import org.jooq.Field;
-import org.jooq.Record;
+import org.jooq.Result;
 import org.jooq.types.ULong;
 
 import com.google.inject.Inject;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import javax.annotation.Nullable;
 import java.sql.SQLException;
@@ -41,10 +37,10 @@ public class PhaseChordDAOImpl extends DAOImpl implements PhaseChordDAO {
   }
 
   @Override
-  public JSONObject create(AccessControl access, PhaseChordWrapper data) throws Exception {
+  public PhaseChordRecord create(Access access, PhaseChord entity) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(create(tx.getContext(), access, data));
+      return tx.success(createRecord(tx.getContext(), access, entity));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -52,10 +48,10 @@ public class PhaseChordDAOImpl extends DAOImpl implements PhaseChordDAO {
 
   @Override
   @Nullable
-  public JSONObject readOne(AccessControl access, ULong id) throws Exception {
+  public PhaseChordRecord readOne(Access access, ULong id) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readOne(tx.getContext(), access, id));
+      return tx.success(readOneRecord(tx.getContext(), access, id));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -63,20 +59,20 @@ public class PhaseChordDAOImpl extends DAOImpl implements PhaseChordDAO {
 
   @Override
   @Nullable
-  public JSONArray readAllIn(AccessControl access, ULong phaseId) throws Exception {
+  public Result<PhaseChordRecord> readAll(Access access, ULong phaseId) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readAllIn(tx.getContext(), access, phaseId));
+      return tx.success(readAll(tx.getContext(), access, phaseId));
     } catch (Exception e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public void update(AccessControl access, ULong id, PhaseChordWrapper data) throws Exception {
+  public void update(Access access, ULong id, PhaseChord entity) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      update(tx.getContext(), access, id, data);
+      update(tx.getContext(), access, id, entity);
       tx.success();
     } catch (Exception e) {
       throw tx.failure(e);
@@ -84,7 +80,7 @@ public class PhaseChordDAOImpl extends DAOImpl implements PhaseChordDAO {
   }
 
   @Override
-  public void delete(AccessControl access, ULong id) throws Exception {
+  public void delete(Access access, ULong id) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
       delete(access, tx.getContext(), id);
@@ -99,28 +95,28 @@ public class PhaseChordDAOImpl extends DAOImpl implements PhaseChordDAO {
 
    @param db     context
    @param access control
-   @param data   for new phase
-   @return newly created record
+   @param entity for new phase
+   @return newly readMany record
    @throws BusinessException if failure
    */
-  private JSONObject create(DSLContext db, AccessControl access, PhaseChordWrapper data) throws BusinessException {
-    PhaseChord model = data.validate();
-    Map<Field, Object> fieldValues = model.intoFieldValueMap();
+  private PhaseChordRecord createRecord(DSLContext db, Access access, PhaseChord entity) throws BusinessException {
+    entity.validate();
 
-    if (access.isTopLevel()) {
-      requireRecordExists("Phase", db.select(PHASE.ID).from(PHASE)
-        .where(PHASE.ID.eq(model.getPhaseId()))
+    Map<Field, Object> fieldValues = entity.updatableFieldValueMap();
+
+    if (access.isTopLevel())
+      requireExists("Phase", db.select(PHASE.ID).from(PHASE)
+        .where(PHASE.ID.eq(entity.getPhaseId()))
         .fetchOne());
-    } else {
-      requireRecordExists("Phase", db.select(PHASE.ID).from(PHASE)
+    else
+      requireExists("Phase", db.select(PHASE.ID).from(PHASE)
         .join(IDEA).on(IDEA.ID.eq(PHASE.IDEA_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(IDEA.LIBRARY_ID))
         .where(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-        .and(PHASE.ID.eq(model.getPhaseId()))
+        .and(PHASE.ID.eq(entity.getPhaseId()))
         .fetchOne());
-    }
 
-    return JSON.objectFromRecord(executeCreate(db, PHASE_CHORD, fieldValues));
+    return executeCreate(db, PHASE_CHORD, fieldValues);
   }
 
   /**
@@ -131,13 +127,13 @@ public class PhaseChordDAOImpl extends DAOImpl implements PhaseChordDAO {
    @param id     of phase
    @return phase
    */
-  private JSONObject readOne(DSLContext db, AccessControl access, ULong id) {
-    if (access.isTopLevel()) {
-      return JSON.objectFromRecord(db.selectFrom(PHASE_CHORD)
+  private PhaseChordRecord readOneRecord(DSLContext db, Access access, ULong id) {
+    if (access.isTopLevel())
+      return db.selectFrom(PHASE_CHORD)
         .where(PHASE_CHORD.ID.eq(id))
-        .fetchOne());
-    } else {
-      return JSON.objectFromRecord(db.select(PHASE_CHORD.fields())
+        .fetchOne();
+    else
+      return recordInto(PHASE_CHORD, db.select(PHASE_CHORD.fields())
         .from(PHASE_CHORD)
         .join(PHASE).on(PHASE.ID.eq(PHASE_CHORD.PHASE_ID))
         .join(IDEA).on(IDEA.ID.eq(PHASE.IDEA_ID))
@@ -145,7 +141,6 @@ public class PhaseChordDAOImpl extends DAOImpl implements PhaseChordDAO {
         .where(PHASE_CHORD.ID.eq(id))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .fetchOne());
-    }
   }
 
   /**
@@ -153,19 +148,19 @@ public class PhaseChordDAOImpl extends DAOImpl implements PhaseChordDAO {
 
    @param db      context
    @param access  control
-   @param phaseId to read all phase of
+   @param phaseId to readMany all phase of
    @return array of phases
    @throws SQLException on failure
    */
-  private JSONArray readAllIn(DSLContext db, AccessControl access, ULong phaseId) throws SQLException {
-    if (access.isTopLevel()) {
-      return JSON.arrayFromResultSet(db.select(PHASE_CHORD.fields())
+  private Result<PhaseChordRecord> readAll(DSLContext db, Access access, ULong phaseId) throws SQLException {
+    if (access.isTopLevel())
+      return resultInto(PHASE_CHORD, db.select(PHASE_CHORD.fields())
         .from(PHASE_CHORD)
         .where(PHASE_CHORD.PHASE_ID.eq(phaseId))
         .orderBy(PHASE_CHORD.POSITION)
-        .fetchResultSet());
-    } else {
-      return JSON.arrayFromResultSet(db.select(PHASE_CHORD.fields())
+        .fetch());
+    else
+      return resultInto(PHASE_CHORD, db.select(PHASE_CHORD.fields())
         .from(PHASE_CHORD)
         .join(PHASE).on(PHASE.ID.eq(PHASE_CHORD.PHASE_ID))
         .join(IDEA).on(IDEA.ID.eq(PHASE.IDEA_ID))
@@ -173,8 +168,7 @@ public class PhaseChordDAOImpl extends DAOImpl implements PhaseChordDAO {
         .where(PHASE_CHORD.PHASE_ID.eq(phaseId))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .orderBy(PHASE_CHORD.POSITION)
-        .fetchResultSet());
-    }
+        .fetch());
   }
 
   /**
@@ -183,30 +177,29 @@ public class PhaseChordDAOImpl extends DAOImpl implements PhaseChordDAO {
    @param db     context
    @param access control
    @param id     to update
-   @param data   to update with
+   @param entity to update with
    @throws BusinessException if failure
    */
-  private void update(DSLContext db, AccessControl access, ULong id, PhaseChordWrapper data) throws BusinessException {
-    PhaseChord model = data.validate();
-    Map<Field, Object> fieldValues = model.intoFieldValueMap();
+  private void update(DSLContext db, Access access, ULong id, PhaseChord entity) throws BusinessException {
+    entity.validate();
+
+    Map<Field, Object> fieldValues = entity.updatableFieldValueMap();
     fieldValues.put(PHASE_CHORD.ID, id);
 
-    if (access.isTopLevel()) {
-      requireRecordExists("Phase", db.select(PHASE.ID).from(PHASE)
-        .where(PHASE.ID.eq(model.getPhaseId()))
+    if (access.isTopLevel())
+      requireExists("Phase", db.select(PHASE.ID).from(PHASE)
+        .where(PHASE.ID.eq(entity.getPhaseId()))
         .fetchOne());
-    } else {
-      requireRecordExists("Phase", db.select(PHASE.ID).from(PHASE)
+    else
+      requireExists("Phase", db.select(PHASE.ID).from(PHASE)
         .join(IDEA).on(IDEA.ID.eq(PHASE.IDEA_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(IDEA.LIBRARY_ID))
         .where(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-        .and(PHASE.ID.eq(model.getPhaseId()))
+        .and(PHASE.ID.eq(entity.getPhaseId()))
         .fetchOne());
-    }
 
-    if (executeUpdate(db, PHASE_CHORD, fieldValues) == 0) {
+    if (executeUpdate(db, PHASE_CHORD, fieldValues) == 0)
       throw new BusinessException("No records updated.");
-    }
   }
 
   /**
@@ -218,17 +211,15 @@ public class PhaseChordDAOImpl extends DAOImpl implements PhaseChordDAO {
    @throws ConfigException   if not configured properly
    @throws BusinessException if fails business rule
    */
-  private void delete(AccessControl access, DSLContext db, ULong id) throws Exception {
-    if (!access.isTopLevel()) {
-      Record record = db.select(PHASE_CHORD.ID).from(PHASE_CHORD)
+  private void delete(Access access, DSLContext db, ULong id) throws Exception {
+    if (!access.isTopLevel())
+      requireExists("Phase Chord", db.select(PHASE_CHORD.ID).from(PHASE_CHORD)
         .join(Phase.PHASE).on(Phase.PHASE.ID.eq(PHASE_CHORD.PHASE_ID))
         .join(IDEA).on(IDEA.ID.eq(Phase.PHASE.IDEA_ID))
         .join(LIBRARY).on(IDEA.LIBRARY_ID.eq(LIBRARY.ID))
         .where(PHASE_CHORD.ID.eq(id))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-        .fetchOne();
-      requireRecordExists("Phase Chord", record);
-    }
+        .fetchOne());
 
     db.deleteFrom(PHASE_CHORD)
       .where(PHASE_CHORD.ID.eq(id))

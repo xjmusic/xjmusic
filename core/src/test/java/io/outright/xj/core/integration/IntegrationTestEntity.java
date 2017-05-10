@@ -1,6 +1,9 @@
 package io.outright.xj.core.integration;
 
 import io.outright.xj.core.app.exception.DatabaseException;
+import io.outright.xj.core.model.chain.Chain;
+import io.outright.xj.core.model.idea.Idea;
+import io.outright.xj.core.model.link.Link;
 import io.outright.xj.core.tables.records.AccountRecord;
 import io.outright.xj.core.tables.records.AccountUserRecord;
 import io.outright.xj.core.tables.records.ArrangementRecord;
@@ -19,6 +22,8 @@ import io.outright.xj.core.tables.records.InstrumentMemeRecord;
 import io.outright.xj.core.tables.records.InstrumentRecord;
 import io.outright.xj.core.tables.records.LibraryRecord;
 import io.outright.xj.core.tables.records.LinkChordRecord;
+import io.outright.xj.core.tables.records.LinkMemeRecord;
+import io.outright.xj.core.tables.records.LinkMessageRecord;
 import io.outright.xj.core.tables.records.LinkRecord;
 import io.outright.xj.core.tables.records.MorphRecord;
 import io.outright.xj.core.tables.records.PhaseChordRecord;
@@ -72,8 +77,10 @@ import static io.outright.xj.core.Tables.USER_AUTH;
 import static io.outright.xj.core.Tables.USER_ROLE;
 import static io.outright.xj.core.Tables.VOICE;
 import static io.outright.xj.core.Tables.VOICE_EVENT;
-import static io.outright.xj.core.tables.Idea.IDEA;
-import static io.outright.xj.core.tables.Library.LIBRARY;
+import static io.outright.xj.core.Tables.IDEA;
+import static io.outright.xj.core.Tables.LIBRARY;
+import static io.outright.xj.core.Tables.LINK_MEME;
+import static io.outright.xj.core.Tables.LINK_MESSAGE;
 
 public abstract class IntegrationTestEntity {
   private static Logger log = LoggerFactory.getLogger(IntegrationTestEntity.class);
@@ -109,6 +116,8 @@ public abstract class IntegrationTestEntity {
       db.deleteFrom(CHOICE).execute(); // before Link & Idea
 
       // Link
+      db.deleteFrom(LINK_MESSAGE).execute(); // before Link
+      db.deleteFrom(LINK_MEME).execute(); // before Link
       db.deleteFrom(LINK_CHORD).execute(); // before Link
       db.deleteFrom(LINK).execute(); // before Chain
 
@@ -214,7 +223,7 @@ public abstract class IntegrationTestEntity {
     record.store();
   }
 
-  public static void insertIdea(int id, int userId, int libraryId, String type, String name, double density, String key, double tempo) {
+  public static Idea insertIdea(int id, int userId, int libraryId, String type, String name, double density, String key, double tempo) {
     IdeaRecord record = IntegrationTestService.getDb().newRecord(IDEA);
     record.setId(ULong.valueOf(id));
     record.setUserId(ULong.valueOf(userId));
@@ -225,6 +234,7 @@ public abstract class IntegrationTestEntity {
     record.setKey(key);
     record.setTempo(tempo);
     record.store();
+    return new Idea().setFromRecord(record);
   }
 
   public static void insertIdeaMeme(int id, int ideaId, String name) {
@@ -240,7 +250,7 @@ public abstract class IntegrationTestEntity {
     record.setId(ULong.valueOf(id));
     record.setIdeaId(ULong.valueOf(ideaId));
     record.setOffset(ULong.valueOf(offset));
-    record.setTotal(ULong.valueOf(total));
+    record.setTotal(UInteger.valueOf(total));
     record.setName(name);
     record.setDensity(density);
     record.setKey(key);
@@ -342,7 +352,7 @@ public abstract class IntegrationTestEntity {
     record.store();
   }
 
-  public static void insertChain(int id, int accountId, String name, String type, String state, Timestamp startAt, @Nullable Timestamp stopAt) {
+  public static Chain insertChain(int id, int accountId, String name, String type, String state, Timestamp startAt, @Nullable Timestamp stopAt) {
     ChainRecord record = IntegrationTestService.getDb().newRecord(CHAIN);
     record.setId(ULong.valueOf(id));
     record.setAccountId(ULong.valueOf(accountId));
@@ -354,6 +364,7 @@ public abstract class IntegrationTestEntity {
       record.setStopAt(stopAt);
     }
     record.store();
+    return new Chain().setFromRecord(record);
   }
 
   public static void insertChainConfig(int id, int chainId, String type, String value) {
@@ -389,21 +400,20 @@ public abstract class IntegrationTestEntity {
     record.store();
   }
 
-  public static void insertLink(int id, int chainId, int offset, String state, Timestamp beginAt, @Nullable Timestamp endAt, String key, int total, double density, double tempo) {
+  public static Link insertLink(int id, int chainId, int offset, String state, Timestamp beginAt, Timestamp endAt, String key, int total, double density, double tempo) {
     LinkRecord record = IntegrationTestService.getDb().newRecord(LINK);
     record.setId(ULong.valueOf(id));
     record.setChainId(ULong.valueOf(chainId));
     record.setOffset(ULong.valueOf(offset));
     record.setState(state);
     record.setBeginAt(beginAt);
-    if (endAt != null) {
-      record.setEndAt(endAt);
-    }
-    record.setTotal(ULong.valueOf(total));
+    record.setEndAt(endAt);
+    record.setTotal(UInteger.valueOf(total));
     record.setKey(key);
     record.setDensity(density);
     record.setTempo(tempo);
     record.store();
+    return new Link().setFromRecord(record);
   }
 
   public static void insertLinkChord(int id, int linkId, double position, String name) {
@@ -415,6 +425,15 @@ public abstract class IntegrationTestEntity {
     record.store();
   }
 
+  public static void insertLinkMessage(int id, int linkId, String type, String body) {
+    LinkMessageRecord record = IntegrationTestService.getDb().newRecord(LINK_MESSAGE);
+    record.setId(ULong.valueOf(id));
+    record.setLinkId(ULong.valueOf(linkId));
+    record.setType(type);
+    record.setBody(body);
+    record.store();
+  }
+
   public static void insertChoice(int id, int linkId, int ideaId, String type, int phaseOffset, int transpose) {
     ChoiceRecord record = IntegrationTestService.getDb().newRecord(CHOICE);
     record.setId(ULong.valueOf(id));
@@ -422,7 +441,7 @@ public abstract class IntegrationTestEntity {
     record.setIdeaId(ULong.valueOf(ideaId));
     record.setType(type);
     record.setTranspose(transpose);
-    record.setPhaseOffset(UInteger.valueOf(phaseOffset));
+    record.setPhaseOffset(ULong.valueOf(phaseOffset));
     record.store();
   }
 
@@ -467,5 +486,24 @@ public abstract class IntegrationTestEntity {
     record.setNote(note);
     record.setDuration(duration);
     record.store();
+  }
+
+  public static void insertLinkMeme(int id, int linkId, String name) {
+    LinkMemeRecord record = IntegrationTestService.getDb().newRecord(LINK_MEME);
+    record.setId(ULong.valueOf(id));
+    record.setLinkId(ULong.valueOf(linkId));
+    record.setName(name);
+    record.store();
+  }
+
+  public static Link insertLink_Planned(int id, int chainId, int offset, Timestamp beginAt) {
+    LinkRecord record = IntegrationTestService.getDb().newRecord(LINK);
+    record.setId(ULong.valueOf(id));
+    record.setChainId(ULong.valueOf(chainId));
+    record.setOffset(ULong.valueOf(offset));
+    record.setState(Link.PLANNED);
+    record.setBeginAt(beginAt);
+    record.store();
+    return new Link().setFromRecord(record);
   }
 }

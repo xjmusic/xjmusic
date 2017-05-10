@@ -1,9 +1,15 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
 package io.outright.xj.core.dao;
 
 import io.outright.xj.core.CoreModule;
-import io.outright.xj.core.app.access.impl.AccessControl;
+import io.outright.xj.core.app.access.impl.Access;
+import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.integration.IntegrationTestEntity;
+import io.outright.xj.core.integration.IntegrationTestService;
+import io.outright.xj.core.model.account.Account;
+import io.outright.xj.core.model.chain.Chain;
+import io.outright.xj.core.tables.records.AccountRecord;
+import io.outright.xj.core.transport.JSON;
 
 import org.jooq.types.ULong;
 
@@ -11,15 +17,24 @@ import com.google.common.collect.ImmutableMap;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
+import java.sql.Timestamp;
+
+import static io.outright.xj.core.Tables.ACCOUNT;
+import static junit.framework.Assert.assertNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 public class AccountIT {
+  @Rule
+  public ExpectedException failure = ExpectedException.none();
   private Injector injector = Guice.createInjector(new CoreModule());
   private AccountDAO testDAO;
 
@@ -45,33 +60,139 @@ public class AccountIT {
   }
 
   @Test
-  public void readOne() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+  public void readOne_asRecordSetToModel() throws Exception {
+    Access access = new Access(ImmutableMap.of(
       "roles", "user",
       "accounts", "1"
     ));
 
-    JSONObject result = testDAO.readOne(access, ULong.valueOf(1));
+    Account result = new Account().setFromRecord(testDAO.readOne(access, ULong.valueOf(1)));
 
     assertNotNull(result);
-    assertEquals(ULong.valueOf(1), result.get("id"));
-    assertEquals("bananas", result.get("name"));
+    assertEquals(ULong.valueOf(1), result.getId());
+    assertEquals("bananas", result.getName());
   }
 
   @Test
   public void readAll() throws Exception {
-    // TODO: test AccountDAOImpl readAll()
+    Access access = new Access(ImmutableMap.of(
+      "roles", "user",
+      "accounts", "1"
+    ));
+
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access));
+
+    assertNotNull(result);
+    assertEquals(1, result.length());
+
+    JSONObject actualResult0 = (JSONObject) result.get(0);
+    assertEquals("bananas", actualResult0.get("name"));
   }
 
   @Test
   public void update() throws Exception {
-    // TODO: test AccountDAOImpl update()
+    Access access = new Access(ImmutableMap.of(
+      "roles", "admin",
+      "accounts", "1"
+    ));
+    Account entity = new Account()
+      .setName("jammers");
+
+    testDAO.update(access, ULong.valueOf(1), entity);
+
+    AccountRecord result = IntegrationTestService.getDb()
+      .selectFrom(ACCOUNT)
+      .where(ACCOUNT.ID.eq(ULong.valueOf(1)))
+      .fetchOne();
+    assertNotNull(result);
+    assertEquals("jammers", result.getName());
+  }
+
+  @Test
+  public void update_failsIfNotAdmin() throws Exception {
+    Access access = new Access(ImmutableMap.of(
+      "roles", "user",
+      "accounts", "1"
+    ));
+    Account entity = new Account()
+      .setName("jammers");
+
+    failure.expect(BusinessException.class);
+    failure.expectMessage("top-level access is required");
+
+    testDAO.update(access, ULong.valueOf(1), entity);
   }
 
   @Test
   public void delete() throws Exception {
-    // TODO: test AccountDAOImpl delete()
-    // TODO: test AccountDAOImpl delete() fails if account has child records
+    Access access = new Access(ImmutableMap.of(
+      "roles", "admin",
+      "accounts", "1"
+    ));
+
+    testDAO.delete(access, ULong.valueOf(1));
+
+    AccountRecord result = IntegrationTestService.getDb()
+      .selectFrom(ACCOUNT)
+      .where(ACCOUNT.ID.eq(ULong.valueOf(1)))
+      .fetchOne();
+    assertNull(result);
+  }
+
+  @Test
+  public void delete_failsIfNotAdmin() throws Exception {
+    Access access = new Access(ImmutableMap.of(
+      "roles", "user",
+      "accounts", "1"
+    ));
+
+    failure.expect(BusinessException.class);
+    failure.expectMessage("top-level access is required");
+
+    testDAO.delete(access, ULong.valueOf(1));
+  }
+
+  @Test
+  public void delete_failsIfHasChain() throws Exception {
+    Access access = new Access(ImmutableMap.of(
+      "roles", "admin",
+      "accounts", "1"
+    ));
+    IntegrationTestEntity.insertChain(1, 1, "Test", Chain.PREVIEW, Chain.DRAFT, Timestamp.valueOf("2009-08-12 12:17:02.527142"), Timestamp.valueOf("2009-08-12 12:17:02.527142"));
+
+    failure.expect(BusinessException.class);
+    failure.expectMessage("Found Chain in Account");
+
+    testDAO.delete(access, ULong.valueOf(1));
+  }
+
+  @Test
+  public void delete_failsIfHasLibrary() throws Exception {
+    Access access = new Access(ImmutableMap.of(
+      "roles", "admin",
+      "accounts", "1"
+    ));
+    IntegrationTestEntity.insertLibrary(1, 1, "Testing");
+
+    failure.expect(BusinessException.class);
+    failure.expectMessage("Found Library in Account");
+
+    testDAO.delete(access, ULong.valueOf(1));
+  }
+
+  @Test
+  public void delete_failsIfHasAccountUser() throws Exception {
+    Access access = new Access(ImmutableMap.of(
+      "roles", "admin",
+      "accounts", "1"
+    ));
+    IntegrationTestEntity.insertUser(1, "jim", "jim@jim.com", "http://www.jim.com/jim.png");
+    IntegrationTestEntity.insertAccountUser(1, 1, 1);
+
+    failure.expect(BusinessException.class);
+    failure.expectMessage("Found User in Account");
+
+    testDAO.delete(access, ULong.valueOf(1));
   }
 
 }

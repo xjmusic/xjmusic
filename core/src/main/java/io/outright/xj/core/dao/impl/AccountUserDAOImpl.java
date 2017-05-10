@@ -1,24 +1,21 @@
 // Copyright Outright Mental, Inc. All Rights Reserved.
 package io.outright.xj.core.dao.impl;
 
-import io.outright.xj.core.app.access.impl.AccessControl;
+import io.outright.xj.core.app.access.impl.Access;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.dao.AccountUserDAO;
 import io.outright.xj.core.db.sql.SQLConnection;
 import io.outright.xj.core.db.sql.SQLDatabaseProvider;
 import io.outright.xj.core.model.account_user.AccountUser;
-import io.outright.xj.core.model.account_user.AccountUserWrapper;
-import io.outright.xj.core.transport.JSON;
+import io.outright.xj.core.tables.records.AccountUserRecord;
 
 import org.jooq.DSLContext;
 import org.jooq.Field;
+import org.jooq.Result;
 import org.jooq.types.ULong;
 
 import com.google.inject.Inject;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.sql.SQLException;
 import java.util.Map;
@@ -35,37 +32,37 @@ public class AccountUserDAOImpl extends DAOImpl implements AccountUserDAO {
   }
 
   @Override
-  public JSONObject create(AccessControl access, AccountUserWrapper data) throws Exception {
+  public AccountUserRecord create(Access access, AccountUser entity) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(create(tx.getContext(), access, data));
+      return tx.success(createRecord(tx.getContext(), access, entity));
     } catch (Exception e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public JSONObject readOne(AccessControl access, ULong id) throws Exception {
+  public AccountUserRecord readOne(Access access, ULong id) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readOne(tx.getContext(), access, id));
+      return tx.success(readOneRecord(tx.getContext(), access, id));
     } catch (Exception e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public JSONArray readAllIn(AccessControl access, ULong accountId) throws Exception {
+  public Result<AccountUserRecord> readAll(Access access, ULong accountId) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readAllIn(tx.getContext(), access, accountId));
+      return tx.success(readAll(tx.getContext(), access, accountId));
     } catch (Exception e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public void delete(AccessControl access, ULong id) throws Exception {
+  public void delete(Access access, ULong id) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
       delete(tx.getContext(), access, id);
@@ -78,27 +75,27 @@ public class AccountUserDAOImpl extends DAOImpl implements AccountUserDAO {
   /**
    Create a new Account User record
 
-   @param db   context
-   @param data for new AccountUser
+   @param db     context
+   @param entity for new AccountUser
    @return new record
    @throws Exception         if database failure
    @throws ConfigException   if not configured properly
    @throws BusinessException if fails business rule
    */
-  private JSONObject create(DSLContext db, AccessControl access, AccountUserWrapper data) throws Exception {
-    AccountUser model = data.validate();
-    Map<Field, Object> fieldValues = model.intoFieldValueMap();
+  private AccountUserRecord createRecord(DSLContext db, Access access, AccountUser entity) throws Exception {
+    entity.validate();
+
+    Map<Field, Object> fieldValues = entity.updatableFieldValueMap();
 
     requireTopLevel(access);
 
     if (db.selectFrom(ACCOUNT_USER)
-      .where(ACCOUNT_USER.ACCOUNT_ID.eq(model.getAccountId()))
-      .and(ACCOUNT_USER.USER_ID.eq(model.getUserId()))
-      .fetchOne() != null) {
+      .where(ACCOUNT_USER.ACCOUNT_ID.eq(entity.getAccountId()))
+      .and(ACCOUNT_USER.USER_ID.eq(entity.getUserId()))
+      .fetchOne() != null)
       throw new BusinessException("Account User already exists!");
-    }
 
-    return JSON.objectFromRecord(executeCreate(db, ACCOUNT_USER, fieldValues));
+    return executeCreate(db, ACCOUNT_USER, fieldValues);
   }
 
   /**
@@ -109,17 +106,16 @@ public class AccountUserDAOImpl extends DAOImpl implements AccountUserDAO {
    @param id     of record
    @return record
    */
-  private JSONObject readOne(DSLContext db, AccessControl access, ULong id) {
-    if (access.isTopLevel()) {
-      return JSON.objectFromRecord(db.selectFrom(ACCOUNT_USER)
+  private AccountUserRecord readOneRecord(DSLContext db, Access access, ULong id) {
+    if (access.isTopLevel())
+      return db.selectFrom(ACCOUNT_USER)
         .where(ACCOUNT_USER.ID.eq(id))
-        .fetchOne());
-    } else {
-      return JSON.objectFromRecord(db.selectFrom(ACCOUNT_USER)
+        .fetchOne();
+    else
+      return db.selectFrom(ACCOUNT_USER)
         .where(ACCOUNT_USER.ID.eq(id))
         .and(ACCOUNT_USER.ACCOUNT_ID.in(access.getAccounts()))
-        .fetchOne());
-    }
+        .fetchOne();
   }
 
   /**
@@ -131,17 +127,16 @@ public class AccountUserDAOImpl extends DAOImpl implements AccountUserDAO {
    @return array of child records
    @throws SQLException on failure
    */
-  private JSONArray readAllIn(DSLContext db, AccessControl access, ULong accountId) throws SQLException {
-    if (access.isTopLevel()) {
-      return JSON.arrayFromResultSet(db.selectFrom(ACCOUNT_USER)
+  private Result<AccountUserRecord> readAll(DSLContext db, Access access, ULong accountId) throws SQLException {
+    if (access.isTopLevel())
+      return db.selectFrom(ACCOUNT_USER)
         .where(ACCOUNT_USER.ACCOUNT_ID.eq(accountId))
-        .fetchResultSet());
-    } else {
-      return JSON.arrayFromResultSet(db.selectFrom(ACCOUNT_USER)
+        .fetch();
+    else
+      return db.selectFrom(ACCOUNT_USER)
         .where(ACCOUNT_USER.ACCOUNT_ID.eq(accountId))
         .and(ACCOUNT_USER.ACCOUNT_ID.in(access.getAccounts()))
-        .fetchResultSet());
-    }
+        .fetch();
   }
 
   /**
@@ -152,9 +147,8 @@ public class AccountUserDAOImpl extends DAOImpl implements AccountUserDAO {
    @param id     of record
    @throws BusinessException on failure
    */
-  private void delete(DSLContext db, AccessControl access, ULong id) throws BusinessException {
+  private void delete(DSLContext db, Access access, ULong id) throws BusinessException {
     requireTopLevel(access);
-    // TODO: fail if no accountUser is deleted
     db.deleteFrom(ACCOUNT_USER)
       .where(ACCOUNT_USER.ID.eq(id))
       .execute();

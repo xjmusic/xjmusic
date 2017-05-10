@@ -1,12 +1,13 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
 package io.outright.xj.core.model.instrument;
 
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.model.Entity;
 import io.outright.xj.core.transport.CSV;
-import io.outright.xj.core.util.Purify;
+import io.outright.xj.core.util.Text;
 
 import org.jooq.Field;
+import org.jooq.Record;
 import org.jooq.types.ULong;
 
 import com.google.api.client.util.Maps;
@@ -15,9 +16,19 @@ import com.google.common.collect.ImmutableList;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static io.outright.xj.core.Tables.INSTRUMENT;
 
+/**
+ Entity for use as POJO for decoding messages received by JAX-RS resources
+ a.k.a. JSON input will be stored into an instance of this object
+
+ Business logic ought to be performed beginning with an instance of this object,
+ to implement common methods.
+
+ NOTE: There can only be ONE of any getter/setter (with the same # of input params)
+ */
 public class Instrument extends Entity {
   public final static String PERCUSSIVE = "percussive";
   public final static String HARMONIC = "harmonic";
@@ -30,9 +41,21 @@ public class Instrument extends Entity {
     MELODIC,
     VOCAL
   );
-
+  /**
+   For use in maps.
+   */
+  public static final String KEY_ONE = "instrument";
+  public static final String KEY_MANY = "instruments";
   // Description
   private String description;
+  // Type
+  private String type;
+  // Library
+  private ULong libraryId;
+  // User
+  private ULong userId;
+  // Density
+  private Double density;
 
   public String getDescription() {
     return description;
@@ -43,20 +66,14 @@ public class Instrument extends Entity {
     return this;
   }
 
-  // Type
-  private String type;
-
   public String getType() {
     return type;
   }
 
   public Instrument setType(String type) {
-    this.type = Purify.LowerSlug(type);
+    this.type = Text.LowerSlug(type);
     return this;
   }
-
-  // Library
-  private ULong libraryId;
 
   public ULong getLibraryId() {
     return libraryId;
@@ -67,9 +84,6 @@ public class Instrument extends Entity {
     return this;
   }
 
-  // User
-  private ULong userId;
-
   public ULong getUserId() {
     return userId;
   }
@@ -78,9 +92,6 @@ public class Instrument extends Entity {
     this.userId = ULong.valueOf(userId);
     return this;
   }
-
-  // Density
-  private Double density;
 
   public Double getDensity() {
     return density;
@@ -91,11 +102,7 @@ public class Instrument extends Entity {
     return this;
   }
 
-  /**
-   Validate data.
-
-   @throws BusinessException if invalid.
-   */
+  @Override
   public void validate() throws BusinessException {
     if (this.libraryId == null) {
       throw new BusinessException("Library ID is required.");
@@ -106,23 +113,35 @@ public class Instrument extends Entity {
     if (this.type == null || this.type.length() == 0) {
       throw new BusinessException("Type is required.");
     }
-    if (this.description == null || this.description.length() == 0) {
-      throw new BusinessException("Description is required.");
-    }
     if (!TYPES.contains(this.type)) {
       throw new BusinessException("'" + this.type + "' is not a valid type (" + CSV.join(TYPES) + ").");
+    }
+    if (this.description == null || this.description.length() == 0) {
+      throw new BusinessException("Description is required.");
     }
     if (this.density == null) {
       throw new BusinessException("Density is required.");
     }
   }
 
-  /**
-   Model info jOOQ-field : Value map
+  @Override
+  public Instrument setFromRecord(Record record) {
+    if (Objects.isNull(record)) {
+      return null;
+    }
+    id = record.get(INSTRUMENT.ID);
+    description = record.get(INSTRUMENT.DESCRIPTION);
+    libraryId = record.get(INSTRUMENT.LIBRARY_ID);
+    userId = record.get(INSTRUMENT.USER_ID);
+    type = record.get(INSTRUMENT.TYPE);
+    density = record.get(INSTRUMENT.DENSITY);
+    createdAt = record.get(INSTRUMENT.CREATED_AT);
+    updatedAt = record.get(INSTRUMENT.UPDATED_AT);
+    return this;
+  }
 
-   @return map
-   */
-  public Map<Field, Object> intoFieldValueMap() {
+  @Override
+  public Map<Field, Object> updatableFieldValueMap() {
     Map<Field, Object> fieldValues = Maps.newHashMap();
     fieldValues.put(INSTRUMENT.DESCRIPTION, description);
     fieldValues.put(INSTRUMENT.LIBRARY_ID, libraryId);
@@ -131,11 +150,5 @@ public class Instrument extends Entity {
     fieldValues.put(INSTRUMENT.DENSITY, density);
     return fieldValues;
   }
-
-  /**
-   For use in maps.
-   */
-  public static final String KEY_ONE = "instrument";
-  public static final String KEY_MANY = "instruments";
 
 }

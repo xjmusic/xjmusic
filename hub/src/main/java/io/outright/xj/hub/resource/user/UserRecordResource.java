@@ -2,22 +2,17 @@
 package io.outright.xj.hub.resource.user;
 
 import io.outright.xj.core.CoreModule;
-import io.outright.xj.core.app.access.impl.AccessControl;
+import io.outright.xj.core.app.access.impl.Access;
 import io.outright.xj.core.app.server.HttpResponseProvider;
 import io.outright.xj.core.dao.UserDAO;
 import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.model.user.User;
 import io.outright.xj.core.model.user.UserWrapper;
-import io.outright.xj.core.transport.JSON;
 
 import org.jooq.types.ULong;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-
-import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.annotation.security.RolesAllowed;
 import javax.jws.WebResult;
@@ -38,9 +33,8 @@ import java.io.IOException;
 @Path("users/{id}")
 public class UserRecordResource {
   private static final Injector injector = Guice.createInjector(new CoreModule());
-  private static Logger log = LoggerFactory.getLogger(UserRecordResource.class);
-  private final UserDAO userDAO = injector.getInstance(UserDAO.class);
-  private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
+  private final UserDAO DAO = injector.getInstance(UserDAO.class);
+  private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
 
   @PathParam("id") String id;
 
@@ -53,20 +47,15 @@ public class UserRecordResource {
   @WebResult
   @RolesAllowed({Role.USER})
   public Response readOne(@Context ContainerRequestContext crc) throws IOException {
-    AccessControl access = AccessControl.fromContext(crc);
     try {
-      JSONObject result = userDAO.readOne(access, ULong.valueOf(id));
-      if (result != null) {
-        return Response
-          .accepted(JSON.wrap(User.KEY_ONE, result).toString())
-          .type(MediaType.APPLICATION_JSON)
-          .build();
-      } else {
-        return httpResponseProvider.notFound("User");
-      }
+      return response.readOne(
+        User.KEY_ONE,
+        DAO.readOne(
+          Access.fromContext(crc),
+          ULong.valueOf(id)));
 
     } catch (Exception e) {
-      return httpResponseProvider.failure(e);
+      return response.failure(e);
     }
   }
 
@@ -80,13 +69,15 @@ public class UserRecordResource {
   @Consumes(MediaType.APPLICATION_JSON)
   @RolesAllowed({Role.ADMIN})
   public Response update(UserWrapper data, @Context ContainerRequestContext crc) {
-    AccessControl access = AccessControl.fromContext(crc);
     try {
-      userDAO.updateUserRolesAndDestroyTokens(access, ULong.valueOf(id), data);
+      DAO.updateUserRolesAndDestroyTokens(
+        Access.fromContext(crc),
+        ULong.valueOf(id),
+        data.getUser());
       return Response.accepted("{}").build();
 
     } catch (Exception e) {
-      return httpResponseProvider.failureToUpdate(e);
+      return response.failureToUpdate(e);
     }
   }
 

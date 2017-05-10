@@ -1,26 +1,66 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
 package io.outright.xj.core.model.voice_event;
 
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.model.Entity;
-import io.outright.xj.core.util.Purify;
+import io.outright.xj.core.util.Text;
 
 import org.jooq.Field;
+import org.jooq.Record;
 import org.jooq.types.ULong;
 
 import com.google.api.client.util.Maps;
 
 import java.math.BigInteger;
 import java.util.Map;
+import java.util.Objects;
 
 import static io.outright.xj.core.Tables.VOICE_EVENT;
 
+/**
+ Entity for use as POJO for decoding messages received by JAX-RS resources
+ a.k.a. JSON input will be stored into an instance of this object
+
+ Business logic ought to be performed beginning with an instance of this object,
+ to implement common methods.
+
+ NOTE: There can only be ONE of any getter/setter (with the same # of input params)
+ */
 public class VoiceEvent extends Entity {
 
+  /**
+   For use in maps.
+   */
+  public static final String KEY_ONE = "voiceEvent";
+  public static final String KEY_MANY = "voiceEvents";
   /**
    Duration
    */
   private Double duration;
+  /**
+   Inflection
+   */
+  private String inflection;
+  /**
+   Note
+   */
+  private String note;
+  /**
+   Position
+   */
+  private Double position;
+  /**
+   Tonality
+   */
+  private Double tonality;
+  /**
+   Velocity
+   */
+  private Double velocity;
+  /**
+   Voice
+   */
+  private ULong voiceId;
 
   public Double getDuration() {
     return duration;
@@ -31,38 +71,23 @@ public class VoiceEvent extends Entity {
     return this;
   }
 
-  /**
-   Inflection
-   */
-  private String inflection;
-
   public String getInflection() {
     return inflection;
   }
 
   public VoiceEvent setInflection(String inflection) {
-    this.inflection = Purify.UpperSlug(inflection);
+    this.inflection = Text.UpperSlug(inflection);
     return this;
   }
-
-  /**
-   Note
-   */
-  private String note;
 
   public String getNote() {
     return note;
   }
 
   public VoiceEvent setNote(String note) {
-    this.note = Purify.Note(note);
+    this.note = Text.Note(note);
     return this;
   }
-
-  /**
-   Position
-   */
-  private Double position;
 
   public Double getPosition() {
     return position;
@@ -73,11 +98,6 @@ public class VoiceEvent extends Entity {
     return this;
   }
 
-  /**
-   Tonality
-   */
-  private Double tonality;
-
   public Double getTonality() {
     return tonality;
   }
@@ -86,11 +106,6 @@ public class VoiceEvent extends Entity {
     this.tonality = tonality;
     return this;
   }
-
-  /**
-   Velocity
-   */
-  private Double velocity;
 
   public Double getVelocity() {
     return velocity;
@@ -101,11 +116,6 @@ public class VoiceEvent extends Entity {
     return this;
   }
 
-  /**
-   Voice
-   */
-  private ULong voiceId;
-
   public ULong getVoiceId() {
     return voiceId;
   }
@@ -115,11 +125,7 @@ public class VoiceEvent extends Entity {
     return this;
   }
 
-  /**
-   Validate data.
-
-   @throws BusinessException if invalid.
-   */
+  @Override
   public void validate() throws BusinessException {
     if (this.duration == null) {
       throw new BusinessException("Duration is required.");
@@ -144,12 +150,26 @@ public class VoiceEvent extends Entity {
     }
   }
 
-  /**
-   Model info jOOQ-field : Value map
+  @Override
+  public VoiceEvent setFromRecord(Record record) {
+    if (Objects.isNull(record)) {
+      return null;
+    }
+    id = record.get(VOICE_EVENT.ID);
+    duration = record.get(VOICE_EVENT.DURATION);
+    inflection = record.get(VOICE_EVENT.INFLECTION);
+    note = record.get(VOICE_EVENT.NOTE);
+    position = record.get(VOICE_EVENT.POSITION);
+    tonality = record.get(VOICE_EVENT.TONALITY);
+    velocity = record.get(VOICE_EVENT.VELOCITY);
+    voiceId = record.get(VOICE_EVENT.VOICE_ID);
+    createdAt = record.get(VOICE_EVENT.CREATED_AT);
+    updatedAt = record.get(VOICE_EVENT.UPDATED_AT);
+    return this;
+  }
 
-   @return map
-   */
-  public Map<Field, Object> intoFieldValueMap() {
+  @Override
+  public Map<Field, Object> updatableFieldValueMap() {
     Map<Field, Object> fieldValues = Maps.newHashMap();
     fieldValues.put(VOICE_EVENT.DURATION, duration);
     fieldValues.put(VOICE_EVENT.INFLECTION, inflection);
@@ -160,12 +180,5 @@ public class VoiceEvent extends Entity {
     fieldValues.put(VOICE_EVENT.VOICE_ID, voiceId);
     return fieldValues;
   }
-
-
-  /**
-   For use in maps.
-   */
-  public static final String KEY_ONE = "voiceEvent";
-  public static final String KEY_MANY = "voiceEvents";
 
 }

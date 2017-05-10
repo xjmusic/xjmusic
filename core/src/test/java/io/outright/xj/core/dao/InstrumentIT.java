@@ -1,15 +1,15 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
 package io.outright.xj.core.dao;
 
 import io.outright.xj.core.CoreModule;
-import io.outright.xj.core.app.access.impl.AccessControl;
+import io.outright.xj.core.app.access.impl.Access;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.integration.IntegrationTestEntity;
 import io.outright.xj.core.integration.IntegrationTestService;
 import io.outright.xj.core.model.instrument.Instrument;
-import io.outright.xj.core.model.instrument.InstrumentWrapper;
 import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.tables.records.InstrumentRecord;
+import io.outright.xj.core.transport.JSON;
 
 import org.jooq.types.ULong;
 
@@ -30,7 +30,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
-// TODO [core] test permissions of different users to read vs. create vs. update or delete instruments
+// TODO [core] test permissions of different users to readMany vs. create vs. update or delete instruments
 public class InstrumentIT {
   private Injector injector = Guice.createInjector(new CoreModule());
   private InstrumentDAO testDAO;
@@ -67,21 +67,19 @@ public class InstrumentIT {
 
   @Test
   public void create() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "userId", "2",
       "roles", "user",
       "accounts", "1"
     ));
-    InstrumentWrapper inputDataWrapper = new InstrumentWrapper()
-      .setInstrument(new Instrument()
-        .setDensity(0.42)
-        .setLibraryId(BigInteger.valueOf(1))
-        .setDescription("bimmies")
-        .setType(Instrument.PERCUSSIVE)
-        .setUserId(BigInteger.valueOf(2))
-      );
+    Instrument inputData = new Instrument()
+      .setDensity(0.42)
+      .setLibraryId(BigInteger.valueOf(1))
+      .setDescription("bimmies")
+      .setType(Instrument.PERCUSSIVE)
+      .setUserId(BigInteger.valueOf(2));
 
-    JSONObject result = testDAO.create(access, inputDataWrapper);
+    JSONObject result = JSON.objectFromRecord(testDAO.create(access, inputData));
 
     assertNotNull(result);
     assertEquals(0.42, result.get("density"));
@@ -93,61 +91,57 @@ public class InstrumentIT {
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutLibraryID() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "user",
       "accounts", "1"
     ));
-    InstrumentWrapper inputDataWrapper = new InstrumentWrapper()
-      .setInstrument(new Instrument()
-        .setDensity(0.42)
-        .setDescription("bimmies")
-        .setType(Instrument.PERCUSSIVE)
-        .setUserId(BigInteger.valueOf(2))
-      );
+    Instrument inputData = new Instrument()
+      .setDensity(0.42)
+      .setDescription("bimmies")
+      .setType(Instrument.PERCUSSIVE)
+      .setUserId(BigInteger.valueOf(2));
 
-    testDAO.create(access, inputDataWrapper);
+    testDAO.create(access, inputData);
   }
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutUserID() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "user",
       "accounts", "1"
     ));
-    InstrumentWrapper inputDataWrapper = new InstrumentWrapper()
-      .setInstrument(new Instrument()
-        .setDensity(0.42)
-        .setDescription("bimmies")
-        .setType(Instrument.PERCUSSIVE)
-        .setLibraryId(BigInteger.valueOf(2))
-      );
+    Instrument inputData = new Instrument()
+      .setDensity(0.42)
+      .setDescription("bimmies")
+      .setType(Instrument.PERCUSSIVE)
+      .setLibraryId(BigInteger.valueOf(2));
 
-    testDAO.create(access, inputDataWrapper);
+    testDAO.create(access, inputData);
   }
 
   @Test
   public void readOne() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "user",
       "accounts", "1"
     ));
 
-    JSONObject result = testDAO.readOne(access, ULong.valueOf(2));
+    Instrument result = new Instrument().setFromRecord(testDAO.readOne(access, ULong.valueOf(2)));
 
     assertNotNull(result);
-    assertEquals(ULong.valueOf(2), result.get("id"));
-    assertEquals(ULong.valueOf(1), result.get("libraryId"));
-    assertEquals("buns", result.get("description"));
+    assertEquals(ULong.valueOf(2), result.getId());
+    assertEquals(ULong.valueOf(1), result.getLibraryId());
+    assertEquals("buns", result.getDescription());
   }
 
   @Test
   public void readOne_FailsWhenUserIsNotInLibrary() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "user",
       "accounts", "326"
     ));
 
-    JSONObject result = testDAO.readOne(access, ULong.valueOf(1));
+    InstrumentRecord result = testDAO.readOne(access, ULong.valueOf(1));
 
     assertNull(result);
   }
@@ -156,76 +150,70 @@ public class InstrumentIT {
 
   @Test
   public void readAll() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin",
       "accounts", "1"
     ));
 
-    JSONArray actualResultList = testDAO.readAllInLibrary(access, ULong.valueOf(1));
+    JSONArray result = JSON.arrayOf(testDAO.readAllInLibrary(access, ULong.valueOf(1)));
 
-    assertNotNull(actualResultList);
-    assertEquals(2, actualResultList.length());
-    JSONObject actualResult1 = (JSONObject) actualResultList.get(0);
-    assertEquals("jams", actualResult1.get("description"));
-    JSONObject actualResult2 = (JSONObject) actualResultList.get(1);
-    assertEquals("buns", actualResult2.get("description"));
+    assertNotNull(result);
+    assertEquals(2, result.length());
+    JSONObject result1 = (JSONObject) result.get(0);
+    assertEquals("jams", result1.get("description"));
+    JSONObject result2 = (JSONObject) result.get(1);
+    assertEquals("buns", result2.get("description"));
   }
 
   @Test
   public void readAll_SeesNothingOutsideOfLibrary() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "user",
       "accounts", "345"
     ));
 
-    JSONArray actualResultList = testDAO.readAllInLibrary(access, ULong.valueOf(1));
+    JSONArray result = JSON.arrayOf(testDAO.readAllInLibrary(access, ULong.valueOf(1)));
 
-    assertNotNull(actualResultList);
-    assertEquals(0, actualResultList.length());
+    assertNotNull(result);
+    assertEquals(0, result.length());
   }
 
   @Test(expected = BusinessException.class)
   public void update_FailsWithoutLibraryID() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "user",
       "accounts", "1"
     ));
-    Instrument inputData = new Instrument();
-    inputData.setDescription("bimmies");
-    InstrumentWrapper inputDataWrapper = new InstrumentWrapper();
-    inputDataWrapper.setInstrument(inputData);
+    Instrument inputData = new Instrument()
+      .setDescription("bimmies");
 
-    testDAO.update(access, ULong.valueOf(3), inputDataWrapper);
+    testDAO.update(access, ULong.valueOf(3), inputData);
   }
 
   @Test(expected = BusinessException.class)
   public void update_FailsWithoutName() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "user",
       "accounts", "1"
     ));
-    Instrument inputData = new Instrument();
-    inputData.setLibraryId(BigInteger.valueOf(3));
-    InstrumentWrapper inputDataWrapper = new InstrumentWrapper();
-    inputDataWrapper.setInstrument(inputData);
+    Instrument inputData = new Instrument()
+      .setLibraryId(BigInteger.valueOf(3));
 
-    testDAO.update(access, ULong.valueOf(3), inputDataWrapper);
+    testDAO.update(access, ULong.valueOf(3), inputData);
   }
 
   @Test(expected = BusinessException.class)
   public void update_FailsUpdatingToNonexistentLibrary() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "user",
       "accounts", "1"
     ));
-    Instrument inputData = new Instrument();
-    inputData.setDescription("bimmies");
-    inputData.setLibraryId(BigInteger.valueOf(387));
-    InstrumentWrapper inputDataWrapper = new InstrumentWrapper();
-    inputDataWrapper.setInstrument(inputData);
+    Instrument inputData = new Instrument()
+      .setDescription("bimmies")
+      .setLibraryId(BigInteger.valueOf(387));
 
     try {
-      testDAO.update(access, ULong.valueOf(2), inputDataWrapper);
+      testDAO.update(access, ULong.valueOf(2), inputData);
 
     } catch (Exception e) {
       InstrumentRecord result = IntegrationTestService.getDb()
@@ -241,21 +229,19 @@ public class InstrumentIT {
 
   @Test
   public void update_Name() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "userId", "2",
       "roles", "user",
       "accounts", "1"
     ));
-    InstrumentWrapper inputDataWrapper = new InstrumentWrapper()
-      .setInstrument(new Instrument()
-        .setDensity(0.42)
-        .setLibraryId(BigInteger.valueOf(1))
-        .setDescription("bimmies")
-        .setType(Instrument.PERCUSSIVE)
-        .setUserId(BigInteger.valueOf(2))
-      );
+    Instrument inputData = new Instrument()
+      .setDensity(0.42)
+      .setLibraryId(BigInteger.valueOf(1))
+      .setDescription("bimmies")
+      .setType(Instrument.PERCUSSIVE)
+      .setUserId(BigInteger.valueOf(2));
 
-    testDAO.update(access, ULong.valueOf(2), inputDataWrapper);
+    testDAO.update(access, ULong.valueOf(2), inputData);
 
     InstrumentRecord result = IntegrationTestService.getDb()
       .selectFrom(INSTRUMENT)
@@ -270,7 +256,7 @@ public class InstrumentIT {
 
   @Test
   public void delete() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
 
@@ -285,7 +271,7 @@ public class InstrumentIT {
 
   @Test(expected = BusinessException.class)
   public void delete_FailsIfInstrumentHasChildRecords() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
     IntegrationTestEntity.insertInstrumentMeme(1, 1, "hams");

@@ -1,18 +1,19 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
 package io.outright.xj.core.dao;
 
 import io.outright.xj.core.CoreModule;
-import io.outright.xj.core.app.access.impl.AccessControl;
+import io.outright.xj.core.app.access.impl.Access;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.integration.IntegrationTestEntity;
 import io.outright.xj.core.integration.IntegrationTestService;
 import io.outright.xj.core.model.idea.Idea;
 import io.outright.xj.core.model.phase.Phase;
-import io.outright.xj.core.model.phase.PhaseWrapper;
 import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.tables.records.PhaseRecord;
+import io.outright.xj.core.transport.JSON;
 
 import org.jooq.impl.DSL;
+import org.jooq.types.UInteger;
 import org.jooq.types.ULong;
 
 import com.google.common.collect.ImmutableMap;
@@ -34,13 +35,12 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
-// TODO [core] test permissions of different users to read vs. create vs. update or delete phases
+// TODO [core] test permissions of different users to readMany vs. create vs. update or delete phases
 public class PhaseIT {
-  private Injector injector = Guice.createInjector(new CoreModule());
-  private PhaseDAO testDAO;
-
   @Rule
   public ExpectedException failure = ExpectedException.none();
+  private Injector injector = Guice.createInjector(new CoreModule());
+  private PhaseDAO testDAO;
 
   @Before
   public void setUp() throws Exception {
@@ -80,22 +80,20 @@ public class PhaseIT {
 
   @Test
   public void create() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
-    PhaseWrapper inputDataWrapper = new PhaseWrapper()
-      .setPhase(new Phase()
-        .setDensity(0.42)
-        .setKey("G minor 7")
-        .setIdeaId(BigInteger.valueOf(2))
-        .setName("cannons")
-        .setTempo(129.4)
-        .setOffset(16)
-        .setTotal(16)
-      );
+    Phase inputData = new Phase()
+      .setDensity(0.42)
+      .setKey("G minor 7")
+      .setIdeaId(BigInteger.valueOf(2))
+      .setName("cannons")
+      .setTempo(129.4)
+      .setOffset(BigInteger.valueOf(16))
+      .setTotal(16);
 
-    JSONObject result = testDAO.create(access, inputDataWrapper);
+    JSONObject result = JSON.objectFromRecord(testDAO.create(access, inputData));
 
     assertNotNull(result);
     assertEquals(0.42, result.get("density"));
@@ -103,27 +101,25 @@ public class PhaseIT {
     assertEquals(ULong.valueOf(2), result.get("ideaId"));
     assertEquals("cannons", result.get("name"));
     assertEquals(129.4, result.get("tempo"));
-    assertEquals(16, result.get("offset"));
-    assertEquals(16, result.get("total"));
+    assertEquals(ULong.valueOf(16), result.get("offset"));
+    assertEquals(UInteger.valueOf(16), result.get("total"));
   }
 
   @Test
   public void create_TotalNotRequiredForMacroIdeaPhase() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
-    PhaseWrapper inputDataWrapper = new PhaseWrapper()
-      .setPhase(new Phase()
-        .setDensity(0.42)
-        .setKey("G minor 7")
-        .setIdeaId(BigInteger.valueOf(2))
-        .setName("cannons")
-        .setTempo(129.4)
-        .setOffset(16)
-      );
+    Phase inputData = new Phase()
+      .setDensity(0.42)
+      .setKey("G minor 7")
+      .setIdeaId(BigInteger.valueOf(2))
+      .setName("cannons")
+      .setTempo(129.4)
+      .setOffset(BigInteger.valueOf(16));
 
-    JSONObject result = testDAO.create(access, inputDataWrapper);
+    JSONObject result = JSON.objectFromRecord(testDAO.create(access, inputData));
 
     assertNotNull(result);
     assertEquals(DSL.val((String) null), result.get("total"));
@@ -131,67 +127,61 @@ public class PhaseIT {
 
   @Test()
   public void create_TotalIsRequiredForNonMacroTypeIdeaPhase() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
-    PhaseWrapper inputDataWrapper = new PhaseWrapper()
-      .setPhase(new Phase()
-        .setDensity(0.42)
-        .setKey("G minor 7")
-        .setIdeaId(BigInteger.valueOf(1))
-        .setName("cannons")
-        .setTempo(129.4)
-        .setOffset(16)
-      );
+    Phase inputData = new Phase()
+      .setDensity(0.42)
+      .setKey("G minor 7")
+      .setIdeaId(BigInteger.valueOf(1))
+      .setName("cannons")
+      .setTempo(129.4)
+      .setOffset(BigInteger.valueOf(16));
 
     failure.expect(BusinessException.class);
     failure.expectMessage("for a phase of a non-macro-type idea, total (# beats) is required");
 
-    testDAO.create(access, inputDataWrapper);
+    testDAO.create(access, inputData);
   }
 
   @Test()
   public void create_TotalMustBeGreaterThanZeroForNonMacroTypeIdeaPhase() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
-    PhaseWrapper inputDataWrapper = new PhaseWrapper()
-      .setPhase(new Phase()
-        .setDensity(0.42)
-        .setKey("G minor 7")
-        .setIdeaId(BigInteger.valueOf(1))
-        .setName("cannons")
-        .setTempo(129.4)
-        .setOffset(16)
-        .setTotal(0)
-      );
+    Phase inputData = new Phase()
+      .setDensity(0.42)
+      .setKey("G minor 7")
+      .setIdeaId(BigInteger.valueOf(1))
+      .setName("cannons")
+      .setTempo(129.4)
+      .setOffset(BigInteger.valueOf(16))
+      .setTotal(0);
 
     failure.expect(BusinessException.class);
     failure.expectMessage("for a phase of a non-macro-type idea, total (# beats) must be greater than zero");
 
-    testDAO.create(access, inputDataWrapper);
+    testDAO.create(access, inputData);
   }
 
   @Test
   public void create_NullOptionalFieldsAllowed() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
-    PhaseWrapper inputDataWrapper = new PhaseWrapper()
-      .setPhase(new Phase()
-        .setDensity(null)
-        .setKey(null)
-        .setIdeaId(BigInteger.valueOf(2))
-        .setName(null)
-        .setTempo(null)
-        .setOffset(0)
-        .setTotal(16)
-      );
+    Phase inputData = new Phase()
+      .setDensity(null)
+      .setKey(null)
+      .setIdeaId(BigInteger.valueOf(2))
+      .setName(null)
+      .setTempo(null)
+      .setOffset(BigInteger.valueOf(0))
+      .setTotal(16);
 
-    JSONObject result = testDAO.create(access, inputDataWrapper);
+    JSONObject result = JSON.objectFromRecord(testDAO.create(access, inputData));
 
     assertNotNull(result);
     assertEquals(ULong.valueOf(2), result.get("ideaId"));
@@ -199,131 +189,175 @@ public class PhaseIT {
     assertEquals(DSL.val((String) null), result.get("key"));
     assertEquals(DSL.val((String) null), result.get("name"));
     assertEquals(DSL.val((String) null), result.get("tempo"));
-    assertEquals(0, result.get("offset"));
-    assertEquals(16, result.get("total"));
+    assertEquals(ULong.valueOf(0), result.get("offset"));
+    assertEquals(UInteger.valueOf(16), result.get("total"));
   }
 
   @Test()
   public void create_FailsWithoutIdeaID() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
-    PhaseWrapper inputDataWrapper = new PhaseWrapper()
-      .setPhase(new Phase()
-        .setDensity(0.42)
-        .setKey("G minor 7")
-        .setName("cannons")
-        .setTempo(129.4)
-        .setOffset(0)
-        .setTotal(16)
-      );
+    Phase inputData = new Phase()
+      .setDensity(0.42)
+      .setKey("G minor 7")
+      .setName("cannons")
+      .setTempo(129.4)
+      .setOffset(BigInteger.valueOf(0))
+      .setTotal(16);
 
     failure.expect(BusinessException.class);
     failure.expectMessage("Idea ID is required");
 
-    testDAO.create(access, inputDataWrapper);
+    testDAO.create(access, inputData);
   }
 
   @Test()
   public void create_FailsWithoutOffset() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
-    PhaseWrapper inputDataWrapper = new PhaseWrapper()
-      .setPhase(new Phase()
-        .setDensity(0.42)
-        .setIdeaId(BigInteger.valueOf(2))
-        .setKey("G minor 7")
-        .setName("cannons")
-        .setTempo(129.4)
-        .setTotal(16)
-      );
+    Phase inputData = new Phase()
+      .setDensity(0.42)
+      .setIdeaId(BigInteger.valueOf(2))
+      .setKey("G minor 7")
+      .setName("cannons")
+      .setTempo(129.4)
+      .setTotal(16);
 
     failure.expect(BusinessException.class);
     failure.expectMessage("Offset is required");
 
-    testDAO.create(access, inputDataWrapper);
+    testDAO.create(access, inputData);
+  }
+
+  /**
+   [#237] shouldn't be able to create phase with same offset in idea
+   */
+  @Test()
+  public void create_FailsIfIdeaAlreadyHasPhaseWithThisOffset() throws Exception {
+    Access access = new Access(ImmutableMap.of(
+      "roles", "admin"
+    ));
+    Phase inputData = new Phase()
+      .setOffset(BigInteger.valueOf(1))
+      .setDensity(0.42)
+      .setIdeaId(BigInteger.valueOf(1))
+      .setKey("G minor 7")
+      .setName("cannons")
+      .setTempo(129.4)
+      .setTotal(16);
+
+    failure.expect(BusinessException.class);
+    failure.expectMessage("Found phase with same offset in idea");
+
+    testDAO.create(access, inputData);
   }
 
   @Test
   public void readOne() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
 
-    JSONObject result = testDAO.readOne(access, ULong.valueOf(2));
+    Phase result = new Phase().setFromRecord(testDAO.readOne(access, ULong.valueOf(2)));
 
     assertNotNull(result);
-    assertEquals(ULong.valueOf(2), result.get("id"));
-    assertEquals(ULong.valueOf(1), result.get("ideaId"));
-    assertEquals("Caterpillars", result.get("name"));
+    assertEquals(ULong.valueOf(2), result.getId());
+    assertEquals(ULong.valueOf(1), result.getIdeaId());
+    assertEquals("Caterpillars", result.getName());
   }
 
   @Test
   public void readOne_FailsWhenUserIsNotInAccount() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "326"
     ));
 
-    JSONObject result = testDAO.readOne(access, ULong.valueOf(1));
+    PhaseRecord result = testDAO.readOne(access, ULong.valueOf(1));
+
+    assertNull(result);
+  }
+
+  @Test
+  public void readOneForIdea() throws Exception {
+    Access access = new Access(ImmutableMap.of(
+      "roles", "artist",
+      "accounts", "1"
+    ));
+
+    Phase result = new Phase().setFromRecord(testDAO.readOneForIdea(access, ULong.valueOf(1), ULong.valueOf(1)));
+
+    assertNotNull(result);
+    assertEquals(ULong.valueOf(2), result.getId());
+    assertEquals(ULong.valueOf(1), result.getIdeaId());
+    assertEquals("Caterpillars", result.getName());
+  }
+
+  @Test
+  public void readOneForIdea_FailsWhenUserIsNotInAccount() throws Exception {
+    Access access = new Access(ImmutableMap.of(
+      "roles", "artist",
+      "accounts", "143"
+    ));
+
+    PhaseRecord result = testDAO.readOneForIdea(access, ULong.valueOf(1), ULong.valueOf(1));
 
     assertNull(result);
   }
 
   @Test
   public void readAll() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
 
-    JSONArray actualResultList = testDAO.readAllIn(access, ULong.valueOf(1));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ULong.valueOf(1)));
 
-    assertNotNull(actualResultList);
-    assertEquals(2, actualResultList.length());
-    JSONObject actualResult1 = (JSONObject) actualResultList.get(0);
-    assertEquals("Ants", actualResult1.get("name"));
-    JSONObject actualResult2 = (JSONObject) actualResultList.get(1);
-    assertEquals("Caterpillars", actualResult2.get("name"));
+    assertNotNull(result);
+    assertEquals(2, result.length());
+    JSONObject result1 = (JSONObject) result.get(0);
+    assertEquals("Ants", result1.get("name"));
+    JSONObject result2 = (JSONObject) result.get(1);
+    assertEquals("Caterpillars", result2.get("name"));
   }
 
   @Test
   public void readAll_SeesNothingOutsideOfLibrary() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "345"
     ));
 
-    JSONArray actualResultList = testDAO.readAllIn(access, ULong.valueOf(1));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ULong.valueOf(1)));
 
-    assertNotNull(actualResultList);
-    assertEquals(0, actualResultList.length());
+    assertNotNull(result);
+    assertEquals(0, result.length());
   }
 
   // TODO: [core] test DAO cannot update Idea to a User or Library not owned by current session
 
   @Test
   public void update() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
-    PhaseWrapper inputDataWrapper = new PhaseWrapper()
-      .setPhase(new Phase()
-        .setIdeaId(BigInteger.valueOf(1))
-        .setOffset(7)
-        .setTotal(32)
-        .setName(null)
-        .setDensity(null)
-        .setKey("")
-        .setTempo((double) 0)
-      );
+    Phase inputData = new Phase()
+      .setIdeaId(BigInteger.valueOf(1))
+      .setOffset(BigInteger.valueOf(7))
+      .setTotal(32)
+      .setName(null)
+      .setDensity(null)
+      .setKey("")
+      .setTempo((double) 0);
 
-    testDAO.update(access, ULong.valueOf(1), inputDataWrapper);
+    testDAO.update(access, ULong.valueOf(1), inputData);
 
     PhaseRecord result = IntegrationTestService.getDb()
       .selectFrom(PHASE)
@@ -335,139 +369,127 @@ public class PhaseIT {
     assertEquals(null, result.getTempo());
     assertEquals(null, result.getKey());
     assertEquals(ULong.valueOf(7), result.getOffset());
-    assertEquals(ULong.valueOf(32), result.getTotal());
+    assertEquals(UInteger.valueOf(32), result.getTotal());
     assertEquals(ULong.valueOf(1), result.getIdeaId());
   }
 
   @Test()
   public void update_FailsWithoutIdeaID() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
-    PhaseWrapper inputDataWrapper = new PhaseWrapper()
-      .setPhase(new Phase()
-        .setDensity(0.42)
-        .setKey("G minor 7")
-        .setName("cannons")
-        .setTempo(129.4)
-        .setOffset(0)
-        .setTotal(16)
-      );
+    Phase inputData = new Phase()
+      .setDensity(0.42)
+      .setKey("G minor 7")
+      .setName("cannons")
+      .setTempo(129.4)
+      .setOffset(BigInteger.valueOf(0))
+      .setTotal(16);
 
     failure.expect(BusinessException.class);
     failure.expectMessage("Idea ID is required");
 
-    testDAO.update(access, ULong.valueOf(1), inputDataWrapper);
+    testDAO.update(access, ULong.valueOf(1), inputData);
   }
 
   @Test
   public void update_TotalNotRequiredForMacroIdeaPhase() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
-    PhaseWrapper inputDataWrapper = new PhaseWrapper()
-      .setPhase(new Phase()
-        .setDensity(0.42)
-        .setKey("G minor 7")
-        .setIdeaId(BigInteger.valueOf(2))
-        .setName("cannons")
-        .setTempo(129.4)
-        .setOffset(16)
-      );
+    Phase inputData = new Phase()
+      .setDensity(0.42)
+      .setKey("G minor 7")
+      .setIdeaId(BigInteger.valueOf(2))
+      .setName("cannons")
+      .setTempo(129.4)
+      .setOffset(BigInteger.valueOf(16));
 
-    testDAO.update(access, ULong.valueOf(1), inputDataWrapper);
+    testDAO.update(access, ULong.valueOf(1), inputData);
   }
 
   @Test()
   public void update_TotalIsRequiredForNonMacroTypeIdeaPhase() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
-    PhaseWrapper inputDataWrapper = new PhaseWrapper()
-      .setPhase(new Phase()
-        .setDensity(0.42)
-        .setKey("G minor 7")
-        .setIdeaId(BigInteger.valueOf(1))
-        .setName("cannons")
-        .setTempo(129.4)
-        .setOffset(16)
-      );
+    Phase inputData = new Phase()
+      .setDensity(0.42)
+      .setKey("G minor 7")
+      .setIdeaId(BigInteger.valueOf(1))
+      .setName("cannons")
+      .setTempo(129.4)
+      .setOffset(BigInteger.valueOf(16));
 
     failure.expect(BusinessException.class);
     failure.expectMessage("for a phase of a non-macro-type idea, total (# beats) is required");
 
-    testDAO.update(access, ULong.valueOf(1), inputDataWrapper);
+    testDAO.update(access, ULong.valueOf(1), inputData);
   }
 
   @Test()
   public void update_TotalMustBeGreaterThanZeroForNonMacroTypeIdeaPhase() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
-    PhaseWrapper inputDataWrapper = new PhaseWrapper()
-      .setPhase(new Phase()
-        .setDensity(0.42)
-        .setKey("G minor 7")
-        .setIdeaId(BigInteger.valueOf(1))
-        .setName("cannons")
-        .setTempo(129.4)
-        .setOffset(16)
-        .setTotal(0)
-      );
+    Phase inputData = new Phase()
+      .setDensity(0.42)
+      .setKey("G minor 7")
+      .setIdeaId(BigInteger.valueOf(1))
+      .setName("cannons")
+      .setTempo(129.4)
+      .setOffset(BigInteger.valueOf(16))
+      .setTotal(0);
 
     failure.expect(BusinessException.class);
     failure.expectMessage("for a phase of a non-macro-type idea, total (# beats) must be greater than zero");
 
-    testDAO.update(access, ULong.valueOf(1), inputDataWrapper);
+    testDAO.update(access, ULong.valueOf(1), inputData);
   }
 
   @Test()
   public void update_FailsWithoutOffset() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
-    PhaseWrapper inputDataWrapper = new PhaseWrapper()
-      .setPhase(new Phase()
-        .setDensity(0.42)
-        .setKey("G minor 7")
-        .setIdeaId(BigInteger.valueOf(2))
-        .setTempo(129.4)
-        .setTotal(16)
-      );
+    Phase inputData = new Phase()
+      .setDensity(0.42)
+      .setKey("G minor 7")
+      .setIdeaId(BigInteger.valueOf(2))
+      .setTempo(129.4)
+      .setTotal(16);
 
     failure.expect(BusinessException.class);
     failure.expectMessage("Offset is required");
 
-    testDAO.update(access, ULong.valueOf(1), inputDataWrapper);
+    testDAO.update(access, ULong.valueOf(1), inputData);
   }
 
   @Test()
   public void update_FailsUpdatingToNonexistentIdea() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
-    PhaseWrapper inputDataWrapper = new PhaseWrapper()
-      .setPhase(new Phase()
-        .setDensity(0.42)
-        .setKey("G minor 7")
-        .setIdeaId(BigInteger.valueOf(57))
-        .setName("Smash!")
-        .setTempo(129.4)
-        .setOffset(0)
-        .setTotal(16)
-      );
+    Phase inputData = new Phase()
+      .setDensity(0.42)
+      .setKey("G minor 7")
+      .setIdeaId(BigInteger.valueOf(57))
+      .setName("Smash!")
+      .setTempo(129.4)
+      .setOffset(BigInteger.valueOf(0))
+      .setTotal(16);
 
     failure.expect(BusinessException.class);
-    failure.expectMessage("Idea must exist");
+    failure.expectMessage("Idea does not exist");
 
     try {
-      testDAO.update(access, ULong.valueOf(2), inputDataWrapper);
+      testDAO.update(access, ULong.valueOf(2), inputData);
 
     } catch (Exception e) {
       PhaseRecord result = IntegrationTestService.getDb()
@@ -483,7 +505,7 @@ public class PhaseIT {
 
   @Test
   public void delete() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
@@ -499,7 +521,7 @@ public class PhaseIT {
 
   @Test(expected = BusinessException.class)
   public void delete_failsIfNotInAccount() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "2"
     ));
@@ -509,7 +531,7 @@ public class PhaseIT {
 
   @Test()
   public void delete_FailsIfIdeaHasChildRecords() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "userId", "2",
       "roles", "artist",
       "accounts", "1"
@@ -517,7 +539,7 @@ public class PhaseIT {
     IntegrationTestEntity.insertPhaseMeme(1, 1, "mashup");
 
     failure.expect(BusinessException.class);
-    failure.expectMessage("Found PhaseMeme");
+    failure.expectMessage("Found Meme in Phase");
 
     try {
       testDAO.delete(access, ULong.valueOf(1));

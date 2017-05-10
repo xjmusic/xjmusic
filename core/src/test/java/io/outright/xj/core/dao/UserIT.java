@@ -1,18 +1,18 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
 package io.outright.xj.core.dao;
 
 import io.outright.xj.core.CoreModule;
-import io.outright.xj.core.app.access.impl.AccessControl;
+import io.outright.xj.core.app.access.impl.Access;
 import io.outright.xj.core.external.AuthType;
 import io.outright.xj.core.integration.IntegrationTestEntity;
 import io.outright.xj.core.integration.IntegrationTestService;
 import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.model.user.User;
-import io.outright.xj.core.model.user.UserWrapper;
 import io.outright.xj.core.tables.records.UserAccessTokenRecord;
 import io.outright.xj.core.tables.records.UserAuthRecord;
 import io.outright.xj.core.tables.records.UserRecord;
 import io.outright.xj.core.tables.records.UserRoleRecord;
+import io.outright.xj.core.transport.JSON;
 
 import org.jooq.types.ULong;
 
@@ -156,72 +156,91 @@ public class UserIT {
 
   @Test
   public void readOne() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "user",
       "accounts", "1"
     ));
 
-    JSONObject result = testDAO.readOne(access, ULong.valueOf(2));
+    User result = new User().setFromRecord(testDAO.readOne(access, ULong.valueOf(2)));
 
     assertNotNull(result);
-    assertEquals(ULong.valueOf(2), result.get("id"));
-    assertEquals("john@email.com", result.get("email"));
-    assertEquals("http://pictures.com/john.gif", result.get("avatarUrl"));
-    assertEquals("john", result.get("name"));
-    assertEquals("user,admin", result.get("roles"));
+    assertEquals(ULong.valueOf(2), result.getId());
+    assertEquals("john@email.com", result.getEmail());
+    assertEquals("http://pictures.com/john.gif", result.getAvatarUrl());
+    assertEquals("john", result.getName());
+    assertEquals("user,admin", result.getRoles());
+  }
+
+  @Test
+  public void readOne_toJSONObject() throws Exception {
+    Access access = new Access(ImmutableMap.of(
+      "roles", "user",
+      "accounts", "1"
+    ));
+
+    User result = new User().setFromRecord(testDAO.readOne(access, ULong.valueOf(2)));
+    assertNotNull(result);
+    JSONObject resultJSON = result.toJSONObject();
+
+    assertNotNull(resultJSON);
+    assertEquals(ULong.valueOf(2), resultJSON.get("id"));
+    assertEquals("john@email.com", resultJSON.get("email"));
+    assertEquals("http://pictures.com/john.gif", resultJSON.get("avatarUrl"));
+    assertEquals("john", resultJSON.get("name"));
+    assertEquals("user,admin", resultJSON.get("roles"));
   }
 
   @Test
   public void readOne_UserSeesAnotherUserWithCommonAccountMembership() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "user",
       "accounts", "1"
     ));
 
-    JSONObject result = testDAO.readOne(access, ULong.valueOf(3));
+    User result = new User().setFromRecord(testDAO.readOne(access, ULong.valueOf(3)));
 
     assertNotNull(result);
-    assertEquals(ULong.valueOf(3), result.get("id"));
-    assertEquals("jenny@email.com", result.get("email"));
-    assertEquals("http://pictures.com/jenny.gif", result.get("avatarUrl"));
-    assertEquals("jenny", result.get("name"));
-    assertEquals("user", result.get("roles"));
+    assertEquals(ULong.valueOf(3), result.getId());
+    assertEquals("jenny@email.com", result.getEmail());
+    assertEquals("http://pictures.com/jenny.gif", result.getAvatarUrl());
+    assertEquals("jenny", result.getName());
+    assertEquals("user", result.getRoles());
   }
 
   @Test
   public void readOne_UserCannotSeeUserWithoutCommonAccountMembership() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "user",
       "accounts", "1"
     ));
 
-    JSONObject result = testDAO.readOne(access, ULong.valueOf(4));
+    User result = new User().setFromRecord(testDAO.readOne(access, ULong.valueOf(4)));
 
     assertNull(result);
   }
 
   @Test
   public void readOne_UserWithNoAccountMembershipCanStillSeeSelf() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "userId", "4", // Bill has no account membership
       "roles", "user",
       "accounts", ""
     ));
 
-    JSONObject result = testDAO.readOne(access, ULong.valueOf(4));
+    User result = new User().setFromRecord(testDAO.readOne(access, ULong.valueOf(4)));
 
     assertNotNull(result);
-    assertEquals("bill", result.get("name"));
+    assertEquals("bill", result.getName());
   }
 
   @Test
   public void readAll() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "user,admin",
       "accounts", "1"
     ));
 
-    JSONArray result = testDAO.readAll(access);
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access));
 
     assertNotNull(result);
     assertEquals(3, result.length());
@@ -229,12 +248,12 @@ public class UserIT {
 
   @Test
   public void readAll_UserSeesSelfAndOtherUsersInSameAccount() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "user",
       "accounts", "1"
     ));
 
-    JSONArray result = testDAO.readAll(access);
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access));
 
     assertNotNull(result);
     assertEquals(2, result.length());
@@ -242,18 +261,18 @@ public class UserIT {
 
   @Test
   public void readAll_UserWithoutAccountMembershipSeesOnlySelf() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "userId", "4", // Bill is in no accounts
       "roles", "user",
       "accounts", ""
     ));
 
-    JSONArray actualResultList = testDAO.readAll(access);
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access));
 
-    assertNotNull(actualResultList);
-    assertEquals(1, actualResultList.length());
-    JSONObject result = (JSONObject) actualResultList.get(0);
-    assertEquals("bill", result.get("name"));
+    assertNotNull(result);
+    assertEquals(1, result.length());
+    JSONObject resultSub = (JSONObject) result.get(0);
+    assertEquals("bill", resultSub.get("name"));
   }
 
   @Test
@@ -270,15 +289,13 @@ public class UserIT {
 
   @Test
   public void updateUserRolesAndDestroyTokens() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
-    User inputData = new User();
-    inputData.setRoles("user,artist");
-    UserWrapper inputDataWrapper = new UserWrapper();
-    inputDataWrapper.setUser(inputData);
+    User inputData = new User()
+      .setRoles("user,artist");
 
-    testDAO.updateUserRolesAndDestroyTokens(access, ULong.valueOf(2), inputDataWrapper);
+    testDAO.updateUserRolesAndDestroyTokens(access, ULong.valueOf(2), inputData);
 
     // Access Token deleted
     UserAccessTokenRecord result = IntegrationTestService.getDb()

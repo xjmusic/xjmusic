@@ -1,4 +1,4 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
 import Ember from 'ember';
 
 export default Ember.Route.extend({
@@ -50,10 +50,11 @@ export default Ember.Route.extend({
    */
   afterModel(model) {
     Ember.set(this, 'routeHeadline', {
-      title: model.chain.get('name') + ' ' + 'Configs',
+      title: 'Chain Configs',
       entity: {
         name: 'Chain',
-        id: model.chain.get('id')
+        id: model.chain.get('id'),
+        state: model.chain.get('state')
       }
     });
   },

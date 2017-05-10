@@ -1,4 +1,4 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
 package io.outright.xj.core.app.resource;
 
 import io.outright.xj.core.CoreModule;
@@ -17,6 +17,9 @@ import javax.ws.rs.client.WebTarget;
 import java.io.File;
 import java.io.IOException;
 
+/**
+ THIS CLASS IS NOT ACTUALLY IN USE, UNTIL WE IMPLEMENT [#225] Jersey JAX-RS resource tests mock external dependencies, in order to ensure specific conditions.
+ */
 public class ResourceEndpointTest extends Mockito {
   private App app;
   private WebTarget target;

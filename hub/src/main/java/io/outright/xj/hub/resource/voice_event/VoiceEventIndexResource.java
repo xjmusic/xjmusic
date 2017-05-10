@@ -2,23 +2,17 @@
 package io.outright.xj.hub.resource.voice_event;
 
 import io.outright.xj.core.CoreModule;
-import io.outright.xj.core.app.access.impl.AccessControl;
-import io.outright.xj.core.app.config.Exposure;
+import io.outright.xj.core.app.access.impl.Access;
 import io.outright.xj.core.app.server.HttpResponseProvider;
 import io.outright.xj.core.dao.VoiceEventDAO;
-import io.outright.xj.core.model.Entity;
 import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.model.voice_event.VoiceEvent;
 import io.outright.xj.core.model.voice_event.VoiceEventWrapper;
-import io.outright.xj.core.transport.JSON;
 
 import org.jooq.types.ULong;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import javax.annotation.security.RolesAllowed;
 import javax.jws.WebResult;
@@ -39,9 +33,8 @@ import java.io.IOException;
 @Path("voice-events")
 public class VoiceEventIndexResource {
   private static final Injector injector = Guice.createInjector(new CoreModule());
-  //  private static Logger log = LoggerFactory.getLogger(VoiceEventIndexResource.class);
-  private final VoiceEventDAO voiceEventDAO = injector.getInstance(VoiceEventDAO.class);
-  private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
+  private final VoiceEventDAO DAO = injector.getInstance(VoiceEventDAO.class);
+  private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
 
   @QueryParam("voiceId")
   String voiceId;
@@ -55,25 +48,20 @@ public class VoiceEventIndexResource {
   @WebResult
   @RolesAllowed({Role.ARTIST})
   public Response readAll(@Context ContainerRequestContext crc) throws IOException {
-    AccessControl access = AccessControl.fromContext(crc);
 
     if (voiceId == null || voiceId.length() == 0) {
-      return httpResponseProvider.notAcceptable("Voice id is required");
+      return response.notAcceptable("Voice id is required");
     }
 
     try {
-      JSONArray result = voiceEventDAO.readAllIn(access, ULong.valueOf(voiceId));
-      if (result != null) {
-        return Response
-          .accepted(JSON.wrap(VoiceEvent.KEY_MANY, result).toString())
-          .type(MediaType.APPLICATION_JSON)
-          .build();
-      } else {
-        return Response.noContent().build();
-      }
+      return response.readMany(
+        VoiceEvent.KEY_MANY,
+        DAO.readAll(
+          Access.fromContext(crc),
+          ULong.valueOf(voiceId)));
 
     } catch (Exception e) {
-      return httpResponseProvider.failure(e);
+      return response.failure(e);
     }
   }
 
@@ -87,16 +75,16 @@ public class VoiceEventIndexResource {
   @Consumes(MediaType.APPLICATION_JSON)
   @RolesAllowed({Role.ARTIST})
   public Response create(VoiceEventWrapper data, @Context ContainerRequestContext crc) {
-    AccessControl access = AccessControl.fromContext(crc);
     try {
-      JSONObject newEntity = voiceEventDAO.create(access, data);
-      return Response
-        .created(Exposure.apiURI(VoiceEvent.KEY_MANY + "/" + newEntity.get(Entity.KEY_ID)))
-        .entity(JSON.wrap(VoiceEvent.KEY_ONE, newEntity).toString())
-        .build();
+      return response.create(
+        VoiceEvent.KEY_MANY,
+        VoiceEvent.KEY_ONE,
+        DAO.create(
+          Access.fromContext(crc),
+          data.getVoiceEvent()));
 
     } catch (Exception e) {
-      return httpResponseProvider.failureToCreate(e);
+      return response.failureToCreate(e);
     }
   }
 

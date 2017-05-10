@@ -27,8 +27,8 @@ import java.util.Map;
 
 @Priority(Priorities.AUTHENTICATION)
 public class AccessTokenAuthFilterImpl implements AccessTokenAuthFilter {
-  private final Logger log = LoggerFactory.getLogger(AccessTokenAuthFilterImpl.class);
   private final static Injector injector = Guice.createInjector(new CoreModule());
+  private final Logger log = LoggerFactory.getLogger(AccessTokenAuthFilterImpl.class);
   private final AccessControlProvider accessControlProvider = injector.getInstance(AccessControlProvider.class);
 
   private final String accessTokenName = Config.accessTokenName();
@@ -80,22 +80,22 @@ public class AccessTokenAuthFilterImpl implements AccessTokenAuthFilter {
       return denied(context, "token-less access");
     }
 
-    AccessControl accessControl;
+    Access access;
     try {
-      accessControl = accessControlProvider.get(accessTokenCookie.getValue());
+      access = accessControlProvider.get(accessTokenCookie.getValue());
     } catch (Exception e) {
       return failed(context, "cannot get access token (" + e.getClass().getName() + "): " + e);
     }
-    if (!accessControl.valid()) {
+    if (!access.valid()) {
       return denied(context, "invalid access_token");
     }
 
-    if (!accessControl.isTopLevel() && !accessControl.matchAnyOf(aRolesAllowed.value())) {
+    if (!access.isTopLevel() && !access.matchAnyOf(aRolesAllowed.value())) {
       return denied(context, "user has no accessible role");
     }
 
     // set AccessControl in context for use by resource
-    context.setProperty(AccessControl.CONTEXT_KEY, accessControl);
+    context.setProperty(Access.CONTEXT_KEY, access);
     return allowed();
   }
 

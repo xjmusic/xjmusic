@@ -1,7 +1,7 @@
 // Copyright Outright Mental, Inc. All Rights Reserved.
 package io.outright.xj.core.dao.impl;
 
-import io.outright.xj.core.app.access.impl.AccessControl;
+import io.outright.xj.core.app.access.impl.Access;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.app.exception.DatabaseException;
@@ -9,17 +9,14 @@ import io.outright.xj.core.dao.PickDAO;
 import io.outright.xj.core.db.sql.SQLConnection;
 import io.outright.xj.core.db.sql.SQLDatabaseProvider;
 import io.outright.xj.core.model.pick.Pick;
-import io.outright.xj.core.model.pick.PickWrapper;
-import io.outright.xj.core.transport.JSON;
+import io.outright.xj.core.tables.records.PickRecord;
 
 import org.jooq.DSLContext;
 import org.jooq.Field;
+import org.jooq.Result;
 import org.jooq.types.ULong;
 
 import com.google.inject.Inject;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import javax.annotation.Nullable;
 import java.sql.SQLException;
@@ -41,10 +38,10 @@ public class PickDAOImpl extends DAOImpl implements PickDAO {
   }
 
   @Override
-  public JSONObject create(AccessControl access, PickWrapper data) throws Exception {
+  public PickRecord create(Access access, Pick entity) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(create(tx.getContext(), access, data));
+      return tx.success(createRecord(tx.getContext(), access, entity));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -52,10 +49,10 @@ public class PickDAOImpl extends DAOImpl implements PickDAO {
 
   @Override
   @Nullable
-  public JSONObject readOne(AccessControl access, ULong id) throws Exception {
+  public PickRecord readOne(Access access, ULong id) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readOne(tx.getContext(), access, id));
+      return tx.success(readOneRecord(tx.getContext(), access, id));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -63,20 +60,20 @@ public class PickDAOImpl extends DAOImpl implements PickDAO {
 
   @Override
   @Nullable
-  public JSONArray readAllIn(AccessControl access, ULong arrangementId) throws Exception {
+  public Result<PickRecord> readAll(Access access, ULong arrangementId) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readAllIn(tx.getContext(), access, arrangementId));
+      return tx.success(readAll(tx.getContext(), access, arrangementId));
     } catch (Exception e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public void update(AccessControl access, ULong id, PickWrapper data) throws Exception {
+  public void update(Access access, ULong id, Pick entity) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      update(tx.getContext(), access, id, data);
+      update(tx.getContext(), access, id, entity);
       tx.success();
     } catch (Exception e) {
       throw tx.failure(e);
@@ -84,7 +81,7 @@ public class PickDAOImpl extends DAOImpl implements PickDAO {
   }
 
   @Override
-  public void delete(AccessControl access, ULong pickId) throws Exception {
+  public void delete(Access access, ULong pickId) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
       delete(tx.getContext(), access, pickId);
@@ -99,21 +96,22 @@ public class PickDAOImpl extends DAOImpl implements PickDAO {
 
    @param db     context
    @param access control
-   @param data   for new record
-   @return newly created record
+   @param entity for new record
+   @return newly readMany record
    @throws BusinessException if a Business Rule is violated
    */
-  private JSONObject create(DSLContext db, AccessControl access, PickWrapper data) throws BusinessException {
-    Pick model = data.validate();
-    Map<Field, Object> fieldValues = model.intoFieldValueMap();
+  private PickRecord createRecord(DSLContext db, Access access, Pick entity) throws BusinessException {
+    entity.validate();
+
+    Map<Field, Object> fieldValues = entity.updatableFieldValueMap();
 
     requireTopLevel(access);
 
-    requireRecordExists("Arrangement", db.select(ARRANGEMENT.ID).from(ARRANGEMENT)
-      .where(ARRANGEMENT.ID.eq(model.getArrangementId()))
+    requireExists("Arrangement", db.select(ARRANGEMENT.ID).from(ARRANGEMENT)
+      .where(ARRANGEMENT.ID.eq(entity.getArrangementId()))
       .fetchOne());
 
-    return JSON.objectFromRecord(executeCreate(db, PICK, fieldValues));
+    return executeCreate(db, PICK, fieldValues);
   }
 
   /**
@@ -124,13 +122,13 @@ public class PickDAOImpl extends DAOImpl implements PickDAO {
    @param id     of record
    @return record
    */
-  private JSONObject readOne(DSLContext db, AccessControl access, ULong id) {
-    if (access.isTopLevel()) {
-      return JSON.objectFromRecord(db.selectFrom(PICK)
+  private PickRecord readOneRecord(DSLContext db, Access access, ULong id) {
+    if (access.isTopLevel())
+      return db.selectFrom(PICK)
         .where(PICK.ID.eq(id))
-        .fetchOne());
-    } else {
-      return JSON.objectFromRecord(db.select(PICK.fields())
+        .fetchOne();
+    else
+      return recordInto(PICK, db.select(PICK.fields())
         .from(PICK)
         .join(ARRANGEMENT).on(ARRANGEMENT.ID.eq(PICK.ARRANGEMENT_ID))
         .join(CHOICE).on(CHOICE.ID.eq(ARRANGEMENT.CHOICE_ID))
@@ -139,7 +137,6 @@ public class PickDAOImpl extends DAOImpl implements PickDAO {
         .where(PICK.ID.eq(id))
         .and(CHAIN.ACCOUNT_ID.in(access.getAccounts()))
         .fetchOne());
-    }
   }
 
   /**
@@ -150,14 +147,14 @@ public class PickDAOImpl extends DAOImpl implements PickDAO {
    @param arrangementId of parent
    @return array of records
    */
-  private JSONArray readAllIn(DSLContext db, AccessControl access, ULong arrangementId) throws SQLException {
-    if (access.isTopLevel()) {
-      return JSON.arrayFromResultSet(db.select(PICK.fields())
+  private Result<PickRecord> readAll(DSLContext db, Access access, ULong arrangementId) throws SQLException {
+    if (access.isTopLevel())
+      return resultInto(PICK, db.select(PICK.fields())
         .from(PICK)
         .where(PICK.ARRANGEMENT_ID.eq(arrangementId))
-        .fetchResultSet());
-    } else {
-      return JSON.arrayFromResultSet(db.select(PICK.fields())
+        .fetch());
+    else
+      return resultInto(PICK, db.select(PICK.fields())
         .from(PICK)
         .join(ARRANGEMENT).on(ARRANGEMENT.ID.eq(PICK.ARRANGEMENT_ID))
         .join(CHOICE).on(CHOICE.ID.eq(ARRANGEMENT.CHOICE_ID))
@@ -165,8 +162,7 @@ public class PickDAOImpl extends DAOImpl implements PickDAO {
         .join(CHAIN).on(CHAIN.ID.eq(LINK.CHAIN_ID))
         .where(PICK.ARRANGEMENT_ID.eq(arrangementId))
         .and(CHAIN.ACCOUNT_ID.in(access.getAccounts()))
-        .fetchResultSet());
-    }
+        .fetch());
   }
 
   /**
@@ -175,25 +171,25 @@ public class PickDAOImpl extends DAOImpl implements PickDAO {
    @param db     context
    @param access control
    @param id     of record
-   @param data   to update with
+   @param entity to update with
    @throws BusinessException if a Business Rule is violated
    */
-  private void update(DSLContext db, AccessControl access, ULong id, PickWrapper data) throws BusinessException, DatabaseException {
-    Pick model = data.validate();
-    Map<Field, Object> fieldValues = model.intoFieldValueMap();
+  private void update(DSLContext db, Access access, ULong id, Pick entity) throws BusinessException, DatabaseException {
+    entity.validate();
+
+    Map<Field, Object> fieldValues = entity.updatableFieldValueMap();
     fieldValues.put(PICK.ID, id);
 
     requireTopLevel(access);
 
-    requireRecordExists("existing Pick with immutable Arrangement membership",
+    requireExists("existing Pick with immutable Arrangement membership",
       db.selectFrom(PICK)
         .where(PICK.ID.eq(id))
-        .and(PICK.ARRANGEMENT_ID.eq(model.getArrangementId()))
+        .and(PICK.ARRANGEMENT_ID.eq(entity.getArrangementId()))
         .fetchOne());
 
-    if (executeUpdate(db, PICK, fieldValues) == 0) {
+    if (executeUpdate(db, PICK, fieldValues) == 0)
       throw new BusinessException("No records updated.");
-    }
   }
 
   /**
@@ -206,10 +202,10 @@ public class PickDAOImpl extends DAOImpl implements PickDAO {
    @throws ConfigException   if not configured properly
    @throws BusinessException if fails business rule
    */
-  private void delete(DSLContext db, AccessControl access, ULong id) throws Exception {
+  private void delete(DSLContext db, Access access, ULong id) throws Exception {
     requireTopLevel(access);
 
-    requireRecordExists("Pick", db.selectFrom(PICK)
+    requireExists("Pick", db.selectFrom(PICK)
       .where(PICK.ID.eq(id))
       .fetchOne());
 

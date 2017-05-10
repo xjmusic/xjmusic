@@ -1,6 +1,8 @@
-package io.outright.xj.core.external.amazon;// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+package io.outright.xj.core.external.amazon;
 
 import io.outright.xj.core.CoreModule;
+import io.outright.xj.core.app.exception.BusinessException;
+import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.util.token.TokenGenerator;
 
 import com.google.inject.AbstractModule;
@@ -8,6 +10,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 
+import com.amazonaws.services.ec2.util.S3UploadPolicy;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,6 +19,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -29,6 +33,10 @@ public class AmazonProviderImplTest {
     System.setProperty("aws.file.upload.url", "https://s3.amazonaws.com/test-bucket/");
     System.setProperty("aws.file.upload.key", "AKIALKSFDJKGIOURTJ7H");
     System.setProperty("aws.file.upload.secret", "jhfd897+jkhjHJJDKJF/908090JHKJJHhjhfg78h");
+    System.setProperty("aws.file.upload.acl", "ec2-bundle-read");
+    System.setProperty("aws.file.upload.expire.minutes", "60");
+    System.setProperty("aws.file.upload.bucket", "xj-audio-dev");
+
     createInjector();
     amazonProvider = injector.getInstance(AmazonProvider.class);
   }
@@ -39,15 +47,23 @@ public class AmazonProviderImplTest {
     System.clearProperty("aws.file.upload.url");
     System.clearProperty("aws.file.upload.key");
     System.clearProperty("aws.file.upload.secret");
+    System.clearProperty("aws.file.upload.acl");
+    System.clearProperty("aws.file.upload.expire.minutes");
+    System.clearProperty("aws.file.upload.bucket");
   }
 
   @Test
   public void generateUploadPolicy() throws Exception {
-    String url = "https://s3.amazonaws.com/test-bucket/file-name-token123.wav";
-    String policy = amazonProvider.generateUploadPolicy(url);
+    S3UploadPolicy policy = amazonProvider.generateUploadPolicy();
 
-    // TODO test policy generation
-//    assertEquals("eh.... my balls", policy);
+    assertNotNull(policy);
+  }
+
+  @Test(expected=ConfigException.class)
+  public void generateUploadPolicy_failsWithoutConfigs() throws Exception {
+    System.clearProperty("aws.file.upload.expire.minutes");
+
+    amazonProvider.generateUploadPolicy();
   }
 
   @Test

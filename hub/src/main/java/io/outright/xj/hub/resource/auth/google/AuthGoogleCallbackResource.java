@@ -30,14 +30,13 @@ import javax.ws.rs.core.UriInfo;
  */
 @Path("auth/google/callback")
 public class AuthGoogleCallbackResource {
+  private static final String redirectPathUnauthorized = Config.appPathUnauthorized();
+  private static final String redirectPathSuccess = Config.appPathSuccess();
   private final Logger log = LoggerFactory.getLogger(AuthGoogleCallbackResource.class);
   private final Injector injector = Guice.createInjector(new CoreModule());
   private final AuthDAOImpl googleAuthController = injector.getInstance(AuthDAOImpl.class);
   private final AccessControlProvider accessControlProvider = injector.getInstance(AccessControlProvider.class);
-  private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
-
-  private static final String redirectPathUnauthorized = Config.appPathUnauthorized();
-  private static final String redirectPathSuccess = Config.appPathSuccess();
+  private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
 
   /**
    Begin user OAuth2 authentication via Google.
@@ -73,7 +72,7 @@ public class AuthGoogleCallbackResource {
       return errorResponse("Unknown error with authenticating access code", e);
     }
 
-    return httpResponseProvider.internalRedirectWithCookie(redirectPathSuccess, accessControlProvider.newCookie(accessToken));
+    return response.internalRedirectWithCookie(redirectPathSuccess, accessControlProvider.newCookie(accessToken));
   }
 
   /**
@@ -105,6 +104,6 @@ public class AuthGoogleCallbackResource {
    @return Response
    */
   private Response errorResponse() {
-    return httpResponseProvider.internalRedirect(redirectPathUnauthorized);
+    return response.internalRedirect(redirectPathUnauthorized);
   }
 }

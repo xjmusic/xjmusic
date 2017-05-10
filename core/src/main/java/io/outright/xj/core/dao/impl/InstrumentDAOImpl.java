@@ -1,25 +1,21 @@
 // Copyright Outright Mental, Inc. All Rights Reserved.
 package io.outright.xj.core.dao.impl;
 
-import io.outright.xj.core.app.access.impl.AccessControl;
+import io.outright.xj.core.app.access.impl.Access;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.dao.InstrumentDAO;
 import io.outright.xj.core.db.sql.SQLConnection;
 import io.outright.xj.core.db.sql.SQLDatabaseProvider;
 import io.outright.xj.core.model.instrument.Instrument;
-import io.outright.xj.core.model.instrument.InstrumentWrapper;
-import io.outright.xj.core.transport.JSON;
+import io.outright.xj.core.tables.records.InstrumentRecord;
 
 import org.jooq.DSLContext;
 import org.jooq.Field;
-import org.jooq.Record;
+import org.jooq.Result;
 import org.jooq.types.ULong;
 
 import com.google.inject.Inject;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import javax.annotation.Nullable;
 import java.sql.SQLException;
@@ -40,10 +36,10 @@ public class InstrumentDAOImpl extends DAOImpl implements InstrumentDAO {
   }
 
   @Override
-  public JSONObject create(AccessControl access, InstrumentWrapper data) throws Exception {
+  public InstrumentRecord create(Access access, Instrument entity) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(create(tx.getContext(), access, data));
+      return tx.success(createRecord(tx.getContext(), access, entity));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -51,10 +47,10 @@ public class InstrumentDAOImpl extends DAOImpl implements InstrumentDAO {
 
   @Override
   @Nullable
-  public JSONObject readOne(AccessControl access, ULong id) throws Exception {
+  public InstrumentRecord readOne(Access access, ULong id) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readOne(tx.getContext(), access, id));
+      return tx.success(readOneRecord(tx.getContext(), access, id));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -62,7 +58,7 @@ public class InstrumentDAOImpl extends DAOImpl implements InstrumentDAO {
 
   @Override
   @Nullable
-  public JSONArray readAllInAccount(AccessControl access, ULong accountId) throws Exception {
+  public Result<InstrumentRecord> readAllInAccount(Access access, ULong accountId) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readAllInAccount(tx.getContext(), access, accountId));
@@ -73,7 +69,7 @@ public class InstrumentDAOImpl extends DAOImpl implements InstrumentDAO {
 
   @Override
   @Nullable
-  public JSONArray readAllInLibrary(AccessControl access, ULong libraryId) throws Exception {
+  public Result<InstrumentRecord> readAllInLibrary(Access access, ULong libraryId) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readAllInLibrary(tx.getContext(), access, libraryId));
@@ -83,10 +79,10 @@ public class InstrumentDAOImpl extends DAOImpl implements InstrumentDAO {
   }
 
   @Override
-  public void update(AccessControl access, ULong id, InstrumentWrapper data) throws Exception {
+  public void update(Access access, ULong id, Instrument entity) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      update(tx.getContext(), access, id, data);
+      update(tx.getContext(), access, id, entity);
       tx.success();
     } catch (Exception e) {
       throw tx.failure(e);
@@ -94,7 +90,7 @@ public class InstrumentDAOImpl extends DAOImpl implements InstrumentDAO {
   }
 
   @Override
-  public void delete(AccessControl access, ULong id) throws Exception {
+  public void delete(Access access, ULong id) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
       delete(tx.getContext(), access, id);
@@ -109,29 +105,29 @@ public class InstrumentDAOImpl extends DAOImpl implements InstrumentDAO {
 
    @param db     context
    @param access control
-   @param data   for new record
-   @return newly created record
+   @param entity for new record
+   @return newly readMany record
    @throws BusinessException on failure
    */
-  private JSONObject create(DSLContext db, AccessControl access, InstrumentWrapper data) throws BusinessException {
-    Instrument model = data.validate();
-    Map<Field, Object> fieldValues = model.intoFieldValueMap();
+  private InstrumentRecord createRecord(DSLContext db, Access access, Instrument entity) throws BusinessException {
+    entity.validate();
 
-    if (access.isTopLevel()) {
-      requireRecordExists("Library",
+    Map<Field, Object> fieldValues = entity.updatableFieldValueMap();
+
+    if (access.isTopLevel())
+      requireExists("Library",
         db.select(LIBRARY.ID).from(LIBRARY)
-          .where(LIBRARY.ID.eq(model.getLibraryId()))
+          .where(LIBRARY.ID.eq(entity.getLibraryId()))
           .fetchOne());
-    } else {
-      requireRecordExists("Library",
+    else
+      requireExists("Library",
         db.select(LIBRARY.ID).from(LIBRARY)
           .where(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-          .and(LIBRARY.ID.eq(model.getLibraryId()))
+          .and(LIBRARY.ID.eq(entity.getLibraryId()))
           .fetchOne());
-      fieldValues.put(INSTRUMENT.USER_ID, access.getUserId());
-    }
+    fieldValues.put(INSTRUMENT.USER_ID, access.getUserId());
 
-    return JSON.objectFromRecord(executeCreate(db, INSTRUMENT, fieldValues));
+    return executeCreate(db, INSTRUMENT, fieldValues);
   }
 
   /**
@@ -143,19 +139,18 @@ public class InstrumentDAOImpl extends DAOImpl implements InstrumentDAO {
    @return record
    */
   @Nullable
-  private JSONObject readOne(DSLContext db, AccessControl access, ULong id) {
-    if (access.isTopLevel()) {
-      return JSON.objectFromRecord(db.selectFrom(INSTRUMENT)
+  private InstrumentRecord readOneRecord(DSLContext db, Access access, ULong id) {
+    if (access.isTopLevel())
+      return db.selectFrom(INSTRUMENT)
         .where(INSTRUMENT.ID.eq(id))
-        .fetchOne());
-    } else {
-      return JSON.objectFromRecord(db.select(INSTRUMENT.fields())
+        .fetchOne();
+    else
+      return recordInto(INSTRUMENT, db.select(INSTRUMENT.fields())
         .from(INSTRUMENT)
         .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
         .where(INSTRUMENT.ID.eq(id))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .fetchOne());
-    }
   }
 
   /**
@@ -166,21 +161,20 @@ public class InstrumentDAOImpl extends DAOImpl implements InstrumentDAO {
    @param accountId of parent
    @return array of records
    */
-  private JSONArray readAllInAccount(DSLContext db, AccessControl access, ULong accountId) throws SQLException {
-    if (access.isTopLevel()) {
-      return JSON.arrayFromResultSet(db.select(INSTRUMENT.fields())
+  private Result<InstrumentRecord> readAllInAccount(DSLContext db, Access access, ULong accountId) throws SQLException {
+    if (access.isTopLevel())
+      return resultInto(INSTRUMENT, db.select(INSTRUMENT.fields())
         .from(INSTRUMENT)
         .join(LIBRARY).on(INSTRUMENT.LIBRARY_ID.eq(LIBRARY.ID))
         .where(LIBRARY.ACCOUNT_ID.eq(accountId))
-        .fetchResultSet());
-    } else {
-      return JSON.arrayFromResultSet(db.select(INSTRUMENT.fields())
+        .fetch());
+    else
+      return resultInto(INSTRUMENT, db.select(INSTRUMENT.fields())
         .from(INSTRUMENT)
         .join(LIBRARY).on(INSTRUMENT.LIBRARY_ID.eq(LIBRARY.ID))
         .where(LIBRARY.ACCOUNT_ID.in(accountId))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-        .fetchResultSet());
-    }
+        .fetch());
   }
 
   /**
@@ -191,20 +185,19 @@ public class InstrumentDAOImpl extends DAOImpl implements InstrumentDAO {
    @param libraryId of parent
    @return array of records
    */
-  private JSONArray readAllInLibrary(DSLContext db, AccessControl access, ULong libraryId) throws SQLException {
-    if (access.isTopLevel()) {
-      return JSON.arrayFromResultSet(db.select(INSTRUMENT.fields())
+  private Result<InstrumentRecord> readAllInLibrary(DSLContext db, Access access, ULong libraryId) throws SQLException {
+    if (access.isTopLevel())
+      return resultInto(INSTRUMENT, db.select(INSTRUMENT.fields())
         .from(INSTRUMENT)
         .where(INSTRUMENT.LIBRARY_ID.eq(libraryId))
-        .fetchResultSet());
-    } else {
-      return JSON.arrayFromResultSet(db.select(INSTRUMENT.fields())
+        .fetch());
+    else
+      return resultInto(INSTRUMENT, db.select(INSTRUMENT.fields())
         .from(INSTRUMENT)
         .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
         .where(INSTRUMENT.LIBRARY_ID.eq(libraryId))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-        .fetchResultSet());
-    }
+        .fetch());
   }
 
   /**
@@ -213,32 +206,31 @@ public class InstrumentDAOImpl extends DAOImpl implements InstrumentDAO {
    @param db     context
    @param access control
    @param id     of record
-   @param data   to update with
+   @param entity to update with
    @throws BusinessException if a Business Rule is violated
    @throws Exception         on database failure
    */
-  private void update(DSLContext db, AccessControl access, ULong id, InstrumentWrapper data) throws Exception {
-    Instrument model = data.validate();
-    Map<Field, Object> fieldValues = model.intoFieldValueMap();
+  private void update(DSLContext db, Access access, ULong id, Instrument entity) throws Exception {
+    entity.validate();
+
+    Map<Field, Object> fieldValues = entity.updatableFieldValueMap();
     fieldValues.put(INSTRUMENT.ID, id);
 
-    if (access.isTopLevel()) {
-      requireRecordExists("Library",
+    if (access.isTopLevel())
+      requireExists("Library",
         db.select(LIBRARY.ID).from(LIBRARY)
-          .where(LIBRARY.ID.eq(model.getLibraryId()))
+          .where(LIBRARY.ID.eq(entity.getLibraryId()))
           .fetchOne());
-    } else {
-      requireRecordExists("Library",
+    else
+      requireExists("Library",
         db.select(LIBRARY.ID).from(LIBRARY)
           .where(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-          .and(LIBRARY.ID.eq(model.getLibraryId()))
+          .and(LIBRARY.ID.eq(entity.getLibraryId()))
           .fetchOne());
-      fieldValues.put(INSTRUMENT.USER_ID, access.getUserId());
-    }
+    fieldValues.put(INSTRUMENT.USER_ID, access.getUserId());
 
-    if (executeUpdate(db, INSTRUMENT, fieldValues) == 0) {
+    if (executeUpdate(db, INSTRUMENT, fieldValues) == 0)
       throw new BusinessException("No records updated.");
-    }
   }
 
   /**
@@ -250,39 +242,27 @@ public class InstrumentDAOImpl extends DAOImpl implements InstrumentDAO {
    @throws ConfigException   if not configured properly
    @throws BusinessException if fails business rule
    */
-  private void delete(DSLContext db, AccessControl access, ULong id) throws Exception {
-    if (!access.isTopLevel()) {
-      Record record = db.select(INSTRUMENT.fields()).from(INSTRUMENT)
+  private void delete(DSLContext db, Access access, ULong id) throws Exception {
+    if (!access.isTopLevel())
+      requireExists("Instrument belonging to you", db.select(INSTRUMENT.fields()).from(INSTRUMENT)
         .join(LIBRARY).on(INSTRUMENT.LIBRARY_ID.eq(LIBRARY.ID))
         .where(INSTRUMENT.ID.eq(id))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .and(INSTRUMENT.USER_ID.eq(access.getUserId()))
-        .fetchOne();
-      requireRecordExists("Instrument belonging to you", record);
-    }
+        .fetchOne());
 
-    requireEmptyResultSet(db.select(INSTRUMENT_MEME.ID)
-      .from(INSTRUMENT_MEME)
-      .where(INSTRUMENT_MEME.INSTRUMENT_ID.eq(id))
-      .fetchResultSet());
-
-    requireEmptyResultSet(db.select(AUDIO.ID)
+    requireNotExists("Audio in Instrument", db.select(AUDIO.ID)
       .from(AUDIO)
       .where(AUDIO.INSTRUMENT_ID.eq(id))
-      .fetchResultSet());
+      .fetch());
 
-    requireEmptyResultSet(db.select(INSTRUMENT_MEME.ID)
+    requireNotExists("Meme in Instrument", db.select(INSTRUMENT_MEME.ID)
       .from(INSTRUMENT_MEME)
       .where(INSTRUMENT_MEME.INSTRUMENT_ID.eq(id))
-      .fetchResultSet());
+      .fetch());
 
     db.deleteFrom(INSTRUMENT)
       .where(INSTRUMENT.ID.eq(id))
-      .andNotExists(
-        db.select(INSTRUMENT_MEME.ID)
-          .from(INSTRUMENT_MEME)
-          .where(INSTRUMENT_MEME.INSTRUMENT_ID.eq(id))
-      )
       .andNotExists(
         db.select(AUDIO.ID)
           .from(AUDIO)

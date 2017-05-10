@@ -1,15 +1,17 @@
-/* Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved. */
+/* Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved. */
 
 @import "breadcrumb";
+@import "chain";
 @import "ember-power-select";
 @import "fonts";
 @import "footer";
 @import "headline";
 @import "marketing";
+@import "messages";
 @import "navbar";
 @import "palette";
+@import "states";
 @import "table";
-@import "chain";
 
 body {
   background: #000000;
@@ -21,7 +23,7 @@ a {
   color: lighten($green, 20%);
 
   &:hover, &:active {
-    color: lighten($green, 70%);
+    color: lighten($green, 40%);
   }
 }
 

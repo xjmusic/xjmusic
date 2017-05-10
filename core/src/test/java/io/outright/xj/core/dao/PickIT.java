@@ -1,8 +1,8 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
 package io.outright.xj.core.dao;
 
 import io.outright.xj.core.CoreModule;
-import io.outright.xj.core.app.access.impl.AccessControl;
+import io.outright.xj.core.app.access.impl.Access;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.integration.IntegrationTestEntity;
 import io.outright.xj.core.integration.IntegrationTestService;
@@ -12,9 +12,9 @@ import io.outright.xj.core.model.idea.Idea;
 import io.outright.xj.core.model.instrument.Instrument;
 import io.outright.xj.core.model.link.Link;
 import io.outright.xj.core.model.pick.Pick;
-import io.outright.xj.core.model.pick.PickWrapper;
 import io.outright.xj.core.model.voice.Voice;
 import io.outright.xj.core.tables.records.PickRecord;
+import io.outright.xj.core.transport.JSON;
 
 import org.jooq.types.ULong;
 
@@ -85,21 +85,19 @@ public class PickIT {
 
   @Test
   public void create() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
-    PickWrapper inputDataWrapper = new PickWrapper()
-      .setPick(new Pick()
-        .setArrangementId(BigInteger.valueOf(1))
-        .setMorphId(BigInteger.valueOf(1))
-        .setAudioId(BigInteger.valueOf(1))
-        .setStart(0.12)
-        .setLength(1.04)
-        .setAmplitude(0.94)
-        .setPitch(754.02)
-      );
+    Pick inputData = new Pick()
+      .setArrangementId(BigInteger.valueOf(1))
+      .setMorphId(BigInteger.valueOf(1))
+      .setAudioId(BigInteger.valueOf(1))
+      .setStart(0.12)
+      .setLength(1.04)
+      .setAmplitude(0.94)
+      .setPitch(754.02);
 
-    JSONObject result = testDAO.create(access, inputDataWrapper);
+    JSONObject result = JSON.objectFromRecord(testDAO.create(access, inputData));
 
     assertNotNull(result);
     assertEquals(ULong.valueOf(1), result.get("arrangementId"));
@@ -113,155 +111,145 @@ public class PickIT {
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutTopLevelAccess() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "user"
     ));
-    PickWrapper inputDataWrapper = new PickWrapper()
-      .setPick(new Pick()
-        .setArrangementId(BigInteger.valueOf(1))
-        .setMorphId(BigInteger.valueOf(1))
-        .setAudioId(BigInteger.valueOf(1))
-        .setStart(0.12)
-        .setLength(1.04)
-        .setAmplitude(0.94)
-        .setPitch(754.02)
-      );
+    Pick inputData = new Pick()
+      .setArrangementId(BigInteger.valueOf(1))
+      .setMorphId(BigInteger.valueOf(1))
+      .setAudioId(BigInteger.valueOf(1))
+      .setStart(0.12)
+      .setLength(1.04)
+      .setAmplitude(0.94)
+      .setPitch(754.02);
 
-    testDAO.create(access, inputDataWrapper);
+    testDAO.create(access, inputData);
   }
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutArrangementID() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
-    PickWrapper inputDataWrapper = new PickWrapper()
-      .setPick(new Pick()
-        .setMorphId(BigInteger.valueOf(1))
-        .setAudioId(BigInteger.valueOf(1))
-        .setStart(0.12)
-        .setLength(1.04)
-        .setAmplitude(0.94)
-        .setPitch(754.02)
-      );
+    Pick inputData = new Pick()
+      .setMorphId(BigInteger.valueOf(1))
+      .setAudioId(BigInteger.valueOf(1))
+      .setStart(0.12)
+      .setLength(1.04)
+      .setAmplitude(0.94)
+      .setPitch(754.02);
 
-    testDAO.create(access, inputDataWrapper);
+    testDAO.create(access, inputData);
   }
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutMorphID() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
-    PickWrapper inputDataWrapper = new PickWrapper()
-      .setPick(new Pick()
-        .setArrangementId(BigInteger.valueOf(1))
-        .setAudioId(BigInteger.valueOf(1))
-        .setStart(0.12)
-        .setLength(1.04)
-        .setAmplitude(0.94)
-        .setPitch(754.02)
-      );
+    Pick inputData = new Pick()
+      .setArrangementId(BigInteger.valueOf(1))
+      .setAudioId(BigInteger.valueOf(1))
+      .setStart(0.12)
+      .setLength(1.04)
+      .setAmplitude(0.94)
+      .setPitch(754.02);
 
-    testDAO.create(access, inputDataWrapper);
+    testDAO.create(access, inputData);
   }
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithZeroAmplitude() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
-    PickWrapper inputDataWrapper = new PickWrapper()
-      .setPick(new Pick()
-        .setArrangementId(BigInteger.valueOf(1))
-        .setMorphId(BigInteger.valueOf(1))
-        .setAudioId(BigInteger.valueOf(1))
-        .setStart(0.12)
-        .setLength(1.04)
-        .setAmplitude(0.0)
-        .setPitch(754.02)
-      );
+    Pick inputData = new Pick()
+      .setArrangementId(BigInteger.valueOf(1))
+      .setMorphId(BigInteger.valueOf(1))
+      .setAudioId(BigInteger.valueOf(1))
+      .setStart(0.12)
+      .setLength(1.04)
+      .setAmplitude(0.0)
+      .setPitch(754.02);
 
-    testDAO.create(access, inputDataWrapper);
+    testDAO.create(access, inputData);
   }
 
   @Test
   public void readOne() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "user",
       "accounts", "1"
     ));
 
-    JSONObject result = testDAO.readOne(access, ULong.valueOf(1));
+    Pick result = new Pick().setFromRecord(testDAO.readOne(access, ULong.valueOf(1)));
 
     assertNotNull(result);
-    assertEquals(ULong.valueOf(1), result.get("arrangementId"));
-    assertEquals(ULong.valueOf(1), result.get("morphId"));
-    assertEquals(ULong.valueOf(1), result.get("audioId"));
-    assertEquals(0.125, result.get("start"));
-    assertEquals(1.23, result.get("length"));
-    assertEquals(0.94, result.get("amplitude"));
-    assertEquals(440.0, result.get("pitch"));
+    assertEquals(ULong.valueOf(1), result.getArrangementId());
+    assertEquals(ULong.valueOf(1), result.getMorphId());
+    assertEquals(ULong.valueOf(1), result.getAudioId());
+    assertEquals(Double.valueOf(0.125), result.getStart());
+    assertEquals(Double.valueOf(1.23), result.getLength());
+    assertEquals(Double.valueOf(0.94), result.getAmplitude());
+    assertEquals(Double.valueOf(440.0), result.getPitch());
   }
 
   @Test
   public void readOne_FailsWhenUserIsNotInMorph() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "user",
       "accounts", "326"
     ));
 
-    JSONObject result = testDAO.readOne(access, ULong.valueOf(1));
+    PickRecord result = testDAO.readOne(access, ULong.valueOf(1));
 
     assertNull(result);
   }
 
   @Test
   public void readAll() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "user",
       "accounts", "1"
     ));
 
-    JSONArray actualResultList = testDAO.readAllIn(access, ULong.valueOf(1));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ULong.valueOf(1)));
 
-    assertNotNull(actualResultList);
-    assertEquals(1, actualResultList.length());
+    assertNotNull(result);
+    assertEquals(1, result.length());
 
-    JSONObject actualResult0 = (JSONObject) actualResultList.get(0);
-    assertEquals((float) 440.0, actualResult0.get("pitch"));
+    JSONObject actualResult0 = (JSONObject) result.get(0);
+    assertEquals(440.0, actualResult0.get("pitch"));
   }
 
   @Test
   public void readAll_SeesNothingOutsideOfMorph() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "user",
       "accounts", "345"
     ));
 
-    JSONArray actualResultList = testDAO.readAllIn(access, ULong.valueOf(1));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ULong.valueOf(1)));
 
-    assertNotNull(actualResultList);
-    assertEquals(0, actualResultList.length());
+    assertNotNull(result);
+    assertEquals(0, result.length());
   }
 
   @Test
   public void update() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
-    PickWrapper inputDataWrapper = new PickWrapper()
-      .setPick(new Pick()
-        .setArrangementId(BigInteger.valueOf(1))
-        .setMorphId(BigInteger.valueOf(1))
-        .setAudioId(BigInteger.valueOf(1))
-        .setStart(0.12)
-        .setLength(1.04)
-        .setAmplitude(0.94)
-        .setPitch(754.02)
-      );
+    Pick inputData = new Pick()
+      .setArrangementId(BigInteger.valueOf(1))
+      .setMorphId(BigInteger.valueOf(1))
+      .setAudioId(BigInteger.valueOf(1))
+      .setStart(0.12)
+      .setLength(1.04)
+      .setAmplitude(0.94)
+      .setPitch(754.02);
 
-    testDAO.update(access, ULong.valueOf(1), inputDataWrapper);
+    testDAO.update(access, ULong.valueOf(1), inputData);
 
     PickRecord result = IntegrationTestService.getDb()
       .selectFrom(PICK)
@@ -279,40 +267,36 @@ public class PickIT {
 
   @Test(expected = BusinessException.class)
   public void update_FailsWithoutMorphID() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
-    PickWrapper inputDataWrapper = new PickWrapper()
-      .setPick(new Pick()
-        .setArrangementId(BigInteger.valueOf(1))
-        .setAudioId(BigInteger.valueOf(1))
-        .setStart(0.12)
-        .setLength(1.04)
-        .setAmplitude(0.94)
-        .setPitch(754.02)
-      );
+    Pick inputData = new Pick()
+      .setArrangementId(BigInteger.valueOf(1))
+      .setAudioId(BigInteger.valueOf(1))
+      .setStart(0.12)
+      .setLength(1.04)
+      .setAmplitude(0.94)
+      .setPitch(754.02);
 
-    testDAO.update(access, ULong.valueOf(2), inputDataWrapper);
+    testDAO.update(access, ULong.valueOf(2), inputData);
   }
 
   @Test(expected = BusinessException.class)
   public void update_FailsToChangeMorph() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
-    PickWrapper inputDataWrapper = new PickWrapper()
-      .setPick(new Pick()
-        .setArrangementId(BigInteger.valueOf(1))
-        .setMorphId(BigInteger.valueOf(12))
-        .setAudioId(BigInteger.valueOf(1))
-        .setStart(0.12)
-        .setLength(1.04)
-        .setAmplitude(0.94)
-        .setPitch(754.02)
-      );
+    Pick inputData = new Pick()
+      .setArrangementId(BigInteger.valueOf(1))
+      .setMorphId(BigInteger.valueOf(12))
+      .setAudioId(BigInteger.valueOf(1))
+      .setStart(0.12)
+      .setLength(1.04)
+      .setAmplitude(0.94)
+      .setPitch(754.02);
 
     try {
-      testDAO.update(access, ULong.valueOf(1), inputDataWrapper);
+      testDAO.update(access, ULong.valueOf(1), inputData);
 
     } catch (Exception e) {
       PickRecord result = IntegrationTestService.getDb()
@@ -328,22 +312,20 @@ public class PickIT {
 
   @Test(expected = BusinessException.class)
   public void update_FailsToChangeArrangement() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
-    PickWrapper inputDataWrapper = new PickWrapper()
-      .setPick(new Pick()
-        .setMorphId(BigInteger.valueOf(1))
-        .setArrangementId(BigInteger.valueOf(12))
-        .setAudioId(BigInteger.valueOf(1))
-        .setStart(0.12)
-        .setLength(1.04)
-        .setAmplitude(0.94)
-        .setPitch(754.02)
-      );
+    Pick inputData = new Pick()
+      .setMorphId(BigInteger.valueOf(1))
+      .setArrangementId(BigInteger.valueOf(12))
+      .setAudioId(BigInteger.valueOf(1))
+      .setStart(0.12)
+      .setLength(1.04)
+      .setAmplitude(0.94)
+      .setPitch(754.02);
 
     try {
-      testDAO.update(access, ULong.valueOf(1), inputDataWrapper);
+      testDAO.update(access, ULong.valueOf(1), inputData);
 
     } catch (Exception e) {
       PickRecord result = IntegrationTestService.getDb()
@@ -359,7 +341,7 @@ public class PickIT {
 
   @Test
   public void delete() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
 

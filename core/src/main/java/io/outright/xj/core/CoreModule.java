@@ -1,4 +1,4 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
 package io.outright.xj.core;
 
 import io.outright.xj.core.app.App;
@@ -15,6 +15,9 @@ import io.outright.xj.core.app.server.HttpServerProvider;
 import io.outright.xj.core.app.server.HttpServerProviderImpl;
 import io.outright.xj.core.app.server.ResourceConfigProvider;
 import io.outright.xj.core.app.server.ResourceConfigProviderImpl;
+import io.outright.xj.core.craft.CraftFactory;
+import io.outright.xj.core.craft.MacroCraft;
+import io.outright.xj.core.craft.impl.MacroCraftImpl;
 import io.outright.xj.core.dao.AccountDAO;
 import io.outright.xj.core.dao.AccountUserDAO;
 import io.outright.xj.core.dao.ArrangementDAO;
@@ -35,6 +38,8 @@ import io.outright.xj.core.dao.InstrumentMemeDAO;
 import io.outright.xj.core.dao.LibraryDAO;
 import io.outright.xj.core.dao.LinkChordDAO;
 import io.outright.xj.core.dao.LinkDAO;
+import io.outright.xj.core.dao.LinkMemeDAO;
+import io.outright.xj.core.dao.LinkMessageDAO;
 import io.outright.xj.core.dao.MorphDAO;
 import io.outright.xj.core.dao.PhaseChordDAO;
 import io.outright.xj.core.dao.PhaseDAO;
@@ -64,6 +69,8 @@ import io.outright.xj.core.dao.impl.InstrumentMemeDAOImpl;
 import io.outright.xj.core.dao.impl.LibraryDAOImpl;
 import io.outright.xj.core.dao.impl.LinkChordDAOImpl;
 import io.outright.xj.core.dao.impl.LinkDAOImpl;
+import io.outright.xj.core.dao.impl.LinkMemeDAOImpl;
+import io.outright.xj.core.dao.impl.LinkMessageDAOImpl;
 import io.outright.xj.core.dao.impl.MorphDAOImpl;
 import io.outright.xj.core.dao.impl.PhaseChordDAOImpl;
 import io.outright.xj.core.dao.impl.PhaseDAOImpl;
@@ -83,6 +90,8 @@ import io.outright.xj.core.external.google.GoogleHttpProvider;
 import io.outright.xj.core.external.google.GoogleHttpProviderImpl;
 import io.outright.xj.core.external.google.GoogleProvider;
 import io.outright.xj.core.external.google.GoogleProviderImpl;
+import io.outright.xj.core.internal.DocProvider;
+import io.outright.xj.core.internal.DocProviderImpl;
 import io.outright.xj.core.util.token.TokenGenerator;
 import io.outright.xj.core.util.token.TokenGeneratorImpl;
 
@@ -93,11 +102,14 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.store.DataStoreFactory;
 import com.google.api.client.util.store.MemoryDataStoreFactory;
 import com.google.inject.AbstractModule;
+import com.google.inject.assistedinject.FactoryModuleBuilder;
 
 public class CoreModule extends AbstractModule {
   protected void configure() {
     bindApp();
+    installCraftFactory();
     bindDAO();
+    bindInternal();
     bindExternal();
     bindUtil();
   }
@@ -116,6 +128,12 @@ public class CoreModule extends AbstractModule {
     bind(RedisDatabaseProvider.class).to(RedisDatabaseProviderImpl.class);
     bind(ResourceConfigProvider.class).to(ResourceConfigProviderImpl.class);
     bind(SQLDatabaseProvider.class).to(SQLDatabaseProviderImpl.class);
+  }
+
+  private void installCraftFactory() {
+    install(new FactoryModuleBuilder()
+      .implement(MacroCraft.class, MacroCraftImpl.class)
+      .build(CraftFactory.class));
   }
 
   private void bindDAO() {
@@ -139,6 +157,8 @@ public class CoreModule extends AbstractModule {
     bind(LibraryDAO.class).to(LibraryDAOImpl.class);
     bind(LinkChordDAO.class).to(LinkChordDAOImpl.class);
     bind(LinkDAO.class).to(LinkDAOImpl.class);
+    bind(LinkMemeDAO.class).to(LinkMemeDAOImpl.class);
+    bind(LinkMessageDAO.class).to(LinkMessageDAOImpl.class);
     bind(MorphDAO.class).to(MorphDAOImpl.class);
     bind(PhaseChordDAO.class).to(PhaseChordDAOImpl.class);
     bind(PhaseDAO.class).to(PhaseDAOImpl.class);
@@ -148,6 +168,10 @@ public class CoreModule extends AbstractModule {
     bind(UserDAO.class).to(UserDAOImpl.class);
     bind(VoiceDAO.class).to(VoiceDAOImpl.class);
     bind(VoiceEventDAO.class).to(VoiceEventDAOImpl.class);
+  }
+
+  private void bindInternal() {
+    bind(DocProvider.class).to(DocProviderImpl.class);
   }
 
   private void bindExternal() {

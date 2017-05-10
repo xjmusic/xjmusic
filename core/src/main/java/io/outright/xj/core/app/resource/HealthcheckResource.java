@@ -1,5 +1,15 @@
 package io.outright.xj.core.app.resource;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import io.outright.xj.core.CoreModule;
+import io.outright.xj.core.app.exception.DatabaseException;
+import io.outright.xj.core.app.server.HttpResponseProvider;
+import io.outright.xj.core.db.RedisDatabaseProvider;
+import io.outright.xj.core.db.sql.SQLDatabaseProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.annotation.security.PermitAll;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -12,6 +22,14 @@ import javax.ws.rs.core.Response;
 @Path("o2")
 public class HealthcheckResource {
 
+  private static final Injector injector = Guice.createInjector(new CoreModule());
+  private static Logger log = LoggerFactory.getLogger(HealthcheckResource.class);
+  private final RedisDatabaseProvider redisDatabaseProvider = injector.getInstance(RedisDatabaseProvider.class);
+  private final SQLDatabaseProvider dbProvider = injector.getInstance(SQLDatabaseProvider.class);
+  private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
+
+  private static final String PONG = "PONG";
+
   /**
    Method handling HTTP GET requests. The returned object will be sent
    to the client as "text/plain" media type.
@@ -22,6 +40,19 @@ public class HealthcheckResource {
   @Context
   @PermitAll
   public Response healthcheck() {
+    try {
+      String pingResult = redisDatabaseProvider.getClient().ping();
+      if (!PONG.equals(pingResult)) {
+        throw new DatabaseException("Redis server ping result: " + pingResult);
+      }
+    } catch (Exception e) {
+      return httpResponseProvider.failure(e);
+    }
+    try {
+      dbProvider.getConnection().success();
+    } catch (Exception e) {
+      return httpResponseProvider.failure(e);
+    }
     return Response
       .accepted()
       .status(Response.Status.OK)

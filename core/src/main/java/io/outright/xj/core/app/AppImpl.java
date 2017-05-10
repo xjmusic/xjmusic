@@ -1,4 +1,4 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
 package io.outright.xj.core.app;
 
 import io.outright.xj.core.app.access.AccessLogFilterProvider;
@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.URI;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -30,19 +31,16 @@ import java.util.concurrent.TimeUnit;
 
 public class AppImpl implements App {
   private final static Logger log = LoggerFactory.getLogger(App.class);
+  private static ScheduledExecutorService leaderExecutor;
+  private static ExecutorService workerExecutor;
   private final HttpServerProvider httpServerProvider;
   private final ResourceConfigProvider resourceConfigProvider;
   private final AccessTokenAuthFilter accessTokenAuthFilter;
   private final AccessLogFilterProvider accessLogFilterProvider;
-
   private final String host = Config.appHost();
   private final Integer port = Config.appPort();
-
   private ResourceConfig resourceConfig;
-
   private List<Workload> workloads = Lists.newArrayList();
-  private static ScheduledExecutorService leaderExecutor;
-  private static ExecutorService workerExecutor;
   private ScheduledFuture scheduledFuture;
 
   @Inject
@@ -122,7 +120,8 @@ public class AppImpl implements App {
     workloads.forEach((Workload::stop));
 
     log.info("Server will shutdown now");
-    httpServerProvider.get().shutdownNow();
+    if (Objects.nonNull(httpServerProvider.get()))
+      httpServerProvider.get().shutdownNow();
     log.info("Server did shutdown OK");
   }
 
@@ -157,7 +156,8 @@ public class AppImpl implements App {
 
     void stop() {
       log.info("{} will shutdown now", this);
-      scheduledFuture.cancel(false);
+      if (Objects.nonNull(scheduledFuture))
+        scheduledFuture.cancel(false);
       log.info("{} did shutdown OK", this);
     }
 

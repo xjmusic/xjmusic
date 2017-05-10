@@ -3,7 +3,7 @@ package io.outright.xj.hub.resource.auth.nullify;
 
 import io.outright.xj.core.CoreModule;
 import io.outright.xj.core.app.access.AccessControlProvider;
-import io.outright.xj.core.app.access.impl.AccessControl;
+import io.outright.xj.core.app.access.impl.Access;
 import io.outright.xj.core.app.server.HttpResponseProvider;
 import io.outright.xj.core.dao.UserDAO;
 import io.outright.xj.core.model.role.Role;
@@ -26,9 +26,8 @@ import java.io.IOException;
 @Path("auth/no")
 public class AuthNullifyResource {
   private Injector injector = Guice.createInjector(new CoreModule());
-  //  private static Logger log = LoggerFactory.getLogger(AuthNullifyResource.class);
   private final UserDAO userDAO = injector.getInstance(UserDAO.class);
-  private final HttpResponseProvider httpResponseProvider = injector.getInstance(HttpResponseProvider.class);
+  private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
   private final AccessControlProvider accessControlProvider = injector.getInstance(AccessControlProvider.class);
 
   /**
@@ -40,13 +39,13 @@ public class AuthNullifyResource {
   @WebResult
   @RolesAllowed({Role.USER})
   public Response getCurrentAuthentication(@Context ContainerRequestContext crc) throws IOException {
-    AccessControl accessControl = AccessControl.fromContext(crc);
+    Access access = Access.fromContext(crc);
     try {
-      userDAO.destroyAllTokens(accessControl.getUserId());
-      return httpResponseProvider.internalRedirectWithCookie("", accessControlProvider.newExpiredCookie());
+      userDAO.destroyAllTokens(access.getUserId());
+      return response.internalRedirectWithCookie("", accessControlProvider.newExpiredCookie());
 
     } catch (Exception e) {
-      return httpResponseProvider.failure(e);
+      return response.failure(e);
     }
   }
 }

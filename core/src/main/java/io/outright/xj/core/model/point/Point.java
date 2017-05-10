@@ -1,26 +1,58 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
 package io.outright.xj.core.model.point;
 
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.model.Entity;
-import io.outright.xj.core.util.Purify;
+import io.outright.xj.core.util.Text;
 
 import org.jooq.Field;
+import org.jooq.Record;
 import org.jooq.types.ULong;
 
 import com.google.api.client.util.Maps;
 
 import java.math.BigInteger;
 import java.util.Map;
+import java.util.Objects;
 
 import static io.outright.xj.core.Tables.POINT;
 
+/**
+ Entity for use as POJO for decoding messages received by JAX-RS resources
+ a.k.a. JSON input will be stored into an instance of this object
+
+ Business logic ought to be performed beginning with an instance of this object,
+ to implement common methods.
+
+ NOTE: There can only be ONE of any getter/setter (with the same # of input params)
+ */
 public class Point extends Entity {
 
+  /**
+   For use in maps.
+   */
+  public static final String KEY_ONE = "point";
+  public static final String KEY_MANY = "points";
   /**
    Morph
    */
   private ULong morphId;
+  /**
+   VoiceEvent
+   */
+  private ULong voiceEventId;
+  /**
+   Position (beats)
+   */
+  private Double position;
+  /**
+   Duration (beats)
+   */
+  private Double duration;
+  /**
+   Note
+   */
+  private String note;
 
   public ULong getMorphId() {
     return morphId;
@@ -31,11 +63,6 @@ public class Point extends Entity {
     return this;
   }
 
-  /**
-   VoiceEvent
-   */
-  private ULong voiceEventId;
-
   public ULong getVoiceEventId() {
     return voiceEventId;
   }
@@ -44,11 +71,6 @@ public class Point extends Entity {
     this.voiceEventId = ULong.valueOf(voiceEventId);
     return this;
   }
-
-  /**
-   Position (beats)
-   */
-  private Double position;
 
   public Double getPosition() {
     return position;
@@ -59,11 +81,6 @@ public class Point extends Entity {
     return this;
   }
 
-  /**
-   Duration (beats)
-   */
-  private Double duration;
-
   public Double getDuration() {
     return duration;
   }
@@ -73,25 +90,15 @@ public class Point extends Entity {
     return this;
   }
 
-  /**
-   Note
-   */
-  private String note;
-
   public String getNote() {
     return note;
   }
 
   public Point setNote(String note) {
-    this.note = Purify.Note(note);
+    this.note = Text.Note(note);
     return this;
   }
 
-  /**
-   Validate data.
-
-   @throws BusinessException if invalid.
-   */
   @Override
   public void validate() throws BusinessException {
     if (this.morphId == null) {
@@ -111,15 +118,25 @@ public class Point extends Entity {
     }
   }
 
-  /**
-   Model info jOOQ-field : Value map
-
-   @return map
-   */
   @Override
-  public Map<Field, Object> intoFieldValueMap() {
-    Map<Field, Object> fieldValues = Maps.newHashMap();
+  public Point setFromRecord(Record record) {
+    if (Objects.isNull(record)) {
+      return null;
+    }
+    id = record.get(POINT.ID);
+    morphId = record.get(POINT.MORPH_ID);
+    voiceEventId = record.get(POINT.VOICE_EVENT_ID);
+    position = record.get(POINT.POSITION);
+    duration = record.get(POINT.DURATION);
+    note = record.get(POINT.NOTE);
+    createdAt = record.get(POINT.CREATED_AT);
+    updatedAt = record.get(POINT.UPDATED_AT);
+    return this;
+  }
 
+  @Override
+  public Map<Field, Object> updatableFieldValueMap() {
+    Map<Field, Object> fieldValues = Maps.newHashMap();
     fieldValues.put(POINT.MORPH_ID, morphId);
     fieldValues.put(POINT.VOICE_EVENT_ID, voiceEventId);
     fieldValues.put(POINT.POSITION, position);
@@ -127,11 +144,5 @@ public class Point extends Entity {
     fieldValues.put(POINT.NOTE, note);
     return fieldValues;
   }
-
-  /**
-   For use in maps.
-   */
-  public static final String KEY_ONE = "point";
-  public static final String KEY_MANY = "points";
 
 }

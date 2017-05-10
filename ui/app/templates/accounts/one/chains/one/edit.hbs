@@ -1,4 +1,4 @@
-<!-- Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved. -->
+<!-- Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved. -->
 
 <!-- Inner Content -->
 {{outlet}}
@@ -16,31 +16,6 @@
 
   {{partial "accounts/one/chains/one/form"}}
 
-  <!-- State -->
-  <div class="form-group row">
-    <label class="col-sm-2 control-label">State</label>
-    <div class="col-sm-10">
-      <select class="form-control" onchange={{action "selectChainState" value="target.value"}} title="State">
-        <option value="draft" selected={{eq model.chain.state "draft"}}
-          disabled={{or (eq model.chainFromState "fabricating") (eq model.chainFromState "complete")}}>
-          draft
-        </option>
-        <option value="ready" selected={{eq model.chain.state "ready"}}
-          disabled={{or (eq model.chainFromState "complete") (eq model.chainFromState "fabricating")}}>
-          ready
-        </option>
-        <option value="fabricating" selected={{eq model.chain.state "fabricating"}}
-          disabled={{or (eq model.chainFromState "draft") (eq model.chainFromState "complete")}}>
-          fabricating
-        </option>
-        <option value="complete" selected={{eq model.chain.state "complete"}}
-          disabled={{or (eq model.chainFromState "draft") (eq model.chainFromState "ready")}}>
-          complete
-        </option>
-      </select>
-    </div>
-  </div>
-
   {{#if auth.isAdmin}}
     <div class="form-group row">
       <div class="offset-sm-2 col-sm-10">
@@ -54,25 +29,29 @@
   <!-- Lower Container -->
   <div class="form-horizontal">
 
-    <!-- Header -->
-    <div class="form-group row">
-      <div class="col-sm-12">
-        <hr/>
-        <h4>Danger Zone</h4>
+    {{#if (or (eq "draft" model.chain.state) (eq "complete" model.chain.state) (eq "failed" model.chain.state))}}
+      <!-- Header -->
+      <div class="form-group row">
+        <div class="col-sm-12">
+          <hr/>
+          <h4>Danger Zone</h4>
+        </div>
       </div>
-    </div>
 
-    <div class="form-group row">
-      <div class="offset-sm-2 col-sm-10">
-        <button class="btn btn-warning btn-xs" {{action 'deleteChain' model.chain}}>Delete Chain</button>
-      </div>
-    </div>
+      {{#if (eq "draft" model.chain.state)}}
+        <div class="form-group row">
+          <div class="offset-sm-2 col-sm-10">
+            <button class="btn btn-warning btn-xs" {{action 'deleteChain' model.chain}}>Delete Chain</button>
+          </div>
+        </div>
+      {{/if}}
 
-    <div class="form-group row">
-      <div class="offset-sm-2 col-sm-10">
-        <button class="btn btn-danger btn-xs" {{action 'destroyChain' model.chain}}>Destroy Chain</button>
+      <div class="form-group row">
+        <div class="offset-sm-2 col-sm-10">
+          <button class="btn btn-danger btn-xs" {{action 'destroyChain' model.chain}}>Destroy Chain</button>
+        </div>
       </div>
-    </div>
+    {{/if}}
 
   </div>
 {{/if}}

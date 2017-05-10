@@ -1,15 +1,15 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
 package io.outright.xj.core.dao;
 
 import io.outright.xj.core.CoreModule;
-import io.outright.xj.core.app.access.impl.AccessControl;
+import io.outright.xj.core.app.access.impl.Access;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.integration.IntegrationTestEntity;
 import io.outright.xj.core.integration.IntegrationTestService;
 import io.outright.xj.core.model.idea.Idea;
 import io.outright.xj.core.model.library.Library;
-import io.outright.xj.core.model.library.LibraryWrapper;
 import io.outright.xj.core.tables.records.LibraryRecord;
+import io.outright.xj.core.transport.JSON;
 
 import org.jooq.types.ULong;
 
@@ -59,16 +59,14 @@ public class LibraryIT {
 
   @Test
   public void create() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
-    Library inputData = new Library();
-    inputData.setName("manuts");
-    inputData.setAccountId(BigInteger.valueOf(1));
-    LibraryWrapper inputDataWrapper = new LibraryWrapper();
-    inputDataWrapper.setLibrary(inputData);
+    Library inputData = new Library()
+      .setName("manuts")
+      .setAccountId(BigInteger.valueOf(1));
 
-    JSONObject result = testDAO.create(access, inputDataWrapper);
+    JSONObject result = JSON.objectFromRecord(testDAO.create(access, inputData));
 
     assertNotNull(result);
     assertEquals(ULong.valueOf(1), result.get("accountId"));
@@ -77,112 +75,104 @@ public class LibraryIT {
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutAccountID() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
-    Library inputData = new Library();
-    inputData.setName("manuts");
-    LibraryWrapper inputDataWrapper = new LibraryWrapper();
-    inputDataWrapper.setLibrary(inputData);
+    Library inputData = new Library()
+      .setName("manuts");
 
-    testDAO.create(access, inputDataWrapper);
+    testDAO.create(access, inputData);
   }
 
   @Test
   public void readOne() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "user",
       "accounts", "1"
     ));
 
-    JSONObject result = testDAO.readOne(access, ULong.valueOf(2));
+    Library result = new Library().setFromRecord(testDAO.readOne(access, ULong.valueOf(2)));
 
     assertNotNull(result);
-    assertEquals(ULong.valueOf(2), result.get("id"));
-    assertEquals(ULong.valueOf(1), result.get("accountId"));
-    assertEquals("coconuts", result.get("name"));
+    assertEquals(ULong.valueOf(2), result.getId());
+    assertEquals(ULong.valueOf(1), result.getAccountId());
+    assertEquals("coconuts", result.getName());
   }
 
   @Test
   public void readOne_FailsWhenUserIsNotInAccount() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "user",
       "accounts", "326"
     ));
 
-    JSONObject result = testDAO.readOne(access, ULong.valueOf(1));
+    LibraryRecord result = testDAO.readOne(access, ULong.valueOf(1));
 
     assertNull(result);
   }
 
   @Test
   public void readAll() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "user",
       "accounts", "1"
     ));
 
-    JSONArray actualResultList = testDAO.readAllIn(access, ULong.valueOf(1));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ULong.valueOf(1)));
 
-    assertNotNull(actualResultList);
-    assertEquals(2, actualResultList.length());
-    JSONObject actualResult1 = (JSONObject) actualResultList.get(0);
-    assertEquals("leaves", actualResult1.get("name"));
-    JSONObject actualResult2 = (JSONObject) actualResultList.get(1);
-    assertEquals("coconuts", actualResult2.get("name"));
+    assertNotNull(result);
+    assertEquals(2, result.length());
+    JSONObject result1 = (JSONObject) result.get(0);
+    assertEquals("leaves", result1.get("name"));
+    JSONObject result2 = (JSONObject) result.get(1);
+    assertEquals("coconuts", result2.get("name"));
   }
 
   @Test
   public void readAll_SeesNothingOutsideOfAccount() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "user",
       "accounts", "345"
     ));
 
-    JSONArray actualResultList = testDAO.readAllIn(access, ULong.valueOf(1));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ULong.valueOf(1)));
 
-    assertNotNull(actualResultList);
-    assertEquals(0, actualResultList.length());
+    assertNotNull(result);
+    assertEquals(0, result.length());
   }
 
   @Test(expected = BusinessException.class)
   public void update_FailsWithoutAccountID() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
-    Library inputData = new Library();
-    inputData.setName("cannons");
-    LibraryWrapper inputDataWrapper = new LibraryWrapper();
-    inputDataWrapper.setLibrary(inputData);
+    Library inputData = new Library()
+      .setName("cannons");
 
-    testDAO.update(access, ULong.valueOf(3), inputDataWrapper);
+    testDAO.update(access, ULong.valueOf(3), inputData);
   }
 
   @Test(expected = BusinessException.class)
   public void update_FailsWithoutName() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
-    Library inputData = new Library();
-    inputData.setAccountId(BigInteger.valueOf(3));
-    LibraryWrapper inputDataWrapper = new LibraryWrapper();
-    inputDataWrapper.setLibrary(inputData);
+    Library inputData = new Library()
+      .setAccountId(BigInteger.valueOf(3));
 
-    testDAO.update(access, ULong.valueOf(3), inputDataWrapper);
+    testDAO.update(access, ULong.valueOf(3), inputData);
   }
 
   @Test
   public void update() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
-    Library inputData = new Library();
-    inputData.setName("cannons");
-    inputData.setAccountId(BigInteger.valueOf(1));
-    LibraryWrapper inputDataWrapper = new LibraryWrapper();
-    inputDataWrapper.setLibrary(inputData);
+    Library inputData = new Library()
+      .setName("cannons")
+      .setAccountId(BigInteger.valueOf(1));
 
-    testDAO.update(access, ULong.valueOf(3), inputDataWrapper);
+    testDAO.update(access, ULong.valueOf(3), inputData);
 
     LibraryRecord result = IntegrationTestService.getDb()
       .selectFrom(LIBRARY)
@@ -195,17 +185,15 @@ public class LibraryIT {
 
   @Test(expected = BusinessException.class)
   public void update_FailsUpdatingToNonexistentAccount() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
-    Library inputData = new Library();
-    inputData.setName("cannons");
-    inputData.setAccountId(BigInteger.valueOf(3978));
-    LibraryWrapper inputDataWrapper = new LibraryWrapper();
-    inputDataWrapper.setLibrary(inputData);
+    Library inputData = new Library()
+      .setName("cannons")
+      .setAccountId(BigInteger.valueOf(3978));
 
     try {
-      testDAO.update(access, ULong.valueOf(3), inputDataWrapper);
+      testDAO.update(access, ULong.valueOf(3), inputData);
 
     } catch (Exception e) {
       LibraryRecord result = IntegrationTestService.getDb()
@@ -221,16 +209,14 @@ public class LibraryIT {
 
   @Test
   public void update_Name() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
-    Library inputData = new Library();
-    inputData.setName("cannons");
-    inputData.setAccountId(BigInteger.valueOf(2));
-    LibraryWrapper inputDataWrapper = new LibraryWrapper();
-    inputDataWrapper.setLibrary(inputData);
+    Library inputData = new Library()
+      .setName("cannons")
+      .setAccountId(BigInteger.valueOf(2));
 
-    testDAO.update(access, ULong.valueOf(3), inputDataWrapper);
+    testDAO.update(access, ULong.valueOf(3), inputData);
 
     LibraryRecord result = IntegrationTestService.getDb()
       .selectFrom(LIBRARY)
@@ -243,16 +229,14 @@ public class LibraryIT {
 
   @Test
   public void update_NameAndAccount() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
-    Library inputData = new Library();
-    inputData.setName("trunk");
-    inputData.setAccountId(BigInteger.valueOf(1));
-    LibraryWrapper inputDataWrapper = new LibraryWrapper();
-    inputDataWrapper.setLibrary(inputData);
+    Library inputData = new Library()
+      .setName("trunk")
+      .setAccountId(BigInteger.valueOf(1));
 
-    testDAO.update(access, ULong.valueOf(3), inputDataWrapper);
+    testDAO.update(access, ULong.valueOf(3), inputData);
 
     LibraryRecord result = IntegrationTestService.getDb()
       .selectFrom(LIBRARY)
@@ -265,7 +249,7 @@ public class LibraryIT {
 
   @Test
   public void delete() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
 
@@ -280,7 +264,7 @@ public class LibraryIT {
 
   @Test(expected = BusinessException.class)
   public void delete_FailsIfLibraryHasChildRecords() throws Exception {
-    AccessControl access = new AccessControl(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
     IntegrationTestEntity.insertUser(101, "bill", "bill@email.com", "http://pictures.com/bill.gif");

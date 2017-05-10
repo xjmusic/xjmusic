@@ -1,13 +1,12 @@
 // Copyright Outright Mental, Inc. All Rights Reserved.
 package io.outright.xj.core.dao;
 
-import io.outright.xj.core.app.access.impl.AccessControl;
-import io.outright.xj.core.model.account.AccountWrapper;
+import io.outright.xj.core.app.access.impl.Access;
+import io.outright.xj.core.model.account.Account;
+import io.outright.xj.core.tables.records.AccountRecord;
 
+import org.jooq.Result;
 import org.jooq.types.ULong;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import javax.annotation.Nullable;
 
@@ -17,10 +16,10 @@ public interface AccountDAO {
    Create a new Account
 
    @param access control
-   @param data   for the new Account.
-   @return newly created Account record.
+   @param entity for the new Account.
+   @return newly readMany Account record.
    */
-  JSONObject create(AccessControl access, AccountWrapper data) throws Exception;
+  AccountRecord create(Access access, Account entity) throws Exception;
 
   /**
    Fetch one Account by id, if accessible
@@ -31,7 +30,7 @@ public interface AccountDAO {
    @throws Exception on failure
    */
   @Nullable
-  JSONObject readOne(AccessControl access, ULong id) throws Exception;
+  AccountRecord readOne(Access access, ULong id) throws Exception;
 
   /**
    Read all Accounts that are accessible
@@ -40,8 +39,7 @@ public interface AccountDAO {
    @return array of accounts as JSON
    @throws Exception on failure
    */
-  @Nullable
-  JSONArray readAll(AccessControl access) throws Exception;
+  Result<AccountRecord> readAll(Access access) throws Exception;
 
   /**
    (ADMIN ONLY)
@@ -49,9 +47,9 @@ public interface AccountDAO {
 
    @param access control
    @param id     of specific Account to update.
-   @param data   for the updated Account.
+   @param entity for the updated Account.
    */
-  void update(AccessControl access, ULong id, AccountWrapper data) throws Exception;
+  void update(Access access, ULong id, Account entity) throws Exception;
 
   /**
    (ADMIN ONLY)
@@ -60,5 +58,5 @@ public interface AccountDAO {
    @param access    control
    @param accountId of specific Account to delete.
    */
-  void delete(AccessControl access, ULong accountId) throws Exception;
+  void delete(Access access, ULong accountId) throws Exception;
 }

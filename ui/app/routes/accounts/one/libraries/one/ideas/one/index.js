@@ -1,4 +1,4 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
 import Ember from 'ember';
 
 let DRAFT = "draft";
@@ -83,6 +83,27 @@ export default Ember.Route.extend({
     chainIdea.save().then(
       () => {
         Ember.get(self, 'display').success('Added ' + idea.get('name') + ' to ' + chain.get('name') + '.');
+        self.addLibrary(chain);
+      },
+      (error) => {
+        Ember.get(self, 'display').error(error);
+      });
+  },
+
+  /**
+   * Add Library to Chain (quick-preview, step 3)
+   * @param chain
+   */
+  addLibrary: function (chain) {
+    let self = this;
+    let library = this.modelFor('accounts.one.libraries.one');
+    let chainLibrary = this.store.createRecord('chain-library', {
+      chain: chain,
+      library: library,
+    });
+    chainLibrary.save().then(
+      () => {
+        Ember.get(self, 'display').success('Added ' + library.get('name') + ' to ' + chain.get('name') + '.');
         self.updateToReady(chain);
       },
       (error) => {
@@ -91,7 +112,7 @@ export default Ember.Route.extend({
   },
 
   /**
-   * Update Chain to Ready-state (quick-preview, step 3)
+   * Update Chain to Ready-state (quick-preview, step 4)
    * @param chain
    */
   updateToReady: function (chain) {
@@ -108,7 +129,7 @@ export default Ember.Route.extend({
   },
 
   /**
-   * Update Chain to Fabricating-state (quick-preview, step 4)
+   * Update Chain to Fabricating-state (quick-preview, step 5)
    * @param chain
    */
   updateToFabricating: function (chain) {

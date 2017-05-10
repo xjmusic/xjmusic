@@ -6,18 +6,9 @@ services:
     volumes:
       - .:/var/app/current
 
-  builder:
-    extends: xj
-    build:
-      context: .
-      dockerfile: Dockerfile.builder
-    volumes:
-      - ${HOME}/.m2/:/home/bright/.m2/
-
   runner:
     extends: xj
     build:
       context: .
-      dockerfile: Dockerfile.runner
     tty: true
     stdin_open: true

@@ -1,25 +1,21 @@
 // Copyright Outright Mental, Inc. All Rights Reserved.
 package io.outright.xj.core.dao.impl;
 
-import io.outright.xj.core.app.access.impl.AccessControl;
+import io.outright.xj.core.app.access.impl.Access;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.dao.PhaseMemeDAO;
 import io.outright.xj.core.db.sql.SQLConnection;
 import io.outright.xj.core.db.sql.SQLDatabaseProvider;
 import io.outright.xj.core.model.phase_meme.PhaseMeme;
-import io.outright.xj.core.model.phase_meme.PhaseMemeWrapper;
-import io.outright.xj.core.transport.JSON;
+import io.outright.xj.core.tables.records.PhaseMemeRecord;
 
 import org.jooq.DSLContext;
 import org.jooq.Field;
-import org.jooq.Record;
+import org.jooq.Result;
 import org.jooq.types.ULong;
 
 import com.google.inject.Inject;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.sql.SQLException;
 import java.util.Map;
@@ -44,37 +40,37 @@ public class PhaseMemeDAOImpl extends DAOImpl implements PhaseMemeDAO {
   }
 
   @Override
-  public JSONObject create(AccessControl access, PhaseMemeWrapper data) throws Exception {
+  public PhaseMemeRecord create(Access access, PhaseMeme entity) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(create(tx.getContext(), access, data));
+      return tx.success(createRecord(tx.getContext(), access, entity));
     } catch (Exception e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public JSONObject readOne(AccessControl access, ULong id) throws Exception {
+  public PhaseMemeRecord readOne(Access access, ULong id) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readOne(tx.getContext(), access, id));
+      return tx.success(readOneRecord(tx.getContext(), access, id));
     } catch (Exception e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public JSONArray readAllIn(AccessControl access, ULong phaseId) throws Exception {
+  public Result<PhaseMemeRecord> readAll(Access access, ULong phaseId) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readAllAble(tx.getContext(), access, phaseId));
+      return tx.success(readAll(tx.getContext(), access, phaseId));
     } catch (Exception e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public void delete(AccessControl access, ULong id) throws Exception {
+  public void delete(Access access, ULong id) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
       delete(tx.getContext(), access, id);
@@ -89,37 +85,36 @@ public class PhaseMemeDAOImpl extends DAOImpl implements PhaseMemeDAO {
 
    @param db     context
    @param access control
-   @param data   for new PhaseMeme
+   @param entity for new PhaseMeme
    @return new record
    @throws Exception         if database failure
    @throws ConfigException   if not configured properly
    @throws BusinessException if fails business rule
    */
-  private JSONObject create(DSLContext db, AccessControl access, PhaseMemeWrapper data) throws Exception {
-    PhaseMeme model = data.validate();
-    Map<Field, Object> fieldValues = model.intoFieldValueMap();
+  private PhaseMemeRecord createRecord(DSLContext db, Access access, PhaseMeme entity) throws Exception {
+    entity.validate();
 
-    if (access.isTopLevel()) {
-      requireRecordExists("Phase", db.select(PHASE.ID).from(PHASE)
-        .where(PHASE.ID.eq(model.getPhaseId()))
+    Map<Field, Object> fieldValues = entity.updatableFieldValueMap();
+
+    if (access.isTopLevel())
+      requireExists("Phase", db.select(PHASE.ID).from(PHASE)
+        .where(PHASE.ID.eq(entity.getPhaseId()))
         .fetchOne());
-    } else {
-      requireRecordExists("Phase", db.select(PHASE.ID).from(PHASE)
+    else
+      requireExists("Phase", db.select(PHASE.ID).from(PHASE)
         .join(IDEA).on(IDEA.ID.eq(PHASE.IDEA_ID))
         .join(LIBRARY).on(IDEA.LIBRARY_ID.eq(LIBRARY.ID))
-        .where(PHASE.ID.eq(model.getPhaseId()))
+        .where(PHASE.ID.eq(entity.getPhaseId()))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .fetchOne());
-    }
 
     if (db.selectFrom(PHASE_MEME)
-      .where(PHASE_MEME.PHASE_ID.eq(model.getPhaseId()))
-      .and(PHASE_MEME.NAME.eq(model.getName()))
-      .fetchOne() != null) {
+      .where(PHASE_MEME.PHASE_ID.eq(entity.getPhaseId()))
+      .and(PHASE_MEME.NAME.eq(entity.getName()))
+      .fetchOne() != null)
       throw new BusinessException("Phase Meme already exists!");
-    }
 
-    return JSON.objectFromRecord(executeCreate(db, PHASE_MEME, fieldValues));
+    return executeCreate(db, PHASE_MEME, fieldValues);
   }
 
   /**
@@ -130,20 +125,19 @@ public class PhaseMemeDAOImpl extends DAOImpl implements PhaseMemeDAO {
    @param id     of record
    @return record
    */
-  private JSONObject readOne(DSLContext db, AccessControl access, ULong id) throws SQLException {
-    if (access.isTopLevel()) {
-      return JSON.objectFromRecord(db.selectFrom(PHASE_MEME)
+  private PhaseMemeRecord readOneRecord(DSLContext db, Access access, ULong id) throws SQLException {
+    if (access.isTopLevel())
+      return db.selectFrom(PHASE_MEME)
         .where(PHASE_MEME.ID.eq(id))
-        .fetchOne());
-    } else {
-      return JSON.objectFromRecord(db.select(PHASE_MEME.fields()).from(PHASE_MEME)
+        .fetchOne();
+    else
+      return recordInto(PHASE_MEME, db.select(PHASE_MEME.fields()).from(PHASE_MEME)
         .join(PHASE).on(PHASE.ID.eq(PHASE_MEME.PHASE_ID))
         .join(IDEA).on(IDEA.ID.eq(PHASE.IDEA_ID))
         .join(LIBRARY).on(IDEA.LIBRARY_ID.eq(LIBRARY.ID))
         .where(PHASE_MEME.ID.eq(id))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .fetchOne());
-    }
   }
 
   /**
@@ -151,24 +145,23 @@ public class PhaseMemeDAOImpl extends DAOImpl implements PhaseMemeDAO {
 
    @param db      context
    @param access  control
-   @param phaseId to read memes for
+   @param phaseId to readMany memes for
    @return array of phase memes
    @throws SQLException if failure
    */
-  private JSONArray readAllAble(DSLContext db, AccessControl access, ULong phaseId) throws SQLException {
-    if (access.isTopLevel()) {
-      return JSON.arrayFromResultSet(db.selectFrom(PHASE_MEME)
+  private Result<PhaseMemeRecord> readAll(DSLContext db, Access access, ULong phaseId) throws SQLException {
+    if (access.isTopLevel())
+      return db.selectFrom(PHASE_MEME)
         .where(PHASE_MEME.PHASE_ID.eq(phaseId))
-        .fetchResultSet());
-    } else {
-      return JSON.arrayFromResultSet(db.select(PHASE_MEME.fields()).from(PHASE_MEME)
+        .fetch();
+    else
+      return resultInto(PHASE_MEME, db.select(PHASE_MEME.fields()).from(PHASE_MEME)
         .join(PHASE).on(PHASE.ID.eq(PHASE_MEME.PHASE_ID))
         .join(IDEA).on(IDEA.ID.eq(PHASE.IDEA_ID))
         .join(LIBRARY).on(IDEA.LIBRARY_ID.eq(LIBRARY.ID))
         .where(PHASE.ID.eq(phaseId))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-        .fetchResultSet());
-    }
+        .fetch());
   }
 
   /**
@@ -180,17 +173,15 @@ public class PhaseMemeDAOImpl extends DAOImpl implements PhaseMemeDAO {
    @throws BusinessException if failure
    */
   // TODO: fail if no phaseMeme is deleted
-  private void delete(DSLContext db, AccessControl access, ULong id) throws BusinessException {
-    if (!access.isTopLevel()) {
-      Record record = db.select(PHASE_MEME.ID).from(PHASE_MEME)
+  private void delete(DSLContext db, Access access, ULong id) throws BusinessException {
+    if (!access.isTopLevel())
+      requireExists("Phase Meme", db.select(PHASE_MEME.ID).from(PHASE_MEME)
         .join(PHASE).on(PHASE.ID.eq(PHASE_MEME.PHASE_ID))
         .join(IDEA).on(IDEA.ID.eq(PHASE.IDEA_ID))
         .join(LIBRARY).on(IDEA.LIBRARY_ID.eq(LIBRARY.ID))
         .where(PHASE_MEME.ID.eq(id))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-        .fetchOne();
-      requireRecordExists("Phase Meme", record);
-    }
+        .fetchOne());
 
     db.deleteFrom(PHASE_MEME)
       .where(PHASE_MEME.ID.eq(id))

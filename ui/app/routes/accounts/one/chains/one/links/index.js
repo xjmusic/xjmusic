@@ -1,5 +1,5 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
-import Ember from 'ember';
+// Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
+import Ember from "ember";
 
 export default Ember.Route.extend({
 
@@ -13,7 +13,11 @@ export default Ember.Route.extend({
   model: function () {
     let self = this;
     let chain = this.modelFor('accounts.one.chains.one');
-    let links = this.store.query('link', {chainId: chain.get('id')})
+    let links = this.store.query(
+      'link', {
+        chainId: chain.get('id'),
+        include: 'messages'
+      })
       .catch((error) => {
         Ember.get(self, 'display').error(error);
         self.transitionTo('');
@@ -29,15 +33,15 @@ export default Ember.Route.extend({
    */
   afterModel(model) {
     Ember.set(this, 'routeHeadline', {
-      title: model.chain.get('name') + ' ' + 'Links',
-      state: model.chain.get('state'),
+      title: 'Chain Links',
       detail: {
         startAt: model.chain.get('startAt'),
         stopAt: model.chain.get('stopAt')
       },
       entity: {
         name: 'Chain',
-        id: model.chain.get('id')
+        id: model.chain.get('id'),
+        state: model.chain.get('state')
       }
     });
   },

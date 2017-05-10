@@ -1,4 +1,4 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
 import DS from 'ember-data';
 
 export default DS.Model.extend({
@@ -11,6 +11,8 @@ export default DS.Model.extend({
   density: DS.attr('number'),
   key: DS.attr('string'),
   tempo: DS.attr('number'),
+
+  messages: DS.hasMany('link-message'),
 
   getTitle() {
     return 'Link' +

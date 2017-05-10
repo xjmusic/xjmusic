@@ -1,14 +1,13 @@
 // Copyright Outright Mental, Inc. All Rights Reserved.
 package io.outright.xj.core.dao;
 
-import io.outright.xj.core.app.access.impl.AccessControl;
-import io.outright.xj.core.model.chain.ChainWrapper;
+import io.outright.xj.core.app.access.impl.Access;
+import io.outright.xj.core.model.chain.Chain;
 import io.outright.xj.core.tables.records.ChainRecord;
 
 import org.jooq.Result;
 import org.jooq.types.ULong;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.annotation.Nullable;
@@ -18,13 +17,13 @@ public interface ChainDAO {
   /**
    Create a new Chain
 
-   @param data for the new Chain.
-   @return newly created Chain record.
+   @param entity for the new Chain.
+   @return newly readMany Chain record.
    */
-  JSONObject create(AccessControl access, ChainWrapper data) throws Exception;
+  ChainRecord create(Access access, Chain entity) throws Exception;
 
   /**
-   Fetch one Chain by id, if accessible
+   Fetch one Chain (as JSON Object) by id, if accessible
 
    @param access  control
    @param chainId to fetch
@@ -32,7 +31,7 @@ public interface ChainDAO {
    @throws Exception on failure
    */
   @Nullable
-  JSONObject readOne(AccessControl access, ULong chainId) throws Exception;
+  ChainRecord readOne(Access access, ULong chainId) throws Exception;
 
   /**
    Read all Chains that are accessible
@@ -41,8 +40,7 @@ public interface ChainDAO {
    @return array of chains as JSON
    @throws Exception on failure
    */
-  @Nullable
-  JSONArray readAllIn(AccessControl access, ULong accountId) throws Exception;
+  Result<ChainRecord> readAll(Access access, ULong accountId) throws Exception;
 
   /**
    [INTERNAL USE ONLY]
@@ -53,16 +51,15 @@ public interface ChainDAO {
    @return array of chains as JSON
    @throws Exception on failure
    */
-  @Nullable
-  Result<ChainRecord> readAllRecordsInStateFabricating(AccessControl access, Timestamp atOrBefore) throws Exception;
+  Result<ChainRecord> readAllRecordsInStateFabricating(Access access, Timestamp atOrBefore) throws Exception;
 
   /**
    Update a specified Chain
 
-   @param id   of specific Chain to update.
-   @param data for the updated Chain.
+   @param id     of specific Chain to update.
+   @param entity for the updated Chain.
    */
-  void update(AccessControl access, ULong id, ChainWrapper data) throws Exception;
+  void update(Access access, ULong id, Chain entity) throws Exception;
 
   /**
    Update the state of a specified Chain
@@ -70,7 +67,7 @@ public interface ChainDAO {
    @param id    of specific Chain to update.
    @param state for the updated Chain.
    */
-  void updateState(AccessControl access, ULong id, String state) throws Exception;
+  void updateState(Access access, ULong id, String state) throws Exception;
 
   /**
    [INTERNAL USE ONLY]
@@ -81,20 +78,20 @@ public interface ChainDAO {
    @param chainStopCompleteBefore behind to consider a chain complete
    */
   JSONObject
-  buildNextLinkOrComplete(AccessControl access, ChainRecord chain, Timestamp linkBeginBefore, Timestamp chainStopCompleteBefore) throws Exception;
+  buildNextLinkOrComplete(Access access, ChainRecord chain, Timestamp linkBeginBefore, Timestamp chainStopCompleteBefore) throws Exception;
 
   /**
    Delete a specified Chain
 
    @param chainId of specific Chain to delete.
    */
-  void delete(AccessControl access, ULong chainId) throws Exception;
+  void delete(Access access, ULong chainId) throws Exception;
 
   /**
    Destroy a specified Chain, and all its child entities
 
    @param chainId of specific Chain to destroy.
    */
-  void destroy(AccessControl access, ULong chainId) throws Exception;
+  void destroy(Access access, ULong chainId) throws Exception;
 
 }

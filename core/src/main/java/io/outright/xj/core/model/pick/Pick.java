@@ -1,25 +1,65 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
 package io.outright.xj.core.model.pick;
 
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.model.Entity;
 
 import org.jooq.Field;
+import org.jooq.Record;
 import org.jooq.types.ULong;
 
 import com.google.api.client.util.Maps;
 
 import java.math.BigInteger;
 import java.util.Map;
+import java.util.Objects;
 
 import static io.outright.xj.core.Tables.PICK;
 
+/**
+ Entity for use as POJO for decoding messages received by JAX-RS resources
+ a.k.a. JSON input will be stored into an instance of this object
+
+ Business logic ought to be performed beginning with an instance of this object,
+ to implement common methods.
+
+ NOTE: There can only be ONE of any getter/setter (with the same # of input params)
+ */
 public class Pick extends Entity {
 
+  /**
+   For use in maps.
+   */
+  public static final String KEY_ONE = "pick";
+  public static final String KEY_MANY = "picks";
   /**
    Arrangement
    */
   private ULong arrangementId;
+  /**
+   Morph
+   */
+  private ULong morphId;
+  /**
+   Audio
+   */
+  private ULong audioId;
+  /**
+   Start (seconds)
+   */
+  private Double start;
+  /**
+   Length (seconds)
+   */
+  private Double length;
+  /**
+   Amplitude
+   */
+  private Double amplitude;
+  /**
+   Pitch
+   */
+  private Double pitch;
 
   public ULong getArrangementId() {
     return arrangementId;
@@ -30,11 +70,6 @@ public class Pick extends Entity {
     return this;
   }
 
-  /**
-   Morph
-   */
-  private ULong morphId;
-
   public ULong getMorphId() {
     return morphId;
   }
@@ -43,11 +78,6 @@ public class Pick extends Entity {
     this.morphId = ULong.valueOf(morphId);
     return this;
   }
-
-  /**
-   Audio
-   */
-  private ULong audioId;
 
   public ULong getAudioId() {
     return audioId;
@@ -58,11 +88,6 @@ public class Pick extends Entity {
     return this;
   }
 
-  /**
-   Start (seconds)
-   */
-  private Double start;
-
   public Double getStart() {
     return start;
   }
@@ -71,11 +96,6 @@ public class Pick extends Entity {
     this.start = start;
     return this;
   }
-
-  /**
-   Length (seconds)
-   */
-  private Double length;
 
   public Double getLength() {
     return length;
@@ -86,11 +106,6 @@ public class Pick extends Entity {
     return this;
   }
 
-  /**
-   Amplitude
-   */
-  private Double amplitude;
-
   public Double getAmplitude() {
     return amplitude;
   }
@@ -99,11 +114,6 @@ public class Pick extends Entity {
     this.amplitude = amplitude;
     return this;
   }
-
-  /**
-   Pitch
-   */
-  private Double pitch;
 
   public Double getPitch() {
     return pitch;
@@ -114,11 +124,6 @@ public class Pick extends Entity {
     return this;
   }
 
-  /**
-   Validate data.
-
-   @throws BusinessException if invalid.
-   */
   @Override
   public void validate() throws BusinessException {
     if (this.arrangementId == null) {
@@ -144,13 +149,26 @@ public class Pick extends Entity {
     }
   }
 
-  /**
-   Model info jOOQ-field : Value map
-
-   @return map
-   */
   @Override
-  public Map<Field, Object> intoFieldValueMap() {
+  public Pick setFromRecord(Record record) {
+    if (Objects.isNull(record)) {
+      return null;
+    }
+    id = record.get(PICK.ID);
+    arrangementId = record.get(PICK.ARRANGEMENT_ID);
+    morphId = record.get(PICK.MORPH_ID);
+    audioId = record.get(PICK.AUDIO_ID);
+    start = record.get(PICK.START);
+    length = record.get(PICK.LENGTH);
+    amplitude = record.get(PICK.AMPLITUDE);
+    pitch = record.get(PICK.PITCH);
+    createdAt = record.get(PICK.CREATED_AT);
+    updatedAt = record.get(PICK.UPDATED_AT);
+    return this;
+  }
+
+  @Override
+  public Map<Field, Object> updatableFieldValueMap() {
     Map<Field, Object> fieldValues = Maps.newHashMap();
     fieldValues.put(PICK.ARRANGEMENT_ID, arrangementId);
     fieldValues.put(PICK.MORPH_ID, morphId);
@@ -161,11 +179,5 @@ public class Pick extends Entity {
     fieldValues.put(PICK.PITCH, pitch);
     return fieldValues;
   }
-
-  /**
-   For use in maps.
-   */
-  public static final String KEY_ONE = "pick";
-  public static final String KEY_MANY = "picks";
 
 }

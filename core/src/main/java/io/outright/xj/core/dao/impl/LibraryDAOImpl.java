@@ -1,7 +1,7 @@
 // Copyright Outright Mental, Inc. All Rights Reserved.
 package io.outright.xj.core.dao.impl;
 
-import io.outright.xj.core.app.access.impl.AccessControl;
+import io.outright.xj.core.app.access.impl.Access;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.app.exception.DatabaseException;
@@ -9,17 +9,14 @@ import io.outright.xj.core.dao.LibraryDAO;
 import io.outright.xj.core.db.sql.SQLConnection;
 import io.outright.xj.core.db.sql.SQLDatabaseProvider;
 import io.outright.xj.core.model.library.Library;
-import io.outright.xj.core.model.library.LibraryWrapper;
-import io.outright.xj.core.transport.JSON;
+import io.outright.xj.core.tables.records.LibraryRecord;
 
 import org.jooq.DSLContext;
 import org.jooq.Field;
+import org.jooq.Result;
 import org.jooq.types.ULong;
 
 import com.google.inject.Inject;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import javax.annotation.Nullable;
 import java.sql.SQLException;
@@ -40,10 +37,10 @@ public class LibraryDAOImpl extends DAOImpl implements LibraryDAO {
   }
 
   @Override
-  public JSONObject create(AccessControl access, LibraryWrapper data) throws Exception {
+  public LibraryRecord create(Access access, Library entity) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(create(tx.getContext(), access, data));
+      return tx.success(createRecord(tx.getContext(), access, entity));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -51,10 +48,10 @@ public class LibraryDAOImpl extends DAOImpl implements LibraryDAO {
 
   @Override
   @Nullable
-  public JSONObject readOne(AccessControl access, ULong id) throws Exception {
+  public LibraryRecord readOne(Access access, ULong id) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readOne(tx.getContext(), access, id));
+      return tx.success(readOneRecord(tx.getContext(), access, id));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -62,20 +59,20 @@ public class LibraryDAOImpl extends DAOImpl implements LibraryDAO {
 
   @Override
   @Nullable
-  public JSONArray readAllIn(AccessControl access, ULong accountId) throws Exception {
+  public Result<LibraryRecord> readAll(Access access, ULong accountId) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readAllIn(tx.getContext(), access, accountId));
+      return tx.success(readAll(tx.getContext(), access, accountId));
     } catch (Exception e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public void update(AccessControl access, ULong id, LibraryWrapper data) throws Exception {
+  public void update(Access access, ULong id, Library entity) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      update(tx.getContext(), access, id, data);
+      update(tx.getContext(), access, id, entity);
       tx.success();
     } catch (Exception e) {
       throw tx.failure(e);
@@ -83,7 +80,7 @@ public class LibraryDAOImpl extends DAOImpl implements LibraryDAO {
   }
 
   @Override
-  public void delete(AccessControl access, ULong libraryId) throws Exception {
+  public void delete(Access access, ULong libraryId) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
       delete(tx.getContext(), access, libraryId);
@@ -98,17 +95,18 @@ public class LibraryDAOImpl extends DAOImpl implements LibraryDAO {
 
    @param db     context
    @param access control
-   @param data   for new record
-   @return newly created record
+   @param entity for new record
+   @return newly readMany record
    @throws BusinessException if a Business Rule is violated
    */
-  private JSONObject create(DSLContext db, AccessControl access, LibraryWrapper data) throws BusinessException {
-    Library model = data.validate();
-    Map<Field, Object> fieldValues = model.intoFieldValueMap();
+  private LibraryRecord createRecord(DSLContext db, Access access, Library entity) throws BusinessException {
+    entity.validate();
+
+    Map<Field, Object> fieldValues = entity.updatableFieldValueMap();
 
     requireTopLevel(access);
 
-    return JSON.objectFromRecord(executeCreate(db, LIBRARY, fieldValues));
+    return executeCreate(db, LIBRARY, fieldValues);
   }
 
   /**
@@ -119,18 +117,17 @@ public class LibraryDAOImpl extends DAOImpl implements LibraryDAO {
    @param id     of record
    @return record
    */
-  private JSONObject readOne(DSLContext db, AccessControl access, ULong id) {
-    if (access.isTopLevel()) {
-      return JSON.objectFromRecord(db.selectFrom(LIBRARY)
+  private LibraryRecord readOneRecord(DSLContext db, Access access, ULong id) {
+    if (access.isTopLevel())
+      return db.selectFrom(LIBRARY)
         .where(LIBRARY.ID.eq(id))
-        .fetchOne());
-    } else {
-      return JSON.objectFromRecord(db.select(LIBRARY.fields())
+        .fetchOne();
+    else
+      return recordInto(LIBRARY, db.select(LIBRARY.fields())
         .from(LIBRARY)
         .where(LIBRARY.ID.eq(id))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .fetchOne());
-    }
   }
 
   /**
@@ -141,19 +138,18 @@ public class LibraryDAOImpl extends DAOImpl implements LibraryDAO {
    @param accountId of parent
    @return array of records
    */
-  private JSONArray readAllIn(DSLContext db, AccessControl access, ULong accountId) throws SQLException {
-    if (access.isTopLevel()) {
-      return JSON.arrayFromResultSet(db.select(LIBRARY.fields())
+  private Result<LibraryRecord> readAll(DSLContext db, Access access, ULong accountId) throws SQLException {
+    if (access.isTopLevel())
+      return resultInto(LIBRARY, db.select(LIBRARY.fields())
         .from(LIBRARY)
         .where(LIBRARY.ACCOUNT_ID.eq(accountId))
-        .fetchResultSet());
-    } else {
-      return JSON.arrayFromResultSet(db.select(LIBRARY.fields())
+        .fetch());
+    else
+      return resultInto(LIBRARY, db.select(LIBRARY.fields())
         .from(LIBRARY)
         .where(LIBRARY.ACCOUNT_ID.eq(accountId))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-        .fetchResultSet());
-    }
+        .fetch());
   }
 
   /**
@@ -162,24 +158,23 @@ public class LibraryDAOImpl extends DAOImpl implements LibraryDAO {
    @param db     context
    @param access control
    @param id     of record
-   @param data   to update with
+   @param entity to update with
    @throws BusinessException if a Business Rule is violated
    */
-  private void update(DSLContext db, AccessControl access, ULong id, LibraryWrapper data) throws BusinessException, DatabaseException {
-    Library model = data.validate();
-    Map<Field, Object> fieldValues = model.intoFieldValueMap();
+  private void update(DSLContext db, Access access, ULong id, Library entity) throws BusinessException, DatabaseException {
+    entity.validate();
+    Map<Field, Object> fieldValues = entity.updatableFieldValueMap();
     fieldValues.put(LIBRARY.ID, id);
 
     requireTopLevel(access);
 
-    requireRecordExists("Account",
+    requireExists("Account",
       db.selectFrom(ACCOUNT)
-        .where(ACCOUNT.ID.eq(model.getAccountId()))
+        .where(ACCOUNT.ID.eq(entity.getAccountId()))
         .fetchOne());
 
-    if (executeUpdate(db, LIBRARY, fieldValues) == 0) {
+    if (executeUpdate(db, LIBRARY, fieldValues) == 0)
       throw new BusinessException("No records updated.");
-    }
   }
 
   /**
@@ -192,18 +187,18 @@ public class LibraryDAOImpl extends DAOImpl implements LibraryDAO {
    @throws ConfigException   if not configured properly
    @throws BusinessException if fails business rule
    */
-  private void delete(DSLContext db, AccessControl access, ULong libraryId) throws Exception {
+  private void delete(DSLContext db, Access access, ULong libraryId) throws Exception {
     requireTopLevel(access);
 
-    requireEmptyResultSet(db.select(IDEA.ID)
+    requireNotExists("Idea in Library", db.select(IDEA.ID)
       .from(IDEA)
       .where(IDEA.LIBRARY_ID.eq(libraryId))
-      .fetchResultSet());
+      .fetch().into(IDEA));
 
-    requireEmptyResultSet(db.select(INSTRUMENT.ID)
+    requireNotExists("Instrument in Library", db.select(INSTRUMENT.ID)
       .from(INSTRUMENT)
       .where(INSTRUMENT.LIBRARY_ID.eq(libraryId))
-      .fetchResultSet());
+      .fetch().into(INSTRUMENT));
 
     db.deleteFrom(LIBRARY)
       .where(LIBRARY.ID.eq(libraryId))

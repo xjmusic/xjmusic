@@ -1,4 +1,4 @@
-/* Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved. */
+/* Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved. */
 @import 'palette';
 
 nav.navbar {
@@ -72,11 +72,18 @@ nav.navbar {
   }
 
   #clock {
-    margin-top:4px;
+    margin-top: 4px;
     letter-spacing: 4px;
     font-family: ClockMono, monospace;
     font-size: 20px;
     margin-right: 20px;
+    cursor: pointer;
+    &:hover {
+      color: whitesmoke;
+    }
+    &:active {
+      color: lighten($green, 40%);
+    }
   }
 
 }

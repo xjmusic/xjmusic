@@ -1,6 +1,7 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
 package io.outright.xj.core.external.amazon;
 
+import com.amazonaws.services.ec2.util.S3UploadPolicy;
 import io.outright.xj.core.app.exception.ConfigException;
 
 /**
@@ -12,10 +13,9 @@ import io.outright.xj.core.app.exception.ConfigException;
 public interface AmazonProvider {
 
   /**
-   @param key of resource to generate an upload policy for
-   @return String authorization code request URL
+   @return S3UploadPolicy for upload to AWS file storage (S3)
    */
-  String generateUploadPolicy(String key) throws ConfigException;
+  S3UploadPolicy generateUploadPolicy() throws ConfigException;
 
   /**
    Generate a new key of an object in AWS file storage (S3)
@@ -46,4 +46,25 @@ public interface AmazonProvider {
    @return key id
    */
   String getAccessSecret() throws ConfigException;
+
+  /**
+   Get the AWS Bucket Name
+
+   @return The name of the bucket in AWS file storage (S3)
+   */
+  String getBucketName() throws ConfigException;
+
+  /**
+   Get the AWS upload policy expire time in minutes
+
+   @return The number of minutes before the upload policy expires and is unable to be used.
+   */
+  int getExpireInMinutes() throws ConfigException;
+
+  /**
+   Get the AWS Access control list
+
+   @return Access control list for upload to AWS file storage (S3)
+   */
+  String getUploadACL() throws ConfigException;
 }

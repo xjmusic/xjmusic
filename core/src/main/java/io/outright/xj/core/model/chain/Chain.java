@@ -1,12 +1,13 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
 package io.outright.xj.core.model.chain;
 
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.model.Entity;
 import io.outright.xj.core.transport.CSV;
-import io.outright.xj.core.util.Purify;
+import io.outright.xj.core.util.Text;
 
 import org.jooq.Field;
+import org.jooq.Record;
 import org.jooq.types.ULong;
 
 import com.google.api.client.util.Maps;
@@ -16,9 +17,19 @@ import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static io.outright.xj.core.tables.Chain.CHAIN;
 
+/**
+ Entity for use as POJO for decoding messages received by JAX-RS resources
+ a.k.a. JSON input will be stored into an instance of this object
+
+ Business logic ought to be performed beginning with an instance of this object,
+ to implement common methods.
+
+ NOTE: There can only be ONE of any getter/setter (with the same # of input params)
+ */
 public class Chain extends Entity {
   /**
    For use in maps.
@@ -44,16 +55,42 @@ public class Chain extends Entity {
   public static final String READY = "ready";
   public static final String FABRICATING = "fabricating";
   public static final String COMPLETE = "complete";
+  public static final String FAILED = "failed";
   // list of all states
   public final static List<String> STATES = ImmutableList.of(
     DRAFT,
     READY,
     FABRICATING,
-    COMPLETE
+    COMPLETE,
+    FAILED
   );
 
-  // Account
+  /**
+   Fields
+   */
   private ULong accountId;
+  private String name;
+  private String state;
+  private String type;
+  private Timestamp startAt;
+  private String startAtError;
+  private Timestamp stopAt;
+  private String stopAtError;
+
+  /**
+   Validate a state
+
+   @param state to validate
+   @throws BusinessException if invalid
+   */
+  public static void validateState(String state) throws BusinessException {
+    if (state == null || state.length() == 0) {
+      throw new BusinessException("State is required.");
+    }
+    if (!STATES.contains(state)) {
+      throw new BusinessException("'" + state + "' is not a valid state (" + CSV.join(STATES) + ").");
+    }
+  }
 
   public ULong getAccountId() {
     return accountId;
@@ -64,9 +101,6 @@ public class Chain extends Entity {
     return this;
   }
 
-  // Name
-  private String name;
-
   public String getName() {
     return name;
   }
@@ -76,33 +110,23 @@ public class Chain extends Entity {
     return this;
   }
 
-  // State
-  private String state;
-
   public String getState() {
     return state;
   }
 
   public Chain setState(String state) {
-    this.state = Purify.LowerSlug(state);
+    this.state = Text.LowerSlug(state);
     return this;
   }
-
-  // Type
-  private String type;
 
   public String getType() {
     return type;
   }
 
   public Chain setType(String type) {
-    this.type = Purify.LowerSlug(type);
+    this.type = Text.LowerSlug(type);
     return this;
   }
-
-  // StartAt
-  private Timestamp startAt;
-  private String startAtError;
 
   public Timestamp getStartAt() {
     return startAt;
@@ -117,10 +141,6 @@ public class Chain extends Entity {
     return this;
   }
 
-  // StopAt
-  private Timestamp stopAt;
-  private String stopAtError;
-
   public Timestamp getStopAt() {
     return stopAt;
   }
@@ -134,12 +154,7 @@ public class Chain extends Entity {
     return this;
   }
 
-
-  /**
-   Validate data.
-
-   @throws BusinessException if invalid.
-   */
+  @Override
   public void validate() throws BusinessException {
     validateState(this.state);
     if (this.accountId == null) {
@@ -167,27 +182,25 @@ public class Chain extends Entity {
     }
   }
 
-  /**
-   Validate a state
-
-   @param state to validate
-   @throws BusinessException if invalid
-   */
-  public static void validateState(String state) throws BusinessException {
-    if (state == null || state.length() == 0) {
-      throw new BusinessException("State is required.");
+  @Override
+  public Chain setFromRecord(Record record) {
+    if (Objects.isNull(record)) {
+      return null;
     }
-    if (!STATES.contains(state)) {
-      throw new BusinessException("'" + state + "' is not a valid state (" + CSV.join(STATES) + ").");
-    }
+    id = record.get(CHAIN.ID);
+    accountId = record.get(CHAIN.ACCOUNT_ID);
+    name = record.get(CHAIN.NAME);
+    type = record.get(CHAIN.TYPE);
+    state = record.get(CHAIN.STATE);
+    startAt = record.get(CHAIN.START_AT);
+    stopAt = record.get(CHAIN.STOP_AT);
+    createdAt = record.get(CHAIN.CREATED_AT);
+    updatedAt = record.get(CHAIN.UPDATED_AT);
+    return this;
   }
 
-  /**
-   Model info jOOQ-field : Value map
-
-   @return map
-   */
-  public Map<Field, Object> intoFieldValueMap() {
+  @Override
+  public Map<Field, Object> updatableFieldValueMap() {
     Map<Field, Object> fieldValues = Maps.newHashMap();
     fieldValues.put(CHAIN.ACCOUNT_ID, accountId);
     fieldValues.put(CHAIN.NAME, name);
@@ -197,5 +210,4 @@ public class Chain extends Entity {
     fieldValues.put(CHAIN.STOP_AT, stopAt);
     return fieldValues;
   }
-
 }

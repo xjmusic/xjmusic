@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
-<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
-         xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+         xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
 
   <!-- io.outright.xj [parent] -->
@@ -97,7 +97,44 @@
   <!-- build -->
 
   <build>
+
+    <resources>
+      <resource>
+        <directory>${basedir}/src/main/resources</directory>
+        <includes>
+          <include>**/*</include>
+        </includes>
+      </resource>
+    </resources>
+
     <plugins>
+
+      <!-- copy docs from /reference/docs -->
+      <plugin>
+        <artifactId>maven-resources-plugin</artifactId>
+        <version>3.0.2</version>
+        <executions>
+          <execution>
+            <id>copy-resources</id>
+            <phase>validate</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${basedir}/target/classes/docs</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>${basedir}/../reference/docs</directory>
+                  <includes>
+                    <include>*.md</include>
+                    <include>*.yaml</include>
+                  </includes>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
 
       <!-- Integration tests -->
       <plugin>
@@ -161,7 +198,7 @@
             <configuration>
               <artifactSet>
                 <excludes>
-                  <!--<exclude>junit:junit</exclude>-->
+                  <exclude>junit:junit</exclude>
                   <!--<exclude>log4j:log4j:jar:</exclude>-->
                 </excludes>
               </artifactSet>

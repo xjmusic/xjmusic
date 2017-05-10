@@ -1,13 +1,12 @@
 // Copyright Outright Mental, Inc. All Rights Reserved.
 package io.outright.xj.core.dao;
 
-import io.outright.xj.core.app.access.impl.AccessControl;
-import io.outright.xj.core.model.voice_event.VoiceEventWrapper;
+import io.outright.xj.core.app.access.impl.Access;
+import io.outright.xj.core.model.voice_event.VoiceEvent;
+import io.outright.xj.core.tables.records.VoiceEventRecord;
 
+import org.jooq.Result;
 import org.jooq.types.ULong;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import javax.annotation.Nullable;
 
@@ -17,21 +16,21 @@ public interface VoiceEventDAO {
    Create a new VoiceEvent
 
    @param access control
-   @param data   for the new Account User.
-   @return newly created record as JSON
+   @param entity for the new Account User.
+   @return newly readMany record
    */
-  JSONObject create(AccessControl access, VoiceEventWrapper data) throws Exception;
+  VoiceEventRecord create(Access access, VoiceEvent entity) throws Exception;
 
   /**
    Fetch one Voice Event if accessible
 
    @param access control
    @param id     of voice
-   @return retrieved record as JSON
+   @return retrieved record
    @throws Exception on failure
    */
   @Nullable
-  JSONObject readOne(AccessControl access, ULong id) throws Exception;
+  VoiceEventRecord readOne(Access access, ULong id) throws Exception;
 
   /**
    Fetch all accessible Voice Event for one Voice by id
@@ -41,17 +40,16 @@ public interface VoiceEventDAO {
    @return JSONArray of voices.
    @throws Exception on failure
    */
-  @Nullable
-  JSONArray readAllIn(AccessControl access, ULong voiceId) throws Exception;
+  Result<VoiceEventRecord> readAll(Access access, ULong voiceId) throws Exception;
 
   /**
    Update a specified Voice Event if accessible
 
    @param access control
    @param id     of specific Event to update.
-   @param data   for the updated Event.
+   @param entity for the updated Event.
    */
-  void update(AccessControl access, ULong id, VoiceEventWrapper data) throws Exception;
+  void update(Access access, ULong id, VoiceEvent entity) throws Exception;
 
   /**
    Delete a specified Voice Event if accessible
@@ -59,5 +57,5 @@ public interface VoiceEventDAO {
    @param access control
    @param id     of specific voice to delete.
    */
-  void delete(AccessControl access, ULong id) throws Exception;
+  void delete(Access access, ULong id) throws Exception;
 }

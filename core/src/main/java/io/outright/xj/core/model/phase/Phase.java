@@ -1,27 +1,67 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
 package io.outright.xj.core.model.phase;
 
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.model.Entity;
 
 import org.jooq.Field;
+import org.jooq.Record;
 import org.jooq.impl.DSL;
+import org.jooq.types.UInteger;
 import org.jooq.types.ULong;
 
 import com.google.api.client.util.Maps;
 
 import java.math.BigInteger;
 import java.util.Map;
+import java.util.Objects;
 
 import static io.outright.xj.core.Tables.PHASE;
 
+/**
+ Entity for use as POJO for decoding messages received by JAX-RS resources
+ a.k.a. JSON input will be stored into an instance of this object
+
+ Business logic ought to be performed beginning with an instance of this object,
+ to implement common methods.
+
+ NOTE: There can only be ONE of any getter/setter (with the same # of input params)
+ */
 public class Phase extends Entity {
   public final static String MAIN = "main";
-
+  /**
+   For use in maps.
+   */
+  public static final String KEY_ONE = "phase";
+  public static final String KEY_MANY = "phases";
   /**
    Name
    */
   private String name;
+  /**
+   Idea
+   */
+  private ULong ideaId;
+  /**
+   Key
+   */
+  private String key;
+  /**
+   Total
+   */
+  private UInteger total;
+  /**
+   Offset
+   */
+  private ULong offset;
+  /**
+   Density
+   */
+  private Double density;
+  /**
+   Tempo
+   */
+  private Double tempo;
 
   public String getName() {
     return name;
@@ -32,11 +72,6 @@ public class Phase extends Entity {
     return this;
   }
 
-  /**
-   Idea
-   */
-  private ULong ideaId;
-
   public ULong getIdeaId() {
     return ideaId;
   }
@@ -45,11 +80,6 @@ public class Phase extends Entity {
     this.ideaId = ULong.valueOf(ideaId);
     return this;
   }
-
-  /**
-   Key
-   */
-  private String key;
 
   public String getKey() {
     return key;
@@ -60,38 +90,23 @@ public class Phase extends Entity {
     return this;
   }
 
-  /**
-   Total
-   */
-  private Integer total;
-
-  public Integer getTotal() {
+  public UInteger getTotal() {
     return total;
   }
 
   public Phase setTotal(Integer total) {
-    this.total = total;
+    this.total = UInteger.valueOf(total);
     return this;
   }
 
-  /**
-   Offset
-   */
-  private Integer offset;
-
-  public Integer getOffset() {
+  public ULong getOffset() {
     return offset;
   }
 
-  public Phase setOffset(Integer offset) {
-    this.offset = offset;
+  public Phase setOffset(BigInteger offset) {
+    this.offset = ULong.valueOf(offset);
     return this;
   }
-
-  /**
-   Density
-   */
-  private Double density;
 
   public Double getDensity() {
     return density;
@@ -102,11 +117,6 @@ public class Phase extends Entity {
     return this;
   }
 
-  /**
-   Tempo
-   */
-  private Double tempo;
-
   public Double getTempo() {
     return tempo;
   }
@@ -116,11 +126,6 @@ public class Phase extends Entity {
     return this;
   }
 
-  /**
-   Validate data.
-
-   @throws BusinessException if invalid.
-   */
   @Override
   public void validate() throws BusinessException {
     if (this.name != null && this.name.length() == 0) {
@@ -143,13 +148,26 @@ public class Phase extends Entity {
     }
   }
 
-  /**
-   Model info jOOQ-field : Value map
-
-   @return map
-   */
   @Override
-  public Map<Field, Object> intoFieldValueMap() {
+  public Phase setFromRecord(Record record) {
+    if (Objects.isNull(record)) {
+      return null;
+    }
+    id = record.get(PHASE.ID);
+    ideaId = record.get(PHASE.IDEA_ID);
+    offset = record.get(PHASE.OFFSET);
+    total = record.get(PHASE.TOTAL);
+    name = record.get(PHASE.NAME);
+    key = record.get(PHASE.KEY);
+    tempo = record.get(PHASE.TEMPO);
+    density = record.get(PHASE.DENSITY);
+    createdAt = record.get(PHASE.CREATED_AT);
+    updatedAt = record.get(PHASE.UPDATED_AT);
+    return this;
+  }
+
+  @Override
+  public Map<Field, Object> updatableFieldValueMap() {
     Map<Field, Object> fieldValues = Maps.newHashMap();
     fieldValues.put(PHASE.IDEA_ID, ideaId);
     fieldValues.put(PHASE.OFFSET, offset);
@@ -160,11 +178,5 @@ public class Phase extends Entity {
     fieldValues.put(PHASE.DENSITY, density != null ? density : DSL.val((String) null));
     return fieldValues;
   }
-
-  /**
-   For use in maps.
-   */
-  public static final String KEY_ONE = "phase";
-  public static final String KEY_MANY = "phases";
 
 }

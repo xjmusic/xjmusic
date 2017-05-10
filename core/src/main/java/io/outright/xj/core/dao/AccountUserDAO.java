@@ -1,13 +1,12 @@
 // Copyright Outright Mental, Inc. All Rights Reserved.
 package io.outright.xj.core.dao;
 
-import io.outright.xj.core.app.access.impl.AccessControl;
-import io.outright.xj.core.model.account_user.AccountUserWrapper;
+import io.outright.xj.core.app.access.impl.Access;
+import io.outright.xj.core.model.account_user.AccountUser;
+import io.outright.xj.core.tables.records.AccountUserRecord;
 
+import org.jooq.Result;
 import org.jooq.types.ULong;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import javax.annotation.Nullable;
 
@@ -17,20 +16,20 @@ public interface AccountUserDAO {
    (ADMIN ONLY)
    Create a new Account User
 
-   @param data for the new Account User.
-   @return newly created record as JSON
+   @param entity for the new Account User.
+   @return newly readMany record
    */
-  JSONObject create(AccessControl access, AccountUserWrapper data) throws Exception;
+  AccountUserRecord create(Access access, AccountUser entity) throws Exception;
 
   /**
    Fetch one AccountUser if accessible
 
    @param id of AccountUser
-   @return retrieved record as JSON
+   @return retrieved record
    @throws Exception on failure
    */
   @Nullable
-  JSONObject readOne(AccessControl access, ULong id) throws Exception;
+  AccountUserRecord readOne(Access access, ULong id) throws Exception;
 
   /**
    Fetch many AccountUser for one Account by id, if accessible
@@ -39,8 +38,7 @@ public interface AccountUserDAO {
    @return JSONArray of accountUsers.
    @throws Exception on failure
    */
-  @Nullable
-  JSONArray readAllIn(AccessControl access, ULong accountId) throws Exception;
+  Result<AccountUserRecord> readAll(Access access, ULong accountId) throws Exception;
 
   /**
    (ADMIN ONLY)
@@ -48,5 +46,5 @@ public interface AccountUserDAO {
 
    @param id of specific AccountUser to delete.
    */
-  void delete(AccessControl access, ULong id) throws Exception;
+  void delete(Access access, ULong id) throws Exception;
 }

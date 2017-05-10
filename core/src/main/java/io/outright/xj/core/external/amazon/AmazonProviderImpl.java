@@ -1,6 +1,7 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
 package io.outright.xj.core.external.amazon;
 
+import com.amazonaws.services.ec2.util.S3UploadPolicy;
 import io.outright.xj.core.app.config.Config;
 import io.outright.xj.core.app.config.Exposure;
 import io.outright.xj.core.app.exception.ConfigException;
@@ -17,18 +18,15 @@ import java.util.SimpleTimeZone;
 //import java.util.Collection;
 
 public class AmazonProviderImpl implements AmazonProvider {
-  private final TokenGenerator tokenGenerator;
-  private static Logger log = LoggerFactory.getLogger(AmazonProviderImpl.class);
-
   // constants
   private static final String SCHEME = "AWS4";
   private static final String ALGORITHM = "HMAC-SHA256";
   private static final String TERMINATOR = "aws4_request";
-
   // format strings for the date/time and date stamps required during signing
   private static final String ISO8601BasicFormat = "yyyyMMdd'T'HHmmss'Z'";
   private static final String DateStringFormat = "yyyyMMdd";
-
+  private static Logger log = LoggerFactory.getLogger(AmazonProviderImpl.class);
+  private final TokenGenerator tokenGenerator;
   // date/time formats
   private final SimpleDateFormat dateTimeFormat;
   private final SimpleDateFormat dateStampFormat;
@@ -46,9 +44,9 @@ public class AmazonProviderImpl implements AmazonProvider {
   }
 
   @Override
-  public String generateUploadPolicy(String key) throws ConfigException {
-//    AWS4Signer aws4Signer = new AWS4Signer();
-    return "TODO [#146] Implement real S3 upload policy generation";
+  public S3UploadPolicy generateUploadPolicy() throws ConfigException {
+    S3UploadPolicy s3UploadPolicy = new S3UploadPolicy(getAccessKey(), getAccessSecret(), getBucketName(), "", getExpireInMinutes());
+    return s3UploadPolicy;
   }
 
   @Override
@@ -70,6 +68,21 @@ public class AmazonProviderImpl implements AmazonProvider {
   @Override
   public String getAccessSecret() throws ConfigException {
     return Config.awsFileUploadSecret();
+  }
+
+  @Override
+  public String getBucketName() throws ConfigException {
+    return Config.awsFileUploadBucket();
+  }
+
+  @Override
+  public int getExpireInMinutes() throws ConfigException {
+    return Config.awsFileUploadExpireMinutes();
+  }
+
+  @Override
+  public String getUploadACL() throws ConfigException {
+    return Config.awsFileUploadACL();
   }
 
 }

@@ -1,13 +1,12 @@
 // Copyright Outright Mental, Inc. All Rights Reserved.
 package io.outright.xj.core.dao;
 
-import io.outright.xj.core.app.access.impl.AccessControl;
-import io.outright.xj.core.model.morph.MorphWrapper;
+import io.outright.xj.core.app.access.impl.Access;
+import io.outright.xj.core.model.morph.Morph;
+import io.outright.xj.core.tables.records.MorphRecord;
 
+import org.jooq.Result;
 import org.jooq.types.ULong;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import javax.annotation.Nullable;
 
@@ -15,10 +14,10 @@ public interface MorphDAO {
   /**
    Create a new Morph
 
-   @param data for the new Morph.
-   @return newly created Morph record.
+   @param entity for the new Morph.
+   @return newly readMany Morph record.
    */
-  JSONObject create(AccessControl access, MorphWrapper data) throws Exception;
+  MorphRecord createRecord(Access access, Morph entity) throws Exception;
 
   /**
    Fetch one Morph by id, if accessible
@@ -29,7 +28,7 @@ public interface MorphDAO {
    @throws Exception on failure
    */
   @Nullable
-  JSONObject readOne(AccessControl access, ULong morphId) throws Exception;
+  MorphRecord readOneRecord(Access access, ULong morphId) throws Exception;
 
   /**
    Read all Morphs that are accessible
@@ -38,21 +37,20 @@ public interface MorphDAO {
    @return array of morphs as JSON
    @throws Exception on failure
    */
-  @Nullable
-  JSONArray readAllIn(AccessControl access, ULong arrangementId) throws Exception;
+  Result<MorphRecord> readAll(Access access, ULong arrangementId) throws Exception;
 
   /**
    Update a specified Morph
 
    @param morphId of specific Morph to update.
-   @param data    for the updated Morph.
+   @param entity  for the updated Morph.
    */
-  void update(AccessControl access, ULong morphId, MorphWrapper data) throws Exception;
+  void update(Access access, ULong morphId, Morph entity) throws Exception;
 
   /**
    Delete a specified Morph
 
    @param morphId of specific Morph to delete.
    */
-  void delete(AccessControl access, ULong morphId) throws Exception;
+  void delete(Access access, ULong morphId) throws Exception;
 }

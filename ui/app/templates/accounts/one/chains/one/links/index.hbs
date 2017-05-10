@@ -1,9 +1,9 @@
-<!-- Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved. -->
+<!-- Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved. -->
 
 <!-- Inner Content -->
 {{outlet}}
 
-<!-- Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved. -->
+<!-- Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved. -->
 
 <!-- Upper Container -->
 <div class="form-horizontal">
@@ -18,20 +18,22 @@
           <th width="1%">State</th>
           <th>Begin At</th>
           <th>End At</th>
-          <th width="1%">Total</th>
-          <th width="1%">Density</th>
-          <th width="1%">Key</th>
-          <th width="1%">Tempo</th>
-          <th width="1%">#</th>
+          <th>Messages</th>
+          <th>Total</th>
+          <th>Density</th>
+          <th>Key</th>
+          <th>Tempo</th>
+          <th>#</th>
         </tr>
         </thead>
         <tbody>
         {{#each model.links as |link|}}
-          <tr class="item">
+          <tr class="item {{link.state}}-state">
             <td>{{#link-to "accounts.one.chains.one.links.one" link}}{{link.offset}}{{/link-to}}</td>
             <td>{{link.state}}</td>
             <td>{{link.beginAt}}</td>
             <td>{{link.endAt}}</td>
+            <td>{{message-badges link}}</td>
             <td>{{link.total}}</td>
             <td>{{link.density}}</td>
             <td>{{link.key}}</td>

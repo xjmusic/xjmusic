@@ -1,24 +1,21 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
 package io.outright.xj.core.dao.impl;
 
-import io.outright.xj.core.app.access.impl.AccessControl;
+import io.outright.xj.core.app.access.impl.Access;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.dao.ChainInstrumentDAO;
 import io.outright.xj.core.db.sql.SQLConnection;
 import io.outright.xj.core.db.sql.SQLDatabaseProvider;
 import io.outright.xj.core.model.chain_instrument.ChainInstrument;
-import io.outright.xj.core.model.chain_instrument.ChainInstrumentWrapper;
-import io.outright.xj.core.transport.JSON;
+import io.outright.xj.core.tables.records.ChainInstrumentRecord;
 
 import org.jooq.DSLContext;
 import org.jooq.Field;
+import org.jooq.Result;
 import org.jooq.types.ULong;
 
 import com.google.inject.Inject;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.sql.SQLException;
 import java.util.Map;
@@ -38,37 +35,37 @@ public class ChainInstrumentDAOImpl extends DAOImpl implements ChainInstrumentDA
   }
 
   @Override
-  public JSONObject create(AccessControl access, ChainInstrumentWrapper data) throws Exception {
+  public ChainInstrumentRecord create(Access access, ChainInstrument entity) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(create(tx.getContext(), access, data));
+      return tx.success(createRecord(tx.getContext(), access, entity));
     } catch (Exception e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public JSONObject readOne(AccessControl access, ULong id) throws Exception {
+  public ChainInstrumentRecord readOne(Access access, ULong id) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readOne(tx.getContext(), access, id));
+      return tx.success(readOneRecord(tx.getContext(), access, id));
     } catch (Exception e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public JSONArray readAllIn(AccessControl access, ULong chainId) throws Exception {
+  public Result<ChainInstrumentRecord> readAll(Access access, ULong chainId) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readAllIn(tx.getContext(), access, chainId));
+      return tx.success(readAll(tx.getContext(), access, chainId));
     } catch (Exception e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public void delete(AccessControl access, ULong id) throws Exception {
+  public void delete(Access access, ULong id) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
       delete(tx.getContext(), access, id);
@@ -81,44 +78,44 @@ public class ChainInstrumentDAOImpl extends DAOImpl implements ChainInstrumentDA
   /**
    Create a new Chain Instrument record
 
-   @param db   context
-   @param data for new ChainInstrument
+   @param db     context
+   @param entity for new ChainInstrument
    @return new record
    @throws Exception         if database failure
    @throws ConfigException   if not configured properly
    @throws BusinessException if fails business rule
    */
-  private JSONObject create(DSLContext db, AccessControl access, ChainInstrumentWrapper data) throws Exception {
-    ChainInstrument model = data.validate();
-    Map<Field, Object> fieldValues = model.intoFieldValueMap();
+  private ChainInstrumentRecord createRecord(DSLContext db, Access access, ChainInstrument entity) throws Exception {
+    entity.validate();
+
+    Map<Field, Object> fieldValues = entity.updatableFieldValueMap();
 
     if (access.isTopLevel()) {
-      requireRecordExists("Chain", db.select(CHAIN.ID).from(CHAIN)
-        .where(CHAIN.ID.eq(model.getChainId()))
+      requireExists("Chain", db.select(CHAIN.ID).from(CHAIN)
+        .where(CHAIN.ID.eq(entity.getChainId()))
         .fetchOne());
-      requireRecordExists("Instrument", db.select(INSTRUMENT.ID).from(INSTRUMENT)
-        .where(INSTRUMENT.ID.eq(model.getInstrumentId()))
+      requireExists("Instrument", db.select(INSTRUMENT.ID).from(INSTRUMENT)
+        .where(INSTRUMENT.ID.eq(entity.getInstrumentId()))
         .fetchOne());
     } else {
-      requireRecordExists("Chain", db.select(CHAIN.ID).from(CHAIN)
+      requireExists("Chain", db.select(CHAIN.ID).from(CHAIN)
         .where(CHAIN.ACCOUNT_ID.in(access.getAccounts()))
-        .and(CHAIN.ID.eq(model.getChainId()))
+        .and(CHAIN.ID.eq(entity.getChainId()))
         .fetchOne());
-      requireRecordExists("Instrument", db.select(INSTRUMENT.ID).from(INSTRUMENT)
+      requireExists("Instrument", db.select(INSTRUMENT.ID).from(INSTRUMENT)
         .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
-        .where(INSTRUMENT.ID.eq(model.getInstrumentId()))
+        .where(INSTRUMENT.ID.eq(entity.getInstrumentId()))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .fetchOne());
     }
 
     if (db.selectFrom(CHAIN_INSTRUMENT)
-      .where(CHAIN_INSTRUMENT.CHAIN_ID.eq(model.getChainId()))
-      .and(CHAIN_INSTRUMENT.INSTRUMENT_ID.eq(model.getInstrumentId()))
-      .fetchOne() != null) {
+      .where(CHAIN_INSTRUMENT.CHAIN_ID.eq(entity.getChainId()))
+      .and(CHAIN_INSTRUMENT.INSTRUMENT_ID.eq(entity.getInstrumentId()))
+      .fetchOne() != null)
       throw new BusinessException("Instrument already added to Chain!");
-    }
 
-    return JSON.objectFromRecord(executeCreate(db, CHAIN_INSTRUMENT, fieldValues));
+    return executeCreate(db, CHAIN_INSTRUMENT, fieldValues);
   }
 
   /**
@@ -129,19 +126,18 @@ public class ChainInstrumentDAOImpl extends DAOImpl implements ChainInstrumentDA
    @param id     of record
    @return record
    */
-  private JSONObject readOne(DSLContext db, AccessControl access, ULong id) {
-    if (access.isTopLevel()) {
-      return JSON.objectFromRecord(db.selectFrom(CHAIN_INSTRUMENT)
+  private ChainInstrumentRecord readOneRecord(DSLContext db, Access access, ULong id) {
+    if (access.isTopLevel())
+      return db.selectFrom(CHAIN_INSTRUMENT)
         .where(CHAIN_INSTRUMENT.ID.eq(id))
-        .fetchOne());
-    } else {
-      return JSON.objectFromRecord(db.select(CHAIN_INSTRUMENT.fields()).from(CHAIN_INSTRUMENT)
+        .fetchOne();
+    else
+      return recordInto(CHAIN_INSTRUMENT, db.select(CHAIN_INSTRUMENT.fields()).from(CHAIN_INSTRUMENT)
         .join(INSTRUMENT).on(INSTRUMENT.ID.eq(CHAIN_INSTRUMENT.INSTRUMENT_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
         .where(CHAIN_INSTRUMENT.ID.eq(id))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .fetchOne());
-    }
   }
 
   /**
@@ -153,19 +149,19 @@ public class ChainInstrumentDAOImpl extends DAOImpl implements ChainInstrumentDA
    @return array of child records
    @throws SQLException on failure
    */
-  private JSONArray readAllIn(DSLContext db, AccessControl access, ULong chainId) throws SQLException {
-    if (access.isTopLevel()) {
-      return JSON.arrayFromResultSet(db.selectFrom(CHAIN_INSTRUMENT)
+  private Result<ChainInstrumentRecord> readAll(DSLContext db, Access access, ULong chainId) throws SQLException {
+    if (access.isTopLevel())
+      return db.selectFrom(CHAIN_INSTRUMENT)
         .where(CHAIN_INSTRUMENT.CHAIN_ID.eq(chainId))
-        .fetchResultSet());
-    } else {
-      return JSON.arrayFromResultSet(db.select(CHAIN_INSTRUMENT.fields()).from(CHAIN_INSTRUMENT)
+        .fetch();
+    else
+      return resultInto(CHAIN_INSTRUMENT, db.select(CHAIN_INSTRUMENT.fields()).from(CHAIN_INSTRUMENT)
         .join(INSTRUMENT).on(INSTRUMENT.ID.eq(CHAIN_INSTRUMENT.INSTRUMENT_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
         .where(CHAIN_INSTRUMENT.CHAIN_ID.eq(chainId))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-        .fetchResultSet());
-    }
+        .fetch());
+
   }
 
   /**
@@ -176,20 +172,19 @@ public class ChainInstrumentDAOImpl extends DAOImpl implements ChainInstrumentDA
    @param id     of record
    @throws BusinessException on failure
    */
-  private void delete(DSLContext db, AccessControl access, ULong id) throws BusinessException {
-    // TODO: fail if no chainInstrument is deleted
-    if (access.isTopLevel()) {
-      requireRecordExists("Chain Instrument", db.selectFrom(CHAIN_INSTRUMENT)
+  private void delete(DSLContext db, Access access, ULong id) throws BusinessException {
+    if (access.isTopLevel())
+      requireExists("Chain Instrument", db.selectFrom(CHAIN_INSTRUMENT)
         .where(CHAIN_INSTRUMENT.ID.eq(id))
         .fetchOne());
-    } else {
-      requireRecordExists("Chain Instrument", db.select(CHAIN_INSTRUMENT.fields()).from(CHAIN_INSTRUMENT)
+    else
+      requireExists("Chain Instrument", db.select(CHAIN_INSTRUMENT.fields()).from(CHAIN_INSTRUMENT)
         .join(INSTRUMENT).on(INSTRUMENT.ID.eq(CHAIN_INSTRUMENT.INSTRUMENT_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
         .where(CHAIN_INSTRUMENT.ID.eq(id))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .fetchOne());
-    }
+
 
     db.deleteFrom(CHAIN_INSTRUMENT)
       .where(CHAIN_INSTRUMENT.ID.eq(id))

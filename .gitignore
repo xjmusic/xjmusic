@@ -4,6 +4,7 @@ runtime.env
 # Build artifacts
 target/
 */target/
+classes/
 
 # IDE
 .idea/
