@@ -3,6 +3,7 @@ package io.outright.xj.core.model.audio_chord;
 
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.model.Entity;
+import io.outright.xj.core.model.chord.Chord;
 
 import org.jooq.Field;
 import org.jooq.Record;
@@ -25,7 +26,7 @@ import static io.outright.xj.core.Tables.AUDIO_CHORD;
 
  NOTE: There can only be ONE of any getter/setter (with the same # of input params)
  */
-public class AudioChord extends Entity {
+public class AudioChord extends Chord {
 
   /**
    For use in maps.
@@ -33,21 +34,9 @@ public class AudioChord extends Entity {
   public static final String KEY_ONE = "audioChord";
   public static final String KEY_MANY = "audioChords";
   /**
-   Name
-   */
-  private String name;
-  /**
    Audio
    */
   private ULong audioId;
-  /**
-   Position
-   */
-  private Double position;
-
-  public String getName() {
-    return name;
-  }
 
   public AudioChord setName(String name) {
     this.name = name;
@@ -63,10 +52,6 @@ public class AudioChord extends Entity {
     return this;
   }
 
-  public Double getPosition() {
-    return position;
-  }
-
   public AudioChord setPosition(Double position) {
     this.position = position;
     return this;
@@ -74,15 +59,10 @@ public class AudioChord extends Entity {
 
   @Override
   public void validate() throws BusinessException {
-    if (this.name == null || this.name.length() == 0) {
-      throw new BusinessException("Name is required.");
-    }
     if (this.audioId == null) {
       throw new BusinessException("Audio ID is required.");
     }
-    if (this.position == null) {
-      throw new BusinessException("Position is required.");
-    }
+    super.validate();
   }
 
   @Override

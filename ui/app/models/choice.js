@@ -2,10 +2,20 @@
 import DS from 'ember-data';
 
 export default DS.Model.extend({
-  account: DS.belongsTo({}),
-  name: DS.attr('string'),
+  link: DS.belongsTo({}),
+  phaseOffset: DS.attr('number'),
+  transpose: DS.attr('number'),
+  type: DS.attr('string'),
+  idea: DS.belongsTo({})
 
-  ideas: DS.hasMany('idea'),
-  instruments: DS.hasMany('instrument'),
 });
+
+
+
+
+
+
+
+
+
 

@@ -1,0 +1,12 @@
+<!-- Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved. -->
+
+{{yield}}
+
+<div class="link-chords">
+  {{#each model.chords as |chord|}}
+    <div class="chord">
+      [{{chord.position}}]
+      {{chord.name}}
+    </div>
+  {{/each}}
+</div>

@@ -4,6 +4,10 @@ package io.outright.xj.core.model.meme;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.model.Entity;
 
+/**
+ This represents common properties of all memes,
+ although a Meme only actually exists as a Link Meme, Idea Meme, etc.
+ */
 public abstract class Meme extends Entity {
   public static final String KEY_ONE = "meme";
   public static final String KEY_MANY = "memes";

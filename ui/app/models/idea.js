@@ -9,4 +9,8 @@ export default DS.Model.extend({
   tempo: DS.attr('number'),
   type: DS.attr('string'),
   user: DS.belongsTo({}),
+
+  memes: DS.hasMany('idea-meme'),
+  phases: DS.hasMany('phase'),
+  choices: DS.hasMany('choice'),
 });

@@ -16,29 +16,31 @@
         <tr>
           <th width="1%">Offset</th>
           <th width="1%">State</th>
-          <th>Begin At</th>
           <th>End At</th>
-          <th>Messages</th>
           <th>Total</th>
           <th>Density</th>
           <th>Key</th>
           <th>Tempo</th>
-          <th>#</th>
+          <th>Memes</th>
+          <th>Choices</th>
+          <th>Chords</th>
+          <th>Messages</th>
         </tr>
         </thead>
         <tbody>
         {{#each model.links as |link|}}
           <tr class="item {{link.state}}-state">
-            <td>{{#link-to "accounts.one.chains.one.links.one" link}}{{link.offset}}{{/link-to}}</td>
+            <th>{{#link-to "accounts.one.chains.one.links.one" link}}{{link.offset}}{{/link-to}}</th>
             <td>{{link.state}}</td>
-            <td>{{link.beginAt}}</td>
             <td>{{link.endAt}}</td>
-            <td>{{message-badges link}}</td>
             <td>{{link.total}}</td>
             <td>{{link.density}}</td>
             <td>{{link.key}}</td>
             <td>{{link.tempo}}</td>
-            <th scope="row">{{link.id}}</th>
+            <td>{{link-memes link}}</td>
+            <td>{{link-choices link}}</td>
+            <td>{{link-chords link}}</td>
+            <td>{{message-badges link}}</td>
           </tr>
         {{/each}}
         </tbody>

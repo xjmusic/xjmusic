@@ -137,4 +137,19 @@ public class Chooser<T extends Entity> {
     return entities.size();
   }
 
+  /**
+   assemble report of choices and scores
+
+   @return report
+   */
+  public String report() {
+    if (Objects.isNull(entities) || entities.size() == 0)
+      return "(empty)";
+    String name = entities.get(0).getClass().getSimpleName();
+    List<String> reports = Lists.newArrayList();
+    scores.forEach((id, score) -> {
+      reports.add(String.format("%s:%f", id, score));
+    });
+    return "(" + name + ") " + String.join(", ", reports);
+  }
 }

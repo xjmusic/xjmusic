@@ -9,6 +9,7 @@ import org.jooq.Result;
 import org.jooq.types.ULong;
 
 import javax.annotation.Nullable;
+import java.sql.ResultSet;
 
 public interface LinkChordDAO {
 
@@ -43,6 +44,16 @@ public interface LinkChordDAO {
   Result<LinkChordRecord> readAll(Access access, ULong linkId) throws Exception;
 
   /**
+   Fetch many linkChord for all Links in a Chain by id, if accessible
+
+   @param access control
+   @param chainId to fetch linkChords for.
+   @return JSONArray of linkChords.
+   @throws Exception on failure
+   */
+  Result<LinkChordRecord> readAllInChain(Access access, ULong chainId) throws Exception;
+
+  /**
    Update a specified Link Chord if accessible
 
    @param access control
@@ -58,4 +69,5 @@ public interface LinkChordDAO {
    @param id     of specific link to delete.
    */
   void delete(Access access, ULong id) throws Exception;
+
 }

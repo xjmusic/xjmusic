@@ -741,6 +741,9 @@ public class MacroCraftImpl extends CraftImpl implements MacroCraft {
     if (Objects.nonNull(previousMacroChoice()))
       chooser.score(previousMacroChoice().getIdeaId(), -SCORE_AVOID_CHOOSING_PREVIOUS);
 
+    // report
+    report.put("macroChoice", chooser.report());
+
     // (3) return the top choice
     Idea idea = chooser.getTop();
     if (Objects.nonNull(idea))
@@ -800,6 +803,9 @@ public class MacroCraftImpl extends CraftImpl implements MacroCraft {
     // (3b) Avoid previous main idea
     if (Objects.nonNull(previousMainChoice()))
       chooser.score(previousMainChoice().getIdeaId(), -SCORE_AVOID_CHOOSING_PREVIOUS);
+
+    // report
+    report.put("mainChoice", chooser.report());
 
     // (4) return the top choice
     Idea idea = chooser.getTop();
@@ -867,22 +873,6 @@ public class MacroCraftImpl extends CraftImpl implements MacroCraft {
    Send the final report of craft process, as a link message
    */
   private void reportLink() throws Exception {
-    // Add internal fields to report
-    if (Objects.nonNull(macroIdea()))
-      report.put("macroIdea", macroIdea().asMap());
-    if (Objects.nonNull(mainIdea()))
-      report.put("mainIdea", mainIdea().asMap());
-    report.put("macroTranspose", macroTranspose());
-    report.put("mainTranspose", mainTranspose());
-    if (Objects.nonNull(previousLink()))
-      report.put("previousLink", previousLink().asMap());
-    if (Objects.nonNull(previousMacroChoice()))
-      report.put("previousMacroChoice", previousMacroChoice().asMap());
-    if (Objects.nonNull(previousMainChoice()))
-      report.put("previousMainChoice", previousMainChoice().asMap());
-    report.put("macroPhaseOffset", macroPhaseOffset());
-    report.put("mainPhaseOffset", mainPhaseOffset());
-
     // build YAML and create Link Message
     String body = new Yaml().dumpAsMap(report);
     try {

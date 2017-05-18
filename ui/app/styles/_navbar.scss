@@ -71,12 +71,28 @@ nav.navbar {
     font-weight: bold;
   }
 
+  #refresh-button {
+    a {
+      padding-top: 0;
+      padding-bottom: 0;
+      padding-right: 1em;
+      font-size: 1.5em;
+      &:hover {
+        color: whitesmoke;
+      }
+      &:active {
+        color: lighten($green, 40%);
+      }
+    }
+  }
+
   #clock {
-    margin-top: 4px;
+    padding-bottom: 0;
+    padding-top: 5px;
     letter-spacing: 4px;
     font-family: ClockMono, monospace;
     font-size: 20px;
-    margin-right: 20px;
+    margin-right: 10px;
     cursor: pointer;
     &:hover {
       color: whitesmoke;

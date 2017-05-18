@@ -3,6 +3,7 @@ package io.outright.xj.core.model.link_chord;
 
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.model.Entity;
+import io.outright.xj.core.model.chord.Chord;
 
 import org.jooq.Field;
 import org.jooq.Record;
@@ -25,7 +26,7 @@ import static io.outright.xj.core.Tables.LINK_CHORD;
 
  NOTE: There can only be ONE of any getter/setter (with the same # of input params)
  */
-public class LinkChord extends Entity {
+public class LinkChord extends Chord {
 
   /**
    For use in maps.
@@ -33,21 +34,10 @@ public class LinkChord extends Entity {
   public static final String KEY_ONE = "linkChord";
   public static final String KEY_MANY = "linkChords";
   /**
-   Name
-   */
-  private String name;
-  /**
    Link
    */
   private ULong linkId;
-  /**
-   Position
-   */
-  private Double position;
 
-  public String getName() {
-    return name;
-  }
 
   public LinkChord setName(String name) {
     this.name = name;
@@ -63,10 +53,6 @@ public class LinkChord extends Entity {
     return this;
   }
 
-  public Double getPosition() {
-    return position;
-  }
-
   public LinkChord setPosition(Double position) {
     this.position = position;
     return this;
@@ -74,15 +60,10 @@ public class LinkChord extends Entity {
 
   @Override
   public void validate() throws BusinessException {
-    if (this.name == null || this.name.length() == 0) {
-      throw new BusinessException("Name is required.");
-    }
     if (this.linkId == null) {
       throw new BusinessException("Link ID is required.");
     }
-    if (this.position == null) {
-      throw new BusinessException("Position is required.");
-    }
+    super.validate();
   }
 
   @Override

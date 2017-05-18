@@ -10,13 +10,21 @@
   {{#link-to 'index' class="navbar-brand logo"}}<img src="/assets/images/brand/xj-logo.png"/>{{/link-to}}
 
   <div class="collapse navbar-collapse" id="navbarCollapse">
-    {{#if auth.isUser}}
-      <ul class="nav navbar-nav navbar-left mr-auto">
+
+    <ul class="nav navbar-nav navbar-left mr-auto">
+      {{#if auth.isUser}}
         {{#link-to 'users' tagName="li" class="nav-item"}}<a class="nav-link" href="">People</a>{{/link-to}}
         {{#link-to 'accounts' tagName="li" class="nav-item"}}<a class="nav-link" href="">Music</a>{{/link-to}}
-      </ul>
-      <ul class="nav navbar-nav navbar-right">
-        <li id="clock"><!-- TIME UTC --></li>
+      {{else}}
+        <li>&nbsp;</li>
+      {{/if}}
+      <li id="refresh-button" class="nav-item"><a title="Refresh Data" aria-label="Refresh Data" class="nav-link" {{action
+        'sessionChanged'}} href="">&#8635;</a></li>
+    </ul>
+    <ul class="nav navbar-nav navbar-right">
+      <li class="nav-item"><a id="clock" class="nav-link" title="Copy time UTC to clipboard"
+                              aria-label="Copy time UTC to clipboard"><!-- TIME UTC --></a></li>
+      {{#if auth.isUser}}
         {{#link-to 'docs' tagName="li" class="nav-item"}}<a class="nav-link" href="">Docs</a>{{/link-to}}
         <li class="nav-item dropdown">
           <a href="#" data-toggle="dropdown" class="nav-link dropdown-toggle">
@@ -34,17 +42,10 @@
             {{#link-to 'logout' tagName="li" class="nav-item"}}<a class="nav-link" href="">Sign Out</a>{{/link-to}}
           </ul>
         </li>
-      </ul>
-    {{else}}
-      <ul class="nav navbar-nav navbar-left mr-auto">
-        <li>&nbsp;</li>
-      </ul>
-      <ul class="nav navbar-nav navbar-right">
-        <li id="clock"><!-- TIME UTC --></li>
+      {{else}}
         {{#link-to 'login' tagName="li" class="nav-item"}}<a class="nav-link" href="">Sign In</a>{{/link-to}}
-      </ul>
-    {{/if}}
-
+      {{/if}}
+    </ul>
   </div>
 </nav>
 

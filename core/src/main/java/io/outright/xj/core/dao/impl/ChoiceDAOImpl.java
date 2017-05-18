@@ -80,6 +80,16 @@ public class ChoiceDAOImpl extends DAOImpl implements ChoiceDAO {
   }
 
   @Override
+  public Result<ChoiceRecord> readAllInChain(Access access, ULong chainId) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readAllInChain(tx.getContext(), access, chainId));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
   public void update(Access access, ULong id, Choice entity) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
@@ -185,6 +195,33 @@ public class ChoiceDAOImpl extends DAOImpl implements ChoiceDAO {
         .join(CHAIN).on(CHAIN.ID.eq(LINK.CHAIN_ID))
         .where(CHOICE.LINK_ID.eq(linkId))
         .and(CHAIN.ACCOUNT_ID.in(access.getAccounts()))
+        .fetch());
+  }
+
+  /**
+   Read all records in parent record's parent record by id
+
+   @param db     context
+   @param access control
+   @param chainId id of parent's parent (the chain)
+   @return array of records
+   */
+  private Result<ChoiceRecord> readAllInChain(DSLContext db, Access access, ULong chainId) throws Exception {
+    if (access.isTopLevel())
+      return resultInto(CHOICE, db.select(CHOICE.fields())
+        .from(CHOICE)
+        .join(LINK).on(LINK.ID.eq(CHOICE.LINK_ID))
+        .where(LINK.CHAIN_ID.eq(chainId))
+        .orderBy(CHOICE.TYPE)
+        .fetch());
+    else
+      return resultInto(CHOICE, db.select(CHOICE.fields())
+        .from(CHOICE)
+        .join(LINK).on(LINK.ID.eq(CHOICE.LINK_ID))
+        .join(CHAIN).on(CHAIN.ID.eq(LINK.CHAIN_ID))
+        .where(LINK.CHAIN_ID.eq(chainId))
+        .and(CHAIN.ACCOUNT_ID.in(access.getAccounts()))
+        .orderBy(CHOICE.TYPE)
         .fetch());
   }
 

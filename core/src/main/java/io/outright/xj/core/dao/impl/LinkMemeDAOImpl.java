@@ -69,6 +69,16 @@ public class LinkMemeDAOImpl extends DAOImpl implements LinkMemeDAO {
   }
 
   @Override
+  public Result<LinkMemeRecord> readAllInChain(Access access, ULong chainId) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readAllInChain(tx.getContext(), access, chainId));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
   public void delete(Access access, ULong id) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
@@ -156,6 +166,31 @@ public class LinkMemeDAOImpl extends DAOImpl implements LinkMemeDAO {
         .join(LINK).on(LINK.ID.eq(LINK_MEME.LINK_ID))
         .join(CHAIN).on(LINK.CHAIN_ID.eq(CHAIN.ID))
         .where(LINK.ID.eq(linkId))
+        .and(CHAIN.ACCOUNT_ID.in(access.getAccounts()))
+        .fetch());
+  }
+
+  /**
+   Read all records in parent record's parent record by id
+
+   @param db     context
+   @param access control
+   @param chainId id of parent's parent (the chain)
+   @return array of records
+   */
+  private Result<LinkMemeRecord> readAllInChain(DSLContext db, Access access, ULong chainId) throws Exception {
+    if (access.isTopLevel())
+      return resultInto(LINK_MEME, db.select(LINK_MEME.fields())
+        .from(LINK_MEME)
+        .join(LINK).on(LINK.ID.eq(LINK_MEME.LINK_ID))
+        .where(LINK.CHAIN_ID.eq(chainId))
+        .fetch());
+    else
+      return resultInto(LINK_MEME, db.select(LINK_MEME.fields())
+        .from(LINK_MEME)
+        .join(LINK).on(LINK.ID.eq(LINK_MEME.LINK_ID))
+        .join(CHAIN).on(CHAIN.ID.eq(LINK.CHAIN_ID))
+        .where(LINK.CHAIN_ID.eq(chainId))
         .and(CHAIN.ACCOUNT_ID.in(access.getAccounts()))
         .fetch());
   }

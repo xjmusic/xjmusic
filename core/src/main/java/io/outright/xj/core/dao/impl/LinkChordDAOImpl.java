@@ -67,6 +67,16 @@ public class LinkChordDAOImpl extends DAOImpl implements LinkChordDAO {
   }
 
   @Override
+  public Result<LinkChordRecord> readAllInChain(Access access, ULong chainId) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readAllInChain(tx.getContext(), access, chainId));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
   public void update(Access access, ULong id, LinkChord entity) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
@@ -156,6 +166,33 @@ public class LinkChordDAOImpl extends DAOImpl implements LinkChordDAO {
         .join(LINK).on(LINK.ID.eq(LINK_CHORD.LINK_ID))
         .join(CHAIN).on(CHAIN.ID.eq(LINK.CHAIN_ID))
         .where(LINK_CHORD.LINK_ID.eq(linkId))
+        .and(CHAIN.ACCOUNT_ID.in(access.getAccounts()))
+        .orderBy(LINK_CHORD.POSITION)
+        .fetch());
+  }
+
+  /**
+   Read all records in parent record's parent record by id
+
+   @param db     context
+   @param access control
+   @param chainId id of parent's parent (the chain)
+   @return array of records
+   */
+  private Result<LinkChordRecord> readAllInChain(DSLContext db, Access access, ULong chainId) throws Exception {
+    if (access.isTopLevel())
+      return resultInto(LINK_CHORD, db.select(LINK_CHORD.fields())
+        .from(LINK_CHORD)
+        .join(LINK).on(LINK.ID.eq(LINK_CHORD.LINK_ID))
+        .where(LINK.CHAIN_ID.eq(chainId))
+        .orderBy(LINK_CHORD.POSITION)
+        .fetch());
+    else
+      return resultInto(LINK_CHORD, db.select(LINK_CHORD.fields())
+        .from(LINK_CHORD)
+        .join(LINK).on(LINK.ID.eq(LINK_CHORD.LINK_ID))
+        .join(CHAIN).on(CHAIN.ID.eq(LINK.CHAIN_ID))
+        .where(LINK.CHAIN_ID.eq(chainId))
         .and(CHAIN.ACCOUNT_ID.in(access.getAccounts()))
         .orderBy(LINK_CHORD.POSITION)
         .fetch());

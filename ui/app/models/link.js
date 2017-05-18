@@ -13,6 +13,9 @@ export default DS.Model.extend({
   tempo: DS.attr('number'),
 
   messages: DS.hasMany('link-message'),
+  memes: DS.hasMany('link-meme'),
+  choices: DS.hasMany('choice'),
+  chords: DS.hasMany('link-chord'),
 
   getTitle() {
     return 'Link' +

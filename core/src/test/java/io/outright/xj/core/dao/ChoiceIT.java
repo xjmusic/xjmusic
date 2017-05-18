@@ -15,6 +15,7 @@ import io.outright.xj.core.model.voice.Voice;
 import io.outright.xj.core.tables.records.ChoiceRecord;
 import io.outright.xj.core.transport.JSON;
 
+import org.jooq.Result;
 import org.jooq.types.ULong;
 
 import com.google.common.collect.ImmutableMap;
@@ -215,6 +216,43 @@ public class ChoiceIT {
 
     assertNotNull(result);
     assertEquals(0, result.length());
+  }
+
+  @Test
+  public void readAllInChain() throws Exception {
+    Result<ChoiceRecord> result = testDAO.readAllInChain(Access.internal(), ULong.valueOf(1));
+
+    assertEquals(4, result.size());
+  }
+
+  @Test
+  public void readAllInChain_nullIfChainNotExist() throws Exception {
+    ChoiceRecord result = testDAO.readOne(Access.internal(), ULong.valueOf(12097));
+
+    assertNull(result);
+  }
+
+  @Test
+  public void readAllInChain_okIfUserInAccount() throws Exception {
+    Access access = new Access(ImmutableMap.of(
+      "roles", "user",
+      "accounts", "1"
+    ));
+
+    Result<ChoiceRecord> result = testDAO.readAllInChain(access, ULong.valueOf(1));
+
+    assertEquals(4, result.size());
+  }
+
+  @Test
+  public void readAllInChain_emptyIfUserNotInAccount() throws Exception {
+    Access access = new Access(ImmutableMap.of(
+      "roles", "user",
+      "accounts", "73"
+    ));
+
+    Result<ChoiceRecord> result = testDAO.readAllInChain(access, ULong.valueOf(1));
+    assertEquals(0, result.size());
   }
 
   @Test
