@@ -18,6 +18,7 @@ import java.util.List;
  */
 public class MemeIsometry {
   private static final String FIELD_NAME = "name";
+  private static final double SCORE_EACH_MATCHED_MEME = 0.25;
   private final List<String> sourceStems;
 
   /**
@@ -77,13 +78,13 @@ public class MemeIsometry {
     double score = 0;
     List<String> targetMemes = CSV.split(memesCSV);
 
-    // +1 for each match of source & target stem
+    // tally each match of source & target stem
     for (String targetMeme : targetMemes) {
 
       String targetStem = stem(targetMeme);
       for (String sourceStem : sourceStems) {
         if (sourceStem.equals(targetStem))
-          score++;
+          score+= SCORE_EACH_MATCHED_MEME;
       }
     }
     return score;

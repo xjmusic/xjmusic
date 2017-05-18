@@ -15,9 +15,15 @@ import io.outright.xj.core.app.server.HttpServerProvider;
 import io.outright.xj.core.app.server.HttpServerProviderImpl;
 import io.outright.xj.core.app.server.ResourceConfigProvider;
 import io.outright.xj.core.app.server.ResourceConfigProviderImpl;
+import io.outright.xj.core.craft.Basis;
+import io.outright.xj.core.craft.FoundationCraft;
 import io.outright.xj.core.craft.CraftFactory;
-import io.outright.xj.core.craft.MacroCraft;
-import io.outright.xj.core.craft.impl.MacroCraftImpl;
+import io.outright.xj.core.craft.VoiceCraft;
+import io.outright.xj.core.craft.StructureCraft;
+import io.outright.xj.core.craft.impl.BasisImpl;
+import io.outright.xj.core.craft.impl.FoundationCraftImpl;
+import io.outright.xj.core.craft.impl.VoiceCraftImpl;
+import io.outright.xj.core.craft.impl.StructureCraftImpl;
 import io.outright.xj.core.dao.AccountDAO;
 import io.outright.xj.core.dao.AccountUserDAO;
 import io.outright.xj.core.dao.ArrangementDAO;
@@ -132,7 +138,10 @@ public class CoreModule extends AbstractModule {
 
   private void installCraftFactory() {
     install(new FactoryModuleBuilder()
-      .implement(MacroCraft.class, MacroCraftImpl.class)
+      .implement(FoundationCraft.class, FoundationCraftImpl.class)
+      .implement(StructureCraft.class, StructureCraftImpl.class)
+      .implement(VoiceCraft.class, VoiceCraftImpl.class)
+      .implement(Basis.class, BasisImpl.class)
       .build(CraftFactory.class));
   }
 

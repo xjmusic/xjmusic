@@ -17,7 +17,8 @@ export default Ember.Route.extend({
     let auth = this.get('auth');
     if (auth.isArtist || auth.isAdmin) {
       return this.store.createRecord('phase', {
-        idea: this.modelFor('accounts.one.libraries.one.ideas.one')
+        idea: this.modelFor('accounts.one.libraries.one.ideas.one'),
+        total: 0 // otherwise risk sending null with macro-type idea, see BUG [#246]
       });
     } else {
       this.transitionTo('accounts.one.libraries.one.ideas.one.phases');

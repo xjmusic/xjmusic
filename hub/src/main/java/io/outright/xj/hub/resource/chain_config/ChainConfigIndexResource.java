@@ -72,7 +72,7 @@ public class ChainConfigIndexResource {
    */
   @POST
   @Consumes(MediaType.APPLICATION_JSON)
-  @RolesAllowed({Role.ADMIN})
+  @RolesAllowed({Role.ENGINEER,Role.ADMIN})
   public Response create(ChainConfigWrapper data, @Context ContainerRequestContext crc) {
     try {
       return response.create(

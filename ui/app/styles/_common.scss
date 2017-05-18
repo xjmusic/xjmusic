@@ -1,0 +1,60 @@
+// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+
+body {
+  background: #000000;
+  color: $gray;
+  font-family: OxygenMono, monospace;
+}
+
+a {
+  color: lighten($green, 20%);
+
+  &:hover, &:active {
+    color: lighten($green, 40%);
+  }
+}
+
+p {
+  strong {
+    color: $bright;
+  }
+}
+
+img {
+  width: 100%;
+  height: auto;
+}
+
+hr {
+  border-top: 4px $dark-gray solid;
+}
+
+h1 {
+  font-size: 1.6em;
+}
+
+h2 {
+  font-size: 1.5em;
+}
+
+h3 {
+  font-size: 1.4em;
+}
+
+h4 {
+  font-size: 1.3em;
+}
+
+h5 {
+  font-size: 1.2em;
+}
+
+h6 {
+  font-size: 1.1em;
+}
+
+button {
+  cursor: pointer;
+  color: $much-darker-gray;
+}
+

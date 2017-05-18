@@ -22,11 +22,27 @@ public class LinkChoiceTest {
       ULong.valueOf(0),
       5,
       Choice.MAIN, ImmutableList.of(
-        ULong.valueOf(0),
-        ULong.valueOf(1)
-      ));
+      ULong.valueOf(0),
+      ULong.valueOf(1)
+    ));
 
     assertEquals(ULong.valueOf(1), linkChoice.nextPhaseOffset());
+  }
+
+  @Test
+  public void nextPhaseOffset_endLoopsBackToZero() throws Exception {
+    LinkChoice linkChoice = new LinkChoice(
+      ULong.valueOf(345),
+      ULong.valueOf(3),
+      5,
+      Choice.MAIN, ImmutableList.of(
+      ULong.valueOf(0),
+      ULong.valueOf(1),
+      ULong.valueOf(2),
+      ULong.valueOf(3)
+    ));
+
+    assertEquals(ULong.valueOf(0), linkChoice.nextPhaseOffset());
   }
 
   @Test
@@ -36,12 +52,12 @@ public class LinkChoiceTest {
       ULong.valueOf(17),
       5,
       Choice.MAIN, ImmutableList.of(
-        ULong.valueOf(0),
-        ULong.valueOf(1),
-        ULong.valueOf(17),
-        ULong.valueOf(204),
-        ULong.valueOf(1407)
-      ));
+      ULong.valueOf(0),
+      ULong.valueOf(1),
+      ULong.valueOf(17),
+      ULong.valueOf(204),
+      ULong.valueOf(1407)
+    ));
 
     assertEquals(ULong.valueOf(204), linkChoice.nextPhaseOffset());
   }
@@ -51,11 +67,11 @@ public class LinkChoiceTest {
     LinkChoice linkChoice = new LinkChoice(
       ULong.valueOf(345),
       ULong.valueOf(0),
-      5 ,
+      5,
       Choice.MAIN, ImmutableList.of(
-        ULong.valueOf(0),
-        ULong.valueOf(1)
-      ));
+      ULong.valueOf(0),
+      ULong.valueOf(1)
+    ));
 
     assertTrue(linkChoice.hasOneMorePhase());
   }
@@ -67,11 +83,11 @@ public class LinkChoiceTest {
       ULong.valueOf(2),
       5,
       Choice.MAIN, ImmutableList.of(
-        ULong.valueOf(0),
-        ULong.valueOf(1),
-        ULong.valueOf(2),
-        ULong.valueOf(3)
-      ));
+      ULong.valueOf(0),
+      ULong.valueOf(1),
+      ULong.valueOf(2),
+      ULong.valueOf(3)
+    ));
 
     assertTrue(linkChoice.hasOneMorePhase());
   }
@@ -83,11 +99,11 @@ public class LinkChoiceTest {
       ULong.valueOf(3),
       5,
       Choice.MAIN, ImmutableList.of(
-        ULong.valueOf(0),
-        ULong.valueOf(1),
-        ULong.valueOf(2),
-        ULong.valueOf(3)
-      ));
+      ULong.valueOf(0),
+      ULong.valueOf(1),
+      ULong.valueOf(2),
+      ULong.valueOf(3)
+    ));
 
     assertFalse(linkChoice.hasOneMorePhase());
   }
@@ -99,10 +115,10 @@ public class LinkChoiceTest {
       ULong.valueOf(0),
       5,
       Choice.MACRO, ImmutableList.of(
-        ULong.valueOf(0),
-        ULong.valueOf(1),
-        ULong.valueOf(2)
-      ));
+      ULong.valueOf(0),
+      ULong.valueOf(1),
+      ULong.valueOf(2)
+    ));
 
     assertTrue(linkChoice.hasTwoMorePhases());
   }
@@ -114,11 +130,11 @@ public class LinkChoiceTest {
       ULong.valueOf(1),
       5,
       Choice.MACRO, ImmutableList.of(
-        ULong.valueOf(0),
-        ULong.valueOf(1),
-        ULong.valueOf(2),
-        ULong.valueOf(3)
-      ));
+      ULong.valueOf(0),
+      ULong.valueOf(1),
+      ULong.valueOf(2),
+      ULong.valueOf(3)
+    ));
 
     assertTrue(linkChoice.hasTwoMorePhases());
   }
@@ -130,11 +146,11 @@ public class LinkChoiceTest {
       ULong.valueOf(2),
       5,
       Choice.MACRO, ImmutableList.of(
-        ULong.valueOf(0),
-        ULong.valueOf(1),
-        ULong.valueOf(2),
-        ULong.valueOf(3)
-      ));
+      ULong.valueOf(0),
+      ULong.valueOf(1),
+      ULong.valueOf(2),
+      ULong.valueOf(3)
+    ));
 
     assertFalse(linkChoice.hasTwoMorePhases());
   }

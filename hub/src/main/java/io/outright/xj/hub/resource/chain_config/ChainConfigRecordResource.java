@@ -63,7 +63,7 @@ public class ChainConfigRecordResource {
    @return application/json response.
    */
   @DELETE
-  @RolesAllowed({Role.ADMIN})
+  @RolesAllowed({Role.ENGINEER,Role.ADMIN})
   public Response delete(@Context ContainerRequestContext crc) {
     try {
       DAO.delete(Access.fromContext(crc), ULong.valueOf(id));

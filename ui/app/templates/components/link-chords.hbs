@@ -3,10 +3,14 @@
 {{yield}}
 
 <div class="link-chords">
-  {{#each model.chords as |chord|}}
-    <div class="chord">
-      [{{chord.position}}]
-      {{chord.name}}
-    </div>
-  {{/each}}
+  <table class="chords">
+    <tbody>
+    {{#each model.chords as |chord|}}
+      <tr class="chord">
+        <th class="position">{{chord.position}}</th>
+        <td class="name">{{chord.name}}</td>
+      </tr>
+    {{/each}}
+    </tbody>
+  </table>
 </div>

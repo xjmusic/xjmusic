@@ -9,12 +9,7 @@ import io.outright.xj.core.model.choice.Choice;
 import io.outright.xj.core.model.idea.Idea;
 import io.outright.xj.core.model.link.Link;
 import io.outright.xj.core.model.role.Role;
-import io.outright.xj.core.tables.records.LinkMemeRecord;
-import io.outright.xj.core.tables.records.LinkRecord;
-import io.outright.xj.core.util.testing.Testing;
 
-import org.jooq.Result;
-import org.jooq.types.UInteger;
 import org.jooq.types.ULong;
 
 import com.google.inject.Guice;
@@ -29,13 +24,9 @@ import org.junit.rules.ExpectedException;
 import java.sql.Timestamp;
 
 import static io.outright.xj.core.Tables.CHOICE;
-import static io.outright.xj.core.Tables.LINK;
-import static io.outright.xj.core.Tables.LINK_CHORD;
-import static io.outright.xj.core.tables.LinkMeme.LINK_MEME;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-public class MacroCraftContinueIT {
+public class CraftStructureContinueIT {
   @Rule
   public ExpectedException failure = ExpectedException.none();
   private Injector injector = Guice.createInjector(new CoreModule());
@@ -48,24 +39,24 @@ public class MacroCraftContinueIT {
   public void setUp() throws Exception {
     IntegrationTestEntity.deleteAll();
 
-    // Account "bananas"
-    IntegrationTestEntity.insertAccount(1, "bananas");
+    // Account "manatees"
+    IntegrationTestEntity.insertAccount(1, "manatees");
 
-    // John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
-    IntegrationTestEntity.insertUser(2, "john", "john@email.com", "http://pictures.com/john.gif");
+    // Jen has "user" and "admin" roles, belongs to account "manatees", has "google" auth
+    IntegrationTestEntity.insertUser(2, "jen", "jen@email.com", "http://pictures.com/jen.gif");
     IntegrationTestEntity.insertUserRole(1, 2, Role.ADMIN);
 
-    // Jenny has a "user" role and belongs to account "bananas"
-    IntegrationTestEntity.insertUser(3, "jenny", "jenny@email.com", "http://pictures.com/jenny.gif");
+    // Fred has a "user" role and belongs to account "manatees"
+    IntegrationTestEntity.insertUser(3, "fred", "fred@email.com", "http://pictures.com/fred.gif");
     IntegrationTestEntity.insertUserRole(2, 3, Role.USER);
     IntegrationTestEntity.insertAccountUser(3, 1, 3);
 
     // Library "house"
     IntegrationTestEntity.insertLibrary(2, 1, "house");
 
-    // "Tropical, Wild to Cozy" macro-idea in house library
-    IntegrationTestEntity.insertIdea(4, 3, 2, Idea.MACRO, "Tropical, Wild to Cozy", 0.5, "C", 120);
-    IntegrationTestEntity.insertIdeaMeme(2, 4, "Tropical");
+    // "Classic, Wild to Cozy" macro-idea in house library
+    IntegrationTestEntity.insertIdea(4, 3, 2, Idea.MACRO, "Classic, Wild to Cozy", 0.5, "C", 120);
+    IntegrationTestEntity.insertIdeaMeme(2, 4, "Classic");
     IntegrationTestEntity.insertPhase(3, 4, 0, 64, "Start Wild", 0.6, "C", 125);
     IntegrationTestEntity.insertPhaseMeme(3, 3, "Wild");
     IntegrationTestEntity.insertPhaseChord(3, 3, 0, "C");
@@ -77,16 +68,23 @@ public class MacroCraftContinueIT {
     IntegrationTestEntity.insertIdea(5, 3, 2, Idea.MAIN, "Main Jam", 0.2, "Gb minor", 140);
     IntegrationTestEntity.insertIdeaMeme(3, 5, "Outlook");
     IntegrationTestEntity.insertPhase(15, 5, 0, 16, "Intro", 0.5, "Gb minor", 135.0);
-    IntegrationTestEntity.insertPhaseMeme(6, 15, "Pessimism");
+    IntegrationTestEntity.insertPhaseMeme(6, 15, "Cloudy");
     IntegrationTestEntity.insertPhaseChord(12, 15, 0, "Gb minor");
     IntegrationTestEntity.insertPhaseChord(14, 15, 8, "G minor");
     IntegrationTestEntity.insertPhase(16, 5, 1, 16, "Intro", 0.5, "G major", 135.0);
-    IntegrationTestEntity.insertPhaseMeme(7, 16, "Optimism");
+    IntegrationTestEntity.insertPhaseMeme(7, 16, "Rosy");
     IntegrationTestEntity.insertPhaseChord(16, 16, 0, "D minor");
     IntegrationTestEntity.insertPhaseChord(18, 16, 8, "G major");
 
-    // Extra ideas
-    IntegrationTestEntity.insertIdea(6, 3, 2, Idea.RHYTHM, "Beat Jam", 0.6, "D#", 150);
+    // A basic beat
+    IntegrationTestEntity.insertIdea(35, 3, 2, Idea.RHYTHM, "Basic Beat", 0.2, "C", 121);
+    IntegrationTestEntity.insertIdeaMeme(343, 35, "Basic");
+    IntegrationTestEntity.insertPhase(315, 35, 0, 16, "Drop", 0.5, "C", 125.0);
+    IntegrationTestEntity.insertPhaseMeme(346, 315, "Heavy");
+    IntegrationTestEntity.insertPhase(316, 35, 1, 16, "Continue", 0.5, "C", 125.0);
+    IntegrationTestEntity.insertPhaseMeme(347, 316, "Heavy");
+
+    // support idea
     IntegrationTestEntity.insertIdea(7, 3, 2, Idea.SUPPORT, "Support Jam", 0.3, "Cb minor", 170);
 
     // Chain "Test Print #1" has 5 total links
@@ -98,9 +96,18 @@ public class MacroCraftContinueIT {
     IntegrationTestEntity.insertLink(3, 1, 2, Link.CRAFTED, Timestamp.valueOf("2017-02-14 12:02:04.000001"), Timestamp.valueOf("2017-02-14 12:02:36.000001"), "F major", 64, 0.30, 120);
     IntegrationTestEntity.insertChoice(25, 3, 4, Choice.MACRO, 1, 3);
     IntegrationTestEntity.insertChoice(26, 3, 5, Choice.MAIN, 0, 5);
+    IntegrationTestEntity.insertChoice(27, 3, 35, Choice.RHYTHM, 0, 5);
 
-    // Chain "Test Print #1" has a planned link
-    link4 = IntegrationTestEntity.insertLink_Planned(4, 1, 3, Timestamp.valueOf("2017-02-14 12:03:08.000001"));
+    // Chain "Test Print #1" is crafting - Foundation is complete
+    link4 = IntegrationTestEntity.insertLink(4, 1, 3, Link.CRAFTING, Timestamp.valueOf("2017-02-14 12:03:08.000001"), Timestamp.valueOf("2017-02-14 12:03:15.836735"), "D major", 16, 0.45, 120);
+    IntegrationTestEntity.insertLinkMeme(101,4,"Cozy");
+    IntegrationTestEntity.insertLinkMeme(102,4,"Classic");
+    IntegrationTestEntity.insertLinkMeme(103,4,"Outlook");
+    IntegrationTestEntity.insertLinkMeme(104,4,"Rosy");
+    IntegrationTestEntity.insertChoice(101,4, 4, Choice.MACRO,1,3);
+    IntegrationTestEntity.insertChoice(102,4, 5, Choice.MAIN,1,-5);
+    IntegrationTestEntity.insertLinkChord(101,4,0,"A minor");
+    IntegrationTestEntity.insertLinkChord(102,4,8,"D major");
 
     // Bind the library to the chain
     IntegrationTestEntity.insertChainLibrary(1, 1, 2);
@@ -115,54 +122,17 @@ public class MacroCraftContinueIT {
   }
 
   @Test
-  public void macroCraftContinue() throws Exception {
-    craftFactory.createMacroCraft(link4).craft();
+  public void craftStructureContinue() throws Exception {
+    Basis basis = craftFactory.createBasis(link4);
 
-    LinkRecord resultLink = IntegrationTestService.getDb().selectFrom(LINK)
-      .where(LINK.CHAIN_ID.eq(ULong.valueOf(1)))
-      .and(LINK.OFFSET.eq(ULong.valueOf(3)))
-      .fetchOne();
-    assertEquals(Timestamp.valueOf("2017-02-14 12:03:15.836735"), resultLink.getEndAt());
-    assertEquals(UInteger.valueOf(16), resultLink.getTotal());
-    assertEquals(Double.valueOf(0.45), resultLink.getDensity());
-    assertEquals("D major", resultLink.getKey());
-    assertEquals(Double.valueOf(125), resultLink.getTempo());
+    craftFactory.structure(basis).craft();
 
-    Result<LinkMemeRecord> resultLinkMemes = IntegrationTestService.getDb().selectFrom(LINK_MEME)
-      .where(LINK_MEME.LINK_ID.eq(ULong.valueOf(4)))
-      .fetch();
-    assertEquals(4, resultLinkMemes.size());
-    resultLinkMemes.forEach(linkMemeRecord -> Testing.assertIn(new String[]{"Cozy", "Tropical", "Outlook", "Optimism"}, linkMemeRecord.getName()));
-
-    // chord @ 0
-    assertNotNull(IntegrationTestService.getDb().selectFrom(LINK_CHORD)
-      .where(LINK_CHORD.LINK_ID.eq(ULong.valueOf(4)))
-      .and(LINK_CHORD.POSITION.eq(Double.valueOf(0)))
-      .and(LINK_CHORD.NAME.eq("A minor"))
-      .fetchOne());
-
-    // chord @ 8
-    assertNotNull(IntegrationTestService.getDb().selectFrom(LINK_CHORD)
-      .where(LINK_CHORD.LINK_ID.eq(ULong.valueOf(4)))
-      .and(LINK_CHORD.POSITION.eq(Double.valueOf(8)))
-      .and(LINK_CHORD.NAME.eq("D major"))
-      .fetchOne());
-
-    // choice of macro-type idea
+    // choice of rhythm-type idea
     assertNotNull(IntegrationTestService.getDb().selectFrom(CHOICE)
       .where(CHOICE.LINK_ID.eq(ULong.valueOf(4)))
-      .and(CHOICE.IDEA_ID.eq(ULong.valueOf(4)))
-      .and(CHOICE.TYPE.eq(Choice.MACRO))
-      .and(CHOICE.TRANSPOSE.eq(3))
-      .and(CHOICE.PHASE_OFFSET.eq(ULong.valueOf(1)))
-      .fetchOne());
-
-    // choice of main-type idea
-    assertNotNull(IntegrationTestService.getDb().selectFrom(CHOICE)
-      .where(CHOICE.LINK_ID.eq(ULong.valueOf(4)))
-      .and(CHOICE.IDEA_ID.eq(ULong.valueOf(5)))
-      .and(CHOICE.TYPE.eq(Choice.MAIN))
-      .and(CHOICE.TRANSPOSE.eq(-5))
+      .and(CHOICE.IDEA_ID.eq(ULong.valueOf(35)))
+      .and(CHOICE.TYPE.eq(Choice.RHYTHM))
+      .and(CHOICE.TRANSPOSE.eq(2))
       .and(CHOICE.PHASE_OFFSET.eq(ULong.valueOf(1)))
       .fetchOne());
 

@@ -3,6 +3,7 @@ package io.outright.xj.craftworker.work;
 
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.app.exception.ConfigException;
+import io.outright.xj.core.craft.Basis;
 import io.outright.xj.core.craft.CraftFactory;
 import io.outright.xj.core.model.link.Link;
 import io.outright.xj.core.work.WorkerOperation;
@@ -22,6 +23,10 @@ public class CraftLinkWorkerOperation implements WorkerOperation {
 
   @Override
   public void workOn(Link link) throws BusinessException, ConfigException {
-    craftFactory.createMacroCraft(link).craft();
+    Basis basis = craftFactory.createBasis(link);
+    craftFactory.foundation(basis).craft();
+    craftFactory.structure(basis).craft();
+    craftFactory.voice(basis).craft();
+    basis.sendReport();
   }
 }

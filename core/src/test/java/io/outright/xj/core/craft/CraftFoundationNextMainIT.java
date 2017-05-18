@@ -35,8 +35,7 @@ import static io.outright.xj.core.tables.LinkMeme.LINK_MEME;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-// TODO [core] test permissions of different users to readMany vs. create vs. update or delete ideas
-public class MacroCraftMacroIT {
+public class CraftFoundationNextMainIT {
   @Rule
   public ExpectedException failure = ExpectedException.none();
   private Injector injector = Guice.createInjector(new CoreModule());
@@ -126,9 +125,9 @@ public class MacroCraftMacroIT {
     IntegrationTestEntity.insertLink(2, 1, 1, Link.DUBBING, Timestamp.valueOf("2017-02-14 12:01:32.000001"), Timestamp.valueOf("2017-02-14 12:02:04.000001"), "Db minor", 64, 0.85, 120);
 
     // Chain "Test Print #1" has this link that was just crafted
-    IntegrationTestEntity.insertLink(3, 1, 2, Link.CRAFTED, Timestamp.valueOf("2017-02-14 12:02:04.000001"), Timestamp.valueOf("2017-02-14 12:02:36.000001"), "Ab minor", 64, 0.30, 120); // final key is based on phase of main idea
-    IntegrationTestEntity.insertChoice(25, 3, 4, Choice.MACRO, 1, 3); // macro-idea current phase is transposed to be Db minor
-    IntegrationTestEntity.insertChoice(26, 3, 5, Choice.MAIN, 1, 1); // main-key of previous link is transposed to match, Db minor
+    IntegrationTestEntity.insertLink(3, 1, 2, Link.CRAFTED, Timestamp.valueOf("2017-02-14 12:02:04.000001"), Timestamp.valueOf("2017-02-14 12:02:36.000001"), "F major", 64, 0.30, 120);
+    IntegrationTestEntity.insertChoice(25, 3, 4, Choice.MACRO, 0, 3);
+    IntegrationTestEntity.insertChoice(26, 3, 5, Choice.MAIN, 1, -4);
 
     // Chain "Test Print #1" has a planned link
     link4 = IntegrationTestEntity.insertLink_Planned(4, 1, 3, Timestamp.valueOf("2017-02-14 12:03:08.000001"));
@@ -146,8 +145,10 @@ public class MacroCraftMacroIT {
   }
 
   @Test
-  public void macroCraftMacro() throws Exception {
-    craftFactory.createMacroCraft(link4).craft();
+  public void craftFoundationNextMain() throws Exception {
+    Basis basis = craftFactory.createBasis(link4);
+
+    craftFactory.foundation(basis).craft();
 
     LinkRecord resultLink = IntegrationTestService.getDb().selectFrom(LINK)
       .where(LINK.CHAIN_ID.eq(ULong.valueOf(1)))
@@ -156,36 +157,36 @@ public class MacroCraftMacroIT {
     assertEquals(Timestamp.valueOf("2017-02-14 12:03:15.836735"), resultLink.getEndAt());
     assertEquals(UInteger.valueOf(16), resultLink.getTotal());
     assertEquals(Double.valueOf(0.45), resultLink.getDensity());
-    assertEquals("F minor", resultLink.getKey());
+    assertEquals("G minor", resultLink.getKey());
     assertEquals(Double.valueOf(125), resultLink.getTempo());
 
     Result<LinkMemeRecord> resultLinkMemes = IntegrationTestService.getDb().selectFrom(LINK_MEME)
       .where(LINK_MEME.LINK_ID.eq(ULong.valueOf(4)))
       .fetch();
-    assertEquals(4, resultLinkMemes.size());
-    resultLinkMemes.forEach(linkMemeRecord -> Testing.assertIn(new String[]{"Hindsight", "Chunky", "Regret", "Tangy"}, linkMemeRecord.getName()));
+    assertEquals(5, resultLinkMemes.size());
+    resultLinkMemes.forEach(linkMemeRecord -> Testing.assertIn(new String[]{"Regret", "Wild", "Hindsight", "Tropical", "Cozy"}, linkMemeRecord.getName()));
 
-    // C# major chord @ 0
+    // chord @ 0
     assertNotNull(IntegrationTestService.getDb().selectFrom(LINK_CHORD)
       .where(LINK_CHORD.LINK_ID.eq(ULong.valueOf(4)))
       .and(LINK_CHORD.POSITION.eq(Double.valueOf(0)))
-      .and(LINK_CHORD.NAME.eq("F minor"))
+      .and(LINK_CHORD.NAME.eq("G minor"))
       .fetchOne());
 
-    // D minor chord @ 8
+    // chord @ 8
     assertNotNull(IntegrationTestService.getDb().selectFrom(LINK_CHORD)
       .where(LINK_CHORD.LINK_ID.eq(ULong.valueOf(4)))
       .and(LINK_CHORD.POSITION.eq(Double.valueOf(8)))
-      .and(LINK_CHORD.NAME.eq("Gb minor"))
+      .and(LINK_CHORD.NAME.eq("Ab minor"))
       .fetchOne());
 
     // choice of macro-type idea
     assertNotNull(IntegrationTestService.getDb().selectFrom(CHOICE)
       .where(CHOICE.LINK_ID.eq(ULong.valueOf(4)))
-      .and(CHOICE.IDEA_ID.eq(ULong.valueOf(3)))
+      .and(CHOICE.IDEA_ID.eq(ULong.valueOf(4)))
       .and(CHOICE.TYPE.eq(Choice.MACRO))
-      .and(CHOICE.TRANSPOSE.eq(4))
-      .and(CHOICE.PHASE_OFFSET.eq(ULong.valueOf(0)))
+      .and(CHOICE.TRANSPOSE.eq(3))
+      .and(CHOICE.PHASE_OFFSET.eq(ULong.valueOf(1)))
       .fetchOne());
 
     // choice of main-type idea
@@ -193,7 +194,7 @@ public class MacroCraftMacroIT {
       .where(CHOICE.LINK_ID.eq(ULong.valueOf(4)))
       .and(CHOICE.IDEA_ID.eq(ULong.valueOf(15)))
       .and(CHOICE.TYPE.eq(Choice.MAIN))
-      .and(CHOICE.TRANSPOSE.eq(-2))
+      .and(CHOICE.TRANSPOSE.eq(0))
       .and(CHOICE.PHASE_OFFSET.eq(ULong.valueOf(0)))
       .fetchOne());
 

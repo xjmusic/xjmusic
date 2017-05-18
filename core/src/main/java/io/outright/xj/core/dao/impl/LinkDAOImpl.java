@@ -94,14 +94,13 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
   public LinkChoice readLinkChoice(Access access, ULong linkId, String ideaType) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(new LinkChoice(readLinkChoice(tx.getContext(), access, linkId, ideaType)));
+      return tx.success(LinkChoice.from(readLinkChoice(tx.getContext(), access, linkId, ideaType)));
     } catch (Exception e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  @Nullable
   public Result<LinkRecord> readAll(Access access, ULong chainId) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
@@ -246,6 +245,7 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
       .where(CHOICE.LINK_ID.eq(linkId))
       .and(CHOICE.TYPE.eq(ideaType))
       .groupBy(CHOICE.IDEA_ID, CHOICE.PHASE_OFFSET, CHOICE.TRANSPOSE)
+      .limit(1)
       .fetchOne();
   }
 

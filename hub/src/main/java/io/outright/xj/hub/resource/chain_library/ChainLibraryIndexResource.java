@@ -73,7 +73,7 @@ public class ChainLibraryIndexResource {
    */
   @POST
   @Consumes(MediaType.APPLICATION_JSON)
-  @RolesAllowed({Role.ADMIN})
+  @RolesAllowed({Role.ARTIST,Role.ENGINEER,Role.ADMIN})
   public Response create(ChainLibraryWrapper data, @Context ContainerRequestContext crc) {
     try {
       return response.create(

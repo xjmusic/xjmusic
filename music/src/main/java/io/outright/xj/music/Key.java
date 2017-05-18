@@ -4,6 +4,8 @@ package io.outright.xj.music;
 import io.outright.xj.music.schema.IntervalPitchGroup;
 import io.outright.xj.music.schema.KeyMode;
 
+import java.util.Objects;
+
 /**
  Key is a model of a musical key signature
  <p>
@@ -46,11 +48,37 @@ public class Key extends IntervalPitchGroup {
   }
 
   /**
+   delta +/- semitones from a Key (string) to another Key (string)
+
+   @param fromKey to compute delta from
+   @param toKey   to compute delta to
+   @param adjust  +/- semitones adjustment
+   @return delta from one key to another
+   */
+  public static Integer delta(String fromKey, String toKey, int adjust) {
+    return of(fromKey).delta(of(toKey).transpose(adjust));
+  }
+
+  /**
+   Increased score for a matching adjustment symbol,
+   only if one is provided.
+
+   @param key1 to match, or null if none matters
+   @param key2 to match adjustment symbol of
+   @return increased score if match, else 0
+   */
+  public static Boolean isSameMode(String key1, String key2) {
+    return Objects.nonNull(key1) &&
+      of(key2).getMode().equals(
+        of(key1).getMode());
+  }
+
+  /**
    Copies this object to a new Note
 
    @return new note
    */
-  private Key copy() {
+  public Key copy() {
     return new Key()
       .setOriginalDescription(getOriginalDescription())
       .setRootPitchClass(root)
@@ -90,31 +118,67 @@ public class Key extends IntervalPitchGroup {
       .setMode(KeyMode.Major);
   }
 
-  private Key setRootPitchClass(PitchClass root) {
-    this.root = root;
-    return this;
-  }
+  /**
+   get mode
 
-  private Key setAdjSymbol(AdjSymbol adjSymbol) {
-    this.adjSymbol = adjSymbol;
-    return this;
-  }
-
+   @return mode
+   */
   public KeyMode getMode() {
     return mode;
   }
 
-  private Key setMode(KeyMode mode) {
+  /**
+   set root pitch class
+
+   @param root pitch class
+   @return key (for chaining setters)
+   */
+  public Key setRootPitchClass(PitchClass root) {
+    this.root = root;
+    return this;
+  }
+
+  /**
+   set adjustment symbol
+
+   @param adjSymbol adjustment symbol
+   @return key (for chaining setters)
+   */
+  public Key setAdjSymbol(AdjSymbol adjSymbol) {
+    this.adjSymbol = adjSymbol;
+    return this;
+  }
+
+  /**
+   set mode
+
+   @param mode of key
+   @return key (for chaining setters)
+   */
+  public Key setMode(KeyMode mode) {
     this.mode = mode;
     return this;
   }
 
-  private Key setOriginalDescription(String description) {
+  /**
+   set original description
+
+   @param description of key
+   @return key (for chaining setters)
+   */
+  public Key setOriginalDescription(String description) {
     this.description = description;
     return this;
   }
 
-  public void setName(String name) {
+  /**
+   set name
+
+   @param name of key
+   @return key (for chaining setters)
+   */
+  public Key setName(String name) {
     this.name = name;
+    return this;
   }
 }

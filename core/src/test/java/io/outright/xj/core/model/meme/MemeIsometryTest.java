@@ -76,10 +76,10 @@ public class MemeIsometryTest {
     MemeIsometry test = MemeIsometry.of(testMemesB);
 
     assertEquals(0.0, test.scoreCSV("jam,bun"), 0);
-    assertEquals(1.0, test.scoreCSV("jam,bun,intense"), 0);
-    assertEquals(1.0, test.scoreCSV("jam,intense,bun"), 0);
-    assertEquals(3.0, test.scoreCSV("coolness,intense,darkness"), 0);
-    assertEquals(2.0, test.scoreCSV("warmth,intense,darkness"), 0);
+    assertEquals(0.25, test.scoreCSV("jam,bun,intense"), 0);
+    assertEquals(0.25, test.scoreCSV("jam,intense,bun"), 0);
+    assertEquals(0.75, test.scoreCSV("coolness,intense,darkness"), 0);
+    assertEquals(0.5, test.scoreCSV("warmth,intense,darkness"), 0);
   }
 
 

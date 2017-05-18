@@ -7,18 +7,61 @@ import io.outright.xj.core.model.link.Link;
 import com.google.inject.assistedinject.Assisted;
 
 /**
- [#138] Macro-Choice for Initial Link of a Chain
+ Craft is performed in order:
+ 1. High
+ 2. Mid
+ 3. Low
+ <p>
+ Basis basis = craftFactory.createBasis(link);
+ craftFactory.foundation(basis).craft();
+ craftFactory.structure(basis).craft();
+ craftFactory.voice(basis).craft();
+ basis.sendReport();
  */
 public interface CraftFactory {
 
   /**
-   Create a Macro & Main idea Craft for a particular link
+   Create Foundation Craft instance for a particular link
+   [#138] Foundation craft for Link of a Chain
+
+   @param basis of craft
+   @return ChainWorkMaster
+   @throws ConfigException on failure
+   */
+  FoundationCraft foundation(
+    @Assisted("basis") Basis basis
+  ) throws ConfigException;
+
+  /**
+   Create Structure Craft instance for a particular link
+
+   @param basis of craft
+   @return ChainWorkMaster
+   @throws ConfigException on failure
+   */
+  StructureCraft structure(
+    @Assisted("basis") Basis basis
+  ) throws ConfigException;
+
+  /**
+   Create Voice Craft instance for a particular link
+
+   @param basis of craft
+   @return ChainWorkMaster
+   @throws ConfigException on failure
+   */
+  VoiceCraft voice(
+    @Assisted("basis") Basis basis
+  ) throws ConfigException;
+
+  /**
+   Create a basis for Macro & Main idea craft (previous link and other cached resources)
 
    @param link Link to be worked on
    @return ChainWorkMaster
    @throws ConfigException on failure
    */
-  MacroCraft createMacroCraft(
+  Basis createBasis(
     @Assisted("link") Link link
   ) throws ConfigException;
 

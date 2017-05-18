@@ -3,7 +3,6 @@ package io.outright.xj.craftworker;
 
 import io.outright.xj.core.CoreModule;
 import io.outright.xj.core.app.App;
-import io.outright.xj.core.app.config.Config;
 import io.outright.xj.core.integration.IntegrationTestEntity;
 import io.outright.xj.core.integration.IntegrationTestService;
 import io.outright.xj.core.model.chain.Chain;
@@ -34,7 +33,7 @@ import java.util.Date;
 import static io.outright.xj.core.Tables.LINK;
 import static org.junit.Assert.assertTrue;
 
-public class CraftLinkWorkerIT {
+public class CraftWorkerIT {
   @Rule
   public ExpectedException failure = ExpectedException.none();
   private Injector injector = Guice.createInjector(new CoreModule());
@@ -114,6 +113,12 @@ public class CraftLinkWorkerIT {
     IntegrationTestEntity.insertPhaseMeme(149, 416, "Shame");
     IntegrationTestEntity.insertPhaseChord(416, 416, 0, "C major");
     IntegrationTestEntity.insertPhaseChord(418, 416, 8, "Bb major");
+
+    // A basic beat
+    IntegrationTestEntity.insertIdea(35, 3, 2, Idea.RHYTHM, "Basic Beat", 0.2, "C", 121);
+    IntegrationTestEntity.insertIdeaMeme(343, 35, "Basic");
+    IntegrationTestEntity.insertPhase(315, 35, 0, 16, "Drop", 0.5, "C", 125.0);
+    IntegrationTestEntity.insertPhaseMeme(346, 315, "Heavy");
 
     // Chain "Test Print #1" is ready to begin
     IntegrationTestEntity.insertChain(1, 1, "Test Print #1", Chain.PRODUCTION, Chain.FABRICATING, Timestamp.from(new Date().toInstant().minusSeconds(300)), Timestamp.from(new Date().toInstant()));

@@ -33,7 +33,7 @@ public class LinkChoice {
 
    @param record to instantiate LinkChoice from
    */
-  public LinkChoice(Record record) {
+  private LinkChoice(Record record) {
     ideaId = (ULong) record.get(KEY_IDEA_ID);
     phaseOffset = (ULong) record.get(KEY_PHASE_OFFSET);
     transpose = (int) record.get(KEY_TRANSPOSE);
@@ -45,14 +45,22 @@ public class LinkChoice {
     Collections.sort(availablePhaseOffsets);
   }
 
+  @Nullable
+  public static LinkChoice from(@Nullable Record record) {
+    if (Objects.isNull(record))
+      return null;
+
+    return new LinkChoice(record);
+  }
+
   /**
    Construct a new LinkChoice manually
-   * @param ideaId                of choice
+
+   @param ideaId                of choice
    @param phaseOffset           of chosen idea
    @param transpose             +/- semitones of chosen idea
    @param type                  of choice
-   @param availablePhaseOffsets all available phase offsets for this idea
-
+   @param availablePhaseOffsets all eitherOr phase offsets for this idea
    */
   LinkChoice(ULong ideaId, ULong phaseOffset, int transpose, String type, List<ULong> availablePhaseOffsets) {
     this.ideaId = ideaId;
@@ -93,7 +101,8 @@ public class LinkChoice {
   }
 
   /**
-   Returns the phase offset immediately after the current one
+   Returns the phase offset immediately after the current one,
+   or loop back to zero is past the end of the available phases
 
    @return next phase offset
    */
@@ -105,13 +114,13 @@ public class LinkChoice {
         if (Objects.isNull(offset) ||
           availableOffset.compareTo(offset) == -1)
           offset = availableOffset;
-    return offset;
+    return Objects.nonNull(offset) ? offset : ULong.valueOf(0);
   }
 
   /**
-   Get available phase offsets for the chosen idea
+   Get eitherOr phase offsets for the chosen idea
 
-   @return available phase offsets
+   @return eitherOr phase offsets
    */
   public List<ULong> getAvailablePhaseOffsets() {
     return availablePhaseOffsets;
@@ -167,4 +176,5 @@ public class LinkChoice {
     out.put(KEY_AVAILABLE_PHASE_OFFSETS, availablePhaseOffsets);
     return out;
   }
+
 }

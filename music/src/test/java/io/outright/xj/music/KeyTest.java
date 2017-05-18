@@ -15,6 +15,7 @@ import static io.outright.xj.music.PitchClass.C;
 import static io.outright.xj.music.PitchClass.None;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class KeyTest {
 
@@ -53,6 +54,17 @@ public class KeyTest {
     assertEquals(expectMode, key.getMode());
   }
 
+  @Test
+  public void isMatchingMode() throws Exception {
+    assertTrue(Key.isSameMode("C minor", "G minor"));
+  }
+
+  @Test
+  public void delta() throws Exception {
+    assertEquals(Integer.valueOf(2), Key.delta("C", "D", 0));
+    assertEquals(Integer.valueOf(-5), Key.delta("C", "G", 0));
+    assertEquals(Integer.valueOf(-3), Key.delta("C", "G", 2));
+  }
 
   @Test
   public void OfInvalidTest() {

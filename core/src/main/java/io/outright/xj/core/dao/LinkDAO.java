@@ -57,14 +57,15 @@ public interface LinkDAO {
 
   /**
    Read the Choice of given type of Idea for a given Link,
-   including the phase offset, and all available
+   including the phase offset, and all eitherOr
    phase offsets for that Idea.
 
    @param access     control
    @param linkOffset link to get choice for
    @param ideaType   type for choice to get
-   @return record of choice, and available phase offsets
+   @return record of choice, and eitherOr phase offsets
    */
+  @Nullable
   LinkChoice readLinkChoice(Access access, ULong linkOffset, String ideaType) throws Exception;
 
   /**

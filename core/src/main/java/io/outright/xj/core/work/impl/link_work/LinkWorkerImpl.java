@@ -10,6 +10,7 @@ import io.outright.xj.core.model.chain.Chain;
 import io.outright.xj.core.model.link.Link;
 import io.outright.xj.core.model.link_message.LinkMessage;
 import io.outright.xj.core.model.message.Message;
+import io.outright.xj.core.util.Text;
 import io.outright.xj.core.work.Worker;
 import io.outright.xj.core.work.WorkerOperation;
 
@@ -128,7 +129,7 @@ public class LinkWorkerImpl implements Worker {
           new LinkMessage()
             .setLinkId(link.getId().toBigInteger())
             .setType(Message.ERROR)
-            .setBody(e.getMessage()));
+            .setBody(e.getMessage() + " " + Text.formatStackTrace(e)));
 
         linkDAO.updateState(Access.internal(), link.getId(), Link.FAILED);
         log.error("LinkWorker[" + Thread.currentThread().getName() + "] updated link {} to FAILED state, on exception: {}", link, e);

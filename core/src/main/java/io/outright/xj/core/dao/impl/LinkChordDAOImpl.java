@@ -185,7 +185,7 @@ public class LinkChordDAOImpl extends DAOImpl implements LinkChordDAO {
         .from(LINK_CHORD)
         .join(LINK).on(LINK.ID.eq(LINK_CHORD.LINK_ID))
         .where(LINK.CHAIN_ID.eq(chainId))
-        .orderBy(LINK_CHORD.POSITION)
+        .orderBy(LINK_CHORD.POSITION.desc())
         .fetch());
     else
       return resultInto(LINK_CHORD, db.select(LINK_CHORD.fields())
@@ -194,7 +194,7 @@ public class LinkChordDAOImpl extends DAOImpl implements LinkChordDAO {
         .join(CHAIN).on(CHAIN.ID.eq(LINK.CHAIN_ID))
         .where(LINK.CHAIN_ID.eq(chainId))
         .and(CHAIN.ACCOUNT_ID.in(access.getAccounts()))
-        .orderBy(LINK_CHORD.POSITION)
+        .orderBy(LINK_CHORD.POSITION.desc())
         .fetch());
   }
 

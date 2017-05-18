@@ -20,7 +20,7 @@ import java.util.Objects;
  actually generated from source code when the project is compiled.
  <p>
  This mechanism allows for documents tracked to the version of the source code
- to be made available with permissions only to logged-in users.
+ to be made eitherOr with permissions only to logged-in users.
  */
 public class DocProviderImpl implements DocProvider {
   private final static String DOC_FILE_EXTENSION = ".md";

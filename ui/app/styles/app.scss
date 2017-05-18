@@ -2,9 +2,10 @@
 
 @import "breadcrumb";
 @import "chain";
+@import "common";
 @import "ember-power-select";
-@import "fonts";
 @import "footer";
+@import "forms";
 @import "headline";
 @import "marketing";
 @import "messages";
@@ -12,73 +13,7 @@
 @import "palette";
 @import "states";
 @import "table";
-
-body {
-  background: #000000;
-  color: $gray;
-  font-family: OxygenMono, monospace;
-}
-
-a {
-  color: lighten($green, 20%);
-
-  &:hover, &:active {
-    color: lighten($green, 40%);
-  }
-}
-
-p {
-  strong {
-    color: $bright;
-  }
-}
-
-img {
-  width: 100%;
-  height: auto;
-}
-
-#timeline {
-  margin-bottom: 20px;
-  .placeholder {
-    opacity: 0.25;
-  }
-}
-
-.readonly-field {
-  text-align: left;
-  margin-bottom: 0;
-  padding-top: 7px;
-}
-
-.alert-fixed {
-  position: fixed;
-  top: 5px;
-  right: 25%;
-  width: 50%;
-  z-index: 9999;
-  border-radius: 5px;
-  .alert {
-    margin-bottom: 5px;
-  }
-}
-
-hr {
-  border-top: 4px $dark-gray solid;
-}
-
-.ember-power-select-options,
-.ember-power-select-selected-item {
-  img {
-    width: 1.6em;
-    height: 1.6em;
-  }
-}
-
-button {
-  cursor: pointer;
-  color: $much-darker-gray;
-}
+@import "typography";
 
 // static content gets deleted right away, but it's vital for S.E.O. [#155]
 #static-content {

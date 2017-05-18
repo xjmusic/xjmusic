@@ -35,7 +35,7 @@ import static io.outright.xj.core.tables.LinkMeme.LINK_MEME;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-public class MacroCraftInitialIT {
+public class CraftFoundationInitialIT {
   @Rule
   public ExpectedException failure = ExpectedException.none();
   private Injector injector = Guice.createInjector(new CoreModule());
@@ -106,8 +106,10 @@ public class MacroCraftInitialIT {
   }
 
   @Test
-  public void macroCraftInitial() throws Exception {
-    craftFactory.createMacroCraft(link6).craft();
+  public void craftFoundationInitial() throws Exception {
+    Basis basis = craftFactory.createBasis(link6);
+
+    craftFactory.foundation(basis).craft();
 
     LinkRecord resultLink = IntegrationTestService.getDb().selectFrom(LINK)
       .where(LINK.CHAIN_ID.eq(ULong.valueOf(2)))
