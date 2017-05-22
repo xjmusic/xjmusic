@@ -44,6 +44,19 @@ public interface ChoiceDAO {
   ChoiceRecord readOneLinkIdea(Access access, ULong linkId, ULong ideaId) throws  Exception;
 
   /**
+   Read the Choice of given type of Idea for a given Link,
+   including the phase offset, and all eitherOr
+   phase offsets for that Idea.
+
+   @param access     control
+   @param linkId link to get choice for
+   @param ideaType   type for choice to get
+   @return record of choice, and eitherOr phase offsets
+   */
+  @Nullable
+  Choice readOneLinkTypeWithAvailablePhaseOffsets(Access access, ULong linkId, String ideaType) throws Exception;
+
+  /**
    Read all Choices that are accessible
 
    @param access control

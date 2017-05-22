@@ -10,12 +10,12 @@ import io.outright.xj.core.dao.LinkDAO;
 import io.outright.xj.core.dao.LinkMemeDAO;
 import io.outright.xj.core.dao.LinkMessageDAO;
 import io.outright.xj.core.model.choice.Choice;
-import io.outright.xj.core.model.chord.Chord;
+import io.outright.xj.core.model.ChordEntity;
 import io.outright.xj.core.model.link.Link;
 import io.outright.xj.core.model.link_chord.LinkChord;
 import io.outright.xj.core.model.link_meme.LinkMeme;
 import io.outright.xj.core.model.link_message.LinkMessage;
-import io.outright.xj.core.model.meme.Meme;
+import io.outright.xj.core.model.MemeEntity;
 import io.outright.xj.core.model.message.Message;
 import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.transport.JSON;
@@ -99,10 +99,10 @@ public class LinkIndexResource {
     if (include.contains(Message.KEY_MANY))
       out.put(LinkMessage.KEY_MANY, JSON.arrayOf(linkMessageDAO.readAllInChain(access, ULong.valueOf(chainId))));
 
-    if (include.contains(Meme.KEY_MANY))
+    if (include.contains(MemeEntity.KEY_MANY))
       out.put(LinkMeme.KEY_MANY, JSON.arrayOf(linkMemeDAO.readAllInChain(access, ULong.valueOf(chainId))));
 
-    if (include.contains(Chord.KEY_MANY))
+    if (include.contains(ChordEntity.KEY_MANY))
       out.put(LinkChord.KEY_MANY, JSON.arrayOf(linkChordDAO.readAllInChain(access, ULong.valueOf(chainId))));
 
     if (include.contains(Choice.KEY_MANY))

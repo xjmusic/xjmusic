@@ -8,19 +8,23 @@ import io.outright.xj.core.dao.AudioEventDAO;
 import io.outright.xj.core.db.sql.SQLConnection;
 import io.outright.xj.core.db.sql.SQLDatabaseProvider;
 import io.outright.xj.core.model.audio_event.AudioEvent;
-import io.outright.xj.core.tables.Audio;
 import io.outright.xj.core.tables.records.AudioEventRecord;
 
 import org.jooq.DSLContext;
 import org.jooq.Field;
+import org.jooq.Record;
 import org.jooq.Result;
 import org.jooq.types.ULong;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 
 import javax.annotation.Nullable;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import static io.outright.xj.core.Tables.AUDIO;
 import static io.outright.xj.core.Tables.AUDIO_EVENT;
@@ -63,6 +67,17 @@ public class AudioEventDAOImpl extends DAOImpl implements AudioEventDAO {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readAll(tx.getContext(), access, audioId));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public List<AudioEvent> readAllFirstEventsForInstrument(Access access, ULong instrumentId) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+
+      return tx.success(readAllFirstEventsForInstrument(tx.getContext(), access, instrumentId));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -172,6 +187,45 @@ public class AudioEventDAOImpl extends DAOImpl implements AudioEventDAO {
   }
 
   /**
+   Read all AudioEvent that are first in an audio, for all audio in an Instrument
+   for each audio id, the first (in terms of position) AudioEvent
+
+   @param db           context
+   @param access       control
+   @param instrumentId to readMany all audio of
+   @return array of audios
+   @throws SQLException on failure
+   */
+  private List<AudioEvent> readAllFirstEventsForInstrument(DSLContext db, Access access, ULong instrumentId) throws Exception {
+    requireTopLevel(access);
+
+    // for each audio id, the first (in terms of position) AudioEvent
+    Map<ULong, AudioEvent> audioFirstEvents = Maps.newHashMap();
+
+    // HAVEN'T BEEN ABLE TO GET ANYTHING MORE EFFICIENT TO WORK
+    Consumer<? super Record> putIfEarlierThanExisting = audioEventRecord -> {
+      ULong audioId = audioEventRecord.get(AUDIO_EVENT.AUDIO_ID);
+
+      // for each AudioEvent, if not seen or earlier than what has been seen, store as result for that audio id
+      if (!audioFirstEvents.containsKey(audioId) ||
+        audioEventRecord.get(AUDIO_EVENT.POSITION) < audioFirstEvents.get(audioId).getPosition())
+        audioFirstEvents.put(audioId, new AudioEvent().setFromRecord(audioEventRecord));
+    };
+
+    // just fetch all the AudioEvent records and filter
+    db.select(AUDIO_EVENT.fields())
+      .from(AUDIO_EVENT)
+      .join(AUDIO).on(AUDIO.ID.eq(AUDIO_EVENT.AUDIO_ID))
+      .where(AUDIO.INSTRUMENT_ID.eq(instrumentId))
+      .fetch()
+      .forEach(putIfEarlierThanExisting);
+
+    List<AudioEvent> audioEvents = Lists.newArrayList();
+    audioFirstEvents.forEach((id, audioEvent) -> audioEvents.add(audioEvent));
+    return audioEvents;
+  }
+
+  /**
    Update a Event record
 
    @param db     context
@@ -214,7 +268,7 @@ public class AudioEventDAOImpl extends DAOImpl implements AudioEventDAO {
   private void delete(Access access, DSLContext db, ULong id) throws Exception {
     if (!access.isTopLevel())
       requireExists("Audio Meme", db.select(AUDIO_EVENT.ID).from(AUDIO_EVENT)
-        .join(Audio.AUDIO).on(Audio.AUDIO.ID.eq(AUDIO_EVENT.AUDIO_ID))
+        .join(AUDIO).on(AUDIO.ID.eq(AUDIO_EVENT.AUDIO_ID))
         .join(INSTRUMENT).on(INSTRUMENT.ID.eq(AUDIO.INSTRUMENT_ID))
         .join(LIBRARY).on(INSTRUMENT.LIBRARY_ID.eq(LIBRARY.ID))
         .where(AUDIO_EVENT.ID.eq(id))

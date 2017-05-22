@@ -45,6 +45,15 @@ public class Chooser<T extends Entity> {
   }
 
   /**
+   Add many entities
+
+   @param entities to add
+   */
+  public void addAll(List<T> entities) {
+    this.entities.addAll(entities);
+  }
+
+  /**
    Add an entity, with a Q-score
 
    @param entity to add
@@ -60,7 +69,7 @@ public class Chooser<T extends Entity> {
    @param entity to add
    */
   public void score(T entity, Double Q) {
-    scores.put(entity.getId(), Q);
+    score(entity.getId(), Q);
   }
 
   /**
@@ -69,7 +78,10 @@ public class Chooser<T extends Entity> {
    @param entityId to add
    */
   public void score(ULong entityId, Double Q) {
-    scores.put(entityId, Q);
+    if (scores.containsKey(entityId))
+      scores.put(entityId, scores.get(entityId) + Q);
+    else
+      scores.put(entityId, Q);
   }
 
   /**
@@ -122,8 +134,13 @@ public class Chooser<T extends Entity> {
   public List<T> getAllScored() {
     entities.sort(
       Comparator.comparing(
-        e -> -scores.get(e.getId())
-      )
+        e -> {
+          Double score = scores.get(e.getId());
+          if (Objects.nonNull(score))
+            return -score;
+          else
+            return 0d;
+        })
     );
     return entities;
   }

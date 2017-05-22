@@ -1,6 +1,8 @@
 // Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
 package io.outright.xj.music;
 
+import java.util.Objects;
+
 /**
  A Note is used to represent the relative duration and pitch of a sound.
  <p>
@@ -8,12 +10,9 @@ package io.outright.xj.music;
  */
 public class Note {
 
+  private static final int MAX_DELTA_SEMITONES = 1000; // this max is only for extreme-case infinite loop prevention
   private Integer octave; // octave #
   private PitchClass pitchClass; // pitch class of note
-  private String performer; // Can be used to sort out whose Notes are whose
-  private Double position; // Can be used to represent time within the composition
-  private Double duration; // Can be used to represent time of note duration
-  private String code; // Can be used to store any custom values
 
   /**
    Construct new empty note
@@ -64,16 +63,25 @@ public class Note {
   }
 
   /**
+   Note to String
+   @param adjSymbol to represent note with
+   @return string representation of Note
+   */
+  public String toString(AdjSymbol adjSymbol) {
+    return pitchClass.toString(adjSymbol) + String.valueOf(octave);
+  }
+
+  /**
    Note stepped +/- semitones to a new Note
 
-   @param inc +/- semitones to step
+   @param inc +/- semitones to transpose
    @return Note
    */
-  public Note step(int inc) {
+  public Note transpose(int inc) {
     Step step = pitchClass.step(inc);
     return this.copy()
-      .setPitchClass(step.getPitchClass())
-      .setOctave(octave + step.getDeltaOctave());
+      .setOctave(octave + step.getDeltaOctave())
+      .setPitchClass(step.getPitchClass());
   }
 
   /**
@@ -83,12 +91,8 @@ public class Note {
    */
   private Note copy() {
     return new Note()
-      .setCode(code)
-      .setDuration(duration)
       .setOctave(octave)
-      .setPerformer(performer)
-      .setPitchClass(pitchClass)
-      .setPosition(position);
+      .setPitchClass(pitchClass);
   }
 
   public PitchClass getPitchClass() {
@@ -109,39 +113,66 @@ public class Note {
     return this;
   }
 
-  public String getPerformer() {
-    return performer;
+  /**
+   Copy of this note, conformed to one of the pitch classes in the given Chord
+
+   @param chord to conform note to
+   @return conformed note
+   */
+  public Note conformedTo(Chord chord) {
+    PitchClass foundPitchClass = this.getPitchClass();
+    Integer foundDelta = null;
+
+    // for all pitch classes in chord, if it's closer, or no match has yet been found, then use it
+    for (PitchClass pitchClass : chord.getPitchClasses().values()) {
+      int d = Math.abs(this.getPitchClass().delta(pitchClass));
+      if (Objects.isNull(foundDelta) ||
+        d < foundDelta) {
+        foundDelta = d;
+        foundPitchClass = pitchClass;
+      }
+    }
+
+    return this.copy()
+      .setPitchClass(foundPitchClass);
   }
 
-  public Note setPerformer(String performer) {
-    this.performer = performer;
-    return this;
+  /**
+   Delta +/- semitones from this Note to another Note
+
+   @param target note to get delta to
+   @return delta +/- semitones
+   */
+  public Integer delta(Note target) {
+    if (this.sameAs(target))
+      return 0;
+
+    int delta = 0;
+    Note noteUp = copy();
+    Note noteDown = copy();
+    while (delta < MAX_DELTA_SEMITONES) {
+      delta++;
+
+      noteUp = noteUp.transpose(1);
+      if (noteUp.sameAs(target))
+        return delta;
+
+      noteDown = noteDown.transpose(-1);
+      if (noteDown.sameAs(target))
+        return -delta;
+    }
+    return 0;
   }
 
-  public Double getPosition() {
-    return position;
+  /**
+   Is this note the same pitch class and octave as another note?
+
+   @param target note to compare to
+   @return true if same pitch class and octave
+   */
+  boolean sameAs(Note target) {
+    return this.octave.equals(target.octave) && this.pitchClass.equals(target.pitchClass);
   }
 
-  public Note setPosition(Double position) {
-    this.position = position;
-    return this;
-  }
 
-  public Double getDuration() {
-    return duration;
-  }
-
-  public Note setDuration(Double duration) {
-    this.duration = duration;
-    return this;
-  }
-
-  public String getCode() {
-    return code;
-  }
-
-  public Note setCode(String code) {
-    this.code = code;
-    return this;
-  }
 }

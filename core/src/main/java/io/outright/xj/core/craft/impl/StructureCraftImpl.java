@@ -11,9 +11,8 @@ import io.outright.xj.core.model.choice.Chance;
 import io.outright.xj.core.model.choice.Choice;
 import io.outright.xj.core.model.choice.Chooser;
 import io.outright.xj.core.model.idea.Idea;
-import io.outright.xj.core.model.link.LinkChoice;
-import io.outright.xj.core.model.meme.Meme;
-import io.outright.xj.core.model.meme.MemeIsometry;
+import io.outright.xj.core.model.MemeEntity;
+import io.outright.xj.core.isometry.MemeIsometry;
 import io.outright.xj.core.tables.records.PhaseRecord;
 import io.outright.xj.core.util.Value;
 import io.outright.xj.music.Key;
@@ -97,7 +96,7 @@ public class StructureCraftImpl implements StructureCraft {
       switch (basis.type()) {
 
         case Continue:
-          LinkChoice previousChoice = basis.previousRhythmChoice();
+          Choice previousChoice = basis.previousRhythmChoice();
           if (Objects.isNull(previousChoice))
             throw new BusinessException("No rhythm-type idea chosen in previous link!");
           _rhythmIdea = basis.idea(previousChoice.getIdeaId());
@@ -106,7 +105,7 @@ public class StructureCraftImpl implements StructureCraft {
         case Initial:
         case NextMain:
         case NextMacro:
-          _rhythmIdea = chooseRhythm(basis.chainId(), basis.currentMacroChoice(), basis.currentMainChoice());
+          _rhythmIdea = chooseRhythm();
       }
 
     return _rhythmIdea;
@@ -166,15 +165,12 @@ public class StructureCraftImpl implements StructureCraft {
   /**
    Choose rhythm idea
 
-   @param chainId     chain to choose idea for
-   @param macroChoice macro idea chosen
-   @param mainChoice  macro idea chosen
    @return rhythm-type Idea
    @throws Exception on failure
    <p>
    TODO: actually choose rhythm idea
    */
-  private Idea chooseRhythm(ULong chainId, LinkChoice macroChoice, LinkChoice mainChoice) throws Exception {
+  private Idea chooseRhythm() throws Exception {
     Result<? extends Record> sourceRecords;
     Chooser<Idea> chooser = new Chooser<>();
 
@@ -184,17 +180,17 @@ public class StructureCraftImpl implements StructureCraft {
     MemeIsometry memeIsometry = MemeIsometry.of(basis.linkMemes());
 
     // (2a) retrieve ideas bound directly to chain
-    sourceRecords = ideaDAO.readAllBoundToChain(Access.internal(), chainId, Idea.RHYTHM);
+    sourceRecords = ideaDAO.readAllBoundToChain(Access.internal(), basis.chainId(), Idea.RHYTHM);
 
     // (2b) only if none were found in the previous step, retrieve ideas bound to chain library
     if (sourceRecords.size() == 0)
-      sourceRecords = ideaDAO.readAllBoundToChainLibrary(Access.internal(), chainId, Idea.RHYTHM);
+      sourceRecords = ideaDAO.readAllBoundToChainLibrary(Access.internal(), basis.chainId(), Idea.RHYTHM);
 
     // (3) score each source record based on meme isometry
     sourceRecords.forEach((record ->
       chooser.add(new Idea().setFromRecord(record),
         Chance.normallyAround(
-          memeIsometry.scoreCSV(String.valueOf(record.get(Meme.KEY_MANY))),
+          memeIsometry.scoreCSV(String.valueOf(record.get(MemeEntity.KEY_MANY))),
           0.5))));
 
     // (3b) Avoid previous rhythm idea

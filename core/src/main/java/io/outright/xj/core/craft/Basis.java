@@ -1,20 +1,29 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 package io.outright.xj.core.craft;
 
+import io.outright.xj.core.model.arrangement.Arrangement;
+import io.outright.xj.core.model.audio.Audio;
+import io.outright.xj.core.model.audio_event.AudioEvent;
+import io.outright.xj.core.model.choice.Choice;
+import io.outright.xj.core.model.ChordEntity;
 import io.outright.xj.core.model.idea.Idea;
 import io.outright.xj.core.model.link.Link;
-import io.outright.xj.core.model.link.LinkChoice;
+import io.outright.xj.core.model.link_chord.LinkChord;
 import io.outright.xj.core.model.link_meme.LinkMeme;
-import io.outright.xj.core.model.meme.Meme;
 import io.outright.xj.core.tables.records.IdeaMemeRecord;
 import io.outright.xj.core.tables.records.PhaseMemeRecord;
 import io.outright.xj.core.tables.records.PhaseRecord;
+import io.outright.xj.core.tables.records.VoiceEventRecord;
+import io.outright.xj.core.tables.records.VoiceRecord;
+import io.outright.xj.music.Chord;
+import io.outright.xj.music.Note;
 
 import org.jooq.Result;
 import org.jooq.types.ULong;
 
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Map;
 
 public interface Basis {
 
@@ -84,7 +93,7 @@ public interface Basis {
    @return macro-type link choice
    @throws Exception on failure
    */
-  LinkChoice previousMacroChoice() throws Exception;
+  Choice previousMacroChoice() throws Exception;
 
   /**
    fetch the main-type choice for the previous link in the chain
@@ -92,7 +101,7 @@ public interface Basis {
    @return main-type link choice
    @throws Exception on failure
    */
-  LinkChoice previousMainChoice() throws Exception;
+  Choice previousMainChoice() throws Exception;
 
   /**
    fetch the rhythm-type choice for the previous link in the chain
@@ -100,7 +109,14 @@ public interface Basis {
    @return rhythm-type link choice
    @throws Exception on failure
    */
-  LinkChoice previousRhythmChoice() throws Exception;
+  Choice previousRhythmChoice() throws Exception;
+
+  /**
+   fetch all arrangements for the previous percussive choice
+   @return arrangements
+   @throws Exception on failure
+   */
+  List<Arrangement> previousPercussiveArrangements() throws Exception;
 
   /**
    fetch the macro-type choice for the current link in the chain
@@ -108,7 +124,7 @@ public interface Basis {
    @return macro-type link choice
    @throws Exception on failure
    */
-  LinkChoice currentMacroChoice() throws Exception;
+  Choice currentMacroChoice() throws Exception;
 
   /**
    fetch the main-type choice for the current link in the chain
@@ -116,7 +132,7 @@ public interface Basis {
    @return main-type link choice
    @throws Exception on failure
    */
-  LinkChoice currentMainChoice() throws Exception;
+  Choice currentMainChoice() throws Exception;
 
   /**
    fetch the rhythm-type choice for the current link in the chain
@@ -124,7 +140,7 @@ public interface Basis {
    @return rhythm-type link choice
    @throws Exception on failure
    */
-  LinkChoice currentRhythmChoice() throws Exception;
+  Choice currentRhythmChoice() throws Exception;
 
 
   /**
@@ -146,6 +162,45 @@ public interface Basis {
   PhaseRecord previousMacroNextPhase() throws Exception;
 
   /**
+   fetch all arrangements of a choice
+   (caches results)
+
+   @param choiceId to fetch arrangements for
+   @return arrangements
+   @throws Exception on failure
+   */
+  List<Arrangement> choiceArrangements(ULong choiceId) throws Exception;
+
+  /**
+   Get current Chord for any position in Link.
+   Defaults to returning a chord based on the link key, if nothing else is found
+
+   @return Chord
+    @param position in link
+   */
+  Chord chordAt(double position) throws Exception;
+
+  /**
+   Pitch for any Note, in Hz
+
+   [#255] Note pitch is calculated at 32-bit floating point precision, based on root note configured in environment parameters.
+
+   @param note to get pitch for
+   @return pitch of note, in Hz
+   */
+  Double pitch(Note note);
+
+  /**
+   Calculate the position in seconds from the beginning of the link, for any position given in beats.
+
+   [#256] Velocity of Link meter (beats per minute) increases linearly from the beginning of the Link (at the previous Link's tempo) to the end of the Link (arriving at the current Link's tempo, only at its end)
+
+   @param position in beats
+   @return position in seconds
+   */
+  Double secondsAtPosition(double position) throws Exception;
+
+  /**
    Fetch all memes for a given idea
    (caches results)
 
@@ -154,6 +209,41 @@ public interface Basis {
    */
   Result<IdeaMemeRecord> ideaMemes(ULong ideaId) throws Exception;
 
+
+  /**
+   Fetch all events for a given voice
+   (caches results)
+
+   @return result of voice events
+   @throws Exception on failure
+   */
+  Result<VoiceEventRecord> voiceEvents(ULong voiceId) throws Exception;
+
+  /**
+   Read all AudioEvent that are first in an audio, for all audio in an Instrument
+
+   @return audio events
+   @throws Exception on failure
+    @param instrumentId to get audio for
+   */
+  List<AudioEvent> instrumentAudioEvents(ULong instrumentId) throws Exception;
+
+  /**
+   Read all Audio for an instrument
+   @param instrumentId to get audio for
+   @return audios for instrument
+   */
+  List<Audio> instrumentAudios(ULong instrumentId) throws Exception;
+
+  /**
+   Fetch all chords for the current link
+   (caches results)
+
+   @return link chords
+   @throws Exception on failure
+   */
+  List<LinkChord> linkChords() throws Exception;
+
   /**
    Fetch all memes for the current link
    (caches results)
@@ -161,7 +251,7 @@ public interface Basis {
    @return link memes
    @throws Exception on failure
    */
-  List<Meme> linkMemes() throws Exception;
+  List<LinkMeme> linkMemes() throws Exception;
 
   /**
    Create a LinkMeme entity by link id and name
@@ -206,7 +296,16 @@ public interface Basis {
    @return choice record
    @throws Exception on failure
    */
-  LinkChoice linkChoiceByType(ULong linkId, String type) throws Exception;
+  Choice linkChoiceByType(ULong linkId, String type) throws Exception;
+
+  /**
+   Fetch voices for a phase by id
+   (caches results)
+
+   @param phaseId to fetch voices for
+   @return voices
+   */
+  Result<VoiceRecord> voices(ULong phaseId) throws Exception;
 
   /**
    Fetch an idea by idea

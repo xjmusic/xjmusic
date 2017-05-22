@@ -6,6 +6,8 @@ import io.outright.xj.core.model.choice.Chooser;
 
 import org.jooq.types.ULong;
 
+import com.google.common.collect.ImmutableList;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -66,6 +68,17 @@ public class ChooserTest {
   }
 
   @Test
+  public void addAll() throws Exception {
+    Chooser<Idea> result = new Chooser<>();
+    result.addAll(
+      ImmutableList.of(ideaB,ideaC,ideaD));
+
+    assert chooser.getAll().contains(ideaB);
+    assert chooser.getAll().contains(ideaC);
+    assert chooser.getAll().contains(ideaD);
+  }
+
+  @Test
   public void addWithScore() throws Exception {
     chooser.add(ideaE, 2.0);
 
@@ -119,6 +132,15 @@ public class ChooserTest {
       chooser.getAll().toArray()
     );
   }
+
+  @Test
+  public void score_adjustExisting() throws Exception {
+    chooser.score(ideaC, 2.0);
+
+    HashMap<ULong, Double> result = chooser.getScores();
+    assertEquals(Double.valueOf(2.25), result.get(ULong.valueOf(12)));
+  }
+
 
   @Test
   public void getScores() throws Exception {

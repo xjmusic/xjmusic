@@ -8,11 +8,14 @@ import io.outright.xj.core.dao.InstrumentDAO;
 import io.outright.xj.core.db.sql.SQLConnection;
 import io.outright.xj.core.db.sql.SQLDatabaseProvider;
 import io.outright.xj.core.model.instrument.Instrument;
+import io.outright.xj.core.model.MemeEntity;
 import io.outright.xj.core.tables.records.InstrumentRecord;
 
 import org.jooq.DSLContext;
 import org.jooq.Field;
+import org.jooq.Record;
 import org.jooq.Result;
+import org.jooq.SelectSelectStep;
 import org.jooq.types.ULong;
 
 import com.google.inject.Inject;
@@ -22,9 +25,12 @@ import java.sql.SQLException;
 import java.util.Map;
 
 import static io.outright.xj.core.Tables.AUDIO;
+import static io.outright.xj.core.Tables.CHAIN_INSTRUMENT;
 import static io.outright.xj.core.Tables.INSTRUMENT;
 import static io.outright.xj.core.Tables.INSTRUMENT_MEME;
 import static io.outright.xj.core.Tables.LIBRARY;
+import static io.outright.xj.core.tables.ChainLibrary.CHAIN_LIBRARY;
+import static org.jooq.impl.DSL.groupConcat;
 
 public class InstrumentDAOImpl extends DAOImpl implements InstrumentDAO {
 
@@ -73,6 +79,26 @@ public class InstrumentDAOImpl extends DAOImpl implements InstrumentDAO {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readAllInLibrary(tx.getContext(), access, libraryId));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public Result<? extends Record> readAllBoundToChain(Access access, ULong chainId, String instrumentType) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readAllBoundToChain(tx.getContext(), access, chainId, instrumentType));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public Result<? extends Record> readAllBoundToChainLibrary(Access access, ULong chainId, String instrumentType) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readAllBoundToChainLibrary(tx.getContext(), access, chainId, instrumentType));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -201,6 +227,46 @@ public class InstrumentDAOImpl extends DAOImpl implements InstrumentDAO {
   }
 
   /**
+   Read all instrument records bound to a Chain via ChainInstrument records
+
+   @param db      context
+   @param access  control
+   @param chainId of parent
+   @return array of records
+   */
+  private Result<? extends Record> readAllBoundToChain(DSLContext db, Access access, ULong chainId, String instrumentType) throws Exception {
+    requireTopLevel(access);
+    return selectInstrumentAndMemes(db)
+      .from(INSTRUMENT_MEME)
+      .join(CHAIN_INSTRUMENT).on(CHAIN_INSTRUMENT.INSTRUMENT_ID.eq(INSTRUMENT_MEME.INSTRUMENT_ID))
+      .join(INSTRUMENT).on(INSTRUMENT.ID.eq(INSTRUMENT_MEME.INSTRUMENT_ID))
+      .where(CHAIN_INSTRUMENT.CHAIN_ID.eq(chainId))
+      .and(INSTRUMENT.TYPE.eq(instrumentType))
+      .groupBy(INSTRUMENT.ID)
+      .fetch();
+  }
+
+  /**
+   Read all instrument records bound to a Chain via ChainLibrary records
+
+   @param db      context
+   @param access  control
+   @param chainId of parent
+   @return array of records
+   */
+  private Result<? extends Record> readAllBoundToChainLibrary(DSLContext db, Access access, ULong chainId, String instrumentType) throws Exception {
+    requireTopLevel(access);
+    return selectInstrumentAndMemes(db)
+      .from(INSTRUMENT_MEME)
+      .join(INSTRUMENT).on(INSTRUMENT.ID.eq(INSTRUMENT_MEME.INSTRUMENT_ID))
+      .join(CHAIN_LIBRARY).on(CHAIN_LIBRARY.LIBRARY_ID.eq(INSTRUMENT.LIBRARY_ID))
+      .where(CHAIN_LIBRARY.CHAIN_ID.eq(chainId))
+      .and(INSTRUMENT.TYPE.eq(instrumentType))
+      .groupBy(INSTRUMENT.ID)
+      .fetch();
+  }
+
+  /**
    Update a record
 
    @param db     context
@@ -275,5 +341,27 @@ public class InstrumentDAOImpl extends DAOImpl implements InstrumentDAO {
       )
       .execute();
   }
+
+  /**
+   This is used to select many Instrument records
+   with a virtual column containing a CSV of its meme names
+
+   @param db context
+   @return jOOQ select step
+   */
+  private SelectSelectStep<?> selectInstrumentAndMemes(DSLContext db) {
+    return db.select(
+      INSTRUMENT.ID,
+      INSTRUMENT.DENSITY,
+      INSTRUMENT.DESCRIPTION,
+      INSTRUMENT.USER_ID,
+      INSTRUMENT.LIBRARY_ID,
+      INSTRUMENT.TYPE,
+      INSTRUMENT.CREATED_AT,
+      INSTRUMENT.UPDATED_AT,
+      groupConcat(INSTRUMENT_MEME.NAME, ",").as(MemeEntity.KEY_MANY)
+    );
+  }
+
 
 }

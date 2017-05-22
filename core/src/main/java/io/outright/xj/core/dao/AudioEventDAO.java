@@ -2,6 +2,8 @@
 package io.outright.xj.core.dao;
 
 import io.outright.xj.core.app.access.impl.Access;
+import io.outright.xj.core.app.exception.DatabaseException;
+import io.outright.xj.core.model.audio.Audio;
 import io.outright.xj.core.model.audio_event.AudioEvent;
 import io.outright.xj.core.tables.records.AudioEventRecord;
 
@@ -9,6 +11,7 @@ import org.jooq.Result;
 import org.jooq.types.ULong;
 
 import javax.annotation.Nullable;
+import java.util.List;
 
 public interface AudioEventDAO {
 
@@ -41,6 +44,16 @@ public interface AudioEventDAO {
    @throws Exception on failure
    */
   Result<AudioEventRecord> readAll(Access access, ULong audioId) throws Exception;
+
+  /**
+   Read all AudioEvent that are first in an audio, for all audio in an Instrument
+   for each audio id, the first (in terms of position) AudioEvent
+
+   @return audios
+    @param access       control
+   @param instrumentId to fetch audio for
+   */
+  List<AudioEvent> readAllFirstEventsForInstrument(Access access, ULong instrumentId) throws Exception;
 
   /**
    Update a specified Audio Event if accessible

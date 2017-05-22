@@ -8,7 +8,7 @@ import io.outright.xj.core.dao.IdeaDAO;
 import io.outright.xj.core.db.sql.SQLConnection;
 import io.outright.xj.core.db.sql.SQLDatabaseProvider;
 import io.outright.xj.core.model.idea.Idea;
-import io.outright.xj.core.model.meme.Meme;
+import io.outright.xj.core.model.MemeEntity;
 import io.outright.xj.core.tables.records.IdeaRecord;
 
 import org.jooq.DSLContext;
@@ -75,20 +75,20 @@ public class IdeaDAOImpl extends DAOImpl implements IdeaDAO {
   }
 
   @Override
-  public Result<? extends Record> readAllBoundToChain(Access access, ULong accountId, String ideaType) throws Exception {
+  public Result<? extends Record> readAllBoundToChain(Access access, ULong chainId, String ideaType) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readAllBoundToChain(tx.getContext(), access, accountId, ideaType));
+      return tx.success(readAllBoundToChain(tx.getContext(), access, chainId, ideaType));
     } catch (Exception e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public Result<? extends Record> readAllBoundToChainLibrary(Access access, ULong accountId, String ideaType) throws Exception {
+  public Result<? extends Record> readAllBoundToChainLibrary(Access access, ULong chainId, String ideaType) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readAllBoundToChainLibrary(tx.getContext(), access, accountId, ideaType));
+      return tx.success(readAllBoundToChainLibrary(tx.getContext(), access, chainId, ideaType));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -402,7 +402,7 @@ public class IdeaDAOImpl extends DAOImpl implements IdeaDAO {
       IDEA.TYPE,
       IDEA.CREATED_AT,
       IDEA.UPDATED_AT,
-      groupConcat(IDEA_MEME.NAME, ",").as(Meme.KEY_MANY)
+      groupConcat(IDEA_MEME.NAME, ",").as(MemeEntity.KEY_MANY)
     );
   }
 

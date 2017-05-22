@@ -15,11 +15,10 @@ import io.outright.xj.core.model.choice.Chance;
 import io.outright.xj.core.model.choice.Choice;
 import io.outright.xj.core.model.choice.Chooser;
 import io.outright.xj.core.model.idea.Idea;
-import io.outright.xj.core.model.link.LinkChoice;
 import io.outright.xj.core.model.link_chord.LinkChord;
 import io.outright.xj.core.model.link_meme.LinkMeme;
-import io.outright.xj.core.model.meme.Meme;
-import io.outright.xj.core.model.meme.MemeIsometry;
+import io.outright.xj.core.model.MemeEntity;
+import io.outright.xj.core.isometry.MemeIsometry;
 import io.outright.xj.core.tables.records.PhaseRecord;
 import io.outright.xj.core.util.Value;
 import io.outright.xj.music.BPM;
@@ -199,20 +198,19 @@ public class FoundationCraftImpl implements FoundationCraft {
       switch (basis.type()) {
 
         case Initial:
-          _macroIdea = chooseMacro(basis.chainId(), null);
+          _macroIdea = chooseMacro();
           break;
 
         case Continue:
         case NextMain:
-          LinkChoice previousChoice = basis.previousMacroChoice();
+          Choice previousChoice = basis.previousMacroChoice();
           if (Objects.isNull(previousChoice))
             throw new BusinessException("No macro-type idea chosen in previous link!");
           _macroIdea = basis.idea(previousChoice.getIdeaId());
           break;
 
         case NextMacro:
-          _macroIdea = chooseMacro(basis.chainId(),
-            basis.previousMacroPhase().getKey());
+          _macroIdea = chooseMacro();
       }
     return _macroIdea;
   }
@@ -227,7 +225,7 @@ public class FoundationCraftImpl implements FoundationCraft {
       switch (basis.type()) {
 
         case Continue:
-          LinkChoice previousChoice = basis.previousMainChoice();
+          Choice previousChoice = basis.previousMainChoice();
           if (Objects.isNull(previousChoice))
             throw new BusinessException("No main-type idea chosen in previous link!");
           _mainIdea = basis.idea(previousChoice.getIdeaId());
@@ -236,7 +234,7 @@ public class FoundationCraftImpl implements FoundationCraft {
         case Initial:
         case NextMain:
         case NextMacro:
-          _mainIdea = chooseMain(basis.chainId(), macroIdea());
+          _mainIdea = chooseMain();
       }
 
 
@@ -368,21 +366,20 @@ public class FoundationCraftImpl implements FoundationCraft {
   /**
    Choose macro idea
 
-   @param chainId chain to choose macro for
-   @param key     to match the mode of, major or minor
    @return macro-type idea
    @throws Exception on failure
    */
-  private Idea chooseMacro(ULong chainId, String key) throws Exception {
+  private Idea chooseMacro() throws Exception {
     Result<? extends Record> sourceRecords;
     Chooser<Idea> chooser = new Chooser<>();
+    String key = basis.isInitialLink() ? null : basis.previousMacroPhase().getKey();
 
     // (1a) retrieve ideas bound directly to chain
-    sourceRecords = ideaDAO.readAllBoundToChain(Access.internal(), chainId, Idea.MACRO);
+    sourceRecords = ideaDAO.readAllBoundToChain(Access.internal(), basis.chainId(), Idea.MACRO);
 
-    // (1b) only if none were found in the previous step, retrieve ideas bound to chain library
+    // (1b) only if none were found in the previous transpose, retrieve ideas bound to chain library
     if (sourceRecords.size() == 0)
-      sourceRecords = ideaDAO.readAllBoundToChainLibrary(Access.internal(), chainId, Idea.MACRO);
+      sourceRecords = ideaDAO.readAllBoundToChainLibrary(Access.internal(), basis.chainId(), Idea.MACRO);
 
     // (2) score each source record
     sourceRecords.forEach((record ->
@@ -409,34 +406,32 @@ public class FoundationCraftImpl implements FoundationCraft {
   /**
    Choose main idea
 
-   @param chainId   chain to choose idea for
-   @param macroIdea macro idea chosen
    @return main-type Idea
    @throws Exception on failure
    <p>
    TODO don't we need to pass in the current phase of the macro idea?
    */
-  private Idea chooseMain(ULong chainId, Idea macroIdea) throws Exception {
+  private Idea chooseMain() throws Exception {
     Result<? extends Record> sourceRecords;
     Chooser<Idea> chooser = new Chooser<>();
 
     // TODO: only choose major ideas for major keys, minor for minor! [#223] Key of first Phase of chosen Main-Idea must match the `minor` or `major` with the Key of the current Link.
 
     // (1) retrieve memes of macro idea, for use as a meme isometry comparison
-    MemeIsometry memeIsometry = MemeIsometry.of(ideaMemeDAO.readAll(Access.internal(), macroIdea.getId()));
+    MemeIsometry memeIsometry = MemeIsometry.of(ideaMemeDAO.readAll(Access.internal(), macroIdea().getId()));
 
     // (2a) retrieve ideas bound directly to chain
-    sourceRecords = ideaDAO.readAllBoundToChain(Access.internal(), chainId, Idea.MAIN);
+    sourceRecords = ideaDAO.readAllBoundToChain(Access.internal(), basis.chainId(), Idea.MAIN);
 
-    // (2b) only if none were found in the previous step, retrieve ideas bound to chain library
+    // (2b) only if none were found in the previous transpose, retrieve ideas bound to chain library
     if (sourceRecords.size() == 0)
-      sourceRecords = ideaDAO.readAllBoundToChainLibrary(Access.internal(), chainId, Idea.MAIN);
+      sourceRecords = ideaDAO.readAllBoundToChainLibrary(Access.internal(), basis.chainId(), Idea.MAIN);
 
     // (3) score each source record based on meme isometry
     sourceRecords.forEach((record ->
       chooser.add(new Idea().setFromRecord(record),
         Chance.normallyAround(
-          memeIsometry.scoreCSV(String.valueOf(record.get(Meme.KEY_MANY))),
+          memeIsometry.scoreCSV(String.valueOf(record.get(MemeEntity.KEY_MANY))),
           0.5))));
 
     // (3b) Avoid previous main idea

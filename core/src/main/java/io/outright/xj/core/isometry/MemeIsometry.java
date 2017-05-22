@@ -1,6 +1,8 @@
 // Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
-package io.outright.xj.core.model.meme;
+package io.outright.xj.core.isometry;
 
+import io.outright.xj.core.model.MemeEntity;
+import io.outright.xj.core.model.link_meme.LinkMeme;
 import io.outright.xj.core.transport.CSV;
 
 import org.jooq.Record;
@@ -26,7 +28,7 @@ public class MemeIsometry {
 
    @param sourceMemes source group of memes
    */
-  private MemeIsometry(List<Meme> sourceMemes) {
+  private MemeIsometry(List<? extends MemeEntity> sourceMemes) {
     sourceStems = Lists.newArrayList();
     sourceMemes.forEach(meme ->
       sourceStems.add(stem(meme.getName())));
@@ -38,7 +40,7 @@ public class MemeIsometry {
    @param sourceMemes to compare from
    @return MemeIsometry ready for comparison to target Memes
    */
-  public static MemeIsometry of(List<Meme> sourceMemes) {
+  public static MemeIsometry of(List<? extends MemeEntity> sourceMemes) {
     return new MemeIsometry(sourceMemes);
   }
 
@@ -50,10 +52,11 @@ public class MemeIsometry {
    @return MemeIsometry ready for comparison to target Memes
    */
   public static <R extends Record> MemeIsometry of(Result<R> sourceMemeRecords) {
-    List<Meme> sourceMemes = Lists.newArrayList();
+    List<MemeEntity> sourceMemes = Lists.newArrayList();
 
+    // use LinkMeme as a generic meme-- we could use any extender of MemeEntity
     sourceMemeRecords.forEach(record -> sourceMemes.add(
-      new GenericMeme().setName(String.valueOf(record.get(FIELD_NAME)))
+      new LinkMeme().setName(String.valueOf(record.get(FIELD_NAME)))
     ));
 
     return new MemeIsometry(sourceMemes);

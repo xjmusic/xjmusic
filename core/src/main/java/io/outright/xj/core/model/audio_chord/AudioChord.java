@@ -2,8 +2,7 @@
 package io.outright.xj.core.model.audio_chord;
 
 import io.outright.xj.core.app.exception.BusinessException;
-import io.outright.xj.core.model.Entity;
-import io.outright.xj.core.model.chord.Chord;
+import io.outright.xj.core.model.ChordEntity;
 
 import org.jooq.Field;
 import org.jooq.Record;
@@ -26,7 +25,7 @@ import static io.outright.xj.core.Tables.AUDIO_CHORD;
 
  NOTE: There can only be ONE of any getter/setter (with the same # of input params)
  */
-public class AudioChord extends Chord {
+public class AudioChord extends ChordEntity {
 
   /**
    For use in maps.

@@ -1,7 +1,9 @@
 // Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
-package io.outright.xj.core.model.meme;
+package io.outright.xj.core.isometry;
 
 import io.outright.xj.core.integration.IntegrationTestService;
+import io.outright.xj.core.isometry.MemeIsometry;
+import io.outright.xj.core.model.MemeEntity;
 import io.outright.xj.core.model.link_meme.LinkMeme;
 import io.outright.xj.core.tables.records.IdeaMemeRecord;
 
@@ -20,18 +22,18 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 public class MemeIsometryTest {
-  private final List<Meme> testMemesA = ImmutableList.of(
+  private final List<MemeEntity> testMemesA = ImmutableList.of(
     new LinkMeme().setLinkId(BigInteger.valueOf(12)).setName("Smooth"),
     new LinkMeme().setLinkId(BigInteger.valueOf(14)).setName("Catlike")
   );
 
-  private final List<Meme> testMemesB = ImmutableList.of(
+  private final List<MemeEntity> testMemesB = ImmutableList.of(
     new LinkMeme().setLinkId(BigInteger.valueOf(8)).setName("Intensity"),
     new LinkMeme().setLinkId(BigInteger.valueOf(21)).setName("Cool"),
     new LinkMeme().setLinkId(BigInteger.valueOf(45)).setName("Dark")
   );
 
-  private final List<Meme> testMemesC = ImmutableList.of(
+  private final List<MemeEntity> testMemesC = ImmutableList.of(
     new LinkMeme().setLinkId(BigInteger.valueOf(57)).setName("Funk"),
     new LinkMeme().setLinkId(BigInteger.valueOf(80)).setName("Hard")
   );

@@ -3,7 +3,6 @@ package io.outright.xj.core.dao;
 
 import io.outright.xj.core.app.access.impl.Access;
 import io.outright.xj.core.model.link.Link;
-import io.outright.xj.core.model.link.LinkChoice;
 import io.outright.xj.core.tables.records.LinkRecord;
 
 import org.jooq.Result;
@@ -54,19 +53,6 @@ public interface LinkDAO {
    */
   @Nullable
   LinkRecord readOneInState(Access access, ULong chainId, String linkState, Timestamp linkBeginBefore) throws Exception;
-
-  /**
-   Read the Choice of given type of Idea for a given Link,
-   including the phase offset, and all eitherOr
-   phase offsets for that Idea.
-
-   @param access     control
-   @param linkOffset link to get choice for
-   @param ideaType   type for choice to get
-   @return record of choice, and eitherOr phase offsets
-   */
-  @Nullable
-  LinkChoice readLinkChoice(Access access, ULong linkOffset, String ideaType) throws Exception;
 
   /**
    Read all Links that are accessible

@@ -25,6 +25,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.math.BigInteger;
+import java.util.List;
 
 import static io.outright.xj.core.Tables.AUDIO_EVENT;
 import static org.junit.Assert.assertEquals;
@@ -187,6 +188,16 @@ public class AudioEventIT {
     assertEquals("KICK", result3.get("inflection"));
     JSONObject result4 = (JSONObject) result.get(3);
     assertEquals("SNARE", result4.get("inflection"));
+  }
+
+  @Test
+  public void readAllFirstEventsForInstrument() throws Exception {
+    List<AudioEvent> result = testDAO.readAllFirstEventsForInstrument(Access.internal(), ULong.valueOf(1));
+
+    assertNotNull(result);
+    assertEquals(1, result.size());
+    AudioEvent result1 = result.get(0);
+    assertEquals("KICK", result1.getInflection());
   }
 
   @Test

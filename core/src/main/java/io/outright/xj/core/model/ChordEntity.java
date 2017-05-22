@@ -1,14 +1,13 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
-package io.outright.xj.core.model.chord;
+package io.outright.xj.core.model;
 
 import io.outright.xj.core.app.exception.BusinessException;
-import io.outright.xj.core.model.Entity;
 
 /**
  This represents common properties of all chords,
  although a Chord only actually exists as a Link Chord, Phase Chord, etc.
  */
-public abstract class Chord extends Entity {
+public abstract class ChordEntity extends Entity {
 
   /**
    For use in maps.
@@ -28,13 +27,13 @@ public abstract class Chord extends Entity {
     return name;
   }
 
-  public abstract Chord setName(String name);
+  public abstract ChordEntity setName(String name);
 
   public Double getPosition() {
     return position;
   }
 
-  public abstract Chord setPosition(Double position);
+  public abstract ChordEntity setPosition(Double position);
 
   @Override
   public void validate() throws BusinessException {
@@ -46,4 +45,7 @@ public abstract class Chord extends Entity {
     }
   }
 
+  public static ChordEntity of(String key) {
+    return null;
+  }
 }

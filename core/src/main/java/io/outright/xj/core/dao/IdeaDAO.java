@@ -49,23 +49,23 @@ public interface IdeaDAO {
    Fetch many idea for one Account by id, if accessible
 
    @param access    control
-   @param accountId to fetch ideas for.
+   @param chainId to fetch ideas for.
    @param ideaType  to fetch
    @return JSONArray of ideas.
    @throws Exception on failure
    */
-  Result<? extends Record> readAllBoundToChain(Access access, ULong accountId, String ideaType) throws Exception;
+  Result<? extends Record> readAllBoundToChain(Access access, ULong chainId, String ideaType) throws Exception;
 
   /**
    Fetch many idea for one Account by id, if accessible
 
    @param access    control
-   @param accountId to fetch ideas for.
+   @param chainId to fetch ideas for.
    @param ideaType  to fetch
    @return JSONArray of ideas.
    @throws Exception on failure
    */
-  Result<? extends Record> readAllBoundToChainLibrary(Access access, ULong accountId, String ideaType) throws Exception;
+  Result<? extends Record> readAllBoundToChainLibrary(Access access, ULong chainId, String ideaType) throws Exception;
 
   /**
    Fetch many idea for one Account by id, if accessible

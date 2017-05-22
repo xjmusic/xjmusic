@@ -7,18 +7,13 @@ import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.integration.IntegrationTestEntity;
 import io.outright.xj.core.integration.IntegrationTestService;
 import io.outright.xj.core.model.chain.Chain;
-import io.outright.xj.core.model.choice.Choice;
-import io.outright.xj.core.model.idea.Idea;
 import io.outright.xj.core.model.link.Link;
-import io.outright.xj.core.model.link.LinkChoice;
-import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.tables.records.LinkRecord;
 import io.outright.xj.core.transport.JSON;
 
 import org.jooq.types.UInteger;
 import org.jooq.types.ULong;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -63,36 +58,6 @@ public class LinkIT {
 
     // Instantiate the test subject
     testDAO = injector.getInstance(LinkDAO.class);
-  }
-
-  private void setUpAdditional() {
-    // John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
-    IntegrationTestEntity.insertUser(2, "john", "john@email.com", "http://pictures.com/john.gif");
-    IntegrationTestEntity.insertUserRole(1, 2, Role.ADMIN);
-
-    // Jenny has a "user" role and belongs to account "bananas"
-    IntegrationTestEntity.insertUser(3, "jenny", "jenny@email.com", "http://pictures.com/jenny.gif");
-    IntegrationTestEntity.insertUserRole(2, 3, Role.USER);
-    IntegrationTestEntity.insertAccountUser(3, 1, 3);
-    // Library "palm tree" has idea "fonds" and idea "nuts"
-    IntegrationTestEntity.insertLibrary(1, 1, "palm tree");
-    IntegrationTestEntity.insertIdea(1, 2, 1, Idea.MAIN, "fonds", 0.342, "C#", 0.286);
-    IntegrationTestEntity.insertIdeaMeme(12, 1, "leafy");
-    IntegrationTestEntity.insertIdeaMeme(14, 1, "smooth");
-    IntegrationTestEntity.insertIdea(2, 2, 1, Idea.RHYTHM, "nuts", 0.342, "C#", 0.286);
-
-    // Library "boat" has idea "helm" and idea "sail"
-    IntegrationTestEntity.insertLibrary(2, 1, "boat");
-    IntegrationTestEntity.insertIdea(3, 3, 2, Idea.MACRO, "helm", 0.342, "C#", 0.286);
-    IntegrationTestEntity.insertIdea(4, 2, 2, Idea.SUPPORT, "sail", 0.342, "C#", 0.286);
-    IntegrationTestEntity.insertPhase(10, 3, 0, 64, "intro", 0.5, "C", 121);
-    IntegrationTestEntity.insertPhase(11, 3, 1, 64, "drop", 0.5, "C", 121);
-    IntegrationTestEntity.insertPhase(12, 3, 2, 64, "break", 0.5, "C", 121);
-
-    // Choices link chain to library & ideas
-    IntegrationTestEntity.insertChoice(1, 1, 3, Choice.MACRO, 1, 7);
-    IntegrationTestEntity.insertChoice(2, 1, 1, Choice.MAIN, 0, 0);
-
   }
 
   @After
@@ -331,21 +296,6 @@ public class LinkIT {
 
     assertNull(result);
   }
-
-  @Test
-  public void readLinkChoiceAndPhases_Macro() throws Exception {
-    setUpAdditional();
-
-    LinkChoice result = testDAO.readLinkChoice(Access.internal(), ULong.valueOf(1), Choice.MACRO);
-
-    assertNotNull(result);
-    assertEquals(ULong.valueOf(3), result.getIdeaId());
-    assertEquals(Choice.MACRO, result.getType());
-    assertEquals(ULong.valueOf(1), result.getPhaseOffset());
-    assertEquals(7, result.getTranspose());
-    assertEquals(ImmutableList.of(ULong.valueOf(0), ULong.valueOf(1), ULong.valueOf(2)), result.getAvailablePhaseOffsets());
-  }
-
 
   @Test
   public void readAll_SeesNothingOutsideOfChain() throws Exception {

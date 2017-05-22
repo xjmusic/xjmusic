@@ -2,7 +2,7 @@
 package io.outright.xj.core.model.audio_event;
 
 import io.outright.xj.core.app.exception.BusinessException;
-import io.outright.xj.core.model.Entity;
+import io.outright.xj.core.model.EventEntity;
 import io.outright.xj.core.util.Text;
 
 import org.jooq.Field;
@@ -26,91 +26,42 @@ import static io.outright.xj.core.Tables.AUDIO_EVENT;
 
  NOTE: There can only be ONE of any getter/setter (with the same # of input params)
  */
-public class AudioEvent extends Entity {
-
-  /**
-   For use in maps.
-   */
+public class AudioEvent extends EventEntity {
   public static final String KEY_ONE = "audioEvent";
   public static final String KEY_MANY = "audioEvents";
-  /**
-   Duration
-   */
-  private Double duration;
-  /**
-   Inflection
-   */
-  private String inflection;
-  /**
-   Note
-   */
-  private String note;
-  /**
-   Position
-   */
-  private Double position;
-  /**
-   Tonality
-   */
-  private Double tonality;
-  /**
-   Velocity
-   */
-  private Double velocity;
-  /**
-   Audio
-   */
   private ULong audioId;
 
-  public Double getDuration() {
-    return duration;
-  }
-
+  @Override
   public AudioEvent setDuration(Double duration) {
     this.duration = duration;
     return this;
   }
 
-  public String getInflection() {
-    return inflection;
-  }
-
+  @Override
   public AudioEvent setInflection(String inflection) {
     this.inflection = Text.UpperSlug(inflection);
     return this;
   }
 
-  public String getNote() {
-    return note;
-  }
-
+  @Override
   public AudioEvent setNote(String note) {
     this.note = Text.Note(note);
     return this;
   }
 
-  public Double getPosition() {
-    return position;
-  }
-
+  @Override
   public AudioEvent setPosition(Double position) {
     this.position = position;
     return this;
   }
 
-  public Double getTonality() {
-    return tonality;
-  }
-
+  @Override
   public AudioEvent setTonality(Double tonality) {
     this.tonality = tonality;
     return this;
   }
 
-  public Double getVelocity() {
-    return velocity;
-  }
-
+  @Override
   public AudioEvent setVelocity(Double velocity) {
     this.velocity = velocity;
     return this;
@@ -127,24 +78,7 @@ public class AudioEvent extends Entity {
 
   @Override
   public void validate() throws BusinessException {
-    if (this.duration == null) {
-      throw new BusinessException("Duration is required.");
-    }
-    if (this.inflection == null || this.inflection.length() == 0) {
-      throw new BusinessException("Inflection is required.");
-    }
-    if (this.note == null || this.note.length() == 0) {
-      throw new BusinessException("Note is required.");
-    }
-    if (this.position == null) {
-      throw new BusinessException("Position is required.");
-    }
-    if (this.tonality == null) {
-      throw new BusinessException("Tonality is required.");
-    }
-    if (this.velocity == null) {
-      throw new BusinessException("Velocity is required.");
-    }
+    super.validate();
     if (this.audioId == null) {
       throw new BusinessException("Audio ID is required.");
     }

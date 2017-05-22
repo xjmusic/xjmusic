@@ -5,6 +5,7 @@ import io.outright.xj.core.app.access.impl.Access;
 import io.outright.xj.core.model.instrument.Instrument;
 import io.outright.xj.core.tables.records.InstrumentRecord;
 
+import org.jooq.Record;
 import org.jooq.Result;
 import org.jooq.types.ULong;
 
@@ -51,6 +52,28 @@ public interface InstrumentDAO {
    @throws Exception on failure
    */
   Result<InstrumentRecord> readAllInLibrary(Access access, ULong libraryId) throws Exception;
+
+  /**
+   Fetch many instrument for one Account by id, if accessible
+
+   @param access    control
+   @param chainId to fetch instruments for.
+   @param instrumentType  to fetch
+   @return JSONArray of instruments.
+   @throws Exception on failure
+   */
+  Result<? extends Record> readAllBoundToChain(Access access, ULong chainId, String instrumentType) throws Exception;
+
+  /**
+   Fetch many instrument for one Account by id, if accessible
+
+   @param access    control
+   @param chainId to fetch instruments for.
+   @param instrumentType  to fetch
+   @return JSONArray of instruments.
+   @throws Exception on failure
+   */
+  Result<? extends Record> readAllBoundToChainLibrary(Access access, ULong chainId, String instrumentType) throws Exception;
 
   /**
    (ADMIN ONLY)

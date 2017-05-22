@@ -173,6 +173,7 @@ public class LinkChordDAOImpl extends DAOImpl implements LinkChordDAO {
 
   /**
    Read all records in parent record's parent record by id
+   order by position ascending
 
    @param db     context
    @param access control

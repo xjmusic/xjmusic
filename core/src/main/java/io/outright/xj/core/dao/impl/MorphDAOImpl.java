@@ -40,10 +40,10 @@ public class MorphDAOImpl extends DAOImpl implements MorphDAO {
   }
 
   @Override
-  public MorphRecord createRecord(Access access, Morph entity) throws Exception {
+  public MorphRecord create(Access access, Morph entity) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(createRecord(tx.getContext(), access, entity));
+      return tx.success(create(tx.getContext(), access, entity));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -102,7 +102,7 @@ public class MorphDAOImpl extends DAOImpl implements MorphDAO {
    @return newly readMany record
    @throws BusinessException if a Business Rule is violated
    */
-  private MorphRecord createRecord(DSLContext db, Access access, Morph entity) throws BusinessException {
+  private MorphRecord create(DSLContext db, Access access, Morph entity) throws BusinessException {
     entity.validate();
 
     Map<Field, Object> fieldValues = entity.updatableFieldValueMap();

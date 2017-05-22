@@ -18,6 +18,7 @@ import io.outright.xj.core.transport.JSON;
 import org.jooq.Result;
 import org.jooq.types.ULong;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -160,7 +161,7 @@ public class ChoiceIT {
 
   @Test
   public void readOne_LinkIdea() throws Exception {
-    ChoiceRecord result = testDAO.readOneLinkIdea(Access.internal(),ULong.valueOf(1),ULong.valueOf(2));
+    ChoiceRecord result = testDAO.readOneLinkIdea(Access.internal(), ULong.valueOf(1), ULong.valueOf(2));
 
     assertNotNull(result);
     assertEquals(ULong.valueOf(2), result.getId());
@@ -182,6 +183,26 @@ public class ChoiceIT {
 
     assertNull(result);
   }
+
+  @Test
+  public void readOneLinkType() throws Exception {
+    IntegrationTestEntity.insertIdeaMeme(12, 2, "leafy");
+    IntegrationTestEntity.insertIdeaMeme(14, 2, "smooth");
+
+    IntegrationTestEntity.insertPhase(10, 2, 0, 64, "intro", 0.5, "C", 121);
+    IntegrationTestEntity.insertPhase(11, 2, 1, 64, "drop", 0.5, "C", 121);
+    IntegrationTestEntity.insertPhase(12, 2, 2, 64, "break", 0.5, "C", 121);
+
+    Choice result = testDAO.readOneLinkTypeWithAvailablePhaseOffsets(Access.internal(), ULong.valueOf(1), Choice.RHYTHM);
+
+    assertNotNull(result);
+    assertEquals(ULong.valueOf(2), result.getIdeaId());
+    assertEquals(Choice.RHYTHM, result.getType());
+    assertEquals(ULong.valueOf(1), result.getPhaseOffset());
+    assertEquals(Integer.valueOf(2), result.getTranspose());
+    assertEquals(ImmutableList.of(ULong.valueOf(0), ULong.valueOf(1), ULong.valueOf(2)), result.getAvailablePhaseOffsets());
+  }
+
 
   @Test
   public void readAll() throws Exception {

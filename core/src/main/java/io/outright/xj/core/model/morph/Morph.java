@@ -28,27 +28,11 @@ import static io.outright.xj.core.Tables.MORPH;
  */
 public class Morph extends Entity {
 
-
-  /**
-   For use in maps.
-   */
   public static final String KEY_ONE = "morph";
   public static final String KEY_MANY = "morphs";
-  /**
-   Arrangement
-   */
   private ULong arrangementId;
-  /**
-   Position
-   */
   private Double position;
-  /**
-   Note
-   */
   private String note;
-  /**
-   Duration
-   */
   private Double duration;
 
   public ULong getArrangementId() {
@@ -64,6 +48,11 @@ public class Morph extends Entity {
     return position;
   }
 
+  /**
+   position in beats from start of link
+   @param position in beats
+   @return morph
+   */
   public Morph setPosition(Double position) {
     this.position = position;
     return this;
@@ -82,6 +71,11 @@ public class Morph extends Entity {
     return duration;
   }
 
+  /**
+   duration in beats from start of link
+   @param duration in beats
+   @return morph
+   */
   public Morph setDuration(Double duration) {
     this.duration = duration;
     return this;

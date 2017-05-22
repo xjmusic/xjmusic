@@ -1,13 +1,17 @@
 // Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
 package io.outright.xj.music;
 
-import io.outright.xj.music.BPM;
-
 import org.junit.Test;
 
 import static org.junit.Assert.*;
 
 public class BPMTest {
+  @Test
+  public void velocity() throws Exception {
+    assertEquals(1, BPM.velocity(60),0);
+    assertEquals(0.5, BPM.velocity(120),0);
+    assertEquals(0.495, BPM.velocity(121),0.001);
+  }
 
   @Test
   public void beatsNanos() throws Exception {

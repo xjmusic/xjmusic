@@ -179,6 +179,22 @@ public class VoiceIT {
     assertEquals(0, result.length());
   }
 
+  @Test
+  public void readAllForIdeaPhaseOffset() throws Exception {
+    JSONArray result = JSON.arrayOf(testDAO.readAllForIdeaPhaseOffset(Access.internal(), ULong.valueOf(1), ULong.valueOf(0)));
+
+    assertNotNull(result);
+    assertEquals(4, result.length());
+    JSONObject result1 = (JSONObject) result.get(0);
+    assertEquals("This is a percussive voice", result1.get("description"));
+    JSONObject result2 = (JSONObject) result.get(1);
+    assertEquals("This is melodious", result2.get("description"));
+    JSONObject result3 = (JSONObject) result.get(2);
+    assertEquals("This is harmonious", result3.get("description"));
+    JSONObject result4 = (JSONObject) result.get(3);
+    assertEquals("This is a vocal voice", result4.get("description"));
+  }
+
   @Test(expected = BusinessException.class)
   public void update_FailsWithoutPhaseID() throws Exception {
     Access access = new Access(ImmutableMap.of(

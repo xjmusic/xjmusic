@@ -17,7 +17,7 @@ public interface MorphDAO {
    @param entity for the new Morph.
    @return newly readMany Morph record.
    */
-  MorphRecord createRecord(Access access, Morph entity) throws Exception;
+  MorphRecord create(Access access, Morph entity) throws Exception;
 
   /**
    Fetch one Morph by id, if accessible

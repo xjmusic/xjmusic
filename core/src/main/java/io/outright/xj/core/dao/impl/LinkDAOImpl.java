@@ -10,15 +10,12 @@ import io.outright.xj.core.dao.LinkDAO;
 import io.outright.xj.core.db.sql.SQLConnection;
 import io.outright.xj.core.db.sql.SQLDatabaseProvider;
 import io.outright.xj.core.model.link.Link;
-import io.outright.xj.core.model.link.LinkChoice;
 import io.outright.xj.core.tables.records.LinkRecord;
 import io.outright.xj.core.util.Text;
 
 import org.jooq.DSLContext;
 import org.jooq.Field;
-import org.jooq.Record;
 import org.jooq.Result;
-import org.jooq.SelectSelectStep;
 import org.jooq.UpdateSetFirstStep;
 import org.jooq.types.ULong;
 
@@ -30,12 +27,10 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Map;
 
-import static io.outright.xj.core.Tables.PHASE;
 import static io.outright.xj.core.tables.Chain.CHAIN;
 import static io.outright.xj.core.tables.Choice.CHOICE;
 import static io.outright.xj.core.tables.Link.LINK;
 import static io.outright.xj.core.tables.LinkChord.LINK_CHORD;
-import static org.jooq.impl.DSL.groupConcat;
 
 public class LinkDAOImpl extends DAOImpl implements LinkDAO {
 
@@ -84,17 +79,6 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readOneInState(tx.getContext(), access, chainId, linkState, linkBeginBefore));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  @Nullable
-  public LinkChoice readLinkChoice(Access access, ULong linkId, String ideaType) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(LinkChoice.from(readLinkChoice(tx.getContext(), access, linkId, ideaType)));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -227,26 +211,6 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
       .orderBy(LINK.OFFSET.asc())
       .limit(1)
       .fetchOne());
-  }
-
-  /**
-   Read one record
-
-   @param db     context
-   @param access control
-   @param linkId of record
-   @return record
-   */
-  private Record readLinkChoice(DSLContext db, Access access, ULong linkId, String ideaType) throws BusinessException {
-    requireTopLevel(access);
-    return selectLinkChoiceAndPhases(db)
-      .from(PHASE)
-      .join(CHOICE).on(CHOICE.IDEA_ID.eq(PHASE.IDEA_ID))
-      .where(CHOICE.LINK_ID.eq(linkId))
-      .and(CHOICE.TYPE.eq(ideaType))
-      .groupBy(CHOICE.IDEA_ID, CHOICE.PHASE_OFFSET, CHOICE.TRANSPOSE)
-      .limit(1)
-      .fetchOne();
   }
 
   /**
@@ -425,21 +389,5 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
       .execute();
   }
 
-  /**
-   This is used to select many Idea records
-   with a virtual column containing a CSV of its meme names
-
-   @param db context
-   @return jOOQ select step
-   */
-  private SelectSelectStep<?> selectLinkChoiceAndPhases(DSLContext db) {
-    return db.select(
-      CHOICE.IDEA_ID.as(LinkChoice.KEY_IDEA_ID),
-      CHOICE.TYPE.as(LinkChoice.KEY_TYPE),
-      CHOICE.PHASE_OFFSET.as(LinkChoice.KEY_PHASE_OFFSET),
-      CHOICE.TRANSPOSE.as(LinkChoice.KEY_TRANSPOSE),
-      groupConcat(PHASE.OFFSET, ",").as(LinkChoice.KEY_AVAILABLE_PHASE_OFFSETS)
-    );
-  }
 
 }

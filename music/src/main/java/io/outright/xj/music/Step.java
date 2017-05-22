@@ -2,18 +2,15 @@
 package io.outright.xj.music;
 
 /**
+ Represents a
  Step to another pitch class, including optional +/- octave delta
  */
 public class Step {
-  private PitchClass pitchClass;
-  private Integer deltaOctave;
-
-  private Step(PitchClass pitchClass, Integer deltaOctave) {
-    this.pitchClass = pitchClass;
-    this.deltaOctave = deltaOctave;
-  }
+  private final PitchClass pitchClass;
+  private final Integer deltaOctave;
 
   /**
+   Represents a step to a particular pitch class, optionally +/- octave
    Preferred usage:
    <p>
    Step step = Step.to(PitchClass.C, -1);
@@ -26,11 +23,28 @@ public class Step {
     return new Step(pitchClass, deltaOctave);
   }
 
+  /**
+   Pitch Class to step to
+   @return Pitch Class
+   */
   public PitchClass getPitchClass() {
     return pitchClass;
   }
 
+  /**
+   +/- Octave to step to
+   @return +/- octave
+   */
   public Integer getDeltaOctave() {
     return deltaOctave;
   }
+
+  /**
+   Private constructor
+   */
+  private Step(PitchClass pitchClass, Integer deltaOctave) {
+    this.pitchClass = pitchClass;
+    this.deltaOctave = deltaOctave;
+  }
+
 }

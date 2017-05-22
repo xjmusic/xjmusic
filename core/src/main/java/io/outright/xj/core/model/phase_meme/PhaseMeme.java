@@ -2,8 +2,7 @@
 package io.outright.xj.core.model.phase_meme;
 
 import io.outright.xj.core.app.exception.BusinessException;
-import io.outright.xj.core.model.Entity;
-import io.outright.xj.core.model.meme.Meme;
+import io.outright.xj.core.model.MemeEntity;
 import io.outright.xj.core.util.Text;
 
 import org.jooq.Field;
@@ -27,7 +26,7 @@ import static io.outright.xj.core.Tables.PHASE_MEME;
 
  NOTE: There can only be ONE of any getter/setter (with the same # of input params)
  */
-public class PhaseMeme extends Meme {
+public class PhaseMeme extends MemeEntity {
 
   /**
    For use in maps.

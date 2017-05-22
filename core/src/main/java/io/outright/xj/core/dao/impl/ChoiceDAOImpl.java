@@ -13,7 +13,9 @@ import io.outright.xj.core.tables.records.ChoiceRecord;
 
 import org.jooq.DSLContext;
 import org.jooq.Field;
+import org.jooq.Record;
 import org.jooq.Result;
+import org.jooq.SelectOffsetStep;
 import org.jooq.types.ULong;
 
 import com.google.inject.Inject;
@@ -23,9 +25,11 @@ import java.sql.SQLException;
 import java.util.Map;
 
 import static io.outright.xj.core.Tables.CHOICE;
+import static io.outright.xj.core.Tables.PHASE;
 import static io.outright.xj.core.tables.Arrangement.ARRANGEMENT;
 import static io.outright.xj.core.tables.Chain.CHAIN;
 import static io.outright.xj.core.tables.Link.LINK;
+import static org.jooq.impl.DSL.groupConcat;
 
 public class ChoiceDAOImpl extends DAOImpl implements ChoiceDAO {
 
@@ -63,6 +67,17 @@ public class ChoiceDAOImpl extends DAOImpl implements ChoiceDAO {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readOneLinkIdea(tx.getContext(), access, linkId, ideaId));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  @Nullable
+  public Choice readOneLinkTypeWithAvailablePhaseOffsets(Access access, ULong linkId, String ideaType) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(new Choice().setFromRecord(readOneLinkTypeWithAvailablePhaseOffsets(tx.getContext(), access, linkId, ideaType)));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -175,6 +190,37 @@ public class ChoiceDAOImpl extends DAOImpl implements ChoiceDAO {
   }
 
   /**
+   Read one record
+
+   @param db     context
+   @param access control
+   @param linkId of record
+   @return record
+   */
+  private Record readOneLinkTypeWithAvailablePhaseOffsets(DSLContext db, Access access, ULong linkId, String ideaType) throws BusinessException {
+    requireTopLevel(access);
+
+    SelectOffsetStep<?> query = db.select(
+      CHOICE.ID,
+      CHOICE.IDEA_ID,
+      CHOICE.LINK_ID,
+      CHOICE.TYPE,
+      CHOICE.PHASE_OFFSET,
+      CHOICE.TRANSPOSE,
+      groupConcat(PHASE.OFFSET, ",").as(Choice.KEY_AVAILABLE_PHASE_OFFSETS)
+    )
+      .from(PHASE)
+      .join(CHOICE).on(CHOICE.IDEA_ID.eq(PHASE.IDEA_ID))
+      .where(CHOICE.LINK_ID.eq(linkId))
+      .and(CHOICE.TYPE.eq(ideaType))
+      .groupBy(CHOICE.ID, CHOICE.LINK_ID, CHOICE.IDEA_ID, CHOICE.PHASE_OFFSET, CHOICE.TRANSPOSE)
+      .limit(1);
+
+    return query.fetchOne();
+  }
+
+
+  /**
    Read all records in parent by id
 
    @param db     context
@@ -201,8 +247,8 @@ public class ChoiceDAOImpl extends DAOImpl implements ChoiceDAO {
   /**
    Read all records in parent record's parent record by id
 
-   @param db     context
-   @param access control
+   @param db      context
+   @param access  control
    @param chainId id of parent's parent (the chain)
    @return array of records
    */
@@ -283,6 +329,4 @@ public class ChoiceDAOImpl extends DAOImpl implements ChoiceDAO {
       )
       .execute();
   }
-
-
 }

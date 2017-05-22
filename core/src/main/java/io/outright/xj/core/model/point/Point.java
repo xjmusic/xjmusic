@@ -28,30 +28,12 @@ import static io.outright.xj.core.Tables.POINT;
  */
 public class Point extends Entity {
 
-  /**
-   For use in maps.
-   */
   public static final String KEY_ONE = "point";
   public static final String KEY_MANY = "points";
-  /**
-   Morph
-   */
   private ULong morphId;
-  /**
-   VoiceEvent
-   */
   private ULong voiceEventId;
-  /**
-   Position (beats)
-   */
   private Double position;
-  /**
-   Duration (beats)
-   */
   private Double duration;
-  /**
-   Note
-   */
   private String note;
 
   public ULong getMorphId() {
@@ -72,6 +54,10 @@ public class Point extends Entity {
     return this;
   }
 
+  /**
+   Position from start of morph, in beats
+   @return # beats
+   */
   public Double getPosition() {
     return position;
   }
@@ -81,6 +67,10 @@ public class Point extends Entity {
     return this;
   }
 
+  /**
+   Duration from start of this point, in beats
+   @return # beats
+   */
   public Double getDuration() {
     return duration;
   }

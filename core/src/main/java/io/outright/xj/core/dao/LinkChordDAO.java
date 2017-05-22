@@ -35,6 +35,7 @@ public interface LinkChordDAO {
 
   /**
    Fetch all accessible Link Chord for one Link by id
+   Order by position ascending
 
    @param access control
    @param linkId to fetch links for.
@@ -45,6 +46,7 @@ public interface LinkChordDAO {
 
   /**
    Fetch many linkChord for all Links in a Chain by id, if accessible
+   order by position descending, ala other "in chain" results
 
    @param access control
    @param chainId to fetch linkChords for.

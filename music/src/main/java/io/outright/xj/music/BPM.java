@@ -19,4 +19,14 @@ public class BPM {
     return (long) (NANOSECONDS_PER_SECOND * beats * (60 / bpm));
   }
 
+  /**
+   Velocity in seconds-ber-beat for any BPM
+
+   @param bpm to get seconds-per-beat for
+   @return velocity in seconds-per-beat
+   */
+  public static double velocity(double bpm) {
+    return 60 / bpm;
+  }
+
 }

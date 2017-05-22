@@ -91,7 +91,7 @@ public class MorphIT {
       .setNote("G")
       .setDuration(3.75);
 
-    JSONObject result = JSON.objectFromRecord(testDAO.createRecord(access, inputData));
+    JSONObject result = JSON.objectFromRecord(testDAO.create(access, inputData));
 
     assertNotNull(result);
     assertEquals(ULong.valueOf(1), result.get("arrangementId"));
@@ -111,7 +111,7 @@ public class MorphIT {
       .setNote("G")
       .setDuration(3.75);
 
-    testDAO.createRecord(access, inputData);
+    testDAO.create(access, inputData);
   }
 
   @Test(expected = BusinessException.class)
@@ -124,7 +124,7 @@ public class MorphIT {
       .setNote("G")
       .setDuration(3.75);
 
-    testDAO.createRecord(access, inputData);
+    testDAO.create(access, inputData);
   }
 
   @Test(expected = BusinessException.class)
@@ -137,7 +137,7 @@ public class MorphIT {
       .setNote("G")
       .setDuration(3.75);
 
-    testDAO.createRecord(access, inputData);
+    testDAO.create(access, inputData);
   }
 
   @Test

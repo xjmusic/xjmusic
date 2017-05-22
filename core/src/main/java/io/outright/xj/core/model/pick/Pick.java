@@ -26,39 +26,14 @@ import static io.outright.xj.core.Tables.PICK;
  NOTE: There can only be ONE of any getter/setter (with the same # of input params)
  */
 public class Pick extends Entity {
-
-  /**
-   For use in maps.
-   */
   public static final String KEY_ONE = "pick";
   public static final String KEY_MANY = "picks";
-  /**
-   Arrangement
-   */
   private ULong arrangementId;
-  /**
-   Morph
-   */
   private ULong morphId;
-  /**
-   Audio
-   */
   private ULong audioId;
-  /**
-   Start (seconds)
-   */
   private Double start;
-  /**
-   Length (seconds)
-   */
   private Double length;
-  /**
-   Amplitude
-   */
   private Double amplitude;
-  /**
-   Pitch
-   */
   private Double pitch;
 
   public ULong getArrangementId() {
@@ -88,15 +63,24 @@ public class Pick extends Entity {
     return this;
   }
 
+  /**
+   Start position from beginning of link, in Seconds
+   @return seconds
+   */
   public Double getStart() {
     return start;
   }
+
 
   public Pick setStart(Double start) {
     this.start = start;
     return this;
   }
 
+  /**
+   Length from Start position, in Seconds
+   @return seconds
+   */
   public Double getLength() {
     return length;
   }

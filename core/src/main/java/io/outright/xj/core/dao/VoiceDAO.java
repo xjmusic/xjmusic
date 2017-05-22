@@ -33,14 +33,24 @@ public interface VoiceDAO {
   VoiceRecord readOne(Access access, ULong id) throws Exception;
 
   /**
-   Fetch all accessible Voice for one Account by id
+   Fetch all accessible Voice for one phase by id
 
-   @param access control
-   @param ideaId to fetch voices for.
+   @param access  control
+   @param phaseId to fetch voices for.
    @return JSONArray of voices.
    @throws Exception on failure
    */
-  Result<VoiceRecord> readAll(Access access, ULong ideaId) throws Exception;
+  Result<VoiceRecord> readAll(Access access, ULong phaseId) throws Exception;
+
+  /**
+   Fetch all accessible Voice for an idea phase by offset
+
+   @return voices in phase
+    @param access      control
+   @param ideaId      to fetch phase voices for
+   @param phaseOffset offset of phase in idea
+   */
+  Result<VoiceRecord> readAllForIdeaPhaseOffset(Access access, ULong ideaId, ULong phaseOffset) throws Exception;
 
   /**
    Update a specified Voice if accessible
@@ -58,4 +68,5 @@ public interface VoiceDAO {
    @param id     of specific voice to delete.
    */
   void delete(Access access, ULong id) throws Exception;
+
 }

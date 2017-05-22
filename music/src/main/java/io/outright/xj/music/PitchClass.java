@@ -76,8 +76,8 @@ public enum PitchClass {
   /**
    Step up from a particular pitch class
 
-   @param from step to step up from
-   @return step up
+   @param from transpose to transpose up from
+   @return transpose up
    */
   static Step getStepUpOneFrom(PitchClass from) {
     return stepUp.get(from);
@@ -86,8 +86,8 @@ public enum PitchClass {
   /**
    Step down from a particular pitch class
 
-   @param from step to step down from
-   @return step down
+   @param from transpose to transpose down from
+   @return transpose down
    */
   static Step getStepDownOneFrom(PitchClass from) {
     return stepDown.get(from);
@@ -146,7 +146,7 @@ public enum PitchClass {
   /**
    Note stepped +/- semitones to a new Note
 
-   @param inc +/- semitones to step
+   @param inc +/- semitones to transpose
    @return Note
    */
   public Step step(int inc) {
@@ -161,7 +161,7 @@ public enum PitchClass {
   /**
    Note stepped + semitones to a new Note
 
-   @param inc + semitones to step
+   @param inc + semitones to transpose
    @return Note
    */
   private Step stepUp(int inc) {
@@ -178,7 +178,7 @@ public enum PitchClass {
   /**
    Note stepped - semitones to a new Note
 
-   @param inc - semitones to step
+   @param inc - semitones to transpose
    @return Note
    */
   private Step stepDown(int inc) {
@@ -209,8 +209,8 @@ public enum PitchClass {
    @return difference +/- semitones
    */
   public int delta(PitchClass target) {
-    int deltaUp = classDelta(this, target, 1);
-    int deltaDown = classDelta(this, target, -1);
+    int deltaUp = deltaDirectional(this, target, 1);
+    int deltaDown = deltaDirectional(this, target, -1);
     if (Math.abs(deltaUp) < Math.abs(deltaDown))
       return deltaUp;
     else
@@ -225,7 +225,7 @@ public enum PitchClass {
    @param inc  increment, +1 or -1 (else risk infinite loop)
    @return difference +/- semitones
    */
-  private int classDelta(PitchClass from, PitchClass to, int inc) {
+  private static int deltaDirectional(PitchClass from, PitchClass to, int inc) {
     if (from == None)
       return 0;
 

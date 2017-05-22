@@ -69,6 +69,16 @@ public class VoiceDAOImpl extends DAOImpl implements VoiceDAO {
   }
 
   @Override
+  public Result<VoiceRecord> readAllForIdeaPhaseOffset(Access access, ULong ideaId, ULong phaseOffset) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readAllForIdeaPhaseOffset(tx.getContext(), access, ideaId, phaseOffset));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
   public void update(Access access, ULong id, Voice entity) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
@@ -167,6 +177,24 @@ public class VoiceDAOImpl extends DAOImpl implements VoiceDAO {
         .where(VOICE.PHASE_ID.eq(phaseId))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .fetch());
+  }
+
+  /**
+   Fetch all accessible Voice for an idea phase by offset
+
+   @param access      control
+   @param ideaId      to fetch phase voices for
+   @param phaseOffset offset of phase in idea
+   @return voices in phase
+   */
+  private Result<VoiceRecord> readAllForIdeaPhaseOffset(DSLContext db, Access access, ULong ideaId, ULong phaseOffset) throws Exception {
+    requireTopLevel(access);
+    return resultInto(VOICE, db.select(VOICE.fields())
+      .from(VOICE)
+      .join(PHASE).on(PHASE.ID.eq(VOICE.PHASE_ID))
+      .where(PHASE.IDEA_ID.eq(ideaId))
+      .and(PHASE.OFFSET.eq(phaseOffset))
+      .fetch());
   }
 
   /**

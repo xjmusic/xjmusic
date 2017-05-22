@@ -1,14 +1,13 @@
 // Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
-package io.outright.xj.core.model.meme;
+package io.outright.xj.core.model;
 
 import io.outright.xj.core.app.exception.BusinessException;
-import io.outright.xj.core.model.Entity;
 
 /**
  This represents common properties of all memes,
  although a Meme only actually exists as a Link Meme, Idea Meme, etc.
  */
-public abstract class Meme extends Entity {
+public abstract class MemeEntity extends Entity {
   public static final String KEY_ONE = "meme";
   public static final String KEY_MANY = "memes";
 
@@ -18,7 +17,7 @@ public abstract class Meme extends Entity {
 
   protected String name;
 
-  public abstract Meme setName(String name);
+  public abstract MemeEntity setName(String name);
 
   public void validate() throws BusinessException {
     if (this.name == null) {

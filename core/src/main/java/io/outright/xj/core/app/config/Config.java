@@ -135,6 +135,14 @@ public abstract class Config {
     return getOrDefault("access.token.name", "access_token");
   }
 
+  public static String tuningRootNote() {
+    return getOrDefault("tuning.root.note","A4");
+  }
+
+  public static Double tuningRootPitch() {
+    return getDoubleOrDefault("tuning.root.pitch",432.0);
+  }
+
   public static int workConcurrency() {
     return getIntOrDefault("work.concurrency", 10);
   }
@@ -183,9 +191,22 @@ public abstract class Config {
     return Integer.valueOf(value);
   }
 
+  private static Double getDouble(String key) throws ConfigException {
+    String value = get(key);
+    return Double.valueOf(value);
+  }
+
   private static Integer getIntOrDefault(String key, Integer defaultValue) {
     try {
       return getInt(key);
+    } catch (ConfigException e) {
+      return defaultValue;
+    }
+  }
+
+  private static Double getDoubleOrDefault(String key, Double defaultValue) {
+    try {
+      return getDouble(key);
     } catch (ConfigException e) {
       return defaultValue;
     }

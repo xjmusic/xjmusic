@@ -2,7 +2,7 @@
 package io.outright.xj.core.model.voice_event;
 
 import io.outright.xj.core.app.exception.BusinessException;
-import io.outright.xj.core.model.Entity;
+import io.outright.xj.core.model.EventEntity;
 import io.outright.xj.core.util.Text;
 
 import org.jooq.Field;
@@ -20,97 +20,48 @@ import static io.outright.xj.core.Tables.VOICE_EVENT;
 /**
  Entity for use as POJO for decoding messages received by JAX-RS resources
  a.k.a. JSON input will be stored into an instance of this object
-
+ <p>
  Business logic ought to be performed beginning with an instance of this object,
  to implement common methods.
-
+ <p>
  NOTE: There can only be ONE of any getter/setter (with the same # of input params)
  */
-public class VoiceEvent extends Entity {
-
-  /**
-   For use in maps.
-   */
+public class VoiceEvent extends EventEntity {
   public static final String KEY_ONE = "voiceEvent";
   public static final String KEY_MANY = "voiceEvents";
-  /**
-   Duration
-   */
-  private Double duration;
-  /**
-   Inflection
-   */
-  private String inflection;
-  /**
-   Note
-   */
-  private String note;
-  /**
-   Position
-   */
-  private Double position;
-  /**
-   Tonality
-   */
-  private Double tonality;
-  /**
-   Velocity
-   */
-  private Double velocity;
-  /**
-   Voice
-   */
   private ULong voiceId;
 
-  public Double getDuration() {
-    return duration;
-  }
-
+  @Override
   public VoiceEvent setDuration(Double duration) {
     this.duration = duration;
     return this;
   }
 
-  public String getInflection() {
-    return inflection;
-  }
-
+  @Override
   public VoiceEvent setInflection(String inflection) {
     this.inflection = Text.UpperSlug(inflection);
     return this;
   }
 
-  public String getNote() {
-    return note;
-  }
-
+  @Override
   public VoiceEvent setNote(String note) {
     this.note = Text.Note(note);
     return this;
   }
 
-  public Double getPosition() {
-    return position;
-  }
-
+  @Override
   public VoiceEvent setPosition(Double position) {
     this.position = position;
     return this;
   }
 
-  public Double getTonality() {
-    return tonality;
-  }
-
+  @Override
   public VoiceEvent setTonality(Double tonality) {
     this.tonality = tonality;
     return this;
   }
 
-  public Double getVelocity() {
-    return velocity;
-  }
-
+  @Override
   public VoiceEvent setVelocity(Double velocity) {
     this.velocity = velocity;
     return this;
@@ -127,24 +78,7 @@ public class VoiceEvent extends Entity {
 
   @Override
   public void validate() throws BusinessException {
-    if (this.duration == null) {
-      throw new BusinessException("Duration is required.");
-    }
-    if (this.inflection == null || this.inflection.length() == 0) {
-      throw new BusinessException("Inflection is required.");
-    }
-    if (this.note == null || this.note.length() == 0) {
-      throw new BusinessException("Note is required.");
-    }
-    if (this.position == null) {
-      throw new BusinessException("Position is required.");
-    }
-    if (this.tonality == null) {
-      throw new BusinessException("Tonality is required.");
-    }
-    if (this.velocity == null) {
-      throw new BusinessException("Velocity is required.");
-    }
+    super.validate();
     if (this.voiceId == null) {
       throw new BusinessException("Voice ID is required.");
     }
