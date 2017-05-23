@@ -1,7 +1,6 @@
 // Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
 package io.outright.xj.core.external.amazon;
 
-import com.amazonaws.services.ec2.util.S3UploadPolicy;
 import io.outright.xj.core.app.exception.ConfigException;
 
 /**

@@ -1,7 +1,6 @@
 // Copyright Outright Mental, Inc. All Rights Reserved.
 package io.outright.xj.core.dao.impl;
 
-import com.amazonaws.services.ec2.util.S3UploadPolicy;
 import io.outright.xj.core.app.access.impl.Access;
 import io.outright.xj.core.app.config.Exposure;
 import io.outright.xj.core.app.exception.BusinessException;
@@ -10,6 +9,7 @@ import io.outright.xj.core.dao.AudioDAO;
 import io.outright.xj.core.db.sql.SQLConnection;
 import io.outright.xj.core.db.sql.SQLDatabaseProvider;
 import io.outright.xj.core.external.amazon.AmazonProvider;
+import io.outright.xj.core.external.amazon.S3UploadPolicy;
 import io.outright.xj.core.model.audio.Audio;
 import io.outright.xj.core.tables.records.AudioRecord;
 

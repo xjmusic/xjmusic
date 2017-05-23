@@ -154,7 +154,7 @@ public class AudioIT {
     System.setProperty("aws.file.upload.url", "https://manuts.com");
     System.setProperty("aws.file.upload.key", "totally_awesome");
     System.setProperty("aws.file.upload.secret", "much_secret_12345");
-    System.setProperty("aws.file.upload.acl", "ec2-bundle-read");
+    System.setProperty("aws.file.upload.acl", "bucket-owner-full-control");
     System.setProperty("aws.file.upload.expire.minutes", "60");
     System.setProperty("aws.file.upload.bucket", "xj-audio-dev");
 

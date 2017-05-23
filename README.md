@@ -332,11 +332,13 @@ Certain environment variables must be set in order for the correct Upload Policy
     -Daws.file.upload.url=https://xj-audio-ENVIRONMENT.s3.amazonaws.com/
     -Daws.file.upload.key=AKIAKJHFG789JKKS8F73
     -Daws.file.upload.secret=07sh86hsubkuy6ykus/sd06h7fsjkdyfuk897934
-    -Daws.file.upload.acl=ec2-bundle-read
+    -Daws.file.upload.acl=bucket-owner-full-control
     -Daws.file.upload.expire.minutes=60
     -Daws.file.upload.bucket=xj-audio-ENVIRONMENT
       
     -Daudio.url.base=https://audio.ENVIRONMENT.xj.outright.io/
+    
+The file upload ACL `bucket-owner-full-control` affords the administration of uploaded objects by the bucket owner.
 
 # Components
 

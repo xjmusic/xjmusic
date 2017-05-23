@@ -161,7 +161,7 @@ public class CraftWorkerIT {
 
   @Test
   public void craftworkerRun() throws Exception {
-    int testDurationSeconds = 10;
+    int testDurationSeconds = 15;
 
     app.start();
     Thread.sleep(testDurationSeconds * 1000);
