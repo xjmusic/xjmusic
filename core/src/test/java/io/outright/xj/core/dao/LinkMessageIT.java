@@ -51,10 +51,10 @@ public class LinkMessageIT {
     IntegrationTestEntity.insertChain(1, 1, "Test Print #1", Chain.PRODUCTION, Chain.FABRICATING, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null);
 
     // Chain "Test Print #1" has 5 sequential links
-    IntegrationTestEntity.insertLink(1, 1, 0, Link.DUBBED, Timestamp.valueOf("1985-02-14 12:01:00.000001"), Timestamp.valueOf("1985-02-14 12:01:32.000001"), "B major", 64, 0.73, 120);
-    IntegrationTestEntity.insertLink(2, 1, 1, Link.DUBBING, Timestamp.valueOf("1985-02-14 12:01:32.000001"), Timestamp.valueOf("1985-02-14 12:02:04.000001"), "Eb minor", 64, 0.85, 120);
-    IntegrationTestEntity.insertLink(3, 1, 2, Link.CRAFTED, Timestamp.valueOf("1985-02-14 12:02:04.000001"), Timestamp.valueOf("1985-02-14 12:02:36.000001"), "G minor", 64, 0.30, 120);
-    IntegrationTestEntity.insertLink(4, 1, 3, Link.CRAFTING, Timestamp.valueOf("1985-02-14 12:02:36.000001"), Timestamp.valueOf("1985-02-14 12:03:08.000001"), "D major", 64, 0.41, 120);
+    IntegrationTestEntity.insertLink(1, 1, 0, Link.DUBBED, Timestamp.valueOf("1985-02-14 12:01:00.000001"), Timestamp.valueOf("1985-02-14 12:01:32.000001"), "B major", 64, 0.73, 120, "chain-1-link-97898asdf7892.wav");
+    IntegrationTestEntity.insertLink(2, 1, 1, Link.DUBBING, Timestamp.valueOf("1985-02-14 12:01:32.000001"), Timestamp.valueOf("1985-02-14 12:02:04.000001"), "Eb minor", 64, 0.85, 120, "chain-1-link-97898asdf7892.wav");
+    IntegrationTestEntity.insertLink(3, 1, 2, Link.CRAFTED, Timestamp.valueOf("1985-02-14 12:02:04.000001"), Timestamp.valueOf("1985-02-14 12:02:36.000001"), "G minor", 64, 0.30, 120, "chain-1-link-97898asdf7892.wav");
+    IntegrationTestEntity.insertLink(4, 1, 3, Link.CRAFTING, Timestamp.valueOf("1985-02-14 12:02:36.000001"), Timestamp.valueOf("1985-02-14 12:03:08.000001"), "D major", 64, 0.41, 120, "chain-1-link-97898asdf7892.wav");
     IntegrationTestEntity.insertLink_Planned(5, 1, 4, Timestamp.valueOf("1985-02-14 12:03:08.000001"));
 
     // One link already has a message

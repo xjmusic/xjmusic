@@ -12,6 +12,7 @@ import org.json.JSONObject;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Map;
 
 public interface AudioDAO {
 
@@ -47,14 +48,24 @@ public interface AudioDAO {
   JSONObject uploadOne(Access access, ULong id) throws Exception;
 
   /**
-   Fetch all accessible Audio for one Account by id
+   Fetch all accessible Audio for one Instrument by id
 
    @param access       control
    @param instrumentId to fetch audios for.
-   @return JSONArray of audios.
+   @return Result of audio records.
    @throws Exception on failure
    */
   Result<AudioRecord> readAll(Access access, ULong instrumentId) throws Exception;
+
+  /**
+   Fetch all accessible Audio picked for a link
+
+   @param access       control
+   @param linkId to fetch audios picked for.
+   @return Result of audio records.
+   @throws Exception on failure
+   */
+  Result<AudioRecord> readAllPickedForLink(Access access, ULong linkId) throws Exception;
 
   /**
    Update a specified Audio if accessible
@@ -72,4 +83,5 @@ public interface AudioDAO {
    @param id     of specific audio to delete.
    */
   void delete(Access access, ULong id) throws Exception;
+
 }

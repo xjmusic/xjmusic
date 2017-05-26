@@ -4,6 +4,7 @@ package io.outright.xj.mixer.impl;
 import io.outright.xj.mixer.MixerFactory;
 import io.outright.xj.mixer.MixerModule;
 import io.outright.xj.mixer.Mixer;
+import io.outright.xj.mixer.OutputContainer;
 import io.outright.xj.mixer.impl.exception.MixerException;
 import io.outright.xj.mixer.impl.exception.SourceException;
 import io.outright.xj.mixer.impl.resource.InternalResource;
@@ -31,6 +32,7 @@ public class MixerImplTest {
   @Before
   public void setUp() throws Exception {
     testMixer = mixerFactory.createMixer(
+      OutputContainer.WAV,
       new AudioFormat(AudioFormat.Encoding.PCM_FLOAT,
         48000, 32, 2, 8, 48000, false),
       Duration.ofSeconds(60)
@@ -46,6 +48,7 @@ public class MixerImplTest {
   public void Mixer_unsupportedOutputChannel_moreThanStereo() throws Exception {
     try {
       mixerFactory.createMixer(
+        OutputContainer.WAV,
         new AudioFormat(AudioFormat.Encoding.PCM_FLOAT,
           48000, 32, 4, 8, 48000, false),
         Duration.ofSeconds(60)
@@ -61,6 +64,7 @@ public class MixerImplTest {
   public void Mixer_unsupportedOutputChannel_lessThanMono() throws Exception {
     try {
       mixerFactory.createMixer(
+        OutputContainer.WAV,
         new AudioFormat(AudioFormat.Encoding.PCM_FLOAT,
           48000, 32, 0, 8, 48000, false),
         Duration.ofSeconds(60)

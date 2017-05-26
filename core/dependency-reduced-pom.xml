@@ -124,7 +124,7 @@
     </plugins>
   </build>
   <properties>
-    <jersey.version>2.17</jersey.version>
+    <jersey.version>2.25</jersey.version>
     <db.url>jdbc:mysql://localhost:3306/${db.database}</db.url>
     <org.jooq.version>3.8.6</org.jooq.version>
     <db.driver>com.mysql.cj.jdbc.Driver</db.driver>

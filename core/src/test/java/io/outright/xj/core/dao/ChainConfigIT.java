@@ -8,6 +8,7 @@ import io.outright.xj.core.integration.IntegrationTestEntity;
 import io.outright.xj.core.integration.IntegrationTestService;
 import io.outright.xj.core.model.chain.Chain;
 import io.outright.xj.core.model.chain_config.ChainConfig;
+import io.outright.xj.core.model.chain_config.ChainConfigType;
 import io.outright.xj.core.tables.records.ChainConfigRecord;
 import io.outright.xj.core.transport.JSON;
 
@@ -57,11 +58,11 @@ public class ChainConfigIT {
     IntegrationTestEntity.insertLibrary(3, 2, "pajamas");
 
     // Chain "school" has library "buns"
-    IntegrationTestEntity.insertChainConfig(1, 1, ChainConfig.OUTPUT_SAMPLE_BITS, "1");
+    IntegrationTestEntity.insertChainConfig(1, 1, ChainConfigType.OutputSampleBits, "1");
 
     // Chain "bucket" has ideas and instruments
-    IntegrationTestEntity.insertChainConfig(2, 2, ChainConfig.OUTPUT_FRAME_RATE, "1,4,35");
-    IntegrationTestEntity.insertChainConfig(3, 2, ChainConfig.OUTPUT_CHANNELS, "2,83,4");
+    IntegrationTestEntity.insertChainConfig(2, 2, ChainConfigType.OutputFrameRate, "1,4,35");
+    IntegrationTestEntity.insertChainConfig(3, 2, ChainConfigType.OutputChannels, "2,83,4");
 
     // Instantiate the test subject
     testDAO = injector.getInstance(ChainConfigDAO.class);
@@ -80,14 +81,14 @@ public class ChainConfigIT {
     ));
     ChainConfig inputData = new ChainConfig()
       .setChainId(BigInteger.valueOf(1))
-      .setType(ChainConfig.OUTPUT_FRAME_RATE)
+      .setType("OutputFrameRate")
       .setValue("3,4,74");
 
     JSONObject result = JSON.objectFromRecord(testDAO.create(access, inputData));
 
     assertNotNull(result);
     assertEquals(ULong.valueOf(1), result.get("chainId"));
-    assertEquals(ChainConfig.OUTPUT_FRAME_RATE, result.get("type"));
+    assertEquals(ChainConfigType.OutputFrameRate, result.get("type"));
     assertEquals("3,4,74", result.get("value"));
   }
 
@@ -99,7 +100,7 @@ public class ChainConfigIT {
     ));
     ChainConfig inputData = new ChainConfig()
       .setChainId(BigInteger.valueOf(1))
-      .setType(ChainConfig.OUTPUT_SAMPLE_BITS)
+      .setType("OutputSampleBits")
       .setValue("3");
 
     testDAO.create(access, inputData);
@@ -113,7 +114,7 @@ public class ChainConfigIT {
     ));
     ChainConfig inputData = new ChainConfig()
       .setChainId(BigInteger.valueOf(3))
-      .setType(ChainConfig.OUTPUT_SAMPLE_BITS)
+      .setType("OutputSampleBits")
       .setValue("3");
 
     testDAO.create(access, inputData);
@@ -127,7 +128,7 @@ public class ChainConfigIT {
     ));
     ChainConfig inputData = new ChainConfig()
       .setChainId(BigInteger.valueOf(1))
-      .setType(ChainConfig.OUTPUT_SAMPLE_BITS)
+      .setType("OutputSampleBits")
       .setValue("3");
 
     testDAO.create(access, inputData);
@@ -140,7 +141,7 @@ public class ChainConfigIT {
       "accounts", "1"
     ));
     ChainConfig inputData = new ChainConfig()
-      .setType(ChainConfig.OUTPUT_SAMPLE_BITS)
+      .setType("OutputSampleBits")
       .setValue("3");
 
     testDAO.create(access, inputData);
@@ -170,7 +171,7 @@ public class ChainConfigIT {
     assertNotNull(result);
     assertEquals(ULong.valueOf(1), result.getId());
     assertEquals(ULong.valueOf(1), result.getChainId());
-    assertEquals(ChainConfig.OUTPUT_SAMPLE_BITS, result.getType());
+    assertEquals(ChainConfigType.OutputSampleBits, result.getType());
     assertEquals("1", result.getValue());
   }
 
@@ -198,10 +199,10 @@ public class ChainConfigIT {
     assertNotNull(result);
     assertEquals(2, result.length());
     JSONObject result1 = (JSONObject) result.get(0);
-    assertEquals(ChainConfig.OUTPUT_FRAME_RATE, result1.get("type"));
+    assertEquals("OutputFrameRate", result1.get("type"));
     assertEquals("1,4,35", result1.get("value"));
     JSONObject result2 = (JSONObject) result.get(1);
-    assertEquals(ChainConfig.OUTPUT_CHANNELS, result2.get("type"));
+    assertEquals("OutputChannels", result2.get("type"));
     assertEquals("2,83,4", result2.get("value"));
   }
 

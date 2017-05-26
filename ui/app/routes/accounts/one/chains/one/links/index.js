@@ -3,6 +3,12 @@ import Ember from "ember";
 
 export default Ember.Route.extend({
 
+  // Inject: authentication service
+  auth: Ember.inject.service(),
+
+  // Inject: configuration service
+  config: Ember.inject.service(),
+
   // Inject: flash message service
   display: Ember.inject.service(),
 
@@ -19,20 +25,29 @@ export default Ember.Route.extend({
   model: function () {
     let self = this;
     let chain = this.modelFor('accounts.one.chains.one');
-    let linkQuery = {
-      chainId: chain.get('id'),
-      include: 'memes,choices,chords,messages',
-    };
-
-    let links = this.store.query(
-      'link', linkQuery)
-      .catch((error) => {
-        Ember.get(self, 'display').error(error);
-        self.transitionTo('');
-      });
-    return Ember.RSVP.hash({
-      chain: chain,
-      links: links,
+    return new Ember.RSVP.Promise((resolve, reject) => {
+      Ember.get(self, 'config').promises.config.then(
+        (config) => {
+          let linkQuery = {
+            chainId: chain.get('id'),
+            include: 'memes,choices,chords,messages',
+          };
+          let links = this.store.query(
+            'link', linkQuery)
+            .catch((error) => {
+              Ember.get(self, 'display').error(error);
+              self.transitionTo('');
+            });
+          resolve(Ember.RSVP.hash({
+            chain: chain,
+            links: links,
+            linkBaseUrl: config.linkBaseUrl,
+          }));
+        },
+        (error) => {
+          reject(error);
+        }
+      );
     });
   },
 

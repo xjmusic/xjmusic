@@ -68,7 +68,7 @@ export default Ember.Route.extend({
       model.save().then(
         () => {
           Ember.get(this, 'display').success('Updated "' + model.get('description') + '" voice.');
-          this.transitionTo('accounts.one.libraries.one.ideas.one.phases.one.voices.one');
+          this.transitionTo('accounts.one.libraries.one.ideas.one.phases.one.voices.one', model);
         },
         (error) => {
           Ember.get(this, 'display').error(error);

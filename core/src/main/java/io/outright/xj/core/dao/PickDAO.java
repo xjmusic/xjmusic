@@ -34,10 +34,20 @@ public interface PickDAO {
    Read all Picks that are accessible
 
    @param access control
-   @return array of picks as JSON
+   @return result of Pick records
    @throws Exception on failure
    */
   Result<PickRecord> readAll(Access access, ULong arrangementId) throws Exception;
+
+  /**
+   Read all Picks that are accessible, for all arrangements of all choices in a given Link
+
+   @param access control
+   @param linkId to get all picks in
+   @return result of Pick records
+   @throws Exception on failure
+   */
+  Result<PickRecord> readAllInLink(Access access, ULong linkId) throws Exception;
 
   /**
    Update a specified Pick
@@ -53,4 +63,5 @@ public interface PickDAO {
    @param pickId of specific Pick to delete.
    */
   void delete(Access access, ULong pickId) throws Exception;
+
 }

@@ -8,6 +8,13 @@ import io.outright.xj.core.util.token.TokenGenerator;
 
 import com.google.inject.Inject;
 
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.model.GetObjectRequest;
+import com.amazonaws.services.s3.model.PutObjectRequest;
+
+import java.io.BufferedInputStream;
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.SimpleTimeZone;
 
@@ -33,8 +40,8 @@ public class AmazonProviderImpl implements AmazonProvider {
   }
 
   @Override
-  public S3UploadPolicy generateUploadPolicy() throws ConfigException {
-    return new S3UploadPolicy(getAccessKey(), getAccessSecret(), getUploadACL(), getBucketName(), "", getExpireInMinutes());
+  public S3UploadPolicy generateAudioUploadPolicy() throws ConfigException {
+    return new S3UploadPolicy(getCredentialId(), getCredentialSecret(), getAudioUploadACL(), getAudioBucketName(), "", getAudioUploadExpireInMinutes());
   }
 
   @Override
@@ -45,32 +52,56 @@ public class AmazonProviderImpl implements AmazonProvider {
 
   @Override
   public String getUploadURL() throws ConfigException {
-    return Config.awsFileUploadUrl();
+    return Config.audioUploadUrl();
   }
 
   @Override
-  public String getAccessKey() throws ConfigException {
-    return Config.awsFileUploadKey();
+  public String getCredentialId() throws ConfigException {
+    return Config.awsAccessKeyId();
   }
 
   @Override
-  public String getAccessSecret() throws ConfigException {
-    return Config.awsFileUploadSecret();
+  public String getCredentialSecret() throws ConfigException {
+    return Config.awsSecretKey();
   }
 
   @Override
-  public String getBucketName() throws ConfigException {
-    return Config.awsFileUploadBucket();
+  public String getAudioBucketName() throws ConfigException {
+    return Config.audioFileBucket();
   }
 
   @Override
-  public int getExpireInMinutes() throws ConfigException {
-    return Config.awsFileUploadExpireMinutes();
+  public int getAudioUploadExpireInMinutes() throws ConfigException {
+    return Config.audioFileUploadExpireMinutes();
   }
 
   @Override
-  public String getUploadACL() throws ConfigException {
-    return Config.awsFileUploadACL();
+  public String getAudioUploadACL() throws ConfigException {
+    return Config.audioFileUploadACL();
+  }
+
+  @Override
+  public BufferedInputStream streamS3Object(String bucketName, String key) {
+    return new BufferedInputStream(s3Client()
+      .getObject(new GetObjectRequest(bucketName, key))
+      .getObjectContent());
+  }
+
+  @Override
+  public void putS3Object(String filePath, String bucket, String key) {
+    s3Client().putObject(new PutObjectRequest(
+      bucket, key, new File(filePath)));
+  }
+
+  /**
+   Get an Amazon S3 client
+
+   @return S3 client
+   */
+  private AmazonS3 s3Client() {
+    return AmazonS3ClientBuilder.standard()
+      .withRegion(Config.awsDefaultRegion())
+      .build();
   }
 
 }

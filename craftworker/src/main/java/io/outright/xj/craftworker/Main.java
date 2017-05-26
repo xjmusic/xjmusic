@@ -12,7 +12,6 @@ import io.outright.xj.core.work.WorkFactory;
 import io.outright.xj.core.work.WorkerOperation;
 import io.outright.xj.core.work.impl.link_work.LinkWorkFactoryModule;
 import io.outright.xj.core.work.impl.pilot_work.PilotWorkFactoryModule;
-import io.outright.xj.craftworker.work.CraftLinkWorkerModule;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -67,7 +66,7 @@ public class Main {
 
     // Link-type Workload
     WorkerOperation linkOperation = Guice.createInjector(new CoreModule(),
-      new CraftLinkWorkerModule()).getInstance(WorkerOperation.class);
+      new CraftWorkerModule()).getInstance(WorkerOperation.class);
     WorkFactory linkWorkFactory = Guice.createInjector(new CoreModule(),
       new LinkWorkFactoryModule()).getInstance(WorkFactory.class);
     app.registerWorkload(

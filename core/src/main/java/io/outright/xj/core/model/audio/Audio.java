@@ -26,39 +26,15 @@ import static io.outright.xj.core.Tables.AUDIO;
  NOTE: There can only be ONE of any getter/setter (with the same # of input params)
  */
 public class Audio extends Entity {
-
-  /**
-   For use in maps.
-   */
   public static final String KEY_ONE = "audio";
   public static final String KEY_MANY = "audios";
-  /**
-   Instrument
-   */
+  public static final String FILE_EXTENSION = "wav";
   private ULong instrumentId;
-  /**
-   WaveformKey
-   */
   private String waveformKey;
-  /**
-   Name
-   */
   private String name;
-  /**
-   Start
-   */
   private Double start;
-  /**
-   Length
-   */
   private Double length;
-  /**
-   Tempo
-   */
   private Double tempo;
-  /**
-   Pitch
-   */
   private Double pitch;
 
   public ULong getInstrumentId() {
@@ -178,12 +154,12 @@ public class Audio extends Entity {
   public Map<Field, Object> updatableFieldValueMap() {
     Map<Field, Object> fieldValues = Maps.newHashMap();
     fieldValues.put(AUDIO.INSTRUMENT_ID, instrumentId);
-    // Excluding AUDIO.WAVEFORM_KEY a.k.a. waveformKey because that is readMany-only
     fieldValues.put(AUDIO.NAME, name);
     fieldValues.put(AUDIO.START, start);
     fieldValues.put(AUDIO.LENGTH, length);
     fieldValues.put(AUDIO.TEMPO, tempo);
     fieldValues.put(AUDIO.PITCH, pitch);
+    // Excluding AUDIO.WAVEFORM_KEY a.k.a. waveformKey because that is read-only
     return fieldValues;
   }
 

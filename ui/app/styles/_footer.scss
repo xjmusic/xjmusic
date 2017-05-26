@@ -2,31 +2,27 @@
 @import "palette";
 
 footer {
+  color: #808080;
   margin-top: 16em;
   margin-bottom: 2em;
-  .outright {
-    opacity: 0.25;
-    &:hover {
-      opacity: 1.0;
-    }
-  }
 
   ul {
     text-align: right;
     li {
       display: inline-block;
       text-align: right;
-      margin-left: 20px;
-      a {
-        background: transparent none;
-        text-decoration: none;
-        color: #808080;
-        text-align: right;
-        &:hover, &:focus {
-          color: lighten($green, 20%);
-          text-decoration: underline;
-        }
-      }
+      margin-left: 16px;
+    }
+  }
+
+  a {
+    background: transparent none;
+    text-decoration: none;
+    color: #808080;
+    text-align: right;
+    &:hover, &:focus {
+      color: lighten($green, 20%);
+      text-decoration: underline;
     }
   }
 

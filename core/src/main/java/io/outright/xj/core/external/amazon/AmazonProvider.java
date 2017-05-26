@@ -3,18 +3,20 @@ package io.outright.xj.core.external.amazon;
 
 import io.outright.xj.core.app.exception.ConfigException;
 
+import java.io.BufferedInputStream;
+
 /**
  Requires these System Properties to be set:
- aws.file.upload.url
- aws.file.upload.key
- aws.file.upload.secret
+ audio.url.upload
+ aws.accessKeyId
+ aws.secretKey
  */
 public interface AmazonProvider {
 
   /**
    @return S3UploadPolicy for upload to AWS file storage (S3)
    */
-  S3UploadPolicy generateUploadPolicy() throws ConfigException;
+  S3UploadPolicy generateAudioUploadPolicy() throws ConfigException;
 
   /**
    Generate a new key of an object in AWS file storage (S3)
@@ -37,33 +39,51 @@ public interface AmazonProvider {
 
    @return key id
    */
-  String getAccessKey() throws ConfigException;
+  String getCredentialId() throws ConfigException;
 
   /**
    Get the AWS Access Key Secret
 
    @return key id
    */
-  String getAccessSecret() throws ConfigException;
+  String getCredentialSecret() throws ConfigException;
 
   /**
    Get the AWS Bucket Name
 
    @return The name of the bucket in AWS file storage (S3)
    */
-  String getBucketName() throws ConfigException;
+  String getAudioBucketName() throws ConfigException;
 
   /**
    Get the AWS upload policy expire time in minutes
 
    @return The number of minutes before the upload policy expires and is unable to be used.
    */
-  int getExpireInMinutes() throws ConfigException;
+  int getAudioUploadExpireInMinutes() throws ConfigException;
 
   /**
    Get the AWS Access control list
 
    @return Access control list for upload to AWS file storage (S3)
    */
-  String getUploadACL() throws ConfigException;
+  String getAudioUploadACL() throws ConfigException;
+
+  /**
+   Stream an object from S3
+
+   @param bucketName to stream from
+   @param key        of object to stream
+   @return stream of object data
+   */
+  BufferedInputStream streamS3Object(String bucketName, String key);
+
+  /**
+   Put an object to S3 (from a file)
+   * @param filePath path to file for upload
+   @param bucket         to put file to
+   @param key            to put file at
+
+   */
+  void putS3Object(String filePath, String bucket, String key);
 }

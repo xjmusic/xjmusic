@@ -69,7 +69,7 @@ export default Ember.Route.extend({
       model.save().then(
         () => {
           Ember.get(this, 'display').success('Updated phase ' + model.get('name') + '.');
-          this.transitionTo('accounts.one.libraries.one.ideas.one.phases.one');
+          this.transitionTo('accounts.one.libraries.one.ideas.one.phases.one', model);
         },
         (error) => {
           Ember.get(this, 'display').error(error);

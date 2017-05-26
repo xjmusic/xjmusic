@@ -59,7 +59,7 @@ public class LinkWorkerImpl implements Worker {
   @Override
   public Runnable getTaskRunnable(JSONObject task) throws Exception {
     return new LinkWorkerTaskRunner(
-      chainDAO, linkDAO, linkMessageDAO, operation, Link.fromJSON(task),
+      chainDAO, linkDAO, linkMessageDAO, operation, new Link().setFromJSON(task),
       workingState,
       finishedState
     );

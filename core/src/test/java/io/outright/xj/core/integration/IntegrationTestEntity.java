@@ -2,6 +2,7 @@ package io.outright.xj.core.integration;
 
 import io.outright.xj.core.app.exception.DatabaseException;
 import io.outright.xj.core.model.chain.Chain;
+import io.outright.xj.core.model.chain_config.ChainConfigType;
 import io.outright.xj.core.model.idea.Idea;
 import io.outright.xj.core.model.link.Link;
 import io.outright.xj.core.tables.records.AccountRecord;
@@ -357,11 +358,11 @@ public abstract class IntegrationTestEntity {
     return new Chain().setFromRecord(record);
   }
 
-  public static void insertChainConfig(int id, int chainId, String type, String value) {
+  public static void insertChainConfig(int id, int chainId, ChainConfigType chainConfigType, String value) {
     ChainConfigRecord record = IntegrationTestService.getDb().newRecord(CHAIN_CONFIG);
     record.setId(ULong.valueOf(id));
     record.setChainId(ULong.valueOf(chainId));
-    record.setType(type);
+    record.setType(chainConfigType.toString());
     record.setValue(value);
     record.store();
   }
@@ -390,7 +391,7 @@ public abstract class IntegrationTestEntity {
     record.store();
   }
 
-  public static Link insertLink(int id, int chainId, int offset, String state, Timestamp beginAt, Timestamp endAt, String key, int total, double density, double tempo) {
+  public static Link insertLink(int id, int chainId, int offset, String state, Timestamp beginAt, Timestamp endAt, String key, int total, double density, double tempo, String waveformKey) {
     LinkRecord record = IntegrationTestService.getDb().newRecord(LINK);
     record.setId(ULong.valueOf(id));
     record.setChainId(ULong.valueOf(chainId));
@@ -402,6 +403,7 @@ public abstract class IntegrationTestEntity {
     record.setKey(key);
     record.setDensity(density);
     record.setTempo(tempo);
+    record.setWaveformKey(waveformKey);
     record.store();
     return new Link().setFromRecord(record);
   }

@@ -17,6 +17,7 @@
           <th width="1%">Offset</th>
           <th width="1%">State</th>
           <th>End At</th>
+          <th>Waveform</th>
           <th>Total</th>
           <th>Density</th>
           <th>Key</th>
@@ -33,6 +34,10 @@
             <th>{{#link-to "accounts.one.chains.one.links.one" link}}{{link.offset}}{{/link-to}}</th>
             <td>{{link.state}}</td>
             <td>{{link.endAt}}</td>
+            <td>{{#if (eq link.state "dubbed")}}<audio controls>
+              <source src="{{model.linkBaseUrl}}{{link.waveformKey}}" type="audio/wav">
+              Your browser does not support the audio element.
+            </audio>{{/if}}</td>
             <td>{{link.total}}</td>
             <td>{{link.density}}</td>
             <td>{{link.key}}</td>

@@ -64,8 +64,8 @@ export default Ember.Route.extend({
    */
   actions: {
 
-    editAudio(audio) {
-      this.transitionTo('accounts.one.libraries.one.instruments.one.audios.one', audio);
+    editAudio(model) {
+      this.transitionTo('accounts.one.libraries.one.instruments.one.audios.one', model);
     },
   }
 

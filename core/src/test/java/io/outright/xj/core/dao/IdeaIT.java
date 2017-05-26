@@ -166,7 +166,7 @@ public class IdeaIT {
   @Test
   public void readOneRecordTypeInLink_Macro() throws Exception {
     IntegrationTestEntity.insertChain(1, 1, "Test Print #1", Chain.PRODUCTION, Chain.FABRICATING, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null);
-    IntegrationTestEntity.insertLink(1,1,0,Link.CRAFTING,Timestamp.valueOf("2014-08-12 12:17:02.527142"),Timestamp.valueOf("2014-08-12 12:17:32.527142"),"C",64, 0.6, 121);
+    IntegrationTestEntity.insertLink(1,1,0,Link.CRAFTING,Timestamp.valueOf("2014-08-12 12:17:02.527142"),Timestamp.valueOf("2014-08-12 12:17:32.527142"),"C",64, 0.6, 121, "chain-1-link-97898asdf7892.wav");
     IntegrationTestEntity.insertChoice(1,1,3, Choice.MACRO,0,0);
     IntegrationTestEntity.insertChoice(2,1,1, Choice.MAIN,0,0);
 
@@ -181,7 +181,7 @@ public class IdeaIT {
   @Test
   public void readOneRecordTypeInLink_Main() throws Exception {
     IntegrationTestEntity.insertChain(1, 1, "Test Print #1", Chain.PRODUCTION, Chain.FABRICATING, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null);
-    IntegrationTestEntity.insertLink(1,1,0,Link.CRAFTING,Timestamp.valueOf("2014-08-12 12:17:02.527142"),Timestamp.valueOf("2014-08-12 12:17:32.527142"),"C",64, 0.6, 121);
+    IntegrationTestEntity.insertLink(1,1,0,Link.CRAFTING,Timestamp.valueOf("2014-08-12 12:17:02.527142"),Timestamp.valueOf("2014-08-12 12:17:32.527142"),"C",64, 0.6, 121, "chain-1-link-97898asdf7892.wav");
     IntegrationTestEntity.insertChoice(1,1,3, Choice.MACRO,0,0);
     IntegrationTestEntity.insertChoice(2,1,1, Choice.MAIN,0,0);
 

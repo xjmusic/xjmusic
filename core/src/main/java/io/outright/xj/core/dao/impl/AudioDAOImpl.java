@@ -24,10 +24,12 @@ import com.google.inject.Inject;
 import org.json.JSONObject;
 
 import javax.annotation.Nullable;
-import java.sql.SQLException;
 import java.util.Map;
 
+import static io.outright.xj.core.Tables.ARRANGEMENT;
 import static io.outright.xj.core.Tables.AUDIO_EVENT;
+import static io.outright.xj.core.Tables.CHOICE;
+import static io.outright.xj.core.Tables.PICK;
 import static io.outright.xj.core.tables.Audio.AUDIO;
 import static io.outright.xj.core.tables.Instrument.INSTRUMENT;
 import static io.outright.xj.core.tables.Library.LIBRARY;
@@ -48,7 +50,7 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
   public AudioRecord create(Access access, Audio entity) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(createRecord(tx.getContext(), access, entity));
+      return tx.success(create(tx.getContext(), access, entity));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -88,6 +90,16 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
   }
 
   @Override
+  public Result<AudioRecord> readAllPickedForLink(Access access, ULong linkId) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readAllPickedForLink(tx.getContext(), access, linkId));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
   public void update(Access access, ULong id, Audio entity) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
@@ -118,7 +130,7 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
    @return newly readMany record
    @throws BusinessException if failure
    */
-  private AudioRecord createRecord(DSLContext db, Access access, Audio entity) throws BusinessException {
+  private AudioRecord create(DSLContext db, Access access, Audio entity) throws BusinessException {
     entity.validate();
 
     Map<Field, Object> fieldValues = entity.updatableFieldValueMap();
@@ -134,7 +146,7 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
         .and(INSTRUMENT.ID.eq(entity.getInstrumentId()))
         .fetchOne());
 
-    fieldValues.put(AUDIO.WAVEFORM_KEY, generateUrl(entity.getInstrumentId()));
+    fieldValues.put(AUDIO.WAVEFORM_KEY, generateKey(entity.getInstrumentId()));
 
     return executeCreate(db, AUDIO, fieldValues);
   }
@@ -145,11 +157,11 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
    @param instrumentId to generate URL for
    @return URL as string
    */
-  private String generateUrl(ULong instrumentId) {
+  private String generateKey(ULong instrumentId) {
     return amazonProvider.generateKey(
       Exposure.FILE_INSTRUMENT + Exposure.FILE_SEPARATOR +
         instrumentId + Exposure.FILE_SEPARATOR +
-        Exposure.FILE_AUDIO, Exposure.FILE_EXTENSION);
+        Exposure.FILE_AUDIO, Audio.FILE_EXTENSION);
   }
 
   /**
@@ -181,10 +193,10 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
    @param db           context
    @param access       control
    @param instrumentId to readMany all audio of
-   @return array of audios
-   @throws SQLException on failure
+   @return Result of audio records.
+   @throws Exception on failure
    */
-  private Result<AudioRecord> readAll(DSLContext db, Access access, ULong instrumentId) throws SQLException {
+  private Result<AudioRecord> readAll(DSLContext db, Access access, ULong instrumentId) throws Exception {
     if (access.isTopLevel())
       return resultInto(AUDIO, db.select(AUDIO.fields())
         .from(AUDIO)
@@ -198,6 +210,26 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
         .where(AUDIO.INSTRUMENT_ID.eq(instrumentId))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .fetch());
+  }
+
+  /**
+   Read all Audio able picked for a Link
+
+   @param db     context
+   @param access control
+   @param linkId to get audio picked for
+   @return Result of audio records.
+   @throws Exception on failure
+   */
+  private Result<AudioRecord> readAllPickedForLink(DSLContext db, Access access, ULong linkId) throws Exception {
+    requireTopLevel(access);
+    return resultInto(AUDIO, db.select(AUDIO.fields())
+      .from(AUDIO)
+      .join(PICK).on(PICK.AUDIO_ID.eq(AUDIO.ID))
+      .join(ARRANGEMENT).on(ARRANGEMENT.ID.eq(PICK.ARRANGEMENT_ID))
+      .join(CHOICE).on(CHOICE.ID.eq(ARRANGEMENT.CHOICE_ID))
+      .where(CHOICE.LINK_ID.eq(linkId))
+      .fetch());
   }
 
   /**
@@ -260,15 +292,15 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
     requireExists("Audio", audioRecord);
 
     JSONObject uploadAuthorization = new JSONObject();
-    S3UploadPolicy uploadPolicy = amazonProvider.generateUploadPolicy();
+    S3UploadPolicy uploadPolicy = amazonProvider.generateAudioUploadPolicy();
     String waveformKey = audioRecord.get(AUDIO.WAVEFORM_KEY);
     uploadAuthorization.put(Exposure.KEY_WAVEFORM_KEY, waveformKey);
     uploadAuthorization.put(Exposure.KEY_UPLOAD_URL, amazonProvider.getUploadURL());
-    uploadAuthorization.put(Exposure.KEY_UPLOAD_ACCESS_KEY, amazonProvider.getAccessKey());
+    uploadAuthorization.put(Exposure.KEY_UPLOAD_ACCESS_KEY, amazonProvider.getCredentialId());
     uploadAuthorization.put(Exposure.KEY_UPLOAD_POLICY, uploadPolicy.getPolicyString());
     uploadAuthorization.put(Exposure.KEY_UPLOAD_POLICY_SIGNATURE, uploadPolicy.getPolicySignature());
-    uploadAuthorization.put(Exposure.KEY_UPLOAD_BUCKET_NAME, amazonProvider.getBucketName());
-    uploadAuthorization.put(Exposure.KEY_UPLOAD_ACL, amazonProvider.getUploadACL());
+    uploadAuthorization.put(Exposure.KEY_UPLOAD_BUCKET_NAME, amazonProvider.getAudioBucketName());
+    uploadAuthorization.put(Exposure.KEY_UPLOAD_ACL, amazonProvider.getAudioUploadACL());
     return uploadAuthorization;
   }
 

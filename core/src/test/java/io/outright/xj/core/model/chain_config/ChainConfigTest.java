@@ -29,7 +29,7 @@ public class ChainConfigTest {
   public void validate() throws Exception {
     new ChainConfig()
       .setChainId(BigInteger.valueOf(974))
-      .setType(ChainConfig.OUTPUT_CHANNELS)
+      .setType("OutputChannels")
       .setValue(String.valueOf(4))
       .validate();
   }
@@ -40,7 +40,7 @@ public class ChainConfigTest {
     failure.expectMessage("Chain ID is required");
 
     new ChainConfig()
-      .setType(ChainConfig.OUTPUT_CHANNELS)
+      .setType("OutputChannels")
       .setValue(String.valueOf(4))
       .validate();
   }
@@ -59,11 +59,11 @@ public class ChainConfigTest {
   @Test
   public void validate_failsWithInvalidType() throws Exception {
     failure.expect(BusinessException.class);
-    failure.expectMessage("'JIGGLE' is not a valid type");
+    failure.expectMessage("'jello' is not a valid type");
 
     new ChainConfig()
       .setChainId(BigInteger.valueOf(974))
-      .setType("jiggle")
+      .setType("jello")
       .setValue(String.valueOf(4))
       .validate();
   }
@@ -75,7 +75,7 @@ public class ChainConfigTest {
 
     new ChainConfig()
       .setChainId(BigInteger.valueOf(974))
-      .setType(ChainConfig.OUTPUT_CHANNELS)
+      .setType("OutputChannels")
       .validate();
   }
 
@@ -84,7 +84,7 @@ public class ChainConfigTest {
     ChainConfigRecord record = new ChainConfigRecord();
     record.setId(ULong.valueOf(12));
     record.setChainId(ULong.valueOf(974));
-    record.setType(ChainConfig.OUTPUT_CHANNELS);
+    record.setType(ChainConfigType.OutputChannels.toString());
     record.setValue(String.valueOf(4));
     record.setCreatedAt(Timestamp.valueOf("2014-08-12 12:17:02.527142"));
     record.setUpdatedAt(Timestamp.valueOf("2014-09-12 12:17:01.047563"));
@@ -95,7 +95,7 @@ public class ChainConfigTest {
     assertNotNull(result);
     assertEquals(ULong.valueOf(12), result.getId());
     assertEquals(ULong.valueOf(974), result.getChainId());
-    assertEquals(ChainConfig.OUTPUT_CHANNELS, result.getType());
+    assertEquals(ChainConfigType.OutputChannels, result.getType());
     assertEquals(String.valueOf(4), result.getValue());
     assertEquals(Timestamp.valueOf("2014-08-12 12:17:02.527142"), result.getCreatedAt());
     assertEquals(Timestamp.valueOf("2014-09-12 12:17:01.047563"), result.getUpdatedAt());
@@ -108,14 +108,15 @@ public class ChainConfigTest {
 
   @Test
   public void intoFieldValueMap() throws Exception {
-    Map<Field, Object> result = new ChainConfig()
+    ChainConfig chainConfig = new ChainConfig()
       .setChainId(BigInteger.valueOf(974))
-      .setType(ChainConfig.OUTPUT_CHANNELS)
-      .setValue(String.valueOf(4))
-      .updatableFieldValueMap();
+      .setType("OutputChannels")
+      .setValue(String.valueOf(4));
+    chainConfig.validate();
+    Map<Field, Object> result = chainConfig.updatableFieldValueMap();
 
     assertEquals(ULong.valueOf(974), result.get(CHAIN_CONFIG.CHAIN_ID));
-    assertEquals(ChainConfig.OUTPUT_CHANNELS, result.get(CHAIN_CONFIG.TYPE));
+    assertEquals(ChainConfigType.OutputChannels, result.get(CHAIN_CONFIG.TYPE));
     assertEquals(String.valueOf(4), result.get(CHAIN_CONFIG.VALUE));
   }
 

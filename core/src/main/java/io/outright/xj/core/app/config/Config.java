@@ -23,36 +23,60 @@ public abstract class Config {
     return get("auth.google.secret");
   }
 
-  public static String awsFileUploadUrl() throws ConfigException {
-    return get("aws.file.upload.url");
+  public static String awsAccessKeyId() throws ConfigException {
+    return get("aws.accessKeyId");
   }
 
-  public static String awsFileUploadKey() throws ConfigException {
-    return get("aws.file.upload.key");
+  public static String awsSecretKey() throws ConfigException {
+    return get("aws.secretKey");
   }
 
-  public static String awsFileUploadSecret() throws ConfigException {
-    return get("aws.file.upload.secret");
+  public static String audioFileBucket() throws ConfigException {
+    return get("audio.file.bucket");
   }
 
-  public static String awsFileUploadBucket() throws ConfigException {
-    return get("aws.file.upload.bucket");
+  public static String awsDefaultRegion() {
+    return getOrDefault("aws.defaultRegion", "us-east-1");
   }
 
-  public static int awsFileUploadExpireMinutes() throws ConfigException {
-    return getInt("aws.file.upload.expire.minutes");
+  public static int audioFileUploadExpireMinutes() throws ConfigException {
+    return getInt("audio.file.upload.expire.minutes");
   }
 
-  public static String awsFileUploadACL() throws ConfigException {
-    return get("aws.file.upload.acl");
+  public static String audioFileUploadACL() throws ConfigException {
+    return get("audio.file.upload.acl");
+  }
+
+  public static String audioBaseUrl() throws ConfigException {
+    return get("audio.url.base");
+  }
+
+  public static String audioUploadUrl() throws ConfigException {
+    return get("audio.url.upload");
+  }
+
+  public static String linkFileBucket() throws ConfigException {
+    return get("link.file.bucket");
+  }
+
+  public static int linkFileUploadExpireMinutes() throws ConfigException {
+    return getInt("link.file.upload.expire.minutes");
+  }
+
+  public static String linkFileUploadACL() throws ConfigException {
+    return get("link.file.upload.acl");
+  }
+
+  public static String linkBaseUrl() throws ConfigException {
+    return get("link.url.base");
+  }
+
+  public static String linkUploadUrl() throws ConfigException {
+    return get("link.url.upload");
   }
 
   public static String appBaseUrl() {
     return getOrDefault("app.url.base", "http://localhost/");
-  }
-
-  public static String audioBaseUrl() {
-    return getOrDefault("audio.url.base", "https://audio.dev.xj.outright.io/");
   }
 
   public static String apiPath() {
@@ -136,16 +160,17 @@ public abstract class Config {
   }
 
   public static String tuningRootNote() {
-    return getOrDefault("tuning.root.note","A4");
+    return getOrDefault("tuning.root.note", "A4");
   }
 
   public static Double tuningRootPitch() {
-    return getDoubleOrDefault("tuning.root.pitch",432.0);
+    return getDoubleOrDefault("tuning.root.pitch", 432.0);
   }
 
   public static int limitLinkReadSize() {
     return getIntOrDefault("limit.link.read.size", 50);
   }
+
   public static int workConcurrency() {
     return getIntOrDefault("work.concurrency", 10);
   }
@@ -160,6 +185,10 @@ public abstract class Config {
 
   public static int workAheadSeconds() {
     return getIntOrDefault("work.buffer.seconds", 300);
+  }
+
+  public static String workTempFilePath() {
+    return getOrDefault("work.temp.file.path", "/tmp");
   }
 
   /**

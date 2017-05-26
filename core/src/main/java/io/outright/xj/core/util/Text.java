@@ -7,6 +7,7 @@ public interface Text {
   Pattern hyphensAndSlugs = Pattern.compile("[\\-_]+");
   Pattern fileExtension = Pattern.compile("\\.[a-zA-z0-9]+$");
   Pattern space = Pattern.compile("[ ]+");
+  Pattern nonAlphabetical = Pattern.compile("[^a-zA-Z]");
   Pattern nonSlug = Pattern.compile("[^a-zA-Z]");
   Pattern nonScored = Pattern.compile("[^a-zA-Z_]");
   Pattern nonNote = Pattern.compile("[^#0-9a-zA-Z ]");
@@ -14,6 +15,18 @@ public interface Text {
   Pattern oneOrMorePeriod = Pattern.compile("\\.+");
   String UNDERSCORE = "_";
   String NOTHING = "";
+
+  /**
+   Alphabetical characters only, no case modification
+
+   @param raw text to restrict to alphabetical
+   @return alphabetical-only string
+   */
+  static String alphabetical(String raw) {
+    return
+      nonAlphabetical.matcher(raw)
+        .replaceAll("");
+  }
 
   /**
    Conform to DocKey key (e.g. "chain-info.md")

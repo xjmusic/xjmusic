@@ -11,7 +11,7 @@ import io.outright.xj.core.model.link.Link;
 import io.outright.xj.core.work.WorkFactory;
 import io.outright.xj.core.work.WorkerOperation;
 import io.outright.xj.core.work.impl.link_work.LinkWorkFactoryModule;
-import io.outright.xj.dubworker.work.DubLinkWorkerModule;
+import io.outright.xj.mixer.MixerModule;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -55,9 +55,9 @@ public class Main {
     app.configureServer("io.outright.xj.dubworker");
 
     // Link-type Workload
-    WorkerOperation linkOperation = Guice.createInjector(new CoreModule(),
-      new DubLinkWorkerModule()).getInstance(WorkerOperation.class);
-    WorkFactory linkWorkFactory = Guice.createInjector(new CoreModule(),
+    WorkerOperation linkOperation = Guice.createInjector(new CoreModule(), new MixerModule(),
+      new DubWorkerModule()).getInstance(WorkerOperation.class);
+    WorkFactory linkWorkFactory = Guice.createInjector(new CoreModule(), new MixerModule(),
       new LinkWorkFactoryModule()).getInstance(WorkFactory.class);
     app.registerWorkload(
       "Dub Links",

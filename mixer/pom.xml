@@ -33,6 +33,13 @@
   <!-- deps -->
   <dependencies>
 
+    <!-- MP3 Encoding: https://mvnrepository.com/artifact/de.sciss/jump3r -->
+    <dependency>
+      <groupId>de.sciss</groupId>
+      <artifactId>jump3r</artifactId>
+      <version>1.0.4</version>
+    </dependency>
+
     <!-- JSON: https://mvnrepository.com/artifact/org.json/json -->
     <dependency>
       <groupId>org.json</groupId>

@@ -42,8 +42,8 @@ export default Ember.Route.extend({
    */
   actions: {
 
-    editEvent(event) {
-      this.transitionTo('accounts.one.libraries.one.instruments.one.audios.one.events.one', event);
+    editEvent(model) {
+      this.transitionTo('accounts.one.libraries.one.instruments.one.audios.one.events.one', model);
     },
 
   }

@@ -327,16 +327,18 @@ Note that in order to use that command, the source bucket (xj-audio-prod) must g
 
 ## Environment Variables
 
+Note that two environment variables are actually [built-in to the AWS SDK for Java](http://docs.aws.amazon.com/sdk-for-java/v1/developer-guide/credentials.html), `aws.accessKeyId` and `aws.secretKey`:
+
+    -Daws.accessKeyId=AKIAKJHFG789JKKS8F73
+    -Daws.secretKey=07sh86hsubkuy6ykus/sd06h7fsjkdyfuk897934
+    
 Certain environment variables must be set in order for the correct Upload Policy to be generated for a file upload to Amazon S3:
 
-    -Daws.file.upload.url=https://xj-audio-ENVIRONMENT.s3.amazonaws.com/
-    -Daws.file.upload.key=AKIAKJHFG789JKKS8F73
-    -Daws.file.upload.secret=07sh86hsubkuy6ykus/sd06h7fsjkdyfuk897934
-    -Daws.file.upload.acl=bucket-owner-full-control
-    -Daws.file.upload.expire.minutes=60
-    -Daws.file.upload.bucket=xj-audio-ENVIRONMENT
-      
+    -Daudio.file.upload.acl=bucket-owner-full-control
+    -Daudio.file.upload.expire.minutes=60
+    -Daudio.file.bucket=xj-audio-ENVIRONMENT      
     -Daudio.url.base=https://audio.ENVIRONMENT.xj.outright.io/
+    -Daudio.url.upload=https://xj-audio-ENVIRONMENT.s3.amazonaws.com/
     
 The file upload ACL `bucket-owner-full-control` affords the administration of uploaded objects by the bucket owner.
 

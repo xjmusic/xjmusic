@@ -1,8 +1,9 @@
 // Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
 package io.outright.xj.mixer.impl;
 
-import io.outright.xj.mixer.MixerFactory;
 import io.outright.xj.mixer.Mixer;
+import io.outright.xj.mixer.MixerFactory;
+import io.outright.xj.mixer.OutputContainer;
 import io.outright.xj.mixer.Put;
 import io.outright.xj.mixer.Source;
 import io.outright.xj.mixer.impl.audio.AudioSample;
@@ -60,6 +61,7 @@ public class MixerImpl implements Mixer {
 
   // fields : mix factory and audio format
   private final AudioFormat outputFormat;
+  private final OutputContainer outputContainer;
   private MixerFactory mixerFactory;
 
   /**
@@ -69,10 +71,12 @@ public class MixerImpl implements Mixer {
    */
   @Inject
   public MixerImpl(
+    @Assisted("outputContainer") OutputContainer outputContainer,
     @Assisted("outputFormat") AudioFormat outputFormat,
     @Assisted("outputLength") Duration outputLength,
     MixerFactory mixerFactory
   ) throws MixerException {
+    this.outputContainer = outputContainer;
     this.outputFormat = outputFormat;
     this.outputLength = outputLength;
     this.mixerFactory = mixerFactory;
@@ -120,7 +124,7 @@ public class MixerImpl implements Mixer {
     state = WRITING;
     long startedAt = System.nanoTime();
     log.info("Will write {} bytes of output audio", totalBytes);
-    new AudioStreamWriter(outputBytes).writeToFile(outputFilePath, outputFormat, totalFrames);
+    new AudioStreamWriter(outputBytes).writeToFile(outputFilePath, outputFormat, outputContainer, totalFrames);
 
     state = DONE;
     log.info("Did write {} OK in {}s", outputFilePath, String.format("%.9f", (double) (System.nanoTime() - startedAt) / nanosInASecond));
@@ -208,17 +212,15 @@ public class MixerImpl implements Mixer {
    @throws MixerException if unable to mix
    */
   private double[][] mix() throws Exception {
-    if (!Objects.equals(state, READY)) {
+    if (!Objects.equals(state, READY))
       throw new MixerException("can't mix again; only one mix allowed per Mixer");
-    }
 
     state = MIXING;
     log.info("Will mix {} seconds of output audio at {} Hz frame rate", String.format("%.9f", totalSeconds), outputFrameRate);
     double[][] outputFrames = new double[totalFrames][outputChannels];
     long startedAt = System.nanoTime();
-    for (int offsetFrame = 0; offsetFrame < totalFrames; offsetFrame++) {
+    for (int offsetFrame = 0; offsetFrame < totalFrames; offsetFrame++)
       outputFrames[offsetFrame] = mixFrame(offsetFrame);
-    }
 
     state = MIXED;
     log.info("Did mix {} frames in {}s", totalFrames, String.format("%.9f", (double) (System.nanoTime() - startedAt) / nanosInASecond));
@@ -233,11 +235,10 @@ public class MixerImpl implements Mixer {
    */
   private ByteBuffer byteBufferOf(double[][] mix) {
     ByteBuffer outputBytes = ByteBuffer.allocate(totalBytes);
-    for (int offsetFrame = 0; offsetFrame < totalFrames; offsetFrame++) {
-      for (int channel = 0; channel < mix[offsetFrame].length; channel++) {
+    for (int offsetFrame = 0; offsetFrame < totalFrames; offsetFrame++)
+      for (int channel = 0; channel < mix[offsetFrame].length; channel++)
         outputBytes.put(AudioSample.toBytes(mix[offsetFrame][channel], outputSampleFormat));
-      }
-    }
+
     return outputBytes;
   }
 
@@ -260,9 +261,8 @@ public class MixerImpl implements Mixer {
       if (sourceOffsetMicros > 0) {
         double[] inSamples;
         inSamples = mixSourceFrameAtMicros(livePut.getSourceId(), livePut.getVelocity(), livePut.getPan(), sourceOffsetMicros);
-        for (int c = 0; c < outputChannels; c++) {
+        for (int c = 0; c < outputChannels; c++)
           frame[c] = frame[c] + inSamples[c];
-        }
       }
     });
 
@@ -280,9 +280,9 @@ public class MixerImpl implements Mixer {
    */
   private double[] mixSourceFrameAtMicros(String sourceId, double volume, double pan, long atMicros) {
     Source source = sources.get(sourceId);
-    if (source == null) {
+    if (source == null)
       return new double[outputChannels];
-    }
+
     return source.frameAt(atMicros, volume, pan, outputChannels);
   }
 
@@ -381,13 +381,12 @@ public class MixerImpl implements Mixer {
    @return output value
    */
   private double mixDynamicLogarithmicRangeCompression(double i) {
-    if (i < -1) {
+    if (i < -1)
       return -Math.log(-i - 0.85) / 14 - 0.75;
-    } else if (i > 1) {
+    else if (i > 1)
       return Math.log(i - 0.85) / 14 + 0.75;
-    } else {
+    else
       return i / 1.61803398875;
-    }
   }
 
   /**
@@ -398,9 +397,9 @@ public class MixerImpl implements Mixer {
    */
   private double[] mixDynamicLogarithmicRangeCompression(double[] frame) {
     double[] out = new double[outputChannels];
-    for (int c = 0; c < outputChannels; c++) {
+    for (int c = 0; c < outputChannels; c++)
       out[c] = mixDynamicLogarithmicRangeCompression(frame[c]);
-    }
+
     return out;
   }
 
@@ -423,9 +422,8 @@ public class MixerImpl implements Mixer {
    @throws MixerException if value greater than allowable
    */
   private void enforceMax(int valueMax, String entityName, int value) throws MixerException {
-    if (value > valueMax) {
+    if (value > valueMax)
       throw new MixerException("more than " + valueMax + " " + entityName + " not allowed");
-    }
   }
 
   /**
@@ -437,9 +435,8 @@ public class MixerImpl implements Mixer {
    @throws MixerException if value less than allowable
    */
   private void enforceMin(int valueMin, String entityName, int value) throws MixerException {
-    if (value < valueMin) {
+    if (value < valueMin)
       throw new MixerException("less than " + valueMin + " " + entityName + " not allowed");
-    }
   }
 
 }

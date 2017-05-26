@@ -30,6 +30,7 @@ public interface MixerFactory {
    @throws MixerException if unable to create Mixer
    */
   Mixer createMixer(
+    @Assisted("outputContainer") OutputContainer outputContainer,
     @Assisted("outputFormat") AudioFormat outputFormat,
     @Assisted("outputLength") Duration outputLength
   ) throws MixerException;

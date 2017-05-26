@@ -3,7 +3,6 @@ package io.outright.xj.core.model.chain_config;
 
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.model.Entity;
-import io.outright.xj.core.transport.CSV;
 import io.outright.xj.core.util.Text;
 
 import org.jooq.Field;
@@ -23,32 +22,19 @@ import static io.outright.xj.core.Tables.CHAIN_CONFIG;
 /**
  Entity for use as POJO for decoding messages received by JAX-RS resources
  a.k.a. JSON input will be stored into an instance of this object
-
+ <p>
  Business logic ought to be performed beginning with an instance of this object,
  to implement common methods.
-
+ <p>
  NOTE: There can only be ONE of any getter/setter (with the same # of input params)
  */
 public class ChainConfig extends Entity {
-  public final static String OUTPUT_SAMPLE_BITS = "OUTPUT_SAMPLE_BITS";
-  public final static String OUTPUT_FRAME_RATE = "OUTPUT_FRAME_RATE";
-  public final static String OUTPUT_CHANNELS = "OUTPUT_CHANNELS";
 
-  public final static List<String> TYPES = ImmutableList.of(
-    OUTPUT_SAMPLE_BITS,
-    OUTPUT_FRAME_RATE,
-    OUTPUT_CHANNELS
-  );
-  /**
-   For use in maps.
-   */
   public static final String KEY_ONE = "chainConfig";
   public static final String KEY_MANY = "chainConfigs";
-  // Chain ID
   private ULong chainId;
-  // Type
-  private String type;
-  // Value
+  private ChainConfigType type;
+  private String _typeString; // pending validation, copied to `type` field
   private String value;
 
   public ULong getChainId() {
@@ -60,12 +46,22 @@ public class ChainConfig extends Entity {
     return this;
   }
 
-  public String getType() {
+  public ChainConfigType getType() {
     return type;
   }
 
-  public ChainConfig setType(String type) {
-    this.type = Text.UpperScored(type);
+  /**
+   This sets the type String, however the value will remain null
+   until validate() is called and the value is cast to enum
+   @param typeString pending validation
+   */
+  public ChainConfig setType(String typeString) {
+    this._typeString = Text.alphabetical(typeString);
+    return this;
+  }
+
+  public ChainConfig setTypeEnum(ChainConfigType type) {
+    this.type = type;
     return this;
   }
 
@@ -80,18 +76,15 @@ public class ChainConfig extends Entity {
 
   @Override
   public void validate() throws BusinessException {
-    if (this.chainId == null) {
+    if (this.chainId == null)
       throw new BusinessException("Chain ID is required.");
-    }
-    if (this.type == null || this.type.length() == 0) {
-      throw new BusinessException("Type is required.");
-    }
-    if (!TYPES.contains(this.type)) {
-      throw new BusinessException("'" + this.type + "' is not a valid type (" + CSV.join(TYPES) + ").");
-    }
-    if (this.value == null || this.value.length() == 0) {
+
+    // throws its own BusinessException on failure
+    this.type = ChainConfigType.validate(_typeString);
+
+    if (this.value == null || this.value.length() == 0)
       throw new BusinessException("Value is required.");
-    }
+
   }
 
   @Override
@@ -101,7 +94,7 @@ public class ChainConfig extends Entity {
     }
     id = record.get(CHAIN_CONFIG.ID);
     chainId = record.get(CHAIN_CONFIG.CHAIN_ID);
-    type = record.get(CHAIN_CONFIG.TYPE);
+    type = ChainConfigType.valueOf(record.get(CHAIN_CONFIG.TYPE));
     value = record.get(CHAIN_CONFIG.VALUE);
     createdAt = record.get(CHAIN_CONFIG.CREATED_AT);
     updatedAt = record.get(CHAIN_CONFIG.UPDATED_AT);
@@ -116,6 +109,5 @@ public class ChainConfig extends Entity {
     fieldValues.put(CHAIN_CONFIG.VALUE, value);
     return fieldValues;
   }
-
 
 }

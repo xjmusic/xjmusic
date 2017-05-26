@@ -7,8 +7,13 @@ import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.integration.IntegrationTestEntity;
 import io.outright.xj.core.integration.IntegrationTestService;
 import io.outright.xj.core.model.audio.Audio;
+import io.outright.xj.core.model.chain.Chain;
+import io.outright.xj.core.model.choice.Choice;
+import io.outright.xj.core.model.idea.Idea;
 import io.outright.xj.core.model.instrument.Instrument;
+import io.outright.xj.core.model.link.Link;
 import io.outright.xj.core.model.role.Role;
+import io.outright.xj.core.model.voice.Voice;
 import io.outright.xj.core.tables.records.AudioRecord;
 import io.outright.xj.core.transport.JSON;
 
@@ -25,6 +30,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.math.BigInteger;
+import java.sql.Timestamp;
 
 import static io.outright.xj.core.tables.Audio.AUDIO;
 import static org.junit.Assert.assertEquals;
@@ -60,6 +66,27 @@ public class AudioIT {
 
     // Instantiate the test subject
     testDAO = injector.getInstance(AudioDAO.class);
+  }
+
+  private void setUpTwo() throws Exception {
+
+    // Idea, Phase, Voice
+    IntegrationTestEntity.insertIdea(1, 2, 1, Idea.MACRO, "epic concept", 0.342, "C#", 0.286);
+    IntegrationTestEntity.insertPhase(1, 1, 0, 16, "Ants", 0.583, "D minor", 120.0);
+    IntegrationTestEntity.insertVoice(8, 1, Voice.PERCUSSIVE, "This is a percussive voice");
+
+    // Chain, Link
+    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", Chain.PRODUCTION, Chain.READY, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"));
+    IntegrationTestEntity.insertLink(1, 1, 0, Link.DUBBED, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120, "chain-1-link-97898asdf7892.wav");
+
+    // Choice, Arrangement, Pick
+    IntegrationTestEntity.insertChoice(7, 1, 1, Choice.MACRO, 2, -5);
+    IntegrationTestEntity.insertArrangement(1, 7, 8, 1);
+    IntegrationTestEntity.insertPick(1, 1, 1, 0.125, 1.23, 0.94, 440);
+    IntegrationTestEntity.insertPick(2, 1, 1, 1.125, 1.23, 0.94, 220);
+    IntegrationTestEntity.insertPick(3, 1, 1, 2.125, 1.23, 0.94, 110);
+    IntegrationTestEntity.insertPick(4, 1, 1, 3.125, 1.23, 0.94, 55);
+
   }
 
   @After
@@ -151,12 +178,12 @@ public class AudioIT {
 
   @Test
   public void uploadOne() throws Exception {
-    System.setProperty("aws.file.upload.url", "https://manuts.com");
-    System.setProperty("aws.file.upload.key", "totally_awesome");
-    System.setProperty("aws.file.upload.secret", "much_secret_12345");
-    System.setProperty("aws.file.upload.acl", "bucket-owner-full-control");
-    System.setProperty("aws.file.upload.expire.minutes", "60");
-    System.setProperty("aws.file.upload.bucket", "xj-audio-dev");
+    System.setProperty("audio.url.upload", "https://manuts.com");
+    System.setProperty("aws.accessKeyId", "totally_awesome");
+    System.setProperty("aws.secretKey", "much_secret_12345");
+    System.setProperty("audio.file.upload.acl", "bucket-owner-full-control");
+    System.setProperty("audio.file.upload.expire.minutes", "60");
+    System.setProperty("audio.file.bucket", "xj-audio-dev");
 
     Access access = new Access(ImmutableMap.of(
       "roles", "artist",
@@ -209,6 +236,16 @@ public class AudioIT {
 
     assertNotNull(result);
     assertEquals(0, result.length());
+  }
+
+  @Test
+  public void readAllPickedForLink() throws Exception {
+    setUpTwo();
+
+    JSONArray result = JSON.arrayOf(testDAO.readAllPickedForLink(Access.internal(), ULong.valueOf(1)));
+
+    assertNotNull(result);
+    assertEquals(4, result.length());
   }
 
   @Test(expected = BusinessException.class)

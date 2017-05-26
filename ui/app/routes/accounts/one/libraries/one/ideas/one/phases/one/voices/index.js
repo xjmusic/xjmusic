@@ -42,8 +42,8 @@ export default Ember.Route.extend({
    */
   actions: {
 
-    editVoice(voice) {
-      this.transitionTo('accounts.one.libraries.one.ideas.one.phases.one.voices.one', voice);
+    editVoice(model) {
+      this.transitionTo('accounts.one.libraries.one.ideas.one.phases.one.voices.one', model);
     },
   }
 

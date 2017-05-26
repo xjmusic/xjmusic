@@ -1,13 +1,16 @@
 // Copyright Outright Mental, Inc. All Rights Reserved.
 package io.outright.xj.core.app.config;
 
+import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.model.chain.Chain;
-import io.outright.xj.core.model.chain_config.ChainConfig;
+import io.outright.xj.core.model.chain_config.ChainConfigType;
 import io.outright.xj.core.model.choice.Choice;
 import io.outright.xj.core.model.idea.Idea;
 import io.outright.xj.core.model.instrument.Instrument;
 import io.outright.xj.core.model.link.Link;
 import io.outright.xj.core.model.voice.Voice;
+
+import com.google.common.collect.ImmutableList;
 
 import org.json.JSONObject;
 
@@ -24,10 +27,12 @@ public abstract class Exposure {
 
   // external file references (e.g. audio files)
   public static final String FILE_AUDIO = "audio";
+  public static final String FILE_LINK = "link";
+  public static final String FILE_CHAIN = "chain";
   public static final String FILE_DOT = ".";
-  public static final String FILE_EXTENSION = "wav";
   public static final String FILE_INSTRUMENT = "instrument";
   public static final String FILE_SEPARATOR = "-";
+  public static final String FOLDER_SEPARATOR = "/";
 
   // key special resources (e.g. upload policy)
   public static final String KEY_UPLOAD_ACCESS_KEY = "awsAccessKeyId";
@@ -50,6 +55,7 @@ public abstract class Exposure {
   private static final String KEY_IDEA_TYPES = "ideaTypes";
   private static final String KEY_INSTRUMENT_TYPES = "instrumentTypes";
   private static final String KEY_LINK_STATES = "linkStates";
+  private static final String KEY_LINK_BASE_URL = "linkBaseUrl";
   private static final String KEY_VOICE_TYPES = "voiceTypes";
 
   /**
@@ -58,7 +64,7 @@ public abstract class Exposure {
    @param key of audio to retrieve a URL for (empty for base URL)
    @return String
    */
-  public static String audioUrl(String key) {
+  public static String audioUrl(String key) throws ConfigException {
     return Config.audioBaseUrl() + key;
   }
 
@@ -87,18 +93,19 @@ public abstract class Exposure {
 
    @return JSON object
    */
-  public static JSONObject configJSON() {
+  public static JSONObject configJSON() throws ConfigException {
     JSONObject config = new JSONObject();
     config.put(KEY_API_BASE_URL, Config.appBaseUrl() + Config.apiPath());
     config.put(KEY_AUDIO_BASE_URL, Config.audioBaseUrl());
     config.put(KEY_BASE_URL, Config.appBaseUrl());
-    config.put(KEY_CHAIN_CONFIG_TYPES, ChainConfig.TYPES);
+    config.put(KEY_CHAIN_CONFIG_TYPES, ImmutableList.copyOf(ChainConfigType.values()));
     config.put(KEY_CHAIN_STATES, Chain.STATES);
     config.put(KEY_CHAIN_TYPES, Chain.TYPES);
     config.put(KEY_CHOICE_TYPES, Choice.TYPES);
     config.put(KEY_IDEA_TYPES, Idea.TYPES);
     config.put(KEY_INSTRUMENT_TYPES, Instrument.TYPES);
     config.put(KEY_LINK_STATES, Link.STATES);
+    config.put(KEY_LINK_BASE_URL, Config.linkBaseUrl());
     config.put(KEY_VOICE_TYPES, Voice.TYPES);
     return config;
   }

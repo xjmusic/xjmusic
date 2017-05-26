@@ -2,6 +2,7 @@
 package io.outright.xj.hub.resource.config;
 
 import io.outright.xj.core.app.config.Exposure;
+import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.transport.JSON;
 
 import javax.annotation.security.PermitAll;
@@ -28,7 +29,7 @@ public class ConfigResource {
   @GET
   @WebResult
   @PermitAll
-  public Response getCurrentAuthentication(@Context ContainerRequestContext crc) throws IOException {
+  public Response getCurrentAuthentication(@Context ContainerRequestContext crc) throws IOException, ConfigException {
     return Response
       .accepted(JSON.wrap(Exposure.KEY_CONFIG, Exposure.configJSON()).toString())
       .type(MediaType.APPLICATION_JSON)

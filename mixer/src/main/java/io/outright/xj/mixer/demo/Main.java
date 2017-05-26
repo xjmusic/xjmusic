@@ -4,6 +4,7 @@ package io.outright.xj.mixer.demo;
 import io.outright.xj.mixer.MixerFactory;
 import io.outright.xj.mixer.MixerModule;
 import io.outright.xj.mixer.Mixer;
+import io.outright.xj.mixer.OutputContainer;
 import io.outright.xj.mixer.impl.resource.InternalResource;
 
 import com.google.inject.Guice;
@@ -84,6 +85,7 @@ public class Main {
     MixerFactory mixerFactory = Guice.createInjector(mod).getInstance(MixerFactory.class);
 
     Mixer demoMixer = mixerFactory.createMixer(
+      OutputContainer.WAV,
       new AudioFormat(outputEncoding, outputFrameRate, outputSampleBits, outputChannels,
         (outputChannels * outputSampleBits / 8), outputFrameRate, false),
       totalLength()

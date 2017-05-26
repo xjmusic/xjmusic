@@ -4,12 +4,14 @@ package io.outright.xj.core.dao.impl;
 import io.outright.xj.core.Tables;
 import io.outright.xj.core.app.access.impl.Access;
 import io.outright.xj.core.app.config.Config;
+import io.outright.xj.core.app.config.Exposure;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.app.exception.DatabaseException;
 import io.outright.xj.core.dao.LinkDAO;
 import io.outright.xj.core.db.sql.SQLConnection;
 import io.outright.xj.core.db.sql.SQLDatabaseProvider;
+import io.outright.xj.core.external.amazon.AmazonProvider;
 import io.outright.xj.core.model.link.Link;
 import io.outright.xj.core.tables.records.LinkRecord;
 import io.outright.xj.core.util.Text;
@@ -36,10 +38,14 @@ import static io.outright.xj.core.tables.LinkChord.LINK_CHORD;
 
 public class LinkDAOImpl extends DAOImpl implements LinkDAO {
 
+  private AmazonProvider amazonProvider;
+
   @Inject
   public LinkDAOImpl(
-    SQLDatabaseProvider dbProvider
+    SQLDatabaseProvider dbProvider,
+    AmazonProvider amazonProvider
   ) {
+    this.amazonProvider = amazonProvider;
     this.dbProvider = dbProvider;
   }
 
@@ -156,10 +162,26 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
     // [#126] Links are always readMany in PLANNED state
     fieldValues.put(LINK.STATE, Link.PLANNED);
 
+    // [#267] Link has `waveform_key` referencing xj-link-* S3 bucket object key
+    fieldValues.put(LINK.WAVEFORM_KEY, generateKey(entity.getChainId()));
+
     // top-level access
     requireTopLevel(access);
 
     return executeCreate(db, LINK, fieldValues);
+  }
+
+  /**
+   General a Link URL
+
+   @param chainId to generate URL for
+   @return URL as string
+   */
+  private String generateKey(ULong chainId) {
+    return amazonProvider.generateKey(
+      Exposure.FILE_CHAIN + Exposure.FILE_SEPARATOR +
+        chainId + Exposure.FILE_SEPARATOR +
+        Exposure.FILE_LINK, Link.FILE_EXTENSION);
   }
 
   /**
@@ -227,7 +249,7 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
 
   /**
    Read all records in parent by id
-
+   <p>
    [#235] Chain Links can only be read N at a time, to avoid hanging the server or client
 
    @param db      context
@@ -256,7 +278,7 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
 
   /**
    Read all records in parent by id, beginning at a particular offset
-
+   <p>
    [#235] Chain Links can only be read N at a time, to avoid hanging the server or client
 
    @param db      context

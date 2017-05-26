@@ -42,8 +42,8 @@ export default Ember.Route.extend({
    */
   actions: {
 
-    editInstrument(instrument) {
-      this.transitionTo('accounts.one.libraries.one.instruments.one', instrument);
+    editInstrument(model) {
+      this.transitionTo('accounts.one.libraries.one.instruments.one', model);
     },
 
   }

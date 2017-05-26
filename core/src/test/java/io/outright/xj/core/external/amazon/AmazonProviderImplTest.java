@@ -28,12 +28,12 @@ public class AmazonProviderImplTest {
 
   @Before
   public void setUp() throws Exception {
-    System.setProperty("aws.file.upload.url", "https://s3.amazonaws.com/test-bucket/");
-    System.setProperty("aws.file.upload.key", "AKIALKSFDJKGIOURTJ7H");
-    System.setProperty("aws.file.upload.secret", "jhfd897+jkhjHJJDKJF/908090JHKJJHhjhfg78h");
-    System.setProperty("aws.file.upload.acl", "bucket-owner-full-control");
-    System.setProperty("aws.file.upload.expire.minutes", "60");
-    System.setProperty("aws.file.upload.bucket", "xj-audio-dev");
+    System.setProperty("audio.url.upload", "https://s3.amazonaws.com/test-bucket/");
+    System.setProperty("aws.accessKeyId", "AKIALKSFDJKGIOURTJ7H");
+    System.setProperty("aws.secretKey", "jhfd897+jkhjHJJDKJF/908090JHKJJHhjhfg78h");
+    System.setProperty("audio.file.upload.acl", "bucket-owner-full-control");
+    System.setProperty("audio.file.upload.expire.minutes", "60");
+    System.setProperty("audio.file.bucket", "xj-audio-dev");
 
     createInjector();
     amazonProvider = injector.getInstance(AmazonProvider.class);
@@ -42,26 +42,26 @@ public class AmazonProviderImplTest {
   @After
   public void tearDown() throws Exception {
     amazonProvider = null;
-    System.clearProperty("aws.file.upload.url");
-    System.clearProperty("aws.file.upload.key");
-    System.clearProperty("aws.file.upload.secret");
-    System.clearProperty("aws.file.upload.acl");
-    System.clearProperty("aws.file.upload.expire.minutes");
-    System.clearProperty("aws.file.upload.bucket");
+    System.clearProperty("audio.url.upload");
+    System.clearProperty("aws.accessKeyId");
+    System.clearProperty("aws.secretKey");
+    System.clearProperty("audio.file.upload.acl");
+    System.clearProperty("audio.file.upload.expire.minutes");
+    System.clearProperty("audio.file.bucket");
   }
 
   @Test
   public void generateUploadPolicy() throws Exception {
-    S3UploadPolicy policy = amazonProvider.generateUploadPolicy();
+    S3UploadPolicy policy = amazonProvider.generateAudioUploadPolicy();
 
     assertNotNull(policy);
   }
 
   @Test(expected=ConfigException.class)
   public void generateUploadPolicy_failsWithoutConfigs() throws Exception {
-    System.clearProperty("aws.file.upload.expire.minutes");
+    System.clearProperty("audio.file.upload.expire.minutes");
 
-    amazonProvider.generateUploadPolicy();
+    amazonProvider.generateAudioUploadPolicy();
   }
 
   @Test

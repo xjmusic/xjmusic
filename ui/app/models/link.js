@@ -11,6 +11,7 @@ export default DS.Model.extend({
   density: DS.attr('number'),
   key: DS.attr('string'),
   tempo: DS.attr('number'),
+  waveformKey: DS.attr('string'),
 
   messages: DS.hasMany('link-message'),
   memes: DS.hasMany('link-meme'),

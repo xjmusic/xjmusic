@@ -28,6 +28,7 @@ export default Ember.Service.extend({
     this.promises.ideaTypes = this.newSubPromise("ideaTypes");
     this.promises.instrumentTypes = this.newSubPromise("instrumentTypes");
     this.promises.linkStates = this.newSubPromise("linkStates");
+    this.promises.linkBaseUrl = this.newSubPromise("linkBaseUrl");
     this.promises.voiceTypes = this.newSubPromise("voiceTypes");
   },
 

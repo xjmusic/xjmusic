@@ -68,7 +68,7 @@ export default Ember.Route.extend({
       model.save().then(
         () => {
           Ember.get(this, 'display').success('Updated instrument.');
-          this.transitionTo('accounts.one.libraries.one.instruments.one');
+          this.transitionTo('accounts.one.libraries.one.instruments.one', model);
         },
         (error) => {
           Ember.get(this, 'display').error(error);

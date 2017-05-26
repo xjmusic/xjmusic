@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import static io.outright.xj.core.Tables.LINK;
+import static io.outright.xj.core.app.config.Exposure.KEY_WAVEFORM_KEY;
 
 /**
  Entity for use as POJO for decoding messages received by JAX-RS resources
@@ -42,6 +43,7 @@ public class Link extends Entity {
   public static final String DUBBING = "dubbing";
   public static final String DUBBED = "dubbed";
   public static final String FAILED = "failed";
+
   // list of all states
   public final static List<String> STATES = ImmutableList.of(
     PLANNED,
@@ -67,86 +69,20 @@ public class Link extends Entity {
   private static final String KEY_TEMPO = "tempo";
   private static final String KEY_TOTAL = "total";
   private static final String KEY_KEY = "key";
+  public static final String FILE_EXTENSION = "mp3";
 
-  /**
-   Chain
-   */
   private ULong chainId;
-  /**
-   State
-   */
   private String state;
-  /**
-   BeginAt
-   */
   private Timestamp beginAt;
   private String beginAtError;
-  /**
-   EndAt (optional)
-   */
-  private Timestamp endAt;
+  private Timestamp endAt; // optional
   private String endAtError;
-  /**
-   Key
-   */
   private String key;
-  /**
-   Total
-   */
   private UInteger total;
-  /**
-   Offset
-   */
   private ULong offset;
-  /**
-   Density
-   */
   private Double density;
-  /**
-   Tempo
-   */
   private Double tempo;
-
-  /**
-   Build a new Link model from a JSONObject representation
-
-   @param json object
-   @return Link model
-   */
-  public static Link fromJSON(JSONObject json) {
-    Link link = new Link();
-    if (json.has(KEY_ID)) {
-      link.setId(json.getBigInteger(KEY_ID));
-    }
-    if (json.has(KEY_CHAIN_ID)) {
-      link.setChainId(json.getBigInteger(KEY_CHAIN_ID));
-    }
-    if (json.has(KEY_STATE)) {
-      link.setState(json.getString(KEY_STATE));
-    }
-    if (json.has(KEY_OFFSET)) {
-      link.setOffset(json.getBigInteger(KEY_OFFSET));
-    }
-    if (json.has(KEY_BEGIN_AT)) {
-      link.setBeginAt(json.get(KEY_BEGIN_AT).toString());
-    }
-    if (json.has(KEY_END_AT)) {
-      link.setEndAt(json.get(KEY_END_AT).toString());
-    }
-    if (json.has(KEY_DENSITY)) {
-      link.setDensity(json.getDouble(KEY_DENSITY));
-    }
-    if (json.has(KEY_TEMPO)) {
-      link.setTempo(json.getDouble(KEY_TEMPO));
-    }
-    if (json.has(KEY_TOTAL)) {
-      link.setTotal(json.getInt(KEY_TOTAL));
-    }
-    if (json.has(KEY_KEY)) {
-      link.setKey(json.getString(KEY_KEY));
-    }
-    return link;
-  }
+  private String waveformKey;
 
   /**
    Validate a state
@@ -275,6 +211,10 @@ public class Link extends Entity {
     return this;
   }
 
+  public String getWaveformKey() {
+    return waveformKey;
+  }
+
   @Override
   public void validate() throws BusinessException {
     if (this.chainId == null) {
@@ -304,8 +244,52 @@ public class Link extends Entity {
     density = record.get(LINK.DENSITY);
     key = record.get(LINK.KEY);
     tempo = record.get(LINK.TEMPO);
+    waveformKey = record.get(LINK.WAVEFORM_KEY);
     createdAt = record.get(LINK.CREATED_AT);
     updatedAt = record.get(LINK.UPDATED_AT);
+    return this;
+  }
+
+  /**
+   Build a new Link model from a JSONObject representation
+
+   @param json object
+   @return Link model
+   */
+  public Link setFromJSON(JSONObject json) {
+    if (json.has(KEY_ID))
+      id = ULong.valueOf(json.getBigInteger(KEY_ID));
+
+    if (json.has(KEY_CHAIN_ID))
+      chainId = ULong.valueOf(json.getBigInteger(KEY_CHAIN_ID));
+
+    if (json.has(KEY_STATE))
+      state = json.getString(KEY_STATE);
+
+    if (json.has(KEY_OFFSET))
+      offset = ULong.valueOf(json.getBigInteger(KEY_OFFSET));
+
+    if (json.has(KEY_BEGIN_AT))
+      beginAt = Timestamp.valueOf(json.get(KEY_BEGIN_AT).toString());
+
+    if (json.has(KEY_END_AT))
+      endAt = Timestamp.valueOf(json.get(KEY_END_AT).toString());
+
+    if (json.has(KEY_DENSITY))
+      density = json.getDouble(KEY_DENSITY);
+
+    if (json.has(KEY_TEMPO))
+      tempo = json.getDouble(KEY_TEMPO);
+
+    if (json.has(KEY_TOTAL))
+      total = UInteger.valueOf(json.getInt(KEY_TOTAL));
+
+    if (json.has(KEY_KEY))
+      key = json.getString(KEY_KEY);
+
+    if (json.has(KEY_WAVEFORM_KEY))
+      waveformKey = json.getString(KEY_WAVEFORM_KEY);
+
     return this;
   }
 
@@ -321,6 +305,7 @@ public class Link extends Entity {
     fieldValues.put(LINK.DENSITY, density != null ? density : DSL.val((String) null));
     fieldValues.put(LINK.KEY, key != null ? key : DSL.val((String) null));
     fieldValues.put(LINK.TEMPO, tempo != null ? tempo : DSL.val((String) null));
+    // Excluding AUDIO.WAVEFORM_KEY a.k.a. waveformKey because that is read-only
     return fieldValues;
   }
 
@@ -350,8 +335,10 @@ public class Link extends Entity {
     copy.density = density;
     copy.key = key;
     copy.tempo = tempo;
+    copy.waveformKey = waveformKey;
     copy.createdAt = createdAt;
     copy.updatedAt = updatedAt;
     return copy;
   }
+
 }

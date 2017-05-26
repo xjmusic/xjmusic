@@ -42,8 +42,8 @@ export default Ember.Route.extend({
    */
   actions: {
 
-    editLibrary(library) {
-      this.transitionTo('accounts.one.libraries.one', library);
+    editLibrary(model) {
+      this.transitionTo('accounts.one.libraries.one', model);
     },
 
   }

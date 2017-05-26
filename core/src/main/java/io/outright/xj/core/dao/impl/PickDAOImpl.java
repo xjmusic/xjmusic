@@ -70,6 +70,16 @@ public class PickDAOImpl extends DAOImpl implements PickDAO {
   }
 
   @Override
+  public Result<PickRecord> readAllInLink(Access access, ULong linkId) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readAllInLink(tx.getContext(), access, linkId));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
   public void update(Access access, ULong id, Pick entity) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
@@ -163,6 +173,24 @@ public class PickDAOImpl extends DAOImpl implements PickDAO {
         .where(PICK.ARRANGEMENT_ID.eq(arrangementId))
         .and(CHAIN.ACCOUNT_ID.in(access.getAccounts()))
         .fetch());
+  }
+
+  /**
+   Read all records in parent's parent's parent (link) by id
+
+   @param db            context
+   @param access        control
+   @param linkId of parent
+   @return array of records
+   */
+  private Result<PickRecord> readAllInLink(DSLContext db, Access access, ULong linkId) throws SQLException, BusinessException {
+    requireTopLevel(access);
+    return resultInto(PICK, db.select(PICK.fields())
+      .from(PICK)
+      .join(ARRANGEMENT).on(ARRANGEMENT.ID.eq(PICK.ARRANGEMENT_ID))
+      .join(CHOICE).on(CHOICE.ID.eq(ARRANGEMENT.CHOICE_ID))
+      .where(CHOICE.LINK_ID.eq(linkId))
+      .fetch());
   }
 
   /**

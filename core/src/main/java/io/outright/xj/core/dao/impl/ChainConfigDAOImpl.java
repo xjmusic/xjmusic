@@ -112,7 +112,7 @@ public class ChainConfigDAOImpl extends DAOImpl implements ChainConfigDAO {
 
     if (exists(db.selectFrom(CHAIN_CONFIG)
       .where(CHAIN_CONFIG.CHAIN_ID.eq(entity.getChainId()))
-      .and(CHAIN_CONFIG.TYPE.eq(entity.getType()))
+      .and(CHAIN_CONFIG.TYPE.eq(entity.getType().toString()))
       .fetchOne()))
       throw new BusinessException(entity.getType() + " config already exists for this Chain!");
 

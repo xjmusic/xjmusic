@@ -11,6 +11,15 @@ import static org.junit.Assert.assertEquals;
 @RunWith(MockitoJUnitRunner.class)
 public class TextTest extends Mockito {
   @Test
+  public void alphabetical() throws Exception {
+    assertEquals("Pajamas",Text.alphabetical("Pajamas"));
+    assertEquals("Pajamas",Text.alphabetical("1P34aj2a3ma321s"));
+    assertEquals("Pajamas",Text.alphabetical("  P#$ aj#$@a   @#$$$$ma         s"));
+    assertEquals("Pajamas",Text.alphabetical("P_+_+_+_+_(@(#%&!&&&@&%!@)_$*(!_)@()_#()(((a j a m a s "));
+    assertEquals("Pajamas",Text.alphabetical("Pajamas"));
+  }
+
+  @Test
   public void slug() throws Exception {
     assertEquals("jim", Text.Slug("jim"));
     assertEquals("jim", Text.Slug("jim-251"));

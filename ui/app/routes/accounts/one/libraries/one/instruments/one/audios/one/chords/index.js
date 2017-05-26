@@ -42,8 +42,8 @@ export default Ember.Route.extend({
    */
   actions: {
 
-    editChord(chord) {
-      this.transitionTo('accounts.one.libraries.one.instruments.one.audios.one.chords.one', chord);
+    editChord(model) {
+      this.transitionTo('accounts.one.libraries.one.instruments.one.audios.one.chords.one', model);
     },
   }
 

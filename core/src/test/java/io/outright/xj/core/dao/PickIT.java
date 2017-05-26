@@ -48,27 +48,25 @@ public class PickIT {
     IntegrationTestEntity.insertAccount(1, "Testing");
     IntegrationTestEntity.insertUser(2, "bill", "bill@email.com", "http://pictures.com/bill.gif");
 
-    // Library "test sounds"
+    // Library
     IntegrationTestEntity.insertLibrary(1, 1, "test sounds");
+
+    // Idea, Phase, Voice
     IntegrationTestEntity.insertIdea(1, 2, 1, Idea.MACRO, "epic concept", 0.342, "C#", 0.286);
     IntegrationTestEntity.insertPhase(1, 1, 0, 16, "Ants", 0.583, "D minor", 120.0);
     IntegrationTestEntity.insertVoice(8, 1, Voice.PERCUSSIVE, "This is a percussive voice");
 
-    // Library has Instrument
+    // Instrument, Audio
     IntegrationTestEntity.insertInstrument(9, 1, 2, "jams", Instrument.PERCUSSIVE, 0.6);
     IntegrationTestEntity.insertAudio(1, 9, "Kick", "https://static.xj.outright.io/instrument/percussion/808/kick1.wav", 0.01, 2.123, 120.0, 440);
 
-    // Chain "Test Print #1" has one link
+    // Chain, Link
     IntegrationTestEntity.insertChain(1, 1, "Test Print #1", Chain.PRODUCTION, Chain.READY, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"));
-    IntegrationTestEntity.insertLink(1, 1, 0, Link.DUBBED, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120);
+    IntegrationTestEntity.insertLink(1, 1, 0, Link.DUBBED, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120, "chain-1-link-97898asdf7892.wav");
 
-    // Link "Test Print #1" has 4 choices
+    // Choice, Arrangement, Pick
     IntegrationTestEntity.insertChoice(7, 1, 1, Choice.MACRO, 2, -5);
-
-    // Arrangement picks something
     IntegrationTestEntity.insertArrangement(1, 7, 8, 9);
-
-    // Pick is in Morph
     IntegrationTestEntity.insertPick(1, 1, 1, 0.125, 1.23, 0.94, 440);
 
     // Instantiate the test subject
@@ -229,6 +227,22 @@ public class PickIT {
 
     assertNotNull(result);
     assertEquals(0, result.length());
+  }
+
+  @Test
+  public void readAllInLink() throws Exception {
+    IntegrationTestEntity.insertPick(2, 1, 1, 1.125, 1.23, 0.94, 440);
+    IntegrationTestEntity.insertPick(3, 1, 1, 2.125, 1.23, 0.94, 220);
+    IntegrationTestEntity.insertPick(4, 1, 1, 3.125, 1.23, 0.94, 110);
+    IntegrationTestEntity.insertPick(5, 1, 1, 4.125, 1.23, 0.94, 55);
+
+    JSONArray result = JSON.arrayOf(testDAO.readAllInLink(Access.internal(), ULong.valueOf(1)));
+
+    assertNotNull(result);
+    assertEquals(5, result.length());
+
+    JSONObject actualResult0 = (JSONObject) result.get(0);
+    assertEquals(440.0, actualResult0.get("pitch"));
   }
 
   @Test

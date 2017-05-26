@@ -47,7 +47,7 @@ export default Ember.Route.extend({
       model.save().then(
         () => {
           Ember.get(this, 'display').success('Updated audio "' + model.get('name') + '".');
-          this.transitionTo('accounts.one.libraries.one.instruments.one.audios.one');
+          this.transitionTo('accounts.one.libraries.one.instruments.one.audios.one', model);
         },
         (error) => {
           Ember.get(this, 'display').error(error);

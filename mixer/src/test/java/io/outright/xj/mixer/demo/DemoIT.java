@@ -4,6 +4,7 @@ package io.outright.xj.mixer.demo;
 import io.outright.xj.mixer.MixerFactory;
 import io.outright.xj.mixer.MixerModule;
 import io.outright.xj.mixer.Mixer;
+import io.outright.xj.mixer.OutputContainer;
 import io.outright.xj.mixer.impl.exception.FormatException;
 import io.outright.xj.mixer.impl.resource.InternalResource;
 
@@ -125,6 +126,7 @@ public class DemoIT {
    */
   private void mixAndWriteOutput(AudioFormat.Encoding outputEncoding, int outputFrameRate, int outputSampleBits, int outputChannels, String outputFilePath) throws Exception {
     Mixer demoMixer = mixerFactory.createMixer(
+      OutputContainer.WAV,
       new AudioFormat(outputEncoding, outputFrameRate, outputSampleBits, outputChannels,
         (outputChannels * outputSampleBits / 8), outputFrameRate, false),
       totalLength()
