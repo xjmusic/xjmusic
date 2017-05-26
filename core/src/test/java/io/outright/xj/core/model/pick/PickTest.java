@@ -54,10 +54,7 @@ public class PickTest {
   }
 
   @Test
-  public void validate_failsWithoutMorphID() throws Exception {
-    failure.expect(BusinessException.class);
-    failure.expectMessage("Morph ID is required");
-
+  public void validate_withoutMorphID() throws Exception {
     new Pick()
       .setArrangementId(BigInteger.valueOf(1269))
       .setAudioId(BigInteger.valueOf(6329))
@@ -148,7 +145,6 @@ public class PickTest {
     PickRecord record = new PickRecord();
     record.setId(ULong.valueOf(12));
     record.setArrangementId(ULong.valueOf(1269));
-    record.setMorphId(ULong.valueOf(6945));
     record.setAudioId(ULong.valueOf(6329));
     record.setStart(0.92);
     record.setLength(2.7);
@@ -163,7 +159,7 @@ public class PickTest {
     assertNotNull(result);
     assertEquals(ULong.valueOf(12), result.getId());
     assertEquals(ULong.valueOf(1269), result.getArrangementId());
-    assertEquals(ULong.valueOf(6945), result.getMorphId());
+    assertEquals(null, result.getMorphId());
     assertEquals(ULong.valueOf(6329), result.getAudioId());
     assertEquals(Double.valueOf(0.92), result.getStart());
     assertEquals(Double.valueOf(2.7), result.getLength());
@@ -191,7 +187,6 @@ public class PickTest {
       .updatableFieldValueMap();
 
     assertEquals(ULong.valueOf(1269), result.get(PICK.ARRANGEMENT_ID));
-    assertEquals(ULong.valueOf(6945), result.get(PICK.MORPH_ID));
     assertEquals(ULong.valueOf(6329), result.get(PICK.AUDIO_ID));
     assertEquals(0.92, result.get(PICK.START));
     assertEquals(2.7, result.get(PICK.LENGTH));

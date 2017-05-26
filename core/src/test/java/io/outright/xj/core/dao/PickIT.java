@@ -1,4 +1,4 @@
-// Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
+// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 package io.outright.xj.core.dao;
 
 import io.outright.xj.core.CoreModule;
@@ -68,11 +68,8 @@ public class PickIT {
     // Arrangement picks something
     IntegrationTestEntity.insertArrangement(1, 7, 8, 9);
 
-    // Morph is in arrangement
-    IntegrationTestEntity.insertMorph(1, 1, 0.75, "C", 0.5);
-
     // Pick is in Morph
-    IntegrationTestEntity.insertPick(1, 1, 1, 1, 0.125, 1.23, 0.94, 440);
+    IntegrationTestEntity.insertPick(1, 1, 1, 0.125, 1.23, 0.94, 440);
 
     // Instantiate the test subject
     testDAO = injector.getInstance(PickDAO.class);
@@ -101,7 +98,6 @@ public class PickIT {
 
     assertNotNull(result);
     assertEquals(ULong.valueOf(1), result.get("arrangementId"));
-    assertEquals(ULong.valueOf(1), result.get("morphId"));
     assertEquals(ULong.valueOf(1), result.get("audioId"));
     assertEquals(0.12, result.get("start"));
     assertEquals(1.04, result.get("length"));
@@ -142,8 +138,8 @@ public class PickIT {
     testDAO.create(access, inputData);
   }
 
-  @Test(expected = BusinessException.class)
-  public void create_FailsWithoutMorphID() throws Exception {
+  @Test
+  public void create_withoutMorphID() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
@@ -186,7 +182,7 @@ public class PickIT {
 
     assertNotNull(result);
     assertEquals(ULong.valueOf(1), result.getArrangementId());
-    assertEquals(ULong.valueOf(1), result.getMorphId());
+    assertEquals(null, result.getMorphId());
     assertEquals(ULong.valueOf(1), result.getAudioId());
     assertEquals(Double.valueOf(0.125), result.getStart());
     assertEquals(Double.valueOf(1.23), result.getLength());
@@ -257,7 +253,6 @@ public class PickIT {
       .fetchOne();
     assertNotNull(result);
     assertEquals(ULong.valueOf(1), result.getArrangementId());
-    assertEquals(ULong.valueOf(1), result.getMorphId());
     assertEquals(ULong.valueOf(1), result.getAudioId());
     assertEquals(Double.valueOf(0.12), result.getStart());
     assertEquals(Double.valueOf(1.04), result.getLength());
@@ -265,8 +260,8 @@ public class PickIT {
     assertEquals(Double.valueOf(754.02), result.getPitch());
   }
 
-  @Test(expected = BusinessException.class)
-  public void update_FailsWithoutMorphID() throws Exception {
+  @Test
+  public void update_withoutMorphID() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
@@ -278,36 +273,7 @@ public class PickIT {
       .setAmplitude(0.94)
       .setPitch(754.02);
 
-    testDAO.update(access, ULong.valueOf(2), inputData);
-  }
-
-  @Test(expected = BusinessException.class)
-  public void update_FailsToChangeMorph() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "admin"
-    ));
-    Pick inputData = new Pick()
-      .setArrangementId(BigInteger.valueOf(1))
-      .setMorphId(BigInteger.valueOf(12))
-      .setAudioId(BigInteger.valueOf(1))
-      .setStart(0.12)
-      .setLength(1.04)
-      .setAmplitude(0.94)
-      .setPitch(754.02);
-
-    try {
-      testDAO.update(access, ULong.valueOf(1), inputData);
-
-    } catch (Exception e) {
-      PickRecord result = IntegrationTestService.getDb()
-        .selectFrom(PICK)
-        .where(PICK.ID.eq(ULong.valueOf(1)))
-        .fetchOne();
-      assertNotNull(result);
-      assertEquals(ULong.valueOf(1), result.getArrangementId());
-      assertEquals(ULong.valueOf(1), result.getMorphId());
-      throw e;
-    }
+    testDAO.update(access, ULong.valueOf(1), inputData);
   }
 
   @Test(expected = BusinessException.class)
@@ -333,7 +299,6 @@ public class PickIT {
         .where(PICK.ID.eq(ULong.valueOf(1)))
         .fetchOne();
       assertNotNull(result);
-      assertEquals(ULong.valueOf(1), result.getMorphId());
       assertEquals(ULong.valueOf(1), result.getArrangementId());
       throw e;
     }

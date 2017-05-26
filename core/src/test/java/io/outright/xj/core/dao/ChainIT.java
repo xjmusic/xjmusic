@@ -12,7 +12,6 @@ import io.outright.xj.core.model.choice.Choice;
 import io.outright.xj.core.model.idea.Idea;
 import io.outright.xj.core.model.instrument.Instrument;
 import io.outright.xj.core.model.link.Link;
-import io.outright.xj.core.model.link_message.LinkMessage;
 import io.outright.xj.core.model.message.Message;
 import io.outright.xj.core.model.voice.Voice;
 import io.outright.xj.core.tables.records.ChainRecord;
@@ -40,12 +39,10 @@ import static io.outright.xj.core.Tables.ARRANGEMENT;
 import static io.outright.xj.core.Tables.CHAIN;
 import static io.outright.xj.core.Tables.CHOICE;
 import static io.outright.xj.core.Tables.LINK;
-import static io.outright.xj.core.Tables.LINK_MEME;
-import static io.outright.xj.core.Tables.MORPH;
-import static io.outright.xj.core.Tables.PICK;
-import static io.outright.xj.core.Tables.POINT;
 import static io.outright.xj.core.Tables.LINK_CHORD;
+import static io.outright.xj.core.Tables.LINK_MEME;
 import static io.outright.xj.core.Tables.LINK_MESSAGE;
+import static io.outright.xj.core.Tables.PICK;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -837,14 +834,8 @@ public class ChainIT {
     // Arrangement
     IntegrationTestEntity.insertArrangement(1, 1, 8, 9);
 
-    // Morph is in arrangement
-    IntegrationTestEntity.insertMorph(1, 1, 0.75, "C", 0.5);
-
     // Pick is in Morph
-    IntegrationTestEntity.insertPick(1, 1, 1, 1, 0.125, 1.23, 0.94, 440);
-
-    // Point is in Morph
-    IntegrationTestEntity.insertPoint(1, 1, 1, 0.125, "C", 1.5);
+    IntegrationTestEntity.insertPick(1, 1, 1, 0.125, 1.23, 0.94, 440);
 
     Access access = new Access(ImmutableMap.of(
       "roles", "admin"
@@ -894,22 +885,10 @@ public class ChainIT {
       .where(CHOICE.ID.eq(ULong.valueOf(1)))
       .fetchOne());
 
-    // Assert destroyed Morph
-    assertNull(IntegrationTestService.getDb()
-      .selectFrom(MORPH)
-      .where(MORPH.ID.eq(ULong.valueOf(1)))
-      .fetchOne());
-
     // Assert destroyed Pick
     assertNull(IntegrationTestService.getDb()
       .selectFrom(PICK)
       .where(PICK.ID.eq(ULong.valueOf(1)))
-      .fetchOne());
-
-    // Assert destroyed Point
-    assertNull(IntegrationTestService.getDb()
-      .selectFrom(POINT)
-      .where(POINT.ID.eq(ULong.valueOf(1)))
       .fetchOne());
 
   }

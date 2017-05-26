@@ -26,7 +26,7 @@ import static io.outright.xj.core.Tables.ARRANGEMENT;
 import static io.outright.xj.core.Tables.CHAIN;
 import static io.outright.xj.core.Tables.CHOICE;
 import static io.outright.xj.core.Tables.LINK;
-import static io.outright.xj.core.Tables.MORPH;
+import static io.outright.xj.core.tables.Pick.PICK;
 
 public class ArrangementDAOImpl extends DAOImpl implements ArrangementDAO {
 
@@ -208,18 +208,12 @@ public class ArrangementDAOImpl extends DAOImpl implements ArrangementDAO {
       .where(ARRANGEMENT.ID.eq(id))
       .fetchOne());
 
-    requireNotExists("Morph in Arrangement", db.select(MORPH.ID)
-      .from(MORPH)
-      .where(MORPH.ARRANGEMENT_ID.eq(id))
+    requireNotExists("Pick", db.selectFrom(PICK)
+      .where(PICK.ARRANGEMENT_ID.eq(id))
       .fetch());
 
     db.deleteFrom(ARRANGEMENT)
       .where(ARRANGEMENT.ID.eq(id))
-      .andNotExists(
-        db.select(MORPH.ID)
-          .from(MORPH)
-          .where(MORPH.ARRANGEMENT_ID.eq(id))
-      )
       .execute();
   }
 

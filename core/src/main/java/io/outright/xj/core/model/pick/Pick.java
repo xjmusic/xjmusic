@@ -10,6 +10,7 @@ import org.jooq.types.ULong;
 
 import com.google.api.client.util.Maps;
 
+import javax.annotation.Nullable;
 import java.math.BigInteger;
 import java.util.Map;
 import java.util.Objects;
@@ -45,6 +46,7 @@ public class Pick extends Entity {
     return this;
   }
 
+  @Nullable
   public ULong getMorphId() {
     return morphId;
   }
@@ -113,9 +115,6 @@ public class Pick extends Entity {
     if (this.arrangementId == null) {
       throw new BusinessException("Arrangement ID is required.");
     }
-    if (this.morphId == null) {
-      throw new BusinessException("Morph ID is required.");
-    }
     if (this.audioId == null) {
       throw new BusinessException("Audio ID is required.");
     }
@@ -140,7 +139,6 @@ public class Pick extends Entity {
     }
     id = record.get(PICK.ID);
     arrangementId = record.get(PICK.ARRANGEMENT_ID);
-    morphId = record.get(PICK.MORPH_ID);
     audioId = record.get(PICK.AUDIO_ID);
     start = record.get(PICK.START);
     length = record.get(PICK.LENGTH);
@@ -155,7 +153,6 @@ public class Pick extends Entity {
   public Map<Field, Object> updatableFieldValueMap() {
     Map<Field, Object> fieldValues = Maps.newHashMap();
     fieldValues.put(PICK.ARRANGEMENT_ID, arrangementId);
-    fieldValues.put(PICK.MORPH_ID, morphId);
     fieldValues.put(PICK.AUDIO_ID, audioId);
     fieldValues.put(PICK.START, start);
     fieldValues.put(PICK.LENGTH, length);

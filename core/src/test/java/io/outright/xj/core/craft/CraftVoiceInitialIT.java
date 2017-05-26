@@ -12,10 +12,7 @@ import io.outright.xj.core.model.link.Link;
 import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.model.voice.Voice;
 import io.outright.xj.core.tables.records.ArrangementRecord;
-import io.outright.xj.core.tables.records.MorphRecord;
-import io.outright.xj.core.tables.records.PickRecord;
 
-import org.jooq.Result;
 import org.jooq.types.ULong;
 
 import com.google.inject.Guice;
@@ -30,9 +27,7 @@ import org.junit.rules.ExpectedException;
 import java.sql.Timestamp;
 
 import static io.outright.xj.core.Tables.ARRANGEMENT;
-import static io.outright.xj.core.Tables.MORPH;
 import static io.outright.xj.core.Tables.PICK;
-import static io.outright.xj.core.tables.Point.POINT;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -161,11 +156,6 @@ public class CraftVoiceInitialIT {
         .fetchOne();
     assertNotNull(resultArrangement);
 
-    assertEquals(16, IntegrationTestService.getDb()
-      .selectFrom(MORPH)
-      .where(MORPH.ARRANGEMENT_ID.eq(resultArrangement.getId()))
-      .fetch().size());
-
     assertEquals(8, IntegrationTestService.getDb()
       .selectFrom(PICK)
       .where(PICK.AUDIO_ID.eq(ULong.valueOf(1)))
@@ -175,26 +165,5 @@ public class CraftVoiceInitialIT {
       .selectFrom(PICK)
       .where(PICK.AUDIO_ID.eq(ULong.valueOf(2)))
       .fetch().size());
-
-    assertEquals(4, IntegrationTestService.getDb()
-      .selectFrom(POINT)
-      .where(POINT.VOICE_EVENT_ID.eq(ULong.valueOf(1)))
-      .fetch().size());
-
-    assertEquals(4, IntegrationTestService.getDb()
-      .selectFrom(POINT)
-      .where(POINT.VOICE_EVENT_ID.eq(ULong.valueOf(2)))
-      .fetch().size());
-
-    assertEquals(4, IntegrationTestService.getDb()
-      .selectFrom(POINT)
-      .where(POINT.VOICE_EVENT_ID.eq(ULong.valueOf(3)))
-      .fetch().size());
-
-    assertEquals(4, IntegrationTestService.getDb()
-      .selectFrom(POINT)
-      .where(POINT.VOICE_EVENT_ID.eq(ULong.valueOf(4)))
-      .fetch().size());
-
   }
 }

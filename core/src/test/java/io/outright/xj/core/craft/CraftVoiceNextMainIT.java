@@ -27,10 +27,7 @@ import org.junit.rules.ExpectedException;
 import java.sql.Timestamp;
 
 import static io.outright.xj.core.Tables.ARRANGEMENT;
-import static io.outright.xj.core.Tables.CHOICE;
-import static io.outright.xj.core.Tables.MORPH;
 import static io.outright.xj.core.Tables.PICK;
-import static io.outright.xj.core.tables.Point.POINT;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -199,11 +196,6 @@ public class CraftVoiceNextMainIT {
         .fetchOne();
     assertNotNull(resultArrangement);
 
-    assertEquals(16, IntegrationTestService.getDb()
-      .selectFrom(MORPH)
-      .where(MORPH.ARRANGEMENT_ID.eq(resultArrangement.getId()))
-      .fetch().size());
-
     assertEquals(8, IntegrationTestService.getDb()
       .selectFrom(PICK)
       .where(PICK.AUDIO_ID.eq(ULong.valueOf(1)))
@@ -214,25 +206,6 @@ public class CraftVoiceNextMainIT {
       .where(PICK.AUDIO_ID.eq(ULong.valueOf(2)))
       .fetch().size());
 
-    assertEquals(4, IntegrationTestService.getDb()
-      .selectFrom(POINT)
-      .where(POINT.VOICE_EVENT_ID.eq(ULong.valueOf(1)))
-      .fetch().size());
-
-    assertEquals(4, IntegrationTestService.getDb()
-      .selectFrom(POINT)
-      .where(POINT.VOICE_EVENT_ID.eq(ULong.valueOf(2)))
-      .fetch().size());
-
-    assertEquals(4, IntegrationTestService.getDb()
-      .selectFrom(POINT)
-      .where(POINT.VOICE_EVENT_ID.eq(ULong.valueOf(3)))
-      .fetch().size());
-
-    assertEquals(4, IntegrationTestService.getDb()
-      .selectFrom(POINT)
-      .where(POINT.VOICE_EVENT_ID.eq(ULong.valueOf(4)))
-      .fetch().size());
   }
 
 }

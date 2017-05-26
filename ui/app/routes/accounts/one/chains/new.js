@@ -66,7 +66,7 @@ export default Ember.Route.extend({
       model.save().then(
         () => {
           Ember.get(this, 'display').success('Created chain ' + model.get('name') + '.');
-          this.transitionTo('accounts.one.chains', model);
+          this.transitionTo('accounts.one.chains.one', model);
         },
         (error) => {
           Ember.get(this, 'display').error(error);

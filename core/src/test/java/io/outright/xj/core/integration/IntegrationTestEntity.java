@@ -25,12 +25,10 @@ import io.outright.xj.core.tables.records.LinkChordRecord;
 import io.outright.xj.core.tables.records.LinkMemeRecord;
 import io.outright.xj.core.tables.records.LinkMessageRecord;
 import io.outright.xj.core.tables.records.LinkRecord;
-import io.outright.xj.core.tables.records.MorphRecord;
 import io.outright.xj.core.tables.records.PhaseChordRecord;
 import io.outright.xj.core.tables.records.PhaseMemeRecord;
 import io.outright.xj.core.tables.records.PhaseRecord;
 import io.outright.xj.core.tables.records.PickRecord;
-import io.outright.xj.core.tables.records.PointRecord;
 import io.outright.xj.core.tables.records.UserAccessTokenRecord;
 import io.outright.xj.core.tables.records.UserAuthRecord;
 import io.outright.xj.core.tables.records.UserRecord;
@@ -60,27 +58,25 @@ import static io.outright.xj.core.Tables.CHAIN_IDEA;
 import static io.outright.xj.core.Tables.CHAIN_INSTRUMENT;
 import static io.outright.xj.core.Tables.CHAIN_LIBRARY;
 import static io.outright.xj.core.Tables.CHOICE;
+import static io.outright.xj.core.Tables.IDEA;
 import static io.outright.xj.core.Tables.IDEA_MEME;
 import static io.outright.xj.core.Tables.INSTRUMENT;
 import static io.outright.xj.core.Tables.INSTRUMENT_MEME;
+import static io.outright.xj.core.Tables.LIBRARY;
 import static io.outright.xj.core.Tables.LINK;
 import static io.outright.xj.core.Tables.LINK_CHORD;
-import static io.outright.xj.core.Tables.MORPH;
+import static io.outright.xj.core.Tables.LINK_MEME;
+import static io.outright.xj.core.Tables.LINK_MESSAGE;
 import static io.outright.xj.core.Tables.PHASE;
 import static io.outright.xj.core.Tables.PHASE_CHORD;
 import static io.outright.xj.core.Tables.PHASE_MEME;
 import static io.outright.xj.core.Tables.PICK;
-import static io.outright.xj.core.Tables.POINT;
 import static io.outright.xj.core.Tables.USER;
 import static io.outright.xj.core.Tables.USER_ACCESS_TOKEN;
 import static io.outright.xj.core.Tables.USER_AUTH;
 import static io.outright.xj.core.Tables.USER_ROLE;
 import static io.outright.xj.core.Tables.VOICE;
 import static io.outright.xj.core.Tables.VOICE_EVENT;
-import static io.outright.xj.core.Tables.IDEA;
-import static io.outright.xj.core.Tables.LIBRARY;
-import static io.outright.xj.core.Tables.LINK_MEME;
-import static io.outright.xj.core.Tables.LINK_MESSAGE;
 
 public abstract class IntegrationTestEntity {
   private static Logger log = LoggerFactory.getLogger(IntegrationTestEntity.class);
@@ -91,14 +87,8 @@ public abstract class IntegrationTestEntity {
   public static void deleteAll() throws DatabaseException {
     DSLContext db = IntegrationTestService.getDb();
     try {
-      // Point
-      db.deleteFrom(POINT).execute(); // before Morph & Voice Event
-
       // Pick
       db.deleteFrom(PICK).execute(); // before Morph & Audio
-
-      // Morph
-      db.deleteFrom(MORPH).execute(); // before Arrangement
 
       // Arrangement
       db.deleteFrom(ARRANGEMENT).execute(); // before Instrument, Voice & Choice
@@ -454,37 +444,15 @@ public abstract class IntegrationTestEntity {
     record.store();
   }
 
-  public static void insertMorph(int id, int arrangementId, Double position, String note, Double duration) {
-    MorphRecord record = IntegrationTestService.getDb().newRecord(MORPH);
-    record.setId(ULong.valueOf(id));
-    record.setArrangementId(ULong.valueOf(arrangementId));
-    record.setPosition(position);
-    record.setNote(note);
-    record.setDuration(duration);
-    record.store();
-  }
-
-  public static void insertPick(int id, int arrangementId, int morphId, int audioId, double start, double length, double amplitude, double pitch) {
+  public static void insertPick(int id, int arrangementId, int audioId, double start, double length, double amplitude, double pitch) {
     PickRecord record = IntegrationTestService.getDb().newRecord(PICK);
     record.setId(ULong.valueOf(id));
     record.setArrangementId(ULong.valueOf(arrangementId));
-    record.setMorphId(ULong.valueOf(morphId));
     record.setAudioId(ULong.valueOf(audioId));
     record.setStart(start);
     record.setLength(length);
     record.setAmplitude(amplitude);
     record.setPitch(pitch);
-    record.store();
-  }
-
-  public static void insertPoint(int id, int morphId, int voiceEventId, double position, String note, double duration) {
-    PointRecord record = IntegrationTestService.getDb().newRecord(POINT);
-    record.setId(ULong.valueOf(id));
-    record.setMorphId(ULong.valueOf(morphId));
-    record.setVoiceEventId(ULong.valueOf(voiceEventId));
-    record.setPosition(position);
-    record.setNote(note);
-    record.setDuration(duration);
     record.store();
   }
 

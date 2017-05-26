@@ -8,11 +8,7 @@ import io.outright.xj.core.craft.VoiceCraft;
 import io.outright.xj.core.dao.ArrangementDAO;
 import io.outright.xj.core.dao.InstrumentDAO;
 import io.outright.xj.core.dao.LinkMemeDAO;
-import io.outright.xj.core.dao.MorphDAO;
-import io.outright.xj.core.dao.PhaseDAO;
 import io.outright.xj.core.dao.PickDAO;
-import io.outright.xj.core.dao.PointDAO;
-import io.outright.xj.core.dao.VoiceDAO;
 import io.outright.xj.core.isometry.MemeIsometry;
 import io.outright.xj.core.model.EventEntity;
 import io.outright.xj.core.model.MemeEntity;
@@ -21,10 +17,8 @@ import io.outright.xj.core.model.audio.Audio;
 import io.outright.xj.core.model.choice.Chance;
 import io.outright.xj.core.model.choice.Chooser;
 import io.outright.xj.core.model.instrument.Instrument;
-import io.outright.xj.core.model.morph.Morph;
 import io.outright.xj.core.model.phase.Phase;
 import io.outright.xj.core.model.pick.Pick;
-import io.outright.xj.core.model.point.Point;
 import io.outright.xj.core.model.voice.Voice;
 import io.outright.xj.core.model.voice_event.VoiceEvent;
 import io.outright.xj.core.tables.records.ArrangementRecord;
@@ -51,10 +45,6 @@ public class VoiceCraftImpl implements VoiceCraft {
   private static final double PICK_INSTRUMENT_AUDIO_SCORE_MAX_DISTRIBUTION = 0.25;
   private final Basis basis;
   private final ArrangementDAO arrangementDAO;
-  private final MorphDAO morphDAO;
-  private final PhaseDAO phaseDAO;
-  private final PointDAO pointDAO;
-  private final VoiceDAO voiceDAO;
   private final PickDAO pickDAO;
   private final LinkMemeDAO linkMemeDAMO;
   private final InstrumentDAO instrumentDAO;
@@ -65,21 +55,13 @@ public class VoiceCraftImpl implements VoiceCraft {
     ArrangementDAO arrangementDAO,
     InstrumentDAO instrumentDAO,
     LinkMemeDAO linkMemeDAMO,
-    MorphDAO morphDAO,
-    PhaseDAO phaseDAO,
-    PickDAO pickDAO,
-    PointDAO pointDAO,
-    VoiceDAO voiceDAO
-  /*-*/) throws BusinessException {
+    PickDAO pickDAO
+    /*-*/) throws BusinessException {
     this.basis = basis;
     this.arrangementDAO = arrangementDAO;
     this.instrumentDAO = instrumentDAO;
     this.linkMemeDAMO = linkMemeDAMO;
-    this.morphDAO = morphDAO;
-    this.phaseDAO = phaseDAO;
     this.pickDAO = pickDAO;
-    this.pointDAO = pointDAO;
-    this.voiceDAO = voiceDAO;
   }
 
   @Override
@@ -137,8 +119,6 @@ public class VoiceCraftImpl implements VoiceCraft {
     Result<? extends Record> sourceRecords;
     Chooser<Instrument> chooser = new Chooser<>();
 
-    // TODO: only choose major instruments for major keys, minor for minor! [#223] Key of first Phase of chosen Percussive-Instrument must match the `minor` or `major` with the Key of the current Link.
-
     // (1) retrieve memes of link, for use as a meme isometry comparison
     MemeIsometry memeIsometry = MemeIsometry.of(linkMemeDAMO.readAll(Access.internal(), basis.linkId()));
 
@@ -148,6 +128,8 @@ public class VoiceCraftImpl implements VoiceCraft {
     // (2b) only if none were found in the previous transpose, retrieve instruments bound to chain library
     if (sourceRecords.size() == 0)
       sourceRecords = instrumentDAO.readAllBoundToChainLibrary(Access.internal(), basis.chainId(), Instrument.PERCUSSIVE);
+
+    // TODO: [#258] Instrument selection is based on Text Isometry between the voice description and the instrument description
 
     // (3) score each source record based on meme isometry
     sourceRecords.forEach((record ->
@@ -242,29 +224,6 @@ public class VoiceCraftImpl implements VoiceCraft {
         .transpose(transpose)
         .conformedTo(chord);
 
-    // create morph
-    Morph morph = new Morph().setFromRecord(
-      morphDAO.create(Access.internal(),
-        new Morph()
-        .setArrangementId(arrangement.getId().toBigInteger())
-        .setPosition(position)
-        .setNote(note.toString(chord.getAdjSymbol()))
-        .setDuration(duration)));
-    if (Objects.isNull(morph))
-      throw new BusinessException("Failed to create Morph");
-
-    // create point
-    Point point = new Point().setFromRecord(
-      pointDAO.create(Access.internal(),
-      new Point()
-        .setMorphId(morph.getId().toBigInteger())
-        .setVoiceEventId(voiceEvent.getId().toBigInteger())
-        .setPosition(0d)
-        .setDuration(duration)
-        .setNote(note.toString(chord.getAdjSymbol()))));
-    if (Objects.isNull(point))
-      throw new BusinessException("Failed to create Point");
-
     // Pick attributes are expressed "rendered" as actual seconds
     double startSeconds = basis.secondsAtPosition(position);
     double lengthSeconds = basis.secondsAtPosition(position + duration) - startSeconds;
@@ -273,7 +232,6 @@ public class VoiceCraftImpl implements VoiceCraft {
     pickDAO.create(Access.internal(),
       new Pick()
         .setArrangementId(arrangement.getId().toBigInteger())
-        .setMorphId(morph.getId().toBigInteger())
         .setAudioId(audio.getId().toBigInteger())
         .setStart(startSeconds)
         .setLength(lengthSeconds)

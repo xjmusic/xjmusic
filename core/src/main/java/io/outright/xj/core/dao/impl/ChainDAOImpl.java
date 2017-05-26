@@ -48,9 +48,7 @@ import static io.outright.xj.core.Tables.LINK;
 import static io.outright.xj.core.Tables.LINK_CHORD;
 import static io.outright.xj.core.Tables.LINK_MEME;
 import static io.outright.xj.core.Tables.LINK_MESSAGE;
-import static io.outright.xj.core.Tables.MORPH;
 import static io.outright.xj.core.Tables.PICK;
-import static io.outright.xj.core.Tables.POINT;
 
 /**
  Chain D.A.O. Implementation
@@ -565,29 +563,9 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
         chainState.equals(Chain.FAILED) ||
         chainState.equals(Chain.COMPLETE));
 
-    // Point before Morph
-    db.deleteFrom(POINT)
-      .where(POINT.MORPH_ID.in(
-        db.select(MORPH.ID).from(MORPH)
-          .join(ARRANGEMENT).on(MORPH.ARRANGEMENT_ID.eq(ARRANGEMENT.ID))
-          .join(CHOICE).on(ARRANGEMENT.CHOICE_ID.eq(CHOICE.ID))
-          .join(LINK).on(CHOICE.LINK_ID.eq(LINK.ID))
-          .where(LINK.CHAIN_ID.eq(id))
-      )).execute();
-
     // Pick before Morph
     db.deleteFrom(PICK)
-      .where(PICK.MORPH_ID.in(
-        db.select(MORPH.ID).from(MORPH)
-          .join(ARRANGEMENT).on(MORPH.ARRANGEMENT_ID.eq(ARRANGEMENT.ID))
-          .join(CHOICE).on(ARRANGEMENT.CHOICE_ID.eq(CHOICE.ID))
-          .join(LINK).on(CHOICE.LINK_ID.eq(LINK.ID))
-          .where(LINK.CHAIN_ID.eq(id))
-      )).execute();
-
-    // Morph before Arrangement
-    db.deleteFrom(MORPH)
-      .where(MORPH.ARRANGEMENT_ID.in(
+      .where(PICK.ARRANGEMENT_ID.in(
         db.select(ARRANGEMENT.ID).from(ARRANGEMENT)
           .join(CHOICE).on(ARRANGEMENT.CHOICE_ID.eq(CHOICE.ID))
           .join(LINK).on(CHOICE.LINK_ID.eq(LINK.ID))

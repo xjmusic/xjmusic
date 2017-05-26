@@ -15,15 +15,15 @@ import java.math.BigInteger;
 import java.util.Map;
 import java.util.Objects;
 
-import static io.outright.xj.core.Tables.POINT;
-
 /**
  Entity for use as POJO for decoding messages received by JAX-RS resources
  a.k.a. JSON input will be stored into an instance of this object
-
+ <p>
  Business logic ought to be performed beginning with an instance of this object,
  to implement common methods.
-
+ <p>
+ Point entities are used only in-memory; Point entities are not persisted to database.
+ <p>
  NOTE: There can only be ONE of any getter/setter (with the same # of input params)
  */
 public class Point extends Entity {
@@ -56,6 +56,7 @@ public class Point extends Entity {
 
   /**
    Position from start of morph, in beats
+
    @return # beats
    */
   public Double getPosition() {
@@ -69,6 +70,7 @@ public class Point extends Entity {
 
   /**
    Duration from start of this point, in beats
+
    @return # beats
    */
   public Double getDuration() {
@@ -113,26 +115,12 @@ public class Point extends Entity {
     if (Objects.isNull(record)) {
       return null;
     }
-    id = record.get(POINT.ID);
-    morphId = record.get(POINT.MORPH_ID);
-    voiceEventId = record.get(POINT.VOICE_EVENT_ID);
-    position = record.get(POINT.POSITION);
-    duration = record.get(POINT.DURATION);
-    note = record.get(POINT.NOTE);
-    createdAt = record.get(POINT.CREATED_AT);
-    updatedAt = record.get(POINT.UPDATED_AT);
     return this;
   }
 
   @Override
   public Map<Field, Object> updatableFieldValueMap() {
-    Map<Field, Object> fieldValues = Maps.newHashMap();
-    fieldValues.put(POINT.MORPH_ID, morphId);
-    fieldValues.put(POINT.VOICE_EVENT_ID, voiceEventId);
-    fieldValues.put(POINT.POSITION, position);
-    fieldValues.put(POINT.DURATION, duration);
-    fieldValues.put(POINT.NOTE, note);
-    return fieldValues;
+    return Maps.newHashMap();
   }
 
 }

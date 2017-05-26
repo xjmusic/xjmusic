@@ -15,15 +15,15 @@ import java.math.BigInteger;
 import java.util.Map;
 import java.util.Objects;
 
-import static io.outright.xj.core.Tables.MORPH;
-
 /**
  Entity for use as POJO for decoding messages received by JAX-RS resources
  a.k.a. JSON input will be stored into an instance of this object
-
+ <p>
  Business logic ought to be performed beginning with an instance of this object,
  to implement common methods.
-
+ <p>
+ Morph entities are used only in-memory; Morph entities are not persisted to database.
+ <p>
  NOTE: There can only be ONE of any getter/setter (with the same # of input params)
  */
 public class Morph extends Entity {
@@ -50,6 +50,7 @@ public class Morph extends Entity {
 
   /**
    position in beats from start of link
+
    @param position in beats
    @return morph
    */
@@ -73,6 +74,7 @@ public class Morph extends Entity {
 
   /**
    duration in beats from start of link
+
    @param duration in beats
    @return morph
    */
@@ -102,24 +104,12 @@ public class Morph extends Entity {
     if (Objects.isNull(record)) {
       return null;
     }
-    id = record.get(MORPH.ID);
-    arrangementId = record.get(MORPH.ARRANGEMENT_ID);
-    position = record.get(MORPH.POSITION);
-    note = record.get(MORPH.NOTE);
-    duration = record.get(MORPH.DURATION);
-    createdAt = record.get(MORPH.CREATED_AT);
-    updatedAt = record.get(MORPH.UPDATED_AT);
     return this;
   }
 
   @Override
   public Map<Field, Object> updatableFieldValueMap() {
-    Map<Field, Object> fieldValues = Maps.newHashMap();
-    fieldValues.put(MORPH.ARRANGEMENT_ID, arrangementId);
-    fieldValues.put(MORPH.POSITION, position);
-    fieldValues.put(MORPH.NOTE, note);
-    fieldValues.put(MORPH.DURATION, duration);
-    return fieldValues;
+    return Maps.newHashMap();
   }
 
 }
