@@ -18,6 +18,7 @@ import org.jooq.types.ULong;
 import com.google.inject.Inject;
 
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Map;
 
 import static io.outright.xj.core.tables.Chain.CHAIN;
@@ -69,10 +70,10 @@ public class LinkMemeDAOImpl extends DAOImpl implements LinkMemeDAO {
   }
 
   @Override
-  public Result<LinkMemeRecord> readAllInChain(Access access, ULong chainId) throws Exception {
+  public Result<LinkMemeRecord> readAllInLinks(Access access, List<ULong> linkIds) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readAllInChain(tx.getContext(), access, chainId));
+      return tx.success(readAllInLinks(tx.getContext(), access, linkIds));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -171,26 +172,26 @@ public class LinkMemeDAOImpl extends DAOImpl implements LinkMemeDAO {
   }
 
   /**
-   Read all records in parent record's parent record by id
+   Read all records in parent records by ids
 
-   @param db     context
-   @param access control
-   @param chainId id of parent's parent (the chain)
    @return array of records
+    @param db     context
+   @param access control
+   @param linkIds id of parent's parent (the chain)
    */
-  private Result<LinkMemeRecord> readAllInChain(DSLContext db, Access access, ULong chainId) throws Exception {
+  private Result<LinkMemeRecord> readAllInLinks(DSLContext db, Access access, List<ULong> linkIds) throws Exception {
     if (access.isTopLevel())
       return resultInto(LINK_MEME, db.select(LINK_MEME.fields())
         .from(LINK_MEME)
         .join(LINK).on(LINK.ID.eq(LINK_MEME.LINK_ID))
-        .where(LINK.CHAIN_ID.eq(chainId))
+        .where(LINK.ID.in(linkIds))
         .fetch());
     else
       return resultInto(LINK_MEME, db.select(LINK_MEME.fields())
         .from(LINK_MEME)
         .join(LINK).on(LINK.ID.eq(LINK_MEME.LINK_ID))
         .join(CHAIN).on(CHAIN.ID.eq(LINK.CHAIN_ID))
-        .where(LINK.CHAIN_ID.eq(chainId))
+        .where(LINK.ID.in(linkIds))
         .and(CHAIN.ACCOUNT_ID.in(access.getAccounts()))
         .fetch());
   }

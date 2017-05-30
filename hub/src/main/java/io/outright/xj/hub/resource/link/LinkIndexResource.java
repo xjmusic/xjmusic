@@ -9,19 +9,22 @@ import io.outright.xj.core.dao.LinkChordDAO;
 import io.outright.xj.core.dao.LinkDAO;
 import io.outright.xj.core.dao.LinkMemeDAO;
 import io.outright.xj.core.dao.LinkMessageDAO;
-import io.outright.xj.core.model.choice.Choice;
 import io.outright.xj.core.model.ChordEntity;
+import io.outright.xj.core.model.MemeEntity;
+import io.outright.xj.core.model.choice.Choice;
 import io.outright.xj.core.model.link.Link;
 import io.outright.xj.core.model.link_chord.LinkChord;
 import io.outright.xj.core.model.link_meme.LinkMeme;
 import io.outright.xj.core.model.link_message.LinkMessage;
-import io.outright.xj.core.model.MemeEntity;
 import io.outright.xj.core.model.message.Message;
 import io.outright.xj.core.model.role.Role;
+import io.outright.xj.core.tables.records.LinkRecord;
 import io.outright.xj.core.transport.JSON;
 
+import org.jooq.Result;
 import org.jooq.types.ULong;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -38,7 +41,10 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.math.BigInteger;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  Links
@@ -59,6 +65,9 @@ public class LinkIndexResource {
   @QueryParam("include")
   String include;
 
+  @QueryParam("fromOffset")
+  BigInteger fromOffset;
+
   /**
    Get all links.
 
@@ -69,9 +78,8 @@ public class LinkIndexResource {
   @RolesAllowed({Role.USER})
   public Response readAll(@Context ContainerRequestContext crc) throws IOException {
 
-    if (chainId == null || chainId.length() == 0) {
+    if (Objects.isNull(chainId) || chainId.length() == 0)
       return response.notAcceptable("Chain id is required");
-    }
 
     try {
       return Response
@@ -94,21 +102,38 @@ public class LinkIndexResource {
   private Map<String, JSONArray> readAllIncludingRelationships(Access access) throws Exception {
     Map<String, JSONArray> out = Maps.newHashMap();
 
-    out.put(Link.KEY_MANY, JSON.arrayOf(linkDAO.readAll(access, ULong.valueOf(chainId))));
+    Result<LinkRecord> links =
+      Objects.nonNull(fromOffset) ?
+        linkDAO.readAllFromOffset(access, ULong.valueOf(chainId), ULong.valueOf(fromOffset)) :
+        linkDAO.readAll(access, ULong.valueOf(chainId));
+    out.put(Link.KEY_MANY, JSON.arrayOf(links));
+
+    List<ULong> linkIds = linkIds(links);
 
     if (include.contains(Message.KEY_MANY))
-      out.put(LinkMessage.KEY_MANY, JSON.arrayOf(linkMessageDAO.readAllInChain(access, ULong.valueOf(chainId))));
+      out.put(LinkMessage.KEY_MANY, JSON.arrayOf(linkMessageDAO.readAllInLinks(access, linkIds)));
 
     if (include.contains(MemeEntity.KEY_MANY))
-      out.put(LinkMeme.KEY_MANY, JSON.arrayOf(linkMemeDAO.readAllInChain(access, ULong.valueOf(chainId))));
+      out.put(LinkMeme.KEY_MANY, JSON.arrayOf(linkMemeDAO.readAllInLinks(access, linkIds)));
 
     if (include.contains(ChordEntity.KEY_MANY))
-      out.put(LinkChord.KEY_MANY, JSON.arrayOf(linkChordDAO.readAllInChain(access, ULong.valueOf(chainId))));
+      out.put(LinkChord.KEY_MANY, JSON.arrayOf(linkChordDAO.readAllInLinks(access, linkIds)));
 
     if (include.contains(Choice.KEY_MANY))
-      out.put(Choice.KEY_MANY, JSON.arrayOf(choiceDAO.readAllInChain(access, ULong.valueOf(chainId))));
+      out.put(Choice.KEY_MANY, JSON.arrayOf(choiceDAO.readAllInLinks(access, linkIds)));
 
     return out;
+  }
+
+  /**
+   Get an immutable list of ids from a result of Links
+   @param links to get ids of
+   @return list of ids
+   */
+  private ImmutableList<ULong> linkIds(Result<LinkRecord> links) {
+    ImmutableList.Builder<ULong> builder = ImmutableList.builder();
+    links.forEach(linkRecord -> builder.add(linkRecord.getId()));
+    return builder.build();
   }
 
 }

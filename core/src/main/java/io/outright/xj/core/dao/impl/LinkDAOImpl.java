@@ -3,6 +3,7 @@ package io.outright.xj.core.dao.impl;
 
 import io.outright.xj.core.Tables;
 import io.outright.xj.core.app.access.impl.Access;
+import io.outright.xj.core.app.config.Config;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.app.exception.DatabaseException;
@@ -23,6 +24,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 
 import javax.annotation.Nullable;
+import java.math.BigInteger;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Map;
@@ -89,6 +91,16 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readAll(tx.getContext(), access, chainId));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public Result<LinkRecord> readAllFromOffset(Access access, ULong chainId, ULong fromOffset) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readAllFromOffset(tx.getContext(), access, chainId, fromOffset));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -216,6 +228,8 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
   /**
    Read all records in parent by id
 
+   [#235] Chain Links can only be read N at a time, to avoid hanging the server or client
+
    @param db      context
    @param access  control
    @param chainId of parent
@@ -227,6 +241,7 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
         .from(LINK)
         .where(LINK.CHAIN_ID.eq(chainId))
         .orderBy(LINK.OFFSET.desc())
+        .limit(Config.limitLinkReadSize())
         .fetch());
     else
       return resultInto(LINK, db.select(LINK.fields())
@@ -235,6 +250,43 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
         .where(LINK.CHAIN_ID.eq(chainId))
         .and(CHAIN.ACCOUNT_ID.in(access.getAccounts()))
         .orderBy(LINK.OFFSET.desc())
+        .limit(Config.limitLinkReadSize())
+        .fetch());
+  }
+
+  /**
+   Read all records in parent by id, beginning at a particular offset
+
+   [#235] Chain Links can only be read N at a time, to avoid hanging the server or client
+
+   @param db      context
+   @param access  control
+   @param chainId of parent
+   @return array of records
+   */
+  private Result<LinkRecord> readAllFromOffset(DSLContext db, Access access, ULong chainId, ULong fromOffset) throws SQLException {
+    // so "from offset zero" means from offset 0 to offset N
+    ULong maxOffset = ULong.valueOf(
+      fromOffset.toBigInteger().add(
+        BigInteger.valueOf(Config.limitLinkReadSize())));
+
+    if (access.isTopLevel())
+      return resultInto(LINK, db.select(LINK.fields())
+        .from(LINK)
+        .where(LINK.CHAIN_ID.eq(chainId))
+        .and(LINK.OFFSET.lessOrEqual(maxOffset))
+        .orderBy(LINK.OFFSET.desc())
+        .limit(Config.limitLinkReadSize())
+        .fetch());
+    else
+      return resultInto(LINK, db.select(LINK.fields())
+        .from(LINK)
+        .join(CHAIN).on(CHAIN.ID.eq(LINK.CHAIN_ID))
+        .where(LINK.CHAIN_ID.eq(chainId))
+        .and(LINK.OFFSET.lessOrEqual(maxOffset))
+        .and(CHAIN.ACCOUNT_ID.in(access.getAccounts()))
+        .orderBy(LINK.OFFSET.desc())
+        .limit(Config.limitLinkReadSize())
         .fetch());
   }
 

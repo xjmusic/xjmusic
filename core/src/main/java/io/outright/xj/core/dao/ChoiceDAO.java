@@ -9,7 +9,7 @@ import org.jooq.Result;
 import org.jooq.types.ULong;
 
 import javax.annotation.Nullable;
-import java.sql.ResultSet;
+import java.util.List;
 
 public interface ChoiceDAO {
   /**
@@ -66,14 +66,14 @@ public interface ChoiceDAO {
   Result<ChoiceRecord> readAll(Access access, ULong linkId) throws Exception;
 
   /**
-   Fetch many choice for all Links in a Chain by id, if accessible
+   Fetch many choice for many Links by id, if accessible
 
-   @param access control
-   @param chainId to fetch choices for.
    @return JSONArray of choices.
    @throws Exception on failure
+    @param access control
+   @param linkIds to fetch choices for.
    */
-  Result<ChoiceRecord> readAllInChain(Access access, ULong chainId) throws Exception;
+  Result<ChoiceRecord> readAllInLinks(Access access, List<ULong> linkIds) throws Exception;
 
   /**
    Update a specified Choice

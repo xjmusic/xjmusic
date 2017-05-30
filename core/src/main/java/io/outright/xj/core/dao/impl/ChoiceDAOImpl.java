@@ -22,6 +22,7 @@ import com.google.inject.Inject;
 
 import javax.annotation.Nullable;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Map;
 
 import static io.outright.xj.core.Tables.CHOICE;
@@ -95,10 +96,10 @@ public class ChoiceDAOImpl extends DAOImpl implements ChoiceDAO {
   }
 
   @Override
-  public Result<ChoiceRecord> readAllInChain(Access access, ULong chainId) throws Exception {
+  public Result<ChoiceRecord> readAllInLinks(Access access, List<ULong> linkIds) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readAllInChain(tx.getContext(), access, chainId));
+      return tx.success(readAllInLinks(tx.getContext(), access, linkIds));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -245,19 +246,19 @@ public class ChoiceDAOImpl extends DAOImpl implements ChoiceDAO {
   }
 
   /**
-   Read all records in parent record's parent record by id
+   Read all records in parent records by ids
 
-   @param db      context
-   @param access  control
-   @param chainId id of parent's parent (the chain)
    @return array of records
+    @param db      context
+   @param access  control
+   @param linkIds id of parent's parent (the chain)
    */
-  private Result<ChoiceRecord> readAllInChain(DSLContext db, Access access, ULong chainId) throws Exception {
+  private Result<ChoiceRecord> readAllInLinks(DSLContext db, Access access, List<ULong> linkIds) throws Exception {
     if (access.isTopLevel())
       return resultInto(CHOICE, db.select(CHOICE.fields())
         .from(CHOICE)
         .join(LINK).on(LINK.ID.eq(CHOICE.LINK_ID))
-        .where(LINK.CHAIN_ID.eq(chainId))
+        .where(LINK.ID.in(linkIds))
         .orderBy(CHOICE.TYPE)
         .fetch());
     else
@@ -265,7 +266,7 @@ public class ChoiceDAOImpl extends DAOImpl implements ChoiceDAO {
         .from(CHOICE)
         .join(LINK).on(LINK.ID.eq(CHOICE.LINK_ID))
         .join(CHAIN).on(CHAIN.ID.eq(LINK.CHAIN_ID))
-        .where(LINK.CHAIN_ID.eq(chainId))
+        .where(LINK.ID.in(linkIds))
         .and(CHAIN.ACCOUNT_ID.in(access.getAccounts()))
         .orderBy(CHOICE.TYPE)
         .fetch());

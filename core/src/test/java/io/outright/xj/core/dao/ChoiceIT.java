@@ -31,6 +31,7 @@ import org.junit.Test;
 
 import java.math.BigInteger;
 import java.sql.Timestamp;
+import java.util.List;
 
 import static io.outright.xj.core.tables.Choice.CHOICE;
 import static org.junit.Assert.assertEquals;
@@ -40,6 +41,7 @@ import static org.junit.Assert.assertNull;
 public class ChoiceIT {
   private Injector injector = Guice.createInjector(new CoreModule());
   private ChoiceDAO testDAO;
+  private List<ULong> linkIds = ImmutableList.of(ULong.valueOf(1), ULong.valueOf(2), ULong.valueOf(3), ULong.valueOf(4));
 
   @Before
   public void setUp() throws Exception {
@@ -241,7 +243,7 @@ public class ChoiceIT {
 
   @Test
   public void readAllInChain() throws Exception {
-    Result<ChoiceRecord> result = testDAO.readAllInChain(Access.internal(), ULong.valueOf(1));
+    Result<ChoiceRecord> result = testDAO.readAllInLinks(Access.internal(), linkIds);
 
     assertEquals(4, result.size());
   }
@@ -260,7 +262,7 @@ public class ChoiceIT {
       "accounts", "1"
     ));
 
-    Result<ChoiceRecord> result = testDAO.readAllInChain(access, ULong.valueOf(1));
+    Result<ChoiceRecord> result = testDAO.readAllInLinks(access, linkIds);
 
     assertEquals(4, result.size());
   }
@@ -272,7 +274,7 @@ public class ChoiceIT {
       "accounts", "73"
     ));
 
-    Result<ChoiceRecord> result = testDAO.readAllInChain(access, ULong.valueOf(1));
+    Result<ChoiceRecord> result = testDAO.readAllInLinks(access, linkIds);
     assertEquals(0, result.size());
   }
 

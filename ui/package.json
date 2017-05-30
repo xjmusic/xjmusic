@@ -47,6 +47,7 @@
     "ember-message-bus": "0.3.3",
     "ember-moment": "7.3.0",
     "ember-power-select": "1.7.0",
+    "ember-query-params": "^2.1.0",
     "ember-resolver": "^4.1.0",
     "ember-route-action-helper": "^2.0.2",
     "ember-simple-auth": "1.2.2",

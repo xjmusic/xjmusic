@@ -9,7 +9,7 @@ import org.jooq.Result;
 import org.jooq.types.ULong;
 
 import javax.annotation.Nullable;
-import java.sql.ResultSet;
+import java.util.List;
 
 public interface LinkChordDAO {
 
@@ -45,15 +45,15 @@ public interface LinkChordDAO {
   Result<LinkChordRecord> readAll(Access access, ULong linkId) throws Exception;
 
   /**
-   Fetch many linkChord for all Links in a Chain by id, if accessible
+   Fetch many linkChord for many Links by id, if accessible
    order by position descending, ala other "in chain" results
 
-   @param access control
-   @param chainId to fetch linkChords for.
    @return JSONArray of linkChords.
    @throws Exception on failure
+    @param access control
+   @param linkIds to fetch linkChords for.
    */
-  Result<LinkChordRecord> readAllInChain(Access access, ULong chainId) throws Exception;
+  Result<LinkChordRecord> readAllInLinks(Access access, List<ULong> linkIds) throws Exception;
 
   /**
    Update a specified Link Chord if accessible

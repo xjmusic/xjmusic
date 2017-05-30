@@ -17,6 +17,7 @@ import io.outright.xj.core.transport.JSON;
 import org.jooq.Result;
 import org.jooq.types.ULong;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -29,6 +30,7 @@ import org.junit.Test;
 
 import java.math.BigInteger;
 import java.sql.Timestamp;
+import java.util.List;
 
 import static io.outright.xj.core.tables.LinkMeme.LINK_MEME;
 import static org.junit.Assert.assertEquals;
@@ -39,6 +41,7 @@ import static org.junit.Assert.assertNull;
 public class LinkMemeIT {
   private Injector injector = Guice.createInjector(new CoreModule());
   private LinkMemeDAO testDAO;
+  private List<ULong> linkIds = ImmutableList.of(ULong.valueOf(1), ULong.valueOf(2), ULong.valueOf(3), ULong.valueOf(4));
 
   @Before
   public void setUp() throws Exception {
@@ -189,7 +192,7 @@ public class LinkMemeIT {
 
   @Test
   public void readAllInChain() throws Exception {
-    Result<LinkMemeRecord> result = testDAO.readAllInChain(Access.internal(), ULong.valueOf(1));
+    Result<LinkMemeRecord> result = testDAO.readAllInLinks(Access.internal(), linkIds);
 
     assertEquals(3, result.size());
   }
@@ -208,7 +211,7 @@ public class LinkMemeIT {
       "accounts", "1"
     ));
 
-    Result<LinkMemeRecord> result = testDAO.readAllInChain(access, ULong.valueOf(1));
+    Result<LinkMemeRecord> result = testDAO.readAllInLinks(access, linkIds);
 
     assertEquals(3, result.size());
   }
@@ -220,7 +223,7 @@ public class LinkMemeIT {
       "accounts", "73"
     ));
 
-    Result<LinkMemeRecord> result = testDAO.readAllInChain(access, ULong.valueOf(1));
+    Result<LinkMemeRecord> result = testDAO.readAllInLinks(access, linkIds);
     assertEquals(0, result.size());
   }
 

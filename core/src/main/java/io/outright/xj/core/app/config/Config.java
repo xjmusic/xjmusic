@@ -143,6 +143,9 @@ public abstract class Config {
     return getDoubleOrDefault("tuning.root.pitch",432.0);
   }
 
+  public static int limitLinkReadSize() {
+    return getIntOrDefault("limit.link.read.size", 50);
+  }
   public static int workConcurrency() {
     return getIntOrDefault("work.concurrency", 10);
   }

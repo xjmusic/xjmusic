@@ -9,6 +9,7 @@ import org.jooq.Result;
 import org.jooq.types.ULong;
 
 import javax.annotation.Nullable;
+import java.util.List;
 
 public interface LinkMessageDAO {
 
@@ -44,14 +45,14 @@ public interface LinkMessageDAO {
   Result<LinkMessageRecord> readAllInLink(Access access, ULong linkId) throws Exception;
 
   /**
-   Fetch many linkMessage for all Links in a Chain by id, if accessible
+   Fetch many LinkMessage for many links by id
 
    @param access control
-   @param chainId to fetch linkMessages for.
+   @param linkIds to fetch linkMessages for.
    @return JSONArray of linkMessages.
    @throws Exception on failure
    */
-  Result<LinkMessageRecord> readAllInChain(Access access, ULong chainId) throws Exception;
+  Result<LinkMessageRecord> readAllInLinks(Access access, List<ULong> linkIds) throws Exception;
 
   /**
    (TOP-LEVEL ACCESS ONLY)

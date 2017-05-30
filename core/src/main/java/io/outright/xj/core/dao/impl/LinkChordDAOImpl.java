@@ -19,6 +19,7 @@ import com.google.inject.Inject;
 
 import javax.annotation.Nullable;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Map;
 
 import static io.outright.xj.core.Tables.LINK;
@@ -67,10 +68,10 @@ public class LinkChordDAOImpl extends DAOImpl implements LinkChordDAO {
   }
 
   @Override
-  public Result<LinkChordRecord> readAllInChain(Access access, ULong chainId) throws Exception {
+  public Result<LinkChordRecord> readAllInLinks(Access access, List<ULong> linkIds) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readAllInChain(tx.getContext(), access, chainId));
+      return tx.success(readAllInLinks(tx.getContext(), access, linkIds));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -172,20 +173,20 @@ public class LinkChordDAOImpl extends DAOImpl implements LinkChordDAO {
   }
 
   /**
-   Read all records in parent record's parent record by id
+   Read all records in parent records by ids
    order by position ascending
 
-   @param db     context
-   @param access control
-   @param chainId id of parent's parent (the chain)
    @return array of records
+    @param db     context
+   @param access control
+   @param linkIds id of parent's parent (the chain)
    */
-  private Result<LinkChordRecord> readAllInChain(DSLContext db, Access access, ULong chainId) throws Exception {
+  private Result<LinkChordRecord> readAllInLinks(DSLContext db, Access access, List<ULong> linkIds) throws Exception {
     if (access.isTopLevel())
       return resultInto(LINK_CHORD, db.select(LINK_CHORD.fields())
         .from(LINK_CHORD)
         .join(LINK).on(LINK.ID.eq(LINK_CHORD.LINK_ID))
-        .where(LINK.CHAIN_ID.eq(chainId))
+        .where(LINK.ID.in(linkIds))
         .orderBy(LINK_CHORD.POSITION.desc())
         .fetch());
     else
@@ -193,7 +194,7 @@ public class LinkChordDAOImpl extends DAOImpl implements LinkChordDAO {
         .from(LINK_CHORD)
         .join(LINK).on(LINK.ID.eq(LINK_CHORD.LINK_ID))
         .join(CHAIN).on(CHAIN.ID.eq(LINK.CHAIN_ID))
-        .where(LINK.CHAIN_ID.eq(chainId))
+        .where(LINK.ID.in(linkIds))
         .and(CHAIN.ACCOUNT_ID.in(access.getAccounts()))
         .orderBy(LINK_CHORD.POSITION.desc())
         .fetch());

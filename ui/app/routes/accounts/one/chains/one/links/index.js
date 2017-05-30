@@ -12,18 +12,20 @@ export default Ember.Route.extend({
   // # of seconds between auto-refresh
   refreshSeconds: 10,
 
-/**
+  /**
    * Route Model
    * @returns {*}
    */
   model: function () {
     let self = this;
     let chain = this.modelFor('accounts.one.chains.one');
+    let linkQuery = {
+      chainId: chain.get('id'),
+      include: 'memes,choices,chords,messages',
+    };
+
     let links = this.store.query(
-      'link', {
-        chainId: chain.get('id'),
-        include: 'memes,choices,chords,messages'
-      })
+      'link', linkQuery)
       .catch((error) => {
         Ember.get(self, 'display').error(error);
         self.transitionTo('');
@@ -66,7 +68,7 @@ export default Ember.Route.extend({
   activate() {
     console.log("Started auto-refresh...");
     let self = this;
-    this.refreshInteval = setInterval(function() {
+    this.refreshInteval = setInterval(function () {
       console.log("Auto-refresh now!");
       self.send("sessionChanged");
     }, self.refreshSeconds * 1000);

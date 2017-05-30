@@ -56,12 +56,24 @@ public interface LinkDAO {
 
   /**
    Read all Links that are accessible
+   limit max # of links readable at once in environment configuration
 
    @param access control
    @return array of links as JSON
    @throws Exception on failure
    */
   Result<LinkRecord> readAll(Access access, ULong chainId) throws Exception;
+
+  /**
+   Read all Links that are accessible, starting at a particular offset
+   limit max # of links readable at once in environment configuration
+
+   @return array of links as JSON
+   @throws Exception on failure
+    @param access control
+   @param chainId
+   */
+  Result<LinkRecord> readAllFromOffset(Access access, ULong chainId, ULong fromOffset) throws Exception;
 
   /**
    Update a specified Link
@@ -85,4 +97,5 @@ public interface LinkDAO {
    @param linkId of specific Link to delete.
    */
   void delete(Access access, ULong linkId) throws Exception;
+
 }

@@ -18,6 +18,7 @@ import org.jooq.types.ULong;
 import com.google.inject.Inject;
 
 import javax.annotation.Nullable;
+import java.util.List;
 import java.util.Map;
 
 import static io.outright.xj.core.Tables.LINK;
@@ -66,10 +67,10 @@ public class LinkMessageDAOImpl extends DAOImpl implements LinkMessageDAO {
   }
 
   @Override
-  public Result<LinkMessageRecord> readAllInChain(Access access, ULong chainId) throws Exception {
+  public Result<LinkMessageRecord> readAllInLinks(Access access, List<ULong> linkIds) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readAllInChain(tx.getContext(), access, chainId));
+      return tx.success(readAllInLinks(tx.getContext(), access, linkIds));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -162,17 +163,17 @@ public class LinkMessageDAOImpl extends DAOImpl implements LinkMessageDAO {
   /**
    Read all records in parent record's parent record by id
 
-   @param db     context
-   @param access control
-   @param chainId id of parent's parent (the chain)
    @return array of records
+    @param db     context
+   @param access control
+   @param linkIds id of parent's parent (the chain)
    */
-  private Result<LinkMessageRecord> readAllInChain(DSLContext db, Access access, ULong chainId) throws Exception {
+  private Result<LinkMessageRecord> readAllInLinks(DSLContext db, Access access, List<ULong> linkIds) throws Exception {
     if (access.isTopLevel())
       return resultInto(LINK_MESSAGE, db.select(LINK_MESSAGE.fields())
         .from(LINK_MESSAGE)
         .join(LINK).on(LINK.ID.eq(LINK_MESSAGE.LINK_ID))
-        .where(LINK.CHAIN_ID.eq(chainId))
+        .where(LINK.ID.in(linkIds))
         .orderBy(LINK_MESSAGE.TYPE)
         .fetch());
     else
@@ -180,7 +181,7 @@ public class LinkMessageDAOImpl extends DAOImpl implements LinkMessageDAO {
         .from(LINK_MESSAGE)
         .join(LINK).on(LINK.ID.eq(LINK_MESSAGE.LINK_ID))
         .join(CHAIN).on(CHAIN.ID.eq(LINK.CHAIN_ID))
-        .where(LINK.CHAIN_ID.eq(chainId))
+        .where(LINK.ID.in(linkIds))
         .and(CHAIN.ACCOUNT_ID.in(access.getAccounts()))
         .orderBy(LINK_MESSAGE.TYPE)
         .fetch());

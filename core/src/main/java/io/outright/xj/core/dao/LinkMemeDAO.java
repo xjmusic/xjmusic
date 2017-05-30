@@ -4,13 +4,12 @@ package io.outright.xj.core.dao;
 import io.outright.xj.core.app.access.impl.Access;
 import io.outright.xj.core.model.link_meme.LinkMeme;
 import io.outright.xj.core.tables.records.LinkMemeRecord;
-import io.outright.xj.core.tables.records.LinkMessageRecord;
 
 import org.jooq.Result;
 import org.jooq.types.ULong;
 
 import javax.annotation.Nullable;
-import java.sql.ResultSet;
+import java.util.List;
 
 public interface LinkMemeDAO {
 
@@ -45,14 +44,14 @@ public interface LinkMemeDAO {
   Result<LinkMemeRecord> readAll(Access access, ULong linkId) throws Exception;
 
   /**
-   Fetch many linkMeme for all Links in a Chain by id, if accessible
+   Fetch many linkMeme for many Links by id, if accessible
 
-   @param access control
-   @param chainId to fetch linkMemes for.
    @return JSONArray of linkMemes.
    @throws Exception on failure
+    @param access control
+   @param linkIds to fetch linkMemes for.
    */
-  Result<LinkMemeRecord> readAllInChain(Access access, ULong chainId) throws Exception;
+  Result<LinkMemeRecord> readAllInLinks(Access access, List<ULong> linkIds) throws Exception;
 
   /**
    Delete a specified LinkMeme
