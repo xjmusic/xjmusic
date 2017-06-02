@@ -93,6 +93,11 @@ public class AmazonProviderImpl implements AmazonProvider {
       bucket, key, new File(filePath)));
   }
 
+  @Override
+  public void deleteS3Object(String bucket, String key) {
+    s3Client().deleteObject(bucket, key);
+  }
+
   /**
    Get an Amazon S3 client
 

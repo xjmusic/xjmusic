@@ -4,6 +4,7 @@ package io.outright.xj.core.dao;
 import io.outright.xj.core.CoreModule;
 import io.outright.xj.core.app.access.impl.Access;
 import io.outright.xj.core.app.exception.BusinessException;
+import io.outright.xj.core.external.amazon.AmazonProvider;
 import io.outright.xj.core.integration.IntegrationTestEntity;
 import io.outright.xj.core.integration.IntegrationTestService;
 import io.outright.xj.core.model.chain.Chain;
@@ -15,8 +16,10 @@ import org.jooq.types.UInteger;
 import org.jooq.types.ULong;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.util.Modules;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -25,6 +28,9 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigInteger;
 import java.sql.Timestamp;
@@ -33,17 +39,21 @@ import static io.outright.xj.core.tables.Link.LINK;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
 
+@RunWith(MockitoJUnitRunner.class)
 public class LinkIT {
-  @Rule
-  public ExpectedException failure = ExpectedException.none();
-  private Injector injector = Guice.createInjector(new CoreModule());
+  @Rule public ExpectedException failure = ExpectedException.none();
+  private Injector injector;
   private LinkDAO testDAO;
+  @Mock private AmazonProvider amazonProvider;
 
   @Before
   public void setUp() throws Exception {
     IntegrationTestEntity.deleteAll();
+
+    // inject mocks
+    createInjector();
 
     // Account "Testing" has chain "Test Print #1"
     IntegrationTestEntity.insertAccount(1, "Testing");
@@ -58,6 +68,16 @@ public class LinkIT {
 
     // Instantiate the test subject
     testDAO = injector.getInstance(LinkDAO.class);
+  }
+
+  private void createInjector() {
+    injector = Guice.createInjector(Modules.override(new CoreModule()).with(
+      new AbstractModule() {
+        @Override
+        public void configure() {
+          bind(AmazonProvider.class).toInstance(amazonProvider);
+        }
+      }));
   }
 
   @After
@@ -81,6 +101,9 @@ public class LinkIT {
       .setKey("C# minor 7 b9")
       .setTempo(120.0);
 
+    when(amazonProvider.generateKey("chain-1-link", "mp3"))
+      .thenReturn("chain-1-link-h2a34j5s34fd987gaw3.mp3");
+
     JSONObject result = JSON.objectFromRecord(testDAO.create(access, inputData));
 
     assertNotNull(result);
@@ -93,6 +116,7 @@ public class LinkIT {
     assertEquals(0.74, result.get("density"));
     assertEquals("C# minor 7 b9", result.get("key"));
     assertEquals(120.0, result.get("tempo"));
+    assertNotNull(result.get("waveformKey"));
   }
 
   @Test
@@ -112,6 +136,9 @@ public class LinkIT {
       .setKey("C# minor 7 b9")
       .setTempo(120.0);
 
+    when(amazonProvider.generateKey("chain-1-link", "mp3"))
+      .thenReturn("chain-1-link-h2a34j5s34fd987gaw3.mp3");
+
     JSONObject result = JSON.objectFromRecord(testDAO.create(access, inputData));
 
     assertNotNull(result);
@@ -124,9 +151,10 @@ public class LinkIT {
     assertEquals(0.74, result.get("density"));
     assertEquals("C# minor 7 b9", result.get("key"));
     assertEquals(120.0, result.get("tempo"));
+    assertNotNull(result.get("waveformKey"));
   }
 
-  @Test(expected = BusinessException.class)
+  @Test
   public void create_FailsIfNotUniqueChainOffset() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "admin"
@@ -142,19 +170,15 @@ public class LinkIT {
       .setKey("C# minor 7 b9")
       .setTempo(120.0);
 
-    try {
-      testDAO.create(access, inputData);
+    when(amazonProvider.generateKey("chain-1-link", "mp3"))
+      .thenReturn("chain-1-link-h2a34j5s34fd987gaw3.mp3");
 
-    } catch (Exception e) {
-      assertNotNull(e);
-      String msg = e.getMessage();
-      assertTrue(msg.startsWith("Cannot create record"));
-      assertTrue(msg.contains("Duplicate entry"));
-      throw e;
-    }
+    failure.expect(BusinessException.class);
+
+    testDAO.create(access, inputData);
   }
 
-  @Test(expected = BusinessException.class)
+  @Test
   public void create_FailsWithoutTopLevelAccess() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "user"
@@ -170,10 +194,16 @@ public class LinkIT {
       .setKey("C# minor 7 b9")
       .setTempo(120.0);
 
+    when(amazonProvider.generateKey("chain-1-link", "mp3"))
+      .thenReturn("chain-1-link-h2a34j5s34fd987gaw3.mp3");
+
+    failure.expect(BusinessException.class);
+    failure.expectMessage("top-level access is required");
+
     testDAO.create(access, inputData);
   }
 
-  @Test(expected = BusinessException.class)
+  @Test
   public void create_FailsWithoutChainID() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "admin"
@@ -188,10 +218,16 @@ public class LinkIT {
       .setKey("C# minor 7 b9")
       .setTempo(120.0);
 
+    when(amazonProvider.generateKey("chain-1-link", "mp3"))
+      .thenReturn("chain-1-link-h2a34j5s34fd987gaw3.mp3");
+
+    failure.expect(BusinessException.class);
+    failure.expectMessage("Chain ID is required");
+
     testDAO.create(access, inputData);
   }
 
-  @Test(expected = BusinessException.class)
+  @Test
   public void create_FailsWithInvalidState() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "admin"
@@ -206,6 +242,12 @@ public class LinkIT {
       .setDensity(0.74)
       .setKey("C# minor 7 b9")
       .setTempo(120.0);
+
+    when(amazonProvider.generateKey("chain-1-link", "mp3"))
+      .thenReturn("chain-1-link-h2a34j5s34fd987gaw3.mp3");
+
+    failure.expect(BusinessException.class);
+    failure.expectMessage("'mushamush' is not a valid state (planned,crafting,crafted,dubbing,dubbed,failed)");
 
     testDAO.create(access, inputData);
   }
@@ -340,32 +382,19 @@ public class LinkIT {
     assertEquals(Timestamp.valueOf("1995-04-28 11:23:32.000001"), result.getEndAt());
   }
 
-  @Test(expected = BusinessException.class)
+  @Test
   public void update_failsToTransitionFromDubbingToCrafting() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
-    Link inputData = new Link()
-      .setChainId(BigInteger.valueOf(1))
-      .setOffset(BigInteger.valueOf(5))
-      .setState(Link.CRAFTING)
-      .setBeginAt("1995-04-28 11:23:00.000001")
-      .setEndAt("1995-04-28 11:23:32.000001")
-      .setTotal(64)
-      .setDensity(0.74)
-      .setKey("C# minor 7 b9")
-      .setTempo(120.0);
 
-    try {
-      testDAO.update(access, ULong.valueOf(2), inputData);
+    failure.expect(BusinessException.class);
+    failure.expectMessage("transition should be in (dubbing,dubbed,failed) but crafting not allowed");
 
-    } catch (Exception e) {
-      assertTrue(e.getMessage().contains("transition to crafting not allowed"));
-      throw e;
-    }
+    testDAO.updateState(access, ULong.valueOf(2), Link.CRAFTING);
   }
 
-  @Test(expected = BusinessException.class)
+  @Test
   public void update_FailsWithoutChainID() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "admin"
@@ -380,10 +409,13 @@ public class LinkIT {
       .setKey("C# minor 7 b9")
       .setTempo(120.0);
 
+    failure.expect(BusinessException.class);
+    failure.expectMessage("Chain ID is required");
+
     testDAO.update(access, ULong.valueOf(2), inputData);
   }
 
-  @Test(expected = BusinessException.class)
+  @Test
   public void update_FailsWithInvalidState() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "admin"
@@ -398,10 +430,13 @@ public class LinkIT {
       .setKey("C# minor 7 b9")
       .setTempo(120.0);
 
+    failure.expect(BusinessException.class);
+    failure.expectMessage("'whatadumbassstate' is not a valid state (planned,crafting,crafted,dubbing,dubbed,failed)");
+
     testDAO.update(access, ULong.valueOf(2), inputData);
   }
 
-  @Test(expected = BusinessException.class)
+  @Test
   public void update_FailsToChangeChain() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "admin"
@@ -416,6 +451,9 @@ public class LinkIT {
       .setDensity(0.74)
       .setKey("C# minor 7 b9")
       .setTempo(120.0);
+
+    failure.expect(BusinessException.class);
+    failure.expectMessage("transition should be in (dubbing,dubbed,failed) but crafting not allowed");
 
     try {
       testDAO.update(access, ULong.valueOf(2), inputData);
@@ -447,12 +485,15 @@ public class LinkIT {
     assertNull(result);
   }
 
-  @Test(expected = BusinessException.class)
+  @Test
   public void delete_FailsIfLinkHasChildRecords() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
     IntegrationTestEntity.insertLinkChord(1, 1, 1.5, "C minor");
+
+    failure.expect(BusinessException.class);
+    failure.expectMessage("Found Chord in Link");
 
     try {
       testDAO.delete(access, ULong.valueOf(1));

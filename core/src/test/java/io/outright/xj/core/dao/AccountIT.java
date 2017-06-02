@@ -33,8 +33,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 public class AccountIT {
-  @Rule
-  public ExpectedException failure = ExpectedException.none();
+  @Rule public ExpectedException failure = ExpectedException.none();
   private Injector injector = Guice.createInjector(new CoreModule());
   private AccountDAO testDAO;
 

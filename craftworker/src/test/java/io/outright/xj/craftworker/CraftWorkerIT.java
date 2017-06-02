@@ -33,8 +33,7 @@ import static io.outright.xj.core.Tables.LINK;
 import static org.junit.Assert.assertTrue;
 
 public class CraftWorkerIT {
-  @Rule
-  public ExpectedException failure = ExpectedException.none();
+  @Rule public ExpectedException failure = ExpectedException.none();
   private Injector injector = Guice.createInjector(new CoreModule(), new CraftWorkerModule());
   private App app;
 

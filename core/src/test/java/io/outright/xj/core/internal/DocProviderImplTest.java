@@ -22,8 +22,7 @@ import org.junit.rules.ExpectedException;
 import static org.junit.Assert.assertEquals;
 
 public class DocProviderImplTest {
-  @Rule
-  public ExpectedException failure = ExpectedException.none();
+  @Rule public ExpectedException failure = ExpectedException.none();
   private DocProvider docProvider;
   private Injector injector;
 

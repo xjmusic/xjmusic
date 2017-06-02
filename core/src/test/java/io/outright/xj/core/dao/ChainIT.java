@@ -4,6 +4,7 @@ package io.outright.xj.core.dao;
 import io.outright.xj.core.CoreModule;
 import io.outright.xj.core.app.access.impl.Access;
 import io.outright.xj.core.app.exception.BusinessException;
+import io.outright.xj.core.external.amazon.AmazonProvider;
 import io.outright.xj.core.integration.IntegrationTestEntity;
 import io.outright.xj.core.integration.IntegrationTestService;
 import io.outright.xj.core.model.chain.Chain;
@@ -21,8 +22,10 @@ import org.jooq.Result;
 import org.jooq.types.ULong;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.util.Modules;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -31,6 +34,9 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigInteger;
 import java.sql.Timestamp;
@@ -47,16 +53,24 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.mockito.Mockito.verify;
 
+@RunWith(MockitoJUnitRunner.class)
 public class ChainIT {
-  @Rule
-  public ExpectedException failure = ExpectedException.none();
-  private Injector injector = Guice.createInjector(new CoreModule());
+  @Rule public ExpectedException failure = ExpectedException.none();
+  private Injector injector;
   private ChainDAO testDAO;
+  @Mock private AmazonProvider amazonProvider;
 
   @Before
   public void setUp() throws Exception {
     IntegrationTestEntity.deleteAll();
+
+    // inject mocks
+    createInjector();
+
+    // link waveform config
+    System.setProperty("link.file.bucket", "xj-link-test");
 
     // Account "fish" has chain "school" and chain "bucket"
     IntegrationTestEntity.insertAccount(1, "fish");
@@ -70,9 +84,21 @@ public class ChainIT {
     testDAO = injector.getInstance(ChainDAO.class);
   }
 
+  private void createInjector() {
+    injector = Guice.createInjector(Modules.override(new CoreModule()).with(
+      new AbstractModule() {
+        @Override
+        public void configure() {
+          bind(AmazonProvider.class).toInstance(amazonProvider);
+        }
+      }));
+  }
+
   @After
   public void tearDown() throws Exception {
     testDAO = null;
+
+    System.clearProperty("link.file.bucket");
   }
 
   @Test
@@ -527,34 +553,26 @@ public class ChainIT {
   }
 
   @Test()
-  public void update_FailsUpdatingToNonexistentAccount() throws Exception {
+  public void update_CannotChangeAccount() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
     Chain inputData = new Chain()
       .setAccountId(BigInteger.valueOf(75))
       .setName("manuts")
-      .setState(Chain.DRAFT)
+      .setState(Chain.COMPLETE)
       .setType(Chain.PRODUCTION)
       .setStartAt("2009-08-12 12:17:02.527142")
       .setStopAt("2009-09-11 12:17:01.047563");
 
-    failure.expect(BusinessException.class);
-    failure.expectMessage("transition to draft not allowed");
+    testDAO.update(access, ULong.valueOf(2), inputData);
 
-    try {
-      testDAO.update(access, ULong.valueOf(2), inputData);
-
-    } catch (Exception e) {
-      ChainRecord result = IntegrationTestService.getDb()
-        .selectFrom(CHAIN)
-        .where(CHAIN.ID.eq(ULong.valueOf(2)))
-        .fetchOne();
-      assertNotNull(result);
-      assertEquals("bucket", result.getName());
-      assertEquals(ULong.valueOf(1), result.getAccountId());
-      throw e;
-    }
+    ChainRecord result = IntegrationTestService.getDb()
+      .selectFrom(CHAIN)
+      .where(CHAIN.ID.eq(ULong.valueOf(2)))
+      .fetchOne();
+    assertNotNull(result);
+    assertEquals(ULong.valueOf(1), result.getAccountId());
   }
 
   @Test
@@ -817,7 +835,7 @@ public class ChainIT {
 
     // Chain "Test Print #1" has one link
     IntegrationTestEntity.insertChain(3, 1, "Test Print #1", Chain.PRODUCTION, Chain.COMPLETE, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"));
-    IntegrationTestEntity.insertLink(1, 3, 0, Link.DUBBED, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120, "chain-1-link-97898asdf7892.wav");
+    IntegrationTestEntity.insertLink(1, 3, 0, Link.DUBBED, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120, "chain-1-link-97898asdf7892.mp3");
 
     // Link Meme
     IntegrationTestEntity.insertLinkMeme(25, 1, "Jams");
@@ -841,7 +859,14 @@ public class ChainIT {
       "roles", "admin"
     ));
 
+    //
+    // Go!
     testDAO.destroy(access, ULong.valueOf(3));
+    //
+    //
+
+    // [#263] expect request to delete link waveform from Amazon S3
+    verify(amazonProvider).deleteS3Object("xj-link-test", "chain-1-link-97898asdf7892.mp3");
 
     // Assert destroyed Chain
     assertNull(IntegrationTestService.getDb()

@@ -30,8 +30,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 public class DubMasterNextMacroIT {
-  @Rule
-  public ExpectedException failure = ExpectedException.none();
+  @Rule public ExpectedException failure = ExpectedException.none();
   private Injector injector = Guice.createInjector(new CoreModule(), new MixerModule(), new DubWorkerModule());
   private DubFactory dubFactory;
   private BasisFactory basisFactory;

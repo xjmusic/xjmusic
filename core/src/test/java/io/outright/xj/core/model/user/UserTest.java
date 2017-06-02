@@ -17,8 +17,7 @@ import static org.junit.Assert.assertNull;
 
 public class UserTest {
 
-  @Rule
-  public ExpectedException failure = ExpectedException.none();
+  @Rule public ExpectedException failure = ExpectedException.none();
 
   @Test
   public void validate() throws Exception {

@@ -10,6 +10,7 @@ import io.outright.xj.core.app.exception.DatabaseException;
 import io.outright.xj.core.dao.ChainDAO;
 import io.outright.xj.core.db.sql.SQLConnection;
 import io.outright.xj.core.db.sql.SQLDatabaseProvider;
+import io.outright.xj.core.external.amazon.AmazonProvider;
 import io.outright.xj.core.model.chain.Chain;
 import io.outright.xj.core.model.link.Link;
 import io.outright.xj.core.model.role.Role;
@@ -19,6 +20,8 @@ import io.outright.xj.core.tables.records.LinkRecord;
 import org.jooq.DSLContext;
 import org.jooq.Field;
 import org.jooq.Record;
+import org.jooq.Record1;
+import org.jooq.Record2;
 import org.jooq.Result;
 import org.jooq.UpdateSetFirstStep;
 import org.jooq.types.ULong;
@@ -63,11 +66,14 @@ import static io.outright.xj.core.Tables.PICK;
  */
 public class ChainDAOImpl extends DAOImpl implements ChainDAO {
   private final int previewLengthMax;
+  private final AmazonProvider amazonProvider;
 
   @Inject
   public ChainDAOImpl(
-    SQLDatabaseProvider dbProvider
+    SQLDatabaseProvider dbProvider,
+    AmazonProvider amazonProvider
   ) {
+    this.amazonProvider = amazonProvider;
     this.dbProvider = dbProvider;
     this.previewLengthMax = Config.chainPreviewLengthMax();
   }
@@ -293,6 +299,10 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
     // Cannot update TYPE of chain
     if (fieldValues.containsKey(CHAIN.TYPE))
       fieldValues.remove(CHAIN.TYPE);
+
+    // Cannot update ACCOUNT_ID of chain
+    if (fieldValues.containsKey(CHAIN.ACCOUNT_ID))
+      fieldValues.remove(CHAIN.ACCOUNT_ID);
 
     fieldValues.put(CHAIN.ID, id);
     update(db, access, id, fieldValues);
@@ -541,18 +551,18 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
   /**
    Destroy a Chain, and all its child entities
 
-   @param db     context
-   @param access control
-   @param id     to delete
+   @param db      context
+   @param access  control
+   @param chainId to delete
    @throws Exception         if database failure
    @throws ConfigException   if not configured properly
    @throws BusinessException if fails business rule
    */
-  private void destroy(DSLContext db, Access access, ULong id) throws Exception {
+  private void destroy(DSLContext db, Access access, ULong chainId) throws Exception {
     requireTopLevel(access);
 
     ChainRecord chain = db.selectFrom(CHAIN)
-      .where(CHAIN.ID.eq(id))
+      .where(CHAIN.ID.eq(chainId))
       .fetchOne();
     requireExists("Chain", chain);
 
@@ -563,13 +573,30 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
         chainState.equals(Chain.FAILED) ||
         chainState.equals(Chain.COMPLETE));
 
+    // Cannot destroy a chain with more than N links, re: [#270] Destroying a Chain should not spike database CPU
+    Integer maxLinks = Config.chainDestroyLinksMax();
+    Integer linkCount = db.selectCount().from(LINK)
+      .where(LINK.CHAIN_ID.eq(chainId))
+      .fetchOne(0, int.class);
+    require("Chain",
+      String.format("must have less than %d links", maxLinks),
+      linkCount <= maxLinks);
+
+    // Delete all link waveform from S3
+    Result<Record1<String>> linkWaveformKeys = db.select(LINK.WAVEFORM_KEY)
+      .from(LINK).where(LINK.CHAIN_ID.eq(chainId)).fetch();
+    for (Record record : linkWaveformKeys)
+      amazonProvider.deleteS3Object(
+        Config.linkFileBucket(),
+        record.get(LINK.WAVEFORM_KEY));
+
     // Pick before Morph
     db.deleteFrom(PICK)
       .where(PICK.ARRANGEMENT_ID.in(
         db.select(ARRANGEMENT.ID).from(ARRANGEMENT)
           .join(CHOICE).on(ARRANGEMENT.CHOICE_ID.eq(CHOICE.ID))
           .join(LINK).on(CHOICE.LINK_ID.eq(LINK.ID))
-          .where(LINK.CHAIN_ID.eq(id))
+          .where(LINK.CHAIN_ID.eq(chainId))
       )).execute();
 
     // Arrangement before Choice
@@ -577,65 +604,65 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
       .where(ARRANGEMENT.CHOICE_ID.in(
         db.select(CHOICE.ID).from(CHOICE)
           .join(LINK).on(CHOICE.LINK_ID.eq(LINK.ID))
-          .where(LINK.CHAIN_ID.eq(id))
+          .where(LINK.CHAIN_ID.eq(chainId))
       )).execute();
 
     // Choice before Link
     db.deleteFrom(CHOICE)
       .where(CHOICE.LINK_ID.in(
         db.select(LINK.ID).from(LINK)
-          .where(LINK.CHAIN_ID.eq(id))
+          .where(LINK.CHAIN_ID.eq(chainId))
       )).execute();
 
     // Link Chord before Link
     db.deleteFrom(LINK_CHORD)
       .where(LINK_CHORD.LINK_ID.in(
         db.select(LINK.ID).from(LINK)
-          .where(LINK.CHAIN_ID.eq(id))
+          .where(LINK.CHAIN_ID.eq(chainId))
       )).execute();
 
     // Link Meme before Link
     db.deleteFrom(LINK_MEME)
       .where(LINK_MEME.LINK_ID.in(
         db.select(LINK.ID).from(LINK)
-          .where(LINK.CHAIN_ID.eq(id))
+          .where(LINK.CHAIN_ID.eq(chainId))
       )).execute();
 
     // Link Message before Link
     db.deleteFrom(LINK_MESSAGE)
       .where(LINK_MESSAGE.LINK_ID.in(
         db.select(LINK.ID).from(LINK)
-          .where(LINK.CHAIN_ID.eq(id))
+          .where(LINK.CHAIN_ID.eq(chainId))
       )).execute();
 
     // Link before Chain
     db.deleteFrom(Tables.LINK)
-      .where(LINK.CHAIN_ID.eq(id))
+      .where(LINK.CHAIN_ID.eq(chainId))
       .execute();
 
     // Chain-Idea before Chain
     db.deleteFrom(CHAIN_IDEA)
-      .where(CHAIN_IDEA.CHAIN_ID.eq(id))
+      .where(CHAIN_IDEA.CHAIN_ID.eq(chainId))
       .execute();
 
     // Chain-Instrument before Chain
     db.deleteFrom(CHAIN_INSTRUMENT)
-      .where(CHAIN_INSTRUMENT.CHAIN_ID.eq(id))
+      .where(CHAIN_INSTRUMENT.CHAIN_ID.eq(chainId))
       .execute();
 
     // Chain-Library before Chain
     db.deleteFrom(CHAIN_LIBRARY)
-      .where(CHAIN_LIBRARY.CHAIN_ID.eq(id))
+      .where(CHAIN_LIBRARY.CHAIN_ID.eq(chainId))
       .execute();
 
     // Chain-Config before Chain
     db.deleteFrom(CHAIN_CONFIG)
-      .where(CHAIN_CONFIG.CHAIN_ID.eq(id))
+      .where(CHAIN_CONFIG.CHAIN_ID.eq(chainId))
       .execute();
 
     // Chain
     db.deleteFrom(CHAIN)
-      .where(CHAIN.ID.eq(id))
+      .where(CHAIN.ID.eq(chainId))
       .execute();
   }
 

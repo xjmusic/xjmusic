@@ -13,8 +13,7 @@ import static org.junit.Assert.assertEquals;
  Reference: http://www.phy.mtu.edu/~suits/notefreqs.html
  */
 public class TuningTest {
-  @Rule
-  public ExpectedException failure = ExpectedException.none();
+  @Rule public ExpectedException failure = ExpectedException.none();
 
   @Test
   public void pitch() throws Exception {

@@ -42,17 +42,15 @@ public class PutImpl implements Put {
     switch (state) {
 
       case READY:
-        if (atMixOffsetMicros > startAtMicros) {
+        if (atMixOffsetMicros > startAtMicros)
           state = PLAY;
-        }
         return 0;
 
       case PLAY:
-        if (atMixOffsetMicros > stopAtMicros) {
+        if (atMixOffsetMicros > stopAtMicros)
           state = DONE;
-        }
-//   TODO     return (long) Math.floor(((double) atMixOffsetMicros - startAtMicros) / pitchRatio);
-        return atMixOffsetMicros - startAtMicros;
+        // [#273] Mixer can put source at a ratio of its original pitch
+        return (long) (((double) atMixOffsetMicros - (double) startAtMicros) / pitchRatio);
 
       case DONE:
         return 0;

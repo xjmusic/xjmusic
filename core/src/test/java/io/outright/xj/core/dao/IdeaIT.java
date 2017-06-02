@@ -44,8 +44,7 @@ import static org.junit.Assert.assertNull;
 
 // TODO [core] test permissions of different users to readMany vs. create vs. update or delete ideas
 public class IdeaIT {
-  @Rule
-  public ExpectedException failure = ExpectedException.none();
+  @Rule public ExpectedException failure = ExpectedException.none();
   private Injector injector = Guice.createInjector(new CoreModule());
   private IdeaDAO testDAO;
 

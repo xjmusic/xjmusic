@@ -3,6 +3,7 @@ package io.outright.xj.core.dao.impl;
 import io.outright.xj.core.app.access.impl.Access;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.db.sql.SQLDatabaseProvider;
+import io.outright.xj.core.transport.CSV;
 
 import org.jooq.DSLContext;
 import org.jooq.Field;
@@ -127,7 +128,8 @@ public class DAOImpl {
    @throws BusinessException if not in required states
    */
   void onlyAllowTransitions(String state, String... allowedStates) throws BusinessException {
-    prevent("transition to " + state, !arrayContains(state, allowedStates));
+    prevent(String.format("transition should be in (%s) but %s", CSV.join(allowedStates), state),
+      !arrayContains(state, allowedStates));
   }
 
   /**

@@ -2,6 +2,7 @@
 package io.outright.xj.core.dao.impl;
 
 import io.outright.xj.core.app.access.impl.Access;
+import io.outright.xj.core.app.config.Config;
 import io.outright.xj.core.app.config.Exposure;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.app.exception.ConfigException;
@@ -327,14 +328,23 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .fetchOne());
 
-    db.deleteFrom(AUDIO)
+    Record recordToDelete = db.select(AUDIO.ID, AUDIO.WAVEFORM_KEY)
+      .from(AUDIO)
       .where(AUDIO.ID.eq(id))
       .andNotExists(
         db.select(AUDIO_EVENT.ID)
           .from(AUDIO_EVENT)
           .where(AUDIO_EVENT.AUDIO_ID.eq(id))
       )
-      .execute();
+      .fetchOne();
+    requireExists("Audio to delete", recordToDelete);
+
+    db.deleteFrom(AUDIO).where(AUDIO.ID.eq(id)).execute();
+
+    // [#163] When an Audio record is deleted, remove its related S3 object in order to save storage space.
+    amazonProvider.deleteS3Object(
+      Config.audioFileBucket(),
+      recordToDelete.get(AUDIO.WAVEFORM_KEY));
   }
 
 }

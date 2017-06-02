@@ -80,10 +80,18 @@ public interface AmazonProvider {
 
   /**
    Put an object to S3 (from a file)
-   * @param filePath path to file for upload
-   @param bucket         to put file to
-   @param key            to put file at
 
+   @param filePath path to file for upload
+   @param bucket   to put file to
+   @param key      to put file at
    */
   void putS3Object(String filePath, String bucket, String key);
+
+  /**
+   Delete an object from S3
+
+   @param bucket   to delete file in
+   @param key      to delete
+   */
+  void deleteS3Object(String bucket, String key);
 }

@@ -35,8 +35,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 public class CraftVoiceInitialIT {
-  @Rule
-  public ExpectedException failure = ExpectedException.none();
+  @Rule public ExpectedException failure = ExpectedException.none();
   private Injector injector = Guice.createInjector(new CoreModule(), new CraftWorkerModule());
   private CraftFactory craftFactory;
   private BasisFactory basisFactory;

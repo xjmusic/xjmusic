@@ -4,6 +4,8 @@ package io.outright.xj.core.dao;
 import io.outright.xj.core.CoreModule;
 import io.outright.xj.core.app.access.impl.Access;
 import io.outright.xj.core.app.exception.BusinessException;
+import io.outright.xj.core.external.amazon.AmazonProvider;
+import io.outright.xj.core.external.amazon.S3UploadPolicy;
 import io.outright.xj.core.integration.IntegrationTestEntity;
 import io.outright.xj.core.integration.IntegrationTestService;
 import io.outright.xj.core.model.audio.Audio;
@@ -20,14 +22,21 @@ import io.outright.xj.core.transport.JSON;
 import org.jooq.types.ULong;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.util.Modules;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigInteger;
 import java.sql.Timestamp;
@@ -36,15 +45,26 @@ import static io.outright.xj.core.tables.Audio.AUDIO;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 // TODO [core] test permissions of different users to readMany vs. create vs. update or delete audios
+@RunWith(MockitoJUnitRunner.class)
 public class AudioIT {
-  private Injector injector = Guice.createInjector(new CoreModule());
+  @Rule public ExpectedException failure = ExpectedException.none();
+  private Injector injector;
   private AudioDAO testDAO;
+  @Mock private AmazonProvider amazonProvider;
 
   @Before
   public void setUp() throws Exception {
     IntegrationTestEntity.deleteAll();
+
+    // inject mocks
+    createInjector();
+
+    // audio waveform config
+    System.setProperty("audio.file.bucket", "xj-audio-test");
 
     // Account "bananas"
     IntegrationTestEntity.insertAccount(1, "bananas");
@@ -66,6 +86,16 @@ public class AudioIT {
 
     // Instantiate the test subject
     testDAO = injector.getInstance(AudioDAO.class);
+  }
+
+  private void createInjector() {
+    injector = Guice.createInjector(Modules.override(new CoreModule()).with(
+      new AbstractModule() {
+        @Override
+        public void configure() {
+          bind(AmazonProvider.class).toInstance(amazonProvider);
+        }
+      }));
   }
 
   private void setUpTwo() throws Exception {
@@ -92,6 +122,8 @@ public class AudioIT {
   @After
   public void tearDown() throws Exception {
     testDAO = null;
+
+    System.clearProperty("audio.file.bucket");
   }
 
   // TODO cannot create or update a audio to an offset that already exists for that idea
@@ -110,13 +142,15 @@ public class AudioIT {
       .setPitch(1567.0)
       .setTempo(80.5);
 
+    when(amazonProvider.generateKey("instrument-2-audio", "wav"))
+      .thenReturn("instrument-2-audio-h2a34j5s34fd987gaw3.wav");
+
     AudioRecord result = testDAO.create(access, inputData);
 
     assertNotNull(result);
     assertEquals(ULong.valueOf(2), result.get(AUDIO.INSTRUMENT_ID));
     assertEquals("maracas", result.get(AUDIO.NAME));
     assertNotNull(result.get(AUDIO.WAVEFORM_KEY));
-    assertEquals(59, result.get(AUDIO.WAVEFORM_KEY).length());
     assertEquals(Double.valueOf(0.009), result.get(AUDIO.START));
     assertEquals(Double.valueOf(0.21), result.get(AUDIO.LENGTH));
     assertEquals(Double.valueOf(80.5), result.get(AUDIO.TEMPO));
@@ -154,6 +188,9 @@ public class AudioIT {
       .setPitch(1567.0)
       .setTempo(80.5);
 
+    when(amazonProvider.generateKey("instrument-2-audio", "wav"))
+      .thenReturn("instrument-2-audio-h2a34j5s34fd987gaw3.wav");
+
     testDAO.create(access, inputData);
   }
 
@@ -178,22 +215,32 @@ public class AudioIT {
 
   @Test
   public void uploadOne() throws Exception {
-    System.setProperty("audio.url.upload", "https://manuts.com");
-    System.setProperty("aws.accessKeyId", "totally_awesome");
-    System.setProperty("aws.secretKey", "much_secret_12345");
-    System.setProperty("audio.file.upload.acl", "bucket-owner-full-control");
-    System.setProperty("audio.file.upload.expire.minutes", "60");
-    System.setProperty("audio.file.bucket", "xj-audio-dev");
-
     Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
     ));
 
+    when(amazonProvider.generateAudioUploadPolicy())
+      .thenReturn(new S3UploadPolicy("MyId", "MySecret", "bucket-owner-is-awesome", "xj-audio-test", "", 5));
+    when(amazonProvider.getUploadURL())
+      .thenReturn("https://manuts.com");
+    when(amazonProvider.getCredentialId())
+      .thenReturn("MyId");
+    when(amazonProvider.getAudioBucketName())
+      .thenReturn("xj-audio-test");
+    when(amazonProvider.getAudioUploadACL())
+      .thenReturn("bucket-owner-is-awesome");
+
     JSONObject result = testDAO.uploadOne(access, ULong.valueOf(2));
 
     assertNotNull(result);
+    assertEquals("instrument/percussion/808/snare.wav", result.get("waveformKey"));
+    assertEquals("xj-audio-test", result.get("bucketName"));
+    assertNotNull(result.get("uploadPolicySignature"));
     assertEquals("https://manuts.com", result.get("uploadUrl"));
+    assertEquals("MyId", result.get("awsAccessKeyId"));
+    assertNotNull(result.get("uploadPolicy"));
+    assertEquals("bucket-owner-is-awesome", result.get("acl"));
   }
 
   @Test
@@ -248,7 +295,7 @@ public class AudioIT {
     assertEquals(4, result.length());
   }
 
-  @Test(expected = BusinessException.class)
+  @Test
   public void update_FailsWithoutInstrumentID() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "artist",
@@ -262,28 +309,15 @@ public class AudioIT {
       .setPitch(1567.0)
       .setTempo(80.5);
 
+    failure.expect(BusinessException.class);
+    failure.expectMessage("Instrument ID is required");
+
     testDAO.update(access, ULong.valueOf(3), inputData);
   }
 
   // TODO: ensure that it is not possible to change the waveform key EVER!
-  @Test(expected = BusinessException.class)
-  public void update_FailsWithoutWaveformKey() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
-      "accounts", "1"
-    ));
-    Audio inputData = new Audio()
-      .setInstrumentId(BigInteger.valueOf(2))
-      .setName("maracas")
-      .setStart(0.009)
-      .setLength(0.21)
-      .setPitch(1567.0)
-      .setTempo(80.5);
 
-    testDAO.update(access, ULong.valueOf(3), inputData);
-  }
-
-  @Test(expected = BusinessException.class)
+  @Test
   public void update_FailsUpdatingToNonexistentInstrument() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "artist",
@@ -297,6 +331,9 @@ public class AudioIT {
       .setLength(0.21)
       .setPitch(1567.0)
       .setTempo(80.5);
+
+    failure.expect(BusinessException.class);
+    failure.expectMessage("Instrument does not exist");
 
     try {
       testDAO.update(access, ULong.valueOf(2), inputData);
@@ -354,6 +391,9 @@ public class AudioIT {
 
     testDAO.delete(access, ULong.valueOf(1));
 
+    // [#263] expect request to delete link waveform from Amazon S3
+    verify(amazonProvider).deleteS3Object("xj-audio-test", "instrument/percussion/808/kick1.wav");
+
     AudioRecord result = IntegrationTestService.getDb()
       .selectFrom(AUDIO)
       .where(AUDIO.ID.eq(ULong.valueOf(1)))
@@ -361,17 +401,20 @@ public class AudioIT {
     assertNull(result);
   }
 
-  @Test(expected = BusinessException.class)
+  @Test
   public void delete_failsIfNotInAccount() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "2"
     ));
 
+    failure.expect(BusinessException.class);
+    failure.expectMessage("Audio does not exist");
+
     testDAO.delete(access, ULong.valueOf(1));
   }
 
-  @Test(expected = BusinessException.class)
+  @Test
   public void delete_FailsIfIdeaHasChildRecords() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "userId", "2",
@@ -379,6 +422,9 @@ public class AudioIT {
       "accounts", "1"
     ));
     IntegrationTestEntity.insertAudioEvent(1, 1, 0.42, 0.41, "HEAVY", "C", 0.7, 0.98);
+
+    failure.expect(BusinessException.class);
+    failure.expectMessage("Found Event in Audio");
 
     try {
       testDAO.delete(access, ULong.valueOf(1));

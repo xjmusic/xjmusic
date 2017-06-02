@@ -103,6 +103,9 @@ public abstract class Config {
     return getIntOrDefault("chain.preview.size.max", 300);
   }
 
+  public static int chainDestroyLinksMax() {
+    return getIntOrDefault("chain.destroy.links.max", 24);
+  }
   public static String logAccessFilename() {
     return getOrDefault("log.access.filename", "/tmp/access.log");
   }

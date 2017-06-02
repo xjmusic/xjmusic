@@ -25,8 +25,7 @@ import static org.junit.Assert.assertTrue;
 
 public class LinkTest {
 
-  @Rule
-  public ExpectedException failure = ExpectedException.none();
+  @Rule public ExpectedException failure = ExpectedException.none();
 
   @Test
   public void validate() throws Exception {

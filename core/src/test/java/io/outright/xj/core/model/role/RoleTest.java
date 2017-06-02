@@ -9,8 +9,7 @@ import static org.junit.Assert.assertFalse;
 
 public class RoleTest {
 
-  @Rule
-  public ExpectedException failure = ExpectedException.none();
+  @Rule public ExpectedException failure = ExpectedException.none();
 
   @Test
   public void validate() throws Exception {

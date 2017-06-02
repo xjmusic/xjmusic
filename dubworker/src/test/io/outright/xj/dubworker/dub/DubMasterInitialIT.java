@@ -34,8 +34,7 @@ import java.sql.Timestamp;
 import static io.outright.xj.core.Tables.LINK;
 
 public class DubMasterInitialIT {
-  @Rule
-  public ExpectedException failure = ExpectedException.none();
+  @Rule public ExpectedException failure = ExpectedException.none();
   private Injector injector = Guice.createInjector(new CoreModule(), new MixerModule(), new DubWorkerModule());
   private DubFactory dubFactory;
   private BasisFactory basisFactory;
