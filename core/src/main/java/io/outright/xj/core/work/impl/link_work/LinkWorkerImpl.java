@@ -3,6 +3,7 @@ package io.outright.xj.core.work.impl.link_work;
 
 import io.outright.xj.core.app.access.impl.Access;
 import io.outright.xj.core.app.exception.BusinessException;
+import io.outright.xj.core.app.exception.CancelException;
 import io.outright.xj.core.dao.ChainDAO;
 import io.outright.xj.core.dao.LinkDAO;
 import io.outright.xj.core.dao.LinkMessageDAO;
@@ -94,6 +95,9 @@ public class LinkWorkerImpl implements Worker {
         operation.workOn(link);
         success();
 
+      } catch (CancelException e) {
+        cancel(e);
+
       } catch (Exception e) {
         failure(e);
       }
@@ -124,12 +128,7 @@ public class LinkWorkerImpl implements Worker {
      */
     private void failure(Exception e) {
       try {
-        // [#226] Messages pertaining to a Link
-        linkMessageDAO.create(Access.internal(),
-          new LinkMessage()
-            .setLinkId(link.getId().toBigInteger())
-            .setType(Message.ERROR)
-            .setBody(e.getMessage() + " " + Text.formatStackTrace(e)));
+        linkMessageDAO.create(Access.internal(), newLinkMessage(Message.ERROR, e));
 
         linkDAO.updateState(Access.internal(), link.getId(), Link.FAILED);
         log.error("LinkWorker[" + Thread.currentThread().getName() + "] updated link {} to FAILED state, on exception: {}", link, e);
@@ -140,6 +139,29 @@ public class LinkWorkerImpl implements Worker {
       } catch (Exception e2) {
         log.error("LinkWorker[" + Thread.currentThread().getName() + "] failure failed! Link:{} OriginalException:{} SecondException:{}", link, e, e2);
       }
+    }
+
+    /**
+     [#276] Link state transition errors should not cause chain failure
+
+     @param e exception that caused failure
+     */
+    private void cancel(Exception e) {
+      log.warn("LinkWorker[" + Thread.currentThread().getName() + "] canceled work on link {} on exception: {}", link, e);
+    }
+
+    /**
+     [#226] Messages pertaining to a Link
+
+     @param type of message
+     @param e    exception
+     @return new link message
+     */
+    private LinkMessage newLinkMessage(String type, Exception e) {
+      return new LinkMessage()
+        .setLinkId(link.getId().toBigInteger())
+        .setType(type)
+        .setBody(e.getMessage() + " " + Text.formatStackTrace(e));
     }
 
   }

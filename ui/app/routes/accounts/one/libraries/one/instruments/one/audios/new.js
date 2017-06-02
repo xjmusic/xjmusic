@@ -33,14 +33,14 @@ export default Ember.Route.extend({
         Ember.get(this, 'config').promises.audioBaseUrl.then(
           (url) => {
             self.audioBaseUrl = url;
+            resolve(self.store.createRecord('audio', {
+              instrument: self.modelFor('accounts.one.libraries.one.instruments.one')
+            }));
           },
           (error) => {
             reject(error);
           }
         );
-        resolve(this.store.createRecord('audio', {
-          instrument: this.modelFor('accounts.one.libraries.one.instruments.one')
-        }));
       });
     } else {
       this.transitionTo('accounts.one.libraries.one.instruments.one.audios');
@@ -186,7 +186,10 @@ export default Ember.Route.extend({
   didUploadFile (waveformKey) {
     Ember.get(this, 'display').success('Uploaded "' + this.audioBaseUrl + waveformKey);
     let model = this.controller.get('model');
-    this.transitionTo('accounts.one.libraries.one.instruments.one.audios.one', model);
+    let self = this;
+    Ember.run.later(() => {
+      self.transitionTo('accounts.one.libraries.one.instruments.one.audios.one', model);
+    }, 2);
   },
 
   /**

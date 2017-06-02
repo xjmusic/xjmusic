@@ -88,12 +88,15 @@ public class MasterDubImpl implements MasterDub {
    @param pick to set playback for
    */
   private void setupTarget(Pick pick) throws Exception {
+    // [#283] Pitch ratio should result in lower audio playback for lower note
+    double pitchRatio = basis.linkAudio(pick.getAudioId()).getPitch() / pick.getPitch();
+
     mixer().put(
       pick.getAudioId().toString(),
       basis.atMicros(pick.getStart()),
       basis.atMicros(pick.getStart() + pick.getLength()),
       pick.getAmplitude(),
-      pick.getPitch() / basis.linkAudio(pick.getAudioId()).getPitch(),
+      pitchRatio,
       0);
   }
 

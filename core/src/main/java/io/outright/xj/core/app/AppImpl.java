@@ -56,9 +56,6 @@ public class AppImpl implements App {
     this.accessTokenAuthFilter = accessTokenAuthFilter;
 
     int workConcurrency = Config.workConcurrency();
-    if (workConcurrency < 2) {
-      throw new ConfigException("Chain work must have workConcurrency >= 2");
-    }
     leaderExecutor = Executors.newScheduledThreadPool(workConcurrency);
     workerExecutor = Executors.newFixedThreadPool(workConcurrency);
   }
@@ -99,6 +96,10 @@ public class AppImpl implements App {
     if (resourceConfig == null) {
       throw new ConfigException("Failed to app.start(); must configureServer() first!");
     }
+
+    // [#276] Chain work not safe for concurrent or batch use; link state transition errors should not cause chain failure
+    if (Config.workConcurrency()>1 || Config.workBatchSize() > 1)
+      throw new ConfigException("Current XJ implementation is not safe for concurrent or batch use! See [#286] https://trello.com/c/KpoQOse1 true work management. After that implementation, concurrent and batch work should be safe.");
 
     URI serverURI = URI.create(baseURI());
     log.info("Server starting now at {}", serverURI);

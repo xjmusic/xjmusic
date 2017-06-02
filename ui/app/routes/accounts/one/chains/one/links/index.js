@@ -13,10 +13,10 @@ export default Ember.Route.extend({
   display: Ember.inject.service(),
 
   // for keeping track of the auto-refresh interval
-  refreshInteval: 0,
+  refreshInteval: null,
 
   // # of seconds between auto-refresh
-  refreshSeconds: 10,
+  refreshSeconds: 5,
 
   /**
    * Route Model

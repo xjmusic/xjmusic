@@ -4,6 +4,7 @@ package io.outright.xj.core.dao;
 import io.outright.xj.core.CoreModule;
 import io.outright.xj.core.app.access.impl.Access;
 import io.outright.xj.core.app.exception.BusinessException;
+import io.outright.xj.core.app.exception.CancelException;
 import io.outright.xj.core.external.amazon.AmazonProvider;
 import io.outright.xj.core.integration.IntegrationTestEntity;
 import io.outright.xj.core.integration.IntegrationTestService;
@@ -388,8 +389,8 @@ public class LinkIT {
       "roles", "admin"
     ));
 
-    failure.expect(BusinessException.class);
-    failure.expectMessage("transition should be in (dubbing,dubbed,failed) but crafting not allowed");
+    failure.expect(CancelException.class);
+    failure.expectMessage("transition to crafting not in allowed (dubbing,dubbed,failed)");
 
     testDAO.updateState(access, ULong.valueOf(2), Link.CRAFTING);
   }
@@ -452,8 +453,8 @@ public class LinkIT {
       .setKey("C# minor 7 b9")
       .setTempo(120.0);
 
-    failure.expect(BusinessException.class);
-    failure.expectMessage("transition should be in (dubbing,dubbed,failed) but crafting not allowed");
+    failure.expect(CancelException.class);
+    failure.expectMessage("transition to crafting not in allowed (dubbing,dubbed,failed)");
 
     try {
       testDAO.update(access, ULong.valueOf(2), inputData);

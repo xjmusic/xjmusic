@@ -2,6 +2,7 @@ package io.outright.xj.core.dao.impl;
 
 import io.outright.xj.core.app.access.impl.Access;
 import io.outright.xj.core.app.exception.BusinessException;
+import io.outright.xj.core.app.exception.CancelException;
 import io.outright.xj.core.db.sql.SQLDatabaseProvider;
 import io.outright.xj.core.transport.CSV;
 
@@ -125,11 +126,12 @@ public class DAOImpl {
 
    @param state         to check
    @param allowedStates required to be in
-   @throws BusinessException if not in required states
+   @throws CancelException if not in required states
    */
-  void onlyAllowTransitions(String state, String... allowedStates) throws BusinessException {
-    prevent(String.format("transition should be in (%s) but %s", CSV.join(allowedStates), state),
-      !arrayContains(state, allowedStates));
+  void onlyAllowTransitions(String state, String... allowedStates) throws CancelException {
+    if (!arrayContains(state, allowedStates))
+      throw new CancelException(String.format("transition to %s not in allowed (%s)",
+        state, CSV.join(allowedStates)));
   }
 
   /**

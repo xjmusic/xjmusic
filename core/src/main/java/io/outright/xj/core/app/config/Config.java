@@ -175,11 +175,11 @@ public abstract class Config {
   }
 
   public static int workConcurrency() {
-    return getIntOrDefault("work.concurrency", 10);
+    return getIntOrDefault("work.concurrency", 1);
   }
 
   public static int workBatchSize() {
-    return getIntOrDefault("work.batch.size", 10);
+    return getIntOrDefault("work.batch.size", 1);
   }
 
   public static long workBatchSleepSeconds() {

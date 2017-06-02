@@ -8,6 +8,7 @@ import io.outright.xj.core.app.config.Exposure;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.app.exception.DatabaseException;
+import io.outright.xj.core.app.exception.CancelException;
 import io.outright.xj.core.dao.LinkDAO;
 import io.outright.xj.core.db.sql.SQLConnection;
 import io.outright.xj.core.db.sql.SQLDatabaseProvider;
@@ -360,7 +361,7 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
    @param fieldValues to update with
    @throws BusinessException if a Business Rule is violated
    */
-  private void update(DSLContext db, Access access, ULong id, Map<Field, Object> fieldValues) throws BusinessException, DatabaseException {
+  private void update(DSLContext db, Access access, ULong id, Map<Field, Object> fieldValues) throws BusinessException, DatabaseException, CancelException {
     requireTopLevel(access);
 
     // validate and cache to-state
