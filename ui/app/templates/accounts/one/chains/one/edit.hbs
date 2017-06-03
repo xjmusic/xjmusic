@@ -38,19 +38,12 @@
         </div>
       </div>
 
-      {{#if (eq "draft" model.chain.state)}}
-        <div class="form-group row">
-          <div class="offset-sm-2 col-sm-10">
-            <button class="btn btn-warning btn-xs" {{action 'deleteChain' model.chain}}>Delete Chain</button>
-          </div>
-        </div>
-      {{/if}}
-
       <div class="form-group row">
         <div class="offset-sm-2 col-sm-10">
-          <button class="btn btn-danger btn-xs" {{action 'destroyChain' model.chain}}>Destroy Chain</button>
+          <button class="btn btn-danger btn-xs" {{action 'deleteChain' model.chain}}>Delete Chain</button>
         </div>
       </div>
+
     {{/if}}
 
   </div>

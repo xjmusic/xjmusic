@@ -1,6 +1,6 @@
 <!-- Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved. -->
 
-{{global-header}}
+{{global-header target=this}}
 
 <div class="alert-fixed">
   {{#each flashMessages.queue as |flash|}}
@@ -16,4 +16,4 @@
   {{outlet}}
 </div>
 
-{{global-footer}}
+{{global-footer target=this}}

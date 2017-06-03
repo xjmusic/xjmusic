@@ -118,6 +118,10 @@ RUN mkdir -p /var/log/craftworker && chmod a+w /var/log/craftworker
 EXPOSE 8044
 RUN mkdir -p /var/log/dubworker && chmod a+w /var/log/dubworker
 
+# 'eraseworker'
+EXPOSE 8086
+RUN mkdir -p /var/log/eraseworker && chmod a+w /var/log/eraseworker
+
 # App run script
 ADD \
   .docker/bin/boot-docker \

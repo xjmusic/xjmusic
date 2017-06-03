@@ -10,10 +10,10 @@ import io.outright.xj.core.model.idea.Idea;
 import io.outright.xj.core.model.link.Link;
 import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.tables.records.LinkRecord;
-import io.outright.xj.core.work.WorkFactory;
-import io.outright.xj.core.work.WorkerOperation;
-import io.outright.xj.core.work.impl.link_work.LinkWorkFactoryModule;
-import io.outright.xj.core.work.impl.pilot_work.PilotWorkFactoryModule;
+import io.outright.xj.core.chain_gang.ChainGangFactory;
+import io.outright.xj.core.chain_gang.ChainGangOperation;
+import io.outright.xj.core.chain_gang.impl.link_work.LinkWorkFactoryModule;
+import io.outright.xj.core.chain_gang.impl.link_pilot_work.LinkPilotWorkFactoryModule;
 
 import org.jooq.Result;
 
@@ -34,7 +34,7 @@ import static org.junit.Assert.assertTrue;
 
 public class CraftWorkerIT {
   @Rule public ExpectedException failure = ExpectedException.none();
-  private Injector injector = Guice.createInjector(new CoreModule(), new CraftWorkerModule());
+  private Injector injector = Guice.createInjector(new CoreModule(), new CraftworkerModule());
   private App app;
 
   @Before
@@ -132,23 +132,23 @@ public class CraftWorkerIT {
     app.configureServer("io.outright.xj.craftworker");
 
     // Pilot-type Workload
-    WorkFactory pilotWorkFactory = Guice.createInjector(new CoreModule(),
-      new PilotWorkFactoryModule()).getInstance(WorkFactory.class);
-    app.registerWorkload(
+    ChainGangFactory pilotChainGangFactory = Guice.createInjector(new CoreModule(),
+      new LinkPilotWorkFactoryModule()).getInstance(ChainGangFactory.class);
+    app.registerGangWorkload(
       "Create New Links",
-      pilotWorkFactory.createLeader(300, 10),
-      pilotWorkFactory.createWorker(Link.PLANNED)
+      pilotChainGangFactory.createLeader(300, 10),
+      pilotChainGangFactory.createFollower(Link.PLANNED)
     );
 
     // Link-type Workload
-    WorkerOperation linkOperation = Guice.createInjector(new CoreModule(),
-      new CraftWorkerModule()).getInstance(WorkerOperation.class);
-    WorkFactory linkWorkFactory = Guice.createInjector(new CoreModule(),
-      new LinkWorkFactoryModule()).getInstance(WorkFactory.class);
-    app.registerWorkload(
+    ChainGangOperation linkChainGangOperation = Guice.createInjector(new CoreModule(),
+      new CraftworkerModule()).getInstance(ChainGangOperation.class);
+    ChainGangFactory chainGangFactory = Guice.createInjector(new CoreModule(),
+      new LinkWorkFactoryModule()).getInstance(ChainGangFactory.class);
+    app.registerGangWorkload(
       "Craft Links",
-      linkWorkFactory.createLeader(Link.PLANNED, 300, 10),
-      linkWorkFactory.createWorker(Link.CRAFTING, Link.CRAFTED, linkOperation)
+      chainGangFactory.createLeader(Link.PLANNED, 300, 10),
+      chainGangFactory.createFollower(Link.CRAFTING, Link.CRAFTED, linkChainGangOperation)
     );
   }
 

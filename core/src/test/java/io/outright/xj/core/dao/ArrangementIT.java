@@ -277,7 +277,7 @@ public class ArrangementIT {
     Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
-    IntegrationTestEntity.insertAudio(1, 9, "Kick", "https://static.xj.outright.io/instrument/percussion/808/kick1.wav", 0.01, 2.123, 120.0, 440);
+    IntegrationTestEntity.insertAudio(1, 9, "Published", "Kick", "https://static.xj.outright.io/instrument/percussion/808/kick1.wav", 0.01, 2.123, 120.0, 440);
     IntegrationTestEntity.insertPick(1, 1, 1, 0.125, 1.23, 0.94, 440);
 
     try {

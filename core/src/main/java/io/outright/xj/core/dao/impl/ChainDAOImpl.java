@@ -1,7 +1,6 @@
 // Copyright Outright Mental, Inc. All Rights Reserved.
 package io.outright.xj.core.dao.impl;
 
-import io.outright.xj.core.Tables;
 import io.outright.xj.core.app.access.impl.Access;
 import io.outright.xj.core.app.config.Config;
 import io.outright.xj.core.app.exception.BusinessException;
@@ -20,8 +19,6 @@ import io.outright.xj.core.tables.records.LinkRecord;
 import org.jooq.DSLContext;
 import org.jooq.Field;
 import org.jooq.Record;
-import org.jooq.Record1;
-import org.jooq.Record2;
 import org.jooq.Result;
 import org.jooq.UpdateSetFirstStep;
 import org.jooq.types.ULong;
@@ -40,18 +37,12 @@ import java.util.Map;
 import java.util.Objects;
 
 import static io.outright.xj.core.Tables.ACCOUNT;
-import static io.outright.xj.core.Tables.ARRANGEMENT;
 import static io.outright.xj.core.Tables.CHAIN;
 import static io.outright.xj.core.Tables.CHAIN_CONFIG;
 import static io.outright.xj.core.Tables.CHAIN_IDEA;
 import static io.outright.xj.core.Tables.CHAIN_INSTRUMENT;
 import static io.outright.xj.core.Tables.CHAIN_LIBRARY;
-import static io.outright.xj.core.Tables.CHOICE;
 import static io.outright.xj.core.Tables.LINK;
-import static io.outright.xj.core.Tables.LINK_CHORD;
-import static io.outright.xj.core.Tables.LINK_MEME;
-import static io.outright.xj.core.Tables.LINK_MESSAGE;
-import static io.outright.xj.core.Tables.PICK;
 
 /**
  Chain D.A.O. Implementation
@@ -111,8 +102,18 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
   }
 
   @Override
+  public Result<ChainRecord> readAllInState(Access access, String state, Integer limit) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readAllInState(tx.getContext(), access, state, limit));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
   @Nullable
-  public Result<ChainRecord> readAllRecordsInStateFabricating(Access access, Timestamp atOrBefore) throws Exception {
+  public Result<ChainRecord> readAllInStateFabricating(Access access, Timestamp atOrBefore) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readAllRecordsInStateFabricating(tx.getContext(), access, atOrBefore));
@@ -165,10 +166,10 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
   }
 
   @Override
-  public void destroy(Access access, ULong chainId) throws Exception {
+  public void erase(Access access, ULong chainId) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      destroy(tx.getContext(), access, chainId);
+      updateState(tx.getContext(), access, chainId, Chain.ERASE);
       tx.success();
     } catch (Exception e) {
       throw tx.failure(e);
@@ -255,13 +256,33 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
       return resultInto(CHAIN, db.select(CHAIN.fields())
         .from(CHAIN)
         .where(CHAIN.ACCOUNT_ID.eq(accountId))
+        .and(CHAIN.STATE.notEqual(Chain.ERASE))
         .fetch());
     else
       return resultInto(CHAIN, db.select(CHAIN.fields())
         .from(CHAIN)
         .where(CHAIN.ACCOUNT_ID.eq(accountId))
         .and(CHAIN.ACCOUNT_ID.in(access.getAccounts()))
+        .and(CHAIN.STATE.notEqual(Chain.ERASE))
         .fetch());
+  }
+
+  /**
+   Read all records in a given state
+
+   @param db     context
+   @param access control
+   @param state  to read chains in
+   @param limit  records max
+   @return array of records
+   */
+  private Result<ChainRecord> readAllInState(DSLContext db, Access access, String state, Integer limit) throws Exception {
+    requireTopLevel(access);
+    return resultInto(CHAIN, db.select(CHAIN.fields())
+      .from(CHAIN)
+      .where(CHAIN.STATE.eq(state))
+      .limit(limit)
+      .fetch());
   }
 
   /**
@@ -355,7 +376,7 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
     switch (chain.getState()) {
 
       case Chain.DRAFT:
-        onlyAllowTransitions(updateState, Chain.DRAFT, Chain.READY);
+        onlyAllowTransitions(updateState, Chain.DRAFT, Chain.READY, Chain.ERASE);
         break;
 
       case Chain.READY:
@@ -367,11 +388,15 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
         break;
 
       case Chain.COMPLETE:
-        onlyAllowTransitions(updateState, Chain.COMPLETE);
+        onlyAllowTransitions(updateState, Chain.COMPLETE, Chain.ERASE);
         break;
 
       case Chain.FAILED:
-        onlyAllowTransitions(updateState, Chain.FAILED);
+        onlyAllowTransitions(updateState, Chain.FAILED, Chain.ERASE);
+        break;
+
+      case Chain.ERASE:
+        onlyAllowTransitions(updateState, Chain.ERASE);
         break;
 
       default:
@@ -503,166 +528,28 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
       .where(LINK.CHAIN_ID.eq(id))
       .fetch());
 
-    requireNotExists("Config in Chain", db.select(CHAIN_CONFIG.ID)
-      .from(CHAIN_CONFIG)
-      .where(CHAIN_CONFIG.CHAIN_ID.eq(id))
-      .fetch());
-
-    requireNotExists("Library in Chain", db.select(CHAIN_LIBRARY.ID)
-      .from(CHAIN_LIBRARY)
-      .where(CHAIN_LIBRARY.CHAIN_ID.eq(id))
-      .fetch());
-
-    requireNotExists("Idea in Chain", db.select(CHAIN_IDEA.ID)
-      .from(CHAIN_IDEA)
-      .where(CHAIN_IDEA.CHAIN_ID.eq(id))
-      .fetch());
-
-    requireNotExists("Instrument in Chain", db.select(CHAIN_INSTRUMENT.ID)
-      .from(CHAIN_INSTRUMENT)
-      .where(CHAIN_INSTRUMENT.CHAIN_ID.eq(id))
-      .fetch());
-
-    db.deleteFrom(CHAIN)
-      .where(CHAIN.ID.eq(id))
-      .andNotExists(
-        db.select(LINK.ID)
-          .from(LINK)
-          .where(LINK.CHAIN_ID.eq(id)))
-      .andNotExists(
-        db.select(CHAIN_CONFIG.ID)
-          .from(CHAIN_CONFIG)
-          .where(CHAIN_CONFIG.CHAIN_ID.eq(id)))
-      .andNotExists(
-        db.select(CHAIN_LIBRARY.ID)
-          .from(CHAIN_LIBRARY)
-          .where(CHAIN_LIBRARY.CHAIN_ID.eq(id)))
-      .andNotExists(
-        db.select(CHAIN_IDEA.ID)
-          .from(CHAIN_IDEA)
-          .where(CHAIN_IDEA.CHAIN_ID.eq(id)))
-      .andNotExists(
-        db.select(CHAIN_INSTRUMENT.ID)
-          .from(CHAIN_INSTRUMENT)
-          .where(CHAIN_INSTRUMENT.CHAIN_ID.eq(id)))
-      .execute();
-  }
-
-  /**
-   Destroy a Chain, and all its child entities
-
-   @param db      context
-   @param access  control
-   @param chainId to delete
-   @throws Exception         if database failure
-   @throws ConfigException   if not configured properly
-   @throws BusinessException if fails business rule
-   */
-  private void destroy(DSLContext db, Access access, ULong chainId) throws Exception {
-    requireTopLevel(access);
-
-    ChainRecord chain = db.selectFrom(CHAIN)
-      .where(CHAIN.ID.eq(chainId))
-      .fetchOne();
-    requireExists("Chain", chain);
-
-    String chainState = chain.get(CHAIN.STATE);
-    require("Chain",
-      "must be in a draft or complete state",
-      chainState.equals(Chain.DRAFT) ||
-        chainState.equals(Chain.FAILED) ||
-        chainState.equals(Chain.COMPLETE));
-
-    // Cannot destroy a chain with more than N links, re: [#270] Destroying a Chain should not spike database CPU
-    Integer maxLinks = Config.chainDestroyLinksMax();
-    Integer linkCount = db.selectCount().from(LINK)
-      .where(LINK.CHAIN_ID.eq(chainId))
-      .fetchOne(0, int.class);
-    require("Chain",
-      String.format("must have less than %d links", maxLinks),
-      linkCount <= maxLinks);
-
-    // Delete all link waveform from S3
-    Result<Record1<String>> linkWaveformKeys = db.select(LINK.WAVEFORM_KEY)
-      .from(LINK).where(LINK.CHAIN_ID.eq(chainId)).fetch();
-    for (Record record : linkWaveformKeys)
-      amazonProvider.deleteS3Object(
-        Config.linkFileBucket(),
-        record.get(LINK.WAVEFORM_KEY));
-
-    // Pick before Morph
-    db.deleteFrom(PICK)
-      .where(PICK.ARRANGEMENT_ID.in(
-        db.select(ARRANGEMENT.ID).from(ARRANGEMENT)
-          .join(CHOICE).on(ARRANGEMENT.CHOICE_ID.eq(CHOICE.ID))
-          .join(LINK).on(CHOICE.LINK_ID.eq(LINK.ID))
-          .where(LINK.CHAIN_ID.eq(chainId))
-      )).execute();
-
-    // Arrangement before Choice
-    db.deleteFrom(ARRANGEMENT)
-      .where(ARRANGEMENT.CHOICE_ID.in(
-        db.select(CHOICE.ID).from(CHOICE)
-          .join(LINK).on(CHOICE.LINK_ID.eq(LINK.ID))
-          .where(LINK.CHAIN_ID.eq(chainId))
-      )).execute();
-
-    // Choice before Link
-    db.deleteFrom(CHOICE)
-      .where(CHOICE.LINK_ID.in(
-        db.select(LINK.ID).from(LINK)
-          .where(LINK.CHAIN_ID.eq(chainId))
-      )).execute();
-
-    // Link Chord before Link
-    db.deleteFrom(LINK_CHORD)
-      .where(LINK_CHORD.LINK_ID.in(
-        db.select(LINK.ID).from(LINK)
-          .where(LINK.CHAIN_ID.eq(chainId))
-      )).execute();
-
-    // Link Meme before Link
-    db.deleteFrom(LINK_MEME)
-      .where(LINK_MEME.LINK_ID.in(
-        db.select(LINK.ID).from(LINK)
-          .where(LINK.CHAIN_ID.eq(chainId))
-      )).execute();
-
-    // Link Message before Link
-    db.deleteFrom(LINK_MESSAGE)
-      .where(LINK_MESSAGE.LINK_ID.in(
-        db.select(LINK.ID).from(LINK)
-          .where(LINK.CHAIN_ID.eq(chainId))
-      )).execute();
-
-    // Link before Chain
-    db.deleteFrom(Tables.LINK)
-      .where(LINK.CHAIN_ID.eq(chainId))
-      .execute();
-
     // Chain-Idea before Chain
     db.deleteFrom(CHAIN_IDEA)
-      .where(CHAIN_IDEA.CHAIN_ID.eq(chainId))
+      .where(CHAIN_IDEA.CHAIN_ID.eq(id))
       .execute();
 
     // Chain-Instrument before Chain
     db.deleteFrom(CHAIN_INSTRUMENT)
-      .where(CHAIN_INSTRUMENT.CHAIN_ID.eq(chainId))
+      .where(CHAIN_INSTRUMENT.CHAIN_ID.eq(id))
       .execute();
 
     // Chain-Library before Chain
     db.deleteFrom(CHAIN_LIBRARY)
-      .where(CHAIN_LIBRARY.CHAIN_ID.eq(chainId))
+      .where(CHAIN_LIBRARY.CHAIN_ID.eq(id))
       .execute();
 
     // Chain-Config before Chain
     db.deleteFrom(CHAIN_CONFIG)
-      .where(CHAIN_CONFIG.CHAIN_ID.eq(chainId))
+      .where(CHAIN_CONFIG.CHAIN_ID.eq(id))
       .execute();
 
-    // Chain
     db.deleteFrom(CHAIN)
-      .where(CHAIN.ID.eq(chainId))
+      .where(CHAIN.ID.eq(id))
       .execute();
   }
 

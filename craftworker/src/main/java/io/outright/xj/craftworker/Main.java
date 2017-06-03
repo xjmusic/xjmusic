@@ -8,10 +8,10 @@ import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.db.sql.SQLDatabaseProvider;
 import io.outright.xj.core.migration.MigrationService;
 import io.outright.xj.core.model.link.Link;
-import io.outright.xj.core.work.WorkFactory;
-import io.outright.xj.core.work.WorkerOperation;
-import io.outright.xj.core.work.impl.link_work.LinkWorkFactoryModule;
-import io.outright.xj.core.work.impl.pilot_work.PilotWorkFactoryModule;
+import io.outright.xj.core.chain_gang.ChainGangFactory;
+import io.outright.xj.core.chain_gang.ChainGangOperation;
+import io.outright.xj.core.chain_gang.impl.link_work.LinkWorkFactoryModule;
+import io.outright.xj.core.chain_gang.impl.link_pilot_work.LinkPilotWorkFactoryModule;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -56,23 +56,23 @@ public class Main {
     app.configureServer("io.outright.xj.craftworker");
 
     // Pilot-type Workload
-    WorkFactory pilotWorkFactory = Guice.createInjector(new CoreModule(),
-      new PilotWorkFactoryModule()).getInstance(WorkFactory.class);
-    app.registerWorkload(
+    ChainGangFactory pilotChainGangFactory = Guice.createInjector(new CoreModule(),
+      new LinkPilotWorkFactoryModule()).getInstance(ChainGangFactory.class);
+    app.registerGangWorkload(
       "Create New Links",
-      pilotWorkFactory.createLeader(Config.workAheadSeconds(), Config.workBatchSize()),
-      pilotWorkFactory.createWorker(Link.PLANNED)
+      pilotChainGangFactory.createLeader(Config.workAheadSeconds(), Config.workBatchSize()),
+      pilotChainGangFactory.createFollower(Link.PLANNED)
     );
 
     // Link-type Workload
-    WorkerOperation linkOperation = Guice.createInjector(new CoreModule(),
-      new CraftWorkerModule()).getInstance(WorkerOperation.class);
-    WorkFactory linkWorkFactory = Guice.createInjector(new CoreModule(),
-      new LinkWorkFactoryModule()).getInstance(WorkFactory.class);
-    app.registerWorkload(
+    ChainGangOperation linkChainGangOperation = Guice.createInjector(new CoreModule(),
+      new CraftworkerModule()).getInstance(ChainGangOperation.class);
+    ChainGangFactory chainGangFactory = Guice.createInjector(new CoreModule(),
+      new LinkWorkFactoryModule()).getInstance(ChainGangFactory.class);
+    app.registerGangWorkload(
       "Craft Links",
-      linkWorkFactory.createLeader(Link.PLANNED, Config.workAheadSeconds(), Config.workBatchSize()),
-      linkWorkFactory.createWorker(Link.CRAFTING, Link.CRAFTED, linkOperation)
+      chainGangFactory.createLeader(Link.PLANNED, Config.workAheadSeconds(), Config.workBatchSize()),
+      chainGangFactory.createFollower(Link.CRAFTING, Link.CRAFTED, linkChainGangOperation)
     );
 
     // Shutdown Hook

@@ -3,6 +3,7 @@ package io.outright.xj.core.dao;
 
 import io.outright.xj.core.app.access.impl.Access;
 import io.outright.xj.core.model.audio.Audio;
+import io.outright.xj.core.model.audio.AudioState;
 import io.outright.xj.core.tables.records.AudioRecord;
 
 import org.jooq.Result;
@@ -11,6 +12,7 @@ import org.jooq.types.ULong;
 import org.json.JSONObject;
 
 import javax.annotation.Nullable;
+import java.sql.ResultSet;
 
 public interface AudioDAO {
 
@@ -56,6 +58,17 @@ public interface AudioDAO {
   Result<AudioRecord> readAll(Access access, ULong instrumentId) throws Exception;
 
   /**
+   Fetch all Audio in a certian state
+   [INTERNAL USE ONLY]
+
+   @param access       control
+   @param state to get audios in
+   @return Result of audio records.
+   @throws Exception on failure
+   */
+  Result<AudioRecord> readAllInState(Access access, AudioState state, int batchSize) throws Exception;
+
+  /**
    Fetch all accessible Audio picked for a link
 
    @param access       control
@@ -75,11 +88,18 @@ public interface AudioDAO {
   void update(Access access, ULong id, Audio entity) throws Exception;
 
   /**
-   Delete a specified Audio if accessible
+   Delete a specified Audio
 
    @param access control
    @param id     of specific audio to delete.
    */
-  void delete(Access access, ULong id) throws Exception;
+  void destroy(Access access, ULong id) throws Exception;
 
+  /**
+   Erase a specified Audio if accessible
+
+   @param access control
+   @param id     of specific audio to erase.
+   */
+  void erase(Access access, ULong id) throws Exception;
 }

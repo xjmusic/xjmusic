@@ -10,4 +10,4 @@ Elastic Beanstalk assumes that all entries in the Procfile should run at all tim
 
 Any E.B. environment must have variables set in order to run the xj platform. See `production.env` to infer the expected environment variables.
  
-Most importantly, there is a variable APPS which is a space-separated list of apps to run. For example, `APPS=hub` would operate only the Hub frontend, while `APPS=craftworker dubworker` would operate both the Craftworker and Dubworker apps.
+Most importantly, there is a variable APPS which is a space-separated list of apps to run. For example, `APPS=hub` would operate only the Hub frontend, while `APPS=craftworker dubworker eraseworker` would operate all the Craftworker, Dubworker, and Eraseworker apps.

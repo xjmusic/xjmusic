@@ -104,6 +104,7 @@ public class AudioTest {
     record.setInstrumentId(ULong.valueOf(53));
     record.setLength(3.4);
     record.setName("Mic Check One Two");
+    record.setState("Published");
     record.setPitch(57.4);
     record.setStart(0.212);
     record.setTempo(120.0);

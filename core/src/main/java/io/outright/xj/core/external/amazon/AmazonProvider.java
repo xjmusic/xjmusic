@@ -2,6 +2,7 @@
 package io.outright.xj.core.external.amazon;
 
 import io.outright.xj.core.app.exception.ConfigException;
+import io.outright.xj.core.app.exception.NetworkException;
 
 import java.io.BufferedInputStream;
 
@@ -76,7 +77,7 @@ public interface AmazonProvider {
    @param key        of object to stream
    @return stream of object data
    */
-  BufferedInputStream streamS3Object(String bucketName, String key);
+  BufferedInputStream streamS3Object(String bucketName, String key) throws NetworkException;
 
   /**
    Put an object to S3 (from a file)
@@ -85,13 +86,15 @@ public interface AmazonProvider {
    @param bucket   to put file to
    @param key      to put file at
    */
-  void putS3Object(String filePath, String bucket, String key);
+  void putS3Object(String filePath, String bucket, String key) throws NetworkException;
 
   /**
    Delete an object from S3
+   If attempting to delete an object that does not exist,
+   Amazon S3 returns a success message instead of an error message.
 
-   @param bucket   to delete file in
-   @param key      to delete
+   @param bucket to delete file in
+   @param key    to delete
    */
-  void deleteS3Object(String bucket, String key);
+  void deleteS3Object(String bucket, String key) throws NetworkException;
 }

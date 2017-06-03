@@ -4,6 +4,7 @@ package io.outright.xj.core.external.amazon;
 import io.outright.xj.core.app.config.Config;
 import io.outright.xj.core.app.config.Exposure;
 import io.outright.xj.core.app.exception.ConfigException;
+import io.outright.xj.core.app.exception.NetworkException;
 import io.outright.xj.core.util.token.TokenGenerator;
 
 import com.google.inject.Inject;
@@ -81,21 +82,36 @@ public class AmazonProviderImpl implements AmazonProvider {
   }
 
   @Override
-  public BufferedInputStream streamS3Object(String bucketName, String key) {
-    return new BufferedInputStream(s3Client()
-      .getObject(new GetObjectRequest(bucketName, key))
-      .getObjectContent());
+  public BufferedInputStream streamS3Object(String bucketName, String key) throws NetworkException {
+    try {
+      return new BufferedInputStream(s3Client()
+        .getObject(new GetObjectRequest(bucketName, key))
+        .getObjectContent());
+
+    } catch (Exception e) {
+      throw new NetworkException("Failed to stream S3 object", e);
+    }
   }
 
   @Override
-  public void putS3Object(String filePath, String bucket, String key) {
-    s3Client().putObject(new PutObjectRequest(
-      bucket, key, new File(filePath)));
+  public void putS3Object(String filePath, String bucket, String key) throws NetworkException {
+    try {
+      s3Client().putObject(new PutObjectRequest(
+        bucket, key, new File(filePath)));
+
+    } catch (Exception e) {
+      throw new NetworkException("Failed to put S3 object", e);
+    }
   }
 
   @Override
-  public void deleteS3Object(String bucket, String key) {
-    s3Client().deleteObject(bucket, key);
+  public void deleteS3Object(String bucket, String key) throws NetworkException {
+    try {
+      s3Client().deleteObject(bucket, key);
+
+    } catch (Exception e) {
+      throw new NetworkException("Failed to delete S3 object", e);
+    }
   }
 
   /**

@@ -17,7 +17,7 @@ import org.apache.commons.codec.language.DoubleMetaphone;
 public abstract class EventEntity extends Entity {
   public static final String KEY_ONE = "event";
   public static final String KEY_MANY = "events";
-  private static final double SIMILARITY_SCORE_MATCHING_INFLECTION = 1;
+  private static final double SIMILARITY_SCORE_MATCHING_INFLECTION = 1.5;
   private static final double SIMILARITY_SCORE_VELOCITY = 0.2;
   private static final double SIMILARITY_SCORE_DURATION = 0.3;
   private static final double SIMILARITY_SCORE_TONALITY = 0.6;

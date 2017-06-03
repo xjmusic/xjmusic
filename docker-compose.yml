@@ -20,7 +20,7 @@ services:
 
   work:
     environment:
-      APPS: craftworker dubworker
+      APPS: craftworker dubworker eraseworker
     container_name: work01xj1
     extends:
       file: docker-compose.common.yml

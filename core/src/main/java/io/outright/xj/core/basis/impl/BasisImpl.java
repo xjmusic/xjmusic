@@ -362,6 +362,11 @@ public class BasisImpl implements Basis {
   }
 
   @Override
+  public Integer octaveOfPitch(Double pitch) {
+    return tuning.octaveOfPitch(pitch);
+  }
+
+  @Override
   public Double secondsAtPosition(double p3) throws Exception {
     if (isInitialLink())
       return p3 * BPM.velocity(link().getTempo());

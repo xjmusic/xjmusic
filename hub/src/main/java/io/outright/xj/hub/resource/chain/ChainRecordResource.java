@@ -22,13 +22,11 @@ import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.util.Objects;
 
 /**
  Chain record
@@ -41,9 +39,6 @@ public class ChainRecordResource {
 
   @PathParam("id")
   String id;
-
-  @QueryParam("destroy")
-  Boolean destroy;
 
   /**
    Get one chain.
@@ -87,6 +82,10 @@ public class ChainRecordResource {
 
   /**
    Delete one chain
+   <p>
+   [#294] Eraseworker finds Links and Audio in deleted state and actually deletes the records, child entities and S3 objects
+   Hub DELETE /chains/<id> is actually a state update to ERASE
+   Hub cannot invoke chain destroy DAO method!
 
    @return Response
    */
@@ -94,11 +93,7 @@ public class ChainRecordResource {
   @RolesAllowed({Role.ARTIST})
   public Response delete(@Context ContainerRequestContext crc) {
     try {
-      if (Objects.nonNull(destroy) && destroy) {
-        DAO.destroy(Access.fromContext(crc), ULong.valueOf(id));
-      } else {
-        DAO.delete(Access.fromContext(crc), ULong.valueOf(id));
-      }
+      DAO.erase(Access.fromContext(crc), ULong.valueOf(id));
       return Response.accepted("{}").build();
 
     } catch (Exception e) {

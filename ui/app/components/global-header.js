@@ -31,12 +31,6 @@ export default Ember.Component.extend({
         };
       }
     }, 250);
-  },
-
-  actions: {
-    sessionChanged: function () {
-      this.refresh();
-    }
   }
 
 });

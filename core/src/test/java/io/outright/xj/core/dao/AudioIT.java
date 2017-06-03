@@ -9,6 +9,7 @@ import io.outright.xj.core.external.amazon.S3UploadPolicy;
 import io.outright.xj.core.integration.IntegrationTestEntity;
 import io.outright.xj.core.integration.IntegrationTestService;
 import io.outright.xj.core.model.audio.Audio;
+import io.outright.xj.core.model.audio.AudioState;
 import io.outright.xj.core.model.chain.Chain;
 import io.outright.xj.core.model.choice.Choice;
 import io.outright.xj.core.model.idea.Idea;
@@ -45,7 +46,6 @@ import static io.outright.xj.core.tables.Audio.AUDIO;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 // TODO [core] test permissions of different users to readMany vs. create vs. update or delete audios
@@ -81,8 +81,8 @@ public class AudioIT {
     IntegrationTestEntity.insertInstrument(2, 1, 2, "909 Drums", Instrument.PERCUSSIVE, 0.8);
 
     // Instrument "808" has Audios "Kick" and "Snare"
-    IntegrationTestEntity.insertAudio(1, 1, "Kick", "instrument/percussion/808/kick1.wav", 0.01, 2.123, 120.0, 440);
-    IntegrationTestEntity.insertAudio(2, 1, "Snare", "instrument/percussion/808/snare.wav", 0.0023, 1.05, 131.0, 702);
+    IntegrationTestEntity.insertAudio(1, 1, "Published", "Kick", "instrument/percussion/808/kick1.wav", 0.01, 2.123, 120.0, 440);
+    IntegrationTestEntity.insertAudio(2, 1, "Published", "Snare", "instrument/percussion/808/snare.wav", 0.0023, 1.05, 131.0, 702);
 
     // Instantiate the test subject
     testDAO = injector.getInstance(AudioDAO.class);
@@ -273,6 +273,24 @@ public class AudioIT {
   }
 
   @Test
+  public void readAll_excludesAudiosInEraseState() throws Exception {
+    IntegrationTestEntity.insertAudio(27,1, "Erase","shammy","instrument-1-audio-09897fhjdf.wav",0,1,120,440);
+    Access access = new Access(ImmutableMap.of(
+      "roles", "user",
+      "accounts", "1"
+    ));
+
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ULong.valueOf(1)));
+
+    assertNotNull(result);
+    assertEquals(2, result.length());
+    JSONObject result1 = (JSONObject) result.get(0);
+    assertEquals("Kick", result1.get("name"));
+    JSONObject result2 = (JSONObject) result.get(1);
+    assertEquals("Snare", result2.get("name"));
+  }
+
+  @Test
   public void readAll_SeesNothingOutsideOfLibrary() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "artist",
@@ -389,16 +407,13 @@ public class AudioIT {
       "accounts", "1"
     ));
 
-    testDAO.delete(access, ULong.valueOf(1));
-
-    // [#263] expect request to delete link waveform from Amazon S3
-    verify(amazonProvider).deleteS3Object("xj-audio-test", "instrument/percussion/808/kick1.wav");
+    testDAO.erase(access, ULong.valueOf(1));
 
     AudioRecord result = IntegrationTestService.getDb()
       .selectFrom(AUDIO)
       .where(AUDIO.ID.eq(ULong.valueOf(1)))
       .fetchOne();
-    assertNull(result);
+    assertEquals("Erase", result.getState());
   }
 
   @Test
@@ -411,11 +426,11 @@ public class AudioIT {
     failure.expect(BusinessException.class);
     failure.expectMessage("Audio does not exist");
 
-    testDAO.delete(access, ULong.valueOf(1));
+    testDAO.erase(access, ULong.valueOf(1));
   }
 
   @Test
-  public void delete_FailsIfIdeaHasChildRecords() throws Exception {
+  public void delete_SucceedsEvenWithChildRecords() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "userId", "2",
       "roles", "artist",
@@ -423,11 +438,8 @@ public class AudioIT {
     ));
     IntegrationTestEntity.insertAudioEvent(1, 1, 0.42, 0.41, "HEAVY", "C", 0.7, 0.98);
 
-    failure.expect(BusinessException.class);
-    failure.expectMessage("Found Event in Audio");
-
     try {
-      testDAO.delete(access, ULong.valueOf(1));
+      testDAO.erase(access, ULong.valueOf(1));
 
     } catch (Exception e) {
       AudioRecord stillExistingRecord = IntegrationTestService.getDb()

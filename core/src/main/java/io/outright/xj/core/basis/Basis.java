@@ -51,6 +51,7 @@ public interface Basis {
 
   /**
    Output Audio Format
+
    @return output audio format
    */
   AudioFormat outputAudioFormat() throws Exception;
@@ -226,6 +227,15 @@ public interface Basis {
    @return pitch of note, in Hz
    */
   Double pitch(Note note);
+
+  /**
+   Octave #, for any pitch in Hz
+   <p>
+   [#295] Dubworker keeps pitch-changes of percussive instruments to within the audio's original octave range, matching only the pitch class of the pick
+
+   @param pitch to get octave of
+   */
+  Integer octaveOfPitch(Double pitch);
 
   /**
    Calculate the position in seconds from the beginning of the link, for any position given in beats.
@@ -426,4 +436,5 @@ public interface Basis {
    @return microseconds
    */
   long atMicros(Double seconds);
+
 }

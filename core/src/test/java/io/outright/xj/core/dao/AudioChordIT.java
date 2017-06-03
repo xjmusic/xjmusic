@@ -54,7 +54,7 @@ public class AudioChordIT {
     IntegrationTestEntity.insertInstrument(1, 1, 2, "Harmonic Performance", Instrument.PERCUSSIVE, 0.9);
 
     // Instrument "808" has Audio "Chords Cm to D"
-    IntegrationTestEntity.insertAudio(1, 1, "Chords Cm to D", "https://static.xj.outright.io/instrument/percussion/808/kick1.wav", 0.01, 2.123, 120.0, 440);
+    IntegrationTestEntity.insertAudio(1, 1, "Published", "Chords Cm to D", "https://static.xj.outright.io/instrument/percussion/808/kick1.wav", 0.01, 2.123, 120.0, 440);
 
     // Audio "Drums" has events "C minor" and "D major" 2x each
     IntegrationTestEntity.insertAudioChord(1, 1, 4, "D major");

@@ -227,6 +227,10 @@ Run a local **Dubworker** on its default port 8044:
 
     bin/dubworker    
 
+Run a local **Eraseworker** on its default port 8086:
+
+    bin/eraseworker    
+
 ## Release Java platform for deployment to AWS Elastic Beanstalk
 
 Release as a zip file (e.g. target/xj-release-2016.12.05-UTC.00.37.07.zip) containing the Procfile and shaded .JAR files required to run the application.
@@ -434,6 +438,7 @@ In music theory, a scale is any set of musical notes ordered by fundamental freq
   * hub: 8042
   * craftworker: 8043
   * dubworker: 8044
+  * eraseworker: 8086
 
 ## Healthcheck Endpoint
 

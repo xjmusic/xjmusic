@@ -11,7 +11,7 @@ import io.outright.xj.core.model.choice.Choice;
 import io.outright.xj.core.model.idea.Idea;
 import io.outright.xj.core.model.link.Link;
 import io.outright.xj.core.model.role.Role;
-import io.outright.xj.craftworker.CraftWorkerModule;
+import io.outright.xj.craftworker.CraftworkerModule;
 
 import org.jooq.types.ULong;
 
@@ -31,7 +31,7 @@ import static org.junit.Assert.assertNotNull;
 
 public class CraftStructureNextMainIT {
   @Rule public ExpectedException failure = ExpectedException.none();
-  private Injector injector = Guice.createInjector(new CoreModule(), new CraftWorkerModule());
+  private Injector injector = Guice.createInjector(new CoreModule(), new CraftworkerModule());
   private CraftFactory craftFactory;
   private BasisFactory basisFactory;
 

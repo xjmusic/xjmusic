@@ -56,13 +56,15 @@ public class Chain extends Entity {
   public static final String FABRICATING = "fabricating";
   public static final String COMPLETE = "complete";
   public static final String FAILED = "failed";
+  public static final String ERASE ="erase";
   // list of all states
   public final static List<String> STATES = ImmutableList.of(
     DRAFT,
     READY,
     FABRICATING,
     COMPLETE,
-    FAILED
+    FAILED,
+    ERASE
   );
 
   /**
@@ -181,6 +183,7 @@ public class Chain extends Entity {
       }
     }
   }
+
 
   @Override
   public Chain setFromRecord(Record record) {

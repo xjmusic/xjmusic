@@ -2,6 +2,7 @@
 package io.outright.xj.core.dao;
 
 import io.outright.xj.core.CoreModule;
+import io.outright.xj.core.Tables;
 import io.outright.xj.core.app.access.impl.Access;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.app.exception.CancelException;
@@ -9,10 +10,16 @@ import io.outright.xj.core.external.amazon.AmazonProvider;
 import io.outright.xj.core.integration.IntegrationTestEntity;
 import io.outright.xj.core.integration.IntegrationTestService;
 import io.outright.xj.core.model.chain.Chain;
+import io.outright.xj.core.model.choice.Choice;
+import io.outright.xj.core.model.idea.Idea;
+import io.outright.xj.core.model.instrument.Instrument;
 import io.outright.xj.core.model.link.Link;
+import io.outright.xj.core.model.message.Message;
+import io.outright.xj.core.model.voice.Voice;
 import io.outright.xj.core.tables.records.LinkRecord;
 import io.outright.xj.core.transport.JSON;
 
+import org.jooq.impl.DSL;
 import org.jooq.types.UInteger;
 import org.jooq.types.ULong;
 
@@ -36,10 +43,19 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.math.BigInteger;
 import java.sql.Timestamp;
 
+import static io.outright.xj.core.Tables.ARRANGEMENT;
+import static io.outright.xj.core.Tables.CHAIN;
+import static io.outright.xj.core.Tables.CHOICE;
+import static io.outright.xj.core.Tables.LINK_CHORD;
+import static io.outright.xj.core.Tables.LINK_MEME;
+import static io.outright.xj.core.Tables.LINK_MESSAGE;
+import static io.outright.xj.core.Tables.PICK;
 import static io.outright.xj.core.tables.Link.LINK;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -55,6 +71,9 @@ public class LinkIT {
 
     // inject mocks
     createInjector();
+
+    // configs
+    System.setProperty("link.file.bucket", "xj-link-test");
 
     // Account "Testing" has chain "Test Print #1"
     IntegrationTestEntity.insertAccount(1, "Testing");
@@ -84,6 +103,9 @@ public class LinkIT {
   @After
   public void tearDown() throws Exception {
     testDAO = null;
+    injector = null;
+
+    System.clearProperty("link.file.bucket");
   }
 
   @Test
@@ -472,12 +494,12 @@ public class LinkIT {
   }
 
   @Test
-  public void delete() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "admin"
-    ));
+  public void destroy() throws Exception {
+    IntegrationTestService.getDb().update(CHAIN)
+      .set(CHAIN.STATE, Chain.ERASE)
+      .execute();
 
-    testDAO.delete(access, ULong.valueOf(1));
+    testDAO.destroy(Access.internal(), ULong.valueOf(1));
 
     LinkRecord result = IntegrationTestService.getDb()
       .selectFrom(LINK)
@@ -487,25 +509,131 @@ public class LinkIT {
   }
 
   @Test
-  public void delete_FailsIfLinkHasChildRecords() throws Exception {
+  public void destroy_succeedsEvenIfLinkHasNullWaveformKey() throws Exception {
+    IntegrationTestService.getDb().update(CHAIN)
+      .set(CHAIN.STATE, Chain.ERASE)
+      .execute();
+    IntegrationTestService.getDb().update(LINK)
+      .set(LINK.WAVEFORM_KEY, DSL.value((String) null))
+      .execute();
+
+    testDAO.destroy(Access.internal(), ULong.valueOf(1));
+
+    verify(amazonProvider, never()).deleteS3Object("xj-link-test", null);
+
+    LinkRecord result = IntegrationTestService.getDb()
+      .selectFrom(LINK)
+      .where(LINK.ID.eq(ULong.valueOf(1)))
+      .fetchOne();
+    assertNull(result);
+  }
+
+  @Test
+  public void destroy_failsIfNotInEraseState() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
-    IntegrationTestEntity.insertLinkChord(1, 1, 1.5, "C minor");
 
     failure.expect(BusinessException.class);
-    failure.expectMessage("Found Chord in Link");
+    failure.expectMessage("Link in a Chain that is being erased does not exist");
 
-    try {
-      testDAO.delete(access, ULong.valueOf(1));
-
-    } catch (Exception e) {
-      LinkRecord stillExistingRecord = IntegrationTestService.getDb()
-        .selectFrom(LINK)
-        .where(LINK.ID.eq(ULong.valueOf(1)))
-        .fetchOne();
-      assertNotNull(stillExistingRecord);
-      throw e;
-    }
+    testDAO.destroy(access, ULong.valueOf(1));
   }
+
+  @Test
+  public void destroy_allChildEntities() throws Exception {
+    // User "bill"
+    IntegrationTestEntity.insertUser(2, "bill", "bill@email.com", "http://pictures.com/bill.gif");
+
+    // Library "test sounds"
+    IntegrationTestEntity.insertLibrary(1, 1, "test sounds");
+    IntegrationTestEntity.insertIdea(1, 2, 1, Idea.MACRO, "epic concept", 0.342, "C#", 0.286);
+    IntegrationTestEntity.insertPhase(1, 1, 0, 16, "Ants", 0.583, "D minor", 120.0);
+    IntegrationTestEntity.insertVoice(8, 1, Voice.PERCUSSIVE, "This is a percussive voice");
+    IntegrationTestEntity.insertVoiceEvent(1, 8, 0, 1, "KICK", "C", 0.8, 1.0);
+
+    // Library has Instrument with Audio
+    IntegrationTestEntity.insertInstrument(9, 1, 2, "jams", Instrument.PERCUSSIVE, 0.6);
+    IntegrationTestEntity.insertAudio(1, 9, "Published", "Kick", "https://static.xj.outright.io/instrument/percussion/808/kick1.wav", 0.01, 2.123, 120.0, 440);
+
+    // Chain "Test Print #1" has one link
+    IntegrationTestEntity.insertChain(3, 1, "Test Print #1", Chain.PRODUCTION, Chain.ERASE, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"));
+    IntegrationTestEntity.insertLink(17, 3, 0, Link.DUBBED, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120, "chain-1-link-97898asdf7892.mp3");
+
+    // Link Meme
+    IntegrationTestEntity.insertLinkMeme(25, 17, "Jams");
+
+    // Link Chord
+    IntegrationTestEntity.insertLinkChord(25, 17, 0, "D major 7 b9");
+
+    // Link Message
+    IntegrationTestEntity.insertLinkMessage(25, 17, Message.WARN, "Consider yourself warned");
+
+    // Choice
+    IntegrationTestEntity.insertChoice(1, 17, 1, Choice.MACRO, 2, -5);
+
+    // Arrangement
+    IntegrationTestEntity.insertArrangement(1, 1, 8, 9);
+
+    // Pick is in Morph
+    IntegrationTestEntity.insertPick(1, 1, 1, 0.125, 1.23, 0.94, 440);
+
+    Access access = new Access(ImmutableMap.of(
+      "roles", "admin"
+    ));
+
+    //
+    // Go!
+    testDAO.destroy(access, ULong.valueOf(17));
+    //
+    //
+
+    // [#263] expect request to delete link waveform from Amazon S3
+    verify(amazonProvider).deleteS3Object("xj-link-test", "chain-1-link-97898asdf7892.mp3");
+
+    // Assert destroyed Link
+    assertNull(IntegrationTestService.getDb()
+      .selectFrom(Tables.LINK)
+      .where(Tables.LINK.ID.eq(ULong.valueOf(17)))
+      .fetchOne());
+
+    // Assert destroyed Link Meme
+    assertNull(IntegrationTestService.getDb()
+      .selectFrom(LINK_MEME)
+      .where(LINK_MEME.ID.eq(ULong.valueOf(25)))
+      .fetchOne());
+
+    // Assert destroyed Link Chord
+    assertNull(IntegrationTestService.getDb()
+      .selectFrom(LINK_CHORD)
+      .where(LINK_CHORD.ID.eq(ULong.valueOf(25)))
+      .fetchOne());
+
+    // Assert destroyed Link Message
+    assertNull(IntegrationTestService.getDb()
+      .selectFrom(LINK_MESSAGE)
+      .where(LINK_MESSAGE.ID.eq(ULong.valueOf(25)))
+      .fetchOne());
+
+    // Assert destroyed Arrangement
+    assertNull(IntegrationTestService.getDb()
+      .selectFrom(ARRANGEMENT)
+      .where(ARRANGEMENT.ID.eq(ULong.valueOf(1)))
+      .fetchOne());
+
+    // Assert destroyed Choice
+    assertNull(IntegrationTestService.getDb()
+      .selectFrom(CHOICE)
+      .where(CHOICE.ID.eq(ULong.valueOf(1)))
+      .fetchOne());
+
+    // Assert destroyed Pick
+    assertNull(IntegrationTestService.getDb()
+      .selectFrom(PICK)
+      .where(PICK.ID.eq(ULong.valueOf(1)))
+      .fetchOne());
+
+  }
+
+
 }

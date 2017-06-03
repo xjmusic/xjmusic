@@ -85,6 +85,8 @@ public class AudioRecordResource {
 
   /**
    Delete one audio
+   [#294] Eraseworker finds Links and Audio in deleted state and actually deletes the records, child entities and S3 objects
+   Hub DELETE /audios/<id> is actually a state update to ERASE
 
    @return Response
    */
@@ -92,7 +94,7 @@ public class AudioRecordResource {
   @RolesAllowed({Role.ARTIST})
   public Response delete(@Context ContainerRequestContext crc) {
     try {
-      DAO.delete(Access.fromContext(crc), ULong.valueOf(id));
+      DAO.erase(Access.fromContext(crc), ULong.valueOf(id));
       return Response.accepted("{}").build();
 
     } catch (Exception e) {

@@ -57,7 +57,7 @@ public class AudioEventIT {
     IntegrationTestEntity.insertInstrument(2, 1, 2, "909 Drums", Instrument.PERCUSSIVE, 0.8);
 
     // Instrument "808" has Audio "Beat"
-    IntegrationTestEntity.insertAudio(1, 1, "Beat", "https://static.xj.outright.io/19801735098q47895897895782138975898.wav", 0.01, 2.123, 120.0, 440);
+    IntegrationTestEntity.insertAudio(1, 1, "Published", "Beat", "https://static.xj.outright.io/19801735098q47895897895782138975898.wav", 0.01, 2.123, 120.0, 440);
 
     // Audio "Drums" has events "KICK" and "SNARE" 2x each
     IntegrationTestEntity.insertAudioEvent(1, 1, 2.5, 1, "KICK", "Eb", 0.8, 1.0);

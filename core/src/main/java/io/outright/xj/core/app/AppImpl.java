@@ -7,15 +7,17 @@ import io.outright.xj.core.app.config.Config;
 import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.app.server.HttpServerProvider;
 import io.outright.xj.core.app.server.ResourceConfigProvider;
-import io.outright.xj.core.work.Leader;
-import io.outright.xj.core.work.Worker;
+import io.outright.xj.core.app.work.Worker;
+import io.outright.xj.core.app.work.Workload;
+import io.outright.xj.core.app.work.impl.ChainGangWorkload;
+import io.outright.xj.core.app.work.impl.SimpleWorkload;
+import io.outright.xj.core.chain_gang.Follower;
+import io.outright.xj.core.chain_gang.Leader;
 
 import com.google.api.client.util.Lists;
 import com.google.inject.Inject;
 
 import org.glassfish.jersey.server.ResourceConfig;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,16 +25,9 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 
 public class AppImpl implements App {
   private final static Logger log = LoggerFactory.getLogger(App.class);
-  private static ScheduledExecutorService leaderExecutor;
-  private static ExecutorService workerExecutor;
   private final HttpServerProvider httpServerProvider;
   private final ResourceConfigProvider resourceConfigProvider;
   private final AccessTokenAuthFilter accessTokenAuthFilter;
@@ -41,7 +36,6 @@ public class AppImpl implements App {
   private final Integer port = Config.appPort();
   private ResourceConfig resourceConfig;
   private List<Workload> workloads = Lists.newArrayList();
-  private ScheduledFuture scheduledFuture;
 
   @Inject
   public AppImpl(
@@ -54,10 +48,6 @@ public class AppImpl implements App {
     this.resourceConfigProvider = resourceConfigProvider;
     this.accessLogFilterProvider = accessLogFilterProvider;
     this.accessTokenAuthFilter = accessTokenAuthFilter;
-
-    int workConcurrency = Config.workConcurrency();
-    leaderExecutor = Executors.newScheduledThreadPool(workConcurrency);
-    workerExecutor = Executors.newFixedThreadPool(workConcurrency);
   }
 
   @Override
@@ -83,8 +73,13 @@ public class AppImpl implements App {
   }
 
   @Override
-  public void registerWorkload(String name, Leader leader, Worker worker) throws ConfigException {
-    workloads.add(new Workload(name, leader, worker));
+  public void registerGangWorkload(String name, Leader leader, Follower follower) throws ConfigException {
+    workloads.add(new ChainGangWorkload(name, leader, follower));
+  }
+
+  @Override
+  public void registerSimpleWorkload(String name, Worker worker) throws ConfigException {
+    workloads.add(new SimpleWorkload(name, worker));
   }
 
   /**
@@ -129,61 +124,6 @@ public class AppImpl implements App {
   @Override
   public String baseURI() {
     return "http://" + host + ":" + port + "/";
-  }
-
-  /**
-   A Workload runs a Leader + Worker-group
-   */
-  private class Workload {
-    private String name;
-    private Leader leader;
-    private Worker worker;
-
-    Workload(String name, Leader leader, Worker worker) throws ConfigException {
-      this.name = name;
-      this.leader = leader;
-      this.worker = worker;
-    }
-
-    void start() throws ConfigException {
-      log.info("{} will start now", this);
-      scheduledFuture = leaderExecutor.scheduleAtFixedRate(
-        this::pollLeader,
-        Config.workBatchSleepSeconds(),
-        Config.workBatchSleepSeconds(),
-        TimeUnit.SECONDS);
-      log.info("{} up", this);
-    }
-
-    void stop() {
-      log.info("{} will shutdown now", this);
-      if (Objects.nonNull(scheduledFuture))
-        scheduledFuture.cancel(false);
-      log.info("{} did shutdown OK", this);
-    }
-
-    private void pollLeader() {
-      log.debug("{} polling Leader for tasks", this);
-      JSONArray tasks = leader.getTasks();
-      if (tasks.length() > 0) {
-        log.debug("{} will execute {} Worker tasks", this, tasks.length());
-        for (int i = 0; i < tasks.length(); i++) {
-          try {
-            workerExecutor.execute(
-              worker.getTaskRunnable((JSONObject) tasks.get(i)));
-          } catch (Exception e) {
-            log.error("{} failed execute worker task runnable", this, e);
-          }
-        }
-      } else {
-        log.debug("{} has nothing to do", this);
-      }
-    }
-
-    @Override
-    public String toString() {
-      return "Workload[" + this.name + "]";
-    }
   }
 
 

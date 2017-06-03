@@ -12,8 +12,8 @@ USAGE="
      APPS=\"hub\"
        operates only the Hub frontend
 
-     APPS=\"craftworker dubworker\"
-       operates both Craftworker and Dubworker.
+     APPS=\"craftworker dubworker eraseworker\"
+       operates Craftworker, Dubworker, and Eraseworker.
 
    <arguments...> (optional) passed to 'bin/bootstrap'
 "
@@ -41,6 +41,14 @@ kill_javas_running () {
 }
 
 #
+create_folders () {
+  APP="${1}"
+  printf "\nCreating folders for ${APP}...\n"
+  mkdir -p /var/log/${APP}
+  chmod a+w /var/log/${APP}
+}
+
+#
 echo "mysql --host=${DB_MYSQL_HOST} --port=${DB_MYSQL_PORT} --user=${DB_MYSQL_USER} --password=${DB_MYSQL_PASS}"
 echo "redis-cli -h ${DB_REDIS_HOST} -p ${DB_REDIS_PORT}"
 
@@ -48,6 +56,7 @@ echo "redis-cli -h ${DB_REDIS_HOST} -p ${DB_REDIS_PORT}"
 for APP in ${APPS}; do
   require "${APP}" "app"
   kill_javas_running "${APP}-1.0-SNAPSHOT.jar"
+  create_folders "${APP}"
   sleep 2
   printf "OK\n\n"
 

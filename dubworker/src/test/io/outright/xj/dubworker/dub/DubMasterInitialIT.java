@@ -2,11 +2,9 @@
 package io.outright.xj.dubworker.dub;
 
 import io.outright.xj.core.CoreModule;
-import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.basis.Basis;
 import io.outright.xj.core.basis.BasisFactory;
 import io.outright.xj.core.integration.IntegrationTestEntity;
-import io.outright.xj.core.integration.IntegrationTestService;
 import io.outright.xj.core.model.chain.Chain;
 import io.outright.xj.core.model.choice.Choice;
 import io.outright.xj.core.model.idea.Idea;
@@ -14,11 +12,8 @@ import io.outright.xj.core.model.instrument.Instrument;
 import io.outright.xj.core.model.link.Link;
 import io.outright.xj.core.model.role.Role;
 import io.outright.xj.core.model.voice.Voice;
-import io.outright.xj.dubworker.DubWorkerModule;
+import io.outright.xj.dubworker.DubworkerModule;
 import io.outright.xj.mixer.MixerModule;
-
-import org.jooq.impl.DSL;
-import org.jooq.types.ULong;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -31,11 +26,9 @@ import org.junit.rules.ExpectedException;
 
 import java.sql.Timestamp;
 
-import static io.outright.xj.core.Tables.LINK;
-
 public class DubMasterInitialIT {
   @Rule public ExpectedException failure = ExpectedException.none();
-  private Injector injector = Guice.createInjector(new CoreModule(), new MixerModule(), new DubWorkerModule());
+  private Injector injector = Guice.createInjector(new CoreModule(), new MixerModule(), new DubworkerModule());
   private DubFactory dubFactory;
   private BasisFactory basisFactory;
 
@@ -125,11 +118,11 @@ public class DubMasterInitialIT {
     IntegrationTestEntity.insertInstrumentMeme(1, 1, "heavy");
 
     // Audio, AudioEvent
-    IntegrationTestEntity.insertAudio(1, 1, "Kick", "https://static.xj.outright.io/19801735098q47895897895782138975898.wav", 0.01, 2.123, 120.0, 440);
+    IntegrationTestEntity.insertAudio(1, 1, "Published", "Kick", "https://static.xj.outright.io/19801735098q47895897895782138975898.wav", 0.01, 2.123, 120.0, 440);
     IntegrationTestEntity.insertAudioEvent(1, 1, 2.5, 1, "KICK", "Eb", 0.8, 1.0);
 
     // Audio, AudioEvent
-    IntegrationTestEntity.insertAudio(2, 1, "Snare", "https://static.xj.outright.io/198017350afghjkjhaskjdfjhk975898.wav", 0.01, 1.5, 120.0, 1200);
+    IntegrationTestEntity.insertAudio(2, 1, "Published", "Snare", "https://static.xj.outright.io/198017350afghjkjhaskjdfjhk975898.wav", 0.01, 1.5, 120.0, 1200);
     IntegrationTestEntity.insertAudioEvent(2, 2, 3, 1, "SNARE", "Ab", 0.1, 0.8);
 
     // TODO insert arrangement of choice 103

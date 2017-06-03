@@ -3,6 +3,7 @@ package io.outright.xj.core.model.audio;
 
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.model.Entity;
+import io.outright.xj.core.util.Text;
 
 import org.jooq.Field;
 import org.jooq.Record;
@@ -19,10 +20,10 @@ import static io.outright.xj.core.Tables.AUDIO;
 /**
  Entity for use as POJO for decoding messages received by JAX-RS resources
  a.k.a. JSON input will be stored into an instance of this object
-
+ <p>
  Business logic ought to be performed beginning with an instance of this object,
  to implement common methods.
-
+ <p>
  NOTE: There can only be ONE of any getter/setter (with the same # of input params)
  */
 public class Audio extends Entity {
@@ -32,10 +33,12 @@ public class Audio extends Entity {
   private ULong instrumentId;
   private String waveformKey;
   private String name;
+  private AudioState state;
   private Double start;
   private Double length;
   private Double tempo;
   private Double pitch;
+  private String _stateString; // pending validation, copied to `state` field
 
   public ULong getInstrumentId() {
     return instrumentId;
@@ -43,6 +46,26 @@ public class Audio extends Entity {
 
   public Audio setInstrumentId(BigInteger instrumentId) {
     this.instrumentId = ULong.valueOf(instrumentId);
+    return this;
+  }
+
+  public AudioState getState() {
+    return state;
+  }
+
+  /**
+   This sets the state String, however the value will remain null
+   until validate() is called and the value is cast to enum
+
+   @param stateString pending validation
+   */
+  public Audio setState(String stateString) {
+    this._stateString = Text.alphabetical(stateString);
+    return this;
+  }
+
+  public Audio setStateEnum(AudioState state) {
+    this.state = state;
     return this;
   }
 
@@ -104,39 +127,39 @@ public class Audio extends Entity {
 
   @Override
   public void validate() throws BusinessException {
-    if (this.instrumentId == null) {
+    if (this.instrumentId == null)
       throw new BusinessException("Instrument ID is required.");
-    }
-    if (this.name == null || this.name.length() == 0) {
+
+    // throws its own BusinessException on failure
+    this.state = AudioState.validate(_stateString);
+
+    if (this.name == null || this.name.length() == 0)
       throw new BusinessException("Name is required.");
-    }
-    if (this.waveformKey == null || this.waveformKey.length() == 0) {
+
+    if (this.waveformKey == null || this.waveformKey.length() == 0)
       this.waveformKey = "";
-//      throw new BusinessException("Waveform URL is required.");
-    }
-    if (this.start == null) {
+
+    if (this.start == null)
       this.start = 0d;
-//      throw new BusinessException("Start is required.");
-    }
-    if (this.length == null) {
+
+    if (this.length == null)
       this.length = 0d;
-//      throw new BusinessException("Length is required.");
-    }
-    if (this.tempo == null) {
-      this.tempo = 0d;
+
+    if (this.tempo == null)
       throw new BusinessException("Tempo is required.");
-    }
-    if (this.pitch == null) {
-      this.pitch = 0d;
+
+    if (this.pitch == null)
       throw new BusinessException("Root Pitch is required.");
-    }
   }
 
   @Override
   public Audio setFromRecord(Record record) {
-    if (Objects.isNull(record)) {
+    if (Objects.isNull(record))
       return null;
-    }
+
+    if (Objects.nonNull(record.field(AUDIO.STATE)))
+      state = AudioState.valueOf(record.get(AUDIO.STATE));
+
     id = record.get(AUDIO.ID);
     instrumentId = record.get(AUDIO.INSTRUMENT_ID);
     waveformKey = record.get(AUDIO.WAVEFORM_KEY);
@@ -155,6 +178,7 @@ public class Audio extends Entity {
     Map<Field, Object> fieldValues = Maps.newHashMap();
     fieldValues.put(AUDIO.INSTRUMENT_ID, instrumentId);
     fieldValues.put(AUDIO.NAME, name);
+    fieldValues.put(AUDIO.STATE, state);
     fieldValues.put(AUDIO.START, start);
     fieldValues.put(AUDIO.LENGTH, length);
     fieldValues.put(AUDIO.TEMPO, tempo);

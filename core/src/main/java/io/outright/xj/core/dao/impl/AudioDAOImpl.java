@@ -12,6 +12,7 @@ import io.outright.xj.core.db.sql.SQLDatabaseProvider;
 import io.outright.xj.core.external.amazon.AmazonProvider;
 import io.outright.xj.core.external.amazon.S3UploadPolicy;
 import io.outright.xj.core.model.audio.Audio;
+import io.outright.xj.core.model.audio.AudioState;
 import io.outright.xj.core.tables.records.AudioRecord;
 
 import org.jooq.DSLContext;
@@ -20,12 +21,14 @@ import org.jooq.Record;
 import org.jooq.Result;
 import org.jooq.types.ULong;
 
+import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 
 import org.json.JSONObject;
 
 import javax.annotation.Nullable;
 import java.util.Map;
+import java.util.Objects;
 
 import static io.outright.xj.core.Tables.ARRANGEMENT;
 import static io.outright.xj.core.Tables.AUDIO_EVENT;
@@ -91,6 +94,16 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
   }
 
   @Override
+  public Result<AudioRecord> readAllInState(Access access, AudioState state, int batchSize) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readAllInState(tx.getContext(), access, state, batchSize));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
   public Result<AudioRecord> readAllPickedForLink(Access access, ULong linkId) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
@@ -112,10 +125,21 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
   }
 
   @Override
-  public void delete(Access access, ULong id) throws Exception {
+  public void destroy(Access access, ULong id) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      delete(access, tx.getContext(), id);
+      destroy(access, tx.getContext(), id);
+      tx.success();
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public void erase(Access access, ULong id) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      erase(access, tx.getContext(), id);
       tx.success();
     } catch (Exception e) {
       throw tx.failure(e);
@@ -202,6 +226,7 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
       return resultInto(AUDIO, db.select(AUDIO.fields())
         .from(AUDIO)
         .where(AUDIO.INSTRUMENT_ID.eq(instrumentId))
+        .and(AUDIO.STATE.notEqual(String.valueOf(AudioState.Erase)))
         .fetch());
     else
       return resultInto(AUDIO, db.select(AUDIO.fields())
@@ -210,7 +235,27 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
         .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
         .where(AUDIO.INSTRUMENT_ID.eq(instrumentId))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
+        .and(AUDIO.STATE.notEqual(String.valueOf(AudioState.Erase)))
         .fetch());
+  }
+
+  /**
+   Read all Audio in a certain state
+
+   @param db     context
+   @param access control
+   @param state  to read audios in
+   @param limit  kmax records
+   @return Result of audio records.
+   @throws Exception on failure
+   */
+  private Result<AudioRecord> readAllInState(DSLContext db, Access access, AudioState state, Integer limit) throws Exception {
+    requireTopLevel(access);
+    return resultInto(AUDIO, db.select(AUDIO.fields())
+      .from(AUDIO)
+      .where(AUDIO.STATE.eq(state.toString()))
+      .limit(limit)
+      .fetch());
   }
 
   /**
@@ -306,7 +351,43 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
   }
 
   /**
-   Delete an Audio
+   Destroy an Audio
+
+   @param db      context
+   @param audioId to destroy
+   @throws Exception         if database failure
+   @throws ConfigException   if not configured properly
+   @throws BusinessException if fails business rule
+   */
+  private void destroy(Access access, DSLContext db, ULong audioId) throws Exception {
+    requireTopLevel(access);
+
+    AudioRecord audioRecord = db.selectFrom(AUDIO)
+      .where(AUDIO.ID.eq(audioId))
+      .fetchOne();
+    requireExists("Audio to destroy", audioRecord);
+
+    // [#163] When an Audio record is deleted, remove its related S3 object in order to save storage space.
+    // Only Delete audio waveform from S3 if non-null
+    String waveformKey = audioRecord.get(AUDIO.WAVEFORM_KEY);
+    if (Objects.nonNull(waveformKey))
+      amazonProvider.deleteS3Object(
+        Config.audioFileBucket(),
+        waveformKey);
+
+    // Audio Events
+    db.deleteFrom(AUDIO_EVENT)
+      .where(AUDIO_EVENT.AUDIO_ID.eq(audioId))
+      .execute();
+
+    // Audio
+    db.deleteFrom(AUDIO)
+      .where(AUDIO.ID.eq(audioId))
+      .execute();
+  }
+
+  /**
+   Update an audio to Erase state
 
    @param db context
    @param id to delete
@@ -314,12 +395,7 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
    @throws ConfigException   if not configured properly
    @throws BusinessException if fails business rule
    */
-  private void delete(Access access, DSLContext db, ULong id) throws Exception {
-    requireNotExists("Event in Audio", db.select(AUDIO_EVENT.ID)
-      .from(AUDIO_EVENT)
-      .where(AUDIO_EVENT.AUDIO_ID.eq(id))
-      .fetch());
-
+  private void erase(Access access, DSLContext db, ULong id) throws Exception {
     if (!access.isTopLevel())
       requireExists("Audio", db.select(AUDIO.ID).from(AUDIO)
         .join(INSTRUMENT).on(INSTRUMENT.ID.eq(AUDIO.INSTRUMENT_ID))
@@ -327,24 +403,18 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
         .where(AUDIO.ID.eq(id))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .fetchOne());
+    else
+      requireExists("Audio", db.select(AUDIO.ID).from(AUDIO)
+        .where(AUDIO.ID.eq(id))
+        .fetchOne());
 
-    Record recordToDelete = db.select(AUDIO.ID, AUDIO.WAVEFORM_KEY)
-      .from(AUDIO)
-      .where(AUDIO.ID.eq(id))
-      .andNotExists(
-        db.select(AUDIO_EVENT.ID)
-          .from(AUDIO_EVENT)
-          .where(AUDIO_EVENT.AUDIO_ID.eq(id))
-      )
-      .fetchOne();
-    requireExists("Audio to delete", recordToDelete);
+    // Update audio state to Erase
+    Map<Field, Object> fieldValues = Maps.newHashMap();
+    fieldValues.put(AUDIO.ID, id);
+    fieldValues.put(AUDIO.STATE, AudioState.Erase);
 
-    db.deleteFrom(AUDIO).where(AUDIO.ID.eq(id)).execute();
-
-    // [#163] When an Audio record is deleted, remove its related S3 object in order to save storage space.
-    amazonProvider.deleteS3Object(
-      Config.audioFileBucket(),
-      recordToDelete.get(AUDIO.WAVEFORM_KEY));
+    if (executeUpdate(db, AUDIO, fieldValues) == 0)
+      throw new BusinessException("No records updated.");
   }
 
 }

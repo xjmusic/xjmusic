@@ -42,6 +42,19 @@ public interface ChainDAO {
    */
   Result<ChainRecord> readAll(Access access, ULong accountId) throws Exception;
 
+
+  /**
+   [INTERNAL USE ONLY]
+   Read all records in a given state
+
+   @return array of chains as JSON
+   @throws Exception on failure
+    @param access     control
+   @param state to read chains in
+   @param limit records max
+   */
+  Result<ChainRecord> readAllInState(Access access, String state, Integer limit) throws Exception;
+
   /**
    [INTERNAL USE ONLY]
    Read IDs of all Chains that are in fabricating-state at a given instant
@@ -51,7 +64,7 @@ public interface ChainDAO {
    @return array of chains as JSON
    @throws Exception on failure
    */
-  Result<ChainRecord> readAllRecordsInStateFabricating(Access access, Timestamp atOrBefore) throws Exception;
+  Result<ChainRecord> readAllInStateFabricating(Access access, Timestamp atOrBefore) throws Exception;
 
   /**
    Update a specified Chain
@@ -88,10 +101,9 @@ public interface ChainDAO {
   void delete(Access access, ULong chainId) throws Exception;
 
   /**
-   Destroy a specified Chain, and all its child entities
+   Erase a specified Chain (mark it for deletion by worker)
 
-   @param chainId of specific Chain to destroy.
+   @param chainId of specific Chain to erase.
    */
-  void destroy(Access access, ULong chainId) throws Exception;
-
+  void erase(Access access, ULong chainId) throws Exception;
 }

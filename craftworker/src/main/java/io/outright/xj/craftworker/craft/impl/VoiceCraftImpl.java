@@ -4,7 +4,6 @@ package io.outright.xj.craftworker.craft.impl;
 import io.outright.xj.core.app.access.impl.Access;
 import io.outright.xj.core.app.exception.BusinessException;
 import io.outright.xj.core.basis.Basis;
-import io.outright.xj.craftworker.craft.VoiceCraft;
 import io.outright.xj.core.dao.ArrangementDAO;
 import io.outright.xj.core.dao.InstrumentDAO;
 import io.outright.xj.core.dao.LinkMemeDAO;
@@ -23,6 +22,7 @@ import io.outright.xj.core.model.voice.Voice;
 import io.outright.xj.core.model.voice_event.VoiceEvent;
 import io.outright.xj.core.tables.records.ArrangementRecord;
 import io.outright.xj.core.tables.records.VoiceEventRecord;
+import io.outright.xj.craftworker.craft.VoiceCraft;
 import io.outright.xj.music.Chord;
 import io.outright.xj.music.Note;
 
@@ -46,7 +46,7 @@ public class VoiceCraftImpl implements VoiceCraft {
   private final Basis basis;
   private final ArrangementDAO arrangementDAO;
   private final PickDAO pickDAO;
-  private final LinkMemeDAO linkMemeDAMO;
+  private final LinkMemeDAO linkMemeDAO;
   private final InstrumentDAO instrumentDAO;
 
   @Inject
@@ -54,13 +54,13 @@ public class VoiceCraftImpl implements VoiceCraft {
     @Assisted("basis") Basis basis,
     ArrangementDAO arrangementDAO,
     InstrumentDAO instrumentDAO,
-    LinkMemeDAO linkMemeDAMO,
+    LinkMemeDAO linkMemeDAO,
     PickDAO pickDAO
     /*-*/) throws BusinessException {
     this.basis = basis;
     this.arrangementDAO = arrangementDAO;
     this.instrumentDAO = instrumentDAO;
-    this.linkMemeDAMO = linkMemeDAMO;
+    this.linkMemeDAO = linkMemeDAO;
     this.pickDAO = pickDAO;
   }
 
@@ -120,7 +120,7 @@ public class VoiceCraftImpl implements VoiceCraft {
     Chooser<Instrument> chooser = new Chooser<>();
 
     // (1) retrieve memes of link, for use as a meme isometry comparison
-    MemeIsometry memeIsometry = MemeIsometry.of(linkMemeDAMO.readAll(Access.internal(), basis.linkId()));
+    MemeIsometry memeIsometry = MemeIsometry.of(linkMemeDAO.readAll(Access.internal(), basis.linkId()));
 
     // (2a) retrieve instruments bound directly to chain
     sourceRecords = instrumentDAO.readAllBoundToChain(Access.internal(), basis.chainId(), Instrument.PERCUSSIVE);
@@ -183,10 +183,10 @@ public class VoiceCraftImpl implements VoiceCraft {
   /**
    create a pick of instrument-audio for each event, where events are conformed to chords/scales based on the master link chords
    pick instrument audio for one event, in a voice in a phase, belonging to an arrangement
-   * @param arrangement   to create pick record within
+
+   @param arrangement   to create pick record within
    @param voiceEvent    to pick audio for
    @param shiftPosition offset voice event zero within current link
-
    */
   private void pickInstrumentAudio(
     Instrument instrument,
@@ -218,11 +218,10 @@ public class VoiceCraftImpl implements VoiceCraft {
     double duration = voiceEvent.getDuration();
     Chord chord = basis.chordAt(position);
 
-    // The final note is conformed to link scale/chord
-    Note note =
-      Note.of(voiceEvent.getNote())
-        .transpose(transpose)
-        .conformedTo(chord);
+    // The final note is transformed based on instrument type
+    Note note = pickNote(
+      Note.of(voiceEvent.getNote()).transpose(transpose),
+      chord, audio, instrument.getType());
 
     // Pick attributes are expressed "rendered" as actual seconds
     double startSeconds = basis.secondsAtPosition(position);
@@ -238,6 +237,32 @@ public class VoiceCraftImpl implements VoiceCraft {
         .setAmplitude(voiceEvent.getVelocity())
         .setPitch(basis.pitch(note)));
 
+  }
+
+  /**
+   Pick final note based on instrument type, voice event, transposition and current chord
+   <p>
+   [#295] Dubworker keeps pitch-changes of percussive instruments to within the audio's original octave range, matching only the pitch class of the pick
+
+   @param note           from voice event
+   @param chord          current
+   @param audio          that has been picked
+   @param instrumentType of instrument
+   @return final note
+   */
+  private Note pickNote(Note note, Chord chord, Audio audio, String instrumentType) {
+    switch (instrumentType) {
+
+      case Instrument.PERCUSSIVE:
+
+        return note
+          .conformedTo(chord)
+          .setOctave(basis.octaveOfPitch(audio.getPitch()));
+
+      default:
+        return note
+          .conformedTo(chord);
+    }
   }
 
   /**

@@ -8,9 +8,9 @@ import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.db.sql.SQLDatabaseProvider;
 import io.outright.xj.core.migration.MigrationService;
 import io.outright.xj.core.model.link.Link;
-import io.outright.xj.core.work.WorkFactory;
-import io.outright.xj.core.work.WorkerOperation;
-import io.outright.xj.core.work.impl.link_work.LinkWorkFactoryModule;
+import io.outright.xj.core.chain_gang.ChainGangFactory;
+import io.outright.xj.core.chain_gang.ChainGangOperation;
+import io.outright.xj.core.chain_gang.impl.link_work.LinkWorkFactoryModule;
 import io.outright.xj.mixer.MixerModule;
 
 import com.google.inject.Guice;
@@ -55,14 +55,14 @@ public class Main {
     app.configureServer("io.outright.xj.dubworker");
 
     // Link-type Workload
-    WorkerOperation linkOperation = Guice.createInjector(new CoreModule(), new MixerModule(),
-      new DubWorkerModule()).getInstance(WorkerOperation.class);
-    WorkFactory linkWorkFactory = Guice.createInjector(new CoreModule(), new MixerModule(),
-      new LinkWorkFactoryModule()).getInstance(WorkFactory.class);
-    app.registerWorkload(
+    ChainGangOperation linkChainGangOperation = Guice.createInjector(new CoreModule(), new MixerModule(),
+      new DubworkerModule()).getInstance(ChainGangOperation.class);
+    ChainGangFactory chainGangFactory = Guice.createInjector(new CoreModule(), new MixerModule(),
+      new LinkWorkFactoryModule()).getInstance(ChainGangFactory.class);
+    app.registerGangWorkload(
       "Dub Links",
-      linkWorkFactory.createLeader(Link.CRAFTED, Config.workAheadSeconds(), Config.workBatchSize()),
-      linkWorkFactory.createWorker(Link.DUBBING, Link.DUBBED, linkOperation)
+      chainGangFactory.createLeader(Link.CRAFTED, Config.workAheadSeconds(), Config.workBatchSize()),
+      chainGangFactory.createFollower(Link.DUBBING, Link.DUBBED, linkChainGangOperation)
     );
 
     // Shutdown Hook

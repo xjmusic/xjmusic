@@ -72,30 +72,11 @@ export default Ember.Route.extend({
     },
 
     deleteChain(model) {
-      let confirmation = confirm("Are you sure? If there are Ideas or Instruments belonging to this Chain, deletion will fail anyway.");
+      let confirmation = confirm("Are you fucking sure??");
       if (confirmation) {
         model.destroyRecord({}).then(
           () => {
             Ember.get(this, 'display').success('Deleted chain ' + model.get('name') + '.');
-            this.transitionTo('accounts.one.chains');
-          },
-          (error) => {
-            Ember.get(this, 'display').error(error);
-          });
-      }
-    },
-
-    destroyChain(model) {
-      let confirmation = confirm("Are you fucking sure??");
-      if (confirmation) {
-        // Chain has a custom adapter to append query params
-        model.destroyRecord({
-          adapterOptions: {
-            destroy: true
-          }
-        }).then(
-          () => {
-            Ember.get(this, 'display').success('Destroyed chain ' + model.get('name') + '.');
             this.transitionTo('accounts.one.chains');
           },
           (error) => {

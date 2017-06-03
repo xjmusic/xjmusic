@@ -1,19 +1,20 @@
 // Copyright Outright Mental, Inc. All Rights Reserved.
 package io.outright.xj.core.dao.impl;
 
-import io.outright.xj.core.Tables;
 import io.outright.xj.core.app.access.impl.Access;
 import io.outright.xj.core.app.config.Config;
 import io.outright.xj.core.app.config.Exposure;
 import io.outright.xj.core.app.exception.BusinessException;
+import io.outright.xj.core.app.exception.CancelException;
 import io.outright.xj.core.app.exception.ConfigException;
 import io.outright.xj.core.app.exception.DatabaseException;
-import io.outright.xj.core.app.exception.CancelException;
 import io.outright.xj.core.dao.LinkDAO;
 import io.outright.xj.core.db.sql.SQLConnection;
 import io.outright.xj.core.db.sql.SQLDatabaseProvider;
 import io.outright.xj.core.external.amazon.AmazonProvider;
+import io.outright.xj.core.model.chain.Chain;
 import io.outright.xj.core.model.link.Link;
+import io.outright.xj.core.tables.records.ChainRecord;
 import io.outright.xj.core.tables.records.LinkRecord;
 import io.outright.xj.core.util.Text;
 
@@ -24,14 +25,21 @@ import org.jooq.UpdateSetFirstStep;
 import org.jooq.types.ULong;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 
 import javax.annotation.Nullable;
 import java.math.BigInteger;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
+import static io.outright.xj.core.Tables.ARRANGEMENT;
+import static io.outright.xj.core.Tables.LINK_MEME;
+import static io.outright.xj.core.Tables.LINK_MESSAGE;
+import static io.outright.xj.core.Tables.PICK;
 import static io.outright.xj.core.tables.Chain.CHAIN;
 import static io.outright.xj.core.tables.Choice.CHOICE;
 import static io.outright.xj.core.tables.Link.LINK;
@@ -136,15 +144,16 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
   }
 
   @Override
-  public void delete(Access access, ULong linkId) throws Exception {
+  public void destroy(Access access, ULong linkId) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      delete(tx.getContext(), access, linkId);
+      destroy(tx.getContext(), access, linkId);
       tx.success();
     } catch (Exception e) {
       throw tx.failure(e);
     }
   }
+
 
   /**
    Create a new record
@@ -342,13 +351,13 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
    */
   private void updateState(DSLContext db, Access access, ULong id, String state) throws Exception {
     Map<Field, Object> fieldValues = ImmutableMap.of(
-      Tables.LINK.ID, id,
-      Tables.LINK.STATE, state
+      LINK.ID, id,
+      LINK.STATE, state
     );
 
     update(db, access, id, fieldValues);
 
-    if (executeUpdate(db, Tables.LINK, fieldValues) == 0)
+    if (executeUpdate(db, LINK, fieldValues) == 0)
       throw new BusinessException("No records updated.");
   }
 
@@ -423,46 +432,84 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
   }
 
   /**
-   Delete a Link
+   Destroy a Link, its child entities, and S3 object
+   [#301] Link destruction (by Eraseworker) should not spike database CPU
 
    @param db     context
    @param access control
-   @param id     to delete
+   @param linkId to delete
    @throws Exception         if database failure
    @throws ConfigException   if not configured properly
    @throws BusinessException if fails business rule
    */
-  private void delete(DSLContext db, Access access, ULong id) throws Exception {
+  private void destroy(DSLContext db, Access access, ULong linkId) throws Exception {
     requireTopLevel(access);
 
-    requireExists("Link", db.selectFrom(LINK)
-      .where(LINK.ID.eq(id))
-      .fetchOne());
+    // Link
+    LinkRecord link = db.selectFrom(LINK)
+      .where(LINK.ID.eq(linkId))
+      .fetchOne();
+    requireExists("Link", link);
 
-    requireNotExists("Chord in Link", db.select(LINK_CHORD.ID)
-      .from(LINK_CHORD)
-      .where(LINK_CHORD.LINK_ID.eq(id))
-      .fetch());
+    // Chain must be in erase state
+    ChainRecord chain = db.selectFrom(CHAIN)
+      .where(CHAIN.ID.eq(link.getChainId()))
+      .and(CHAIN.STATE.eq(Chain.ERASE))
+      .fetchOne();
+    requireExists("Link in a Chain that is being erased", chain);
 
-    requireNotExists("Choice in Link", db.select(CHOICE.ID)
-      .from(CHOICE)
-      .where(CHOICE.LINK_ID.eq(id))
-      .fetch());
+    // Only Delete link waveform from S3 if non-null
+    String waveformKey = link.get(LINK.WAVEFORM_KEY);
+    if (Objects.nonNull(waveformKey))
+      amazonProvider.deleteS3Object(
+        Config.linkFileBucket(),
+        waveformKey);
 
-    db.deleteFrom(LINK)
-      .where(LINK.ID.eq(id))
-      .andNotExists(
-        db.select(CHOICE.ID)
-          .from(CHOICE)
-          .where(CHOICE.LINK_ID.eq(id))
-      )
-      .andNotExists(
-        db.select(LINK_CHORD.ID)
-          .from(LINK_CHORD)
-          .where(LINK_CHORD.LINK_ID.eq(id))
-      )
+    // Read all choice id
+    List<ULong> choiceIds = Lists.newArrayList();
+    db.select(CHOICE.ID).from(CHOICE)
+      .where(CHOICE.LINK_ID.eq(linkId)).fetch()
+      .forEach(record -> choiceIds.add(record.get(CHOICE.ID)));
+
+    // Read all arrangement id
+    List<ULong> arrangementIds = Lists.newArrayList();
+    db.select(ARRANGEMENT.ID).from(ARRANGEMENT)
+      .where(ARRANGEMENT.CHOICE_ID.in(choiceIds)).fetch()
+      .forEach(record -> arrangementIds.add(record.get(ARRANGEMENT.ID)));
+
+    // Delete Picks in arrangements
+    db.deleteFrom(PICK)
+      .where(PICK.ARRANGEMENT_ID.in(arrangementIds))
       .execute();
+
+    // Delete Arrangements
+    db.deleteFrom(ARRANGEMENT)
+      .where(ARRANGEMENT.ID.in(arrangementIds))
+      .execute();
+
+    // Delete Choices
+    db.deleteFrom(CHOICE)
+      .where(CHOICE.LINK_ID.eq(linkId)).execute();
+
+    // Delete Link Chords
+    db.deleteFrom(LINK_CHORD)
+      .where(LINK_CHORD.LINK_ID.eq(linkId))
+      .execute();
+
+    // Delete Link Memes
+    db.deleteFrom(LINK_MEME)
+      .where(LINK_MEME.LINK_ID.eq(linkId))
+      .execute();
+
+    // Delete Link Messages
+    db.deleteFrom(LINK_MESSAGE)
+      .where(LINK_MESSAGE.LINK_ID.eq(linkId))
+      .execute();
+
+    // Delete Link
+    db.deleteFrom(LINK)
+      .where(LINK.ID.eq(linkId))
+      .execute();
+
   }
-
-
 }

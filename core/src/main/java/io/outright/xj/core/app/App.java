@@ -2,8 +2,9 @@
 package io.outright.xj.core.app;
 
 import io.outright.xj.core.app.exception.ConfigException;
-import io.outright.xj.core.work.Leader;
-import io.outright.xj.core.work.Worker;
+import io.outright.xj.core.app.work.Worker;
+import io.outright.xj.core.chain_gang.Follower;
+import io.outright.xj.core.chain_gang.Leader;
 
 import java.io.IOException;
 
@@ -16,9 +17,14 @@ public interface App {
   void configureServer(String... packages);
 
   /**
-   configure a workload
+   configure a gang workload (with a leader and many workers)
    */
-  void registerWorkload(String name, Leader leader, Worker worker) throws ConfigException;
+  void registerGangWorkload(String name, Leader leader, Follower follower) throws ConfigException;
+
+  /**
+   configure a simple workload (with just a worker)
+   */
+  void registerSimpleWorkload(String name, Worker worker) throws ConfigException;
 
   /**
    start App Server
