@@ -362,8 +362,8 @@ public class BasisImpl implements Basis {
   }
 
   @Override
-  public Integer octaveOfPitch(Double pitch) {
-    return tuning.octaveOfPitch(pitch);
+  public Note note(Double pitch) {
+    return tuning.note(pitch);
   }
 
   @Override

@@ -64,6 +64,7 @@ public class Note {
 
   /**
    Note to String
+
    @param adjSymbol to represent note with
    @return string representation of Note
    */
@@ -114,7 +115,32 @@ public class Note {
   }
 
   /**
+   Set the octave of this note to the one that would result in the target note
+   being at most -6 or +5 semitones from the original note.
+   <p>
+   Here we guarantee that the target note is no more than -6 or +5 semitones away from the original audio note. Note that we are arbitrarily favoring down-pitching versus up-pitching, and that is an aesthetic decision, because it just sounds good.
+   <p>
+   [#303] Craft calculates percussive audio pitch to conform to the allowable note closest to the original note, slightly favoring down-pitching versus up-pitching.
+
+   @param fromNote to set octave nearest to
+   @return this note for chaining
+   */
+  public Note setOctaveNearest(Note fromNote) {
+    if (fromNote.getPitchClass().equals(PitchClass.None))
+      return this;
+
+    Note toNote = fromNote.transpose(-6);
+    while(!toNote.pitchClass.equals(pitchClass))
+      toNote = toNote.transpose(1);
+
+    this.setOctave(toNote.octave);
+    return this;
+  }
+
+  /**
    Copy of this note, conformed to one of the pitch classes in the given Chord
+
+   This is an inefficient algorithm.
 
    @param chord to conform note to
    @return conformed note

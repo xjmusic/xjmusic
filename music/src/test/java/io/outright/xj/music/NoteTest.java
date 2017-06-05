@@ -11,6 +11,17 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class NoteTest {
+
+  /**
+   [#303] Craft calculates percussive audio pitch to conform to the allowable note closest to the original note, slightly favoring down-pitching versus up-pitching.
+   */
+  @Test
+  public void setOctaveNearest() throws Exception {
+    assertEquals(Integer.valueOf(3), Note.of("C7").setOctaveNearest(Note.of("B2")).getOctave());
+    assertEquals(Integer.valueOf(2), Note.of("F7").setOctaveNearest(Note.of("B2")).getOctave());
+    assertEquals(Integer.valueOf(3), Note.of("E7").setOctaveNearest(Note.of("B2")).getOctave());
+  }
+
   @Test
   public void noteToString() throws Exception {
     assertEquals("C#5", Note.of("C#5").toString(AdjSymbol.Sharp));

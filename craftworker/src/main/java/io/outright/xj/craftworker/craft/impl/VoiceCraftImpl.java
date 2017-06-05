@@ -244,23 +244,23 @@ public class VoiceCraftImpl implements VoiceCraft {
    <p>
    [#295] Dubworker keeps pitch-changes of percussive instruments to within the audio's original octave range, matching only the pitch class of the pick
 
-   @param note           from voice event
+   @param fromNote           from voice event
    @param chord          current
    @param audio          that has been picked
    @param instrumentType of instrument
    @return final note
    */
-  private Note pickNote(Note note, Chord chord, Audio audio, String instrumentType) {
+  private Note pickNote(Note fromNote, Chord chord, Audio audio, String instrumentType) {
     switch (instrumentType) {
 
       case Instrument.PERCUSSIVE:
 
-        return note
+        return fromNote
           .conformedTo(chord)
-          .setOctave(basis.octaveOfPitch(audio.getPitch()));
+          .setOctaveNearest(basis.note(audio.getPitch()));
 
       default:
-        return note
+        return fromNote
           .conformedTo(chord);
     }
   }

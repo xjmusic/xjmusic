@@ -28,7 +28,7 @@ public class Tuning {
   //  private Map<Integer, Double> _pitches = Maps.newHashMap();
   private Map<Integer, Map<PitchClass, Double>> _notePitches = Maps.newHashMap();
   private Map<Double, Integer> _deltaFromRootPitch = Maps.newHashMap();
-  private Map<Double, Integer> _octaveOfPitch = Maps.newHashMap();
+  private Map<Double, Note> _pitchNotes = Maps.newHashMap();
 
   /**
    A `Tuning` instance, fixed to a given tuning of note A4, in Hz.
@@ -73,16 +73,16 @@ public class Tuning {
   }
 
   /**
-   Octave #, for any pitch in Hz
+   Closest Note, for any pitch in Hz
 
    @param pitch to get octave of
    */
-  public Integer octaveOfPitch(Double pitch) {
-    if (!_octaveOfPitch.containsKey(pitch))
-      _octaveOfPitch.put(pitch,
-        rootNote.transpose(deltaFromRootPitch(pitch)).getOctave());
+  public Note note(Double pitch) {
+    if (!_pitchNotes.containsKey(pitch))
+      _pitchNotes.put(pitch,
+        rootNote.transpose(deltaFromRootPitch(pitch)));
 
-    return _octaveOfPitch.get(pitch);
+    return _pitchNotes.get(pitch);
   }
 
   /**
