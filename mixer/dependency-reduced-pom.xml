@@ -8,7 +8,7 @@
     <version>1.0-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
-  <groupId>io.outright.xj</groupId>
+  <groupId>io.xj</groupId>
   <artifactId>mix</artifactId>
   <version>1.0-SNAPSHOT</version>
   <build>
@@ -58,7 +58,7 @@
               <inputSchema>${db.database}</inputSchema>
             </database>
             <target>
-              <packageName>io.outright.xj.mixer</packageName>
+              <packageName>io.xj.mixer</packageName>
               <directory>target/generated-sources/db</directory>
             </target>
           </generator>

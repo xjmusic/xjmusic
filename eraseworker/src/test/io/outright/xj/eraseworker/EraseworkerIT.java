@@ -1,20 +1,20 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
-package io.outright.xj.eraseworker;
+package io.xj.eraseworker;
 
-import io.outright.xj.core.CoreModule;
-import io.outright.xj.core.app.App;
-import io.outright.xj.core.app.config.Config;
-import io.outright.xj.core.external.amazon.AmazonProvider;
-import io.outright.xj.core.integration.IntegrationTestEntity;
-import io.outright.xj.core.integration.IntegrationTestService;
-import io.outright.xj.core.model.chain.Chain;
-import io.outright.xj.core.model.choice.Choice;
-import io.outright.xj.core.model.idea.Idea;
-import io.outright.xj.core.model.instrument.Instrument;
-import io.outright.xj.core.model.link.Link;
-import io.outright.xj.core.model.role.Role;
-import io.outright.xj.core.model.voice.Voice;
-import io.outright.xj.eraseworker.erase.EraseWorkerFactory;
+import io.xj.core.CoreModule;
+import io.xj.core.app.App;
+import io.xj.core.app.config.Config;
+import io.xj.core.external.amazon.AmazonProvider;
+import io.xj.core.integration.IntegrationTestEntity;
+import io.xj.core.integration.IntegrationTestService;
+import io.xj.core.model.chain.Chain;
+import io.xj.core.model.choice.Choice;
+import io.xj.core.model.idea.Idea;
+import io.xj.core.model.instrument.Instrument;
+import io.xj.core.model.link.Link;
+import io.xj.core.model.role.Role;
+import io.xj.core.model.voice.Voice;
+import io.xj.eraseworker.erase.EraseWorkerFactory;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -33,9 +33,9 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.sql.Timestamp;
 import java.util.Date;
 
-import static io.outright.xj.core.Tables.LINK;
-import static io.outright.xj.core.tables.Audio.AUDIO;
-import static io.outright.xj.core.tables.Chain.CHAIN;
+import static io.xj.core.Tables.LINK;
+import static io.xj.core.tables.Audio.AUDIO;
+import static io.xj.core.tables.Chain.CHAIN;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.verify;
 
@@ -196,7 +196,7 @@ public class EraseworkerIT {
 
     // Server App
     app = injector.getInstance(App.class);
-    app.configureServer("io.outright.xj.eraseworker");
+    app.configureServer("io.xj.eraseworker");
 
     // Worker (Guice) factory
     EraseWorkerFactory eraseWorkerFactory = injector.getInstance(EraseWorkerFactory.class);

@@ -1,26 +1,8 @@
 // Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
 
 // base sizes
-$break-xs: 576;
-$break-sm: 768;
-$break-md: 992;
-$break-lg: 1200;
-$break-xl: 1600;
-
-// screen
-//
-// xs
-$screen-xs-min: $break-xs;
-$screen-xs-max: $break-xs+1;
-// sm
-$screen-sm-min: $break-sm;
-$screen-sm-max: $break-sm+1;
-// md
-$screen-md-min: $break-md;
-$screen-md-max: $break-md+1;
-// lg
-$screen-lg-min: $break-lg;
-$screen-lg-max: $break-lg+1;
-// xl
-$screen-xl-min: $break-xl;
-$screen-xl-max: $break-xl+1;
+$break-xs: 576px;
+$break-sm: 768px;
+$break-md: 992px;
+$break-lg: 1200px;
+$break-xl: 1600px;

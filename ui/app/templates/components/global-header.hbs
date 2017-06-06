@@ -15,13 +15,14 @@
       {{#if auth.isUser}}
         {{#link-to 'users' tagName="li" class="nav-item"}}<a class="nav-link" href="">People</a>{{/link-to}}
         {{#link-to 'accounts' tagName="li" class="nav-item"}}<a class="nav-link" href="">Music</a>{{/link-to}}
-      {{else}}
-        <li>&nbsp;</li>
+        <li id="refresh-button" class="nav-item"><a title="Refresh Data" aria-label="Refresh Data"
+                                                    class="nav-link" {{action
+            "sessionChanged"}} href="">&#8635;</a></li>
       {{/if}}
-      <li id="refresh-button" class="nav-item"><a title="Refresh Data" aria-label="Refresh Data" class="nav-link" {{action
-        "sessionChanged"}} href="">&#8635;</a></li>
     </ul>
     <ul class="nav navbar-nav navbar-right">
+      {{#if auth.isUser}}
+        <li class="nav-item">{{play-info target=this}}</li>{{/if}}
       <li class="nav-item"><a id="clock" class="nav-link" title="Copy time UTC to clipboard"
                               aria-label="Copy time UTC to clipboard"><!-- TIME UTC --></a></li>
       {{#if auth.isUser}}
@@ -37,8 +38,7 @@
           </a>
           <ul class="dropdown-menu inverse-dropdown">
             {{#link-to 'users.one' auth.userId tagName="li" class="nav-item"}}
-              <a class="nav-link" href="">Me</a>{{/link-to}}
-            <hr/>
+              <a class="nav-link" href="">My Account</a>{{/link-to}}
             {{#link-to 'logout' tagName="li" class="nav-item"}}<a class="nav-link" href="">Sign Out</a>{{/link-to}}
           </ul>
         </li>

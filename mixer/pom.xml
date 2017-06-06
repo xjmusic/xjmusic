@@ -5,7 +5,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <!-- io.outright.xj [parent] -->
+  <!-- io.xj [parent] -->
   <parent>
     <groupId>io.outright</groupId>
     <artifactId>xj</artifactId>
@@ -13,8 +13,8 @@
     <relativePath>../</relativePath>
   </parent>
 
-  <!-- io.outright.xj.mixer -->
-  <groupId>io.outright.xj</groupId>
+  <!-- io.xj.mixer -->
+  <groupId>io.xj</groupId>
   <artifactId>mixer</artifactId>
   <version>1.0-SNAPSHOT</version>
   <packaging>jar</packaging>

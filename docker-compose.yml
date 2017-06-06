@@ -41,6 +41,8 @@ services:
   mysql:
     container_name: mysql01xj1
     image: mysql:5.6
+    ports:
+      - "3300:3306"
     environment:
       - MYSQL_ALLOW_EMPTY_PASSWORD=yes
     networks:

@@ -1,9 +1,11 @@
 /* jshint node:true */
 /* global require, module */
 let EmberApp = require('ember-cli/lib/broccoli/ember-app');
+let fs = require('fs');
+let metadata = require('./metadata');
 
 module.exports = function (defaults) {
-  let app = getApp(defaults, process.env.EMBER_ENV);
+  let app = new EmberApp(defaults, optionsForEnvironment(process.env.EMBER_ENV));
 
   // import bootstrap
   importDependencies(app);
@@ -26,24 +28,68 @@ module.exports = function (defaults) {
 
 /**
  * Get the default application for the environment
- * @param defaults
  * @param environment
- * @returns {EmberApp}
+ * @returns {Object} options
+ *
+ * [#318] Static content is injected into index.html via {{content-for "static"}}
  */
-function getApp(defaults, environment) {
+function optionsForEnvironment(environment) {
+  return {
+    fingerprint: {
+      enabled: isFingerprintEnabledForEnvironment(environment)
+    },
+    inlineContent: {
+      'meta-title': {
+        content: metadata.title,
+      },
+      'meta-description': {
+        content: metadata.description,
+      },
+      'meta-image': {
+        content: metadata.image,
+      },
+      'url': {
+        content: urlForEnvironment(environment)
+      },
+      'footer': {
+        content: stripHandlebars('app/templates/components/global-footer.hbs')
+      },
+      'marketing': {
+        content: stripHandlebars('app/templates/static/marketing.hbs')
+      }
+    }
+  };
+}
+
+/**
+ URL for an environment
+ * @param environment
+ * @returns {String}
+ */
+function urlForEnvironment(environment) {
   switch (environment) {
-    case "production":
-      return new EmberApp(defaults, {
-        fingerprint: {
-          enabled: true
-        },
-      });
+    case 'production':
+      return 'https://xj.io/';
+    case 'development':
+      return 'http://xj.dev/';
     default:
-      return new EmberApp(defaults, {
-        fingerprint: {
-          enabled: false
-        },
-      });
+      return '/';
+  }
+}
+
+/**
+ Is fingerprint enabled for environment?
+ * @param environment
+ * @returns {Boolean}
+ */
+function isFingerprintEnabledForEnvironment(environment) {
+  switch (environment) {
+    case 'production':
+      return true;
+    case 'development':
+      return false;
+    default:
+      return false;
   }
 }
 
@@ -79,5 +125,20 @@ function importDependencies(app, environment) {
       app.import('bower_components/bootstrap/dist/css/bootstrap.css');
       app.import('bower_components/bootstrap/dist/js/bootstrap.js');
       break;
+  }
+}
+
+/**
+ [#314] Placeholder content index.html page should not have handlebars blocks
+ * @param path
+ */
+function stripHandlebars(path) {
+  let content = fs.readFileSync(path, 'utf8');
+  if (content && content.length > 0) {
+    return content
+      .replace(/{{year}}/g, new Date().getFullYear().toString())
+      .replace(/{{[^}]+}}/g, '');
+  } else {
+    return '';
   }
 }

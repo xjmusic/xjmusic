@@ -6,7 +6,7 @@
     <version>1.0-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
-  <groupId>io.outright.xj</groupId>
+  <groupId>io.xj</groupId>
   <artifactId>hub</artifactId>
   <name>hub</name>
   <version>1.0-SNAPSHOT</version>
@@ -81,7 +81,7 @@
           <archive>
             <manifest>
               <addClasspath>true</addClasspath>
-              <mainClass>io.outright.xj.hub.Main</mainClass>
+              <mainClass>io.xj.hub.Main</mainClass>
             </manifest>
           </archive>
         </configuration>
@@ -109,7 +109,7 @@
   </build>
   <dependencies>
     <dependency>
-      <groupId>io.outright.xj</groupId>
+      <groupId>io.xj</groupId>
       <artifactId>core</artifactId>
       <version>1.0-SNAPSHOT</version>
       <type>test-jar</type>

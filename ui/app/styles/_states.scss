@@ -2,7 +2,17 @@
 
 .table-list tr,
 div.chain-state-change,
+div.play-chain,
 .badge {
+
+  &.planned-state {
+    background: darken(#614e61, 15%);
+    border-color: darken(#ebd8eb, 15%);
+    color: darken(#ebd8eb, 10%);
+    a {
+      color: #ebd8eb;
+    }
+  }
 
   &.crafting-state {
     background: darken(#630063, 15%);
@@ -14,30 +24,40 @@ div.chain-state-change,
   }
 
   &.crafted-state {
-    background: darken(#614e61, 15%);
-    border-color: darken(#ebd8eb, 15%);
-    color: darken(#ebd8eb, 10%);
+    background: darken(#4b5261, 15%);
+    border-color: darken(#b9bec7, 15%);
+    color: darken(#b9bec7, 10%);
     a {
-      color: #ebd8eb;
+      color: #b9bec7;
     }
   }
 
   &.fabricating-state,
   &.dubbing-state {
-    background: darken(darkgreen, 15%);
+    background: darken(#002061, 15%);
+    border-color: darken(#91afeb, 15%);
+    color: darken(#91afeb, 10%);
+    a {
+      color: #91afeb;
+    }
+  }
+
+  &.complete-state,
+  &.dubbed-state {
+    background: darken(#4b634b, 15%);
+    border-color: darken(#b9c7b9, 15%);
+    color: darken(#b9c7b9, 10%);
+    a {
+      color: #b9c7b9;
+    }
+  }
+
+  &.now-playing {
+    background: darken(darkgreen, 12%);
     border-color: darken(lightgreen, 15%);
     color: darken(lightgreen, 10%);
     a {
       color: lightgreen;
-    }
-  }
-
-  &.dubbed-state {
-    background: darken(#4b634b, 15%);
-    border-color: darken(#b9c9b9, 15%);
-    color: darken(#b9c9b9, 10%);
-    a {
-      color: #b9c9b9;
     }
   }
 

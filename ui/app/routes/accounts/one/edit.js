@@ -47,7 +47,7 @@ export default Ember.Route.extend({
 
     destroyAccount(model) {
       let self = this;
-      let confirmation = confirm("Are you fucking sure? If there are Users or Libraries belonging to this account, deletion will fail anyway.");
+      let confirmation = confirm("Are you sure? If there are Users or Libraries belonging to this account, deletion will fail anyway.");
       if (confirmation) {
         model.destroyRecord({}).then(
           () => {

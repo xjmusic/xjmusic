@@ -4,7 +4,7 @@
 {{outlet}}
 
 <!-- Upper Container -->
-<div class="form-horizontal">
+<div class="form-horizontal container">
 
   <!-- Type -->
   <div class="form-group row">
@@ -27,7 +27,7 @@
 
 {{#if auth.isAdmin}}
   <!-- Lower Container -->
-  <div class="form-horizontal">
+  <div class="form-horizontal container">
 
     {{#if (or (eq "draft" model.chain.state) (eq "complete" model.chain.state) (eq "failed" model.chain.state))}}
       <!-- Header -->

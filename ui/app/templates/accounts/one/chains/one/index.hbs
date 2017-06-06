@@ -4,13 +4,19 @@
 {{outlet}}
 
 <!-- Upper Container -->
-<div class="form-horizontal">
+<div class="form-horizontal container-fluid">
+
+  <!-- Links -->
+  <div class="form-group row">
+    <div class="col-sm-12 col-md-6">
+      <h2>{{#link-to 'accounts.one.chains.one.links' model.chain}}Links{{/link-to}}</h2>
+      <p>View the planned, crafted, dubbed, and final Links in the Chain, see the details about the individual choices,
+        and playback the Chain as continuous audio beginning from any Link.</p>
+    </div>
+  </div>
 
   <!-- Links to actions -->
   <div class="form-group row">
-    <div class="col-sm-2">
-      <h2>{{#link-to 'accounts.one.chains.one.links' model.chain}}Links{{/link-to}}</h2>
-    </div>
     <div class="col-sm-2">
       <h4>{{#link-to 'accounts.one.chains.one.configs' model.chain}}Configs{{/link-to}}</h4>
     </div>
@@ -28,26 +34,6 @@
   <div class="form-group row">
     <div class="col-sm-12">
       <h6>{{#link-to 'accounts.one.chains.one.edit' model.chain}}Edit Chain Properties{{/link-to}}</h6>
-    </div>
-  </div>
-
-  <!-- State change -->
-  <div class="form-group row">
-    <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
-      <div class="chain-state-change container-fluid {{model.chain.state}}-state">
-        <table>
-          <tbody>
-          <tr class="row">
-            <th class="align-middle">
-              {{capitalize model.chain.state}}
-            </th>
-            <td>
-              {{chain-state-change model.chain}}
-            </td>
-          </tr>
-          </tbody>
-        </table>
-      </div>
     </div>
   </div>
 

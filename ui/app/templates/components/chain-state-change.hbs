@@ -4,17 +4,17 @@
 
 {{#if (eq model.state 'draft')}}
   <button type="button" class="chain-state btn btn-info align-middle" {{action 'changeState' 'ready' false}}>
-    To Ready
+    Ready!
   </button>
 {{/if}}
 {{#if (eq model.state 'ready')}}
   <button type="button" class="chain-state btn btn-success align-middle" {{action 'changeState' 'fabricating' true}}>
-    To Fabricate
+    Fabricate!
   </button>
 {{/if}}
 {{#if (eq model.state 'fabricating')}}
   <button type="button" class="chain-state btn btn-primary align-middle" {{action 'changeState' 'complete' true}}>
-    To Complete
+    Complete!
   </button>
 {{/if}}
 

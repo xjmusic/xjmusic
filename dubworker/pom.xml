@@ -4,15 +4,15 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
 
-  <!-- io.outright.xj [parent] -->
+  <!-- io.xj [parent] -->
   <parent>
     <groupId>io.outright</groupId>
     <artifactId>xj</artifactId>
     <version>1.0-SNAPSHOT</version>
   </parent>
 
-  <!-- io.outright.xj.dubworker -->
-  <groupId>io.outright.xj</groupId>
+  <!-- io.xj.dubworker -->
+  <groupId>io.xj</groupId>
   <artifactId>dubworker</artifactId>
   <version>1.0-SNAPSHOT</version>
   <name>dubworker</name>
@@ -30,19 +30,19 @@
 
     <!-- internal -->
     <dependency>
-      <groupId>io.outright.xj</groupId>
+      <groupId>io.xj</groupId>
       <artifactId>core</artifactId>
       <version>1.0-SNAPSHOT</version>
     </dependency>
     <dependency>
-      <groupId>io.outright.xj</groupId>
+      <groupId>io.xj</groupId>
       <artifactId>core</artifactId>
       <version>1.0-SNAPSHOT</version>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>io.outright.xj</groupId>
+      <groupId>io.xj</groupId>
       <artifactId>mixer</artifactId>
       <version>1.0-SNAPSHOT</version>
     </dependency>
@@ -149,7 +149,7 @@
             <manifest>
               <addClasspath>true</addClasspath>
               <!--<classpathPrefix>lib/</classpathPrefix>-->
-              <mainClass>io.outright.xj.dubworker.Main</mainClass>
+              <mainClass>io.xj.dubworker.Main</mainClass>
             </manifest>
           </archive>
         </configuration>

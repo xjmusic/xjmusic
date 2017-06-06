@@ -9,7 +9,7 @@ USAGE="
    Usage:
      bin/run <app> <arguments...>
 
-   <app> to run, as in: java io.outright.xj.<app>
+   <app> to run, as in: java io.xj.<app>
    <arguments...> (optional) passed to 'java'
 "
 
@@ -28,10 +28,10 @@ APP_ARGS=$@
 # Expected JAR files
 APP_JAR=${PWD}/${APP}/target/${APP}-1.0-SNAPSHOT.jar
 CLASSPATH=${APP_JAR}
-MAIN=io.outright.xj.${APP}.Main
+MAIN=io.xj.${APP}.Main
 
 # ensure platform is packaged
-ensure_file ${APP_JAR} "io.outright.xj.${APP} is packaged"
+ensure_file ${APP_JAR} "io.xj.${APP} is packaged"
 
 # start up a ${APP}
 if ["$@" == ""]; then

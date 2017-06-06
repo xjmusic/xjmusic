@@ -4,15 +4,15 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
 
-  <!-- io.outright.xj [parent] -->
+  <!-- io.xj [parent] -->
   <parent>
     <groupId>io.outright</groupId>
     <artifactId>xj</artifactId>
     <version>1.0-SNAPSHOT</version>
   </parent>
 
-  <!-- io.outright.xj.craftworker -->
-  <groupId>io.outright.xj</groupId>
+  <!-- io.xj.craftworker -->
+  <groupId>io.xj</groupId>
   <artifactId>craftworker</artifactId>
   <version>1.0-SNAPSHOT</version>
   <name>craftworker</name>
@@ -30,24 +30,24 @@
 
     <!-- internal -->
     <dependency>
-      <groupId>io.outright.xj</groupId>
+      <groupId>io.xj</groupId>
       <artifactId>core</artifactId>
       <version>1.0-SNAPSHOT</version>
     </dependency>
     <dependency>
-      <groupId>io.outright.xj</groupId>
+      <groupId>io.xj</groupId>
       <artifactId>core</artifactId>
       <version>1.0-SNAPSHOT</version>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>io.outright.xj</groupId>
+      <groupId>io.xj</groupId>
       <artifactId>music</artifactId>
       <version>1.0-SNAPSHOT</version>
     </dependency>
     <dependency>
-      <groupId>io.outright.xj</groupId>
+      <groupId>io.xj</groupId>
       <artifactId>music</artifactId>
       <version>1.0-SNAPSHOT</version>
       <type>test-jar</type>
@@ -154,7 +154,7 @@
             <manifest>
               <addClasspath>true</addClasspath>
               <!--<classpathPrefix>lib/</classpathPrefix>-->
-              <mainClass>io.outright.xj.craftworker.Main</mainClass>
+              <mainClass>io.xj.craftworker.Main</mainClass>
             </manifest>
           </archive>
         </configuration>

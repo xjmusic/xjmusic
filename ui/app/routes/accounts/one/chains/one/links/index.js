@@ -12,11 +12,23 @@ export default Ember.Route.extend({
   // Inject: flash message service
   display: Ember.inject.service(),
 
+  // Inject: chain-link player service
+  play: Ember.inject.service(),
+
   // for keeping track of the auto-refresh interval
   refreshInteval: null,
 
   // # of seconds between auto-refresh
   refreshSeconds: 5,
+
+  /**
+   Route Actions
+   */
+  actions: {
+    play(chain, link) {
+      this.get('play').play(chain, link);
+    }
+  },
 
   /**
    * Route Model
@@ -26,28 +38,21 @@ export default Ember.Route.extend({
     let self = this;
     let chain = this.modelFor('accounts.one.chains.one');
     return new Ember.RSVP.Promise((resolve, reject) => {
-      Ember.get(self, 'config').promises.config.then(
-        (config) => {
-          let linkQuery = {
-            chainId: chain.get('id'),
-            include: 'memes,choices,chords,messages',
-          };
-          let links = this.store.query(
-            'link', linkQuery)
-            .catch((error) => {
-              Ember.get(self, 'display').error(error);
-              self.transitionTo('');
-            });
-          resolve(Ember.RSVP.hash({
-            chain: chain,
-            links: links,
-            linkBaseUrl: config.linkBaseUrl,
-          }));
-        },
-        (error) => {
+      let linkQuery = {
+        chainId: chain.get('id'),
+        include: 'memes,choices,chords,messages',
+      };
+      let links = this.store.query(
+        'link', linkQuery)
+        .catch((error) => {
+          Ember.get(self, 'display').error(error);
           reject(error);
-        }
-      );
+          self.transitionTo('');
+        });
+      resolve(Ember.RSVP.hash({
+        chain: chain,
+        links: links
+      }));
     });
   },
 
@@ -73,7 +78,7 @@ export default Ember.Route.extend({
    On route deactivation, clear the refresh interval
    */
   deactivate() {
-    clearInterval(this.refreshInteval);
+    clearInterval(this.get('refreshInterval'));
     console.log("...auto-refresh Stopped.");
   },
 
@@ -83,15 +88,11 @@ export default Ember.Route.extend({
   activate() {
     console.log("Started auto-refresh...");
     let self = this;
-    this.refreshInteval = setInterval(function () {
+    self.set('refreshInterval', setInterval(function () {
       console.log("Auto-refresh now!");
       self.send("sessionChanged");
-    }, self.refreshSeconds * 1000);
+    }, self.refreshSeconds * 1000));
   },
 
-  /**
-   * Route Actions
-   */
-  actions: {}
 
 });

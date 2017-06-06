@@ -1,10 +1,9 @@
 /* jshint node: true */
 
-module.exports = function(environment) {
+module.exports = function (environment) {
   let ENV = {
     modulePrefix: 'xj-control',
     environment: environment,
-    baseURL: '/', // Testem requires deprecated "baseURL"
     locationType: 'auto',
     EmberENV: {
       FEATURES: {
@@ -46,9 +45,9 @@ module.exports = function(environment) {
   }
 
   if (environment === 'production') {
-      ENV.googleAnalytics = {
-        webPropertyId: 'UA-8902779-14'
-      };
+    ENV.googleAnalytics = {
+      webPropertyId: 'UA-8902779-14'
+    };
   }
 
   return ENV;

@@ -1,19 +1,19 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
-package io.outright.xj.dubworker.dub;
+package io.xj.dubworker.dub;
 
-import io.outright.xj.core.CoreModule;
-import io.outright.xj.core.basis.Basis;
-import io.outright.xj.core.basis.BasisFactory;
-import io.outright.xj.core.integration.IntegrationTestEntity;
-import io.outright.xj.core.model.chain.Chain;
-import io.outright.xj.core.model.choice.Choice;
-import io.outright.xj.core.model.idea.Idea;
-import io.outright.xj.core.model.instrument.Instrument;
-import io.outright.xj.core.model.link.Link;
-import io.outright.xj.core.model.role.Role;
-import io.outright.xj.core.model.voice.Voice;
-import io.outright.xj.dubworker.DubworkerModule;
-import io.outright.xj.mixer.MixerModule;
+import io.xj.core.CoreModule;
+import io.xj.core.basis.Basis;
+import io.xj.core.basis.BasisFactory;
+import io.xj.core.integration.IntegrationTestEntity;
+import io.xj.core.model.chain.Chain;
+import io.xj.core.model.choice.Choice;
+import io.xj.core.model.idea.Idea;
+import io.xj.core.model.instrument.Instrument;
+import io.xj.core.model.link.Link;
+import io.xj.core.model.role.Role;
+import io.xj.core.model.voice.Voice;
+import io.xj.dubworker.DubworkerModule;
+import io.xj.mixer.MixerModule;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -131,11 +131,11 @@ public class DubMasterContinueIT {
     IntegrationTestEntity.insertInstrumentMeme(1,1,"heavy");
 
     // Audio "Kick"
-    IntegrationTestEntity.insertAudio(1, 1, "Published", "Kick", "https://static.xj.outright.io/19801735098q47895897895782138975898.wav", 0.01, 2.123, 120.0, 440);
+    IntegrationTestEntity.insertAudio(1, 1, "Published", "Kick", "https://static.xj.io/19801735098q47895897895782138975898.wav", 0.01, 2.123, 120.0, 440);
     IntegrationTestEntity.insertAudioEvent(1, 1, 2.5, 1, "KICK", "Eb", 0.8, 1.0);
 
     // Audio "Snare"
-    IntegrationTestEntity.insertAudio(2, 1, "Published", "Snare", "https://static.xj.outright.io/198017350afghjkjhaskjdfjhk975898.wav", 0.01, 1.5, 120.0, 1200);
+    IntegrationTestEntity.insertAudio(2, 1, "Published", "Snare", "https://static.xj.io/198017350afghjkjhaskjdfjhk975898.wav", 0.01, 1.5, 120.0, 1200);
     IntegrationTestEntity.insertAudioEvent(2, 2, 3, 1, "SNARE", "Ab", 0.1, 0.8);
 
     // TODO insert arrangement of choice 103

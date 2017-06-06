@@ -9,7 +9,7 @@ USAGE="
    Usage:
      bin/common/bootstrap <app> <arguments...>
 
-   <app> to run, as in: java io.outright.xj.<app>
+   <app> to run, as in: java io.xj.<app>
    <arguments...> (optional) passed to 'java'
 "
 

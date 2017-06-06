@@ -15,15 +15,15 @@ USAGE="
 
 # Connect as root
 MYSQL_USER="root"
+MYSQL_PORT=3300
 
-# Must specify <host> argument
-MYSQL_HOST=$1
-if [ "${MYSQL_HOST}" == "" ]; then
-  printf "${RED}ERROR!${RESET} Please specify a host.\n"
-  echo "${USAGE}"
-  exit 1
+# Find MySQL executable
+MYSQL_COMMAND=mysql
+if [ -f /usr/bin/mysql ]; then
+    MYSQL_COMMAND=/usr/bin/mysql
+elif [ -f /usr/local/mysql/bin/mysql ]; then
+    MYSQL_COMMAND=/usr/local/mysql/bin/mysql
 fi
-shift
 
 # Host Arguments
 MYSQL_ARGS="${@}"
@@ -47,8 +47,8 @@ ensure_file ${EXAMPLE_SQL} "Example MySQL database"
 
 # connect to ${HOST}
 step "Client SQL execution"
-/usr/bin/mysql -u${MYSQL_USER} -h${MYSQL_HOST} ${MYSQL_ARGS} -e "${RESET_CMD}"
-/usr/bin/mysql -u${MYSQL_USER} -h${MYSQL_HOST} ${MYSQL_ARGS} ${MYSQL_DB} < ${EXAMPLE_SQL}
+${MYSQL_COMMAND} -u${MYSQL_USER} -h 127.0.0.1 -P ${MYSQL_PORT} ${MYSQL_ARGS} -e "${RESET_CMD}"
+${MYSQL_COMMAND} -u${MYSQL_USER} -h 127.0.0.1 -P ${MYSQL_PORT} ${MYSQL_ARGS} ${MYSQL_DB} < ${EXAMPLE_SQL}
 step_ok
 
 #

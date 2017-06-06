@@ -72,7 +72,7 @@ export default Ember.Route.extend({
     },
 
     deleteChain(model) {
-      let confirmation = confirm("Are you fucking sure??");
+      let confirmation = confirm("ARE YOU SURE ???");
       if (confirmation) {
         model.destroyRecord({}).then(
           () => {

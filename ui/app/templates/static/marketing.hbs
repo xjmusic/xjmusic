@@ -1,0 +1,41 @@
+<!-- Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved. -->
+<!--
+
+DO NOT USE HANDLEBARS IN THIS FILE, even though it is .hbs extension. See README.md in this folder for details
+
+NOTE: The Handlebars {{#link-to 'path'}}Link{{/link-to}} is required because it is the only way to send a message to the Ember view, and it is acceptable because it will be [#314] stripped using Regex before this template is [#318] used as HTML in the static index.html content.
+
+-->
+<div class="container">
+  <div class="row">
+
+    <!-- Intro Letter to Musicians -->
+    <div class="marketing col-12 col-md-6 offset-md-3">
+      <h1><span class="large">Wanted:</span><br/>Information-Age Ambient&nbsp;Musicians</h1>
+      <p>The XJ<sup>&trade;</sup> Ambient Music Platform is an unprecedented execution of Eno's original charter for a music that is "heard but
+        not listened to."</p>
+      <p>Made with love and bleeding-edge technology, it is a patent-pending mathematical system, a
+        cloud-based audio production platform, an A.I., and a web-browser-based app for musicians to compose and perform from anywhere.</p>
+      <p>If you are extremely self-motivated, interested in earning passive income by creating content, and excited to define a new sound, please do say hiya!</p>
+      <p>Sincerely,<br/>&quot;Nick&quot; Charney Kaye</p>
+      <p class="login">{{#link-to 'login'}}Sign in{{/link-to}} to participate.</p>
+    </div>
+
+    <!-- Additional Info -->
+    <div class="marketing col-12 col-md-6 offset-md-3">
+      <h1>XJ<sup>&trade;</sup> is the Future of Ambient Music for Institutions and Businesses.</h1>
+      <p>Today, people listen to music on their personal devices. What is the future of ambient music in common
+        areas?</p>
+      <p>With the internet competing for their attention, visitors and customers hate to be overwhelmed by the wrong
+        music.</p>
+      <p>Research shows that the perfect music will please visitors, and arouse customers. XJ<sup>&trade;</sup> is the ultimate soundscape of never-before-heard music dynamically arranged in real time.</p>
+
+      <p>Most importantly, XJ<sup>&trade;</sup> pays out the lion's share of revenue directly to the artists who compose and perform each second of source material, with extremely accurate
+        rights attribution.</p>
+      <p>The prototype is operational, and musicians are being invited now.</p>
+      <p>The first sales effort is <a href="https://www.ambienceplatform.com/" target="_blank">Ambience<sup>&trade;</sup></a>.</p>
+      <p class="login">{{#link-to 'login'}}Sign in{{/link-to}} to participate.</p>
+    </div>
+
+  </div>
+</div>

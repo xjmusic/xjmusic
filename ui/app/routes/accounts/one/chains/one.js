@@ -6,6 +6,18 @@ export default Ember.Route.extend({
   // Inject: flash message service
   display: Ember.inject.service(),
 
+  // Inject: chain-link player service
+  play: Ember.inject.service(),
+
+  /**
+   Route Actions
+   */
+  actions: {
+    play(chain) {
+      this.get('play').play(chain, null);
+    }
+  },
+
   /**
    * Route Model
    * @param params

@@ -1,13 +1,18 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 
+@import "palette";
+
 body {
-  background: #000000;
+  background: #181818;
   color: $gray;
   font-family: OxygenMono, monospace;
 }
 
 a {
   color: lighten($green, 20%);
+  &:visited {
+    color: lighten($green, 20%);
+  }
 
   &:hover, &:active {
     color: lighten($green, 40%);
@@ -58,3 +63,11 @@ button {
   color: $much-darker-gray;
 }
 
+#static-content {
+  margin-top: 81px;
+}
+
+sup {
+  vertical-align: super;
+  font-size: 0.38em;
+}

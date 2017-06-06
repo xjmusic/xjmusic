@@ -9,7 +9,7 @@ Also see: Documents in `hub/src/main/resources/docs` which are exposed to Users 
 # Laws
 
   * The XJ platform does not send or receive email.
-  * The XJ platform does not implement passwords; it relies on OAuth. 
+  * The XJ platform does not implement passwords; it relies on OAuth.
   * Any network connection can and will fail.
   * Issues are always phrased as a complete statement of expectation.
   * Every commit must reference an issue #.
@@ -34,7 +34,7 @@ The preceding command will also create a blank environment variables file called
 We use [Docker](https://www.docker.com/) and [Docker Compose](https://docs.docker.com/compose/) for local development with uncanny parity to production. Once your **runtime.env** file is configured, it's time to bring up the `hub01xj1` server and its supporting resources such as `mysql01xj1` and `redis01xj1`:
 
     docker-compose up -d
-    
+
 In the above example, `-d` tells Docker to start the containers in the background (as Daemons).
 
 You'll want to have hostnames defined to point at the docker-compose network. To automatically update /etc/hosts:
@@ -43,47 +43,52 @@ You'll want to have hostnames defined to point at the docker-compose network. To
 
 Your **/etc/hosts** file should now contain these lines at the end:
 
+    127.0.0.1 xj.dev
     172.16.217.10 hub01xj1
-    172.16.217.10 xj.outright.dev
     172.16.217.50 mysql01xj1
     172.16.217.60 redis01xj1
 
-Assuming the docker containers are up and the hosts configured, you'll be able to open the main UI in a browser at [http://xj.outright.dev/](http://xj.outright.dev/)
+Note that `xj.dev` simply points to the local loopback. Docker-compose maps maps local port 80 to the `hub01xj1` docker container port 80.
+
+Assuming the docker containers are up and the hosts configured, you'll be able to open the main UI in a browser at [http://xj.dev/](http://xj.dev/)
 
 The front-end UI is served by the Nginx server on `hub01xj1` via the local `ui/dist` volume. During development, use the [Ember CLI](https://ember-cli.com/) to keep the front-end continuously re-built in real time:
- 
+
     cd ui
     ember build --watch
 
 To compile the Java server-side applications and package them for deployment:
 
     bin/package
-    
+
 To build and deploy the platform during local development, we run this a lot:
 
-    bin/package && docker restart hub01xj1
+    bin/package && docker restart hub01xj1 work01xj1
 
-For a more destructive complete rebuild, including configurations and front-end, we could run:
+For a complete rebuild, including configurations and front-end, we could run:
 
-    docker rm -f hub01xj1 && \
-      bin/package && \
-      docker-compose up -d
+    docker compose up -d --build
 
-The data on `mysql01xj1` and `redis01xj1` persists until those containers are explicitly destroyed. 
+The data on `mysql01xj1` and `redis01xj1` persists until those containers are explicitly destroyed.
 
 Attach to the shell on the main server `hub01xj1` while it's running, and tail the logs:
 
     docker attach hub01xj1
     # now inside shell
     tail -f /var/log/nginx/*.log /var/log/hub/*.log
-    
-After logging in via Google, there will be a user created with an `id` of 1. To grant the `admin` user role, you'll connect directly to the database on `mysql01xj1`:
- 
-    mysql -uroot -hmysql01xj1 xj
 
-And inside mysql shell: 
+After logging in via Google, there will be a user created for you. It will have an `id`, for example 21. To grant the `admin` user role, you'll connect directly to the database on `mysql01xj1` using the port forwarding from local port 3300 (to Docker Mysql container port 3306):
 
-    insert into user_role (user_id, type) values (1, "admin"); 
+    mysql -uroot -P 3300 xj
+
+There's a convenience script to easily connect to the MySQL database in the Docker container.
+
+    bin/mysql
+
+And inside mysql shell, for example to impersonate user #1 (after being auto-logged-in as new user #21):
+
+    use xj;
+    update user_auth set user_id=1 where user_id=21;
 
 Only between major platform configuration changes (e.g. to **.nginx/locations.conf**), it may be necessary to force Docker to rebuild the container using `--build`:
 
@@ -91,21 +96,27 @@ Only between major platform configuration changes (e.g. to **.nginx/locations.co
 
 There is a MySQL dump of a complete example database, for quickly bootstrapping a dev environment. This file is located in the root of the project, at **example-database.sql**
 
-Load the example database into `mysql01xj1`:
-
-    mysql -uroot -hmysql01xj1 -e"drop database if exists xj; create database xj;"
-    mysql -uroot -hmysql01xj1 xj < example-database.sql
-    
-There's a convenience script to do this, that requires only the mysql host as input:
+Load the example database into `mysql01xj1` using the port forwarding from local port 3300 (to Docker Mysql container port 3306). There's a convenience script to do this:
 
     bin/mysql-reset
+
+It's also necessary to have a local MySQL server running (separate from Docker `mysql01xj1`), which Maven uses during the build process. It will be necessary to have local root access with no password.
+
+Connect to your local MySQL server with root access and no password:
+
+    mysql -u root
+
+You will need to create two databases in your local MySQL server, `xj` and `xj_test`:
+
+    create database xj;
+    create database xj_test;
 
 *note that the latest codebase may run migrations on top of that ^^^, and of course it had better pass checksum ;)*
 
 ## Docs
 
 When logged into the UI, visit the "Docs" section in the top nav.
- 
+
 This is an interface for documents that are actually generated from source code when the project is compiled.
 
 This mechanism allows for documents tracked to the version of the source code to be made available with permissions only to logged-in users.
@@ -125,10 +136,10 @@ To only setup the workflow and check dependencies:
 To list all Java system properties:
 
     bin/properties
-    
+
 The default java properties are in the file **/default.env** which is copied to a new file **/runtime.env** on project setup. Developers modify their local runtime.env file with private keys and configuration. The runtime.env file is never committed to the repository. The **default.env** file is kept up-to-date with all environment variables expected by **bin/common/bootstrap**.
 
-Also note, ***by design 100% of platform Java system properties are read via io.outright.xj.core.app.config.Config`***
+Also note, ***by design 100% of platform Java system properties are read via Config`***
 
 ## Run local platform in Docker containers
 
@@ -142,7 +153,7 @@ The `-d` option above runs containers as background daemons, instead of seeing a
 
 To see running containers:
 
-    docker ps --format 
+    docker ps --format
 
 To attach to a container by `<name>`:
 
@@ -156,7 +167,7 @@ To remove all containers:
 
     docker-compose rm
 
-To bring up containers with a forced build: 
+To bring up containers with a forced build:
 
     docker-compose up --build
 
@@ -193,7 +204,7 @@ Compile & Package the Java server-side application, e.g. as JAR files:
 
 ## MySQL database
 
-By default, you'll need to create two local MySQL databases: 
+By default, you'll need to create two local MySQL databases:
 
   * `xj` (for running services locally)
   * `xj_test` (for running integration tests locally)
@@ -205,7 +216,7 @@ These databases must be accessible by user `root`@`localhost`.
 We use `maven-failsafe` to kick off integration tests. There's a helper script:
 
     bin/verify
-    
+
 Also, the integration test suite is run by default during a `bin/package` or `bin/release` and will block the build if integration tests fail.
 
 Integration testing requires a MySQL database `xj_test` locally, as well as a Redis server.
@@ -292,16 +303,16 @@ To automatically update /etc/hosts:
 
     sudo bin/update-hosts
 
-For development, your local machine needs to have the domain `xj.outright.dev` pointed to `172.16.217.10` (the address set for hub01xj1 in the docker-compose.yml file) in `/etc/hosts`; it's helpful to have `redis01xj1` and `mysql01xj1` as well:
+For development, your local machine needs to have the domain `xj.dev` pointed to `172.16.217.10` (the address set for hub01xj1 in the docker-compose.yml file) in `/etc/hosts`; it's helpful to have `redis01xj1` and `mysql01xj1` as well:
 
     172.16.217.50 mysql01xj1
     172.16.217.60 redis01xj1
     172.16.217.10 hub01xj1
-    172.16.217.10 xj.outright.dev
+    172.16.217.10 xj.dev
 
 ## Google Authentication
 
-Login to the app using Google authentication. The redirect URL for local development is http://xj.outright.io/auth/google/callback
+Login to the app using Google authentication. The redirect URL for local development is http://xj.io/auth/google/callback
 
 # Debugging
 
@@ -319,28 +330,28 @@ Also remember, it is necessary to send an authentication cookie in the header of
     curl -b Access-Token
 
 # Audio File Uploading
-    
+
 Note that after an audio file is uploaded, it can be played back (on a GNU/Linux system) like:
-    
+
     curl https://s3.amazonaws.com/xj.audio.dev/instrument-1-audio-6d958fbf-4507-458a-9ab3-dfdf04dc0ba8.wav | aplay
 
 Here are the public-facing Amazon CloudFront-backed URLs for audio files, and their respective Amazon S3 backing:
 
-  * [https://audio.xj.outright.io](https://audio.xj.outright.io) is the production URL, backed by [https://xj-audio-prod.s3.amazonaws.com](https://xj-audio-prod.s3.amazonaws.com)
-  * [https://audio.stage.xj.outright.io](https://audio.stage.xj.outright.io) is the staging URL, backed by [https://xj-audio-stage.s3.amazonaws.com](https://xj-audio-stage.s3.amazonaws.com)
-  * [https://audio.dev.xj.outright.io](https://audio.dev.xj.outright.io) is the development URL, backed by [https://xj-audio-dev.s3.amazonaws.com](https://xj-audio-dev.s3.amazonaws.com)
+  * [https://audio.xj.io](https://audio.xj.io) is the production URL, backed by [https://xj.audio.s3.amazonaws.com](https://xj.audio.s3.amazonaws.com)
+  * [https://audio.stage.xj.io](https://audio.stage.xj.io) is the staging URL, backed by [https://xj.stage.audio.s3.amazonaws.com](https://xj.stage.audio.s3.amazonaws.com)
+  * [https://audio.dev.xj.io](https://audio.dev.xj.io) is the development URL, backed by [https://xj.dev.audio.s3.amazonaws.com](https://xj.dev.audio.s3.amazonaws.com)
 
 # Amazon S3
 
-The `example-database.sql` is generated from data in the production environment, and refers to audio files located in the production S3 bucket, xj-audio-prod.
+The `example-database.sql` is generated from data in the production environment, and refers to audio files located in the production S3 bucket, xj.audio.
 
 Therefore, it is helpful to be able to sync the audio files from production into the dev environment.
 
 **Note that this command will become impractical if production grows to any significant size!**
 
-    aws s3 sync s3://xj-audio-prod/ s3://xj-audio-dev/
+    aws s3 sync s3://xj.audio/ s3://xj.dev.audio/
 
-Note that in order to use that command, the source bucket (xj-audio-prod) must grant `s3:ListBucket` and `s3:GetObject` permission, and the target bucket (xj-audio-dev) must grant `s3:ListBucket` and `s3:PutObject` to the IAM user your AWS CLI is authenticated as.
+Note that in order to use that command, the source bucket (xj.audio) must grant `s3:ListBucket` and `s3:GetObject` permission, and the target bucket (xj.dev.audio) must grant `s3:ListBucket` and `s3:PutObject` to the IAM user your AWS CLI is authenticated as.
 
 ## Environment Variables
 
@@ -348,15 +359,15 @@ Note that two environment variables are actually [built-in to the AWS SDK for Ja
 
     -Daws.accessKeyId=AKIAKJHFG789JKKS8F73
     -Daws.secretKey=07sh86hsubkuy6ykus/sd06h7fsjkdyfuk897934
-    
+
 Certain environment variables must be set in order for the correct Upload Policy to be generated for a file upload to Amazon S3:
 
     -Daudio.file.upload.acl=bucket-owner-full-control
     -Daudio.file.upload.expire.minutes=60
     -Daudio.file.bucket=xj-audio-ENVIRONMENT      
-    -Daudio.url.base=https://audio.ENVIRONMENT.xj.outright.io/
+    -Daudio.url.base=https://audio.ENVIRONMENT.xj.io/
     -Daudio.url.upload=https://xj-audio-ENVIRONMENT.s3.amazonaws.com/
-    
+
 The file upload ACL `bucket-owner-full-control` affords the administration of uploaded objects by the bucket owner.
 
 # Components
@@ -459,7 +470,7 @@ In music theory, a scale is any set of musical notes ordered by fundamental freq
 
 ## The Dao of Database Access Objects (D.A.O.) in the xj universe
 
-1. ***All DAO methods require an AccessControl object!*** 
+1. ***All DAO methods require an AccessControl object!***
 
 # References
 
@@ -473,7 +484,7 @@ See [Java SE 8: Creating a Basic REST Web Service using Grizzly, Jersey, and Mav
 
 Bootstrap a Grizzly2 quickstart with:
 
-mvn archetype:generate -DarchetypeArtifactId=jersey-quickstart-grizzly2 -DarchetypeGroupId=org.glassfish.jersey.archetypes -DinteractiveMode=false -DgroupId=io.outright.xj -DartifactId=strap -Dpackage=io.outright.xj.strap -DarchetypeVersion=2.17
+mvn archetype:generate -DarchetypeArtifactId=jersey-quickstart-grizzly2 -DarchetypeGroupId=org.glassfish.jersey.archetypes -DinteractiveMode=false -DgroupId=io.xj -DartifactId=strap -Dpackage=io.xj.strap -DarchetypeVersion=2.17
 
 ## AWS Elastic Beanstalk
 
@@ -506,9 +517,19 @@ Get a MySQL shell with `sudo mysql -u root` and then run all of the following:
  - Add the docker group if it doesn't already exist:
 
         sudo groupadd docker
-    
+
  - Add the connected user "$USER" to the docker group. Change the user name to match your preferred user if you do not want to use your current user:
 
         sudo gpasswd -a $USER docker
-    
+
  - log out/in to activate the changes to groups.
+
+## OSX
+
+On OSX, because we are unable to connect to the container from the host, we are using the following workarounds, which are built in to the cross-platform workflow:
+
+  * Local port 80 (e.g. http://xj.dev) is mapped to Docker container `hub01xj1` port 80
+  * Local port 3300 is mapped to MySQL container `mysql01xj1` port 3306
+
+Docker documentation: https://docs.docker.com/docker-for-mac/networking/#per-container-ip-addressing-is-not-possible
+GitHub Open Issue: https://github.com/docker/for-mac/issues/155

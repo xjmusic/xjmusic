@@ -6,51 +6,53 @@
 <!-- Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved. -->
 
 <!-- Upper Container -->
-<div class="form-horizontal">
+<div class="form-horizontal container-fluid">
 
   <!-- List of Chains -->
-  <div class="sm-col-12">
-    <div class="table-list">
-      <table class="table">
-        <thead>
-        <tr>
-          <th width="1%">Type</th>
-          <th>Name</th>
-          <th width="1%">State</th>
-          <th width="1%"><!--Change State To --></th>
-          <th width="1%">Start At</th>
-          <th width="1%">Stop At</th>
-          <th><!-- Actions --></th>
-          <th width="1%">#</th>
-        </tr>
-        </thead>
-        <tbody>
-        {{#each model.chains as |chain|}}
-          <tr class="item {{chain.state}}-state">
-            <td>{{chain.type}}</td>
-            <td>{{#link-to "accounts.one.chains.one" chain}}{{chain.name}}{{/link-to}}</td>
-            <td>{{chain.state}}</td>
-
-            <td>
-              {{chain-state-change chain}}
-            </td>
-
-            <td>{{chain.startAt}}</td>
-            <td>{{chain.stopAt}}</td>
-            <td>
-              {{#link-to 'accounts.one.chains.one.links' chain}}Links{{/link-to}}
-              |&nbsp;{{#link-to 'accounts.one.chains.one.configs' chain}}Configs{{/link-to}}
-              |&nbsp;{{#link-to 'accounts.one.chains.one.libraries' chain}}Libraries{{/link-to}}
-              |&nbsp;{{#link-to 'accounts.one.chains.one.instruments' chain}}Instruments{{/link-to}}
-              |&nbsp;{{#link-to 'accounts.one.chains.one.ideas' chain}}Ideas{{/link-to}}
-            </td>
-            <th scope="row">{{chain.id}}</th>
+  {{#if model.chains.length}}
+    <div class="sm-col-12">
+      <div class="table-list">
+        <table class="table">
+          <thead>
+          <tr>
+            <th width="1%">Type</th>
+            <th>Name</th>
+            <th width="1%">State</th>
+            <th width="1%"><!--Change State To --></th>
+            <th width="1%">Start At</th>
+            <th width="1%">Stop At</th>
+            <th><!-- Actions --></th>
+            <th width="1%">#</th>
           </tr>
-        {{/each}}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+          {{#each model.chains as |chain|}}
+            <tr class="item {{chain.state}}-state">
+              <td>{{chain.type}}</td>
+              <td>{{#link-to "accounts.one.chains.one" chain}}{{chain.name}}{{/link-to}}</td>
+              <td>{{chain.state}}</td>
+
+              <td>
+                {{chain-state-change chain}}
+              </td>
+
+              <td>{{chain.startAt}}</td>
+              <td>{{chain.stopAt}}</td>
+              <td>
+                {{#link-to 'accounts.one.chains.one.links' chain}}Links{{/link-to}}
+                |&nbsp;{{#link-to 'accounts.one.chains.one.configs' chain}}Configs{{/link-to}}
+                |&nbsp;{{#link-to 'accounts.one.chains.one.libraries' chain}}Libraries{{/link-to}}
+                |&nbsp;{{#link-to 'accounts.one.chains.one.instruments' chain}}Instruments{{/link-to}}
+                |&nbsp;{{#link-to 'accounts.one.chains.one.ideas' chain}}Ideas{{/link-to}}
+              </td>
+              <th scope="row">{{chain.id}}</th>
+            </tr>
+          {{/each}}
+          </tbody>
+        </table>
+      </div>
     </div>
-  </div>
+  {{/if}}
 
   {{#if auth.isAdmin}}
     <div class="sm-col-12">

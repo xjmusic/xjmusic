@@ -18,9 +18,21 @@ nav.navbar {
     }
   }
 
+  .dropdown-menu {
+    position: absolute;
+    right: 0;
+    .nav-item {
+      text-align: left;
+    }
+  }
+
   .nav-item {
+    text-align: right;
     margin-left: 5px;
     margin-right: 5px;
+    a {
+      padding-right: 10px;
+    }
   }
 
   .navbar-sub {
@@ -92,7 +104,6 @@ nav.navbar {
     letter-spacing: 4px;
     font-family: ClockMono, monospace;
     font-size: 20px;
-    margin-right: 10px;
     cursor: pointer;
     &:hover {
       color: whitesmoke;

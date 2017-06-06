@@ -1,0 +1,55 @@
+// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+package io.xj.mixer;
+
+import com.google.inject.Guice;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import javax.sound.sampled.AudioFormat;
+import java.time.Duration;
+
+import static org.junit.Assert.assertNotNull;
+
+@RunWith(MockitoJUnitRunner.class)
+public class MixerModuleTest {
+  private MixerFactory mixerFactory;
+
+  @Before
+  public void setUp() {
+    mixerFactory = Guice.createInjector(new MixerModule()).getInstance(MixerFactory.class);
+  }
+
+  @After
+  public void tearDown() {
+    mixerFactory = null;
+  }
+
+  @Test
+  public void createMixerNotNull() throws Exception {
+    Mixer mixer = mixerFactory.createMixer(
+      OutputContainer.WAV,
+      new AudioFormat(AudioFormat.Encoding.PCM_FLOAT,
+        48000, 32, 2, 8, 48000, false),
+      Duration.ofSeconds(60)
+    );
+    assertNotNull(mixer);
+  }
+
+  /**
+   [#339] Mix module should support Big-Endian audio files
+   */
+  @Test
+  public void createMixerNotNull_supportBigEndian() throws Exception {
+    mixerFactory.createMixer(
+      OutputContainer.WAV,
+      new AudioFormat(AudioFormat.Encoding.PCM_FLOAT,
+        48000, 32, 2, 8, 48000, true),
+      Duration.ofSeconds(60)
+    );
+  }
+
+}

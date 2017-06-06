@@ -1,0 +1,72 @@
+// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+#play-info {
+  display: inline-block;
+  background: #101010;
+  border: 2px solid #444;
+  border-top-style: none;
+  border-bottom-style: none;
+  height: 40px;
+  vertical-align: middle;
+  align-content: center;
+  text-align: center;
+  padding: 8px 12px 0 12px;
+
+  button.stop {
+    padding: 0 0 0 0;
+    width: 24px;
+    height: 24px;
+    font-size: 12px;
+    opacity: 0.25;
+    background: red;
+    border: darkred;
+    color: darkred;
+    &:hover {
+      opacity: 1.0;
+    }
+  }
+
+}
+
+button.link-play {
+  background-color: darkgreen;
+  color: whitesmoke;
+  opacity: 0.38;
+  width: 100%;
+  &:hover {
+    opacity: 1.0;
+  }
+}
+
+.now-playing button.link-play {
+  opacity: 1.0;
+  background-color: #00c000;
+  color: #000;
+  cursor:default;
+  /*
+  display: none;
+  */
+}
+
+.play-chain {
+  border: 2px #303030 solid;
+  background: #202020;
+  table {
+    width: 100%;
+    th {
+      .label {
+        color: $low-gray;
+      }
+      font-weight: bolder;
+      color: $bright;
+      width: 50%;
+      vertical-align: middle;
+      padding: 27px 20px 20px 20px;
+    }
+    td {
+      width: 50%;
+      vertical-align: middle;
+      text-align: right;
+      padding: 20px 20px 20px 0;
+    }
+  }
+}

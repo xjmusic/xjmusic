@@ -6,7 +6,7 @@
 <!-- Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved. -->
 
 <!-- Upper Container -->
-<div class="form-horizontal">
+<div class="form-horizontal container-fluid">
 
   <!-- List of Links -->
   <div class="sm-col-12">
@@ -17,7 +17,6 @@
           <th width="1%">Offset</th>
           <th width="1%">State</th>
           <th>End At</th>
-          <th>Waveform</th>
           <th>Total</th>
           <th>Density</th>
           <th>Key</th>
@@ -26,18 +25,15 @@
           <th>Choices</th>
           <th>Chords</th>
           <th>Messages</th>
+          <th>Play</th>
         </tr>
         </thead>
         <tbody>
         {{#each model.links as |link|}}
-          <tr class="item {{link.state}}-state">
+          <tr class="item {{link.state}}-state {{if (eq play.link.id link.id) 'now-playing'}}">
             <th>{{#link-to "accounts.one.chains.one.links.one" link}}{{link.offset}}{{/link-to}}</th>
             <td>{{link.state}}</td>
             <td>{{link.endAt}}</td>
-            <td>{{#if (eq link.state "dubbed")}}<audio controls>
-              <source src="{{model.linkBaseUrl}}{{link.waveformKey}}" type="audio/wav">
-              Your browser does not support the audio element.
-            </audio>{{/if}}</td>
             <td>{{link.total}}</td>
             <td>{{link.density}}</td>
             <td>{{link.key}}</td>
@@ -46,6 +42,11 @@
             <td>{{link-choices link}}</td>
             <td>{{link-chords link}}</td>
             <td>{{message-badges link}}</td>
+            <td>{{#if (eq link.state "dubbed")}}
+              <button type="button" aria-label="play link offset {{link.offset}}"
+                      class="btn link-play" {{action 'play' model.chain link}}>&#9658;
+              </button>
+            {{/if}}</td>
           </tr>
         {{/each}}
         </tbody>

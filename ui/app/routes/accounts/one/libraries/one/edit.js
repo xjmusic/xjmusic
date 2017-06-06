@@ -47,7 +47,7 @@ export default Ember.Route.extend({
     },
 
     destroyLibrary(model) {
-      let confirmation = confirm("Are you fucking sure? If there are Ideas or Instruments belonging to this Library, deletion will fail anyway.");
+      let confirmation = confirm("Are you sure? If there are Ideas or Instruments belonging to this Library, deletion will fail anyway.");
       if (confirmation) {
         model.destroyRecord({}).then(
           () => {
