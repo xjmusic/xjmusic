@@ -1,14 +1,14 @@
+
 #!/usr/bin/env bash
 
 # Regex to `grep -oE` the IP addresses from `docker ps`
 DOCKER_IP_REGEX='"IPAddress": "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}",'
 
-# Special box
-SPECIAL_MATCH=^hub01
-SPECIAL_HOST=xj.outright.dev
-
 #
 HOSTS_FILE=/etc/hosts
+
+#
+LOOPBACK_HOST=xj.outright.dev
 
 #
 add_host() {
@@ -30,8 +30,8 @@ add_host() {
 for HOST in $(docker ps --format '{{.Names}}'); do
     IP=$(docker inspect ${HOST} | grep -oE "${DOCKER_IP_REGEX}" | sed 's/[^0-9\.]//g')
     add_host "${HOST}" "${IP}"
-    if [[ ${HOST} =~ ${SPECIAL_MATCH} ]]; then
-      add_host "${SPECIAL_HOST}" "${IP}"
-    fi
 done
+
+add_host "${LOOPBACK_HOST}" "127.0.0.1"
+
 echo "${HOSTS_FILE} updated."

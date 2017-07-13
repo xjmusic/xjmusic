@@ -7,6 +7,8 @@ services:
     environment:
       APPS: hub
     container_name: hub01xj1
+    ports:
+      - "80:80"
     extends:
       file: docker-compose.common.yml
       service: runner
