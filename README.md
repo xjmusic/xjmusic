@@ -6,6 +6,17 @@ Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserve
 
 Also see: Documents in `hub/src/main/resources/docs` which are exposed to Users via the front-end UI.
 
+# Laws
+
+  * The XJ platform does not send or receive email.
+  * The XJ platform does not implement passwords; it relies on OAuth. 
+  * Any network connection can and will fail.
+  * Issues are always phrased as a complete statement of expectation.
+  * Every commit must reference an issue #.
+  * Every minute of time must be tracked with an issue #.
+  * Work on branches named after issue #.
+  * Do not commit TODOs; create issues or drop them.
+
 ## Chain Work
 
 This term refers (in the **xj** universe) to a layer of work performed on the Links (sequentially, by their offset) in a Chain.
@@ -111,11 +122,13 @@ To only setup the workflow and check dependencies:
 
 ## Environment (System) properties
 
-To see all Java `System.getProperty` references in project modules:
+To list all Java system properties:
 
-    bin/props
+    bin/properties
     
 The default java properties are in the file **/default.env** which is copied to a new file **/runtime.env** on project setup. Developers modify their local runtime.env file with private keys and configuration. The runtime.env file is never committed to the repository. The **default.env** file is kept up-to-date with all environment variables expected by **bin/common/bootstrap**.
+
+Also note, ***by design 100% of platform Java system properties are read via io.outright.xj.core.app.config.Config`***
 
 ## Run local platform in Docker containers
 
@@ -473,3 +486,29 @@ Ops engineers may prefer to use the [The Elastic Beanstalk Command Line Interfac
 ## Jersey
 
 [Latest User Guide](https://jersey.java.net/documentation/latest/user-guide.html)
+
+# Developer Setup Gotchas
+
+## GNU/Linux
+
+### MySQL run as non-root user
+
+It's necessary to recreate the MySQL root user with access to localhost.
+
+Get a MySQL shell with `sudo mysql -u root` and then run all of the following:
+
+    DROP USER 'root'@'localhost';
+    CREATE USER 'root'@'%' IDENTIFIED BY '';
+    GRANT ALL PRIVILEGES ON *.* TO 'root'@'%';
+
+### Docker run as non-root user
+
+ - Add the docker group if it doesn't already exist:
+
+        sudo groupadd docker
+    
+ - Add the connected user "$USER" to the docker group. Change the user name to match your preferred user if you do not want to use your current user:
+
+        sudo gpasswd -a $USER docker
+    
+ - log out/in to activate the changes to groups.
