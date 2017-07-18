@@ -10,3 +10,6 @@ classes/
 .idea/
 */.idea
 *.iml
+
+# Static site generation
+docs/public/

@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+
+# Include common functions
+. $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/common/functions
+
+# Title & Usage
+TITLE="Serve local site with Hugo (watch & rebuild)"
+USAGE="
+   Usage:
+     bin/serve-docs <arguments...>
+
+   <arguments...> (optional) passed to Hugo
+"
+
+# App Arguments
+ARGS=$@
+
+# Requires Hugo
+ensure_version "hugo version" "Hugo"
+
+# Enter docs
+cd docs || exit 1
+
+#
+step "Serve local site with Hugo (watch & rebuild)"
+hugo server -w -p 3000 ${ARGS}
+step_ok
+
+#
+finished_ok

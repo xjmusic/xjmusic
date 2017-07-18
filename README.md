@@ -4,7 +4,7 @@ Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserve
 
 **Composite Music Fabrication Platform**
 
-Also see: Documents in `hub/src/main/resources/docs` which are exposed to Users via the front-end UI.
+Also see: Documents in `docs` which are published to https://docs.xi.io
 
 # Laws
 
@@ -115,13 +115,21 @@ You will need to create two databases in your local MySQL server, `xj` and `xj_t
 
 ## Docs
 
-When logged into the UI, visit the "Docs" section in the top nav.
+Docs are located in **docs/** and are published to https://docs.xj.io
 
-This is an interface for documents that are actually generated from source code when the project is compiled.
+Serve the docs site locally with:
 
-This mechanism allows for documents tracked to the version of the source code to be made available with permissions only to logged-in users.
+    bin/serve-docs
+    
+Build and publish the docs site to S3:
 
-See also the **/docs** folder. By Accessing the contents of that folder, you agree to these terms:
+    bin/publish-docs
+
+See further docs in [docs/README.md](docs-legacy/README.md)
+
+## Reference
+
+See also the **/reference** folder. By Accessing the contents of that folder, you agree to these terms:
 
 > Please only read that file on your machine and then delete. Please do Not email that file anywhere, or upload it to any other servers. I prefer that (because it is in its 12-month non-disclosed "provisional" state with the U.S.P.T.O.) the file only be read directly by a person with access to my VPN wherein all work pertaining to it is stored. Thanks!
 

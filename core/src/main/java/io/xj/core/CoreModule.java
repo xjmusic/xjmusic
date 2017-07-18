@@ -1,6 +1,15 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 package io.xj.core;
 
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.util.store.DataStoreFactory;
+import com.google.api.client.util.store.MemoryDataStoreFactory;
+import com.google.inject.AbstractModule;
+import com.google.inject.assistedinject.FactoryModuleBuilder;
+
 import io.xj.core.app.App;
 import io.xj.core.app.AppImpl;
 import io.xj.core.app.access.AccessControlProvider;
@@ -86,25 +95,13 @@ import io.xj.core.external.google.GoogleHttpProvider;
 import io.xj.core.external.google.GoogleHttpProviderImpl;
 import io.xj.core.external.google.GoogleProvider;
 import io.xj.core.external.google.GoogleProviderImpl;
-import io.xj.core.internal.DocProvider;
-import io.xj.core.internal.DocProviderImpl;
 import io.xj.core.util.token.TokenGenerator;
 import io.xj.core.util.token.TokenGeneratorImpl;
-
-import com.google.api.client.http.HttpTransport;
-import com.google.api.client.http.javanet.NetHttpTransport;
-import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.client.util.store.DataStoreFactory;
-import com.google.api.client.util.store.MemoryDataStoreFactory;
-import com.google.inject.AbstractModule;
-import com.google.inject.assistedinject.FactoryModuleBuilder;
 
 public class CoreModule extends AbstractModule {
   protected void configure() {
     bindApp();
     bindDAO();
-    bindInternal();
     bindExternal();
     bindUtil();
     installBasisFactory();
@@ -162,10 +159,6 @@ public class CoreModule extends AbstractModule {
     bind(UserDAO.class).to(UserDAOImpl.class);
     bind(VoiceDAO.class).to(VoiceDAOImpl.class);
     bind(VoiceEventDAO.class).to(VoiceEventDAOImpl.class);
-  }
-
-  private void bindInternal() {
-    bind(DocProvider.class).to(DocProviderImpl.class);
   }
 
   private void bindExternal() {

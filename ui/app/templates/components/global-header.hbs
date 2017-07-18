@@ -26,7 +26,6 @@
       <li class="nav-item"><a id="clock" class="nav-link" title="Copy time UTC to clipboard"
                               aria-label="Copy time UTC to clipboard"><!-- TIME UTC --></a></li>
       {{#if auth.isUser}}
-        {{#link-to 'docs' tagName="li" class="nav-item"}}<a class="nav-link" href="">Docs</a>{{/link-to}}
         <li class="nav-item dropdown">
           <a href="#" data-toggle="dropdown" class="nav-link dropdown-toggle">
             {{#if auth.isUser}}User <sup>#</sup>{{auth.userId}}{{/if}}

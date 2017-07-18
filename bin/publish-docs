@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+
+# Include common functions
+. $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/common/functions
+
+# Config
+S3_SYNC_FROM="${BASEPATH}/docs/public"
+S3_SYNC_TO="s3://xj.docs"
+CLOUDFRONT_ID="E22SA7UP9DT7TC"
+CLOUDFRONT_PATHS="/*"
+
+# Title & Usage
+TITLE="build & push latest version of docs to S3 distribution"
+USAGE="
+   Usage:
+     bin/publish-docs
+"
+
+# Requires Hugo
+ensure_version "hugo version" "Hugo"
+
+# Must not have outstanding git changes
+gitcheck ${PWD}
+
+# Enter docs
+cd docs || exit 1
+
+#
+step "Build docs static site with Hugo"
+indent "$(hugo)" || exit 1
+step_ok
+
+#
+step "Sync local ${S3_SYNC_FROM} to ${S3_SYNC_TO}"
+aws s3 sync "${S3_SYNC_FROM}" "${S3_SYNC_TO}"
+step_ok
+
+#
+step "Invalid Cloudfront Distribution: ${CLOUDFRONT_ID} Paths:${CLOUDFRONT_PATHS}"
+indent "$(aws cloudfront create-invalidation --distribution-id "${CLOUDFRONT_ID}" --paths "${CLOUDFRONT_PATHS}")"
+step_ok
+
+#
+finished_ok

@@ -1,0 +1,45 @@
+<!--
+
+<div class="blog-masthead">
+    <div class="container">
+        <nav class="nav blog-nav">
+            <a class="nav-link {{ if .IsHome }}active{{ end }}" href="/#">{{ i18n "home" }}</a>
+            {{- $currentURL := .URL | absLangURL -}}
+            {{ if .Site.Params.custom_navbar }}
+            {{ range .Site.Menus.navbar }}
+            {{ $menuURL := .URL | absLangURL }}
+            <a class="nav-link{{ if eq $menuURL $currentURL }} active{{ end }}" href="{{.URL | absURL }}">{{ .Name }}</a>
+            {{ end }}
+            {{ else }}
+            {{ range where .Site.RegularPages "Type" "!=" "post" }}
+            {{ $permalinkURL := .Permalink | absLangURL }}
+            <a class="nav-link{{ if eq $permalinkURL $currentURL }} active{{ end }}" href="{{ .Permalink }}">{{ .Title }}</a>
+            {{ end }}
+            {{ end }}
+        </nav>
+    </div>
+</div>
+-->
+
+<div class="container">
+  <nav class="navbar navbar-toggleable-md navbar-light navbar-XJ">
+    <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse"
+            data-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false"
+            aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <a class="navbar-brand" href="/#"><img src="/images/xj-logo-black.png" alt="XJ™"/></a>
+
+    <div class="collapse navbar-collapse" id="navbarMain">
+      <ul class="navbar-nav ml-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="/categories/musical/">Musical</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/categories/legal/">Legal</a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+</div>

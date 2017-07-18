@@ -1,0 +1,9 @@
+{{ $dateFormat := default "Mon Jan 2, 2006" (index .Site.Params "date_format") }}
+
+<article>
+  <header>
+    <h1>{{ .Title | markdownify }}</h1>
+  </header>
+  {{ .Content }}
+
+</article>

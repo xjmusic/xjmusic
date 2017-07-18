@@ -13,15 +13,10 @@ Router.map(function () {
   this.route('login');
   this.route('logout');
   this.route('unauthorized');
-  this.route('docs', docs);
 });
 
 function users() {
   this.route('one', {path: '/:user_id'});
-}
-
-function docs() {
-  this.route('one', {path: '/:doc_key'});
 }
 
 function accounts() {

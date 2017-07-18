@@ -1,0 +1,140 @@
+/* ==========================================================================
+   Author's custom styles
+   ========================================================================== */
+
+body {
+  font-family: 'Merriweather', serif;
+  background-color: #ffffff;
+}
+
+label {
+  font-weight: 500;
+}
+
+.btn {
+  cursor: pointer;
+}
+
+img {
+  width: 100%;
+  height: auto;
+}
+
+sup {
+  vertical-align: super;
+  font-size: 0.5em;
+}
+
+p {
+  margin-bottom: 1.3rem;
+  line-height: 1.8rem;
+}
+
+@media (min-width: 992px) {
+  p {
+    font-size: 1.05em;
+  }
+}
+
+/*
+ Global Header
+ */
+
+.navbar-brand img {
+  width: 30px;
+  height: 30px;
+}
+
+.navbar-nav .nav-item {
+  text-align: right;
+}
+
+.navbar-XJ {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.navbar-XJ .navbar-toggler-right {
+  right: 0;
+}
+
+.navbar-XJ a {
+  color: #202020;
+}
+
+/*
+Global Footer
+ */
+
+footer {
+  margin-top: 6em;
+}
+
+/*
+List
+*/
+
+.card {
+  margin-bottom: 2em;
+}
+
+.card .card-img-top {
+  height: 14em;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
+}
+
+/*
+Signup Form
+ */
+
+.asterisk {
+  color: green;
+}
+
+/*
+Single
+ */
+
+.single {
+  margin-top: 20px;
+  background: #ffffff;
+}
+
+.image-header {
+  height: 20em;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
+}
+
+article header {
+  width: 100%;
+  margin: 0.5em 0 0 0;
+  color: #202020;
+}
+
+article header h1 {
+  margin-bottom: 0.6em;
+}
+
+.space-above {
+  margin-top: 20px;
+}
+
+.space-below {
+  margin-bottom: 2em;
+}
+
+iframe {
+  width: 100%;
+}
+
+.summary {
+  margin-top:3em;
+}
+
+.headline {
+  line-height: 3.3rem;
+}

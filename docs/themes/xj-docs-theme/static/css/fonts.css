@@ -1,0 +1,9 @@
+@font-face {
+  font-family: Merriweather;
+  src: local("Merriweather Regular"),
+  local("Merriweather-Regular"),
+  url(/fonts/Merriweather-Regular.ttf);
+  font-weight: 400;
+}
+
+
