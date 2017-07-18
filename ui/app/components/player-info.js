@@ -4,11 +4,11 @@ import Ember from 'ember';
 export default Ember.Component.extend({
 
   // Inject: chain-link player service
-  play: Ember.inject.service(),
+  player: Ember.inject.service(),
 
   actions: {
     stop() {
-      this.get('play').stop();
+      this.get('player').stop();
     }
   }
 

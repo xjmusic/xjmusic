@@ -24,6 +24,7 @@ export default Ember.Object.extend({
   audioContext: null,
   binaryResource: null,
   linkId: null,
+  linkOffset: null,
   waveformUrl: '',
   beginTime: 0,
   timeOffset: 0,
@@ -41,7 +42,7 @@ export default Ember.Object.extend({
         this.playWebAudio();
       });
     } else {
-      console.error('invalid waveform url: ' + this.get('waveformUrl'));
+      this.error('invalid waveform url: ' + this.get('waveformUrl'));
     }
   },
 
@@ -51,23 +52,30 @@ export default Ember.Object.extend({
   playWebAudio() {
     // cannot begin before 0
     if (this.get('beginTime') < 0) {
-      console.warn('cannot play WebAudio', this,
+      this.warn('cannot play WebAudio', this,
         'at beginTime', this.get('beginTime'));
       return;
     }
 
+/*
     // cannot have offset
-    if (this.get('timeOffset')>0) {
-     console.warn('currently, playing WebAudio from offset is not functioning as designed! There will be a delay playing the first link. See: https://trello.com/c/8MUci0yz');
-     return;
+    if (this.get('timeOffset') > 0) {
+      this.warn('currently, playing WebAudio from offset is not functioning as designed! There will be a delay playing the first link. See: https://trello.com/c/8MUci0yz',
+        'currentTime', this.get('audioContext').currentTime,
+        'beginTime', this.get('beginTime'),
+        'timeOffset', this.get('timeOffset'));
+      return;
     }
-    console.debug('playing WebAudio for link ' + this.get('linkId'),
-      'currentTime', this.get('audioContext').currentTime,
-      'beginTime', this.get('beginTime'),
-      'timeOffset', this.get('timeOffset'));
+*/
 
     // sound starts precisely via direct message sent to WebAudio
     this.get('bufferSource').start(this.get('beginTime'), this.get('timeOffset'));
+
+    // log
+    this.debug('playing WebAudio',
+      'currentTime', this.get('audioContext').currentTime,
+      'beginTime', this.get('beginTime'),
+      'timeOffset', this.get('timeOffset'));
   },
 
   /**
@@ -89,7 +97,7 @@ export default Ember.Object.extend({
   loadAudio(onSuccess) {
     let self = this;
 
-    console.debug('[play] loading buffer source for Link #' + self.get('linkId') + '...');
+    this.debug('loading buffer source...');
     self.get('binaryResource').sendXHR('GET', self.get('waveformUrl'))
       .then((audioData) => {
           self.get('audioContext').decodeAudioData(audioData, function (buffer) {
@@ -97,15 +105,15 @@ export default Ember.Object.extend({
               bufferSource.buffer = buffer;
               bufferSource.connect(self.get('audioContext').destination);
               self.set('bufferSource', bufferSource);
-              console.debug('[play] loaded buffer source for Link #' + self.get('linkId') + '.');
+              self.debug('loaded buffer source');
               onSuccess();
             },
             (error) => {
-              console.error('Failed to decode audio data for Link # ' + self.get('linkId'), error);
+              self.error('Failed to decode audio data', error);
             });
         },
         (error) => {
-          console.error('Failed to load link audio buffer', error);
+          self.error('Failed to load link audio buffer', error);
         }
       );
   },
@@ -123,6 +131,52 @@ export default Ember.Object.extend({
   isPlaying() {
     return this.get('beginTime') < this.get('audioContext').currentTime &&
       this.get('endTime') > this.get('audioContext').currentTime;
-  }
+  },
+
+  /**
+   log a debug-level message
+   * @param message
+   * @param args
+   */
+  debug(message, ...args) {
+    this.log('debug', message, ...args);
+  },
+
+  /**
+   log a info-level message
+   * @param message
+   * @param args
+   */
+  info(message, ...args) {
+    this.log('info', message, ...args);
+  },
+
+  /**
+   log a warn-level message
+   * @param message
+   * @param args
+   */
+  warn(message, ...args) {
+    this.log('warn', message, ...args);
+  },
+
+  /**
+   log an error-level message
+   * @param message
+   * @param args
+   */
+  error(message, ...args) {
+    this.log('error', message, ...args);
+  },
+
+  /**
+   log any level of message
+   * @param message
+   * @param level
+   * @param args
+   */
+  log(level, message, ...args) {
+    console[level]('[player-link-' + this.get('linkOffset') + '] ' + message, ...args);
+  },
 
 });

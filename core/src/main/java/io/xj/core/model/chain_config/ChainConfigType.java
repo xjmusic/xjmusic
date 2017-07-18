@@ -20,14 +20,13 @@ public enum ChainConfigType {
   OutputEncoding,
   OutputContainer;
 
-  private final static Map<ChainConfigType, String> DEFAULT_VALUES = ImmutableMap.<ChainConfigType, String>builder()
+  private static final Map<ChainConfigType, String> DEFAULT_VALUES = ImmutableMap.<ChainConfigType, String>builder()
     .put(OutputSampleBits, "16")
     .put(OutputFrameRate, "48000")
     .put(OutputChannels, "2")
     .put(OutputEncoding, AudioFormat.Encoding.PCM_SIGNED.toString())
     .put(OutputContainer, "MP3")
     .build();
-
 
   /**
    cast string to chain config type enum
@@ -43,7 +42,7 @@ public enum ChainConfigType {
     try {
       return valueOf(typeString);
     } catch (Exception e) {
-      throw new BusinessException("'" + typeString + "' is not a valid type (" + CSV.joinEnum(ChainConfigType.values()) + ").");
+      throw new BusinessException("'" + typeString + "' is not a valid type (" + CSV.joinEnum(ChainConfigType.values()) + ").", e);
     }
   }
 

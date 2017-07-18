@@ -19,7 +19,8 @@ import java.net.URI;
 /**
  ALL APPLICATION CONSTANTS MUST IMPLEMENT THIS CENTRAL CLASS.
  */
-public abstract class Exposure {
+public enum Exposure {
+  ;
 
   // wrapError message as JSON output payload.
   public static final String KEY_ERROR_DETAIL = "detail";

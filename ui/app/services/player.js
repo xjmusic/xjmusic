@@ -1,23 +1,43 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 import Ember from "ember";
-import LinkAudio from "./play/link-audio";
+import LinkAudio from "./player/link-audio";
 import Moment from "moment";
 import RSVP from "rsvp";
 
 const STANDBY = 'Standby';
 const PLAYING = 'Playing';
 
-const STOP_DELAY_SECONDS = 0.5;
+/**
+ Seconds to delay during a stop action
+ note a stop-play cycle is 2x this
+ * @type {number}
+ */
+const STOP_DELAY_SECONDS = 0.25;
+
+/**
+ Seconds to begin playback into the future from current time when playback is requested.
+ This prevents the currentTime from being after the the requested audio playback start time,
+ which (it turns out) results in a late playback beginning
+ * @type {number}
+ */
+const PLAY_PREROLL_SECONDS = 2; // ensure that we leave room between the first playback
+
+/**
+ Seconds between Main interval cycles
+ * @type {number}
+ */
 const CYCLE_MAIN_INTERVAL_SECONDS = 10;
+
+/**
+ Seconds between Sub interval cycles
+ * @type {number}
+ */
 const CYCLE_SUB_INTERVAL_SECONDS = 1;
 
 /**
  Player service
  */
 export default Ember.Service.extend({
-
-  // Player
-  player: null,
 
   // State, Chain Link
   state: STANDBY,
@@ -41,10 +61,10 @@ export default Ember.Service.extend({
   audioContext: newAudioContext(),
 
   // now-playing chain
-  chain: null,
+  currentChain: null,
 
   // now-playing link
-  link: null,
+  currentLink: null,
 
   // all active links
   activeLinks: [],
@@ -96,12 +116,12 @@ export default Ember.Service.extend({
     self.stop().then(() => {
 
         // set the new play-from data
-        self.set('playFromContextTime', self.get('audioContext').currentTime);
-        self.set('playFromSecondsUTC', self.computePlayFromSecondsUTC());
+        self.set('playFromContextTime', self.get('audioContext').currentTime + PLAY_PREROLL_SECONDS);
+        self.set('playFromSecondsUTC', self.computePlayFromSecondsUTC(chain, link));
 
         // set the chain+link play request
-        self.set('chain', chain);
-        self.set('link', link);
+        self.set('currentChain', chain);
+        self.set('currentLink', link);
 
         // now playing
         self.set('state', PLAYING);
@@ -123,29 +143,13 @@ export default Ember.Service.extend({
   stop() {
     let self = this;
     return new RSVP.Promise((resolve, reject) => {
-      this.close().then(() => {
-        self.set('chain', null);
-        self.set('link', null);
+      self.stopAllLinkAudio().then(() => {
+        self.set('currentChain', null);
+        self.set('currentLink', null);
         self.set('state', STANDBY);
+        self.teardownLinkAudioExcept([]);
         Ember.run.later(resolve, STOP_DELAY_SECONDS * MILLISECONDS_PER_SECOND);
       }, reject);
-    });
-  },
-
-  /**
-   close player
-   clear the cycle from happening any more
-   teardown all link audio
-   @returns {RSVP.Promise}
-   */
-  close() {
-    return new RSVP.Promise((resolve, reject) => {
-      try {
-        this.teardownLinkAudioExcept([]);
-        resolve();
-      } catch (e) {
-        reject(e);
-      }
     });
   },
 
@@ -153,7 +157,7 @@ export default Ember.Service.extend({
    Do Main Cycle every N seconds
    */
   doMainCycle() {
-    if (this.get('chain') !== null) {
+    if (this.get('currentChain') !== null) {
       this.refreshDataThenUpdate();
     }
   },
@@ -162,7 +166,7 @@ export default Ember.Service.extend({
    do Sub Cycle every N seconds
    */
   doSubCycle() {
-    if (this.get('chain') !== null) {
+    if (this.get('currentChain') !== null) {
       this.update();
     }
   },
@@ -174,12 +178,12 @@ export default Ember.Service.extend({
     let self = this;
     let fromSecondsUTC = Math.floor(this.get('playFromSecondsUTC') + this.currentTime()); // must be integer for xj API here
     this.get('store').query('link', {
-      chainId: self.get('chain').get('id'),
+      chainId: self.get('currentChain').get('id'),
       fromSecondsUTC: fromSecondsUTC
     }).then(
       (links) => {
-        this.set('activeLinks', links);
-        this.update();
+        self.set('activeLinks', links);
+        self.update();
       },
       (error) => {
         console.error('Error loading Chain and Links', error);
@@ -214,6 +218,7 @@ export default Ember.Service.extend({
         audioContext: this.get('audioContext'),
         binaryResource: this.get('binaryResource'),
         linkId: link.get('id'),
+        linkOffset: link.get('offset'),
         waveformUrl: this.get('linkBaseUrl') + link.get('waveformKey'),
         beginTime: this.computeBeginTime(link),
         timeOffset: this.computeTimeOffset(link),
@@ -223,22 +228,39 @@ export default Ember.Service.extend({
       this.get('linkAudios').set(linkId, linkAudio);
     }
     if (linkAudio.isPlaying()) {
-      this.set('link', link);
+      this.set('currentLink', link);
     }
   },
 
   /**
    garbage collection routine deletes any buffer source that is not in the current set of link ids
-   Stop all LinkAudio buffer source playback via WebAudio API
 
    * @param activeLinkIds
    */
   teardownLinkAudioExcept(activeLinkIds) {
+    let self = this;
     this.get('linkAudios').forEach((linkAudio, linkId) => {
       if (!stringInArray(linkId.toString(), activeLinkIds)) {
-        linkAudio.stopWebAudio();
-        this.get('linkAudios').delete(linkId);
-        console.log("[play] tore down de-referenced link id:" + linkId);
+        self.get('linkAudios').delete(linkId);
+        console.log("[player] tore down de-referenced link id:" + linkAudio.get('linkOffset'));
+      }
+    });
+  },
+
+  /**
+   Stop all LinkAudio buffer source playback via WebAudio API
+   @returns {RSVP.Promise}
+   */
+  stopAllLinkAudio() {
+    let self = this;
+    return new RSVP.Promise((resolve, reject) => {
+      try {
+        self.get('linkAudios').forEach((linkAudio) => {
+          linkAudio.stopWebAudio();
+        });
+        Ember.run.later(resolve, STOP_DELAY_SECONDS * MILLISECONDS_PER_SECOND);
+      } catch (e) {
+        reject(e);
       }
     });
   },
@@ -299,10 +321,9 @@ export default Ember.Service.extend({
    */
   computeBeginTime(link) {
     let beginTimeRelative = this.computeBeginTimeRelative(link);
-    if (beginTimeRelative > 0) {
+    if (beginTimeRelative >= 0) {
       return this.get('playFromContextTime') + beginTimeRelative;
     } else {
-      console.warn("beginTime 0 to compensate for beginTimeRelative", beginTimeRelative);
       return this.get('playFromContextTime');
     }
   },
@@ -314,10 +335,9 @@ export default Ember.Service.extend({
    */
   computeTimeOffset(link) {
     let beginTimeRelative = this.computeBeginTimeRelative(link);
-    if (beginTimeRelative > 0) {
+    if (beginTimeRelative >= 0) {
       return 0;
     } else {
-      console.warn("timeOffset to compensate for beginTimeRelative", beginTimeRelative);
       return -beginTimeRelative;
     }
   },
@@ -344,19 +364,18 @@ export default Ember.Service.extend({
   /**
    Compute play-from-seconds UTC depending on the request to play
    */
-  computePlayFromSecondsUTC() {
-    let chain = this.get('chain');
-    let link = this.get('link');
+  computePlayFromSecondsUTC(chain, link) {
 
     if (link !== undefined && link !== null) {
       return this.secondsUTC(link.get('beginAt'));
     }
 
-    if (chain !== undefined && chain !== null && chain.get('stopAt') !== null) {
+    if (chain !== undefined && chain !== null && chain.get('stopAt') !== undefined) {
+      let startAt = this.secondsUTC(chain.get('startAt'));
       let stopAt = this.secondsUTC(chain.get('stopAt'));
       if (stopAt > 0 && stopAt < this.nowSecondsUTC()) {
         // When playing a Chain that has an end time in the past, play it from its beginning.
-        return this.secondsUTC(chain.get('startAt'));
+        return this.secondsUTC(startAt);
       } else {
         // When playing a Chain that has no end time or an and time in the future, play it from now
         return this.nowSecondsUTC();

@@ -7,14 +7,14 @@ export default Ember.Route.extend({
   display: Ember.inject.service(),
 
   // Inject: chain-link player service
-  play: Ember.inject.service(),
+  player: Ember.inject.service(),
 
   /**
    Route Actions
    */
   actions: {
     play(chain) {
-      this.get('play').play(chain, null);
+      this.get('player').play(chain, null);
     }
   },
 

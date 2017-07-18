@@ -7,6 +7,6 @@ export default Ember.Controller.extend({
    Inject: chain-link player service, implemented directly by the template in order to
    [#279] Now-playing Chain or Link appears highlighted
    */
-  play: Ember.inject.service(),
+  player: Ember.inject.service(),
 
 });

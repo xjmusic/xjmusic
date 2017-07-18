@@ -13,7 +13,7 @@ export default Ember.Route.extend({
   display: Ember.inject.service(),
 
   // Inject: chain-link player service
-  play: Ember.inject.service(),
+  player: Ember.inject.service(),
 
   // for keeping track of the auto-refresh interval
   refreshInteval: null,
@@ -26,7 +26,7 @@ export default Ember.Route.extend({
    */
   actions: {
     play(chain, link) {
-      this.get('play').play(chain, link);
+      this.get('player').play(chain, link);
     }
   },
 

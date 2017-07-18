@@ -25,14 +25,14 @@
     <!-- Play Chain -->
     {{#if (or (eq model.state "fabricating") (eq model.state "complete"))}}
       <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
-        <div class="{{if (eq play.chain.id model.id)
+        <div class="{{if (eq player.currentChain.id model.id)
                          'now-playing'}} play-chain container-fluid">
           <table>
             <tbody>
             <tr class="row">
               <th class="align-middle">
-                {{#if (eq play.chain.id model.id)}}
-                  {{play.state}}
+                {{#if (eq player.currentChain.id model.id)}}
+                  {{player.state}}
                 {{else}}
                   Play
                 {{/if}}

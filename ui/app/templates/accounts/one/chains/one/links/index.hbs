@@ -30,7 +30,7 @@
         </thead>
         <tbody>
         {{#each model.links as |link|}}
-          <tr class="item {{link.state}}-state {{if (eq play.link.id link.id) 'now-playing'}}">
+          <tr class="item {{link.state}}-state {{if (eq player.currentLink.id link.id) 'now-playing'}}">
             <th>{{#link-to "accounts.one.chains.one.links.one" link}}{{link.offset}}{{/link-to}}</th>
             <td>{{link.state}}</td>
             <td>{{link.endAt}}</td>
