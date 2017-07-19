@@ -52,10 +52,10 @@ function optionsForEnvironment(environment) {
         content: urlForEnvironment(environment)
       },
       'footer': {
-        content: stripHandlebars('app/templates/components/global-footer.hbs')
+        content: loadContentFromHTML('app/templates/components/global-footer.hbs')
       },
       'marketing': {
-        content: stripHandlebars('app/templates/static/marketing.hbs')
+        content: loadContentFromHTML('app/templates/static/marketing.hbs')
       }
     }
   };
@@ -132,12 +132,20 @@ function importDependencies(app, environment) {
  [#314] Placeholder content index.html page should not have handlebars blocks
  * @param path
  */
-function stripHandlebars(path) {
+function loadContentFromHTML(path) {
   let content = fs.readFileSync(path, 'utf8');
   if (content && content.length > 0) {
     return content
+
+    // replace year with this year
       .replace(/{{year}}/g, new Date().getFullYear().toString())
-      .replace(/{{[^}]+}}/g, '');
+
+      // strip handlebars blocks
+      .replace(/{{[^}]+}}/g, '')
+
+      // strip html comments handlebars blocks
+      .replace(/<!--[\s\S]*?-->/g, '');
+
   } else {
     return '';
   }

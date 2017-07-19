@@ -20,7 +20,7 @@ const STOP_DELAY_SECONDS = 0.25;
  which (it turns out) results in a late playback beginning
  * @type {number}
  */
-const PLAY_PREROLL_SECONDS = 2; // ensure that we leave room between the first playback
+const PLAY_PREROLL_SECONDS = 3; // ensure that we leave room between the first playback
 
 /**
  Seconds between Main interval cycles

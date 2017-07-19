@@ -6,14 +6,14 @@
 # Must not have outstanding git changes
 gitcheck ${PWD} || exit 1
 
-# Build Web Front-end
-bin/ui-build || exit 1
-
 # Run Integration Tests
 bin/verify || exit 1
 
 # Build Java Platform
 bin/package || exit 1
+
+# Build Web Front-end
+bin/ui-build || exit 1
 
 # Package the release for AWS Elastic Beanstalk
 bin/release-eb || exit 1
