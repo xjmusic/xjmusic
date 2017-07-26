@@ -50,7 +50,7 @@ public class AmazonProviderImpl implements AmazonProvider {
 
   @Override
   public String generateKey(String filename, String extension) {
-    return filename + Exposure.FILE_SEPARATOR + tokenGenerator.generateShort() +
+    return tokenGenerator.generateShort() + Exposure.FILE_SEPARATOR + filename +
       Exposure.FILE_DOT + extension;
   }
 

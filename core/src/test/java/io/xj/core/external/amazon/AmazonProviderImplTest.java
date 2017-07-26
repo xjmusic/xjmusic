@@ -72,7 +72,7 @@ public class AmazonProviderImplTest {
 
     String url = amazonProvider.generateKey("file-name", "wav");
 
-    assertEquals("file-name-token123.wav", url);
+    assertEquals("token123-file-name.wav", url);
   }
 
   @Test
