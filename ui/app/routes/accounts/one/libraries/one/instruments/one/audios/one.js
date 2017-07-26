@@ -19,6 +19,6 @@ export default Ember.Route.extend({
     Ember.set(this, 'breadCrumb', {
       title: model.get("name")
     });
-  }
-
+  },
+  
 });

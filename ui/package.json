@@ -45,6 +45,7 @@
     "ember-crumbly": "1.0.6",
     "ember-data": "^2.13.0",
     "ember-export-application-global": "^2.0.0",
+    "ember-font-awesome": "^3.0.5",
     "ember-load-initializers": "^1.0.0",
     "ember-message-bus": "0.3.3",
     "ember-moment": "7.3.0",

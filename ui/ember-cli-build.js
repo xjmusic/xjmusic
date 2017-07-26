@@ -103,6 +103,9 @@ function importDependencies(app, environment) {
   switch (environment) {
 
     case "production":
+      // Wavesurfer
+      app.import('bower_components/wavesurfer.js/dist/wavesurfer.min.js');
+
       // Tether
       app.import('bower_components/tether/dist/css/tether.min.css');
       app.import('bower_components/tether/dist/js/tether.min.js');
@@ -115,6 +118,9 @@ function importDependencies(app, environment) {
       break;
 
     default:
+      // Wavesurfer
+      app.import('bower_components/wavesurfer.js/dist/wavesurfer.js');
+
       // Tether
       app.import('bower_components/tether/dist/css/tether.css');
       app.import('bower_components/tether/dist/js/tether.js');
@@ -126,6 +132,13 @@ function importDependencies(app, environment) {
       app.import('bower_components/bootstrap/dist/js/bootstrap.js');
       break;
   }
+
+  // Runs in any environment
+  app.import('vendor/shims/wavesurfer.js', {
+    exports: {
+      'wavesurfer': [ 'default' ]
+    }
+  });
 }
 
 /**
