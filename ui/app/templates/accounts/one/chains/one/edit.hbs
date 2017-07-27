@@ -27,7 +27,7 @@
 
 {{#if auth.isAdmin}}
   <!-- Lower Container -->
-  <div class="form-horizontal container">
+  <div class="form-horizontal container danger-zone danger-zone">
 
     {{#if (or (eq "draft" model.chain.state) (eq "complete" model.chain.state) (eq "failed" model.chain.state))}}
       <!-- Header -->

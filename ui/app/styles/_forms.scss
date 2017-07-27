@@ -55,3 +55,20 @@ fieldset{
 select {
   background: #444;
 }
+
+.danger-zone {
+  hr {
+    border-top: 4px #3a0000 solid;
+  }
+  h1,h2,h3,h4,h5,h6,p {
+    color: #c00000;
+  }
+  .btn-danger{
+    border-radius: 0;
+    border: 0 none;
+    background: transparent none;
+    padding: 0;
+    color: #ff2222;
+    text-decoration: underline;
+  }
+}
