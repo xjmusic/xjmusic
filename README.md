@@ -341,25 +341,25 @@ Also remember, it is necessary to send an authentication cookie in the header of
 
 Note that after an audio file is uploaded, it can be played back (on a GNU/Linux system) like:
 
-    curl https://s3.amazonaws.com/xj.audio.dev/instrument-1-audio-6d958fbf-4507-458a-9ab3-dfdf04dc0ba8.wav | aplay
+    curl https://s3.amazonaws.com/xj-dev-audio/62536d52-8600-4941-ac04-a72106079610-instrument-5-audio.wav | aplay
 
 Here are the public-facing Amazon CloudFront-backed URLs for audio files, and their respective Amazon S3 backing:
 
-  * [https://audio.xj.io](https://audio.xj.io) is the production URL, backed by [https://xj.audio.s3.amazonaws.com](https://xj.audio.s3.amazonaws.com)
-  * [https://audio.stage.xj.io](https://audio.stage.xj.io) is the staging URL, backed by [https://xj.stage.audio.s3.amazonaws.com](https://xj.stage.audio.s3.amazonaws.com)
-  * [https://audio.dev.xj.io](https://audio.dev.xj.io) is the development URL, backed by [https://xj.dev.audio.s3.amazonaws.com](https://xj.dev.audio.s3.amazonaws.com)
+  * [https://audio.xj.io](https://audio.xj.io) is the production URL, backed by [https://xj-prod-audio.s3.amazonaws.com](https://xj-prod-audio.s3.amazonaws.com)
+  * [https://audio.stage.xj.io](https://audio.stage.xj.io) is the staging URL, backed by [https://xj-stage-audio.s3.amazonaws.com](https://xj-stage-audio.s3.amazonaws.com)
+  * [https://audio.dev.xj.io](https://audio.dev.xj.io) is the development URL, backed by [https://xj-dev-audio.s3.amazonaws.com](https://xj-dev-audio.s3.amazonaws.com)
 
 # Amazon S3
 
-The `example-database.sql` is generated from data in the production environment, and refers to audio files located in the production S3 bucket, xj.audio.
+The `example-database.sql` is generated from data in the production environment, and refers to audio files located in the production S3 bucket, xj-prod-audio.
 
 Therefore, it is helpful to be able to sync the audio files from production into the dev environment.
 
 **Note that this command will become impractical if production grows to any significant size!**
 
-    aws s3 sync s3://xj.audio/ s3://xj.dev.audio/
+    aws s3 sync s3://xj-prod-audio/ s3://xj-dev-audio/
 
-Note that in order to use that command, the source bucket (xj.audio) must grant `s3:ListBucket` and `s3:GetObject` permission, and the target bucket (xj.dev.audio) must grant `s3:ListBucket` and `s3:PutObject` to the IAM user your AWS CLI is authenticated as.
+Note that in order to use that command, the source bucket (xj-prod-audio) must grant `s3:ListBucket` and `s3:GetObject` permission, and the target bucket (xj-dev-audio) must grant `s3:ListBucket` and `s3:PutObject` to the IAM user your AWS CLI is authenticated as.
 
 ## Environment Variables
 

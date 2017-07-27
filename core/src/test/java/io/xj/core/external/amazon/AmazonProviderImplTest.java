@@ -34,7 +34,7 @@ public class AmazonProviderImplTest {
     System.setProperty("aws.secretKey", "jhfd897+jkhjHJJDKJF/908090JHKJJHhjhfg78h");
     System.setProperty("audio.file.upload.acl", "bucket-owner-full-control");
     System.setProperty("audio.file.upload.expire.minutes", "60");
-    System.setProperty("audio.file.bucket", "xj.dev.audio");
+    System.setProperty("audio.file.bucket", "xj-dev-audio");
 
     createInjector();
     amazonProvider = injector.getInstance(AmazonProvider.class);

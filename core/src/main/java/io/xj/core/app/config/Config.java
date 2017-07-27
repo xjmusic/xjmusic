@@ -4,6 +4,8 @@ package io.xj.core.app.config;
 import io.xj.core.app.exception.ConfigException;
 import io.xj.core.transport.CSV;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -37,6 +39,10 @@ public abstract class Config {
 
   public static String awsDefaultRegion() {
     return getOrDefault("aws.defaultRegion", "us-east-1");
+  }
+
+  public static int awsS3RetryLimit() {
+    return getIntOrDefault("aws.s3.retry.limit", 10);
   }
 
   public static int audioFileUploadExpireMinutes() throws ConfigException {
@@ -106,8 +112,9 @@ public abstract class Config {
   public static int chainDestroyLinksMax() {
     return getIntOrDefault("chain.destroy.links.max", 24);
   }
+
   public static String logAccessFilename() {
-    return getOrDefault("log.access.filename", "/tmp/access.log");
+    return getOrDefault("log.access.filename", getTempFilePathPrefix() + "access.log");
   }
 
   public static Integer logAccessEntitiesMaxsize() {
@@ -278,5 +285,18 @@ public abstract class Config {
       return defaultValue;
     }
   }
+
+  private static String getTempFilePathPrefix() {
+    String path = File.separator + "tmp" + File.separator;
+    try {
+      String absolutePath = File.createTempFile("temp-file-name", ".tmp").getAbsolutePath();
+      path = absolutePath.substring(0, absolutePath.lastIndexOf(File.separator)) + File.separator;
+
+    } catch (IOException e) {
+      // noop
+    }
+    return path;
+  }
+
 
 }

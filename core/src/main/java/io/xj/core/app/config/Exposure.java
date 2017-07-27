@@ -14,6 +14,7 @@ import com.google.common.collect.ImmutableList;
 
 import org.json.JSONObject;
 
+import java.io.File;
 import java.net.URI;
 
 /**
@@ -33,7 +34,7 @@ public enum Exposure {
   public static final String FILE_DOT = ".";
   public static final String FILE_INSTRUMENT = "instrument";
   public static final String FILE_SEPARATOR = "-";
-  public static final String FOLDER_SEPARATOR = "/";
+  public static final String FOLDER_SEPARATOR = File.separator;
 
   // key special resources (e.g. upload policy)
   public static final String KEY_UPLOAD_ACCESS_KEY = "awsAccessKeyId";

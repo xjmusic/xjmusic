@@ -17,21 +17,29 @@ public class AudioSample {
   // sample types
   static final String U8 = "u8"; // unsigned 8-bit integer
   static final String S8 = "s8"; // signed 8-bit integer
-  static final String U16LSB = "u16lsb"; // 16-bit unsigned integer, least-significant byte (LSB) order
-  static final String S16LSB = "s16lsb"; // 16-bit signed integer
-  static final String S32LSB = "s32lsb"; // 32-bit signed integer
-  static final String F32LSB = "f32lsb"; // 32-bit floating point
-  static final String F64LSB = "f64lsb"; // 64-bit floating point
-  static final String U16MSB = "u16msb"; // 16-bit unsigned integer, most-significant byte (MSB) order
-  static final String S16MSB = "s16msb"; // 16-bit signed integer
-  static final String S32MSB = "s32msb"; // 32-bit signed integer
-  static final String F32MSB = "f32msb"; // 32-bit floating point
-  static final String F64MSB = "f64msb"; // 64-bit floating point
+  static final String F32LSB = "f32lsb"; // 32-bit floating point, LSB order
+  static final String F32MSB = "f32msb"; // 32-bit floating point, MSB order
+  static final String F64LSB = "f64lsb"; // 64-bit floating point, LSB order
+  static final String F64MSB = "f64msb"; // 64-bit floating point, MSB order
+  static final String S16LSB = "s16lsb"; // 16-bit signed integer, LSB order
+  static final String S16MSB = "s16msb"; // 16-bit signed integer, MSB order
+  static final String S24LSB = "s24lsb"; // 24-bit signed integer, LSB order
+  static final String S24MSB = "s24msb"; // 24-bit signed integer, MSB order
+  static final String S32LSB = "s32lsb"; // 32-bit signed integer, LSB order
+  static final String S32MSB = "s32msb"; // 32-bit signed integer, MSB order
+  static final String U16LSB = "u16lsb"; // 16-bit unsigned integer, LSB order
+  static final String U16MSB = "u16msb"; // 16-bit unsigned integer, MSB order
 
   // format encoding types
   private static final AudioFormat.Encoding PCM_UNSIGNED = AudioFormat.Encoding.PCM_UNSIGNED;
   private static final AudioFormat.Encoding PCM_SIGNED = AudioFormat.Encoding.PCM_SIGNED;
   private static final AudioFormat.Encoding PCM_FLOAT = AudioFormat.Encoding.PCM_FLOAT;
+  public static final int SIGNED_16BIT_MAX = 0x8000;
+  public static final int SIGNED_24BIT_MAX = 0x800000;
+  public static final int SIGNED_32BIT_MAX = 0x80000000;
+  public static final int SIGNED_8BIT_MAX = 0x80;
+  public static final int UNSIGNED_16BIT_MAX = 0xffff;
+  public static final int UNSIGNED_8BIT_MAX = 0xff;
 
   /**
    Get the proprietary (to this class) type for output audio
@@ -88,6 +96,13 @@ public class AudioSample {
           return format.isBigEndian() ? S16MSB : S16LSB;
         } else {
           throw new FormatException("Unsupported 16-bit " + (isOutput ? "output " : "") + "encoding: " + encoding);
+        }
+
+      case 24:
+        if (!isOutput && encoding.equals(PCM_SIGNED)) {
+          return format.isBigEndian() ? S24MSB : S24LSB;
+        } else {
+          throw new FormatException("Unsupported 24-bit " + (isOutput ? "output " : "") + "encoding: " + encoding);
         }
 
       case 32:
@@ -164,6 +179,10 @@ public class AudioSample {
         return fromBytesS16LSB(value);
       case S16MSB:
         return fromBytesS16MSB(value);
+      case S24LSB:
+        return fromBytesS24LSB(value);
+      case S24MSB:
+        return fromBytesS24MSB(value);
       case S32LSB:
         return fromBytesS32LSB(value);
       case S32MSB:
@@ -188,7 +207,7 @@ public class AudioSample {
    @return encoded bytes
    */
   private static byte[] toBytesS8(double value) {
-    return new byte[]{(byte) (0x80 * value)};
+    return new byte[]{(byte) (SIGNED_8BIT_MAX * value)};
   }
 
   /**
@@ -198,7 +217,7 @@ public class AudioSample {
    @return encoded bytes
    */
   private static byte[] toBytesS16LSB(double value) {
-    return ByteBuffer.allocate(2).order(ByteOrder.LITTLE_ENDIAN).putShort((short) (0x8000 * value)).array();
+    return ByteBuffer.allocate(2).order(ByteOrder.LITTLE_ENDIAN).putShort((short) (SIGNED_16BIT_MAX * value)).array();
   }
 
   /**
@@ -208,7 +227,7 @@ public class AudioSample {
    @return encoded bytes
    */
   private static byte[] toBytesS16MSB(double value) {
-    return ByteBuffer.allocate(2).order(ByteOrder.BIG_ENDIAN).putShort((short) (0x8000 * value)).array();
+    return ByteBuffer.allocate(2).order(ByteOrder.BIG_ENDIAN).putShort((short) (SIGNED_16BIT_MAX * value)).array();
   }
 
   /**
@@ -218,7 +237,7 @@ public class AudioSample {
    @return encoded bytes
    */
   private static byte[] toBytesS32LSB(double value) {
-    return ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt((int) (0x80000000 * value)).array();
+    return ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt((int) (SIGNED_32BIT_MAX * value)).array();
   }
 
   /**
@@ -228,7 +247,7 @@ public class AudioSample {
    @return encoded bytes
    */
   private static byte[] toBytesS32MSB(double value) {
-    return ByteBuffer.allocate(4).order(ByteOrder.BIG_ENDIAN).putInt((int) (0x80000000 * value)).array();
+    return ByteBuffer.allocate(4).order(ByteOrder.BIG_ENDIAN).putInt((int) (SIGNED_32BIT_MAX * value)).array();
   }
 
   /**
@@ -280,7 +299,7 @@ public class AudioSample {
   private static double fromBytesU8(byte[] sample) {
     return (double) (ByteBuffer.wrap(sample)
       .order(ByteOrder.LITTLE_ENDIAN)
-      .get() & 0xff) / (double) 0x80 - 1;
+      .get() & UNSIGNED_8BIT_MAX) / (double) SIGNED_8BIT_MAX - 1;
   }
 
   /**
@@ -292,7 +311,7 @@ public class AudioSample {
   private static double fromBytesS8(byte[] sample) {
     return (double) ByteBuffer.wrap(sample)
       .order(ByteOrder.LITTLE_ENDIAN)
-      .get() / (double) 0x80;
+      .get() / (double) SIGNED_8BIT_MAX;
   }
 
   /**
@@ -304,7 +323,7 @@ public class AudioSample {
   private static double fromBytesU16LSB(byte[] sample) {
     return (double) (ByteBuffer.wrap(sample)
       .order(ByteOrder.LITTLE_ENDIAN)
-      .getShort() & 0xffff) / (double) 0x8000 - 1;
+      .getShort() & UNSIGNED_16BIT_MAX) / (double) SIGNED_16BIT_MAX - 1;
   }
 
   /**
@@ -316,7 +335,7 @@ public class AudioSample {
   private static double fromBytesU16MSB(byte[] sample) {
     return (double) (ByteBuffer.wrap(sample)
       .order(ByteOrder.BIG_ENDIAN)
-      .getShort() & 0xffff) / (double) 0x8000 - 1;
+      .getShort() & UNSIGNED_16BIT_MAX) / (double) SIGNED_16BIT_MAX - 1;
   }
 
   /**
@@ -328,7 +347,7 @@ public class AudioSample {
   private static double fromBytesS16LSB(byte[] sample) {
     return (double) ByteBuffer.wrap(sample)
       .order(ByteOrder.LITTLE_ENDIAN)
-      .getShort() / (double) 0x8000;
+      .getShort() / (double) SIGNED_16BIT_MAX;
   }
 
   /**
@@ -340,7 +359,39 @@ public class AudioSample {
   private static double fromBytesS16MSB(byte[] sample) {
     return (double) ByteBuffer.wrap(sample)
       .order(ByteOrder.BIG_ENDIAN)
+      .getShort() / (double) SIGNED_16BIT_MAX;
+  }
+
+  /**
+   from bytes encoded as 24-bit signed int LSB
+
+   @param sample to decode
+   @return value
+   */
+  private static double fromBytesS24LSB(byte[] sample) {
+    return (double) ((sample[2]) << 16 | (sample[1] & 0xFF) << 8 | (sample[0] & 0xFF)) / (double) SIGNED_24BIT_MAX;
+/*
+    return (double) ByteBuffer.wrap(sample)
+      .order(ByteOrder.LITTLE_ENDIAN)
       .getShort() / (double) 0x8000;
+*/
+  }
+
+
+  /**
+   from bytes encoded as 24-bit signed int MSB
+
+   @param sample to decode
+   @return value
+   */
+  private static double fromBytesS24MSB(byte[] sample) {
+    return (double) ((sample[0]) << 16 | (sample[1] & 0xFF) << 8 | (sample[2] & 0xFF)) / (double) SIGNED_24BIT_MAX;
+
+    /*
+    return (double) ByteBuffer.wrap(sample)
+      .order(ByteOrder.BIG_ENDIAN)
+      .getShort() / (double) 0x800000;
+*/
   }
 
   /**
@@ -352,7 +403,7 @@ public class AudioSample {
   private static double fromBytesS32LSB(byte[] sample) {
     return (double) ByteBuffer.wrap(sample)
       .order(ByteOrder.LITTLE_ENDIAN)
-      .getInt() / (double) 0x80000000;
+      .getInt() / (double) SIGNED_32BIT_MAX;
   }
 
   /**
@@ -364,7 +415,7 @@ public class AudioSample {
   private static double fromBytesS32MSB(byte[] sample) {
     return (double) ByteBuffer.wrap(sample)
       .order(ByteOrder.BIG_ENDIAN)
-      .getInt() / (double) 0x80000000;
+      .getInt() / (double) SIGNED_32BIT_MAX;
   }
 
   /**

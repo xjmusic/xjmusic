@@ -13,6 +13,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.model.S3Object;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -86,13 +87,19 @@ public class AmazonProviderImpl implements AmazonProvider {
 
   @Override
   public BufferedInputStream streamS3Object(String bucketName, String key) throws NetworkException {
-    try {
-      return new BufferedInputStream(s3Client()
-        .getObject(new GetObjectRequest(bucketName, key))
-        .getObjectContent());
+    AmazonS3 client = s3Client();
+    GetObjectRequest request = new GetObjectRequest(bucketName, key);
+    int count = 0;
+    int maxTries = Config.awsS3RetryLimit();
+    while (true) {
+      try {
+        return new BufferedInputStream(client.getObject(request).getObjectContent());
 
-    } catch (Exception e) {
-      throw new NetworkException("Failed to stream S3 object", e);
+      } catch (Exception e) {
+        ++count;
+        if (count == maxTries)
+          throw new NetworkException("Failed to stream S3 object", e);
+      }
     }
   }
 
@@ -102,7 +109,7 @@ public class AmazonProviderImpl implements AmazonProvider {
       long startedAt = System.nanoTime();
       s3Client().putObject(new PutObjectRequest(
         bucket, key, new File(filePath)));
-      log.info("Did ship {} to {}/{} OK in {}s", filePath, bucket,key, String.format("%.9f", (double) (System.nanoTime() - startedAt) / nanosInASecond));
+      log.info("Did ship {} to {}/{} OK in {}s", filePath, bucket, key, String.format("%.9f", (double) (System.nanoTime() - startedAt) / nanosInASecond));
 
     } catch (Exception e) {
       throw new NetworkException("Failed to put S3 object", e);
@@ -120,9 +127,9 @@ public class AmazonProviderImpl implements AmazonProvider {
   }
 
   /**
-   * Get an Amazon S3 client
-   *
-   * @return S3 client
+   Get an Amazon S3 client
+
+   @return S3 client
    */
   private AmazonS3 s3Client() {
     return AmazonS3ClientBuilder.standard()

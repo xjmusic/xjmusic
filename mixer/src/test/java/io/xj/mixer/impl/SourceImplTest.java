@@ -64,6 +64,17 @@ public class SourceImplTest {
   }
 
   @Test
+  public void load24BitSourceAudio() throws Exception {
+    mixerFactory.createSource(
+      "S24LSB_44100Hz_Stereo",
+      new BufferedInputStream(
+        new FileInputStream(
+          new InternalResource(
+            "test_audio/S24LSB_44100Hz_Stereo.wav"
+          ).getFile())));
+  }
+
+  @Test
   public void frameAt_F32LSB_48kHz_Stereo() throws Exception {
     double[] frameAt = F32LSB_48kHz_Stereo.frameAt(243, 0.9, 0, 2);
     assertArrayEquals(new double[]{-0.002029318059794605, -0.0013323662686161696}, frameAt, 0);
