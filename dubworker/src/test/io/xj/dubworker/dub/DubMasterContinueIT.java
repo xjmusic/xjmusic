@@ -131,7 +131,7 @@ public class DubMasterContinueIT {
     IntegrationTestEntity.insertInstrumentMeme(1,1,"heavy");
 
     // Audio "Kick"
-    IntegrationTestEntity.insertAudio(1, 1, "Published", "Kick", "https://static.xj.io/19801735098q47895897895782138975898.wav", 0.01, 2.123, 120.0, 440);
+    IntegrationTestEntity.insertAudio(1, 1, "Published", "Kick", "https://static.xj.io/19801735098q47895897895782138975898.wav/", 0.01, 2.123, 120.0, 440);
     IntegrationTestEntity.insertAudioEvent(1, 1, 2.5, 1, "KICK", "Eb", 0.8, 1.0);
 
     // Audio "Snare"

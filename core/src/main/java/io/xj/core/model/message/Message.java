@@ -2,11 +2,10 @@
 package io.xj.core.model.message;
 
 import io.xj.core.model.Entity;
+import io.xj.core.model.link_message.LinkMessage;
 import io.xj.core.util.Text;
 
 import org.jooq.types.ULong;
-
-import com.google.common.collect.ImmutableList;
 
 import java.math.BigInteger;
 import java.util.List;
@@ -21,20 +20,12 @@ import java.util.List;
  NOTE: There can only be ONE of any getter/setter (with the same # of input params)
  */
 abstract public class Message extends Entity {
-  public static final String DEBUG = "debug";
-  public static final String INFO = "info";
-  public static final String WARN = "warn";
-  public static final String ERROR = "error";
 
   /**
    It is implied that choice types must equal idea types
    */
-  public final static List<String> TYPES = ImmutableList.of(
-    DEBUG,
-    INFO,
-    WARN,
-    ERROR
-  );
+  public final static List<String> TYPES = MessageType.stringValues();
+
   /**
    For use in maps.
    */
@@ -62,15 +53,16 @@ abstract public class Message extends Entity {
     this.type = Text.LowerSlug(type);
     return this;
   }
+
   protected String body;
 
   public ULong getLinkId() {
     return linkId;
   }
 
-  public String getType() {
-    return type;
+  public MessageType getType() {
+    return MessageType.valueOf(type);
   }
 
-
+  public abstract LinkMessage setType(MessageType type);
 }

@@ -36,6 +36,7 @@ import io.xj.core.model.link_chord.LinkChord;
 import io.xj.core.model.link_meme.LinkMeme;
 import io.xj.core.model.link_message.LinkMessage;
 import io.xj.core.model.message.Message;
+import io.xj.core.model.message.MessageType;
 import io.xj.core.model.pick.Pick;
 import io.xj.core.tables.records.IdeaMemeRecord;
 import io.xj.core.tables.records.IdeaRecord;
@@ -567,7 +568,7 @@ public class BasisImpl implements Basis {
       linkMessageDAO.create(Access.internal(),
         new LinkMessage()
           .setLinkId(linkId().toBigInteger())
-          .setType(Message.INFO)
+          .setType(MessageType.Info)
           .setBody(body));
 
     } catch (Exception e) {

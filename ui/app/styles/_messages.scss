@@ -22,19 +22,19 @@
     }
   }
 
-  &.message-debug {
+  &.message-Debug {
     background-color: #636c72;
   }
 
-  &.message-info {
+  &.message-Info {
     background-color: darkgreen;
   }
 
-  &.message-warn {
+  &.message-Warning {
     background-color: darkorange;
   }
 
-  &.message-error {
+  &.message-Error {
     background-color: darkred;
   }
 

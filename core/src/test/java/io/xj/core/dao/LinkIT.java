@@ -14,7 +14,7 @@ import io.xj.core.model.choice.Choice;
 import io.xj.core.model.idea.Idea;
 import io.xj.core.model.instrument.Instrument;
 import io.xj.core.model.link.Link;
-import io.xj.core.model.message.Message;
+import io.xj.core.model.message.MessageType;
 import io.xj.core.model.voice.Voice;
 import io.xj.core.tables.records.LinkRecord;
 import io.xj.core.transport.JSON;
@@ -569,7 +569,7 @@ public class LinkIT {
     IntegrationTestEntity.insertLinkChord(25, 17, 0, "D major 7 b9");
 
     // Link Message
-    IntegrationTestEntity.insertLinkMessage(25, 17, Message.WARN, "Consider yourself warned");
+    IntegrationTestEntity.insertLinkMessage(25, 17, MessageType.Warning, "Consider yourself warned");
 
     // Choice
     IntegrationTestEntity.insertChoice(1, 17, 1, Choice.MACRO, 2, -5);

@@ -2,7 +2,7 @@
 package io.xj.core.model.link_message;
 
 import io.xj.core.app.exception.BusinessException;
-import io.xj.core.model.message.Message;
+import io.xj.core.model.message.MessageType;
 import io.xj.core.tables.records.LinkMessageRecord;
 
 import org.jooq.Field;
@@ -29,7 +29,7 @@ public class LinkMessageTest {
   public void validate() throws Exception {
     new LinkMessage()
       .setLinkId(BigInteger.valueOf(2))
-      .setType(Message.WARN)
+      .setType(MessageType.Warning)
       .setBody("This is a warning")
       .validate();
   }
@@ -40,7 +40,7 @@ public class LinkMessageTest {
     failure.expectMessage("Link ID is required");
 
     new LinkMessage()
-      .setType(Message.WARN)
+      .setType(MessageType.Warning)
       .setBody("This is a warning")
       .validate();
   }
@@ -75,7 +75,7 @@ public class LinkMessageTest {
 
     new LinkMessage()
       .setLinkId(BigInteger.valueOf(2))
-      .setType(Message.WARN)
+      .setType(MessageType.Warning)
       .validate();
   }
 
@@ -85,7 +85,7 @@ public class LinkMessageTest {
     record.setId(ULong.valueOf(12));
     record.setBody("This is a warning");
     record.setLinkId(ULong.valueOf(1235));
-    record.setType(Message.WARN);
+    record.setType(MessageType.Warning.toString());
     record.setCreatedAt(Timestamp.valueOf("2014-08-12 12:17:02.527142"));
     record.setUpdatedAt(Timestamp.valueOf("2014-09-12 12:17:01.047563"));
 
@@ -95,7 +95,7 @@ public class LinkMessageTest {
     assertNotNull(result);
     assertEquals("This is a warning", result.getBody());
     assertEquals(ULong.valueOf(1235), result.getLinkId());
-    assertEquals(Message.WARN, result.getType());
+    assertEquals(MessageType.Warning, result.getType());
     assertEquals(ULong.valueOf(12), result.getId());
     assertEquals(Timestamp.valueOf("2014-08-12 12:17:02.527142"), result.getCreatedAt());
     assertEquals(Timestamp.valueOf("2014-09-12 12:17:01.047563"), result.getUpdatedAt());
@@ -110,13 +110,13 @@ public class LinkMessageTest {
   public void intoFieldValueMap() throws Exception {
     Map<Field, Object> result = new LinkMessage()
       .setLinkId(BigInteger.valueOf(2))
-      .setType(Message.WARN)
+      .setType(MessageType.Warning)
       .setBody("This is a warning")
       .updatableFieldValueMap();
 
     assertEquals("This is a warning", result.get(LINK_MESSAGE.BODY));
     assertEquals(ULong.valueOf(2), result.get(LINK_MESSAGE.LINK_ID));
-    assertEquals(Message.WARN, result.get(LINK_MESSAGE.TYPE));
+    assertEquals(MessageType.Warning.toString(), result.get(LINK_MESSAGE.TYPE));
   }
 
 }

@@ -1,8 +1,8 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 package io.xj.core.model.link_message;
 
 import io.xj.core.app.exception.BusinessException;
 import io.xj.core.model.message.Message;
+import io.xj.core.model.message.MessageType;
 import io.xj.core.transport.CSV;
 import io.xj.core.util.Text;
 
@@ -36,16 +36,16 @@ public class LinkMessage extends Message {
 
   @Override
   public void validate() throws BusinessException {
-    if (this.linkId == null) {
+    if (null == linkId) {
       throw new BusinessException("Link ID is required.");
     }
-    if (this.type == null || this.type.length() == 0) {
+    if (null == type || type.length() == 0) {
       throw new BusinessException("Type is required.");
     }
-    if (!TYPES.contains(this.type)) {
+    if (!TYPES.contains(type)) {
       throw new BusinessException("'" + this.type + "' is not a valid type (" + CSV.join(TYPES) + ").");
     }
-    if (this.body == null || this.body.length() == 0) {
+    if (null == body || body.length() == 0) {
       throw new BusinessException("Body is required.");
     }
   }
@@ -86,8 +86,8 @@ public class LinkMessage extends Message {
   }
 
   @Override
-  public LinkMessage setType(String type) {
-    this.type = Text.LowerSlug(type);
+  public LinkMessage setType(MessageType type) {
+    this.type = Text.ProperSlug(type.toString());
     return this;
   }
 

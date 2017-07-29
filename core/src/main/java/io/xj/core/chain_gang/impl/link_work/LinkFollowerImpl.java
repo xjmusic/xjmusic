@@ -12,7 +12,7 @@ import io.xj.core.dao.LinkMessageDAO;
 import io.xj.core.model.chain.Chain;
 import io.xj.core.model.link.Link;
 import io.xj.core.model.link_message.LinkMessage;
-import io.xj.core.model.message.Message;
+import io.xj.core.model.message.MessageType;
 import io.xj.core.util.Text;
 
 import com.google.inject.assistedinject.Assisted;
@@ -125,7 +125,7 @@ public class LinkFollowerImpl implements Follower {
      */
     private void failure(Exception e) {
       try {
-        linkMessageDAO.create(Access.internal(), newLinkMessage(Message.ERROR, e));
+        linkMessageDAO.create(Access.internal(), newLinkMessage(MessageType.Error, e));
 
         linkDAO.updateState(Access.internal(), link.getId(), Link.FAILED);
         log.error("LinkWorker[" + Thread.currentThread().getName() + "] updated link {} to FAILED state, on exception: {}", link, e);
@@ -154,7 +154,7 @@ public class LinkFollowerImpl implements Follower {
      @param e    exception
      @return new link message
      */
-    private LinkMessage newLinkMessage(String type, Exception e) {
+    private LinkMessage newLinkMessage(MessageType type, Exception e) {
       return new LinkMessage()
         .setLinkId(link.getId().toBigInteger())
         .setType(type)

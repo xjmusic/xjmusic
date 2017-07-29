@@ -6,6 +6,7 @@ import io.xj.core.model.chain.Chain;
 import io.xj.core.model.chain_config.ChainConfigType;
 import io.xj.core.model.idea.Idea;
 import io.xj.core.model.link.Link;
+import io.xj.core.model.message.MessageType;
 import io.xj.core.tables.records.AccountRecord;
 import io.xj.core.tables.records.AccountUserRecord;
 import io.xj.core.tables.records.ArrangementRecord;
@@ -419,11 +420,11 @@ public abstract class IntegrationTestEntity {
     record.store();
   }
 
-  public static void insertLinkMessage(int id, int linkId, String type, String body) {
+  public static void insertLinkMessage(int id, int linkId, MessageType type, String body) {
     LinkMessageRecord record = IntegrationTestService.getDb().newRecord(LINK_MESSAGE);
     record.setId(ULong.valueOf(id));
     record.setLinkId(ULong.valueOf(linkId));
-    record.setType(type);
+    record.setType(type.toString());
     record.setBody(body);
     record.store();
   }

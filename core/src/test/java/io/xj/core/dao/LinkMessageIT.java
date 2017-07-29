@@ -9,7 +9,7 @@ import io.xj.core.integration.IntegrationTestService;
 import io.xj.core.model.chain.Chain;
 import io.xj.core.model.link.Link;
 import io.xj.core.model.link_message.LinkMessage;
-import io.xj.core.model.message.Message;
+import io.xj.core.model.message.MessageType;
 import io.xj.core.tables.records.LinkMessageRecord;
 
 import org.jooq.Result;
@@ -57,10 +57,10 @@ public class LinkMessageIT {
     IntegrationTestEntity.insertLink_Planned(5, 1, 4, Timestamp.valueOf("1985-02-14 12:03:08.000001"));
 
     // One link already has a message
-    IntegrationTestEntity.insertLinkMessage(12, 1, Message.INFO, "Consider yourself informed.");
-    IntegrationTestEntity.insertLinkMessage(14, 1, Message.WARN, "Consider yourself warned, too.");
-    IntegrationTestEntity.insertLinkMessage(15, 2, Message.INFO, "Others were informed.");
-    IntegrationTestEntity.insertLinkMessage(16, 3, Message.INFO, "Even further persons were warned twice.");
+    IntegrationTestEntity.insertLinkMessage(12, 1, MessageType.Info, "Consider yourself informed.");
+    IntegrationTestEntity.insertLinkMessage(14, 1, MessageType.Warning, "Consider yourself warned, too.");
+    IntegrationTestEntity.insertLinkMessage(15, 2, MessageType.Info, "Others were informed.");
+    IntegrationTestEntity.insertLinkMessage(16, 3, MessageType.Info, "Even further persons were warned twice.");
 
     // Instantiate the test subject
     testDAO = injector.getInstance(LinkMessageDAO.class);
@@ -75,12 +75,12 @@ public class LinkMessageIT {
   public void create() throws Exception {
     LinkMessageRecord result = testDAO.create(Access.internal(), new LinkMessage()
       .setLinkId(BigInteger.valueOf(2))
-      .setType(Message.WARN)
+      .setType(MessageType.Warning)
       .setBody("This is a warning"));
 
     assertNotNull(result);
     assertEquals(ULong.valueOf(2), result.getLinkId());
-    assertEquals(Message.WARN, result.getType());
+    assertEquals(MessageType.Warning.toString(), result.getType());
     assertEquals("This is a warning", result.getBody());
   }
 
@@ -90,7 +90,7 @@ public class LinkMessageIT {
     failure.expectMessage("Link ID is required");
 
     testDAO.create(Access.internal(), new LinkMessage()
-      .setType(Message.WARN)
+      .setType(MessageType.Warning)
       .setBody("This is a warning"));
   }
 
@@ -101,7 +101,7 @@ public class LinkMessageIT {
     assertNotNull(result);
     assertEquals(ULong.valueOf(12), result.getId());
     assertEquals(ULong.valueOf(1), result.getLinkId());
-    assertEquals(Message.INFO, result.getType());
+    assertEquals(MessageType.Info.toString(), result.getType());
     assertEquals("Consider yourself informed.", result.getBody());
   }
 
@@ -124,7 +124,7 @@ public class LinkMessageIT {
     assertNotNull(result);
     assertEquals(ULong.valueOf(12), result.getId());
     assertEquals(ULong.valueOf(1), result.getLinkId());
-    assertEquals(Message.INFO, result.getType());
+    assertEquals(MessageType.Info.toString(), result.getType());
     assertEquals("Consider yourself informed.", result.getBody());
   }
 

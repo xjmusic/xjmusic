@@ -1,10 +1,15 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 package io.xj.dubworker.dub.impl;
 
+import io.xj.core.app.access.impl.Access;
 import io.xj.core.app.exception.BusinessException;
 import io.xj.core.basis.Basis;
+import io.xj.core.dao.LinkMessageDAO;
 import io.xj.core.model.chain_config.ChainConfigType;
+import io.xj.core.model.link_message.LinkMessage;
+import io.xj.core.model.message.MessageType;
 import io.xj.core.model.pick.Pick;
+import io.xj.core.util.Text;
 import io.xj.dubworker.dub.MasterDub;
 import io.xj.mixer.Mixer;
 import io.xj.mixer.MixerFactory;
@@ -12,28 +17,37 @@ import io.xj.mixer.OutputContainer;
 
 import org.jooq.types.ULong;
 
+import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedInputStream;
+import java.util.List;
 import java.util.Objects;
 
 /**
  [#214] If a Chain has Ideas associated with it directly, prefer those choices to any in the Library
  */
 public class MasterDubImpl implements MasterDub {
-  //  private final Logger log = LoggerFactory.getLogger(MasterDubImpl.class);
+  private final Logger log = LoggerFactory.getLogger(MasterDubImpl.class);
   private final Basis basis;
   private final MixerFactory mixerFactory;
+  private final LinkMessageDAO linkMessageDAO;
   private Mixer _mixer;
+  private List<String> warnings = Lists.newArrayList();
 
   @Inject
   public MasterDubImpl(
     @Assisted("basis") Basis basis,
-    MixerFactory mixerFactory
+    MixerFactory mixerFactory,
+    LinkMessageDAO linkMessageDAO
   /*-*/) throws BusinessException {
     this.basis = basis;
     this.mixerFactory = mixerFactory;
+    this.linkMessageDAO = linkMessageDAO;
   }
 
   @Override
@@ -42,6 +56,7 @@ public class MasterDubImpl implements MasterDub {
       doMixerSourceLoading();
       doMixerTargetSetting();
       doMix();
+      reportWarnings();
       report();
 
     } catch (BusinessException e) {
@@ -58,8 +73,12 @@ public class MasterDubImpl implements MasterDub {
    */
   private void doMixerSourceLoading() throws Exception {
     for (ULong audioId : basis.linkAudioIds())
-      setupSourceFromStream(audioId.toString(),
-        basis.streamAudioWaveform(basis.linkAudio(audioId)));
+      try {
+        setupSourceFromStream(audioId.toString(),
+          basis.streamAudioWaveform(basis.linkAudio(audioId)));
+      } catch (Exception e){
+        warnings.add(e.getMessage() + " " + Text.formatStackTrace(e));
+      }
   }
 
   /**
@@ -79,7 +98,11 @@ public class MasterDubImpl implements MasterDub {
    */
   private void doMixerTargetSetting() throws Exception {
     for (Pick pick : basis.picks())
-      setupTarget(pick);
+      try {
+        setupTarget(pick);
+      } catch (Exception e) {
+        warnings.add(e.getMessage() + " " + Text.formatStackTrace(e));
+      }
   }
 
   /**
@@ -142,6 +165,36 @@ public class MasterDubImpl implements MasterDub {
    */
   private void report() {
     // basis.report() anything else interesting from the dub operation
+  }
+
+  /**
+   Report warnings in a concatenated Link Message
+   */
+  private void reportWarnings() {
+    if (warnings.isEmpty()) return;
+
+    StringBuilder body = new StringBuilder("MasterDub had warnings:");
+    for (String warning : warnings) {
+      body.append(String.format("%n%n%s", warning));
+    }
+    createLinkMessage(MessageType.Warning, body.toString());
+  }
+
+  /**
+   [#226] Messages pertaining to a Link
+   * @param type of message
+   @param body of message
+
+   */
+  private void createLinkMessage(MessageType type, String body) {
+    try {
+      linkMessageDAO.create(Access.internal(), new LinkMessage()
+        .setLinkId(basis.link().getId().toBigInteger())
+        .setType(type)
+        .setBody(body));
+    } catch (Exception e1) {
+      log.warn("Failed to create LinkMessage", e1);
+    }
   }
 
 }
