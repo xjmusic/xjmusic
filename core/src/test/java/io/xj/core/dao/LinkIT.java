@@ -9,13 +9,13 @@ import io.xj.core.app.exception.CancelException;
 import io.xj.core.external.amazon.AmazonProvider;
 import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.integration.IntegrationTestService;
-import io.xj.core.model.chain.Chain;
-import io.xj.core.model.choice.Choice;
-import io.xj.core.model.idea.Idea;
-import io.xj.core.model.instrument.Instrument;
+import io.xj.core.model.chain.ChainState;
+import io.xj.core.model.chain.ChainType;
+import io.xj.core.model.idea.IdeaType;
+import io.xj.core.model.instrument.InstrumentType;
 import io.xj.core.model.link.Link;
+import io.xj.core.model.link.LinkState;
 import io.xj.core.model.message.MessageType;
-import io.xj.core.model.voice.Voice;
 import io.xj.core.tables.records.LinkRecord;
 import io.xj.core.transport.JSON;
 
@@ -63,7 +63,7 @@ public class LinkIT {
   @Rule public ExpectedException failure = ExpectedException.none();
   private Injector injector;
   private LinkDAO testDAO;
-  @Mock private AmazonProvider amazonProvider;
+  @Mock AmazonProvider amazonProvider;
 
   @Before
   public void setUp() throws Exception {
@@ -77,13 +77,13 @@ public class LinkIT {
 
     // Account "Testing" has chain "Test Print #1"
     IntegrationTestEntity.insertAccount(1, "Testing");
-    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", Chain.PRODUCTION, Chain.FABRICATING, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null);
+    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricating, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null);
 
     // Chain "Test Print #1" has 5 sequential links
-    IntegrationTestEntity.insertLink(1, 1, 0, Link.DUBBED, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120, "chain-1-link-97898asdf7892.wav");
-    IntegrationTestEntity.insertLink(2, 1, 1, Link.DUBBING, Timestamp.valueOf("2017-02-14 12:01:32.000001"), Timestamp.valueOf("2017-02-14 12:02:04.000001"), "Db minor", 64, 0.85, 120, "chain-1-link-97898asdf7892.wav");
-    IntegrationTestEntity.insertLink(3, 1, 2, Link.CRAFTED, Timestamp.valueOf("2017-02-14 12:02:04.000001"), Timestamp.valueOf("2017-02-14 12:02:36.000001"), "F major", 64, 0.30, 120, "chain-1-link-97898asdf7892.wav");
-    IntegrationTestEntity.insertLink(4, 1, 3, Link.CRAFTING, Timestamp.valueOf("2017-02-14 12:02:36.000001"), Timestamp.valueOf("2017-02-14 12:03:08.000001"), "E minor", 64, 0.41, 120, "chain-1-link-97898asdf7892.wav");
+    IntegrationTestEntity.insertLink(1, 1, 0, LinkState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120, "chain-1-link-97898asdf7892.wav");
+    IntegrationTestEntity.insertLink(2, 1, 1, LinkState.Dubbing, Timestamp.valueOf("2017-02-14 12:01:32.000001"), Timestamp.valueOf("2017-02-14 12:02:04.000001"), "Db minor", 64, 0.85, 120, "chain-1-link-97898asdf7892.wav");
+    IntegrationTestEntity.insertLink(3, 1, 2, LinkState.Crafted, Timestamp.valueOf("2017-02-14 12:02:04.000001"), Timestamp.valueOf("2017-02-14 12:02:36.000001"), "F major", 64, 0.30, 120, "chain-1-link-97898asdf7892.wav");
+    IntegrationTestEntity.insertLink(4, 1, 3, LinkState.Crafting, Timestamp.valueOf("2017-02-14 12:02:36.000001"), Timestamp.valueOf("2017-02-14 12:03:08.000001"), "E minor", 64, 0.41, 120, "chain-1-link-97898asdf7892.wav");
     IntegrationTestEntity.insertLink_Planned(5, 1, 4, Timestamp.valueOf("2017-02-14 12:03:08.000001"));
 
     // Instantiate the test subject
@@ -116,7 +116,7 @@ public class LinkIT {
     Link inputData = new Link()
       .setChainId(BigInteger.valueOf(1))
       .setOffset(BigInteger.valueOf(5))
-      .setState(Link.PLANNED)
+      .setState("Planned")
       .setBeginAt("1995-04-28 11:23:00.000001")
       .setEndAt("1995-04-28 11:23:32.000001")
       .setTotal(64)
@@ -132,7 +132,7 @@ public class LinkIT {
     assertNotNull(result);
     assertEquals(ULong.valueOf(1), result.get("chainId"));
     assertEquals(ULong.valueOf(5), result.get("offset"));
-    assertEquals(Link.PLANNED, result.get("state"));
+    assertEquals(LinkState.Planned, result.get("state"));
     assertEquals(Timestamp.valueOf("1995-04-28 11:23:00.000001"), result.get("beginAt"));
     assertEquals(Timestamp.valueOf("1995-04-28 11:23:32.000001"), result.get("endAt"));
     assertEquals(UInteger.valueOf(64), result.get("total"));
@@ -151,7 +151,7 @@ public class LinkIT {
     Link inputData = new Link()
       .setChainId(BigInteger.valueOf(1))
       .setOffset(BigInteger.valueOf(5))
-      .setState(Link.CRAFTING)
+      .setState("Crafting")
       .setBeginAt("1995-04-28 11:23:00.000001")
       .setEndAt("1995-04-28 11:23:32.000001")
       .setTotal(64)
@@ -167,7 +167,7 @@ public class LinkIT {
     assertNotNull(result);
     assertEquals(ULong.valueOf(1), result.get("chainId"));
     assertEquals(ULong.valueOf(5), result.get("offset"));
-    assertEquals(Link.PLANNED, result.get("state"));
+    assertEquals(LinkState.Planned, result.get("state"));
     assertEquals(Timestamp.valueOf("1995-04-28 11:23:00.000001"), result.get("beginAt"));
     assertEquals(Timestamp.valueOf("1995-04-28 11:23:32.000001"), result.get("endAt"));
     assertEquals(UInteger.valueOf(64), result.get("total"));
@@ -185,7 +185,7 @@ public class LinkIT {
     Link inputData = new Link()
       .setChainId(BigInteger.valueOf(1))
       .setOffset(BigInteger.valueOf(4))
-      .setState(Link.CRAFTING)
+      .setState("Crafting")
       .setBeginAt("1995-04-28 11:23:00.000001")
       .setEndAt("1995-04-28 11:23:32.000001")
       .setTotal(64)
@@ -209,7 +209,7 @@ public class LinkIT {
     Link inputData = new Link()
       .setChainId(BigInteger.valueOf(1))
       .setOffset(BigInteger.valueOf(4))
-      .setState(Link.CRAFTING)
+      .setState("Crafting")
       .setBeginAt("1995-04-28 11:23:00.000001")
       .setEndAt("1995-04-28 11:23:32.000001")
       .setTotal(64)
@@ -233,7 +233,7 @@ public class LinkIT {
     ));
     Link inputData = new Link()
       .setOffset(BigInteger.valueOf(4))
-      .setState(Link.CRAFTING)
+      .setState("Crafting")
       .setBeginAt("1995-04-28 11:23:00.000001")
       .setEndAt("1995-04-28 11:23:32.000001")
       .setTotal(64)
@@ -270,7 +270,7 @@ public class LinkIT {
       .thenReturn("chain-1-link-h2a34j5s34fd987gaw3.mp3");
 
     failure.expect(BusinessException.class);
-    failure.expectMessage("'mushamush' is not a valid state (planned,crafting,crafted,dubbing,dubbed,failed)");
+    failure.expectMessage("'mushamush' is not a valid state");
 
     testDAO.create(access, inputData);
   }
@@ -288,7 +288,7 @@ public class LinkIT {
     assertEquals(ULong.valueOf(2), result.getId());
     assertEquals(ULong.valueOf(1), result.getChainId());
     assertEquals(ULong.valueOf(1), result.getOffset());
-    assertEquals(Link.DUBBING, result.getState());
+    assertEquals(LinkState.Dubbing, result.getState());
     assertEquals(Timestamp.valueOf("2017-02-14 12:01:32.000001"), result.getBeginAt());
     assertEquals(Timestamp.valueOf("2017-02-14 12:02:04.000001"), result.getEndAt());
     assertEquals(UInteger.valueOf(64), result.getTotal());
@@ -322,15 +322,15 @@ public class LinkIT {
     assertEquals(5, result.length());
 
     JSONObject result4 = (JSONObject) result.get(4);
-    assertEquals(Link.DUBBED, result4.get("state"));
+    assertEquals("Dubbed", result4.get("state"));
     JSONObject result3 = (JSONObject) result.get(3);
-    assertEquals(Link.DUBBING, result3.get("state"));
+    assertEquals("Dubbing", result3.get("state"));
     JSONObject result2 = (JSONObject) result.get(2);
-    assertEquals(Link.CRAFTED, result2.get("state"));
+    assertEquals("Crafted", result2.get("state"));
     JSONObject result1 = (JSONObject) result.get(1);
-    assertEquals(Link.CRAFTING, result1.get("state"));
+    assertEquals("Crafting", result1.get("state"));
     JSONObject actualResult0 = (JSONObject) result.get(0);
-    assertEquals(Link.PLANNED, actualResult0.get("state"));
+    assertEquals("Planned", actualResult0.get("state"));
   }
 
   // TODO read all from seconds UTC
@@ -341,13 +341,13 @@ public class LinkIT {
       "roles", "internal"
     ));
 
-    LinkRecord result = testDAO.readOneInState(access, ULong.valueOf(1), Link.PLANNED, Timestamp.valueOf("2017-02-14 12:03:08.000001"));
+    LinkRecord result = testDAO.readOneInState(access, ULong.valueOf(1), LinkState.Planned, Timestamp.valueOf("2017-02-14 12:03:08.000001"));
 
     assertNotNull(result);
     assertEquals(ULong.valueOf(5), result.get("id"));
     assertEquals(ULong.valueOf(1), result.get(LINK.CHAIN_ID));
     assertEquals(ULong.valueOf(4), result.get("offset"));
-    assertEquals(Link.PLANNED, result.get("state"));
+    assertEquals("Planned", result.get("state"));
     assertEquals(Timestamp.valueOf("2017-02-14 12:03:08.000001"), result.get(LINK.BEGIN_AT));
     assertNull(result.get(LINK.END_AT));
   }
@@ -357,9 +357,9 @@ public class LinkIT {
     Access access = new Access(ImmutableMap.of(
       "roles", "internal"
     ));
-    IntegrationTestEntity.insertChain(2, 1, "Test Print #2", Chain.PRODUCTION, Chain.FABRICATING, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null);
+    IntegrationTestEntity.insertChain(2, 1, "Test Print #2", ChainType.Production, ChainState.Fabricating, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null);
 
-    LinkRecord result = testDAO.readOneInState(access, ULong.valueOf(2), Link.PLANNED, Timestamp.valueOf("2017-02-14 12:03:08.000001"));
+    LinkRecord result = testDAO.readOneInState(access, ULong.valueOf(2), LinkState.Planned, Timestamp.valueOf("2017-02-14 12:03:08.000001"));
 
     assertNull(result);
   }
@@ -385,7 +385,7 @@ public class LinkIT {
     Link inputData = new Link()
       .setChainId(BigInteger.valueOf(1))
       .setOffset(BigInteger.valueOf(5))
-      .setState(Link.DUBBED)
+      .setState("Dubbed")
       .setBeginAt("1995-04-28 11:23:00.000001")
       .setEndAt("1995-04-28 11:23:32.000001")
       .setTotal(64)
@@ -402,7 +402,7 @@ public class LinkIT {
     assertNotNull(result);
     assertEquals("C# minor 7 b9", result.getKey());
     assertEquals(ULong.valueOf(1), result.getChainId());
-    assertEquals(Link.DUBBED, result.getState());
+    assertEquals("Dubbed", result.getState());
     assertEquals(Timestamp.valueOf("1995-04-28 11:23:00.000001"), result.getBeginAt());
     assertEquals(Timestamp.valueOf("1995-04-28 11:23:32.000001"), result.getEndAt());
   }
@@ -414,9 +414,9 @@ public class LinkIT {
     ));
 
     failure.expect(CancelException.class);
-    failure.expectMessage("transition to crafting not in allowed (dubbing,dubbed,failed)");
+    failure.expectMessage("transition to Crafting not in allowed");
 
-    testDAO.updateState(access, ULong.valueOf(2), Link.CRAFTING);
+    testDAO.updateState(access, ULong.valueOf(2), LinkState.Crafting);
   }
 
   @Test
@@ -426,7 +426,7 @@ public class LinkIT {
     ));
     Link inputData = new Link()
       .setOffset(BigInteger.valueOf(4))
-      .setState(Link.CRAFTING)
+      .setState("Crafting")
       .setBeginAt("1995-04-28 11:23:00.000001")
       .setEndAt("1995-04-28 11:23:32.000001")
       .setTotal(64)
@@ -456,7 +456,7 @@ public class LinkIT {
       .setTempo(120.0);
 
     failure.expect(BusinessException.class);
-    failure.expectMessage("'whatadumbassstate' is not a valid state (planned,crafting,crafted,dubbing,dubbed,failed)");
+    failure.expectMessage("'what a dumb-ass state' is not a valid state");
 
     testDAO.update(access, ULong.valueOf(2), inputData);
   }
@@ -469,7 +469,7 @@ public class LinkIT {
     Link inputData = new Link()
       .setChainId(BigInteger.valueOf(12))
       .setOffset(BigInteger.valueOf(4))
-      .setState(Link.CRAFTING)
+      .setState("Crafting")
       .setBeginAt("1995-04-28 11:23:00.000001")
       .setEndAt("1995-04-28 11:23:32.000001")
       .setTotal(64)
@@ -478,7 +478,7 @@ public class LinkIT {
       .setTempo(120.0);
 
     failure.expect(CancelException.class);
-    failure.expectMessage("transition to crafting not in allowed (dubbing,dubbed,failed)");
+    failure.expectMessage("transition to Crafting not in allowed");
 
     try {
       testDAO.update(access, ULong.valueOf(2), inputData);
@@ -498,7 +498,7 @@ public class LinkIT {
   @Test
   public void destroy() throws Exception {
     IntegrationTestService.getDb().update(CHAIN)
-      .set(CHAIN.STATE, Chain.ERASE)
+      .set(CHAIN.STATE, "Erase")
       .execute();
 
     testDAO.destroy(Access.internal(), ULong.valueOf(1));
@@ -513,7 +513,7 @@ public class LinkIT {
   @Test
   public void destroy_succeedsEvenIfLinkHasNullWaveformKey() throws Exception {
     IntegrationTestService.getDb().update(CHAIN)
-      .set(CHAIN.STATE, Chain.ERASE)
+      .set(CHAIN.STATE, "Erase")
       .execute();
     IntegrationTestService.getDb().update(LINK)
       .set(LINK.WAVEFORM_KEY, DSL.value((String) null))
@@ -549,18 +549,18 @@ public class LinkIT {
 
     // Library "test sounds"
     IntegrationTestEntity.insertLibrary(1, 1, "test sounds");
-    IntegrationTestEntity.insertIdea(1, 2, 1, Idea.MACRO, "epic concept", 0.342, "C#", 0.286);
+    IntegrationTestEntity.insertIdea(1, 2, 1, IdeaType.Macro, "epic concept", 0.342, "C#", 0.286);
     IntegrationTestEntity.insertPhase(1, 1, 0, 16, "Ants", 0.583, "D minor", 120.0);
-    IntegrationTestEntity.insertVoice(8, 1, Voice.PERCUSSIVE, "This is a percussive voice");
+    IntegrationTestEntity.insertVoice(8, 1, InstrumentType.Percussive, "This is a percussive voice");
     IntegrationTestEntity.insertVoiceEvent(1, 8, 0, 1, "KICK", "C", 0.8, 1.0);
 
     // Library has Instrument with Audio
-    IntegrationTestEntity.insertInstrument(9, 1, 2, "jams", Instrument.PERCUSSIVE, 0.6);
+    IntegrationTestEntity.insertInstrument(9, 1, 2, "jams", InstrumentType.Percussive, 0.6);
     IntegrationTestEntity.insertAudio(1, 9, "Published", "Kick", "https://static.xj.io/instrument/percussion/808/kick1.wav", 0.01, 2.123, 120.0, 440);
 
     // Chain "Test Print #1" has one link
-    IntegrationTestEntity.insertChain(3, 1, "Test Print #1", Chain.PRODUCTION, Chain.ERASE, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"));
-    IntegrationTestEntity.insertLink(17, 3, 0, Link.DUBBED, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120, "chain-1-link-97898asdf7892.mp3");
+    IntegrationTestEntity.insertChain(3, 1, "Test Print #1", ChainType.Production, ChainState.Erase, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"));
+    IntegrationTestEntity.insertLink(17, 3, 0, LinkState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120, "chain-1-link-97898asdf7892.mp3");
 
     // Link Meme
     IntegrationTestEntity.insertLinkMeme(25, 17, "Jams");
@@ -572,7 +572,7 @@ public class LinkIT {
     IntegrationTestEntity.insertLinkMessage(25, 17, MessageType.Warning, "Consider yourself warned");
 
     // Choice
-    IntegrationTestEntity.insertChoice(1, 17, 1, Choice.MACRO, 2, -5);
+    IntegrationTestEntity.insertChoice(1, 17, 1, IdeaType.Macro, 2, -5);
 
     // Arrangement
     IntegrationTestEntity.insertArrangement(1, 1, 8, 9);

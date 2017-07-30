@@ -820,7 +820,7 @@ UNLOCK TABLES;
 
 LOCK TABLES `idea` WRITE;
 /*!40000 ALTER TABLE `idea` DISABLE KEYS */;
-INSERT INTO `idea` VALUES (2,1,2,'main','Introducing K',0.5,'G minor',121,'2017-02-10 00:03:22','2017-02-10 00:03:22'),(3,1,2,'main','Mental Addition',0.5,'D minor',121,'2017-02-10 00:03:22','2017-02-10 00:03:22'),(4,1,2,'main','Children of the Who',0.7,'A major',121,'2017-02-10 00:03:22','2017-02-10 00:03:22'),(5,1,2,'main','K Project',0.6,'G major',121,'2017-02-10 00:03:22','2017-02-10 00:03:22'),(6,1,1,'rhythm','Basic Beat',0.62,'C',120,'2017-04-23 23:21:52','2017-04-23 23:21:52'),(7,1,1,'macro','Deep, from Hot to Cool',0.6,'C',118,'2017-05-01 18:59:22','2017-06-16 04:36:20'),(8,1,1,'macro','Deep, from Cool to Hot',0.6,'G minor',118,'2017-05-01 18:59:32','2017-06-16 04:36:07'),(9,1,1,'main','I\'ll House You',0.5,'C',118,'2017-05-13 00:04:19','2017-06-16 04:38:45'),(10,1,1,'support','Tom Conga Jam 1',0.3,'C',120,'2017-06-05 05:19:04','2017-06-05 05:19:04');
+INSERT INTO `idea` VALUES (2,1,2,'Main','Introducing K',0.5,'G minor',121,'2017-02-10 00:03:22','2017-02-10 00:03:22'),(3,1,2,'Main','Mental Addition',0.5,'D minor',121,'2017-02-10 00:03:22','2017-02-10 00:03:22'),(4,1,2,'Main','Children of the Who',0.7,'A major',121,'2017-02-10 00:03:22','2017-02-10 00:03:22'),(5,1,2,'Main','K Project',0.6,'G major',121,'2017-02-10 00:03:22','2017-02-10 00:03:22'),(6,1,1,'Rhythm','Basic Beat',0.62,'C',120,'2017-04-23 23:21:52','2017-04-23 23:21:52'),(7,1,1,'Macro','Deep, from Hot to Cool',0.6,'C',118,'2017-05-01 18:59:22','2017-06-16 04:36:20'),(8,1,1,'Macro','Deep, from Cool to Hot',0.6,'G minor',118,'2017-05-01 18:59:32','2017-06-16 04:36:07'),(9,1,1,'Main','I\'ll House You',0.5,'C',118,'2017-05-13 00:04:19','2017-06-16 04:38:45'),(10,1,1,'Support','Tom Conga Jam 1',0.3,'C',120,'2017-06-05 05:19:04','2017-06-05 05:19:04');
 /*!40000 ALTER TABLE `idea` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -870,7 +870,7 @@ UNLOCK TABLES;
 
 LOCK TABLES `voice` WRITE;
 /*!40000 ALTER TABLE `voice` DISABLE KEYS */;
-INSERT INTO `voice` VALUES (2,2,'percussive','Drums','2017-02-10 00:03:24','2017-02-10 00:03:24'),(3,2,'harmonic','Bass','2017-02-10 00:03:24','2017-02-10 00:03:24'),(4,3,'percussive','Kick+Snare','2017-04-23 23:45:07','2017-06-03 00:03:54'),(5,3,'percussive','Locomotion','2017-06-03 00:04:07','2017-06-03 00:04:07'),(6,10,'percussive','Toms Congas','2017-06-05 05:20:24','2017-06-05 05:20:24'),(8,3,'percussive','Toms+Congas+Misc','2017-06-11 19:50:10','2017-06-16 02:17:56'),(9,3,'percussive','Cymbal','2017-06-16 02:18:08','2017-06-16 02:18:08'),(10,3,'percussive','Vocal','2017-06-23 23:43:10','2017-06-23 23:43:10'),(11,3,'percussive','Vocal Echo','2017-06-24 01:29:49','2017-06-24 01:29:49');
+INSERT INTO `voice` VALUES (2,2,'Percussive','Drums','2017-02-10 00:03:24','2017-02-10 00:03:24'),(3,2,'Harmonic','Bass','2017-02-10 00:03:24','2017-02-10 00:03:24'),(4,3,'Percussive','Kick+Snare','2017-04-23 23:45:07','2017-06-03 00:03:54'),(5,3,'Percussive','Locomotion','2017-06-03 00:04:07','2017-06-03 00:04:07'),(6,10,'Percussive','Toms Congas','2017-06-05 05:20:24','2017-06-05 05:20:24'),(8,3,'Percussive','Toms+Congas+Misc','2017-06-11 19:50:10','2017-06-16 02:17:56'),(9,3,'Percussive','Cymbal','2017-06-16 02:18:08','2017-06-16 02:18:08'),(10,3,'Percussive','Vocal','2017-06-23 23:43:10','2017-06-23 23:43:10'),(11,3,'Percussive','Vocal Echo','2017-06-24 01:29:49','2017-06-24 01:29:49');
 /*!40000 ALTER TABLE `voice` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -890,7 +890,7 @@ UNLOCK TABLES;
 
 LOCK TABLES `instrument` WRITE;
 /*!40000 ALTER TABLE `instrument` DISABLE KEYS */;
-INSERT INTO `instrument` VALUES (1,1,2,'percussive','Roland TR-808 Drum Machine',0.8,'2017-02-10 00:03:22','2017-02-10 00:03:22'),(2,1,2,'percussive','909 drum machine',0.75,'2017-02-10 00:03:22','2017-02-10 00:03:22'),(3,1,1,'percussive','Electronic',0.8,'2017-04-21 16:33:55','2017-06-16 02:19:40'),(4,1,1,'percussive','Acoustic',0.5,'2017-06-15 22:32:29','2017-06-15 22:32:29'),(5,1,1,'percussive','Pots & Pans',0.76,'2017-06-20 23:02:25','2017-07-27 17:12:15');
+INSERT INTO `instrument` VALUES (1,1,2,'Percussive','Roland TR-808 Drum Machine',0.8,'2017-02-10 00:03:22','2017-02-10 00:03:22'),(2,1,2,'Percussive','909 drum machine',0.75,'2017-02-10 00:03:22','2017-02-10 00:03:22'),(3,1,1,'Percussive','Electronic',0.8,'2017-04-21 16:33:55','2017-06-16 02:19:40'),(4,1,1,'Percussive','Acoustic',0.5,'2017-06-15 22:32:29','2017-06-15 22:32:29'),(5,1,1,'Percussive','Pots & Pans',0.76,'2017-06-20 23:02:25','2017-07-27 17:12:15');
 /*!40000 ALTER TABLE `instrument` ENABLE KEYS */;
 UNLOCK TABLES;
 

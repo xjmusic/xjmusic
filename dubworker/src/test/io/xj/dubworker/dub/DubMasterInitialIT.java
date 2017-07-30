@@ -5,13 +5,13 @@ import io.xj.core.CoreModule;
 import io.xj.core.basis.Basis;
 import io.xj.core.basis.BasisFactory;
 import io.xj.core.integration.IntegrationTestEntity;
-import io.xj.core.model.chain.Chain;
-import io.xj.core.model.choice.Choice;
-import io.xj.core.model.idea.Idea;
-import io.xj.core.model.instrument.Instrument;
+import io.xj.core.model.chain.ChainState;
+import io.xj.core.model.chain.ChainType;
+import io.xj.core.model.idea.IdeaType;
+import io.xj.core.model.instrument.InstrumentType;
 import io.xj.core.model.link.Link;
+import io.xj.core.model.link.LinkState;
 import io.xj.core.model.role.Role;
-import io.xj.core.model.voice.Voice;
 import io.xj.dubworker.DubworkerModule;
 import io.xj.mixer.MixerModule;
 
@@ -28,7 +28,7 @@ import java.sql.Timestamp;
 
 public class DubMasterInitialIT {
   @Rule public ExpectedException failure = ExpectedException.none();
-  private Injector injector = Guice.createInjector(new CoreModule(), new MixerModule(), new DubworkerModule());
+  private final Injector injector = Guice.createInjector(new CoreModule(), new MixerModule(), new DubworkerModule());
   private DubFactory dubFactory;
   private BasisFactory basisFactory;
 
@@ -55,7 +55,7 @@ public class DubMasterInitialIT {
     IntegrationTestEntity.insertLibrary(2, 1, "house");
 
     // "Special, Wild to Cozy" macro-idea in house library
-    IntegrationTestEntity.insertIdea(4, 3, 2, Idea.MACRO, "Special, Wild to Cozy", 0.5, "C", 120);
+    IntegrationTestEntity.insertIdea(4, 3, 2, IdeaType.Macro, "Special, Wild to Cozy", 0.5, "C", 120);
     IntegrationTestEntity.insertIdeaMeme(2, 4, "Special");
     IntegrationTestEntity.insertPhase(3, 4, 0, 64, "Start Wild", 0.6, "C", 125);
     IntegrationTestEntity.insertPhaseMeme(3, 3, "Wild");
@@ -65,7 +65,7 @@ public class DubMasterInitialIT {
     IntegrationTestEntity.insertPhaseChord(4, 4, 0, "Bb minor");
 
     // Main idea
-    IntegrationTestEntity.insertIdea(5, 3, 2, Idea.MAIN, "Main Jam", 0.2, "F# minor", 140);
+    IntegrationTestEntity.insertIdea(5, 3, 2, IdeaType.Main, "Main Jam", 0.2, "F# minor", 140);
     IntegrationTestEntity.insertIdeaMeme(3, 5, "Outlook");
     IntegrationTestEntity.insertPhase(15, 5, 0, 16, "Intro", 0.5, "F# minor", 135.0);
     IntegrationTestEntity.insertPhaseMeme(6, 15, "Pessimism");
@@ -77,13 +77,13 @@ public class DubMasterInitialIT {
     IntegrationTestEntity.insertPhaseChord(18, 16, 8, "G major");
 
     // A basic beat, first phase has voice and events
-    IntegrationTestEntity.insertIdea(35, 3, 2, Idea.RHYTHM, "Basic Beat", 0.2, "C", 121);
+    IntegrationTestEntity.insertIdea(35, 3, 2, IdeaType.Rhythm, "Basic Beat", 0.2, "C", 121);
     IntegrationTestEntity.insertIdeaMeme(343, 35, "Basic");
     IntegrationTestEntity.insertPhase(315, 35, 0, 4, "Drop", 0.5, "C", 125.0);
     IntegrationTestEntity.insertPhaseMeme(346, 315, "Heavy");
 
     // setup voice phase events
-    IntegrationTestEntity.insertVoice(1, 315, Voice.PERCUSSIVE, "drums");
+    IntegrationTestEntity.insertVoice(1, 315, InstrumentType.Percussive, "drums");
 
     // Voice "Drums" has events "BOOM" and "SMACK" 2x each
     IntegrationTestEntity.insertVoiceEvent(1, 1, 0, 1, "BOOM", "C2", 0.8, 1.0);
@@ -96,25 +96,25 @@ public class DubMasterInitialIT {
     IntegrationTestEntity.insertPhaseMeme(347, 316, "Heavy");
 
     // Support Idea
-    IntegrationTestEntity.insertIdea(7, 3, 2, Idea.SUPPORT, "Support Jam", 0.3, "Cb minor", 170);
+    IntegrationTestEntity.insertIdea(7, 3, 2, IdeaType.Support, "Support Jam", 0.3, "Cb minor", 170);
 
     // Chain "Print #2" has 1 initial link in dubbing state - Master is complete
-    IntegrationTestEntity.insertChain(2, 1, "Print #2", Chain.PRODUCTION, Chain.FABRICATING, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null);
-    link6 = IntegrationTestEntity.insertLink(6, 2, 0, Link.DUBBING, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:07.384616"), "C minor", 16, 0.55, 130, "chain-2-link-97898asdf7892.wav");
+    IntegrationTestEntity.insertChain(2, 1, "Print #2", ChainType.Production, ChainState.Fabricating, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null);
+    link6 = IntegrationTestEntity.insertLink(6, 2, 0, LinkState.Dubbing, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:07.384616"), "C minor", 16, 0.55, 130, "chain-2-link-97898asdf7892.wav");
     IntegrationTestEntity.insertLinkMeme(101, 6, "Special");
     IntegrationTestEntity.insertLinkMeme(102, 6, "Wild");
     IntegrationTestEntity.insertLinkMeme(103, 6, "Pessimism");
     IntegrationTestEntity.insertLinkMeme(104, 6, "Outlook");
-    IntegrationTestEntity.insertChoice(101, 6, 4, Choice.MACRO, 0, 0);
-    IntegrationTestEntity.insertChoice(102, 6, 5, Choice.MAIN, 10, -6);
+    IntegrationTestEntity.insertChoice(101, 6, 4, IdeaType.Macro, 0, 0);
+    IntegrationTestEntity.insertChoice(102, 6, 5, IdeaType.Main, 10, -6);
     IntegrationTestEntity.insertLinkChord(101, 6, 0, "C minor");
     IntegrationTestEntity.insertLinkChord(102, 6, 8, "Db minor");
 
     // choice of rhythm-type idea
-    IntegrationTestEntity.insertChoice(103, 6, 35, Choice.RHYTHM, 0, 0);
+    IntegrationTestEntity.insertChoice(103, 6, 35, IdeaType.Rhythm, 0, 0);
 
     // Instrument, InstrumentMeme
-    IntegrationTestEntity.insertInstrument(1, 2, 2, "808 Drums", Instrument.PERCUSSIVE, 0.9);
+    IntegrationTestEntity.insertInstrument(1, 2, 2, "808 Drums", InstrumentType.Percussive, 0.9);
     IntegrationTestEntity.insertInstrumentMeme(1, 1, "heavy");
 
     // Audio, AudioEvent

@@ -9,6 +9,7 @@ import io.xj.core.model.chain_config.ChainConfig;
 import io.xj.core.model.chain_config.ChainConfigType;
 import io.xj.core.model.choice.Choice;
 import io.xj.core.model.idea.Idea;
+import io.xj.core.model.idea.IdeaType;
 import io.xj.core.model.link.Link;
 import io.xj.core.model.link_chord.LinkChord;
 import io.xj.core.model.link_meme.LinkMeme;
@@ -384,7 +385,7 @@ public interface Basis {
    @return choice record
    @throws Exception on failure
    */
-  Choice linkChoiceByType(ULong linkId, String type) throws Exception;
+  Choice linkChoiceByType(ULong linkId, IdeaType ideaType) throws Exception;
 
   /**
    Fetch voices for a phase by id

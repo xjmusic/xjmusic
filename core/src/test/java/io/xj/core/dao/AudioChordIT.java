@@ -7,7 +7,7 @@ import io.xj.core.app.exception.BusinessException;
 import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.integration.IntegrationTestService;
 import io.xj.core.model.audio_chord.AudioChord;
-import io.xj.core.model.instrument.Instrument;
+import io.xj.core.model.instrument.InstrumentType;
 import io.xj.core.model.role.Role;
 import io.xj.core.tables.records.AudioChordRecord;
 import io.xj.core.transport.JSON;
@@ -33,7 +33,7 @@ import static org.junit.Assert.assertNull;
 
 // TODO [core] test permissions of different users to readMany vs. create vs. update or delete audio chords
 public class AudioChordIT {
-  private Injector injector = Guice.createInjector(new CoreModule());
+  private final Injector injector = Guice.createInjector(new CoreModule());
   private AudioChordDAO testDAO;
 
   @Before
@@ -51,7 +51,7 @@ public class AudioChordIT {
     IntegrationTestEntity.insertLibrary(1, 1, "palm tree");
 
     // Idea "leaves" has instruments "808" and "909"
-    IntegrationTestEntity.insertInstrument(1, 1, 2, "Harmonic Performance", Instrument.PERCUSSIVE, 0.9);
+    IntegrationTestEntity.insertInstrument(1, 1, 2, "Harmonic Performance", InstrumentType.Percussive, 0.9);
 
     // Instrument "808" has Audio "Chords Cm to D"
     IntegrationTestEntity.insertAudio(1, 1, "Published", "Chords Cm to D", "https://static.xj.io/instrument/percussion/808/kick1.wav", 0.01, 2.123, 120.0, 440);

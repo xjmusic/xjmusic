@@ -5,6 +5,9 @@ module.exports = function (environment) {
     modulePrefix: 'xj-control',
     environment: environment,
     locationType: 'auto',
+    'ember-cli-string-helpers': {
+      only: ['lowercase'],
+    },
     EmberENV: {
       FEATURES: {
         // Here you can enable experimental features on an ember canary build

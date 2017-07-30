@@ -6,6 +6,9 @@ export default Ember.Route.extend({
   // Inject: flash message service
   display: Ember.inject.service(),
 
+  // Inject: player service
+  player: Ember.inject.service(),
+
   /**
    * Route Model
    * @returns {*}
@@ -38,10 +41,12 @@ export default Ember.Route.extend({
   },
 
   /**
-   * Route Actions
+   Route Actions
    */
   actions: {
-
-  }
+    play(chain) {
+      this.get('player').play(chain);
+    }
+  },
 
 });

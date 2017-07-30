@@ -3,6 +3,7 @@ package io.xj.core.dao;
 
 import io.xj.core.app.access.impl.Access;
 import io.xj.core.model.link.Link;
+import io.xj.core.model.link.LinkState;
 import io.xj.core.tables.records.LinkRecord;
 
 import org.jooq.Result;
@@ -44,15 +45,15 @@ public interface LinkDAO {
   /**
    Fetch one Link by chainId and state, if present
 
-   @param access          control
+   @return Link if found
+   @throws Exception on failure
+    @param access          control
    @param chainId         to find link in
    @param linkState       linkState to find link in
    @param linkBeginBefore ahead to look for links
-   @return Link if found
-   @throws Exception on failure
    */
   @Nullable
-  LinkRecord readOneInState(Access access, ULong chainId, String linkState, Timestamp linkBeginBefore) throws Exception;
+  LinkRecord readOneInState(Access access, ULong chainId, LinkState linkState, Timestamp linkBeginBefore) throws Exception;
 
   /**
    Read all Links that are accessible
@@ -98,11 +99,11 @@ public interface LinkDAO {
 
   /**
    Update the state of a specified Link
-
-   @param id    of specific Link to update.
+   * @param id    of specific Link to update.
    @param state for the updated Link.
+
    */
-  void updateState(Access access, ULong id, String state) throws Exception;
+  void updateState(Access access, ULong id, LinkState state) throws Exception;
 
   /**
    Destroy a specified Link, and all its child entities

@@ -6,13 +6,13 @@ import io.xj.core.basis.Basis;
 import io.xj.core.basis.BasisFactory;
 import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.integration.IntegrationTestService;
-import io.xj.core.model.chain.Chain;
-import io.xj.core.model.choice.Choice;
-import io.xj.core.model.idea.Idea;
-import io.xj.core.model.instrument.Instrument;
+import io.xj.core.model.chain.ChainState;
+import io.xj.core.model.chain.ChainType;
+import io.xj.core.model.idea.IdeaType;
+import io.xj.core.model.instrument.InstrumentType;
 import io.xj.core.model.link.Link;
+import io.xj.core.model.link.LinkState;
 import io.xj.core.model.role.Role;
-import io.xj.core.model.voice.Voice;
 import io.xj.core.tables.records.ArrangementRecord;
 import io.xj.craftworker.CraftworkerModule;
 
@@ -36,7 +36,7 @@ import static org.junit.Assert.assertNotNull;
 
 public class CraftVoiceNextMacroIT {
   @Rule public ExpectedException failure = ExpectedException.none();
-  private Injector injector = Guice.createInjector(new CoreModule(), new CraftworkerModule());
+  private final Injector injector = Guice.createInjector(new CoreModule(), new CraftworkerModule());
   private CraftFactory craftFactory;
   private BasisFactory basisFactory;
 
@@ -63,7 +63,7 @@ public class CraftVoiceNextMacroIT {
     IntegrationTestEntity.insertLibrary(2, 1, "house");
 
     // "Tropical, Wild to Cozy" macro-idea in house library
-    IntegrationTestEntity.insertIdea(4, 3, 2, Idea.MACRO, "Tropical, Wild to Cozy", 0.5, "C", 120);
+    IntegrationTestEntity.insertIdea(4, 3, 2, IdeaType.Macro, "Tropical, Wild to Cozy", 0.5, "C", 120);
     IntegrationTestEntity.insertIdeaMeme(2, 4, "Tropical");
     // " phase offset 0
     IntegrationTestEntity.insertPhase(3, 4, 0, 0, "Start Wild", 0.6, "C", 125);
@@ -80,7 +80,7 @@ public class CraftVoiceNextMacroIT {
     IntegrationTestEntity.insertPhaseChord(5, 5, 0, "Ab minor");
 
     // "Tangy, Chunky to Smooth" macro-idea in house library
-    IntegrationTestEntity.insertIdea(3, 3, 2, Idea.MACRO, "Tangy, Chunky to Smooth", 0.5, "G minor", 120);
+    IntegrationTestEntity.insertIdea(3, 3, 2, IdeaType.Macro, "Tangy, Chunky to Smooth", 0.5, "G minor", 120);
     IntegrationTestEntity.insertIdeaMeme(1, 3, "Tangy");
     // # phase offset 0
     IntegrationTestEntity.insertPhase(1, 3, 0, 0, "Start Chunky", 0.4, "G minor", 115);
@@ -92,7 +92,7 @@ public class CraftVoiceNextMacroIT {
     IntegrationTestEntity.insertPhaseChord(2, 2, 0, "C");
 
     // Main idea
-    IntegrationTestEntity.insertIdea(5, 3, 2, Idea.MAIN, "Main Jam", 0.2, "C minor", 140);
+    IntegrationTestEntity.insertIdea(5, 3, 2, IdeaType.Main, "Main Jam", 0.2, "C minor", 140);
     IntegrationTestEntity.insertIdeaMeme(3, 5, "Outlook");
     // # phase offset 0
     IntegrationTestEntity.insertPhase(15, 5, 0, 16, "Intro", 0.5, "G major", 135.0);
@@ -106,7 +106,7 @@ public class CraftVoiceNextMacroIT {
     IntegrationTestEntity.insertPhaseChord(18, 16, 8, "Bb minor");
 
     // Another Main idea to go to
-    IntegrationTestEntity.insertIdea(15, 3, 2, Idea.MAIN, "Next Jam", 0.2, "Db minor", 140);
+    IntegrationTestEntity.insertIdea(15, 3, 2, IdeaType.Main, "Next Jam", 0.2, "Db minor", 140);
     IntegrationTestEntity.insertIdeaMeme(43, 15, "Hindsight");
     IntegrationTestEntity.insertPhase(415, 15, 0, 16, "Intro", 0.5, "G minor", 135.0);
     IntegrationTestEntity.insertPhaseMeme(46, 415, "Regret");
@@ -119,13 +119,13 @@ public class CraftVoiceNextMacroIT {
     IntegrationTestEntity.insertPhaseChord(418, 416, 8, "Bb major");
 
     // A basic beat
-    IntegrationTestEntity.insertIdea(35, 3, 2, Idea.RHYTHM, "Basic Beat", 0.2, "C", 121);
+    IntegrationTestEntity.insertIdea(35, 3, 2, IdeaType.Rhythm, "Basic Beat", 0.2, "C", 121);
     IntegrationTestEntity.insertIdeaMeme(343, 35, "Basic");
     IntegrationTestEntity.insertPhase(315, 35, 0, 4, "Drop", 0.5, "C", 125.0);
     IntegrationTestEntity.insertPhaseMeme(346, 315, "Heavy");
 
     // setup voice phase events
-    IntegrationTestEntity.insertVoice(1, 315, Voice.PERCUSSIVE, "drums");
+    IntegrationTestEntity.insertVoice(1, 315, InstrumentType.Percussive, "drums");
 
     // Voice "Drums" has events "BOOM" and "SMACK" 2x each
     IntegrationTestEntity.insertVoiceEvent(1, 1, 0, 1, "BOOM", "C2", 0.8, 1.0);
@@ -138,32 +138,32 @@ public class CraftVoiceNextMacroIT {
     IntegrationTestEntity.insertPhaseMeme(347, 316, "Heavy");
 
     // Chain "Test Print #1" has 5 total links
-    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", Chain.PRODUCTION, Chain.FABRICATING, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null);
-    IntegrationTestEntity.insertLink(1, 1, 0, Link.DUBBED, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120, "chain-1-link-97898asdf7892.wav");
-    IntegrationTestEntity.insertLink(2, 1, 1, Link.DUBBING, Timestamp.valueOf("2017-02-14 12:01:32.000001"), Timestamp.valueOf("2017-02-14 12:02:04.000001"), "Db minor", 64, 0.85, 120, "chain-1-link-97898asdf7892.wav");
+    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricating, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null);
+    IntegrationTestEntity.insertLink(1, 1, 0, LinkState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120, "chain-1-link-97898asdf7892.wav");
+    IntegrationTestEntity.insertLink(2, 1, 1, LinkState.Dubbing, Timestamp.valueOf("2017-02-14 12:01:32.000001"), Timestamp.valueOf("2017-02-14 12:02:04.000001"), "Db minor", 64, 0.85, 120, "chain-1-link-97898asdf7892.wav");
 
     // Chain "Test Print #1" has this link that was just crafted
-    IntegrationTestEntity.insertLink(3, 1, 2, Link.CRAFTED, Timestamp.valueOf("2017-02-14 12:02:04.000001"), Timestamp.valueOf("2017-02-14 12:02:36.000001"), "Ab minor", 64, 0.30, 120, "chain-1-link-97898asdf7892.wav"); // final key is based on phase of main idea
-    IntegrationTestEntity.insertChoice(25, 3, 4, Choice.MACRO, 1, 3); // macro-idea current phase is transposed to be Db minor
-    IntegrationTestEntity.insertChoice(26, 3, 5, Choice.MAIN, 1, 1); // main-key of previous link is transposed to match, Db minor
-    IntegrationTestEntity.insertChoice(27, 3, 35, Choice.RHYTHM, 0, -4);
+    IntegrationTestEntity.insertLink(3, 1, 2, LinkState.Crafted, Timestamp.valueOf("2017-02-14 12:02:04.000001"), Timestamp.valueOf("2017-02-14 12:02:36.000001"), "Ab minor", 64, 0.30, 120, "chain-1-link-97898asdf7892.wav"); // final key is based on phase of main idea
+    IntegrationTestEntity.insertChoice(25, 3, 4, IdeaType.Macro, 1, 3); // macro-idea current phase is transposed to be Db minor
+    IntegrationTestEntity.insertChoice(26, 3, 5, IdeaType.Main, 1, 1); // main-key of previous link is transposed to match, Db minor
+    IntegrationTestEntity.insertChoice(27, 3, 35, IdeaType.Rhythm, 0, -4);
 
     // Chain "Test Print #1" has a link in crafting state - Structure is complete
-    link4 = IntegrationTestEntity.insertLink(4, 1, 3, Link.CRAFTING, Timestamp.valueOf("2017-02-14 12:03:08.000001"),Timestamp.valueOf("2017-02-14 12:03:15.836735"),"F minor", 16, 0.45, 125, "chain-1-link-97898asdf7892.wav");
+    link4 = IntegrationTestEntity.insertLink(4, 1, 3, LinkState.Crafting, Timestamp.valueOf("2017-02-14 12:03:08.000001"),Timestamp.valueOf("2017-02-14 12:03:15.836735"),"F minor", 16, 0.45, 125, "chain-1-link-97898asdf7892.wav");
     IntegrationTestEntity.insertLinkMeme(101,4,"Hindsight");
     IntegrationTestEntity.insertLinkMeme(102,4,"Chunky");
     IntegrationTestEntity.insertLinkMeme(103,4,"Regret");
     IntegrationTestEntity.insertLinkMeme(104,4,"Tangy");
-    IntegrationTestEntity.insertChoice(101,4, 3, Choice.MACRO,0,4);
-    IntegrationTestEntity.insertChoice(102,4, 15, Choice.MAIN,0,-2);
+    IntegrationTestEntity.insertChoice(101,4, 3, IdeaType.Macro,0,4);
+    IntegrationTestEntity.insertChoice(102,4, 15, IdeaType.Main,0,-2);
     IntegrationTestEntity.insertLinkChord(101,4,0,"F minor");
     IntegrationTestEntity.insertLinkChord(102,4,8,"Gb minor");
 
     // choice of rhythm-type idea
-    IntegrationTestEntity.insertChoice(103,4,35,Choice.RHYTHM,0,5);
+    IntegrationTestEntity.insertChoice(103,4,35,IdeaType.Rhythm,0,5);
 
     // Instrument "808"
-    IntegrationTestEntity.insertInstrument(1, 2, 2, "808 Drums", Instrument.PERCUSSIVE, 0.9);
+    IntegrationTestEntity.insertInstrument(1, 2, 2, "808 Drums", InstrumentType.Percussive, 0.9);
     IntegrationTestEntity.insertInstrumentMeme(1,1,"heavy");
 
     // Audio "Kick"

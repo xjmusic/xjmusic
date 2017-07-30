@@ -16,6 +16,7 @@ import io.xj.core.model.choice.Chance;
 import io.xj.core.model.choice.Choice;
 import io.xj.core.model.choice.Chooser;
 import io.xj.core.model.idea.Idea;
+import io.xj.core.model.idea.IdeaType;
 import io.xj.core.model.link_chord.LinkChord;
 import io.xj.core.model.link_meme.LinkMeme;
 import io.xj.core.tables.records.PhaseRecord;
@@ -48,6 +49,8 @@ import static io.xj.core.tables.Idea.IDEA;
 public class FoundationCraftImpl implements FoundationCraft {
   private static final double SCORE_MATCHED_KEY_MODE = 10;
   private static final double SCORE_AVOID_CHOOSING_PREVIOUS = 10;
+  public static final double CHOOSE_MACRO_MAX_DISTRIBUTION = 0.5;
+  public static final double CHOOSE_MAIN_MAX_DISTRIBUTION = 0.5;
   private final Logger log = LoggerFactory.getLogger(FoundationCraftImpl.class);
   private final ChoiceDAO choiceDAO;
   private final IdeaDAO ideaDAO;
@@ -70,7 +73,7 @@ public class FoundationCraftImpl implements FoundationCraft {
     LinkChordDAO linkChordDAO,
     LinkMemeDAO linkMemeDAO,
     PhaseChordDAO phaseChordDAO
-  /*-*/) throws BusinessException {
+  /*-*/) {
     this.basis = basis;
     this.choiceDAO = choiceDAO;
     this.ideaDAO = ideaDAO;
@@ -121,7 +124,7 @@ public class FoundationCraftImpl implements FoundationCraft {
     choiceDAO.create(Access.internal(),
       new Choice()
         .setLinkId(basis.linkId().toBigInteger())
-        .setType(Choice.MACRO)
+        .setType(IdeaType.Macro.toString())
         .setIdeaId(macroIdea().getId().toBigInteger())
         .setTranspose(macroTranspose())
         .setPhaseOffset(macroPhaseOffset().toBigInteger()));
@@ -137,7 +140,7 @@ public class FoundationCraftImpl implements FoundationCraft {
     choiceDAO.create(Access.internal(),
       new Choice()
         .setLinkId(basis.linkId().toBigInteger())
-        .setType(Choice.MAIN)
+        .setType(IdeaType.Main.toString())
         .setIdeaId(mainIdea().getId().toBigInteger())
         .setTranspose(mainTranspose())
         .setPhaseOffset(mainPhaseOffset().toBigInteger()));
@@ -370,23 +373,27 @@ public class FoundationCraftImpl implements FoundationCraft {
    @throws Exception on failure
    */
   private Idea chooseMacro() throws Exception {
-    Result<? extends Record> sourceRecords;
     Chooser<Idea> chooser = new Chooser<>();
     String key = basis.isInitialLink() ? null : basis.previousMacroPhase().getKey();
 
     // (1a) retrieve ideas bound directly to chain
-    sourceRecords = ideaDAO.readAllBoundToChain(Access.internal(), basis.chainId(), Idea.MACRO);
+    Result<? extends Record> sourceRecords = ideaDAO.readAllBoundToChain(Access.internal(), basis.chainId(), IdeaType.Macro);
 
     // (1b) only if none were found in the previous transpose, retrieve ideas bound to chain library
-    if (sourceRecords.size() == 0)
-      sourceRecords = ideaDAO.readAllBoundToChainLibrary(Access.internal(), basis.chainId(), Idea.MACRO);
+    if (sourceRecords.isEmpty())
+      sourceRecords = ideaDAO.readAllBoundToChainLibrary(Access.internal(), basis.chainId(), IdeaType.Macro);
 
     // (2) score each source record
-    sourceRecords.forEach((record ->
-      chooser.add(new Idea().setFromRecord(record),
-        Chance.normallyAround(
-          Key.isSameMode(key, record.get(IDEA.KEY)) ? SCORE_MATCHED_KEY_MODE : 0,
-          0.5))));
+    sourceRecords.forEach((record -> {
+      try {
+        chooser.add(new Idea().setFromRecord(record),
+          Chance.normallyAround(
+            Key.isSameMode(key, record.get(IDEA.KEY)) ? SCORE_MATCHED_KEY_MODE : 0,
+            CHOOSE_MACRO_MAX_DISTRIBUTION));
+      } catch (BusinessException e) {
+        log.debug("while scoring macro ideas", e);
+      }
+    }));
 
     // (2b) Avoid previous macro idea
     if (!basis.isInitialLink())
@@ -412,7 +419,6 @@ public class FoundationCraftImpl implements FoundationCraft {
    TODO don't we need to pass in the current phase of the macro idea?
    */
   private Idea chooseMain() throws Exception {
-    Result<? extends Record> sourceRecords;
     Chooser<Idea> chooser = new Chooser<>();
 
     // TODO: only choose major ideas for major keys, minor for minor! [#223] Key of first Phase of chosen Main-Idea must match the `minor` or `major` with the Key of the current Link.
@@ -421,18 +427,23 @@ public class FoundationCraftImpl implements FoundationCraft {
     MemeIsometry memeIsometry = MemeIsometry.of(ideaMemeDAO.readAll(Access.internal(), macroIdea().getId()));
 
     // (2a) retrieve ideas bound directly to chain
-    sourceRecords = ideaDAO.readAllBoundToChain(Access.internal(), basis.chainId(), Idea.MAIN);
+    Result<? extends Record> sourceRecords = ideaDAO.readAllBoundToChain(Access.internal(), basis.chainId(), IdeaType.Main);
 
     // (2b) only if none were found in the previous transpose, retrieve ideas bound to chain library
-    if (sourceRecords.size() == 0)
-      sourceRecords = ideaDAO.readAllBoundToChainLibrary(Access.internal(), basis.chainId(), Idea.MAIN);
+    if (sourceRecords.isEmpty())
+      sourceRecords = ideaDAO.readAllBoundToChainLibrary(Access.internal(), basis.chainId(), IdeaType.Main);
 
     // (3) score each source record based on meme isometry
-    sourceRecords.forEach((record ->
-      chooser.add(new Idea().setFromRecord(record),
-        Chance.normallyAround(
-          memeIsometry.scoreCSV(String.valueOf(record.get(MemeEntity.KEY_MANY))),
-          0.5))));
+    sourceRecords.forEach((record -> {
+      try {
+        chooser.add(new Idea().setFromRecord(record),
+          Chance.normallyAround(
+            memeIsometry.scoreCSV(String.valueOf(record.get(MemeEntity.KEY_MANY))),
+            CHOOSE_MAIN_MAX_DISTRIBUTION));
+      } catch (BusinessException e) {
+        log.debug("while scoring main ideas", e);
+      }
+    }));
 
     // (3b) Avoid previous main idea
     if (!basis.isInitialLink())
@@ -484,11 +495,9 @@ public class FoundationCraftImpl implements FoundationCraft {
    @throws Exception on failure
    */
   private long linkLengthNanos() throws Exception {
-    if (!basis.isInitialLink())
-      return BPM.beatsNanos(linkTotal(),
-        (linkTempo() + basis.previousLink().getTempo()) / 2);
-    else
-      return BPM.beatsNanos(linkTotal(), linkTempo());
+    if (basis.isInitialLink()) return BPM.beatsNanos(linkTotal(), linkTempo());
+    else return BPM.beatsNanos(linkTotal(),
+      (linkTempo() + basis.previousLink().getTempo()) / 2);
   }
 
   /**

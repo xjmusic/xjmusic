@@ -80,7 +80,7 @@ public class UserIT {
       "refreshtoken456",
       "wayne",
       "http://pictures.com/wayne.gif",
-      "wayne@email.com"
+      "shamu@email.com"
     );
 
     // Created User Access Token
@@ -109,7 +109,7 @@ public class UserIT {
     assertNotNull(user);
     assertEquals("wayne", user.getName());
     assertEquals("http://pictures.com/wayne.gif", user.getAvatarUrl());
-    assertEquals("wayne@email.com", user.getEmail());
+    assertEquals("shamu@email.com", user.getEmail());
   }
 
   @Test

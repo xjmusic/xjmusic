@@ -9,13 +9,12 @@ import io.xj.core.external.amazon.S3UploadPolicy;
 import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.integration.IntegrationTestService;
 import io.xj.core.model.audio.Audio;
-import io.xj.core.model.chain.Chain;
-import io.xj.core.model.choice.Choice;
-import io.xj.core.model.idea.Idea;
-import io.xj.core.model.instrument.Instrument;
-import io.xj.core.model.link.Link;
+import io.xj.core.model.chain.ChainState;
+import io.xj.core.model.chain.ChainType;
+import io.xj.core.model.idea.IdeaType;
+import io.xj.core.model.instrument.InstrumentType;
+import io.xj.core.model.link.LinkState;
 import io.xj.core.model.role.Role;
-import io.xj.core.model.voice.Voice;
 import io.xj.core.tables.records.AudioRecord;
 import io.xj.core.transport.JSON;
 
@@ -38,6 +37,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.io.File;
 import java.math.BigInteger;
 import java.sql.Timestamp;
 
@@ -53,7 +53,7 @@ public class AudioIT {
   @Rule public ExpectedException failure = ExpectedException.none();
   private Injector injector;
   private AudioDAO testDAO;
-  @Mock private AmazonProvider amazonProvider;
+  @Mock AmazonProvider amazonProvider;
 
   @Before
   public void setUp() throws Exception {
@@ -76,12 +76,12 @@ public class AudioIT {
     IntegrationTestEntity.insertLibrary(1, 1, "palm tree");
 
     // Idea "leaves" has instruments "808" and "909"
-    IntegrationTestEntity.insertInstrument(1, 1, 2, "808 Drums", Instrument.PERCUSSIVE, 0.9);
-    IntegrationTestEntity.insertInstrument(2, 1, 2, "909 Drums", Instrument.PERCUSSIVE, 0.8);
+    IntegrationTestEntity.insertInstrument(1, 1, 2, "808 Drums", InstrumentType.Percussive, 0.9);
+    IntegrationTestEntity.insertInstrument(2, 1, 2, "909 Drums", InstrumentType.Percussive, 0.8);
 
     // Instrument "808" has Audios "Kick" and "Snare"
-    IntegrationTestEntity.insertAudio(1, 1, "Published", "Kick", "instrument/percussion/808/kick1.wav", 0.01, 2.123, 120.0, 440);
-    IntegrationTestEntity.insertAudio(2, 1, "Published", "Snare", "instrument/percussion/808/snare.wav", 0.0023, 1.05, 131.0, 702);
+    IntegrationTestEntity.insertAudio(1, 1, "Published", "Kick", "instrument" + File.pathSeparator + "percussion" + File.pathSeparator + "808" + File.pathSeparator + "kick1.wav", 0.01, 2.123, 120.0, 440);
+    IntegrationTestEntity.insertAudio(2, 1, "Published", "Snare", "instrument" + File.pathSeparator + "percussion" + File.pathSeparator + "808" + File.pathSeparator + "snare.wav", 0.0023, 1.05, 131.0, 702);
 
     // Instantiate the test subject
     testDAO = injector.getInstance(AudioDAO.class);
@@ -97,19 +97,19 @@ public class AudioIT {
       }));
   }
 
-  private void setUpTwo() throws Exception {
+  private static void setUpTwo() throws Exception {
 
     // Idea, Phase, Voice
-    IntegrationTestEntity.insertIdea(1, 2, 1, Idea.MACRO, "epic concept", 0.342, "C#", 0.286);
+    IntegrationTestEntity.insertIdea(1, 2, 1, IdeaType.Macro, "epic concept", 0.342, "C#", 0.286);
     IntegrationTestEntity.insertPhase(1, 1, 0, 16, "Ants", 0.583, "D minor", 120.0);
-    IntegrationTestEntity.insertVoice(8, 1, Voice.PERCUSSIVE, "This is a percussive voice");
+    IntegrationTestEntity.insertVoice(8, 1, InstrumentType.Percussive, "This is a percussive voice");
 
     // Chain, Link
-    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", Chain.PRODUCTION, Chain.READY, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"));
-    IntegrationTestEntity.insertLink(1, 1, 0, Link.DUBBED, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120, "chain-1-link-97898asdf7892.wav");
+    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Ready, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"));
+    IntegrationTestEntity.insertLink(1, 1, 0, LinkState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120, "chain-1-link-97898asdf7892.wav");
 
     // Choice, Arrangement, Pick
-    IntegrationTestEntity.insertChoice(7, 1, 1, Choice.MACRO, 2, -5);
+    IntegrationTestEntity.insertChoice(7, 1, 1, IdeaType.Macro, 2, -5);
     IntegrationTestEntity.insertArrangement(1, 7, 8, 1);
     IntegrationTestEntity.insertPick(1, 1, 1, 0.125, 1.23, 0.94, 440);
     IntegrationTestEntity.insertPick(2, 1, 1, 1.125, 1.23, 0.94, 220);
@@ -164,7 +164,7 @@ public class AudioIT {
     ));
     Audio inputData = new Audio()
       .setName("maracas")
-      .setWaveformKey("instrument/percussion/808/maracas.wav")
+      .setWaveformKey("instrument" + File.pathSeparator + "percussion" + File.pathSeparator + "808" + File.pathSeparator + "maracas.wav")
       .setStart(0.009)
       .setLength(0.21)
       .setPitch(1567.0)
@@ -205,7 +205,7 @@ public class AudioIT {
     assertNotNull(result);
     assertEquals(ULong.valueOf(1), result.getInstrumentId());
     assertEquals("Snare", result.getName());
-    assertEquals("instrument/percussion/808/snare.wav", result.getWaveformKey());
+    assertEquals("instrument" + File.pathSeparator + "percussion" + File.pathSeparator + "808" + File.pathSeparator + "snare.wav", result.getWaveformKey());
     assertEquals(Double.valueOf(0.0023), result.getStart());
     assertEquals(Double.valueOf(1.05), result.getLength());
     assertEquals(Double.valueOf(131.0), result.getTempo());
@@ -233,7 +233,7 @@ public class AudioIT {
     JSONObject result = testDAO.uploadOne(access, ULong.valueOf(2));
 
     assertNotNull(result);
-    assertEquals("instrument/percussion/808/snare.wav", result.get("waveformKey"));
+    assertEquals("instrument" + File.pathSeparator + "percussion" + File.pathSeparator + "808" + File.pathSeparator + "snare.wav", result.get("waveformKey"));
     assertEquals("xj-audio-test", result.get("bucketName"));
     assertNotNull(result.get("uploadPolicySignature"));
     assertEquals("https://manuts.com", result.get("uploadUrl"));
@@ -273,7 +273,7 @@ public class AudioIT {
 
   @Test
   public void readAll_excludesAudiosInEraseState() throws Exception {
-    IntegrationTestEntity.insertAudio(27,1, "Erase","shammy","instrument-1-audio-09897fhjdf.wav",0,1,120,440);
+    IntegrationTestEntity.insertAudio(27, 1, "Erase", "shammy", "instrument-1-audio-09897fhjdf.wav", 0, 1, 120, 440);
     Access access = new Access(ImmutableMap.of(
       "roles", "user",
       "accounts", "1"
@@ -320,7 +320,7 @@ public class AudioIT {
     ));
     Audio inputData = new Audio()
       .setName("maracas")
-      .setWaveformKey("instrument/percussion/808/maracas.wav")
+      .setWaveformKey("instrument" + File.pathSeparator + "percussion" + File.pathSeparator + "808" + File.pathSeparator + "maracas.wav")
       .setStart(0.009)
       .setLength(0.21)
       .setPitch(1567.0)
@@ -343,7 +343,7 @@ public class AudioIT {
     Audio inputData = new Audio()
       .setInstrumentId(BigInteger.valueOf(7))
       .setName("maracas")
-      .setWaveformKey("instrument/percussion/808/maracas.wav")
+      .setWaveformKey("instrument" + File.pathSeparator + "percussion" + File.pathSeparator + "808" + File.pathSeparator + "maracas.wav")
       .setStart(0.009)
       .setLength(0.21)
       .setPitch(1567.0)
@@ -390,7 +390,7 @@ public class AudioIT {
     assertNotNull(result);
     assertEquals(ULong.valueOf(2), result.getInstrumentId());
     assertEquals("maracas", result.getName());
-    assertEquals("instrument/percussion/808/kick1.wav", result.getWaveformKey());
+    assertEquals("instrument" + File.pathSeparator + "percussion" + File.pathSeparator + "808" + File.pathSeparator + "kick1.wav", result.getWaveformKey());
     assertEquals(Double.valueOf(0.009), result.getStart());
     assertEquals(Double.valueOf(0.21), result.getLength());
     assertEquals(Double.valueOf(80.5), result.getTempo());

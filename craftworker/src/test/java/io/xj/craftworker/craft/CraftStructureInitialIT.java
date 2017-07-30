@@ -6,10 +6,13 @@ import io.xj.core.basis.Basis;
 import io.xj.core.basis.BasisFactory;
 import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.integration.IntegrationTestService;
-import io.xj.core.model.chain.Chain;
+import io.xj.core.model.chain.ChainState;
+import io.xj.core.model.chain.ChainType;
 import io.xj.core.model.choice.Choice;
 import io.xj.core.model.idea.Idea;
+import io.xj.core.model.idea.IdeaType;
 import io.xj.core.model.link.Link;
+import io.xj.core.model.link.LinkState;
 import io.xj.core.model.role.Role;
 import io.xj.craftworker.CraftworkerModule;
 
@@ -31,7 +34,7 @@ import static org.junit.Assert.assertNotNull;
 
 public class CraftStructureInitialIT {
   @Rule public ExpectedException failure = ExpectedException.none();
-  private Injector injector = Guice.createInjector(new CoreModule(), new CraftworkerModule());
+  private final Injector injector = Guice.createInjector(new CoreModule(), new CraftworkerModule());
   private CraftFactory craftFactory;
   private BasisFactory basisFactory;
 
@@ -58,7 +61,7 @@ public class CraftStructureInitialIT {
     IntegrationTestEntity.insertLibrary(2, 1, "house");
 
     // "Special, Wild to Cozy" macro-idea in house library
-    IntegrationTestEntity.insertIdea(4, 3, 2, Idea.MACRO, "Special, Wild to Cozy", 0.5, "C", 120);
+    IntegrationTestEntity.insertIdea(4, 3, 2, IdeaType.Macro, "Special, Wild to Cozy", 0.5, "C", 120);
     IntegrationTestEntity.insertIdeaMeme(2, 4, "Special");
     IntegrationTestEntity.insertPhase(3, 4, 0, 64, "Start Wild", 0.6, "C", 125);
     IntegrationTestEntity.insertPhaseMeme(3, 3, "Wild");
@@ -68,7 +71,7 @@ public class CraftStructureInitialIT {
     IntegrationTestEntity.insertPhaseChord(4, 4, 0, "Bb minor");
 
     // Main idea
-    IntegrationTestEntity.insertIdea(5, 3, 2, Idea.MAIN, "Main Jam", 0.2, "F# minor", 140);
+    IntegrationTestEntity.insertIdea(5, 3, 2, IdeaType.Main, "Main Jam", 0.2, "F# minor", 140);
     IntegrationTestEntity.insertIdeaMeme(3, 5, "Outlook");
     IntegrationTestEntity.insertPhase(15, 5, 0, 16, "Intro", 0.5, "F# minor", 135.0);
     IntegrationTestEntity.insertPhaseMeme(6, 15, "Pessimism");
@@ -80,7 +83,7 @@ public class CraftStructureInitialIT {
     IntegrationTestEntity.insertPhaseChord(18, 16, 8, "G major");
 
     // A basic beat
-    IntegrationTestEntity.insertIdea(35, 3, 2, Idea.RHYTHM, "Basic Beat", 0.2, "C", 121);
+    IntegrationTestEntity.insertIdea(35, 3, 2, IdeaType.Rhythm, "Basic Beat", 0.2, "C", 121);
     IntegrationTestEntity.insertIdeaMeme(343, 35, "Basic");
     IntegrationTestEntity.insertPhase(315, 35, 0, 16, "Drop", 0.5, "C", 125.0);
     IntegrationTestEntity.insertPhaseMeme(346, 315, "Heavy");
@@ -88,17 +91,17 @@ public class CraftStructureInitialIT {
     IntegrationTestEntity.insertPhaseMeme(347, 316, "Heavy");
 
     // Support Idea
-    IntegrationTestEntity.insertIdea(7, 3, 2, Idea.SUPPORT, "Support Jam", 0.3, "Cb minor", 170);
+    IntegrationTestEntity.insertIdea(7, 3, 2, IdeaType.Support, "Support Jam", 0.3, "Cb minor", 170);
 
     // Chain "Print #2" has 1 initial link in crafting state - Foundation is complete
-    IntegrationTestEntity.insertChain(2, 1, "Print #2", Chain.PRODUCTION, Chain.FABRICATING, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null);
-    link6 = IntegrationTestEntity.insertLink(6, 2, 0, Link.CRAFTING, Timestamp.valueOf("2017-02-14 12:01:00.000001"),Timestamp.valueOf("2017-02-14 12:01:07.384616"),"C minor",16, 0.55, 130, "chain-1-link-97898asdf7892.wav");
+    IntegrationTestEntity.insertChain(2, 1, "Print #2", ChainType.Production, ChainState.Fabricating, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null);
+    link6 = IntegrationTestEntity.insertLink(6, 2, 0, LinkState.Crafting, Timestamp.valueOf("2017-02-14 12:01:00.000001"),Timestamp.valueOf("2017-02-14 12:01:07.384616"),"C minor",16, 0.55, 130, "chain-1-link-97898asdf7892.wav");
     IntegrationTestEntity.insertLinkMeme(101,6,"Special");
     IntegrationTestEntity.insertLinkMeme(102,6,"Wild");
     IntegrationTestEntity.insertLinkMeme(103,6,"Pessimism");
     IntegrationTestEntity.insertLinkMeme(104,6,"Outlook");
-    IntegrationTestEntity.insertChoice(101,6, 4, Choice.MACRO,0,0);
-    IntegrationTestEntity.insertChoice(102,6, 5, Choice.MAIN,10,-6);
+    IntegrationTestEntity.insertChoice(101,6, 4, IdeaType.Macro,0,0);
+    IntegrationTestEntity.insertChoice(102,6, 5, IdeaType.Main,10,-6);
     IntegrationTestEntity.insertLinkChord(101,6,0,"C minor");
     IntegrationTestEntity.insertLinkChord(102,6,8,"Db minor");
 
@@ -126,7 +129,7 @@ public class CraftStructureInitialIT {
     assertNotNull(IntegrationTestService.getDb().selectFrom(CHOICE)
       .where(CHOICE.LINK_ID.eq(ULong.valueOf(6)))
       .and(CHOICE.IDEA_ID.eq(ULong.valueOf(35)))
-      .and(CHOICE.TYPE.eq(Choice.RHYTHM))
+      .and(CHOICE.TYPE.eq(IdeaType.Rhythm.toString()))
       .and(CHOICE.TRANSPOSE.eq(0))
       .and(CHOICE.PHASE_OFFSET.eq(ULong.valueOf(0)))
       .fetchOne());

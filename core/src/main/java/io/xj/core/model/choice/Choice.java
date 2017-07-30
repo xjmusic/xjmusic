@@ -3,9 +3,8 @@ package io.xj.core.model.choice;
 
 import io.xj.core.app.exception.BusinessException;
 import io.xj.core.model.Entity;
-import io.xj.core.model.idea.Idea;
+import io.xj.core.model.idea.IdeaType;
 import io.xj.core.transport.CSV;
-import io.xj.core.util.Text;
 
 import org.jooq.Field;
 import org.jooq.Record;
@@ -33,12 +32,8 @@ import static io.xj.core.Tables.CHOICE;
  NOTE: There can only be ONE of any getter/setter (with the same # of input params)
  */
 public class Choice extends Entity {
-  public static final String MACRO = Idea.MACRO;
-  public static final String MAIN = Idea.MAIN;
-  public static final String RHYTHM = Idea.RHYTHM;
-  public static final String SUPPORT = Idea.SUPPORT;
   public static final String KEY_AVAILABLE_PHASE_OFFSETS = "availablePhaseOffsets";
-  public static final List<String> TYPES = Idea.TYPES;
+
   public static final String KEY_ONE = "choice";
   public static final String KEY_MANY = "choices";
   private static final String KEY_IDEA_ID = "ideaId";
@@ -46,9 +41,11 @@ public class Choice extends Entity {
   private static final String KEY_TRANSPOSE = "transpose";
   private static final String KEY_TYPE = "type";
   private List<ULong> availablePhaseOffsets;
+
   private ULong linkId;
   private ULong ideaId;
-  private String type;
+  private String _type; // to hold value before validation
+  private IdeaType type;
   private ULong phaseOffset;
   private Integer transpose;
 
@@ -56,8 +53,8 @@ public class Choice extends Entity {
     return linkId;
   }
 
-  public Choice setLinkId(BigInteger linkId) {
-    this.linkId = ULong.valueOf(linkId);
+  public Choice setLinkId(BigInteger value) {
+    linkId = ULong.valueOf(value);
     return this;
   }
 
@@ -65,17 +62,17 @@ public class Choice extends Entity {
     return ideaId;
   }
 
-  public Choice setIdeaId(BigInteger ideaId) {
-    this.ideaId = ULong.valueOf(ideaId);
+  public Choice setIdeaId(BigInteger value) {
+    ideaId = ULong.valueOf(value);
     return this;
   }
 
-  public String getType() {
+  public IdeaType getType() {
     return type;
   }
 
-  public Choice setType(String type) {
-    this.type = Text.LowerSlug(type);
+  public Choice setType(String value) {
+    _type = value;
     return this;
   }
 
@@ -83,8 +80,8 @@ public class Choice extends Entity {
     return phaseOffset;
   }
 
-  public Choice setPhaseOffset(BigInteger phaseOffset) {
-    this.phaseOffset = ULong.valueOf(phaseOffset);
+  public Choice setPhaseOffset(BigInteger value) {
+    phaseOffset = ULong.valueOf(value);
     return this;
   }
 
@@ -92,8 +89,8 @@ public class Choice extends Entity {
     return transpose;
   }
 
-  public Choice setTranspose(Integer transpose) {
-    this.transpose = transpose;
+  public Choice setTranspose(Integer value) {
+    transpose = value;
     return this;
   }
 
@@ -105,7 +102,7 @@ public class Choice extends Entity {
    */
   public boolean hasOneMorePhase() {
     for (ULong availableOffset : availablePhaseOffsets)
-      if (availableOffset.compareTo(phaseOffset) == 1)
+      if (1 == availableOffset.compareTo(phaseOffset))
         return true;
     return false;
   }
@@ -119,9 +116,9 @@ public class Choice extends Entity {
   public boolean hasTwoMorePhases() {
     int num = 0;
     for (ULong availableOffset : availablePhaseOffsets)
-      if (availableOffset.compareTo(phaseOffset) == 1) {
+      if (1 == availableOffset.compareTo(phaseOffset)) {
         num++;
-        if (num >= 2)
+        if (2 <= num)
           return true;
       }
     return false;
@@ -137,9 +134,9 @@ public class Choice extends Entity {
   public ULong nextPhaseOffset() {
     ULong offset = null;
     for (ULong availableOffset : availablePhaseOffsets)
-      if (availableOffset.compareTo(phaseOffset) == 1)
+      if (1 == availableOffset.compareTo(phaseOffset))
         if (Objects.isNull(offset) ||
-          availableOffset.compareTo(offset) == -1)
+          -1 == availableOffset.compareTo(offset))
           offset = availableOffset;
     return Objects.nonNull(offset) ? offset : ULong.valueOf(0);
   }
@@ -150,7 +147,7 @@ public class Choice extends Entity {
    @return eitherOr phase offsets
    */
   public List<ULong> getAvailablePhaseOffsets() {
-    return availablePhaseOffsets;
+    return Collections.unmodifiableList(availablePhaseOffsets);
   }
 
   /**
@@ -161,8 +158,8 @@ public class Choice extends Entity {
   public Choice setAvailablePhaseOffsets(String phaseOffsets) {
     availablePhaseOffsets = Lists.newArrayList();
     CSV.split(phaseOffsets)
-      .forEach(phaseOffset ->
-        availablePhaseOffsets.add(ULong.valueOf(phaseOffset)));
+      .forEach(phaseOffsetToSet ->
+        availablePhaseOffsets.add(ULong.valueOf(phaseOffsetToSet)));
     Collections.sort(availablePhaseOffsets);
 
     return this;
@@ -170,24 +167,23 @@ public class Choice extends Entity {
 
   @Override
   public void validate() throws BusinessException {
+    // throws its own BusinessException on failure
+    type = IdeaType.validate(_type);
 
-    if (this.linkId == null)
+    if (Objects.isNull(linkId ))
       throw new BusinessException("Link ID is required.");
 
-    if (this.ideaId == null)
+    if (Objects.isNull(ideaId ))
       throw new BusinessException("Idea ID is required.");
 
-    if (this.type == null || this.type.length() == 0)
+    if (Objects.isNull(type ))
       throw new BusinessException("Type is required.");
 
-    if (!TYPES.contains(this.type))
-      throw new BusinessException("'" + this.type + "' is not a valid type (" + CSV.join(TYPES) + ").");
-
-    if (this.phaseOffset == null)
+    if (Objects.isNull(phaseOffset ))
       throw new BusinessException("Phase Offset is required.");
 
-    if (this.transpose == null)
-      this.transpose = 0;
+    if (Objects.isNull(transpose ))
+      transpose = 0;
   }
 
   /**
@@ -206,7 +202,7 @@ public class Choice extends Entity {
   }
 
   @Override
-  public Choice setFromRecord(Record record) {
+  public Choice setFromRecord(Record record) throws BusinessException {
     if (Objects.isNull(record)) {
       return null;
     }
@@ -221,7 +217,7 @@ public class Choice extends Entity {
       ideaId = record.get(CHOICE.IDEA_ID);
 
     if (Objects.nonNull(record.field(CHOICE.TYPE)))
-      type = record.get(CHOICE.TYPE);
+      type = IdeaType.validate(record.get(CHOICE.TYPE));
 
     if (Objects.nonNull(record.field(CHOICE.TRANSPOSE)))
       transpose = record.get(CHOICE.TRANSPOSE);

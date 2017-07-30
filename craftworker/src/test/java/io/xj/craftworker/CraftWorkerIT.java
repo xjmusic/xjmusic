@@ -3,17 +3,18 @@ package io.xj.craftworker;
 
 import io.xj.core.CoreModule;
 import io.xj.core.app.App;
-import io.xj.core.integration.IntegrationTestEntity;
-import io.xj.core.integration.IntegrationTestService;
-import io.xj.core.model.chain.Chain;
-import io.xj.core.model.idea.Idea;
-import io.xj.core.model.link.Link;
-import io.xj.core.model.role.Role;
-import io.xj.core.tables.records.LinkRecord;
 import io.xj.core.chain_gang.ChainGangFactory;
 import io.xj.core.chain_gang.ChainGangOperation;
-import io.xj.core.chain_gang.impl.link_work.LinkWorkFactoryModule;
 import io.xj.core.chain_gang.impl.link_pilot_work.LinkPilotWorkFactoryModule;
+import io.xj.core.chain_gang.impl.link_work.LinkWorkFactoryModule;
+import io.xj.core.integration.IntegrationTestEntity;
+import io.xj.core.integration.IntegrationTestService;
+import io.xj.core.model.chain.ChainState;
+import io.xj.core.model.chain.ChainType;
+import io.xj.core.model.idea.IdeaType;
+import io.xj.core.model.link.LinkState;
+import io.xj.core.model.role.Role;
+import io.xj.core.tables.records.LinkRecord;
 
 import org.jooq.Result;
 
@@ -34,7 +35,7 @@ import static org.junit.Assert.assertTrue;
 
 public class CraftWorkerIT {
   @Rule public ExpectedException failure = ExpectedException.none();
-  private Injector injector = Guice.createInjector(new CoreModule(), new CraftworkerModule());
+  private final Injector injector = Guice.createInjector(new CoreModule(), new CraftworkerModule());
   private App app;
 
   @Before
@@ -57,7 +58,7 @@ public class CraftWorkerIT {
     IntegrationTestEntity.insertLibrary(2, 1, "house");
 
     // "Heavy, Deep to Metal" macro-idea in house library
-    IntegrationTestEntity.insertIdea(4, 3, 2, Idea.MACRO, "Heavy, Deep to Metal", 0.5, "C", 120);
+    IntegrationTestEntity.insertIdea(4, 3, 2, IdeaType.Macro, "Heavy, Deep to Metal", 0.5, "C", 120);
     IntegrationTestEntity.insertIdeaMeme(2, 4, "Heavy");
     // " phase offset 0
     IntegrationTestEntity.insertPhase(3, 4, 0, 0, "Start Deep", 0.6, "C", 125);
@@ -74,7 +75,7 @@ public class CraftWorkerIT {
     IntegrationTestEntity.insertPhaseChord(5, 5, 0, "Ab minor");
 
     // "Tech, Steampunk to Modern" macro-idea in house library
-    IntegrationTestEntity.insertIdea(3, 3, 2, Idea.MACRO, "Tech, Steampunk to Modern", 0.5, "G minor", 120);
+    IntegrationTestEntity.insertIdea(3, 3, 2, IdeaType.Macro, "Tech, Steampunk to Modern", 0.5, "G minor", 120);
     IntegrationTestEntity.insertIdeaMeme(1, 3, "Tech");
     // # phase offset 0
     IntegrationTestEntity.insertPhase(1, 3, 0, 0, "Start Steampunk", 0.4, "G minor", 115);
@@ -86,7 +87,7 @@ public class CraftWorkerIT {
     IntegrationTestEntity.insertPhaseChord(2, 2, 0, "C");
 
     // Main idea
-    IntegrationTestEntity.insertIdea(5, 3, 2, Idea.MAIN, "Main Jam", 0.2, "C minor", 140);
+    IntegrationTestEntity.insertIdea(5, 3, 2, IdeaType.Main, "Main Jam", 0.2, "C minor", 140);
     IntegrationTestEntity.insertIdeaMeme(3, 5, "Attitude");
     // # phase offset 0
     IntegrationTestEntity.insertPhase(15, 5, 0, 16, "Intro", 0.5, "G major", 135.0);
@@ -100,7 +101,7 @@ public class CraftWorkerIT {
     IntegrationTestEntity.insertPhaseChord(18, 16, 8, "Bb minor");
 
     // Another Main idea to go to
-    IntegrationTestEntity.insertIdea(15, 3, 2, Idea.MAIN, "Next Jam", 0.2, "Db minor", 140);
+    IntegrationTestEntity.insertIdea(15, 3, 2, IdeaType.Main, "Next Jam", 0.2, "Db minor", 140);
     IntegrationTestEntity.insertIdeaMeme(43, 15, "Temptation");
     IntegrationTestEntity.insertPhase(415, 15, 0, 16, "Intro", 0.5, "G minor", 135.0);
     IntegrationTestEntity.insertPhaseMeme(46, 415, "Food");
@@ -113,13 +114,13 @@ public class CraftWorkerIT {
     IntegrationTestEntity.insertPhaseChord(418, 416, 8, "Bb major");
 
     // A basic beat
-    IntegrationTestEntity.insertIdea(35, 3, 2, Idea.RHYTHM, "Basic Beat", 0.2, "C", 121);
+    IntegrationTestEntity.insertIdea(35, 3, 2, IdeaType.Rhythm, "Basic Beat", 0.2, "C", 121);
     IntegrationTestEntity.insertIdeaMeme(343, 35, "Basic");
     IntegrationTestEntity.insertPhase(315, 35, 0, 16, "Drop", 0.5, "C", 125.0);
     IntegrationTestEntity.insertPhaseMeme(346, 315, "Heavy");
 
     // Chain "Test Print #1" is ready to begin
-    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", Chain.PRODUCTION, Chain.FABRICATING, Timestamp.from(new Date().toInstant().minusSeconds(300)), Timestamp.from(new Date().toInstant()));
+    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricating, Timestamp.from(new Date().toInstant().minusSeconds(300)), Timestamp.from(new Date().toInstant()));
 
     // Bind the library to the chain
     IntegrationTestEntity.insertChainLibrary(1, 1, 2);
@@ -137,7 +138,7 @@ public class CraftWorkerIT {
     app.registerGangWorkload(
       "Create New Links",
       pilotChainGangFactory.createLeader(300, 10),
-      pilotChainGangFactory.createFollower(Link.PLANNED)
+      pilotChainGangFactory.createFollower(LinkState.Planned)
     );
 
     // Link-type Workload
@@ -147,8 +148,8 @@ public class CraftWorkerIT {
       new LinkWorkFactoryModule()).getInstance(ChainGangFactory.class);
     app.registerGangWorkload(
       "Craft Links",
-      chainGangFactory.createLeader(Link.PLANNED, 300, 10),
-      chainGangFactory.createFollower(Link.CRAFTING, Link.CRAFTED, linkChainGangOperation)
+      chainGangFactory.createLeader(LinkState.Planned, 300, 10),
+      chainGangFactory.createFollower(LinkState.Crafting, LinkState.Crafted, linkChainGangOperation)
     );
   }
 
@@ -159,16 +160,16 @@ public class CraftWorkerIT {
 
   @Test
   public void craftworkerRun() throws Exception {
-    int testDurationSeconds = 15;
 
     app.start();
-    Thread.sleep(testDurationSeconds * 1000);
+    int testDurationSeconds = 15;
+    Thread.sleep(testDurationSeconds * 1000L);
     app.stop();
 
     Result<LinkRecord> resultLinks = IntegrationTestService.getDb()
       .selectFrom(LINK)
       .fetch();
-    assertTrue(resultLinks.size() > 3);
+    assertTrue(3L < resultLinks.size());
   }
 
 }

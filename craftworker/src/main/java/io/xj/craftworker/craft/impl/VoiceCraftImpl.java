@@ -16,11 +16,11 @@ import io.xj.core.model.audio.Audio;
 import io.xj.core.model.choice.Chance;
 import io.xj.core.model.choice.Chooser;
 import io.xj.core.model.instrument.Instrument;
+import io.xj.core.model.instrument.InstrumentType;
 import io.xj.core.model.phase.Phase;
 import io.xj.core.model.pick.Pick;
 import io.xj.core.model.voice.Voice;
 import io.xj.core.model.voice_event.VoiceEvent;
-import io.xj.core.tables.records.ArrangementRecord;
 import io.xj.core.tables.records.VoiceEventRecord;
 import io.xj.craftworker.craft.VoiceCraft;
 import io.xj.music.Chord;
@@ -33,6 +33,9 @@ import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.List;
 import java.util.Objects;
 
@@ -40,8 +43,7 @@ import java.util.Objects;
  Voice craft for the current link includes events, arrangements, instruments, and audio
  */
 public class VoiceCraftImpl implements VoiceCraft {
-  //  private final Logger log = LoggerFactory.getLogger(VoiceCraftImpl.class);
-  private final static double SCORE_AVOID_CHOOSING_PREVIOUS = 10;
+  private final Logger log = LoggerFactory.getLogger(VoiceCraftImpl.class);
   private static final double PICK_INSTRUMENT_AUDIO_SCORE_MAX_DISTRIBUTION = 0.25;
   private final Basis basis;
   private final ArrangementDAO arrangementDAO;
@@ -56,7 +58,7 @@ public class VoiceCraftImpl implements VoiceCraft {
     InstrumentDAO instrumentDAO,
     LinkMemeDAO linkMemeDAO,
     PickDAO pickDAO
-    /*-*/) throws BusinessException {
+    /*-*/) {
     this.basis = basis;
     this.arrangementDAO = arrangementDAO;
     this.instrumentDAO = instrumentDAO;
@@ -117,27 +119,32 @@ public class VoiceCraftImpl implements VoiceCraft {
    @throws Exception on failure
    */
   private Instrument choosePercussiveInstrument(Voice voice) throws Exception {
-    Result<? extends Record> sourceRecords;
     Chooser<Instrument> chooser = new Chooser<>();
 
     // (1) retrieve memes of link, for use as a meme isometry comparison
     MemeIsometry memeIsometry = MemeIsometry.of(linkMemeDAO.readAll(Access.internal(), basis.linkId()));
 
     // (2a) retrieve instruments bound directly to chain
-    sourceRecords = instrumentDAO.readAllBoundToChain(Access.internal(), basis.chainId(), Instrument.PERCUSSIVE);
+    Result<? extends Record> sourceRecords = instrumentDAO.readAllBoundToChain(Access.internal(), basis.chainId(), InstrumentType.Percussive);
 
     // (2b) only if none were found in the previous transpose, retrieve instruments bound to chain library
-    if (sourceRecords.size() == 0)
-      sourceRecords = instrumentDAO.readAllBoundToChainLibrary(Access.internal(), basis.chainId(), Instrument.PERCUSSIVE);
+    if (sourceRecords.isEmpty())
+      sourceRecords = instrumentDAO.readAllBoundToChainLibrary(Access.internal(), basis.chainId(), InstrumentType.Percussive);
 
     // TODO [#258] Instrument selection is based on Text Isometry between the voice description and the instrument description
+    log.debug("not currently in use: {}", voice);
 
     // (3) score each source record based on meme isometry
-    sourceRecords.forEach((record ->
-      chooser.add(new Instrument().setFromRecord(record),
-        Chance.normallyAround(
-          memeIsometry.scoreCSV(String.valueOf(record.get(MemeEntity.KEY_MANY))),
-          1))));
+    sourceRecords.forEach((record -> {
+      try {
+        chooser.add(new Instrument().setFromRecord(record),
+          Chance.normallyAround(
+            memeIsometry.scoreCSV(String.valueOf(record.get(MemeEntity.KEY_MANY))),
+            1));
+      } catch (BusinessException e) {
+        log.debug("while scoring perussive instrument", e);
+      }
+    }));
 
     /*
     DISABLED for [#324] Don't take into account which instruments were previously chosen, when choosing instruments for current link.
@@ -164,7 +171,7 @@ public class VoiceCraftImpl implements VoiceCraft {
 
    @param phase             that voice belongs to
    @param voice             that is being arranged
-   @param transpose
+   @param transpose         audio +/- semitones
    @param instrument        to arrange audio of
    @param arrangementRecord to create arrangement around
    @throws Exception on failure
@@ -174,14 +181,15 @@ public class VoiceCraftImpl implements VoiceCraft {
     Voice voice,
     int transpose,
     Instrument instrument,
-    ArrangementRecord arrangementRecord
+    Record arrangementRecord
   /*-*/) throws Exception {
     double repeat = basis.link().getTotal().doubleValue() / phase.getTotal().doubleValue();
     Result<VoiceEventRecord> voiceEvents = basis.voiceEvents(voice.getId());
 
-    for (int i = 0; i < voiceEvents.size() * repeat; i++)
-      pickInstrumentAudio(instrument, new Arrangement().setFromRecord(arrangementRecord), new VoiceEvent().setFromRecord(voiceEvents.get(i % voiceEvents.size())), transpose,
-        Math.floor(i / voiceEvents.size()) * phase.getTotal().doubleValue());
+    int size = voiceEvents.size();
+    for (int i = 0; i < size * repeat; i++)
+      pickInstrumentAudio(instrument, new Arrangement().setFromRecord(arrangementRecord), new VoiceEvent().setFromRecord(voiceEvents.get(i % size)), transpose,
+        Math.floor(i / (double) size) * phase.getTotal().doubleValue());
   }
 
   /**
@@ -254,13 +262,16 @@ public class VoiceCraftImpl implements VoiceCraft {
    @param instrumentType of instrument
    @return final note
    */
-  private Note pickNote(Note fromNote, Chord chord, Audio audio, String instrumentType) {
+  private Note pickNote(Note fromNote, Chord chord, Audio audio, InstrumentType instrumentType) {
     switch (instrumentType) {
 
-      case Instrument.PERCUSSIVE:
+      case Percussive:
         return basis.note(audio.getPitch())
           .conformedTo(chord);
 
+      case Melodic:
+      case Harmonic:
+      case Vocal:
       default:
         return fromNote
           .conformedTo(chord);
@@ -273,10 +284,15 @@ public class VoiceCraftImpl implements VoiceCraft {
    @return voices
    @throws Exception on failure
    */
-  private List<Voice> rhythmPhaseVoices() throws Exception {
+  private Iterable<Voice> rhythmPhaseVoices() throws Exception {
     List<Voice> voices = Lists.newArrayList();
-    basis.voices(rhythmPhase().getId()).forEach(record ->
-      voices.add(new Voice().setFromRecord(record)));
+    basis.voices(rhythmPhase().getId()).forEach(record -> {
+      try {
+        voices.add(new Voice().setFromRecord(record));
+      } catch (BusinessException e) {
+        log.debug("while adding rhythm phase voices", e);
+      }
+    });
     return voices;
   }
 

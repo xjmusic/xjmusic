@@ -38,7 +38,7 @@ public class LinkTest {
       .setOffset(BigInteger.valueOf(473))
       .setKey("G minor")
       .setTempo(121.0)
-      .setState(Link.CRAFTED)
+      .setState("Crafted")
       .validate();
   }
 
@@ -53,7 +53,7 @@ public class LinkTest {
       .setOffset(BigInteger.valueOf(473))
       .setKey("G minor")
       .setTempo(121.0)
-      .setState(Link.CRAFTED)
+      .setState("Crafted")
       .validate();
   }
 
@@ -63,7 +63,7 @@ public class LinkTest {
       .setChainId(BigInteger.valueOf(180923))
       .setBeginAt("2014-08-12 12:17:02.527142")
       .setOffset(BigInteger.valueOf(473))
-      .setState(Link.CRAFTED)
+      .setState("Crafted")
       .validate();
   }
 
@@ -80,7 +80,7 @@ public class LinkTest {
       .setOffset(BigInteger.valueOf(473))
       .setKey("G minor")
       .setTempo(121.0)
-      .setState(Link.CRAFTED)
+      .setState("Crafted")
       .validate();
   }
 
@@ -97,7 +97,7 @@ public class LinkTest {
       .setOffset(BigInteger.valueOf(473))
       .setKey("G minor")
       .setTempo(121.0)
-      .setState(Link.CRAFTED)
+      .setState("Crafted")
       .validate();
   }
 
@@ -114,16 +114,13 @@ public class LinkTest {
       .setDensity(0.754)
       .setKey("G minor")
       .setTempo(121.0)
-      .setState(Link.CRAFTED)
+      .setState("Crafted")
       .validate();
   }
 
   @Test
-  public void validate_failsWithoutState() throws Exception {
-    failure.expect(BusinessException.class);
-    failure.expectMessage("State is required");
-
-    new Link()
+  public void validate_defaultsToPlannedWithoutState() throws Exception {
+    Link link = new Link()
       .setChainId(BigInteger.valueOf(180923))
       .setBeginAt("2014-08-12 12:17:02.527142")
       .setEndAt("2014-09-12 12:17:34.262679")
@@ -131,8 +128,9 @@ public class LinkTest {
       .setDensity(0.754)
       .setOffset(BigInteger.valueOf(473))
       .setKey("G minor")
-      .setTempo(121.0)
-      .validate();
+      .setTempo(121.0);
+    link.validate();
+    assertEquals(LinkState.Planned, link.getState());
   }
 
   @Test
@@ -165,7 +163,7 @@ public class LinkTest {
     record.setOffset(ULong.valueOf(473));
     record.setKey("G minor");
     record.setTempo(121.0);
-    record.setState(Link.CRAFTED);
+    record.setState("Crafted");
     record.setCreatedAt(Timestamp.valueOf("2014-08-12 12:17:02.527142"));
     record.setUpdatedAt(Timestamp.valueOf("2014-09-12 12:17:01.047563"));
 
@@ -182,7 +180,7 @@ public class LinkTest {
     assertEquals(ULong.valueOf(473), result.getOffset());
     assertEquals("G minor", result.getKey());
     assertEquals(Double.valueOf(121.0), result.getTempo());
-    assertEquals(Link.CRAFTED, result.getState());
+    assertEquals(LinkState.Crafted, result.getState());
     assertEquals(Timestamp.valueOf("2014-08-12 12:17:02.527142"), result.getCreatedAt());
     assertEquals(Timestamp.valueOf("2014-09-12 12:17:01.047563"), result.getUpdatedAt());
   }
@@ -194,7 +192,7 @@ public class LinkTest {
 
   @Test
   public void intoFieldValueMap() throws Exception {
-    Map<Field, Object> result = new Link()
+    Link link = new Link()
       .setChainId(BigInteger.valueOf(180923))
       .setBeginAt("2014-08-12 12:17:02.527142")
       .setEndAt("2014-09-12 12:17:34.262679")
@@ -203,8 +201,10 @@ public class LinkTest {
       .setOffset(BigInteger.valueOf(473))
       .setKey("G minor")
       .setTempo(121.0)
-      .setState(Link.CRAFTED)
-      .updatableFieldValueMap();
+      .setState("Crafted");
+    link.validate();
+
+    Map<Field, Object> result = link.updatableFieldValueMap();
 
     assertEquals(ULong.valueOf(180923), result.get(LINK.CHAIN_ID));
     assertEquals(Timestamp.valueOf("2014-08-12 12:17:02.527142"), result.get(LINK.BEGIN_AT));
@@ -214,7 +214,7 @@ public class LinkTest {
     assertEquals(ULong.valueOf(473), result.get(LINK.OFFSET));
     assertEquals("G minor", result.get(LINK.KEY));
     assertEquals(121.0, result.get(LINK.TEMPO));
-    assertEquals(Link.CRAFTED, result.get(LINK.STATE));
+    assertEquals(LinkState.Crafted, result.get(LINK.STATE));
   }
 
   @Test

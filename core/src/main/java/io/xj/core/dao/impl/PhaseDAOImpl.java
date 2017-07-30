@@ -7,7 +7,7 @@ import io.xj.core.app.exception.ConfigException;
 import io.xj.core.dao.PhaseDAO;
 import io.xj.core.db.sql.SQLConnection;
 import io.xj.core.db.sql.SQLDatabaseProvider;
-import io.xj.core.model.idea.Idea;
+import io.xj.core.model.idea.IdeaType;
 import io.xj.core.model.phase.Phase;
 import io.xj.core.tables.records.PhaseRecord;
 
@@ -20,8 +20,8 @@ import org.jooq.types.ULong;
 import com.google.inject.Inject;
 
 import javax.annotation.Nullable;
-import java.sql.SQLException;
 import java.util.Map;
+import java.util.Objects;
 
 import static io.xj.core.Tables.PHASE_MEME;
 import static io.xj.core.tables.Idea.IDEA;
@@ -187,9 +187,8 @@ public class PhaseDAOImpl extends DAOImpl implements PhaseDAO {
    @param access control
    @param ideaId to readMany all phase of
    @return array of phases
-   @throws SQLException on failure
    */
-  private Result<PhaseRecord> readAll(DSLContext db, Access access, ULong ideaId) throws SQLException {
+  private Result<PhaseRecord> readAll(DSLContext db, Access access, ULong ideaId) {
     if (access.isTopLevel())
       return resultInto(PHASE, db.select(PHASE.fields())
         .from(PHASE)
@@ -223,7 +222,7 @@ public class PhaseDAOImpl extends DAOImpl implements PhaseDAO {
     // Common for Create/Update
     deepValidate(db, access, entity);
 
-    if (executeUpdate(db, PHASE, fieldValues) == 0)
+    if (0 == executeUpdate(db, PHASE, fieldValues))
       throw new BusinessException("No records updated.");
   }
 
@@ -305,10 +304,10 @@ public class PhaseDAOImpl extends DAOImpl implements PhaseDAO {
     requireExists("Idea", idea);
 
     // [#199] Macro-type Idea `total` not required; still is required for other types of Idea
-    if (!idea.get(IDEA.TYPE).equals(Idea.MACRO)) {
-      String d = "for a phase of a non-macro-type idea, total (# beats)";
-      requireNonNull(d, entity.getTotal());
-      requireGreaterThanZero(d, entity.getTotal());
+    if (!Objects.equals(idea.get(IDEA.TYPE), IdeaType.Macro.toString())) {
+      String msg = "for a phase of a non-macro-type idea, total (# beats)";
+      requireNonNull(msg, entity.getTotal());
+      requireGreaterThanZero(msg, entity.getTotal());
     }
   }
 

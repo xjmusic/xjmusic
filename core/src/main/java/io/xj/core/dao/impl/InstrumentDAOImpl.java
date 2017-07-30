@@ -7,21 +7,21 @@ import io.xj.core.app.exception.ConfigException;
 import io.xj.core.dao.InstrumentDAO;
 import io.xj.core.db.sql.SQLConnection;
 import io.xj.core.db.sql.SQLDatabaseProvider;
-import io.xj.core.model.instrument.Instrument;
 import io.xj.core.model.MemeEntity;
+import io.xj.core.model.instrument.Instrument;
+import io.xj.core.model.instrument.InstrumentType;
 import io.xj.core.tables.records.InstrumentRecord;
 
 import org.jooq.DSLContext;
 import org.jooq.Field;
 import org.jooq.Record;
 import org.jooq.Result;
-import org.jooq.SelectSelectStep;
+import org.jooq.SelectFromStep;
 import org.jooq.types.ULong;
 
 import com.google.inject.Inject;
 
 import javax.annotation.Nullable;
-import java.sql.SQLException;
 import java.util.Map;
 
 import static io.xj.core.Tables.AUDIO;
@@ -85,7 +85,7 @@ public class InstrumentDAOImpl extends DAOImpl implements InstrumentDAO {
   }
 
   @Override
-  public Result<? extends Record> readAllBoundToChain(Access access, ULong chainId, String instrumentType) throws Exception {
+  public Result<? extends Record> readAllBoundToChain(Access access, ULong chainId, InstrumentType instrumentType) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readAllBoundToChain(tx.getContext(), access, chainId, instrumentType));
@@ -95,7 +95,7 @@ public class InstrumentDAOImpl extends DAOImpl implements InstrumentDAO {
   }
 
   @Override
-  public Result<? extends Record> readAllBoundToChainLibrary(Access access, ULong chainId, String instrumentType) throws Exception {
+  public Result<? extends Record> readAllBoundToChainLibrary(Access access, ULong chainId, InstrumentType instrumentType) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readAllBoundToChainLibrary(tx.getContext(), access, chainId, instrumentType));
@@ -105,10 +105,10 @@ public class InstrumentDAOImpl extends DAOImpl implements InstrumentDAO {
   }
 
   @Override
-  public void update(Access access, ULong id, Instrument entity) throws Exception {
+  public void update(Access access, ULong instrumentId, Instrument entity) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      update(tx.getContext(), access, id, entity);
+      update(tx.getContext(), access, instrumentId, entity);
       tx.success();
     } catch (Exception e) {
       throw tx.failure(e);
@@ -187,7 +187,7 @@ public class InstrumentDAOImpl extends DAOImpl implements InstrumentDAO {
    @param accountId of parent
    @return array of records
    */
-  private Result<InstrumentRecord> readAllInAccount(DSLContext db, Access access, ULong accountId) throws SQLException {
+  private Result<InstrumentRecord> readAllInAccount(DSLContext db, Access access, ULong accountId) {
     if (access.isTopLevel())
       return resultInto(INSTRUMENT, db.select(INSTRUMENT.fields())
         .from(INSTRUMENT)
@@ -211,7 +211,7 @@ public class InstrumentDAOImpl extends DAOImpl implements InstrumentDAO {
    @param libraryId of parent
    @return array of records
    */
-  private Result<InstrumentRecord> readAllInLibrary(DSLContext db, Access access, ULong libraryId) throws SQLException {
+  private Result<InstrumentRecord> readAllInLibrary(DSLContext db, Access access, ULong libraryId) {
     if (access.isTopLevel())
       return resultInto(INSTRUMENT, db.select(INSTRUMENT.fields())
         .from(INSTRUMENT)
@@ -229,19 +229,20 @@ public class InstrumentDAOImpl extends DAOImpl implements InstrumentDAO {
   /**
    Read all instrument records bound to a Chain via ChainInstrument records
 
-   @param db      context
+   @return array of records
+    @param db      context
    @param access  control
    @param chainId of parent
-   @return array of records
+   @param instrumentType of which to read all bound to chain
    */
-  private Result<? extends Record> readAllBoundToChain(DSLContext db, Access access, ULong chainId, String instrumentType) throws Exception {
+  private Result<? extends Record> readAllBoundToChain(DSLContext db, Access access, ULong chainId, InstrumentType instrumentType) throws Exception {
     requireTopLevel(access);
     return selectInstrumentAndMemes(db)
       .from(INSTRUMENT_MEME)
       .join(CHAIN_INSTRUMENT).on(CHAIN_INSTRUMENT.INSTRUMENT_ID.eq(INSTRUMENT_MEME.INSTRUMENT_ID))
       .join(INSTRUMENT).on(INSTRUMENT.ID.eq(INSTRUMENT_MEME.INSTRUMENT_ID))
       .where(CHAIN_INSTRUMENT.CHAIN_ID.eq(chainId))
-      .and(INSTRUMENT.TYPE.eq(instrumentType))
+      .and(INSTRUMENT.TYPE.eq(instrumentType.toString()))
       .groupBy(INSTRUMENT.ID)
       .fetch();
   }
@@ -249,19 +250,20 @@ public class InstrumentDAOImpl extends DAOImpl implements InstrumentDAO {
   /**
    Read all instrument records bound to a Chain via ChainLibrary records
 
-   @param db      context
+   @return array of records
+    @param db      context
    @param access  control
    @param chainId of parent
-   @return array of records
+   @param instrumentType of which to read all bound to chain
    */
-  private Result<? extends Record> readAllBoundToChainLibrary(DSLContext db, Access access, ULong chainId, String instrumentType) throws Exception {
+  private Result<? extends Record> readAllBoundToChainLibrary(DSLContext db, Access access, ULong chainId, InstrumentType instrumentType) throws Exception {
     requireTopLevel(access);
     return selectInstrumentAndMemes(db)
       .from(INSTRUMENT_MEME)
       .join(INSTRUMENT).on(INSTRUMENT.ID.eq(INSTRUMENT_MEME.INSTRUMENT_ID))
       .join(CHAIN_LIBRARY).on(CHAIN_LIBRARY.LIBRARY_ID.eq(INSTRUMENT.LIBRARY_ID))
       .where(CHAIN_LIBRARY.CHAIN_ID.eq(chainId))
-      .and(INSTRUMENT.TYPE.eq(instrumentType))
+      .and(INSTRUMENT.TYPE.eq(instrumentType.toString()))
       .groupBy(INSTRUMENT.ID)
       .fetch();
   }
@@ -295,7 +297,7 @@ public class InstrumentDAOImpl extends DAOImpl implements InstrumentDAO {
           .fetchOne());
     fieldValues.put(INSTRUMENT.USER_ID, access.getUserId());
 
-    if (executeUpdate(db, INSTRUMENT, fieldValues) == 0)
+    if (0 == executeUpdate(db, INSTRUMENT, fieldValues))
       throw new BusinessException("No records updated.");
   }
 
@@ -349,7 +351,7 @@ public class InstrumentDAOImpl extends DAOImpl implements InstrumentDAO {
    @param db context
    @return jOOQ select step
    */
-  private SelectSelectStep<?> selectInstrumentAndMemes(DSLContext db) {
+  private static SelectFromStep<?> selectInstrumentAndMemes(DSLContext db) {
     return db.select(
       INSTRUMENT.ID,
       INSTRUMENT.DENSITY,

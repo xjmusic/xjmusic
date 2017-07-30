@@ -2,6 +2,7 @@
 package io.xj.core.model.choice;
 
 import io.xj.core.app.exception.BusinessException;
+import io.xj.core.model.idea.IdeaType;
 import io.xj.core.tables.records.ChoiceRecord;
 
 import org.jooq.Field;
@@ -30,7 +31,7 @@ public class LinkMessageTest {
       .setLinkId(BigInteger.valueOf(352))
       .setIdeaId(BigInteger.valueOf(125))
       .setTranspose(5)
-      .setType(Choice.MACRO)
+      .setType("Macro")
       .setPhaseOffset(BigInteger.valueOf(4))
       .validate();
   }
@@ -43,7 +44,7 @@ public class LinkMessageTest {
     new Choice()
       .setIdeaId(BigInteger.valueOf(125))
       .setTranspose(5)
-      .setType(Choice.MACRO)
+      .setType("Macro")
       .setPhaseOffset(BigInteger.valueOf(4))
       .validate();
   }
@@ -56,7 +57,7 @@ public class LinkMessageTest {
     new Choice()
       .setLinkId(BigInteger.valueOf(352))
       .setTranspose(5)
-      .setType(Choice.MACRO)
+      .setType("Macro")
       .setPhaseOffset(BigInteger.valueOf(4))
       .validate();
   }
@@ -66,7 +67,7 @@ public class LinkMessageTest {
     Choice result = new Choice()
       .setLinkId(BigInteger.valueOf(352))
       .setIdeaId(BigInteger.valueOf(125))
-      .setType(Choice.MACRO)
+      .setType("Macro")
       .setPhaseOffset(BigInteger.valueOf(4));
 
     result.validate();
@@ -110,7 +111,7 @@ public class LinkMessageTest {
       .setLinkId(BigInteger.valueOf(352))
       .setIdeaId(BigInteger.valueOf(125))
       .setTranspose(5)
-      .setType(Choice.MACRO)
+      .setType("Macro")
       .validate();
   }
 
@@ -121,7 +122,7 @@ public class LinkMessageTest {
     record.setLinkId(ULong.valueOf(352));
     record.setIdeaId(ULong.valueOf(125));
     record.setTranspose(5);
-    record.setType(Choice.MACRO);
+    record.setType("Macro");
     record.setPhaseOffset(ULong.valueOf(4));
     record.setCreatedAt(Timestamp.valueOf("2014-08-12 12:17:02.527142"));
     record.setUpdatedAt(Timestamp.valueOf("2014-09-12 12:17:01.047563"));
@@ -134,7 +135,7 @@ public class LinkMessageTest {
     assertEquals(ULong.valueOf(352), result.getLinkId());
     assertEquals(ULong.valueOf(125), result.getIdeaId());
     assertEquals(Integer.valueOf(5), result.getTranspose());
-    assertEquals(Choice.MACRO, result.getType());
+    assertEquals(IdeaType.Macro, result.getType());
     assertEquals(ULong.valueOf(4), result.getPhaseOffset());
     assertEquals(Timestamp.valueOf("2014-08-12 12:17:02.527142"), result.getCreatedAt());
     assertEquals(Timestamp.valueOf("2014-09-12 12:17:01.047563"), result.getUpdatedAt());
@@ -147,18 +148,20 @@ public class LinkMessageTest {
 
   @Test
   public void intoFieldValueMap() throws Exception {
-    Map<Field, Object> result = new Choice()
+    Choice choice = new Choice()
       .setLinkId(BigInteger.valueOf(352))
       .setIdeaId(BigInteger.valueOf(125))
       .setTranspose(5)
-      .setType(Choice.MACRO)
-      .setPhaseOffset(BigInteger.valueOf(4))
-      .updatableFieldValueMap();
+      .setType("Macro")
+      .setPhaseOffset(BigInteger.valueOf(4));
+    choice.validate();
+
+    Map<Field, Object> result = choice.updatableFieldValueMap();
 
     assertEquals(ULong.valueOf(352), result.get(CHOICE.LINK_ID));
     assertEquals(ULong.valueOf(125), result.get(CHOICE.IDEA_ID));
     assertEquals(5, result.get(CHOICE.TRANSPOSE));
-    assertEquals(Choice.MACRO, result.get(CHOICE.TYPE));
+    assertEquals(IdeaType.Macro, result.get(CHOICE.TYPE));
     assertEquals(ULong.valueOf(4), result.get(CHOICE.PHASE_OFFSET));
   }
 

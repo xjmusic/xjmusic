@@ -18,7 +18,6 @@ import org.jooq.types.ULong;
 import com.google.inject.Inject;
 
 import javax.annotation.Nullable;
-import java.sql.SQLException;
 import java.util.Map;
 
 import static io.xj.core.Tables.VOICE_EVENT;
@@ -160,9 +159,8 @@ public class VoiceDAOImpl extends DAOImpl implements VoiceDAO {
    @param access  control
    @param phaseId to readMany all voice of
    @return array of voices
-   @throws SQLException on failure
    */
-  private Result<VoiceRecord> readAll(DSLContext db, Access access, ULong phaseId) throws SQLException {
+  private Result<VoiceRecord> readAll(DSLContext db, Access access, ULong phaseId) {
     if (access.isTopLevel())
       return resultInto(VOICE, db.select(VOICE.fields())
         .from(VOICE)
@@ -224,7 +222,7 @@ public class VoiceDAOImpl extends DAOImpl implements VoiceDAO {
         .and(PHASE.ID.eq(entity.getPhaseId()))
         .fetchOne());
 
-    if (executeUpdate(db, VOICE, fieldValues) == 0)
+    if (0 == executeUpdate(db, VOICE, fieldValues))
       throw new BusinessException("No records updated.");
   }
 

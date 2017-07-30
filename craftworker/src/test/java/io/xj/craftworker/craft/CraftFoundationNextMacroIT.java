@@ -6,10 +6,13 @@ import io.xj.core.basis.Basis;
 import io.xj.core.basis.BasisFactory;
 import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.integration.IntegrationTestService;
-import io.xj.core.model.chain.Chain;
+import io.xj.core.model.chain.ChainState;
+import io.xj.core.model.chain.ChainType;
 import io.xj.core.model.choice.Choice;
 import io.xj.core.model.idea.Idea;
+import io.xj.core.model.idea.IdeaType;
 import io.xj.core.model.link.Link;
+import io.xj.core.model.link.LinkState;
 import io.xj.core.model.role.Role;
 import io.xj.core.tables.records.LinkMemeRecord;
 import io.xj.core.tables.records.LinkRecord;
@@ -40,7 +43,7 @@ import static org.junit.Assert.assertNotNull;
 
 public class CraftFoundationNextMacroIT {
   @Rule public ExpectedException failure = ExpectedException.none();
-  private Injector injector = Guice.createInjector(new CoreModule(), new CraftworkerModule());
+  private final Injector injector = Guice.createInjector(new CoreModule(), new CraftworkerModule());
   private CraftFactory craftFactory;
   private BasisFactory basisFactory;
 
@@ -67,7 +70,7 @@ public class CraftFoundationNextMacroIT {
     IntegrationTestEntity.insertLibrary(2, 1, "house");
 
     // "Metal, Wild to Basement" macro-idea in house library
-    IntegrationTestEntity.insertIdea(4, 3, 2, Idea.MACRO, "Metal, Wild to Basement", 0.5, "C", 120);
+    IntegrationTestEntity.insertIdea(4, 3, 2, IdeaType.Macro, "Metal, Wild to Basement", 0.5, "C", 120);
     IntegrationTestEntity.insertIdeaMeme(2, 4, "Metal");
     // " phase offset 0
     IntegrationTestEntity.insertPhase(3, 4, 0, 0, "Start Wild", 0.6, "C", 125);
@@ -84,7 +87,7 @@ public class CraftFoundationNextMacroIT {
     IntegrationTestEntity.insertPhaseChord(5, 5, 0, "Ab minor");
 
     // "Zesty, Chunky to Smooth" macro-idea in house library
-    IntegrationTestEntity.insertIdea(3, 3, 2, Idea.MACRO, "Zesty, Chunky to Smooth", 0.5, "G minor", 120);
+    IntegrationTestEntity.insertIdea(3, 3, 2, IdeaType.Macro, "Zesty, Chunky to Smooth", 0.5, "G minor", 120);
     IntegrationTestEntity.insertIdeaMeme(1, 3, "Zesty");
     // # phase offset 0
     IntegrationTestEntity.insertPhase(1, 3, 0, 0, "Start Chunky", 0.4, "G minor", 115);
@@ -96,7 +99,7 @@ public class CraftFoundationNextMacroIT {
     IntegrationTestEntity.insertPhaseChord(2, 2, 0, "C");
 
     // Main idea
-    IntegrationTestEntity.insertIdea(5, 3, 2, Idea.MAIN, "Main Jam", 0.2, "C minor", 140);
+    IntegrationTestEntity.insertIdea(5, 3, 2, IdeaType.Main, "Main Jam", 0.2, "C minor", 140);
     IntegrationTestEntity.insertIdeaMeme(3, 5, "Outlook");
     // # phase offset 0
     IntegrationTestEntity.insertPhase(15, 5, 0, 16, "Intro", 0.5, "G major", 135.0);
@@ -110,7 +113,7 @@ public class CraftFoundationNextMacroIT {
     IntegrationTestEntity.insertPhaseChord(18, 16, 8, "Bb minor");
 
     // Another Main idea to go to
-    IntegrationTestEntity.insertIdea(15, 3, 2, Idea.MAIN, "Next Jam", 0.2, "Db minor", 140);
+    IntegrationTestEntity.insertIdea(15, 3, 2, IdeaType.Main, "Next Jam", 0.2, "Db minor", 140);
     IntegrationTestEntity.insertIdeaMeme(43, 15, "Hindsight");
     IntegrationTestEntity.insertPhase(415, 15, 0, 16, "Intro", 0.5, "G minor", 135.0);
     IntegrationTestEntity.insertPhaseMeme(46, 415, "Regret");
@@ -123,14 +126,14 @@ public class CraftFoundationNextMacroIT {
     IntegrationTestEntity.insertPhaseChord(418, 416, 8, "Bb major");
 
     // Chain "Test Print #1" has 5 total links
-    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", Chain.PRODUCTION, Chain.FABRICATING, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null);
-    IntegrationTestEntity.insertLink(1, 1, 0, Link.DUBBED, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120, "chain-1-link-97898asdf7892.wav");
-    IntegrationTestEntity.insertLink(2, 1, 1, Link.DUBBING, Timestamp.valueOf("2017-02-14 12:01:32.000001"), Timestamp.valueOf("2017-02-14 12:02:04.000001"), "Db minor", 64, 0.85, 120, "chain-1-link-97898asdf7892.wav");
+    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricating, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null);
+    IntegrationTestEntity.insertLink(1, 1, 0, LinkState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120, "chain-1-link-97898asdf7892.wav");
+    IntegrationTestEntity.insertLink(2, 1, 1, LinkState.Dubbing, Timestamp.valueOf("2017-02-14 12:01:32.000001"), Timestamp.valueOf("2017-02-14 12:02:04.000001"), "Db minor", 64, 0.85, 120, "chain-1-link-97898asdf7892.wav");
 
     // Chain "Test Print #1" has this link that was just crafted
-    IntegrationTestEntity.insertLink(3, 1, 2, Link.CRAFTED, Timestamp.valueOf("2017-02-14 12:02:04.000001"), Timestamp.valueOf("2017-02-14 12:02:36.000001"), "Ab minor", 64, 0.30, 120, "chain-1-link-97898asdf7892.wav"); // final key is based on phase of main idea
-    IntegrationTestEntity.insertChoice(25, 3, 4, Choice.MACRO, 1, 3); // macro-idea current phase is transposed to be Db minor
-    IntegrationTestEntity.insertChoice(26, 3, 5, Choice.MAIN, 1, 1); // main-key of previous link is transposed to match, Db minor
+    IntegrationTestEntity.insertLink(3, 1, 2, LinkState.Crafted, Timestamp.valueOf("2017-02-14 12:02:04.000001"), Timestamp.valueOf("2017-02-14 12:02:36.000001"), "Ab minor", 64, 0.30, 120, "chain-1-link-97898asdf7892.wav"); // final key is based on phase of main idea
+    IntegrationTestEntity.insertChoice(25, 3, 4, IdeaType.Macro, 1, 3); // macro-idea current phase is transposed to be Db minor
+    IntegrationTestEntity.insertChoice(26, 3, 5, IdeaType.Main, 1, 1); // main-key of previous link is transposed to match, Db minor
 
     // Chain "Test Print #1" has a planned link
     link4 = IntegrationTestEntity.insertLink_Planned(4, 1, 3, Timestamp.valueOf("2017-02-14 12:03:08.000001"));
@@ -189,7 +192,7 @@ public class CraftFoundationNextMacroIT {
     assertNotNull(IntegrationTestService.getDb().selectFrom(CHOICE)
       .where(CHOICE.LINK_ID.eq(ULong.valueOf(4)))
       .and(CHOICE.IDEA_ID.eq(ULong.valueOf(3)))
-      .and(CHOICE.TYPE.eq(Choice.MACRO))
+      .and(CHOICE.TYPE.eq(IdeaType.Macro.toString()))
       .and(CHOICE.TRANSPOSE.eq(4))
       .and(CHOICE.PHASE_OFFSET.eq(ULong.valueOf(0)))
       .fetchOne());
@@ -198,7 +201,7 @@ public class CraftFoundationNextMacroIT {
     assertNotNull(IntegrationTestService.getDb().selectFrom(CHOICE)
       .where(CHOICE.LINK_ID.eq(ULong.valueOf(4)))
       .and(CHOICE.IDEA_ID.eq(ULong.valueOf(15)))
-      .and(CHOICE.TYPE.eq(Choice.MAIN))
+      .and(CHOICE.TYPE.eq(IdeaType.Main.toString()))
       .and(CHOICE.TRANSPOSE.eq(-2))
       .and(CHOICE.PHASE_OFFSET.eq(ULong.valueOf(0)))
       .fetchOne());

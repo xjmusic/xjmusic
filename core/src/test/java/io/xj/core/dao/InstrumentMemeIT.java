@@ -7,7 +7,7 @@ import io.xj.core.app.exception.BusinessException;
 import io.xj.core.external.AuthType;
 import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.integration.IntegrationTestService;
-import io.xj.core.model.instrument.Instrument;
+import io.xj.core.model.instrument.InstrumentType;
 import io.xj.core.model.instrument_meme.InstrumentMeme;
 import io.xj.core.model.role.Role;
 import io.xj.core.tables.records.InstrumentMemeRecord;
@@ -34,7 +34,7 @@ import static org.junit.Assert.assertNull;
 
 // TODO [core] test permissions of different users to readMany vs. create vs. update or delete instrument memes
 public class InstrumentMemeIT {
-  private Injector injector = Guice.createInjector(new CoreModule());
+  private final Injector injector = Guice.createInjector(new CoreModule());
   private InstrumentMemeDAO testDAO;
 
   @Before
@@ -63,9 +63,9 @@ public class InstrumentMemeIT {
 
     // Library "whiskey tango fox" has instrument "jams", "buns" and "mush"
     IntegrationTestEntity.insertLibrary(1, 1, "whiskey tango fox");
-    IntegrationTestEntity.insertInstrument(1, 1, 2, "jams", Instrument.PERCUSSIVE, 0.6);
-    IntegrationTestEntity.insertInstrument(2, 1, 2, "buns", Instrument.HARMONIC, 0.4);
-    IntegrationTestEntity.insertInstrument(3, 1, 2, "mush", Instrument.HARMONIC, 0.3);
+    IntegrationTestEntity.insertInstrument(1, 1, 2, "jams", InstrumentType.Percussive, 0.6);
+    IntegrationTestEntity.insertInstrument(2, 1, 2, "buns", InstrumentType.Harmonic, 0.4);
+    IntegrationTestEntity.insertInstrument(3, 1, 2, "mush", InstrumentType.Harmonic, 0.3);
 
     // Instrument "leaves" has memes "ants" and "mold"
     IntegrationTestEntity.insertInstrumentMeme(1, 1, "Ants");

@@ -6,10 +6,13 @@ import io.xj.core.basis.Basis;
 import io.xj.core.basis.BasisFactory;
 import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.integration.IntegrationTestService;
-import io.xj.core.model.chain.Chain;
+import io.xj.core.model.chain.ChainState;
+import io.xj.core.model.chain.ChainType;
 import io.xj.core.model.choice.Choice;
 import io.xj.core.model.idea.Idea;
+import io.xj.core.model.idea.IdeaType;
 import io.xj.core.model.link.Link;
+import io.xj.core.model.link.LinkState;
 import io.xj.core.model.role.Role;
 import io.xj.core.tables.records.LinkMemeRecord;
 import io.xj.core.tables.records.LinkRecord;
@@ -40,7 +43,7 @@ import static org.junit.Assert.assertNotNull;
 
 public class CraftFoundationContinueIT {
   @Rule public ExpectedException failure = ExpectedException.none();
-  private Injector injector = Guice.createInjector(new CoreModule(), new CraftworkerModule());
+  private final Injector injector = Guice.createInjector(new CoreModule(), new CraftworkerModule());
   private CraftFactory craftFactory;
   private BasisFactory basisFactory;
 
@@ -67,7 +70,7 @@ public class CraftFoundationContinueIT {
     IntegrationTestEntity.insertLibrary(2, 1, "house");
 
     // "Tropical, Wild to Cozy" macro-idea in house library
-    IntegrationTestEntity.insertIdea(4, 3, 2, Idea.MACRO, "Tropical, Wild to Cozy", 0.5, "C", 120);
+    IntegrationTestEntity.insertIdea(4, 3, 2, IdeaType.Macro, "Tropical, Wild to Cozy", 0.5, "C", 120);
     IntegrationTestEntity.insertIdeaMeme(2, 4, "Tropical");
     IntegrationTestEntity.insertPhase(3, 4, 0, 64, "Start Wild", 0.6, "C", 125);
     IntegrationTestEntity.insertPhaseMeme(3, 3, "Wild");
@@ -77,7 +80,7 @@ public class CraftFoundationContinueIT {
     IntegrationTestEntity.insertPhaseChord(4, 4, 0, "Bb minor");
 
     // Main idea
-    IntegrationTestEntity.insertIdea(5, 3, 2, Idea.MAIN, "Main Jam", 0.2, "Gb minor", 140);
+    IntegrationTestEntity.insertIdea(5, 3, 2, IdeaType.Main, "Main Jam", 0.2, "Gb minor", 140);
     IntegrationTestEntity.insertIdeaMeme(3, 5, "Outlook");
     IntegrationTestEntity.insertPhase(15, 5, 0, 16, "Intro", 0.5, "Gb minor", 135.0);
     IntegrationTestEntity.insertPhaseMeme(6, 15, "Pessimism");
@@ -89,18 +92,18 @@ public class CraftFoundationContinueIT {
     IntegrationTestEntity.insertPhaseChord(18, 16, 8, "G major");
 
     // Extra ideas
-    IntegrationTestEntity.insertIdea(6, 3, 2, Idea.RHYTHM, "Beat Jam", 0.6, "D#", 150);
-    IntegrationTestEntity.insertIdea(7, 3, 2, Idea.SUPPORT, "Support Jam", 0.3, "Cb minor", 170);
+    IntegrationTestEntity.insertIdea(6, 3, 2, IdeaType.Rhythm, "Beat Jam", 0.6, "D#", 150);
+    IntegrationTestEntity.insertIdea(7, 3, 2, IdeaType.Support, "Support Jam", 0.3, "Cb minor", 170);
 
     // Chain "Test Print #1" has 5 total links
-    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", Chain.PRODUCTION, Chain.FABRICATING, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null);
-    IntegrationTestEntity.insertLink(1, 1, 0, Link.DUBBED, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120, "chain-1-link-97898asdf7892.wav");
-    IntegrationTestEntity.insertLink(2, 1, 1, Link.DUBBING, Timestamp.valueOf("2017-02-14 12:01:32.000001"), Timestamp.valueOf("2017-02-14 12:02:04.000001"), "Db minor", 64, 0.85, 120, "chain-1-link-97898asdf7892.wav");
+    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricating, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null);
+    IntegrationTestEntity.insertLink(1, 1, 0, LinkState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120, "chain-1-link-97898asdf7892.wav");
+    IntegrationTestEntity.insertLink(2, 1, 1, LinkState.Dubbing, Timestamp.valueOf("2017-02-14 12:01:32.000001"), Timestamp.valueOf("2017-02-14 12:02:04.000001"), "Db minor", 64, 0.85, 120, "chain-1-link-97898asdf7892.wav");
 
     // Chain "Test Print #1" has this link that was just crafted
-    IntegrationTestEntity.insertLink(3, 1, 2, Link.CRAFTED, Timestamp.valueOf("2017-02-14 12:02:04.000001"), Timestamp.valueOf("2017-02-14 12:02:36.000001"), "F major", 64, 0.30, 120, "chain-1-link-97898asdf7892.wav");
-    IntegrationTestEntity.insertChoice(25, 3, 4, Choice.MACRO, 1, 3);
-    IntegrationTestEntity.insertChoice(26, 3, 5, Choice.MAIN, 0, 5);
+    IntegrationTestEntity.insertLink(3, 1, 2, LinkState.Crafted, Timestamp.valueOf("2017-02-14 12:02:04.000001"), Timestamp.valueOf("2017-02-14 12:02:36.000001"), "F major", 64, 0.30, 120, "chain-1-link-97898asdf7892.wav");
+    IntegrationTestEntity.insertChoice(25, 3, 4, IdeaType.Macro, 1, 3);
+    IntegrationTestEntity.insertChoice(26, 3, 5, IdeaType.Main, 0, 5);
 
     // Chain "Test Print #1" has a planned link
     link4 = IntegrationTestEntity.insertLink_Planned(4, 1, 3, Timestamp.valueOf("2017-02-14 12:03:08.000001"));
@@ -159,7 +162,7 @@ public class CraftFoundationContinueIT {
     assertNotNull(IntegrationTestService.getDb().selectFrom(CHOICE)
       .where(CHOICE.LINK_ID.eq(ULong.valueOf(4)))
       .and(CHOICE.IDEA_ID.eq(ULong.valueOf(4)))
-      .and(CHOICE.TYPE.eq(Choice.MACRO))
+      .and(CHOICE.TYPE.eq(IdeaType.Macro.toString()))
       .and(CHOICE.TRANSPOSE.eq(3))
       .and(CHOICE.PHASE_OFFSET.eq(ULong.valueOf(1)))
       .fetchOne());
@@ -168,7 +171,7 @@ public class CraftFoundationContinueIT {
     assertNotNull(IntegrationTestService.getDb().selectFrom(CHOICE)
       .where(CHOICE.LINK_ID.eq(ULong.valueOf(4)))
       .and(CHOICE.IDEA_ID.eq(ULong.valueOf(5)))
-      .and(CHOICE.TYPE.eq(Choice.MAIN))
+      .and(CHOICE.TYPE.eq(IdeaType.Main.toString()))
       .and(CHOICE.TRANSPOSE.eq(-5))
       .and(CHOICE.PHASE_OFFSET.eq(ULong.valueOf(1)))
       .fetchOne());

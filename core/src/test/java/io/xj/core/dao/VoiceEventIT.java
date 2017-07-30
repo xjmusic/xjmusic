@@ -6,9 +6,9 @@ import io.xj.core.app.access.impl.Access;
 import io.xj.core.app.exception.BusinessException;
 import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.integration.IntegrationTestService;
-import io.xj.core.model.idea.Idea;
+import io.xj.core.model.idea.IdeaType;
+import io.xj.core.model.instrument.InstrumentType;
 import io.xj.core.model.role.Role;
-import io.xj.core.model.voice.Voice;
 import io.xj.core.model.voice_event.VoiceEvent;
 import io.xj.core.tables.records.VoiceEventRecord;
 import io.xj.core.transport.JSON;
@@ -34,7 +34,7 @@ import static org.junit.Assert.assertNull;
 
 // TODO [core] test permissions of different users to readMany vs. create vs. update or delete voice events
 public class VoiceEventIT {
-  private Injector injector = Guice.createInjector(new CoreModule());
+  private final Injector injector = Guice.createInjector(new CoreModule());
   private VoiceEventDAO testDAO;
 
   @Before
@@ -50,15 +50,15 @@ public class VoiceEventIT {
 
     // Library "palm tree" has idea "leaves" and idea "coconuts"
     IntegrationTestEntity.insertLibrary(1, 1, "palm tree");
-    IntegrationTestEntity.insertIdea(1, 2, 1, Idea.MAIN, "leaves", 0.342, "C#", 110.286);
+    IntegrationTestEntity.insertIdea(1, 2, 1, IdeaType.Main, "leaves", 0.342, "C#", 110.286);
 
     // Idea "leaves" has voices "Intro" and "Outro"
     IntegrationTestEntity.insertPhase(1, 1, 0, 4, "Intro", 0.583, "D minor", 120.0);
     IntegrationTestEntity.insertPhase(2, 1, 1, 4, "Outro", 0.583, "E major", 140.0);
 
     // Voice "Caterpillars" has voices "Drums" and "Bass"
-    IntegrationTestEntity.insertVoice(1, 2, Voice.PERCUSSIVE, "Drums");
-    IntegrationTestEntity.insertVoice(2, 2, Voice.HARMONIC, "Bass");
+    IntegrationTestEntity.insertVoice(1, 2, InstrumentType.Percussive, "Drums");
+    IntegrationTestEntity.insertVoice(2, 2, InstrumentType.Harmonic, "Bass");
 
     // Voice "Drums" has events "BOOM" and "SMACK" 2x each
     IntegrationTestEntity.insertVoiceEvent(1, 1, 0, 1, "BOOM", "C", 0.8, 1.0);

@@ -7,21 +7,21 @@ import io.xj.core.app.exception.ConfigException;
 import io.xj.core.dao.IdeaDAO;
 import io.xj.core.db.sql.SQLConnection;
 import io.xj.core.db.sql.SQLDatabaseProvider;
-import io.xj.core.model.idea.Idea;
 import io.xj.core.model.MemeEntity;
+import io.xj.core.model.idea.Idea;
+import io.xj.core.model.idea.IdeaType;
 import io.xj.core.tables.records.IdeaRecord;
 
 import org.jooq.DSLContext;
 import org.jooq.Field;
 import org.jooq.Record;
 import org.jooq.Result;
-import org.jooq.SelectSelectStep;
+import org.jooq.SelectFromStep;
 import org.jooq.types.ULong;
 
 import com.google.inject.Inject;
 
 import javax.annotation.Nullable;
-import java.sql.SQLException;
 import java.util.Map;
 
 import static io.xj.core.Tables.CHAIN_LIBRARY;
@@ -65,7 +65,7 @@ public class IdeaDAOImpl extends DAOImpl implements IdeaDAO {
 
   @Nullable
   @Override
-  public IdeaRecord readOneRecordTypeInLink(Access access, ULong linkId, String ideaType) throws Exception {
+  public IdeaRecord readOneRecordTypeInLink(Access access, ULong linkId, IdeaType ideaType) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readOneRecordTypeInLink(tx.getContext(), access, linkId, ideaType));
@@ -75,7 +75,7 @@ public class IdeaDAOImpl extends DAOImpl implements IdeaDAO {
   }
 
   @Override
-  public Result<? extends Record> readAllBoundToChain(Access access, ULong chainId, String ideaType) throws Exception {
+  public Result<? extends Record> readAllBoundToChain(Access access, ULong chainId, IdeaType ideaType) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readAllBoundToChain(tx.getContext(), access, chainId, ideaType));
@@ -85,7 +85,7 @@ public class IdeaDAOImpl extends DAOImpl implements IdeaDAO {
   }
 
   @Override
-  public Result<? extends Record> readAllBoundToChainLibrary(Access access, ULong chainId, String ideaType) throws Exception {
+  public Result<? extends Record> readAllBoundToChainLibrary(Access access, ULong chainId, IdeaType ideaType) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readAllBoundToChainLibrary(tx.getContext(), access, chainId, ideaType));
@@ -115,10 +115,10 @@ public class IdeaDAOImpl extends DAOImpl implements IdeaDAO {
   }
 
   @Override
-  public void update(Access access, ULong id, Idea entity) throws Exception {
+  public void update(Access access, ULong ideaId, Idea entity) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      update(tx.getContext(), access, id, entity);
+      update(tx.getContext(), access, ideaId, entity);
       tx.success();
     } catch (Exception e) {
       throw tx.failure(e);
@@ -192,20 +192,20 @@ public class IdeaDAOImpl extends DAOImpl implements IdeaDAO {
   /**
    Read one record of a given type for a given link
 
-   @param db         context
+   @return record
+    @param db         context
    @param access     control
    @param linkId     of link
    @param choiceType of idea
-   @return record
    */
   @Nullable
-  private IdeaRecord readOneRecordTypeInLink(DSLContext db, Access access, ULong linkId, String choiceType) throws BusinessException {
+  private IdeaRecord readOneRecordTypeInLink(DSLContext db, Access access, ULong linkId, IdeaType choiceType) throws BusinessException {
     requireTopLevel(access);
     return recordInto(IDEA, db.select(IDEA.fields())
       .from(IDEA)
       .join(CHOICE).on(CHOICE.IDEA_ID.eq(IDEA.ID))
       .where(CHOICE.LINK_ID.eq(linkId))
-      .and(CHOICE.TYPE.eq(choiceType))
+      .and(CHOICE.TYPE.eq(choiceType.toString()))
       .fetchOne());
   }
 
@@ -218,7 +218,7 @@ public class IdeaDAOImpl extends DAOImpl implements IdeaDAO {
    @param accountId of parent
    @return array of records
    */
-  private Result<IdeaRecord> readAllInAccount(DSLContext db, Access access, ULong accountId) throws SQLException {
+  private Result<IdeaRecord> readAllInAccount(DSLContext db, Access access, ULong accountId) {
     if (access.isTopLevel())
       return resultInto(IDEA, db.select(IDEA.fields())
         .from(IDEA)
@@ -237,19 +237,20 @@ public class IdeaDAOImpl extends DAOImpl implements IdeaDAO {
   /**
    Read all idea records bound to a Chain via ChainIdea records
 
-   @param db      context
+   @return array of records
+    @param db      context
    @param access  control
    @param chainId of parent
-   @return array of records
+   @param ideaType of which to read all bound to chain
    */
-  private Result<? extends Record> readAllBoundToChain(DSLContext db, Access access, ULong chainId, String ideaType) throws Exception {
+  private Result<? extends Record> readAllBoundToChain(DSLContext db, Access access, ULong chainId, IdeaType ideaType) throws Exception {
     requireTopLevel(access);
     return selectIdeaAndMemes(db)
       .from(IDEA_MEME)
       .join(CHAIN_IDEA).on(CHAIN_IDEA.IDEA_ID.eq(IDEA_MEME.IDEA_ID))
       .join(IDEA).on(IDEA.ID.eq(IDEA_MEME.IDEA_ID))
       .where(CHAIN_IDEA.CHAIN_ID.eq(chainId))
-      .and(IDEA.TYPE.eq(ideaType))
+      .and(IDEA.TYPE.eq(ideaType.toString()))
       .groupBy(IDEA.ID)
       .fetch();
   }
@@ -257,19 +258,20 @@ public class IdeaDAOImpl extends DAOImpl implements IdeaDAO {
   /**
    Read all idea records bound to a Chain via ChainLibrary records
 
-   @param db      context
+   @return array of records
+    @param db      context
    @param access  control
    @param chainId of parent
-   @return array of records
+   @param ideaType of which to read all bound to chain library
    */
-  private Result<? extends Record> readAllBoundToChainLibrary(DSLContext db, Access access, ULong chainId, String ideaType) throws Exception {
+  private Result<? extends Record> readAllBoundToChainLibrary(DSLContext db, Access access, ULong chainId, IdeaType ideaType) throws Exception {
     requireTopLevel(access);
     return selectIdeaAndMemes(db)
       .from(IDEA_MEME)
       .join(IDEA).on(IDEA.ID.eq(IDEA_MEME.IDEA_ID))
       .join(CHAIN_LIBRARY).on(CHAIN_LIBRARY.LIBRARY_ID.eq(IDEA.LIBRARY_ID))
       .where(CHAIN_LIBRARY.CHAIN_ID.eq(chainId))
-      .and(IDEA.TYPE.eq(ideaType))
+      .and(IDEA.TYPE.eq(ideaType.toString()))
       .groupBy(IDEA.ID)
       .fetch();
   }
@@ -282,7 +284,7 @@ public class IdeaDAOImpl extends DAOImpl implements IdeaDAO {
    @param libraryId of parent
    @return array of records
    */
-  private Result<IdeaRecord> readAllInLibrary(DSLContext db, Access access, ULong libraryId) throws SQLException {
+  private Result<IdeaRecord> readAllInLibrary(DSLContext db, Access access, ULong libraryId) {
     if (access.isTopLevel())
       return resultInto(IDEA, db.select(IDEA.fields())
         .from(IDEA)
@@ -326,7 +328,7 @@ public class IdeaDAOImpl extends DAOImpl implements IdeaDAO {
           .fetchOne());
     fieldValues.put(IDEA.USER_ID, access.getUserId());
 
-    if (executeUpdate(db, IDEA, fieldValues) == 0)
+    if (0 == executeUpdate(db, IDEA, fieldValues))
       throw new BusinessException("No records updated.");
   }
 
@@ -390,7 +392,7 @@ public class IdeaDAOImpl extends DAOImpl implements IdeaDAO {
    @param db context
    @return jOOQ select step
    */
-  private SelectSelectStep<?> selectIdeaAndMemes(DSLContext db) {
+  private static SelectFromStep<?> selectIdeaAndMemes(DSLContext db) {
     return db.select(
       IDEA.ID,
       IDEA.DENSITY,

@@ -8,6 +8,8 @@ import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.integration.IntegrationTestService;
 import io.xj.core.model.account.Account;
 import io.xj.core.model.chain.Chain;
+import io.xj.core.model.chain.ChainState;
+import io.xj.core.model.chain.ChainType;
 import io.xj.core.tables.records.AccountRecord;
 import io.xj.core.transport.JSON;
 
@@ -157,7 +159,7 @@ public class AccountIT {
       "roles", "admin",
       "accounts", "1"
     ));
-    IntegrationTestEntity.insertChain(1, 1, "Test", Chain.PREVIEW, Chain.DRAFT, Timestamp.valueOf("2009-08-12 12:17:02.527142"), Timestamp.valueOf("2009-08-12 12:17:02.527142"));
+    IntegrationTestEntity.insertChain(1, 1, "Test", ChainType.Preview, ChainState.Draft, Timestamp.valueOf("2009-08-12 12:17:02.527142"), Timestamp.valueOf("2009-08-12 12:17:02.527142"));
 
     failure.expect(BusinessException.class);
     failure.expectMessage("Found Chain in Account");

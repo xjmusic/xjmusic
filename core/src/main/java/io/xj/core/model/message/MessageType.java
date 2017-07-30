@@ -11,7 +11,7 @@ public enum MessageType {
 
   /**
    String Values
-   @return
+   @return ImmutableList of string values
    */
   public static ImmutableList<String> stringValues() {
     ImmutableList.Builder<String> valuesBuilder = ImmutableList.builder();

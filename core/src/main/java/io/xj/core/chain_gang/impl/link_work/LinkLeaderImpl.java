@@ -2,12 +2,13 @@
 package io.xj.core.chain_gang.impl.link_work;
 
 import io.xj.core.app.access.impl.Access;
+import io.xj.core.chain_gang.Leader;
 import io.xj.core.dao.ChainDAO;
 import io.xj.core.dao.LinkDAO;
+import io.xj.core.model.link.LinkState;
 import io.xj.core.tables.records.ChainRecord;
 import io.xj.core.transport.JSON;
 import io.xj.core.util.timestamp.TimestampUTC;
-import io.xj.core.chain_gang.Leader;
 
 import org.jooq.Result;
 
@@ -19,14 +20,16 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Objects;
+
 /**
  The link leader creates template entities of new Links that need to be readMany
  */
 public class LinkLeaderImpl implements Leader {
-  private final static Logger log = LoggerFactory.getLogger(LinkLeaderImpl.class);
+  private static final Logger log = LoggerFactory.getLogger(LinkLeaderImpl.class);
   private final LinkDAO linkDAO;
   private ChainDAO chainDAO;
-  private String fromState;
+  private LinkState fromState;
   private int bufferSeconds = 0;
   private int batchSize = 0; // TODO implement batch size in link leader
 
@@ -47,7 +50,7 @@ public class LinkLeaderImpl implements Leader {
   public LinkLeaderImpl(
     ChainDAO chainDAO,
     LinkDAO linkDAO,
-    @Assisted("fromState") String fromState,
+    @Assisted("fromState") LinkState fromState,
     @Assisted("bufferSeconds") int bufferSeconds,
     @Assisted("batchSize") int batchSize
   ) {
@@ -63,10 +66,10 @@ public class LinkLeaderImpl implements Leader {
     JSONArray tasks = new JSONArray();
     try {
       Result<ChainRecord> chains = chainDAO.readAllInStateFabricating(Access.internal(), TimestampUTC.nowPlusSeconds(bufferSeconds));
-      if (chains != null && chains.size() > 0) {
+      if (Objects.nonNull(chains )&& !chains.isEmpty()) {
         for (ChainRecord chain : chains) {
           JSONObject link = readLinkFor(chain, fromState);
-          if (link != null) {
+          if (Objects.nonNull(link )) {
             tasks.put(link);
           }
         }
@@ -79,7 +82,7 @@ public class LinkLeaderImpl implements Leader {
     return tasks;
   }
 
-  private JSONObject readLinkFor(ChainRecord chain, String linkState) throws Exception {
+  private JSONObject readLinkFor(ChainRecord chain, LinkState linkState) throws Exception {
     return JSON.objectFromRecord(linkDAO.readOneInState(
       Access.internal(),
       chain.getId(),

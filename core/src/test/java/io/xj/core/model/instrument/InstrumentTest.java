@@ -7,7 +7,6 @@ import io.xj.core.tables.records.InstrumentRecord;
 import org.jooq.Field;
 import org.jooq.types.ULong;
 
-import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -29,7 +28,7 @@ public class InstrumentTest {
   public void validate() throws Exception {
     new Instrument()
       .setLibraryId(BigInteger.valueOf(907834))
-      .setType(Instrument.PERCUSSIVE)
+      .setType("Percussive")
       .setDensity(0.8)
       .setDescription("TR-808")
       .setUserId(BigInteger.valueOf(1128743))
@@ -55,7 +54,7 @@ public class InstrumentTest {
     failure.expectMessage("Library ID is required");
 
     new Instrument()
-      .setType(Instrument.PERCUSSIVE)
+      .setType("Percussive")
       .setDensity(0.8)
       .setDescription("TR-808")
       .setUserId(BigInteger.valueOf(1128743))
@@ -69,7 +68,7 @@ public class InstrumentTest {
 
     new Instrument()
       .setLibraryId(BigInteger.valueOf(907834))
-      .setType(Instrument.PERCUSSIVE)
+      .setType("Percussive")
       .setDensity(0.8)
       .setDescription("TR-808")
       .validate();
@@ -82,7 +81,7 @@ public class InstrumentTest {
 
     new Instrument()
       .setLibraryId(BigInteger.valueOf(907834))
-      .setType(Instrument.PERCUSSIVE)
+      .setType("Percussive")
       .setDensity(0.8)
       .setUserId(BigInteger.valueOf(1128743))
       .validate();
@@ -109,7 +108,7 @@ public class InstrumentTest {
 
     new Instrument()
       .setLibraryId(BigInteger.valueOf(907834))
-      .setType(Instrument.PERCUSSIVE)
+      .setType("Percussive")
       .setDescription("TR-808")
       .setUserId(BigInteger.valueOf(1128743))
       .validate();
@@ -120,7 +119,7 @@ public class InstrumentTest {
     InstrumentRecord record = new InstrumentRecord();
     record.setId(ULong.valueOf(12));
     record.setLibraryId(ULong.valueOf(907834));
-    record.setType(Instrument.PERCUSSIVE);
+    record.setType("Percussive");
     record.setDensity(0.8);
     record.setDescription("TR-808");
     record.setUserId(ULong.valueOf(1128743));
@@ -131,14 +130,14 @@ public class InstrumentTest {
       .setFromRecord(record);
 
     assertNotNull(result);
-    Assert.assertEquals(ULong.valueOf(12), result.getId());
+    assertEquals(ULong.valueOf(12), result.getId());
     assertEquals(ULong.valueOf(907834), result.getLibraryId());
-    assertEquals(Instrument.PERCUSSIVE, result.getType());
+    assertEquals(InstrumentType.Percussive, result.getType());
     assertEquals(Double.valueOf(0.8), result.getDensity());
     assertEquals("TR-808", result.getDescription());
     assertEquals(ULong.valueOf(1128743), result.getUserId());
-    Assert.assertEquals(Timestamp.valueOf("2014-08-12 12:17:02.527142"), result.getCreatedAt());
-    Assert.assertEquals(Timestamp.valueOf("2014-09-12 12:17:01.047563"), result.getUpdatedAt());
+    assertEquals(Timestamp.valueOf("2014-08-12 12:17:02.527142"), result.getCreatedAt());
+    assertEquals(Timestamp.valueOf("2014-09-12 12:17:01.047563"), result.getUpdatedAt());
   }
 
   @Test
@@ -148,16 +147,17 @@ public class InstrumentTest {
 
   @Test
   public void intoFieldValueMap() throws Exception {
-    Map<Field, Object> result = new Instrument()
+    Instrument instrument = new Instrument()
       .setLibraryId(BigInteger.valueOf(907834))
-      .setType(Instrument.PERCUSSIVE)
+      .setType("Percussive")
       .setDensity(0.8)
       .setDescription("TR-808")
-      .setUserId(BigInteger.valueOf(1128743))
-      .updatableFieldValueMap();
+      .setUserId(BigInteger.valueOf(1128743));
+    instrument.validate();
+    Map<Field, Object> result = instrument.updatableFieldValueMap();
 
     assertEquals(ULong.valueOf(907834), result.get(INSTRUMENT.LIBRARY_ID));
-    assertEquals(Instrument.PERCUSSIVE, result.get(INSTRUMENT.TYPE));
+    assertEquals(InstrumentType.Percussive, result.get(INSTRUMENT.TYPE));
     assertEquals(0.8, result.get(INSTRUMENT.DENSITY));
     assertEquals("TR-808", result.get(INSTRUMENT.DESCRIPTION));
     assertEquals(ULong.valueOf(1128743), result.get(INSTRUMENT.USER_ID));

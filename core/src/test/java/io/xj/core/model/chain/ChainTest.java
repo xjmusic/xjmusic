@@ -7,7 +7,6 @@ import io.xj.core.tables.records.ChainRecord;
 import org.jooq.Field;
 import org.jooq.types.ULong;
 
-import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -29,8 +28,8 @@ public class ChainTest {
   public void validateProductionChain() throws Exception {
     new Chain()
       .setName("Mic Check One Two")
-      .setType(Chain.PRODUCTION)
-      .setState(Chain.DRAFT)
+      .setType("Production")
+      .setState("Draft")
       .setAccountId(BigInteger.valueOf(9743))
       .setStartAt("2014-08-12 12:17:02.527142")
       .setStopAt("2015-08-12 12:17:02.527142")
@@ -41,8 +40,8 @@ public class ChainTest {
   public void validateProductionChain_stopAtNotRequired() throws Exception {
     new Chain()
       .setName("Mic Check One Two")
-      .setType(Chain.PRODUCTION)
-      .setState(Chain.DRAFT)
+      .setType("Production")
+      .setState("Draft")
       .setAccountId(BigInteger.valueOf(9743))
       .setStartAt("2014-08-12 12:17:02.527142")
       .validate();
@@ -52,8 +51,8 @@ public class ChainTest {
   public void validatePreviewChain_timesNotRequired() throws Exception {
     new Chain()
       .setName("Mic Check One Two")
-      .setType(Chain.PREVIEW)
-      .setState(Chain.DRAFT)
+      .setType("Preview")
+      .setState("Draft")
       .setAccountId(BigInteger.valueOf(9743))
       .validate();
   }
@@ -65,25 +64,24 @@ public class ChainTest {
 
     new Chain()
       .setName("Mic Check One Two")
-      .setType(Chain.PRODUCTION)
-      .setState(Chain.DRAFT)
+      .setType("Production")
+      .setState("Draft")
       .setStartAt("2014-08-12 12:17:02.527142")
       .setStopAt("2015-08-12 12:17:02.527142")
       .validate();
   }
 
   @Test
-  public void validateProductionChain_failsWithoutType() throws Exception {
-    failure.expect(BusinessException.class);
-    failure.expectMessage("Type is required");
-
-    new Chain()
+  public void validateProductionChain_defaultsToPreviewWithoutType() throws Exception {
+    Chain chain = new Chain()
       .setName("Mic Check One Two")
-      .setState(Chain.DRAFT)
+      .setState("Draft")
       .setAccountId(BigInteger.valueOf(9743))
       .setStartAt("2014-08-12 12:17:02.527142")
-      .setStopAt("2015-08-12 12:17:02.527142")
-      .validate();
+      .setStopAt("2015-08-12 12:17:02.527142");
+
+    chain.validate();
+    assertEquals(ChainType.Preview, chain.getType());
   }
 
   @Test
@@ -94,7 +92,7 @@ public class ChainTest {
     new Chain()
       .setName("Mic Check One Two")
       .setType("bungle")
-      .setState(Chain.DRAFT)
+      .setState("Draft")
       .setAccountId(BigInteger.valueOf(9743))
       .setStartAt("2014-08-12 12:17:02.527142")
       .setStopAt("2015-08-12 12:17:02.527142")
@@ -102,17 +100,17 @@ public class ChainTest {
   }
 
   @Test
-  public void validateProductionChain_failsWithoutState() throws Exception {
-    failure.expect(BusinessException.class);
-    failure.expectMessage("State is required");
-
-    new Chain()
+  public void validateProductionChain_defaultsToDraftState() throws Exception {
+    Chain chain = new Chain()
       .setName("Mic Check One Two")
-      .setType(Chain.PRODUCTION)
+      .setType("Production")
       .setAccountId(BigInteger.valueOf(9743))
       .setStartAt("2014-08-12 12:17:02.527142")
-      .setStopAt("2015-08-12 12:17:02.527142")
-      .validate();
+      .setStopAt("2015-08-12 12:17:02.527142");
+
+    chain.validate();
+
+    assertEquals(ChainState.Draft, chain.getState());
   }
 
   @Test
@@ -122,7 +120,7 @@ public class ChainTest {
 
     new Chain()
       .setName("Mic Check One Two")
-      .setType(Chain.PRODUCTION)
+      .setType("Production")
       .setState("dangling")
       .setAccountId(BigInteger.valueOf(9743))
       .setStartAt("2014-08-12 12:17:02.527142")
@@ -136,8 +134,8 @@ public class ChainTest {
     failure.expectMessage("Name is required");
 
     new Chain()
-      .setType(Chain.PRODUCTION)
-      .setState(Chain.DRAFT)
+      .setType("Production")
+      .setState("Draft")
       .setAccountId(BigInteger.valueOf(9743))
       .setStartAt("2014-08-12 12:17:02.527142")
       .setStopAt("2015-08-12 12:17:02.527142")
@@ -151,8 +149,8 @@ public class ChainTest {
 
     new Chain()
       .setName("Mic Check One Two")
-      .setType(Chain.PRODUCTION)
-      .setState(Chain.DRAFT)
+      .setType("Production")
+      .setState("Draft")
       .setAccountId(BigInteger.valueOf(9743))
       .validate();
   }
@@ -164,8 +162,8 @@ public class ChainTest {
 
     new Chain()
       .setName("Mic Check One Two")
-      .setType(Chain.PRODUCTION)
-      .setState(Chain.DRAFT)
+      .setType("Production")
+      .setState("Draft")
       .setAccountId(BigInteger.valueOf(9743))
       .setStartAt("2014-08-12 12:17:02.527142")
       .setStopAt("totally illegitimate expression of time")
@@ -177,8 +175,8 @@ public class ChainTest {
     ChainRecord record = new ChainRecord();
     record.setId(ULong.valueOf(12));
     record.setName("Mic Check One Two");
-    record.setType(Chain.PRODUCTION);
-    record.setState(Chain.DRAFT);
+    record.setType("Production");
+    record.setState("Draft");
     record.setAccountId(ULong.valueOf(9743));
     record.setStartAt(Timestamp.valueOf("2014-08-12 12:17:02.527142"));
     record.setStopAt(Timestamp.valueOf("2015-08-12 12:17:02.527142"));
@@ -189,15 +187,15 @@ public class ChainTest {
       .setFromRecord(record);
 
     assertNotNull(result);
-    Assert.assertEquals(ULong.valueOf(12), result.getId());
+    assertEquals(ULong.valueOf(12), result.getId());
     assertEquals("Mic Check One Two", result.getName());
-    assertEquals(Chain.PRODUCTION, result.getType());
-    assertEquals(Chain.DRAFT, result.getState());
+    assertEquals(ChainType.Production, result.getType());
+    assertEquals(ChainState.Draft, result.getState());
     assertEquals(ULong.valueOf(9743), result.getAccountId());
     assertEquals(Timestamp.valueOf("2014-08-12 12:17:02.527142"), result.getStartAt());
     assertEquals(Timestamp.valueOf("2015-08-12 12:17:02.527142"), result.getStopAt());
-    Assert.assertEquals(Timestamp.valueOf("2014-08-12 12:17:02.527142"), result.getCreatedAt());
-    Assert.assertEquals(Timestamp.valueOf("2014-09-12 12:17:01.047563"), result.getUpdatedAt());
+    assertEquals(Timestamp.valueOf("2014-08-12 12:17:02.527142"), result.getCreatedAt());
+    assertEquals(Timestamp.valueOf("2014-09-12 12:17:01.047563"), result.getUpdatedAt());
   }
 
   @Test
@@ -207,18 +205,19 @@ public class ChainTest {
 
   @Test
   public void intoFieldValueMap() throws Exception {
-    Map<Field, Object> result = new Chain()
+    Chain chain = new Chain()
       .setName("Mic Check One Two")
-      .setType(Chain.PRODUCTION)
-      .setState(Chain.DRAFT)
+      .setType("Production")
+      .setState("Draft")
       .setAccountId(BigInteger.valueOf(9743))
       .setStartAt("2014-08-12 12:17:02.527142")
-      .setStopAt("2015-08-12 12:17:02.527142")
-      .updatableFieldValueMap();
+      .setStopAt("2015-08-12 12:17:02.527142");
+    chain.validate();
+    Map<Field, Object> result = chain.updatableFieldValueMap();
 
     assertEquals("Mic Check One Two", result.get(CHAIN.NAME));
-    assertEquals(Chain.PRODUCTION, result.get(CHAIN.TYPE));
-    assertEquals(Chain.DRAFT, result.get(CHAIN.STATE));
+    assertEquals(ChainType.Production, result.get(CHAIN.TYPE));
+    assertEquals(ChainState.Draft, result.get(CHAIN.STATE));
     assertEquals(ULong.valueOf(9743), result.get(CHAIN.ACCOUNT_ID));
     assertEquals(Timestamp.valueOf("2014-08-12 12:17:02.527142"), result.get(CHAIN.START_AT));
     assertEquals(Timestamp.valueOf("2015-08-12 12:17:02.527142"), result.get(CHAIN.STOP_AT));

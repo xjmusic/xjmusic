@@ -16,7 +16,7 @@
         <div class="entity">
           {{#if headline.entity.name}}{{headline.entity.name}}{{/if}}
           {{#if headline.entity.id}}<sup>#</sup>{{headline.entity.id}}{{/if}}
-          {{#if headline.entity.state}}<div class="badge {{headline.entity.state}}-state">{{headline.entity.state}}</div>{{/if}}
+          {{#if headline.entity.state}}<div class="badge {{lowercase headline.entity.state}}-state">{{headline.entity.state}}</div>{{/if}}
         </div>
       {{/if}}
 

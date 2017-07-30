@@ -6,9 +6,11 @@ import io.xj.core.app.access.impl.Access;
 import io.xj.core.app.exception.BusinessException;
 import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.integration.IntegrationTestService;
-import io.xj.core.model.chain.Chain;
+import io.xj.core.model.chain.ChainState;
+import io.xj.core.model.chain.ChainType;
 import io.xj.core.model.chain_instrument.ChainInstrument;
 import io.xj.core.model.instrument.Instrument;
+import io.xj.core.model.instrument.InstrumentType;
 import io.xj.core.tables.records.ChainInstrumentRecord;
 import io.xj.core.transport.JSON;
 
@@ -21,7 +23,6 @@ import com.google.inject.Injector;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -35,7 +36,7 @@ import static org.junit.Assert.assertNull;
 
 // TODO [core] test permissions of different libraries to readMany vs. create vs. update or delete chain libraries
 public class ChainInstrumentIT {
-  private Injector injector = Guice.createInjector(new CoreModule());
+  private final Injector injector = Guice.createInjector(new CoreModule());
   private ChainInstrumentDAO testDAO;
 
   @Before
@@ -44,12 +45,12 @@ public class ChainInstrumentIT {
 
     // Account "fish" has chain "school" and chain "bucket"
     IntegrationTestEntity.insertAccount(1, "fish");
-    IntegrationTestEntity.insertChain(1, 1, "school", Chain.PRODUCTION, Chain.READY, Timestamp.valueOf("2014-08-12 12:17:02.52714"), Timestamp.valueOf("2014-09-11 12:17:01.0475"));
-    IntegrationTestEntity.insertChain(2, 1, "bucket", Chain.PRODUCTION, Chain.FABRICATING, Timestamp.valueOf("2015-05-10 12:17:02.52714"), Timestamp.valueOf("2015-06-09 12:17:01.0475"));
+    IntegrationTestEntity.insertChain(1, 1, "school", ChainType.Production, ChainState.Ready, Timestamp.valueOf("2014-08-12 12:17:02.52714"), Timestamp.valueOf("2014-09-11 12:17:01.0475"));
+    IntegrationTestEntity.insertChain(2, 1, "bucket", ChainType.Production, ChainState.Fabricating, Timestamp.valueOf("2015-05-10 12:17:02.52714"), Timestamp.valueOf("2015-06-09 12:17:01.0475"));
 
     // Account "blocks" has chain "red"
     IntegrationTestEntity.insertAccount(2, "blocks");
-    IntegrationTestEntity.insertChain(3, 2, "red", Chain.PRODUCTION, Chain.COMPLETE, Timestamp.valueOf("2014-08-12 12:17:02.52714"), Timestamp.valueOf("2014-09-11 12:17:01.0475"));
+    IntegrationTestEntity.insertChain(3, 2, "red", ChainType.Production, ChainState.Complete, Timestamp.valueOf("2014-08-12 12:17:02.52714"), Timestamp.valueOf("2014-09-11 12:17:01.0475"));
 
     // Stub users
     IntegrationTestEntity.insertUser(2, "john", "john@email.com", "http://pictures.com/john.gif");
@@ -57,13 +58,13 @@ public class ChainInstrumentIT {
 
     // Library "palm tree" has instrument "fonds" and instrument "nuts"
     IntegrationTestEntity.insertLibrary(1, 1, "palm tree");
-    IntegrationTestEntity.insertInstrument(1, 1, 2, "fonds", Instrument.HARMONIC, 0.342);
-    IntegrationTestEntity.insertInstrument(2, 1, 2, "nuts", Instrument.MELODIC, 0.342);
+    IntegrationTestEntity.insertInstrument(1, 1, 2, "fonds", InstrumentType.Harmonic, 0.342);
+    IntegrationTestEntity.insertInstrument(2, 1, 2, "nuts", InstrumentType.Melodic, 0.342);
 
     // Library "boat" has instrument "helm" and instrument "sail"
     IntegrationTestEntity.insertLibrary(2, 2, "boat");
-    IntegrationTestEntity.insertInstrument(3, 2, 3, "helm", Instrument.PERCUSSIVE, 0.342);
-    IntegrationTestEntity.insertInstrument(4, 2, 3, "sail", Instrument.VOCAL, 0.342);
+    IntegrationTestEntity.insertInstrument(3, 2, 3, "helm", InstrumentType.Percussive, 0.342);
+    IntegrationTestEntity.insertInstrument(4, 2, 3, "sail", InstrumentType.Vocal, 0.342);
 
     // Chain "school" has instrument "helm"
     IntegrationTestEntity.insertChainInstrument(1, 1, 3);
@@ -171,7 +172,7 @@ public class ChainInstrumentIT {
     ChainInstrument result = new ChainInstrument().setFromRecord(testDAO.readOne(access, ULong.valueOf(1)));
 
     assertNotNull(result);
-    Assert.assertEquals(ULong.valueOf(1), result.getId());
+    assertEquals(ULong.valueOf(1), result.getId());
     assertEquals(ULong.valueOf(1), result.getChainId());
     assertEquals(ULong.valueOf(3), result.getInstrumentId());
   }

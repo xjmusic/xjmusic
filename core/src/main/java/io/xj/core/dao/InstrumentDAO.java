@@ -3,6 +3,7 @@ package io.xj.core.dao;
 
 import io.xj.core.app.access.impl.Access;
 import io.xj.core.model.instrument.Instrument;
+import io.xj.core.model.instrument.InstrumentType;
 import io.xj.core.tables.records.InstrumentRecord;
 
 import org.jooq.Record;
@@ -56,24 +57,24 @@ public interface InstrumentDAO {
   /**
    Fetch many instrument for one Account by id, if accessible
 
-   @param access    control
-   @param chainId to fetch instruments for.
-   @param instrumentType  to fetch
    @return JSONArray of instruments.
    @throws Exception on failure
+    @param access    control
+   @param chainId to fetch instruments for.
+   @param instrumentType  to fetch
    */
-  Result<? extends Record> readAllBoundToChain(Access access, ULong chainId, String instrumentType) throws Exception;
+  Result<? extends Record> readAllBoundToChain(Access access, ULong chainId, InstrumentType instrumentType) throws Exception;
 
   /**
    Fetch many instrument for one Account by id, if accessible
 
-   @param access    control
-   @param chainId to fetch instruments for.
-   @param instrumentType  to fetch
    @return JSONArray of instruments.
    @throws Exception on failure
+    @param access    control
+   @param chainId to fetch instruments for.
+   @param instrumentType  to fetch
    */
-  Result<? extends Record> readAllBoundToChainLibrary(Access access, ULong chainId, String instrumentType) throws Exception;
+  Result<? extends Record> readAllBoundToChainLibrary(Access access, ULong chainId, InstrumentType instrumentType) throws Exception;
 
   /**
    (ADMIN ONLY)

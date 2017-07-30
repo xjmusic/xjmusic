@@ -6,7 +6,7 @@ import io.xj.core.app.access.impl.Access;
 import io.xj.core.app.exception.BusinessException;
 import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.integration.IntegrationTestService;
-import io.xj.core.model.idea.Idea;
+import io.xj.core.model.idea.IdeaType;
 import io.xj.core.model.phase.Phase;
 import io.xj.core.model.role.Role;
 import io.xj.core.tables.records.PhaseRecord;
@@ -23,7 +23,6 @@ import com.google.inject.Injector;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -39,7 +38,7 @@ import static org.junit.Assert.assertNull;
 // TODO [core] test permissions of different users to readMany vs. create vs. update or delete phases
 public class PhaseIT {
   @Rule public ExpectedException failure = ExpectedException.none();
-  private Injector injector = Guice.createInjector(new CoreModule());
+  private final Injector injector = Guice.createInjector(new CoreModule());
   private PhaseDAO testDAO;
 
   @Before
@@ -60,8 +59,8 @@ public class PhaseIT {
 
     // Library "palm tree" has idea "leaves" and idea "coconuts"
     IntegrationTestEntity.insertLibrary(1, 1, "palm tree");
-    IntegrationTestEntity.insertIdea(1, 2, 1, Idea.MAIN, "leaves", 0.342, "C#", 110.286);
-    IntegrationTestEntity.insertIdea(2, 2, 1, Idea.MACRO, "coconuts", 8.02, "D", 130.2);
+    IntegrationTestEntity.insertIdea(1, 2, 1, IdeaType.Main, "leaves", 0.342, "C#", 110.286);
+    IntegrationTestEntity.insertIdea(2, 2, 1, IdeaType.Macro, "coconuts", 8.02, "D", 130.2);
 
     // Idea "leaves" has phases "Ants" and "Caterpillars"
     IntegrationTestEntity.insertPhase(1, 1, 0, 16, "Ants", 0.583, "D minor", 120.0);
@@ -125,7 +124,7 @@ public class PhaseIT {
     assertEquals(DSL.val((String) null), result.get("total"));
   }
 
-  @Test()
+  @Test
   public void create_TotalIsRequiredForNonMacroTypeIdeaPhase() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "artist",
@@ -145,7 +144,7 @@ public class PhaseIT {
     testDAO.create(access, inputData);
   }
 
-  @Test()
+  @Test
   public void create_TotalMustBeGreaterThanZeroForNonMacroTypeIdeaPhase() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "artist",
@@ -193,7 +192,7 @@ public class PhaseIT {
     assertEquals(UInteger.valueOf(16), result.get("total"));
   }
 
-  @Test()
+  @Test
   public void create_FailsWithoutIdeaID() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "artist",
@@ -213,7 +212,7 @@ public class PhaseIT {
     testDAO.create(access, inputData);
   }
 
-  @Test()
+  @Test
   public void create_FailsWithoutOffset() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "artist",
@@ -236,7 +235,7 @@ public class PhaseIT {
   /**
    [#237] shouldn't be able to create phase with same offset in idea
    */
-  @Test()
+  @Test
   public void create_FailsIfIdeaAlreadyHasPhaseWithThisOffset() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "admin"
@@ -266,7 +265,7 @@ public class PhaseIT {
     Phase result = new Phase().setFromRecord(testDAO.readOne(access, ULong.valueOf(2)));
 
     assertNotNull(result);
-    Assert.assertEquals(ULong.valueOf(2), result.getId());
+    assertEquals(ULong.valueOf(2), result.getId());
     assertEquals(ULong.valueOf(1), result.getIdeaId());
     assertEquals("Caterpillars", result.getName());
   }
@@ -293,7 +292,7 @@ public class PhaseIT {
     Phase result = new Phase().setFromRecord(testDAO.readOneForIdea(access, ULong.valueOf(1), ULong.valueOf(1)));
 
     assertNotNull(result);
-    Assert.assertEquals(ULong.valueOf(2), result.getId());
+    assertEquals(ULong.valueOf(2), result.getId());
     assertEquals(ULong.valueOf(1), result.getIdeaId());
     assertEquals("Caterpillars", result.getName());
   }
@@ -364,16 +363,16 @@ public class PhaseIT {
       .where(PHASE.ID.eq(ULong.valueOf(1)))
       .fetchOne();
     assertNotNull(result);
-    assertEquals(null, result.getName());
-    assertEquals(null, result.getDensity());
-    assertEquals(null, result.getTempo());
-    assertEquals(null, result.getKey());
+    assertNull(result.getName());
+    assertNull(result.getDensity());
+    assertNull(result.getTempo());
+    assertNull(result.getKey());
     assertEquals(ULong.valueOf(7), result.getOffset());
     assertEquals(UInteger.valueOf(32), result.getTotal());
     assertEquals(ULong.valueOf(1), result.getIdeaId());
   }
 
-  @Test()
+  @Test
   public void update_FailsWithoutIdeaID() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "artist",
@@ -410,7 +409,7 @@ public class PhaseIT {
     testDAO.update(access, ULong.valueOf(1), inputData);
   }
 
-  @Test()
+  @Test
   public void update_TotalIsRequiredForNonMacroTypeIdeaPhase() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "artist",
@@ -430,7 +429,7 @@ public class PhaseIT {
     testDAO.update(access, ULong.valueOf(1), inputData);
   }
 
-  @Test()
+  @Test
   public void update_TotalMustBeGreaterThanZeroForNonMacroTypeIdeaPhase() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "artist",
@@ -451,7 +450,7 @@ public class PhaseIT {
     testDAO.update(access, ULong.valueOf(1), inputData);
   }
 
-  @Test()
+  @Test
   public void update_FailsWithoutOffset() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "artist",
@@ -470,7 +469,7 @@ public class PhaseIT {
     testDAO.update(access, ULong.valueOf(1), inputData);
   }
 
-  @Test()
+  @Test
   public void update_FailsUpdatingToNonexistentIdea() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "artist",
@@ -529,7 +528,7 @@ public class PhaseIT {
     testDAO.delete(access, ULong.valueOf(1));
   }
 
-  @Test()
+  @Test
   public void delete_FailsIfIdeaHasChildRecords() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "userId", "2",

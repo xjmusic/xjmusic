@@ -28,7 +28,7 @@ public class IdeaTest {
   public void validate() throws Exception {
     new Idea()
       .setLibraryId(BigInteger.valueOf(23))
-      .setType(Idea.MAIN)
+      .setType("Main")
       .setDensity(0.75)
       .setKey("D# major 7")
       .setName("Mic Check One Two")
@@ -44,7 +44,7 @@ public class IdeaTest {
 
     new Idea()
       .setLibraryId(BigInteger.valueOf(23))
-      .setType(Idea.MAIN)
+      .setType("Main")
       .setDensity(0.75)
       .setKey("D# major 7")
       .setTempo(120.0)
@@ -58,7 +58,7 @@ public class IdeaTest {
     failure.expectMessage("Library ID is required");
 
     new Idea()
-      .setType(Idea.MAIN)
+      .setType("Main")
       .setDensity(0.75)
       .setKey("D# major 7")
       .setName("Mic Check One Two")
@@ -74,7 +74,7 @@ public class IdeaTest {
 
     new Idea()
       .setLibraryId(BigInteger.valueOf(23))
-      .setType(Idea.MAIN)
+      .setType("Main")
       .setDensity(0.75)
       .setKey("D# major 7")
       .setName("Mic Check One Two")
@@ -120,7 +120,7 @@ public class IdeaTest {
 
     new Idea()
       .setLibraryId(BigInteger.valueOf(23))
-      .setType(Idea.MAIN)
+      .setType("Main")
       .setDensity(0.75)
       .setName("Mic Check One Two")
       .setTempo(120.0)
@@ -135,7 +135,7 @@ public class IdeaTest {
 
     new Idea()
       .setLibraryId(BigInteger.valueOf(23))
-      .setType(Idea.MAIN)
+      .setType("Main")
       .setKey("D# major 7")
       .setName("Mic Check One Two")
       .setTempo(120.0)
@@ -150,7 +150,7 @@ public class IdeaTest {
 
     new Idea()
       .setLibraryId(BigInteger.valueOf(23))
-      .setType(Idea.MAIN)
+      .setType("Main")
       .setDensity(0.75)
       .setKey("D# major 7")
       .setName("Mic Check One Two")
@@ -163,7 +163,7 @@ public class IdeaTest {
     IdeaRecord record = new IdeaRecord();
     record.setId(ULong.valueOf(12));
     record.setLibraryId(ULong.valueOf(23));
-    record.setType(Idea.MAIN);
+    record.setType("Main");
     record.setDensity(0.75);
     record.setKey("D# major 7");
     record.setName("Mic Check One Two");
@@ -178,7 +178,7 @@ public class IdeaTest {
     assertNotNull(result);
     assertEquals(ULong.valueOf(12), result.getId());
     assertEquals(ULong.valueOf(23), result.getLibraryId());
-    assertEquals(Idea.MAIN, result.getType());
+    assertEquals(IdeaType.Main, result.getType());
     assertEquals(Double.valueOf(0.75), result.getDensity());
     assertEquals("D# major 7", result.getKey());
     assertEquals("Mic Check One Two", result.getName());
@@ -195,18 +195,19 @@ public class IdeaTest {
 
   @Test
   public void intoFieldValueMap() throws Exception {
-    Map<Field, Object> result = new Idea()
+    Idea idea = new Idea()
       .setLibraryId(BigInteger.valueOf(23))
-      .setType(Idea.MAIN)
+      .setType("Main")
       .setDensity(0.75)
       .setKey("D# major 7")
       .setName("Mic Check One Two")
       .setTempo(120.0)
-      .setUserId(BigInteger.valueOf(987))
-      .updatableFieldValueMap();
+      .setUserId(BigInteger.valueOf(987));
+    idea.validate();
+    Map<Field, Object> result = idea.updatableFieldValueMap();
 
     assertEquals(ULong.valueOf(23), result.get(IDEA.LIBRARY_ID));
-    assertEquals(Idea.MAIN, result.get(IDEA.TYPE));
+    assertEquals(IdeaType.Main, result.get(IDEA.TYPE));
     assertEquals(0.75, result.get(IDEA.DENSITY));
     assertEquals("D# major 7", result.get(IDEA.KEY));
     assertEquals("Mic Check One Two", result.get(IDEA.NAME));

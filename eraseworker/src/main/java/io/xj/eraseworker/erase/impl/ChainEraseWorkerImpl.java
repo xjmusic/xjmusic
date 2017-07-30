@@ -5,7 +5,7 @@ import io.xj.core.app.access.impl.Access;
 import io.xj.core.app.exception.BusinessException;
 import io.xj.core.dao.ChainDAO;
 import io.xj.core.dao.LinkDAO;
-import io.xj.core.model.chain.Chain;
+import io.xj.core.model.chain.ChainState;
 import io.xj.core.tables.records.ChainRecord;
 import io.xj.core.tables.records.LinkRecord;
 import io.xj.eraseworker.erase.ChainEraseWorker;
@@ -116,7 +116,7 @@ public class ChainEraseWorkerImpl implements ChainEraseWorker {
      @throws Exception on failure
      */
     private Result<ChainRecord> getChainsToErase() throws Exception {
-      return chainDAO.readAllInState(Access.internal(), Chain.ERASE, batchSize);
+      return chainDAO.readAllInState(Access.internal(), ChainState.Erase, batchSize);
     }
 
   }

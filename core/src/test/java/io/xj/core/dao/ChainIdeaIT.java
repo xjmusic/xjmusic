@@ -6,9 +6,10 @@ import io.xj.core.app.access.impl.Access;
 import io.xj.core.app.exception.BusinessException;
 import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.integration.IntegrationTestService;
-import io.xj.core.model.chain.Chain;
+import io.xj.core.model.chain.ChainState;
+import io.xj.core.model.chain.ChainType;
 import io.xj.core.model.chain_idea.ChainIdea;
-import io.xj.core.model.idea.Idea;
+import io.xj.core.model.idea.IdeaType;
 import io.xj.core.tables.records.ChainIdeaRecord;
 import io.xj.core.transport.JSON;
 
@@ -34,7 +35,7 @@ import static org.junit.Assert.assertNull;
 
 // TODO [core] test permissions of different libraries to readMany vs. create vs. update or delete chain libraries
 public class ChainIdeaIT {
-  private Injector injector = Guice.createInjector(new CoreModule());
+  private final Injector injector = Guice.createInjector(new CoreModule());
   private ChainIdeaDAO testDAO;
 
   @Before
@@ -43,12 +44,12 @@ public class ChainIdeaIT {
 
     // Account "fish" has chain "school" and chain "bucket"
     IntegrationTestEntity.insertAccount(1, "fish");
-    IntegrationTestEntity.insertChain(1, 1, "school", Chain.PRODUCTION, Chain.READY, Timestamp.valueOf("2014-08-12 12:17:02.52714"), Timestamp.valueOf("2014-09-11 12:17:01.0475"));
-    IntegrationTestEntity.insertChain(2, 1, "bucket", Chain.PRODUCTION, Chain.FABRICATING, Timestamp.valueOf("2015-05-10 12:17:02.52714"), Timestamp.valueOf("2015-06-09 12:17:01.0475"));
+    IntegrationTestEntity.insertChain(1, 1, "school", ChainType.Production, ChainState.Ready, Timestamp.valueOf("2014-08-12 12:17:02.52714"), Timestamp.valueOf("2014-09-11 12:17:01.0475"));
+    IntegrationTestEntity.insertChain(2, 1, "bucket", ChainType.Production, ChainState.Fabricating, Timestamp.valueOf("2015-05-10 12:17:02.52714"), Timestamp.valueOf("2015-06-09 12:17:01.0475"));
 
     // Account "blocks" has chain "red"
     IntegrationTestEntity.insertAccount(2, "blocks");
-    IntegrationTestEntity.insertChain(3, 2, "red", Chain.PRODUCTION, Chain.COMPLETE, Timestamp.valueOf("2014-08-12 12:17:02.52714"), Timestamp.valueOf("2014-09-11 12:17:01.0475"));
+    IntegrationTestEntity.insertChain(3, 2, "red", ChainType.Production, ChainState.Complete, Timestamp.valueOf("2014-08-12 12:17:02.52714"), Timestamp.valueOf("2014-09-11 12:17:01.0475"));
 
     // Stub users
     IntegrationTestEntity.insertUser(2, "john", "john@email.com", "http://pictures.com/john.gif");
@@ -56,13 +57,13 @@ public class ChainIdeaIT {
 
     // Library "palm tree" has idea "fonds" and idea "nuts"
     IntegrationTestEntity.insertLibrary(1, 1, "palm tree");
-    IntegrationTestEntity.insertIdea(1, 2, 1, Idea.MAIN, "fonds", 0.342, "C#", 0.286);
-    IntegrationTestEntity.insertIdea(2, 2, 1, Idea.RHYTHM, "nuts", 0.342, "C#", 0.286);
+    IntegrationTestEntity.insertIdea(1, 2, 1, IdeaType.Main, "fonds", 0.342, "C#", 0.286);
+    IntegrationTestEntity.insertIdea(2, 2, 1, IdeaType.Rhythm, "nuts", 0.342, "C#", 0.286);
 
     // Library "boat" has idea "helm" and idea "sail"
     IntegrationTestEntity.insertLibrary(2, 2, "boat");
-    IntegrationTestEntity.insertIdea(3, 3, 2, Idea.MACRO, "helm", 0.342, "C#", 0.286);
-    IntegrationTestEntity.insertIdea(4, 2, 2, Idea.SUPPORT, "sail", 0.342, "C#", 0.286);
+    IntegrationTestEntity.insertIdea(3, 3, 2, IdeaType.Macro, "helm", 0.342, "C#", 0.286);
+    IntegrationTestEntity.insertIdea(4, 2, 2, IdeaType.Support, "sail", 0.342, "C#", 0.286);
 
     // Chain "school" has idea "helm"
     IntegrationTestEntity.insertChainIdea(1, 1, 3);

@@ -114,25 +114,31 @@ public class DAOImpl {
   }
 
   /**
+   Require that a record exists
+
+   @param message for error, if thrown
+   @param records to require existence of any of
+   @throws BusinessException if not exists
+   */
+  void requireExistsAnyOf(String message, Record... records) throws BusinessException {
+    Boolean exists = false;
+    for (Record record : records) {
+      if (exists(record)) {
+        exists = true;
+      }
+    }
+    if (!exists) {
+      throw new BusinessException(message);
+    }
+  }
+
+  /**
    Whether a record exists
 
    @param obj to check for existence
    */
   Boolean exists(Object obj) {
     return Objects.nonNull(obj);
-  }
-
-  /**
-   Require state is in an array of states
-
-   @param state         to check
-   @param allowedStates required to be in
-   @throws CancelException if not in required states
-   */
-  void onlyAllowTransitions(String state, String... allowedStates) throws CancelException {
-    if (!arrayContains(state, allowedStates))
-      throw new CancelException(String.format("transition to %s not in allowed (%s)",
-        state, CSV.join(allowedStates)));
   }
 
   /**

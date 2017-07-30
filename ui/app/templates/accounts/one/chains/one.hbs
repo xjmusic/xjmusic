@@ -6,7 +6,7 @@
 
     <!-- State Change -->
     <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
-      <div class="chain-state-change container-fluid {{model.state}}-state">
+      <div class="chain-state-change container-fluid {{lowercase model.state}}-state">
         <table>
           <tbody>
           <tr class="row">
@@ -23,7 +23,7 @@
     </div>
 
     <!-- Play Chain -->
-    {{#if (or (eq model.state "fabricating") (eq model.state "complete"))}}
+    {{#if (or (eq model.state "Fabricating") (eq model.state "Complete"))}}
       <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
         <div class="{{if (eq player.currentChain.id model.id)
                          'now-playing'}} play-chain container-fluid">

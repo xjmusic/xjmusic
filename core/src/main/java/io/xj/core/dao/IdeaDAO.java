@@ -3,6 +3,7 @@ package io.xj.core.dao;
 
 import io.xj.core.app.access.impl.Access;
 import io.xj.core.model.idea.Idea;
+import io.xj.core.model.idea.IdeaType;
 import io.xj.core.tables.records.IdeaRecord;
 
 import org.jooq.Record;
@@ -37,35 +38,35 @@ public interface IdeaDAO {
   /**
    Read a given type of idea for a given link
 
-   @param access control
+   @return macro-type idea; null if none found
+    @param access control
    @param linkId to read idea for
    @param ideaType type of idea to read
-   @return macro-type idea; null if none found
    */
   @Nullable
-  IdeaRecord readOneRecordTypeInLink(Access access, ULong linkId, String ideaType) throws Exception;
+  IdeaRecord readOneRecordTypeInLink(Access access, ULong linkId, IdeaType ideaType) throws Exception;
 
   /**
    Fetch many idea for one Account by id, if accessible
 
-   @param access    control
-   @param chainId to fetch ideas for.
-   @param ideaType  to fetch
    @return JSONArray of ideas.
    @throws Exception on failure
+    @param access    control
+   @param chainId to fetch ideas for.
+   @param ideaType  to fetch
    */
-  Result<? extends Record> readAllBoundToChain(Access access, ULong chainId, String ideaType) throws Exception;
+  Result<? extends Record> readAllBoundToChain(Access access, ULong chainId, IdeaType ideaType) throws Exception;
 
   /**
    Fetch many idea for one Account by id, if accessible
 
-   @param access    control
-   @param chainId to fetch ideas for.
-   @param ideaType  to fetch
    @return JSONArray of ideas.
    @throws Exception on failure
+    @param access    control
+   @param chainId to fetch ideas for.
+   @param ideaType  to fetch
    */
-  Result<? extends Record> readAllBoundToChainLibrary(Access access, ULong chainId, String ideaType) throws Exception;
+  Result<? extends Record> readAllBoundToChainLibrary(Access access, ULong chainId, IdeaType ideaType) throws Exception;
 
   /**
    Fetch many idea for one Account by id, if accessible

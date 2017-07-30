@@ -6,9 +6,9 @@ import io.xj.core.basis.Basis;
 import io.xj.core.basis.BasisFactory;
 import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.integration.IntegrationTestService;
-import io.xj.core.model.chain.Chain;
-import io.xj.core.model.choice.Choice;
-import io.xj.core.model.idea.Idea;
+import io.xj.core.model.chain.ChainState;
+import io.xj.core.model.chain.ChainType;
+import io.xj.core.model.idea.IdeaType;
 import io.xj.core.model.link.Link;
 import io.xj.core.model.role.Role;
 import io.xj.core.tables.records.LinkMemeRecord;
@@ -40,7 +40,7 @@ import static org.junit.Assert.assertNotNull;
 
 public class CraftFoundationInitialIT {
   @Rule public ExpectedException failure = ExpectedException.none();
-  private Injector injector = Guice.createInjector(new CoreModule(), new CraftworkerModule());
+  private final Injector injector = Guice.createInjector(new CoreModule(), new CraftworkerModule());
   private CraftFactory craftFactory;
   private BasisFactory basisFactory;
 
@@ -67,7 +67,7 @@ public class CraftFoundationInitialIT {
     IntegrationTestEntity.insertLibrary(2, 1, "house");
 
     // "Tropical, Wild to Cozy" macro-idea in house library
-    IntegrationTestEntity.insertIdea(4, 3, 2, Idea.MACRO, "Tropical, Wild to Cozy", 0.5, "C", 120);
+    IntegrationTestEntity.insertIdea(4, 3, 2, IdeaType.Macro, "Tropical, Wild to Cozy", 0.5, "C", 120);
     IntegrationTestEntity.insertIdeaMeme(2, 4, "Tropical");
     IntegrationTestEntity.insertPhase(3, 4, 0, 64, "Start Wild", 0.6, "C", 125);
     IntegrationTestEntity.insertPhaseMeme(3, 3, "Wild");
@@ -77,7 +77,7 @@ public class CraftFoundationInitialIT {
     IntegrationTestEntity.insertPhaseChord(4, 4, 0, "Bb minor");
 
     // Main idea
-    IntegrationTestEntity.insertIdea(5, 3, 2, Idea.MAIN, "Main Jam", 0.2, "F# minor", 140);
+    IntegrationTestEntity.insertIdea(5, 3, 2, IdeaType.Main, "Main Jam", 0.2, "F# minor", 140);
     IntegrationTestEntity.insertIdeaMeme(3, 5, "Outlook");
     IntegrationTestEntity.insertPhase(15, 5, 0, 16, "Intro", 0.5, "F# minor", 135.0);
     IntegrationTestEntity.insertPhaseMeme(6, 15, "Pessimism");
@@ -89,11 +89,11 @@ public class CraftFoundationInitialIT {
     IntegrationTestEntity.insertPhaseChord(18, 16, 8, "G major");
 
     // Extra ideas
-    IntegrationTestEntity.insertIdea(6, 3, 2, Idea.RHYTHM, "Beat Jam", 0.6, "D#", 150);
-    IntegrationTestEntity.insertIdea(7, 3, 2, Idea.SUPPORT, "Support Jam", 0.3, "Cb minor", 170);
+    IntegrationTestEntity.insertIdea(6, 3, 2, IdeaType.Rhythm, "Beat Jam", 0.6, "D#", 150);
+    IntegrationTestEntity.insertIdea(7, 3, 2, IdeaType.Support, "Support Jam", 0.3, "Cb minor", 170);
 
     // Chain "Print #2" has 1 initial planned link
-    IntegrationTestEntity.insertChain(2, 1, "Print #2", Chain.PRODUCTION, Chain.FABRICATING, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null);
+    IntegrationTestEntity.insertChain(2, 1, "Print #2", ChainType.Production, ChainState.Fabricating, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null);
     link6 = IntegrationTestEntity.insertLink_Planned(6, 2, 0, Timestamp.valueOf("2017-02-14 12:01:00.000001"));
     // bind the library to the chain
     IntegrationTestEntity.insertChainLibrary(1, 2, 2);
@@ -150,7 +150,7 @@ public class CraftFoundationInitialIT {
     assertNotNull(IntegrationTestService.getDb().selectFrom(CHOICE)
       .where(CHOICE.LINK_ID.eq(ULong.valueOf(6)))
       .and(CHOICE.IDEA_ID.eq(ULong.valueOf(4)))
-      .and(CHOICE.TYPE.eq(Choice.MACRO))
+      .and(CHOICE.TYPE.eq(IdeaType.Macro.toString()))
       .and(CHOICE.TRANSPOSE.eq(0))
       .and(CHOICE.PHASE_OFFSET.eq(ULong.valueOf(0)))
       .fetchOne());
@@ -159,7 +159,7 @@ public class CraftFoundationInitialIT {
     assertNotNull(IntegrationTestService.getDb().selectFrom(CHOICE)
       .where(CHOICE.LINK_ID.eq(ULong.valueOf(6)))
       .and(CHOICE.IDEA_ID.eq(ULong.valueOf(5)))
-      .and(CHOICE.TYPE.eq(Choice.MAIN))
+      .and(CHOICE.TYPE.eq(IdeaType.Main.toString()))
       .and(CHOICE.TRANSPOSE.eq(-6))
       .and(CHOICE.PHASE_OFFSET.eq(ULong.valueOf(0)))
       .fetchOne());

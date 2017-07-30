@@ -12,11 +12,12 @@ import io.xj.core.dao.LinkDAO;
 import io.xj.core.db.sql.SQLConnection;
 import io.xj.core.db.sql.SQLDatabaseProvider;
 import io.xj.core.external.amazon.AmazonProvider;
-import io.xj.core.model.chain.Chain;
+import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.link.Link;
+import io.xj.core.model.link.LinkState;
 import io.xj.core.tables.records.ChainRecord;
 import io.xj.core.tables.records.LinkRecord;
-import io.xj.core.util.Text;
+import io.xj.core.transport.CSV;
 
 import org.jooq.DSLContext;
 import org.jooq.Field;
@@ -30,9 +31,9 @@ import com.google.inject.Inject;
 
 import javax.annotation.Nullable;
 import java.math.BigInteger;
-import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -49,7 +50,7 @@ import static io.xj.core.tables.LinkChord.LINK_CHORD;
 public class LinkDAOImpl extends DAOImpl implements LinkDAO {
 
   private static final long MILLISECONDS_PER_SECOND = 1000;
-  private AmazonProvider amazonProvider;
+  private final AmazonProvider amazonProvider;
 
   @Inject
   public LinkDAOImpl(
@@ -94,7 +95,7 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
 
   @Nullable
   @Override
-  public LinkRecord readOneInState(Access access, ULong chainId, String linkState, Timestamp linkBeginBefore) throws Exception {
+  public LinkRecord readOneInState(Access access, ULong chainId, LinkState linkState, Timestamp linkBeginBefore) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readOneInState(tx.getContext(), access, chainId, linkState, linkBeginBefore));
@@ -145,7 +146,7 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
   }
 
   @Override
-  public void updateState(Access access, ULong id, String state) throws Exception {
+  public void updateState(Access access, ULong id, LinkState state) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
       updateState(tx.getContext(), access, id, state);
@@ -182,7 +183,7 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
     Map<Field, Object> fieldValues = entity.updatableFieldValueMap();
 
     // [#126] Links are always readMany in PLANNED state
-    fieldValues.put(LINK.STATE, Link.PLANNED);
+    fieldValues.put(LINK.STATE, LinkState.Planned);
 
     // [#267] Link has `waveform_key` referencing xj-link-* S3 bucket object key
     fieldValues.put(LINK.WAVEFORM_KEY, generateKey(entity.getChainId()));
@@ -249,20 +250,20 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
   /**
    Fetch one Link by chainId and state, if present
 
-   @param db              context
+   @return Link if found
+   @throws BusinessException on failure
+    @param db              context
    @param access          control
    @param chainId         to find link in
    @param linkState       linkState to find link in
    @param linkBeginBefore ahead to look for links
-   @return Link if found
-   @throws BusinessException on failure
    */
-  private LinkRecord readOneInState(DSLContext db, Access access, ULong chainId, String linkState, Timestamp linkBeginBefore) throws BusinessException {
+  private LinkRecord readOneInState(DSLContext db, Access access, ULong chainId, LinkState linkState, Timestamp linkBeginBefore) throws BusinessException {
     requireTopLevel(access);
 
     return recordInto(LINK, db.select(LINK.fields()).from(LINK)
       .where(LINK.CHAIN_ID.eq(chainId))
-      .and(LINK.STATE.eq(Text.LowerSlug(linkState)))
+      .and(LINK.STATE.eq(linkState.toString()))
       .and(LINK.BEGIN_AT.lessOrEqual(linkBeginBefore))
       .orderBy(LINK.OFFSET.asc())
       .limit(1)
@@ -279,7 +280,7 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
    @param chainId of parent
    @return array of records
    */
-  private Result<LinkRecord> readAll(DSLContext db, Access access, ULong chainId) throws SQLException {
+  private Result<LinkRecord> readAll(DSLContext db, Access access, ULong chainId) {
     if (access.isTopLevel())
       return resultInto(LINK, db.select(LINK.fields())
         .from(LINK)
@@ -308,7 +309,7 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
    @param chainId of parent
    @return array of records
    */
-  private Result<LinkRecord> readAllFromOffset(DSLContext db, Access access, ULong chainId, ULong fromOffset) throws SQLException {
+  private Result<LinkRecord> readAllFromOffset(DSLContext db, Access access, ULong chainId, ULong fromOffset) {
     // so "from offset zero" means from offset 0 to offset N
     ULong maxOffset = ULong.valueOf(
       fromOffset.toBigInteger().add(
@@ -345,10 +346,10 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
    @param chainId of parent
    @return array of records
    */
-  private Result<LinkRecord> readAllFromSecondsUTC(DSLContext db, Access access, ULong chainId, ULong fromSecondsUTC) throws SQLException {
+  private Result<LinkRecord> readAllFromSecondsUTC(DSLContext db, Access access, ULong chainId, ULong fromSecondsUTC) {
 
     // play buffer delay/ahead seconds
-    Instant from = new java.util.Date(fromSecondsUTC.longValue()*MILLISECONDS_PER_SECOND).toInstant();
+    Instant from = new Date(fromSecondsUTC.longValue()*MILLISECONDS_PER_SECOND).toInstant();
     Timestamp maxBeginAt = Timestamp.from(from.plusSeconds(Config.playBufferAheadSeconds()));
     Timestamp minEndAt = Timestamp.from(from.minusSeconds(Config.playBufferDelaySeconds()));
 
@@ -358,7 +359,7 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
         .where(LINK.CHAIN_ID.eq(chainId))
         .and(LINK.BEGIN_AT.lessOrEqual(maxBeginAt))
         .and(LINK.END_AT.greaterOrEqual(minEndAt))
-        .and(LINK.STATE.eq(Link.DUBBED))
+        .and(LINK.STATE.eq(LinkState.Dubbed.toString()))
         .orderBy(LINK.OFFSET.desc())
         .limit(Config.limitLinkReadSize())
         .fetch());
@@ -369,7 +370,7 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
         .where(LINK.CHAIN_ID.eq(chainId))
         .and(LINK.BEGIN_AT.lessOrEqual(maxBeginAt))
         .and(LINK.END_AT.greaterOrEqual(minEndAt))
-        .and(LINK.STATE.eq(Link.DUBBED))
+        .and(LINK.STATE.eq(LinkState.Dubbed.toString()))
         .and(CHAIN.ACCOUNT_ID.in(access.getAccounts()))
         .orderBy(LINK.OFFSET.desc())
         .limit(Config.limitLinkReadSize())
@@ -398,20 +399,21 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
   /**
    Update the state of a record
 
-   @param db     context
+   @throws BusinessException if a Business Rule is violated
+    @param db     context
    @param access control
    @param id     of record
-   @throws BusinessException if a Business Rule is violated
+   @param state to update to
    */
-  private void updateState(DSLContext db, Access access, ULong id, String state) throws Exception {
+  private void updateState(DSLContext db, Access access, ULong id, LinkState state) throws Exception {
     Map<Field, Object> fieldValues = ImmutableMap.of(
       LINK.ID, id,
-      LINK.STATE, state
+      LINK.STATE, state.toString()
     );
 
     update(db, access, id, fieldValues);
 
-    if (executeUpdate(db, LINK, fieldValues) == 0)
+    if (0 == executeUpdate(db, LINK, fieldValues))
       throw new BusinessException("No records updated.");
   }
 
@@ -424,44 +426,45 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
    @param fieldValues to update with
    @throws BusinessException if a Business Rule is violated
    */
-  private void update(DSLContext db, Access access, ULong id, Map<Field, Object> fieldValues) throws BusinessException, DatabaseException, CancelException {
+  private void update(DSLContext db, Access access, ULong id, Map<Field, Object> fieldValues) throws BusinessException, CancelException {
     requireTopLevel(access);
 
     // validate and cache to-state
-    String updateState = fieldValues.get(LINK.STATE).toString();
-    Link.validateState(updateState);
+    LinkState toState = LinkState.validate(fieldValues.get(LINK.STATE).toString());
 
     // fetch existing link; further logic is based on its current state
     LinkRecord link = db.selectFrom(LINK).where(LINK.ID.eq(id)).fetchOne();
     requireExists("Link #" + id, link);
-    switch (link.getState()) {
 
-      case Link.PLANNED:
-        onlyAllowTransitions(updateState, Link.PLANNED, Link.CRAFTING);
+    // logic based on existing Link State
+    switch (LinkState.validate(link.getState())) {
+
+      case Planned:
+        onlyAllowTransitions(toState, LinkState.Planned, LinkState.Crafting);
         break;
 
-      case Link.CRAFTING:
-        onlyAllowTransitions(updateState, Link.CRAFTING, Link.CRAFTED, Link.FAILED);
+      case Crafting:
+        onlyAllowTransitions(toState, LinkState.Crafting, LinkState.Crafted, LinkState.Failed);
         break;
 
-      case Link.CRAFTED:
-        onlyAllowTransitions(updateState, Link.CRAFTED, Link.DUBBING);
+      case Crafted:
+        onlyAllowTransitions(toState, LinkState.Crafted, LinkState.Dubbing);
         break;
 
-      case Link.DUBBING:
-        onlyAllowTransitions(updateState, Link.DUBBING, Link.DUBBED, Link.FAILED);
+      case Dubbing:
+        onlyAllowTransitions(toState, LinkState.Dubbing, LinkState.Dubbed, LinkState.Failed);
         break;
 
-      case Link.DUBBED:
-        onlyAllowTransitions(updateState, Link.DUBBED);
+      case Dubbed:
+        onlyAllowTransitions(toState, LinkState.Dubbed);
         break;
 
-      case Link.FAILED:
-        onlyAllowTransitions(updateState, Link.FAILED);
+      case Failed:
+        onlyAllowTransitions(toState, LinkState.Failed);
         break;
 
       default:
-        onlyAllowTransitions(updateState, Link.PLANNED);
+        onlyAllowTransitions(toState, LinkState.Planned);
         break;
     }
 
@@ -475,12 +478,12 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
     // state-changes of the same link
     UpdateSetFirstStep<LinkRecord> update = db.update(LINK);
     fieldValues.forEach(update::set);
-    int rowsAffected = update.set(LINK.STATE, updateState)
+    int rowsAffected = update.set(LINK.STATE, toState.toString())
       .where(LINK.ID.eq(id))
       .and(LINK.STATE.eq(link.getState()))
       .execute();
 
-    if (rowsAffected == 0)
+    if (0 == rowsAffected)
       throw new BusinessException("No records updated.");
 
   }
@@ -508,7 +511,7 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
     // Chain must be in erase state
     ChainRecord chain = db.selectFrom(CHAIN)
       .where(CHAIN.ID.eq(link.getChainId()))
-      .and(CHAIN.STATE.eq(Chain.ERASE))
+      .and(CHAIN.STATE.eq(ChainState.Erase.toString()))
       .fetchOne();
     requireExists("Link in a Chain that is being erased", chain);
 
@@ -566,4 +569,25 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
       .execute();
 
   }
+
+  /**
+   Require state is in an array of states
+
+   @param toState       to check
+   @param allowedStates required to be in
+   @throws CancelException if not in required states
+   */
+  static void onlyAllowTransitions(LinkState toState, LinkState... allowedStates) throws CancelException {
+    List<String> allowedStateNames = Lists.newArrayList();
+    for (LinkState search : allowedStates) {
+      allowedStateNames.add(search.toString());
+      if (Objects.equals(search, toState)) {
+        return;
+      }
+    }
+    throw new CancelException(String.format("transition to %s not in allowed (%s)",
+      toState, CSV.join(allowedStateNames)));
+  }
+
+
 }

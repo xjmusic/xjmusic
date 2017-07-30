@@ -6,8 +6,10 @@ import io.xj.core.app.access.impl.Access;
 import io.xj.core.app.exception.BusinessException;
 import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.integration.IntegrationTestService;
-import io.xj.core.model.chain.Chain;
+import io.xj.core.model.chain.ChainState;
+import io.xj.core.model.chain.ChainType;
 import io.xj.core.model.instrument.Instrument;
+import io.xj.core.model.instrument.InstrumentType;
 import io.xj.core.model.role.Role;
 import io.xj.core.tables.records.InstrumentRecord;
 import io.xj.core.transport.CSV;
@@ -38,7 +40,7 @@ import static org.junit.Assert.assertNull;
 
 // TODO [core] test permissions of different users to readMany vs. create vs. update or delete instruments
 public class InstrumentIT {
-  private Injector injector = Guice.createInjector(new CoreModule());
+  private final Injector injector = Guice.createInjector(new CoreModule());
   private InstrumentDAO testDAO;
 
   @Before
@@ -59,8 +61,8 @@ public class InstrumentIT {
 
     // Library "sandwich" has instrument "jams" and instrument "buns"
     IntegrationTestEntity.insertLibrary(1, 1, "sandwich");
-    IntegrationTestEntity.insertInstrument(1, 1, 2, "jams", Instrument.PERCUSSIVE, 0.6);
-    IntegrationTestEntity.insertInstrument(2, 1, 2, "buns", Instrument.HARMONIC, 0.4);
+    IntegrationTestEntity.insertInstrument(1, 1, 2, "jams", InstrumentType.Percussive, 0.6);
+    IntegrationTestEntity.insertInstrument(2, 1, 2, "buns", InstrumentType.Harmonic, 0.4);
     IntegrationTestEntity.insertInstrumentMeme(1,1,"smooth");
 
     // Instantiate the test subject
@@ -83,7 +85,7 @@ public class InstrumentIT {
       .setDensity(0.42)
       .setLibraryId(BigInteger.valueOf(1))
       .setDescription("bimmies")
-      .setType(Instrument.PERCUSSIVE)
+      .setType("Percussive")
       .setUserId(BigInteger.valueOf(2));
 
     JSONObject result = JSON.objectFromRecord(testDAO.create(access, inputData));
@@ -92,7 +94,7 @@ public class InstrumentIT {
     assertEquals(0.42, result.get("density"));
     assertEquals(ULong.valueOf(1), result.get("libraryId"));
     assertEquals("bimmies", result.get("description"));
-    assertEquals(Instrument.PERCUSSIVE, result.get("type"));
+    assertEquals(InstrumentType.Percussive, result.get("type"));
     assertEquals(ULong.valueOf(2), result.get("userId"));
   }
 
@@ -105,7 +107,7 @@ public class InstrumentIT {
     Instrument inputData = new Instrument()
       .setDensity(0.42)
       .setDescription("bimmies")
-      .setType(Instrument.PERCUSSIVE)
+      .setType("Percussive")
       .setUserId(BigInteger.valueOf(2));
 
     testDAO.create(access, inputData);
@@ -120,7 +122,7 @@ public class InstrumentIT {
     Instrument inputData = new Instrument()
       .setDensity(0.42)
       .setDescription("bimmies")
-      .setType(Instrument.PERCUSSIVE)
+      .setType("Percussive")
       .setLibraryId(BigInteger.valueOf(2));
 
     testDAO.create(access, inputData);
@@ -187,10 +189,10 @@ public class InstrumentIT {
 
   @Test
   public void readAllBoundToChain() throws  Exception {
-    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", Chain.PRODUCTION, Chain.FABRICATING, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null);
+    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricating, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null);
     IntegrationTestEntity.insertChainInstrument(1, 1, 1);
 
-    Result<? extends Record> result = testDAO.readAllBoundToChain(Access.internal(), ULong.valueOf(1), Instrument.PERCUSSIVE);
+    Result<? extends Record> result = testDAO.readAllBoundToChain(Access.internal(), ULong.valueOf(1), InstrumentType.Percussive);
 
     assertEquals(1, result.size());
     assertEquals("jams", result.get(0).get("description"));
@@ -201,10 +203,10 @@ public class InstrumentIT {
 
   @Test
   public void readAllBoundToChainLibrary() throws  Exception {
-    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", Chain.PRODUCTION, Chain.FABRICATING, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null);
+    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricating, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null);
     IntegrationTestEntity.insertChainLibrary(1, 1, 1);
 
-    Result<? extends Record> result = testDAO.readAllBoundToChainLibrary(Access.internal(), ULong.valueOf(1), Instrument.PERCUSSIVE);
+    Result<? extends Record> result = testDAO.readAllBoundToChainLibrary(Access.internal(), ULong.valueOf(1), InstrumentType.Percussive);
 
     assertEquals(1, result.size());
     assertEquals("jams", result.get(0).get("description"));
@@ -273,7 +275,7 @@ public class InstrumentIT {
       .setDensity(0.42)
       .setLibraryId(BigInteger.valueOf(1))
       .setDescription("bimmies")
-      .setType(Instrument.PERCUSSIVE)
+      .setType("Percussive")
       .setUserId(BigInteger.valueOf(2));
 
     testDAO.update(access, ULong.valueOf(2), inputData);
@@ -294,7 +296,7 @@ public class InstrumentIT {
     Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
-    IntegrationTestEntity.insertInstrument(86, 1, 2, "jub", Instrument.HARMONIC, 0.4);
+    IntegrationTestEntity.insertInstrument(86, 1, 2, "jub", InstrumentType.Harmonic, 0.4);
 
     testDAO.delete(access, ULong.valueOf(86));
 
@@ -310,7 +312,7 @@ public class InstrumentIT {
     Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
-    IntegrationTestEntity.insertInstrument(86, 1, 2, "hamsicle", Instrument.HARMONIC, 0.4);
+    IntegrationTestEntity.insertInstrument(86, 1, 2, "hamsicle", InstrumentType.Harmonic, 0.4);
     IntegrationTestEntity.insertInstrumentMeme(5, 86, "frozen");
     IntegrationTestEntity.insertInstrumentMeme(6, 86, "ham");
 

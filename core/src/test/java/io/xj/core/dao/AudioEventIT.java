@@ -7,7 +7,7 @@ import io.xj.core.app.exception.BusinessException;
 import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.integration.IntegrationTestService;
 import io.xj.core.model.audio_event.AudioEvent;
-import io.xj.core.model.instrument.Instrument;
+import io.xj.core.model.instrument.InstrumentType;
 import io.xj.core.model.role.Role;
 import io.xj.core.tables.records.AudioEventRecord;
 import io.xj.core.transport.JSON;
@@ -35,7 +35,7 @@ import static org.junit.Assert.assertNull;
 // TODO [core] test permissions of different users to readMany vs. create vs. update or delete audio events
 //
 public class AudioEventIT {
-  private Injector injector = Guice.createInjector(new CoreModule());
+  private final Injector injector = Guice.createInjector(new CoreModule());
   private AudioEventDAO testDAO;
 
   @Before
@@ -53,8 +53,8 @@ public class AudioEventIT {
     IntegrationTestEntity.insertLibrary(1, 1, "palm tree");
 
     // Idea "leaves" has instruments "808" and "909"
-    IntegrationTestEntity.insertInstrument(1, 1, 2, "808 Drums", Instrument.PERCUSSIVE, 0.9);
-    IntegrationTestEntity.insertInstrument(2, 1, 2, "909 Drums", Instrument.PERCUSSIVE, 0.8);
+    IntegrationTestEntity.insertInstrument(1, 1, 2, "808 Drums", InstrumentType.Percussive, 0.9);
+    IntegrationTestEntity.insertInstrument(2, 1, 2, "909 Drums", InstrumentType.Percussive, 0.8);
 
     // Instrument "808" has Audio "Beat"
     IntegrationTestEntity.insertAudio(1, 1, "Published", "Beat", "https://static.xj.io/19801735098q47895897895782138975898.wav", 0.01, 2.123, 120.0, 440);

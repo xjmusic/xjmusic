@@ -12,6 +12,7 @@ import io.xj.core.chain_gang.ChainGangFactory;
 import io.xj.core.chain_gang.ChainGangOperation;
 import io.xj.core.chain_gang.impl.link_work.LinkWorkFactoryModule;
 import io.xj.core.chain_gang.impl.link_pilot_work.LinkPilotWorkFactoryModule;
+import io.xj.core.model.link.LinkState;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -61,7 +62,7 @@ public class Main {
     app.registerGangWorkload(
       "Create New Links",
       pilotChainGangFactory.createLeader(Config.workAheadSeconds(), Config.workBatchSize()),
-      pilotChainGangFactory.createFollower(Link.PLANNED)
+      pilotChainGangFactory.createFollower(LinkState.Planned)
     );
 
     // Link-type Workload
@@ -71,8 +72,8 @@ public class Main {
       new LinkWorkFactoryModule()).getInstance(ChainGangFactory.class);
     app.registerGangWorkload(
       "Craft Links",
-      chainGangFactory.createLeader(Link.PLANNED, Config.workAheadSeconds(), Config.workBatchSize()),
-      chainGangFactory.createFollower(Link.CRAFTING, Link.CRAFTED, linkChainGangOperation)
+      chainGangFactory.createLeader(LinkState.Planned, Config.workAheadSeconds(), Config.workBatchSize()),
+      chainGangFactory.createFollower(LinkState.Crafting, LinkState.Crafted, linkChainGangOperation)
     );
 
     // Shutdown Hook

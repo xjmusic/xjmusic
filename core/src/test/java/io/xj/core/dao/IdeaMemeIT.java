@@ -7,7 +7,7 @@ import io.xj.core.app.exception.BusinessException;
 import io.xj.core.external.AuthType;
 import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.integration.IntegrationTestService;
-import io.xj.core.model.idea.Idea;
+import io.xj.core.model.idea.IdeaType;
 import io.xj.core.model.idea_meme.IdeaMeme;
 import io.xj.core.model.role.Role;
 import io.xj.core.tables.records.IdeaMemeRecord;
@@ -34,7 +34,7 @@ import static org.junit.Assert.assertNull;
 
 // TODO [core] test permissions of different users to readMany vs. create vs. update or delete idea memes
 public class IdeaMemeIT {
-  private Injector injector = Guice.createInjector(new CoreModule());
+  private final Injector injector = Guice.createInjector(new CoreModule());
   private IdeaMemeDAO testDAO;
 
   @Before
@@ -63,9 +63,9 @@ public class IdeaMemeIT {
 
     // Library "palm tree" has idea "leaves", idea "coconuts" and idea "bananas"
     IntegrationTestEntity.insertLibrary(1, 1, "palm tree");
-    IntegrationTestEntity.insertIdea(1, 2, 1, Idea.MAIN, "leaves", 0.342, "C#", 120.4);
-    IntegrationTestEntity.insertIdea(2, 2, 1, Idea.MAIN, "coconuts", 0.25, "F#", 110.3);
-    IntegrationTestEntity.insertIdea(3, 2, 1, Idea.MAIN, "bananas", 0.27, "Gb", 100.6);
+    IntegrationTestEntity.insertIdea(1, 2, 1, IdeaType.Main, "leaves", 0.342, "C#", 120.4);
+    IntegrationTestEntity.insertIdea(2, 2, 1, IdeaType.Main, "coconuts", 0.25, "F#", 110.3);
+    IntegrationTestEntity.insertIdea(3, 2, 1, IdeaType.Main, "bananas", 0.27, "Gb", 100.6);
 
     // Idea "leaves" has memes "ants" and "mold"
     IntegrationTestEntity.insertIdeaMeme(1, 1, "Ants");

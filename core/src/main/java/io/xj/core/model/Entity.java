@@ -24,7 +24,7 @@ import java.util.Map;
  <p>
  NOTE: There can only be ONE of any getter/setter (with the same # of input params)
  */
-abstract public class Entity {
+public abstract class Entity {
 
   /**
    For use in maps.
@@ -89,7 +89,7 @@ abstract public class Entity {
    @return Entity
    */
   @Nullable
-  abstract public Entity setFromRecord(Record record);
+  abstract public Entity setFromRecord(Record record) throws BusinessException;
 
   /**
    Model info jOOQ-field : Value map

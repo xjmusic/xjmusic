@@ -6,7 +6,8 @@ import io.xj.core.app.access.impl.Access;
 import io.xj.core.app.exception.BusinessException;
 import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.integration.IntegrationTestService;
-import io.xj.core.model.idea.Idea;
+import io.xj.core.model.idea.IdeaType;
+import io.xj.core.model.instrument.InstrumentType;
 import io.xj.core.model.role.Role;
 import io.xj.core.model.voice.Voice;
 import io.xj.core.tables.records.VoiceRecord;
@@ -33,7 +34,7 @@ import static org.junit.Assert.assertNull;
 
 // TODO [core] test permissions of different users to readMany vs. create vs. update or delete ideas
 public class VoiceIT {
-  private Injector injector = Guice.createInjector(new CoreModule());
+  private final Injector injector = Guice.createInjector(new CoreModule());
   private VoiceDAO testDAO;
 
   @Before
@@ -49,17 +50,17 @@ public class VoiceIT {
 
     // Library "palm tree" has idea "leaves" and idea "coconuts"
     IntegrationTestEntity.insertLibrary(1, 1, "palm tree");
-    IntegrationTestEntity.insertIdea(1, 2, 1, Idea.MAIN, "leaves", 0.342, "C#", 110.286);
+    IntegrationTestEntity.insertIdea(1, 2, 1, IdeaType.Main, "leaves", 0.342, "C#", 110.286);
 
     // Idea "leaves" has phases "Ants" and "Caterpillars"
     IntegrationTestEntity.insertPhase(1, 1, 0, 16, "Ants", 0.583, "D minor", 120.0);
     IntegrationTestEntity.insertPhase(2, 1, 1, 16, "Caterpillars", 0.583, "E major", 140.0);
 
     // Phase "Ants" has Voices "Head" and "Body"
-    IntegrationTestEntity.insertVoice(1, 1, Voice.PERCUSSIVE, "This is a percussive voice");
-    IntegrationTestEntity.insertVoice(2, 1, Voice.MELODIC, "This is melodious");
-    IntegrationTestEntity.insertVoice(3, 1, Voice.HARMONIC, "This is harmonious");
-    IntegrationTestEntity.insertVoice(4, 1, Voice.VOCAL, "This is a vocal voice");
+    IntegrationTestEntity.insertVoice(1, 1, InstrumentType.Percussive, "This is a percussive voice");
+    IntegrationTestEntity.insertVoice(2, 1, InstrumentType.Melodic, "This is melodious");
+    IntegrationTestEntity.insertVoice(3, 1, InstrumentType.Harmonic, "This is harmonious");
+    IntegrationTestEntity.insertVoice(4, 1, InstrumentType.Vocal, "This is a vocal voice");
 
     // Instantiate the test subject
     testDAO = injector.getInstance(VoiceDAO.class);
@@ -80,13 +81,13 @@ public class VoiceIT {
     ));
     Voice inputData = new Voice()
       .setPhaseId(BigInteger.valueOf(2))
-      .setType(Voice.HARMONIC)
+      .setType("Harmonic")
       .setDescription("This is harmonious");
 
     JSONObject result = JSON.objectFromRecord(testDAO.create(access, inputData));
 
     assertNotNull(result);
-    assertEquals(Voice.HARMONIC, result.get("type"));
+    assertEquals(InstrumentType.Harmonic, result.get("type"));
     assertEquals("This is harmonious", result.get("description"));
     assertEquals(ULong.valueOf(2), result.get("phaseId"));
   }
@@ -98,7 +99,7 @@ public class VoiceIT {
       "accounts", "1"
     ));
     Voice inputData = new Voice()
-      .setType(Voice.HARMONIC)
+      .setType("Harmonic")
       .setDescription("This is harmonious");
 
     testDAO.create(access, inputData);
@@ -129,7 +130,7 @@ public class VoiceIT {
     assertNotNull(result);
     assertEquals(ULong.valueOf(2), result.getId());
     assertEquals(ULong.valueOf(1), result.getPhaseId());
-    assertEquals(Voice.MELODIC, result.getType());
+    assertEquals(InstrumentType.Melodic, result.getType());
     assertEquals("This is melodious", result.getDescription());
   }
 
@@ -202,7 +203,7 @@ public class VoiceIT {
       "accounts", "1"
     ));
     Voice inputData = new Voice()
-      .setType(Voice.HARMONIC)
+      .setType("Harmonic")
       .setDescription("This is harmonious");
 
     testDAO.update(access, ULong.valueOf(3), inputData);
@@ -229,7 +230,7 @@ public class VoiceIT {
     ));
     Voice inputData = new Voice()
       .setPhaseId(BigInteger.valueOf(7))
-      .setType(Voice.MELODIC)
+      .setType("Melodic")
       .setDescription("This is melodious");
 
     try {
@@ -241,7 +242,7 @@ public class VoiceIT {
         .where(VOICE.ID.eq(ULong.valueOf(3)))
         .fetchOne();
       assertNotNull(result);
-      assertEquals(Voice.HARMONIC, result.getType());
+      assertEquals("Harmonic", result.getType());
       assertEquals("This is harmonious", result.getDescription());
       assertEquals(ULong.valueOf(1), result.getPhaseId());
       throw e;
@@ -256,7 +257,7 @@ public class VoiceIT {
     ));
     Voice inputData = new Voice()
       .setPhaseId(BigInteger.valueOf(1))
-      .setType(Voice.MELODIC)
+      .setType("Melodic")
       .setDescription("This is melodious; Yoza!");
 
     testDAO.update(access, ULong.valueOf(1), inputData);
@@ -267,7 +268,7 @@ public class VoiceIT {
       .fetchOne();
     assertNotNull(result);
     assertEquals("This is melodious; Yoza!", result.getDescription());
-    assertEquals(Voice.MELODIC, result.getType());
+    assertEquals("Melodic", result.getType());
     assertEquals(ULong.valueOf(1), result.getPhaseId());
   }
 

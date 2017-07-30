@@ -3,18 +3,14 @@ package io.xj.core.model.instrument;
 
 import io.xj.core.app.exception.BusinessException;
 import io.xj.core.model.Entity;
-import io.xj.core.transport.CSV;
-import io.xj.core.util.Text;
 
 import org.jooq.Field;
 import org.jooq.Record;
 import org.jooq.types.ULong;
 
 import com.google.api.client.util.Maps;
-import com.google.common.collect.ImmutableList;
 
 import java.math.BigInteger;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -30,48 +26,35 @@ import static io.xj.core.Tables.INSTRUMENT;
  NOTE: There can only be ONE of any getter/setter (with the same # of input params)
  */
 public class Instrument extends Entity {
-  public final static String PERCUSSIVE = "percussive";
-  public final static String HARMONIC = "harmonic";
-  public final static String MELODIC = "melodic";
-  public final static String VOCAL = "vocal";
 
-  public final static List<String> TYPES = ImmutableList.of(
-    PERCUSSIVE,
-    HARMONIC,
-    MELODIC,
-    VOCAL
-  );
   /**
    For use in maps.
    */
   public static final String KEY_ONE = "instrument";
   public static final String KEY_MANY = "instruments";
-  // Description
+
   private String description;
-  // Type
-  private String type;
-  // Library
+  private String _type; // to hold value before validation
+  private InstrumentType type;
   private ULong libraryId;
-  // User
   private ULong userId;
-  // Density
   private Double density;
 
   public String getDescription() {
     return description;
   }
 
-  public Instrument setDescription(String description) {
-    this.description = description;
+  public Instrument setDescription(String value) {
+    description = value;
     return this;
   }
 
-  public String getType() {
+  public InstrumentType getType() {
     return type;
   }
 
-  public Instrument setType(String type) {
-    this.type = Text.LowerSlug(type);
+  public Instrument setType(String value) {
+    _type = value;
     return this;
   }
 
@@ -79,8 +62,8 @@ public class Instrument extends Entity {
     return libraryId;
   }
 
-  public Instrument setLibraryId(BigInteger libraryId) {
-    this.libraryId = ULong.valueOf(libraryId);
+  public Instrument setLibraryId(BigInteger value) {
+    libraryId = ULong.valueOf(value);
     return this;
   }
 
@@ -88,8 +71,8 @@ public class Instrument extends Entity {
     return userId;
   }
 
-  public Instrument setUserId(BigInteger userId) {
-    this.userId = ULong.valueOf(userId);
+  public Instrument setUserId(BigInteger value) {
+    userId = ULong.valueOf(value);
     return this;
   }
 
@@ -97,35 +80,35 @@ public class Instrument extends Entity {
     return density;
   }
 
-  public Instrument setDensity(Double density) {
-    this.density = density;
+  public Instrument setDensity(Double value) {
+    density = value;
     return this;
   }
 
   @Override
   public void validate() throws BusinessException {
-    if (this.libraryId == null) {
+    // throws its own BusinessException on failure
+    type = InstrumentType.validate(_type);
+
+    if (Objects.isNull(libraryId)) {
       throw new BusinessException("Library ID is required.");
     }
-    if (this.userId == null) {
+    if (Objects.isNull(userId)) {
       throw new BusinessException("User ID is required.");
     }
-    if (this.type == null || this.type.length() == 0) {
+    if (Objects.isNull(type)) {
       throw new BusinessException("Type is required.");
     }
-    if (!TYPES.contains(this.type)) {
-      throw new BusinessException("'" + this.type + "' is not a valid type (" + CSV.join(TYPES) + ").");
-    }
-    if (this.description == null || this.description.length() == 0) {
+    if (Objects.isNull(description ) || description.isEmpty()) {
       throw new BusinessException("Description is required.");
     }
-    if (this.density == null) {
+    if (Objects.isNull(density ) ) {
       throw new BusinessException("Density is required.");
     }
   }
 
   @Override
-  public Instrument setFromRecord(Record record) {
+  public Instrument setFromRecord(Record record) throws BusinessException {
     if (Objects.isNull(record)) {
       return null;
     }
@@ -133,7 +116,7 @@ public class Instrument extends Entity {
     description = record.get(INSTRUMENT.DESCRIPTION);
     libraryId = record.get(INSTRUMENT.LIBRARY_ID);
     userId = record.get(INSTRUMENT.USER_ID);
-    type = record.get(INSTRUMENT.TYPE);
+    type = InstrumentType.validate(record.get(INSTRUMENT.TYPE));
     density = record.get(INSTRUMENT.DENSITY);
     createdAt = record.get(INSTRUMENT.CREATED_AT);
     updatedAt = record.get(INSTRUMENT.UPDATED_AT);

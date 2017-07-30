@@ -4,18 +4,18 @@ package io.xj.craftworker.craft.impl;
 import io.xj.core.app.access.impl.Access;
 import io.xj.core.app.exception.BusinessException;
 import io.xj.core.basis.Basis;
-import io.xj.craftworker.craft.StructureCraft;
 import io.xj.core.dao.ChoiceDAO;
 import io.xj.core.dao.IdeaDAO;
+import io.xj.core.isometry.MemeIsometry;
+import io.xj.core.model.MemeEntity;
 import io.xj.core.model.choice.Chance;
 import io.xj.core.model.choice.Choice;
 import io.xj.core.model.choice.Chooser;
 import io.xj.core.model.idea.Idea;
-import io.xj.core.model.MemeEntity;
-import io.xj.core.isometry.MemeIsometry;
+import io.xj.core.model.idea.IdeaType;
 import io.xj.core.tables.records.PhaseRecord;
 import io.xj.core.util.Value;
-
+import io.xj.craftworker.craft.StructureCraft;
 import io.xj.music.Key;
 
 import org.jooq.Record;
@@ -25,6 +25,9 @@ import org.jooq.types.ULong;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Objects;
 
 /**
@@ -33,7 +36,8 @@ import java.util.Objects;
  */
 public class StructureCraftImpl implements StructureCraft {
   private static final double SCORE_AVOID_CHOOSING_PREVIOUS_RHTYHM = 10;
-  //  private final Logger log = LoggerFactory.getLogger(StructureCraftImpl.class);
+  public static final double CHOOSE_RHYTHM_MAX_DISTRIBUTION = 0.5;
+  private final Logger log = LoggerFactory.getLogger(StructureCraftImpl.class);
   private final Basis basis;
   private final ChoiceDAO choiceDAO;
   private final IdeaDAO ideaDAO;
@@ -45,7 +49,7 @@ public class StructureCraftImpl implements StructureCraft {
     @Assisted("basis") Basis basis,
     ChoiceDAO choiceDAO,
     IdeaDAO ideaDAO
-  /*-*/) throws BusinessException {
+  /*-*/) {
     this.basis = basis;
     this.choiceDAO = choiceDAO;
     this.ideaDAO = ideaDAO;
@@ -74,7 +78,7 @@ public class StructureCraftImpl implements StructureCraft {
     choiceDAO.create(Access.internal(),
       new Choice()
         .setLinkId(basis.linkId().toBigInteger())
-        .setType(Choice.RHYTHM)
+        .setType(IdeaType.Rhythm.toString())
         .setIdeaId(rhythmIdea().getId().toBigInteger())
         .setTranspose(rhythmTranspose())
         .setPhaseOffset(rhythmPhaseOffset().toBigInteger()));
@@ -172,7 +176,6 @@ public class StructureCraftImpl implements StructureCraft {
    TODO: actually choose rhythm idea
    */
   private Idea chooseRhythm() throws Exception {
-    Result<? extends Record> sourceRecords;
     Chooser<Idea> chooser = new Chooser<>();
 
     // TODO: only choose major ideas for major keys, minor for minor! [#223] Key of first Phase of chosen Rhythm-Idea must match the `minor` or `major` with the Key of the current Link.
@@ -181,18 +184,23 @@ public class StructureCraftImpl implements StructureCraft {
     MemeIsometry memeIsometry = MemeIsometry.of(basis.linkMemes());
 
     // (2a) retrieve ideas bound directly to chain
-    sourceRecords = ideaDAO.readAllBoundToChain(Access.internal(), basis.chainId(), Idea.RHYTHM);
+    Result<? extends Record> sourceRecords = ideaDAO.readAllBoundToChain(Access.internal(), basis.chainId(), IdeaType.Rhythm);
 
     // (2b) only if none were found in the previous step, retrieve ideas bound to chain library
-    if (sourceRecords.size() == 0)
-      sourceRecords = ideaDAO.readAllBoundToChainLibrary(Access.internal(), basis.chainId(), Idea.RHYTHM);
+    if (sourceRecords.isEmpty())
+      sourceRecords = ideaDAO.readAllBoundToChainLibrary(Access.internal(), basis.chainId(), IdeaType.Rhythm);
 
     // (3) score each source record based on meme isometry
-    sourceRecords.forEach((record ->
-      chooser.add(new Idea().setFromRecord(record),
-        Chance.normallyAround(
-          memeIsometry.scoreCSV(String.valueOf(record.get(MemeEntity.KEY_MANY))),
-          0.5))));
+    sourceRecords.forEach((record -> {
+      try {
+        chooser.add(new Idea().setFromRecord(record),
+          Chance.normallyAround(
+            memeIsometry.scoreCSV(String.valueOf(record.get(MemeEntity.KEY_MANY))),
+            CHOOSE_RHYTHM_MAX_DISTRIBUTION));
+      } catch (BusinessException e) {
+        log.debug("While scoring records", e);
+      }
+    }));
 
     // (3b) Avoid previous rhythm idea
     if (!basis.isInitialLink())

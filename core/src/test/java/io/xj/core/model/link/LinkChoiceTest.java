@@ -19,7 +19,7 @@ public class LinkChoiceTest {
       .setIdeaId(ULong.valueOf(345).toBigInteger())
       .setPhaseOffset(ULong.valueOf(0).toBigInteger())
       .setTranspose(5)
-      .setType(Choice.MAIN)
+      .setType("Main")
     .setAvailablePhaseOffsets("0,1");
 
     assertEquals(ULong.valueOf(1), linkChoice.nextPhaseOffset());
@@ -31,7 +31,7 @@ public class LinkChoiceTest {
       .setIdeaId(ULong.valueOf(345).toBigInteger())
       .setPhaseOffset(ULong.valueOf(3).toBigInteger())
       .setTranspose(5)
-      .setType(Choice.MAIN)
+      .setType("Main")
     .setAvailablePhaseOffsets("0,1,2,3");
 
     assertEquals(ULong.valueOf(0), linkChoice.nextPhaseOffset());
@@ -43,7 +43,7 @@ public class LinkChoiceTest {
       .setIdeaId(ULong.valueOf(345).toBigInteger())
       .setPhaseOffset(ULong.valueOf(17).toBigInteger())
       .setTranspose(5)
-      .setType(Choice.MAIN)
+      .setType("Main")
     .setAvailablePhaseOffsets("0,1,17,204,1407");
 
     assertEquals(ULong.valueOf(204), linkChoice.nextPhaseOffset());
@@ -55,7 +55,7 @@ public class LinkChoiceTest {
       .setIdeaId(ULong.valueOf(345).toBigInteger())
       .setPhaseOffset(ULong.valueOf(0).toBigInteger())
       .setTranspose(5)
-      .setType(Choice.MAIN)
+      .setType("Main")
     .setAvailablePhaseOffsets("0,1");
 
     assertTrue(linkChoice.hasOneMorePhase());
@@ -67,7 +67,7 @@ public class LinkChoiceTest {
       .setIdeaId(ULong.valueOf(345).toBigInteger())
       .setPhaseOffset(ULong.valueOf(2).toBigInteger())
       .setTranspose(5)
-      .setType(Choice.MAIN)
+      .setType("Main")
     .setAvailablePhaseOffsets("0,1,2,3");
 
     assertTrue(linkChoice.hasOneMorePhase());
@@ -79,7 +79,7 @@ public class LinkChoiceTest {
       .setIdeaId(ULong.valueOf(21).toBigInteger())
       .setPhaseOffset(ULong.valueOf(3).toBigInteger())
       .setTranspose(5)
-      .setType(Choice.MAIN)
+      .setType("Main")
     .setAvailablePhaseOffsets("0,1,2,3");
 
     assertFalse(linkChoice.hasOneMorePhase());
@@ -91,7 +91,7 @@ public class LinkChoiceTest {
       .setIdeaId(ULong.valueOf(64).toBigInteger())
       .setPhaseOffset(ULong.valueOf(0).toBigInteger())
       .setTranspose(5)
-      .setType(Choice.MACRO)
+      .setType("Macro")
     .setAvailablePhaseOffsets("0,1,2");
 
     assertTrue(linkChoice.hasTwoMorePhases());
@@ -103,7 +103,7 @@ public class LinkChoiceTest {
       .setIdeaId(ULong.valueOf(64).toBigInteger())
       .setPhaseOffset(ULong.valueOf(1).toBigInteger())
       .setTranspose(5)
-      .setType(Choice.MACRO)
+      .setType("Macro")
     .setAvailablePhaseOffsets("0,1,2,3");
 
     assertTrue(linkChoice.hasTwoMorePhases());
@@ -115,7 +115,7 @@ public class LinkChoiceTest {
       .setIdeaId(ULong.valueOf(64).toBigInteger())
       .setPhaseOffset(ULong.valueOf(2).toBigInteger())
       .setTranspose(5)
-      .setType(Choice.MACRO)
+      .setType("Macro")
     .setAvailablePhaseOffsets("0,1,2,3");
 
     assertFalse(linkChoice.hasTwoMorePhases());

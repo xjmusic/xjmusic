@@ -3,6 +3,7 @@ package io.xj.core.dao;
 
 import io.xj.core.app.access.impl.Access;
 import io.xj.core.model.choice.Choice;
+import io.xj.core.model.idea.IdeaType;
 import io.xj.core.tables.records.ChoiceRecord;
 
 import org.jooq.Result;
@@ -48,13 +49,13 @@ public interface ChoiceDAO {
    including the phase offset, and all eitherOr
    phase offsets for that Idea.
 
-   @param access     control
+   @return record of choice, and eitherOr phase offsets
+    @param access     control
    @param linkId link to get choice for
    @param ideaType   type for choice to get
-   @return record of choice, and eitherOr phase offsets
    */
   @Nullable
-  Choice readOneLinkTypeWithAvailablePhaseOffsets(Access access, ULong linkId, String ideaType) throws Exception;
+  Choice readOneLinkTypeWithAvailablePhaseOffsets(Access access, ULong linkId, IdeaType ideaType) throws Exception;
 
   /**
    Read all Choices that are accessible

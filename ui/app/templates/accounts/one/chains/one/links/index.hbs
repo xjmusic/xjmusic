@@ -25,12 +25,12 @@
           <th>Choices</th>
           <th>Chords</th>
           <th>Messages</th>
-          <th>Play</th>
+          <th width="1%">Play</th>
         </tr>
         </thead>
         <tbody>
         {{#each model.links as |link|}}
-          <tr class="item {{link.state}}-state {{if (eq player.currentLink.id link.id) 'now-playing'}}">
+          <tr class="item {{lowercase link.state}}-state {{if (eq player.currentLink.id link.id) 'now-playing'}}">
             <th>{{#link-to "accounts.one.chains.one.links.one" link}}{{link.offset}}{{/link-to}}</th>
             <td>{{link.state}}</td>
             <td>{{link.endAt}}</td>
@@ -42,7 +42,7 @@
             <td>{{link-choices link}}</td>
             <td>{{link-chords link}}</td>
             <td>{{message-badges link}}</td>
-            <td>{{#if (eq link.state "dubbed")}}
+            <td>{{#if (eq link.state "Dubbed")}}
               <button type="button" aria-label="play link offset {{link.offset}}"
                       class="btn link-play" {{action 'play' model.chain link}}>&#9658;
               </button>

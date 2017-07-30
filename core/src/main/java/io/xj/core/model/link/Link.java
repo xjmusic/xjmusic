@@ -3,8 +3,6 @@ package io.xj.core.model.link;
 
 import io.xj.core.app.exception.BusinessException;
 import io.xj.core.model.Entity;
-import io.xj.core.transport.CSV;
-import io.xj.core.util.Text;
 import io.xj.core.util.Value;
 
 import org.jooq.Field;
@@ -72,7 +70,8 @@ public class Link extends Entity {
   public static final String FILE_EXTENSION = "mp3";
 
   private ULong chainId;
-  private String state;
+  private String _state; // hold value before validation
+  private LinkState state;
   private Timestamp beginAt;
   private String beginAtError;
   private Timestamp endAt; // optional
@@ -83,21 +82,6 @@ public class Link extends Entity {
   private Double density;
   private Double tempo;
   private String waveformKey;
-
-  /**
-   Validate a state
-
-   @param state to validate
-   @throws BusinessException if invalid
-   */
-  public static void validateState(String state) throws BusinessException {
-    if (state == null || state.length() == 0) {
-      throw new BusinessException("State is required.");
-    }
-    if (!STATES.contains(state)) {
-      throw new BusinessException("'" + state + "' is not a valid state (" + CSV.join(STATES) + ").");
-    }
-  }
 
   /**
    Whether this Link is at offset 0
@@ -117,12 +101,12 @@ public class Link extends Entity {
     return this;
   }
 
-  public String getState() {
+  public LinkState getState() {
     return state;
   }
 
-  public Link setState(String state) {
-    this.state = Text.LowerSlug(state);
+  public Link setState(String value) {
+    _state = value;
     return this;
   }
 
@@ -217,10 +201,13 @@ public class Link extends Entity {
 
   @Override
   public void validate() throws BusinessException {
+    // throws its own BusinessException on failure
+    state = LinkState.validate(_state);
+
     if (this.chainId == null) {
       throw new BusinessException("Chain ID is required.");
     }
-    validateState(this.state);
+
     if (this.beginAt == null) {
       throw new BusinessException("Begin-at is required." + (beginAtError != null ? " " + beginAtError : ""));
     }
@@ -230,14 +217,14 @@ public class Link extends Entity {
   }
 
   @Override
-  public Link setFromRecord(Record record) {
+  public Link setFromRecord(Record record) throws BusinessException {
     if (Objects.isNull(record)) {
       return null;
     }
     id = record.get(LINK.ID);
     chainId = record.get(LINK.CHAIN_ID);
     offset = record.get(LINK.OFFSET);
-    state = record.get(LINK.STATE);
+    state = LinkState.validate(record.get(LINK.STATE));
     beginAt = record.get(LINK.BEGIN_AT);
     endAt = record.get(LINK.END_AT);
     total = record.get(LINK.TOTAL);
@@ -256,7 +243,7 @@ public class Link extends Entity {
    @param json object
    @return Link model
    */
-  public Link setFromJSON(JSONObject json) {
+  public Link setFromJSON(JSONObject json) throws BusinessException {
     if (json.has(KEY_ID))
       id = ULong.valueOf(json.getBigInteger(KEY_ID));
 
@@ -264,7 +251,7 @@ public class Link extends Entity {
       chainId = ULong.valueOf(json.getBigInteger(KEY_CHAIN_ID));
 
     if (json.has(KEY_STATE))
-      state = json.getString(KEY_STATE);
+      state = LinkState.validate(json.getString(KEY_STATE));
 
     if (json.has(KEY_OFFSET))
       offset = ULong.valueOf(json.getBigInteger(KEY_OFFSET));
@@ -322,6 +309,7 @@ public class Link extends Entity {
 
   /**
    Copy the link to a new one (without id)
+
    @return copied Link
    */
   public Link copy() {

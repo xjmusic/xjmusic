@@ -5,12 +5,12 @@ import io.xj.core.CoreModule;
 import io.xj.core.app.App;
 import io.xj.core.app.config.Config;
 import io.xj.core.app.exception.ConfigException;
-import io.xj.core.db.sql.SQLDatabaseProvider;
-import io.xj.core.migration.MigrationService;
-import io.xj.core.model.link.Link;
 import io.xj.core.chain_gang.ChainGangFactory;
 import io.xj.core.chain_gang.ChainGangOperation;
 import io.xj.core.chain_gang.impl.link_work.LinkWorkFactoryModule;
+import io.xj.core.db.sql.SQLDatabaseProvider;
+import io.xj.core.migration.MigrationService;
+import io.xj.core.model.link.LinkState;
 import io.xj.mixer.MixerModule;
 
 import com.google.inject.Guice;
@@ -25,7 +25,7 @@ import java.io.IOException;
  Main class.
  */
 public class Main {
-  private final static Logger log = LoggerFactory.getLogger(Main.class);
+  private static final Logger log = LoggerFactory.getLogger(Main.class);
   private static final Injector injector = Guice.createInjector(new CoreModule());
   private static App app;
 
@@ -61,8 +61,8 @@ public class Main {
       new LinkWorkFactoryModule()).getInstance(ChainGangFactory.class);
     app.registerGangWorkload(
       "Dub Links",
-      chainGangFactory.createLeader(Link.CRAFTED, Config.workAheadSeconds(), Config.workBatchSize()),
-      chainGangFactory.createFollower(Link.DUBBING, Link.DUBBED, linkChainGangOperation)
+      chainGangFactory.createLeader(LinkState.Crafted, Config.workAheadSeconds(), Config.workBatchSize()),
+      chainGangFactory.createFollower(LinkState.Dubbing, LinkState.Dubbed, linkChainGangOperation)
     );
 
     // Shutdown Hook

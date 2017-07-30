@@ -82,4 +82,9 @@ export default Ember.Service.extend({
    */
   isArtist: false,
 
+  /**
+   * {boolean} if session has 'engineer' role
+   */
+  isEngineer: false,
+
 });

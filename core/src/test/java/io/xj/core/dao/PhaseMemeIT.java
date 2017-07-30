@@ -7,7 +7,7 @@ import io.xj.core.app.exception.BusinessException;
 import io.xj.core.external.AuthType;
 import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.integration.IntegrationTestService;
-import io.xj.core.model.idea.Idea;
+import io.xj.core.model.idea.IdeaType;
 import io.xj.core.model.phase_meme.PhaseMeme;
 import io.xj.core.model.role.Role;
 import io.xj.core.tables.records.PhaseMemeRecord;
@@ -34,7 +34,7 @@ import static org.junit.Assert.assertNull;
 
 // TODO [core] test permissions of different users to readMany vs. create vs. update or delete phase memes
 public class PhaseMemeIT {
-  private Injector injector = Guice.createInjector(new CoreModule());
+  private final Injector injector = Guice.createInjector(new CoreModule());
   private PhaseMemeDAO testDAO;
 
   @Before
@@ -63,7 +63,7 @@ public class PhaseMemeIT {
 
     // Library "palm tree" has idea "leaves"
     IntegrationTestEntity.insertLibrary(1, 1, "palm tree");
-    IntegrationTestEntity.insertIdea(1, 2, 1, Idea.MAIN, "leaves", 0.342, "C#", 120.4);
+    IntegrationTestEntity.insertIdea(1, 2, 1, IdeaType.Main, "leaves", 0.342, "C#", 120.4);
 
     // Idea "leaves" has phase "growth" and phase "decay"
     IntegrationTestEntity.insertPhase(1, 1, 0, 16, "growth", 0.342, "C#", 120.4);

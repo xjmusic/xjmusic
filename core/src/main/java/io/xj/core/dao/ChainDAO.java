@@ -3,6 +3,7 @@ package io.xj.core.dao;
 
 import io.xj.core.app.access.impl.Access;
 import io.xj.core.model.chain.Chain;
+import io.xj.core.model.chain.ChainState;
 import io.xj.core.tables.records.ChainRecord;
 
 import org.jooq.Result;
@@ -53,7 +54,7 @@ public interface ChainDAO {
    @param state to read chains in
    @param limit records max
    */
-  Result<ChainRecord> readAllInState(Access access, String state, Integer limit) throws Exception;
+  Result<ChainRecord> readAllInState(Access access, ChainState state, Integer limit) throws Exception;
 
   /**
    [INTERNAL USE ONLY]
@@ -80,7 +81,7 @@ public interface ChainDAO {
    @param id    of specific Chain to update.
    @param state for the updated Chain.
    */
-  void updateState(Access access, ULong id, String state) throws Exception;
+  void updateState(Access access, ULong id, ChainState state) throws Exception;
 
   /**
    [INTERNAL USE ONLY]

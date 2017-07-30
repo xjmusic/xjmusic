@@ -3,6 +3,7 @@ package io.xj.core.model.audio;
 
 import io.xj.core.app.exception.BusinessException;
 import io.xj.core.transport.CSV;
+import io.xj.core.util.Text;
 
 import java.util.Objects;
 
@@ -12,23 +13,23 @@ public enum AudioState {
   Erase;
 
   /**
-   cast string to chain config state enum
+   cast string to enum
    <p>
    Maybe in future: [#294] Audio can be created in draft state, then published
    </p>
 
-   @param stateString to cast to enum
+   @param value to cast to enum
    @return config state enum
    @throws BusinessException on failure
    */
-  public static AudioState validate(String stateString) throws BusinessException {
-    if (Objects.isNull(stateString))
+  public static AudioState validate(String value) throws BusinessException {
+    if (Objects.isNull(value))
       return Published;
 
     try {
-      return valueOf(stateString);
+      return valueOf(Text.ProperSlug(value));
     } catch (Exception e) {
-      throw new BusinessException("'" + stateString + "' is not a valid state (" + CSV.joinEnum(AudioState.values()) + ").");
+      throw new BusinessException("'" + value + "' is not a valid state (" + CSV.joinEnum(AudioState.values()) + ").");
     }
   }
 }

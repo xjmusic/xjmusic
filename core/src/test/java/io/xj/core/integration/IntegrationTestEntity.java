@@ -1,11 +1,17 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 package io.xj.core.integration;
 
+import io.xj.core.app.exception.BusinessException;
 import io.xj.core.app.exception.DatabaseException;
 import io.xj.core.model.chain.Chain;
+import io.xj.core.model.chain.ChainState;
+import io.xj.core.model.chain.ChainType;
 import io.xj.core.model.chain_config.ChainConfigType;
 import io.xj.core.model.idea.Idea;
+import io.xj.core.model.idea.IdeaType;
+import io.xj.core.model.instrument.InstrumentType;
 import io.xj.core.model.link.Link;
+import io.xj.core.model.link.LinkState;
 import io.xj.core.model.message.MessageType;
 import io.xj.core.tables.records.AccountRecord;
 import io.xj.core.tables.records.AccountUserRecord;
@@ -48,6 +54,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.sql.Timestamp;
+import java.util.Objects;
 
 import static io.xj.core.Tables.ACCOUNT;
 import static io.xj.core.Tables.ACCOUNT_USER;
@@ -216,12 +223,12 @@ public abstract class IntegrationTestEntity {
     record.store();
   }
 
-  public static Idea insertIdea(int id, int userId, int libraryId, String type, String name, double density, String key, double tempo) {
+  public static Idea insertIdea(int id, int userId, int libraryId, IdeaType type, String name, double density, String key, double tempo) throws BusinessException {
     IdeaRecord record = IntegrationTestService.getDb().newRecord(IDEA);
     record.setId(ULong.valueOf(id));
     record.setUserId(ULong.valueOf(userId));
     record.setLibraryId(ULong.valueOf(libraryId));
-    record.setType(type);
+    record.setType(type.toString());
     record.setName(name);
     record.setDensity(density);
     record.setKey(key);
@@ -268,11 +275,11 @@ public abstract class IntegrationTestEntity {
     record.store();
   }
 
-  public static void insertVoice(int id, int phaseId, String type, String description) {
+  public static void insertVoice(int id, int phaseId, InstrumentType type, String description) {
     VoiceRecord record = IntegrationTestService.getDb().newRecord(VOICE);
     record.setId(ULong.valueOf(id));
     record.setPhaseId(ULong.valueOf(phaseId));
-    record.setType(type);
+    record.setType(type.toString());
     record.setDescription(description);
     record.store();
   }
@@ -290,12 +297,12 @@ public abstract class IntegrationTestEntity {
     record.store();
   }
 
-  public static void insertInstrument(int id, int libraryId, int userId, String description, String type, double density) {
+  public static void insertInstrument(int id, int libraryId, int userId, String description, InstrumentType type, double density) {
     InstrumentRecord record = IntegrationTestService.getDb().newRecord(INSTRUMENT);
     record.setId(ULong.valueOf(id));
     record.setUserId(ULong.valueOf(userId));
     record.setLibraryId(ULong.valueOf(libraryId));
-    record.setType(type);
+    record.setType(type.toString());
     record.setDescription(description);
     record.setDensity(density);
     record.store();
@@ -346,15 +353,15 @@ public abstract class IntegrationTestEntity {
     record.store();
   }
 
-  public static Chain insertChain(int id, int accountId, String name, String type, String state, Timestamp startAt, @Nullable Timestamp stopAt) {
+  public static Chain insertChain(int id, int accountId, String name, ChainType type, ChainState state, Timestamp startAt, @Nullable Timestamp stopAt) throws BusinessException {
     ChainRecord record = IntegrationTestService.getDb().newRecord(CHAIN);
     record.setId(ULong.valueOf(id));
     record.setAccountId(ULong.valueOf(accountId));
-    record.setType(type);
+    record.setType(type.toString());
     record.setName(name);
-    record.setState(state);
+    record.setState(state.toString());
     record.setStartAt(startAt);
-    if (stopAt != null) {
+    if (Objects.nonNull(stopAt)) {
       record.setStopAt(stopAt);
     }
     record.store();
@@ -394,12 +401,12 @@ public abstract class IntegrationTestEntity {
     record.store();
   }
 
-  public static Link insertLink(int id, int chainId, int offset, String state, Timestamp beginAt, Timestamp endAt, String key, int total, double density, double tempo, String waveformKey) {
+  public static Link insertLink(int id, int chainId, int offset, LinkState state, Timestamp beginAt, Timestamp endAt, String key, int total, double density, double tempo, String waveformKey) throws BusinessException {
     LinkRecord record = IntegrationTestService.getDb().newRecord(LINK);
     record.setId(ULong.valueOf(id));
     record.setChainId(ULong.valueOf(chainId));
     record.setOffset(ULong.valueOf(offset));
-    record.setState(state);
+    record.setState(state.toString());
     record.setBeginAt(beginAt);
     record.setEndAt(endAt);
     record.setTotal(UInteger.valueOf(total));
@@ -429,12 +436,12 @@ public abstract class IntegrationTestEntity {
     record.store();
   }
 
-  public static void insertChoice(int id, int linkId, int ideaId, String type, int phaseOffset, int transpose) {
+  public static void insertChoice(int id, int linkId, int ideaId, IdeaType type, int phaseOffset, int transpose) {
     ChoiceRecord record = IntegrationTestService.getDb().newRecord(CHOICE);
     record.setId(ULong.valueOf(id));
     record.setLinkId(ULong.valueOf(linkId));
     record.setIdeaId(ULong.valueOf(ideaId));
-    record.setType(type);
+    record.setType(type.toString());
     record.setTranspose(transpose);
     record.setPhaseOffset(ULong.valueOf(phaseOffset));
     record.store();
@@ -469,12 +476,12 @@ public abstract class IntegrationTestEntity {
     record.store();
   }
 
-  public static Link insertLink_Planned(int id, int chainId, int offset, Timestamp beginAt) {
+  public static Link insertLink_Planned(int id, int chainId, int offset, Timestamp beginAt) throws BusinessException {
     LinkRecord record = IntegrationTestService.getDb().newRecord(LINK);
     record.setId(ULong.valueOf(id));
     record.setChainId(ULong.valueOf(chainId));
     record.setOffset(ULong.valueOf(offset));
-    record.setState(Link.PLANNED);
+    record.setState(LinkState.Planned.toString());
     record.setBeginAt(beginAt);
     record.store();
     return new Link().setFromRecord(record);

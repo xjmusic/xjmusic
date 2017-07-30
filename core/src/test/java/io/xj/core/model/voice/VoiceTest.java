@@ -2,6 +2,7 @@
 package io.xj.core.model.voice;
 
 import io.xj.core.app.exception.BusinessException;
+import io.xj.core.model.instrument.InstrumentType;
 import io.xj.core.tables.records.VoiceRecord;
 
 import org.jooq.Field;
@@ -28,7 +29,7 @@ public class VoiceTest {
   public void validate() throws Exception {
     new Voice()
       .setPhaseId(BigInteger.valueOf(251))
-      .setType(Voice.HARMONIC)
+      .setType("Harmonic")
       .setDescription("Mic Check One Two")
       .validate();
   }
@@ -39,7 +40,7 @@ public class VoiceTest {
     failure.expectMessage("Phase ID is required");
 
     new Voice()
-      .setType(Voice.HARMONIC)
+      .setType("Harmonic")
       .setDescription("Mic Check One Two")
       .validate();
   }
@@ -74,7 +75,7 @@ public class VoiceTest {
 
     new Voice()
       .setPhaseId(BigInteger.valueOf(251))
-      .setType(Voice.HARMONIC)
+      .setType("Harmonic")
       .validate();
   }
 
@@ -83,7 +84,7 @@ public class VoiceTest {
     VoiceRecord record = new VoiceRecord();
     record.setId(ULong.valueOf(12));
     record.setPhaseId(ULong.valueOf(251));
-    record.setType(Voice.HARMONIC);
+    record.setType("Harmonic");
     record.setDescription("Mic Check One Two");
     record.setCreatedAt(Timestamp.valueOf("2014-08-12 12:17:02.527142"));
     record.setUpdatedAt(Timestamp.valueOf("2014-09-12 12:17:01.047563"));
@@ -94,7 +95,7 @@ public class VoiceTest {
     assertNotNull(result);
     assertEquals(ULong.valueOf(12), result.getId());
     assertEquals(ULong.valueOf(251), result.getPhaseId());
-    assertEquals(Voice.HARMONIC, result.getType());
+    assertEquals(InstrumentType.Harmonic, result.getType());
     assertEquals("Mic Check One Two", result.getDescription());
     assertEquals(Timestamp.valueOf("2014-08-12 12:17:02.527142"), result.getCreatedAt());
     assertEquals(Timestamp.valueOf("2014-09-12 12:17:01.047563"), result.getUpdatedAt());
@@ -107,14 +108,15 @@ public class VoiceTest {
 
   @Test
   public void intoFieldValueMap() throws Exception {
-    Map<Field, Object> result = new Voice()
+    Voice voice = new Voice()
       .setPhaseId(BigInteger.valueOf(251))
-      .setType(Voice.HARMONIC)
-      .setDescription("Mic Check One Two")
-      .updatableFieldValueMap();
+      .setType("Harmonic")
+      .setDescription("Mic Check One Two");
+    voice.validate();
+    Map<Field, Object> result = voice.updatableFieldValueMap();
 
     assertEquals(ULong.valueOf(251), result.get(VOICE.PHASE_ID));
-    assertEquals(Voice.HARMONIC, result.get(VOICE.TYPE));
+    assertEquals(InstrumentType.Harmonic, result.get(VOICE.TYPE));
     assertEquals("Mic Check One Two", result.get(VOICE.DESCRIPTION));
   }
 

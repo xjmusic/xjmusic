@@ -31,11 +31,11 @@ import io.xj.core.model.chain_config.ChainConfig;
 import io.xj.core.model.chain_config.ChainConfigType;
 import io.xj.core.model.choice.Choice;
 import io.xj.core.model.idea.Idea;
+import io.xj.core.model.idea.IdeaType;
 import io.xj.core.model.link.Link;
 import io.xj.core.model.link_chord.LinkChord;
 import io.xj.core.model.link_meme.LinkMeme;
 import io.xj.core.model.link_message.LinkMessage;
-import io.xj.core.model.message.Message;
 import io.xj.core.model.message.MessageType;
 import io.xj.core.model.pick.Pick;
 import io.xj.core.tables.records.IdeaMemeRecord;
@@ -110,7 +110,7 @@ public class BasisImpl implements Basis {
   private Map<ULong, IdeaRecord> _ideas = Maps.newHashMap();
   private Map<ULong, List<Audio>> _instrumentAudios = Maps.newHashMap();
   private Map<ULong, List<AudioEvent>> _audioWithFirstEvent = Maps.newHashMap();
-  private Map<ULong, Map<String, Choice>> _linkChoicesByType = Maps.newHashMap();
+  private Map<ULong, Map<IdeaType, Choice>> _linkChoicesByType = Maps.newHashMap();
   private Map<ULong, Map<ULong, LinkRecord>> _linksByOffset = Maps.newHashMap();
   private Map<ULong, Map<ULong, PhaseRecord>> _ideaPhasesByOffset = Maps.newHashMap();
   private Map<ULong, Result<IdeaMemeRecord>> _ideaMemes = Maps.newHashMap();
@@ -259,17 +259,17 @@ public class BasisImpl implements Basis {
 
   @Override
   public Choice previousMacroChoice() throws Exception {
-    return linkChoiceByType(previousLink().getId(), Idea.MACRO);
+    return linkChoiceByType(previousLink().getId(), IdeaType.Macro);
   }
 
   @Override
   public Choice previousMainChoice() throws Exception {
-    return linkChoiceByType(previousLink().getId(), Idea.MAIN);
+    return linkChoiceByType(previousLink().getId(), IdeaType.Main);
   }
 
   @Override
   public Choice previousRhythmChoice() throws Exception {
-    return linkChoiceByType(previousLink().getId(), Idea.RHYTHM);
+    return linkChoiceByType(previousLink().getId(), IdeaType.Rhythm);
   }
 
   @Override
@@ -279,17 +279,17 @@ public class BasisImpl implements Basis {
 
   @Override
   public Choice currentMacroChoice() throws Exception {
-    return linkChoiceByType(link().getId(), Idea.MACRO);
+    return linkChoiceByType(link().getId(), IdeaType.Macro);
   }
 
   @Override
   public Choice currentMainChoice() throws Exception {
-    return linkChoiceByType(link().getId(), Idea.MAIN);
+    return linkChoiceByType(link().getId(), IdeaType.Main);
   }
 
   @Override
   public Choice currentRhythmChoice() throws Exception {
-    return linkChoiceByType(link().getId(), Idea.RHYTHM);
+    return linkChoiceByType(link().getId(), IdeaType.Rhythm);
   }
 
   @Override
@@ -523,15 +523,15 @@ public class BasisImpl implements Basis {
   }
 
   @Override
-  public Choice linkChoiceByType(ULong linkOffset, String type) throws Exception {
-    if (!_linkChoicesByType.containsKey(linkOffset))
-      _linkChoicesByType.put(linkOffset, Maps.newHashMap());
+  public Choice linkChoiceByType(ULong linkId, IdeaType ideaType) throws Exception {
+    if (!_linkChoicesByType.containsKey(linkId))
+      _linkChoicesByType.put(linkId, Maps.newHashMap());
 
-    if (!_linkChoicesByType.get(linkOffset).containsKey(type))
-      _linkChoicesByType.get(linkOffset).put(type,
-        choiceDAO.readOneLinkTypeWithAvailablePhaseOffsets(Access.internal(), linkOffset, type));
+    if (!_linkChoicesByType.get(linkId).containsKey(ideaType))
+      _linkChoicesByType.get(linkId).put(ideaType,
+        choiceDAO.readOneLinkTypeWithAvailablePhaseOffsets(Access.internal(), linkId, ideaType));
 
-    return _linkChoicesByType.get(linkOffset).get(type);
+    return _linkChoicesByType.get(linkId).get(ideaType);
   }
 
   @Override

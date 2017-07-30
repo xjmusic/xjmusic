@@ -6,7 +6,7 @@ import io.xj.core.app.access.impl.Access;
 import io.xj.core.app.exception.BusinessException;
 import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.integration.IntegrationTestService;
-import io.xj.core.model.idea.Idea;
+import io.xj.core.model.idea.IdeaType;
 import io.xj.core.model.library.Library;
 import io.xj.core.tables.records.LibraryRecord;
 import io.xj.core.transport.JSON;
@@ -20,7 +20,6 @@ import com.google.inject.Injector;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -32,7 +31,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 public class LibraryIT {
-  private Injector injector = Guice.createInjector(new CoreModule());
+  private final Injector injector = Guice.createInjector(new CoreModule());
   private LibraryDAO testDAO;
 
   @Before
@@ -95,7 +94,7 @@ public class LibraryIT {
     Library result = new Library().setFromRecord(testDAO.readOne(access, ULong.valueOf(2)));
 
     assertNotNull(result);
-    Assert.assertEquals(ULong.valueOf(2), result.getId());
+    assertEquals(ULong.valueOf(2), result.getId());
     assertEquals(ULong.valueOf(1), result.getAccountId());
     assertEquals("coconuts", result.getName());
   }
@@ -269,7 +268,7 @@ public class LibraryIT {
       "roles", "admin"
     ));
     IntegrationTestEntity.insertUser(101, "bill", "bill@email.com", "http://pictures.com/bill.gif");
-    IntegrationTestEntity.insertIdea(301, 101, 2, Idea.MAIN, "brilliant", 0.342, "C#", 0.286);
+    IntegrationTestEntity.insertIdea(301, 101, 2, IdeaType.Main, "brilliant", 0.342, "C#", 0.286);
 
     try {
       testDAO.delete(access, ULong.valueOf(2));

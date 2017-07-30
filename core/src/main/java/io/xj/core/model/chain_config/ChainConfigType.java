@@ -4,6 +4,7 @@ package io.xj.core.model.chain_config;
 import io.xj.core.app.exception.BusinessException;
 import io.xj.core.transport.CSV;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 import javax.sound.sampled.AudioFormat;
@@ -47,7 +48,21 @@ public enum ChainConfigType {
   }
 
   /**
+   String Values
+
+   @return ImmutableList of string values
+   */
+  public static ImmutableList<String> stringValues() {
+    ImmutableList.Builder<String> valuesBuilder = ImmutableList.builder();
+    for (ChainConfigType value : values()) {
+      valuesBuilder.add(value.toString());
+    }
+    return valuesBuilder.build();
+  }
+
+  /**
    Get default value for a chain configuration type
+
    @return default value
    @throws BusinessException if no default value exists
    */

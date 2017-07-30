@@ -6,10 +6,11 @@ import io.xj.core.app.access.impl.Access;
 import io.xj.core.app.exception.BusinessException;
 import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.integration.IntegrationTestService;
-import io.xj.core.model.chain.Chain;
-import io.xj.core.model.choice.Choice;
+import io.xj.core.model.chain.ChainState;
+import io.xj.core.model.chain.ChainType;
 import io.xj.core.model.idea.Idea;
-import io.xj.core.model.link.Link;
+import io.xj.core.model.idea.IdeaType;
+import io.xj.core.model.link.LinkState;
 import io.xj.core.model.role.Role;
 import io.xj.core.tables.records.IdeaRecord;
 import io.xj.core.transport.CSV;
@@ -27,7 +28,6 @@ import com.google.inject.Injector;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -38,7 +38,6 @@ import java.sql.Timestamp;
 import java.util.List;
 
 import static io.xj.core.tables.Idea.IDEA;
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -46,7 +45,7 @@ import static org.junit.Assert.assertNull;
 // TODO [core] test permissions of different users to readMany vs. create vs. update or delete ideas
 public class IdeaIT {
   @Rule public ExpectedException failure = ExpectedException.none();
-  private Injector injector = Guice.createInjector(new CoreModule());
+  private final Injector injector = Guice.createInjector(new CoreModule());
   private IdeaDAO testDAO;
 
   @Before
@@ -67,15 +66,15 @@ public class IdeaIT {
 
     // Library "palm tree" has idea "fonds" and idea "nuts"
     IntegrationTestEntity.insertLibrary(1, 1, "palm tree");
-    IntegrationTestEntity.insertIdea(1, 2, 1, Idea.MAIN, "fonds", 0.342, "C#", 0.286);
+    IntegrationTestEntity.insertIdea(1, 2, 1, IdeaType.Main, "fonds", 0.342, "C#", 0.286);
     IntegrationTestEntity.insertIdeaMeme(12, 1, "leafy");
     IntegrationTestEntity.insertIdeaMeme(14, 1, "smooth");
-    IntegrationTestEntity.insertIdea(2, 2, 1, Idea.RHYTHM, "nuts", 0.342, "C#", 0.286);
+    IntegrationTestEntity.insertIdea(2, 2, 1, IdeaType.Rhythm, "nuts", 0.342, "C#", 0.286);
 
     // Library "boat" has idea "helm" and idea "sail"
     IntegrationTestEntity.insertLibrary(2, 1, "boat");
-    IntegrationTestEntity.insertIdea(3, 3, 2, Idea.MACRO, "helm", 0.342, "C#", 0.286);
-    IntegrationTestEntity.insertIdea(4, 2, 2, Idea.SUPPORT, "sail", 0.342, "C#", 0.286);
+    IntegrationTestEntity.insertIdea(3, 3, 2, IdeaType.Macro, "helm", 0.342, "C#", 0.286);
+    IntegrationTestEntity.insertIdea(4, 2, 2, IdeaType.Support, "sail", 0.342, "C#", 0.286);
 
     // Instantiate the test subject
     testDAO = injector.getInstance(IdeaDAO.class);
@@ -99,7 +98,7 @@ public class IdeaIT {
       .setLibraryId(BigInteger.valueOf(2))
       .setName("cannons")
       .setTempo(129.4)
-      .setType(Idea.MAIN)
+      .setType("Main")
       .setUserId(BigInteger.valueOf(2));
 
     JSONObject result = JSON.objectFromRecord(testDAO.create(access, inputData));
@@ -110,7 +109,7 @@ public class IdeaIT {
     assertEquals(ULong.valueOf(2), result.get("libraryId"));
     assertEquals("cannons", result.get("name"));
     assertEquals(129.4, result.get("tempo"));
-    assertEquals(Idea.MAIN, result.get("type"));
+    assertEquals(IdeaType.Main, result.get("type"));
     assertEquals(ULong.valueOf(2), result.get("userId"));
   }
 
@@ -125,7 +124,7 @@ public class IdeaIT {
       .setKey("G minor 7")
       .setName("cannons")
       .setTempo(129.4)
-      .setType(Idea.MAIN)
+      .setType("Main")
       .setUserId(BigInteger.valueOf(2));
 
     testDAO.create(access, inputData);
@@ -142,7 +141,7 @@ public class IdeaIT {
       .setKey("G minor 7")
       .setName("cannons")
       .setTempo(129.4)
-      .setType(Idea.MAIN)
+      .setType("Main")
       .setLibraryId(BigInteger.valueOf(2));
 
     testDAO.create(access, inputData);
@@ -158,37 +157,37 @@ public class IdeaIT {
     Idea result = new Idea().setFromRecord(testDAO.readOne(access, ULong.valueOf(2)));
 
     assertNotNull(result);
-    Assert.assertEquals(ULong.valueOf(2), result.getId());
+    assertEquals(ULong.valueOf(2), result.getId());
     assertEquals(ULong.valueOf(1), result.getLibraryId());
     assertEquals("nuts", result.getName());
   }
 
   @Test
   public void readOneRecordTypeInLink_Macro() throws Exception {
-    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", Chain.PRODUCTION, Chain.FABRICATING, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null);
-    IntegrationTestEntity.insertLink(1,1,0, Link.CRAFTING,Timestamp.valueOf("2014-08-12 12:17:02.527142"),Timestamp.valueOf("2014-08-12 12:17:32.527142"),"C",64, 0.6, 121, "chain-1-link-97898asdf7892.wav");
-    IntegrationTestEntity.insertChoice(1,1,3, Choice.MACRO,0,0);
-    IntegrationTestEntity.insertChoice(2,1,1, Choice.MAIN,0,0);
+    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricating, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null);
+    IntegrationTestEntity.insertLink(1,1,0, LinkState.Crafting,Timestamp.valueOf("2014-08-12 12:17:02.527142"),Timestamp.valueOf("2014-08-12 12:17:32.527142"),"C",64, 0.6, 121, "chain-1-link-97898asdf7892.wav");
+    IntegrationTestEntity.insertChoice(1,1,3, IdeaType.Macro,0,0);
+    IntegrationTestEntity.insertChoice(2,1,1, IdeaType.Main,0,0);
 
-    Idea result = new Idea().setFromRecord(testDAO.readOneRecordTypeInLink(Access.internal(), ULong.valueOf(1), Choice.MACRO));
+    Idea result = new Idea().setFromRecord(testDAO.readOneRecordTypeInLink(Access.internal(), ULong.valueOf(1), IdeaType.Macro));
 
     assertNotNull(result);
-    Assert.assertEquals(ULong.valueOf(3), result.getId());
+    assertEquals(ULong.valueOf(3), result.getId());
     assertEquals(ULong.valueOf(2), result.getLibraryId());
     assertEquals("helm", result.getName());
   }
 
   @Test
   public void readOneRecordTypeInLink_Main() throws Exception {
-    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", Chain.PRODUCTION, Chain.FABRICATING, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null);
-    IntegrationTestEntity.insertLink(1,1,0,Link.CRAFTING,Timestamp.valueOf("2014-08-12 12:17:02.527142"),Timestamp.valueOf("2014-08-12 12:17:32.527142"),"C",64, 0.6, 121, "chain-1-link-97898asdf7892.wav");
-    IntegrationTestEntity.insertChoice(1,1,3, Choice.MACRO,0,0);
-    IntegrationTestEntity.insertChoice(2,1,1, Choice.MAIN,0,0);
+    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricating, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null);
+    IntegrationTestEntity.insertLink(1,1,0, LinkState.Crafting,Timestamp.valueOf("2014-08-12 12:17:02.527142"),Timestamp.valueOf("2014-08-12 12:17:32.527142"),"C",64, 0.6, 121, "chain-1-link-97898asdf7892.wav");
+    IntegrationTestEntity.insertChoice(1,1,3, IdeaType.Macro,0,0);
+    IntegrationTestEntity.insertChoice(2,1,1, IdeaType.Main,0,0);
 
-    Idea result = new Idea().setFromRecord(testDAO.readOneRecordTypeInLink(Access.internal(), ULong.valueOf(1), Choice.MAIN));
+    Idea result = new Idea().setFromRecord(testDAO.readOneRecordTypeInLink(Access.internal(), ULong.valueOf(1), IdeaType.Main));
 
     assertNotNull(result);
-    Assert.assertEquals(ULong.valueOf(1), result.getId());
+    assertEquals(ULong.valueOf(1), result.getId());
     assertEquals(ULong.valueOf(1), result.getLibraryId());
     assertEquals("fonds", result.getName());
   }
@@ -226,32 +225,32 @@ public class IdeaIT {
 
   @Test
   public void readAllBoundToChain() throws  Exception {
-    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", Chain.PRODUCTION, Chain.FABRICATING, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null);
+    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricating, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null);
     IntegrationTestEntity.insertChainIdea(1, 1, 1);
 
-    Result<? extends Record> result = testDAO.readAllBoundToChain(Access.internal(), ULong.valueOf(1), Idea.MAIN);
+    Result<? extends Record> result = testDAO.readAllBoundToChain(Access.internal(), ULong.valueOf(1), IdeaType.Main);
 
     assertEquals(1, result.size());
     assertEquals("fonds", result.get(0).get("name"));
-    String[] expectMemes = new String[]{"smooth","leafy"};
     List<String> actualMemes = CSV.split(String.valueOf(result.get(0).get("memes")));
     assertEquals(2, actualMemes.size());
+    String[] expectMemes = {"smooth", "leafy"};
     Testing.assertIn(expectMemes, actualMemes.get(0));
     Testing.assertIn(expectMemes, actualMemes.get(1));
   }
 
   @Test
   public void readAllBoundToChainLibrary() throws  Exception {
-    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", Chain.PRODUCTION, Chain.FABRICATING, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null);
+    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricating, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null);
     IntegrationTestEntity.insertChainLibrary(1, 1, 1);
 
-    Result<? extends Record> result = testDAO.readAllBoundToChainLibrary(Access.internal(), ULong.valueOf(1), Idea.MAIN);
+    Result<? extends Record> result = testDAO.readAllBoundToChainLibrary(Access.internal(), ULong.valueOf(1), IdeaType.Main);
 
     assertEquals(1, result.size());
     assertEquals("fonds", result.get(0).get("name"));
-    String[] expectMemes = new String[]{"smooth","leafy"};
     List<String> actualMemes = CSV.split(String.valueOf(result.get(0).get("memes")));
     assertEquals(2, actualMemes.size());
+    String[] expectMemes = {"smooth", "leafy"};
     Testing.assertIn(expectMemes, actualMemes.get(0));
     Testing.assertIn(expectMemes, actualMemes.get(1));
   }
@@ -331,7 +330,7 @@ public class IdeaIT {
       .setLibraryId(BigInteger.valueOf(2))
       .setName("cannons")
       .setTempo(129.4)
-      .setType(Idea.MAIN)
+      .setType("Main")
       .setUserId(BigInteger.valueOf(2));
 
     testDAO.update(access, ULong.valueOf(3), inputData);

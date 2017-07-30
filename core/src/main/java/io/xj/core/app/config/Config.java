@@ -11,201 +11,212 @@ import java.util.List;
 /**
  ALL APPLICATION CONFIGURATION MUST IMPLEMENT THIS CENTRAL CLASS.
  */
-public abstract class Config {
+public interface Config {
 
-  public static Boolean isTestEnvironment() {
+  double DEFAULT_TUNING_ROOT_PITCH = 432.0;
+  int DEFAULT_LIMIT_LINK_READ_SIZE = 20;
+  int DEFAULT_PLAY_BUFFER_DELAY_SECONDS = 5;
+  int DEFAULT_PLAY_BUFFER_AHEAD_SECONDS = 60;
+  int DEFAULT_WORK_BUFFER_SECONDS = 300;
+  int SECONDS_PER_MINUTE = 60;
+  int MINUTES_PER_HOUR = 60;
+  int HOURS_PER_DAY = 24;
+  int DAYS_PER_MONTH = 28;
+
+  static Boolean isTestEnvironment() {
     return getBoolOrDefault("env.test", false);
   }
 
-  public static String authGoogleId() throws ConfigException {
+  static String authGoogleId() throws ConfigException {
     return get("auth.google.id");
   }
 
-  public static String authGoogleSecret() throws ConfigException {
+  static String authGoogleSecret() throws ConfigException {
     return get("auth.google.secret");
   }
 
-  public static String awsAccessKeyId() throws ConfigException {
+  static String awsAccessKeyId() throws ConfigException {
     return get("aws.accessKeyId");
   }
 
-  public static String awsSecretKey() throws ConfigException {
+  static String awsSecretKey() throws ConfigException {
     return get("aws.secretKey");
   }
 
-  public static String audioFileBucket() throws ConfigException {
+  static String audioFileBucket() throws ConfigException {
     return get("audio.file.bucket");
   }
 
-  public static String awsDefaultRegion() {
+  static String awsDefaultRegion() {
     return getOrDefault("aws.defaultRegion", "us-east-1");
   }
 
-  public static int awsS3RetryLimit() {
+  static int awsS3RetryLimit() {
     return getIntOrDefault("aws.s3.retry.limit", 10);
   }
 
-  public static int audioFileUploadExpireMinutes() throws ConfigException {
+  static int audioFileUploadExpireMinutes() throws ConfigException {
     return getInt("audio.file.upload.expire.minutes");
   }
 
-  public static String audioFileUploadACL() throws ConfigException {
+  static String audioFileUploadACL() throws ConfigException {
     return get("audio.file.upload.acl");
   }
 
-  public static String audioBaseUrl() throws ConfigException {
+  static String audioBaseUrl() throws ConfigException {
     return get("audio.url.base");
   }
 
-  public static String audioUploadUrl() throws ConfigException {
+  static String audioUploadUrl() throws ConfigException {
     return get("audio.url.upload");
   }
 
-  public static String linkFileBucket() throws ConfigException {
+  static String linkFileBucket() throws ConfigException {
     return get("link.file.bucket");
   }
 
-  public static int linkFileUploadExpireMinutes() throws ConfigException {
+  static int linkFileUploadExpireMinutes() throws ConfigException {
     return getInt("link.file.upload.expire.minutes");
   }
 
-  public static String linkFileUploadACL() throws ConfigException {
+  static String linkFileUploadACL() throws ConfigException {
     return get("link.file.upload.acl");
   }
 
-  public static String linkBaseUrl() throws ConfigException {
+  static String linkBaseUrl() throws ConfigException {
     return get("link.url.base");
   }
 
-  public static String linkUploadUrl() throws ConfigException {
+  static String linkUploadUrl() throws ConfigException {
     return get("link.url.upload");
   }
 
-  public static String appBaseUrl() {
+  static String appBaseUrl() {
     return getOrDefault("app.url.base", "http://localhost/");
   }
 
-  public static String apiPath() {
+  static String apiPath() {
     return getOrDefault("app.url.api", "api/1/");
   }
 
-  public static String appHost() {
+  static String appHost() {
     return getOrDefault("app.host", "0.0.0.0");
   }
 
-  public static Integer appPort() {
+  static Integer appPort() {
     return getIntOrDefault("app.port", 80);
   }
 
-  public static String appPathUnauthorized() {
+  static String appPathUnauthorized() {
     return getOrDefault("app.path.unauthorized", "unauthorized");
   }
 
-  public static String appPathSuccess() {
+  static String appPathSuccess() {
     return getOrDefault("app.path.welcome", "");
   }
 
-  public static int chainPreviewLengthMax() {
-    return getIntOrDefault("chain.preview.size.max", 300);
+  static int chainPreviewLengthMax() {
+    return getIntOrDefault("ChainType.preview.size.max", 300);
   }
 
-  public static int chainDestroyLinksMax() {
+  static int chainDestroyLinksMax() {
     return getIntOrDefault("chain.destroy.links.max", 24);
   }
 
-  public static String logAccessFilename() {
+  static String logAccessFilename() {
     return getOrDefault("log.access.filename", getTempFilePathPrefix() + "access.log");
   }
 
-  public static Integer logAccessEntitiesMaxsize() {
+  static Integer logAccessEntitiesMaxsize() {
     return getIntOrDefault("log.access.entities.maxsize", 0);
   }
 
-  public static Boolean logAccessEntitiesAll() {
+  static Boolean logAccessEntitiesAll() {
     return getBoolOrDefault("log.access.entities.all", false);
   }
 
-  public static String dbMysqlHost() {
+  static String dbMysqlHost() {
     return getOrDefault("db.mysql.host", "localhost");
   }
 
-  public static String dbMysqlPort() {
+  static String dbMysqlPort() {
     return getOrDefault("db.mysql.port", "3306");
   }
 
-  public static String dbMysqlUser() {
+  static String dbMysqlUser() {
     return getOrDefault("db.mysql.user", "root");
   }
 
-  public static String dbMysqlPass() {
+  static String dbMysqlPass() {
     return getOrDefault("db.mysql.pass", "");
   }
 
-  public static String dbMysqlDatabase() {
+  static String dbMysqlDatabase() {
     return getOrDefault("db.mysql.database", "xj");
   }
 
-  public static String dbRedisHost() {
+  static String dbRedisHost() {
     return getOrDefault("db.redis.host", "localhost");
   }
 
-  public static Integer dbRedisPort() {
+  static Integer dbRedisPort() {
     return getIntOrDefault("db.redis.port", 6379);
   }
 
-  public static String accessTokenDomain() {
+  static String accessTokenDomain() {
     return getOrDefault("access.token.domain", "");
   }
 
-  public static String accessTokenPath() {
-    return getOrDefault("access.token.path", "/");
+  static String accessTokenPath() {
+    // this is not a file separator! it's part of the W3C spec.
+    return getOrDefault("access.token.path", "/"); // do not replace with path separator! see note above
   }
 
-  public static int accessTokenMaxAge() {
-    return getIntOrDefault("access.token.max.age", 60/*seconds*/ * 60/*minutes*/ * 24/*hours*/ * 28/*days*/);
+  static int accessTokenMaxAge() {
+    return getIntOrDefault("access.token.max.age", SECONDS_PER_MINUTE * MINUTES_PER_HOUR * HOURS_PER_DAY * DAYS_PER_MONTH);
   }
 
-  public static String accessTokenName() {
+  static String accessTokenName() {
     return getOrDefault("access.token.name", "access_token");
   }
 
-  public static String tuningRootNote() {
+  static String tuningRootNote() {
     return getOrDefault("tuning.root.note", "A4");
   }
 
-  public static Double tuningRootPitch() {
-    return getDoubleOrDefault("tuning.root.pitch", 432.0);
+  static Double tuningRootPitch() {
+    return getDoubleOrDefault("tuning.root.pitch", DEFAULT_TUNING_ROOT_PITCH);
   }
 
-  public static int limitLinkReadSize() {
-    return getIntOrDefault("limit.link.read.size", 20);
+  static int limitLinkReadSize() {
+    return getIntOrDefault("limit.link.read.size", DEFAULT_LIMIT_LINK_READ_SIZE);
   }
 
-  public static int playBufferDelaySeconds() {
-    return getIntOrDefault("play.buffer.delay.seconds", 5);
+  static int playBufferDelaySeconds() {
+    return getIntOrDefault("play.buffer.delay.seconds", DEFAULT_PLAY_BUFFER_DELAY_SECONDS);
   }
 
-  public static int playBufferAheadSeconds() {
-    return getIntOrDefault("play.buffer.ahead.seconds", 60);
+  static int playBufferAheadSeconds() {
+    return getIntOrDefault("play.buffer.ahead.seconds", DEFAULT_PLAY_BUFFER_AHEAD_SECONDS);
   }
 
-  public static int workConcurrency() {
+  static int workConcurrency() {
     return getIntOrDefault("work.concurrency", 1);
   }
 
-  public static int workBatchSize() {
+  static int workBatchSize() {
     return getIntOrDefault("work.batch.size", 1);
   }
 
-  public static long workBatchSleepSeconds() {
+  static long workBatchSleepSeconds() {
     return getIntOrDefault("work.batch.sleep.seconds", 1);
   }
 
-  public static int workAheadSeconds() {
-    return getIntOrDefault("work.buffer.seconds", 300);
+  static int workAheadSeconds() {
+    return getIntOrDefault("work.buffer.seconds", DEFAULT_WORK_BUFFER_SECONDS);
   }
 
-  public static String workTempFilePath() {
+  static String workTempFilePath() {
     return getOrDefault("work.temp.file.path", "/tmp");
   }
 
@@ -215,20 +226,18 @@ public abstract class Config {
    @param k name of system property
    @param v default value to set for property
    */
-  public static void setDefault(String k, String v) {
+  static void setDefault(String k, String v) {
     if (System.getProperty(k) == null) {
       System.setProperty(k, v);
     }
   }
 
-  // Private
-
-  private static Boolean getBool(String key) throws ConfigException {
+  static Boolean getBool(String key) throws ConfigException {
     String value = get(key);
     return Boolean.valueOf(value);
   }
 
-  private static Boolean getBoolOrDefault(String key, Boolean defaultValue) {
+  static Boolean getBoolOrDefault(String key, Boolean defaultValue) {
     try {
       return getBool(key);
     } catch (ConfigException e) {
@@ -236,17 +245,17 @@ public abstract class Config {
     }
   }
 
-  private static Integer getInt(String key) throws ConfigException {
+  static Integer getInt(String key) throws ConfigException {
     String value = get(key);
     return Integer.valueOf(value);
   }
 
-  private static Double getDouble(String key) throws ConfigException {
+  static Double getDouble(String key) throws ConfigException {
     String value = get(key);
     return Double.valueOf(value);
   }
 
-  private static Integer getIntOrDefault(String key, Integer defaultValue) {
+  static Integer getIntOrDefault(String key, Integer defaultValue) {
     try {
       return getInt(key);
     } catch (ConfigException e) {
@@ -254,7 +263,7 @@ public abstract class Config {
     }
   }
 
-  private static Double getDoubleOrDefault(String key, Double defaultValue) {
+  static Double getDoubleOrDefault(String key, Double defaultValue) {
     try {
       return getDouble(key);
     } catch (ConfigException e) {
@@ -262,7 +271,7 @@ public abstract class Config {
     }
   }
 
-  private static String get(String key) throws ConfigException {
+  static String get(String key) throws ConfigException {
     String value = System.getProperty(key);
     if (value == null) {
       throw new ConfigException("Must set system property: " + key);
@@ -270,7 +279,7 @@ public abstract class Config {
     return value;
   }
 
-  private static List<String> getListOrDefault(String key, List<String> defaultValue) {
+  static List<String> getListOrDefault(String key, List<String> defaultValue) {
     try {
       return CSV.split(get(key));
     } catch (ConfigException e) {
@@ -278,7 +287,7 @@ public abstract class Config {
     }
   }
 
-  private static String getOrDefault(String key, String defaultValue) {
+  static String getOrDefault(String key, String defaultValue) {
     try {
       return get(key);
     } catch (ConfigException e) {
@@ -286,7 +295,7 @@ public abstract class Config {
     }
   }
 
-  private static String getTempFilePathPrefix() {
+  static String getTempFilePathPrefix() {
     String path = File.separator + "tmp" + File.separator;
     try {
       String absolutePath = File.createTempFile("temp-file-name", ".tmp").getAbsolutePath();
