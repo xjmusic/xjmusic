@@ -26,15 +26,15 @@ public class ChainGangWorkload implements Workload {
   private ScheduledFuture scheduledFuture;
   private static ScheduledExecutorService leaderExecutor;
   private static ExecutorService workerExecutor;
-  private final static Logger log = LoggerFactory.getLogger(ChainGangWorkload.class);
-  private String name;
-  private Leader leader;
-  private Follower follower;
+  private static final Logger log = LoggerFactory.getLogger(ChainGangWorkload.class);
+  private final String name;
+  private final Leader leader;
+  private final Follower follower;
 
   /**
    Gang workload, with a leader and many workers
    */
-  public ChainGangWorkload(String name, Leader leader, Follower follower) throws ConfigException {
+  public ChainGangWorkload(String name, Leader leader, Follower follower) {
     this.name = name;
     this.leader = leader;
     this.follower = follower;
@@ -83,6 +83,6 @@ public class ChainGangWorkload implements Workload {
 
   @Override
   public String toString() {
-    return "Workload[" + this.name + "]";
+    return "Workload[" + name + "]";
   }
 }

@@ -1,9 +1,61 @@
 <!-- Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved. -->
 
+
+<!-- Row -->
+<div class="form-horizontal container-fluid">
+  <div class="form-group row">
+
+    <!-- State Change -->
+    <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
+      <div class="chain-state-change container-fluid {{lowercase model.chain.state}}-state">
+        <table>
+          <tbody>
+          <tr class="row">
+            <th class="align-middle">
+              {{capitalize model.chain.state}}
+            </th>
+            <td>
+              {{chain-state-change model.chain}}
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Play Chain -->
+    {{#if (or (eq model.chain.state "Fabricating") (eq model.chain.state "Complete"))}}
+      <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
+        <div class="{{if (eq player.currentChain.id model.chain.id)
+                         'now-playing'}} play-chain container-fluid">
+          <table>
+            <tbody>
+            <tr class="row">
+              <th class="align-middle">
+                {{#if (eq player.currentChain.id model.chain.id)}}
+                  {{player.state}}
+                {{else}}
+                  Play
+                {{/if}}
+              </th>
+              <td>
+                <button type="button" aria-label="play chain #{{model.chain.id}}"
+                        class="btn btn-success link-play" {{action 'play' model.chain}}>
+                  &#9658;
+                </button>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    {{/if}}
+
+  </div>
+</div>
+
 <!-- Inner Content -->
 {{outlet}}
-
-<!-- Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved. -->
 
 <!-- Upper Container -->
 <div class="form-horizontal container-fluid">

@@ -145,7 +145,7 @@ public class LinkIndexResource {
   /**
    Get an immutable list of ids from a result of Links
 
-   @param links to getContent ids of
+   @param links to get ids of
    @return list of ids
    */
   private ImmutableList<ULong> linkIds(Result<LinkRecord> links) {

@@ -266,7 +266,7 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
 
    @param db     context
    @param access control
-   @param linkId to getContent audio picked for
+   @param linkId to get audio picked for
    @return Result of audio records.
    @throws Exception on failure
    */

@@ -15,8 +15,9 @@
         <table class="table">
           <thead>
           <tr>
-            <th width="1%">Type</th>
+            <th width="1%"><!--Navigate To--></th>
             <th>Name</th>
+            <th width="1%">Type</th>
             <th width="1%">State</th>
             <th width="1%"><!--Change State To --></th>
             <th width="1%">Start At</th>
@@ -28,8 +29,9 @@
           <tbody>
           {{#each model.chains as |chain|}}
             <tr class="item {{lowercase chain.state}}-state {{if (eq player.currentChain.id chain.id) 'now-playing'}}">
-              <td>{{chain.type}}</td>
+              <td>{{#link-to "accounts.one.chains.one" chain class="btn btn-icon-open"}}{{/link-to}}</td>
               <td>{{#link-to "accounts.one.chains.one" chain}}{{chain.name}}{{/link-to}}</td>
+              <td>{{chain.type}}</td>
               <td>{{chain.state}}</td>
 
               <td>

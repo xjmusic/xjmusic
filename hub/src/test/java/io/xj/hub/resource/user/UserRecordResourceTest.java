@@ -10,7 +10,7 @@ public class UserRecordResourceTest extends ResourceEndpointTest {
 
 //  @Test
 //  public void readOne() {
-//    Response response = target().path("users/2").request().getContent(Response.class);
+//    Response response = target().path("users/2").request().get(Response.class);
 //    assertEquals(307,response.getStatus());
 //    MultivaluedMap<String, Object> headers = response.getHeaders();
 //    Object redirectLocation = headers.getFirst("Location");

@@ -95,7 +95,7 @@ public class MemeIsometry {
   /**
    Snowball stem of a particular word
 
-   @param raw text to getContent stem of
+   @param raw text to get stem of
    @return stem
    */
   private String stem(String raw) {

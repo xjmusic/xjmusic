@@ -241,7 +241,7 @@ public class LinkTest {
   @Test
   public void getPreviousOffset_throwsExceptionForInitialLink() throws Exception {
     failure.expect(BusinessException.class);
-    failure.expectMessage("Cannot getContent previous id of initial Link");
+    failure.expectMessage("Cannot get previous id of initial Link");
 
     new Link().setOffset(BigInteger.valueOf(0)).getPreviousOffset();
   }

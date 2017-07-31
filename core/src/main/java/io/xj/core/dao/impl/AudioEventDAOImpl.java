@@ -202,7 +202,7 @@ public class AudioEventDAOImpl extends DAOImpl implements AudioEventDAO {
     // for each audio id, the first (in terms of position) AudioEvent
     Map<ULong, AudioEvent> audioFirstEvents = Maps.newHashMap();
 
-    // HAVEN'T BEEN ABLE TO getContent ANYTHING MORE EFFICIENT TO WORK
+    // HAVEN'T BEEN ABLE TO GET ANYTHING MORE EFFICIENT TO WORK
     Consumer<? super Record> putIfEarlierThanExisting = audioEventRecord -> {
       ULong audioId = audioEventRecord.get(AUDIO_EVENT.AUDIO_ID);
 

@@ -4,7 +4,7 @@
 {{outlet}}
 
 <!-- Upper Container -->
-<div class="form-horizontal container">
+<div class="form-horizontal container-fluid">
 
   <!-- Type -->
   <div class="form-group row">
@@ -27,7 +27,7 @@
 
 {{#if auth.isAdmin}}
   <!-- Lower Container -->
-  <div class="form-horizontal container danger-zone danger-zone">
+  <div class="form-horizontal container-fluid danger-zone danger-zone">
 
     {{#if (or (eq "Draft" model.chain.state) (eq "Complete" model.chain.state) (eq "Failed" model.chain.state))}}
       <!-- Header -->

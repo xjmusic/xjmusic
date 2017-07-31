@@ -53,7 +53,7 @@ public class AccessTokenAuthFilterImpl implements AccessTokenAuthFilter {
    @return whether authentication is okay.
    */
   private Boolean authenticate(ContainerRequestContext context) throws Exception {
-    // use reflection to getContent resource method annotation values
+    // use reflection to get resource method annotation values
     Method method = resourceInfo.getResourceMethod();
     RolesAllowed aRolesAllowed = method.getAnnotation(RolesAllowed.class);
     PermitAll aPermitAll = method.getAnnotation(PermitAll.class);
@@ -74,7 +74,7 @@ public class AccessTokenAuthFilterImpl implements AccessTokenAuthFilter {
       return denied(context, "resource allows no roles");
     }
 
-    // getContent AccessControl from (required from here on) access token
+    // get AccessControl from (required from here on) access token
     Map<String, Cookie> cookies = context.getCookies();
     Cookie accessTokenCookie = cookies.get(accessTokenName);
     if (accessTokenCookie == null) {
@@ -85,7 +85,7 @@ public class AccessTokenAuthFilterImpl implements AccessTokenAuthFilter {
     try {
       access = accessControlProvider.get(accessTokenCookie.getValue());
     } catch (Exception e) {
-      return failed(context, "cannot getContent access token (" + e.getClass().getName() + "): " + e);
+      return failed(context, "cannot get access token (" + e.getClass().getName() + "): " + e);
     }
     if (!access.valid()) {
       return denied(context, "invalid access_token");

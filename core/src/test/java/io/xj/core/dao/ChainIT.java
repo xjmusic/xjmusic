@@ -139,8 +139,8 @@ public class ChainIT {
     assertEquals(ChainState.Draft, result.get("state"));
     assertEquals(ChainType.Preview, result.get("type"));
     // TODO: test time from startAt to stopAt relative to [#190] specs
-//    assertEquals(Timestamp.valueOf("2009-08-12 12:17:02.527142"), result.getContent("startAt"));
-//    assertEquals(Timestamp.valueOf("2009-09-11 12:17:01.047563"), result.getContent("stopAt"));
+//    assertEquals(Timestamp.valueOf("2009-08-12 12:17:02.527142"), result.get("startAt"));
+//    assertEquals(Timestamp.valueOf("2009-09-11 12:17:01.047563"), result.get("stopAt"));
   }
 
   @Test

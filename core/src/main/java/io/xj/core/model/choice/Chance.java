@@ -11,7 +11,7 @@ public class Chance {
   /**
    Value normally distributed at random, normallyAround a base value
 
-   @param base            to getContent values distributed normallyAround
+   @param base            to get values distributed normallyAround
    @param maxDistribution from center
    @return double
    */

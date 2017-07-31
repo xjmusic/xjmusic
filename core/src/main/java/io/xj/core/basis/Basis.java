@@ -225,7 +225,7 @@ public interface Basis {
    <p>
    [#255] Note pitch is calculated at 32-bit floating point precision, based on root note configured in environment parameters.
 
-   @param note to getContent pitch for
+   @param note to get pitch for
    @return pitch of note, in Hz
    */
   Double pitch(Note note);
@@ -233,7 +233,7 @@ public interface Basis {
   /**
    Note, for any pitch in Hz
 
-   * @param pitch to getContent octave of
+   * @param pitch to get octave of
    */
   Note note(Double pitch);
 
@@ -269,7 +269,7 @@ public interface Basis {
   /**
    Read all AudioEvent that are first in an audio, for all audio in an Instrument
 
-   @param instrumentId to getContent audio for
+   @param instrumentId to get audio for
    @return audio events
    @throws Exception on failure
    */
@@ -278,13 +278,13 @@ public interface Basis {
   /**
    Read all Audio for an instrument
 
-   @param instrumentId to getContent audio for
+   @param instrumentId to get audio for
    @return audios for instrument
    */
   List<Audio> instrumentAudios(ULong instrumentId) throws Exception;
 
   /**
-   Read an Audio by id, assumed to be in the setContent of audio found for all picks in the link
+   Read an Audio by id, assumed to be in the set of audio found for all picks in the link
 
    @param audioId to fetch
    @return Audio
@@ -432,7 +432,7 @@ public interface Basis {
   /**
    Microseconds from seconds
 
-   @param seconds to getContent microseconds of
+   @param seconds to get microseconds of
    @return microseconds
    */
   long atMicros(Double seconds);

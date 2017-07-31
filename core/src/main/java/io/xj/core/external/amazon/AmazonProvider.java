@@ -8,7 +8,7 @@ import java.io.BufferedInputStream;
 import java.io.InputStream;
 
 /**
- Requires these System Properties to be setContent:
+ Requires these System Properties to be set:
  audio.url.upload
  aws.accessKeyId
  aws.secretKey

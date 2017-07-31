@@ -22,6 +22,9 @@ public interface Config {
   int MINUTES_PER_HOUR = 60;
   int HOURS_PER_DAY = 24;
   int DAYS_PER_MONTH = 28;
+  int DEFAULT_APP_PORT = 80;
+  int DEFAULT_CHAIN_PREVIEW_LENGTH_MAX = 300;
+  int DEFAULT_CHAIN_DESTROY_LINKS_MAX = 24;
 
   static Boolean isTestEnvironment() {
     return getBoolOrDefault("env.test", false);
@@ -96,6 +99,7 @@ public interface Config {
   }
 
   static String apiPath() {
+    // this is not a file separator! it's part of the W3C spec.
     return getOrDefault("app.url.api", "api/1/");
   }
 
@@ -104,7 +108,7 @@ public interface Config {
   }
 
   static Integer appPort() {
-    return getIntOrDefault("app.port", 80);
+    return getIntOrDefault("app.port", DEFAULT_APP_PORT);
   }
 
   static String appPathUnauthorized() {
@@ -116,11 +120,11 @@ public interface Config {
   }
 
   static int chainPreviewLengthMax() {
-    return getIntOrDefault("ChainType.preview.size.max", 300);
+    return getIntOrDefault("chain.preview.length.max", DEFAULT_CHAIN_PREVIEW_LENGTH_MAX);
   }
 
   static int chainDestroyLinksMax() {
-    return getIntOrDefault("chain.destroy.links.max", 24);
+    return getIntOrDefault("chain.destroy.links.max", DEFAULT_CHAIN_DESTROY_LINKS_MAX);
   }
 
   static String logAccessFilename() {
@@ -225,14 +229,14 @@ public interface Config {
   }
 
   static String workTempFilePath() {
-    return getOrDefault("work.temp.file.path", "/tmp");
+    return getOrDefault("work.temp.file.path", getTempFilePathPrefix());
   }
 
   /**
-   Set a System Property if no value has yet been setContent for it.
+   Set a System Property if no value has yet been set for it.
 
    @param k name of system property
-   @param v default value to setContent for property
+   @param v default value to set for property
    */
   static void setDefault(String k, String v) {
     if (System.getProperty(k) == null) {
@@ -282,7 +286,7 @@ public interface Config {
   static String get(String key) throws ConfigException {
     String value = System.getProperty(key);
     if (value == null) {
-      throw new ConfigException("Must setContent system property: " + key);
+      throw new ConfigException("Must set system property: " + key);
     }
     return value;
   }

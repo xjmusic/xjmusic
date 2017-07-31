@@ -43,7 +43,7 @@ public interface PickDAO {
    Read all Picks that are accessible, for all arrangements of all choices in a given Link
 
    @param access control
-   @param linkId to getContent all picks in
+   @param linkId to get all picks in
    @return result of Pick records
    @throws Exception on failure
    */

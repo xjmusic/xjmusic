@@ -136,7 +136,7 @@ export default Ember.Route.extend({
     chain.save().then(
       () => {
         Ember.get(self, 'display').success('Advanced chain state to ' + FABRICATING + '.');
-        self.transitionTo('accounts.one.chains.one', chain);
+        self.transitionTo('accounts.one.chains.one.links', chain);
       },
       (error) => {
         Ember.get(self, 'display').error(error);

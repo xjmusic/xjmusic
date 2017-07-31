@@ -95,7 +95,7 @@ public class MasterDubImpl implements MasterDub {
   }
 
   /**
-   Implements Mixer module to setContent playback for Picks in current Link
+   Implements Mixer module to set playback for Picks in current Link
    */
   private void doMixerTargetSetting() throws Exception {
     for (Pick pick : basis.picks())
@@ -112,7 +112,7 @@ public class MasterDubImpl implements MasterDub {
    [#283] Pitch ratio should result in lower audio playback for lower note
    [#341] Dubworker takes into account the start offset of each audio, in order to ensure that it is mixed such that the hit is exactly on the meter
 
-   @param pick to setContent playback for
+   @param pick to set playback for
    */
   private void setupTarget(Pick pick) throws Exception {
     double pitchRatio = basis.linkAudio(pick.getAudioId()).getPitch() / pick.getPitch();
@@ -152,7 +152,7 @@ public class MasterDubImpl implements MasterDub {
   }
 
   /**
-   getContent output audio container from chain config
+   get output audio container from chain config
 
    @return output container
    @throws Exception on failure

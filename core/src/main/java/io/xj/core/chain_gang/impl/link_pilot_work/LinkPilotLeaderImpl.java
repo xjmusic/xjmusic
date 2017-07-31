@@ -50,7 +50,7 @@ public class LinkPilotLeaderImpl implements Leader {
           TimestampUTC.nowPlusSeconds(bufferSeconds)));
 
     } catch (Exception e) {
-      log.error("PilotLeader getContent chains", e);
+      log.error("PilotLeader get chains", e);
       return new JSONArray();
     }
   }
@@ -72,7 +72,7 @@ public class LinkPilotLeaderImpl implements Leader {
           }
 
         } catch (Exception e) {
-          log.error("PilotLeader getContent tasks", e);
+          log.error("PilotLeader get tasks", e);
         }
       }
     }

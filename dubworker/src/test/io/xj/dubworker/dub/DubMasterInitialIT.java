@@ -159,7 +159,7 @@ TODO
   @Test
   public void dubMasterInitial_failsIfLinkHasNoWaveformKey() throws Exception {
     IntegrationTestService.getDb().update(LINK)
-      .setContent(LINK.WAVEFORM_KEY, DSL.value((String) null))
+      .set(LINK.WAVEFORM_KEY, DSL.value((String) null))
       .where(LINK.ID.eq(ULong.valueOf(6)))
       .execute();
 

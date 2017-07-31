@@ -24,10 +24,10 @@
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <db.database>xj</db.database>
+    <db.database>xj_test</db.database>
     <db.username>root</db.username>
     <db.driver>com.mysql.cj.jdbc.Driver</db.driver>
-    <db.url>jdbc:mysql://localhost:3306/${db.database}</db.url>
+    <db.url>jdbc:mysql://localhost:3300/${db.database}</db.url>
   </properties>
 
   <!-- deps -->

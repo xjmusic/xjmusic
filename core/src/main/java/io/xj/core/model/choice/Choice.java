@@ -151,9 +151,9 @@ public class Choice extends Entity {
   }
 
   /**
-   setContent available phase offsets from CSV
+   set available phase offsets from CSV
 
-   @param phaseOffsets to setContent from
+   @param phaseOffsets to set from
    */
   public Choice setAvailablePhaseOffsets(String phaseOffsets) {
     availablePhaseOffsets = Lists.newArrayList();

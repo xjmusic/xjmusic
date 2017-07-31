@@ -1,0 +1,14 @@
+
+.btn {
+  &.btn-icon-open {
+    width: 3em;
+    height: 3em;
+    border: 1px solid #555;
+    opacity: 0.6;
+    background: url("/assets/icons/open.png") no-repeat center center rgba(128,128,128,0.6);
+    background-size: 1.612em 1.612em;
+    &:hover {
+      opacity: 1.0;
+    }
+  }
+}

@@ -47,7 +47,11 @@ export default Ember.Route.extend({
    */
   afterModel(model) {
     Ember.set(this, 'routeHeadline', {
-      title: 'Libraries bound to Chain',
+      // title in breadcrumb
+      detail: {
+        startAt: model.chain.get('startAt'),
+        stopAt: model.chain.get('stopAt')
+      },
       entity: {
         name: 'Chain',
         id: model.chain.get('id'),

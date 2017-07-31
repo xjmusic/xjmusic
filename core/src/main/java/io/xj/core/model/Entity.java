@@ -85,7 +85,7 @@ public abstract class Entity {
   /**
    Set values from record
 
-   @param record to setContent values from
+   @param record to set values from
    @return Entity
    */
   @Nullable

@@ -9,7 +9,7 @@ public class AuthResourceTest extends ResourceEndpointTest {
 
 //  @Test
 //  public void GetAuth() {
-//    Response response = target().path("auth").request().getContent(Response.class);
+//    Response response = target().path("auth").request().get(Response.class);
 //    assertEquals(307,response.getStatus());
 //    MultivaluedMap<String, Object> headers = response.getHeaders();
 //    Object redirectLocation = headers.getFirst("Location");

@@ -76,7 +76,7 @@ public class LinkLeaderImpl implements Leader {
       }
 
     } catch (Exception e) {
-      log.error("LinkLeader failed to getContent tasks", e);
+      log.error("LinkLeader failed to get tasks", e);
     }
 
     return tasks;

@@ -43,7 +43,7 @@ public class ResourceEndpointTest extends Mockito {
     app.configureServer(packages());
     app.start();
 
-    // getContent the client
+    // get the client
     Client c = ClientBuilder.newClient();
 
     // uncomment the following line if you want to enable
