@@ -1,15 +1,6 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 package io.xj.core;
 
-import com.google.api.client.http.HttpTransport;
-import com.google.api.client.http.javanet.NetHttpTransport;
-import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.client.util.store.DataStoreFactory;
-import com.google.api.client.util.store.MemoryDataStoreFactory;
-import com.google.inject.AbstractModule;
-import com.google.inject.assistedinject.FactoryModuleBuilder;
-
 import io.xj.core.app.App;
 import io.xj.core.app.AppImpl;
 import io.xj.core.app.access.AccessControlProvider;
@@ -85,10 +76,10 @@ import io.xj.core.dao.impl.PickDAOImpl;
 import io.xj.core.dao.impl.UserDAOImpl;
 import io.xj.core.dao.impl.VoiceDAOImpl;
 import io.xj.core.dao.impl.VoiceEventDAOImpl;
-import io.xj.core.db.RedisDatabaseProvider;
-import io.xj.core.db.RedisDatabaseProviderImpl;
+import io.xj.core.db.redis.RedisDatabaseProvider;
+import io.xj.core.db.redis.impl.RedisDatabaseProviderImpl;
 import io.xj.core.db.sql.SQLDatabaseProvider;
-import io.xj.core.db.sql.SQLDatabaseProviderImpl;
+import io.xj.core.db.sql.impl.SQLDatabaseProviderImpl;
 import io.xj.core.external.amazon.AmazonProvider;
 import io.xj.core.external.amazon.AmazonProviderImpl;
 import io.xj.core.external.google.GoogleHttpProvider;
@@ -97,6 +88,17 @@ import io.xj.core.external.google.GoogleProvider;
 import io.xj.core.external.google.GoogleProviderImpl;
 import io.xj.core.util.token.TokenGenerator;
 import io.xj.core.util.token.TokenGeneratorImpl;
+import io.xj.core.work.WorkManager;
+import io.xj.core.work.impl.WorkManagerImpl;
+
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.util.store.DataStoreFactory;
+import com.google.api.client.util.store.MemoryDataStoreFactory;
+import com.google.inject.AbstractModule;
+import com.google.inject.assistedinject.FactoryModuleBuilder;
 
 public class CoreModule extends AbstractModule {
   protected void configure() {
@@ -121,6 +123,7 @@ public class CoreModule extends AbstractModule {
     bind(RedisDatabaseProvider.class).to(RedisDatabaseProviderImpl.class);
     bind(ResourceConfigProvider.class).to(ResourceConfigProviderImpl.class);
     bind(SQLDatabaseProvider.class).to(SQLDatabaseProviderImpl.class);
+    bind(WorkManager.class).to(WorkManagerImpl.class);
   }
 
   private void installBasisFactory() {

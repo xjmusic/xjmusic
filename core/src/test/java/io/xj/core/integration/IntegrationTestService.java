@@ -4,7 +4,7 @@ package io.xj.core.integration;
 import io.xj.core.CoreModule;
 import io.xj.core.app.exception.ConfigException;
 import io.xj.core.app.exception.DatabaseException;
-import io.xj.core.db.sql.SQLConnection;
+import io.xj.core.db.sql.impl.SQLConnection;
 import io.xj.core.db.sql.SQLDatabaseProvider;
 import io.xj.core.migration.MigrationService;
 

@@ -5,7 +5,7 @@ import io.xj.core.app.access.impl.Access;
 import io.xj.core.app.exception.BusinessException;
 import io.xj.core.app.exception.ConfigException;
 import io.xj.core.dao.ChainIdeaDAO;
-import io.xj.core.db.sql.SQLConnection;
+import io.xj.core.db.sql.impl.SQLConnection;
 import io.xj.core.db.sql.SQLDatabaseProvider;
 import io.xj.core.model.chain_idea.ChainIdea;
 import io.xj.core.tables.records.ChainIdeaRecord;

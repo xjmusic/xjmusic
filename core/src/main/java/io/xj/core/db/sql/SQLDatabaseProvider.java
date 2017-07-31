@@ -3,6 +3,7 @@ package io.xj.core.db.sql;
 
 import io.xj.core.app.exception.ConfigException;
 import io.xj.core.app.exception.DatabaseException;
+import io.xj.core.db.sql.impl.SQLConnection;
 
 public interface SQLDatabaseProvider {
   /**

@@ -4,8 +4,11 @@ package io.xj.core.app.config;
 import io.xj.core.app.exception.ConfigException;
 import io.xj.core.transport.CSV;
 
+import com.google.common.collect.ImmutableList;
+
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -228,8 +231,20 @@ public interface Config {
     return getIntOrDefault("work.buffer.seconds", DEFAULT_WORK_BUFFER_SECONDS);
   }
 
+  static Integer workChainRecurSeconds() {
+    return getIntOrDefault("work.chain.recur.seconds",5);
+  }
+
+  static Integer workChainDelaySeconds() {
+    return getIntOrDefault("work.chain.delay.seconds",1);
+  }
+
   static String workTempFilePath() {
     return getOrDefault("work.temp.file.path", getTempFilePathPrefix());
+  }
+
+  static String workQueueName() {
+    return getOrDefault("work.queue.name", "xj_work");
   }
 
   /**
@@ -318,6 +333,5 @@ public interface Config {
     }
     return path;
   }
-
 
 }

@@ -7,10 +7,10 @@ import io.xj.core.app.config.Config;
 import io.xj.core.app.exception.ConfigException;
 import io.xj.core.app.server.HttpServerProvider;
 import io.xj.core.app.server.ResourceConfigProvider;
-import io.xj.core.app.work.Worker;
-import io.xj.core.app.work.Workload;
-import io.xj.core.app.work.impl.ChainGangWorkload;
-import io.xj.core.app.work.impl.SimpleWorkload;
+import io.xj.core.work.Worker;
+import io.xj.core.work.Workload;
+import io.xj.core.work.impl.ChainGangWorkload;
+import io.xj.core.work.impl.SimpleWorkload;
 import io.xj.core.chain_gang.Follower;
 import io.xj.core.chain_gang.Leader;
 
@@ -27,15 +27,13 @@ import java.util.List;
 import java.util.Objects;
 
 public class AppImpl implements App {
-  private final static Logger log = LoggerFactory.getLogger(App.class);
+  private static final Logger log = LoggerFactory.getLogger(AppImpl.class);
   private final HttpServerProvider httpServerProvider;
   private final ResourceConfigProvider resourceConfigProvider;
   private final AccessTokenAuthFilter accessTokenAuthFilter;
   private final AccessLogFilterProvider accessLogFilterProvider;
-  private final String host = Config.appHost();
-  private final Integer port = Config.appPort();
   private ResourceConfig resourceConfig;
-  private List<Workload> workloads = Lists.newArrayList();
+  private final List<Workload> workloads = Lists.newArrayList();
 
   @Inject
   public AppImpl(
@@ -93,7 +91,7 @@ public class AppImpl implements App {
     }
 
     // [#276] Chain work not safe for concurrent or batch use; link state transition errors should not cause chain failure
-    if (Config.workConcurrency()>1 || Config.workBatchSize() > 1)
+    if (Config.workConcurrency() > 1 || Config.workBatchSize() > 1)
       throw new ConfigException("Current XJ implementation is not safe for concurrent or batch use! See [#286] https://trello.com/c/KpoQOse1 true work management. After that implementation, concurrent and batch work should be safe.");
 
     URI serverURI = URI.create(baseURI());
@@ -113,17 +111,19 @@ public class AppImpl implements App {
 
   @Override
   public void stop() {
+    log.info("Server will shutdown now");
+
     workloads.forEach((Workload::stop));
 
-    log.info("Server will shutdown now");
     if (Objects.nonNull(httpServerProvider.get()))
       httpServerProvider.get().shutdownNow();
+
     log.info("Server did shutdown OK");
   }
 
   @Override
   public String baseURI() {
-    return "http://" + host + ":" + port + "/";
+    return "http://" + Config.appHost() + ":" + Config.appPort() + "/";
   }
 
 

@@ -8,7 +8,7 @@ import io.xj.core.app.exception.CancelException;
 import io.xj.core.app.exception.ConfigException;
 import io.xj.core.app.exception.DatabaseException;
 import io.xj.core.dao.ChainDAO;
-import io.xj.core.db.sql.SQLConnection;
+import io.xj.core.db.sql.impl.SQLConnection;
 import io.xj.core.db.sql.SQLDatabaseProvider;
 import io.xj.core.model.chain.Chain;
 import io.xj.core.model.chain.ChainState;
@@ -19,6 +19,7 @@ import io.xj.core.model.role.Role;
 import io.xj.core.tables.records.ChainRecord;
 import io.xj.core.tables.records.LinkRecord;
 import io.xj.core.transport.CSV;
+import io.xj.core.work.WorkManager;
 
 import org.jooq.DSLContext;
 import org.jooq.Field;
@@ -62,11 +63,14 @@ import static io.xj.core.Tables.LINK;
  */
 public class ChainDAOImpl extends DAOImpl implements ChainDAO {
   private final int previewLengthMax;
+  private final WorkManager workManager;
 
   @Inject
   public ChainDAOImpl(
-    SQLDatabaseProvider dbProvider
+    SQLDatabaseProvider dbProvider,
+    WorkManager workManager
   ) {
+    this.workManager = workManager;
     this.dbProvider = dbProvider;
     previewLengthMax = Config.chainPreviewLengthMax();
   }
@@ -448,8 +452,28 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
       .and(CHAIN.STATE.eq(chain.getState()))
       .execute();
 
+    // If no records updated, failure
     if (0 == rowsAffected)
       throw new BusinessException("No records updated.");
+
+    // [#286] work management logic is based on the new Chain State
+    switch (toState) {
+      case Draft:
+      case Ready:
+        // no op
+        break;
+
+      case Fabricating:
+        workManager.startChainFabrication(id);
+        break;
+
+      case Complete:
+      case Failed:
+      case Erase:
+        workManager.stopChainFabrication(id);
+        workManager.startChainDeletion(id);
+        break;
+    }
   }
 
   /**

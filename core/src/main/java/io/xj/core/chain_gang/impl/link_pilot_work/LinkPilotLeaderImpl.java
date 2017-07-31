@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
  The pilot leader creates template entities of new Links that need to be readMany
  */
 public class LinkPilotLeaderImpl implements Leader {
-  private final static Logger log = LoggerFactory.getLogger(LinkPilotLeaderImpl.class);
+  private static final Logger log = LoggerFactory.getLogger(LinkPilotLeaderImpl.class);
   private final LinkDAO linkDAO;
   private final int bufferSeconds;
   private final int batchSize; // TODO implement batch size in pilot leader getTasks

@@ -12,8 +12,8 @@ USAGE="
      APPS=\"hub\"
        operates only the Hub frontend
 
-     APPS=\"craftworker dubworker eraseworker\"
-       operates Craftworker, Dubworker, and Eraseworker.
+     APPS=\"worker\"
+       operates the Worker client
 
    <arguments...> (optional) passed to 'bin/bootstrap'
 "

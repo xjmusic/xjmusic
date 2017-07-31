@@ -110,17 +110,9 @@ ADD runtime.env /data/runtime.env
 EXPOSE 8042
 RUN mkdir -p /var/log/hub && chmod a+w /var/log/hub
 
-# 'craftworker'
+# 'worker'
 EXPOSE 8043
-RUN mkdir -p /var/log/craftworker && chmod a+w /var/log/craftworker
-
-# 'dubworker'
-EXPOSE 8044
-RUN mkdir -p /var/log/dubworker && chmod a+w /var/log/dubworker
-
-# 'eraseworker'
-EXPOSE 8086
-RUN mkdir -p /var/log/eraseworker && chmod a+w /var/log/eraseworker
+RUN mkdir -p /var/log/worker && chmod a+w /var/log/worker
 
 # App run script
 ADD \

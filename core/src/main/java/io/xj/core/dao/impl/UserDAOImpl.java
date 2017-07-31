@@ -7,7 +7,7 @@ import io.xj.core.app.exception.AccessException;
 import io.xj.core.app.exception.BusinessException;
 import io.xj.core.app.exception.DatabaseException;
 import io.xj.core.dao.UserDAO;
-import io.xj.core.db.sql.SQLConnection;
+import io.xj.core.db.sql.impl.SQLConnection;
 import io.xj.core.db.sql.SQLDatabaseProvider;
 import io.xj.core.model.role.Role;
 import io.xj.core.model.user.User;

@@ -7,7 +7,7 @@
 #ensure_version "eb --version" "AWS Elastic Beanstalk CLI"
 
 # apps, configs, static assets
-APPS="hub craftworker dubworker eraseworker"
+APPS="hub worker"
 
 # Must not have outstanding git changes
 gitcheck ${PWD}

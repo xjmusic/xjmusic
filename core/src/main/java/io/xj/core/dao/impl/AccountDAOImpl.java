@@ -6,7 +6,7 @@ import io.xj.core.app.exception.BusinessException;
 import io.xj.core.app.exception.ConfigException;
 import io.xj.core.app.exception.DatabaseException;
 import io.xj.core.dao.AccountDAO;
-import io.xj.core.db.sql.SQLConnection;
+import io.xj.core.db.sql.impl.SQLConnection;
 import io.xj.core.db.sql.SQLDatabaseProvider;
 import io.xj.core.model.account.Account;
 import io.xj.core.tables.records.AccountRecord;

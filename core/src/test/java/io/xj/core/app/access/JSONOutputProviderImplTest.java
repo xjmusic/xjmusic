@@ -3,7 +3,7 @@ package io.xj.core.app.access;
 
 import io.xj.core.CoreModule;
 import io.xj.core.app.access.impl.AccessControlProviderImpl;
-import io.xj.core.db.RedisDatabaseProvider;
+import io.xj.core.db.redis.RedisDatabaseProvider;
 import io.xj.core.model.role.Role;
 import io.xj.core.tables.records.AccountUserRecord;
 import io.xj.core.tables.records.UserAuthRecord;

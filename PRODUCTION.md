@@ -13,7 +13,8 @@ Here is the master checklist:
     * Ember compilation, test, and production release of front-end targets.
 
   3. Upload and deploy the new `target/xj-release-*.zip` to AWS Elastic Beanstalk. PLEASE BE ADVISED:
-    * If the release includes migrations, be sure to pick a single machine to run the deployment on first, and confirm OK before proceeding with the full deployment.
+    * If the release includes migrations, be sure to pick a single machine to run the **Hub** deployment on first, and confirm OK before proceeding with the full deployment.
+    * The **Hub** app runs migrations, whereas the **Worker** app only validates that it is operating on a migrated database!
     
   4. Login to the production application at https://xj.io as an admin user. Confirm the ability to:
     * View Ideas and Instruments in a Library.

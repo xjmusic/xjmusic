@@ -13,7 +13,7 @@ Music in the [XJ Ambient Music Platform](https://xj.io) is stored in Chains comp
 
 In the cloud, worker-bots construct the complex arrangements of events that comprise these Chains.
 
-Work is performed sequentially, one Link after another. There are layers of work to be performed. First, each Link is "crafted" by the Craftworker. Lastly, each Link is "dubbed" by the Dubworker.
+Work is performed sequentially, one Link after another. There are layers of work to be performed. First, each Link is "crafted," then, each Link is "dubbed."
 
 ## Craft: Macro & Main Choices for Link
 

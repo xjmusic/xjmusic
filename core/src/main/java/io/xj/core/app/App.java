@@ -2,7 +2,7 @@
 package io.xj.core.app;
 
 import io.xj.core.app.exception.ConfigException;
-import io.xj.core.app.work.Worker;
+import io.xj.core.work.Worker;
 import io.xj.core.chain_gang.Follower;
 import io.xj.core.chain_gang.Leader;
 

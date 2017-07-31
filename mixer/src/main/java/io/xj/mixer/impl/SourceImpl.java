@@ -21,7 +21,7 @@ import java.io.IOException;
  Source stores a series of Samples in Channels across Time, for audio playback.
  */
 public class SourceImpl implements Source {
-  private final static Logger log = LoggerFactory.getLogger(SourceImpl.class);
+  private static final Logger log = LoggerFactory.getLogger(SourceImpl.class);
   private final static float microsInASecond = 1000000;
   private final static float nanosInASecond = 1000 * microsInASecond;
 

@@ -249,17 +249,9 @@ Run a local **Hub** on its default port 8042:
 
     bin/hub    
 
-Run a local **Craftworker** on its default port 8043:
+Run a local **Work** on its default port 8043:
 
-    bin/craftworker    
-
-Run a local **Dubworker** on its default port 8044:
-
-    bin/dubworker    
-
-Run a local **Eraseworker** on its default port 8086:
-
-    bin/eraseworker    
+    bin/work    
 
 ## Release Java platform for deployment to AWS Elastic Beanstalk
 
@@ -407,9 +399,9 @@ Connects to:
   * SQL Database
   * Filesystem
 
-## craftworker
+## worker
 
-Fabricates a musical audio composite from source ideas and instrument-audio. Built with Java, Guice, Tomcat, Maven.
+**Craft** fabricates a musical audio composite from source ideas and instrument-audio. Built with Java, Guice, Tomcat, Maven.
 
 Depends on:
 
@@ -420,9 +412,7 @@ Connects to:
   * SQL Database
   * Filesystem
 
-## dubworker
-
-Ships finished audio data to any destination. Built with Java, Guice, Tomcat, Maven.
+**Dub** mixes and ships finished audio data to delivery. Built with Java, Guice, Tomcat, Maven.
 
 Depends on:
 
@@ -466,9 +456,7 @@ In music theory, a scale is any set of musical notes ordered by fundamental freq
 ## Port
 
   * hub: 8042
-  * craftworker: 8043
-  * dubworker: 8044
-  * eraseworker: 8086
+  * worker: 8043
 
 ## Healthcheck Endpoint
 

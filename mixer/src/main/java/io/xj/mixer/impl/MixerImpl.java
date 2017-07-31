@@ -29,7 +29,7 @@ import java.util.Map;
 import java.util.Objects;
 
 public class MixerImpl implements Mixer {
-  private final static Logger log = LoggerFactory.getLogger(MixerImpl.class);
+  private static final Logger log = LoggerFactory.getLogger(MixerImpl.class);
   private final static float microsInASecond = 1000000;
   private final static float nanosInASecond = 1000 * microsInASecond;
 

@@ -6,7 +6,7 @@ import io.xj.core.app.config.Config;
 import io.xj.core.app.exception.AccessException;
 import io.xj.core.app.exception.ConfigException;
 import io.xj.core.app.exception.DatabaseException;
-import io.xj.core.db.RedisDatabaseProvider;
+import io.xj.core.db.redis.RedisDatabaseProvider;
 import io.xj.core.tables.records.AccountUserRecord;
 import io.xj.core.tables.records.UserAuthRecord;
 import io.xj.core.tables.records.UserRoleRecord;
@@ -23,7 +23,7 @@ import java.util.Collection;
 import java.util.Map;
 
 public class AccessControlProviderImpl implements AccessControlProvider {
-  private final static Logger log = LoggerFactory.getLogger(AccessControlProviderImpl.class);
+  private static final Logger log = LoggerFactory.getLogger(AccessControlProviderImpl.class);
   private final RedisDatabaseProvider redisDatabaseProvider;
   private final TokenGenerator tokenGenerator;
 
@@ -54,7 +54,7 @@ public class AccessControlProviderImpl implements AccessControlProvider {
     Map<String, String> userMap = access.intoMap();
     try {
       redisDatabaseProvider.getClient().hmset(accessToken, userMap);
-    } catch (ConfigException e) {
+    } catch (Exception e) {
       log.error("Redis database connection is not get properly!", e);
       throw new AccessException("Redis database connection is not get properly: " + e);
     }
