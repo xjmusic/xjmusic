@@ -18,18 +18,18 @@ public interface HttpResponseProvider {
   Response internalRedirect(String path);
 
   /**
-   Respond with a set-cookie in addition to a temporary redirect.
+   Respond with a setContent-cookie in addition to a temporary redirect.
 
    @param path    of redirection target.
-   @param cookies to set before redirection.
+   @param cookies to setContent before redirection.
    @return response.
    */
   Response internalRedirectWithCookie(String path, NewCookie... cookies);
 
   /**
-   Respond with a set-cookie in addition to unauthorized
+   Respond with a setContent-cookie in addition to unauthorized
 
-   @param cookies to set before unauthorized.
+   @param cookies to setContent before unauthorized.
    @return response.
    */
   Response unauthorizedWithCookie(NewCookie... cookies);

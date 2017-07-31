@@ -475,7 +475,7 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
       .fetchOne();
 
     // If there's already a no-endAt-time-having Link
-    // at the end of this Chain, get outta here
+    // at the end of this Chain, getContent outta here
     if (Objects.nonNull(lastRecordWithNoEndAtTime))
       return null;
 
@@ -498,7 +498,7 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
       return pilotTemplate;
     }
 
-    // If the last link begins after our boundary, we're here early; get outta here.
+    // If the last link begins after our boundary, we're here early; getContent outta here.
     if (lastLinkInChain.getBeginAt().after(linkBeginBefore))
       return null;
 

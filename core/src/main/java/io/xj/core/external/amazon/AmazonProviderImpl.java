@@ -13,12 +13,11 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.amazonaws.services.s3.model.S3Object;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.SimpleTimeZone;
 
@@ -86,14 +85,14 @@ public class AmazonProviderImpl implements AmazonProvider {
   }
 
   @Override
-  public BufferedInputStream streamS3Object(String bucketName, String key) throws NetworkException {
+  public InputStream streamS3Object(String bucketName, String key) throws NetworkException {
     AmazonS3 client = s3Client();
     GetObjectRequest request = new GetObjectRequest(bucketName, key);
     int count = 0;
     int maxTries = Config.awsS3RetryLimit();
     while (true) {
       try {
-        return new BufferedInputStream(client.getObject(request).getObjectContent());
+        return client.getObject(request).getObjectContent();
 
       } catch (Exception e) {
         ++count;

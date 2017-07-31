@@ -297,7 +297,7 @@ public class VoiceCraftImpl implements VoiceCraft {
   }
 
   /**
-   get current rhythm phase
+   getContent current rhythm phase
    (cache result)
 
    @return current rhythm phase

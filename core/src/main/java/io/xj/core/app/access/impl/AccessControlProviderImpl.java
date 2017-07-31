@@ -55,8 +55,8 @@ public class AccessControlProviderImpl implements AccessControlProvider {
     try {
       redisDatabaseProvider.getClient().hmset(accessToken, userMap);
     } catch (ConfigException e) {
-      log.error("Redis database connection is not get properly!", e);
-      throw new AccessException("Redis database connection is not get properly: " + e);
+      log.error("Redis database connection is not getContent properly!", e);
+      throw new AccessException("Redis database connection is not getContent properly: " + e);
     }
     return userMap;
   }
@@ -101,7 +101,7 @@ public class AccessControlProviderImpl implements AccessControlProvider {
   /**
    Access cookieSetToken value setter
 
-   @param value to set
+   @param value to setContent
    @return name=value pair
    */
   private String cookieSetToken(String value) {

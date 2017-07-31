@@ -86,7 +86,7 @@ public interface ChainDAO {
   /**
    [INTERNAL USE ONLY]
    Build a JSON Object template for the next link in this Chain,
-   or set the Chain state to COMPLETE.
+   or setContent the Chain state to COMPLETE.
 
    @param linkBeginBefore         ahead to create Link before end of previous Link  @return array of chain Ids
    @param chainStopCompleteBefore behind to consider a chain complete

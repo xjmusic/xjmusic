@@ -81,7 +81,7 @@ After logging in via Google, there will be a user created for you. It will have 
 
     mysql -uroot -P 3300 xj
 
-There's a convenience script to easily connect to the MySQL database in the Docker container.
+Even better than ^^^, there's a convenience script to easily connect to the MySQL database in the Docker container.
 
     bin/mysql
 
@@ -100,11 +100,11 @@ Load the example database into `mysql01xj1` using the port forwarding from local
 
     bin/mysql-reset
 
-It's also necessary to have a local MySQL server running (separate from Docker `mysql01xj1`), which Maven uses during the build process. It will be necessary to have local root access with no password.
+It is NOT necessary to have any local MySQL server running. The build process will use your Docker `mysql01xj1`, or more specifically (for cross-platform compatibility) it will use port 3300 which Docker maps to `mysql01xj1` port 3306, for Maven to use during the build process.
 
-Connect to your local MySQL server with root access and no password:
+Connect to the Docker `mysql01xj1` server:
 
-    mysql -u root
+    bin/mysql
 
 You will need to create two databases in your local MySQL server, `xj` and `xj_test`:
 
@@ -212,12 +212,10 @@ Compile & Package the Java server-side application, e.g. as JAR files:
 
 ## MySQL database
 
-By default, you'll need to create two local MySQL databases:
+By default, you'll need to create two MySQL databases:
 
   * `xj` (for running services locally)
   * `xj_test` (for running integration tests locally)
-
-These databases must be accessible by user `root`@`localhost`.
 
 ## Integration testing
 
@@ -227,7 +225,7 @@ We use `maven-failsafe` to kick off integration tests. There's a helper script:
 
 Also, the integration test suite is run by default during a `bin/package` or `bin/release` and will block the build if integration tests fail.
 
-Integration testing requires a MySQL database `xj_test` locally, as well as a Redis server.
+Integration uses the Docker `mysql01xj1` and `redis01xj1` databases.
 
 ## Database migration
 

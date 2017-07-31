@@ -11,7 +11,7 @@ public class HealthcheckResourceTest extends ResourceEndpointTest {
 /*
   @Test
   public void GetHealthcheck() {
-    Response response = target().path("o2").request().get(Response.class);
+    Response response = target().path("o2").request().getContent(Response.class);
     assertTrue(500 == response.getStatus() || 200 == response.getStatus());
   }
 */

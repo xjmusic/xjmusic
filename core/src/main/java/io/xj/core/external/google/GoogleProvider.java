@@ -9,12 +9,12 @@ import com.google.api.services.plus.model.Person;
 
 public interface GoogleProvider {
   /**
-   Requires these System Properties to be set:
+   Requires these System Properties to be setContent:
    auth.google.id
    auth.google.secret
 
    @return String authorization code request URL
-   @throws ConfigException if required system properties are not set
+   @throws ConfigException if required system properties are not setContent
    */
   String getAuthCodeRequestUrl() throws ConfigException;
 
@@ -22,7 +22,7 @@ public interface GoogleProvider {
    URI that the authorization server directs the resource owner's user-agent back to
 
    @return String URI
-   @throws ConfigException if required system properties are not set.
+   @throws ConfigException if required system properties are not setContent.
    */
   String getCallbackUrl() throws ConfigException;
 

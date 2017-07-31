@@ -36,8 +36,8 @@ public interface ChoiceDAO {
    Read one choice, binding a given idea to a given link
 
    @param access control
-   @param linkId to get choice for
-   @param ideaId to get choice for
+   @param linkId to getContent choice for
+   @param ideaId to getContent choice for
    @return choice, or null if none exists
    @throws Exception on failure
    */
@@ -51,8 +51,8 @@ public interface ChoiceDAO {
 
    @return record of choice, and eitherOr phase offsets
     @param access     control
-   @param linkId link to get choice for
-   @param ideaType   type for choice to get
+   @param linkId link to getContent choice for
+   @param ideaType   type for choice to getContent
    */
   @Nullable
   Choice readOneLinkTypeWithAvailablePhaseOffsets(Access access, ULong linkId, IdeaType ideaType) throws Exception;

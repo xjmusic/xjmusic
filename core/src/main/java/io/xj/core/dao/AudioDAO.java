@@ -62,7 +62,7 @@ public interface AudioDAO {
    [INTERNAL USE ONLY]
 
    @param access       control
-   @param state to get audios in
+   @param state to getContent audios in
    @return Result of audio records.
    @throws Exception on failure
    */

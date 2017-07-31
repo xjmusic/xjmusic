@@ -297,13 +297,13 @@ public class Link extends Entity {
   }
 
   /**
-   get offset of previous link
+   getContent offset of previous link
 
    @return previous link offset
    */
   public ULong getPreviousOffset() throws BusinessException {
     if (Objects.equals(offset, ULong.valueOf(0)))
-      throw new BusinessException("Cannot get previous id of initial Link!");
+      throw new BusinessException("Cannot getContent previous id of initial Link!");
     return Value.inc(offset, -1);
   }
 

@@ -221,7 +221,7 @@ public class UserDAOImpl extends DAOImpl implements UserDAO {
   }
 
   /**
-   Create a new default set of UserRoleRecord for an existing new User id.
+   Create a new default setContent of UserRoleRecord for an existing new User id.
 
    @param db     context of authentication request
    @param userId of new User.

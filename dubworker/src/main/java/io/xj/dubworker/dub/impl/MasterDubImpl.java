@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedInputStream;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Objects;
 
@@ -76,7 +77,7 @@ public class MasterDubImpl implements MasterDub {
       try {
         setupSourceFromStream(audioId.toString(),
           basis.streamAudioWaveform(basis.linkAudio(audioId)));
-      } catch (Exception e){
+      } catch (Exception e) {
         warnings.add(e.getMessage() + " " + Text.formatStackTrace(e));
       }
   }
@@ -88,13 +89,13 @@ public class MasterDubImpl implements MasterDub {
    @param inputStream to setup source from
    @throws Exception on failure
    */
-  private void setupSourceFromStream(String sourceId, BufferedInputStream inputStream) throws Exception {
-    mixer().loadSource(sourceId, inputStream);
+  private void setupSourceFromStream(String sourceId, InputStream inputStream) throws Exception {
+    mixer().loadSource(sourceId, new BufferedInputStream(inputStream));
     inputStream.close();
   }
 
   /**
-   Implements Mixer module to set playback for Picks in current Link
+   Implements Mixer module to setContent playback for Picks in current Link
    */
   private void doMixerTargetSetting() throws Exception {
     for (Pick pick : basis.picks())
@@ -111,7 +112,7 @@ public class MasterDubImpl implements MasterDub {
    [#283] Pitch ratio should result in lower audio playback for lower note
    [#341] Dubworker takes into account the start offset of each audio, in order to ensure that it is mixed such that the hit is exactly on the meter
 
-   @param pick to set playback for
+   @param pick to setContent playback for
    */
   private void setupTarget(Pick pick) throws Exception {
     double pitchRatio = basis.linkAudio(pick.getAudioId()).getPitch() / pick.getPitch();
@@ -151,7 +152,7 @@ public class MasterDubImpl implements MasterDub {
   }
 
   /**
-   get output audio container from chain config
+   getContent output audio container from chain config
 
    @return output container
    @throws Exception on failure
@@ -182,9 +183,9 @@ public class MasterDubImpl implements MasterDub {
 
   /**
    [#226] Messages pertaining to a Link
-   * @param type of message
-   @param body of message
 
+   @param type of message
+   @param body of message
    */
   private void createLinkMessage(MessageType type, String body) {
     try {

@@ -51,17 +51,17 @@ public interface AccessControlProvider {
   Access get(String token) throws DatabaseException;
 
   /**
-   Create a new cookie to set access token.
+   Create a new cookie to setContent access token.
 
-   @param accessToken to set a cookie for.
-   @return new cookie to set access token.
+   @param accessToken to setContent a cookie for.
+   @return new cookie to setContent access token.
    */
   NewCookie newCookie(String accessToken);
 
   /**
-   Create a new cookie to set an expired access token.
+   Create a new cookie to setContent an expired access token.
 
-   @return new cookie to set expired access token.
+   @return new cookie to setContent expired access token.
    */
   NewCookie newExpiredCookie();
 }

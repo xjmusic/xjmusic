@@ -93,7 +93,7 @@ public class DAOImpl {
 
    @param name
    @param result to check.
-   @throws BusinessException if result set is not empty.
+   @throws BusinessException if result setContent is not empty.
    @throws Exception         if something goes wrong.
    */
   <R extends Record> void requireNotExists(String name, Result<R> result) throws Exception {

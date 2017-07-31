@@ -135,12 +135,20 @@ public interface Config {
     return getBoolOrDefault("log.access.entities.all", false);
   }
 
+  static String cacheFilePathPrefix() {
+    return getOrDefault("cache.file.path.prefix", getTempFilePathPrefix() + "cache" + File.separator);
+  }
+
+  static String cacheFilePathSuffix() {
+    return getOrDefault("cache.file.path.suffix", ".data");
+  }
+
   static String dbMysqlHost() {
     return getOrDefault("db.mysql.host", "localhost");
   }
 
   static String dbMysqlPort() {
-    return getOrDefault("db.mysql.port", "3306");
+    return getOrDefault("db.mysql.port", "3300");
   }
 
   static String dbMysqlUser() {
@@ -221,10 +229,10 @@ public interface Config {
   }
 
   /**
-   Set a System Property if no value has yet been set for it.
+   Set a System Property if no value has yet been setContent for it.
 
    @param k name of system property
-   @param v default value to set for property
+   @param v default value to setContent for property
    */
   static void setDefault(String k, String v) {
     if (System.getProperty(k) == null) {
@@ -274,7 +282,7 @@ public interface Config {
   static String get(String key) throws ConfigException {
     String value = System.getProperty(key);
     if (value == null) {
-      throw new ConfigException("Must set system property: " + key);
+      throw new ConfigException("Must setContent system property: " + key);
     }
     return value;
   }

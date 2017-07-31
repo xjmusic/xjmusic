@@ -5,9 +5,10 @@ import io.xj.core.app.exception.ConfigException;
 import io.xj.core.app.exception.NetworkException;
 
 import java.io.BufferedInputStream;
+import java.io.InputStream;
 
 /**
- Requires these System Properties to be set:
+ Requires these System Properties to be setContent:
  audio.url.upload
  aws.accessKeyId
  aws.secretKey
@@ -74,11 +75,11 @@ public interface AmazonProvider {
   /**
    Stream an object from S3
 
-   @param bucketName to stream from
-   @param key        of object to stream
    @return stream of object data
+    @param bucketName to stream from
+   @param key        of object to stream
    */
-  BufferedInputStream streamS3Object(String bucketName, String key) throws NetworkException;
+  InputStream streamS3Object(String bucketName, String key) throws NetworkException;
 
   /**
    Put an object to S3 (from a file)

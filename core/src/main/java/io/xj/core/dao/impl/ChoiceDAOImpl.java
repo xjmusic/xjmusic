@@ -178,8 +178,8 @@ public class ChoiceDAOImpl extends DAOImpl implements ChoiceDAO {
 
    @param db     context
    @param access control
-   @param linkId to get choice for
-   @param ideaId to get choice for
+   @param linkId to getContent choice for
+   @param ideaId to getContent choice for
    @return record
    */
   private ChoiceRecord readOneLinkIdea(DSLContext db, Access access, ULong linkId, ULong ideaId) throws BusinessException {

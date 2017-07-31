@@ -7,6 +7,7 @@ import io.xj.core.app.config.Exposure;
 import io.xj.core.app.exception.BusinessException;
 import io.xj.core.basis.Basis;
 import io.xj.core.basis.BasisType;
+import io.xj.core.cache.StreamCache;
 import io.xj.core.dao.ArrangementDAO;
 import io.xj.core.dao.AudioDAO;
 import io.xj.core.dao.AudioEventDAO;
@@ -66,7 +67,7 @@ import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 
 import javax.sound.sampled.AudioFormat;
-import java.io.BufferedInputStream;
+import java.io.InputStream;
 import java.sql.Timestamp;
 import java.time.Duration;
 import java.util.List;
@@ -107,16 +108,16 @@ public class BasisImpl implements Basis {
   private List<Pick> _picks;
   private Map<ChainConfigType, ChainConfig> _chainConfigs;
   private Map<ULong, Audio> _audiosFromPicks;
-  private Map<ULong, IdeaRecord> _ideas = Maps.newHashMap();
-  private Map<ULong, List<Audio>> _instrumentAudios = Maps.newHashMap();
-  private Map<ULong, List<AudioEvent>> _audioWithFirstEvent = Maps.newHashMap();
-  private Map<ULong, Map<IdeaType, Choice>> _linkChoicesByType = Maps.newHashMap();
-  private Map<ULong, Map<ULong, LinkRecord>> _linksByOffset = Maps.newHashMap();
-  private Map<ULong, Map<ULong, PhaseRecord>> _ideaPhasesByOffset = Maps.newHashMap();
-  private Map<ULong, Result<IdeaMemeRecord>> _ideaMemes = Maps.newHashMap();
-  private Map<ULong, Result<PhaseMemeRecord>> _phaseMemes = Maps.newHashMap();
-  private Map<ULong, Result<VoiceEventRecord>> _voiceEvents = Maps.newHashMap();
-  private Map<ULong, Result<VoiceRecord>> _voicesByPhase = Maps.newHashMap();
+  private final Map<ULong, IdeaRecord> _ideas = Maps.newHashMap();
+  private final Map<ULong, List<Audio>> _instrumentAudios = Maps.newHashMap();
+  private final Map<ULong, List<AudioEvent>> _audioWithFirstEvent = Maps.newHashMap();
+  private final Map<ULong, Map<IdeaType, Choice>> _linkChoicesByType = Maps.newHashMap();
+  private final Map<ULong, Map<ULong, LinkRecord>> _linksByOffset = Maps.newHashMap();
+  private final Map<ULong, Map<ULong, PhaseRecord>> _ideaPhasesByOffset = Maps.newHashMap();
+  private final Map<ULong, Result<IdeaMemeRecord>> _ideaMemes = Maps.newHashMap();
+  private final Map<ULong, Result<PhaseMemeRecord>> _phaseMemes = Maps.newHashMap();
+  private final Map<ULong, Result<VoiceEventRecord>> _voiceEvents = Maps.newHashMap();
+  private final Map<ULong, Result<VoiceRecord>> _voicesByPhase = Maps.newHashMap();
 
   @Inject
   public BasisImpl(
@@ -139,7 +140,7 @@ public class BasisImpl implements Basis {
     VoiceDAO voiceDAO,
     VoiceEventDAO voiceEventDAO
   /*-*/) throws BusinessException {
-    this._link = link;
+    _link = link;
     this.amazonProvider = amazonProvider;
     this.arrangementDAO = arrangementDAO;
     this.audioDAO = audioDAO;
@@ -160,7 +161,7 @@ public class BasisImpl implements Basis {
 
     // [#255] Tuning based on root note configured in environment parameters.
     try {
-      this.tuning = Tuning.at(
+      tuning = Tuning.at(
         Note.of(Config.tuningRootNote()),
         Config.tuningRootPitch());
     } catch (MusicalException e) {
@@ -169,10 +170,20 @@ public class BasisImpl implements Basis {
   }
 
   @Override
-  public BufferedInputStream streamAudioWaveform(Audio audio) throws Exception {
-    return amazonProvider.streamS3Object(
-      Config.audioFileBucket(),
-      audio.getWaveformKey());
+  public InputStream streamAudioWaveform(Audio audio) throws Exception {
+    String key = String.format("%s-%s", Config.audioFileBucket(), audio.getWaveformKey());
+
+    if (!StreamCache.containsKey(key)) {
+      InputStream newStream = amazonProvider.streamS3Object(
+        Config.audioFileBucket(),
+        audio.getWaveformKey());
+      StreamCache.setContent(key, newStream);
+      log.info(String.format("Loaded & cached new stream: %s", key));
+    }
+
+    // Return data from StreamCache
+    log.info(String.format("Using cached stream: %s", key));
+    return StreamCache.getContent(key);
   }
 
   @Override
@@ -545,7 +556,7 @@ public class BasisImpl implements Basis {
 
   @Override
   public void updateLink(Link link) throws Exception {
-    this._link = link;
+    _link = link;
     linkDAO.update(Access.internal(), link.getId(), link);
   }
 

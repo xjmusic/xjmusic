@@ -50,7 +50,7 @@ public class UserTest {
     // TODO: figure out how to add the custom "roles" column to the jOOQ record being passed in -- now failing with: java.lang.IllegalArgumentException: Field ("table"."column") is not contained in Row ("xj"."user"."id", "xj"."user"."name", "xj"."user"."email", "xj"."user"."avatar_url", "xj"."user"."created_at", "xj"."user"."updated_at")
 //    UserRecord record = new UserRecord();
 //    record.setId(ULong.valueOf(12));
-//    record.set(User.FIELD_ROLES, "user,artist");
+//    record.setContent(User.FIELD_ROLES, "user,artist");
 //    record.setEmail("charneykaye@gmail.com");
 //    record.setAvatarUrl("http://www.google.com/images/charneykaye.jpg");
 //    record.setName("Charney Kaye");
