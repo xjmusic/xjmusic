@@ -1,10 +1,6 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 package io.xj.core.model.link;
 
-import io.xj.core.app.exception.BusinessException;
-import io.xj.core.model.Entity;
-import io.xj.core.util.Value;
-
 import org.jooq.Field;
 import org.jooq.Record;
 import org.jooq.impl.DSL;
@@ -14,7 +10,9 @@ import org.jooq.types.ULong;
 import com.google.api.client.util.Maps;
 import com.google.common.collect.ImmutableList;
 
-import org.json.JSONObject;
+import io.xj.core.app.exception.BusinessException;
+import io.xj.core.model.Entity;
+import io.xj.core.util.Value;
 
 import java.math.BigInteger;
 import java.sql.Timestamp;
@@ -23,7 +21,6 @@ import java.util.Map;
 import java.util.Objects;
 
 import static io.xj.core.Tables.LINK;
-import static io.xj.core.app.config.Exposure.KEY_WAVEFORM_KEY;
 
 /**
  Entity for use as POJO for decoding messages received by JAX-RS resources
@@ -107,6 +104,11 @@ public class Link extends Entity {
 
   public Link setState(String value) {
     _state = value;
+    return this;
+  }
+
+  public Link setStateEnum(LinkState value) {
+    state = value;
     return this;
   }
 
@@ -202,16 +204,18 @@ public class Link extends Entity {
   @Override
   public void validate() throws BusinessException {
     // throws its own BusinessException on failure
-    state = LinkState.validate(_state);
+    if (Objects.isNull(this.state)) {
+      state = LinkState.validate(_state);
+    }
 
-    if (this.chainId == null) {
+    if (Objects.isNull(this.chainId)) {
       throw new BusinessException("Chain ID is required.");
     }
 
-    if (this.beginAt == null) {
+    if (Objects.isNull(this.beginAt)) {
       throw new BusinessException("Begin-at is required." + (beginAtError != null ? " " + beginAtError : ""));
     }
-    if (this.offset == null) {
+    if (Objects.isNull(this.offset)) {
       throw new BusinessException("Offset is required.");
     }
   }
@@ -234,49 +238,6 @@ public class Link extends Entity {
     waveformKey = record.get(LINK.WAVEFORM_KEY);
     createdAt = record.get(LINK.CREATED_AT);
     updatedAt = record.get(LINK.UPDATED_AT);
-    return this;
-  }
-
-  /**
-   Build a new Link model from a JSONObject representation
-
-   @param json object
-   @return Link model
-   */
-  public Link setFromJSON(JSONObject json) throws BusinessException {
-    if (json.has(KEY_ID))
-      id = ULong.valueOf(json.getBigInteger(KEY_ID));
-
-    if (json.has(KEY_CHAIN_ID))
-      chainId = ULong.valueOf(json.getBigInteger(KEY_CHAIN_ID));
-
-    if (json.has(KEY_STATE))
-      state = LinkState.validate(json.getString(KEY_STATE));
-
-    if (json.has(KEY_OFFSET))
-      offset = ULong.valueOf(json.getBigInteger(KEY_OFFSET));
-
-    if (json.has(KEY_BEGIN_AT))
-      beginAt = Timestamp.valueOf(json.get(KEY_BEGIN_AT).toString());
-
-    if (json.has(KEY_END_AT))
-      endAt = Timestamp.valueOf(json.get(KEY_END_AT).toString());
-
-    if (json.has(KEY_DENSITY))
-      density = json.getDouble(KEY_DENSITY);
-
-    if (json.has(KEY_TEMPO))
-      tempo = json.getDouble(KEY_TEMPO);
-
-    if (json.has(KEY_TOTAL))
-      total = UInteger.valueOf(json.getInt(KEY_TOTAL));
-
-    if (json.has(KEY_KEY))
-      key = json.getString(KEY_KEY);
-
-    if (json.has(KEY_WAVEFORM_KEY))
-      waveformKey = json.getString(KEY_WAVEFORM_KEY);
-
     return this;
   }
 

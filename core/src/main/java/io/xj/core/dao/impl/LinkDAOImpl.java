@@ -1,24 +1,6 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 package io.xj.core.dao.impl;
 
-import io.xj.core.app.access.impl.Access;
-import io.xj.core.app.config.Config;
-import io.xj.core.app.config.Exposure;
-import io.xj.core.app.exception.BusinessException;
-import io.xj.core.app.exception.CancelException;
-import io.xj.core.app.exception.ConfigException;
-import io.xj.core.app.exception.DatabaseException;
-import io.xj.core.dao.LinkDAO;
-import io.xj.core.db.sql.impl.SQLConnection;
-import io.xj.core.db.sql.SQLDatabaseProvider;
-import io.xj.core.external.amazon.AmazonProvider;
-import io.xj.core.model.chain.ChainState;
-import io.xj.core.model.link.Link;
-import io.xj.core.model.link.LinkState;
-import io.xj.core.tables.records.ChainRecord;
-import io.xj.core.tables.records.LinkRecord;
-import io.xj.core.transport.CSV;
-
 import org.jooq.DSLContext;
 import org.jooq.Field;
 import org.jooq.Result;
@@ -28,6 +10,22 @@ import org.jooq.types.ULong;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
+
+import io.xj.core.app.access.impl.Access;
+import io.xj.core.app.config.Config;
+import io.xj.core.app.config.Exposure;
+import io.xj.core.app.exception.BusinessException;
+import io.xj.core.app.exception.CancelException;
+import io.xj.core.app.exception.ConfigException;
+import io.xj.core.app.exception.DatabaseException;
+import io.xj.core.dao.LinkDAO;
+import io.xj.core.database.sql.SQLDatabaseProvider;
+import io.xj.core.database.sql.impl.SQLConnection;
+import io.xj.core.external.amazon.AmazonProvider;
+import io.xj.core.model.link.Link;
+import io.xj.core.model.link.LinkState;
+import io.xj.core.tables.records.LinkRecord;
+import io.xj.core.transport.CSV;
 
 import javax.annotation.Nullable;
 import java.math.BigInteger;
@@ -169,13 +167,13 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
 
 
   /**
-   Create a new record
-
-   @param db     context
-   @param access control
-   @param entity for new record
-   @return newly readMany record
-   @throws BusinessException if a Business Rule is violated
+   * Create a new record
+   *
+   * @param db     context
+   * @param access control
+   * @param entity for new record
+   * @return newly readMany record
+   * @throws BusinessException if a Business Rule is violated
    */
   private LinkRecord create(DSLContext db, Access access, Link entity) throws BusinessException {
     entity.validate();
@@ -195,10 +193,10 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
   }
 
   /**
-   General a Link URL
-
-   @param chainId to generate URL for
-   @return URL as string
+   * General a Link URL
+   *
+   * @param chainId to generate URL for
+   * @return URL as string
    */
   private String generateKey(ULong chainId) {
     return amazonProvider.generateKey(
@@ -208,12 +206,12 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
   }
 
   /**
-   Read one record
-
-   @param db     context
-   @param access control
-   @param id     of record
-   @return record
+   * Read one record
+   *
+   * @param db     context
+   * @param access control
+   * @param id     of record
+   * @return record
    */
   private LinkRecord readOne(DSLContext db, Access access, ULong id) {
     if (access.isTopLevel())
@@ -230,13 +228,13 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
   }
 
   /**
-   Read id for the Link in a Chain at a given offset, if present
-
-   @param db      context
-   @param access  control
-   @param chainId to fetch a link for
-   @param offset  to fetch link at
-   @return record
+   * Read id for the Link in a Chain at a given offset, if present
+   *
+   * @param db      context
+   * @param access  control
+   * @param chainId to fetch a link for
+   * @param offset  to fetch link at
+   * @return record
    */
   @Nullable
   private LinkRecord readOneAtChainOffset(DSLContext db, Access access, ULong chainId, ULong offset) throws BusinessException {
@@ -248,15 +246,15 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
   }
 
   /**
-   Fetch one Link by chainId and state, if present
-
-   @return Link if found
-   @throws BusinessException on failure
-    @param db              context
-   @param access          control
-   @param chainId         to find link in
-   @param linkState       linkState to find link in
-   @param linkBeginBefore ahead to look for links
+   * Fetch one Link by chainId and state, if present
+   *
+   * @param db              context
+   * @param access          control
+   * @param chainId         to find link in
+   * @param linkState       linkState to find link in
+   * @param linkBeginBefore ahead to look for links
+   * @return Link if found
+   * @throws BusinessException on failure
    */
   private LinkRecord readOneInState(DSLContext db, Access access, ULong chainId, LinkState linkState, Timestamp linkBeginBefore) throws BusinessException {
     requireTopLevel(access);
@@ -271,14 +269,14 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
   }
 
   /**
-   Read all records in parent by id
-   <p>
-   [#235] Chain Links can only be read N at a time, to avoid hanging the server or client
-
-   @param db      context
-   @param access  control
-   @param chainId of parent
-   @return array of records
+   * Read all records in parent by id
+   * <p>
+   * [#235] Chain Links can only be read N at a time, to avoid hanging the server or client
+   *
+   * @param db      context
+   * @param access  control
+   * @param chainId of parent
+   * @return array of records
    */
   private Result<LinkRecord> readAll(DSLContext db, Access access, ULong chainId) {
     if (access.isTopLevel())
@@ -300,14 +298,14 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
   }
 
   /**
-   Read all records in parent by id, beginning at a particular offset
-   <p>
-   [#235] Chain Links can only be read N at a time, to avoid hanging the server or client
-
-   @param db      context
-   @param access  control
-   @param chainId of parent
-   @return array of records
+   * Read all records in parent by id, beginning at a particular offset
+   * <p>
+   * [#235] Chain Links can only be read N at a time, to avoid hanging the server or client
+   *
+   * @param db      context
+   * @param access  control
+   * @param chainId of parent
+   * @return array of records
    */
   private Result<LinkRecord> readAllFromOffset(DSLContext db, Access access, ULong chainId, ULong fromOffset) {
     // so "from offset zero" means from offset 0 to offset N
@@ -336,20 +334,20 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
   }
 
   /**
-   Read all Links that are accessible, starting at a particular time in seconds UTC since epoch.
-   limit buffer ahead seconds readable at once in environment configuration
-   <p>
-   Supports [#278] Chain Player lives in navbar, and handles all playback (audio waveform, link waveform, continuous chain) so the user always has central control over listening.
-
-   @param db      context
-   @param access  control
-   @param chainId of parent
-   @return array of records
+   * Read all Links that are accessible, starting at a particular time in seconds UTC since epoch.
+   * limit buffer ahead seconds readable at once in environment configuration
+   * <p>
+   * Supports [#278] Chain Player lives in navbar, and handles all playback (audio waveform, link waveform, continuous chain) so the user always has central control over listening.
+   *
+   * @param db      context
+   * @param access  control
+   * @param chainId of parent
+   * @return array of records
    */
   private Result<LinkRecord> readAllFromSecondsUTC(DSLContext db, Access access, ULong chainId, ULong fromSecondsUTC) {
 
     // play buffer delay/ahead seconds
-    Instant from = new Date(fromSecondsUTC.longValue()*MILLISECONDS_PER_SECOND).toInstant();
+    Instant from = new Date(fromSecondsUTC.longValue() * MILLISECONDS_PER_SECOND).toInstant();
     Timestamp maxBeginAt = Timestamp.from(from.plusSeconds(Config.playBufferAheadSeconds()));
     Timestamp minEndAt = Timestamp.from(from.minusSeconds(Config.playBufferDelaySeconds()));
 
@@ -378,14 +376,14 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
   }
 
   /**
-   Update a record using a model wrapper
-
-   @param db     context
-   @param access control
-   @param id     of link to update
-   @param entity wrapper
-   @throws BusinessException on failure
-   @throws DatabaseException on failure
+   * Update a record using a model wrapper
+   *
+   * @param db     context
+   * @param access control
+   * @param id     of link to update
+   * @param entity wrapper
+   * @throws BusinessException on failure
+   * @throws DatabaseException on failure
    */
   private void update(DSLContext db, Access access, ULong id, Link entity) throws Exception {
     entity.validate();
@@ -397,13 +395,13 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
   }
 
   /**
-   Update the state of a record
-
-   @throws BusinessException if a Business Rule is violated
-    @param db     context
-   @param access control
-   @param id     of record
-   @param state to update to
+   * Update the state of a record
+   *
+   * @param db     context
+   * @param access control
+   * @param id     of record
+   * @param state  to update to
+   * @throws BusinessException if a Business Rule is violated
    */
   private void updateState(DSLContext db, Access access, ULong id, LinkState state) throws Exception {
     Map<Field, Object> fieldValues = ImmutableMap.of(
@@ -418,13 +416,13 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
   }
 
   /**
-   Update a record
-
-   @param db          context
-   @param access      control
-   @param id          of record
-   @param fieldValues to update with
-   @throws BusinessException if a Business Rule is violated
+   * Update a record
+   *
+   * @param db          context
+   * @param access      control
+   * @param id          of record
+   * @param fieldValues to update with
+   * @throws BusinessException if a Business Rule is violated
    */
   private void update(DSLContext db, Access access, ULong id, Map<Field, Object> fieldValues) throws BusinessException, CancelException {
     requireTopLevel(access);
@@ -489,15 +487,15 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
   }
 
   /**
-   Destroy a Link, its child entities, and S3 object
-   [#301] Link destruction (by Eraseworker) should not spike database CPU
-
-   @param db     context
-   @param access control
-   @param linkId to delete
-   @throws Exception         if database failure
-   @throws ConfigException   if not configured properly
-   @throws BusinessException if fails business rule
+   * Destroy a Link, its child entities, and S3 object
+   * [#301] Link destruction (by Eraseworker) should not spike database CPU
+   *
+   * @param db     context
+   * @param access control
+   * @param linkId to delete
+   * @throws Exception         if database failure
+   * @throws ConfigException   if not configured properly
+   * @throws BusinessException if fails business rule
    */
   private void destroy(DSLContext db, Access access, ULong linkId) throws Exception {
     requireTopLevel(access);
@@ -507,13 +505,6 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
       .where(LINK.ID.eq(linkId))
       .fetchOne();
     requireExists("Link", link);
-
-    // Chain must be in erase state
-    ChainRecord chain = db.selectFrom(CHAIN)
-      .where(CHAIN.ID.eq(link.getChainId()))
-      .and(CHAIN.STATE.eq(ChainState.Erase.toString()))
-      .fetchOne();
-    requireExists("Link in a Chain that is being erased", chain);
 
     // Only Delete link waveform from S3 if non-null
     String waveformKey = link.get(LINK.WAVEFORM_KEY);
@@ -571,13 +562,13 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
   }
 
   /**
-   Require state is in an array of states
-
-   @param toState       to check
-   @param allowedStates required to be in
-   @throws CancelException if not in required states
+   * Require state is in an array of states
+   *
+   * @param toState       to check
+   * @param allowedStates required to be in
+   * @throws CancelException if not in required states
    */
-  static void onlyAllowTransitions(LinkState toState, LinkState... allowedStates) throws CancelException {
+  private static void onlyAllowTransitions(LinkState toState, LinkState... allowedStates) throws CancelException {
     List<String> allowedStateNames = Lists.newArrayList();
     for (LinkState search : allowedStates) {
       allowedStateNames.add(search.toString());

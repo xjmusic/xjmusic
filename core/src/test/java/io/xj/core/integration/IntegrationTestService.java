@@ -4,8 +4,9 @@ package io.xj.core.integration;
 import io.xj.core.CoreModule;
 import io.xj.core.app.exception.ConfigException;
 import io.xj.core.app.exception.DatabaseException;
-import io.xj.core.db.sql.impl.SQLConnection;
-import io.xj.core.db.sql.SQLDatabaseProvider;
+import io.xj.core.database.redis.RedisDatabaseProvider;
+import io.xj.core.database.sql.impl.SQLConnection;
+import io.xj.core.database.sql.SQLDatabaseProvider;
 import io.xj.core.migration.MigrationService;
 
 import org.jooq.DSLContext;
@@ -14,11 +15,13 @@ import com.google.inject.Guice;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import redis.clients.jedis.Jedis;
 
 public enum IntegrationTestService {
   INSTANCE;
   private Logger log = LoggerFactory.getLogger(IntegrationTestService.class);
   private SQLConnection sqlConnection;
+  private Jedis redisConnection;
 
   IntegrationTestService() {
     log.info("Will prepare integration database.");
@@ -34,6 +37,12 @@ public enum IntegrationTestService {
       log.error("DatabaseException: " + e);
       System.exit(1);
     }
+
+    // One Redis connection remains open until main program exit
+    System.setProperty("work.queue.name", "xj_test");
+    RedisDatabaseProvider redisDatabaseProvider = Guice.createInjector(new CoreModule())
+      .getInstance(RedisDatabaseProvider.class);
+    redisConnection = redisDatabaseProvider.getClient();
 
     // Shut it down before program exit
     Runtime.getRuntime().addShutdownHook(new Thread(IntegrationTestService::shutdown));
@@ -60,15 +69,27 @@ public enum IntegrationTestService {
   }
 
   /**
+   * Flush entire Redis contents and database
+   */
+  public static void flushRedis() {
+    INSTANCE.redisConnection.flushAll();
+    INSTANCE.redisConnection.flushDB();
+    INSTANCE.log.info("Did flush entire Redis contents and database");
+  }
+
+  /**
    Runs on program exit
    */
   private static void shutdown() {
     try {
       INSTANCE.sqlConnection.success();
+      INSTANCE.redisConnection.close();
       INSTANCE.log.info("Did close master connection to integration database.");
     } catch (DatabaseException e) {
       e.printStackTrace();
     }
+
+    System.clearProperty("work.queue.name");
   }
 
 }

@@ -4,6 +4,7 @@ package io.xj.core.dao;
 import io.xj.core.app.access.impl.Access;
 import io.xj.core.model.chain.Chain;
 import io.xj.core.model.chain.ChainState;
+import io.xj.core.model.link.Link;
 import io.xj.core.tables.records.ChainRecord;
 
 import org.jooq.Result;
@@ -85,14 +86,13 @@ public interface ChainDAO {
 
   /**
    [INTERNAL USE ONLY]
-   Build a JSON Object template for the next link in this Chain,
+   Build a template for the next link in this Chain,
    or set the Chain state to COMPLETE.
 
    @param linkBeginBefore         ahead to create Link before end of previous Link  @return array of chain Ids
    @param chainStopCompleteBefore behind to consider a chain complete
    */
-  JSONObject
-  buildNextLinkOrComplete(Access access, ChainRecord chain, Timestamp linkBeginBefore, Timestamp chainStopCompleteBefore) throws Exception;
+  Link buildNextLinkOrComplete(Access access, ChainRecord chain, Timestamp linkBeginBefore, Timestamp chainStopCompleteBefore) throws Exception;
 
   /**
    Delete a specified Chain

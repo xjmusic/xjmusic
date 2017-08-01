@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+
+# Include common functions
+. $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/common/functions
+
+# Connect as root
+REDIS_PORT=6300
+
+# Find Redis CLI executable
+REDIS_COMMAND=redis-cli
+if [ -f /usr/bin/redis-cli ]; then
+    REDIS_COMMAND=/usr/bin/redis-cli
+elif [ -f /usr/local/redis/bin/redis-cli ]; then
+    REDIS_COMMAND=/usr/local/redis/bin/redis-cli
+fi
+
+# Host Arguments
+REDIS_ARGS="${@}"
+
+# Database
+REDIS_DB="xj"
+
+# connect to ${HOST}
+step "Redis CLI"
+${REDIS_COMMAND} -h 127.0.0.1 -p ${REDIS_PORT} ${REDIS_ARGS}
+step_ok
+
+#
+finished_ok

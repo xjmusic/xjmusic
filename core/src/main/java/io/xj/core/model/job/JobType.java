@@ -9,11 +9,10 @@ import com.google.common.collect.ImmutableList;
 import java.util.Objects;
 
 public enum JobType {
-  AudioDelete,
-  ChainDelete,
+  AudioErase,
+  ChainErase,
   ChainFabricate,
   LinkCraft,
-  LinkDelete,
   LinkDub;
 
   /**

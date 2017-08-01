@@ -21,6 +21,8 @@ public interface Config {
   int DEFAULT_PLAY_BUFFER_DELAY_SECONDS = 5;
   int DEFAULT_PLAY_BUFFER_AHEAD_SECONDS = 60;
   int DEFAULT_WORK_BUFFER_SECONDS = 300;
+  int DEFAULT_WORK_BUFFER_CRAFT_DELAY_SECONDS = 1;
+  int DEFAULT_WORK_BUFFER_DUB_DELAY_SECONDS = 30;
   int SECONDS_PER_MINUTE = 60;
   int MINUTES_PER_HOUR = 60;
   int HOURS_PER_DAY = 24;
@@ -175,7 +177,7 @@ public interface Config {
   }
 
   static Integer dbRedisPort() {
-    return getIntOrDefault("db.redis.port", 6379);
+    return getIntOrDefault("db.redis.port", 6300);
   }
 
   static String accessTokenDomain() {
@@ -216,31 +218,51 @@ public interface Config {
   }
 
   static int workConcurrency() {
-    return getIntOrDefault("work.concurrency", 1);
+    return getIntOrDefault("work.concurrency", 10);
   }
 
-  static int workBatchSize() {
-    return getIntOrDefault("work.batch.size", 1);
-  }
-
-  static long workBatchSleepSeconds() {
-    return getIntOrDefault("work.batch.sleep.seconds", 1);
-  }
-
-  static int workAheadSeconds() {
+  static int workBufferSeconds() {
     return getIntOrDefault("work.buffer.seconds", DEFAULT_WORK_BUFFER_SECONDS);
   }
 
+  static int workBufferCraftDelaySeconds() {
+    return getIntOrDefault("work.buffer.craft.delay.seconds", DEFAULT_WORK_BUFFER_CRAFT_DELAY_SECONDS);
+  }
+
+  static int workBufferDubDelaySeconds() {
+    return getIntOrDefault("work.buffer.dub.delay.seconds", DEFAULT_WORK_BUFFER_DUB_DELAY_SECONDS);
+  }
+
   static Integer workChainRecurSeconds() {
-    return getIntOrDefault("work.chain.recur.seconds",5);
+    return getIntOrDefault("work.chain.recur.seconds",2);
+  }
+
+  static Integer workChainDeleteRecurSeconds() {
+    return getIntOrDefault("work.chain.delete.recur.seconds",10);
   }
 
   static Integer workChainDelaySeconds() {
     return getIntOrDefault("work.chain.delay.seconds",1);
   }
 
-  static String workTempFilePath() {
-    return getOrDefault("work.temp.file.path", getTempFilePathPrefix());
+  static int workLinkCraftRetryLimit() {
+    return getIntOrDefault("work.link.craft.retry.limit",6);
+  }
+
+  static int workLinkCraftRetrySleepSeconds() {
+    return getIntOrDefault("work.link.craft.retry.sleep.seconds",1);
+  }
+
+  static int workLinkDubRetryLimit() {
+    return getIntOrDefault("work.link.dub.retry.limit",6);
+  }
+
+  static int workLinkDubRetrySleepSeconds() {
+    return getIntOrDefault("work.link.dub.retry.sleep.seconds",1);
+  }
+
+  static String workTempFilePathPrefix() {
+    return getOrDefault("work.temp.file.path.prefix", getTempFilePathPrefix());
   }
 
   static String workQueueName() {

@@ -7,24 +7,21 @@ import io.xj.core.app.config.Config;
 import io.xj.core.app.exception.ConfigException;
 import io.xj.core.app.server.HttpServerProvider;
 import io.xj.core.app.server.ResourceConfigProvider;
-import io.xj.core.work.Worker;
-import io.xj.core.work.Workload;
-import io.xj.core.work.impl.ChainGangWorkload;
-import io.xj.core.work.impl.SimpleWorkload;
-import io.xj.core.chain_gang.Follower;
-import io.xj.core.chain_gang.Leader;
+import io.xj.core.work.RobustWorkerPool;
+import io.xj.core.work.WorkManager;
 
-import com.google.api.client.util.Lists;
 import com.google.inject.Inject;
 
+import net.greghaines.jesque.worker.JobFactory;
+import net.greghaines.jesque.worker.WorkerEvent;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.Executors;
 
 public class AppImpl implements App {
   private static final Logger log = LoggerFactory.getLogger(AppImpl.class);
@@ -33,19 +30,23 @@ public class AppImpl implements App {
   private final AccessTokenAuthFilter accessTokenAuthFilter;
   private final AccessLogFilterProvider accessLogFilterProvider;
   private ResourceConfig resourceConfig;
-  private final List<Workload> workloads = Lists.newArrayList();
+  private JobFactory jobFactory;
+  private RobustWorkerPool workerPool;
+  private final WorkManager workManager;
 
   @Inject
   public AppImpl(
     HttpServerProvider httpServerProvider,
     ResourceConfigProvider resourceConfigProvider,
     AccessLogFilterProvider accessLogFilterProvider,
-    AccessTokenAuthFilter accessTokenAuthFilter
-  ) throws ConfigException {
+    AccessTokenAuthFilter accessTokenAuthFilter,
+    WorkManager workManager
+  ) {
     this.httpServerProvider = httpServerProvider;
     this.resourceConfigProvider = resourceConfigProvider;
     this.accessLogFilterProvider = accessLogFilterProvider;
     this.accessTokenAuthFilter = accessTokenAuthFilter;
+    this.workManager = workManager;
   }
 
   @Override
@@ -71,13 +72,13 @@ public class AppImpl implements App {
   }
 
   @Override
-  public void registerGangWorkload(String name, Leader leader, Follower follower) throws ConfigException {
-    workloads.add(new ChainGangWorkload(name, leader, follower));
+  public void setJobFactory(JobFactory jobFactory) {
+    this.jobFactory = jobFactory;
   }
 
   @Override
-  public void registerSimpleWorkload(String name, Worker worker) throws ConfigException {
-    workloads.add(new SimpleWorkload(name, worker));
+  public WorkManager getWorkManager() {
+    return workManager;
   }
 
   /**
@@ -86,34 +87,38 @@ public class AppImpl implements App {
    */
   @Override
   public void start() throws IOException, ConfigException {
-    if (resourceConfig == null) {
+    if (null == resourceConfig) {
       throw new ConfigException("Failed to app.start(); must configureServer() first!");
     }
 
-    // [#276] Chain work not safe for concurrent or batch use; link state transition errors should not cause chain failure
-    if (Config.workConcurrency() > 1 || Config.workBatchSize() > 1)
-      throw new ConfigException("Current XJ implementation is not safe for concurrent or batch use! See [#286] https://trello.com/c/KpoQOse1 true work management. After that implementation, concurrent and batch work should be safe.");
+    if (Objects.nonNull(jobFactory)) {
+      workerPool = new RobustWorkerPool(() -> workManager.getWorker(jobFactory),
+        Config.workConcurrency(), Executors.defaultThreadFactory());
+
+      // Handle errors from the worker pool
+      workerPool.getWorkerEventEmitter().addListener(
+        (event, worker, queue, errorJob, runner, result, t) -> {
+          log.error("Worker Pool: event: {}, worker: {}, queue: {}, errorJob: {}, runner: {}, result: {}, t: {}", event, worker, queue, errorJob, runner, result, t);
+        }, WorkerEvent.WORKER_ERROR
+      );
+
+      workerPool.run();
+    }
 
     URI serverURI = URI.create(baseURI());
     log.info("Server starting now at {}", serverURI);
     httpServerProvider.configure(serverURI, resourceConfig);
     httpServerProvider.get().start();
     log.info("Server up");
-
-    workloads.forEach((workload -> {
-      try {
-        workload.start();
-      } catch (ConfigException e) {
-        log.error("Starting workload {}", workload, e);
-      }
-    }));
   }
 
   @Override
   public void stop() {
     log.info("Server will shutdown now");
 
-    workloads.forEach((Workload::stop));
+    if (Objects.nonNull(workerPool)) {
+      workerPool.end(false);
+    }
 
     if (Objects.nonNull(httpServerProvider.get()))
       httpServerProvider.get().shutdownNow();

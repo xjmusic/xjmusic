@@ -5,8 +5,8 @@ import io.xj.core.app.access.impl.Access;
 import io.xj.core.app.exception.BusinessException;
 import io.xj.core.app.exception.ConfigException;
 import io.xj.core.dao.AccountUserDAO;
-import io.xj.core.db.sql.impl.SQLConnection;
-import io.xj.core.db.sql.SQLDatabaseProvider;
+import io.xj.core.database.sql.impl.SQLConnection;
+import io.xj.core.database.sql.SQLDatabaseProvider;
 import io.xj.core.model.account_user.AccountUser;
 import io.xj.core.tables.records.AccountUserRecord;
 

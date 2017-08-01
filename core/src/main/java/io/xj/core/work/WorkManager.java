@@ -3,6 +3,9 @@ package io.xj.core.work;
 
 import org.jooq.types.ULong;
 
+import net.greghaines.jesque.worker.JobFactory;
+import net.greghaines.jesque.worker.Worker;
+
 /**
 
  [#286] True Chain-Link work management
@@ -91,14 +94,6 @@ public interface WorkManager {
   void stopChainDeletion(ULong chainId);
 
   /**
-   Schedule the deletion of a Link,
-   by creating a `LinkDeletionJob`.
-
-   @param linkId for which to create Deletion job
-   */
-  void doLinkDeletion(ULong linkId);
-
-  /**
    Schedule the deletion of a Audio,
    by creating a `AudioDeletionJob`.
 
@@ -106,4 +101,10 @@ public interface WorkManager {
    */
   void doAudioDeletion(ULong audioId);
 
+  /**
+   Get a Worker
+   @param jobFactory to get job from
+   @return worker
+   */
+  Worker getWorker(JobFactory jobFactory);
 }

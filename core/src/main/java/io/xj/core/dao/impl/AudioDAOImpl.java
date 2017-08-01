@@ -7,8 +7,8 @@ import io.xj.core.app.config.Exposure;
 import io.xj.core.app.exception.BusinessException;
 import io.xj.core.app.exception.ConfigException;
 import io.xj.core.dao.AudioDAO;
-import io.xj.core.db.sql.impl.SQLConnection;
-import io.xj.core.db.sql.SQLDatabaseProvider;
+import io.xj.core.database.sql.impl.SQLConnection;
+import io.xj.core.database.sql.SQLDatabaseProvider;
 import io.xj.core.external.amazon.AmazonProvider;
 import io.xj.core.external.amazon.S3UploadPolicy;
 import io.xj.core.model.audio.Audio;
@@ -24,6 +24,7 @@ import org.jooq.types.ULong;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 
+import io.xj.core.work.WorkManager;
 import org.json.JSONObject;
 
 import javax.annotation.Nullable;
@@ -40,13 +41,16 @@ import static io.xj.core.tables.Library.LIBRARY;
 
 public class AudioDAOImpl extends DAOImpl implements AudioDAO {
   private final AmazonProvider amazonProvider;
+  private WorkManager workManager;
 
   @Inject
   public AudioDAOImpl(
     SQLDatabaseProvider dbProvider,
-    AmazonProvider amazonProvider
+    AmazonProvider amazonProvider,
+    WorkManager workManager
   ) {
     this.amazonProvider = amazonProvider;
+    this.workManager = workManager;
     this.dbProvider = dbProvider;
   }
 
@@ -147,13 +151,13 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
   }
 
   /**
-   Create a new Audio
-
-   @param db     context
-   @param access control
-   @param entity for new audio
-   @return newly readMany record
-   @throws BusinessException if failure
+   * Create a new Audio
+   *
+   * @param db     context
+   * @param access control
+   * @param entity for new audio
+   * @return newly readMany record
+   * @throws BusinessException if failure
    */
   private AudioRecord create(DSLContext db, Access access, Audio entity) throws BusinessException {
     entity.validate();
@@ -177,10 +181,10 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
   }
 
   /**
-   General an Audio URL
-
-   @param instrumentId to generate URL for
-   @return URL as string
+   * General an Audio URL
+   *
+   * @param instrumentId to generate URL for
+   * @return URL as string
    */
   private String generateKey(ULong instrumentId) {
     return amazonProvider.generateKey(
@@ -190,12 +194,12 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
   }
 
   /**
-   Read one Audio if able
-
-   @param db     context
-   @param access control
-   @param id     of audio
-   @return audio
+   * Read one Audio if able
+   *
+   * @param db     context
+   * @param access control
+   * @param id     of audio
+   * @return audio
    */
   private AudioRecord readOne(DSLContext db, Access access, ULong id) {
     if (access.isTopLevel())
@@ -213,14 +217,14 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
   }
 
   /**
-   Read all Audio able for an Instrument
-   [#326] Instruments Audios returned in order of name
-
-   @param db           context
-   @param access       control
-   @param instrumentId to readMany all audio of
-   @return Result of audio records.
-   @throws Exception on failure
+   * Read all Audio able for an Instrument
+   * [#326] Instruments Audios returned in order of name
+   *
+   * @param db           context
+   * @param access       control
+   * @param instrumentId to readMany all audio of
+   * @return Result of audio records.
+   * @throws Exception on failure
    */
   private Result<AudioRecord> readAll(DSLContext db, Access access, ULong instrumentId) throws Exception {
     if (access.isTopLevel())
@@ -243,14 +247,14 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
   }
 
   /**
-   Read all Audio in a certain state
-
-   @param db     context
-   @param access control
-   @param state  to read audios in
-   @param limit  kmax records
-   @return Result of audio records.
-   @throws Exception on failure
+   * Read all Audio in a certain state
+   *
+   * @param db     context
+   * @param access control
+   * @param state  to read audios in
+   * @param limit  kmax records
+   * @return Result of audio records.
+   * @throws Exception on failure
    */
   private Result<AudioRecord> readAllInState(DSLContext db, Access access, AudioState state, Integer limit) throws Exception {
     requireTopLevel(access);
@@ -262,13 +266,13 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
   }
 
   /**
-   Read all Audio able picked for a Link
-
-   @param db     context
-   @param access control
-   @param linkId to get audio picked for
-   @return Result of audio records.
-   @throws Exception on failure
+   * Read all Audio able picked for a Link
+   *
+   * @param db     context
+   * @param access control
+   * @param linkId to get audio picked for
+   * @return Result of audio records.
+   * @throws Exception on failure
    */
   private Result<AudioRecord> readAllPickedForLink(DSLContext db, Access access, ULong linkId) throws Exception {
     requireTopLevel(access);
@@ -282,16 +286,16 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
   }
 
   /**
-   Update an Audio record
-   <p>
-   TODO: ensure that the user access has access to this Audio by id
-   TODO: ensure ALL RECORDS HAVE ACCESS CONTROL that asserts the record primary id against the user access-- build a system for it and implement it over all DAO methods
-
-   @param db     context
-   @param access control
-   @param id     to update
-   @param entity to update with
-   @throws BusinessException if failure
+   * Update an Audio record
+   * <p>
+   * TODO: ensure that the user access has access to this Audio by id
+   * TODO: ensure ALL RECORDS HAVE ACCESS CONTROL that asserts the record primary id against the user access-- build a system for it and implement it over all DAO methods
+   *
+   * @param db     context
+   * @param access control
+   * @param id     to update
+   * @param entity to update with
+   * @throws BusinessException if failure
    */
   private void update(DSLContext db, Access access, ULong id, Audio entity) throws Exception {
     entity.validate();
@@ -315,12 +319,12 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
   }
 
   /**
-   Update an Audio record
-
-   @param db     context
-   @param access control
-   @param id     to update
-   @throws BusinessException if failure
+   * Update an Audio record
+   *
+   * @param db     context
+   * @param access control
+   * @param id     to update
+   * @throws BusinessException if failure
    */
   private JSONObject uploadOne(DSLContext db, Access access, ULong id) throws Exception {
     Record audioRecord;
@@ -354,13 +358,13 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
   }
 
   /**
-   Destroy an Audio
-
-   @param db      context
-   @param audioId to destroy
-   @throws Exception         if database failure
-   @throws ConfigException   if not configured properly
-   @throws BusinessException if fails business rule
+   * Destroy an Audio
+   *
+   * @param db      context
+   * @param audioId to destroy
+   * @throws Exception         if database failure
+   * @throws ConfigException   if not configured properly
+   * @throws BusinessException if fails business rule
    */
   private void destroy(Access access, DSLContext db, ULong audioId) throws Exception {
     requireTopLevel(access);
@@ -390,13 +394,13 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
   }
 
   /**
-   Update an audio to Erase state
-
-   @param db context
-   @param id to delete
-   @throws Exception         if database failure
-   @throws ConfigException   if not configured properly
-   @throws BusinessException if fails business rule
+   * Update an audio to Erase state
+   *
+   * @param db context
+   * @param id to delete
+   * @throws Exception         if database failure
+   * @throws ConfigException   if not configured properly
+   * @throws BusinessException if fails business rule
    */
   private void erase(Access access, DSLContext db, ULong id) throws Exception {
     if (!access.isTopLevel())
@@ -418,6 +422,9 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
 
     if (executeUpdate(db, AUDIO, fieldValues) == 0)
       throw new BusinessException("No records updated.");
+
+    // Schedule audio deletion job
+    workManager.doAudioDeletion(id);
   }
 
 }

@@ -1,19 +1,23 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 package io.xj.core.work.impl;
 
-import io.xj.core.app.config.Config;
-import io.xj.core.db.redis.RedisDatabaseProvider;
-import io.xj.core.model.job.JobType;
-import io.xj.core.work.WorkManager;
-
 import org.jooq.types.ULong;
 
 import com.google.inject.Inject;
 
+import io.xj.core.app.config.Config;
+import io.xj.core.database.redis.RedisDatabaseProvider;
+import io.xj.core.model.job.JobType;
+import io.xj.core.work.WorkManager;
 import net.greghaines.jesque.Job;
 import net.greghaines.jesque.client.Client;
+import net.greghaines.jesque.worker.JobFactory;
+import net.greghaines.jesque.worker.Worker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class WorkManagerImpl implements WorkManager {
+  private static Logger log = LoggerFactory.getLogger(WorkManagerImpl.class);
   private static final Integer MILLISECONDS_PER_SECOND = 1000;
   private final RedisDatabaseProvider redisDatabaseProvider;
 
@@ -46,119 +50,123 @@ public class WorkManagerImpl implements WorkManager {
 
   @Override
   public void startChainDeletion(ULong chainId) {
-    startRecurringJob(JobType.ChainDelete, chainId, Config.workChainDelaySeconds(), Config.workChainRecurSeconds());
+    startRecurringJob(JobType.ChainErase, chainId, Config.workChainDelaySeconds(), Config.workChainDeleteRecurSeconds());
   }
 
   @Override
   public void stopChainDeletion(ULong chainId) {
-    removeRecurring(new Job(JobType.ChainDelete.toString(), chainId));
-  }
-
-  @Override
-  public void doLinkDeletion(ULong linkId) {
-    doJob(JobType.LinkDelete, linkId);
+    removeRecurringWork(new Job(JobType.ChainErase.toString(), chainId));
   }
 
   @Override
   public void doAudioDeletion(ULong audioId) {
-    doJob(JobType.AudioDelete, audioId);
+    doJob(JobType.AudioErase, audioId);
+  }
+
+  @Override
+  public Worker getWorker(JobFactory jobFactory) {
+    return redisDatabaseProvider.getQueueWorker(jobFactory);
   }
 
 
   /**
-   Start a recurring Job
-
-   @param jobType      type of job
-   @param id           of entity
-   @param delaySeconds to wait # seconds
-   @param recurSeconds to repeat every # seconds
+   * Start a recurring Job
+   *
+   * @param jobType      type of job
+   * @param id           of entity
+   * @param delaySeconds to wait # seconds
+   * @param recurSeconds to repeat every # seconds
    */
   private void startRecurringJob(JobType jobType, ULong id, Integer delaySeconds, Integer recurSeconds) {
-    enqueueRecurring(new Job(jobType.toString(), id), delaySeconds, recurSeconds);
+    log.info("Start recurring job:{}, entityId:{}, delaySeconds:{}, recurSeconds:{}", jobType.toString(), id, delaySeconds, recurSeconds);
+    enqueueRecurringWork(new Job(jobType.toString(), id), delaySeconds, recurSeconds);
   }
 
   /**
-   Stop a recurring Job
-
-   @param jobType type of job
-   @param id      of entity
+   * Stop a recurring Job
+   *
+   * @param jobType type of job
+   * @param id      of entity
    */
   private void removeRecurringJob(JobType jobType, ULong id) {
-    removeRecurring(new Job(jobType.toString(), id));
+    log.info("Remove recurring job:{}, entityId:{}", jobType.toString(), id);
+    removeRecurringWork(new Job(jobType.toString(), id));
   }
 
   /**
-   Schedule a Job
-
-   @param jobType      type of job
-   @param id           of entity
-   @param delaySeconds to wait # seconds
+   * Schedule a Job
+   *
+   * @param jobType      type of job
+   * @param id           of entity
+   * @param delaySeconds to wait # seconds
    */
   private void scheduleJob(JobType jobType, ULong id, Integer delaySeconds) {
-    enqueueDelayed(new Job(jobType.toString(), id), delaySeconds);
+    log.info("Schedule job:{}, entityId:{}, delaySeconds:{}", jobType.toString(), id, delaySeconds);
+    enqueueDelayedWork(new Job(jobType.toString(), id), delaySeconds);
   }
 
   /**
-   Do a Job
-
-   @param jobType type of job
-   @param id      of entity
+   * Do a Job
+   *
+   * @param jobType type of job
+   * @param id      of entity
    */
   private void doJob(JobType jobType, ULong id) {
-    enqueue(new Job(jobType.toString(), id));
+    log.info("Do job:{}, entityId:{}", jobType.toString(), id);
+    enqueueWork(new Job(jobType.toString(), id));
   }
 
   /**
-   Enqueue work
-
-   @param job to enqueue
+   * Enqueue work
+   *
+   * @param job to enqueue
    */
-  private void enqueue(Job job) {
+  private void enqueueWork(Job job) {
     Client client = getQueueClient();
     client.enqueue(Config.workQueueName(), job);
     client.end();
   }
 
   /**
-   Delayed-Enqueue work
-
-   @param job          to enqueue
-   @param delaySeconds timestamp when the job will run
+   * Delayed-Enqueue work
+   *
+   * @param job          to enqueue
+   * @param delaySeconds timestamp when the job will run
    */
-  private void enqueueDelayed(Job job, long delaySeconds) {
+  private void enqueueDelayedWork(Job job, long delaySeconds) {
     Client client = getQueueClient();
     client.delayedEnqueue(Config.workQueueName(), job, System.currentTimeMillis() + delaySeconds * MILLISECONDS_PER_SECOND);
     client.end();
   }
 
   /**
-   Recurring-Enqueue work
-
-   @param job          to enqueue
-   @param delaySeconds timestamp when the job will run
-   @param recurSeconds in millis how often the job will run
+   * Recurring-Enqueue work
+   *
+   * @param job          to enqueue
+   * @param delaySeconds timestamp when the job will run
+   * @param recurSeconds in millis how often the job will run
    */
-  private void enqueueRecurring(Job job, long delaySeconds, long recurSeconds) {
+  private void enqueueRecurringWork(Job job, long delaySeconds, long recurSeconds) {
     Client client = getQueueClient();
     client.recurringEnqueue(Config.workQueueName(), job, System.currentTimeMillis() + delaySeconds * MILLISECONDS_PER_SECOND, recurSeconds * MILLISECONDS_PER_SECOND);
     client.end();
   }
 
   /**
-   Remove Recurring-queued work
-
-   @param job to remove from queue
+   * Remove Recurring-queued work
+   *
+   * @param job to remove from queue
    */
-  private void removeRecurring(Job job) {
+  private void removeRecurringWork(Job job) {
     Client client = getQueueClient();
     client.removeRecurringEnqueue(Config.workQueueName(), job);
     client.end();
   }
 
   /**
-   Open and keep-alive a connection to the Redis server
-
-   @return Jesque client
+   * Open and keep-alive a connection to the Redis server
+   *
+   * @return Jesque client
    */
   private Client getQueueClient() {
     return redisDatabaseProvider.getQueueClient();

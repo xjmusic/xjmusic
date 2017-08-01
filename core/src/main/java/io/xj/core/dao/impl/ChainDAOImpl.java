@@ -1,26 +1,6 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 package io.xj.core.dao.impl;
 
-import io.xj.core.app.access.impl.Access;
-import io.xj.core.app.config.Config;
-import io.xj.core.app.exception.BusinessException;
-import io.xj.core.app.exception.CancelException;
-import io.xj.core.app.exception.ConfigException;
-import io.xj.core.app.exception.DatabaseException;
-import io.xj.core.dao.ChainDAO;
-import io.xj.core.db.sql.impl.SQLConnection;
-import io.xj.core.db.sql.SQLDatabaseProvider;
-import io.xj.core.model.chain.Chain;
-import io.xj.core.model.chain.ChainState;
-import io.xj.core.model.chain.ChainType;
-import io.xj.core.model.link.Link;
-import io.xj.core.model.link.LinkState;
-import io.xj.core.model.role.Role;
-import io.xj.core.tables.records.ChainRecord;
-import io.xj.core.tables.records.LinkRecord;
-import io.xj.core.transport.CSV;
-import io.xj.core.work.WorkManager;
-
 import org.jooq.DSLContext;
 import org.jooq.Field;
 import org.jooq.Record;
@@ -32,7 +12,27 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 
-import org.json.JSONObject;
+import io.xj.core.app.access.impl.Access;
+import io.xj.core.app.config.Config;
+import io.xj.core.app.exception.BusinessException;
+import io.xj.core.app.exception.CancelException;
+import io.xj.core.app.exception.ConfigException;
+import io.xj.core.app.exception.DatabaseException;
+import io.xj.core.dao.ChainDAO;
+import io.xj.core.database.sql.SQLDatabaseProvider;
+import io.xj.core.database.sql.impl.SQLConnection;
+import io.xj.core.model.chain.Chain;
+import io.xj.core.model.chain.ChainState;
+import io.xj.core.model.chain.ChainType;
+import io.xj.core.model.link.Link;
+import io.xj.core.model.link.LinkState;
+import io.xj.core.model.role.Role;
+import io.xj.core.tables.records.ChainRecord;
+import io.xj.core.tables.records.LinkRecord;
+import io.xj.core.transport.CSV;
+import io.xj.core.work.WorkManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.math.BigInteger;
@@ -62,6 +62,7 @@ import static io.xj.core.Tables.LINK;
  of the logic around adding links to chains and updating chain state to complete.
  */
 public class ChainDAOImpl extends DAOImpl implements ChainDAO {
+  private static final Logger log = LoggerFactory.getLogger(ChainDAOImpl.class);
   private final int previewLengthMax;
   private final WorkManager workManager;
 
@@ -151,7 +152,7 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
   }
 
   @Override
-  public JSONObject buildNextLinkOrComplete(Access access, ChainRecord chain, Timestamp linkBeginBefore, Timestamp chainStopCompleteBefore) throws Exception {
+  public Link buildNextLinkOrComplete(Access access, ChainRecord chain, Timestamp linkBeginBefore, Timestamp chainStopCompleteBefore) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(buildNextLinkOrComplete(tx.getContext(), access, chain, linkBeginBefore, chainStopCompleteBefore));
@@ -371,6 +372,7 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
     // fetch existing chain; further logic is based on its current type and state
     ChainRecord chain = db.selectFrom(CHAIN).where(CHAIN.ID.eq(id)).fetchOne();
     requireExists("Chain #" + id, chain);
+    ChainState fromState = ChainState.validate(chain.getState());
 
     // If not top level access, validate access to account
     if (!access.isTopLevel())
@@ -393,7 +395,7 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
     }
 
     // logic based on existing Chain State
-    switch (ChainState.validate(chain.getState())) {
+    switch (fromState) {
 
       case Draft:
         onlyAllowTransitions(toState, ChainState.Draft, ChainState.Ready, ChainState.Erase);
@@ -456,8 +458,8 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
     if (0 == rowsAffected)
       throw new BusinessException("No records updated.");
 
-    // [#286] work management logic is based on the new Chain State
-    switch (toState) {
+    // If state is changing, then trigger work logic based on the new Chain State
+    if (!Objects.equals(fromState,toState)) switch (toState) {
       case Draft:
       case Ready:
         // no op
@@ -468,9 +470,14 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
         break;
 
       case Complete:
-      case Failed:
-      case Erase:
         workManager.stopChainFabrication(id);
+        break;
+
+      case Failed:
+        workManager.stopChainFabrication(id);
+        break;
+
+      case Erase:
         workManager.startChainDeletion(id);
         break;
     }
@@ -483,10 +490,10 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
    @param chain                   to readMany pilot template link for
    @param linkBeginBefore         time upper threshold
    @param chainStopCompleteBefore time upper threshold
-   @return array of records
+   @return Link template
    */
   @Nullable
-  private JSONObject buildNextLinkOrComplete(DSLContext db, Access access, ChainRecord chain, Timestamp linkBeginBefore, Timestamp chainStopCompleteBefore) throws Exception {
+  private Link buildNextLinkOrComplete(DSLContext db, Access access, ChainRecord chain, Timestamp linkBeginBefore, Timestamp chainStopCompleteBefore) throws Exception {
     requireTopLevel(access);
 
     Record lastRecordWithNoEndAtTime = db.select(LINK.CHAIN_ID)
@@ -513,18 +520,20 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
       .limit(1)
       .fetchOne();
 
-    // If the chain had no last link, it must be empty; return its first link
+    // If the chain had no last link, it must be empty; return a template for its first link
     if (Objects.isNull(lastLinkInChain)) {
-      JSONObject pilotTemplate = new JSONObject();
-      pilotTemplate.put(Link.KEY_CHAIN_ID, chain.getId());
-      pilotTemplate.put(Link.KEY_BEGIN_AT, chain.getStartAt());
-      pilotTemplate.put(Link.KEY_OFFSET, 0);
+      Link pilotTemplate = new Link();
+      pilotTemplate.setChainId(chain.getId().toBigInteger());
+      pilotTemplate.setBeginAtTimestamp(chain.getStartAt());
+      pilotTemplate.setOffset(BigInteger.ZERO);
+      pilotTemplate.setState(LinkState.Planned.toString());
       return pilotTemplate;
     }
 
     // If the last link begins after our boundary, we're here early; get outta here.
-    if (lastLinkInChain.getBeginAt().after(linkBeginBefore))
+    if (lastLinkInChain.getBeginAt().after(linkBeginBefore)) {
       return null;
+    }
 
     /*
      [#204] Craftworker updates Chain to COMPLETE state when the final link is in dubbed state.
@@ -542,11 +551,12 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
     }
 
     // Build the template of the link that follows the last known one
-    JSONObject pilotTemplate = new JSONObject();
+    Link pilotTemplate = new Link();
     ULong pilotOffset = ULong.valueOf(lastLinkInChain.getOffset().toBigInteger().add(BigInteger.valueOf(1)));
-    pilotTemplate.put(Link.KEY_CHAIN_ID, chain.getId());
-    pilotTemplate.put(Link.KEY_BEGIN_AT, lastLinkInChain.getEndAt());
-    pilotTemplate.put(Link.KEY_OFFSET, pilotOffset);
+    pilotTemplate.setChainId(chain.getId().toBigInteger());
+    pilotTemplate.setBeginAtTimestamp(lastLinkInChain.getEndAt());
+    pilotTemplate.setOffset(pilotOffset.toBigInteger());
+    pilotTemplate.setState(LinkState.Planned.toString());
     return pilotTemplate;
   }
 
@@ -609,7 +619,7 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
    @param allowedStates required to be in
    @throws CancelException if not in required states
    */
-  static void onlyAllowTransitions(ChainState toState, ChainState... allowedStates) throws CancelException {
+  private static void onlyAllowTransitions(ChainState toState, ChainState... allowedStates) throws CancelException {
     List<String> allowedStateNames = Lists.newArrayList();
     for (ChainState search : allowedStates) {
       allowedStateNames.add(search.toString());

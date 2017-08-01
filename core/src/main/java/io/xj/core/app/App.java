@@ -2,9 +2,8 @@
 package io.xj.core.app;
 
 import io.xj.core.app.exception.ConfigException;
-import io.xj.core.work.Worker;
-import io.xj.core.chain_gang.Follower;
-import io.xj.core.chain_gang.Leader;
+import io.xj.core.work.WorkManager;
+import net.greghaines.jesque.worker.JobFactory;
 
 import java.io.IOException;
 
@@ -15,16 +14,6 @@ public interface App {
    @param packages containing JAX-RS resources and providers
    */
   void configureServer(String... packages);
-
-  /**
-   configure a gang workload (with a leader and many workers)
-   */
-  void registerGangWorkload(String name, Leader leader, Follower follower) throws ConfigException;
-
-  /**
-   configure a simple workload (with just a worker)
-   */
-  void registerSimpleWorkload(String name, Worker worker) throws ConfigException;
 
   /**
    start App Server
@@ -42,4 +31,17 @@ public interface App {
    @return String
    */
   String baseURI();
+
+  /**
+   Set job factory for resque client
+
+   @param jobFactory for app
+   */
+  void setJobFactory(JobFactory jobFactory);
+
+  /**
+   Get the current work manager
+   @return work manager
+   */
+  WorkManager getWorkManager();
 }

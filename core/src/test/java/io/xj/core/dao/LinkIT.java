@@ -531,13 +531,10 @@ public class LinkIT {
   }
 
   @Test
-  public void destroy_failsIfNotInEraseState() throws Exception {
+  public void destroy_okRegardlessOfChainState() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
-
-    failure.expect(BusinessException.class);
-    failure.expectMessage("Link in a Chain that is being erased does not exist");
 
     testDAO.destroy(access, ULong.valueOf(1));
   }

@@ -6,8 +6,8 @@ import io.xj.core.app.exception.BusinessException;
 import io.xj.core.app.exception.ConfigException;
 import io.xj.core.app.exception.DatabaseException;
 import io.xj.core.dao.ArrangementDAO;
-import io.xj.core.db.sql.impl.SQLConnection;
-import io.xj.core.db.sql.SQLDatabaseProvider;
+import io.xj.core.database.sql.impl.SQLConnection;
+import io.xj.core.database.sql.SQLDatabaseProvider;
 import io.xj.core.model.arrangement.Arrangement;
 import io.xj.core.tables.records.ArrangementRecord;
 

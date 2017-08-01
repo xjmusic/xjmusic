@@ -5,7 +5,7 @@ import io.xj.core.CoreModule;
 import io.xj.core.app.App;
 import io.xj.core.app.config.Config;
 import io.xj.core.app.exception.ConfigException;
-import io.xj.core.db.sql.SQLDatabaseProvider;
+import io.xj.core.database.sql.SQLDatabaseProvider;
 import io.xj.core.migration.MigrationService;
 import io.xj.core.transport.CSV;
 

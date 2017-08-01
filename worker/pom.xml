@@ -58,7 +58,7 @@
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
-
+    
     <!-- grizzly2 jersey container -->
     <dependency>
       <groupId>org.glassfish.jersey.containers</groupId>

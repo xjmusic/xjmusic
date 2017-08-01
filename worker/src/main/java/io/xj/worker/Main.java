@@ -1,19 +1,16 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 package io.xj.worker;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+
 import io.xj.core.CoreModule;
 import io.xj.core.app.App;
 import io.xj.core.app.config.Config;
 import io.xj.core.app.exception.ConfigException;
-import io.xj.core.db.redis.RedisDatabaseProvider;
-import io.xj.core.db.sql.SQLDatabaseProvider;
+import io.xj.core.database.sql.SQLDatabaseProvider;
 import io.xj.core.migration.MigrationService;
-
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-
 import net.greghaines.jesque.worker.JobFactory;
-import net.greghaines.jesque.worker.Worker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,9 +24,7 @@ public class Main {
   private static final Injector injector = Guice.createInjector(new CoreModule(), new WorkerModule());
   private static final App app = injector.getInstance(App.class);
   private static final SQLDatabaseProvider sqlDatabaseProvider = injector.getInstance(SQLDatabaseProvider.class);
-  private static final RedisDatabaseProvider redisDatabaseProvider = injector.getInstance(RedisDatabaseProvider.class);
   private static final JobFactory jobFactory = injector.getInstance(JobFactory.class);
-  private static final Worker worker = redisDatabaseProvider.getQueueWorker(jobFactory);
 
   /**
    Main method.
@@ -55,6 +50,10 @@ public class Main {
     // Server App
     app.configureServer("io.xj.worker");
 
+    // Set App Job Factory
+    app.setJobFactory(jobFactory);
+
+/*
     // Start a worker to run jobs from the queue
     Thread workerThread = new Thread(worker);
     workerThread.start();
@@ -65,6 +64,7 @@ public class Main {
     } catch (Exception e) {
       log.error("Joining worker thread", e);
     }
+*/
 
 /*
 
@@ -73,7 +73,7 @@ public class Main {
       new LinkPilotWorkFactoryModule()).getInstance(ChainGangFactory.class);
     app.registerGangWorkload(
       "Create New Links",
-      pilotChainGangFactory.createLeader(Config.workAheadSeconds(), Config.workBatchSize()),
+      pilotChainGangFactory.createLeader(Config.workBufferSeconds(), Config.workBatchSize()),
       pilotChainGangFactory.createFollower(LinkState.Planned)
     );
 
@@ -84,7 +84,7 @@ public class Main {
       new LinkWorkFactoryModule()).getInstance(ChainGangFactory.class);
     app.registerGangWorkload(
       "Craft Links",
-      craftFactory.createLeader(LinkState.Planned, Config.workAheadSeconds(), Config.workBatchSize()),
+      craftFactory.createLeader(LinkState.Planned, Config.workBufferSeconds(), Config.workBatchSize()),
       craftFactory.createFollower(LinkState.Crafting, LinkState.Crafted, craftOperation)
     );
 
@@ -95,13 +95,13 @@ public class Main {
       new LinkWorkFactoryModule()).getInstance(ChainGangFactory.class);
     app.registerGangWorkload(
       "Dub Links",
-      dubFactory.createLeader(LinkState.Crafted, Config.workAheadSeconds(), Config.workBatchSize()),
+      dubFactory.createLeader(LinkState.Crafted, Config.workBufferSeconds(), Config.workBatchSize()),
       dubFactory.createFollower(LinkState.Dubbing, LinkState.Dubbed, dubOperation)
     );
 
     // Worker (Guice) factory
-    EraseWorkerFactory eraseFactory = Guice.createInjector(new CoreModule(),
-      new EraseworkerModule()).getInstance(EraseWorkerFactory.class);
+    EraseFactory eraseFactory = Guice.createInjector(new CoreModule(),
+      new EraseworkerModule()).getInstance(EraseFactory.class);
 
     // Chain-Erase Workload
     app.registerSimpleWorkload(
@@ -123,7 +123,6 @@ public class Main {
   }
 
   private static void shutdown() {
-    worker.end(false);
     app.stop();
   }
 

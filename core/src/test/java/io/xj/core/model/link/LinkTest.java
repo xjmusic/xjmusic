@@ -119,7 +119,10 @@ public class LinkTest {
   }
 
   @Test
-  public void validate_defaultsToPlannedWithoutState() throws Exception {
+  public void validate_failsWithoutState() throws Exception {
+    failure.expect(BusinessException.class);
+    failure.expectMessage("State is required");
+
     Link link = new Link()
       .setChainId(BigInteger.valueOf(180923))
       .setBeginAt("2014-08-12 12:17:02.527142")
@@ -130,7 +133,6 @@ public class LinkTest {
       .setKey("G minor")
       .setTempo(121.0);
     link.validate();
-    assertEquals(LinkState.Planned, link.getState());
   }
 
   @Test
@@ -149,6 +151,22 @@ public class LinkTest {
       .setTempo(121.0)
       .setState("pensive")
       .validate();
+  }
+
+  @Test
+  public void validate_okWithSetEnumState() throws Exception {
+    Link link = new Link()
+      .setChainId(BigInteger.valueOf(180923))
+      .setBeginAt("2014-08-12 12:17:02.527142")
+      .setEndAt("2014-09-12 12:17:34.262679")
+      .setTotal(64)
+      .setDensity(0.754)
+      .setOffset(BigInteger.valueOf(473))
+      .setKey("G minor")
+      .setTempo(121.0);
+
+    link.setStateEnum(LinkState.Crafting);
+    link.validate();
   }
 
   @Test

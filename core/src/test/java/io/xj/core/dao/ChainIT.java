@@ -1,6 +1,15 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 package io.xj.core.dao;
 
+import org.jooq.Result;
+import org.jooq.types.ULong;
+
+import com.google.common.collect.ImmutableMap;
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.util.Modules;
+
 import io.xj.core.CoreModule;
 import io.xj.core.app.access.impl.Access;
 import io.xj.core.app.exception.BusinessException;
@@ -14,19 +23,10 @@ import io.xj.core.model.chain.ChainType;
 import io.xj.core.model.chain_config.ChainConfigType;
 import io.xj.core.model.idea.IdeaType;
 import io.xj.core.model.instrument.InstrumentType;
+import io.xj.core.model.link.Link;
 import io.xj.core.model.link.LinkState;
 import io.xj.core.tables.records.ChainRecord;
 import io.xj.core.transport.JSON;
-
-import org.jooq.Result;
-import org.jooq.types.ULong;
-
-import com.google.common.collect.ImmutableMap;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.util.Modules;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.After;
@@ -52,7 +52,7 @@ public class ChainIT {
   @Rule public ExpectedException failure = ExpectedException.none();
   private Injector injector;
   private ChainDAO testDAO;
-  @Mock AmazonProvider amazonProvider;
+  @Mock private AmazonProvider amazonProvider;
 
   @Before
   public void setUp() throws Exception {
@@ -314,7 +314,7 @@ public class ChainIT {
 
   @Test
   public void readAll_excludesChainsInEraseState() throws Exception {
-    IntegrationTestEntity.insertChain(17,1,"sham",ChainType.Production,ChainState.Erase,Timestamp.valueOf("2015-05-10 12:17:02.527142"), Timestamp.valueOf("2015-06-09 12:17:01.047563"));
+    IntegrationTestEntity.insertChain(17, 1, "sham", ChainType.Production, ChainState.Erase, Timestamp.valueOf("2015-05-10 12:17:02.527142"), Timestamp.valueOf("2015-06-09 12:17:01.047563"));
     Access access = new Access(ImmutableMap.of(
       "roles", "user",
       "accounts", "1"
@@ -763,12 +763,12 @@ public class ChainIT {
     fromChain.setId(ULong.valueOf(12L));
     fromChain.setStartAt(Timestamp.valueOf("2014-02-14 12:03:40.000001"));
     fromChain.setStopAt(Timestamp.valueOf("2014-02-14 14:03:40.000001"));
-    JSONObject result = testDAO.buildNextLinkOrComplete(access, fromChain, Timestamp.valueOf("2014-02-14 12:03:40.000001"), Timestamp.valueOf("2014-02-14 11:53:40.000001"));
+    Link result = testDAO.buildNextLinkOrComplete(access, fromChain, Timestamp.valueOf("2014-02-14 12:03:40.000001"), Timestamp.valueOf("2014-02-14 11:53:40.000001"));
 
     assertNotNull(result);
-    assertEquals(ULong.valueOf(12L), result.get("chainId"));
-    assertEquals(ULong.valueOf(6L), result.get("offset"));
-    assertEquals(Timestamp.valueOf("2014-02-14 12:04:10.000001"), result.get("beginAt"));
+    assertEquals(ULong.valueOf(12L), result.getChainId());
+    assertEquals(ULong.valueOf(6L), result.getOffset());
+    assertEquals(Timestamp.valueOf("2014-02-14 12:04:10.000001"), result.getBeginAt());
   }
 
   @Test
@@ -783,7 +783,7 @@ public class ChainIT {
     fromChain.setId(ULong.valueOf(12L));
     fromChain.setStartAt(Timestamp.valueOf("2014-02-14 12:03:40.000001"));
     fromChain.setStopAt(Timestamp.valueOf("2014-02-14 14:03:40.000001"));
-    JSONObject result = testDAO.buildNextLinkOrComplete(access, fromChain, Timestamp.valueOf("2014-02-14 14:03:50.000001"), Timestamp.valueOf("2014-02-14 13:53:50.000001"));
+    Link result = testDAO.buildNextLinkOrComplete(access, fromChain, Timestamp.valueOf("2014-02-14 14:03:50.000001"), Timestamp.valueOf("2014-02-14 13:53:50.000001"));
 
     assertNull(result);
     ChainRecord finalChainRecord = IntegrationTestService.getDb()
@@ -805,7 +805,7 @@ public class ChainIT {
     fromChain.setId(ULong.valueOf(12L));
     fromChain.setStartAt(Timestamp.valueOf("2014-02-14 12:03:40.000001"));
     fromChain.setStopAt(Timestamp.valueOf("2014-02-14 14:03:40.000001"));
-    JSONObject result = testDAO.buildNextLinkOrComplete(access, fromChain, Timestamp.valueOf("2014-02-14 14:03:50.000001"), Timestamp.valueOf("2014-02-14 14:15:50.000001"));
+    Link result = testDAO.buildNextLinkOrComplete(access, fromChain, Timestamp.valueOf("2014-02-14 14:03:50.000001"), Timestamp.valueOf("2014-02-14 14:15:50.000001"));
 
     assertNull(result);
     ChainRecord finalChainRecord = IntegrationTestService.getDb()
@@ -827,7 +827,7 @@ public class ChainIT {
     fromChain.setId(ULong.valueOf(12L));
     fromChain.setStartAt(Timestamp.valueOf("2014-02-14 12:03:40.000001"));
     fromChain.setStopAt(Timestamp.valueOf("2014-02-14 14:03:40.000001"));
-    JSONObject result = testDAO.buildNextLinkOrComplete(access, fromChain, Timestamp.valueOf("2014-02-14 14:03:50.000001"), Timestamp.valueOf("2014-02-14 14:15:50.000001"));
+    Link result = testDAO.buildNextLinkOrComplete(access, fromChain, Timestamp.valueOf("2014-02-14 14:03:50.000001"), Timestamp.valueOf("2014-02-14 14:15:50.000001"));
 
     assertNull(result);
     ChainRecord finalChainRecord = IntegrationTestService.getDb()
@@ -848,7 +848,7 @@ public class ChainIT {
     ChainRecord fromChain = new ChainRecord();
     fromChain.setId(ULong.valueOf(12L));
     fromChain.setStartAt(Timestamp.valueOf("2014-02-14 12:03:40.000001"));
-    JSONObject result = testDAO.buildNextLinkOrComplete(access, fromChain, Timestamp.valueOf("2014-02-14 14:03:50.000001"), Timestamp.valueOf("2014-02-14 14:15:50.000001"));
+    Link result = testDAO.buildNextLinkOrComplete(access, fromChain, Timestamp.valueOf("2014-02-14 14:03:50.000001"), Timestamp.valueOf("2014-02-14 14:15:50.000001"));
 
     assertNotNull(result);
     ChainRecord finalChainRecord = IntegrationTestService.getDb()
@@ -869,7 +869,7 @@ public class ChainIT {
     fromChain.setId(ULong.valueOf(1L));
     fromChain.setStartAt(Timestamp.valueOf("2015-02-14 12:03:40.000001"));
     fromChain.setStopAt(null);
-    JSONObject result = testDAO.buildNextLinkOrComplete(access, fromChain, Timestamp.valueOf("2014-08-12 14:03:38.000001"), Timestamp.valueOf("2014-08-12 13:53:38.000001"));
+    Link result = testDAO.buildNextLinkOrComplete(access, fromChain, Timestamp.valueOf("2014-08-12 14:03:38.000001"), Timestamp.valueOf("2014-08-12 13:53:38.000001"));
 
     assertNull(result);
   }
@@ -886,12 +886,12 @@ public class ChainIT {
     fromChain.setId(ULong.valueOf(12L));
     fromChain.setStartAt(Timestamp.valueOf("2014-08-12 12:17:02.527142"));
     fromChain.setStopAt(Timestamp.valueOf("2014-09-11 12:17:01.047563"));
-    JSONObject result = testDAO.buildNextLinkOrComplete(access, fromChain, Timestamp.valueOf("2014-08-12 14:03:38.000001"), Timestamp.valueOf("2014-08-12 13:53:38.000001"));
+    Link result = testDAO.buildNextLinkOrComplete(access, fromChain, Timestamp.valueOf("2014-08-12 14:03:38.000001"), Timestamp.valueOf("2014-08-12 13:53:38.000001"));
 
     assertNotNull(result);
-    assertEquals(ULong.valueOf(12L), result.get("chainId"));
-    assertEquals(ULong.valueOf(6L), result.get("offset"));
-    assertEquals(Timestamp.valueOf("2014-08-12 14:03:38.000001"), result.get("beginAt"));
+    assertEquals(ULong.valueOf(12L), result.getChainId());
+    assertEquals(ULong.valueOf(6L), result.getOffset());
+    assertEquals(Timestamp.valueOf("2014-08-12 14:03:38.000001"), result.getBeginAt());
   }
 
   @Test
@@ -905,12 +905,12 @@ public class ChainIT {
     fromChain.setId(ULong.valueOf(12L));
     fromChain.setStartAt(Timestamp.valueOf("2014-08-12 12:17:02.527142"));
     fromChain.setStopAt(null);
-    JSONObject result = testDAO.buildNextLinkOrComplete(access, fromChain, Timestamp.valueOf("2014-08-12 14:03:38.000001"), Timestamp.valueOf("2014-08-12 13:53:38.000001"));
+    Link result = testDAO.buildNextLinkOrComplete(access, fromChain, Timestamp.valueOf("2014-08-12 14:03:38.000001"), Timestamp.valueOf("2014-08-12 13:53:38.000001"));
 
     assertNotNull(result);
-    assertEquals(ULong.valueOf(12L), result.get("chainId"));
-    assertEquals(0, result.get("offset"));
-    assertEquals(Timestamp.valueOf("2014-08-12 12:17:02.527142"), result.get("beginAt"));
+    assertEquals(ULong.valueOf(12L), result.getChainId());
+    assertEquals(ULong.valueOf(0), result.getOffset());
+    assertEquals(Timestamp.valueOf("2014-08-12 12:17:02.527142"), result.getBeginAt());
   }
 
   @Test

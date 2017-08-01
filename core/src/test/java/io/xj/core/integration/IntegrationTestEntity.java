@@ -1,6 +1,10 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 package io.xj.core.integration;
 
+import org.jooq.DSLContext;
+import org.jooq.types.UInteger;
+import org.jooq.types.ULong;
+
 import io.xj.core.app.exception.BusinessException;
 import io.xj.core.app.exception.DatabaseException;
 import io.xj.core.model.chain.Chain;
@@ -44,11 +48,6 @@ import io.xj.core.tables.records.UserRecord;
 import io.xj.core.tables.records.UserRoleRecord;
 import io.xj.core.tables.records.VoiceEventRecord;
 import io.xj.core.tables.records.VoiceRecord;
-
-import org.jooq.DSLContext;
-import org.jooq.types.UInteger;
-import org.jooq.types.ULong;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -88,13 +87,13 @@ import static io.xj.core.Tables.USER_ROLE;
 import static io.xj.core.Tables.VOICE;
 import static io.xj.core.Tables.VOICE_EVENT;
 
-public abstract class IntegrationTestEntity {
-  private static Logger log = LoggerFactory.getLogger(IntegrationTestEntity.class);
+public interface IntegrationTestEntity {
+  Logger log = LoggerFactory.getLogger(IntegrationTestEntity.class);
 
   /**
    Reset the database before an integration test.
    */
-  public static void deleteAll() throws DatabaseException {
+  static void deleteAll() throws DatabaseException {
     DSLContext db = IntegrationTestService.getDb();
     try {
       // Pick
@@ -156,6 +155,9 @@ public abstract class IntegrationTestEntity {
       db.deleteFrom(USER_ROLE).execute(); // before User
       db.deleteFrom(USER).execute();
 
+      // Finally, all queues
+      IntegrationTestService.flushRedis();
+
     } catch (Exception e) {
       log.error(e.getClass().getName() + ": " + e);
       throw new DatabaseException(e.getClass().getName() + ": " + e);
@@ -164,7 +166,7 @@ public abstract class IntegrationTestEntity {
     log.info("Did delete all records from integration database.");
   }
 
-  public static void insertUserAuth(Integer id, Integer userId, String type, String externalAccessToken, String externalRefreshToken, String externalAccount) {
+  static void insertUserAuth(Integer id, Integer userId, String type, String externalAccessToken, String externalRefreshToken, String externalAccount) {
     UserAuthRecord record = IntegrationTestService.getDb().newRecord(USER_AUTH);
     record.setId(ULong.valueOf(id));
     record.setUserId(ULong.valueOf(userId));
@@ -175,7 +177,7 @@ public abstract class IntegrationTestEntity {
     record.store();
   }
 
-  public static void insertUser(Integer id, String name, String email, String avatarUrl) {
+  static void insertUser(Integer id, String name, String email, String avatarUrl) {
     UserRecord record = IntegrationTestService.getDb().newRecord(USER);
     record.setId(ULong.valueOf(id));
     record.setName(name);
@@ -184,7 +186,7 @@ public abstract class IntegrationTestEntity {
     record.store();
   }
 
-  public static void insertUserRole(Integer id, Integer userId, String type) {
+  static void insertUserRole(Integer id, Integer userId, String type) {
     UserRoleRecord record = IntegrationTestService.getDb().newRecord(USER_ROLE);
     record.setId(ULong.valueOf(id));
     record.setUserId(ULong.valueOf(userId));
@@ -192,7 +194,7 @@ public abstract class IntegrationTestEntity {
     record.store();
   }
 
-  public static void insertAccountUser(Integer id, Integer accountId, Integer userId) {
+  static void insertAccountUser(Integer id, Integer accountId, Integer userId) {
     AccountUserRecord record = IntegrationTestService.getDb().newRecord(ACCOUNT_USER);
     record.setId(ULong.valueOf(id));
     record.setAccountId(ULong.valueOf(accountId));
@@ -200,14 +202,14 @@ public abstract class IntegrationTestEntity {
     record.store();
   }
 
-  public static void insertAccount(Integer id, String name) {
+  static void insertAccount(Integer id, String name) {
     AccountRecord record = IntegrationTestService.getDb().newRecord(ACCOUNT);
     record.setId(ULong.valueOf(id));
     record.setName(name);
     record.store();
   }
 
-  public static void insertUserAccessToken(int userId, int userAuthId, String accessToken) {
+  static void insertUserAccessToken(int userId, int userAuthId, String accessToken) {
     UserAccessTokenRecord record = IntegrationTestService.getDb().newRecord(USER_ACCESS_TOKEN);
     record.setUserId(ULong.valueOf(userId));
     record.setUserAuthId(ULong.valueOf(userAuthId));
@@ -215,7 +217,7 @@ public abstract class IntegrationTestEntity {
     record.store();
   }
 
-  public static void insertLibrary(int id, int accountId, String name) {
+  static void insertLibrary(int id, int accountId, String name) {
     LibraryRecord record = IntegrationTestService.getDb().newRecord(LIBRARY);
     record.setId(ULong.valueOf(id));
     record.setAccountId(ULong.valueOf(accountId));
@@ -223,7 +225,7 @@ public abstract class IntegrationTestEntity {
     record.store();
   }
 
-  public static Idea insertIdea(int id, int userId, int libraryId, IdeaType type, String name, double density, String key, double tempo) throws BusinessException {
+  static Idea insertIdea(int id, int userId, int libraryId, IdeaType type, String name, double density, String key, double tempo) throws BusinessException {
     IdeaRecord record = IntegrationTestService.getDb().newRecord(IDEA);
     record.setId(ULong.valueOf(id));
     record.setUserId(ULong.valueOf(userId));
@@ -237,7 +239,7 @@ public abstract class IntegrationTestEntity {
     return new Idea().setFromRecord(record);
   }
 
-  public static void insertIdeaMeme(int id, int ideaId, String name) {
+  static void insertIdeaMeme(int id, int ideaId, String name) {
     IdeaMemeRecord record = IntegrationTestService.getDb().newRecord(IDEA_MEME);
     record.setId(ULong.valueOf(id));
     record.setIdeaId(ULong.valueOf(ideaId));
@@ -245,7 +247,7 @@ public abstract class IntegrationTestEntity {
     record.store();
   }
 
-  public static void insertPhase(int id, int ideaId, int offset, int total, String name, double density, String key, double tempo) {
+  static void insertPhase(int id, int ideaId, int offset, int total, String name, double density, String key, double tempo) {
     PhaseRecord record = IntegrationTestService.getDb().newRecord(PHASE);
     record.setId(ULong.valueOf(id));
     record.setIdeaId(ULong.valueOf(ideaId));
@@ -258,7 +260,7 @@ public abstract class IntegrationTestEntity {
     record.store();
   }
 
-  public static void insertPhaseMeme(int id, int phaseId, String name) {
+  static void insertPhaseMeme(int id, int phaseId, String name) {
     PhaseMemeRecord record = IntegrationTestService.getDb().newRecord(PHASE_MEME);
     record.setId(ULong.valueOf(id));
     record.setPhaseId(ULong.valueOf(phaseId));
@@ -266,7 +268,7 @@ public abstract class IntegrationTestEntity {
     record.store();
   }
 
-  public static void insertPhaseChord(int id, int phaseId, double position, String name) {
+  static void insertPhaseChord(int id, int phaseId, double position, String name) {
     PhaseChordRecord record = IntegrationTestService.getDb().newRecord(PHASE_CHORD);
     record.setId(ULong.valueOf(id));
     record.setPhaseId(ULong.valueOf(phaseId));
@@ -275,7 +277,7 @@ public abstract class IntegrationTestEntity {
     record.store();
   }
 
-  public static void insertVoice(int id, int phaseId, InstrumentType type, String description) {
+  static void insertVoice(int id, int phaseId, InstrumentType type, String description) {
     VoiceRecord record = IntegrationTestService.getDb().newRecord(VOICE);
     record.setId(ULong.valueOf(id));
     record.setPhaseId(ULong.valueOf(phaseId));
@@ -284,7 +286,7 @@ public abstract class IntegrationTestEntity {
     record.store();
   }
 
-  public static void insertVoiceEvent(int id, int voiceId, double position, double duration, String inflection, String note, double tonality, double velocity) {
+  static void insertVoiceEvent(int id, int voiceId, double position, double duration, String inflection, String note, double tonality, double velocity) {
     VoiceEventRecord record = IntegrationTestService.getDb().newRecord(VOICE_EVENT);
     record.setId(ULong.valueOf(id));
     record.setVoiceId(ULong.valueOf(voiceId));
@@ -297,7 +299,7 @@ public abstract class IntegrationTestEntity {
     record.store();
   }
 
-  public static void insertInstrument(int id, int libraryId, int userId, String description, InstrumentType type, double density) {
+  static void insertInstrument(int id, int libraryId, int userId, String description, InstrumentType type, double density) {
     InstrumentRecord record = IntegrationTestService.getDb().newRecord(INSTRUMENT);
     record.setId(ULong.valueOf(id));
     record.setUserId(ULong.valueOf(userId));
@@ -308,7 +310,7 @@ public abstract class IntegrationTestEntity {
     record.store();
   }
 
-  public static void insertInstrumentMeme(int id, int instrumentId, String name) {
+  static void insertInstrumentMeme(int id, int instrumentId, String name) {
     InstrumentMemeRecord record = IntegrationTestService.getDb().newRecord(INSTRUMENT_MEME);
     record.setId(ULong.valueOf(id));
     record.setInstrumentId(ULong.valueOf(instrumentId));
@@ -316,7 +318,7 @@ public abstract class IntegrationTestEntity {
     record.store();
   }
 
-  public static void insertAudio(int id, int instrumentId, String state, String name, String waveformKey, double start, double length, double tempo, double pitch) {
+  static void insertAudio(int id, int instrumentId, String state, String name, String waveformKey, double start, double length, double tempo, double pitch) {
     AudioRecord record = IntegrationTestService.getDb().newRecord(AUDIO);
     record.setId(ULong.valueOf(id));
     record.setInstrumentId(ULong.valueOf(instrumentId));
@@ -330,7 +332,7 @@ public abstract class IntegrationTestEntity {
     record.store();
   }
 
-  public static void insertAudioEvent(int id, int audioId, double position, double duration, String inflection, String note, double tonality, double velocity) {
+  static void insertAudioEvent(int id, int audioId, double position, double duration, String inflection, String note, double tonality, double velocity) {
     AudioEventRecord record = IntegrationTestService.getDb().newRecord(AUDIO_EVENT);
     record.setId(ULong.valueOf(id));
     record.setAudioId(ULong.valueOf(audioId));
@@ -344,7 +346,7 @@ public abstract class IntegrationTestEntity {
   }
 
 
-  public static void insertAudioChord(int id, int audioId, double position, String name) {
+  static void insertAudioChord(int id, int audioId, double position, String name) {
     AudioChordRecord record = IntegrationTestService.getDb().newRecord(AUDIO_CHORD);
     record.setId(ULong.valueOf(id));
     record.setAudioId(ULong.valueOf(audioId));
@@ -353,7 +355,7 @@ public abstract class IntegrationTestEntity {
     record.store();
   }
 
-  public static Chain insertChain(int id, int accountId, String name, ChainType type, ChainState state, Timestamp startAt, @Nullable Timestamp stopAt) throws BusinessException {
+  static Chain insertChain(int id, int accountId, String name, ChainType type, ChainState state, Timestamp startAt, @Nullable Timestamp stopAt) throws BusinessException {
     ChainRecord record = IntegrationTestService.getDb().newRecord(CHAIN);
     record.setId(ULong.valueOf(id));
     record.setAccountId(ULong.valueOf(accountId));
@@ -368,7 +370,7 @@ public abstract class IntegrationTestEntity {
     return new Chain().setFromRecord(record);
   }
 
-  public static void insertChainConfig(int id, int chainId, ChainConfigType chainConfigType, String value) {
+  static void insertChainConfig(int id, int chainId, ChainConfigType chainConfigType, String value) {
     ChainConfigRecord record = IntegrationTestService.getDb().newRecord(CHAIN_CONFIG);
     record.setId(ULong.valueOf(id));
     record.setChainId(ULong.valueOf(chainId));
@@ -377,7 +379,7 @@ public abstract class IntegrationTestEntity {
     record.store();
   }
 
-  public static void insertChainLibrary(int id, int chainId, int libraryId) {
+  static void insertChainLibrary(int id, int chainId, int libraryId) {
     ChainLibraryRecord record = IntegrationTestService.getDb().newRecord(CHAIN_LIBRARY);
     record.setId(ULong.valueOf(id));
     record.setChainId(ULong.valueOf(chainId));
@@ -385,7 +387,7 @@ public abstract class IntegrationTestEntity {
     record.store();
   }
 
-  public static void insertChainIdea(int id, int chainId, int ideaId) {
+  static void insertChainIdea(int id, int chainId, int ideaId) {
     ChainIdeaRecord record = IntegrationTestService.getDb().newRecord(CHAIN_IDEA);
     record.setId(ULong.valueOf(id));
     record.setChainId(ULong.valueOf(chainId));
@@ -393,7 +395,7 @@ public abstract class IntegrationTestEntity {
     record.store();
   }
 
-  public static void insertChainInstrument(int id, int chainId, int instrumentId) {
+  static void insertChainInstrument(int id, int chainId, int instrumentId) {
     ChainInstrumentRecord record = IntegrationTestService.getDb().newRecord(CHAIN_INSTRUMENT);
     record.setId(ULong.valueOf(id));
     record.setChainId(ULong.valueOf(chainId));
@@ -401,7 +403,7 @@ public abstract class IntegrationTestEntity {
     record.store();
   }
 
-  public static Link insertLink(int id, int chainId, int offset, LinkState state, Timestamp beginAt, Timestamp endAt, String key, int total, double density, double tempo, String waveformKey) throws BusinessException {
+  static Link insertLink(int id, int chainId, int offset, LinkState state, Timestamp beginAt, Timestamp endAt, String key, int total, double density, double tempo, String waveformKey) throws BusinessException {
     LinkRecord record = IntegrationTestService.getDb().newRecord(LINK);
     record.setId(ULong.valueOf(id));
     record.setChainId(ULong.valueOf(chainId));
@@ -418,7 +420,7 @@ public abstract class IntegrationTestEntity {
     return new Link().setFromRecord(record);
   }
 
-  public static void insertLinkChord(int id, int linkId, double position, String name) {
+  static void insertLinkChord(int id, int linkId, double position, String name) {
     LinkChordRecord record = IntegrationTestService.getDb().newRecord(LINK_CHORD);
     record.setId(ULong.valueOf(id));
     record.setLinkId(ULong.valueOf(linkId));
@@ -427,7 +429,7 @@ public abstract class IntegrationTestEntity {
     record.store();
   }
 
-  public static void insertLinkMessage(int id, int linkId, MessageType type, String body) {
+  static void insertLinkMessage(int id, int linkId, MessageType type, String body) {
     LinkMessageRecord record = IntegrationTestService.getDb().newRecord(LINK_MESSAGE);
     record.setId(ULong.valueOf(id));
     record.setLinkId(ULong.valueOf(linkId));
@@ -436,7 +438,7 @@ public abstract class IntegrationTestEntity {
     record.store();
   }
 
-  public static void insertChoice(int id, int linkId, int ideaId, IdeaType type, int phaseOffset, int transpose) {
+  static void insertChoice(int id, int linkId, int ideaId, IdeaType type, int phaseOffset, int transpose) {
     ChoiceRecord record = IntegrationTestService.getDb().newRecord(CHOICE);
     record.setId(ULong.valueOf(id));
     record.setLinkId(ULong.valueOf(linkId));
@@ -447,7 +449,7 @@ public abstract class IntegrationTestEntity {
     record.store();
   }
 
-  public static void insertArrangement(int id, int choiceId, int voiceId, int instrumentId) {
+  static void insertArrangement(int id, int choiceId, int voiceId, int instrumentId) {
     ArrangementRecord record = IntegrationTestService.getDb().newRecord(ARRANGEMENT);
     record.setId(ULong.valueOf(id));
     record.setChoiceId(ULong.valueOf(choiceId));
@@ -456,7 +458,7 @@ public abstract class IntegrationTestEntity {
     record.store();
   }
 
-  public static void insertPick(int id, int arrangementId, int audioId, double start, double length, double amplitude, double pitch) {
+  static void insertPick(int id, int arrangementId, int audioId, double start, double length, double amplitude, double pitch) {
     PickRecord record = IntegrationTestService.getDb().newRecord(PICK);
     record.setId(ULong.valueOf(id));
     record.setArrangementId(ULong.valueOf(arrangementId));
@@ -468,7 +470,7 @@ public abstract class IntegrationTestEntity {
     record.store();
   }
 
-  public static void insertLinkMeme(int id, int linkId, String name) {
+  static void insertLinkMeme(int id, int linkId, String name) {
     LinkMemeRecord record = IntegrationTestService.getDb().newRecord(LINK_MEME);
     record.setId(ULong.valueOf(id));
     record.setLinkId(ULong.valueOf(linkId));
@@ -476,7 +478,7 @@ public abstract class IntegrationTestEntity {
     record.store();
   }
 
-  public static Link insertLink_Planned(int id, int chainId, int offset, Timestamp beginAt) throws BusinessException {
+  static Link insertLink_Planned(int id, int chainId, int offset, Timestamp beginAt) throws BusinessException {
     LinkRecord record = IntegrationTestService.getDb().newRecord(LINK);
     record.setId(ULong.valueOf(id));
     record.setChainId(ULong.valueOf(chainId));

@@ -214,8 +214,14 @@ Compile & Package the Java server-side application, e.g. as JAR files:
 
 By default, you'll need to create two MySQL databases:
 
-  * `xj` (for running services locally)
-  * `xj_test` (for running integration tests locally)
+  * `xj` (for running services)
+  * `xj_test` (for build processes, and running integration tests)
+
+## Redis server
+
+The docker container `redis01xj1` exposes a Redis server on local port 6300.  There's a convenience script for connecting to it:
+
+    bin/redis-cli
 
 ## Integration testing
 
