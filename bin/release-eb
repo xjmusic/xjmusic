@@ -45,6 +45,13 @@ done
 step_ok
 
 #
+step "Add all Elastic Beanstalk Extensions to target"
+mkdir -p ${PWD}/target/.ebextensions
+cp ${PWD}/.elasticbeanstalk/extensions/* \
+   ${PWD}/target/.ebextensions/
+step_ok
+
+#
 step "Add nginx locations for Elastic Beanstalk config to target"
 mkdir -p ${PWD}/target/.ebextensions/nginx/conf.d/elasticbeanstalk
 cp ${PWD}/.nginx/locations.conf \
