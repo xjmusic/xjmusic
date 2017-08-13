@@ -54,7 +54,7 @@ public class ChainConfig extends Entity {
    @param typeString pending validation
    */
   public ChainConfig setType(String typeString) {
-    this._typeString = Text.alphabetical(typeString);
+    this._typeString = Text.toAlphabetical(typeString);
     return this;
   }
 

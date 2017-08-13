@@ -37,7 +37,7 @@ public enum ChainType {
       return Preview;
 
     try {
-      return valueOf(Text.ProperSlug(value));
+      return valueOf(Text.toProperSlug(value));
     } catch (Exception e) {
       throw new BusinessException("'" + value + "' is not a valid type (" + CSV.joinEnum(values()) + ").", e);
     }

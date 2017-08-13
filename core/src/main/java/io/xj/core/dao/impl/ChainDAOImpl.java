@@ -1,17 +1,6 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 package io.xj.core.dao.impl;
 
-import org.jooq.DSLContext;
-import org.jooq.Field;
-import org.jooq.Record;
-import org.jooq.Result;
-import org.jooq.UpdateSetFirstStep;
-import org.jooq.types.ULong;
-
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
-import com.google.inject.Inject;
-
 import io.xj.core.app.access.impl.Access;
 import io.xj.core.app.config.Config;
 import io.xj.core.app.exception.BusinessException;
@@ -31,8 +20,19 @@ import io.xj.core.tables.records.ChainRecord;
 import io.xj.core.tables.records.LinkRecord;
 import io.xj.core.transport.CSV;
 import io.xj.core.work.WorkManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.jooq.DSLContext;
+import org.jooq.Field;
+import org.jooq.Record;
+import org.jooq.Result;
+import org.jooq.UpdateSetFirstStep;
+import org.jooq.impl.DSL;
+import org.jooq.types.ULong;
+
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.inject.Inject;
 
 import javax.annotation.Nullable;
 import java.math.BigInteger;
@@ -62,7 +62,7 @@ import static io.xj.core.Tables.LINK;
  of the logic around adding links to chains and updating chain state to complete.
  */
 public class ChainDAOImpl extends DAOImpl implements ChainDAO {
-  private static final Logger log = LoggerFactory.getLogger(ChainDAOImpl.class);
+  //  private static final Logger log = LoggerFactory.getLogger(ChainDAOImpl.class);
   private final int previewLengthMax;
   private final WorkManager workManager;
 
@@ -192,7 +192,7 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
    @return newly readMany record
    @throws BusinessException if a Business Rule is violated
    */
-  private ChainRecord create(DSLContext db, Access access, Chain entity) throws BusinessException {
+  private ChainRecord create(DSLContext db, Access access, Chain entity) throws Exception {
     entity.validate();
 
     Map<Field, Object> fieldValues = entity.updatableFieldValueMap();
@@ -211,20 +211,29 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
         .fetchOne());
 
 
-    // [#190] Artist "Preview" Chain
-    if (fieldValues.get(CHAIN.TYPE).equals(ChainType.Preview)) {
-      requireRole("Artist to create preview Chain", access, Role.ARTIST);
-      fieldValues.put(CHAIN.START_AT,
-        Timestamp.from(Instant.now().minusSeconds(previewLengthMax)));
-      fieldValues.put(CHAIN.STOP_AT,
-        Timestamp.from(Instant.now()));
+    // logic based on Chain Type
+    switch (entity.getType()) {
 
-      // [#190] Engineer "Production" Chain
-    } else if (fieldValues.get(CHAIN.TYPE).equals(ChainType.Production)) {
-      requireRole("Engineer to create production Chain", access, Role.ENGINEER);
+      case Production:
+        requireRole("Engineer to create production Chain", access, Role.ENGINEER);
 
-    } else {
-      throw new BusinessException("Invalid Chain type '" + fieldValues.get(CHAIN.TYPE) + "'");
+        // [#403] Chain must have unique `embed_key`
+        if (Objects.nonNull(entity.getEmbedKey()))
+          requireNotExists("Existing Chain with this embed_key", db.select(CHAIN.ID).from(CHAIN)
+            .where(CHAIN.EMBED_KEY.eq(entity.getEmbedKey()))
+            .fetch());
+        break;
+
+      case Preview:
+        requireRole("Artist to create preview Chain", access, Role.ARTIST);
+        fieldValues.put(CHAIN.START_AT,
+          Timestamp.from(Instant.now().minusSeconds(previewLengthMax)));
+        fieldValues.put(CHAIN.STOP_AT,
+          Timestamp.from(Instant.now()));
+
+        // [#402] Preview Chain cannot be public
+        fieldValues.put(CHAIN.EMBED_KEY, DSL.val((String) null));
+        break;
     }
 
     return executeCreate(db, CHAIN, fieldValues);
@@ -365,7 +374,9 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
    @param id     of record
    @throws BusinessException if a Business Rule is violated
    */
-  private void update(DSLContext db, Access access, ULong id, Map<Field, Object> fieldValues) throws Exception {
+  private void update(DSLContext db, Access access, ULong id, Map<Field, Object> toUpdate) throws Exception {
+    Map<Field, Object> fieldValues = Maps.newHashMap(toUpdate);
+
     // validate and cache to-state
     ChainState toState = ChainState.validate(fieldValues.get(CHAIN.STATE).toString());
 
@@ -387,10 +398,18 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
 
       case Production:
         requireRole("engineer role", access, Role.ENGINEER);
+        // [#403] Chain must have unique `embed_key`
+        if (Objects.nonNull(fieldValues.get(CHAIN.EMBED_KEY)))
+          requireNotExists("Existing Chain with this embed_key", db.select(CHAIN.ID).from(CHAIN)
+            .where(CHAIN.EMBED_KEY.eq(fieldValues.get(CHAIN.EMBED_KEY).toString()))
+            .fetch());
         break;
 
       case Preview:
         requireRole("artist or engineer role", access, Role.ENGINEER, Role.ARTIST);
+
+        // [#402] Preview Chain cannot be public
+        fieldValues.put(CHAIN.EMBED_KEY, DSL.val((String) null));
         break;
     }
 
@@ -433,6 +452,22 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
         break;
     }
 
+
+    // If state is changing, there may be field updates based on the new state
+    if (!Objects.equals(fromState, toState)) switch (toState) {
+      case Draft:
+      case Ready:
+      case Fabricating:
+      case Complete:
+      case Failed:
+        // no op
+        break;
+
+      case Erase:
+        fieldValues.put(CHAIN.EMBED_KEY, DSL.val((String) null));
+        break;
+    }
+
     // [#116] cannot change chain startAt time after has links
     Object updateStartAt = fieldValues.get(CHAIN.START_AT);
     if (Objects.nonNull(updateStartAt)
@@ -459,7 +494,7 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
       throw new BusinessException("No records updated.");
 
     // If state is changing, then trigger work logic based on the new Chain State
-    if (!Objects.equals(fromState,toState)) switch (toState) {
+    if (!Objects.equals(fromState, toState)) switch (toState) {
       case Draft:
       case Ready:
         // no op

@@ -50,7 +50,7 @@ public class InstrumentMeme extends MemeEntity {
   }
 
   public InstrumentMeme setName(String name) {
-    this.name = Text.ProperSlug(name);
+    this.name = Text.toProperSlug(name);
     return this;
   }
 

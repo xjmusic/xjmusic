@@ -11,91 +11,84 @@ import static org.junit.Assert.assertEquals;
 @RunWith(MockitoJUnitRunner.class)
 public class TextTest extends Mockito {
   @Test
-  public void alphabetical() throws Exception {
-    assertEquals("Pajamas",Text.alphabetical("Pajamas"));
-    assertEquals("Pajamas",Text.alphabetical("1P34aj2a3ma321s"));
-    assertEquals("Pajamas",Text.alphabetical("  P#$ aj#$@a   @#$$$$ma         s"));
-    assertEquals("Pajamas",Text.alphabetical("P_+_+_+_+_(@(#%&!&&&@&%!@)_$*(!_)@()_#()(((a j a m a s "));
-    assertEquals("Pajamas",Text.alphabetical("Pajamas"));
+  public void toAlphabetical() throws Exception {
+    assertEquals("Pajamas",Text.toAlphabetical("Pajamas"));
+    assertEquals("Pajamas",Text.toAlphabetical("1P34aj2a3ma321s"));
+    assertEquals("Pajamas",Text.toAlphabetical("  P#$ aj#$@a   @#$$$$ma         s"));
+    assertEquals("Pajamas",Text.toAlphabetical("P_+_+_+_+_(@(#%&!&&&@&%!@)_$*(!_)@()_#()(((a j a m a s "));
+    assertEquals("Pajamas",Text.toAlphabetical("Pajamas"));
   }
 
   @Test
-  public void slug() throws Exception {
-    assertEquals("jim", Text.Slug("jim"));
-    assertEquals("jim", Text.Slug("jim-251"));
-    assertEquals("jim", Text.Slug("j i m - 2 5 1"));
-    assertEquals("jim", Text.Slug("j!i$m%-^2%5*1"));
+  public void toSlug() throws Exception {
+    assertEquals("jim", Text.toSlug("jim"));
+    assertEquals("jim", Text.toSlug("jim-251"));
+    assertEquals("jim", Text.toSlug("j i m - 2 5 1"));
+    assertEquals("jim", Text.toSlug("j!i$m%-^2%5*1"));
   }
 
   @Test
-  public void properSlug() throws Exception {
-    assertEquals("Jammybiscuit", Text.ProperSlug("jaMMy bISCUIT"));
-    assertEquals("Jammy", Text.ProperSlug("jaMMy"));
-    assertEquals("Jmmy", Text.ProperSlug("j#MMy", "neuf"));
-    assertEquals("Neuf", Text.ProperSlug("%&(#", "neuf"));
-    assertEquals("P", Text.ProperSlug("%&(#p"));
-    assertEquals("", Text.ProperSlug("%&(#"));
+  public void toProperSlug() throws Exception {
+    assertEquals("Jammybiscuit", Text.toProperSlug("jaMMy bISCUIT"));
+    assertEquals("Jammy", Text.toProperSlug("jaMMy"));
+    assertEquals("Jmmy", Text.toProperSlug("j#MMy", "neuf"));
+    assertEquals("Neuf", Text.toProperSlug("%&(#", "neuf"));
+    assertEquals("P", Text.toProperSlug("%&(#p"));
+    assertEquals("", Text.toProperSlug("%&(#"));
   }
 
   @Test
-  public void lowerSlug() throws Exception {
-    assertEquals("hammyjammy", Text.LowerSlug("H4AMMY jaMMy"));
-    assertEquals("jammy", Text.LowerSlug("jaMMy"));
-    assertEquals("jmmy", Text.LowerSlug("j#MMy", "neuf"));
-    assertEquals("neuf", Text.LowerSlug(null, "neuf"));
-    assertEquals("neuf", Text.LowerSlug("%&(#", "neuf"));
-    assertEquals("p", Text.LowerSlug("%&(#p"));
-    assertEquals("", Text.LowerSlug("%&(#"));
+  public void toLowerSlug() throws Exception {
+    assertEquals("hammyjammy", Text.toLowerSlug("H4AMMY jaMMy"));
+    assertEquals("jammy", Text.toLowerSlug("jaMMy"));
+    assertEquals("jmmy", Text.toLowerSlug("j#MMy", "neuf"));
+    assertEquals("neuf", Text.toLowerSlug(null, "neuf"));
+    assertEquals("neuf", Text.toLowerSlug("%&(#", "neuf"));
+    assertEquals("p", Text.toLowerSlug("%&(#p"));
+    assertEquals("", Text.toLowerSlug("%&(#"));
   }
 
   @Test
-  public void upperSlug() throws Exception {
-    assertEquals("JAMMYBUNS", Text.UpperSlug("jaMMy b#!uns"));
-    assertEquals("JAMMY", Text.UpperSlug("jaMMy"));
-    assertEquals("JMMY", Text.UpperSlug("j#MMy", "neuf"));
-    assertEquals("NEUF", Text.UpperSlug(null, "neuf"));
-    assertEquals("NEUF", Text.UpperSlug("%&(#", "neuf"));
-    assertEquals("P", Text.UpperSlug("%&(#p"));
-    assertEquals("", Text.UpperSlug("%&(#"));
+  public void toUpperSlug() throws Exception {
+    assertEquals("JAMMYBUNS", Text.toUpperSlug("jaMMy b#!uns"));
+    assertEquals("JAMMY", Text.toUpperSlug("jaMMy"));
+    assertEquals("JMMY", Text.toUpperSlug("j#MMy", "neuf"));
+    assertEquals("NEUF", Text.toUpperSlug(null, "neuf"));
+    assertEquals("NEUF", Text.toUpperSlug("%&(#", "neuf"));
+    assertEquals("P", Text.toUpperSlug("%&(#p"));
+    assertEquals("", Text.toUpperSlug("%&(#"));
   }
 
   @Test
-  public void lowerScored() throws Exception {
-    assertEquals("hammy_jammy", Text.LowerScored("H4AMMY jaMMy"));
-    assertEquals("jammy", Text.LowerScored("jaMMy"));
-    assertEquals("jmmy", Text.LowerScored("j#MMy", "neuf"));
-    assertEquals("neuf", Text.LowerScored(null, "neuf"));
-    assertEquals("neuf", Text.LowerScored("%&(#", "neuf"));
-    assertEquals("p", Text.LowerScored("%&(#p"));
-    assertEquals("", Text.LowerScored("%&(#"));
+  public void toLowerScored() throws Exception {
+    assertEquals("hammy_jammy", Text.toLowerScored("HAMMY jaMMy"));
+    assertEquals("jammy", Text.toLowerScored("jaMMy"));
+    assertEquals("jam_42", Text.toLowerScored("jaM &&$ 42"));
+    assertEquals("jam_42", Text.toLowerScored("  ## jaM &&$ 42"));
+    assertEquals("jam_42", Text.toLowerScored("jaM &&$ 42 !!!!"));
+    assertEquals("jmmy", Text.toLowerScored("j#MMy", "neuf"));
+    assertEquals("neuf", Text.toLowerScored(null, "neuf"));
+    assertEquals("neuf", Text.toLowerScored("%&(#", "neuf"));
+    assertEquals("hammy_jammy_bunbuns", Text.toLowerScored("HAMMY $%& jaMMy bun%buns"));
+    assertEquals("p", Text.toLowerScored("%&(#p"));
+    assertEquals("", Text.toLowerScored("%&(#"));
   }
 
   @Test
-  public void upperScored() throws Exception {
-    assertEquals("JAMMY_BUNS", Text.UpperScored("jaMMy b#!uns"));
-    assertEquals("JAMMY_BUNS", Text.UpperScored("  jaMMy    b#!uns   "));
-    assertEquals("JAMMY", Text.UpperScored("jaMMy"));
-    assertEquals("JMMY", Text.UpperScored("j#MMy", "neuf"));
-    assertEquals("NEUF", Text.UpperScored(null, "neuf"));
-    assertEquals("NEUF", Text.UpperScored("%&(#", "neuf"));
-    assertEquals("P", Text.UpperScored("%&(#p"));
-    assertEquals("", Text.UpperScored("%&(#"));
+  public void toUpperScored() throws Exception {
+    assertEquals("JAMMY_BUNS", Text.toUpperScored("jaMMy b#!uns"));
+    assertEquals("JAMMY_BUNS", Text.toUpperScored("  jaMMy    b#!uns   "));
+    assertEquals("JAMMY", Text.toUpperScored("jaMMy"));
+    assertEquals("JMMY", Text.toUpperScored("j#MMy", "neuf"));
+    assertEquals("NEUF", Text.toUpperScored(null, "neuf"));
+    assertEquals("NEUF", Text.toUpperScored("%&(#", "neuf"));
+    assertEquals("P", Text.toUpperScored("%&(#p"));
+    assertEquals("", Text.toUpperScored("%&(#"));
   }
 
   @Test
-  public void note() throws Exception {
-    assertEquals("C# major", Text.Note("   C# m___ajor "));
-  }
-
-  @Test
-  public void doc() throws Exception {
-    assertEquals("chain-info.md", Text.DocKey("  cha$$in-in fo.md"));
-    assertEquals(".", Text.DocKey("../../../../"));
-  }
-
-  @Test
-  public void docNameForKey() throws Exception {
-    assertEquals("Chain Info", Text.DocNameForKey("chain-info.md"));
+  public void toNote() throws Exception {
+    assertEquals("C# major", Text.toNote("   C# m___ajor "));
   }
 
 }

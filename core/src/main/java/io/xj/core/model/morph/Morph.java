@@ -64,7 +64,7 @@ public class Morph extends Entity {
   }
 
   public Morph setNote(String note) {
-    this.note = Text.Note(note);
+    this.note = Text.toNote(note);
     return this;
   }
 

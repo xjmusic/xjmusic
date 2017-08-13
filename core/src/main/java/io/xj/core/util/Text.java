@@ -1,18 +1,24 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 package io.xj.core.util;
 
+import io.xj.core.app.config.Config;
+
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 public interface Text {
-  Pattern hyphensAndSlugs = Pattern.compile("[\\-_]+");
-  Pattern fileExtension = Pattern.compile("\\.[a-zA-z0-9]+$");
-  Pattern space = Pattern.compile("[ ]+");
+  //  Pattern hyphensAndSlugs = Pattern.compile("[\\-_]+");
+//  Pattern fileExtension = Pattern.compile("\\.[a-zA-z0-9]+$");
+  Pattern spaces = Pattern.compile("[ ]+");
+  Pattern underscores = Pattern.compile("_+");
+  Pattern leadingScores = Pattern.compile("^_+");
+  Pattern tailingScores = Pattern.compile("_+$");
   Pattern nonAlphabetical = Pattern.compile("[^a-zA-Z]");
   Pattern nonSlug = Pattern.compile("[^a-zA-Z]");
-  Pattern nonScored = Pattern.compile("[^a-zA-Z_]");
+  Pattern nonScored = Pattern.compile("[^a-zA-Z0-9_]");
   Pattern nonNote = Pattern.compile("[^#0-9a-zA-Z ]");
-  Pattern nonDocKey = Pattern.compile("[^0-9a-zA-Z_\\-.]");
-  Pattern oneOrMorePeriod = Pattern.compile("\\.+");
+  //  Pattern nonDocKey = Pattern.compile("[^0-9a-zA-Z_\\-.]");
+//  Pattern oneOrMorePeriod = Pattern.compile("\\.+");
   String UNDERSCORE = "_";
   String NOTHING = "";
 
@@ -22,44 +28,10 @@ public interface Text {
    @param raw text to restrict to alphabetical
    @return alphabetical-only string
    */
-  static String alphabetical(String raw) {
+  static String toAlphabetical(String raw) {
     return
       nonAlphabetical.matcher(raw)
         .replaceAll("");
-  }
-
-  /**
-   Conform to DocKey key (e.g. "chain-info.md")
-
-   @param raw input
-   @return doc key
-   */
-  static String DocKey(String raw) {
-    return
-      oneOrMorePeriod.matcher(
-        nonDocKey.matcher(raw)
-          .replaceAll("").trim()
-      ).replaceAll(".");
-  }
-
-  /**
-   Generate DocName from DocKey (e.g. "Chain Info")
-
-   @param key to generate name for
-   @return doc name
-   */
-  static String DocNameForKey(String key) {
-    String[] words =
-      hyphensAndSlugs.matcher(
-        fileExtension.matcher(key)
-          .replaceAll("")
-      ).replaceAll(" ")
-        .trim()
-        .split(" ");
-    for (int i = 0; i < words.length; i++) {
-      words[i] = toProper(words[i]);
-    }
-    return String.join(" ", words);
   }
 
   /**
@@ -68,7 +40,7 @@ public interface Text {
    @param raw input
    @return purified
    */
-  static String Note(String raw) {
+  static String toNote(String raw) {
     return nonNote.matcher(raw)
       .replaceAll("").trim();
   }
@@ -79,7 +51,7 @@ public interface Text {
    @param raw input
    @return purified
    */
-  static String Slug(String raw) {
+  static String toSlug(String raw) {
     return nonSlug.matcher(raw)
       .replaceAll(NOTHING);
   }
@@ -91,9 +63,9 @@ public interface Text {
    @param defaultValue if no input
    @return purified
    */
-  static String Slug(String raw, String defaultValue) {
-    String slug = Slug(raw);
-    return slug.length() > 0 ? slug : defaultValue;
+  static String toSlug(String raw, String defaultValue) {
+    String slug = toSlug(raw);
+    return slug.isEmpty() ? defaultValue : slug;
   }
 
   /**
@@ -103,14 +75,14 @@ public interface Text {
    @return purified
    */
   static String toProper(String raw) {
-    if (raw.length() > 1) {
+    if (1 < raw.length()) {
       String lower = raw.toLowerCase();
       return lower.substring(0, 1).toUpperCase() + lower.substring(1);
-    } else if (raw.length() > 0) {
+
+    } else if (!raw.isEmpty())
       return raw.toUpperCase();
-    } else {
-      return "";
-    }
+
+    return "";
   }
 
   /**
@@ -119,8 +91,8 @@ public interface Text {
    @param raw input
    @return purified
    */
-  static String ProperSlug(String raw) {
-    return toProper(Slug(raw));
+  static String toProperSlug(String raw) {
+    return toProper(toSlug(raw));
   }
 
   /**
@@ -130,8 +102,8 @@ public interface Text {
    @param defaultValue if no input
    @return purified
    */
-  static String ProperSlug(String raw, String defaultValue) {
-    return toProper(Slug(raw, defaultValue));
+  static String toProperSlug(String raw, String defaultValue) {
+    return toProper(toSlug(raw, defaultValue));
   }
 
   /**
@@ -140,8 +112,8 @@ public interface Text {
    @param raw input
    @return purified
    */
-  static String UpperSlug(String raw) {
-    return Slug(raw).toUpperCase();
+  static String toUpperSlug(String raw) {
+    return toSlug(raw).toUpperCase();
   }
 
   /**
@@ -151,16 +123,15 @@ public interface Text {
    @param defaultValue if no input
    @return purified
    */
-  static String UpperSlug(String raw, String defaultValue) {
-    if (raw == null) {
+  static String toUpperSlug(String raw, String defaultValue) {
+    if (Objects.isNull(raw))
       return defaultValue.toUpperCase();
-    }
-    String out = Slug(raw).toUpperCase();
-    if (out.length() > 0) {
-      return out;
-    } else {
+
+    String out = toSlug(raw).toUpperCase();
+    if (out.isEmpty())
       return defaultValue.toUpperCase();
-    }
+
+    return out;
   }
 
   /**
@@ -169,8 +140,8 @@ public interface Text {
    @param raw input
    @return purified
    */
-  static String LowerSlug(String raw) {
-    return Slug(raw).toLowerCase();
+  static String toLowerSlug(String raw) {
+    return toSlug(raw).toLowerCase();
   }
 
   /**
@@ -180,43 +151,36 @@ public interface Text {
    @param defaultValue if no input
    @return purified
    */
-  static String LowerSlug(String raw, String defaultValue) {
-    if (raw == null) {
+  static String toLowerSlug(String raw, String defaultValue) {
+    if (Objects.isNull(raw))
       return defaultValue.toLowerCase();
-    }
-    String out = Slug(raw).toLowerCase();
-    if (out.length() > 0) {
-      return out;
-    } else {
+
+    String out = toSlug(raw).toLowerCase();
+    if (out.isEmpty())
       return defaultValue.toLowerCase();
-    }
+
+    return out;
   }
 
   /**
-   Conform to Scored (e.g. "mush_bun")
+   Conform to toScored (e.g. "mush_bun")
 
    @param raw input
    @return purified
    */
-  static String Scored(String raw) {
+  static String toScored(String raw) {
     return
-      nonScored.matcher(
-        space.matcher(
-          raw.trim()
-        ).replaceAll(UNDERSCORE)
+      leadingScores.matcher(
+        tailingScores.matcher(
+          underscores.matcher(
+            nonScored.matcher(
+              spaces.matcher(
+                raw.trim()
+              ).replaceAll(UNDERSCORE)
+            ).replaceAll(NOTHING)
+          ).replaceAll(UNDERSCORE)
+        ).replaceAll(NOTHING)
       ).replaceAll(NOTHING);
-  }
-
-  /**
-   Conform to Scored (e.g. "bUN_jam"), else default value
-
-   @param raw          input
-   @param defaultValue if no input
-   @return purified
-   */
-  static String Scored(String raw, String defaultValue) {
-    String scored = Scored(raw);
-    return scored.length() > 0 ? scored : defaultValue;
   }
 
   /**
@@ -225,8 +189,8 @@ public interface Text {
    @param raw input
    @return purified
    */
-  static String UpperScored(String raw) {
-    return Scored(raw).toUpperCase();
+  static String toUpperScored(String raw) {
+    return toScored(raw).toUpperCase();
   }
 
   /**
@@ -236,16 +200,15 @@ public interface Text {
    @param defaultValue if no input
    @return purified
    */
-  static String UpperScored(String raw, String defaultValue) {
-    if (raw == null) {
+  static String toUpperScored(String raw, String defaultValue) {
+    if (Objects.isNull(raw))
       return defaultValue.toUpperCase();
-    }
-    String out = Scored(raw).toUpperCase();
-    if (out.length() > 0) {
-      return out;
-    } else {
+
+    String out = toScored(raw).toUpperCase();
+    if (out.isEmpty())
       return defaultValue.toUpperCase();
-    }
+
+    return out;
   }
 
   /**
@@ -254,8 +217,8 @@ public interface Text {
    @param raw input
    @return purified
    */
-  static String LowerScored(String raw) {
-    return Scored(raw).toLowerCase();
+  static String toLowerScored(String raw) {
+    return toScored(raw).toLowerCase();
   }
 
   /**
@@ -265,16 +228,15 @@ public interface Text {
    @param defaultValue if no input
    @return purified
    */
-  static String LowerScored(String raw, String defaultValue) {
-    if (raw == null) {
+  static String toLowerScored(String raw, String defaultValue) {
+    if (Objects.isNull(raw))
       return defaultValue.toLowerCase();
-    }
-    String out = Scored(raw).toLowerCase();
-    if (out.length() > 0) {
-      return out;
-    } else {
+
+    String out = toScored(raw).toLowerCase();
+    if (out.isEmpty())
       return defaultValue.toLowerCase();
-    }
+
+    return out;
   }
 
   /**
@@ -285,10 +247,11 @@ public interface Text {
    */
   static String formatStackTrace(Exception e) {
     StackTraceElement[] stack = e.getStackTrace();
-    String[] stackLines = new String[stack.length];
-    for (int i = 0; i < stack.length; i++)
+    int numStackLines = stack.length;
+    String[] stackLines = new String[numStackLines];
+    for (int i = 0; i < numStackLines; i++)
       stackLines[i] = stack[i].toString();
-    return String.join("\n", stackLines);
+    return String.join(Config.lineSeparator(), stackLines);
   }
 
 }

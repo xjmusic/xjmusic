@@ -28,9 +28,7 @@ public class SQLDatabaseProviderImpl implements SQLDatabaseProvider {
   private final String url = "jdbc:mysql://" + Config.dbMysqlHost()
     + ":" + Config.dbMysqlPort()
     + "/" + dbSchemaName
-    + (Config.isTestEnvironment() ?
-    "?useSSL=false&serverTimezone=UTC" :
-    "?serverTimezone=UTC");
+    + "?useSSL=false&serverTimezone=UTC";
   private final String user = Config.dbMysqlUser();
   private final String pass = Config.dbMysqlPass();
 

@@ -93,7 +93,7 @@ public class LinkMessage extends Message {
 
   @Override
   public LinkMessage setType(MessageType type) {
-    this.type = Text.ProperSlug(type.toString());
+    this.type = Text.toProperSlug(type.toString());
     return this;
   }
 

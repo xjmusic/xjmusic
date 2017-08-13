@@ -355,7 +355,7 @@ public interface IntegrationTestEntity {
     record.store();
   }
 
-  static Chain insertChain(int id, int accountId, String name, ChainType type, ChainState state, Timestamp startAt, @Nullable Timestamp stopAt) throws BusinessException {
+  static Chain insertChain(int id, int accountId, String name, ChainType type, ChainState state, Timestamp startAt, @Nullable Timestamp stopAt, String embedKey) throws BusinessException {
     ChainRecord record = IntegrationTestService.getDb().newRecord(CHAIN);
     record.setId(ULong.valueOf(id));
     record.setAccountId(ULong.valueOf(accountId));
@@ -365,6 +365,9 @@ public interface IntegrationTestEntity {
     record.setStartAt(startAt);
     if (Objects.nonNull(stopAt)) {
       record.setStopAt(stopAt);
+    }
+    if (Objects.nonNull(embedKey)) {
+      record.setEmbedKey(embedKey);
     }
     record.store();
     return new Chain().setFromRecord(record);

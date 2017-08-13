@@ -189,7 +189,7 @@ public class InstrumentIT {
 
   @Test
   public void readAllBoundToChain() throws  Exception {
-    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricating, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null);
+    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricating, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, null);
     IntegrationTestEntity.insertChainInstrument(1, 1, 1);
 
     Result<? extends Record> result = testDAO.readAllBoundToChain(Access.internal(), ULong.valueOf(1), InstrumentType.Percussive);
@@ -203,7 +203,7 @@ public class InstrumentIT {
 
   @Test
   public void readAllBoundToChainLibrary() throws  Exception {
-    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricating, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null);
+    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricating, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, null);
     IntegrationTestEntity.insertChainLibrary(1, 1, 1);
 
     Result<? extends Record> result = testDAO.readAllBoundToChainLibrary(Access.internal(), ULong.valueOf(1), InstrumentType.Percussive);

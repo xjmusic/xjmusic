@@ -7,7 +7,7 @@ export default Ember.Route.extend({
   },
 
   /**
-   [#155] Create actual static content on default index.html that gets deleted by Ember init, in order to build search engine value at https://xj.io
+   [#155] Create actual static content on default index.html that gets deleted by Ember init, in order to build search engine value at https://hub.xj.io
    */
   deleteStaticContent() {
     let element = document.getElementById("static-content");

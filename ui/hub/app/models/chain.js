@@ -8,6 +8,7 @@ export default DS.Model.extend({
   type: DS.attr('string'),
   startAt: DS.attr('string'),
   stopAt: DS.attr('string'),
+  embedKey: DS.attr('string'),
 
   links: DS.hasMany('link'),
   configs: DS.hasMany('chain-config'),

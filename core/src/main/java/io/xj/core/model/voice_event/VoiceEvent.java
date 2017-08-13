@@ -39,13 +39,13 @@ public class VoiceEvent extends EventEntity {
 
   @Override
   public VoiceEvent setInflection(String inflection) {
-    this.inflection = Text.UpperSlug(inflection);
+    this.inflection = Text.toUpperSlug(inflection);
     return this;
   }
 
   @Override
   public VoiceEvent setNote(String note) {
-    this.note = Text.Note(note);
+    this.note = Text.toNote(note);
     return this;
   }
 

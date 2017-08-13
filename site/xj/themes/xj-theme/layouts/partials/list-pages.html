@@ -1,0 +1,39 @@
+<div class="list space-above">
+    <div class="container">
+        <div class="row">
+            {{ range $e, $value := .Data.Pages }}
+
+            {{- if eq $value.Type "resources" -}}
+            <div class="col-12 col-sm-6 col-lg-4">
+              {{ partial "summary-resource.html" $value }}
+            </div>
+            {{- else -}}
+            <div class="col-12 col-sm-6 col-lg-4">
+              {{ partial "summary-page.html" $value }}
+            </div>
+            {{- end -}}
+
+            {{ end }}
+
+            <div class="col-12 col-sm-6 col-lg-4">
+                <div class="card rounded">
+                    <div class="subtext">
+                        <p>Categories</p>
+                        <ul>
+                            {{ range $e, $value := .Site.Taxonomies.categories }}
+                            <li>
+                                <a href="/categories/{{ lower $e | urlize }}">{{ $e | title }}</a>
+                            </li>
+                            {{ end }}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+          <div class="col-12 col-sm-6 col-lg-4">
+            {{ partial "login-mini" . }}
+          </div>
+
+        </div>
+    </div>
+</div>

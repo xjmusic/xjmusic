@@ -93,7 +93,7 @@ public class CraftFoundationInitialIT {
     IntegrationTestEntity.insertIdea(7, 3, 2, IdeaType.Support, "Support Jam", 0.3, "Cb minor", 170);
 
     // Chain "Print #2" has 1 initial planned link
-    IntegrationTestEntity.insertChain(2, 1, "Print #2", ChainType.Production, ChainState.Fabricating, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null);
+    IntegrationTestEntity.insertChain(2, 1, "Print #2", ChainType.Production, ChainState.Fabricating, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, null);
     link6 = IntegrationTestEntity.insertLink_Planned(6, 2, 0, Timestamp.valueOf("2017-02-14 12:01:00.000001"));
     // bind the library to the chain
     IntegrationTestEntity.insertChainLibrary(1, 2, 2);

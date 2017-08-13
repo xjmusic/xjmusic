@@ -60,7 +60,7 @@ public class Audio extends Entity {
    @param stateString pending validation
    */
   public Audio setState(String stateString) {
-    this._stateString = Text.alphabetical(stateString);
+    this._stateString = Text.toAlphabetical(stateString);
     return this;
   }
 

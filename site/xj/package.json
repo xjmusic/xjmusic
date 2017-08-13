@@ -1,0 +1,23 @@
+{
+  "name": "xj",
+  "version": "1.0.0",
+  "description": "Asset Pipeline for w.xj.io Website",
+  "main": "noop",
+  "dependencies": {},
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-image-resize": "^0.13.0",
+    "gulp-imagemin": "^3.4.0",
+    "gulp-rename": "^1.2.2",
+    "gulp-sass": "^3.1.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@code.outright.io:web/xj.git"
+  },
+  "author": "XJ Platform LLC",
+  "license": "ISC"
+}

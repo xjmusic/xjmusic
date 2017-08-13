@@ -4,11 +4,8 @@ package io.xj.core.app.config;
 import io.xj.core.app.exception.ConfigException;
 import io.xj.core.transport.CSV;
 
-import com.google.common.collect.ImmutableList;
-
 import java.io.File;
 import java.io.IOException;
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -356,4 +353,7 @@ public interface Config {
     return path;
   }
 
+  static String lineSeparator() {
+    return System.getProperty("line.separator");
+  }
 }

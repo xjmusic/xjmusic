@@ -46,7 +46,7 @@ public class PhaseMeme extends MemeEntity {
   }
 
   public PhaseMeme setName(String name) {
-    this.name = Text.ProperSlug(name);
+    this.name = Text.toProperSlug(name);
     return this;
   }
 

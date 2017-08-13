@@ -69,9 +69,9 @@ function optionsForEnvironment(environment) {
 function urlForEnvironment(environment) {
   switch (environment) {
     case 'production':
-      return 'https://xj.io/';
+      return 'https://hub.xj.io/';
     case 'development':
-      return 'http://xj.dev/';
+      return 'http://hub.xj.dev/';
     default:
       return '/';
   }

@@ -43,14 +43,14 @@ You'll want to have hostnames defined to point at the docker-compose network. To
 
 Your **/etc/hosts** file should now contain these lines at the end:
 
-    127.0.0.1 xj.dev
+    127.0.0.1 hub.xj.dev
     172.16.217.10 hub01xj1
     172.16.217.50 mysql01xj1
     172.16.217.60 redis01xj1
 
-Note that `xj.dev` simply points to the local loopback. Docker-compose maps maps local port 80 to the `hub01xj1` docker container port 80.
+Note that `hub.xj.dev` simply points to the local loopback. Docker-compose maps maps local port 80 to the `hub01xj1` docker container port 80.
 
-Assuming the docker containers are up and the hosts configured, you'll be able to open the main UI in a browser at [http://xj.dev/](http://xj.dev/)
+Assuming the docker containers are up and the hosts configured, you'll be able to open the main UI in a browser at [http://hub.xj.dev/](http://hub.xj.dev/)
 
 The front-end UI is served by the Nginx server on `hub01xj1` via the local `ui/hub/dist` volume. During development, use the [Ember CLI](https://ember-cli.com/) to keep the front-end continuously re-built in real time:
 
@@ -321,12 +321,12 @@ To automatically update /etc/hosts:
 
     sudo bin/update-hosts
 
-For development, your local machine needs to have the domain `xj.dev` pointed to `172.16.217.10` (the address set for hub01xj1 in the docker-compose.yml file) in `/etc/hosts`; it's helpful to have `redis01xj1` and `mysql01xj1` as well:
+For development, your local machine needs to have the domain `hub.xj.dev` pointed to `172.16.217.10` (the address set for hub01xj1 in the docker-compose.yml file) in `/etc/hosts`; it's helpful to have `redis01xj1` and `mysql01xj1` as well:
 
     172.16.217.50 mysql01xj1
     172.16.217.60 redis01xj1
     172.16.217.10 hub01xj1
-    172.16.217.10 xj.dev
+    172.16.217.10 hub.xj.dev
 
 ## Google Authentication
 
@@ -542,7 +542,7 @@ Get a MySQL shell with `sudo mysql -u root` and then run all of the following:
 
 On OSX, because we are unable to connect to the container from the host, we are using the following workarounds, which are built in to the cross-platform workflow:
 
-  * Local port 80 (e.g. http://xj.dev) is mapped to Docker container `hub01xj1` port 80
+  * Local port 80 (e.g. http://hub.xj.dev) is mapped to Docker container `hub01xj1` port 80
   * Local port 3300 is mapped to MySQL container `mysql01xj1` port 3306
 
 Docker documentation: https://docs.docker.com/docker-for-mac/networking/#per-container-ip-addressing-is-not-possible

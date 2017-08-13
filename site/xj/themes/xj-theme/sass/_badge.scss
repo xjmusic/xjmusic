@@ -1,0 +1,14 @@
+@import "fonts";
+
+.badge {
+  font-family: $font-family-header;
+  margin-right: 10px;
+}
+
+.badges .badge.badge-primary {
+  background-color: #404780;
+  &:hover {
+    background-color: #333966;
+  }
+}
+

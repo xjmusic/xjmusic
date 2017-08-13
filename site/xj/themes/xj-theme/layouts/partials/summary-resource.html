@@ -1,0 +1,10 @@
+<div class="card rounded clickable" onclick="goto('{{ .Permalink }}');">
+    <div class="card-container">
+        <div class="type">Resource</div>
+        <a class="headline" href="{{ .Permalink }}" aria-label="{{ .Summary }}">
+            {{ .Title | markdownify }}</a>
+        <div class="publication">{{ .Params.publication | markdownify }}</div>
+        <div class="year">{{ .Date.Format "2006 January" }}</div>
+    </div>
+    <div class="subtext">{{ .Description | safeHTML }}</div>
+</div>

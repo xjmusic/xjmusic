@@ -47,7 +47,7 @@ public class IdeaMeme extends MemeEntity {
 
   @Override
   public IdeaMeme setName(String name) {
-    this.name = Text.ProperSlug(name);
+    this.name = Text.toProperSlug(name);
     return this;
   }
 

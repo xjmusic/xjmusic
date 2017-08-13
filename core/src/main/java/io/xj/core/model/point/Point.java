@@ -87,7 +87,7 @@ public class Point extends Entity {
   }
 
   public Point setNote(String note) {
-    this.note = Text.Note(note);
+    this.note = Text.toNote(note);
     return this;
   }
 

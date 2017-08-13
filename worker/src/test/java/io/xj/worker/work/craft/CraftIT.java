@@ -133,7 +133,7 @@ public class CraftIT {
     IntegrationTestEntity.insertPhaseMeme(346, 315, "Heavy");
 
     // Chain "Test Print #1" is ready to begin
-    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricating, TimestampUTC.nowMinusSeconds(1000), null);
+    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricating, TimestampUTC.nowMinusSeconds(1000), null, null);
 
     // Bind the library to the chain
     IntegrationTestEntity.insertChainLibrary(1, 1, 2);

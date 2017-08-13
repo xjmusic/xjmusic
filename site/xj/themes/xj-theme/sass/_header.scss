@@ -1,0 +1,126 @@
+@import "fonts";
+@import "palette";
+
+$nav-item-border: 1px solid #444;
+
+.global-header {
+  background: #000000;
+  border-bottom: #333 1px solid;
+
+  .navbar {
+    padding: 0 0 0 0;
+    .navbar-toggler-right {
+      right: 0;
+    }
+    a {
+      color: #ffffff;
+    }
+  }
+
+  .navbar-brand {
+
+    .brand {
+      display: inline-block;
+      margin-left: 0.62rem;
+      vertical-align: middle;
+      font-weight: 500;
+      font-size: $font-size-l;
+      font-family: $font-family-header;
+    }
+
+    img {
+      width: 30px;
+      height: 30px;
+    }
+  }
+
+  .navbar .navbar-toggler {
+    cursor: pointer;
+    &:focus {
+      background: #202020;
+      outline: none !important;
+      border: #777 1px solid;
+      box-shadow: 0 0 10px #777;
+    }
+  }
+
+  .navbar-nav .nav-item {
+    text-align: right;
+    cursor: pointer;
+    .nav-link {
+      font-family: $font-family-header;
+      font-weight: 900;
+    }
+
+    &.dropdown {
+      .btn {
+        color: #fff;
+        background-color: #000;
+        border: 1px #333 solid;
+      }
+
+      .dropdown-toggle::after {
+        margin-top: 0.8rem;
+        vertical-align: top;
+      }
+      .dropdown-menu {
+        box-shadow: 0 0 50px rgba(50, 50, 50, 0.2);
+        background-color: #000;
+        border: 1px #333 solid;
+        border-top: 0 none;
+        margin-top: 0;
+        padding: 0 0 0 0;
+        border-radius: 0 !important;
+
+        .dropdown-item {
+          padding: .62rem 3rem .62rem 2rem;
+          &:active, &:focus, &:hover {
+            background: #303030;
+          }
+        }
+      }
+    }
+  }
+}
+
+/* this is only for full (desktop) nav */
+@media (min-width: 992px) {
+  .global-header {
+    height: 90px;
+    .navbar {
+      .navbar-nav {
+        .nav-item .nav-link {
+          color: $font-color;
+          padding: 30px 30px 0 30px;
+          height: 90px;
+          border-left: $nav-item-border;
+          &:last-child {
+            border-right: $nav-item-border;
+          }
+          &.active {
+            @include blue-highlight-black;
+          }
+        }
+      }
+    }
+  }
+}
+
+/* this is only for collapsible (mobile) nav */
+@media (max-width: 991px) {
+  .global-header {
+    .navbar {
+      padding: 10px 0 10px 0;
+      .navbar-nav .nav-item {
+        .nav-link {
+          padding-right: 1em;
+        }
+        &.dropdown .dropdown-item {
+          text-align: right;
+        }
+      }
+    }
+  }
+}
+
+

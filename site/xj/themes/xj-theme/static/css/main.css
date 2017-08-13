@@ -1,0 +1,1192 @@
+@charset "UTF-8";
+/* ==========================================================================
+   XJ™ Theme
+   ========================================================================== */
+/**
+String Replace
+ */
+/**
+Font Face
+ */
+/* default colors */
+/* default sizes */
+/* default line heights */
+/*
+@include font-face("Averta", "Averta/Averta-Thin", 100, normal, woff2 woff);
+@include font-face("Averta", "Averta/Averta-Regular", normal, normal, woff2 woff);
+@include font-face("Averta", "Averta/Averta-Semibold", 500, normal, woff2 woff);
+@include font-face("Averta", "Averta/Averta-RegularItalic", normal, italic, woff2 woff);
+*/
+@font-face {
+  font-family: "Averta";
+  font-style: normal;
+  font-weight: bold;
+  src: url("/fonts/Averta/Averta-Bold.woff2") format("woff2"), url("/fonts/Averta/Averta-Bold.woff") format("woff"); }
+
+/*
+$RobotoSlab: "RobotoSlab", serif;
+@include font-face("RobotoSlab", "RobotoSlab/RobotoSlab-Thin", 100, normal, ttf);
+@include font-face("RobotoSlab", "RobotoSlab/RobotoSlab-Light", 300, normal, ttf);
+@include font-face("RobotoSlab", "RobotoSlab/RobotoSlab-Regular", 500, normal, ttf);
+@include font-face("RobotoSlab", "RobotoSlab/RobotoSlab-Bold", bold, normal, ttf);
+*/
+@font-face {
+  font-family: "Lora";
+  font-style: normal;
+  font-weight: regular;
+  src: url("/fonts/Lora/Lora-Regular.ttf") format("truetype"); }
+
+@font-face {
+  font-family: "Lora";
+  font-style: italic;
+  font-weight: regular;
+  src: url("/fonts/Lora/Lora-Italic.ttf") format("truetype"); }
+
+@font-face {
+  font-family: "Lora";
+  font-style: normal;
+  font-weight: bold;
+  src: url("/fonts/Lora/Lora-Bold.ttf") format("truetype"); }
+
+@font-face {
+  font-family: "Lora";
+  font-style: italic;
+  font-weight: bold;
+  src: url("/fonts/Lora/Lora-BoldItalic.ttf") format("truetype"); }
+
+label, .label, .header {
+  font-family: "Averta", Arial, sans-serif;
+  font-size: 0.875rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+  line-height: 1.125rem;
+  text-transform: uppercase; }
+
+h1 {
+  font-family: "Lora", serif;
+  font-size: 1.875rem;
+  font-weight: bold;
+  line-height: 2.125rem;
+  color: #f7f8ff; }
+
+h2 {
+  font-family: "Lora", serif;
+  font-size: 1.5rem;
+  font-weight: bold;
+  line-height: 1.75rem;
+  color: #f7f8ff; }
+
+h3 {
+  font-family: "Lora", serif;
+  font-size: 1.25rem;
+  line-height: 1.5rem;
+  font-weight: bold;
+  color: #f7f8ff; }
+
+h4, h5, h6 {
+  font-family: "Lora", serif;
+  font-size: 1rem;
+  line-height: 1.5rem;
+  font-weight: bold;
+  color: #f7f8ff; }
+
+body, div, p {
+  font-family: "Lora", serif;
+  font-size: 1rem;
+  line-height: 1.8rem;
+  color: #f7f8ff; }
+
+blockquote, blockquote p {
+  font-family: "Lora", serif; }
+
+.badge {
+  font-family: "Averta", Arial, sans-serif;
+  margin-right: 10px; }
+
+.badges .badge.badge-primary {
+  background-color: #404780; }
+  .badges .badge.badge-primary:hover {
+    background-color: #333966; }
+
+.card.banner {
+  margin-top: 1rem;
+  padding: 1rem 1rem; }
+  .card.banner h1 {
+    margin-bottom: 0; }
+
+/**
+String Replace
+ */
+/**
+Font Face
+ */
+/* default colors */
+/* default sizes */
+/* default line heights */
+/*
+@include font-face("Averta", "Averta/Averta-Thin", 100, normal, woff2 woff);
+@include font-face("Averta", "Averta/Averta-Regular", normal, normal, woff2 woff);
+@include font-face("Averta", "Averta/Averta-Semibold", 500, normal, woff2 woff);
+@include font-face("Averta", "Averta/Averta-RegularItalic", normal, italic, woff2 woff);
+*/
+@font-face {
+  font-family: "Averta";
+  font-style: normal;
+  font-weight: bold;
+  src: url("/fonts/Averta/Averta-Bold.woff2") format("woff2"), url("/fonts/Averta/Averta-Bold.woff") format("woff"); }
+
+/*
+$RobotoSlab: "RobotoSlab", serif;
+@include font-face("RobotoSlab", "RobotoSlab/RobotoSlab-Thin", 100, normal, ttf);
+@include font-face("RobotoSlab", "RobotoSlab/RobotoSlab-Light", 300, normal, ttf);
+@include font-face("RobotoSlab", "RobotoSlab/RobotoSlab-Regular", 500, normal, ttf);
+@include font-face("RobotoSlab", "RobotoSlab/RobotoSlab-Bold", bold, normal, ttf);
+*/
+@font-face {
+  font-family: "Lora";
+  font-style: normal;
+  font-weight: regular;
+  src: url("/fonts/Lora/Lora-Regular.ttf") format("truetype"); }
+
+@font-face {
+  font-family: "Lora";
+  font-style: italic;
+  font-weight: regular;
+  src: url("/fonts/Lora/Lora-Italic.ttf") format("truetype"); }
+
+@font-face {
+  font-family: "Lora";
+  font-style: normal;
+  font-weight: bold;
+  src: url("/fonts/Lora/Lora-Bold.ttf") format("truetype"); }
+
+@font-face {
+  font-family: "Lora";
+  font-style: italic;
+  font-weight: bold;
+  src: url("/fonts/Lora/Lora-BoldItalic.ttf") format("truetype"); }
+
+label, .label, .header {
+  font-family: "Averta", Arial, sans-serif;
+  font-size: 0.875rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+  line-height: 1.125rem;
+  text-transform: uppercase; }
+
+h1 {
+  font-family: "Lora", serif;
+  font-size: 1.875rem;
+  font-weight: bold;
+  line-height: 2.125rem;
+  color: #f7f8ff; }
+
+h2 {
+  font-family: "Lora", serif;
+  font-size: 1.5rem;
+  font-weight: bold;
+  line-height: 1.75rem;
+  color: #f7f8ff; }
+
+h3 {
+  font-family: "Lora", serif;
+  font-size: 1.25rem;
+  line-height: 1.5rem;
+  font-weight: bold;
+  color: #f7f8ff; }
+
+h4, h5, h6 {
+  font-family: "Lora", serif;
+  font-size: 1rem;
+  line-height: 1.5rem;
+  font-weight: bold;
+  color: #f7f8ff; }
+
+body, div, p {
+  font-family: "Lora", serif;
+  font-size: 1rem;
+  line-height: 1.8rem;
+  color: #f7f8ff; }
+
+blockquote, blockquote p {
+  font-family: "Lora", serif; }
+
+footer {
+  margin-top: 6em; }
+
+.asterisk {
+  color: green; }
+
+/**
+String Replace
+ */
+/**
+Font Face
+ */
+/* default colors */
+/* default sizes */
+/* default line heights */
+/*
+@include font-face("Averta", "Averta/Averta-Thin", 100, normal, woff2 woff);
+@include font-face("Averta", "Averta/Averta-Regular", normal, normal, woff2 woff);
+@include font-face("Averta", "Averta/Averta-Semibold", 500, normal, woff2 woff);
+@include font-face("Averta", "Averta/Averta-RegularItalic", normal, italic, woff2 woff);
+*/
+@font-face {
+  font-family: "Averta";
+  font-style: normal;
+  font-weight: bold;
+  src: url("/fonts/Averta/Averta-Bold.woff2") format("woff2"), url("/fonts/Averta/Averta-Bold.woff") format("woff"); }
+
+/*
+$RobotoSlab: "RobotoSlab", serif;
+@include font-face("RobotoSlab", "RobotoSlab/RobotoSlab-Thin", 100, normal, ttf);
+@include font-face("RobotoSlab", "RobotoSlab/RobotoSlab-Light", 300, normal, ttf);
+@include font-face("RobotoSlab", "RobotoSlab/RobotoSlab-Regular", 500, normal, ttf);
+@include font-face("RobotoSlab", "RobotoSlab/RobotoSlab-Bold", bold, normal, ttf);
+*/
+@font-face {
+  font-family: "Lora";
+  font-style: normal;
+  font-weight: regular;
+  src: url("/fonts/Lora/Lora-Regular.ttf") format("truetype"); }
+
+@font-face {
+  font-family: "Lora";
+  font-style: italic;
+  font-weight: regular;
+  src: url("/fonts/Lora/Lora-Italic.ttf") format("truetype"); }
+
+@font-face {
+  font-family: "Lora";
+  font-style: normal;
+  font-weight: bold;
+  src: url("/fonts/Lora/Lora-Bold.ttf") format("truetype"); }
+
+@font-face {
+  font-family: "Lora";
+  font-style: italic;
+  font-weight: bold;
+  src: url("/fonts/Lora/Lora-BoldItalic.ttf") format("truetype"); }
+
+label, .label, .header {
+  font-family: "Averta", Arial, sans-serif;
+  font-size: 0.875rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+  line-height: 1.125rem;
+  text-transform: uppercase; }
+
+h1 {
+  font-family: "Lora", serif;
+  font-size: 1.875rem;
+  font-weight: bold;
+  line-height: 2.125rem;
+  color: #f7f8ff; }
+
+h2 {
+  font-family: "Lora", serif;
+  font-size: 1.5rem;
+  font-weight: bold;
+  line-height: 1.75rem;
+  color: #f7f8ff; }
+
+h3 {
+  font-family: "Lora", serif;
+  font-size: 1.25rem;
+  line-height: 1.5rem;
+  font-weight: bold;
+  color: #f7f8ff; }
+
+h4, h5, h6 {
+  font-family: "Lora", serif;
+  font-size: 1rem;
+  line-height: 1.5rem;
+  font-weight: bold;
+  color: #f7f8ff; }
+
+body, div, p {
+  font-family: "Lora", serif;
+  font-size: 1rem;
+  line-height: 1.8rem;
+  color: #f7f8ff; }
+
+blockquote, blockquote p {
+  font-family: "Lora", serif; }
+
+body {
+  background-color: #000; }
+
+label {
+  font-weight: 500; }
+
+.btn {
+  cursor: pointer; }
+
+img {
+  width: 100%;
+  height: auto; }
+
+sup {
+  vertical-align: super;
+  font-size: 0.6rem; }
+
+p {
+  font-size: 1.25rem; }
+
+@media (min-width: 992px) {
+  p {
+    font-size: 1.25rem; } }
+
+.clickable {
+  cursor: pointer; }
+
+.space-above {
+  margin-top: 20px; }
+
+.space-below {
+  margin-bottom: 2em; }
+
+iframe {
+  width: 100%; }
+
+a {
+  color: #808eff; }
+
+code, pre {
+  background: #343434;
+  color: #8090ff; }
+
+/**
+String Replace
+ */
+/**
+Font Face
+ */
+/* default colors */
+/* default sizes */
+/* default line heights */
+/*
+@include font-face("Averta", "Averta/Averta-Thin", 100, normal, woff2 woff);
+@include font-face("Averta", "Averta/Averta-Regular", normal, normal, woff2 woff);
+@include font-face("Averta", "Averta/Averta-Semibold", 500, normal, woff2 woff);
+@include font-face("Averta", "Averta/Averta-RegularItalic", normal, italic, woff2 woff);
+*/
+@font-face {
+  font-family: "Averta";
+  font-style: normal;
+  font-weight: bold;
+  src: url("/fonts/Averta/Averta-Bold.woff2") format("woff2"), url("/fonts/Averta/Averta-Bold.woff") format("woff"); }
+
+/*
+$RobotoSlab: "RobotoSlab", serif;
+@include font-face("RobotoSlab", "RobotoSlab/RobotoSlab-Thin", 100, normal, ttf);
+@include font-face("RobotoSlab", "RobotoSlab/RobotoSlab-Light", 300, normal, ttf);
+@include font-face("RobotoSlab", "RobotoSlab/RobotoSlab-Regular", 500, normal, ttf);
+@include font-face("RobotoSlab", "RobotoSlab/RobotoSlab-Bold", bold, normal, ttf);
+*/
+@font-face {
+  font-family: "Lora";
+  font-style: normal;
+  font-weight: regular;
+  src: url("/fonts/Lora/Lora-Regular.ttf") format("truetype"); }
+
+@font-face {
+  font-family: "Lora";
+  font-style: italic;
+  font-weight: regular;
+  src: url("/fonts/Lora/Lora-Italic.ttf") format("truetype"); }
+
+@font-face {
+  font-family: "Lora";
+  font-style: normal;
+  font-weight: bold;
+  src: url("/fonts/Lora/Lora-Bold.ttf") format("truetype"); }
+
+@font-face {
+  font-family: "Lora";
+  font-style: italic;
+  font-weight: bold;
+  src: url("/fonts/Lora/Lora-BoldItalic.ttf") format("truetype"); }
+
+label, .label, .header {
+  font-family: "Averta", Arial, sans-serif;
+  font-size: 0.875rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+  line-height: 1.125rem;
+  text-transform: uppercase; }
+
+h1 {
+  font-family: "Lora", serif;
+  font-size: 1.875rem;
+  font-weight: bold;
+  line-height: 2.125rem;
+  color: #f7f8ff; }
+
+h2 {
+  font-family: "Lora", serif;
+  font-size: 1.5rem;
+  font-weight: bold;
+  line-height: 1.75rem;
+  color: #f7f8ff; }
+
+h3 {
+  font-family: "Lora", serif;
+  font-size: 1.25rem;
+  line-height: 1.5rem;
+  font-weight: bold;
+  color: #f7f8ff; }
+
+h4, h5, h6 {
+  font-family: "Lora", serif;
+  font-size: 1rem;
+  line-height: 1.5rem;
+  font-weight: bold;
+  color: #f7f8ff; }
+
+body, div, p {
+  font-family: "Lora", serif;
+  font-size: 1rem;
+  line-height: 1.8rem;
+  color: #f7f8ff; }
+
+blockquote, blockquote p {
+  font-family: "Lora", serif; }
+
+.global-header {
+  background: #000000;
+  border-bottom: #333 1px solid; }
+  .global-header .navbar {
+    padding: 0 0 0 0; }
+    .global-header .navbar .navbar-toggler-right {
+      right: 0; }
+    .global-header .navbar a {
+      color: #ffffff; }
+  .global-header .navbar-brand .brand {
+    display: inline-block;
+    margin-left: 0.62rem;
+    vertical-align: middle;
+    font-weight: 500;
+    font-size: 1.25rem;
+    font-family: "Averta", Arial, sans-serif; }
+  .global-header .navbar-brand img {
+    width: 30px;
+    height: 30px; }
+  .global-header .navbar .navbar-toggler {
+    cursor: pointer; }
+    .global-header .navbar .navbar-toggler:focus {
+      background: #202020;
+      outline: none !important;
+      border: #777 1px solid;
+      box-shadow: 0 0 10px #777; }
+  .global-header .navbar-nav .nav-item {
+    text-align: right;
+    cursor: pointer; }
+    .global-header .navbar-nav .nav-item .nav-link {
+      font-family: "Averta", Arial, sans-serif;
+      font-weight: 900; }
+    .global-header .navbar-nav .nav-item.dropdown .btn {
+      color: #fff;
+      background-color: #000;
+      border: 1px #333 solid; }
+    .global-header .navbar-nav .nav-item.dropdown .dropdown-toggle::after {
+      margin-top: 0.8rem;
+      vertical-align: top; }
+    .global-header .navbar-nav .nav-item.dropdown .dropdown-menu {
+      box-shadow: 0 0 50px rgba(50, 50, 50, 0.2);
+      background-color: #000;
+      border: 1px #333 solid;
+      border-top: 0 none;
+      margin-top: 0;
+      padding: 0 0 0 0;
+      border-radius: 0 !important; }
+      .global-header .navbar-nav .nav-item.dropdown .dropdown-menu .dropdown-item {
+        padding: .62rem 3rem .62rem 2rem; }
+        .global-header .navbar-nav .nav-item.dropdown .dropdown-menu .dropdown-item:active, .global-header .navbar-nav .nav-item.dropdown .dropdown-menu .dropdown-item:focus, .global-header .navbar-nav .nav-item.dropdown .dropdown-menu .dropdown-item:hover {
+          background: #303030; }
+
+/* this is only for full (desktop) nav */
+@media (min-width: 992px) {
+  .global-header {
+    height: 90px; }
+    .global-header .navbar .navbar-nav .nav-item .nav-link {
+      color: #f7f8ff;
+      padding: 30px 30px 0 30px;
+      height: 90px;
+      border-left: 1px solid #444; }
+      .global-header .navbar .navbar-nav .nav-item .nav-link:last-child {
+        border-right: 1px solid #444; }
+      .global-header .navbar .navbar-nav .nav-item .nav-link.active {
+        /*background-size: cover;*/
+        background: #000000;
+        -webkit-box-shadow: inset 0 -35px 90px -45px #808eff;
+        box-shadow: inset 0 -35px 90px -45px #808eff;
+        border-bottom: 3px solid #bfc8ff; } }
+
+/* this is only for collapsible (mobile) nav */
+@media (max-width: 991px) {
+  .global-header .navbar {
+    padding: 10px 0 10px 0; }
+    .global-header .navbar .navbar-nav .nav-item .nav-link {
+      padding-right: 1em; }
+    .global-header .navbar .navbar-nav .nav-item.dropdown .dropdown-item {
+      text-align: right; } }
+
+/**
+String Replace
+ */
+/**
+Font Face
+ */
+/* default colors */
+/* default sizes */
+/* default line heights */
+/*
+@include font-face("Averta", "Averta/Averta-Thin", 100, normal, woff2 woff);
+@include font-face("Averta", "Averta/Averta-Regular", normal, normal, woff2 woff);
+@include font-face("Averta", "Averta/Averta-Semibold", 500, normal, woff2 woff);
+@include font-face("Averta", "Averta/Averta-RegularItalic", normal, italic, woff2 woff);
+*/
+@font-face {
+  font-family: "Averta";
+  font-style: normal;
+  font-weight: bold;
+  src: url("/fonts/Averta/Averta-Bold.woff2") format("woff2"), url("/fonts/Averta/Averta-Bold.woff") format("woff"); }
+
+/*
+$RobotoSlab: "RobotoSlab", serif;
+@include font-face("RobotoSlab", "RobotoSlab/RobotoSlab-Thin", 100, normal, ttf);
+@include font-face("RobotoSlab", "RobotoSlab/RobotoSlab-Light", 300, normal, ttf);
+@include font-face("RobotoSlab", "RobotoSlab/RobotoSlab-Regular", 500, normal, ttf);
+@include font-face("RobotoSlab", "RobotoSlab/RobotoSlab-Bold", bold, normal, ttf);
+*/
+@font-face {
+  font-family: "Lora";
+  font-style: normal;
+  font-weight: regular;
+  src: url("/fonts/Lora/Lora-Regular.ttf") format("truetype"); }
+
+@font-face {
+  font-family: "Lora";
+  font-style: italic;
+  font-weight: regular;
+  src: url("/fonts/Lora/Lora-Italic.ttf") format("truetype"); }
+
+@font-face {
+  font-family: "Lora";
+  font-style: normal;
+  font-weight: bold;
+  src: url("/fonts/Lora/Lora-Bold.ttf") format("truetype"); }
+
+@font-face {
+  font-family: "Lora";
+  font-style: italic;
+  font-weight: bold;
+  src: url("/fonts/Lora/Lora-BoldItalic.ttf") format("truetype"); }
+
+label, .label, .header {
+  font-family: "Averta", Arial, sans-serif;
+  font-size: 0.875rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+  line-height: 1.125rem;
+  text-transform: uppercase; }
+
+h1 {
+  font-family: "Lora", serif;
+  font-size: 1.875rem;
+  font-weight: bold;
+  line-height: 2.125rem;
+  color: #f7f8ff; }
+
+h2 {
+  font-family: "Lora", serif;
+  font-size: 1.5rem;
+  font-weight: bold;
+  line-height: 1.75rem;
+  color: #f7f8ff; }
+
+h3 {
+  font-family: "Lora", serif;
+  font-size: 1.25rem;
+  line-height: 1.5rem;
+  font-weight: bold;
+  color: #f7f8ff; }
+
+h4, h5, h6 {
+  font-family: "Lora", serif;
+  font-size: 1rem;
+  line-height: 1.5rem;
+  font-weight: bold;
+  color: #f7f8ff; }
+
+body, div, p {
+  font-family: "Lora", serif;
+  font-size: 1rem;
+  line-height: 1.8rem;
+  color: #f7f8ff; }
+
+blockquote, blockquote p {
+  font-family: "Lora", serif; }
+
+.list {
+  margin-top: 0;
+  padding-top: 1.38rem; }
+  .list .card {
+    border: 0 none;
+    margin-bottom: 2em; }
+    .list .card .card-img-container {
+      background: #333;
+      position: relative;
+      height: 6em; }
+    .list .card .card-container {
+      background: #333;
+      padding: 0.4em 0.8em 0 0.8em; }
+      .list .card .card-container .headline {
+        font-family: "Lora", serif;
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #fff;
+        margin-top: 0.3rem;
+        margin-bottom: 0; }
+      .list .card .card-container .type {
+        font-family: "Lora", serif;
+        color: #999;
+        font-size: 0.875rem;
+        font-weight: 900;
+        letter-spacing: 0.05rem;
+        text-transform: uppercase;
+        margin-top: 0.3rem; }
+      .list .card .card-container .publication {
+        font-family: "Lora", serif;
+        color: #fff;
+        font-size: 0.875rem;
+        line-height: 1.25rem;
+        font-weight: 900;
+        letter-spacing: 0.05rem;
+        text-transform: uppercase;
+        margin-top: 0.3rem;
+        margin-bottom: 0; }
+      .list .card .card-container .year {
+        font-family: "Lora", serif;
+        color: #999;
+        font-size: 0.875rem;
+        font-weight: 900;
+        letter-spacing: 0.05rem;
+        text-transform: uppercase;
+        margin-top: 0;
+        margin-bottom: 0.3rem; }
+    .list .card .card-img-top {
+      top: 0;
+      height: 14em;
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-position: center center; }
+    .list .card header {
+      position: absolute;
+      bottom: .25em;
+      left: 2%;
+      width: 96%;
+      background: rgba(60, 60, 60, 0.8);
+      color: #ffffff;
+      /*
+      background: rgba(0, 0, 0, 0.68);
+      color: #ffffff;
+      */
+      text-decoration: none;
+      text-underline: none;
+      padding: 2px 2px 5px 8px;
+      font-size: 1.25rem;
+      font-weight: 600; }
+      .list .card header a {
+        font-size: 1.25rem;
+        font-weight: 700;
+        text-decoration: none;
+        color: #ffffff; }
+    .list .card .taxonomy {
+      padding: 0 0 0.3em 0;
+      font-weight: 500;
+      opacity: 0.5; }
+    .list .card .subtext {
+      color: #cacbcc;
+      background: #202020;
+      padding: 0.2em 0.8em 0.2em 0.8em;
+      font-weight: 400; }
+      .list .card .subtext p {
+        margin-top: 10px; }
+
+/**
+String Replace
+ */
+/**
+Font Face
+ */
+/* default colors */
+/* default sizes */
+/* default line heights */
+/*
+@include font-face("Averta", "Averta/Averta-Thin", 100, normal, woff2 woff);
+@include font-face("Averta", "Averta/Averta-Regular", normal, normal, woff2 woff);
+@include font-face("Averta", "Averta/Averta-Semibold", 500, normal, woff2 woff);
+@include font-face("Averta", "Averta/Averta-RegularItalic", normal, italic, woff2 woff);
+*/
+@font-face {
+  font-family: "Averta";
+  font-style: normal;
+  font-weight: bold;
+  src: url("/fonts/Averta/Averta-Bold.woff2") format("woff2"), url("/fonts/Averta/Averta-Bold.woff") format("woff"); }
+
+/*
+$RobotoSlab: "RobotoSlab", serif;
+@include font-face("RobotoSlab", "RobotoSlab/RobotoSlab-Thin", 100, normal, ttf);
+@include font-face("RobotoSlab", "RobotoSlab/RobotoSlab-Light", 300, normal, ttf);
+@include font-face("RobotoSlab", "RobotoSlab/RobotoSlab-Regular", 500, normal, ttf);
+@include font-face("RobotoSlab", "RobotoSlab/RobotoSlab-Bold", bold, normal, ttf);
+*/
+@font-face {
+  font-family: "Lora";
+  font-style: normal;
+  font-weight: regular;
+  src: url("/fonts/Lora/Lora-Regular.ttf") format("truetype"); }
+
+@font-face {
+  font-family: "Lora";
+  font-style: italic;
+  font-weight: regular;
+  src: url("/fonts/Lora/Lora-Italic.ttf") format("truetype"); }
+
+@font-face {
+  font-family: "Lora";
+  font-style: normal;
+  font-weight: bold;
+  src: url("/fonts/Lora/Lora-Bold.ttf") format("truetype"); }
+
+@font-face {
+  font-family: "Lora";
+  font-style: italic;
+  font-weight: bold;
+  src: url("/fonts/Lora/Lora-BoldItalic.ttf") format("truetype"); }
+
+label, .label, .header {
+  font-family: "Averta", Arial, sans-serif;
+  font-size: 0.875rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+  line-height: 1.125rem;
+  text-transform: uppercase; }
+
+h1 {
+  font-family: "Lora", serif;
+  font-size: 1.875rem;
+  font-weight: bold;
+  line-height: 2.125rem;
+  color: #f7f8ff; }
+
+h2 {
+  font-family: "Lora", serif;
+  font-size: 1.5rem;
+  font-weight: bold;
+  line-height: 1.75rem;
+  color: #f7f8ff; }
+
+h3 {
+  font-family: "Lora", serif;
+  font-size: 1.25rem;
+  line-height: 1.5rem;
+  font-weight: bold;
+  color: #f7f8ff; }
+
+h4, h5, h6 {
+  font-family: "Lora", serif;
+  font-size: 1rem;
+  line-height: 1.5rem;
+  font-weight: bold;
+  color: #f7f8ff; }
+
+body, div, p {
+  font-family: "Lora", serif;
+  font-size: 1rem;
+  line-height: 1.8rem;
+  color: #f7f8ff; }
+
+blockquote, blockquote p {
+  font-family: "Lora", serif; }
+
+.login-mini {
+  /*
+  background: #222e87;
+  -webkit-box-shadow: inset 0 5px 20px -5px rgba(0, 0, 0, 0.5);
+  box-shadow: inset 0 5px 20px -5px rgba(0, 0, 0, 0.5);
+  */
+  background: #402345;
+  -webkit-box-shadow: inset 0 100px 200px -50px rgba(128, 142, 255, 0.2);
+  box-shadow: inset 0 100px 200px -50px rgba(128, 142, 255, 0.2);
+  margin-top: 1em;
+  margin-bottom: 1em;
+  padding: 1rem; }
+  .login-mini .headline, .login-mini .subline {
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5); }
+  .login-mini .headline {
+    font-family: "Averta", Arial, sans-serif;
+    color: #f7f8ff;
+    font-size: 1.5rem;
+    font-weight: bold; }
+    .login-mini .headline:hover {
+      text-decoration: none; }
+  .login-mini .subline {
+    color: #f7f8ff;
+    font-family: "Averta", Arial, sans-serif;
+    font-size: 1rem;
+    font-weight: normal;
+    margin-top: 0.5rem; }
+  .login-mini .email {
+    margin-left: 1rem;
+    color: #f7f8ff;
+    font-size: 1.25rem;
+    font-weight: normal;
+    padding-left: 2.6rem;
+    display: inline-block;
+    background: url("/images/email-icon-light.png") center left no-repeat;
+    background-size: 2rem 1.4rem; }
+
+/**
+String Replace
+ */
+/**
+Font Face
+ */
+/* default colors */
+/* default sizes */
+/* default line heights */
+/*
+@include font-face("Averta", "Averta/Averta-Thin", 100, normal, woff2 woff);
+@include font-face("Averta", "Averta/Averta-Regular", normal, normal, woff2 woff);
+@include font-face("Averta", "Averta/Averta-Semibold", 500, normal, woff2 woff);
+@include font-face("Averta", "Averta/Averta-RegularItalic", normal, italic, woff2 woff);
+*/
+@font-face {
+  font-family: "Averta";
+  font-style: normal;
+  font-weight: bold;
+  src: url("/fonts/Averta/Averta-Bold.woff2") format("woff2"), url("/fonts/Averta/Averta-Bold.woff") format("woff"); }
+
+/*
+$RobotoSlab: "RobotoSlab", serif;
+@include font-face("RobotoSlab", "RobotoSlab/RobotoSlab-Thin", 100, normal, ttf);
+@include font-face("RobotoSlab", "RobotoSlab/RobotoSlab-Light", 300, normal, ttf);
+@include font-face("RobotoSlab", "RobotoSlab/RobotoSlab-Regular", 500, normal, ttf);
+@include font-face("RobotoSlab", "RobotoSlab/RobotoSlab-Bold", bold, normal, ttf);
+*/
+@font-face {
+  font-family: "Lora";
+  font-style: normal;
+  font-weight: regular;
+  src: url("/fonts/Lora/Lora-Regular.ttf") format("truetype"); }
+
+@font-face {
+  font-family: "Lora";
+  font-style: italic;
+  font-weight: regular;
+  src: url("/fonts/Lora/Lora-Italic.ttf") format("truetype"); }
+
+@font-face {
+  font-family: "Lora";
+  font-style: normal;
+  font-weight: bold;
+  src: url("/fonts/Lora/Lora-Bold.ttf") format("truetype"); }
+
+@font-face {
+  font-family: "Lora";
+  font-style: italic;
+  font-weight: bold;
+  src: url("/fonts/Lora/Lora-BoldItalic.ttf") format("truetype"); }
+
+label, .label, .header {
+  font-family: "Averta", Arial, sans-serif;
+  font-size: 0.875rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+  line-height: 1.125rem;
+  text-transform: uppercase; }
+
+h1 {
+  font-family: "Lora", serif;
+  font-size: 1.875rem;
+  font-weight: bold;
+  line-height: 2.125rem;
+  color: #f7f8ff; }
+
+h2 {
+  font-family: "Lora", serif;
+  font-size: 1.5rem;
+  font-weight: bold;
+  line-height: 1.75rem;
+  color: #f7f8ff; }
+
+h3 {
+  font-family: "Lora", serif;
+  font-size: 1.25rem;
+  line-height: 1.5rem;
+  font-weight: bold;
+  color: #f7f8ff; }
+
+h4, h5, h6 {
+  font-family: "Lora", serif;
+  font-size: 1rem;
+  line-height: 1.5rem;
+  font-weight: bold;
+  color: #f7f8ff; }
+
+body, div, p {
+  font-family: "Lora", serif;
+  font-size: 1rem;
+  line-height: 1.8rem;
+  color: #f7f8ff; }
+
+blockquote, blockquote p {
+  font-family: "Lora", serif; }
+
+.single article p {
+  color: #cacbcc;
+  font-size: 1.25rem;
+  line-height: 1.875rem; }
+
+.single article a {
+  word-wrap: break-word; }
+
+.single article blockquote {
+  padding-left: 2rem;
+  padding-right: 2rem; }
+  .single article blockquote p {
+    font-size: 1rem;
+    line-height: 1.5rem; }
+
+.single article h1, .single article h2, .single article h3, .single article h4, .single article h5, .single article h6 {
+  margin-top: 1.5rem;
+  margin-bottom: 1rem; }
+
+.single article.page.pad-top {
+  padding-top: 1rem; }
+
+.single article.page p:first-child {
+  margin-top: 0; }
+
+.single article.resource .header {
+  margin-bottom: 0;
+  text-transform: uppercase;
+  font-size: 0.875rem;
+  opacity: 0.38; }
+
+.single article.resource .indent {
+  margin-left: 1rem; }
+
+aside h4 {
+  margin-top: 1.3rem;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  font-size: 1rem;
+  font-weight: 900; }
+
+aside p {
+  margin-top: 0.1rem;
+  margin-bottom: 1.3rem;
+  padding-left: 1rem; }
+
+/**
+String Replace
+ */
+/**
+Font Face
+ */
+/* default colors */
+/* default sizes */
+/* default line heights */
+/*
+@include font-face("Averta", "Averta/Averta-Thin", 100, normal, woff2 woff);
+@include font-face("Averta", "Averta/Averta-Regular", normal, normal, woff2 woff);
+@include font-face("Averta", "Averta/Averta-Semibold", 500, normal, woff2 woff);
+@include font-face("Averta", "Averta/Averta-RegularItalic", normal, italic, woff2 woff);
+*/
+@font-face {
+  font-family: "Averta";
+  font-style: normal;
+  font-weight: bold;
+  src: url("/fonts/Averta/Averta-Bold.woff2") format("woff2"), url("/fonts/Averta/Averta-Bold.woff") format("woff"); }
+
+/*
+$RobotoSlab: "RobotoSlab", serif;
+@include font-face("RobotoSlab", "RobotoSlab/RobotoSlab-Thin", 100, normal, ttf);
+@include font-face("RobotoSlab", "RobotoSlab/RobotoSlab-Light", 300, normal, ttf);
+@include font-face("RobotoSlab", "RobotoSlab/RobotoSlab-Regular", 500, normal, ttf);
+@include font-face("RobotoSlab", "RobotoSlab/RobotoSlab-Bold", bold, normal, ttf);
+*/
+@font-face {
+  font-family: "Lora";
+  font-style: normal;
+  font-weight: regular;
+  src: url("/fonts/Lora/Lora-Regular.ttf") format("truetype"); }
+
+@font-face {
+  font-family: "Lora";
+  font-style: italic;
+  font-weight: regular;
+  src: url("/fonts/Lora/Lora-Italic.ttf") format("truetype"); }
+
+@font-face {
+  font-family: "Lora";
+  font-style: normal;
+  font-weight: bold;
+  src: url("/fonts/Lora/Lora-Bold.ttf") format("truetype"); }
+
+@font-face {
+  font-family: "Lora";
+  font-style: italic;
+  font-weight: bold;
+  src: url("/fonts/Lora/Lora-BoldItalic.ttf") format("truetype"); }
+
+label, .label, .header {
+  font-family: "Averta", Arial, sans-serif;
+  font-size: 0.875rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+  line-height: 1.125rem;
+  text-transform: uppercase; }
+
+h1 {
+  font-family: "Lora", serif;
+  font-size: 1.875rem;
+  font-weight: bold;
+  line-height: 2.125rem;
+  color: #f7f8ff; }
+
+h2 {
+  font-family: "Lora", serif;
+  font-size: 1.5rem;
+  font-weight: bold;
+  line-height: 1.75rem;
+  color: #f7f8ff; }
+
+h3 {
+  font-family: "Lora", serif;
+  font-size: 1.25rem;
+  line-height: 1.5rem;
+  font-weight: bold;
+  color: #f7f8ff; }
+
+h4, h5, h6 {
+  font-family: "Lora", serif;
+  font-size: 1rem;
+  line-height: 1.5rem;
+  font-weight: bold;
+  color: #f7f8ff; }
+
+body, div, p {
+  font-family: "Lora", serif;
+  font-size: 1rem;
+  line-height: 1.8rem;
+  color: #f7f8ff; }
+
+blockquote, blockquote p {
+  font-family: "Lora", serif; }
+
+.splash {
+  /*background-size: cover;*/
+  background: #1f233d;
+  -webkit-box-shadow: inset 0 100px 200px -50px rgba(128, 142, 255, 0.2);
+  box-shadow: inset 0 100px 200px -50px rgba(128, 142, 255, 0.2);
+  padding: 3rem 0 3rem 0; }
+  .splash a, .splash p, .splash h1, .splash h2, .splash h3, .splash h4, .splash h5, .splash h6 {
+    color: #f7f8ff; }
+  .splash h1 {
+    margin-top: 0;
+    margin-left: 1rem;
+    padding-top: 0;
+    font-size: 1.875rem;
+    font-weight: 700;
+    letter-spacing: -0.62pt;
+    text-shadow: 0 0 0.62rem rgba(255, 255, 255, 0.2); }
+  .splash p {
+    margin-top: 1rem;
+    margin-left: 1rem;
+    margin-bottom: 0;
+    font-size: 1.5rem;
+    line-height: 2.5rem;
+    font-weight: 400; }
+
+.image-header {
+  height: 18rem;
+  padding: 0 0 0 0; }
+  .image-header .image-header-container {
+    position: relative;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center center;
+    height: 100%; }
+  .image-header .header {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    margin: 0.5em 0 0 0;
+    color: #ffffff;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 5px 5px 0 10px; }
+    .image-header .header a, .image-header .header p, .image-header .header h1, .image-header .header h2, .image-header .header h3, .image-header .header h4, .image-header .header h5, .image-header .header h6 {
+      color: #36394d; }
+    .image-header .header h1 {
+      font-weight: 600;
+      letter-spacing: -0.06em;
+      font-size: 1.875rem;
+      margin-bottom: 0; }
+  .image-header .taxonomy {
+    margin-bottom: 0.5rem; }
+
+.page-header {
+  color: #000000;
+  padding: 1.2rem 0 0.6rem 0; }
+  .page-header a, .page-header p, .page-header h1, .page-header h2, .page-header h3, .page-header h4, .page-header h5, .page-header h6 {
+    color: #36394d; }
+  .page-header h1 {
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-top: 0;
+    font-size: 1.875rem;
+    font-weight: 700;
+    letter-spacing: -0.38pt; }
+  .page-header p {
+    margin-top: 0;
+    font-size: 1.25rem;
+    font-weight: 400; }
+
+.resource-header {
+  /*background-size: cover;*/
+  background: #1f233d;
+  -webkit-box-shadow: inset 0 100px 200px -50px rgba(128, 142, 255, 0.2);
+  box-shadow: inset 0 100px 200px -50px rgba(128, 142, 255, 0.2);
+  color: #ffffff;
+  padding: 40px 0 10px 0; }
+  .resource-header a, .resource-header p, .resource-header h1, .resource-header h2, .resource-header h3, .resource-header h4, .resource-header h5, .resource-header h6 {
+    color: #f7f8ff; }
+  .resource-header h1 {
+    margin-top: 0;
+    padding-top: 0;
+    font-size: 2em;
+    font-weight: 700;
+    letter-spacing: -0.38pt;
+    text-shadow: 0 0 0.62rem rgba(255, 255, 255, 0.2); }
+  .resource-header h4 {
+    color: #aaa;
+    text-transform: uppercase;
+    font-size: 0.875rem;
+    font-weight: 900; }
+  .resource-header p {
+    margin-top: 0;
+    font-size: 1.5rem;
+    font-weight: 400; }
+  .resource-header .description {
+    line-height: 2.5rem;
+    margin-top: 0.875rem; }
+  .resource-header .taxonomy {
+    margin-top: 2em; }
+  .resource-header a {
+    color: #ddd; }

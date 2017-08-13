@@ -50,7 +50,7 @@ abstract public class Message extends Entity {
   }
 
   public Message setType(String type) {
-    this.type = Text.LowerSlug(type);
+    this.type = Text.toLowerSlug(type);
     return this;
   }
 

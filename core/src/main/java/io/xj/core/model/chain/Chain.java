@@ -3,6 +3,7 @@ package io.xj.core.model.chain;
 
 import io.xj.core.app.exception.BusinessException;
 import io.xj.core.model.Entity;
+import io.xj.core.util.Text;
 
 import org.jooq.Field;
 import org.jooq.Record;
@@ -47,6 +48,7 @@ public class Chain extends Entity {
   private String startAtError;
   private Timestamp stopAt;
   private String stopAtError;
+  private String embedKey;
 
   public ULong getAccountId() {
     return accountId;
@@ -110,6 +112,20 @@ public class Chain extends Entity {
     return this;
   }
 
+  public String getEmbedKey() {
+    return embedKey;
+  }
+
+  public Chain setEmbedKey(String embedKey) {
+    String key = Text.toLowerScored(embedKey);
+    if (key.isEmpty()) {
+      this.embedKey = null;
+    } else {
+      this.embedKey = key;
+    }
+    return this;
+  }
+
   @Override
   public void validate() throws BusinessException {
     // throws its own BusinessException on failure
@@ -168,6 +184,7 @@ public class Chain extends Entity {
     fieldValues.put(CHAIN.STATE, state);
     fieldValues.put(CHAIN.START_AT, startAt);
     fieldValues.put(CHAIN.STOP_AT, stopAt);
+    fieldValues.put(CHAIN.EMBED_KEY, embedKey);
     return fieldValues;
   }
 
@@ -187,4 +204,5 @@ public class Chain extends Entity {
       ", updatedAt=" + updatedAt +
       '}';
   }
+
 }
