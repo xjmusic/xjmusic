@@ -1,5 +1,5 @@
 
-import { capitalize } from 'xj-control/helpers/capitalize';
+import { capitalize } from 'hub-ui/helpers/capitalize';
 import { module, test } from 'qunit';
 
 module('Unit | Helper | capitalize');

@@ -1,8 +1,8 @@
+// TODO [ui/hub] test for accounts/delete
+
 // import { moduleFor, test } from 'ember-qunit';
-
-// TODO [ui] test for library route
-
-// moduleFor('route:library', 'Unit | Route | library', {
+//
+// moduleFor('route:admin/accounts/delete', 'Unit | Route | admin/accounts/delete', {
 //   // Specify the other units that are required for this test.
 //   // needs: ['controller:foo']
 // });

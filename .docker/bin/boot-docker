@@ -71,7 +71,7 @@ if ! mysql_create_database mysql01xj1 3306 xj; then
 fi
 
 # serve static frontend with nginx
-FRONTEND_PATH=/var/app/current/ui/dist/
+FRONTEND_PATH=/var/app/current/ui/hub/dist/
 if [ ! -e "${FRONTEND_PATH}/index.html" ]; then
   printf "Cannot find ${FRONTEND_PATH}/index.html"
   exit 1

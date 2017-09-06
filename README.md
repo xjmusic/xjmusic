@@ -4,7 +4,7 @@ Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserve
 
 **Composite Music Fabrication Platform**
 
-Also see: Documents in `docs` which are published to https://docs.xi.io
+Also see: Documents in `site/docs` which are published to https://docs.xi.io
 
 # Laws
 
@@ -52,9 +52,9 @@ Note that `xj.dev` simply points to the local loopback. Docker-compose maps maps
 
 Assuming the docker containers are up and the hosts configured, you'll be able to open the main UI in a browser at [http://xj.dev/](http://xj.dev/)
 
-The front-end UI is served by the Nginx server on `hub01xj1` via the local `ui/dist` volume. During development, use the [Ember CLI](https://ember-cli.com/) to keep the front-end continuously re-built in real time:
+The front-end UI is served by the Nginx server on `hub01xj1` via the local `ui/hub/dist` volume. During development, use the [Ember CLI](https://ember-cli.com/) to keep the front-end continuously re-built in real time:
 
-    cd ui
+    cd ui/hub
     ember build --watch
 
 To compile the Java server-side applications and package them for deployment:
@@ -113,15 +113,29 @@ You will need to create two databases in your local MySQL server, `xj` and `xj_t
 
 *note that the latest codebase may run migrations on top of that ^^^, and of course it had better pass checksum ;)*
 
-## Docs
+## XJ Website
 
-Docs are located in **docs/** and are published to https://docs.xj.io
+The main website is located in **site/w/** and is published to https://w.xj.io
 
-Serve the docs site locally with:
+Serve the site/w site locally with:
+
+    bin/serve-web
+    
+Build and publish the site/docs site to S3:
+
+    bin/publish-docs
+
+See further docs in [docs/README.md](docs-legacy/README.md)
+
+## XJ Docs
+
+Docs are located in **site/docs/** and are published to https://docs.xj.io
+
+Serve the site/docs site locally with:
 
     bin/serve-docs
     
-Build and publish the docs site to S3:
+Build and publish the site/docs site to S3:
 
     bin/publish-docs
 
@@ -191,9 +205,9 @@ There is only one Nginx server locations configuration, shared by the local Dock
 
     /.nginx/locations.conf
 
-The front-end user interface (ui) is served via Nginx from the local ui/dist/ folder. While developing (and the docker-compose containers are up), run the Ember build in watch-mode to keep the front-end ui rebuilt as your local code changes automatically:
+The front-end user interface (ui/hub) is served via Nginx from the local ui/dist/ folder. While developing (and the docker-compose containers are up), run the Ember build in watch-mode to keep the front-end ui rebuilt as your local code changes automatically:
 
-    cd ui
+    cd ui/hub
     ember build --watch
 
 ## Compile server-side platform
@@ -376,9 +390,9 @@ The file upload ACL `bucket-owner-full-control` affords the administration of up
 
 # Components
 
-## ui
+## ui/hub
 
-User interface web application. Built with Javascript, Ember, Bower, Node.
+Hub user interface web application. Built with Javascript, Ember, Bower, Node.
 
 Requires Node.js version 7+
 

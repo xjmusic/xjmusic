@@ -2,7 +2,7 @@
 
 module.exports = function (environment) {
   let ENV = {
-    modulePrefix: 'xj-control',
+    modulePrefix: 'hub-ui',
     environment: environment,
     locationType: 'auto',
     'ember-cli-string-helpers': {

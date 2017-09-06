@@ -1,5 +1,5 @@
 import Ember from 'ember';
-import { initialize } from 'xj-control/instance-initializers/auth';
+import { initialize } from 'hub-ui/instance-initializers/auth';
 import { module, test } from 'qunit';
 import destroyApp from '../../helpers/destroy-app';
 

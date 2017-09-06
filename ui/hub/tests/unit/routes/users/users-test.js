@@ -1,4 +1,4 @@
-// TODO [ui] tests for route /users
+// TODO [ui/hub] tests for route /users
 
 // import { moduleFor, test } from 'ember-qunit';
 //

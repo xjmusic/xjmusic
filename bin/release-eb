@@ -67,9 +67,9 @@ step_ok
 
 #
 step "Add static content to target"
-indent "${PWD}/target/ui/dist"
-mkdir -p ${PWD}/target/ui
-cp -r ui/dist ${PWD}/target/ui/
+indent "${PWD}/target/ui/hub/dist"
+mkdir -p ${PWD}/target/ui/hub
+cp -r ui/hub/dist ${PWD}/target/ui/hub/
 step_ok
 
 #

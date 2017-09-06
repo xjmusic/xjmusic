@@ -1,4 +1,4 @@
-// TODO [ui] tests for users
+// TODO [ui/hub] tests for users
 
 // import { moduleFor, test } from 'ember-qunit';
 //

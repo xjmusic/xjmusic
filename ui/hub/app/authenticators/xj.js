@@ -38,7 +38,7 @@ export default Base.extend({
   restore(properties) {
     // console.log("authenticators/xj restore(...)", properties);
     return properties;
-    // TODO [ui] determine strategy for local storage of user session in frontend, and implementation of ember session restore.
+    // TODO [ui/hub] determine strategy for local storage of user session in frontend, and implementation of ember session restore.
   },
 
   /**

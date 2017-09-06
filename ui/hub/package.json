@@ -1,7 +1,7 @@
 {
-  "name": "xj-control",
+  "name": "hub-ui",
   "version": "0.0.1",
-  "description": "User Interface (UI) for for the XJ Music Audio Fabrication Platform",
+  "description": "User Interface (UI) for Hub, the center of the XJ Ambient Music Platform",
   "private": true,
   "directories": {
     "doc": "doc",
