@@ -1,7 +1,0 @@
-.idea/
-/public/
-.env
-/node_modules/
-
-# this will only contain the output of gulp image processing
-/static/

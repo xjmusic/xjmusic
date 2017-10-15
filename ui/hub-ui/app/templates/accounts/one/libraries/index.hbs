@@ -1,0 +1,41 @@
+<!-- Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved. -->
+
+<!-- Inner Content -->
+{{outlet}}
+
+<!-- Upper Container -->
+<div class="form-horizontal container-fluid">
+
+  <!-- List of Libraries -->
+  <div class="sm-col-12">
+    <div class="table-list">
+      <table class="table">
+        <thead>
+        <tr>
+          <th>Name</th>
+          <th><!-- Actions --></th>
+          <th width="1%">#</th>
+        </tr>
+        </thead>
+        <tbody>
+        {{#each model.libraries as |library|}}
+          <tr class="item">
+            <td>{{#link-to "accounts.one.libraries.one" library}}{{library.name}}{{/link-to}}</td>
+            <td>
+              {{#link-to 'accounts.one.libraries.one.ideas' library}}Ideas{{/link-to}}
+              |&nbsp;{{#link-to 'accounts.one.libraries.one.instruments' library}}Instruments{{/link-to}}
+            </td>
+            <th scope="row">{{library.id}}</th>
+          </tr>
+        {{/each}}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  {{#if auth.isAdmin}}
+    <div class="sm-col-12">
+      Or: {{#link-to 'accounts.one.libraries.new'}}Create New Library{{/link-to}}
+    </div>
+  {{/if}}
+</div>

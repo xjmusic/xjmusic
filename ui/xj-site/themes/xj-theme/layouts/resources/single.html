@@ -1,0 +1,126 @@
+{{ define "title" }}{{ .Title | markdownify }} | {{ .Site.Title }}{{ end }}
+
+{{ define "schema-dot-org" }}
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "BlogPosting",
+  {{- /* Google recommends the headline be no more than 110 characters */}}
+  "headline": "{{ substr .Title 0 110 }}",
+  {{- with .Params.images -}}{{ range first 1 . }}
+  "image": {
+    "@type": "ImageObject",
+    "url": "{{ . | absURL }}"
+    {{- /* Don't try to get imageConfig if image param is not local */ -}}
+    {{- if not (or (hasPrefix . "http://") (hasPrefix . "https://")) -}}
+    {{- with (imageConfig (printf "/static/%s" .)) -}}
+    ,
+    "height": "{{ .Height }}",
+    "width": "{{ .Width }}"
+    {{- end -}}
+    {{ end }}
+  },
+  {{- end -}}{{ end }}
+  "url": "{{ printf "%s" .Permalink }}",
+  "wordCount": "{{ .WordCount }}",
+  {{- $ISO8601 := "2006-01-02T15:04:05-07:00" }}
+  {{- if not .PublishDate.IsZero }}
+  "datePublished": "{{ .PublishDate.Format $ISO8601 }}",
+  {{- else }}
+  "datePublished": "{{ .Date.Format $ISO8601 }}",
+  {{- end }}
+  {{- if not .Lastmod.IsZero }}
+  "dateModified": "{{ .Lastmod.Format $ISO8601 }}",
+  {{- end }}
+  {{- with .Site.Social.GooglePlus }}
+  "publisher": "{{ printf "%s" . }}",
+  {{- end }}
+  "author": {
+    "@type": "Person",
+    "name": "{{ .Params.author | default .Site.Params.author }}"
+  }
+  {{- if or (.Params.categories) (.Params.tags) -}}
+  ,
+  "keywords": "{{ with .Params.categories }}{{ range $i, $e := . }}{{ if $i }},{{ end }}{{ $e }}{{ end }},{{ end }}{{ with .Params.tags }}{{ range $i, $e := . }}{{ if $i }},{{ end }}{{ $e }}{{ end }}{{ end }}"
+  {{- end }}
+
+  {{- with .Params.description -}}
+  ,
+  "description": "{{ . }}"
+  {{- end }}
+}
+
+
+
+
+
+</script>
+
+{{ end }}
+
+{{ define "main" }}
+
+{{ $dateFormat := default "Mon Jan 2, 2006" (index .Site.Params "date_format") }}
+
+<div class="splash resource">
+  <div class="container">
+    <div class="row">
+      <div class="col-12 text-left">
+        <h4 class="header">Resource</h4>
+        <h1>{{ .Title | markdownify }}</h1>
+        <p>
+          <span class="badge badge-primary">{{ .Params.publication | markdownify }}</span>
+          {{ with .Params.authors }}{{ range $i, $e := . }}
+          <span class="badge badge-default">{{ $e | markdownify }}</span>
+          {{ end }}{{ end }}
+        </p>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-12 col-md-10 col-lg-8 text-left">
+        <p class="description">{{ .Params.description | markdownify}}</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container single">
+  <div class="row">
+
+    <div class="col-12 col-lg-8 article-container">
+      <article class="resource">
+
+        <h4 class="header">Link</h4>
+        <div class="indent"><p><a target="_blank" href="{{ .Params.external_url }}">{{ .Params.external_url }}</a></p>
+        </div>
+
+        <h4 class="header">Publication</h4>
+        <div class="indent"><p>{{ .Params.publication | markdownify }}</p></div>
+
+        <h4 class="header">Summary</h4>
+        <!-- Main -->
+        <div class="indent">{{ .Render "content" }}</div>
+
+        <h4 class="header">Tags</h4>
+        <div class="indent">
+          {{ partial "item-taxonomy.html" . }}
+        </div>
+
+        <h4 class="header">Please Note</h4>
+        <div class="indent"><p>XJ&trade; is in no way affiliated with this publication. The above resource is referenced
+          here on our site,
+          because we read it, and are interested in its findings. Please share your own thoughts on the subject.</p>
+        </div>
+
+      </article>
+
+    </div>
+
+    <aside class="col-12 col-lg-4">
+      {{ partial "mini-about" . }}
+    </aside>
+
+  </div>
+</div>
+
+{{ end }}

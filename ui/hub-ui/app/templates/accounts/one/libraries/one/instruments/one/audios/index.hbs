@@ -1,0 +1,57 @@
+<!-- Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved. -->
+
+<!-- Inner Content -->
+{{outlet}}
+
+<!-- Upper Container -->
+<div class="form-horizontal container-fluid">
+
+  <!-- List of Audios -->
+  <div class="sm-col-12">
+    <div class="table-list">
+      <table class="table">
+        <thead>
+        <tr>
+          <th>Name</th>
+          <th>Waveform</th>
+          <th width="1%">tempo</th>
+          <th width="1%">pitch</th>
+          <th width="1%">start</th>
+          <th width="1%">length</th>
+          <th><!-- Actions --></th>
+          <th width="1%">#</th>
+        </tr>
+        </thead>
+        <tbody>
+        {{#each model.audios as |audio|}}
+          <tr class="item">
+            <td>{{#link-to "accounts.one.libraries.one.instruments.one.audios.one"
+                                       audio}}{{audio.name}}{{/link-to}}</td>
+            <td><audio controls>
+              <source src="{{model.audioBaseUrl}}{{audio.waveformKey}}" type="audio/wav">
+              Your browser does not support the audio element.
+            </audio></td>
+            <td>{{audio.tempo}}</td>
+            <td>{{audio.pitch}}</td>
+            <td>{{audio.start}}</td>
+            <td>{{audio.length}}</td>
+            <td>
+              {{#link-to 'accounts.one.libraries.one.instruments.one.audios.one.events' audio}}
+              Events{{/link-to}}
+              |&nbsp;{{#link-to 'accounts.one.libraries.one.instruments.one.audios.one.chords' audio}}
+              Chords{{/link-to}}
+            </td>
+            <th scope="row">{{audio.id}}</th>
+          </tr>
+        {{/each}}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  {{#if (or auth.isArtist auth.isAdmin)}}
+    <div class="sm-col-12">
+      Or: {{#link-to 'accounts.one.libraries.one.instruments.one.audios.new'}}Create New Audio{{/link-to}}
+    </div>
+  {{/if}}
+</div>

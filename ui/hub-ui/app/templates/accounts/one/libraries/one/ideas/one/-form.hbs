@@ -1,0 +1,70 @@
+<!-- Owner (User) -->
+<div class="form-group row">
+  <label class="col-sm-2 control-label">User</label>
+  <div class="col-sm-10">
+    <div class="readonly-field">{{model.user.name}}</div>
+  </div>
+</div>
+
+<!-- Parent (Library) -->
+<div class="form-group row">
+  <label class="col-sm-2 control-label">Library</label>
+  <div class="col-sm-10">
+    <div class="readonly-field">{{model.library.name}}</div>
+  </div>
+</div>
+
+<!-- Type -->
+<div class="form-group row">
+  <label class="col-sm-2 control-label">Type</label>
+  <div class="col-sm-10">
+    <select class="form-control" onchange={{action "selectIdeaType" value="target.value"}} title="Type">
+      {{#if config.ideaTypes}}
+        {{#each config.ideaTypes as |type|}}
+          <option value={{type}} selected={{eq model.type type}}>{{type}}</option>
+        {{/each}}
+      {{else}}
+        <option value={{model.type}} selected>{{model.type}}</option>
+      {{/if}}
+    </select>
+    <!--input type="text" value=model.type class="form-control" autofocus="autofocus"
+            placeholder="The type of the Chain"}} -->
+  </div>
+</div>
+
+<!-- Name -->
+<div class="form-group row">
+  <label class="col-sm-2 control-label">Name</label>
+  <div class="col-sm-10">
+    {{input type="text" value=model.name class="form-control" autofocus="autofocus"
+            placeholder="The name of the Idea"}}
+  </div>
+</div>
+
+<!-- Key -->
+<div class="form-group row">
+  <label class="col-sm-2 control-label">Key</label>
+  <div class="col-sm-10">
+    {{input type="text" value=model.key class="form-control" autofocus="autofocus"
+            placeholder="The key of the Idea"}}
+  </div>
+</div>
+
+<!-- Tempo -->
+<div class="form-group row">
+  <label class="col-sm-2 control-label">Tempo</label>
+  <div class="col-sm-10">
+    {{input type="number" step="any" value=model.tempo class="form-control"
+            placeholder="The tempo of the Idea"}}
+  </div>
+</div>
+
+<!-- Density -->
+<div class="form-group row">
+  <label class="col-sm-2 control-label">Density</label>
+  <div class="col-sm-10">
+    {{input type="number" step="any" value=model.density class="form-control"
+            placeholder="The density of the Idea"}}
+  </div>
+</div>
+

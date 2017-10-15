@@ -1,0 +1,58 @@
+// Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
+@import "palette";
+
+.table thead th {
+  border-top: 0 none;
+}
+
+img.icon {
+  width: 1em;
+}
+
+.table-list {
+
+  table, tr, th, td, thead, tbody {
+    background: transparent;
+  }
+
+  .item {
+  }
+
+  .table {
+    tr.item {
+      img.avatar {
+        width: 24px;
+        height: 24px;
+        border: 1px solid $low-gray;
+      }
+      border-top: 1px solid $gray;
+      &.now-playing {
+        border-top: 1px solid #00c000;
+      }
+    }
+    tr {
+      td, th {
+        border: 0 none;
+      }
+    }
+  }
+
+  .begin-at {
+    opacity: 0.2;
+  }
+
+}
+
+table.chords {
+  width: 100%;
+  tr, th, td {
+    padding: 0;
+    border: 0 none;
+  }
+  th {
+    width: 30%;
+    opacity: 0.5;
+    text-align: right;
+    padding-right: 1em;
+  }
+}

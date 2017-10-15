@@ -1,0 +1,14 @@
+<!-- Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved. -->
+
+{{yield}}
+
+<div class="link-choices">
+  {{#each model.choices as |choice|}}
+    <div class="choice">
+      ({{choice.type}})
+      {{#link-to 'accounts.one.libraries.one.ideas.one' choice.idea.library choice.idea}}{{choice.idea.name}}{{/link-to}}
+      @{{choice.phaseOffset}}
+      T{{choice.transpose}}
+    </div>
+  {{/each}}
+</div>

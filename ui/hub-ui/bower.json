@@ -1,0 +1,11 @@
+{
+  "name": "hub-ui",
+  "dependencies": {
+    "ember": "~2.5.0",
+    "ember-cli-shims": "0.1.1",
+    "ember-qunit-notifications": "0.1.0",
+    "bootstrap": "v4.0.0-alpha.6",
+    "tether": "1.4.0",
+    "wavesurfer.js":"1.4.0"
+  }
+}

@@ -1,0 +1,36 @@
+{{yield}}
+
+<div id="waveform">
+  <!-- Waveform -->
+</div>
+
+<!-- zoom slider -->
+<div style="text-align: center">
+  <p class="row" style="padding: 20px">
+    <div class="col-xs-1">
+      {{fa-icon "search-minus"}}
+    </div>
+
+    <div class="col-sm-7">
+      <input id="slider" type="range" min="1" max="1000" value="1" style="width: 100%" />
+    </div>
+
+    <div class="col-xs-1">
+      {{fa-icon "search-plus"}}
+    </div>
+
+  </p>
+</div>
+
+<!-- play button -->
+<div class="row" style="padding: 15px">
+  <div class="col-sm-7">
+    <button class="btn btn-primary" data-action="play">
+      {{fa-icon "play"}}
+        Play
+        /
+      {{fa-icon "pause"}}
+        Pause
+      </button>
+  </div>
+</div>

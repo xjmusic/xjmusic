@@ -5,8 +5,8 @@
 
 #
 step "Clean everything but the distribution"
-destroy ui/hub/node_modules
-destroy ui/hub/bower_components
+destroy ui/hub-ui/node_modules
+destroy ui/hub-ui/bower_components
 finished_ok
 
 # Plus basic cleanup

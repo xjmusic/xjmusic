@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!-- Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved. -->
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>{{content-for "meta-title"}}</title>
+  <meta name="description"
+        content="{{content-for 'meta-description'}}">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  {{content-for "head"}}
+
+  <link rel="stylesheet" href="{{content-for 'url'}}assets/vendor.css">
+  <link rel="stylesheet" href="{{content-for 'url'}}assets/hub-ui.css">
+
+  <!-- these are a few of my fav icons -->
+  <link rel="apple-touch-icon" sizes="180x180" href="{{content-for 'url'}}apple-touch-icon.png">
+  <link rel="icon" type="image/png" href="{{content-for 'url'}}favicon-32x32.png" sizes="32x32">
+  <link rel="icon" type="image/png" href="{{content-for 'url'}}favicon-16x16.png" sizes="16x16">
+  <link rel="manifest" href="{{content-for 'url'}}manifest.json">
+  <link rel="mask-icon" href="{{content-for 'url'}}safari-pinned-tab.svg" color="#303030">
+  <meta name="theme-color" content="#303030">
+
+  <!-- Facebook Open Graph -->
+  <meta property="og:url" content="{{content-for 'url'}}" />
+  <meta property="og:type"               content="website" />
+  <meta property="og:title"              content="{{content-for 'meta-title'}}" />
+  <meta property="og:description"        content="{{content-for 'meta-description'}}" />
+  <meta property="og:image"              content="{{content-for 'meta-image'}}" />
+
+  <!-- Twitter Cards -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@xjplatform">
+  <meta name="twitter:creator" content="@xjplatform">
+  <meta name="twitter:title" content="{{content-for 'meta-title'}}">
+  <meta name="twitter:description" content="{{content-for 'meta-description'}}">
+  <meta name="twitter:image" content="{{content-for 'meta-image'}}">
+
+  <!-- Schema.org / Google+ -->
+  <meta itemprop="name" content="{{content-for 'meta-title'}}">
+  <meta itemprop="description" content="{{content-for 'meta-description'}}">
+  <meta itemprop="image" content="{{content-for 'meta-image'}}">
+
+  {{content-for "head-footer"}}
+</head>
+<body>
+{{content-for "body"}}
+
+<!-- static-content gets deleted right away -->
+<div id="static-content">
+
+  <!-- [#318] Static content is injected into index.html -->
+  {{content-for "marketing"}}
+  {{content-for "footer"}}
+
+</div>
+
+<script src="{{content-for 'url'}}assets/vendor.js"></script>
+<script src="{{content-for 'url'}}assets/hub-ui.js"></script>
+
+{{content-for "body-footer"}}
+</body>
+</html>

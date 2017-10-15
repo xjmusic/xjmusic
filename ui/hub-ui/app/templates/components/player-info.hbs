@@ -1,0 +1,22 @@
+<!-- Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved. -->
+
+
+<div id="player-info">
+  {{capitalize player.state}}
+
+  {{#if player.currentChain}}
+    {{#link-to "accounts.one.chains.one" player.currentChain}}Chain <sup>#</sup>{{player.currentChain.id}}{{/link-to}}
+  {{/if}}
+
+  {{#if player.currentLink}}
+    Link {{player.currentLink.offset}}
+  {{/if}}
+
+  {{#if (eq player.state "Playing")}}
+    <button class="stop" {{action "stop"}}>&#9640;</button>
+  {{/if}}
+
+</div>
+
+
+{{yield}}

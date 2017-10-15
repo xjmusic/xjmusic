@@ -1,0 +1,93 @@
+<!-- Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved. -->
+
+<!-- Row -->
+<div class="form-horizontal container-fluid">
+  <div class="form-group row">
+
+    <!-- State Change -->
+    <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
+      <div class="chain-state-change container-fluid {{lowercase model.state}}-state">
+        <table>
+          <tbody>
+          <tr class="row">
+            <th class="align-middle">
+              {{capitalize model.state}}
+            </th>
+            <td>
+              {{chain-state-change model}}
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Play Chain -->
+    {{#if (or (eq model.state "Fabricating") (eq model.state "Complete"))}}
+      <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
+        <div class="{{if (eq player.currentChain.id model.id)
+                         'now-playing'}} play-chain container-fluid">
+          <table>
+            <tbody>
+            <tr class="row">
+              <th class="align-middle">
+                {{#if (eq player.currentChain.id model.id)}}
+                  {{player.state}}
+                {{else}}
+                  Play
+                {{/if}}
+              </th>
+              <td>
+                <button type="button" aria-label="play chain #{{model.id}}"
+                        class="btn btn-success link-play" {{action 'play' model}}>
+                  &#9658;
+                </button>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    {{/if}}
+
+  </div>
+</div>
+
+<!-- Upper Container -->
+<div class="form-horizontal container-fluid">
+
+  <div class="form-group row">
+    <div class="col-sm-12">
+      <h6>{{#link-to 'accounts.one.chains.one.edit' model}}Edit Chain Properties{{/link-to}}</h6>
+    </div>
+  </div>
+
+  <!-- Links to actions -->
+  <div class="form-group row">
+    <div class="col-sm-2">
+      <h4>{{#link-to 'accounts.one.chains.one.configs' model}}Configs{{/link-to}}</h4>
+    </div>
+    <div class="col-sm-2">
+      <h4>{{#link-to 'accounts.one.chains.one.libraries' model}}Libraries{{/link-to}}</h4>
+    </div>
+    <div class="col-sm-2">
+      <h4>{{#link-to 'accounts.one.chains.one.instruments' model}}Instruments{{/link-to}}</h4>
+    </div>
+    <div class="col-sm-2">
+      <h4>{{#link-to 'accounts.one.chains.one.ideas' model}}Ideas{{/link-to}}</h4>
+    </div>
+  </div>
+
+  <!-- Links -->
+  <div class="form-group row">
+    <div class="col-sm-12 col-md-6">
+      <h2>{{#link-to 'accounts.one.chains.one.links' model}}Links{{/link-to}}</h2>
+      <p>View the planned, crafted, dubbed, and final Links in the Chain, see the details about the individual choices,
+        and playback the Chain as continuous audio beginning from any Link.</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- Inner Content -->
+{{outlet}}

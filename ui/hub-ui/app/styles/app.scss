@@ -1,0 +1,24 @@
+/* Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved. */
+
+@import "breadcrumb";
+@import "chain";
+@import "common";
+@import "ember-power-select";
+@import "footer";
+@import "forms";
+@import "headline";
+@import "mailchimp";
+@import "marketing";
+@import "messages";
+@import "navbar";
+@import "palette";
+@import "player";
+@import "states";
+@import "table";
+@import "typography";
+@import "buttons";
+
+// static content gets deleted right away, but it's vital for S.E.O. [#155]
+#static-content {
+  //  margin-top: 5000px;
+}

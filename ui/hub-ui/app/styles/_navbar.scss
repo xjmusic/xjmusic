@@ -1,0 +1,117 @@
+/* Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved. */
+@import 'palette';
+
+nav.navbar {
+  padding: 0 0 0 0;
+  background-color: $darker-gray;
+
+  .navbar-header {
+    background-color: $dark-gray;
+  }
+
+  .navbar-nav {
+    margin-top: 0;
+    margin-bottom: 0;
+
+    > .active > a {
+      background-color: $dark-gray;
+    }
+  }
+
+  .dropdown-menu {
+    position: absolute;
+    right: 0;
+    .nav-item {
+      text-align: left;
+    }
+  }
+
+  .nav-item {
+    text-align: right;
+    margin-left: 5px;
+    margin-right: 5px;
+    a {
+      padding-right: 10px;
+    }
+  }
+
+  .navbar-sub {
+    background-color: $lower-gray;
+
+    .navbar-nav > .active > a {
+      background-color: $low-gray;
+    }
+  }
+
+  .logo {
+    a {
+      padding-top: 12px;
+      padding-bottom: 12px;
+      img {
+        height: 24px;
+        width: auto;
+      }
+    }
+  }
+
+  .navbar-brand {
+    margin-left: 1rem;
+    img {
+      width: 28px;
+      height: auto;
+    }
+  }
+
+  .inverse-dropdown {
+    background-color: #222;
+    border-color: #080808;
+    & > li > a {
+      color: #999;
+      &:hover {
+        color: #fff;
+        background-color: #000;
+      }
+    }
+    & > .divider {
+      background-color: #000;
+    }
+  }
+
+  badge {
+    margin: 0;
+    padding: 0;
+    font-weight: bold;
+  }
+
+  #refresh-button {
+    a {
+      padding-top: 0;
+      padding-bottom: 0;
+      padding-right: 1em;
+      font-size: 1.5em;
+      &:hover {
+        color: whitesmoke;
+      }
+      &:active {
+        color: lighten($green, 40%);
+      }
+    }
+  }
+
+  #clock {
+    padding-bottom: 0;
+    padding-top: 5px;
+    letter-spacing: 4px;
+    font-family: ClockMono, monospace;
+    font-size: 20px;
+    cursor: pointer;
+    &:hover {
+      color: whitesmoke;
+    }
+    &:active {
+      color: lighten($green, 40%);
+    }
+  }
+
+}
+
