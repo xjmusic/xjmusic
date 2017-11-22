@@ -13,6 +13,7 @@ import com.google.common.collect.ImmutableList;
 import io.xj.core.app.exception.BusinessException;
 import io.xj.core.model.Entity;
 import io.xj.core.util.Value;
+import io.xj.core.util.timestamp.TimestampUTC;
 
 import java.math.BigInteger;
 import java.sql.Timestamp;
@@ -123,7 +124,7 @@ public class Link extends Entity {
 
   public Link setBeginAt(String beginAt) {
     try {
-      this.beginAt = buildTimestampOf(beginAt);
+      this.beginAt = TimestampUTC.valueOf(beginAt);
     } catch (Exception e) {
       beginAtError = e.getMessage();
     }
@@ -141,7 +142,7 @@ public class Link extends Entity {
 
   public Link setEndAt(String endAt) {
     try {
-      this.endAt = buildTimestampOf(endAt);
+      this.endAt = TimestampUTC.valueOf(endAt);
     } catch (Exception e) {
       endAtError = e.getMessage();
     }

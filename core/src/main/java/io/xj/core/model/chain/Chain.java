@@ -4,6 +4,7 @@ package io.xj.core.model.chain;
 import io.xj.core.app.exception.BusinessException;
 import io.xj.core.model.Entity;
 import io.xj.core.util.Text;
+import io.xj.core.util.timestamp.TimestampUTC;
 
 import org.jooq.Field;
 import org.jooq.Record;
@@ -92,7 +93,7 @@ public class Chain extends Entity {
 
   public Chain setStartAt(String value) {
     try {
-      startAt = buildTimestampOf(value);
+      startAt = TimestampUTC.valueOf(value);
     } catch (Exception e) {
       startAtError = e.getMessage();
     }
@@ -105,7 +106,7 @@ public class Chain extends Entity {
 
   public Chain setStopAt(String value) {
     try {
-      stopAt = buildTimestampOf(value);
+      stopAt = TimestampUTC.valueOf(value);
     } catch (Exception e) {
       stopAtError = e.getMessage();
     }

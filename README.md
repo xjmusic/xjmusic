@@ -11,11 +11,16 @@ Also see: Documents in `site/docs` which are published to https://docs.xi.io
   * The XJ platform does not send or receive email.
   * The XJ platform does not implement passwords; it relies on OAuth.
   * Any network connection can and will fail.
-  * Issues are always phrased as a complete statement of expectation.
-  * Every commit must reference an issue #.
-  * Every minute of time must be tracked with an issue #.
-  * Work on branches named after issue #.
-  * Do not commit TODOs; create issues or drop them.
+  * Bugs are described as expectation versus actual, e.g.:
+    - DO THIS: "I clicked the button labeled 'Turn;' I expected the Earth to turn; actually, it stood still."
+    - NOT THIS: "I click the button and nothing happened."
+  * Commits reference issues by id #.
+  * Time is tracked against issues by id #.
+  * Branches are named according to `git-flow` including issue id #, e.g.:
+    - Features are `feature/123-do-new-thing`
+    - Bug Fixes are `bugfix/4567-should-do-this`
+    - Hot Fixes are `hotfix/890-should-do-that`
+  * `TODO` comments are used only in working branches. Upon completion of branch work, any remaining `TODO` should be a new tracker issue.
 
 ## Chain Work
 

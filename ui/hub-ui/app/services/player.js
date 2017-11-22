@@ -148,7 +148,7 @@ export default Ember.Service.extend({
         self.set('currentLink', null);
         self.set('state', STANDBY);
         self.teardownLinkAudioExcept([]);
-        Ember.run.later(resolve, STOP_DELAY_SECONDS * MILLISECONDS_PER_SECOND);
+        Ember.run.later(resolve, STOP_DELAY_SECONDS * MILLIS_PER_SECOND);
       }, reject);
     });
   },
@@ -258,7 +258,7 @@ export default Ember.Service.extend({
         self.get('linkAudios').forEach((linkAudio) => {
           linkAudio.stopWebAudio();
         });
-        Ember.run.later(resolve, STOP_DELAY_SECONDS * MILLISECONDS_PER_SECOND);
+        Ember.run.later(resolve, STOP_DELAY_SECONDS * MILLIS_PER_SECOND);
       } catch (e) {
         reject(e);
       }
@@ -275,7 +275,7 @@ export default Ember.Service.extend({
 
     self.set('cycleMainInterval', setInterval(function () {
       self.doMainCycle();
-    }, CYCLE_MAIN_INTERVAL_SECONDS * MILLISECONDS_PER_SECOND));
+    }, CYCLE_MAIN_INTERVAL_SECONDS * MILLIS_PER_SECOND));
 
   },
 
@@ -289,7 +289,7 @@ export default Ember.Service.extend({
 
     self.set('cycleSubInterval', setInterval(function () {
       self.doSubCycle();
-    }, CYCLE_SUB_INTERVAL_SECONDS * MILLISECONDS_PER_SECOND));
+    }, CYCLE_SUB_INTERVAL_SECONDS * MILLIS_PER_SECOND));
   },
 
   /**
@@ -297,14 +297,14 @@ export default Ember.Service.extend({
    * @param {String} fromTimeUTC
    */
   secondsUTC(fromTimeUTC) {
-    return Moment.utc(fromTimeUTC).valueOf() / MILLISECONDS_PER_SECOND;
+    return Moment.utc(fromTimeUTC).valueOf() / MILLIS_PER_SECOND;
   },
 
   /**
    Seconds from UTC to now
    */
   nowSecondsUTC() {
-    return Moment.utc().valueOf() / MILLISECONDS_PER_SECOND;
+    return Moment.utc().valueOf() / MILLIS_PER_SECOND;
   },
 
   /**
@@ -349,7 +349,7 @@ export default Ember.Service.extend({
    */
   computeEndTime(link) {
     return this.get('playFromContextTime') +
-      Moment.utc(link.get('endAt')).valueOf() / MILLISECONDS_PER_SECOND - this.get('playFromSecondsUTC');
+      Moment.utc(link.get('endAt')).valueOf() / MILLIS_PER_SECOND - this.get('playFromSecondsUTC');
   },
 
   /**
@@ -358,7 +358,7 @@ export default Ember.Service.extend({
    * @returns {*}
    */
   computeBeginTimeRelative(link) {
-    return Moment.utc(link.get('beginAt')).valueOf() / MILLISECONDS_PER_SECOND - this.get('playFromSecondsUTC');
+    return Moment.utc(link.get('beginAt')).valueOf() / MILLIS_PER_SECOND - this.get('playFromSecondsUTC');
   },
 
   /**
@@ -414,4 +414,4 @@ function newAudioContext() {
   return new (window.AudioContext || window.webkitAudioContext)(); // jshint ignore:line
 }
 
-const MILLISECONDS_PER_SECOND = 1000;
+const MILLIS_PER_SECOND = 1000;

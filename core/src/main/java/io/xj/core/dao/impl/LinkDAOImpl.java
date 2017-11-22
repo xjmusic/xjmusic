@@ -47,7 +47,7 @@ import static io.xj.core.tables.LinkChord.LINK_CHORD;
 
 public class LinkDAOImpl extends DAOImpl implements LinkDAO {
 
-  private static final long MILLISECONDS_PER_SECOND = 1000;
+  private static final long MILLIS_PER_SECOND = 1000;
   private final AmazonProvider amazonProvider;
 
   @Inject
@@ -347,7 +347,7 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
   private Result<LinkRecord> readAllFromSecondsUTC(DSLContext db, Access access, ULong chainId, ULong fromSecondsUTC) {
 
     // play buffer delay/ahead seconds
-    Instant from = new Date(fromSecondsUTC.longValue() * MILLISECONDS_PER_SECOND).toInstant();
+    Instant from = new Date(fromSecondsUTC.longValue() * MILLIS_PER_SECOND).toInstant();
     Timestamp maxBeginAt = Timestamp.from(from.plusSeconds(Config.playBufferAheadSeconds()));
     Timestamp minEndAt = Timestamp.from(from.minusSeconds(Config.playBufferDelaySeconds()));
 

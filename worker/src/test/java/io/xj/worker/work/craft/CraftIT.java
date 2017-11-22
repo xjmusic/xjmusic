@@ -45,7 +45,7 @@ public class CraftIT {
   private Injector injector;
   @Mock private AmazonProvider amazonProvider;
   private static final int TEST_DURATION_SECONDS = 15;
-  private static final int MILLISECONDS_PER_SECOND = 1000;
+  private static final int MILLIS_PER_SECOND = 1000;
   private App app;
 
   @Before
@@ -200,7 +200,7 @@ public class CraftIT {
     app.getWorkManager().startChainFabrication(ULong.valueOf(1));
 
     // wait for work, stop chain fabrication, stop app
-    Thread.sleep(TEST_DURATION_SECONDS * MILLISECONDS_PER_SECOND);
+    Thread.sleep(TEST_DURATION_SECONDS * MILLIS_PER_SECOND);
     app.getWorkManager().stopChainFabrication(ULong.valueOf(1));
     app.stop();
 

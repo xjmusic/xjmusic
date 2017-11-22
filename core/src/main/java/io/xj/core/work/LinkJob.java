@@ -18,7 +18,7 @@ import java.util.Objects;
 
 public abstract class LinkJob implements Runnable {
   private static final Logger log = LoggerFactory.getLogger(LinkJob.class);
-  private static final int MILLISECONDS_PER_SECOND = 1000;
+  private static final int MILLIS_PER_SECOND = 1000;
 
   protected String name;
   protected LinkDAO linkDAO;
@@ -55,7 +55,7 @@ public abstract class LinkJob implements Runnable {
         } else try {
           log.warn("{} Link (id={}) failed ({}) Will retry...",
             name, entityId, e.getMessage(), e.getStackTrace());
-          Thread.sleep(Config.workLinkDubRetrySleepSeconds() * MILLISECONDS_PER_SECOND);
+          Thread.sleep(Config.workLinkDubRetrySleepSeconds() * MILLIS_PER_SECOND);
 
         } catch (InterruptedException sleepException) {
           log.warn("{} Link (id={}) was going to retry, but sleep was interrupted ({})",

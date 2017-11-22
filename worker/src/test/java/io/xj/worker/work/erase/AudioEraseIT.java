@@ -36,7 +36,7 @@ public class AudioEraseIT {
   private Injector injector;
   private App app;
   private static final int TEST_DURATION_SECONDS = 3;
-  private static final int MILLISECONDS_PER_SECOND = 1000;
+  private static final int MILLIS_PER_SECOND = 1000;
   @Mock private AmazonProvider amazonProvider;
 
   @Before
@@ -117,7 +117,7 @@ public class AudioEraseIT {
     app.getWorkManager().doAudioDeletion(ULong.valueOf(1));
     app.getWorkManager().doAudioDeletion(ULong.valueOf(2));
 
-    Thread.sleep(TEST_DURATION_SECONDS * MILLISECONDS_PER_SECOND);
+    Thread.sleep(TEST_DURATION_SECONDS * MILLIS_PER_SECOND);
     app.stop();
 
     assertEquals(0, IntegrationTestService.getDb()

@@ -3,6 +3,7 @@ package io.xj.core.model;
 
 import io.xj.core.app.exception.BusinessException;
 import io.xj.core.util.CamelCasify;
+import io.xj.core.util.timestamp.TimestampUTC;
 
 import org.jooq.Field;
 import org.jooq.Record;
@@ -54,7 +55,7 @@ public abstract class Entity {
 
   public Entity setCreatedAt(String createdAt) {
     try {
-      this.createdAt = buildTimestampOf(createdAt);
+      this.createdAt = TimestampUTC.valueOf(createdAt);
     } catch (Exception e) {
       this.createdAt = null;
     }
@@ -67,7 +68,7 @@ public abstract class Entity {
 
   public Entity setUpdatedAt(String updatedAt) {
     try {
-      this.updatedAt = buildTimestampOf(updatedAt);
+      this.updatedAt = TimestampUTC.valueOf(updatedAt);
     } catch (Exception e) {
       this.updatedAt = null;
     }
@@ -98,31 +99,5 @@ public abstract class Entity {
    @return map
    */
   public abstract Map<Field, Object> updatableFieldValueMap();
-
-  /**
-   Get timestamp of string value
-
-   @param stopAt string
-   @return timestamp
-   @throws Exception on failure
-   */
-  protected Timestamp buildTimestampOf(String stopAt) throws Exception {
-    if (stopAt != null && stopAt.length() > 0) {
-      return Timestamp.valueOf(stopAt);
-    }
-    return null;
-  }
-
-  /**
-   Get a YAML string based on the updatable field value map
-
-   @return YAML string
-   */
-  public Map<String, Object> asMap() {
-    Map<String, Object> out = Maps.newHashMap();
-    updatableFieldValueMap().forEach((field, value) -> out.put(CamelCasify.ifNeeded(field.getName()), value));
-    out.put(KEY_ID, id);
-    return out;
-  }
 
 }

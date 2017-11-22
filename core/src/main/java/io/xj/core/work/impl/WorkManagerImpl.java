@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 
 public class WorkManagerImpl implements WorkManager {
   private static Logger log = LoggerFactory.getLogger(WorkManagerImpl.class);
-  private static final Integer MILLISECONDS_PER_SECOND = 1000;
+  private static final Integer MILLIS_PER_SECOND = 1000;
   private final RedisDatabaseProvider redisDatabaseProvider;
 
   @Inject
@@ -135,7 +135,7 @@ public class WorkManagerImpl implements WorkManager {
    */
   private void enqueueDelayedWork(Job job, long delaySeconds) {
     Client client = getQueueClient();
-    client.delayedEnqueue(Config.workQueueName(), job, System.currentTimeMillis() + delaySeconds * MILLISECONDS_PER_SECOND);
+    client.delayedEnqueue(Config.workQueueName(), job, System.currentTimeMillis() + delaySeconds * MILLIS_PER_SECOND);
     client.end();
   }
 
@@ -148,7 +148,7 @@ public class WorkManagerImpl implements WorkManager {
    */
   private void enqueueRecurringWork(Job job, long delaySeconds, long recurSeconds) {
     Client client = getQueueClient();
-    client.recurringEnqueue(Config.workQueueName(), job, System.currentTimeMillis() + delaySeconds * MILLISECONDS_PER_SECOND, recurSeconds * MILLISECONDS_PER_SECOND);
+    client.recurringEnqueue(Config.workQueueName(), job, System.currentTimeMillis() + delaySeconds * MILLIS_PER_SECOND, recurSeconds * MILLIS_PER_SECOND);
     client.end();
   }
 
