@@ -1,4 +1,4 @@
-import Ember from 'ember';
+import { helper } from '@ember/component/helper';
 
 export function capitalize(params/*, hash*/) {
   let string = params[0];
@@ -9,4 +9,4 @@ export function capitalize(params/*, hash*/) {
   }
 }
 
-export default Ember.Helper.helper(capitalize);
+export default helper(capitalize);

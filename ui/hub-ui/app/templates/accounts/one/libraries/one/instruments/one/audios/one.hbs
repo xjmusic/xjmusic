@@ -1,6 +1,26 @@
-<!-- Waveform -->
+<!-- Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved. -->
 
-<!-- Row in fluid container-->
+<div class="headline container-fluid">
+  <div class="row">
+    <div class="col-sm-12">
+
+      <!-- Entity type and ID -->
+      <div class="entity">
+        Audio #{{model.id}}
+      </div>
+
+      <!-- Title -->
+      <h1>
+        {{model.name}}
+        <!-- should only show following edit icon is user has privileges to edit audio -->
+        <small>{{#link-to 'accounts.one.libraries.one.instruments.one.audios.one.edit' model.instrument.library.account model.instrument.library model.instrument model}}{{fa-icon 'edit'}}{{/link-to}}</small>
+      </h1>
+
+    </div>
+  </div>
+</div>
+
+<!-- Waveform in a row in fluid container-->
 <div class="container-fluid">
   <div class="row">
     <div class="col-12">
@@ -9,4 +29,19 @@
   </div>
 </div>
 
+<!-- Links to actions -->
+<div class="form-horizontal container-fluid">
+  <div class="form-group row">
+    <ul class="nav nav-tabs">
+      <li class="nav-item">
+        {{#link-to 'accounts.one.libraries.one.instruments.one.audios.one.events' model.instrument.library.account model.instrument.library model.instrument model class='nav-link'}}Events{{/link-to}}
+      </li>
+      <li class="nav-item">
+        {{#link-to 'accounts.one.libraries.one.instruments.one.audios.one.chords' model.instrument.library.account model.instrument.library model.instrument model class='nav-link'}}Chords{{/link-to}}
+      </li>
+    </ul>
+  </div>
+</div>
+
+<!-- Inner Content -->
 {{outlet}}

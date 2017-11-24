@@ -1,11 +1,11 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
-
 @import "palette";
 
 body {
-  background: #181818;
-  color: $gray;
+  background: $body-background-color;
+  color: $body-color;
   font-family: OxygenMono, monospace;
+  padding-top:60px; // because of navbar pinned to top
 }
 
 a {
@@ -36,6 +36,10 @@ hr {
 
 h1 {
   font-size: 1.6em;
+  small {
+    font-size: 0.6em;
+    vertical-align: super;
+  }
 }
 
 h2 {

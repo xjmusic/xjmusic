@@ -1,9 +1,12 @@
 // Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
-import Ember from 'ember';
+import { get } from '@ember/object';
 
-export default Ember.Controller.extend({
+import { inject as service } from '@ember/service';
+import Controller from '@ember/controller';
 
-  display: Ember.inject.service(),
+export default Controller.extend({
+
+  display: service(),
 
   actions: {
 
@@ -19,9 +22,9 @@ export default Ember.Controller.extend({
 
     destroyAccountUser(model) {
       model.destroyRecord().then(() => {
-        Ember.get(this, 'display').success('Removed User from Account.');
+        get(this, 'display').success('Removed User from Account.');
       }).catch((error) => {
-        Ember.get(this, 'display').error(error);
+        get(this, 'display').error(error);
       });
     },
 
@@ -31,11 +34,11 @@ export default Ember.Controller.extend({
         user: model.userToAdd,
       });
       accountUser.save().then(() => {
-        Ember.get(this, 'display').success('Added ' + model.userToAdd.get('name') + ' to ' + model.account.get('name') + '.');
+        get(this, 'display').success('Added ' + model.userToAdd.get('name') + ' to ' + model.account.get('name') + '.');
         // this.transitionToRoute('accounts.one.users',model.account);
         this.send("sessionChanged");
       }).catch((error) => {
-        Ember.get(this, 'display').error(error);
+        get(this, 'display').error(error);
       });
     },
 

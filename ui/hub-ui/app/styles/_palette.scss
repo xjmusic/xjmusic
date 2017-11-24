@@ -4,7 +4,7 @@ $gray: #a0a0a0;
 $red: #c00000;
 $magenta: #ff00ff;
 $purple: #750e80;
-$blue: #0000ff;
+$blue: #000f89;
 $cyan: #3c9ddf;
 $green: #00c000;
 $gold: #ffc000;
@@ -14,3 +14,10 @@ $lower-gray: darken($gray, 35);
 $dark-gray: darken($gray, 40);
 $darker-gray: darken($gray, 50);
 $much-darker-gray: darken($gray, 54);
+
+$body-background-color: #181818;
+$body-color: $gray;
+
+$nav-tabs-border: #555 1px solid;
+$nav-tabs-bg-top-color: $body-background-color;
+$nav-tabs-bg-btm-color: #333;

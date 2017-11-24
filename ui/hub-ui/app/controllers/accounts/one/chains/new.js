@@ -1,17 +1,20 @@
 // Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
-import Ember from 'ember';
+import { get } from '@ember/object';
 
-export default Ember.Controller.extend({
-  config: Ember.inject.service(),
+import { inject as service } from '@ember/service';
+import Controller from '@ember/controller';
+
+export default Controller.extend({
+  config: service(),
 
   actions: {
 
     selectChainState(state) {
-      Ember.get(this, 'model.chain').set('state', state);
+      get(this, 'model.chain').set('state', state);
     },
 
     selectChainType(type) {
-      Ember.get(this, 'model.chain').set('type', type);
+      get(this, 'model.chain').set('type', type);
     },
 
   }

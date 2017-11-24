@@ -1,10 +1,14 @@
 // Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
-import Ember from 'ember';
+import { get } from '@ember/object';
 
-export default Ember.Route.extend({
+import { hash } from 'rsvp';
+import { inject as service } from '@ember/service';
+import Route from '@ember/routing/route';
+
+export default Route.extend({
 
   // Inject: flash message service
-  display: Ember.inject.service(),
+  display: service(),
 
   /**
    * Route Model
@@ -12,23 +16,10 @@ export default Ember.Route.extend({
    */
   model() {
     let instrument = this.modelFor('accounts.one.libraries.one.instruments.one');
-    return Ember.RSVP.hash({
+    return hash({
       instrument: instrument,
       memeToAdd: null,
       instrumentMemes: this.store.query('instrument-meme', {instrumentId: instrument.id}),
-    });
-  },
-
-  /**
-   * Headline
-   */
-  afterModel(model) {
-    Ember.set(this, 'routeHeadline', {
-      title: model.instrument.get('description') + ' ' + 'Memes',
-      entity: {
-        name: 'Instrument',
-        id: model.instrument.get('id')
-      }
     });
   },
 
@@ -44,10 +35,10 @@ export default Ember.Route.extend({
     destroyInstrumentMeme(model) {
       model.destroyRecord({}).then(
         () => {
-          Ember.get(this, 'display').success('Removed Meme from Instrument.');
+          get(this, 'display').success('Removed Meme from Instrument.');
         },
         (error) => {
-          Ember.get(this, 'display').error(error);
+          get(this, 'display').error(error);
         });
     },
 
@@ -58,11 +49,11 @@ export default Ember.Route.extend({
       });
       instrumentMeme.save().then(
         () => {
-          Ember.get(this, 'display').success('Added ' + instrumentMeme.get('name') + ' to ' + model.instrument.get('description') + '.');
+          get(this, 'display').success('Added ' + instrumentMeme.get('name') + ' to ' + model.instrument.get('description') + '.');
           this.send("sessionChanged");
         },
         (error) => {
-          Ember.get(this, 'display').error(error);
+          get(this, 'display').error(error);
         });
     },
 

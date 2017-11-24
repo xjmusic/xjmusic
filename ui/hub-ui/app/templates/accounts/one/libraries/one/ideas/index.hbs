@@ -3,8 +3,6 @@
 <!-- Inner Content -->
 {{outlet}}
 
-<!-- Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved. -->
-
 <!-- Upper Container -->
 <div class="form-horizontal container-fluid">
 
@@ -30,13 +28,13 @@
             <td>{{#link-to "users.one" idea.user}}
               <img src="{{idea.user.avatarUrl}}" alt="{{idea.user.name}}" class="avatar"/>{{/link-to}}</td>
             <td>{{idea.type}}</td>
-            <td>{{#link-to "accounts.one.libraries.one.ideas.one" idea}}{{idea.name}}{{/link-to}}</td>
+            <td>{{#link-to "accounts.one.libraries.one.ideas.one" idea.library.account idea.library idea}}{{idea.name}}{{/link-to}}</td>
             <td>{{idea.key}}</td>
             <td style="white-space: nowrap">{{idea.density}}</td>
             <td>{{idea.tempo}}</td>
             <td>
-              {{#link-to 'accounts.one.libraries.one.ideas.one.memes' idea}}Memes{{/link-to}}
-              |&nbsp;{{#link-to 'accounts.one.libraries.one.ideas.one.phases' idea}}Phases{{/link-to}}
+              {{#link-to 'accounts.one.libraries.one.ideas.one.memes' idea.library.account idea.library idea}}Memes{{/link-to}}
+              |&nbsp;{{#link-to 'accounts.one.libraries.one.ideas.one.phases' idea.library.account idea.library idea}}Phases{{/link-to}}
             </td>
             <th scope="row">{{idea.id}}</th>
           </tr>

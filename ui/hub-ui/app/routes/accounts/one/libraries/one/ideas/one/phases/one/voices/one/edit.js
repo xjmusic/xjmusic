@@ -1,25 +1,29 @@
 // Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
-import Ember from 'ember';
+import { get } from '@ember/object';
 
-export default Ember.Route.extend({
+import { Promise as EmberPromise } from 'rsvp';
+import { inject as service } from '@ember/service';
+import Route from '@ember/routing/route';
+
+export default Route.extend({
 
   // Inject: authentication service
-  auth: Ember.inject.service(),
+  auth: service(),
 
   // Inject: configuration service
-  config: Ember.inject.service(),
+  config: service(),
 
   // Inject: flash message service
-  display: Ember.inject.service(),
+  display: service(),
 
   /**
    * Model is a promise because it depends on promised configs
    * @returns {Ember.RSVP.Promise}
    */
   model() {
-    return new Ember.RSVP.Promise((resolve, reject) => {
+    return new EmberPromise((resolve, reject) => {
       let self = this;
-      Ember.get(this, 'config').promises.config.then(
+      get(this, 'config').promises.config.then(
         () => {
           resolve(self.resolvedModel());
         },
@@ -47,19 +51,6 @@ export default Ember.Route.extend({
   },
 
   /**
-   * Headline
-   */
-  afterModel(model) {
-    Ember.set(this, 'routeHeadline', {
-      title: 'Edit ' + model.get('description'),
-      entity: {
-        name: 'Voice',
-        id: model.get('id')
-      }
-    });
-  },
-
-  /**
    * Route Actions
    */
   actions: {
@@ -67,22 +58,22 @@ export default Ember.Route.extend({
     saveVoice(model) {
       model.save().then(
         () => {
-          Ember.get(this, 'display').success('Updated "' + model.get('description') + '" voice.');
+          get(this, 'display').success('Updated "' + model.get('description') + '" voice.');
           this.transitionTo('accounts.one.libraries.one.ideas.one.phases.one.voices.one', model);
         },
         (error) => {
-          Ember.get(this, 'display').error(error);
+          get(this, 'display').error(error);
         });
     },
 
     destroyVoice(model) {
       model.destroyRecord({}).then(
         () => {
-          Ember.get(this, 'display').success('Deleted "' + model.get('description') + '" voice.');
+          get(this, 'display').success('Deleted "' + model.get('description') + '" voice.');
           this.transitionTo('accounts.one.libraries.one.ideas.one.phases.one.voices');
         },
         (error) => {
-          Ember.get(this, 'display').error(error);
+          get(this, 'display').error(error);
         });
     },
 

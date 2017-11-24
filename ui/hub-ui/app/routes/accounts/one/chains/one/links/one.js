@@ -1,10 +1,13 @@
 // Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
-import Ember from 'ember';
+import { get, set } from '@ember/object';
 
-export default Ember.Route.extend({
+import { inject as service } from '@ember/service';
+import Route from '@ember/routing/route';
+
+export default Route.extend({
 
   // Inject: flash message service
-  display: Ember.inject.service(),
+  display: service(),
 
   /**
    * Route Model
@@ -15,7 +18,7 @@ export default Ember.Route.extend({
     let self = this;
     return this.store.findRecord('link', params.link_id)
       .catch((error) => {
-        Ember.get(self, 'display').error(error);
+        get(self, 'display').error(error);
         self.transitionTo('accounts.one.chains.one.links');
       });
   },
@@ -25,7 +28,7 @@ export default Ember.Route.extend({
    * @param model
    */
   afterModel(model) {
-    Ember.set(this, 'breadCrumb', {
+    set(this, 'breadCrumb', {
       title: model.getTitle()
     });
   }

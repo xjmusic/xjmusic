@@ -1,13 +1,16 @@
 // Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
-import Ember from 'ember';
+import { get } from '@ember/object';
+
+import { inject as service } from '@ember/service';
+import Component from '@ember/component';
 
 /**
  * Displays a Chain state-change U.I.
  */
-const ChainStateChangeComponent = Ember.Component.extend({
+const ChainStateChangeComponent = Component.extend({
 
   // Inject: flash message service
-  display: Ember.inject.service(),
+  display: service(),
 
   /**
    * Component Actions
@@ -25,17 +28,17 @@ const ChainStateChangeComponent = Ember.Component.extend({
       let model = this.get('model');
 
       if (askConfirm && !confirm(this.msgConfirm(toState))) {
-        Ember.get(self, 'display').warning('Cancelled.');
+        get(self, 'display').warning('Cancelled.');
         return;
       }
 
       model.set('state', toState);
       model.save().then(
         () => {
-          Ember.get(self, 'display').success(self.msgSuccess());
+          get(self, 'display').success(self.msgSuccess());
         },
         (error) => {
-          Ember.get(self, 'display').error(error);
+          get(self, 'display').error(error);
         });
     }
 

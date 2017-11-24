@@ -1,27 +1,28 @@
-import Ember from "ember";
+import { get } from '@ember/object';
+import Service, { inject as service } from '@ember/service';
 
-export default Ember.Service.extend({
+export default Service.extend({
 
-  flashMessages: Ember.inject.service(),
+  flashMessages: service(),
 
   error(error) {
     if (error instanceof String) {
-      Ember.get(this, 'flashMessages').danger('Error: ' + error);
+      get(this, 'flashMessages').danger('Error: ' + error);
     } else if ('errors' in error && error.errors.length >= 1) {
-      Ember.get(this, 'flashMessages').danger('Error: ' + error.errors[0].detail);
+      get(this, 'flashMessages').danger('Error: ' + error.errors[0].detail);
     } else if ('message' in error) {
-      Ember.get(this, 'flashMessages').danger('Error: ' + error.message);
+      get(this, 'flashMessages').danger('Error: ' + error.message);
     } else {
-      Ember.get(this, 'flashMessages').danger('Error: ' + error.toString());
+      get(this, 'flashMessages').danger('Error: ' + error.toString());
     }
   },
 
   success(message) {
-    Ember.get(this, 'flashMessages').success(message);
+    get(this, 'flashMessages').success(message);
   },
 
   warning(message) {
-    Ember.get(this, 'flashMessages').warning(message);
+    get(this, 'flashMessages').warning(message);
   }
 
 });

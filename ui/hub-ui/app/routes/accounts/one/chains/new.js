@@ -1,22 +1,26 @@
 // Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
-import Ember from "ember";
+import { get } from '@ember/object';
 
-export default Ember.Route.extend({
+import { Promise as EmberPromise, hash } from 'rsvp';
+import { inject as service } from '@ember/service';
+import Route from '@ember/routing/route';
+
+export default Route.extend({
 
   // Inject: configuration service
-  config: Ember.inject.service(),
+  config: service(),
 
   // Inject: flash message service
-  display: Ember.inject.service(),
+  display: service(),
 
   /**
    * Model is a promise because it depends on promised configs
    * @returns {Ember.RSVP.Promise}
    */
   model() {
-    return new Ember.RSVP.Promise((resolve, reject) => {
+    return new EmberPromise((resolve, reject) => {
       let self = this;
-      Ember.get(this, 'config').promises.config.then(
+      get(this, 'config').promises.config.then(
         (config) => {
           resolve(self.resolvedModel(config));
         },
@@ -34,26 +38,12 @@ export default Ember.Route.extend({
    */
   resolvedModel(config) {
     let account = this.modelFor('accounts.one');
-    return Ember.RSVP.hash({
+    return hash({
       chain: this.store.createRecord('chain', {
         account: account,
         state: config.chainStates[0],
         type: config.chainTypes[0]
       })
-    });
-  },
-
-  /**
-   * Headline
-   */
-  afterModel() {
-    let account = this.modelFor('accounts.one');
-    Ember.set(this, 'routeHeadline', {
-      title: 'New Chain',
-      entity: {
-        name: 'Account',
-        id: account.get('id')
-      }
     });
   },
 
@@ -65,11 +55,11 @@ export default Ember.Route.extend({
     createChain(model) {
       model.save().then(
         () => {
-          Ember.get(this, 'display').success('Created chain ' + model.get('name') + '.');
+          get(this, 'display').success('Created chain ' + model.get('name') + '.');
           this.transitionTo('accounts.one.chains.one', model);
         },
         (error) => {
-          Ember.get(this, 'display').error(error);
+          get(this, 'display').error(error);
         });
     },
 
@@ -79,6 +69,20 @@ export default Ember.Route.extend({
         let confirmation = confirm("Your changes haven't saved yet. Would you like to leave this form?");
         if (confirmation) {
           model.rollbackAttributes();
+        } else {
+          transition.abort();
+        }
+      }
+    },
+
+    cancelCreateChain(transition)
+    {
+      let model = this.controller.get('model.chain');
+      if (model.get('hasDirtyAttributes')) {
+        let confirmation = confirm("Your changes haven't saved yet. Would you like to leave this form?");
+        if (confirmation) {
+          model.rollbackAttributes();
+          this.transitionTo('accounts.one.chains');
         } else {
           transition.abort();
         }

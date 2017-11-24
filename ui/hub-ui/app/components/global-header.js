@@ -1,9 +1,12 @@
 // Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
-import Ember from "ember";
+import $ from 'jquery';
+
+import { inject as service } from '@ember/service';
+import Component from '@ember/component';
 import Moment from "moment";
 
-export default Ember.Component.extend({
-  auth: Ember.inject.service(),
+export default Component.extend({
+  auth: service(),
 
   needs: ['application'],
 
@@ -41,16 +44,16 @@ export default Ember.Component.extend({
    [#320] On mobile, open menu and make selection, expect menu to close
    */
   setupNavbarCollapse() {
-    Ember.$(".navbar-nav li a").click(function (event) {
+    $(".navbar-nav li a").click(function (event) {
       // check if window is small enough so dropdown is created
-      let dropdown = Ember.$(event.target).hasClass('dropdown-toggle');
+      let dropdown = $(event.target).hasClass('dropdown-toggle');
       if (dropdown) {
         // don't collapse on dropdown press
         return;
       }
-      let toggle = Ember.$(".navbar-toggler").is(":visible");
+      let toggle = $(".navbar-toggler").is(":visible");
       if (toggle) {
-        Ember.$(".navbar-collapse").collapse('hide');
+        $(".navbar-collapse").collapse('hide');
       }
     });
   }

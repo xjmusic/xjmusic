@@ -8,7 +8,6 @@ deps() {
   ensure_version "mvn -version" "Maven"
   ensure_version "node -v" "NodeJS"
   ensure_version "npm -v" "NPM"
-  ensure_version "bower -v" "Bower"
   ensure_version "ember -v" "EmberJS CLI"
   ensure_version "phantomjs -v" "PhantomJS"
   ensure_or_copy_file "${PWD}/runtime.env" "Environment variables file" "${PWD}/default.env"

@@ -1,5 +1,5 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
-import Ember from "ember";
+import EmberObject from '@ember/object';
 
 const rgxValidUrl = /(http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
 
@@ -18,7 +18,7 @@ const rgxValidUrl = /(http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#
  * endTime
 
  */
-export default Ember.Object.extend({
+export default EmberObject.extend({
 
   // REQUIRED
   audioContext: null,

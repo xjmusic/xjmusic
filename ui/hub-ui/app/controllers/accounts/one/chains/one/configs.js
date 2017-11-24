@@ -1,9 +1,12 @@
 // Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
-import Ember from 'ember';
+import { set } from '@ember/object';
 
-export default Ember.Controller.extend({
+import { inject as service } from '@ember/service';
+import Controller from '@ember/controller';
 
-  display: Ember.inject.service(),
+export default Controller.extend({
+
+  display: service(),
 
   actions: {
 
@@ -13,7 +16,7 @@ export default Ember.Controller.extend({
      * @returns {*}
      */
     selectChainConfigToAddType(type){
-      Ember.set(this, 'model.chainConfigToAdd.type', type);
+      set(this, 'model.chainConfigToAdd.type', type);
       return type;
     },
 

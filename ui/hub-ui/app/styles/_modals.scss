@@ -1,0 +1,25 @@
+@import "ember-modal-dialog/ember-modal-structure";
+@import "ember-modal-dialog/ember-modal-appearance";
+
+#modal-overlays
+{
+  z-index: 40000;
+
+  .ember-modal-overlay
+  {
+    background-color: rgba(0, 0, 0, 0.6);
+    position: fixed; //??
+  }
+
+  .ember-modal-dialog
+  {
+    z-index: 60000;
+    position: fixed;
+    background-color: $lower-gray;
+    color: #fff;
+    max-height: 100%;
+    max-width: 100%;
+    overflow: auto; //??
+  }
+
+}

@@ -1,15 +1,19 @@
 // Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
-import Ember from 'ember';
+import { get } from '@ember/object';
+
+import { hash } from 'rsvp';
+import { inject as service } from '@ember/service';
+import Route from '@ember/routing/route';
 
 let DRAFT = "draft";
 let READY = "ready";
 let FABRICATING = "fabricating";
 let PREVIEW = "preview";
 
-export default Ember.Route.extend({
+export default Route.extend({
 
   // Inject: flash message service
-  display: Ember.inject.service(),
+  display: service(),
 
   /**
    * Route Model
@@ -18,22 +22,9 @@ export default Ember.Route.extend({
   model: function() {
     let library = this.modelFor('accounts.one.libraries.one');
     let idea =this.modelFor('accounts.one.libraries.one.ideas.one');
-    return Ember.RSVP.hash({
+    return hash({
       library: library,
       idea: idea,
-    });
-  },
-
-  /**
-   * Headline
-   */
-  afterModel(model) {
-    Ember.set(this, 'routeHeadline', {
-      title: model.idea.get('name'),
-      entity: {
-        name: 'Idea',
-        id: model.idea.get('id')
-      }
     });
   },
 
@@ -58,11 +49,11 @@ export default Ember.Route.extend({
       });
       chain.save().then(
         () => {
-          Ember.get(self, 'display').success('Created chain ' + chain.get('name') + '.');
+          get(self, 'display').success('Created chain ' + chain.get('name') + '.');
           self.addIdea(chain);
         },
         (error) => {
-          Ember.get(self, 'display').error(error);
+          get(self, 'display').error(error);
         });
     }
 
@@ -82,11 +73,11 @@ export default Ember.Route.extend({
     });
     chainIdea.save().then(
       () => {
-        Ember.get(self, 'display').success('Added ' + idea.get('name') + ' to ' + chain.get('name') + '.');
+        get(self, 'display').success('Added ' + idea.get('name') + ' to ' + chain.get('name') + '.');
         self.addLibrary(chain);
       },
       (error) => {
-        Ember.get(self, 'display').error(error);
+        get(self, 'display').error(error);
       });
   },
 
@@ -103,11 +94,11 @@ export default Ember.Route.extend({
     });
     chainLibrary.save().then(
       () => {
-        Ember.get(self, 'display').success('Added ' + library.get('name') + ' to ' + chain.get('name') + '.');
+        get(self, 'display').success('Added ' + library.get('name') + ' to ' + chain.get('name') + '.');
         self.updateToReady(chain);
       },
       (error) => {
-        Ember.get(self, 'display').error(error);
+        get(self, 'display').error(error);
       });
   },
 
@@ -120,11 +111,11 @@ export default Ember.Route.extend({
     chain.set('state', READY);
     chain.save().then(
       () => {
-        Ember.get(self, 'display').success('Advanced chain state to ' + READY + '.');
+        get(self, 'display').success('Advanced chain state to ' + READY + '.');
         self.updateToFabricating(chain);
       },
       (error) => {
-        Ember.get(self, 'display').error(error);
+        get(self, 'display').error(error);
       });
   },
 
@@ -137,11 +128,11 @@ export default Ember.Route.extend({
     chain.set('state', FABRICATING);
     chain.save().then(
       () => {
-        Ember.get(self, 'display').success('Advanced chain state to ' + FABRICATING + '.');
+        get(self, 'display').success('Advanced chain state to ' + FABRICATING + '.');
         self.transitionTo('accounts.one.chains.one.links', chain);
       },
       (error) => {
-        Ember.get(self, 'display').error(error);
+        get(self, 'display').error(error);
       });
   }
 

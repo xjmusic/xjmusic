@@ -1,19 +1,23 @@
 // Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
-import Ember from "ember";
+import { get } from '@ember/object';
 
-export default Ember.Route.extend({
+import { Promise as EmberPromise, hash } from 'rsvp';
+import { inject as service } from '@ember/service';
+import Route from '@ember/routing/route';
+
+export default Route.extend({
 
   // Inject: authentication service
-  auth: Ember.inject.service(),
+  auth: service(),
 
   // Inject: configuration service
-  config: Ember.inject.service(),
+  config: service(),
 
   // Inject: flash message service
-  display: Ember.inject.service(),
+  display: service(),
 
   // Inject: chain-link player service
-  player: Ember.inject.service(),
+  player: service(),
 
   // for keeping track of the auto-refresh interval
   refreshInteval: null,
@@ -37,7 +41,7 @@ export default Ember.Route.extend({
   model: function () {
     let self = this;
     let chain = this.modelFor('accounts.one.chains.one');
-    return new Ember.RSVP.Promise((resolve, reject) => {
+    return new EmberPromise((resolve, reject) => {
       let linkQuery = {
         chainId: chain.get('id'),
         include: 'memes,choices,chords,messages',
@@ -45,32 +49,14 @@ export default Ember.Route.extend({
       let links = this.store.query(
         'link', linkQuery)
         .catch((error) => {
-          Ember.get(self, 'display').error(error);
+          get(self, 'display').error(error);
           reject(error);
           self.transitionTo('');
         });
-      resolve(Ember.RSVP.hash({
+      resolve(hash({
         chain: chain,
         links: links
       }));
-    });
-  },
-
-  /**
-   * Headline
-   */
-  afterModel(model) {
-    Ember.set(this, 'routeHeadline', {
-      // no title; it's in breadcrumb
-      detail: {
-        startAt: model.chain.get('startAt'),
-        stopAt: model.chain.get('stopAt')
-      },
-      entity: {
-        name: 'Chain',
-        id: model.chain.get('id'),
-        state: model.chain.get('state')
-      }
     });
   },
 

@@ -1,7 +1,9 @@
 // Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
-import Ember from 'ember';
 
-export default Ember.Route.extend({
+import { hash } from 'rsvp';
+import Route from '@ember/routing/route';
+
+export default Route.extend({
 
   /**
    * Route Model
@@ -9,24 +11,11 @@ export default Ember.Route.extend({
    */
   model() {
     let account = this.modelFor('accounts.one');
-    return Ember.RSVP.hash({
+    return hash({
       account: account,
       users: this.store.findAll('user'),
       userToAdd: null,
       accountUsers: this.store.query('account-user', { accountId: account.id }),
-    });
-  },
-
-  /**
-   * Headline
-   */
-  afterModel(model) {
-    Ember.set(this, 'routeHeadline', {
-      title: model.account.get('name') + ' ' + 'Users',
-      entity: {
-        name: 'Account',
-        id: model.account.get('id')
-      }
     });
   },
 

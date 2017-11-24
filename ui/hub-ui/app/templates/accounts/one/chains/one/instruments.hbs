@@ -37,14 +37,14 @@
     </div>
   {{else}}
     <div class="sm-col-12">
-      <h4>There are no Instruments in this Chain.</h4>
+      <p>No particular instruments are bound to this Chain.</p>
     </div>
   {{/if}}
 
   <!-- Add a Instrument to this Chain -->
-  <hr/>
+
   <div class="form-group row">
-    <label class="col-sm-2 control-label">Select Instrument to add</label>
+    <label class="col-sm-2 control-label">Select Instrument to bind</label>
     <div class="col-sm-10">
       <!--input type="text" value=model.newChainInstrument.instrumentId class="form-control" autofocus="autofocus"-->
       <!--placeholder="Instrument ID to grant access"}}-->
@@ -60,7 +60,7 @@
   </div>
   <div class="form-group row">
     <div class="offset-sm-2 col-sm-10">
-      <button type="submit" class="btn btn-default" {{action 'addInstrument' model}}>Add Instrument to
+      <button type="submit" class="btn btn-default" {{action 'addInstrument' model}}>Bind Instrument to
         Chain
       </button>
     </div>

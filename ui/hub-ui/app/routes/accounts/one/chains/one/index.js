@@ -1,7 +1,9 @@
 // Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
-import Ember from "ember";
 
-export default Ember.Route.extend({
+import { hash } from 'rsvp';
+import Route from '@ember/routing/route';
+
+export default Route.extend({
 
   /**
    * Route Model
@@ -10,28 +12,10 @@ export default Ember.Route.extend({
   model: function () {
     let account = this.modelFor('accounts.one');
     let chain = this.modelFor('accounts.one.chains.one');
-    return Ember.RSVP.hash({
+    return hash({
       account: account,
       chain: chain,
     });
   },
-
-  /**
-   * Headline
-   */
-  afterModel(model) {
-    Ember.set(this, 'routeHeadline', {
-      // title in breadcrumb
-      detail: {
-        startAt: model.chain.get('startAt'),
-        stopAt: model.chain.get('stopAt')
-      },
-      entity: {
-        name: 'Chain',
-        id: model.chain.get('id'),
-        state: model.chain.get('state')
-      }
-    });
-  }
 
 });

@@ -377,7 +377,7 @@ The file upload ACL `bucket-owner-full-control` affords the administration of up
 
 ## ui/hub-ui
 
-Hub user interface web application. Built with Javascript, Ember, Bower, Node.
+Hub user interface web application. Built with Javascript, Ember, Node.
 
 Requires Node.js version 7+
 

@@ -1,4 +1,41 @@
 <!-- Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved. -->
 
+<div class="headline container-fluid">
+  <div class="row">
+    <div class="col-sm-12">
+
+      <!-- Entity type and ID -->
+      <div class="entity">
+        Library #{{model.id}}
+      </div>
+
+      <!-- Title -->
+      <h1>
+        {{model.name}}
+        <!-- should only show following edit icon is user has privileges to edit library -->
+        <small>{{#link-to 'accounts.one.libraries.one.edit' model.account model}}{{fa-icon 'edit'}}{{/link-to}}</small>
+      </h1>
+
+    </div>
+  </div>
+</div>
+
+<!-- Links to actions -->
+<div class="form-horizontal container-fluid">
+  <div class="form-group row">
+    <ul class="nav nav-tabs">
+      <li class="nav-item">
+        {{#link-to 'accounts.one.libraries.one.index' model class='nav-link'}}Preview{{/link-to}}
+      </li>
+      <li class="nav-item">
+        {{#link-to 'accounts.one.libraries.one.ideas' model class='nav-link'}}Ideas{{/link-to}}
+      </li>
+      <li class="nav-item">
+        {{#link-to 'accounts.one.libraries.one.instruments' model class='nav-link'}}Instruments{{/link-to}}
+      </li>
+    </ul>
+  </div>
+</div>
+
 <!-- Inner Content -->
 {{outlet}}

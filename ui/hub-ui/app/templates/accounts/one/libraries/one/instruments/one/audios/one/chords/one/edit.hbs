@@ -4,6 +4,7 @@
 {{outlet}}
 
 <!-- Upper Container -->
+{{#modal-dialog onClickOverlay='goBack'}}
 <div class="form-horizontal container-fluid">
 
   {{partial "accounts/one/libraries/one/instruments/one/audios/one/chords/one/form"}}
@@ -21,7 +22,7 @@
   <!-- Header -->
   <div class="form-group row">
     <div class="col-sm-12">
-      <hr/>
+
       <h4>Danger Zone</h4>
     </div>
   </div>
@@ -33,3 +34,4 @@
   </div>
 
 </div>
+{{/modal-dialog}}

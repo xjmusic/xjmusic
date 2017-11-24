@@ -1,4 +1,44 @@
 <!-- Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved. -->
 
+<div class="headline container-fluid">
+  <div class="row">
+    <div class="col-sm-12">
+
+      <!-- Entity type and ID -->
+      <div class="entity">
+        Account #{{model.id}}
+      </div>
+
+      <!-- Title -->
+      <h1>
+        {{model.name}}
+        {{#if auth.isAdmin}}<small>{{#link-to 'accounts.one.edit' model}}{{fa-icon 'edit'}}{{/link-to}}</small>{{/if}}
+      </h1>
+
+    </div>
+  </div>
+</div>
+
+<!-- Upper Container -->
+<div class="form-horizontal container-fluid">
+
+  <!-- Links to actions -->
+  <div class="form-group row">
+    <ul class="nav nav-tabs">
+      <li class="nav-item">
+        {{#link-to 'accounts.one.libraries' model class='nav-link'}}Libraries{{/link-to}}
+      </li>
+      <li class="nav-item">
+        {{#link-to 'accounts.one.chains' model class='nav-link'}}Chains{{/link-to}}
+      </li>
+      <li class="nav-item">
+        {{#link-to 'accounts.one.users' model class='nav-link'}}Users{{/link-to}}
+      </li>
+    </ul>
+  </div>
+
+
+</div>
+
 <!-- Inner Content -->
 {{outlet}}

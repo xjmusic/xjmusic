@@ -1,5 +1,8 @@
 // Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
-import Ember from 'ember';
+import $ from 'jquery';
+
+import { run } from '@ember/runloop';
+import { Promise as EmberPromise, resolve } from 'rsvp';
 import Base from "ember-simple-auth/authenticators/base";
 
 /**
@@ -51,13 +54,13 @@ export default Base.extend({
    */
   authenticate(/*data*/) {
     // console.log("authenticators/xj authenticate(...)", data);
-    return new Ember.RSVP.Promise((resolve, reject) => {
+    return new EmberPromise((resolve, reject) => {
       this.makeRequest().then(response => {
-        Ember.run(() => {
+        run(() => {
           resolve(this.getResponseData(response));
         });
       }, xhr => {
-        Ember.run(() => { reject(xhr.responseJSON || xhr.responseText); });
+        run(() => { reject(xhr.responseJSON || xhr.responseText); });
       });
     });
   },
@@ -81,7 +84,7 @@ export default Base.extend({
    @return {Ember.RSVP.Promise} A resolving promise
    */
   invalidate() {
-    return Ember.RSVP.resolve();
+    return resolve();
   },
 
   /**
@@ -89,7 +92,7 @@ export default Base.extend({
    @private
    */
   makeRequest() {
-    return Ember.$.ajax({
+    return $.ajax({
       url: this.serverTokenEndpoint,
       method: 'GET',
       xhrFields: {

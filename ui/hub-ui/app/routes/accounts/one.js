@@ -1,10 +1,16 @@
 // Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
-import Ember from 'ember';
+import {get, set} from '@ember/object';
 
-export default Ember.Route.extend({
+import {inject as service} from '@ember/service';
+import Route from '@ember/routing/route';
+
+export default Route.extend({
 
   // Inject: flash message service
-  display: Ember.inject.service(),
+  display: service(),
+
+  // Inject auth service
+  auth: service(),
 
   /**
    * Route Model
@@ -15,19 +21,37 @@ export default Ember.Route.extend({
     let self = this;
     return this.store.findRecord('account', params.account_id)
       .catch((error) => {
-        Ember.get(self, 'display').error(error);
+        get(self, 'display').error(error);
         self.transitionTo('accounts');
       });
   },
 
   /**
-   * Route Breadcrumb
+   * Route Breadcrumb and Headline
    * @param model
    */
   afterModel(model) {
-    Ember.set(this, 'breadCrumb', {
+    set(this, 'breadCrumb', {
       title: model.get("name")
     });
+
+    let routeHeadline = {
+      title: model.get('name'),
+      entity: {
+        name: 'Account',
+        id: model.get('id')
+      }
+    };
+
+    if (this.get('auth').isAdmin) {
+      routeHeadline.edit = {
+        route: 'accounts.one.edit',
+        model: model
+      };
+    }
+
+    console.log("attempt to set routeHeadline", routeHeadline);
+    set(this, 'routeHeadline', routeHeadline);
   }
 
 });

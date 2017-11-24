@@ -104,32 +104,31 @@ function importDependencies(app, environment) {
 
     case "production":
       // Wavesurfer
-      app.import('bower_components/wavesurfer.js/dist/wavesurfer.min.js');
+      app.import('node_modules/wavesurfer.js/dist/wavesurfer.min.js');
 
-      // Tether
-      app.import('bower_components/tether/dist/css/tether.min.css');
-      app.import('bower_components/tether/dist/js/tether.min.js');
+      // Popper
+      app.import('node_modules/popper.js/dist/umd/popper.min.js');
 
       // Bootstrap (minified)
-      app.import('bower_components/bootstrap/dist/css/bootstrap-reboot.min.css');
-      app.import('bower_components/bootstrap/dist/css/bootstrap-grid.min.css');
-      app.import('bower_components/bootstrap/dist/css/bootstrap.min.css');
-      app.import('bower_components/bootstrap/dist/js/bootstrap.min.js');
+      app.import('node_modules/bootstrap/dist/css/bootstrap-reboot.min.css');
+      app.import('node_modules/bootstrap/dist/css/bootstrap-grid.min.css');
+      app.import('node_modules/bootstrap/dist/css/bootstrap.min.css');
+      app.import('node_modules/bootstrap/dist/js/bootstrap.min.js');
       break;
 
     default:
+
       // Wavesurfer
-      app.import('bower_components/wavesurfer.js/dist/wavesurfer.js');
+      app.import('node_modules/wavesurfer.js/dist/wavesurfer.js');
 
-      // Tether
-      app.import('bower_components/tether/dist/css/tether.css');
-      app.import('bower_components/tether/dist/js/tether.js');
+      // Popper
+      app.import('node_modules/popper.js/dist/umd/popper.js');
 
-      // Bootstrap (alpha)
-      app.import('bower_components/bootstrap/dist/css/bootstrap-reboot.css');
-      app.import('bower_components/bootstrap/dist/css/bootstrap-grid.css');
-      app.import('bower_components/bootstrap/dist/css/bootstrap.css');
-      app.import('bower_components/bootstrap/dist/js/bootstrap.js');
+      // Bootstrap
+      app.import('node_modules/bootstrap/dist/css/bootstrap-reboot.css');
+      app.import('node_modules/bootstrap/dist/css/bootstrap-grid.css');
+      app.import('node_modules/bootstrap/dist/css/bootstrap.css');
+      app.import('node_modules/bootstrap/dist/js/bootstrap.js');
       break;
   }
 

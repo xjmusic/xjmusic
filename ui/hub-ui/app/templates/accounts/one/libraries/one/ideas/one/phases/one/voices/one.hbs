@@ -1,1 +1,35 @@
+<!-- Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved. -->
+
+<div class="headline container-fluid">
+  <div class="row">
+    <div class="col-sm-12">
+
+      <!-- Entity type and ID -->
+      <div class="entity">
+        Voice #{{model.id}}
+      </div>
+
+      <!-- Title -->
+      <h1>
+        {{model.description}}
+        <!-- should only show following edit icon is user has privileges to edit idea -->
+        <small>{{#link-to 'accounts.one.libraries.one.ideas.one.phases.one.voices.one.edit' model.phase.idea.library.account model.phase.idea.library model.phase.idea model.phase model}}{{fa-icon 'edit'}}{{/link-to}}</small>
+      </h1>
+
+    </div>
+  </div>
+</div>
+
+<!-- Links to actions -->
+<div class="form-horizontal container-fluid">
+  <div class="form-group row">
+    <ul class="nav nav-tabs">
+      <li class="nav-item">
+        {{#link-to 'accounts.one.libraries.one.ideas.one.phases.one.voices.one.events' model.phase.idea.library.account model.phase.idea.library model.phase.idea model.phase model class='nav-link'}}Events{{/link-to}}
+      </li>
+    </ul>
+  </div>
+</div>
+
+<!-- Inner Content -->
 {{outlet}}

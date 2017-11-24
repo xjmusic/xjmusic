@@ -1,7 +1,9 @@
 // Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
-import Ember from 'ember';
 
-export default Ember.Route.extend({
+import { hash } from 'rsvp';
+import Route from '@ember/routing/route';
+
+export default Route.extend({
 
   /**
    * Route Model
@@ -10,22 +12,9 @@ export default Ember.Route.extend({
   model: function() {
     let audio = this.modelFor('accounts.one.libraries.one.instruments.one.audios.one');
     let chord = this.modelFor('accounts.one.libraries.one.instruments.one.audios.one.chords.one');
-    return Ember.RSVP.hash({
+    return hash({
       audio: audio,
       chord: chord,
-    });
-  },
-
-  /**
-   * Headline
-   */
-  afterModel(model) {
-    Ember.set(this, 'routeHeadline', {
-      title: model.chord.getTitle(),
-      entity: {
-        name: 'Chord',
-        id: model.chord.get('id')
-      }
     });
   },
 

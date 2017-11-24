@@ -1,14 +1,14 @@
 // Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
-import Ember from 'ember';
+import Service, { inject as service } from '@ember/service';
 
 /**
  * XJ Auth Service
  * (wraps the custom ember-simple-auth session)
  */
-export default Ember.Service.extend({
-  cookies: Ember.inject.service(),
-  session: Ember.inject.service(),
-  messageBus: Ember.inject.service(),
+export default Service.extend({
+  cookies: service(),
+  session: service(),
+  messageBus: service(),
   accessToken: "",
 
   /**

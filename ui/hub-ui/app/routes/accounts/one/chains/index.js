@@ -1,13 +1,17 @@
 // Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
-import Ember from 'ember';
+import { hash } from 'rsvp';
 
-export default Ember.Route.extend({
+import { get, set } from '@ember/object';
+import { inject as service } from '@ember/service';
+import Route from '@ember/routing/route';
+
+export default Route.extend({
 
   // Inject: flash message service
-  display: Ember.inject.service(),
+  display: service(),
 
   // Inject: player service
-  player: Ember.inject.service(),
+  player: service(),
 
   /**
    * Route Model
@@ -18,10 +22,10 @@ export default Ember.Route.extend({
     let account = this.modelFor('accounts.one');
     let chains = this.store.query('chain', {accountId: account.get('id')})
       .catch((error) => {
-        Ember.get(self, 'display').error(error);
+        get(self, 'display').error(error);
         self.transitionTo('');
       });
-    return Ember.RSVP.hash({
+    return hash({
       account: account,
       chains: chains,
     });
@@ -31,7 +35,7 @@ export default Ember.Route.extend({
    * Headline
    */
   afterModel(model) {
-    Ember.set(this, 'routeHeadline', {
+    set(this, 'routeHeadline', {
       title: model.account.get('name') + ' ' + 'Chains',
       entity: {
         name: 'Account',

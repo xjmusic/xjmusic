@@ -24,9 +24,9 @@
         {{#each model.chords as |chord|}}
           <tr class="item">
             <td>{{chord.position}}</td>
-            <td>{{#link-to "accounts.one.libraries.one.instruments.one.audios.one.chords.one" chord}}{{chord.name}}{{/link-to}}</td>
+            <td>{{chord.name}}</td>
             <td>
-              {{#link-to 'accounts.one.libraries.one.instruments.one.audios.one.chords.one.edit' chord}}Edit{{/link-to}}
+              {{#link-to 'accounts.one.libraries.one.instruments.one.audios.one.chords.one.edit' chord}}{{fa-icon 'edit'}}{{/link-to}}
             </td>
             <th scope="row">{{chord.id}}</th>
           </tr>

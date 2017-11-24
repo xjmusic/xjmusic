@@ -1,7 +1,7 @@
 // Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
-import Ember from "ember";
+import Route from '@ember/routing/route';
 
-export default Ember.Route.extend({
+export default Route.extend({
   init() {
     this.deleteStaticContent();
   },
@@ -17,6 +17,10 @@ export default Ember.Route.extend({
   actions: {
     sessionChanged: function () {
       this.refresh();
+    },
+    goBack: function() {
+      console.log("GO BACK!!!");
+      history.back();
     }
   }
 });

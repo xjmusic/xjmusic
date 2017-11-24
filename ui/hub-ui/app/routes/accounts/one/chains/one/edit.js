@@ -1,22 +1,26 @@
 // Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
-import Ember from "ember";
+import { get } from '@ember/object';
 
-export default Ember.Route.extend({
+import { Promise as EmberPromise, hash } from 'rsvp';
+import { inject as service } from '@ember/service';
+import Route from '@ember/routing/route';
+
+export default Route.extend({
 
   // Inject: flash message service
-  display: Ember.inject.service(),
+  display: service(),
 
   // Inject: configuration service
-  config: Ember.inject.service(),
+  config: service(),
 
   /**
    * Model is a promise because it depends on promised configs
    * @returns {Ember.RSVP.Promise}
    */
   model() {
-    return new Ember.RSVP.Promise((resolve, reject) => {
+    return new EmberPromise((resolve, reject) => {
       let self = this;
-      Ember.get(this, 'config').promises.config.then(
+      get(this, 'config').promises.config.then(
         () => {
           resolve(self.resolvedModel());
         },
@@ -35,23 +39,9 @@ export default Ember.Route.extend({
     let account = this.modelFor('accounts.one');
     let chain = this.modelFor('accounts.one.chains.one');
     chain.set('account', account);
-    return Ember.RSVP.hash({
+    return hash({
       chain: chain,
       chainFromState: chain.get('state')
-    });
-  },
-
-  /**
-   * Headline
-   */
-  afterModel(model) {
-    Ember.set(this, 'routeHeadline', {
-      title: 'Edit Chain',
-      entity: {
-        name: 'Chain',
-        id: model.chain.get('id'),
-        state: model.chain.get('state')
-      }
     });
   },
 
@@ -63,11 +53,11 @@ export default Ember.Route.extend({
     saveChain(model) {
       model.save().then(
         () => {
-          Ember.get(this, 'display').success('Updated chain.');
+          get(this, 'display').success('Updated chain.');
           this.transitionTo('accounts.one.chains.one', model);
         },
         (error) => {
-          Ember.get(this, 'display').error(error);
+          get(this, 'display').error(error);
         });
     },
 
@@ -76,11 +66,11 @@ export default Ember.Route.extend({
       if (confirmation) {
         model.destroyRecord({}).then(
           () => {
-            Ember.get(this, 'display').success('Deleted chain ' + model.get('name') + '.');
+            get(this, 'display').success('Deleted chain ' + model.get('name') + '.');
             this.transitionTo('accounts.one.chains');
           },
           (error) => {
-            Ember.get(this, 'display').error(error);
+            get(this, 'display').error(error);
           });
       }
     },

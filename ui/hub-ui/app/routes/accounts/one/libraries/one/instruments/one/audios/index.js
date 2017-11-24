@@ -1,16 +1,20 @@
 // Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
-import Ember from 'ember';
+import { get } from '@ember/object';
 
-export default Ember.Route.extend({
+import { Promise as EmberPromise, hash } from 'rsvp';
+import { inject as service } from '@ember/service';
+import Route from '@ember/routing/route';
+
+export default Route.extend({
 
   // Inject: authentication service
-  auth: Ember.inject.service(),
+  auth: service(),
 
   // Inject: configuration service
-  config: Ember.inject.service(),
+  config: service(),
 
   // Inject: flash message service
-  display: Ember.inject.service(),
+  display: service(),
 
   /**
    * Route Model
@@ -21,16 +25,16 @@ export default Ember.Route.extend({
     let auth = this.get('auth');
 
     if (auth.isArtist || auth.isAdmin) {
-      return new Ember.RSVP.Promise((resolve, reject) => {
-        Ember.get(self, 'config').promises.config.then(
+      return new EmberPromise((resolve, reject) => {
+        get(self, 'config').promises.config.then(
           (config) => {
             let instrument = self.modelFor('accounts.one.libraries.one.instruments.one');
             let audios = self.store.query('audio', {instrumentId: instrument.get('id')})
               .catch((error) => {
-                Ember.get(self, 'display').error(error);
+                get(self, 'display').error(error);
                 self.transitionTo('');
               });
-            resolve(Ember.RSVP.hash({
+            resolve(hash({
               instrument: instrument,
               audioBaseUrl: config.audioBaseUrl,
               audios: audios,
@@ -44,19 +48,6 @@ export default Ember.Route.extend({
     } else {
       this.transitionTo('accounts.one.libraries.one.instruments.one.audios');
     }
-  },
-
-  /**
-   * Headline
-   */
-  afterModel(model) {
-    Ember.set(this, 'routeHeadline', {
-      title: model.instrument.get('description') + ' ' + 'Audios',
-      entity: {
-        name: 'Instrument',
-        id: model.instrument.get('id')
-      }
-    });
   },
 
   /**

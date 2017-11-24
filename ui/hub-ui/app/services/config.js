@@ -1,7 +1,9 @@
-import Ember from "ember";
+import { get } from '@ember/object';
+import $ from 'jquery';
+import Service, { inject as service } from '@ember/service';
 import RSVP from "rsvp";
 
-export default Ember.Service.extend({
+export default Service.extend({
 
   /**
    * Stores promises;
@@ -70,7 +72,7 @@ export default Ember.Service.extend({
     return new RSVP.Promise(
       function (resolve, reject) {
 
-        Ember.$.ajax({
+        $.ajax({
           url: '/api/1/config'
         }).then(
           (data) => {
@@ -94,11 +96,11 @@ export default Ember.Service.extend({
    * @param message
    */
   sendRejection(reject, message) {
-    Ember.get(this, 'display').error(message);
+    get(this, 'display').error(message);
     reject(message);
   },
 
   // Inject: Flash messages
-  display: Ember.inject.service()
+  display: service()
 
 });

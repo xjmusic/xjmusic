@@ -1,22 +1,26 @@
 // Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
-import Ember from 'ember';
+import { get } from '@ember/object';
 
-export default Ember.Route.extend({
+import { Promise as EmberPromise, hash } from 'rsvp';
+import { inject as service } from '@ember/service';
+import Route from '@ember/routing/route';
+
+export default Route.extend({
 
   // Inject: configuration service
-  config: Ember.inject.service(),
+  config: service(),
 
   // Inject: flash message service
-  display: Ember.inject.service(),
+  display: service(),
 
   /**
    * Model is a promise because it depends on promised configs
    * @returns {Ember.RSVP.Promise}
    */
   model() {
-    return new Ember.RSVP.Promise((resolve, reject) => {
+    return new EmberPromise((resolve, reject) => {
       let self = this;
-      Ember.get(this, 'config').promises.config.then(
+      get(this, 'config').promises.config.then(
         () => {
           resolve(self.resolvedModel());
         },
@@ -34,7 +38,7 @@ export default Ember.Route.extend({
   resolvedModel() {
     let chain = this.modelFor('accounts.one.chains.one');
     let account = this.modelFor('accounts.one');
-    return Ember.RSVP.hash({
+    return hash({
       chain: chain,
       instruments: this.store.query('instrument', {accountId: account.id}),
       instrumentToAdd: null,
@@ -42,23 +46,6 @@ export default Ember.Route.extend({
     });
   },
 
-  /**
-   * Headline
-   */
-  afterModel(model) {
-    Ember.set(this, 'routeHeadline', {
-      // title in breadcrumb
-      detail: {
-        startAt: model.chain.get('startAt'),
-        stopAt: model.chain.get('stopAt')
-      },
-      entity: {
-        name: 'Chain',
-        id: model.chain.get('id'),
-        state: model.chain.get('state')
-      }
-    });
-  },
 
   /**
    * Route Actions
@@ -72,10 +59,10 @@ export default Ember.Route.extend({
     removeInstrument(model) {
       model.destroyRecord({}).then(
         () => {
-          Ember.get(this, 'display').success('Removed Instrument from Chain.');
+          get(this, 'display').success('Removed Instrument from Chain.');
         },
         (error) => {
-          Ember.get(this, 'display').error(error);
+          get(this, 'display').error(error);
         });
     },
 
@@ -86,12 +73,12 @@ export default Ember.Route.extend({
       });
       chainConfig.save().then(
         () => {
-          Ember.get(this, 'display').success('Added ' + model.instrumentToAdd.get('description') + ' to ' + model.chain.get('name') + '.');
+          get(this, 'display').success('Added ' + model.instrumentToAdd.get('description') + ' to ' + model.chain.get('name') + '.');
           // this.transitionToRoute('chains.one.instruments',model.chain);
           this.send("sessionChanged");
         },
         (error) => {
-          Ember.get(this, 'display').error(error);
+          get(this, 'display').error(error);
         });
     },
 

@@ -1,10 +1,13 @@
 // Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
-import Ember from 'ember';
+import { set, get } from '@ember/object';
 
-export default Ember.Route.extend({
+import { inject as service } from '@ember/service';
+import Route from '@ember/routing/route';
+
+export default Route.extend({
 
   // Inject: flash message service
-  display: Ember.inject.service(),
+  display: service(),
 
   /**
    * Route Model
@@ -15,7 +18,7 @@ export default Ember.Route.extend({
     let self = this;
     return this.store.findRecord('user', params.user_id)
       .catch((error) => {
-        Ember.get(self, 'display').error(error);
+        get(self, 'display').error(error);
         self.transitionTo('users');
       });
   },
@@ -25,7 +28,7 @@ export default Ember.Route.extend({
    * @param model
    */
   afterModel(model) {
-    Ember.set(this, 'routeHeadline', {
+    set(this, 'routeHeadline', {
       title: model.get('name'),
       detail: {
         roles: model.get('roles').split(',')
@@ -35,7 +38,7 @@ export default Ember.Route.extend({
         id: model.get('id')
       }
     });
-    Ember.set(this, 'breadCrumb', {
+    set(this, 'breadCrumb', {
       title: model.get("name")
     });
   },
@@ -48,11 +51,11 @@ export default Ember.Route.extend({
     saveUser(model) {
       model.save().then(
         () => {
-          Ember.get(this, 'display').success('Updated user ' + model.get('name') + '.');
+          get(this, 'display').success('Updated user ' + model.get('name') + '.');
           this.transitionTo('users');
         },
         (error) => {
-          Ember.get(this, 'display').error(error);
+          get(this, 'display').error(error);
         });
     },
 

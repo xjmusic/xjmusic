@@ -3,9 +3,6 @@
 <!-- Inner Content -->
 {{outlet}}
 
-<!-- Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved. -->
-
-<!-- Upper Container -->
 <div class="form-horizontal container-fluid">
 
   <!-- List of Phases -->
@@ -29,20 +26,19 @@
           <tr class="item">
             <td>{{phase.offset}}</td>
             <td>{{phase.total}}</td>
-            <td>{{phase.name}}</td>
+            <td>{{#link-to 'accounts.one.libraries.one.ideas.one.phases.one' phase.idea.library.account phase.idea.library phase.idea phase}}{{phase.name}}{{/link-to}}</td>
             <td>{{phase.key}}</td>
             <td>{{phase.density}}</td>
             <td>{{phase.tempo}}</td>
             <td>
-              {{#link-to 'accounts.one.libraries.one.ideas.one.phases.one.edit' phase}}Edit{{/link-to}}
-              |&nbsp;{{#link-to 'accounts.one.libraries.one.ideas.one.phases.one.memes' phase}}Memes{{/link-to}}
+              {{#link-to 'accounts.one.libraries.one.ideas.one.phases.one.memes' phase.idea.library.account phase.idea.library phase.idea phase}}Memes{{/link-to}}
               {{#if (not-eq model.idea.type "macro")}}
-                |&nbsp;{{#link-to 'accounts.one.libraries.one.ideas.one.phases.one.chords' phase}}Chords{{/link-to}}
-                |&nbsp;{{#link-to 'accounts.one.libraries.one.ideas.one.phases.one.voices' phase}}Voices{{/link-to}}
+                |&nbsp;{{#link-to 'accounts.one.libraries.one.ideas.one.phases.one.chords' phase.idea.library.account phase.idea.library phase.idea phase}}Chords{{/link-to}}
+                |&nbsp;{{#link-to 'accounts.one.libraries.one.ideas.one.phases.one.voices' phase.idea.library.account phase.idea.library phase.idea phase}}Voices{{/link-to}}
               {{/if}}
             </td>
             <th scope="row">{{#link-to "accounts.one.libraries.one.ideas.one.phases.one"
-                                       phase}}{{phase.id}}{{/link-to}}</th>
+                                       phase.idea.library.account phase.idea.library phase.idea phase}}{{phase.id}}{{/link-to}}</th>
           </tr>
         {{/each}}
         </tbody>
@@ -52,7 +48,7 @@
 
   {{#if (or auth.isArtist auth.isAdmin)}}
     <div class="sm-col-12">
-      Or: {{#link-to 'accounts.one.libraries.one.ideas.one.phases.new'}}Create New Phase{{/link-to}}
+      Or: {{#link-to 'accounts.one.libraries.one.ideas.one.phases.new' phase.idea.library.account phase.idea.library phase.idea }}Create New Phase{{/link-to}}
     </div>
   {{/if}}
 </div>

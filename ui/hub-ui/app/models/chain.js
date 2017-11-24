@@ -6,9 +6,9 @@ export default DS.Model.extend({
   name: DS.attr('string'),
   state: DS.attr('string'),
   type: DS.attr('string'),
-  startAt: DS.attr('string'),
-  stopAt: DS.attr('string'),
-  embedKey: DS.attr('string'),
+  startAt: DS.attr('string',{defaultValue:'now'}),
+  stopAt: DS.attr('string',{defaultValue:''}),
+  embedKey: DS.attr('string',{defaultValue:''}),
 
   links: DS.hasMany('link'),
   configs: DS.hasMany('chain-config'),

@@ -1,21 +1,27 @@
 // Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
-import Ember from "ember";
+import { later } from '@ember/runloop';
+
+import { isEmpty } from '@ember/utils';
+import $ from 'jquery';
+import { set, get } from '@ember/object';
+import { inject as service } from '@ember/service';
+import Route from '@ember/routing/route';
 import EmberUploader from "ember-uploader";
 import RSVP from "rsvp";
 
-export default Ember.Route.extend({
+export default Route.extend({
 
   // stub for instantiating an uploader
   uploader: {},
 
   // Inject: authentication service
-  auth: Ember.inject.service(),
+  auth: service(),
 
   // Inject: configuration service
-  config: Ember.inject.service(),
+  config: service(),
 
   // Inject: flash message service
-  display: Ember.inject.service(),
+  display: service(),
 
   // audio base url will be set by promise after config resolves
   audioBaseUrl: '',
@@ -30,7 +36,7 @@ export default Ember.Route.extend({
 
     if (auth.isArtist || auth.isAdmin) {
       return new RSVP.Promise((resolve, reject) => {
-        Ember.get(this, 'config').promises.audioBaseUrl.then(
+        get(this, 'config').promises.audioBaseUrl.then(
           (url) => {
             self.audioBaseUrl = url;
             resolve(self.store.createRecord('audio', {
@@ -48,20 +54,6 @@ export default Ember.Route.extend({
   },
 
   /**
-   * Headline
-   */
-  afterModel() {
-    let instrument = this.modelFor('accounts.one.libraries.one.instruments.one');
-    Ember.set(this, 'routeHeadline', {
-      title: 'New Audio',
-      entity: {
-        name: 'Instrument',
-        id: instrument.get('id')
-      }
-    });
-  },
-
-  /**
    * For Uploading a file
    */
   uploadFiles: [],
@@ -72,7 +64,7 @@ export default Ember.Route.extend({
   actions: {
 
     filesChanged: function (files) {
-      Ember.set(this, 'uploadFiles', files);
+      set(this, 'uploadFiles', files);
     },
 
     createAudio(model) {
@@ -82,7 +74,7 @@ export default Ember.Route.extend({
           self.afterSave();
         },
         (error) => {
-          Ember.get(this, 'display').error(['Failed to save.', error]);
+          get(this, 'display').error(['Failed to save.', error]);
         });
     },
 
@@ -92,6 +84,20 @@ export default Ember.Route.extend({
         let confirmation = confirm("Your changes haven't saved yet. Would you like to leave this form?");
         if (confirmation) {
           model.rollbackAttributes();
+        } else {
+          transition.abort();
+        }
+      }
+    },
+
+    cancelCreateAudio(transition)
+    {
+      let model = this.controller.get('model');
+      if (model.get('hasDirtyAttributes')) {
+        let confirmation = confirm("Your changes haven't saved yet. Would you like to leave this form?");
+        if (confirmation) {
+          model.rollbackAttributes();
+          this.transitionTo('accounts.one.libraries.one.instruments.one.audios');
         } else {
           transition.abort();
         }
@@ -107,9 +113,9 @@ export default Ember.Route.extend({
     let self = this;
     let model = this.controller.get('model');
     let audioId = model.get('id');
-    Ember.get(this, 'display').success('Created audio "' + model.get('name') + '".');
+    get(this, 'display').success('Created audio "' + model.get('name') + '".');
 
-    Ember.$.ajax({
+    $.ajax({
       url: '/api/1/audios/' + String(audioId) + '/upload'
     }).then(
       (result) => {
@@ -143,8 +149,8 @@ export default Ember.Route.extend({
       console.log("Upload progress: " + e.percent);
     });
 
-    let files = Ember.get(self, 'uploadFiles');
-    if (!Ember.isEmpty(files)) {
+    let files = get(self, 'uploadFiles');
+    if (!isEmpty(files)) {
       self.uploadFile(files[0], waveformKey, uploadPolicy, signature, awsAccessKeyId, bucketName, acl);
     }
   },
@@ -184,10 +190,10 @@ export default Ember.Route.extend({
    * @param waveformKey
    */
   didUploadFile (waveformKey) {
-    Ember.get(this, 'display').success('Uploaded "' + this.audioBaseUrl + waveformKey);
+    get(this, 'display').success('Uploaded "' + this.audioBaseUrl + waveformKey);
     let model = this.controller.get('model');
     let self = this;
-    Ember.run.later(() => {
+    later(() => {
       self.transitionTo('accounts.one.libraries.one.instruments.one.audios.one', model);
     }, 2);
   },
@@ -208,7 +214,7 @@ export default Ember.Route.extend({
    * @param error
    */
   throwError(msg, error) {
-    Ember.get(this, 'display').error([msg]);
+    get(this, 'display').error([msg]);
     console.error(msg, error);
   }
 

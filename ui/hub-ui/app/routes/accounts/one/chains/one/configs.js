@@ -1,22 +1,26 @@
 // Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
-import Ember from 'ember';
+import { get } from '@ember/object';
 
-export default Ember.Route.extend({
+import { Promise as EmberPromise, hash } from 'rsvp';
+import { inject as service } from '@ember/service';
+import Route from '@ember/routing/route';
+
+export default Route.extend({
 
   // Inject: configuration service
-  config: Ember.inject.service(),
+  config: service(),
 
   // Inject: flash message service
-  display: Ember.inject.service(),
+  display: service(),
 
   /**
    * Model is a promise because it depends on promised configs
    * @returns {Ember.RSVP.Promise}
    */
   model() {
-    return new Ember.RSVP.Promise((resolve, reject) => {
+    return new EmberPromise((resolve, reject) => {
       let self = this;
-      Ember.get(this, 'config').promises.config.then(
+      get(this, 'config').promises.config.then(
         (config) => {
           resolve(self.resolvedModel(config));
         },
@@ -34,7 +38,7 @@ export default Ember.Route.extend({
    */
   resolvedModel(config) {
     let chain = this.modelFor('accounts.one.chains.one');
-    return Ember.RSVP.hash({
+    return hash({
       chain: chain,
       chainConfigToAdd: this.store.createRecord('chain-config', {
         chain: chain,
@@ -42,24 +46,6 @@ export default Ember.Route.extend({
       }),
       chainConfigTypes: config.chainConfigTypes,
       chainConfigs: this.store.query('chain-config', {chainId: chain.id}),
-    });
-  },
-
-  /**
-   * Headline
-   */
-  afterModel(model) {
-    Ember.set(this, 'routeHeadline', {
-      // title in breadcrumb
-      detail: {
-        startAt: model.chain.get('startAt'),
-        stopAt: model.chain.get('stopAt')
-      },
-      entity: {
-        name: 'Chain',
-        id: model.chain.get('id'),
-        state: model.chain.get('state')
-      }
     });
   },
 
@@ -75,10 +61,10 @@ export default Ember.Route.extend({
     removeConfig(model) {
       model.destroyRecord({}).then(
         () => {
-          Ember.get(this, 'display').success('Removed Config from Chain.');
+          get(this, 'display').success('Removed Config from Chain.');
         },
         (error) => {
-          Ember.get(this, 'display').error(error);
+          get(this, 'display').error(error);
         });
     },
 
@@ -87,12 +73,12 @@ export default Ember.Route.extend({
       let chainConfig = model.chainConfigToAdd;
       chainConfig.save().then(
         (saved) => {
-          Ember.get(self, 'display').success('Added ' + saved.get('type') + '=' + saved.get('value'));
+          get(self, 'display').success('Added ' + saved.get('type') + '=' + saved.get('value'));
           // this.transitionToRoute('chains.one.configs',model.chain);
           self.send("sessionChanged");
         },
         (error) => {
-          Ember.get(self, 'display').error(error);
+          get(self, 'display').error(error);
         });
     },
 

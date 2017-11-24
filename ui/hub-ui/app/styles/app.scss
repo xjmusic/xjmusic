@@ -1,22 +1,26 @@
 /* Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved. */
 
+@import "audio_waveform";
 @import "breadcrumb";
 @import "chain";
 @import "common";
-@import "ember-power-select";
 @import "footer";
 @import "forms";
 @import "headline";
 @import "mailchimp";
 @import "marketing";
 @import "messages";
-@import "navbar";
+@import "nav";
 @import "palette";
 @import "player";
 @import "states";
 @import "table";
 @import "typography";
 @import "buttons";
+@import "modals";
+
+// noinspection CssUnknownTarget - imported from module of same name
+@import "ember-power-select";
 
 // static content gets deleted right away, but it's vital for S.E.O. [#155]
 #static-content {

@@ -1,7 +1,8 @@
 // Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
-import Ember from 'ember';
+import { hash } from 'rsvp';
+import Route from '@ember/routing/route';
 
-export default Ember.Route.extend({
+export default Route.extend({
 
   /**
    * Route Model
@@ -9,23 +10,10 @@ export default Ember.Route.extend({
    */
   model() {
     let idea = this.modelFor('accounts.one.libraries.one.ideas.one');
-    return Ember.RSVP.hash({
+    return hash({
       idea: idea,
       phaseToAdd: null,
       ideaPhases: this.store.query('phase', { ideaId: idea.id }),
-    });
-  },
-
-  /**
-   * Headline
-   */
-  afterModel(model) {
-    Ember.set(this, 'routeHeadline', {
-      title: model.idea.get('name') + ' ' + 'Phases',
-      entity: {
-        name: 'Idea',
-        id: model.idea.get('id')
-      }
     });
   },
 

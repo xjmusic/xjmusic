@@ -1,10 +1,14 @@
 // Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
-import Ember from 'ember';
+import { get } from '@ember/object';
 
-export default Ember.Route.extend({
+import { hash } from 'rsvp';
+import { inject as service } from '@ember/service';
+import Route from '@ember/routing/route';
+
+export default Route.extend({
 
   // Inject: flash message service
-  display: Ember.inject.service(),
+  display: service(),
 
   /**
    * Route Model
@@ -12,23 +16,10 @@ export default Ember.Route.extend({
    */
   model() {
     let phase = this.modelFor('accounts.one.libraries.one.ideas.one.phases.one');
-    return Ember.RSVP.hash({
+    return hash({
       phase: phase,
       memeToAdd: null,
       phaseMemes: this.store.query('phase-meme', {phaseId: phase.id}),
-    });
-  },
-
-  /**
-   * Headline
-   */
-  afterModel(model) {
-    Ember.set(this, 'routeHeadline', {
-      title: model.phase.getTitle() + ' ' + 'Memes',
-      entity: {
-        name: 'Phase',
-        id: model.phase.get('id')
-      }
     });
   },
 
@@ -44,10 +35,10 @@ export default Ember.Route.extend({
     destroyPhaseMeme(model) {
       model.destroyRecord({}).then(
         () => {
-          Ember.get(this, 'display').success('Removed Meme from Phase.');
+          get(this, 'display').success('Removed Meme from Phase.');
         },
         (error) => {
-          Ember.get(this, 'display').error(error);
+          get(this, 'display').error(error);
         });
     },
 
@@ -58,11 +49,11 @@ export default Ember.Route.extend({
       });
       phaseMeme.save().then(
         () => {
-          Ember.get(this, 'display').success('Added ' + phaseMeme.get('name') + ' to ' + model.phase.get('name') + '.');
+          get(this, 'display').success('Added ' + phaseMeme.get('name') + ' to ' + model.phase.get('name') + '.');
           this.send("sessionChanged");
         },
         (error) => {
-          Ember.get(this, 'display').error(error);
+          get(this, 'display').error(error);
         });
     },
   }

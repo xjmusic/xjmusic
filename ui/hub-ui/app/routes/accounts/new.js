@@ -1,10 +1,13 @@
 // Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
-import Ember from 'ember';
+import { set, get } from '@ember/object';
 
-export default Ember.Route.extend({
+import { inject as service } from '@ember/service';
+import Route from '@ember/routing/route';
+
+export default Route.extend({
 
   // Inject: flash message service
-  display: Ember.inject.service(),
+  display: service(),
 
   /**
    * Route Model
@@ -18,7 +21,7 @@ export default Ember.Route.extend({
    * Headline
    */
   afterModel() {
-    Ember.set(this, 'routeHeadline', {
+    set(this, 'routeHeadline', {
       title: 'New Account'
     });
   },
@@ -31,11 +34,11 @@ export default Ember.Route.extend({
     createAccount(model) {
       model.save().then(
         () => {
-          Ember.get(this, 'display').success('Created account ' + model.get('name') + '.');
+          get(this, 'display').success('Created account ' + model.get('name') + '.');
           this.transitionTo('accounts.one', model);
         },
         (error) => {
-          Ember.get(this, 'display').error(error);
+          get(this, 'display').error(error);
         });
     },
 
@@ -49,7 +52,19 @@ export default Ember.Route.extend({
           transition.abort();
         }
       }
-    }
+    },
 
+    cancelCreateAccount(transition) {
+      let model = this.controller.get('model');
+      if (model.get('hasDirtyAttributes')) {
+        let confirmation = confirm("Your changes haven't saved yet. Would you like to leave this form?");
+        if (confirmation) {
+          model.rollbackAttributes();
+          this.transitionTo('accounts');
+        } else {
+          transition.abort();
+        }
+      }
+    },
   }
 });

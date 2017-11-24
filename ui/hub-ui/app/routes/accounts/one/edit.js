@@ -1,10 +1,16 @@
 // Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
-import Ember from 'ember';
+import { get } from '@ember/object';
 
-export default Ember.Route.extend({
+import { inject as service } from '@ember/service';
+import Route from '@ember/routing/route';
+
+export default Route.extend({
 
   // Inject: flash message service
-  display: Ember.inject.service(),
+  display: service(),
+
+  // Inject auth service
+  auth: service(),
 
   /**
    * Route Model
@@ -12,19 +18,6 @@ export default Ember.Route.extend({
    */
   model() {
     return this.modelFor('accounts.one');
-  },
-
-  /**
-   * Headline
-   */
-  afterModel(model) {
-    Ember.set(this, 'routeHeadline', {
-      title: 'Edit ' + model.get('name'),
-      entity: {
-        name: 'Account',
-        id: model.get('id')
-      }
-    });
   },
 
   /**
@@ -36,11 +29,11 @@ export default Ember.Route.extend({
       let self = this;
       model.save().then(
         () => {
-          Ember.get(self, 'display').success('Updated account ' + model.get('name') + '.');
+          get(self, 'display').success('Updated account ' + model.get('name') + '.');
           self.transitionTo('accounts.one');
         },
         (error) => {
-          Ember.get(self, 'display').error(error);
+          get(self, 'display').error(error);
         }
       );
     },
@@ -51,11 +44,11 @@ export default Ember.Route.extend({
       if (confirmation) {
         model.destroyRecord({}).then(
           () => {
-            Ember.get(self, 'display').success('Deleted account ' + model.get('name') + '.');
+            get(self, 'display').success('Deleted account ' + model.get('name') + '.');
             self.transitionTo('accounts');
           },
           (error) => {
-            Ember.get(self, 'display').error(error);
+            get(self, 'display').error(error);
           });
       }
     },

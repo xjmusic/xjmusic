@@ -1,13 +1,17 @@
 // Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
-import Ember from 'ember';
+import { get } from '@ember/object';
 
-export default Ember.Route.extend({
+import { Promise as EmberPromise, hash } from 'rsvp';
+import { inject as service } from '@ember/service';
+import Route from '@ember/routing/route';
+
+export default Route.extend({
 
   // Inject: authentication service
-  auth: Ember.inject.service(),
+  auth: service(),
 
   // Inject: configuration service
-  config: Ember.inject.service(),
+  config: service(),
 
   /**
    * Route Model
@@ -18,12 +22,12 @@ export default Ember.Route.extend({
     let auth = this.get('auth');
 
     if (auth.isArtist || auth.isAdmin) {
-      return new Ember.RSVP.Promise((resolve, reject) => {
-        Ember.get(self, 'config').promises.config.then(
+      return new EmberPromise((resolve, reject) => {
+        get(self, 'config').promises.config.then(
           (config) => {
             let instrument = this.modelFor('accounts.one.libraries.one.instruments.one');
             let audio = this.modelFor('accounts.one.libraries.one.instruments.one.audios.one');
-            resolve(Ember.RSVP.hash({
+            resolve(hash({
               instrument: instrument,
               audioBaseUrl: config.audioBaseUrl,
               audio: audio,
@@ -37,19 +41,6 @@ export default Ember.Route.extend({
     } else {
       this.transitionTo('accounts.one.libraries.one.instruments.one.audios');
     }
-  },
-
-  /**
-   * Headline
-   */
-  afterModel(model) {
-    Ember.set(this, 'routeHeadline', {
-      title: model.audio.get('name'),
-      entity: {
-        name: 'Audio',
-        id: model.audio.get('id')
-      }
-    });
   },
 
 });

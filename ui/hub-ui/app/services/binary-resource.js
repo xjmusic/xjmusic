@@ -1,7 +1,8 @@
-import Ember from "ember";
+import Service from '@ember/service';
+import $ from 'jquery';
 
 // use this transport for 'binary' data type
-Ember.$.ajaxTransport('+binary', function (options, originalOptions, jqXHR) {
+$.ajaxTransport('+binary', function (options, originalOptions, jqXHR) {
   // check for conditions and support for blob / arraybuffer response type
   if (window.FormData && ((options.dataType && (options.dataType === 'binary')) || (options.data && ((window.ArrayBuffer && options.data instanceof ArrayBuffer) || (window.Blob && options.data instanceof Blob))))) {
     return {
@@ -47,7 +48,7 @@ Ember.$.ajaxTransport('+binary', function (options, originalOptions, jqXHR) {
 /**
  GET binary data service
  */
-export default Ember.Service.extend({
+export default Service.extend({
 
   /**
    Send GET request for binary data from a URL
@@ -56,7 +57,7 @@ export default Ember.Service.extend({
    * @returns {*} promise to return binary data
    */
   sendXHR(method, url) {
-    return Ember.$.ajax({
+    return $.ajax({
       url: url,
       dataType: 'binary',
       responseType: 'arraybuffer',

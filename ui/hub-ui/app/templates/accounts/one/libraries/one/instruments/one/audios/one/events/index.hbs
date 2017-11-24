@@ -28,13 +28,13 @@
         {{#each model.events as |event|}}
           <tr class="item">
             <th scope="row">{{event.position}}</th>
-            <td>{{#link-to "accounts.one.libraries.one.instruments.one.audios.one.events.one" event}}{{event.note}}{{/link-to}}</td>
+            <td>{{event.note}}</td>
             <td>{{event.inflection}}</td>
             <td>{{event.duration}}</td>
             <td>{{event.tonality}}</td>
             <td>{{event.velocity}}</td>
             <td>
-              {{#link-to 'accounts.one.libraries.one.instruments.one.audios.one.events.one.edit' event}}Edit{{/link-to}}
+              {{#link-to 'accounts.one.libraries.one.instruments.one.audios.one.events.one.edit' event}}{{fa-icon 'edit'}}{{/link-to}}
             </td>
             <td>{{event.id}}</td>
           </tr>

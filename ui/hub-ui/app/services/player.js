@@ -1,5 +1,9 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
-import Ember from "ember";
+import { later } from '@ember/runloop';
+
+import { get } from '@ember/object';
+import EmberMap from '@ember/map';
+import Service, { inject as service } from '@ember/service';
 import LinkAudio from "./player/link-audio";
 import Moment from "moment";
 import RSVP from "rsvp";
@@ -37,22 +41,22 @@ const CYCLE_SUB_INTERVAL_SECONDS = 1;
 /**
  Player service
  */
-export default Ember.Service.extend({
+export default Service.extend({
 
   // State, Chain Link
   state: STANDBY,
 
   // Inject: Configuration
-  config: Ember.inject.service(),
+  config: service(),
 
   // Inject: Ember Data Store
-  store: Ember.inject.service(),
+  store: service(),
 
   // Inject: flash message service
-  display: Ember.inject.service(),
+  display: service(),
 
   // Inject: binary resource service
-  binaryResource: Ember.inject.service(),
+  binaryResource: service(),
 
   // Base URL of link waveforms
   linkBaseUrl: '',
@@ -76,7 +80,7 @@ export default Ember.Service.extend({
   playFromContextTime: 0,
 
   // map of link id to LinkAudio
-  linkAudios: Ember.Map.create(),
+  linkAudios: EmberMap.create(),
 
   // interval to store Main cycle
   cycleMainInterval: null,
@@ -90,7 +94,7 @@ export default Ember.Service.extend({
    */
   init() {
     let self = this;
-    Ember.get(self, 'config').promises.config.then(
+    get(self, 'config').promises.config.then(
       (config) => {
         self.set('linkBaseUrl', config.linkBaseUrl);
         self.startMainCycle();
@@ -148,7 +152,7 @@ export default Ember.Service.extend({
         self.set('currentLink', null);
         self.set('state', STANDBY);
         self.teardownLinkAudioExcept([]);
-        Ember.run.later(resolve, STOP_DELAY_SECONDS * MILLIS_PER_SECOND);
+        later(resolve, STOP_DELAY_SECONDS * MILLIS_PER_SECOND);
       }, reject);
     });
   },
@@ -258,7 +262,7 @@ export default Ember.Service.extend({
         self.get('linkAudios').forEach((linkAudio) => {
           linkAudio.stopWebAudio();
         });
-        Ember.run.later(resolve, STOP_DELAY_SECONDS * MILLIS_PER_SECOND);
+        later(resolve, STOP_DELAY_SECONDS * MILLIS_PER_SECOND);
       } catch (e) {
         reject(e);
       }

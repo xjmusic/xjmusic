@@ -1,13 +1,15 @@
 // Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
-import Ember from "ember";
+import { inject as service } from '@ember/service';
+
+import Component from '@ember/component';
 
 /**
  * Displays Link Choices
  */
-const LinkChoicesComponent = Ember.Component.extend({
+const LinkChoicesComponent = Component.extend({
 
   // Inject: flash message service
-  display: Ember.inject.service(),
+  display: service(),
 
   /**
    * Component Actions
