@@ -131,7 +131,7 @@ public class VoiceCraftImpl implements VoiceCraft {
     if (sourceRecords.isEmpty())
       sourceRecords = instrumentDAO.readAllBoundToChainLibrary(Access.internal(), basis.chainId(), InstrumentType.Percussive);
 
-    // TODO [#258] Instrument selection is based on Text Isometry between the voice description and the instrument description
+    // future: [#258] Instrument selection is based on Text Isometry between the voice description and the instrument description
     log.debug("not currently in use: {}", voice);
 
     // (3) score each source record based on meme isometry
@@ -314,7 +314,7 @@ public class VoiceCraftImpl implements VoiceCraft {
    Report
    */
   private void report() {
-    // TODO basis.report() anything else interesting from the craft operation
+    // future: basis.report() anything else interesting from the craft operation
   }
 
 }

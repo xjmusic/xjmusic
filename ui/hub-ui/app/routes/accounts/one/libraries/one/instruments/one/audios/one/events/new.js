@@ -23,7 +23,7 @@ export default Route.extend({
         audio: this.modelFor('accounts.one.libraries.one.instruments.one.audios.one')
       });
     } else {
-      this.transitionTo('accounts.one.libraries.one.instruments.one.audios.one.events');
+      history.back();
     }
   },
 
@@ -36,7 +36,7 @@ export default Route.extend({
       model.save().then(
         () => {
           get(this, 'display').success('Created "' + model.get('inflection') + '" event in ' + model.get('note') + '.');
-          this.transitionTo('accounts.one.libraries.one.instruments.one.audios.one.events');
+          this.transitionTo('accounts.one.libraries.one.instruments.one.audios.one.events', model.audio.instrument.library.account, model.audio.instrument.library, model.audio.instrument, model.audio, model);
         },
         (error) => {
           get(this, 'display').error(error);
@@ -61,7 +61,7 @@ export default Route.extend({
         let confirmation = confirm("Your changes haven't saved yet. Would you like to leave this form?");
         if (confirmation) {
           model.rollbackAttributes();
-          this.transitionTo('accounts.one.libraries.one.instruments.one.audios.one.events');
+          this.transitionTo('accounts.one.libraries.one.instruments.one.audios.one.events', model.audio.instrument.library.account, model.audio.instrument.library, model.audio.instrument, model.audio, model);
         } else {
           transition.abort();
         }

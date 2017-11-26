@@ -4,9 +4,6 @@ package io.xj.core.work.basis.impl;
 import io.xj.core.app.access.impl.Access;
 import io.xj.core.app.config.Config;
 import io.xj.core.app.exception.BusinessException;
-import io.xj.core.work.basis.Basis;
-import io.xj.core.work.basis.BasisType;
-import io.xj.core.cache.StreamCache;
 import io.xj.core.dao.ArrangementDAO;
 import io.xj.core.dao.AudioDAO;
 import io.xj.core.dao.AudioEventDAO;
@@ -23,7 +20,6 @@ import io.xj.core.dao.PhaseMemeDAO;
 import io.xj.core.dao.PickDAO;
 import io.xj.core.dao.VoiceDAO;
 import io.xj.core.dao.VoiceEventDAO;
-import io.xj.core.external.amazon.AmazonProvider;
 import io.xj.core.model.arrangement.Arrangement;
 import io.xj.core.model.audio.Audio;
 import io.xj.core.model.audio_event.AudioEvent;
@@ -46,6 +42,8 @@ import io.xj.core.tables.records.PhaseRecord;
 import io.xj.core.tables.records.VoiceEventRecord;
 import io.xj.core.tables.records.VoiceRecord;
 import io.xj.core.util.Value;
+import io.xj.core.work.basis.Basis;
+import io.xj.core.work.basis.BasisType;
 import io.xj.music.BPM;
 import io.xj.music.Chord;
 import io.xj.music.MusicalException;
@@ -66,19 +64,18 @@ import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 
 import javax.sound.sampled.AudioFormat;
-import java.io.InputStream;
 import java.sql.Timestamp;
 import java.time.Duration;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 /**
- * [#214] If a Chain has Ideas associated with it directly, prefer those choices to any in the Library
+ [#214] If a Chain has Ideas associated with it directly, prefer those choices to any in the Library
  */
 public class BasisImpl implements Basis {
   private static final int MICROSECONDS_PER_SECOND = 1000000;
-  private final AmazonProvider amazonProvider;
   private final ArrangementDAO arrangementDAO;
   private final AudioDAO audioDAO;
   private final AudioEventDAO audioEventDAO;
@@ -121,7 +118,6 @@ public class BasisImpl implements Basis {
   @Inject
   public BasisImpl(
     @Assisted("link") Link link,
-    AmazonProvider amazonProvider,
     ArrangementDAO arrangementDAO,
     AudioDAO audioDAO,
     AudioEventDAO audioEventDAO,
@@ -140,7 +136,6 @@ public class BasisImpl implements Basis {
     VoiceEventDAO voiceEventDAO
   /*-*/) throws BusinessException {
     _link = link;
-    this.amazonProvider = amazonProvider;
     this.arrangementDAO = arrangementDAO;
     this.audioDAO = audioDAO;
     this.audioEventDAO = audioEventDAO;
@@ -166,23 +161,6 @@ public class BasisImpl implements Basis {
     } catch (MusicalException e) {
       throw new BusinessException("Could not tune XJ!", e);
     }
-  }
-
-  @Override
-  public InputStream streamAudioWaveform(Audio audio) throws Exception {
-    String key = String.format("%s-%s", Config.audioFileBucket(), audio.getWaveformKey());
-
-    if (!StreamCache.containsKey(key)) {
-      InputStream newStream = amazonProvider.streamS3Object(
-        Config.audioFileBucket(),
-        audio.getWaveformKey());
-      StreamCache.setContent(key, newStream);
-      log.info(String.format("Loaded & cached new stream: %s", key));
-    }
-
-    // Return data from StreamCache
-    log.info(String.format("Using cached stream: %s", key));
-    return StreamCache.getContent(key);
   }
 
   @Override
@@ -326,7 +304,7 @@ public class BasisImpl implements Basis {
 
   @Override
   public Map<ChainConfigType, ChainConfig> chainConfigs() throws Exception {
-    if (Objects.isNull(_chainConfigs) || _chainConfigs.size() == 0) {
+    if (Objects.isNull(_chainConfigs) || _chainConfigs.isEmpty()) {
       _chainConfigs = Maps.newHashMap();
       chainConfigDAO.readAll(Access.internal(), link().getId())
         .forEach(chainConfigRecord -> _chainConfigs.put(
@@ -334,18 +312,18 @@ public class BasisImpl implements Basis {
           new ChainConfig().setFromRecord(chainConfigRecord)));
     }
 
-    return _chainConfigs;
+    return Collections.unmodifiableMap(_chainConfigs);
   }
 
   @Override
   public List<Arrangement> choiceArrangements(ULong choiceId) throws Exception {
-    if (Objects.isNull(_choiceArrangements) || _choiceArrangements.size() == 0) {
+    if (Objects.isNull(_choiceArrangements) || _choiceArrangements.isEmpty()) {
       _choiceArrangements = Lists.newArrayList();
       arrangementDAO.readAll(Access.internal(), choiceId)
         .forEach(arrangementRecord -> _choiceArrangements.add(new Arrangement().setFromRecord(arrangementRecord)));
     }
 
-    return _choiceArrangements;
+    return Collections.unmodifiableList(_choiceArrangements);
   }
 
   @Override
@@ -378,14 +356,14 @@ public class BasisImpl implements Basis {
   }
 
   @Override
-  public Double secondsAtPosition(double p3) throws Exception {
+  public Double secondsAtPosition(double position) throws Exception {
     if (isInitialLink())
-      return p3 * BPM.velocity(link().getTempo());
+      return position * BPM.velocity(link().getTempo());
 
     double p2 = link().getTotal().doubleValue();
     double v1 = BPM.velocity(previousLink().getTempo());
     double v2 = BPM.velocity(link().getTempo());
-    return p3 * (v1 + (p3 / p2) * (v2 - v1));
+    return position * (v1 + (position / p2) * (v2 - v1));
   }
 
   @Override
@@ -434,7 +412,7 @@ public class BasisImpl implements Basis {
 
   @Override
   public Map<ULong, Audio> linkAudios() throws Exception {
-    if (Objects.isNull(_audiosFromPicks) || _audiosFromPicks.size() == 0) {
+    if (Objects.isNull(_audiosFromPicks) || _audiosFromPicks.isEmpty()) {
       _audiosFromPicks = Maps.newHashMap();
       audioDAO.readAllPickedForLink(Access.internal(), link().getId())
         .forEach(audioRecord -> _audiosFromPicks.put(
@@ -442,7 +420,7 @@ public class BasisImpl implements Basis {
           new Audio().setFromRecord(audioRecord)));
     }
 
-    return _audiosFromPicks;
+    return Collections.unmodifiableMap(_audiosFromPicks);
   }
 
   @Override
@@ -452,36 +430,36 @@ public class BasisImpl implements Basis {
 
   @Override
   public List<LinkChord> linkChords() throws Exception {
-    if (Objects.isNull(_linkChords) || _linkChords.size() == 0) {
+    if (Objects.isNull(_linkChords) || _linkChords.isEmpty()) {
       _linkChords = Lists.newArrayList();
       linkChordDAO.readAll(Access.internal(), link().getId())
         .forEach(chordRecord -> _linkChords.add(
           new LinkChord().setFromRecord(chordRecord)));
     }
 
-    return _linkChords;
+    return Collections.unmodifiableList(_linkChords);
   }
 
   @Override
   public List<LinkMeme> linkMemes() throws Exception {
-    if (Objects.isNull(_linkMemes) || _linkMemes.size() == 0) {
+    if (Objects.isNull(_linkMemes) || _linkMemes.isEmpty()) {
       _linkMemes = Lists.newArrayList();
       linkMemeDAO.readAll(Access.internal(), link().getId())
         .forEach(memeRecord -> _linkMemes.add(linkMeme(memeRecord.getLinkId(), memeRecord.getName())));
     }
 
-    return _linkMemes;
+    return Collections.unmodifiableList(_linkMemes);
   }
 
   @Override
   public List<Pick> picks() throws Exception {
-    if (Objects.isNull(_picks) || _picks.size() == 0) {
+    if (Objects.isNull(_picks) || _picks.isEmpty()) {
       _picks = Lists.newArrayList();
       pickDAO.readAllInLink(Access.internal(), link().getId())
         .forEach(pickRecord -> _picks.add(new Pick().setFromRecord(pickRecord)));
     }
 
-    return _picks;
+    return Collections.unmodifiableList(_picks);
   }
 
   @Override
@@ -570,7 +548,7 @@ public class BasisImpl implements Basis {
       log.warn("Report has already been sent!");
     _sentReport = true;
 
-    if (report.size() == 0)
+    if (report.isEmpty())
       return;
 
     String body = new Yaml().dumpAsMap(report);
@@ -592,38 +570,39 @@ public class BasisImpl implements Basis {
   }
 
   /**
-   * real output channels based on chain configs
-   *
-   * @return output channels
+   real output channels based on chain configs
+
+   @return output channels
    */
   private int outputChannels() throws Exception {
     return Integer.parseInt(chainConfig(ChainConfigType.OutputChannels).getValue());
   }
 
   /**
-   * real output sample bits based on chain configs
-   *
-   * @return output sample bits
+   real output sample bits based on chain configs
+
+   @return output sample bits
    */
   private int outputSampleBits() throws Exception {
     return Integer.parseInt(chainConfig(ChainConfigType.OutputSampleBits).getValue());
   }
 
   /**
-   * real output frame rate based on chain configs
-   *
-   * @return output frame rate, per second
+   real output frame rate based on chain configs
+
+   @return output frame rate, per second
    */
   private float outputFrameRate() throws Exception {
     return Integer.parseInt(chainConfig(ChainConfigType.OutputFrameRate).getValue());
   }
 
   /**
-   * output encoding based on chain configs
-   *
-   * @return output encoding
+   output encoding based on chain configs
+
+   @return output encoding
    */
   private AudioFormat.Encoding outputEncoding() throws Exception {
     return new AudioFormat.Encoding(chainConfig(ChainConfigType.OutputEncoding).getValue());
   }
+
 }

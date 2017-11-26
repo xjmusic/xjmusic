@@ -169,11 +169,11 @@ public class LibraryDAOImpl extends DAOImpl implements LibraryDAO {
     requireTopLevel(access);
 
     requireExists("Account",
-      db.selectFrom(ACCOUNT)
+      db.selectCount().from(ACCOUNT)
         .where(ACCOUNT.ID.eq(entity.getAccountId()))
-        .fetchOne());
+        .fetchOne(0, int.class));
 
-    if (executeUpdate(db, LIBRARY, fieldValues) == 0)
+    if (0 == executeUpdate(db, LIBRARY, fieldValues))
       throw new BusinessException("No records updated.");
   }
 

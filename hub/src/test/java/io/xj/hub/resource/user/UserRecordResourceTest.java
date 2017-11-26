@@ -6,7 +6,7 @@ import io.xj.core.app.resource.ResourceEndpointTest;
 //@RunWith(MockitoJUnitRunner.class)
 public class UserRecordResourceTest extends ResourceEndpointTest {
 
-  // TODO: determine strategy for mocking inner DAO of resources, so these endpoint tests are true unit tests and NOT integration tests
+  // future test: determine strategy for mocking inner DAO of resources, so these endpoint tests are true unit tests and NOT integration tests
 
 //  @Test
 //  public void readOne() {

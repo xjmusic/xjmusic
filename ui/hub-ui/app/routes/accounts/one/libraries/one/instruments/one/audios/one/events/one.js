@@ -14,7 +14,7 @@ export default Route.extend({
     return this.store.findRecord('audio_event', params.event_id)
       .catch((error) => {
         get(self, 'display').error(error);
-        self.transitionTo('accounts.one.libraries.one.instruments.one.audios.one.events');
+        history.back();
       });
   },
 

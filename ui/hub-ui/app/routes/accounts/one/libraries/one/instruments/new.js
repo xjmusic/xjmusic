@@ -68,7 +68,7 @@ export default Route.extend({
       model.save().then(
         () => {
           get(this, 'display').success('Created instrument ' + model.get('description') + '.');
-          this.transitionTo('accounts.one.libraries.one.instruments.one', model);
+          this.transitionTo('accounts.one.libraries.one.instruments.one', model.library.account, model.library, model);
         },
         (error) => {
           get(this, 'display').error(error);

@@ -39,9 +39,7 @@ export default Base.extend({
    @return {Ember.RSVP.Promise} A promise that when it resolves results in the session being authenticated
    */
   restore(properties) {
-    // console.log("authenticators/xj restore(...)", properties);
     return properties;
-    // TODO [ui/hub-ui] determine strategy for local storage of user session in frontend, and implementation of ember session restore.
   },
 
   /**

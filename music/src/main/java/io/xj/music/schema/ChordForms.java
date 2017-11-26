@@ -172,19 +172,19 @@ public interface ChordForms {
         Interval.I7, 10), // minor 7th
       null),
 
-    // TODO: Diminished Major Seventh Chord
+    // Diminished Major Seventh Chord
     new ChordForm("Diminished Major Seventh",
       Pattern.compile(diminishedExp + nExp + majorExp + nExp + "7"),
       null,
       null),
 
-    // TODO: Augmented Major Seventh Chord
+    // Augmented Major Seventh Chord
     new ChordForm("Augmented Major Seventh",
       Pattern.compile(augmentedExp + nExp + majorExp + nExp + "7"),
       null,
       null),
 
-    // TODO: Augmented Minor Seventh Chord
+    // Augmented Minor Seventh Chord
     new ChordForm("Augmented Minor Seventh",
       Pattern.compile(augmentedExp + nExp + minorExp + nExp + "7"),
       null,
@@ -329,14 +329,12 @@ public interface ChordForms {
     new Form(
 			Name, "Lydian",
 			Pattern.compile("lyd"),
-			// TODO
-		),
+			),
 
 		new Form(
 			Name, "Omit Lydian",
 			Pattern.compile(omitExp+nExp+"lyd"),
-			// TODO
-		),
+			),
 	*//*
 
 	// Specific
@@ -345,130 +343,109 @@ public interface ChordForms {
 /*	new Form(
       Name, "AlphaSpecific",
 			Pattern.compile("alpha"),
-			// TODO
-		),
+			),
 
 		new Form(
 			Name, "BridgeSpecific",
 			Pattern.compile("bridge"),
-			// TODO
-		),
+			),
 
 		new Form(
 			Name, "ComplexeSonoreSpecific",
 			Pattern.compile("(complexe|sonore)"),
-			// TODO
-		),
+			),
 
 		new Form(
 			Name, "DreamSpecific",
 			Pattern.compile("dream"),
-			// TODO
-		),
+			),
 
 		new Form(
 			Name, "ElektraSpecific",
 			Pattern.compile("elektra"),
-			// TODO
-		),
+			),
 
 		new Form(
 			Name, "FarbenSpecific",
 			Pattern.compile("farben"),
-			// TODO
-		),
+			),
 
 		new Form(
 			Name, "GrandmotherSpecific",
 			Pattern.compile("grandmother"),
-			// TODO
-		),
+			),
 
 		new Form(
 			Name, "MagicSpecific",
 			Pattern.compile("magic"),
-			// TODO
-		),
+			),
 
 		new Form(
 			Name, "MµSpecific",
 			Pattern.compile("µ"),
-			// TODO
-		),
+			),
 
 		new Form(
 			Name, "MysticSpecific",
 			Pattern.compile("mystic"),
-			// TODO
-		),
+			),
 
 		new Form(
 			Name, "NorthernLightsSpecific",
 			Pattern.compile("northern" + nExp + "light"),
-			// TODO
-		),
+			),
 
 		new Form(
 			Name, "PetrushkaSpecific",
 			Pattern.compile("petrush"),
-			// TODO
-		),
+			),
 
 		new Form(
 			Name, "PsalmsSpecific",
 			Pattern.compile("psalm"),
-			// TODO
-		),
+			),
 
 		new Form(
 			Name, "SoWhatSpecific",
 			Pattern.compile("so" + nExp + "what"),
-			// TODO
-		),
+			),
 
 		new Form(
 			Name, "TristanSpecific",
 			Pattern.compile("tristan"),
-			// TODO
-		),
+			),
 
 		new Form(
 			Name, "VienneseTrichordSpecific",
 			Pattern.compile("viennese" + nExp + "trichord"),
-			// TODO
-		),
+			),
 
 		// General
 
 		new Form(
 			Name, "MixedIntervalGeneral",
 			Pattern.compile("mixed" + nExp + "interval"),
-			// TODO
-		),
+			),
 
 		new Form(
 			Name, "SecundalGeneral",
 			Pattern.compile("secundal"),
-			// TODO
-		),
+			),
 
 		new Form(
 			Name, "TertianGeneral",
 			Pattern.compile("tertian"),
-			// TODO
-		),
+			),
 
 		new Form(
 			Name, "QuartalGeneral",
 			Pattern.compile("quartal"),
-			// TODO
-		),
+			),
 
 		new Form(
 			Name, "SyntheticChordGeneral",
 			Pattern.compile("synthetic"),
-			// TODO
-		),*/
+			),*/
 
   );
 

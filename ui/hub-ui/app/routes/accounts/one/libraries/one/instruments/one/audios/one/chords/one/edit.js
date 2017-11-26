@@ -24,7 +24,7 @@ export default Route.extend({
       chord.set('audio', audio);
       return chord;
     } else {
-      this.transitionTo('accounts.one.libraries.one.instruments.one.audios.one.chords');
+      history.back();
     }
   },
 
@@ -37,7 +37,7 @@ export default Route.extend({
       model.save().then(
         () => {
           get(this, 'display').success('Updated chord ' + model.get('name') + '.');
-          this.transitionTo('accounts.one.libraries.one.instruments.one.audios.one.chords');
+          this.transitionTo('accounts.one.libraries.one.instruments.one.audios.one.chords', model.audio.instrument.library.account, model.audio.instrument.library, model.audio.instrument, model.audio, model);
         },
         (error) => {
           get(this, 'display').error(error);
@@ -48,7 +48,7 @@ export default Route.extend({
       model.destroyRecord({}).then(
         () => {
           get(this, 'display').success('Deleted chord ' + model.get('name') + '.');
-          this.transitionTo('accounts.one.libraries.one.instruments.one.audios.one.chords');
+          this.transitionTo('accounts.one.libraries.one.instruments.one.audios.one.chords', model.audio.instrument.library.account, model.audio.instrument.library, model.audio.instrument, model.audio, model);
         },
         (error) => {
           get(this, 'display').error(error);

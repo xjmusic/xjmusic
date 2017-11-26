@@ -39,7 +39,7 @@ export default Route.extend({
         );
       });
     } else {
-      this.transitionTo('accounts.one.libraries.one.instruments.one.audios');
+      history.back();
     }
   },
 

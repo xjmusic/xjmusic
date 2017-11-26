@@ -28,7 +28,7 @@ import static io.xj.core.tables.PhaseMeme.PHASE_MEME;
 /**
  PhaseMeme DAO
  <p>
- TODO [core] more specific permissions of user (artist) access by per-entity ownership
+ future: more specific permissions of user (artist) access by per-entity ownership
  */
 public class PhaseMemeDAOImpl extends DAOImpl implements PhaseMemeDAO {
 
@@ -97,21 +97,21 @@ public class PhaseMemeDAOImpl extends DAOImpl implements PhaseMemeDAO {
     Map<Field, Object> fieldValues = entity.updatableFieldValueMap();
 
     if (access.isTopLevel())
-      requireExists("Phase", db.select(PHASE.ID).from(PHASE)
+      requireExists("Phase", db.selectCount().from(PHASE)
         .where(PHASE.ID.eq(entity.getPhaseId()))
-        .fetchOne());
+        .fetchOne(0, int.class));
     else
-      requireExists("Phase", db.select(PHASE.ID).from(PHASE)
+      requireExists("Phase", db.selectCount().from(PHASE)
         .join(IDEA).on(IDEA.ID.eq(PHASE.IDEA_ID))
         .join(LIBRARY).on(IDEA.LIBRARY_ID.eq(LIBRARY.ID))
         .where(PHASE.ID.eq(entity.getPhaseId()))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-        .fetchOne());
+        .fetchOne(0, int.class));
 
-    if (db.selectFrom(PHASE_MEME)
+    if (null != db.selectFrom(PHASE_MEME)
       .where(PHASE_MEME.PHASE_ID.eq(entity.getPhaseId()))
       .and(PHASE_MEME.NAME.eq(entity.getName()))
-      .fetchOne() != null)
+      .fetchOne())
       throw new BusinessException("Phase Meme already exists!");
 
     return executeCreate(db, PHASE_MEME, fieldValues);
@@ -172,16 +172,15 @@ public class PhaseMemeDAOImpl extends DAOImpl implements PhaseMemeDAO {
    @param id     to delete
    @throws BusinessException if failure
    */
-  // TODO: fail if no phaseMeme is deleted
   private void delete(DSLContext db, Access access, ULong id) throws BusinessException {
     if (!access.isTopLevel())
-      requireExists("Phase Meme", db.select(PHASE_MEME.ID).from(PHASE_MEME)
+      requireExists("Phase Meme", db.selectCount().from(PHASE_MEME)
         .join(PHASE).on(PHASE.ID.eq(PHASE_MEME.PHASE_ID))
         .join(IDEA).on(IDEA.ID.eq(PHASE.IDEA_ID))
         .join(LIBRARY).on(IDEA.LIBRARY_ID.eq(LIBRARY.ID))
         .where(PHASE_MEME.ID.eq(id))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-        .fetchOne());
+        .fetchOne(0, int.class));
 
     db.deleteFrom(PHASE_MEME)
       .where(PHASE_MEME.ID.eq(id))

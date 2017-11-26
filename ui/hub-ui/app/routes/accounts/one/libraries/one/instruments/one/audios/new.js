@@ -49,7 +49,7 @@ export default Route.extend({
         );
       });
     } else {
-      this.transitionTo('accounts.one.libraries.one.instruments.one.audios');
+      history.back();
     }
   },
 
@@ -97,7 +97,7 @@ export default Route.extend({
         let confirmation = confirm("Your changes haven't saved yet. Would you like to leave this form?");
         if (confirmation) {
           model.rollbackAttributes();
-          this.transitionTo('accounts.one.libraries.one.instruments.one.audios');
+          this.transitionTo('accounts.one.libraries.one.instruments.one.audios', model.instrument.library.account, model.instrument.library, model.instrument);
         } else {
           transition.abort();
         }
@@ -145,8 +145,7 @@ export default Route.extend({
     });
 
     self.uploader.on('progress', e => {
-      // TODO: display upload progress in UI
-      console.log("Upload progress: " + e.percent);
+      console.debug("Upload progress: " + e.percent);
     });
 
     let files = get(self, 'uploadFiles');
@@ -194,7 +193,7 @@ export default Route.extend({
     let model = this.controller.get('model');
     let self = this;
     later(() => {
-      self.transitionTo('accounts.one.libraries.one.instruments.one.audios.one', model);
+      self.transitionTo('accounts.one.libraries.one.instruments.one.audios.one', model.instrument.library.account, model.instrument.library, model.instrument, model);
     }, 2);
   },
 
@@ -205,7 +204,6 @@ export default Route.extend({
    */
   failedToUploadFile (error, waveformKey) {
     this.throwError('Failed to upload "' + this.audioBaseUrl + waveformKey, error);
-    this.transitionTo('accounts.one.libraries.one.instruments.one.audios');
   },
 
   /**

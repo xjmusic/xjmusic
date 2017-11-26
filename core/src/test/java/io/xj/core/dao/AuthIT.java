@@ -2,5 +2,5 @@
 package io.xj.core.dao;
 
 public class AuthIT {
-  // TODO [core] integration test AuthIT in covers result of get /auth
+  // future: integration test AuthIT in covers result of get /auth
 }

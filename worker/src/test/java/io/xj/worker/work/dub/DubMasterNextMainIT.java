@@ -164,9 +164,9 @@ public class DubMasterNextMainIT {
     IntegrationTestEntity.insertAudio(2, 1, "Published", "Snare", "https://static.xj.io/198017350afghjkjhaskjdfjhk975898.wav", 0.01, 1.5, 120.0, 1200);
     IntegrationTestEntity.insertAudioEvent(2, 2, 3, 1, "SNARE", "Ab", 0.1, 0.8);
 
-    // TODO insert arrangement of choice 103
-    // TODO insert 8 picks of audio 1
-    // TODO insert 8 picks of audio 2
+    // future: insert arrangement of choice 103
+    // future: insert 8 picks of audio 1
+    // future: insert 8 picks of audio 2
 
     // Bind the library to the chain
     IntegrationTestEntity.insertChainLibrary(1, 1, 2);
@@ -188,7 +188,7 @@ public class DubMasterNextMainIT {
 
     dubFactory.master(basis).doWork();
 
-    // TODO: assert success of dub master continue test
+    // future test: success of dub master continue test
   }
 
 }

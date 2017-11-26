@@ -1,4 +1,3 @@
-// TODO [ui/hub-ui] test for accounts/delete
 
 // import { moduleFor, test } from 'ember-qunit';
 //

@@ -201,14 +201,14 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
     fieldValues.put(CHAIN.STATE, ChainState.Draft);
 
     if (access.isTopLevel())
-      requireExists("Account", db.select(ACCOUNT.ID).from(ACCOUNT)
+      requireExists("Account", db.selectCount().from(ACCOUNT)
         .where(ACCOUNT.ID.eq(entity.getAccountId()))
-        .fetchOne());
+        .fetchOne(0, int.class));
     else
-      requireExists("Account", db.select(ACCOUNT.ID).from(ACCOUNT)
+      requireExists("Account", db.selectCount().from(ACCOUNT)
         .where(ACCOUNT.ID.in(access.getAccounts()))
         .and(ACCOUNT.ID.eq(entity.getAccountId()))
-        .fetchOne());
+        .fetchOne(0, int.class));
 
 
     // logic based on Chain Type
@@ -420,9 +420,9 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
         onlyAllowTransitions(toState, ChainState.Draft, ChainState.Ready, ChainState.Erase);
         if (Objects.equals(ChainState.Ready, toState)) {
           requireExistsAnyOf("Chain must be bound to at least one Library, Idea, or Instrument",
-            db.selectFrom(CHAIN_LIBRARY).where(CHAIN_LIBRARY.CHAIN_ID.eq(id)).fetchOne(),
-            db.selectFrom(CHAIN_IDEA).where(CHAIN_IDEA.CHAIN_ID.eq(id)).fetchOne(),
-            db.selectFrom(CHAIN_INSTRUMENT).where(CHAIN_INSTRUMENT.CHAIN_ID.eq(id)).fetchOne()
+            db.selectCount().from(CHAIN_LIBRARY).where(CHAIN_LIBRARY.CHAIN_ID.eq(id)).fetchOne(0, int.class),
+            db.selectCount().from(CHAIN_IDEA).where(CHAIN_IDEA.CHAIN_ID.eq(id)).fetchOne(0, int.class),
+            db.selectCount().from(CHAIN_INSTRUMENT).where(CHAIN_INSTRUMENT.CHAIN_ID.eq(id)).fetchOne(0, int.class)
           );
         }
         break;
@@ -607,15 +607,14 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
    */
   private void delete(DSLContext db, Access access, ULong id) throws Exception {
     if (access.isTopLevel())
-      requireExists("Chain", db.selectFrom(CHAIN)
+      requireExists("Chain", db.selectCount().from(CHAIN)
         .where(CHAIN.ID.eq(id))
-        .fetchOne());
+        .fetchOne(0, int.class));
     else
-      requireExists("Chain", db.select(CHAIN.fields())
-        .from(CHAIN)
+      requireExists("Chain", db.selectCount().from(CHAIN)
         .where(CHAIN.ID.eq(id))
         .and(CHAIN.ACCOUNT_ID.in(access.getAccounts()))
-        .fetchOne());
+        .fetchOne(0, int.class));
 
     requireNotExists("Link in Chain", db.select(LINK.ID)
       .from(LINK)

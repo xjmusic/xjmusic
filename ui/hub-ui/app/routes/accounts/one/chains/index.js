@@ -1,7 +1,7 @@
 // Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
 import { hash } from 'rsvp';
 
-import { get, set } from '@ember/object';
+import { get } from '@ember/object';
 import { inject as service } from '@ember/service';
 import Route from '@ember/routing/route';
 
@@ -28,19 +28,6 @@ export default Route.extend({
     return hash({
       account: account,
       chains: chains,
-    });
-  },
-
-  /**
-   * Headline
-   */
-  afterModel(model) {
-    set(this, 'routeHeadline', {
-      title: model.account.get('name') + ' ' + 'Chains',
-      entity: {
-        name: 'Account',
-        id: model.account.get('id')
-      }
     });
   },
 

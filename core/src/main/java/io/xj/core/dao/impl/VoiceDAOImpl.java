@@ -114,16 +114,16 @@ public class VoiceDAOImpl extends DAOImpl implements VoiceDAO {
     Map<Field, Object> fieldValues = entity.updatableFieldValueMap();
 
     if (access.isTopLevel())
-      requireExists("Phase", db.select(PHASE.ID).from(PHASE)
+      requireExists("Phase", db.selectCount().from(PHASE)
         .where(PHASE.ID.eq(entity.getPhaseId()))
-        .fetchOne());
+        .fetchOne(0, int.class));
     else
-      requireExists("Phase", db.select(PHASE.ID).from(PHASE)
+      requireExists("Phase", db.selectCount().from(PHASE)
         .join(IDEA).on(IDEA.ID.eq(PHASE.IDEA_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(IDEA.LIBRARY_ID))
         .where(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .and(PHASE.ID.eq(entity.getPhaseId()))
-        .fetchOne());
+        .fetchOne(0, int.class));
 
     return executeCreate(db, VOICE, fieldValues);
   }
@@ -211,16 +211,16 @@ public class VoiceDAOImpl extends DAOImpl implements VoiceDAO {
     fieldValues.put(VOICE.ID, id);
 
     if (access.isTopLevel())
-      requireExists("Phase", db.select(PHASE.ID).from(PHASE)
+      requireExists("Phase", db.selectCount().from(PHASE)
         .where(PHASE.ID.eq(entity.getPhaseId()))
-        .fetchOne());
+        .fetchOne(0, int.class));
     else
-      requireExists("Phase", db.select(PHASE.ID).from(PHASE)
+      requireExists("Phase", db.selectCount().from(PHASE)
         .join(IDEA).on(IDEA.ID.eq(PHASE.IDEA_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(IDEA.LIBRARY_ID))
         .where(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .and(PHASE.ID.eq(entity.getPhaseId()))
-        .fetchOne());
+        .fetchOne(0, int.class));
 
     if (0 == executeUpdate(db, VOICE, fieldValues))
       throw new BusinessException("No records updated.");
@@ -242,13 +242,13 @@ public class VoiceDAOImpl extends DAOImpl implements VoiceDAO {
       .fetch());
 
     if (!access.isTopLevel())
-      requireExists("Voice", db.select(VOICE.ID).from(VOICE)
+      requireExists("Voice", db.selectCount().from(VOICE)
         .join(PHASE).on(PHASE.ID.eq(VOICE.PHASE_ID))
         .join(IDEA).on(IDEA.ID.eq(PHASE.IDEA_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(IDEA.LIBRARY_ID))
         .where(VOICE.ID.eq(id))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-        .fetchOne());
+        .fetchOne(0, int.class));
 
     db.deleteFrom(VOICE)
       .where(VOICE.ID.eq(id))

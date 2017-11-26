@@ -1,5 +1,5 @@
 // Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
-import { set, get } from '@ember/object';
+import { get } from '@ember/object';
 
 import { inject as service } from '@ember/service';
 import Route from '@ember/routing/route';
@@ -15,15 +15,6 @@ export default Route.extend({
    */
   model: function () {
     return this.store.createRecord('account');
-  },
-
-  /**
-   * Headline
-   */
-  afterModel() {
-    set(this, 'routeHeadline', {
-      title: 'New Account'
-    });
   },
 
   /**

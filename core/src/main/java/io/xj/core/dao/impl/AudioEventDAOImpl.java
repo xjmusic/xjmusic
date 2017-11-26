@@ -120,16 +120,16 @@ public class AudioEventDAOImpl extends DAOImpl implements AudioEventDAO {
     Map<Field, Object> fieldValues = entity.updatableFieldValueMap();
 
     if (access.isTopLevel())
-      requireExists("Audio", db.select(AUDIO.ID).from(AUDIO)
+      requireExists("Audio", db.selectCount().from(AUDIO)
         .where(AUDIO.ID.eq(entity.getAudioId()))
-        .fetchOne());
+        .fetchOne(0, int.class));
     else
-      requireExists("Audio", db.select(AUDIO.ID).from(AUDIO)
+      requireExists("Audio", db.selectCount().from(AUDIO)
         .join(INSTRUMENT).on(INSTRUMENT.ID.eq(AUDIO.INSTRUMENT_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
         .where(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .and(AUDIO.ID.eq(entity.getAudioId()))
-        .fetchOne());
+        .fetchOne(0, int.class));
 
     return executeCreate(db, AUDIO_EVENT, fieldValues);
   }
@@ -241,18 +241,18 @@ public class AudioEventDAOImpl extends DAOImpl implements AudioEventDAO {
     fieldValues.put(AUDIO_EVENT.ID, id);
 
     if (access.isTopLevel())
-      requireExists("Audio", db.select(AUDIO.ID).from(AUDIO)
+      requireExists("Audio", db.selectCount().from(AUDIO)
         .where(AUDIO.ID.eq(entity.getAudioId()))
-        .fetchOne());
+        .fetchOne(0, int.class));
     else
-      requireExists("Audio", db.select(AUDIO.ID).from(AUDIO)
+      requireExists("Audio", db.selectCount().from(AUDIO)
         .join(INSTRUMENT).on(INSTRUMENT.ID.eq(AUDIO.INSTRUMENT_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
         .where(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .and(AUDIO.ID.eq(entity.getAudioId()))
-        .fetchOne());
+        .fetchOne(0, int.class));
 
-    if (executeUpdate(db, AUDIO_EVENT, fieldValues) == 0)
+    if (0 == executeUpdate(db, AUDIO_EVENT, fieldValues))
       throw new BusinessException("No records updated.");
   }
 
@@ -267,13 +267,13 @@ public class AudioEventDAOImpl extends DAOImpl implements AudioEventDAO {
    */
   private void delete(Access access, DSLContext db, ULong id) throws Exception {
     if (!access.isTopLevel())
-      requireExists("Audio Meme", db.select(AUDIO_EVENT.ID).from(AUDIO_EVENT)
+      requireExists("Audio Meme", db.selectCount().from(AUDIO_EVENT)
         .join(AUDIO).on(AUDIO.ID.eq(AUDIO_EVENT.AUDIO_ID))
         .join(INSTRUMENT).on(INSTRUMENT.ID.eq(AUDIO.INSTRUMENT_ID))
         .join(LIBRARY).on(INSTRUMENT.LIBRARY_ID.eq(LIBRARY.ID))
         .where(AUDIO_EVENT.ID.eq(id))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-        .fetchOne());
+        .fetchOne(0, int.class));
 
     db.deleteFrom(AUDIO_EVENT)
       .where(AUDIO_EVENT.ID.eq(id))

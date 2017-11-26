@@ -35,15 +35,6 @@ import java.util.Map;
 public interface Basis {
 
   /**
-   Stream Audio waveform directly from S3.
-   stream.close() when finished.
-
-   @return waveform as stream
-    @param audio to stream waveform of
-   */
-  InputStream streamAudioWaveform(Audio audio) throws Exception;
-
-  /**
    Output file path
 
    @return output file path

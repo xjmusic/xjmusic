@@ -14,7 +14,7 @@ export default Route.extend({
     return this.store.findRecord('audio_chord', params.chord_id)
       .catch((error) => {
         get(self, 'display').error(error);
-        self.transitionTo('accounts.one.libraries.one.instruments.one.audios.one.chords');
+        history.back();
       });
   },
 

@@ -29,7 +29,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
-// TODO [core] test permissions of different users to readMany vs. create vs. update or delete account users
+// future test: permissions of different users to readMany vs. create vs. update or delete account users
 public class AccountUserIT {
   private Injector injector = Guice.createInjector(new CoreModule());
   private AccountUserDAO testDAO;

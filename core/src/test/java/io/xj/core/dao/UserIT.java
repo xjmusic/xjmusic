@@ -85,7 +85,7 @@ public class UserIT {
 
     // Created User Access Token
     assertNotNull(accessToken);
-    // TODO: assert token stored in Redis with correct auth
+    // future test: token stored in Redis with correct auth
     UserAccessTokenRecord userAccessToken = IntegrationTestService.getDb()
       .selectFrom(USER_ACCESS_TOKEN)
       .where(USER_ACCESS_TOKEN.ACCESS_TOKEN.eq(accessToken))
@@ -126,7 +126,7 @@ public class UserIT {
 
     // Created User Access Token
     assertNotNull(accessToken);
-    // TODO: assert token stored in Redis with correct auth
+    // future test: token stored in Redis with correct auth
     UserAccessTokenRecord userAccessToken = IntegrationTestService.getDb()
       .selectFrom(USER_ACCESS_TOKEN)
       .where(USER_ACCESS_TOKEN.ACCESS_TOKEN.eq(accessToken))
@@ -284,7 +284,7 @@ public class UserIT {
       .where(USER_ACCESS_TOKEN.ACCESS_TOKEN.eq("this-is-my-actual-access-token"))
       .fetchOne();
     assertNull(result);
-    // TODO: assert token destroyed in Redis
+    // future test: token destroyed in Redis
   }
 
   @Test
@@ -303,7 +303,7 @@ public class UserIT {
       .where(USER_ACCESS_TOKEN.ACCESS_TOKEN.eq("this-is-my-actual-access-token"))
       .fetchOne();
     assertNull(result);
-    // TODO: assert token destroyed in Redis
+    // future test: token destroyed in Redis
     // Added artist role
     UserRoleRecord addedRole = IntegrationTestService.getDb()
       .selectFrom(USER_ROLE)

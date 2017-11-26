@@ -110,8 +110,6 @@ public abstract class EventEntity extends Entity {
     // score tonality similarity
     score += (1 - Math.abs(event2.getTonality() - event1.getTonality())) * SIMILARITY_SCORE_TONALITY;
 
-    // TODO: score matching adj symbol?
-
     return score;
   }
 }

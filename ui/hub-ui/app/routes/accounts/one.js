@@ -34,24 +34,6 @@ export default Route.extend({
     set(this, 'breadCrumb', {
       title: model.get("name")
     });
-
-    let routeHeadline = {
-      title: model.get('name'),
-      entity: {
-        name: 'Account',
-        id: model.get('id')
-      }
-    };
-
-    if (this.get('auth').isAdmin) {
-      routeHeadline.edit = {
-        route: 'accounts.one.edit',
-        model: model
-      };
-    }
-
-    console.log("attempt to set routeHeadline", routeHeadline);
-    set(this, 'routeHeadline', routeHeadline);
   }
 
 });

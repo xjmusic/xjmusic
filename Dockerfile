@@ -113,6 +113,7 @@ RUN mkdir -p /var/log/hub && chmod a+w /var/log/hub
 # 'worker'
 EXPOSE 8043
 RUN mkdir -p /var/log/worker && chmod a+w /var/log/worker
+RUN mkdir -p /var/cache/worker && chmod a+w /var/cache/worker
 
 # App run script
 ADD \

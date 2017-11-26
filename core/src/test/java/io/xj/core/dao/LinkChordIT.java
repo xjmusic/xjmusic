@@ -36,7 +36,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
-// TODO [core] test permissions of different users to readMany vs. create vs. update or delete link chords
+// future test: permissions of different users to readMany vs. create vs. update or delete link chords
 public class LinkChordIT {
   private final Injector injector = Guice.createInjector(new CoreModule());
   private LinkChordDAO testDAO;
@@ -65,8 +65,6 @@ public class LinkChordIT {
   public void tearDown() throws Exception {
     testDAO = null;
   }
-
-  // TODO cannot create or update a link to an offset that already exists for that idea
 
   @Test
   public void create() throws Exception {
@@ -306,7 +304,7 @@ public class LinkChordIT {
     testDAO.update(access, ULong.valueOf(1), inputData);
   }
 
-  // TODO: [core] test DAO cannot update Idea to a User or Library not owned by current session
+  // future test: DAO cannot update Idea to a User or Library not owned by current session
 
   @Test
   public void delete() throws Exception {

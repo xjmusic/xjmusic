@@ -89,13 +89,27 @@ public class DAOImpl {
   /**
    Require empty Result
 
-   @param name
+   @param name   to require
    @param result to check.
    @throws BusinessException if result set is not empty.
    @throws Exception         if something goes wrong.
    */
   <R extends Record> void requireNotExists(String name, Result<R> result) throws Exception {
     if (exists(result) && result.size() > 0) {
+      throw new BusinessException("Found" + " " + name);
+    }
+  }
+
+  /**
+   Require empty count of a Result
+
+   @param name  to require
+   @param count to check.
+   @throws BusinessException if result set is not empty.
+   @throws Exception         if something goes wrong.
+   */
+  static void requireNotExists(String name, int count) throws Exception {
+    if (0 < count) {
       throw new BusinessException("Found" + " " + name);
     }
   }
@@ -112,16 +126,27 @@ public class DAOImpl {
   }
 
   /**
-   Require that a record exists
+   Require that a count of a record exists
 
-   @param message for error, if thrown
-   @param records to require existence of any of
+   @param name  name of record (for error message)
+   @param count to require existence of
    @throws BusinessException if not exists
    */
-  void requireExistsAnyOf(String message, Record... records) throws BusinessException {
+  void requireExists(String name, int count) throws BusinessException {
+    require(name, "does not exist", 0 < count);
+  }
+
+  /**
+   Require that a count of any of a list of record exists
+
+   @param message for error, if thrown
+   @param counts  to require existence of any of
+   @throws BusinessException if not exists
+   */
+  static void requireExistsAnyOf(String message, int... counts) throws BusinessException {
     Boolean exists = false;
-    for (Record record : records) {
-      if (exists(record)) {
+    for (int count : counts) {
+      if (0 < count) {
         exists = true;
       }
     }

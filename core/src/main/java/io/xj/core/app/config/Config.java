@@ -27,6 +27,7 @@ public interface Config {
   int DEFAULT_APP_PORT = 80;
   int DEFAULT_CHAIN_PREVIEW_LENGTH_MAX = 300;
   int DEFAULT_CHAIN_DESTROY_LINKS_MAX = 24;
+  long DEFAULT_CACHE_FILE_ALLOCATE_BYTES = 1_000_000_000; // 1 gigabyte
 
   static Boolean isTestEnvironment() {
     return getBoolOrDefault("env.test", false);
@@ -139,6 +140,10 @@ public interface Config {
 
   static Boolean logAccessEntitiesAll() {
     return getBoolOrDefault("log.access.entities.all", false);
+  }
+
+  static Long cacheFileAllocateBytes() {
+    return getLongOrDefault("cache.file.allocate.bytes", DEFAULT_CACHE_FILE_ALLOCATE_BYTES);
   }
 
   static String cacheFilePathPrefix() {
@@ -296,6 +301,11 @@ public interface Config {
     return Integer.valueOf(value);
   }
 
+  static Long getLong(String key) throws ConfigException {
+    String value = get(key);
+    return Long.valueOf(value);
+  }
+
   static Double getDouble(String key) throws ConfigException {
     String value = get(key);
     return Double.valueOf(value);
@@ -304,6 +314,14 @@ public interface Config {
   static Integer getIntOrDefault(String key, Integer defaultValue) {
     try {
       return getInt(key);
+    } catch (ConfigException e) {
+      return defaultValue;
+    }
+  }
+
+  static Long getLongOrDefault(String key, Long defaultValue) {
+    try {
+      return getLong(key);
     } catch (ConfigException e) {
       return defaultValue;
     }

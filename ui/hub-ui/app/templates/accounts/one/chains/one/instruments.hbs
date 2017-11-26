@@ -25,7 +25,7 @@
             <tr>
               <th scope="row">{{chainInstrument.instrument.id}}</th>
               <td>{{#link-to "accounts.one.libraries.one.instruments.one"
-                             chainInstrument.instrument}}{{chainInstrument.instrument.description}}{{/link-to}}</td>
+                             chainInstrument.instrument.library.account chainInstrument.instrument.library chainInstrument.instrument}}{{chainInstrument.instrument.description}}{{/link-to}}</td>
               <td>
                 <button {{action "removeInstrument" chainInstrument}}>Remove</button>
               </td>

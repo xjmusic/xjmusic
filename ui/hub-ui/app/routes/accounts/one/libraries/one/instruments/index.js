@@ -34,7 +34,7 @@ export default Route.extend({
   actions: {
 
     editInstrument(model) {
-      this.transitionTo('accounts.one.libraries.one.instruments.one', model);
+      this.transitionTo('accounts.one.libraries.one.instruments.one', model.library.account, model.library, model);
     },
 
   }

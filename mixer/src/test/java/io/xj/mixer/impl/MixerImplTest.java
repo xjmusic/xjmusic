@@ -78,7 +78,7 @@ public class MixerImplTest {
 
   @Test
   public void put() throws Exception {
-    // TODO: test MixerImpl.put(...)
+    // future test: MixerImpl.put(...)
   }
 
   @Test
@@ -103,77 +103,77 @@ public class MixerImplTest {
 
   @Test
   public void mix() throws Exception {
-    // TODO: test MixerImpl.mix(...)
+    // future test: MixerImpl.mix(...)
   }
 
   @Test
   public void setMixCycleDuration() throws Exception {
-    // TODO: test MixerImpl.setMixCycleDuration(...)
+    // future test: MixerImpl.setMixCycleDuration(...)
   }
 
   @Test
   public void getSourceCount() throws Exception {
-    // TODO: test MixerImpl.getSourceCount(...)
+    // future test: MixerImpl.getSourceCount(...)
   }
 
   @Test
   public void getPutCount() throws Exception {
-    // TODO: test MixerImpl.getPutCount(...)
+    // future test: MixerImpl.getPutCount(...)
   }
 
   @Test
   public void getNowAt() throws Exception {
-    // TODO: test MixerImpl.getNowAt(...)
+    // future test: MixerImpl.getNowAt(...)
   }
 
   @Test
   public void getState() throws Exception {
-    // TODO: test MixerImpl.getState(...)
+    // future test: MixerImpl.getState(...)
   }
 
   @Test
   public void mixOutToFile() throws Exception {
-    // TODO: test MixerImpl.mixToFile(...)
+    // future test: MixerImpl.mixToFile(...)
   }
 
   @Test
   public void setCycleMicros() throws Exception {
-    // TODO: test MixerImpl.setCycleMicros(...)
+    // future test: MixerImpl.setCycleMicros(...)
   }
 
   @Test
   public void getPutReadyCount() throws Exception {
-    // TODO: test MixerImpl.getPutReadyCount(...)
+    // future test: MixerImpl.getPutReadyCount(...)
   }
 
   @Test
   public void getPutLiveCount() throws Exception {
-    // TODO: test MixerImpl.getPutLiveCount(...)
+    // future test: MixerImpl.getPutLiveCount(...)
   }
 
   @Test
   public void getPutDoneCount() throws Exception {
-    // TODO: test MixerImpl.getPutDoneCount(...)
+    // future test: MixerImpl.getPutDoneCount(...)
   }
 
   @Test
   public void getFrameRate() throws Exception {
-    // TODO: test MixerImpl.getFrameRate(...)
+    // future test: MixerImpl.getFrameRate(...)
   }
 
   @Test
   public void getOutputFormat() throws Exception {
-    // TODO: test MixerImpl.getOutputFormat(...)
+    // future test: MixerImpl.getOutputFormat(...)
   }
 
   @Test
   public void isDebugging() throws Exception {
-    // TODO: test MixerImpl.isDebugging(...)
+    // future test: MixerImpl.isDebugging(...)
   }
 
   @Test
   public void setDebugging() throws Exception {
-    // TODO: test MixerImpl.setDebugging(...)
+    // future test: MixerImpl.setDebugging(...)
   }
 
 }

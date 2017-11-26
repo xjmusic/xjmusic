@@ -103,9 +103,9 @@ public class LinkMessageDAOImpl extends DAOImpl implements LinkMessageDAO {
 
     requireTopLevel(access);
     requireExists("Link",
-      db.select(LINK.ID).from(LINK)
+      db.selectCount().from(LINK)
         .where(LINK.ID.eq(entity.getLinkId()))
-        .fetchOne());
+        .fetchOne(0, int.class));
 
     return executeCreate(db, LINK_MESSAGE, fieldValues);
   }
@@ -199,9 +199,9 @@ public class LinkMessageDAOImpl extends DAOImpl implements LinkMessageDAO {
   private void delete(DSLContext db, Access access, ULong id) throws Exception {
     requireTopLevel(access);
 
-    requireExists("LinkMessage", db.select(LINK_MESSAGE.ID).from(LINK_MESSAGE)
+    requireExists("LinkMessage", db.selectCount().from(LINK_MESSAGE)
       .where(LINK_MESSAGE.ID.eq(id))
-      .fetchOne());
+      .fetchOne(0, int.class));
 
     db.deleteFrom(LINK_MESSAGE)
       .where(LINK_MESSAGE.ID.eq(id))

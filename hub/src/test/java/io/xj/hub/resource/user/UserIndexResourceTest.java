@@ -5,11 +5,11 @@ import io.xj.core.app.resource.ResourceEndpointTest;
 
 public class UserIndexResourceTest extends ResourceEndpointTest {
 
-  // TODO write tests for /users endpoint via HTTP
+  // future test: for /users endpoint via HTTP
 
-  // TODO write tests for get /users/<id> endpoint via HTTP
+  // future test: for get /users/<id> endpoint via HTTP
 
-  // TODO write tests for PUT /users/<id> endpoint via HTTP
+  // future test: for PUT /users/<id> endpoint via HTTP
 
 //  @Test
 //  public void GetAuth() {

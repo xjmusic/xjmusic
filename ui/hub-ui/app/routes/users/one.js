@@ -28,16 +28,6 @@ export default Route.extend({
    * @param model
    */
   afterModel(model) {
-    set(this, 'routeHeadline', {
-      title: model.get('name'),
-      detail: {
-        roles: model.get('roles').split(',')
-      },
-      entity: {
-        name: 'User',
-        id: model.get('id')
-      }
-    });
     set(this, 'breadCrumb', {
       title: model.get("name")
     });

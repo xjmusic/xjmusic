@@ -117,9 +117,9 @@ public class PickDAOImpl extends DAOImpl implements PickDAO {
 
     requireTopLevel(access);
 
-    requireExists("Arrangement", db.select(ARRANGEMENT.ID).from(ARRANGEMENT)
+    requireExists("Arrangement", db.selectCount().from(ARRANGEMENT)
       .where(ARRANGEMENT.ID.eq(entity.getArrangementId()))
-      .fetchOne());
+      .fetchOne(0, int.class));
 
     return executeCreate(db, PICK, fieldValues);
   }
@@ -211,12 +211,12 @@ public class PickDAOImpl extends DAOImpl implements PickDAO {
     requireTopLevel(access);
 
     requireExists("existing Pick with immutable Arrangement membership",
-      db.selectFrom(PICK)
+      db.selectCount().from(PICK)
         .where(PICK.ID.eq(id))
         .and(PICK.ARRANGEMENT_ID.eq(entity.getArrangementId()))
-        .fetchOne());
+        .fetchOne(0, int.class));
 
-    if (executeUpdate(db, PICK, fieldValues) == 0)
+    if (0 == executeUpdate(db, PICK, fieldValues))
       throw new BusinessException("No records updated.");
   }
 
@@ -233,9 +233,9 @@ public class PickDAOImpl extends DAOImpl implements PickDAO {
   private void delete(DSLContext db, Access access, ULong id) throws Exception {
     requireTopLevel(access);
 
-    requireExists("Pick", db.selectFrom(PICK)
+    requireExists("Pick", db.selectCount().from(PICK)
       .where(PICK.ID.eq(id))
-      .fetchOne());
+      .fetchOne(0, int.class));
 
     db.deleteFrom(PICK)
       .where(PICK.ID.eq(id))

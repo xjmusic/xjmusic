@@ -115,9 +115,9 @@ public class LinkChordDAOImpl extends DAOImpl implements LinkChordDAO {
 
     requireTopLevel(access);
 
-    requireExists("Link", db.select(LINK.ID).from(LINK)
+    requireExists("Link", db.selectCount().from(LINK)
       .where(LINK.ID.eq(entity.getLinkId()))
-      .fetchOne());
+      .fetchOne(0, int.class));
 
     return executeCreate(db, LINK_CHORD, fieldValues);
   }
@@ -218,12 +218,12 @@ public class LinkChordDAOImpl extends DAOImpl implements LinkChordDAO {
     requireTopLevel(access);
 
     requireExists("existing LinkChord with immutable Link membership",
-      db.select(LINK_CHORD.ID).from(LINK_CHORD)
+      db.selectCount().from(LINK_CHORD)
         .where(LINK_CHORD.ID.eq(id))
         .and(LINK_CHORD.LINK_ID.eq(entity.getLinkId()))
-        .fetchOne());
+        .fetchOne(0, int.class));
 
-    if (executeUpdate(db, LINK_CHORD, fieldValues) == 0)
+    if (0 == executeUpdate(db, LINK_CHORD, fieldValues))
       throw new BusinessException("No records updated.");
   }
 

@@ -6,7 +6,7 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class JSONTest {
-  // TODO test JSON utilities
+  // future test: JSON utilities
 /*  @Test
   public void arrayOf() throws Exception {
   }

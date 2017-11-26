@@ -106,17 +106,17 @@ public class VoiceEventDAOImpl extends DAOImpl implements VoiceEventDAO {
     Map<Field, Object> fieldValues = entity.updatableFieldValueMap();
 
     if (access.isTopLevel())
-      requireExists("Voice", db.select(VOICE.ID).from(VOICE)
+      requireExists("Voice", db.selectCount().from(VOICE)
         .where(VOICE.ID.eq(entity.getVoiceId()))
-        .fetchOne());
+        .fetchOne(0, int.class));
     else
-      requireExists("Voice", db.select(VOICE.ID).from(VOICE)
+      requireExists("Voice", db.selectCount().from(VOICE)
         .join(PHASE).on(PHASE.ID.eq(VOICE.PHASE_ID))
         .join(IDEA).on(IDEA.ID.eq(PHASE.IDEA_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(IDEA.LIBRARY_ID))
         .where(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .and(VOICE.ID.eq(entity.getVoiceId()))
-        .fetchOne());
+        .fetchOne(0, int.class));
 
     return executeCreate(db, VOICE_EVENT, fieldValues);
   }
@@ -191,19 +191,19 @@ public class VoiceEventDAOImpl extends DAOImpl implements VoiceEventDAO {
     fieldValues.put(VOICE_EVENT.ID, id);
 
     if (access.isTopLevel())
-      requireExists("Voice", db.select(VOICE.ID).from(VOICE)
+      requireExists("Voice", db.selectCount().from(VOICE)
         .where(VOICE.ID.eq(entity.getVoiceId()))
-        .fetchOne());
+        .fetchOne(0, int.class));
     else
-      requireExists("Voice", db.select(VOICE.ID).from(VOICE)
+      requireExists("Voice", db.selectCount().from(VOICE)
         .join(PHASE).on(PHASE.ID.eq(VOICE.PHASE_ID))
         .join(IDEA).on(IDEA.ID.eq(PHASE.IDEA_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(IDEA.LIBRARY_ID))
         .where(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .and(VOICE.ID.eq(entity.getVoiceId()))
-        .fetchOne());
+        .fetchOne(0, int.class));
 
-    if (executeUpdate(db, VOICE_EVENT, fieldValues) == 0)
+    if (0 == executeUpdate(db, VOICE_EVENT, fieldValues))
       throw new BusinessException("No records updated.");
   }
 
@@ -219,14 +219,14 @@ public class VoiceEventDAOImpl extends DAOImpl implements VoiceEventDAO {
   private void delete(Access access, DSLContext db, ULong id) throws Exception {
     if (!access.isTopLevel())
       requireExists("Voice Meme",
-        db.select(VOICE_EVENT.ID).from(VOICE_EVENT)
+        db.selectCount().from(VOICE_EVENT)
           .join(Voice.VOICE).on(Voice.VOICE.ID.eq(VOICE_EVENT.VOICE_ID))
           .join(PHASE).on(PHASE.ID.eq(VOICE.PHASE_ID))
           .join(IDEA).on(IDEA.ID.eq(PHASE.IDEA_ID))
           .join(LIBRARY).on(IDEA.LIBRARY_ID.eq(LIBRARY.ID))
           .where(VOICE_EVENT.ID.eq(id))
           .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-          .fetchOne());
+          .fetchOne(0, int.class));
 
     db.deleteFrom(VOICE_EVENT)
       .where(VOICE_EVENT.ID.eq(id))

@@ -24,7 +24,7 @@ export default Route.extend({
       event.set('audio', audio);
       return event;
     } else {
-      this.transitionTo('accounts.one.libraries.one.instruments.one.audios.one.events');
+      history.back();
     }
   },
 
@@ -37,7 +37,7 @@ export default Route.extend({
       model.save().then(
         () => {
           get(this, 'display').success('Updated event "' + model.get('inflection') + '" event in ' + model.get('note') + '.');
-          this.transitionTo('accounts.one.libraries.one.instruments.one.audios.one.events');
+          this.transitionTo('accounts.one.libraries.one.instruments.one.audios.one.events', model.audio.instrument.library.account, model.audio.instrument.library, model.audio.instrument, model.audio);
         },
         (error) => {
           get(this, 'display').error(error);
@@ -48,7 +48,7 @@ export default Route.extend({
       model.destroyRecord({}).then(
         () => {
           get(this, 'display').success('Deleted event "' + model.get('inflection') + '" event in ' + model.get('note') + '.');
-          this.transitionTo('accounts.one.libraries.one.instruments.one.audios.one.events');
+          this.transitionTo('accounts.one.libraries.one.instruments.one.audios.one.events', model.audio.instrument.library.account, model.audio.instrument.library, model.audio.instrument, model.audio);
         },
         (error) => {
           get(this, 'display').error(error);

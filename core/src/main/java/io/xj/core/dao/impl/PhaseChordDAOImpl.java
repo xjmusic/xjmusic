@@ -105,16 +105,16 @@ public class PhaseChordDAOImpl extends DAOImpl implements PhaseChordDAO {
     Map<Field, Object> fieldValues = entity.updatableFieldValueMap();
 
     if (access.isTopLevel())
-      requireExists("Phase", db.select(PHASE.ID).from(PHASE)
+      requireExists("Phase", db.selectCount().from(PHASE)
         .where(PHASE.ID.eq(entity.getPhaseId()))
-        .fetchOne());
+        .fetchOne(0, int.class));
     else
-      requireExists("Phase", db.select(PHASE.ID).from(PHASE)
+      requireExists("Phase", db.selectCount().from(PHASE)
         .join(IDEA).on(IDEA.ID.eq(PHASE.IDEA_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(IDEA.LIBRARY_ID))
         .where(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .and(PHASE.ID.eq(entity.getPhaseId()))
-        .fetchOne());
+        .fetchOne(0, int.class));
 
     return executeCreate(db, PHASE_CHORD, fieldValues);
   }
@@ -187,18 +187,18 @@ public class PhaseChordDAOImpl extends DAOImpl implements PhaseChordDAO {
     fieldValues.put(PHASE_CHORD.ID, id);
 
     if (access.isTopLevel())
-      requireExists("Phase", db.select(PHASE.ID).from(PHASE)
+      requireExists("Phase", db.selectCount().from(PHASE)
         .where(PHASE.ID.eq(entity.getPhaseId()))
-        .fetchOne());
+        .fetchOne(0, int.class));
     else
-      requireExists("Phase", db.select(PHASE.ID).from(PHASE)
+      requireExists("Phase", db.selectCount().from(PHASE)
         .join(IDEA).on(IDEA.ID.eq(PHASE.IDEA_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(IDEA.LIBRARY_ID))
         .where(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .and(PHASE.ID.eq(entity.getPhaseId()))
-        .fetchOne());
+        .fetchOne(0, int.class));
 
-    if (executeUpdate(db, PHASE_CHORD, fieldValues) == 0)
+    if (0 == executeUpdate(db, PHASE_CHORD, fieldValues))
       throw new BusinessException("No records updated.");
   }
 
@@ -213,13 +213,13 @@ public class PhaseChordDAOImpl extends DAOImpl implements PhaseChordDAO {
    */
   private void delete(Access access, DSLContext db, ULong id) throws Exception {
     if (!access.isTopLevel())
-      requireExists("Phase Chord", db.select(PHASE_CHORD.ID).from(PHASE_CHORD)
+      requireExists("Phase Chord", db.selectCount().from(PHASE_CHORD)
         .join(Phase.PHASE).on(Phase.PHASE.ID.eq(PHASE_CHORD.PHASE_ID))
         .join(IDEA).on(IDEA.ID.eq(Phase.PHASE.IDEA_ID))
         .join(LIBRARY).on(IDEA.LIBRARY_ID.eq(LIBRARY.ID))
         .where(PHASE_CHORD.ID.eq(id))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-        .fetchOne());
+        .fetchOne(0, int.class));
 
     db.deleteFrom(PHASE_CHORD)
       .where(PHASE_CHORD.ID.eq(id))

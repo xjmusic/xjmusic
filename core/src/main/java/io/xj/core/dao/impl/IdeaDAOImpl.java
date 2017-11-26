@@ -152,15 +152,15 @@ public class IdeaDAOImpl extends DAOImpl implements IdeaDAO {
 
     if (access.isTopLevel())
       requireExists("Library",
-        db.select(LIBRARY.ID).from(LIBRARY)
+        db.selectCount().from(LIBRARY)
           .where(LIBRARY.ID.eq(entity.getLibraryId()))
-          .fetchOne());
+          .fetchOne(0, int.class));
     else
       requireExists("Library",
-        db.select(LIBRARY.ID).from(LIBRARY)
+        db.selectCount().from(LIBRARY)
           .where(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
           .and(LIBRARY.ID.eq(entity.getLibraryId()))
-          .fetchOne());
+          .fetchOne(0, int.class));
     fieldValues.put(IDEA.USER_ID, access.getUserId());
 
     return executeCreate(db, IDEA, fieldValues);
@@ -317,15 +317,15 @@ public class IdeaDAOImpl extends DAOImpl implements IdeaDAO {
 
     if (access.isTopLevel())
       requireExists("Library",
-        db.select(LIBRARY.ID).from(LIBRARY)
+        db.selectCount().from(LIBRARY)
           .where(LIBRARY.ID.eq(entity.getLibraryId()))
-          .fetchOne());
+          .fetchOne(0, int.class));
     else
       requireExists("Library",
-        db.select(LIBRARY.ID).from(LIBRARY)
+        db.selectCount().from(LIBRARY)
           .where(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
           .and(LIBRARY.ID.eq(entity.getLibraryId()))
-          .fetchOne());
+          .fetchOne(0, int.class));
     fieldValues.put(IDEA.USER_ID, access.getUserId());
 
     if (0 == executeUpdate(db, IDEA, fieldValues))
@@ -343,27 +343,24 @@ public class IdeaDAOImpl extends DAOImpl implements IdeaDAO {
    */
   private void delete(DSLContext db, Access access, ULong id) throws Exception {
     if (!access.isTopLevel())
-      requireExists("Idea belonging to you", db.select(IDEA.fields()).from(IDEA)
+      requireExists("Idea belonging to you", db.selectCount().from(IDEA)
         .join(LIBRARY).on(IDEA.LIBRARY_ID.eq(LIBRARY.ID))
         .where(IDEA.ID.eq(id))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .and(IDEA.USER_ID.eq(access.getUserId()))
-        .fetchOne());
+        .fetchOne(0, int.class));
 
-    requireNotExists("Phase in Idea", db.select(PHASE.ID)
-      .from(PHASE)
+    requireNotExists("Phase in Idea", db.selectCount().from(PHASE)
       .where(PHASE.IDEA_ID.eq(id))
-      .fetch());
+      .fetchOne(0, int.class));
 
-    requireNotExists("Choice in Idea", db.select(CHOICE.ID)
-      .from(CHOICE)
+    requireNotExists("Choice in Idea", db.selectCount().from(CHOICE)
       .where(CHOICE.IDEA_ID.eq(id))
-      .fetch());
+      .fetchOne(0, int.class));
 
-    requireNotExists("Meme in Idea", db.select(IDEA_MEME.ID)
-      .from(IDEA_MEME)
+    requireNotExists("Meme in Idea", db.selectCount().from(IDEA_MEME)
       .where(IDEA_MEME.IDEA_ID.eq(id))
-      .fetch());
+      .fetchOne(0, int.class));
 
     db.deleteFrom(IDEA)
       .where(IDEA.ID.eq(id))

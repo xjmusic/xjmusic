@@ -1,10 +1,9 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 package io.xj.worker.work.dub;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-
 import io.xj.core.CoreModule;
+import io.xj.core.app.exception.NetworkException;
+import io.xj.core.external.amazon.AmazonProvider;
 import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
@@ -15,26 +14,46 @@ import io.xj.core.model.link.LinkState;
 import io.xj.core.model.role.Role;
 import io.xj.core.work.basis.Basis;
 import io.xj.core.work.basis.BasisFactory;
+import io.xj.mixer.impl.resource.InternalResource;
 import io.xj.worker.WorkerModule;
+
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.util.Modules;
+
+import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
+import java.io.File;
+import java.io.InputStream;
 import java.sql.Timestamp;
 
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
 public class DubMasterContinueIT {
   @Rule public ExpectedException failure = ExpectedException.none();
-  private final Injector injector = Guice.createInjector(new CoreModule(), new WorkerModule());
+  private Injector injector;
   private DubFactory dubFactory;
   private BasisFactory basisFactory;
+  private static final String testResourceFilePath = "test_audio" + File.separator + "F32LSB_48kHz_Stereo.wav";
 
   // Testing entities for reference
   private Link link4;
+  @Mock AmazonProvider amazonProvider;
 
   @Before
   public void setUp() throws Exception {
+    createInjector();
+
     IntegrationTestEntity.deleteAll();
 
     // Account "elephants"
@@ -98,66 +117,105 @@ public class DubMasterContinueIT {
 
     // Chain "Test Print #1" has 5 total links
     IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricating, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, null);
-    IntegrationTestEntity.insertLink(1, 1, 0, LinkState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120, "chain-1-link-97898asdf7892.wav");
-    IntegrationTestEntity.insertLink(2, 1, 1, LinkState.Dubbing, Timestamp.valueOf("2017-02-14 12:01:32.000001"), Timestamp.valueOf("2017-02-14 12:02:04.000001"), "Db minor", 64, 0.85, 120, "chain-1-link-97898asdf7892.wav");
+    IntegrationTestEntity.insertLink(1, 1, 0, LinkState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120, "chain-1-link-97898asdf7892");
+    IntegrationTestEntity.insertLink(2, 1, 1, LinkState.Dubbing, Timestamp.valueOf("2017-02-14 12:01:32.000001"), Timestamp.valueOf("2017-02-14 12:02:04.000001"), "Db minor", 64, 0.85, 120, "chain-1-link-97898asdf7892");
 
     // Chain "Test Print #1" has this link that was just dubbed
-    IntegrationTestEntity.insertLink(3, 1, 2, LinkState.Dubbed, Timestamp.valueOf("2017-02-14 12:02:04.000001"), Timestamp.valueOf("2017-02-14 12:02:36.000001"), "F major", 64, 0.30, 120, "chain-1-link-97898asdf7892.wav");
+    IntegrationTestEntity.insertLink(3, 1, 2, LinkState.Dubbed, Timestamp.valueOf("2017-02-14 12:02:04.000001"), Timestamp.valueOf("2017-02-14 12:02:36.000001"), "F major", 64, 0.30, 120, "chain-1-link-97898asdf7892");
     IntegrationTestEntity.insertChoice(25, 3, 4, IdeaType.Macro, 1, 3);
     IntegrationTestEntity.insertChoice(26, 3, 5, IdeaType.Main, 0, 5);
     IntegrationTestEntity.insertChoice(27, 3, 35, IdeaType.Rhythm, 0, 5);
 
     // Chain "Test Print #1" is dubbing - Structure is complete
-    link4 = IntegrationTestEntity.insertLink(4, 1, 3, LinkState.Dubbing, Timestamp.valueOf("2017-02-14 12:03:08.000001"), Timestamp.valueOf("2017-02-14 12:03:15.836735"), "D major", 16, 0.45, 120, "chain-1-link-97898asdf7892.wav");
-    IntegrationTestEntity.insertLinkMeme(101,4,"Cozy");
-    IntegrationTestEntity.insertLinkMeme(102,4,"Classic");
-    IntegrationTestEntity.insertLinkMeme(103,4,"Outlook");
-    IntegrationTestEntity.insertLinkMeme(104,4,"Rosy");
-    IntegrationTestEntity.insertChoice(101,4, 4, IdeaType.Macro,1,3);
-    IntegrationTestEntity.insertChoice(102,4, 5, IdeaType.Main,1,-5);
-    IntegrationTestEntity.insertLinkChord(101,4,0,"A minor");
-    IntegrationTestEntity.insertLinkChord(102,4,8,"D major");
+    link4 = IntegrationTestEntity.insertLink(4, 1, 3, LinkState.Dubbing, Timestamp.valueOf("2017-02-14 12:03:08.000001"), Timestamp.valueOf("2017-02-14 12:03:15.836735"), "D major", 16, 0.45, 120, "chain-1-link-97898asdf7892");
+    IntegrationTestEntity.insertLinkMeme(101, 4, "Cozy");
+    IntegrationTestEntity.insertLinkMeme(102, 4, "Classic");
+    IntegrationTestEntity.insertLinkMeme(103, 4, "Outlook");
+    IntegrationTestEntity.insertLinkMeme(104, 4, "Rosy");
+    IntegrationTestEntity.insertChoice(101, 4, 4, IdeaType.Macro, 1, 3);
+    IntegrationTestEntity.insertChoice(102, 4, 5, IdeaType.Main, 1, -5);
+    IntegrationTestEntity.insertLinkChord(101, 4, 0, "A minor");
+    IntegrationTestEntity.insertLinkChord(102, 4, 8, "D major");
 
     // choice of rhythm-type idea
-    IntegrationTestEntity.insertChoice(103,4,35,IdeaType.Rhythm,1,2);
+    IntegrationTestEntity.insertChoice(103, 4, 35, IdeaType.Rhythm, 1, 2);
 
     // Instrument "808"
     IntegrationTestEntity.insertInstrument(1, 2, 2, "808 Drums", InstrumentType.Percussive, 0.9);
-    IntegrationTestEntity.insertInstrumentMeme(1,1,"heavy");
+    IntegrationTestEntity.insertInstrumentMeme(1, 1, "heavy");
 
     // Audio "Kick"
-    IntegrationTestEntity.insertAudio(1, 1, "Published", "Kick", "https://static.xj.io/19801735098q47895897895782138975898.wav/", 0.01, 2.123, 120.0, 440);
+    IntegrationTestEntity.insertAudio(1, 1, "Published", "Kick", "19801735098q47895897895782138975898", 0.01, 2.123, 120.0, 440);
     IntegrationTestEntity.insertAudioEvent(1, 1, 2.5, 1, "KICK", "Eb", 0.8, 1.0);
 
     // Audio "Snare"
-    IntegrationTestEntity.insertAudio(2, 1, "Published", "Snare", "https://static.xj.io/198017350afghjkjhaskjdfjhk975898.wav", 0.01, 1.5, 120.0, 1200);
+    IntegrationTestEntity.insertAudio(2, 1, "Published", "Snare", "198017350afghjkjhaskjdfjhk975898", 0.01, 1.5, 120.0, 1200);
     IntegrationTestEntity.insertAudioEvent(2, 2, 3, 1, "SNARE", "Ab", 0.1, 0.8);
 
-    // TODO insert arrangement of choice 103
-    // TODO insert 8 picks of audio 1
-    // TODO insert 8 picks of audio 2
+    // insert arrangement of choice 103
+    IntegrationTestEntity.insertArrangement(1, 103, 1, 1);
+
+    // future: insert 8 picks of audio 1
+    IntegrationTestEntity.insertPick(1, 1, 1, 0, 1, 1, 440);
+    IntegrationTestEntity.insertPick(2, 1, 1, 1, 1, 1, 440);
+    IntegrationTestEntity.insertPick(3, 1, 1, 2, 1, 1, 440);
+    IntegrationTestEntity.insertPick(4, 1, 1, 3, 1, 1, 440);
+    IntegrationTestEntity.insertPick(5, 1, 1, 4, 1, 1, 440);
+    IntegrationTestEntity.insertPick(6, 1, 1, 5, 1, 1, 440);
+    IntegrationTestEntity.insertPick(7, 1, 1, 6, 1, 1, 440);
+    IntegrationTestEntity.insertPick(8, 1, 1, 7, 1, 1, 440);
+
+    // future: insert 4 picks of audio 2
+    IntegrationTestEntity.insertPick(9, 1, 2, 1, 1, 1, 600);
+    IntegrationTestEntity.insertPick(10, 1, 2, 3, 1, 1, 600);
+    IntegrationTestEntity.insertPick(11, 1, 2, 5, 1, 1, 600);
+    IntegrationTestEntity.insertPick(12, 1, 2, 7, 1, 1, 600);
 
     // Bind the library to the chain
     IntegrationTestEntity.insertChainLibrary(1, 1, 2);
+
+    // System properties
+    System.setProperty("audio.file.bucket", "my-test-bucket");
 
     // Instantiate the test subject
     dubFactory = injector.getInstance(DubFactory.class);
     basisFactory = injector.getInstance(BasisFactory.class);
   }
 
+  private void createInjector() {
+    injector = Guice.createInjector(Modules.override(new CoreModule(), new WorkerModule()).with(
+      new AbstractModule() {
+        @Override
+        public void configure() {
+          bind(AmazonProvider.class).toInstance(amazonProvider);
+        }
+      }));
+  }
+
+
   @After
   public void tearDown() throws Exception {
     dubFactory = null;
     basisFactory = null;
+    System.clearProperty("audio.file.bucket");
   }
 
   @Test
   public void dubMasterContinue() throws Exception {
-    Basis basis = basisFactory.createBasis(link4);
+    InternalResource testAudioResource = new InternalResource(testResourceFilePath);
+    // it's necessary to have two separate streams for this mock of two separate file reads
+    InputStream audioStreamOne = FileUtils.openInputStream(testAudioResource.getFile());;
+    InputStream audioStreamTwo = FileUtils.openInputStream(testAudioResource.getFile());;
+    when(amazonProvider.streamS3Object("my-test-bucket",
+      "19801735098q47895897895782138975898")).thenReturn(audioStreamOne);
+    when(amazonProvider.streamS3Object("my-test-bucket",
+      "198017350afghjkjhaskjdfjhk975898")).thenReturn(audioStreamTwo);
 
+    Basis basis = basisFactory.createBasis(link4);
     dubFactory.master(basis).doWork();
 
-    // TODO: assert success of dub master continue test
+    // future test: success of dub master continue test
   }
 
 }
+

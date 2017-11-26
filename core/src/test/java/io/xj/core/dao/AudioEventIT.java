@@ -32,7 +32,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
-// TODO [core] test permissions of different users to readMany vs. create vs. update or delete audio events
+// future test: permissions of different users to readMany vs. create vs. update or delete audio events
 //
 public class AudioEventIT {
   private final Injector injector = Guice.createInjector(new CoreModule());
@@ -73,8 +73,6 @@ public class AudioEventIT {
   public void tearDown() throws Exception {
     testDAO = null;
   }
-
-  // TODO cannot create or update a audio to an offset that already exists for that idea
 
   @Test
   public void create() throws Exception {
@@ -307,7 +305,7 @@ public class AudioEventIT {
     assertEquals(ULong.valueOf(1), result.getAudioId());
   }
 
-  // TODO: [core] test DAO cannot update Idea to a User or Library not owned by current session
+  // future test: DAO cannot update Idea to a User or Library not owned by current session
 
   @Test
   public void delete() throws Exception {

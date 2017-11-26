@@ -33,7 +33,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
-// TODO [core] test permissions of different libraries to readMany vs. create vs. update or delete chain libraries
+// future test: permissions of different libraries to readMany vs. create vs. update or delete chain libraries
 public class ChainInstrumentIT {
   private final Injector injector = Guice.createInjector(new CoreModule());
   private ChainInstrumentDAO testDAO;

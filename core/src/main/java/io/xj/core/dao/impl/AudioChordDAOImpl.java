@@ -104,16 +104,16 @@ public class AudioChordDAOImpl extends DAOImpl implements AudioChordDAO {
     Map<Field, Object> fieldValues = entity.updatableFieldValueMap();
 
     if (access.isTopLevel())
-      requireExists("Audio", db.select(AUDIO.ID).from(AUDIO)
+      requireExists("Audio", db.selectCount().from(AUDIO)
         .where(AUDIO.ID.eq(entity.getAudioId()))
-        .fetchOne());
+        .fetchOne(0, int.class));
     else
-      requireExists("Audio", db.select(AUDIO.ID).from(AUDIO)
+      requireExists("Audio", db.selectCount().from(AUDIO)
         .join(INSTRUMENT).on(INSTRUMENT.ID.eq(AUDIO.INSTRUMENT_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
         .where(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .and(AUDIO.ID.eq(entity.getAudioId()))
-        .fetchOne());
+        .fetchOne(0, int.class));
 
     return executeCreate(db, AUDIO_CHORD, fieldValues);
   }
@@ -186,16 +186,16 @@ public class AudioChordDAOImpl extends DAOImpl implements AudioChordDAO {
     fieldValues.put(AUDIO_CHORD.ID, id);
 
     if (access.isTopLevel())
-      requireExists("Audio", db.select(AUDIO.ID).from(AUDIO)
+      requireExists("Audio", db.selectCount().from(AUDIO)
         .where(AUDIO.ID.eq(entity.getAudioId()))
-        .fetchOne());
+        .fetchOne(0, int.class));
     else
-      requireExists("Audio", db.select(AUDIO.ID).from(AUDIO)
+      requireExists("Audio", db.selectCount().from(AUDIO)
         .join(INSTRUMENT).on(INSTRUMENT.ID.eq(AUDIO.INSTRUMENT_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
         .where(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .and(AUDIO.ID.eq(entity.getAudioId()))
-        .fetchOne());
+        .fetchOne(0, int.class));
 
     if (executeUpdate(db, AUDIO_CHORD, fieldValues) == 0)
       throw new BusinessException("No records updated.");
@@ -212,13 +212,13 @@ public class AudioChordDAOImpl extends DAOImpl implements AudioChordDAO {
    */
   private void delete(Access access, DSLContext db, ULong id) throws Exception {
     if (!access.isTopLevel())
-      requireExists("Audio Meme", db.select(AUDIO_CHORD.ID).from(AUDIO_CHORD)
+      requireExists("Audio Meme", db.selectCount().from(AUDIO_CHORD)
         .join(AUDIO).on(AUDIO.ID.eq(AUDIO_CHORD.AUDIO_ID))
         .join(INSTRUMENT).on(INSTRUMENT.ID.eq(AUDIO.INSTRUMENT_ID))
         .join(LIBRARY).on(INSTRUMENT.LIBRARY_ID.eq(LIBRARY.ID))
         .where(AUDIO_CHORD.ID.eq(id))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-        .fetchOne());
+        .fetchOne(0, int.class));
 
     db.deleteFrom(AUDIO_CHORD)
       .where(AUDIO_CHORD.ID.eq(id))

@@ -1,4 +1,3 @@
-// TODO [ui/hub-ui] tests for users
 
 // import { moduleFor, test } from 'ember-qunit';
 //

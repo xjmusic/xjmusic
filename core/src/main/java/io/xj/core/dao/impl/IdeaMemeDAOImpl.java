@@ -27,7 +27,7 @@ import static io.xj.core.tables.Library.LIBRARY;
 /**
  IdeaMeme DAO
  <p>
- TODO [core] more specific permissions of user (artist) access by per-entity ownership
+ future: more specific permissions of user (artist) access by per-entity ownership
  */
 public class IdeaMemeDAOImpl extends DAOImpl implements IdeaMemeDAO {
 
@@ -96,20 +96,20 @@ public class IdeaMemeDAOImpl extends DAOImpl implements IdeaMemeDAO {
     Map<Field, Object> fieldValues = entity.updatableFieldValueMap();
 
     if (access.isTopLevel())
-      requireExists("Idea", db.select(IDEA.ID).from(IDEA)
+      requireExists("Idea", db.selectCount().from(IDEA)
         .where(IDEA.ID.eq(entity.getIdeaId()))
-        .fetchOne());
+        .fetchOne(0, int.class));
     else
-      requireExists("Idea", db.select(IDEA.ID).from(IDEA)
+      requireExists("Idea", db.selectCount().from(IDEA)
         .join(LIBRARY).on(IDEA.LIBRARY_ID.eq(LIBRARY.ID))
         .where(IDEA.ID.eq(entity.getIdeaId()))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-        .fetchOne());
+        .fetchOne(0, int.class));
 
-    if (db.selectFrom(IDEA_MEME)
+    if (null != db.selectFrom(IDEA_MEME)
       .where(IDEA_MEME.IDEA_ID.eq(entity.getIdeaId()))
       .and(IDEA_MEME.NAME.eq(entity.getName()))
-      .fetchOne() != null)
+      .fetchOne())
       throw new BusinessException("Idea Meme already exists!");
 
     return executeCreate(db, IDEA_MEME, fieldValues);
@@ -168,15 +168,14 @@ public class IdeaMemeDAOImpl extends DAOImpl implements IdeaMemeDAO {
    @param id     to delete
    @throws BusinessException if failure
    */
-  // TODO: fail if no ideaMeme is deleted
   private void delete(DSLContext db, Access access, ULong id) throws BusinessException {
     if (!access.isTopLevel())
-      requireExists("Idea Meme", db.select(IDEA_MEME.ID).from(IDEA_MEME)
+      requireExists("Idea Meme", db.selectCount().from(IDEA_MEME)
         .join(IDEA).on(IDEA.ID.eq(IDEA_MEME.IDEA_ID))
         .join(LIBRARY).on(IDEA.LIBRARY_ID.eq(LIBRARY.ID))
         .where(IDEA_MEME.ID.eq(id))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-        .fetchOne());
+        .fetchOne(0, int.class));
 
     db.deleteFrom(IDEA_MEME)
       .where(IDEA_MEME.ID.eq(id))

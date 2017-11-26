@@ -38,7 +38,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
-// TODO [core] test permissions of different users to readMany vs. create vs. update or delete link memes
+// future test: permissions of different users to readMany vs. create vs. update or delete link memes
 public class LinkMemeIT {
   private final Injector injector = Guice.createInjector(new CoreModule());
   private LinkMemeDAO testDAO;

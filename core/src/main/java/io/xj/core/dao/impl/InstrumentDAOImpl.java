@@ -142,15 +142,15 @@ public class InstrumentDAOImpl extends DAOImpl implements InstrumentDAO {
 
     if (access.isTopLevel())
       requireExists("Library",
-        db.select(LIBRARY.ID).from(LIBRARY)
+        db.selectCount().from(LIBRARY)
           .where(LIBRARY.ID.eq(entity.getLibraryId()))
-          .fetchOne());
+          .fetchOne(0, int.class));
     else
       requireExists("Library",
-        db.select(LIBRARY.ID).from(LIBRARY)
+        db.selectCount().from(LIBRARY)
           .where(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
           .and(LIBRARY.ID.eq(entity.getLibraryId()))
-          .fetchOne());
+          .fetchOne(0, int.class));
     fieldValues.put(INSTRUMENT.USER_ID, access.getUserId());
 
     return executeCreate(db, INSTRUMENT, fieldValues);
@@ -286,15 +286,15 @@ public class InstrumentDAOImpl extends DAOImpl implements InstrumentDAO {
 
     if (access.isTopLevel())
       requireExists("Library",
-        db.select(LIBRARY.ID).from(LIBRARY)
+        db.selectCount().from(LIBRARY)
           .where(LIBRARY.ID.eq(entity.getLibraryId()))
-          .fetchOne());
+          .fetchOne(0, int.class));
     else
       requireExists("Library",
-        db.select(LIBRARY.ID).from(LIBRARY)
+        db.selectCount().from(LIBRARY)
           .where(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
           .and(LIBRARY.ID.eq(entity.getLibraryId()))
-          .fetchOne());
+          .fetchOne(0, int.class));
     fieldValues.put(INSTRUMENT.USER_ID, access.getUserId());
 
     if (0 == executeUpdate(db, INSTRUMENT, fieldValues))
@@ -312,22 +312,20 @@ public class InstrumentDAOImpl extends DAOImpl implements InstrumentDAO {
    */
   private void delete(DSLContext db, Access access, ULong id) throws Exception {
     if (!access.isTopLevel())
-      requireExists("Instrument belonging to you", db.select(INSTRUMENT.fields()).from(INSTRUMENT)
+      requireExists("Instrument belonging to you", db.selectCount().from(INSTRUMENT)
         .join(LIBRARY).on(INSTRUMENT.LIBRARY_ID.eq(LIBRARY.ID))
         .where(INSTRUMENT.ID.eq(id))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .and(INSTRUMENT.USER_ID.eq(access.getUserId()))
-        .fetchOne());
+        .fetchOne(0, int.class));
 
-    requireNotExists("Audio in Instrument", db.select(AUDIO.ID)
-      .from(AUDIO)
+    requireNotExists("Audio in Instrument", db.selectCount().from(AUDIO)
       .where(AUDIO.INSTRUMENT_ID.eq(id))
-      .fetch());
+      .fetchOne(0, int.class));
 
-    requireNotExists("Meme in Instrument", db.select(INSTRUMENT_MEME.ID)
-      .from(INSTRUMENT_MEME)
+    requireNotExists("Meme in Instrument", db.selectCount().from(INSTRUMENT_MEME)
       .where(INSTRUMENT_MEME.INSTRUMENT_ID.eq(id))
-      .fetch());
+      .fetchOne(0, int.class));
 
     db.deleteFrom(INSTRUMENT)
       .where(INSTRUMENT.ID.eq(id))

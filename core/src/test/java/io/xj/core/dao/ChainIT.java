@@ -186,7 +186,7 @@ public class ChainIT {
     assertEquals("manuts", result.get("name"));
     assertEquals(ChainState.Draft, result.get("state"));
     assertEquals(ChainType.Preview, result.get("type"));
-    // TODO: test time from startAt to stopAt relative to [#190] specs
+    // future test: time from startAt to stopAt relative to [#190] specs
 //    assertEquals(Timestamp.valueOf("2009-08-12 12:17:02.527142"), result.get("startAt"));
 //    assertEquals(Timestamp.valueOf("2009-09-11 12:17:01.047563"), result.get("stopAt"));
   }
@@ -534,7 +534,7 @@ public class ChainIT {
       .fetchOne();
     assertNotNull(result);
     assertEquals("manuts", result.getName());
-    assertNull( result.getEmbedKey());
+    assertNull(result.getEmbedKey());
     assertEquals(ULong.valueOf(1L), result.getAccountId());
     assertEquals("Complete", result.getState());
     assertEquals("Production", result.get("type"));
@@ -841,6 +841,35 @@ public class ChainIT {
     IntegrationTestEntity.insertLibrary(3, 1, "pajamas");
     IntegrationTestEntity.insertIdea(3, 3, 3, IdeaType.Main, "fonds", 0.342, "C#", 0.286);
     IntegrationTestEntity.insertChainIdea(1, 3, 3);
+
+    Access access = new Access(ImmutableMap.of(
+      "roles", "user,artist,engineer",
+      "accounts", "1"
+    ));
+
+    testDAO.updateState(access, ULong.valueOf(3L), ChainState.Ready);
+
+    ChainRecord result = IntegrationTestService.getDb()
+      .selectFrom(CHAIN)
+      .where(CHAIN.ID.eq(ULong.valueOf(3L)))
+      .fetchOne();
+    assertNotNull(result);
+    assertEquals("Ready", result.getState());
+  }
+
+  @Test
+  public void updateState_outOfDraft_BoundToMultipleIdeas() throws Exception {
+    IntegrationTestEntity.insertUser(3, "jenny", "jenny@email.com", "http://pictures.com/jenny.gif");
+    IntegrationTestEntity.insertChain(3, 1, "bucket", ChainType.Production, ChainState.Draft, Timestamp.valueOf("2015-05-10 12:17:02.527142"), null, null);
+    IntegrationTestEntity.insertLibrary(3, 1, "pajamas");
+    IntegrationTestEntity.insertIdea(3, 3, 3, IdeaType.Main, "fonds", 0.342, "C#", 0.286);
+    IntegrationTestEntity.insertIdea(4, 3, 3, IdeaType.Macro, "trees A to B", 0.7, "D#", 0.4);
+    IntegrationTestEntity.insertIdea(5, 3, 3, IdeaType.Macro, "trees B to A", 0.6, "F", 0.6);
+    IntegrationTestEntity.insertIdea(6, 3, 3, IdeaType.Rhythm, "beets", 0.5, "C", 1.5);
+    IntegrationTestEntity.insertChainIdea(1, 3, 3);
+    IntegrationTestEntity.insertChainIdea(2, 3, 4);
+    IntegrationTestEntity.insertChainIdea(3, 3, 5);
+    IntegrationTestEntity.insertChainIdea(4, 3, 6);
 
     Access access = new Access(ImmutableMap.of(
       "roles", "user,artist,engineer",

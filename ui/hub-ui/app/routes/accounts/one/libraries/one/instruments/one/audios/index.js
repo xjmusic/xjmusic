@@ -46,7 +46,7 @@ export default Route.extend({
         );
       });
     } else {
-      this.transitionTo('accounts.one.libraries.one.instruments.one.audios');
+      history.back();
     }
   },
 
@@ -56,7 +56,7 @@ export default Route.extend({
   actions: {
 
     editAudio(model) {
-      this.transitionTo('accounts.one.libraries.one.instruments.one.audios.one', model);
+      this.transitionTo('accounts.one.libraries.one.instruments.one.audios.one', model.instrument.library.account, model.instrument.library, model.instrument, model);
     },
   }
 

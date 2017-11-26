@@ -1,7 +1,7 @@
 // Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
-import { get } from '@ember/object';
+import {get} from '@ember/object';
 
-import { inject as service } from '@ember/service';
+import {inject as service} from '@ember/service';
 import Component from '@ember/component';
 
 /**
@@ -38,6 +38,7 @@ const ChainStateChangeComponent = Component.extend({
           get(self, 'display').success(self.msgSuccess());
         },
         (error) => {
+          get(self, 'model').rollbackAttributes();
           get(self, 'display').error(error);
         });
     }
@@ -49,7 +50,7 @@ const ChainStateChangeComponent = Component.extend({
    *
    * @returns {string}
    */
-  msgSuccess () {
+  msgSuccess() {
     let model = this.get('model');
     return [
       model.get('name'),
@@ -65,7 +66,7 @@ const ChainStateChangeComponent = Component.extend({
    * @param {String} toState
    * @returns {string}
    */
-  msgConfirm (toState) {
+  msgConfirm(toState) {
     let model = this.get('model');
     return [
       'Really change',

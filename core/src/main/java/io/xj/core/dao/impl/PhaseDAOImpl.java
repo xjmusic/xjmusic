@@ -252,12 +252,12 @@ public class PhaseDAOImpl extends DAOImpl implements PhaseDAO {
       .fetch());
 
     if (!access.isTopLevel())
-      requireExists("Phase", db.select(PHASE.ID).from(PHASE)
+      requireExists("Phase", db.selectCount().from(PHASE)
         .join(IDEA).on(IDEA.ID.eq(PHASE.IDEA_ID))
         .join(LIBRARY).on(IDEA.LIBRARY_ID.eq(LIBRARY.ID))
         .where(PHASE.ID.eq(id))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-        .fetchOne());
+        .fetchOne(0, int.class));
 
     db.deleteFrom(PHASE)
       .where(PHASE.ID.eq(id))

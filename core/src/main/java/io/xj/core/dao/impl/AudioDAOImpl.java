@@ -165,11 +165,11 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
     Map<Field, Object> fieldValues = entity.updatableFieldValueMap();
 
     if (access.isTopLevel())
-      requireExists("Instrument", db.select(INSTRUMENT.ID).from(INSTRUMENT)
+      requireExists("Instrument", db.selectCount().from(INSTRUMENT)
         .where(INSTRUMENT.ID.eq(entity.getInstrumentId()))
         .fetchOne());
     else
-      requireExists("Instrument", db.select(INSTRUMENT.ID).from(INSTRUMENT)
+      requireExists("Instrument", db.selectCount().from(INSTRUMENT)
         .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
         .where(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .and(INSTRUMENT.ID.eq(entity.getInstrumentId()))
@@ -288,8 +288,8 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
   /**
    * Update an Audio record
    * <p>
-   * TODO: ensure that the user access has access to this Audio by id
-   * TODO: ensure ALL RECORDS HAVE ACCESS CONTROL that asserts the record primary id against the user access-- build a system for it and implement it over all DAO methods
+   * future: should ensure that the user access has access to this Audio by id
+   * future: should ensure ALL RECORDS HAVE ACCESS CONTROL that asserts the record primary id against the user access-- build a system for it and implement it over all DAO methods
    *
    * @param db     context
    * @param access control
@@ -304,15 +304,15 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
     fieldValues.put(AUDIO.ID, id);
 
     if (access.isTopLevel())
-      requireExists("Instrument", db.select(INSTRUMENT.ID).from(INSTRUMENT)
+      requireExists("Instrument", db.selectCount().from(INSTRUMENT)
         .where(INSTRUMENT.ID.eq(entity.getInstrumentId()))
-        .fetchOne());
+        .fetchOne(0, int.class));
     else
-      requireExists("Instrument", db.select(INSTRUMENT.ID).from(INSTRUMENT)
+      requireExists("Instrument", db.selectCount().from(INSTRUMENT)
         .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
         .where(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .and(INSTRUMENT.ID.eq(entity.getInstrumentId()))
-        .fetchOne());
+        .fetchOne(0, int.class));
 
     if (executeUpdate(db, AUDIO, fieldValues) == 0)
       throw new BusinessException("No records updated.");
@@ -404,16 +404,16 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
    */
   private void erase(Access access, DSLContext db, ULong id) throws Exception {
     if (!access.isTopLevel())
-      requireExists("Audio", db.select(AUDIO.ID).from(AUDIO)
+      requireExists("Audio", db.selectCount().from(AUDIO)
         .join(INSTRUMENT).on(INSTRUMENT.ID.eq(AUDIO.INSTRUMENT_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
         .where(AUDIO.ID.eq(id))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-        .fetchOne());
+        .fetchOne(0, int.class));
     else
-      requireExists("Audio", db.select(AUDIO.ID).from(AUDIO)
+      requireExists("Audio", db.selectCount().from(AUDIO)
         .where(AUDIO.ID.eq(id))
-        .fetchOne());
+        .fetchOne(0, int.class));
 
     // Update audio state to Erase
     Map<Field, Object> fieldValues = Maps.newHashMap();

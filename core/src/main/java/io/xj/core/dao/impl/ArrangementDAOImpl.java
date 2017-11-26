@@ -6,8 +6,8 @@ import io.xj.core.app.exception.BusinessException;
 import io.xj.core.app.exception.ConfigException;
 import io.xj.core.app.exception.DatabaseException;
 import io.xj.core.dao.ArrangementDAO;
-import io.xj.core.database.sql.impl.SQLConnection;
 import io.xj.core.database.sql.SQLDatabaseProvider;
+import io.xj.core.database.sql.impl.SQLConnection;
 import io.xj.core.model.arrangement.Arrangement;
 import io.xj.core.tables.records.ArrangementRecord;
 
@@ -107,9 +107,9 @@ public class ArrangementDAOImpl extends DAOImpl implements ArrangementDAO {
 
     requireTopLevel(access);
 
-    requireExists("Choice", db.select(CHOICE.ID).from(CHOICE)
+    requireExists("Choice", db.selectCount().from(CHOICE)
       .where(CHOICE.ID.eq(entity.getChoiceId()))
-      .fetchOne());
+      .fetchOne(0, int.class));
 
     return executeCreate(db, ARRANGEMENT, fieldValues);
   }
@@ -182,12 +182,12 @@ public class ArrangementDAOImpl extends DAOImpl implements ArrangementDAO {
     requireTopLevel(access);
 
     requireExists("existing Arrangement with immutable Choice membership",
-      db.selectFrom(ARRANGEMENT)
+      db.selectCount().from(ARRANGEMENT)
         .where(ARRANGEMENT.ID.eq(id))
         .and(ARRANGEMENT.CHOICE_ID.eq(entity.getChoiceId()))
-        .fetchOne());
+        .fetchOne(0, int.class));
 
-    if (executeUpdate(db, ARRANGEMENT, fieldValues) == 0)
+    if (0 == executeUpdate(db, ARRANGEMENT, fieldValues))
       throw new BusinessException("No records updated.");
   }
 
@@ -204,13 +204,13 @@ public class ArrangementDAOImpl extends DAOImpl implements ArrangementDAO {
   private void delete(DSLContext db, Access access, ULong id) throws Exception {
     requireTopLevel(access);
 
-    requireExists("Arrangement", db.selectFrom(ARRANGEMENT)
+    requireExists("Arrangement", db.selectCount().from(ARRANGEMENT)
       .where(ARRANGEMENT.ID.eq(id))
-      .fetchOne());
+      .fetchOne(0, int.class));
 
-    requireNotExists("Pick", db.selectFrom(PICK)
+    requireNotExists("Pick", db.selectCount().from(PICK)
       .where(PICK.ARRANGEMENT_ID.eq(id))
-      .fetch());
+      .fetchOne(0, int.class));
 
     db.deleteFrom(ARRANGEMENT)
       .where(ARRANGEMENT.ID.eq(id))

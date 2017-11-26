@@ -38,7 +38,7 @@ public class SourceImpl implements Source {
   public SourceImpl(
     @Assisted("sourceId") String sourceId,
     @Assisted("inputStream") BufferedInputStream inputStream
-  ) throws SourceException, FormatException, IOException {
+  ) throws SourceException, FormatException, IOException, InterruptedException {
     this.sourceId = sourceId;
 
     state = STAGED;

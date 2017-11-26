@@ -15,6 +15,7 @@ import java.io.IOException;
 public class AudioStreamLoader {
 
   private static final int READ_BUFFER_BYTE_SIZE = 1024;
+  public static final int MAX_INT_LENGTH_ARRAY_SIZE = 2147483647;
 
   private final AudioFormat audioFormat;
   private final AudioInputStream audioInputStream;
@@ -30,13 +31,18 @@ public class AudioStreamLoader {
    Instantiate a stream loader,
    which immediately reads the audio data from the stream
    and caches it in-memory in the object itself.
+   <p>
+   retry n times to get audio input stream, sleeping between retries
+   <p>
+   See: [#150279565] During Dub, if a cached loaded source is not yet available it should be retried n times.
 
    @param inputStream to read audio data from
    @throws FormatException if unable to read the audio format
    */
-  public AudioStreamLoader(BufferedInputStream inputStream) throws FormatException {
+  public AudioStreamLoader(BufferedInputStream inputStream) throws FormatException, InterruptedException {
     try {
       audioInputStream = AudioSystem.getAudioInputStream(inputStream);
+
       audioFormat = audioInputStream.getFormat();
       frameSize = audioInputStream.getFormat().getFrameSize();
       channels = audioInputStream.getFormat().getChannels();
@@ -50,19 +56,21 @@ public class AudioStreamLoader {
         expectFrames = audioInputStream.getFrameLength();
       }
 
-      if (expectBytes >= 2147483647) { // max int-length array size
-        throw new FormatException("loading audio steams longer than 2,147,483,647 frames (max. value of signed 32-bit integer) is not supported");
-      }
-
-      if (frameSize == AudioSystem.NOT_SPECIFIED || expectFrames == AudioSystem.NOT_SPECIFIED) {
-        throw new FormatException("audio streams with unspecified frame size or length are unsupported");
-      }
-
       frames = new double[(int) expectFrames][channels];
 
     } catch (Exception e) {
+
       throw new FormatException("unable to read audio input stream (" + e.getClass().getName() + "): " + e.getMessage());
     }
+
+    if (MAX_INT_LENGTH_ARRAY_SIZE <= expectBytes) { // max int-length array size
+      throw new FormatException("loading audio steams longer than 2,147,483,647 frames (max. value of signed 32-bit integer) is not supported");
+    }
+
+    if (AudioSystem.NOT_SPECIFIED == frameSize || AudioSystem.NOT_SPECIFIED == expectFrames) {
+      throw new FormatException("audio streams with unspecified frame size or length are unsupported");
+    }
+
   }
 
   /**

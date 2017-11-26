@@ -88,7 +88,7 @@ public class StructureCraftImpl implements StructureCraft {
    craft link support
    */
   private void craftSupport() throws Exception {
-    // TODO craft support
+    // future: craft support
   }
 
   /**
@@ -122,7 +122,7 @@ public class StructureCraftImpl implements StructureCraft {
 
    @return offset of rhythm-type idea choice
    <p>
-   TODO actually compute rhythm idea phase offset
+   future: actually compute rhythm idea phase offset
    */
   private ULong rhythmPhaseOffset() throws Exception {
     if (Objects.isNull(_rhythmPhaseOffset))
@@ -173,12 +173,12 @@ public class StructureCraftImpl implements StructureCraft {
    @return rhythm-type Idea
    @throws Exception on failure
    <p>
-   TODO: actually choose rhythm idea
+   future: actually choose rhythm idea
    */
   private Idea chooseRhythm() throws Exception {
     Chooser<Idea> chooser = new Chooser<>();
 
-    // TODO: only choose major ideas for major keys, minor for minor! [#223] Key of first Phase of chosen Rhythm-Idea must match the `minor` or `major` with the Key of the current Link.
+    // future: only choose major ideas for major keys, minor for minor! [#223] Key of first Phase of chosen Rhythm-Idea must match the `minor` or `major` with the Key of the current Link.
 
     // (1) retrieve memes of macro idea, for use as a meme isometry comparison
     MemeIsometry memeIsometry = MemeIsometry.of(basis.linkMemes());
@@ -221,7 +221,7 @@ public class StructureCraftImpl implements StructureCraft {
    Report
    */
   private void report() {
-    // TODO basis.report() anything else interesting from the craft operation
+    // future: basis.report() anything else interesting from the craft operation
   }
 
 }

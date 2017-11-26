@@ -24,7 +24,7 @@ export default Route.extend({
       audio.set('instrument', instrument);
       return audio;
     } else {
-      this.transitionTo('accounts.one.libraries.one.instruments.one.audios');
+      history.back();
     }
   },
 
@@ -37,7 +37,7 @@ export default Route.extend({
       model.save().then(
         () => {
           get(this, 'display').success('Updated audio "' + model.get('name') + '".');
-          this.transitionTo('accounts.one.libraries.one.instruments.one.audios.one', model);
+          this.transitionTo('accounts.one.libraries.one.instruments.one.audios.one', model.instrument.library.account, model.instrument.library, model.instrument, model);
         },
         (error) => {
           get(this, 'display').error(error);
@@ -48,7 +48,7 @@ export default Route.extend({
       model.destroyRecord({}).then(
         () => {
           get(this, 'display').success('Deleted audio "' + model.get('name') + '".');
-          this.transitionTo('accounts.one.libraries.one.instruments.one.audios');
+          this.transitionTo('accounts.one.libraries.one.instruments.one.audios', model.instrument.library.account, model.instrument.library, model.instrument);
         },
         (error) => {
           get(this, 'display').error(error);

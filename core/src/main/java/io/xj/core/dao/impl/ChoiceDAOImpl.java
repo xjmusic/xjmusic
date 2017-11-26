@@ -143,9 +143,9 @@ public class ChoiceDAOImpl extends DAOImpl implements ChoiceDAO {
 
     requireTopLevel(access);
 
-    requireExists("Link", db.select(LINK.ID).from(LINK)
+    requireExists("Link", db.selectCount().from(LINK)
       .where(LINK.ID.eq(entity.getLinkId()))
-      .fetchOne());
+      .fetchOne(0, int.class));
 
     return executeCreate(db, CHOICE, fieldValues);
   }
@@ -291,10 +291,10 @@ public class ChoiceDAOImpl extends DAOImpl implements ChoiceDAO {
     requireTopLevel(access);
 
     requireExists("existing Choice with immutable Link membership",
-      db.selectFrom(CHOICE)
+      db.selectCount().from(CHOICE)
         .where(CHOICE.ID.eq(id))
         .and(CHOICE.LINK_ID.eq(entity.getLinkId()))
-        .fetchOne());
+        .fetchOne(0, int.class));
 
     if (0 == executeUpdate(db, CHOICE, fieldValues))
       throw new BusinessException("No records updated.");
@@ -313,14 +313,13 @@ public class ChoiceDAOImpl extends DAOImpl implements ChoiceDAO {
   private void delete(DSLContext db, Access access, ULong id) throws Exception {
     requireTopLevel(access);
 
-    requireExists("Choice", db.selectFrom(CHOICE)
+    requireExists("Choice", db.selectCount().from(CHOICE)
       .where(CHOICE.ID.eq(id))
-      .fetchOne());
+      .fetchOne(0, int.class));
 
-    requireNotExists("Arrangement in Choice", db.select(ARRANGEMENT.ID)
-      .from(ARRANGEMENT)
+    requireNotExists("Arrangement in Choice", db.selectCount().from(ARRANGEMENT)
       .where(ARRANGEMENT.CHOICE_ID.eq(id))
-      .fetch());
+      .fetchOne(0, int.class));
 
     db.deleteFrom(CHOICE)
       .where(CHOICE.ID.eq(id))

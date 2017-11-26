@@ -3,17 +3,19 @@ package io.xj.worker.work.dub.impl;
 
 import io.xj.core.app.access.impl.Access;
 import io.xj.core.app.exception.BusinessException;
-import io.xj.core.work.basis.Basis;
+import io.xj.core.cache.audio.AudioCacheProvider;
 import io.xj.core.dao.LinkMessageDAO;
+import io.xj.core.model.audio.Audio;
 import io.xj.core.model.chain_config.ChainConfigType;
 import io.xj.core.model.link_message.LinkMessage;
 import io.xj.core.model.message.MessageType;
 import io.xj.core.model.pick.Pick;
 import io.xj.core.util.Text;
-import io.xj.worker.work.dub.MasterDub;
+import io.xj.core.work.basis.Basis;
 import io.xj.mixer.Mixer;
 import io.xj.mixer.MixerFactory;
 import io.xj.mixer.OutputContainer;
+import io.xj.worker.work.dub.MasterDub;
 
 import org.jooq.types.ULong;
 
@@ -39,16 +41,21 @@ public class MasterDubImpl implements MasterDub {
   private final LinkMessageDAO linkMessageDAO;
   private Mixer _mixer;
   private List<String> warnings = Lists.newArrayList();
+  private static final int STREAM_MAX_RETRIES = 5;
+  private static final int STREAM_RETRY_SLEEP_MILLIS = 1000;
+  private AudioCacheProvider audioCacheProvider;
 
   @Inject
   public MasterDubImpl(
     @Assisted("basis") Basis basis,
-    MixerFactory mixerFactory,
-    LinkMessageDAO linkMessageDAO
+    AudioCacheProvider audioCacheProvider,
+    LinkMessageDAO linkMessageDAO,
+    MixerFactory mixerFactory
   /*-*/) throws BusinessException {
+    this.audioCacheProvider = audioCacheProvider;
     this.basis = basis;
-    this.mixerFactory = mixerFactory;
     this.linkMessageDAO = linkMessageDAO;
+    this.mixerFactory = mixerFactory;
   }
 
   @Override
@@ -70,28 +77,23 @@ public class MasterDubImpl implements MasterDub {
   }
 
   /**
-   Implements Mixer module to load all waveform for Audio in current Link
+   @throws Exception if failed to stream data of item from cache
    */
   private void doMixerSourceLoading() throws Exception {
-    for (ULong audioId : basis.linkAudioIds())
+    for (ULong audioId : basis.linkAudioIds()) {
+      Audio audio = basis.linkAudio(audioId);
+      String key = audio.getWaveformKey();
+
       try {
-        setupSourceFromStream(audioId.toString(),
-          basis.streamAudioWaveform(basis.linkAudio(audioId)));
+        InputStream stream = audioCacheProvider.get(key).stream();
+        mixer().loadSource(audio.getId().toString(), new BufferedInputStream(stream));
+        stream.close();
+
       } catch (Exception e) {
+        audioCacheProvider.refresh(key);
         warnings.add(e.getMessage() + " " + Text.formatStackTrace(e));
       }
-  }
-
-  /**
-   Setup one input source from a stream, then close the stream
-
-   @param sourceId    to setup source as
-   @param inputStream to setup source from
-   @throws Exception on failure
-   */
-  private void setupSourceFromStream(String sourceId, InputStream inputStream) throws Exception {
-    mixer().loadSource(sourceId, new BufferedInputStream(inputStream));
-    inputStream.close();
+    }
   }
 
   /**

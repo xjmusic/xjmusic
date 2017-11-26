@@ -110,7 +110,7 @@ public class FoundationCraftImpl implements FoundationCraft {
    * Report
    */
   private void report() {
-    // TODO basis.report() anything else interesting from the craft operation
+    // future: basis.report() anything else interesting from the craft operation
   }
 
   /**
@@ -415,12 +415,12 @@ public class FoundationCraftImpl implements FoundationCraft {
    * @return main-type Idea
    * @throws Exception on failure
    *                   <p>
-   *                   TODO don't we need to pass in the current phase of the macro idea?
+   *                   future: don't we need to pass in the current phase of the macro idea?
    */
   private Idea chooseMain() throws Exception {
     Chooser<Idea> chooser = new Chooser<>();
 
-    // TODO: only choose major ideas for major keys, minor for minor! [#223] Key of first Phase of chosen Main-Idea must match the `minor` or `major` with the Key of the current Link.
+    // future: only choose major ideas for major keys, minor for minor! [#223] Key of first Phase of chosen Main-Idea must match the `minor` or `major` with the Key of the current Link.
 
     // (1) retrieve memes of macro idea, for use as a meme isometry comparison
     MemeIsometry memeIsometry = MemeIsometry.of(ideaMemeDAO.readAll(Access.internal(), macroIdea().getId()));
@@ -545,7 +545,7 @@ public class FoundationCraftImpl implements FoundationCraft {
 
   /**
    * Compute the final density of the current link
-   * TODO Link Density = average of macro and main-idea phases
+   * future: Link Density = average of macro and main-idea phases
    *
    * @return density
    * @throws Exception on failure

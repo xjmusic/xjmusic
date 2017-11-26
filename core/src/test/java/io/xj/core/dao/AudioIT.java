@@ -47,7 +47,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.when;
 
-// TODO [core] test permissions of different users to readMany vs. create vs. update or delete audios
+// future test: permissions of different users to readMany vs. create vs. update or delete audios
 @RunWith(MockitoJUnitRunner.class)
 public class AudioIT {
   @Rule public ExpectedException failure = ExpectedException.none();
@@ -124,8 +124,6 @@ public class AudioIT {
 
     System.clearProperty("audio.file.bucket");
   }
-
-  // TODO cannot create or update a audio to an offset that already exists for that idea
 
   @Test
   public void create() throws Exception {
@@ -332,8 +330,6 @@ public class AudioIT {
     testDAO.update(access, ULong.valueOf(3), inputData);
   }
 
-  // TODO: ensure that it is not possible to change the waveform key EVER!
-
   @Test
   public void update_FailsUpdatingToNonexistentInstrument() throws Exception {
     Access access = new Access(ImmutableMap.of(
@@ -397,7 +393,7 @@ public class AudioIT {
     assertEquals(Double.valueOf(1567.0), result.getPitch());
   }
 
-  // TODO: [core] test DAO cannot update Idea to a User or Library not owned by current session
+  // future test: DAO cannot update Idea to a User or Library not owned by current session
 
   @Test
   public void delete() throws Exception {
@@ -450,8 +446,8 @@ public class AudioIT {
     }
   }
 
-  // TODO [core] test AudioDAO cannot delete record unless user has account access
+  // future test: AudioDAO cannot delete record unless user has account access
 
-  // TODO test AudioDAO cannot write to WaveformKey value on create or update- ONLY updated by generating an upload policy
+  // future test: AudioDAO cannot write to WaveformKey value on create or update- ONLY updated by generating an upload policy
 
 }

@@ -15,9 +15,8 @@ import io.xj.core.app.server.HttpServerProvider;
 import io.xj.core.app.server.HttpServerProviderImpl;
 import io.xj.core.app.server.ResourceConfigProvider;
 import io.xj.core.app.server.ResourceConfigProviderImpl;
-import io.xj.core.work.basis.Basis;
-import io.xj.core.work.basis.BasisFactory;
-import io.xj.core.work.basis.impl.BasisImpl;
+import io.xj.core.cache.audio.AudioCacheProvider;
+import io.xj.core.cache.audio.AudioCacheProviderImpl;
 import io.xj.core.dao.AccountDAO;
 import io.xj.core.dao.AccountUserDAO;
 import io.xj.core.dao.ArrangementDAO;
@@ -89,6 +88,9 @@ import io.xj.core.external.google.GoogleProviderImpl;
 import io.xj.core.util.token.TokenGenerator;
 import io.xj.core.util.token.TokenGeneratorImpl;
 import io.xj.core.work.WorkManager;
+import io.xj.core.work.basis.Basis;
+import io.xj.core.work.basis.BasisFactory;
+import io.xj.core.work.basis.impl.BasisImpl;
 import io.xj.core.work.impl.WorkManagerImpl;
 
 import com.google.api.client.http.HttpTransport;
@@ -105,7 +107,6 @@ public class CoreModule extends AbstractModule {
     bindApp();
     bindDAO();
     bindExternal();
-    bindUtil();
     installBasisFactory();
   }
 
@@ -114,6 +115,7 @@ public class CoreModule extends AbstractModule {
     bind(AccessLogFilterProvider.class).to(AccessLogFilterProviderImpl.class);
     bind(AccessTokenAuthFilter.class).to(AccessTokenAuthFilterImpl.class);
     bind(App.class).to(AppImpl.class);
+    bind(AudioCacheProvider.class).to(AudioCacheProviderImpl.class);
     bind(DataStoreFactory.class).to(MemoryDataStoreFactory.class);
     bind(HttpResponseProvider.class).to(HttpResponseProviderImpl.class);
     bind(HttpServerProvider.class).to(HttpServerProviderImpl.class);
@@ -123,6 +125,7 @@ public class CoreModule extends AbstractModule {
     bind(RedisDatabaseProvider.class).to(RedisDatabaseProviderImpl.class);
     bind(ResourceConfigProvider.class).to(ResourceConfigProviderImpl.class);
     bind(SQLDatabaseProvider.class).to(SQLDatabaseProviderImpl.class);
+    bind(TokenGenerator.class).to(TokenGeneratorImpl.class);
     bind(WorkManager.class).to(WorkManagerImpl.class);
   }
 
@@ -168,10 +171,6 @@ public class CoreModule extends AbstractModule {
     bind(AmazonProvider.class).to(AmazonProviderImpl.class);
     bind(GoogleHttpProvider.class).to(GoogleHttpProviderImpl.class);
     bind(GoogleProvider.class).to(GoogleProviderImpl.class);
-  }
-
-  private void bindUtil() {
-    bind(TokenGenerator.class).to(TokenGeneratorImpl.class);
   }
 
 }

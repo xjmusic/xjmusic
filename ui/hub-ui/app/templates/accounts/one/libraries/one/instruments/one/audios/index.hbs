@@ -36,9 +36,9 @@
             <td>{{audio.start}}</td>
             <td>{{audio.length}}</td>
             <td>
-              {{#link-to 'accounts.one.libraries.one.instruments.one.audios.one.events' audio}}
+              {{#link-to 'accounts.one.libraries.one.instruments.one.audios.one.events' audio.instrument.library.account audio.instrument.library audio.instrument audio}}
               Events{{/link-to}}
-              |&nbsp;{{#link-to 'accounts.one.libraries.one.instruments.one.audios.one.chords' audio}}
+              |&nbsp;{{#link-to 'accounts.one.libraries.one.instruments.one.audios.one.chords' audio.instrument.library.account audio.instrument.library audio.instrument audio}}
               Chords{{/link-to}}
             </td>
             <th scope="row">{{audio.id}}</th>
@@ -51,7 +51,7 @@
 
   {{#if (or auth.isArtist auth.isAdmin)}}
     <div class="sm-col-12">
-      Or: {{#link-to 'accounts.one.libraries.one.instruments.one.audios.new'}}Create New Audio{{/link-to}}
+      Or: {{#link-to 'accounts.one.libraries.one.instruments.one.audios.new' model.library.account model.library model}}Create New Audio{{/link-to}}
     </div>
   {{/if}}
 </div>

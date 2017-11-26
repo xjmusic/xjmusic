@@ -5,7 +5,7 @@ import io.xj.core.app.resource.ResourceEndpointTest;
 
 public class AuthResourceTest extends ResourceEndpointTest {
 
-  // TODO write tests for /auth endpoint via HTTP
+  // future test: for /auth endpoint via HTTP
 
 //  @Test
 //  public void GetAuth() {

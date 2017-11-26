@@ -1,6 +1,5 @@
 // import { moduleFor, test } from 'ember-qunit';
 
-// TODO [ui/hub-ui] test for library route
 
 // moduleFor('route:library', 'Unit | Route | library', {
 //   // Specify the other units that are required for this test.

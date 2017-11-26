@@ -28,7 +28,7 @@ import static io.xj.core.tables.LinkMeme.LINK_MEME;
 /**
  LinkMeme DAO
  <p>
- TODO [core] more specific permissions of user (artist) access by per-entity ownership
+ future: more specific permissions of user (artist) access by per-entity ownership
  */
 public class LinkMemeDAOImpl extends DAOImpl implements LinkMemeDAO {
 
@@ -107,21 +107,20 @@ public class LinkMemeDAOImpl extends DAOImpl implements LinkMemeDAO {
     Map<Field, Object> fieldValues = entity.updatableFieldValueMap();
 
     if (access.isTopLevel())
-      requireExists("Link", db.select(LINK.ID).from(LINK)
+      requireExists("Link", db.selectCount().from(LINK)
         .where(LINK.ID.eq(entity.getLinkId()))
         .fetchOne());
     else
-      requireExists("Link", db.select(LINK.ID).from(LINK)
+      requireExists("Link", db.selectCount().from(LINK)
         .join(CHAIN).on(LINK.CHAIN_ID.eq(CHAIN.ID))
         .where(LINK.ID.eq(entity.getLinkId()))
         .and(CHAIN.ACCOUNT_ID.in(access.getAccounts()))
         .fetchOne());
 
-    if (db.selectFrom(LINK_MEME)
+    requireNotExists("Link Meme", db.selectCount().from(LINK_MEME)
       .where(LINK_MEME.LINK_ID.eq(entity.getLinkId()))
       .and(LINK_MEME.NAME.eq(entity.getName()))
-      .fetchOne() != null)
-      throw new BusinessException("Link Meme already exists!");
+      .fetchOne(0, int.class));
 
     return executeCreate(db, LINK_MEME, fieldValues);
   }
@@ -204,15 +203,14 @@ public class LinkMemeDAOImpl extends DAOImpl implements LinkMemeDAO {
    @param id     to delete
    @throws BusinessException if failure
    */
-  // TODO: fail if no linkMeme is deleted
   private void delete(DSLContext db, Access access, ULong id) throws BusinessException {
     if (!access.isTopLevel())
-      requireExists("Link Meme", db.select(LINK_MEME.ID).from(LINK_MEME)
+      requireExists("Link Meme", db.selectCount().from(LINK_MEME)
         .join(LINK).on(LINK.ID.eq(LINK_MEME.LINK_ID))
         .join(CHAIN).on(LINK.CHAIN_ID.eq(CHAIN.ID))
         .where(LINK_MEME.ID.eq(id))
         .and(CHAIN.ACCOUNT_ID.in(access.getAccounts()))
-        .fetchOne());
+        .fetchOne(0, int.class));
 
     db.deleteFrom(LINK_MEME)
       .where(LINK_MEME.ID.eq(id))

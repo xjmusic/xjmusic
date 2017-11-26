@@ -3,7 +3,7 @@
 TITLE="Elastic Beanstalk App Pre-Bootstrap (Wraps common bootstrap)"
 USAGE="
    Usage:
-     bin/eb-bootstrap <arguments...>
+     bin/eb_bootstrap <arguments...>
 
    Expects an environment variable APPS
    which is a space-separated list of apps to run.
@@ -40,13 +40,6 @@ kill_javas_running () {
   done
 }
 
-#
-create_folders () {
-  APP="${1}"
-  printf "\nCreating folders for ${APP}...\n"
-  mkdir -p /var/log/${APP}
-  chmod a+w /var/log/${APP}
-}
 
 #
 echo "mysql --host=${DB_MYSQL_HOST} --port=${DB_MYSQL_PORT} --user=${DB_MYSQL_USER} --password=${DB_MYSQL_PASS}"
@@ -56,7 +49,6 @@ echo "redis-cli -h ${DB_REDIS_HOST} -p ${DB_REDIS_PORT}"
 for APP in ${APPS}; do
   require "${APP}" "app"
   kill_javas_running "${APP}-1.0-SNAPSHOT.jar"
-  create_folders "${APP}"
   sleep 2
   printf "OK\n\n"
 

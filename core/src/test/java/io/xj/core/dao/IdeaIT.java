@@ -42,7 +42,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
-// TODO [core] test permissions of different users to readMany vs. create vs. update or delete ideas
+// future test: permissions of different users to readMany vs. create vs. update or delete ideas
 public class IdeaIT {
   @Rule public ExpectedException failure = ExpectedException.none();
   private final Injector injector = Guice.createInjector(new CoreModule());
@@ -204,7 +204,7 @@ public class IdeaIT {
     assertNull(result);
   }
 
-  // TODO: test readAllInAccount vs readAllInLibrary, positive and negative cases
+  // future test: readAllInAccount vs readAllInLibrary, positive and negative cases
 
   @Test
   public void readAll() throws Exception {
@@ -344,7 +344,7 @@ public class IdeaIT {
     assertEquals(ULong.valueOf(2), result.getLibraryId());
   }
 
-  // TODO: [core] test DAO cannot update Idea to a User or Library not owned by current session
+  // future test: DAO cannot update Idea to a User or Library not owned by current session
 
   @Test
   public void delete() throws Exception {

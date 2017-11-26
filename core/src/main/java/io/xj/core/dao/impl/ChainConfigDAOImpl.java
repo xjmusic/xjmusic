@@ -101,14 +101,14 @@ public class ChainConfigDAOImpl extends DAOImpl implements ChainConfigDAO {
     Map<Field, Object> fieldValues = entity.updatableFieldValueMap();
 
     if (access.isTopLevel())
-      requireExists("Chain", db.select(CHAIN.ID).from(CHAIN)
+      requireExists("Chain", db.selectCount().from(CHAIN)
         .where(CHAIN.ID.eq(entity.getChainId()))
-        .fetchOne());
+        .fetchOne(0, int.class));
     else
-      requireExists("Chain", db.select(CHAIN.ID).from(CHAIN)
+      requireExists("Chain", db.selectCount().from(CHAIN)
         .where(CHAIN.ACCOUNT_ID.in(access.getAccounts()))
         .and(CHAIN.ID.eq(entity.getChainId()))
-        .fetchOne());
+        .fetchOne(0, int.class));
 
     if (exists(db.selectFrom(CHAIN_CONFIG)
       .where(CHAIN_CONFIG.CHAIN_ID.eq(entity.getChainId()))
@@ -179,22 +179,22 @@ public class ChainConfigDAOImpl extends DAOImpl implements ChainConfigDAO {
     fieldValues.put(CHAIN_CONFIG.ID, id);
 
     if (access.isTopLevel())
-      requireExists("Chain config", db.selectFrom(CHAIN_CONFIG)
+      requireExists("Chain config", db.selectCount().from(CHAIN_CONFIG)
         .where(CHAIN_CONFIG.ID.eq(id))
-        .fetchOne());
+        .fetchOne(0, int.class));
     else
-      requireExists("Chain config", db.select(CHAIN_CONFIG.fields()).from(CHAIN_CONFIG)
+      requireExists("Chain config", db.selectCount().from(CHAIN_CONFIG)
         .join(CHAIN).on(CHAIN.ID.eq(CHAIN_CONFIG.CHAIN_ID))
         .where(CHAIN_CONFIG.ID.eq(id))
         .and(CHAIN.ACCOUNT_ID.in(access.getAccounts()))
-        .fetchOne());
+        .fetchOne(0, int.class));
 
     // [#128] cannot change chainId of a chainConfig
     Object updateChainId = fieldValues.get(CHAIN_CONFIG.CHAIN_ID);
     if (exists(updateChainId) && !updateChainId.equals(entity.getChainId()))
       throw new BusinessException("cannot change chainId of a chainConfig");
 
-    if (executeUpdate(db, CHAIN_CONFIG, fieldValues) == 0)
+    if (0 == executeUpdate(db, CHAIN_CONFIG, fieldValues))
       throw new BusinessException("No records updated.");
   }
 
@@ -208,15 +208,15 @@ public class ChainConfigDAOImpl extends DAOImpl implements ChainConfigDAO {
    */
   private void delete(DSLContext db, Access access, ULong id) throws BusinessException {
     if (access.isTopLevel())
-      requireExists("Chain config", db.selectFrom(CHAIN_CONFIG)
+      requireExists("Chain config", db.selectCount().from(CHAIN_CONFIG)
         .where(CHAIN_CONFIG.ID.eq(id))
-        .fetchOne());
+        .fetchOne(0, int.class));
     else
-      requireExists("Chain config", db.select(CHAIN_CONFIG.fields()).from(CHAIN_CONFIG)
+      requireExists("Chain config", db.selectCount().from(CHAIN_CONFIG)
         .join(CHAIN).on(CHAIN.ID.eq(CHAIN_CONFIG.CHAIN_ID))
         .where(CHAIN_CONFIG.ID.eq(id))
         .and(CHAIN.ACCOUNT_ID.in(access.getAccounts()))
-        .fetchOne());
+        .fetchOne(0, int.class));
 
     db.deleteFrom(CHAIN_CONFIG)
       .where(CHAIN_CONFIG.ID.eq(id))

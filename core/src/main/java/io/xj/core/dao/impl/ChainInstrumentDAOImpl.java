@@ -91,28 +91,28 @@ public class ChainInstrumentDAOImpl extends DAOImpl implements ChainInstrumentDA
     Map<Field, Object> fieldValues = entity.updatableFieldValueMap();
 
     if (access.isTopLevel()) {
-      requireExists("Chain", db.select(CHAIN.ID).from(CHAIN)
+      requireExists("Chain", db.selectCount().from(CHAIN)
         .where(CHAIN.ID.eq(entity.getChainId()))
-        .fetchOne());
-      requireExists("Instrument", db.select(INSTRUMENT.ID).from(INSTRUMENT)
+        .fetchOne(0, int.class));
+      requireExists("Instrument", db.selectCount().from(INSTRUMENT)
         .where(INSTRUMENT.ID.eq(entity.getInstrumentId()))
-        .fetchOne());
+        .fetchOne(0, int.class));
     } else {
-      requireExists("Chain", db.select(CHAIN.ID).from(CHAIN)
+      requireExists("Chain", db.selectCount().from(CHAIN)
         .where(CHAIN.ACCOUNT_ID.in(access.getAccounts()))
         .and(CHAIN.ID.eq(entity.getChainId()))
-        .fetchOne());
-      requireExists("Instrument", db.select(INSTRUMENT.ID).from(INSTRUMENT)
+        .fetchOne(0, int.class));
+      requireExists("Instrument", db.selectCount().from(INSTRUMENT)
         .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
         .where(INSTRUMENT.ID.eq(entity.getInstrumentId()))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-        .fetchOne());
+        .fetchOne(0, int.class));
     }
 
-    if (db.selectFrom(CHAIN_INSTRUMENT)
+    if (null != db.selectFrom(CHAIN_INSTRUMENT)
       .where(CHAIN_INSTRUMENT.CHAIN_ID.eq(entity.getChainId()))
       .and(CHAIN_INSTRUMENT.INSTRUMENT_ID.eq(entity.getInstrumentId()))
-      .fetchOne() != null)
+      .fetchOne())
       throw new BusinessException("Instrument already added to Chain!");
 
     return executeCreate(db, CHAIN_INSTRUMENT, fieldValues);
@@ -174,17 +174,16 @@ public class ChainInstrumentDAOImpl extends DAOImpl implements ChainInstrumentDA
    */
   private void delete(DSLContext db, Access access, ULong id) throws BusinessException {
     if (access.isTopLevel())
-      requireExists("Chain Instrument", db.selectFrom(CHAIN_INSTRUMENT)
+      requireExists("Chain Instrument", db.selectCount().from(CHAIN_INSTRUMENT)
         .where(CHAIN_INSTRUMENT.ID.eq(id))
-        .fetchOne());
+        .fetchOne(0, int.class));
     else
-      requireExists("Chain Instrument", db.select(CHAIN_INSTRUMENT.fields()).from(CHAIN_INSTRUMENT)
+      requireExists("Chain Instrument", db.selectCount().from(CHAIN_INSTRUMENT)
         .join(INSTRUMENT).on(INSTRUMENT.ID.eq(CHAIN_INSTRUMENT.INSTRUMENT_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
         .where(CHAIN_INSTRUMENT.ID.eq(id))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-        .fetchOne());
-
+        .fetchOne(0, int.class));
 
     db.deleteFrom(CHAIN_INSTRUMENT)
       .where(CHAIN_INSTRUMENT.ID.eq(id))

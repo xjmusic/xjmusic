@@ -144,9 +144,6 @@ public class Chain extends Entity {
     if (null == name || name.isEmpty()) {
       throw new BusinessException("Name is required.");
     }
-//    if (type.equals(PREVIEW)) {
-    // TODO: validate that stopAt - startAt is less than Config.chainPreviewLengthMax()
-//    }
     if (Objects.equals(type, ChainType.Production)) {
       if (null == startAt) {
         throw new BusinessException("Start-at is required." + (Objects.nonNull(startAtError) ? (" " + startAtError) : ""));

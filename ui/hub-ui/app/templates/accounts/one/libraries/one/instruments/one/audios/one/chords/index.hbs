@@ -26,7 +26,7 @@
             <td>{{chord.position}}</td>
             <td>{{chord.name}}</td>
             <td>
-              {{#link-to 'accounts.one.libraries.one.instruments.one.audios.one.chords.one.edit' chord}}{{fa-icon 'edit'}}{{/link-to}}
+              {{#link-to 'accounts.one.libraries.one.instruments.one.audios.one.chords.one.edit' chord.audio.instrument.library.account chord.audio.instrument.library chord.audio.instrument chord.audio chord}}{{fa-icon 'edit'}}{{/link-to}}
             </td>
             <th scope="row">{{chord.id}}</th>
           </tr>
@@ -38,7 +38,7 @@
 
   {{#if (or auth.isArtist auth.isAdmin)}}
     <div class="sm-col-12">
-      Or: {{#link-to 'accounts.one.libraries.one.instruments.one.audios.one.chords.new'}}Create New Chord{{/link-to}}
+      Or: {{#link-to 'accounts.one.libraries.one.instruments.one.audios.one.chords.new' model.instrument.library.account model.instrument.library model.instrument model}}Create New Chord{{/link-to}}
     </div>
   {{/if}}
 </div>

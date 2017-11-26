@@ -91,28 +91,28 @@ public class ChainIdeaDAOImpl extends DAOImpl implements ChainIdeaDAO {
     Map<Field, Object> fieldValues = entity.updatableFieldValueMap();
 
     if (access.isTopLevel()) {
-      requireExists("Chain", db.select(CHAIN.ID).from(CHAIN)
+      requireExists("Chain", db.selectCount().from(CHAIN)
         .where(CHAIN.ID.eq(entity.getChainId()))
-        .fetchOne());
-      requireExists("Idea", db.select(IDEA.ID).from(IDEA)
+        .fetchOne(0, int.class));
+      requireExists("Idea", db.selectCount().from(IDEA)
         .where(IDEA.ID.eq(entity.getIdeaId()))
-        .fetchOne());
+        .fetchOne(0, int.class));
     } else {
-      requireExists("Chain", db.select(CHAIN.ID).from(CHAIN)
+      requireExists("Chain", db.selectCount().from(CHAIN)
         .where(CHAIN.ACCOUNT_ID.in(access.getAccounts()))
         .and(CHAIN.ID.eq(entity.getChainId()))
-        .fetchOne());
-      requireExists("Idea", db.select(IDEA.ID).from(IDEA)
+        .fetchOne(0, int.class));
+      requireExists("Idea", db.selectCount().from(IDEA)
         .join(LIBRARY).on(LIBRARY.ID.eq(IDEA.LIBRARY_ID))
         .where(IDEA.ID.eq(entity.getIdeaId()))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-        .fetchOne());
+        .fetchOne(0, int.class));
     }
 
-    if (db.selectFrom(CHAIN_IDEA)
+    if (null != db.selectFrom(CHAIN_IDEA)
       .where(CHAIN_IDEA.CHAIN_ID.eq(entity.getChainId()))
       .and(CHAIN_IDEA.IDEA_ID.eq(entity.getIdeaId()))
-      .fetchOne() != null)
+      .fetchOne())
       throw new BusinessException("Idea already added to Chain!");
 
     return executeCreate(db, CHAIN_IDEA, fieldValues);
@@ -172,18 +172,18 @@ public class ChainIdeaDAOImpl extends DAOImpl implements ChainIdeaDAO {
    @throws BusinessException on failure
    */
   private void delete(DSLContext db, Access access, ULong id) throws BusinessException {
-    // TODO: fail if no chainIdea is deleted
+
     if (access.isTopLevel())
-      requireExists("Chain Idea", db.selectFrom(CHAIN_IDEA)
+      requireExists("Chain Idea", db.selectCount().from(CHAIN_IDEA)
         .where(CHAIN_IDEA.ID.eq(id))
-        .fetchOne());
+        .fetchOne(0, int.class));
     else
-      requireExists("Chain Idea", db.select(CHAIN_IDEA.fields()).from(CHAIN_IDEA)
+      requireExists("Chain Idea", db.selectCount().from(CHAIN_IDEA)
         .join(IDEA).on(IDEA.ID.eq(CHAIN_IDEA.IDEA_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(IDEA.LIBRARY_ID))
         .where(CHAIN_IDEA.ID.eq(id))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-        .fetchOne());
+        .fetchOne(0, int.class));
 
     db.deleteFrom(CHAIN_IDEA)
       .where(CHAIN_IDEA.ID.eq(id))

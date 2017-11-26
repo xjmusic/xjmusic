@@ -333,8 +333,6 @@ public class LinkIT {
     assertEquals("Planned", actualResult0.get("state"));
   }
 
-  // TODO read all from seconds UTC
-
   @Test
   public void readOneInState() throws Exception {
     Access access = new Access(ImmutableMap.of(

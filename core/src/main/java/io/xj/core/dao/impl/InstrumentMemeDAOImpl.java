@@ -27,7 +27,7 @@ import static io.xj.core.tables.Library.LIBRARY;
 /**
  InstrumentMeme DAO
  <p>
- TODO [core] more specific permissions of user (artist) access by per-entity ownership
+ future: more specific permissions of user (artist) access by per-entity ownership
  */
 public class InstrumentMemeDAOImpl extends DAOImpl implements InstrumentMemeDAO {
 
@@ -96,15 +96,15 @@ public class InstrumentMemeDAOImpl extends DAOImpl implements InstrumentMemeDAO 
     Map<Field, Object> fieldValues = entity.updatableFieldValueMap();
 
     if (access.isTopLevel())
-      requireExists("Instrument", db.select(INSTRUMENT.ID).from(INSTRUMENT)
+      requireExists("Instrument", db.selectCount().from(INSTRUMENT)
         .where(INSTRUMENT.ID.eq(entity.getInstrumentId()))
-        .fetchOne());
+        .fetchOne(0, int.class));
     else
-      requireExists("Instrument", db.select(INSTRUMENT.ID).from(INSTRUMENT)
+      requireExists("Instrument", db.selectCount().from(INSTRUMENT)
         .join(LIBRARY).on(INSTRUMENT.LIBRARY_ID.eq(LIBRARY.ID))
         .where(INSTRUMENT.ID.eq(entity.getInstrumentId()))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-        .fetchOne());
+        .fetchOne(0, int.class));
 
     if (db.selectFrom(INSTRUMENT_MEME)
       .where(INSTRUMENT_MEME.INSTRUMENT_ID.eq(entity.getInstrumentId()))
@@ -170,12 +170,12 @@ public class InstrumentMemeDAOImpl extends DAOImpl implements InstrumentMemeDAO 
    */
   private void delete(DSLContext db, Access access, ULong id) throws BusinessException {
     if (!access.isTopLevel())
-      requireExists("Instrument Meme", db.select(INSTRUMENT_MEME.ID).from(INSTRUMENT_MEME)
+      requireExists("Instrument Meme", db.selectCount().from(INSTRUMENT_MEME)
         .join(INSTRUMENT).on(INSTRUMENT.ID.eq(INSTRUMENT_MEME.INSTRUMENT_ID))
         .join(LIBRARY).on(INSTRUMENT.LIBRARY_ID.eq(LIBRARY.ID))
         .where(INSTRUMENT_MEME.ID.eq(id))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-        .fetchOne());
+        .fetchOne(0, int.class));
 
     db.deleteFrom(INSTRUMENT_MEME)
       .where(INSTRUMENT_MEME.ID.eq(id))

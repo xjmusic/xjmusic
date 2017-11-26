@@ -38,7 +38,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
-// TODO [core] test permissions of different users to readMany vs. create vs. update or delete instruments
+// future test: permissions of different users to readMany vs. create vs. update or delete instruments
 public class InstrumentIT {
   private final Injector injector = Guice.createInjector(new CoreModule());
   private InstrumentDAO testDAO;
@@ -155,7 +155,7 @@ public class InstrumentIT {
     assertNull(result);
   }
 
-  // TODO: test readAllInAccount vs readAllInLibrary, positive and negative cases
+  // future test: readAllInAccount vs readAllInLibrary, positive and negative cases
 
   @Test
   public void readAll() throws Exception {
@@ -289,7 +289,7 @@ public class InstrumentIT {
     assertEquals(ULong.valueOf(1), result.getLibraryId());
   }
 
-  // TODO: [core] test DAO cannot update Instrument to a User or Library not owned by current session
+  // future test: DAO cannot update Instrument to a User or Library not owned by current session
 
   @Test
   public void delete() throws Exception {
