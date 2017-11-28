@@ -47,8 +47,6 @@ public class AudioCacheProviderImpl implements AudioCacheProvider {
     try {
       loadItems = Caffeine.newBuilder()
         .maximumWeight(allocateBytes)
-        .expireAfterWrite(3, TimeUnit.HOURS) // future: could be configured in system properties
-        .refreshAfterWrite(1, TimeUnit.HOURS) // future: could be configured in system properties
         .weigher((String key, Item item) -> item.size())
         .removalListener(this::remove)
         .build(this::fetchAndWrite);

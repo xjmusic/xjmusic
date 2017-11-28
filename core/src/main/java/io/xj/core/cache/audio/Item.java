@@ -16,6 +16,7 @@ import java.io.OutputStream;
 
 public class Item {
   private final String _key;
+  private static final String DASH = "-";
   private int _bytes; // in bytes
   private final String _path;
 
@@ -25,13 +26,20 @@ public class Item {
 
   /**
    New Item
+   Compute path to cached file on disk.
+   <p>
+   [#153228109] During Dubbing, when the audio cache refreshes an item, filenames should be unique in order to avoid deletion-collision
 
-   @param _key to store
+   @param key of item to cache
+   @throws ConfigException when missing required configurations
    */
-  public Item(String _key) throws ConfigException {
-    this._key = _key;
+  public Item(String key) throws ConfigException {
+    _key = key;
     String bucket = Config.audioFileBucket();
-    _path = pathPrefix + bucket + "-" + _key + pathSuffix;
+    _path = pathPrefix +
+      bucket + File.separator +
+      ItemNumber.next() + DASH + // atomic integer is always unique
+      _key + pathSuffix;
   }
 
   /**
