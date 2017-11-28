@@ -44,7 +44,7 @@ In the above example, `-d` tells Docker to start the containers in the backgroun
 
 You'll want to have hostnames defined to point at the docker-compose network. To automatically update /etc/hosts:
 
-    sudo bin/update-hosts
+    sudo bin/update_hosts
 
 Your **/etc/hosts** file should now contain these lines at the end:
 
@@ -99,11 +99,15 @@ Only between major platform configuration changes (e.g. to **.nginx/locations.co
 
     docker-compose up -d --build    
 
-There is a MySQL dump of a complete example database, for quickly bootstrapping a dev environment. This file is located in the root of the project, at **example-database.sql**
+There is a MySQL dump of a complete example database, for quickly bootstrapping a dev environment. This file is located in the root of the project, at **reset_database.sql**
 
 Load the example database into `mysql01xj1` using the port forwarding from local port 3300 (to Docker Mysql container port 3306). There's a convenience script to do this:
 
-    bin/mysql-reset
+    bin/mysql_reset
+
+The **reset_database.sql** file can be quickly updated from the current dev database with this script:
+
+    bin/mysql_dump_for_reset
 
 It is NOT necessary to have any local MySQL server running. The build process will use your Docker `mysql01xj1`, or more specifically (for cross-platform compatibility) it will use port 3300 which Docker maps to `mysql01xj1` port 3306, for Maven to use during the build process.
 
@@ -220,7 +224,7 @@ By default, you'll need to create two MySQL databases:
 
 The docker container `redis01xj1` exposes a Redis server on local port 6300.  There's a convenience script for connecting to it:
 
-    bin/redis-cli
+    bin/redis_cli
 
 ## Integration testing
 
@@ -242,7 +246,7 @@ Migrate the local database (not usually necessary; migration happens automatical
 
 Build the Web user interface:
 
-    bin/ui-build
+    bin/ui_build
 
 Build and serve (with live updates) the Web user interface:
 
@@ -280,11 +284,11 @@ Clean all build targets:
 
 Clean even more thoroughly "down to the distribution":
 
-    bin/clean-distro
+    bin/clean_distro
 
 Clean away all IntelliJ IDEA related files:
 
-    bin/clean-idea
+    bin/clean_idea
 
 ## Maven
 
@@ -304,7 +308,7 @@ To run local migrations (in the `core` submodule via the Flyway plugin):
 
 To automatically update /etc/hosts:
 
-    sudo bin/update-hosts
+    sudo bin/update_hosts
 
 For development, your local machine needs to have the domain `hub.xj.dev` pointed to `172.16.217.10` (the address set for hub01xj1 in the docker-compose.yml file) in `/etc/hosts`; it's helpful to have `redis01xj1` and `mysql01xj1` as well:
 
@@ -346,7 +350,7 @@ Here are the public-facing Amazon CloudFront-backed URLs for audio files, and th
 
 # Amazon S3
 
-The `example-database.sql` is generated from data in the production environment, and refers to audio files located in the production S3 bucket, xj-prod-audio.
+The `reset_database.sql` is generated from data in the production environment, and refers to audio files located in the production S3 bucket, xj-prod-audio.
 
 Therefore, it is helpful to be able to sync the audio files from production into the dev environment.
 

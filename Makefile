@@ -1,4 +1,4 @@
 default:
 	@bin/setup
-	@bin/ui-build
+	@bin/ui_build
 	@bin/package

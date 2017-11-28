@@ -13,7 +13,7 @@ bin/verify || exit 1
 bin/package || exit 1
 
 # Build Web Front-end
-bin/ui-build || exit 1
+bin/ui_build || exit 1
 
 # Package the release for AWS Elastic Beanstalk
-bin/release-eb || exit 1
+bin/release_eb || exit 1

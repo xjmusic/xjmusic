@@ -4,10 +4,10 @@
 . $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/common/functions
 
 # Title & Usage
-TITLE="Reset MySQL db to example-database.sql"
+TITLE="Reset MySQL db to reset_database.sql"
 USAGE="
    Usage:
-     bin/mysql-reset <host> <arguments...>
+     bin/mysql_reset <host> <arguments...>
 
    <host> to run, as in: mysql -h <host>
    <arguments...> (optional) passed to 'mysql' client
@@ -40,7 +40,7 @@ RESET_CMD="
   "
 
 # Expected Example MySQL database
-EXAMPLE_SQL=${PWD}/example-database.sql
+EXAMPLE_SQL=${PWD}/reset_database.sql
 
 # ensure platform is packaged
 ensure_file ${EXAMPLE_SQL} "Example MySQL database"

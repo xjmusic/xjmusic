@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+
+# Include common functions
+. $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/common/functions
+
+# Title & Usage
+TITLE="Dump reset_database.sql to MySQL db"
+USAGE="
+   Usage:
+     bin/mysql_dump_for_reset <host> <arguments...>
+
+   <host> to run, as in: mysql -h <host>
+   <arguments...> (optional) passed to 'mysql' client
+"
+
+# Connect as root
+MYSQL_USER="root"
+MYSQL_PORT=3300
+
+# Find MySQL executable
+MYSQLDUMP_COMMAND=mysqldump
+if [ -f /usr/bin/mysqldump ]; then
+    MYSQLDUMP_COMMAND=/usr/bin/mysqldump
+elif [ -f /usr/local/mysql/bin/mysqldump ]; then
+    MYSQLDUMP_COMMAND=/usr/local/mysql/bin/mysqldump
+fi
+
+# Host Arguments
+MYSQL_ARGS="${@}"
+
+# Database
+MYSQL_DB="xj"
+
+# Expected Example MySQL database
+EXAMPLE_SQL=${PWD}/reset_database.sql
+
+# ensure platform is packaged
+ensure_file ${EXAMPLE_SQL} "Example MySQL database"
+
+# connect to ${HOST}
+step "Client SQL execution"
+${MYSQLDUMP_COMMAND} -u${MYSQL_USER} -h 127.0.0.1 -P ${MYSQL_PORT} ${MYSQL_ARGS} ${MYSQL_DB} > ${EXAMPLE_SQL}
+step_ok
+
+#
+finished_ok

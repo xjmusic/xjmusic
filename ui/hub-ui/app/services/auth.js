@@ -33,6 +33,7 @@ export default Service.extend({
       auth.accounts = session.getData().accounts;
       auth.roles = session.getData().roles;
       auth.get('messageBus').publish('auth-accounts', auth.accounts);
+      console.info("User Authenticated OK", auth);
     }, xhr => {
       console.log("auth failure", xhr);
     });
