@@ -15,6 +15,8 @@ import io.xj.core.app.server.HttpServerProvider;
 import io.xj.core.app.server.HttpServerProviderImpl;
 import io.xj.core.app.server.ResourceConfigProvider;
 import io.xj.core.app.server.ResourceConfigProviderImpl;
+import io.xj.core.app.stats.StatsProvider;
+import io.xj.core.app.stats.StatsProviderImpl;
 import io.xj.core.cache.audio.AudioCacheProvider;
 import io.xj.core.cache.audio.AudioCacheProviderImpl;
 import io.xj.core.dao.AccountDAO;
@@ -125,6 +127,7 @@ public class CoreModule extends AbstractModule {
     bind(RedisDatabaseProvider.class).to(RedisDatabaseProviderImpl.class);
     bind(ResourceConfigProvider.class).to(ResourceConfigProviderImpl.class);
     bind(SQLDatabaseProvider.class).to(SQLDatabaseProviderImpl.class);
+    bind(StatsProvider.class).to(StatsProviderImpl.class);
     bind(TokenGenerator.class).to(TokenGeneratorImpl.class);
     bind(WorkManager.class).to(WorkManagerImpl.class);
   }

@@ -12,13 +12,13 @@ import com.google.inject.Singleton;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.github.benmanes.caffeine.cache.RemovalCause;
+import com.github.benmanes.caffeine.cache.stats.CacheStats;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.concurrent.TimeUnit;
 
 @Singleton
 public class AudioCacheProviderImpl implements AudioCacheProvider {
@@ -57,6 +57,14 @@ public class AudioCacheProviderImpl implements AudioCacheProvider {
     }
 
     items = loadItems;
+  }
+
+  public Long estimatedSize() {
+    return items.estimatedSize();
+  }
+
+  public CacheStats stats() {
+    return items.stats();
   }
 
   public Item get(String key) {

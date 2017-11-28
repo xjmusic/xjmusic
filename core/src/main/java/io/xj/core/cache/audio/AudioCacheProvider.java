@@ -1,6 +1,8 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 package io.xj.core.cache.audio;
 
+import com.github.benmanes.caffeine.cache.stats.CacheStats;
+
 public interface AudioCacheProvider {
 
   /**
@@ -17,5 +19,20 @@ public interface AudioCacheProvider {
    @param key to refresh
    */
   void refresh(String key);
+
+  /**
+   Get the estimated size currently in cache
+
+   @return size estimate
+   */
+  Long estimatedSize();
+
+  /**
+   Get stats for the cache
+
+   @return cache stats object
+   */
+  CacheStats stats();
+
 
 }

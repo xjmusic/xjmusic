@@ -5,14 +5,9 @@ import io.xj.core.app.exception.ConfigException;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
 import io.xj.core.model.chain_config.ChainConfigType;
-import io.xj.core.model.choice.Choice;
-import io.xj.core.model.idea.Idea;
 import io.xj.core.model.idea.IdeaType;
-import io.xj.core.model.instrument.Instrument;
 import io.xj.core.model.instrument.InstrumentType;
-import io.xj.core.model.link.Link;
 import io.xj.core.model.link.LinkState;
-import io.xj.core.model.voice.Voice;
 
 import org.json.JSONObject;
 
@@ -47,7 +42,6 @@ public interface Exposure {
   String KEY_UPLOAD_ACL = "acl";
 
   // configuration endpoint
-  String KEY_CONFIG = "config";
   String KEY_API_BASE_URL = "apiBaseUrl";
   String KEY_AUDIO_BASE_URL = "audioBaseUrl";
   String KEY_BASE_URL = "baseUrl";
@@ -55,10 +49,12 @@ public interface Exposure {
   String KEY_CHAIN_STATES = "chainStates";
   String KEY_CHAIN_TYPES = "chainTypes";
   String KEY_CHOICE_TYPES = "choiceTypes";
+  String KEY_CONFIG = "config";
   String KEY_IDEA_TYPES = "ideaTypes";
   String KEY_INSTRUMENT_TYPES = "instrumentTypes";
-  String KEY_LINK_STATES = "linkStates";
   String KEY_LINK_BASE_URL = "linkBaseUrl";
+  String KEY_LINK_STATES = "linkStates";
+  String KEY_STATUS = "status";
   String KEY_VOICE_TYPES = "voiceTypes";
 
   /**
