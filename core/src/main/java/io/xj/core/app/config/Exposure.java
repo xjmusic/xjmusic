@@ -54,7 +54,7 @@ public interface Exposure {
   String KEY_INSTRUMENT_TYPES = "instrumentTypes";
   String KEY_LINK_BASE_URL = "linkBaseUrl";
   String KEY_LINK_STATES = "linkStates";
-  String KEY_STATUS = "status";
+  String KEY_STATS = "stats";
   String KEY_VOICE_TYPES = "voiceTypes";
 
   /**

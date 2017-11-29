@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+
+TOMCAT_ROOT="/var/lib/tomcat8/"
+
+# touch sudo
+sudo -v
+
+# install Java 8
+sudo add-apt-repository ppa:webupd8team/java
+sudo apt update; sudo apt install oracle-java8-installer
+
+# Java 8 post-install
+sudo apt install oracle-java8-set-default
+sudo apt autoremove
+
+# install Maven build system
+sudo apt install maven
+
+# install Tomcat 8 server and manager
+sudo apt install tomcat8 tomcat8-admin
+
+# create Tomcat user for manager GUI
+sudo nano "${TOMCAT_ROOT}conf/tomcat-users.xml"
+
+# clone jesque-web
+git clone https://github.com/gresrun/jesque-web
+cd jesque-web/
+
+# edit jesque-web configuration
+CONFIG_FILE="src/main/resources/META-INF/spring/redis.properties"
+echo "redis.host=localhost
+redis.port=6379
+redis.timeout=5000
+redis.password=
+redis.namespace=xj
+redis.database=0
+" > "${CONFIG_FILE}"
+nano "${CONFIG_FILE}"
+
+# build jesque-web
+mvn clean package
+
+# copy production .war to Tomcat web apps, then re-start tomcat
+sudo rm -r "${TOMCAT_ROOT}webapps/ROOT"
+sudo cp target/*.war "${TOMCAT_ROOT}webapps/ROOT.war"
+sudo service tomcat8 restart

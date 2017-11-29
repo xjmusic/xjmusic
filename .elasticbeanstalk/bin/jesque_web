@@ -3,7 +3,7 @@
 TITLE="Elastic Beanstalk Container Setup"
 USAGE="
    Usage:
-     bin/container_setup
+     bin/jesque_web
 
    Expects an environment variable APPS
    which is a space-separated list of apps to run.

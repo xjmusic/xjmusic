@@ -41,6 +41,15 @@ public class RedisDatabaseProviderImpl implements RedisDatabaseProvider {
   }
 
   /**
+   Redis namespace, from config
+
+   @return namespace
+   */
+  private static String namespace() {
+    return Config.dbRedisQueueNamespace();
+  }
+
+  /**
    Redis server port, from config
 
    @return port
@@ -57,6 +66,7 @@ public class RedisDatabaseProviderImpl implements RedisDatabaseProvider {
     return new ConfigBuilder()
       .withHost(host())
       .withPort(port())
+      .withNamespace(namespace())
       .build();
   }
 

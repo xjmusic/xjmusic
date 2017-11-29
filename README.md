@@ -226,6 +226,8 @@ The docker container `redis01xj1` exposes a Redis server on local port 6300.  Th
 
     bin/redis_cli
 
+For more information on Redis and production, see [the README in the .redis/ folder](.redis/README.md).
+
 ## Integration testing
 
 We use `maven-failsafe` to kick off integration tests. There's a helper script:

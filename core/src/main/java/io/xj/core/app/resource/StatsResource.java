@@ -4,14 +4,12 @@ package io.xj.core.app.resource;
 import io.xj.core.CoreModule;
 import io.xj.core.app.config.Exposure;
 import io.xj.core.app.stats.StatsProvider;
-import io.xj.core.model.role.Role;
 import io.xj.core.transport.JSON;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
 import javax.annotation.security.PermitAll;
-import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Context;
@@ -38,7 +36,7 @@ public class StatsResource {
   @PermitAll
   public Response status() {
     return Response
-      .accepted(JSON.wrap(Exposure.KEY_STATUS, statsProvider.getJSON()).toString())
+      .accepted(JSON.wrap(Exposure.KEY_STATS, statsProvider.getJSON()).toString())
       .type(MediaType.APPLICATION_JSON)
       .build();
   }

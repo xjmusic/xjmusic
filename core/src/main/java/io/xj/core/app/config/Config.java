@@ -182,6 +182,10 @@ public interface Config {
     return getIntOrDefault("db.redis.port", 6300);
   }
 
+  static String dbRedisQueueNamespace() {
+    return getOrDefault("db.redis.queue.namespace", "xj");
+  }
+
   static String accessTokenDomain() {
     return getOrDefault("access.token.domain", "");
   }
@@ -236,31 +240,31 @@ public interface Config {
   }
 
   static Integer workChainRecurSeconds() {
-    return getIntOrDefault("work.chain.recur.seconds",2);
+    return getIntOrDefault("work.chain.recur.seconds", 2);
   }
 
   static Integer workChainDeleteRecurSeconds() {
-    return getIntOrDefault("work.chain.delete.recur.seconds",10);
+    return getIntOrDefault("work.chain.delete.recur.seconds", 10);
   }
 
   static Integer workChainDelaySeconds() {
-    return getIntOrDefault("work.chain.delay.seconds",1);
+    return getIntOrDefault("work.chain.delay.seconds", 1);
   }
 
   static int workLinkCraftRetryLimit() {
-    return getIntOrDefault("work.link.craft.retry.limit",6);
+    return getIntOrDefault("work.link.craft.retry.limit", 6);
   }
 
   static int workLinkCraftRetrySleepSeconds() {
-    return getIntOrDefault("work.link.craft.retry.sleep.seconds",1);
+    return getIntOrDefault("work.link.craft.retry.sleep.seconds", 1);
   }
 
   static int workLinkDubRetryLimit() {
-    return getIntOrDefault("work.link.dub.retry.limit",6);
+    return getIntOrDefault("work.link.dub.retry.limit", 6);
   }
 
   static int workLinkDubRetrySleepSeconds() {
-    return getIntOrDefault("work.link.dub.retry.sleep.seconds",1);
+    return getIntOrDefault("work.link.dub.retry.sleep.seconds", 1);
   }
 
   static String workTempFilePathPrefix() {
@@ -374,4 +378,5 @@ public interface Config {
   static String lineSeparator() {
     return System.getProperty("line.separator");
   }
+
 }
