@@ -7,7 +7,7 @@ import Route from '@ember/routing/route';
 
 let DRAFT = "draft";
 let READY = "ready";
-let FABRICATING = "fabricating";
+let FABRICATE = "fabricate";
 let PREVIEW = "preview";
 
 export default Route.extend({
@@ -112,7 +112,7 @@ export default Route.extend({
     chain.save().then(
       () => {
         get(self, 'display').success('Advanced chain state to ' + READY + '.');
-        self.updateToFabricating(chain);
+        self.updateToFabricate(chain);
       },
       (error) => {
         get(self, 'display').error(error);
@@ -120,15 +120,15 @@ export default Route.extend({
   },
 
   /**
-   * Update Chain to Fabricating-state (quick-preview, step 5)
+   * Update Chain to Fabricate-state (quick-preview, step 5)
    * @param chain
    */
-  updateToFabricating: function (chain) {
+  updateToFabricate: function (chain) {
     let self = this;
-    chain.set('state', FABRICATING);
+    chain.set('state', FABRICATE);
     chain.save().then(
       () => {
-        get(self, 'display').success('Advanced chain state to ' + FABRICATING + '.');
+        get(self, 'display').success('Advanced chain state to ' + FABRICATE + '.');
         self.transitionTo('accounts.one.chains.one.links', chain);
       },
       (error) => {

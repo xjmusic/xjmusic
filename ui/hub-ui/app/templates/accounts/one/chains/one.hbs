@@ -56,7 +56,7 @@
     </div>
 
     <!-- Play Chain -->
-    {{#if (or (eq model.state "Fabricating") (eq model.state "Complete"))}}
+    {{#if (or (eq model.state "Fabricate") (eq model.state "Complete"))}}
       <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
         <div class="{{if (eq player.currentChain.id model.id)
                          'now-playing'}} play-chain container-fluid">

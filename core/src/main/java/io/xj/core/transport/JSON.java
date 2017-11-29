@@ -2,7 +2,7 @@
 package io.xj.core.transport;
 
 import io.xj.core.app.config.Exposure;
-import io.xj.core.tables.records.ChainRecord;
+import io.xj.core.model.JSONObjectEntity;
 import io.xj.core.util.CamelCasify;
 
 import org.jooq.Record;
@@ -16,6 +16,8 @@ import javax.annotation.Nullable;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 public abstract class JSON {
@@ -101,12 +103,14 @@ public abstract class JSON {
   /**
    JSONArray from a single jOOQ Result
 
-   @param record to put into array
+   @param items to put into array
    @return array of a single result
    */
-  public static JSONArray arrayOf(ChainRecord record) {
+  public static <J extends JSONObjectEntity> JSONArray arrayOf(Iterable<J> items) throws Exception {
     JSONArray out = new JSONArray();
-    out.put(objectFromRecord(record));
+    for (J item : items) {
+      out.put(item.toJSONObject());
+    }
     return out;
   }
 

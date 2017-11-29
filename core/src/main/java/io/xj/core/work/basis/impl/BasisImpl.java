@@ -332,7 +332,7 @@ public class BasisImpl implements Basis {
     Chord foundChord = Chord.of(link().getKey());
     Double foundPosition = null;
 
-    // we assume that these chords are in order of position ascending (see: LinkChordDAO.readAll)
+    // we assume that these chords are in order of position ascending (see: LinkChordDAO.readAllExpectedWork)
     for (LinkChord linkChord : linkChords()) {
       // if it's a better match (or no match has yet been found) then use it
       if (Objects.isNull(foundPosition) ||

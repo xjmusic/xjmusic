@@ -68,7 +68,7 @@ public class ChainIT {
     // Account "fish" has chain "school" and chain "bucket"
     IntegrationTestEntity.insertAccount(1, "fish");
     IntegrationTestEntity.insertChain(1, 1, "school", ChainType.Production, ChainState.Ready, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"), null);
-    IntegrationTestEntity.insertChain(2, 1, "bucket", ChainType.Production, ChainState.Fabricating, Timestamp.valueOf("2015-05-10 12:17:02.527142"), Timestamp.valueOf("2015-06-09 12:17:01.047563"), null);
+    IntegrationTestEntity.insertChain(2, 1, "bucket", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2015-05-10 12:17:02.527142"), Timestamp.valueOf("2015-06-09 12:17:01.047563"), null);
 
     // Account "boat" has no chains
     IntegrationTestEntity.insertAccount(2, "boat");
@@ -147,7 +147,7 @@ public class ChainIT {
 
   @Test
   public void create_withEmbedKey_failsIfEmbedKeyAlreadyExists() throws Exception {
-    IntegrationTestEntity.insertChain(3, 1, "bucket", ChainType.Production, ChainState.Fabricating, Timestamp.valueOf("2015-05-10 12:17:02.527142"), Timestamp.valueOf("2015-06-09 12:17:01.047563"), "my_favorite_things");
+    IntegrationTestEntity.insertChain(3, 1, "bucket", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2015-05-10 12:17:02.527142"), Timestamp.valueOf("2015-06-09 12:17:01.047563"), "my_favorite_things");
     failure.expect(BusinessException.class);
     failure.expectMessage("Found Existing Chain with this embed_key");
 
@@ -201,7 +201,7 @@ public class ChainIT {
       .setAccountId(BigInteger.valueOf(1L))
       .setName("manuts")
       .setType("Production")
-      .setState("Fabricating")
+      .setState("Fabricate")
       .setStartAt("2009-08-12 12:17:02.527142")
       .setStopAt("2009-09-11 12:17:01.047563");
 
@@ -325,7 +325,7 @@ public class ChainIT {
     assertEquals(ULong.valueOf(2L), result.getId());
     assertEquals(ULong.valueOf(1L), result.getAccountId());
     assertEquals("bucket", result.getName());
-    assertEquals(ChainState.Fabricating, result.getState());
+    assertEquals(ChainState.Fabricate, result.getState());
     assertEquals(ChainType.Production, result.getType());
     assertEquals(Timestamp.valueOf("2015-05-10 12:17:02.527142"), result.getStartAt());
     assertEquals(Timestamp.valueOf("2015-06-09 12:17:01.047563"), result.getStopAt());
@@ -380,7 +380,7 @@ public class ChainIT {
 
   @Test
   public void readAllInState() throws Exception {
-    JSONArray result = JSON.arrayOf(testDAO.readAllInState(Access.internal(), ChainState.Fabricating, 1));
+    JSONArray result = JSON.arrayOf(testDAO.readAllInState(Access.internal(), ChainState.Fabricate));
 
     assertNotNull(result);
     assertEquals(1, result.length());
@@ -389,13 +389,13 @@ public class ChainIT {
   }
 
   @Test
-  public void readAllRecordsInStateFabricating() throws Exception {
+  public void readAllRecordsInStateFabricate() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "internal"
     ));
-    IntegrationTestEntity.insertChain(4, 2, "smash", ChainType.Production, ChainState.Fabricating, Timestamp.valueOf("2015-05-10 12:17:02.527142"), null, null);
+    IntegrationTestEntity.insertChain(4, 2, "smash", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2015-05-10 12:17:02.527142"), null, null);
 
-    Result<ChainRecord> actualResults = testDAO.readAllInStateFabricating(access, Timestamp.valueOf("2015-05-20 12:00:00"));
+    Result<ChainRecord> actualResults = testDAO.readAllInStateFabricate(access, Timestamp.valueOf("2015-05-20 12:00:00"));
 
     assertNotNull(actualResults);
     assertEquals(2, actualResults.size());
@@ -410,26 +410,26 @@ public class ChainIT {
   }
 
   @Test
-  public void readAllIdBoundsInStateFabricating_ReturnsChainBeforeBoundary() throws Exception {
+  public void readAllIdBoundsInStateFabricate_ReturnsChainBeforeBoundary() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "internal"
     ));
-    IntegrationTestEntity.insertChain(4, 2, "smash", ChainType.Production, ChainState.Fabricating, Timestamp.valueOf("2015-05-10 12:17:02.527142"), Timestamp.valueOf("2015-06-09 12:17:01.047563"), null);
+    IntegrationTestEntity.insertChain(4, 2, "smash", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2015-05-10 12:17:02.527142"), Timestamp.valueOf("2015-06-09 12:17:01.047563"), null);
 
-    Result<ChainRecord> actualResults = testDAO.readAllInStateFabricating(access, Timestamp.valueOf("2016-05-20 12:00:00"));
+    Result<ChainRecord> actualResults = testDAO.readAllInStateFabricate(access, Timestamp.valueOf("2016-05-20 12:00:00"));
 
     assertNotNull(actualResults);
     assertEquals(2, actualResults.size());
   }
 
   @Test
-  public void readAllIdBoundsInStateFabricating_DoesNotReturnChainAfterBoundary() throws Exception {
+  public void readAllIdBoundsInStateFabricate_DoesNotReturnChainAfterBoundary() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "internal"
     ));
-    IntegrationTestEntity.insertChain(4, 2, "smash", ChainType.Production, ChainState.Fabricating, Timestamp.valueOf("2015-06-10 12:17:02.527142"), Timestamp.valueOf("2015-06-12 12:17:01.047563"), null);
+    IntegrationTestEntity.insertChain(4, 2, "smash", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2015-06-10 12:17:02.527142"), Timestamp.valueOf("2015-06-12 12:17:01.047563"), null);
 
-    Result<ChainRecord> actualResults = testDAO.readAllInStateFabricating(access, Timestamp.valueOf("2015-05-20 12:00:00"));
+    Result<ChainRecord> actualResults = testDAO.readAllInStateFabricate(access, Timestamp.valueOf("2015-05-20 12:00:00"));
 
     assertNotNull(actualResults);
 
@@ -513,7 +513,7 @@ public class ChainIT {
 
   @Test
   public void update_removeEmbedKey() throws Exception {
-    IntegrationTestEntity.insertChain(3, 1, "bucket", ChainType.Production, ChainState.Fabricating, Timestamp.valueOf("2015-05-10 12:17:02.527142"), Timestamp.valueOf("2015-06-09 12:17:01.047563"), "twenty_four_hours");
+    IntegrationTestEntity.insertChain(3, 1, "bucket", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2015-05-10 12:17:02.527142"), Timestamp.valueOf("2015-06-09 12:17:01.047563"), "twenty_four_hours");
     Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
@@ -544,7 +544,7 @@ public class ChainIT {
 
   @Test
   public void update_addEmbedKey_failsIfEmbedKeyAlreadyExists() throws Exception {
-    IntegrationTestEntity.insertChain(3, 1, "bucket", ChainType.Production, ChainState.Fabricating, Timestamp.valueOf("2015-05-10 12:17:02.527142"), Timestamp.valueOf("2015-06-09 12:17:01.047563"), "twenty_four_hours");
+    IntegrationTestEntity.insertChain(3, 1, "bucket", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2015-05-10 12:17:02.527142"), Timestamp.valueOf("2015-06-09 12:17:01.047563"), "twenty_four_hours");
     failure.expect(BusinessException.class);
     failure.expectMessage("Found Existing Chain with this embed_key");
 
@@ -600,7 +600,7 @@ public class ChainIT {
       .setAccountId(BigInteger.valueOf(1L))
       .setName("bucket")
       .setType("Production")
-      .setState("Fabricating")
+      .setState("Fabricate")
       .setStartAt("2015-05-10 12:17:03.527142")
       .setStopAt("2015-06-09 12:17:01.047563");
     IntegrationTestEntity.insertLink(6, 2, 5, LinkState.Crafted, Timestamp.valueOf("2015-05-10 12:18:02.527142"), Timestamp.valueOf("2015-05-10 12:18:32.527142"), "A major", 64, 0.52, 120, "chain-1-link-97898asdf7892.wav");
@@ -619,7 +619,7 @@ public class ChainIT {
     Chain inputData = new Chain()
       .setAccountId(BigInteger.valueOf(1L))
       .setName("manuts")
-      .setState("Fabricating")
+      .setState("Fabricate")
       .setType("Production")
       .setStartAt("2015-05-10 12:17:02.527142")
       .setStopAt("2015-06-09 12:17:01.047563");
@@ -634,7 +634,7 @@ public class ChainIT {
     assertNotNull(result);
     assertEquals("manuts", result.getName());
     assertEquals(ULong.valueOf(1L), result.getAccountId());
-    assertEquals("Fabricating", result.getState());
+    assertEquals("Fabricate", result.getState());
     assertEquals("Production", result.get("type"));
     assertEquals(Timestamp.valueOf("2015-05-10 12:17:02.527142"), result.getStartAt());
     assertEquals(Timestamp.valueOf("2015-06-09 12:17:01.047563"), result.getStopAt());
@@ -787,7 +787,7 @@ public class ChainIT {
 
   @Test
   public void updateState_WithAccountAccess_FailsWithoutArtistOrEngineerRole_ForPreviewChain() throws Exception {
-    IntegrationTestEntity.insertChain(3, 1, "bucket", ChainType.Preview, ChainState.Fabricating, Timestamp.valueOf("2015-05-10 12:17:02.527142"), Timestamp.valueOf("2015-06-09 12:17:01.047563"), null);
+    IntegrationTestEntity.insertChain(3, 1, "bucket", ChainType.Preview, ChainState.Fabricate, Timestamp.valueOf("2015-05-10 12:17:02.527142"), Timestamp.valueOf("2015-06-09 12:17:01.047563"), null);
     Access access = new Access(ImmutableMap.of(
       "roles", "user",
       "accounts", "1"
@@ -915,7 +915,7 @@ public class ChainIT {
     Access access = new Access(ImmutableMap.of(
       "roles", "internal"
     ));
-    IntegrationTestEntity.insertChain(12, 1, "Test Print #2", ChainType.Production, ChainState.Fabricating, Timestamp.valueOf("2014-02-14 12:03:40.000001"), Timestamp.valueOf("2014-02-14 14:03:40.000001"), null);
+    IntegrationTestEntity.insertChain(12, 1, "Test Print #2", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-02-14 12:03:40.000001"), Timestamp.valueOf("2014-02-14 14:03:40.000001"), null);
     IntegrationTestEntity.insertLink(6, 12, 5, LinkState.Crafting, Timestamp.valueOf("2014-02-14 12:03:40.000001"), Timestamp.valueOf("2014-02-14 12:04:10.000001"), "E minor", 64, 0.41, 120, "chain-1-link-97898asdf7892.wav");
 
     ChainRecord fromChain = new ChainRecord();
@@ -935,7 +935,7 @@ public class ChainIT {
     Access access = new Access(ImmutableMap.of(
       "roles", "internal"
     ));
-    IntegrationTestEntity.insertChain(12, 1, "Test Print #2", ChainType.Production, ChainState.Fabricating, Timestamp.valueOf("2014-02-14 12:03:40.000001"), Timestamp.valueOf("2014-02-14 14:03:40.000001"), null);
+    IntegrationTestEntity.insertChain(12, 1, "Test Print #2", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-02-14 12:03:40.000001"), Timestamp.valueOf("2014-02-14 14:03:40.000001"), null);
     IntegrationTestEntity.insertLink(6, 12, 5, LinkState.Crafting, Timestamp.valueOf("2014-02-14 14:03:15.000001"), Timestamp.valueOf("2014-02-14 14:03:45.000001"), "E minor", 64, 0.41, 120, "chain-1-link-97898asdf7892.wav");
 
     ChainRecord fromChain = new ChainRecord();
@@ -949,7 +949,7 @@ public class ChainIT {
       .selectFrom(CHAIN)
       .where(CHAIN.ID.eq(ULong.valueOf(12L)))
       .fetchOne();
-    assertEquals("Fabricating", finalChainRecord.getState());
+    assertEquals("Fabricate", finalChainRecord.getState());
   }
 
   @Test
@@ -957,7 +957,7 @@ public class ChainIT {
     Access access = new Access(ImmutableMap.of(
       "roles", "internal"
     ));
-    IntegrationTestEntity.insertChain(12, 1, "Test Print #2", ChainType.Production, ChainState.Fabricating, Timestamp.valueOf("2014-02-14 12:03:40.000001"), Timestamp.valueOf("2014-02-14 14:03:40.000001"), null);
+    IntegrationTestEntity.insertChain(12, 1, "Test Print #2", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-02-14 12:03:40.000001"), Timestamp.valueOf("2014-02-14 14:03:40.000001"), null);
     IntegrationTestEntity.insertLink(6, 12, 5, LinkState.Dubbing, Timestamp.valueOf("2014-02-14 14:03:15.000001"), Timestamp.valueOf("2014-02-14 14:03:45.000001"), "E minor", 64, 0.41, 120, "chain-1-link-97898asdf7892.wav");
 
     ChainRecord fromChain = new ChainRecord();
@@ -971,7 +971,7 @@ public class ChainIT {
       .selectFrom(CHAIN)
       .where(CHAIN.ID.eq(ULong.valueOf(12L)))
       .fetchOne();
-    assertEquals("Fabricating", finalChainRecord.getState());
+    assertEquals("Fabricate", finalChainRecord.getState());
   }
 
   @Test
@@ -979,7 +979,7 @@ public class ChainIT {
     Access access = new Access(ImmutableMap.of(
       "roles", "internal"
     ));
-    IntegrationTestEntity.insertChain(12, 1, "Test Print #2", ChainType.Production, ChainState.Fabricating, Timestamp.valueOf("2014-02-14 12:03:40.000001"), Timestamp.valueOf("2014-02-14 14:03:40.000001"), null);
+    IntegrationTestEntity.insertChain(12, 1, "Test Print #2", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-02-14 12:03:40.000001"), Timestamp.valueOf("2014-02-14 14:03:40.000001"), null);
     IntegrationTestEntity.insertLink(6, 12, 5, LinkState.Dubbed, Timestamp.valueOf("2014-02-14 14:03:15.000001"), Timestamp.valueOf("2014-02-14 14:03:45.000001"), "E minor", 64, 0.41, 120, "chain-1-link-97898asdf7892.wav");
 
     ChainRecord fromChain = new ChainRecord();
@@ -1001,7 +1001,7 @@ public class ChainIT {
     Access access = new Access(ImmutableMap.of(
       "roles", "internal"
     ));
-    IntegrationTestEntity.insertChain(12, 1, "Test Print #2", ChainType.Production, ChainState.Fabricating, Timestamp.valueOf("2014-02-14 12:03:40.000001"), Timestamp.valueOf("2014-02-14 14:03:40.000001"), null);
+    IntegrationTestEntity.insertChain(12, 1, "Test Print #2", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-02-14 12:03:40.000001"), Timestamp.valueOf("2014-02-14 14:03:40.000001"), null);
     IntegrationTestEntity.insertLink(6, 12, 5, LinkState.Dubbed, Timestamp.valueOf("2014-02-14 14:03:15.000001"), Timestamp.valueOf("2014-02-14 14:03:45.000001"), "E minor", 64, 0.41, 120, "chain-1-link-97898asdf7892.wav");
 
     ChainRecord fromChain = new ChainRecord();
@@ -1014,7 +1014,7 @@ public class ChainIT {
       .selectFrom(CHAIN)
       .where(CHAIN.ID.eq(ULong.valueOf(12L)))
       .fetchOne();
-    assertEquals("Fabricating", finalChainRecord.getState());
+    assertEquals("Fabricate", finalChainRecord.getState());
   }
 
   @Test
@@ -1038,7 +1038,7 @@ public class ChainIT {
     Access access = new Access(ImmutableMap.of(
       "roles", "internal"
     ));
-    IntegrationTestEntity.insertChain(12, 1, "Test Print #2", ChainType.Production, ChainState.Fabricating, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"), null);
+    IntegrationTestEntity.insertChain(12, 1, "Test Print #2", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"), null);
     IntegrationTestEntity.insertLink(6, 12, 5, LinkState.Crafted, Timestamp.valueOf("2014-08-12 14:03:08.000001"), Timestamp.valueOf("2014-08-12 14:03:38.000001"), "A major", 64, 0.52, 120, "chain-1-link-97898asdf7892.wav");
 
     ChainRecord fromChain = new ChainRecord();
@@ -1174,14 +1174,14 @@ public class ChainIT {
   }
 
   @Test
-  public void erase_failsInFabricatingState() throws Exception {
-    IntegrationTestEntity.insertChain(3, 1, "bucket", ChainType.Production, ChainState.Fabricating, Timestamp.valueOf("2015-05-10 12:17:02.527142"), Timestamp.valueOf("2015-06-09 12:17:01.047563"), null);
+  public void erase_failsInFabricateState() throws Exception {
+    IntegrationTestEntity.insertChain(3, 1, "bucket", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2015-05-10 12:17:02.527142"), Timestamp.valueOf("2015-06-09 12:17:01.047563"), null);
     Access access = new Access(ImmutableMap.of(
       "roles", "admin"
     ));
 
     failure.expect(CancelException.class);
-    failure.expectMessage("transition to Erase not in allowed (Fabricating,Failed,Complete)");
+    failure.expectMessage("transition to Erase not in allowed (Fabricate,Failed,Complete)");
 
     testDAO.erase(access, ULong.valueOf(3L));
   }
@@ -1194,7 +1194,7 @@ public class ChainIT {
     ));
 
     failure.expect(CancelException.class);
-    failure.expectMessage("transition to Erase not in allowed (Draft,Ready,Fabricating)");
+    failure.expectMessage("transition to Erase not in allowed (Draft,Ready,Fabricate)");
 
     testDAO.erase(access, ULong.valueOf(3L));
   }

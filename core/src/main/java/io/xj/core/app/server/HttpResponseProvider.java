@@ -1,12 +1,14 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 package io.xj.core.app.server;
 
+import io.xj.core.model.JSONObjectEntity;
+
 import org.jooq.Record;
 import org.jooq.Result;
 
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
-import java.util.Map;
+import java.util.Collection;
 
 public interface HttpResponseProvider {
   /**
@@ -102,11 +104,20 @@ public interface HttpResponseProvider {
   /**
    Return a response that many records have been read, else an error
 
-   @param keyMany key for one record
+   @param keyMany key for many records
    @param results of records that were read, or null if a 404 ought to be returned instead
    @return response
    */
   <R extends Record> Response readMany(String keyMany, Result<R> results);
+
+  /**
+   Return a response that many records have been read, else an error
+
+   @param keyMany key for many records
+   @param results of records that were read, or null if a 404 ought to be returned instead
+   @return response
+   */
+  <J extends JSONObjectEntity> Response readMany(String keyMany, Collection<J> results) throws Exception;
 
   /**
    Return a response that the request has been created, else an error

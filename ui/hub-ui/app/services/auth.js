@@ -1,5 +1,6 @@
 // Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
-import Service, { inject as service } from '@ember/service';
+import Service, {inject as service} from '@ember/service';
+import RSVP from "rsvp";
 
 /**
  * XJ Auth Service
@@ -11,6 +12,9 @@ export default Service.extend({
   messageBus: service(),
   accessToken: "",
 
+  // for any other action with a user auth prerequisite
+  promise: {},
+
   /**
    * Set directly from GET /api/1/auth
    */
@@ -19,24 +23,36 @@ export default Service.extend({
   roles: null,
 
   /**
-   * On app start, authorize the current browser session with the domain server API via access token cookie.
+   On app start, authorize the current browser session with the domain server API via access token cookie.
+   Even if the user is believed to be authenticated,
+   re-authenticate to ensure they still are.
+
+   Other routes with a user auth prerequisite can implement:
+     this.get('auth').promise.then(...);
+
    */
   init() {
     this._super(...arguments);
     let session = this.get('session');
     let auth = this;
-    /* even if the user is believed to be authenticated,
-     re-authenticate to ensure they still are. */
-    session.authenticate('authenticator:xj').then(function () {
-      auth.parseRolesCSV(session.getData().roles);
-      auth.userId = session.getData().userId;
-      auth.accounts = session.getData().accounts;
-      auth.roles = session.getData().roles;
-      auth.get('messageBus').publish('auth-accounts', auth.accounts);
-      console.info("User Authenticated OK", auth);
-    }, xhr => {
-      console.log("auth failure", xhr);
-    });
+    auth.set('promise', new RSVP.Promise(
+      function (resolve, reject) {
+
+        session.authenticate('authenticator:xj').then(function () {
+          auth.parseRolesCSV(session.getData().roles);
+          auth.userId = session.getData().userId;
+          auth.accounts = session.getData().accounts;
+          auth.roles = session.getData().roles;
+          auth.get('messageBus').publish('auth-accounts', auth.accounts);
+          console.info("User Authenticated OK", auth);
+          resolve(auth);
+
+        }, xhr => {
+          console.log("auth failure", xhr);
+          reject(xhr);
+        });
+
+      }));
   },
 
   /**

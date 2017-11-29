@@ -80,7 +80,7 @@ public abstract class Entity {
 
    @throws BusinessException if invalid.
    */
-  abstract public void validate() throws BusinessException;
+  public abstract void validate() throws BusinessException;
 
 
   /**
@@ -90,7 +90,7 @@ public abstract class Entity {
    @return Entity
    */
   @Nullable
-  abstract public Entity setFromRecord(Record record) throws BusinessException;
+  public abstract Entity setFromRecord(Record record) throws BusinessException;
 
   /**
    Model info jOOQ-field : Value map

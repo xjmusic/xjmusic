@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.xj.core.work;
+package io.xj.core.work.impl;
 
 import net.greghaines.jesque.utils.ConcurrentHashSet;
 import net.greghaines.jesque.utils.ConcurrentSet;

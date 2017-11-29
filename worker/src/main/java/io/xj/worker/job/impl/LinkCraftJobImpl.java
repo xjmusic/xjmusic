@@ -11,7 +11,7 @@ import io.xj.core.app.exception.ConfigException;
 import io.xj.core.dao.LinkDAO;
 import io.xj.core.model.link.Link;
 import io.xj.core.model.link.LinkState;
-import io.xj.core.work.LinkJob;
+import io.xj.core.work.impl.LinkJob;
 import io.xj.core.work.basis.Basis;
 import io.xj.core.work.basis.BasisFactory;
 import io.xj.worker.job.LinkCraftJob;

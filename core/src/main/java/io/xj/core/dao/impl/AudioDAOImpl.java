@@ -98,10 +98,10 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
   }
 
   @Override
-  public Result<AudioRecord> readAllInState(Access access, AudioState state, int batchSize) throws Exception {
+  public Result<AudioRecord> readAllInState(Access access, AudioState state) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readAllInState(tx.getContext(), access, state, batchSize));
+      return tx.success(readAllInState(tx.getContext(), access, state));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -252,16 +252,14 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
    * @param db     context
    * @param access control
    * @param state  to read audios in
-   * @param limit  kmax records
    * @return Result of audio records.
    * @throws Exception on failure
    */
-  private Result<AudioRecord> readAllInState(DSLContext db, Access access, AudioState state, Integer limit) throws Exception {
+  private Result<AudioRecord> readAllInState(DSLContext db, Access access, AudioState state) throws Exception {
     requireTopLevel(access);
     return resultInto(AUDIO, db.select(AUDIO.fields())
       .from(AUDIO)
       .where(AUDIO.STATE.eq(state.toString()))
-      .limit(limit)
       .fetch());
   }
 

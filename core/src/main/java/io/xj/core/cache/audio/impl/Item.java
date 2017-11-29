@@ -1,5 +1,5 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
-package io.xj.core.cache.audio;
+package io.xj.core.cache.audio.impl;
 
 import io.xj.core.app.config.Config;
 import io.xj.core.app.exception.ConfigException;

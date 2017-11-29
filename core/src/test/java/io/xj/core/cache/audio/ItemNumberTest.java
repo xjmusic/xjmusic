@@ -1,5 +1,7 @@
 package io.xj.core.cache.audio;// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 
+import io.xj.core.cache.audio.impl.ItemNumber;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

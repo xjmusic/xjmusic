@@ -182,7 +182,7 @@ public class ChainEraseIT {
     // Don't sleep between processing work
     System.setProperty("app.port", "9043");
 
-    // Recur frequently, as a hack before implementing [#395] Work client executes a `ChainDeleteJob` and enqueues `LinkDeleteJob` for each Link in the Chain
+    // Recur frequently, as a hack before implementing [#395] ExpectationOfWork client executes a `ChainDeleteJob` and enqueues `LinkDeleteJob` for each Link in the Chain
     System.setProperty("work.chain.delete.recur.seconds", "1");
 
     // Server App

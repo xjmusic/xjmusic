@@ -32,7 +32,7 @@ div.play-chain,
     }
   }
 
-  &.fabricating-state,
+  &.fabricate-state,
   &.dubbing-state {
     background: darken(#002061, 15%);
     border-color: darken(#91afeb, 15%);
@@ -43,7 +43,8 @@ div.play-chain,
   }
 
   &.complete-state,
-  &.dubbed-state {
+  &.dubbed-state,
+  &.queued-state {
     background: darken(#4b634b, 15%);
     border-color: darken(#b9c7b9, 15%);
     color: darken(#b9c7b9, 10%);
@@ -61,7 +62,8 @@ div.play-chain,
     }
   }
 
-  &.failed-state {
+  &.failed-state,
+  &.expected-state {
     background: darken(darkred, 15%);
     border-color: darken(red, 15%);
     color: lighten(red, 10%);

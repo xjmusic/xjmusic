@@ -9,7 +9,7 @@ public class ChainStateTest {
   public void TypeToString() throws Exception {
     assertEquals("Draft", ChainState.Draft.toString());
     assertEquals("Ready", ChainState.Ready.toString());
-    assertEquals("Fabricating", ChainState.Fabricating.toString());
+    assertEquals("Fabricate", ChainState.Fabricate.toString());
     assertEquals("Complete", ChainState.Complete.toString());
     assertEquals("Failed", ChainState.Failed.toString());
     assertEquals("Erase", ChainState.Erase.toString());
@@ -22,7 +22,7 @@ public class ChainStateTest {
     assertEquals(ChainState.Draft, ChainState.validate("Draft5"));
     assertEquals(ChainState.Draft, ChainState.validate(null));
     assertEquals(ChainState.Ready, ChainState.validate("ready"));
-    assertEquals(ChainState.Fabricating, ChainState.validate("fabricating"));
+    assertEquals(ChainState.Fabricate, ChainState.validate("fabricate"));
     assertEquals(ChainState.Complete, ChainState.validate("complete"));
     assertEquals(ChainState.Failed, ChainState.validate("failed"));
     assertEquals(ChainState.Erase, ChainState.validate("erase"));

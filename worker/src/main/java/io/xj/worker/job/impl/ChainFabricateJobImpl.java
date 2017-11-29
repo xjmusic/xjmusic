@@ -67,9 +67,9 @@ public class ChainFabricateJobImpl implements ChainFabricateJob {
    * @throws Exception on failure
    */
   private void doWork(ChainRecord chain) throws Exception {
-    if (!ChainState.Fabricating.toString().equals(chain.getState())) {
+    if (!ChainState.Fabricate.toString().equals(chain.getState())) {
       workManager.stopChainFabrication(entityId);
-      throw new BusinessException(String.format("Cannot fabricate Chain id:%s in non-Fabricating (%s) state!",
+      throw new BusinessException(String.format("Cannot fabricate Chain id:%s in non-Fabricate (%s) state!",
         chain.getId(), chain.getState()));
     }
 

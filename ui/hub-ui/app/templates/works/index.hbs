@@ -1,0 +1,39 @@
+<!-- Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved. -->
+
+<!-- Inner Content -->
+{{outlet}}
+
+<!-- Upper Container -->
+<div class="form-horizontal container-fluid">
+
+  <!-- List of Works -->
+  {{#if model.length}}
+    <div class="sm-col-12">
+      <div class="table-list">
+        <table class="table">
+          <thead>
+          <tr>
+            <th width="1%">Action</th>
+            <th width="1%">Target</th>
+            <th>&nbsp;</th>
+            <!-- <th>Name</th> -->
+            <th width="1%">State</th>
+          </tr>
+          </thead>
+          <tbody>
+          {{#each model as |work|}}
+            <tr class="item {{lowercase work.state}}-state {{if (eq player.currentWork.id work.id) 'now-playing'}}">
+              <td>{{work.targetAction}}</td>
+              <td>{{work.targetType}}&nbsp;#{{work.targetId}}</td>
+              <td>&nbsp;</td>
+              <!-- <td>{{work.name}}</td> -->
+              <td>{{work.state}}</td>
+            </tr>
+          {{/each}}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  {{/if}}
+
+</div>

@@ -13,6 +13,7 @@ Router.map(function () {
   this.route('login');
   this.route('logout');
   this.route('unauthorized');
+  this.route('works', {path: '/work'}, works);
 });
 
 function users() {
@@ -23,6 +24,8 @@ function accounts() {
   this.route('new'); // New Account
   this.route('one', {path: '/:account_id'}, account); // One Account
 }
+
+function works() {}
 
 function account() {
   this.route('edit'); // Edit Account

@@ -89,6 +89,18 @@ public interface LinkDAO {
    */
   Result<LinkRecord> readAllFromSecondsUTC(Access access, ULong chainId, ULong fromSecondsUTC) throws Exception;
 
+
+  /**
+   [INTERNAL USE ONLY]
+   Read all records in a given state
+
+   @return array of links as JSON
+   @throws Exception on failure
+   @param access     control
+   @param state to read links in
+   */
+  Result<LinkRecord> readAllInState(Access access, LinkState state) throws Exception;
+
   /**
    Update a specified Link
 

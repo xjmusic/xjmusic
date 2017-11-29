@@ -1,5 +1,7 @@
 package io.xj.core.work;
 
+import io.xj.core.work.impl.RobustWorkerPool;
+
 import net.greghaines.jesque.Config;
 import net.greghaines.jesque.ConfigBuilder;
 import org.slf4j.Logger;

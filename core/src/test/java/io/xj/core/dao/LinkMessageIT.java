@@ -48,7 +48,7 @@ public class LinkMessageIT {
 
     // Account "Testing" has chain "Test Print #1"
     IntegrationTestEntity.insertAccount(1, "Testing");
-    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricating, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, null);
+    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, null);
 
     // Chain "Test Print #1" has 5 sequential links
     IntegrationTestEntity.insertLink(1, 1, 0, LinkState.Dubbed, Timestamp.valueOf("1985-02-14 12:01:00.000001"), Timestamp.valueOf("1985-02-14 12:01:32.000001"), "B major", 64, 0.73, 120, "chain-1-link-97898asdf7892.wav");

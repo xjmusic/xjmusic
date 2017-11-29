@@ -133,12 +133,12 @@ public class CraftIT {
     IntegrationTestEntity.insertPhaseMeme(346, 315, "Heavy");
 
     // Chain "Test Print #1" is ready to begin
-    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricating, TimestampUTC.nowMinusSeconds(1000), null, null);
+    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, TimestampUTC.nowMinusSeconds(1000), null, null);
 
     // Bind the library to the chain
     IntegrationTestEntity.insertChainLibrary(1, 1, 2);
 
-    // Work recurs frequently to speed up test
+    // ExpectationOfWork recurs frequently to speed up test
     System.setProperty("work.buffer.seconds", "1000");
     System.setProperty("work.buffer.craft.delay.seconds", "1");
     System.setProperty("work.buffer.dub.delay.seconds", "3");

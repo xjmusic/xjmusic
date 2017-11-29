@@ -53,20 +53,19 @@ public interface ChainDAO {
    @throws Exception on failure
     @param access     control
    @param state to read chains in
-   @param limit records max
    */
-  Result<ChainRecord> readAllInState(Access access, ChainState state, Integer limit) throws Exception;
+  Result<ChainRecord> readAllInState(Access access, ChainState state) throws Exception;
 
   /**
    [INTERNAL USE ONLY]
-   Read IDs of all Chains that are in fabricating-state at a given instant
+   Read IDs of all Chains that are in fabricate-state at a given instant
 
    @param access     control
-   @param atOrBefore time to check for chains in fabricating-state
+   @param atOrBefore time to check for chains in fabricate-state
    @return array of chains as JSON
    @throws Exception on failure
    */
-  Result<ChainRecord> readAllInStateFabricating(Access access, Timestamp atOrBefore) throws Exception;
+  Result<ChainRecord> readAllInStateFabricate(Access access, Timestamp atOrBefore) throws Exception;
 
   /**
    Update a specified Chain

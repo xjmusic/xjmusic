@@ -5,12 +5,14 @@ import io.xj.core.app.config.Config;
 import io.xj.core.app.config.Exposure;
 import io.xj.core.app.exception.BusinessException;
 import io.xj.core.model.Entity;
+import io.xj.core.model.JSONObjectEntity;
 import io.xj.core.transport.JSON;
 
 import org.jooq.Record;
 import org.jooq.Result;
 
 import org.apache.http.HttpStatus;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,6 +20,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import java.net.URI;
+import java.util.Collection;
+import java.util.List;
 
 public class HttpResponseProviderImpl implements HttpResponseProvider {
   private static Logger log = LoggerFactory.getLogger(HttpResponseProviderImpl.class);
@@ -119,7 +123,7 @@ public class HttpResponseProviderImpl implements HttpResponseProvider {
 
   @Override
   public Response readOne(String keyOne, Record result) {
-    if (result != null)
+    if (null != result)
       return Response
         .accepted(JSON.wrap(keyOne, JSON.objectFromRecord(result)).toString())
         .type(MediaType.APPLICATION_JSON)
@@ -130,7 +134,19 @@ public class HttpResponseProviderImpl implements HttpResponseProvider {
 
   @Override
   public <R extends Record> Response readMany(String keyMany, Result<R> results) {
-    if (results != null)
+    if (null != results)
+      return Response
+        .accepted(JSON.wrap(keyMany, JSON.arrayOf(results)).toString())
+        .type(MediaType.APPLICATION_JSON)
+        .build();
+    else
+      return Response.noContent().build();
+  }
+
+
+  @Override
+  public <J extends JSONObjectEntity> Response readMany(String keyMany, Collection<J> results) throws Exception {
+    if (null != results)
       return Response
         .accepted(JSON.wrap(keyMany, JSON.arrayOf(results)).toString())
         .type(MediaType.APPLICATION_JSON)
@@ -141,7 +157,7 @@ public class HttpResponseProviderImpl implements HttpResponseProvider {
 
   @Override
   public Response create(String keyMany, String keyOne, Record result) {
-    if (result != null)
+    if (null != result)
       return Response
         .created(Exposure.apiURI(keyMany + "/" + result.get(Entity.KEY_ID)))
         .entity(JSON.wrap(keyOne, JSON.objectFromRecord(result)).toString())

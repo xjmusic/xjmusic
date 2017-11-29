@@ -1,5 +1,5 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
-package io.xj.core.model.chain;
+package io.xj.core.model.work;
 
 import io.xj.core.app.exception.BusinessException;
 import io.xj.core.transport.CSV;
@@ -9,21 +9,18 @@ import com.google.common.collect.ImmutableList;
 
 import java.util.Objects;
 
-public enum ChainState {
-  Draft,
-  Ready,
-  Fabricate,
-  Complete,
-  Failed,
-  Erase;
+public enum WorkState {
+  Queued,
+  Expected;
 
   /**
    String Values
+
    @return ImmutableList of string values
    */
   public static ImmutableList<String> stringValues() {
     ImmutableList.Builder<String> valuesBuilder = ImmutableList.builder();
-    for (ChainState value : values()) {
+    for (WorkState value : values()) {
       valuesBuilder.add(value.toString());
     }
     return valuesBuilder.build();
@@ -36,9 +33,9 @@ public enum ChainState {
    @return enum
    @throws BusinessException on failure
    */
-  public static ChainState validate(String value) throws BusinessException {
+  public static WorkState validate(String value) throws BusinessException {
     if (Objects.isNull(value))
-      return Draft;
+      return Expected;
 
     try {
       return valueOf(Text.toProperSlug(value));

@@ -109,10 +109,10 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
   }
 
   @Override
-  public Result<ChainRecord> readAllInState(Access access, ChainState state, Integer limit) throws Exception {
+  public Result<ChainRecord> readAllInState(Access access, ChainState state) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readAllInState(tx.getContext(), access, state, limit));
+      return tx.success(readAllInState(tx.getContext(), access, state));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -120,10 +120,10 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
 
   @Override
   @Nullable
-  public Result<ChainRecord> readAllInStateFabricating(Access access, Timestamp atOrBefore) throws Exception {
+  public Result<ChainRecord> readAllInStateFabricate(Access access, Timestamp atOrBefore) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readAllRecordsInStateFabricating(tx.getContext(), access, atOrBefore));
+      return tx.success(readAllRecordsInStateFabricate(tx.getContext(), access, atOrBefore));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -286,35 +286,33 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
   /**
    Read all records in a given state
 
-   @param db     context
+   @return array of records
+    @param db     context
    @param access control
    @param state  to read chains in
-   @param limit  records max
-   @return array of records
    */
-  private Result<ChainRecord> readAllInState(DSLContext db, Access access, ChainState state, Integer limit) throws Exception {
+  private Result<ChainRecord> readAllInState(DSLContext db, Access access, ChainState state) throws Exception {
     requireTopLevel(access);
     return resultInto(CHAIN, db.select(CHAIN.fields())
       .from(CHAIN)
       .where(CHAIN.STATE.eq(state.toString()))
       .or(CHAIN.STATE.eq(state.toString().toLowerCase()))
-      .limit(limit)
       .fetch());
   }
 
   /**
-   Read all records now in fabricating-state
+   Read all records now in fabricate-state
 
    @param db         context
    @param access     control
-   @param atOrBefore time to check for chains in fabricating state
+   @param atOrBefore time to check for chains in fabricate state
    @return array of records
    */
-  private Result<ChainRecord> readAllRecordsInStateFabricating(DSLContext db, Access access, Timestamp atOrBefore) throws BusinessException {
+  private Result<ChainRecord> readAllRecordsInStateFabricate(DSLContext db, Access access, Timestamp atOrBefore) throws BusinessException {
     requireTopLevel(access);
 
     return db.selectFrom(CHAIN)
-      .where(CHAIN.STATE.eq(ChainState.Fabricating.toString()))
+      .where(CHAIN.STATE.eq(ChainState.Fabricate.toString()))
       .and(CHAIN.START_AT.lessOrEqual(atOrBefore))
       .fetch();
   }
@@ -428,11 +426,11 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
         break;
 
       case Ready:
-        onlyAllowTransitions(toState, ChainState.Draft, ChainState.Ready, ChainState.Fabricating);
+        onlyAllowTransitions(toState, ChainState.Draft, ChainState.Ready, ChainState.Fabricate);
         break;
 
-      case Fabricating:
-        onlyAllowTransitions(toState, ChainState.Fabricating, ChainState.Failed, ChainState.Complete);
+      case Fabricate:
+        onlyAllowTransitions(toState, ChainState.Fabricate, ChainState.Failed, ChainState.Complete);
         break;
 
       case Complete:
@@ -457,7 +455,7 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
     if (!Objects.equals(fromState, toState)) switch (toState) {
       case Draft:
       case Ready:
-      case Fabricating:
+      case Fabricate:
       case Complete:
       case Failed:
         // no op
@@ -500,7 +498,7 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
         // no op
         break;
 
-      case Fabricating:
+      case Fabricate:
         workManager.startChainFabrication(id);
         break;
 

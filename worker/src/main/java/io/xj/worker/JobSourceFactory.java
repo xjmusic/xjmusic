@@ -2,7 +2,7 @@
 package io.xj.worker;
 
 import io.xj.core.app.exception.WorkException;
-import io.xj.core.model.job.JobType;
+import io.xj.core.model.work.WorkType;
 
 import org.jooq.types.ULong;
 
@@ -39,7 +39,7 @@ public class JobSourceFactory implements JobFactory {
    */
   @Override
   public Runnable materializeJob(Job job) throws Exception {
-    JobType jobType = JobType.validate(job.getClassName());
+    WorkType workType = WorkType.validate(job.getClassName());
     Object[] args = job.getArgs();
     if (Objects.isNull(args) || 1 > args.length) {
       throw new WorkException("Job requires at least 1 argument");
@@ -49,18 +49,18 @@ public class JobSourceFactory implements JobFactory {
       throw new WorkException("Job requires non-zero entity id");
     }
 
-    return makeTarget(jobType, entityId);
+    return makeTarget(workType, entityId);
   }
 
   /**
    target is switched on job type
 
-   @param jobType  type of job
+   @param workType  type of job
    @param entityId target entity
    @return job runnable
    */
-  private Runnable makeTarget(JobType jobType, ULong entityId) throws WorkException {
-    switch (jobType) {
+  private Runnable makeTarget(WorkType workType, ULong entityId) throws WorkException {
+    switch (workType) {
 
       case AudioErase:
         return jobTargetFactory.makeAudioEraseJob(entityId);

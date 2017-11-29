@@ -46,7 +46,7 @@ public class AudioEraseJobImpl implements AudioEraseJob {
   }
 
   /**
-   Do Audio Erase Work
+   Do Audio Erase ExpectationOfWork
    Eraseworker removes all child entities for the Audio
    Eraseworker deletes all S3 objects for the Audio
    Eraseworker deletes the Audio

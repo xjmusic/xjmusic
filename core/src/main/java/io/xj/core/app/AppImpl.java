@@ -7,7 +7,7 @@ import io.xj.core.app.config.Config;
 import io.xj.core.app.exception.ConfigException;
 import io.xj.core.app.server.HttpServerProvider;
 import io.xj.core.app.server.ResourceConfigProvider;
-import io.xj.core.work.RobustWorkerPool;
+import io.xj.core.work.impl.RobustWorkerPool;
 import io.xj.core.work.WorkManager;
 
 import com.google.inject.Inject;

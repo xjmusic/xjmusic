@@ -77,7 +77,7 @@ public class LinkIT {
 
     // Account "Testing" has chain "Test Print #1"
     IntegrationTestEntity.insertAccount(1, "Testing");
-    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricating, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, null);
+    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, null);
 
     // Chain "Test Print #1" has 5 sequential links
     IntegrationTestEntity.insertLink(1, 1, 0, LinkState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120, "chain-1-link-97898asdf7892.wav");
@@ -355,7 +355,7 @@ public class LinkIT {
     Access access = new Access(ImmutableMap.of(
       "roles", "internal"
     ));
-    IntegrationTestEntity.insertChain(2, 1, "Test Print #2", ChainType.Production, ChainState.Fabricating, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, null);
+    IntegrationTestEntity.insertChain(2, 1, "Test Print #2", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, null);
 
     LinkRecord result = testDAO.readOneInState(access, ULong.valueOf(2), LinkState.Planned, Timestamp.valueOf("2017-02-14 12:03:08.000001"));
 

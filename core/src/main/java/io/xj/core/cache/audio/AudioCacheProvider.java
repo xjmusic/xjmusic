@@ -1,6 +1,8 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 package io.xj.core.cache.audio;
 
+import io.xj.core.cache.audio.impl.Item;
+
 import com.github.benmanes.caffeine.cache.stats.CacheStats;
 
 public interface AudioCacheProvider {

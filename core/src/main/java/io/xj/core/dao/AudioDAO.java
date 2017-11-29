@@ -58,15 +58,15 @@ public interface AudioDAO {
   Result<AudioRecord> readAll(Access access, ULong instrumentId) throws Exception;
 
   /**
-   Fetch all Audio in a certian state
+   Fetch all Audio in a certain state
    [INTERNAL USE ONLY]
 
-   @param access       control
-   @param state to get audios in
    @return Result of audio records.
    @throws Exception on failure
+    @param access       control
+   @param state to get audios in
    */
-  Result<AudioRecord> readAllInState(Access access, AudioState state, int batchSize) throws Exception;
+  Result<AudioRecord> readAllInState(Access access, AudioState state) throws Exception;
 
   /**
    Fetch all accessible Audio picked for a link

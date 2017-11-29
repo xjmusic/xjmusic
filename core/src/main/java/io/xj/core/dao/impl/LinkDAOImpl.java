@@ -1,16 +1,7 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 package io.xj.core.dao.impl;
 
-import org.jooq.DSLContext;
-import org.jooq.Field;
-import org.jooq.Result;
-import org.jooq.UpdateSetFirstStep;
-import org.jooq.types.ULong;
-
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
-import com.google.inject.Inject;
-
+import io.xj.core.Tables;
 import io.xj.core.app.access.impl.Access;
 import io.xj.core.app.config.Config;
 import io.xj.core.app.config.Exposure;
@@ -26,6 +17,16 @@ import io.xj.core.model.link.Link;
 import io.xj.core.model.link.LinkState;
 import io.xj.core.tables.records.LinkRecord;
 import io.xj.core.transport.CSV;
+
+import org.jooq.DSLContext;
+import org.jooq.Field;
+import org.jooq.Result;
+import org.jooq.UpdateSetFirstStep;
+import org.jooq.types.ULong;
+
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
+import com.google.inject.Inject;
 
 import javax.annotation.Nullable;
 import java.math.BigInteger;
@@ -127,6 +128,16 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readAllFromSecondsUTC(tx.getContext(), access, chainId, fromSecondsUTC));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public Result<LinkRecord> readAllInState(Access access, LinkState state) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readAllInState(tx.getContext(), access, state));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -376,6 +387,24 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
   }
 
   /**
+   Read all records in a given state
+
+   @return array of records
+   @param db     context
+   @param access control
+   @param state  to read links in
+   */
+  private Result<LinkRecord> readAllInState(DSLContext db, Access access, LinkState state) throws Exception {
+    requireTopLevel(access);
+    return resultInto(Tables.LINK, db.select(Tables.LINK.fields())
+      .from(Tables.LINK)
+      .where(Tables.LINK.STATE.eq(state.toString()))
+      .or(Tables.LINK.STATE.eq(state.toString().toLowerCase()))
+      .fetch());
+  }
+
+
+  /**
    * Update a record using a model wrapper
    *
    * @param db     context
@@ -504,7 +533,7 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
     LinkRecord link = db.selectFrom(LINK)
       .where(LINK.ID.eq(linkId))
       .fetchOne();
-    requireExists("Link", link);
+    requireExists("Link #" + linkId, link);
 
     // Only Delete link waveform from S3 if non-null
     String waveformKey = link.get(LINK.WAVEFORM_KEY);

@@ -107,7 +107,7 @@ public class CraftVoiceInitialIT {
     IntegrationTestEntity.insertIdea(7, 3, 2, IdeaType.Support, "Support Jam", 0.3, "Cb minor", 170);
 
     // Chain "Print #2" has 1 initial link in crafting state - Foundation is complete
-    IntegrationTestEntity.insertChain(2, 1, "Print #2", ChainType.Production, ChainState.Fabricating, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, null);
+    IntegrationTestEntity.insertChain(2, 1, "Print #2", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, null);
     link6 = IntegrationTestEntity.insertLink(6, 2, 0, LinkState.Crafting, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:07.384616"), "C minor", 16, 0.55, 130, "chain-1-link-97898asdf7892.wav");
     IntegrationTestEntity.insertLinkMeme(101, 6, "Special");
     IntegrationTestEntity.insertLinkMeme(102, 6, "Wild");

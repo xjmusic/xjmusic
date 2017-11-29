@@ -1,5 +1,5 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
-package io.xj.core.model.job;
+package io.xj.core.model.work;
 
 import io.xj.core.app.exception.BusinessException;
 import io.xj.core.transport.CSV;
@@ -8,7 +8,7 @@ import com.google.common.collect.ImmutableList;
 
 import java.util.Objects;
 
-public enum JobType {
+public enum WorkType {
   AudioErase,
   ChainErase,
   ChainFabricate,
@@ -22,7 +22,7 @@ public enum JobType {
    */
   public static ImmutableList<String> stringValues() {
     ImmutableList.Builder<String> valuesBuilder = ImmutableList.builder();
-    for (JobType value : values()) {
+    for (WorkType value : values()) {
       valuesBuilder.add(value.toString());
     }
     return valuesBuilder.build();
@@ -35,7 +35,7 @@ public enum JobType {
    @return enum
    @throws BusinessException on failure
    */
-  public static JobType validate(String value) throws BusinessException {
+  public static WorkType validate(String value) throws BusinessException {
     if (Objects.isNull(value))
       throw new BusinessException("Type is required (" + CSV.joinEnum(values()) + ").");
 

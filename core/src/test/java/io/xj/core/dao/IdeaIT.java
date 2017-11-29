@@ -164,7 +164,7 @@ public class IdeaIT {
 
   @Test
   public void readOneRecordTypeInLink_Macro() throws Exception {
-    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricating, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, null);
+    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, null);
     IntegrationTestEntity.insertLink(1,1,0, LinkState.Crafting,Timestamp.valueOf("2014-08-12 12:17:02.527142"),Timestamp.valueOf("2014-08-12 12:17:32.527142"),"C",64, 0.6, 121, "chain-1-link-97898asdf7892.wav");
     IntegrationTestEntity.insertChoice(1,1,3, IdeaType.Macro,0,0);
     IntegrationTestEntity.insertChoice(2,1,1, IdeaType.Main,0,0);
@@ -179,7 +179,7 @@ public class IdeaIT {
 
   @Test
   public void readOneRecordTypeInLink_Main() throws Exception {
-    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricating, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, null);
+    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, null);
     IntegrationTestEntity.insertLink(1,1,0, LinkState.Crafting,Timestamp.valueOf("2014-08-12 12:17:02.527142"),Timestamp.valueOf("2014-08-12 12:17:32.527142"),"C",64, 0.6, 121, "chain-1-link-97898asdf7892.wav");
     IntegrationTestEntity.insertChoice(1,1,3, IdeaType.Macro,0,0);
     IntegrationTestEntity.insertChoice(2,1,1, IdeaType.Main,0,0);
@@ -225,7 +225,7 @@ public class IdeaIT {
 
   @Test
   public void readAllBoundToChain() throws  Exception {
-    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricating, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, null);
+    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, null);
     IntegrationTestEntity.insertChainIdea(1, 1, 1);
 
     Result<? extends Record> result = testDAO.readAllBoundToChain(Access.internal(), ULong.valueOf(1), IdeaType.Main);
@@ -241,7 +241,7 @@ public class IdeaIT {
 
   @Test
   public void readAllBoundToChainLibrary() throws  Exception {
-    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricating, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, null);
+    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, null);
     IntegrationTestEntity.insertChainLibrary(1, 1, 1);
 
     Result<? extends Record> result = testDAO.readAllBoundToChainLibrary(Access.internal(), ULong.valueOf(1), IdeaType.Main);

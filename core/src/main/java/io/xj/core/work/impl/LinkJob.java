@@ -1,5 +1,5 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
-package io.xj.core.work;
+package io.xj.core.work.impl;
 
 import org.jooq.types.ULong;
 
@@ -18,7 +18,7 @@ import java.util.Objects;
 
 public abstract class LinkJob implements Runnable {
   private static final Logger log = LoggerFactory.getLogger(LinkJob.class);
-  private static final int MILLIS_PER_SECOND = 1000;
+  private static final long MILLIS_PER_SECOND = 1000;
 
   protected String name;
   protected LinkDAO linkDAO;
@@ -54,7 +54,7 @@ public abstract class LinkJob implements Runnable {
 
         } else try {
           log.warn("{} Link (id={}) failed ({}) Will retry...",
-            name, entityId, e.getMessage(), e.getStackTrace());
+            name, entityId, e.getMessage(), e);
           Thread.sleep(Config.workLinkDubRetrySleepSeconds() * MILLIS_PER_SECOND);
 
         } catch (InterruptedException sleepException) {

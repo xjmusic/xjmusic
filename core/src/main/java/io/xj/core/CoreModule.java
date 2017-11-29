@@ -18,7 +18,7 @@ import io.xj.core.app.server.ResourceConfigProviderImpl;
 import io.xj.core.app.stats.StatsProvider;
 import io.xj.core.app.stats.StatsProviderImpl;
 import io.xj.core.cache.audio.AudioCacheProvider;
-import io.xj.core.cache.audio.AudioCacheProviderImpl;
+import io.xj.core.cache.audio.impl.AudioCacheProviderImpl;
 import io.xj.core.dao.AccountDAO;
 import io.xj.core.dao.AccountUserDAO;
 import io.xj.core.dao.ArrangementDAO;

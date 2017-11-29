@@ -46,7 +46,7 @@
                 |&nbsp;{{#link-to 'accounts.one.chains.one.instruments' chain}}Instruments{{/link-to}}
                 |&nbsp;{{#link-to 'accounts.one.chains.one.ideas' chain}}Ideas{{/link-to}}
               </td>
-              <td>{{#if (or (eq chain.state "Fabricating") (eq chain.state "Complete"))}}
+              <td>{{#if (or (eq chain.state "Fabricate") (eq chain.state "Complete"))}}
                 <button type="button" aria-label="play chain {{chain.id}}"
                         class="btn link-play" {{action 'play' chain}}>&#9658;
                 </button>

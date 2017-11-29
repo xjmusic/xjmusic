@@ -1,5 +1,5 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
-package io.xj.core.cache.audio;
+package io.xj.core.cache.audio.impl;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
