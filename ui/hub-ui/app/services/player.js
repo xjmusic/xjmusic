@@ -22,9 +22,12 @@ const STOP_DELAY_SECONDS = 0.25;
  Seconds to begin playback into the future from current time when playback is requested.
  This prevents the currentTime from being after the the requested audio playback start time,
  which (it turns out) results in a late playback beginning
+
+ See [#153265392] Playback of Chain should not play first Link out-of-sync or overlapping second Link!
+
  * @type {number}
  */
-const PLAY_PREROLL_SECONDS = 3; // ensure that we leave room between the first playback
+const PLAY_PREROLL_SECONDS = 5; // ensure that we leave room between the first playback
 
 /**
  Seconds between Main interval cycles
@@ -375,15 +378,7 @@ export default Service.extend({
     }
 
     if (chain !== undefined && chain !== null && chain.get('stopAt') !== undefined) {
-      let startAt = this.secondsUTC(chain.get('startAt'));
-      let stopAt = this.secondsUTC(chain.get('stopAt'));
-      if (stopAt > 0 && stopAt < this.nowSecondsUTC()) {
-        // When playing a Chain that has an end time in the past, play it from its beginning.
-        return this.secondsUTC(startAt);
-      } else {
-        // When playing a Chain that has no end time or an and time in the future, play it from now
-        return this.nowSecondsUTC();
-      }
+      return this.secondsUTC(chain.get('startAt'));
     }
 
     return this.nowSecondsUTC();
