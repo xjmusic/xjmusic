@@ -3,7 +3,6 @@ package io.xj.core.work.basis.impl;
 
 import io.xj.core.access.impl.Access;
 import io.xj.core.config.Config;
-import io.xj.core.exception.BusinessException;
 import io.xj.core.dao.ArrangementDAO;
 import io.xj.core.dao.AudioDAO;
 import io.xj.core.dao.AudioEventDAO;
@@ -20,6 +19,7 @@ import io.xj.core.dao.PhaseMemeDAO;
 import io.xj.core.dao.PickDAO;
 import io.xj.core.dao.VoiceDAO;
 import io.xj.core.dao.VoiceEventDAO;
+import io.xj.core.exception.BusinessException;
 import io.xj.core.model.arrangement.Arrangement;
 import io.xj.core.model.audio.Audio;
 import io.xj.core.model.audio_event.AudioEvent;
@@ -555,8 +555,8 @@ public class BasisImpl implements Basis {
     try {
       linkMessageDAO.create(Access.internal(),
         new LinkMessage()
+          .setType(MessageType.Info.toString())
           .setLinkId(linkId().toBigInteger())
-          .setType(MessageType.Info)
           .setBody(body));
 
     } catch (Exception e) {
@@ -565,7 +565,7 @@ public class BasisImpl implements Basis {
   }
 
   @Override
-  public long atMicros(Double seconds) {
+  public Long atMicros(Double seconds) {
     return (long) (seconds * MICROSECONDS_PER_SECOND);
   }
 

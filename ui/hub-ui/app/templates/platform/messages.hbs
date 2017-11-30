@@ -1,0 +1,44 @@
+<!-- Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved. -->
+
+<!-- Inner Content -->
+{{outlet}}
+
+<!-- Create Message -->
+<div class="col-12">
+  {{#link-to "platform.messages.new" class="btn btn-default"}}Create Message{{/link-to}}
+</div>
+
+<!-- Upper Container -->
+<div class="form-horizontal container-fluid">
+
+  <!-- List of messages -->
+  {{#if model.length}}
+    <div class="col-12">
+      <div class="table-list">
+        <table class="table">
+          <thead>
+          <tr>
+            <th width="1%">At</th>
+            <th width="1%">Type</th>
+            <th>Message</th>
+          </tr>
+          </thead>
+          <tbody>
+          {{#each model as |message|}}
+            <tr class="item {{lowercase message.type}}-type">
+              <td class="dont-break">{{message.createdAt}}</td>
+              <td>{{message.type}}</td>
+              <td>{{message.body}}</td>
+            </tr>
+          {{/each}}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  {{else}}
+    <div class="col-12">
+      <p>There are no platform messages.</p>
+    </div>
+  {{/if}}
+
+</div>

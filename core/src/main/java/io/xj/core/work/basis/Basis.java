@@ -421,9 +421,9 @@ public interface Basis {
   /**
    Microseconds from seconds
 
-   @param seconds to get microseconds of
    @return microseconds
+    @param seconds to get microseconds of
    */
-  long atMicros(Double seconds);
+  Long atMicros(Double seconds);
 
 }

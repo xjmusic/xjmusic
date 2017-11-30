@@ -122,4 +122,19 @@ public interface WorkManager {
    @throws Exception on failure
    */
   Collection<Work> readAllWork() throws Exception;
+
+  /**
+   Reinstate all work. Each possible type+target combination is either Expected or Queued.
+   Only recurring jobs can be considered "expected work"
+
+   Begins with any Expected work returned by readAllWork()
+   (work that was not updated to Queued, meaning that no Jesque job exists)--
+   then instantiates a job for each Expected work.
+
+   [#153266964] AWS cron job framework implemented in order to call the Reinstate All Jobs endpoint in production every 60 seconds.
+
+   @return collection of work that was reinstated
+   @throws Exception on failure
+   */
+  Collection<Work> reinstateAllWork() throws Exception;
 }

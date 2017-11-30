@@ -42,6 +42,7 @@ import io.xj.core.tables.records.PhaseChordRecord;
 import io.xj.core.tables.records.PhaseMemeRecord;
 import io.xj.core.tables.records.PhaseRecord;
 import io.xj.core.tables.records.PickRecord;
+import io.xj.core.tables.records.PlatformMessageRecord;
 import io.xj.core.tables.records.UserAccessTokenRecord;
 import io.xj.core.tables.records.UserAuthRecord;
 import io.xj.core.tables.records.UserRecord;
@@ -80,6 +81,7 @@ import static io.xj.core.Tables.PHASE;
 import static io.xj.core.Tables.PHASE_CHORD;
 import static io.xj.core.Tables.PHASE_MEME;
 import static io.xj.core.Tables.PICK;
+import static io.xj.core.Tables.PLATFORM_MESSAGE;
 import static io.xj.core.Tables.USER;
 import static io.xj.core.Tables.USER_ACCESS_TOKEN;
 import static io.xj.core.Tables.USER_AUTH;
@@ -146,6 +148,9 @@ public interface IntegrationTestEntity {
       // Account
       db.deleteFrom(ACCOUNT_USER).execute(); // before Account
       db.deleteFrom(ACCOUNT).execute(); //before User
+
+      // Platform Messages
+      db.deleteFrom(PLATFORM_MESSAGE).execute(); // before Link
 
       // User Access Token
       db.deleteFrom(USER_ACCESS_TOKEN).execute(); // before User & User Auth
@@ -491,4 +496,14 @@ public interface IntegrationTestEntity {
     record.store();
     return new Link().setFromRecord(record);
   }
+
+  static void insertPlatformMessage(int id, MessageType type, String body, Timestamp createdAt) {
+    PlatformMessageRecord record = IntegrationTestService.getDb().newRecord(PLATFORM_MESSAGE);
+    record.setId(ULong.valueOf(id));
+    record.setType(type.toString());
+    record.setBody(body);
+    record.setCreatedAt(createdAt);
+    record.store();
+  }
+
 }

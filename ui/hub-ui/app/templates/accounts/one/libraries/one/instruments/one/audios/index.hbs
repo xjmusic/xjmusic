@@ -7,7 +7,7 @@
 <div class="form-horizontal container-fluid">
 
   <!-- List of Audios -->
-  <div class="sm-col-12">
+  <div class="col-sm-12">
     <div class="table-list">
       <table class="table">
         <thead>
@@ -50,7 +50,7 @@
   </div>
 
   {{#if (or auth.isArtist auth.isAdmin)}}
-    <div class="sm-col-12">
+    <div class="col-sm-12">
       Or: {{#link-to 'accounts.one.libraries.one.instruments.one.audios.new' model.library.account model.library model}}Create New Audio{{/link-to}}
     </div>
   {{/if}}

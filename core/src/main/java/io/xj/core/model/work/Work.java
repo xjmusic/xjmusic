@@ -94,7 +94,7 @@ public class Work extends JSONObjectEntity {
 
   @Override
   public String toString() {
-    return "Work{...}";
+    return toJSONObject().toString();
   }
 
 }

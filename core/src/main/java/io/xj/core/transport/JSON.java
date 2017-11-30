@@ -3,6 +3,7 @@ package io.xj.core.transport;
 
 import io.xj.core.config.Exposure;
 import io.xj.core.model.JSONObjectEntity;
+import io.xj.core.model.chain.Chain;
 import io.xj.core.util.CamelCasify;
 
 import org.jooq.Record;
@@ -16,6 +17,7 @@ import javax.annotation.Nullable;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.Map;
 
 public abstract class JSON {

@@ -412,6 +412,12 @@ Connects to:
 
 ## worker
 
+## pulse
+
+This app exists solely to be run in AWS Lambda, and call the Hub /heartbeat endpoint once per minute.
+
+Read more in [the Pulse README](pulse/README.md).
+
 **Craft** fabricates a musical audio composite from source ideas and instrument-audio. Built with Java, Guice, Tomcat, Maven.
 
 Depends on:

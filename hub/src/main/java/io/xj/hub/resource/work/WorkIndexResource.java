@@ -35,7 +35,7 @@ public class WorkIndexResource {
    */
   @GET
   @WebResult
-  @RolesAllowed({Role.ADMIN})
+  @RolesAllowed({Role.ADMIN, Role.ENGINEER})
   public Response readAll(@Context ContainerRequestContext crc) throws IOException {
     try {
       return response.readMany(

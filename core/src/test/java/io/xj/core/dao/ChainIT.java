@@ -41,6 +41,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigInteger;
 import java.sql.Timestamp;
+import java.util.Collection;
+import java.util.List;
 
 import static io.xj.core.Tables.CHAIN;
 import static org.junit.Assert.assertEquals;
@@ -380,64 +382,13 @@ public class ChainIT {
 
   @Test
   public void readAllInState() throws Exception {
-    JSONArray result = JSON.arrayOf(testDAO.readAllInState(Access.internal(), ChainState.Fabricate));
+    Collection<Chain> result = testDAO.readAllInState(Access.internal(), ChainState.Fabricate);
 
     assertNotNull(result);
-    assertEquals(1, result.length());
-    JSONObject result2 = (JSONObject) result.get(0);
-    assertEquals("bucket", result2.get("name"));
-  }
+    assertEquals(1, result.size());
+    Chain result0 = result.iterator().next();
 
-  @Test
-  public void readAllRecordsInStateFabricate() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "internal"
-    ));
-    IntegrationTestEntity.insertChain(4, 2, "smash", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2015-05-10 12:17:02.527142"), null, null);
-
-    Result<ChainRecord> actualResults = testDAO.readAllInStateFabricate(access, Timestamp.valueOf("2015-05-20 12:00:00"));
-
-    assertNotNull(actualResults);
-    assertEquals(2, actualResults.size());
-    ChainRecord result1 = actualResults.get(0);
-    assertEquals(ULong.valueOf(2L), result1.getId());
-    assertEquals(Timestamp.valueOf("2015-05-10 12:17:02.527142"), result1.getStartAt());
-    assertEquals(Timestamp.valueOf("2015-06-09 12:17:01.047563"), result1.getStopAt());
-    ChainRecord result2 = actualResults.get(1);
-    assertEquals(ULong.valueOf(4L), result2.getId());
-    assertEquals(Timestamp.valueOf("2015-05-10 12:17:02.527142"), result2.getStartAt());
-    assertNull(result2.getStopAt());
-  }
-
-  @Test
-  public void readAllIdBoundsInStateFabricate_ReturnsChainBeforeBoundary() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "internal"
-    ));
-    IntegrationTestEntity.insertChain(4, 2, "smash", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2015-05-10 12:17:02.527142"), Timestamp.valueOf("2015-06-09 12:17:01.047563"), null);
-
-    Result<ChainRecord> actualResults = testDAO.readAllInStateFabricate(access, Timestamp.valueOf("2016-05-20 12:00:00"));
-
-    assertNotNull(actualResults);
-    assertEquals(2, actualResults.size());
-  }
-
-  @Test
-  public void readAllIdBoundsInStateFabricate_DoesNotReturnChainAfterBoundary() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "internal"
-    ));
-    IntegrationTestEntity.insertChain(4, 2, "smash", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2015-06-10 12:17:02.527142"), Timestamp.valueOf("2015-06-12 12:17:01.047563"), null);
-
-    Result<ChainRecord> actualResults = testDAO.readAllInStateFabricate(access, Timestamp.valueOf("2015-05-20 12:00:00"));
-
-    assertNotNull(actualResults);
-
-    assertEquals(1, actualResults.size());
-    ChainRecord result1 = actualResults.get(0);
-    assertEquals(ULong.valueOf(2L), result1.getId());
-    assertEquals(Timestamp.valueOf("2015-05-10 12:17:02.527142"), result1.getStartAt());
-    assertEquals(Timestamp.valueOf("2015-06-09 12:17:01.047563"), result1.getStopAt());
+    assertEquals("bucket", result0.getName());
   }
 
   @Test

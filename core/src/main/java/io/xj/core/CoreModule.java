@@ -9,6 +9,8 @@ import io.xj.core.access.AccessTokenAuthFilter;
 import io.xj.core.access.impl.AccessControlProviderImpl;
 import io.xj.core.access.impl.AccessLogFilterProviderImpl;
 import io.xj.core.access.impl.AccessTokenAuthFilterImpl;
+import io.xj.core.dao.PlatformMessageDAO;
+import io.xj.core.dao.impl.PlatformMessageDAOImpl;
 import io.xj.core.server.HttpResponseProvider;
 import io.xj.core.server.HttpResponseProviderImpl;
 import io.xj.core.server.HttpServerProvider;
@@ -165,6 +167,7 @@ public class CoreModule extends AbstractModule {
     bind(PhaseDAO.class).to(PhaseDAOImpl.class);
     bind(PhaseMemeDAO.class).to(PhaseMemeDAOImpl.class);
     bind(PickDAO.class).to(PickDAOImpl.class);
+    bind(PlatformMessageDAO.class).to(PlatformMessageDAOImpl.class);
     bind(UserDAO.class).to(UserDAOImpl.class);
     bind(VoiceDAO.class).to(VoiceDAOImpl.class);
     bind(VoiceEventDAO.class).to(VoiceEventDAOImpl.class);

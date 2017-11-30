@@ -23,7 +23,8 @@ div.play-chain,
     }
   }
 
-  &.crafted-state {
+  &.crafted-state,
+  &.debug-type {
     background: darken(#4b5261, 15%);
     border-color: darken(#b9bec7, 15%);
     color: darken(#b9bec7, 10%);
@@ -44,7 +45,8 @@ div.play-chain,
 
   &.complete-state,
   &.dubbed-state,
-  &.queued-state {
+  &.queued-state,
+  &.info-type {
     background: darken(#4b634b, 15%);
     border-color: darken(#b9c7b9, 15%);
     color: darken(#b9c7b9, 10%);
@@ -62,8 +64,26 @@ div.play-chain,
     }
   }
 
-  &.failed-state,
-  &.expected-state {
+  &.warning-type {
+    background: darken(#8a8a6a, 15%);
+    border-color: darken(#ffffc4, 15%);
+    color: lighten(#ffffc4, 10%);
+    a {
+      color: #ffffc4;
+    }
+  }
+
+  &.expected-state,
+  &.error-type {
+    background: darken(#8a6969, 15%);
+    border-color: darken(#ffc2c2, 15%);
+    color: lighten(#ffc2c2, 10%);
+    a {
+      color: #ffc2c2;
+    }
+  }
+
+  &.failed-state {
     background: darken(darkred, 15%);
     border-color: darken(red, 15%);
     color: lighten(red, 10%);

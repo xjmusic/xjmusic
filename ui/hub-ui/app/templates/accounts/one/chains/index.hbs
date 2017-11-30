@@ -9,7 +9,7 @@
 
   <!-- List of Chains -->
   {{#if model.chains.length}}
-    <div class="sm-col-12">
+    <div class="col-sm-12">
       <div class="table-list">
         <table class="table">
           <thead>
@@ -60,7 +60,7 @@
   {{/if}}
 
   {{#if auth.isAdmin}}
-    <div class="sm-col-12">
+    <div class="col-sm-12">
       Or: {{#link-to 'accounts.one.chains.new'}}Create New Chain{{/link-to}}
     </div>
   {{/if}}

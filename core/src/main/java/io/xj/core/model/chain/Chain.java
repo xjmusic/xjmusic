@@ -3,8 +3,8 @@ package io.xj.core.model.chain;
 
 import io.xj.core.exception.BusinessException;
 import io.xj.core.model.Entity;
-import io.xj.core.util.Text;
 import io.xj.core.timestamp.TimestampUTC;
+import io.xj.core.util.Text;
 
 import org.jooq.Field;
 import org.jooq.Record;
@@ -50,6 +50,13 @@ public class Chain extends Entity {
   private Timestamp stopAt;
   private String stopAtError;
   private String embedKey;
+
+  public Chain() {
+  }
+
+  public Chain(ULong id) {
+    this.id = id;
+  }
 
   public ULong getAccountId() {
     return accountId;

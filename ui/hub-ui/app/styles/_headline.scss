@@ -14,6 +14,9 @@
     strong {
       color: $gray;
     }
+    &:last-child {
+      margin-bottom:1rem;
+    }
   }
   .detail {
     color: $low-gray;

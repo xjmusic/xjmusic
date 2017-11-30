@@ -4,6 +4,8 @@ package io.xj.core.model.link_message;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.model.EntityWrapper;
 
+import java.util.Objects;
+
 /**
  Wrapper for use as POJO for decoding messages received by JAX-RS resources
  a.k.a. JSON input will be stored into an entity inside this object
@@ -29,11 +31,11 @@ public class LinkMessageWrapper extends EntityWrapper {
    */
   @Override
   public LinkMessage validate() throws BusinessException {
-    if (this.linkMessage == null) {
-      throw new BusinessException("Choice is required.");
+    if (Objects.isNull(linkMessage)) {
+      throw new BusinessException("Link Message is required.");
     }
-    this.linkMessage.validate();
-    return this.linkMessage;
+    linkMessage.validate();
+    return linkMessage;
   }
 
 }

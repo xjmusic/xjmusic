@@ -2,9 +2,9 @@
 package io.xj.worker.work.dub.impl;
 
 import io.xj.core.access.impl.Access;
-import io.xj.core.exception.BusinessException;
 import io.xj.core.cache.audio.AudioCacheProvider;
 import io.xj.core.dao.LinkMessageDAO;
+import io.xj.core.exception.BusinessException;
 import io.xj.core.model.audio.Audio;
 import io.xj.core.model.chain_config.ChainConfigType;
 import io.xj.core.model.link_message.LinkMessage;
@@ -192,8 +192,8 @@ public class MasterDubImpl implements MasterDub {
   private void createLinkMessage(MessageType type, String body) {
     try {
       linkMessageDAO.create(Access.internal(), new LinkMessage()
+        .setType(type.toString())
         .setLinkId(basis.link().getId().toBigInteger())
-        .setType(type)
         .setBody(body));
     } catch (Exception e1) {
       log.warn("Failed to create LinkMessage", e1);

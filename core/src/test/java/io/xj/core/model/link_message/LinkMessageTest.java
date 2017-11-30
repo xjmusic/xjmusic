@@ -28,8 +28,8 @@ public class LinkMessageTest {
   @Test
   public void validate() throws Exception {
     new LinkMessage()
+      .setType("Warning")
       .setLinkId(BigInteger.valueOf(2))
-      .setType(MessageType.Warning)
       .setBody("This is a warning")
       .validate();
   }
@@ -40,7 +40,7 @@ public class LinkMessageTest {
     failure.expectMessage("Link ID is required");
 
     new LinkMessage()
-      .setType(MessageType.Warning)
+      .setType("Warning")
       .setBody("This is a warning")
       .validate();
   }
@@ -59,7 +59,7 @@ public class LinkMessageTest {
   @Test
   public void validate_failsWithInvalidType() throws Exception {
     failure.expect(BusinessException.class);
-    failure.expectMessage("'sneeze' is not a valid type");
+    failure.expectMessage("Invalid type!");
 
     new LinkMessage()
       .setType("sneeze")
@@ -74,8 +74,8 @@ public class LinkMessageTest {
     failure.expectMessage("Body is required");
 
     new LinkMessage()
+      .setType("Warning")
       .setLinkId(BigInteger.valueOf(2))
-      .setType(MessageType.Warning)
       .validate();
   }
 
@@ -95,7 +95,7 @@ public class LinkMessageTest {
     assertNotNull(result);
     assertEquals("This is a warning", result.getBody());
     assertEquals(ULong.valueOf(1235), result.getLinkId());
-    assertEquals(MessageType.Warning, result.getType());
+    assertEquals(MessageType.Warning.toString(), result.getType());
     assertEquals(ULong.valueOf(12), result.getId());
     assertEquals(Timestamp.valueOf("2014-08-12 12:17:02.527142"), result.getCreatedAt());
     assertEquals(Timestamp.valueOf("2014-09-12 12:17:01.047563"), result.getUpdatedAt());
@@ -109,14 +109,14 @@ public class LinkMessageTest {
   @Test
   public void intoFieldValueMap() throws Exception {
     Map<Field, Object> result = new LinkMessage()
+      .setType("Warning")
       .setLinkId(BigInteger.valueOf(2))
-      .setType(MessageType.Warning)
       .setBody("This is a warning")
       .updatableFieldValueMap();
 
     assertEquals("This is a warning", result.get(LINK_MESSAGE.BODY));
     assertEquals(ULong.valueOf(2), result.get(LINK_MESSAGE.LINK_ID));
-    assertEquals(MessageType.Warning.toString(), result.get(LINK_MESSAGE.TYPE));
+    assertEquals("Warning", result.get(LINK_MESSAGE.TYPE));
   }
 
 }

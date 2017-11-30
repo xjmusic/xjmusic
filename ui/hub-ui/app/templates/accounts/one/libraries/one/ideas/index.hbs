@@ -7,7 +7,7 @@
 <div class="form-horizontal container-fluid">
 
   <!-- List of Ideas -->
-  <div class="sm-col-12">
+  <div class="col-sm-12">
     <div class="table-list">
       <table class="table">
         <thead>
@@ -45,7 +45,7 @@
   </div>
 
   {{#if (or auth.isArtist auth.isAdmin)}}
-    <div class="sm-col-12">
+    <div class="col-sm-12">
       Or: {{#link-to 'accounts.one.libraries.one.ideas.new'}}Create New Idea{{/link-to}}
     </div>
   {{/if}}

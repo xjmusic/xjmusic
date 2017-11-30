@@ -16,7 +16,7 @@
       {{#if auth.isUser}}
         {{#link-to 'users' tagName="li" class="nav-item"}}<a class="nav-link" href="">People</a>{{/link-to}}
         {{#link-to 'accounts' tagName="li" class="nav-item"}}<a class="nav-link" href="">Music</a>{{/link-to}}
-        {{#if auth.isAdmin}}{{#link-to 'works' tagName="li" class="nav-item"}}<a class="nav-link" href="">Work</a>{{/link-to}}{{/if}}
+        {{#if (or auth.isAdmin auth.isEngineer)}}{{#link-to 'platform' tagName="li" class="nav-item"}}<a class="nav-link" href="">Platform</a>{{/link-to}}{{/if}}
         <li id="refresh-button" class="nav-item"><a title="Refresh Data" aria-label="Refresh Data"
                                                     class="nav-link" {{action
             "sessionChanged"}} href="">&#8635;</a></li>
@@ -31,12 +31,9 @@
         <li class="nav-item dropdown">
           <a href="#" data-toggle="dropdown" class="nav-link dropdown-toggle">
             {{#if auth.isUser}}User <sup>#</sup>{{auth.userId}}{{/if}}
-            {{#if auth.isAdmin}}
-              <badge>&#9762;</badge>{{/if}}
-            {{#if auth.isArtist}}
-              <badge>&#x266C;</badge>{{/if}}
-            {{#if auth.isEngineer}}
-              <badge>&#x1f527;</badge>{{/if}}
+            {{#if auth.isAdmin}}<badge>{{fa-icon 'shield'}}</badge>{{/if}}
+            {{#if auth.isArtist}}<badge>{{fa-icon 'music'}}</badge>{{/if}}
+            {{#if auth.isEngineer}}<badge>{{fa-icon 'wrench'}}</badge>{{/if}}
             <b class="caret"></b>
           </a>
           <ul class="dropdown-menu inverse-dropdown">

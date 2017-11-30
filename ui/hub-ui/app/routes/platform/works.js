@@ -30,14 +30,12 @@ export default Route.extend({
           resolve(self.store.query('work', {})
             .catch((error) => {
               get(self, 'display').error(error);
-              self.transitionTo('');
             }));
         },
 
         err => {
           reject(err);
           console.error(err);
-          self.transitionTo('');
         });
 
     });

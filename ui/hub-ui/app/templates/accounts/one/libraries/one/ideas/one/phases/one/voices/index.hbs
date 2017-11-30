@@ -7,7 +7,7 @@
 <div class="form-horizontal container-fluid">
 
   <!-- List of Voices -->
-  <div class="sm-col-12">
+  <div class="col-sm-12">
     <div class="table-list">
       <table class="table">
         <thead>
@@ -35,7 +35,7 @@
   </div>
 
   {{#if (or auth.isArtist auth.isAdmin)}}
-    <div class="sm-col-12">
+    <div class="col-sm-12">
       Or: {{#link-to 'accounts.one.libraries.one.ideas.one.phases.one.voices.new'}}Create New Voice{{/link-to}}
     </div>
   {{/if}}

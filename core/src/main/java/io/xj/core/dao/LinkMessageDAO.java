@@ -18,7 +18,7 @@ public interface LinkMessageDAO {
    Create a new Link Message
 
    @param access control
-   @param entity for the new Account User.
+   @param entity for the new Link Message
    @return newly readMany record
    */
   LinkMessageRecord create(Access access, LinkMessage entity) throws Exception;

@@ -12,6 +12,7 @@ import org.jooq.types.ULong;
 
 import javax.annotation.Nullable;
 import java.sql.Timestamp;
+import java.util.Collection;
 
 public interface ChainDAO {
   /**
@@ -52,18 +53,7 @@ public interface ChainDAO {
     @param access     control
    @param state to read chains in
    */
-  Result<ChainRecord> readAllInState(Access access, ChainState state) throws Exception;
-
-  /**
-   [INTERNAL USE ONLY]
-   Read IDs of all Chains that are in fabricate-state at a given instant
-
-   @param access     control
-   @param atOrBefore time to check for chains in fabricate-state
-   @return array of chains as JSON
-   @throws Exception on failure
-   */
-  Result<ChainRecord> readAllInStateFabricate(Access access, Timestamp atOrBefore) throws Exception;
+  Collection<Chain> readAllInState(Access access, ChainState state) throws Exception;
 
   /**
    Update a specified Chain

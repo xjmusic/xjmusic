@@ -3,14 +3,15 @@ package io.xj.core.work.impl;
 
 import io.xj.core.access.impl.Access;
 import io.xj.core.config.Config;
-import io.xj.core.dao.AudioDAO;
 import io.xj.core.dao.ChainDAO;
-import io.xj.core.dao.LinkDAO;
-import io.xj.core.persistence.redis.RedisDatabaseProvider;
+import io.xj.core.dao.PlatformMessageDAO;
 import io.xj.core.model.chain.ChainState;
+import io.xj.core.model.message.MessageType;
+import io.xj.core.model.platform_message.PlatformMessage;
 import io.xj.core.model.work.Work;
 import io.xj.core.model.work.WorkState;
 import io.xj.core.model.work.WorkType;
+import io.xj.core.persistence.redis.RedisDatabaseProvider;
 import io.xj.core.work.WorkManager;
 
 import org.jooq.types.ULong;
@@ -37,21 +38,18 @@ public class WorkManagerImpl implements WorkManager {
   private static final Integer MILLIS_PER_SECOND = 1000;
   private static final String KEY_JESQUE_CLASS = "class";
   private static final String KEY_JESQUE_ARGS = "args";
+  private final PlatformMessageDAO platformMessageDAO;
   private final RedisDatabaseProvider redisDatabaseProvider;
   private final ChainDAO chainDAO;
-  private final AudioDAO audioDAO;
-  private final LinkDAO linkDAO;
 
   @Inject
   WorkManagerImpl(
-    AudioDAO audioDAO,
     ChainDAO chainDAO,
-    LinkDAO linkDAO,
+    PlatformMessageDAO platformMessageDAO,
     RedisDatabaseProvider redisDatabaseProvider
   ) {
-    this.audioDAO = audioDAO;
     this.chainDAO = chainDAO;
-    this.linkDAO = linkDAO;
+    this.platformMessageDAO = platformMessageDAO;
     this.redisDatabaseProvider = redisDatabaseProvider;
   }
 
@@ -126,18 +124,95 @@ public class WorkManagerImpl implements WorkManager {
       }
     });
 
-    Collection<Work> list = Lists.newArrayList();
-    workMap.forEach((workId, work) -> list.add(work));
-    return list;
+    Collection<Work> allWork = Lists.newArrayList();
+    workMap.forEach((workId, work) -> allWork.add(work));
+    return allWork;
   }
 
+  @Override
+  public Collection<Work> reinstateAllWork() throws Exception {
+    Collection<Work> reinstatedWork = Lists.newArrayList();
 
+    readAllWork().forEach((work) -> {
+      if (WorkState.Expected == work.getState()) {
+        switch (work.getType()) {
+
+          case ChainErase:
+          case ChainFabricate:
+            try {
+              reinstatedWork.add(reinstate(work));
+            } catch (Exception e) {
+              instantiationFailure(work, e);
+            }
+            break;
+
+          case AudioErase:
+          case LinkCraft:
+          case LinkDub:
+            // does not warrant job creation
+            break;
+        }
+      }
+    });
+
+    return reinstatedWork;
+  }
+
+  /**
+   Reinstate work
+
+   @param work to reinstate
+   @return reinstated work
+   */
+  private Work reinstate(Work work) throws Exception {
+    startRecurringJob(work.getType(), work.getTargetId(),
+      Config.workChainDelaySeconds(), Config.workChainDeleteRecurSeconds());
+    work.setState(WorkState.Queued);
+    platformMessageDAO.create(Access.internal(),
+      new PlatformMessage()
+        .setType(MessageType.Warning.toString())
+        .setBody(String.format("Reinstated work %s", work)));
+    log.warn("Reinstated work {}", work);
+    return work;
+  }
+
+  /**
+   Report an instantiation failure
+
+   @param work that failed to instantiate
+   @param e cause of failure
+   */
+  private void instantiationFailure(Work work, Exception e) {
+    try {
+      platformMessageDAO.create(Access.internal(),
+        new PlatformMessage()
+          .setType(MessageType.Error.toString())
+          .setBody(String.format("Failed to instantiate work %s because %s", work, e)));
+    } catch (Exception e1) {
+      log.error("Failed to instantiate work {} and failed to report platform message {} {}", work, e, e1);
+    }
+    log.error("Failed to instantiate work {}", work, e);
+  }
+
+  /**
+   Compute the key for the Redis work queue
+
+   @return computed key
+   */
   private static String computeRedisWorkQueueKey() {
     return String.format("%s:queue:%s",
       Config.dbRedisQueueNamespace(),
       Config.workQueueName());
   }
 
+  /**
+   build a Work from properties
+
+   @param type     of work
+   @param state    of work
+   @param targetId of work
+   @return new work
+   */
   private static Work buildWork(WorkType type, WorkState state, ULong targetId) {
     Work work = new Work()
       .setState(state)
@@ -169,7 +244,7 @@ public class WorkManagerImpl implements WorkManager {
    @param recurSeconds to repeat every # seconds
    */
   private void startRecurringJob(WorkType workType, ULong id, Integer delaySeconds, Integer recurSeconds) {
-    log.info("Start recurring job:{}, entityId:{}, delaySeconds:{}, recurSeconds:{}", workType.toString(), id, delaySeconds, recurSeconds);
+    log.info("Start recurring job:{}, entityId:{}, delaySeconds:{}, recurSeconds:{}", workType, id, delaySeconds, recurSeconds);
     enqueueRecurringWork(new Job(workType.toString(), id), delaySeconds, recurSeconds);
   }
 
@@ -180,7 +255,7 @@ public class WorkManagerImpl implements WorkManager {
    @param id       of entity
    */
   private void removeRecurringJob(WorkType workType, ULong id) {
-    log.info("Remove recurring job:{}, entityId:{}", workType.toString(), id);
+    log.info("Remove recurring job:{}, entityId:{}", workType, id);
     removeRecurringWork(new Job(workType.toString(), id));
   }
 
@@ -192,7 +267,7 @@ public class WorkManagerImpl implements WorkManager {
    @param delaySeconds to wait # seconds
    */
   private void scheduleJob(WorkType workType, ULong id, Integer delaySeconds) {
-    log.info("Schedule job:{}, entityId:{}, delaySeconds:{}", workType.toString(), id, delaySeconds);
+    log.info("Schedule job:{}, entityId:{}, delaySeconds:{}", workType, id, delaySeconds);
     enqueueDelayedWork(new Job(workType.toString(), id), delaySeconds);
   }
 
@@ -203,7 +278,7 @@ public class WorkManagerImpl implements WorkManager {
    @param id       of entity
    */
   private void doJob(WorkType workType, ULong id) {
-    log.info("Do job:{}, entityId:{}", workType.toString(), id);
+    log.info("Do job:{}, entityId:{}", workType, id);
     enqueueWork(new Job(workType.toString(), id));
   }
 

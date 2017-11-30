@@ -154,12 +154,13 @@ public class HttpResponseProviderImpl implements HttpResponseProvider {
   }
 
   @Override
-  public Response create(String keyMany, String keyOne, Record result) {
-    if (null != result)
+  public Response create(String keyMany, String keyOne, Record record) {
+    if (null != record)
       return Response
-        .created(Exposure.apiURI(keyMany + "/" + result.get(Entity.KEY_ID)))
-        .entity(JSON.wrap(keyOne, JSON.objectFromRecord(result)).toString())
+        .created(Exposure.apiURI(keyMany + "/" + record.get(Entity.KEY_ID)))
+        .entity(JSON.wrap(keyOne, JSON.objectFromRecord(record)).toString())
         .build();
+
     else
       return failureToCreate(new BusinessException("Could not create " + keyOne));
 

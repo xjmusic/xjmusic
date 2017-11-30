@@ -14,20 +14,21 @@ import java.util.List;
 public interface Config {
 
   double DEFAULT_TUNING_ROOT_PITCH = 432.0;
-  int DEFAULT_LIMIT_LINK_READ_SIZE = 20;
-  int DEFAULT_PLAY_BUFFER_DELAY_SECONDS = 5;
-  int DEFAULT_PLAY_BUFFER_AHEAD_SECONDS = 60;
-  int DEFAULT_WORK_BUFFER_SECONDS = 300;
-  int DEFAULT_WORK_BUFFER_CRAFT_DELAY_SECONDS = 1;
-  int DEFAULT_WORK_BUFFER_DUB_DELAY_SECONDS = 30;
-  int SECONDS_PER_MINUTE = 60;
-  int MINUTES_PER_HOUR = 60;
-  int HOURS_PER_DAY = 24;
   int DAYS_PER_MONTH = 28;
   int DEFAULT_APP_PORT = 80;
-  int DEFAULT_CHAIN_PREVIEW_LENGTH_MAX = 300;
-  int DEFAULT_CHAIN_DESTROY_LINKS_MAX = 24;
   long DEFAULT_CACHE_FILE_ALLOCATE_BYTES = 1_000_000_000; // 1 gigabyte
+  int DEFAULT_CHAIN_DESTROY_LINKS_MAX = 24;
+  int DEFAULT_CHAIN_PREVIEW_LENGTH_MAX = 300;
+  int DEFAULT_LIMIT_LINK_READ_SIZE = 20;
+  int DEFAULT_PLATFORM_MESSAGE_READ_PREVIOUS_DAYS = 90;
+  int DEFAULT_PLAY_BUFFER_AHEAD_SECONDS = 60;
+  int DEFAULT_PLAY_BUFFER_DELAY_SECONDS = 5;
+  int DEFAULT_WORK_BUFFER_CRAFT_DELAY_SECONDS = 1;
+  int DEFAULT_WORK_BUFFER_DUB_DELAY_SECONDS = 30;
+  int DEFAULT_WORK_BUFFER_SECONDS = 300;
+  int HOURS_PER_DAY = 24;
+  int MINUTES_PER_HOUR = 60;
+  int SECONDS_PER_MINUTE = 60;
 
   static Boolean isTestEnvironment() {
     return getBoolOrDefault("env.test", false);
@@ -120,6 +121,14 @@ public interface Config {
 
   static String appPathSuccess() {
     return getOrDefault("app.path.welcome", "");
+  }
+
+  static Integer platformMessageReadPreviousDays() {
+    return getIntOrDefault("platform.message.read.previousDays", DEFAULT_PLATFORM_MESSAGE_READ_PREVIOUS_DAYS);
+  }
+
+  static String platformHeartbeatKey() throws ConfigException {
+    return get("platform.heartbeat.key");
   }
 
   static int chainPreviewLengthMax() {

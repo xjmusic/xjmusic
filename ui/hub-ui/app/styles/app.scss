@@ -2,22 +2,22 @@
 
 @import "audio_waveform";
 @import "breadcrumb";
+@import "buttons";
 @import "chain";
-@import "common";
 @import "footer";
 @import "forms";
+@import "global";
 @import "headline";
 @import "mailchimp";
 @import "marketing";
 @import "messages";
+@import "modals";
 @import "nav";
 @import "palette";
 @import "player";
 @import "states";
 @import "table";
 @import "typography";
-@import "buttons";
-@import "modals";
 
 // noinspection CssUnknownTarget - imported from module of same name
 @import "ember-power-select";

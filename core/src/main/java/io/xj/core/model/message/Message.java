@@ -1,14 +1,10 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 package io.xj.core.model.message;
 
+import io.xj.core.exception.BusinessException;
 import io.xj.core.model.Entity;
-import io.xj.core.model.link_message.LinkMessage;
-import io.xj.core.util.Text;
 
-import org.jooq.types.ULong;
-
-import java.math.BigInteger;
-import java.util.List;
+import java.util.Objects;
 
 /**
  Entity for use as POJO for decoding messages received by JAX-RS resources
@@ -19,20 +15,21 @@ import java.util.List;
  <p>
  NOTE: There can only be ONE of any getter/setter (with the same # of input params)
  */
-abstract public class Message extends Entity {
+public abstract class Message extends Entity {
 
-  /**
-   It is implied that choice types must equal idea types
-   */
-  public final static List<String> TYPES = MessageType.stringValues();
+  public void validate() throws BusinessException {
+    if (Objects.isNull(type)) {
+      throw new BusinessException("Type is required.");
+    }
 
-  /**
-   For use in maps.
-   */
+    if (!MessageType.stringValues().contains(type)) {
+      throw new BusinessException("Invalid type!");
+    }
+  }
+
   public static final String KEY_ONE = "message";
   public static final String KEY_MANY = "messages";
 
-  protected ULong linkId;
   protected String type;
 
   public String getBody() {
@@ -44,25 +41,15 @@ abstract public class Message extends Entity {
     return this;
   }
 
-  public Message setLinkId(BigInteger linkId) {
-    this.linkId = ULong.valueOf(linkId);
-    return this;
-  }
-
   public Message setType(String type) {
-    this.type = Text.toLowerSlug(type);
+    this.type = type;
     return this;
   }
 
   protected String body;
 
-  public ULong getLinkId() {
-    return linkId;
+  public String getType() {
+    return type;
   }
 
-  public MessageType getType() {
-    return MessageType.valueOf(type);
-  }
-
-  public abstract LinkMessage setType(MessageType type);
 }

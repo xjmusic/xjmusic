@@ -8,7 +8,7 @@
 
   <!-- List of Works -->
   {{#if model.length}}
-    <div class="sm-col-12">
+    <div class="col-sm-12">
       <div class="table-list">
         <table class="table">
           <thead>
@@ -22,7 +22,7 @@
           </thead>
           <tbody>
           {{#each model as |work|}}
-            <tr class="item {{lowercase work.state}}-state {{if (eq player.currentWork.id work.id) 'now-playing'}}">
+            <tr class="item {{lowercase work.state}}-state">
               <td>{{work.targetAction}}</td>
               <td>{{work.targetType}}&nbsp;#{{work.targetId}}</td>
               <td>&nbsp;</td>
@@ -33,6 +33,10 @@
           </tbody>
         </table>
       </div>
+    </div>
+  {{else}}
+    <div class="col-sm-12">
+      <p>No work is expected.</p>
     </div>
   {{/if}}
 

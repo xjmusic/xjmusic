@@ -34,10 +34,14 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.annotation.Nullable;
 import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -62,7 +66,7 @@ import static io.xj.core.Tables.LINK;
  of the logic around adding links to chains and updating chain state to complete.
  */
 public class ChainDAOImpl extends DAOImpl implements ChainDAO {
-  //  private static final Logger log = LoggerFactory.getLogger(ChainDAOImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(ChainDAOImpl.class);
   private final int previewLengthMax;
   private final WorkManager workManager;
 
@@ -109,21 +113,10 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
   }
 
   @Override
-  public Result<ChainRecord> readAllInState(Access access, ChainState state) throws Exception {
+  public Collection<Chain> readAllInState(Access access, ChainState state) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readAllInState(tx.getContext(), access, state));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  @Nullable
-  public Result<ChainRecord> readAllInStateFabricate(Access access, Timestamp atOrBefore) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readAllRecordsInStateFabricate(tx.getContext(), access, atOrBefore));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -291,30 +284,22 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
    @param access control
    @param state  to read chains in
    */
-  private Result<ChainRecord> readAllInState(DSLContext db, Access access, ChainState state) throws Exception {
-    requireTopLevel(access);
-    return resultInto(CHAIN, db.select(CHAIN.fields())
+  private Collection<Chain> readAllInState(DSLContext db, Access access, ChainState state) throws Exception {
+    requireRole("platform access", access, Role.ADMIN, Role.ENGINEER);
+
+    Collection<Chain> result = Lists.newArrayList();
+    resultInto(CHAIN, db.select(CHAIN.fields())
       .from(CHAIN)
       .where(CHAIN.STATE.eq(state.toString()))
       .or(CHAIN.STATE.eq(state.toString().toLowerCase()))
-      .fetch());
-  }
-
-  /**
-   Read all records now in fabricate-state
-
-   @param db         context
-   @param access     control
-   @param atOrBefore time to check for chains in fabricate state
-   @return array of records
-   */
-  private Result<ChainRecord> readAllRecordsInStateFabricate(DSLContext db, Access access, Timestamp atOrBefore) throws BusinessException {
-    requireTopLevel(access);
-
-    return db.selectFrom(CHAIN)
-      .where(CHAIN.STATE.eq(ChainState.Fabricate.toString()))
-      .and(CHAIN.START_AT.lessOrEqual(atOrBefore))
-      .fetch();
+      .fetch()).forEach((record) -> {
+      try {
+        result.add(new Chain().setFromRecord(record));
+      } catch (BusinessException e) {
+        log.debug("Malformed Chain Record", e);
+      }
+    });
+    return result;
   }
 
   /**
