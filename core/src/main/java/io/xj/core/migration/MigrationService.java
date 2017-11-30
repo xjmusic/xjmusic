@@ -1,7 +1,7 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 package io.xj.core.migration;
 
-import io.xj.core.app.exception.ConfigException;
+import io.xj.core.exception.ConfigException;
 import io.xj.core.database.sql.SQLDatabaseProvider;
 
 import org.flywaydb.core.Flyway;

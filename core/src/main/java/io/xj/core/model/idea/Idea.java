@@ -1,7 +1,7 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 package io.xj.core.model.idea;
 
-import io.xj.core.app.exception.BusinessException;
+import io.xj.core.exception.BusinessException;
 import io.xj.core.model.Entity;
 
 import org.jooq.Field;
@@ -9,10 +9,8 @@ import org.jooq.Record;
 import org.jooq.types.ULong;
 
 import com.google.api.client.util.Maps;
-import com.google.common.collect.ImmutableList;
 
 import java.math.BigInteger;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 

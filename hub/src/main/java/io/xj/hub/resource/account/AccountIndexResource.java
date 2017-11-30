@@ -2,8 +2,8 @@
 package io.xj.hub.resource.account;
 
 import io.xj.core.CoreModule;
-import io.xj.core.app.access.impl.Access;
-import io.xj.core.app.server.HttpResponseProvider;
+import io.xj.core.access.impl.Access;
+import io.xj.core.server.HttpResponseProvider;
 import io.xj.core.dao.AccountDAO;
 import io.xj.core.model.account.Account;
 import io.xj.core.model.account.AccountWrapper;

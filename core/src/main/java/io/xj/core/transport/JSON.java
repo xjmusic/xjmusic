@@ -1,7 +1,7 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 package io.xj.core.transport;
 
-import io.xj.core.app.config.Exposure;
+import io.xj.core.config.Exposure;
 import io.xj.core.model.JSONObjectEntity;
 import io.xj.core.util.CamelCasify;
 
@@ -16,8 +16,6 @@ import javax.annotation.Nullable;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 public abstract class JSON {

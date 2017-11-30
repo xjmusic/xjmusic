@@ -1,7 +1,7 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 package io.xj.core.util;
 
-import io.xj.core.app.config.Config;
+import io.xj.core.config.Config;
 
 import java.util.Objects;
 import java.util.regex.Pattern;

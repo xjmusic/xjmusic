@@ -1,7 +1,7 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 package io.xj.hub.resource.user;
 
-import io.xj.core.app.resource.ResourceEndpointTest;
+import io.xj.core.resource.ResourceEndpointTest;
 
 //@RunWith(MockitoJUnitRunner.class)
 public class UserRecordResourceTest extends ResourceEndpointTest {

@@ -1,9 +1,9 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 package io.xj.core.work.basis.impl;
 
-import io.xj.core.app.access.impl.Access;
-import io.xj.core.app.config.Config;
-import io.xj.core.app.exception.BusinessException;
+import io.xj.core.access.impl.Access;
+import io.xj.core.config.Config;
+import io.xj.core.exception.BusinessException;
 import io.xj.core.dao.ArrangementDAO;
 import io.xj.core.dao.AudioDAO;
 import io.xj.core.dao.AudioEventDAO;

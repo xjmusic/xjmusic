@@ -2,9 +2,9 @@
 package io.xj.core.database.sql.impl;
 
 import io.xj.core.Xj;
-import io.xj.core.app.config.Config;
-import io.xj.core.app.exception.ConfigException;
-import io.xj.core.app.exception.DatabaseException;
+import io.xj.core.config.Config;
+import io.xj.core.exception.ConfigException;
+import io.xj.core.exception.DatabaseException;
 import io.xj.core.database.sql.SQLDatabaseProvider;
 
 import org.jooq.DSLContext;

@@ -1,7 +1,7 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 package io.xj.core.dao;
 
-import io.xj.core.app.access.impl.Access;
+import io.xj.core.access.impl.Access;
 import io.xj.core.model.audio_chord.AudioChord;
 import io.xj.core.tables.records.AudioChordRecord;
 

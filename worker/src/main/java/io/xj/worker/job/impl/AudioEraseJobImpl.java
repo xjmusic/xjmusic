@@ -1,7 +1,7 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 package io.xj.worker.job.impl;
 
-import io.xj.core.app.access.impl.Access;
+import io.xj.core.access.impl.Access;
 import io.xj.core.dao.AudioDAO;
 import io.xj.core.tables.records.AudioRecord;
 import io.xj.worker.job.AudioEraseJob;

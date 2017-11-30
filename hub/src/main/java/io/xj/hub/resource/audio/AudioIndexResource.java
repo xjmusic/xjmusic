@@ -2,8 +2,8 @@
 package io.xj.hub.resource.audio;
 
 import io.xj.core.CoreModule;
-import io.xj.core.app.access.impl.Access;
-import io.xj.core.app.server.HttpResponseProvider;
+import io.xj.core.access.impl.Access;
+import io.xj.core.server.HttpResponseProvider;
 import io.xj.core.dao.AudioDAO;
 import io.xj.core.model.audio.Audio;
 import io.xj.core.model.audio.AudioWrapper;

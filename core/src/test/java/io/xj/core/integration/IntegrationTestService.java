@@ -2,8 +2,8 @@
 package io.xj.core.integration;
 
 import io.xj.core.CoreModule;
-import io.xj.core.app.exception.ConfigException;
-import io.xj.core.app.exception.DatabaseException;
+import io.xj.core.exception.ConfigException;
+import io.xj.core.exception.DatabaseException;
 import io.xj.core.database.redis.RedisDatabaseProvider;
 import io.xj.core.database.sql.impl.SQLConnection;
 import io.xj.core.database.sql.SQLDatabaseProvider;

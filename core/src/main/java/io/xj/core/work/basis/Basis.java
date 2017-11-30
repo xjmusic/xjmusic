@@ -1,7 +1,7 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 package io.xj.core.work.basis;
 
-import io.xj.core.app.exception.BusinessException;
+import io.xj.core.exception.BusinessException;
 import io.xj.core.model.arrangement.Arrangement;
 import io.xj.core.model.audio.Audio;
 import io.xj.core.model.audio_event.AudioEvent;

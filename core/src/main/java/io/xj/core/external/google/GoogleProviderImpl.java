@@ -1,10 +1,10 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 package io.xj.core.external.google;
 
-import io.xj.core.app.config.Config;
-import io.xj.core.app.config.Exposure;
-import io.xj.core.app.exception.AccessException;
-import io.xj.core.app.exception.ConfigException;
+import io.xj.core.config.Config;
+import io.xj.core.config.Exposure;
+import io.xj.core.exception.AccessException;
+import io.xj.core.exception.ConfigException;
 
 import com.google.api.client.auth.oauth2.AuthorizationCodeRequestUrl;
 import com.google.api.client.auth.oauth2.TokenResponseException;

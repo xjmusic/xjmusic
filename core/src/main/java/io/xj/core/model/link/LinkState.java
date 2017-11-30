@@ -3,7 +3,7 @@ package io.xj.core.model.link;
 
 import com.google.common.collect.ImmutableList;
 
-import io.xj.core.app.exception.BusinessException;
+import io.xj.core.exception.BusinessException;
 import io.xj.core.transport.CSV;
 import io.xj.core.util.Text;
 

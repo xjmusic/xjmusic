@@ -1,13 +1,11 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 package io.xj.hub.resource.config;
 
-import io.xj.core.app.config.Exposure;
-import io.xj.core.app.exception.ConfigException;
-import io.xj.core.model.role.Role;
+import io.xj.core.config.Exposure;
+import io.xj.core.exception.ConfigException;
 import io.xj.core.transport.JSON;
 
 import javax.annotation.security.PermitAll;
-import javax.annotation.security.RolesAllowed;
 import javax.jws.WebResult;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;

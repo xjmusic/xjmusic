@@ -2,7 +2,7 @@
 package io.xj.hub.resource.auth.google;
 
 import io.xj.core.CoreModule;
-import io.xj.core.app.exception.ConfigException;
+import io.xj.core.exception.ConfigException;
 import io.xj.core.external.google.GoogleProvider;
 
 import com.google.inject.Guice;

@@ -1,7 +1,7 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 package io.xj.hub.resource.auth;
 
-import io.xj.core.app.access.impl.Access;
+import io.xj.core.access.impl.Access;
 import io.xj.core.model.role.Role;
 
 import javax.annotation.security.RolesAllowed;

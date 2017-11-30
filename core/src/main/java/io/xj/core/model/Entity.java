@@ -1,15 +1,12 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 package io.xj.core.model;
 
-import io.xj.core.app.exception.BusinessException;
-import io.xj.core.util.CamelCasify;
+import io.xj.core.exception.BusinessException;
 import io.xj.core.util.timestamp.TimestampUTC;
 
 import org.jooq.Field;
 import org.jooq.Record;
 import org.jooq.types.ULong;
-
-import com.google.common.collect.Maps;
 
 import javax.annotation.Nullable;
 import java.math.BigInteger;

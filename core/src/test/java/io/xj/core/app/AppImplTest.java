@@ -2,11 +2,11 @@
 package io.xj.core.app;
 
 import io.xj.core.CoreModule;
-import io.xj.core.app.access.AccessLogFilterProvider;
-import io.xj.core.app.access.AccessTokenAuthFilter;
-import io.xj.core.app.exception.ConfigException;
-import io.xj.core.app.server.HttpServerProvider;
-import io.xj.core.app.server.ResourceConfigProvider;
+import io.xj.core.access.AccessLogFilterProvider;
+import io.xj.core.access.AccessTokenAuthFilter;
+import io.xj.core.exception.ConfigException;
+import io.xj.core.server.HttpServerProvider;
+import io.xj.core.server.ResourceConfigProvider;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -59,7 +59,7 @@ public class AppImplTest extends Mockito {
   public void ConfigureAndStart() throws IOException, ConfigException {
     when(httpServerProvider.get())
       .thenReturn(httpServer);
-    when(resourceConfigProvider.get("io.xj.core.app.resource"))
+    when(resourceConfigProvider.get("io.xj.core.resource"))
       .thenReturn(resourceConfig);
 
     app.configureServer();
@@ -80,7 +80,7 @@ public class AppImplTest extends Mockito {
       .thenReturn(httpServer);
     doThrow(new IOException("this is a test of application start failed"))
       .when(httpServer).start();
-    when(resourceConfigProvider.get("io.xj.core.app.resource"))
+    when(resourceConfigProvider.get("io.xj.core.resource"))
       .thenReturn(resourceConfig);
 
     app.configureServer();
@@ -94,42 +94,42 @@ public class AppImplTest extends Mockito {
   public void Configure_EmptyPackages() throws IOException {
     System.setProperty("log.access.filename", "/tmp/access.log");
     System.setProperty("log.access.entities.maxsize", "5");
-    when(resourceConfigProvider.get("io.xj.core.app.resource"))
+    when(resourceConfigProvider.get("io.xj.core.resource"))
       .thenReturn(resourceConfig);
 
     app.configureServer();
 
     verify(accessLogFilterProvider).registerTo(resourceConfig);
     verify(resourceConfig).register(accessTokenAuthFilter);
-    verify(resourceConfigProvider).get("io.xj.core.app.resource");
+    verify(resourceConfigProvider).get("io.xj.core.resource");
   }
 
   @Test
   public void Configure_AccessLogEntitiesMaxSize() throws IOException {
     System.setProperty("log.access.filename", "/tmp/access.log");
     System.setProperty("log.access.entities.maxsize", "5");
-    when(resourceConfigProvider.get("io.xj.core.app.resource", "one", "two", "three"))
+    when(resourceConfigProvider.get("io.xj.core.resource", "one", "two", "three"))
       .thenReturn(resourceConfig);
 
     app.configureServer("one", "two", "three");
 
     verify(accessLogFilterProvider).registerTo(resourceConfig);
     verify(resourceConfig).register(accessTokenAuthFilter);
-    verify(resourceConfigProvider).get("io.xj.core.app.resource", "one", "two", "three");
+    verify(resourceConfigProvider).get("io.xj.core.resource", "one", "two", "three");
   }
 
   @Test
   public void Configure_AccessLogEntitiesAll() throws IOException {
     System.setProperty("log.access.filename", "/tmp/access.log");
     System.setProperty("log.access.entities.all", "true");
-    when(resourceConfigProvider.get("io.xj.core.app.resource", "one", "two", "three"))
+    when(resourceConfigProvider.get("io.xj.core.resource", "one", "two", "three"))
       .thenReturn(resourceConfig);
 
     app.configureServer("one", "two", "three");
 
     verify(accessLogFilterProvider).registerTo(resourceConfig);
     verify(resourceConfig).register(accessTokenAuthFilter);
-    verify(resourceConfigProvider).get("io.xj.core.app.resource", "one", "two", "three");
+    verify(resourceConfigProvider).get("io.xj.core.resource", "one", "two", "three");
   }
 
   @Test

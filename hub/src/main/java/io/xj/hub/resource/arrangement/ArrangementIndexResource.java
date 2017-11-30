@@ -2,8 +2,8 @@
 package io.xj.hub.resource.arrangement;
 
 import io.xj.core.CoreModule;
-import io.xj.core.app.access.impl.Access;
-import io.xj.core.app.server.HttpResponseProvider;
+import io.xj.core.access.impl.Access;
+import io.xj.core.server.HttpResponseProvider;
 import io.xj.core.dao.ArrangementDAO;
 import io.xj.core.model.arrangement.Arrangement;
 import io.xj.core.model.role.Role;

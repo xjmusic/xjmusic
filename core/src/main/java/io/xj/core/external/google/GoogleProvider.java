@@ -1,8 +1,8 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 package io.xj.core.external.google;
 
-import io.xj.core.app.exception.AccessException;
-import io.xj.core.app.exception.ConfigException;
+import io.xj.core.exception.AccessException;
+import io.xj.core.exception.ConfigException;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
 import com.google.api.services.plus.model.Person;

@@ -1,8 +1,8 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 package io.xj.worker.work.dub.impl;
 
-import io.xj.core.app.access.impl.Access;
-import io.xj.core.app.exception.BusinessException;
+import io.xj.core.access.impl.Access;
+import io.xj.core.exception.BusinessException;
 import io.xj.core.cache.audio.AudioCacheProvider;
 import io.xj.core.dao.LinkMessageDAO;
 import io.xj.core.model.audio.Audio;

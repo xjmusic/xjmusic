@@ -2,8 +2,8 @@
 package io.xj.hub.resource.link;
 
 import io.xj.core.CoreModule;
-import io.xj.core.app.access.impl.Access;
-import io.xj.core.app.server.HttpResponseProvider;
+import io.xj.core.access.impl.Access;
+import io.xj.core.server.HttpResponseProvider;
 import io.xj.core.dao.LinkDAO;
 import io.xj.core.model.link.Link;
 import io.xj.core.model.role.Role;

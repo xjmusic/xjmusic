@@ -2,8 +2,8 @@
 package io.xj.hub.resource.link_meme;
 
 import io.xj.core.CoreModule;
-import io.xj.core.app.access.impl.Access;
-import io.xj.core.app.server.HttpResponseProvider;
+import io.xj.core.access.impl.Access;
+import io.xj.core.server.HttpResponseProvider;
 import io.xj.core.dao.LinkMemeDAO;
 import io.xj.core.model.link_meme.LinkMeme;
 import io.xj.core.model.role.Role;

@@ -1,8 +1,8 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 package io.xj.worker.work.dub.impl;
 
-import io.xj.core.app.config.Config;
-import io.xj.core.app.exception.BusinessException;
+import io.xj.core.config.Config;
+import io.xj.core.exception.BusinessException;
 import io.xj.core.work.basis.Basis;
 import io.xj.core.external.amazon.AmazonProvider;
 import io.xj.worker.work.dub.ShipDub;

@@ -2,8 +2,8 @@
 package io.xj.hub.resource.chain_idea;
 
 import io.xj.core.CoreModule;
-import io.xj.core.app.access.impl.Access;
-import io.xj.core.app.server.HttpResponseProvider;
+import io.xj.core.access.impl.Access;
+import io.xj.core.server.HttpResponseProvider;
 import io.xj.core.dao.ChainIdeaDAO;
 import io.xj.core.model.chain_idea.ChainIdea;
 import io.xj.core.model.role.Role;

@@ -3,9 +3,9 @@ package io.xj.core.work.impl;
 
 import org.jooq.types.ULong;
 
-import io.xj.core.app.access.impl.Access;
-import io.xj.core.app.config.Config;
-import io.xj.core.app.exception.WorkException;
+import io.xj.core.access.impl.Access;
+import io.xj.core.config.Config;
+import io.xj.core.exception.WorkException;
 import io.xj.core.dao.LinkDAO;
 import io.xj.core.model.link.Link;
 import io.xj.core.model.link.LinkState;

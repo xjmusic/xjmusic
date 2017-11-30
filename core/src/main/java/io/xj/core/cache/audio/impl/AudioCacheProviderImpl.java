@@ -1,9 +1,9 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 package io.xj.core.cache.audio.impl;
 
-import io.xj.core.app.config.Config;
-import io.xj.core.app.exception.ConfigException;
-import io.xj.core.app.exception.NetworkException;
+import io.xj.core.config.Config;
+import io.xj.core.exception.ConfigException;
+import io.xj.core.exception.NetworkException;
 import io.xj.core.cache.audio.AudioCacheProvider;
 import io.xj.core.external.amazon.AmazonProvider;
 

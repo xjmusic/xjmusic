@@ -2,8 +2,8 @@
 package io.xj.hub.resource.link_chord;
 
 import io.xj.core.CoreModule;
-import io.xj.core.app.access.impl.Access;
-import io.xj.core.app.server.HttpResponseProvider;
+import io.xj.core.access.impl.Access;
+import io.xj.core.server.HttpResponseProvider;
 import io.xj.core.dao.LinkChordDAO;
 import io.xj.core.model.link_chord.LinkChord;
 import io.xj.core.model.role.Role;

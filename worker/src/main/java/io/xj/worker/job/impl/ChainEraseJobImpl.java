@@ -8,7 +8,7 @@ import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
-import io.xj.core.app.access.impl.Access;
+import io.xj.core.access.impl.Access;
 import io.xj.core.dao.ChainDAO;
 import io.xj.core.dao.LinkDAO;
 import io.xj.core.tables.records.LinkRecord;

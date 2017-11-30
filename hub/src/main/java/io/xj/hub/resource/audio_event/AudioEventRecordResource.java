@@ -2,8 +2,8 @@
 package io.xj.hub.resource.audio_event;
 
 import io.xj.core.CoreModule;
-import io.xj.core.app.access.impl.Access;
-import io.xj.core.app.server.HttpResponseProvider;
+import io.xj.core.access.impl.Access;
+import io.xj.core.server.HttpResponseProvider;
 import io.xj.core.dao.AudioEventDAO;
 import io.xj.core.model.audio_event.AudioEvent;
 import io.xj.core.model.audio_event.AudioEventWrapper;

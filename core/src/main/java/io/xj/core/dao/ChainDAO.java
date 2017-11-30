@@ -1,7 +1,7 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 package io.xj.core.dao;
 
-import io.xj.core.app.access.impl.Access;
+import io.xj.core.access.impl.Access;
 import io.xj.core.model.chain.Chain;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.link.Link;
@@ -9,8 +9,6 @@ import io.xj.core.tables.records.ChainRecord;
 
 import org.jooq.Result;
 import org.jooq.types.ULong;
-
-import org.json.JSONObject;
 
 import javax.annotation.Nullable;
 import java.sql.Timestamp;

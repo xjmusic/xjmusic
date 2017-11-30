@@ -2,7 +2,7 @@
 package io.xj.core.external.google;
 
 import io.xj.core.CoreModule;
-import io.xj.core.app.exception.AccessException;
+import io.xj.core.exception.AccessException;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
 import com.google.api.client.http.HttpTransport;

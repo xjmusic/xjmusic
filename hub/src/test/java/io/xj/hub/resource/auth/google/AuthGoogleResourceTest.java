@@ -1,7 +1,7 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 package io.xj.hub.resource.auth.google;
 
-import io.xj.core.app.resource.ResourceEndpointTest;
+import io.xj.core.resource.ResourceEndpointTest;
 
 import org.junit.After;
 import org.junit.Before;

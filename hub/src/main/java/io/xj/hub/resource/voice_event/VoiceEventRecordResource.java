@@ -2,8 +2,8 @@
 package io.xj.hub.resource.voice_event;
 
 import io.xj.core.CoreModule;
-import io.xj.core.app.access.impl.Access;
-import io.xj.core.app.server.HttpResponseProvider;
+import io.xj.core.access.impl.Access;
+import io.xj.core.server.HttpResponseProvider;
 import io.xj.core.dao.VoiceEventDAO;
 import io.xj.core.model.role.Role;
 import io.xj.core.model.voice_event.VoiceEvent;

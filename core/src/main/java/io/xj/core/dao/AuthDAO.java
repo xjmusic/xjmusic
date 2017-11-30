@@ -1,8 +1,8 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 package io.xj.core.dao;
 
-import io.xj.core.app.exception.AccessException;
-import io.xj.core.app.exception.ConfigException;
+import io.xj.core.exception.AccessException;
+import io.xj.core.exception.ConfigException;
 
 public interface AuthDAO {
   /**

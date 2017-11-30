@@ -1,11 +1,11 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 package io.xj.core.dao.impl;
 
-import io.xj.core.app.access.AccessControlProvider;
-import io.xj.core.app.access.impl.Access;
-import io.xj.core.app.exception.AccessException;
-import io.xj.core.app.exception.BusinessException;
-import io.xj.core.app.exception.DatabaseException;
+import io.xj.core.access.AccessControlProvider;
+import io.xj.core.access.impl.Access;
+import io.xj.core.exception.AccessException;
+import io.xj.core.exception.BusinessException;
+import io.xj.core.exception.DatabaseException;
 import io.xj.core.dao.UserDAO;
 import io.xj.core.database.sql.impl.SQLConnection;
 import io.xj.core.database.sql.SQLDatabaseProvider;

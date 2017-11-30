@@ -1,6 +1,6 @@
 package io.xj.core.model.link_message;
 
-import io.xj.core.app.exception.BusinessException;
+import io.xj.core.exception.BusinessException;
 import io.xj.core.model.message.Message;
 import io.xj.core.model.message.MessageType;
 import io.xj.core.transport.CSV;

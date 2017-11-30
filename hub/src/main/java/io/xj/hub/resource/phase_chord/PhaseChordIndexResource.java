@@ -2,8 +2,8 @@
 package io.xj.hub.resource.phase_chord;
 
 import io.xj.core.CoreModule;
-import io.xj.core.app.access.impl.Access;
-import io.xj.core.app.server.HttpResponseProvider;
+import io.xj.core.access.impl.Access;
+import io.xj.core.server.HttpResponseProvider;
 import io.xj.core.dao.PhaseChordDAO;
 import io.xj.core.model.phase_chord.PhaseChord;
 import io.xj.core.model.phase_chord.PhaseChordWrapper;

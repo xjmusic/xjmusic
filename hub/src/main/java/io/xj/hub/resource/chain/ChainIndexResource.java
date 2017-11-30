@@ -2,8 +2,8 @@
 package io.xj.hub.resource.chain;
 
 import io.xj.core.CoreModule;
-import io.xj.core.app.access.impl.Access;
-import io.xj.core.app.server.HttpResponseProvider;
+import io.xj.core.access.impl.Access;
+import io.xj.core.server.HttpResponseProvider;
 import io.xj.core.dao.ChainDAO;
 import io.xj.core.model.chain.Chain;
 import io.xj.core.model.chain.ChainWrapper;

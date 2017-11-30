@@ -2,12 +2,12 @@
 package io.xj.hub.resource.auth.google;
 
 import io.xj.core.CoreModule;
-import io.xj.core.app.access.AccessControlProvider;
-import io.xj.core.app.config.Config;
-import io.xj.core.app.exception.AccessException;
-import io.xj.core.app.exception.ConfigException;
-import io.xj.core.app.exception.DatabaseException;
-import io.xj.core.app.server.HttpResponseProvider;
+import io.xj.core.access.AccessControlProvider;
+import io.xj.core.config.Config;
+import io.xj.core.exception.AccessException;
+import io.xj.core.exception.ConfigException;
+import io.xj.core.exception.DatabaseException;
+import io.xj.core.server.HttpResponseProvider;
 import io.xj.core.dao.impl.AuthDAOImpl;
 
 import com.google.api.client.auth.oauth2.AuthorizationCodeResponseUrl;

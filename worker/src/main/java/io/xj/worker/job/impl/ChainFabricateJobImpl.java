@@ -6,9 +6,9 @@ import org.jooq.types.ULong;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
-import io.xj.core.app.access.impl.Access;
-import io.xj.core.app.config.Config;
-import io.xj.core.app.exception.BusinessException;
+import io.xj.core.access.impl.Access;
+import io.xj.core.config.Config;
+import io.xj.core.exception.BusinessException;
 import io.xj.core.dao.ChainDAO;
 import io.xj.core.dao.LinkDAO;
 import io.xj.core.model.chain.ChainState;

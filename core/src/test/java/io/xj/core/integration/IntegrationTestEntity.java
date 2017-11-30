@@ -5,8 +5,8 @@ import org.jooq.DSLContext;
 import org.jooq.types.UInteger;
 import org.jooq.types.ULong;
 
-import io.xj.core.app.exception.BusinessException;
-import io.xj.core.app.exception.DatabaseException;
+import io.xj.core.exception.BusinessException;
+import io.xj.core.exception.DatabaseException;
 import io.xj.core.model.chain.Chain;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;

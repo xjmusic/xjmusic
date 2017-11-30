@@ -2,7 +2,7 @@
 package io.xj.hub.resource.work;
 
 import io.xj.core.CoreModule;
-import io.xj.core.app.server.HttpResponseProvider;
+import io.xj.core.server.HttpResponseProvider;
 import io.xj.core.model.role.Role;
 import io.xj.core.model.work.Work;
 import io.xj.core.work.WorkManager;

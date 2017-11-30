@@ -1,7 +1,7 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 package io.xj.core.model.link_meme;
 
-import io.xj.core.app.exception.BusinessException;
+import io.xj.core.exception.BusinessException;
 import io.xj.core.tables.records.LinkMemeRecord;
 
 import org.jooq.Field;

@@ -10,7 +10,7 @@ import org.jooq.types.ULong;
 import com.google.api.client.util.Maps;
 import com.google.common.collect.ImmutableList;
 
-import io.xj.core.app.exception.BusinessException;
+import io.xj.core.exception.BusinessException;
 import io.xj.core.model.Entity;
 import io.xj.core.util.Value;
 import io.xj.core.util.timestamp.TimestampUTC;

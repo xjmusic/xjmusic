@@ -2,8 +2,8 @@
 package io.xj.hub.resource.pick;
 
 import io.xj.core.CoreModule;
-import io.xj.core.app.access.impl.Access;
-import io.xj.core.app.server.HttpResponseProvider;
+import io.xj.core.access.impl.Access;
+import io.xj.core.server.HttpResponseProvider;
 import io.xj.core.dao.PickDAO;
 import io.xj.core.model.pick.Pick;
 import io.xj.core.model.role.Role;

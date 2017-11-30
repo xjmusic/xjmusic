@@ -1,7 +1,7 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 package io.xj.worker;
 
-import io.xj.core.app.exception.WorkException;
+import io.xj.core.exception.WorkException;
 import io.xj.core.model.work.WorkType;
 
 import org.jooq.types.ULong;

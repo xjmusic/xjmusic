@@ -6,8 +6,8 @@ import org.jooq.types.ULong;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
-import io.xj.core.app.exception.BusinessException;
-import io.xj.core.app.exception.ConfigException;
+import io.xj.core.exception.BusinessException;
+import io.xj.core.exception.ConfigException;
 import io.xj.core.dao.LinkDAO;
 import io.xj.core.model.link.Link;
 import io.xj.core.model.link.LinkState;

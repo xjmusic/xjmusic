@@ -1,12 +1,12 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 package io.xj.core.app;
 
-import io.xj.core.app.access.AccessLogFilterProvider;
-import io.xj.core.app.access.AccessTokenAuthFilter;
-import io.xj.core.app.config.Config;
-import io.xj.core.app.exception.ConfigException;
-import io.xj.core.app.server.HttpServerProvider;
-import io.xj.core.app.server.ResourceConfigProvider;
+import io.xj.core.access.AccessLogFilterProvider;
+import io.xj.core.access.AccessTokenAuthFilter;
+import io.xj.core.config.Config;
+import io.xj.core.exception.ConfigException;
+import io.xj.core.server.HttpServerProvider;
+import io.xj.core.server.ResourceConfigProvider;
 import io.xj.core.work.impl.RobustWorkerPool;
 import io.xj.core.work.WorkManager;
 
@@ -55,7 +55,7 @@ public class AppImpl implements App {
   ) {
     // Use specified packages plus default resource package
     String[] finalPackages = new String[packages.length + 1];
-    finalPackages[0] = "io.xj.core.app.resource";
+    finalPackages[0] = "io.xj.core.resource";
     System.arraycopy(packages, 0, finalPackages, 1, packages.length);
     for (String finalPackage : finalPackages) {
       log.info("Resources: " + finalPackage);

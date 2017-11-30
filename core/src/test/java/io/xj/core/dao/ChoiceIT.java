@@ -2,8 +2,8 @@
 package io.xj.core.dao;
 
 import io.xj.core.CoreModule;
-import io.xj.core.app.access.impl.Access;
-import io.xj.core.app.exception.BusinessException;
+import io.xj.core.access.impl.Access;
+import io.xj.core.exception.BusinessException;
 import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.integration.IntegrationTestService;
 import io.xj.core.model.chain.ChainState;

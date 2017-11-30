@@ -9,8 +9,8 @@ import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
-import io.xj.core.app.access.impl.Access;
-import io.xj.core.app.exception.BusinessException;
+import io.xj.core.access.impl.Access;
+import io.xj.core.exception.BusinessException;
 import io.xj.core.dao.ChoiceDAO;
 import io.xj.core.dao.IdeaDAO;
 import io.xj.core.dao.IdeaMemeDAO;
