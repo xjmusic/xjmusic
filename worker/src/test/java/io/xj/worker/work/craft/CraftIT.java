@@ -19,7 +19,7 @@ import io.xj.core.model.chain.ChainType;
 import io.xj.core.model.idea.IdeaType;
 import io.xj.core.model.role.Role;
 import io.xj.core.tables.records.LinkRecord;
-import io.xj.core.util.timestamp.TimestampUTC;
+import io.xj.core.timestamp.TimestampUTC;
 import io.xj.worker.WorkerModule;
 import net.greghaines.jesque.worker.JobFactory;
 import org.junit.After;

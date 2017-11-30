@@ -1,5 +1,5 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
-package io.xj.core.database.redis;
+package io.xj.core.persistence.redis;
 
 import net.greghaines.jesque.client.Client;
 import net.greghaines.jesque.worker.JobFactory;

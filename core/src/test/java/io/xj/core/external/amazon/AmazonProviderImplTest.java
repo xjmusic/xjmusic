@@ -3,7 +3,7 @@ package io.xj.core.external.amazon;
 
 import io.xj.core.CoreModule;
 import io.xj.core.exception.ConfigException;
-import io.xj.core.util.token.TokenGenerator;
+import io.xj.core.token.TokenGenerator;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;

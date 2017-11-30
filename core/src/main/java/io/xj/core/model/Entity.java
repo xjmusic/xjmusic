@@ -2,7 +2,7 @@
 package io.xj.core.model;
 
 import io.xj.core.exception.BusinessException;
-import io.xj.core.util.timestamp.TimestampUTC;
+import io.xj.core.timestamp.TimestampUTC;
 
 import org.jooq.Field;
 import org.jooq.Record;

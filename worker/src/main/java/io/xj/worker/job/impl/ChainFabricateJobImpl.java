@@ -15,7 +15,7 @@ import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.link.Link;
 import io.xj.core.tables.records.ChainRecord;
 import io.xj.core.tables.records.LinkRecord;
-import io.xj.core.util.timestamp.TimestampUTC;
+import io.xj.core.timestamp.TimestampUTC;
 import io.xj.core.work.WorkManager;
 import io.xj.worker.job.ChainFabricateJob;
 import org.slf4j.Logger;

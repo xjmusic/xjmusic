@@ -1,11 +1,5 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
-package io.xj.core.util.testing;
-
-import io.xj.core.tables.records.ChoiceRecord;
-
-import org.jooq.Record;
-
-import java.util.Objects;
+package io.xj.core.testing;
 
 import static org.junit.Assert.fail;
 

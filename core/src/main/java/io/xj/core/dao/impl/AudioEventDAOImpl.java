@@ -5,8 +5,8 @@ import io.xj.core.access.impl.Access;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.exception.ConfigException;
 import io.xj.core.dao.AudioEventDAO;
-import io.xj.core.database.sql.impl.SQLConnection;
-import io.xj.core.database.sql.SQLDatabaseProvider;
+import io.xj.core.persistence.sql.impl.SQLConnection;
+import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import io.xj.core.model.audio_event.AudioEvent;
 import io.xj.core.tables.records.AudioEventRecord;
 

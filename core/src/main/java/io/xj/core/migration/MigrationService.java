@@ -2,7 +2,7 @@
 package io.xj.core.migration;
 
 import io.xj.core.exception.ConfigException;
-import io.xj.core.database.sql.SQLDatabaseProvider;
+import io.xj.core.persistence.sql.SQLDatabaseProvider;
 
 import org.flywaydb.core.Flyway;
 import org.slf4j.Logger;

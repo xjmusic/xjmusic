@@ -8,7 +8,7 @@ import io.xj.core.CoreModule;
 import io.xj.core.app.App;
 import io.xj.core.config.Config;
 import io.xj.core.exception.ConfigException;
-import io.xj.core.database.sql.SQLDatabaseProvider;
+import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import io.xj.core.migration.MigrationService;
 import net.greghaines.jesque.worker.JobFactory;
 import org.slf4j.Logger;

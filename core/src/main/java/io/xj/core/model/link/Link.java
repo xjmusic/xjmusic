@@ -13,7 +13,7 @@ import com.google.common.collect.ImmutableList;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.model.Entity;
 import io.xj.core.util.Value;
-import io.xj.core.util.timestamp.TimestampUTC;
+import io.xj.core.timestamp.TimestampUTC;
 
 import java.math.BigInteger;
 import java.sql.Timestamp;

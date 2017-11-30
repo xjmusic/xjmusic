@@ -3,12 +3,12 @@ package io.xj.core.access;
 
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.AccessControlProviderImpl;
-import io.xj.core.database.redis.RedisDatabaseProvider;
+import io.xj.core.persistence.redis.RedisDatabaseProvider;
 import io.xj.core.model.role.Role;
 import io.xj.core.tables.records.AccountUserRecord;
 import io.xj.core.tables.records.UserAuthRecord;
 import io.xj.core.tables.records.UserRoleRecord;
-import io.xj.core.util.token.TokenGenerator;
+import io.xj.core.token.TokenGenerator;
 
 import org.jooq.types.ULong;
 

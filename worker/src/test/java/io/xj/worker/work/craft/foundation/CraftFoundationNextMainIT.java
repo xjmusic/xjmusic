@@ -19,7 +19,7 @@ import io.xj.core.model.link.LinkState;
 import io.xj.core.model.role.Role;
 import io.xj.core.tables.records.LinkMemeRecord;
 import io.xj.core.tables.records.LinkRecord;
-import io.xj.core.util.testing.Testing;
+import io.xj.core.testing.Testing;
 import io.xj.core.work.basis.Basis;
 import io.xj.core.work.basis.BasisFactory;
 import io.xj.worker.WorkerModule;

@@ -15,7 +15,7 @@ import io.xj.core.model.role.Role;
 import io.xj.core.tables.records.IdeaRecord;
 import io.xj.core.transport.CSV;
 import io.xj.core.transport.JSON;
-import io.xj.core.util.testing.Testing;
+import io.xj.core.testing.Testing;
 
 import org.jooq.Record;
 import org.jooq.Result;

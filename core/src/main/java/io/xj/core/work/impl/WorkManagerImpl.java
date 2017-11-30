@@ -6,7 +6,7 @@ import io.xj.core.config.Config;
 import io.xj.core.dao.AudioDAO;
 import io.xj.core.dao.ChainDAO;
 import io.xj.core.dao.LinkDAO;
-import io.xj.core.database.redis.RedisDatabaseProvider;
+import io.xj.core.persistence.redis.RedisDatabaseProvider;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.work.Work;
 import io.xj.core.model.work.WorkState;

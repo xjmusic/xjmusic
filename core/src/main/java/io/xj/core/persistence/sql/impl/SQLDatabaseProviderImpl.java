@@ -1,11 +1,11 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
-package io.xj.core.database.sql.impl;
+package io.xj.core.persistence.sql.impl;
 
 import io.xj.core.Xj;
 import io.xj.core.config.Config;
 import io.xj.core.exception.ConfigException;
 import io.xj.core.exception.DatabaseException;
-import io.xj.core.database.sql.SQLDatabaseProvider;
+import io.xj.core.persistence.sql.SQLDatabaseProvider;
 
 import org.jooq.DSLContext;
 import org.jooq.SQLDialect;

@@ -6,8 +6,8 @@ import com.google.inject.Injector;
 import io.xj.core.CoreModule;
 import io.xj.core.exception.DatabaseException;
 import io.xj.core.server.HttpResponseProvider;
-import io.xj.core.database.redis.RedisDatabaseProvider;
-import io.xj.core.database.sql.SQLDatabaseProvider;
+import io.xj.core.persistence.redis.RedisDatabaseProvider;
+import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

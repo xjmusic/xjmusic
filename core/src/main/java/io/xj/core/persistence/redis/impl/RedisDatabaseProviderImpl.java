@@ -1,8 +1,8 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
-package io.xj.core.database.redis.impl;
+package io.xj.core.persistence.redis.impl;
 
 import io.xj.core.config.Config;
-import io.xj.core.database.redis.RedisDatabaseProvider;
+import io.xj.core.persistence.redis.RedisDatabaseProvider;
 
 import com.google.common.collect.ImmutableList;
 

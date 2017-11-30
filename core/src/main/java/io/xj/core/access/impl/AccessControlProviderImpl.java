@@ -5,11 +5,11 @@ import io.xj.core.access.AccessControlProvider;
 import io.xj.core.config.Config;
 import io.xj.core.exception.AccessException;
 import io.xj.core.exception.DatabaseException;
-import io.xj.core.database.redis.RedisDatabaseProvider;
+import io.xj.core.persistence.redis.RedisDatabaseProvider;
 import io.xj.core.tables.records.AccountUserRecord;
 import io.xj.core.tables.records.UserAuthRecord;
 import io.xj.core.tables.records.UserRoleRecord;
-import io.xj.core.util.token.TokenGenerator;
+import io.xj.core.token.TokenGenerator;
 
 import com.google.inject.Inject;
 

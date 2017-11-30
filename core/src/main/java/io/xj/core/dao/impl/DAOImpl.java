@@ -3,7 +3,7 @@ package io.xj.core.dao.impl;
 
 import io.xj.core.access.impl.Access;
 import io.xj.core.exception.BusinessException;
-import io.xj.core.database.sql.SQLDatabaseProvider;
+import io.xj.core.persistence.sql.SQLDatabaseProvider;
 
 import org.jooq.DSLContext;
 import org.jooq.Field;

@@ -1,9 +1,9 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
-package io.xj.core.database.sql;
+package io.xj.core.persistence.sql;
 
 import io.xj.core.exception.ConfigException;
 import io.xj.core.exception.DatabaseException;
-import io.xj.core.database.sql.impl.SQLConnection;
+import io.xj.core.persistence.sql.impl.SQLConnection;
 
 public interface SQLDatabaseProvider {
   /**
