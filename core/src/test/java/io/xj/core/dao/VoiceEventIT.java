@@ -6,7 +6,7 @@ import io.xj.core.access.impl.Access;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.integration.IntegrationTestService;
-import io.xj.core.model.idea.IdeaType;
+import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.instrument.InstrumentType;
 import io.xj.core.model.role.Role;
 import io.xj.core.model.voice_event.VoiceEvent;
@@ -48,11 +48,11 @@ public class VoiceEventIT {
     IntegrationTestEntity.insertUser(2, "john", "john@email.com", "http://pictures.com/john.gif");
     IntegrationTestEntity.insertUserRole(1, 2, Role.ADMIN);
 
-    // Library "palm tree" has idea "leaves" and idea "coconuts"
+    // Library "palm tree" has pattern "leaves" and pattern "coconuts"
     IntegrationTestEntity.insertLibrary(1, 1, "palm tree");
-    IntegrationTestEntity.insertIdea(1, 2, 1, IdeaType.Main, "leaves", 0.342, "C#", 110.286);
+    IntegrationTestEntity.insertPattern(1, 2, 1, PatternType.Main, "leaves", 0.342, "C#", 110.286);
 
-    // Idea "leaves" has voices "Intro" and "Outro"
+    // Pattern "leaves" has voices "Intro" and "Outro"
     IntegrationTestEntity.insertPhase(1, 1, 0, 4, "Intro", 0.583, "D minor", 120.0);
     IntegrationTestEntity.insertPhase(2, 1, 1, 4, "Outro", 0.583, "E major", 140.0);
 
@@ -296,7 +296,7 @@ public class VoiceEventIT {
     assertEquals(ULong.valueOf(1), result.getVoiceId());
   }
 
-  // future test: DAO cannot update Idea to a User or Library not owned by current session
+  // future test: DAO cannot update Pattern to a User or Library not owned by current session
 
   @Test
   public void delete() throws Exception {

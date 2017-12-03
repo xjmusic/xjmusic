@@ -8,7 +8,7 @@ import io.xj.core.CoreModule;
 import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
-import io.xj.core.model.idea.IdeaType;
+import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.instrument.InstrumentType;
 import io.xj.core.model.link.Link;
 import io.xj.core.model.link.LinkState;
@@ -52,9 +52,9 @@ public class DubMasterInitialIT {
     // Library "house"
     IntegrationTestEntity.insertLibrary(2, 1, "house");
 
-    // "Special, Wild to Cozy" macro-idea in house library
-    IntegrationTestEntity.insertIdea(4, 3, 2, IdeaType.Macro, "Special, Wild to Cozy", 0.5, "C", 120);
-    IntegrationTestEntity.insertIdeaMeme(2, 4, "Special");
+    // "Special, Wild to Cozy" macro-pattern in house library
+    IntegrationTestEntity.insertPattern(4, 3, 2, PatternType.Macro, "Special, Wild to Cozy", 0.5, "C", 120);
+    IntegrationTestEntity.insertPatternMeme(2, 4, "Special");
     IntegrationTestEntity.insertPhase(3, 4, 0, 64, "Start Wild", 0.6, "C", 125);
     IntegrationTestEntity.insertPhaseMeme(3, 3, "Wild");
     IntegrationTestEntity.insertPhaseChord(3, 3, 0, "C");
@@ -62,9 +62,9 @@ public class DubMasterInitialIT {
     IntegrationTestEntity.insertPhaseMeme(4, 4, "Cozy");
     IntegrationTestEntity.insertPhaseChord(4, 4, 0, "Bb minor");
 
-    // Main idea
-    IntegrationTestEntity.insertIdea(5, 3, 2, IdeaType.Main, "Main Jam", 0.2, "F# minor", 140);
-    IntegrationTestEntity.insertIdeaMeme(3, 5, "Outlook");
+    // Main pattern
+    IntegrationTestEntity.insertPattern(5, 3, 2, PatternType.Main, "Main Jam", 0.2, "F# minor", 140);
+    IntegrationTestEntity.insertPatternMeme(3, 5, "Outlook");
     IntegrationTestEntity.insertPhase(15, 5, 0, 16, "Intro", 0.5, "F# minor", 135.0);
     IntegrationTestEntity.insertPhaseMeme(6, 15, "Pessimism");
     IntegrationTestEntity.insertPhaseChord(12, 15, 0, "F# minor");
@@ -75,8 +75,8 @@ public class DubMasterInitialIT {
     IntegrationTestEntity.insertPhaseChord(18, 16, 8, "G major");
 
     // A basic beat, first phase has voice and events
-    IntegrationTestEntity.insertIdea(35, 3, 2, IdeaType.Rhythm, "Basic Beat", 0.2, "C", 121);
-    IntegrationTestEntity.insertIdeaMeme(343, 35, "Basic");
+    IntegrationTestEntity.insertPattern(35, 3, 2, PatternType.Rhythm, "Basic Beat", 0.2, "C", 121);
+    IntegrationTestEntity.insertPatternMeme(343, 35, "Basic");
     IntegrationTestEntity.insertPhase(315, 35, 0, 4, "Drop", 0.5, "C", 125.0);
     IntegrationTestEntity.insertPhaseMeme(346, 315, "Heavy");
 
@@ -93,8 +93,8 @@ public class DubMasterInitialIT {
     IntegrationTestEntity.insertPhase(316, 35, 1, 16, "Continue", 0.5, "C", 125.0);
     IntegrationTestEntity.insertPhaseMeme(347, 316, "Heavy");
 
-    // Support Idea
-    IntegrationTestEntity.insertIdea(7, 3, 2, IdeaType.Support, "Support Jam", 0.3, "Cb minor", 170);
+    // Support Pattern
+    IntegrationTestEntity.insertPattern(7, 3, 2, PatternType.Support, "Support Jam", 0.3, "Cb minor", 170);
 
     // Chain "Print #2" has 1 initial link in dubbing state - Master is complete
     IntegrationTestEntity.insertChain(2, 1, "Print #2", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, null);
@@ -103,13 +103,13 @@ public class DubMasterInitialIT {
     IntegrationTestEntity.insertLinkMeme(102, 6, "Wild");
     IntegrationTestEntity.insertLinkMeme(103, 6, "Pessimism");
     IntegrationTestEntity.insertLinkMeme(104, 6, "Outlook");
-    IntegrationTestEntity.insertChoice(101, 6, 4, IdeaType.Macro, 0, 0);
-    IntegrationTestEntity.insertChoice(102, 6, 5, IdeaType.Main, 10, -6);
+    IntegrationTestEntity.insertChoice(101, 6, 4, PatternType.Macro, 0, 0);
+    IntegrationTestEntity.insertChoice(102, 6, 5, PatternType.Main, 10, -6);
     IntegrationTestEntity.insertLinkChord(101, 6, 0, "C minor");
     IntegrationTestEntity.insertLinkChord(102, 6, 8, "Db minor");
 
-    // choice of rhythm-type idea
-    IntegrationTestEntity.insertChoice(103, 6, 35, IdeaType.Rhythm, 0, 0);
+    // choice of rhythm-type pattern
+    IntegrationTestEntity.insertChoice(103, 6, 35, PatternType.Rhythm, 0, 0);
 
     // Instrument, InstrumentMeme
     IntegrationTestEntity.insertInstrument(1, 2, 2, "808 Drums", InstrumentType.Percussive, 0.9);

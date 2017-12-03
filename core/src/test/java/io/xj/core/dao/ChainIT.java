@@ -12,14 +12,13 @@ import io.xj.core.model.chain.Chain;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
 import io.xj.core.model.chain_config.ChainConfigType;
-import io.xj.core.model.idea.IdeaType;
+import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.instrument.InstrumentType;
 import io.xj.core.model.link.Link;
 import io.xj.core.model.link.LinkState;
 import io.xj.core.tables.records.ChainRecord;
 import io.xj.core.transport.JSON;
 
-import org.jooq.Result;
 import org.jooq.types.ULong;
 
 import com.google.common.collect.ImmutableMap;
@@ -42,7 +41,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.util.Collection;
-import java.util.List;
 
 import static io.xj.core.Tables.CHAIN;
 import static org.junit.Assert.assertEquals;
@@ -759,7 +757,7 @@ public class ChainIT {
     ));
 
     failure.expect(BusinessException.class);
-    failure.expectMessage("Chain must be bound to at least one Library, Idea, or Instrument");
+    failure.expectMessage("Chain must be bound to at least one Library, Pattern, or Instrument");
 
     testDAO.updateState(access, ULong.valueOf(3L), ChainState.Ready);
   }
@@ -786,12 +784,12 @@ public class ChainIT {
   }
 
   @Test
-  public void updateState_outOfDraft_BoundToIdea() throws Exception {
+  public void updateState_outOfDraft_BoundToPattern() throws Exception {
     IntegrationTestEntity.insertUser(3, "jenny", "jenny@email.com", "http://pictures.com/jenny.gif");
     IntegrationTestEntity.insertChain(3, 1, "bucket", ChainType.Production, ChainState.Draft, Timestamp.valueOf("2015-05-10 12:17:02.527142"), null, null);
     IntegrationTestEntity.insertLibrary(3, 1, "pajamas");
-    IntegrationTestEntity.insertIdea(3, 3, 3, IdeaType.Main, "fonds", 0.342, "C#", 0.286);
-    IntegrationTestEntity.insertChainIdea(1, 3, 3);
+    IntegrationTestEntity.insertPattern(3, 3, 3, PatternType.Main, "fonds", 0.342, "C#", 0.286);
+    IntegrationTestEntity.insertChainPattern(1, 3, 3);
 
     Access access = new Access(ImmutableMap.of(
       "roles", "user,artist,engineer",
@@ -809,18 +807,18 @@ public class ChainIT {
   }
 
   @Test
-  public void updateState_outOfDraft_BoundToMultipleIdeas() throws Exception {
+  public void updateState_outOfDraft_BoundToMultiplePatterns() throws Exception {
     IntegrationTestEntity.insertUser(3, "jenny", "jenny@email.com", "http://pictures.com/jenny.gif");
     IntegrationTestEntity.insertChain(3, 1, "bucket", ChainType.Production, ChainState.Draft, Timestamp.valueOf("2015-05-10 12:17:02.527142"), null, null);
     IntegrationTestEntity.insertLibrary(3, 1, "pajamas");
-    IntegrationTestEntity.insertIdea(3, 3, 3, IdeaType.Main, "fonds", 0.342, "C#", 0.286);
-    IntegrationTestEntity.insertIdea(4, 3, 3, IdeaType.Macro, "trees A to B", 0.7, "D#", 0.4);
-    IntegrationTestEntity.insertIdea(5, 3, 3, IdeaType.Macro, "trees B to A", 0.6, "F", 0.6);
-    IntegrationTestEntity.insertIdea(6, 3, 3, IdeaType.Rhythm, "beets", 0.5, "C", 1.5);
-    IntegrationTestEntity.insertChainIdea(1, 3, 3);
-    IntegrationTestEntity.insertChainIdea(2, 3, 4);
-    IntegrationTestEntity.insertChainIdea(3, 3, 5);
-    IntegrationTestEntity.insertChainIdea(4, 3, 6);
+    IntegrationTestEntity.insertPattern(3, 3, 3, PatternType.Main, "fonds", 0.342, "C#", 0.286);
+    IntegrationTestEntity.insertPattern(4, 3, 3, PatternType.Macro, "trees A to B", 0.7, "D#", 0.4);
+    IntegrationTestEntity.insertPattern(5, 3, 3, PatternType.Macro, "trees B to A", 0.6, "F", 0.6);
+    IntegrationTestEntity.insertPattern(6, 3, 3, PatternType.Rhythm, "beets", 0.5, "C", 1.5);
+    IntegrationTestEntity.insertChainPattern(1, 3, 3);
+    IntegrationTestEntity.insertChainPattern(2, 3, 4);
+    IntegrationTestEntity.insertChainPattern(3, 3, 5);
+    IntegrationTestEntity.insertChainPattern(4, 3, 6);
 
     Access access = new Access(ImmutableMap.of(
       "roles", "user,artist,engineer",

@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- [#214] If a Chain has Ideas associated with it directly, prefer those choices to any in the Library
+ [#214] If a Chain has Patterns associated with it directly, prefer those choices to any in the Library
  */
 public class MasterDubImpl implements MasterDub {
   private final Logger log = LoggerFactory.getLogger(MasterDubImpl.class);

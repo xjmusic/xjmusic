@@ -4,7 +4,7 @@ categories = ["musical"]
 tags = ["memes"]
 slug = "memes"
 title = "Memes"
-description = "Musical ideas and performances in the XJ platform are encoded as Memes"
+description = "Musical patterns and performances in the XJ platform are encoded as Memes"
 draft = false
 
 +++

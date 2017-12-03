@@ -49,7 +49,7 @@ import java.util.Objects;
 import static io.xj.core.Tables.ACCOUNT;
 import static io.xj.core.Tables.CHAIN;
 import static io.xj.core.Tables.CHAIN_CONFIG;
-import static io.xj.core.Tables.CHAIN_IDEA;
+import static io.xj.core.Tables.CHAIN_PATTERN;
 import static io.xj.core.Tables.CHAIN_INSTRUMENT;
 import static io.xj.core.Tables.CHAIN_LIBRARY;
 import static io.xj.core.Tables.LINK;
@@ -402,9 +402,9 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
       case Draft:
         onlyAllowTransitions(toState, ChainState.Draft, ChainState.Ready, ChainState.Erase);
         if (Objects.equals(ChainState.Ready, toState)) {
-          requireExistsAnyOf("Chain must be bound to at least one Library, Idea, or Instrument",
+          requireExistsAnyOf("Chain must be bound to at least one Library, Pattern, or Instrument",
             db.selectCount().from(CHAIN_LIBRARY).where(CHAIN_LIBRARY.CHAIN_ID.eq(id)).fetchOne(0, int.class),
-            db.selectCount().from(CHAIN_IDEA).where(CHAIN_IDEA.CHAIN_ID.eq(id)).fetchOne(0, int.class),
+            db.selectCount().from(CHAIN_PATTERN).where(CHAIN_PATTERN.CHAIN_ID.eq(id)).fetchOne(0, int.class),
             db.selectCount().from(CHAIN_INSTRUMENT).where(CHAIN_INSTRUMENT.CHAIN_ID.eq(id)).fetchOne(0, int.class)
           );
         }
@@ -604,9 +604,9 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
       .where(LINK.CHAIN_ID.eq(id))
       .fetch());
 
-    // Chain-Idea before Chain
-    db.deleteFrom(CHAIN_IDEA)
-      .where(CHAIN_IDEA.CHAIN_ID.eq(id))
+    // Chain-Pattern before Chain
+    db.deleteFrom(CHAIN_PATTERN)
+      .where(CHAIN_PATTERN.CHAIN_ID.eq(id))
       .execute();
 
     // Chain-Instrument before Chain

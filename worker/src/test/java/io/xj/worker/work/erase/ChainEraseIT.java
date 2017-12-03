@@ -15,7 +15,7 @@ import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.integration.IntegrationTestService;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
-import io.xj.core.model.idea.IdeaType;
+import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.instrument.InstrumentType;
 import io.xj.core.model.link.LinkState;
 import io.xj.core.model.role.Role;
@@ -72,9 +72,9 @@ public class ChainEraseIT {
     // Library "house"
     IntegrationTestEntity.insertLibrary(2, 1, "house");
 
-    // "Heavy, Deep to Metal" macro-idea in house library
-    IntegrationTestEntity.insertIdea(4, 3, 2, IdeaType.Macro, "Heavy, Deep to Metal", 0.5, "C", 120);
-    IntegrationTestEntity.insertIdeaMeme(2, 4, "Heavy");
+    // "Heavy, Deep to Metal" macro-pattern in house library
+    IntegrationTestEntity.insertPattern(4, 3, 2, PatternType.Macro, "Heavy, Deep to Metal", 0.5, "C", 120);
+    IntegrationTestEntity.insertPatternMeme(2, 4, "Heavy");
     // " phase offset 0
     IntegrationTestEntity.insertPhase(3, 4, 0, 0, "Start Deep", 0.6, "C", 125);
     IntegrationTestEntity.insertPhaseMeme(3, 3, "Deep");
@@ -89,9 +89,9 @@ public class ChainEraseIT {
     IntegrationTestEntity.insertPhaseMeme(5, 4, "Metal");
     IntegrationTestEntity.insertPhaseChord(5, 5, 0, "Ab minor");
 
-    // "Tech, Steampunk to Modern" macro-idea in house library
-    IntegrationTestEntity.insertIdea(3, 3, 2, IdeaType.Macro, "Tech, Steampunk to Modern", 0.5, "G minor", 120);
-    IntegrationTestEntity.insertIdeaMeme(1, 3, "Tech");
+    // "Tech, Steampunk to Modern" macro-pattern in house library
+    IntegrationTestEntity.insertPattern(3, 3, 2, PatternType.Macro, "Tech, Steampunk to Modern", 0.5, "G minor", 120);
+    IntegrationTestEntity.insertPatternMeme(1, 3, "Tech");
     // # phase offset 0
     IntegrationTestEntity.insertPhase(1, 3, 0, 0, "Start Steampunk", 0.4, "G minor", 115);
     IntegrationTestEntity.insertPhaseMeme(1, 1, "Steampunk");
@@ -101,9 +101,9 @@ public class ChainEraseIT {
     IntegrationTestEntity.insertPhaseMeme(2, 2, "Modern");
     IntegrationTestEntity.insertPhaseChord(2, 2, 0, "C");
 
-    // Main idea
-    IntegrationTestEntity.insertIdea(5, 3, 2, IdeaType.Main, "Main Jam", 0.2, "C minor", 140);
-    IntegrationTestEntity.insertIdeaMeme(3, 5, "Attitude");
+    // Main pattern
+    IntegrationTestEntity.insertPattern(5, 3, 2, PatternType.Main, "Main Jam", 0.2, "C minor", 140);
+    IntegrationTestEntity.insertPatternMeme(3, 5, "Attitude");
     // # phase offset 0
     IntegrationTestEntity.insertPhase(15, 5, 0, 16, "Intro", 0.5, "G major", 135.0);
     IntegrationTestEntity.insertPhaseMeme(6, 15, "Gritty");
@@ -115,9 +115,9 @@ public class ChainEraseIT {
     IntegrationTestEntity.insertPhaseChord(16, 16, 0, "C major");
     IntegrationTestEntity.insertPhaseChord(18, 16, 8, "Bb minor");
 
-    // Another Main idea to go to
-    IntegrationTestEntity.insertIdea(15, 3, 2, IdeaType.Main, "Next Jam", 0.2, "Db minor", 140);
-    IntegrationTestEntity.insertIdeaMeme(43, 15, "Temptation");
+    // Another Main pattern to go to
+    IntegrationTestEntity.insertPattern(15, 3, 2, PatternType.Main, "Next Jam", 0.2, "Db minor", 140);
+    IntegrationTestEntity.insertPatternMeme(43, 15, "Temptation");
     IntegrationTestEntity.insertPhase(415, 15, 0, 16, "Intro", 0.5, "G minor", 135.0);
     IntegrationTestEntity.insertPhaseMeme(46, 415, "Food");
     IntegrationTestEntity.insertPhaseChord(412, 415, 0, "G minor");
@@ -129,8 +129,8 @@ public class ChainEraseIT {
     IntegrationTestEntity.insertPhaseChord(418, 416, 8, "Bb major");
 
     // A basic beat
-    IntegrationTestEntity.insertIdea(35, 3, 2, IdeaType.Rhythm, "Basic Beat", 0.2, "C", 121);
-    IntegrationTestEntity.insertIdeaMeme(343, 35, "Basic");
+    IntegrationTestEntity.insertPattern(35, 3, 2, PatternType.Rhythm, "Basic Beat", 0.2, "C", 121);
+    IntegrationTestEntity.insertPatternMeme(343, 35, "Basic");
     IntegrationTestEntity.insertPhase(315, 35, 0, 4, "Drop", 0.5, "C", 125.0);
     IntegrationTestEntity.insertPhaseMeme(346, 315, "Heavy");
 
@@ -153,10 +153,10 @@ public class ChainEraseIT {
     IntegrationTestEntity.insertLink(2, 1, 1, LinkState.Dubbing, Timestamp.valueOf("2017-02-14 12:01:32.000001"), Timestamp.valueOf("2017-02-14 12:02:04.000001"), "Db minor", 64, 0.85, 120, "chain-1-link-2807fdghj3272.wav");
 
     // Chain "Test Print #1" has this link that was just dubbed
-    IntegrationTestEntity.insertLink(3, 1, 2, LinkState.Dubbed, Timestamp.valueOf("2017-02-14 12:02:04.000001"), Timestamp.valueOf("2017-02-14 12:02:36.000001"), "Ab minor", 64, 0.30, 120, "chain-1-link-198745hj78dfs.wav"); // final key is based on phase of main idea
-    IntegrationTestEntity.insertChoice(25, 3, 4, IdeaType.Macro, 1, 3); // macro-idea current phase is transposed to be Db minor
-    IntegrationTestEntity.insertChoice(26, 3, 5, IdeaType.Main, 1, 1); // main-key of previous link is transposed to match, Db minor
-    IntegrationTestEntity.insertChoice(27, 3, 35, IdeaType.Rhythm, 0, -4);
+    IntegrationTestEntity.insertLink(3, 1, 2, LinkState.Dubbed, Timestamp.valueOf("2017-02-14 12:02:04.000001"), Timestamp.valueOf("2017-02-14 12:02:36.000001"), "Ab minor", 64, 0.30, 120, "chain-1-link-198745hj78dfs.wav"); // final key is based on phase of main pattern
+    IntegrationTestEntity.insertChoice(25, 3, 4, PatternType.Macro, 1, 3); // macro-pattern current phase is transposed to be Db minor
+    IntegrationTestEntity.insertChoice(26, 3, 5, PatternType.Main, 1, 1); // main-key of previous link is transposed to match, Db minor
+    IntegrationTestEntity.insertChoice(27, 3, 35, PatternType.Rhythm, 0, -4);
 
     // Chain "Test Print #1" has a link in dubbing state - Structure is complete
     IntegrationTestEntity.insertLink(4, 1, 3, LinkState.Dubbing, Timestamp.valueOf("2017-02-14 12:03:08.000001"), Timestamp.valueOf("2017-02-14 12:03:15.836735"), "F minor", 16, 0.45, 125, "chain-1-link-897hdfhjd7884.wav");
@@ -164,13 +164,13 @@ public class ChainEraseIT {
     IntegrationTestEntity.insertLinkMeme(102, 4, "Chunky");
     IntegrationTestEntity.insertLinkMeme(103, 4, "Regret");
     IntegrationTestEntity.insertLinkMeme(104, 4, "Tangy");
-    IntegrationTestEntity.insertChoice(101, 4, 3, IdeaType.Macro, 0, 4);
-    IntegrationTestEntity.insertChoice(102, 4, 15, IdeaType.Main, 0, -2);
+    IntegrationTestEntity.insertChoice(101, 4, 3, PatternType.Macro, 0, 4);
+    IntegrationTestEntity.insertChoice(102, 4, 15, PatternType.Main, 0, -2);
     IntegrationTestEntity.insertLinkChord(101, 4, 0, "F minor");
     IntegrationTestEntity.insertLinkChord(102, 4, 8, "Gb minor");
 
-    // choice of rhythm-type idea
-    IntegrationTestEntity.insertChoice(103, 4, 35, IdeaType.Rhythm, 0, 5);
+    // choice of rhythm-type pattern
+    IntegrationTestEntity.insertChoice(103, 4, 35, PatternType.Rhythm, 0, 5);
 
     // Chain "Test Print #1" is ready to begin
     IntegrationTestEntity.insertChain(2, 1, "Test Print #1", ChainType.Production, ChainState.Erase, Timestamp.from(new Date().toInstant().minusSeconds(300)), Timestamp.from(new Date().toInstant()), null);

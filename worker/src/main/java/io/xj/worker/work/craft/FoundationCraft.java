@@ -5,7 +5,7 @@ import io.xj.core.exception.BusinessException;
 
 /**
  [#138] Foundation craft for Initial Link of a Chain
- [#214] If a Chain has Ideas associated with it directly, prefer those choices to any in the Library
+ [#214] If a Chain has Patterns associated with it directly, prefer those choices to any in the Library
  */
 public interface FoundationCraft {
 

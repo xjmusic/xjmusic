@@ -39,9 +39,9 @@ public class Phase extends Entity {
    */
   private String name;
   /**
-   Idea
+   Pattern
    */
-  private ULong ideaId;
+  private ULong patternId;
   /**
    Key
    */
@@ -72,12 +72,12 @@ public class Phase extends Entity {
     return this;
   }
 
-  public ULong getIdeaId() {
-    return ideaId;
+  public ULong getPatternId() {
+    return patternId;
   }
 
-  public Phase setIdeaId(BigInteger ideaId) {
-    this.ideaId = ULong.valueOf(ideaId);
+  public Phase setPatternId(BigInteger patternId) {
+    this.patternId = ULong.valueOf(patternId);
     return this;
   }
 
@@ -131,8 +131,8 @@ public class Phase extends Entity {
     if (this.name != null && this.name.length() == 0) {
       this.name = null;
     }
-    if (this.ideaId == null) {
-      throw new BusinessException("Idea ID is required.");
+    if (this.patternId == null) {
+      throw new BusinessException("Pattern ID is required.");
     }
     if (this.key != null && this.key.length() == 0) {
       this.key = null;
@@ -154,7 +154,7 @@ public class Phase extends Entity {
       return null;
     }
     id = record.get(PHASE.ID);
-    ideaId = record.get(PHASE.IDEA_ID);
+    patternId = record.get(PHASE.PATTERN_ID);
     offset = record.get(PHASE.OFFSET);
     total = record.get(PHASE.TOTAL);
     name = record.get(PHASE.NAME);
@@ -169,7 +169,7 @@ public class Phase extends Entity {
   @Override
   public Map<Field, Object> updatableFieldValueMap() {
     Map<Field, Object> fieldValues = Maps.newHashMap();
-    fieldValues.put(PHASE.IDEA_ID, ideaId);
+    fieldValues.put(PHASE.PATTERN_ID, patternId);
     fieldValues.put(PHASE.OFFSET, offset);
     fieldValues.put(PHASE.TOTAL, total != null ? total : DSL.val((String) null));
     fieldValues.put(PHASE.NAME, name != null ? name : DSL.val((String) null));

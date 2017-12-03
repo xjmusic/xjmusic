@@ -13,7 +13,7 @@ import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.integration.IntegrationTestService;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
-import io.xj.core.model.idea.IdeaType;
+import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.link.Link;
 import io.xj.core.model.link.LinkState;
 import io.xj.core.model.role.Role;
@@ -67,9 +67,9 @@ public class CraftFoundationNextMacroIT {
     // Library "house"
     IntegrationTestEntity.insertLibrary(2, 1, "house");
 
-    // "Metal, Wild to Basement" macro-idea in house library
-    IntegrationTestEntity.insertIdea(4, 3, 2, IdeaType.Macro, "Metal, Wild to Basement", 0.5, "C", 120);
-    IntegrationTestEntity.insertIdeaMeme(2, 4, "Metal");
+    // "Metal, Wild to Basement" macro-pattern in house library
+    IntegrationTestEntity.insertPattern(4, 3, 2, PatternType.Macro, "Metal, Wild to Basement", 0.5, "C", 120);
+    IntegrationTestEntity.insertPatternMeme(2, 4, "Metal");
     // " phase offset 0
     IntegrationTestEntity.insertPhase(3, 4, 0, 0, "Start Wild", 0.6, "C", 125);
     IntegrationTestEntity.insertPhaseMeme(3, 3, "Wild");
@@ -84,9 +84,9 @@ public class CraftFoundationNextMacroIT {
     IntegrationTestEntity.insertPhaseMeme(5, 4, "Basement");
     IntegrationTestEntity.insertPhaseChord(5, 5, 0, "Ab minor");
 
-    // "Zesty, Chunky to Smooth" macro-idea in house library
-    IntegrationTestEntity.insertIdea(3, 3, 2, IdeaType.Macro, "Zesty, Chunky to Smooth", 0.5, "G minor", 120);
-    IntegrationTestEntity.insertIdeaMeme(1, 3, "Zesty");
+    // "Zesty, Chunky to Smooth" macro-pattern in house library
+    IntegrationTestEntity.insertPattern(3, 3, 2, PatternType.Macro, "Zesty, Chunky to Smooth", 0.5, "G minor", 120);
+    IntegrationTestEntity.insertPatternMeme(1, 3, "Zesty");
     // # phase offset 0
     IntegrationTestEntity.insertPhase(1, 3, 0, 0, "Start Chunky", 0.4, "G minor", 115);
     IntegrationTestEntity.insertPhaseMeme(1, 1, "Chunky");
@@ -96,9 +96,9 @@ public class CraftFoundationNextMacroIT {
     IntegrationTestEntity.insertPhaseMeme(2, 2, "Smooth");
     IntegrationTestEntity.insertPhaseChord(2, 2, 0, "C");
 
-    // Main idea
-    IntegrationTestEntity.insertIdea(5, 3, 2, IdeaType.Main, "Main Jam", 0.2, "C minor", 140);
-    IntegrationTestEntity.insertIdeaMeme(3, 5, "Outlook");
+    // Main pattern
+    IntegrationTestEntity.insertPattern(5, 3, 2, PatternType.Main, "Main Jam", 0.2, "C minor", 140);
+    IntegrationTestEntity.insertPatternMeme(3, 5, "Outlook");
     // # phase offset 0
     IntegrationTestEntity.insertPhase(15, 5, 0, 16, "Intro", 0.5, "G major", 135.0);
     IntegrationTestEntity.insertPhaseMeme(6, 15, "Optimism");
@@ -110,9 +110,9 @@ public class CraftFoundationNextMacroIT {
     IntegrationTestEntity.insertPhaseChord(16, 16, 0, "C major");
     IntegrationTestEntity.insertPhaseChord(18, 16, 8, "Bb minor");
 
-    // Another Main idea to go to
-    IntegrationTestEntity.insertIdea(15, 3, 2, IdeaType.Main, "Next Jam", 0.2, "Db minor", 140);
-    IntegrationTestEntity.insertIdeaMeme(43, 15, "Hindsight");
+    // Another Main pattern to go to
+    IntegrationTestEntity.insertPattern(15, 3, 2, PatternType.Main, "Next Jam", 0.2, "Db minor", 140);
+    IntegrationTestEntity.insertPatternMeme(43, 15, "Hindsight");
     IntegrationTestEntity.insertPhase(415, 15, 0, 16, "Intro", 0.5, "G minor", 135.0);
     IntegrationTestEntity.insertPhaseMeme(46, 415, "Regret");
     IntegrationTestEntity.insertPhaseChord(412, 415, 0, "G minor");
@@ -129,9 +129,9 @@ public class CraftFoundationNextMacroIT {
     IntegrationTestEntity.insertLink(2, 1, 1, LinkState.Dubbing, Timestamp.valueOf("2017-02-14 12:01:32.000001"), Timestamp.valueOf("2017-02-14 12:02:04.000001"), "Db minor", 64, 0.85, 120, "chain-1-link-97898asdf7892.wav");
 
     // Chain "Test Print #1" has this link that was just crafted
-    IntegrationTestEntity.insertLink(3, 1, 2, LinkState.Crafted, Timestamp.valueOf("2017-02-14 12:02:04.000001"), Timestamp.valueOf("2017-02-14 12:02:36.000001"), "Ab minor", 64, 0.30, 120, "chain-1-link-97898asdf7892.wav"); // final key is based on phase of main idea
-    IntegrationTestEntity.insertChoice(25, 3, 4, IdeaType.Macro, 1, 3); // macro-idea current phase is transposed to be Db minor
-    IntegrationTestEntity.insertChoice(26, 3, 5, IdeaType.Main, 1, 1); // main-key of previous link is transposed to match, Db minor
+    IntegrationTestEntity.insertLink(3, 1, 2, LinkState.Crafted, Timestamp.valueOf("2017-02-14 12:02:04.000001"), Timestamp.valueOf("2017-02-14 12:02:36.000001"), "Ab minor", 64, 0.30, 120, "chain-1-link-97898asdf7892.wav"); // final key is based on phase of main pattern
+    IntegrationTestEntity.insertChoice(25, 3, 4, PatternType.Macro, 1, 3); // macro-pattern current phase is transposed to be Db minor
+    IntegrationTestEntity.insertChoice(26, 3, 5, PatternType.Main, 1, 1); // main-key of previous link is transposed to match, Db minor
 
     // Chain "Test Print #1" has a planned link
     link4 = IntegrationTestEntity.insertLink_Planned(4, 1, 3, Timestamp.valueOf("2017-02-14 12:03:08.000001"));
@@ -186,20 +186,20 @@ public class CraftFoundationNextMacroIT {
       .and(LINK_CHORD.NAME.eq("Gb minor"))
       .fetchOne());
 
-    // choice of macro-type idea
+    // choice of macro-type pattern
     assertNotNull(IntegrationTestService.getDb().selectFrom(CHOICE)
       .where(CHOICE.LINK_ID.eq(ULong.valueOf(4)))
-      .and(CHOICE.IDEA_ID.eq(ULong.valueOf(3)))
-      .and(CHOICE.TYPE.eq(IdeaType.Macro.toString()))
+      .and(CHOICE.PATTERN_ID.eq(ULong.valueOf(3)))
+      .and(CHOICE.TYPE.eq(PatternType.Macro.toString()))
       .and(CHOICE.TRANSPOSE.eq(4))
       .and(CHOICE.PHASE_OFFSET.eq(ULong.valueOf(0)))
       .fetchOne());
 
-    // choice of main-type idea
+    // choice of main-type pattern
     assertNotNull(IntegrationTestService.getDb().selectFrom(CHOICE)
       .where(CHOICE.LINK_ID.eq(ULong.valueOf(4)))
-      .and(CHOICE.IDEA_ID.eq(ULong.valueOf(15)))
-      .and(CHOICE.TYPE.eq(IdeaType.Main.toString()))
+      .and(CHOICE.PATTERN_ID.eq(ULong.valueOf(15)))
+      .and(CHOICE.TYPE.eq(PatternType.Main.toString()))
       .and(CHOICE.TRANSPOSE.eq(-2))
       .and(CHOICE.PHASE_OFFSET.eq(ULong.valueOf(0)))
       .fetchOne());

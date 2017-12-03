@@ -3,7 +3,7 @@ package io.xj.core.dao;
 
 import io.xj.core.access.impl.Access;
 import io.xj.core.model.choice.Choice;
-import io.xj.core.model.idea.IdeaType;
+import io.xj.core.model.pattern.PatternType;
 import io.xj.core.tables.records.ChoiceRecord;
 
 import org.jooq.Result;
@@ -33,29 +33,29 @@ public interface ChoiceDAO {
   ChoiceRecord readOne(Access access, ULong choiceId) throws Exception;
 
   /**
-   Read one choice, binding a given idea to a given link
+   Read one choice, binding a given pattern to a given link
 
    @param access control
    @param linkId to get choice for
-   @param ideaId to get choice for
+   @param patternId to get choice for
    @return choice, or null if none exists
    @throws Exception on failure
    */
   @Nullable
-  ChoiceRecord readOneLinkIdea(Access access, ULong linkId, ULong ideaId) throws  Exception;
+  ChoiceRecord readOneLinkPattern(Access access, ULong linkId, ULong patternId) throws  Exception;
 
   /**
-   Read the Choice of given type of Idea for a given Link,
+   Read the Choice of given type of Pattern for a given Link,
    including the phase offset, and all eitherOr
-   phase offsets for that Idea.
+   phase offsets for that Pattern.
 
    @return record of choice, and eitherOr phase offsets
     @param access     control
    @param linkId link to get choice for
-   @param ideaType   type for choice to get
+   @param patternType   type for choice to get
    */
   @Nullable
-  Choice readOneLinkTypeWithAvailablePhaseOffsets(Access access, ULong linkId, IdeaType ideaType) throws Exception;
+  Choice readOneLinkTypeWithAvailablePhaseOffsets(Access access, ULong linkId, PatternType patternType) throws Exception;
 
   /**
    Read all Choices that are accessible

@@ -16,7 +16,7 @@ public class LinkChoiceTest {
   @Test
   public void nextPhaseOffset() throws Exception {
     Choice linkChoice = new Choice()
-      .setIdeaId(ULong.valueOf(345).toBigInteger())
+      .setPatternId(ULong.valueOf(345).toBigInteger())
       .setPhaseOffset(ULong.valueOf(0).toBigInteger())
       .setTranspose(5)
       .setType("Main")
@@ -28,7 +28,7 @@ public class LinkChoiceTest {
   @Test
   public void nextPhaseOffset_endLoopsBackToZero() throws Exception {
     Choice linkChoice = new Choice()
-      .setIdeaId(ULong.valueOf(345).toBigInteger())
+      .setPatternId(ULong.valueOf(345).toBigInteger())
       .setPhaseOffset(ULong.valueOf(3).toBigInteger())
       .setTranspose(5)
       .setType("Main")
@@ -40,7 +40,7 @@ public class LinkChoiceTest {
   @Test
   public void nextPhaseOffset_weirdIsOkay() throws Exception {
     Choice linkChoice = new Choice()
-      .setIdeaId(ULong.valueOf(345).toBigInteger())
+      .setPatternId(ULong.valueOf(345).toBigInteger())
       .setPhaseOffset(ULong.valueOf(17).toBigInteger())
       .setTranspose(5)
       .setType("Main")
@@ -52,7 +52,7 @@ public class LinkChoiceTest {
   @Test
   public void hasOneMorePhase() throws Exception {
     Choice linkChoice = new Choice()
-      .setIdeaId(ULong.valueOf(345).toBigInteger())
+      .setPatternId(ULong.valueOf(345).toBigInteger())
       .setPhaseOffset(ULong.valueOf(0).toBigInteger())
       .setTranspose(5)
       .setType("Main")
@@ -64,7 +64,7 @@ public class LinkChoiceTest {
   @Test
   public void hasOneMorePhase_true() throws Exception {
     Choice linkChoice = new Choice()
-      .setIdeaId(ULong.valueOf(345).toBigInteger())
+      .setPatternId(ULong.valueOf(345).toBigInteger())
       .setPhaseOffset(ULong.valueOf(2).toBigInteger())
       .setTranspose(5)
       .setType("Main")
@@ -76,7 +76,7 @@ public class LinkChoiceTest {
   @Test
   public void hasOneMorePhase_false() throws Exception {
     Choice linkChoice = new Choice()
-      .setIdeaId(ULong.valueOf(21).toBigInteger())
+      .setPatternId(ULong.valueOf(21).toBigInteger())
       .setPhaseOffset(ULong.valueOf(3).toBigInteger())
       .setTranspose(5)
       .setType("Main")
@@ -88,7 +88,7 @@ public class LinkChoiceTest {
   @Test
   public void hasTwoMorePhases() throws Exception {
     Choice linkChoice = new Choice()
-      .setIdeaId(ULong.valueOf(64).toBigInteger())
+      .setPatternId(ULong.valueOf(64).toBigInteger())
       .setPhaseOffset(ULong.valueOf(0).toBigInteger())
       .setTranspose(5)
       .setType("Macro")
@@ -100,7 +100,7 @@ public class LinkChoiceTest {
   @Test
   public void hasTwoMorePhases_true() throws Exception {
     Choice linkChoice = new Choice()
-      .setIdeaId(ULong.valueOf(64).toBigInteger())
+      .setPatternId(ULong.valueOf(64).toBigInteger())
       .setPhaseOffset(ULong.valueOf(1).toBigInteger())
       .setTranspose(5)
       .setType("Macro")
@@ -112,7 +112,7 @@ public class LinkChoiceTest {
   @Test
   public void hasTwoMorePhases_false() throws Exception {
     Choice linkChoice = new Choice()
-      .setIdeaId(ULong.valueOf(64).toBigInteger())
+      .setPatternId(ULong.valueOf(64).toBigInteger())
       .setPhaseOffset(ULong.valueOf(2).toBigInteger())
       .setTranspose(5)
       .setType("Macro")

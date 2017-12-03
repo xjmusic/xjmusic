@@ -11,7 +11,7 @@ import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.integration.IntegrationTestService;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
-import io.xj.core.model.idea.IdeaType;
+import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.instrument.InstrumentType;
 import io.xj.core.model.link.Link;
 import io.xj.core.model.link.LinkState;
@@ -62,9 +62,9 @@ public class CraftVoiceContinueIT {
     // Library "house"
     IntegrationTestEntity.insertLibrary(2, 1, "house");
 
-    // "Classic, Wild to Cozy" macro-idea in house library
-    IntegrationTestEntity.insertIdea(4, 3, 2, IdeaType.Macro, "Classic, Wild to Cozy", 0.5, "C", 120);
-    IntegrationTestEntity.insertIdeaMeme(2, 4, "Classic");
+    // "Classic, Wild to Cozy" macro-pattern in house library
+    IntegrationTestEntity.insertPattern(4, 3, 2, PatternType.Macro, "Classic, Wild to Cozy", 0.5, "C", 120);
+    IntegrationTestEntity.insertPatternMeme(2, 4, "Classic");
     IntegrationTestEntity.insertPhase(3, 4, 0, 64, "Start Wild", 0.6, "C", 125);
     IntegrationTestEntity.insertPhaseMeme(3, 3, "Wild");
     IntegrationTestEntity.insertPhaseChord(3, 3, 0, "C");
@@ -72,9 +72,9 @@ public class CraftVoiceContinueIT {
     IntegrationTestEntity.insertPhaseMeme(4, 4, "Cozy");
     IntegrationTestEntity.insertPhaseChord(4, 4, 0, "Bb minor");
 
-    // Main idea
-    IntegrationTestEntity.insertIdea(5, 3, 2, IdeaType.Main, "Main Jam", 0.2, "Gb minor", 140);
-    IntegrationTestEntity.insertIdeaMeme(3, 5, "Outlook");
+    // Main pattern
+    IntegrationTestEntity.insertPattern(5, 3, 2, PatternType.Main, "Main Jam", 0.2, "Gb minor", 140);
+    IntegrationTestEntity.insertPatternMeme(3, 5, "Outlook");
     IntegrationTestEntity.insertPhase(15, 5, 0, 16, "Intro", 0.5, "Gb minor", 135.0);
     IntegrationTestEntity.insertPhaseMeme(6, 15, "Cloudy");
     IntegrationTestEntity.insertPhaseChord(12, 15, 0, "Gb minor");
@@ -85,8 +85,8 @@ public class CraftVoiceContinueIT {
     IntegrationTestEntity.insertPhaseChord(18, 16, 8, "G major");
 
     // A basic beat
-    IntegrationTestEntity.insertIdea(35, 3, 2, IdeaType.Rhythm, "Basic Beat", 0.2, "C", 121);
-    IntegrationTestEntity.insertIdeaMeme(343, 35, "Basic");
+    IntegrationTestEntity.insertPattern(35, 3, 2, PatternType.Rhythm, "Basic Beat", 0.2, "C", 121);
+    IntegrationTestEntity.insertPatternMeme(343, 35, "Basic");
 
     // basic beat first phase
     IntegrationTestEntity.insertPhase(316, 35, 0, 16, "Continue", 0.5, "C", 125.0);
@@ -103,8 +103,8 @@ public class CraftVoiceContinueIT {
     IntegrationTestEntity.insertVoiceEvent(3, 1, 2.5, 1, "BOOM", "C2", 0.8, 0.6);
     IntegrationTestEntity.insertVoiceEvent(4, 1, 3, 1, "SMACK", "G5", 0.1, 0.9);
 
-    // support idea
-    IntegrationTestEntity.insertIdea(7, 3, 2, IdeaType.Support, "Support Jam", 0.3, "Cb minor", 170);
+    // support pattern
+    IntegrationTestEntity.insertPattern(7, 3, 2, PatternType.Support, "Support Jam", 0.3, "Cb minor", 170);
 
     // Chain "Test Print #1" has 5 total links
     IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, null);
@@ -113,9 +113,9 @@ public class CraftVoiceContinueIT {
 
     // Chain "Test Print #1" has this link that was just crafted
     IntegrationTestEntity.insertLink(3, 1, 2, LinkState.Crafted, Timestamp.valueOf("2017-02-14 12:02:04.000001"), Timestamp.valueOf("2017-02-14 12:02:36.000001"), "F major", 64, 0.30, 120, "chain-1-link-97898asdf7892.wav");
-    IntegrationTestEntity.insertChoice(25, 3, 4, IdeaType.Macro, 1, 3);
-    IntegrationTestEntity.insertChoice(26, 3, 5, IdeaType.Main, 0, 5);
-    IntegrationTestEntity.insertChoice(27, 3, 35, IdeaType.Rhythm, 0, 5);
+    IntegrationTestEntity.insertChoice(25, 3, 4, PatternType.Macro, 1, 3);
+    IntegrationTestEntity.insertChoice(26, 3, 5, PatternType.Main, 0, 5);
+    IntegrationTestEntity.insertChoice(27, 3, 35, PatternType.Rhythm, 0, 5);
 
     // Chain "Test Print #1" is crafting - Structure is complete
     link4 = IntegrationTestEntity.insertLink(4, 1, 3, LinkState.Crafting, Timestamp.valueOf("2017-02-14 12:03:08.000001"), Timestamp.valueOf("2017-02-14 12:03:15.836735"), "D major", 16, 0.45, 120, "chain-1-link-97898asdf7892.wav");
@@ -123,13 +123,13 @@ public class CraftVoiceContinueIT {
     IntegrationTestEntity.insertLinkMeme(102,4,"Classic");
     IntegrationTestEntity.insertLinkMeme(103,4,"Outlook");
     IntegrationTestEntity.insertLinkMeme(104,4,"Rosy");
-    IntegrationTestEntity.insertChoice(101,4, 4, IdeaType.Macro,1,3);
-    IntegrationTestEntity.insertChoice(102,4, 5, IdeaType.Main,1,-5);
+    IntegrationTestEntity.insertChoice(101,4, 4, PatternType.Macro,1,3);
+    IntegrationTestEntity.insertChoice(102,4, 5, PatternType.Main,1,-5);
     IntegrationTestEntity.insertLinkChord(101,4,0,"A minor");
     IntegrationTestEntity.insertLinkChord(102,4,8,"D major");
 
-    // choice of rhythm-type idea
-    IntegrationTestEntity.insertChoice(103,4,35,IdeaType.Rhythm,1,2);
+    // choice of rhythm-type pattern
+    IntegrationTestEntity.insertChoice(103,4,35, PatternType.Rhythm,1,2);
 
     // Instrument "808"
     IntegrationTestEntity.insertInstrument(1, 2, 2, "808 Drums", InstrumentType.Percussive, 0.9);

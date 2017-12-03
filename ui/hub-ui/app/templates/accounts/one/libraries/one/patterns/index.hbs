@@ -1,0 +1,52 @@
+<!-- Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved. -->
+
+<!-- Inner Content -->
+{{outlet}}
+
+<!-- Upper Container -->
+<div class="form-horizontal container-fluid">
+
+  <!-- List of Patterns -->
+  <div class="col-sm-12">
+    <div class="table-list">
+      <table class="table">
+        <thead>
+        <tr>
+          <th width="1%">By</th>
+          <th width="1%">Type</th>
+          <th>Name</th>
+          <th width="4%">Key</th>
+          <th width="4%">Density</th>
+          <th width="4%">Tempo</th>
+          <th><!-- Actions --></th>
+          <th width="1%">#</th>
+        </tr>
+        </thead>
+        <tbody>
+        {{#each model.patterns as |pattern|}}
+          <tr class="item">
+            <td>{{#link-to "users.one" pattern.user}}
+              <img src="{{pattern.user.avatarUrl}}" alt="{{pattern.user.name}}" class="avatar"/>{{/link-to}}</td>
+            <td>{{pattern.type}}</td>
+            <td>{{#link-to "accounts.one.libraries.one.patterns.one" pattern.library.account pattern.library pattern}}{{pattern.name}}{{/link-to}}</td>
+            <td>{{pattern.key}}</td>
+            <td style="white-space: nowrap">{{pattern.density}}</td>
+            <td>{{pattern.tempo}}</td>
+            <td>
+              {{#link-to 'accounts.one.libraries.one.patterns.one.memes' pattern.library.account pattern.library pattern}}Memes{{/link-to}}
+              |&nbsp;{{#link-to 'accounts.one.libraries.one.patterns.one.phases' pattern.library.account pattern.library pattern}}Phases{{/link-to}}
+            </td>
+            <th scope="row">{{pattern.id}}</th>
+          </tr>
+        {{/each}}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  {{#if (or auth.isArtist auth.isAdmin)}}
+    <div class="col-sm-12">
+      Or: {{#link-to 'accounts.one.libraries.one.patterns.new'}}Create New Pattern{{/link-to}}
+    </div>
+  {{/if}}
+</div>

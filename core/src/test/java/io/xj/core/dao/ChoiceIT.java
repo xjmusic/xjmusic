@@ -9,7 +9,7 @@ import io.xj.core.integration.IntegrationTestService;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
 import io.xj.core.model.choice.Choice;
-import io.xj.core.model.idea.IdeaType;
+import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.instrument.InstrumentType;
 import io.xj.core.model.link.LinkState;
 import io.xj.core.tables.records.ChoiceRecord;
@@ -53,20 +53,20 @@ public class ChoiceIT {
 
     // Library "test sounds"
     IntegrationTestEntity.insertLibrary(1, 1, "test sounds");
-    IntegrationTestEntity.insertIdea(1, 2, 1, IdeaType.Macro, "epic concept", 0.342, "C#", 0.286);
-    IntegrationTestEntity.insertIdea(2, 2, 1, IdeaType.Rhythm, "fat beat", 0.342, "C#", 0.286);
-    IntegrationTestEntity.insertIdea(3, 2, 1, IdeaType.Main, "dope jam", 0.342, "C#", 0.286);
-    IntegrationTestEntity.insertIdea(4, 2, 1, IdeaType.Support, "great accompaniment", 0.342, "C#", 0.286);
+    IntegrationTestEntity.insertPattern(1, 2, 1, PatternType.Macro, "epic concept", 0.342, "C#", 0.286);
+    IntegrationTestEntity.insertPattern(2, 2, 1, PatternType.Rhythm, "fat beat", 0.342, "C#", 0.286);
+    IntegrationTestEntity.insertPattern(3, 2, 1, PatternType.Main, "dope jam", 0.342, "C#", 0.286);
+    IntegrationTestEntity.insertPattern(4, 2, 1, PatternType.Support, "great accompaniment", 0.342, "C#", 0.286);
 
     // Chain "Test Print #1" has one link
     IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Ready, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"), null);
     IntegrationTestEntity.insertLink(1, 1, 0, LinkState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120, "chain-1-link-97898asdf7892.wav");
 
     // Link "Test Print #1" has 4 choices
-    IntegrationTestEntity.insertChoice(1, 1, 1, IdeaType.Macro, 2, -5);
-    IntegrationTestEntity.insertChoice(2, 1, 2, IdeaType.Rhythm, 1, +2);
-    IntegrationTestEntity.insertChoice(3, 1, 4, IdeaType.Support, 4, -7);
-    IntegrationTestEntity.insertChoice(4, 1, 3, IdeaType.Main, 3, -4);
+    IntegrationTestEntity.insertChoice(1, 1, 1, PatternType.Macro, 2, -5);
+    IntegrationTestEntity.insertChoice(2, 1, 2, PatternType.Rhythm, 1, +2);
+    IntegrationTestEntity.insertChoice(3, 1, 4, PatternType.Support, 4, -7);
+    IntegrationTestEntity.insertChoice(4, 1, 3, PatternType.Main, 3, -4);
 
     // Instantiate the test subject
     testDAO = injector.getInstance(ChoiceDAO.class);
@@ -84,7 +84,7 @@ public class ChoiceIT {
     ));
     Choice inputData = new Choice()
       .setLinkId(BigInteger.valueOf(1))
-      .setIdeaId(BigInteger.valueOf(3))
+      .setPatternId(BigInteger.valueOf(3))
       .setType("Main")
       .setPhaseOffset(BigInteger.valueOf(2))
       .setTranspose(-3);
@@ -93,8 +93,8 @@ public class ChoiceIT {
 
     assertNotNull(result);
     assertEquals(ULong.valueOf(1), result.get("linkId"));
-    assertEquals(ULong.valueOf(3), result.get("ideaId"));
-    assertEquals(IdeaType.Main, result.get("type"));
+    assertEquals(ULong.valueOf(3), result.get("patternId"));
+    assertEquals(PatternType.Main, result.get("type"));
     assertEquals(ULong.valueOf(2), result.get("phaseOffset"));
     assertEquals(-3, result.get("transpose"));
   }
@@ -106,7 +106,7 @@ public class ChoiceIT {
     ));
     Choice inputData = new Choice()
       .setLinkId(BigInteger.valueOf(1))
-      .setIdeaId(BigInteger.valueOf(3))
+      .setPatternId(BigInteger.valueOf(3))
       .setType("Main")
       .setPhaseOffset(BigInteger.valueOf(2))
       .setTranspose(-3);
@@ -120,7 +120,7 @@ public class ChoiceIT {
       "roles", "admin"
     ));
     Choice inputData = new Choice()
-      .setIdeaId(BigInteger.valueOf(3))
+      .setPatternId(BigInteger.valueOf(3))
       .setType("Main")
       .setPhaseOffset(BigInteger.valueOf(2))
       .setTranspose(-3);
@@ -135,7 +135,7 @@ public class ChoiceIT {
     ));
     Choice inputData = new Choice()
       .setLinkId(BigInteger.valueOf(1))
-      .setIdeaId(BigInteger.valueOf(3))
+      .setPatternId(BigInteger.valueOf(3))
       .setType("BULLSHIT TYPE!")
       .setPhaseOffset(BigInteger.valueOf(2))
       .setTranspose(-3);
@@ -155,20 +155,20 @@ public class ChoiceIT {
     assertNotNull(result);
     assertEquals(ULong.valueOf(2), result.getId());
     assertEquals(ULong.valueOf(1), result.getLinkId());
-    assertEquals(ULong.valueOf(2), result.getIdeaId());
-    assertEquals(IdeaType.Rhythm, result.getType());
+    assertEquals(ULong.valueOf(2), result.getPatternId());
+    assertEquals(PatternType.Rhythm, result.getType());
     assertEquals(ULong.valueOf(1), result.getPhaseOffset());
     assertEquals(Integer.valueOf(+2), result.getTranspose());
   }
 
   @Test
-  public void readOne_LinkIdea() throws Exception {
-    ChoiceRecord result = testDAO.readOneLinkIdea(Access.internal(), ULong.valueOf(1), ULong.valueOf(2));
+  public void readOne_LinkPattern() throws Exception {
+    ChoiceRecord result = testDAO.readOneLinkPattern(Access.internal(), ULong.valueOf(1), ULong.valueOf(2));
 
     assertNotNull(result);
     assertEquals(ULong.valueOf(2), result.getId());
     assertEquals(ULong.valueOf(1), result.getLinkId());
-    assertEquals(ULong.valueOf(2), result.getIdeaId());
+    assertEquals(ULong.valueOf(2), result.getPatternId());
     assertEquals("Rhythm", result.getType());
     assertEquals(ULong.valueOf(1), result.getPhaseOffset());
     assertEquals(Integer.valueOf(+2), result.getTranspose());
@@ -188,18 +188,18 @@ public class ChoiceIT {
 
   @Test
   public void readOneLinkType() throws Exception {
-    IntegrationTestEntity.insertIdeaMeme(12, 2, "leafy");
-    IntegrationTestEntity.insertIdeaMeme(14, 2, "smooth");
+    IntegrationTestEntity.insertPatternMeme(12, 2, "leafy");
+    IntegrationTestEntity.insertPatternMeme(14, 2, "smooth");
 
     IntegrationTestEntity.insertPhase(10, 2, 0, 64, "intro", 0.5, "C", 121);
     IntegrationTestEntity.insertPhase(11, 2, 1, 64, "drop", 0.5, "C", 121);
     IntegrationTestEntity.insertPhase(12, 2, 2, 64, "break", 0.5, "C", 121);
 
-    Choice result = testDAO.readOneLinkTypeWithAvailablePhaseOffsets(Access.internal(), ULong.valueOf(1), IdeaType.Rhythm);
+    Choice result = testDAO.readOneLinkTypeWithAvailablePhaseOffsets(Access.internal(), ULong.valueOf(1), PatternType.Rhythm);
 
     assertNotNull(result);
-    assertEquals(ULong.valueOf(2), result.getIdeaId());
-    assertEquals(IdeaType.Rhythm, result.getType());
+    assertEquals(ULong.valueOf(2), result.getPatternId());
+    assertEquals(PatternType.Rhythm, result.getType());
     assertEquals(ULong.valueOf(1), result.getPhaseOffset());
     assertEquals(Integer.valueOf(2), result.getTranspose());
     assertEquals(ImmutableList.of(ULong.valueOf(0), ULong.valueOf(1), ULong.valueOf(2)), result.getAvailablePhaseOffsets());
@@ -285,7 +285,7 @@ public class ChoiceIT {
     ));
     Choice inputData = new Choice()
       .setLinkId(BigInteger.valueOf(1))
-      .setIdeaId(BigInteger.valueOf(3))
+      .setPatternId(BigInteger.valueOf(3))
       .setType("Main")
       .setPhaseOffset(BigInteger.valueOf(2))
       .setTranspose(-3);
@@ -298,7 +298,7 @@ public class ChoiceIT {
       .fetchOne();
     assertNotNull(result);
     assertEquals(ULong.valueOf(1), result.getLinkId());
-    assertEquals(ULong.valueOf(3), result.getIdeaId());
+    assertEquals(ULong.valueOf(3), result.getPatternId());
     assertEquals("Main", result.getType());
     assertEquals(ULong.valueOf(2), result.getPhaseOffset());
     assertEquals(Integer.valueOf(-3), result.getTranspose());
@@ -310,7 +310,7 @@ public class ChoiceIT {
       "roles", "admin"
     ));
     Choice inputData = new Choice()
-      .setIdeaId(BigInteger.valueOf(3))
+      .setPatternId(BigInteger.valueOf(3))
       .setType("Main")
       .setPhaseOffset(BigInteger.valueOf(2))
       .setTranspose(-3);
@@ -325,7 +325,7 @@ public class ChoiceIT {
     ));
     Choice inputData = new Choice()
       .setLinkId(BigInteger.valueOf(1))
-      .setIdeaId(BigInteger.valueOf(3))
+      .setPatternId(BigInteger.valueOf(3))
       .setPhaseOffset(BigInteger.valueOf(2))
       .setTranspose(-3);
 
@@ -339,7 +339,7 @@ public class ChoiceIT {
     ));
     Choice inputData = new Choice()
       .setLinkId(BigInteger.valueOf(7))
-      .setIdeaId(BigInteger.valueOf(3))
+      .setPatternId(BigInteger.valueOf(3))
       .setType("Main")
       .setPhaseOffset(BigInteger.valueOf(2))
       .setTranspose(-3);

@@ -8,8 +8,8 @@ import io.xj.core.dao.AudioDAO;
 import io.xj.core.dao.AudioEventDAO;
 import io.xj.core.dao.ChainConfigDAO;
 import io.xj.core.dao.ChoiceDAO;
-import io.xj.core.dao.IdeaDAO;
-import io.xj.core.dao.IdeaMemeDAO;
+import io.xj.core.dao.PatternDAO;
+import io.xj.core.dao.PatternMemeDAO;
 import io.xj.core.dao.LinkChordDAO;
 import io.xj.core.dao.LinkDAO;
 import io.xj.core.dao.LinkMemeDAO;
@@ -26,16 +26,16 @@ import io.xj.core.model.audio_event.AudioEvent;
 import io.xj.core.model.chain_config.ChainConfig;
 import io.xj.core.model.chain_config.ChainConfigType;
 import io.xj.core.model.choice.Choice;
-import io.xj.core.model.idea.Idea;
-import io.xj.core.model.idea.IdeaType;
+import io.xj.core.model.pattern.Pattern;
+import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.link.Link;
 import io.xj.core.model.link_chord.LinkChord;
 import io.xj.core.model.link_meme.LinkMeme;
 import io.xj.core.model.link_message.LinkMessage;
 import io.xj.core.model.message.MessageType;
 import io.xj.core.model.pick.Pick;
-import io.xj.core.tables.records.IdeaMemeRecord;
-import io.xj.core.tables.records.IdeaRecord;
+import io.xj.core.tables.records.PatternMemeRecord;
+import io.xj.core.tables.records.PatternRecord;
 import io.xj.core.tables.records.LinkRecord;
 import io.xj.core.tables.records.PhaseMemeRecord;
 import io.xj.core.tables.records.PhaseRecord;
@@ -72,7 +72,7 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- [#214] If a Chain has Ideas associated with it directly, prefer those choices to any in the Library
+ [#214] If a Chain has Patterns associated with it directly, prefer those choices to any in the Library
  */
 public class BasisImpl implements Basis {
   private static final int MICROSECONDS_PER_SECOND = 1000000;
@@ -81,8 +81,8 @@ public class BasisImpl implements Basis {
   private final AudioEventDAO audioEventDAO;
   private final ChainConfigDAO chainConfigDAO;
   private final ChoiceDAO choiceDAO;
-  private final IdeaDAO ideaDAO;
-  private final IdeaMemeDAO ideaMemeDAO;
+  private final PatternDAO patternDAO;
+  private final PatternMemeDAO patternMemeDAO;
   private final LinkChordDAO linkChordDAO;
   private final LinkDAO linkDAO;
   private final LinkMemeDAO linkMemeDAO;
@@ -104,13 +104,13 @@ public class BasisImpl implements Basis {
   private List<Pick> _picks;
   private Map<ChainConfigType, ChainConfig> _chainConfigs;
   private Map<ULong, Audio> _audiosFromPicks;
-  private final Map<ULong, IdeaRecord> _ideas = Maps.newHashMap();
+  private final Map<ULong, PatternRecord> _patterns = Maps.newHashMap();
   private final Map<ULong, List<Audio>> _instrumentAudios = Maps.newHashMap();
   private final Map<ULong, List<AudioEvent>> _audioWithFirstEvent = Maps.newHashMap();
-  private final Map<ULong, Map<IdeaType, Choice>> _linkChoicesByType = Maps.newHashMap();
+  private final Map<ULong, Map<PatternType, Choice>> _linkChoicesByType = Maps.newHashMap();
   private final Map<ULong, Map<ULong, LinkRecord>> _linksByOffset = Maps.newHashMap();
-  private final Map<ULong, Map<ULong, PhaseRecord>> _ideaPhasesByOffset = Maps.newHashMap();
-  private final Map<ULong, Result<IdeaMemeRecord>> _ideaMemes = Maps.newHashMap();
+  private final Map<ULong, Map<ULong, PhaseRecord>> _patternPhasesByOffset = Maps.newHashMap();
+  private final Map<ULong, Result<PatternMemeRecord>> _patternMemes = Maps.newHashMap();
   private final Map<ULong, Result<PhaseMemeRecord>> _phaseMemes = Maps.newHashMap();
   private final Map<ULong, Result<VoiceEventRecord>> _voiceEvents = Maps.newHashMap();
   private final Map<ULong, Result<VoiceRecord>> _voicesByPhase = Maps.newHashMap();
@@ -123,8 +123,8 @@ public class BasisImpl implements Basis {
     AudioEventDAO audioEventDAO,
     ChainConfigDAO chainConfigDAO,
     ChoiceDAO choiceDAO,
-    IdeaDAO ideaDAO,
-    IdeaMemeDAO ideaMemeDAO,
+    PatternDAO patternDAO,
+    PatternMemeDAO patternMemeDAO,
     LinkDAO linkDAO,
     LinkChordDAO linkChordDAO,
     LinkMemeDAO linkMemeDAO,
@@ -141,8 +141,8 @@ public class BasisImpl implements Basis {
     this.audioEventDAO = audioEventDAO;
     this.chainConfigDAO = chainConfigDAO;
     this.choiceDAO = choiceDAO;
-    this.ideaDAO = ideaDAO;
-    this.ideaMemeDAO = ideaMemeDAO;
+    this.patternDAO = patternDAO;
+    this.patternMemeDAO = patternMemeDAO;
     this.linkDAO = linkDAO;
     this.linkChordDAO = linkChordDAO;
     this.linkMemeDAO = linkMemeDAO;
@@ -247,17 +247,17 @@ public class BasisImpl implements Basis {
 
   @Override
   public Choice previousMacroChoice() throws Exception {
-    return linkChoiceByType(previousLink().getId(), IdeaType.Macro);
+    return linkChoiceByType(previousLink().getId(), PatternType.Macro);
   }
 
   @Override
   public Choice previousMainChoice() throws Exception {
-    return linkChoiceByType(previousLink().getId(), IdeaType.Main);
+    return linkChoiceByType(previousLink().getId(), PatternType.Main);
   }
 
   @Override
   public Choice previousRhythmChoice() throws Exception {
-    return linkChoiceByType(previousLink().getId(), IdeaType.Rhythm);
+    return linkChoiceByType(previousLink().getId(), PatternType.Rhythm);
   }
 
   @Override
@@ -267,39 +267,39 @@ public class BasisImpl implements Basis {
 
   @Override
   public Choice currentMacroChoice() throws Exception {
-    return linkChoiceByType(link().getId(), IdeaType.Macro);
+    return linkChoiceByType(link().getId(), PatternType.Macro);
   }
 
   @Override
   public Choice currentMainChoice() throws Exception {
-    return linkChoiceByType(link().getId(), IdeaType.Main);
+    return linkChoiceByType(link().getId(), PatternType.Main);
   }
 
   @Override
   public Choice currentRhythmChoice() throws Exception {
-    return linkChoiceByType(link().getId(), IdeaType.Rhythm);
+    return linkChoiceByType(link().getId(), PatternType.Rhythm);
   }
 
   @Override
   public PhaseRecord previousMacroPhase() throws Exception {
     return phaseByOffset(
-      previousMacroChoice().getIdeaId(),
+      previousMacroChoice().getPatternId(),
       previousMacroChoice().getPhaseOffset());
   }
 
   @Override
   public PhaseRecord previousMacroNextPhase() throws Exception {
     return phaseByOffset(
-      previousMacroChoice().getIdeaId(),
+      previousMacroChoice().getPatternId(),
       previousMacroChoice().nextPhaseOffset());
   }
 
   @Override
-  public Idea idea(ULong id) throws Exception {
-    if (!_ideas.containsKey(id))
-      _ideas.put(id, ideaDAO.readOne(Access.internal(), id));
+  public Pattern pattern(ULong id) throws Exception {
+    if (!_patterns.containsKey(id))
+      _patterns.put(id, patternDAO.readOne(Access.internal(), id));
 
-    return new Idea().setFromRecord(_ideas.get(id));
+    return new Pattern().setFromRecord(_patterns.get(id));
   }
 
   @Override
@@ -367,11 +367,11 @@ public class BasisImpl implements Basis {
   }
 
   @Override
-  public Result<IdeaMemeRecord> ideaMemes(ULong ideaId) throws Exception {
-    if (!_ideaMemes.containsKey(ideaId))
-      _ideaMemes.put(ideaId, ideaMemeDAO.readAll(Access.internal(), ideaId));
+  public Result<PatternMemeRecord> patternMemes(ULong patternId) throws Exception {
+    if (!_patternMemes.containsKey(patternId))
+      _patternMemes.put(patternId, patternMemeDAO.readAll(Access.internal(), patternId));
 
-    return _ideaMemes.get(ideaId);
+    return _patternMemes.get(patternId);
   }
 
   @Override
@@ -487,15 +487,15 @@ public class BasisImpl implements Basis {
   }
 
   @Override
-  public PhaseRecord phaseByOffset(ULong ideaId, ULong phaseOffset) throws Exception {
-    if (!_ideaPhasesByOffset.containsKey(ideaId))
-      _ideaPhasesByOffset.put(ideaId, Maps.newHashMap());
+  public PhaseRecord phaseByOffset(ULong patternId, ULong phaseOffset) throws Exception {
+    if (!_patternPhasesByOffset.containsKey(patternId))
+      _patternPhasesByOffset.put(patternId, Maps.newHashMap());
 
-    if (!_ideaPhasesByOffset.get(ideaId).containsKey(phaseOffset))
-      _ideaPhasesByOffset.get(ideaId).put(phaseOffset,
-        phaseDAO.readOneForIdea(Access.internal(), ideaId, phaseOffset));
+    if (!_patternPhasesByOffset.get(patternId).containsKey(phaseOffset))
+      _patternPhasesByOffset.get(patternId).put(phaseOffset,
+        phaseDAO.readOneForPattern(Access.internal(), patternId, phaseOffset));
 
-    return _ideaPhasesByOffset.get(ideaId).get(phaseOffset);
+    return _patternPhasesByOffset.get(patternId).get(phaseOffset);
   }
 
   @Override
@@ -511,15 +511,15 @@ public class BasisImpl implements Basis {
   }
 
   @Override
-  public Choice linkChoiceByType(ULong linkId, IdeaType ideaType) throws Exception {
+  public Choice linkChoiceByType(ULong linkId, PatternType patternType) throws Exception {
     if (!_linkChoicesByType.containsKey(linkId))
       _linkChoicesByType.put(linkId, Maps.newHashMap());
 
-    if (!_linkChoicesByType.get(linkId).containsKey(ideaType))
-      _linkChoicesByType.get(linkId).put(ideaType,
-        choiceDAO.readOneLinkTypeWithAvailablePhaseOffsets(Access.internal(), linkId, ideaType));
+    if (!_linkChoicesByType.get(linkId).containsKey(patternType))
+      _linkChoicesByType.get(linkId).put(patternType,
+        choiceDAO.readOneLinkTypeWithAvailablePhaseOffsets(Access.internal(), linkId, patternType));
 
-    return _linkChoicesByType.get(linkId).get(ideaType);
+    return _linkChoicesByType.get(linkId).get(patternType);
   }
 
   @Override

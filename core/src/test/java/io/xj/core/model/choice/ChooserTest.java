@@ -1,7 +1,7 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 package io.xj.core.model.choice;
 
-import io.xj.core.model.idea.Idea;
+import io.xj.core.model.pattern.Pattern;
 
 import org.jooq.types.ULong;
 
@@ -18,75 +18,75 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 public class ChooserTest {
-  private Chooser<Idea> chooser;
+  private Chooser<Pattern> chooser;
 
-  private Idea ideaB;
-  private Idea ideaC;
-  private Idea ideaD;
-  private Idea ideaE;
+  private Pattern patternB;
+  private Pattern patternC;
+  private Pattern patternD;
+  private Pattern patternE;
 
   @Before
   public void setUp() throws Exception {
-    ideaB = new Idea();
-    ideaB.setId(BigInteger.valueOf(5));
-    ideaB.setName("Super Jam");
+    patternB = new Pattern();
+    patternB.setId(BigInteger.valueOf(5));
+    patternB.setName("Super Jam");
 
-    ideaC = new Idea();
-    ideaC.setId(BigInteger.valueOf(12));
-    ideaC.setName("Dope Beat");
+    patternC = new Pattern();
+    patternC.setId(BigInteger.valueOf(12));
+    patternC.setName("Dope Beat");
 
-    ideaD = new Idea();
-    ideaD.setId(BigInteger.valueOf(15));
-    ideaD.setName("The Illest");
+    patternD = new Pattern();
+    patternD.setId(BigInteger.valueOf(15));
+    patternD.setName("The Illest");
 
-    ideaE = new Idea();
-    ideaE.setId(BigInteger.valueOf(22));
-    ideaE.setName("Good News");
+    patternE = new Pattern();
+    patternE.setId(BigInteger.valueOf(22));
+    patternE.setName("Good News");
 
     chooser = new Chooser<>();
 
-    chooser.add(ideaB, 0.75);
-    chooser.add(ideaC, 0.25);
-    chooser.add(ideaD, 0.5);
+    chooser.add(patternB, 0.75);
+    chooser.add(patternC, 0.25);
+    chooser.add(patternD, 0.5);
   }
 
   @After
   public void tearDown() throws Exception {
     chooser = null;
-    ideaB = null;
-    ideaC = null;
-    ideaD = null;
-    ideaE = null;
+    patternB = null;
+    patternC = null;
+    patternD = null;
+    patternE = null;
   }
 
   @Test
   public void add() throws Exception {
-    chooser.add(ideaE);
+    chooser.add(patternE);
 
-    assert chooser.getAll().contains(ideaE);
+    assert chooser.getAll().contains(patternE);
   }
 
   @Test
   public void addAll() throws Exception {
-    Chooser<Idea> result = new Chooser<>();
+    Chooser<Pattern> result = new Chooser<>();
     result.addAll(
-      ImmutableList.of(ideaB,ideaC,ideaD));
+      ImmutableList.of(patternB,patternC,patternD));
 
-    assert chooser.getAll().contains(ideaB);
-    assert chooser.getAll().contains(ideaC);
-    assert chooser.getAll().contains(ideaD);
+    assert chooser.getAll().contains(patternB);
+    assert chooser.getAll().contains(patternC);
+    assert chooser.getAll().contains(patternD);
   }
 
   @Test
   public void addWithScore() throws Exception {
-    chooser.add(ideaE, 2.0);
+    chooser.add(patternE, 2.0);
 
     assertArrayEquals(
-      new Idea[]{
-        ideaB,
-        ideaC,
-        ideaD,
-        ideaE
+      new Pattern[]{
+        patternB,
+        patternC,
+        patternD,
+        patternE
       },
       chooser.getAll().toArray()
     );
@@ -94,13 +94,13 @@ public class ChooserTest {
 
   @Test
   public void score() throws Exception {
-    chooser.score(ideaC, 2.0);
+    chooser.score(patternC, 2.0);
 
     assertArrayEquals(
-      new Idea[]{
-        ideaC,
-        ideaB,
-        ideaD
+      new Pattern[]{
+        patternC,
+        patternB,
+        patternD
       },
       chooser.getAllScored().toArray()
     );
@@ -111,10 +111,10 @@ public class ChooserTest {
     chooser.score(ULong.valueOf(12), 2.0);
 
     assertArrayEquals(
-      new Idea[]{
-        ideaC,
-        ideaB,
-        ideaD
+      new Pattern[]{
+        patternC,
+        patternB,
+        patternD
       },
       chooser.getAllScored().toArray()
     );
@@ -123,10 +123,10 @@ public class ChooserTest {
   @Test
   public void getAll() throws Exception {
     assertArrayEquals(
-      new Idea[]{
-        ideaB,
-        ideaC,
-        ideaD
+      new Pattern[]{
+        patternB,
+        patternC,
+        patternD
       },
       chooser.getAll().toArray()
     );
@@ -134,7 +134,7 @@ public class ChooserTest {
 
   @Test
   public void score_adjustExisting() throws Exception {
-    chooser.score(ideaC, 2.0);
+    chooser.score(patternC, 2.0);
 
     HashMap<ULong, Double> result = chooser.getScores();
     assertEquals(Double.valueOf(2.25), result.get(ULong.valueOf(12)));
@@ -152,15 +152,15 @@ public class ChooserTest {
 
   @Test
   public void getTop() throws Exception {
-    assertEquals(ideaB, chooser.getTop());
+    assertEquals(patternB, chooser.getTop());
   }
 
   @Test
   public void getScored() throws Exception {
     assertArrayEquals(
-      new Idea[]{
-        ideaB,
-        ideaD
+      new Pattern[]{
+        patternB,
+        patternD
       },
       chooser.getScored(2).toArray()
     );
@@ -169,10 +169,10 @@ public class ChooserTest {
   @Test
   public void getAllScored() throws Exception {
     assertArrayEquals(
-      new Idea[]{
-        ideaB,
-        ideaD,
-        ideaC
+      new Pattern[]{
+        patternB,
+        patternD,
+        patternC
       },
       chooser.getAllScored().toArray()
     );

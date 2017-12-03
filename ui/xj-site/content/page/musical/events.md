@@ -4,12 +4,12 @@ categories = ["musical"]
 tags = ["events"]
 slug = "events"
 title = "Events"
-description = "Musical ideas and performances in the XJ platform are encoded as Events"
+description = "Musical patterns and performances in the XJ platform are encoded as Events"
 draft = false
 
 +++
 
-There are two types of **Events**, the **Idea Phase Voice-Event** and the **Instrument Audio-Event**. Automatic fabrication performs a search for matching Instrument Audio-Events for the chosen Idea Phase Voice-Events. That is how an Audio is chosen inside of an Instrument, based on its Audio-Events.
+There are two types of **Events**, the **Pattern Phase Voice-Event** and the **Instrument Audio-Event**. Automatic fabrication performs a search for matching Instrument Audio-Events for the chosen Pattern Phase Voice-Events. That is how an Audio is chosen inside of an Instrument, based on its Audio-Events.
 
 # Percussive-type Instruments
 

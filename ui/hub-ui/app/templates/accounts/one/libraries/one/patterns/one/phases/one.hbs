@@ -1,0 +1,41 @@
+<!-- Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved. -->
+
+<div class="headline container-fluid">
+  <div class="row">
+    <div class="col-sm-12">
+
+      <!-- Entity type and ID -->
+      <div class="entity">
+        Phase #{{model.id}}
+      </div>
+
+      <!-- Title -->
+      <h1>
+        {{model.name}}
+        <!-- should only show following edit icon is user has privileges to edit pattern -->
+        <small>{{#link-to 'accounts.one.libraries.one.patterns.one.phases.one.edit' model.pattern.library.account model.pattern.library model.pattern model}}{{fa-icon 'edit'}}{{/link-to}}</small>
+      </h1>
+
+    </div>
+  </div>
+</div>
+
+<!-- Links to actions -->
+<div class="form-horizontal container-fluid">
+  <div class="form-group row">
+    <ul class="nav nav-tabs">
+      <li class="nav-item">
+        {{#link-to 'accounts.one.libraries.one.patterns.one.phases.one.memes' model.pattern.library.account model.pattern.library model.pattern model class='nav-link'}}Memes{{/link-to}}
+      </li>
+      <li class="nav-item">
+        {{#link-to 'accounts.one.libraries.one.patterns.one.phases.one.chords' model.pattern.library.account model.pattern.library model.pattern model class='nav-link'}}Chords{{/link-to}}
+      </li>
+      <li class="nav-item">
+        {{#link-to 'accounts.one.libraries.one.patterns.one.phases.one.voices' model.pattern.library.account model.pattern.library model.pattern model class='nav-link'}}Voices{{/link-to}}
+      </li>
+    </ul>
+  </div>
+</div>
+
+<!-- Inner Content -->
+{{outlet}}

@@ -36,8 +36,8 @@ public class PhaseIndexResource {
   private final PhaseDAO DAO = injector.getInstance(PhaseDAO.class);
   private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
 
-  @QueryParam("ideaId")
-  String ideaId;
+  @QueryParam("patternId")
+  String patternId;
 
   /**
    Get all phases.
@@ -49,8 +49,8 @@ public class PhaseIndexResource {
   @RolesAllowed({Role.ARTIST})
   public Response readAll(@Context ContainerRequestContext crc) throws IOException {
 
-    if (ideaId == null || ideaId.length() == 0) {
-      return response.notAcceptable("Idea id is required");
+    if (patternId == null || patternId.length() == 0) {
+      return response.notAcceptable("Pattern id is required");
     }
 
     try {
@@ -58,7 +58,7 @@ public class PhaseIndexResource {
         Phase.KEY_MANY,
         DAO.readAll(
           Access.fromContext(crc),
-          ULong.valueOf(ideaId)));
+          ULong.valueOf(patternId)));
 
     } catch (Exception e) {
       return response.failure(e);

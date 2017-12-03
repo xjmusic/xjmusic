@@ -3,7 +3,7 @@ package io.xj.core.model.choice;
 
 import io.xj.core.exception.BusinessException;
 import io.xj.core.model.Entity;
-import io.xj.core.model.idea.IdeaType;
+import io.xj.core.model.pattern.PatternType;
 import io.xj.core.transport.CSV;
 
 import org.jooq.Field;
@@ -36,16 +36,16 @@ public class Choice extends Entity {
 
   public static final String KEY_ONE = "choice";
   public static final String KEY_MANY = "choices";
-  private static final String KEY_IDEA_ID = "ideaId";
+  private static final String KEY_PATTERN_ID = "patternId";
   private static final String KEY_PHASE_OFFSET = "phaseOffset";
   private static final String KEY_TRANSPOSE = "transpose";
   private static final String KEY_TYPE = "type";
   private List<ULong> availablePhaseOffsets;
 
   private ULong linkId;
-  private ULong ideaId;
+  private ULong patternId;
   private String _type; // to hold value before validation
-  private IdeaType type;
+  private PatternType type;
   private ULong phaseOffset;
   private Integer transpose;
 
@@ -58,16 +58,16 @@ public class Choice extends Entity {
     return this;
   }
 
-  public ULong getIdeaId() {
-    return ideaId;
+  public ULong getPatternId() {
+    return patternId;
   }
 
-  public Choice setIdeaId(BigInteger value) {
-    ideaId = ULong.valueOf(value);
+  public Choice setPatternId(BigInteger value) {
+    patternId = ULong.valueOf(value);
     return this;
   }
 
-  public IdeaType getType() {
+  public PatternType getType() {
     return type;
   }
 
@@ -142,7 +142,7 @@ public class Choice extends Entity {
   }
 
   /**
-   Get eitherOr phase offsets for the chosen idea
+   Get eitherOr phase offsets for the chosen pattern
 
    @return eitherOr phase offsets
    */
@@ -168,13 +168,13 @@ public class Choice extends Entity {
   @Override
   public void validate() throws BusinessException {
     // throws its own BusinessException on failure
-    type = IdeaType.validate(_type);
+    type = PatternType.validate(_type);
 
     if (Objects.isNull(linkId ))
       throw new BusinessException("Link ID is required.");
 
-    if (Objects.isNull(ideaId ))
-      throw new BusinessException("Idea ID is required.");
+    if (Objects.isNull(patternId ))
+      throw new BusinessException("Pattern ID is required.");
 
     if (Objects.isNull(type ))
       throw new BusinessException("Type is required.");
@@ -193,7 +193,7 @@ public class Choice extends Entity {
    */
   public Map<String, Object> asMap() {
     Map<String, Object> out = com.google.common.collect.Maps.newHashMap();
-    out.put(KEY_IDEA_ID, ideaId);
+    out.put(KEY_PATTERN_ID, patternId);
     out.put(KEY_PHASE_OFFSET, phaseOffset);
     out.put(KEY_TRANSPOSE, transpose);
     out.put(KEY_TYPE, type);
@@ -213,11 +213,11 @@ public class Choice extends Entity {
     if (Objects.nonNull(record.field(CHOICE.LINK_ID)))
       linkId = record.get(CHOICE.LINK_ID);
 
-    if (Objects.nonNull(record.field(CHOICE.IDEA_ID)))
-      ideaId = record.get(CHOICE.IDEA_ID);
+    if (Objects.nonNull(record.field(CHOICE.PATTERN_ID)))
+      patternId = record.get(CHOICE.PATTERN_ID);
 
     if (Objects.nonNull(record.field(CHOICE.TYPE)))
-      type = IdeaType.validate(record.get(CHOICE.TYPE));
+      type = PatternType.validate(record.get(CHOICE.TYPE));
 
     if (Objects.nonNull(record.field(CHOICE.TRANSPOSE)))
       transpose = record.get(CHOICE.TRANSPOSE);
@@ -241,7 +241,7 @@ public class Choice extends Entity {
   public Map<Field, Object> updatableFieldValueMap() {
     Map<Field, Object> fieldValues = Maps.newHashMap();
     fieldValues.put(CHOICE.LINK_ID, linkId);
-    fieldValues.put(CHOICE.IDEA_ID, ideaId);
+    fieldValues.put(CHOICE.PATTERN_ID, patternId);
     fieldValues.put(CHOICE.TYPE, type);
     fieldValues.put(CHOICE.TRANSPOSE, transpose);
     fieldValues.put(CHOICE.PHASE_OFFSET, phaseOffset);

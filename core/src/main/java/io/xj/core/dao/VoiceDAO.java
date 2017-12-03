@@ -43,14 +43,14 @@ public interface VoiceDAO {
   Result<VoiceRecord> readAll(Access access, ULong phaseId) throws Exception;
 
   /**
-   Fetch all accessible Voice for an idea phase by offset
+   Fetch all accessible Voice for an pattern phase by offset
 
    @return voices in phase
     @param access      control
-   @param ideaId      to fetch phase voices for
-   @param phaseOffset offset of phase in idea
+   @param patternId      to fetch phase voices for
+   @param phaseOffset offset of phase in pattern
    */
-  Result<VoiceRecord> readAllForIdeaPhaseOffset(Access access, ULong ideaId, ULong phaseOffset) throws Exception;
+  Result<VoiceRecord> readAllForPatternPhaseOffset(Access access, ULong patternId, ULong phaseOffset) throws Exception;
 
   /**
    Update a specified Voice if accessible

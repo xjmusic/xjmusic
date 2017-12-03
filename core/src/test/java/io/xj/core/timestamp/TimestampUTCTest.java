@@ -59,7 +59,7 @@ public class TimestampUTCTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void valueOf_invalidTimestamp() throws Exception {
-    TimestampUTC.valueOf("terrible idea for a timestamp");
+    TimestampUTC.valueOf("terrible pattern for a timestamp");
   }
 
   /**

@@ -11,7 +11,7 @@ import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.integration.IntegrationTestService;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
-import io.xj.core.model.idea.IdeaType;
+import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.instrument.InstrumentType;
 import io.xj.core.model.link.Link;
 import io.xj.core.model.link.LinkState;
@@ -544,7 +544,7 @@ public class LinkIT {
 
     // Library "test sounds"
     IntegrationTestEntity.insertLibrary(1, 1, "test sounds");
-    IntegrationTestEntity.insertIdea(1, 2, 1, IdeaType.Macro, "epic concept", 0.342, "C#", 0.286);
+    IntegrationTestEntity.insertPattern(1, 2, 1, PatternType.Macro, "epic concept", 0.342, "C#", 0.286);
     IntegrationTestEntity.insertPhase(1, 1, 0, 16, "Ants", 0.583, "D minor", 120.0);
     IntegrationTestEntity.insertVoice(8, 1, InstrumentType.Percussive, "This is a percussive voice");
     IntegrationTestEntity.insertVoiceEvent(1, 8, 0, 1, "KICK", "C", 0.8, 1.0);
@@ -567,7 +567,7 @@ public class LinkIT {
     IntegrationTestEntity.insertLinkMessage(25, 17, MessageType.Warning, "Consider yourself warned");
 
     // Choice
-    IntegrationTestEntity.insertChoice(1, 17, 1, IdeaType.Macro, 2, -5);
+    IntegrationTestEntity.insertChoice(1, 17, 1, PatternType.Macro, 2, -5);
 
     // Arrangement
     IntegrationTestEntity.insertArrangement(1, 1, 8, 9);

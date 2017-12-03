@@ -11,8 +11,8 @@ import io.xj.core.model.chain.Chain;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
 import io.xj.core.model.chain_config.ChainConfigType;
-import io.xj.core.model.idea.Idea;
-import io.xj.core.model.idea.IdeaType;
+import io.xj.core.model.pattern.Pattern;
+import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.instrument.InstrumentType;
 import io.xj.core.model.link.Link;
 import io.xj.core.model.link.LinkState;
@@ -24,13 +24,13 @@ import io.xj.core.tables.records.AudioChordRecord;
 import io.xj.core.tables.records.AudioEventRecord;
 import io.xj.core.tables.records.AudioRecord;
 import io.xj.core.tables.records.ChainConfigRecord;
-import io.xj.core.tables.records.ChainIdeaRecord;
+import io.xj.core.tables.records.ChainPatternRecord;
 import io.xj.core.tables.records.ChainInstrumentRecord;
 import io.xj.core.tables.records.ChainLibraryRecord;
 import io.xj.core.tables.records.ChainRecord;
 import io.xj.core.tables.records.ChoiceRecord;
-import io.xj.core.tables.records.IdeaMemeRecord;
-import io.xj.core.tables.records.IdeaRecord;
+import io.xj.core.tables.records.PatternMemeRecord;
+import io.xj.core.tables.records.PatternRecord;
 import io.xj.core.tables.records.InstrumentMemeRecord;
 import io.xj.core.tables.records.InstrumentRecord;
 import io.xj.core.tables.records.LibraryRecord;
@@ -64,12 +64,12 @@ import static io.xj.core.Tables.AUDIO_CHORD;
 import static io.xj.core.Tables.AUDIO_EVENT;
 import static io.xj.core.Tables.CHAIN;
 import static io.xj.core.Tables.CHAIN_CONFIG;
-import static io.xj.core.Tables.CHAIN_IDEA;
+import static io.xj.core.Tables.CHAIN_PATTERN;
 import static io.xj.core.Tables.CHAIN_INSTRUMENT;
 import static io.xj.core.Tables.CHAIN_LIBRARY;
 import static io.xj.core.Tables.CHOICE;
-import static io.xj.core.Tables.IDEA;
-import static io.xj.core.Tables.IDEA_MEME;
+import static io.xj.core.Tables.PATTERN;
+import static io.xj.core.Tables.PATTERN_MEME;
 import static io.xj.core.Tables.INSTRUMENT;
 import static io.xj.core.Tables.INSTRUMENT_MEME;
 import static io.xj.core.Tables.LIBRARY;
@@ -114,7 +114,7 @@ public interface IntegrationTestEntity {
       db.deleteFrom(VOICE).execute(); // before Phase
 
       // Choice
-      db.deleteFrom(CHOICE).execute(); // before Link & Idea
+      db.deleteFrom(CHOICE).execute(); // before Link & Pattern
 
       // Link
       db.deleteFrom(LINK_MESSAGE).execute(); // before Link
@@ -123,7 +123,7 @@ public interface IntegrationTestEntity {
       db.deleteFrom(LINK).execute(); // before Chain
 
       // Chain
-      db.deleteFrom(CHAIN_IDEA).execute(); // before Chain & Idea
+      db.deleteFrom(CHAIN_PATTERN).execute(); // before Chain & Pattern
       db.deleteFrom(CHAIN_INSTRUMENT).execute(); // before Chain & Instrument
       db.deleteFrom(CHAIN_LIBRARY).execute(); // before Chain & Library
       db.deleteFrom(CHAIN_CONFIG).execute(); // before Chain
@@ -136,11 +136,11 @@ public interface IntegrationTestEntity {
       // Phase
       db.deleteFrom(PHASE_MEME).execute(); // before Phase
       db.deleteFrom(PHASE_CHORD).execute(); // before Phase
-      db.deleteFrom(PHASE).execute(); // before Idea
+      db.deleteFrom(PHASE).execute(); // before Pattern
 
-      // Idea
-      db.deleteFrom(IDEA_MEME).execute(); // before Idea
-      db.deleteFrom(IDEA).execute(); // before Library & Credit
+      // Pattern
+      db.deleteFrom(PATTERN_MEME).execute(); // before Pattern
+      db.deleteFrom(PATTERN).execute(); // before Library & Credit
 
       // Library
       db.deleteFrom(LIBRARY).execute(); // before Account
@@ -230,8 +230,8 @@ public interface IntegrationTestEntity {
     record.store();
   }
 
-  static Idea insertIdea(int id, int userId, int libraryId, IdeaType type, String name, double density, String key, double tempo) throws BusinessException {
-    IdeaRecord record = IntegrationTestService.getDb().newRecord(IDEA);
+  static Pattern insertPattern(int id, int userId, int libraryId, PatternType type, String name, double density, String key, double tempo) throws BusinessException {
+    PatternRecord record = IntegrationTestService.getDb().newRecord(PATTERN);
     record.setId(ULong.valueOf(id));
     record.setUserId(ULong.valueOf(userId));
     record.setLibraryId(ULong.valueOf(libraryId));
@@ -241,21 +241,21 @@ public interface IntegrationTestEntity {
     record.setKey(key);
     record.setTempo(tempo);
     record.store();
-    return new Idea().setFromRecord(record);
+    return new Pattern().setFromRecord(record);
   }
 
-  static void insertIdeaMeme(int id, int ideaId, String name) {
-    IdeaMemeRecord record = IntegrationTestService.getDb().newRecord(IDEA_MEME);
+  static void insertPatternMeme(int id, int patternId, String name) {
+    PatternMemeRecord record = IntegrationTestService.getDb().newRecord(PATTERN_MEME);
     record.setId(ULong.valueOf(id));
-    record.setIdeaId(ULong.valueOf(ideaId));
+    record.setPatternId(ULong.valueOf(patternId));
     record.setName(name);
     record.store();
   }
 
-  static void insertPhase(int id, int ideaId, int offset, int total, String name, double density, String key, double tempo) {
+  static void insertPhase(int id, int patternId, int offset, int total, String name, double density, String key, double tempo) {
     PhaseRecord record = IntegrationTestService.getDb().newRecord(PHASE);
     record.setId(ULong.valueOf(id));
-    record.setIdeaId(ULong.valueOf(ideaId));
+    record.setPatternId(ULong.valueOf(patternId));
     record.setOffset(ULong.valueOf(offset));
     record.setTotal(UInteger.valueOf(total));
     record.setName(name);
@@ -395,11 +395,11 @@ public interface IntegrationTestEntity {
     record.store();
   }
 
-  static void insertChainIdea(int id, int chainId, int ideaId) {
-    ChainIdeaRecord record = IntegrationTestService.getDb().newRecord(CHAIN_IDEA);
+  static void insertChainPattern(int id, int chainId, int patternId) {
+    ChainPatternRecord record = IntegrationTestService.getDb().newRecord(CHAIN_PATTERN);
     record.setId(ULong.valueOf(id));
     record.setChainId(ULong.valueOf(chainId));
-    record.setIdeaId(ULong.valueOf(ideaId));
+    record.setPatternId(ULong.valueOf(patternId));
     record.store();
   }
 
@@ -446,11 +446,11 @@ public interface IntegrationTestEntity {
     record.store();
   }
 
-  static void insertChoice(int id, int linkId, int ideaId, IdeaType type, int phaseOffset, int transpose) {
+  static void insertChoice(int id, int linkId, int patternId, PatternType type, int phaseOffset, int transpose) {
     ChoiceRecord record = IntegrationTestService.getDb().newRecord(CHOICE);
     record.setId(ULong.valueOf(id));
     record.setLinkId(ULong.valueOf(linkId));
-    record.setIdeaId(ULong.valueOf(ideaId));
+    record.setPatternId(ULong.valueOf(patternId));
     record.setType(type.toString());
     record.setTranspose(transpose);
     record.setPhaseOffset(ULong.valueOf(phaseOffset));

@@ -5,14 +5,14 @@ import io.xj.core.access.impl.Access;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.work.basis.Basis;
 import io.xj.core.dao.ChoiceDAO;
-import io.xj.core.dao.IdeaDAO;
+import io.xj.core.dao.PatternDAO;
 import io.xj.core.isometry.MemeIsometry;
 import io.xj.core.model.MemeEntity;
 import io.xj.core.model.choice.Chance;
 import io.xj.core.model.choice.Choice;
 import io.xj.core.model.choice.Chooser;
-import io.xj.core.model.idea.Idea;
-import io.xj.core.model.idea.IdeaType;
+import io.xj.core.model.pattern.Pattern;
+import io.xj.core.model.pattern.PatternType;
 import io.xj.core.tables.records.PhaseRecord;
 import io.xj.core.util.Value;
 import io.xj.worker.work.craft.StructureCraft;
@@ -32,7 +32,7 @@ import java.util.Objects;
 
 /**
  Structure craft for the current link includes rhythm and support
- [#214] If a Chain has Ideas associated with it directly, prefer those choices to any in the Library
+ [#214] If a Chain has Patterns associated with it directly, prefer those choices to any in the Library
  */
 public class StructureCraftImpl implements StructureCraft {
   private static final double SCORE_AVOID_CHOOSING_PREVIOUS_RHTYHM = 10;
@@ -40,19 +40,19 @@ public class StructureCraftImpl implements StructureCraft {
   private final Logger log = LoggerFactory.getLogger(StructureCraftImpl.class);
   private final Basis basis;
   private final ChoiceDAO choiceDAO;
-  private final IdeaDAO ideaDAO;
-  private Idea _rhythmIdea;
+  private final PatternDAO patternDAO;
+  private Pattern _rhythmPattern;
   private ULong _rhythmPhaseOffset;
 
   @Inject
   public StructureCraftImpl(
     @Assisted("basis") Basis basis,
     ChoiceDAO choiceDAO,
-    IdeaDAO ideaDAO
+    PatternDAO patternDAO
   /*-*/) {
     this.basis = basis;
     this.choiceDAO = choiceDAO;
-    this.ideaDAO = ideaDAO;
+    this.patternDAO = patternDAO;
   }
 
   @Override
@@ -78,8 +78,8 @@ public class StructureCraftImpl implements StructureCraft {
     choiceDAO.create(Access.internal(),
       new Choice()
         .setLinkId(basis.linkId().toBigInteger())
-        .setType(IdeaType.Rhythm.toString())
-        .setIdeaId(rhythmIdea().getId().toBigInteger())
+        .setType(PatternType.Rhythm.toString())
+        .setPatternId(rhythmPattern().getId().toBigInteger())
         .setTranspose(rhythmTranspose())
         .setPhaseOffset(rhythmPhaseOffset().toBigInteger()));
   }
@@ -92,37 +92,37 @@ public class StructureCraftImpl implements StructureCraft {
   }
 
   /**
-   compute (and cache) the mainIdea
+   compute (and cache) the mainPattern
 
-   @return mainIdea
+   @return mainPattern
    */
-  private Idea rhythmIdea() throws Exception {
-    if (Objects.isNull(_rhythmIdea))
+  private Pattern rhythmPattern() throws Exception {
+    if (Objects.isNull(_rhythmPattern))
       switch (basis.type()) {
 
         case Continue:
           Choice previousChoice = basis.previousRhythmChoice();
           if (Objects.isNull(previousChoice))
-            throw new BusinessException("No rhythm-type idea chosen in previous link!");
-          _rhythmIdea = basis.idea(previousChoice.getIdeaId());
+            throw new BusinessException("No rhythm-type pattern chosen in previous link!");
+          _rhythmPattern = basis.pattern(previousChoice.getPatternId());
           break;
 
         case Initial:
         case NextMain:
         case NextMacro:
-          _rhythmIdea = chooseRhythm();
+          _rhythmPattern = chooseRhythm();
       }
 
-    return _rhythmIdea;
+    return _rhythmPattern;
   }
 
   /**
-   Phase offset for rhythm-type idea choice for link
-   if continues past available rhythm-type idea phases, loops back to beginning of idea phases
+   Phase offset for rhythm-type pattern choice for link
+   if continues past available rhythm-type pattern phases, loops back to beginning of pattern phases
 
-   @return offset of rhythm-type idea choice
+   @return offset of rhythm-type pattern choice
    <p>
-   future: actually compute rhythm idea phase offset
+   future: actually compute rhythm pattern phase offset
    */
   private ULong rhythmPhaseOffset() throws Exception {
     if (Objects.isNull(_rhythmPhaseOffset))
@@ -142,13 +142,13 @@ public class StructureCraftImpl implements StructureCraft {
   }
 
   /**
-   Fetch current phase of rhythm-type idea
+   Fetch current phase of rhythm-type pattern
 
    @return phase record
    @throws Exception on failure
    */
   private PhaseRecord rhythmPhase() throws Exception {
-    PhaseRecord phase = basis.phaseByOffset(rhythmIdea().getId(), rhythmPhaseOffset());
+    PhaseRecord phase = basis.phaseByOffset(rhythmPattern().getId(), rhythmPhaseOffset());
 
     if (Objects.isNull(phase))
       throw new BusinessException("rhythm-phase does not exist!");
@@ -157,43 +157,43 @@ public class StructureCraftImpl implements StructureCraft {
   }
 
   /**
-   Transposition for rhythm-type idea choice for link
+   Transposition for rhythm-type pattern choice for link
 
-   @return +/- semitones transposition of rhythm-type idea choice
+   @return +/- semitones transposition of rhythm-type pattern choice
    */
   private Integer rhythmTranspose() throws Exception {
     return Key.delta(
-      Value.eitherOr(rhythmPhase().getKey(), rhythmIdea().getKey())
+      Value.eitherOr(rhythmPhase().getKey(), rhythmPattern().getKey())
       , basis.link().getKey(), 0);
   }
 
   /**
-   Choose rhythm idea
+   Choose rhythm pattern
 
-   @return rhythm-type Idea
+   @return rhythm-type Pattern
    @throws Exception on failure
    <p>
-   future: actually choose rhythm idea
+   future: actually choose rhythm pattern
    */
-  private Idea chooseRhythm() throws Exception {
-    Chooser<Idea> chooser = new Chooser<>();
+  private Pattern chooseRhythm() throws Exception {
+    Chooser<Pattern> chooser = new Chooser<>();
 
-    // future: only choose major ideas for major keys, minor for minor! [#223] Key of first Phase of chosen Rhythm-Idea must match the `minor` or `major` with the Key of the current Link.
+    // future: only choose major patterns for major keys, minor for minor! [#223] Key of first Phase of chosen Rhythm-Pattern must match the `minor` or `major` with the Key of the current Link.
 
-    // (1) retrieve memes of macro idea, for use as a meme isometry comparison
+    // (1) retrieve memes of macro pattern, for use as a meme isometry comparison
     MemeIsometry memeIsometry = MemeIsometry.of(basis.linkMemes());
 
-    // (2a) retrieve ideas bound directly to chain
-    Result<? extends Record> sourceRecords = ideaDAO.readAllBoundToChain(Access.internal(), basis.chainId(), IdeaType.Rhythm);
+    // (2a) retrieve patterns bound directly to chain
+    Result<? extends Record> sourceRecords = patternDAO.readAllBoundToChain(Access.internal(), basis.chainId(), PatternType.Rhythm);
 
-    // (2b) only if none were found in the previous step, retrieve ideas bound to chain library
+    // (2b) only if none were found in the previous step, retrieve patterns bound to chain library
     if (sourceRecords.isEmpty())
-      sourceRecords = ideaDAO.readAllBoundToChainLibrary(Access.internal(), basis.chainId(), IdeaType.Rhythm);
+      sourceRecords = patternDAO.readAllBoundToChainLibrary(Access.internal(), basis.chainId(), PatternType.Rhythm);
 
     // (3) score each source record based on meme isometry
     sourceRecords.forEach((record -> {
       try {
-        chooser.add(new Idea().setFromRecord(record),
+        chooser.add(new Pattern().setFromRecord(record),
           Chance.normallyAround(
             memeIsometry.scoreCSV(String.valueOf(record.get(MemeEntity.KEY_MANY))),
             CHOOSE_RHYTHM_MAX_DISTRIBUTION));
@@ -202,19 +202,19 @@ public class StructureCraftImpl implements StructureCraft {
       }
     }));
 
-    // (3b) Avoid previous rhythm idea
+    // (3b) Avoid previous rhythm pattern
     if (!basis.isInitialLink())
-      chooser.score(basis.previousRhythmChoice().getIdeaId(), -SCORE_AVOID_CHOOSING_PREVIOUS_RHTYHM);
+      chooser.score(basis.previousRhythmChoice().getPatternId(), -SCORE_AVOID_CHOOSING_PREVIOUS_RHTYHM);
 
     // report
     basis.report("rhythmChoice", chooser.report());
 
     // (4) return the top choice
-    Idea idea = chooser.getTop();
-    if (Objects.nonNull(idea))
-      return idea;
+    Pattern pattern = chooser.getTop();
+    if (Objects.nonNull(pattern))
+      return pattern;
     else
-      throw new BusinessException("Found no rhythm-type idea bound to Chain!");
+      throw new BusinessException("Found no rhythm-type pattern bound to Chain!");
   }
 
   /**

@@ -23,27 +23,27 @@ In this section is described the algorithm by which the Craftworker performs Mac
 
 For the first Link in a Chain.
 
-#### (A.1) Select Macro-Idea
+#### (A.1) Select Macro-Pattern
 
 TODO: implement & document
 
-#### (A.2) Link Memes, Key, Density & Tempo = from First Phase of Macro-Idea
+#### (A.2) Link Memes, Key, Density & Tempo = from First Phase of Macro-Pattern
 
 TODO: implement & document
 
-#### (A.3) Select Main-Idea based on Link Memes
+#### (A.3) Select Main-Pattern based on Link Memes
 
 TODO: implement & document
 
-#### (A.4) Transpose Main-Idea to Link Key
+#### (A.4) Transpose Main-Pattern to Link Key
 
 TODO: implement & document
 
-#### (A.5) Link Memes += from First Phase of Main-Idea
+#### (A.5) Link Memes += from First Phase of Main-Pattern
 
 TODO: implement & document
 
-#### (A.6) Link Length (# Beats) = from First Phase of Main-Idea
+#### (A.6) Link Length (# Beats) = from First Phase of Main-Pattern
 
 TODO: implement & document
 
@@ -51,23 +51,23 @@ TODO: implement & document
 
 TODO: implement & document
 
-### (B) Link: Continue Main-Idea
+### (B) Link: Continue Main-Pattern
 
-For a sequential Link in a Chain, when the previous Link's Main-Idea has remaining Phase(s).
+For a sequential Link in a Chain, when the previous Link's Main-Pattern has remaining Phase(s).
 
-#### (B.1) Continue Main-Idea, if has Phase remaining
-
-TODO: implement & document
-
-#### (B.2) Link Key, Density & Tempo = next Phase of Main-Idea, transposed to current Phase of Macro Idea
+#### (B.1) Continue Main-Pattern, if has Phase remaining
 
 TODO: implement & document
 
-#### (B.3) Link Memes = next Phase of Main-Idea + current Phase of Macro-Idea
+#### (B.2) Link Key, Density & Tempo = next Phase of Main-Pattern, transposed to current Phase of Macro Pattern
 
 TODO: implement & document
 
-#### (B.4) Link Length (# Beats) = from current Phase of Main-Idea
+#### (B.3) Link Memes = next Phase of Main-Pattern + current Phase of Macro-Pattern
+
+TODO: implement & document
+
+#### (B.4) Link Length (# Beats) = from current Phase of Main-Pattern
 
 TODO: implement & document
 
@@ -75,31 +75,31 @@ TODO: implement & document
 
 TODO: implement & document
 
-### (C) Link: Next Main-Idea, Continue Macro-Idea
+### (C) Link: Next Main-Pattern, Continue Macro-Pattern
 
-For a sequential Link in a Chain, when the previous Link reached the end of its Main-Idea.
+For a sequential Link in a Chain, when the previous Link reached the end of its Main-Pattern.
 
-#### (C.1) Continue Macro-Idea, if has 2 or more phases remaining
-
-TODO: implement & document
-
-#### (C.2) Link Memes, Key, Density & Tempo = from current Phase of Macro-Idea
+#### (C.1) Continue Macro-Pattern, if has 2 or more phases remaining
 
 TODO: implement & document
 
-#### (C.3) Select Main-Idea based on Link Memes
+#### (C.2) Link Memes, Key, Density & Tempo = from current Phase of Macro-Pattern
 
 TODO: implement & document
 
-#### (C.4) Transpose Main-Idea to Link Key
+#### (C.3) Select Main-Pattern based on Link Memes
 
 TODO: implement & document
 
-#### (C.5) Link Memes += from First Phase of Main-Idea
+#### (C.4) Transpose Main-Pattern to Link Key
 
 TODO: implement & document
 
-#### (C.6) Link Length (# Beats) = from First Phase of Main-Idea
+#### (C.5) Link Memes += from First Phase of Main-Pattern
+
+TODO: implement & document
+
+#### (C.6) Link Length (# Beats) = from First Phase of Main-Pattern
 
 TODO: implement & document
 
@@ -107,37 +107,37 @@ TODO: implement & document
 
 TODO: implement & document
 
-### (D) Link: Next Macro-Idea
+### (D) Link: Next Macro-Pattern
 
-For a sequential Link in a Chain, when the previous Link's Macro-Idea has only one more Phase remaining.
+For a sequential Link in a Chain, when the previous Link's Macro-Pattern has only one more Phase remaining.
 
-A Macro-type Idea must have a minimum of two phases. The last phase of the Macro-idea is never actually used; it is replaced by the first phase of the next Macro-idea. However, the next Macro-idea has been transposed according to the last Macro-idea's final Phase.
+A Macro-type Pattern must have a minimum of two phases. The last phase of the Macro-pattern is never actually used; it is replaced by the first phase of the next Macro-pattern. However, the next Macro-pattern has been transposed according to the last Macro-pattern's final Phase.
 
-#### (D.1) first phase of next Macro-Idea will overlap (replacing) the last phase of the current Macro-Idea
-
-TODO: implement & document
-
-#### (D.2) Select next Macro-Idea to overlap last phase of current
+#### (D.1) first phase of next Macro-Pattern will overlap (replacing) the last phase of the current Macro-Pattern
 
 TODO: implement & document
 
-#### (D.3) Link Memes, Key, Density & Tempo = from first Phase of new Macro-Idea
+#### (D.2) Select next Macro-Pattern to overlap last phase of current
 
 TODO: implement & document
 
-#### (D.4) Select Main-Idea based on Link Memes
+#### (D.3) Link Memes, Key, Density & Tempo = from first Phase of new Macro-Pattern
 
 TODO: implement & document
 
-#### (D.5) Transpose Main-Idea to Link Key
+#### (D.4) Select Main-Pattern based on Link Memes
 
 TODO: implement & document
 
-#### (D.6) Link Memes += from First Phase of Main-Idea
+#### (D.5) Transpose Main-Pattern to Link Key
 
 TODO: implement & document
 
-#### (D.7) Link Length (# Beats) = from First Phase of Main-Idea
+#### (D.6) Link Memes += from First Phase of Main-Pattern
+
+TODO: implement & document
+
+#### (D.7) Link Length (# Beats) = from First Phase of Main-Pattern
 
 TODO: implement & document
 

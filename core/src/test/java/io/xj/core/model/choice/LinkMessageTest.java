@@ -2,7 +2,7 @@
 package io.xj.core.model.choice;
 
 import io.xj.core.exception.BusinessException;
-import io.xj.core.model.idea.IdeaType;
+import io.xj.core.model.pattern.PatternType;
 import io.xj.core.tables.records.ChoiceRecord;
 
 import org.jooq.Field;
@@ -29,7 +29,7 @@ public class LinkMessageTest {
   public void validate() throws Exception {
     new Choice()
       .setLinkId(BigInteger.valueOf(352))
-      .setIdeaId(BigInteger.valueOf(125))
+      .setPatternId(BigInteger.valueOf(125))
       .setTranspose(5)
       .setType("Macro")
       .setPhaseOffset(BigInteger.valueOf(4))
@@ -42,7 +42,7 @@ public class LinkMessageTest {
     failure.expectMessage("Link ID is required");
 
     new Choice()
-      .setIdeaId(BigInteger.valueOf(125))
+      .setPatternId(BigInteger.valueOf(125))
       .setTranspose(5)
       .setType("Macro")
       .setPhaseOffset(BigInteger.valueOf(4))
@@ -50,9 +50,9 @@ public class LinkMessageTest {
   }
 
   @Test
-  public void validate_failsWithoutIdeaID() throws Exception {
+  public void validate_failsWithoutPatternID() throws Exception {
     failure.expect(BusinessException.class);
-    failure.expectMessage("Idea ID is required");
+    failure.expectMessage("Pattern ID is required");
 
     new Choice()
       .setLinkId(BigInteger.valueOf(352))
@@ -66,7 +66,7 @@ public class LinkMessageTest {
   public void validate_transposeZeroByDefault() throws Exception {
     Choice result = new Choice()
       .setLinkId(BigInteger.valueOf(352))
-      .setIdeaId(BigInteger.valueOf(125))
+      .setPatternId(BigInteger.valueOf(125))
       .setType("Macro")
       .setPhaseOffset(BigInteger.valueOf(4));
 
@@ -82,7 +82,7 @@ public class LinkMessageTest {
 
     new Choice()
       .setLinkId(BigInteger.valueOf(352))
-      .setIdeaId(BigInteger.valueOf(125))
+      .setPatternId(BigInteger.valueOf(125))
       .setTranspose(5)
       .setPhaseOffset(BigInteger.valueOf(4))
       .validate();
@@ -95,7 +95,7 @@ public class LinkMessageTest {
 
     new Choice()
       .setLinkId(BigInteger.valueOf(352))
-      .setIdeaId(BigInteger.valueOf(125))
+      .setPatternId(BigInteger.valueOf(125))
       .setTranspose(5)
       .setType("bung")
       .setPhaseOffset(BigInteger.valueOf(4))
@@ -109,7 +109,7 @@ public class LinkMessageTest {
 
     new Choice()
       .setLinkId(BigInteger.valueOf(352))
-      .setIdeaId(BigInteger.valueOf(125))
+      .setPatternId(BigInteger.valueOf(125))
       .setTranspose(5)
       .setType("Macro")
       .validate();
@@ -120,7 +120,7 @@ public class LinkMessageTest {
     ChoiceRecord record = new ChoiceRecord();
     record.setId(ULong.valueOf(12));
     record.setLinkId(ULong.valueOf(352));
-    record.setIdeaId(ULong.valueOf(125));
+    record.setPatternId(ULong.valueOf(125));
     record.setTranspose(5);
     record.setType("Macro");
     record.setPhaseOffset(ULong.valueOf(4));
@@ -133,9 +133,9 @@ public class LinkMessageTest {
     assertNotNull(result);
     assertEquals(ULong.valueOf(12), result.getId());
     assertEquals(ULong.valueOf(352), result.getLinkId());
-    assertEquals(ULong.valueOf(125), result.getIdeaId());
+    assertEquals(ULong.valueOf(125), result.getPatternId());
     assertEquals(Integer.valueOf(5), result.getTranspose());
-    assertEquals(IdeaType.Macro, result.getType());
+    assertEquals(PatternType.Macro, result.getType());
     assertEquals(ULong.valueOf(4), result.getPhaseOffset());
     assertEquals(Timestamp.valueOf("2014-08-12 12:17:02.527142"), result.getCreatedAt());
     assertEquals(Timestamp.valueOf("2014-09-12 12:17:01.047563"), result.getUpdatedAt());
@@ -150,7 +150,7 @@ public class LinkMessageTest {
   public void intoFieldValueMap() throws Exception {
     Choice choice = new Choice()
       .setLinkId(BigInteger.valueOf(352))
-      .setIdeaId(BigInteger.valueOf(125))
+      .setPatternId(BigInteger.valueOf(125))
       .setTranspose(5)
       .setType("Macro")
       .setPhaseOffset(BigInteger.valueOf(4));
@@ -159,9 +159,9 @@ public class LinkMessageTest {
     Map<Field, Object> result = choice.updatableFieldValueMap();
 
     assertEquals(ULong.valueOf(352), result.get(CHOICE.LINK_ID));
-    assertEquals(ULong.valueOf(125), result.get(CHOICE.IDEA_ID));
+    assertEquals(ULong.valueOf(125), result.get(CHOICE.PATTERN_ID));
     assertEquals(5, result.get(CHOICE.TRANSPOSE));
-    assertEquals(IdeaType.Macro, result.get(CHOICE.TYPE));
+    assertEquals(PatternType.Macro, result.get(CHOICE.TYPE));
     assertEquals(ULong.valueOf(4), result.get(CHOICE.PHASE_OFFSET));
   }
 

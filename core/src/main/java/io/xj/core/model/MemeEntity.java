@@ -5,7 +5,7 @@ import io.xj.core.exception.BusinessException;
 
 /**
  This represents common properties of all memes,
- although a Meme only actually exists as a Link Meme, Idea Meme, etc.
+ although a Meme only actually exists as a Link Meme, Pattern Meme, etc.
  */
 public abstract class MemeEntity extends Entity {
   public static final String KEY_ONE = "meme";

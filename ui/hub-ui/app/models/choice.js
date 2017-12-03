@@ -6,7 +6,7 @@ export default DS.Model.extend({
   phaseOffset: DS.attr('number'),
   transpose: DS.attr('number'),
   type: DS.attr('string'),
-  idea: DS.belongsTo({})
+  pattern: DS.belongsTo({})
 
 });
 

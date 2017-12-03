@@ -304,7 +304,7 @@ public class LinkChordIT {
     testDAO.update(access, ULong.valueOf(1), inputData);
   }
 
-  // future test: DAO cannot update Idea to a User or Library not owned by current session
+  // future test: DAO cannot update Pattern to a User or Library not owned by current session
 
   @Test
   public void delete() throws Exception {

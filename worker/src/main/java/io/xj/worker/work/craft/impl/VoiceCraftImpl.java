@@ -112,7 +112,7 @@ public class VoiceCraftImpl implements VoiceCraft {
 
   /**
    Choose percussive instrument
-   [#325] Possible to choose multiple instruments for different voices in the same idea
+   [#325] Possible to choose multiple instruments for different voices in the same pattern
 
    @param voice to choose instrument for
    @return percussive-type Instrument
@@ -279,7 +279,7 @@ public class VoiceCraftImpl implements VoiceCraft {
   }
 
   /**
-   all voices in current phase of chosen rhythm-type idea
+   all voices in current phase of chosen rhythm-type pattern
 
    @return voices
    @throws Exception on failure
@@ -306,7 +306,7 @@ public class VoiceCraftImpl implements VoiceCraft {
   private Phase rhythmPhase() throws Exception {
     return new Phase().setFromRecord(
       basis.phaseByOffset(
-        basis.currentRhythmChoice().getIdeaId(),
+        basis.currentRhythmChoice().getPatternId(),
         basis.currentRhythmChoice().getPhaseOffset()));
   }
 

@@ -14,7 +14,7 @@ import com.google.inject.assistedinject.Assisted;
  */
 public interface BasisFactory {
   /**
-   Create a basis for Macro & Main idea craft (previous link and other cached resources)
+   Create a basis for Macro & Main pattern craft (previous link and other cached resources)
 
    @param link Link to be worked on
    @return ChainWorkMaster

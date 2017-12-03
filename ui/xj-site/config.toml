@@ -103,7 +103,7 @@ theme = "xj-theme"
     #num_recent_posts = 2
 
   [params.social]
-    # Optional, used for attribution in Twitter cards (ideally not a person
+    # Optional, used for attribution in Twitter cards (patternlly not a person
     # for example: nytimes, flickr, NatGeo, etc).
     # See: https://dev.twitter.com/cards/types/summary-large-image
     facebook = "xjmusicstream"

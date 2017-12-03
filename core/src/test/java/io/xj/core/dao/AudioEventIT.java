@@ -49,10 +49,10 @@ public class AudioEventIT {
     IntegrationTestEntity.insertUser(2, "john", "john@email.com", "http://pictures.com/john.gif");
     IntegrationTestEntity.insertUserRole(1, 2, Role.ADMIN);
 
-    // Library "palm tree" has idea "leaves" and idea "coconuts"
+    // Library "palm tree" has pattern "leaves" and pattern "coconuts"
     IntegrationTestEntity.insertLibrary(1, 1, "palm tree");
 
-    // Idea "leaves" has instruments "808" and "909"
+    // Pattern "leaves" has instruments "808" and "909"
     IntegrationTestEntity.insertInstrument(1, 1, 2, "808 Drums", InstrumentType.Percussive, 0.9);
     IntegrationTestEntity.insertInstrument(2, 1, 2, "909 Drums", InstrumentType.Percussive, 0.8);
 
@@ -305,7 +305,7 @@ public class AudioEventIT {
     assertEquals(ULong.valueOf(1), result.getAudioId());
   }
 
-  // future test: DAO cannot update Idea to a User or Library not owned by current session
+  // future test: DAO cannot update Pattern to a User or Library not owned by current session
 
   @Test
   public void delete() throws Exception {

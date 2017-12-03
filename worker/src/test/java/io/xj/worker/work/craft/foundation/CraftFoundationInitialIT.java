@@ -13,7 +13,7 @@ import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.integration.IntegrationTestService;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
-import io.xj.core.model.idea.IdeaType;
+import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.link.Link;
 import io.xj.core.model.role.Role;
 import io.xj.core.tables.records.LinkMemeRecord;
@@ -66,9 +66,9 @@ public class CraftFoundationInitialIT {
     // Library "house"
     IntegrationTestEntity.insertLibrary(2, 1, "house");
 
-    // "Tropical, Wild to Cozy" macro-idea in house library
-    IntegrationTestEntity.insertIdea(4, 3, 2, IdeaType.Macro, "Tropical, Wild to Cozy", 0.5, "C", 120);
-    IntegrationTestEntity.insertIdeaMeme(2, 4, "Tropical");
+    // "Tropical, Wild to Cozy" macro-pattern in house library
+    IntegrationTestEntity.insertPattern(4, 3, 2, PatternType.Macro, "Tropical, Wild to Cozy", 0.5, "C", 120);
+    IntegrationTestEntity.insertPatternMeme(2, 4, "Tropical");
     IntegrationTestEntity.insertPhase(3, 4, 0, 64, "Start Wild", 0.6, "C", 125);
     IntegrationTestEntity.insertPhaseMeme(3, 3, "Wild");
     IntegrationTestEntity.insertPhaseChord(3, 3, 0, "C");
@@ -76,9 +76,9 @@ public class CraftFoundationInitialIT {
     IntegrationTestEntity.insertPhaseMeme(4, 4, "Cozy");
     IntegrationTestEntity.insertPhaseChord(4, 4, 0, "Bb minor");
 
-    // Main idea
-    IntegrationTestEntity.insertIdea(5, 3, 2, IdeaType.Main, "Main Jam", 0.2, "F# minor", 140);
-    IntegrationTestEntity.insertIdeaMeme(3, 5, "Outlook");
+    // Main pattern
+    IntegrationTestEntity.insertPattern(5, 3, 2, PatternType.Main, "Main Jam", 0.2, "F# minor", 140);
+    IntegrationTestEntity.insertPatternMeme(3, 5, "Outlook");
     IntegrationTestEntity.insertPhase(15, 5, 0, 16, "Intro", 0.5, "F# minor", 135.0);
     IntegrationTestEntity.insertPhaseMeme(6, 15, "Pessimism");
     IntegrationTestEntity.insertPhaseChord(12, 15, 0, "F# minor");
@@ -88,9 +88,9 @@ public class CraftFoundationInitialIT {
     IntegrationTestEntity.insertPhaseChord(16, 16, 0, "D minor");
     IntegrationTestEntity.insertPhaseChord(18, 16, 8, "G major");
 
-    // Extra ideas
-    IntegrationTestEntity.insertIdea(6, 3, 2, IdeaType.Rhythm, "Beat Jam", 0.6, "D#", 150);
-    IntegrationTestEntity.insertIdea(7, 3, 2, IdeaType.Support, "Support Jam", 0.3, "Cb minor", 170);
+    // Extra patterns
+    IntegrationTestEntity.insertPattern(6, 3, 2, PatternType.Rhythm, "Beat Jam", 0.6, "D#", 150);
+    IntegrationTestEntity.insertPattern(7, 3, 2, PatternType.Support, "Support Jam", 0.3, "Cb minor", 170);
 
     // Chain "Print #2" has 1 initial planned link
     IntegrationTestEntity.insertChain(2, 1, "Print #2", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, null);
@@ -146,20 +146,20 @@ public class CraftFoundationInitialIT {
       .and(LINK_CHORD.NAME.eq("Db minor"))
       .fetchOne());
 
-    // choice of macro-type idea
+    // choice of macro-type pattern
     assertNotNull(IntegrationTestService.getDb().selectFrom(CHOICE)
       .where(CHOICE.LINK_ID.eq(ULong.valueOf(6)))
-      .and(CHOICE.IDEA_ID.eq(ULong.valueOf(4)))
-      .and(CHOICE.TYPE.eq(IdeaType.Macro.toString()))
+      .and(CHOICE.PATTERN_ID.eq(ULong.valueOf(4)))
+      .and(CHOICE.TYPE.eq(PatternType.Macro.toString()))
       .and(CHOICE.TRANSPOSE.eq(0))
       .and(CHOICE.PHASE_OFFSET.eq(ULong.valueOf(0)))
       .fetchOne());
 
-    // choice of main-type idea
+    // choice of main-type pattern
     assertNotNull(IntegrationTestService.getDb().selectFrom(CHOICE)
       .where(CHOICE.LINK_ID.eq(ULong.valueOf(6)))
-      .and(CHOICE.IDEA_ID.eq(ULong.valueOf(5)))
-      .and(CHOICE.TYPE.eq(IdeaType.Main.toString()))
+      .and(CHOICE.PATTERN_ID.eq(ULong.valueOf(5)))
+      .and(CHOICE.TYPE.eq(PatternType.Main.toString()))
       .and(CHOICE.TRANSPOSE.eq(-6))
       .and(CHOICE.PHASE_OFFSET.eq(ULong.valueOf(0)))
       .fetchOne());

@@ -28,7 +28,7 @@ public class PhaseTest {
   @Test
   public void validate() throws Exception {
     new Phase()
-      .setIdeaId(BigInteger.valueOf(9812))
+      .setPatternId(BigInteger.valueOf(9812))
       .setName("Mic Check One Two")
       .setKey("D major")
       .setTotal(64)
@@ -41,15 +41,15 @@ public class PhaseTest {
   @Test
   public void validate_withMinimalAttributes() throws Exception {
     new Phase()
-      .setIdeaId(BigInteger.valueOf(9812))
+      .setPatternId(BigInteger.valueOf(9812))
       .setOffset(BigInteger.valueOf(14))
       .validate();
   }
 
   @Test
-  public void validate_failsWithoutIdeaID() throws Exception {
+  public void validate_failsWithoutPatternID() throws Exception {
     failure.expect(BusinessException.class);
-    failure.expectMessage("Idea ID is required");
+    failure.expectMessage("Pattern ID is required");
 
     new Phase()
       .setOffset(BigInteger.valueOf(14))
@@ -62,7 +62,7 @@ public class PhaseTest {
     failure.expectMessage("Offset is required");
 
     new Phase()
-      .setIdeaId(BigInteger.valueOf(9812))
+      .setPatternId(BigInteger.valueOf(9812))
       .validate();
   }
 
@@ -70,7 +70,7 @@ public class PhaseTest {
   public void setFromRecord() throws Exception {
     PhaseRecord record = new PhaseRecord();
     record.setId(ULong.valueOf(12));
-    record.setIdeaId(ULong.valueOf(9812));
+    record.setPatternId(ULong.valueOf(9812));
     record.setName("Mic Check One Two");
     record.setKey("D major");
     record.setTotal(UInteger.valueOf(64));
@@ -85,7 +85,7 @@ public class PhaseTest {
 
     assertNotNull(result);
     assertEquals(ULong.valueOf(12), result.getId());
-    assertEquals(ULong.valueOf(9812), result.getIdeaId());
+    assertEquals(ULong.valueOf(9812), result.getPatternId());
     assertEquals("Mic Check One Two", result.getName());
     assertEquals("D major", result.getKey());
     assertEquals(UInteger.valueOf(64), result.getTotal());
@@ -104,7 +104,7 @@ public class PhaseTest {
   @Test
   public void intoFieldValueMap() throws Exception {
     Map<Field, Object> result = new Phase()
-      .setIdeaId(BigInteger.valueOf(9812))
+      .setPatternId(BigInteger.valueOf(9812))
       .setName("Mic Check One Two")
       .setKey("D major")
       .setTotal(64)
@@ -113,7 +113,7 @@ public class PhaseTest {
       .setTempo(140.5)
       .updatableFieldValueMap();
 
-    assertEquals(ULong.valueOf(9812), result.get(PHASE.IDEA_ID));
+    assertEquals(ULong.valueOf(9812), result.get(PHASE.PATTERN_ID));
     assertEquals("Mic Check One Two", result.get(PHASE.NAME));
     assertEquals("D major", result.get(PHASE.KEY));
     assertEquals(UInteger.valueOf(64), result.get(PHASE.TOTAL));

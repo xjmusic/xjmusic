@@ -6,7 +6,7 @@ import io.xj.core.access.impl.Access;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.integration.IntegrationTestService;
-import io.xj.core.model.idea.IdeaType;
+import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.library.Library;
 import io.xj.core.tables.records.LibraryRecord;
 import io.xj.core.transport.JSON;
@@ -268,7 +268,7 @@ public class LibraryIT {
       "roles", "admin"
     ));
     IntegrationTestEntity.insertUser(101, "bill", "bill@email.com", "http://pictures.com/bill.gif");
-    IntegrationTestEntity.insertIdea(301, 101, 2, IdeaType.Main, "brilliant", 0.342, "C#", 0.286);
+    IntegrationTestEntity.insertPattern(301, 101, 2, PatternType.Main, "brilliant", 0.342, "C#", 0.286);
 
     try {
       testDAO.delete(access, ULong.valueOf(2));

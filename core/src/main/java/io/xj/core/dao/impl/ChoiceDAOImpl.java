@@ -8,7 +8,7 @@ import io.xj.core.dao.ChoiceDAO;
 import io.xj.core.persistence.sql.impl.SQLConnection;
 import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import io.xj.core.model.choice.Choice;
-import io.xj.core.model.idea.IdeaType;
+import io.xj.core.model.pattern.PatternType;
 import io.xj.core.tables.records.ChoiceRecord;
 
 import org.jooq.DSLContext;
@@ -64,10 +64,10 @@ public class ChoiceDAOImpl extends DAOImpl implements ChoiceDAO {
 
   @Nullable
   @Override
-  public ChoiceRecord readOneLinkIdea(Access access, ULong linkId, ULong ideaId) throws Exception {
+  public ChoiceRecord readOneLinkPattern(Access access, ULong linkId, ULong patternId) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readOneLinkIdea(tx.getContext(), access, linkId, ideaId));
+      return tx.success(readOneLinkPattern(tx.getContext(), access, linkId, patternId));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -75,10 +75,10 @@ public class ChoiceDAOImpl extends DAOImpl implements ChoiceDAO {
 
   @Override
   @Nullable
-  public Choice readOneLinkTypeWithAvailablePhaseOffsets(Access access, ULong linkId, IdeaType ideaType) throws Exception {
+  public Choice readOneLinkTypeWithAvailablePhaseOffsets(Access access, ULong linkId, PatternType patternType) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(new Choice().setFromRecord(readOneLinkTypeWithAvailablePhaseOffsets(tx.getContext(), access, linkId, ideaType)));
+      return tx.success(new Choice().setFromRecord(readOneLinkTypeWithAvailablePhaseOffsets(tx.getContext(), access, linkId, patternType)));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -174,19 +174,19 @@ public class ChoiceDAOImpl extends DAOImpl implements ChoiceDAO {
   }
 
   /**
-   Read one record binding an idea to a link
+   Read one record binding an pattern to a link
 
    @param db     context
    @param access control
    @param linkId to get choice for
-   @param ideaId to get choice for
+   @param patternId to get choice for
    @return record
    */
-  private ChoiceRecord readOneLinkIdea(DSLContext db, Access access, ULong linkId, ULong ideaId) throws BusinessException {
+  private ChoiceRecord readOneLinkPattern(DSLContext db, Access access, ULong linkId, ULong patternId) throws BusinessException {
     requireTopLevel(access);
     return db.selectFrom(CHOICE)
       .where(CHOICE.LINK_ID.eq(linkId))
-      .and(CHOICE.IDEA_ID.eq(ideaId))
+      .and(CHOICE.PATTERN_ID.eq(patternId))
       .fetchOne();
   }
 
@@ -197,14 +197,14 @@ public class ChoiceDAOImpl extends DAOImpl implements ChoiceDAO {
     @param db     context
    @param access control
    @param linkId of record
-   @param ideaType of which to read one link with available offsets
+   @param patternType of which to read one link with available offsets
    */
-  private Record readOneLinkTypeWithAvailablePhaseOffsets(DSLContext db, Access access, ULong linkId, IdeaType ideaType) throws BusinessException {
+  private Record readOneLinkTypeWithAvailablePhaseOffsets(DSLContext db, Access access, ULong linkId, PatternType patternType) throws BusinessException {
     requireTopLevel(access);
 
     SelectOffsetStep<?> query = db.select(
       CHOICE.ID,
-      CHOICE.IDEA_ID,
+      CHOICE.PATTERN_ID,
       CHOICE.LINK_ID,
       CHOICE.TYPE,
       CHOICE.PHASE_OFFSET,
@@ -212,10 +212,10 @@ public class ChoiceDAOImpl extends DAOImpl implements ChoiceDAO {
       groupConcat(PHASE.OFFSET, ",").as(Choice.KEY_AVAILABLE_PHASE_OFFSETS)
     )
       .from(PHASE)
-      .join(CHOICE).on(CHOICE.IDEA_ID.eq(PHASE.IDEA_ID))
+      .join(CHOICE).on(CHOICE.PATTERN_ID.eq(PHASE.PATTERN_ID))
       .where(CHOICE.LINK_ID.eq(linkId))
-      .and(CHOICE.TYPE.eq(ideaType.toString()))
-      .groupBy(CHOICE.ID, CHOICE.LINK_ID, CHOICE.IDEA_ID, CHOICE.PHASE_OFFSET, CHOICE.TRANSPOSE)
+      .and(CHOICE.TYPE.eq(patternType.toString()))
+      .groupBy(CHOICE.ID, CHOICE.LINK_ID, CHOICE.PATTERN_ID, CHOICE.PHASE_OFFSET, CHOICE.TRANSPOSE)
       .limit(1);
 
     return query.fetchOne();

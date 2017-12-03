@@ -4,7 +4,7 @@ package io.xj.core.isometry;
 import io.xj.core.integration.IntegrationTestService;
 import io.xj.core.model.MemeEntity;
 import io.xj.core.model.link_meme.LinkMeme;
-import io.xj.core.tables.records.IdeaMemeRecord;
+import io.xj.core.tables.records.PatternMemeRecord;
 
 import org.jooq.Result;
 import org.jooq.types.ULong;
@@ -16,7 +16,7 @@ import org.junit.Test;
 import java.math.BigInteger;
 import java.util.List;
 
-import static io.xj.core.tables.IdeaMeme.IDEA_MEME;
+import static io.xj.core.tables.PatternMeme.PATTERN_MEME;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
@@ -46,14 +46,14 @@ public class MemeIsometryTest {
 
   @Test
   public void of_Result() throws Exception {
-    Result<IdeaMemeRecord> input = IntegrationTestService.getDb().newResult(IDEA_MEME);
+    Result<PatternMemeRecord> input = IntegrationTestService.getDb().newResult(PATTERN_MEME);
     // meme one
-    IdeaMemeRecord one = new IdeaMemeRecord();
+    PatternMemeRecord one = new PatternMemeRecord();
     one.setId(ULong.valueOf(12));
     one.setName("Smooth");
     input.add(one);
     // meme two
-    IdeaMemeRecord two = new IdeaMemeRecord();
+    PatternMemeRecord two = new PatternMemeRecord();
     two.setId(ULong.valueOf(14));
     two.setName("Fast");
     input.add(two);

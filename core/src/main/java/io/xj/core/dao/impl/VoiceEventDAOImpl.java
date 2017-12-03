@@ -24,7 +24,7 @@ import java.util.Map;
 
 import static io.xj.core.Tables.VOICE;
 import static io.xj.core.Tables.VOICE_EVENT;
-import static io.xj.core.tables.Idea.IDEA;
+import static io.xj.core.tables.Pattern.PATTERN;
 import static io.xj.core.tables.Library.LIBRARY;
 import static io.xj.core.tables.Phase.PHASE;
 
@@ -112,8 +112,8 @@ public class VoiceEventDAOImpl extends DAOImpl implements VoiceEventDAO {
     else
       requireExists("Voice", db.selectCount().from(VOICE)
         .join(PHASE).on(PHASE.ID.eq(VOICE.PHASE_ID))
-        .join(IDEA).on(IDEA.ID.eq(PHASE.IDEA_ID))
-        .join(LIBRARY).on(LIBRARY.ID.eq(IDEA.LIBRARY_ID))
+        .join(PATTERN).on(PATTERN.ID.eq(PHASE.PATTERN_ID))
+        .join(LIBRARY).on(LIBRARY.ID.eq(PATTERN.LIBRARY_ID))
         .where(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .and(VOICE.ID.eq(entity.getVoiceId()))
         .fetchOne(0, int.class));
@@ -139,15 +139,15 @@ public class VoiceEventDAOImpl extends DAOImpl implements VoiceEventDAO {
         .from(VOICE_EVENT)
         .join(VOICE).on(VOICE.ID.eq(VOICE_EVENT.VOICE_ID))
         .join(PHASE).on(PHASE.ID.eq(VOICE.PHASE_ID))
-        .join(IDEA).on(IDEA.ID.eq(PHASE.IDEA_ID))
-        .join(LIBRARY).on(LIBRARY.ID.eq(IDEA.LIBRARY_ID))
+        .join(PATTERN).on(PATTERN.ID.eq(PHASE.PATTERN_ID))
+        .join(LIBRARY).on(LIBRARY.ID.eq(PATTERN.LIBRARY_ID))
         .where(VOICE_EVENT.ID.eq(id))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .fetchOne());
   }
 
   /**
-   Read all Event able for an Idea
+   Read all Event able for an Pattern
 
    @param db      context
    @param access  control
@@ -167,8 +167,8 @@ public class VoiceEventDAOImpl extends DAOImpl implements VoiceEventDAO {
         .from(VOICE_EVENT)
         .join(VOICE).on(VOICE.ID.eq(VOICE_EVENT.VOICE_ID))
         .join(PHASE).on(PHASE.ID.eq(VOICE.PHASE_ID))
-        .join(IDEA).on(IDEA.ID.eq(PHASE.IDEA_ID))
-        .join(LIBRARY).on(LIBRARY.ID.eq(IDEA.LIBRARY_ID))
+        .join(PATTERN).on(PATTERN.ID.eq(PHASE.PATTERN_ID))
+        .join(LIBRARY).on(LIBRARY.ID.eq(PATTERN.LIBRARY_ID))
         .where(VOICE_EVENT.VOICE_ID.eq(voiceId))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .orderBy(VOICE_EVENT.POSITION)
@@ -197,8 +197,8 @@ public class VoiceEventDAOImpl extends DAOImpl implements VoiceEventDAO {
     else
       requireExists("Voice", db.selectCount().from(VOICE)
         .join(PHASE).on(PHASE.ID.eq(VOICE.PHASE_ID))
-        .join(IDEA).on(IDEA.ID.eq(PHASE.IDEA_ID))
-        .join(LIBRARY).on(LIBRARY.ID.eq(IDEA.LIBRARY_ID))
+        .join(PATTERN).on(PATTERN.ID.eq(PHASE.PATTERN_ID))
+        .join(LIBRARY).on(LIBRARY.ID.eq(PATTERN.LIBRARY_ID))
         .where(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .and(VOICE.ID.eq(entity.getVoiceId()))
         .fetchOne(0, int.class));
@@ -222,8 +222,8 @@ public class VoiceEventDAOImpl extends DAOImpl implements VoiceEventDAO {
         db.selectCount().from(VOICE_EVENT)
           .join(Voice.VOICE).on(Voice.VOICE.ID.eq(VOICE_EVENT.VOICE_ID))
           .join(PHASE).on(PHASE.ID.eq(VOICE.PHASE_ID))
-          .join(IDEA).on(IDEA.ID.eq(PHASE.IDEA_ID))
-          .join(LIBRARY).on(IDEA.LIBRARY_ID.eq(LIBRARY.ID))
+          .join(PATTERN).on(PATTERN.ID.eq(PHASE.PATTERN_ID))
+          .join(LIBRARY).on(PATTERN.LIBRARY_ID.eq(LIBRARY.ID))
           .where(VOICE_EVENT.ID.eq(id))
           .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
           .fetchOne(0, int.class));

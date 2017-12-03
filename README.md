@@ -288,7 +288,7 @@ Clean even more thoroughly "down to the distribution":
 
     bin/clean_distro
 
-Clean away all IntelliJ IDEA related files:
+Clean away all IntelliJ related files:
 
     bin/clean_idea
 
@@ -418,7 +418,7 @@ This app exists solely to be run in AWS Lambda, and call the Hub /heartbeat endp
 
 Read more in [the Pulse README](pulse/README.md).
 
-**Craft** fabricates a musical audio composite from source ideas and instrument-audio. Built with Java, Guice, Tomcat, Maven.
+**Craft** fabricates a musical audio composite from source patterns and instrument-audio. Built with Java, Guice, Tomcat, Maven.
 
 Depends on:
 

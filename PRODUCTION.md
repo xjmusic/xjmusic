@@ -17,8 +17,8 @@ Here is the master checklist:
     * The **Hub** app runs migrations, whereas the **Worker** app only validates that it is operating on a migrated database!
     
   4. Login to the production application at https://xj.io as an admin user. Confirm the ability to:
-    * View Ideas and Instruments in a Library.
+    * View Patterns and Instruments in a Library.
     * Add a new Audio (in an Instrument) and successfully upload the .wav file.
-    * Create a new Preview and Production Chain bound to a Library, Idea or Instrument.
+    * Create a new Preview and Production Chain bound to a Library, Pattern or Instrument.
     
      

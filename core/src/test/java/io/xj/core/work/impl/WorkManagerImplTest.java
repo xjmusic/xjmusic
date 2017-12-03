@@ -1,19 +1,5 @@
 package io.xj.core.work.impl;// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 
-import io.xj.core.CoreModule;
-import io.xj.core.config.Config;
-import io.xj.core.dao.ChainDAO;
-import io.xj.core.dao.PlatformMessageDAO;
-import io.xj.core.model.chain.Chain;
-import io.xj.core.model.chain.ChainState;
-import io.xj.core.model.message.MessageType;
-import io.xj.core.model.platform_message.PlatformMessage;
-import io.xj.core.model.work.Work;
-import io.xj.core.model.work.WorkState;
-import io.xj.core.model.work.WorkType;
-import io.xj.core.persistence.redis.RedisDatabaseProvider;
-import io.xj.core.work.WorkManager;
-
 import org.jooq.types.ULong;
 
 import com.google.common.collect.Lists;
@@ -23,6 +9,18 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 
+import io.xj.core.CoreModule;
+import io.xj.core.config.Config;
+import io.xj.core.dao.ChainDAO;
+import io.xj.core.dao.PlatformMessageDAO;
+import io.xj.core.model.chain.Chain;
+import io.xj.core.model.chain.ChainState;
+import io.xj.core.model.platform_message.PlatformMessage;
+import io.xj.core.model.work.Work;
+import io.xj.core.model.work.WorkState;
+import io.xj.core.model.work.WorkType;
+import io.xj.core.persistence.redis.RedisDatabaseProvider;
+import io.xj.core.work.WorkManager;
 import net.greghaines.jesque.Job;
 import net.greghaines.jesque.client.Client;
 import net.greghaines.jesque.worker.JobFactory;
@@ -51,23 +49,26 @@ import static org.mockito.Mockito.when;
 public class WorkManagerImplTest {
   private WorkManager subject;
   private Injector injector;
-  @Mock ChainDAO chainDAO;
-  @Mock RedisDatabaseProvider redisDatabaseProvider;
-  @Mock Client queueClient;
-  @Mock JobFactory jobFactory;
-  @Mock Worker worker;
-  @Mock Jedis client;
-  @Mock PlatformMessageDAO platformMessageDAO;
+  @Mock private ChainDAO chainDAO;
+  @Mock private RedisDatabaseProvider redisDatabaseProvider;
+  @Mock private Client queueClient;
+  @Mock private JobFactory jobFactory;
+  @Mock private Worker worker;
+  @Mock private Jedis client;
+  @Mock private PlatformMessageDAO platformMessageDAO;
 
   @Before
   public void setUp() throws Exception {
     createInjector();
+    System.setProperty("work.queue.name", "xj_test");
 
     subject = injector.getInstance(WorkManager.class);
   }
 
   @After
   public void tearDown() throws Exception {
+    System.clearProperty("work.queue.name");
+
     subject = null;
   }
 
@@ -184,10 +185,11 @@ public class WorkManagerImplTest {
     testQueueData.add("{\"class\":\"ChainFabricate\",\"args\":[24],\"vars\":null}");
     testQueueData.add("{\"class\":\"ChainFabricate\",\"args\":[3382],\"vars\":null}");
     testQueueData.add("{\"class\":\"ChainErase\",\"args\":[157],\"vars\":null}");
-    when(client.zrange("xj:queue:xj_work", 0, -1)).thenReturn(testQueueData);
+    when(client.zrange("xj:queue:xj_test", 0, -1)).thenReturn(testQueueData);
 
     Collection<Work> result = subject.readAllWork();
 
+    verify(client).zrange("xj:queue:xj_test", 0, -1);
     // assert results
     Iterator<Work> resultIterator = result.iterator();
     // assert #0
@@ -234,12 +236,13 @@ public class WorkManagerImplTest {
     testQueueData.add("{\"class\":\"ChainFabricate\",\"args\":[24],\"vars\":null}");
     testQueueData.add("{\"class\":\"ChainFabricate\",\"args\":[3382],\"vars\":null}");
     testQueueData.add("{\"class\":\"ChainErase\",\"args\":[157],\"vars\":null}");
-    when(client.zrange("xj:queue:xj_work", 0, -1)).thenReturn(testQueueData);
+    when(client.zrange("xj:queue:xj_test", 0, -1)).thenReturn(testQueueData);
     // mock redis queue client
     when(redisDatabaseProvider.getQueueClient()).thenReturn(queueClient);
 
     Collection<Work> result = subject.reinstateAllWork();
 
+    verify(client).zrange("xj:queue:xj_test", 0, -1);
     // verify the platform message reporting that the job was reinstated
     ArgumentCaptor<PlatformMessage> resultMessage = ArgumentCaptor.forClass(PlatformMessage.class);
     verify(platformMessageDAO).create(any(), resultMessage.capture());

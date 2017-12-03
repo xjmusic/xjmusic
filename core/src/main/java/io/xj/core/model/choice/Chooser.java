@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- Chooser is a collection of one type of Entity (e.g. Idea or Instrument),
+ Chooser is a collection of one type of Entity (e.g. Pattern or Instrument),
  stored in a HashMap using its id as an index.
  <p>
  A separate quality-score (Q-score) index uses the entity id as an index

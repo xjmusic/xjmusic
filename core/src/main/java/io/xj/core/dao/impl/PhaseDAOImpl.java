@@ -7,7 +7,7 @@ import io.xj.core.exception.ConfigException;
 import io.xj.core.dao.PhaseDAO;
 import io.xj.core.persistence.sql.impl.SQLConnection;
 import io.xj.core.persistence.sql.SQLDatabaseProvider;
-import io.xj.core.model.idea.IdeaType;
+import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.phase.Phase;
 import io.xj.core.tables.records.PhaseRecord;
 
@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import static io.xj.core.Tables.PHASE_MEME;
-import static io.xj.core.tables.Idea.IDEA;
+import static io.xj.core.tables.Pattern.PATTERN;
 import static io.xj.core.tables.Library.LIBRARY;
 import static io.xj.core.tables.Phase.PHASE;
 import static io.xj.core.tables.PhaseChord.PHASE_CHORD;
@@ -62,10 +62,10 @@ public class PhaseDAOImpl extends DAOImpl implements PhaseDAO {
 
   @Nullable
   @Override
-  public PhaseRecord readOneForIdea(Access access, ULong ideaId, ULong ideaPhaseOffset) throws Exception {
+  public PhaseRecord readOneForPattern(Access access, ULong patternId, ULong patternPhaseOffset) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readOneForIdea(tx.getContext(), access, ideaId, ideaPhaseOffset));
+      return tx.success(readOneForPattern(tx.getContext(), access, patternId, patternPhaseOffset));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -73,10 +73,10 @@ public class PhaseDAOImpl extends DAOImpl implements PhaseDAO {
 
   @Override
   @Nullable
-  public Result<PhaseRecord> readAll(Access access, ULong ideaId) throws Exception {
+  public Result<PhaseRecord> readAll(Access access, ULong patternId) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readAll(tx.getContext(), access, ideaId));
+      return tx.success(readAll(tx.getContext(), access, patternId));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -118,10 +118,10 @@ public class PhaseDAOImpl extends DAOImpl implements PhaseDAO {
 
     Map<Field, Object> fieldValues = entity.updatableFieldValueMap();
 
-    // [#237] shouldn't be able to create phase with same offset in idea
-    requireNotExists("phase with same offset in idea",
+    // [#237] shouldn't be able to create phase with same offset in pattern
+    requireNotExists("phase with same offset in pattern",
       db.select(PHASE.ID).from(PHASE)
-        .where(PHASE.IDEA_ID.eq(entity.getIdeaId()))
+        .where(PHASE.PATTERN_ID.eq(entity.getPatternId()))
         .and(PHASE.OFFSET.eq(entity.getOffset()))
         .fetch());
 
@@ -147,8 +147,8 @@ public class PhaseDAOImpl extends DAOImpl implements PhaseDAO {
     else
       return recordInto(PHASE, db.select(PHASE.fields())
         .from(PHASE)
-        .join(IDEA).on(IDEA.ID.eq(PHASE.IDEA_ID))
-        .join(LIBRARY).on(LIBRARY.ID.eq(IDEA.LIBRARY_ID))
+        .join(PATTERN).on(PATTERN.ID.eq(PHASE.PATTERN_ID))
+        .join(LIBRARY).on(LIBRARY.ID.eq(PATTERN.LIBRARY_ID))
         .where(PHASE.ID.eq(id))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .fetchOne());
@@ -159,47 +159,47 @@ public class PhaseDAOImpl extends DAOImpl implements PhaseDAO {
 
    @param db              context
    @param access          control
-   @param ideaId          of idea in which to read phase
-   @param ideaPhaseOffset of phase in idea
+   @param patternId          of pattern in which to read phase
+   @param patternPhaseOffset of phase in pattern
    @return phase record
    */
-  private PhaseRecord readOneForIdea(DSLContext db, Access access, ULong ideaId, ULong ideaPhaseOffset) {
+  private PhaseRecord readOneForPattern(DSLContext db, Access access, ULong patternId, ULong patternPhaseOffset) {
     if (access.isTopLevel())
       return db.selectFrom(PHASE)
-        .where(PHASE.IDEA_ID.eq(ideaId))
-        .and(PHASE.OFFSET.eq(ideaPhaseOffset))
+        .where(PHASE.PATTERN_ID.eq(patternId))
+        .and(PHASE.OFFSET.eq(patternPhaseOffset))
         .fetchOne();
     else
       return recordInto(PHASE, db.select(PHASE.fields())
         .from(PHASE)
-        .join(IDEA).on(IDEA.ID.eq(PHASE.IDEA_ID))
-        .join(LIBRARY).on(LIBRARY.ID.eq(IDEA.LIBRARY_ID))
-        .where(PHASE.IDEA_ID.eq(ideaId))
-        .and(PHASE.OFFSET.eq(ideaPhaseOffset))
+        .join(PATTERN).on(PATTERN.ID.eq(PHASE.PATTERN_ID))
+        .join(LIBRARY).on(LIBRARY.ID.eq(PATTERN.LIBRARY_ID))
+        .where(PHASE.PATTERN_ID.eq(patternId))
+        .and(PHASE.OFFSET.eq(patternPhaseOffset))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .fetchOne());
   }
 
   /**
-   Read all Phase able for an Idea
+   Read all Phase able for an Pattern
 
    @param db     context
    @param access control
-   @param ideaId to readMany all phase of
+   @param patternId to readMany all phase of
    @return array of phases
    */
-  private Result<PhaseRecord> readAll(DSLContext db, Access access, ULong ideaId) {
+  private Result<PhaseRecord> readAll(DSLContext db, Access access, ULong patternId) {
     if (access.isTopLevel())
       return resultInto(PHASE, db.select(PHASE.fields())
         .from(PHASE)
-        .where(PHASE.IDEA_ID.eq(ideaId))
+        .where(PHASE.PATTERN_ID.eq(patternId))
         .fetch());
     else
       return resultInto(PHASE, db.select(PHASE.fields())
         .from(PHASE)
-        .join(IDEA).on(IDEA.ID.eq(PHASE.IDEA_ID))
-        .join(LIBRARY).on(LIBRARY.ID.eq(IDEA.LIBRARY_ID))
-        .where(PHASE.IDEA_ID.eq(ideaId))
+        .join(PATTERN).on(PATTERN.ID.eq(PHASE.PATTERN_ID))
+        .join(LIBRARY).on(LIBRARY.ID.eq(PATTERN.LIBRARY_ID))
+        .where(PHASE.PATTERN_ID.eq(patternId))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .fetch());
   }
@@ -253,8 +253,8 @@ public class PhaseDAOImpl extends DAOImpl implements PhaseDAO {
 
     if (!access.isTopLevel())
       requireExists("Phase", db.selectCount().from(PHASE)
-        .join(IDEA).on(IDEA.ID.eq(PHASE.IDEA_ID))
-        .join(LIBRARY).on(IDEA.LIBRARY_ID.eq(LIBRARY.ID))
+        .join(PATTERN).on(PATTERN.ID.eq(PHASE.PATTERN_ID))
+        .join(LIBRARY).on(PATTERN.LIBRARY_ID.eq(LIBRARY.ID))
         .where(PHASE.ID.eq(id))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .fetchOne(0, int.class));
@@ -288,24 +288,24 @@ public class PhaseDAOImpl extends DAOImpl implements PhaseDAO {
    @throws BusinessException if invalid
    */
   private void deepValidate(DSLContext db, Access access, Phase entity) throws BusinessException {
-    // actually select the parent idea for validation
-    Record idea;
+    // actually select the parent pattern for validation
+    Record pattern;
     if (access.isTopLevel())
-      idea = db.select(IDEA.ID, IDEA.TYPE).from(IDEA)
-        .where(IDEA.ID.eq(entity.getIdeaId()))
+      pattern = db.select(PATTERN.ID, PATTERN.TYPE).from(PATTERN)
+        .where(PATTERN.ID.eq(entity.getPatternId()))
         .fetchOne();
     else
-      idea = db.select(IDEA.ID, IDEA.TYPE).from(IDEA)
-        .join(LIBRARY).on(LIBRARY.ID.eq(IDEA.LIBRARY_ID))
+      pattern = db.select(PATTERN.ID, PATTERN.TYPE).from(PATTERN)
+        .join(LIBRARY).on(LIBRARY.ID.eq(PATTERN.LIBRARY_ID))
         .where(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-        .and(IDEA.ID.eq(entity.getIdeaId()))
+        .and(PATTERN.ID.eq(entity.getPatternId()))
         .fetchOne();
 
-    requireExists("Idea", idea);
+    requireExists("Pattern", pattern);
 
-    // [#199] Macro-type Idea `total` not required; still is required for other types of Idea
-    if (!Objects.equals(idea.get(IDEA.TYPE), IdeaType.Macro.toString())) {
-      String msg = "for a phase of a non-macro-type idea, total (# beats)";
+    // [#199] Macro-type Pattern `total` not required; still is required for other types of Pattern
+    if (!Objects.equals(pattern.get(PATTERN.TYPE), PatternType.Macro.toString())) {
+      String msg = "for a phase of a non-macro-type pattern, total (# beats)";
       requireNonNull(msg, entity.getTotal());
       requireGreaterThanZero(msg, entity.getTotal());
     }

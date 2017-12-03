@@ -46,58 +46,58 @@ function accountLibraries() {
 
 function accountLibrary() {
   this.route('edit'); // Edit Library
-  this.route('ideas', accountLibraryIdeas); // Ideas in Library
+  this.route('patterns', accountLibraryPatterns); // Patterns in Library
   this.route('instruments', accountLibraryInstruments); // Instruments in Library
 }
 
-function accountLibraryIdeas() {
-  this.route('new'); // New Idea
-  this.route('one', {path: '/:idea_id'}, accountLibraryIdea); // One Idea
+function accountLibraryPatterns() {
+  this.route('new'); // New Pattern
+  this.route('one', {path: '/:pattern_id'}, accountLibraryPattern); // One Pattern
 }
 
-function accountLibraryIdea() {
-  this.route('edit'); // Edit Idea
-  this.route('memes'); // Memes in Idea
-  this.route('phases', accountLibraryIdeaPhases); // Phases in Idea
+function accountLibraryPattern() {
+  this.route('edit'); // Edit Pattern
+  this.route('memes'); // Memes in Pattern
+  this.route('phases', accountLibraryPatternPhases); // Phases in Pattern
 }
 
-function accountLibraryIdeaPhases() {
+function accountLibraryPatternPhases() {
   this.route('new'); // New Phase
-  this.route('one', {path: '/:phase_id'}, accountLibraryIdeaPhase); // One Phase
+  this.route('one', {path: '/:phase_id'}, accountLibraryPatternPhase); // One Phase
 }
 
-function accountLibraryIdeaPhase() {
+function accountLibraryPatternPhase() {
   this.route('edit'); // Edit Phase
   this.route('memes'); // Memes in Phase
-  this.route('chords', accountLibraryIdeaPhaseChords); // Chords in Phase
-  this.route('voices', accountLibraryIdeaPhaseVoices); // Voices in Phase
+  this.route('chords', accountLibraryPatternPhaseChords); // Chords in Phase
+  this.route('voices', accountLibraryPatternPhaseVoices); // Voices in Phase
 }
 
-function accountLibraryIdeaPhaseChords() {
+function accountLibraryPatternPhaseChords() {
   this.route('new'); // New Chord
-  this.route('one', {path: '/:chord_id'}, accountLibraryIdeaPhaseChord); // One Chord
+  this.route('one', {path: '/:chord_id'}, accountLibraryPatternPhaseChord); // One Chord
 }
 
-function accountLibraryIdeaPhaseChord() {
+function accountLibraryPatternPhaseChord() {
   this.route('edit'); // Edit Phase
 }
 
-function accountLibraryIdeaPhaseVoices() {
+function accountLibraryPatternPhaseVoices() {
   this.route('new'); // New Voice
-  this.route('one', {path: '/:voice_id'}, accountLibraryIdeaPhaseVoice); // One Voice
+  this.route('one', {path: '/:voice_id'}, accountLibraryPatternPhaseVoice); // One Voice
 }
 
-function accountLibraryIdeaPhaseVoice() {
+function accountLibraryPatternPhaseVoice() {
   this.route('edit'); // Edit Phase
-  this.route('events', accountLibraryIdeaPhaseVoiceEvents); // Events in Voice
+  this.route('events', accountLibraryPatternPhaseVoiceEvents); // Events in Voice
 }
 
-function accountLibraryIdeaPhaseVoiceEvents() {
+function accountLibraryPatternPhaseVoiceEvents() {
   this.route('new'); // New Event
-  this.route('one', {path: '/:event_id'}, accountLibraryIdeaPhaseVoiceEvent); // One Event
+  this.route('one', {path: '/:event_id'}, accountLibraryPatternPhaseVoiceEvent); // One Event
 }
 
-function accountLibraryIdeaPhaseVoiceEvent() {
+function accountLibraryPatternPhaseVoiceEvent() {
   this.route('edit'); // Edit Event
 }
 
@@ -150,7 +150,7 @@ function accountChain() {
   this.route('edit'); // Edit Chain
   this.route('libraries'); // Libraries in Chain
   this.route('configs'); // Configs in Chain
-  this.route('ideas'); // Ideas in Chain
+  this.route('patterns'); // Patterns in Chain
   this.route('instruments'); // instruments in Chain
   this.route('links', accountChainLinks); // Links in Chain
 }

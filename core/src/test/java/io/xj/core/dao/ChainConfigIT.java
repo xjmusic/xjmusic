@@ -61,7 +61,7 @@ public class ChainConfigIT {
     // Chain "school" has library "buns"
     IntegrationTestEntity.insertChainConfig(1, 1, ChainConfigType.OutputSampleBits, "1");
 
-    // Chain "bucket" has ideas and instruments
+    // Chain "bucket" has patterns and instruments
     IntegrationTestEntity.insertChainConfig(2, 2, ChainConfigType.OutputFrameRate, "1,4,35");
     IntegrationTestEntity.insertChainConfig(3, 2, ChainConfigType.OutputChannels, "2,83,4");
 

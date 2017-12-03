@@ -8,13 +8,13 @@ import io.xj.core.model.audio_event.AudioEvent;
 import io.xj.core.model.chain_config.ChainConfig;
 import io.xj.core.model.chain_config.ChainConfigType;
 import io.xj.core.model.choice.Choice;
-import io.xj.core.model.idea.Idea;
-import io.xj.core.model.idea.IdeaType;
+import io.xj.core.model.pattern.Pattern;
+import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.link.Link;
 import io.xj.core.model.link_chord.LinkChord;
 import io.xj.core.model.link_meme.LinkMeme;
 import io.xj.core.model.pick.Pick;
-import io.xj.core.tables.records.IdeaMemeRecord;
+import io.xj.core.tables.records.PatternMemeRecord;
 import io.xj.core.tables.records.PhaseMemeRecord;
 import io.xj.core.tables.records.PhaseRecord;
 import io.xj.core.tables.records.VoiceEventRecord;
@@ -48,7 +48,7 @@ public interface Basis {
   AudioFormat outputAudioFormat() throws Exception;
 
   /**
-   Determine type of basis, e.g. initial link in chain, or next macro-idea
+   Determine type of basis, e.g. initial link in chain, or next macro-pattern
 
    @return macro-craft type
    */
@@ -164,7 +164,7 @@ public interface Basis {
   Choice currentRhythmChoice() throws Exception;
 
   /**
-   macro-type idea phase in previous link
+   macro-type pattern phase in previous link
    (caches results)
 
    @return phase
@@ -174,7 +174,7 @@ public interface Basis {
 
 
   /**
-   macro-type idea phase in previous link
+   macro-type pattern phase in previous link
    (caches results)
 
    @return phase
@@ -237,13 +237,13 @@ public interface Basis {
   Double secondsAtPosition(double position) throws Exception;
 
   /**
-   Fetch all memes for a given idea
+   Fetch all memes for a given pattern
    (caches results)
 
-   @return result of idea memes
+   @return result of pattern memes
    @throws Exception on failure
    */
-  Result<IdeaMemeRecord> ideaMemes(ULong ideaId) throws Exception;
+  Result<PatternMemeRecord> patternMemes(ULong patternId) throws Exception;
 
   /**
    Fetch all events for a given voice
@@ -350,13 +350,13 @@ public interface Basis {
   Duration linkTotalLength() throws Exception;
 
   /**
-   Fetch current phase of macro-type idea
+   Fetch current phase of macro-type pattern
    (caches results)
 
    @return phase record
    @throws Exception on failure
    */
-  PhaseRecord phaseByOffset(ULong ideaId, ULong phaseOffset) throws Exception;
+  PhaseRecord phaseByOffset(ULong patternId, ULong phaseOffset) throws Exception;
 
   /**
    Fetch a link in a chain, by offset
@@ -375,7 +375,7 @@ public interface Basis {
    @return choice record
    @throws Exception on failure
    */
-  Choice linkChoiceByType(ULong linkId, IdeaType ideaType) throws Exception;
+  Choice linkChoiceByType(ULong linkId, PatternType patternType) throws Exception;
 
   /**
    Fetch voices for a phase by id
@@ -387,14 +387,14 @@ public interface Basis {
   Result<VoiceRecord> voices(ULong phaseId) throws Exception;
 
   /**
-   Fetch an idea by idea
+   Fetch an pattern by pattern
    (caches results)
 
-   @param id of idea to fetch
-   @return Idea
+   @param id of pattern to fetch
+   @return Pattern
    @throws Exception on failure
    */
-  Idea idea(ULong id) throws Exception;
+  Pattern pattern(ULong id) throws Exception;
 
   /**
    Update the original Link submitted for craft,

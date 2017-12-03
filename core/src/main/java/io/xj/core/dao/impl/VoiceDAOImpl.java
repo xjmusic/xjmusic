@@ -21,7 +21,7 @@ import javax.annotation.Nullable;
 import java.util.Map;
 
 import static io.xj.core.Tables.VOICE_EVENT;
-import static io.xj.core.tables.Idea.IDEA;
+import static io.xj.core.tables.Pattern.PATTERN;
 import static io.xj.core.tables.Library.LIBRARY;
 import static io.xj.core.tables.Phase.PHASE;
 import static io.xj.core.tables.Voice.VOICE;
@@ -68,10 +68,10 @@ public class VoiceDAOImpl extends DAOImpl implements VoiceDAO {
   }
 
   @Override
-  public Result<VoiceRecord> readAllForIdeaPhaseOffset(Access access, ULong ideaId, ULong phaseOffset) throws Exception {
+  public Result<VoiceRecord> readAllForPatternPhaseOffset(Access access, ULong patternId, ULong phaseOffset) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readAllForIdeaPhaseOffset(tx.getContext(), access, ideaId, phaseOffset));
+      return tx.success(readAllForPatternPhaseOffset(tx.getContext(), access, patternId, phaseOffset));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -119,8 +119,8 @@ public class VoiceDAOImpl extends DAOImpl implements VoiceDAO {
         .fetchOne(0, int.class));
     else
       requireExists("Phase", db.selectCount().from(PHASE)
-        .join(IDEA).on(IDEA.ID.eq(PHASE.IDEA_ID))
-        .join(LIBRARY).on(LIBRARY.ID.eq(IDEA.LIBRARY_ID))
+        .join(PATTERN).on(PATTERN.ID.eq(PHASE.PATTERN_ID))
+        .join(LIBRARY).on(LIBRARY.ID.eq(PATTERN.LIBRARY_ID))
         .where(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .and(PHASE.ID.eq(entity.getPhaseId()))
         .fetchOne(0, int.class));
@@ -145,8 +145,8 @@ public class VoiceDAOImpl extends DAOImpl implements VoiceDAO {
       return recordInto(VOICE, db.select(VOICE.fields())
         .from(VOICE)
         .join(PHASE).on(PHASE.ID.eq(VOICE.PHASE_ID))
-        .join(IDEA).on(IDEA.ID.eq(PHASE.IDEA_ID))
-        .join(LIBRARY).on(LIBRARY.ID.eq(IDEA.LIBRARY_ID))
+        .join(PATTERN).on(PATTERN.ID.eq(PHASE.PATTERN_ID))
+        .join(LIBRARY).on(LIBRARY.ID.eq(PATTERN.LIBRARY_ID))
         .where(VOICE.ID.eq(id))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .fetchOne());
@@ -170,27 +170,27 @@ public class VoiceDAOImpl extends DAOImpl implements VoiceDAO {
       return resultInto(VOICE, db.select(VOICE.fields())
         .from(VOICE)
         .join(PHASE).on(PHASE.ID.eq(VOICE.PHASE_ID))
-        .join(IDEA).on(IDEA.ID.eq(PHASE.IDEA_ID))
-        .join(LIBRARY).on(LIBRARY.ID.eq(IDEA.LIBRARY_ID))
+        .join(PATTERN).on(PATTERN.ID.eq(PHASE.PATTERN_ID))
+        .join(LIBRARY).on(LIBRARY.ID.eq(PATTERN.LIBRARY_ID))
         .where(VOICE.PHASE_ID.eq(phaseId))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .fetch());
   }
 
   /**
-   Fetch all accessible Voice for an idea phase by offset
+   Fetch all accessible Voice for an pattern phase by offset
 
    @param access      control
-   @param ideaId      to fetch phase voices for
-   @param phaseOffset offset of phase in idea
+   @param patternId      to fetch phase voices for
+   @param phaseOffset offset of phase in pattern
    @return voices in phase
    */
-  private Result<VoiceRecord> readAllForIdeaPhaseOffset(DSLContext db, Access access, ULong ideaId, ULong phaseOffset) throws Exception {
+  private Result<VoiceRecord> readAllForPatternPhaseOffset(DSLContext db, Access access, ULong patternId, ULong phaseOffset) throws Exception {
     requireTopLevel(access);
     return resultInto(VOICE, db.select(VOICE.fields())
       .from(VOICE)
       .join(PHASE).on(PHASE.ID.eq(VOICE.PHASE_ID))
-      .where(PHASE.IDEA_ID.eq(ideaId))
+      .where(PHASE.PATTERN_ID.eq(patternId))
       .and(PHASE.OFFSET.eq(phaseOffset))
       .fetch());
   }
@@ -216,8 +216,8 @@ public class VoiceDAOImpl extends DAOImpl implements VoiceDAO {
         .fetchOne(0, int.class));
     else
       requireExists("Phase", db.selectCount().from(PHASE)
-        .join(IDEA).on(IDEA.ID.eq(PHASE.IDEA_ID))
-        .join(LIBRARY).on(LIBRARY.ID.eq(IDEA.LIBRARY_ID))
+        .join(PATTERN).on(PATTERN.ID.eq(PHASE.PATTERN_ID))
+        .join(LIBRARY).on(LIBRARY.ID.eq(PATTERN.LIBRARY_ID))
         .where(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .and(PHASE.ID.eq(entity.getPhaseId()))
         .fetchOne(0, int.class));
@@ -244,8 +244,8 @@ public class VoiceDAOImpl extends DAOImpl implements VoiceDAO {
     if (!access.isTopLevel())
       requireExists("Voice", db.selectCount().from(VOICE)
         .join(PHASE).on(PHASE.ID.eq(VOICE.PHASE_ID))
-        .join(IDEA).on(IDEA.ID.eq(PHASE.IDEA_ID))
-        .join(LIBRARY).on(LIBRARY.ID.eq(IDEA.LIBRARY_ID))
+        .join(PATTERN).on(PATTERN.ID.eq(PHASE.PATTERN_ID))
+        .join(LIBRARY).on(LIBRARY.ID.eq(PATTERN.LIBRARY_ID))
         .where(VOICE.ID.eq(id))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .fetchOne(0, int.class));

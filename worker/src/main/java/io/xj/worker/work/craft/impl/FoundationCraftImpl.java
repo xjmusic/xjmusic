@@ -12,8 +12,8 @@ import com.google.inject.assistedinject.Assisted;
 import io.xj.core.access.impl.Access;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.dao.ChoiceDAO;
-import io.xj.core.dao.IdeaDAO;
-import io.xj.core.dao.IdeaMemeDAO;
+import io.xj.core.dao.PatternDAO;
+import io.xj.core.dao.PatternMemeDAO;
 import io.xj.core.dao.LinkChordDAO;
 import io.xj.core.dao.LinkMemeDAO;
 import io.xj.core.dao.PhaseChordDAO;
@@ -22,8 +22,8 @@ import io.xj.core.model.MemeEntity;
 import io.xj.core.model.choice.Chance;
 import io.xj.core.model.choice.Choice;
 import io.xj.core.model.choice.Chooser;
-import io.xj.core.model.idea.Idea;
-import io.xj.core.model.idea.IdeaType;
+import io.xj.core.model.pattern.Pattern;
+import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.link_chord.LinkChord;
 import io.xj.core.model.link_meme.LinkMeme;
 import io.xj.core.tables.records.PhaseRecord;
@@ -40,10 +40,10 @@ import java.sql.Timestamp;
 import java.util.Map;
 import java.util.Objects;
 
-import static io.xj.core.tables.Idea.IDEA;
+import static io.xj.core.tables.Pattern.PATTERN;
 
 /**
- * [#214] If a Chain has Ideas associated with it directly, prefer those choices to any in the Library
+ * [#214] If a Chain has Patterns associated with it directly, prefer those choices to any in the Library
  */
 public class FoundationCraftImpl implements FoundationCraft {
   private static final double SCORE_MATCHED_KEY_MODE = 10;
@@ -52,14 +52,14 @@ public class FoundationCraftImpl implements FoundationCraft {
   public static final double CHOOSE_MAIN_MAX_DISTRIBUTION = 0.5;
   private final Logger log = LoggerFactory.getLogger(FoundationCraftImpl.class);
   private final ChoiceDAO choiceDAO;
-  private final IdeaDAO ideaDAO;
-  private final IdeaMemeDAO ideaMemeDAO;
+  private final PatternDAO patternDAO;
+  private final PatternMemeDAO patternMemeDAO;
   private final LinkChordDAO linkChordDAO;
   private final LinkMemeDAO linkMemeDAO;
   private final PhaseChordDAO phaseChordDAO;
   private final Basis basis;
-  private Idea _macroIdea;
-  private Idea _mainIdea;
+  private Pattern _macroPattern;
+  private Pattern _mainPattern;
   private ULong _macroPhaseOffset;
   private ULong _mainPhaseOffset;
 
@@ -67,16 +67,16 @@ public class FoundationCraftImpl implements FoundationCraft {
   public FoundationCraftImpl(
     @Assisted("basis") Basis basis,
     ChoiceDAO choiceDAO,
-    IdeaDAO ideaDAO,
-    IdeaMemeDAO ideaMemeDAO,
+    PatternDAO patternDAO,
+    PatternMemeDAO patternMemeDAO,
     LinkChordDAO linkChordDAO,
     LinkMemeDAO linkMemeDAO,
     PhaseChordDAO phaseChordDAO
   /*-*/) {
     this.basis = basis;
     this.choiceDAO = choiceDAO;
-    this.ideaDAO = ideaDAO;
-    this.ideaMemeDAO = ideaMemeDAO;
+    this.patternDAO = patternDAO;
+    this.patternMemeDAO = patternMemeDAO;
     this.linkChordDAO = linkChordDAO;
     this.linkMemeDAO = linkMemeDAO;
     this.phaseChordDAO = phaseChordDAO;
@@ -114,8 +114,8 @@ public class FoundationCraftImpl implements FoundationCraft {
   }
 
   /**
-   * Make Macro-type Idea Choice
-   * add macro-idea choice to link
+   * Make Macro-type Pattern Choice
+   * add macro-pattern choice to link
    *
    * @throws Exception on any failure
    */
@@ -123,15 +123,15 @@ public class FoundationCraftImpl implements FoundationCraft {
     choiceDAO.create(Access.internal(),
       new Choice()
         .setLinkId(basis.linkId().toBigInteger())
-        .setType(IdeaType.Macro.toString())
-        .setIdeaId(macroIdea().getId().toBigInteger())
+        .setType(PatternType.Macro.toString())
+        .setPatternId(macroPattern().getId().toBigInteger())
         .setTranspose(macroTranspose())
         .setPhaseOffset(macroPhaseOffset().toBigInteger()));
   }
 
   /**
-   * Make Main-type Idea Choice
-   * add macro-idea choice to link
+   * Make Main-type Pattern Choice
+   * add macro-pattern choice to link
    *
    * @throws Exception on any failure
    */
@@ -139,8 +139,8 @@ public class FoundationCraftImpl implements FoundationCraft {
     choiceDAO.create(Access.internal(),
       new Choice()
         .setLinkId(basis.linkId().toBigInteger())
-        .setType(IdeaType.Main.toString())
-        .setIdeaId(mainIdea().getId().toBigInteger())
+        .setType(PatternType.Main.toString())
+        .setPatternId(mainPattern().getId().toBigInteger())
         .setTranspose(mainTranspose())
         .setPhaseOffset(mainPhaseOffset().toBigInteger()));
   }
@@ -164,7 +164,7 @@ public class FoundationCraftImpl implements FoundationCraft {
 
   /**
    * Make Chords
-   * Link Chords = Main Idea Phase Chords, transposed according to to main idea choice
+   * Link Chords = Main Pattern Phase Chords, transposed according to to main pattern choice
    *
    * @throws Exception on any failure
    */
@@ -190,57 +190,57 @@ public class FoundationCraftImpl implements FoundationCraft {
   }
 
   /**
-   * compute (and cache) the chosen macro idea
+   * compute (and cache) the chosen macro pattern
    *
-   * @return macro-type idea
+   * @return macro-type pattern
    * @throws Exception on failure
    */
-  private Idea macroIdea() throws Exception {
-    if (Objects.isNull(_macroIdea))
+  private Pattern macroPattern() throws Exception {
+    if (Objects.isNull(_macroPattern))
       switch (basis.type()) {
 
         case Initial:
-          _macroIdea = chooseMacro();
+          _macroPattern = chooseMacro();
           break;
 
         case Continue:
         case NextMain:
           Choice previousChoice = basis.previousMacroChoice();
           if (Objects.isNull(previousChoice))
-            throw new BusinessException("No macro-type idea chosen in previous link!");
-          _macroIdea = basis.idea(previousChoice.getIdeaId());
+            throw new BusinessException("No macro-type pattern chosen in previous link!");
+          _macroPattern = basis.pattern(previousChoice.getPatternId());
           break;
 
         case NextMacro:
-          _macroIdea = chooseMacro();
+          _macroPattern = chooseMacro();
       }
-    return _macroIdea;
+    return _macroPattern;
   }
 
   /**
-   * compute (and cache) the mainIdea
+   * compute (and cache) the mainPattern
    *
-   * @return mainIdea
+   * @return mainPattern
    */
-  private Idea mainIdea() throws Exception {
-    if (Objects.isNull(_mainIdea))
+  private Pattern mainPattern() throws Exception {
+    if (Objects.isNull(_mainPattern))
       switch (basis.type()) {
 
         case Continue:
           Choice previousChoice = basis.previousMainChoice();
           if (Objects.isNull(previousChoice))
-            throw new BusinessException("No main-type idea chosen in previous link!");
-          _mainIdea = basis.idea(previousChoice.getIdeaId());
+            throw new BusinessException("No main-type pattern chosen in previous link!");
+          _mainPattern = basis.pattern(previousChoice.getPatternId());
           break;
 
         case Initial:
         case NextMain:
         case NextMacro:
-          _mainIdea = chooseMain();
+          _mainPattern = chooseMain();
       }
 
 
-    return _mainIdea;
+    return _mainPattern;
   }
 
   /**
@@ -259,23 +259,23 @@ public class FoundationCraftImpl implements FoundationCraft {
         return basis.previousMacroChoice().getTranspose();
 
       case NextMacro:
-        return Key.delta(macroIdea().getKey(),
+        return Key.delta(macroPattern().getKey(),
           basis.previousMacroNextPhase().getKey(),
           basis.previousMacroChoice().getTranspose());
 
       default:
-        throw new BusinessException("unable to determine macro-type idea transposition");
+        throw new BusinessException("unable to determine macro-type pattern transposition");
     }
   }
 
   /**
-   * compute (and cache) Transpose Main-Idea to the transposed key of the current macro phase
+   * compute (and cache) Transpose Main-Pattern to the transposed key of the current macro phase
    *
    * @return mainTranspose
    */
   private Integer mainTranspose() throws Exception {
-    return Key.delta(mainIdea().getKey(),
-      Value.eitherOr(macroPhase().getKey(), macroIdea().getKey()),
+    return Key.delta(mainPattern().getKey(),
+      Value.eitherOr(macroPhase().getKey(), macroPattern().getKey()),
       macroTranspose());
   }
 
@@ -336,13 +336,13 @@ public class FoundationCraftImpl implements FoundationCraft {
   }
 
   /**
-   * Fetch current phase of macro-type idea
+   * Fetch current phase of macro-type pattern
    *
    * @return phase record
    * @throws Exception on failure
    */
   private PhaseRecord macroPhase() throws Exception {
-    PhaseRecord phase = basis.phaseByOffset(macroIdea().getId(), macroPhaseOffset());
+    PhaseRecord phase = basis.phaseByOffset(macroPattern().getId(), macroPhaseOffset());
 
     if (Objects.isNull(phase))
       throw new BusinessException("macro-phase does not exist!");
@@ -351,13 +351,13 @@ public class FoundationCraftImpl implements FoundationCraft {
   }
 
   /**
-   * Fetch current phase of main-type idea
+   * Fetch current phase of main-type pattern
    *
    * @return phase record
    * @throws Exception on failure
    */
   private PhaseRecord mainPhase() throws Exception {
-    PhaseRecord phase = basis.phaseByOffset(mainIdea().getId(), mainPhaseOffset());
+    PhaseRecord phase = basis.phaseByOffset(mainPattern().getId(), mainPhaseOffset());
 
     if (Objects.isNull(phase))
       throw new BusinessException("main-phase does not exist!");
@@ -366,97 +366,97 @@ public class FoundationCraftImpl implements FoundationCraft {
   }
 
   /**
-   * Choose macro idea
+   * Choose macro pattern
    *
-   * @return macro-type idea
+   * @return macro-type pattern
    * @throws Exception on failure
    */
-  private Idea chooseMacro() throws Exception {
-    Chooser<Idea> chooser = new Chooser<>();
+  private Pattern chooseMacro() throws Exception {
+    Chooser<Pattern> chooser = new Chooser<>();
     String key = basis.isInitialLink() ? null : basis.previousMacroPhase().getKey();
 
-    // (1a) retrieve ideas bound directly to chain
-    Result<? extends Record> sourceRecords = ideaDAO.readAllBoundToChain(Access.internal(), basis.chainId(), IdeaType.Macro);
+    // (1a) retrieve patterns bound directly to chain
+    Result<? extends Record> sourceRecords = patternDAO.readAllBoundToChain(Access.internal(), basis.chainId(), PatternType.Macro);
 
-    // (1b) only if none were found in the previous transpose, retrieve ideas bound to chain library
+    // (1b) only if none were found in the previous transpose, retrieve patterns bound to chain library
     if (sourceRecords.isEmpty())
-      sourceRecords = ideaDAO.readAllBoundToChainLibrary(Access.internal(), basis.chainId(), IdeaType.Macro);
+      sourceRecords = patternDAO.readAllBoundToChainLibrary(Access.internal(), basis.chainId(), PatternType.Macro);
 
     // (2) score each source record
     sourceRecords.forEach((record -> {
       try {
-        chooser.add(new Idea().setFromRecord(record),
+        chooser.add(new Pattern().setFromRecord(record),
           Chance.normallyAround(
-            Key.isSameMode(key, record.get(IDEA.KEY)) ? SCORE_MATCHED_KEY_MODE : 0,
+            Key.isSameMode(key, record.get(PATTERN.KEY)) ? SCORE_MATCHED_KEY_MODE : 0,
             CHOOSE_MACRO_MAX_DISTRIBUTION));
       } catch (BusinessException e) {
-        log.debug("while scoring macro ideas", e);
+        log.debug("while scoring macro patterns", e);
       }
     }));
 
-    // (2b) Avoid previous macro idea
+    // (2b) Avoid previous macro pattern
     if (!basis.isInitialLink())
-      chooser.score(basis.previousMacroChoice().getIdeaId(), -SCORE_AVOID_CHOOSING_PREVIOUS);
+      chooser.score(basis.previousMacroChoice().getPatternId(), -SCORE_AVOID_CHOOSING_PREVIOUS);
 
     // report
     basis.report("macroChoice", chooser.report());
 
     // (3) return the top choice
-    Idea idea = chooser.getTop();
-    if (Objects.nonNull(idea))
-      return idea;
+    Pattern pattern = chooser.getTop();
+    if (Objects.nonNull(pattern))
+      return pattern;
     else
-      throw new BusinessException("Found no macro-type idea bound to Chain!");
+      throw new BusinessException("Found no macro-type pattern bound to Chain!");
   }
 
   /**
-   * Choose main idea
+   * Choose main pattern
    *
-   * @return main-type Idea
+   * @return main-type Pattern
    * @throws Exception on failure
    *                   <p>
-   *                   future: don't we need to pass in the current phase of the macro idea?
+   *                   future: don't we need to pass in the current phase of the macro pattern?
    */
-  private Idea chooseMain() throws Exception {
-    Chooser<Idea> chooser = new Chooser<>();
+  private Pattern chooseMain() throws Exception {
+    Chooser<Pattern> chooser = new Chooser<>();
 
-    // future: only choose major ideas for major keys, minor for minor! [#223] Key of first Phase of chosen Main-Idea must match the `minor` or `major` with the Key of the current Link.
+    // future: only choose major patterns for major keys, minor for minor! [#223] Key of first Phase of chosen Main-Pattern must match the `minor` or `major` with the Key of the current Link.
 
-    // (1) retrieve memes of macro idea, for use as a meme isometry comparison
-    MemeIsometry memeIsometry = MemeIsometry.of(ideaMemeDAO.readAll(Access.internal(), macroIdea().getId()));
+    // (1) retrieve memes of macro pattern, for use as a meme isometry comparison
+    MemeIsometry memeIsometry = MemeIsometry.of(patternMemeDAO.readAll(Access.internal(), macroPattern().getId()));
 
-    // (2a) retrieve ideas bound directly to chain
-    Result<? extends Record> sourceRecords = ideaDAO.readAllBoundToChain(Access.internal(), basis.chainId(), IdeaType.Main);
+    // (2a) retrieve patterns bound directly to chain
+    Result<? extends Record> sourceRecords = patternDAO.readAllBoundToChain(Access.internal(), basis.chainId(), PatternType.Main);
 
-    // (2b) only if none were found in the previous transpose, retrieve ideas bound to chain library
+    // (2b) only if none were found in the previous transpose, retrieve patterns bound to chain library
     if (sourceRecords.isEmpty())
-      sourceRecords = ideaDAO.readAllBoundToChainLibrary(Access.internal(), basis.chainId(), IdeaType.Main);
+      sourceRecords = patternDAO.readAllBoundToChainLibrary(Access.internal(), basis.chainId(), PatternType.Main);
 
     // (3) score each source record based on meme isometry
     sourceRecords.forEach((record -> {
       try {
-        chooser.add(new Idea().setFromRecord(record),
+        chooser.add(new Pattern().setFromRecord(record),
           Chance.normallyAround(
             memeIsometry.scoreCSV(String.valueOf(record.get(MemeEntity.KEY_MANY))),
             CHOOSE_MAIN_MAX_DISTRIBUTION));
       } catch (BusinessException e) {
-        log.debug("while scoring main ideas", e);
+        log.debug("while scoring main patterns", e);
       }
     }));
 
-    // (3b) Avoid previous main idea
+    // (3b) Avoid previous main pattern
     if (!basis.isInitialLink())
-      chooser.score(basis.previousMainChoice().getIdeaId(), -SCORE_AVOID_CHOOSING_PREVIOUS);
+      chooser.score(basis.previousMainChoice().getPatternId(), -SCORE_AVOID_CHOOSING_PREVIOUS);
 
     // report
     basis.report("mainChoice", chooser.report());
 
     // (4) return the top choice
-    Idea idea = chooser.getTop();
-    if (Objects.nonNull(idea))
-      return idea;
+    Pattern pattern = chooser.getTop();
+    if (Objects.nonNull(pattern))
+      return pattern;
     else
-      throw new BusinessException("Found no main-type idea bound to Chain!");
+      throw new BusinessException("Found no main-type pattern bound to Chain!");
   }
 
   /**
@@ -467,7 +467,7 @@ public class FoundationCraftImpl implements FoundationCraft {
   private Map<String, LinkMeme> linkMemes() throws Exception {
     Map<String, LinkMeme> out = Maps.newHashMap();
 
-    basis.ideaMemes(macroIdea().getId())
+    basis.patternMemes(macroPattern().getId())
       .forEach(meme -> out.put(
         meme.getName(), basis.linkMeme(basis.linkId(), meme.getName())));
 
@@ -475,7 +475,7 @@ public class FoundationCraftImpl implements FoundationCraft {
       .forEach(meme -> out.put(
         meme.getName(), basis.linkMeme(basis.linkId(), meme.getName())));
 
-    basis.ideaMemes(mainIdea().getId())
+    basis.patternMemes(mainPattern().getId())
       .forEach(meme -> out.put(
         meme.getName(), basis.linkMeme(basis.linkId(), meme.getName())));
 
@@ -512,7 +512,7 @@ public class FoundationCraftImpl implements FoundationCraft {
 
   /**
    * Compute the total # of beats of the current link
-   * Link Total (# Beats) = from current Phase of Main-Idea
+   * Link Total (# Beats) = from current Phase of Main-Pattern
    *
    * @return # beats total
    * @throws Exception on failure
@@ -539,20 +539,20 @@ public class FoundationCraftImpl implements FoundationCraft {
    * @throws Exception on failure
    */
   private double linkTempo() throws Exception {
-    return (Value.eitherOr(macroPhase().getTempo(), macroIdea().getTempo()) +
-      Value.eitherOr(mainPhase().getTempo(), mainIdea().getTempo())) / 2;
+    return (Value.eitherOr(macroPhase().getTempo(), macroPattern().getTempo()) +
+      Value.eitherOr(mainPhase().getTempo(), mainPattern().getTempo())) / 2;
   }
 
   /**
    * Compute the final density of the current link
-   * future: Link Density = average of macro and main-idea phases
+   * future: Link Density = average of macro and main-pattern phases
    *
    * @return density
    * @throws Exception on failure
    */
   private Double linkDensity() throws Exception {
-    return (Value.eitherOr(macroPhase().getDensity(), macroIdea().getDensity()) +
-      Value.eitherOr(mainPhase().getDensity(), mainIdea().getDensity())) / 2;
+    return (Value.eitherOr(macroPhase().getDensity(), macroPattern().getDensity()) +
+      Value.eitherOr(mainPhase().getDensity(), mainPattern().getDensity())) / 2;
   }
 
 }

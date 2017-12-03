@@ -16,7 +16,7 @@ import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.integration.IntegrationTestService;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
-import io.xj.core.model.idea.IdeaType;
+import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.role.Role;
 import io.xj.core.tables.records.LinkRecord;
 import io.xj.core.timestamp.TimestampUTC;
@@ -70,9 +70,9 @@ public class CraftIT {
     // Library "house"
     IntegrationTestEntity.insertLibrary(2, 1, "house");
 
-    // "Heavy, Deep to Metal" macro-idea in house library
-    IntegrationTestEntity.insertIdea(4, 3, 2, IdeaType.Macro, "Heavy, Deep to Metal", 0.5, "C", 120);
-    IntegrationTestEntity.insertIdeaMeme(2, 4, "Heavy");
+    // "Heavy, Deep to Metal" macro-pattern in house library
+    IntegrationTestEntity.insertPattern(4, 3, 2, PatternType.Macro, "Heavy, Deep to Metal", 0.5, "C", 120);
+    IntegrationTestEntity.insertPatternMeme(2, 4, "Heavy");
     // " phase offset 0
     IntegrationTestEntity.insertPhase(3, 4, 0, 0, "Start Deep", 0.6, "C", 125);
     IntegrationTestEntity.insertPhaseMeme(3, 3, "Deep");
@@ -87,9 +87,9 @@ public class CraftIT {
     IntegrationTestEntity.insertPhaseMeme(5, 4, "Metal");
     IntegrationTestEntity.insertPhaseChord(5, 5, 0, "Ab minor");
 
-    // "Tech, Steampunk to Modern" macro-idea in house library
-    IntegrationTestEntity.insertIdea(3, 3, 2, IdeaType.Macro, "Tech, Steampunk to Modern", 0.5, "G minor", 120);
-    IntegrationTestEntity.insertIdeaMeme(1, 3, "Tech");
+    // "Tech, Steampunk to Modern" macro-pattern in house library
+    IntegrationTestEntity.insertPattern(3, 3, 2, PatternType.Macro, "Tech, Steampunk to Modern", 0.5, "G minor", 120);
+    IntegrationTestEntity.insertPatternMeme(1, 3, "Tech");
     // # phase offset 0
     IntegrationTestEntity.insertPhase(1, 3, 0, 0, "Start Steampunk", 0.4, "G minor", 115);
     IntegrationTestEntity.insertPhaseMeme(1, 1, "Steampunk");
@@ -99,9 +99,9 @@ public class CraftIT {
     IntegrationTestEntity.insertPhaseMeme(2, 2, "Modern");
     IntegrationTestEntity.insertPhaseChord(2, 2, 0, "C");
 
-    // Main idea
-    IntegrationTestEntity.insertIdea(5, 3, 2, IdeaType.Main, "Main Jam", 0.2, "C minor", 140);
-    IntegrationTestEntity.insertIdeaMeme(3, 5, "Attitude");
+    // Main pattern
+    IntegrationTestEntity.insertPattern(5, 3, 2, PatternType.Main, "Main Jam", 0.2, "C minor", 140);
+    IntegrationTestEntity.insertPatternMeme(3, 5, "Attitude");
     // # phase offset 0
     IntegrationTestEntity.insertPhase(15, 5, 0, 16, "Intro", 0.5, "G major", 135.0);
     IntegrationTestEntity.insertPhaseMeme(6, 15, "Gritty");
@@ -113,9 +113,9 @@ public class CraftIT {
     IntegrationTestEntity.insertPhaseChord(16, 16, 0, "C major");
     IntegrationTestEntity.insertPhaseChord(18, 16, 8, "Bb minor");
 
-    // Another Main idea to go to
-    IntegrationTestEntity.insertIdea(15, 3, 2, IdeaType.Main, "Next Jam", 0.2, "Db minor", 140);
-    IntegrationTestEntity.insertIdeaMeme(43, 15, "Temptation");
+    // Another Main pattern to go to
+    IntegrationTestEntity.insertPattern(15, 3, 2, PatternType.Main, "Next Jam", 0.2, "Db minor", 140);
+    IntegrationTestEntity.insertPatternMeme(43, 15, "Temptation");
     IntegrationTestEntity.insertPhase(415, 15, 0, 16, "Intro", 0.5, "G minor", 135.0);
     IntegrationTestEntity.insertPhaseMeme(46, 415, "Food");
     IntegrationTestEntity.insertPhaseChord(412, 415, 0, "G minor");
@@ -127,8 +127,8 @@ public class CraftIT {
     IntegrationTestEntity.insertPhaseChord(418, 416, 8, "Bb major");
 
     // A basic beat
-    IntegrationTestEntity.insertIdea(35, 3, 2, IdeaType.Rhythm, "Basic Beat", 0.2, "C", 121);
-    IntegrationTestEntity.insertIdeaMeme(343, 35, "Basic");
+    IntegrationTestEntity.insertPattern(35, 3, 2, PatternType.Rhythm, "Basic Beat", 0.2, "C", 121);
+    IntegrationTestEntity.insertPatternMeme(343, 35, "Basic");
     IntegrationTestEntity.insertPhase(315, 35, 0, 16, "Drop", 0.5, "C", 125.0);
     IntegrationTestEntity.insertPhaseMeme(346, 315, "Heavy");
 

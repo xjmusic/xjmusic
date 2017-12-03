@@ -33,26 +33,26 @@ public interface PhaseDAO {
   PhaseRecord readOne(Access access, ULong id) throws Exception;
 
   /**
-   Fetch one Phase if accessible, by Idea id and phase #
+   Fetch one Phase if accessible, by Pattern id and phase #
 
    @return retrieved record
    @throws Exception on failure
     @param access          control
-   @param ideaId          of idea in which to read phase
-   @param ideaPhaseOffset of phase in idea
+   @param patternId          of pattern in which to read phase
+   @param patternPhaseOffset of phase in pattern
    */
   @Nullable
-  PhaseRecord readOneForIdea(Access access, ULong ideaId, ULong ideaPhaseOffset) throws Exception;
+  PhaseRecord readOneForPattern(Access access, ULong patternId, ULong patternPhaseOffset) throws Exception;
 
   /**
    Fetch all accessible Phase for one Account by id
 
    @param access control
-   @param ideaId to fetch phases for.
+   @param patternId to fetch phases for.
    @return JSONArray of phases.
    @throws Exception on failure
    */
-  Result<PhaseRecord> readAll(Access access, ULong ideaId) throws Exception;
+  Result<PhaseRecord> readAll(Access access, ULong patternId) throws Exception;
 
   /**
    Update a specified Phase if accessible

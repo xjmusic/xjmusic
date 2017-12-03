@@ -20,7 +20,7 @@ import com.google.inject.Inject;
 import java.sql.SQLException;
 import java.util.Map;
 
-import static io.xj.core.tables.Idea.IDEA;
+import static io.xj.core.tables.Pattern.PATTERN;
 import static io.xj.core.tables.Library.LIBRARY;
 import static io.xj.core.tables.Phase.PHASE;
 import static io.xj.core.tables.PhaseMeme.PHASE_MEME;
@@ -102,8 +102,8 @@ public class PhaseMemeDAOImpl extends DAOImpl implements PhaseMemeDAO {
         .fetchOne(0, int.class));
     else
       requireExists("Phase", db.selectCount().from(PHASE)
-        .join(IDEA).on(IDEA.ID.eq(PHASE.IDEA_ID))
-        .join(LIBRARY).on(IDEA.LIBRARY_ID.eq(LIBRARY.ID))
+        .join(PATTERN).on(PATTERN.ID.eq(PHASE.PATTERN_ID))
+        .join(LIBRARY).on(PATTERN.LIBRARY_ID.eq(LIBRARY.ID))
         .where(PHASE.ID.eq(entity.getPhaseId()))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .fetchOne(0, int.class));
@@ -133,8 +133,8 @@ public class PhaseMemeDAOImpl extends DAOImpl implements PhaseMemeDAO {
     else
       return recordInto(PHASE_MEME, db.select(PHASE_MEME.fields()).from(PHASE_MEME)
         .join(PHASE).on(PHASE.ID.eq(PHASE_MEME.PHASE_ID))
-        .join(IDEA).on(IDEA.ID.eq(PHASE.IDEA_ID))
-        .join(LIBRARY).on(IDEA.LIBRARY_ID.eq(LIBRARY.ID))
+        .join(PATTERN).on(PATTERN.ID.eq(PHASE.PATTERN_ID))
+        .join(LIBRARY).on(PATTERN.LIBRARY_ID.eq(LIBRARY.ID))
         .where(PHASE_MEME.ID.eq(id))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .fetchOne());
@@ -157,8 +157,8 @@ public class PhaseMemeDAOImpl extends DAOImpl implements PhaseMemeDAO {
     else
       return resultInto(PHASE_MEME, db.select(PHASE_MEME.fields()).from(PHASE_MEME)
         .join(PHASE).on(PHASE.ID.eq(PHASE_MEME.PHASE_ID))
-        .join(IDEA).on(IDEA.ID.eq(PHASE.IDEA_ID))
-        .join(LIBRARY).on(IDEA.LIBRARY_ID.eq(LIBRARY.ID))
+        .join(PATTERN).on(PATTERN.ID.eq(PHASE.PATTERN_ID))
+        .join(LIBRARY).on(PATTERN.LIBRARY_ID.eq(LIBRARY.ID))
         .where(PHASE.ID.eq(phaseId))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .fetch());
@@ -176,8 +176,8 @@ public class PhaseMemeDAOImpl extends DAOImpl implements PhaseMemeDAO {
     if (!access.isTopLevel())
       requireExists("Phase Meme", db.selectCount().from(PHASE_MEME)
         .join(PHASE).on(PHASE.ID.eq(PHASE_MEME.PHASE_ID))
-        .join(IDEA).on(IDEA.ID.eq(PHASE.IDEA_ID))
-        .join(LIBRARY).on(IDEA.LIBRARY_ID.eq(LIBRARY.ID))
+        .join(PATTERN).on(PATTERN.ID.eq(PHASE.PATTERN_ID))
+        .join(LIBRARY).on(PATTERN.LIBRARY_ID.eq(LIBRARY.ID))
         .where(PHASE_MEME.ID.eq(id))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .fetchOne(0, int.class));

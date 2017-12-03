@@ -5,7 +5,7 @@ import io.xj.core.exception.ConfigException;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
 import io.xj.core.model.chain_config.ChainConfigType;
-import io.xj.core.model.idea.IdeaType;
+import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.instrument.InstrumentType;
 import io.xj.core.model.link.LinkState;
 
@@ -50,7 +50,7 @@ public interface Exposure {
   String KEY_CHAIN_TYPES = "chainTypes";
   String KEY_CHOICE_TYPES = "choiceTypes";
   String KEY_CONFIG = "config";
-  String KEY_IDEA_TYPES = "ideaTypes";
+  String KEY_PATTERN_TYPES = "patternTypes";
   String KEY_INSTRUMENT_TYPES = "instrumentTypes";
   String KEY_LINK_BASE_URL = "linkBaseUrl";
   String KEY_LINK_STATES = "linkStates";
@@ -102,8 +102,8 @@ public interface Exposure {
     config.put(KEY_CHAIN_STATES, ChainState.stringValues());
     config.put(KEY_CHAIN_TYPES, ChainType.stringValues());
     config.put(KEY_LINK_STATES, LinkState.stringValues());
-    config.put(KEY_CHOICE_TYPES, IdeaType.stringValues());
-    config.put(KEY_IDEA_TYPES, IdeaType.stringValues());
+    config.put(KEY_CHOICE_TYPES, PatternType.stringValues());
+    config.put(KEY_PATTERN_TYPES, PatternType.stringValues());
     config.put(KEY_INSTRUMENT_TYPES, InstrumentType.stringValues());
     config.put(KEY_VOICE_TYPES, InstrumentType.stringValues());
     return config;

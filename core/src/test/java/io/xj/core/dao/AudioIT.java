@@ -11,7 +11,7 @@ import io.xj.core.integration.IntegrationTestService;
 import io.xj.core.model.audio.Audio;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
-import io.xj.core.model.idea.IdeaType;
+import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.instrument.InstrumentType;
 import io.xj.core.model.link.LinkState;
 import io.xj.core.model.role.Role;
@@ -72,10 +72,10 @@ public class AudioIT {
     IntegrationTestEntity.insertUser(2, "john", "john@email.com", "http://pictures.com/john.gif");
     IntegrationTestEntity.insertUserRole(1, 2, Role.ADMIN);
 
-    // Library "palm tree" has idea "leaves" and idea "coconuts"
+    // Library "palm tree" has pattern "leaves" and pattern "coconuts"
     IntegrationTestEntity.insertLibrary(1, 1, "palm tree");
 
-    // Idea "leaves" has instruments "808" and "909"
+    // Pattern "leaves" has instruments "808" and "909"
     IntegrationTestEntity.insertInstrument(1, 1, 2, "808 Drums", InstrumentType.Percussive, 0.9);
     IntegrationTestEntity.insertInstrument(2, 1, 2, "909 Drums", InstrumentType.Percussive, 0.8);
 
@@ -99,8 +99,8 @@ public class AudioIT {
 
   private static void setUpTwo() throws Exception {
 
-    // Idea, Phase, Voice
-    IntegrationTestEntity.insertIdea(1, 2, 1, IdeaType.Macro, "epic concept", 0.342, "C#", 0.286);
+    // Pattern, Phase, Voice
+    IntegrationTestEntity.insertPattern(1, 2, 1, PatternType.Macro, "epic concept", 0.342, "C#", 0.286);
     IntegrationTestEntity.insertPhase(1, 1, 0, 16, "Ants", 0.583, "D minor", 120.0);
     IntegrationTestEntity.insertVoice(8, 1, InstrumentType.Percussive, "This is a percussive voice");
 
@@ -109,7 +109,7 @@ public class AudioIT {
     IntegrationTestEntity.insertLink(1, 1, 0, LinkState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120, "chain-1-link-97898asdf7892.wav");
 
     // Choice, Arrangement, Pick
-    IntegrationTestEntity.insertChoice(7, 1, 1, IdeaType.Macro, 2, -5);
+    IntegrationTestEntity.insertChoice(7, 1, 1, PatternType.Macro, 2, -5);
     IntegrationTestEntity.insertArrangement(1, 7, 8, 1);
     IntegrationTestEntity.insertPick(1, 1, 1, 0.125, 1.23, 0.94, 440);
     IntegrationTestEntity.insertPick(2, 1, 1, 1.125, 1.23, 0.94, 220);
@@ -393,7 +393,7 @@ public class AudioIT {
     assertEquals(Double.valueOf(1567.0), result.getPitch());
   }
 
-  // future test: DAO cannot update Idea to a User or Library not owned by current session
+  // future test: DAO cannot update Pattern to a User or Library not owned by current session
 
   @Test
   public void delete() throws Exception {

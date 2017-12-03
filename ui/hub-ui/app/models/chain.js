@@ -14,6 +14,6 @@ export default DS.Model.extend({
   configs: DS.hasMany('chain-config'),
   libraries: DS.hasMany('chain-library'),
   instruments: DS.hasMany('chain-instrument'),
-  ideas: DS.hasMany('chain-idea')
+  patterns: DS.hasMany('chain-pattern')
 });
 

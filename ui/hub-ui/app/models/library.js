@@ -5,7 +5,7 @@ export default DS.Model.extend({
   account: DS.belongsTo({}),
   name: DS.attr('string'),
 
-  ideas: DS.hasMany('idea'),
+  patterns: DS.hasMany('pattern'),
   instruments: DS.hasMany('instrument'),
 });
 
