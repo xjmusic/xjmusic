@@ -15,7 +15,7 @@ import io.xj.core.work.impl.LinkJob;
 import io.xj.core.work.basis.Basis;
 import io.xj.core.work.basis.BasisFactory;
 import io.xj.worker.job.LinkCraftJob;
-import io.xj.worker.work.craft.CraftFactory;
+import io.xj.core.craft.CraftFactory;
 
 public class LinkCraftJobImpl extends LinkJob implements LinkCraftJob {
 //  private static final Logger log = LoggerFactory.getLogger(LinkCraftJob.class);

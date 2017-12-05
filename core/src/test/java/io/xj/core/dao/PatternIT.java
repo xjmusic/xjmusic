@@ -73,7 +73,7 @@ public class PatternIT {
     // Library "boat" has pattern "helm" and pattern "sail"
     IntegrationTestEntity.insertLibrary(2, 1, "boat");
     IntegrationTestEntity.insertPattern(3, 3, 2, PatternType.Macro, "helm", 0.342, "C#", 0.286);
-    IntegrationTestEntity.insertPattern(4, 2, 2, PatternType.Support, "sail", 0.342, "C#", 0.286);
+    IntegrationTestEntity.insertPattern(4, 2, 2, PatternType.Detail, "sail", 0.342, "C#", 0.286);
 
     // Instantiate the test subject
     testDAO = injector.getInstance(PatternDAO.class);

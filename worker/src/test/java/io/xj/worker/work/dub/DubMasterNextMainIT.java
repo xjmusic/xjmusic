@@ -16,6 +16,7 @@ import io.xj.core.model.role.Role;
 import io.xj.core.work.basis.Basis;
 import io.xj.core.work.basis.BasisFactory;
 import io.xj.worker.WorkerModule;
+import io.xj.core.dub.DubFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;

@@ -13,14 +13,15 @@ import io.xj.core.model.link.LinkState;
 import io.xj.core.model.role.Role;
 import io.xj.core.work.basis.Basis;
 import io.xj.core.work.basis.BasisFactory;
-import io.xj.mixer.impl.resource.InternalResource;
-import io.xj.worker.WorkerModule;
+import io.xj.mixer.util.InternalResource;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 
+import io.xj.worker.WorkerModule;
+import io.xj.core.dub.DubFactory;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -111,8 +112,8 @@ public class DubMasterContinueIT {
     IntegrationTestEntity.insertVoiceEvent(3, 1, 2.5, 1, "BOOM", "C2", 0.8, 0.6);
     IntegrationTestEntity.insertVoiceEvent(4, 1, 3, 1, "SMACK", "G5", 0.1, 0.9);
 
-    // support pattern
-    IntegrationTestEntity.insertPattern(7, 3, 2, PatternType.Support, "Support Jam", 0.3, "Cb minor", 170);
+    // detail pattern
+    IntegrationTestEntity.insertPattern(7, 3, 2, PatternType.Detail, "Detail Jam", 0.3, "Cb minor", 170);
 
     // Chain "Test Print #1" has 5 total links
     IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, null);

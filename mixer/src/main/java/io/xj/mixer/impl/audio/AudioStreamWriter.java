@@ -51,7 +51,7 @@ public class AudioStreamWriter {
         writeAudioInputStreamToFile(outputContainer, outputFilePath, outputFormat, totalFrames);
         break;
       case "PCM_FLOAT":
-        throw new FormatException("floating-point output is not currently supported! See [#137] Support for floating-point output encoding.");
+        throw new FormatException("floating-point output is not currently supported!");
 //        writeDirectToFile(outputFilePath, outputFormat, totalFrames);
 //        break;
       default:

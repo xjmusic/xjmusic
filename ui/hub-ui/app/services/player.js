@@ -1,9 +1,9 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
-import { later } from '@ember/runloop';
+import {later} from '@ember/runloop';
 
-import { get } from '@ember/object';
+import {get} from '@ember/object';
 import EmberMap from '@ember/map';
-import Service, { inject as service } from '@ember/service';
+import Service, {inject as service} from '@ember/service';
 import LinkAudio from "./player/link-audio";
 import Moment from "moment";
 import RSVP from "rsvp";
@@ -304,14 +304,18 @@ export default Service.extend({
    * @param {String} fromTimeUTC
    */
   secondsUTC(fromTimeUTC) {
-    return Moment.utc(fromTimeUTC).valueOf() / MILLIS_PER_SECOND;
+    if (fromTimeUTC !== undefined && fromTimeUTC !== null) {
+      return Moment.utc(fromTimeUTC).valueOf() / MILLIS_PER_SECOND;
+    } else {
+      return null;
+    }
   },
 
   /**
    Seconds from UTC to now
    */
   nowSecondsUTC() {
-    return Moment.utc().valueOf() / MILLIS_PER_SECOND;
+    return Math.floor(Moment.utc().valueOf() / MILLIS_PER_SECOND);
   },
 
   /**
@@ -373,15 +377,37 @@ export default Service.extend({
    */
   computePlayFromSecondsUTC(chain, link) {
 
+    if (chain === undefined || chain === null) {
+      return -1;
+    }
+
     if (link !== undefined && link !== null) {
       return this.secondsUTC(link.get('beginAt'));
     }
 
-    if (chain !== undefined && chain !== null && chain.get('stopAt') !== undefined) {
-      return this.secondsUTC(chain.get('startAt'));
-    }
+    let chainStopAtSecondsUTC = this.secondsUTC(chain.get('stopAt'));
+    let secondsNowUTC = this.nowSecondsUTC();
 
-    return this.nowSecondsUTC();
+    switch (chain.get('type').toLowerCase()) {
+
+      case 'Production':
+        if (chainStopAtSecondsUTC !== null) {
+          if (chainStopAtSecondsUTC > secondsNowUTC) {
+            return secondsNowUTC;
+          } else {
+            return chainStopAtSecondsUTC;
+          }
+        } else {
+          return secondsNowUTC;
+        }
+        break;
+
+      case 'Preview':
+        return this.secondsUTC(chain.get('startAt'));
+
+      default:
+        return null;
+    }
   },
 
 });

@@ -1,5 +1,5 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
-package io.xj.worker.work.craft.impl;
+package io.xj.core.craft.impl;
 
 import org.jooq.Record;
 import org.jooq.Result;
@@ -32,7 +32,7 @@ import io.xj.core.work.basis.Basis;
 import io.xj.music.BPM;
 import io.xj.music.Chord;
 import io.xj.music.Key;
-import io.xj.worker.work.craft.FoundationCraft;
+import io.xj.core.craft.FoundationCraft;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

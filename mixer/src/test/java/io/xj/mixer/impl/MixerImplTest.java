@@ -7,7 +7,7 @@ import io.xj.mixer.Mixer;
 import io.xj.mixer.OutputContainer;
 import io.xj.mixer.impl.exception.MixerException;
 import io.xj.mixer.impl.exception.SourceException;
-import io.xj.mixer.impl.resource.InternalResource;
+import io.xj.mixer.util.InternalResource;
 
 import com.google.inject.Guice;
 

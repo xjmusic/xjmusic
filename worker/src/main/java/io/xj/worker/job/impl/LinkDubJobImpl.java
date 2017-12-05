@@ -15,7 +15,7 @@ import io.xj.core.work.impl.LinkJob;
 import io.xj.core.work.basis.Basis;
 import io.xj.core.work.basis.BasisFactory;
 import io.xj.worker.job.LinkDubJob;
-import io.xj.worker.work.dub.DubFactory;
+import io.xj.core.dub.DubFactory;
 
 public class LinkDubJobImpl extends LinkJob implements LinkDubJob {
   private final DubFactory dubFactory;

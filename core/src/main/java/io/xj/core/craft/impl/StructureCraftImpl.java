@@ -1,5 +1,5 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
-package io.xj.worker.work.craft.impl;
+package io.xj.core.craft.impl;
 
 import io.xj.core.access.impl.Access;
 import io.xj.core.exception.BusinessException;
@@ -15,7 +15,7 @@ import io.xj.core.model.pattern.Pattern;
 import io.xj.core.model.pattern.PatternType;
 import io.xj.core.tables.records.PhaseRecord;
 import io.xj.core.util.Value;
-import io.xj.worker.work.craft.StructureCraft;
+import io.xj.core.craft.StructureCraft;
 import io.xj.music.Key;
 
 import org.jooq.Record;
@@ -31,11 +31,11 @@ import org.slf4j.LoggerFactory;
 import java.util.Objects;
 
 /**
- Structure craft for the current link includes rhythm and support
+ Structure craft for the current link includes rhythm and detail
  [#214] If a Chain has Patterns associated with it directly, prefer those choices to any in the Library
  */
 public class StructureCraftImpl implements StructureCraft {
-  private static final double SCORE_AVOID_CHOOSING_PREVIOUS_RHTYHM = 10;
+  private static final double SCORE_AVOID_CHOOSING_PREVIOUS_RHYTHM = 10;
   public static final double CHOOSE_RHYTHM_MAX_DISTRIBUTION = 0.5;
   private final Logger log = LoggerFactory.getLogger(StructureCraftImpl.class);
   private final Basis basis;
@@ -59,7 +59,7 @@ public class StructureCraftImpl implements StructureCraft {
   public void doWork() throws BusinessException {
     try {
       craftRhythm();
-      craftSupport();
+      craftDetail();
       report();
 
     } catch (BusinessException e) {
@@ -85,10 +85,10 @@ public class StructureCraftImpl implements StructureCraft {
   }
 
   /**
-   craft link support
+   craft link detail
    */
-  private void craftSupport() throws Exception {
-    // future: craft support
+  private void craftDetail() throws Exception {
+    // future: craft detail
   }
 
   /**
@@ -204,7 +204,7 @@ public class StructureCraftImpl implements StructureCraft {
 
     // (3b) Avoid previous rhythm pattern
     if (!basis.isInitialLink())
-      chooser.score(basis.previousRhythmChoice().getPatternId(), -SCORE_AVOID_CHOOSING_PREVIOUS_RHTYHM);
+      chooser.score(basis.previousRhythmChoice().getPatternId(), -SCORE_AVOID_CHOOSING_PREVIOUS_RHYTHM);
 
     // report
     basis.report("rhythmChoice", chooser.report());

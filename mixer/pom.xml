@@ -21,6 +21,7 @@
 
   <!-- props -->
   <properties>
+    <maven.compiler.version>2.5.1</maven.compiler.version>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -135,7 +136,7 @@
 
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>2.5.1</version>
+        <version>${maven.compiler.version}</version>
         <inherited>true</inherited>
         <configuration>
           <source>${maven.compiler.source}</source>

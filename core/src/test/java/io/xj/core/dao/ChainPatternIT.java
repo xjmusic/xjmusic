@@ -63,7 +63,7 @@ public class ChainPatternIT {
     // Library "boat" has pattern "helm" and pattern "sail"
     IntegrationTestEntity.insertLibrary(2, 2, "boat");
     IntegrationTestEntity.insertPattern(3, 3, 2, PatternType.Macro, "helm", 0.342, "C#", 0.286);
-    IntegrationTestEntity.insertPattern(4, 2, 2, PatternType.Support, "sail", 0.342, "C#", 0.286);
+    IntegrationTestEntity.insertPattern(4, 2, 2, PatternType.Detail, "sail", 0.342, "C#", 0.286);
 
     // Chain "school" has pattern "helm"
     IntegrationTestEntity.insertChainPattern(1, 1, 3);

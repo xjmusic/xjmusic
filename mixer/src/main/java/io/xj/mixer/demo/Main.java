@@ -1,14 +1,14 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 package io.xj.mixer.demo;
 
-import io.xj.mixer.MixerFactory;
-import io.xj.mixer.MixerModule;
-import io.xj.mixer.Mixer;
-import io.xj.mixer.OutputContainer;
-import io.xj.mixer.impl.resource.InternalResource;
-
 import com.google.inject.Guice;
 import com.google.inject.Module;
+
+import io.xj.mixer.Mixer;
+import io.xj.mixer.MixerFactory;
+import io.xj.mixer.MixerModule;
+import io.xj.mixer.OutputContainer;
+import io.xj.mixer.util.InternalResource;
 
 import javax.sound.sampled.AudioFormat;
 import java.io.BufferedInputStream;
@@ -16,9 +16,10 @@ import java.io.FileInputStream;
 import java.time.Duration;
 
 /**
- Demo of mix, Java-native sequence-based audio mixing for music apps.
-
- @author Charney Kaye */
+ * Demo of mix, Java-native sequence-based audio mixing for music apps.
+ *
+ * @author Charney Kaye
+ */
 public class Main {
 
   private static final Duration preRoll = Duration.ofSeconds(1);
@@ -74,10 +75,10 @@ public class Main {
   };
 
   /**
-   Main method.
-
-   @param args arguments
-   @throws Exception if execution fails
+   * Main method.
+   *
+   * @param args arguments
+   * @throws Exception if execution fails
    */
   public static void main(String[] args) throws Exception {
     Module mod = new MixerModule();

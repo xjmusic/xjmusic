@@ -56,7 +56,7 @@ public class ChoiceIT {
     IntegrationTestEntity.insertPattern(1, 2, 1, PatternType.Macro, "epic concept", 0.342, "C#", 0.286);
     IntegrationTestEntity.insertPattern(2, 2, 1, PatternType.Rhythm, "fat beat", 0.342, "C#", 0.286);
     IntegrationTestEntity.insertPattern(3, 2, 1, PatternType.Main, "dope jam", 0.342, "C#", 0.286);
-    IntegrationTestEntity.insertPattern(4, 2, 1, PatternType.Support, "great accompaniment", 0.342, "C#", 0.286);
+    IntegrationTestEntity.insertPattern(4, 2, 1, PatternType.Detail, "great accompaniment", 0.342, "C#", 0.286);
 
     // Chain "Test Print #1" has one link
     IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Ready, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"), null);
@@ -65,7 +65,7 @@ public class ChoiceIT {
     // Link "Test Print #1" has 4 choices
     IntegrationTestEntity.insertChoice(1, 1, 1, PatternType.Macro, 2, -5);
     IntegrationTestEntity.insertChoice(2, 1, 2, PatternType.Rhythm, 1, +2);
-    IntegrationTestEntity.insertChoice(3, 1, 4, PatternType.Support, 4, -7);
+    IntegrationTestEntity.insertChoice(3, 1, 4, PatternType.Detail, 4, -7);
     IntegrationTestEntity.insertChoice(4, 1, 3, PatternType.Main, 3, -4);
 
     // Instantiate the test subject
@@ -223,7 +223,7 @@ public class ChoiceIT {
     JSONObject result1 = (JSONObject) result.get(1);
     assertEquals("Rhythm", result1.get("type"));
     JSONObject result2 = (JSONObject) result.get(2);
-    assertEquals("Support", result2.get("type"));
+    assertEquals("Detail", result2.get("type"));
     JSONObject result3 = (JSONObject) result.get(3);
     assertEquals("Main", result3.get("type"));
   }

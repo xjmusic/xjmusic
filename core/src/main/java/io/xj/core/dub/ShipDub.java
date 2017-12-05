@@ -1,15 +1,15 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
-package io.xj.worker.work.dub;
+package io.xj.core.dub;
 
 import io.xj.core.exception.BusinessException;
 
 /**
- [#141] Dubworker Link mix final output from instrument-audio-arrangements
+ [#264] Link audio is compressed to MP3 and shipped to https://link.xj.io
  */
-public interface MasterDub {
+public interface ShipDub {
 
   /**
-   perform master dub for the current link
+   perform delivery for the current link
    */
   void doWork() throws BusinessException;
 

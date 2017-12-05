@@ -17,8 +17,8 @@ import io.xj.core.model.link.LinkState;
 import io.xj.core.model.role.Role;
 import io.xj.core.work.basis.Basis;
 import io.xj.core.work.basis.BasisFactory;
+import io.xj.core.craft.CraftFactory;
 import io.xj.worker.WorkerModule;
-import io.xj.worker.work.craft.CraftFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -88,8 +88,8 @@ public class CraftStructureInitialIT {
     IntegrationTestEntity.insertPhase(316, 35, 1, 16, "Continue", 0.5, "C", 125.0);
     IntegrationTestEntity.insertPhaseMeme(347, 316, "Heavy");
 
-    // Support Pattern
-    IntegrationTestEntity.insertPattern(7, 3, 2, PatternType.Support, "Support Jam", 0.3, "Cb minor", 170);
+    // Detail Pattern
+    IntegrationTestEntity.insertPattern(7, 3, 2, PatternType.Detail, "Detail Jam", 0.3, "Cb minor", 170);
 
     // Chain "Print #2" has 1 initial link in crafting state - Foundation is complete
     IntegrationTestEntity.insertChain(2, 1, "Print #2", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, null);

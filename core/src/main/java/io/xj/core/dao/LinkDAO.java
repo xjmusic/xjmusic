@@ -80,7 +80,7 @@ public interface LinkDAO {
    Read all Links that are accessible, starting at a particular time in seconds UTC since epoch.
    limit buffer ahead seconds readable at once in environment configuration
    <p>
-   Supports [#278] Chain Player lives in navbar, and handles all playback (audio waveform, link waveform, continuous chain) so the user always has central control over listening.
+   [#278] Chain Player lives in navbar, and handles all playback (audio waveform, link waveform, continuous chain) so the user always has central control over listening.
 
    @param access  control
    @param chainId to read all links from

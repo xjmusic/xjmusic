@@ -2,7 +2,7 @@
 package io.xj.mixer.impl.audio;
 
 import io.xj.mixer.impl.exception.FormatException;
-import io.xj.mixer.impl.resource.InternalResource;
+import io.xj.mixer.util.InternalResource;
 
 import org.junit.Before;
 import org.junit.Test;

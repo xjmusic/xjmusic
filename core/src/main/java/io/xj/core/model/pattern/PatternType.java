@@ -13,7 +13,7 @@ public enum PatternType {
   Macro,
   Main,
   Rhythm,
-  Support;
+  Detail;
 
   /**
    String Values

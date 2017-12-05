@@ -1,5 +1,5 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
-package io.xj.worker.work.craft.impl;
+package io.xj.core.craft.impl;
 
 import io.xj.core.access.impl.Access;
 import io.xj.core.exception.BusinessException;
@@ -22,7 +22,7 @@ import io.xj.core.model.pick.Pick;
 import io.xj.core.model.voice.Voice;
 import io.xj.core.model.voice_event.VoiceEvent;
 import io.xj.core.tables.records.VoiceEventRecord;
-import io.xj.worker.work.craft.VoiceCraft;
+import io.xj.core.craft.VoiceCraft;
 import io.xj.music.Chord;
 import io.xj.music.Note;
 

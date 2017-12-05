@@ -1,5 +1,11 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
-package io.xj.worker.work.dub.impl;
+package io.xj.core.dub.impl;
+
+import org.jooq.types.ULong;
+
+import com.google.common.collect.Lists;
+import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
 
 import io.xj.core.access.impl.Access;
 import io.xj.core.cache.audio.AudioCacheProvider;
@@ -15,14 +21,7 @@ import io.xj.core.work.basis.Basis;
 import io.xj.mixer.Mixer;
 import io.xj.mixer.MixerFactory;
 import io.xj.mixer.OutputContainer;
-import io.xj.worker.work.dub.MasterDub;
-
-import org.jooq.types.ULong;
-
-import com.google.common.collect.Lists;
-import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
-
+import io.xj.core.dub.MasterDub;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

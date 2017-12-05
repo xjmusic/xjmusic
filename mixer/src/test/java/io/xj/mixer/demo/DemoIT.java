@@ -6,7 +6,7 @@ import io.xj.mixer.MixerModule;
 import io.xj.mixer.Mixer;
 import io.xj.mixer.OutputContainer;
 import io.xj.mixer.impl.exception.FormatException;
-import io.xj.mixer.impl.resource.InternalResource;
+import io.xj.mixer.util.InternalResource;
 
 import com.google.common.io.Files;
 import com.google.inject.Guice;
@@ -73,7 +73,7 @@ public class DemoIT {
 
   /**
    FLOATING-POINT OUTPUT IS NOT SUPPORTED.
-   See [#137] Support for floating-point output encoding.
+   [#137] Support for floating-point output encoding.
 
    @throws FormatException to prevent confusion
    */

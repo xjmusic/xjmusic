@@ -21,8 +21,8 @@ import io.xj.core.tables.records.LinkRecord;
 import io.xj.core.testing.Testing;
 import io.xj.core.work.basis.Basis;
 import io.xj.core.work.basis.BasisFactory;
+import io.xj.core.craft.CraftFactory;
 import io.xj.worker.WorkerModule;
-import io.xj.worker.work.craft.CraftFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -90,7 +90,7 @@ public class CraftFoundationInitialIT {
 
     // Extra patterns
     IntegrationTestEntity.insertPattern(6, 3, 2, PatternType.Rhythm, "Beat Jam", 0.6, "D#", 150);
-    IntegrationTestEntity.insertPattern(7, 3, 2, PatternType.Support, "Support Jam", 0.3, "Cb minor", 170);
+    IntegrationTestEntity.insertPattern(7, 3, 2, PatternType.Detail, "Detail Jam", 0.3, "Cb minor", 170);
 
     // Chain "Print #2" has 1 initial planned link
     IntegrationTestEntity.insertChain(2, 1, "Print #2", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, null);
