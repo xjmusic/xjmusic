@@ -1,7 +1,7 @@
 // Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
-import { get } from '@ember/object';
+import {get} from '@ember/object';
 
-import { inject as service } from '@ember/service';
+import {inject as service} from '@ember/service';
 import Route from '@ember/routing/route';
 
 export default Route.extend({
@@ -37,7 +37,7 @@ export default Route.extend({
       model.save().then(
         () => {
           get(this, 'display').success('Updated event "' + model.get('inflection') + '" event in ' + model.get('note') + '.');
-          this.transitionTo('accounts.one.libraries.one.patterns.one.phases.one.voices.one.events');
+          history.back();
         },
         (error) => {
           get(this, 'display').error(error);
@@ -45,10 +45,15 @@ export default Route.extend({
     },
 
     destroyEvent(model) {
+      let voice = model.get('voice');
+      let phase = voice.get('phase');
+      let pattern = phase.get('pattern');
+      let library = pattern.get('library');
+      let account = library.get('account');
       model.destroyRecord({}).then(
         () => {
           get(this, 'display').success('Deleted event "' + model.get('inflection') + '" event in ' + model.get('note') + '.');
-          this.transitionTo('accounts.one.libraries.one.patterns.one.phases.one.voices.one.events');
+          this.transitionTo('accounts.one.libraries.one.patterns.one.phases.one.voices.one.events', account, library, pattern, phase, voice);
         },
         (error) => {
           get(this, 'display').error(error);

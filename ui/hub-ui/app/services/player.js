@@ -164,7 +164,7 @@ export default Service.extend({
    Do Main Cycle every N seconds
    */
   doMainCycle() {
-    if (this.get('currentChain') !== null) {
+    if (this.nonNull(this.get('currentChain'))) {
       this.refreshDataThenUpdate();
     }
   },
@@ -173,19 +173,32 @@ export default Service.extend({
    do Sub Cycle every N seconds
    */
   doSubCycle() {
-    if (this.get('currentChain') !== null) {
+    if (this.nonNull(this.get('currentChain'))) {
       this.update();
     }
   },
 
   /**
-   Load Chain Links Data from seconds UTC, then update all link audios
+   Check if there is a current chain, and if so, refresh it
    */
   refreshDataThenUpdate() {
+    let currentChain = this.get('currentChain');
+    if (this.nonNull(currentChain)) {
+      let fromSecondsUTC = Math.floor(this.get('playFromSecondsUTC') + this.currentTime()); // must be integer for xj API here
+      console.debug("chain is non null", currentChain);
+      this.refreshCurrentChainDataThenUpdate(currentChain, fromSecondsUTC);
+    }
+  },
+
+  /**
+   Load Chain Links Data from seconds UTC, then update all link audios
+   * @param chain
+   * @param fromSecondsUTC
+   */
+  refreshCurrentChainDataThenUpdate(chain, fromSecondsUTC) {
     let self = this;
-    let fromSecondsUTC = Math.floor(this.get('playFromSecondsUTC') + this.currentTime()); // must be integer for xj API here
     this.get('store').query('link', {
-      chainId: self.get('currentChain').get('id'),
+      chainId: chain.get('id'),
       fromSecondsUTC: fromSecondsUTC
     }).then(
       (links) => {
@@ -304,7 +317,7 @@ export default Service.extend({
    * @param {String} fromTimeUTC
    */
   secondsUTC(fromTimeUTC) {
-    if (fromTimeUTC !== undefined && fromTimeUTC !== null) {
+    if (this.nonNull(fromTimeUTC)) {
       return Moment.utc(fromTimeUTC).valueOf() / MILLIS_PER_SECOND;
     } else {
       return null;
@@ -373,37 +386,69 @@ export default Service.extend({
   },
 
   /**
+   Whether the object is non-null
+   * @param obj
+   * @returns {boolean}
+   */
+  nonNull: function (obj) {
+    return !this.isNull(obj);
+  },
+
+  /**
+   Whether the object is null
+   * @param obj
+   * @returns {boolean}
+   */
+  isNull: function (obj) {
+    return obj === undefined || obj === null;
+  },
+
+  /**
    Compute play-from-seconds UTC depending on the request to play
    */
   computePlayFromSecondsUTC(chain, link) {
 
-    if (chain === undefined || chain === null) {
-      return -1;
+    console.debug("computePlayFromSecondsUTC(", chain, ",", link, ")");
+
+    if (this.isNull(chain)) {
+      console.debug("player received null chain");
+      return null;
     }
 
-    if (link !== undefined && link !== null) {
+    if (this.nonNull(link)) {
+      console.debug("player will play from link", link);
       return this.secondsUTC(link.get('beginAt'));
     }
 
+    let chainStartAtSecondsUTC = this.secondsUTC(chain.get('startAt'));
     let chainStopAtSecondsUTC = this.secondsUTC(chain.get('stopAt'));
     let secondsNowUTC = this.nowSecondsUTC();
 
     switch (chain.get('type').toLowerCase()) {
 
-      case 'Production':
-        if (chainStopAtSecondsUTC !== null) {
-          if (chainStopAtSecondsUTC > secondsNowUTC) {
-            return secondsNowUTC;
-          } else {
-            return chainStopAtSecondsUTC;
-          }
-        } else {
+      case 'production':
+
+        if (isNaN(chainStopAtSecondsUTC)) {
+          console.debug("player will play production chain from now", "secondsNowUTC:", secondsNowUTC);
           return secondsNowUTC;
+
+        } else {
+          console.debug("player received chain with stop-at seconds", chainStopAtSecondsUTC);
+
+          if (chainStopAtSecondsUTC > secondsNowUTC) {
+            console.debug("player will play production chain from now", "secondsNowUTC:", secondsNowUTC);
+            return secondsNowUTC;
+
+          } else {
+            console.debug("player will play production chain from beginning", "chainStartAtSecondsUTC:", chainStartAtSecondsUTC);
+            return chainStartAtSecondsUTC;
+          }
         }
         break;
 
-      case 'Preview':
-        return this.secondsUTC(chain.get('startAt'));
+      case 'preview':
+        console.debug("player will play preview chain", "chainStartAtSecondsUTC:", chainStartAtSecondsUTC);
+        return chainStartAtSecondsUTC;
 
       default:
         return null;

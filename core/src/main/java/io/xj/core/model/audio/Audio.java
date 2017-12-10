@@ -40,6 +40,13 @@ public class Audio extends Entity {
   private Double pitch;
   private String _stateString; // pending validation, copied to `state` field
 
+  public Audio() {}
+
+  public Audio(ULong id) {
+    this.id = id;
+  }
+
+
   public ULong getInstrumentId() {
     return instrumentId;
   }

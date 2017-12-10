@@ -29,7 +29,7 @@ export default Route.extend({
       model.save().then(
         () => {
           get(this, 'display').success('Updated library ' + model.get('name') + '.');
-          this.transitionTo('accounts.one.libraries.one', model);
+          history.back();
         },
         (error) => {
           get(this, 'display').error(error);
@@ -38,11 +38,12 @@ export default Route.extend({
 
     destroyLibrary(model) {
       let confirmation = confirm("Are you sure? If there are Patterns or Instruments belonging to this Library, deletion will fail anyway.");
+      let account = model.get("account");
       if (confirmation) {
         model.destroyRecord({}).then(
           () => {
             get(this, 'display').success('Deleted library ' + model.get('name') + '.');
-            this.transitionTo('accounts.one.libraries');
+            this.transitionTo('accounts.one.libraries', account);
           },
           (error) => {
             get(this, 'display').error(error);

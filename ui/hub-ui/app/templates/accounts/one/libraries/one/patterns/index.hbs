@@ -33,7 +33,8 @@
             <td style="white-space: nowrap">{{pattern.density}}</td>
             <td>{{pattern.tempo}}</td>
             <td>
-              {{#link-to 'accounts.one.libraries.one.patterns.one.memes' pattern.library.account pattern.library pattern}}Memes{{/link-to}}
+              {{#link-to 'accounts.one.libraries.one.patterns.one.edit' pattern.library.account pattern.library pattern}}{{fa-icon 'edit'}}{{/link-to}}
+              |&nbsp;{{#link-to 'accounts.one.libraries.one.patterns.one.memes' pattern.library.account pattern.library pattern}}Memes{{/link-to}}
               |&nbsp;{{#link-to 'accounts.one.libraries.one.patterns.one.phases' pattern.library.account pattern.library pattern}}Phases{{/link-to}}
             </td>
             <th scope="row">{{pattern.id}}</th>

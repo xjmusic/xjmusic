@@ -37,7 +37,7 @@ export default Route.extend({
       model.save().then(
         () => {
           get(this, 'display').success('Updated audio "' + model.get('name') + '".');
-          this.transitionTo('accounts.one.libraries.one.instruments.one.audios.one', model.instrument.library.account, model.instrument.library, model.instrument, model);
+          history.back();
         },
         (error) => {
           get(this, 'display').error(error);
@@ -45,10 +45,13 @@ export default Route.extend({
     },
 
     destroyAudio(model) {
+      let instrument = model.get('instrument');
+      let library = instrument.get('library');
+      let account = library.get('account');
       model.destroyRecord({}).then(
         () => {
           get(this, 'display').success('Deleted audio "' + model.get('name') + '".');
-          this.transitionTo('accounts.one.libraries.one.instruments.one.audios', model.instrument.library.account, model.instrument.library, model.instrument);
+          this.transitionTo('accounts.one.libraries.one.instruments.one.audios', account, library, instrument);
         },
         (error) => {
           get(this, 'display').error(error);

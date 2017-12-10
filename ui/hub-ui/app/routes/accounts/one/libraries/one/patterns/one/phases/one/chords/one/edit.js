@@ -1,7 +1,7 @@
 // Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
-import { get } from '@ember/object';
+import {get} from '@ember/object';
 
-import { inject as service } from '@ember/service';
+import {inject as service} from '@ember/service';
 import Route from '@ember/routing/route';
 
 export default Route.extend({
@@ -37,7 +37,7 @@ export default Route.extend({
       model.save().then(
         () => {
           get(this, 'display').success('Updated chord ' + model.get('name') + '.');
-          this.transitionTo('accounts.one.libraries.one.patterns.one.phases.one.chords');
+          history.back();
         },
         (error) => {
           get(this, 'display').error(error);
@@ -45,10 +45,14 @@ export default Route.extend({
     },
 
     destroyChord(model) {
+      let phase = model.get('phase');
+      let pattern = phase.get('pattern');
+      let library = pattern.get('library');
+      let account = library.get('account');
       model.destroyRecord({}).then(
         () => {
           get(this, 'display').success('Deleted chord ' + model.get('name') + '.');
-          this.transitionTo('accounts.one.libraries.one.patterns.one.phases.one.chords');
+          this.transitionTo('accounts.one.libraries.one.patterns.one.phases.one.chords', account, library, pattern, phase);
         },
         (error) => {
           get(this, 'display').error(error);

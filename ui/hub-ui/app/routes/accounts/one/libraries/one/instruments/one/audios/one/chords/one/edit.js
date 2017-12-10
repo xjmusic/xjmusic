@@ -37,7 +37,7 @@ export default Route.extend({
       model.save().then(
         () => {
           get(this, 'display').success('Updated chord ' + model.get('name') + '.');
-          this.transitionTo('accounts.one.libraries.one.instruments.one.audios.one.chords', model.audio.instrument.library.account, model.audio.instrument.library, model.audio.instrument, model.audio, model);
+          history.back();
         },
         (error) => {
           get(this, 'display').error(error);
@@ -45,10 +45,14 @@ export default Route.extend({
     },
 
     destroyChord(model) {
+      let audio = model.get("audio");
+      let instrument = audio.get('instrument');
+      let library = instrument.get('library');
+      let account = library.get('account');
       model.destroyRecord({}).then(
         () => {
           get(this, 'display').success('Deleted chord ' + model.get('name') + '.');
-          this.transitionTo('accounts.one.libraries.one.instruments.one.audios.one.chords', model.audio.instrument.library.account, model.audio.instrument.library, model.audio.instrument, model.audio, model);
+          this.transitionTo('accounts.one.libraries.one.instruments.one.audios.one.chords', account, library, instrument, audio);
         },
         (error) => {
           get(this, 'display').error(error);

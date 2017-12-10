@@ -3,8 +3,10 @@ package io.xj.core.work.impl;
 
 import io.xj.core.access.impl.Access;
 import io.xj.core.config.Config;
+import io.xj.core.dao.AudioDAO;
 import io.xj.core.dao.ChainDAO;
 import io.xj.core.dao.PlatformMessageDAO;
+import io.xj.core.model.audio.AudioState;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.message.MessageType;
 import io.xj.core.model.platform_message.PlatformMessage;
@@ -41,16 +43,19 @@ public class WorkManagerImpl implements WorkManager {
   private final PlatformMessageDAO platformMessageDAO;
   private final RedisDatabaseProvider redisDatabaseProvider;
   private final ChainDAO chainDAO;
+  private final AudioDAO audioDAO;
 
   @Inject
   WorkManagerImpl(
     ChainDAO chainDAO,
     PlatformMessageDAO platformMessageDAO,
-    RedisDatabaseProvider redisDatabaseProvider
+    RedisDatabaseProvider redisDatabaseProvider,
+    AudioDAO audioDAO
   ) {
     this.chainDAO = chainDAO;
     this.platformMessageDAO = platformMessageDAO;
     this.redisDatabaseProvider = redisDatabaseProvider;
+    this.audioDAO = audioDAO;
   }
 
   @Override
@@ -80,7 +85,7 @@ public class WorkManagerImpl implements WorkManager {
 
   @Override
   public void stopChainDeletion(ULong chainId) {
-    removeRecurringWork(new Job(WorkType.ChainErase.toString(), chainId));
+    removeRecurringWork(buildJob(WorkType.ChainErase, chainId));
   }
 
   @Override
@@ -96,6 +101,12 @@ public class WorkManagerImpl implements WorkManager {
   @Override
   public Collection<Work> readAllWork() throws Exception {
     Map<ULong, Work> workMap = Maps.newHashMap();
+
+    // Add Expected Work: Audio in 'Erase' state
+    audioDAO.readAllInState(Access.internal(), AudioState.Erase).forEach(record -> {
+      Work work = buildWork(WorkType.AudioErase, WorkState.Expected, record.getId());
+      workMap.put(work.getId(), work);
+    });
 
     // Add Expected Work: Chain in 'Erase' state
     chainDAO.readAllInState(Access.internal(), ChainState.Erase).forEach(record -> {
@@ -132,12 +143,14 @@ public class WorkManagerImpl implements WorkManager {
   @Override
   public Collection<Work> reinstateAllWork() throws Exception {
     Collection<Work> reinstatedWork = Lists.newArrayList();
+    Collection<Work> allWork = readAllWork();
 
-    readAllWork().forEach((work) -> {
+    allWork.forEach((work) -> {
       if (WorkState.Expected == work.getState()) {
         switch (work.getType()) {
 
           case ChainErase:
+          case AudioErase:
           case ChainFabricate:
             try {
               reinstatedWork.add(reinstate(work));
@@ -146,7 +159,6 @@ public class WorkManagerImpl implements WorkManager {
             }
             break;
 
-          case AudioErase:
           case LinkCraft:
           case LinkDub:
             // does not warrant job creation
@@ -180,7 +192,7 @@ public class WorkManagerImpl implements WorkManager {
    Report an instantiation failure
 
    @param work that failed to instantiate
-   @param e cause of failure
+   @param e    cause of failure
    */
   private void instantiationFailure(Work work, Exception e) {
     try {
@@ -245,7 +257,7 @@ public class WorkManagerImpl implements WorkManager {
    */
   private void startRecurringJob(WorkType workType, ULong id, Integer delaySeconds, Integer recurSeconds) {
     log.info("Start recurring job:{}, entityId:{}, delaySeconds:{}, recurSeconds:{}", workType, id, delaySeconds, recurSeconds);
-    enqueueRecurringWork(new Job(workType.toString(), id), delaySeconds, recurSeconds);
+    enqueueRecurringWork(buildJob(workType, id), delaySeconds, recurSeconds);
   }
 
   /**
@@ -256,7 +268,7 @@ public class WorkManagerImpl implements WorkManager {
    */
   private void removeRecurringJob(WorkType workType, ULong id) {
     log.info("Remove recurring job:{}, entityId:{}", workType, id);
-    removeRecurringWork(new Job(workType.toString(), id));
+    removeRecurringWork(buildJob(workType, id));
   }
 
   /**
@@ -268,7 +280,7 @@ public class WorkManagerImpl implements WorkManager {
    */
   private void scheduleJob(WorkType workType, ULong id, Integer delaySeconds) {
     log.info("Schedule job:{}, entityId:{}, delaySeconds:{}", workType, id, delaySeconds);
-    enqueueDelayedWork(new Job(workType.toString(), id), delaySeconds);
+    enqueueDelayedWork(buildJob(workType, id), delaySeconds);
   }
 
   /**
@@ -279,7 +291,7 @@ public class WorkManagerImpl implements WorkManager {
    */
   private void doJob(WorkType workType, ULong id) {
     log.info("Do job:{}, entityId:{}", workType, id);
-    enqueueWork(new Job(workType.toString(), id));
+    enqueueWork(buildJob(workType, id));
   }
 
   /**
@@ -327,6 +339,17 @@ public class WorkManagerImpl implements WorkManager {
     Client client = getQueueClient();
     client.removeRecurringEnqueue(Config.workQueueName(), job);
     client.end();
+  }
+
+  /**
+   Build a job for Jedis enqueing
+
+   @return new job
+    @param type   of job
+   @param target of job
+   */
+  private static Job buildJob(WorkType type, ULong target) {
+    return new Job(type.toString(), target.toBigInteger());
   }
 
   /**

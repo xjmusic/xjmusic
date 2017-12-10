@@ -16,8 +16,8 @@ gitcheck ${PWD}
 DATE="$(date -u +%Y.%m.%d-UTC.%H.%M.%S)"
 COMMIT="$(git rev-parse --verify --short HEAD)"
 VERSION="${DATE}-${COMMIT}"
-ZIP_FILE=${PWD}/target/xj-release-${VERSION}.zip
-#ZIP_FILE=${PWD}/target/xj-release.zip
+RELEASE="xj-release-${VERSION}"
+ZIP_FILE="${PWD}/target/${RELEASE}.zip"
 step "Release ${VERSION}"
 indent "${ZIP_FILE}"
 step_ok
@@ -113,6 +113,10 @@ step_ok
 #indent "${RELEASE}"
 #eb deploy --label "${RELEASE}"
 #step_ok
+
+#
+step "Released ${RELEASE}"
+step_ok
 
 #
 finished_ok

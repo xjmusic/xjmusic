@@ -36,7 +36,8 @@
             <td>{{audio.start}}</td>
             <td>{{audio.length}}</td>
             <td>
-              {{#link-to 'accounts.one.libraries.one.instruments.one.audios.one.events' audio.instrument.library.account audio.instrument.library audio.instrument audio}}
+              {{#link-to 'accounts.one.libraries.one.instruments.one.audios.one.edit' audio.instrument.library.account audio.instrument.library audio.instrument audio}}{{fa-icon 'edit'}}{{/link-to}}
+              |&nbsp;{{#link-to 'accounts.one.libraries.one.instruments.one.audios.one.events' audio.instrument.library.account audio.instrument.library audio.instrument audio}}
               Events{{/link-to}}
               |&nbsp;{{#link-to 'accounts.one.libraries.one.instruments.one.audios.one.chords' audio.instrument.library.account audio.instrument.library audio.instrument audio}}
               Chords{{/link-to}}

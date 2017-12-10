@@ -1,7 +1,7 @@
 // Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
-import { get } from '@ember/object';
+import {get} from '@ember/object';
 
-import { inject as service } from '@ember/service';
+import {inject as service} from '@ember/service';
 import Route from '@ember/routing/route';
 
 export default Route.extend({
@@ -37,7 +37,7 @@ export default Route.extend({
       model.save().then(
         () => {
           get(this, 'display').success('Updated event "' + model.get('inflection') + '" event in ' + model.get('note') + '.');
-          this.transitionTo('accounts.one.libraries.one.instruments.one.audios.one.events', model.audio.instrument.library.account, model.audio.instrument.library, model.audio.instrument, model.audio);
+          history.back();
         },
         (error) => {
           get(this, 'display').error(error);
@@ -45,10 +45,14 @@ export default Route.extend({
     },
 
     destroyEvent(model) {
+      let audio = model.get('audio');
+      let instrument = audio.get('instrument');
+      let library = instrument.get('library');
+      let account = library.get('account');
       model.destroyRecord({}).then(
         () => {
           get(this, 'display').success('Deleted event "' + model.get('inflection') + '" event in ' + model.get('note') + '.');
-          this.transitionTo('accounts.one.libraries.one.instruments.one.audios.one.events', model.audio.instrument.library.account, model.audio.instrument.library, model.audio.instrument, model.audio);
+          this.transitionTo('accounts.one.libraries.one.instruments.one.audios.one.events', account, library, instrument, audio);
         },
         (error) => {
           get(this, 'display').error(error);

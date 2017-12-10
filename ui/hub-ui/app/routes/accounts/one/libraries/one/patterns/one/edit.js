@@ -1,8 +1,8 @@
 // Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
-import { get } from '@ember/object';
+import {get} from '@ember/object';
 
-import { Promise as EmberPromise } from 'rsvp';
-import { inject as service } from '@ember/service';
+import {Promise as EmberPromise} from 'rsvp';
+import {inject as service} from '@ember/service';
 import Route from '@ember/routing/route';
 
 export default Route.extend({
@@ -59,7 +59,7 @@ export default Route.extend({
       model.save().then(
         () => {
           get(this, 'display').success('Updated pattern ' + model.get('name') + '.');
-          this.transitionTo('accounts.one.libraries.one.patterns.one', model);
+          history.back();
         },
         (error) => {
           get(this, 'display').error(error);
@@ -68,11 +68,14 @@ export default Route.extend({
 
     destroyPattern(model) {
       let confirmation = confirm("Are you sure? If there are Patterns or Instruments belonging to this Pattern, deletion will fail anyway.");
+      let library = model.get('library');
+      let account = library.get('account');
+
       if (confirmation) {
         model.destroyRecord({}).then(
           () => {
             get(this, 'display').success('Deleted pattern ' + model.get('name') + '.');
-            this.transitionTo('accounts.one.libraries.one.patterns');
+            this.transitionTo('accounts.one.libraries.one.patterns', account, library);
           },
           (error) => {
             get(this, 'display').error(error);

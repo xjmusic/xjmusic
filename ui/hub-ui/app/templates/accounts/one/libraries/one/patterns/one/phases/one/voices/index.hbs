@@ -24,7 +24,8 @@
             <td>{{voice.type}}</td>
             <td>{{#link-to "accounts.one.libraries.one.patterns.one.phases.one.voices.one" voice}}{{voice.description}}{{/link-to}}</td>
             <td>
-              {{#link-to 'accounts.one.libraries.one.patterns.one.phases.one.voices.one.events' voice}}Events{{/link-to}}
+              {{#link-to 'accounts.one.libraries.one.patterns.one.phases.one.voices.one.edit' voice.phase.pattern.library.account voice.phase.pattern.library voice.phase.pattern voice.phase voice}}{{fa-icon 'edit'}}{{/link-to}}
+              |&nbsp;{{#link-to 'accounts.one.libraries.one.patterns.one.phases.one.voices.one.events' voice}}Events{{/link-to}}
             </td>
             <th scope="row">{{voice.id}}</th>
           </tr>

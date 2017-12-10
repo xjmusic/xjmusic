@@ -12,6 +12,7 @@ import org.jooq.types.ULong;
 import org.json.JSONObject;
 
 import javax.annotation.Nullable;
+import java.util.Collection;
 
 public interface AudioDAO {
 
@@ -66,7 +67,7 @@ public interface AudioDAO {
     @param access       control
    @param state to get audios in
    */
-  Result<AudioRecord> readAllInState(Access access, AudioState state) throws Exception;
+  Collection<Audio> readAllInState(Access access, AudioState state) throws Exception;
 
   /**
    Fetch all accessible Audio picked for a link

@@ -98,6 +98,9 @@ public class AudioIT {
   }
 
   private static void setUpTwo() throws Exception {
+    // Event and Chord on Audio 1
+    IntegrationTestEntity.insertAudioEvent(1, 1, 2.5, 1, "KICK", "Eb", 0.8, 1.0);
+    IntegrationTestEntity.insertAudioChord(1, 1, 4, "D major");
 
     // Pattern, Phase, Voice
     IntegrationTestEntity.insertPattern(1, 2, 1, PatternType.Macro, "epic concept", 0.342, "C#", 0.286);
@@ -396,7 +399,7 @@ public class AudioIT {
   // future test: DAO cannot update Pattern to a User or Library not owned by current session
 
   @Test
-  public void delete() throws Exception {
+  public void erase() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "1"
@@ -412,7 +415,7 @@ public class AudioIT {
   }
 
   @Test
-  public void delete_failsIfNotInAccount() throws Exception {
+  public void erase_failsIfNotInAccount() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "artist",
       "accounts", "2"
@@ -425,7 +428,7 @@ public class AudioIT {
   }
 
   @Test
-  public void delete_SucceedsEvenWithChildRecords() throws Exception {
+  public void erase_SucceedsEvenWithChildRecords() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "userId", "2",
       "roles", "artist",
@@ -445,6 +448,35 @@ public class AudioIT {
       throw e;
     }
   }
+
+  @Test
+  public void destroy() throws Exception {
+    Access access = Access.internal();
+
+    testDAO.destroy(access, ULong.valueOf(1));
+
+    AudioRecord result = IntegrationTestService.getDb()
+      .selectFrom(AUDIO)
+      .where(AUDIO.ID.eq(ULong.valueOf(1)))
+      .fetchOne();
+    assertNull(result);
+  }
+
+  @Test
+  public void destroy_afterAudioHasBeenPicked() throws Exception {
+    setUpTwo(); // create picks for audio id 1
+    Access access = Access.internal();
+
+    testDAO.destroy(access, ULong.valueOf(1));
+
+    AudioRecord result = IntegrationTestService.getDb()
+      .selectFrom(AUDIO)
+      .where(AUDIO.ID.eq(ULong.valueOf(1)))
+      .fetchOne();
+    assertNull(result);
+  }
+
+
 
   // future test: AudioDAO cannot delete record unless user has account access
 

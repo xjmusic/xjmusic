@@ -3,19 +3,19 @@ package io.xj.core.dao.impl;
 
 import io.xj.core.access.impl.Access;
 import io.xj.core.config.Config;
+import io.xj.core.dao.ChainDAO;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.exception.CancelException;
 import io.xj.core.exception.ConfigException;
 import io.xj.core.exception.DatabaseException;
-import io.xj.core.dao.ChainDAO;
-import io.xj.core.persistence.sql.SQLDatabaseProvider;
-import io.xj.core.persistence.sql.impl.SQLConnection;
 import io.xj.core.model.chain.Chain;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
 import io.xj.core.model.link.Link;
 import io.xj.core.model.link.LinkState;
 import io.xj.core.model.role.Role;
+import io.xj.core.persistence.sql.SQLDatabaseProvider;
+import io.xj.core.persistence.sql.impl.SQLConnection;
 import io.xj.core.tables.records.ChainRecord;
 import io.xj.core.tables.records.LinkRecord;
 import io.xj.core.transport.CSV;
@@ -49,9 +49,9 @@ import java.util.Objects;
 import static io.xj.core.Tables.ACCOUNT;
 import static io.xj.core.Tables.CHAIN;
 import static io.xj.core.Tables.CHAIN_CONFIG;
-import static io.xj.core.Tables.CHAIN_PATTERN;
 import static io.xj.core.Tables.CHAIN_INSTRUMENT;
 import static io.xj.core.Tables.CHAIN_LIBRARY;
+import static io.xj.core.Tables.CHAIN_PATTERN;
 import static io.xj.core.Tables.LINK;
 
 /**
@@ -66,7 +66,7 @@ import static io.xj.core.Tables.LINK;
  of the logic around adding links to chains and updating chain state to complete.
  */
 public class ChainDAOImpl extends DAOImpl implements ChainDAO {
-    private static final Logger log = LoggerFactory.getLogger(ChainDAOImpl.class);
+  private static final Logger log = LoggerFactory.getLogger(ChainDAOImpl.class);
   private final int previewLengthMax;
   private final WorkManager workManager;
 

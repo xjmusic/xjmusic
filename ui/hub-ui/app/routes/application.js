@@ -19,7 +19,6 @@ export default Route.extend({
       this.refresh();
     },
     goBack: function() {
-      console.log("GO BACK!!!");
       history.back();
     }
   }
