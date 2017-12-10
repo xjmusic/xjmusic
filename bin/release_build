@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+# Include common functions
+. $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/common/functions
+
+# Run Integration Tests
+bin/verify || exit 1
+
+# Build Java Platform
+bin/package || exit 1
+
+# Build Web Front-end
+bin/ui_build || exit 1

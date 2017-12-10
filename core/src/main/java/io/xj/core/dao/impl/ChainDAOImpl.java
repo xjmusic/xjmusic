@@ -496,7 +496,7 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
         break;
 
       case Erase:
-        workManager.startChainDeletion(id);
+        workManager.startChainErase(id);
         break;
     }
   }

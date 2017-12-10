@@ -191,9 +191,12 @@ export default Route.extend({
   didUploadFile (waveformKey) {
     get(this, 'display').success('Uploaded "' + this.audioBaseUrl + waveformKey);
     let model = this.controller.get('model');
+    let instrument = model.get("instrument");
+    let library = instrument.get("library");
+    let account = library.get("account");
     let self = this;
     later(() => {
-      self.transitionTo('accounts.one.libraries.one.instruments.one.audios.one', model.instrument.library.account, model.instrument.library, model.instrument, model);
+      self.transitionTo('accounts.one.libraries.one.instruments.one.audios.one', account, library, instrument, model);
     }, 2);
   },
 

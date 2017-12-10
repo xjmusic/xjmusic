@@ -65,7 +65,7 @@ public class ChainEraseJobImpl implements ChainEraseJob {
         chainDAO.delete(Access.internal(), entityId);
       } catch (Exception e) {
         log.warn("Failed to delete chainId={}", entityId);
-        workManager.stopChainDeletion(entityId);
+        workManager.stopChainErase(entityId);
       }
     else {
       List<String> linkIds = Lists.newArrayList();

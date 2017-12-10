@@ -79,18 +79,23 @@ public class WorkManagerImpl implements WorkManager {
   }
 
   @Override
-  public void startChainDeletion(ULong chainId) {
+  public void startChainErase(ULong chainId) {
     startRecurringJob(WorkType.ChainErase, chainId, Config.workChainDelaySeconds(), Config.workChainDeleteRecurSeconds());
   }
 
   @Override
-  public void stopChainDeletion(ULong chainId) {
+  public void stopChainErase(ULong chainId) {
     removeRecurringWork(buildJob(WorkType.ChainErase, chainId));
   }
 
   @Override
-  public void doAudioDeletion(ULong audioId) {
+  public void startAudioErase(ULong audioId) {
     doJob(WorkType.AudioErase, audioId);
+  }
+
+  @Override
+  public void stopAudioErase(ULong audioId) {
+    removeRecurringWork(buildJob(WorkType.AudioErase, audioId));
   }
 
   @Override
@@ -183,8 +188,8 @@ public class WorkManagerImpl implements WorkManager {
     platformMessageDAO.create(Access.internal(),
       new PlatformMessage()
         .setType(MessageType.Warning.toString())
-        .setBody(String.format("Reinstated work %s", work)));
-    log.warn("Reinstated work {}", work);
+        .setBody(String.format("Reinstated %s", work)));
+    log.warn("Reinstated {}", work);
     return work;
   }
 
@@ -199,11 +204,11 @@ public class WorkManagerImpl implements WorkManager {
       platformMessageDAO.create(Access.internal(),
         new PlatformMessage()
           .setType(MessageType.Error.toString())
-          .setBody(String.format("Failed to instantiate work %s because %s", work, e)));
+          .setBody(String.format("Failed to instantiate %s because %s", work, e)));
     } catch (Exception e1) {
-      log.error("Failed to instantiate work {} and failed to report platform message {} {}", work, e, e1);
+      log.error("Failed to instantiate {} and failed to report platform message {} {}", work, e, e1);
     }
-    log.error("Failed to instantiate work {}", work, e);
+    log.error("Failed to instantiate {}", work, e);
   }
 
   /**

@@ -49,7 +49,7 @@
 
   {{#if (or auth.isArtist auth.isAdmin)}}
     <div class="col-sm-12">
-      Or: {{#link-to 'accounts.one.libraries.one.patterns.one.phases.new' phase.pattern.library.account phase.pattern.library phase.pattern }}Create New Phase{{/link-to}}
+      Or: {{#link-to 'accounts.one.libraries.one.patterns.one.phases.new' model.pattern.library.account model.pattern.library model.pattern}}Create New Phase{{/link-to}}
     </div>
   {{/if}}
 </div>

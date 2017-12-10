@@ -107,6 +107,14 @@ public interface Config {
     return getOrDefault("app.url.api", "api/1/");
   }
 
+  static String appName() {
+    return getOrDefault("app.name", "app");
+  }
+
+  static String appHostname() {
+    return getOrDefault("app.hostname", "localhost");
+  }
+
   static String appHost() {
     return getOrDefault("app.host", "0.0.0.0");
   }
@@ -129,6 +137,10 @@ public interface Config {
 
   static String platformHeartbeatKey() throws ConfigException {
     return get("platform.heartbeat.key");
+  }
+
+  static String platformRelease() {
+    return getOrDefault("platform.release", "develop");
   }
 
   static int chainPreviewLengthMax() {

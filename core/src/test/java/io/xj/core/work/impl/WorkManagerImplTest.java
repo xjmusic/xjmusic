@@ -129,10 +129,10 @@ public class WorkManagerImplTest {
   }
 
   @Test
-  public void startChainDeletion() throws Exception {
+  public void startChainErase() throws Exception {
     when(redisDatabaseProvider.getQueueClient()).thenReturn(queueClient);
 
-    subject.startChainDeletion(ULong.valueOf(5977));
+    subject.startChainErase(ULong.valueOf(5977));
 
     verify(queueClient).recurringEnqueue(
       eq(Config.workQueueName()),
@@ -142,10 +142,10 @@ public class WorkManagerImplTest {
   }
 
   @Test
-  public void stopChainDeletion() throws Exception {
+  public void stopChainErase() throws Exception {
     when(redisDatabaseProvider.getQueueClient()).thenReturn(queueClient);
 
-    subject.stopChainDeletion(ULong.valueOf(5977));
+    subject.stopChainErase(ULong.valueOf(5977));
 
     verify(queueClient).removeRecurringEnqueue(Config.workQueueName(),
       new Job(WorkType.ChainErase.toString(), BigInteger.valueOf(5977)));
@@ -153,14 +153,25 @@ public class WorkManagerImplTest {
   }
 
   @Test
-  public void doAudioDeletion() throws Exception {
+  public void startAudioErase() throws Exception {
     when(redisDatabaseProvider.getQueueClient()).thenReturn(queueClient);
 
-    subject.doAudioDeletion(ULong.valueOf(5977));
+    subject.startAudioErase(ULong.valueOf(5977));
 
     verify(queueClient).enqueue(
       eq(Config.workQueueName()),
       eq(new Job(WorkType.AudioErase.toString(), BigInteger.valueOf(5977))));
+    verify(queueClient).end();
+  }
+
+  @Test
+  public void stopAudioErase() throws Exception {
+    when(redisDatabaseProvider.getQueueClient()).thenReturn(queueClient);
+
+    subject.stopAudioErase(ULong.valueOf(5977));
+
+    verify(queueClient).removeRecurringEnqueue(Config.workQueueName(),
+      new Job(WorkType.AudioErase.toString(), BigInteger.valueOf(5977)));
     verify(queueClient).end();
   }
 
@@ -269,8 +280,8 @@ public class WorkManagerImplTest {
     // verify the platform message reporting that the job was reinstated
     ArgumentCaptor<PlatformMessage> resultMessage = ArgumentCaptor.forClass(PlatformMessage.class);
     verify(platformMessageDAO).create(any(), resultMessage.capture());
-    assertEquals("Reinstated work {\"targetId\":8907,\"id\":28907,\"state\":\"Queued\",\"type\":\"ChainErase\"}", resultMessage.getValue().getBody());
-    // verify the dropped chain deletion job got reinstated
+    assertEquals("Reinstated Queued ChainErase #8907", resultMessage.getValue().getBody());
+    // verify the dropped chain erase job got reinstated
     verify(queueClient).recurringEnqueue(
       eq(Config.workQueueName()),
       eq(new Job(WorkType.ChainErase.toString(), BigInteger.valueOf(8907))),

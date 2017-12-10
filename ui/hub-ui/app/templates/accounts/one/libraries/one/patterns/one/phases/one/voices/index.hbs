@@ -37,7 +37,7 @@
 
   {{#if (or auth.isArtist auth.isAdmin)}}
     <div class="col-sm-12">
-      Or: {{#link-to 'accounts.one.libraries.one.patterns.one.phases.one.voices.new'}}Create New Voice{{/link-to}}
+      Or: {{#link-to 'accounts.one.libraries.one.patterns.one.phases.one.voices.new' model.phase.pattern.library.account model.phase.pattern.library model.phase.pattern model.phase}}Create New Voice{{/link-to}}
     </div>
   {{/if}}
 </div>

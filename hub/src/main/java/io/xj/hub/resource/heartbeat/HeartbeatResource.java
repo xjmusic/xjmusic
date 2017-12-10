@@ -7,9 +7,13 @@ import io.xj.core.exception.ConfigException;
 import io.xj.core.model.work.Work;
 import io.xj.core.server.HttpResponseProvider;
 import io.xj.core.work.WorkManager;
+import io.xj.hub.resource.auth.google.AuthGoogleCallbackResource;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.security.PermitAll;
 import javax.jws.WebResult;
@@ -28,6 +32,7 @@ import java.util.Objects;
 @Path("heartbeat")
 public class HeartbeatResource {
   private static final Injector injector = Guice.createInjector(new CoreModule());
+  private final Logger log = LoggerFactory.getLogger(AuthGoogleCallbackResource.class);
   private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
   private final WorkManager workManager = injector.getInstance(WorkManager.class);
 
@@ -43,7 +48,13 @@ public class HeartbeatResource {
   @WebResult
   @PermitAll
   public Response getConfig(@Context ContainerRequestContext crc) throws IOException, ConfigException {
-    if (Objects.isNull(key) || !Objects.equals(key, Config.platformHeartbeatKey())) {
+    if (Objects.isNull(key)) {
+      log.warn("heartbeat without key");
+      return response.notAcceptable("authorization required");
+    }
+
+    if (!Objects.equals(key, Config.platformHeartbeatKey())) {
+      log.warn("heartbeat with incorrect key, expect:{}, actual:{}", Config.platformHeartbeatKey(), key);
       return response.unauthorized();
     }
 

@@ -1,13 +1,6 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 package io.xj.worker.work.erase;
 
-import org.jooq.types.ULong;
-
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.util.Modules;
-
 import io.xj.core.CoreModule;
 import io.xj.core.app.App;
 import io.xj.core.external.amazon.AmazonProvider;
@@ -15,7 +8,16 @@ import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.integration.IntegrationTestService;
 import io.xj.core.model.instrument.InstrumentType;
 import io.xj.core.model.role.Role;
+import io.xj.core.work.WorkManager;
 import io.xj.worker.WorkerModule;
+
+import org.jooq.types.ULong;
+
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.util.Modules;
+
 import net.greghaines.jesque.worker.JobFactory;
 import org.junit.After;
 import org.junit.Before;
@@ -24,6 +26,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static io.xj.core.tables.Audio.AUDIO;
@@ -38,6 +41,7 @@ public class AudioEraseIT {
   private static final int TEST_DURATION_SECONDS = 3;
   private static final int MILLIS_PER_SECOND = 1000;
   @Mock private AmazonProvider amazonProvider;
+  @Spy private final WorkManager workManager = Guice.createInjector(new CoreModule()).getInstance(WorkManager.class);
 
   @Before
   public void setUp() throws Exception {
@@ -94,6 +98,7 @@ public class AudioEraseIT {
         @Override
         public void configure() {
           bind(AmazonProvider.class).toInstance(amazonProvider);
+          bind(WorkManager.class).toInstance(workManager);
         }
       }));
   }
@@ -114,8 +119,8 @@ public class AudioEraseIT {
   public void runWorker() throws Exception {
     app.start();
 
-    app.getWorkManager().doAudioDeletion(ULong.valueOf(1));
-    app.getWorkManager().doAudioDeletion(ULong.valueOf(2));
+    app.getWorkManager().startAudioErase(ULong.valueOf(1));
+    app.getWorkManager().startAudioErase(ULong.valueOf(2));
 
     Thread.sleep(TEST_DURATION_SECONDS * MILLIS_PER_SECOND);
     app.stop();
@@ -128,6 +133,8 @@ public class AudioEraseIT {
       "instrument-1-audio-asdg709a709835789agw73yh87.wav");
     verify(amazonProvider).deleteS3Object("xj-audio-test",
       "instrument-1-audio-978as789dgih35hi897gjhyi8f.wav");
+    verify(workManager).stopAudioErase(ULong.valueOf(1));
+    verify(workManager).stopAudioErase(ULong.valueOf(2));
   }
 
 }

@@ -4,6 +4,7 @@ package io.xj.worker.job.impl;
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.AudioDAO;
 import io.xj.core.tables.records.AudioRecord;
+import io.xj.core.work.WorkManager;
 import io.xj.worker.job.AudioEraseJob;
 
 import org.jooq.types.ULong;
@@ -20,14 +21,17 @@ public class AudioEraseJobImpl implements AudioEraseJob {
   static final Logger log = LoggerFactory.getLogger(AudioEraseJobImpl.class);
   private final AudioDAO audioDAO;
   private final ULong entityId;
+  private WorkManager workManager;
 
   @Inject
   public AudioEraseJobImpl(
     @Assisted("entityId") ULong entityId,
-    AudioDAO audioDAO
+    AudioDAO audioDAO,
+    WorkManager workManager
   ) {
     this.entityId = entityId;
     this.audioDAO = audioDAO;
+    this.workManager = workManager;
   }
 
 
@@ -38,6 +42,7 @@ public class AudioEraseJobImpl implements AudioEraseJob {
       if (Objects.nonNull(audio)) {
         erase(audio);
       }
+      workManager.stopAudioErase(entityId);
 
     } catch (Exception e) {
       log.error("{}:{} failed ({})",

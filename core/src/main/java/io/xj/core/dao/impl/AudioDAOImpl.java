@@ -28,6 +28,8 @@ import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -44,6 +46,7 @@ import static io.xj.core.tables.Instrument.INSTRUMENT;
 import static io.xj.core.tables.Library.LIBRARY;
 
 public class AudioDAOImpl extends DAOImpl implements AudioDAO {
+  private static Logger log = LoggerFactory.getLogger(AudioDAOImpl.class);
   private final AmazonProvider amazonProvider;
   private final WorkManager workManager;
 
@@ -439,11 +442,15 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
     fieldValues.put(AUDIO.ID, id);
     fieldValues.put(AUDIO.STATE, AudioState.Erase);
 
-    if (executeUpdate(db, AUDIO, fieldValues) == 0)
+    if (0 == executeUpdate(db, AUDIO, fieldValues))
       throw new BusinessException("No records updated.");
 
     // Schedule audio deletion job
-    workManager.doAudioDeletion(id);
+    try {
+      workManager.startAudioErase(id);
+    } catch (Exception e) {
+      log.error("Failed to start AudioErase work after updating Audio to Erase state. See the elusive [#153492153] Audio can be deleted without an error", e);
+    }
   }
 
 }

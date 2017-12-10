@@ -3,12 +3,16 @@ package io.xj.core.app;
 
 import io.xj.core.access.AccessLogFilterProvider;
 import io.xj.core.access.AccessTokenAuthFilter;
+import io.xj.core.access.impl.Access;
 import io.xj.core.config.Config;
+import io.xj.core.dao.PlatformMessageDAO;
 import io.xj.core.exception.ConfigException;
+import io.xj.core.model.message.MessageType;
+import io.xj.core.model.platform_message.PlatformMessage;
 import io.xj.core.server.HttpServerProvider;
 import io.xj.core.server.ResourceConfigProvider;
-import io.xj.core.work.impl.RobustWorkerPool;
 import io.xj.core.work.WorkManager;
+import io.xj.core.work.impl.RobustWorkerPool;
 
 import com.google.inject.Inject;
 
@@ -33,6 +37,7 @@ public class AppImpl implements App {
   private JobFactory jobFactory;
   private RobustWorkerPool workerPool;
   private final WorkManager workManager;
+  private final PlatformMessageDAO platformMessageDAO;
 
   @Inject
   public AppImpl(
@@ -40,13 +45,15 @@ public class AppImpl implements App {
     ResourceConfigProvider resourceConfigProvider,
     AccessLogFilterProvider accessLogFilterProvider,
     AccessTokenAuthFilter accessTokenAuthFilter,
-    WorkManager workManager
+    WorkManager workManager,
+    PlatformMessageDAO platformMessageDAO
   ) {
     this.httpServerProvider = httpServerProvider;
     this.resourceConfigProvider = resourceConfigProvider;
     this.accessLogFilterProvider = accessLogFilterProvider;
     this.accessTokenAuthFilter = accessTokenAuthFilter;
     this.workManager = workManager;
+    this.platformMessageDAO = platformMessageDAO;
   }
 
   @Override
@@ -110,6 +117,28 @@ public class AppImpl implements App {
     httpServerProvider.configure(serverURI, resourceConfig);
     httpServerProvider.get().start();
     log.info("Server up");
+
+    sendPlatformMessage(MessageType.Debug, String.format(
+      "%s (%s) is up on %s:%s",
+      Config.appName(),
+      Config.platformRelease(),
+      Config.appHostname(),
+      Config.appPort()
+    ));
+  }
+
+  /**
+   [#153539503] Developer wants any app to send PlatformMessage on startup, including code version, region, ip
+
+   @param type of message
+   @param body of message
+   */
+  private void sendPlatformMessage(MessageType type, String body) {
+    try {
+      platformMessageDAO.create(Access.internal(), new PlatformMessage().setType(String.valueOf(type)).setBody(body));
+    } catch (Exception e) {
+      log.error("failed to send startup platform message", e);
+    }
   }
 
   @Override
@@ -124,6 +153,14 @@ public class AppImpl implements App {
       httpServerProvider.get().shutdownNow();
 
     log.info("Server did shutdown OK");
+
+    sendPlatformMessage(MessageType.Debug, String.format(
+      "%s (%s) did exit OK on %s:%s",
+      Config.appName(),
+      Config.platformRelease(),
+      Config.appHostname(),
+      Config.appPort()
+    ));
   }
 
   @Override

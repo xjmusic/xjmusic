@@ -82,28 +82,36 @@ public interface WorkManager {
   void scheduleLinkDub(ULong linkId, Integer delaySeconds);
 
   /**
-   Start deletion of a Chain,
-   by creating a recurring `ChainDeletionJob`.
+   Start erasing a Chain,
+   by creating a recurring `ChainEraseJob`.
 
-   @param chainId  to begin deleting
+   @param chainId  to begin erasing
    */
-  void startChainDeletion(ULong chainId);
+  void startChainErase(ULong chainId);
 
   /**
    Stop deletion of a Chain,
-   by deleting the recurring `ChainDeletionJob`.
+   by ending the recurring `ChainEraseJob`.
 
-   @param chainId  to stop deleting
+   @param chainId  to stop erasing
    */
-  void stopChainDeletion(ULong chainId);
+  void stopChainErase(ULong chainId);
 
   /**
-   Schedule the deletion of a Audio,
-   by creating a `AudioDeletionJob`.
+   Start erasing an Audio,
+   by creating a `AudioEraseJob`.
 
-   @param audioId for which to create Deletion job
+   @param audioId to begin erasing
    */
-  void doAudioDeletion(ULong audioId);
+  void startAudioErase(ULong audioId);
+
+  /**
+   Stop deletion of a Audio,
+   by ending the recurring `AudioEraseJob`.
+
+   @param audioId  to stop erasing
+   */
+  void stopAudioErase(ULong audioId);
 
   /**
    Get a Worker

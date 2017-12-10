@@ -38,7 +38,7 @@
 
   {{#if (or auth.isArtist auth.isAdmin)}}
     <div class="col-sm-12">
-      Or: {{#link-to 'accounts.one.libraries.one.instruments.one.audios.one.chords.new' model.instrument.library.account model.instrument.library model.instrument model}}Create New Chord{{/link-to}}
+      Or: {{#link-to 'accounts.one.libraries.one.instruments.one.audios.one.chords.new' model.audio.instrument.library.account model.audio.instrument.library model.audio.instrument model.audio}}Create New Chord{{/link-to}}
     </div>
   {{/if}}
 </div>

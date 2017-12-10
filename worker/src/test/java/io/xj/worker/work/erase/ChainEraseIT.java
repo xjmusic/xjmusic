@@ -220,8 +220,8 @@ public class ChainEraseIT {
   public void runWorker() throws Exception {
     app.start();
 
-    app.getWorkManager().startChainDeletion(ULong.valueOf(1));
-    app.getWorkManager().startChainDeletion(ULong.valueOf(2));
+    app.getWorkManager().startChainErase(ULong.valueOf(1));
+    app.getWorkManager().startChainErase(ULong.valueOf(2));
 
     Thread.sleep(TEST_DURATION_SECONDS * MILLIS_PER_SECOND);
     app.stop();
