@@ -1,6 +1,30 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 package io.xj.core.craft.impl;
 
+import io.xj.core.access.impl.Access;
+import io.xj.core.craft.FoundationCraft;
+import io.xj.core.dao.ChoiceDAO;
+import io.xj.core.dao.LinkChordDAO;
+import io.xj.core.dao.LinkMemeDAO;
+import io.xj.core.dao.PatternDAO;
+import io.xj.core.dao.PatternMemeDAO;
+import io.xj.core.dao.PhaseChordDAO;
+import io.xj.core.exception.BusinessException;
+import io.xj.core.isometry.MemeIsometry;
+import io.xj.core.model.MemeEntity;
+import io.xj.core.model.choice.Chance;
+import io.xj.core.model.choice.Choice;
+import io.xj.core.model.choice.Chooser;
+import io.xj.core.model.link_chord.LinkChord;
+import io.xj.core.model.link_meme.LinkMeme;
+import io.xj.core.model.pattern.Pattern;
+import io.xj.core.model.pattern.PatternType;
+import io.xj.core.tables.records.PhaseRecord;
+import io.xj.core.util.Value;
+import io.xj.core.work.basis.Basis;
+import io.xj.music.Chord;
+import io.xj.music.Key;
+
 import org.jooq.Record;
 import org.jooq.Result;
 import org.jooq.types.ULong;
@@ -9,30 +33,6 @@ import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
-import io.xj.core.access.impl.Access;
-import io.xj.core.exception.BusinessException;
-import io.xj.core.dao.ChoiceDAO;
-import io.xj.core.dao.PatternDAO;
-import io.xj.core.dao.PatternMemeDAO;
-import io.xj.core.dao.LinkChordDAO;
-import io.xj.core.dao.LinkMemeDAO;
-import io.xj.core.dao.PhaseChordDAO;
-import io.xj.core.isometry.MemeIsometry;
-import io.xj.core.model.MemeEntity;
-import io.xj.core.model.choice.Chance;
-import io.xj.core.model.choice.Choice;
-import io.xj.core.model.choice.Chooser;
-import io.xj.core.model.pattern.Pattern;
-import io.xj.core.model.pattern.PatternType;
-import io.xj.core.model.link_chord.LinkChord;
-import io.xj.core.model.link_meme.LinkMeme;
-import io.xj.core.tables.records.PhaseRecord;
-import io.xj.core.util.Value;
-import io.xj.core.work.basis.Basis;
-import io.xj.music.BPM;
-import io.xj.music.Chord;
-import io.xj.music.Key;
-import io.xj.core.craft.FoundationCraft;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,13 +43,14 @@ import java.util.Objects;
 import static io.xj.core.tables.Pattern.PATTERN;
 
 /**
- * [#214] If a Chain has Patterns associated with it directly, prefer those choices to any in the Library
+ [#214] If a Chain has Patterns associated with it directly, prefer those choices to any in the Library
  */
 public class FoundationCraftImpl implements FoundationCraft {
   private static final double SCORE_MATCHED_KEY_MODE = 10;
   private static final double SCORE_AVOID_CHOOSING_PREVIOUS = 10;
   public static final double CHOOSE_MACRO_MAX_DISTRIBUTION = 0.5;
   public static final double CHOOSE_MAIN_MAX_DISTRIBUTION = 0.5;
+  private static final long NANOS_PER_SECOND = 1_000_000_000;
   private final Logger log = LoggerFactory.getLogger(FoundationCraftImpl.class);
   private final ChoiceDAO choiceDAO;
   private final PatternDAO patternDAO;
@@ -107,17 +108,17 @@ public class FoundationCraftImpl implements FoundationCraft {
   }
 
   /**
-   * Report
+   Report
    */
   private void report() {
     // future: basis.report() anything else interesting from the craft operation
   }
 
   /**
-   * Make Macro-type Pattern Choice
-   * add macro-pattern choice to link
-   *
-   * @throws Exception on any failure
+   Make Macro-type Pattern Choice
+   add macro-pattern choice to link
+
+   @throws Exception on any failure
    */
   private void craftMacro() throws Exception {
     choiceDAO.create(Access.internal(),
@@ -130,10 +131,10 @@ public class FoundationCraftImpl implements FoundationCraft {
   }
 
   /**
-   * Make Main-type Pattern Choice
-   * add macro-pattern choice to link
-   *
-   * @throws Exception on any failure
+   Make Main-type Pattern Choice
+   add macro-pattern choice to link
+
+   @throws Exception on any failure
    */
   private void craftMain() throws Exception {
     choiceDAO.create(Access.internal(),
@@ -146,10 +147,10 @@ public class FoundationCraftImpl implements FoundationCraft {
   }
 
   /**
-   * Make Memes
-   * add all memes to link
-   *
-   * @throws Exception on any failure
+   Make Memes
+   add all memes to link
+
+   @throws Exception on any failure
    */
   private void craftMemes() throws Exception {
     linkMemes().forEach((memeName, linkMeme) -> {
@@ -163,10 +164,10 @@ public class FoundationCraftImpl implements FoundationCraft {
   }
 
   /**
-   * Make Chords
-   * Link Chords = Main Pattern Phase Chords, transposed according to to main pattern choice
-   *
-   * @throws Exception on any failure
+   Make Chords
+   Link Chords = Main Pattern Phase Chords, transposed according to to main pattern choice
+
+   @throws Exception on any failure
    */
   private void craftChords() throws Exception {
     phaseChordDAO.readAll(Access.internal(), mainPhase().getId())
@@ -190,10 +191,10 @@ public class FoundationCraftImpl implements FoundationCraft {
   }
 
   /**
-   * compute (and cache) the chosen macro pattern
-   *
-   * @return macro-type pattern
-   * @throws Exception on failure
+   compute (and cache) the chosen macro pattern
+
+   @return macro-type pattern
+   @throws Exception on failure
    */
   private Pattern macroPattern() throws Exception {
     if (Objects.isNull(_macroPattern))
@@ -218,9 +219,9 @@ public class FoundationCraftImpl implements FoundationCraft {
   }
 
   /**
-   * compute (and cache) the mainPattern
-   *
-   * @return mainPattern
+   compute (and cache) the mainPattern
+
+   @return mainPattern
    */
   private Pattern mainPattern() throws Exception {
     if (Objects.isNull(_mainPattern))
@@ -244,9 +245,9 @@ public class FoundationCraftImpl implements FoundationCraft {
   }
 
   /**
-   * compute (and cache) the macroTranspose
-   *
-   * @return macroTranspose
+   compute (and cache) the macroTranspose
+
+   @return macroTranspose
    */
   private Integer macroTranspose() throws Exception {
     switch (basis.type()) {
@@ -269,9 +270,9 @@ public class FoundationCraftImpl implements FoundationCraft {
   }
 
   /**
-   * compute (and cache) Transpose Main-Pattern to the transposed key of the current macro phase
-   *
-   * @return mainTranspose
+   compute (and cache) Transpose Main-Pattern to the transposed key of the current macro phase
+
+   @return mainTranspose
    */
   private Integer mainTranspose() throws Exception {
     return Key.delta(mainPattern().getKey(),
@@ -280,9 +281,9 @@ public class FoundationCraftImpl implements FoundationCraft {
   }
 
   /**
-   * compute (and cache) the macroPhaseOffset
-   *
-   * @return macroPhaseOffset
+   compute (and cache) the macroPhaseOffset
+
+   @return macroPhaseOffset
    */
   private ULong macroPhaseOffset() throws Exception {
     if (Objects.isNull(_macroPhaseOffset))
@@ -308,9 +309,9 @@ public class FoundationCraftImpl implements FoundationCraft {
   }
 
   /**
-   * compute (and cache) the mainPhaseOffset
-   *
-   * @return mainPhaseOffset
+   compute (and cache) the mainPhaseOffset
+
+   @return mainPhaseOffset
    */
   private ULong mainPhaseOffset() throws Exception {
     if (Objects.isNull(_mainPhaseOffset))
@@ -336,10 +337,10 @@ public class FoundationCraftImpl implements FoundationCraft {
   }
 
   /**
-   * Fetch current phase of macro-type pattern
-   *
-   * @return phase record
-   * @throws Exception on failure
+   Fetch current phase of macro-type pattern
+
+   @return phase record
+   @throws Exception on failure
    */
   private PhaseRecord macroPhase() throws Exception {
     PhaseRecord phase = basis.phaseByOffset(macroPattern().getId(), macroPhaseOffset());
@@ -351,10 +352,10 @@ public class FoundationCraftImpl implements FoundationCraft {
   }
 
   /**
-   * Fetch current phase of main-type pattern
-   *
-   * @return phase record
-   * @throws Exception on failure
+   Fetch current phase of main-type pattern
+
+   @return phase record
+   @throws Exception on failure
    */
   private PhaseRecord mainPhase() throws Exception {
     PhaseRecord phase = basis.phaseByOffset(mainPattern().getId(), mainPhaseOffset());
@@ -366,10 +367,10 @@ public class FoundationCraftImpl implements FoundationCraft {
   }
 
   /**
-   * Choose macro pattern
-   *
-   * @return macro-type pattern
-   * @throws Exception on failure
+   Choose macro pattern
+
+   @return macro-type pattern
+   @throws Exception on failure
    */
   private Pattern chooseMacro() throws Exception {
     Chooser<Pattern> chooser = new Chooser<>();
@@ -410,12 +411,12 @@ public class FoundationCraftImpl implements FoundationCraft {
   }
 
   /**
-   * Choose main pattern
-   *
-   * @return main-type Pattern
-   * @throws Exception on failure
-   *                   <p>
-   *                   future: don't we need to pass in the current phase of the macro pattern?
+   Choose main pattern
+
+   @return main-type Pattern
+   @throws Exception on failure
+   <p>
+   future: don't we need to pass in the current phase of the macro pattern?
    */
   private Pattern chooseMain() throws Exception {
     Chooser<Pattern> chooser = new Chooser<>();
@@ -460,9 +461,9 @@ public class FoundationCraftImpl implements FoundationCraft {
   }
 
   /**
-   * prepare map of final link memes
-   *
-   * @return map of meme name to LinkMeme entity
+   prepare map of final link memes
+
+   @return map of meme name to LinkMeme entity
    */
   private Map<String, LinkMeme> linkMemes() throws Exception {
     Map<String, LinkMeme> out = Maps.newHashMap();
@@ -487,56 +488,54 @@ public class FoundationCraftImpl implements FoundationCraft {
   }
 
   /**
-   * Get Link length, in nanoseconds
-   * If a previous link exists, the tempo is averaged with its tempo, because the tempo will increase at a linear rate from start to finish.
-   *
-   * @return link length, in nanoseconds
-   * @throws Exception on failure
+   Get Link length, in nanoseconds
+   If a previous link exists, the tempo is averaged with its tempo, because the tempo will increase at a linear rate from start to finish.
+
+   @return link length, in nanoseconds
+   @throws Exception on failure
    */
   private long linkLengthNanos() throws Exception {
-    if (basis.isInitialLink()) return BPM.beatsNanos(linkTotal(), linkTempo());
-    else return BPM.beatsNanos(linkTotal(),
-      (linkTempo() + basis.previousLink().getTempo()) / 2);
+    return (long) (basis.secondsAtPosition(linkTotal()) * NANOS_PER_SECOND);
   }
 
   /**
-   * Get Link End Timestamp
-   * Link Length Time = Link Tempo (time per Beat) * Link Length (# Beats)
-   *
-   * @return end timestamp
-   * @throws BusinessException on failure
+   Get Link End Timestamp
+   Link Length Time = Link Tempo (time per Beat) * Link Length (# Beats)
+
+   @return end timestamp
+   @throws BusinessException on failure
    */
   private Timestamp linkEndTimestamp() throws Exception {
     return Timestamp.from(basis.linkBeginAt().toInstant().plusNanos(linkLengthNanos()));
   }
 
   /**
-   * Compute the total # of beats of the current link
-   * Link Total (# Beats) = from current Phase of Main-Pattern
-   *
-   * @return # beats total
-   * @throws Exception on failure
+   Compute the total # of beats of the current link
+   Link Total (# Beats) = from current Phase of Main-Pattern
+
+   @return # beats total
+   @throws Exception on failure
    */
   private Integer linkTotal() throws Exception {
     return mainPhase().getTotal().intValue();
   }
 
   /**
-   * Compute the final key of the current link
-   * Link Key is the transposed key of the current main phase
-   *
-   * @return key
-   * @throws Exception on failure
+   Compute the final key of the current link
+   Link Key is the transposed key of the current main phase
+
+   @return key
+   @throws Exception on failure
    */
   private String linkKey() throws Exception {
     return Key.of(mainPhase().getKey()).transpose(mainTranspose()).getFullDescription();
   }
 
   /**
-   * Compute the final tempo of the current link
-   *
-   * @return tempo
-   * @throws Exception on failure
+   Compute the final tempo of the current link
+
+   @return tempo
+   @throws Exception on failure
    */
   private double linkTempo() throws Exception {
     return (Value.eitherOr(macroPhase().getTempo(), macroPattern().getTempo()) +
@@ -544,11 +543,11 @@ public class FoundationCraftImpl implements FoundationCraft {
   }
 
   /**
-   * Compute the final density of the current link
-   * future: Link Density = average of macro and main-pattern phases
-   *
-   * @return density
-   * @throws Exception on failure
+   Compute the final density of the current link
+   future: Link Density = average of macro and main-pattern phases
+
+   @return density
+   @throws Exception on failure
    */
   private Double linkDensity() throws Exception {
     return (Value.eitherOr(macroPhase().getDensity(), macroPattern().getDensity()) +

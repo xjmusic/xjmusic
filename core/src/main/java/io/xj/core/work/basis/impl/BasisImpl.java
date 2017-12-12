@@ -8,12 +8,12 @@ import io.xj.core.dao.AudioDAO;
 import io.xj.core.dao.AudioEventDAO;
 import io.xj.core.dao.ChainConfigDAO;
 import io.xj.core.dao.ChoiceDAO;
-import io.xj.core.dao.PatternDAO;
-import io.xj.core.dao.PatternMemeDAO;
 import io.xj.core.dao.LinkChordDAO;
 import io.xj.core.dao.LinkDAO;
 import io.xj.core.dao.LinkMemeDAO;
 import io.xj.core.dao.LinkMessageDAO;
+import io.xj.core.dao.PatternDAO;
+import io.xj.core.dao.PatternMemeDAO;
 import io.xj.core.dao.PhaseDAO;
 import io.xj.core.dao.PhaseMemeDAO;
 import io.xj.core.dao.PickDAO;
@@ -26,17 +26,16 @@ import io.xj.core.model.audio_event.AudioEvent;
 import io.xj.core.model.chain_config.ChainConfig;
 import io.xj.core.model.chain_config.ChainConfigType;
 import io.xj.core.model.choice.Choice;
-import io.xj.core.model.pattern.Pattern;
-import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.link.Link;
 import io.xj.core.model.link_chord.LinkChord;
 import io.xj.core.model.link_meme.LinkMeme;
 import io.xj.core.model.link_message.LinkMessage;
 import io.xj.core.model.message.MessageType;
+import io.xj.core.model.pattern.Pattern;
+import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.pick.Pick;
 import io.xj.core.tables.records.PatternMemeRecord;
 import io.xj.core.tables.records.PatternRecord;
-import io.xj.core.tables.records.LinkRecord;
 import io.xj.core.tables.records.PhaseMemeRecord;
 import io.xj.core.tables.records.PhaseRecord;
 import io.xj.core.tables.records.VoiceEventRecord;
@@ -76,6 +75,7 @@ import java.util.Objects;
  */
 public class BasisImpl implements Basis {
   private static final int MICROSECONDS_PER_SECOND = 1000000;
+  private static final double COMPUTE_INTEGRAL_DX = 0.25d; // # beats granularity to compute tempo change integral
   private final ArrangementDAO arrangementDAO;
   private final AudioDAO audioDAO;
   private final AudioEventDAO audioEventDAO;
@@ -104,11 +104,12 @@ public class BasisImpl implements Basis {
   private List<Pick> _picks;
   private Map<ChainConfigType, ChainConfig> _chainConfigs;
   private Map<ULong, Audio> _audiosFromPicks;
+  private final Map<Double, Double> _positionSeconds = Maps.newHashMap();
   private final Map<ULong, PatternRecord> _patterns = Maps.newHashMap();
   private final Map<ULong, List<Audio>> _instrumentAudios = Maps.newHashMap();
   private final Map<ULong, List<AudioEvent>> _audioWithFirstEvent = Maps.newHashMap();
   private final Map<ULong, Map<PatternType, Choice>> _linkChoicesByType = Maps.newHashMap();
-  private final Map<ULong, Map<ULong, LinkRecord>> _linksByOffset = Maps.newHashMap();
+  private final Map<ULong, Map<ULong, Link>> _linksByOffset = Maps.newHashMap();
   private final Map<ULong, Map<ULong, PhaseRecord>> _patternPhasesByOffset = Maps.newHashMap();
   private final Map<ULong, Result<PatternMemeRecord>> _patternMemes = Maps.newHashMap();
   private final Map<ULong, Result<PhaseMemeRecord>> _phaseMemes = Maps.newHashMap();
@@ -356,14 +357,11 @@ public class BasisImpl implements Basis {
   }
 
   @Override
-  public Double secondsAtPosition(double position) throws Exception {
-    if (isInitialLink())
-      return position * BPM.velocity(link().getTempo());
+  public Double secondsAtPosition(double p) throws Exception {
+    if (!_positionSeconds.containsKey(p))
+      _positionSeconds.put(p, computeIntegralSecondsAtPosition(p));
 
-    double p2 = link().getTotal().doubleValue();
-    double v1 = BPM.velocity(previousLink().getTempo());
-    double v2 = BPM.velocity(link().getTempo());
-    return position * (v1 + (position / p2) * (v2 - v1));
+    return _positionSeconds.get(p);
   }
 
   @Override
@@ -507,7 +505,7 @@ public class BasisImpl implements Basis {
       _linksByOffset.get(chainId).put(offset,
         linkDAO.readOneAtChainOffset(Access.internal(), chainId, offset));
 
-    return new Link().setFromRecord(_linksByOffset.get(chainId).get(offset));
+    return _linksByOffset.get(chainId).get(offset);
   }
 
   @Override
@@ -567,6 +565,32 @@ public class BasisImpl implements Basis {
   @Override
   public Long atMicros(Double seconds) {
     return (long) (seconds * MICROSECONDS_PER_SECOND);
+  }
+
+  /**
+   Compute using an integral
+   the seconds from start for any given position in beats
+   [#153542275] Link wherein tempo changes expect perfectly smooth sound from previous link through to following link
+
+   @param B position in beats
+   @return seconds from start
+   */
+  private Double computeIntegralSecondsAtPosition(double B) throws Exception {
+    Double sum = 0.0d;
+    Double x = 0.0d;
+    Double dx = COMPUTE_INTEGRAL_DX;
+
+    Double T = link().getTotal().doubleValue();
+    double v2 = BPM.velocity(link().getTempo()); // velocity at current link tempo
+    double v1 = isInitialLink() ? v2 :
+      BPM.velocity(previousLink().getTempo()); // velocity at previous link tempo
+
+    while (x < B) {
+      sum += Math.min(dx, B - x) * // increment by dx, unless in the last (less than B-x) segment
+        (v1 + (v2 - v1) * x / T);
+      x += dx;
+    }
+    return sum;
   }
 
   /**

@@ -5,16 +5,16 @@ import io.xj.core.Tables;
 import io.xj.core.access.impl.Access;
 import io.xj.core.config.Config;
 import io.xj.core.config.Exposure;
+import io.xj.core.dao.LinkDAO;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.exception.CancelException;
 import io.xj.core.exception.ConfigException;
 import io.xj.core.exception.DatabaseException;
-import io.xj.core.dao.LinkDAO;
-import io.xj.core.persistence.sql.SQLDatabaseProvider;
-import io.xj.core.persistence.sql.impl.SQLConnection;
 import io.xj.core.external.amazon.AmazonProvider;
 import io.xj.core.model.link.Link;
 import io.xj.core.model.link.LinkState;
+import io.xj.core.persistence.sql.SQLDatabaseProvider;
+import io.xj.core.persistence.sql.impl.SQLConnection;
 import io.xj.core.tables.records.LinkRecord;
 import io.xj.core.transport.CSV;
 
@@ -83,7 +83,7 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
 
   @Override
   @Nullable
-  public LinkRecord readOneAtChainOffset(Access access, ULong chainId, ULong offset) throws Exception {
+  public Link readOneAtChainOffset(Access access, ULong chainId, ULong offset) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readOneAtChainOffset(tx.getContext(), access, chainId, offset));
@@ -248,12 +248,18 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
    * @return record
    */
   @Nullable
-  private LinkRecord readOneAtChainOffset(DSLContext db, Access access, ULong chainId, ULong offset) throws BusinessException {
+  private Link readOneAtChainOffset(DSLContext db, Access access, ULong chainId, ULong offset) throws BusinessException {
     requireTopLevel(access);
-    return db.selectFrom(LINK)
+    LinkRecord record = db.selectFrom(LINK)
       .where(LINK.OFFSET.eq(offset))
       .and(LINK.CHAIN_ID.eq(chainId))
       .fetchOne();
+
+    if (Objects.isNull(record)) {
+      return null;
+    } else {
+      return new Link().setFromRecord(record);
+    }
   }
 
   /**

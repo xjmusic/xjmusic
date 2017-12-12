@@ -411,6 +411,12 @@ Connects to:
 
   * SQL Database
   * Filesystem
+  
+Expects a `POST /heartbeat` every 60 seconds with a `key` in order to ensure platform-wide vitals.
+
+There's a convenience script to send cURL to Hub and trigger heartbeat in development:
+
+    bin/heartbeat
 
 ## worker
 

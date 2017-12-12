@@ -160,7 +160,7 @@ public class CraftFoundationNextMacroIT {
       .where(LINK.CHAIN_ID.eq(ULong.valueOf(1)))
       .and(LINK.OFFSET.eq(ULong.valueOf(3)))
       .fetchOne();
-    assertEquals(Timestamp.valueOf("2017-02-14 12:03:15.836735"), resultLink.getEndAt());
+    assertEquals(Timestamp.valueOf("2017-02-14 12:03:15.680001"), resultLink.getEndAt());
     assertEquals(UInteger.valueOf(16), resultLink.getTotal());
     assertEquals(Double.valueOf(0.45), resultLink.getDensity());
     assertEquals("F minor", resultLink.getKey());

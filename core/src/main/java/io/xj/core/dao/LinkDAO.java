@@ -35,12 +35,12 @@ public interface LinkDAO {
   /**
    Fetch id for the Link in a Chain at a given offset, if present
 
-   @param access  control
+   @return link id
+    @param access  control
    @param chainId to fetch link for
    @param offset  to fetch link at
-   @return link id
    */
-  LinkRecord readOneAtChainOffset(Access access, ULong chainId, ULong offset) throws Exception;
+  Link readOneAtChainOffset(Access access, ULong chainId, ULong offset) throws Exception;
 
   /**
    Fetch one Link by chainId and state, if present

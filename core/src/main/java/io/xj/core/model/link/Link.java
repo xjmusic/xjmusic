@@ -81,6 +81,12 @@ public class Link extends Entity {
   private Double tempo;
   private String waveformKey;
 
+  public Link() {}
+
+  public Link(long id) {
+    this.id = ULong.valueOf(id);
+  }
+
   /**
    Whether this Link is at offset 0
 

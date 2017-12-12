@@ -231,10 +231,10 @@ public interface Basis {
    <p>
    [#256] Velocity of Link meter (beats per minute) increases linearly from the beginning of the Link (at the previous Link's tempo) to the end of the Link (arriving at the current Link's tempo, only at its end)
 
-   @param position in beats
    @return position in seconds
+    @param p in beats
    */
-  Double secondsAtPosition(double position) throws Exception;
+  Double secondsAtPosition(double p) throws Exception;
 
   /**
    Fetch all memes for a given pattern
