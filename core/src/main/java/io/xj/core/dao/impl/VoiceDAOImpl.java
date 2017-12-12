@@ -2,12 +2,12 @@
 package io.xj.core.dao.impl;
 
 import io.xj.core.access.impl.Access;
+import io.xj.core.dao.VoiceDAO;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.exception.ConfigException;
-import io.xj.core.dao.VoiceDAO;
-import io.xj.core.persistence.sql.impl.SQLConnection;
-import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import io.xj.core.model.voice.Voice;
+import io.xj.core.persistence.sql.SQLDatabaseProvider;
+import io.xj.core.persistence.sql.impl.SQLConnection;
 import io.xj.core.tables.records.VoiceRecord;
 
 import org.jooq.DSLContext;
@@ -20,9 +20,11 @@ import com.google.inject.Inject;
 import javax.annotation.Nullable;
 import java.util.Map;
 
+import static io.xj.core.Tables.ARRANGEMENT;
+import static io.xj.core.Tables.PICK;
 import static io.xj.core.Tables.VOICE_EVENT;
-import static io.xj.core.tables.Pattern.PATTERN;
 import static io.xj.core.tables.Library.LIBRARY;
+import static io.xj.core.tables.Pattern.PATTERN;
 import static io.xj.core.tables.Phase.PHASE;
 import static io.xj.core.tables.Voice.VOICE;
 
@@ -250,13 +252,18 @@ public class VoiceDAOImpl extends DAOImpl implements VoiceDAO {
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .fetchOne(0, int.class));
 
+    db.deleteFrom(PICK)
+      .where(PICK.ARRANGEMENT_ID.in(
+        db.select(ARRANGEMENT.ID).from(ARRANGEMENT)
+          .where(ARRANGEMENT.VOICE_ID.eq(id))))
+      .execute();
+
+    db.deleteFrom(ARRANGEMENT)
+      .where(ARRANGEMENT.VOICE_ID.eq(id))
+      .execute();
+
     db.deleteFrom(VOICE)
       .where(VOICE.ID.eq(id))
-      .andNotExists(
-        db.select(VOICE_EVENT.ID)
-          .from(VOICE_EVENT)
-          .where(VOICE_EVENT.VOICE_ID.eq(id))
-      )
       .execute();
   }
 
