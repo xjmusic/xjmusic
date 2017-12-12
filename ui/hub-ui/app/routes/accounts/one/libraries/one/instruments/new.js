@@ -65,10 +65,12 @@ export default Route.extend({
   actions: {
 
     createInstrument(model) {
+      let library = model.get("library");
+      let account = library.get("account");
       model.save().then(
         () => {
           get(this, 'display').success('Created instrument ' + model.get('description') + '.');
-          this.transitionTo('accounts.one.libraries.one.instruments.one', model.library.account, model.library, model);
+          this.transitionTo('accounts.one.libraries.one.instruments.one', account, library, model);
         },
         (error) => {
           get(this, 'display').error(error);
