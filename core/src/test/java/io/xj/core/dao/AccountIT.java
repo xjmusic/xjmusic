@@ -1,4 +1,4 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.dao;
 
 import io.xj.core.CoreModule;
@@ -29,13 +29,13 @@ import org.junit.rules.ExpectedException;
 import java.sql.Timestamp;
 
 import static io.xj.core.Tables.ACCOUNT;
-import static junit.framework.Assert.assertNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 public class AccountIT {
   @Rule public ExpectedException failure = ExpectedException.none();
-  private Injector injector = Guice.createInjector(new CoreModule());
+  private final Injector injector = Guice.createInjector(new CoreModule());
   private AccountDAO testDAO;
 
   @Before

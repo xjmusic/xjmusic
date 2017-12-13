@@ -1,12 +1,12 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.resource.link_meme;
 
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
-import io.xj.core.server.HttpResponseProvider;
 import io.xj.core.dao.LinkMemeDAO;
 import io.xj.core.model.link_meme.LinkMeme;
 import io.xj.core.model.role.Role;
+import io.xj.core.server.HttpResponseProvider;
 
 import org.jooq.types.ULong;
 
@@ -29,7 +29,7 @@ import java.io.IOException;
 @Path("link-memes")
 public class LinkMemeIndexResource {
   private static final Injector injector = Guice.createInjector(new CoreModule());
-  private final LinkMemeDAO DAO = injector.getInstance(LinkMemeDAO.class);
+  private final LinkMemeDAO linkMemeDAO = injector.getInstance(LinkMemeDAO.class);
   private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
 
   @QueryParam("linkId")
@@ -42,17 +42,17 @@ public class LinkMemeIndexResource {
    */
   @GET
   @WebResult
-  @RolesAllowed({Role.ARTIST})
+  @RolesAllowed(Role.ARTIST)
   public Response readAll(@Context ContainerRequestContext crc) throws IOException {
 
-    if (linkId == null || linkId.length() == 0) {
+    if (null == linkId || linkId.isEmpty()) {
       return response.notAcceptable("Link id is required");
     }
 
     try {
       return response.readMany(
         LinkMeme.KEY_MANY,
-        DAO.readAll(
+        linkMemeDAO.readAll(
           Access.fromContext(crc),
           ULong.valueOf(linkId)));
 

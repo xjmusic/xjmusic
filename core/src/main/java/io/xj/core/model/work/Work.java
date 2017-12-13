@@ -1,8 +1,8 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.model.work;
 
 import io.xj.core.exception.BusinessException;
-import io.xj.core.model.JSONObjectEntity;
+import io.xj.core.model.Entity;
 
 import org.jooq.Field;
 import org.jooq.Record;
@@ -15,7 +15,7 @@ import org.json.JSONObject;
 import java.math.BigInteger;
 import java.util.Map;
 
-public class Work extends JSONObjectEntity {
+public class Work extends Entity {
 
   /**
    For use in maps.
@@ -70,16 +70,6 @@ public class Work extends JSONObjectEntity {
     if (null == type || type.toString().isEmpty()) {
       throw new BusinessException("Type is required.");
     }
-  }
-
-  @Override
-  public JSONObject toJSONObject() {
-    JSONObject obj = new JSONObject();
-    obj.put("id", id);
-    obj.put("targetId", targetId);
-    obj.put("state", state);
-    obj.put("type", type);
-    return obj;
   }
 
   @Override

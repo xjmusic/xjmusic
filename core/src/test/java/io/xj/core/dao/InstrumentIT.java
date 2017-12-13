@@ -1,4 +1,4 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.dao;
 
 import io.xj.core.CoreModule;
@@ -10,13 +10,12 @@ import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
 import io.xj.core.model.instrument.Instrument;
 import io.xj.core.model.instrument.InstrumentType;
+import io.xj.core.model.link.LinkState;
+import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.role.Role;
 import io.xj.core.tables.records.InstrumentRecord;
-import io.xj.core.transport.CSV;
 import io.xj.core.transport.JSON;
 
-import org.jooq.Record;
-import org.jooq.Result;
 import org.jooq.types.ULong;
 
 import com.google.common.collect.ImmutableMap;
@@ -31,7 +30,7 @@ import org.junit.Test;
 
 import java.math.BigInteger;
 import java.sql.Timestamp;
-import java.util.List;
+import java.util.Collection;
 
 import static io.xj.core.tables.Instrument.INSTRUMENT;
 import static org.junit.Assert.assertEquals;
@@ -63,7 +62,7 @@ public class InstrumentIT {
     IntegrationTestEntity.insertLibrary(1, 1, "sandwich");
     IntegrationTestEntity.insertInstrument(1, 1, 2, "jams", InstrumentType.Percussive, 0.6);
     IntegrationTestEntity.insertInstrument(2, 1, 2, "buns", InstrumentType.Harmonic, 0.4);
-    IntegrationTestEntity.insertInstrumentMeme(1,1,"smooth");
+    IntegrationTestEntity.insertInstrumentMeme(1, 1, "smooth");
 
     // Instantiate the test subject
     testDAO = injector.getInstance(InstrumentDAO.class);
@@ -88,14 +87,14 @@ public class InstrumentIT {
       .setType("Percussive")
       .setUserId(BigInteger.valueOf(2));
 
-    JSONObject result = JSON.objectFromRecord(testDAO.create(access, inputData));
+    JSONObject result = JSON.objectFrom(testDAO.create(access, inputData));
 
     assertNotNull(result);
     assertEquals(0.42, result.get("density"));
-    assertEquals(ULong.valueOf(1), result.get("libraryId"));
+    assertEquals(1, result.get("libraryId"));
     assertEquals("bimmies", result.get("description"));
-    assertEquals(InstrumentType.Percussive, result.get("type"));
-    assertEquals(ULong.valueOf(2), result.get("userId"));
+    assertEquals("Percussive", result.get("type"));
+    assertEquals(2, result.get("userId"));
   }
 
   @Test(expected = BusinessException.class)
@@ -135,7 +134,7 @@ public class InstrumentIT {
       "accounts", "1"
     ));
 
-    Instrument result = new Instrument().setFromRecord(testDAO.readOne(access, ULong.valueOf(2)));
+    Instrument result = testDAO.readOne(access, ULong.valueOf(2));
 
     assertNotNull(result);
     assertEquals(ULong.valueOf(2), result.getId());
@@ -150,7 +149,7 @@ public class InstrumentIT {
       "accounts", "326"
     ));
 
-    InstrumentRecord result = testDAO.readOne(access, ULong.valueOf(1));
+    Instrument result = testDAO.readOne(access, ULong.valueOf(1));
 
     assertNull(result);
   }
@@ -169,9 +168,9 @@ public class InstrumentIT {
     assertNotNull(result);
     assertEquals(2, result.length());
     JSONObject result1 = (JSONObject) result.get(0);
-    assertEquals("jams", result1.get("description"));
+    assertEquals("buns", result1.get("description"));
     JSONObject result2 = (JSONObject) result.get(1);
-    assertEquals("buns", result2.get("description"));
+    assertEquals("jams", result2.get("description"));
   }
 
   @Test
@@ -188,31 +187,25 @@ public class InstrumentIT {
   }
 
   @Test
-  public void readAllBoundToChain() throws  Exception {
+  public void readAllBoundToChain() throws Exception {
     IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, null);
     IntegrationTestEntity.insertChainInstrument(1, 1, 1);
 
-    Result<? extends Record> result = testDAO.readAllBoundToChain(Access.internal(), ULong.valueOf(1), InstrumentType.Percussive);
+    Collection<Instrument> result = testDAO.readAllBoundToChain(Access.internal(), ULong.valueOf(1), InstrumentType.Percussive);
 
     assertEquals(1, result.size());
-    assertEquals("jams", result.get(0).get("description"));
-    List<String> actualMemes = CSV.split(String.valueOf(result.get(0).get("memes")));
-    assertEquals(1, actualMemes.size());
-    assertEquals("smooth", actualMemes.get(0));
+    assertEquals("jams", result.iterator().next().getDescription());
   }
 
   @Test
-  public void readAllBoundToChainLibrary() throws  Exception {
+  public void readAllBoundToChainLibrary() throws Exception {
     IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, null);
     IntegrationTestEntity.insertChainLibrary(1, 1, 1);
 
-    Result<? extends Record> result = testDAO.readAllBoundToChainLibrary(Access.internal(), ULong.valueOf(1), InstrumentType.Percussive);
+    Collection<Instrument> result = testDAO.readAllBoundToChainLibrary(Access.internal(), ULong.valueOf(1), InstrumentType.Percussive);
 
     assertEquals(1, result.size());
-    assertEquals("jams", result.get(0).get("description"));
-    List<String> actualMemes = CSV.split(String.valueOf(result.get(0).get("memes")));
-    assertEquals(1, actualMemes.size());
-    assertEquals("smooth", actualMemes.get(0));
+    assertEquals("jams", result.iterator().next().getDescription());
   }
 
   @Test(expected = BusinessException.class)
@@ -297,6 +290,29 @@ public class InstrumentIT {
       "roles", "admin"
     ));
     IntegrationTestEntity.insertInstrument(86, 1, 2, "jub", InstrumentType.Harmonic, 0.4);
+
+    testDAO.delete(access, ULong.valueOf(86));
+
+    InstrumentRecord result = IntegrationTestService.getDb()
+      .selectFrom(INSTRUMENT)
+      .where(INSTRUMENT.ID.eq(ULong.valueOf(86)))
+      .fetchOne();
+    assertNull(result);
+  }
+
+  @Test
+  public void delete_evenAfterUsedInArrangement() throws Exception {
+    Access access = new Access(ImmutableMap.of(
+      "roles", "admin"
+    ));
+    IntegrationTestEntity.insertInstrument(86, 1, 2, "jub", InstrumentType.Harmonic, 0.4);
+    IntegrationTestEntity.insertPattern(1, 2, 1, PatternType.Macro, "epic concept", 0.342, "C#", 0.286);
+    IntegrationTestEntity.insertPhase(1, 1, 0, 16, "Ants", 0.583, "D minor", 120.0);
+    IntegrationTestEntity.insertVoice(8, 1, InstrumentType.Percussive, "This is a percussive voice");
+    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Ready, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"), null);
+    IntegrationTestEntity.insertLink(1, 1, 0, LinkState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120, "chain-1-link-97898asdf7892.wav");
+    IntegrationTestEntity.insertChoice(7, 1, 1, PatternType.Macro, 2, -5);
+    IntegrationTestEntity.insertArrangement(1, 7, 8, 86);
 
     testDAO.delete(access, ULong.valueOf(86));
 

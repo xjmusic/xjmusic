@@ -1,8 +1,8 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.model.link_meme;
 
 import io.xj.core.exception.BusinessException;
-import io.xj.core.model.MemeEntity;
+import io.xj.core.model.meme.Meme;
 import io.xj.core.util.Text;
 
 import org.jooq.Field;
@@ -20,19 +20,20 @@ import static io.xj.core.Tables.LINK_MEME;
 /**
  Entity for use as POJO for decoding messages received by JAX-RS resources
  a.k.a. JSON input will be stored into an instance of this object
-
+ <p>
  Business logic ought to be performed beginning with an instance of this object,
  to implement common methods.
-
+ <p>
  NOTE: There can only be ONE of any getter/setter (with the same # of input params)
  */
-public class LinkMeme extends MemeEntity {
+public class LinkMeme extends Meme {
 
   /**
    For use in maps.
    */
   public static final String KEY_ONE = "linkMeme";
   public static final String KEY_MANY = "linkMemes";
+
   // Link ID
   private ULong linkId;
 
@@ -52,7 +53,7 @@ public class LinkMeme extends MemeEntity {
 
   @Override
   public void validate() throws BusinessException {
-    if (this.linkId == null) {
+    if (null == linkId) {
       throw new BusinessException("Link ID is required.");
     }
     super.validate();
@@ -77,6 +78,13 @@ public class LinkMeme extends MemeEntity {
     fieldValues.put(LINK_MEME.LINK_ID, linkId);
     fieldValues.put(LINK_MEME.NAME, name);
     return fieldValues;
+  }
+
+  public static LinkMeme of(ULong linkId, String name) {
+    return
+      new LinkMeme()
+        .setLinkId(linkId.toBigInteger())
+        .setName(name);
   }
 
 }

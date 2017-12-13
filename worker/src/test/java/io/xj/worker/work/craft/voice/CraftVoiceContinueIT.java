@@ -1,4 +1,4 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.worker.work.craft.voice;
 
 import org.jooq.types.ULong;
@@ -97,11 +97,11 @@ public class CraftVoiceContinueIT {
     IntegrationTestEntity.insertPhaseMeme(346, 315, "Heavy");
     IntegrationTestEntity.insertVoice(1, 315, InstrumentType.Percussive, "drums");
 
-    // Voice "Drums" has events "BOOM" and "SMACK" 2x each
-    IntegrationTestEntity.insertVoiceEvent(1, 1, 0, 1, "BOOM", "C2", 0.8, 1.0);
-    IntegrationTestEntity.insertVoiceEvent(2, 1, 1, 1, "SMACK", "G5", 0.1, 0.8);
-    IntegrationTestEntity.insertVoiceEvent(3, 1, 2.5, 1, "BOOM", "C2", 0.8, 0.6);
-    IntegrationTestEntity.insertVoiceEvent(4, 1, 3, 1, "SMACK", "G5", 0.1, 0.9);
+    // Voice "Drums" has events sounding like "KICK" or "SNARE" 2x each
+    IntegrationTestEntity.insertVoiceEvent(1, 1, 0, 1, "COCK", "C2", 0.8, 1.0);
+    IntegrationTestEntity.insertVoiceEvent(2, 1, 1, 1, "SNORT", "G5", 0.1, 0.8);
+    IntegrationTestEntity.insertVoiceEvent(3, 1, 2.5, 1, "KICK", "C2", 0.8, 0.6);
+    IntegrationTestEntity.insertVoiceEvent(4, 1, 3, 1, "SNARL", "G5", 0.1, 0.9);
 
     // detail pattern
     IntegrationTestEntity.insertPattern(7, 3, 2, PatternType.Detail, "Detail Jam", 0.3, "Cb minor", 170);

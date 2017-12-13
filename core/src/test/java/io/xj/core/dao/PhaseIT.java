@@ -1,4 +1,4 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.dao;
 
 import io.xj.core.CoreModule;
@@ -287,7 +287,7 @@ public class PhaseIT {
       "accounts", "1"
     ));
 
-    Phase result = new Phase().setFromRecord(testDAO.readOneForPattern(access, ULong.valueOf(1), ULong.valueOf(1)));
+    Phase result = testDAO.readOneForPattern(access, ULong.valueOf(1), ULong.valueOf(1));
 
     assertNotNull(result);
     assertEquals(ULong.valueOf(2), result.getId());
@@ -302,7 +302,7 @@ public class PhaseIT {
       "accounts", "143"
     ));
 
-    PhaseRecord result = testDAO.readOneForPattern(access, ULong.valueOf(1), ULong.valueOf(1));
+    Phase result = testDAO.readOneForPattern(access, ULong.valueOf(1), ULong.valueOf(1));
 
     assertNull(result);
   }

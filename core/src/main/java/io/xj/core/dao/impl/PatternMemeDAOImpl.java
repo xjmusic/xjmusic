@@ -1,28 +1,29 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.dao.impl;
 
 import io.xj.core.access.impl.Access;
+import io.xj.core.dao.PatternMemeDAO;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.exception.ConfigException;
-import io.xj.core.dao.PatternMemeDAO;
-import io.xj.core.persistence.sql.impl.SQLConnection;
-import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import io.xj.core.model.pattern_meme.PatternMeme;
+import io.xj.core.persistence.sql.SQLDatabaseProvider;
+import io.xj.core.persistence.sql.impl.SQLConnection;
 import io.xj.core.tables.records.PatternMemeRecord;
 
 import org.jooq.DSLContext;
 import org.jooq.Field;
-import org.jooq.Result;
 import org.jooq.types.ULong;
 
+import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.Map;
 
+import static io.xj.core.tables.Library.LIBRARY;
 import static io.xj.core.tables.Pattern.PATTERN;
 import static io.xj.core.tables.PatternMeme.PATTERN_MEME;
-import static io.xj.core.tables.Library.LIBRARY;
 
 /**
  PatternMeme DAO
@@ -59,7 +60,7 @@ public class PatternMemeDAOImpl extends DAOImpl implements PatternMemeDAO {
   }
 
   @Override
-  public Result<PatternMemeRecord> readAll(Access access, ULong patternId) throws Exception {
+  public Collection<PatternMeme> readAll(Access access, ULong patternId) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readAll(tx.getContext(), access, patternId));
@@ -140,24 +141,32 @@ public class PatternMemeDAOImpl extends DAOImpl implements PatternMemeDAO {
   /**
    Read all Memes of an Pattern where able
 
-   @param db     context
-   @param access control
+   @param db        context
+   @param access    control
    @param patternId to readMany memes for
    @return array of pattern memes
    @throws SQLException if failure
    */
-  private Result<PatternMemeRecord> readAll(DSLContext db, Access access, ULong patternId) throws SQLException {
+  private Collection<PatternMeme> readAll(DSLContext db, Access access, ULong patternId) throws SQLException {
+    Collection<PatternMeme> result = Lists.newArrayList();
+
     if (access.isTopLevel())
-      return db.selectFrom(PATTERN_MEME)
+      db.selectFrom(PATTERN_MEME)
         .where(PATTERN_MEME.PATTERN_ID.eq(patternId))
-        .fetch();
+        .fetch().forEach((record) -> {
+        result.add(new PatternMeme().setFromRecord(record));
+      });
     else
-      return resultInto(PATTERN_MEME, db.select(PATTERN_MEME.fields()).from(PATTERN_MEME)
+      resultInto(PATTERN_MEME, db.select(PATTERN_MEME.fields()).from(PATTERN_MEME)
         .join(PATTERN).on(PATTERN.ID.eq(PATTERN_MEME.PATTERN_ID))
         .join(LIBRARY).on(PATTERN.LIBRARY_ID.eq(LIBRARY.ID))
         .where(PATTERN.ID.eq(patternId))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-        .fetch());
+        .fetch()).forEach((record) -> {
+        result.add(new PatternMeme().setFromRecord(record));
+      });
+
+    return result;
   }
 
   /**

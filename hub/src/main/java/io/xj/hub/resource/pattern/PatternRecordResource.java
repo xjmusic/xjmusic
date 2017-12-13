@@ -1,13 +1,13 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.resource.pattern;
 
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
-import io.xj.core.server.HttpResponseProvider;
 import io.xj.core.dao.PatternDAO;
 import io.xj.core.model.pattern.Pattern;
 import io.xj.core.model.pattern.PatternWrapper;
 import io.xj.core.model.role.Role;
+import io.xj.core.server.HttpResponseProvider;
 
 import org.jooq.types.ULong;
 
@@ -34,7 +34,7 @@ import java.io.IOException;
 @Path("patterns/{id}")
 public class PatternRecordResource {
   private static final Injector injector = Guice.createInjector(new CoreModule());
-  private final PatternDAO DAO = injector.getInstance(PatternDAO.class);
+  private final PatternDAO patternDAO = injector.getInstance(PatternDAO.class);
   private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
 
   @PathParam("id")
@@ -47,12 +47,12 @@ public class PatternRecordResource {
    */
   @GET
   @WebResult
-  @RolesAllowed({Role.USER})
+  @RolesAllowed(Role.USER)
   public Response readOne(@Context ContainerRequestContext crc) throws IOException {
     try {
       return response.readOne(
         Pattern.KEY_ONE,
-        DAO.readOne(
+        patternDAO.readOne(
           Access.fromContext(crc),
           ULong.valueOf(id)));
 
@@ -69,10 +69,10 @@ public class PatternRecordResource {
    */
   @PUT
   @Consumes(MediaType.APPLICATION_JSON)
-  @RolesAllowed({Role.ARTIST})
+  @RolesAllowed(Role.ARTIST)
   public Response update(PatternWrapper data, @Context ContainerRequestContext crc) {
     try {
-      DAO.update(Access.fromContext(crc), ULong.valueOf(id), data.getPattern());
+      patternDAO.update(Access.fromContext(crc), ULong.valueOf(id), data.getPattern());
       return Response.accepted("{}").build();
 
     } catch (Exception e) {
@@ -86,10 +86,10 @@ public class PatternRecordResource {
    @return Response
    */
   @DELETE
-  @RolesAllowed({Role.ADMIN})
+  @RolesAllowed(Role.ADMIN)
   public Response delete(@Context ContainerRequestContext crc) {
     try {
-      DAO.delete(Access.fromContext(crc), ULong.valueOf(id));
+      patternDAO.delete(Access.fromContext(crc), ULong.valueOf(id));
       return Response.accepted("{}").build();
 
     } catch (Exception e) {

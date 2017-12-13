@@ -1,4 +1,4 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.dao;
 
 import io.xj.core.access.impl.Access;
@@ -9,6 +9,7 @@ import org.jooq.Result;
 import org.jooq.types.ULong;
 
 import javax.annotation.Nullable;
+import java.util.Collection;
 
 public interface PatternMemeDAO {
 
@@ -40,7 +41,7 @@ public interface PatternMemeDAO {
    @return JSONArray of patternMemes.
    @throws Exception on failure
    */
-  Result<PatternMemeRecord> readAll(Access access, ULong patternId) throws Exception;
+  Collection<PatternMeme> readAll(Access access, ULong patternId) throws Exception;
 
   /**
    Delete a specified PatternMeme

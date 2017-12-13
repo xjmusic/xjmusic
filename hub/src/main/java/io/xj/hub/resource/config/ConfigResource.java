@@ -1,4 +1,4 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.resource.config;
 
 import io.xj.core.config.Exposure;
@@ -13,7 +13,6 @@ import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.io.IOException;
 
 /**
  Current platform configuration
@@ -29,7 +28,7 @@ public class ConfigResource {
   @GET
   @WebResult
   @PermitAll
-  public Response getConfig(@Context ContainerRequestContext crc) throws IOException, ConfigException {
+  public static Response getConfig(@Context ContainerRequestContext crc) throws ConfigException {
     return Response
       .accepted(JSON.wrap(Exposure.KEY_CONFIG, Exposure.configJSON()).toString())
       .type(MediaType.APPLICATION_JSON)

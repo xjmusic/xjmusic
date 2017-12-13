@@ -1,4 +1,4 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.dao;
 
 import io.xj.core.CoreModule;
@@ -180,10 +180,10 @@ public class UserIT {
 
     User result = new User().setFromRecord(testDAO.readOne(access, ULong.valueOf(2)));
     assertNotNull(result);
-    JSONObject resultJSON = result.toJSONObject();
+    JSONObject resultJSON = JSON.objectFrom(result);
 
     assertNotNull(resultJSON);
-    assertEquals(ULong.valueOf(2), resultJSON.get("id"));
+    assertEquals(2, resultJSON.get("id"));
     assertEquals("john@email.com", resultJSON.get("email"));
     assertEquals("http://pictures.com/john.gif", resultJSON.get("avatarUrl"));
     assertEquals("john", resultJSON.get("name"));

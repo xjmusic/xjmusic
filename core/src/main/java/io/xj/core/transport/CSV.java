@@ -1,14 +1,15 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.transport;
 
 import com.google.common.collect.Lists;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
 public abstract class CSV {
-  public static List<String> split(String csv) {
+  public static Collection<String> split(String csv) {
     return Arrays.asList(csv.split(","));
   }
 

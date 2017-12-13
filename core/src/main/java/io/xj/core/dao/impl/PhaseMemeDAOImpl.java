@@ -1,27 +1,28 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.dao.impl;
 
 import io.xj.core.access.impl.Access;
+import io.xj.core.dao.PhaseMemeDAO;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.exception.ConfigException;
-import io.xj.core.dao.PhaseMemeDAO;
-import io.xj.core.persistence.sql.impl.SQLConnection;
-import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import io.xj.core.model.phase_meme.PhaseMeme;
+import io.xj.core.persistence.sql.SQLDatabaseProvider;
+import io.xj.core.persistence.sql.impl.SQLConnection;
 import io.xj.core.tables.records.PhaseMemeRecord;
 
 import org.jooq.DSLContext;
 import org.jooq.Field;
-import org.jooq.Result;
 import org.jooq.types.ULong;
 
+import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.Map;
 
-import static io.xj.core.tables.Pattern.PATTERN;
 import static io.xj.core.tables.Library.LIBRARY;
+import static io.xj.core.tables.Pattern.PATTERN;
 import static io.xj.core.tables.Phase.PHASE;
 import static io.xj.core.tables.PhaseMeme.PHASE_MEME;
 
@@ -60,7 +61,7 @@ public class PhaseMemeDAOImpl extends DAOImpl implements PhaseMemeDAO {
   }
 
   @Override
-  public Result<PhaseMemeRecord> readAll(Access access, ULong phaseId) throws Exception {
+  public Collection<PhaseMeme> readAll(Access access, ULong phaseId) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readAll(tx.getContext(), access, phaseId));
@@ -149,19 +150,27 @@ public class PhaseMemeDAOImpl extends DAOImpl implements PhaseMemeDAO {
    @return array of phase memes
    @throws SQLException if failure
    */
-  private Result<PhaseMemeRecord> readAll(DSLContext db, Access access, ULong phaseId) throws SQLException {
+  private Collection<PhaseMeme> readAll(DSLContext db, Access access, ULong phaseId) throws SQLException {
+    Collection<PhaseMeme> result = Lists.newArrayList();
+
     if (access.isTopLevel())
-      return db.selectFrom(PHASE_MEME)
+      db.selectFrom(PHASE_MEME)
         .where(PHASE_MEME.PHASE_ID.eq(phaseId))
-        .fetch();
+        .fetch().forEach((record) -> {
+        result.add(new PhaseMeme().setFromRecord(record));
+      });
     else
-      return resultInto(PHASE_MEME, db.select(PHASE_MEME.fields()).from(PHASE_MEME)
+      resultInto(PHASE_MEME, db.select(PHASE_MEME.fields()).from(PHASE_MEME)
         .join(PHASE).on(PHASE.ID.eq(PHASE_MEME.PHASE_ID))
         .join(PATTERN).on(PATTERN.ID.eq(PHASE.PATTERN_ID))
         .join(LIBRARY).on(PATTERN.LIBRARY_ID.eq(LIBRARY.ID))
         .where(PHASE.ID.eq(phaseId))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-        .fetch());
+        .fetch()).forEach((record) -> {
+        result.add(new PhaseMeme().setFromRecord(record));
+      });
+
+    return result;
   }
 
   /**

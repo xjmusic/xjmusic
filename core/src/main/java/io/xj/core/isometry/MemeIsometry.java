@@ -1,19 +1,21 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.isometry;
 
-import io.xj.core.model.MemeEntity;
-import io.xj.core.model.link_meme.LinkMeme;
+import io.xj.core.model.meme.Meme;
 import io.xj.core.transport.CSV;
 
 import org.jooq.Record;
-import org.jooq.Result;
 
+import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 
 import org.tartarus.snowball.SnowballStemmer;
 import org.tartarus.snowball.ext.englishStemmer;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  Determine the isometry between a source and target group of Memes
@@ -27,7 +29,7 @@ public class MemeIsometry {
 
    @param sourceMemes source group of memes
    */
-  private MemeIsometry(List<? extends MemeEntity> sourceMemes) {
+  private MemeIsometry(Iterable<? extends Meme> sourceMemes) {
     sourceStems = Lists.newArrayList();
     sourceMemes.forEach(meme ->
       sourceStems.add(stem(meme.getName())));
@@ -39,7 +41,7 @@ public class MemeIsometry {
    @param sourceMemes to compare from
    @return MemeIsometry ready for comparison to target Memes
    */
-  public static MemeIsometry of(List<? extends MemeEntity> sourceMemes) {
+  public static MemeIsometry of(Collection<? extends Meme> sourceMemes) {
     return new MemeIsometry(sourceMemes);
   }
 
@@ -50,12 +52,27 @@ public class MemeIsometry {
    @param sourceMemeRecords to compare from
    @return MemeIsometry ready for comparison to target Memes
    */
-  public static <R extends Record> MemeIsometry of(Result<R> sourceMemeRecords) {
-    List<MemeEntity> sourceMemes = Lists.newArrayList();
+  public static <R extends Record> MemeIsometry of(Iterable<R> sourceMemeRecords) {
+    List<Meme> sourceMemes = Lists.newArrayList();
 
-    // use LinkMeme as a generic meme-- we could use any extender of MemeEntity
     sourceMemeRecords.forEach(record -> sourceMemes.add(
-      new LinkMeme().setName(String.valueOf(record.get(FIELD_NAME)))
+      new Meme().setName(String.valueOf(record.get(FIELD_NAME)))
+    ));
+
+    return new MemeIsometry(sourceMemes);
+  }
+
+  /**
+   Instantiate a new MemeIsometry from a map of source Memes
+
+   @param stringMemeMap to compare from
+   @return MemeIsometry ready for comparison to target Memes
+   */
+  public static MemeIsometry of(Map<String, Meme> stringMemeMap) {
+    List<Meme> sourceMemes = Lists.newArrayList();
+
+    stringMemeMap.forEach((key, record) -> sourceMemes.add(
+      new Meme().setName(record.getName())
     ));
 
     return new MemeIsometry(sourceMemes);
@@ -67,7 +84,7 @@ public class MemeIsometry {
    @return source memes
    */
   List<String> getSourceStems() {
-    return sourceStems;
+    return Collections.unmodifiableList(sourceStems);
   }
 
   /**
@@ -77,16 +94,30 @@ public class MemeIsometry {
    @return score is between 0 (no matches) and 1 (all memes match)
    */
   public double scoreCSV(String memesCSV) {
+    Collection<Meme> memes = Lists.newArrayList();
+    CSV.split(memesCSV).forEach((name) -> {
+      memes.add(new Meme().setName(name)); // can use any meme impl
+    });
+    return score(memes);
+  }
+
+  /**
+   Score a CSV list of memes based on isometry to source memes
+
+   @param targetMemes comma-separated values to score against source meme names
+   @return score is between 0 (no matches) and 1 (all memes match)
+   */
+  public <M extends Meme> double score(Iterable<M> targetMemes) {
     double tally = 0;
-    List<String> targetMemes = CSV.split(memesCSV);
 
     // tally each match of source & target stem
-    for (String targetMeme : targetMemes) {
+    for (M targetMeme : targetMemes) {
 
-      String targetStem = stem(targetMeme);
+      String targetStem = stem(targetMeme.getName());
       for (String sourceStem : sourceStems) {
-        if (sourceStem.equals(targetStem))
+        if (Objects.equal(sourceStem, targetStem)) {
           tally += 1;
+        }
       }
     }
     return tally / sourceStems.size();
@@ -98,10 +129,11 @@ public class MemeIsometry {
    @param raw text to get stem of
    @return stem
    */
-  private String stem(String raw) {
-    SnowballStemmer stemmer = new englishStemmer();
+  private static String stem(String raw) {
+    SnowballStemmer stemmer = new englishStemmer(); // this is the only part proprietary to English
     stemmer.setCurrent(raw.toLowerCase().trim());
     stemmer.stem();
     return stemmer.getCurrent();
   }
+
 }

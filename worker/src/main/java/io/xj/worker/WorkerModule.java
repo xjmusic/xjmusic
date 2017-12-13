@@ -1,19 +1,6 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.worker;
 
-import io.xj.mixer.MixerModule;
-import io.xj.core.craft.CraftFactory;
-import io.xj.core.craft.FoundationCraft;
-import io.xj.core.craft.StructureCraft;
-import io.xj.core.craft.VoiceCraft;
-import io.xj.core.craft.impl.FoundationCraftImpl;
-import io.xj.core.craft.impl.StructureCraftImpl;
-import io.xj.core.craft.impl.VoiceCraftImpl;
-import io.xj.core.dub.DubFactory;
-import io.xj.core.dub.MasterDub;
-import io.xj.core.dub.ShipDub;
-import io.xj.core.dub.impl.MasterDubImpl;
-import io.xj.core.dub.impl.ShipDubImpl;
 import io.xj.worker.job.AudioEraseJob;
 import io.xj.worker.job.ChainEraseJob;
 import io.xj.worker.job.ChainFabricateJob;
@@ -33,10 +20,7 @@ import net.greghaines.jesque.worker.JobFactory;
 public class WorkerModule extends AbstractModule {
   protected void configure() {
     bindWorker();
-    installCraftFactory();
     installJobTargetFactory();
-    installDubFactory();
-    install(new MixerModule());
   }
 
   private void bindWorker() {
@@ -51,21 +35,6 @@ public class WorkerModule extends AbstractModule {
       .implement(LinkCraftJob.class, LinkCraftJobImpl.class)
       .implement(LinkDubJob.class, LinkDubJobImpl.class)
       .build(JobTargetFactory.class));
-  }
-
-  private void installCraftFactory() {
-    install(new FactoryModuleBuilder()
-      .implement(FoundationCraft.class, FoundationCraftImpl.class)
-      .implement(StructureCraft.class, StructureCraftImpl.class)
-      .implement(VoiceCraft.class, VoiceCraftImpl.class)
-      .build(CraftFactory.class));
-  }
-
-  private void installDubFactory() {
-    install(new FactoryModuleBuilder()
-      .implement(MasterDub.class, MasterDubImpl.class)
-      .implement(ShipDub.class, ShipDubImpl.class)
-      .build(DubFactory.class));
   }
 
 }

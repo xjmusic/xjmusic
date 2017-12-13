@@ -1,4 +1,4 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.model.instrument;
 
 import io.xj.core.exception.BusinessException;
@@ -108,7 +108,7 @@ public class Instrument extends Entity {
   }
 
   @Override
-  public Instrument setFromRecord(Record record) throws BusinessException {
+  public Instrument setFromRecord(Record record) {
     if (Objects.isNull(record)) {
       return null;
     }
@@ -116,7 +116,7 @@ public class Instrument extends Entity {
     description = record.get(INSTRUMENT.DESCRIPTION);
     libraryId = record.get(INSTRUMENT.LIBRARY_ID);
     userId = record.get(INSTRUMENT.USER_ID);
-    type = InstrumentType.validate(record.get(INSTRUMENT.TYPE));
+    type = InstrumentType.valueOf(String.valueOf(record.get(INSTRUMENT.TYPE)));
     density = record.get(INSTRUMENT.DENSITY);
     createdAt = record.get(INSTRUMENT.CREATED_AT);
     updatedAt = record.get(INSTRUMENT.UPDATED_AT);

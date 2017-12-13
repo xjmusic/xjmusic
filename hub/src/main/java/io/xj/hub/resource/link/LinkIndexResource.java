@@ -1,23 +1,23 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.resource.link;
 
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
-import io.xj.core.server.HttpResponseProvider;
 import io.xj.core.dao.ChoiceDAO;
 import io.xj.core.dao.LinkChordDAO;
 import io.xj.core.dao.LinkDAO;
 import io.xj.core.dao.LinkMemeDAO;
 import io.xj.core.dao.LinkMessageDAO;
-import io.xj.core.model.ChordEntity;
-import io.xj.core.model.MemeEntity;
 import io.xj.core.model.choice.Choice;
+import io.xj.core.model.chord.Chord;
 import io.xj.core.model.link.Link;
 import io.xj.core.model.link_chord.LinkChord;
 import io.xj.core.model.link_meme.LinkMeme;
 import io.xj.core.model.link_message.LinkMessage;
+import io.xj.core.model.meme.Meme;
 import io.xj.core.model.message.Message;
 import io.xj.core.model.role.Role;
+import io.xj.core.server.HttpResponseProvider;
 import io.xj.core.tables.records.LinkRecord;
 import io.xj.core.transport.JSON;
 
@@ -78,10 +78,10 @@ public class LinkIndexResource {
    */
   @GET
   @WebResult
-  @RolesAllowed({Role.USER})
+  @RolesAllowed(Role.USER)
   public Response readAll(@Context ContainerRequestContext crc) throws IOException {
 
-    if (Objects.isNull(chainId) || chainId.length() == 0)
+    if (Objects.isNull(chainId) || chainId.isEmpty())
       return response.notAcceptable("Chain id is required");
 
     try {
@@ -112,10 +112,10 @@ public class LinkIndexResource {
     if (Objects.nonNull(include) && include.contains(Message.KEY_MANY))
       out.put(LinkMessage.KEY_MANY, JSON.arrayOf(linkMessageDAO.readAllInLinks(access, linkIds)));
 
-    if (Objects.nonNull(include) && include.contains(MemeEntity.KEY_MANY))
+    if (Objects.nonNull(include) && include.contains(Meme.KEY_MANY))
       out.put(LinkMeme.KEY_MANY, JSON.arrayOf(linkMemeDAO.readAllInLinks(access, linkIds)));
 
-    if (Objects.nonNull(include) && include.contains(ChordEntity.KEY_MANY))
+    if (Objects.nonNull(include) && include.contains(Chord.KEY_MANY))
       out.put(LinkChord.KEY_MANY, JSON.arrayOf(linkChordDAO.readAllInLinks(access, linkIds)));
 
     if (Objects.nonNull(include) && include.contains(Choice.KEY_MANY))
@@ -148,7 +148,7 @@ public class LinkIndexResource {
    @param links to get ids of
    @return list of ids
    */
-  private ImmutableList<ULong> linkIds(Result<LinkRecord> links) {
+  private static List<ULong> linkIds(Iterable<LinkRecord> links) {
     ImmutableList.Builder<ULong> builder = ImmutableList.builder();
     links.forEach(linkRecord -> builder.add(linkRecord.getId()));
     return builder.build();

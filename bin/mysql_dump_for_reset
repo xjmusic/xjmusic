@@ -16,6 +16,7 @@ USAGE="
 # Connect as root
 MYSQL_USER="root"
 MYSQL_PORT=3300
+MYSQL_TABLES="account account_user audio audio_chord audio_event instrument instrument_meme library pattern pattern_meme phase phase_chord phase_meme schema_version user user_role voice voice_event"
 
 # Find MySQL executable
 MYSQLDUMP_COMMAND=mysqldump
@@ -39,7 +40,7 @@ ensure_file ${EXAMPLE_SQL} "Example MySQL database"
 
 # connect to ${HOST}
 step "Client SQL execution"
-${MYSQLDUMP_COMMAND} -u${MYSQL_USER} -h 127.0.0.1 -P ${MYSQL_PORT} ${MYSQL_ARGS} ${MYSQL_DB} > ${EXAMPLE_SQL}
+${MYSQLDUMP_COMMAND} -u${MYSQL_USER} -h 127.0.0.1 -P ${MYSQL_PORT} ${MYSQL_ARGS} ${MYSQL_DB} ${MYSQL_TABLES} > ${EXAMPLE_SQL}
 step_ok
 
 #

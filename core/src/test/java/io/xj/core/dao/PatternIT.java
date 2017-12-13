@@ -1,13 +1,5 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.dao;
-
-import org.jooq.Record;
-import org.jooq.Result;
-import org.jooq.types.ULong;
-
-import com.google.common.collect.ImmutableMap;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
 
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
@@ -21,9 +13,14 @@ import io.xj.core.model.pattern.Pattern;
 import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.role.Role;
 import io.xj.core.tables.records.PatternRecord;
-import io.xj.core.testing.Testing;
-import io.xj.core.transport.CSV;
 import io.xj.core.transport.JSON;
+
+import org.jooq.types.ULong;
+
+import com.google.common.collect.ImmutableMap;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.After;
@@ -34,7 +31,7 @@ import org.junit.rules.ExpectedException;
 
 import java.math.BigInteger;
 import java.sql.Timestamp;
-import java.util.List;
+import java.util.Collection;
 
 import static io.xj.core.tables.Pattern.PATTERN;
 import static org.junit.Assert.assertEquals;
@@ -100,16 +97,16 @@ public class PatternIT {
       .setType("Main")
       .setUserId(BigInteger.valueOf(2));
 
-    JSONObject result = JSON.objectFromRecord(testDAO.create(access, inputData));
+    JSONObject result = JSON.objectFrom(testDAO.create(access, inputData));
 
     assertNotNull(result);
     assertEquals(0.42, result.get("density"));
     assertEquals("G minor 7", result.get("key"));
-    assertEquals(ULong.valueOf(2), result.get("libraryId"));
+    assertEquals(2, result.get("libraryId"));
     assertEquals("cannons", result.get("name"));
     assertEquals(129.4, result.get("tempo"));
-    assertEquals(PatternType.Main, result.get("type"));
-    assertEquals(ULong.valueOf(2), result.get("userId"));
+    assertEquals("Main", result.get("type"));
+    assertEquals(2, result.get("userId"));
   }
 
   @Test(expected = BusinessException.class)
@@ -153,7 +150,7 @@ public class PatternIT {
       "accounts", "1"
     ));
 
-    Pattern result = new Pattern().setFromRecord(testDAO.readOne(access, ULong.valueOf(2)));
+    Pattern result = testDAO.readOne(access, ULong.valueOf(2));
 
     assertNotNull(result);
     assertEquals(ULong.valueOf(2), result.getId());
@@ -164,11 +161,11 @@ public class PatternIT {
   @Test
   public void readOneRecordTypeInLink_Macro() throws Exception {
     IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, null);
-    IntegrationTestEntity.insertLink(1,1,0, LinkState.Crafting,Timestamp.valueOf("2014-08-12 12:17:02.527142"),Timestamp.valueOf("2014-08-12 12:17:32.527142"),"C",64, 0.6, 121, "chain-1-link-97898asdf7892.wav");
-    IntegrationTestEntity.insertChoice(1,1,3, PatternType.Macro,0,0);
-    IntegrationTestEntity.insertChoice(2,1,1, PatternType.Main,0,0);
+    IntegrationTestEntity.insertLink(1, 1, 0, LinkState.Crafting, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-08-12 12:17:32.527142"), "C", 64, 0.6, 121, "chain-1-link-97898asdf7892.wav");
+    IntegrationTestEntity.insertChoice(1, 1, 3, PatternType.Macro, 0, 0);
+    IntegrationTestEntity.insertChoice(2, 1, 1, PatternType.Main, 0, 0);
 
-    Pattern result = new Pattern().setFromRecord(testDAO.readOneRecordTypeInLink(Access.internal(), ULong.valueOf(1), PatternType.Macro));
+    Pattern result = testDAO.readOneRecordTypeInLink(Access.internal(), ULong.valueOf(1), PatternType.Macro);
 
     assertNotNull(result);
     assertEquals(ULong.valueOf(3), result.getId());
@@ -179,11 +176,11 @@ public class PatternIT {
   @Test
   public void readOneRecordTypeInLink_Main() throws Exception {
     IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, null);
-    IntegrationTestEntity.insertLink(1,1,0, LinkState.Crafting,Timestamp.valueOf("2014-08-12 12:17:02.527142"),Timestamp.valueOf("2014-08-12 12:17:32.527142"),"C",64, 0.6, 121, "chain-1-link-97898asdf7892.wav");
-    IntegrationTestEntity.insertChoice(1,1,3, PatternType.Macro,0,0);
-    IntegrationTestEntity.insertChoice(2,1,1, PatternType.Main,0,0);
+    IntegrationTestEntity.insertLink(1, 1, 0, LinkState.Crafting, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-08-12 12:17:32.527142"), "C", 64, 0.6, 121, "chain-1-link-97898asdf7892.wav");
+    IntegrationTestEntity.insertChoice(1, 1, 3, PatternType.Macro, 0, 0);
+    IntegrationTestEntity.insertChoice(2, 1, 1, PatternType.Main, 0, 0);
 
-    Pattern result = new Pattern().setFromRecord(testDAO.readOneRecordTypeInLink(Access.internal(), ULong.valueOf(1), PatternType.Main));
+    Pattern result = testDAO.readOneRecordTypeInLink(Access.internal(), ULong.valueOf(1), PatternType.Main);
 
     assertNotNull(result);
     assertEquals(ULong.valueOf(1), result.getId());
@@ -198,7 +195,7 @@ public class PatternIT {
       "accounts", "326"
     ));
 
-    PatternRecord result = testDAO.readOne(access, ULong.valueOf(1));
+    Pattern result = testDAO.readOne(access, ULong.valueOf(1));
 
     assertNull(result);
   }
@@ -223,35 +220,27 @@ public class PatternIT {
   }
 
   @Test
-  public void readAllBoundToChain() throws  Exception {
+  public void readAllBoundToChain() throws Exception {
     IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, null);
     IntegrationTestEntity.insertChainPattern(1, 1, 1);
 
-    Result<? extends Record> result = testDAO.readAllBoundToChain(Access.internal(), ULong.valueOf(1), PatternType.Main);
+    Collection<Pattern> result = testDAO.readAllBoundToChain(Access.internal(), ULong.valueOf(1), PatternType.Main);
 
     assertEquals(1, result.size());
-    assertEquals("fonds", result.get(0).get("name"));
-    List<String> actualMemes = CSV.split(String.valueOf(result.get(0).get("memes")));
-    assertEquals(2, actualMemes.size());
-    String[] expectMemes = {"smooth", "leafy"};
-    Testing.assertIn(expectMemes, actualMemes.get(0));
-    Testing.assertIn(expectMemes, actualMemes.get(1));
+    Pattern result0 = result.iterator().next();
+    assertEquals("fonds", result0.getName());
   }
 
   @Test
-  public void readAllBoundToChainLibrary() throws  Exception {
+  public void readAllBoundToChainLibrary() throws Exception {
     IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, null);
     IntegrationTestEntity.insertChainLibrary(1, 1, 1);
 
-    Result<? extends Record> result = testDAO.readAllBoundToChainLibrary(Access.internal(), ULong.valueOf(1), PatternType.Main);
+    Collection<Pattern> result = testDAO.readAllBoundToChainLibrary(Access.internal(), ULong.valueOf(1), PatternType.Main);
 
     assertEquals(1, result.size());
-    assertEquals("fonds", result.get(0).get("name"));
-    List<String> actualMemes = CSV.split(String.valueOf(result.get(0).get("memes")));
-    assertEquals(2, actualMemes.size());
-    String[] expectMemes = {"smooth", "leafy"};
-    Testing.assertIn(expectMemes, actualMemes.get(0));
-    Testing.assertIn(expectMemes, actualMemes.get(1));
+    Pattern result0 = result.iterator().next();
+    assertEquals("fonds", result0.getName());
   }
 
   @Test

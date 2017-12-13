@@ -1,19 +1,24 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.work.impl;
-
-import org.jooq.types.ULong;
 
 import io.xj.core.access.impl.Access;
 import io.xj.core.config.Config;
-import io.xj.core.exception.WorkException;
 import io.xj.core.dao.LinkDAO;
+import io.xj.core.dao.LinkMessageDAO;
 import io.xj.core.model.link.Link;
 import io.xj.core.model.link.LinkState;
+import io.xj.core.model.link_message.LinkMessage;
+import io.xj.core.model.message.MessageType;
 import io.xj.core.tables.records.LinkRecord;
+import io.xj.core.util.Text;
 import io.xj.core.work.basis.BasisFactory;
+
+import org.jooq.types.ULong;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.util.Objects;
 
 public abstract class LinkJob implements Runnable {
@@ -22,6 +27,7 @@ public abstract class LinkJob implements Runnable {
 
   protected String name;
   protected LinkDAO linkDAO;
+  protected LinkMessageDAO linkMessageDAO;
   protected ULong entityId;
   protected BasisFactory basisFactory;
 
@@ -37,10 +43,15 @@ public abstract class LinkJob implements Runnable {
       try {
         LinkRecord linkRecord = linkDAO.readOne(Access.internal(), entityId);
         if (Objects.isNull(linkRecord)) {
-          throw new WorkException(String.format("Cannot begin %s nonexistent Link", name));
+          log.error("Cannot begin {} nonexistent Link", name);
+          return;
         }
         log.info("Begin {} Link (id={})", name, entityId);
         Link link = updateToWorkingState(linkRecord);
+        if (Objects.isNull(link)) {
+          // future .. care more that this job was unable to be completed because of a link state problem?
+          return;
+        }
         doWork(link);
         updateToFinishedState();
         return;
@@ -50,12 +61,16 @@ public abstract class LinkJob implements Runnable {
         if (count == maxTries) {
           log.error("{} Link (id={}) failed ({})",
             name, entityId, e);
+          createLinkMessage(MessageType.Error, String.format("%s Link (id=%s) failed (%s)! %s", name, entityId, e.getMessage(), Text.formatStackTrace(e)));
           return;
 
         } else try {
           log.warn("{} Link (id={}) failed ({}) Will retry...",
             name, entityId, e.getMessage(), e);
+          createLinkMessage(MessageType.Warning, String.format("%s Link (id=%s) failed (%s); Will Retry... %s", name, entityId, e.getMessage(), Text.formatStackTrace(e)));
+          // future: don't busy-wait (Thread.sleep), re-queue!
           Thread.sleep(Config.workLinkDubRetrySleepSeconds() * MILLIS_PER_SECOND);
+          // this is the only branch that goes back to to the top of the while(true) loop...
 
         } catch (InterruptedException sleepException) {
           log.warn("{} Link (id={}) was going to retry, but sleep was interrupted ({})",
@@ -67,26 +82,47 @@ public abstract class LinkJob implements Runnable {
   }
 
   /**
-   * Update Link to Working state
-   *
-   * @param linkRecord to update
-   * @return Link model, updated to working state
-   * @throws Exception on failure
+   Create a link message
+
+   @param type of message
+   @param body of message
    */
+  protected void createLinkMessage(MessageType type, String body) {
+    try {
+      linkMessageDAO.create(Access.internal(),
+        new LinkMessage()
+          .setLinkId(entityId.toBigInteger())
+          .setBody(body)
+          .setType(type.toString()));
+    } catch (Exception e) {
+      log.error("Could not create Link Message", e);
+    }
+  }
+
+  /**
+   Update Link to Working state
+
+   @param linkRecord to update
+   @return Link model, updated to working state
+   @throws Exception on failure
+   */
+  @Nullable
   private Link updateToWorkingState(LinkRecord linkRecord) throws Exception {
     if (!fromState.equals(linkRecord.getState())) {
-      throw new WorkException(String.format("%s requires Link must be in %s state.", name, fromState.toString()));
+      log.error("{} requires Link must be in {} state.", name, fromState);
+      return null;
     }
     linkDAO.updateState(Access.internal(), linkRecord.getId(), workingState);
     Link link = new Link().setFromRecord(linkRecord);
     if (Objects.isNull(link)) {
-      throw new WorkException(String.format("%s requires Link must be in %s state.", name, workingState.toString()));
+      log.error("{} requires Link must be in {} state.", name, workingState);
+      return null;
     }
     return link.setStateEnum(workingState);
   }
 
   /**
-   * Update Link to finished state
+   Update Link to finished state
    */
   private void updateToFinishedState() throws Exception {
     linkDAO.updateState(Access.internal(), entityId, toState);
@@ -94,10 +130,10 @@ public abstract class LinkJob implements Runnable {
   }
 
   /**
-   * Do Work
-   *
-   * @param link to do work on
-   * @throws Exception on failure
+   Do Work
+
+   @param link to do work on
+   @throws Exception on failure
    */
   protected abstract void doWork(Link link) throws Exception;
 }

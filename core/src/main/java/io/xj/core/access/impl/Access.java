@@ -1,4 +1,4 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.access.impl;
 
 import io.xj.core.CoreModule;
@@ -221,7 +221,7 @@ public class Access {
   /**
    Get a list of roles for this access control
    */
-  private List<String> getRoles() {
+  private Collection<String> getRoles() {
     String roles = innerMap.get(ROLES_KEY);
     if (roles != null) {
       return CSV.split(roles);
@@ -237,7 +237,7 @@ public class Access {
     if (csv == null || csv.length() == 0) {
       return new ULong[0];
     }
-    List<String> accountIdList = CSV.split(csv);
+    Collection<String> accountIdList = CSV.split(csv);
     ULong[] result = new ULong[accountIdList.size()];
     int i = 0;
     for (String accountId : accountIdList) {

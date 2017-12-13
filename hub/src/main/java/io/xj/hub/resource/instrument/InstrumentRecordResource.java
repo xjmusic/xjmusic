@@ -1,13 +1,13 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.resource.instrument;
 
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
-import io.xj.core.server.HttpResponseProvider;
 import io.xj.core.dao.InstrumentDAO;
 import io.xj.core.model.instrument.Instrument;
 import io.xj.core.model.instrument.InstrumentWrapper;
 import io.xj.core.model.role.Role;
+import io.xj.core.server.HttpResponseProvider;
 
 import org.jooq.types.ULong;
 
@@ -34,7 +34,7 @@ import java.io.IOException;
 @Path("instruments/{id}")
 public class InstrumentRecordResource {
   private static final Injector injector = Guice.createInjector(new CoreModule());
-  private final InstrumentDAO DAO = injector.getInstance(InstrumentDAO.class);
+  private final InstrumentDAO instrumentDAO = injector.getInstance(InstrumentDAO.class);
   private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
 
   @PathParam("id")
@@ -47,12 +47,12 @@ public class InstrumentRecordResource {
    */
   @GET
   @WebResult
-  @RolesAllowed({Role.USER})
+  @RolesAllowed(Role.USER)
   public Response readOne(@Context ContainerRequestContext crc) throws IOException {
     try {
       return response.readOne(
         Instrument.KEY_ONE,
-        DAO.readOne(
+        instrumentDAO.readOne(
           Access.fromContext(crc),
           ULong.valueOf(id)));
 
@@ -69,10 +69,10 @@ public class InstrumentRecordResource {
    */
   @PUT
   @Consumes(MediaType.APPLICATION_JSON)
-  @RolesAllowed({Role.ARTIST})
+  @RolesAllowed(Role.ARTIST)
   public Response update(InstrumentWrapper data, @Context ContainerRequestContext crc) {
     try {
-      DAO.update(Access.fromContext(crc), ULong.valueOf(id), data.getInstrument());
+      instrumentDAO.update(Access.fromContext(crc), ULong.valueOf(id), data.getInstrument());
       return Response.accepted("{}").build();
 
     } catch (Exception e) {
@@ -86,10 +86,10 @@ public class InstrumentRecordResource {
    @return Response
    */
   @DELETE
-  @RolesAllowed({Role.ADMIN})
+  @RolesAllowed(Role.ADMIN)
   public Response delete(@Context ContainerRequestContext crc) {
     try {
-      DAO.delete(Access.fromContext(crc), ULong.valueOf(id));
+      instrumentDAO.delete(Access.fromContext(crc), ULong.valueOf(id));
       return Response.accepted("{}").build();
 
     } catch (Exception e) {

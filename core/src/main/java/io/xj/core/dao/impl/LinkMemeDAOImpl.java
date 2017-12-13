@@ -1,13 +1,13 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.dao.impl;
 
 import io.xj.core.access.impl.Access;
+import io.xj.core.dao.LinkMemeDAO;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.exception.ConfigException;
-import io.xj.core.dao.LinkMemeDAO;
-import io.xj.core.persistence.sql.impl.SQLConnection;
-import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import io.xj.core.model.link_meme.LinkMeme;
+import io.xj.core.persistence.sql.SQLDatabaseProvider;
+import io.xj.core.persistence.sql.impl.SQLConnection;
 import io.xj.core.tables.records.LinkMemeRecord;
 
 import org.jooq.DSLContext;
@@ -15,9 +15,11 @@ import org.jooq.Field;
 import org.jooq.Result;
 import org.jooq.types.ULong;
 
+import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -60,7 +62,7 @@ public class LinkMemeDAOImpl extends DAOImpl implements LinkMemeDAO {
   }
 
   @Override
-  public Result<LinkMemeRecord> readAll(Access access, ULong linkId) throws Exception {
+  public Collection<LinkMeme> readAll(Access access, ULong linkId) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readAll(tx.getContext(), access, linkId));
@@ -156,27 +158,35 @@ public class LinkMemeDAOImpl extends DAOImpl implements LinkMemeDAO {
    @return array of link memes
    @throws SQLException if failure
    */
-  private Result<LinkMemeRecord> readAll(DSLContext db, Access access, ULong linkId) throws SQLException {
+  private Collection<LinkMeme> readAll(DSLContext db, Access access, ULong linkId) throws SQLException {
+    Collection<LinkMeme> result = Lists.newArrayList();
+
     if (access.isTopLevel())
-      return db.selectFrom(LINK_MEME)
+      db.selectFrom(LINK_MEME)
         .where(LINK_MEME.LINK_ID.eq(linkId))
-        .fetch();
+        .fetch().forEach((record) -> {
+        result.add(new LinkMeme().setFromRecord(record));
+      });
     else
-      return resultInto(LINK_MEME, db.select(LINK_MEME.fields()).from(LINK_MEME)
+      resultInto(LINK_MEME, db.select(LINK_MEME.fields()).from(LINK_MEME)
         .join(LINK).on(LINK.ID.eq(LINK_MEME.LINK_ID))
         .join(CHAIN).on(LINK.CHAIN_ID.eq(CHAIN.ID))
         .where(LINK.ID.eq(linkId))
         .and(CHAIN.ACCOUNT_ID.in(access.getAccounts()))
-        .fetch());
+        .fetch()).forEach((record) -> {
+        result.add(new LinkMeme().setFromRecord(record));
+      });
+
+    return result;
   }
 
   /**
    Read all records in parent records by ids
 
-   @return array of records
-    @param db     context
-   @param access control
+   @param db      context
+   @param access  control
    @param linkIds id of parent's parent (the chain)
+   @return array of records
    */
   private Result<LinkMemeRecord> readAllInLinks(DSLContext db, Access access, List<ULong> linkIds) throws Exception {
     if (access.isTopLevel())

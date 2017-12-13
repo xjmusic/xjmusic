@@ -1,4 +1,4 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.dao;
 
 import io.xj.core.access.impl.Access;
@@ -9,6 +9,7 @@ import org.jooq.Result;
 import org.jooq.types.ULong;
 
 import javax.annotation.Nullable;
+import java.util.Collection;
 
 public interface PhaseMemeDAO {
 
@@ -35,12 +36,12 @@ public interface PhaseMemeDAO {
   /**
    Fetch many PhaseMeme for one Phase by id, if accessible
 
-   @param access  control
-   @param phaseId to fetch phaseMemes for.
    @return JSONArray of phaseMemes.
    @throws Exception on failure
+    @param access  control
+   @param phaseId to fetch phaseMemes for.
    */
-  Result<PhaseMemeRecord> readAll(Access access, ULong phaseId) throws Exception;
+  Collection<PhaseMeme> readAll(Access access, ULong phaseId) throws Exception;
 
   /**
    Delete a specified PhaseMeme

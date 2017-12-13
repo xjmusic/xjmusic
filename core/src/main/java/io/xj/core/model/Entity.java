@@ -1,4 +1,4 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.model;
 
 import io.xj.core.exception.BusinessException;
@@ -7,6 +7,8 @@ import io.xj.core.timestamp.TimestampUTC;
 import org.jooq.Field;
 import org.jooq.Record;
 import org.jooq.types.ULong;
+
+import org.json.JSONObject;
 
 import javax.annotation.Nullable;
 import java.math.BigInteger;
@@ -96,5 +98,6 @@ public abstract class Entity {
    @return map
    */
   public abstract Map<Field, Object> updatableFieldValueMap();
+
 
 }

@@ -1,16 +1,11 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.worker.job.impl;
-
-import org.jooq.types.ULong;
-
-import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
 
 import io.xj.core.access.impl.Access;
 import io.xj.core.config.Config;
-import io.xj.core.exception.BusinessException;
 import io.xj.core.dao.ChainDAO;
 import io.xj.core.dao.LinkDAO;
+import io.xj.core.exception.BusinessException;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.link.Link;
 import io.xj.core.tables.records.ChainRecord;
@@ -18,6 +13,12 @@ import io.xj.core.tables.records.LinkRecord;
 import io.xj.core.timestamp.TimestampUTC;
 import io.xj.core.work.WorkManager;
 import io.xj.worker.job.ChainFabricateJob;
+
+import org.jooq.types.ULong;
+
+import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,13 +62,13 @@ public class ChainFabricateJobImpl implements ChainFabricateJob {
   }
 
   /**
-   * Build a Link in the Chain, or Complete the Chain
-   *
-   * @param chain to build on
-   * @throws Exception on failure
+   Build a Link in the Chain, or Complete the Chain
+
+   @param chain to build on
+   @throws Exception on failure
    */
   private void doWork(ChainRecord chain) throws Exception {
-    if (!ChainState.Fabricate.toString().equals(chain.getState())) {
+    if (!Objects.equals(ChainState.Fabricate.toString(), chain.getState())) {
       workManager.stopChainFabrication(entityId);
       throw new BusinessException(String.format("Cannot fabricate Chain id:%s in non-Fabricate (%s) state!",
         chain.getId(), chain.getState()));
@@ -86,9 +87,10 @@ public class ChainFabricateJobImpl implements ChainFabricateJob {
   }
 
   /**
-   * Create Link, and jobs to craft & dub it
-   * @param linkToCreate to create
-   * @throws BusinessException on failure
+   Create Link, and jobs to craft & dub it
+
+   @param linkToCreate to create
+   @throws BusinessException on failure
    */
   private void createLinkAndJobs(Link linkToCreate) throws Exception {
     linkToCreate.validate();
@@ -100,7 +102,7 @@ public class ChainFabricateJobImpl implements ChainFabricateJob {
   }
 
   /**
-   * Cancel chain fabrication
+   Cancel chain fabrication
    */
   private void cancelFabrication() {
     workManager.stopChainFabrication(entityId);

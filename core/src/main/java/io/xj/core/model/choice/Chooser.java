@@ -1,4 +1,4 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.model.choice;
 
 import io.xj.core.model.Entity;
@@ -9,9 +9,12 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import javax.annotation.Nullable;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -24,15 +27,15 @@ import java.util.Objects;
  @param <T>  */
 public class Chooser<T extends Entity> {
   //  final TypeToken<T> type = new TypeToken<T>(getClass()) {};
-  private List<T> entities;
-  private HashMap<ULong, Double> scores;
+  private final List<T> entities;
+  private final HashMap<ULong, Double> scores;
 
   /**
    Constructor instantiates a new inner hash map
    */
   public Chooser() {
-    this.entities = Lists.newArrayList();
-    this.scores = Maps.newHashMap();
+    entities = Lists.newArrayList();
+    scores = Maps.newHashMap();
   }
 
   /**
@@ -41,7 +44,7 @@ public class Chooser<T extends Entity> {
    @param entity to add
    */
   public void add(T entity) {
-    this.entities.add(entity);
+    entities.add(entity);
   }
 
   /**
@@ -49,7 +52,7 @@ public class Chooser<T extends Entity> {
 
    @param entities to add
    */
-  public void addAll(List<T> entities) {
+  public void addAll(Collection<T> entities) {
     this.entities.addAll(entities);
   }
 
@@ -59,8 +62,8 @@ public class Chooser<T extends Entity> {
    @param entity to add
    */
   public void add(T entity, double Q) {
-    this.add(entity);
-    this.score(entity, Q);
+    add(entity);
+    score(entity, Q);
   }
 
   /**
@@ -90,7 +93,7 @@ public class Chooser<T extends Entity> {
    @return all entities
    */
   public List<T> getAll() {
-    return entities;
+    return Collections.unmodifiableList(entities);
   }
 
   /**
@@ -98,8 +101,8 @@ public class Chooser<T extends Entity> {
 
    @return all entities
    */
-  public HashMap<ULong, Double> getScores() {
-    return scores;
+  public Map<ULong,Double> getScores() {
+    return Collections.unmodifiableMap(scores);
   }
 
   /**
@@ -110,7 +113,7 @@ public class Chooser<T extends Entity> {
   @Nullable
   public T getTop() {
     List<T> allScored = getAllScored();
-    if (Objects.nonNull(allScored) && allScored.size() >= 1)
+    if (Objects.nonNull(allScored) && 1 <= allScored.size())
       return allScored.get(0);
     else
       return null;
@@ -139,10 +142,10 @@ public class Chooser<T extends Entity> {
           if (Objects.nonNull(score))
             return -score;
           else
-            return 0d;
+            return 0.0d;
         })
     );
-    return entities;
+    return Collections.unmodifiableList(entities);
   }
 
   /**
@@ -160,13 +163,11 @@ public class Chooser<T extends Entity> {
    @return report
    */
   public String report() {
-    if (Objects.isNull(entities) || entities.size() == 0)
+    if (Objects.isNull(entities) || entities.isEmpty())
       return "(empty)";
     String name = entities.get(0).getClass().getSimpleName();
     List<String> reports = Lists.newArrayList();
-    scores.forEach((id, score) -> {
-      reports.add(String.format("%s:%f", id, score));
-    });
+    scores.forEach((id, score) -> reports.add(String.format("%s:%f", id, score)));
     return "(" + name + ") " + String.join(", ", reports);
   }
 }

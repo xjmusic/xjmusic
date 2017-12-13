@@ -1,16 +1,15 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.resource.instrument;
 
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
 import io.xj.core.config.Exposure;
-import io.xj.core.exception.BusinessException;
-import io.xj.core.server.HttpResponseProvider;
 import io.xj.core.dao.InstrumentDAO;
 import io.xj.core.model.Entity;
 import io.xj.core.model.instrument.Instrument;
 import io.xj.core.model.instrument.InstrumentWrapper;
 import io.xj.core.model.role.Role;
+import io.xj.core.server.HttpResponseProvider;
 import io.xj.core.transport.JSON;
 
 import org.jooq.types.ULong;
@@ -39,7 +38,7 @@ import java.io.IOException;
 @Path("instruments")
 public class InstrumentIndexResource {
   private static final Injector injector = Guice.createInjector(new CoreModule());
-  private final InstrumentDAO DAO = injector.getInstance(InstrumentDAO.class);
+  private final InstrumentDAO instrumentDAO = injector.getInstance(InstrumentDAO.class);
   private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
 
   @QueryParam("accountId")
@@ -55,11 +54,11 @@ public class InstrumentIndexResource {
    */
   @GET
   @WebResult
-  @RolesAllowed({Role.USER})
+  @RolesAllowed(Role.USER)
   public Response readAll(@Context ContainerRequestContext crc) throws IOException {
-    if (libraryId != null && libraryId.length() > 0) {
+    if (null != libraryId && !libraryId.isEmpty()) {
       return readAllInLibrary(Access.fromContext(crc));
-    } else if (accountId != null && accountId.length() > 0) {
+    } else if (null != accountId && !accountId.isEmpty()) {
       return readAllInAccount(Access.fromContext(crc));
     } else {
       return response.notAcceptable("Either Account or Library id is required");
@@ -70,7 +69,7 @@ public class InstrumentIndexResource {
     try {
       return response.readMany(
         Instrument.KEY_MANY,
-        DAO.readAllInAccount(
+        instrumentDAO.readAllInAccount(
           access,
           ULong.valueOf(accountId)));
 
@@ -83,7 +82,7 @@ public class InstrumentIndexResource {
     try {
       return response.readMany(
         Instrument.KEY_MANY,
-        DAO.readAllInLibrary(
+        instrumentDAO.readAllInLibrary(
           access,
           ULong.valueOf(libraryId)));
 
@@ -100,19 +99,15 @@ public class InstrumentIndexResource {
    */
   @POST
   @Consumes(MediaType.APPLICATION_JSON)
-  @RolesAllowed({Role.ARTIST})
+  @RolesAllowed(Role.ARTIST)
   public Response create(InstrumentWrapper data, @Context ContainerRequestContext crc) {
     Access access = Access.fromContext(crc);
     try {
-      JSONObject newEntity = JSON.objectFromRecord(DAO.create(access, data.getInstrument()));
-      if (newEntity != null) {
-        return Response
-          .created(Exposure.apiURI(Instrument.KEY_MANY + "/" + newEntity.get(Entity.KEY_ID)))
-          .entity(JSON.wrap(Instrument.KEY_ONE, newEntity).toString())
-          .build();
-      } else {
-        return response.failureToCreate(new BusinessException("Could not create record"));
-      }
+      JSONObject newEntity = JSON.objectFrom(instrumentDAO.create(access, data.getInstrument()));
+      return Response
+        .created(Exposure.apiURI(Instrument.KEY_MANY + "/" + newEntity.get(Entity.KEY_ID)))
+        .entity(JSON.wrap(Instrument.KEY_ONE, newEntity).toString())
+        .build();
 
     } catch (Exception e) {
       return response.failureToCreate(e);

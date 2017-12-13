@@ -1,4 +1,4 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.dao;
 
 import io.xj.core.access.impl.Access;
@@ -6,53 +6,52 @@ import io.xj.core.model.instrument.Instrument;
 import io.xj.core.model.instrument.InstrumentType;
 import io.xj.core.tables.records.InstrumentRecord;
 
-import org.jooq.Record;
-import org.jooq.Result;
 import org.jooq.types.ULong;
 
 import javax.annotation.Nullable;
+import java.util.Collection;
 
 public interface InstrumentDAO {
 
   /**
    Create a new Instrument
 
-   @param access control
-   @param entity for the new Account User.
    @return newly readMany record
+    @param access control
+   @param entity for the new Account User.
    */
-  InstrumentRecord create(Access access, Instrument entity) throws Exception;
+  Instrument create(Access access, Instrument entity) throws Exception;
 
   /**
    Fetch one instrument if accessible
 
-   @param access control
-   @param id     of instrument
    @return retrieved record
    @throws Exception on failure
+    @param access control
+   @param id     of instrument
    */
   @Nullable
-  InstrumentRecord readOne(Access access, ULong id) throws Exception;
+  Instrument readOne(Access access, ULong id) throws Exception;
 
   /**
    Fetch many instrument for one Account by id, if accessible
 
-   @param access    control
-   @param accountId to fetch instruments for.
    @return JSONArray of instruments.
    @throws Exception on failure
+    @param access    control
+   @param accountId to fetch instruments for.
    */
-  Result<InstrumentRecord> readAllInAccount(Access access, ULong accountId) throws Exception;
+  Collection<Instrument> readAllInAccount(Access access, ULong accountId) throws Exception;
 
   /**
    Fetch many instrument for one Library by id, if accessible
 
-   @param access    control
+   @return JSONArray of instruments.
+   @throws Exception on failure
+    @param access    control
    @param libraryId to fetch instruments for.
-   @return JSONArray of instruments.
-   @throws Exception on failure
    */
-  Result<InstrumentRecord> readAllInLibrary(Access access, ULong libraryId) throws Exception;
+  Collection<Instrument> readAllInLibrary(Access access, ULong libraryId) throws Exception;
 
   /**
    Fetch many instrument for one Account by id, if accessible
@@ -63,7 +62,7 @@ public interface InstrumentDAO {
    @param chainId to fetch instruments for.
    @param instrumentType  to fetch
    */
-  Result<? extends Record> readAllBoundToChain(Access access, ULong chainId, InstrumentType instrumentType) throws Exception;
+  Collection<Instrument> readAllBoundToChain(Access access, ULong chainId, InstrumentType instrumentType) throws Exception;
 
   /**
    Fetch many instrument for one Account by id, if accessible
@@ -74,7 +73,7 @@ public interface InstrumentDAO {
    @param chainId to fetch instruments for.
    @param instrumentType  to fetch
    */
-  Result<? extends Record> readAllBoundToChainLibrary(Access access, ULong chainId, InstrumentType instrumentType) throws Exception;
+  Collection<Instrument> readAllBoundToChainLibrary(Access access, ULong chainId, InstrumentType instrumentType) throws Exception;
 
   /**
    (ADMIN ONLY)

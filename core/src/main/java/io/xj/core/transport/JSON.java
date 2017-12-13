@@ -1,14 +1,15 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.transport;
 
 import io.xj.core.config.Exposure;
-import io.xj.core.model.JSONObjectEntity;
-import io.xj.core.model.chain.Chain;
+import io.xj.core.model.Entity;
 import io.xj.core.util.CamelCasify;
 
 import org.jooq.Record;
 import org.jooq.Result;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -17,10 +18,10 @@ import javax.annotation.Nullable;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.util.Collection;
+import java.sql.Types;
 import java.util.Map;
 
-public abstract class JSON {
+public interface JSON {
 
   /**
    JSONArray from a SQL ResultSet
@@ -30,7 +31,7 @@ public abstract class JSON {
    @throws SQLException  on db failure
    @throws JSONException on failure to construct output
    */
-  public static JSONArray arrayOf(ResultSet rs) throws SQLException, JSONException {
+  static JSONArray arrayOf(ResultSet rs) throws SQLException {
     JSONArray result = new JSONArray();
     ResultSetMetaData data = rs.getMetaData();
     int maxCol = data.getColumnCount() + 1;
@@ -49,32 +50,30 @@ public abstract class JSON {
       JSONObject obj = new JSONObject();
 
       for (int i = 1; i < maxCol; i++) {
-        if (key[i] != null) {
-          if (data.getColumnType(i) == java.sql.Types.ARRAY) {
+        if (null != key[i]) {
+          if (Types.ARRAY == data.getColumnType(i)) {
             obj.put(key[i], rs.getArray(i));
-          } else if (data.getColumnType(i) == java.sql.Types.BIGINT) {
+          } else if (Types.BIGINT == data.getColumnType(i)) {
             obj.put(key[i], rs.getInt(i));
-          } else if (data.getColumnType(i) == java.sql.Types.BOOLEAN) {
+          } else if (Types.BOOLEAN == data.getColumnType(i)) {
             obj.put(key[i], rs.getBoolean(i));
-          } else if (data.getColumnType(i) == java.sql.Types.BLOB) {
+          } else if (Types.BLOB == data.getColumnType(i)) {
             obj.put(key[i], rs.getBlob(i));
-          } else if (data.getColumnType(i) == java.sql.Types.DOUBLE) {
+          } else if (Types.DOUBLE == data.getColumnType(i)) {
             obj.put(key[i], rs.getDouble(i));
-          } else if (data.getColumnType(i) == java.sql.Types.FLOAT) {
+          } else if (Types.FLOAT == data.getColumnType(i)) {
             obj.put(key[i], rs.getFloat(i));
-          } else if (data.getColumnType(i) == java.sql.Types.INTEGER) {
+          } else if (Types.INTEGER == data.getColumnType(i)) {
             obj.put(key[i], rs.getInt(i));
-          } else if (data.getColumnType(i) == java.sql.Types.NVARCHAR) {
+          } else if (Types.NVARCHAR == data.getColumnType(i)) {
             obj.put(key[i], rs.getNString(i));
-          } else if (data.getColumnType(i) == java.sql.Types.VARCHAR) {
+          } else if (Types.VARCHAR == data.getColumnType(i)) {
             obj.put(key[i], rs.getString(i));
-          } else if (data.getColumnType(i) == java.sql.Types.TINYINT) {
+          } else if (Types.TINYINT == data.getColumnType(i) || Types.SMALLINT == data.getColumnType(i)) {
             obj.put(key[i], rs.getInt(i));
-          } else if (data.getColumnType(i) == java.sql.Types.SMALLINT) {
-            obj.put(key[i], rs.getInt(i));
-          } else if (data.getColumnType(i) == java.sql.Types.DATE) {
+          } else if (Types.DATE == data.getColumnType(i)) {
             obj.put(key[i], rs.getDate(i));
-          } else if (data.getColumnType(i) == java.sql.Types.TIMESTAMP) {
+          } else if (Types.TIMESTAMP == data.getColumnType(i)) {
             obj.put(key[i], rs.getTimestamp(i));
           } else {
             obj.put(key[i], rs.getObject(i));
@@ -94,7 +93,7 @@ public abstract class JSON {
    @param <R>    extends jOOQ Record
    @return JSON array
    */
-  public static <R extends Record> JSONArray arrayOf(Result<R> result) {
+  static <R extends Record> JSONArray arrayOf(Result<R> result) {
     JSONArray out = new JSONArray();
     result.forEach(record -> out.put(objectFromRecord(record)));
     return out;
@@ -106,10 +105,10 @@ public abstract class JSON {
    @param items to put into array
    @return array of a single result
    */
-  public static <J extends JSONObjectEntity> JSONArray arrayOf(Iterable<J> items) throws Exception {
+  static <J extends Entity> JSONArray arrayOf(Iterable<J> items) throws Exception {
     JSONArray out = new JSONArray();
     for (J item : items) {
-      out.put(item.toJSONObject());
+      out.put(objectFrom(item));
     }
     return out;
   }
@@ -120,7 +119,7 @@ public abstract class JSON {
    @param data map to build object of arrays from
    @return JSONObject
    */
-  public static JSONObject wrap(Map<String, JSONArray> data) {
+  static JSONObject wrap(Map<String, JSONArray> data) {
     JSONObject out = new JSONObject();
     data.forEach(out::put);
     return out;
@@ -133,15 +132,15 @@ public abstract class JSON {
    @return JSON object
    */
   @Nullable
-  public static JSONObject objectFromRecord(Record record) {
-    if (record == null) {
+  static JSONObject objectFromRecord(Record record) {
+    if (null == record) {
       return null;
     }
     JSONObject result = new JSONObject();
-    record.intoMap().forEach((k, v) -> {
-      String colName = CamelCasify.ifNeeded(k);
-      if (colName != null) {
-        result.put(colName, v);
+    record.intoMap().forEach((key, val) -> {
+      String colName = CamelCasify.ifNeeded(key);
+      if (null != colName) {
+        result.put(colName, val);
       }
     });
     return result;
@@ -154,7 +153,7 @@ public abstract class JSON {
    @param data     to put in root node
    @return JSON object
    */
-  public static JSONObject wrap(String rootName, JSONObject data) {
+  static JSONObject wrap(String rootName, JSONObject data) {
     JSONObject result = new JSONObject();
     result.put(rootName, data);
     return result;
@@ -167,7 +166,7 @@ public abstract class JSON {
    @param data     to put in root node
    @return JSON object
    */
-  public static JSONObject wrap(String rootName, JSONArray data) {
+  static JSONObject wrap(String rootName, JSONArray data) {
     JSONObject result = new JSONObject();
     result.put(rootName, data);
     return result;
@@ -179,7 +178,7 @@ public abstract class JSON {
    @param message to wrap as error
    @return JSON object
    */
-  public static JSONObject wrapError(String message) {
+  static JSONObject wrapError(String message) {
     JSONObject error = new JSONObject();
     error.put(Exposure.KEY_ERROR_DETAIL, message);
 
@@ -189,10 +188,22 @@ public abstract class JSON {
     return wrap(Exposure.KEY_ERRORS, errorsArr);
   }
 
-//  public static JSONObject wrap(String rootName, List<String> data) {
-//    JSONObject result = new JSONObject();
-//    result.put(rootName, data);
-//    return result;
-//  }
+  /**
+   JSONObject from a POJO Entity
+   <p>
+   FUTURE: Is this inefficient, to parse with Jackson then re-parse with JSONObject?
 
+   @param obj to create JSONObject from
+   @return JSONObject
+   */
+  static JSONObject objectFrom(Entity obj) {
+    ObjectMapper objectMapper = new ObjectMapper();
+    try {
+      return new JSONObject(objectMapper.writeValueAsString(obj));
+    } catch (JsonProcessingException e) {
+      JSONObject err = new JSONObject();
+      err.put("error", e.getOriginalMessage());
+      return err;
+    }
+  }
 }

@@ -1,4 +1,4 @@
-package io.xj.core.work.basis.impl;// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+package io.xj.core.work.basis.impl;// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
 import io.xj.core.CoreModule;
 import io.xj.core.dao.ArrangementDAO;
@@ -6,6 +6,7 @@ import io.xj.core.dao.AudioDAO;
 import io.xj.core.dao.AudioEventDAO;
 import io.xj.core.dao.ChainConfigDAO;
 import io.xj.core.dao.ChoiceDAO;
+import io.xj.core.dao.InstrumentMemeDAO;
 import io.xj.core.dao.LinkChordDAO;
 import io.xj.core.dao.LinkDAO;
 import io.xj.core.dao.LinkMemeDAO;
@@ -18,8 +19,6 @@ import io.xj.core.dao.PickDAO;
 import io.xj.core.dao.VoiceDAO;
 import io.xj.core.dao.VoiceEventDAO;
 import io.xj.core.model.link.Link;
-import io.xj.core.model.link.LinkState;
-import io.xj.core.tables.records.LinkRecord;
 import io.xj.core.work.basis.Basis;
 import io.xj.core.work.basis.BasisFactory;
 import io.xj.music.Tuning;
@@ -57,6 +56,7 @@ public class BasisImplTest {
   @Mock ChoiceDAO choiceDAO;
   @Mock PatternDAO patternDAO;
   @Mock PatternMemeDAO patternMemeDAO;
+  @Mock InstrumentMemeDAO instrumentMemeDAO;
   @Mock LinkChordDAO linkChordDAO;
   @Mock LinkDAO linkDAO;
   @Mock LinkMemeDAO linkMemeDAO;
@@ -92,6 +92,7 @@ public class BasisImplTest {
           bind(ChoiceDAO.class).toInstance(choiceDAO);
           bind(PatternDAO.class).toInstance(patternDAO);
           bind(PatternMemeDAO.class).toInstance(patternMemeDAO);
+          bind(InstrumentMemeDAO.class).toInstance(instrumentMemeDAO);
           bind(LinkChordDAO.class).toInstance(linkChordDAO);
           bind(LinkDAO.class).toInstance(linkDAO);
           bind(LinkMemeDAO.class).toInstance(linkMemeDAO);

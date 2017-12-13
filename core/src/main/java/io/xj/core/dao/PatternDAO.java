@@ -1,16 +1,14 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.dao;
 
 import io.xj.core.access.impl.Access;
 import io.xj.core.model.pattern.Pattern;
 import io.xj.core.model.pattern.PatternType;
-import io.xj.core.tables.records.PatternRecord;
 
-import org.jooq.Record;
-import org.jooq.Result;
 import org.jooq.types.ULong;
 
 import javax.annotation.Nullable;
+import java.util.Collection;
 
 public interface PatternDAO {
 
@@ -18,22 +16,22 @@ public interface PatternDAO {
    (ADMIN ONLY)
    Create a new Account User
 
-   @param access control
-   @param entity for the new Account User.
    @return newly readMany record
+    @param access control
+   @param entity for the new Account User.
    */
-  PatternRecord create(Access access, Pattern entity) throws Exception;
+  Pattern create(Access access, Pattern entity) throws Exception;
 
   /**
    Fetch one pattern if accessible
 
-   @param access control
-   @param id     of pattern
    @return retrieved record
    @throws Exception on failure
+    @param access control
+   @param id     of pattern
    */
   @Nullable
-  PatternRecord readOne(Access access, ULong id) throws Exception;
+  Pattern readOne(Access access, ULong id) throws Exception;
 
   /**
    Read a given type of pattern for a given link
@@ -44,7 +42,7 @@ public interface PatternDAO {
    @param patternType type of pattern to read
    */
   @Nullable
-  PatternRecord readOneRecordTypeInLink(Access access, ULong linkId, PatternType patternType) throws Exception;
+  Pattern readOneRecordTypeInLink(Access access, ULong linkId, PatternType patternType) throws Exception;
 
   /**
    Fetch many pattern for one Account by id, if accessible
@@ -55,7 +53,7 @@ public interface PatternDAO {
    @param chainId to fetch patterns for.
    @param patternType  to fetch
    */
-  Result<? extends Record> readAllBoundToChain(Access access, ULong chainId, PatternType patternType) throws Exception;
+  Collection<Pattern> readAllBoundToChain(Access access, ULong chainId, PatternType patternType) throws Exception;
 
   /**
    Fetch many pattern for one Account by id, if accessible
@@ -66,27 +64,27 @@ public interface PatternDAO {
    @param chainId to fetch patterns for.
    @param patternType  to fetch
    */
-  Result<? extends Record> readAllBoundToChainLibrary(Access access, ULong chainId, PatternType patternType) throws Exception;
+  Collection<Pattern> readAllBoundToChainLibrary(Access access, ULong chainId, PatternType patternType) throws Exception;
 
   /**
    Fetch many pattern for one Account by id, if accessible
 
-   @param access    control
+   @return JSONArray of patterns.
+   @throws Exception on failure
+    @param access    control
    @param accountId to fetch patterns for.
-   @return JSONArray of patterns.
-   @throws Exception on failure
    */
-  Result<PatternRecord> readAllInAccount(Access access, ULong accountId) throws Exception;
+  Collection<Pattern> readAllInAccount(Access access, ULong accountId) throws Exception;
 
   /**
    Fetch many pattern for one Library by id, if accessible
 
-   @param access    control
-   @param libraryId to fetch patterns for.
    @return JSONArray of patterns.
    @throws Exception on failure
+    @param access    control
+   @param libraryId to fetch patterns for.
    */
-  Result<PatternRecord> readAllInLibrary(Access access, ULong libraryId) throws Exception;
+  Collection<Pattern> readAllInLibrary(Access access, ULong libraryId) throws Exception;
 
   /**
    (ADMIN ONLY)

@@ -1,4 +1,4 @@
-// Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
+// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 import Route from '@ember/routing/route';
 import {get} from '@ember/object';
 import {inject as service} from '@ember/service';
@@ -36,5 +36,5 @@ export default Route.extend({
   },
 
   breadCrumb: null,
-  
+
 });

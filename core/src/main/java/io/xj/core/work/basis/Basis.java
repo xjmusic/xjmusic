@@ -1,22 +1,25 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.work.basis;
 
 import io.xj.core.exception.BusinessException;
+import io.xj.core.isometry.MemeIsometry;
 import io.xj.core.model.arrangement.Arrangement;
 import io.xj.core.model.audio.Audio;
 import io.xj.core.model.audio_event.AudioEvent;
 import io.xj.core.model.chain_config.ChainConfig;
 import io.xj.core.model.chain_config.ChainConfigType;
 import io.xj.core.model.choice.Choice;
-import io.xj.core.model.pattern.Pattern;
-import io.xj.core.model.pattern.PatternType;
+import io.xj.core.model.instrument_meme.InstrumentMeme;
 import io.xj.core.model.link.Link;
 import io.xj.core.model.link_chord.LinkChord;
 import io.xj.core.model.link_meme.LinkMeme;
+import io.xj.core.model.meme.Meme;
+import io.xj.core.model.pattern.Pattern;
+import io.xj.core.model.pattern.PatternType;
+import io.xj.core.model.pattern_meme.PatternMeme;
+import io.xj.core.model.phase.Phase;
+import io.xj.core.model.phase_meme.PhaseMeme;
 import io.xj.core.model.pick.Pick;
-import io.xj.core.tables.records.PatternMemeRecord;
-import io.xj.core.tables.records.PhaseMemeRecord;
-import io.xj.core.tables.records.PhaseRecord;
 import io.xj.core.tables.records.VoiceEventRecord;
 import io.xj.core.tables.records.VoiceRecord;
 import io.xj.music.Chord;
@@ -28,6 +31,7 @@ import org.jooq.types.ULong;
 import javax.sound.sampled.AudioFormat;
 import java.sql.Timestamp;
 import java.time.Duration;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -164,14 +168,13 @@ public interface Basis {
   Choice currentRhythmChoice() throws Exception;
 
   /**
-   macro-type pattern phase in previous link
+   macro-type pattern phase in current link
    (caches results)
 
    @return phase
    @throws Exception on failure
    */
-  PhaseRecord previousMacroPhase() throws Exception;
-
+  Phase currentMacroPhase() throws Exception;
 
   /**
    macro-type pattern phase in previous link
@@ -180,7 +183,7 @@ public interface Basis {
    @return phase
    @throws Exception on failure
    */
-  PhaseRecord previousMacroNextPhase() throws Exception;
+  Phase previousMacroNextPhase() throws Exception;
 
   /**
    Chain configurations
@@ -222,7 +225,7 @@ public interface Basis {
   /**
    Note, for any pitch in Hz
 
-   * @param pitch to get octave of
+   @param pitch to get octave of
    */
   Note note(Double pitch);
 
@@ -231,8 +234,8 @@ public interface Basis {
    <p>
    [#256] Velocity of Link meter (beats per minute) increases linearly from the beginning of the Link (at the previous Link's tempo) to the end of the Link (arriving at the current Link's tempo, only at its end)
 
+   @param p in beats
    @return position in seconds
-    @param p in beats
    */
   Double secondsAtPosition(double p) throws Exception;
 
@@ -243,7 +246,25 @@ public interface Basis {
    @return result of pattern memes
    @throws Exception on failure
    */
-  Result<PatternMemeRecord> patternMemes(ULong patternId) throws Exception;
+  Collection<PatternMeme> patternMemes(ULong patternId) throws Exception;
+
+  /**
+   Fetch all memes for a given pattern and phaseOffset
+   (caches results)
+
+   @return result of pattern memes
+   @throws Exception on failure
+   */
+  Collection<Meme> patternPhaseMemes(ULong patternId, ULong phaseOffset) throws Exception;
+
+  /**
+   Fetch all memes for a given link
+   (caches results)
+
+   @return result of link memes
+   @throws Exception on failure
+   */
+  Collection<LinkMeme> linkMemes(ULong linkId) throws Exception;
 
   /**
    Fetch all events for a given voice
@@ -267,10 +288,18 @@ public interface Basis {
   /**
    Read all Audio for an instrument
 
-   @param instrumentId to get audio for
    @return audios for instrument
+    @param instrumentId to get audio for
    */
-  List<Audio> instrumentAudios(ULong instrumentId) throws Exception;
+  Collection<Audio> instrumentAudios(ULong instrumentId) throws Exception;
+
+  /**
+   Read all Meme for an instrument
+
+   @return memes for instrument
+    @param instrumentId to get meme for
+   */
+  Collection<InstrumentMeme> instrumentMemes(ULong instrumentId) throws Exception;
 
   /**
    Read an Audio by id, assumed to be in the set of audio found for all picks in the link
@@ -312,16 +341,16 @@ public interface Basis {
    @return link memes
    @throws Exception on failure
    */
-  List<LinkMeme> linkMemes() throws Exception;
+  Collection<LinkMeme> linkMemes() throws Exception;
 
   /**
-   Create a LinkMeme entity by link id and name
+   Fetch all memes for the previous link
+   (caches results)
 
-   @param linkId   of link meme
-   @param memeName of link meme
-   @return link meme
+   @return previous link memes
+   @throws Exception on failure
    */
-  LinkMeme linkMeme(ULong linkId, String memeName);
+  Collection<LinkMeme> previousLinkMemes() throws Exception;
 
   /**
    Fetch all memes for a given phase
@@ -330,7 +359,7 @@ public interface Basis {
    @return result of phase memes
    @throws Exception on failure
    */
-  Result<PhaseMemeRecord> phaseMemes(ULong phaseId) throws Exception;
+  Collection<PhaseMeme> phaseMemes(ULong phaseId) throws Exception;
 
   /**
    Fetch all picks for the current link
@@ -356,7 +385,7 @@ public interface Basis {
    @return phase record
    @throws Exception on failure
    */
-  PhaseRecord phaseByOffset(ULong patternId, ULong phaseOffset) throws Exception;
+  Phase phaseByOffset(ULong patternId, ULong phaseOffset) throws Exception;
 
   /**
    Fetch a link in a chain, by offset
@@ -421,9 +450,33 @@ public interface Basis {
   /**
    Microseconds from seconds
 
+   @param seconds to get microseconds of
    @return microseconds
-    @param seconds to get microseconds of
    */
   Long atMicros(Double seconds);
+
+  /**
+   Get MemeIsometry instance for previous macro-choice and phase memes
+
+   @return MemeIsometry for previous macro-choice
+   @throws Exception on failure
+   */
+  MemeIsometry previousMacroNextPhaseMemeIsometry() throws Exception;
+
+  /**
+   Get MemeIsometry instance for macro-choice and phase memes
+
+   @return MemeIsometry for macro-choice
+   @throws Exception on failure
+   */
+  MemeIsometry currentMacroMemeIsometry() throws Exception;
+
+  /**
+   Get MemeIsometry instance for current link
+
+   @return MemeIsometry for current link
+   @throws Exception on failure
+   */
+  MemeIsometry currentLinkMemeIsometry() throws Exception;
 
 }

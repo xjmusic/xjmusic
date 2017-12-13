@@ -1,4 +1,4 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.config;
 
 import io.xj.core.exception.ConfigException;
@@ -6,6 +6,7 @@ import io.xj.core.transport.CSV;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -368,7 +369,7 @@ public interface Config {
     return value;
   }
 
-  static List<String> getListOrDefault(String key, List<String> defaultValue) {
+  static Collection<String> getListOrDefault(String key, List<String> defaultValue) {
     try {
       return CSV.split(get(key));
     } catch (ConfigException e) {

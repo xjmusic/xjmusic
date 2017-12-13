@@ -1,16 +1,13 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.craft.impl;
 
 import io.xj.core.access.impl.Access;
-import io.xj.core.exception.BusinessException;
-import io.xj.core.work.basis.Basis;
+import io.xj.core.craft.VoiceCraft;
 import io.xj.core.dao.ArrangementDAO;
 import io.xj.core.dao.InstrumentDAO;
-import io.xj.core.dao.LinkMemeDAO;
 import io.xj.core.dao.PickDAO;
-import io.xj.core.isometry.MemeIsometry;
-import io.xj.core.model.EventEntity;
-import io.xj.core.model.MemeEntity;
+import io.xj.core.exception.BusinessException;
+import io.xj.core.isometry.EventIsometry;
 import io.xj.core.model.arrangement.Arrangement;
 import io.xj.core.model.audio.Audio;
 import io.xj.core.model.choice.Chance;
@@ -22,7 +19,7 @@ import io.xj.core.model.pick.Pick;
 import io.xj.core.model.voice.Voice;
 import io.xj.core.model.voice_event.VoiceEvent;
 import io.xj.core.tables.records.VoiceEventRecord;
-import io.xj.core.craft.VoiceCraft;
+import io.xj.core.work.basis.Basis;
 import io.xj.music.Chord;
 import io.xj.music.Note;
 
@@ -36,6 +33,7 @@ import com.google.inject.assistedinject.Assisted;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
@@ -44,11 +42,11 @@ import java.util.Objects;
  */
 public class VoiceCraftImpl implements VoiceCraft {
   private final Logger log = LoggerFactory.getLogger(VoiceCraftImpl.class);
-  private static final double PICK_INSTRUMENT_AUDIO_SCORE_MAX_DISTRIBUTION = 0.25;
+  private static final double SCORE_INSTRUMENT_ENTROPY = 0.5;
+  private static final double SCORE_MATCHED_MEMES = 3;
   private final Basis basis;
   private final ArrangementDAO arrangementDAO;
   private final PickDAO pickDAO;
-  private final LinkMemeDAO linkMemeDAO;
   private final InstrumentDAO instrumentDAO;
 
   @Inject
@@ -56,13 +54,11 @@ public class VoiceCraftImpl implements VoiceCraft {
     @Assisted("basis") Basis basis,
     ArrangementDAO arrangementDAO,
     InstrumentDAO instrumentDAO,
-    LinkMemeDAO linkMemeDAO,
     PickDAO pickDAO
     /*-*/) {
     this.basis = basis;
     this.arrangementDAO = arrangementDAO;
     this.instrumentDAO = instrumentDAO;
-    this.linkMemeDAO = linkMemeDAO;
     this.pickDAO = pickDAO;
   }
 
@@ -121,27 +117,21 @@ public class VoiceCraftImpl implements VoiceCraft {
   private Instrument choosePercussiveInstrument(Voice voice) throws Exception {
     Chooser<Instrument> chooser = new Chooser<>();
 
-    // (1) retrieve memes of link, for use as a meme isometry comparison
-    MemeIsometry memeIsometry = MemeIsometry.of(linkMemeDAO.readAll(Access.internal(), basis.linkId()));
-
     // (2a) retrieve instruments bound directly to chain
-    Result<? extends Record> sourceRecords = instrumentDAO.readAllBoundToChain(Access.internal(), basis.chainId(), InstrumentType.Percussive);
+    Collection<Instrument> sourceInstruments = instrumentDAO.readAllBoundToChain(Access.internal(), basis.chainId(), InstrumentType.Percussive);
 
     // (2b) only if none were found in the previous transpose, retrieve instruments bound to chain library
-    if (sourceRecords.isEmpty())
-      sourceRecords = instrumentDAO.readAllBoundToChainLibrary(Access.internal(), basis.chainId(), InstrumentType.Percussive);
+    if (sourceInstruments.isEmpty())
+      sourceInstruments = instrumentDAO.readAllBoundToChainLibrary(Access.internal(), basis.chainId(), InstrumentType.Percussive);
 
     // future: [#258] Instrument selection is based on Text Isometry between the voice description and the instrument description
     log.debug("not currently in use: {}", voice);
 
     // (3) score each source record based on meme isometry
-    sourceRecords.forEach((record -> {
+    sourceInstruments.forEach((instrument -> {
       try {
-        chooser.add(new Instrument().setFromRecord(record),
-          Chance.normallyAround(
-            memeIsometry.scoreCSV(String.valueOf(record.get(MemeEntity.KEY_MANY))),
-            1));
-      } catch (BusinessException e) {
+        chooser.add(instrument, scorePercussiveInstrument(instrument));
+      } catch (Exception e) {
         log.debug("while scoring perussive instrument", e);
       }
     }));
@@ -163,6 +153,21 @@ public class VoiceCraftImpl implements VoiceCraft {
       return instrument;
     else
       throw new BusinessException("Found no percussive-type instrument bound to Chain!");
+  }
+
+  /**
+   Score a candidate for percussive instrument, given current basis
+
+   @param instrument to score
+   @return score, including +/- entropy
+   */
+  private double scorePercussiveInstrument(Instrument instrument) throws Exception {
+    Double score = Chance.normallyAround(0, SCORE_INSTRUMENT_ENTROPY);
+
+    // Score includes matching memes, previous link to macro instrument first phase
+    score += basis.currentLinkMemeIsometry().score(basis.instrumentMemes(instrument.getId())) * SCORE_MATCHED_MEMES;
+
+    return score;
   }
 
   /**
@@ -217,8 +222,8 @@ public class VoiceCraftImpl implements VoiceCraft {
       .forEach(audioEvent ->
         audioChooser.score(audioEvent.getAudioId(),
           Chance.normallyAround(
-            EventEntity.similarity(voiceEvent, audioEvent),
-            PICK_INSTRUMENT_AUDIO_SCORE_MAX_DISTRIBUTION)));
+            EventIsometry.similarity(voiceEvent, audioEvent),
+            SCORE_INSTRUMENT_ENTROPY)));
 
     // final chosen audio event
     Audio audio = audioChooser.getTop();
@@ -304,10 +309,9 @@ public class VoiceCraftImpl implements VoiceCraft {
    @throws Exception on failure
    */
   private Phase rhythmPhase() throws Exception {
-    return new Phase().setFromRecord(
-      basis.phaseByOffset(
+    return basis.phaseByOffset(
         basis.currentRhythmChoice().getPatternId(),
-        basis.currentRhythmChoice().getPhaseOffset()));
+        basis.currentRhythmChoice().getPhaseOffset());
   }
 
   /**

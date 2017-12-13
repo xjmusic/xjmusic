@@ -1,8 +1,8 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.model.pattern_meme;
 
 import io.xj.core.exception.BusinessException;
-import io.xj.core.model.MemeEntity;
+import io.xj.core.model.meme.Meme;
 import io.xj.core.util.Text;
 
 import org.jooq.Field;
@@ -26,13 +26,14 @@ import static io.xj.core.Tables.PATTERN_MEME;
 
  NOTE: There can only be ONE of any getter/setter (with the same # of input params)
  */
-public class PatternMeme extends MemeEntity {
+public class PatternMeme extends Meme {
 
   /**
    For use in maps.
    */
   public static final String KEY_ONE = "patternMeme";
   public static final String KEY_MANY = "patternMemes";
+
   // Pattern ID
   private ULong patternId;
 
@@ -53,7 +54,7 @@ public class PatternMeme extends MemeEntity {
 
   @Override
   public void validate() throws BusinessException {
-    if (this.patternId == null) {
+    if (null == patternId) {
       throw new BusinessException("Pattern ID is required.");
     }
     super.validate();

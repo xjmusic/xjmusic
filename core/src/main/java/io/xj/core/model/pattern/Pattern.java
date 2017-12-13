@@ -1,4 +1,4 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.model.pattern;
 
 import io.xj.core.exception.BusinessException;
@@ -134,7 +134,7 @@ public class Pattern extends Entity {
   }
 
   @Override
-  public Pattern setFromRecord(Record record) throws BusinessException {
+  public Pattern setFromRecord(Record record) {
     if (Objects.isNull(record)) {
       return null;
     }
@@ -143,7 +143,7 @@ public class Pattern extends Entity {
     libraryId = record.get(PATTERN.LIBRARY_ID);
     userId = record.get(PATTERN.USER_ID);
     key = record.get(PATTERN.KEY);
-    type = PatternType.validate(record.get(PATTERN.TYPE));
+    type = PatternType.valueOf(String.valueOf(record.get(PATTERN.TYPE)));
     tempo = record.get(PATTERN.TEMPO);
     density = record.get(PATTERN.DENSITY);
     createdAt = record.get(PATTERN.CREATED_AT);

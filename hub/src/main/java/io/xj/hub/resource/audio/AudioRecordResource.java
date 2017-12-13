@@ -1,13 +1,13 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.resource.audio;
 
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
-import io.xj.core.server.HttpResponseProvider;
 import io.xj.core.dao.AudioDAO;
 import io.xj.core.model.audio.Audio;
 import io.xj.core.model.audio.AudioWrapper;
 import io.xj.core.model.role.Role;
+import io.xj.core.server.HttpResponseProvider;
 import io.xj.core.transport.JSON;
 
 import org.jooq.types.ULong;
@@ -37,7 +37,7 @@ import java.io.IOException;
 @Path("audios/{id}")
 public class AudioRecordResource {
   private static final Injector injector = Guice.createInjector(new CoreModule());
-  private final AudioDAO DAO = injector.getInstance(AudioDAO.class);
+  private final AudioDAO audioDAO = injector.getInstance(AudioDAO.class);
   private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
 
   @PathParam("id")
@@ -50,12 +50,12 @@ public class AudioRecordResource {
    */
   @GET
   @WebResult
-  @RolesAllowed({Role.ARTIST})
+  @RolesAllowed(Role.ARTIST)
   public Response readOne(@Context ContainerRequestContext crc) throws IOException {
     try {
       return response.readOne(
         Audio.KEY_ONE,
-        DAO.readOne(
+        audioDAO.readOne(
           Access.fromContext(crc),
           ULong.valueOf(id)));
 
@@ -72,10 +72,10 @@ public class AudioRecordResource {
    */
   @PUT
   @Consumes(MediaType.APPLICATION_JSON)
-  @RolesAllowed({Role.ARTIST})
+  @RolesAllowed(Role.ARTIST)
   public Response update(AudioWrapper data, @Context ContainerRequestContext crc) {
     try {
-      DAO.update(Access.fromContext(crc), ULong.valueOf(id), data.getAudio());
+      audioDAO.update(Access.fromContext(crc), ULong.valueOf(id), data.getAudio());
       return Response.accepted("{}").build();
 
     } catch (Exception e) {
@@ -91,10 +91,10 @@ public class AudioRecordResource {
    @return Response
    */
   @DELETE
-  @RolesAllowed({Role.ARTIST})
+  @RolesAllowed(Role.ARTIST)
   public Response delete(@Context ContainerRequestContext crc) {
     try {
-      DAO.erase(Access.fromContext(crc), ULong.valueOf(id));
+      audioDAO.erase(Access.fromContext(crc), ULong.valueOf(id));
       return Response.accepted("{}").build();
 
     } catch (Exception e) {
@@ -110,11 +110,11 @@ public class AudioRecordResource {
   @GET
   @Path("/upload")
   @WebResult
-  @RolesAllowed({Role.ARTIST})
+  @RolesAllowed(Role.ARTIST)
   public Response uploadOne(@Context ContainerRequestContext crc) throws IOException {
     try {
-      JSONObject result = DAO.uploadOne(Access.fromContext(crc), ULong.valueOf(id));
-      if (result != null) {
+      JSONObject result = audioDAO.uploadOne(Access.fromContext(crc), ULong.valueOf(id));
+      if (null != result) {
         return Response
           .accepted(JSON.wrap(Audio.KEY_ONE, result).toString())
           .type(MediaType.APPLICATION_JSON)

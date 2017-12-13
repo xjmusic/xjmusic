@@ -1,37 +1,33 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.dao.impl;
 
 import io.xj.core.access.impl.Access;
+import io.xj.core.dao.PatternDAO;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.exception.ConfigException;
-import io.xj.core.dao.PatternDAO;
-import io.xj.core.persistence.sql.impl.SQLConnection;
-import io.xj.core.persistence.sql.SQLDatabaseProvider;
-import io.xj.core.model.MemeEntity;
 import io.xj.core.model.pattern.Pattern;
 import io.xj.core.model.pattern.PatternType;
-import io.xj.core.tables.records.PatternRecord;
+import io.xj.core.persistence.sql.SQLDatabaseProvider;
+import io.xj.core.persistence.sql.impl.SQLConnection;
 
 import org.jooq.DSLContext;
 import org.jooq.Field;
-import org.jooq.Record;
-import org.jooq.Result;
-import org.jooq.SelectFromStep;
 import org.jooq.types.ULong;
 
+import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 
 import javax.annotation.Nullable;
+import java.util.Collection;
 import java.util.Map;
 
 import static io.xj.core.Tables.CHAIN_LIBRARY;
 import static io.xj.core.Tables.CHOICE;
+import static io.xj.core.Tables.LIBRARY;
 import static io.xj.core.Tables.PATTERN;
 import static io.xj.core.Tables.PATTERN_MEME;
-import static io.xj.core.Tables.LIBRARY;
 import static io.xj.core.Tables.PHASE;
 import static io.xj.core.tables.ChainPattern.CHAIN_PATTERN;
-import static org.jooq.impl.DSL.groupConcat;
 
 public class PatternDAOImpl extends DAOImpl implements PatternDAO {
 
@@ -43,10 +39,10 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
   }
 
   @Override
-  public PatternRecord create(Access access, Pattern entity) throws Exception {
+  public Pattern create(Access access, Pattern entity) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(createRecord(tx.getContext(), access, entity));
+      return tx.success(create(tx.getContext(), access, entity));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -54,10 +50,10 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
 
   @Override
   @Nullable
-  public PatternRecord readOne(Access access, ULong id) throws Exception {
+  public Pattern readOne(Access access, ULong id) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readOneRecord(tx.getContext(), access, id));
+      return tx.success(readOne(tx.getContext(), access, id));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -65,17 +61,17 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
 
   @Nullable
   @Override
-  public PatternRecord readOneRecordTypeInLink(Access access, ULong linkId, PatternType patternType) throws Exception {
+  public Pattern readOneRecordTypeInLink(Access access, ULong linkId, PatternType patternType) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readOneRecordTypeInLink(tx.getContext(), access, linkId, patternType));
+      return tx.success(readOneTypeInLink(tx.getContext(), access, linkId, patternType));
     } catch (Exception e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public Result<? extends Record> readAllBoundToChain(Access access, ULong chainId, PatternType patternType) throws Exception {
+  public Collection<Pattern> readAllBoundToChain(Access access, ULong chainId, PatternType patternType) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readAllBoundToChain(tx.getContext(), access, chainId, patternType));
@@ -85,7 +81,7 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
   }
 
   @Override
-  public Result<? extends Record> readAllBoundToChainLibrary(Access access, ULong chainId, PatternType patternType) throws Exception {
+  public Collection<Pattern> readAllBoundToChainLibrary(Access access, ULong chainId, PatternType patternType) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readAllBoundToChainLibrary(tx.getContext(), access, chainId, patternType));
@@ -95,7 +91,7 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
   }
 
   @Override
-  public Result<PatternRecord> readAllInAccount(Access access, ULong accountId) throws Exception {
+  public Collection<Pattern> readAllInAccount(Access access, ULong accountId) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readAllInAccount(tx.getContext(), access, accountId));
@@ -105,7 +101,7 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
   }
 
   @Override
-  public Result<PatternRecord> readAllInLibrary(Access access, ULong libraryId) throws Exception {
+  public Collection<Pattern> readAllInLibrary(Access access, ULong libraryId) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readAllInLibrary(tx.getContext(), access, libraryId));
@@ -145,7 +141,7 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
    @return newly readMany record
    @throws BusinessException on failure
    */
-  private PatternRecord createRecord(DSLContext db, Access access, Pattern entity) throws BusinessException {
+  private Pattern create(DSLContext db, Access access, Pattern entity) throws BusinessException {
     entity.validate();
 
     Map<Field, Object> fieldValues = entity.updatableFieldValueMap();
@@ -163,7 +159,7 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
           .fetchOne(0, int.class));
     fieldValues.put(PATTERN.USER_ID, access.getUserId());
 
-    return executeCreate(db, PATTERN, fieldValues);
+    return new Pattern().setFromRecord(executeCreate(db, PATTERN, fieldValues));
   }
 
   /**
@@ -175,38 +171,38 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
    @return record
    */
   @Nullable
-  private PatternRecord readOneRecord(DSLContext db, Access access, ULong id) {
+  private Pattern readOne(DSLContext db, Access access, ULong id) {
     if (access.isTopLevel())
-      return db.selectFrom(PATTERN)
+      return new Pattern().setFromRecord(db.selectFrom(PATTERN)
         .where(PATTERN.ID.eq(id))
-        .fetchOne();
+        .fetchOne());
     else
-      return recordInto(PATTERN, db.select(PATTERN.fields())
+      return new Pattern().setFromRecord(recordInto(PATTERN, db.select(PATTERN.fields())
         .from(PATTERN)
         .join(LIBRARY).on(LIBRARY.ID.eq(PATTERN.LIBRARY_ID))
         .where(PATTERN.ID.eq(id))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-        .fetchOne());
+        .fetchOne()));
   }
 
   /**
    Read one record of a given type for a given link
 
-   @return record
-    @param db         context
+   @param db         context
    @param access     control
    @param linkId     of link
    @param choiceType of pattern
+   @return record
    */
   @Nullable
-  private PatternRecord readOneRecordTypeInLink(DSLContext db, Access access, ULong linkId, PatternType choiceType) throws BusinessException {
+  private Pattern readOneTypeInLink(DSLContext db, Access access, ULong linkId, PatternType choiceType) throws BusinessException {
     requireTopLevel(access);
-    return recordInto(PATTERN, db.select(PATTERN.fields())
+    return new Pattern().setFromRecord(recordInto(PATTERN, db.select(PATTERN.fields())
       .from(PATTERN)
       .join(CHOICE).on(CHOICE.PATTERN_ID.eq(PATTERN.ID))
       .where(CHOICE.LINK_ID.eq(linkId))
       .and(CHOICE.TYPE.eq(choiceType.toString()))
-      .fetchOne());
+      .fetchOne()));
   }
 
 
@@ -218,62 +214,24 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
    @param accountId of parent
    @return array of records
    */
-  private Result<PatternRecord> readAllInAccount(DSLContext db, Access access, ULong accountId) {
+  private static Collection<Pattern> readAllInAccount(DSLContext db, Access access, ULong accountId) {
+    Collection<Pattern> result = Lists.newArrayList();
+
     if (access.isTopLevel())
-      return resultInto(PATTERN, db.select(PATTERN.fields())
-        .from(PATTERN)
+      db.select(PATTERN.fields()).from(PATTERN)
         .join(LIBRARY).on(PATTERN.LIBRARY_ID.eq(LIBRARY.ID))
         .where(LIBRARY.ACCOUNT_ID.eq(accountId))
-        .fetch());
+        .orderBy(PATTERN.TYPE, PATTERN.NAME)
+        .fetch().forEach((record) -> result.add(new Pattern().setFromRecord(record)));
     else
-      return resultInto(PATTERN, db.select(PATTERN.fields())
-        .from(PATTERN)
+      db.select(PATTERN.fields()).from(PATTERN)
         .join(LIBRARY).on(PATTERN.LIBRARY_ID.eq(LIBRARY.ID))
         .where(LIBRARY.ACCOUNT_ID.in(accountId))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-        .fetch());
-  }
+        .orderBy(PATTERN.TYPE, PATTERN.NAME)
+        .fetch().forEach((record) -> result.add(new Pattern().setFromRecord(record)));
 
-  /**
-   Read all pattern records bound to a Chain via ChainPattern records
-
-   @return array of records
-    @param db      context
-   @param access  control
-   @param chainId of parent
-   @param patternType of which to read all bound to chain
-   */
-  private Result<? extends Record> readAllBoundToChain(DSLContext db, Access access, ULong chainId, PatternType patternType) throws Exception {
-    requireTopLevel(access);
-    return selectPatternAndMemes(db)
-      .from(PATTERN_MEME)
-      .join(CHAIN_PATTERN).on(CHAIN_PATTERN.PATTERN_ID.eq(PATTERN_MEME.PATTERN_ID))
-      .join(PATTERN).on(PATTERN.ID.eq(PATTERN_MEME.PATTERN_ID))
-      .where(CHAIN_PATTERN.CHAIN_ID.eq(chainId))
-      .and(PATTERN.TYPE.eq(patternType.toString()))
-      .groupBy(PATTERN.ID)
-      .fetch();
-  }
-
-  /**
-   Read all pattern records bound to a Chain via ChainLibrary records
-
-   @return array of records
-    @param db      context
-   @param access  control
-   @param chainId of parent
-   @param patternType of which to read all bound to chain library
-   */
-  private Result<? extends Record> readAllBoundToChainLibrary(DSLContext db, Access access, ULong chainId, PatternType patternType) throws Exception {
-    requireTopLevel(access);
-    return selectPatternAndMemes(db)
-      .from(PATTERN_MEME)
-      .join(PATTERN).on(PATTERN.ID.eq(PATTERN_MEME.PATTERN_ID))
-      .join(CHAIN_LIBRARY).on(CHAIN_LIBRARY.LIBRARY_ID.eq(PATTERN.LIBRARY_ID))
-      .where(CHAIN_LIBRARY.CHAIN_ID.eq(chainId))
-      .and(PATTERN.TYPE.eq(patternType.toString()))
-      .groupBy(PATTERN.ID)
-      .fetch();
+    return result;
   }
 
   /**
@@ -284,19 +242,69 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
    @param libraryId of parent
    @return array of records
    */
-  private Result<PatternRecord> readAllInLibrary(DSLContext db, Access access, ULong libraryId) {
+  private static Collection<Pattern> readAllInLibrary(DSLContext db, Access access, ULong libraryId) {
+    Collection<Pattern> result = Lists.newArrayList();
+
     if (access.isTopLevel())
-      return resultInto(PATTERN, db.select(PATTERN.fields())
-        .from(PATTERN)
+      db.select(PATTERN.fields()).from(PATTERN)
         .where(PATTERN.LIBRARY_ID.eq(libraryId))
-        .fetch());
+        .orderBy(PATTERN.TYPE, PATTERN.NAME)
+        .fetch().forEach((record) -> result.add(new Pattern().setFromRecord(record)));
     else
-      return resultInto(PATTERN, db.select(PATTERN.fields())
-        .from(PATTERN)
+      db.select(PATTERN.fields()).from(PATTERN)
         .join(LIBRARY).on(LIBRARY.ID.eq(PATTERN.LIBRARY_ID))
         .where(PATTERN.LIBRARY_ID.eq(libraryId))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-        .fetch());
+        .orderBy(PATTERN.TYPE, PATTERN.NAME)
+        .fetch().forEach((record) -> result.add(new Pattern().setFromRecord(record)));
+
+    return result;
+  }
+
+  /**
+   Read all pattern records bound to a Chain via ChainPattern records
+
+   @param db          context
+   @param access      control
+   @param chainId     of parent
+   @param patternType of which to read all bound to chain
+   @return array of records
+   */
+  private Collection<Pattern> readAllBoundToChain(DSLContext db, Access access, ULong chainId, PatternType patternType) throws Exception {
+    requireTopLevel(access);
+
+    Collection<Pattern> result = Lists.newArrayList();
+
+    db.select(PATTERN.fields()).from(PATTERN)
+      .join(CHAIN_PATTERN).on(CHAIN_PATTERN.PATTERN_ID.eq(PATTERN.ID))
+      .where(CHAIN_PATTERN.CHAIN_ID.eq(chainId))
+      .and(PATTERN.TYPE.eq(patternType.toString()))
+      .fetch().forEach((record) -> result.add(new Pattern().setFromRecord(record)));
+
+    return result;
+  }
+
+  /**
+   Read all pattern records bound to a Chain via ChainLibrary records
+
+   @param db          context
+   @param access      control
+   @param chainId     of parent
+   @param patternType of which to read all bound to chain library
+   @return array of records
+   */
+  private Collection<Pattern> readAllBoundToChainLibrary(DSLContext db, Access access, ULong chainId, PatternType patternType) throws Exception {
+    requireTopLevel(access);
+
+    Collection<Pattern> result = Lists.newArrayList();
+
+    db.select(PATTERN.fields()).from(PATTERN)
+      .join(CHAIN_LIBRARY).on(CHAIN_LIBRARY.LIBRARY_ID.eq(PATTERN.LIBRARY_ID))
+      .where(CHAIN_LIBRARY.CHAIN_ID.eq(chainId))
+      .and(PATTERN.TYPE.eq(patternType.toString()))
+      .fetch().forEach((record) -> result.add(new Pattern().setFromRecord(record)));
+
+    return result;
   }
 
   /**
@@ -381,29 +389,5 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
       )
       .execute();
   }
-
-  /**
-   This is used to select many Pattern records
-   with a virtual column containing a CSV of its meme names
-
-   @param db context
-   @return jOOQ select step
-   */
-  private static SelectFromStep<?> selectPatternAndMemes(DSLContext db) {
-    return db.select(
-      PATTERN.ID,
-      PATTERN.DENSITY,
-      PATTERN.KEY,
-      PATTERN.USER_ID,
-      PATTERN.LIBRARY_ID,
-      PATTERN.NAME,
-      PATTERN.TEMPO,
-      PATTERN.TYPE,
-      PATTERN.CREATED_AT,
-      PATTERN.UPDATED_AT,
-      groupConcat(PATTERN_MEME.NAME, ",").as(MemeEntity.KEY_MANY)
-    );
-  }
-
 
 }

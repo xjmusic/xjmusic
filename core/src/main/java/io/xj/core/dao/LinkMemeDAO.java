@@ -1,4 +1,4 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.dao;
 
 import io.xj.core.access.impl.Access;
@@ -9,6 +9,7 @@ import org.jooq.Result;
 import org.jooq.types.ULong;
 
 import javax.annotation.Nullable;
+import java.util.Collection;
 import java.util.List;
 
 public interface LinkMemeDAO {
@@ -41,7 +42,7 @@ public interface LinkMemeDAO {
    @return JSONArray of linkMemes.
    @throws Exception on failure
    */
-  Result<LinkMemeRecord> readAll(Access access, ULong linkId) throws Exception;
+  Collection<LinkMeme> readAll(Access access, ULong linkId) throws Exception;
 
   /**
    Fetch many linkMeme for many Links by id, if accessible

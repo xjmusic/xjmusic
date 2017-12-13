@@ -1,13 +1,13 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.resource.pattern_meme;
 
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
-import io.xj.core.server.HttpResponseProvider;
 import io.xj.core.dao.PatternMemeDAO;
 import io.xj.core.model.pattern_meme.PatternMeme;
 import io.xj.core.model.pattern_meme.PatternMemeWrapper;
 import io.xj.core.model.role.Role;
+import io.xj.core.server.HttpResponseProvider;
 
 import org.jooq.types.ULong;
 
@@ -33,7 +33,7 @@ import java.io.IOException;
 @Path("pattern-memes")
 public class PatternMemeIndexResource {
   private static final Injector injector = Guice.createInjector(new CoreModule());
-  private final PatternMemeDAO DAO = injector.getInstance(PatternMemeDAO.class);
+  private final PatternMemeDAO patternMemeDAO = injector.getInstance(PatternMemeDAO.class);
   private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
 
   @QueryParam("patternId")
@@ -46,17 +46,17 @@ public class PatternMemeIndexResource {
    */
   @GET
   @WebResult
-  @RolesAllowed({Role.ARTIST})
+  @RolesAllowed(Role.ARTIST)
   public Response readAll(@Context ContainerRequestContext crc) throws IOException {
 
-    if (patternId == null || patternId.length() == 0) {
+    if (null == patternId || patternId.isEmpty()) {
       return response.notAcceptable("Pattern id is required");
     }
 
     try {
       return response.readMany(
         PatternMeme.KEY_MANY,
-        DAO.readAll(
+        patternMemeDAO.readAll(
           Access.fromContext(crc),
           ULong.valueOf(patternId)));
 
@@ -73,13 +73,13 @@ public class PatternMemeIndexResource {
    */
   @POST
   @Consumes(MediaType.APPLICATION_JSON)
-  @RolesAllowed({Role.ARTIST})
+  @RolesAllowed(Role.ARTIST)
   public Response create(PatternMemeWrapper data, @Context ContainerRequestContext crc) {
     try {
       return response.create(
         PatternMeme.KEY_MANY,
         PatternMeme.KEY_ONE,
-        DAO.create(
+        patternMemeDAO.create(
           Access.fromContext(crc),
           data.getPatternMeme()));
 

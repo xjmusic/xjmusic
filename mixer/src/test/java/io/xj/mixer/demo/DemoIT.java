@@ -1,9 +1,9 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.mixer.demo;
 
+import io.xj.mixer.Mixer;
 import io.xj.mixer.MixerFactory;
 import io.xj.mixer.MixerModule;
-import io.xj.mixer.Mixer;
 import io.xj.mixer.OutputContainer;
 import io.xj.mixer.impl.exception.FormatException;
 import io.xj.mixer.util.InternalResource;

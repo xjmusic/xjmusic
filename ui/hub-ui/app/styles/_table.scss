@@ -1,4 +1,4 @@
-// Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
+// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 @import "palette";
 
 .table thead th {
@@ -48,6 +48,7 @@ table.chords {
   tr, th, td {
     padding: 0;
     border: 0 none;
+    white-space: nowrap;
   }
   th {
     width: 30%;

@@ -1,7 +1,7 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.server;
 
-import io.xj.core.model.JSONObjectEntity;
+import io.xj.core.model.Entity;
 
 import org.jooq.Record;
 import org.jooq.Result;
@@ -102,6 +102,15 @@ public interface HttpResponseProvider {
   Response readOne(String keyOne, Record result);
 
   /**
+   Return a response that one record has been read, else an error
+
+   @param keyOne key for one record
+   @param result of record that was read, or null if a 404 ought to be returned instead
+   @return response
+   */
+  Response readOne(String keyOne, Entity result);
+
+  /**
    Return a response that many records have been read, else an error
 
    @param keyMany key for many records
@@ -117,7 +126,7 @@ public interface HttpResponseProvider {
    @param results of records that were read, or null if a 404 ought to be returned instead
    @return response
    */
-  <J extends JSONObjectEntity> Response readMany(String keyMany, Collection<J> results) throws Exception;
+  <J extends Entity> Response readMany(String keyMany, Collection<J> results) throws Exception;
 
   /**
    Return a response that the request has been created, else an error
@@ -128,4 +137,13 @@ public interface HttpResponseProvider {
    @return response
    */
   Response create(String keyMany, String keyOne, Record record);
+  /**
+   Return a response that the request has been created, else an error
+
+   @param keyMany key for many records (within which the newly-created-entity-path, including id, will be calculated)
+   @param keyOne  key for one record
+   @param entity  the record that was created, or null if none was (and an error ought to be returned)
+   @return response
+   */
+  Response create(String keyMany, String keyOne, Entity entity);
 }

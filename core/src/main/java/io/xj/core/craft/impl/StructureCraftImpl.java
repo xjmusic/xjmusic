@@ -1,25 +1,21 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.craft.impl;
 
 import io.xj.core.access.impl.Access;
-import io.xj.core.exception.BusinessException;
-import io.xj.core.work.basis.Basis;
+import io.xj.core.craft.StructureCraft;
 import io.xj.core.dao.ChoiceDAO;
 import io.xj.core.dao.PatternDAO;
-import io.xj.core.isometry.MemeIsometry;
-import io.xj.core.model.MemeEntity;
+import io.xj.core.exception.BusinessException;
 import io.xj.core.model.choice.Chance;
 import io.xj.core.model.choice.Choice;
 import io.xj.core.model.choice.Chooser;
 import io.xj.core.model.pattern.Pattern;
 import io.xj.core.model.pattern.PatternType;
-import io.xj.core.tables.records.PhaseRecord;
+import io.xj.core.model.phase.Phase;
 import io.xj.core.util.Value;
-import io.xj.core.craft.StructureCraft;
+import io.xj.core.work.basis.Basis;
 import io.xj.music.Key;
 
-import org.jooq.Record;
-import org.jooq.Result;
 import org.jooq.types.ULong;
 
 import com.google.inject.Inject;
@@ -28,6 +24,7 @@ import com.google.inject.assistedinject.Assisted;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collection;
 import java.util.Objects;
 
 /**
@@ -36,7 +33,8 @@ import java.util.Objects;
  */
 public class StructureCraftImpl implements StructureCraft {
   private static final double SCORE_AVOID_CHOOSING_PREVIOUS_RHYTHM = 10;
-  public static final double CHOOSE_RHYTHM_MAX_DISTRIBUTION = 0.5;
+  public static final double SCORE_RHYTHM_ENTROPY = 0.5;
+  private static final double SCORE_MATCHED_MEMES = 3;
   private final Logger log = LoggerFactory.getLogger(StructureCraftImpl.class);
   private final Basis basis;
   private final ChoiceDAO choiceDAO;
@@ -147,8 +145,8 @@ public class StructureCraftImpl implements StructureCraft {
    @return phase record
    @throws Exception on failure
    */
-  private PhaseRecord rhythmPhase() throws Exception {
-    PhaseRecord phase = basis.phaseByOffset(rhythmPattern().getId(), rhythmPhaseOffset());
+  private Phase rhythmPhase() throws Exception {
+    Phase phase = basis.phaseByOffset(rhythmPattern().getId(), rhythmPhaseOffset());
 
     if (Objects.isNull(phase))
       throw new BusinessException("rhythm-phase does not exist!");
@@ -180,24 +178,18 @@ public class StructureCraftImpl implements StructureCraft {
 
     // future: only choose major patterns for major keys, minor for minor! [#223] Key of first Phase of chosen Rhythm-Pattern must match the `minor` or `major` with the Key of the current Link.
 
-    // (1) retrieve memes of macro pattern, for use as a meme isometry comparison
-    MemeIsometry memeIsometry = MemeIsometry.of(basis.linkMemes());
-
     // (2a) retrieve patterns bound directly to chain
-    Result<? extends Record> sourceRecords = patternDAO.readAllBoundToChain(Access.internal(), basis.chainId(), PatternType.Rhythm);
+    Collection<Pattern> sourcePatterns = patternDAO.readAllBoundToChain(Access.internal(), basis.chainId(), PatternType.Rhythm);
 
     // (2b) only if none were found in the previous step, retrieve patterns bound to chain library
-    if (sourceRecords.isEmpty())
-      sourceRecords = patternDAO.readAllBoundToChainLibrary(Access.internal(), basis.chainId(), PatternType.Rhythm);
+    if (sourcePatterns.isEmpty())
+      sourcePatterns = patternDAO.readAllBoundToChainLibrary(Access.internal(), basis.chainId(), PatternType.Rhythm);
 
     // (3) score each source record based on meme isometry
-    sourceRecords.forEach((record -> {
+    sourcePatterns.forEach((pattern -> {
       try {
-        chooser.add(new Pattern().setFromRecord(record),
-          Chance.normallyAround(
-            memeIsometry.scoreCSV(String.valueOf(record.get(MemeEntity.KEY_MANY))),
-            CHOOSE_RHYTHM_MAX_DISTRIBUTION));
-      } catch (BusinessException e) {
+        chooser.add(pattern, scoreRhythm(pattern));
+      } catch (Exception e) {
         log.debug("While scoring records", e);
       }
     }));
@@ -215,6 +207,22 @@ public class StructureCraftImpl implements StructureCraft {
       return pattern;
     else
       throw new BusinessException("Found no rhythm-type pattern bound to Chain!");
+  }
+
+  /**
+   Score a candidate for rhythm pattern, given current basis
+
+   @param pattern to score
+   @return score, including +/- entropy
+   @throws Exception on failure
+   */
+  private double scoreRhythm(Pattern pattern) throws Exception {
+    Double score = Chance.normallyAround(0, SCORE_RHYTHM_ENTROPY);
+
+    // Score includes matching memes, previous link to macro pattern first phase
+    score += basis.currentLinkMemeIsometry().score(basis.patternPhaseMemes(pattern.getId(), ULong.valueOf(0))) * SCORE_MATCHED_MEMES;
+
+      return score;
   }
 
   /**

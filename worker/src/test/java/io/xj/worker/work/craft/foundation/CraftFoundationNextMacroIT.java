@@ -1,4 +1,4 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.worker.work.craft.foundation;
 
 import org.jooq.Result;
@@ -68,8 +68,7 @@ public class CraftFoundationNextMacroIT {
     IntegrationTestEntity.insertLibrary(2, 1, "house");
 
     // "Metal, Wild to Basement" macro-pattern in house library
-    IntegrationTestEntity.insertPattern(4, 3, 2, PatternType.Macro, "Metal, Wild to Basement", 0.5, "C", 120);
-    IntegrationTestEntity.insertPatternMeme(2, 4, "Metal");
+    IntegrationTestEntity.insertPattern(4, 3, 2, PatternType.Macro, "Wild to Basement", 0.5, "C", 120);
     // " phase offset 0
     IntegrationTestEntity.insertPhase(3, 4, 0, 0, "Start Wild", 0.6, "C", 125);
     IntegrationTestEntity.insertPhaseMeme(3, 3, "Wild");
@@ -84,9 +83,8 @@ public class CraftFoundationNextMacroIT {
     IntegrationTestEntity.insertPhaseMeme(5, 4, "Basement");
     IntegrationTestEntity.insertPhaseChord(5, 5, 0, "Ab minor");
 
-    // "Zesty, Chunky to Smooth" macro-pattern in house library
-    IntegrationTestEntity.insertPattern(3, 3, 2, PatternType.Macro, "Zesty, Chunky to Smooth", 0.5, "G minor", 120);
-    IntegrationTestEntity.insertPatternMeme(1, 3, "Zesty");
+    // "Chunky to Smooth" macro-pattern in house library
+    IntegrationTestEntity.insertPattern(3, 3, 2, PatternType.Macro, "Chunky to Smooth", 0.5, "G minor", 120);
     // # phase offset 0
     IntegrationTestEntity.insertPhase(1, 3, 0, 0, "Start Chunky", 0.4, "G minor", 115);
     IntegrationTestEntity.insertPhaseMeme(1, 1, "Chunky");
@@ -169,8 +167,8 @@ public class CraftFoundationNextMacroIT {
     Result<LinkMemeRecord> resultLinkMemes = IntegrationTestService.getDb().selectFrom(LINK_MEME)
       .where(LINK_MEME.LINK_ID.eq(ULong.valueOf(4)))
       .fetch();
-    assertEquals(4, resultLinkMemes.size());
-    resultLinkMemes.forEach(linkMemeRecord -> Testing.assertIn(new String[]{"Hindsight", "Chunky", "Regret", "Zesty"}, linkMemeRecord.getName()));
+    assertEquals(3, resultLinkMemes.size());
+    resultLinkMemes.forEach(linkMemeRecord -> Testing.assertIn(new String[]{"Hindsight", "Chunky", "Regret"}, linkMemeRecord.getName()));
 
     // C# major chord @ 0
     assertNotNull(IntegrationTestService.getDb().selectFrom(LINK_CHORD)

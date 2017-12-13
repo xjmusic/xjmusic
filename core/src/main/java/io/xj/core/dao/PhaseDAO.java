@@ -1,4 +1,4 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.dao;
 
 import io.xj.core.access.impl.Access;
@@ -42,7 +42,7 @@ public interface PhaseDAO {
    @param patternPhaseOffset of phase in pattern
    */
   @Nullable
-  PhaseRecord readOneForPattern(Access access, ULong patternId, ULong patternPhaseOffset) throws Exception;
+  Phase readOneForPattern(Access access, ULong patternId, ULong patternPhaseOffset) throws Exception;
 
   /**
    Fetch all accessible Phase for one Account by id

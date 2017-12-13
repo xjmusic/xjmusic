@@ -1,4 +1,4 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.model.choice;
 
 import io.xj.core.model.pattern.Pattern;
@@ -12,10 +12,11 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.math.BigInteger;
-import java.util.HashMap;
+import java.util.Map;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class ChooserTest {
   private Chooser<Pattern> chooser;
@@ -63,18 +64,18 @@ public class ChooserTest {
   public void add() throws Exception {
     chooser.add(patternE);
 
-    assert chooser.getAll().contains(patternE);
+    assertTrue(chooser.getAll().contains(patternE));
   }
 
   @Test
   public void addAll() throws Exception {
     Chooser<Pattern> result = new Chooser<>();
     result.addAll(
-      ImmutableList.of(patternB,patternC,patternD));
+      ImmutableList.of(patternB, patternC, patternD));
 
-    assert chooser.getAll().contains(patternB);
-    assert chooser.getAll().contains(patternC);
-    assert chooser.getAll().contains(patternD);
+    assertTrue(chooser.getAll().contains(patternB));
+    assertTrue(chooser.getAll().contains(patternC));
+    assertTrue(chooser.getAll().contains(patternD));
   }
 
   @Test
@@ -136,14 +137,14 @@ public class ChooserTest {
   public void score_adjustExisting() throws Exception {
     chooser.score(patternC, 2.0);
 
-    HashMap<ULong, Double> result = chooser.getScores();
+    Map<ULong, Double> result = chooser.getScores();
     assertEquals(Double.valueOf(2.25), result.get(ULong.valueOf(12)));
   }
 
 
   @Test
   public void getScores() throws Exception {
-    HashMap<ULong, Double> result = chooser.getScores();
+    Map<ULong, Double> result = chooser.getScores();
 
     assertEquals(Double.valueOf(0.75), result.get(ULong.valueOf(5)));
     assertEquals(Double.valueOf(0.25), result.get(ULong.valueOf(12)));

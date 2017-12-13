@@ -1,4 +1,4 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.work.basis.impl;
 
 import io.xj.core.access.impl.Access;
@@ -8,6 +8,7 @@ import io.xj.core.dao.AudioDAO;
 import io.xj.core.dao.AudioEventDAO;
 import io.xj.core.dao.ChainConfigDAO;
 import io.xj.core.dao.ChoiceDAO;
+import io.xj.core.dao.InstrumentMemeDAO;
 import io.xj.core.dao.LinkChordDAO;
 import io.xj.core.dao.LinkDAO;
 import io.xj.core.dao.LinkMemeDAO;
@@ -20,24 +21,26 @@ import io.xj.core.dao.PickDAO;
 import io.xj.core.dao.VoiceDAO;
 import io.xj.core.dao.VoiceEventDAO;
 import io.xj.core.exception.BusinessException;
+import io.xj.core.isometry.MemeIsometry;
 import io.xj.core.model.arrangement.Arrangement;
 import io.xj.core.model.audio.Audio;
 import io.xj.core.model.audio_event.AudioEvent;
 import io.xj.core.model.chain_config.ChainConfig;
 import io.xj.core.model.chain_config.ChainConfigType;
 import io.xj.core.model.choice.Choice;
+import io.xj.core.model.instrument_meme.InstrumentMeme;
 import io.xj.core.model.link.Link;
 import io.xj.core.model.link_chord.LinkChord;
 import io.xj.core.model.link_meme.LinkMeme;
 import io.xj.core.model.link_message.LinkMessage;
+import io.xj.core.model.meme.Meme;
 import io.xj.core.model.message.MessageType;
 import io.xj.core.model.pattern.Pattern;
 import io.xj.core.model.pattern.PatternType;
+import io.xj.core.model.pattern_meme.PatternMeme;
+import io.xj.core.model.phase.Phase;
+import io.xj.core.model.phase_meme.PhaseMeme;
 import io.xj.core.model.pick.Pick;
-import io.xj.core.tables.records.PatternMemeRecord;
-import io.xj.core.tables.records.PatternRecord;
-import io.xj.core.tables.records.PhaseMemeRecord;
-import io.xj.core.tables.records.PhaseRecord;
 import io.xj.core.tables.records.VoiceEventRecord;
 import io.xj.core.tables.records.VoiceRecord;
 import io.xj.core.util.Value;
@@ -65,6 +68,7 @@ import org.yaml.snakeyaml.Yaml;
 import javax.sound.sampled.AudioFormat;
 import java.sql.Timestamp;
 import java.time.Duration;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -83,12 +87,13 @@ public class BasisImpl implements Basis {
   private final ChoiceDAO choiceDAO;
   private final PatternDAO patternDAO;
   private final PatternMemeDAO patternMemeDAO;
+  private final InstrumentMemeDAO instrumentMemeDAO;
   private final LinkChordDAO linkChordDAO;
   private final LinkDAO linkDAO;
   private final LinkMemeDAO linkMemeDAO;
   private final LinkMessageDAO linkMessageDAO;
   private final Logger log = LoggerFactory.getLogger(BasisImpl.class);
-  private final Map<String, Object> report = Maps.newHashMap();
+  private final Map<String, Object> report = Maps.newConcurrentMap();
   private final PhaseDAO phaseDAO;
   private final PhaseMemeDAO phaseMemeDAO;
   private final PickDAO pickDAO;
@@ -100,21 +105,25 @@ public class BasisImpl implements Basis {
   private Link _link;
   private List<Arrangement> _choiceArrangements;
   private List<LinkChord> _linkChords;
-  private List<LinkMeme> _linkMemes;
   private List<Pick> _picks;
   private Map<ChainConfigType, ChainConfig> _chainConfigs;
   private Map<ULong, Audio> _audiosFromPicks;
-  private final Map<Double, Double> _positionSeconds = Maps.newHashMap();
-  private final Map<ULong, PatternRecord> _patterns = Maps.newHashMap();
-  private final Map<ULong, List<Audio>> _instrumentAudios = Maps.newHashMap();
-  private final Map<ULong, List<AudioEvent>> _audioWithFirstEvent = Maps.newHashMap();
-  private final Map<ULong, Map<PatternType, Choice>> _linkChoicesByType = Maps.newHashMap();
-  private final Map<ULong, Map<ULong, Link>> _linksByOffset = Maps.newHashMap();
-  private final Map<ULong, Map<ULong, PhaseRecord>> _patternPhasesByOffset = Maps.newHashMap();
-  private final Map<ULong, Result<PatternMemeRecord>> _patternMemes = Maps.newHashMap();
-  private final Map<ULong, Result<PhaseMemeRecord>> _phaseMemes = Maps.newHashMap();
-  private final Map<ULong, Result<VoiceEventRecord>> _voiceEvents = Maps.newHashMap();
-  private final Map<ULong, Result<VoiceRecord>> _voicesByPhase = Maps.newHashMap();
+  private MemeIsometry _currentMacroMemeIsometry;
+  private MemeIsometry _previousMacroMemeIsometry;
+  private MemeIsometry _currentLinkMemeIsometry;
+  private final Map<Double, Double> _positionSeconds = Maps.newConcurrentMap();
+  private final Map<ULong, Pattern> _patterns = Maps.newConcurrentMap();
+  private final Map<ULong, Collection<Audio>> _instrumentAudios = Maps.newConcurrentMap();
+  private final Map<ULong, Collection<InstrumentMeme>> _instrumentMemes = Maps.newConcurrentMap();
+  private final Map<ULong, List<AudioEvent>> _audioWithFirstEvent = Maps.newConcurrentMap();
+  private final Map<ULong, Map<PatternType, Choice>> _linkChoicesByType = Maps.newConcurrentMap();
+  private final Map<ULong, Map<ULong, Link>> _linksByOffset = Maps.newConcurrentMap();
+  private final Map<ULong, Map<ULong, Phase>> _patternPhasesByOffset = Maps.newConcurrentMap();
+  private final Map<ULong, Collection<PatternMeme>> _patternMemes = Maps.newConcurrentMap();
+  private final Map<ULong, Collection<LinkMeme>> _linkMemes = Maps.newConcurrentMap();
+  private final Map<ULong, Collection<PhaseMeme>> _phaseMemes = Maps.newConcurrentMap();
+  private final Map<ULong, Result<VoiceEventRecord>> _voiceEvents = Maps.newConcurrentMap();
+  private final Map<ULong, Result<VoiceRecord>> _voicesByPhase = Maps.newConcurrentMap();
 
   @Inject
   public BasisImpl(
@@ -126,7 +135,7 @@ public class BasisImpl implements Basis {
     ChoiceDAO choiceDAO,
     PatternDAO patternDAO,
     PatternMemeDAO patternMemeDAO,
-    LinkDAO linkDAO,
+    InstrumentMemeDAO instrumentMemeDAO, LinkDAO linkDAO,
     LinkChordDAO linkChordDAO,
     LinkMemeDAO linkMemeDAO,
     LinkMessageDAO linkMessageDAO,
@@ -144,6 +153,7 @@ public class BasisImpl implements Basis {
     this.choiceDAO = choiceDAO;
     this.patternDAO = patternDAO;
     this.patternMemeDAO = patternMemeDAO;
+    this.instrumentMemeDAO = instrumentMemeDAO;
     this.linkDAO = linkDAO;
     this.linkChordDAO = linkChordDAO;
     this.linkMemeDAO = linkMemeDAO;
@@ -243,27 +253,45 @@ public class BasisImpl implements Basis {
 
   @Override
   public Link previousLink() throws Exception {
+    if (isInitialLink()) {
+      return null;
+    }
+
     return linkByOffset(chainId(), Value.inc(_link.getOffset(), -1));
   }
 
   @Override
+  public Collection<LinkMeme> previousLinkMemes() throws Exception {
+    if (isInitialLink()) {
+      return null;
+    }
+
+    Link previousLink = previousLink();
+    if (Objects.isNull(previousLink)) {
+      return Lists.newArrayList();
+    }
+
+    return linkMemes(previousLink.getId());
+  }
+
+  @Override
   public Choice previousMacroChoice() throws Exception {
-    return linkChoiceByType(previousLink().getId(), PatternType.Macro);
+    return isInitialLink() ? null : linkChoiceByType(previousLink().getId(), PatternType.Macro);
   }
 
   @Override
   public Choice previousMainChoice() throws Exception {
-    return linkChoiceByType(previousLink().getId(), PatternType.Main);
+    return isInitialLink() ? null : linkChoiceByType(previousLink().getId(), PatternType.Main);
   }
 
   @Override
   public Choice previousRhythmChoice() throws Exception {
-    return linkChoiceByType(previousLink().getId(), PatternType.Rhythm);
+    return isInitialLink() ? null : linkChoiceByType(previousLink().getId(), PatternType.Rhythm);
   }
 
   @Override
   public List<Arrangement> previousPercussiveArrangements() throws Exception {
-    return choiceArrangements(previousRhythmChoice().getId());
+    return isInitialLink() ? null : choiceArrangements(previousRhythmChoice().getId());
   }
 
   @Override
@@ -282,15 +310,15 @@ public class BasisImpl implements Basis {
   }
 
   @Override
-  public PhaseRecord previousMacroPhase() throws Exception {
+  public Phase currentMacroPhase() throws Exception {
     return phaseByOffset(
-      previousMacroChoice().getPatternId(),
-      previousMacroChoice().getPhaseOffset());
+      currentMacroChoice().getPatternId(),
+      currentMacroChoice().getPhaseOffset());
   }
 
   @Override
-  public PhaseRecord previousMacroNextPhase() throws Exception {
-    return phaseByOffset(
+  public Phase previousMacroNextPhase() throws Exception {
+    return isInitialLink() ? null : phaseByOffset(
       previousMacroChoice().getPatternId(),
       previousMacroChoice().nextPhaseOffset());
   }
@@ -300,13 +328,13 @@ public class BasisImpl implements Basis {
     if (!_patterns.containsKey(id))
       _patterns.put(id, patternDAO.readOne(Access.internal(), id));
 
-    return new Pattern().setFromRecord(_patterns.get(id));
+    return _patterns.get(id);
   }
 
   @Override
   public Map<ChainConfigType, ChainConfig> chainConfigs() throws Exception {
     if (Objects.isNull(_chainConfigs) || _chainConfigs.isEmpty()) {
-      _chainConfigs = Maps.newHashMap();
+      _chainConfigs = Maps.newConcurrentMap();
       chainConfigDAO.readAll(Access.internal(), link().getId())
         .forEach(chainConfigRecord -> _chainConfigs.put(
           ChainConfigType.valueOf(chainConfigRecord.getType()),
@@ -365,11 +393,33 @@ public class BasisImpl implements Basis {
   }
 
   @Override
-  public Result<PatternMemeRecord> patternMemes(ULong patternId) throws Exception {
+  public Collection<LinkMeme> linkMemes(ULong linkId) throws Exception {
+    if (!_linkMemes.containsKey(linkId))
+      _linkMemes.put(linkId, linkMemeDAO.readAll(Access.internal(), linkId));
+
+    return _linkMemes.get(linkId);
+  }
+
+  @Override
+  public Collection<PatternMeme> patternMemes(ULong patternId) throws Exception {
     if (!_patternMemes.containsKey(patternId))
       _patternMemes.put(patternId, patternMemeDAO.readAll(Access.internal(), patternId));
 
     return _patternMemes.get(patternId);
+  }
+
+  @Override
+  public Collection<Meme> patternPhaseMemes(ULong patternId, ULong phaseOffset) throws Exception {
+    Collection<Meme> baseMemes = Lists.newArrayList();
+
+    // add pattern memes
+    baseMemes.addAll(patternMemes(patternId));
+
+    // add pattern phase memes
+    Phase phase = phaseByOffset(patternId, phaseOffset);
+    baseMemes.addAll(phaseMemes(phase.getId()));
+
+    return baseMemes;
   }
 
   @Override
@@ -389,7 +439,7 @@ public class BasisImpl implements Basis {
   }
 
   @Override
-  public List<Audio> instrumentAudios(ULong instrumentId) throws Exception {
+  public Collection<Audio> instrumentAudios(ULong instrumentId) throws Exception {
     if (!_instrumentAudios.containsKey(instrumentId)) {
       _instrumentAudios.put(instrumentId, Lists.newArrayList());
       audioDAO.readAll(Access.internal(), instrumentId)
@@ -398,6 +448,18 @@ public class BasisImpl implements Basis {
     }
 
     return _instrumentAudios.get(instrumentId);
+  }
+
+  @Override
+  public Collection<InstrumentMeme> instrumentMemes(ULong instrumentId) throws Exception {
+    if (!_instrumentMemes.containsKey(instrumentId)) {
+      _instrumentMemes.put(instrumentId, Lists.newArrayList());
+      instrumentMemeDAO.readAll(Access.internal(), instrumentId)
+        .forEach(memeRecord -> _instrumentMemes.get(instrumentId)
+          .add(new InstrumentMeme().setFromRecord(memeRecord)));
+    }
+
+    return _instrumentMemes.get(instrumentId);
   }
 
   @Override
@@ -411,7 +473,7 @@ public class BasisImpl implements Basis {
   @Override
   public Map<ULong, Audio> linkAudios() throws Exception {
     if (Objects.isNull(_audiosFromPicks) || _audiosFromPicks.isEmpty()) {
-      _audiosFromPicks = Maps.newHashMap();
+      _audiosFromPicks = Maps.newConcurrentMap();
       audioDAO.readAllPickedForLink(Access.internal(), link().getId())
         .forEach(audioRecord -> _audiosFromPicks.put(
           audioRecord.getId(),
@@ -439,14 +501,8 @@ public class BasisImpl implements Basis {
   }
 
   @Override
-  public List<LinkMeme> linkMemes() throws Exception {
-    if (Objects.isNull(_linkMemes) || _linkMemes.isEmpty()) {
-      _linkMemes = Lists.newArrayList();
-      linkMemeDAO.readAll(Access.internal(), link().getId())
-        .forEach(memeRecord -> _linkMemes.add(linkMeme(memeRecord.getLinkId(), memeRecord.getName())));
-    }
-
-    return Collections.unmodifiableList(_linkMemes);
+  public Collection<LinkMeme> linkMemes() throws Exception {
+    return linkMemes(linkId());
   }
 
   @Override
@@ -469,15 +525,7 @@ public class BasisImpl implements Basis {
   }
 
   @Override
-  public LinkMeme linkMeme(ULong linkId, String memeName) {
-    return
-      new LinkMeme()
-        .setLinkId(linkId.toBigInteger())
-        .setName(memeName);
-  }
-
-  @Override
-  public Result<PhaseMemeRecord> phaseMemes(ULong phaseId) throws Exception {
+  public Collection<PhaseMeme> phaseMemes(ULong phaseId) throws Exception {
     if (!_phaseMemes.containsKey(phaseId))
       _phaseMemes.put(phaseId, phaseMemeDAO.readAll(Access.internal(), phaseId));
 
@@ -485,9 +533,9 @@ public class BasisImpl implements Basis {
   }
 
   @Override
-  public PhaseRecord phaseByOffset(ULong patternId, ULong phaseOffset) throws Exception {
+  public Phase phaseByOffset(ULong patternId, ULong phaseOffset) throws Exception {
     if (!_patternPhasesByOffset.containsKey(patternId))
-      _patternPhasesByOffset.put(patternId, Maps.newHashMap());
+      _patternPhasesByOffset.put(patternId, Maps.newConcurrentMap());
 
     if (!_patternPhasesByOffset.get(patternId).containsKey(phaseOffset))
       _patternPhasesByOffset.get(patternId).put(phaseOffset,
@@ -499,7 +547,7 @@ public class BasisImpl implements Basis {
   @Override
   public Link linkByOffset(ULong chainId, ULong offset) throws Exception {
     if (!_linksByOffset.containsKey(chainId))
-      _linksByOffset.put(chainId, Maps.newHashMap());
+      _linksByOffset.put(chainId, Maps.newConcurrentMap());
 
     if (!_linksByOffset.get(chainId).containsKey(offset))
       _linksByOffset.get(chainId).put(offset,
@@ -511,7 +559,7 @@ public class BasisImpl implements Basis {
   @Override
   public Choice linkChoiceByType(ULong linkId, PatternType patternType) throws Exception {
     if (!_linkChoicesByType.containsKey(linkId))
-      _linkChoicesByType.put(linkId, Maps.newHashMap());
+      _linkChoicesByType.put(linkId, Maps.newConcurrentMap());
 
     if (!_linkChoicesByType.get(linkId).containsKey(patternType))
       _linkChoicesByType.get(linkId).put(patternType,
@@ -565,6 +613,37 @@ public class BasisImpl implements Basis {
   @Override
   public Long atMicros(Double seconds) {
     return (long) (seconds * MICROSECONDS_PER_SECOND);
+  }
+
+  @Override
+  public MemeIsometry previousMacroNextPhaseMemeIsometry() throws Exception {
+    if (Objects.isNull(_previousMacroMemeIsometry)) {
+      _previousMacroMemeIsometry = MemeIsometry.of(patternPhaseMemes(
+        previousMacroChoice().getPatternId(),
+        Value.inc(previousMacroChoice().getPhaseOffset(), 1)));
+    }
+
+    return _previousMacroMemeIsometry;
+  }
+
+  @Override
+  public MemeIsometry currentMacroMemeIsometry() throws Exception {
+    if (Objects.isNull(_currentMacroMemeIsometry)) {
+      _currentMacroMemeIsometry = MemeIsometry.of(patternPhaseMemes(
+        currentMacroChoice().getPatternId(),
+        currentMacroChoice().getPhaseOffset()));
+    }
+
+    return _currentMacroMemeIsometry;
+  }
+
+  @Override
+  public MemeIsometry currentLinkMemeIsometry() throws Exception {
+    if (Objects.isNull(_currentLinkMemeIsometry)) {
+      _currentLinkMemeIsometry = MemeIsometry.of(linkMemes());
+    }
+
+    return _currentLinkMemeIsometry;
   }
 
   /**

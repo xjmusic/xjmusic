@@ -1,11 +1,10 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.server;
 
 import io.xj.core.config.Config;
 import io.xj.core.config.Exposure;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.model.Entity;
-import io.xj.core.model.JSONObjectEntity;
 import io.xj.core.transport.JSON;
 
 import org.jooq.Record;
@@ -22,7 +21,7 @@ import java.net.URI;
 import java.util.Collection;
 
 public class HttpResponseProviderImpl implements HttpResponseProvider {
-  private static Logger log = LoggerFactory.getLogger(HttpResponseProviderImpl.class);
+  private static final Logger log = LoggerFactory.getLogger(HttpResponseProviderImpl.class);
   private final String appUrl = Config.appBaseUrl();
 
   @Override
@@ -82,8 +81,8 @@ public class HttpResponseProviderImpl implements HttpResponseProvider {
    @param code code
    @return response
    */
-  private Response failureBusiness(Exception e, int code) {
-    log.warn("BusinessException: " + e.getMessage());
+  private static Response failureBusiness(Exception e, int code) {
+    log.warn("failure to do business", e);
     return Response
       .status(code)
       .entity(JSON.wrapError(e.getMessage()).toString())
@@ -96,7 +95,7 @@ public class HttpResponseProviderImpl implements HttpResponseProvider {
    @param e exception
    @return response
    */
-  private Response failureUnknown(Exception e) {
+  private static Response failureUnknown(Exception e) {
     log.error(e.getClass().getName(), e);
     return Response.serverError().build();
   }
@@ -131,6 +130,17 @@ public class HttpResponseProviderImpl implements HttpResponseProvider {
   }
 
   @Override
+  public Response readOne(String keyOne, Entity result) {
+    if (null != result) {
+      return Response
+        .accepted(JSON.wrap(keyOne, JSON.objectFrom(result)).toString())
+        .type(MediaType.APPLICATION_JSON)
+        .build();
+    } else
+      return notFound(keyOne);
+  }
+
+  @Override
   public <R extends Record> Response readMany(String keyMany, Result<R> results) {
     if (null != results)
       return Response
@@ -143,7 +153,7 @@ public class HttpResponseProviderImpl implements HttpResponseProvider {
 
 
   @Override
-  public <J extends JSONObjectEntity> Response readMany(String keyMany, Collection<J> results) throws Exception {
+  public <J extends Entity> Response readMany(String keyMany, Collection<J> results) throws Exception {
     if (null != results)
       return Response
         .accepted(JSON.wrap(keyMany, JSON.arrayOf(results)).toString())
@@ -163,7 +173,18 @@ public class HttpResponseProviderImpl implements HttpResponseProvider {
 
     else
       return failureToCreate(new BusinessException("Could not create " + keyOne));
+  }
 
+  @Override
+  public Response create(String keyMany, String keyOne, Entity entity) {
+    if (null != entity)
+      return Response
+        .created(Exposure.apiURI(keyMany + "/" + entity.getId()))
+        .entity(JSON.wrap(keyOne, JSON.objectFrom(entity)).toString())
+        .build();
+
+    else
+      return failureToCreate(new BusinessException("Could not create " + keyOne));
   }
 
 }

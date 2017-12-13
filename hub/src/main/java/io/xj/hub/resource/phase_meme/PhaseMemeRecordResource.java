@@ -1,13 +1,13 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.resource.phase_meme;
 
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
-import io.xj.core.exception.BusinessException;
-import io.xj.core.server.HttpResponseProvider;
 import io.xj.core.dao.PhaseMemeDAO;
+import io.xj.core.exception.BusinessException;
 import io.xj.core.model.phase_meme.PhaseMeme;
 import io.xj.core.model.role.Role;
+import io.xj.core.server.HttpResponseProvider;
 import io.xj.core.transport.JSON;
 
 import org.jooq.types.ULong;
@@ -34,7 +34,7 @@ import java.io.IOException;
 @Path("phase-memes/{id}")
 public class PhaseMemeRecordResource {
   private static final Injector injector = Guice.createInjector(new CoreModule());
-  private final PhaseMemeDAO DAO = injector.getInstance(PhaseMemeDAO.class);
+  private final PhaseMemeDAO phaseMemeDAO = injector.getInstance(PhaseMemeDAO.class);
   private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
 
   @PathParam("id")
@@ -47,17 +47,17 @@ public class PhaseMemeRecordResource {
    */
   @GET
   @WebResult
-  @RolesAllowed({Role.ARTIST})
+  @RolesAllowed(Role.ARTIST)
   public Response readOne(@Context ContainerRequestContext crc) throws IOException {
     try {
       return response.readOne(
         PhaseMeme.KEY_ONE,
-        DAO.readOne(
+        phaseMemeDAO.readOne(
           Access.fromContext(crc),
           ULong.valueOf(id)));
 
     } catch (Exception e) {
-      return Response.serverError().build();
+      return Response.serverError().header("error", e.getMessage()).build();
     }
   }
 
@@ -67,17 +67,17 @@ public class PhaseMemeRecordResource {
    @return application/json response.
    */
   @DELETE
-  @RolesAllowed({Role.ARTIST})
+  @RolesAllowed(Role.ARTIST)
   public Response delete(@Context ContainerRequestContext crc) {
     try {
-      DAO.delete(Access.fromContext(crc), ULong.valueOf(id));
+      phaseMemeDAO.delete(Access.fromContext(crc), ULong.valueOf(id));
     } catch (BusinessException e) {
       return Response
         .status(HttpStatus.SC_BAD_REQUEST)
         .entity(JSON.wrapError(e.getMessage()).toString())
         .build();
     } catch (Exception e) {
-      return Response.serverError().build();
+      return Response.serverError().header("error", e.getMessage()).build();
     }
 
     return Response.accepted("{}").build();

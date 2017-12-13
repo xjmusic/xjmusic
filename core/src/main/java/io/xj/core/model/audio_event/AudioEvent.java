@@ -1,8 +1,8 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.model.audio_event;
 
 import io.xj.core.exception.BusinessException;
-import io.xj.core.model.EventEntity;
+import io.xj.core.model.event.Event;
 import io.xj.core.util.Text;
 
 import org.jooq.Field;
@@ -26,7 +26,7 @@ import static io.xj.core.Tables.AUDIO_EVENT;
 
  NOTE: There can only be ONE of any getter/setter (with the same # of input params)
  */
-public class AudioEvent extends EventEntity {
+public class AudioEvent extends Event {
   public static final String KEY_ONE = "audioEvent";
   public static final String KEY_MANY = "audioEvents";
   private ULong audioId;

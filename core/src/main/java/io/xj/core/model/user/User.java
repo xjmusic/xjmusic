@@ -1,4 +1,4 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.model.user;
 
 import io.xj.core.exception.BusinessException;
@@ -78,21 +78,6 @@ public class User extends Entity {
   public User setName(String name) {
     this.name = name;
     return this;
-  }
-
-  /**
-   Return User as JSON object, including virtual field "roles"
-
-   @return user as JSON
-   */
-  public JSONObject toJSONObject() {
-    JSONObject obj = new JSONObject();
-    obj.put(KEY_ID, id);
-    obj.put(KEY_EMAIL, email);
-    obj.put(KEY_AVATAR_URL, avatarUrl);
-    obj.put(KEY_NAME, name);
-    obj.put(KEY_ROLES, roles);
-    return obj;
   }
 
   @Override

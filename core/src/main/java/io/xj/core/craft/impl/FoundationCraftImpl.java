@@ -1,4 +1,4 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.craft.impl;
 
 import io.xj.core.access.impl.Access;
@@ -7,11 +7,8 @@ import io.xj.core.dao.ChoiceDAO;
 import io.xj.core.dao.LinkChordDAO;
 import io.xj.core.dao.LinkMemeDAO;
 import io.xj.core.dao.PatternDAO;
-import io.xj.core.dao.PatternMemeDAO;
 import io.xj.core.dao.PhaseChordDAO;
 import io.xj.core.exception.BusinessException;
-import io.xj.core.isometry.MemeIsometry;
-import io.xj.core.model.MemeEntity;
 import io.xj.core.model.choice.Chance;
 import io.xj.core.model.choice.Choice;
 import io.xj.core.model.choice.Chooser;
@@ -19,14 +16,12 @@ import io.xj.core.model.link_chord.LinkChord;
 import io.xj.core.model.link_meme.LinkMeme;
 import io.xj.core.model.pattern.Pattern;
 import io.xj.core.model.pattern.PatternType;
-import io.xj.core.tables.records.PhaseRecord;
+import io.xj.core.model.phase.Phase;
 import io.xj.core.util.Value;
 import io.xj.core.work.basis.Basis;
 import io.xj.music.Chord;
 import io.xj.music.Key;
 
-import org.jooq.Record;
-import org.jooq.Result;
 import org.jooq.types.ULong;
 
 import com.google.common.collect.Maps;
@@ -37,24 +32,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Timestamp;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
-
-import static io.xj.core.tables.Pattern.PATTERN;
 
 /**
  [#214] If a Chain has Patterns associated with it directly, prefer those choices to any in the Library
  */
 public class FoundationCraftImpl implements FoundationCraft {
-  private static final double SCORE_MATCHED_KEY_MODE = 10;
-  private static final double SCORE_AVOID_CHOOSING_PREVIOUS = 10;
-  public static final double CHOOSE_MACRO_MAX_DISTRIBUTION = 0.5;
-  public static final double CHOOSE_MAIN_MAX_DISTRIBUTION = 0.5;
+  private static final double SCORE_MATCHED_KEY_MODE = 2;
+  private static final double SCORE_MATCHED_MEMES = 10;
+  private static final double SCORE_AVOID_PREVIOUS = 5;
+  public static final double SCORE_MACRO_ENTROPY = 0.5;
+  public static final double SCORE_MAIN_ENTROPY = 0.5;
   private static final long NANOS_PER_SECOND = 1_000_000_000;
   private final Logger log = LoggerFactory.getLogger(FoundationCraftImpl.class);
   private final ChoiceDAO choiceDAO;
   private final PatternDAO patternDAO;
-  private final PatternMemeDAO patternMemeDAO;
   private final LinkChordDAO linkChordDAO;
   private final LinkMemeDAO linkMemeDAO;
   private final PhaseChordDAO phaseChordDAO;
@@ -69,7 +63,6 @@ public class FoundationCraftImpl implements FoundationCraft {
     @Assisted("basis") Basis basis,
     ChoiceDAO choiceDAO,
     PatternDAO patternDAO,
-    PatternMemeDAO patternMemeDAO,
     LinkChordDAO linkChordDAO,
     LinkMemeDAO linkMemeDAO,
     PhaseChordDAO phaseChordDAO
@@ -77,7 +70,6 @@ public class FoundationCraftImpl implements FoundationCraft {
     this.basis = basis;
     this.choiceDAO = choiceDAO;
     this.patternDAO = patternDAO;
-    this.patternMemeDAO = patternMemeDAO;
     this.linkChordDAO = linkChordDAO;
     this.linkMemeDAO = linkMemeDAO;
     this.phaseChordDAO = phaseChordDAO;
@@ -158,7 +150,7 @@ public class FoundationCraftImpl implements FoundationCraft {
         linkMemeDAO.create(Access.internal(), linkMeme);
 
       } catch (Exception e) {
-        log.warn("failed to create link meme '" + memeName + '"', e);
+        log.warn("failed to create link meme {}", memeName, e);
       }
     });
   }
@@ -184,8 +176,8 @@ public class FoundationCraftImpl implements FoundationCraft {
               .setPosition(phaseChordRecord.getPosition()));
 
         } catch (Exception e) {
-          log.warn("failed to create transposed link chord '" +
-            String.valueOf(name) + "'@" + phaseChordRecord.getPosition(), e);
+          log.warn("failed to create transposed link chord {}@{}",
+            String.valueOf(name), phaseChordRecord.getPosition(), e);
         }
       });
   }
@@ -342,8 +334,8 @@ public class FoundationCraftImpl implements FoundationCraft {
    @return phase record
    @throws Exception on failure
    */
-  private PhaseRecord macroPhase() throws Exception {
-    PhaseRecord phase = basis.phaseByOffset(macroPattern().getId(), macroPhaseOffset());
+  private Phase macroPhase() throws Exception {
+    Phase phase = basis.phaseByOffset(macroPattern().getId(), macroPhaseOffset());
 
     if (Objects.isNull(phase))
       throw new BusinessException("macro-phase does not exist!");
@@ -357,8 +349,8 @@ public class FoundationCraftImpl implements FoundationCraft {
    @return phase record
    @throws Exception on failure
    */
-  private PhaseRecord mainPhase() throws Exception {
-    PhaseRecord phase = basis.phaseByOffset(mainPattern().getId(), mainPhaseOffset());
+  private Phase mainPhase() throws Exception {
+    Phase phase = basis.phaseByOffset(mainPattern().getId(), mainPhaseOffset());
 
     if (Objects.isNull(phase))
       throw new BusinessException("main-phase does not exist!");
@@ -374,35 +366,31 @@ public class FoundationCraftImpl implements FoundationCraft {
    */
   private Pattern chooseMacro() throws Exception {
     Chooser<Pattern> chooser = new Chooser<>();
-    String key = basis.isInitialLink() ? null : basis.previousMacroPhase().getKey();
 
     // (1a) retrieve patterns bound directly to chain
-    Result<? extends Record> sourceRecords = patternDAO.readAllBoundToChain(Access.internal(), basis.chainId(), PatternType.Macro);
+    Collection<Pattern> sourcePatterns = patternDAO.readAllBoundToChain(Access.internal(), basis.chainId(), PatternType.Macro);
 
     // (1b) only if none were found in the previous transpose, retrieve patterns bound to chain library
-    if (sourceRecords.isEmpty())
-      sourceRecords = patternDAO.readAllBoundToChainLibrary(Access.internal(), basis.chainId(), PatternType.Macro);
+    if (sourcePatterns.isEmpty())
+      sourcePatterns = patternDAO.readAllBoundToChainLibrary(Access.internal(), basis.chainId(), PatternType.Macro);
 
-    // (2) score each source record
-    sourceRecords.forEach((record -> {
+    // (3) score each source record
+    sourcePatterns.forEach((pattern -> {
       try {
-        chooser.add(new Pattern().setFromRecord(record),
-          Chance.normallyAround(
-            Key.isSameMode(key, record.get(PATTERN.KEY)) ? SCORE_MATCHED_KEY_MODE : 0,
-            CHOOSE_MACRO_MAX_DISTRIBUTION));
-      } catch (BusinessException e) {
-        log.debug("while scoring macro patterns", e);
+        chooser.add(pattern, scoreMacro(pattern));
+      } catch (Exception e) {
+        log.warn("while scoring macro patterns", e);
       }
     }));
 
-    // (2b) Avoid previous macro pattern
+    // (3b) Avoid previous macro pattern
     if (!basis.isInitialLink())
-      chooser.score(basis.previousMacroChoice().getPatternId(), -SCORE_AVOID_CHOOSING_PREVIOUS);
+      chooser.score(basis.previousMacroChoice().getPatternId(), -SCORE_AVOID_PREVIOUS);
 
     // report
     basis.report("macroChoice", chooser.report());
 
-    // (3) return the top choice
+    // (4) return the top choice
     Pattern pattern = chooser.getTop();
     if (Objects.nonNull(pattern))
       return pattern;
@@ -423,31 +411,21 @@ public class FoundationCraftImpl implements FoundationCraft {
 
     // future: only choose major patterns for major keys, minor for minor! [#223] Key of first Phase of chosen Main-Pattern must match the `minor` or `major` with the Key of the current Link.
 
-    // (1) retrieve memes of macro pattern, for use as a meme isometry comparison
-    MemeIsometry memeIsometry = MemeIsometry.of(patternMemeDAO.readAll(Access.internal(), macroPattern().getId()));
-
     // (2a) retrieve patterns bound directly to chain
-    Result<? extends Record> sourceRecords = patternDAO.readAllBoundToChain(Access.internal(), basis.chainId(), PatternType.Main);
+    Collection<Pattern> sourcePatterns = patternDAO.readAllBoundToChain(Access.internal(), basis.chainId(), PatternType.Main);
 
     // (2b) only if none were found in the previous transpose, retrieve patterns bound to chain library
-    if (sourceRecords.isEmpty())
-      sourceRecords = patternDAO.readAllBoundToChainLibrary(Access.internal(), basis.chainId(), PatternType.Main);
+    if (sourcePatterns.isEmpty())
+      sourcePatterns = patternDAO.readAllBoundToChainLibrary(Access.internal(), basis.chainId(), PatternType.Main);
 
     // (3) score each source record based on meme isometry
-    sourceRecords.forEach((record -> {
+    sourcePatterns.forEach((pattern -> {
       try {
-        chooser.add(new Pattern().setFromRecord(record),
-          Chance.normallyAround(
-            memeIsometry.scoreCSV(String.valueOf(record.get(MemeEntity.KEY_MANY))),
-            CHOOSE_MAIN_MAX_DISTRIBUTION));
-      } catch (BusinessException e) {
-        log.debug("while scoring main patterns", e);
+        chooser.add(pattern, scoreMain(pattern));
+      } catch (Exception e) {
+        log.warn("while scoring main patterns", e);
       }
     }));
-
-    // (3b) Avoid previous main pattern
-    if (!basis.isInitialLink())
-      chooser.score(basis.previousMainChoice().getPatternId(), -SCORE_AVOID_CHOOSING_PREVIOUS);
 
     // report
     basis.report("mainChoice", chooser.report());
@@ -461,6 +439,60 @@ public class FoundationCraftImpl implements FoundationCraft {
   }
 
   /**
+   Score a candidate for next macro pattern, given current basis
+
+   @param pattern to score
+   @return score, including +/- entropy
+   @throws Exception on failure
+   */
+  private double scoreMacro(Pattern pattern) throws Exception {
+    double score = Chance.normallyAround(0, SCORE_MACRO_ENTROPY);
+
+    if (basis.isInitialLink()) {
+      return score;
+    }
+
+    // Score includes matching memes to previous link's macro-pattern's next phase (major/minor)
+    score += basis.previousMacroNextPhaseMemeIsometry().score(basis.patternPhaseMemes(pattern.getId(), ULong.valueOf(0))) * SCORE_MATCHED_MEMES;
+
+    // Score includes matching mode to previous link's macro-pattern's next phase (major/minor)
+    if (Key.isSameMode(basis.previousMacroNextPhase().getKey(), basis.phaseByOffset(pattern.getId(), ULong.valueOf(0)).getKey())) {
+      score += SCORE_MATCHED_KEY_MODE;
+    }
+
+    return score;
+  }
+
+  /**
+   Score a candidate for next main pattern, given current basis
+
+   @param pattern to score
+   @return score, including +/- entropy
+   @throws Exception on failure
+   */
+  private double scoreMain(Pattern pattern) throws Exception {
+    double score = Chance.normallyAround(0, SCORE_MAIN_ENTROPY);
+
+    if (!basis.isInitialLink()) {
+
+      // Avoid previous main pattern
+      if (Objects.equals(pattern.getId(), basis.previousMainChoice().getPatternId())) {
+        score -= SCORE_AVOID_PREVIOUS;
+      }
+
+      // Score includes matching mode, previous link to macro pattern first phase (major/minor)
+      if (Key.isSameMode(basis.currentMacroPhase().getKey(), pattern.getKey())) {
+        score += SCORE_MATCHED_KEY_MODE;
+      }
+    }
+
+    // Score includes matching memes, previous link to macro pattern first phase
+    score += basis.currentMacroMemeIsometry().score(basis.patternPhaseMemes(pattern.getId(), ULong.valueOf(0))) * SCORE_MATCHED_MEMES;
+
+    return score;
+  }
+
+  /**
    prepare map of final link memes
 
    @return map of meme name to LinkMeme entity
@@ -470,19 +502,19 @@ public class FoundationCraftImpl implements FoundationCraft {
 
     basis.patternMemes(macroPattern().getId())
       .forEach(meme -> out.put(
-        meme.getName(), basis.linkMeme(basis.linkId(), meme.getName())));
+        meme.getName(), LinkMeme.of(basis.linkId(), meme.getName())));
 
     basis.phaseMemes(macroPhase().getId())
       .forEach(meme -> out.put(
-        meme.getName(), basis.linkMeme(basis.linkId(), meme.getName())));
+        meme.getName(), LinkMeme.of(basis.linkId(), meme.getName())));
 
     basis.patternMemes(mainPattern().getId())
       .forEach(meme -> out.put(
-        meme.getName(), basis.linkMeme(basis.linkId(), meme.getName())));
+        meme.getName(), LinkMeme.of(basis.linkId(), meme.getName())));
 
     basis.phaseMemes(mainPhase().getId())
       .forEach(meme -> out.put(
-        meme.getName(), basis.linkMeme(basis.linkId(), meme.getName())));
+        meme.getName(), LinkMeme.of(basis.linkId(), meme.getName())));
 
     return out;
   }
@@ -528,7 +560,11 @@ public class FoundationCraftImpl implements FoundationCraft {
    @throws Exception on failure
    */
   private String linkKey() throws Exception {
-    return Key.of(mainPhase().getKey()).transpose(mainTranspose()).getFullDescription();
+    String mainKey = mainPhase().getKey();
+    if (null == mainKey || mainKey.isEmpty()) {
+      mainKey = mainPattern().getKey();
+    }
+    return Key.of(mainKey).transpose(mainTranspose()).getFullDescription();
   }
 
   /**

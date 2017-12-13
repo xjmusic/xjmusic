@@ -1,5 +1,5 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
-package io.xj.core.model.link;// Copyright (c) 2017, Outright Mental Inc. (https://w.outright.io) All Rights Reserved.
+// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
+package io.xj.core.model.link;
 
 import io.xj.core.model.choice.Choice;
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.dao.impl;
 
 import io.xj.core.access.AccessControlProvider;
@@ -391,7 +391,7 @@ public class UserDAOImpl extends DAOImpl implements UserDAO {
 
     // Prepare key entity
     String userIdString = String.valueOf(userId);
-    List<String> newRoles = CSV.split(entity.getRoles());
+    Collection<String> newRoles = CSV.split(entity.getRoles());
 
     // First check all provided roles for validity.
     for (String checkRole : newRoles) {

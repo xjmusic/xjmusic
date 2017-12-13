@@ -1,4 +1,4 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.dao.impl;
 
 import io.xj.core.access.impl.Access;
@@ -62,7 +62,7 @@ public class PhaseDAOImpl extends DAOImpl implements PhaseDAO {
 
   @Nullable
   @Override
-  public PhaseRecord readOneForPattern(Access access, ULong patternId, ULong patternPhaseOffset) throws Exception {
+  public Phase readOneForPattern(Access access, ULong patternId, ULong patternPhaseOffset) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readOneForPattern(tx.getContext(), access, patternId, patternPhaseOffset));
@@ -163,14 +163,17 @@ public class PhaseDAOImpl extends DAOImpl implements PhaseDAO {
    @param patternPhaseOffset of phase in pattern
    @return phase record
    */
-  private PhaseRecord readOneForPattern(DSLContext db, Access access, ULong patternId, ULong patternPhaseOffset) {
+  @Nullable
+  private Phase readOneForPattern(DSLContext db, Access access, ULong patternId, ULong patternPhaseOffset) {
+    PhaseRecord result;
+
     if (access.isTopLevel())
-      return db.selectFrom(PHASE)
+      result = db.selectFrom(PHASE)
         .where(PHASE.PATTERN_ID.eq(patternId))
         .and(PHASE.OFFSET.eq(patternPhaseOffset))
         .fetchOne();
     else
-      return recordInto(PHASE, db.select(PHASE.fields())
+      result = recordInto(PHASE, db.select(PHASE.fields())
         .from(PHASE)
         .join(PATTERN).on(PATTERN.ID.eq(PHASE.PATTERN_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(PATTERN.LIBRARY_ID))
@@ -178,6 +181,12 @@ public class PhaseDAOImpl extends DAOImpl implements PhaseDAO {
         .and(PHASE.OFFSET.eq(patternPhaseOffset))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
         .fetchOne());
+
+    if (Objects.isNull(result)) {
+      return null;
+    }
+
+    return new Phase().setFromRecord(result);
   }
 
   /**
