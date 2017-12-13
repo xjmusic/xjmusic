@@ -4,7 +4,7 @@ categories = ["legal"]
 tags = ["cookies"]
 slug = "cookies"
 title = "Cookies Policy"
-description = "This is the cookies policy of the XJ Ambient Music Platform"
+description = "This is the cookies policy of the XJ Music"
 draft = true
 +++
 

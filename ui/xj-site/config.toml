@@ -2,7 +2,7 @@
 #
 baseurl = "https://xj.io/"
 languageCode = "en-us"
-title = "XJ™ Ambient Music Stream"
+title = "XJ Music™"
 # number of posts to show on home/category/tag pages (Default: 10)
 paginate = 25
 # optionally override the site's footer with custom copyright text
@@ -42,10 +42,10 @@ theme = "xj-theme"
   author = "XJ™"
   email = "hello@xj.io"
   images = ["https://xj.io/images/cover.jpg"]
-  description = "XJ is an ambient music stream: non-stop original music assembled in real-time by an AI, using parts created by Musicians."
-  headline = "XJ is an ambient music stream"
+  description = "XJ Music is non-stop original music assembled in real-time by an AI, using parts created by Musicians."
+  headline = "XJ Music"
   missionHeadline = "The Information Age Sound"
-  missionSubline = "It is Our Mission to disrupt ambient music, unpacking the very nature of a static &quot;record&quot; to create a new medium that is alive, continuous, and collaborative."
+  missionSubline = "It is Our Mission to disrupt recorded music, unpacking the very nature of a static &quot;record&quot; to create a new medium that is alive, continuous, and collaborative."
   missionDescription = "<p>Instead of making records, Musicians create and upload content as partial layers, sequences of information, and recorded audio, from which the AI chooses and arranges.</p><p>The result is an entirely new sound.</p><p>Musicians are paid ongoing royalties based on precise revenue tracking for each time their contributions are chosen by the AI.</p><p>XJ is now in Beta. <a href='https://hub.xj.io/login'>Sign in</a> for a chance to participate in defining this completely new, information age sound.</p>"
   postProductMessage = "Sign in for a chance to participate in defining this completely new, information age sound."
   postSolutionMessage = "Sign in for a chance to participate in defining this completely new, information age sound."
@@ -97,7 +97,7 @@ theme = "xj-theme"
 
   [params.sidebar]
     # Optional about block for sidebar (can be Markdown)
-    about = "Exclusive licensee of the <a href='https://xj.outright.io' target='_blank' aria-description='XJ™ Ambient Music System'>XJ™ Ambient Music System</a> for institutional, industrial and commercial purposes."
+    about = "Exclusive licensee of the <a href='https://xj.outright.io' target='_blank' aria-description='XJ Music™ '>XJ Music™</a> for institutional, industrial and commercial purposes."
 
     # How many posts to show on the sidebar (Default: 5)
     #num_recent_posts = 2

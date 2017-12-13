@@ -9,7 +9,7 @@ draft = true
 
 +++
 
-Music in the [XJ Ambient Music Platform](https://hub.xj.io/login) is stored in Chains comprising of Links.
+Music in the [XJ Music](https://hub.xj.io/login) is stored in Chains comprising of Links.
 
 In the cloud, worker-bots construct the complex arrangements of events that comprise these Chains.
 
