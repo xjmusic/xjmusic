@@ -9,16 +9,14 @@ import io.xj.core.model.link.Link;
 import io.xj.core.model.link.LinkState;
 import io.xj.core.model.link_message.LinkMessage;
 import io.xj.core.model.message.MessageType;
-import io.xj.core.tables.records.LinkRecord;
 import io.xj.core.util.Text;
 import io.xj.core.work.basis.BasisFactory;
-
-import org.jooq.types.ULong;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+import java.math.BigInteger;
 import java.util.Objects;
 
 public abstract class LinkJob implements Runnable {
@@ -28,7 +26,7 @@ public abstract class LinkJob implements Runnable {
   protected String name;
   protected LinkDAO linkDAO;
   protected LinkMessageDAO linkMessageDAO;
-  protected ULong entityId;
+  protected BigInteger entityId;
   protected BasisFactory basisFactory;
 
   protected LinkState fromState;
@@ -41,13 +39,13 @@ public abstract class LinkJob implements Runnable {
     int maxTries = Config.workLinkDubRetryLimit();
     while (true) {
       try {
-        LinkRecord linkRecord = linkDAO.readOne(Access.internal(), entityId);
-        if (Objects.isNull(linkRecord)) {
+        Link link = linkDAO.readOne(Access.internal(), entityId);
+        if (Objects.isNull(link)) {
           log.error("Cannot begin {} nonexistent Link", name);
           return;
         }
         log.info("Begin {} Link (id={})", name, entityId);
-        Link link = updateToWorkingState(linkRecord);
+        link = updateToWorkingState(link);
         if (Objects.isNull(link)) {
           // future .. care more that this job was unable to be completed because of a link state problem?
           return;
@@ -91,7 +89,7 @@ public abstract class LinkJob implements Runnable {
     try {
       linkMessageDAO.create(Access.internal(),
         new LinkMessage()
-          .setLinkId(entityId.toBigInteger())
+          .setLinkId(entityId)
           .setBody(body)
           .setType(type.toString()));
     } catch (Exception e) {
@@ -102,22 +100,17 @@ public abstract class LinkJob implements Runnable {
   /**
    Update Link to Working state
 
-   @param linkRecord to update
+   @param link to update
    @return Link model, updated to working state
    @throws Exception on failure
    */
   @Nullable
-  private Link updateToWorkingState(LinkRecord linkRecord) throws Exception {
-    if (!fromState.equals(linkRecord.getState())) {
+  private Link updateToWorkingState(Link link) throws Exception {
+    if (fromState != link.getState()) {
       log.error("{} requires Link must be in {} state.", name, fromState);
       return null;
     }
-    linkDAO.updateState(Access.internal(), linkRecord.getId(), workingState);
-    Link link = new Link().setFromRecord(linkRecord);
-    if (Objects.isNull(link)) {
-      log.error("{} requires Link must be in {} state.", name, workingState);
-      return null;
-    }
+    linkDAO.updateState(Access.internal(), link.getId(), workingState);
     return link.setStateEnum(workingState);
   }
 

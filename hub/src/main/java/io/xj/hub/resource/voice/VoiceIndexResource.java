@@ -3,13 +3,11 @@ package io.xj.hub.resource.voice;
 
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
-import io.xj.core.server.HttpResponseProvider;
 import io.xj.core.dao.VoiceDAO;
-import io.xj.core.model.role.Role;
+import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.model.voice.Voice;
 import io.xj.core.model.voice.VoiceWrapper;
-
-import org.jooq.types.ULong;
+import io.xj.core.server.HttpResponseProvider;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -26,6 +24,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.math.BigInteger;
+import java.util.Objects;
 
 /**
  Voices
@@ -33,7 +33,7 @@ import java.io.IOException;
 @Path("voices")
 public class VoiceIndexResource {
   private static final Injector injector = Guice.createInjector(new CoreModule());
-  private final VoiceDAO DAO = injector.getInstance(VoiceDAO.class);
+  private final VoiceDAO voiceDAO = injector.getInstance(VoiceDAO.class);
   private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
 
   @QueryParam("phaseId")
@@ -46,19 +46,19 @@ public class VoiceIndexResource {
    */
   @GET
   @WebResult
-  @RolesAllowed({Role.ARTIST})
+  @RolesAllowed(UserRoleType.ARTIST)
   public Response readAll(@Context ContainerRequestContext crc) throws IOException {
 
-    if (phaseId == null || phaseId.length() == 0) {
+    if (Objects.isNull(phaseId) || phaseId.isEmpty()) {
       return response.notAcceptable("Phase id is required");
     }
 
     try {
       return response.readMany(
         Voice.KEY_MANY,
-        DAO.readAll(
+        voiceDAO.readAll(
           Access.fromContext(crc),
-          ULong.valueOf(phaseId)));
+          new BigInteger(phaseId)));
 
     } catch (Exception e) {
       return response.failure(e);
@@ -73,13 +73,13 @@ public class VoiceIndexResource {
    */
   @POST
   @Consumes(MediaType.APPLICATION_JSON)
-  @RolesAllowed({Role.ARTIST})
+  @RolesAllowed(UserRoleType.ARTIST)
   public Response create(VoiceWrapper data, @Context ContainerRequestContext crc) {
     try {
       return response.create(
         Voice.KEY_MANY,
         Voice.KEY_ONE,
-        DAO.create(
+        voiceDAO.create(
           Access.fromContext(crc),
           data.getVoice()));
 

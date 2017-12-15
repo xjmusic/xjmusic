@@ -3,12 +3,10 @@ package io.xj.core.dao;
 
 import io.xj.core.access.impl.Access;
 import io.xj.core.model.arrangement.Arrangement;
-import io.xj.core.tables.records.ArrangementRecord;
-
-import org.jooq.Result;
-import org.jooq.types.ULong;
 
 import javax.annotation.Nullable;
+import java.math.BigInteger;
+import java.util.Collection;
 
 public interface ArrangementDAO {
   /**
@@ -17,40 +15,51 @@ public interface ArrangementDAO {
    @param entity for the new Arrangement.
    @return newly readMany Arrangement record.
    */
-  ArrangementRecord create(Access access, Arrangement entity) throws Exception;
+  Arrangement create(Access access, Arrangement entity) throws Exception;
 
   /**
    Fetch one Arrangement by id, if accessible
 
-   @param access        control
-   @param arrangementId to fetch
    @return Arrangement if found
    @throws Exception on failure
+    @param access        control
+   @param id to fetch
    */
   @Nullable
-  ArrangementRecord readOne(Access access, ULong arrangementId) throws Exception;
+  Arrangement readOne(Access access, BigInteger id) throws Exception;
 
   /**
    Read all Arrangements that are accessible
 
-   @param access control
+   @param access   control
+   @param choiceId to read all arrangements of
    @return array of arrangements as JSON
    @throws Exception on failure
    */
-  Result<ArrangementRecord> readAll(Access access, ULong choiceId) throws Exception;
+  Collection<Arrangement> readAll(Access access, BigInteger choiceId) throws Exception;
+
+  /**
+   Fetch many arrangement for many Links by id, if accessible
+
+   @return JSONArray of arrangements.
+   @throws Exception on failure
+    @param access  control
+   @param linkIds to fetch arrangements for.
+   */
+  Collection<Arrangement> readAllInLinks(Access access, Collection<BigInteger> linkIds) throws Exception;
 
   /**
    Update a specified Arrangement
-
-   @param arrangementId of specific Arrangement to update.
+   * @param id of specific Arrangement to update.
    @param entity        for the updated Arrangement.
+
    */
-  void update(Access access, ULong arrangementId, Arrangement entity) throws Exception;
+  void update(Access access, BigInteger id, Arrangement entity) throws Exception;
 
   /**
    Delete a specified Arrangement
+   * @param arrangementId of specific Arrangement to delete.
 
-   @param arrangementId of specific Arrangement to delete.
    */
-  void delete(Access access, ULong arrangementId) throws Exception;
+  void delete(Access access, BigInteger arrangementId) throws Exception;
 }

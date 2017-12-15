@@ -1,38 +1,37 @@
 // Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.worker.work.craft.voice;
 
-import org.jooq.types.ULong;
+import io.xj.core.CoreModule;
+import io.xj.core.access.impl.Access;
+import io.xj.core.craft.CraftFactory;
+import io.xj.core.dao.ArrangementDAO;
+import io.xj.core.dao.PickDAO;
+import io.xj.core.integration.IntegrationTestEntity;
+import io.xj.core.model.chain.ChainState;
+import io.xj.core.model.chain.ChainType;
+import io.xj.core.model.instrument.InstrumentType;
+import io.xj.core.model.link.Link;
+import io.xj.core.model.link.LinkState;
+import io.xj.core.model.pattern.PatternType;
+import io.xj.core.model.user_role.UserRoleType;
+import io.xj.core.work.basis.Basis;
+import io.xj.core.work.basis.BasisFactory;
+import io.xj.worker.WorkerModule;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
-import io.xj.core.CoreModule;
-import io.xj.core.integration.IntegrationTestEntity;
-import io.xj.core.integration.IntegrationTestService;
-import io.xj.core.model.chain.ChainState;
-import io.xj.core.model.chain.ChainType;
-import io.xj.core.model.pattern.PatternType;
-import io.xj.core.model.instrument.InstrumentType;
-import io.xj.core.model.link.Link;
-import io.xj.core.model.link.LinkState;
-import io.xj.core.model.role.Role;
-import io.xj.core.tables.records.ArrangementRecord;
-import io.xj.core.work.basis.Basis;
-import io.xj.core.work.basis.BasisFactory;
-import io.xj.core.craft.CraftFactory;
-import io.xj.worker.WorkerModule;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import java.math.BigInteger;
 import java.sql.Timestamp;
 
-import static io.xj.core.Tables.ARRANGEMENT;
-import static io.xj.core.Tables.PICK;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertFalse;
 
 public class CraftVoiceInitialIT {
   @Rule public ExpectedException failure = ExpectedException.none();
@@ -52,11 +51,11 @@ public class CraftVoiceInitialIT {
 
     // Greg has "user" and "admin" roles, belongs to account "pigs", has "google" auth
     IntegrationTestEntity.insertUser(2, "greg", "greg@email.com", "http://pictures.com/greg.gif");
-    IntegrationTestEntity.insertUserRole(1, 2, Role.ADMIN);
+    IntegrationTestEntity.insertUserRole(1, 2, UserRoleType.Admin);
 
     // Tonya has a "user" role and belongs to account "pigs"
     IntegrationTestEntity.insertUser(3, "tonya", "tonya@email.com", "http://pictures.com/tonya.gif");
-    IntegrationTestEntity.insertUserRole(2, 3, Role.USER);
+    IntegrationTestEntity.insertUserRole(2, 3, UserRoleType.User);
     IntegrationTestEntity.insertAccountUser(3, 1, 3);
 
     // Library "house"
@@ -154,21 +153,9 @@ public class CraftVoiceInitialIT {
 
     craftFactory.voice(basis).doWork();
 
-    ArrangementRecord resultArrangement =
-      IntegrationTestService.getDb()
-        .selectFrom(ARRANGEMENT)
-        .where(ARRANGEMENT.CHOICE_ID.eq(ULong.valueOf(103)))
-        .fetchOne();
-    assertNotNull(resultArrangement);
+    assertFalse(injector.getInstance(ArrangementDAO.class).readAll(Access.internal(), BigInteger.valueOf(103)).isEmpty());
 
-    assertEquals(8, IntegrationTestService.getDb()
-      .selectFrom(PICK)
-      .where(PICK.AUDIO_ID.eq(ULong.valueOf(1)))
-      .fetch().size());
-
-    assertEquals(8, IntegrationTestService.getDb()
-      .selectFrom(PICK)
-      .where(PICK.AUDIO_ID.eq(ULong.valueOf(2)))
-      .fetch().size());
+    assertEquals(16, injector.getInstance(PickDAO.class).readAllInLink(Access.internal(), link6.getId()).size());
   }
+
 }

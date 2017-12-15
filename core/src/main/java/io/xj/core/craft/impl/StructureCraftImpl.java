@@ -1,6 +1,9 @@
 // Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.craft.impl;
 
+import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
+
 import io.xj.core.access.impl.Access;
 import io.xj.core.craft.StructureCraft;
 import io.xj.core.dao.ChoiceDAO;
@@ -15,15 +18,10 @@ import io.xj.core.model.phase.Phase;
 import io.xj.core.util.Value;
 import io.xj.core.work.basis.Basis;
 import io.xj.music.Key;
-
-import org.jooq.types.ULong;
-
-import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Objects;
 
@@ -33,14 +31,14 @@ import java.util.Objects;
  */
 public class StructureCraftImpl implements StructureCraft {
   private static final double SCORE_AVOID_CHOOSING_PREVIOUS_RHYTHM = 10;
-  public static final double SCORE_RHYTHM_ENTROPY = 0.5;
+  private static final double SCORE_RHYTHM_ENTROPY = 0.5;
   private static final double SCORE_MATCHED_MEMES = 3;
   private final Logger log = LoggerFactory.getLogger(StructureCraftImpl.class);
   private final Basis basis;
   private final ChoiceDAO choiceDAO;
   private final PatternDAO patternDAO;
   private Pattern _rhythmPattern;
-  private ULong _rhythmPhaseOffset;
+  private BigInteger _rhythmPhaseOffset;
 
   @Inject
   public StructureCraftImpl(
@@ -75,11 +73,11 @@ public class StructureCraftImpl implements StructureCraft {
   private void craftRhythm() throws Exception {
     choiceDAO.create(Access.internal(),
       new Choice()
-        .setLinkId(basis.linkId().toBigInteger())
+        .setLinkId(basis.linkId())
         .setType(PatternType.Rhythm.toString())
-        .setPatternId(rhythmPattern().getId().toBigInteger())
+        .setPatternId(rhythmPattern().getId())
         .setTranspose(rhythmTranspose())
-        .setPhaseOffset(rhythmPhaseOffset().toBigInteger()));
+        .setPhaseOffset(rhythmPhaseOffset()));
   }
 
   /**
@@ -122,7 +120,7 @@ public class StructureCraftImpl implements StructureCraft {
    <p>
    future: actually compute rhythm pattern phase offset
    */
-  private ULong rhythmPhaseOffset() throws Exception {
+  private BigInteger rhythmPhaseOffset() throws Exception {
     if (Objects.isNull(_rhythmPhaseOffset))
       switch (basis.type()) {
 
@@ -133,7 +131,7 @@ public class StructureCraftImpl implements StructureCraft {
         case Initial:
         case NextMain:
         case NextMacro:
-          _rhythmPhaseOffset = ULong.valueOf(0);
+          _rhythmPhaseOffset = BigInteger.valueOf(0);
       }
 
     return _rhythmPhaseOffset;
@@ -220,9 +218,9 @@ public class StructureCraftImpl implements StructureCraft {
     Double score = Chance.normallyAround(0, SCORE_RHYTHM_ENTROPY);
 
     // Score includes matching memes, previous link to macro pattern first phase
-    score += basis.currentLinkMemeIsometry().score(basis.patternPhaseMemes(pattern.getId(), ULong.valueOf(0))) * SCORE_MATCHED_MEMES;
+    score += basis.currentLinkMemeIsometry().score(basis.patternPhaseMemes(pattern.getId(), BigInteger.valueOf(0))) * SCORE_MATCHED_MEMES;
 
-      return score;
+    return score;
   }
 
   /**

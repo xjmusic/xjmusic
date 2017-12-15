@@ -18,13 +18,9 @@ import io.xj.core.model.phase.Phase;
 import io.xj.core.model.pick.Pick;
 import io.xj.core.model.voice.Voice;
 import io.xj.core.model.voice_event.VoiceEvent;
-import io.xj.core.tables.records.VoiceEventRecord;
 import io.xj.core.work.basis.Basis;
 import io.xj.music.Chord;
 import io.xj.music.Note;
-
-import org.jooq.Record;
-import org.jooq.Result;
 
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
@@ -101,9 +97,9 @@ public class VoiceCraftImpl implements VoiceCraft {
       percussiveInstrument,
       arrangementDAO.create(Access.internal(),
         new Arrangement()
-          .setChoiceId(basis.currentRhythmChoice().getId().toBigInteger())
-          .setVoiceId(voice.getId().toBigInteger())
-          .setInstrumentId(percussiveInstrument.getId().toBigInteger())));
+          .setChoiceId(basis.currentRhythmChoice().getId())
+          .setVoiceId(voice.getId())
+          .setInstrumentId(percussiveInstrument.getId())));
   }
 
   /**
@@ -174,11 +170,11 @@ public class VoiceCraftImpl implements VoiceCraft {
    Craft an arrangement based around a newly created arrangement record
    for each event in voice phase (repeat N times if needed to fill length of link)
 
-   @param phase             that voice belongs to
-   @param voice             that is being arranged
-   @param transpose         audio +/- semitones
-   @param instrument        to arrange audio of
-   @param arrangementRecord to create arrangement around
+   @param phase       that voice belongs to
+   @param voice       that is being arranged
+   @param transpose   audio +/- semitones
+   @param instrument  to arrange audio of
+   @param arrangement to create arrangement around
    @throws Exception on failure
    */
   private void craftArrangement(
@@ -186,15 +182,20 @@ public class VoiceCraftImpl implements VoiceCraft {
     Voice voice,
     int transpose,
     Instrument instrument,
-    Record arrangementRecord
+    Arrangement arrangement
   /*-*/) throws Exception {
     double repeat = basis.link().getTotal().doubleValue() / phase.getTotal().doubleValue();
-    Result<VoiceEventRecord> voiceEvents = basis.voiceEvents(voice.getId());
+    Collection<VoiceEvent> voiceEvents = basis.voiceEvents(voice.getId());
 
     int size = voiceEvents.size();
-    for (int i = 0; i < size * repeat; i++)
-      pickInstrumentAudio(instrument, new Arrangement().setFromRecord(arrangementRecord), new VoiceEvent().setFromRecord(voiceEvents.get(i % size)), transpose,
-        Math.floor(i / (double) size) * phase.getTotal().doubleValue());
+    int i = 0;
+    for (int r = 0; r < repeat; r++) {
+      for (VoiceEvent voiceEvent : voiceEvents) {
+        pickInstrumentAudio(instrument, arrangement, voiceEvent, transpose,
+          Math.floor(i / (double) size) * phase.getTotal().doubleValue());
+        i++;
+      }
+    }
   }
 
   /**
@@ -247,8 +248,8 @@ public class VoiceCraftImpl implements VoiceCraft {
     // create pick
     pickDAO.create(Access.internal(),
       new Pick()
-        .setArrangementId(arrangement.getId().toBigInteger())
-        .setAudioId(audio.getId().toBigInteger())
+        .setArrangementId(arrangement.getId())
+        .setAudioId(audio.getId())
         .setStart(startSeconds)
         .setLength(lengthSeconds)
         .setAmplitude(voiceEvent.getVelocity())
@@ -291,13 +292,7 @@ public class VoiceCraftImpl implements VoiceCraft {
    */
   private Iterable<Voice> rhythmPhaseVoices() throws Exception {
     List<Voice> voices = Lists.newArrayList();
-    basis.voices(rhythmPhase().getId()).forEach(record -> {
-      try {
-        voices.add(new Voice().setFromRecord(record));
-      } catch (BusinessException e) {
-        log.debug("while adding rhythm phase voices", e);
-      }
-    });
+    voices.addAll(basis.voices(rhythmPhase().getId()));
     return voices;
   }
 
@@ -310,8 +305,8 @@ public class VoiceCraftImpl implements VoiceCraft {
    */
   private Phase rhythmPhase() throws Exception {
     return basis.phaseByOffset(
-        basis.currentRhythmChoice().getPatternId(),
-        basis.currentRhythmChoice().getPhaseOffset());
+      basis.currentRhythmChoice().getPatternId(),
+      basis.currentRhythmChoice().getPhaseOffset());
   }
 
   /**

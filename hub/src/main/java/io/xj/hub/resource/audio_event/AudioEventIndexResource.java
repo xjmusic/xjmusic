@@ -7,9 +7,9 @@ import io.xj.core.server.HttpResponseProvider;
 import io.xj.core.dao.AudioEventDAO;
 import io.xj.core.model.audio_event.AudioEvent;
 import io.xj.core.model.audio_event.AudioEventWrapper;
-import io.xj.core.model.role.Role;
+import io.xj.core.model.user_role.UserRoleType;
 
-import org.jooq.types.ULong;
+
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -26,6 +26,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.math.BigInteger;
+import java.util.Objects;
 
 /**
  AudioEvents
@@ -33,7 +35,7 @@ import java.io.IOException;
 @Path("audio-events")
 public class AudioEventIndexResource {
   private static final Injector injector = Guice.createInjector(new CoreModule());
-  private final AudioEventDAO DAO = injector.getInstance(AudioEventDAO.class);
+  private final AudioEventDAO audioEventDAO = injector.getInstance(AudioEventDAO.class);
   private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
 
   @QueryParam("audioId")
@@ -46,18 +48,18 @@ public class AudioEventIndexResource {
    */
   @GET
   @WebResult
-  @RolesAllowed({Role.ARTIST})
+  @RolesAllowed(UserRoleType.ARTIST)
   public Response readAll(@Context ContainerRequestContext crc) throws IOException {
-    if (audioId == null || audioId.length() == 0) {
+    if (Objects.isNull(audioId) || audioId.isEmpty()) {
       return response.notAcceptable("Audio id is required");
     }
 
     try {
       return response.readMany(
         AudioEvent.KEY_MANY,
-        DAO.readAll(
+        audioEventDAO.readAll(
           Access.fromContext(crc),
-          ULong.valueOf(audioId)));
+          new BigInteger(audioId)));
 
     } catch (Exception e) {
       return response.failure(e);
@@ -72,13 +74,13 @@ public class AudioEventIndexResource {
    */
   @POST
   @Consumes(MediaType.APPLICATION_JSON)
-  @RolesAllowed({Role.ARTIST})
+  @RolesAllowed(UserRoleType.ARTIST)
   public Response create(AudioEventWrapper data, @Context ContainerRequestContext crc) {
     try {
       return response.create(
         AudioEvent.KEY_MANY,
         AudioEvent.KEY_ONE,
-        DAO.create(
+        audioEventDAO.create(
           Access.fromContext(crc),
           data.getAudioEvent()));
 

@@ -5,17 +5,13 @@ import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.integration.IntegrationTestEntity;
-import io.xj.core.integration.IntegrationTestService;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
 import io.xj.core.model.link.LinkState;
 import io.xj.core.model.pattern.Pattern;
 import io.xj.core.model.pattern.PatternType;
-import io.xj.core.model.role.Role;
-import io.xj.core.tables.records.PatternRecord;
+import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.transport.JSON;
-
-import org.jooq.types.ULong;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Guice;
@@ -33,7 +29,6 @@ import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.util.Collection;
 
-import static io.xj.core.tables.Pattern.PATTERN;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -53,11 +48,11 @@ public class PatternIT {
 
     // John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
     IntegrationTestEntity.insertUser(2, "john", "john@email.com", "http://pictures.com/john.gif");
-    IntegrationTestEntity.insertUserRole(1, 2, Role.ADMIN);
+    IntegrationTestEntity.insertUserRole(1, 2, UserRoleType.Admin);
 
     // Jenny has a "user" role and belongs to account "bananas"
     IntegrationTestEntity.insertUser(3, "jenny", "jenny@email.com", "http://pictures.com/jenny.gif");
-    IntegrationTestEntity.insertUserRole(2, 3, Role.USER);
+    IntegrationTestEntity.insertUserRole(2, 3, UserRoleType.User);
     IntegrationTestEntity.insertAccountUser(3, 1, 3);
 
     // Library "palm tree" has pattern "fonds" and pattern "nuts"
@@ -83,9 +78,9 @@ public class PatternIT {
 
   @Test
   public void create() throws Exception {
-    Access access = new Access(ImmutableMap.of(
+    Access access = Access.from(ImmutableMap.of(
       "userId", "2",
-      "roles", "user",
+      "roles", "User",
       "accounts", "1"
     ));
     Pattern inputData = new Pattern()
@@ -97,22 +92,22 @@ public class PatternIT {
       .setType("Main")
       .setUserId(BigInteger.valueOf(2));
 
-    JSONObject result = JSON.objectFrom(testDAO.create(access, inputData));
+    Pattern result = testDAO.create(access, inputData);
 
     assertNotNull(result);
-    assertEquals(0.42, result.get("density"));
-    assertEquals("G minor 7", result.get("key"));
-    assertEquals(2, result.get("libraryId"));
-    assertEquals("cannons", result.get("name"));
-    assertEquals(129.4, result.get("tempo"));
-    assertEquals("Main", result.get("type"));
-    assertEquals(2, result.get("userId"));
+    assertEquals(0.42, result.getDensity(), 0.01);
+    assertEquals("G minor 7", result.getKey());
+    assertEquals(BigInteger.valueOf(2), result.getLibraryId());
+    assertEquals("cannons", result.getName());
+    assertEquals(129.4, result.getTempo(), 0.1);
+    assertEquals(PatternType.Main, result.getType());
+    assertEquals(BigInteger.valueOf(2), result.getUserId());
   }
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutLibraryID() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "user",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "User",
       "accounts", "1"
     ));
     Pattern inputData = new Pattern()
@@ -128,8 +123,8 @@ public class PatternIT {
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutUserID() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "user",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "User",
       "accounts", "1"
     ));
     Pattern inputData = new Pattern()
@@ -145,57 +140,57 @@ public class PatternIT {
 
   @Test
   public void readOne() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "user",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "User",
       "accounts", "1"
     ));
 
-    Pattern result = testDAO.readOne(access, ULong.valueOf(2));
+    Pattern result = testDAO.readOne(access, BigInteger.valueOf(2));
 
     assertNotNull(result);
-    assertEquals(ULong.valueOf(2), result.getId());
-    assertEquals(ULong.valueOf(1), result.getLibraryId());
+    assertEquals(BigInteger.valueOf(2), result.getId());
+    assertEquals(BigInteger.valueOf(1), result.getLibraryId());
     assertEquals("nuts", result.getName());
   }
 
   @Test
-  public void readOneRecordTypeInLink_Macro() throws Exception {
+  public void readOneTypeInLink_Macro() throws Exception {
     IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, null);
     IntegrationTestEntity.insertLink(1, 1, 0, LinkState.Crafting, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-08-12 12:17:32.527142"), "C", 64, 0.6, 121, "chain-1-link-97898asdf7892.wav");
     IntegrationTestEntity.insertChoice(1, 1, 3, PatternType.Macro, 0, 0);
     IntegrationTestEntity.insertChoice(2, 1, 1, PatternType.Main, 0, 0);
 
-    Pattern result = testDAO.readOneRecordTypeInLink(Access.internal(), ULong.valueOf(1), PatternType.Macro);
+    Pattern result = testDAO.readOneTypeInLink(Access.internal(), BigInteger.valueOf(1), PatternType.Macro);
 
     assertNotNull(result);
-    assertEquals(ULong.valueOf(3), result.getId());
-    assertEquals(ULong.valueOf(2), result.getLibraryId());
+    assertEquals(BigInteger.valueOf(3), result.getId());
+    assertEquals(BigInteger.valueOf(2), result.getLibraryId());
     assertEquals("helm", result.getName());
   }
 
   @Test
-  public void readOneRecordTypeInLink_Main() throws Exception {
+  public void readOneTypeInLink_Main() throws Exception {
     IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, null);
     IntegrationTestEntity.insertLink(1, 1, 0, LinkState.Crafting, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-08-12 12:17:32.527142"), "C", 64, 0.6, 121, "chain-1-link-97898asdf7892.wav");
     IntegrationTestEntity.insertChoice(1, 1, 3, PatternType.Macro, 0, 0);
     IntegrationTestEntity.insertChoice(2, 1, 1, PatternType.Main, 0, 0);
 
-    Pattern result = testDAO.readOneRecordTypeInLink(Access.internal(), ULong.valueOf(1), PatternType.Main);
+    Pattern result = testDAO.readOneTypeInLink(Access.internal(), BigInteger.valueOf(1), PatternType.Main);
 
     assertNotNull(result);
-    assertEquals(ULong.valueOf(1), result.getId());
-    assertEquals(ULong.valueOf(1), result.getLibraryId());
+    assertEquals(BigInteger.valueOf(1), result.getId());
+    assertEquals(BigInteger.valueOf(1), result.getLibraryId());
     assertEquals("fonds", result.getName());
   }
 
   @Test
   public void readOne_FailsWhenUserIsNotInLibrary() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "user",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "User",
       "accounts", "326"
     ));
 
-    Pattern result = testDAO.readOne(access, ULong.valueOf(1));
+    Pattern result = testDAO.readOne(access, BigInteger.valueOf(1));
 
     assertNull(result);
   }
@@ -204,12 +199,12 @@ public class PatternIT {
 
   @Test
   public void readAll() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "admin",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Admin",
       "accounts", "1"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAllInLibrary(access, ULong.valueOf(1)));
+    JSONArray result = JSON.arrayOf(testDAO.readAllInLibrary(access, BigInteger.valueOf(1)));
 
     assertNotNull(result);
     assertEquals(2, result.length());
@@ -224,7 +219,7 @@ public class PatternIT {
     IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, null);
     IntegrationTestEntity.insertChainPattern(1, 1, 1);
 
-    Collection<Pattern> result = testDAO.readAllBoundToChain(Access.internal(), ULong.valueOf(1), PatternType.Main);
+    Collection<Pattern> result = testDAO.readAllBoundToChain(Access.internal(), BigInteger.valueOf(1), PatternType.Main);
 
     assertEquals(1, result.size());
     Pattern result0 = result.iterator().next();
@@ -236,7 +231,7 @@ public class PatternIT {
     IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, null);
     IntegrationTestEntity.insertChainLibrary(1, 1, 1);
 
-    Collection<Pattern> result = testDAO.readAllBoundToChainLibrary(Access.internal(), ULong.valueOf(1), PatternType.Main);
+    Collection<Pattern> result = testDAO.readAllBoundToChainLibrary(Access.internal(), BigInteger.valueOf(1), PatternType.Main);
 
     assertEquals(1, result.size());
     Pattern result0 = result.iterator().next();
@@ -245,12 +240,12 @@ public class PatternIT {
 
   @Test
   public void readAll_SeesNothingOutsideOfLibrary() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "user",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "User",
       "accounts", "345"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAllInLibrary(access, ULong.valueOf(1)));
+    JSONArray result = JSON.arrayOf(testDAO.readAllInLibrary(access, BigInteger.valueOf(1)));
 
     assertNotNull(result);
     assertEquals(0, result.length());
@@ -258,32 +253,32 @@ public class PatternIT {
 
   @Test(expected = BusinessException.class)
   public void update_FailsWithoutLibraryID() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "user",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "User",
       "accounts", "1"
     ));
     Pattern inputData = new Pattern()
       .setName("cannons");
 
-    testDAO.update(access, ULong.valueOf(3), inputData);
+    testDAO.update(access, BigInteger.valueOf(3), inputData);
   }
 
   @Test(expected = BusinessException.class)
   public void update_FailsWithoutName() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "user",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "User",
       "accounts", "1"
     ));
     Pattern inputData = new Pattern()
       .setLibraryId(BigInteger.valueOf(3));
 
-    testDAO.update(access, ULong.valueOf(3), inputData);
+    testDAO.update(access, BigInteger.valueOf(3), inputData);
   }
 
   @Test(expected = BusinessException.class)
   public void update_FailsUpdatingToNonexistentLibrary() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "user",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "User",
       "accounts", "1"
     ));
     Pattern inputData = new Pattern()
@@ -291,25 +286,22 @@ public class PatternIT {
       .setLibraryId(BigInteger.valueOf(3));
 
     try {
-      testDAO.update(access, ULong.valueOf(3), inputData);
+      testDAO.update(access, BigInteger.valueOf(3), inputData);
 
     } catch (Exception e) {
-      PatternRecord result = IntegrationTestService.getDb()
-        .selectFrom(PATTERN)
-        .where(PATTERN.ID.eq(ULong.valueOf(3)))
-        .fetchOne();
+      Pattern result = testDAO.readOne(Access.internal(), BigInteger.valueOf(3));
       assertNotNull(result);
       assertEquals("helm", result.getName());
-      assertEquals(ULong.valueOf(2), result.getLibraryId());
+      assertEquals(BigInteger.valueOf(2), result.getLibraryId());
       throw e;
     }
   }
 
   @Test
   public void update_Name() throws Exception {
-    Access access = new Access(ImmutableMap.of(
+    Access access = Access.from(ImmutableMap.of(
       "userId", "2",
-      "roles", "user",
+      "roles", "User",
       "accounts", "1"
     ));
     Pattern inputData = new Pattern()
@@ -321,50 +313,41 @@ public class PatternIT {
       .setType("Main")
       .setUserId(BigInteger.valueOf(2));
 
-    testDAO.update(access, ULong.valueOf(3), inputData);
+    testDAO.update(access, BigInteger.valueOf(3), inputData);
 
-    PatternRecord result = IntegrationTestService.getDb()
-      .selectFrom(PATTERN)
-      .where(PATTERN.ID.eq(ULong.valueOf(3)))
-      .fetchOne();
+    Pattern result = testDAO.readOne(Access.internal(), BigInteger.valueOf(3));
     assertNotNull(result);
     assertEquals("cannons", result.getName());
-    assertEquals(ULong.valueOf(2), result.getLibraryId());
+    assertEquals(BigInteger.valueOf(2), result.getLibraryId());
   }
 
   // future test: DAO cannot update Pattern to a User or Library not owned by current session
 
   @Test
   public void delete() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "admin"
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Admin"
     ));
 
-    testDAO.delete(access, ULong.valueOf(2));
+    testDAO.delete(access, BigInteger.valueOf(2));
 
-    PatternRecord result = IntegrationTestService.getDb()
-      .selectFrom(PATTERN)
-      .where(PATTERN.ID.eq(ULong.valueOf(2)))
-      .fetchOne();
+    Pattern result = testDAO.readOne(Access.internal(), BigInteger.valueOf(2));
     assertNull(result);
   }
 
   @Test(expected = BusinessException.class)
-  public void delete_FailsIfPatternHasChildRecords() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "admin"
+  public void delete_FailsIfPatternHasChilds() throws Exception {
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Admin"
     ));
     IntegrationTestEntity.insertPhase(1, 2, 0, 14, "testPhase", 0.524, "F#", 125.49);
 
     try {
-      testDAO.delete(access, ULong.valueOf(2));
+      testDAO.delete(access, BigInteger.valueOf(2));
 
     } catch (Exception e) {
-      PatternRecord stillExistingRecord = IntegrationTestService.getDb()
-        .selectFrom(PATTERN)
-        .where(PATTERN.ID.eq(ULong.valueOf(1)))
-        .fetchOne();
-      assertNotNull(stillExistingRecord);
+      Pattern result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1));
+      assertNotNull(result);
       throw e;
     }
   }

@@ -4,20 +4,11 @@ package io.xj.core.model.arrangement;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.model.Entity;
 
-import org.jooq.Field;
-import org.jooq.Record;
-import org.jooq.types.ULong;
-
-import com.google.api.client.util.Maps;
-
 import java.math.BigInteger;
-import java.util.Map;
-import java.util.Objects;
-
-import static io.xj.core.Tables.ARRANGEMENT;
 
 /**
- Entity for use as POJO for decoding messages received by JAX-RS resources
+ POJO for persisting data in memory while performing business logic,
+or decoding messages received by JAX-RS resources.
  a.k.a. JSON input will be stored into an instance of this object
 
  Business logic ought to be performed beginning with an instance of this object,
@@ -35,40 +26,40 @@ public class Arrangement extends Entity {
   /**
    Choice
    */
-  private ULong choiceId;
+  private BigInteger choiceId;
   /**
    Voice
    */
-  private ULong voiceId;
+  private BigInteger voiceId;
   /**
    Instrument
    */
-  private ULong instrumentId;
+  private BigInteger instrumentId;
 
-  public ULong getChoiceId() {
+  public BigInteger getChoiceId() {
     return choiceId;
   }
 
   public Arrangement setChoiceId(BigInteger choiceId) {
-    this.choiceId = ULong.valueOf(choiceId);
+    this.choiceId = choiceId;
     return this;
   }
 
-  public ULong getVoiceId() {
+  public BigInteger getVoiceId() {
     return voiceId;
   }
 
   public Arrangement setVoiceId(BigInteger voiceId) {
-    this.voiceId = ULong.valueOf(voiceId);
+    this.voiceId = voiceId;
     return this;
   }
 
-  public ULong getInstrumentId() {
+  public BigInteger getInstrumentId() {
     return instrumentId;
   }
 
   public Arrangement setInstrumentId(BigInteger instrumentId) {
-    this.instrumentId = ULong.valueOf(instrumentId);
+    this.instrumentId = instrumentId;
     return this;
   }
 
@@ -83,29 +74,6 @@ public class Arrangement extends Entity {
     if (this.instrumentId == null) {
       throw new BusinessException("Instrument ID is required.");
     }
-  }
-
-  @Override
-  public Arrangement setFromRecord(Record record) {
-    if (Objects.isNull(record)) {
-      return null;
-    }
-    id = record.get(ARRANGEMENT.ID);
-    choiceId = record.get(ARRANGEMENT.CHOICE_ID);
-    voiceId = record.get(ARRANGEMENT.VOICE_ID);
-    instrumentId = record.get(ARRANGEMENT.INSTRUMENT_ID);
-    createdAt = record.get(ARRANGEMENT.CREATED_AT);
-    updatedAt = record.get(ARRANGEMENT.UPDATED_AT);
-    return this;
-  }
-
-  @Override
-  public Map<Field, Object> updatableFieldValueMap() {
-    Map<Field, Object> fieldValues = Maps.newHashMap();
-    fieldValues.put(ARRANGEMENT.CHOICE_ID, choiceId);
-    fieldValues.put(ARRANGEMENT.VOICE_ID, voiceId);
-    fieldValues.put(ARRANGEMENT.INSTRUMENT_ID, instrumentId);
-    return fieldValues;
   }
 
 }

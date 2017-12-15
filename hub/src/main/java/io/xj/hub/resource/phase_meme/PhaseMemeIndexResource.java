@@ -3,13 +3,11 @@ package io.xj.hub.resource.phase_meme;
 
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
-import io.xj.core.server.HttpResponseProvider;
 import io.xj.core.dao.PhaseMemeDAO;
 import io.xj.core.model.phase_meme.PhaseMeme;
 import io.xj.core.model.phase_meme.PhaseMemeWrapper;
-import io.xj.core.model.role.Role;
-
-import org.jooq.types.ULong;
+import io.xj.core.model.user_role.UserRoleType;
+import io.xj.core.server.HttpResponseProvider;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -26,6 +24,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.math.BigInteger;
+import java.util.Objects;
 
 /**
  Phase record
@@ -33,7 +33,7 @@ import java.io.IOException;
 @Path("phase-memes")
 public class PhaseMemeIndexResource {
   private static final Injector injector = Guice.createInjector(new CoreModule());
-  private final PhaseMemeDAO DAO = injector.getInstance(PhaseMemeDAO.class);
+  private final PhaseMemeDAO phaseMemeDAO = injector.getInstance(PhaseMemeDAO.class);
   private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
 
   @QueryParam("phaseId")
@@ -46,19 +46,19 @@ public class PhaseMemeIndexResource {
    */
   @GET
   @WebResult
-  @RolesAllowed({Role.ARTIST})
+  @RolesAllowed(UserRoleType.ARTIST)
   public Response readAll(@Context ContainerRequestContext crc) throws IOException {
 
-    if (phaseId == null || phaseId.length() == 0) {
+    if (Objects.isNull(phaseId) || phaseId.isEmpty()) {
       return response.notAcceptable("Phase id is required");
     }
 
     try {
       return response.readMany(
         PhaseMeme.KEY_MANY,
-        DAO.readAll(
+        phaseMemeDAO.readAll(
           Access.fromContext(crc),
-          ULong.valueOf(phaseId)));
+          new BigInteger(phaseId)));
 
     } catch (Exception e) {
       return response.failure(e);
@@ -73,13 +73,13 @@ public class PhaseMemeIndexResource {
    */
   @POST
   @Consumes(MediaType.APPLICATION_JSON)
-  @RolesAllowed({Role.ARTIST})
+  @RolesAllowed(UserRoleType.ARTIST)
   public Response create(PhaseMemeWrapper data, @Context ContainerRequestContext crc) {
     try {
       return response.create(
         PhaseMeme.KEY_MANY,
         PhaseMeme.KEY_ONE,
-        DAO.create(
+        phaseMemeDAO.create(
           Access.fromContext(crc),
           data.getPhaseMeme()));
 

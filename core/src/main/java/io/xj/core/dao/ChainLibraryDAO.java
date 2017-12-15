@@ -3,12 +3,10 @@ package io.xj.core.dao;
 
 import io.xj.core.access.impl.Access;
 import io.xj.core.model.chain_library.ChainLibrary;
-import io.xj.core.tables.records.ChainLibraryRecord;
-
-import org.jooq.Result;
-import org.jooq.types.ULong;
 
 import javax.annotation.Nullable;
+import java.math.BigInteger;
+import java.util.Collection;
 
 public interface ChainLibraryDAO {
 
@@ -18,7 +16,7 @@ public interface ChainLibraryDAO {
    @param entity for the new Chain Library.
    @return newly readMany record
    */
-  ChainLibraryRecord create(Access access, ChainLibrary entity) throws Exception;
+  ChainLibrary create(Access access, ChainLibrary entity) throws Exception;
 
   /**
    Fetch one ChainLibrary if accessible
@@ -28,7 +26,7 @@ public interface ChainLibraryDAO {
    @throws Exception on failure
    */
   @Nullable
-  ChainLibraryRecord readOne(Access access, ULong id) throws Exception;
+  ChainLibrary readOne(Access access, BigInteger id) throws Exception;
 
   /**
    Fetch many ChainLibrary for one Chain by id, if accessible
@@ -37,12 +35,12 @@ public interface ChainLibraryDAO {
    @return JSONArray of chainLibraries.
    @throws Exception on failure
    */
-  Result<ChainLibraryRecord> readAll(Access access, ULong chainId) throws Exception;
+  Collection<ChainLibrary> readAll(Access access, BigInteger chainId) throws Exception;
 
   /**
    Delete a specified ChainLibrary
 
    @param id of specific ChainLibrary to delete.
    */
-  void delete(Access access, ULong id) throws Exception;
+  void delete(Access access, BigInteger id) throws Exception;
 }

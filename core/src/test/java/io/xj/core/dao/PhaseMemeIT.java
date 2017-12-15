@@ -4,16 +4,12 @@ package io.xj.core.dao;
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
 import io.xj.core.exception.BusinessException;
-import io.xj.core.external.AuthType;
 import io.xj.core.integration.IntegrationTestEntity;
-import io.xj.core.integration.IntegrationTestService;
 import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.phase_meme.PhaseMeme;
-import io.xj.core.model.role.Role;
-import io.xj.core.tables.records.PhaseMemeRecord;
+import io.xj.core.model.user_auth.UserAuthType;
+import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.transport.JSON;
-
-import org.jooq.types.ULong;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Guice;
@@ -27,7 +23,6 @@ import org.junit.Test;
 
 import java.math.BigInteger;
 
-import static io.xj.core.tables.PhaseMeme.PHASE_MEME;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -46,20 +41,20 @@ public class PhaseMemeIT {
 
     // John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
     IntegrationTestEntity.insertUser(2, "john", "john@email.com", "http://pictures.com/john.gif");
-    IntegrationTestEntity.insertUserRole(1, 2, Role.USER);
-    IntegrationTestEntity.insertUserRole(2, 2, Role.ADMIN);
+    IntegrationTestEntity.insertUserRole(1, 2, UserRoleType.User);
+    IntegrationTestEntity.insertUserRole(2, 2, UserRoleType.Admin);
     IntegrationTestEntity.insertAccountUser(3, 1, 2);
-    IntegrationTestEntity.insertUserAuth(102, 2, AuthType.GOOGLE, "external_access_token_123", "external_refresh_token_123", "22222");
+    IntegrationTestEntity.insertUserAuth(102, 2, UserAuthType.Google, "external_access_token_123", "external_refresh_token_123", "22222");
     IntegrationTestEntity.insertUserAccessToken(2, 102, "this-is-my-actual-access-token");
 
     // Jenny has a "user" role and belongs to account "bananas"
     IntegrationTestEntity.insertUser(3, "jenny", "jenny@email.com", "http://pictures.com/jenny.gif");
-    IntegrationTestEntity.insertUserRole(4, 3, Role.USER);
+    IntegrationTestEntity.insertUserRole(4, 3, UserRoleType.User);
     IntegrationTestEntity.insertAccountUser(5, 1, 3);
 
     // Bill has a "user" role but no account membership
     IntegrationTestEntity.insertUser(4, "bill", "bill@email.com", "http://pictures.com/bill.gif");
-    IntegrationTestEntity.insertUserRole(6, 4, Role.USER);
+    IntegrationTestEntity.insertUserRole(6, 4, UserRoleType.User);
 
     // Library "palm tree" has pattern "leaves"
     IntegrationTestEntity.insertLibrary(1, 1, "palm tree");
@@ -87,26 +82,26 @@ public class PhaseMemeIT {
 
   @Test
   public void create() throws Exception {
-    Access access = new Access(ImmutableMap.of(
+    Access access = Access.from(ImmutableMap.of(
       "userId", "2",
-      "roles", "artist",
+      "roles", "Artist",
       "accounts", "1"
     ));
     PhaseMeme inputData = new PhaseMeme()
       .setPhaseId(BigInteger.valueOf(1))
       .setName("  !!2gnarLY    ");
 
-    JSONObject result = JSON.objectFromRecord(testDAO.create(access, inputData));
+    JSONObject result = JSON.objectFrom(testDAO.create(access, inputData));
 
     assertNotNull(result);
-    assertEquals(ULong.valueOf(1), result.get("phaseId"));
+    assertEquals(1, result.get("phaseId"));
     assertEquals("Gnarly", result.get("name"));
   }
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutPhaseID() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
     PhaseMeme inputData = new PhaseMeme()
@@ -117,8 +112,8 @@ public class PhaseMemeIT {
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutName() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
     PhaseMeme inputData = new PhaseMeme()
@@ -129,39 +124,39 @@ public class PhaseMemeIT {
 
   @Test
   public void readOne() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
 
-    PhaseMeme result = new PhaseMeme().setFromRecord(testDAO.readOne(access, ULong.valueOf(2)));
+    PhaseMeme result = testDAO.readOne(access, BigInteger.valueOf(2));
 
     assertNotNull(result);
-    assertEquals(ULong.valueOf(2), result.getId());
-    assertEquals(ULong.valueOf(1), result.getPhaseId());
+    assertEquals(BigInteger.valueOf(2), result.getId());
+    assertEquals(BigInteger.valueOf(1), result.getPhaseId());
     assertEquals("Fuzz", result.getName());
   }
 
   @Test
   public void readOne_FailsWhenUserIsNotInAccount() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "326"
     ));
 
-    PhaseMemeRecord result = testDAO.readOne(access, ULong.valueOf(1));
+    PhaseMeme result = testDAO.readOne(access, BigInteger.valueOf(1));
 
     assertNull(result);
   }
 
   @Test
   public void readAll() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ULong.valueOf(1)));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, BigInteger.valueOf(1)));
 
     assertNotNull(result);
     assertEquals(2, result.length());
@@ -173,12 +168,12 @@ public class PhaseMemeIT {
 
   @Test
   public void readAll_SeesNothingOutsideOfAccount() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "345"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ULong.valueOf(1)));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, BigInteger.valueOf(1)));
 
     assertNotNull(result);
     assertEquals(0, result.length());
@@ -186,26 +181,23 @@ public class PhaseMemeIT {
 
   @Test
   public void delete() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
-    testDAO.delete(access, ULong.valueOf(1));
+    testDAO.delete(access, BigInteger.valueOf(1));
 
-    PhaseMemeRecord result = IntegrationTestService.getDb()
-      .selectFrom(PHASE_MEME)
-      .where(PHASE_MEME.ID.eq(ULong.valueOf(1)))
-      .fetchOne();
+    PhaseMeme result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1));
     assertNull(result);
   }
 
   @Test(expected = BusinessException.class)
   public void delete_failsIfNotInAccount() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "2"
     ));
 
-    testDAO.delete(access, ULong.valueOf(1));
+    testDAO.delete(access, BigInteger.valueOf(1));
   }
 }

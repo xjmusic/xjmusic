@@ -2,22 +2,22 @@
 package io.xj.core.dao.impl;
 
 import io.xj.core.access.impl.Access;
+import io.xj.core.dao.AccountUserDAO;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.exception.ConfigException;
-import io.xj.core.dao.AccountUserDAO;
-import io.xj.core.persistence.sql.impl.SQLConnection;
-import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import io.xj.core.model.account_user.AccountUser;
-import io.xj.core.tables.records.AccountUserRecord;
+import io.xj.core.persistence.sql.SQLDatabaseProvider;
+import io.xj.core.persistence.sql.impl.SQLConnection;
 
 import org.jooq.DSLContext;
 import org.jooq.Field;
-import org.jooq.Result;
 import org.jooq.types.ULong;
 
+import com.google.api.client.util.Maps;
 import com.google.inject.Inject;
 
-import java.sql.SQLException;
+import java.math.BigInteger;
+import java.util.Collection;
 import java.util.Map;
 
 import static io.xj.core.tables.AccountUser.ACCOUNT_USER;
@@ -32,40 +32,40 @@ public class AccountUserDAOImpl extends DAOImpl implements AccountUserDAO {
   }
 
   @Override
-  public AccountUserRecord create(Access access, AccountUser entity) throws Exception {
+  public AccountUser create(Access access, AccountUser entity) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(createRecord(tx.getContext(), access, entity));
+      return tx.success(create(tx.getContext(), access, entity));
     } catch (Exception e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public AccountUserRecord readOne(Access access, ULong id) throws Exception {
+  public AccountUser readOne(Access access, BigInteger id) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readOneRecord(tx.getContext(), access, id));
+      return tx.success(readOne(tx.getContext(), access, ULong.valueOf(id)));
     } catch (Exception e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public Result<AccountUserRecord> readAll(Access access, ULong accountId) throws Exception {
+  public Collection<AccountUser> readAll(Access access, BigInteger accountId) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readAll(tx.getContext(), access, accountId));
+      return tx.success(readAll(tx.getContext(), access, ULong.valueOf(accountId)));
     } catch (Exception e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public void delete(Access access, ULong id) throws Exception {
+  public void delete(Access access, BigInteger id) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      delete(tx.getContext(), access, id);
+      delete(tx.getContext(), access, ULong.valueOf(id));
       tx.success();
     } catch (Exception e) {
       throw tx.failure(e);
@@ -75,47 +75,47 @@ public class AccountUserDAOImpl extends DAOImpl implements AccountUserDAO {
   /**
    Create a new Account User record
 
-   @param db     context
-   @param entity for new AccountUser
    @return new record
    @throws Exception         if database failure
    @throws ConfigException   if not configured properly
    @throws BusinessException if fails business rule
+    @param db     context
+   @param entity for new AccountUser
    */
-  private AccountUserRecord createRecord(DSLContext db, Access access, AccountUser entity) throws Exception {
+  private static AccountUser create(DSLContext db, Access access, AccountUser entity) throws Exception {
     entity.validate();
 
-    Map<Field, Object> fieldValues = entity.updatableFieldValueMap();
+    Map<Field, Object> fieldValues = fieldValueMap(entity);
 
     requireTopLevel(access);
 
-    if (db.selectFrom(ACCOUNT_USER)
-      .where(ACCOUNT_USER.ACCOUNT_ID.eq(entity.getAccountId()))
-      .and(ACCOUNT_USER.USER_ID.eq(entity.getUserId()))
-      .fetchOne() != null)
+    if (null != db.selectFrom(ACCOUNT_USER)
+      .where(ACCOUNT_USER.ACCOUNT_ID.eq(ULong.valueOf(entity.getAccountId())))
+      .and(ACCOUNT_USER.USER_ID.eq(ULong.valueOf(entity.getUserId())))
+      .fetchOne())
       throw new BusinessException("Account User already exists!");
 
-    return executeCreate(db, ACCOUNT_USER, fieldValues);
+    return modelFrom(executeCreate(db, ACCOUNT_USER, fieldValues), AccountUser.class);
   }
 
   /**
    Read one record
 
-   @param db     context
+   @return record
+    @param db     context
    @param access control
    @param id     of record
-   @return record
    */
-  private AccountUserRecord readOneRecord(DSLContext db, Access access, ULong id) {
+  private static AccountUser readOne(DSLContext db, Access access, ULong id) throws BusinessException {
     if (access.isTopLevel())
-      return db.selectFrom(ACCOUNT_USER)
+      return modelFrom(db.selectFrom(ACCOUNT_USER)
         .where(ACCOUNT_USER.ID.eq(id))
-        .fetchOne();
+        .fetchOne(), AccountUser.class);
     else
-      return db.selectFrom(ACCOUNT_USER)
+      return modelFrom(db.selectFrom(ACCOUNT_USER)
         .where(ACCOUNT_USER.ID.eq(id))
-        .and(ACCOUNT_USER.ACCOUNT_ID.in(access.getAccounts()))
-        .fetchOne();
+        .and(ACCOUNT_USER.ACCOUNT_ID.in(access.getAccountIds()))
+        .fetchOne(), AccountUser.class);
   }
 
   /**
@@ -125,18 +125,17 @@ public class AccountUserDAOImpl extends DAOImpl implements AccountUserDAO {
    @param access    control
    @param accountId of parent
    @return array of child records
-   @throws SQLException on failure
    */
-  private Result<AccountUserRecord> readAll(DSLContext db, Access access, ULong accountId) throws SQLException {
+  private static Collection<AccountUser> readAll(DSLContext db, Access access, ULong accountId) throws BusinessException {
     if (access.isTopLevel())
-      return db.selectFrom(ACCOUNT_USER)
+      return modelsFrom(db.selectFrom(ACCOUNT_USER)
         .where(ACCOUNT_USER.ACCOUNT_ID.eq(accountId))
-        .fetch();
+        .fetch(), AccountUser.class);
     else
-      return db.selectFrom(ACCOUNT_USER)
+      return modelsFrom(db.selectFrom(ACCOUNT_USER)
         .where(ACCOUNT_USER.ACCOUNT_ID.eq(accountId))
-        .and(ACCOUNT_USER.ACCOUNT_ID.in(access.getAccounts()))
-        .fetch();
+        .and(ACCOUNT_USER.ACCOUNT_ID.in(access.getAccountIds()))
+        .fetch(), AccountUser.class);
   }
 
   /**
@@ -147,11 +146,25 @@ public class AccountUserDAOImpl extends DAOImpl implements AccountUserDAO {
    @param id     of record
    @throws BusinessException on failure
    */
-  private void delete(DSLContext db, Access access, ULong id) throws BusinessException {
+  private static void delete(DSLContext db, Access access, ULong id) throws BusinessException {
     requireTopLevel(access);
     db.deleteFrom(ACCOUNT_USER)
       .where(ACCOUNT_USER.ID.eq(id))
       .execute();
+  }
+
+  /**
+   Only certain (writable) fields are mapped back to jOOQ records--
+   Read-only fields are excluded from here.
+
+   @param entity to source values from
+   @return values mapped to record fields
+   */
+  private static Map<Field, Object> fieldValueMap(AccountUser entity) {
+    Map<Field, Object> fieldValues = Maps.newHashMap();
+    fieldValues.put(ACCOUNT_USER.ACCOUNT_ID, ULong.valueOf(entity.getAccountId()));
+    fieldValues.put(ACCOUNT_USER.USER_ID, ULong.valueOf(entity.getUserId()));
+    return fieldValues;
   }
 
 }

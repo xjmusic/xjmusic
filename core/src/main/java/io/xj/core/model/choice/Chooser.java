@@ -1,14 +1,13 @@
 // Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.model.choice;
 
-import io.xj.core.model.Entity;
-
-import org.jooq.types.ULong;
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import io.xj.core.model.Entity;
+
 import javax.annotation.Nullable;
+import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -28,7 +27,7 @@ import java.util.Objects;
 public class Chooser<T extends Entity> {
   //  final TypeToken<T> type = new TypeToken<T>(getClass()) {};
   private final List<T> entities;
-  private final HashMap<ULong, Double> scores;
+  private final HashMap<BigInteger, Double> scores;
 
   /**
    Constructor instantiates a new inner hash map
@@ -80,7 +79,7 @@ public class Chooser<T extends Entity> {
 
    @param entityId to add
    */
-  public void score(ULong entityId, Double Q) {
+  public void score(BigInteger entityId, Double Q) {
     if (scores.containsKey(entityId))
       scores.put(entityId, scores.get(entityId) + Q);
     else
@@ -101,7 +100,7 @@ public class Chooser<T extends Entity> {
 
    @return all entities
    */
-  public Map<ULong,Double> getScores() {
+  public Map<BigInteger, Double> getScores() {
     return Collections.unmodifiableMap(scores);
   }
 

@@ -2,23 +2,23 @@
 package io.xj.core.dao.impl;
 
 import io.xj.core.access.impl.Access;
+import io.xj.core.dao.AudioChordDAO;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.exception.ConfigException;
-import io.xj.core.dao.AudioChordDAO;
-import io.xj.core.persistence.sql.impl.SQLConnection;
-import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import io.xj.core.model.audio_chord.AudioChord;
-import io.xj.core.tables.records.AudioChordRecord;
+import io.xj.core.persistence.sql.SQLDatabaseProvider;
+import io.xj.core.persistence.sql.impl.SQLConnection;
 
 import org.jooq.DSLContext;
 import org.jooq.Field;
-import org.jooq.Result;
 import org.jooq.types.ULong;
 
+import com.google.api.client.util.Maps;
 import com.google.inject.Inject;
 
 import javax.annotation.Nullable;
-import java.sql.SQLException;
+import java.math.BigInteger;
+import java.util.Collection;
 import java.util.Map;
 
 import static io.xj.core.Tables.AUDIO;
@@ -36,7 +36,7 @@ public class AudioChordDAOImpl extends DAOImpl implements AudioChordDAO {
   }
 
   @Override
-  public AudioChordRecord create(Access access, AudioChord entity) throws Exception {
+  public AudioChord create(Access access, AudioChord entity) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(createRecord(tx.getContext(), access, entity));
@@ -47,10 +47,10 @@ public class AudioChordDAOImpl extends DAOImpl implements AudioChordDAO {
 
   @Override
   @Nullable
-  public AudioChordRecord readOne(Access access, ULong id) throws Exception {
+  public AudioChord readOne(Access access, BigInteger id) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readOneRecord(tx.getContext(), access, id));
+      return tx.success(readOneRecord(tx.getContext(), access, ULong.valueOf(id)));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -58,20 +58,20 @@ public class AudioChordDAOImpl extends DAOImpl implements AudioChordDAO {
 
   @Override
   @Nullable
-  public Result<AudioChordRecord> readAll(Access access, ULong audioId) throws Exception {
+  public Collection<AudioChord> readAll(Access access, BigInteger audioId) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readAll(tx.getContext(), access, audioId));
+      return tx.success(readAll(tx.getContext(), access, ULong.valueOf(audioId)));
     } catch (Exception e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public void update(Access access, ULong id, AudioChord entity) throws Exception {
+  public void update(Access access, BigInteger id, AudioChord entity) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      update(tx.getContext(), access, id, entity);
+      update(tx.getContext(), access, ULong.valueOf(id), entity);
       tx.success();
     } catch (Exception e) {
       throw tx.failure(e);
@@ -79,10 +79,10 @@ public class AudioChordDAOImpl extends DAOImpl implements AudioChordDAO {
   }
 
   @Override
-  public void delete(Access access, ULong id) throws Exception {
+  public void delete(Access access, BigInteger id) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      delete(access, tx.getContext(), id);
+      delete(access, tx.getContext(), ULong.valueOf(id));
       tx.success();
     } catch (Exception e) {
       throw tx.failure(e);
@@ -98,24 +98,24 @@ public class AudioChordDAOImpl extends DAOImpl implements AudioChordDAO {
    @return newly readMany record
    @throws BusinessException if failure
    */
-  private AudioChordRecord createRecord(DSLContext db, Access access, AudioChord entity) throws BusinessException {
+  private static AudioChord createRecord(DSLContext db, Access access, AudioChord entity) throws BusinessException {
     entity.validate();
 
-    Map<Field, Object> fieldValues = entity.updatableFieldValueMap();
+    Map<Field, Object> fieldValues = fieldValueMap(entity);
 
     if (access.isTopLevel())
       requireExists("Audio", db.selectCount().from(AUDIO)
-        .where(AUDIO.ID.eq(entity.getAudioId()))
+        .where(AUDIO.ID.eq(ULong.valueOf(entity.getAudioId())))
         .fetchOne(0, int.class));
     else
       requireExists("Audio", db.selectCount().from(AUDIO)
         .join(INSTRUMENT).on(INSTRUMENT.ID.eq(AUDIO.INSTRUMENT_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
-        .where(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-        .and(AUDIO.ID.eq(entity.getAudioId()))
+        .where(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+        .and(AUDIO.ID.eq(ULong.valueOf(entity.getAudioId())))
         .fetchOne(0, int.class));
 
-    return executeCreate(db, AUDIO_CHORD, fieldValues);
+    return modelFrom(executeCreate(db, AUDIO_CHORD, fieldValues), AudioChord.class);
   }
 
   /**
@@ -126,20 +126,20 @@ public class AudioChordDAOImpl extends DAOImpl implements AudioChordDAO {
    @param id     of audio
    @return audio
    */
-  private AudioChordRecord readOneRecord(DSLContext db, Access access, ULong id) {
+  private static AudioChord readOneRecord(DSLContext db, Access access, ULong id) throws BusinessException {
     if (access.isTopLevel())
-      return db.selectFrom(AUDIO_CHORD)
+      return modelFrom(db.selectFrom(AUDIO_CHORD)
         .where(AUDIO_CHORD.ID.eq(id))
-        .fetchOne();
+        .fetchOne(), AudioChord.class);
     else
-      return recordInto(AUDIO_CHORD, db.select(AUDIO_CHORD.fields())
+      return modelFrom(db.select(AUDIO_CHORD.fields())
         .from(AUDIO_CHORD)
         .join(AUDIO).on(AUDIO.ID.eq(AUDIO_CHORD.AUDIO_ID))
         .join(INSTRUMENT).on(INSTRUMENT.ID.eq(AUDIO.INSTRUMENT_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
         .where(AUDIO_CHORD.ID.eq(id))
-        .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-        .fetchOne());
+        .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+        .fetchOne(), AudioChord.class);
   }
 
   /**
@@ -149,25 +149,24 @@ public class AudioChordDAOImpl extends DAOImpl implements AudioChordDAO {
    @param access  control
    @param audioId to readMany all audio of
    @return array of audios
-   @throws SQLException on failure
    */
-  private Result<AudioChordRecord> readAll(DSLContext db, Access access, ULong audioId) throws SQLException {
+  private static Collection<AudioChord> readAll(DSLContext db, Access access, ULong audioId) throws BusinessException {
     if (access.isTopLevel())
-      return resultInto(AUDIO_CHORD, db.select(AUDIO_CHORD.fields())
+      return modelsFrom(db.select(AUDIO_CHORD.fields())
         .from(AUDIO_CHORD)
         .where(AUDIO_CHORD.AUDIO_ID.eq(audioId))
         .orderBy(AUDIO_CHORD.POSITION)
-        .fetch());
+        .fetch(), AudioChord.class);
     else
-      return resultInto(AUDIO_CHORD, db.select(AUDIO_CHORD.fields())
+      return modelsFrom(db.select(AUDIO_CHORD.fields())
         .from(AUDIO_CHORD)
         .join(AUDIO).on(AUDIO.ID.eq(AUDIO_CHORD.AUDIO_ID))
         .join(INSTRUMENT).on(INSTRUMENT.ID.eq(AUDIO.INSTRUMENT_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
         .where(AUDIO_CHORD.AUDIO_ID.eq(audioId))
-        .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
+        .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .orderBy(AUDIO_CHORD.POSITION)
-        .fetch());
+        .fetch(), AudioChord.class);
   }
 
   /**
@@ -179,25 +178,25 @@ public class AudioChordDAOImpl extends DAOImpl implements AudioChordDAO {
    @param entity to update with
    @throws BusinessException if failure
    */
-  private void update(DSLContext db, Access access, ULong id, AudioChord entity) throws Exception {
+  private static void update(DSLContext db, Access access, ULong id, AudioChord entity) throws Exception {
     entity.validate();
 
-    Map<Field, Object> fieldValues = entity.updatableFieldValueMap();
+    Map<Field, Object> fieldValues = fieldValueMap(entity);
     fieldValues.put(AUDIO_CHORD.ID, id);
 
     if (access.isTopLevel())
       requireExists("Audio", db.selectCount().from(AUDIO)
-        .where(AUDIO.ID.eq(entity.getAudioId()))
+        .where(AUDIO.ID.eq(ULong.valueOf(entity.getAudioId())))
         .fetchOne(0, int.class));
     else
       requireExists("Audio", db.selectCount().from(AUDIO)
         .join(INSTRUMENT).on(INSTRUMENT.ID.eq(AUDIO.INSTRUMENT_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
-        .where(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-        .and(AUDIO.ID.eq(entity.getAudioId()))
+        .where(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+        .and(AUDIO.ID.eq(ULong.valueOf(entity.getAudioId())))
         .fetchOne(0, int.class));
 
-    if (executeUpdate(db, AUDIO_CHORD, fieldValues) == 0)
+    if (0 == executeUpdate(db, AUDIO_CHORD, fieldValues))
       throw new BusinessException("No records updated.");
   }
 
@@ -210,19 +209,34 @@ public class AudioChordDAOImpl extends DAOImpl implements AudioChordDAO {
    @throws ConfigException   if not configured properly
    @throws BusinessException if fails business rule
    */
-  private void delete(Access access, DSLContext db, ULong id) throws Exception {
+  private static void delete(Access access, DSLContext db, ULong id) throws Exception {
     if (!access.isTopLevel())
       requireExists("Audio Meme", db.selectCount().from(AUDIO_CHORD)
         .join(AUDIO).on(AUDIO.ID.eq(AUDIO_CHORD.AUDIO_ID))
         .join(INSTRUMENT).on(INSTRUMENT.ID.eq(AUDIO.INSTRUMENT_ID))
         .join(LIBRARY).on(INSTRUMENT.LIBRARY_ID.eq(LIBRARY.ID))
         .where(AUDIO_CHORD.ID.eq(id))
-        .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
+        .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .fetchOne(0, int.class));
 
     db.deleteFrom(AUDIO_CHORD)
       .where(AUDIO_CHORD.ID.eq(id))
       .execute();
+  }
+
+  /**
+   Only certain (writable) fields are mapped back to jOOQ records--
+   Read-only fields are excluded from here.
+
+   @param entity to source values from
+   @return values mapped to record fields
+   */
+  private static Map<Field, Object> fieldValueMap(AudioChord entity) {
+    Map<Field, Object> fieldValues = Maps.newHashMap();
+    fieldValues.put(AUDIO_CHORD.NAME, entity.getName());
+    fieldValues.put(AUDIO_CHORD.AUDIO_ID, ULong.valueOf(entity.getAudioId()));
+    fieldValues.put(AUDIO_CHORD.POSITION, entity.getPosition());
+    return fieldValues;
   }
 
 }

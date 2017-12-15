@@ -4,15 +4,12 @@ package io.xj.worker;
 import io.xj.core.exception.WorkException;
 import io.xj.core.model.work.WorkType;
 
-import org.jooq.types.ULong;
-
 import com.google.inject.Inject;
 
 import net.greghaines.jesque.Job;
 import net.greghaines.jesque.worker.JobFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import java.math.BigInteger;
 import java.util.Objects;
 
 /**
@@ -20,7 +17,7 @@ import java.util.Objects;
  pluggable to Jesque job factory API.
  */
 public class JobSourceFactory implements JobFactory {
-  private static final Logger log = LoggerFactory.getLogger(JobSourceFactory.class);
+  //  private static final Logger log = LoggerFactory.getLogger(JobSourceFactory.class);
   private final JobTargetFactory jobTargetFactory;
 
   @Inject
@@ -44,8 +41,8 @@ public class JobSourceFactory implements JobFactory {
     if (Objects.isNull(args) || 1 > args.length) {
       throw new WorkException("Job requires at least 1 argument");
     }
-    ULong entityId = ULong.valueOf(String.valueOf(args[0]));
-    if (0 == entityId.compareTo(ULong.valueOf(0))) {
+    BigInteger entityId = new BigInteger(String.valueOf(args[0]));
+    if (0 == entityId.compareTo(BigInteger.valueOf(0))) {
       throw new WorkException("Job requires non-zero entity id");
     }
 
@@ -55,11 +52,11 @@ public class JobSourceFactory implements JobFactory {
   /**
    target is switched on job type
 
-   @param workType  type of job
+   @param workType type of job
    @param entityId target entity
    @return job runnable
    */
-  private Runnable makeTarget(WorkType workType, ULong entityId) throws WorkException {
+  private Runnable makeTarget(WorkType workType, BigInteger entityId) throws WorkException {
     switch (workType) {
 
       case AudioErase:

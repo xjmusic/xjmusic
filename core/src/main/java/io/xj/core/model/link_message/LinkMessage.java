@@ -2,22 +2,13 @@ package io.xj.core.model.link_message;
 
 import io.xj.core.exception.BusinessException;
 import io.xj.core.model.message.Message;
-import io.xj.core.model.message.MessageType;
-
-import org.jooq.Field;
-import org.jooq.Record;
-import org.jooq.types.ULong;
-
-import com.google.api.client.util.Maps;
 
 import java.math.BigInteger;
-import java.util.Map;
 import java.util.Objects;
 
-import static io.xj.core.Tables.LINK_MESSAGE;
-
 /**
- Entity for use as POJO for decoding messages received by JAX-RS resources
+ POJO for persisting data in memory while performing business logic,
+or decoding messages received by JAX-RS resources.
  a.k.a. JSON input will be stored into an instance of this object
  <p>
  Business logic ought to be performed beginning with an instance of this object,
@@ -35,7 +26,7 @@ public class LinkMessage extends Message {
   private static final int BODY_LENGTH_LIMIT = 65535;
   private static final String BODY_TRUNCATE_SUFFIX = " (truncated to fit character limit)";
 
-  protected ULong linkId;
+  protected BigInteger linkId;
 
   @Override
   public void validate() throws BusinessException {
@@ -52,40 +43,17 @@ public class LinkMessage extends Message {
   }
 
   @Override
-  public LinkMessage setFromRecord(Record record) {
-    if (Objects.isNull(record)) {
-      return null;
-    }
-    id = record.get(LINK_MESSAGE.ID);
-    linkId = record.get(LINK_MESSAGE.LINK_ID);
-    type = record.get(LINK_MESSAGE.TYPE);
-    body = record.get(LINK_MESSAGE.BODY);
-    createdAt = record.get(LINK_MESSAGE.CREATED_AT);
-    updatedAt = record.get(LINK_MESSAGE.UPDATED_AT);
-    return this;
-  }
-
-  @Override
-  public Map<Field, Object> updatableFieldValueMap() {
-    Map<Field, Object> fieldValues = Maps.newHashMap();
-    fieldValues.put(LINK_MESSAGE.LINK_ID, linkId);
-    fieldValues.put(LINK_MESSAGE.BODY, body);
-    fieldValues.put(LINK_MESSAGE.TYPE, type);
-    return fieldValues;
-  }
-
-  @Override
   public LinkMessage setBody(String body) {
     this.body = body;
     return this;
   }
 
-  public ULong getLinkId() {
+  public BigInteger getLinkId() {
     return linkId;
   }
 
   public LinkMessage setLinkId(BigInteger linkId) {
-    this.linkId = ULong.valueOf(linkId);
+    this.linkId = linkId;
     return this;
   }
 

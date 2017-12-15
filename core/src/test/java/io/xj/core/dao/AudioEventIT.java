@@ -5,14 +5,10 @@ import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.integration.IntegrationTestEntity;
-import io.xj.core.integration.IntegrationTestService;
 import io.xj.core.model.audio_event.AudioEvent;
 import io.xj.core.model.instrument.InstrumentType;
-import io.xj.core.model.role.Role;
-import io.xj.core.tables.records.AudioEventRecord;
+import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.transport.JSON;
-
-import org.jooq.types.ULong;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Guice;
@@ -25,9 +21,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.math.BigInteger;
-import java.util.List;
+import java.util.Collection;
 
-import static io.xj.core.Tables.AUDIO_EVENT;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -47,7 +42,7 @@ public class AudioEventIT {
 
     // John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
     IntegrationTestEntity.insertUser(2, "john", "john@email.com", "http://pictures.com/john.gif");
-    IntegrationTestEntity.insertUserRole(1, 2, Role.ADMIN);
+    IntegrationTestEntity.insertUserRole(1, 2, UserRoleType.Admin);
 
     // Library "palm tree" has pattern "leaves" and pattern "coconuts"
     IntegrationTestEntity.insertLibrary(1, 1, "palm tree");
@@ -76,8 +71,8 @@ public class AudioEventIT {
 
   @Test
   public void create() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
     AudioEvent inputData = new AudioEvent()
@@ -89,7 +84,7 @@ public class AudioEventIT {
       .setVelocity(0.72)
       .setAudioId(BigInteger.valueOf(1));
 
-    JSONObject result = JSON.objectFromRecord(testDAO.create(access, inputData));
+    JSONObject result = JSON.objectFrom(testDAO.create(access, inputData));
 
     assertNotNull(result);
     assertEquals(1.4, result.get("duration"));
@@ -98,13 +93,13 @@ public class AudioEventIT {
     assertEquals("KICK", result.get("inflection"));
     assertEquals(0.92, result.get("tonality"));
     assertEquals(0.72, result.get("velocity"));
-    assertEquals(ULong.valueOf(1), result.get("audioId"));
+    assertEquals(1, result.get("audioId"));
   }
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutAudioID() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
     AudioEvent inputData = new AudioEvent()
@@ -120,8 +115,8 @@ public class AudioEventIT {
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutNote() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
     AudioEvent inputData = new AudioEvent()
@@ -137,16 +132,16 @@ public class AudioEventIT {
 
   @Test
   public void readOne() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
 
-    AudioEvent result = new AudioEvent().setFromRecord(testDAO.readOne(access, ULong.valueOf(4)));
+    AudioEvent result = testDAO.readOne(access, BigInteger.valueOf(4));
 
     assertNotNull(result);
-    assertEquals(ULong.valueOf(4), result.getId());
-    assertEquals(ULong.valueOf(1), result.getAudioId());
+    assertEquals(BigInteger.valueOf(4), result.getId());
+    assertEquals(BigInteger.valueOf(1), result.getAudioId());
     assertEquals(Double.valueOf(1.0), result.getDuration());
     assertEquals("SNARE", result.getInflection());
     assertEquals("G", result.getNote());
@@ -157,24 +152,24 @@ public class AudioEventIT {
 
   @Test
   public void readOne_FailsWhenUserIsNotInAccount() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "326"
     ));
 
-    AudioEventRecord result = testDAO.readOne(access, ULong.valueOf(1));
+    AudioEvent result = testDAO.readOne(access, BigInteger.valueOf(1));
 
     assertNull(result);
   }
 
   @Test
   public void readAll() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ULong.valueOf(1)));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, BigInteger.valueOf(1)));
 
     assertNotNull(result);
     assertEquals(4, result.length());
@@ -190,22 +185,22 @@ public class AudioEventIT {
 
   @Test
   public void readAllFirstEventsForInstrument() throws Exception {
-    List<AudioEvent> result = testDAO.readAllFirstEventsForInstrument(Access.internal(), ULong.valueOf(1));
+    Collection<AudioEvent> result = testDAO.readAllFirstEventsForInstrument(Access.internal(), BigInteger.valueOf(1));
 
     assertNotNull(result);
     assertEquals(1, result.size());
-    AudioEvent result1 = result.get(0);
+    AudioEvent result1 = result.iterator().next();
     assertEquals("KICK", result1.getInflection());
   }
 
   @Test
   public void readAll_SeesNothingOutsideOfLibrary() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "345"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ULong.valueOf(1)));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, BigInteger.valueOf(1)));
 
     assertNotNull(result);
     assertEquals(0, result.length());
@@ -213,8 +208,8 @@ public class AudioEventIT {
 
   @Test(expected = BusinessException.class)
   public void update_FailsWithoutAudioID() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
     AudioEvent inputData = new AudioEvent()
@@ -225,13 +220,13 @@ public class AudioEventIT {
       .setTonality(1.0)
       .setVelocity(1.0);
 
-    testDAO.update(access, ULong.valueOf(3), inputData);
+    testDAO.update(access, BigInteger.valueOf(3), inputData);
   }
 
   @Test(expected = BusinessException.class)
   public void update_FailsWithoutNote() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
     AudioEvent inputData = new AudioEvent()
@@ -242,13 +237,13 @@ public class AudioEventIT {
       .setVelocity(1.0)
       .setAudioId(BigInteger.valueOf(2));
 
-    testDAO.update(access, ULong.valueOf(2), inputData);
+    testDAO.update(access, BigInteger.valueOf(2), inputData);
   }
 
   @Test(expected = BusinessException.class)
   public void update_FailsUpdatingToNonexistentAudio() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
     AudioEvent inputData = new AudioEvent()
@@ -261,24 +256,21 @@ public class AudioEventIT {
       .setAudioId(BigInteger.valueOf(287));
 
     try {
-      testDAO.update(access, ULong.valueOf(3), inputData);
+      testDAO.update(access, BigInteger.valueOf(3), inputData);
 
     } catch (Exception e) {
-      AudioEventRecord result = IntegrationTestService.getDb()
-        .selectFrom(AUDIO_EVENT)
-        .where(AUDIO_EVENT.ID.eq(ULong.valueOf(3)))
-        .fetchOne();
+      AudioEvent result = testDAO.readOne(Access.internal(), BigInteger.valueOf(3));
       assertNotNull(result);
       assertEquals("KICK", result.getInflection());
-      assertEquals(ULong.valueOf(1), result.getAudioId());
+      assertEquals(BigInteger.valueOf(1), result.getAudioId());
       throw e;
     }
   }
 
   @Test
   public void update() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
     AudioEvent inputData = new AudioEvent()
@@ -290,47 +282,41 @@ public class AudioEventIT {
       .setVelocity(0.72)
       .setAudioId(BigInteger.valueOf(1));
 
-    testDAO.update(access, ULong.valueOf(1), inputData);
+    testDAO.update(access, BigInteger.valueOf(1), inputData);
 
-    AudioEventRecord result = IntegrationTestService.getDb()
-      .selectFrom(AUDIO_EVENT)
-      .where(AUDIO_EVENT.ID.eq(ULong.valueOf(1)))
-      .fetchOne();
+    AudioEvent result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1));
     assertNotNull(result);
     assertEquals("POPPYCOCK", result.getInflection());
     assertEquals((Double) 1.2, result.getDuration());
     assertEquals((Double) 0.42, result.getPosition());
-    assertEquals(0.92, result.get("tonality"));
-    assertEquals(0.72, result.get("velocity"));
-    assertEquals(ULong.valueOf(1), result.getAudioId());
+    assertEquals(0.92, result.getTonality(), 0.01);
+    assertEquals(0.72, result.getVelocity(), 0.01);
+    assertEquals(BigInteger.valueOf(1), result.getAudioId());
   }
 
   // future test: DAO cannot update Pattern to a User or Library not owned by current session
 
   @Test
   public void delete() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
 
-    testDAO.delete(access, ULong.valueOf(1));
+    testDAO.delete(access, BigInteger.valueOf(1));
 
-    AudioEventRecord result = IntegrationTestService.getDb()
-      .selectFrom(AUDIO_EVENT)
-      .where(AUDIO_EVENT.ID.eq(ULong.valueOf(1)))
-      .fetchOne();
+    AudioEvent result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1));
     assertNull(result);
   }
 
   @Test(expected = BusinessException.class)
   public void delete_failsIfNotInAccount() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "2"
     ));
 
-    testDAO.delete(access, ULong.valueOf(1));
+    testDAO.delete(access, BigInteger.valueOf(1));
   }
 
 }

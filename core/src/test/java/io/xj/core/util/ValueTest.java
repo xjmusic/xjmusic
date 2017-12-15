@@ -1,9 +1,9 @@
 // Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.util;// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-import org.jooq.types.ULong;
-
 import org.junit.Test;
+
+import java.math.BigInteger;
 
 import static org.junit.Assert.assertEquals;
 
@@ -24,9 +24,9 @@ public class ValueTest {
 
   @Test
   public void inc() throws Exception {
-    assertEquals(ULong.valueOf(23), Value.inc(ULong.valueOf(24), -1));
-    assertEquals(ULong.valueOf(9543), Value.inc(ULong.valueOf(9000), 543));
-    assertEquals(ULong.valueOf(742), Value.inc(ULong.valueOf(1000), -258));
+    assertEquals(BigInteger.valueOf(23), Value.inc(BigInteger.valueOf(24), -1));
+    assertEquals(BigInteger.valueOf(9543), Value.inc(BigInteger.valueOf(9000), 543));
+    assertEquals(BigInteger.valueOf(742), Value.inc(BigInteger.valueOf(1000), -258));
   }
 
 }

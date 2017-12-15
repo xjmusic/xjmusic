@@ -1,6 +1,10 @@
 // Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.craft.impl;
 
+import com.google.common.collect.Maps;
+import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
+
 import io.xj.core.access.impl.Access;
 import io.xj.core.craft.FoundationCraft;
 import io.xj.core.dao.ChoiceDAO;
@@ -21,16 +25,10 @@ import io.xj.core.util.Value;
 import io.xj.core.work.basis.Basis;
 import io.xj.music.Chord;
 import io.xj.music.Key;
-
-import org.jooq.types.ULong;
-
-import com.google.common.collect.Maps;
-import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.Map;
@@ -43,8 +41,8 @@ public class FoundationCraftImpl implements FoundationCraft {
   private static final double SCORE_MATCHED_KEY_MODE = 2;
   private static final double SCORE_MATCHED_MEMES = 10;
   private static final double SCORE_AVOID_PREVIOUS = 5;
-  public static final double SCORE_MACRO_ENTROPY = 0.5;
-  public static final double SCORE_MAIN_ENTROPY = 0.5;
+  private static final double SCORE_MACRO_ENTROPY = 0.5;
+  private static final double SCORE_MAIN_ENTROPY = 0.5;
   private static final long NANOS_PER_SECOND = 1_000_000_000;
   private final Logger log = LoggerFactory.getLogger(FoundationCraftImpl.class);
   private final ChoiceDAO choiceDAO;
@@ -55,8 +53,8 @@ public class FoundationCraftImpl implements FoundationCraft {
   private final Basis basis;
   private Pattern _macroPattern;
   private Pattern _mainPattern;
-  private ULong _macroPhaseOffset;
-  private ULong _mainPhaseOffset;
+  private BigInteger _macroPhaseOffset;
+  private BigInteger _mainPhaseOffset;
 
   @Inject
   public FoundationCraftImpl(
@@ -115,11 +113,11 @@ public class FoundationCraftImpl implements FoundationCraft {
   private void craftMacro() throws Exception {
     choiceDAO.create(Access.internal(),
       new Choice()
-        .setLinkId(basis.linkId().toBigInteger())
+        .setLinkId(basis.linkId())
         .setType(PatternType.Macro.toString())
-        .setPatternId(macroPattern().getId().toBigInteger())
+        .setPatternId(macroPattern().getId())
         .setTranspose(macroTranspose())
-        .setPhaseOffset(macroPhaseOffset().toBigInteger()));
+        .setPhaseOffset(macroPhaseOffset()));
   }
 
   /**
@@ -131,11 +129,11 @@ public class FoundationCraftImpl implements FoundationCraft {
   private void craftMain() throws Exception {
     choiceDAO.create(Access.internal(),
       new Choice()
-        .setLinkId(basis.linkId().toBigInteger())
+        .setLinkId(basis.linkId())
         .setType(PatternType.Main.toString())
-        .setPatternId(mainPattern().getId().toBigInteger())
+        .setPatternId(mainPattern().getId())
         .setTranspose(mainTranspose())
-        .setPhaseOffset(mainPhaseOffset().toBigInteger()));
+        .setPhaseOffset(mainPhaseOffset()));
   }
 
   /**
@@ -171,7 +169,7 @@ public class FoundationCraftImpl implements FoundationCraft {
           // create the transposed chord
           linkChordDAO.create(Access.internal(),
             new LinkChord()
-              .setLinkId(basis.linkId().toBigInteger())
+              .setLinkId(basis.linkId())
               .setName(name)
               .setPosition(phaseChordRecord.getPosition()));
 
@@ -277,12 +275,12 @@ public class FoundationCraftImpl implements FoundationCraft {
 
    @return macroPhaseOffset
    */
-  private ULong macroPhaseOffset() throws Exception {
+  private BigInteger macroPhaseOffset() throws Exception {
     if (Objects.isNull(_macroPhaseOffset))
       switch (basis.type()) {
 
         case Initial:
-          _macroPhaseOffset = ULong.valueOf(0);
+          _macroPhaseOffset = BigInteger.valueOf(0);
           break;
 
         case Continue:
@@ -294,7 +292,7 @@ public class FoundationCraftImpl implements FoundationCraft {
           break;
 
         case NextMacro:
-          _macroPhaseOffset = ULong.valueOf(0);
+          _macroPhaseOffset = BigInteger.valueOf(0);
       }
 
     return _macroPhaseOffset;
@@ -305,12 +303,12 @@ public class FoundationCraftImpl implements FoundationCraft {
 
    @return mainPhaseOffset
    */
-  private ULong mainPhaseOffset() throws Exception {
+  private BigInteger mainPhaseOffset() throws Exception {
     if (Objects.isNull(_mainPhaseOffset))
       switch (basis.type()) {
 
         case Initial:
-          _mainPhaseOffset = ULong.valueOf(0);
+          _mainPhaseOffset = BigInteger.valueOf(0);
           break;
 
         case Continue:
@@ -318,11 +316,11 @@ public class FoundationCraftImpl implements FoundationCraft {
           break;
 
         case NextMain:
-          _mainPhaseOffset = ULong.valueOf(0);
+          _mainPhaseOffset = BigInteger.valueOf(0);
           break;
 
         case NextMacro:
-          _mainPhaseOffset = ULong.valueOf(0);
+          _mainPhaseOffset = BigInteger.valueOf(0);
       }
 
     return _mainPhaseOffset;
@@ -453,10 +451,10 @@ public class FoundationCraftImpl implements FoundationCraft {
     }
 
     // Score includes matching memes to previous link's macro-pattern's next phase (major/minor)
-    score += basis.previousMacroNextPhaseMemeIsometry().score(basis.patternPhaseMemes(pattern.getId(), ULong.valueOf(0))) * SCORE_MATCHED_MEMES;
+    score += basis.previousMacroNextPhaseMemeIsometry().score(basis.patternPhaseMemes(pattern.getId(), BigInteger.valueOf(0))) * SCORE_MATCHED_MEMES;
 
     // Score includes matching mode to previous link's macro-pattern's next phase (major/minor)
-    if (Key.isSameMode(basis.previousMacroNextPhase().getKey(), basis.phaseByOffset(pattern.getId(), ULong.valueOf(0)).getKey())) {
+    if (Key.isSameMode(basis.previousMacroNextPhase().getKey(), basis.phaseByOffset(pattern.getId(), BigInteger.valueOf(0)).getKey())) {
       score += SCORE_MATCHED_KEY_MODE;
     }
 
@@ -487,7 +485,7 @@ public class FoundationCraftImpl implements FoundationCraft {
     }
 
     // Score includes matching memes, previous link to macro pattern first phase
-    score += basis.currentMacroMemeIsometry().score(basis.patternPhaseMemes(pattern.getId(), ULong.valueOf(0))) * SCORE_MATCHED_MEMES;
+    score += basis.currentMacroMemeIsometry().score(basis.patternPhaseMemes(pattern.getId(), BigInteger.valueOf(0))) * SCORE_MATCHED_MEMES;
 
     return score;
   }
@@ -549,7 +547,7 @@ public class FoundationCraftImpl implements FoundationCraft {
    @throws Exception on failure
    */
   private Integer linkTotal() throws Exception {
-    return mainPhase().getTotal().intValue();
+    return mainPhase().getTotal();
   }
 
   /**

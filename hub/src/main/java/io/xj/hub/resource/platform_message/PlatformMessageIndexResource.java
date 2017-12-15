@@ -7,7 +7,7 @@ import io.xj.core.config.Config;
 import io.xj.core.dao.PlatformMessageDAO;
 import io.xj.core.model.platform_message.PlatformMessage;
 import io.xj.core.model.platform_message.PlatformMessageWrapper;
-import io.xj.core.model.role.Role;
+import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.server.HttpResponseProvider;
 
 import com.google.inject.Guice;
@@ -45,7 +45,7 @@ public class PlatformMessageIndexResource {
    */
   @GET
   @WebResult
-  @RolesAllowed({Role.ADMIN, Role.ENGINEER})
+  @RolesAllowed({UserRoleType.ADMIN, UserRoleType.ENGINEER})
   public Response readAll(@Context ContainerRequestContext crc) throws IOException {
 
     if (null == previousDays || 0 == previousDays) {
@@ -72,7 +72,7 @@ public class PlatformMessageIndexResource {
    */
   @POST
   @Consumes(MediaType.APPLICATION_JSON)
-  @RolesAllowed({Role.ADMIN, Role.ENGINEER})
+  @RolesAllowed({UserRoleType.ADMIN, UserRoleType.ENGINEER})
   public Response create(PlatformMessageWrapper data, @Context ContainerRequestContext crc) {
     try {
       return response.create(

@@ -2,22 +2,22 @@
 package io.xj.core.dao.impl;
 
 import io.xj.core.access.impl.Access;
+import io.xj.core.dao.ChainInstrumentDAO;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.exception.ConfigException;
-import io.xj.core.dao.ChainInstrumentDAO;
-import io.xj.core.persistence.sql.impl.SQLConnection;
-import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import io.xj.core.model.chain_instrument.ChainInstrument;
-import io.xj.core.tables.records.ChainInstrumentRecord;
+import io.xj.core.persistence.sql.SQLDatabaseProvider;
+import io.xj.core.persistence.sql.impl.SQLConnection;
 
 import org.jooq.DSLContext;
 import org.jooq.Field;
-import org.jooq.Result;
 import org.jooq.types.ULong;
 
+import com.google.api.client.util.Maps;
 import com.google.inject.Inject;
 
-import java.sql.SQLException;
+import java.math.BigInteger;
+import java.util.Collection;
 import java.util.Map;
 
 import static io.xj.core.tables.Chain.CHAIN;
@@ -35,40 +35,40 @@ public class ChainInstrumentDAOImpl extends DAOImpl implements ChainInstrumentDA
   }
 
   @Override
-  public ChainInstrumentRecord create(Access access, ChainInstrument entity) throws Exception {
+  public ChainInstrument create(Access access, ChainInstrument entity) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(createRecord(tx.getContext(), access, entity));
+      return tx.success(create(tx.getContext(), access, entity));
     } catch (Exception e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public ChainInstrumentRecord readOne(Access access, ULong id) throws Exception {
+  public ChainInstrument readOne(Access access, BigInteger id) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readOneRecord(tx.getContext(), access, id));
+      return tx.success(readOne(tx.getContext(), access, ULong.valueOf(id)));
     } catch (Exception e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public Result<ChainInstrumentRecord> readAll(Access access, ULong chainId) throws Exception {
+  public Collection<ChainInstrument> readAll(Access access, BigInteger chainId) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readAll(tx.getContext(), access, chainId));
+      return tx.success(readAll(tx.getContext(), access, ULong.valueOf(chainId)));
     } catch (Exception e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public void delete(Access access, ULong id) throws Exception {
+  public void delete(Access access, BigInteger id) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      delete(tx.getContext(), access, id);
+      delete(tx.getContext(), access, ULong.valueOf(id));
       tx.success();
     } catch (Exception e) {
       throw tx.failure(e);
@@ -85,37 +85,37 @@ public class ChainInstrumentDAOImpl extends DAOImpl implements ChainInstrumentDA
    @throws ConfigException   if not configured properly
    @throws BusinessException if fails business rule
    */
-  private ChainInstrumentRecord createRecord(DSLContext db, Access access, ChainInstrument entity) throws Exception {
+  private static ChainInstrument create(DSLContext db, Access access, ChainInstrument entity) throws Exception {
     entity.validate();
 
-    Map<Field, Object> fieldValues = entity.updatableFieldValueMap();
+    Map<Field, Object> fieldValues = fieldValueMap(entity);
 
     if (access.isTopLevel()) {
       requireExists("Chain", db.selectCount().from(CHAIN)
-        .where(CHAIN.ID.eq(entity.getChainId()))
+        .where(CHAIN.ID.eq(ULong.valueOf(entity.getChainId())))
         .fetchOne(0, int.class));
       requireExists("Instrument", db.selectCount().from(INSTRUMENT)
-        .where(INSTRUMENT.ID.eq(entity.getInstrumentId()))
+        .where(INSTRUMENT.ID.eq(ULong.valueOf(entity.getInstrumentId())))
         .fetchOne(0, int.class));
     } else {
       requireExists("Chain", db.selectCount().from(CHAIN)
-        .where(CHAIN.ACCOUNT_ID.in(access.getAccounts()))
-        .and(CHAIN.ID.eq(entity.getChainId()))
+        .where(CHAIN.ACCOUNT_ID.in(access.getAccountIds()))
+        .and(CHAIN.ID.eq(ULong.valueOf(entity.getChainId())))
         .fetchOne(0, int.class));
       requireExists("Instrument", db.selectCount().from(INSTRUMENT)
         .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
-        .where(INSTRUMENT.ID.eq(entity.getInstrumentId()))
-        .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
+        .where(INSTRUMENT.ID.eq(ULong.valueOf(entity.getInstrumentId())))
+        .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .fetchOne(0, int.class));
     }
 
     if (null != db.selectFrom(CHAIN_INSTRUMENT)
-      .where(CHAIN_INSTRUMENT.CHAIN_ID.eq(entity.getChainId()))
-      .and(CHAIN_INSTRUMENT.INSTRUMENT_ID.eq(entity.getInstrumentId()))
+      .where(CHAIN_INSTRUMENT.CHAIN_ID.eq(ULong.valueOf(entity.getChainId())))
+      .and(CHAIN_INSTRUMENT.INSTRUMENT_ID.eq(ULong.valueOf(entity.getInstrumentId())))
       .fetchOne())
       throw new BusinessException("Instrument already added to Chain!");
 
-    return executeCreate(db, CHAIN_INSTRUMENT, fieldValues);
+    return modelFrom(executeCreate(db, CHAIN_INSTRUMENT, fieldValues), ChainInstrument.class);
   }
 
   /**
@@ -126,18 +126,18 @@ public class ChainInstrumentDAOImpl extends DAOImpl implements ChainInstrumentDA
    @param id     of record
    @return record
    */
-  private ChainInstrumentRecord readOneRecord(DSLContext db, Access access, ULong id) {
+  private static ChainInstrument readOne(DSLContext db, Access access, ULong id) throws BusinessException {
     if (access.isTopLevel())
-      return db.selectFrom(CHAIN_INSTRUMENT)
+      return modelFrom(db.selectFrom(CHAIN_INSTRUMENT)
         .where(CHAIN_INSTRUMENT.ID.eq(id))
-        .fetchOne();
+        .fetchOne(), ChainInstrument.class);
     else
-      return recordInto(CHAIN_INSTRUMENT, db.select(CHAIN_INSTRUMENT.fields()).from(CHAIN_INSTRUMENT)
+      return modelFrom(db.select(CHAIN_INSTRUMENT.fields()).from(CHAIN_INSTRUMENT)
         .join(INSTRUMENT).on(INSTRUMENT.ID.eq(CHAIN_INSTRUMENT.INSTRUMENT_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
         .where(CHAIN_INSTRUMENT.ID.eq(id))
-        .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-        .fetchOne());
+        .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+        .fetchOne(), ChainInstrument.class);
   }
 
   /**
@@ -147,21 +147,19 @@ public class ChainInstrumentDAOImpl extends DAOImpl implements ChainInstrumentDA
    @param access  control
    @param chainId of parent
    @return array of child records
-   @throws SQLException on failure
    */
-  private Result<ChainInstrumentRecord> readAll(DSLContext db, Access access, ULong chainId) throws SQLException {
+  private static Collection<ChainInstrument> readAll(DSLContext db, Access access, ULong chainId) throws BusinessException {
     if (access.isTopLevel())
-      return db.selectFrom(CHAIN_INSTRUMENT)
+      return modelsFrom(db.selectFrom(CHAIN_INSTRUMENT)
         .where(CHAIN_INSTRUMENT.CHAIN_ID.eq(chainId))
-        .fetch();
+        .fetch(), ChainInstrument.class);
     else
-      return resultInto(CHAIN_INSTRUMENT, db.select(CHAIN_INSTRUMENT.fields()).from(CHAIN_INSTRUMENT)
+      return modelsFrom(db.select(CHAIN_INSTRUMENT.fields()).from(CHAIN_INSTRUMENT)
         .join(INSTRUMENT).on(INSTRUMENT.ID.eq(CHAIN_INSTRUMENT.INSTRUMENT_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
         .where(CHAIN_INSTRUMENT.CHAIN_ID.eq(chainId))
-        .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-        .fetch());
-
+        .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+        .fetch(), ChainInstrument.class);
   }
 
   /**
@@ -172,7 +170,7 @@ public class ChainInstrumentDAOImpl extends DAOImpl implements ChainInstrumentDA
    @param id     of record
    @throws BusinessException on failure
    */
-  private void delete(DSLContext db, Access access, ULong id) throws BusinessException {
+  private static void delete(DSLContext db, Access access, ULong id) throws BusinessException {
     if (access.isTopLevel())
       requireExists("Chain Instrument", db.selectCount().from(CHAIN_INSTRUMENT)
         .where(CHAIN_INSTRUMENT.ID.eq(id))
@@ -182,12 +180,26 @@ public class ChainInstrumentDAOImpl extends DAOImpl implements ChainInstrumentDA
         .join(INSTRUMENT).on(INSTRUMENT.ID.eq(CHAIN_INSTRUMENT.INSTRUMENT_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
         .where(CHAIN_INSTRUMENT.ID.eq(id))
-        .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
+        .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .fetchOne(0, int.class));
 
     db.deleteFrom(CHAIN_INSTRUMENT)
       .where(CHAIN_INSTRUMENT.ID.eq(id))
       .execute();
+  }
+
+  /**
+   Only certain (writable) fields are mapped back to jOOQ records--
+   Read-only fields are excluded from here.
+
+   @param entity to source values from
+   @return values mapped to record fields
+   */
+  private static Map<Field, Object> fieldValueMap(ChainInstrument entity) {
+    Map<Field, Object> fieldValues = Maps.newHashMap();
+    fieldValues.put(CHAIN_INSTRUMENT.CHAIN_ID, ULong.valueOf(entity.getChainId()));
+    fieldValues.put(CHAIN_INSTRUMENT.INSTRUMENT_ID, ULong.valueOf(entity.getInstrumentId()));
+    return fieldValues;
   }
 
 }

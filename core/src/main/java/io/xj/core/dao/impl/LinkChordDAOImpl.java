@@ -2,24 +2,23 @@
 package io.xj.core.dao.impl;
 
 import io.xj.core.access.impl.Access;
+import io.xj.core.dao.LinkChordDAO;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.exception.ConfigException;
-import io.xj.core.dao.LinkChordDAO;
-import io.xj.core.persistence.sql.impl.SQLConnection;
-import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import io.xj.core.model.link_chord.LinkChord;
-import io.xj.core.tables.records.LinkChordRecord;
+import io.xj.core.persistence.sql.SQLDatabaseProvider;
+import io.xj.core.persistence.sql.impl.SQLConnection;
 
 import org.jooq.DSLContext;
 import org.jooq.Field;
-import org.jooq.Result;
 import org.jooq.types.ULong;
 
+import com.google.api.client.util.Maps;
 import com.google.inject.Inject;
 
 import javax.annotation.Nullable;
-import java.sql.SQLException;
-import java.util.List;
+import java.math.BigInteger;
+import java.util.Collection;
 import java.util.Map;
 
 import static io.xj.core.Tables.LINK;
@@ -36,7 +35,7 @@ public class LinkChordDAOImpl extends DAOImpl implements LinkChordDAO {
   }
 
   @Override
-  public LinkChordRecord create(Access access, LinkChord entity) throws Exception {
+  public LinkChord create(Access access, LinkChord entity) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(createRecord(tx.getContext(), access, entity));
@@ -47,10 +46,10 @@ public class LinkChordDAOImpl extends DAOImpl implements LinkChordDAO {
 
   @Override
   @Nullable
-  public LinkChordRecord readOne(Access access, ULong id) throws Exception {
+  public LinkChord readOne(Access access, BigInteger id) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readOneRecord(tx.getContext(), access, id));
+      return tx.success(readOne(tx.getContext(), access, ULong.valueOf(id)));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -58,30 +57,30 @@ public class LinkChordDAOImpl extends DAOImpl implements LinkChordDAO {
 
   @Override
   @Nullable
-  public Result<LinkChordRecord> readAll(Access access, ULong linkId) throws Exception {
+  public Collection<LinkChord> readAll(Access access, BigInteger linkId) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readAll(tx.getContext(), access, linkId));
+      return tx.success(readAll(tx.getContext(), access, ULong.valueOf(linkId)));
     } catch (Exception e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public Result<LinkChordRecord> readAllInLinks(Access access, List<ULong> linkIds) throws Exception {
+  public Collection<LinkChord> readAllInLinks(Access access, Collection<BigInteger> linkIds) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readAllInLinks(tx.getContext(), access, linkIds));
+      return tx.success(readAllInLinks(tx.getContext(), access, idCollection(linkIds)));
     } catch (Exception e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public void update(Access access, ULong id, LinkChord entity) throws Exception {
+  public void update(Access access, BigInteger id, LinkChord entity) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      update(tx.getContext(), access, id, entity);
+      update(tx.getContext(), access, ULong.valueOf(id), entity);
       tx.success();
     } catch (Exception e) {
       throw tx.failure(e);
@@ -89,10 +88,10 @@ public class LinkChordDAOImpl extends DAOImpl implements LinkChordDAO {
   }
 
   @Override
-  public void delete(Access access, ULong id) throws Exception {
+  public void delete(Access access, BigInteger id) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      delete(access, tx.getContext(), id);
+      delete(access, tx.getContext(), ULong.valueOf(id));
       tx.success();
     } catch (Exception e) {
       throw tx.failure(e);
@@ -108,18 +107,18 @@ public class LinkChordDAOImpl extends DAOImpl implements LinkChordDAO {
    @return newly readMany record
    @throws BusinessException if failure
    */
-  private LinkChordRecord createRecord(DSLContext db, Access access, LinkChord entity) throws BusinessException {
+  private static LinkChord createRecord(DSLContext db, Access access, LinkChord entity) throws BusinessException {
     entity.validate();
 
-    Map<Field, Object> fieldValues = entity.updatableFieldValueMap();
+    Map<Field, Object> fieldValues = fieldValueMap(entity);
 
     requireTopLevel(access);
 
     requireExists("Link", db.selectCount().from(LINK)
-      .where(LINK.ID.eq(entity.getLinkId()))
+      .where(LINK.ID.eq(ULong.valueOf(entity.getLinkId())))
       .fetchOne(0, int.class));
 
-    return executeCreate(db, LINK_CHORD, fieldValues);
+    return modelFrom(executeCreate(db, LINK_CHORD, fieldValues), LinkChord.class);
   }
 
   /**
@@ -130,19 +129,19 @@ public class LinkChordDAOImpl extends DAOImpl implements LinkChordDAO {
    @param id     of link
    @return link
    */
-  private LinkChordRecord readOneRecord(DSLContext db, Access access, ULong id) {
+  private static LinkChord readOne(DSLContext db, Access access, ULong id) throws BusinessException {
     if (access.isTopLevel())
-      return db.selectFrom(LINK_CHORD)
+      return modelFrom(db.selectFrom(LINK_CHORD)
         .where(LINK_CHORD.ID.eq(id))
-        .fetchOne();
+        .fetchOne(), LinkChord.class);
     else
-      return recordInto(LINK_CHORD, db.select(LINK_CHORD.fields())
+      return modelFrom(db.select(LINK_CHORD.fields())
         .from(LINK_CHORD)
         .join(LINK).on(LINK.ID.eq(LINK_CHORD.LINK_ID))
         .join(CHAIN).on(CHAIN.ID.eq(LINK.CHAIN_ID))
         .where(LINK_CHORD.ID.eq(id))
-        .and(CHAIN.ACCOUNT_ID.in(access.getAccounts()))
-        .fetchOne());
+        .and(CHAIN.ACCOUNT_ID.in(access.getAccountIds()))
+        .fetchOne(), LinkChord.class);
   }
 
   /**
@@ -152,52 +151,47 @@ public class LinkChordDAOImpl extends DAOImpl implements LinkChordDAO {
    @param access control
    @param linkId to readMany all link of
    @return array of links
-   @throws SQLException on failure
    */
-  private Result<LinkChordRecord> readAll(DSLContext db, Access access, ULong linkId) throws SQLException {
+  private static Collection<LinkChord> readAll(DSLContext db, Access access, ULong linkId) throws BusinessException {
     if (access.isTopLevel())
-      return resultInto(LINK_CHORD, db.select(LINK_CHORD.fields())
-        .from(LINK_CHORD)
+      return modelsFrom(db.select(LINK_CHORD.fields()).from(LINK_CHORD)
         .where(LINK_CHORD.LINK_ID.eq(linkId))
         .orderBy(LINK_CHORD.POSITION)
-        .fetch());
+        .fetch(), LinkChord.class);
     else
-      return resultInto(LINK_CHORD, db.select(LINK_CHORD.fields())
-        .from(LINK_CHORD)
+      return modelsFrom(db.select(LINK_CHORD.fields()).from(LINK_CHORD)
         .join(LINK).on(LINK.ID.eq(LINK_CHORD.LINK_ID))
         .join(CHAIN).on(CHAIN.ID.eq(LINK.CHAIN_ID))
         .where(LINK_CHORD.LINK_ID.eq(linkId))
-        .and(CHAIN.ACCOUNT_ID.in(access.getAccounts()))
+        .and(CHAIN.ACCOUNT_ID.in(access.getAccountIds()))
         .orderBy(LINK_CHORD.POSITION)
-        .fetch());
+        .fetch(), LinkChord.class);
   }
 
   /**
    Read all records in parent records by ids
    order by position ascending
 
-   @return array of records
-    @param db     context
-   @param access control
+   @param db      context
+   @param access  control
    @param linkIds id of parent's parent (the chain)
+   @return array of records
    */
-  private Result<LinkChordRecord> readAllInLinks(DSLContext db, Access access, List<ULong> linkIds) throws Exception {
+  private static Collection<LinkChord> readAllInLinks(DSLContext db, Access access, Collection<ULong> linkIds) throws Exception {
     if (access.isTopLevel())
-      return resultInto(LINK_CHORD, db.select(LINK_CHORD.fields())
-        .from(LINK_CHORD)
+      return modelsFrom(db.select(LINK_CHORD.fields()).from(LINK_CHORD)
         .join(LINK).on(LINK.ID.eq(LINK_CHORD.LINK_ID))
         .where(LINK.ID.in(linkIds))
         .orderBy(LINK_CHORD.POSITION.desc())
-        .fetch());
+        .fetch(), LinkChord.class);
     else
-      return resultInto(LINK_CHORD, db.select(LINK_CHORD.fields())
-        .from(LINK_CHORD)
+      return modelsFrom(db.select(LINK_CHORD.fields()).from(LINK_CHORD)
         .join(LINK).on(LINK.ID.eq(LINK_CHORD.LINK_ID))
         .join(CHAIN).on(CHAIN.ID.eq(LINK.CHAIN_ID))
         .where(LINK.ID.in(linkIds))
-        .and(CHAIN.ACCOUNT_ID.in(access.getAccounts()))
+        .and(CHAIN.ACCOUNT_ID.in(access.getAccountIds()))
         .orderBy(LINK_CHORD.POSITION.desc())
-        .fetch());
+        .fetch(), LinkChord.class);
   }
 
   /**
@@ -209,10 +203,10 @@ public class LinkChordDAOImpl extends DAOImpl implements LinkChordDAO {
    @param entity to update with
    @throws BusinessException if failure
    */
-  private void update(DSLContext db, Access access, ULong id, LinkChord entity) throws BusinessException {
+  private static void update(DSLContext db, Access access, ULong id, LinkChord entity) throws BusinessException {
     entity.validate();
 
-    Map<Field, Object> fieldValues = entity.updatableFieldValueMap();
+    Map<Field, Object> fieldValues = fieldValueMap(entity);
     fieldValues.put(LINK_CHORD.ID, id);
 
     requireTopLevel(access);
@@ -220,7 +214,7 @@ public class LinkChordDAOImpl extends DAOImpl implements LinkChordDAO {
     requireExists("existing LinkChord with immutable Link membership",
       db.selectCount().from(LINK_CHORD)
         .where(LINK_CHORD.ID.eq(id))
-        .and(LINK_CHORD.LINK_ID.eq(entity.getLinkId()))
+        .and(LINK_CHORD.LINK_ID.eq(ULong.valueOf(entity.getLinkId())))
         .fetchOne(0, int.class));
 
     if (0 == executeUpdate(db, LINK_CHORD, fieldValues))
@@ -236,12 +230,27 @@ public class LinkChordDAOImpl extends DAOImpl implements LinkChordDAO {
    @throws ConfigException   if not configured properly
    @throws BusinessException if fails business rule
    */
-  private void delete(Access access, DSLContext db, ULong id) throws Exception {
+  private static void delete(Access access, DSLContext db, ULong id) throws Exception {
     requireTopLevel(access);
 
     db.deleteFrom(LINK_CHORD)
       .where(LINK_CHORD.ID.eq(id))
       .execute();
+  }
+
+  /**
+   Only certain (writable) fields are mapped back to jOOQ records--
+   Read-only fields are excluded from here.
+
+   @param entity to source values from
+   @return values mapped to record fields
+   */
+  private static Map<Field, Object> fieldValueMap(LinkChord entity) {
+    Map<Field, Object> fieldValues = Maps.newHashMap();
+    fieldValues.put(LINK_CHORD.NAME, entity.getName());
+    fieldValues.put(LINK_CHORD.LINK_ID, ULong.valueOf(entity.getLinkId()));
+    fieldValues.put(LINK_CHORD.POSITION, entity.getPosition());
+    return fieldValues;
   }
 
 }

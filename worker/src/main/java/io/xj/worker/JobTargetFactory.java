@@ -7,7 +7,7 @@ import io.xj.worker.job.ChainFabricateJob;
 import io.xj.worker.job.LinkCraftJob;
 import io.xj.worker.job.LinkDubJob;
 
-import org.jooq.types.ULong;
+import java.math.BigInteger;
 
 import com.google.inject.assistedinject.Assisted;
 
@@ -23,7 +23,7 @@ public interface JobTargetFactory {
    @return job instance
    */
   ChainEraseJob makeChainEraseJob(
-    @Assisted("entityId") ULong entityId
+    @Assisted("entityId") BigInteger entityId
   );
 
   /**
@@ -33,7 +33,7 @@ public interface JobTargetFactory {
    @return job instance
    */
   AudioEraseJob makeAudioEraseJob(
-    @Assisted("entityId") ULong entityId
+    @Assisted("entityId") BigInteger entityId
   );
 
 
@@ -44,7 +44,7 @@ public interface JobTargetFactory {
    @return job instance
    */
   ChainFabricateJob makeChainFabricateJob(
-    @Assisted("entityId") ULong entityId
+    @Assisted("entityId") BigInteger entityId
   );
 
   /**
@@ -54,7 +54,7 @@ public interface JobTargetFactory {
    @return job instance
    */
   LinkCraftJob makeLinkCraftJob(
-    @Assisted("entityId") ULong entityId
+    @Assisted("entityId") BigInteger entityId
   );
 
   /**
@@ -64,6 +64,6 @@ public interface JobTargetFactory {
    @return job instance
    */
   LinkDubJob makeLinkDubJob(
-    @Assisted("entityId") ULong entityId
+    @Assisted("entityId") BigInteger entityId
   );
 }

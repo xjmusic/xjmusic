@@ -3,12 +3,10 @@ package io.xj.hub.resource.link_message;
 
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
-import io.xj.core.server.HttpResponseProvider;
 import io.xj.core.dao.LinkMessageDAO;
 import io.xj.core.model.link_message.LinkMessage;
-import io.xj.core.model.role.Role;
-
-import org.jooq.types.ULong;
+import io.xj.core.model.user_role.UserRoleType;
+import io.xj.core.server.HttpResponseProvider;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -22,6 +20,8 @@ import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.math.BigInteger;
+import java.util.Objects;
 
 /**
  LinkMessages
@@ -29,7 +29,7 @@ import java.io.IOException;
 @Path("link-messages")
 public class LinkMessageIndexResource {
   private static final Injector injector = Guice.createInjector(new CoreModule());
-  private final LinkMessageDAO DAO = injector.getInstance(LinkMessageDAO.class);
+  private final LinkMessageDAO linkMessageDAO = injector.getInstance(LinkMessageDAO.class);
   private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
 
   @QueryParam("linkId")
@@ -42,19 +42,19 @@ public class LinkMessageIndexResource {
    */
   @GET
   @WebResult
-  @RolesAllowed({Role.USER})
+  @RolesAllowed(UserRoleType.USER)
   public Response readAll(@Context ContainerRequestContext crc) throws IOException {
 
-    if (linkId == null || linkId.length() == 0) {
+    if (Objects.isNull(linkId) || linkId.isEmpty()) {
       return response.notAcceptable("Link id is required");
     }
 
     try {
       return response.readMany(
         LinkMessage.KEY_MANY,
-        DAO.readAllInLink(
+        linkMessageDAO.readAllInLink(
           Access.fromContext(crc),
-          ULong.valueOf(linkId)));
+          new BigInteger(linkId)));
 
     } catch (Exception e) {
       return response.failure(e);

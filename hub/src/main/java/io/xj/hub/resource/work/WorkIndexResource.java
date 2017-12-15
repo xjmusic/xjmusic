@@ -2,9 +2,9 @@
 package io.xj.hub.resource.work;
 
 import io.xj.core.CoreModule;
-import io.xj.core.server.HttpResponseProvider;
-import io.xj.core.model.role.Role;
+import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.model.work.Work;
+import io.xj.core.server.HttpResponseProvider;
 import io.xj.core.work.WorkManager;
 
 import com.google.inject.Guice;
@@ -35,7 +35,7 @@ public class WorkIndexResource {
    */
   @GET
   @WebResult
-  @RolesAllowed({Role.ADMIN, Role.ENGINEER})
+  @RolesAllowed({UserRoleType.ADMIN, UserRoleType.ENGINEER})
   public Response readAll(@Context ContainerRequestContext crc) throws IOException {
     try {
       return response.readMany(

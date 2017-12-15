@@ -3,11 +3,11 @@ package io.xj.hub.resource.account;
 
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
-import io.xj.core.server.HttpResponseProvider;
 import io.xj.core.dao.AccountDAO;
 import io.xj.core.model.account.Account;
 import io.xj.core.model.account.AccountWrapper;
-import io.xj.core.model.role.Role;
+import io.xj.core.model.user_role.UserRoleType;
+import io.xj.core.server.HttpResponseProvider;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -30,7 +30,7 @@ import java.io.IOException;
 @Path("accounts")
 public class AccountIndexResource {
   private static final Injector injector = Guice.createInjector(new CoreModule());
-  private final AccountDAO DAO = injector.getInstance(AccountDAO.class);
+  private final AccountDAO accountDAO = injector.getInstance(AccountDAO.class);
   private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
 
   /**
@@ -40,12 +40,12 @@ public class AccountIndexResource {
    */
   @GET
   @WebResult
-  @RolesAllowed({Role.USER})
+  @RolesAllowed(UserRoleType.USER)
   public Response readAll(@Context ContainerRequestContext crc) throws IOException {
     try {
       return response.readMany(
         Account.KEY_MANY,
-        DAO.readAll(
+        accountDAO.readAll(
           Access.fromContext(crc)));
 
     } catch (Exception e) {
@@ -61,13 +61,13 @@ public class AccountIndexResource {
    */
   @POST
   @Consumes(MediaType.APPLICATION_JSON)
-  @RolesAllowed({Role.ADMIN})
+  @RolesAllowed(UserRoleType.ADMIN)
   public Response create(AccountWrapper data, @Context ContainerRequestContext crc) {
     try {
       return response.create(
         Account.KEY_MANY,
         Account.KEY_ONE,
-        DAO.create(
+        accountDAO.create(
           Access.fromContext(crc),
           data.getAccount()));
 

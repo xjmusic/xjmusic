@@ -2,28 +2,27 @@
 package io.xj.core.dao.impl;
 
 import io.xj.core.access.impl.Access;
+import io.xj.core.dao.LibraryDAO;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.exception.ConfigException;
-import io.xj.core.exception.DatabaseException;
-import io.xj.core.dao.LibraryDAO;
-import io.xj.core.persistence.sql.impl.SQLConnection;
-import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import io.xj.core.model.library.Library;
-import io.xj.core.tables.records.LibraryRecord;
+import io.xj.core.persistence.sql.SQLDatabaseProvider;
+import io.xj.core.persistence.sql.impl.SQLConnection;
 
 import org.jooq.DSLContext;
 import org.jooq.Field;
-import org.jooq.Result;
 import org.jooq.types.ULong;
 
+import com.google.api.client.util.Maps;
 import com.google.inject.Inject;
 
 import javax.annotation.Nullable;
-import java.sql.SQLException;
+import java.math.BigInteger;
+import java.util.Collection;
 import java.util.Map;
 
-import static io.xj.core.Tables.PATTERN;
 import static io.xj.core.Tables.LIBRARY;
+import static io.xj.core.Tables.PATTERN;
 import static io.xj.core.tables.Account.ACCOUNT;
 import static io.xj.core.tables.Instrument.INSTRUMENT;
 
@@ -37,10 +36,10 @@ public class LibraryDAOImpl extends DAOImpl implements LibraryDAO {
   }
 
   @Override
-  public LibraryRecord create(Access access, Library entity) throws Exception {
+  public Library create(Access access, Library entity) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(createRecord(tx.getContext(), access, entity));
+      return tx.success(create(tx.getContext(), access, entity));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -48,10 +47,10 @@ public class LibraryDAOImpl extends DAOImpl implements LibraryDAO {
 
   @Override
   @Nullable
-  public LibraryRecord readOne(Access access, ULong id) throws Exception {
+  public Library readOne(Access access, BigInteger id) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readOneRecord(tx.getContext(), access, id));
+      return tx.success(readOne(tx.getContext(), access, ULong.valueOf(id)));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -59,20 +58,20 @@ public class LibraryDAOImpl extends DAOImpl implements LibraryDAO {
 
   @Override
   @Nullable
-  public Result<LibraryRecord> readAll(Access access, ULong accountId) throws Exception {
+  public Collection<Library> readAll(Access access, BigInteger accountId) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readAll(tx.getContext(), access, accountId));
+      return tx.success(readAll(tx.getContext(), access, ULong.valueOf(accountId)));
     } catch (Exception e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public void update(Access access, ULong id, Library entity) throws Exception {
+  public void update(Access access, BigInteger id, Library entity) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      update(tx.getContext(), access, id, entity);
+      update(tx.getContext(), access, ULong.valueOf(id), entity);
       tx.success();
     } catch (Exception e) {
       throw tx.failure(e);
@@ -80,10 +79,10 @@ public class LibraryDAOImpl extends DAOImpl implements LibraryDAO {
   }
 
   @Override
-  public void delete(Access access, ULong libraryId) throws Exception {
+  public void delete(Access access, BigInteger id) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      delete(tx.getContext(), access, libraryId);
+      delete(tx.getContext(), access, ULong.valueOf(id));
       tx.success();
     } catch (Exception e) {
       throw tx.failure(e);
@@ -99,14 +98,14 @@ public class LibraryDAOImpl extends DAOImpl implements LibraryDAO {
    @return newly readMany record
    @throws BusinessException if a Business Rule is violated
    */
-  private LibraryRecord createRecord(DSLContext db, Access access, Library entity) throws BusinessException {
+  private static Library create(DSLContext db, Access access, Library entity) throws BusinessException {
     entity.validate();
 
-    Map<Field, Object> fieldValues = entity.updatableFieldValueMap();
+    Map<Field, Object> fieldValues = fieldValueMap(entity);
 
     requireTopLevel(access);
 
-    return executeCreate(db, LIBRARY, fieldValues);
+    return modelFrom(executeCreate(db, LIBRARY, fieldValues), Library.class);
   }
 
   /**
@@ -117,17 +116,17 @@ public class LibraryDAOImpl extends DAOImpl implements LibraryDAO {
    @param id     of record
    @return record
    */
-  private LibraryRecord readOneRecord(DSLContext db, Access access, ULong id) {
+  private static Library readOne(DSLContext db, Access access, ULong id) throws BusinessException {
     if (access.isTopLevel())
-      return db.selectFrom(LIBRARY)
+      return modelFrom(db.selectFrom(LIBRARY)
         .where(LIBRARY.ID.eq(id))
-        .fetchOne();
+        .fetchOne(), Library.class);
     else
-      return recordInto(LIBRARY, db.select(LIBRARY.fields())
+      return modelFrom(db.select(LIBRARY.fields())
         .from(LIBRARY)
         .where(LIBRARY.ID.eq(id))
-        .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-        .fetchOne());
+        .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+        .fetchOne(), Library.class);
   }
 
   /**
@@ -138,18 +137,18 @@ public class LibraryDAOImpl extends DAOImpl implements LibraryDAO {
    @param accountId of parent
    @return array of records
    */
-  private Result<LibraryRecord> readAll(DSLContext db, Access access, ULong accountId) throws SQLException {
+  private static Collection<Library> readAll(DSLContext db, Access access, ULong accountId) throws BusinessException {
     if (access.isTopLevel())
-      return resultInto(LIBRARY, db.select(LIBRARY.fields())
+      return modelsFrom(db.select(LIBRARY.fields())
         .from(LIBRARY)
         .where(LIBRARY.ACCOUNT_ID.eq(accountId))
-        .fetch());
+        .fetch(), Library.class);
     else
-      return resultInto(LIBRARY, db.select(LIBRARY.fields())
+      return modelsFrom(db.select(LIBRARY.fields())
         .from(LIBRARY)
         .where(LIBRARY.ACCOUNT_ID.eq(accountId))
-        .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-        .fetch());
+        .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+        .fetch(), Library.class);
   }
 
   /**
@@ -161,16 +160,16 @@ public class LibraryDAOImpl extends DAOImpl implements LibraryDAO {
    @param entity to update with
    @throws BusinessException if a Business Rule is violated
    */
-  private void update(DSLContext db, Access access, ULong id, Library entity) throws BusinessException, DatabaseException {
+  private static void update(DSLContext db, Access access, ULong id, Library entity) throws BusinessException {
     entity.validate();
-    Map<Field, Object> fieldValues = entity.updatableFieldValueMap();
+    Map<Field, Object> fieldValues = fieldValueMap(entity);
     fieldValues.put(LIBRARY.ID, id);
 
     requireTopLevel(access);
 
     requireExists("Account",
       db.selectCount().from(ACCOUNT)
-        .where(ACCOUNT.ID.eq(entity.getAccountId()))
+        .where(ACCOUNT.ID.eq(ULong.valueOf(entity.getAccountId())))
         .fetchOne(0, int.class));
 
     if (0 == executeUpdate(db, LIBRARY, fieldValues))
@@ -187,7 +186,7 @@ public class LibraryDAOImpl extends DAOImpl implements LibraryDAO {
    @throws ConfigException   if not configured properly
    @throws BusinessException if fails business rule
    */
-  private void delete(DSLContext db, Access access, ULong libraryId) throws Exception {
+  private static void delete(DSLContext db, Access access, ULong libraryId) throws Exception {
     requireTopLevel(access);
 
     requireNotExists("Pattern in Library", db.select(PATTERN.ID)
@@ -213,6 +212,20 @@ public class LibraryDAOImpl extends DAOImpl implements LibraryDAO {
           .where(INSTRUMENT.LIBRARY_ID.eq(libraryId))
       )
       .execute();
+  }
+
+  /**
+   Only certain (writable) fields are mapped back to jOOQ records--
+   Read-only fields are excluded from here.
+
+   @param entity to source values from
+   @return values mapped to record fields
+   */
+  private static Map<Field, Object> fieldValueMap(Library entity) {
+    Map<Field, Object> fieldValues = Maps.newHashMap();
+    fieldValues.put(LIBRARY.NAME, entity.getName());
+    fieldValues.put(LIBRARY.ACCOUNT_ID, entity.getAccountId());
+    return fieldValues;
   }
 
 }

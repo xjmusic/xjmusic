@@ -3,12 +3,12 @@ package io.xj.hub.resource.choice;
 
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
+import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.server.HttpResponseProvider;
 import io.xj.core.dao.ChoiceDAO;
 import io.xj.core.model.choice.Choice;
-import io.xj.core.model.role.Role;
 
-import org.jooq.types.ULong;
+
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -22,6 +22,8 @@ import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.math.BigInteger;
+import java.util.Objects;
 
 /**
  Choices
@@ -29,7 +31,7 @@ import java.io.IOException;
 @Path("choices")
 public class ChoiceIndexResource {
   private static final Injector injector = Guice.createInjector(new CoreModule());
-  private final ChoiceDAO DAO = injector.getInstance(ChoiceDAO.class);
+  private final ChoiceDAO choiceDAO = injector.getInstance(ChoiceDAO.class);
   private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
 
   @QueryParam("linkId")
@@ -42,18 +44,18 @@ public class ChoiceIndexResource {
    */
   @GET
   @WebResult
-  @RolesAllowed({Role.USER})
+  @RolesAllowed(UserRoleType.USER)
   public Response readAll(@Context ContainerRequestContext crc) throws IOException {
-    if (linkId == null || linkId.length() == 0) {
+    if (Objects.isNull(linkId) || linkId.isEmpty()) {
       return response.notAcceptable("Link id is required");
     }
 
     try {
       return response.readMany(
         Choice.KEY_MANY,
-        DAO.readAll(
+        choiceDAO.readAll(
           Access.fromContext(crc),
-          ULong.valueOf(linkId)));
+          new BigInteger(linkId)));
 
     } catch (Exception e) {
       return response.failure(e);

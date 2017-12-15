@@ -49,6 +49,7 @@ import java.util.stream.IntStream;
  RobustWorkerPool monitors status of pooling workers and if it detects died worker then reincarnate a new worker.
  */
 public class RobustWorkerPool implements Worker {
+  public static final int NAME_MAX_LENGTH = 128;
   final Logger log = LoggerFactory.getLogger(RobustWorkerPool.class);
 
   private static final long NO_DELAY = 0;
@@ -182,7 +183,7 @@ public class RobustWorkerPool implements Worker {
 
   @Override
   public String getName() {
-    StringBuilder sb = new StringBuilder(128 * workerThreadMap.size());
+    StringBuilder sb = new StringBuilder(NAME_MAX_LENGTH * workerThreadMap.size());
     String prefix = "";
     for (Worker worker : workerSet) {
       sb.append(prefix).append(worker.getName());

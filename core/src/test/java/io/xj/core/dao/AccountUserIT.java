@@ -5,12 +5,8 @@ import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.integration.IntegrationTestEntity;
-import io.xj.core.integration.IntegrationTestService;
 import io.xj.core.model.account_user.AccountUser;
-import io.xj.core.tables.records.AccountUserRecord;
 import io.xj.core.transport.JSON;
-
-import org.jooq.types.ULong;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Guice;
@@ -24,7 +20,6 @@ import org.junit.Test;
 
 import java.math.BigInteger;
 
-import static io.xj.core.tables.AccountUser.ACCOUNT_USER;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -60,25 +55,25 @@ public class AccountUserIT {
 
   @Test
   public void create() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "admin"
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Admin"
     ));
     IntegrationTestEntity.insertUser(5, "Jim", "jim@email.com", "http://pictures.com/jim.gif");
     AccountUser inputData = new AccountUser()
       .setAccountId(BigInteger.valueOf(1))
       .setUserId(BigInteger.valueOf(5));
 
-    AccountUserRecord result = testDAO.create(access, inputData);
+    AccountUser result = testDAO.create(access, inputData);
 
     assertNotNull(result);
-    assertEquals(ULong.valueOf(1), result.get(ACCOUNT_USER.ACCOUNT_ID));
-    assertEquals(ULong.valueOf(5), result.get(ACCOUNT_USER.USER_ID));
+    assertEquals(BigInteger.valueOf(1), result.getAccountId());
+    assertEquals(BigInteger.valueOf(5), result.getUserId());
   }
 
   @Test(expected = BusinessException.class)
   public void create_FailIfAlreadyExists() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "admin"
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Admin"
     ));
     AccountUser inputData = new AccountUser()
       .setAccountId(BigInteger.valueOf(1))
@@ -89,8 +84,8 @@ public class AccountUserIT {
 
   @Test(expected = BusinessException.class)
   public void create_FailIfNotAdmin() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "user"
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "User"
     ));
     AccountUser inputData = new AccountUser()
       .setAccountId(BigInteger.valueOf(1))
@@ -101,8 +96,8 @@ public class AccountUserIT {
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutAccountID() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "admin"
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Admin"
     ));
     AccountUser inputData = new AccountUser()
       .setUserId(BigInteger.valueOf(2));
@@ -112,8 +107,8 @@ public class AccountUserIT {
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutUserId() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "admin"
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Admin"
     ));
     AccountUser inputData = new AccountUser()
       .setAccountId(BigInteger.valueOf(1));
@@ -122,73 +117,73 @@ public class AccountUserIT {
   }
 
   @Test
-  public void readOne_asRecordSetToModel() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+  public void readOne() throws Exception {
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
 
-    AccountUser result = new AccountUser().setFromRecord(testDAO.readOne(access, ULong.valueOf(1)));
+    AccountUser result = testDAO.readOne(access, BigInteger.valueOf(1));
 
     assertNotNull(result);
-    assertEquals(ULong.valueOf(1), result.getId());
-    assertEquals(ULong.valueOf(1), result.getAccountId());
-    assertEquals(ULong.valueOf(2), result.getUserId());
+    assertEquals(BigInteger.valueOf(1), result.getId());
+    assertEquals(BigInteger.valueOf(1), result.getAccountId());
+    assertEquals(BigInteger.valueOf(2), result.getUserId());
   }
 
   @Test
   public void readOne_FailsWhenUserIsNotInAccount() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "326"
     ));
 
-    AccountUserRecord result = testDAO.readOne(access, ULong.valueOf(1));
+    AccountUser result = testDAO.readOne(access, BigInteger.valueOf(1));
 
     assertNull(result);
   }
 
   @Test
   public void readAll_Admin() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "admin"
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Admin"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ULong.valueOf(1)));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, BigInteger.valueOf(1)));
 
     assertNotNull(result);
     assertEquals(2, result.length());
     JSONObject result1 = (JSONObject) result.get(0);
-    assertEquals(ULong.valueOf(2), result1.get("userId"));
+    assertEquals(2, result1.get("userId"));
     JSONObject result2 = (JSONObject) result.get(1);
-    assertEquals(ULong.valueOf(3), result2.get("userId"));
+    assertEquals(3, result2.get("userId"));
   }
 
   @Test
   public void readAll_UserCanSeeInsideOwnAccount() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "user",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "User",
       "accounts", "1"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ULong.valueOf(1)));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, BigInteger.valueOf(1)));
 
     assertNotNull(result);
     assertEquals(2, result.length());
     JSONObject result1 = (JSONObject) result.get(0);
-    assertEquals(ULong.valueOf(2), result1.get("userId"));
+    assertEquals(2, result1.get("userId"));
     JSONObject result2 = (JSONObject) result.get(1);
-    assertEquals(ULong.valueOf(3), result2.get("userId"));
+    assertEquals(3, result2.get("userId"));
   }
 
   @Test
   public void readAll_SeesNothingOutsideOfAccount() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "345"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ULong.valueOf(1)));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, BigInteger.valueOf(1)));
 
     assertNotNull(result);
     assertEquals(0, result.length());
@@ -196,25 +191,22 @@ public class AccountUserIT {
 
   @Test
   public void delete() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "admin"
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Admin"
     ));
 
-    testDAO.delete(access, ULong.valueOf(1));
+    testDAO.delete(access, BigInteger.valueOf(1));
 
-    AccountUserRecord result = IntegrationTestService.getDb()
-      .selectFrom(ACCOUNT_USER)
-      .where(ACCOUNT_USER.ID.eq(ULong.valueOf(1)))
-      .fetchOne();
+    AccountUser result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1));
     assertNull(result);
   }
 
   @Test(expected = BusinessException.class)
   public void delete_FailIfNotAdmin() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "user"
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "User"
     ));
 
-    testDAO.delete(access, ULong.valueOf(1));
+    testDAO.delete(access, BigInteger.valueOf(1));
   }
 }

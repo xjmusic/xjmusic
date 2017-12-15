@@ -16,8 +16,6 @@ import io.xj.core.model.work.WorkType;
 import io.xj.core.persistence.redis.RedisDatabaseProvider;
 import io.xj.core.work.WorkManager;
 
-import org.jooq.types.ULong;
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.inject.AbstractModule;
@@ -82,7 +80,7 @@ public class WorkManagerImplTest {
   public void startChainFabrication() throws Exception {
     when(redisDatabaseProvider.getQueueClient()).thenReturn(queueClient);
 
-    subject.startChainFabrication(ULong.valueOf(5977));
+    subject.startChainFabrication(BigInteger.valueOf(5977));
 
     verify(queueClient).recurringEnqueue(
       eq(Config.workQueueName()),
@@ -95,7 +93,7 @@ public class WorkManagerImplTest {
   public void stopChainFabrication() throws Exception {
     when(redisDatabaseProvider.getQueueClient()).thenReturn(queueClient);
 
-    subject.stopChainFabrication(ULong.valueOf(5977));
+    subject.stopChainFabrication(BigInteger.valueOf(5977));
 
     verify(queueClient).removeRecurringEnqueue(Config.workQueueName(),
       new Job(WorkType.ChainFabricate.toString(), BigInteger.valueOf(5977)));
@@ -106,7 +104,7 @@ public class WorkManagerImplTest {
   public void scheduleLinkCraft() throws Exception {
     when(redisDatabaseProvider.getQueueClient()).thenReturn(queueClient);
 
-    subject.scheduleLinkCraft(ULong.valueOf(5977), 10);
+    subject.scheduleLinkCraft(BigInteger.valueOf(5977), 10);
 
     verify(queueClient).delayedEnqueue(
       eq(Config.workQueueName()),
@@ -119,7 +117,7 @@ public class WorkManagerImplTest {
   public void scheduleLinkDub() throws Exception {
     when(redisDatabaseProvider.getQueueClient()).thenReturn(queueClient);
 
-    subject.scheduleLinkDub(ULong.valueOf(5977), 10);
+    subject.scheduleLinkDub(BigInteger.valueOf(5977), 10);
 
     verify(queueClient).delayedEnqueue(
       eq(Config.workQueueName()),
@@ -132,7 +130,7 @@ public class WorkManagerImplTest {
   public void startChainErase() throws Exception {
     when(redisDatabaseProvider.getQueueClient()).thenReturn(queueClient);
 
-    subject.startChainErase(ULong.valueOf(5977));
+    subject.startChainErase(BigInteger.valueOf(5977));
 
     verify(queueClient).recurringEnqueue(
       eq(Config.workQueueName()),
@@ -145,7 +143,7 @@ public class WorkManagerImplTest {
   public void stopChainErase() throws Exception {
     when(redisDatabaseProvider.getQueueClient()).thenReturn(queueClient);
 
-    subject.stopChainErase(ULong.valueOf(5977));
+    subject.stopChainErase(BigInteger.valueOf(5977));
 
     verify(queueClient).removeRecurringEnqueue(Config.workQueueName(),
       new Job(WorkType.ChainErase.toString(), BigInteger.valueOf(5977)));
@@ -156,7 +154,7 @@ public class WorkManagerImplTest {
   public void startAudioErase() throws Exception {
     when(redisDatabaseProvider.getQueueClient()).thenReturn(queueClient);
 
-    subject.startAudioErase(ULong.valueOf(5977));
+    subject.startAudioErase(BigInteger.valueOf(5977));
 
     verify(queueClient).enqueue(
       eq(Config.workQueueName()),
@@ -168,7 +166,7 @@ public class WorkManagerImplTest {
   public void stopAudioErase() throws Exception {
     when(redisDatabaseProvider.getQueueClient()).thenReturn(queueClient);
 
-    subject.stopAudioErase(ULong.valueOf(5977));
+    subject.stopAudioErase(BigInteger.valueOf(5977));
 
     verify(queueClient).removeRecurringEnqueue(Config.workQueueName(),
       new Job(WorkType.AudioErase.toString(), BigInteger.valueOf(5977)));
@@ -188,17 +186,17 @@ public class WorkManagerImplTest {
   public void readAllWork() throws Exception {
     // mock Audio records in Erase state
     Collection<Audio> testAudioErase = Lists.newArrayList();
-    testAudioErase.add(new Audio(ULong.valueOf(157)).setState("Erase"));
+    testAudioErase.add(new Audio(BigInteger.valueOf(157)).setState("Erase"));
     when(audioDAO.readAllInState(any(), eq(AudioState.Erase))).thenReturn(testAudioErase);
     // mock Chain records in Erase state
     Collection<Chain> testChainErase = Lists.newArrayList();
-    testChainErase.add(new Chain(ULong.valueOf(157)).setState("ChainErase"));
-    testChainErase.add(new Chain(ULong.valueOf(8907)).setState("ChainErase"));
+    testChainErase.add(new Chain(BigInteger.valueOf(157)).setState("ChainErase"));
+    testChainErase.add(new Chain(BigInteger.valueOf(8907)).setState("ChainErase"));
     when(chainDAO.readAllInState(any(), eq(ChainState.Erase))).thenReturn(testChainErase);
     // mock Chain records in Fabricate state
     Collection<Chain> testChainFabricate = Lists.newArrayList();
-    testChainFabricate.add(new Chain(ULong.valueOf(24)).setState("ChainFabricate"));
-    testChainFabricate.add(new Chain(ULong.valueOf(3382)).setState("ChainFabricate"));
+    testChainFabricate.add(new Chain(BigInteger.valueOf(24)).setState("ChainFabricate"));
+    testChainFabricate.add(new Chain(BigInteger.valueOf(3382)).setState("ChainFabricate"));
     when(chainDAO.readAllInState(any(), eq(ChainState.Fabricate))).thenReturn(testChainFabricate);
     // mock direct query of Redis Jesque jobs
     when(redisDatabaseProvider.getClient()).thenReturn(client);
@@ -217,32 +215,32 @@ public class WorkManagerImplTest {
     Work result;
     // assert #0
     result = resultIterator.next();
-    assertEquals(ULong.valueOf(324), result.getId());
-    assertEquals(ULong.valueOf(24), result.getTargetId());
+    assertEquals(BigInteger.valueOf(324), result.getId());
+    assertEquals(BigInteger.valueOf(24), result.getTargetId());
     assertEquals(WorkType.ChainFabricate, result.getType());
     assertEquals(WorkState.Queued, result.getState());
     // assert #1
     result = resultIterator.next();
-    assertEquals(ULong.valueOf(1157), result.getId());
-    assertEquals(ULong.valueOf(157), result.getTargetId());
+    assertEquals(BigInteger.valueOf(1157), result.getId());
+    assertEquals(BigInteger.valueOf(157), result.getTargetId());
     assertEquals(WorkType.AudioErase, result.getType());
     assertEquals(WorkState.Queued, result.getState());
     // assert #2
     result = resultIterator.next();
-    assertEquals(ULong.valueOf(33382), result.getId());
-    assertEquals(ULong.valueOf(3382), result.getTargetId());
+    assertEquals(BigInteger.valueOf(33382), result.getId());
+    assertEquals(BigInteger.valueOf(3382), result.getTargetId());
     assertEquals(WorkType.ChainFabricate, result.getType());
     assertEquals(WorkState.Queued, result.getState());
     // assert #3
     result = resultIterator.next();
-    assertEquals(ULong.valueOf(28907), result.getId());
-    assertEquals(ULong.valueOf(8907), result.getTargetId());
+    assertEquals(BigInteger.valueOf(28907), result.getId());
+    assertEquals(BigInteger.valueOf(8907), result.getTargetId());
     assertEquals(WorkType.ChainErase, result.getType());
     assertEquals(WorkState.Expected, result.getState());
     // assert #4
     result = resultIterator.next();
-    assertEquals(ULong.valueOf(2157), result.getId());
-    assertEquals(ULong.valueOf(157), result.getTargetId());
+    assertEquals(BigInteger.valueOf(2157), result.getId());
+    assertEquals(BigInteger.valueOf(157), result.getTargetId());
     assertEquals(WorkType.ChainErase, result.getType());
     assertEquals(WorkState.Queued, result.getState());
   }
@@ -251,17 +249,17 @@ public class WorkManagerImplTest {
   public void reinstateAllWork() throws Exception {
     // mock Audio records in Erase state
     Collection<Audio> testAudioErase = Lists.newArrayList();
-    testAudioErase.add(new Audio(ULong.valueOf(157)).setState("Erase"));
+    testAudioErase.add(new Audio(BigInteger.valueOf(157)).setState("Erase"));
     when(audioDAO.readAllInState(any(), eq(AudioState.Erase))).thenReturn(testAudioErase);
     // mock Chain records in Erase state
     Collection<Chain> testChainErase = Lists.newArrayList();
-    testChainErase.add(new Chain(ULong.valueOf(157)).setState("ChainErase"));
-    testChainErase.add(new Chain(ULong.valueOf(8907)).setState("ChainErase"));
+    testChainErase.add(new Chain(BigInteger.valueOf(157)).setState("ChainErase"));
+    testChainErase.add(new Chain(BigInteger.valueOf(8907)).setState("ChainErase"));
     when(chainDAO.readAllInState(any(), eq(ChainState.Erase))).thenReturn(testChainErase);
     // mock Chain records in Fabricate state
     Collection<Chain> testChainFabricate = Lists.newArrayList();
-    testChainFabricate.add(new Chain(ULong.valueOf(24)).setState("ChainFabricate"));
-    testChainFabricate.add(new Chain(ULong.valueOf(3382)).setState("ChainFabricate"));
+    testChainFabricate.add(new Chain(BigInteger.valueOf(24)).setState("ChainFabricate"));
+    testChainFabricate.add(new Chain(BigInteger.valueOf(3382)).setState("ChainFabricate"));
     when(chainDAO.readAllInState(any(), eq(ChainState.Fabricate))).thenReturn(testChainFabricate);
     // mock direct query of Redis Jesque jobs
     when(redisDatabaseProvider.getClient()).thenReturn(client);
@@ -291,8 +289,8 @@ public class WorkManagerImplTest {
     Iterator<Work> resultIterator = result.iterator();
     // assert #0
     Work result0 = resultIterator.next();
-    assertEquals(ULong.valueOf(28907), result0.getId());
-    assertEquals(ULong.valueOf(8907), result0.getTargetId());
+    assertEquals(BigInteger.valueOf(28907), result0.getId());
+    assertEquals(BigInteger.valueOf(8907), result0.getTargetId());
     assertEquals(WorkType.ChainErase, result0.getType());
     assertEquals(WorkState.Queued, result0.getState());
   }

@@ -5,8 +5,8 @@ import io.xj.core.CoreModule;
 import io.xj.core.app.App;
 import io.xj.core.config.Config;
 import io.xj.core.exception.ConfigException;
-import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import io.xj.core.migration.MigrationService;
+import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import io.xj.core.transport.CSV;
 
 import com.google.inject.Guice;
@@ -22,8 +22,8 @@ import java.io.IOException;
  */
 public class Main {
   private static final Injector injector = Guice.createInjector(new CoreModule());
-  private static App app;
-  private static Logger log = LoggerFactory.getLogger(Main.class);
+  private static final App app = injector.getInstance(App.class);
+  private static final Logger log = LoggerFactory.getLogger(Main.class);
 
   /**
    Main method.
@@ -46,7 +46,6 @@ public class Main {
     }));
 
     // App
-    app = injector.getInstance(App.class);
     app.configureServer("io.xj.hub");
 
     // Database migrations

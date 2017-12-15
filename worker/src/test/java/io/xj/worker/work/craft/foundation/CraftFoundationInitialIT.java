@@ -1,40 +1,41 @@
 // Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.worker.work.craft.foundation;
 
-import org.jooq.Result;
-import org.jooq.types.UInteger;
-import org.jooq.types.ULong;
+import io.xj.core.CoreModule;
+import io.xj.core.access.impl.Access;
+import io.xj.core.craft.CraftFactory;
+import io.xj.core.dao.ChoiceDAO;
+import io.xj.core.dao.LinkChordDAO;
+import io.xj.core.dao.LinkDAO;
+import io.xj.core.dao.LinkMemeDAO;
+import io.xj.core.integration.IntegrationTestEntity;
+import io.xj.core.model.chain.ChainState;
+import io.xj.core.model.chain.ChainType;
+import io.xj.core.model.choice.Choice;
+import io.xj.core.model.link.Link;
+import io.xj.core.model.link_chord.LinkChord;
+import io.xj.core.model.link_meme.LinkMeme;
+import io.xj.core.model.pattern.PatternType;
+import io.xj.core.model.user_role.UserRoleType;
+import io.xj.core.testing.Testing;
+import io.xj.core.work.basis.Basis;
+import io.xj.core.work.basis.BasisFactory;
+import io.xj.worker.WorkerModule;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
-import io.xj.core.CoreModule;
-import io.xj.core.integration.IntegrationTestEntity;
-import io.xj.core.integration.IntegrationTestService;
-import io.xj.core.model.chain.ChainState;
-import io.xj.core.model.chain.ChainType;
-import io.xj.core.model.pattern.PatternType;
-import io.xj.core.model.link.Link;
-import io.xj.core.model.role.Role;
-import io.xj.core.tables.records.LinkMemeRecord;
-import io.xj.core.tables.records.LinkRecord;
-import io.xj.core.testing.Testing;
-import io.xj.core.work.basis.Basis;
-import io.xj.core.work.basis.BasisFactory;
-import io.xj.core.craft.CraftFactory;
-import io.xj.worker.WorkerModule;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import java.math.BigInteger;
 import java.sql.Timestamp;
+import java.util.Collection;
+import java.util.Iterator;
 
-import static io.xj.core.Tables.CHOICE;
-import static io.xj.core.Tables.LINK;
-import static io.xj.core.Tables.LINK_CHORD;
-import static io.xj.core.tables.LinkMeme.LINK_MEME;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -56,11 +57,11 @@ public class CraftFoundationInitialIT {
 
     // John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
     IntegrationTestEntity.insertUser(2, "john", "john@email.com", "http://pictures.com/john.gif");
-    IntegrationTestEntity.insertUserRole(1, 2, Role.ADMIN);
+    IntegrationTestEntity.insertUserRole(1, 2, UserRoleType.Admin);
 
     // Jenny has a "user" role and belongs to account "bananas"
     IntegrationTestEntity.insertUser(3, "jenny", "jenny@email.com", "http://pictures.com/jenny.gif");
-    IntegrationTestEntity.insertUserRole(2, 3, Role.USER);
+    IntegrationTestEntity.insertUserRole(2, 3, UserRoleType.User);
     IntegrationTestEntity.insertAccountUser(3, 1, 3);
 
     // Library "house"
@@ -116,53 +117,43 @@ public class CraftFoundationInitialIT {
 
     craftFactory.foundation(basis).doWork();
 
-    LinkRecord resultLink = IntegrationTestService.getDb().selectFrom(LINK)
-      .where(LINK.CHAIN_ID.eq(ULong.valueOf(2)))
-      .and(LINK.OFFSET.eq(ULong.valueOf(0)))
-      .fetchOne();
+    Link resultLink = injector.getInstance(LinkDAO.class).readOneAtChainOffset(Access.internal(), BigInteger.valueOf(2), BigInteger.valueOf(0));
     assertEquals(Timestamp.valueOf("2017-02-14 12:01:07.384616"), resultLink.getEndAt());
-    assertEquals(UInteger.valueOf(16), resultLink.getTotal());
-    assertEquals(Double.valueOf(0.55), resultLink.getDensity());
+    assertEquals(Integer.valueOf(16), resultLink.getTotal());
+    assertEquals(0.55, resultLink.getDensity(), 0.01);
     assertEquals("C minor", resultLink.getKey());
-    assertEquals(Double.valueOf(130), resultLink.getTempo());
+    assertEquals(130.0, resultLink.getTempo(), 0.01);
 
-    Result<LinkMemeRecord> resultLinkMemes = IntegrationTestService.getDb().selectFrom(LINK_MEME)
-      .where(LINK_MEME.LINK_ID.eq(ULong.valueOf(6)))
-      .fetch();
+    Collection<LinkMeme> resultLinkMemes = injector.getInstance(LinkMemeDAO.class).readAll(Access.internal(), resultLink.getId());
+
     assertEquals(4, resultLinkMemes.size());
     resultLinkMemes.forEach(linkMemeRecord -> Testing.assertIn(new String[]{"Tropical", "Wild", "Pessimism", "Outlook"}, linkMemeRecord.getName()));
 
-    // chord @ 0
-    assertNotNull(IntegrationTestService.getDb().selectFrom(LINK_CHORD)
-      .where(LINK_CHORD.LINK_ID.eq(ULong.valueOf(6)))
-      .and(LINK_CHORD.POSITION.eq(Double.valueOf(0)))
-      .and(LINK_CHORD.NAME.eq("C minor"))
-      .fetchOne());
+    Collection<LinkChord> resultLinkChords = injector.getInstance(LinkChordDAO.class).readAll(Access.internal(), resultLink.getId());
+    Iterator<LinkChord> it = resultLinkChords.iterator();
 
-    // chord @ 8
-    assertNotNull(IntegrationTestService.getDb().selectFrom(LINK_CHORD)
-      .where(LINK_CHORD.LINK_ID.eq(ULong.valueOf(6)))
-      .and(LINK_CHORD.POSITION.eq(Double.valueOf(8)))
-      .and(LINK_CHORD.NAME.eq("Db minor"))
-      .fetchOne());
+    LinkChord chordOne = it.next();
+    assertEquals(Double.valueOf(0), chordOne.getPosition());
+    assertEquals("C minor", chordOne.getName());
+
+    LinkChord chordTwo = it.next();
+    assertEquals(Double.valueOf(8), chordTwo.getPosition());
+    assertEquals("Db minor", chordTwo.getName());
+
 
     // choice of macro-type pattern
-    assertNotNull(IntegrationTestService.getDb().selectFrom(CHOICE)
-      .where(CHOICE.LINK_ID.eq(ULong.valueOf(6)))
-      .and(CHOICE.PATTERN_ID.eq(ULong.valueOf(4)))
-      .and(CHOICE.TYPE.eq(PatternType.Macro.toString()))
-      .and(CHOICE.TRANSPOSE.eq(0))
-      .and(CHOICE.PHASE_OFFSET.eq(ULong.valueOf(0)))
-      .fetchOne());
+    Choice resultMacroChoice = injector.getInstance(ChoiceDAO.class).readOneLinkTypeWithAvailablePhaseOffsets(Access.internal(), resultLink.getId(), PatternType.Macro);
+    assertNotNull(resultMacroChoice);
+    assertEquals(BigInteger.valueOf(4), resultMacroChoice.getPatternId());
+    assertEquals(Integer.valueOf(0), resultMacroChoice.getTranspose());
+    assertEquals(BigInteger.valueOf(0), resultMacroChoice.getPhaseOffset());
 
     // choice of main-type pattern
-    assertNotNull(IntegrationTestService.getDb().selectFrom(CHOICE)
-      .where(CHOICE.LINK_ID.eq(ULong.valueOf(6)))
-      .and(CHOICE.PATTERN_ID.eq(ULong.valueOf(5)))
-      .and(CHOICE.TYPE.eq(PatternType.Main.toString()))
-      .and(CHOICE.TRANSPOSE.eq(-6))
-      .and(CHOICE.PHASE_OFFSET.eq(ULong.valueOf(0)))
-      .fetchOne());
+    Choice resultMainChoice = injector.getInstance(ChoiceDAO.class).readOneLinkTypeWithAvailablePhaseOffsets(Access.internal(), resultLink.getId(), PatternType.Main);
+    assertNotNull(resultMainChoice);
+    assertEquals(BigInteger.valueOf(5), resultMainChoice.getPatternId());
+    assertEquals(Integer.valueOf(-6), resultMainChoice.getTranspose());
+    assertEquals(BigInteger.valueOf(0), resultMainChoice.getPhaseOffset());
 
   }
 }

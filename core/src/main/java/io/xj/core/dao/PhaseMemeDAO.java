@@ -3,12 +3,9 @@ package io.xj.core.dao;
 
 import io.xj.core.access.impl.Access;
 import io.xj.core.model.phase_meme.PhaseMeme;
-import io.xj.core.tables.records.PhaseMemeRecord;
-
-import org.jooq.Result;
-import org.jooq.types.ULong;
 
 import javax.annotation.Nullable;
+import java.math.BigInteger;
 import java.util.Collection;
 
 public interface PhaseMemeDAO {
@@ -20,7 +17,7 @@ public interface PhaseMemeDAO {
    @param entity for the new Phase Meme.
    @return newly readMany record
    */
-  PhaseMemeRecord create(Access access, PhaseMeme entity) throws Exception;
+  PhaseMeme create(Access access, PhaseMeme entity) throws Exception;
 
   /**
    Fetch one PhaseMeme if accessible
@@ -31,17 +28,17 @@ public interface PhaseMemeDAO {
    @throws Exception on failure
    */
   @Nullable
-  PhaseMemeRecord readOne(Access access, ULong id) throws Exception;
+  PhaseMeme readOne(Access access, BigInteger id) throws Exception;
 
   /**
    Fetch many PhaseMeme for one Phase by id, if accessible
 
+   @param access  control
+   @param phaseId to fetch phaseMemes for.
    @return JSONArray of phaseMemes.
    @throws Exception on failure
-    @param access  control
-   @param phaseId to fetch phaseMemes for.
    */
-  Collection<PhaseMeme> readAll(Access access, ULong phaseId) throws Exception;
+  Collection<PhaseMeme> readAll(Access access, BigInteger phaseId) throws Exception;
 
   /**
    Delete a specified PhaseMeme
@@ -49,5 +46,5 @@ public interface PhaseMemeDAO {
    @param access control
    @param id     of specific PhaseMeme to delete.
    */
-  void delete(Access access, ULong id) throws Exception;
+  void delete(Access access, BigInteger id) throws Exception;
 }

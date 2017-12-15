@@ -5,18 +5,13 @@ import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.integration.IntegrationTestEntity;
-import io.xj.core.integration.IntegrationTestService;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
 import io.xj.core.model.choice.Choice;
-import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.instrument.InstrumentType;
 import io.xj.core.model.link.LinkState;
-import io.xj.core.tables.records.ChoiceRecord;
+import io.xj.core.model.pattern.PatternType;
 import io.xj.core.transport.JSON;
-
-import org.jooq.Result;
-import org.jooq.types.ULong;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -31,9 +26,9 @@ import org.junit.Test;
 
 import java.math.BigInteger;
 import java.sql.Timestamp;
+import java.util.Collection;
 import java.util.List;
 
-import static io.xj.core.tables.Choice.CHOICE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -41,7 +36,7 @@ import static org.junit.Assert.assertNull;
 public class ChoiceIT {
   private final Injector injector = Guice.createInjector(new CoreModule());
   private ChoiceDAO testDAO;
-  private final List<ULong> linkIds = ImmutableList.of(ULong.valueOf(1), ULong.valueOf(2), ULong.valueOf(3), ULong.valueOf(4));
+  private final List<BigInteger> linkIds = ImmutableList.of(BigInteger.valueOf(1), BigInteger.valueOf(2), BigInteger.valueOf(3), BigInteger.valueOf(4));
 
   @Before
   public void setUp() throws Exception {
@@ -79,8 +74,8 @@ public class ChoiceIT {
 
   @Test
   public void create() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "admin"
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Admin"
     ));
     Choice inputData = new Choice()
       .setLinkId(BigInteger.valueOf(1))
@@ -89,20 +84,20 @@ public class ChoiceIT {
       .setPhaseOffset(BigInteger.valueOf(2))
       .setTranspose(-3);
 
-    JSONObject result = JSON.objectFromRecord(testDAO.create(access, inputData));
+    Choice result = testDAO.create(access, inputData);
 
     assertNotNull(result);
-    assertEquals(ULong.valueOf(1), result.get("linkId"));
-    assertEquals(ULong.valueOf(3), result.get("patternId"));
-    assertEquals(PatternType.Main, result.get("type"));
-    assertEquals(ULong.valueOf(2), result.get("phaseOffset"));
-    assertEquals(-3, result.get("transpose"));
+    assertEquals(BigInteger.valueOf(1), result.getLinkId());
+    assertEquals(BigInteger.valueOf(3), result.getPatternId());
+    assertEquals(PatternType.Main, result.getType());
+    assertEquals(BigInteger.valueOf(2), result.getPhaseOffset());
+    assertEquals(Integer.valueOf(-3), result.getTranspose());
   }
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutTopLevelAccess() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "user"
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "User"
     ));
     Choice inputData = new Choice()
       .setLinkId(BigInteger.valueOf(1))
@@ -116,8 +111,8 @@ public class ChoiceIT {
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutLinkID() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "admin"
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Admin"
     ));
     Choice inputData = new Choice()
       .setPatternId(BigInteger.valueOf(3))
@@ -130,8 +125,8 @@ public class ChoiceIT {
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithInvalidType() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "admin"
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Admin"
     ));
     Choice inputData = new Choice()
       .setLinkId(BigInteger.valueOf(1))
@@ -145,43 +140,43 @@ public class ChoiceIT {
 
   @Test
   public void readOne() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "user",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "User",
       "accounts", "1"
     ));
 
-    Choice result = new Choice().setFromRecord(testDAO.readOne(access, ULong.valueOf(2)));
+    Choice result = testDAO.readOne(access, BigInteger.valueOf(2));
 
     assertNotNull(result);
-    assertEquals(ULong.valueOf(2), result.getId());
-    assertEquals(ULong.valueOf(1), result.getLinkId());
-    assertEquals(ULong.valueOf(2), result.getPatternId());
+    assertEquals(BigInteger.valueOf(2), result.getId());
+    assertEquals(BigInteger.valueOf(1), result.getLinkId());
+    assertEquals(BigInteger.valueOf(2), result.getPatternId());
     assertEquals(PatternType.Rhythm, result.getType());
-    assertEquals(ULong.valueOf(1), result.getPhaseOffset());
+    assertEquals(BigInteger.valueOf(1), result.getPhaseOffset());
     assertEquals(Integer.valueOf(+2), result.getTranspose());
   }
 
   @Test
   public void readOne_LinkPattern() throws Exception {
-    ChoiceRecord result = testDAO.readOneLinkPattern(Access.internal(), ULong.valueOf(1), ULong.valueOf(2));
+    Choice result = testDAO.readOneLinkPattern(Access.internal(), BigInteger.valueOf(1), BigInteger.valueOf(2));
 
     assertNotNull(result);
-    assertEquals(ULong.valueOf(2), result.getId());
-    assertEquals(ULong.valueOf(1), result.getLinkId());
-    assertEquals(ULong.valueOf(2), result.getPatternId());
-    assertEquals("Rhythm", result.getType());
-    assertEquals(ULong.valueOf(1), result.getPhaseOffset());
+    assertEquals(BigInteger.valueOf(2), result.getId());
+    assertEquals(BigInteger.valueOf(1), result.getLinkId());
+    assertEquals(BigInteger.valueOf(2), result.getPatternId());
+    assertEquals(PatternType.Rhythm, result.getType());
+    assertEquals(BigInteger.valueOf(1), result.getPhaseOffset());
     assertEquals(Integer.valueOf(+2), result.getTranspose());
   }
 
   @Test
   public void readOne_FailsWhenUserIsNotInLink() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "user",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "User",
       "accounts", "326"
     ));
 
-    ChoiceRecord result = testDAO.readOne(access, ULong.valueOf(1));
+    Choice result = testDAO.readOne(access, BigInteger.valueOf(1));
 
     assertNull(result);
   }
@@ -195,25 +190,25 @@ public class ChoiceIT {
     IntegrationTestEntity.insertPhase(11, 2, 1, 64, "drop", 0.5, "C", 121);
     IntegrationTestEntity.insertPhase(12, 2, 2, 64, "break", 0.5, "C", 121);
 
-    Choice result = testDAO.readOneLinkTypeWithAvailablePhaseOffsets(Access.internal(), ULong.valueOf(1), PatternType.Rhythm);
+    Choice result = testDAO.readOneLinkTypeWithAvailablePhaseOffsets(Access.internal(), BigInteger.valueOf(1), PatternType.Rhythm);
 
     assertNotNull(result);
-    assertEquals(ULong.valueOf(2), result.getPatternId());
+    assertEquals(BigInteger.valueOf(2), result.getPatternId());
     assertEquals(PatternType.Rhythm, result.getType());
-    assertEquals(ULong.valueOf(1), result.getPhaseOffset());
+    assertEquals(BigInteger.valueOf(1), result.getPhaseOffset());
     assertEquals(Integer.valueOf(2), result.getTranspose());
-    assertEquals(ImmutableList.of(ULong.valueOf(0), ULong.valueOf(1), ULong.valueOf(2)), result.getAvailablePhaseOffsets());
+    assertEquals(ImmutableList.of(BigInteger.valueOf(0), BigInteger.valueOf(1), BigInteger.valueOf(2)), result.getAvailablePhaseOffsets());
   }
 
 
   @Test
   public void readAll() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "user",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "User",
       "accounts", "1"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ULong.valueOf(1)));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, BigInteger.valueOf(1)));
 
     assertNotNull(result);
     assertEquals(4, result.length());
@@ -230,12 +225,12 @@ public class ChoiceIT {
 
   @Test
   public void readAll_SeesNothingOutsideOfLink() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "user",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "User",
       "accounts", "345"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ULong.valueOf(1)));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, BigInteger.valueOf(1)));
 
     assertNotNull(result);
     assertEquals(0, result.length());
@@ -243,45 +238,45 @@ public class ChoiceIT {
 
   @Test
   public void readAllInChain() throws Exception {
-    Result<ChoiceRecord> result = testDAO.readAllInLinks(Access.internal(), linkIds);
+    Collection<Choice> result = testDAO.readAllInLinks(Access.internal(), linkIds);
 
     assertEquals(4, result.size());
   }
 
   @Test
   public void readAllInChain_nullIfChainNotExist() throws Exception {
-    ChoiceRecord result = testDAO.readOne(Access.internal(), ULong.valueOf(12097));
+    Choice result = testDAO.readOne(Access.internal(), BigInteger.valueOf(12097));
 
     assertNull(result);
   }
 
   @Test
   public void readAllInChain_okIfUserInAccount() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "user",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "User",
       "accounts", "1"
     ));
 
-    Result<ChoiceRecord> result = testDAO.readAllInLinks(access, linkIds);
+    Collection<Choice> result = testDAO.readAllInLinks(access, linkIds);
 
     assertEquals(4, result.size());
   }
 
   @Test
   public void readAllInChain_emptyIfUserNotInAccount() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "user",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "User",
       "accounts", "73"
     ));
 
-    Result<ChoiceRecord> result = testDAO.readAllInLinks(access, linkIds);
+    Collection<Choice> result = testDAO.readAllInLinks(access, linkIds);
     assertEquals(0, result.size());
   }
 
   @Test
   public void update() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "admin"
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Admin"
     ));
     Choice inputData = new Choice()
       .setLinkId(BigInteger.valueOf(1))
@@ -290,24 +285,21 @@ public class ChoiceIT {
       .setPhaseOffset(BigInteger.valueOf(2))
       .setTranspose(-3);
 
-    testDAO.update(access, ULong.valueOf(2), inputData);
+    testDAO.update(access, BigInteger.valueOf(2), inputData);
 
-    ChoiceRecord result = IntegrationTestService.getDb()
-      .selectFrom(CHOICE)
-      .where(CHOICE.ID.eq(ULong.valueOf(2)))
-      .fetchOne();
+    Choice result = testDAO.readOne(Access.internal(), BigInteger.valueOf(2));
     assertNotNull(result);
-    assertEquals(ULong.valueOf(1), result.getLinkId());
-    assertEquals(ULong.valueOf(3), result.getPatternId());
-    assertEquals("Main", result.getType());
-    assertEquals(ULong.valueOf(2), result.getPhaseOffset());
+    assertEquals(BigInteger.valueOf(1), result.getLinkId());
+    assertEquals(BigInteger.valueOf(3), result.getPatternId());
+    assertEquals(PatternType.Main, result.getType());
+    assertEquals(BigInteger.valueOf(2), result.getPhaseOffset());
     assertEquals(Integer.valueOf(-3), result.getTranspose());
   }
 
   @Test(expected = BusinessException.class)
   public void update_FailsWithoutLinkID() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "admin"
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Admin"
     ));
     Choice inputData = new Choice()
       .setPatternId(BigInteger.valueOf(3))
@@ -315,13 +307,13 @@ public class ChoiceIT {
       .setPhaseOffset(BigInteger.valueOf(2))
       .setTranspose(-3);
 
-    testDAO.update(access, ULong.valueOf(2), inputData);
+    testDAO.update(access, BigInteger.valueOf(2), inputData);
   }
 
   @Test(expected = BusinessException.class)
   public void update_FailsWithoutType() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "admin"
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Admin"
     ));
     Choice inputData = new Choice()
       .setLinkId(BigInteger.valueOf(1))
@@ -329,13 +321,13 @@ public class ChoiceIT {
       .setPhaseOffset(BigInteger.valueOf(2))
       .setTranspose(-3);
 
-    testDAO.update(access, ULong.valueOf(2), inputData);
+    testDAO.update(access, BigInteger.valueOf(2), inputData);
   }
 
   @Test(expected = BusinessException.class)
   public void update_FailsToChangeLink() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "admin"
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Admin"
     ));
     Choice inputData = new Choice()
       .setLinkId(BigInteger.valueOf(7))
@@ -345,38 +337,32 @@ public class ChoiceIT {
       .setTranspose(-3);
 
     try {
-      testDAO.update(access, ULong.valueOf(2), inputData);
+      testDAO.update(access, BigInteger.valueOf(2), inputData);
 
     } catch (Exception e) {
-      ChoiceRecord result = IntegrationTestService.getDb()
-        .selectFrom(CHOICE)
-        .where(CHOICE.ID.eq(ULong.valueOf(2)))
-        .fetchOne();
+      Choice result = testDAO.readOne(Access.internal(), BigInteger.valueOf(2));
       assertNotNull(result);
-      assertEquals(ULong.valueOf(1), result.getLinkId());
+      assertEquals(BigInteger.valueOf(1), result.getLinkId());
       throw e;
     }
   }
 
   @Test
   public void delete() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "admin"
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Admin"
     ));
 
-    testDAO.delete(access, ULong.valueOf(1));
+    testDAO.delete(access, BigInteger.valueOf(1));
 
-    ChoiceRecord result = IntegrationTestService.getDb()
-      .selectFrom(CHOICE)
-      .where(CHOICE.ID.eq(ULong.valueOf(1)))
-      .fetchOne();
+    Choice result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1));
     assertNull(result);
   }
 
   @Test(expected = BusinessException.class)
-  public void delete_FailsIfChoiceHasChildRecords() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "admin"
+  public void delete_FailsIfChoiceHasChilds() throws Exception {
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Admin"
     ));
     IntegrationTestEntity.insertPhase(1, 1, 0, 16, "Ants", 0.583, "D minor", 120.0);
     IntegrationTestEntity.insertVoice(1, 1, InstrumentType.Percussive, "This is a percussive voice");
@@ -384,14 +370,11 @@ public class ChoiceIT {
     IntegrationTestEntity.insertArrangement(1, 1, 1, 1);
 
     try {
-      testDAO.delete(access, ULong.valueOf(1));
+      testDAO.delete(access, BigInteger.valueOf(1));
 
     } catch (Exception e) {
-      ChoiceRecord stillExistingRecord = IntegrationTestService.getDb()
-        .selectFrom(CHOICE)
-        .where(CHOICE.ID.eq(ULong.valueOf(1)))
-        .fetchOne();
-      assertNotNull(stillExistingRecord);
+      Choice result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1));
+      assertNotNull(result);
       throw e;
     }
   }

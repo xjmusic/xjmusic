@@ -3,12 +3,10 @@ package io.xj.core.dao;
 
 import io.xj.core.access.impl.Access;
 import io.xj.core.model.instrument_meme.InstrumentMeme;
-import io.xj.core.tables.records.InstrumentMemeRecord;
-
-import org.jooq.Result;
-import org.jooq.types.ULong;
 
 import javax.annotation.Nullable;
+import java.math.BigInteger;
+import java.util.Collection;
 
 public interface InstrumentMemeDAO {
 
@@ -19,7 +17,7 @@ public interface InstrumentMemeDAO {
    @param entity for the new Instrument Meme.
    @return newly readMany record
    */
-  InstrumentMemeRecord create(Access access, InstrumentMeme entity) throws Exception;
+  InstrumentMeme create(Access access, InstrumentMeme entity) throws Exception;
 
   /**
    Fetch one InstrumentMeme if accessible
@@ -30,7 +28,7 @@ public interface InstrumentMemeDAO {
    @throws Exception on failure
    */
   @Nullable
-  InstrumentMemeRecord readOne(Access access, ULong id) throws Exception;
+  InstrumentMeme readOne(Access access, BigInteger id) throws Exception;
 
   /**
    Fetch many InstrumentMeme for one Instrument by id, if accessible
@@ -40,7 +38,7 @@ public interface InstrumentMemeDAO {
    @return JSONArray of instrumentMemes.
    @throws Exception on failure
    */
-  Result<InstrumentMemeRecord> readAll(Access access, ULong instrumentId) throws Exception;
+  Collection<InstrumentMeme> readAll(Access access, BigInteger instrumentId) throws Exception;
 
   /**
    Delete a specified InstrumentMeme
@@ -48,5 +46,5 @@ public interface InstrumentMemeDAO {
    @param access control
    @param id     of specific InstrumentMeme to delete.
    */
-  void delete(Access access, ULong id) throws Exception;
+  void delete(Access access, BigInteger id) throws Exception;
 }

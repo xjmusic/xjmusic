@@ -3,14 +3,10 @@ package io.xj.core.dao;
 
 import io.xj.core.access.impl.Access;
 import io.xj.core.model.link_meme.LinkMeme;
-import io.xj.core.tables.records.LinkMemeRecord;
-
-import org.jooq.Result;
-import org.jooq.types.ULong;
 
 import javax.annotation.Nullable;
+import java.math.BigInteger;
 import java.util.Collection;
-import java.util.List;
 
 public interface LinkMemeDAO {
 
@@ -21,7 +17,7 @@ public interface LinkMemeDAO {
    @param entity for the new Link Meme.
    @return newly readMany record
    */
-  LinkMemeRecord create(Access access, LinkMeme entity) throws Exception;
+  LinkMeme create(Access access, LinkMeme entity) throws Exception;
 
   /**
    Fetch one LinkMeme if accessible
@@ -32,7 +28,7 @@ public interface LinkMemeDAO {
    @throws Exception on failure
    */
   @Nullable
-  LinkMemeRecord readOne(Access access, ULong id) throws Exception;
+  LinkMeme readOne(Access access, BigInteger id) throws Exception;
 
   /**
    Fetch many LinkMeme for one Link by id, if accessible
@@ -42,17 +38,17 @@ public interface LinkMemeDAO {
    @return JSONArray of linkMemes.
    @throws Exception on failure
    */
-  Collection<LinkMeme> readAll(Access access, ULong linkId) throws Exception;
+  Collection<LinkMeme> readAll(Access access, BigInteger linkId) throws Exception;
 
   /**
    Fetch many linkMeme for many Links by id, if accessible
 
+   @param access  control
+   @param linkIds to fetch linkMemes for.
    @return JSONArray of linkMemes.
    @throws Exception on failure
-    @param access control
-   @param linkIds to fetch linkMemes for.
    */
-  Result<LinkMemeRecord> readAllInLinks(Access access, List<ULong> linkIds) throws Exception;
+  Collection<LinkMeme> readAllInLinks(Access access, Collection<BigInteger> linkIds) throws Exception;
 
   /**
    Delete a specified LinkMeme
@@ -60,5 +56,5 @@ public interface LinkMemeDAO {
    @param access control
    @param id     of specific LinkMeme to delete.
    */
-  void delete(Access access, ULong id) throws Exception;
+  void delete(Access access, BigInteger id) throws Exception;
 }

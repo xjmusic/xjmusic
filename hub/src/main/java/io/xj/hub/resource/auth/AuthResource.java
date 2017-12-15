@@ -2,7 +2,7 @@
 package io.xj.hub.resource.auth;
 
 import io.xj.core.access.impl.Access;
-import io.xj.core.model.role.Role;
+import io.xj.core.model.user_role.UserRoleType;
 
 import javax.annotation.security.RolesAllowed;
 import javax.jws.WebResult;
@@ -27,8 +27,8 @@ public class AuthResource {
    */
   @GET
   @WebResult
-  @RolesAllowed({Role.USER})
-  public Response getCurrentAuthentication(@Context ContainerRequestContext crc) throws IOException {
+  @RolesAllowed(UserRoleType.USER)
+  public static Response getCurrentAuthentication(@Context ContainerRequestContext crc) {
     Access access = Access.fromContext(crc);
     return Response
       .accepted(access.toJSON())

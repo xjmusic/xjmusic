@@ -1,22 +1,19 @@
 // Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.integration;
 
-import org.jooq.DSLContext;
-import org.jooq.types.UInteger;
-import org.jooq.types.ULong;
-
-import io.xj.core.exception.BusinessException;
 import io.xj.core.exception.DatabaseException;
 import io.xj.core.model.chain.Chain;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
 import io.xj.core.model.chain_config.ChainConfigType;
-import io.xj.core.model.pattern.Pattern;
-import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.instrument.InstrumentType;
 import io.xj.core.model.link.Link;
 import io.xj.core.model.link.LinkState;
 import io.xj.core.model.message.MessageType;
+import io.xj.core.model.pattern.Pattern;
+import io.xj.core.model.pattern.PatternType;
+import io.xj.core.model.user_auth.UserAuthType;
+import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.tables.records.AccountRecord;
 import io.xj.core.tables.records.AccountUserRecord;
 import io.xj.core.tables.records.ArrangementRecord;
@@ -24,13 +21,11 @@ import io.xj.core.tables.records.AudioChordRecord;
 import io.xj.core.tables.records.AudioEventRecord;
 import io.xj.core.tables.records.AudioRecord;
 import io.xj.core.tables.records.ChainConfigRecord;
-import io.xj.core.tables.records.ChainPatternRecord;
 import io.xj.core.tables.records.ChainInstrumentRecord;
 import io.xj.core.tables.records.ChainLibraryRecord;
+import io.xj.core.tables.records.ChainPatternRecord;
 import io.xj.core.tables.records.ChainRecord;
 import io.xj.core.tables.records.ChoiceRecord;
-import io.xj.core.tables.records.PatternMemeRecord;
-import io.xj.core.tables.records.PatternRecord;
 import io.xj.core.tables.records.InstrumentMemeRecord;
 import io.xj.core.tables.records.InstrumentRecord;
 import io.xj.core.tables.records.LibraryRecord;
@@ -38,6 +33,8 @@ import io.xj.core.tables.records.LinkChordRecord;
 import io.xj.core.tables.records.LinkMemeRecord;
 import io.xj.core.tables.records.LinkMessageRecord;
 import io.xj.core.tables.records.LinkRecord;
+import io.xj.core.tables.records.PatternMemeRecord;
+import io.xj.core.tables.records.PatternRecord;
 import io.xj.core.tables.records.PhaseChordRecord;
 import io.xj.core.tables.records.PhaseMemeRecord;
 import io.xj.core.tables.records.PhaseRecord;
@@ -49,10 +46,16 @@ import io.xj.core.tables.records.UserRecord;
 import io.xj.core.tables.records.UserRoleRecord;
 import io.xj.core.tables.records.VoiceEventRecord;
 import io.xj.core.tables.records.VoiceRecord;
+
+import org.jooq.DSLContext;
+import org.jooq.types.UInteger;
+import org.jooq.types.ULong;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.util.Objects;
 
@@ -64,12 +67,10 @@ import static io.xj.core.Tables.AUDIO_CHORD;
 import static io.xj.core.Tables.AUDIO_EVENT;
 import static io.xj.core.Tables.CHAIN;
 import static io.xj.core.Tables.CHAIN_CONFIG;
-import static io.xj.core.Tables.CHAIN_PATTERN;
 import static io.xj.core.Tables.CHAIN_INSTRUMENT;
 import static io.xj.core.Tables.CHAIN_LIBRARY;
+import static io.xj.core.Tables.CHAIN_PATTERN;
 import static io.xj.core.Tables.CHOICE;
-import static io.xj.core.Tables.PATTERN;
-import static io.xj.core.Tables.PATTERN_MEME;
 import static io.xj.core.Tables.INSTRUMENT;
 import static io.xj.core.Tables.INSTRUMENT_MEME;
 import static io.xj.core.Tables.LIBRARY;
@@ -77,6 +78,8 @@ import static io.xj.core.Tables.LINK;
 import static io.xj.core.Tables.LINK_CHORD;
 import static io.xj.core.Tables.LINK_MEME;
 import static io.xj.core.Tables.LINK_MESSAGE;
+import static io.xj.core.Tables.PATTERN;
+import static io.xj.core.Tables.PATTERN_MEME;
 import static io.xj.core.Tables.PHASE;
 import static io.xj.core.Tables.PHASE_CHORD;
 import static io.xj.core.Tables.PHASE_MEME;
@@ -164,18 +167,18 @@ public interface IntegrationTestEntity {
       IntegrationTestService.flushRedis();
 
     } catch (Exception e) {
-      log.error(e.getClass().getName() + ": " + e);
-      throw new DatabaseException(e.getClass().getName() + ": " + e);
+      log.error(e.getClass().getName(), e);
+      throw new DatabaseException(e.getClass().getName(), e);
     }
 
     log.info("Did delete all records from integration database.");
   }
 
-  static void insertUserAuth(Integer id, Integer userId, String type, String externalAccessToken, String externalRefreshToken, String externalAccount) {
+  static void insertUserAuth(Integer id, Integer userId, UserAuthType type, String externalAccessToken, String externalRefreshToken, String externalAccount) {
     UserAuthRecord record = IntegrationTestService.getDb().newRecord(USER_AUTH);
     record.setId(ULong.valueOf(id));
     record.setUserId(ULong.valueOf(userId));
-    record.setType(type);
+    record.setType(type.toString());
     record.setExternalAccessToken(externalAccessToken);
     record.setExternalRefreshToken(externalRefreshToken);
     record.setExternalAccount(externalAccount);
@@ -191,11 +194,11 @@ public interface IntegrationTestEntity {
     record.store();
   }
 
-  static void insertUserRole(Integer id, Integer userId, String type) {
+  static void insertUserRole(Integer id, Integer userId, UserRoleType type) {
     UserRoleRecord record = IntegrationTestService.getDb().newRecord(USER_ROLE);
     record.setId(ULong.valueOf(id));
     record.setUserId(ULong.valueOf(userId));
-    record.setType(type);
+    record.setType(type.toString());
     record.store();
   }
 
@@ -230,7 +233,7 @@ public interface IntegrationTestEntity {
     record.store();
   }
 
-  static Pattern insertPattern(int id, int userId, int libraryId, PatternType type, String name, double density, String key, double tempo) throws BusinessException {
+  static Pattern insertPattern(int id, int userId, int libraryId, PatternType type, String name, double density, String key, double tempo) {
     PatternRecord record = IntegrationTestService.getDb().newRecord(PATTERN);
     record.setId(ULong.valueOf(id));
     record.setUserId(ULong.valueOf(userId));
@@ -241,7 +244,17 @@ public interface IntegrationTestEntity {
     record.setKey(key);
     record.setTempo(tempo);
     record.store();
-    return new Pattern().setFromRecord(record);
+
+    Pattern result = new Pattern();
+    result.setId(BigInteger.valueOf(id));
+    result.setUserId(BigInteger.valueOf(userId));
+    result.setLibraryId(BigInteger.valueOf(libraryId));
+    result.setType(type.toString());
+    result.setName(name);
+    result.setDensity(density);
+    result.setKey(key);
+    result.setTempo(tempo);
+    return result;
   }
 
   static void insertPatternMeme(int id, int patternId, String name) {
@@ -360,7 +373,7 @@ public interface IntegrationTestEntity {
     record.store();
   }
 
-  static Chain insertChain(int id, int accountId, String name, ChainType type, ChainState state, Timestamp startAt, @Nullable Timestamp stopAt, String embedKey) throws BusinessException {
+  static Chain insertChain(int id, int accountId, String name, ChainType type, ChainState state, Timestamp startAt, @Nullable Timestamp stopAt, String embedKey) {
     ChainRecord record = IntegrationTestService.getDb().newRecord(CHAIN);
     record.setId(ULong.valueOf(id));
     record.setAccountId(ULong.valueOf(accountId));
@@ -375,7 +388,21 @@ public interface IntegrationTestEntity {
       record.setEmbedKey(embedKey);
     }
     record.store();
-    return new Chain().setFromRecord(record);
+
+    Chain result = new Chain();
+    result.setId(BigInteger.valueOf(id));
+    result.setAccountId(BigInteger.valueOf(accountId));
+    result.setTypeEnum(type);
+    result.setName(name);
+    result.setStateEnum(state);
+    result.setStartAtTimestamp(startAt);
+    if (Objects.nonNull(stopAt)) {
+      result.setStopAtTimestamp(stopAt);
+    }
+    if (Objects.nonNull(embedKey)) {
+      result.setEmbedKey(embedKey);
+    }
+    return result;
   }
 
   static void insertChainConfig(int id, int chainId, ChainConfigType chainConfigType, String value) {
@@ -411,7 +438,7 @@ public interface IntegrationTestEntity {
     record.store();
   }
 
-  static Link insertLink(int id, int chainId, int offset, LinkState state, Timestamp beginAt, Timestamp endAt, String key, int total, double density, double tempo, String waveformKey) throws BusinessException {
+  static Link insertLink(int id, int chainId, int offset, LinkState state, Timestamp beginAt, Timestamp endAt, String key, int total, double density, double tempo, String waveformKey) {
     LinkRecord record = IntegrationTestService.getDb().newRecord(LINK);
     record.setId(ULong.valueOf(id));
     record.setChainId(ULong.valueOf(chainId));
@@ -425,7 +452,20 @@ public interface IntegrationTestEntity {
     record.setTempo(tempo);
     record.setWaveformKey(waveformKey);
     record.store();
-    return new Link().setFromRecord(record);
+
+    Link result = new Link();
+    result.setId(BigInteger.valueOf(id));
+    result.setChainId(BigInteger.valueOf(chainId));
+    result.setOffset(BigInteger.valueOf(offset));
+    result.setState(state.toString());
+    result.setBeginAtTimestamp(beginAt);
+    result.setEndAtTimestamp(endAt);
+    result.setTotal(total);
+    result.setKey(key);
+    result.setDensity(density);
+    result.setTempo(tempo);
+    result.setWaveformKey(waveformKey);
+    return result;
   }
 
   static void insertLinkChord(int id, int linkId, double position, String name) {
@@ -486,7 +526,7 @@ public interface IntegrationTestEntity {
     record.store();
   }
 
-  static Link insertLink_Planned(int id, int chainId, int offset, Timestamp beginAt) throws BusinessException {
+  static Link insertLink_Planned(int id, int chainId, int offset, Timestamp beginAt) {
     LinkRecord record = IntegrationTestService.getDb().newRecord(LINK);
     record.setId(ULong.valueOf(id));
     record.setChainId(ULong.valueOf(chainId));
@@ -494,7 +534,14 @@ public interface IntegrationTestEntity {
     record.setState(LinkState.Planned.toString());
     record.setBeginAt(beginAt);
     record.store();
-    return new Link().setFromRecord(record);
+
+    Link result = new Link();
+    result.setId(BigInteger.valueOf(id));
+    result.setChainId(BigInteger.valueOf(chainId));
+    result.setOffset(BigInteger.valueOf(offset));
+    result.setStateEnum(LinkState.Planned);
+    result.setBeginAtTimestamp(beginAt);
+    return result;
   }
 
   static void insertPlatformMessage(int id, MessageType type, String body, Timestamp createdAt) {

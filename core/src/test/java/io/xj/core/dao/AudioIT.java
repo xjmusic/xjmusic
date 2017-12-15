@@ -7,18 +7,15 @@ import io.xj.core.exception.BusinessException;
 import io.xj.core.external.amazon.AmazonProvider;
 import io.xj.core.external.amazon.S3UploadPolicy;
 import io.xj.core.integration.IntegrationTestEntity;
-import io.xj.core.integration.IntegrationTestService;
 import io.xj.core.model.audio.Audio;
+import io.xj.core.model.audio.AudioState;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
-import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.instrument.InstrumentType;
 import io.xj.core.model.link.LinkState;
-import io.xj.core.model.role.Role;
-import io.xj.core.tables.records.AudioRecord;
+import io.xj.core.model.pattern.PatternType;
+import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.transport.JSON;
-
-import org.jooq.types.ULong;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
@@ -41,7 +38,6 @@ import java.io.File;
 import java.math.BigInteger;
 import java.sql.Timestamp;
 
-import static io.xj.core.tables.Audio.AUDIO;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -70,7 +66,7 @@ public class AudioIT {
 
     // John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
     IntegrationTestEntity.insertUser(2, "john", "john@email.com", "http://pictures.com/john.gif");
-    IntegrationTestEntity.insertUserRole(1, 2, Role.ADMIN);
+    IntegrationTestEntity.insertUserRole(1, 2, UserRoleType.Admin);
 
     // Library "palm tree" has pattern "leaves" and pattern "coconuts"
     IntegrationTestEntity.insertLibrary(1, 1, "palm tree");
@@ -130,8 +126,8 @@ public class AudioIT {
 
   @Test
   public void create() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
     Audio inputData = new Audio()
@@ -145,22 +141,22 @@ public class AudioIT {
     when(amazonProvider.generateKey("instrument-2-audio", "wav"))
       .thenReturn("instrument-2-audio-h2a34j5s34fd987gaw3.wav");
 
-    AudioRecord result = testDAO.create(access, inputData);
+    Audio result = testDAO.create(access, inputData);
 
     assertNotNull(result);
-    assertEquals(ULong.valueOf(2), result.get(AUDIO.INSTRUMENT_ID));
-    assertEquals("maracas", result.get(AUDIO.NAME));
-    assertNotNull(result.get(AUDIO.WAVEFORM_KEY));
-    assertEquals(Double.valueOf(0.009), result.get(AUDIO.START));
-    assertEquals(Double.valueOf(0.21), result.get(AUDIO.LENGTH));
-    assertEquals(Double.valueOf(80.5), result.get(AUDIO.TEMPO));
-    assertEquals(Double.valueOf(1567.0), result.get(AUDIO.PITCH));
+    assertEquals(BigInteger.valueOf(2), result.getInstrumentId());
+    assertEquals("maracas", result.getName());
+    assertNotNull(result.getWaveformKey());
+    assertEquals(0.009, result.getStart(), 0.01);
+    assertEquals(0.21, result.getLength(), 0.01);
+    assertEquals(80.5, result.getTempo(), 0.01);
+    assertEquals(1567.0, result.getPitch(), 0.01);
   }
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutInstrumentID() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
     Audio inputData = new Audio()
@@ -176,8 +172,8 @@ public class AudioIT {
 
   @Test
   public void create_SucceedsWithoutWaveformKey() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
     Audio inputData = new Audio()
@@ -196,15 +192,15 @@ public class AudioIT {
 
   @Test
   public void readOne() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
 
-    Audio result = new Audio().setFromRecord(testDAO.readOne(access, ULong.valueOf(2)));
+    Audio result = testDAO.readOne(access, BigInteger.valueOf(2));
 
     assertNotNull(result);
-    assertEquals(ULong.valueOf(1), result.getInstrumentId());
+    assertEquals(BigInteger.valueOf(1), result.getInstrumentId());
     assertEquals("Snare", result.getName());
     assertEquals("instrument" + File.pathSeparator + "percussion" + File.pathSeparator + "808" + File.pathSeparator + "snare.wav", result.getWaveformKey());
     assertEquals(Double.valueOf(0.0023), result.getStart());
@@ -215,8 +211,8 @@ public class AudioIT {
 
   @Test
   public void uploadOne() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
 
@@ -231,7 +227,7 @@ public class AudioIT {
     when(amazonProvider.getAudioUploadACL())
       .thenReturn("bucket-owner-is-awesome");
 
-    JSONObject result = testDAO.uploadOne(access, ULong.valueOf(2));
+    JSONObject result = testDAO.authorizeUpload(access, BigInteger.valueOf(2));
 
     assertNotNull(result);
     assertEquals("instrument" + File.pathSeparator + "percussion" + File.pathSeparator + "808" + File.pathSeparator + "snare.wav", result.get("waveformKey"));
@@ -245,24 +241,24 @@ public class AudioIT {
 
   @Test
   public void readOne_FailsWhenUserIsNotInAccount() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "326"
     ));
 
-    AudioRecord result = testDAO.readOne(access, ULong.valueOf(1));
+    Audio result = testDAO.readOne(access, BigInteger.valueOf(1));
 
     assertNull(result);
   }
 
   @Test
   public void readAll() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ULong.valueOf(1)));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, BigInteger.valueOf(1)));
 
     assertNotNull(result);
     assertEquals(2, result.length());
@@ -275,12 +271,12 @@ public class AudioIT {
   @Test
   public void readAll_excludesAudiosInEraseState() throws Exception {
     IntegrationTestEntity.insertAudio(27, 1, "Erase", "shammy", "instrument-1-audio-09897fhjdf.wav", 0, 1, 120, 440);
-    Access access = new Access(ImmutableMap.of(
-      "roles", "user",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "User",
       "accounts", "1"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ULong.valueOf(1)));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, BigInteger.valueOf(1)));
 
     assertNotNull(result);
     assertEquals(2, result.length());
@@ -292,12 +288,12 @@ public class AudioIT {
 
   @Test
   public void readAll_SeesNothingOutsideOfLibrary() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "345"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ULong.valueOf(1)));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, BigInteger.valueOf(1)));
 
     assertNotNull(result);
     assertEquals(0, result.length());
@@ -307,7 +303,7 @@ public class AudioIT {
   public void readAllPickedForLink() throws Exception {
     setUpTwo();
 
-    JSONArray result = JSON.arrayOf(testDAO.readAllPickedForLink(Access.internal(), ULong.valueOf(1)));
+    JSONArray result = JSON.arrayOf(testDAO.readAllPickedForLink(Access.internal(), BigInteger.valueOf(1)));
 
     assertNotNull(result);
     assertEquals(4, result.length());
@@ -315,8 +311,8 @@ public class AudioIT {
 
   @Test
   public void update_FailsWithoutInstrumentID() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
     Audio inputData = new Audio()
@@ -330,13 +326,13 @@ public class AudioIT {
     failure.expect(BusinessException.class);
     failure.expectMessage("Instrument ID is required");
 
-    testDAO.update(access, ULong.valueOf(3), inputData);
+    testDAO.update(access, BigInteger.valueOf(3), inputData);
   }
 
   @Test
   public void update_FailsUpdatingToNonexistentInstrument() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
     Audio inputData = new Audio()
@@ -352,24 +348,21 @@ public class AudioIT {
     failure.expectMessage("Instrument does not exist");
 
     try {
-      testDAO.update(access, ULong.valueOf(2), inputData);
+      testDAO.update(access, BigInteger.valueOf(2), inputData);
 
     } catch (Exception e) {
-      AudioRecord result = IntegrationTestService.getDb()
-        .selectFrom(AUDIO)
-        .where(AUDIO.ID.eq(ULong.valueOf(2)))
-        .fetchOne();
+      Audio result = testDAO.readOne(Access.internal(),BigInteger.valueOf(2));
       assertNotNull(result);
       assertEquals("Snare", result.getName());
-      assertEquals(ULong.valueOf(1), result.getInstrumentId());
+      assertEquals(BigInteger.valueOf(1), result.getInstrumentId());
       throw e;
     }
   }
 
   @Test
   public void update() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
     Audio inputData = new Audio()
@@ -380,14 +373,11 @@ public class AudioIT {
       .setPitch(1567.0)
       .setTempo(80.5);
 
-    testDAO.update(access, ULong.valueOf(1), inputData);
+    testDAO.update(access, BigInteger.valueOf(1), inputData);
 
-    AudioRecord result = IntegrationTestService.getDb()
-      .selectFrom(AUDIO)
-      .where(AUDIO.ID.eq(ULong.valueOf(1)))
-      .fetchOne();
+    Audio result = testDAO.readOne(Access.internal(),BigInteger.valueOf(1));
     assertNotNull(result);
-    assertEquals(ULong.valueOf(2), result.getInstrumentId());
+    assertEquals(BigInteger.valueOf(2), result.getInstrumentId());
     assertEquals("maracas", result.getName());
     assertEquals("instrument" + File.pathSeparator + "percussion" + File.pathSeparator + "808" + File.pathSeparator + "kick1.wav", result.getWaveformKey());
     assertEquals(Double.valueOf(0.009), result.getStart());
@@ -400,51 +390,46 @@ public class AudioIT {
 
   @Test
   public void erase() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
 
-    testDAO.erase(access, ULong.valueOf(1));
+    testDAO.erase(access, BigInteger.valueOf(1));
 
-    AudioRecord result = IntegrationTestService.getDb()
-      .selectFrom(AUDIO)
-      .where(AUDIO.ID.eq(ULong.valueOf(1)))
-      .fetchOne();
-    assertEquals("Erase", result.getState());
+    Audio result = testDAO.readOne(Access.internal(),BigInteger.valueOf(1));
+    assertNotNull(result);
+    assertEquals(AudioState.Erase, result.getState());
   }
 
   @Test
   public void erase_failsIfNotInAccount() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "2"
     ));
 
     failure.expect(BusinessException.class);
     failure.expectMessage("Audio does not exist");
 
-    testDAO.erase(access, ULong.valueOf(1));
+    testDAO.erase(access, BigInteger.valueOf(1));
   }
 
   @Test
-  public void erase_SucceedsEvenWithChildRecords() throws Exception {
-    Access access = new Access(ImmutableMap.of(
+  public void erase_SucceedsEvenWithChilds() throws Exception {
+    Access access = Access.from(ImmutableMap.of(
       "userId", "2",
-      "roles", "artist",
+      "roles", "Artist",
       "accounts", "1"
     ));
     IntegrationTestEntity.insertAudioEvent(1, 1, 0.42, 0.41, "HEAVY", "C", 0.7, 0.98);
 
     try {
-      testDAO.erase(access, ULong.valueOf(1));
+      testDAO.erase(access, BigInteger.valueOf(1));
 
     } catch (Exception e) {
-      AudioRecord stillExistingRecord = IntegrationTestService.getDb()
-        .selectFrom(AUDIO)
-        .where(AUDIO.ID.eq(ULong.valueOf(1)))
-        .fetchOne();
-      assertNotNull(stillExistingRecord);
+      Audio result = testDAO.readOne(Access.internal(),BigInteger.valueOf(1));
+      assertNotNull(result);
       throw e;
     }
   }
@@ -453,12 +438,9 @@ public class AudioIT {
   public void destroy() throws Exception {
     Access access = Access.internal();
 
-    testDAO.destroy(access, ULong.valueOf(1));
+    testDAO.destroy(access, BigInteger.valueOf(1));
 
-    AudioRecord result = IntegrationTestService.getDb()
-      .selectFrom(AUDIO)
-      .where(AUDIO.ID.eq(ULong.valueOf(1)))
-      .fetchOne();
+    Audio result = testDAO.readOne(Access.internal(),BigInteger.valueOf(1));
     assertNull(result);
   }
 
@@ -467,12 +449,9 @@ public class AudioIT {
     setUpTwo(); // create picks for audio id 1
     Access access = Access.internal();
 
-    testDAO.destroy(access, ULong.valueOf(1));
+    testDAO.destroy(access, BigInteger.valueOf(1));
 
-    AudioRecord result = IntegrationTestService.getDb()
-      .selectFrom(AUDIO)
-      .where(AUDIO.ID.eq(ULong.valueOf(1)))
-      .fetchOne();
+    Audio result = testDAO.readOne(Access.internal(),BigInteger.valueOf(1));
     assertNull(result);
   }
 

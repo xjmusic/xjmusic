@@ -1,14 +1,13 @@
 // Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.resource.arrangement;
 
+
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
-import io.xj.core.server.HttpResponseProvider;
 import io.xj.core.dao.ArrangementDAO;
 import io.xj.core.model.arrangement.Arrangement;
-import io.xj.core.model.role.Role;
-
-import org.jooq.types.ULong;
+import io.xj.core.model.user_role.UserRoleType;
+import io.xj.core.server.HttpResponseProvider;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -22,6 +21,8 @@ import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.math.BigInteger;
+import java.util.Objects;
 
 /**
  Arrangements
@@ -29,7 +30,7 @@ import java.io.IOException;
 @Path("arrangements")
 public class ArrangementIndexResource {
   private static final Injector injector = Guice.createInjector(new CoreModule());
-  private final ArrangementDAO DAO = injector.getInstance(ArrangementDAO.class);
+  private final ArrangementDAO arrangementDAO = injector.getInstance(ArrangementDAO.class);
   private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
 
   @QueryParam("choiceId")
@@ -42,18 +43,18 @@ public class ArrangementIndexResource {
    */
   @GET
   @WebResult
-  @RolesAllowed({Role.USER})
+  @RolesAllowed(UserRoleType.USER)
   public Response readAll(@Context ContainerRequestContext crc) throws IOException {
-    if (choiceId == null || choiceId.length() == 0) {
+    if (Objects.isNull(choiceId) || choiceId.isEmpty()) {
       return response.notAcceptable("Choice id is required");
     }
 
     try {
       return response.readMany(
         Arrangement.KEY_MANY,
-        DAO.readAll(
+        arrangementDAO.readAll(
           Access.fromContext(crc),
-          ULong.valueOf(choiceId)));
+          new BigInteger(choiceId)));
 
     } catch (Exception e) {
       return response.failure(e);

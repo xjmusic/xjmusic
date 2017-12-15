@@ -5,15 +5,11 @@ import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.integration.IntegrationTestEntity;
-import io.xj.core.integration.IntegrationTestService;
-import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.instrument.InstrumentType;
-import io.xj.core.model.role.Role;
+import io.xj.core.model.pattern.PatternType;
+import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.model.voice_event.VoiceEvent;
-import io.xj.core.tables.records.VoiceEventRecord;
 import io.xj.core.transport.JSON;
-
-import org.jooq.types.ULong;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Guice;
@@ -27,7 +23,6 @@ import org.junit.Test;
 
 import java.math.BigInteger;
 
-import static io.xj.core.Tables.VOICE_EVENT;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -46,7 +41,7 @@ public class VoiceEventIT {
 
     // John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
     IntegrationTestEntity.insertUser(2, "john", "john@email.com", "http://pictures.com/john.gif");
-    IntegrationTestEntity.insertUserRole(1, 2, Role.ADMIN);
+    IntegrationTestEntity.insertUserRole(1, 2, UserRoleType.Admin);
 
     // Library "palm tree" has pattern "leaves" and pattern "coconuts"
     IntegrationTestEntity.insertLibrary(1, 1, "palm tree");
@@ -77,8 +72,8 @@ public class VoiceEventIT {
 
   @Test
   public void create() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
     VoiceEvent inputData = new VoiceEvent()
@@ -90,7 +85,7 @@ public class VoiceEventIT {
       .setVelocity(0.72)
       .setVoiceId(BigInteger.valueOf(2));
 
-    JSONObject result = JSON.objectFromRecord(testDAO.create(access, inputData));
+    JSONObject result = JSON.objectFrom(testDAO.create(access, inputData));
 
     assertNotNull(result);
     assertEquals(1.4, result.get("duration"));
@@ -99,13 +94,13 @@ public class VoiceEventIT {
     assertEquals("BOOM", result.get("inflection"));
     assertEquals(0.92, result.get("tonality"));
     assertEquals(0.72, result.get("velocity"));
-    assertEquals(ULong.valueOf(2), result.get("voiceId"));
+    assertEquals(2, result.get("voiceId"));
   }
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutVoiceID() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
     VoiceEvent inputData = new VoiceEvent()
@@ -121,8 +116,8 @@ public class VoiceEventIT {
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutNote() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
     VoiceEvent inputData = new VoiceEvent()
@@ -138,16 +133,16 @@ public class VoiceEventIT {
 
   @Test
   public void readOne() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
 
-    VoiceEvent result = new VoiceEvent().setFromRecord(testDAO.readOne(access, ULong.valueOf(2)));
+    VoiceEvent result = testDAO.readOne(access, BigInteger.valueOf(2));
 
     assertNotNull(result);
-    assertEquals(ULong.valueOf(2), result.getId());
-    assertEquals(ULong.valueOf(1), result.getVoiceId());
+    assertEquals(BigInteger.valueOf(2), result.getId());
+    assertEquals(BigInteger.valueOf(1), result.getVoiceId());
     assertEquals(Double.valueOf(1.0), result.getDuration());
     assertEquals("SMACK", result.getInflection());
     assertEquals("G", result.getNote());
@@ -158,24 +153,24 @@ public class VoiceEventIT {
 
   @Test
   public void readOne_FailsWhenUserIsNotInAccount() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "326"
     ));
 
-    VoiceEventRecord result = testDAO.readOne(access, ULong.valueOf(1));
+    VoiceEvent result = testDAO.readOne(access, BigInteger.valueOf(1));
 
     assertNull(result);
   }
 
   @Test
   public void readAll() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ULong.valueOf(1)));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, BigInteger.valueOf(1)));
 
     assertNotNull(result);
     assertEquals(4, result.length());
@@ -191,12 +186,12 @@ public class VoiceEventIT {
 
   @Test
   public void readAll_SeesNothingOutsideOfLibrary() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "345"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ULong.valueOf(1)));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, BigInteger.valueOf(1)));
 
     assertNotNull(result);
     assertEquals(0, result.length());
@@ -204,8 +199,8 @@ public class VoiceEventIT {
 
   @Test(expected = BusinessException.class)
   public void update_FailsWithoutVoiceID() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
     VoiceEvent inputData = new VoiceEvent()
@@ -216,13 +211,13 @@ public class VoiceEventIT {
       .setTonality(1.0)
       .setVelocity(1.0);
 
-    testDAO.update(access, ULong.valueOf(3), inputData);
+    testDAO.update(access, BigInteger.valueOf(3), inputData);
   }
 
   @Test(expected = BusinessException.class)
   public void update_FailsWithoutNote() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
     VoiceEvent inputData = new VoiceEvent()
@@ -233,13 +228,13 @@ public class VoiceEventIT {
       .setVelocity(1.0)
       .setVoiceId(BigInteger.valueOf(2));
 
-    testDAO.update(access, ULong.valueOf(2), inputData);
+    testDAO.update(access, BigInteger.valueOf(2), inputData);
   }
 
   @Test(expected = BusinessException.class)
   public void update_FailsUpdatingToNonexistentVoice() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
     VoiceEvent inputData = new VoiceEvent()
@@ -252,24 +247,21 @@ public class VoiceEventIT {
       .setVoiceId(BigInteger.valueOf(287));
 
     try {
-      testDAO.update(access, ULong.valueOf(3), inputData);
+      testDAO.update(access, BigInteger.valueOf(3), inputData);
 
     } catch (Exception e) {
-      VoiceEventRecord result = IntegrationTestService.getDb()
-        .selectFrom(VOICE_EVENT)
-        .where(VOICE_EVENT.ID.eq(ULong.valueOf(3)))
-        .fetchOne();
+      VoiceEvent result = testDAO.readOne(Access.internal(), BigInteger.valueOf(3));
       assertNotNull(result);
       assertEquals("BOOM", result.getInflection());
-      assertEquals(ULong.valueOf(1), result.getVoiceId());
+      assertEquals(BigInteger.valueOf(1), result.getVoiceId());
       throw e;
     }
   }
 
   @Test
   public void update() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
     VoiceEvent inputData = new VoiceEvent()
@@ -281,47 +273,41 @@ public class VoiceEventIT {
       .setVelocity(0.72)
       .setVoiceId(BigInteger.valueOf(1));
 
-    testDAO.update(access, ULong.valueOf(1), inputData);
+    testDAO.update(access, BigInteger.valueOf(1), inputData);
 
-    VoiceEventRecord result = IntegrationTestService.getDb()
-      .selectFrom(VOICE_EVENT)
-      .where(VOICE_EVENT.ID.eq(ULong.valueOf(1)))
-      .fetchOne();
+    VoiceEvent result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1));
     assertNotNull(result);
     assertEquals("POPPYCOCK", result.getInflection());
     assertEquals((Double) 1.2, result.getDuration());
     assertEquals((Double) 0.42, result.getPosition());
-    assertEquals(0.92, result.get("tonality"));
-    assertEquals(0.72, result.get("velocity"));
-    assertEquals(ULong.valueOf(1), result.getVoiceId());
+    assertEquals(0.92, result.getTonality(), 0.01);
+    assertEquals(0.72, result.getVelocity(), 0.01);
+    assertEquals(BigInteger.valueOf(1), result.getVoiceId());
   }
 
   // future test: DAO cannot update Pattern to a User or Library not owned by current session
 
   @Test
   public void delete() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
 
-    testDAO.delete(access, ULong.valueOf(1));
+    testDAO.delete(access, BigInteger.valueOf(1));
 
-    VoiceEventRecord result = IntegrationTestService.getDb()
-      .selectFrom(VOICE_EVENT)
-      .where(VOICE_EVENT.ID.eq(ULong.valueOf(1)))
-      .fetchOne();
+    VoiceEvent result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1));
     assertNull(result);
   }
 
   @Test(expected = BusinessException.class)
   public void delete_failsIfNotInAccount() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "2"
     ));
 
-    testDAO.delete(access, ULong.valueOf(1));
+    testDAO.delete(access, BigInteger.valueOf(1));
   }
 
 }

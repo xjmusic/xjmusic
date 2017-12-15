@@ -5,16 +5,10 @@ import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.integration.IntegrationTestEntity;
-import io.xj.core.integration.IntegrationTestService;
 import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.phase.Phase;
-import io.xj.core.model.role.Role;
-import io.xj.core.tables.records.PhaseRecord;
+import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.transport.JSON;
-
-import org.jooq.impl.DSL;
-import org.jooq.types.UInteger;
-import org.jooq.types.ULong;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Guice;
@@ -30,7 +24,6 @@ import org.junit.rules.ExpectedException;
 
 import java.math.BigInteger;
 
-import static io.xj.core.tables.Phase.PHASE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -50,11 +43,11 @@ public class PhaseIT {
 
     // John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
     IntegrationTestEntity.insertUser(2, "john", "john@email.com", "http://pictures.com/john.gif");
-    IntegrationTestEntity.insertUserRole(1, 2, Role.ADMIN);
+    IntegrationTestEntity.insertUserRole(1, 2, UserRoleType.Admin);
 
     // Jenny has a "user" role and belongs to account "bananas"
     IntegrationTestEntity.insertUser(3, "jenny", "jenny@email.com", "http://pictures.com/jenny.gif");
-    IntegrationTestEntity.insertUserRole(2, 3, Role.USER);
+    IntegrationTestEntity.insertUserRole(2, 3, UserRoleType.User);
     IntegrationTestEntity.insertAccountUser(3, 1, 3);
 
     // Library "palm tree" has pattern "leaves" and pattern "coconuts"
@@ -77,8 +70,8 @@ public class PhaseIT {
 
   @Test
   public void create() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
     Phase inputData = new Phase()
@@ -90,22 +83,22 @@ public class PhaseIT {
       .setOffset(BigInteger.valueOf(16))
       .setTotal(16);
 
-    JSONObject result = JSON.objectFromRecord(testDAO.create(access, inputData));
+    Phase result = testDAO.create(access, inputData);
 
     assertNotNull(result);
-    assertEquals(0.42, result.get("density"));
-    assertEquals("G minor 7", result.get("key"));
-    assertEquals(ULong.valueOf(2), result.get("patternId"));
-    assertEquals("cannons", result.get("name"));
-    assertEquals(129.4, result.get("tempo"));
-    assertEquals(ULong.valueOf(16), result.get("offset"));
-    assertEquals(UInteger.valueOf(16), result.get("total"));
+    assertEquals(0.42, result.getDensity(), 0.01);
+    assertEquals("G minor 7", result.getKey());
+    assertEquals(BigInteger.valueOf(2), result.getPatternId());
+    assertEquals("cannons", result.getName());
+    assertEquals(129.4, result.getTempo(), 0.01);
+    assertEquals(BigInteger.valueOf(16), result.getOffset());
+    assertEquals(Integer.valueOf(16), result.getTotal());
   }
 
   @Test
   public void create_TotalNotRequiredForMacroPatternPhase() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
     Phase inputData = new Phase()
@@ -116,16 +109,16 @@ public class PhaseIT {
       .setTempo(129.4)
       .setOffset(BigInteger.valueOf(16));
 
-    JSONObject result = JSON.objectFromRecord(testDAO.create(access, inputData));
+    Phase result = testDAO.create(access, inputData);
 
     assertNotNull(result);
-    assertEquals(DSL.val((String) null), result.get("total"));
+    assertNull(result.getTotal());
   }
 
   @Test
   public void create_TotalIsRequiredForNonMacroTypePatternPhase() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
     Phase inputData = new Phase()
@@ -144,8 +137,8 @@ public class PhaseIT {
 
   @Test
   public void create_TotalMustBeGreaterThanZeroForNonMacroTypePatternPhase() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
     Phase inputData = new Phase()
@@ -165,8 +158,8 @@ public class PhaseIT {
 
   @Test
   public void create_NullOptionalFieldsAllowed() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
     Phase inputData = new Phase()
@@ -178,22 +171,22 @@ public class PhaseIT {
       .setOffset(BigInteger.valueOf(0))
       .setTotal(16);
 
-    JSONObject result = JSON.objectFromRecord(testDAO.create(access, inputData));
+    Phase result = testDAO.create(access, inputData);
 
     assertNotNull(result);
-    assertEquals(ULong.valueOf(2), result.get("patternId"));
-    assertEquals(DSL.val((String) null), result.get("density"));
-    assertEquals(DSL.val((String) null), result.get("key"));
-    assertEquals(DSL.val((String) null), result.get("name"));
-    assertEquals(DSL.val((String) null), result.get("tempo"));
-    assertEquals(ULong.valueOf(0), result.get("offset"));
-    assertEquals(UInteger.valueOf(16), result.get("total"));
+    assertEquals(BigInteger.valueOf(2), result.getPatternId());
+    assertNull(result.getDensity());
+    assertNull(result.getKey());
+    assertNull(result.getName());
+    assertNull(result.getTempo());
+    assertEquals(BigInteger.valueOf(0), result.getOffset());
+    assertEquals(Integer.valueOf(16), result.getTotal());
   }
 
   @Test
   public void create_FailsWithoutPatternID() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
     Phase inputData = new Phase()
@@ -212,8 +205,8 @@ public class PhaseIT {
 
   @Test
   public void create_FailsWithoutOffset() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
     Phase inputData = new Phase()
@@ -235,8 +228,8 @@ public class PhaseIT {
    */
   @Test
   public void create_FailsIfPatternAlreadyHasPhaseWithThisOffset() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "admin"
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Admin"
     ));
     Phase inputData = new Phase()
       .setOffset(BigInteger.valueOf(1))
@@ -255,66 +248,66 @@ public class PhaseIT {
 
   @Test
   public void readOne() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
 
-    Phase result = new Phase().setFromRecord(testDAO.readOne(access, ULong.valueOf(2)));
+    Phase result = testDAO.readOne(access, BigInteger.valueOf(2));
 
     assertNotNull(result);
-    assertEquals(ULong.valueOf(2), result.getId());
-    assertEquals(ULong.valueOf(1), result.getPatternId());
+    assertEquals(BigInteger.valueOf(2), result.getId());
+    assertEquals(BigInteger.valueOf(1), result.getPatternId());
     assertEquals("Caterpillars", result.getName());
   }
 
   @Test
   public void readOne_FailsWhenUserIsNotInAccount() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "326"
     ));
 
-    PhaseRecord result = testDAO.readOne(access, ULong.valueOf(1));
+    Phase result = testDAO.readOne(access, BigInteger.valueOf(1));
 
     assertNull(result);
   }
 
   @Test
   public void readOneForPattern() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
 
-    Phase result = testDAO.readOneForPattern(access, ULong.valueOf(1), ULong.valueOf(1));
+    Phase result = testDAO.readOneForPattern(access, BigInteger.valueOf(1), BigInteger.valueOf(1));
 
     assertNotNull(result);
-    assertEquals(ULong.valueOf(2), result.getId());
-    assertEquals(ULong.valueOf(1), result.getPatternId());
+    assertEquals(BigInteger.valueOf(2), result.getId());
+    assertEquals(BigInteger.valueOf(1), result.getPatternId());
     assertEquals("Caterpillars", result.getName());
   }
 
   @Test
   public void readOneForPattern_FailsWhenUserIsNotInAccount() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "143"
     ));
 
-    Phase result = testDAO.readOneForPattern(access, ULong.valueOf(1), ULong.valueOf(1));
+    Phase result = testDAO.readOneForPattern(access, BigInteger.valueOf(1), BigInteger.valueOf(1));
 
     assertNull(result);
   }
 
   @Test
   public void readAll() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ULong.valueOf(1)));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, BigInteger.valueOf(1)));
 
     assertNotNull(result);
     assertEquals(2, result.length());
@@ -326,12 +319,12 @@ public class PhaseIT {
 
   @Test
   public void readAll_SeesNothingOutsideOfLibrary() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "345"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ULong.valueOf(1)));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, BigInteger.valueOf(1)));
 
     assertNotNull(result);
     assertEquals(0, result.length());
@@ -341,8 +334,8 @@ public class PhaseIT {
 
   @Test
   public void update() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
     Phase inputData = new Phase()
@@ -354,26 +347,23 @@ public class PhaseIT {
       .setKey("")
       .setTempo((double) 0);
 
-    testDAO.update(access, ULong.valueOf(1), inputData);
+    testDAO.update(access, BigInteger.valueOf(1), inputData);
 
-    PhaseRecord result = IntegrationTestService.getDb()
-      .selectFrom(PHASE)
-      .where(PHASE.ID.eq(ULong.valueOf(1)))
-      .fetchOne();
+    Phase result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1));
     assertNotNull(result);
     assertNull(result.getName());
     assertNull(result.getDensity());
     assertNull(result.getTempo());
     assertNull(result.getKey());
-    assertEquals(ULong.valueOf(7), result.getOffset());
-    assertEquals(UInteger.valueOf(32), result.getTotal());
-    assertEquals(ULong.valueOf(1), result.getPatternId());
+    assertEquals(BigInteger.valueOf(7), result.getOffset());
+    assertEquals(Integer.valueOf(32), result.getTotal());
+    assertEquals(BigInteger.valueOf(1), result.getPatternId());
   }
 
   @Test
   public void update_FailsWithoutPatternID() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
     Phase inputData = new Phase()
@@ -387,13 +377,13 @@ public class PhaseIT {
     failure.expect(BusinessException.class);
     failure.expectMessage("Pattern ID is required");
 
-    testDAO.update(access, ULong.valueOf(1), inputData);
+    testDAO.update(access, BigInteger.valueOf(1), inputData);
   }
 
   @Test
   public void update_TotalNotRequiredForMacroPatternPhase() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
     Phase inputData = new Phase()
@@ -404,13 +394,13 @@ public class PhaseIT {
       .setTempo(129.4)
       .setOffset(BigInteger.valueOf(16));
 
-    testDAO.update(access, ULong.valueOf(1), inputData);
+    testDAO.update(access, BigInteger.valueOf(1), inputData);
   }
 
   @Test
   public void update_TotalIsRequiredForNonMacroTypePatternPhase() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
     Phase inputData = new Phase()
@@ -424,13 +414,13 @@ public class PhaseIT {
     failure.expect(BusinessException.class);
     failure.expectMessage("for a phase of a non-macro-type pattern, total (# beats) is required");
 
-    testDAO.update(access, ULong.valueOf(1), inputData);
+    testDAO.update(access, BigInteger.valueOf(1), inputData);
   }
 
   @Test
   public void update_TotalMustBeGreaterThanZeroForNonMacroTypePatternPhase() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
     Phase inputData = new Phase()
@@ -445,13 +435,13 @@ public class PhaseIT {
     failure.expect(BusinessException.class);
     failure.expectMessage("for a phase of a non-macro-type pattern, total (# beats) must be greater than zero");
 
-    testDAO.update(access, ULong.valueOf(1), inputData);
+    testDAO.update(access, BigInteger.valueOf(1), inputData);
   }
 
   @Test
   public void update_FailsWithoutOffset() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
     Phase inputData = new Phase()
@@ -464,13 +454,13 @@ public class PhaseIT {
     failure.expect(BusinessException.class);
     failure.expectMessage("Offset is required");
 
-    testDAO.update(access, ULong.valueOf(1), inputData);
+    testDAO.update(access, BigInteger.valueOf(1), inputData);
   }
 
   @Test
   public void update_FailsUpdatingToNonexistentPattern() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
     Phase inputData = new Phase()
@@ -486,51 +476,45 @@ public class PhaseIT {
     failure.expectMessage("Pattern does not exist");
 
     try {
-      testDAO.update(access, ULong.valueOf(2), inputData);
+      testDAO.update(access, BigInteger.valueOf(2), inputData);
 
     } catch (Exception e) {
-      PhaseRecord result = IntegrationTestService.getDb()
-        .selectFrom(PHASE)
-        .where(PHASE.ID.eq(ULong.valueOf(2)))
-        .fetchOne();
+      Phase result = testDAO.readOne(Access.internal(), BigInteger.valueOf(2));
       assertNotNull(result);
       assertEquals("Caterpillars", result.getName());
-      assertEquals(ULong.valueOf(1), result.getPatternId());
+      assertEquals(BigInteger.valueOf(1), result.getPatternId());
       throw e;
     }
   }
 
   @Test
   public void delete() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
 
-    testDAO.delete(access, ULong.valueOf(1));
+    testDAO.delete(access, BigInteger.valueOf(1));
 
-    PhaseRecord result = IntegrationTestService.getDb()
-      .selectFrom(PHASE)
-      .where(PHASE.ID.eq(ULong.valueOf(1)))
-      .fetchOne();
+    Phase result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1));
     assertNull(result);
   }
 
   @Test(expected = BusinessException.class)
   public void delete_failsIfNotInAccount() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "2"
     ));
 
-    testDAO.delete(access, ULong.valueOf(1));
+    testDAO.delete(access, BigInteger.valueOf(1));
   }
 
   @Test
-  public void delete_FailsIfPatternHasChildRecords() throws Exception {
-    Access access = new Access(ImmutableMap.of(
+  public void delete_FailsIfPatternHasChilds() throws Exception {
+    Access access = Access.from(ImmutableMap.of(
       "userId", "2",
-      "roles", "artist",
+      "roles", "Artist",
       "accounts", "1"
     ));
     IntegrationTestEntity.insertPhaseMeme(1, 1, "mashup");
@@ -539,14 +523,11 @@ public class PhaseIT {
     failure.expectMessage("Found Meme in Phase");
 
     try {
-      testDAO.delete(access, ULong.valueOf(1));
+      testDAO.delete(access, BigInteger.valueOf(1));
 
     } catch (Exception e) {
-      PhaseRecord stillExistingRecord = IntegrationTestService.getDb()
-        .selectFrom(PHASE)
-        .where(PHASE.ID.eq(ULong.valueOf(1)))
-        .fetchOne();
-      assertNotNull(stillExistingRecord);
+      Phase result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1));
+      assertNotNull(result);
       throw e;
     }
   }

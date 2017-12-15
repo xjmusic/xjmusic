@@ -2,24 +2,12 @@
 package io.xj.core.model.chain_instrument;
 
 import io.xj.core.exception.BusinessException;
-import io.xj.core.tables.records.ChainInstrumentRecord;
 
-import org.jooq.Field;
-import org.jooq.types.ULong;
-
-import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import java.math.BigInteger;
-import java.sql.Timestamp;
-import java.util.Map;
-
-import static io.xj.core.Tables.CHAIN_INSTRUMENT;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 
 public class ChainInstrumentTest {
   @Rule public ExpectedException failure = ExpectedException.none();
@@ -52,40 +40,5 @@ public class ChainInstrumentTest {
       .validate();
   }
 
-  @Test
-  public void setFromRecord() throws Exception {
-    ChainInstrumentRecord record = new ChainInstrumentRecord();
-    record.setId(ULong.valueOf(12));
-    record.setChainId(ULong.valueOf(6));
-    record.setInstrumentId(ULong.valueOf(87));
-    record.setCreatedAt(Timestamp.valueOf("2014-08-12 12:17:02.527142"));
-    record.setUpdatedAt(Timestamp.valueOf("2014-09-12 12:17:01.047563"));
-
-    ChainInstrument result = new ChainInstrument()
-      .setFromRecord(record);
-
-    assertNotNull(result);
-    Assert.assertEquals(ULong.valueOf(12), result.getId());
-    assertEquals(ULong.valueOf(6), result.getChainId());
-    assertEquals(ULong.valueOf(87), result.getInstrumentId());
-    Assert.assertEquals(Timestamp.valueOf("2014-08-12 12:17:02.527142"), result.getCreatedAt());
-    Assert.assertEquals(Timestamp.valueOf("2014-09-12 12:17:01.047563"), result.getUpdatedAt());
-  }
-
-  @Test
-  public void setFromRecord_nullPassesThrough() throws Exception {
-    assertNull(new ChainInstrument().setFromRecord(null));
-  }
-
-  @Test
-  public void intoFieldValueMap() throws Exception {
-    Map<Field, Object> result = new ChainInstrument()
-      .setChainId(BigInteger.valueOf(6))
-      .setInstrumentId(BigInteger.valueOf(87))
-      .updatableFieldValueMap();
-
-    assertEquals(ULong.valueOf(6), result.get(CHAIN_INSTRUMENT.CHAIN_ID));
-    assertEquals(ULong.valueOf(87), result.get(CHAIN_INSTRUMENT.INSTRUMENT_ID));
-  }
 
 }

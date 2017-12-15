@@ -3,13 +3,10 @@ package io.xj.core.dao;
 
 import io.xj.core.access.impl.Access;
 import io.xj.core.model.audio_event.AudioEvent;
-import io.xj.core.tables.records.AudioEventRecord;
-
-import org.jooq.Result;
-import org.jooq.types.ULong;
 
 import javax.annotation.Nullable;
-import java.util.List;
+import java.math.BigInteger;
+import java.util.Collection;
 
 public interface AudioEventDAO {
 
@@ -20,7 +17,7 @@ public interface AudioEventDAO {
    @param entity for the new Account User.
    @return newly readMany record
    */
-  AudioEventRecord create(Access access, AudioEvent entity) throws Exception;
+  AudioEvent create(Access access, AudioEvent entity) throws Exception;
 
   /**
    Fetch one Audio Event if accessible
@@ -31,7 +28,7 @@ public interface AudioEventDAO {
    @throws Exception on failure
    */
   @Nullable
-  AudioEventRecord readOne(Access access, ULong id) throws Exception;
+  AudioEvent readOne(Access access, BigInteger id) throws Exception;
 
   /**
    Fetch all accessible Audio Event for one Audio by id
@@ -41,17 +38,17 @@ public interface AudioEventDAO {
    @return JSONArray of audios.
    @throws Exception on failure
    */
-  Result<AudioEventRecord> readAll(Access access, ULong audioId) throws Exception;
+  Collection<AudioEvent> readAll(Access access, BigInteger audioId) throws Exception;
 
   /**
    Read all AudioEvent that are first in an audio, for all audio in an Instrument
    for each audio id, the first (in terms of position) AudioEvent
 
-   @return audios
-    @param access       control
+   @param access       control
    @param instrumentId to fetch audio for
+   @return audios
    */
-  List<AudioEvent> readAllFirstEventsForInstrument(Access access, ULong instrumentId) throws Exception;
+  Collection<AudioEvent> readAllFirstEventsForInstrument(Access access, BigInteger instrumentId) throws Exception;
 
   /**
    Update a specified Audio Event if accessible
@@ -60,7 +57,7 @@ public interface AudioEventDAO {
    @param id     of specific Event to update.
    @param entity for the updated Event.
    */
-  void update(Access access, ULong id, AudioEvent entity) throws Exception;
+  void update(Access access, BigInteger id, AudioEvent entity) throws Exception;
 
   /**
    Delete a specified Audio Event if accessible
@@ -68,5 +65,5 @@ public interface AudioEventDAO {
    @param access control
    @param id     of specific audio to delete.
    */
-  void delete(Access access, ULong id) throws Exception;
+  void delete(Access access, BigInteger id) throws Exception;
 }

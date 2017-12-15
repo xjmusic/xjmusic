@@ -4,14 +4,9 @@ package io.xj.core.model.event;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.model.Entity;
 
-import org.jooq.Field;
-import org.jooq.Record;
-
-import javax.annotation.Nullable;
-import java.util.Map;
-
 /**
- Entity for use as POJO for decoding messages received by JAX-RS resources
+ POJO for persisting data in memory while performing business logic,
+or decoding messages received by JAX-RS resources.
  a.k.a. JSON input will be stored into an instance of this object
  <p>
  Business logic ought to be performed beginning with an instance of this object,
@@ -92,29 +87,6 @@ public class Event extends Entity {
     if (null == position) throw new BusinessException("Position is required.");
     if (null == tonality) throw new BusinessException("Tonality is required.");
     if (null == velocity) throw new BusinessException("Velocity is required.");
-  }
-
-  /**
-   Set values from record
-
-   @param record to set values from
-   @return Entity
-   */
-  @Nullable
-  @Override
-  public Entity setFromRecord(Record record) throws BusinessException {
-    throw new BusinessException("Generic Event is not persisted in database!");
-  }
-
-  /**
-   Model info jOOQ-field : Value map
-   ONLY FOR FIELDS THAT ARE TO BE UPDATED
-
-   @return map
-   */
-  @Override
-  public Map<Field, Object> updatableFieldValueMap() {
-    return null;
   }
 
 }

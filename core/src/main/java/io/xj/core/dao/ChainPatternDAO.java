@@ -3,12 +3,10 @@ package io.xj.core.dao;
 
 import io.xj.core.access.impl.Access;
 import io.xj.core.model.chain_pattern.ChainPattern;
-import io.xj.core.tables.records.ChainPatternRecord;
-
-import org.jooq.Result;
-import org.jooq.types.ULong;
 
 import javax.annotation.Nullable;
+import java.math.BigInteger;
+import java.util.Collection;
 
 public interface ChainPatternDAO {
 
@@ -18,7 +16,7 @@ public interface ChainPatternDAO {
    @param entity for the new Chain Pattern.
    @return newly readMany record
    */
-  ChainPatternRecord create(Access access, ChainPattern entity) throws Exception;
+  ChainPattern create(Access access, ChainPattern entity) throws Exception;
 
   /**
    Fetch one ChainPattern if accessible
@@ -28,7 +26,7 @@ public interface ChainPatternDAO {
    @throws Exception on failure
    */
   @Nullable
-  ChainPatternRecord readOne(Access access, ULong id) throws Exception;
+  ChainPattern readOne(Access access, BigInteger id) throws Exception;
 
   /**
    Fetch many ChainPattern for one Chain by id, if accessible
@@ -37,12 +35,12 @@ public interface ChainPatternDAO {
    @return JSONArray of chainPatterns.
    @throws Exception on failure
    */
-  Result<ChainPatternRecord> readAll(Access access, ULong chainId) throws Exception;
+  Collection<ChainPattern> readAll(Access access, BigInteger chainId) throws Exception;
 
   /**
    Delete a specified ChainPattern
 
    @param id of specific ChainPattern to delete.
    */
-  void delete(Access access, ULong id) throws Exception;
+  void delete(Access access, BigInteger id) throws Exception;
 }

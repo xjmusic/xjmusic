@@ -4,19 +4,14 @@ package io.xj.core.dao;
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
 import io.xj.core.exception.BusinessException;
-import io.xj.core.external.AuthType;
 import io.xj.core.integration.IntegrationTestEntity;
-import io.xj.core.integration.IntegrationTestService;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
 import io.xj.core.model.link.LinkState;
 import io.xj.core.model.link_meme.LinkMeme;
-import io.xj.core.model.role.Role;
-import io.xj.core.tables.records.LinkMemeRecord;
+import io.xj.core.model.user_auth.UserAuthType;
+import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.transport.JSON;
-
-import org.jooq.Result;
-import org.jooq.types.ULong;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -31,9 +26,9 @@ import org.junit.Test;
 
 import java.math.BigInteger;
 import java.sql.Timestamp;
+import java.util.Collection;
 import java.util.List;
 
-import static io.xj.core.tables.LinkMeme.LINK_MEME;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -42,7 +37,7 @@ import static org.junit.Assert.assertNull;
 public class LinkMemeIT {
   private final Injector injector = Guice.createInjector(new CoreModule());
   private LinkMemeDAO testDAO;
-  private final List<ULong> linkIds = ImmutableList.of(ULong.valueOf(1), ULong.valueOf(2), ULong.valueOf(3), ULong.valueOf(4));
+  private final List<BigInteger> linkIds = ImmutableList.of(BigInteger.valueOf(1), BigInteger.valueOf(2), BigInteger.valueOf(3), BigInteger.valueOf(4));
 
   @Before
   public void setUp() throws Exception {
@@ -61,20 +56,20 @@ public class LinkMemeIT {
 
     // John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
     IntegrationTestEntity.insertUser(2, "john", "john@email.com", "http://pictures.com/john.gif");
-    IntegrationTestEntity.insertUserRole(1, 2, Role.USER);
-    IntegrationTestEntity.insertUserRole(2, 2, Role.ADMIN);
+    IntegrationTestEntity.insertUserRole(1, 2, UserRoleType.User);
+    IntegrationTestEntity.insertUserRole(2, 2, UserRoleType.Admin);
     IntegrationTestEntity.insertAccountUser(3, 1, 2);
-    IntegrationTestEntity.insertUserAuth(102, 2, AuthType.GOOGLE, "external_access_token_123", "external_refresh_token_123", "22222");
+    IntegrationTestEntity.insertUserAuth(102, 2, UserAuthType.Google, "external_access_token_123", "external_refresh_token_123", "22222");
     IntegrationTestEntity.insertUserAccessToken(2, 102, "this-is-my-actual-access-token");
 
     // Jenny has a "user" role and belongs to account "bananas"
     IntegrationTestEntity.insertUser(3, "jenny", "jenny@email.com", "http://pictures.com/jenny.gif");
-    IntegrationTestEntity.insertUserRole(4, 3, Role.USER);
+    IntegrationTestEntity.insertUserRole(4, 3, UserRoleType.User);
     IntegrationTestEntity.insertAccountUser(5, 1, 3);
 
     // Bill has a "user" role but no account membership
     IntegrationTestEntity.insertUser(4, "bill", "bill@email.com", "http://pictures.com/bill.gif");
-    IntegrationTestEntity.insertUserRole(6, 4, Role.USER);
+    IntegrationTestEntity.insertUserRole(6, 4, UserRoleType.User);
 
     // Link #1 memes
     IntegrationTestEntity.insertLinkMeme(1, 1, "Cool");
@@ -94,26 +89,26 @@ public class LinkMemeIT {
 
   @Test
   public void create() throws Exception {
-    Access access = new Access(ImmutableMap.of(
+    Access access = Access.from(ImmutableMap.of(
       "userId", "2",
-      "roles", "artist",
+      "roles", "Artist",
       "accounts", "1"
     ));
     LinkMeme inputData = new LinkMeme()
       .setLinkId(BigInteger.valueOf(1))
       .setName("  !!2gnarLY    ");
 
-    JSONObject result = JSON.objectFromRecord(testDAO.create(access, inputData));
+    LinkMeme result = testDAO.create(access, inputData);
 
     assertNotNull(result);
-    assertEquals(ULong.valueOf(1), result.get("linkId"));
-    assertEquals("Gnarly", result.get("name"));
+    assertEquals(BigInteger.valueOf(1), result.getLinkId());
+    assertEquals("Gnarly", result.getName());
   }
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutLinkID() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
     LinkMeme inputData = new LinkMeme()
@@ -124,8 +119,8 @@ public class LinkMemeIT {
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutName() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
     LinkMeme inputData = new LinkMeme()
@@ -136,39 +131,39 @@ public class LinkMemeIT {
 
   @Test
   public void readOne() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
 
-    LinkMeme result = new LinkMeme().setFromRecord(testDAO.readOne(access, ULong.valueOf(2)));
+    LinkMeme result = testDAO.readOne(access, BigInteger.valueOf(2));
 
     assertNotNull(result);
-    assertEquals(ULong.valueOf(2), result.getId());
-    assertEquals(ULong.valueOf(1), result.getLinkId());
+    assertEquals(BigInteger.valueOf(2), result.getId());
+    assertEquals(BigInteger.valueOf(1), result.getLinkId());
     assertEquals("Dark", result.getName());
   }
 
   @Test
   public void readOne_FailsWhenUserIsNotInAccount() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "326"
     ));
 
-    LinkMemeRecord result = testDAO.readOne(access, ULong.valueOf(1));
+    LinkMeme result = testDAO.readOne(access, BigInteger.valueOf(1));
 
     assertNull(result);
   }
 
   @Test
   public void readAll() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ULong.valueOf(1)));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, BigInteger.valueOf(1)));
 
     assertNotNull(result);
     assertEquals(2, result.length());
@@ -180,12 +175,12 @@ public class LinkMemeIT {
 
   @Test
   public void readAll_SeesNothingOutsideOfAccount() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "345"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ULong.valueOf(1)));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, BigInteger.valueOf(1)));
 
     assertNotNull(result);
     assertEquals(0, result.length());
@@ -193,53 +188,50 @@ public class LinkMemeIT {
 
   @Test
   public void readAllInChain() throws Exception {
-    Result<LinkMemeRecord> result = testDAO.readAllInLinks(Access.internal(), linkIds);
+    Collection<LinkMeme> result = testDAO.readAllInLinks(Access.internal(), linkIds);
 
     assertEquals(3, result.size());
   }
 
   @Test
   public void readAllInChain_nullIfChainNotExist() throws Exception {
-    LinkMemeRecord result = testDAO.readOne(Access.internal(), ULong.valueOf(12097));
+    LinkMeme result = testDAO.readOne(Access.internal(), BigInteger.valueOf(12097));
 
     assertNull(result);
   }
 
   @Test
   public void readAllInChain_okIfUserInAccount() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "user",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "User",
       "accounts", "1"
     ));
 
-    Result<LinkMemeRecord> result = testDAO.readAllInLinks(access, linkIds);
+    Collection<LinkMeme> result = testDAO.readAllInLinks(access, linkIds);
 
     assertEquals(3, result.size());
   }
 
   @Test
   public void readAllInChain_emptyIfUserNotInAccount() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "user",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "User",
       "accounts", "73"
     ));
 
-    Result<LinkMemeRecord> result = testDAO.readAllInLinks(access, linkIds);
+    Collection<LinkMeme> result = testDAO.readAllInLinks(access, linkIds);
     assertEquals(0, result.size());
   }
 
   @Test
   public void delete() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
-    testDAO.delete(access, ULong.valueOf(1));
+    testDAO.delete(access, BigInteger.valueOf(1));
 
-    LinkMemeRecord result = IntegrationTestService.getDb()
-      .selectFrom(LINK_MEME)
-      .where(LINK_MEME.ID.eq(ULong.valueOf(1)))
-      .fetchOne();
+    LinkMeme result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1));
     assertNull(result);
   }
 }

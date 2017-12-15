@@ -11,6 +11,7 @@ export default DS.Model.extend({
   user: DS.belongsTo({}),
 
   memes: DS.hasMany('pattern-meme'),
+  voices: DS.hasMany('voice'),
   phases: DS.hasMany('phase'),
   choices: DS.hasMany('choice'),
 });

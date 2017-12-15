@@ -3,21 +3,20 @@ package io.xj.core.transport;
 
 import io.xj.core.config.Exposure;
 import io.xj.core.model.Entity;
+import io.xj.core.transport.impl.TimestampSerializer;
 import io.xj.core.util.CamelCasify;
 
-import org.jooq.Record;
-import org.jooq.Result;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import javax.annotation.Nullable;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.Map;
 
@@ -87,19 +86,6 @@ public interface JSON {
   }
 
   /**
-   JSONArray from a jOOQ Result
-
-   @param result to build array of
-   @param <R>    extends jOOQ Record
-   @return JSON array
-   */
-  static <R extends Record> JSONArray arrayOf(Result<R> result) {
-    JSONArray out = new JSONArray();
-    result.forEach(record -> out.put(objectFromRecord(record)));
-    return out;
-  }
-
-  /**
    JSONArray from a single jOOQ Result
 
    @param items to put into array
@@ -123,27 +109,6 @@ public interface JSON {
     JSONObject out = new JSONObject();
     data.forEach(out::put);
     return out;
-  }
-
-  /**
-   JSONObject from a jOOQ Record
-
-   @param record to construct output from
-   @return JSON object
-   */
-  @Nullable
-  static JSONObject objectFromRecord(Record record) {
-    if (null == record) {
-      return null;
-    }
-    JSONObject result = new JSONObject();
-    record.intoMap().forEach((key, val) -> {
-      String colName = CamelCasify.ifNeeded(key);
-      if (null != colName) {
-        result.put(colName, val);
-      }
-    });
-    return result;
   }
 
   /**
@@ -197,13 +162,18 @@ public interface JSON {
    @return JSONObject
    */
   static JSONObject objectFrom(Entity obj) {
-    ObjectMapper objectMapper = new ObjectMapper();
-    try {
-      return new JSONObject(objectMapper.writeValueAsString(obj));
-    } catch (JsonProcessingException e) {
-      JSONObject err = new JSONObject();
-      err.put("error", e.getOriginalMessage());
-      return err;
-    }
+    return new JSONObject(gson().toJson(obj));
   }
+
+  /**
+   Get a Gson instance
+
+   @return Gson
+   */
+  static Gson gson() {
+    GsonBuilder gson = new GsonBuilder();
+    gson.registerTypeAdapter(Timestamp.class, new TimestampSerializer());
+    return gson.create();
+  }
+
 }

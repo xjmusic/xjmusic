@@ -7,7 +7,8 @@ import io.xj.core.model.Entity;
 import java.util.Objects;
 
 /**
- Entity for use as POJO for decoding messages received by JAX-RS resources
+ POJO for persisting data in memory while performing business logic,
+or decoding messages received by JAX-RS resources.
  a.k.a. JSON input will be stored into an instance of this object
  <p>
  Business logic ought to be performed beginning with an instance of this object,
@@ -17,20 +18,20 @@ import java.util.Objects;
  */
 public abstract class Message extends Entity {
 
+  private String _type;
+  private MessageType type;
+
   public void validate() throws BusinessException {
+    // throws its own BusinessException on failure
+    type = MessageType.validate(_type);
+
     if (Objects.isNull(type)) {
       throw new BusinessException("Type is required.");
-    }
-
-    if (!MessageType.stringValues().contains(type)) {
-      throw new BusinessException("Invalid type!");
     }
   }
 
   public static final String KEY_ONE = "message";
   public static final String KEY_MANY = "messages";
-
-  protected String type;
 
   public String getBody() {
     return body;
@@ -42,14 +43,18 @@ public abstract class Message extends Entity {
   }
 
   public Message setType(String type) {
-    this.type = type;
+    this._type = type;
     return this;
   }
 
   protected String body;
 
-  public String getType() {
+  public MessageType getType() {
     return type;
   }
 
+  public Message setTypeEnum(MessageType type) {
+    this.type = type;
+    return this;
+  }
 }

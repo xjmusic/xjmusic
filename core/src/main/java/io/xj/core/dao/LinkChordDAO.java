@@ -3,13 +3,10 @@ package io.xj.core.dao;
 
 import io.xj.core.access.impl.Access;
 import io.xj.core.model.link_chord.LinkChord;
-import io.xj.core.tables.records.LinkChordRecord;
-
-import org.jooq.Result;
-import org.jooq.types.ULong;
 
 import javax.annotation.Nullable;
-import java.util.List;
+import java.math.BigInteger;
+import java.util.Collection;
 
 public interface LinkChordDAO {
 
@@ -20,7 +17,7 @@ public interface LinkChordDAO {
    @param entity for the new Account User.
    @return newly readMany record
    */
-  LinkChordRecord create(Access access, LinkChord entity) throws Exception;
+  LinkChord create(Access access, LinkChord entity) throws Exception;
 
   /**
    Fetch one Link Chord if accessible
@@ -31,7 +28,7 @@ public interface LinkChordDAO {
    @throws Exception on failure
    */
   @Nullable
-  LinkChordRecord readOne(Access access, ULong id) throws Exception;
+  LinkChord readOne(Access access, BigInteger id) throws Exception;
 
   /**
    Fetch all accessible Link Chord for one Link by id
@@ -42,18 +39,18 @@ public interface LinkChordDAO {
    @return JSONArray of links.
    @throws Exception on failure
    */
-  Result<LinkChordRecord> readAll(Access access, ULong linkId) throws Exception;
+  Collection<LinkChord> readAll(Access access, BigInteger linkId) throws Exception;
 
   /**
    Fetch many linkChord for many Links by id, if accessible
    order by position descending, ala other "in chain" results
 
+   @param access  control
+   @param linkIds to fetch linkChords for.
    @return JSONArray of linkChords.
    @throws Exception on failure
-    @param access control
-   @param linkIds to fetch linkChords for.
    */
-  Result<LinkChordRecord> readAllInLinks(Access access, List<ULong> linkIds) throws Exception;
+  Collection<LinkChord> readAllInLinks(Access access, Collection<BigInteger> linkIds) throws Exception;
 
   /**
    Update a specified Link Chord if accessible
@@ -62,7 +59,7 @@ public interface LinkChordDAO {
    @param id     of specific Chord to update.
    @param entity for the updated Chord.
    */
-  void update(Access access, ULong id, LinkChord entity) throws Exception;
+  void update(Access access, BigInteger id, LinkChord entity) throws Exception;
 
   /**
    Delete a specified Link Chord if accessible
@@ -70,6 +67,6 @@ public interface LinkChordDAO {
    @param access control
    @param id     of specific link to delete.
    */
-  void delete(Access access, ULong id) throws Exception;
+  void delete(Access access, BigInteger id) throws Exception;
 
 }

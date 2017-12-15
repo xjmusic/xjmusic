@@ -30,6 +30,7 @@ public interface Config {
   int HOURS_PER_DAY = 24;
   int MINUTES_PER_HOUR = 60;
   int SECONDS_PER_MINUTE = 60;
+  int DEFAULT_REDIS_PORT = 6300;
 
   static Boolean isTestEnvironment() {
     return getBoolOrDefault("env.test", false);
@@ -201,7 +202,7 @@ public interface Config {
   }
 
   static Integer dbRedisPort() {
-    return getIntOrDefault("db.redis.port", 6300);
+    return getIntOrDefault("db.redis.port", DEFAULT_REDIS_PORT);
   }
 
   static String dbRedisQueueNamespace() {

@@ -29,4 +29,14 @@ public interface CamelCasify {
       key;
   }
 
+  /**
+   Convert underscore to upper-camelcase
+
+   @param key to convert.
+   @return converted key
+   */
+  static String upper(String key) {
+    return CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, key);
+  }
+
 }

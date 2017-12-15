@@ -14,10 +14,11 @@ import org.jooq.DSLContext;
 import org.jooq.Field;
 import org.jooq.types.ULong;
 
-import com.google.common.collect.Lists;
+import com.google.api.client.util.Maps;
 import com.google.inject.Inject;
 
 import javax.annotation.Nullable;
+import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Map;
 
@@ -50,10 +51,10 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
 
   @Override
   @Nullable
-  public Pattern readOne(Access access, ULong id) throws Exception {
+  public Pattern readOne(Access access, BigInteger id) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readOne(tx.getContext(), access, id));
+      return tx.success(readOne(tx.getContext(), access, ULong.valueOf(id)));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -61,60 +62,60 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
 
   @Nullable
   @Override
-  public Pattern readOneRecordTypeInLink(Access access, ULong linkId, PatternType patternType) throws Exception {
+  public Pattern readOneTypeInLink(Access access, BigInteger linkId, PatternType patternType) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readOneTypeInLink(tx.getContext(), access, linkId, patternType));
+      return tx.success(readOneTypeInLink(tx.getContext(), access, ULong.valueOf(linkId), patternType));
     } catch (Exception e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public Collection<Pattern> readAllBoundToChain(Access access, ULong chainId, PatternType patternType) throws Exception {
+  public Collection<Pattern> readAllBoundToChain(Access access, BigInteger chainId, PatternType patternType) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readAllBoundToChain(tx.getContext(), access, chainId, patternType));
+      return tx.success(readAllBoundToChain(tx.getContext(), access, ULong.valueOf(chainId), patternType));
     } catch (Exception e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public Collection<Pattern> readAllBoundToChainLibrary(Access access, ULong chainId, PatternType patternType) throws Exception {
+  public Collection<Pattern> readAllBoundToChainLibrary(Access access, BigInteger chainId, PatternType patternType) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readAllBoundToChainLibrary(tx.getContext(), access, chainId, patternType));
+      return tx.success(readAllBoundToChainLibrary(tx.getContext(), access, ULong.valueOf(chainId), patternType));
     } catch (Exception e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public Collection<Pattern> readAllInAccount(Access access, ULong accountId) throws Exception {
+  public Collection<Pattern> readAllInAccount(Access access, BigInteger accountId) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readAllInAccount(tx.getContext(), access, accountId));
+      return tx.success(readAllInAccount(tx.getContext(), access, ULong.valueOf(accountId)));
     } catch (Exception e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public Collection<Pattern> readAllInLibrary(Access access, ULong libraryId) throws Exception {
+  public Collection<Pattern> readAllInLibrary(Access access, BigInteger libraryId) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readAllInLibrary(tx.getContext(), access, libraryId));
+      return tx.success(readAllInLibrary(tx.getContext(), access, ULong.valueOf(libraryId)));
     } catch (Exception e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public void update(Access access, ULong patternId, Pattern entity) throws Exception {
+  public void update(Access access, BigInteger patternId, Pattern entity) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      update(tx.getContext(), access, patternId, entity);
+      update(tx.getContext(), access, ULong.valueOf(patternId), entity);
       tx.success();
     } catch (Exception e) {
       throw tx.failure(e);
@@ -122,10 +123,10 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
   }
 
   @Override
-  public void delete(Access access, ULong id) throws Exception {
+  public void delete(Access access, BigInteger id) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      delete(tx.getContext(), access, id);
+      delete(tx.getContext(), access, ULong.valueOf(id));
       tx.success();
     } catch (Exception e) {
       throw tx.failure(e);
@@ -141,25 +142,25 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
    @return newly readMany record
    @throws BusinessException on failure
    */
-  private Pattern create(DSLContext db, Access access, Pattern entity) throws BusinessException {
+  private static Pattern create(DSLContext db, Access access, Pattern entity) throws BusinessException {
     entity.validate();
 
-    Map<Field, Object> fieldValues = entity.updatableFieldValueMap();
+    Map<Field, Object> fieldValues = fieldValueMap(entity);
 
     if (access.isTopLevel())
       requireExists("Library",
         db.selectCount().from(LIBRARY)
-          .where(LIBRARY.ID.eq(entity.getLibraryId()))
+          .where(LIBRARY.ID.eq(ULong.valueOf(entity.getLibraryId())))
           .fetchOne(0, int.class));
     else
       requireExists("Library",
         db.selectCount().from(LIBRARY)
-          .where(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-          .and(LIBRARY.ID.eq(entity.getLibraryId()))
+          .where(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+          .and(LIBRARY.ID.eq(ULong.valueOf(entity.getLibraryId())))
           .fetchOne(0, int.class));
     fieldValues.put(PATTERN.USER_ID, access.getUserId());
 
-    return new Pattern().setFromRecord(executeCreate(db, PATTERN, fieldValues));
+    return modelFrom(executeCreate(db, PATTERN, fieldValues), Pattern.class);
   }
 
   /**
@@ -171,18 +172,18 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
    @return record
    */
   @Nullable
-  private Pattern readOne(DSLContext db, Access access, ULong id) {
+  private static Pattern readOne(DSLContext db, Access access, ULong id) throws BusinessException {
     if (access.isTopLevel())
-      return new Pattern().setFromRecord(db.selectFrom(PATTERN)
+      return modelFrom(db.selectFrom(PATTERN)
         .where(PATTERN.ID.eq(id))
-        .fetchOne());
+        .fetchOne(), Pattern.class);
     else
-      return new Pattern().setFromRecord(recordInto(PATTERN, db.select(PATTERN.fields())
+      return modelFrom(db.select(PATTERN.fields())
         .from(PATTERN)
         .join(LIBRARY).on(LIBRARY.ID.eq(PATTERN.LIBRARY_ID))
         .where(PATTERN.ID.eq(id))
-        .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-        .fetchOne()));
+        .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+        .fetchOne(), Pattern.class);
   }
 
   /**
@@ -195,14 +196,14 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
    @return record
    */
   @Nullable
-  private Pattern readOneTypeInLink(DSLContext db, Access access, ULong linkId, PatternType choiceType) throws BusinessException {
+  private static Pattern readOneTypeInLink(DSLContext db, Access access, ULong linkId, PatternType choiceType) throws BusinessException {
     requireTopLevel(access);
-    return new Pattern().setFromRecord(recordInto(PATTERN, db.select(PATTERN.fields())
+    return modelFrom(db.select(PATTERN.fields())
       .from(PATTERN)
       .join(CHOICE).on(CHOICE.PATTERN_ID.eq(PATTERN.ID))
       .where(CHOICE.LINK_ID.eq(linkId))
       .and(CHOICE.TYPE.eq(choiceType.toString()))
-      .fetchOne()));
+      .fetchOne(), Pattern.class);
   }
 
 
@@ -214,24 +215,20 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
    @param accountId of parent
    @return array of records
    */
-  private static Collection<Pattern> readAllInAccount(DSLContext db, Access access, ULong accountId) {
-    Collection<Pattern> result = Lists.newArrayList();
-
+  private static Collection<Pattern> readAllInAccount(DSLContext db, Access access, ULong accountId) throws BusinessException {
     if (access.isTopLevel())
-      db.select(PATTERN.fields()).from(PATTERN)
+      return modelsFrom(db.select(PATTERN.fields()).from(PATTERN)
         .join(LIBRARY).on(PATTERN.LIBRARY_ID.eq(LIBRARY.ID))
         .where(LIBRARY.ACCOUNT_ID.eq(accountId))
         .orderBy(PATTERN.TYPE, PATTERN.NAME)
-        .fetch().forEach((record) -> result.add(new Pattern().setFromRecord(record)));
+        .fetch(), Pattern.class);
     else
-      db.select(PATTERN.fields()).from(PATTERN)
+      return modelsFrom(db.select(PATTERN.fields()).from(PATTERN)
         .join(LIBRARY).on(PATTERN.LIBRARY_ID.eq(LIBRARY.ID))
         .where(LIBRARY.ACCOUNT_ID.in(accountId))
-        .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
+        .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .orderBy(PATTERN.TYPE, PATTERN.NAME)
-        .fetch().forEach((record) -> result.add(new Pattern().setFromRecord(record)));
-
-    return result;
+        .fetch(), Pattern.class);
   }
 
   /**
@@ -242,23 +239,19 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
    @param libraryId of parent
    @return array of records
    */
-  private static Collection<Pattern> readAllInLibrary(DSLContext db, Access access, ULong libraryId) {
-    Collection<Pattern> result = Lists.newArrayList();
-
+  private static Collection<Pattern> readAllInLibrary(DSLContext db, Access access, ULong libraryId) throws BusinessException {
     if (access.isTopLevel())
-      db.select(PATTERN.fields()).from(PATTERN)
+      return modelsFrom(db.select(PATTERN.fields()).from(PATTERN)
         .where(PATTERN.LIBRARY_ID.eq(libraryId))
         .orderBy(PATTERN.TYPE, PATTERN.NAME)
-        .fetch().forEach((record) -> result.add(new Pattern().setFromRecord(record)));
+        .fetch(), Pattern.class);
     else
-      db.select(PATTERN.fields()).from(PATTERN)
+      return modelsFrom(db.select(PATTERN.fields()).from(PATTERN)
         .join(LIBRARY).on(LIBRARY.ID.eq(PATTERN.LIBRARY_ID))
         .where(PATTERN.LIBRARY_ID.eq(libraryId))
-        .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
+        .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .orderBy(PATTERN.TYPE, PATTERN.NAME)
-        .fetch().forEach((record) -> result.add(new Pattern().setFromRecord(record)));
-
-    return result;
+        .fetch(), Pattern.class);
   }
 
   /**
@@ -270,18 +263,13 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
    @param patternType of which to read all bound to chain
    @return array of records
    */
-  private Collection<Pattern> readAllBoundToChain(DSLContext db, Access access, ULong chainId, PatternType patternType) throws Exception {
+  private static Collection<Pattern> readAllBoundToChain(DSLContext db, Access access, ULong chainId, PatternType patternType) throws Exception {
     requireTopLevel(access);
-
-    Collection<Pattern> result = Lists.newArrayList();
-
-    db.select(PATTERN.fields()).from(PATTERN)
+    return modelsFrom(db.select(PATTERN.fields()).from(PATTERN)
       .join(CHAIN_PATTERN).on(CHAIN_PATTERN.PATTERN_ID.eq(PATTERN.ID))
       .where(CHAIN_PATTERN.CHAIN_ID.eq(chainId))
       .and(PATTERN.TYPE.eq(patternType.toString()))
-      .fetch().forEach((record) -> result.add(new Pattern().setFromRecord(record)));
-
-    return result;
+      .fetch(), Pattern.class);
   }
 
   /**
@@ -293,18 +281,13 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
    @param patternType of which to read all bound to chain library
    @return array of records
    */
-  private Collection<Pattern> readAllBoundToChainLibrary(DSLContext db, Access access, ULong chainId, PatternType patternType) throws Exception {
+  private static Collection<Pattern> readAllBoundToChainLibrary(DSLContext db, Access access, ULong chainId, PatternType patternType) throws Exception {
     requireTopLevel(access);
-
-    Collection<Pattern> result = Lists.newArrayList();
-
-    db.select(PATTERN.fields()).from(PATTERN)
+    return modelsFrom(db.select(PATTERN.fields()).from(PATTERN)
       .join(CHAIN_LIBRARY).on(CHAIN_LIBRARY.LIBRARY_ID.eq(PATTERN.LIBRARY_ID))
       .where(CHAIN_LIBRARY.CHAIN_ID.eq(chainId))
       .and(PATTERN.TYPE.eq(patternType.toString()))
-      .fetch().forEach((record) -> result.add(new Pattern().setFromRecord(record)));
-
-    return result;
+      .fetch(), Pattern.class);
   }
 
   /**
@@ -317,22 +300,22 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
    @throws BusinessException if a Business Rule is violated
    @throws Exception         on database failure
    */
-  private void update(DSLContext db, Access access, ULong id, Pattern entity) throws Exception {
+  private static void update(DSLContext db, Access access, ULong id, Pattern entity) throws Exception {
     entity.validate();
 
-    Map<Field, Object> fieldValues = entity.updatableFieldValueMap();
+    Map<Field, Object> fieldValues = fieldValueMap(entity);
     fieldValues.put(PATTERN.ID, id);
 
     if (access.isTopLevel())
       requireExists("Library",
         db.selectCount().from(LIBRARY)
-          .where(LIBRARY.ID.eq(entity.getLibraryId()))
+          .where(LIBRARY.ID.eq(ULong.valueOf(entity.getLibraryId())))
           .fetchOne(0, int.class));
     else
       requireExists("Library",
         db.selectCount().from(LIBRARY)
-          .where(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-          .and(LIBRARY.ID.eq(entity.getLibraryId()))
+          .where(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+          .and(LIBRARY.ID.eq(ULong.valueOf(entity.getLibraryId())))
           .fetchOne(0, int.class));
     fieldValues.put(PATTERN.USER_ID, access.getUserId());
 
@@ -349,13 +332,13 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
    @throws ConfigException   if not configured properly
    @throws BusinessException if fails business rule
    */
-  private void delete(DSLContext db, Access access, ULong id) throws Exception {
+  private static void delete(DSLContext db, Access access, ULong id) throws Exception {
     if (!access.isTopLevel())
       requireExists("Pattern belonging to you", db.selectCount().from(PATTERN)
         .join(LIBRARY).on(PATTERN.LIBRARY_ID.eq(LIBRARY.ID))
         .where(PATTERN.ID.eq(id))
-        .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-        .and(PATTERN.USER_ID.eq(access.getUserId()))
+        .and(LIBRARY.ACCOUNT_ID.in(idCollection(access.getAccountIds())))
+        .and(PATTERN.USER_ID.eq(ULong.valueOf(access.getUserId())))
         .fetchOne(0, int.class));
 
     requireNotExists("Phase in Pattern", db.selectCount().from(PHASE)
@@ -388,6 +371,25 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
           .where(PATTERN_MEME.PATTERN_ID.eq(id))
       )
       .execute();
+  }
+
+  /**
+   Only certain (writable) fields are mapped back to jOOQ records--
+   Read-only fields are excluded from here.
+
+   @param entity to source values from
+   @return values mapped to record fields
+   */
+  private static Map<Field, Object> fieldValueMap(Pattern entity) {
+    Map<Field, Object> fieldValues = Maps.newHashMap();
+    fieldValues.put(PATTERN.NAME, entity.getName());
+    fieldValues.put(PATTERN.LIBRARY_ID, ULong.valueOf(entity.getLibraryId()));
+    fieldValues.put(PATTERN.USER_ID, ULong.valueOf(entity.getUserId()));
+    fieldValues.put(PATTERN.KEY, entity.getKey());
+    fieldValues.put(PATTERN.TYPE, entity.getType());
+    fieldValues.put(PATTERN.TEMPO, entity.getTempo());
+    fieldValues.put(PATTERN.DENSITY, entity.getDensity());
+    return fieldValues;
   }
 
 }

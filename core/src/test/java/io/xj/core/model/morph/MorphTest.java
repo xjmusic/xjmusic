@@ -9,8 +9,6 @@ import org.junit.rules.ExpectedException;
 
 import java.math.BigInteger;
 
-import static org.junit.Assert.assertNull;
-
 public class MorphTest {
 
   @Rule public ExpectedException failure = ExpectedException.none();
@@ -73,9 +71,5 @@ public class MorphTest {
       .validate();
   }
 
-  @Test
-  public void setFromRecord_nullPassesThrough() throws Exception {
-    assertNull(new Morph().setFromRecord(null));
-  }
 
 }

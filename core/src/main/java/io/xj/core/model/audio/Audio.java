@@ -5,20 +5,11 @@ import io.xj.core.exception.BusinessException;
 import io.xj.core.model.Entity;
 import io.xj.core.util.Text;
 
-import org.jooq.Field;
-import org.jooq.Record;
-import org.jooq.types.ULong;
-
-import com.google.api.client.util.Maps;
-
 import java.math.BigInteger;
-import java.util.Map;
-import java.util.Objects;
-
-import static io.xj.core.Tables.AUDIO;
 
 /**
- Entity for use as POJO for decoding messages received by JAX-RS resources
+ POJO for persisting data in memory while performing business logic,
+or decoding messages received by JAX-RS resources.
  a.k.a. JSON input will be stored into an instance of this object
  <p>
  Business logic ought to be performed beginning with an instance of this object,
@@ -30,7 +21,7 @@ public class Audio extends Entity {
   public static final String KEY_ONE = "audio";
   public static final String KEY_MANY = "audios";
   public static final String FILE_EXTENSION = "wav";
-  private ULong instrumentId;
+  private BigInteger instrumentId;
   private String waveformKey;
   private String name;
   private AudioState state;
@@ -42,17 +33,17 @@ public class Audio extends Entity {
 
   public Audio() {}
 
-  public Audio(ULong id) {
+  public Audio(BigInteger id) {
     this.id = id;
   }
 
 
-  public ULong getInstrumentId() {
+  public BigInteger getInstrumentId() {
     return instrumentId;
   }
 
   public Audio setInstrumentId(BigInteger instrumentId) {
-    this.instrumentId = ULong.valueOf(instrumentId);
+    this.instrumentId = instrumentId;
     return this;
   }
 
@@ -157,41 +148,6 @@ public class Audio extends Entity {
 
     if (this.pitch == null)
       throw new BusinessException("Root Pitch is required.");
-  }
-
-  @Override
-  public Audio setFromRecord(Record record) {
-    if (Objects.isNull(record))
-      return null;
-
-    if (Objects.nonNull(record.field(AUDIO.STATE)))
-      state = AudioState.valueOf(record.get(AUDIO.STATE));
-
-    id = record.get(AUDIO.ID);
-    instrumentId = record.get(AUDIO.INSTRUMENT_ID);
-    waveformKey = record.get(AUDIO.WAVEFORM_KEY);
-    name = record.get(AUDIO.NAME);
-    start = record.get(AUDIO.START);
-    length = record.get(AUDIO.LENGTH);
-    tempo = record.get(AUDIO.TEMPO);
-    pitch = record.get(AUDIO.PITCH);
-    createdAt = record.get(AUDIO.CREATED_AT);
-    updatedAt = record.get(AUDIO.UPDATED_AT);
-    return this;
-  }
-
-  @Override
-  public Map<Field, Object> updatableFieldValueMap() {
-    Map<Field, Object> fieldValues = Maps.newHashMap();
-    fieldValues.put(AUDIO.INSTRUMENT_ID, instrumentId);
-    fieldValues.put(AUDIO.NAME, name);
-    fieldValues.put(AUDIO.STATE, state);
-    fieldValues.put(AUDIO.START, start);
-    fieldValues.put(AUDIO.LENGTH, length);
-    fieldValues.put(AUDIO.TEMPO, tempo);
-    fieldValues.put(AUDIO.PITCH, pitch);
-    // Excluding AUDIO.WAVEFORM_KEY a.k.a. waveformKey because that is read-only
-    return fieldValues;
   }
 
 }

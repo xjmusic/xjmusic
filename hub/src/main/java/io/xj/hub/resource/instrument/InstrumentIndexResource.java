@@ -8,11 +8,11 @@ import io.xj.core.dao.InstrumentDAO;
 import io.xj.core.model.Entity;
 import io.xj.core.model.instrument.Instrument;
 import io.xj.core.model.instrument.InstrumentWrapper;
-import io.xj.core.model.role.Role;
+import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.server.HttpResponseProvider;
 import io.xj.core.transport.JSON;
 
-import org.jooq.types.ULong;
+
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -31,6 +31,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.math.BigInteger;
 
 /**
  Instruments
@@ -54,7 +55,7 @@ public class InstrumentIndexResource {
    */
   @GET
   @WebResult
-  @RolesAllowed(Role.USER)
+  @RolesAllowed(UserRoleType.USER)
   public Response readAll(@Context ContainerRequestContext crc) throws IOException {
     if (null != libraryId && !libraryId.isEmpty()) {
       return readAllInLibrary(Access.fromContext(crc));
@@ -71,7 +72,7 @@ public class InstrumentIndexResource {
         Instrument.KEY_MANY,
         instrumentDAO.readAllInAccount(
           access,
-          ULong.valueOf(accountId)));
+          new BigInteger(accountId)));
 
     } catch (Exception e) {
       return response.failure(e);
@@ -84,7 +85,7 @@ public class InstrumentIndexResource {
         Instrument.KEY_MANY,
         instrumentDAO.readAllInLibrary(
           access,
-          ULong.valueOf(libraryId)));
+          new BigInteger(libraryId)));
 
     } catch (Exception e) {
       return response.failure(e);
@@ -99,7 +100,7 @@ public class InstrumentIndexResource {
    */
   @POST
   @Consumes(MediaType.APPLICATION_JSON)
-  @RolesAllowed(Role.ARTIST)
+  @RolesAllowed(UserRoleType.ARTIST)
   public Response create(InstrumentWrapper data, @Context ContainerRequestContext crc) {
     Access access = Access.fromContext(crc);
     try {

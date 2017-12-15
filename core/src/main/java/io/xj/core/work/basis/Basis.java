@@ -20,15 +20,13 @@ import io.xj.core.model.pattern_meme.PatternMeme;
 import io.xj.core.model.phase.Phase;
 import io.xj.core.model.phase_meme.PhaseMeme;
 import io.xj.core.model.pick.Pick;
-import io.xj.core.tables.records.VoiceEventRecord;
-import io.xj.core.tables.records.VoiceRecord;
+import io.xj.core.model.voice.Voice;
+import io.xj.core.model.voice_event.VoiceEvent;
 import io.xj.music.Chord;
 import io.xj.music.Note;
 
-import org.jooq.Result;
-import org.jooq.types.ULong;
-
 import javax.sound.sampled.AudioFormat;
+import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.time.Duration;
 import java.util.Collection;
@@ -77,14 +75,14 @@ public interface Basis {
 
    @return id of current link
    */
-  ULong linkId();
+  BigInteger linkId();
 
   /**
    Chain id, from link
 
    @return chain id
    */
-  ULong chainId();
+  BigInteger chainId();
 
   /**
    Chain configuration, by type
@@ -141,7 +139,7 @@ public interface Basis {
    @return arrangements
    @throws Exception on failure
    */
-  List<Arrangement> previousPercussiveArrangements() throws Exception;
+  Collection<Arrangement> previousPercussiveArrangements() throws Exception;
 
   /**
    fetch the macro-type choice for the current link in the chain
@@ -201,7 +199,7 @@ public interface Basis {
    @return arrangements
    @throws Exception on failure
    */
-  List<Arrangement> choiceArrangements(ULong choiceId) throws Exception;
+  Collection<Arrangement> choiceArrangements(BigInteger choiceId) throws Exception;
 
   /**
    Get current Chord for any position in Link.
@@ -243,63 +241,68 @@ public interface Basis {
    Fetch all memes for a given pattern
    (caches results)
 
+   @param patternId to get memes for
    @return result of pattern memes
    @throws Exception on failure
    */
-  Collection<PatternMeme> patternMemes(ULong patternId) throws Exception;
+  Collection<PatternMeme> patternMemes(BigInteger patternId) throws Exception;
 
   /**
    Fetch all memes for a given pattern and phaseOffset
    (caches results)
 
+   @param patternId   to get memes for
+   @param phaseOffset within pattern
    @return result of pattern memes
    @throws Exception on failure
    */
-  Collection<Meme> patternPhaseMemes(ULong patternId, ULong phaseOffset) throws Exception;
+  Collection<Meme> patternPhaseMemes(BigInteger patternId, BigInteger phaseOffset) throws Exception;
 
   /**
    Fetch all memes for a given link
    (caches results)
 
+   @param linkId to get memes for
    @return result of link memes
    @throws Exception on failure
    */
-  Collection<LinkMeme> linkMemes(ULong linkId) throws Exception;
+  Collection<LinkMeme> linkMemes(BigInteger linkId) throws Exception;
 
   /**
    Fetch all events for a given voice
    (caches results)
 
+   @param voiceId to get events for
    @return result of voice events
    @throws Exception on failure
    */
-  Result<VoiceEventRecord> voiceEvents(ULong voiceId) throws Exception;
+  Collection<VoiceEvent> voiceEvents(BigInteger voiceId) throws Exception;
 
 
   /**
    Read all AudioEvent that are first in an audio, for all audio in an Instrument
 
-   @param instrumentId to get audio for
    @return audio events
    @throws Exception on failure
+    @param instrumentId to get audio for
    */
-  List<AudioEvent> instrumentAudioEvents(ULong instrumentId) throws Exception;
+  Collection<AudioEvent> instrumentAudioEvents(BigInteger instrumentId) throws Exception;
 
   /**
    Read all Audio for an instrument
 
+   @param instrumentId to get audio for
    @return audios for instrument
-    @param instrumentId to get audio for
    */
-  Collection<Audio> instrumentAudios(ULong instrumentId) throws Exception;
+  Collection<Audio> instrumentAudios(BigInteger instrumentId) throws Exception;
 
   /**
    Read all Meme for an instrument
 
+   @param instrumentId to get meme for
    @return memes for instrument
-    @param instrumentId to get meme for
    */
-  Collection<InstrumentMeme> instrumentMemes(ULong instrumentId) throws Exception;
+  Collection<InstrumentMeme> instrumentMemes(BigInteger instrumentId) throws Exception;
 
   /**
    Read an Audio by id, assumed to be in the set of audio found for all picks in the link
@@ -307,7 +310,7 @@ public interface Basis {
    @param audioId to fetch
    @return Audio
    */
-  Audio linkAudio(ULong audioId) throws Exception;
+  Audio linkAudio(BigInteger audioId) throws Exception;
 
   /**
    All Audio picked for current Link
@@ -315,7 +318,7 @@ public interface Basis {
    @return audios
    @throws Exception on failure
    */
-  Map<ULong, Audio> linkAudios() throws Exception;
+  Map<BigInteger, Audio> linkAudios() throws Exception;
 
   /**
    id of all audio picked for current link
@@ -323,7 +326,7 @@ public interface Basis {
    @return list of audio ids
    @throws Exception on failure
    */
-  List<ULong> linkAudioIds() throws Exception;
+  Collection<BigInteger> linkAudioIds() throws Exception;
 
   /**
    Fetch all chords for the current link
@@ -332,7 +335,7 @@ public interface Basis {
    @return link chords
    @throws Exception on failure
    */
-  List<LinkChord> linkChords() throws Exception;
+  Collection<LinkChord> linkChords() throws Exception;
 
   /**
    Fetch all memes for the current link
@@ -356,10 +359,11 @@ public interface Basis {
    Fetch all memes for a given phase
    (caches results)
 
+   @param phaseId to get memes for
    @return result of phase memes
    @throws Exception on failure
    */
-  Collection<PhaseMeme> phaseMemes(ULong phaseId) throws Exception;
+  Collection<PhaseMeme> phaseMemes(BigInteger phaseId) throws Exception;
 
   /**
    Fetch all picks for the current link
@@ -382,10 +386,12 @@ public interface Basis {
    Fetch current phase of macro-type pattern
    (caches results)
 
+   @param patternId   of phase
+   @param phaseOffset within pattern
    @return phase record
    @throws Exception on failure
    */
-  Phase phaseByOffset(ULong patternId, ULong phaseOffset) throws Exception;
+  Phase phaseByOffset(BigInteger patternId, BigInteger phaseOffset) throws Exception;
 
   /**
    Fetch a link in a chain, by offset
@@ -395,7 +401,7 @@ public interface Basis {
    @return Link
    @throws Exception on failure
    */
-  Link linkByOffset(ULong chainId, ULong offset) throws Exception;
+  Link linkByOffset(BigInteger chainId, BigInteger offset) throws Exception;
 
   /**
    Fetch current choice of macro-type link
@@ -404,7 +410,7 @@ public interface Basis {
    @return choice record
    @throws Exception on failure
    */
-  Choice linkChoiceByType(ULong linkId, PatternType patternType) throws Exception;
+  Choice linkChoiceByType(BigInteger linkId, PatternType patternType) throws Exception;
 
   /**
    Fetch voices for a phase by id
@@ -413,7 +419,7 @@ public interface Basis {
    @param phaseId to fetch voices for
    @return voices
    */
-  Result<VoiceRecord> voices(ULong phaseId) throws Exception;
+  Collection<Voice> voices(BigInteger phaseId) throws Exception;
 
   /**
    Fetch an pattern by pattern
@@ -423,7 +429,7 @@ public interface Basis {
    @return Pattern
    @throws Exception on failure
    */
-  Pattern pattern(ULong id) throws Exception;
+  Pattern pattern(BigInteger id) throws Exception;
 
   /**
    Update the original Link submitted for craft,

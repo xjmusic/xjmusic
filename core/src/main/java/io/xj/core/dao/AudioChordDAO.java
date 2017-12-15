@@ -3,12 +3,10 @@ package io.xj.core.dao;
 
 import io.xj.core.access.impl.Access;
 import io.xj.core.model.audio_chord.AudioChord;
-import io.xj.core.tables.records.AudioChordRecord;
-
-import org.jooq.Result;
-import org.jooq.types.ULong;
 
 import javax.annotation.Nullable;
+import java.math.BigInteger;
+import java.util.Collection;
 
 public interface AudioChordDAO {
 
@@ -19,7 +17,7 @@ public interface AudioChordDAO {
    @param entity for the new Account User.
    @return newly readMany record
    */
-  AudioChordRecord create(Access access, AudioChord entity) throws Exception;
+  AudioChord create(Access access, AudioChord entity) throws Exception;
 
   /**
    Fetch one Audio Chord if accessible
@@ -30,7 +28,7 @@ public interface AudioChordDAO {
    @throws Exception on failure
    */
   @Nullable
-  AudioChordRecord readOne(Access access, ULong id) throws Exception;
+  AudioChord readOne(Access access, BigInteger id) throws Exception;
 
   /**
    Fetch all accessible Audio Chord for one Audio by id
@@ -40,7 +38,7 @@ public interface AudioChordDAO {
    @return JSONArray of audios.
    @throws Exception on failure
    */
-  Result<AudioChordRecord> readAll(Access access, ULong audioId) throws Exception;
+  Collection<AudioChord> readAll(Access access, BigInteger audioId) throws Exception;
 
   /**
    Update a specified Audio Chord if accessible
@@ -49,7 +47,7 @@ public interface AudioChordDAO {
    @param id     of specific Chord to update.
    @param entity for the updated Chord.
    */
-  void update(Access access, ULong id, AudioChord entity) throws Exception;
+  void update(Access access, BigInteger id, AudioChord entity) throws Exception;
 
   /**
    Delete a specified Audio Chord if accessible
@@ -57,5 +55,5 @@ public interface AudioChordDAO {
    @param access control
    @param id     of specific audio to delete.
    */
-  void delete(Access access, ULong id) throws Exception;
+  void delete(Access access, BigInteger id) throws Exception;
 }

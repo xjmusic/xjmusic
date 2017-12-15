@@ -4,12 +4,6 @@ package io.xj.core.model.meme;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.model.Entity;
 
-import org.jooq.Field;
-import org.jooq.Record;
-
-import javax.annotation.Nullable;
-import java.util.Map;
-
 /**
  This represents common properties of all memes,
  although a Meme only actually exists as a Link Meme, Pattern Meme, etc.
@@ -33,29 +27,6 @@ public class Meme extends Entity {
     if (null == name) {
       throw new BusinessException("Name is required.");
     }
-  }
-
-  /**
-   Set values from record
-
-   @param record to set values from
-   @return Entity
-   */
-  @Nullable
-  @Override
-  public Entity setFromRecord(Record record) throws BusinessException {
-    throw new BusinessException("There is no generic meme implementation persisted in the database!");
-  }
-
-  /**
-   Model info jOOQ-field : Value map
-   ONLY FOR FIELDS THAT ARE TO BE UPDATED
-
-   @return map
-   */
-  @Override
-  public Map<Field, Object> updatableFieldValueMap() {
-    return null;
   }
 
 }

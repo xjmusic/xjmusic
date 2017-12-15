@@ -1,26 +1,25 @@
 // Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.worker.work.craft;
 
-import org.jooq.Result;
-import org.jooq.types.ULong;
+import io.xj.core.CoreModule;
+import io.xj.core.access.impl.Access;
+import io.xj.core.app.App;
+import io.xj.core.dao.LinkDAO;
+import io.xj.core.external.amazon.AmazonProvider;
+import io.xj.core.integration.IntegrationTestEntity;
+import io.xj.core.model.chain.ChainState;
+import io.xj.core.model.chain.ChainType;
+import io.xj.core.model.link.Link;
+import io.xj.core.model.pattern.PatternType;
+import io.xj.core.model.user_role.UserRoleType;
+import io.xj.core.timestamp.TimestampUTC;
+import io.xj.worker.WorkerModule;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 
-import io.xj.core.CoreModule;
-import io.xj.core.app.App;
-import io.xj.core.external.amazon.AmazonProvider;
-import io.xj.core.integration.IntegrationTestEntity;
-import io.xj.core.integration.IntegrationTestService;
-import io.xj.core.model.chain.ChainState;
-import io.xj.core.model.chain.ChainType;
-import io.xj.core.model.pattern.PatternType;
-import io.xj.core.model.role.Role;
-import io.xj.core.tables.records.LinkRecord;
-import io.xj.core.timestamp.TimestampUTC;
-import io.xj.worker.WorkerModule;
 import net.greghaines.jesque.worker.JobFactory;
 import org.junit.After;
 import org.junit.Before;
@@ -31,7 +30,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static io.xj.core.Tables.LINK;
+import java.math.BigInteger;
+import java.util.Collection;
+
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -43,7 +44,7 @@ import static org.mockito.Mockito.when;
 public class CraftIT {
   @Rule public ExpectedException failure = ExpectedException.none();
   private Injector injector;
-  @Mock private AmazonProvider amazonProvider;
+  @Mock AmazonProvider amazonProvider;
   private static final int TEST_DURATION_SECONDS = 15;
   private static final int MILLIS_PER_SECOND = 1000;
   private App app;
@@ -60,11 +61,11 @@ public class CraftIT {
 
     // Ted has "user" and "admin" roles, belongs to account "pilots", has "google" auth
     IntegrationTestEntity.insertUser(2, "ted", "ted@email.com", "http://pictures.com/ted.gif");
-    IntegrationTestEntity.insertUserRole(1, 2, Role.ADMIN);
+    IntegrationTestEntity.insertUserRole(1, 2, UserRoleType.Admin);
 
     // Sally has a "user" role and belongs to account "pilots"
     IntegrationTestEntity.insertUser(3, "sally", "sally@email.com", "http://pictures.com/sally.gif");
-    IntegrationTestEntity.insertUserRole(2, 3, Role.USER);
+    IntegrationTestEntity.insertUserRole(2, 3, UserRoleType.User);
     IntegrationTestEntity.insertAccountUser(3, 1, 3);
 
     // Library "house"
@@ -197,20 +198,18 @@ public class CraftIT {
 
     // Start app, send chain fabrication message to queue
     app.start();
-    app.getWorkManager().startChainFabrication(ULong.valueOf(1));
+    app.getWorkManager().startChainFabrication(BigInteger.valueOf(1));
 
     // wait for work, stop chain fabrication, stop app
     Thread.sleep(TEST_DURATION_SECONDS * MILLIS_PER_SECOND);
-    app.getWorkManager().stopChainFabrication(ULong.valueOf(1));
+    app.getWorkManager().stopChainFabrication(BigInteger.valueOf(1));
     app.stop();
 
     // assertions
     int assertShippedLinksMinimum = 3;
     verify(amazonProvider, atLeast(assertShippedLinksMinimum)).putS3Object(eq("/tmp/chain-1-link-12345.mp3"), eq("xj-link-test"), any());
-    Result<LinkRecord> resultLinks = IntegrationTestService.getDb()
-      .selectFrom(LINK)
-      .fetch();
-    assertTrue(assertShippedLinksMinimum < resultLinks.size());
+    Collection<Link> result = injector.getInstance(LinkDAO.class).readAll(Access.internal(), BigInteger.valueOf(1));
+    assertTrue(assertShippedLinksMinimum < result.size());
   }
 
 }

@@ -5,10 +5,10 @@ import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.LinkMemeDAO;
 import io.xj.core.model.link_meme.LinkMeme;
-import io.xj.core.model.role.Role;
+import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.server.HttpResponseProvider;
 
-import org.jooq.types.ULong;
+
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -22,6 +22,7 @@ import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.math.BigInteger;
 
 /**
  Link record
@@ -42,7 +43,7 @@ public class LinkMemeIndexResource {
    */
   @GET
   @WebResult
-  @RolesAllowed(Role.ARTIST)
+  @RolesAllowed(UserRoleType.ARTIST)
   public Response readAll(@Context ContainerRequestContext crc) throws IOException {
 
     if (null == linkId || linkId.isEmpty()) {
@@ -54,7 +55,7 @@ public class LinkMemeIndexResource {
         LinkMeme.KEY_MANY,
         linkMemeDAO.readAll(
           Access.fromContext(crc),
-          ULong.valueOf(linkId)));
+          new BigInteger(linkId)));
 
     } catch (Exception e) {
       return response.failure(e);

@@ -5,18 +5,14 @@ import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.integration.IntegrationTestEntity;
-import io.xj.core.integration.IntegrationTestService;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
 import io.xj.core.model.instrument.Instrument;
 import io.xj.core.model.instrument.InstrumentType;
 import io.xj.core.model.link.LinkState;
 import io.xj.core.model.pattern.PatternType;
-import io.xj.core.model.role.Role;
-import io.xj.core.tables.records.InstrumentRecord;
+import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.transport.JSON;
-
-import org.jooq.types.ULong;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Guice;
@@ -32,7 +28,6 @@ import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.util.Collection;
 
-import static io.xj.core.tables.Instrument.INSTRUMENT;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -51,11 +46,11 @@ public class InstrumentIT {
 
     // John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
     IntegrationTestEntity.insertUser(2, "john", "john@email.com", "http://pictures.com/john.gif");
-    IntegrationTestEntity.insertUserRole(1, 2, Role.ADMIN);
+    IntegrationTestEntity.insertUserRole(1, 2, UserRoleType.Admin);
 
     // Jenny has a "user" role and belongs to account "bananas"
     IntegrationTestEntity.insertUser(3, "jenny", "jenny@email.com", "http://pictures.com/jenny.gif");
-    IntegrationTestEntity.insertUserRole(2, 3, Role.USER);
+    IntegrationTestEntity.insertUserRole(2, 3, UserRoleType.User);
     IntegrationTestEntity.insertAccountUser(3, 1, 3);
 
     // Library "sandwich" has instrument "jams" and instrument "buns"
@@ -75,9 +70,9 @@ public class InstrumentIT {
 
   @Test
   public void create() throws Exception {
-    Access access = new Access(ImmutableMap.of(
+    Access access = Access.from(ImmutableMap.of(
       "userId", "2",
-      "roles", "user",
+      "roles", "User",
       "accounts", "1"
     ));
     Instrument inputData = new Instrument()
@@ -87,20 +82,20 @@ public class InstrumentIT {
       .setType("Percussive")
       .setUserId(BigInteger.valueOf(2));
 
-    JSONObject result = JSON.objectFrom(testDAO.create(access, inputData));
+    Instrument result = testDAO.create(access, inputData);
 
     assertNotNull(result);
-    assertEquals(0.42, result.get("density"));
-    assertEquals(1, result.get("libraryId"));
-    assertEquals("bimmies", result.get("description"));
-    assertEquals("Percussive", result.get("type"));
-    assertEquals(2, result.get("userId"));
+    assertEquals(0.42, result.getDensity(), 0.01);
+    assertEquals(BigInteger.valueOf(1), result.getLibraryId());
+    assertEquals("bimmies", result.getDescription());
+    assertEquals(InstrumentType.Percussive, result.getType());
+    assertEquals(BigInteger.valueOf(2), result.getUserId());
   }
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutLibraryID() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "user",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "User",
       "accounts", "1"
     ));
     Instrument inputData = new Instrument()
@@ -114,8 +109,8 @@ public class InstrumentIT {
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutUserID() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "user",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "User",
       "accounts", "1"
     ));
     Instrument inputData = new Instrument()
@@ -129,27 +124,27 @@ public class InstrumentIT {
 
   @Test
   public void readOne() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "user",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "User",
       "accounts", "1"
     ));
 
-    Instrument result = testDAO.readOne(access, ULong.valueOf(2));
+    Instrument result = testDAO.readOne(access, BigInteger.valueOf(2));
 
     assertNotNull(result);
-    assertEquals(ULong.valueOf(2), result.getId());
-    assertEquals(ULong.valueOf(1), result.getLibraryId());
+    assertEquals(BigInteger.valueOf(2), result.getId());
+    assertEquals(BigInteger.valueOf(1), result.getLibraryId());
     assertEquals("buns", result.getDescription());
   }
 
   @Test
   public void readOne_FailsWhenUserIsNotInLibrary() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "user",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "User",
       "accounts", "326"
     ));
 
-    Instrument result = testDAO.readOne(access, ULong.valueOf(1));
+    Instrument result = testDAO.readOne(access, BigInteger.valueOf(1));
 
     assertNull(result);
   }
@@ -158,12 +153,12 @@ public class InstrumentIT {
 
   @Test
   public void readAll() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "admin",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Admin",
       "accounts", "1"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAllInLibrary(access, ULong.valueOf(1)));
+    JSONArray result = JSON.arrayOf(testDAO.readAllInLibrary(access, BigInteger.valueOf(1)));
 
     assertNotNull(result);
     assertEquals(2, result.length());
@@ -175,12 +170,12 @@ public class InstrumentIT {
 
   @Test
   public void readAll_SeesNothingOutsideOfLibrary() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "user",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "User",
       "accounts", "345"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAllInLibrary(access, ULong.valueOf(1)));
+    JSONArray result = JSON.arrayOf(testDAO.readAllInLibrary(access, BigInteger.valueOf(1)));
 
     assertNotNull(result);
     assertEquals(0, result.length());
@@ -191,7 +186,7 @@ public class InstrumentIT {
     IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, null);
     IntegrationTestEntity.insertChainInstrument(1, 1, 1);
 
-    Collection<Instrument> result = testDAO.readAllBoundToChain(Access.internal(), ULong.valueOf(1), InstrumentType.Percussive);
+    Collection<Instrument> result = testDAO.readAllBoundToChain(Access.internal(), BigInteger.valueOf(1), InstrumentType.Percussive);
 
     assertEquals(1, result.size());
     assertEquals("jams", result.iterator().next().getDescription());
@@ -202,7 +197,7 @@ public class InstrumentIT {
     IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, null);
     IntegrationTestEntity.insertChainLibrary(1, 1, 1);
 
-    Collection<Instrument> result = testDAO.readAllBoundToChainLibrary(Access.internal(), ULong.valueOf(1), InstrumentType.Percussive);
+    Collection<Instrument> result = testDAO.readAllBoundToChainLibrary(Access.internal(), BigInteger.valueOf(1), InstrumentType.Percussive);
 
     assertEquals(1, result.size());
     assertEquals("jams", result.iterator().next().getDescription());
@@ -210,32 +205,32 @@ public class InstrumentIT {
 
   @Test(expected = BusinessException.class)
   public void update_FailsWithoutLibraryID() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "user",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "User",
       "accounts", "1"
     ));
     Instrument inputData = new Instrument()
       .setDescription("bimmies");
 
-    testDAO.update(access, ULong.valueOf(3), inputData);
+    testDAO.update(access, BigInteger.valueOf(3), inputData);
   }
 
   @Test(expected = BusinessException.class)
   public void update_FailsWithoutName() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "user",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "User",
       "accounts", "1"
     ));
     Instrument inputData = new Instrument()
       .setLibraryId(BigInteger.valueOf(3));
 
-    testDAO.update(access, ULong.valueOf(3), inputData);
+    testDAO.update(access, BigInteger.valueOf(3), inputData);
   }
 
   @Test(expected = BusinessException.class)
   public void update_FailsUpdatingToNonexistentLibrary() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "user",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "User",
       "accounts", "1"
     ));
     Instrument inputData = new Instrument()
@@ -243,25 +238,22 @@ public class InstrumentIT {
       .setLibraryId(BigInteger.valueOf(387));
 
     try {
-      testDAO.update(access, ULong.valueOf(2), inputData);
+      testDAO.update(access, BigInteger.valueOf(2), inputData);
 
     } catch (Exception e) {
-      InstrumentRecord result = IntegrationTestService.getDb()
-        .selectFrom(INSTRUMENT)
-        .where(INSTRUMENT.ID.eq(ULong.valueOf(2)))
-        .fetchOne();
+      Instrument result = testDAO.readOne(Access.internal(), BigInteger.valueOf(2));
       assertNotNull(result);
       assertEquals("buns", result.getDescription());
-      assertEquals(ULong.valueOf(1), result.getLibraryId());
+      assertEquals(BigInteger.valueOf(1), result.getLibraryId());
       throw e;
     }
   }
 
   @Test
   public void update_Name() throws Exception {
-    Access access = new Access(ImmutableMap.of(
+    Access access = Access.from(ImmutableMap.of(
       "userId", "2",
-      "roles", "user",
+      "roles", "User",
       "accounts", "1"
     ));
     Instrument inputData = new Instrument()
@@ -271,39 +263,33 @@ public class InstrumentIT {
       .setType("Percussive")
       .setUserId(BigInteger.valueOf(2));
 
-    testDAO.update(access, ULong.valueOf(2), inputData);
+    testDAO.update(access, BigInteger.valueOf(2), inputData);
 
-    InstrumentRecord result = IntegrationTestService.getDb()
-      .selectFrom(INSTRUMENT)
-      .where(INSTRUMENT.ID.eq(ULong.valueOf(2)))
-      .fetchOne();
+    Instrument result = testDAO.readOne(Access.internal(), BigInteger.valueOf(2));
     assertNotNull(result);
     assertEquals("bimmies", result.getDescription());
-    assertEquals(ULong.valueOf(1), result.getLibraryId());
+    assertEquals(BigInteger.valueOf(1), result.getLibraryId());
   }
 
   // future test: DAO cannot update Instrument to a User or Library not owned by current session
 
   @Test
   public void delete() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "admin"
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Admin"
     ));
     IntegrationTestEntity.insertInstrument(86, 1, 2, "jub", InstrumentType.Harmonic, 0.4);
 
-    testDAO.delete(access, ULong.valueOf(86));
+    testDAO.delete(access, BigInteger.valueOf(86));
 
-    InstrumentRecord result = IntegrationTestService.getDb()
-      .selectFrom(INSTRUMENT)
-      .where(INSTRUMENT.ID.eq(ULong.valueOf(86)))
-      .fetchOne();
+    Instrument result = testDAO.readOne(Access.internal(), BigInteger.valueOf(86));
     assertNull(result);
   }
 
   @Test
   public void delete_evenAfterUsedInArrangement() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "admin"
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Admin"
     ));
     IntegrationTestEntity.insertInstrument(86, 1, 2, "jub", InstrumentType.Harmonic, 0.4);
     IntegrationTestEntity.insertPattern(1, 2, 1, PatternType.Macro, "epic concept", 0.342, "C#", 0.286);
@@ -314,33 +300,27 @@ public class InstrumentIT {
     IntegrationTestEntity.insertChoice(7, 1, 1, PatternType.Macro, 2, -5);
     IntegrationTestEntity.insertArrangement(1, 7, 8, 86);
 
-    testDAO.delete(access, ULong.valueOf(86));
+    testDAO.delete(access, BigInteger.valueOf(86));
 
-    InstrumentRecord result = IntegrationTestService.getDb()
-      .selectFrom(INSTRUMENT)
-      .where(INSTRUMENT.ID.eq(ULong.valueOf(86)))
-      .fetchOne();
+    Instrument result = testDAO.readOne(Access.internal(), BigInteger.valueOf(86));
     assertNull(result);
   }
 
   @Test(expected = BusinessException.class)
-  public void delete_FailsIfInstrumentHasChildRecords() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "admin"
+  public void delete_FailsIfInstrumentHasChilds() throws Exception {
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Admin"
     ));
     IntegrationTestEntity.insertInstrument(86, 1, 2, "hamsicle", InstrumentType.Harmonic, 0.4);
     IntegrationTestEntity.insertInstrumentMeme(5, 86, "frozen");
     IntegrationTestEntity.insertInstrumentMeme(6, 86, "ham");
 
     try {
-      testDAO.delete(access, ULong.valueOf(86));
+      testDAO.delete(access, BigInteger.valueOf(86));
 
     } catch (Exception e) {
-      InstrumentRecord stillExistingRecord = IntegrationTestService.getDb()
-        .selectFrom(INSTRUMENT)
-        .where(INSTRUMENT.ID.eq(ULong.valueOf(86)))
-        .fetchOne();
-      assertNotNull(stillExistingRecord);
+      Instrument result = testDAO.readOne(Access.internal(), BigInteger.valueOf(86));
+      assertNotNull(result);
       throw e;
     }
 

@@ -2,13 +2,17 @@
 package io.xj.core.dao;
 
 import io.xj.core.access.impl.Access;
+import io.xj.core.exception.DatabaseException;
 import io.xj.core.model.user.User;
-
-import org.jooq.Record;
-import org.jooq.Result;
-import org.jooq.types.ULong;
+import io.xj.core.model.user_access_token.UserAccessToken;
+import io.xj.core.model.user_auth.UserAuth;
+import io.xj.core.model.user_auth.UserAuthType;
+import io.xj.core.model.user_role.UserRole;
+import io.xj.core.model.user_role.UserRoleType;
 
 import javax.annotation.Nullable;
+import java.math.BigInteger;
+import java.util.Collection;
 
 public interface UserDAO {
   /**
@@ -33,7 +37,7 @@ public interface UserDAO {
    @param email                to contact user
    @return access token
    */
-  String authenticate(String authType, String account, String externalAccessToken, String externalRefreshToken, String name, String avatarUrl, String email) throws Exception;
+  String authenticate(UserAuthType authType, String account, String externalAccessToken, String externalRefreshToken, String name, String avatarUrl, String email) throws Exception;
 
   /**
    Fetch one User by id, if accessible
@@ -44,7 +48,7 @@ public interface UserDAO {
    @throws Exception on failure
    */
   @Nullable
-  Record readOne(Access access, ULong userId) throws Exception;
+  User readOne(Access access, BigInteger userId) throws Exception;
 
   /**
    Read Users accessible, and their roles
@@ -52,7 +56,7 @@ public interface UserDAO {
    @param access control
    @return Users as JSON array.
    */
-  Result<? extends Record> readAll(Access access) throws Exception;
+  Collection<User> readAll(Access access) throws Exception;
 
   /**
    (ADMIN ONLY)
@@ -60,7 +64,7 @@ public interface UserDAO {
 
    @param userId to destroy all access tokens for.
    */
-  void destroyAllTokens(ULong userId) throws Exception;
+  void destroyAllTokens(BigInteger userId) throws Exception;
 
   /**
    (ADMIN ONLY)
@@ -69,5 +73,35 @@ public interface UserDAO {
    @param userId of specific User to update.
    @param entity for the updated User.
    */
-  void updateUserRolesAndDestroyTokens(Access access, ULong userId, User entity) throws Exception;
+  void updateUserRolesAndDestroyTokens(Access access, BigInteger userId, User entity) throws Exception;
+
+  /**
+   (ADMIN ONLY) read one user access token
+
+   @param access      control
+   @param accessToken to read
+   @return model
+   */
+  @Nullable
+  UserAccessToken readOneAccessToken(Access access, String accessToken) throws Exception;
+
+  /**
+   (ADMIN ONLY) read one user auth
+
+   @param access     control
+   @param userAuthId to read
+   @return model
+   */
+  @Nullable
+  UserAuth readOneAuth(Access access, BigInteger userAuthId) throws Exception;
+
+  /**
+   (ADMIN ONLY) read one user role
+
+   @param access control
+   @param userId having role
+   @param type   of role
+   @return model
+   */
+  UserRole readOneRole(Access access, BigInteger userId, UserRoleType type) throws Exception;
 }

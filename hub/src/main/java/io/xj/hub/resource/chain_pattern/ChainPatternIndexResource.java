@@ -3,13 +3,13 @@ package io.xj.hub.resource.chain_pattern;
 
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
+import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.server.HttpResponseProvider;
 import io.xj.core.dao.ChainPatternDAO;
 import io.xj.core.model.chain_pattern.ChainPattern;
 import io.xj.core.model.chain_pattern.ChainPatternWrapper;
-import io.xj.core.model.role.Role;
 
-import org.jooq.types.ULong;
+
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -26,6 +26,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.math.BigInteger;
+import java.util.Objects;
 
 /**
  Chain Pattern record
@@ -33,7 +35,7 @@ import java.io.IOException;
 @Path("chain-patterns")
 public class ChainPatternIndexResource {
   private static final Injector injector = Guice.createInjector(new CoreModule());
-  private final ChainPatternDAO DAO = injector.getInstance(ChainPatternDAO.class);
+  private final ChainPatternDAO chainPatternDAO = injector.getInstance(ChainPatternDAO.class);
   private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
 
   @QueryParam("chainId")
@@ -46,18 +48,18 @@ public class ChainPatternIndexResource {
    */
   @GET
   @WebResult
-  @RolesAllowed({Role.USER})
+  @RolesAllowed({UserRoleType.USER})
   public Response readAll(@Context ContainerRequestContext crc) throws IOException {
-    if (chainId == null || chainId.length() == 0) {
+    if (Objects.isNull(chainId) || chainId.isEmpty()) {
       return response.notAcceptable("Chain id is required");
     }
 
     try {
       return response.readMany(
         ChainPattern.KEY_MANY,
-        DAO.readAll(
+        chainPatternDAO.readAll(
           Access.fromContext(crc),
-          ULong.valueOf(chainId)));
+          new BigInteger(chainId)));
 
     } catch (Exception e) {
       return response.failure(e);
@@ -72,13 +74,13 @@ public class ChainPatternIndexResource {
    */
   @POST
   @Consumes(MediaType.APPLICATION_JSON)
-  @RolesAllowed({Role.ARTIST,Role.ENGINEER,Role.ADMIN})
+  @RolesAllowed({UserRoleType.ARTIST, UserRoleType.ENGINEER, UserRoleType.ADMIN})
   public Response create(ChainPatternWrapper data, @Context ContainerRequestContext crc) {
     try {
       return response.create(
         ChainPattern.KEY_MANY,
         ChainPattern.KEY_ONE,
-        DAO.create(
+        chainPatternDAO.create(
           Access.fromContext(crc),
           data.getChainPattern()));
 

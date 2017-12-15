@@ -3,13 +3,11 @@ package io.xj.hub.resource.instrument_meme;
 
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
-import io.xj.core.server.HttpResponseProvider;
 import io.xj.core.dao.InstrumentMemeDAO;
 import io.xj.core.model.instrument_meme.InstrumentMeme;
 import io.xj.core.model.instrument_meme.InstrumentMemeWrapper;
-import io.xj.core.model.role.Role;
-
-import org.jooq.types.ULong;
+import io.xj.core.model.user_role.UserRoleType;
+import io.xj.core.server.HttpResponseProvider;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -26,6 +24,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.math.BigInteger;
+import java.util.Objects;
 
 /**
  Instrument record
@@ -33,7 +33,7 @@ import java.io.IOException;
 @Path("instrument-memes")
 public class InstrumentMemeIndexResource {
   private static final Injector injector = Guice.createInjector(new CoreModule());
-  private final InstrumentMemeDAO DAO = injector.getInstance(InstrumentMemeDAO.class);
+  private final InstrumentMemeDAO instrumentMemeDAO = injector.getInstance(InstrumentMemeDAO.class);
   private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
 
   @QueryParam("instrumentId")
@@ -46,19 +46,19 @@ public class InstrumentMemeIndexResource {
    */
   @GET
   @WebResult
-  @RolesAllowed({Role.ARTIST})
+  @RolesAllowed(UserRoleType.ARTIST)
   public Response readAll(@Context ContainerRequestContext crc) throws IOException {
 
-    if (instrumentId == null || instrumentId.length() == 0) {
+    if (Objects.isNull(instrumentId) || instrumentId.isEmpty()) {
       return response.notAcceptable("Instrument id is required");
     }
 
     try {
       return response.readMany(
         InstrumentMeme.KEY_MANY,
-        DAO.readAll(
+        instrumentMemeDAO.readAll(
           Access.fromContext(crc),
-          ULong.valueOf(instrumentId)));
+          new BigInteger(instrumentId)));
 
     } catch (Exception e) {
       return response.failure(e);
@@ -73,13 +73,13 @@ public class InstrumentMemeIndexResource {
    */
   @POST
   @Consumes(MediaType.APPLICATION_JSON)
-  @RolesAllowed({Role.ARTIST})
+  @RolesAllowed(UserRoleType.ARTIST)
   public Response create(InstrumentMemeWrapper data, @Context ContainerRequestContext crc) {
     try {
       return response.create(
         InstrumentMeme.KEY_MANY,
         InstrumentMeme.KEY_ONE,
-        DAO.create(
+        instrumentMemeDAO.create(
           Access.fromContext(crc),
           data.getInstrumentMeme()));
 

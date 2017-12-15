@@ -3,8 +3,6 @@ package io.xj.core.model.choice;
 
 import io.xj.core.model.pattern.Pattern;
 
-import org.jooq.types.ULong;
-
 import com.google.common.collect.ImmutableList;
 
 import org.junit.After;
@@ -109,7 +107,7 @@ public class ChooserTest {
 
   @Test
   public void scoreById() throws Exception {
-    chooser.score(ULong.valueOf(12), 2.0);
+    chooser.score(BigInteger.valueOf(12), 2.0);
 
     assertArrayEquals(
       new Pattern[]{
@@ -137,18 +135,18 @@ public class ChooserTest {
   public void score_adjustExisting() throws Exception {
     chooser.score(patternC, 2.0);
 
-    Map<ULong, Double> result = chooser.getScores();
-    assertEquals(Double.valueOf(2.25), result.get(ULong.valueOf(12)));
+    Map<BigInteger, Double> result = chooser.getScores();
+    assertEquals(Double.valueOf(2.25), result.get(BigInteger.valueOf(12)));
   }
 
 
   @Test
   public void getScores() throws Exception {
-    Map<ULong, Double> result = chooser.getScores();
+    Map<BigInteger, Double> result = chooser.getScores();
 
-    assertEquals(Double.valueOf(0.75), result.get(ULong.valueOf(5)));
-    assertEquals(Double.valueOf(0.25), result.get(ULong.valueOf(12)));
-    assertEquals(Double.valueOf(0.5), result.get(ULong.valueOf(15)));
+    assertEquals(Double.valueOf(0.75), result.get(BigInteger.valueOf(5)));
+    assertEquals(Double.valueOf(0.25), result.get(BigInteger.valueOf(12)));
+    assertEquals(Double.valueOf(0.5), result.get(BigInteger.valueOf(15)));
   }
 
   @Test

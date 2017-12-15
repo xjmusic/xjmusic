@@ -13,7 +13,7 @@ import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
 import io.xj.core.model.link.Link;
 import io.xj.core.model.link.LinkState;
-import io.xj.core.model.role.Role;
+import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import io.xj.core.persistence.sql.impl.SQLConnection;
 import io.xj.core.tables.records.ChainRecord;
@@ -24,7 +24,6 @@ import io.xj.core.work.WorkManager;
 import org.jooq.DSLContext;
 import org.jooq.Field;
 import org.jooq.Record;
-import org.jooq.Result;
 import org.jooq.UpdateSetFirstStep;
 import org.jooq.impl.DSL;
 import org.jooq.types.ULong;
@@ -33,9 +32,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.math.BigInteger;
@@ -66,7 +62,7 @@ import static io.xj.core.Tables.LINK;
  of the logic around adding links to chains and updating chain state to complete.
  */
 public class ChainDAOImpl extends DAOImpl implements ChainDAO {
-  private static final Logger log = LoggerFactory.getLogger(ChainDAOImpl.class);
+  //  private static final Logger log = LoggerFactory.getLogger(ChainDAOImpl.class);
   private final int previewLengthMax;
   private final WorkManager workManager;
 
@@ -81,7 +77,7 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
   }
 
   @Override
-  public ChainRecord create(Access access, Chain entity) throws Exception {
+  public Chain create(Access access, Chain entity) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(create(tx.getContext(), access, entity));
@@ -92,10 +88,10 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
 
   @Override
   @Nullable
-  public ChainRecord readOne(Access access, ULong chainId) throws Exception {
+  public Chain readOne(Access access, BigInteger chainId) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readOneRecord(tx.getContext(), access, chainId));
+      return tx.success(readOne(tx.getContext(), access, ULong.valueOf(chainId)));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -103,7 +99,7 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
 
   @Override
   @Nullable
-  public Result<ChainRecord> readAll(Access access, ULong accountId) throws Exception {
+  public Collection<Chain> readAll(Access access, BigInteger accountId) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readAll(tx.getContext(), access, accountId));
@@ -123,10 +119,10 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
   }
 
   @Override
-  public void update(Access access, ULong id, Chain entity) throws Exception {
+  public void update(Access access, BigInteger id, Chain entity) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      update(tx.getContext(), access, id, entity);
+      updateAllFields(tx.getContext(), access, ULong.valueOf(id), entity);
       tx.success();
     } catch (Exception e) {
       throw tx.failure(e);
@@ -134,10 +130,10 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
   }
 
   @Override
-  public void updateState(Access access, ULong id, ChainState state) throws Exception {
+  public void updateState(Access access, BigInteger id, ChainState state) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      updateState(tx.getContext(), access, id, state);
+      updateState(tx.getContext(), access, ULong.valueOf(id), state);
       tx.success();
     } catch (Exception e) {
       throw tx.failure(e);
@@ -145,7 +141,7 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
   }
 
   @Override
-  public Link buildNextLinkOrComplete(Access access, ChainRecord chain, Timestamp linkBeginBefore, Timestamp chainStopCompleteBefore) throws Exception {
+  public Link buildNextLinkOrComplete(Access access, Chain chain, Timestamp linkBeginBefore, Timestamp chainStopCompleteBefore) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(buildNextLinkOrComplete(tx.getContext(), access, chain, linkBeginBefore, chainStopCompleteBefore));
@@ -155,10 +151,10 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
   }
 
   @Override
-  public void delete(Access access, ULong chainId) throws Exception {
+  public void delete(Access access, BigInteger chainId) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      delete(tx.getContext(), access, chainId);
+      delete(tx.getContext(), access, ULong.valueOf(chainId));
       tx.success();
     } catch (Exception e) {
       throw tx.failure(e);
@@ -166,10 +162,10 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
   }
 
   @Override
-  public void erase(Access access, ULong chainId) throws Exception {
+  public void erase(Access access, BigInteger chainId) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      updateState(tx.getContext(), access, chainId, ChainState.Erase);
+      updateState(tx.getContext(), access, ULong.valueOf(chainId), ChainState.Erase);
       tx.success();
     } catch (Exception e) {
       throw tx.failure(e);
@@ -185,22 +181,22 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
    @return newly readMany record
    @throws BusinessException if a Business Rule is violated
    */
-  private ChainRecord create(DSLContext db, Access access, Chain entity) throws Exception {
+  private Chain create(DSLContext db, Access access, Chain entity) throws Exception {
     entity.validate();
 
-    Map<Field, Object> fieldValues = entity.updatableFieldValueMap();
+    Map<Field, Object> fieldValues = fieldValueMap(entity);
 
     // [#126] Chains are always readMany in DRAFT state
     fieldValues.put(CHAIN.STATE, ChainState.Draft);
 
     if (access.isTopLevel())
       requireExists("Account", db.selectCount().from(ACCOUNT)
-        .where(ACCOUNT.ID.eq(entity.getAccountId()))
+        .where(ACCOUNT.ID.eq(ULong.valueOf(entity.getAccountId())))
         .fetchOne(0, int.class));
     else
       requireExists("Account", db.selectCount().from(ACCOUNT)
-        .where(ACCOUNT.ID.in(access.getAccounts()))
-        .and(ACCOUNT.ID.eq(entity.getAccountId()))
+        .where(ACCOUNT.ID.in(access.getAccountIds()))
+        .and(ACCOUNT.ID.eq(ULong.valueOf(entity.getAccountId())))
         .fetchOne(0, int.class));
 
 
@@ -208,7 +204,7 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
     switch (entity.getType()) {
 
       case Production:
-        requireRole("Engineer to create production Chain", access, Role.ENGINEER);
+        requireRole("Engineer to create production Chain", access, UserRoleType.Engineer);
 
         // [#403] Chain must have unique `embed_key`
         if (Objects.nonNull(entity.getEmbedKey()))
@@ -218,7 +214,7 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
         break;
 
       case Preview:
-        requireRole("Artist to create preview Chain", access, Role.ARTIST);
+        requireRole("Artist to create preview Chain", access, UserRoleType.Artist);
         fieldValues.put(CHAIN.START_AT,
           Timestamp.from(Instant.now().minusSeconds(previewLengthMax)));
         fieldValues.put(CHAIN.STOP_AT,
@@ -229,7 +225,7 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
         break;
     }
 
-    return executeCreate(db, CHAIN, fieldValues);
+    return modelFrom(executeCreate(db, CHAIN, fieldValues), Chain.class);
   }
 
   /**
@@ -240,16 +236,16 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
    @param id     of record
    @return record
    */
-  private static ChainRecord readOneRecord(DSLContext db, Access access, ULong id) {
+  private static Chain readOne(DSLContext db, Access access, ULong id) throws BusinessException {
     if (access.isTopLevel())
-      return db.selectFrom(CHAIN)
+      return modelFrom(db.selectFrom(CHAIN)
         .where(CHAIN.ID.eq(id))
-        .fetchOne();
+        .fetchOne(), Chain.class);
     else
-      return db.selectFrom(CHAIN)
+      return modelFrom(db.selectFrom(CHAIN)
         .where(CHAIN.ID.eq(id))
-        .and(CHAIN.ACCOUNT_ID.in(access.getAccounts()))
-        .fetchOne();
+        .and(CHAIN.ACCOUNT_ID.in(access.getAccountIds()))
+        .fetchOne(), Chain.class);
   }
 
   /**
@@ -260,46 +256,38 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
    @param accountId of parent
    @return array of records
    */
-  private Result<ChainRecord> readAll(DSLContext db, Access access, ULong accountId) {
+  private static Collection<Chain> readAll(DSLContext db, Access access, BigInteger accountId) throws BusinessException {
     if (access.isTopLevel())
-      return resultInto(CHAIN, db.select(CHAIN.fields())
+      return modelsFrom(db.select(CHAIN.fields())
         .from(CHAIN)
-        .where(CHAIN.ACCOUNT_ID.eq(accountId))
+        .where(CHAIN.ACCOUNT_ID.eq(ULong.valueOf(accountId)))
         .and(CHAIN.STATE.notEqual(ChainState.Erase.toString()))
-        .fetch());
+        .fetch(), Chain.class);
     else
-      return resultInto(CHAIN, db.select(CHAIN.fields())
+      return modelsFrom(db.select(CHAIN.fields())
         .from(CHAIN)
-        .where(CHAIN.ACCOUNT_ID.eq(accountId))
-        .and(CHAIN.ACCOUNT_ID.in(access.getAccounts()))
+        .where(CHAIN.ACCOUNT_ID.eq(ULong.valueOf(accountId)))
+        .and(CHAIN.ACCOUNT_ID.in(access.getAccountIds()))
         .and(CHAIN.STATE.notEqual(ChainState.Erase.toString()))
-        .fetch());
+        .fetch(), Chain.class);
   }
 
   /**
    Read all records in a given state
 
-   @return array of records
-    @param db     context
+   @param db     context
    @param access control
    @param state  to read chains in
+   @return array of records
    */
-  private Collection<Chain> readAllInState(DSLContext db, Access access, ChainState state) throws Exception {
-    requireRole("platform access", access, Role.ADMIN, Role.ENGINEER);
+  private static Collection<Chain> readAllInState(DSLContext db, Access access, ChainState state) throws Exception {
+    requireRole("platform access", access, UserRoleType.Admin, UserRoleType.Engineer);
 
-    Collection<Chain> result = Lists.newArrayList();
-    resultInto(CHAIN, db.select(CHAIN.fields())
+    return modelsFrom(db.select(CHAIN.fields())
       .from(CHAIN)
       .where(CHAIN.STATE.eq(state.toString()))
       .or(CHAIN.STATE.eq(state.toString().toLowerCase()))
-      .fetch()).forEach((record) -> {
-      try {
-        result.add(new Chain().setFromRecord(record));
-      } catch (BusinessException e) {
-        log.debug("Malformed Chain Record", e);
-      }
-    });
-    return result;
+      .fetch(), Chain.class);
   }
 
   /**
@@ -312,10 +300,10 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
    @throws BusinessException on failure
    @throws DatabaseException on failure
    */
-  private void update(DSLContext db, Access access, ULong id, Chain entity) throws Exception {
+  private void updateAllFields(DSLContext db, Access access, ULong id, Chain entity) throws Exception {
     entity.validate();
 
-    Map<Field, Object> fieldValues = entity.updatableFieldValueMap();
+    Map<Field, Object> fieldValues = fieldValueMap(entity);
 
     // Cannot update TYPE of chain
     if (fieldValues.containsKey(CHAIN.TYPE))
@@ -380,7 +368,7 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
     switch (ChainType.validate(chain.getType())) {
 
       case Production:
-        requireRole("engineer role", access, Role.ENGINEER);
+        requireRole("Engineer role", access, UserRoleType.Engineer);
         // [#403] Chain must have unique `embed_key`
         if (Objects.nonNull(fieldValues.get(CHAIN.EMBED_KEY)))
           requireNotExists("Existing Chain with this embed_key", db.select(CHAIN.ID).from(CHAIN)
@@ -389,7 +377,7 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
         break;
 
       case Preview:
-        requireRole("artist or engineer role", access, Role.ENGINEER, Role.ARTIST);
+        requireRole("Artist or Engineer role", access, UserRoleType.Engineer, UserRoleType.Artist);
 
         // [#402] Preview Chain cannot be public
         fieldValues.put(CHAIN.EMBED_KEY, DSL.val((String) null));
@@ -402,7 +390,7 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
       case Draft:
         onlyAllowTransitions(toState, ChainState.Draft, ChainState.Ready, ChainState.Erase);
         if (Objects.equals(ChainState.Ready, toState)) {
-          requireExistsAnyOf("Chain must be bound to at least one Library, Pattern, or Instrument",
+          requireExistsAnyOf(String.format("Chain must be bound to %s", "at least one Library, Pattern, or Instrument"),
             db.selectCount().from(CHAIN_LIBRARY).where(CHAIN_LIBRARY.CHAIN_ID.eq(id)).fetchOne(0, int.class),
             db.selectCount().from(CHAIN_PATTERN).where(CHAIN_PATTERN.CHAIN_ID.eq(id)).fetchOne(0, int.class),
             db.selectCount().from(CHAIN_INSTRUMENT).where(CHAIN_INSTRUMENT.CHAIN_ID.eq(id)).fetchOne(0, int.class)
@@ -484,19 +472,19 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
         break;
 
       case Fabricate:
-        workManager.startChainFabrication(id);
+        workManager.startChainFabrication(id.toBigInteger());
         break;
 
       case Complete:
-        workManager.stopChainFabrication(id);
+        workManager.stopChainFabrication(id.toBigInteger());
         break;
 
       case Failed:
-        workManager.stopChainFabrication(id);
+        workManager.stopChainFabrication(id.toBigInteger());
         break;
 
       case Erase:
-        workManager.startChainErase(id);
+        workManager.startChainErase(id.toBigInteger());
         break;
     }
   }
@@ -511,13 +499,13 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
    @return Link template
    */
   @Nullable
-  private Link buildNextLinkOrComplete(DSLContext db, Access access, ChainRecord chain, Timestamp linkBeginBefore, Timestamp chainStopCompleteBefore) throws Exception {
+  private Link buildNextLinkOrComplete(DSLContext db, Access access, Chain chain, Timestamp linkBeginBefore, Timestamp chainStopCompleteBefore) throws Exception {
     requireTopLevel(access);
 
     Record lastRecordWithNoEndAtTime = db.select(LINK.CHAIN_ID)
       .from(LINK)
       .where(LINK.END_AT.isNull())
-      .and(LINK.CHAIN_ID.eq(chain.getId()))
+      .and(LINK.CHAIN_ID.eq(ULong.valueOf(chain.getId())))
       .groupBy(LINK.CHAIN_ID, LINK.OFFSET, LINK.END_AT)
       .orderBy(LINK.OFFSET.desc())
       .limit(1)
@@ -530,7 +518,7 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
 
     // Get the last link in the chain
     LinkRecord lastLinkInChain = db.selectFrom(LINK)
-      .where(LINK.CHAIN_ID.eq(chain.getId()))
+      .where(LINK.CHAIN_ID.eq(ULong.valueOf(chain.getId())))
       .and(LINK.BEGIN_AT.isNotNull())
       .and(LINK.END_AT.isNotNull())
       .groupBy(LINK.CHAIN_ID, LINK.OFFSET, LINK.END_AT)
@@ -541,7 +529,7 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
     // If the chain had no last link, it must be empty; return a template for its first link
     if (Objects.isNull(lastLinkInChain)) {
       Link pilotTemplate = new Link();
-      pilotTemplate.setChainId(chain.getId().toBigInteger());
+      pilotTemplate.setChainId(chain.getId());
       pilotTemplate.setBeginAtTimestamp(chain.getStartAt());
       pilotTemplate.setOffset(BigInteger.ZERO);
       pilotTemplate.setState(LinkState.Planned.toString());
@@ -563,7 +551,7 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
       if (chain.getStopAt().before(chainStopCompleteBefore)
         // and [#122] require the last link in the chain to be in state DUBBED.
         && Objects.equals(lastLinkInChain.getState(), LinkState.Dubbed.toString())) {
-        updateState(db, access, chain.getId(), ChainState.Complete);
+        updateState(db, access, ULong.valueOf(chain.getId()), ChainState.Complete);
       }
       return null;
     }
@@ -571,7 +559,7 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
     // Build the template of the link that follows the last known one
     Link pilotTemplate = new Link();
     ULong pilotOffset = ULong.valueOf(lastLinkInChain.getOffset().toBigInteger().add(BigInteger.valueOf(1)));
-    pilotTemplate.setChainId(chain.getId().toBigInteger());
+    pilotTemplate.setChainId(chain.getId());
     pilotTemplate.setBeginAtTimestamp(lastLinkInChain.getEndAt());
     pilotTemplate.setOffset(pilotOffset.toBigInteger());
     pilotTemplate.setState(LinkState.Planned.toString());
@@ -588,7 +576,7 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
    @throws ConfigException   if not configured properly
    @throws BusinessException if fails business rule
    */
-  private void delete(DSLContext db, Access access, ULong id) throws Exception {
+  private static void delete(DSLContext db, Access access, ULong id) throws Exception {
     if (access.isTopLevel())
       requireExists("Chain", db.selectCount().from(CHAIN)
         .where(CHAIN.ID.eq(id))
@@ -596,7 +584,7 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
     else
       requireExists("Chain", db.selectCount().from(CHAIN)
         .where(CHAIN.ID.eq(id))
-        .and(CHAIN.ACCOUNT_ID.in(access.getAccounts()))
+        .and(CHAIN.ACCOUNT_ID.in(access.getAccountIds()))
         .fetchOne(0, int.class));
 
     requireNotExists("Link in Chain", db.select(LINK.ID)
@@ -647,5 +635,25 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
     throw new CancelException(String.format("transition to %s not in allowed (%s)",
       toState, CSV.join(allowedStateNames)));
   }
+
+  /**
+   Only certain (writable) fields are mapped back to jOOQ records--
+   Read-only fields are excluded from here.
+
+   @param entity to source values from
+   @return values mapped to record fields
+   */
+  private static Map<Field, Object> fieldValueMap(Chain entity) {
+    Map<Field, Object> fieldValues = com.google.api.client.util.Maps.newHashMap();
+    fieldValues.put(CHAIN.ACCOUNT_ID, ULong.valueOf(entity.getAccountId()));
+    fieldValues.put(CHAIN.NAME, entity.getName());
+    fieldValues.put(CHAIN.TYPE, entity.getType());
+    fieldValues.put(CHAIN.STATE, entity.getState());
+    fieldValues.put(CHAIN.START_AT, entity.getStartAt());
+    fieldValues.put(CHAIN.STOP_AT, entity.getStopAt());
+    fieldValues.put(CHAIN.EMBED_KEY, entity.getEmbedKey());
+    return fieldValues;
+  }
+
 
 }

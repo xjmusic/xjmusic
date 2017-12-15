@@ -3,12 +3,10 @@ package io.xj.core.dao;
 
 import io.xj.core.access.impl.Access;
 import io.xj.core.model.phase.Phase;
-import io.xj.core.tables.records.PhaseRecord;
-
-import org.jooq.Result;
-import org.jooq.types.ULong;
 
 import javax.annotation.Nullable;
+import java.math.BigInteger;
+import java.util.Collection;
 
 public interface PhaseDAO {
 
@@ -19,7 +17,7 @@ public interface PhaseDAO {
    @param entity for the new Account User.
    @return newly readMany record
    */
-  PhaseRecord create(Access access, Phase entity) throws Exception;
+  Phase create(Access access, Phase entity) throws Exception;
 
   /**
    Fetch one Phase if accessible
@@ -30,29 +28,29 @@ public interface PhaseDAO {
    @throws Exception on failure
    */
   @Nullable
-  PhaseRecord readOne(Access access, ULong id) throws Exception;
+  Phase readOne(Access access, BigInteger id) throws Exception;
 
   /**
    Fetch one Phase if accessible, by Pattern id and phase #
 
-   @return retrieved record
-   @throws Exception on failure
-    @param access          control
+   @param access             control
    @param patternId          of pattern in which to read phase
    @param patternPhaseOffset of phase in pattern
+   @return retrieved record
+   @throws Exception on failure
    */
   @Nullable
-  Phase readOneForPattern(Access access, ULong patternId, ULong patternPhaseOffset) throws Exception;
+  Phase readOneForPattern(Access access, BigInteger patternId, BigInteger patternPhaseOffset) throws Exception;
 
   /**
    Fetch all accessible Phase for one Account by id
 
-   @param access control
+   @param access    control
    @param patternId to fetch phases for.
    @return JSONArray of phases.
    @throws Exception on failure
    */
-  Result<PhaseRecord> readAll(Access access, ULong patternId) throws Exception;
+  Collection<Phase> readAll(Access access, BigInteger patternId) throws Exception;
 
   /**
    Update a specified Phase if accessible
@@ -61,7 +59,7 @@ public interface PhaseDAO {
    @param id     of specific Phase to update.
    @param entity for the updated Phase.
    */
-  void update(Access access, ULong id, Phase entity) throws Exception;
+  void update(Access access, BigInteger id, Phase entity) throws Exception;
 
   /**
    Delete a specified Phase if accessible
@@ -69,6 +67,6 @@ public interface PhaseDAO {
    @param access control
    @param id     of specific phase to delete.
    */
-  void delete(Access access, ULong id) throws Exception;
+  void delete(Access access, BigInteger id) throws Exception;
 
 }

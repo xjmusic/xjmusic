@@ -4,20 +4,11 @@ package io.xj.core.model.phase_chord;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.model.chord.Chord;
 
-import org.jooq.Field;
-import org.jooq.Record;
-import org.jooq.types.ULong;
-
-import com.google.api.client.util.Maps;
-
 import java.math.BigInteger;
-import java.util.Map;
-import java.util.Objects;
-
-import static io.xj.core.Tables.PHASE_CHORD;
 
 /**
- Entity for use as POJO for decoding messages received by JAX-RS resources
+ POJO for persisting data in memory while performing business logic,
+or decoding messages received by JAX-RS resources.
  a.k.a. JSON input will be stored into an instance of this object
 
  Business logic ought to be performed beginning with an instance of this object,
@@ -35,19 +26,19 @@ public class PhaseChord extends Chord {
   /**
    Phase
    */
-  private ULong phaseId;
+  private BigInteger phaseId;
 
   public PhaseChord setName(String name) {
     this.name = name;
     return this;
   }
 
-  public ULong getPhaseId() {
+  public BigInteger getPhaseId() {
     return phaseId;
   }
 
   public PhaseChord setPhaseId(BigInteger phaseId) {
-    this.phaseId = ULong.valueOf(phaseId);
+    this.phaseId = phaseId;
     return this;
   }
 
@@ -62,29 +53,6 @@ public class PhaseChord extends Chord {
       throw new BusinessException("Phase ID is required.");
     }
     super.validate();
-  }
-
-  @Override
-  public PhaseChord setFromRecord(Record record) {
-    if (Objects.isNull(record)) {
-      return null;
-    }
-    id = record.get(PHASE_CHORD.ID);
-    name = record.get(PHASE_CHORD.NAME);
-    phaseId = record.get(PHASE_CHORD.PHASE_ID);
-    position = record.get(PHASE_CHORD.POSITION);
-    createdAt = record.get(PHASE_CHORD.CREATED_AT);
-    updatedAt = record.get(PHASE_CHORD.UPDATED_AT);
-    return this;
-  }
-
-  @Override
-  public Map<Field, Object> updatableFieldValueMap() {
-    Map<Field, Object> fieldValues = Maps.newHashMap();
-    fieldValues.put(PHASE_CHORD.NAME, name);
-    fieldValues.put(PHASE_CHORD.PHASE_ID, phaseId);
-    fieldValues.put(PHASE_CHORD.POSITION, position);
-    return fieldValues;
   }
 
 }

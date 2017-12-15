@@ -6,20 +6,21 @@ import io.xj.core.dao.PlatformMessageDAO;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.exception.ConfigException;
 import io.xj.core.model.platform_message.PlatformMessage;
-import io.xj.core.model.role.Role;
+import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import io.xj.core.persistence.sql.impl.SQLConnection;
-import io.xj.core.tables.records.PlatformMessageRecord;
 import io.xj.core.timestamp.TimestampUTC;
 
 import org.jooq.DSLContext;
 import org.jooq.Field;
-import org.jooq.Result;
 import org.jooq.types.ULong;
 
+import com.google.api.client.util.Maps;
 import com.google.inject.Inject;
 
 import javax.annotation.Nullable;
+import java.math.BigInteger;
+import java.util.Collection;
 import java.util.Map;
 
 import static io.xj.core.Tables.PLATFORM_MESSAGE;
@@ -35,10 +36,10 @@ public class PlatformMessageDAOImpl extends DAOImpl implements PlatformMessageDA
   }
 
   @Override
-  public PlatformMessageRecord create(Access access, PlatformMessage entity) throws Exception {
+  public PlatformMessage create(Access access, PlatformMessage entity) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(createRecord(tx.getContext(), access, entity));
+      return tx.success(create(tx.getContext(), access, entity));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -46,10 +47,10 @@ public class PlatformMessageDAOImpl extends DAOImpl implements PlatformMessageDA
 
   @Override
   @Nullable
-  public PlatformMessageRecord readOne(Access access, ULong id) throws Exception {
+  public PlatformMessage readOne(Access access, BigInteger id) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readOneRecord(tx.getContext(), access, id));
+      return tx.success(readOne(tx.getContext(), access, ULong.valueOf(id)));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -57,7 +58,7 @@ public class PlatformMessageDAOImpl extends DAOImpl implements PlatformMessageDA
 
   @Override
   @Nullable
-  public Result<PlatformMessageRecord> readAllPreviousDays(Access access, Integer previousDays) throws Exception {
+  public Collection<PlatformMessage> readAllPreviousDays(Access access, Integer previousDays) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readAllPreviousDays(tx.getContext(), access, previousDays));
@@ -67,10 +68,10 @@ public class PlatformMessageDAOImpl extends DAOImpl implements PlatformMessageDA
   }
 
   @Override
-  public void delete(Access access, ULong id) throws Exception {
+  public void delete(Access access, BigInteger id) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      delete(tx.getContext(), access, id);
+      delete(tx.getContext(), access, ULong.valueOf(id));
       tx.success();
     } catch (Exception e) {
       throw tx.failure(e);
@@ -86,14 +87,12 @@ public class PlatformMessageDAOImpl extends DAOImpl implements PlatformMessageDA
    @return newly readMany record
    @throws BusinessException on failure
    */
-  private PlatformMessageRecord createRecord(DSLContext db, Access access, PlatformMessage entity) throws BusinessException {
+  private static PlatformMessage create(DSLContext db, Access access, PlatformMessage entity) throws BusinessException {
+    requireRole("platform access", access, UserRoleType.Admin, UserRoleType.Engineer);
+
     entity.validate();
-
-    Map<Field, Object> fieldValues = entity.updatableFieldValueMap();
-
-    requireRole("platform access", access, Role.ADMIN, Role.ENGINEER);
-
-    return executeCreate(db, PLATFORM_MESSAGE, fieldValues);
+    Map<Field, Object> fieldValues = fieldValueMap(entity);
+    return modelFrom(executeCreate(db, PLATFORM_MESSAGE, fieldValues), PlatformMessage.class);
   }
 
   /**
@@ -105,12 +104,12 @@ public class PlatformMessageDAOImpl extends DAOImpl implements PlatformMessageDA
    @return record
    */
   @Nullable
-  private PlatformMessageRecord readOneRecord(DSLContext db, Access access, ULong id) throws Exception {
-    requireRole("platform access", access, Role.ADMIN, Role.ENGINEER);
+  private static PlatformMessage readOne(DSLContext db, Access access, ULong id) throws Exception {
+    requireRole("platform access", access, UserRoleType.Admin, UserRoleType.Engineer);
 
-    return db.selectFrom(PLATFORM_MESSAGE)
+    return modelFrom(db.selectFrom(PLATFORM_MESSAGE)
       .where(PLATFORM_MESSAGE.ID.eq(id))
-      .fetchOne();
+      .fetchOne(), PlatformMessage.class);
   }
 
   /**
@@ -121,14 +120,14 @@ public class PlatformMessageDAOImpl extends DAOImpl implements PlatformMessageDA
    @param previousDays of parent
    @return array of records
    */
-  private Result<PlatformMessageRecord> readAllPreviousDays(DSLContext db, Access access, Integer previousDays) throws Exception {
-    requireRole("platform access", access, Role.ADMIN, Role.ENGINEER);
+  private static Collection<PlatformMessage> readAllPreviousDays(DSLContext db, Access access, Integer previousDays) throws Exception {
+    requireRole("platform access", access, UserRoleType.Admin, UserRoleType.Engineer);
 
-    return resultInto(PLATFORM_MESSAGE, db.select(PLATFORM_MESSAGE.fields())
+    return modelsFrom(db.select(PLATFORM_MESSAGE.fields())
       .from(PLATFORM_MESSAGE)
       .where(PLATFORM_MESSAGE.CREATED_AT.ge(TimestampUTC.nowMinusSeconds(previousDays * secondsPerDay)))
       .orderBy(PLATFORM_MESSAGE.CREATED_AT.desc())
-      .fetch());
+      .fetch(), PlatformMessage.class);
   }
 
   /**
@@ -140,7 +139,7 @@ public class PlatformMessageDAOImpl extends DAOImpl implements PlatformMessageDA
    @throws ConfigException   if not configured properly
    @throws BusinessException if fails business rule
    */
-  private void delete(DSLContext db, Access access, ULong id) throws Exception {
+  private static void delete(DSLContext db, Access access, ULong id) throws Exception {
     requireTopLevel(access);
 
     requireExists("PlatformMessage", db.selectCount().from(PLATFORM_MESSAGE)
@@ -151,5 +150,20 @@ public class PlatformMessageDAOImpl extends DAOImpl implements PlatformMessageDA
       .where(PLATFORM_MESSAGE.ID.eq(id))
       .execute();
   }
+
+  /**
+   Only certain (writable) fields are mapped back to jOOQ records--
+   Read-only fields are excluded from here.
+
+   @param entity to source values from
+   @return values mapped to record fields
+   */
+  private static Map<Field, Object> fieldValueMap(PlatformMessage entity) {
+    Map<Field, Object> fieldValues = Maps.newHashMap();
+    fieldValues.put(PLATFORM_MESSAGE.BODY, entity.getBody());
+    fieldValues.put(PLATFORM_MESSAGE.TYPE, entity.getType());
+    return fieldValues;
+  }
+
 
 }

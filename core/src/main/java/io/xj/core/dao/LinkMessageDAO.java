@@ -3,13 +3,10 @@ package io.xj.core.dao;
 
 import io.xj.core.access.impl.Access;
 import io.xj.core.model.link_message.LinkMessage;
-import io.xj.core.tables.records.LinkMessageRecord;
-
-import org.jooq.Result;
-import org.jooq.types.ULong;
 
 import javax.annotation.Nullable;
-import java.util.List;
+import java.math.BigInteger;
+import java.util.Collection;
 
 public interface LinkMessageDAO {
 
@@ -21,7 +18,7 @@ public interface LinkMessageDAO {
    @param entity for the new Link Message
    @return newly readMany record
    */
-  LinkMessageRecord create(Access access, LinkMessage entity) throws Exception;
+  LinkMessage create(Access access, LinkMessage entity) throws Exception;
 
   /**
    Fetch one linkMessage if accessible
@@ -32,7 +29,7 @@ public interface LinkMessageDAO {
    @throws Exception on failure
    */
   @Nullable
-  LinkMessageRecord readOne(Access access, ULong id) throws Exception;
+  LinkMessage readOne(Access access, BigInteger id) throws Exception;
 
   /**
    Fetch many linkMessage for one Link by id, if accessible
@@ -42,17 +39,17 @@ public interface LinkMessageDAO {
    @return JSONArray of linkMessages.
    @throws Exception on failure
    */
-  Result<LinkMessageRecord> readAllInLink(Access access, ULong linkId) throws Exception;
+  Collection<LinkMessage> readAllInLink(Access access, BigInteger linkId) throws Exception;
 
   /**
    Fetch many LinkMessage for many links by id
 
-   @param access control
-   @param linkIds to fetch linkMessages for.
    @return JSONArray of linkMessages.
    @throws Exception on failure
+    @param access  control
+   @param linkIds to fetch linkMessages for.
    */
-  Result<LinkMessageRecord> readAllInLinks(Access access, List<ULong> linkIds) throws Exception;
+  Collection<LinkMessage> readAllInLinks(Access access, Collection<BigInteger> linkIds) throws Exception;
 
   /**
    (TOP-LEVEL ACCESS ONLY)
@@ -61,6 +58,6 @@ public interface LinkMessageDAO {
    @param access control
    @param id     of specific linkMessage to delete.
    */
-  void delete(Access access, ULong id) throws Exception;
+  void delete(Access access, BigInteger id) throws Exception;
 
 }

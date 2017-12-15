@@ -5,16 +5,11 @@ import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.integration.IntegrationTestEntity;
-import io.xj.core.integration.IntegrationTestService;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
 import io.xj.core.model.link.LinkState;
 import io.xj.core.model.link_message.LinkMessage;
 import io.xj.core.model.message.MessageType;
-import io.xj.core.tables.records.LinkMessageRecord;
-
-import org.jooq.Result;
-import org.jooq.types.ULong;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -29,9 +24,9 @@ import org.junit.rules.ExpectedException;
 
 import java.math.BigInteger;
 import java.sql.Timestamp;
+import java.util.Collection;
 import java.util.List;
 
-import static io.xj.core.Tables.LINK_MESSAGE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -40,7 +35,7 @@ public class LinkMessageIT {
   @Rule public ExpectedException failure = ExpectedException.none();
   private final Injector injector = Guice.createInjector(new CoreModule());
   private LinkMessageDAO testDAO;
-  private final List<ULong> linkIds = ImmutableList.of(ULong.valueOf(1), ULong.valueOf(2), ULong.valueOf(3), ULong.valueOf(4));
+  private final List<BigInteger> linkIds = ImmutableList.of(BigInteger.valueOf(1), BigInteger.valueOf(2), BigInteger.valueOf(3), BigInteger.valueOf(4));
 
   @Before
   public void setUp() throws Exception {
@@ -74,16 +69,14 @@ public class LinkMessageIT {
 
   @Test
   public void create() throws Exception {
-    LinkMessageRecord result = testDAO.create(Access.internal(), new LinkMessage()
+    LinkMessage result = testDAO.create(Access.internal(), new LinkMessage()
       .setType(MessageType.Warning.toString())
       .setLinkId(BigInteger.valueOf(2))
       .setBody("This is a warning"));
 
     assertNotNull(result);
-    assertEquals(ULong.valueOf(2), result.getLinkId());
+    assertEquals(BigInteger.valueOf(2), result.getLinkId());
     assertNotNull(result.getType());
-//    assertEquals(MessageType.Warning.toString(), result.getType());
-//    assertEquals("This is a warning", result.getBody());
   }
 
   @Test
@@ -98,145 +91,142 @@ public class LinkMessageIT {
 
   @Test
   public void readOne() throws Exception {
-    LinkMessageRecord result = testDAO.readOne(Access.internal(), ULong.valueOf(12));
+    LinkMessage result = testDAO.readOne(Access.internal(), BigInteger.valueOf(12));
 
     assertNotNull(result);
-    assertEquals(ULong.valueOf(12), result.getId());
-    assertEquals(ULong.valueOf(1), result.getLinkId());
-    assertEquals(MessageType.Info.toString(), result.getType());
+    assertEquals(BigInteger.valueOf(12), result.getId());
+    assertEquals(BigInteger.valueOf(1), result.getLinkId());
+    assertEquals(MessageType.Info, result.getType());
     assertEquals("Consider yourself informed.", result.getBody());
   }
 
   @Test
   public void readOne_nullIfNotExist() throws Exception {
-    LinkMessageRecord result = testDAO.readOne(Access.internal(), ULong.valueOf(357));
+    LinkMessage result = testDAO.readOne(Access.internal(), BigInteger.valueOf(357));
 
     assertNull(result);
   }
 
   @Test
   public void readOne_okIfUserInAccount() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "user",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "User",
       "accounts", "1"
     ));
 
-    LinkMessageRecord result = testDAO.readOne(access, ULong.valueOf(12));
+    LinkMessage result = testDAO.readOne(access, BigInteger.valueOf(12));
 
     assertNotNull(result);
-    assertEquals(ULong.valueOf(12), result.getId());
-    assertEquals(ULong.valueOf(1), result.getLinkId());
-    assertEquals(MessageType.Info.toString(), result.getType());
+    assertEquals(BigInteger.valueOf(12), result.getId());
+    assertEquals(BigInteger.valueOf(1), result.getLinkId());
+    assertEquals(MessageType.Info, result.getType());
     assertEquals("Consider yourself informed.", result.getBody());
   }
 
   @Test
   public void readOne_emptyIfUserNotInAccount() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "user",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "User",
       "accounts", "6123"
     ));
 
-    LinkMessageRecord result = testDAO.readOne(access, ULong.valueOf(12));
+    LinkMessage result = testDAO.readOne(access, BigInteger.valueOf(12));
 
     assertNull(result);
   }
 
   @Test
   public void readAllInLink() throws Exception {
-    Result<LinkMessageRecord> result = testDAO.readAllInLink(Access.internal(), ULong.valueOf(1));
+    Collection<LinkMessage> result = testDAO.readAllInLink(Access.internal(), BigInteger.valueOf(1));
 
     assertEquals(2, result.size());
   }
 
   @Test
   public void readAllInLink_nullIfLinkNotExist() throws Exception {
-    LinkMessageRecord result = testDAO.readOne(Access.internal(), ULong.valueOf(12097));
+    LinkMessage result = testDAO.readOne(Access.internal(), BigInteger.valueOf(12097));
 
     assertNull(result);
   }
 
   @Test
   public void readAllInLink_okIfUserInAccount() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "user",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "User",
       "accounts", "1"
     ));
 
-    Result<LinkMessageRecord> result = testDAO.readAllInLink(access, ULong.valueOf(1));
+    Collection<LinkMessage> result = testDAO.readAllInLink(access, BigInteger.valueOf(1));
 
     assertEquals(2, result.size());
   }
 
   @Test
   public void readAllInLink_emptyIfUserNotInAccount() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "user",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "User",
       "accounts", "73"
     ));
 
-    Result<LinkMessageRecord> result = testDAO.readAllInLink(access, ULong.valueOf(1));
+    Collection<LinkMessage> result = testDAO.readAllInLink(access, BigInteger.valueOf(1));
     assertEquals(0, result.size());
   }
 
   @Test
   public void readAllInChain() throws Exception {
-    Result<LinkMessageRecord> result = testDAO.readAllInLinks(Access.internal(), linkIds);
+    Collection<LinkMessage> result = testDAO.readAllInLinks(Access.internal(), linkIds);
 
     assertEquals(4, result.size());
   }
 
   @Test
   public void readAllInChain_nullIfChainNotExist() throws Exception {
-    LinkMessageRecord result = testDAO.readOne(Access.internal(), ULong.valueOf(12097));
+    LinkMessage result = testDAO.readOne(Access.internal(), BigInteger.valueOf(12097));
 
     assertNull(result);
   }
 
   @Test
   public void readAllInChain_okIfUserInAccount() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "user",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "User",
       "accounts", "1"
     ));
 
-    Result<LinkMessageRecord> result = testDAO.readAllInLinks(access, linkIds);
+    Collection<LinkMessage> result = testDAO.readAllInLinks(access, linkIds);
 
     assertEquals(4, result.size());
   }
 
   @Test
   public void readAllInChain_emptyIfUserNotInAccount() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "user",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "User",
       "accounts", "73"
     ));
 
-    Result<LinkMessageRecord> result = testDAO.readAllInLinks(access, linkIds);
+    Collection<LinkMessage> result = testDAO.readAllInLinks(access, linkIds);
     assertEquals(0, result.size());
   }
 
   @Test
   public void delete() throws Exception {
-    testDAO.delete(Access.internal(), ULong.valueOf(12));
+    testDAO.delete(Access.internal(), BigInteger.valueOf(12));
 
-    assertNull(IntegrationTestService.getDb()
-      .selectFrom(LINK_MESSAGE)
-      .where(LINK_MESSAGE.ID.eq(ULong.valueOf(12)))
-      .fetchOne());
+    assertNull(testDAO.readOne(Access.internal(), BigInteger.valueOf(12)));
   }
 
   @Test
   public void delete_failsIfNotTopLevelAccess() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "user",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "User",
       "accounts", "1"
     ));
 
     failure.expect(BusinessException.class);
     failure.expectMessage("top-level access is required");
 
-    testDAO.delete(access, ULong.valueOf(12));
+    testDAO.delete(access, BigInteger.valueOf(12));
   }
 
 

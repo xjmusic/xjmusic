@@ -3,13 +3,11 @@ package io.xj.hub.resource.chain;
 
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
-import io.xj.core.server.HttpResponseProvider;
 import io.xj.core.dao.ChainDAO;
 import io.xj.core.model.chain.Chain;
 import io.xj.core.model.chain.ChainWrapper;
-import io.xj.core.model.role.Role;
-
-import org.jooq.types.ULong;
+import io.xj.core.model.user_role.UserRoleType;
+import io.xj.core.server.HttpResponseProvider;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -26,6 +24,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.math.BigInteger;
+import java.util.Objects;
 
 /**
  Chains
@@ -33,7 +33,7 @@ import java.io.IOException;
 @Path("chains")
 public class ChainIndexResource {
   private static final Injector injector = Guice.createInjector(new CoreModule());
-  private final ChainDAO DAO = injector.getInstance(ChainDAO.class);
+  private final ChainDAO chainDAO = injector.getInstance(ChainDAO.class);
   private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
 
   @QueryParam("accountId")
@@ -46,18 +46,18 @@ public class ChainIndexResource {
    */
   @GET
   @WebResult
-  @RolesAllowed({Role.USER})
+  @RolesAllowed(UserRoleType.USER)
   public Response readAll(@Context ContainerRequestContext crc) throws IOException {
-    if (accountId == null || accountId.length() == 0) {
+    if (Objects.isNull(accountId) || accountId.isEmpty()) {
       return response.notAcceptable("Account id is required");
     }
 
     try {
       return response.readMany(
         Chain.KEY_MANY,
-        DAO.readAll(
+        chainDAO.readAll(
           Access.fromContext(crc),
-          ULong.valueOf(accountId)));
+          new BigInteger(accountId)));
 
     } catch (Exception e) {
       return response.failure(e);
@@ -72,13 +72,13 @@ public class ChainIndexResource {
    */
   @POST
   @Consumes(MediaType.APPLICATION_JSON)
-  @RolesAllowed({Role.ARTIST})
+  @RolesAllowed(UserRoleType.ARTIST)
   public Response create(ChainWrapper data, @Context ContainerRequestContext crc) {
     try {
       return response.create(
         Chain.KEY_MANY,
         Chain.KEY_ONE,
-        DAO.create(
+        chainDAO.create(
           Access.fromContext(crc),
           data.getChain()));
 

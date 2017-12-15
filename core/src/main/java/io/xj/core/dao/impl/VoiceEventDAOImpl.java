@@ -2,30 +2,30 @@
 package io.xj.core.dao.impl;
 
 import io.xj.core.access.impl.Access;
+import io.xj.core.dao.VoiceEventDAO;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.exception.ConfigException;
-import io.xj.core.dao.VoiceEventDAO;
-import io.xj.core.persistence.sql.impl.SQLConnection;
-import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import io.xj.core.model.voice_event.VoiceEvent;
+import io.xj.core.persistence.sql.SQLDatabaseProvider;
+import io.xj.core.persistence.sql.impl.SQLConnection;
 import io.xj.core.tables.Voice;
-import io.xj.core.tables.records.VoiceEventRecord;
 
 import org.jooq.DSLContext;
 import org.jooq.Field;
-import org.jooq.Result;
 import org.jooq.types.ULong;
 
+import com.google.api.client.util.Maps;
 import com.google.inject.Inject;
 
 import javax.annotation.Nullable;
-import java.sql.SQLException;
+import java.math.BigInteger;
+import java.util.Collection;
 import java.util.Map;
 
 import static io.xj.core.Tables.VOICE;
 import static io.xj.core.Tables.VOICE_EVENT;
-import static io.xj.core.tables.Pattern.PATTERN;
 import static io.xj.core.tables.Library.LIBRARY;
+import static io.xj.core.tables.Pattern.PATTERN;
 import static io.xj.core.tables.Phase.PHASE;
 
 public class VoiceEventDAOImpl extends DAOImpl implements VoiceEventDAO {
@@ -38,7 +38,7 @@ public class VoiceEventDAOImpl extends DAOImpl implements VoiceEventDAO {
   }
 
   @Override
-  public VoiceEventRecord create(Access access, VoiceEvent entity) throws Exception {
+  public VoiceEvent create(Access access, VoiceEvent entity) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(create(tx.getContext(), access, entity));
@@ -49,10 +49,10 @@ public class VoiceEventDAOImpl extends DAOImpl implements VoiceEventDAO {
 
   @Override
   @Nullable
-  public VoiceEventRecord readOne(Access access, ULong id) throws Exception {
+  public VoiceEvent readOne(Access access, BigInteger id) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readOneRecord(tx.getContext(), access, id));
+      return tx.success(readOne(tx.getContext(), access, ULong.valueOf(id)));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -60,20 +60,20 @@ public class VoiceEventDAOImpl extends DAOImpl implements VoiceEventDAO {
 
   @Override
   @Nullable
-  public Result<VoiceEventRecord> readAll(Access access, ULong voiceId) throws Exception {
+  public Collection<VoiceEvent> readAll(Access access, BigInteger voiceId) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readAll(tx.getContext(), access, voiceId));
+      return tx.success(readAll(tx.getContext(), access, ULong.valueOf(voiceId)));
     } catch (Exception e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public void update(Access access, ULong id, VoiceEvent entity) throws Exception {
+  public void update(Access access, BigInteger id, VoiceEvent entity) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      update(tx.getContext(), access, id, entity);
+      update(tx.getContext(), access, ULong.valueOf(id), entity);
       tx.success();
     } catch (Exception e) {
       throw tx.failure(e);
@@ -81,10 +81,10 @@ public class VoiceEventDAOImpl extends DAOImpl implements VoiceEventDAO {
   }
 
   @Override
-  public void delete(Access access, ULong id) throws Exception {
+  public void delete(Access access, BigInteger id) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      delete(access, tx.getContext(), id);
+      delete(access, tx.getContext(), ULong.valueOf(id));
       tx.success();
     } catch (Exception e) {
       throw tx.failure(e);
@@ -100,25 +100,25 @@ public class VoiceEventDAOImpl extends DAOImpl implements VoiceEventDAO {
    @return newly readMany record
    @throws BusinessException if failure
    */
-  private VoiceEventRecord create(DSLContext db, Access access, VoiceEvent entity) throws BusinessException {
+  private static VoiceEvent create(DSLContext db, Access access, VoiceEvent entity) throws BusinessException {
     entity.validate();
 
-    Map<Field, Object> fieldValues = entity.updatableFieldValueMap();
+    Map<Field, Object> fieldValues = fieldValueMap(entity);
 
     if (access.isTopLevel())
       requireExists("Voice", db.selectCount().from(VOICE)
-        .where(VOICE.ID.eq(entity.getVoiceId()))
+        .where(VOICE.ID.eq(ULong.valueOf(entity.getVoiceId())))
         .fetchOne(0, int.class));
     else
       requireExists("Voice", db.selectCount().from(VOICE)
         .join(PHASE).on(PHASE.ID.eq(VOICE.PHASE_ID))
         .join(PATTERN).on(PATTERN.ID.eq(PHASE.PATTERN_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(PATTERN.LIBRARY_ID))
-        .where(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-        .and(VOICE.ID.eq(entity.getVoiceId()))
+        .where(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+        .and(VOICE.ID.eq(ULong.valueOf(entity.getVoiceId())))
         .fetchOne(0, int.class));
 
-    return executeCreate(db, VOICE_EVENT, fieldValues);
+    return modelFrom(executeCreate(db, VOICE_EVENT, fieldValues), VoiceEvent.class);
   }
 
   /**
@@ -129,21 +129,21 @@ public class VoiceEventDAOImpl extends DAOImpl implements VoiceEventDAO {
    @param id     of voice
    @return voice
    */
-  private VoiceEventRecord readOneRecord(DSLContext db, Access access, ULong id) {
+  private static VoiceEvent readOne(DSLContext db, Access access, ULong id) throws BusinessException {
     if (access.isTopLevel())
-      return db.selectFrom(VOICE_EVENT)
+      return modelFrom(db.selectFrom(VOICE_EVENT)
         .where(VOICE_EVENT.ID.eq(id))
-        .fetchOne();
+        .fetchOne(), VoiceEvent.class);
     else
-      return recordInto(VOICE_EVENT, db.select(VOICE_EVENT.fields())
+      return modelFrom(db.select(VOICE_EVENT.fields())
         .from(VOICE_EVENT)
         .join(VOICE).on(VOICE.ID.eq(VOICE_EVENT.VOICE_ID))
         .join(PHASE).on(PHASE.ID.eq(VOICE.PHASE_ID))
         .join(PATTERN).on(PATTERN.ID.eq(PHASE.PATTERN_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(PATTERN.LIBRARY_ID))
         .where(VOICE_EVENT.ID.eq(id))
-        .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-        .fetchOne());
+        .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+        .fetchOne(), VoiceEvent.class);
   }
 
   /**
@@ -153,26 +153,25 @@ public class VoiceEventDAOImpl extends DAOImpl implements VoiceEventDAO {
    @param access  control
    @param voiceId to readMany all voice of
    @return array of voices
-   @throws SQLException on failure
    */
-  private Result<VoiceEventRecord> readAll(DSLContext db, Access access, ULong voiceId) throws SQLException {
+  private static Collection<VoiceEvent> readAll(DSLContext db, Access access, ULong voiceId) throws BusinessException {
     if (access.isTopLevel())
-      return resultInto(VOICE_EVENT, db.select(VOICE_EVENT.fields())
+      return modelsFrom(db.select(VOICE_EVENT.fields())
         .from(VOICE_EVENT)
         .where(VOICE_EVENT.VOICE_ID.eq(voiceId))
         .orderBy(VOICE_EVENT.POSITION)
-        .fetch());
+        .fetch(), VoiceEvent.class);
     else
-      return resultInto(VOICE_EVENT, db.select(VOICE_EVENT.fields())
+      return modelsFrom(db.select(VOICE_EVENT.fields())
         .from(VOICE_EVENT)
         .join(VOICE).on(VOICE.ID.eq(VOICE_EVENT.VOICE_ID))
         .join(PHASE).on(PHASE.ID.eq(VOICE.PHASE_ID))
         .join(PATTERN).on(PATTERN.ID.eq(PHASE.PATTERN_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(PATTERN.LIBRARY_ID))
         .where(VOICE_EVENT.VOICE_ID.eq(voiceId))
-        .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
+        .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .orderBy(VOICE_EVENT.POSITION)
-        .fetch());
+        .fetch(), VoiceEvent.class);
   }
 
   /**
@@ -184,23 +183,23 @@ public class VoiceEventDAOImpl extends DAOImpl implements VoiceEventDAO {
    @param entity to update with
    @throws BusinessException if failure
    */
-  private void update(DSLContext db, Access access, ULong id, VoiceEvent entity) throws Exception {
+  private static void update(DSLContext db, Access access, ULong id, VoiceEvent entity) throws Exception {
     entity.validate();
 
-    Map<Field, Object> fieldValues = entity.updatableFieldValueMap();
+    Map<Field, Object> fieldValues = fieldValueMap(entity);
     fieldValues.put(VOICE_EVENT.ID, id);
 
     if (access.isTopLevel())
       requireExists("Voice", db.selectCount().from(VOICE)
-        .where(VOICE.ID.eq(entity.getVoiceId()))
+        .where(VOICE.ID.eq(ULong.valueOf(entity.getVoiceId())))
         .fetchOne(0, int.class));
     else
       requireExists("Voice", db.selectCount().from(VOICE)
         .join(PHASE).on(PHASE.ID.eq(VOICE.PHASE_ID))
         .join(PATTERN).on(PATTERN.ID.eq(PHASE.PATTERN_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(PATTERN.LIBRARY_ID))
-        .where(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-        .and(VOICE.ID.eq(entity.getVoiceId()))
+        .where(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+        .and(VOICE.ID.eq(ULong.valueOf(entity.getVoiceId())))
         .fetchOne(0, int.class));
 
     if (0 == executeUpdate(db, VOICE_EVENT, fieldValues))
@@ -216,7 +215,7 @@ public class VoiceEventDAOImpl extends DAOImpl implements VoiceEventDAO {
    @throws ConfigException   if not configured properly
    @throws BusinessException if fails business rule
    */
-  private void delete(Access access, DSLContext db, ULong id) throws Exception {
+  private static void delete(Access access, DSLContext db, ULong id) throws Exception {
     if (!access.isTopLevel())
       requireExists("Voice Meme",
         db.selectCount().from(VOICE_EVENT)
@@ -225,12 +224,32 @@ public class VoiceEventDAOImpl extends DAOImpl implements VoiceEventDAO {
           .join(PATTERN).on(PATTERN.ID.eq(PHASE.PATTERN_ID))
           .join(LIBRARY).on(PATTERN.LIBRARY_ID.eq(LIBRARY.ID))
           .where(VOICE_EVENT.ID.eq(id))
-          .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
+          .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
           .fetchOne(0, int.class));
 
     db.deleteFrom(VOICE_EVENT)
       .where(VOICE_EVENT.ID.eq(id))
       .execute();
   }
+
+  /**
+   Only certain (writable) fields are mapped back to jOOQ records--
+   Read-only fields are excluded from here.
+
+   @param entity to source values from
+   @return values mapped to record fields
+   */
+  private static Map<Field, Object> fieldValueMap(VoiceEvent entity) {
+    Map<Field, Object> fieldValues = Maps.newHashMap();
+    fieldValues.put(VOICE_EVENT.DURATION, entity.getDuration());
+    fieldValues.put(VOICE_EVENT.INFLECTION, entity.getInflection());
+    fieldValues.put(VOICE_EVENT.NOTE, entity.getNote());
+    fieldValues.put(VOICE_EVENT.POSITION, entity.getPosition());
+    fieldValues.put(VOICE_EVENT.TONALITY, entity.getTonality());
+    fieldValues.put(VOICE_EVENT.VELOCITY, entity.getVelocity());
+    fieldValues.put(VOICE_EVENT.VOICE_ID, entity.getVoiceId());
+    return fieldValues;
+  }
+
 
 }

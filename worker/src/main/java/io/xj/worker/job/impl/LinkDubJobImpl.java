@@ -13,17 +13,17 @@ import io.xj.core.work.basis.BasisFactory;
 import io.xj.core.work.impl.LinkJob;
 import io.xj.worker.job.LinkDubJob;
 
-import org.jooq.types.ULong;
-
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+
+import java.math.BigInteger;
 
 public class LinkDubJobImpl extends LinkJob implements LinkDubJob {
   private final DubFactory dubFactory;
 
   @Inject
   public LinkDubJobImpl(
-    @Assisted("entityId") ULong entityId,
+    @Assisted("entityId") BigInteger entityId,
     DubFactory dubFactory,
     BasisFactory basisFactory,
     LinkDAO linkDAO,

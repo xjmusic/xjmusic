@@ -5,15 +5,11 @@ import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.integration.IntegrationTestEntity;
-import io.xj.core.integration.IntegrationTestService;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
 import io.xj.core.model.chain_config.ChainConfig;
 import io.xj.core.model.chain_config.ChainConfigType;
-import io.xj.core.tables.records.ChainConfigRecord;
 import io.xj.core.transport.JSON;
-
-import org.jooq.types.ULong;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Guice;
@@ -28,7 +24,6 @@ import org.junit.Test;
 import java.math.BigInteger;
 import java.sql.Timestamp;
 
-import static io.xj.core.tables.ChainConfig.CHAIN_CONFIG;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -76,8 +71,8 @@ public class ChainConfigIT {
 
   @Test
   public void create() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
     ChainConfig inputData = new ChainConfig()
@@ -85,18 +80,18 @@ public class ChainConfigIT {
       .setType("OutputFrameRate")
       .setValue("3,4,74");
 
-    JSONObject result = JSON.objectFromRecord(testDAO.create(access, inputData));
+    JSONObject result = JSON.objectFrom(testDAO.create(access, inputData));
 
     assertNotNull(result);
-    assertEquals(ULong.valueOf(1), result.get("chainId"));
-    assertEquals(ChainConfigType.OutputFrameRate, result.get("type"));
+    assertEquals(1, result.get("chainId"));
+    assertEquals("OutputFrameRate", result.get("type"));
     assertEquals("3,4,74", result.get("value"));
   }
 
   @Test(expected = BusinessException.class)
   public void create_FailIfAlreadyExists() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
     ChainConfig inputData = new ChainConfig()
@@ -109,8 +104,8 @@ public class ChainConfigIT {
 
   @Test(expected = BusinessException.class)
   public void create_FailIfUserNotInChainAccount() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
     ChainConfig inputData = new ChainConfig()
@@ -123,8 +118,8 @@ public class ChainConfigIT {
 
   @Test(expected = BusinessException.class)
   public void create_FailIfUserNotInLibraryAccount() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
     ChainConfig inputData = new ChainConfig()
@@ -137,8 +132,8 @@ public class ChainConfigIT {
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutChainID() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
     ChainConfig inputData = new ChainConfig()
@@ -150,8 +145,8 @@ public class ChainConfigIT {
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutLibraryId() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
     ChainConfig inputData = new ChainConfig()
@@ -162,40 +157,40 @@ public class ChainConfigIT {
 
   @Test
   public void readOne() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
 
-    ChainConfig result = new ChainConfig().setFromRecord(testDAO.readOne(access, ULong.valueOf(1)));
+    ChainConfig result = testDAO.readOne(access, BigInteger.valueOf(1));
 
     assertNotNull(result);
-    assertEquals(ULong.valueOf(1), result.getId());
-    assertEquals(ULong.valueOf(1), result.getChainId());
+    assertEquals(BigInteger.valueOf(1), result.getId());
+    assertEquals(BigInteger.valueOf(1), result.getChainId());
     assertEquals(ChainConfigType.OutputSampleBits, result.getType());
     assertEquals("1", result.getValue());
   }
 
   @Test
   public void readOne_FailsWhenChainIsNotInAccount() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "326"
     ));
 
-    ChainConfigRecord result = testDAO.readOne(access, ULong.valueOf(1));
+    ChainConfig result = testDAO.readOne(access, BigInteger.valueOf(1));
 
     assertNull(result);
   }
 
   @Test
   public void readAll() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ULong.valueOf(2)));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, BigInteger.valueOf(2)));
 
     assertNotNull(result);
     assertEquals(2, result.length());
@@ -209,12 +204,12 @@ public class ChainConfigIT {
 
   @Test
   public void readAll_SeesNothingOutsideOfAccount() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "345"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ULong.valueOf(1)));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, BigInteger.valueOf(1)));
 
     assertNotNull(result);
     assertEquals(0, result.length());
@@ -222,27 +217,24 @@ public class ChainConfigIT {
 
   @Test
   public void delete() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
 
-    testDAO.delete(access, ULong.valueOf(1));
+    testDAO.delete(access, BigInteger.valueOf(1));
 
-    ChainConfigRecord result = IntegrationTestService.getDb()
-      .selectFrom(CHAIN_CONFIG)
-      .where(CHAIN_CONFIG.ID.eq(ULong.valueOf(1)))
-      .fetchOne();
+    ChainConfig result = testDAO.readOne(Access.internal(),BigInteger.valueOf(1));
     assertNull(result);
   }
 
   @Test(expected = BusinessException.class)
   public void delete_FailIfNotInAccount() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "library",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Engineer",
       "accounts", "5"
     ));
 
-    testDAO.delete(access, ULong.valueOf(1));
+    testDAO.delete(access, BigInteger.valueOf(1));
   }
 }

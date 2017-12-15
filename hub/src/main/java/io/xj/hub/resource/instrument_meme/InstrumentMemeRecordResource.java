@@ -3,12 +3,12 @@ package io.xj.hub.resource.instrument_meme;
 
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
+import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.server.HttpResponseProvider;
 import io.xj.core.dao.InstrumentMemeDAO;
 import io.xj.core.model.instrument_meme.InstrumentMeme;
-import io.xj.core.model.role.Role;
 
-import org.jooq.types.ULong;
+
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -23,6 +23,7 @@ import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.math.BigInteger;
 
 /**
  Instrument record
@@ -30,7 +31,7 @@ import java.io.IOException;
 @Path("instrument-memes/{id}")
 public class InstrumentMemeRecordResource {
   private static final Injector injector = Guice.createInjector(new CoreModule());
-  private final InstrumentMemeDAO DAO = injector.getInstance(InstrumentMemeDAO.class);
+  private final InstrumentMemeDAO instrumentMemeDAO = injector.getInstance(InstrumentMemeDAO.class);
   private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
 
   @PathParam("id")
@@ -43,14 +44,14 @@ public class InstrumentMemeRecordResource {
    */
   @GET
   @WebResult
-  @RolesAllowed({Role.ARTIST})
+  @RolesAllowed(UserRoleType.ARTIST)
   public Response readOne(@Context ContainerRequestContext crc) throws IOException {
     try {
       return response.readOne(
         InstrumentMeme.KEY_ONE,
-        DAO.readOne(
+        instrumentMemeDAO.readOne(
           Access.fromContext(crc),
-          ULong.valueOf(id)));
+          new BigInteger(id)));
 
     } catch (Exception e) {
       return response.failure(e);
@@ -63,10 +64,10 @@ public class InstrumentMemeRecordResource {
    @return application/json response.
    */
   @DELETE
-  @RolesAllowed({Role.ARTIST})
+  @RolesAllowed(UserRoleType.ARTIST)
   public Response delete(@Context ContainerRequestContext crc) {
     try {
-      DAO.delete(Access.fromContext(crc), ULong.valueOf(id));
+      instrumentMemeDAO.delete(Access.fromContext(crc), new BigInteger(id));
       return Response.accepted("{}").build();
     } catch (Exception e) {
       return response.failure(e);

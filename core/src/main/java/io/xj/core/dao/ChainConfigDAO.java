@@ -3,12 +3,10 @@ package io.xj.core.dao;
 
 import io.xj.core.access.impl.Access;
 import io.xj.core.model.chain_config.ChainConfig;
-import io.xj.core.tables.records.ChainConfigRecord;
-
-import org.jooq.Result;
-import org.jooq.types.ULong;
 
 import javax.annotation.Nullable;
+import java.math.BigInteger;
+import java.util.Collection;
 
 public interface ChainConfigDAO {
 
@@ -18,7 +16,7 @@ public interface ChainConfigDAO {
    @param entity for the new Chain config.
    @return newly readMany record
    */
-  ChainConfigRecord create(Access access, ChainConfig entity) throws Exception;
+  ChainConfig create(Access access, ChainConfig entity) throws Exception;
 
   /**
    Fetch one ChainConfig if accessible
@@ -28,7 +26,7 @@ public interface ChainConfigDAO {
    @throws Exception on failure
    */
   @Nullable
-  ChainConfigRecord readOne(Access access, ULong id) throws Exception;
+  ChainConfig readOne(Access access, BigInteger id) throws Exception;
 
   /**
    Fetch many ChainConfig for one Chain by id, if accessible
@@ -37,7 +35,7 @@ public interface ChainConfigDAO {
    @return JSONArray of chainConfigs.
    @throws Exception on failure
    */
-  Result<ChainConfigRecord> readAll(Access access, ULong chainId) throws Exception;
+  Collection<ChainConfig> readAll(Access access, BigInteger chainId) throws Exception;
 
   /**
    Update a specified ChainConfig
@@ -45,12 +43,12 @@ public interface ChainConfigDAO {
    @param id     of specific ChainConfig to update.
    @param entity for the updated ChainConfig.
    */
-  void update(Access access, ULong id, ChainConfig entity) throws Exception;
+  void update(Access access, BigInteger id, ChainConfig entity) throws Exception;
 
   /**
    Delete a specified ChainConfig
 
    @param id of specific ChainConfig to delete.
    */
-  void delete(Access access, ULong id) throws Exception;
+  void delete(Access access, BigInteger id) throws Exception;
 }

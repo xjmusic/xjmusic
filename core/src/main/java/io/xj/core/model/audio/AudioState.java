@@ -28,7 +28,7 @@ public enum AudioState {
 
     try {
       return valueOf(Text.toProperSlug(value));
-    } catch (Exception e) {
+    } catch (Exception ignored) {
       throw new BusinessException("'" + value + "' is not a valid state (" + CSV.joinEnum(AudioState.values()) + ").");
     }
   }

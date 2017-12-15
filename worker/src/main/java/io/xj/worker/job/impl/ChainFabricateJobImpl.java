@@ -6,15 +6,12 @@ import io.xj.core.config.Config;
 import io.xj.core.dao.ChainDAO;
 import io.xj.core.dao.LinkDAO;
 import io.xj.core.exception.BusinessException;
+import io.xj.core.model.chain.Chain;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.link.Link;
-import io.xj.core.tables.records.ChainRecord;
-import io.xj.core.tables.records.LinkRecord;
 import io.xj.core.timestamp.TimestampUTC;
 import io.xj.core.work.WorkManager;
 import io.xj.worker.job.ChainFabricateJob;
-
-import org.jooq.types.ULong;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
@@ -22,18 +19,19 @@ import com.google.inject.assistedinject.Assisted;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigInteger;
 import java.util.Objects;
 
 public class ChainFabricateJobImpl implements ChainFabricateJob {
   private static final Logger log = LoggerFactory.getLogger(ChainFabricateJobImpl.class);
-  private final ULong entityId;
+  private final BigInteger entityId;
   private final ChainDAO chainDAO;
   private final LinkDAO linkDAO;
   private final WorkManager workManager;
 
   @Inject
   public ChainFabricateJobImpl(
-    @Assisted("entityId") ULong entityId,
+    @Assisted("entityId") BigInteger entityId,
     ChainDAO chainDAO,
     LinkDAO linkDAO,
     WorkManager workManager
@@ -48,7 +46,7 @@ public class ChainFabricateJobImpl implements ChainFabricateJob {
   public void run() {
 
     try {
-      ChainRecord chain = chainDAO.readOne(Access.internal(), entityId);
+      Chain chain = chainDAO.readOne(Access.internal(), entityId);
       if (Objects.nonNull(chain)) {
         doWork(chain);
       } else {
@@ -67,8 +65,8 @@ public class ChainFabricateJobImpl implements ChainFabricateJob {
    @param chain to build on
    @throws Exception on failure
    */
-  private void doWork(ChainRecord chain) throws Exception {
-    if (!Objects.equals(ChainState.Fabricate.toString(), chain.getState())) {
+  private void doWork(Chain chain) throws Exception {
+    if (!Objects.equals(ChainState.Fabricate, chain.getState())) {
       workManager.stopChainFabrication(entityId);
       throw new BusinessException(String.format("Cannot fabricate Chain id:%s in non-Fabricate (%s) state!",
         chain.getId(), chain.getState()));
@@ -94,7 +92,7 @@ public class ChainFabricateJobImpl implements ChainFabricateJob {
    */
   private void createLinkAndJobs(Link linkToCreate) throws Exception {
     linkToCreate.validate();
-    LinkRecord createdLink = linkDAO.create(Access.internal(), linkToCreate);
+    Link createdLink = linkDAO.create(Access.internal(), linkToCreate);
     log.info("Created link, id:{}, chainId:{}, offset:{}", createdLink.getId(), createdLink.getChainId(), createdLink.getOffset());
 
     workManager.scheduleLinkCraft(createdLink.getId(), Config.workBufferCraftDelaySeconds());

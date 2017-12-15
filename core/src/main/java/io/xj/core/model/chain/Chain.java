@@ -6,21 +6,13 @@ import io.xj.core.model.Entity;
 import io.xj.core.timestamp.TimestampUTC;
 import io.xj.core.util.Text;
 
-import org.jooq.Field;
-import org.jooq.Record;
-import org.jooq.types.ULong;
-
-import com.google.api.client.util.Maps;
-
 import java.math.BigInteger;
 import java.sql.Timestamp;
-import java.util.Map;
 import java.util.Objects;
 
-import static io.xj.core.Tables.CHAIN;
-
 /**
- Entity for use as POJO for decoding messages received by JAX-RS resources
+ POJO for persisting data in memory while performing business logic,
+ or decoding messages received by JAX-RS resources.
  a.k.a. JSON input will be stored into an instance of this object
  <p>
  Business logic ought to be performed beginning with an instance of this object,
@@ -39,7 +31,7 @@ public class Chain extends Entity {
   /**
    Fields
    */
-  private ULong accountId;
+  private BigInteger accountId;
   private String name;
   private String _state; // hold value before validation
   private ChainState state;
@@ -54,16 +46,16 @@ public class Chain extends Entity {
   public Chain() {
   }
 
-  public Chain(ULong id) {
+  public Chain(BigInteger id) {
     this.id = id;
   }
 
-  public ULong getAccountId() {
+  public BigInteger getAccountId() {
     return accountId;
   }
 
   public Chain setAccountId(BigInteger value) {
-    accountId = ULong.valueOf(value);
+    accountId = value;
     return this;
   }
 
@@ -85,6 +77,10 @@ public class Chain extends Entity {
     return this;
   }
 
+  public void setStateEnum(ChainState state) {
+    this.state = state;
+  }
+
   public ChainType getType() {
     return type;
   }
@@ -92,6 +88,10 @@ public class Chain extends Entity {
   public Chain setType(String value) {
     _type = value;
     return this;
+  }
+
+  public void setTypeEnum(ChainType type) {
+    this.type = type;
   }
 
   public Timestamp getStartAt() {
@@ -107,6 +107,10 @@ public class Chain extends Entity {
     return this;
   }
 
+  public void setStartAtTimestamp(Timestamp startAtTimestamp) {
+    startAt = startAtTimestamp;
+  }
+
   public Timestamp getStopAt() {
     return stopAt;
   }
@@ -118,6 +122,10 @@ public class Chain extends Entity {
       stopAtError = e.getMessage();
     }
     return this;
+  }
+
+  public void setStopAtTimestamp(Timestamp stopAtTimestamp) {
+    stopAt = stopAtTimestamp;
   }
 
   public String getEmbedKey() {
@@ -156,41 +164,9 @@ public class Chain extends Entity {
         throw new BusinessException("Start-at is required." + (Objects.nonNull(startAtError) ? (" " + startAtError) : ""));
       }
       if (null != stopAtError) {
-        throw new BusinessException("Stop-at is not valid. " + stopAtError);
+        throw new BusinessException("Stop-at is not isValid. " + stopAtError);
       }
     }
-  }
-
-
-  @Override
-  public Chain setFromRecord(Record record) throws BusinessException {
-    if (Objects.isNull(record)) {
-      // null return is intended here, such that null input "passes through" the method
-      return null;
-    }
-    id = record.get(CHAIN.ID);
-    accountId = record.get(CHAIN.ACCOUNT_ID);
-    name = record.get(CHAIN.NAME);
-    type = ChainType.validate(record.get(CHAIN.TYPE));
-    state = ChainState.validate(record.get(CHAIN.STATE));
-    startAt = record.get(CHAIN.START_AT);
-    stopAt = record.get(CHAIN.STOP_AT);
-    createdAt = record.get(CHAIN.CREATED_AT);
-    updatedAt = record.get(CHAIN.UPDATED_AT);
-    return this;
-  }
-
-  @Override
-  public Map<Field, Object> updatableFieldValueMap() {
-    Map<Field, Object> fieldValues = Maps.newHashMap();
-    fieldValues.put(CHAIN.ACCOUNT_ID, accountId);
-    fieldValues.put(CHAIN.NAME, name);
-    fieldValues.put(CHAIN.TYPE, type);
-    fieldValues.put(CHAIN.STATE, state);
-    fieldValues.put(CHAIN.START_AT, startAt);
-    fieldValues.put(CHAIN.STOP_AT, stopAt);
-    fieldValues.put(CHAIN.EMBED_KEY, embedKey);
-    return fieldValues;
   }
 
   @Override
@@ -209,5 +185,4 @@ public class Chain extends Entity {
       ", updatedAt=" + updatedAt +
       '}';
   }
-
 }

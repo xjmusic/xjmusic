@@ -5,15 +5,11 @@ import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.integration.IntegrationTestEntity;
-import io.xj.core.integration.IntegrationTestService;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
 import io.xj.core.model.chain_pattern.ChainPattern;
 import io.xj.core.model.pattern.PatternType;
-import io.xj.core.tables.records.ChainPatternRecord;
 import io.xj.core.transport.JSON;
-
-import org.jooq.types.ULong;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Guice;
@@ -28,7 +24,6 @@ import org.junit.Test;
 import java.math.BigInteger;
 import java.sql.Timestamp;
 
-import static io.xj.core.tables.ChainPattern.CHAIN_PATTERN;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -83,25 +78,25 @@ public class ChainPatternIT {
 
   @Test
   public void create() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
     ChainPattern inputData = new ChainPattern()
       .setChainId(BigInteger.valueOf(1))
       .setPatternId(BigInteger.valueOf(2));
 
-    JSONObject result = JSON.objectFromRecord(testDAO.create(access, inputData));
+    JSONObject result = JSON.objectFrom(testDAO.create(access, inputData));
 
     assertNotNull(result);
-    assertEquals(ULong.valueOf(1), result.get("chainId"));
-    assertEquals(ULong.valueOf(2), result.get("patternId"));
+    assertEquals(1, result.get("chainId"));
+    assertEquals(2, result.get("patternId"));
   }
 
   @Test(expected = BusinessException.class)
   public void create_FailIfAlreadyExists() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
     ChainPattern inputData = new ChainPattern()
@@ -113,8 +108,8 @@ public class ChainPatternIT {
 
   @Test(expected = BusinessException.class)
   public void create_FailIfUserNotInChainAccount() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
     ChainPattern inputData = new ChainPattern()
@@ -126,8 +121,8 @@ public class ChainPatternIT {
 
   @Test(expected = BusinessException.class)
   public void create_FailIfUserNotInPatternAccount() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
     ChainPattern inputData = new ChainPattern()
@@ -139,8 +134,8 @@ public class ChainPatternIT {
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutChainID() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
     ChainPattern inputData = new ChainPattern()
@@ -151,8 +146,8 @@ public class ChainPatternIT {
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutPatternId() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
     ChainPattern inputData = new ChainPattern()
@@ -163,56 +158,56 @@ public class ChainPatternIT {
 
   @Test
   public void readOne() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "2"
     ));
 
-    ChainPattern result = new ChainPattern().setFromRecord(testDAO.readOne(access, ULong.valueOf(1)));
+    ChainPattern result = testDAO.readOne(access, BigInteger.valueOf(1));
 
     assertNotNull(result);
-    assertEquals(ULong.valueOf(1), result.getId());
-    assertEquals(ULong.valueOf(1), result.getChainId());
-    assertEquals(ULong.valueOf(3), result.getPatternId());
+    assertEquals(BigInteger.valueOf(1), result.getId());
+    assertEquals(BigInteger.valueOf(1), result.getChainId());
+    assertEquals(BigInteger.valueOf(3), result.getPatternId());
   }
 
   @Test
   public void readOne_FailsWhenChainIsNotInAccount() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "326"
     ));
 
-    ChainPatternRecord result = testDAO.readOne(access, ULong.valueOf(1));
+    ChainPattern result = testDAO.readOne(access, BigInteger.valueOf(1));
 
     assertNull(result);
   }
 
   @Test
   public void readAll() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ULong.valueOf(2)));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, BigInteger.valueOf(2)));
 
     assertNotNull(result);
     assertEquals(2, result.length());
     JSONObject result1 = (JSONObject) result.get(0);
-    assertEquals(ULong.valueOf(1), result1.get("patternId"));
+    assertEquals(1, result1.get("patternId"));
     JSONObject result2 = (JSONObject) result.get(1);
-    assertEquals(ULong.valueOf(2), result2.get("patternId"));
+    assertEquals(2, result2.get("patternId"));
   }
 
   @Test
   public void readAll_SeesNothingOutsideOfAccount() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "345"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ULong.valueOf(1)));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, BigInteger.valueOf(1)));
 
     assertNotNull(result);
     assertEquals(0, result.length());
@@ -220,27 +215,24 @@ public class ChainPatternIT {
 
   @Test
   public void delete() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "2"
     ));
 
-    testDAO.delete(access, ULong.valueOf(1));
+    testDAO.delete(access, BigInteger.valueOf(1));
 
-    ChainPatternRecord result = IntegrationTestService.getDb()
-      .selectFrom(CHAIN_PATTERN)
-      .where(CHAIN_PATTERN.ID.eq(ULong.valueOf(1)))
-      .fetchOne();
+    ChainPattern result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1));
     assertNull(result);
   }
 
   @Test(expected = BusinessException.class)
   public void delete_FailIfNotInAccount() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "pattern",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "5"
     ));
 
-    testDAO.delete(access, ULong.valueOf(1));
+    testDAO.delete(access, BigInteger.valueOf(1));
   }
 }

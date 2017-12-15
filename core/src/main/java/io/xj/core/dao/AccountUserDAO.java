@@ -3,12 +3,10 @@ package io.xj.core.dao;
 
 import io.xj.core.access.impl.Access;
 import io.xj.core.model.account_user.AccountUser;
-import io.xj.core.tables.records.AccountUserRecord;
-
-import org.jooq.Result;
-import org.jooq.types.ULong;
 
 import javax.annotation.Nullable;
+import java.math.BigInteger;
+import java.util.Collection;
 
 public interface AccountUserDAO {
 
@@ -19,7 +17,7 @@ public interface AccountUserDAO {
    @param entity for the new Account User.
    @return newly readMany record
    */
-  AccountUserRecord create(Access access, AccountUser entity) throws Exception;
+  AccountUser create(Access access, AccountUser entity) throws Exception;
 
   /**
    Fetch one AccountUser if accessible
@@ -29,7 +27,7 @@ public interface AccountUserDAO {
    @throws Exception on failure
    */
   @Nullable
-  AccountUserRecord readOne(Access access, ULong id) throws Exception;
+  AccountUser readOne(Access access, BigInteger id) throws Exception;
 
   /**
    Fetch many AccountUser for one Account by id, if accessible
@@ -38,7 +36,7 @@ public interface AccountUserDAO {
    @return JSONArray of accountUsers.
    @throws Exception on failure
    */
-  Result<AccountUserRecord> readAll(Access access, ULong accountId) throws Exception;
+  Collection<AccountUser> readAll(Access access, BigInteger accountId) throws Exception;
 
   /**
    (ADMIN ONLY)
@@ -46,5 +44,5 @@ public interface AccountUserDAO {
 
    @param id of specific AccountUser to delete.
    */
-  void delete(Access access, ULong id) throws Exception;
+  void delete(Access access, BigInteger id) throws Exception;
 }

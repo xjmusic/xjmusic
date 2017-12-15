@@ -1,22 +1,20 @@
 // Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.util;
 
-import org.jooq.types.ULong;
-
 import java.math.BigInteger;
 import java.util.Objects;
 
 public class Value {
 
   /**
-   Increment a ULong by an integer
+   Increment a BigInteger by an integer
 
-   @param base  to begin with
-   @param delta to increment base
    @return incremented base
+    @param base  to begin with
+   @param delta to increment base
    */
-  public static ULong inc(ULong base, int delta) {
-    return ULong.valueOf(base.toBigInteger().add(BigInteger.valueOf(delta)));
+  public static BigInteger inc(BigInteger base, int delta) {
+    return base.add(BigInteger.valueOf(delta));
   }
 
   /**

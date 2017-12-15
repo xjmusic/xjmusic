@@ -50,7 +50,7 @@ public class TimestampUTCTest {
 
   @Test
   public void valueOf_regularTimestamp() throws Exception {
-    Timestamp actual = TimestampUTC.valueOf("2014-08-12 12:17:02.527142");
+    Timestamp actual = TimestampUTC.valueOf("2014-08-12 12:17:02.527142Z");
 
     assertThat("value of time string",
       actual,

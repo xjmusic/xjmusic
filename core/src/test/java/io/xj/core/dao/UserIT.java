@@ -3,18 +3,14 @@ package io.xj.core.dao;
 
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
-import io.xj.core.external.AuthType;
 import io.xj.core.integration.IntegrationTestEntity;
-import io.xj.core.integration.IntegrationTestService;
-import io.xj.core.model.role.Role;
 import io.xj.core.model.user.User;
-import io.xj.core.tables.records.UserAccessTokenRecord;
-import io.xj.core.tables.records.UserAuthRecord;
-import io.xj.core.tables.records.UserRecord;
-import io.xj.core.tables.records.UserRoleRecord;
+import io.xj.core.model.user_access_token.UserAccessToken;
+import io.xj.core.model.user_auth.UserAuth;
+import io.xj.core.model.user_auth.UserAuthType;
+import io.xj.core.model.user_role.UserRole;
+import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.transport.JSON;
-
-import org.jooq.types.ULong;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Guice;
@@ -26,16 +22,14 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import static io.xj.core.tables.User.USER;
-import static io.xj.core.tables.UserAccessToken.USER_ACCESS_TOKEN;
-import static io.xj.core.tables.UserAuth.USER_AUTH;
-import static io.xj.core.tables.UserRole.USER_ROLE;
+import java.math.BigInteger;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 public class UserIT {
-  private Injector injector = Guice.createInjector(new CoreModule());
+  private final Injector injector = Guice.createInjector(new CoreModule());
   private UserDAO testDAO;
 
   @Before
@@ -47,20 +41,20 @@ public class UserIT {
 
     // John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
     IntegrationTestEntity.insertUser(2, "john", "john@email.com", "http://pictures.com/john.gif");
-    IntegrationTestEntity.insertUserRole(1, 2, Role.USER);
-    IntegrationTestEntity.insertUserRole(2, 2, Role.ADMIN);
+    IntegrationTestEntity.insertUserRole(1, 2, UserRoleType.User);
+    IntegrationTestEntity.insertUserRole(2, 2, UserRoleType.Admin);
     IntegrationTestEntity.insertAccountUser(3, 1, 2);
-    IntegrationTestEntity.insertUserAuth(102, 2, AuthType.GOOGLE, "external_access_token_123", "external_refresh_token_123", "22222");
+    IntegrationTestEntity.insertUserAuth(102, 2, UserAuthType.Google, "external_access_token_123", "external_refresh_token_123", "22222");
     IntegrationTestEntity.insertUserAccessToken(2, 102, "this-is-my-actual-access-token");
 
     // Jenny has a "user" role and belongs to account "bananas"
     IntegrationTestEntity.insertUser(3, "jenny", "jenny@email.com", "http://pictures.com/jenny.gif");
-    IntegrationTestEntity.insertUserRole(5, 3, Role.USER);
+    IntegrationTestEntity.insertUserRole(5, 3, UserRoleType.User);
     IntegrationTestEntity.insertAccountUser(6, 1, 3);
 
     // Bill has a "user" role but no account membership
     IntegrationTestEntity.insertUser(4, "bill", "bill@email.com", "http://pictures.com/bill.gif");
-    IntegrationTestEntity.insertUserRole(7, 4, Role.USER);
+    IntegrationTestEntity.insertUserRole(7, 4, UserRoleType.User);
 
     // Instantiate the test subject
     testDAO = injector.getInstance(UserDAO.class);
@@ -74,7 +68,7 @@ public class UserIT {
   @Test
   public void authenticate_NewUser() throws Exception {
     String accessToken = testDAO.authenticate(
-      AuthType.GOOGLE,
+      UserAuthType.Google,
       "88888",
       "accesstoken123",
       "refreshtoken456",
@@ -85,27 +79,23 @@ public class UserIT {
 
     // Created User Access Token
     assertNotNull(accessToken);
+
     // future test: token stored in Redis with correct auth
-    UserAccessTokenRecord userAccessToken = IntegrationTestService.getDb()
-      .selectFrom(USER_ACCESS_TOKEN)
-      .where(USER_ACCESS_TOKEN.ACCESS_TOKEN.eq(accessToken))
-      .fetchOne();
+
+    // access token was persisted
+    UserAccessToken userAccessToken = testDAO.readOneAccessToken(Access.internal(), accessToken);
     assertNotNull(userAccessToken);
+
     // Created User Auth
-    UserAuthRecord userAuth = IntegrationTestService.getDb()
-      .selectFrom(USER_AUTH)
-      .where(USER_AUTH.ID.eq(userAccessToken.getUserAuthId()))
-      .fetchOne();
+    UserAuth userAuth = testDAO.readOneAuth(Access.internal(), userAccessToken.getUserAuthId());
     assertNotNull(userAuth);
-    assertEquals(AuthType.GOOGLE, userAuth.getType());
+    assertEquals(UserAuthType.Google, userAuth.getType());
     assertEquals("88888", userAuth.getExternalAccount());
     assertEquals("accesstoken123", userAuth.getExternalAccessToken());
     assertEquals("refreshtoken456", userAuth.getExternalRefreshToken());
+
     // Created User
-    UserRecord user = IntegrationTestService.getDb()
-      .selectFrom(USER)
-      .where(USER.ID.eq(userAccessToken.getUserId()))
-      .fetchOne();
+    User user = testDAO.readOne(Access.internal(), userAccessToken.getUserId());
     assertNotNull(user);
     assertEquals("wayne", user.getName());
     assertEquals("http://pictures.com/wayne.gif", user.getAvatarUrl());
@@ -115,7 +105,7 @@ public class UserIT {
   @Test
   public void authenticate_ExistingUser() throws Exception {
     String accessToken = testDAO.authenticate(
-      AuthType.GOOGLE,
+      UserAuthType.Google,
       "22222",
       "accesstoken123",
       "refreshtoken456",
@@ -127,28 +117,19 @@ public class UserIT {
     // Created User Access Token
     assertNotNull(accessToken);
     // future test: token stored in Redis with correct auth
-    UserAccessTokenRecord userAccessToken = IntegrationTestService.getDb()
-      .selectFrom(USER_ACCESS_TOKEN)
-      .where(USER_ACCESS_TOKEN.ACCESS_TOKEN.eq(accessToken))
-      .fetchOne();
+    UserAccessToken userAccessToken = testDAO.readOneAccessToken(Access.internal(), accessToken);
     assertNotNull(userAccessToken);
     // Created User Auth
-    UserAuthRecord userAuth = IntegrationTestService.getDb()
-      .selectFrom(USER_AUTH)
-      .where(USER_AUTH.ID.eq(userAccessToken.getUserAuthId()))
-      .fetchOne();
+    UserAuth userAuth = testDAO.readOneAuth(Access.internal(), userAccessToken.getUserAuthId());
     assertNotNull(userAuth);
-    assertEquals(AuthType.GOOGLE, userAuth.getType());
+    assertEquals(UserAuthType.Google, userAuth.getType());
     assertEquals("22222", userAuth.getExternalAccount());
     assertEquals("external_access_token_123", userAuth.getExternalAccessToken());
     assertEquals("external_refresh_token_123", userAuth.getExternalRefreshToken());
     // Created User
-    UserRecord user = IntegrationTestService.getDb()
-      .selectFrom(USER)
-      .where(USER.ID.eq(userAccessToken.getUserId()))
-      .fetchOne();
+    User user = testDAO.readOne(Access.internal(), userAccessToken.getUserId());
     assertNotNull(user);
-    assertEquals(ULong.valueOf(2), user.getId());
+    assertEquals(BigInteger.valueOf(2), user.getId());
     assertEquals("john", user.getName());
     assertEquals("http://pictures.com/john.gif", user.getAvatarUrl());
     assertEquals("john@email.com", user.getEmail());
@@ -156,29 +137,29 @@ public class UserIT {
 
   @Test
   public void readOne() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "user",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "User",
       "accounts", "1"
     ));
 
-    User result = new User().setFromRecord(testDAO.readOne(access, ULong.valueOf(2)));
+    User result = testDAO.readOne(access, BigInteger.valueOf(2));
 
     assertNotNull(result);
-    assertEquals(ULong.valueOf(2), result.getId());
+    assertEquals(BigInteger.valueOf(2), result.getId());
     assertEquals("john@email.com", result.getEmail());
     assertEquals("http://pictures.com/john.gif", result.getAvatarUrl());
     assertEquals("john", result.getName());
-    assertEquals("user,admin", result.getRoles());
+    assertEquals("User,Admin", result.getRoles());
   }
 
   @Test
   public void readOne_toJSONObject() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "user",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "User",
       "accounts", "1"
     ));
 
-    User result = new User().setFromRecord(testDAO.readOne(access, ULong.valueOf(2)));
+    User result = testDAO.readOne(access, BigInteger.valueOf(2));
     assertNotNull(result);
     JSONObject resultJSON = JSON.objectFrom(result);
 
@@ -187,47 +168,47 @@ public class UserIT {
     assertEquals("john@email.com", resultJSON.get("email"));
     assertEquals("http://pictures.com/john.gif", resultJSON.get("avatarUrl"));
     assertEquals("john", resultJSON.get("name"));
-    assertEquals("user,admin", resultJSON.get("roles"));
+    assertEquals("User,Admin", resultJSON.get("roles"));
   }
 
   @Test
   public void readOne_UserSeesAnotherUserWithCommonAccountMembership() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "user",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "User",
       "accounts", "1"
     ));
 
-    User result = new User().setFromRecord(testDAO.readOne(access, ULong.valueOf(3)));
+    User result = testDAO.readOne(access, BigInteger.valueOf(3));
 
     assertNotNull(result);
-    assertEquals(ULong.valueOf(3), result.getId());
+    assertEquals(BigInteger.valueOf(3), result.getId());
     assertEquals("jenny@email.com", result.getEmail());
     assertEquals("http://pictures.com/jenny.gif", result.getAvatarUrl());
     assertEquals("jenny", result.getName());
-    assertEquals("user", result.getRoles());
+    assertEquals("User", result.getRoles());
   }
 
   @Test
   public void readOne_UserCannotSeeUserWithoutCommonAccountMembership() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "user",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "User",
       "accounts", "1"
     ));
 
-    User result = new User().setFromRecord(testDAO.readOne(access, ULong.valueOf(4)));
+    User result = testDAO.readOne(access, BigInteger.valueOf(4));
 
     assertNull(result);
   }
 
   @Test
   public void readOne_UserWithNoAccountMembershipCanStillSeeSelf() throws Exception {
-    Access access = new Access(ImmutableMap.of(
+    Access access = Access.from(ImmutableMap.of(
       "userId", "4", // Bill has no account membership
-      "roles", "user",
+      "roles", "User",
       "accounts", ""
     ));
 
-    User result = new User().setFromRecord(testDAO.readOne(access, ULong.valueOf(4)));
+    User result = testDAO.readOne(access, BigInteger.valueOf(4));
 
     assertNotNull(result);
     assertEquals("bill", result.getName());
@@ -235,8 +216,8 @@ public class UserIT {
 
   @Test
   public void readAll() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "user,admin",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "User,Admin",
       "accounts", "1"
     ));
 
@@ -248,8 +229,8 @@ public class UserIT {
 
   @Test
   public void readAll_UserSeesSelfAndOtherUsersInSameAccount() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "user",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "User",
       "accounts", "1"
     ));
 
@@ -261,9 +242,9 @@ public class UserIT {
 
   @Test
   public void readAll_UserWithoutAccountMembershipSeesOnlySelf() throws Exception {
-    Access access = new Access(ImmutableMap.of(
+    Access access = Access.from(ImmutableMap.of(
       "userId", "4", // Bill is in no accounts
-      "roles", "user",
+      "roles", "User",
       "accounts", ""
     ));
 
@@ -277,46 +258,32 @@ public class UserIT {
 
   @Test
   public void destroyAllTokens() throws Exception {
-    testDAO.destroyAllTokens(ULong.valueOf(2));
+    testDAO.destroyAllTokens(BigInteger.valueOf(2));
 
-    UserAccessTokenRecord result = IntegrationTestService.getDb()
-      .selectFrom(USER_ACCESS_TOKEN)
-      .where(USER_ACCESS_TOKEN.ACCESS_TOKEN.eq("this-is-my-actual-access-token"))
-      .fetchOne();
+    UserAccessToken result = testDAO.readOneAccessToken(Access.internal(), "this-is-my-actual-access-token");
     assertNull(result);
     // future test: token destroyed in Redis
   }
 
   @Test
   public void updateUserRolesAndDestroyTokens() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "admin"
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Admin"
     ));
     User inputData = new User()
-      .setRoles("user,artist");
+      .setRoles("User,Artist");
 
-    testDAO.updateUserRolesAndDestroyTokens(access, ULong.valueOf(2), inputData);
+    testDAO.updateUserRolesAndDestroyTokens(access, BigInteger.valueOf(2), inputData);
 
     // Access Token deleted
-    UserAccessTokenRecord result = IntegrationTestService.getDb()
-      .selectFrom(USER_ACCESS_TOKEN)
-      .where(USER_ACCESS_TOKEN.ACCESS_TOKEN.eq("this-is-my-actual-access-token"))
-      .fetchOne();
+    UserAccessToken result = testDAO.readOneAccessToken(Access.internal(), "this-is-my-actual-access-token");
     assertNull(result);
     // future test: token destroyed in Redis
     // Added artist role
-    UserRoleRecord addedRole = IntegrationTestService.getDb()
-      .selectFrom(USER_ROLE)
-      .where(USER_ROLE.USER_ID.eq(ULong.valueOf(2)))
-      .and(USER_ROLE.TYPE.eq(Role.ARTIST))
-      .fetchOne();
+    UserRole addedRole = testDAO.readOneRole(Access.internal(), BigInteger.valueOf(2), UserRoleType.Artist);
     assertNotNull(addedRole);
     // Removed admin role
-    UserRoleRecord removedRole = IntegrationTestService.getDb()
-      .selectFrom(USER_ROLE)
-      .where(USER_ROLE.USER_ID.eq(ULong.valueOf(2)))
-      .and(USER_ROLE.TYPE.eq(Role.ADMIN))
-      .fetchOne();
+    UserRole removedRole = testDAO.readOneRole(Access.internal(), BigInteger.valueOf(2), UserRoleType.Admin);
     assertNull(removedRole);
   }
 

@@ -3,12 +3,10 @@ package io.xj.core.dao;
 
 import io.xj.core.access.impl.Access;
 import io.xj.core.model.voice.Voice;
-import io.xj.core.tables.records.VoiceRecord;
-
-import org.jooq.Result;
-import org.jooq.types.ULong;
 
 import javax.annotation.Nullable;
+import java.math.BigInteger;
+import java.util.Collection;
 
 public interface VoiceDAO {
 
@@ -19,7 +17,7 @@ public interface VoiceDAO {
    @param entity for the new Account User.
    @return newly readMany record
    */
-  VoiceRecord create(Access access, Voice entity) throws Exception;
+  Voice create(Access access, Voice entity) throws Exception;
 
   /**
    Fetch one Voice if accessible
@@ -30,7 +28,7 @@ public interface VoiceDAO {
    @throws Exception on failure
    */
   @Nullable
-  VoiceRecord readOne(Access access, ULong id) throws Exception;
+  Voice readOne(Access access, BigInteger id) throws Exception;
 
   /**
    Fetch all accessible Voice for one phase by id
@@ -40,17 +38,17 @@ public interface VoiceDAO {
    @return JSONArray of voices.
    @throws Exception on failure
    */
-  Result<VoiceRecord> readAll(Access access, ULong phaseId) throws Exception;
+  Collection<Voice> readAll(Access access, BigInteger phaseId) throws Exception;
 
   /**
    Fetch all accessible Voice for an pattern phase by offset
 
-   @return voices in phase
-    @param access      control
-   @param patternId      to fetch phase voices for
+   @param access      control
+   @param patternId   to fetch phase voices for
    @param phaseOffset offset of phase in pattern
+   @return voices in phase
    */
-  Result<VoiceRecord> readAllForPatternPhaseOffset(Access access, ULong patternId, ULong phaseOffset) throws Exception;
+  Collection<Voice> readAllForPatternPhaseOffset(Access access, BigInteger patternId, BigInteger phaseOffset) throws Exception;
 
   /**
    Update a specified Voice if accessible
@@ -59,7 +57,7 @@ public interface VoiceDAO {
    @param id     of specific Voice to update.
    @param entity for the updated Voice.
    */
-  void update(Access access, ULong id, Voice entity) throws Exception;
+  void update(Access access, BigInteger id, Voice entity) throws Exception;
 
   /**
    Delete a specified Voice if accessible
@@ -67,6 +65,6 @@ public interface VoiceDAO {
    @param access control
    @param id     of specific voice to delete.
    */
-  void delete(Access access, ULong id) throws Exception;
+  void delete(Access access, BigInteger id) throws Exception;
 
 }

@@ -3,13 +3,11 @@ package io.xj.hub.resource.audio_chord;
 
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
-import io.xj.core.server.HttpResponseProvider;
 import io.xj.core.dao.AudioChordDAO;
 import io.xj.core.model.audio_chord.AudioChord;
 import io.xj.core.model.audio_chord.AudioChordWrapper;
-import io.xj.core.model.role.Role;
-
-import org.jooq.types.ULong;
+import io.xj.core.model.user_role.UserRoleType;
+import io.xj.core.server.HttpResponseProvider;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -26,6 +24,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.math.BigInteger;
+import java.util.Objects;
 
 /**
  AudioChords
@@ -33,7 +33,7 @@ import java.io.IOException;
 @Path("audio-chords")
 public class AudioChordIndexResource {
   private static final Injector injector = Guice.createInjector(new CoreModule());
-  private final AudioChordDAO DAO = injector.getInstance(AudioChordDAO.class);
+  private final AudioChordDAO audioChordDAO = injector.getInstance(AudioChordDAO.class);
   private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
 
   @QueryParam("audioId")
@@ -46,18 +46,18 @@ public class AudioChordIndexResource {
    */
   @GET
   @WebResult
-  @RolesAllowed({Role.ARTIST})
+  @RolesAllowed(UserRoleType.ARTIST)
   public Response readAll(@Context ContainerRequestContext crc) throws IOException {
-    if (audioId == null || audioId.length() == 0) {
+    if (Objects.isNull(audioId) || audioId.isEmpty()) {
       return response.notAcceptable("Audio id is required");
     }
 
     try {
       return response.readMany(
         AudioChord.KEY_MANY,
-        DAO.readAll(
+        audioChordDAO.readAll(
           Access.fromContext(crc),
-          ULong.valueOf(audioId)));
+          new BigInteger(audioId)));
 
     } catch (Exception e) {
       return response.failure(e);
@@ -72,13 +72,13 @@ public class AudioChordIndexResource {
    */
   @POST
   @Consumes(MediaType.APPLICATION_JSON)
-  @RolesAllowed({Role.ARTIST})
+  @RolesAllowed(UserRoleType.ARTIST)
   public Response create(AudioChordWrapper data, @Context ContainerRequestContext crc) {
     try {
       return response.create(
         AudioChord.KEY_MANY,
         AudioChord.KEY_ONE,
-        DAO.create(
+        audioChordDAO.create(
           Access.fromContext(crc),
           data.getAudioChord()));
 

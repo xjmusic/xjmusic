@@ -2,9 +2,6 @@
 package io.xj.core.isometry;
 
 import io.xj.core.model.meme.Meme;
-import io.xj.core.transport.CSV;
-
-import org.jooq.Record;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
@@ -12,7 +9,6 @@ import com.google.common.collect.Lists;
 import org.tartarus.snowball.SnowballStemmer;
 import org.tartarus.snowball.ext.englishStemmer;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -21,7 +17,6 @@ import java.util.Map;
  Determine the isometry between a source and target group of Memes
  */
 public class MemeIsometry {
-  private static final String FIELD_NAME = "name";
   private final List<String> sourceStems;
 
   /**
@@ -36,29 +31,13 @@ public class MemeIsometry {
   }
 
   /**
-   Instantiate a new MemeIsometry from a group of source Memes
+   Instantiate a new MemeIsometry from a group of source Memes,
+   as expressed in a a Result of jOOQ records.
 
    @param sourceMemes to compare from
    @return MemeIsometry ready for comparison to target Memes
    */
-  public static MemeIsometry of(Collection<? extends Meme> sourceMemes) {
-    return new MemeIsometry(sourceMemes);
-  }
-
-  /**
-   Instantiate a new MemeIsometry from a group of source Memes,
-   as expressed in a a Result of jOOQ records.
-
-   @param sourceMemeRecords to compare from
-   @return MemeIsometry ready for comparison to target Memes
-   */
-  public static <R extends Record> MemeIsometry of(Iterable<R> sourceMemeRecords) {
-    List<Meme> sourceMemes = Lists.newArrayList();
-
-    sourceMemeRecords.forEach(record -> sourceMemes.add(
-      new Meme().setName(String.valueOf(record.get(FIELD_NAME)))
-    ));
-
+  public static <R extends Meme> MemeIsometry of(Iterable<R> sourceMemes) {
     return new MemeIsometry(sourceMemes);
   }
 
@@ -85,20 +64,6 @@ public class MemeIsometry {
    */
   List<String> getSourceStems() {
     return Collections.unmodifiableList(sourceStems);
-  }
-
-  /**
-   Score a CSV list of memes based on isometry to source memes
-
-   @param memesCSV comma-separated values to score against source meme names
-   @return score is between 0 (no matches) and 1 (all memes match)
-   */
-  public double scoreCSV(String memesCSV) {
-    Collection<Meme> memes = Lists.newArrayList();
-    CSV.split(memesCSV).forEach((name) -> {
-      memes.add(new Meme().setName(name)); // can use any meme impl
-    });
-    return score(memes);
   }
 
   /**

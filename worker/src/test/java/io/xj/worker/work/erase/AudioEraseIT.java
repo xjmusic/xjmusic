@@ -2,16 +2,15 @@
 package io.xj.worker.work.erase;
 
 import io.xj.core.CoreModule;
+import io.xj.core.access.impl.Access;
 import io.xj.core.app.App;
+import io.xj.core.dao.AudioDAO;
 import io.xj.core.external.amazon.AmazonProvider;
 import io.xj.core.integration.IntegrationTestEntity;
-import io.xj.core.integration.IntegrationTestService;
 import io.xj.core.model.instrument.InstrumentType;
-import io.xj.core.model.role.Role;
+import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.work.WorkManager;
 import io.xj.worker.WorkerModule;
-
-import org.jooq.types.ULong;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -29,8 +28,9 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static io.xj.core.tables.Audio.AUDIO;
-import static org.junit.Assert.assertEquals;
+import java.math.BigInteger;
+
+import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -40,8 +40,8 @@ public class AudioEraseIT {
   private App app;
   private static final int TEST_DURATION_SECONDS = 3;
   private static final int MILLIS_PER_SECOND = 1000;
-  @Mock private AmazonProvider amazonProvider;
-  @Spy private final WorkManager workManager = Guice.createInjector(new CoreModule()).getInstance(WorkManager.class);
+  @Mock AmazonProvider amazonProvider;
+  @Spy final WorkManager workManager = Guice.createInjector(new CoreModule()).getInstance(WorkManager.class);
 
   @Before
   public void setUp() throws Exception {
@@ -58,11 +58,11 @@ public class AudioEraseIT {
 
     // Ted has "user" and "admin" roles, belongs to account "pilots", has "google" auth
     IntegrationTestEntity.insertUser(2, "ted", "ted@email.com", "http://pictures.com/ted.gif");
-    IntegrationTestEntity.insertUserRole(1, 2, Role.ADMIN);
+    IntegrationTestEntity.insertUserRole(1, 2, UserRoleType.Admin);
 
     // Sally has a "user" role and belongs to account "pilots"
     IntegrationTestEntity.insertUser(3, "sally", "sally@email.com", "http://pictures.com/sally.gif");
-    IntegrationTestEntity.insertUserRole(2, 3, Role.USER);
+    IntegrationTestEntity.insertUserRole(2, 3, UserRoleType.User);
     IntegrationTestEntity.insertAccountUser(3, 1, 3);
 
     // Library "house"
@@ -119,22 +119,21 @@ public class AudioEraseIT {
   public void runWorker() throws Exception {
     app.start();
 
-    app.getWorkManager().startAudioErase(ULong.valueOf(1));
-    app.getWorkManager().startAudioErase(ULong.valueOf(2));
+    app.getWorkManager().startAudioErase(BigInteger.valueOf(1));
+    app.getWorkManager().startAudioErase(BigInteger.valueOf(2));
 
     Thread.sleep(TEST_DURATION_SECONDS * MILLIS_PER_SECOND);
     app.stop();
 
-    assertEquals(0, IntegrationTestService.getDb()
-      .selectFrom(AUDIO)
-      .fetch().size());
+    assertNull( injector.getInstance(AudioDAO.class).readOne(Access.internal(), BigInteger.valueOf(1)));
+    assertNull( injector.getInstance(AudioDAO.class).readOne(Access.internal(), BigInteger.valueOf(2)));
 
     verify(amazonProvider).deleteS3Object("xj-audio-test",
       "instrument-1-audio-asdg709a709835789agw73yh87.wav");
     verify(amazonProvider).deleteS3Object("xj-audio-test",
       "instrument-1-audio-978as789dgih35hi897gjhyi8f.wav");
-    verify(workManager).stopAudioErase(ULong.valueOf(1));
-    verify(workManager).stopAudioErase(ULong.valueOf(2));
+    verify(workManager).stopAudioErase(BigInteger.valueOf(1));
+    verify(workManager).stopAudioErase(BigInteger.valueOf(2));
   }
 
 }

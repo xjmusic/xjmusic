@@ -3,13 +3,13 @@ package io.xj.hub.resource.audio;
 
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
+import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.server.HttpResponseProvider;
 import io.xj.core.dao.AudioDAO;
 import io.xj.core.model.audio.Audio;
 import io.xj.core.model.audio.AudioWrapper;
-import io.xj.core.model.role.Role;
 
-import org.jooq.types.ULong;
+
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -26,6 +26,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.math.BigInteger;
+import java.util.Objects;
 
 /**
  Audios
@@ -46,9 +48,9 @@ public class AudioIndexResource {
    */
   @GET
   @WebResult
-  @RolesAllowed({Role.ARTIST})
+  @RolesAllowed({UserRoleType.ARTIST})
   public Response readAll(@Context ContainerRequestContext crc) throws IOException {
-    if (instrumentId == null || instrumentId.length() == 0) {
+    if (Objects.isNull(instrumentId) || instrumentId.isEmpty()) {
       return response.notAcceptable("Instrument id is required");
     }
 
@@ -57,7 +59,7 @@ public class AudioIndexResource {
         Audio.KEY_MANY,
         DAO.readAll(
           Access.fromContext(crc),
-          ULong.valueOf(instrumentId)));
+          new BigInteger(instrumentId)));
 
     } catch (Exception e) {
       return response.failure(e);
@@ -72,7 +74,7 @@ public class AudioIndexResource {
    */
   @POST
   @Consumes(MediaType.APPLICATION_JSON)
-  @RolesAllowed({Role.ARTIST})
+  @RolesAllowed({UserRoleType.ARTIST})
   public Response create(AudioWrapper data, @Context ContainerRequestContext crc) {
     try {
       return response.create(

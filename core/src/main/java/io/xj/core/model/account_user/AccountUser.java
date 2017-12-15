@@ -4,20 +4,11 @@ package io.xj.core.model.account_user;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.model.Entity;
 
-import org.jooq.Field;
-import org.jooq.Record;
-import org.jooq.types.ULong;
-
-import com.google.api.client.util.Maps;
-
 import java.math.BigInteger;
-import java.util.Map;
-import java.util.Objects;
-
-import static io.xj.core.Tables.ACCOUNT_USER;
 
 /**
- Entity for use as POJO for decoding messages received by JAX-RS resources
+ POJO for persisting data in memory while performing business logic,
+or decoding messages received by JAX-RS resources.
  a.k.a. JSON input will be stored into an instance of this object
 
  Business logic ought to be performed beginning with an instance of this object,
@@ -33,25 +24,25 @@ public class AccountUser extends Entity {
   public static final String KEY_ONE = "accountUser";
   public static final String KEY_MANY = "accountUsers";
   // Account ID
-  private ULong accountId;
+  private BigInteger accountId;
   // User ID
-  private ULong userId;
+  private BigInteger userId;
 
-  public ULong getAccountId() {
+  public BigInteger getAccountId() {
     return accountId;
   }
 
   public AccountUser setAccountId(BigInteger accountId) {
-    this.accountId = ULong.valueOf(accountId);
+    this.accountId = accountId;
     return this;
   }
 
-  public ULong getUserId() {
+  public BigInteger getUserId() {
     return userId;
   }
 
   public AccountUser setUserId(BigInteger userId) {
-    this.userId = ULong.valueOf(userId);
+    this.userId = userId;
     return this;
   }
 
@@ -64,27 +55,5 @@ public class AccountUser extends Entity {
       throw new BusinessException("User ID is required.");
     }
   }
-
-  @Override
-  public AccountUser setFromRecord(Record record) {
-    if (Objects.isNull(record)) {
-      return null;
-    }
-    id = record.get(ACCOUNT_USER.ID);
-    accountId = record.get(ACCOUNT_USER.ACCOUNT_ID);
-    userId = record.get(ACCOUNT_USER.USER_ID);
-    createdAt = record.get(ACCOUNT_USER.CREATED_AT);
-    updatedAt = record.get(ACCOUNT_USER.UPDATED_AT);
-    return this;
-  }
-
-  @Override
-  public Map<Field, Object> updatableFieldValueMap() {
-    Map<Field, Object> fieldValues = Maps.newHashMap();
-    fieldValues.put(ACCOUNT_USER.ACCOUNT_ID, accountId);
-    fieldValues.put(ACCOUNT_USER.USER_ID, userId);
-    return fieldValues;
-  }
-
 
 }

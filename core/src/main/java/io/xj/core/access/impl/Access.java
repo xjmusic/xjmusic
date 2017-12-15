@@ -3,17 +3,17 @@ package io.xj.core.access.impl;
 
 import io.xj.core.CoreModule;
 import io.xj.core.model.account.Account;
-import io.xj.core.model.role.Role;
-import io.xj.core.tables.records.AccountUserRecord;
-import io.xj.core.tables.records.UserAuthRecord;
-import io.xj.core.tables.records.UserRoleRecord;
+import io.xj.core.model.account_user.AccountUser;
+import io.xj.core.model.user.User;
+import io.xj.core.model.user_auth.UserAuth;
+import io.xj.core.model.user_role.UserRole;
+import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.transport.CSV;
-
-import org.jooq.types.ULong;
+import io.xj.core.util.Text;
 
 import com.google.api.client.json.JsonFactory;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
@@ -22,54 +22,75 @@ import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.container.ContainerRequestContext;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.math.BigInteger;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
 
 public class Access {
   public static final String CONTEXT_KEY = "userAccess";
   private static final Logger log = LoggerFactory.getLogger(Access.class);
   private static final Injector injector = Guice.createInjector(new CoreModule());
-  private static final String USER_ID_KEY = "userId";
-  private static final String USER_AUTH_ID_KEY = "userAuthId";
-  private static final String ACCOUNTS_KEY = Account.KEY_MANY;
-  private static final String ROLES_KEY = Role.KEY_MANY;
-  private final static String[] topLevelRoles = new String[]{Role.ADMIN, Role.INTERNAL};
+  private static final String KEY_USER_ID = "userId";
+  private static final String KEY_USER_AUTH_ID = "userAuthId";
+  private static final String KEY_ACCOUNT_IDS = Account.KEY_MANY;
+  private static final String KEY_ROLE_TYPES = User.KEY_ROLES;
+  private static final UserRoleType[] topLevelRoles = {UserRoleType.Admin, UserRoleType.Internal};
   private final JsonFactory jsonFactory = injector.getInstance(JsonFactory.class);
-  private Map<String, String> innerMap;
-  private ULong[] accountIds;
-  private Boolean isTopLevel;
+  private Collection<UserRoleType> roleTypes;
+  private Collection<BigInteger> accountIds;
+  private BigInteger userId;
+  private BigInteger userAuthId;
 
+  /**
+   Construct an Access model from models retrieved from structured data persistence layer
+
+   @param userAuth     model
+   @param userAccounts models
+   @param userRoles    models
+   */
   public Access(
-    UserAuthRecord userAuthRecord,
-    Collection<AccountUserRecord> userAccountRoleRecords,
-    Collection<UserRoleRecord> userRoleRecords
+    UserAuth userAuth,
+    Collection<AccountUser> userAccounts,
+    Collection<UserRole> userRoles
   ) {
-    this.innerMap = new HashMap<>();
-    this.innerMap.put(USER_ID_KEY, String.valueOf(userAuthRecord.getUserId()));
-    this.innerMap.put(USER_AUTH_ID_KEY, String.valueOf(userAuthRecord.getId()));
-
-    this.accountIds = accountIdsFromRoleRecords(userAccountRoleRecords);
-    this.innerMap.put(ACCOUNTS_KEY, csvFromAccountIds(this.accountIds));
-
-    List<String> roles = new ArrayList<>();
-    for (UserRoleRecord role : userRoleRecords) {
-      roles.add(role.getType());
-    }
-    this.innerMap.put(ROLES_KEY, CSV.join(roles));
-    this.isTopLevel = matchAnyOf(topLevelRoles);
+    userId = userAuth.getUserId();
+    userAuthId = userAuth.getId();
+    accountIds = accountIdsFromAccountUsers(userAccounts);
+    roleTypes = roleTypesFromUserRoles(userRoles);
   }
 
-  public Access(
-    Map<String, String> innerMap
-  ) {
-    this.innerMap = innerMap;
-    if (innerMap != null) {
-      this.accountIds = accountIdsFromCSV(innerMap.get(ACCOUNTS_KEY));
-      this.isTopLevel = matchAnyOf(topLevelRoles);
+  /**
+   For parsing an incoming message, e.g. stored session in Redis
+
+   @param data to parse
+   */
+  public static Access from(Map<String, String> data) {
+    Access result = new Access();
+
+
+    if (data.containsKey(KEY_USER_ID)) {
+      result.setUserId(new BigInteger(data.get(KEY_USER_ID)));
     }
+    if (data.containsKey(KEY_USER_AUTH_ID)) {
+      result.setUserAuthId(new BigInteger(data.get(KEY_USER_AUTH_ID)));
+    }
+    if (data.containsKey(KEY_ROLE_TYPES)) {
+      result.setRoleTypes(roleTypesFromCSV(data.get(KEY_ROLE_TYPES)));
+    }
+    if (data.containsKey(KEY_ACCOUNT_IDS)) {
+      result.setAccountIds(idsFromCSV(data.get(KEY_ACCOUNT_IDS)));
+    }
+
+    return result;
+  }
+
+  /**
+   Supports the static Access.from(Map) method
+   */
+  private Access() {
   }
 
   /**
@@ -79,7 +100,7 @@ public class Access {
    @return access control
    */
   public static Access fromContext(ContainerRequestContext crc) {
-    return (Access) crc.getProperty(Access.CONTEXT_KEY);
+    return (Access) crc.getProperty(CONTEXT_KEY);
   }
 
   /**
@@ -88,9 +109,9 @@ public class Access {
    @return access control
    */
   public static Access internal() {
-    return new Access(ImmutableMap.of(
-      Role.KEY_MANY, Role.INTERNAL
-    ));
+    Access result = new Access();
+    result.setRoleTypes(Lists.newArrayList(UserRoleType.Internal));
+    return result;
   }
 
   /**
@@ -99,12 +120,31 @@ public class Access {
    @param matchRoles of the resource to match.
    @return whether user access roles match resource access roles.
    */
-  public boolean matchAnyOf(String... matchRoles) {
+  public boolean isAllowed(UserRoleType... matchRoles) {
+    // inefficient?
+
+    for (UserRoleType matchRole : matchRoles) {
+      for (UserRoleType userRoleType : roleTypes) {
+        if (userRoleType == matchRole) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  /**
+   Determine if user access roles match any of the given resource access roles.
+
+   @param matchRoles of the resource to match.
+   @return whether user access roles match resource access roles.
+   */
+  public boolean isAllowed(String... matchRoles) {
     // inefficient?
 
     for (String matchRole : matchRoles) {
-      for (String userRole : getRoles()) {
-        if (userRole.equals(matchRole)) {
+      for (UserRoleType userRoleType : roleTypes) {
+        if (userRoleType == UserRoleType.valueOf(matchRole)) {
           return true;
         }
       }
@@ -117,22 +157,8 @@ public class Access {
 
    @return id
    */
-  public ULong getUserId() {
-    return ULong.valueOf(innerMap.get(USER_ID_KEY));
-  }
-
-  /**
-   Get a representation of this access control
-
-   @return JSON
-   */
-  public String toJSON() {
-    try {
-      return jsonFactory.toString(innerMap);
-    } catch (IOException e) {
-      log.error("failed JSON serialization", e);
-      return "{}";
-    }
+  public BigInteger getUserId() {
+    return userId;
   }
 
   /**
@@ -140,8 +166,63 @@ public class Access {
 
    @return array of account id
    */
-  public ULong[] getAccounts() {
-    return accountIds;
+  public Collection<BigInteger> getAccountIds() {
+    return Collections.unmodifiableCollection(accountIds);
+  }
+
+
+  /**
+   Get user role types
+
+   @return user role types
+   */
+  public Collection<UserRoleType> getRoleTypes() {
+    return Collections.unmodifiableCollection(roleTypes);
+  }
+
+  /**
+   Get user auth id
+
+   @return user auth id
+   */
+  public BigInteger getUserAuthId() {
+    return userAuthId;
+  }
+
+  /**
+   PACKAGE PRIVATE set role types
+
+   @param roleTypes to set
+   */
+  void setRoleTypes(Iterable<UserRoleType> roleTypes) {
+    this.roleTypes = Lists.newArrayList(roleTypes);
+  }
+
+  /**
+   PACKAGE PRIVATE set account ids
+
+   @param accountIds to set
+   */
+  void setAccountIds(Iterable<BigInteger> accountIds) {
+    this.accountIds = Lists.newLinkedList(accountIds);
+  }
+
+  /**
+   PACKAGE PRIVATE set user id
+
+   @param userId to set
+   */
+  void setUserId(BigInteger userId) {
+    this.userId = userId;
+  }
+
+  /**
+   PACKAGE PRIVATE set user auth id
+
+   @param userAuthId to set
+   */
+  void setUserAuthId(BigInteger userAuthId) {
+    this.userAuthId = userAuthId;
   }
 
   /**
@@ -150,26 +231,18 @@ public class Access {
    @return boolean
    */
   public Boolean isTopLevel() {
-    return isTopLevel;
-  }
-
-  /**
-   Inner map
-   */
-  public Map<String, String> intoMap() {
-    return innerMap;
+    return isAllowed(topLevelRoles);
   }
 
   /**
    Validation
    */
-  public boolean valid() {
+  public boolean isValid() {
     return
-      innerMap != null &&
-        innerMap.containsKey(USER_ID_KEY) &&
-        innerMap.containsKey(USER_AUTH_ID_KEY) &&
-        innerMap.containsKey(ROLES_KEY) &&
-        innerMap.containsKey(ACCOUNTS_KEY);
+      Objects.nonNull(userId) &&
+        Objects.nonNull(userAuthId) &&
+        Objects.nonNull(roleTypes) &&
+        Objects.nonNull(accountIds);
   }
 
   /**
@@ -178,9 +251,9 @@ public class Access {
    @param accountId to check
    @return true if has access
    */
-  public Boolean hasAccount(ULong accountId) {
-    if (accountId != null) {
-      for (ULong matchAccountId : accountIds) {
+  public Boolean hasAccount(BigInteger accountId) {
+    if (null != accountId) {
+      for (BigInteger matchAccountId : accountIds) {
         if (accountId.equals(matchAccountId)) {
           return true;
         }
@@ -190,60 +263,137 @@ public class Access {
   }
 
   /**
-   Convert a collection of account role records into an array of account ids
-   */
-  private ULong[] accountIdsFromRoleRecords(Collection<AccountUserRecord> userAccountRoleRecords) {
-    ULong[] result = new ULong[userAccountRoleRecords.size()];
-    int i = 0;
-    for (AccountUserRecord accountRole : userAccountRoleRecords) {
-      result[i] = accountRole.getAccountId();
-      ++i;
-    }
-    return result;
-  }
+   write a collection of ids to a CSV string
 
-  /**
-   Convert an array of account ids into a CSV
+   @param ids to write
+   @return CSV of ids
    */
-  private String csvFromAccountIds(ULong[] accountIds) {
-    if (accountIds.length == 0) {
+  private static String csvFromIds(Collection<BigInteger> ids) {
+    if (Objects.isNull(ids) || ids.isEmpty()) {
       return "";
     }
-    String result = accountIds[0].toString();
-    if (accountIds.length > 1) {
-      for (int i = 1; i < accountIds.length; i++) {
-        result += "," + accountIds[i].toString();
-      }
+    Iterator<BigInteger> it = ids.iterator();
+    StringBuilder result = new StringBuilder(it.next().toString());
+    while (it.hasNext()) {
+      result.append(",").append(it.next());
     }
+    return result.toString();
+  }
+
+  /**
+   write a collection of types to a CSV string
+
+   @param types to write
+   @return CSV of types
+   */
+  private static String csvFromRoleTypes(Collection<UserRoleType> types) {
+    if (Objects.isNull(types) || types.isEmpty()) {
+      return "";
+    }
+    Iterator<UserRoleType> it = types.iterator();
+    StringBuilder result = new StringBuilder(it.next().toString());
+    while (it.hasNext()) {
+      result.append(",").append(it.next());
+    }
+    return result.toString();
+  }
+
+  /**
+   extract collection of role types from collection of user roles
+
+   @param userRoles to get types from
+   @return collection of role types
+   */
+  private static Collection<UserRoleType> roleTypesFromUserRoles(Collection<UserRole> userRoles) {
+    Collection<UserRoleType> result = Lists.newArrayList();
+
+    if (Objects.nonNull(userRoles) && !userRoles.isEmpty()) {
+      userRoles.forEach((userRole) -> result.add(userRole.getType()));
+    }
+
     return result;
   }
 
   /**
-   Get a list of roles for this access control
+   extract a collection of ids from a string CSV
+
+   @param csv to parse
+   @return collection of ids
    */
-  private Collection<String> getRoles() {
-    String roles = innerMap.get(ROLES_KEY);
-    if (roles != null) {
-      return CSV.split(roles);
-    } else {
-      return ImmutableList.of();
+  private static Collection<UserRoleType> roleTypesFromCSV(String csv) {
+    Collection<UserRoleType> result = Lists.newArrayList();
+
+    if (Objects.nonNull(csv) && !csv.isEmpty()) {
+      CSV.split(csv).forEach((type) -> result.add(UserRoleType.valueOf(Text.toProperSlug(type))));
+    }
+
+    return result;
+  }
+
+  /**
+   extract collection of account ids from collection of account users
+
+   @param accountUsers to get account ids from
+   @return collection of account ids
+   */
+  private static Collection<BigInteger> accountIdsFromAccountUsers(Collection<AccountUser> accountUsers) {
+    Collection<BigInteger> result = Lists.newArrayList();
+
+    if (Objects.nonNull(accountUsers) && !accountUsers.isEmpty()) {
+      accountUsers.forEach((accountUser) -> result.add(accountUser.getAccountId()));
+    }
+
+    return result;
+  }
+
+  /**
+   extract a collection of ids from a string CSV
+
+   @param csv to parse
+   @return collection of ids
+   */
+  private static Collection<BigInteger> idsFromCSV(String csv) {
+    Collection<BigInteger> result = Lists.newArrayList();
+
+    if (Objects.nonNull(csv) && !csv.isEmpty()) {
+      CSV.split(csv).forEach((id) -> result.add(new BigInteger((id))));
+    }
+
+    return result;
+  }
+
+  /**
+   Get a representation of this access control
+
+   @return JSON
+   */
+  public String toJSON() {
+    try {
+      return jsonFactory.toString(toMap());
+    } catch (IOException e) {
+      log.error("failed JSON serialization", e);
+      return "{}";
     }
   }
 
   /**
-   Get an array of account ids from a CSV string
+   Inner map
    */
-  private ULong[] accountIdsFromCSV(String csv) {
-    if (csv == null || csv.length() == 0) {
-      return new ULong[0];
-    }
-    Collection<String> accountIdList = CSV.split(csv);
-    ULong[] result = new ULong[accountIdList.size()];
-    int i = 0;
-    for (String accountId : accountIdList) {
-      result[i] = ULong.valueOf(accountId);
-      ++i;
-    }
+  public Map<String, String> toMap() {
+    Map<String, String> result = Maps.newHashMap();
+
+    if (Objects.nonNull(userId))
+      result.put(KEY_USER_ID, userId.toString());
+
+    if (Objects.nonNull(userAuthId))
+      result.put(KEY_USER_AUTH_ID, userAuthId.toString());
+
+    if (Objects.nonNull(roleTypes))
+      result.put(KEY_ROLE_TYPES, csvFromRoleTypes(roleTypes));
+
+    if (Objects.nonNull(accountIds))
+      result.put(KEY_ACCOUNT_IDS, csvFromIds(accountIds));
+
     return result;
   }
 

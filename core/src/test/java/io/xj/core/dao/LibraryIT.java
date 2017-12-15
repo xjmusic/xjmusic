@@ -5,13 +5,9 @@ import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.integration.IntegrationTestEntity;
-import io.xj.core.integration.IntegrationTestService;
-import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.library.Library;
-import io.xj.core.tables.records.LibraryRecord;
+import io.xj.core.model.pattern.PatternType;
 import io.xj.core.transport.JSON;
-
-import org.jooq.types.ULong;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Guice;
@@ -25,7 +21,6 @@ import org.junit.Test;
 
 import java.math.BigInteger;
 
-import static io.xj.core.tables.Library.LIBRARY;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -59,24 +54,24 @@ public class LibraryIT {
 
   @Test
   public void create() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "admin"
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Admin"
     ));
     Library inputData = new Library()
       .setName("manuts")
       .setAccountId(BigInteger.valueOf(1));
 
-    JSONObject result = JSON.objectFromRecord(testDAO.create(access, inputData));
+    Library result = testDAO.create(access, inputData);
 
     assertNotNull(result);
-    assertEquals(ULong.valueOf(1), result.get("accountId"));
-    assertEquals("manuts", result.get("name"));
+    assertEquals(BigInteger.valueOf(1), result.getAccountId());
+    assertEquals("manuts", result.getName());
   }
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutAccountID() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "admin"
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Admin"
     ));
     Library inputData = new Library()
       .setName("manuts");
@@ -86,39 +81,39 @@ public class LibraryIT {
 
   @Test
   public void readOne() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "user",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "User",
       "accounts", "1"
     ));
 
-    Library result = new Library().setFromRecord(testDAO.readOne(access, ULong.valueOf(2)));
+    Library result = testDAO.readOne(access, BigInteger.valueOf(2));
 
     assertNotNull(result);
-    assertEquals(ULong.valueOf(2), result.getId());
-    assertEquals(ULong.valueOf(1), result.getAccountId());
+    assertEquals(BigInteger.valueOf(2), result.getId());
+    assertEquals(BigInteger.valueOf(1), result.getAccountId());
     assertEquals("coconuts", result.getName());
   }
 
   @Test
   public void readOne_FailsWhenUserIsNotInAccount() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "user",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "User",
       "accounts", "326"
     ));
 
-    LibraryRecord result = testDAO.readOne(access, ULong.valueOf(1));
+    Library result = testDAO.readOne(access, BigInteger.valueOf(1));
 
     assertNull(result);
   }
 
   @Test
   public void readAll() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "user",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "User",
       "accounts", "1"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ULong.valueOf(1)));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, BigInteger.valueOf(1)));
 
     assertNotNull(result);
     assertEquals(2, result.length());
@@ -130,12 +125,12 @@ public class LibraryIT {
 
   @Test
   public void readAll_SeesNothingOutsideOfAccount() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "user",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "User",
       "accounts", "345"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ULong.valueOf(1)));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, BigInteger.valueOf(1)));
 
     assertNotNull(result);
     assertEquals(0, result.length());
@@ -143,141 +138,123 @@ public class LibraryIT {
 
   @Test(expected = BusinessException.class)
   public void update_FailsWithoutAccountID() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "admin"
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Admin"
     ));
     Library inputData = new Library()
       .setName("cannons");
 
-    testDAO.update(access, ULong.valueOf(3), inputData);
+    testDAO.update(access, BigInteger.valueOf(3), inputData);
   }
 
   @Test(expected = BusinessException.class)
   public void update_FailsWithoutName() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "admin"
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Admin"
     ));
     Library inputData = new Library()
       .setAccountId(BigInteger.valueOf(3));
 
-    testDAO.update(access, ULong.valueOf(3), inputData);
+    testDAO.update(access, BigInteger.valueOf(3), inputData);
   }
 
   @Test
   public void update() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "admin"
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Admin"
     ));
     Library inputData = new Library()
       .setName("cannons")
       .setAccountId(BigInteger.valueOf(1));
 
-    testDAO.update(access, ULong.valueOf(3), inputData);
+    testDAO.update(access, BigInteger.valueOf(3), inputData);
 
-    LibraryRecord result = IntegrationTestService.getDb()
-      .selectFrom(LIBRARY)
-      .where(LIBRARY.ID.eq(ULong.valueOf(3)))
-      .fetchOne();
+    Library result = testDAO.readOne(Access.internal(), BigInteger.valueOf(3));
     assertNotNull(result);
     assertEquals("cannons", result.getName());
-    assertEquals(ULong.valueOf(1), result.getAccountId());
+    assertEquals(BigInteger.valueOf(1), result.getAccountId());
   }
 
   @Test(expected = BusinessException.class)
   public void update_FailsUpdatingToNonexistentAccount() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "admin"
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Admin"
     ));
     Library inputData = new Library()
       .setName("cannons")
       .setAccountId(BigInteger.valueOf(3978));
 
     try {
-      testDAO.update(access, ULong.valueOf(3), inputData);
+      testDAO.update(access, BigInteger.valueOf(3), inputData);
 
     } catch (Exception e) {
-      LibraryRecord result = IntegrationTestService.getDb()
-        .selectFrom(LIBRARY)
-        .where(LIBRARY.ID.eq(ULong.valueOf(3)))
-        .fetchOne();
+      Library result = testDAO.readOne(Access.internal(), BigInteger.valueOf(3));
       assertNotNull(result);
       assertEquals("helm", result.getName());
-      assertEquals(ULong.valueOf(2), result.getAccountId());
+      assertEquals(BigInteger.valueOf(2), result.getAccountId());
       throw e;
     }
   }
 
   @Test
   public void update_Name() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "admin"
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Admin"
     ));
     Library inputData = new Library()
       .setName("cannons")
       .setAccountId(BigInteger.valueOf(2));
 
-    testDAO.update(access, ULong.valueOf(3), inputData);
+    testDAO.update(access, BigInteger.valueOf(3), inputData);
 
-    LibraryRecord result = IntegrationTestService.getDb()
-      .selectFrom(LIBRARY)
-      .where(LIBRARY.ID.eq(ULong.valueOf(3)))
-      .fetchOne();
+    Library result = testDAO.readOne(Access.internal(), BigInteger.valueOf(3));
     assertNotNull(result);
     assertEquals("cannons", result.getName());
-    assertEquals(ULong.valueOf(2), result.getAccountId());
+    assertEquals(BigInteger.valueOf(2), result.getAccountId());
   }
 
   @Test
   public void update_NameAndAccount() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "admin"
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Admin"
     ));
     Library inputData = new Library()
       .setName("trunk")
       .setAccountId(BigInteger.valueOf(1));
 
-    testDAO.update(access, ULong.valueOf(3), inputData);
+    testDAO.update(access, BigInteger.valueOf(3), inputData);
 
-    LibraryRecord result = IntegrationTestService.getDb()
-      .selectFrom(LIBRARY)
-      .where(LIBRARY.ID.eq(ULong.valueOf(3)))
-      .fetchOne();
+    Library result = testDAO.readOne(Access.internal(), BigInteger.valueOf(3));
     assertNotNull(result);
     assertEquals("trunk", result.getName());
-    assertEquals(ULong.valueOf(1), result.getAccountId());
+    assertEquals(BigInteger.valueOf(1), result.getAccountId());
   }
 
   @Test
   public void delete() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "admin"
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Admin"
     ));
 
-    testDAO.delete(access, ULong.valueOf(1));
+    testDAO.delete(access, BigInteger.valueOf(1));
 
-    LibraryRecord result = IntegrationTestService.getDb()
-      .selectFrom(LIBRARY)
-      .where(LIBRARY.ID.eq(ULong.valueOf(1)))
-      .fetchOne();
+    Library result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1));
     assertNull(result);
   }
 
   @Test(expected = BusinessException.class)
-  public void delete_FailsIfLibraryHasChildRecords() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "admin"
+  public void delete_FailsIfLibraryHasChilds() throws Exception {
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Admin"
     ));
     IntegrationTestEntity.insertUser(101, "bill", "bill@email.com", "http://pictures.com/bill.gif");
     IntegrationTestEntity.insertPattern(301, 101, 2, PatternType.Main, "brilliant", 0.342, "C#", 0.286);
 
     try {
-      testDAO.delete(access, ULong.valueOf(2));
+      testDAO.delete(access, BigInteger.valueOf(2));
     } catch (Exception e) {
-      LibraryRecord stillExistingRecord = IntegrationTestService.getDb()
-        .selectFrom(LIBRARY)
-        .where(LIBRARY.ID.eq(ULong.valueOf(2)))
-        .fetchOne();
-      assertNotNull(stillExistingRecord);
+      Library result = testDAO.readOne(Access.internal(), BigInteger.valueOf(2));
+      assertNotNull(result);
       throw e;
     }
   }

@@ -50,13 +50,6 @@
       <version>${jersey.version}</version>
     </dependency>
 
-    <!-- https://mvnrepository.com/artifact/org.jooq/jooq -->
-    <dependency>
-      <groupId>org.jooq</groupId>
-      <artifactId>jooq</artifactId>
-      <version>3.8.6</version>
-    </dependency>
-
     <!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
     <dependency>
       <groupId>mysql</groupId>

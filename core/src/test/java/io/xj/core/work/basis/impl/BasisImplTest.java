@@ -23,8 +23,6 @@ import io.xj.core.work.basis.Basis;
 import io.xj.core.work.basis.BasisFactory;
 import io.xj.music.Tuning;
 
-import org.jooq.types.ULong;
-
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -209,12 +207,12 @@ public class BasisImplTest {
 
   @Test
   public void secondsAtPosition_zero() throws Exception {
-    when(linkDAO.readOneAtChainOffset(any(),eq(ULong.valueOf(977)),eq(ULong.valueOf(1)))).thenReturn(new Link(4212)
+    when(linkDAO.readOneAtChainOffset(any(), eq(BigInteger.valueOf(977)), eq(BigInteger.valueOf(1)))).thenReturn(new Link(4212)
       .setOffset(BigInteger.valueOf(1))
       .setDensity(0.6)
       .setKey("F major")
       .setState("Crafted")
-      .setTempo(60)
+      .setTempo(60.0)
       .setChainId(BigInteger.valueOf(977))
       .setTotal(8)
       .setBeginAt("2017-12-12 01:00:08.000000")
@@ -224,23 +222,23 @@ public class BasisImplTest {
       .setDensity(0.6)
       .setKey("G major")
       .setState("Crafting")
-      .setTempo(120)
+      .setTempo(120.0)
       .setChainId(BigInteger.valueOf(977))
       .setTotal(8)
       .setBeginAt("2017-12-12 01:00:16.000000")
       .setEndAt("2017-12-12 01:00:22.000000"));
 
-    assertEquals(Double.valueOf(0),subject.secondsAtPosition(0));
+    assertEquals(Double.valueOf(0), subject.secondsAtPosition(0));
   }
 
   @Test
   public void secondsAtPosition_tempoChangeMiddle() throws Exception {
-    when(linkDAO.readOneAtChainOffset(any(),eq(ULong.valueOf(977)),eq(ULong.valueOf(1)))).thenReturn(new Link(4212)
+    when(linkDAO.readOneAtChainOffset(any(), eq(BigInteger.valueOf(977)), eq(BigInteger.valueOf(1)))).thenReturn(new Link(4212)
       .setOffset(BigInteger.valueOf(1))
       .setDensity(0.6)
       .setKey("F major")
       .setState("Crafted")
-      .setTempo(60)
+      .setTempo(60.0)
       .setChainId(BigInteger.valueOf(977))
       .setTotal(8)
       .setBeginAt("2017-12-12 01:00:08.000000")
@@ -250,23 +248,23 @@ public class BasisImplTest {
       .setDensity(0.6)
       .setKey("G major")
       .setState("Crafting")
-      .setTempo(120)
+      .setTempo(120.0)
       .setChainId(BigInteger.valueOf(977))
       .setTotal(8)
       .setBeginAt("2017-12-12 01:00:16.000000")
       .setEndAt("2017-12-12 01:00:22.000000"));
 
-    assertEquals(Double.valueOf(3.53125),subject.secondsAtPosition(4));
+    assertEquals(Double.valueOf(3.53125), subject.secondsAtPosition(4));
   }
 
   @Test
   public void secondsAtPosition_tempoChangeEnd() throws Exception {
-    when(linkDAO.readOneAtChainOffset(any(),eq(ULong.valueOf(977)),eq(ULong.valueOf(1)))).thenReturn(new Link(4212)
+    when(linkDAO.readOneAtChainOffset(any(), eq(BigInteger.valueOf(977)), eq(BigInteger.valueOf(1)))).thenReturn(new Link(4212)
       .setOffset(BigInteger.valueOf(1))
       .setDensity(0.6)
       .setKey("F major")
       .setState("Crafted")
-      .setTempo(60)
+      .setTempo(60.0)
       .setChainId(BigInteger.valueOf(977))
       .setTotal(8)
       .setBeginAt("2017-12-12 01:00:08.000000")
@@ -276,13 +274,13 @@ public class BasisImplTest {
       .setDensity(0.6)
       .setKey("G major")
       .setState("Crafting")
-      .setTempo(120)
+      .setTempo(120.0)
       .setChainId(BigInteger.valueOf(977))
       .setTotal(8)
       .setBeginAt("2017-12-12 01:00:16.000000")
       .setEndAt("2017-12-12 01:00:22.000000"));
 
-    assertEquals(Double.valueOf(6.0625),subject.secondsAtPosition(8));
+    assertEquals(Double.valueOf(6.0625), subject.secondsAtPosition(8));
   }
 
   @Test

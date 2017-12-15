@@ -7,4 +7,5 @@ export default DS.Model.extend({
   density: DS.attr('number'),
   description: DS.attr('string'),
   type: DS.attr('string'),
+  arrangements: DS.hasMany('arrangement'),
 });

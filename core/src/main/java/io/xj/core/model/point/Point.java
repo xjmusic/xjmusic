@@ -5,18 +5,11 @@ import io.xj.core.exception.BusinessException;
 import io.xj.core.model.Entity;
 import io.xj.core.util.Text;
 
-import org.jooq.Field;
-import org.jooq.Record;
-import org.jooq.types.ULong;
-
-import com.google.api.client.util.Maps;
-
 import java.math.BigInteger;
-import java.util.Map;
-import java.util.Objects;
 
 /**
- Entity for use as POJO for decoding messages received by JAX-RS resources
+ POJO for persisting data in memory while performing business logic,
+or decoding messages received by JAX-RS resources.
  a.k.a. JSON input will be stored into an instance of this object
  <p>
  Business logic ought to be performed beginning with an instance of this object,
@@ -30,27 +23,27 @@ public class Point extends Entity {
 
   public static final String KEY_ONE = "point";
   public static final String KEY_MANY = "points";
-  private ULong morphId;
-  private ULong voiceEventId;
+  private BigInteger morphId;
+  private BigInteger voiceEventId;
   private Double position;
   private Double duration;
   private String note;
 
-  public ULong getMorphId() {
+  public BigInteger getMorphId() {
     return morphId;
   }
 
   public Point setMorphId(BigInteger morphId) {
-    this.morphId = ULong.valueOf(morphId);
+    this.morphId = morphId;
     return this;
   }
 
-  public ULong getVoiceEventId() {
+  public BigInteger getVoiceEventId() {
     return voiceEventId;
   }
 
   public Point setVoiceEventId(BigInteger voiceEventId) {
-    this.voiceEventId = ULong.valueOf(voiceEventId);
+    this.voiceEventId = voiceEventId;
     return this;
   }
 
@@ -108,19 +101,6 @@ public class Point extends Entity {
     if (this.note == null || this.note.length() == 0) {
       throw new BusinessException("Note is required.");
     }
-  }
-
-  @Override
-  public Point setFromRecord(Record record) {
-    if (Objects.isNull(record)) {
-      return null;
-    }
-    return this;
-  }
-
-  @Override
-  public Map<Field, Object> updatableFieldValueMap() {
-    return Maps.newHashMap();
   }
 
 }

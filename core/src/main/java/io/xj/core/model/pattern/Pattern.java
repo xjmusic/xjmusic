@@ -4,20 +4,12 @@ package io.xj.core.model.pattern;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.model.Entity;
 
-import org.jooq.Field;
-import org.jooq.Record;
-import org.jooq.types.ULong;
-
-import com.google.api.client.util.Maps;
-
 import java.math.BigInteger;
-import java.util.Map;
 import java.util.Objects;
 
-import static io.xj.core.Tables.PATTERN;
-
 /**
- Entity for use as POJO for decoding messages received by JAX-RS resources
+ POJO for persisting data in memory while performing business logic,
+or decoding messages received by JAX-RS resources.
  a.k.a. JSON input will be stored into an instance of this object
  <p>
  Business logic ought to be performed beginning with an instance of this object,
@@ -36,8 +28,8 @@ public class Pattern extends Entity {
   private String name;
   private String _type; // to hold value before validation
   private PatternType type;
-  private ULong libraryId;
-  private ULong userId;
+  private BigInteger libraryId;
+  private BigInteger userId;
   private String key;
   private Double density;
   private Double tempo;
@@ -60,21 +52,25 @@ public class Pattern extends Entity {
     return this;
   }
 
-  public ULong getLibraryId() {
+  public void setTypeEnum(PatternType type) {
+    this.type = type;
+  }
+
+  public BigInteger getLibraryId() {
     return libraryId;
   }
 
   public Pattern setLibraryId(BigInteger value) {
-    libraryId = ULong.valueOf(value);
+    libraryId = value;
     return this;
   }
 
-  public ULong getUserId() {
+  public BigInteger getUserId() {
     return userId;
   }
 
   public Pattern setUserId(BigInteger value) {
-    userId = ULong.valueOf(value);
+    userId = value;
     return this;
   }
 
@@ -132,36 +128,4 @@ public class Pattern extends Entity {
       throw new BusinessException("Tempo is required.");
     }
   }
-
-  @Override
-  public Pattern setFromRecord(Record record) {
-    if (Objects.isNull(record)) {
-      return null;
-    }
-    id = record.get(PATTERN.ID);
-    name = record.get(PATTERN.NAME);
-    libraryId = record.get(PATTERN.LIBRARY_ID);
-    userId = record.get(PATTERN.USER_ID);
-    key = record.get(PATTERN.KEY);
-    type = PatternType.valueOf(String.valueOf(record.get(PATTERN.TYPE)));
-    tempo = record.get(PATTERN.TEMPO);
-    density = record.get(PATTERN.DENSITY);
-    createdAt = record.get(PATTERN.CREATED_AT);
-    updatedAt = record.get(PATTERN.UPDATED_AT);
-    return this;
-  }
-
-  @Override
-  public Map<Field, Object> updatableFieldValueMap() {
-    Map<Field, Object> fieldValues = Maps.newHashMap();
-    fieldValues.put(PATTERN.NAME, name);
-    fieldValues.put(PATTERN.LIBRARY_ID, libraryId);
-    fieldValues.put(PATTERN.USER_ID, userId);
-    fieldValues.put(PATTERN.KEY, key);
-    fieldValues.put(PATTERN.TYPE, type);
-    fieldValues.put(PATTERN.TEMPO, tempo);
-    fieldValues.put(PATTERN.DENSITY, density);
-    return fieldValues;
-  }
-
 }

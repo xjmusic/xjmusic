@@ -2,12 +2,10 @@
 package io.xj.core.access;
 
 import io.xj.core.access.impl.Access;
-import io.xj.core.model.role.Role;
-import io.xj.core.tables.records.AccountUserRecord;
-import io.xj.core.tables.records.UserAuthRecord;
-import io.xj.core.tables.records.UserRoleRecord;
-
-import org.jooq.types.ULong;
+import io.xj.core.model.account_user.AccountUser;
+import io.xj.core.model.user_auth.UserAuth;
+import io.xj.core.model.user_role.UserRole;
+import io.xj.core.model.user_role.UserRoleType;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -19,6 +17,7 @@ import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.ws.rs.container.ContainerRequestContext;
+import java.math.BigInteger;
 import java.util.Collection;
 
 import static org.junit.Assert.assertArrayEquals;
@@ -32,28 +31,28 @@ public class AccessTest extends Mockito {
 
   @Test
   public void matchRoles() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "user,artist"
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "User,Artist"
     ));
 
-    assertTrue(access.matchAnyOf(Role.USER));
-    assertTrue(access.matchAnyOf(Role.ARTIST));
-    assertTrue(access.matchAnyOf(Role.USER, Role.ARTIST));
-    assertFalse(access.matchAnyOf(Role.ADMIN));
+    assertTrue(access.isAllowed(UserRoleType.User));
+    assertTrue(access.isAllowed(UserRoleType.Artist));
+    assertTrue(access.isAllowed(UserRoleType.User, UserRoleType.Artist));
+    assertFalse(access.isAllowed(UserRoleType.Admin));
   }
 
   @Test
   public void getUserId() throws Exception {
-    Access access = new Access(ImmutableMap.of(
+    Access access = Access.from(ImmutableMap.of(
       "userId", "2"
     ));
 
-    assertEquals(ULong.valueOf(2), access.getUserId());
+    assertEquals(BigInteger.valueOf(2), access.getUserId());
   }
 
   @Test
   public void fromContext() throws Exception {
-    Access expectAccess = new Access(ImmutableMap.of(
+    Access expectAccess = Access.from(ImmutableMap.of(
       "userId", "2"
     ));
     when(crc.getProperty(Access.CONTEXT_KEY))
@@ -66,28 +65,28 @@ public class AccessTest extends Mockito {
 
   @Test
   public void toJSON() throws Exception {
-    Access access = new Access(ImmutableMap.of(
+    Access access = Access.from(ImmutableMap.of(
       "userId", "2",
-      "roles", "user,artist",
+      "roles", "User,Artist",
       "accounts", "1"
     ));
 
-    assertEquals("{\"userId\":\"2\",\"roles\":\"user,artist\",\"accounts\":\"1\"}", access.toJSON());
+    assertEquals("{\"roles\":\"User,Artist\",\"accounts\":\"1\",\"userId\":\"2\"}", access.toJSON());
   }
 
   @Test
   public void getAccounts() throws Exception {
-    Access access = new Access(ImmutableMap.of(
+    Access access = Access.from(ImmutableMap.of(
       "accounts", "1,3,7"
     ));
 
-    assertArrayEquals(new ULong[]{ULong.valueOf(1), ULong.valueOf(3), ULong.valueOf(7)}, access.getAccounts());
+    assertArrayEquals(new BigInteger[]{BigInteger.valueOf(1), BigInteger.valueOf(3), BigInteger.valueOf(7)}, access.getAccountIds().toArray());
   }
 
   @Test
   public void isAdmin() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "user,admin"
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "User,Admin"
     ));
 
     assertTrue(access.isTopLevel());
@@ -95,8 +94,8 @@ public class AccessTest extends Mockito {
 
   @Test
   public void isAdmin_Not() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "user,artist"
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "User,Artist"
     ));
 
     assertFalse(access.isTopLevel());
@@ -104,51 +103,51 @@ public class AccessTest extends Mockito {
 
   @Test
   public void intoMap() throws Exception {
-    UserAuthRecord userAuthRecord = new UserAuthRecord();
-    userAuthRecord.setId(ULong.valueOf(1));
-    userAuthRecord.setUserId(ULong.valueOf(1));
-    AccountUserRecord accountUser = new AccountUserRecord();
-    accountUser.setUserId(ULong.valueOf(1));
-    accountUser.setAccountId(ULong.valueOf(101));
-    Collection<AccountUserRecord> userAccountRoleRecords = ImmutableList.of(accountUser);
-    UserRoleRecord userRole1 = new UserRoleRecord();
-    userRole1.setUserId(ULong.valueOf(1));
-    userRole1.setType(Role.USER);
-    UserRoleRecord userRole2 = new UserRoleRecord();
-    userRole2.setUserId(ULong.valueOf(1));
-    userRole2.setType(Role.ARTIST);
-    Collection<UserRoleRecord> userRoles = ImmutableList.of(userRole1, userRole2);
-    Access access = new Access(userAuthRecord, userAccountRoleRecords, userRoles);
+    UserAuth userAuth = new UserAuth();
+    userAuth.setId(BigInteger.valueOf(1));
+    userAuth.setUserId(BigInteger.valueOf(1));
+    AccountUser accountUser = new AccountUser();
+    accountUser.setUserId(BigInteger.valueOf(1));
+    accountUser.setAccountId(BigInteger.valueOf(101));
+    Collection<AccountUser> userAccountRoles = ImmutableList.of(accountUser);
+    UserRole userRole1 = new UserRole();
+    userRole1.setUserId(BigInteger.valueOf(1));
+    userRole1.setTypeEnum(UserRoleType.User);
+    UserRole userRole2 = new UserRole();
+    userRole2.setUserId(BigInteger.valueOf(1));
+    userRole2.setTypeEnum(UserRoleType.Artist);
+    Collection<UserRole> userRoles = ImmutableList.of(userRole1, userRole2);
+    Access access = new Access(userAuth, userAccountRoles, userRoles);
 
     assertEquals(ImmutableMap.of(
       "userAuthId", "1",
       "userId", "1",
-      "roles", "user,artist",
+      "roles", "User,Artist",
       "accounts", "101"
-    ), access.intoMap());
+    ), access.toMap());
   }
 
   @Test
   public void valid() throws Exception {
-    Access access = new Access(ImmutableMap.of(
+    Access access = Access.from(ImmutableMap.of(
       "userAuthId", "1",
       "userId", "1",
-      "roles", "user,artist",
+      "roles", "User,Artist",
       "accounts", "101"
     ));
 
-    assertTrue(access.valid());
+    assertTrue(access.isValid());
   }
 
   @Test
   public void valid_not() throws Exception {
-    Access access = new Access(ImmutableMap.of(
+    Access access = Access.from(ImmutableMap.of(
       "userAuthId", "1",
       "userId", "1",
       "accounts", "101"
     ));
 
-    assertFalse(access.valid());
+    assertFalse(access.isValid());
   }
 
 }

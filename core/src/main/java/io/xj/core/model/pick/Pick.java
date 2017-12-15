@@ -4,69 +4,61 @@ package io.xj.core.model.pick;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.model.Entity;
 
-import org.jooq.Field;
-import org.jooq.Record;
-import org.jooq.types.ULong;
-
-import com.google.api.client.util.Maps;
-
 import javax.annotation.Nullable;
 import java.math.BigInteger;
-import java.util.Map;
-import java.util.Objects;
-
-import static io.xj.core.Tables.PICK;
 
 /**
- Entity for use as POJO for decoding messages received by JAX-RS resources
+ POJO for persisting data in memory while performing business logic,
+or decoding messages received by JAX-RS resources.
  a.k.a. JSON input will be stored into an instance of this object
-
+ <p>
  Business logic ought to be performed beginning with an instance of this object,
  to implement common methods.
-
+ <p>
  NOTE: There can only be ONE of any getter/setter (with the same # of input params)
  */
 public class Pick extends Entity {
   public static final String KEY_ONE = "pick";
   public static final String KEY_MANY = "picks";
-  private ULong arrangementId;
-  private ULong morphId;
-  private ULong audioId;
+  private BigInteger arrangementId;
+  private BigInteger morphId;
+  private BigInteger audioId;
   private Double start;
   private Double length;
   private Double amplitude;
   private Double pitch;
 
-  public ULong getArrangementId() {
+  public BigInteger getArrangementId() {
     return arrangementId;
   }
 
   public Pick setArrangementId(BigInteger arrangementId) {
-    this.arrangementId = ULong.valueOf(arrangementId);
+    this.arrangementId = arrangementId;
     return this;
   }
 
   @Nullable
-  public ULong getMorphId() {
+  public BigInteger getMorphId() {
     return morphId;
   }
 
   public Pick setMorphId(BigInteger morphId) {
-    this.morphId = ULong.valueOf(morphId);
+    this.morphId = morphId;
     return this;
   }
 
-  public ULong getAudioId() {
+  public BigInteger getAudioId() {
     return audioId;
   }
 
   public Pick setAudioId(BigInteger audioId) {
-    this.audioId = ULong.valueOf(audioId);
+    this.audioId = audioId;
     return this;
   }
 
   /**
    Start position from beginning of link, in Seconds
+
    @return seconds
    */
   public Double getStart() {
@@ -81,6 +73,7 @@ public class Pick extends Entity {
 
   /**
    Length from Start position, in Seconds
+
    @return seconds
    */
   public Double getLength() {
@@ -130,35 +123,6 @@ public class Pick extends Entity {
     if (this.pitch == null || this.pitch == 0) {
       throw new BusinessException("Pitch is required.");
     }
-  }
-
-  @Override
-  public Pick setFromRecord(Record record) {
-    if (Objects.isNull(record)) {
-      return null;
-    }
-    id = record.get(PICK.ID);
-    arrangementId = record.get(PICK.ARRANGEMENT_ID);
-    audioId = record.get(PICK.AUDIO_ID);
-    start = record.get(PICK.START);
-    length = record.get(PICK.LENGTH);
-    amplitude = record.get(PICK.AMPLITUDE);
-    pitch = record.get(PICK.PITCH);
-    createdAt = record.get(PICK.CREATED_AT);
-    updatedAt = record.get(PICK.UPDATED_AT);
-    return this;
-  }
-
-  @Override
-  public Map<Field, Object> updatableFieldValueMap() {
-    Map<Field, Object> fieldValues = Maps.newHashMap();
-    fieldValues.put(PICK.ARRANGEMENT_ID, arrangementId);
-    fieldValues.put(PICK.AUDIO_ID, audioId);
-    fieldValues.put(PICK.START, start);
-    fieldValues.put(PICK.LENGTH, length);
-    fieldValues.put(PICK.AMPLITUDE, amplitude);
-    fieldValues.put(PICK.PITCH, pitch);
-    return fieldValues;
   }
 
 }

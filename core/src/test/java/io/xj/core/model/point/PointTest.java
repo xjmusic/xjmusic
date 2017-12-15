@@ -9,8 +9,6 @@ import org.junit.rules.ExpectedException;
 
 import java.math.BigInteger;
 
-import static org.junit.Assert.assertNull;
-
 public class PointTest {
 
   @Rule public ExpectedException failure = ExpectedException.none();
@@ -91,9 +89,5 @@ public class PointTest {
       .validate();
   }
 
-  @Test
-  public void setFromRecord_nullPassesThrough() throws Exception {
-    assertNull(new Point().setFromRecord(null));
-  }
 
 }

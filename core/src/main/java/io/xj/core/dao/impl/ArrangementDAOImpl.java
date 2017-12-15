@@ -2,24 +2,24 @@
 package io.xj.core.dao.impl;
 
 import io.xj.core.access.impl.Access;
+import io.xj.core.dao.ArrangementDAO;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.exception.ConfigException;
-import io.xj.core.exception.DatabaseException;
-import io.xj.core.dao.ArrangementDAO;
+import io.xj.core.model.arrangement.Arrangement;
 import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import io.xj.core.persistence.sql.impl.SQLConnection;
-import io.xj.core.model.arrangement.Arrangement;
-import io.xj.core.tables.records.ArrangementRecord;
+import io.xj.core.tables.Link;
 
 import org.jooq.DSLContext;
 import org.jooq.Field;
-import org.jooq.Result;
 import org.jooq.types.ULong;
 
+import com.google.api.client.util.Maps;
 import com.google.inject.Inject;
 
 import javax.annotation.Nullable;
-import java.sql.SQLException;
+import java.math.BigInteger;
+import java.util.Collection;
 import java.util.Map;
 
 import static io.xj.core.Tables.ARRANGEMENT;
@@ -38,10 +38,10 @@ public class ArrangementDAOImpl extends DAOImpl implements ArrangementDAO {
   }
 
   @Override
-  public ArrangementRecord create(Access access, Arrangement entity) throws Exception {
+  public Arrangement create(Access access, Arrangement entity) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(createRecord(tx.getContext(), access, entity));
+      return tx.success(create(tx.getContext(), access, entity));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -49,10 +49,10 @@ public class ArrangementDAOImpl extends DAOImpl implements ArrangementDAO {
 
   @Override
   @Nullable
-  public ArrangementRecord readOne(Access access, ULong id) throws Exception {
+  public Arrangement readOne(Access access, BigInteger id) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readOneRecord(tx.getContext(), access, id));
+      return tx.success(readOne(tx.getContext(), access, ULong.valueOf(id)));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -60,20 +60,30 @@ public class ArrangementDAOImpl extends DAOImpl implements ArrangementDAO {
 
   @Override
   @Nullable
-  public Result<ArrangementRecord> readAll(Access access, ULong choiceId) throws Exception {
+  public Collection<Arrangement> readAll(Access access, BigInteger choiceId) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readAll(tx.getContext(), access, choiceId));
+      return tx.success(readAll(tx.getContext(), access, ULong.valueOf(choiceId)));
     } catch (Exception e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public void update(Access access, ULong id, Arrangement entity) throws Exception {
+  public Collection<Arrangement> readAllInLinks(Access access, Collection<BigInteger> linkIds) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      update(tx.getContext(), access, id, entity);
+      return tx.success(readAllInLinks(tx.getContext(), access, idCollection(linkIds)));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public void update(Access access, BigInteger id, Arrangement entity) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      update(tx.getContext(), access, ULong.valueOf(id), entity);
       tx.success();
     } catch (Exception e) {
       throw tx.failure(e);
@@ -81,10 +91,10 @@ public class ArrangementDAOImpl extends DAOImpl implements ArrangementDAO {
   }
 
   @Override
-  public void delete(Access access, ULong arrangementId) throws Exception {
+  public void delete(Access access, BigInteger arrangementId) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      delete(tx.getContext(), access, arrangementId);
+      delete(tx.getContext(), access, ULong.valueOf(arrangementId));
       tx.success();
     } catch (Exception e) {
       throw tx.failure(e);
@@ -100,18 +110,18 @@ public class ArrangementDAOImpl extends DAOImpl implements ArrangementDAO {
    @return newly readMany record
    @throws BusinessException if a Business Rule is violated
    */
-  private ArrangementRecord createRecord(DSLContext db, Access access, Arrangement entity) throws BusinessException {
+  private static Arrangement create(DSLContext db, Access access, Arrangement entity) throws BusinessException {
     entity.validate();
 
-    Map<Field, Object> fieldValues = entity.updatableFieldValueMap();
+    Map<Field, Object> fieldValues = fieldValueMap(entity);
 
     requireTopLevel(access);
 
     requireExists("Choice", db.selectCount().from(CHOICE)
-      .where(CHOICE.ID.eq(entity.getChoiceId()))
+      .where(CHOICE.ID.eq(ULong.valueOf(entity.getChoiceId())))
       .fetchOne(0, int.class));
 
-    return executeCreate(db, ARRANGEMENT, fieldValues);
+    return modelFrom(executeCreate(db, ARRANGEMENT, fieldValues), Arrangement.class);
   }
 
   /**
@@ -123,20 +133,20 @@ public class ArrangementDAOImpl extends DAOImpl implements ArrangementDAO {
    @return record
    */
   @Nullable
-  private ArrangementRecord readOneRecord(DSLContext db, Access access, ULong id) {
+  private static Arrangement readOne(DSLContext db, Access access, ULong id) throws BusinessException {
     if (access.isTopLevel())
-      return db.selectFrom(ARRANGEMENT)
+      return modelFrom(db.selectFrom(ARRANGEMENT)
         .where(ARRANGEMENT.ID.eq(id))
-        .fetchOne();
+        .fetchOne(), Arrangement.class);
     else
-      return recordInto(ARRANGEMENT, db.select(ARRANGEMENT.fields())
+      return modelFrom(db.select(ARRANGEMENT.fields())
         .from(ARRANGEMENT)
         .join(CHOICE).on(CHOICE.ID.eq(ARRANGEMENT.CHOICE_ID))
         .join(LINK).on(LINK.ID.eq(CHOICE.LINK_ID))
         .join(CHAIN).on(CHAIN.ID.eq(LINK.CHAIN_ID))
         .where(ARRANGEMENT.ID.eq(id))
-        .and(CHAIN.ACCOUNT_ID.in(access.getAccounts()))
-        .fetchOne());
+        .and(CHAIN.ACCOUNT_ID.in(access.getAccountIds()))
+        .fetchOne(), Arrangement.class);
   }
 
   /**
@@ -147,21 +157,46 @@ public class ArrangementDAOImpl extends DAOImpl implements ArrangementDAO {
    @param choiceId of parent
    @return array of records
    */
-  private Result<ArrangementRecord> readAll(DSLContext db, Access access, ULong choiceId) throws SQLException {
+  private static Collection<Arrangement> readAll(DSLContext db, Access access, ULong choiceId) throws BusinessException {
     if (access.isTopLevel())
-      return resultInto(ARRANGEMENT, db.select(ARRANGEMENT.fields())
+      return modelsFrom(db.select(ARRANGEMENT.fields())
         .from(ARRANGEMENT)
         .where(ARRANGEMENT.CHOICE_ID.eq(choiceId))
-        .fetch());
+        .fetch(), Arrangement.class);
     else
-      return resultInto(ARRANGEMENT, db.select(ARRANGEMENT.fields())
+      return modelsFrom(db.select(ARRANGEMENT.fields())
         .from(ARRANGEMENT)
         .join(CHOICE).on(CHOICE.ID.eq(ARRANGEMENT.CHOICE_ID))
         .join(LINK).on(LINK.ID.eq(CHOICE.LINK_ID))
         .join(CHAIN).on(CHAIN.ID.eq(LINK.CHAIN_ID))
         .where(ARRANGEMENT.CHOICE_ID.eq(choiceId))
-        .and(CHAIN.ACCOUNT_ID.in(access.getAccounts()))
-        .fetch());
+        .and(CHAIN.ACCOUNT_ID.in(access.getAccountIds()))
+        .fetch(), Arrangement.class);
+  }
+
+  /**
+   Read all records in parent records by ids
+
+   @param db      context
+   @param access  control
+   @param linkIds id of parent's parent (the chain)
+   @return array of records
+   */
+  private static Collection<Arrangement> readAllInLinks(DSLContext db, Access access, Collection<ULong> linkIds) throws Exception {
+    if (access.isTopLevel())
+      return modelsFrom(db.select(ARRANGEMENT.fields())
+        .from(ARRANGEMENT)
+        .join(CHOICE).on(CHOICE.ID.eq(ARRANGEMENT.CHOICE_ID))
+        .where(CHOICE.LINK_ID.in(linkIds))
+        .fetch(), Arrangement.class);
+    else
+      return modelsFrom(db.select(ARRANGEMENT.fields())
+        .from(ARRANGEMENT)
+        .join(CHOICE).on(CHOICE.ID.eq(ARRANGEMENT.CHOICE_ID))
+        .join(CHAIN).on(CHAIN.ID.eq(Link.LINK.CHAIN_ID))
+        .where(LINK.ID.in(linkIds))
+        .and(CHAIN.ACCOUNT_ID.in(access.getAccountIds()))
+        .fetch(), Arrangement.class);
   }
 
   /**
@@ -171,12 +206,11 @@ public class ArrangementDAOImpl extends DAOImpl implements ArrangementDAO {
    @param access control
    @param id     of record
    @param entity to update with
-   @throws BusinessException if a Business Rule is violated
    */
-  private void update(DSLContext db, Access access, ULong id, Arrangement entity) throws BusinessException, DatabaseException {
+  private static void update(DSLContext db, Access access, ULong id, Arrangement entity) throws BusinessException {
     entity.validate();
 
-    Map<Field, Object> fieldValues = entity.updatableFieldValueMap();
+    Map<Field, Object> fieldValues = fieldValueMap(entity);
     fieldValues.put(ARRANGEMENT.ID, id);
 
     requireTopLevel(access);
@@ -184,7 +218,7 @@ public class ArrangementDAOImpl extends DAOImpl implements ArrangementDAO {
     requireExists("existing Arrangement with immutable Choice membership",
       db.selectCount().from(ARRANGEMENT)
         .where(ARRANGEMENT.ID.eq(id))
-        .and(ARRANGEMENT.CHOICE_ID.eq(entity.getChoiceId()))
+        .and(ARRANGEMENT.CHOICE_ID.eq(ULong.valueOf(entity.getChoiceId())))
         .fetchOne(0, int.class));
 
     if (0 == executeUpdate(db, ARRANGEMENT, fieldValues))
@@ -201,7 +235,7 @@ public class ArrangementDAOImpl extends DAOImpl implements ArrangementDAO {
    @throws ConfigException   if not configured properly
    @throws BusinessException if fails business rule
    */
-  private void delete(DSLContext db, Access access, ULong id) throws Exception {
+  private static void delete(DSLContext db, Access access, ULong id) throws Exception {
     requireTopLevel(access);
 
     requireExists("Arrangement", db.selectCount().from(ARRANGEMENT)
@@ -217,4 +251,18 @@ public class ArrangementDAOImpl extends DAOImpl implements ArrangementDAO {
       .execute();
   }
 
+  /**
+   Only certain (writable) fields are mapped back to jOOQ records--
+   Read-only fields are excluded from here.
+
+   @param entity to source values from
+   @return values mapped to record fields
+   */
+  private static Map<Field, Object> fieldValueMap(Arrangement entity) {
+    Map<Field, Object> fieldValues = Maps.newHashMap();
+    fieldValues.put(ARRANGEMENT.CHOICE_ID, ULong.valueOf(entity.getChoiceId()));
+    fieldValues.put(ARRANGEMENT.VOICE_ID, ULong.valueOf(entity.getVoiceId()));
+    fieldValues.put(ARRANGEMENT.INSTRUMENT_ID, ULong.valueOf(entity.getInstrumentId()));
+    return fieldValues;
+  }
 }

@@ -2,24 +2,23 @@
 package io.xj.core.dao.impl;
 
 import io.xj.core.access.impl.Access;
+import io.xj.core.dao.AccountDAO;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.exception.ConfigException;
-import io.xj.core.exception.DatabaseException;
-import io.xj.core.dao.AccountDAO;
-import io.xj.core.persistence.sql.impl.SQLConnection;
-import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import io.xj.core.model.account.Account;
-import io.xj.core.tables.records.AccountRecord;
+import io.xj.core.persistence.sql.SQLDatabaseProvider;
+import io.xj.core.persistence.sql.impl.SQLConnection;
 
 import org.jooq.DSLContext;
 import org.jooq.Field;
-import org.jooq.Result;
 import org.jooq.types.ULong;
 
+import com.google.api.client.util.Maps;
 import com.google.inject.Inject;
 
 import javax.annotation.Nullable;
-import java.sql.SQLException;
+import java.math.BigInteger;
+import java.util.Collection;
 import java.util.Map;
 
 import static io.xj.core.Tables.ACCOUNT;
@@ -37,7 +36,7 @@ public class AccountDAOImpl extends DAOImpl implements AccountDAO {
   }
 
   @Override
-  public AccountRecord create(Access access, Account entity) throws Exception {
+  public Account create(Access access, Account entity) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(create(tx.getContext(), access, entity));
@@ -48,10 +47,10 @@ public class AccountDAOImpl extends DAOImpl implements AccountDAO {
 
   @Override
   @Nullable
-  public AccountRecord readOne(Access access, ULong id) throws Exception {
+  public Account readOne(Access access, BigInteger id) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readOne(tx.getContext(), access, id));
+      return tx.success(readOne(tx.getContext(), access, ULong.valueOf(id)));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -59,7 +58,7 @@ public class AccountDAOImpl extends DAOImpl implements AccountDAO {
 
   @Override
   @Nullable
-  public Result<AccountRecord> readAll(Access access) throws Exception {
+  public Collection<Account> readAll(Access access) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readAll(tx.getContext(), access));
@@ -69,10 +68,10 @@ public class AccountDAOImpl extends DAOImpl implements AccountDAO {
   }
 
   @Override
-  public void update(Access access, ULong id, Account entity) throws Exception {
+  public void update(Access access, BigInteger id, Account entity) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      update(tx.getContext(), access, id, entity);
+      update(tx.getContext(), access, ULong.valueOf(id), entity);
       tx.success();
     } catch (Exception e) {
       throw tx.failure(e);
@@ -80,10 +79,10 @@ public class AccountDAOImpl extends DAOImpl implements AccountDAO {
   }
 
   @Override
-  public void delete(Access access, ULong id) throws Exception {
+  public void delete(Access access, BigInteger id) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      delete(tx.getContext(), access, id);
+      delete(tx.getContext(), access, ULong.valueOf(id));
       tx.success();
     } catch (Exception e) {
       throw tx.failure(e);
@@ -98,14 +97,14 @@ public class AccountDAOImpl extends DAOImpl implements AccountDAO {
    @return newly readMany record
    @throws BusinessException if a business rule is violated
    */
-  private AccountRecord create(DSLContext db, Access access, Account entity) throws BusinessException {
+  private static Account create(DSLContext db, Access access, Account entity) throws BusinessException {
     entity.validate();
 
-    Map<Field, Object> fieldValues = entity.updatableFieldValueMap();
+    Map<Field, Object> fieldValues = fieldMap(entity);
 
     requireTopLevel(access);
 
-    return executeCreate(db, ACCOUNT, fieldValues);
+    return modelFrom(executeCreate(db, ACCOUNT, fieldValues), Account.class);
   }
 
   /**
@@ -116,17 +115,17 @@ public class AccountDAOImpl extends DAOImpl implements AccountDAO {
    @param id     of record
    @return record
    */
-  private AccountRecord readOne(DSLContext db, Access access, ULong id) throws SQLException {
+  private static Account readOne(DSLContext db, Access access, ULong id) throws BusinessException {
     if (access.isTopLevel())
-      return db.selectFrom(ACCOUNT)
+      return modelFrom(db.selectFrom(ACCOUNT)
         .where(ACCOUNT.ID.eq(id))
-        .fetchOne();
+        .fetchOne(), Account.class);
     else
-      return recordInto(ACCOUNT, db.select(ACCOUNT.fields())
+      return modelFrom(db.select(ACCOUNT.fields())
         .from(ACCOUNT)
         .where(ACCOUNT.ID.eq(id))
-        .and(ACCOUNT.ID.in(access.getAccounts()))
-        .fetchOne());
+        .and(ACCOUNT.ID.in(access.getAccountIds()))
+        .fetchOne(), Account.class);
   }
 
   /**
@@ -135,16 +134,15 @@ public class AccountDAOImpl extends DAOImpl implements AccountDAO {
    @param db     context
    @param access control
    @return array of records
-   @throws SQLException on failure
    */
-  private Result<AccountRecord> readAll(DSLContext db, Access access) throws SQLException {
+  private static Collection<Account> readAll(DSLContext db, Access access) throws BusinessException {
     if (access.isTopLevel())
-      return db.selectFrom(ACCOUNT)
-        .fetch();
+      return modelsFrom(db.selectFrom(ACCOUNT)
+        .fetch(), Account.class);
     else
-      return db.selectFrom(ACCOUNT)
-        .where(ACCOUNT.ID.in(access.getAccounts()))
-        .fetch();
+      return modelsFrom(db.selectFrom(ACCOUNT)
+        .where(ACCOUNT.ID.in(access.getAccountIds()))
+        .fetch(), Account.class);
   }
 
   /**
@@ -156,15 +154,15 @@ public class AccountDAOImpl extends DAOImpl implements AccountDAO {
    @param entity to update record with
    @throws BusinessException if a business rule is violated
    */
-  private void update(DSLContext db, Access access, ULong id, Account entity) throws BusinessException, DatabaseException {
+  private static void update(DSLContext db, Access access, ULong id, Account entity) throws BusinessException {
     requireTopLevel(access);
 
     entity.validate();
 
-    Map<Field, Object> fieldValues = entity.updatableFieldValueMap();
+    Map<Field, Object> fieldValues = fieldMap(entity);
     fieldValues.put(ACCOUNT.ID, id);
 
-    if (executeUpdate(db, ACCOUNT, fieldValues) == 0)
+    if (0 == executeUpdate(db, ACCOUNT, fieldValues))
       throw new BusinessException("No records updated.");
   }
 
@@ -177,7 +175,7 @@ public class AccountDAOImpl extends DAOImpl implements AccountDAO {
    @throws ConfigException   if not configured properly
    @throws BusinessException if fails business rule
    */
-  private void delete(DSLContext db, Access access, ULong accountId) throws Exception {
+  private static void delete(DSLContext db, Access access, ULong accountId) throws Exception {
     requireTopLevel(access);
 
     requireNotExists("Library in Account", db.select(LIBRARY.ID)
@@ -210,6 +208,19 @@ public class AccountDAOImpl extends DAOImpl implements AccountDAO {
           .from(ACCOUNT_USER)
           .where(ACCOUNT_USER.ACCOUNT_ID.eq(accountId)))
       .execute();
+  }
+
+  /**
+   Only certain (writable) fields are mapped back to jOOQ records--
+   Read-only fields are excluded from here.
+
+   @param model to source values from
+   @return values mapped to record fields
+   */
+  private static Map<Field, Object> fieldMap(Account model) {
+    Map<Field, Object> fieldValues = Maps.newHashMap();
+    fieldValues.put(ACCOUNT.NAME, model.getName());
+    return fieldValues;
   }
 
 }

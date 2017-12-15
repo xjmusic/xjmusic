@@ -4,11 +4,9 @@ package io.xj.core.dao;
 import io.xj.core.access.impl.Access;
 import io.xj.core.model.instrument.Instrument;
 import io.xj.core.model.instrument.InstrumentType;
-import io.xj.core.tables.records.InstrumentRecord;
-
-import org.jooq.types.ULong;
 
 import javax.annotation.Nullable;
+import java.math.BigInteger;
 import java.util.Collection;
 
 public interface InstrumentDAO {
@@ -16,64 +14,64 @@ public interface InstrumentDAO {
   /**
    Create a new Instrument
 
-   @return newly readMany record
-    @param access control
+   @param access control
    @param entity for the new Account User.
+   @return newly readMany record
    */
   Instrument create(Access access, Instrument entity) throws Exception;
 
   /**
    Fetch one instrument if accessible
 
+   @param access control
+   @param id     of instrument
    @return retrieved record
    @throws Exception on failure
-    @param access control
-   @param id     of instrument
    */
   @Nullable
-  Instrument readOne(Access access, ULong id) throws Exception;
+  Instrument readOne(Access access, BigInteger id) throws Exception;
 
   /**
    Fetch many instrument for one Account by id, if accessible
 
+   @param access    control
+   @param accountId to fetch instruments for.
    @return JSONArray of instruments.
    @throws Exception on failure
-    @param access    control
-   @param accountId to fetch instruments for.
    */
-  Collection<Instrument> readAllInAccount(Access access, ULong accountId) throws Exception;
+  Collection<Instrument> readAllInAccount(Access access, BigInteger accountId) throws Exception;
 
   /**
    Fetch many instrument for one Library by id, if accessible
 
-   @return JSONArray of instruments.
-   @throws Exception on failure
-    @param access    control
+   @param access    control
    @param libraryId to fetch instruments for.
+   @return JSONArray of instruments.
+   @throws Exception on failure
    */
-  Collection<Instrument> readAllInLibrary(Access access, ULong libraryId) throws Exception;
+  Collection<Instrument> readAllInLibrary(Access access, BigInteger libraryId) throws Exception;
 
   /**
    Fetch many instrument for one Account by id, if accessible
 
+   @param access         control
+   @param chainId        to fetch instruments for.
+   @param instrumentType to fetch
    @return JSONArray of instruments.
    @throws Exception on failure
-    @param access    control
-   @param chainId to fetch instruments for.
-   @param instrumentType  to fetch
    */
-  Collection<Instrument> readAllBoundToChain(Access access, ULong chainId, InstrumentType instrumentType) throws Exception;
+  Collection<Instrument> readAllBoundToChain(Access access, BigInteger chainId, InstrumentType instrumentType) throws Exception;
 
   /**
    Fetch many instrument for one Account by id, if accessible
 
+   @param access         control
+   @param chainId        to fetch instruments for.
+   @param instrumentType to fetch
    @return JSONArray of instruments.
    @throws Exception on failure
-    @param access    control
-   @param chainId to fetch instruments for.
-   @param instrumentType  to fetch
    */
-  Collection<Instrument> readAllBoundToChainLibrary(Access access, ULong chainId, InstrumentType instrumentType) throws Exception;
+  Collection<Instrument> readAllBoundToChainLibrary(Access access, BigInteger chainId, InstrumentType instrumentType) throws Exception;
 
   /**
    (ADMIN ONLY)
@@ -83,7 +81,7 @@ public interface InstrumentDAO {
    @param instrumentId of specific Instrument to update.
    @param entity       for the updated Instrument.
    */
-  void update(Access access, ULong instrumentId, Instrument entity) throws Exception;
+  void update(Access access, BigInteger instrumentId, Instrument entity) throws Exception;
 
   /**
    (ADMIN ONLY)
@@ -92,5 +90,5 @@ public interface InstrumentDAO {
    @param access control
    @param id     of specific instrument to delete.
    */
-  void delete(Access access, ULong id) throws Exception;
+  void delete(Access access, BigInteger id) throws Exception;
 }

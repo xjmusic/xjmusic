@@ -4,14 +4,10 @@ package io.xj.core.dao;
 import io.xj.core.access.impl.Access;
 import io.xj.core.model.audio.Audio;
 import io.xj.core.model.audio.AudioState;
-import io.xj.core.tables.records.AudioRecord;
-
-import org.jooq.Result;
-import org.jooq.types.ULong;
-
 import org.json.JSONObject;
 
 import javax.annotation.Nullable;
+import java.math.BigInteger;
 import java.util.Collection;
 
 public interface AudioDAO {
@@ -23,7 +19,7 @@ public interface AudioDAO {
    @param entity for the new Account User.
    @return newly readMany record
    */
-  AudioRecord create(Access access, Audio entity) throws Exception;
+  Audio create(Access access, Audio entity) throws Exception;
 
   /**
    Fetch one Audio if accessible
@@ -34,18 +30,18 @@ public interface AudioDAO {
    @throws Exception on failure
    */
   @Nullable
-  AudioRecord readOne(Access access, ULong id) throws Exception;
+  Audio readOne(Access access, BigInteger id) throws Exception;
 
   /**
    Generate an Upload policy to upload the corresponding file to 3rd-party storage (e.g. Amazon S3)
 
-   @param access control
-   @param id     of audio
    @return retrieved record
    @throws Exception on failure
+    @param access control
+   @param id     of audio
    */
   @Nullable
-  JSONObject uploadOne(Access access, ULong id) throws Exception;
+  JSONObject authorizeUpload(Access access, BigInteger id) throws Exception;
 
   /**
    Fetch all accessible Audio for one Instrument by id
@@ -56,28 +52,28 @@ public interface AudioDAO {
    @return Result of audio records.
    @throws Exception on failure
    */
-  Result<AudioRecord> readAll(Access access, ULong instrumentId) throws Exception;
+  Collection<Audio> readAll(Access access, BigInteger instrumentId) throws Exception;
 
   /**
    Fetch all Audio in a certain state
    [INTERNAL USE ONLY]
 
+   @param access control
+   @param state  to get audios in
    @return Result of audio records.
    @throws Exception on failure
-    @param access       control
-   @param state to get audios in
    */
   Collection<Audio> readAllInState(Access access, AudioState state) throws Exception;
 
   /**
    Fetch all accessible Audio picked for a link
 
-   @param access       control
+   @param access control
    @param linkId to fetch audios picked for.
    @return Result of audio records.
    @throws Exception on failure
    */
-  Result<AudioRecord> readAllPickedForLink(Access access, ULong linkId) throws Exception;
+  Collection<Audio> readAllPickedForLink(Access access, BigInteger linkId) throws Exception;
 
   /**
    Update a specified Audio if accessible
@@ -86,7 +82,7 @@ public interface AudioDAO {
    @param id     of specific Audio to update.
    @param entity for the updated Audio.
    */
-  void update(Access access, ULong id, Audio entity) throws Exception;
+  void update(Access access, BigInteger id, Audio entity) throws Exception;
 
   /**
    Delete a specified Audio
@@ -94,7 +90,7 @@ public interface AudioDAO {
    @param access control
    @param id     of specific audio to delete.
    */
-  void destroy(Access access, ULong id) throws Exception;
+  void destroy(Access access, BigInteger id) throws Exception;
 
   /**
    Erase a specified Audio if accessible
@@ -102,5 +98,5 @@ public interface AudioDAO {
    @param access control
    @param id     of specific audio to erase.
    */
-  void erase(Access access, ULong id) throws Exception;
+  void erase(Access access, BigInteger id) throws Exception;
 }

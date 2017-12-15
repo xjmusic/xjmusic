@@ -6,10 +6,10 @@ import io.xj.core.access.impl.Access;
 import io.xj.core.dao.PatternMemeDAO;
 import io.xj.core.model.pattern_meme.PatternMeme;
 import io.xj.core.model.pattern_meme.PatternMemeWrapper;
-import io.xj.core.model.role.Role;
+import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.server.HttpResponseProvider;
 
-import org.jooq.types.ULong;
+
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -26,6 +26,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.math.BigInteger;
 
 /**
  Pattern record
@@ -46,7 +47,7 @@ public class PatternMemeIndexResource {
    */
   @GET
   @WebResult
-  @RolesAllowed(Role.ARTIST)
+  @RolesAllowed(UserRoleType.ARTIST)
   public Response readAll(@Context ContainerRequestContext crc) throws IOException {
 
     if (null == patternId || patternId.isEmpty()) {
@@ -58,7 +59,7 @@ public class PatternMemeIndexResource {
         PatternMeme.KEY_MANY,
         patternMemeDAO.readAll(
           Access.fromContext(crc),
-          ULong.valueOf(patternId)));
+          new BigInteger(patternId)));
 
     } catch (Exception e) {
       return response.failure(e);
@@ -73,7 +74,7 @@ public class PatternMemeIndexResource {
    */
   @POST
   @Consumes(MediaType.APPLICATION_JSON)
-  @RolesAllowed(Role.ARTIST)
+  @RolesAllowed(UserRoleType.ARTIST)
   public Response create(PatternMemeWrapper data, @Context ContainerRequestContext crc) {
     try {
       return response.create(

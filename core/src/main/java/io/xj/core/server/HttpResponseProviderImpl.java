@@ -7,9 +7,6 @@ import io.xj.core.exception.BusinessException;
 import io.xj.core.model.Entity;
 import io.xj.core.transport.JSON;
 
-import org.jooq.Record;
-import org.jooq.Result;
-
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -118,16 +115,6 @@ public class HttpResponseProviderImpl implements HttpResponseProvider {
       .build();
   }
 
-  @Override
-  public Response readOne(String keyOne, Record result) {
-    if (null != result)
-      return Response
-        .accepted(JSON.wrap(keyOne, JSON.objectFromRecord(result)).toString())
-        .type(MediaType.APPLICATION_JSON)
-        .build();
-    else
-      return notFound(keyOne);
-  }
 
   @Override
   public Response readOne(String keyOne, Entity result) {
@@ -140,17 +127,6 @@ public class HttpResponseProviderImpl implements HttpResponseProvider {
       return notFound(keyOne);
   }
 
-  @Override
-  public <R extends Record> Response readMany(String keyMany, Result<R> results) {
-    if (null != results)
-      return Response
-        .accepted(JSON.wrap(keyMany, JSON.arrayOf(results)).toString())
-        .type(MediaType.APPLICATION_JSON)
-        .build();
-    else
-      return Response.noContent().build();
-  }
-
 
   @Override
   public <J extends Entity> Response readMany(String keyMany, Collection<J> results) throws Exception {
@@ -161,18 +137,6 @@ public class HttpResponseProviderImpl implements HttpResponseProvider {
         .build();
     else
       return Response.noContent().build();
-  }
-
-  @Override
-  public Response create(String keyMany, String keyOne, Record record) {
-    if (null != record)
-      return Response
-        .created(Exposure.apiURI(keyMany + "/" + record.get(Entity.KEY_ID)))
-        .entity(JSON.wrap(keyOne, JSON.objectFromRecord(record)).toString())
-        .build();
-
-    else
-      return failureToCreate(new BusinessException("Could not create " + keyOne));
   }
 
   @Override

@@ -6,8 +6,8 @@ export default DS.Model.extend({
   phaseOffset: DS.attr('number'),
   transpose: DS.attr('number'),
   type: DS.attr('string'),
-  pattern: DS.belongsTo({})
-
+  pattern: DS.belongsTo({}),
+  arrangements: DS.hasMany('arrangement'),
 });
 
 

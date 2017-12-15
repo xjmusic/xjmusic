@@ -44,7 +44,7 @@ export default Route.extend({
     return new EmberPromise((resolve, reject) => {
       let linkQuery = {
         chainId: chain.get('id'),
-        include: 'memes,choices,chords,messages',
+        include: 'memes,choices,arrangements,chords,messages',
       };
       let links = this.store.query(
         'link', linkQuery)

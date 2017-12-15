@@ -1,8 +1,6 @@
 // Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.dub.impl;
 
-import org.jooq.types.ULong;
-
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
@@ -10,6 +8,7 @@ import com.google.inject.assistedinject.Assisted;
 import io.xj.core.access.impl.Access;
 import io.xj.core.cache.audio.AudioCacheProvider;
 import io.xj.core.dao.LinkMessageDAO;
+import io.xj.core.dub.MasterDub;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.model.audio.Audio;
 import io.xj.core.model.chain_config.ChainConfigType;
@@ -21,12 +20,12 @@ import io.xj.core.work.basis.Basis;
 import io.xj.mixer.Mixer;
 import io.xj.mixer.MixerFactory;
 import io.xj.mixer.OutputContainer;
-import io.xj.core.dub.MasterDub;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedInputStream;
 import java.io.InputStream;
+import java.math.BigInteger;
 import java.util.List;
 import java.util.Objects;
 
@@ -40,8 +39,6 @@ public class MasterDubImpl implements MasterDub {
   private final LinkMessageDAO linkMessageDAO;
   private Mixer _mixer;
   private List<String> warnings = Lists.newArrayList();
-  private static final int STREAM_MAX_RETRIES = 5;
-  private static final int STREAM_RETRY_SLEEP_MILLIS = 1000;
   private AudioCacheProvider audioCacheProvider;
 
   @Inject
@@ -79,7 +76,7 @@ public class MasterDubImpl implements MasterDub {
    @throws Exception if failed to stream data of item from cache
    */
   private void doMixerSourceLoading() throws Exception {
-    for (ULong audioId : basis.linkAudioIds()) {
+    for (BigInteger audioId : basis.linkAudioIds()) {
       Audio audio = basis.linkAudio(audioId);
       String key = audio.getWaveformKey();
 
@@ -192,7 +189,7 @@ public class MasterDubImpl implements MasterDub {
     try {
       linkMessageDAO.create(Access.internal(), new LinkMessage()
         .setType(type.toString())
-        .setLinkId(basis.link().getId().toBigInteger())
+        .setLinkId(basis.link().getId())
         .setBody(body));
     } catch (Exception e1) {
       log.warn("Failed to create LinkMessage", e1);

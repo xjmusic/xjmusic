@@ -3,11 +3,10 @@ package io.xj.core.work;
 
 import io.xj.core.model.work.Work;
 
-import org.jooq.types.ULong;
-
 import net.greghaines.jesque.worker.JobFactory;
 import net.greghaines.jesque.worker.Worker;
 
+import java.math.BigInteger;
 import java.util.Collection;
 
 /**
@@ -53,7 +52,7 @@ public interface WorkManager {
 
    @param chainId  to begin fabricate
    */
-  void startChainFabrication(ULong chainId);
+  void startChainFabrication(BigInteger chainId);
 
   /**
    Stop fabrication of a Chain,
@@ -61,7 +60,7 @@ public interface WorkManager {
 
    @param chainId  to stop fabricate
    */
-  void stopChainFabrication(ULong chainId);
+  void stopChainFabrication(BigInteger chainId);
 
   /**
    Schedule the crafting of a Link,
@@ -70,7 +69,7 @@ public interface WorkManager {
    @param linkId for which to schedule Craft
    @param delaySeconds from now to schedule job at
    */
-  void scheduleLinkCraft(ULong linkId, Integer delaySeconds);
+  void scheduleLinkCraft(BigInteger linkId, Integer delaySeconds);
 
   /**
    Schedule the dubbing of a Link,
@@ -79,7 +78,7 @@ public interface WorkManager {
    @param linkId for which to schedule Dub
    @param delaySeconds from now to schedule job at
    */
-  void scheduleLinkDub(ULong linkId, Integer delaySeconds);
+  void scheduleLinkDub(BigInteger linkId, Integer delaySeconds);
 
   /**
    Start erasing a Chain,
@@ -87,7 +86,7 @@ public interface WorkManager {
 
    @param chainId  to begin erasing
    */
-  void startChainErase(ULong chainId);
+  void startChainErase(BigInteger chainId);
 
   /**
    Stop deletion of a Chain,
@@ -95,7 +94,7 @@ public interface WorkManager {
 
    @param chainId  to stop erasing
    */
-  void stopChainErase(ULong chainId);
+  void stopChainErase(BigInteger chainId);
 
   /**
    Start erasing an Audio,
@@ -103,7 +102,7 @@ public interface WorkManager {
 
    @param audioId to begin erasing
    */
-  void startAudioErase(ULong audioId);
+  void startAudioErase(BigInteger audioId);
 
   /**
    Stop deletion of a Audio,
@@ -111,7 +110,7 @@ public interface WorkManager {
 
    @param audioId  to stop erasing
    */
-  void stopAudioErase(ULong audioId);
+  void stopAudioErase(BigInteger audioId);
 
   /**
    Get a Worker

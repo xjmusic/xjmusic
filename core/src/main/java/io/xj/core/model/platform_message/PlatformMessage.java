@@ -3,18 +3,9 @@ package io.xj.core.model.platform_message;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.model.message.Message;
 
-import org.jooq.Field;
-import org.jooq.Record;
-
-import com.google.api.client.util.Maps;
-
-import java.util.Map;
-import java.util.Objects;
-
-import static io.xj.core.Tables.PLATFORM_MESSAGE;
-
 /**
- Entity for use as POJO for decoding messages received by JAX-RS resources
+ POJO for persisting data in memory while performing business logic,
+or decoding messages received by JAX-RS resources.
  a.k.a. JSON input will be stored into an instance of this object
  <p>
  Business logic ought to be performed beginning with an instance of this object,
@@ -41,27 +32,6 @@ public class PlatformMessage extends Message {
     if (BODY_LENGTH_LIMIT < body.length()) {
       body = body.substring(0, BODY_LENGTH_LIMIT - BODY_TRUNCATE_SUFFIX.length()) + BODY_TRUNCATE_SUFFIX;
     }
-  }
-
-  @Override
-  public PlatformMessage setFromRecord(Record record) {
-    if (Objects.isNull(record)) {
-      return null;
-    }
-    id = record.get(PLATFORM_MESSAGE.ID);
-    type = record.get(PLATFORM_MESSAGE.TYPE);
-    body = record.get(PLATFORM_MESSAGE.BODY);
-    createdAt = record.get(PLATFORM_MESSAGE.CREATED_AT);
-    updatedAt = record.get(PLATFORM_MESSAGE.UPDATED_AT);
-    return this;
-  }
-
-  @Override
-  public Map<Field, Object> updatableFieldValueMap() {
-    Map<Field, Object> fieldValues = Maps.newHashMap();
-    fieldValues.put(PLATFORM_MESSAGE.BODY, body);
-    fieldValues.put(PLATFORM_MESSAGE.TYPE, type);
-    return fieldValues;
   }
 
   @Override

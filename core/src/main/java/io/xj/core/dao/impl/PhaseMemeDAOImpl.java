@@ -1,6 +1,7 @@
 // Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.dao.impl;
 
+import io.xj.core.Tables;
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.PhaseMemeDAO;
 import io.xj.core.exception.BusinessException;
@@ -8,16 +9,15 @@ import io.xj.core.exception.ConfigException;
 import io.xj.core.model.phase_meme.PhaseMeme;
 import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import io.xj.core.persistence.sql.impl.SQLConnection;
-import io.xj.core.tables.records.PhaseMemeRecord;
 
 import org.jooq.DSLContext;
 import org.jooq.Field;
 import org.jooq.types.ULong;
 
-import com.google.common.collect.Lists;
+import com.google.api.client.util.Maps;
 import com.google.inject.Inject;
 
-import java.sql.SQLException;
+import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Map;
 
@@ -41,40 +41,40 @@ public class PhaseMemeDAOImpl extends DAOImpl implements PhaseMemeDAO {
   }
 
   @Override
-  public PhaseMemeRecord create(Access access, PhaseMeme entity) throws Exception {
+  public PhaseMeme create(Access access, PhaseMeme entity) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(createRecord(tx.getContext(), access, entity));
+      return tx.success(create(tx.getContext(), access, entity));
     } catch (Exception e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public PhaseMemeRecord readOne(Access access, ULong id) throws Exception {
+  public PhaseMeme readOne(Access access, BigInteger id) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readOneRecord(tx.getContext(), access, id));
+      return tx.success(readOne(tx.getContext(), access, ULong.valueOf(id)));
     } catch (Exception e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public Collection<PhaseMeme> readAll(Access access, ULong phaseId) throws Exception {
+  public Collection<PhaseMeme> readAll(Access access, BigInteger phaseId) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readAll(tx.getContext(), access, phaseId));
+      return tx.success(readAll(tx.getContext(), access, ULong.valueOf(phaseId)));
     } catch (Exception e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public void delete(Access access, ULong id) throws Exception {
+  public void delete(Access access, BigInteger id) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      delete(tx.getContext(), access, id);
+      delete(tx.getContext(), access, ULong.valueOf(id));
       tx.success();
     } catch (Exception e) {
       throw tx.failure(e);
@@ -92,30 +92,30 @@ public class PhaseMemeDAOImpl extends DAOImpl implements PhaseMemeDAO {
    @throws ConfigException   if not configured properly
    @throws BusinessException if fails business rule
    */
-  private PhaseMemeRecord createRecord(DSLContext db, Access access, PhaseMeme entity) throws Exception {
+  private static PhaseMeme create(DSLContext db, Access access, PhaseMeme entity) throws Exception {
     entity.validate();
 
-    Map<Field, Object> fieldValues = entity.updatableFieldValueMap();
+    Map<Field, Object> fieldValues = fieldValueMap(entity);
 
     if (access.isTopLevel())
       requireExists("Phase", db.selectCount().from(PHASE)
-        .where(PHASE.ID.eq(entity.getPhaseId()))
+        .where(PHASE.ID.eq(ULong.valueOf(entity.getPhaseId())))
         .fetchOne(0, int.class));
     else
       requireExists("Phase", db.selectCount().from(PHASE)
         .join(PATTERN).on(PATTERN.ID.eq(PHASE.PATTERN_ID))
         .join(LIBRARY).on(PATTERN.LIBRARY_ID.eq(LIBRARY.ID))
-        .where(PHASE.ID.eq(entity.getPhaseId()))
-        .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
+        .where(PHASE.ID.eq(ULong.valueOf(entity.getPhaseId())))
+        .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .fetchOne(0, int.class));
 
     if (null != db.selectFrom(PHASE_MEME)
-      .where(PHASE_MEME.PHASE_ID.eq(entity.getPhaseId()))
+      .where(PHASE_MEME.PHASE_ID.eq(ULong.valueOf(entity.getPhaseId())))
       .and(PHASE_MEME.NAME.eq(entity.getName()))
       .fetchOne())
       throw new BusinessException("Phase Meme already exists!");
 
-    return executeCreate(db, PHASE_MEME, fieldValues);
+    return modelFrom(executeCreate(db, PHASE_MEME, fieldValues), PhaseMeme.class);
   }
 
   /**
@@ -126,19 +126,19 @@ public class PhaseMemeDAOImpl extends DAOImpl implements PhaseMemeDAO {
    @param id     of record
    @return record
    */
-  private PhaseMemeRecord readOneRecord(DSLContext db, Access access, ULong id) throws SQLException {
+  private static PhaseMeme readOne(DSLContext db, Access access, ULong id) throws BusinessException {
     if (access.isTopLevel())
-      return db.selectFrom(PHASE_MEME)
+      return modelFrom(db.selectFrom(PHASE_MEME)
         .where(PHASE_MEME.ID.eq(id))
-        .fetchOne();
+        .fetchOne(), PhaseMeme.class);
     else
-      return recordInto(PHASE_MEME, db.select(PHASE_MEME.fields()).from(PHASE_MEME)
+      return modelFrom(db.select(PHASE_MEME.fields()).from(PHASE_MEME)
         .join(PHASE).on(PHASE.ID.eq(PHASE_MEME.PHASE_ID))
         .join(PATTERN).on(PATTERN.ID.eq(PHASE.PATTERN_ID))
         .join(LIBRARY).on(PATTERN.LIBRARY_ID.eq(LIBRARY.ID))
         .where(PHASE_MEME.ID.eq(id))
-        .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-        .fetchOne());
+        .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+        .fetchOne(), PhaseMeme.class);
   }
 
   /**
@@ -148,29 +148,20 @@ public class PhaseMemeDAOImpl extends DAOImpl implements PhaseMemeDAO {
    @param access  control
    @param phaseId to readMany memes for
    @return array of phase memes
-   @throws SQLException if failure
    */
-  private Collection<PhaseMeme> readAll(DSLContext db, Access access, ULong phaseId) throws SQLException {
-    Collection<PhaseMeme> result = Lists.newArrayList();
-
+  private static Collection<PhaseMeme> readAll(DSLContext db, Access access, ULong phaseId) throws BusinessException {
     if (access.isTopLevel())
-      db.selectFrom(PHASE_MEME)
+      return modelsFrom(db.selectFrom(PHASE_MEME)
         .where(PHASE_MEME.PHASE_ID.eq(phaseId))
-        .fetch().forEach((record) -> {
-        result.add(new PhaseMeme().setFromRecord(record));
-      });
+        .fetch(), PhaseMeme.class);
     else
-      resultInto(PHASE_MEME, db.select(PHASE_MEME.fields()).from(PHASE_MEME)
+      return modelsFrom(db.select(PHASE_MEME.fields()).from(PHASE_MEME)
         .join(PHASE).on(PHASE.ID.eq(PHASE_MEME.PHASE_ID))
         .join(PATTERN).on(PATTERN.ID.eq(PHASE.PATTERN_ID))
         .join(LIBRARY).on(PATTERN.LIBRARY_ID.eq(LIBRARY.ID))
         .where(PHASE.ID.eq(phaseId))
-        .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-        .fetch()).forEach((record) -> {
-        result.add(new PhaseMeme().setFromRecord(record));
-      });
-
-    return result;
+        .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+        .fetch(), PhaseMeme.class);
   }
 
   /**
@@ -181,19 +172,34 @@ public class PhaseMemeDAOImpl extends DAOImpl implements PhaseMemeDAO {
    @param id     to delete
    @throws BusinessException if failure
    */
-  private void delete(DSLContext db, Access access, ULong id) throws BusinessException {
+  private static void delete(DSLContext db, Access access, ULong id) throws BusinessException {
     if (!access.isTopLevel())
       requireExists("Phase Meme", db.selectCount().from(PHASE_MEME)
         .join(PHASE).on(PHASE.ID.eq(PHASE_MEME.PHASE_ID))
         .join(PATTERN).on(PATTERN.ID.eq(PHASE.PATTERN_ID))
         .join(LIBRARY).on(PATTERN.LIBRARY_ID.eq(LIBRARY.ID))
         .where(PHASE_MEME.ID.eq(id))
-        .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
+        .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .fetchOne(0, int.class));
 
     db.deleteFrom(PHASE_MEME)
       .where(PHASE_MEME.ID.eq(id))
       .execute();
   }
+
+  /**
+   Only certain (writable) fields are mapped back to jOOQ records--
+   Read-only fields are excluded from here.
+
+   @param entity to source values from
+   @return values mapped to record fields
+   */
+  private static Map<Field, Object> fieldValueMap(PhaseMeme entity) {
+    Map<Field, Object> fieldValues = Maps.newHashMap();
+    fieldValues.put(Tables.PHASE_MEME.PHASE_ID, ULong.valueOf(entity.getPhaseId()));
+    fieldValues.put(Tables.PHASE_MEME.NAME, entity.getName());
+    return fieldValues;
+  }
+
 
 }

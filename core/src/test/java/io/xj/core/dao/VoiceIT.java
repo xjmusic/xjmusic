@@ -5,18 +5,14 @@ import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.integration.IntegrationTestEntity;
-import io.xj.core.integration.IntegrationTestService;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
+import io.xj.core.model.instrument.InstrumentType;
 import io.xj.core.model.link.LinkState;
 import io.xj.core.model.pattern.PatternType;
-import io.xj.core.model.instrument.InstrumentType;
-import io.xj.core.model.role.Role;
+import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.model.voice.Voice;
-import io.xj.core.tables.records.VoiceRecord;
 import io.xj.core.transport.JSON;
-
-import org.jooq.types.ULong;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Guice;
@@ -31,7 +27,6 @@ import org.junit.Test;
 import java.math.BigInteger;
 import java.sql.Timestamp;
 
-import static io.xj.core.tables.Voice.VOICE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -50,7 +45,7 @@ public class VoiceIT {
 
     // John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
     IntegrationTestEntity.insertUser(2, "john", "john@email.com", "http://pictures.com/john.gif");
-    IntegrationTestEntity.insertUserRole(1, 2, Role.ADMIN);
+    IntegrationTestEntity.insertUserRole(1, 2, UserRoleType.Admin);
 
     // Library "palm tree" has pattern "leaves" and pattern "coconuts"
     IntegrationTestEntity.insertLibrary(1, 1, "palm tree");
@@ -77,8 +72,8 @@ public class VoiceIT {
 
   @Test
   public void create() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
     Voice inputData = new Voice()
@@ -86,18 +81,18 @@ public class VoiceIT {
       .setType("Harmonic")
       .setDescription("This is harmonious");
 
-    JSONObject result = JSON.objectFromRecord(testDAO.create(access, inputData));
+    Voice result = testDAO.create(access, inputData);
 
     assertNotNull(result);
-    assertEquals(InstrumentType.Harmonic, result.get("type"));
-    assertEquals("This is harmonious", result.get("description"));
-    assertEquals(ULong.valueOf(2), result.get("phaseId"));
+    assertEquals(InstrumentType.Harmonic, result.getType());
+    assertEquals("This is harmonious", result.getDescription());
+    assertEquals(BigInteger.valueOf(2), result.getPhaseId());
   }
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutPhaseID() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
     Voice inputData = new Voice()
@@ -109,8 +104,8 @@ public class VoiceIT {
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutType() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
     Voice inputData = new Voice()
@@ -122,40 +117,40 @@ public class VoiceIT {
 
   @Test
   public void readOne() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
 
-    Voice result = new Voice().setFromRecord(testDAO.readOne(access, ULong.valueOf(2)));
+    Voice result = testDAO.readOne(access, BigInteger.valueOf(2));
 
     assertNotNull(result);
-    assertEquals(ULong.valueOf(2), result.getId());
-    assertEquals(ULong.valueOf(1), result.getPhaseId());
+    assertEquals(BigInteger.valueOf(2), result.getId());
+    assertEquals(BigInteger.valueOf(1), result.getPhaseId());
     assertEquals(InstrumentType.Melodic, result.getType());
     assertEquals("This is melodious", result.getDescription());
   }
 
   @Test
   public void readOne_FailsWhenUserIsNotInAccount() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "326"
     ));
 
-    VoiceRecord result = testDAO.readOne(access, ULong.valueOf(1));
+    Voice result = testDAO.readOne(access, BigInteger.valueOf(1));
 
     assertNull(result);
   }
 
   @Test
   public void readAll() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ULong.valueOf(1)));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, BigInteger.valueOf(1)));
 
     assertNotNull(result);
     assertEquals(4, result.length());
@@ -171,12 +166,12 @@ public class VoiceIT {
 
   @Test
   public void readAll_SeesNothingOutsideOfLibrary() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "345"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ULong.valueOf(1)));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, BigInteger.valueOf(1)));
 
     assertNotNull(result);
     assertEquals(0, result.length());
@@ -184,7 +179,7 @@ public class VoiceIT {
 
   @Test
   public void readAllForPatternPhaseOffset() throws Exception {
-    JSONArray result = JSON.arrayOf(testDAO.readAllForPatternPhaseOffset(Access.internal(), ULong.valueOf(1), ULong.valueOf(0)));
+    JSONArray result = JSON.arrayOf(testDAO.readAllForPatternPhaseOffset(Access.internal(), BigInteger.valueOf(1), BigInteger.valueOf(0)));
 
     assertNotNull(result);
     assertEquals(4, result.length());
@@ -200,34 +195,34 @@ public class VoiceIT {
 
   @Test(expected = BusinessException.class)
   public void update_FailsWithoutPhaseID() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
     Voice inputData = new Voice()
       .setType("Harmonic")
       .setDescription("This is harmonious");
 
-    testDAO.update(access, ULong.valueOf(3), inputData);
+    testDAO.update(access, BigInteger.valueOf(3), inputData);
   }
 
   @Test(expected = BusinessException.class)
   public void update_FailsWithoutType() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
     Voice inputData = new Voice()
       .setPhaseId(BigInteger.valueOf(2))
       .setDescription("This is harmonious");
 
-    testDAO.update(access, ULong.valueOf(3), inputData);
+    testDAO.update(access, BigInteger.valueOf(3), inputData);
   }
 
   @Test(expected = BusinessException.class)
   public void update_FailsUpdatingToNonexistentPhase() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
     Voice inputData = new Voice()
@@ -236,25 +231,22 @@ public class VoiceIT {
       .setDescription("This is melodious");
 
     try {
-      testDAO.update(access, ULong.valueOf(3), inputData);
+      testDAO.update(access, BigInteger.valueOf(3), inputData);
 
     } catch (Exception e) {
-      VoiceRecord result = IntegrationTestService.getDb()
-        .selectFrom(VOICE)
-        .where(VOICE.ID.eq(ULong.valueOf(3)))
-        .fetchOne();
+      Voice result = testDAO.readOne(Access.internal(), BigInteger.valueOf(3));
       assertNotNull(result);
-      assertEquals("Harmonic", result.getType());
+      assertEquals(InstrumentType.Harmonic, result.getType());
       assertEquals("This is harmonious", result.getDescription());
-      assertEquals(ULong.valueOf(1), result.getPhaseId());
+      assertEquals(BigInteger.valueOf(1), result.getPhaseId());
       throw e;
     }
   }
 
   @Test
   public void update() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
     Voice inputData = new Voice()
@@ -262,33 +254,27 @@ public class VoiceIT {
       .setType("Melodic")
       .setDescription("This is melodious; Yoza!");
 
-    testDAO.update(access, ULong.valueOf(1), inputData);
+    testDAO.update(access, BigInteger.valueOf(1), inputData);
 
-    VoiceRecord result = IntegrationTestService.getDb()
-      .selectFrom(VOICE)
-      .where(VOICE.ID.eq(ULong.valueOf(1)))
-      .fetchOne();
+    Voice result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1));
     assertNotNull(result);
     assertEquals("This is melodious; Yoza!", result.getDescription());
-    assertEquals("Melodic", result.getType());
-    assertEquals(ULong.valueOf(1), result.getPhaseId());
+    assertEquals(InstrumentType.Melodic, result.getType());
+    assertEquals(BigInteger.valueOf(1), result.getPhaseId());
   }
 
   // future test: DAO cannot update Pattern to a User or Library not owned by current session
 
   @Test
   public void delete() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
 
-    testDAO.delete(access, ULong.valueOf(1));
+    testDAO.delete(access, BigInteger.valueOf(1));
 
-    VoiceRecord result = IntegrationTestService.getDb()
-      .selectFrom(VOICE)
-      .where(VOICE.ID.eq(ULong.valueOf(1)))
-      .fetchOne();
+    Voice result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1));
     assertNull(result);
   }
 
@@ -304,48 +290,42 @@ public class VoiceIT {
     IntegrationTestEntity.insertChoice(7, 1, 1, PatternType.Macro, 2, -5);
     IntegrationTestEntity.insertArrangement(1, 7, 1, 9);
     IntegrationTestEntity.insertPick(1, 1, 1, 0.125, 1.23, 0.94, 440);
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
 
-    testDAO.delete(access, ULong.valueOf(1));
+    testDAO.delete(access, BigInteger.valueOf(1));
 
-    VoiceRecord result = IntegrationTestService.getDb()
-      .selectFrom(VOICE)
-      .where(VOICE.ID.eq(ULong.valueOf(1)))
-      .fetchOne();
+    Voice result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1));
     assertNull(result);
   }
 
   @Test(expected = BusinessException.class)
   public void delete_failsIfNotInAccount() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "2"
     ));
 
-    testDAO.delete(access, ULong.valueOf(1));
+    testDAO.delete(access, BigInteger.valueOf(1));
   }
 
   @Test(expected = BusinessException.class)
-  public void delete_FailsIfPatternHasChildRecords() throws Exception {
-    Access access = new Access(ImmutableMap.of(
+  public void delete_FailsIfPatternHasChilds() throws Exception {
+    Access access = Access.from(ImmutableMap.of(
       "userId", "2",
-      "roles", "artist",
+      "roles", "Artist",
       "accounts", "1"
     ));
     IntegrationTestEntity.insertVoiceEvent(1, 1, 0.42, 0.41, "HEAVY", "C", 0.7, 0.98);
 
     try {
-      testDAO.delete(access, ULong.valueOf(1));
+      testDAO.delete(access, BigInteger.valueOf(1));
 
     } catch (Exception e) {
-      VoiceRecord stillExistingRecord = IntegrationTestService.getDb()
-        .selectFrom(VOICE)
-        .where(VOICE.ID.eq(ULong.valueOf(1)))
-        .fetchOne();
-      assertNotNull(stillExistingRecord);
+      Voice result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1));
+      assertNotNull(result);
       throw e;
     }
   }

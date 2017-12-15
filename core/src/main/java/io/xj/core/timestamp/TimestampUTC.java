@@ -8,9 +8,11 @@ import com.google.common.base.Objects;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.regex.Pattern;
 
 public interface TimestampUTC {
   String ZONE_ID = "UTC";
+  Pattern TIMESTAMP_TRAILING_Z = Pattern.compile("Z$");
 
   /**
    Timestamp for now, UTC
@@ -54,7 +56,7 @@ public interface TimestampUTC {
       if (Objects.equal("now", Text.toLowerSlug(value))) {
         return now();
       } else {
-        return Timestamp.valueOf(value);
+        return Timestamp.valueOf(TIMESTAMP_TRAILING_Z.matcher(value).replaceAll(""));
       }
     }
     return null;

@@ -1,37 +1,38 @@
 // Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.worker.work.craft.voice;
 
-import org.jooq.types.ULong;
-
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-
 import io.xj.core.CoreModule;
+import io.xj.core.access.impl.Access;
+import io.xj.core.craft.CraftFactory;
+import io.xj.core.dao.ArrangementDAO;
+import io.xj.core.dao.PickDAO;
 import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.integration.IntegrationTestService;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
-import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.instrument.InstrumentType;
 import io.xj.core.model.link.Link;
 import io.xj.core.model.link.LinkState;
-import io.xj.core.model.role.Role;
-import io.xj.core.tables.records.ArrangementRecord;
+import io.xj.core.model.pattern.PatternType;
+import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.work.basis.Basis;
 import io.xj.core.work.basis.BasisFactory;
-import io.xj.core.craft.CraftFactory;
 import io.xj.worker.WorkerModule;
+
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import java.math.BigInteger;
 import java.sql.Timestamp;
 
-import static io.xj.core.Tables.ARRANGEMENT;
-import static io.xj.core.Tables.PICK;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
 public class CraftVoiceNextMacroIT {
@@ -52,11 +53,11 @@ public class CraftVoiceNextMacroIT {
 
     // John has "user" and "admin" roles, belongs to account "crows", has "google" auth
     IntegrationTestEntity.insertUser(2, "john", "john@email.com", "http://pictures.com/john.gif");
-    IntegrationTestEntity.insertUserRole(1, 2, Role.ADMIN);
+    IntegrationTestEntity.insertUserRole(1, 2, UserRoleType.Admin);
 
     // Jenny has a "user" role and belongs to account "crows"
     IntegrationTestEntity.insertUser(3, "jenny", "jenny@email.com", "http://pictures.com/jenny.gif");
-    IntegrationTestEntity.insertUserRole(2, 3, Role.USER);
+    IntegrationTestEntity.insertUserRole(2, 3, UserRoleType.User);
     IntegrationTestEntity.insertAccountUser(3, 1, 3);
 
     // Library "house"
@@ -194,22 +195,9 @@ public class CraftVoiceNextMacroIT {
 
     craftFactory.voice(basis).doWork();
 
-    ArrangementRecord resultArrangement =
-      IntegrationTestService.getDb()
-        .selectFrom(ARRANGEMENT)
-        .where(ARRANGEMENT.CHOICE_ID.eq(ULong.valueOf(103)))
-        .fetchOne();
-    assertNotNull(resultArrangement);
+    assertFalse(injector.getInstance(ArrangementDAO.class).readAll(Access.internal(), BigInteger.valueOf(103)).isEmpty());
 
-    assertEquals(8, IntegrationTestService.getDb()
-      .selectFrom(PICK)
-      .where(PICK.AUDIO_ID.eq(ULong.valueOf(1)))
-      .fetch().size());
-
-    assertEquals(8, IntegrationTestService.getDb()
-      .selectFrom(PICK)
-      .where(PICK.AUDIO_ID.eq(ULong.valueOf(2)))
-      .fetch().size());
+    assertEquals(16, injector.getInstance(PickDAO.class).readAllInLink(Access.internal(), link4.getId()).size());
   }
 
 }

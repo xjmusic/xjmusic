@@ -3,13 +3,13 @@ package io.xj.hub.resource.chain_config;
 
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
+import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.server.HttpResponseProvider;
 import io.xj.core.dao.ChainConfigDAO;
 import io.xj.core.model.chain_config.ChainConfig;
 import io.xj.core.model.chain_config.ChainConfigWrapper;
-import io.xj.core.model.role.Role;
 
-import org.jooq.types.ULong;
+
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -26,6 +26,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.math.BigInteger;
+import java.util.Objects;
 
 /**
  Chain record
@@ -33,7 +35,7 @@ import java.io.IOException;
 @Path("chain-configs")
 public class ChainConfigIndexResource {
   private static final Injector injector = Guice.createInjector(new CoreModule());
-  private final ChainConfigDAO DAO = injector.getInstance(ChainConfigDAO.class);
+  private final ChainConfigDAO chainConfigDAO = injector.getInstance(ChainConfigDAO.class);
   private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
 
   @QueryParam("chainId")
@@ -46,18 +48,18 @@ public class ChainConfigIndexResource {
    */
   @GET
   @WebResult
-  @RolesAllowed({Role.USER})
+  @RolesAllowed({UserRoleType.USER})
   public Response readAll(@Context ContainerRequestContext crc) throws IOException {
-    if (chainId == null || chainId.length() == 0) {
+    if (Objects.isNull(chainId) || chainId.isEmpty()) {
       return response.notAcceptable("Chain id is required");
     }
 
     try {
       return response.readMany(
         ChainConfig.KEY_MANY,
-        DAO.readAll(
+        chainConfigDAO.readAll(
           Access.fromContext(crc),
-          ULong.valueOf(chainId)));
+          new BigInteger(chainId)));
 
     } catch (Exception e) {
       return response.failure(e);
@@ -72,13 +74,13 @@ public class ChainConfigIndexResource {
    */
   @POST
   @Consumes(MediaType.APPLICATION_JSON)
-  @RolesAllowed({Role.ENGINEER,Role.ADMIN})
+  @RolesAllowed({UserRoleType.ENGINEER, UserRoleType.ADMIN})
   public Response create(ChainConfigWrapper data, @Context ContainerRequestContext crc) {
     try {
       return response.create(
         ChainConfig.KEY_MANY,
         ChainConfig.KEY_ONE,
-        DAO.create(
+        chainConfigDAO.create(
           Access.fromContext(crc),
           data.getChainConfig()));
 

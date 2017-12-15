@@ -1,12 +1,14 @@
 // Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.worker.work.craft.structure;
 
-import org.jooq.types.ULong;
+import java.math.BigInteger;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
 import io.xj.core.CoreModule;
+import io.xj.core.access.impl.Access;
+import io.xj.core.dao.ChoiceDAO;
 import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.integration.IntegrationTestService;
 import io.xj.core.model.chain.ChainState;
@@ -14,7 +16,7 @@ import io.xj.core.model.chain.ChainType;
 import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.link.Link;
 import io.xj.core.model.link.LinkState;
-import io.xj.core.model.role.Role;
+import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.work.basis.Basis;
 import io.xj.core.work.basis.BasisFactory;
 import io.xj.core.craft.CraftFactory;
@@ -27,7 +29,6 @@ import org.junit.rules.ExpectedException;
 
 import java.sql.Timestamp;
 
-import static io.xj.core.Tables.CHOICE;
 import static org.junit.Assert.assertNotNull;
 
 public class CraftStructureNextMacroIT {
@@ -48,11 +49,11 @@ public class CraftStructureNextMacroIT {
 
     // John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
     IntegrationTestEntity.insertUser(2, "john", "john@email.com", "http://pictures.com/john.gif");
-    IntegrationTestEntity.insertUserRole(1, 2, Role.ADMIN);
+    IntegrationTestEntity.insertUserRole(1, 2, UserRoleType.Admin);
 
     // Jenny has a "user" role and belongs to account "bananas"
     IntegrationTestEntity.insertUser(3, "jenny", "jenny@email.com", "http://pictures.com/jenny.gif");
-    IntegrationTestEntity.insertUserRole(2, 3, Role.USER);
+    IntegrationTestEntity.insertUserRole(2, 3, UserRoleType.User);
     IntegrationTestEntity.insertAccountUser(3, 1, 3);
 
     // Library "house"
@@ -165,13 +166,7 @@ public class CraftStructureNextMacroIT {
     craftFactory.structure(basis).doWork();
 
     // choice of rhythm-type pattern
-    assertNotNull(IntegrationTestService.getDb().selectFrom(CHOICE)
-      .where(CHOICE.LINK_ID.eq(ULong.valueOf(4)))
-      .and(CHOICE.PATTERN_ID.eq(ULong.valueOf(35)))
-      .and(CHOICE.TYPE.eq(PatternType.Rhythm.toString()))
-      .and(CHOICE.TRANSPOSE.eq(5))
-      .and(CHOICE.PHASE_OFFSET.eq(ULong.valueOf(0)))
-      .fetchOne());
+    assertNotNull(injector.getInstance(ChoiceDAO.class).readOneLinkTypeWithAvailablePhaseOffsets(Access.internal(), BigInteger.valueOf(4), PatternType.Rhythm));
 
   }
 

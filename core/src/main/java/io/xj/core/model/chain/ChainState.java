@@ -19,6 +19,7 @@ public enum ChainState {
 
   /**
    String Values
+
    @return ImmutableList of string values
    */
   public static ImmutableList<String> stringValues() {
@@ -42,8 +43,8 @@ public enum ChainState {
 
     try {
       return valueOf(Text.toProperSlug(value));
-    } catch (Exception e) {
-      throw new BusinessException("'" + value + "' is not a valid state (" + CSV.joinEnum(values()) + ").", e);
+    } catch (Exception ignored) {
+      throw new BusinessException("'" + value + "' is not a valid state (" + CSV.joinEnum(values()) + ").");
     }
   }
 

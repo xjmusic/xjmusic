@@ -3,12 +3,10 @@ package io.xj.core.dao;
 
 import io.xj.core.access.impl.Access;
 import io.xj.core.model.phase_chord.PhaseChord;
-import io.xj.core.tables.records.PhaseChordRecord;
-
-import org.jooq.Result;
-import org.jooq.types.ULong;
 
 import javax.annotation.Nullable;
+import java.math.BigInteger;
+import java.util.Collection;
 
 public interface PhaseChordDAO {
 
@@ -19,7 +17,7 @@ public interface PhaseChordDAO {
    @param entity for the new Account User.
    @return newly readMany record
    */
-  PhaseChordRecord create(Access access, PhaseChord entity) throws Exception;
+  PhaseChord create(Access access, PhaseChord entity) throws Exception;
 
   /**
    Fetch one Phase Chord if accessible
@@ -30,7 +28,7 @@ public interface PhaseChordDAO {
    @throws Exception on failure
    */
   @Nullable
-  PhaseChordRecord readOne(Access access, ULong id) throws Exception;
+  PhaseChord readOne(Access access, BigInteger id) throws Exception;
 
   /**
    Fetch all accessible Phase Chord for one Phase by id
@@ -40,7 +38,7 @@ public interface PhaseChordDAO {
    @return JSONArray of phases.
    @throws Exception on failure
    */
-  Result<PhaseChordRecord> readAll(Access access, ULong phaseId) throws Exception;
+  Collection<PhaseChord> readAll(Access access, BigInteger phaseId) throws Exception;
 
   /**
    Update a specified Phase Chord if accessible
@@ -49,7 +47,7 @@ public interface PhaseChordDAO {
    @param id     of specific Chord to update.
    @param entity for the updated Chord.
    */
-  void update(Access access, ULong id, PhaseChord entity) throws Exception;
+  void update(Access access, BigInteger id, PhaseChord entity) throws Exception;
 
   /**
    Delete a specified Phase Chord if accessible
@@ -57,5 +55,5 @@ public interface PhaseChordDAO {
    @param access control
    @param id     of specific phase to delete.
    */
-  void delete(Access access, ULong id) throws Exception;
+  void delete(Access access, BigInteger id) throws Exception;
 }

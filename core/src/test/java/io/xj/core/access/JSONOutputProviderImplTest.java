@@ -3,17 +3,16 @@ package io.xj.core.access;
 
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.AccessControlProviderImpl;
+import io.xj.core.model.account_user.AccountUser;
+import io.xj.core.model.user_auth.UserAuth;
+import io.xj.core.model.user_role.UserRole;
+import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.persistence.redis.RedisDatabaseProvider;
-import io.xj.core.model.role.Role;
-import io.xj.core.tables.records.AccountUserRecord;
-import io.xj.core.tables.records.UserAuthRecord;
-import io.xj.core.tables.records.UserRoleRecord;
 import io.xj.core.token.TokenGenerator;
-
-import org.jooq.types.ULong;
 
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.common.collect.Maps;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -28,8 +27,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 import redis.clients.jedis.Jedis;
 
 import javax.ws.rs.core.Cookie;
+import java.math.BigInteger;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
@@ -39,14 +38,14 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class JSONOutputProviderImplTest {
-  @Mock private TokenGenerator tokenGenerator;
-  @Mock private RedisDatabaseProvider redisDatabaseProvider;
+  @Mock TokenGenerator tokenGenerator;
+  @Mock RedisDatabaseProvider redisDatabaseProvider;
   @Mock private Jedis redisConnection;
   private Injector injector;
   private AccessControlProvider accessControlProvider;
-  private UserAuthRecord userAuth;
-  private Collection<AccountUserRecord> accounts;
-  private Collection<UserRoleRecord> roles;
+  private UserAuth userAuth;
+  private Collection<AccountUser> accounts;
+  private Collection<UserRole> roles;
 
   @Before
   public void setUp() throws Exception {
@@ -57,23 +56,23 @@ public class JSONOutputProviderImplTest {
     createInjector();
     accessControlProvider = injector.getInstance(AccessControlProvider.class);
 
-    userAuth = new UserAuthRecord();
-    userAuth.setUserId(ULong.valueOf(5609877));
-    userAuth.setId(ULong.valueOf(12363));
+    userAuth = new UserAuth();
+    userAuth.setUserId(BigInteger.valueOf(5609877));
+    userAuth.setId(BigInteger.valueOf(12363));
 
     accounts = new LinkedList<>();
-    AccountUserRecord accountRole1 = new AccountUserRecord();
-    accountRole1.setAccountId(ULong.valueOf(790809874));
-    AccountUserRecord accountRole2 = new AccountUserRecord();
-    accountRole2.setAccountId(ULong.valueOf(90888932));
+    AccountUser accountRole1 = new AccountUser();
+    accountRole1.setAccountId(BigInteger.valueOf(790809874));
+    AccountUser accountRole2 = new AccountUser();
+    accountRole2.setAccountId(BigInteger.valueOf(90888932));
     accounts.add(accountRole1);
     accounts.add(accountRole2);
 
     roles = new LinkedList<>();
-    UserRoleRecord role1 = new UserRoleRecord();
-    role1.setType(Role.USER);
-    UserRoleRecord role2 = new UserRoleRecord();
-    role2.setType(Role.ARTIST);
+    UserRole role1 = new UserRole();
+    role1.setTypeEnum(UserRoleType.User);
+    UserRole role2 = new UserRole();
+    role2.setTypeEnum(UserRoleType.Artist);
     roles.add(role1);
     roles.add(role2);
   }
@@ -98,10 +97,10 @@ public class JSONOutputProviderImplTest {
 
     accessControlProvider.create(userAuth, accounts, roles);
 
-    Map<String, String> expectUserAccess = new HashMap<>();
+    Map<String, String> expectUserAccess = Maps.newHashMap();
     expectUserAccess.put("userId", "5609877");
     expectUserAccess.put("userAuthId", "12363");
-    expectUserAccess.put("roles", "user,artist");
+    expectUserAccess.put("roles", "User,Artist");
     expectUserAccess.put("accounts", "790809874,90888932");
     verify(redisConnection).hmset("token123", expectUserAccess);
   }

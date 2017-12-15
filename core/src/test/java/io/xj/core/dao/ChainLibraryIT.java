@@ -5,14 +5,10 @@ import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.integration.IntegrationTestEntity;
-import io.xj.core.integration.IntegrationTestService;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
 import io.xj.core.model.chain_library.ChainLibrary;
-import io.xj.core.tables.records.ChainLibraryRecord;
 import io.xj.core.transport.JSON;
-
-import org.jooq.types.ULong;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Guice;
@@ -27,7 +23,6 @@ import org.junit.Test;
 import java.math.BigInteger;
 import java.sql.Timestamp;
 
-import static io.xj.core.tables.ChainLibrary.CHAIN_LIBRARY;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -75,25 +70,25 @@ public class ChainLibraryIT {
 
   @Test
   public void create() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
     ChainLibrary inputData = new ChainLibrary()
       .setChainId(BigInteger.valueOf(1))
       .setLibraryId(BigInteger.valueOf(2));
 
-    JSONObject result = JSON.objectFromRecord(testDAO.create(access, inputData));
+    JSONObject result = JSON.objectFrom(testDAO.create(access, inputData));
 
     assertNotNull(result);
-    assertEquals(ULong.valueOf(1), result.get("chainId"));
-    assertEquals(ULong.valueOf(2), result.get("libraryId"));
+    assertEquals(1, result.get("chainId"));
+    assertEquals(2, result.get("libraryId"));
   }
 
   @Test(expected = BusinessException.class)
   public void create_FailIfAlreadyExists() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
     ChainLibrary inputData = new ChainLibrary()
@@ -105,8 +100,8 @@ public class ChainLibraryIT {
 
   @Test(expected = BusinessException.class)
   public void create_FailIfUserNotInChainAccount() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
     ChainLibrary inputData = new ChainLibrary()
@@ -118,8 +113,8 @@ public class ChainLibraryIT {
 
   @Test(expected = BusinessException.class)
   public void create_FailIfUserNotInLibraryAccount() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
     ChainLibrary inputData = new ChainLibrary()
@@ -131,8 +126,8 @@ public class ChainLibraryIT {
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutChainID() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
     ChainLibrary inputData = new ChainLibrary()
@@ -143,8 +138,8 @@ public class ChainLibraryIT {
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutLibraryId() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
     ChainLibrary inputData = new ChainLibrary()
@@ -155,56 +150,56 @@ public class ChainLibraryIT {
 
   @Test
   public void readOne() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
 
-    ChainLibrary result = new ChainLibrary().setFromRecord(testDAO.readOne(access, ULong.valueOf(1)));
+    ChainLibrary result = testDAO.readOne(access, BigInteger.valueOf(1));
 
     assertNotNull(result);
-    assertEquals(ULong.valueOf(1), result.getId());
-    assertEquals(ULong.valueOf(1), result.getChainId());
-    assertEquals(ULong.valueOf(1), result.getLibraryId());
+    assertEquals(BigInteger.valueOf(1), result.getId());
+    assertEquals(BigInteger.valueOf(1), result.getChainId());
+    assertEquals(BigInteger.valueOf(1), result.getLibraryId());
   }
 
   @Test
   public void readOne_FailsWhenChainIsNotInAccount() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "326"
     ));
 
-    ChainLibraryRecord result = testDAO.readOne(access, ULong.valueOf(1));
+    ChainLibrary result = testDAO.readOne(access, BigInteger.valueOf(1));
 
     assertNull(result);
   }
 
   @Test
   public void readAll() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ULong.valueOf(2)));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, BigInteger.valueOf(2)));
 
     assertNotNull(result);
     assertEquals(2, result.length());
     JSONObject result1 = (JSONObject) result.get(0);
-    assertEquals(ULong.valueOf(1), result1.get("libraryId"));
+    assertEquals(1, result1.get("libraryId"));
     JSONObject result2 = (JSONObject) result.get(1);
-    assertEquals(ULong.valueOf(2), result2.get("libraryId"));
+    assertEquals(2, result2.get("libraryId"));
   }
 
   @Test
   public void readAll_SeesNothingOutsideOfAccount() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "345"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ULong.valueOf(1)));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, BigInteger.valueOf(1)));
 
     assertNotNull(result);
     assertEquals(0, result.length());
@@ -212,27 +207,24 @@ public class ChainLibraryIT {
 
   @Test
   public void delete() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "artist",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
 
-    testDAO.delete(access, ULong.valueOf(1));
+    testDAO.delete(access, BigInteger.valueOf(1));
 
-    ChainLibraryRecord result = IntegrationTestService.getDb()
-      .selectFrom(CHAIN_LIBRARY)
-      .where(CHAIN_LIBRARY.ID.eq(ULong.valueOf(1)))
-      .fetchOne();
+    ChainLibrary result = testDAO.readOne(Access.internal(),BigInteger.valueOf(1));
     assertNull(result);
   }
 
   @Test(expected = BusinessException.class)
   public void delete_FailIfNotInAccount() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "library",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "5"
     ));
 
-    testDAO.delete(access, ULong.valueOf(1));
+    testDAO.delete(access, BigInteger.valueOf(1));
   }
 }

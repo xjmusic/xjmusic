@@ -2,7 +2,6 @@
 package io.xj.core.dao;
 
 import io.xj.core.CoreModule;
-import io.xj.core.Tables;
 import io.xj.core.access.impl.Access;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.exception.CancelException;
@@ -11,17 +10,14 @@ import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.integration.IntegrationTestService;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
-import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.instrument.InstrumentType;
 import io.xj.core.model.link.Link;
 import io.xj.core.model.link.LinkState;
 import io.xj.core.model.message.MessageType;
-import io.xj.core.tables.records.LinkRecord;
+import io.xj.core.model.pattern.PatternType;
 import io.xj.core.transport.JSON;
 
 import org.jooq.impl.DSL;
-import org.jooq.types.UInteger;
-import org.jooq.types.ULong;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
@@ -30,7 +26,6 @@ import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 
 import org.json.JSONArray;
-import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -42,14 +37,10 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigInteger;
 import java.sql.Timestamp;
+import java.util.Collection;
+import java.util.Iterator;
 
-import static io.xj.core.Tables.ARRANGEMENT;
 import static io.xj.core.Tables.CHAIN;
-import static io.xj.core.Tables.CHOICE;
-import static io.xj.core.Tables.LINK_CHORD;
-import static io.xj.core.Tables.LINK_MEME;
-import static io.xj.core.Tables.LINK_MESSAGE;
-import static io.xj.core.Tables.PICK;
 import static io.xj.core.tables.Link.LINK;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -110,8 +101,8 @@ public class LinkIT {
 
   @Test
   public void create() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "admin"
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Admin"
     ));
     Link inputData = new Link()
       .setChainId(BigInteger.valueOf(1))
@@ -127,26 +118,26 @@ public class LinkIT {
     when(amazonProvider.generateKey("chain-1-link", "mp3"))
       .thenReturn("chain-1-link-h2a34j5s34fd987gaw3.mp3");
 
-    JSONObject result = JSON.objectFromRecord(testDAO.create(access, inputData));
+    Link result = testDAO.create(access, inputData);
 
     assertNotNull(result);
-    assertEquals(ULong.valueOf(1), result.get("chainId"));
-    assertEquals(ULong.valueOf(5), result.get("offset"));
-    assertEquals(LinkState.Planned, result.get("state"));
-    assertEquals(Timestamp.valueOf("1995-04-28 11:23:00.000001"), result.get("beginAt"));
-    assertEquals(Timestamp.valueOf("1995-04-28 11:23:32.000001"), result.get("endAt"));
-    assertEquals(UInteger.valueOf(64), result.get("total"));
-    assertEquals(0.74, result.get("density"));
-    assertEquals("C# minor 7 b9", result.get("key"));
-    assertEquals(120.0, result.get("tempo"));
-    assertNotNull(result.get("waveformKey"));
+    assertEquals(BigInteger.valueOf(1), result.getChainId());
+    assertEquals(BigInteger.valueOf(5), result.getOffset());
+    assertEquals(LinkState.Planned, result.getState());
+    assertEquals(Timestamp.valueOf("1995-04-28 11:23:00.000001"), result.getBeginAt());
+    assertEquals(Timestamp.valueOf("1995-04-28 11:23:32.000001"), result.getEndAt());
+    assertEquals(Integer.valueOf(64), result.getTotal());
+    assertEquals(0.74, result.getDensity(),0.01);
+    assertEquals("C# minor 7 b9", result.getKey());
+    assertEquals(120.0, result.getTempo(),0.01);
+    assertNotNull(result.getWaveformKey());
   }
 
   @Test
   // [#126] Links are always readMany in PLANNED state
   public void create_alwaysInPlannedState() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "admin"
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Admin"
     ));
     Link inputData = new Link()
       .setChainId(BigInteger.valueOf(1))
@@ -162,25 +153,25 @@ public class LinkIT {
     when(amazonProvider.generateKey("chain-1-link", "mp3"))
       .thenReturn("chain-1-link-h2a34j5s34fd987gaw3.mp3");
 
-    JSONObject result = JSON.objectFromRecord(testDAO.create(access, inputData));
+    Link result = testDAO.create(access, inputData);
 
     assertNotNull(result);
-    assertEquals(ULong.valueOf(1), result.get("chainId"));
-    assertEquals(ULong.valueOf(5), result.get("offset"));
-    assertEquals(LinkState.Planned, result.get("state"));
-    assertEquals(Timestamp.valueOf("1995-04-28 11:23:00.000001"), result.get("beginAt"));
-    assertEquals(Timestamp.valueOf("1995-04-28 11:23:32.000001"), result.get("endAt"));
-    assertEquals(UInteger.valueOf(64), result.get("total"));
-    assertEquals(0.74, result.get("density"));
-    assertEquals("C# minor 7 b9", result.get("key"));
-    assertEquals(120.0, result.get("tempo"));
-    assertNotNull(result.get("waveformKey"));
+    assertEquals(BigInteger.valueOf(1), result.getChainId());
+    assertEquals(BigInteger.valueOf(5), result.getOffset());
+    assertEquals(LinkState.Planned, result.getState());
+    assertEquals(Timestamp.valueOf("1995-04-28 11:23:00.000001"), result.getBeginAt());
+    assertEquals(Timestamp.valueOf("1995-04-28 11:23:32.000001"), result.getEndAt());
+    assertEquals(Integer.valueOf(64), result.getTotal());
+    assertEquals(0.74, result.getDensity(),0.01);
+    assertEquals("C# minor 7 b9", result.getKey());
+    assertEquals(120.0, result.getTempo(),0.1);
+    assertNotNull(result.getWaveformKey());
   }
 
   @Test
   public void create_FailsIfNotUniqueChainOffset() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "admin"
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Admin"
     ));
     Link inputData = new Link()
       .setChainId(BigInteger.valueOf(1))
@@ -203,8 +194,8 @@ public class LinkIT {
 
   @Test
   public void create_FailsWithoutTopLevelAccess() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "user"
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "User"
     ));
     Link inputData = new Link()
       .setChainId(BigInteger.valueOf(1))
@@ -228,8 +219,8 @@ public class LinkIT {
 
   @Test
   public void create_FailsWithoutChainID() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "admin"
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Admin"
     ));
     Link inputData = new Link()
       .setOffset(BigInteger.valueOf(4))
@@ -252,8 +243,8 @@ public class LinkIT {
 
   @Test
   public void create_FailsWithInvalidState() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "admin"
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Admin"
     ));
     Link inputData = new Link()
       .setChainId(BigInteger.valueOf(1))
@@ -277,21 +268,21 @@ public class LinkIT {
 
   @Test
   public void readOne() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "user",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "User",
       "accounts", "1"
     ));
 
-    Link result = new Link().setFromRecord(testDAO.readOne(access, ULong.valueOf(2)));
+    Link result = testDAO.readOne(access, BigInteger.valueOf(2));
 
     assertNotNull(result);
-    assertEquals(ULong.valueOf(2), result.getId());
-    assertEquals(ULong.valueOf(1), result.getChainId());
-    assertEquals(ULong.valueOf(1), result.getOffset());
+    assertEquals(BigInteger.valueOf(2), result.getId());
+    assertEquals(BigInteger.valueOf(1), result.getChainId());
+    assertEquals(BigInteger.valueOf(1), result.getOffset());
     assertEquals(LinkState.Dubbing, result.getState());
     assertEquals(Timestamp.valueOf("2017-02-14 12:01:32.000001"), result.getBeginAt());
     assertEquals(Timestamp.valueOf("2017-02-14 12:02:04.000001"), result.getEndAt());
-    assertEquals(UInteger.valueOf(64), result.getTotal());
+    assertEquals(Integer.valueOf(64), result.getTotal());
     assertEquals(Double.valueOf(0.85), result.getDensity());
     assertEquals("Db minor", result.getKey());
     assertEquals(Double.valueOf(120.0), result.getTempo());
@@ -299,77 +290,82 @@ public class LinkIT {
 
   @Test
   public void readOne_FailsWhenUserIsNotInChain() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "user",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "User",
       "accounts", "326"
     ));
 
-    LinkRecord result = testDAO.readOne(access, ULong.valueOf(1));
+    Link result = testDAO.readOne(access, BigInteger.valueOf(1));
 
     assertNull(result);
   }
 
   @Test
   public void readAll() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "user",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "User",
       "accounts", "1"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ULong.valueOf(1)));
+    Collection<Link> result = testDAO.readAll(access, BigInteger.valueOf(1));
 
     assertNotNull(result);
-    assertEquals(5, result.length());
+    assertEquals(5, result.size());
+    Iterator<Link> it = result.iterator();
 
-    JSONObject result4 = (JSONObject) result.get(4);
-    assertEquals("Dubbed", result4.get("state"));
-    JSONObject result3 = (JSONObject) result.get(3);
-    assertEquals("Dubbing", result3.get("state"));
-    JSONObject result2 = (JSONObject) result.get(2);
-    assertEquals("Crafted", result2.get("state"));
-    JSONObject result1 = (JSONObject) result.get(1);
-    assertEquals("Crafting", result1.get("state"));
-    JSONObject actualResult0 = (JSONObject) result.get(0);
-    assertEquals("Planned", actualResult0.get("state"));
+    Link actualResult0 = it.next();
+    assertEquals(LinkState.Planned, actualResult0.getState());
+
+    Link result1 = it.next();
+    assertEquals(LinkState.Crafting, result1.getState());
+
+    Link result2 = it.next();
+    assertEquals(LinkState.Crafted, result2.getState());
+
+    Link result3 = it.next();
+    assertEquals(LinkState.Dubbing, result3.getState());
+
+    Link result4 = it.next();
+    assertEquals(LinkState.Dubbed, result4.getState());
   }
 
   @Test
   public void readOneInState() throws Exception {
-    Access access = new Access(ImmutableMap.of(
+    Access access = Access.from(ImmutableMap.of(
       "roles", "internal"
     ));
 
-    LinkRecord result = testDAO.readOneInState(access, ULong.valueOf(1), LinkState.Planned, Timestamp.valueOf("2017-02-14 12:03:08.000001"));
+    Link result = testDAO.readOneInState(access, BigInteger.valueOf(1), LinkState.Planned, Timestamp.valueOf("2017-02-14 12:03:08.000001"));
 
     assertNotNull(result);
-    assertEquals(ULong.valueOf(5), result.get("id"));
-    assertEquals(ULong.valueOf(1), result.get(LINK.CHAIN_ID));
-    assertEquals(ULong.valueOf(4), result.get("offset"));
-    assertEquals("Planned", result.get("state"));
-    assertEquals(Timestamp.valueOf("2017-02-14 12:03:08.000001"), result.get(LINK.BEGIN_AT));
-    assertNull(result.get(LINK.END_AT));
+    assertEquals(BigInteger.valueOf(5), result.getId());
+    assertEquals(BigInteger.valueOf(1), result.getChainId());
+    assertEquals(BigInteger.valueOf(4), result.getOffset());
+    assertEquals(LinkState.Planned, result.getState());
+    assertEquals(Timestamp.valueOf("2017-02-14 12:03:08.000001"), result.getBeginAt());
+    assertNull(result.getEndAt());
   }
 
   @Test
   public void readOneInState_nullIfNoneInChain() throws Exception {
-    Access access = new Access(ImmutableMap.of(
+    Access access = Access.from(ImmutableMap.of(
       "roles", "internal"
     ));
     IntegrationTestEntity.insertChain(2, 1, "Test Print #2", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, null);
 
-    LinkRecord result = testDAO.readOneInState(access, ULong.valueOf(2), LinkState.Planned, Timestamp.valueOf("2017-02-14 12:03:08.000001"));
+    Link result = testDAO.readOneInState(access, BigInteger.valueOf(2), LinkState.Planned, Timestamp.valueOf("2017-02-14 12:03:08.000001"));
 
     assertNull(result);
   }
 
   @Test
   public void readAll_SeesNothingOutsideOfChain() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "user",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "User",
       "accounts", "345"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ULong.valueOf(1)));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, BigInteger.valueOf(1)));
 
     assertNotNull(result);
     assertEquals(0, result.length());
@@ -377,8 +373,8 @@ public class LinkIT {
 
   @Test
   public void update() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "admin"
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Admin"
     ));
     Link inputData = new Link()
       .setChainId(BigInteger.valueOf(1))
@@ -391,36 +387,33 @@ public class LinkIT {
       .setKey("C# minor 7 b9")
       .setTempo(120.0);
 
-    testDAO.update(access, ULong.valueOf(2), inputData);
+    testDAO.update(access, BigInteger.valueOf(2), inputData);
 
-    LinkRecord result = IntegrationTestService.getDb()
-      .selectFrom(LINK)
-      .where(LINK.ID.eq(ULong.valueOf(2)))
-      .fetchOne();
+    Link result = testDAO.readOne(Access.internal(), BigInteger.valueOf(2));
     assertNotNull(result);
     assertEquals("C# minor 7 b9", result.getKey());
-    assertEquals(ULong.valueOf(1), result.getChainId());
-    assertEquals("Dubbed", result.getState());
+    assertEquals(BigInteger.valueOf(1), result.getChainId());
+    assertEquals(LinkState.Dubbed, result.getState());
     assertEquals(Timestamp.valueOf("1995-04-28 11:23:00.000001"), result.getBeginAt());
     assertEquals(Timestamp.valueOf("1995-04-28 11:23:32.000001"), result.getEndAt());
   }
 
   @Test
   public void update_failsToTransitionFromDubbingToCrafting() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "admin"
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Admin"
     ));
 
     failure.expect(CancelException.class);
     failure.expectMessage("transition to Crafting not in allowed");
 
-    testDAO.updateState(access, ULong.valueOf(2), LinkState.Crafting);
+    testDAO.updateState(access, BigInteger.valueOf(2), LinkState.Crafting);
   }
 
   @Test
   public void update_FailsWithoutChainID() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "admin"
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Admin"
     ));
     Link inputData = new Link()
       .setOffset(BigInteger.valueOf(4))
@@ -435,13 +428,13 @@ public class LinkIT {
     failure.expect(BusinessException.class);
     failure.expectMessage("Chain ID is required");
 
-    testDAO.update(access, ULong.valueOf(2), inputData);
+    testDAO.update(access, BigInteger.valueOf(2), inputData);
   }
 
   @Test
   public void update_FailsWithInvalidState() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "admin"
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Admin"
     ));
     Link inputData = new Link()
       .setChainId(BigInteger.valueOf(1))
@@ -456,13 +449,13 @@ public class LinkIT {
     failure.expect(BusinessException.class);
     failure.expectMessage("'what a dumb-ass state' is not a valid state");
 
-    testDAO.update(access, ULong.valueOf(2), inputData);
+    testDAO.update(access, BigInteger.valueOf(2), inputData);
   }
 
   @Test
   public void update_FailsToChangeChain() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "admin"
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Admin"
     ));
     Link inputData = new Link()
       .setChainId(BigInteger.valueOf(12))
@@ -479,16 +472,13 @@ public class LinkIT {
     failure.expectMessage("transition to Crafting not in allowed");
 
     try {
-      testDAO.update(access, ULong.valueOf(2), inputData);
+      testDAO.update(access, BigInteger.valueOf(2), inputData);
 
     } catch (Exception e) {
-      LinkRecord result = IntegrationTestService.getDb()
-        .selectFrom(LINK)
-        .where(LINK.ID.eq(ULong.valueOf(2)))
-        .fetchOne();
+      Link result = testDAO.readOne(Access.internal(), BigInteger.valueOf(2));
       assertNotNull(result);
       assertEquals("Db minor", result.getKey());
-      assertEquals(ULong.valueOf(1), result.getChainId());
+      assertEquals(BigInteger.valueOf(1), result.getChainId());
       throw e;
     }
   }
@@ -499,12 +489,9 @@ public class LinkIT {
       .set(CHAIN.STATE, "Erase")
       .execute();
 
-    testDAO.destroy(Access.internal(), ULong.valueOf(1));
+    testDAO.destroy(Access.internal(), BigInteger.valueOf(1));
 
-    LinkRecord result = IntegrationTestService.getDb()
-      .selectFrom(LINK)
-      .where(LINK.ID.eq(ULong.valueOf(1)))
-      .fetchOne();
+    Link result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1));
     assertNull(result);
   }
 
@@ -517,24 +504,21 @@ public class LinkIT {
       .set(LINK.WAVEFORM_KEY, DSL.value((String) null))
       .execute();
 
-    testDAO.destroy(Access.internal(), ULong.valueOf(1));
+    testDAO.destroy(Access.internal(), BigInteger.valueOf(1));
 
     verify(amazonProvider, never()).deleteS3Object("xj-link-test", null);
 
-    LinkRecord result = IntegrationTestService.getDb()
-      .selectFrom(LINK)
-      .where(LINK.ID.eq(ULong.valueOf(1)))
-      .fetchOne();
+    Link result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1));
     assertNull(result);
   }
 
   @Test
   public void destroy_okRegardlessOfChainState() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "admin"
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Admin"
     ));
 
-    testDAO.destroy(access, ULong.valueOf(1));
+    testDAO.destroy(access, BigInteger.valueOf(1));
   }
 
   @Test
@@ -575,13 +559,13 @@ public class LinkIT {
     // Pick is in Morph
     IntegrationTestEntity.insertPick(1, 1, 1, 0.125, 1.23, 0.94, 440);
 
-    Access access = new Access(ImmutableMap.of(
-      "roles", "admin"
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Admin"
     ));
 
     //
     // Go!
-    testDAO.destroy(access, ULong.valueOf(17));
+    testDAO.destroy(access, BigInteger.valueOf(17));
     //
     //
 
@@ -589,46 +573,25 @@ public class LinkIT {
     verify(amazonProvider).deleteS3Object("xj-link-test", "chain-1-link-97898asdf7892.mp3");
 
     // Assert destroyed Link
-    assertNull(IntegrationTestService.getDb()
-      .selectFrom(Tables.LINK)
-      .where(Tables.LINK.ID.eq(ULong.valueOf(17)))
-      .fetchOne());
+    assertNull(testDAO.readOne(Access.internal(), BigInteger.valueOf(17)));
 
     // Assert destroyed Link Meme
-    assertNull(IntegrationTestService.getDb()
-      .selectFrom(LINK_MEME)
-      .where(LINK_MEME.ID.eq(ULong.valueOf(25)))
-      .fetchOne());
+    assertNull(injector.getInstance(LinkMemeDAO.class).readOne(Access.internal(), BigInteger.valueOf(25)));
 
     // Assert destroyed Link Chord
-    assertNull(IntegrationTestService.getDb()
-      .selectFrom(LINK_CHORD)
-      .where(LINK_CHORD.ID.eq(ULong.valueOf(25)))
-      .fetchOne());
+    assertNull(injector.getInstance(LinkChordDAO.class).readOne(Access.internal(), BigInteger.valueOf(25)));
 
     // Assert destroyed Link Message
-    assertNull(IntegrationTestService.getDb()
-      .selectFrom(LINK_MESSAGE)
-      .where(LINK_MESSAGE.ID.eq(ULong.valueOf(25)))
-      .fetchOne());
+    assertNull(injector.getInstance(LinkMessageDAO.class).readOne(Access.internal(), BigInteger.valueOf(25)));
 
     // Assert destroyed Arrangement
-    assertNull(IntegrationTestService.getDb()
-      .selectFrom(ARRANGEMENT)
-      .where(ARRANGEMENT.ID.eq(ULong.valueOf(1)))
-      .fetchOne());
+    assertNull(injector.getInstance(ArrangementDAO.class).readOne(Access.internal(), BigInteger.valueOf(1)));
 
     // Assert destroyed Choice
-    assertNull(IntegrationTestService.getDb()
-      .selectFrom(CHOICE)
-      .where(CHOICE.ID.eq(ULong.valueOf(1)))
-      .fetchOne());
+    assertNull(injector.getInstance(ChoiceDAO.class).readOne(Access.internal(), BigInteger.valueOf(1)));
 
     // Assert destroyed Pick
-    assertNull(IntegrationTestService.getDb()
-      .selectFrom(PICK)
-      .where(PICK.ID.eq(ULong.valueOf(1)))
-      .fetchOne());
+    assertNull(injector.getInstance(PickDAO.class).readOne(Access.internal(), BigInteger.valueOf(1)));
 
   }
 

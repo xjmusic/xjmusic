@@ -6,9 +6,26 @@
   {{#each model.choices as |choice|}}
     <div class="choice">
       ({{choice.type}})
-      {{#link-to 'accounts.one.libraries.one.patterns.one' choice.pattern.library choice.pattern}}{{choice.pattern.name}}{{/link-to}}
+      {{#link-to 'accounts.one.libraries.one.patterns.one'
+                 choice.pattern.library
+                 choice.pattern}}{{choice.pattern.name}}{{/link-to}}
       @{{choice.phaseOffset}}
       T{{choice.transpose}}
+      {{#each choice.arrangements as |arrangement|}}
+        <div class="arrangement">
+          {{#link-to 'accounts.one.libraries.one.patterns.one.phases.one.voices.one.events'
+                     arrangement.voice.phase.pattern.library.account
+                     arrangement.voice.phase.pattern.library
+                     arrangement.voice.phase.pattern
+                     arrangement.voice.phase
+                     arrangement.voice}}{{arrangement.voice.description}}{{/link-to}}
+          &rarr;
+          {{#link-to 'accounts.one.libraries.one.instruments.one'
+                     arrangement.instrument.library.account
+                     arrangement.instrument.library
+                     arrangement.instrument}}{{arrangement.instrument.description}}{{/link-to}}
+        </div>
+      {{/each}}
     </div>
   {{/each}}
 </div>

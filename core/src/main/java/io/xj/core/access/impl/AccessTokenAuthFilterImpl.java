@@ -1,14 +1,13 @@
 // Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.access.impl;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+
 import io.xj.core.CoreModule;
 import io.xj.core.access.AccessControlProvider;
 import io.xj.core.access.AccessTokenAuthFilter;
 import io.xj.core.config.Config;
-
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -87,11 +86,11 @@ public class AccessTokenAuthFilterImpl implements AccessTokenAuthFilter {
     } catch (Exception e) {
       return failed(context, "cannot get access token (" + e.getClass().getName() + "): " + e);
     }
-    if (!access.valid()) {
+    if (!access.isValid()) {
       return denied(context, "invalid access_token");
     }
 
-    if (!access.isTopLevel() && !access.matchAnyOf(aRolesAllowed.value())) {
+    if (!access.isTopLevel() && !access.isAllowed(aRolesAllowed.value())) {
       return denied(context, "user has no accessible role");
     }
 

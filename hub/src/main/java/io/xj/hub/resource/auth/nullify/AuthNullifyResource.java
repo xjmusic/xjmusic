@@ -4,9 +4,9 @@ package io.xj.hub.resource.auth.nullify;
 import io.xj.core.CoreModule;
 import io.xj.core.access.AccessControlProvider;
 import io.xj.core.access.impl.Access;
+import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.server.HttpResponseProvider;
 import io.xj.core.dao.UserDAO;
-import io.xj.core.model.role.Role;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -37,7 +37,7 @@ public class AuthNullifyResource {
    */
   @GET
   @WebResult
-  @RolesAllowed({Role.USER})
+  @RolesAllowed({UserRoleType.USER})
   public Response getCurrentAuthentication(@Context ContainerRequestContext crc) throws IOException {
     Access access = Access.fromContext(crc);
     try {

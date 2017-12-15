@@ -2,28 +2,28 @@
 package io.xj.core.dao.impl;
 
 import io.xj.core.access.impl.Access;
+import io.xj.core.dao.ChoiceDAO;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.exception.ConfigException;
-import io.xj.core.dao.ChoiceDAO;
-import io.xj.core.persistence.sql.impl.SQLConnection;
-import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import io.xj.core.model.choice.Choice;
 import io.xj.core.model.pattern.PatternType;
-import io.xj.core.tables.records.ChoiceRecord;
+import io.xj.core.persistence.sql.SQLDatabaseProvider;
+import io.xj.core.persistence.sql.impl.SQLConnection;
 
 import org.jooq.DSLContext;
 import org.jooq.Field;
 import org.jooq.Record;
-import org.jooq.Result;
 import org.jooq.SelectOffsetStep;
 import org.jooq.types.ULong;
 
+import com.google.api.client.util.Maps;
 import com.google.inject.Inject;
 
 import javax.annotation.Nullable;
+import java.math.BigInteger;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static io.xj.core.Tables.CHOICE;
 import static io.xj.core.Tables.PHASE;
@@ -33,6 +33,7 @@ import static io.xj.core.tables.Link.LINK;
 import static org.jooq.impl.DSL.groupConcat;
 
 public class ChoiceDAOImpl extends DAOImpl implements ChoiceDAO {
+  private static final String KEY_AVAILABLE_PHASE_OFFSETS = "available_phase_offsets";
 
   @Inject
   public ChoiceDAOImpl(
@@ -42,10 +43,10 @@ public class ChoiceDAOImpl extends DAOImpl implements ChoiceDAO {
   }
 
   @Override
-  public ChoiceRecord create(Access access, Choice entity) throws Exception {
+  public Choice create(Access access, Choice entity) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(createRecord(tx.getContext(), access, entity));
+      return tx.success(create(tx.getContext(), access, entity));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -53,10 +54,10 @@ public class ChoiceDAOImpl extends DAOImpl implements ChoiceDAO {
 
   @Override
   @Nullable
-  public ChoiceRecord readOne(Access access, ULong choiceId) throws Exception {
+  public Choice readOne(Access access, BigInteger choiceId) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readOneRecord(tx.getContext(), access, choiceId));
+      return tx.success(readOne(tx.getContext(), access, ULong.valueOf(choiceId)));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -64,10 +65,10 @@ public class ChoiceDAOImpl extends DAOImpl implements ChoiceDAO {
 
   @Nullable
   @Override
-  public ChoiceRecord readOneLinkPattern(Access access, ULong linkId, ULong patternId) throws Exception {
+  public Choice readOneLinkPattern(Access access, BigInteger linkId, BigInteger patternId) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readOneLinkPattern(tx.getContext(), access, linkId, patternId));
+      return tx.success(readOneLinkPattern(tx.getContext(), access, ULong.valueOf(linkId), ULong.valueOf(patternId)));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -75,10 +76,10 @@ public class ChoiceDAOImpl extends DAOImpl implements ChoiceDAO {
 
   @Override
   @Nullable
-  public Choice readOneLinkTypeWithAvailablePhaseOffsets(Access access, ULong linkId, PatternType patternType) throws Exception {
+  public Choice readOneLinkTypeWithAvailablePhaseOffsets(Access access, BigInteger linkId, PatternType patternType) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(new Choice().setFromRecord(readOneLinkTypeWithAvailablePhaseOffsets(tx.getContext(), access, linkId, patternType)));
+      return tx.success(readOneLinkTypeWithAvailablePhaseOffsets(tx.getContext(), access, ULong.valueOf(linkId), patternType));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -86,30 +87,30 @@ public class ChoiceDAOImpl extends DAOImpl implements ChoiceDAO {
 
   @Override
   @Nullable
-  public Result<ChoiceRecord> readAll(Access access, ULong linkId) throws Exception {
+  public Collection<Choice> readAll(Access access, BigInteger linkId) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readAll(tx.getContext(), access, linkId));
+      return tx.success(readAll(tx.getContext(), access, ULong.valueOf(linkId)));
     } catch (Exception e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public Result<ChoiceRecord> readAllInLinks(Access access, List<ULong> linkIds) throws Exception {
+  public Collection<Choice> readAllInLinks(Access access, Collection<BigInteger> linkIds) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readAllInLinks(tx.getContext(), access, linkIds));
+      return tx.success(readAllInLinks(tx.getContext(), access, idCollection(linkIds)));
     } catch (Exception e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public void update(Access access, ULong choiceId, Choice entity) throws Exception {
+  public void update(Access access, BigInteger choiceId, Choice entity) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      update(tx.getContext(), access, choiceId, entity);
+      update(tx.getContext(), access, ULong.valueOf(choiceId), entity);
       tx.success();
     } catch (Exception e) {
       throw tx.failure(e);
@@ -117,10 +118,10 @@ public class ChoiceDAOImpl extends DAOImpl implements ChoiceDAO {
   }
 
   @Override
-  public void delete(Access access, ULong choiceId) throws Exception {
+  public void delete(Access access, BigInteger choiceId) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      delete(tx.getContext(), access, choiceId);
+      delete(tx.getContext(), access, ULong.valueOf(choiceId));
       tx.success();
     } catch (Exception e) {
       throw tx.failure(e);
@@ -136,18 +137,18 @@ public class ChoiceDAOImpl extends DAOImpl implements ChoiceDAO {
    @return newly readMany record
    @throws BusinessException if a Business Rule is violated
    */
-  private ChoiceRecord createRecord(DSLContext db, Access access, Choice entity) throws BusinessException {
+  private static Choice create(DSLContext db, Access access, Choice entity) throws BusinessException {
     entity.validate();
 
-    Map<Field, Object> fieldValues = entity.updatableFieldValueMap();
+    Map<Field, Object> fieldValues = fieldValueMap(entity);
 
     requireTopLevel(access);
 
     requireExists("Link", db.selectCount().from(LINK)
-      .where(LINK.ID.eq(entity.getLinkId()))
+      .where(LINK.ID.eq(ULong.valueOf(entity.getLinkId())))
       .fetchOne(0, int.class));
 
-    return executeCreate(db, CHOICE, fieldValues);
+    return modelFrom(executeCreate(db, CHOICE, fieldValues), Choice.class);
   }
 
   /**
@@ -158,48 +159,48 @@ public class ChoiceDAOImpl extends DAOImpl implements ChoiceDAO {
    @param id     of record
    @return record
    */
-  private ChoiceRecord readOneRecord(DSLContext db, Access access, ULong id) {
+  private static Choice readOne(DSLContext db, Access access, ULong id) throws BusinessException {
     if (access.isTopLevel())
-      return db.selectFrom(CHOICE)
+      return modelFrom(db.selectFrom(CHOICE)
         .where(CHOICE.ID.eq(id))
-        .fetchOne();
+        .fetchOne(), Choice.class);
     else
-      return recordInto(CHOICE, db.select(CHOICE.fields())
+      return modelFrom(db.select(CHOICE.fields())
         .from(CHOICE)
         .join(LINK).on(LINK.ID.eq(CHOICE.LINK_ID))
         .join(CHAIN).on(CHAIN.ID.eq(LINK.CHAIN_ID))
         .where(CHOICE.ID.eq(id))
-        .and(CHAIN.ACCOUNT_ID.in(access.getAccounts()))
-        .fetchOne());
+        .and(CHAIN.ACCOUNT_ID.in(access.getAccountIds()))
+        .fetchOne(), Choice.class);
   }
 
   /**
    Read one record binding an pattern to a link
 
-   @param db     context
-   @param access control
-   @param linkId to get choice for
+   @param db        context
+   @param access    control
+   @param linkId    to get choice for
    @param patternId to get choice for
    @return record
    */
-  private ChoiceRecord readOneLinkPattern(DSLContext db, Access access, ULong linkId, ULong patternId) throws BusinessException {
+  private static Choice readOneLinkPattern(DSLContext db, Access access, ULong linkId, ULong patternId) throws BusinessException {
     requireTopLevel(access);
-    return db.selectFrom(CHOICE)
+    return modelFrom(db.selectFrom(CHOICE)
       .where(CHOICE.LINK_ID.eq(linkId))
       .and(CHOICE.PATTERN_ID.eq(patternId))
-      .fetchOne();
+      .fetchOne(), Choice.class);
   }
 
   /**
    Read one record
 
-   @return record
-    @param db     context
-   @param access control
-   @param linkId of record
+   @param db          context
+   @param access      control
+   @param linkId      of record
    @param patternType of which to read one link with available offsets
+   @return record
    */
-  private Record readOneLinkTypeWithAvailablePhaseOffsets(DSLContext db, Access access, ULong linkId, PatternType patternType) throws BusinessException {
+  private static Choice readOneLinkTypeWithAvailablePhaseOffsets(DSLContext db, Access access, ULong linkId, PatternType patternType) throws BusinessException {
     requireTopLevel(access);
 
     SelectOffsetStep<?> query = db.select(
@@ -209,7 +210,7 @@ public class ChoiceDAOImpl extends DAOImpl implements ChoiceDAO {
       CHOICE.TYPE,
       CHOICE.PHASE_OFFSET,
       CHOICE.TRANSPOSE,
-      groupConcat(PHASE.OFFSET, ",").as(Choice.KEY_AVAILABLE_PHASE_OFFSETS)
+      groupConcat(PHASE.OFFSET, ",").as(KEY_AVAILABLE_PHASE_OFFSETS)
     )
       .from(PHASE)
       .join(CHOICE).on(CHOICE.PATTERN_ID.eq(PHASE.PATTERN_ID))
@@ -218,7 +219,13 @@ public class ChoiceDAOImpl extends DAOImpl implements ChoiceDAO {
       .groupBy(CHOICE.ID, CHOICE.LINK_ID, CHOICE.PATTERN_ID, CHOICE.PHASE_OFFSET, CHOICE.TRANSPOSE)
       .limit(1);
 
-    return query.fetchOne();
+    Record record = query.fetchOne();
+    Choice model = modelFrom(record, Choice.class);
+    if (Objects.nonNull(model)) {
+      model.setAvailablePhaseOffsets((String) record.get(KEY_AVAILABLE_PHASE_OFFSETS));
+    }
+
+    return model;
   }
 
 
@@ -230,47 +237,42 @@ public class ChoiceDAOImpl extends DAOImpl implements ChoiceDAO {
    @param linkId of parent
    @return array of records
    */
-  private Result<ChoiceRecord> readAll(DSLContext db, Access access, ULong linkId) {
+  private static Collection<Choice> readAll(DSLContext db, Access access, ULong linkId) throws BusinessException {
     if (access.isTopLevel())
-      return resultInto(CHOICE, db.select(CHOICE.fields())
-        .from(CHOICE)
+      return modelsFrom(db.select(CHOICE.fields()).from(CHOICE)
         .where(CHOICE.LINK_ID.eq(linkId))
-        .fetch());
+        .fetch(), Choice.class);
     else
-      return resultInto(CHOICE, db.select(CHOICE.fields())
-        .from(CHOICE)
+      return modelsFrom(db.select(CHOICE.fields()).from(CHOICE)
         .join(LINK).on(LINK.ID.eq(CHOICE.LINK_ID))
         .join(CHAIN).on(CHAIN.ID.eq(LINK.CHAIN_ID))
         .where(CHOICE.LINK_ID.eq(linkId))
-        .and(CHAIN.ACCOUNT_ID.in(access.getAccounts()))
-        .fetch());
+        .and(CHAIN.ACCOUNT_ID.in(access.getAccountIds()))
+        .fetch(), Choice.class);
   }
 
   /**
    Read all records in parent records by ids
 
-   @return array of records
-    @param db      context
+   @param db      context
    @param access  control
    @param linkIds id of parent's parent (the chain)
+   @return array of records
    */
-  private Result<ChoiceRecord> readAllInLinks(DSLContext db, Access access, Collection<ULong> linkIds) throws Exception {
+  private static Collection<Choice> readAllInLinks(DSLContext db, Access access, Collection<ULong> linkIds) throws Exception {
     if (access.isTopLevel())
-      return resultInto(CHOICE, db.select(CHOICE.fields())
-        .from(CHOICE)
-        .join(LINK).on(LINK.ID.eq(CHOICE.LINK_ID))
-        .where(LINK.ID.in(linkIds))
+      return modelsFrom(db.select(CHOICE.fields()).from(CHOICE)
+        .where(CHOICE.LINK_ID.in(linkIds))
         .orderBy(CHOICE.TYPE)
-        .fetch());
+        .fetch(), Choice.class);
     else
-      return resultInto(CHOICE, db.select(CHOICE.fields())
-        .from(CHOICE)
+      return modelsFrom(db.select(CHOICE.fields()).from(CHOICE)
         .join(LINK).on(LINK.ID.eq(CHOICE.LINK_ID))
         .join(CHAIN).on(CHAIN.ID.eq(LINK.CHAIN_ID))
         .where(LINK.ID.in(linkIds))
-        .and(CHAIN.ACCOUNT_ID.in(access.getAccounts()))
+        .and(CHAIN.ACCOUNT_ID.in(access.getAccountIds()))
         .orderBy(CHOICE.TYPE)
-        .fetch());
+        .fetch(), Choice.class);
   }
 
   /**
@@ -282,10 +284,10 @@ public class ChoiceDAOImpl extends DAOImpl implements ChoiceDAO {
    @param entity to update with
    @throws BusinessException if a Business Rule is violated
    */
-  private void update(DSLContext db, Access access, ULong id, Choice entity) throws BusinessException {
+  private static void update(DSLContext db, Access access, ULong id, Choice entity) throws BusinessException {
     entity.validate();
 
-    Map<Field, Object> fieldValues = entity.updatableFieldValueMap();
+    Map<Field, Object> fieldValues = fieldValueMap(entity);
     fieldValues.put(CHOICE.ID, id);
 
     requireTopLevel(access);
@@ -293,7 +295,7 @@ public class ChoiceDAOImpl extends DAOImpl implements ChoiceDAO {
     requireExists("existing Choice with immutable Link membership",
       db.selectCount().from(CHOICE)
         .where(CHOICE.ID.eq(id))
-        .and(CHOICE.LINK_ID.eq(entity.getLinkId()))
+        .and(CHOICE.LINK_ID.eq(ULong.valueOf(entity.getLinkId())))
         .fetchOne(0, int.class));
 
     if (0 == executeUpdate(db, CHOICE, fieldValues))
@@ -310,7 +312,7 @@ public class ChoiceDAOImpl extends DAOImpl implements ChoiceDAO {
    @throws ConfigException   if not configured properly
    @throws BusinessException if fails business rule
    */
-  private void delete(DSLContext db, Access access, ULong id) throws Exception {
+  private static void delete(DSLContext db, Access access, ULong id) throws Exception {
     requireTopLevel(access);
 
     requireExists("Choice", db.selectCount().from(CHOICE)
@@ -330,4 +332,22 @@ public class ChoiceDAOImpl extends DAOImpl implements ChoiceDAO {
       )
       .execute();
   }
+
+  /**
+   Only certain (writable) fields are mapped back to jOOQ records--
+   Read-only fields are excluded from here.
+
+   @param entity to source values from
+   @return values mapped to record fields
+   */
+  private static Map<Field, Object> fieldValueMap(Choice entity) {
+    Map<Field, Object> fieldValues = Maps.newHashMap();
+    fieldValues.put(CHOICE.LINK_ID, entity.getLinkId());
+    fieldValues.put(CHOICE.PATTERN_ID, entity.getPatternId());
+    fieldValues.put(CHOICE.TYPE, entity.getType());
+    fieldValues.put(CHOICE.TRANSPOSE, entity.getTranspose());
+    fieldValues.put(CHOICE.PHASE_OFFSET, entity.getPhaseOffset());
+    return fieldValues;
+  }
+
 }

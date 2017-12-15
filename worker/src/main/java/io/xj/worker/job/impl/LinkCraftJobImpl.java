@@ -13,7 +13,7 @@ import io.xj.core.work.basis.BasisFactory;
 import io.xj.core.work.impl.LinkJob;
 import io.xj.worker.job.LinkCraftJob;
 
-import org.jooq.types.ULong;
+import java.math.BigInteger;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
@@ -24,7 +24,7 @@ public class LinkCraftJobImpl extends LinkJob implements LinkCraftJob {
 
   @Inject
   public LinkCraftJobImpl(
-    @Assisted("entityId") ULong entityId,
+    @Assisted("entityId") BigInteger entityId,
     CraftFactory craftFactory,
     BasisFactory basisFactory,
     LinkDAO linkDAO,

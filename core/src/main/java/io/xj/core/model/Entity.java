@@ -4,19 +4,12 @@ package io.xj.core.model;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.timestamp.TimestampUTC;
 
-import org.jooq.Field;
-import org.jooq.Record;
-import org.jooq.types.ULong;
-
-import org.json.JSONObject;
-
-import javax.annotation.Nullable;
 import java.math.BigInteger;
 import java.sql.Timestamp;
-import java.util.Map;
 
 /**
- Entity for use as POJO for decoding messages received by JAX-RS resources
+ POJO for persisting data in memory while performing business logic,
+ or decoding messages received by JAX-RS resources.
  a.k.a. JSON input will be stored into an instance of this object
  <p>
  Business logic ought to be performed beginning with an instance of this object,
@@ -35,16 +28,16 @@ public abstract class Entity {
   public static final String KEY_MANY = "entities";
 
   // fields
-  protected ULong id;
+  protected BigInteger id;
   protected Timestamp createdAt;
   protected Timestamp updatedAt;
 
-  public ULong getId() {
+  public BigInteger getId() {
     return id;
   }
 
   public Entity setId(BigInteger id) {
-    this.id = ULong.valueOf(id);
+    this.id = id;
     return this;
   }
 
@@ -59,6 +52,14 @@ public abstract class Entity {
       this.createdAt = null;
     }
     return this;
+  }
+
+  public void setCreatedAtTimestamp(Timestamp createdAt) {
+    this.createdAt = createdAt;
+  }
+
+  public void setUpdatedAtTimestamp(Timestamp updatedAt) {
+    this.updatedAt = updatedAt;
   }
 
   public Timestamp getUpdatedAt() {
@@ -80,24 +81,6 @@ public abstract class Entity {
    @throws BusinessException if invalid.
    */
   public abstract void validate() throws BusinessException;
-
-
-  /**
-   Set values from record
-
-   @param record to set values from
-   @return Entity
-   */
-  @Nullable
-  public abstract Entity setFromRecord(Record record) throws BusinessException;
-
-  /**
-   Model info jOOQ-field : Value map
-   ONLY FOR FIELDS THAT ARE TO BE UPDATED
-
-   @return map
-   */
-  public abstract Map<Field, Object> updatableFieldValueMap();
 
 
 }

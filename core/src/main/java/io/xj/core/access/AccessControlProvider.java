@@ -4,9 +4,9 @@ package io.xj.core.access;
 import io.xj.core.access.impl.Access;
 import io.xj.core.exception.AccessException;
 import io.xj.core.exception.DatabaseException;
-import io.xj.core.tables.records.AccountUserRecord;
-import io.xj.core.tables.records.UserAuthRecord;
-import io.xj.core.tables.records.UserRoleRecord;
+import io.xj.core.model.account_user.AccountUser;
+import io.xj.core.model.user_auth.UserAuth;
+import io.xj.core.model.user_role.UserRole;
 
 import javax.ws.rs.core.NewCookie;
 import java.util.Collection;
@@ -16,22 +16,22 @@ public interface AccessControlProvider {
   /**
    Create a token to grant a user access to resources.
 
-   @param userAuthRecord         to create a token for.
-   @param userRoleRecords        roles that this user has access to.
-   @param userAccountRoleRecords accounts that this user has access to.
    @return access token
+    @param userAuth         to create a token for.
+   @param userAccountRoles accounts that this user has access to.
+   @param userRoles        roles that this user has access to.
    */
-  String create(UserAuthRecord userAuthRecord, Collection<AccountUserRecord> userAccountRoleRecords, Collection<UserRoleRecord> userRoleRecords) throws AccessException;
+  String create(UserAuth userAuth, Collection<AccountUser> userAccountRoles, Collection<UserRole> userRoles) throws AccessException;
 
   /**
    Update an access token to grant a user access to resources.
 
-   @param userAuthRecord         to create a token for.
-   @param userRoleRecords        roles that this user has access to.
-   @param userAccountRoleRecords accounts that this user has access to.
    @return map of cached properties for this user
+    @param userAuth         to create a token for.
+   @param userAccountRoles accounts that this user has access to.
+   @param userRoles        roles that this user has access to.
    */
-  Map<String, String> update(String accessToken, UserAuthRecord userAuthRecord, Collection<AccountUserRecord> userAccountRoleRecords, Collection<UserRoleRecord> userRoleRecords) throws AccessException;
+  Map<String, String> update(String accessToken, UserAuth userAuth, Collection<AccountUser> userAccountRoles, Collection<UserRole> userRoles) throws AccessException;
 
   /**
    Expire an access token.

@@ -4,13 +4,11 @@ package io.xj.core.dao;
 import io.xj.core.access.impl.Access;
 import io.xj.core.model.link.Link;
 import io.xj.core.model.link.LinkState;
-import io.xj.core.tables.records.LinkRecord;
-
-import org.jooq.Result;
-import org.jooq.types.ULong;
 
 import javax.annotation.Nullable;
+import java.math.BigInteger;
 import java.sql.Timestamp;
+import java.util.Collection;
 
 public interface LinkDAO {
   /**
@@ -19,7 +17,7 @@ public interface LinkDAO {
    @param entity for the new Link.
    @return newly readMany Link record.
    */
-  LinkRecord create(Access access, Link entity) throws Exception;
+  Link create(Access access, Link entity) throws Exception;
 
   /**
    Fetch one Link by id, if accessible
@@ -30,51 +28,53 @@ public interface LinkDAO {
    @throws Exception on failure
    */
   @Nullable
-  LinkRecord readOne(Access access, ULong id) throws Exception;
+  Link readOne(Access access, BigInteger id) throws Exception;
 
   /**
    Fetch id for the Link in a Chain at a given offset, if present
 
-   @return link id
-    @param access  control
+   @param access  control
    @param chainId to fetch link for
    @param offset  to fetch link at
+   @return link id
    */
-  Link readOneAtChainOffset(Access access, ULong chainId, ULong offset) throws Exception;
+  Link readOneAtChainOffset(Access access, BigInteger chainId, BigInteger offset) throws Exception;
 
   /**
    Fetch one Link by chainId and state, if present
 
-   @return Link if found
-   @throws Exception on failure
-    @param access          control
+   @param access          control
    @param chainId         to find link in
    @param linkState       linkState to find link in
    @param linkBeginBefore ahead to look for links
+   @return Link if found
+   @throws Exception on failure
    */
   @Nullable
-  LinkRecord readOneInState(Access access, ULong chainId, LinkState linkState, Timestamp linkBeginBefore) throws Exception;
+  Link readOneInState(Access access, BigInteger chainId, LinkState linkState, Timestamp linkBeginBefore) throws Exception;
 
   /**
    Read all Links that are accessible
    limit max # of links readable at once in environment configuration
 
-   @param access control
+   @param access  control
+   @param chainId to read links for
    @return array of links as JSON
    @throws Exception on failure
    */
-  Result<LinkRecord> readAll(Access access, ULong chainId) throws Exception;
+  Collection<Link> readAll(Access access, BigInteger chainId) throws Exception;
 
   /**
    Read all Links that are accessible, starting at a particular offset
    limit max # of links readable at once in environment configuration
 
-   @param access  control
-   @param chainId to read all links from
+   @param access     control
+   @param chainId    to read all links from
+   @param fromOffset to read links form
    @return array of links as JSON
    @throws Exception on failure
    */
-  Result<LinkRecord> readAllFromOffset(Access access, ULong chainId, ULong fromOffset) throws Exception;
+  Collection<Link> readAllFromOffset(Access access, BigInteger chainId, BigInteger fromOffset) throws Exception;
 
   /**
    Read all Links that are accessible, starting at a particular time in seconds UTC since epoch.
@@ -82,24 +82,13 @@ public interface LinkDAO {
    <p>
    [#278] Chain Player lives in navbar, and handles all playback (audio waveform, link waveform, continuous chain) so the user always has central control over listening.
 
-   @param access  control
-   @param chainId to read all links from
+   @param access         control
+   @param chainId        to read all links from
+   @param fromSecondsUTC to read links from
    @return array of links as JSON
    @throws Exception on failure
    */
-  Result<LinkRecord> readAllFromSecondsUTC(Access access, ULong chainId, ULong fromSecondsUTC) throws Exception;
-
-
-  /**
-   [INTERNAL USE ONLY]
-   Read all records in a given state
-
-   @return array of links as JSON
-   @throws Exception on failure
-   @param access     control
-   @param state to read links in
-   */
-  Result<LinkRecord> readAllInState(Access access, LinkState state) throws Exception;
+  Collection<Link> readAllFromSecondsUTC(Access access, BigInteger chainId, BigInteger fromSecondsUTC) throws Exception;
 
   /**
    Update a specified Link
@@ -107,21 +96,21 @@ public interface LinkDAO {
    @param id     of specific Link to update.
    @param entity for the updated Link.
    */
-  void update(Access access, ULong id, Link entity) throws Exception;
+  void update(Access access, BigInteger id, Link entity) throws Exception;
 
   /**
    Update the state of a specified Link
-   * @param id    of specific Link to update.
-   @param state for the updated Link.
 
+   @param id    of specific Link to update.
+   @param state for the updated Link.
    */
-  void updateState(Access access, ULong id, LinkState state) throws Exception;
+  void updateState(Access access, BigInteger id, LinkState state) throws Exception;
 
   /**
    Destroy a specified Link, and all its child entities
 
    @param linkId of specific Link to destroy.
    */
-  void destroy(Access access, ULong linkId) throws Exception;
+  void destroy(Access access, BigInteger linkId) throws Exception;
 
 }

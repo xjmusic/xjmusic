@@ -3,12 +3,10 @@ package io.xj.core.dao;
 
 import io.xj.core.access.impl.Access;
 import io.xj.core.model.chain_instrument.ChainInstrument;
-import io.xj.core.tables.records.ChainInstrumentRecord;
-
-import org.jooq.Result;
-import org.jooq.types.ULong;
 
 import javax.annotation.Nullable;
+import java.math.BigInteger;
+import java.util.Collection;
 
 public interface ChainInstrumentDAO {
 
@@ -18,7 +16,7 @@ public interface ChainInstrumentDAO {
    @param entity for the new Chain Instrument.
    @return newly readMany record
    */
-  ChainInstrumentRecord create(Access access, ChainInstrument entity) throws Exception;
+  ChainInstrument create(Access access, ChainInstrument entity) throws Exception;
 
   /**
    Fetch one ChainInstrument if accessible
@@ -28,7 +26,7 @@ public interface ChainInstrumentDAO {
    @throws Exception on failure
    */
   @Nullable
-  ChainInstrumentRecord readOne(Access access, ULong id) throws Exception;
+  ChainInstrument readOne(Access access, BigInteger id) throws Exception;
 
   /**
    Fetch many ChainInstrument for one Chain by id, if accessible
@@ -37,12 +35,12 @@ public interface ChainInstrumentDAO {
    @return JSONArray of chainInstruments.
    @throws Exception on failure
    */
-  Result<ChainInstrumentRecord> readAll(Access access, ULong chainId) throws Exception;
+  Collection<ChainInstrument> readAll(Access access, BigInteger chainId) throws Exception;
 
   /**
    Delete a specified ChainInstrument
 
    @param id of specific ChainInstrument to delete.
    */
-  void delete(Access access, ULong id) throws Exception;
+  void delete(Access access, BigInteger id) throws Exception;
 }

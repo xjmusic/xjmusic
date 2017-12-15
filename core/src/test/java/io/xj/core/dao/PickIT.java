@@ -5,17 +5,13 @@ import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.integration.IntegrationTestEntity;
-import io.xj.core.integration.IntegrationTestService;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
-import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.instrument.InstrumentType;
 import io.xj.core.model.link.LinkState;
+import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.pick.Pick;
-import io.xj.core.tables.records.PickRecord;
 import io.xj.core.transport.JSON;
-
-import org.jooq.types.ULong;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Guice;
@@ -30,7 +26,6 @@ import org.junit.Test;
 import java.math.BigInteger;
 import java.sql.Timestamp;
 
-import static io.xj.core.tables.Pick.PICK;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -79,8 +74,8 @@ public class PickIT {
 
   @Test
   public void create() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "admin"
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Admin"
     ));
     Pick inputData = new Pick()
       .setArrangementId(BigInteger.valueOf(1))
@@ -91,11 +86,11 @@ public class PickIT {
       .setAmplitude(0.94)
       .setPitch(754.02);
 
-    JSONObject result = JSON.objectFromRecord(testDAO.create(access, inputData));
+    JSONObject result = JSON.objectFrom(testDAO.create(access, inputData));
 
     assertNotNull(result);
-    assertEquals(ULong.valueOf(1), result.get("arrangementId"));
-    assertEquals(ULong.valueOf(1), result.get("audioId"));
+    assertEquals(1, result.get("arrangementId"));
+    assertEquals(1, result.get("audioId"));
     assertEquals(0.12, result.get("start"));
     assertEquals(1.04, result.get("length"));
     assertEquals(0.94, result.get("amplitude"));
@@ -104,8 +99,8 @@ public class PickIT {
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutTopLevelAccess() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "user"
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "User"
     ));
     Pick inputData = new Pick()
       .setArrangementId(BigInteger.valueOf(1))
@@ -121,8 +116,8 @@ public class PickIT {
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutArrangementID() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "admin"
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Admin"
     ));
     Pick inputData = new Pick()
       .setMorphId(BigInteger.valueOf(1))
@@ -137,8 +132,8 @@ public class PickIT {
 
   @Test
   public void create_withoutMorphID() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "admin"
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Admin"
     ));
     Pick inputData = new Pick()
       .setArrangementId(BigInteger.valueOf(1))
@@ -153,8 +148,8 @@ public class PickIT {
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithZeroAmplitude() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "admin"
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Admin"
     ));
     Pick inputData = new Pick()
       .setArrangementId(BigInteger.valueOf(1))
@@ -170,17 +165,17 @@ public class PickIT {
 
   @Test
   public void readOne() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "user",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "User",
       "accounts", "1"
     ));
 
-    Pick result = new Pick().setFromRecord(testDAO.readOne(access, ULong.valueOf(1)));
+    Pick result = testDAO.readOne(access, BigInteger.valueOf(1));
 
     assertNotNull(result);
-    assertEquals(ULong.valueOf(1), result.getArrangementId());
+    assertEquals(BigInteger.valueOf(1), result.getArrangementId());
     assertNull(result.getMorphId());
-    assertEquals(ULong.valueOf(1), result.getAudioId());
+    assertEquals(BigInteger.valueOf(1), result.getAudioId());
     assertEquals(Double.valueOf(0.125), result.getStart());
     assertEquals(Double.valueOf(1.23), result.getLength());
     assertEquals(Double.valueOf(0.94), result.getAmplitude());
@@ -189,24 +184,24 @@ public class PickIT {
 
   @Test
   public void readOne_FailsWhenUserIsNotInMorph() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "user",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "User",
       "accounts", "326"
     ));
 
-    PickRecord result = testDAO.readOne(access, ULong.valueOf(1));
+    Pick result = testDAO.readOne(access, BigInteger.valueOf(1));
 
     assertNull(result);
   }
 
   @Test
   public void readAll() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "user",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "User",
       "accounts", "1"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ULong.valueOf(1)));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, BigInteger.valueOf(1)));
 
     assertNotNull(result);
     assertEquals(1, result.length());
@@ -217,12 +212,12 @@ public class PickIT {
 
   @Test
   public void readAll_SeesNothingOutsideOfMorph() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "user",
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "User",
       "accounts", "345"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ULong.valueOf(1)));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, BigInteger.valueOf(1)));
 
     assertNotNull(result);
     assertEquals(0, result.length());
@@ -235,7 +230,7 @@ public class PickIT {
     IntegrationTestEntity.insertPick(4, 1, 1, 3.125, 1.23, 0.94, 110);
     IntegrationTestEntity.insertPick(5, 1, 1, 4.125, 1.23, 0.94, 55);
 
-    JSONArray result = JSON.arrayOf(testDAO.readAllInLink(Access.internal(), ULong.valueOf(1)));
+    JSONArray result = JSON.arrayOf(testDAO.readAllInLink(Access.internal(), BigInteger.valueOf(1)));
 
     assertNotNull(result);
     assertEquals(5, result.length());
@@ -246,8 +241,8 @@ public class PickIT {
 
   @Test
   public void update() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "admin"
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Admin"
     ));
     Pick inputData = new Pick()
       .setArrangementId(BigInteger.valueOf(1))
@@ -258,15 +253,12 @@ public class PickIT {
       .setAmplitude(0.94)
       .setPitch(754.02);
 
-    testDAO.update(access, ULong.valueOf(1), inputData);
+    testDAO.update(access, BigInteger.valueOf(1), inputData);
 
-    PickRecord result = IntegrationTestService.getDb()
-      .selectFrom(PICK)
-      .where(PICK.ID.eq(ULong.valueOf(1)))
-      .fetchOne();
+    Pick result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1));
     assertNotNull(result);
-    assertEquals(ULong.valueOf(1), result.getArrangementId());
-    assertEquals(ULong.valueOf(1), result.getAudioId());
+    assertEquals(BigInteger.valueOf(1), result.getArrangementId());
+    assertEquals(BigInteger.valueOf(1), result.getAudioId());
     assertEquals(Double.valueOf(0.12), result.getStart());
     assertEquals(Double.valueOf(1.04), result.getLength());
     assertEquals(Double.valueOf(0.94), result.getAmplitude());
@@ -275,8 +267,8 @@ public class PickIT {
 
   @Test
   public void update_withoutMorphID() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "admin"
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Admin"
     ));
     Pick inputData = new Pick()
       .setArrangementId(BigInteger.valueOf(1))
@@ -286,13 +278,13 @@ public class PickIT {
       .setAmplitude(0.94)
       .setPitch(754.02);
 
-    testDAO.update(access, ULong.valueOf(1), inputData);
+    testDAO.update(access, BigInteger.valueOf(1), inputData);
   }
 
   @Test(expected = BusinessException.class)
   public void update_FailsToChangeArrangement() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "admin"
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Admin"
     ));
     Pick inputData = new Pick()
       .setMorphId(BigInteger.valueOf(1))
@@ -304,31 +296,25 @@ public class PickIT {
       .setPitch(754.02);
 
     try {
-      testDAO.update(access, ULong.valueOf(1), inputData);
+      testDAO.update(access, BigInteger.valueOf(1), inputData);
 
     } catch (Exception e) {
-      PickRecord result = IntegrationTestService.getDb()
-        .selectFrom(PICK)
-        .where(PICK.ID.eq(ULong.valueOf(1)))
-        .fetchOne();
+      Pick result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1));
       assertNotNull(result);
-      assertEquals(ULong.valueOf(1), result.getArrangementId());
+      assertEquals(BigInteger.valueOf(1), result.getArrangementId());
       throw e;
     }
   }
 
   @Test
   public void delete() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "admin"
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Admin"
     ));
 
-    testDAO.delete(access, ULong.valueOf(1));
+    testDAO.delete(access, BigInteger.valueOf(1));
 
-    PickRecord result = IntegrationTestService.getDb()
-      .selectFrom(PICK)
-      .where(PICK.ID.eq(ULong.valueOf(1)))
-      .fetchOne();
+    Pick result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1));
     assertNull(result);
   }
 

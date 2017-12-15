@@ -1,38 +1,37 @@
 // Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.worker.work.craft.voice;
 
-import org.jooq.types.ULong;
+import io.xj.core.CoreModule;
+import io.xj.core.access.impl.Access;
+import io.xj.core.craft.CraftFactory;
+import io.xj.core.dao.ArrangementDAO;
+import io.xj.core.dao.PickDAO;
+import io.xj.core.integration.IntegrationTestEntity;
+import io.xj.core.model.chain.ChainState;
+import io.xj.core.model.chain.ChainType;
+import io.xj.core.model.instrument.InstrumentType;
+import io.xj.core.model.link.Link;
+import io.xj.core.model.link.LinkState;
+import io.xj.core.model.pattern.PatternType;
+import io.xj.core.model.user_role.UserRoleType;
+import io.xj.core.work.basis.Basis;
+import io.xj.core.work.basis.BasisFactory;
+import io.xj.worker.WorkerModule;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
-import io.xj.core.CoreModule;
-import io.xj.core.integration.IntegrationTestEntity;
-import io.xj.core.integration.IntegrationTestService;
-import io.xj.core.model.chain.ChainState;
-import io.xj.core.model.chain.ChainType;
-import io.xj.core.model.pattern.PatternType;
-import io.xj.core.model.instrument.InstrumentType;
-import io.xj.core.model.link.Link;
-import io.xj.core.model.link.LinkState;
-import io.xj.core.model.role.Role;
-import io.xj.core.tables.records.ArrangementRecord;
-import io.xj.core.work.basis.Basis;
-import io.xj.core.work.basis.BasisFactory;
-import io.xj.core.craft.CraftFactory;
-import io.xj.worker.WorkerModule;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import java.math.BigInteger;
 import java.sql.Timestamp;
 
-import static io.xj.core.Tables.ARRANGEMENT;
-import static io.xj.core.Tables.PICK;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertFalse;
 
 public class CraftVoiceNextMainIT {
   @Rule public ExpectedException failure = ExpectedException.none();
@@ -52,11 +51,11 @@ public class CraftVoiceNextMainIT {
 
     // John has "user" and "admin" roles, belongs to account "blueberries", has "google" auth
     IntegrationTestEntity.insertUser(2, "john", "john@email.com", "http://pictures.com/john.gif");
-    IntegrationTestEntity.insertUserRole(1, 2, Role.ADMIN);
+    IntegrationTestEntity.insertUserRole(1, 2, UserRoleType.Admin);
 
     // Jenny has a "user" role and belongs to account "blueberries"
     IntegrationTestEntity.insertUser(3, "jenny", "jenny@email.com", "http://pictures.com/jenny.gif");
-    IntegrationTestEntity.insertUserRole(2, 3, Role.USER);
+    IntegrationTestEntity.insertUserRole(2, 3, UserRoleType.User);
     IntegrationTestEntity.insertAccountUser(3, 1, 3);
 
     // Library "house"
@@ -150,21 +149,21 @@ public class CraftVoiceNextMainIT {
 
     // Chain "Test Print #1" has a link in crafting state - Structure is complete
     link4 = IntegrationTestEntity.insertLink(4, 1, 3, LinkState.Crafting, Timestamp.valueOf("2017-02-14 12:03:08.000001"), Timestamp.valueOf("2017-02-14 12:03:15.836735"), "G minor", 16, 0.45, 125, "chain-1-link-97898asdf7892.wav");
-    IntegrationTestEntity.insertLinkMeme(101,4,"Regret");
-    IntegrationTestEntity.insertLinkMeme(102,4,"Sky");
-    IntegrationTestEntity.insertLinkMeme(103,4,"Hindsight");
-    IntegrationTestEntity.insertLinkMeme(104,4,"Tropical");
-    IntegrationTestEntity.insertChoice(101,4, 4, PatternType.Macro,1,3);
-    IntegrationTestEntity.insertChoice(102,4, 15, PatternType.Main,0,0);
-    IntegrationTestEntity.insertLinkChord(101,4,0,"G minor");
-    IntegrationTestEntity.insertLinkChord(102,4,8,"Ab minor");
+    IntegrationTestEntity.insertLinkMeme(101, 4, "Regret");
+    IntegrationTestEntity.insertLinkMeme(102, 4, "Sky");
+    IntegrationTestEntity.insertLinkMeme(103, 4, "Hindsight");
+    IntegrationTestEntity.insertLinkMeme(104, 4, "Tropical");
+    IntegrationTestEntity.insertChoice(101, 4, 4, PatternType.Macro, 1, 3);
+    IntegrationTestEntity.insertChoice(102, 4, 15, PatternType.Main, 0, 0);
+    IntegrationTestEntity.insertLinkChord(101, 4, 0, "G minor");
+    IntegrationTestEntity.insertLinkChord(102, 4, 8, "Ab minor");
 
     // choice of rhythm-type pattern
-    IntegrationTestEntity.insertChoice(103,4,35, PatternType.Rhythm,0,-5);
+    IntegrationTestEntity.insertChoice(103, 4, 35, PatternType.Rhythm, 0, -5);
 
     // Instrument "808"
     IntegrationTestEntity.insertInstrument(1, 2, 2, "808 Drums", InstrumentType.Percussive, 0.9);
-    IntegrationTestEntity.insertInstrumentMeme(1,1,"heavy");
+    IntegrationTestEntity.insertInstrumentMeme(1, 1, "heavy");
 
     // Audio "Kick"
     IntegrationTestEntity.insertAudio(1, 1, "Published", "Kick", "https://static.xj.io/19801735098q47895897895782138975898.wav", 0.01, 2.123, 120.0, 440);
@@ -194,23 +193,9 @@ public class CraftVoiceNextMainIT {
 
     craftFactory.voice(basis).doWork();
 
-    ArrangementRecord resultArrangement =
-      IntegrationTestService.getDb()
-        .selectFrom(ARRANGEMENT)
-        .where(ARRANGEMENT.CHOICE_ID.eq(ULong.valueOf(103)))
-        .fetchOne();
-    assertNotNull(resultArrangement);
+    assertFalse(injector.getInstance(ArrangementDAO.class).readAll(Access.internal(), BigInteger.valueOf(103)).isEmpty());
 
-    assertEquals(8, IntegrationTestService.getDb()
-      .selectFrom(PICK)
-      .where(PICK.AUDIO_ID.eq(ULong.valueOf(1)))
-      .fetch().size());
-
-    assertEquals(8, IntegrationTestService.getDb()
-      .selectFrom(PICK)
-      .where(PICK.AUDIO_ID.eq(ULong.valueOf(2)))
-      .fetch().size());
-
+    assertEquals(16, injector.getInstance(PickDAO.class).readAllInLink(Access.internal(), link4.getId()).size());
   }
 
 }

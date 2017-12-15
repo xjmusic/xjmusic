@@ -5,10 +5,10 @@ import io.xj.core.access.AccessControlProvider;
 import io.xj.core.config.Config;
 import io.xj.core.exception.AccessException;
 import io.xj.core.exception.DatabaseException;
+import io.xj.core.model.account_user.AccountUser;
+import io.xj.core.model.user_auth.UserAuth;
+import io.xj.core.model.user_role.UserRole;
 import io.xj.core.persistence.redis.RedisDatabaseProvider;
-import io.xj.core.tables.records.AccountUserRecord;
-import io.xj.core.tables.records.UserAuthRecord;
-import io.xj.core.tables.records.UserRoleRecord;
 import io.xj.core.token.TokenGenerator;
 
 import com.google.inject.Inject;
@@ -17,7 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.NewCookie;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 
@@ -41,16 +40,16 @@ public class AccessControlProviderImpl implements AccessControlProvider {
   }
 
   @Override
-  public String create(UserAuthRecord userAuthRecord, Collection<AccountUserRecord> userAccountRoleRecords, Collection<UserRoleRecord> userRoleRecords) throws AccessException {
+  public String create(UserAuth userAuth, Collection<AccountUser> userAccountRoles, Collection<UserRole> userRoles) throws AccessException {
     String accessToken = tokenGenerator.generate();
-    update(accessToken, userAuthRecord, userAccountRoleRecords, userRoleRecords);
+    update(accessToken, userAuth, userAccountRoles, userRoles);
     return accessToken;
   }
 
   @Override
-  public Map<String, String> update(String accessToken, UserAuthRecord userAuthRecord, Collection<AccountUserRecord> userAccountRoleRecords, Collection<UserRoleRecord> userRoleRecords) throws AccessException {
-    Access access = new Access(userAuthRecord, userAccountRoleRecords, userRoleRecords);
-    Map<String, String> userMap = access.intoMap();
+  public Map<String, String> update(String accessToken, UserAuth userAuth, Collection<AccountUser> userAccountRoles, Collection<UserRole> userRoles) throws AccessException {
+    Access access = new Access(userAuth, userAccountRoles, userRoles);
+    Map<String, String> userMap = access.toMap();
     try {
       redisDatabaseProvider.getClient().hmset(accessToken, userMap);
     } catch (Exception e) {
@@ -62,20 +61,20 @@ public class AccessControlProviderImpl implements AccessControlProvider {
 
 
   @Override
-  public void expire(String accessToken) throws DatabaseException {
+  public void expire(String token) throws DatabaseException {
     try {
-      redisDatabaseProvider.getClient().del(accessToken);
+      redisDatabaseProvider.getClient().del(token);
     } catch (Exception e) {
-      throw new DatabaseException("Redis error: " + e.toString());
+      throw new DatabaseException("Redis error", e);
     }
   }
 
   @Override
-  public Access get(String accessToken) throws DatabaseException {
+  public Access get(String token) throws DatabaseException {
     try {
-      return new Access(redisDatabaseProvider.getClient().hgetAll(accessToken));
+      return Access.from(redisDatabaseProvider.getClient().hgetAll(token));
     } catch (Exception e) {
-      throw new DatabaseException("Redis error(" + e.getClass().getName() + "): " + Arrays.toString(e.getStackTrace()));
+      throw new DatabaseException("Redis error(" + e.getClass().getName() + ")", e);
     }
   }
 
@@ -113,7 +112,7 @@ public class AccessControlProviderImpl implements AccessControlProvider {
    @return String
    */
   private String cookieSetDomainPath() {
-    return (tokenDomain.length() > 0 ? "Domain=" + tokenDomain + ";" : "") +
+    return (tokenDomain.isEmpty() ? "" : "Domain=" + tokenDomain + ";") +
       "Path=" + tokenPath + ";";
   }
 }

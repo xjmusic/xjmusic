@@ -3,13 +3,11 @@ package io.xj.hub.resource.chain_instrument;
 
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
-import io.xj.core.server.HttpResponseProvider;
 import io.xj.core.dao.ChainInstrumentDAO;
 import io.xj.core.model.chain_instrument.ChainInstrument;
 import io.xj.core.model.chain_instrument.ChainInstrumentWrapper;
-import io.xj.core.model.role.Role;
-
-import org.jooq.types.ULong;
+import io.xj.core.model.user_role.UserRoleType;
+import io.xj.core.server.HttpResponseProvider;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -26,6 +24,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.math.BigInteger;
+import java.util.Objects;
 
 /**
  Chain Instrument record
@@ -33,7 +33,7 @@ import java.io.IOException;
 @Path("chain-instruments")
 public class ChainInstrumentIndexResource {
   private static final Injector injector = Guice.createInjector(new CoreModule());
-  private final ChainInstrumentDAO DAO = injector.getInstance(ChainInstrumentDAO.class);
+  private final ChainInstrumentDAO chainInstrumentDAO = injector.getInstance(ChainInstrumentDAO.class);
   private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
 
   @QueryParam("chainId")
@@ -46,19 +46,19 @@ public class ChainInstrumentIndexResource {
    */
   @GET
   @WebResult
-  @RolesAllowed({Role.USER})
+  @RolesAllowed(UserRoleType.USER)
   public Response readAll(@Context ContainerRequestContext crc) throws IOException {
 
-    if (chainId == null || chainId.length() == 0) {
+    if (Objects.isNull(chainId) || chainId.isEmpty()) {
       return response.notAcceptable("Chain id is required");
     }
 
     try {
       return response.readMany(
         ChainInstrument.KEY_MANY,
-        DAO.readAll(
+        chainInstrumentDAO.readAll(
           Access.fromContext(crc),
-          ULong.valueOf(chainId)));
+          new BigInteger(chainId)));
 
     } catch (Exception e) {
       return response.failure(e);
@@ -73,13 +73,13 @@ public class ChainInstrumentIndexResource {
    */
   @POST
   @Consumes(MediaType.APPLICATION_JSON)
-  @RolesAllowed({Role.ARTIST,Role.ENGINEER,Role.ADMIN})
+  @RolesAllowed({UserRoleType.ARTIST, UserRoleType.ENGINEER, UserRoleType.ADMIN})
   public Response create(ChainInstrumentWrapper data, @Context ContainerRequestContext crc) {
     try {
       return response.create(
         ChainInstrument.KEY_MANY,
         ChainInstrument.KEY_ONE,
-        DAO.create(
+        chainInstrumentDAO.create(
           Access.fromContext(crc),
           data.getChainInstrument()));
 

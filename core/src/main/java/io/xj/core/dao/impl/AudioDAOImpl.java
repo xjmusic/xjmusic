@@ -1,6 +1,7 @@
 // Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.dao.impl;
 
+import io.xj.core.Tables;
 import io.xj.core.access.impl.Access;
 import io.xj.core.config.Config;
 import io.xj.core.config.Exposure;
@@ -11,7 +12,7 @@ import io.xj.core.external.amazon.AmazonProvider;
 import io.xj.core.external.amazon.S3UploadPolicy;
 import io.xj.core.model.audio.Audio;
 import io.xj.core.model.audio.AudioState;
-import io.xj.core.model.role.Role;
+import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import io.xj.core.persistence.sql.impl.SQLConnection;
 import io.xj.core.tables.records.AudioRecord;
@@ -20,10 +21,8 @@ import io.xj.core.work.WorkManager;
 import org.jooq.DSLContext;
 import org.jooq.Field;
 import org.jooq.Record;
-import org.jooq.Result;
 import org.jooq.types.ULong;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 
@@ -32,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
@@ -46,7 +46,7 @@ import static io.xj.core.tables.Instrument.INSTRUMENT;
 import static io.xj.core.tables.Library.LIBRARY;
 
 public class AudioDAOImpl extends DAOImpl implements AudioDAO {
-  private static Logger log = LoggerFactory.getLogger(AudioDAOImpl.class);
+  private static final Logger log = LoggerFactory.getLogger(AudioDAOImpl.class);
   private final AmazonProvider amazonProvider;
   private final WorkManager workManager;
 
@@ -62,7 +62,7 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
   }
 
   @Override
-  public AudioRecord create(Access access, Audio entity) throws Exception {
+  public Audio create(Access access, Audio entity) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(create(tx.getContext(), access, entity));
@@ -73,10 +73,10 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
 
   @Override
   @Nullable
-  public AudioRecord readOne(Access access, ULong id) throws Exception {
+  public Audio readOne(Access access, BigInteger id) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readOne(tx.getContext(), access, id));
+      return tx.success(readOne(tx.getContext(), access, ULong.valueOf(id)));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -84,10 +84,10 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
 
   @Override
   @Nullable
-  public JSONObject uploadOne(Access access, ULong id) throws Exception {
+  public JSONObject authorizeUpload(Access access, BigInteger id) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(uploadOne(tx.getContext(), access, id));
+      return tx.success(authorizeUpload(tx.getContext(), access, ULong.valueOf(id)));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -95,10 +95,10 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
 
   @Override
   @Nullable
-  public Result<AudioRecord> readAll(Access access, ULong instrumentId) throws Exception {
+  public Collection<Audio> readAll(Access access, BigInteger instrumentId) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readAll(tx.getContext(), access, instrumentId));
+      return tx.success(readAll(tx.getContext(), access, ULong.valueOf(instrumentId)));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -115,20 +115,20 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
   }
 
   @Override
-  public Result<AudioRecord> readAllPickedForLink(Access access, ULong linkId) throws Exception {
+  public Collection<Audio> readAllPickedForLink(Access access, BigInteger linkId) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readAllPickedForLink(tx.getContext(), access, linkId));
+      return tx.success(readAllPickedForLink(tx.getContext(), access, ULong.valueOf(linkId)));
     } catch (Exception e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public void update(Access access, ULong id, Audio entity) throws Exception {
+  public void update(Access access, BigInteger id, Audio entity) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      update(tx.getContext(), access, id, entity);
+      update(tx.getContext(), access, ULong.valueOf(id), entity);
       tx.success();
     } catch (Exception e) {
       throw tx.failure(e);
@@ -136,10 +136,10 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
   }
 
   @Override
-  public void destroy(Access access, ULong id) throws Exception {
+  public void destroy(Access access, BigInteger id) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      destroy(access, tx.getContext(), id);
+      destroy(access, tx.getContext(), ULong.valueOf(id));
       tx.success();
     } catch (Exception e) {
       throw tx.failure(e);
@@ -147,10 +147,10 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
   }
 
   @Override
-  public void erase(Access access, ULong id) throws Exception {
+  public void erase(Access access, BigInteger id) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      erase(access, tx.getContext(), id);
+      erase(access, tx.getContext(), ULong.valueOf(id));
       tx.success();
     } catch (Exception e) {
       throw tx.failure(e);
@@ -166,25 +166,25 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
    @return newly readMany record
    @throws BusinessException if failure
    */
-  private AudioRecord create(DSLContext db, Access access, Audio entity) throws BusinessException {
+  private Audio create(DSLContext db, Access access, Audio entity) throws BusinessException {
     entity.validate();
 
-    Map<Field, Object> fieldValues = entity.updatableFieldValueMap();
+    Map<Field, Object> fieldValues = fieldValueMap(entity);
 
     if (access.isTopLevel())
       requireExists("Instrument", db.selectCount().from(INSTRUMENT)
-        .where(INSTRUMENT.ID.eq(entity.getInstrumentId()))
+        .where(INSTRUMENT.ID.eq(ULong.valueOf(entity.getInstrumentId())))
         .fetchOne());
     else
       requireExists("Instrument", db.selectCount().from(INSTRUMENT)
         .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
-        .where(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-        .and(INSTRUMENT.ID.eq(entity.getInstrumentId()))
+        .where(LIBRARY.ACCOUNT_ID.in(idCollection(access.getAccountIds())))
+        .and(INSTRUMENT.ID.eq(ULong.valueOf(entity.getInstrumentId())))
         .fetchOne());
 
     fieldValues.put(AUDIO.WAVEFORM_KEY, generateKey(entity.getInstrumentId()));
 
-    return executeCreate(db, AUDIO, fieldValues);
+    return modelFrom(executeCreate(db, AUDIO, fieldValues), Audio.class);
   }
 
   /**
@@ -193,7 +193,7 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
    @param instrumentId to generate URL for
    @return URL as string
    */
-  private String generateKey(ULong instrumentId) {
+  private String generateKey(BigInteger instrumentId) {
     return amazonProvider.generateKey(
       Exposure.FILE_INSTRUMENT + Exposure.FILE_SEPARATOR +
         instrumentId + Exposure.FILE_SEPARATOR +
@@ -208,19 +208,19 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
    @param id     of audio
    @return audio
    */
-  private AudioRecord readOne(DSLContext db, Access access, ULong id) {
+  private static Audio readOne(DSLContext db, Access access, ULong id) throws BusinessException {
     if (access.isTopLevel())
-      return db.selectFrom(AUDIO)
+      return modelFrom(db.selectFrom(AUDIO)
         .where(AUDIO.ID.eq(id))
-        .fetchOne();
+        .fetchOne(), Audio.class);
     else
-      return recordInto(AUDIO, db.select(AUDIO.fields())
+      return modelFrom(db.select(AUDIO.fields())
         .from(AUDIO)
         .join(INSTRUMENT).on(INSTRUMENT.ID.eq(AUDIO.INSTRUMENT_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
         .where(AUDIO.ID.eq(id))
-        .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-        .fetchOne());
+        .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+        .fetchOne(), Audio.class);
   }
 
   /**
@@ -233,24 +233,24 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
    @return Result of audio records.
    @throws Exception on failure
    */
-  private Result<AudioRecord> readAll(DSLContext db, Access access, ULong instrumentId) throws Exception {
+  private static Collection<Audio> readAll(DSLContext db, Access access, ULong instrumentId) throws Exception {
     if (access.isTopLevel())
-      return resultInto(AUDIO, db.select(AUDIO.fields())
+      return modelsFrom(db.select(AUDIO.fields())
         .from(AUDIO)
         .where(AUDIO.INSTRUMENT_ID.eq(instrumentId))
         .and(AUDIO.STATE.notEqual(String.valueOf(AudioState.Erase)))
         .orderBy(AUDIO.NAME.desc())
-        .fetch());
+        .fetch(), Audio.class);
     else
-      return resultInto(AUDIO, db.select(AUDIO.fields())
+      return modelsFrom(db.select(AUDIO.fields())
         .from(AUDIO)
         .join(INSTRUMENT).on(INSTRUMENT.ID.eq(AUDIO.INSTRUMENT_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
         .where(AUDIO.INSTRUMENT_ID.eq(instrumentId))
-        .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
+        .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .and(AUDIO.STATE.notEqual(String.valueOf(AudioState.Erase)))
         .orderBy(AUDIO.NAME.desc())
-        .fetch());
+        .fetch(), Audio.class);
   }
 
   /**
@@ -261,19 +261,14 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
    @param state  to read audios in
    @return array of records
    */
-  private Collection<Audio> readAllInState(DSLContext db, Access access, AudioState state) throws Exception {
-    requireRole("platform access", access, Role.ADMIN, Role.ENGINEER);
+  private static Collection<Audio> readAllInState(DSLContext db, Access access, AudioState state) throws Exception {
+    requireRole("platform access", access, UserRoleType.Admin, UserRoleType.Engineer);
 
-    Collection<Audio> result = Lists.newArrayList();
-    resultInto(AUDIO, db.select(AUDIO.fields())
+    return modelsFrom(db.select(AUDIO.fields())
       .from(AUDIO)
       .where(AUDIO.STATE.eq(state.toString()))
       .or(AUDIO.STATE.eq(state.toString().toLowerCase()))
-      .fetch()).forEach((record) -> {
-      result.add(new Audio().setFromRecord(record));
-
-    });
-    return result;
+      .fetch(), Audio.class);
   }
 
 
@@ -286,15 +281,16 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
    @return Result of audio records.
    @throws Exception on failure
    */
-  private Result<AudioRecord> readAllPickedForLink(DSLContext db, Access access, ULong linkId) throws Exception {
+  private static Collection<Audio> readAllPickedForLink(DSLContext db, Access access, ULong linkId) throws Exception {
     requireTopLevel(access);
-    return resultInto(AUDIO, db.select(AUDIO.fields())
+
+    return modelsFrom(db.select(AUDIO.fields())
       .from(AUDIO)
       .join(PICK).on(PICK.AUDIO_ID.eq(AUDIO.ID))
       .join(ARRANGEMENT).on(ARRANGEMENT.ID.eq(PICK.ARRANGEMENT_ID))
       .join(CHOICE).on(CHOICE.ID.eq(ARRANGEMENT.CHOICE_ID))
       .where(CHOICE.LINK_ID.eq(linkId))
-      .fetch());
+      .fetch(), Audio.class);
   }
 
   /**
@@ -309,24 +305,24 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
    @param entity to update with
    @throws BusinessException if failure
    */
-  private void update(DSLContext db, Access access, ULong id, Audio entity) throws Exception {
+  private static void update(DSLContext db, Access access, ULong id, Audio entity) throws Exception {
     entity.validate();
 
-    Map<Field, Object> fieldValues = entity.updatableFieldValueMap();
+    Map<Field, Object> fieldValues = fieldValueMap(entity);
     fieldValues.put(AUDIO.ID, id);
 
     if (access.isTopLevel())
       requireExists("Instrument", db.selectCount().from(INSTRUMENT)
-        .where(INSTRUMENT.ID.eq(entity.getInstrumentId()))
+        .where(INSTRUMENT.ID.eq(ULong.valueOf(entity.getInstrumentId())))
         .fetchOne(0, int.class));
     else
       requireExists("Instrument", db.selectCount().from(INSTRUMENT)
         .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
-        .where(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-        .and(INSTRUMENT.ID.eq(entity.getInstrumentId()))
+        .where(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+        .and(INSTRUMENT.ID.eq(ULong.valueOf(entity.getInstrumentId())))
         .fetchOne(0, int.class));
 
-    if (executeUpdate(db, AUDIO, fieldValues) == 0)
+    if (0 == executeUpdate(db, AUDIO, fieldValues))
       throw new BusinessException("No records updated.");
   }
 
@@ -338,7 +334,7 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
    @param id     to update
    @throws BusinessException if failure
    */
-  private JSONObject uploadOne(DSLContext db, Access access, ULong id) throws Exception {
+  private JSONObject authorizeUpload(DSLContext db, Access access, ULong id) throws Exception {
     Record audioRecord;
 
     if (access.isTopLevel())
@@ -351,7 +347,7 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
         .join(INSTRUMENT).on(INSTRUMENT.ID.eq(AUDIO.INSTRUMENT_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
         .where(AUDIO.ID.eq(id))
-        .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
+        .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .fetchOne();
 
     requireExists("Audio", audioRecord);
@@ -425,17 +421,15 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
    @throws BusinessException if fails business rule
    */
   private void erase(Access access, DSLContext db, ULong id) throws Exception {
-    if (!access.isTopLevel())
-      requireExists("Audio", db.selectCount().from(AUDIO)
-        .join(INSTRUMENT).on(INSTRUMENT.ID.eq(AUDIO.INSTRUMENT_ID))
-        .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
-        .where(AUDIO.ID.eq(id))
-        .and(LIBRARY.ACCOUNT_ID.in(access.getAccounts()))
-        .fetchOne(0, int.class));
-    else
-      requireExists("Audio", db.selectCount().from(AUDIO)
-        .where(AUDIO.ID.eq(id))
-        .fetchOne(0, int.class));
+    if (access.isTopLevel()) requireExists("Audio", db.selectCount().from(AUDIO)
+      .where(AUDIO.ID.eq(id))
+      .fetchOne(0, int.class));
+    else requireExists("Audio", db.selectCount().from(AUDIO)
+      .join(INSTRUMENT).on(INSTRUMENT.ID.eq(AUDIO.INSTRUMENT_ID))
+      .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
+      .where(AUDIO.ID.eq(id))
+      .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+      .fetchOne(0, int.class));
 
     // Update audio state to Erase
     Map<Field, Object> fieldValues = Maps.newHashMap();
@@ -447,10 +441,29 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
 
     // Schedule audio deletion job
     try {
-      workManager.startAudioErase(id);
+      workManager.startAudioErase(id.toBigInteger());
     } catch (Exception e) {
       log.error("Failed to start AudioErase work after updating Audio to Erase state. See the elusive [#153492153] Audio can be deleted without an error", e);
     }
   }
 
+  /**
+   Only certain (writable) fields are mapped back to jOOQ records--
+   Read-only fields are excluded from here.
+
+   @param entity to source values from
+   @return values mapped to record fields
+   */
+  private static Map<Field, Object> fieldValueMap(Audio entity) {
+    Map<Field, Object> fieldValues = com.google.api.client.util.Maps.newHashMap();
+    fieldValues.put(Tables.AUDIO.INSTRUMENT_ID, ULong.valueOf(entity.getInstrumentId()));
+    fieldValues.put(Tables.AUDIO.NAME, entity.getName());
+    fieldValues.put(Tables.AUDIO.STATE, entity.getState());
+    fieldValues.put(Tables.AUDIO.START, entity.getStart());
+    fieldValues.put(Tables.AUDIO.LENGTH, entity.getLength());
+    fieldValues.put(Tables.AUDIO.TEMPO, entity.getTempo());
+    fieldValues.put(Tables.AUDIO.PITCH, entity.getPitch());
+    // Excluding AUDIO.WAVEFORM_KEY a.k.a. waveformKey because that is read-only
+    return fieldValues;
+  }
 }

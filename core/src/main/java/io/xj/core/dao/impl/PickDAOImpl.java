@@ -2,24 +2,23 @@
 package io.xj.core.dao.impl;
 
 import io.xj.core.access.impl.Access;
+import io.xj.core.dao.PickDAO;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.exception.ConfigException;
-import io.xj.core.exception.DatabaseException;
-import io.xj.core.dao.PickDAO;
-import io.xj.core.persistence.sql.impl.SQLConnection;
-import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import io.xj.core.model.pick.Pick;
-import io.xj.core.tables.records.PickRecord;
+import io.xj.core.persistence.sql.SQLDatabaseProvider;
+import io.xj.core.persistence.sql.impl.SQLConnection;
 
 import org.jooq.DSLContext;
 import org.jooq.Field;
-import org.jooq.Result;
 import org.jooq.types.ULong;
 
+import com.google.api.client.util.Maps;
 import com.google.inject.Inject;
 
 import javax.annotation.Nullable;
-import java.sql.SQLException;
+import java.math.BigInteger;
+import java.util.Collection;
 import java.util.Map;
 
 import static io.xj.core.Tables.ARRANGEMENT;
@@ -38,10 +37,10 @@ public class PickDAOImpl extends DAOImpl implements PickDAO {
   }
 
   @Override
-  public PickRecord create(Access access, Pick entity) throws Exception {
+  public Pick create(Access access, Pick entity) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(createRecord(tx.getContext(), access, entity));
+      return tx.success(create(tx.getContext(), access, entity));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -49,10 +48,10 @@ public class PickDAOImpl extends DAOImpl implements PickDAO {
 
   @Override
   @Nullable
-  public PickRecord readOne(Access access, ULong id) throws Exception {
+  public Pick readOne(Access access, BigInteger id) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readOneRecord(tx.getContext(), access, id));
+      return tx.success(readOne(tx.getContext(), access, ULong.valueOf(id)));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -60,30 +59,30 @@ public class PickDAOImpl extends DAOImpl implements PickDAO {
 
   @Override
   @Nullable
-  public Result<PickRecord> readAll(Access access, ULong arrangementId) throws Exception {
+  public Collection<Pick> readAll(Access access, BigInteger arrangementId) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readAll(tx.getContext(), access, arrangementId));
+      return tx.success(readAll(tx.getContext(), access, ULong.valueOf(arrangementId)));
     } catch (Exception e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public Result<PickRecord> readAllInLink(Access access, ULong linkId) throws Exception {
+  public Collection<Pick> readAllInLink(Access access, BigInteger linkId) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readAllInLink(tx.getContext(), access, linkId));
+      return tx.success(readAllInLink(tx.getContext(), access, ULong.valueOf(linkId)));
     } catch (Exception e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public void update(Access access, ULong id, Pick entity) throws Exception {
+  public void update(Access access, BigInteger pickId, Pick entity) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      update(tx.getContext(), access, id, entity);
+      update(tx.getContext(), access, ULong.valueOf(pickId), entity);
       tx.success();
     } catch (Exception e) {
       throw tx.failure(e);
@@ -91,10 +90,10 @@ public class PickDAOImpl extends DAOImpl implements PickDAO {
   }
 
   @Override
-  public void delete(Access access, ULong pickId) throws Exception {
+  public void delete(Access access, BigInteger pickId) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      delete(tx.getContext(), access, pickId);
+      delete(tx.getContext(), access, ULong.valueOf(pickId));
       tx.success();
     } catch (Exception e) {
       throw tx.failure(e);
@@ -110,18 +109,18 @@ public class PickDAOImpl extends DAOImpl implements PickDAO {
    @return newly readMany record
    @throws BusinessException if a Business Rule is violated
    */
-  private PickRecord createRecord(DSLContext db, Access access, Pick entity) throws BusinessException {
+  private static Pick create(DSLContext db, Access access, Pick entity) throws BusinessException {
     entity.validate();
 
-    Map<Field, Object> fieldValues = entity.updatableFieldValueMap();
+    Map<Field, Object> fieldValues = fieldValueMap(entity);
 
     requireTopLevel(access);
 
     requireExists("Arrangement", db.selectCount().from(ARRANGEMENT)
-      .where(ARRANGEMENT.ID.eq(entity.getArrangementId()))
+      .where(ARRANGEMENT.ID.eq(ULong.valueOf(entity.getArrangementId())))
       .fetchOne(0, int.class));
 
-    return executeCreate(db, PICK, fieldValues);
+    return modelFrom(executeCreate(db, PICK, fieldValues), Pick.class);
   }
 
   /**
@@ -132,21 +131,21 @@ public class PickDAOImpl extends DAOImpl implements PickDAO {
    @param id     of record
    @return record
    */
-  private PickRecord readOneRecord(DSLContext db, Access access, ULong id) {
+  private static Pick readOne(DSLContext db, Access access, ULong id) throws BusinessException {
     if (access.isTopLevel())
-      return db.selectFrom(PICK)
+      return modelFrom(db.selectFrom(PICK)
         .where(PICK.ID.eq(id))
-        .fetchOne();
+        .fetchOne(), Pick.class);
     else
-      return recordInto(PICK, db.select(PICK.fields())
+      return modelFrom(db.select(PICK.fields())
         .from(PICK)
         .join(ARRANGEMENT).on(ARRANGEMENT.ID.eq(PICK.ARRANGEMENT_ID))
         .join(CHOICE).on(CHOICE.ID.eq(ARRANGEMENT.CHOICE_ID))
         .join(LINK).on(LINK.ID.eq(CHOICE.LINK_ID))
         .join(CHAIN).on(CHAIN.ID.eq(LINK.CHAIN_ID))
         .where(PICK.ID.eq(id))
-        .and(CHAIN.ACCOUNT_ID.in(access.getAccounts()))
-        .fetchOne());
+        .and(CHAIN.ACCOUNT_ID.in(access.getAccountIds()))
+        .fetchOne(), Pick.class);
   }
 
   /**
@@ -157,40 +156,40 @@ public class PickDAOImpl extends DAOImpl implements PickDAO {
    @param arrangementId of parent
    @return array of records
    */
-  private Result<PickRecord> readAll(DSLContext db, Access access, ULong arrangementId) throws SQLException {
+  private static Collection<Pick> readAll(DSLContext db, Access access, ULong arrangementId) throws BusinessException {
     if (access.isTopLevel())
-      return resultInto(PICK, db.select(PICK.fields())
+      return modelsFrom(db.select(PICK.fields())
         .from(PICK)
         .where(PICK.ARRANGEMENT_ID.eq(arrangementId))
-        .fetch());
+        .fetch(), Pick.class);
     else
-      return resultInto(PICK, db.select(PICK.fields())
+      return modelsFrom(db.select(PICK.fields())
         .from(PICK)
         .join(ARRANGEMENT).on(ARRANGEMENT.ID.eq(PICK.ARRANGEMENT_ID))
         .join(CHOICE).on(CHOICE.ID.eq(ARRANGEMENT.CHOICE_ID))
         .join(LINK).on(LINK.ID.eq(CHOICE.LINK_ID))
         .join(CHAIN).on(CHAIN.ID.eq(LINK.CHAIN_ID))
         .where(PICK.ARRANGEMENT_ID.eq(arrangementId))
-        .and(CHAIN.ACCOUNT_ID.in(access.getAccounts()))
-        .fetch());
+        .and(CHAIN.ACCOUNT_ID.in(access.getAccountIds()))
+        .fetch(), Pick.class);
   }
 
   /**
    Read all records in parent's parent's parent (link) by id
 
-   @param db            context
-   @param access        control
+   @param db     context
+   @param access control
    @param linkId of parent
    @return array of records
    */
-  private Result<PickRecord> readAllInLink(DSLContext db, Access access, ULong linkId) throws SQLException, BusinessException {
+  private static Collection<Pick> readAllInLink(DSLContext db, Access access, ULong linkId) throws BusinessException {
     requireTopLevel(access);
-    return resultInto(PICK, db.select(PICK.fields())
+    return modelsFrom(db.select(PICK.fields())
       .from(PICK)
       .join(ARRANGEMENT).on(ARRANGEMENT.ID.eq(PICK.ARRANGEMENT_ID))
       .join(CHOICE).on(CHOICE.ID.eq(ARRANGEMENT.CHOICE_ID))
       .where(CHOICE.LINK_ID.eq(linkId))
-      .fetch());
+      .fetch(), Pick.class);
   }
 
   /**
@@ -202,10 +201,10 @@ public class PickDAOImpl extends DAOImpl implements PickDAO {
    @param entity to update with
    @throws BusinessException if a Business Rule is violated
    */
-  private void update(DSLContext db, Access access, ULong id, Pick entity) throws BusinessException, DatabaseException {
+  private static void update(DSLContext db, Access access, ULong id, Pick entity) throws BusinessException {
     entity.validate();
 
-    Map<Field, Object> fieldValues = entity.updatableFieldValueMap();
+    Map<Field, Object> fieldValues = fieldValueMap(entity);
     fieldValues.put(PICK.ID, id);
 
     requireTopLevel(access);
@@ -213,7 +212,7 @@ public class PickDAOImpl extends DAOImpl implements PickDAO {
     requireExists("existing Pick with immutable Arrangement membership",
       db.selectCount().from(PICK)
         .where(PICK.ID.eq(id))
-        .and(PICK.ARRANGEMENT_ID.eq(entity.getArrangementId()))
+        .and(PICK.ARRANGEMENT_ID.eq(ULong.valueOf(entity.getArrangementId())))
         .fetchOne(0, int.class));
 
     if (0 == executeUpdate(db, PICK, fieldValues))
@@ -230,7 +229,7 @@ public class PickDAOImpl extends DAOImpl implements PickDAO {
    @throws ConfigException   if not configured properly
    @throws BusinessException if fails business rule
    */
-  private void delete(DSLContext db, Access access, ULong id) throws Exception {
+  private static void delete(DSLContext db, Access access, ULong id) throws Exception {
     requireTopLevel(access);
 
     requireExists("Pick", db.selectCount().from(PICK)
@@ -241,5 +240,24 @@ public class PickDAOImpl extends DAOImpl implements PickDAO {
       .where(PICK.ID.eq(id))
       .execute();
   }
+
+  /**
+   Only certain (writable) fields are mapped back to jOOQ records--
+   Read-only fields are excluded from here.
+
+   @param entity to source values from
+   @return values mapped to record fields
+   */
+  private static Map<Field, Object> fieldValueMap(Pick entity) {
+    Map<Field, Object> fieldValues = Maps.newHashMap();
+    fieldValues.put(PICK.ARRANGEMENT_ID, ULong.valueOf(entity.getArrangementId()));
+    fieldValues.put(PICK.AUDIO_ID, ULong.valueOf(entity.getAudioId()));
+    fieldValues.put(PICK.START, entity.getStart());
+    fieldValues.put(PICK.LENGTH, entity.getLength());
+    fieldValues.put(PICK.AMPLITUDE, entity.getAmplitude());
+    fieldValues.put(PICK.PITCH, entity.getPitch());
+    return fieldValues;
+  }
+
 
 }

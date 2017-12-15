@@ -3,46 +3,33 @@ package io.xj.core.dao.impl;
 
 import io.xj.core.access.impl.Access;
 import io.xj.core.exception.BusinessException;
+import io.xj.core.model.Entity;
+import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.persistence.sql.SQLDatabaseProvider;
+import io.xj.core.util.CamelCasify;
 
 import org.jooq.DSLContext;
 import org.jooq.Field;
 import org.jooq.Record;
-import org.jooq.Result;
 import org.jooq.Table;
 import org.jooq.UpdatableRecord;
-import org.jooq.types.UInteger;
+import org.jooq.impl.DSL;
 import org.jooq.types.ULong;
 
+import com.google.common.collect.Lists;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.lang.reflect.Method;
 import java.math.BigInteger;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
 
 public class DAOImpl {
-  //  private static Logger log = LoggerFactory.getLogger(DAOImpl.class);
+  private static final Logger log = LoggerFactory.getLogger(DAOImpl.class);
   SQLDatabaseProvider dbProvider;
-
-  /**
-   Transform a record into a record of a particular table, if not null
-
-   @param table  to transform record into
-   @param record to transform
-   @return record of table
-   */
-  <R extends Record> R recordInto(Table<R> table, Record record) {
-    return Objects.isNull(record) ? null : record.into(table);
-  }
-
-  /**
-   Transform a result into a result of a particular table, if not null
-
-   @param table  to transform result into
-   @param result to transform
-   @return result of table
-   */
-  <R extends Record> Result<R> resultInto(Table<R> table, Result result) {
-    return Objects.isNull(result) ? null : result.into(table);
-  }
 
   /**
    Execute a database CREATE operation
@@ -53,14 +40,15 @@ public class DAOImpl {
    @param <R>           record type dynamic
    @return record
    */
-  <R extends UpdatableRecord<R>> R executeCreate(DSLContext db, Table<R> table, Map<Field, Object> fieldValueMap) throws BusinessException {
+  static <R extends UpdatableRecord<R>> R executeCreate(DSLContext db, Table<R> table, Map<Field, Object> fieldValueMap) throws BusinessException {
     R record = db.newRecord(table);
     fieldValueMap.forEach(record::setValue);
 
     try {
       record.store();
     } catch (Exception e) {
-      throw new BusinessException("Cannot create record: " + e.getMessage());
+      log.error("Cannot create record", e);
+      throw new BusinessException("Cannot create record", e);
     }
 
     return record;
@@ -75,14 +63,15 @@ public class DAOImpl {
    @param <R>           record type dynamic
    @return record
    */
-  <R extends UpdatableRecord<R>> int executeUpdate(DSLContext db, Table<R> table, Map<Field, Object> fieldValueMap) throws BusinessException {
+  static <R extends UpdatableRecord<R>> int executeUpdate(DSLContext db, Table<R> table, Map<Field, Object> fieldValueMap) throws BusinessException {
     R record = db.newRecord(table);
     fieldValueMap.forEach(record::setValue);
 
     try {
       return db.executeUpdate(record);
     } catch (Exception e) {
-      throw new BusinessException("Cannot update record: " + e.getMessage());
+      log.error("Cannot update record", e);
+      throw new BusinessException("Cannot update record", e);
     }
   }
 
@@ -94,8 +83,8 @@ public class DAOImpl {
    @throws BusinessException if result set is not empty.
    @throws Exception         if something goes wrong.
    */
-  <R extends Record> void requireNotExists(String name, Result<R> result) throws Exception {
-    if (exists(result) && result.size() > 0) {
+  static <R extends Record> void requireNotExists(String name, Collection<R> result) throws Exception {
+    if (isNonNull(result) && !result.isEmpty()) {
       throw new BusinessException("Found" + " " + name);
     }
   }
@@ -115,33 +104,33 @@ public class DAOImpl {
   }
 
   /**
-   Require that a record exists
+   Require that a record isNonNull
 
    @param name   name of record (for error message)
    @param record to require existence of
-   @throws BusinessException if not exists
+   @throws BusinessException if not isNonNull
    */
-  void requireExists(String name, Record record) throws BusinessException {
-    require(name, "does not exist", exists(record));
+  static void requireExists(String name, Record record) throws BusinessException {
+    require(name, "does not exist", isNonNull(record));
   }
 
   /**
-   Require that a count of a record exists
+   Require that a count of a record isNonNull
 
    @param name  name of record (for error message)
    @param count to require existence of
-   @throws BusinessException if not exists
+   @throws BusinessException if not isNonNull
    */
-  void requireExists(String name, int count) throws BusinessException {
+  static void requireExists(String name, int count) throws BusinessException {
     require(name, "does not exist", 0 < count);
   }
 
   /**
-   Require that a count of any of a list of record exists
+   Require that a count of any of a list of record isNonNull
 
    @param message for error, if thrown
    @param counts  to require existence of any of
-   @throws BusinessException if not exists
+   @throws BusinessException if not isNonNull
    */
   static void requireExistsAnyOf(String message, int... counts) throws BusinessException {
     Boolean exists = false;
@@ -155,13 +144,16 @@ public class DAOImpl {
     }
   }
 
-  /**
-   Whether a record exists
 
-   @param obj to check for existence
+  /**
+   Definitely not null, or string "null"
+
+   @param obj to evaluate for non-nullness
+   @return true if non-null
    */
-  Boolean exists(Object obj) {
-    return Objects.nonNull(obj);
+  static boolean isNonNull(Object obj) {
+    return Objects.nonNull(obj) &&
+      !Objects.equals("null", String.valueOf(obj));
   }
 
   /**
@@ -171,8 +163,8 @@ public class DAOImpl {
    @param accountId to check for access to
    @throws BusinessException if not admin
    */
-  void requireAccount(Access access, ULong accountId) throws BusinessException {
-    require("access to account #" + accountId, access.hasAccount(accountId));
+  static void requireAccount(Access access, ULong accountId) throws BusinessException {
+    require("access to account #" + accountId, access.hasAccount(accountId.toBigInteger()));
   }
 
   /**
@@ -182,7 +174,7 @@ public class DAOImpl {
    @param cannotBeNull value
    @throws BusinessException if null
    */
-  void requireNonNull(String description, Object cannotBeNull) throws BusinessException {
+  static void requireNonNull(String description, Object cannotBeNull) throws BusinessException {
     require(description, Objects.nonNull(cannotBeNull));
   }
 
@@ -193,41 +185,8 @@ public class DAOImpl {
    @param mustBeGreaterThanZero value
    @throws BusinessException if null
    */
-  void requireGreaterThanZero(String description, Integer mustBeGreaterThanZero) throws BusinessException {
-    require(description, "must be greater than zero", mustBeGreaterThanZero > 0);
-  }
-
-  /**
-   Require a given integer is greater than zero
-
-   @param description           what is it
-   @param mustBeGreaterThanZero value
-   @throws BusinessException if null
-   */
-  void requireGreaterThanZero(String description, UInteger mustBeGreaterThanZero) throws BusinessException {
-    require(description, "must be greater than zero", mustBeGreaterThanZero.compareTo(UInteger.valueOf(0)) == 1);
-  }
-
-  /**
-   Require a given integer is greater than zero
-
-   @param description           what is it
-   @param mustBeGreaterThanZero value
-   @throws BusinessException if null
-   */
-  void requireGreaterThanZero(String description, BigInteger mustBeGreaterThanZero) throws BusinessException {
-    require(description, "must be greater than zero", mustBeGreaterThanZero.compareTo(BigInteger.ZERO) == 1);
-  }
-
-  /**
-   Require a given integer is greater than zero
-
-   @param description           what is it
-   @param mustBeGreaterThanZero value
-   @throws BusinessException if null
-   */
-  void requireGreaterThanZero(String description, ULong mustBeGreaterThanZero) throws BusinessException {
-    require(description, "must be greater than zero", mustBeGreaterThanZero.compareTo(ULong.valueOf(0)) == 1);
+  static void requireGreaterThanZero(String description, Integer mustBeGreaterThanZero) throws BusinessException {
+    require(description, "must be greater than zero", 0 < mustBeGreaterThanZero);
   }
 
   /**
@@ -236,7 +195,7 @@ public class DAOImpl {
    @param access control
    @throws BusinessException if not admin
    */
-  void requireTopLevel(Access access) throws BusinessException {
+  static void requireTopLevel(Access access) throws BusinessException {
     require("top-level access", access.isTopLevel());
   }
 
@@ -246,8 +205,8 @@ public class DAOImpl {
    @param access control
    @throws BusinessException if not admin
    */
-  void requireRole(String message, Access access, String... matchAnyOfRoles) throws BusinessException {
-    require(message, access.isTopLevel() || access.matchAnyOf(matchAnyOfRoles));
+  static void requireRole(String message, Access access, UserRoleType... roles) throws BusinessException {
+    require(message, access.isTopLevel() || access.isAllowed(roles));
   }
 
   /**
@@ -257,7 +216,7 @@ public class DAOImpl {
    @param mustBeTrue to require true
    @throws BusinessException if not true
    */
-  public void require(String name, Boolean mustBeTrue) throws BusinessException {
+  private static void require(String name, Boolean mustBeTrue) throws BusinessException {
     require(name, "is required", mustBeTrue);
   }
 
@@ -269,39 +228,163 @@ public class DAOImpl {
    @param condition   to append
    @throws BusinessException if not true
    */
-  public void require(String description, String condition, Boolean mustBeTrue) throws BusinessException {
+  private static void require(String description, String condition, Boolean mustBeTrue) throws BusinessException {
     if (!mustBeTrue) {
       throw new BusinessException(description + " " + condition);
     }
   }
 
   /**
-   Prevent a condition
+   Value, or DSL null object
 
-   @param name        name of condition to prevent (for error message)
-   @param mustBeFalse to prevent
-   @throws BusinessException if not false
+   @param value to check
+   @return value or null
    */
-  private void prevent(String name, Boolean mustBeFalse) throws BusinessException {
-    if (mustBeFalse) {
-      throw new BusinessException(name + " not allowed");
+  static Object valueOrNull(Object value) {
+    return Objects.nonNull(value) ? value : DSL.val((String) null);
+  }
+
+  /**
+   Build collection of jooq ULong from global BigInteger
+
+   @param linkIds to build from
+   @return collection of link ids
+   */
+  static Collection<ULong> idCollection(Collection<BigInteger> linkIds) {
+    Collection<ULong> result = Lists.newArrayList();
+    linkIds.forEach((id) -> result.add(ULong.valueOf(id)));
+    return result;
+  }
+
+  /**
+   Transmogrify a jOOQ Result set into a Collection of POJO entities
+
+   @param records    to source values from
+   @param modelClass instance of a single target entity
+   @return entity after transmogrification
+   @throws BusinessException on failure to transmogrify
+   */
+  static <R extends Record, E extends Entity> Collection<E> modelsFrom(Iterable<R> records, Class<E> modelClass) throws BusinessException {
+    Collection<E> models = Lists.newArrayList();
+    for (R record : records) {
+      models.add(modelFrom(record, modelClass));
+    }
+    return models;
+  }
+
+  /**
+   Transmogrify the field-value pairs from a jOOQ record and set values on the corresponding POJO entity.
+
+   @param record     to source field-values from
+   @param modelClass to whose setters the values will be written
+   @return entity after transmogrification
+   @throws BusinessException on failure to transmogrify
+   */
+  static <R extends Record, E extends Entity> E modelFrom(R record, Class<E> modelClass) throws BusinessException {
+    if (Objects.isNull(modelClass) || Objects.isNull(record)) {
+      return null;
+    }
+
+    E model;
+    try {
+      model = modelClass.getConstructor().newInstance();
+    } catch (Exception e) {
+      throw new BusinessException(String.format("Could not transmogrify into class: %s", modelClass), e);
+    }
+
+    Map<String, Object> fieldValues = record.intoMap();
+    for (Map.Entry<String, Object> field : fieldValues.entrySet()) {
+      if (isNonNull(field.getValue())) try {
+        modelSetTransmogrified(model, field.getKey(), field.getValue());
+      } catch (Exception e) {
+        log.error("Could not transmogrify key:{} val:{}", field.getKey(), field.getValue(), e);
+        throw new BusinessException(String.format("Could not transmogrify key:%s val:%s", field.getKey(), field.getValue()), e);
+      }
+    }
+
+    // this is necessary to port in some values, e.g. state enums from string setters
+    try {
+      model.validate();
+    } catch (BusinessException e) {
+      log.error("Entity threw exception during post-transmogrification validation", e);
+      throw new BusinessException("Entity threw exception during post-transmogrification validation", e);
+    }
+
+    return model;
+  }
+
+  /**
+   Set the setter of a POJO Entity, based on the transmogrified value from a jOOQ Record Field
+
+   @param model to set the setter of
+   @param key   of the jOOQ Record Field
+   @param value from the jOOQ Record Field
+   @param <E>   is the type of the entity being written to
+   */
+  private static <E extends Entity> void modelSetTransmogrified(E model, String key, Object value) throws Exception {
+    String setterName = String.format("set%s", CamelCasify.upper(key));
+
+    /*
+    Allows for special columns from db transactions to be mapped to special setters,
+    while being tolerant of extra columns, e.g. join artifacts
+     */
+    if (!hasMethod(model, setterName)) {
+      log.debug("{} does not have {}(); skipping.", model, setterName);
+      return;
+    }
+
+    if (isNonNull(value)) switch (value.getClass().getSimpleName()) {
+
+      case "ULong":
+      case "BigInteger":
+        model.getClass().getMethod(setterName, BigInteger.class)
+          .invoke(model, new BigInteger(String.valueOf(value)));
+        break;
+
+      case "Timestamp":
+        model.getClass().getMethod(setterName, String.class)
+          .invoke(model, String.valueOf(value));
+        break;
+
+      case "UInteger":
+      case "Integer":
+        model.getClass().getMethod(setterName, Integer.class)
+          .invoke(model, Integer.valueOf(String.valueOf(value)));
+        break;
+
+      case "Long":
+        model.getClass().getMethod(setterName, Long.class)
+          .invoke(model, Long.valueOf(String.valueOf(value)));
+        break;
+
+      case "Double":
+        model.getClass().getMethod(setterName, Double.class)
+          .invoke(model, Double.valueOf(String.valueOf(value)));
+        break;
+
+      case "Float":
+        model.getClass().getMethod(setterName, Float.class)
+          .invoke(model, Float.valueOf(String.valueOf(value)));
+        break;
+
+      default:
+        model.getClass().getMethod(setterName, String.class)
+          .invoke(model, String.valueOf(value));
+        break;
     }
   }
 
   /**
-   Check if array contains an element
+   Check if the target entity has any given method
 
-   @param findElement to check for
-   @param elements    in which to check
-   @return true if found
+   @param model      to test for methods
+   @param setterName of method to test for
+   @param <E>        extends Entity
+   @return true if found, else false
    */
-  private Boolean arrayContains(String findElement, String[] elements) {
-    if (findElement != null) {
-      for (String element : elements) {
-        if (element.equals(findElement)) {
-          return true;
-        }
-      }
+  private static <E extends Entity> boolean hasMethod(E model, String setterName) {
+    for (Method method : model.getClass().getMethods()) {
+      if (Objects.equals(method.getName(), setterName)) return true;
     }
     return false;
   }

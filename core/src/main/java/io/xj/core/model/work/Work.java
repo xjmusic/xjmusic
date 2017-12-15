@@ -4,16 +4,7 @@ package io.xj.core.model.work;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.model.Entity;
 
-import org.jooq.Field;
-import org.jooq.Record;
-import org.jooq.types.ULong;
-
-import com.google.api.client.util.Maps;
-
-import org.json.JSONObject;
-
 import java.math.BigInteger;
-import java.util.Map;
 
 public class Work extends Entity {
 
@@ -26,20 +17,15 @@ public class Work extends Entity {
   /**
    Fields
    */
-  private ULong targetId;
+  private BigInteger targetId;
   private WorkState state;
   private WorkType type;
 
-  public ULong getTargetId() {
+  public BigInteger getTargetId() {
     return targetId;
   }
 
   public Work setTargetId(BigInteger value) {
-    targetId = ULong.valueOf(value);
-    return this;
-  }
-
-  public Work setTargetId(ULong value) {
     targetId = value;
     return this;
   }
@@ -70,16 +56,6 @@ public class Work extends Entity {
     if (null == type || type.toString().isEmpty()) {
       throw new BusinessException("Type is required.");
     }
-  }
-
-  @Override
-  public Work setFromRecord(Record record) throws BusinessException {
-    return null;
-  }
-
-  @Override
-  public Map<Field, Object> updatableFieldValueMap() {
-    return Maps.newHashMap();
   }
 
   @Override

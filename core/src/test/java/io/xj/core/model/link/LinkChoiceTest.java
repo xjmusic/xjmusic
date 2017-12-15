@@ -3,9 +3,9 @@ package io.xj.core.model.link;
 
 import io.xj.core.model.choice.Choice;
 
-import org.jooq.types.ULong;
-
 import org.junit.Test;
+
+import java.math.BigInteger;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -16,47 +16,47 @@ public class LinkChoiceTest {
   @Test
   public void nextPhaseOffset() throws Exception {
     Choice linkChoice = new Choice()
-      .setPatternId(ULong.valueOf(345).toBigInteger())
-      .setPhaseOffset(ULong.valueOf(0).toBigInteger())
+      .setPatternId(BigInteger.valueOf(345))
+      .setPhaseOffset(BigInteger.valueOf(0))
       .setTranspose(5)
       .setType("Main")
-    .setAvailablePhaseOffsets("0,1");
+      .setAvailablePhaseOffsets("0,1");
 
-    assertEquals(ULong.valueOf(1), linkChoice.nextPhaseOffset());
+    assertEquals(BigInteger.valueOf(1), linkChoice.nextPhaseOffset());
   }
 
   @Test
   public void nextPhaseOffset_endLoopsBackToZero() throws Exception {
     Choice linkChoice = new Choice()
-      .setPatternId(ULong.valueOf(345).toBigInteger())
-      .setPhaseOffset(ULong.valueOf(3).toBigInteger())
+      .setPatternId(BigInteger.valueOf(345))
+      .setPhaseOffset(BigInteger.valueOf(3))
       .setTranspose(5)
       .setType("Main")
-    .setAvailablePhaseOffsets("0,1,2,3");
+      .setAvailablePhaseOffsets("0,1,2,3");
 
-    assertEquals(ULong.valueOf(0), linkChoice.nextPhaseOffset());
+    assertEquals(BigInteger.valueOf(0), linkChoice.nextPhaseOffset());
   }
 
   @Test
   public void nextPhaseOffset_weirdIsOkay() throws Exception {
     Choice linkChoice = new Choice()
-      .setPatternId(ULong.valueOf(345).toBigInteger())
-      .setPhaseOffset(ULong.valueOf(17).toBigInteger())
+      .setPatternId(BigInteger.valueOf(345))
+      .setPhaseOffset(BigInteger.valueOf(17))
       .setTranspose(5)
       .setType("Main")
-    .setAvailablePhaseOffsets("0,1,17,204,1407");
+      .setAvailablePhaseOffsets("0,1,17,204,1407");
 
-    assertEquals(ULong.valueOf(204), linkChoice.nextPhaseOffset());
+    assertEquals(BigInteger.valueOf(204), linkChoice.nextPhaseOffset());
   }
 
   @Test
   public void hasOneMorePhase() throws Exception {
     Choice linkChoice = new Choice()
-      .setPatternId(ULong.valueOf(345).toBigInteger())
-      .setPhaseOffset(ULong.valueOf(0).toBigInteger())
+      .setPatternId(BigInteger.valueOf(345))
+      .setPhaseOffset(BigInteger.valueOf(0))
       .setTranspose(5)
       .setType("Main")
-    .setAvailablePhaseOffsets("0,1");
+      .setAvailablePhaseOffsets("0,1");
 
     assertTrue(linkChoice.hasOneMorePhase());
   }
@@ -64,11 +64,11 @@ public class LinkChoiceTest {
   @Test
   public void hasOneMorePhase_true() throws Exception {
     Choice linkChoice = new Choice()
-      .setPatternId(ULong.valueOf(345).toBigInteger())
-      .setPhaseOffset(ULong.valueOf(2).toBigInteger())
+      .setPatternId(BigInteger.valueOf(345))
+      .setPhaseOffset(BigInteger.valueOf(2))
       .setTranspose(5)
       .setType("Main")
-    .setAvailablePhaseOffsets("0,1,2,3");
+      .setAvailablePhaseOffsets("0,1,2,3");
 
     assertTrue(linkChoice.hasOneMorePhase());
   }
@@ -76,11 +76,11 @@ public class LinkChoiceTest {
   @Test
   public void hasOneMorePhase_false() throws Exception {
     Choice linkChoice = new Choice()
-      .setPatternId(ULong.valueOf(21).toBigInteger())
-      .setPhaseOffset(ULong.valueOf(3).toBigInteger())
+      .setPatternId(BigInteger.valueOf(21))
+      .setPhaseOffset(BigInteger.valueOf(3))
       .setTranspose(5)
       .setType("Main")
-    .setAvailablePhaseOffsets("0,1,2,3");
+      .setAvailablePhaseOffsets("0,1,2,3");
 
     assertFalse(linkChoice.hasOneMorePhase());
   }
@@ -88,11 +88,11 @@ public class LinkChoiceTest {
   @Test
   public void hasTwoMorePhases() throws Exception {
     Choice linkChoice = new Choice()
-      .setPatternId(ULong.valueOf(64).toBigInteger())
-      .setPhaseOffset(ULong.valueOf(0).toBigInteger())
+      .setPatternId(BigInteger.valueOf(64))
+      .setPhaseOffset(BigInteger.valueOf(0))
       .setTranspose(5)
       .setType("Macro")
-    .setAvailablePhaseOffsets("0,1,2");
+      .setAvailablePhaseOffsets("0,1,2");
 
     assertTrue(linkChoice.hasTwoMorePhases());
   }
@@ -100,11 +100,11 @@ public class LinkChoiceTest {
   @Test
   public void hasTwoMorePhases_true() throws Exception {
     Choice linkChoice = new Choice()
-      .setPatternId(ULong.valueOf(64).toBigInteger())
-      .setPhaseOffset(ULong.valueOf(1).toBigInteger())
+      .setPatternId(BigInteger.valueOf(64))
+      .setPhaseOffset(BigInteger.valueOf(1))
       .setTranspose(5)
       .setType("Macro")
-    .setAvailablePhaseOffsets("0,1,2,3");
+      .setAvailablePhaseOffsets("0,1,2,3");
 
     assertTrue(linkChoice.hasTwoMorePhases());
   }
@@ -112,11 +112,11 @@ public class LinkChoiceTest {
   @Test
   public void hasTwoMorePhases_false() throws Exception {
     Choice linkChoice = new Choice()
-      .setPatternId(ULong.valueOf(64).toBigInteger())
-      .setPhaseOffset(ULong.valueOf(2).toBigInteger())
+      .setPatternId(BigInteger.valueOf(64))
+      .setPhaseOffset(BigInteger.valueOf(2))
       .setTranspose(5)
       .setType("Macro")
-    .setAvailablePhaseOffsets("0,1,2,3");
+      .setAvailablePhaseOffsets("0,1,2,3");
 
     assertFalse(linkChoice.hasTwoMorePhases());
   }

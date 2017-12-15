@@ -20,4 +20,11 @@ public class CamelCasifyTest {
     assertEquals("maNuts", CamelCasify.ifNeeded("ma_nuts"));
   }
 
+  @Test
+  public void upper() throws Exception {
+    assertEquals("Manuts", CamelCasify.upper("Manuts"));
+    assertEquals("Manuts", CamelCasify.upper("MaNuts"));
+    assertEquals("MaNuts", CamelCasify.upper("ma_nuts"));
+  }
+
 }

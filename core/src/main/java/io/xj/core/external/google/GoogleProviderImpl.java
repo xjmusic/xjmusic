@@ -122,8 +122,8 @@ public class GoogleProviderImpl implements GoogleProvider {
     try {
       person = jsonFactory.createJsonParser(responseJson).parse(Person.class);
     } catch (Exception e) {
-      log.error("Google API result is not valid JSON", e);
-      throw new AccessException("Google API result is not valid JSON: " + e);
+      log.error("Google API result is not isValid JSON", e);
+      throw new AccessException("Google API result is not isValid JSON: " + e);
     }
 
     return person;

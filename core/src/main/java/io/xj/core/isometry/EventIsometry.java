@@ -1,12 +1,9 @@
 // Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.isometry;
 
-import io.xj.core.model.event.Event;
-
-import org.jooq.Record;
-
 import com.google.common.collect.Lists;
 
+import io.xj.core.model.event.Event;
 import me.xdrop.fuzzywuzzy.FuzzySearch;
 import org.apache.commons.codec.language.DoubleMetaphone;
 
@@ -22,7 +19,6 @@ public class EventIsometry {
   private static final double SIMILARITY_SCORE_VELOCITY = 0.2;
   private static final double SIMILARITY_SCORE_DURATION = 0.3;
   private static final double SIMILARITY_SCORE_TONALITY = 0.6;
-  private static final String FIELD_INFLECTION = "inflection";
   private final List<String> sourceStems;
 
   /**
@@ -53,12 +49,12 @@ public class EventIsometry {
    @param sourceEventRecords to compare from
    @return EventIsometry ready for comparison to target Events
    */
-  public static <R extends Record> EventIsometry of(Iterable<R> sourceEventRecords) {
+  public static <R extends Event> EventIsometry of(Iterable<R> sourceEventRecords) {
     List<Event> sourceEvents = Lists.newArrayList();
 
     // use Event as a generic event-- we could use any extender of Event
     sourceEventRecords.forEach(record -> sourceEvents.add(
-      new Event().setInflection(String.valueOf(record.get(FIELD_INFLECTION)))
+      new Event().setInflection(String.valueOf(record.getInflection()))
     ));
 
     return new EventIsometry(sourceEvents);
