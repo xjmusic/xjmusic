@@ -1,7 +1,6 @@
 // Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.worker.job.impl;
 
-import io.xj.core.craft.CraftFactory;
 import io.xj.core.dao.LinkDAO;
 import io.xj.core.dao.LinkMessageDAO;
 import io.xj.core.exception.BusinessException;
@@ -11,12 +10,13 @@ import io.xj.core.model.link.LinkState;
 import io.xj.core.work.basis.Basis;
 import io.xj.core.work.basis.BasisFactory;
 import io.xj.core.work.impl.LinkJob;
+import io.xj.craft.CraftFactory;
 import io.xj.worker.job.LinkCraftJob;
-
-import java.math.BigInteger;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+
+import java.math.BigInteger;
 
 public class LinkCraftJobImpl extends LinkJob implements LinkCraftJob {
   //  private static final Logger log = LoggerFactory.getLogger(LinkCraftJob.class);

@@ -3,7 +3,7 @@ package io.xj.worker.work.craft.voice;
 
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
-import io.xj.core.craft.CraftFactory;
+import io.xj.craft.CraftFactory;
 import io.xj.core.dao.ArrangementDAO;
 import io.xj.core.dao.PickDAO;
 import io.xj.core.integration.IntegrationTestEntity;
@@ -16,6 +16,8 @@ import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.work.basis.Basis;
 import io.xj.core.work.basis.BasisFactory;
+import io.xj.craft.CraftModule;
+import io.xj.dub.DubModule;
 import io.xj.worker.WorkerModule;
 
 import com.google.inject.Guice;
@@ -35,7 +37,7 @@ import static org.junit.Assert.assertFalse;
 
 public class CraftVoiceContinueIT {
   @Rule public ExpectedException failure = ExpectedException.none();
-  private final Injector injector = Guice.createInjector(new CoreModule(), new WorkerModule());
+  private final Injector injector = Guice.createInjector(new CoreModule(), new WorkerModule(), new CraftModule(), new DubModule());
   private CraftFactory craftFactory;
   private BasisFactory basisFactory;
 

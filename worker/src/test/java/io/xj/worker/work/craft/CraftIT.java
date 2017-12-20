@@ -13,6 +13,8 @@ import io.xj.core.model.link.Link;
 import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.timestamp.TimestampUTC;
+import io.xj.craft.CraftModule;
+import io.xj.dub.DubModule;
 import io.xj.worker.WorkerModule;
 
 import com.google.inject.AbstractModule;
@@ -182,7 +184,7 @@ public class CraftIT {
   }
 
   private void createInjector() {
-    injector = Guice.createInjector(Modules.override(new CoreModule(), new WorkerModule()).with(
+    injector = Guice.createInjector(Modules.override(new CoreModule(), new WorkerModule(), new CraftModule(), new DubModule()).with(
       new AbstractModule() {
         @Override
         public void configure() {

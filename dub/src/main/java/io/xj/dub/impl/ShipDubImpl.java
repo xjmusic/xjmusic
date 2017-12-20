@@ -1,8 +1,8 @@
 // Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
-package io.xj.core.dub.impl;
+package io.xj.dub.impl;
 
 import io.xj.core.config.Config;
-import io.xj.core.dub.ShipDub;
+import io.xj.dub.ShipDub;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.work.basis.Basis;
 import io.xj.core.external.amazon.AmazonProvider;

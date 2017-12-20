@@ -15,8 +15,10 @@ import io.xj.core.model.link.LinkState;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.work.basis.Basis;
 import io.xj.core.work.basis.BasisFactory;
+import io.xj.craft.CraftModule;
+import io.xj.dub.DubFactory;
+import io.xj.dub.DubModule;
 import io.xj.worker.WorkerModule;
-import io.xj.core.dub.DubFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -27,7 +29,7 @@ import java.sql.Timestamp;
 
 public class DubMasterNextMacroIT {
   @Rule public ExpectedException failure = ExpectedException.none();
-  private final Injector injector = Guice.createInjector(new CoreModule(), new WorkerModule());
+  private final Injector injector = Guice.createInjector(new CoreModule(), new WorkerModule(), new CraftModule(), new DubModule());
   private DubFactory dubFactory;
   private BasisFactory basisFactory;
 

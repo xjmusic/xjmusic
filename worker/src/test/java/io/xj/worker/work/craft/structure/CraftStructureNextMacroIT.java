@@ -1,39 +1,40 @@
 // Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.worker.work.craft.structure;
 
-import java.math.BigInteger;
-
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.ChoiceDAO;
 import io.xj.core.integration.IntegrationTestEntity;
-import io.xj.core.integration.IntegrationTestService;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
-import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.link.Link;
 import io.xj.core.model.link.LinkState;
+import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.work.basis.Basis;
 import io.xj.core.work.basis.BasisFactory;
-import io.xj.core.craft.CraftFactory;
+import io.xj.craft.CraftFactory;
+import io.xj.craft.CraftModule;
+import io.xj.dub.DubModule;
 import io.xj.worker.WorkerModule;
+
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import java.math.BigInteger;
 import java.sql.Timestamp;
 
 import static org.junit.Assert.assertNotNull;
 
 public class CraftStructureNextMacroIT {
   @Rule public ExpectedException failure = ExpectedException.none();
-  private final Injector injector = Guice.createInjector(new CoreModule(), new WorkerModule());
+  private final Injector injector = Guice.createInjector(new CoreModule(), new WorkerModule(), new CraftModule(), new DubModule());
   private CraftFactory craftFactory;
   private BasisFactory basisFactory;
 
@@ -135,15 +136,15 @@ public class CraftStructureNextMacroIT {
     IntegrationTestEntity.insertChoice(27, 3, 35, PatternType.Rhythm, 0, -4);
 
     // Chain "Test Print #1" has a link in crafting state - Foundation is complete
-    link4 = IntegrationTestEntity.insertLink(4, 1, 3, LinkState.Crafting, Timestamp.valueOf("2017-02-14 12:03:08.000001"),Timestamp.valueOf("2017-02-14 12:03:15.836735"),"F minor", 16, 0.45, 125, "chain-1-link-97898asdf7892.wav");
-    IntegrationTestEntity.insertLinkMeme(101,4,"Hindsight");
-    IntegrationTestEntity.insertLinkMeme(102,4,"Chunky");
-    IntegrationTestEntity.insertLinkMeme(103,4,"Regret");
-    IntegrationTestEntity.insertLinkMeme(104,4,"Tangy");
-    IntegrationTestEntity.insertChoice(101,4, 3, PatternType.Macro,0,4);
-    IntegrationTestEntity.insertChoice(102,4, 15, PatternType.Main,0,-2);
-    IntegrationTestEntity.insertLinkChord(101,4,0,"F minor");
-    IntegrationTestEntity.insertLinkChord(102,4,8,"Gb minor");
+    link4 = IntegrationTestEntity.insertLink(4, 1, 3, LinkState.Crafting, Timestamp.valueOf("2017-02-14 12:03:08.000001"), Timestamp.valueOf("2017-02-14 12:03:15.836735"), "F minor", 16, 0.45, 125, "chain-1-link-97898asdf7892.wav");
+    IntegrationTestEntity.insertLinkMeme(101, 4, "Hindsight");
+    IntegrationTestEntity.insertLinkMeme(102, 4, "Chunky");
+    IntegrationTestEntity.insertLinkMeme(103, 4, "Regret");
+    IntegrationTestEntity.insertLinkMeme(104, 4, "Tangy");
+    IntegrationTestEntity.insertChoice(101, 4, 3, PatternType.Macro, 0, 4);
+    IntegrationTestEntity.insertChoice(102, 4, 15, PatternType.Main, 0, -2);
+    IntegrationTestEntity.insertLinkChord(101, 4, 0, "F minor");
+    IntegrationTestEntity.insertLinkChord(102, 4, 8, "Gb minor");
 
     // Bind the library to the chain
     IntegrationTestEntity.insertChainLibrary(1, 1, 2);

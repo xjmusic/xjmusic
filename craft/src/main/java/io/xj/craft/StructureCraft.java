@@ -1,12 +1,13 @@
 // Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
-package io.xj.core.craft;
+package io.xj.craft;
 
 import io.xj.core.exception.BusinessException;
 
 /**
- Voice craft for the current link includes events, arrangements, instruments, and audio
+ Structure craft for the current link includes rhythm and detail
+ [#214] If a Chain has Patterns associated with it directly, prefer those choices to any in the Library
  */
-public interface VoiceCraft {
+public interface StructureCraft {
 
   /**
    perform craft for the current link

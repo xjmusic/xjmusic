@@ -6,22 +6,24 @@ import io.xj.core.external.amazon.AmazonProvider;
 import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
-import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.instrument.InstrumentType;
 import io.xj.core.model.link.Link;
 import io.xj.core.model.link.LinkState;
+import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.work.basis.Basis;
 import io.xj.core.work.basis.BasisFactory;
+import io.xj.craft.CraftModule;
+import io.xj.dub.DubFactory;
+import io.xj.dub.DubModule;
 import io.xj.mixer.util.InternalResource;
+import io.xj.worker.WorkerModule;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 
-import io.xj.worker.WorkerModule;
-import io.xj.core.dub.DubFactory;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -183,7 +185,7 @@ public class DubMasterContinueIT {
   }
 
   private void createInjector() {
-    injector = Guice.createInjector(Modules.override(new CoreModule(), new WorkerModule()).with(
+    injector = Guice.createInjector(Modules.override(new CoreModule(), new WorkerModule(), new CraftModule(), new DubModule()).with(
       new AbstractModule() {
         @Override
         public void configure() {
@@ -204,8 +206,8 @@ public class DubMasterContinueIT {
   public void dubMasterContinue() throws Exception {
     InternalResource testAudioResource = new InternalResource(testResourceFilePath);
     // it's necessary to have two separate streams for this mock of two separate file reads
-    InputStream audioStreamOne = FileUtils.openInputStream(testAudioResource.getFile());;
-    InputStream audioStreamTwo = FileUtils.openInputStream(testAudioResource.getFile());;
+    InputStream audioStreamOne = FileUtils.openInputStream(testAudioResource.getFile());
+    InputStream audioStreamTwo = FileUtils.openInputStream(testAudioResource.getFile());
     when(amazonProvider.streamS3Object("my-test-bucket",
       "19801735098q47895897895782138975898")).thenReturn(audioStreamOne);
     when(amazonProvider.streamS3Object("my-test-bucket",

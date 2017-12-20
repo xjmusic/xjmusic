@@ -1,15 +1,15 @@
 // Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
-package io.xj.core.dub;
+package io.xj.craft;
 
 import io.xj.core.exception.BusinessException;
 
 /**
- [#264] Link audio is compressed to MP3 and shipped to https://link.xj.io
+ Voice craft for the current link includes events, arrangements, instruments, and audio
  */
-public interface ShipDub {
+public interface VoiceCraft {
 
   /**
-   perform delivery for the current link
+   perform craft for the current link
    */
   void doWork() throws BusinessException;
 

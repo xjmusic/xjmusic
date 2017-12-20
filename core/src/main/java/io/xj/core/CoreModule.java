@@ -11,13 +11,6 @@ import io.xj.core.app.App;
 import io.xj.core.app.AppImpl;
 import io.xj.core.cache.audio.AudioCacheProvider;
 import io.xj.core.cache.audio.impl.AudioCacheProviderImpl;
-import io.xj.core.craft.CraftFactory;
-import io.xj.core.craft.FoundationCraft;
-import io.xj.core.craft.StructureCraft;
-import io.xj.core.craft.VoiceCraft;
-import io.xj.core.craft.impl.FoundationCraftImpl;
-import io.xj.core.craft.impl.StructureCraftImpl;
-import io.xj.core.craft.impl.VoiceCraftImpl;
 import io.xj.core.dao.AccountDAO;
 import io.xj.core.dao.AccountUserDAO;
 import io.xj.core.dao.ArrangementDAO;
@@ -78,11 +71,6 @@ import io.xj.core.dao.impl.PlatformMessageDAOImpl;
 import io.xj.core.dao.impl.UserDAOImpl;
 import io.xj.core.dao.impl.VoiceDAOImpl;
 import io.xj.core.dao.impl.VoiceEventDAOImpl;
-import io.xj.core.dub.DubFactory;
-import io.xj.core.dub.MasterDub;
-import io.xj.core.dub.ShipDub;
-import io.xj.core.dub.impl.MasterDubImpl;
-import io.xj.core.dub.impl.ShipDubImpl;
 import io.xj.core.external.amazon.AmazonProvider;
 import io.xj.core.external.amazon.AmazonProviderImpl;
 import io.xj.core.external.google.GoogleHttpProvider;
@@ -126,8 +114,6 @@ public class CoreModule extends AbstractModule {
     bindExternal();
     install(new MixerModule());
     installBasisFactory();
-    installCraftFactory();
-    installDubFactory();
   }
 
   private void bindApp() {
@@ -193,21 +179,6 @@ public class CoreModule extends AbstractModule {
     install(new FactoryModuleBuilder()
       .implement(Basis.class, BasisImpl.class)
       .build(BasisFactory.class));
-  }
-
-  private void installCraftFactory() {
-    install(new FactoryModuleBuilder()
-      .implement(FoundationCraft.class, FoundationCraftImpl.class)
-      .implement(StructureCraft.class, StructureCraftImpl.class)
-      .implement(VoiceCraft.class, VoiceCraftImpl.class)
-      .build(CraftFactory.class));
-  }
-
-  private void installDubFactory() {
-    install(new FactoryModuleBuilder()
-      .implement(MasterDub.class, MasterDubImpl.class)
-      .implement(ShipDub.class, ShipDubImpl.class)
-      .build(DubFactory.class));
   }
 
 }

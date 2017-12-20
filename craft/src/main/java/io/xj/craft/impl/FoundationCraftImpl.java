@@ -1,12 +1,12 @@
 // Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
-package io.xj.core.craft.impl;
+package io.xj.craft.impl;
 
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
 import io.xj.core.access.impl.Access;
-import io.xj.core.craft.FoundationCraft;
+import io.xj.craft.FoundationCraft;
 import io.xj.core.dao.ChoiceDAO;
 import io.xj.core.dao.LinkChordDAO;
 import io.xj.core.dao.LinkMemeDAO;

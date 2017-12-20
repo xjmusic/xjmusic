@@ -3,11 +3,9 @@ package io.xj.worker.work.craft.voice;
 
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
-import io.xj.core.craft.CraftFactory;
 import io.xj.core.dao.ArrangementDAO;
 import io.xj.core.dao.PickDAO;
 import io.xj.core.integration.IntegrationTestEntity;
-import io.xj.core.integration.IntegrationTestService;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
 import io.xj.core.model.instrument.InstrumentType;
@@ -17,6 +15,9 @@ import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.work.basis.Basis;
 import io.xj.core.work.basis.BasisFactory;
+import io.xj.craft.CraftFactory;
+import io.xj.craft.CraftModule;
+import io.xj.dub.DubModule;
 import io.xj.worker.WorkerModule;
 
 import com.google.inject.Guice;
@@ -33,11 +34,10 @@ import java.sql.Timestamp;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
 
 public class CraftVoiceNextMacroIT {
   @Rule public ExpectedException failure = ExpectedException.none();
-  private final Injector injector = Guice.createInjector(new CoreModule(), new WorkerModule());
+  private final Injector injector = Guice.createInjector(new CoreModule(), new WorkerModule(), new CraftModule(), new DubModule());
   private CraftFactory craftFactory;
   private BasisFactory basisFactory;
 
@@ -150,22 +150,22 @@ public class CraftVoiceNextMacroIT {
     IntegrationTestEntity.insertChoice(27, 3, 35, PatternType.Rhythm, 0, -4);
 
     // Chain "Test Print #1" has a link in crafting state - Structure is complete
-    link4 = IntegrationTestEntity.insertLink(4, 1, 3, LinkState.Crafting, Timestamp.valueOf("2017-02-14 12:03:08.000001"),Timestamp.valueOf("2017-02-14 12:03:15.836735"),"F minor", 16, 0.45, 125, "chain-1-link-97898asdf7892.wav");
-    IntegrationTestEntity.insertLinkMeme(101,4,"Hindsight");
-    IntegrationTestEntity.insertLinkMeme(102,4,"Chunky");
-    IntegrationTestEntity.insertLinkMeme(103,4,"Regret");
-    IntegrationTestEntity.insertLinkMeme(104,4,"Tangy");
-    IntegrationTestEntity.insertChoice(101,4, 3, PatternType.Macro,0,4);
-    IntegrationTestEntity.insertChoice(102,4, 15, PatternType.Main,0,-2);
-    IntegrationTestEntity.insertLinkChord(101,4,0,"F minor");
-    IntegrationTestEntity.insertLinkChord(102,4,8,"Gb minor");
+    link4 = IntegrationTestEntity.insertLink(4, 1, 3, LinkState.Crafting, Timestamp.valueOf("2017-02-14 12:03:08.000001"), Timestamp.valueOf("2017-02-14 12:03:15.836735"), "F minor", 16, 0.45, 125, "chain-1-link-97898asdf7892.wav");
+    IntegrationTestEntity.insertLinkMeme(101, 4, "Hindsight");
+    IntegrationTestEntity.insertLinkMeme(102, 4, "Chunky");
+    IntegrationTestEntity.insertLinkMeme(103, 4, "Regret");
+    IntegrationTestEntity.insertLinkMeme(104, 4, "Tangy");
+    IntegrationTestEntity.insertChoice(101, 4, 3, PatternType.Macro, 0, 4);
+    IntegrationTestEntity.insertChoice(102, 4, 15, PatternType.Main, 0, -2);
+    IntegrationTestEntity.insertLinkChord(101, 4, 0, "F minor");
+    IntegrationTestEntity.insertLinkChord(102, 4, 8, "Gb minor");
 
     // choice of rhythm-type pattern
-    IntegrationTestEntity.insertChoice(103,4,35, PatternType.Rhythm,0,5);
+    IntegrationTestEntity.insertChoice(103, 4, 35, PatternType.Rhythm, 0, 5);
 
     // Instrument "808"
     IntegrationTestEntity.insertInstrument(1, 2, 2, "808 Drums", InstrumentType.Percussive, 0.9);
-    IntegrationTestEntity.insertInstrumentMeme(1,1,"heavy");
+    IntegrationTestEntity.insertInstrumentMeme(1, 1, "heavy");
 
     // Audio "Kick"
     IntegrationTestEntity.insertAudio(1, 1, "Published", "Kick", "https://static.xj.io/19801735098q47895897895782138975898.wav", 0.01, 2.123, 120.0, 440);

@@ -1,15 +1,18 @@
 // Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.worker;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-
 import io.xj.core.CoreModule;
 import io.xj.core.app.App;
 import io.xj.core.config.Config;
 import io.xj.core.exception.ConfigException;
-import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import io.xj.core.migration.MigrationService;
+import io.xj.core.persistence.sql.SQLDatabaseProvider;
+import io.xj.craft.CraftModule;
+import io.xj.dub.DubModule;
+
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+
 import net.greghaines.jesque.worker.JobFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +24,7 @@ import java.io.IOException;
  */
 public class Main {
   private static final Logger log = LoggerFactory.getLogger(Main.class);
-  private static final Injector injector = Guice.createInjector(new CoreModule(), new WorkerModule());
+  private static final Injector injector = Guice.createInjector(new CoreModule(), new WorkerModule(), new CraftModule(), new DubModule());
   private static final App app = injector.getInstance(App.class);
   private static final SQLDatabaseProvider sqlDatabaseProvider = injector.getInstance(SQLDatabaseProvider.class);
   private static final JobFactory jobFactory = injector.getInstance(JobFactory.class);

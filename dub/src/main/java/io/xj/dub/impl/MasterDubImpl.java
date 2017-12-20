@@ -1,5 +1,5 @@
 // Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
-package io.xj.core.dub.impl;
+package io.xj.dub.impl;
 
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
@@ -8,7 +8,7 @@ import com.google.inject.assistedinject.Assisted;
 import io.xj.core.access.impl.Access;
 import io.xj.core.cache.audio.AudioCacheProvider;
 import io.xj.core.dao.LinkMessageDAO;
-import io.xj.core.dub.MasterDub;
+import io.xj.dub.MasterDub;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.model.audio.Audio;
 import io.xj.core.model.chain_config.ChainConfigType;

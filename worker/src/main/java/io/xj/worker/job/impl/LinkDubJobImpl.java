@@ -3,7 +3,6 @@ package io.xj.worker.job.impl;
 
 import io.xj.core.dao.LinkDAO;
 import io.xj.core.dao.LinkMessageDAO;
-import io.xj.core.dub.DubFactory;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.exception.ConfigException;
 import io.xj.core.model.link.Link;
@@ -11,6 +10,7 @@ import io.xj.core.model.link.LinkState;
 import io.xj.core.work.basis.Basis;
 import io.xj.core.work.basis.BasisFactory;
 import io.xj.core.work.impl.LinkJob;
+import io.xj.dub.DubFactory;
 import io.xj.worker.job.LinkDubJob;
 
 import com.google.inject.Inject;
@@ -36,10 +36,10 @@ public class LinkDubJobImpl extends LinkJob implements LinkDubJob {
     this.linkDAO = linkDAO;
     this.linkMessageDAO = linkMessageDAO;
 
-    this.name = "Dubbing";
-    this.fromState = LinkState.Crafted;
-    this.workingState = LinkState.Dubbing;
-    this.toState = LinkState.Dubbed;
+    name = "Dubbing";
+    fromState = LinkState.Crafted;
+    workingState = LinkState.Dubbing;
+    toState = LinkState.Dubbed;
   }
 
   /**

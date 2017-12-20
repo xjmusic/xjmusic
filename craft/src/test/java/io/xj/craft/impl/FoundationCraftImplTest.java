@@ -1,8 +1,6 @@
-package io.xj.core.craft.impl;// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+package io.xj.craft.impl;// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 
 import io.xj.core.CoreModule;
-import io.xj.core.craft.CraftFactory;
-import io.xj.core.craft.FoundationCraft;
 import io.xj.core.dao.ArrangementDAO;
 import io.xj.core.dao.AudioDAO;
 import io.xj.core.dao.AudioEventDAO;
@@ -20,6 +18,9 @@ import io.xj.core.dao.PickDAO;
 import io.xj.core.dao.VoiceDAO;
 import io.xj.core.dao.VoiceEventDAO;
 import io.xj.core.work.basis.Basis;
+import io.xj.craft.CraftFactory;
+import io.xj.craft.CraftModule;
+import io.xj.craft.FoundationCraft;
 import io.xj.music.Tuning;
 
 import com.google.inject.AbstractModule;
@@ -71,7 +72,7 @@ public class FoundationCraftImplTest {
   }
 
   private void createInjector() {
-    injector = Guice.createInjector(Modules.override(new CoreModule()).with(
+    injector = Guice.createInjector(Modules.override(new CoreModule(), new CraftModule()).with(
       new AbstractModule() {
         @Override
         public void configure() {
