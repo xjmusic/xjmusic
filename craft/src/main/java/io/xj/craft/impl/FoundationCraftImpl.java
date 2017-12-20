@@ -161,21 +161,21 @@ public class FoundationCraftImpl implements FoundationCraft {
    */
   private void craftChords() throws Exception {
     phaseChordDAO.readAll(Access.internal(), mainPhase().getId())
-      .forEach(phaseChordRecord -> {
+      .forEach(phaseChord -> {
         String name = "NaN";
         try {
           // delta the chord name
-          name = Chord.of(phaseChordRecord.getName()).transpose(mainTranspose()).getFullDescription();
+          name = Chord.of(phaseChord.getName()).transpose(mainTranspose()).getFullDescription();
           // create the transposed chord
           linkChordDAO.create(Access.internal(),
             new LinkChord()
               .setLinkId(basis.linkId())
               .setName(name)
-              .setPosition(phaseChordRecord.getPosition()));
+              .setPosition(phaseChord.getPosition()));
 
         } catch (Exception e) {
           log.warn("failed to create transposed link chord {}@{}",
-            String.valueOf(name), phaseChordRecord.getPosition(), e);
+            String.valueOf(name), phaseChord.getPosition(), e);
         }
       });
   }
@@ -329,7 +329,7 @@ public class FoundationCraftImpl implements FoundationCraft {
   /**
    Fetch current phase of macro-type pattern
 
-   @return phase record
+   @return phase
    @throws Exception on failure
    */
   private Phase macroPhase() throws Exception {
@@ -344,7 +344,7 @@ public class FoundationCraftImpl implements FoundationCraft {
   /**
    Fetch current phase of main-type pattern
 
-   @return phase record
+   @return phase
    @throws Exception on failure
    */
   private Phase mainPhase() throws Exception {
@@ -372,7 +372,7 @@ public class FoundationCraftImpl implements FoundationCraft {
     if (sourcePatterns.isEmpty())
       sourcePatterns = patternDAO.readAllBoundToChainLibrary(Access.internal(), basis.chainId(), PatternType.Macro);
 
-    // (3) score each source record
+    // (3) score each source pattern
     sourcePatterns.forEach((pattern -> {
       try {
         chooser.add(pattern, scoreMacro(pattern));
@@ -416,7 +416,7 @@ public class FoundationCraftImpl implements FoundationCraft {
     if (sourcePatterns.isEmpty())
       sourcePatterns = patternDAO.readAllBoundToChainLibrary(Access.internal(), basis.chainId(), PatternType.Main);
 
-    // (3) score each source record based on meme isometry
+    // (3) score each source pattern based on meme isometry
     sourcePatterns.forEach((pattern -> {
       try {
         chooser.add(pattern, scoreMain(pattern));

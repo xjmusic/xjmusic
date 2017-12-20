@@ -140,7 +140,7 @@ public class StructureCraftImpl implements StructureCraft {
   /**
    Fetch current phase of rhythm-type pattern
 
-   @return phase record
+   @return phase
    @throws Exception on failure
    */
   private Phase rhythmPhase() throws Exception {
@@ -183,12 +183,12 @@ public class StructureCraftImpl implements StructureCraft {
     if (sourcePatterns.isEmpty())
       sourcePatterns = patternDAO.readAllBoundToChainLibrary(Access.internal(), basis.chainId(), PatternType.Rhythm);
 
-    // (3) score each source record based on meme isometry
+    // (3) score each source pattern based on meme isometry
     sourcePatterns.forEach((pattern -> {
       try {
         chooser.add(pattern, scoreRhythm(pattern));
       } catch (Exception e) {
-        log.debug("While scoring records", e);
+        log.debug("While scoring rhythm patterns", e);
       }
     }));
 

@@ -123,7 +123,7 @@ public class VoiceCraftImpl implements VoiceCraft {
     // future: [#258] Instrument selection is based on Text Isometry between the voice description and the instrument description
     log.debug("not currently in use: {}", voice);
 
-    // (3) score each source record based on meme isometry
+    // (3) score each source instrument based on meme isometry
     sourceInstruments.forEach((instrument -> {
       try {
         chooser.add(instrument, scorePercussiveInstrument(instrument));
@@ -167,7 +167,7 @@ public class VoiceCraftImpl implements VoiceCraft {
   }
 
   /**
-   Craft an arrangement based around a newly created arrangement record
+   Craft an arrangement based around a newly created arrangement
    for each event in voice phase (repeat N times if needed to fill length of link)
 
    @param phase       that voice belongs to
@@ -202,7 +202,7 @@ public class VoiceCraftImpl implements VoiceCraft {
    create a pick of instrument-audio for each event, where events are conformed to chords/scales based on the master link chords
    pick instrument audio for one event, in a voice in a phase, belonging to an arrangement
 
-   @param arrangement   to create pick record within
+   @param arrangement   to create pick within
    @param voiceEvent    to pick audio for
    @param shiftPosition offset voice event zero within current link
    */

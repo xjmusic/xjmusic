@@ -6,5 +6,4 @@ export default DS.Model.extend({
   type: DS.attr('string'),
   description: DS.attr('string'),
   arrangements: DS.hasMany('arrangement'),
-  pattern: DS.belongsTo({}),
 });
