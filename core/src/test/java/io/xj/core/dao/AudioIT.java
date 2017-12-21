@@ -16,6 +16,7 @@ import io.xj.core.model.link.LinkState;
 import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.transport.JSON;
+import io.xj.core.work.WorkManager;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
@@ -32,6 +33,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.File;
@@ -41,6 +43,9 @@ import java.sql.Timestamp;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 // future test: permissions of different users to readMany vs. create vs. update or delete audios
@@ -50,6 +55,7 @@ public class AudioIT {
   private Injector injector;
   private AudioDAO testDAO;
   @Mock AmazonProvider amazonProvider;
+  @Spy final WorkManager workManager = Guice.createInjector(new CoreModule()).getInstance(WorkManager.class);
 
   @Before
   public void setUp() throws Exception {
@@ -76,8 +82,8 @@ public class AudioIT {
     IntegrationTestEntity.insertInstrument(2, 1, 2, "909 Drums", InstrumentType.Percussive, 0.8);
 
     // Instrument "808" has Audios "Kick" and "Snare"
-    IntegrationTestEntity.insertAudio(1, 1, "Published", "Kick", "instrument" + File.pathSeparator + "percussion" + File.pathSeparator + "808" + File.pathSeparator + "kick1.wav", 0.01, 2.123, 120.0, 440);
-    IntegrationTestEntity.insertAudio(2, 1, "Published", "Snare", "instrument" + File.pathSeparator + "percussion" + File.pathSeparator + "808" + File.pathSeparator + "snare.wav", 0.0023, 1.05, 131.0, 702);
+    IntegrationTestEntity.insertAudio(1, 1, "Published", "Kick", "instrument" + File.separator + "percussion" + File.separator + "808" + File.separator + "kick1.wav", 0.01, 2.123, 120.0, 440);
+    IntegrationTestEntity.insertAudio(2, 1, "Published", "Snare", "instrument" + File.separator + "percussion" + File.separator + "808" + File.separator + "snare.wav", 0.0023, 1.05, 131.0, 702);
 
     // Instantiate the test subject
     testDAO = injector.getInstance(AudioDAO.class);
@@ -89,6 +95,7 @@ public class AudioIT {
         @Override
         public void configure() {
           bind(AmazonProvider.class).toInstance(amazonProvider);
+          bind(WorkManager.class).toInstance(workManager);
         }
       }));
   }
@@ -161,7 +168,7 @@ public class AudioIT {
     ));
     Audio inputData = new Audio()
       .setName("maracas")
-      .setWaveformKey("instrument" + File.pathSeparator + "percussion" + File.pathSeparator + "808" + File.pathSeparator + "maracas.wav")
+      .setWaveformKey("instrument" + File.separator + "percussion" + File.separator + "808" + File.separator + "maracas.wav")
       .setStart(0.009)
       .setLength(0.21)
       .setPitch(1567.0)
@@ -191,6 +198,33 @@ public class AudioIT {
   }
 
   @Test
+  public void clone_fromOriginal() throws Exception {
+    Access access = Access.from(ImmutableMap.of(
+      "userId", "2",
+      "roles", "User",
+      "accounts", "1"
+    ));
+    Audio inputData = new Audio()
+      .setInstrumentId(BigInteger.valueOf(2))
+      .setName("cannons fifty nine");
+    when(amazonProvider.generateKey(any(), any())).thenReturn("superAwesomeKey123");
+
+    Audio result = testDAO.clone(access, BigInteger.valueOf(1), inputData);
+
+    assertEquals("cannons fifty nine", result.getName());
+    assertEquals(BigInteger.valueOf(2), result.getInstrumentId());
+    assertEquals("superAwesomeKey123", result.getWaveformKey());
+    assertEquals(AudioState.Published, result.getState());
+    assertEquals(0.01, result.getStart(),0.01);
+    assertEquals(2.123, result.getLength(),0.001);
+    assertEquals(120.0, result.getTempo(), 0.01);
+    assertEquals(440.0, result.getPitch(), 0.01);
+
+    // Verify enqueued audio clone jobs
+    verify(workManager).scheduleAudioClone(eq(0), eq(BigInteger.valueOf(1)), any());
+  }
+
+  @Test
   public void readOne() throws Exception {
     Access access = Access.from(ImmutableMap.of(
       "roles", "Artist",
@@ -202,7 +236,7 @@ public class AudioIT {
     assertNotNull(result);
     assertEquals(BigInteger.valueOf(1), result.getInstrumentId());
     assertEquals("Snare", result.getName());
-    assertEquals("instrument" + File.pathSeparator + "percussion" + File.pathSeparator + "808" + File.pathSeparator + "snare.wav", result.getWaveformKey());
+    assertEquals("instrument" + File.separator + "percussion" + File.separator + "808" + File.separator + "snare.wav", result.getWaveformKey());
     assertEquals(Double.valueOf(0.0023), result.getStart());
     assertEquals(Double.valueOf(1.05), result.getLength());
     assertEquals(Double.valueOf(131.0), result.getTempo());
@@ -230,7 +264,7 @@ public class AudioIT {
     JSONObject result = testDAO.authorizeUpload(access, BigInteger.valueOf(2));
 
     assertNotNull(result);
-    assertEquals("instrument" + File.pathSeparator + "percussion" + File.pathSeparator + "808" + File.pathSeparator + "snare.wav", result.get("waveformKey"));
+    assertEquals("instrument" + File.separator + "percussion" + File.separator + "808" + File.separator + "snare.wav", result.get("waveformKey"));
     assertEquals("xj-audio-test", result.get("bucketName"));
     assertNotNull(result.get("uploadPolicySignature"));
     assertEquals("https://manuts.com", result.get("uploadUrl"));
@@ -317,7 +351,7 @@ public class AudioIT {
     ));
     Audio inputData = new Audio()
       .setName("maracas")
-      .setWaveformKey("instrument" + File.pathSeparator + "percussion" + File.pathSeparator + "808" + File.pathSeparator + "maracas.wav")
+      .setWaveformKey("instrument" + File.separator + "percussion" + File.separator + "808" + File.separator + "maracas.wav")
       .setStart(0.009)
       .setLength(0.21)
       .setPitch(1567.0)
@@ -338,7 +372,7 @@ public class AudioIT {
     Audio inputData = new Audio()
       .setInstrumentId(BigInteger.valueOf(7))
       .setName("maracas")
-      .setWaveformKey("instrument" + File.pathSeparator + "percussion" + File.pathSeparator + "808" + File.pathSeparator + "maracas.wav")
+      .setWaveformKey("instrument" + File.separator + "percussion" + File.separator + "808" + File.separator + "maracas.wav")
       .setStart(0.009)
       .setLength(0.21)
       .setPitch(1567.0)
@@ -351,7 +385,7 @@ public class AudioIT {
       testDAO.update(access, BigInteger.valueOf(2), inputData);
 
     } catch (Exception e) {
-      Audio result = testDAO.readOne(Access.internal(),BigInteger.valueOf(2));
+      Audio result = testDAO.readOne(Access.internal(), BigInteger.valueOf(2));
       assertNotNull(result);
       assertEquals("Snare", result.getName());
       assertEquals(BigInteger.valueOf(1), result.getInstrumentId());
@@ -375,11 +409,11 @@ public class AudioIT {
 
     testDAO.update(access, BigInteger.valueOf(1), inputData);
 
-    Audio result = testDAO.readOne(Access.internal(),BigInteger.valueOf(1));
+    Audio result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1));
     assertNotNull(result);
     assertEquals(BigInteger.valueOf(2), result.getInstrumentId());
     assertEquals("maracas", result.getName());
-    assertEquals("instrument" + File.pathSeparator + "percussion" + File.pathSeparator + "808" + File.pathSeparator + "kick1.wav", result.getWaveformKey());
+    assertEquals("instrument" + File.separator + "percussion" + File.separator + "808" + File.separator + "kick1.wav", result.getWaveformKey());
     assertEquals(Double.valueOf(0.009), result.getStart());
     assertEquals(Double.valueOf(0.21), result.getLength());
     assertEquals(Double.valueOf(80.5), result.getTempo());
@@ -397,7 +431,7 @@ public class AudioIT {
 
     testDAO.erase(access, BigInteger.valueOf(1));
 
-    Audio result = testDAO.readOne(Access.internal(),BigInteger.valueOf(1));
+    Audio result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1));
     assertNotNull(result);
     assertEquals(AudioState.Erase, result.getState());
   }
@@ -428,7 +462,7 @@ public class AudioIT {
       testDAO.erase(access, BigInteger.valueOf(1));
 
     } catch (Exception e) {
-      Audio result = testDAO.readOne(Access.internal(),BigInteger.valueOf(1));
+      Audio result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1));
       assertNotNull(result);
       throw e;
     }
@@ -440,7 +474,7 @@ public class AudioIT {
 
     testDAO.destroy(access, BigInteger.valueOf(1));
 
-    Audio result = testDAO.readOne(Access.internal(),BigInteger.valueOf(1));
+    Audio result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1));
     assertNull(result);
   }
 
@@ -451,10 +485,9 @@ public class AudioIT {
 
     testDAO.destroy(access, BigInteger.valueOf(1));
 
-    Audio result = testDAO.readOne(Access.internal(),BigInteger.valueOf(1));
+    Audio result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1));
     assertNull(result);
   }
-
 
 
   // future test: AudioDAO cannot delete record unless user has account access

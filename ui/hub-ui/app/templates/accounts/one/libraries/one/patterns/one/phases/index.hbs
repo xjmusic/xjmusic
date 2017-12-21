@@ -32,6 +32,7 @@
             <td>{{phase.tempo}}</td>
             <td>
               {{#link-to 'accounts.one.libraries.one.patterns.one.phases.one.edit' phase.pattern.library.account phase.pattern.library phase.pattern phase}}{{fa-icon 'edit'}}{{/link-to}}
+              |&nbsp;{{#link-to 'accounts.one.libraries.one.patterns.one.phases.one.clone' phase.pattern.library.account phase.pattern.library phase.pattern phase}}{{fa-icon 'files-o'}}{{/link-to}}
               |&nbsp;{{#link-to 'accounts.one.libraries.one.patterns.one.phases.one.memes' phase.pattern.library.account phase.pattern.library phase.pattern phase}}Memes{{/link-to}}
               {{#if (not-eq model.pattern.type "macro")}}
                 |&nbsp;{{#link-to 'accounts.one.libraries.one.patterns.one.phases.one.chords' phase.pattern.library.account phase.pattern.library phase.pattern phase}}Chords{{/link-to}}

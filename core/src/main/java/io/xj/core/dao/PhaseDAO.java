@@ -14,10 +14,20 @@ public interface PhaseDAO {
    Create a new Phase
 
    @param access control
-   @param entity for the new Account User.
+   @param entity for the new Phase
    @return newly readMany record
    */
   Phase create(Access access, Phase entity) throws Exception;
+
+  /**
+   Clone a Phase into a new Phase
+
+   @param access  control
+   @param cloneId of phase to clone
+   @param entity  for the new Phase
+   @return newly readMany record
+   */
+  Phase clone(Access access, BigInteger cloneId, Phase entity) throws Exception;
 
   /**
    Fetch one Phase if accessible

@@ -173,6 +173,7 @@ public interface JSON {
   static Gson gson() {
     GsonBuilder gson = new GsonBuilder();
     gson.registerTypeAdapter(Timestamp.class, new TimestampSerializer());
+    gson.disableInnerClassSerialization();
     return gson.create();
   }
 

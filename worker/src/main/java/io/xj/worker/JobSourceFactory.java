@@ -41,42 +41,65 @@ public class JobSourceFactory implements JobFactory {
     if (Objects.isNull(args) || 1 > args.length) {
       throw new WorkException("Job requires at least 1 argument");
     }
-    BigInteger entityId = new BigInteger(String.valueOf(args[0]));
-    if (0 == entityId.compareTo(BigInteger.valueOf(0))) {
-      throw new WorkException("Job requires non-zero entity id");
-    }
 
-    return makeTarget(workType, entityId);
+    return makeTarget(workType, args);
   }
 
   /**
    target is switched on job type
 
    @param workType type of job
-   @param entityId target entity
+   @param args     target arguments (the first one needs to be a BigInteger target entity id)
    @return job runnable
    */
-  private Runnable makeTarget(WorkType workType, BigInteger entityId) throws WorkException {
+  private Runnable makeTarget(WorkType workType, Object[] args) throws WorkException {
     switch (workType) {
 
       case AudioErase:
-        return jobTargetFactory.makeAudioEraseJob(entityId);
+        return jobTargetFactory.makeAudioEraseJob(entityId(args[0]));
 
       case ChainErase:
-        return jobTargetFactory.makeChainEraseJob(entityId);
+        return jobTargetFactory.makeChainEraseJob(entityId(args[0]));
 
       case ChainFabricate:
-        return jobTargetFactory.makeChainFabricateJob(entityId);
+        return jobTargetFactory.makeChainFabricateJob(entityId(args[0]));
 
       case LinkCraft:
-        return jobTargetFactory.makeLinkCraftJob(entityId);
+        return jobTargetFactory.makeLinkCraftJob(entityId(args[0]));
 
       case LinkDub:
-        return jobTargetFactory.makeLinkDubJob(entityId);
+        return jobTargetFactory.makeLinkDubJob(entityId(args[0]));
+
+      case InstrumentClone:
+        return jobTargetFactory.makeInstrumentCloneJob(entityId(args[0]), entityId(args[1]));
+
+      case AudioClone:
+        return jobTargetFactory.makeAudioCloneJob(entityId(args[0]), entityId(args[1]));
+
+      case PatternClone:
+        return jobTargetFactory.makePatternCloneJob(entityId(args[0]), entityId(args[1]));
+
+      case PhaseClone:
+        return jobTargetFactory.makePhaseCloneJob(entityId(args[0]), entityId(args[1]));
 
       default:
         throw new WorkException("Invalid Job Type");
     }
+  }
+
+  /**
+   Get entity id value from argument
+
+   @param arg to parse
+   @return id value
+   @throws WorkException on failure
+   */
+  private static BigInteger entityId(Object arg) throws WorkException {
+    BigInteger entityId = new BigInteger(String.valueOf(arg));
+    if (0 == entityId.compareTo(BigInteger.valueOf(0))) {
+      throw new WorkException("Job requires non-zero entity id");
+    }
+    return entityId;
   }
 
 

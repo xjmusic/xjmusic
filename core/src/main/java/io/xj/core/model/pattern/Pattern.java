@@ -9,7 +9,7 @@ import java.util.Objects;
 
 /**
  POJO for persisting data in memory while performing business logic,
-or decoding messages received by JAX-RS resources.
+ or decoding messages received by JAX-RS resources.
  a.k.a. JSON input will be stored into an instance of this object
  <p>
  Business logic ought to be performed beginning with an instance of this object,
@@ -104,28 +104,29 @@ public class Pattern extends Entity {
   @Override
   public void validate() throws BusinessException {
     // throws its own BusinessException on failure
-    type = PatternType.validate(_type);
+    if (Objects.isNull(type))
+      type = PatternType.validate(_type);
 
-    if (Objects.isNull(name) || name.isEmpty()) {
+    if (Objects.isNull(name) || name.isEmpty())
       throw new BusinessException("Name is required.");
-    }
-    if (Objects.isNull(libraryId)) {
+
+    if (Objects.isNull(libraryId))
       throw new BusinessException("Library ID is required.");
-    }
-    if (Objects.isNull(userId)) {
+
+    if (Objects.isNull(userId))
       throw new BusinessException("User ID is required.");
-    }
-    if (Objects.isNull(type)) {
+
+    if (Objects.isNull(type))
       throw new BusinessException("Type is required.");
-    }
-    if (Objects.isNull(key) || key.isEmpty()) {
+
+    if (Objects.isNull(key) || key.isEmpty())
       throw new BusinessException("Key is required.");
-    }
-    if (Objects.isNull(density)) {
+
+    if (Objects.isNull(density))
       throw new BusinessException("Density is required.");
-    }
-    if (Objects.isNull(tempo)) {
+
+    if (Objects.isNull(tempo))
       throw new BusinessException("Tempo is required.");
-    }
+
   }
 }

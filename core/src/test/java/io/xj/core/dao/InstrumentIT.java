@@ -13,16 +13,22 @@ import io.xj.core.model.link.LinkState;
 import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.transport.JSON;
+import io.xj.core.work.WorkManager;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.util.Modules;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Spy;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigInteger;
 import java.sql.Timestamp;
@@ -31,15 +37,23 @@ import java.util.Collection;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.verify;
 
 // future test: permissions of different users to readMany vs. create vs. update or delete instruments
+@RunWith(MockitoJUnitRunner.class)
 public class InstrumentIT {
-  private final Injector injector = Guice.createInjector(new CoreModule());
+  private Injector injector;
   private InstrumentDAO testDAO;
+  @Spy final WorkManager workManager = Guice.createInjector(new CoreModule()).getInstance(WorkManager.class);
 
   @Before
   public void setUp() throws Exception {
     IntegrationTestEntity.deleteAll();
+
+    // inject mocks
+    createInjector();
 
     // Account "bananas"
     IntegrationTestEntity.insertAccount(1, "bananas");
@@ -61,6 +75,16 @@ public class InstrumentIT {
 
     // Instantiate the test subject
     testDAO = injector.getInstance(InstrumentDAO.class);
+  }
+
+  private void createInjector() {
+    injector = Guice.createInjector(Modules.override(new CoreModule()).with(
+      new AbstractModule() {
+        @Override
+        public void configure() {
+          bind(WorkManager.class).toInstance(workManager);
+        }
+      }));
   }
 
   @After
@@ -120,6 +144,31 @@ public class InstrumentIT {
       .setLibraryId(BigInteger.valueOf(2));
 
     testDAO.create(access, inputData);
+  }
+
+  @Test
+  public void clone_fromOriginal() throws Exception {
+    Access access = Access.from(ImmutableMap.of(
+      "userId", "2",
+      "roles", "User",
+      "accounts", "1"
+    ));
+    Instrument inputData = new Instrument()
+      .setLibraryId(BigInteger.valueOf(1))
+      .setDescription("cannons fifty nine");
+
+    Instrument result = testDAO.clone(access, BigInteger.valueOf(1), inputData);
+
+    assertNotNull(result);
+    assertEquals(0.6, result.getDensity(), 0.01);
+    assertEquals(BigInteger.valueOf(2), result.getUserId());
+    assertEquals(BigInteger.valueOf(1), result.getLibraryId());
+    assertEquals("cannons fifty nine", result.getDescription());
+    assertEquals(InstrumentType.Percussive, result.getType());
+    assertEquals(BigInteger.valueOf(2), result.getUserId());
+
+    // Verify enqueued audio clone jobs
+    verify(workManager).scheduleInstrumentClone(eq(0), eq(BigInteger.valueOf(1)), any());
   }
 
   @Test

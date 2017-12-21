@@ -57,6 +57,7 @@ function accountLibraryPatterns() {
 
 function accountLibraryPattern() {
   this.route('edit'); // Edit Pattern
+  this.route('clone'); // Clone Pattern
   this.route('memes'); // Memes in Pattern
   this.route('phases', accountLibraryPatternPhases); // Phases in Pattern
 }
@@ -68,6 +69,7 @@ function accountLibraryPatternPhases() {
 
 function accountLibraryPatternPhase() {
   this.route('edit'); // Edit Phase
+  this.route('clone'); // Clone Phase
   this.route('memes'); // Memes in Phase
   this.route('chords', accountLibraryPatternPhaseChords); // Chords in Phase
   this.route('voices', accountLibraryPatternPhaseVoices); // Voices in Phase
@@ -108,6 +110,7 @@ function accountLibraryInstruments() {
 
 function accountLibraryInstrument() {
   this.route('edit'); // Edit Instrument
+  this.route('clone'); // Clone Instrument
   this.route('memes'); // Memes in Instrument
   this.route('audios', accountLibraryInstrumentAudios);
 }
@@ -119,6 +122,7 @@ function accountLibraryInstrumentAudios() {
 
 function accountLibraryInstrumentAudio() {
   this.route('edit'); // Edit Audio
+  this.route('clone'); // Clone Audio
   this.route('events', accountLibraryInstrumentAudioEvents); // Events in Audio
   this.route('chords', accountLibraryInstrumentAudioChords); // Chords in Audio
 }

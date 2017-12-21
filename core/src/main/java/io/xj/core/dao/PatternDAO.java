@@ -12,14 +12,23 @@ import java.util.Collection;
 public interface PatternDAO {
 
   /**
-   (ADMIN ONLY)
-   Create a new Account User
+   Create a new Pattern
 
    @param access control
-   @param entity for the new Account User.
+   @param entity for the new Pattern
    @return newly readMany record
    */
   Pattern create(Access access, Pattern entity) throws Exception;
+
+  /**
+   Clone a Pattern into a new Pattern
+
+   @param access control
+   @param cloneId of pattern to clone
+   @param entity for the new Pattern
+   @return newly readMany record
+   */
+  Pattern clone(Access access, BigInteger cloneId, Pattern entity) throws Exception;
 
   /**
    Fetch one pattern if accessible
@@ -84,6 +93,15 @@ public interface PatternDAO {
    @throws Exception on failure
    */
   Collection<Pattern> readAllInLibrary(Access access, BigInteger libraryId) throws Exception;
+
+  /**
+   Fetch all pattern visible to given access
+
+   @param access    control
+   @return JSONArray of patterns.
+   @throws Exception on failure
+   */
+  Collection<Pattern> readAll(Access access) throws Exception;
 
   /**
    (ADMIN ONLY)

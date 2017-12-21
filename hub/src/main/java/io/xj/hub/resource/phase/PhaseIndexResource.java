@@ -3,13 +3,11 @@ package io.xj.hub.resource.phase;
 
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
-import io.xj.core.model.user_role.UserRoleType;
-import io.xj.core.server.HttpResponseProvider;
 import io.xj.core.dao.PhaseDAO;
 import io.xj.core.model.phase.Phase;
 import io.xj.core.model.phase.PhaseWrapper;
-
-
+import io.xj.core.model.user_role.UserRoleType;
+import io.xj.core.server.HttpResponseProvider;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -40,6 +38,9 @@ public class PhaseIndexResource {
 
   @QueryParam("patternId")
   String patternId;
+
+  @QueryParam("cloneId")
+  String cloneId;
 
   /**
    Get all phases.
@@ -78,12 +79,21 @@ public class PhaseIndexResource {
   @RolesAllowed(UserRoleType.ARTIST)
   public Response create(PhaseWrapper data, @Context ContainerRequestContext crc) {
     try {
+      Phase created;
+      if (Objects.nonNull(cloneId)) {
+        created = phaseDAO.clone(
+          Access.fromContext(crc),
+          new BigInteger(cloneId),
+          data.getPhase());
+      } else {
+        created = phaseDAO.create(
+          Access.fromContext(crc),
+          data.getPhase());
+      }
       return response.create(
         Phase.KEY_MANY,
         Phase.KEY_ONE,
-        phaseDAO.create(
-          Access.fromContext(crc),
-          data.getPhase()));
+        created);
 
     } catch (Exception e) {
       return response.failureToCreate(e);

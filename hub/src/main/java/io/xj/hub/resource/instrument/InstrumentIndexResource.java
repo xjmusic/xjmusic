@@ -3,21 +3,14 @@ package io.xj.hub.resource.instrument;
 
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
-import io.xj.core.config.Exposure;
 import io.xj.core.dao.InstrumentDAO;
-import io.xj.core.model.Entity;
 import io.xj.core.model.instrument.Instrument;
 import io.xj.core.model.instrument.InstrumentWrapper;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.server.HttpResponseProvider;
-import io.xj.core.transport.JSON;
-
-
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-
-import org.json.JSONObject;
 
 import javax.annotation.security.RolesAllowed;
 import javax.jws.WebResult;
@@ -32,6 +25,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.Objects;
 
 /**
  Instruments
@@ -48,6 +42,9 @@ public class InstrumentIndexResource {
   @QueryParam("libraryId")
   String libraryId;
 
+  @QueryParam("cloneId")
+  String cloneId;
+
   /**
    Get all instruments.
 
@@ -62,7 +59,7 @@ public class InstrumentIndexResource {
     } else if (null != accountId && !accountId.isEmpty()) {
       return readAllInAccount(Access.fromContext(crc));
     } else {
-      return response.notAcceptable("Either Account or Library id is required");
+      return readAll(Access.fromContext(crc));
     }
   }
 
@@ -92,6 +89,18 @@ public class InstrumentIndexResource {
     }
   }
 
+  private Response readAll(Access access) {
+    try {
+      return response.readMany(
+        Instrument.KEY_MANY,
+        instrumentDAO.readAll(
+          access));
+
+    } catch (Exception e) {
+      return response.failure(e);
+    }
+  }
+
   /**
    Create new instrument
 
@@ -102,13 +111,22 @@ public class InstrumentIndexResource {
   @Consumes(MediaType.APPLICATION_JSON)
   @RolesAllowed(UserRoleType.ARTIST)
   public Response create(InstrumentWrapper data, @Context ContainerRequestContext crc) {
-    Access access = Access.fromContext(crc);
     try {
-      JSONObject newEntity = JSON.objectFrom(instrumentDAO.create(access, data.getInstrument()));
-      return Response
-        .created(Exposure.apiURI(Instrument.KEY_MANY + "/" + newEntity.get(Entity.KEY_ID)))
-        .entity(JSON.wrap(Instrument.KEY_ONE, newEntity).toString())
-        .build();
+      Instrument created;
+      if (Objects.nonNull(cloneId)) {
+        created = instrumentDAO.clone(
+          Access.fromContext(crc),
+          new BigInteger(cloneId),
+          data.getInstrument());
+      } else {
+        created = instrumentDAO.create(
+          Access.fromContext(crc),
+          data.getInstrument());
+      }
+      return response.create(
+        Instrument.KEY_MANY,
+        Instrument.KEY_ONE,
+        created);
 
     } catch (Exception e) {
       return response.failureToCreate(e);

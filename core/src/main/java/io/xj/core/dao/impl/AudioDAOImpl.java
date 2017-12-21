@@ -72,6 +72,16 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
   }
 
   @Override
+  public Audio clone(Access access, BigInteger cloneId, Audio entity) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(clone(tx.getContext(), access, cloneId, entity));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
   @Nullable
   public Audio readOne(Access access, BigInteger id) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
@@ -183,8 +193,34 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
         .fetchOne());
 
     fieldValues.put(AUDIO.WAVEFORM_KEY, generateKey(entity.getInstrumentId()));
+    AudioRecord result = executeCreate(db, AUDIO, fieldValues);
 
-    return modelFrom(executeCreate(db, AUDIO, fieldValues), Audio.class);
+    return modelFrom(result, Audio.class);
+  }
+
+  /**
+   Clone a Audio into a new Audio
+
+   @param db      context
+   @param access  control
+   @param cloneId of audio to clone
+   @param entity  for the new Account User.
+   @return newly readMany record
+   @throws BusinessException on failure
+   */
+  private Audio clone(DSLContext db, Access access, BigInteger cloneId, Audio entity) throws BusinessException {
+    Audio from = readOne(db, access, ULong.valueOf(cloneId));
+    if (Objects.isNull(from)) throw new BusinessException("Can't clone nonexistent Audio");
+
+    entity.setStateEnum(from.getState());
+    entity.setStart(from.getStart());
+    entity.setLength(from.getLength());
+    entity.setTempo(from.getTempo());
+    entity.setPitch(from.getPitch());
+
+    Audio result = create(db, access, entity);
+    workManager.scheduleAudioClone(0, cloneId, result.getId());
+    return result;
   }
 
   /**

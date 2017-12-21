@@ -9,6 +9,7 @@ import io.xj.core.model.pattern.Pattern;
 import io.xj.core.model.pattern.PatternType;
 import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import io.xj.core.persistence.sql.impl.SQLConnection;
+import io.xj.core.work.WorkManager;
 
 import org.jooq.DSLContext;
 import org.jooq.Field;
@@ -21,6 +22,7 @@ import javax.annotation.Nullable;
 import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Objects;
 
 import static io.xj.core.Tables.CHAIN_LIBRARY;
 import static io.xj.core.Tables.CHOICE;
@@ -31,11 +33,14 @@ import static io.xj.core.Tables.PHASE;
 import static io.xj.core.tables.ChainPattern.CHAIN_PATTERN;
 
 public class PatternDAOImpl extends DAOImpl implements PatternDAO {
+  private final WorkManager workManager;
 
   @Inject
   public PatternDAOImpl(
-    SQLDatabaseProvider dbProvider
+    SQLDatabaseProvider dbProvider,
+    WorkManager workManager
   ) {
+    this.workManager = workManager;
     this.dbProvider = dbProvider;
   }
 
@@ -44,6 +49,16 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(create(tx.getContext(), access, entity));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public Pattern clone(Access access, BigInteger cloneId, Pattern entity) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(clone(tx.getContext(), access, cloneId, entity));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -112,6 +127,16 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
   }
 
   @Override
+  public Collection<Pattern> readAll(Access access) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readAll(tx.getContext(), access));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
   public void update(Access access, BigInteger patternId, Pattern entity) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
@@ -161,6 +186,31 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
     fieldValues.put(PATTERN.USER_ID, access.getUserId());
 
     return modelFrom(executeCreate(db, PATTERN, fieldValues), Pattern.class);
+  }
+
+  /**
+   Clone a Pattern into a new Pattern
+
+   @param db      context
+   @param access  control
+   @param cloneId of pattern to clone
+   @param entity  for the new Account User.
+   @return newly readMany record
+   @throws BusinessException on failure
+   */
+  private Pattern clone(DSLContext db, Access access, BigInteger cloneId, Pattern entity) throws BusinessException {
+    Pattern from = readOne(db, access, ULong.valueOf(cloneId));
+    if (Objects.isNull(from)) throw new BusinessException("Can't clone nonexistent Pattern");
+
+    entity.setUserId(from.getUserId());
+    entity.setDensity(from.getDensity());
+    entity.setKey(from.getKey());
+    entity.setTempo(from.getTempo());
+    entity.setTypeEnum(from.getType());
+
+    Pattern result = create(db, access, entity);
+    workManager.schedulePatternClone(0, cloneId, result.getId());
+    return result;
   }
 
   /**
@@ -250,6 +300,26 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
         .join(LIBRARY).on(LIBRARY.ID.eq(PATTERN.LIBRARY_ID))
         .where(PATTERN.LIBRARY_ID.eq(libraryId))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+        .orderBy(PATTERN.TYPE, PATTERN.NAME)
+        .fetch(), Pattern.class);
+  }
+
+  /**
+   Read all records in parent record by id
+
+   @param db     context
+   @param access control
+   @return array of records
+   */
+  private static Collection<Pattern> readAll(DSLContext db, Access access) throws BusinessException {
+    if (access.isTopLevel())
+      return modelsFrom(db.select(PATTERN.fields()).from(PATTERN)
+        .orderBy(PATTERN.TYPE, PATTERN.NAME)
+        .fetch(), Pattern.class);
+    else
+      return modelsFrom(db.select(PATTERN.fields()).from(PATTERN)
+        .join(LIBRARY).on(LIBRARY.ID.eq(PATTERN.LIBRARY_ID))
+        .where(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .orderBy(PATTERN.TYPE, PATTERN.NAME)
         .fetch(), Pattern.class);
   }

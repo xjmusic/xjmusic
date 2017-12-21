@@ -125,6 +125,16 @@ public class AmazonProviderImpl implements AmazonProvider {
     }
   }
 
+  @Override
+  public void copyS3Object(String sourceBucket, String sourceKey, String targetBucket, String targetKey) throws NetworkException {
+    try {
+      s3Client().copyObject(sourceBucket, sourceKey,targetBucket, targetKey);
+
+    } catch (Exception e) {
+      throw new NetworkException("Failed to copy S3 object", e);
+    }
+  }
+
   /**
    Get an Amazon S3 client
 

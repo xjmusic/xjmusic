@@ -14,6 +14,7 @@
         {{model.name}}
         <!-- should only show following edit icon is user has privileges to edit pattern -->
         <small>{{#link-to 'accounts.one.libraries.one.patterns.one.edit' model.library.account model.library model}}{{fa-icon 'edit'}}{{/link-to}}</small>
+        <small>{{#link-to 'accounts.one.libraries.one.patterns.one.clone' model.library.account model.library model}}{{fa-icon 'files-o'}}{{/link-to}}</small>
       </h1>
 
     </div>

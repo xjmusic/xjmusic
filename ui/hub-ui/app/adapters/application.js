@@ -1,9 +1,9 @@
 // Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 import $ from 'jquery';
 
-import { get } from '@ember/object';
-import { dasherize } from '@ember/string';
-import { pluralize} from 'ember-inflector';
+import {get} from '@ember/object';
+import {dasherize} from '@ember/string';
+import {pluralize} from 'ember-inflector';
 import DS from "ember-data";
 
 /*
@@ -48,6 +48,34 @@ export default DS.RESTAdapter.extend({
    * @returns {*}
    */
   urlForFindRecord(id, modelName, snapshot) {
+    let url = this._super(...arguments);
+    let query = get(snapshot, 'adapterOptions.query');
+    if (query) {
+      url += '?' + $.param(query); // assumes no query params are present already
+    }
+    return url;
+  },
+
+
+  /**
+   Custom URL for createRecord
+
+   Cribbed from https://github.com/emberjs/data/issues/3596#issuecomment-126604014
+   This makes it possible to send query parameters with a findRecord():
+
+   this.get('store').createRecord(chain, {
+      adapterOptions: {
+        query: {
+          cloneId: "87983"
+        }
+      }
+    }).then(...);
+
+   * @param modelName
+   * @param snapshot
+   * @returns {*}
+   */
+  urlForCreateRecord(modelName, snapshot) {
     let url = this._super(...arguments);
     let query = get(snapshot, 'adapterOptions.query');
     if (query) {

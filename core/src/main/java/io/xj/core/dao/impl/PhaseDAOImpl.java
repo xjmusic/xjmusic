@@ -9,6 +9,7 @@ import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.phase.Phase;
 import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import io.xj.core.persistence.sql.impl.SQLConnection;
+import io.xj.core.work.WorkManager;
 
 import org.jooq.DSLContext;
 import org.jooq.Field;
@@ -33,10 +34,14 @@ import static io.xj.core.tables.Voice.VOICE;
 
 public class PhaseDAOImpl extends DAOImpl implements PhaseDAO {
 
+  private final WorkManager workManager;
+
   @Inject
   public PhaseDAOImpl(
-    SQLDatabaseProvider dbProvider
+    SQLDatabaseProvider dbProvider,
+    WorkManager workManager
   ) {
+    this.workManager = workManager;
     this.dbProvider = dbProvider;
   }
 
@@ -51,11 +56,21 @@ public class PhaseDAOImpl extends DAOImpl implements PhaseDAO {
   }
 
   @Override
+  public Phase clone(Access access, BigInteger cloneId, Phase entity) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(clone(tx.getContext(), access, cloneId, entity));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
   @Nullable
   public Phase readOne(Access access, BigInteger id) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readOne(tx.getContext(), access, id));
+      return tx.success(readOne(tx.getContext(), access, ULong.valueOf(id)));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -133,6 +148,30 @@ public class PhaseDAOImpl extends DAOImpl implements PhaseDAO {
   }
 
   /**
+   Clone a Phase into a new Phase
+
+   @param db      context
+   @param access  control
+   @param cloneId of phase to clone
+   @param entity  for the new Account User.
+   @return newly readMany record
+   @throws BusinessException on failure
+   */
+  private Phase clone(DSLContext db, Access access, BigInteger cloneId, Phase entity) throws Exception {
+    Phase from = readOne(db, access, ULong.valueOf(cloneId));
+    if (Objects.isNull(from)) throw new BusinessException("Can't clone nonexistent Phase");
+
+    entity.setDensity(from.getDensity());
+    entity.setKey(from.getKey());
+    entity.setTempo(from.getTempo());
+    entity.setTotal(from.getTotal());
+
+    Phase result = create(db, access, entity);
+    workManager.schedulePhaseClone(0, cloneId, result.getId());
+    return result;
+  }
+
+  /**
    Read one Phase if able
 
    @param db     context
@@ -140,17 +179,17 @@ public class PhaseDAOImpl extends DAOImpl implements PhaseDAO {
    @param id     of phase
    @return phase
    */
-  private static Phase readOne(DSLContext db, Access access, BigInteger id) throws BusinessException {
+  private static Phase readOne(DSLContext db, Access access, ULong id) throws BusinessException {
     if (access.isTopLevel())
       return modelFrom(db.selectFrom(PHASE)
-        .where(PHASE.ID.eq(ULong.valueOf(id)))
+        .where(PHASE.ID.eq(id))
         .fetchOne(), Phase.class);
     else
       return modelFrom(db.select(PHASE.fields())
         .from(PHASE)
         .join(PATTERN).on(PATTERN.ID.eq(PHASE.PATTERN_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(PATTERN.LIBRARY_ID))
-        .where(PHASE.ID.eq(ULong.valueOf(id)))
+        .where(PHASE.ID.eq(id))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .fetchOne(), Phase.class);
   }

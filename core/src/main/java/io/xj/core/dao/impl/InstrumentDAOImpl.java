@@ -9,6 +9,7 @@ import io.xj.core.model.instrument.Instrument;
 import io.xj.core.model.instrument.InstrumentType;
 import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import io.xj.core.persistence.sql.impl.SQLConnection;
+import io.xj.core.work.WorkManager;
 
 import org.jooq.DSLContext;
 import org.jooq.Field;
@@ -21,6 +22,7 @@ import javax.annotation.Nullable;
 import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Objects;
 
 import static io.xj.core.Tables.ARRANGEMENT;
 import static io.xj.core.Tables.AUDIO;
@@ -31,11 +33,14 @@ import static io.xj.core.Tables.LIBRARY;
 import static io.xj.core.tables.ChainLibrary.CHAIN_LIBRARY;
 
 public class InstrumentDAOImpl extends DAOImpl implements InstrumentDAO {
+  private final WorkManager workManager;
 
   @Inject
   public InstrumentDAOImpl(
-    SQLDatabaseProvider dbProvider
+    SQLDatabaseProvider dbProvider,
+    WorkManager workManager
   ) {
+    this.workManager = workManager;
     this.dbProvider = dbProvider;
   }
 
@@ -44,6 +49,16 @@ public class InstrumentDAOImpl extends DAOImpl implements InstrumentDAO {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(create(tx.getContext(), access, entity));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public Instrument clone(Access access, BigInteger cloneId, Instrument entity) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(clone(tx.getContext(), access, cloneId, entity));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -61,7 +76,6 @@ public class InstrumentDAOImpl extends DAOImpl implements InstrumentDAO {
   }
 
   @Override
-  @Nullable
   public Collection<Instrument> readAllInAccount(Access access, BigInteger accountId) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
@@ -72,11 +86,20 @@ public class InstrumentDAOImpl extends DAOImpl implements InstrumentDAO {
   }
 
   @Override
-  @Nullable
   public Collection<Instrument> readAllInLibrary(Access access, BigInteger libraryId) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readAllInLibrary(tx.getContext(), access, ULong.valueOf(libraryId)));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public Collection<Instrument> readAll(Access access) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readAll(tx.getContext(), access));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -155,6 +178,30 @@ public class InstrumentDAOImpl extends DAOImpl implements InstrumentDAO {
   }
 
   /**
+   Clone a Instrument into a new Instrument
+
+   @param db      context
+   @param access  control
+   @param cloneId of instrument to clone
+   @param entity  for the new Account User.
+   @return newly readMany record
+   @throws BusinessException on failure
+   */
+  private Instrument clone(DSLContext db, Access access, BigInteger cloneId, Instrument entity) throws BusinessException {
+    Instrument from = readOne(db, access, ULong.valueOf(cloneId));
+    if (Objects.isNull(from)) throw new BusinessException("Can't clone nonexistent Instrument");
+
+    entity.setUserId(from.getUserId());
+    entity.setDensity(from.getDensity());
+    entity.setUserId(from.getUserId());
+    entity.setTypeEnum(from.getType());
+
+    Instrument result = create(db, access, entity);
+    workManager.scheduleInstrumentClone(0, cloneId, result.getId());
+    return result;
+  }
+
+  /**
    Read one record
 
    @param db     context
@@ -224,6 +271,28 @@ public class InstrumentDAOImpl extends DAOImpl implements InstrumentDAO {
         .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
         .where(INSTRUMENT.LIBRARY_ID.eq(libraryId))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+        .orderBy(INSTRUMENT.TYPE, INSTRUMENT.DESCRIPTION)
+        .fetch(), Instrument.class);
+  }
+
+  /**
+   Read all records visible to given access
+
+   @param db     context
+   @param access control
+   @return array of records
+   */
+  private static Collection<Instrument> readAll(DSLContext db, Access access) throws BusinessException {
+    if (access.isTopLevel())
+      return modelsFrom(db.select(INSTRUMENT.fields())
+        .from(INSTRUMENT)
+        .orderBy(INSTRUMENT.TYPE, INSTRUMENT.DESCRIPTION)
+        .fetch(), Instrument.class);
+    else
+      return modelsFrom(db.select(INSTRUMENT.fields())
+        .from(INSTRUMENT)
+        .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
+        .where(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .orderBy(INSTRUMENT.TYPE, INSTRUMENT.DESCRIPTION)
         .fetch(), Instrument.class);
   }

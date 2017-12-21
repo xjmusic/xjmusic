@@ -3,13 +3,11 @@ package io.xj.hub.resource.audio;
 
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
-import io.xj.core.model.user_role.UserRoleType;
-import io.xj.core.server.HttpResponseProvider;
 import io.xj.core.dao.AudioDAO;
 import io.xj.core.model.audio.Audio;
 import io.xj.core.model.audio.AudioWrapper;
-
-
+import io.xj.core.model.user_role.UserRoleType;
+import io.xj.core.server.HttpResponseProvider;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -35,11 +33,14 @@ import java.util.Objects;
 @Path("audios")
 public class AudioIndexResource {
   private static final Injector injector = Guice.createInjector(new CoreModule());
-  private final AudioDAO DAO = injector.getInstance(AudioDAO.class);
+  private final AudioDAO audioDAO = injector.getInstance(AudioDAO.class);
   private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
 
   @QueryParam("instrumentId")
   String instrumentId;
+
+  @QueryParam("cloneId")
+  String cloneId;
 
   /**
    Get all audios.
@@ -48,7 +49,7 @@ public class AudioIndexResource {
    */
   @GET
   @WebResult
-  @RolesAllowed({UserRoleType.ARTIST})
+  @RolesAllowed(UserRoleType.ARTIST)
   public Response readAll(@Context ContainerRequestContext crc) throws IOException {
     if (Objects.isNull(instrumentId) || instrumentId.isEmpty()) {
       return response.notAcceptable("Instrument id is required");
@@ -57,7 +58,7 @@ public class AudioIndexResource {
     try {
       return response.readMany(
         Audio.KEY_MANY,
-        DAO.readAll(
+        audioDAO.readAll(
           Access.fromContext(crc),
           new BigInteger(instrumentId)));
 
@@ -74,15 +75,24 @@ public class AudioIndexResource {
    */
   @POST
   @Consumes(MediaType.APPLICATION_JSON)
-  @RolesAllowed({UserRoleType.ARTIST})
+  @RolesAllowed(UserRoleType.ARTIST)
   public Response create(AudioWrapper data, @Context ContainerRequestContext crc) {
     try {
+      Audio created;
+      if (Objects.nonNull(cloneId)) {
+        created = audioDAO.clone(
+          Access.fromContext(crc),
+          new BigInteger(cloneId),
+          data.getAudio());
+      } else {
+        created = audioDAO.create(
+          Access.fromContext(crc),
+          data.getAudio());
+      }
       return response.create(
         Audio.KEY_MANY,
         Audio.KEY_ONE,
-        DAO.create(
-          Access.fromContext(crc),
-          data.getAudio()));
+        created);
 
     } catch (Exception e) {
       return response.failureToCreate(e);

@@ -5,14 +5,18 @@ import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.integration.IntegrationTestEntity;
+import io.xj.core.model.pattern.Pattern;
 import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.phase.Phase;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.transport.JSON;
+import io.xj.core.work.WorkManager;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.util.Modules;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -21,22 +25,33 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
+import org.mockito.Spy;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigInteger;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.verify;
 
 // future test: permissions of different users to readMany vs. create vs. update or delete phases
+@RunWith(MockitoJUnitRunner.class)
 public class PhaseIT {
   @Rule public ExpectedException failure = ExpectedException.none();
-  private final Injector injector = Guice.createInjector(new CoreModule());
+  private Injector injector;
   private PhaseDAO testDAO;
+  @Spy final WorkManager workManager = Guice.createInjector(new CoreModule()).getInstance(WorkManager.class);
 
   @Before
   public void setUp() throws Exception {
     IntegrationTestEntity.deleteAll();
+
+    // inject mocks
+    createInjector();
 
     // Account "bananas"
     IntegrationTestEntity.insertAccount(1, "bananas");
@@ -61,6 +76,16 @@ public class PhaseIT {
 
     // Instantiate the test subject
     testDAO = injector.getInstance(PhaseDAO.class);
+  }
+
+  private void createInjector() {
+    injector = Guice.createInjector(Modules.override(new CoreModule()).with(
+      new AbstractModule() {
+        @Override
+        public void configure() {
+          bind(WorkManager.class).toInstance(workManager);
+        }
+      }));
   }
 
   @After
@@ -244,6 +269,60 @@ public class PhaseIT {
     failure.expectMessage("Found phase with same offset in pattern");
 
     testDAO.create(access, inputData);
+  }
+
+  @Test
+  public void clone_fromOriginal() throws Exception {
+    Access access = Access.from(ImmutableMap.of(
+      "userId", "2",
+      "roles", "User",
+      "accounts", "1"
+    ));
+    Phase inputData = new Phase()
+      .setPatternId(BigInteger.valueOf(2))
+      .setOffset(BigInteger.valueOf(5))
+      .setName("cannons fifty nine");
+
+    Phase result = testDAO.clone(access, BigInteger.valueOf(1), inputData);
+
+    assertNotNull(result);
+    assertEquals(0.583, result.getDensity(), 0.01);
+    assertEquals("D minor", result.getKey());
+    assertEquals(BigInteger.valueOf(2), result.getPatternId());
+    assertEquals("cannons fifty nine", result.getName());
+    assertEquals(120.0, result.getTempo(), 0.1);
+
+    // Verify enqueued audio clone jobs
+    verify(workManager).schedulePhaseClone(eq(0), eq(BigInteger.valueOf(1)), any());
+  }
+
+  @Test(expected = BusinessException.class)
+  public void clone_fromOriginal_failsWithoutOffset() throws Exception {
+    Access access = Access.from(ImmutableMap.of(
+      "userId", "2",
+      "roles", "User",
+      "accounts", "1"
+    ));
+    Phase inputData = new Phase()
+      .setPatternId(BigInteger.valueOf(2))
+      .setName("cannons fifty nine");
+
+    testDAO.clone(access, BigInteger.valueOf(1), inputData);
+  }
+
+  @Test(expected = BusinessException.class)
+  public void clone_fromOriginal_failsWithOffsetAlreadyExists() throws Exception {
+    Access access = Access.from(ImmutableMap.of(
+      "userId", "2",
+      "roles", "User",
+      "accounts", "1"
+    ));
+    Phase inputData = new Phase()
+      .setPatternId(BigInteger.valueOf(1))
+      .setOffset(BigInteger.valueOf(1))
+      .setName("cannons fifty nine");
+
+    testDAO.clone(access, BigInteger.valueOf(1), inputData);
   }
 
   @Test

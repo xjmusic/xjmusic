@@ -25,6 +25,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.Objects;
 
 /**
  Patterns
@@ -41,6 +42,9 @@ public class PatternIndexResource {
   @QueryParam("libraryId")
   String libraryId;
 
+  @QueryParam("cloneId")
+  String cloneId;
+
   /**
    Get all patterns.
 
@@ -50,12 +54,15 @@ public class PatternIndexResource {
   @WebResult
   @RolesAllowed(UserRoleType.USER)
   public Response readAll(@Context ContainerRequestContext crc) throws IOException {
-    if (null != libraryId && !libraryId.isEmpty()) {
+
+    if (Objects.nonNull(libraryId) && !libraryId.isEmpty()) {
       return readAllInLibrary(Access.fromContext(crc));
-    } else if (null != accountId && !accountId.isEmpty()) {
+
+    } else if (Objects.nonNull(accountId) && !accountId.isEmpty()) {
       return readAllInAccount(Access.fromContext(crc));
+
     } else {
-      return response.notAcceptable("Either Account or Library id is required");
+      return readAll(Access.fromContext(crc));
     }
   }
 
@@ -85,6 +92,18 @@ public class PatternIndexResource {
     }
   }
 
+  private Response readAll(Access access) {
+    try {
+      return response.readMany(
+        Pattern.KEY_MANY,
+        patternDAO.readAll(
+          access));
+
+    } catch (Exception e) {
+      return response.failure(e);
+    }
+  }
+
   /**
    Create new pattern
 
@@ -96,12 +115,21 @@ public class PatternIndexResource {
   @RolesAllowed(UserRoleType.ARTIST)
   public Response create(PatternWrapper data, @Context ContainerRequestContext crc) {
     try {
+      Pattern created;
+      if (Objects.nonNull(cloneId)) {
+        created = patternDAO.clone(
+          Access.fromContext(crc),
+          new BigInteger(cloneId),
+          data.getPattern());
+      } else {
+        created = patternDAO.create(
+          Access.fromContext(crc),
+          data.getPattern());
+      }
       return response.create(
         Pattern.KEY_MANY,
         Pattern.KEY_ONE,
-        patternDAO.create(
-          Access.fromContext(crc),
-          data.getPattern()));
+        created);
 
     } catch (Exception e) {
       return response.failureToCreate(e);

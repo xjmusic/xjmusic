@@ -58,7 +58,7 @@ public class WorkManagerImpl implements WorkManager {
 
   @Override
   public void startChainFabrication(BigInteger chainId) {
-    startRecurringJob(WorkType.ChainFabricate, chainId, Config.workChainDelaySeconds(), Config.workChainRecurSeconds());
+    startRecurringJob(WorkType.ChainFabricate, Config.workChainDelaySeconds(), Config.workChainRecurSeconds(), chainId);
   }
 
   @Override
@@ -67,18 +67,18 @@ public class WorkManagerImpl implements WorkManager {
   }
 
   @Override
-  public void scheduleLinkCraft(BigInteger linkId, Integer delaySeconds) {
-    scheduleJob(WorkType.LinkCraft, linkId, delaySeconds);
+  public void scheduleLinkCraft(Integer delaySeconds, BigInteger linkId) {
+    scheduleJob(WorkType.LinkCraft, delaySeconds, linkId);
   }
 
   @Override
-  public void scheduleLinkDub(BigInteger linkId, Integer delaySeconds) {
-    scheduleJob(WorkType.LinkDub, linkId, delaySeconds);
+  public void scheduleLinkDub(Integer delaySeconds, BigInteger linkId) {
+    scheduleJob(WorkType.LinkDub, delaySeconds, linkId);
   }
 
   @Override
   public void startChainErase(BigInteger chainId) {
-    startRecurringJob(WorkType.ChainErase, chainId, Config.workChainDelaySeconds(), Config.workChainDeleteRecurSeconds());
+    startRecurringJob(WorkType.ChainErase, Config.workChainDelaySeconds(), Config.workChainDeleteRecurSeconds(), chainId);
   }
 
   @Override
@@ -94,6 +94,26 @@ public class WorkManagerImpl implements WorkManager {
   @Override
   public void stopAudioErase(BigInteger audioId) {
     removeRecurringWork(buildJob(WorkType.AudioErase, audioId));
+  }
+
+  @Override
+  public void scheduleInstrumentClone(Integer delaySeconds, BigInteger fromId, BigInteger toId) {
+    scheduleJob(WorkType.InstrumentClone, delaySeconds, fromId, toId);
+  }
+
+  @Override
+  public void scheduleAudioClone(Integer delaySeconds, BigInteger fromId, BigInteger toId) {
+    scheduleJob(WorkType.AudioClone, delaySeconds, fromId, toId);
+  }
+
+  @Override
+  public void schedulePatternClone(Integer delaySeconds, BigInteger fromId, BigInteger toId) {
+    scheduleJob(WorkType.PatternClone, delaySeconds, fromId, toId);
+  }
+
+  @Override
+  public void schedulePhaseClone(Integer delaySeconds, BigInteger fromId, BigInteger toId) {
+    scheduleJob(WorkType.PhaseClone, delaySeconds, fromId, toId);
   }
 
   @Override
@@ -162,8 +182,12 @@ public class WorkManagerImpl implements WorkManager {
             }
             break;
 
+          case AudioClone:
+          case InstrumentClone:
           case LinkCraft:
           case LinkDub:
+          case PatternClone:
+          case PhaseClone:
             // does not warrant job creation
             break;
         }
@@ -180,8 +204,8 @@ public class WorkManagerImpl implements WorkManager {
    @return reinstated work
    */
   private Work reinstate(Work work) throws Exception {
-    startRecurringJob(work.getType(), work.getTargetId(),
-      Config.workChainDelaySeconds(), Config.workChainDeleteRecurSeconds());
+    startRecurringJob(work.getType(), Config.workChainDelaySeconds(), Config.workChainDeleteRecurSeconds(), work.getTargetId()
+    );
     work.setState(WorkState.Queued);
     platformMessageDAO.create(Access.internal(),
       new PlatformMessage()
@@ -247,43 +271,56 @@ public class WorkManagerImpl implements WorkManager {
    @return type-unique work id
    */
   private static BigInteger computeWorkId(WorkType type, BigInteger id) {
-    return new BigInteger(String.format("%d%s", type.ordinal() + 1, id));
+    return new BigInteger(String.format("%d0000%s", type.ordinal() + 1, id));
   }
 
   /**
    Start a recurring Job
 
    @param workType     type of job
-   @param id           of entity
    @param delaySeconds to wait # seconds
    @param recurSeconds to repeat every # seconds
+   @param entityId     of entity
    */
-  private void startRecurringJob(WorkType workType, BigInteger id, Integer delaySeconds, Integer recurSeconds) {
-    log.info("Start recurring job:{}, entityId:{}, delaySeconds:{}, recurSeconds:{}", workType, id, delaySeconds, recurSeconds);
-    enqueueRecurringWork(buildJob(workType, id), delaySeconds, recurSeconds);
+  private void startRecurringJob(WorkType workType, Integer delaySeconds, Integer recurSeconds, BigInteger entityId) {
+    log.info("Start recurring {} job, delaySeconds:{}, recurSeconds:{}, entityId:{}", workType, delaySeconds, recurSeconds, entityId);
+    enqueueRecurringWork(buildJob(workType, entityId), delaySeconds, recurSeconds);
   }
 
   /**
    Stop a recurring Job
 
    @param workType type of job
-   @param id       of entity
+   @param entityId of entity
    */
-  private void removeRecurringJob(WorkType workType, BigInteger id) {
-    log.info("Remove recurring job:{}, entityId:{}", workType, id);
-    removeRecurringWork(buildJob(workType, id));
+  private void removeRecurringJob(WorkType workType, BigInteger entityId) {
+    log.info("Remove recurring {} job, entityId:{}", workType, entityId);
+    removeRecurringWork(buildJob(workType, entityId));
   }
 
   /**
    Schedule a Job
 
    @param workType     type of job
-   @param id           of entity
    @param delaySeconds to wait # seconds
+   @param entityId     of entity
    */
-  private void scheduleJob(WorkType workType, BigInteger id, Integer delaySeconds) {
-    log.info("Schedule job:{}, entityId:{}, delaySeconds:{}", workType, id, delaySeconds);
-    enqueueDelayedWork(buildJob(workType, id), delaySeconds);
+  private void scheduleJob(WorkType workType, Integer delaySeconds, BigInteger entityId) {
+    log.info("Schedule {} job, delaySeconds:{}, entityId:{}", workType, delaySeconds, entityId);
+    enqueueDelayedWork(buildJob(workType, entityId), delaySeconds);
+  }
+
+  /**
+   Schedule a Job from one entity to another
+
+   @param workType     type of job
+   @param delaySeconds to wait # seconds
+   @param fromId       entity to source values and child entities from
+   @param toId         entity to clone entities onto
+   */
+  private void scheduleJob(WorkType workType, Integer delaySeconds, BigInteger fromId, BigInteger toId) {
+    log.info("Schedule targeted {} job, delaySeconds:{}, fromId:{}, toId:{}", workType, delaySeconds, fromId, toId);
+    enqueueDelayedWork(buildJob(workType, fromId, toId), delaySeconds);
   }
 
   /**
@@ -293,7 +330,7 @@ public class WorkManagerImpl implements WorkManager {
    @param id       of entity
    */
   private void doJob(WorkType workType, BigInteger id) {
-    log.info("Do job:{}, entityId:{}", workType, id);
+    log.info("Do {} job, entityId:{}", workType, id);
     enqueueWork(buildJob(workType, id));
   }
 
@@ -347,12 +384,12 @@ public class WorkManagerImpl implements WorkManager {
   /**
    Build a job for Jedis enqueing
 
-   @param type   of job
-   @param target of job
+   @param type of job
+   @param args for job
    @return new job
    */
-  private static Job buildJob(WorkType type, BigInteger target) {
-    return new Job(type.toString(), target);
+  private static Job buildJob(WorkType type, Object... args) {
+    return new Job(type.toString(), args);
   }
 
   /**

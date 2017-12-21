@@ -115,6 +115,17 @@ public class DAOImpl {
   }
 
   /**
+   Require that a entity isNonNull
+
+   @param name   name of entity (for error message)
+   @param entity to require existence of
+   @throws BusinessException if not isNonNull
+   */
+  static void requireExists(String name, Entity entity) throws BusinessException {
+    require(name, "does not exist", isNonNull(entity));
+  }
+
+  /**
    Require that a count of a record isNonNull
 
    @param name  name of record (for error message)

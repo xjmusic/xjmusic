@@ -20,6 +20,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.math.BigInteger;
+import java.util.Collection;
+import java.util.Iterator;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -121,6 +123,23 @@ public class LibraryIT {
     assertEquals("leaves", result1.get("name"));
     JSONObject result2 = (JSONObject) result.get(1);
     assertEquals("coconuts", result2.get("name"));
+  }
+
+  @Test
+  public void readAll_fromAllAccounts() throws Exception {
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "User",
+      "accounts", "1,2"
+    ));
+
+    Collection<Library> result = testDAO.readAll(access, null);
+
+    assertEquals(4, result.size());
+    Iterator<Library> it = result.iterator();
+    assertEquals("leaves", it.next().getName());
+    assertEquals("coconuts", it.next().getName());
+    assertEquals("helm", it.next().getName());
+    assertEquals("sail", it.next().getName());
   }
 
   @Test

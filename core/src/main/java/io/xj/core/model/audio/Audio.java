@@ -6,10 +6,11 @@ import io.xj.core.model.Entity;
 import io.xj.core.util.Text;
 
 import java.math.BigInteger;
+import java.util.Objects;
 
 /**
  POJO for persisting data in memory while performing business logic,
-or decoding messages received by JAX-RS resources.
+ or decoding messages received by JAX-RS resources.
  a.k.a. JSON input will be stored into an instance of this object
  <p>
  Business logic ought to be performed beginning with an instance of this object,
@@ -31,7 +32,8 @@ public class Audio extends Entity {
   private Double pitch;
   private String _stateString; // pending validation, copied to `state` field
 
-  public Audio() {}
+  public Audio() {
+  }
 
   public Audio(BigInteger id) {
     this.id = id;
@@ -58,7 +60,7 @@ public class Audio extends Entity {
    @param stateString pending validation
    */
   public Audio setState(String stateString) {
-    this._stateString = Text.toAlphabetical(stateString);
+    _stateString = Text.toAlphabetical(stateString);
     return this;
   }
 
@@ -125,28 +127,28 @@ public class Audio extends Entity {
 
   @Override
   public void validate() throws BusinessException {
-    if (this.instrumentId == null)
+    if (Objects.isNull(instrumentId))
       throw new BusinessException("Instrument ID is required.");
 
     // throws its own BusinessException on failure
-    this.state = AudioState.validate(_stateString);
+    state = AudioState.validate(_stateString);
 
-    if (this.name == null || this.name.length() == 0)
+    if (Objects.isNull(name) || name.isEmpty())
       throw new BusinessException("Name is required.");
 
-    if (this.waveformKey == null || this.waveformKey.length() == 0)
-      this.waveformKey = "";
+    if (Objects.isNull(waveformKey) || waveformKey.isEmpty())
+      waveformKey = "";
 
-    if (this.start == null)
-      this.start = 0d;
+    if (Objects.isNull(start))
+      start = 0.0d;
 
-    if (this.length == null)
-      this.length = 0d;
+    if (Objects.isNull(length))
+      length = 0.0d;
 
-    if (this.tempo == null)
+    if (Objects.isNull(tempo))
       throw new BusinessException("Tempo is required.");
 
-    if (this.pitch == null)
+    if (Objects.isNull(pitch))
       throw new BusinessException("Root Pitch is required.");
   }
 

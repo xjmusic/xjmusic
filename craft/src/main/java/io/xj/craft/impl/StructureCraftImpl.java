@@ -1,11 +1,7 @@
 // Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.craft.impl;
 
-import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
-
 import io.xj.core.access.impl.Access;
-import io.xj.craft.StructureCraft;
 import io.xj.core.dao.ChoiceDAO;
 import io.xj.core.dao.PatternDAO;
 import io.xj.core.exception.BusinessException;
@@ -17,7 +13,12 @@ import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.phase.Phase;
 import io.xj.core.util.Value;
 import io.xj.core.work.basis.Basis;
+import io.xj.craft.StructureCraft;
 import io.xj.music.Key;
+
+import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -139,6 +140,10 @@ public class StructureCraftImpl implements StructureCraft {
 
   /**
    Fetch current phase of rhythm-type pattern
+   <p>
+   FUTURE: This will be more intelligent about choosing the phase of the rhythm pattern.
+   FUTURE: Avoid choosing non-existent phase of rhythm pattern
+   FUTURE: If rhythm pattern is shorter than link, and rhythm pattern has multiple phases, play rhythm phases in sequence?
 
    @return phase
    @throws Exception on failure

@@ -20,6 +20,7 @@ import javax.annotation.Nullable;
 import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Objects;
 
 import static io.xj.core.Tables.LIBRARY;
 import static io.xj.core.Tables.PATTERN;
@@ -58,10 +59,15 @@ public class LibraryDAOImpl extends DAOImpl implements LibraryDAO {
 
   @Override
   @Nullable
-  public Collection<Library> readAll(Access access, BigInteger accountId) throws Exception {
+  public Collection<Library> readAll(Access access, @Nullable BigInteger accountId) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readAll(tx.getContext(), access, ULong.valueOf(accountId)));
+      if (Objects.nonNull(accountId)) {
+        return tx.success(readAll(tx.getContext(), access, ULong.valueOf(accountId)));
+      } else {
+        return tx.success(readAll(tx.getContext(), access));
+      }
+
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -148,6 +154,25 @@ public class LibraryDAOImpl extends DAOImpl implements LibraryDAO {
         .from(LIBRARY)
         .where(LIBRARY.ACCOUNT_ID.eq(accountId))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+        .fetch(), Library.class);
+  }
+
+  /**
+   Read all records visible to user
+
+   @param db     context
+   @param access control
+   @return array of records
+   */
+  private static Collection<Library> readAll(DSLContext db, Access access) throws BusinessException {
+    if (access.isTopLevel())
+      return modelsFrom(db.select(LIBRARY.fields())
+        .from(LIBRARY)
+        .fetch(), Library.class);
+    else
+      return modelsFrom(db.select(LIBRARY.fields())
+        .from(LIBRARY)
+        .where(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .fetch(), Library.class);
   }
 

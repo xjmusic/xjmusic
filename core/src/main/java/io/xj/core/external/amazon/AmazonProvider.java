@@ -74,9 +74,9 @@ public interface AmazonProvider {
   /**
    Stream an object from S3
 
-   @return stream of object data
-    @param bucketName to stream from
+   @param bucketName to stream from
    @param key        of object to stream
+   @return stream of object data
    */
   InputStream streamS3Object(String bucketName, String key) throws NetworkException;
 
@@ -99,4 +99,16 @@ public interface AmazonProvider {
    @param key    to delete
    */
   void deleteS3Object(String bucket, String key) throws NetworkException;
+
+  /**
+   Copy an object within S3
+   If attempting to copy an object that does not exist,
+   Amazon S3 returns a success message instead of an error message.
+
+   @param sourceBucket to copy file in
+   @param sourceKey    to copy
+   @param targetBucket to copy file in
+   @param targetKey    to copy
+   */
+  void copyS3Object(String sourceBucket, String sourceKey, String targetBucket, String targetKey) throws NetworkException;
 }

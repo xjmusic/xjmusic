@@ -104,7 +104,7 @@ public class WorkManagerImplTest {
   public void scheduleLinkCraft() throws Exception {
     when(redisDatabaseProvider.getQueueClient()).thenReturn(queueClient);
 
-    subject.scheduleLinkCraft(BigInteger.valueOf(5977), 10);
+    subject.scheduleLinkCraft(10, BigInteger.valueOf(5977));
 
     verify(queueClient).delayedEnqueue(
       eq(Config.workQueueName()),
@@ -117,7 +117,7 @@ public class WorkManagerImplTest {
   public void scheduleLinkDub() throws Exception {
     when(redisDatabaseProvider.getQueueClient()).thenReturn(queueClient);
 
-    subject.scheduleLinkDub(BigInteger.valueOf(5977), 10);
+    subject.scheduleLinkDub(10, BigInteger.valueOf(5977));
 
     verify(queueClient).delayedEnqueue(
       eq(Config.workQueueName()),
@@ -174,6 +174,58 @@ public class WorkManagerImplTest {
   }
 
   @Test
+  public void scheduleInstrumentClone() throws Exception {
+    when(redisDatabaseProvider.getQueueClient()).thenReturn(queueClient);
+
+    subject.scheduleInstrumentClone(10, BigInteger.valueOf(421), BigInteger.valueOf(78));
+
+    verify(queueClient).delayedEnqueue(
+      eq(Config.workQueueName()),
+      eq(new Job(WorkType.InstrumentClone.toString(), BigInteger.valueOf(421), BigInteger.valueOf(78))),
+      anyInt());
+    verify(queueClient).end();
+  }
+
+  @Test
+  public void scheduleAudioClone() throws Exception {
+    when(redisDatabaseProvider.getQueueClient()).thenReturn(queueClient);
+
+    subject.scheduleAudioClone(10, BigInteger.valueOf(890), BigInteger.valueOf(23));
+
+    verify(queueClient).delayedEnqueue(
+      eq(Config.workQueueName()),
+      eq(new Job(WorkType.AudioClone.toString(), BigInteger.valueOf(890), BigInteger.valueOf(23))),
+      anyInt());
+    verify(queueClient).end();
+  }
+
+  @Test
+  public void schedulePatternClone() throws Exception {
+    when(redisDatabaseProvider.getQueueClient()).thenReturn(queueClient);
+
+    subject.schedulePatternClone(10, BigInteger.valueOf(421), BigInteger.valueOf(78));
+
+    verify(queueClient).delayedEnqueue(
+      eq(Config.workQueueName()),
+      eq(new Job(WorkType.PatternClone.toString(), BigInteger.valueOf(421), BigInteger.valueOf(78))),
+      anyInt());
+    verify(queueClient).end();
+  }
+
+  @Test
+  public void schedulePhaseClone() throws Exception {
+    when(redisDatabaseProvider.getQueueClient()).thenReturn(queueClient);
+
+    subject.schedulePhaseClone(10, BigInteger.valueOf(890), BigInteger.valueOf(23));
+
+    verify(queueClient).delayedEnqueue(
+      eq(Config.workQueueName()),
+      eq(new Job(WorkType.PhaseClone.toString(), BigInteger.valueOf(890), BigInteger.valueOf(23))),
+      anyInt());
+    verify(queueClient).end();
+  }
+
+  @Test
   public void getWorker() throws Exception {
     when(redisDatabaseProvider.getQueueWorker(jobFactory)).thenReturn(worker);
 
@@ -215,33 +267,33 @@ public class WorkManagerImplTest {
     Work result;
     // assert #0
     result = resultIterator.next();
-    assertEquals(BigInteger.valueOf(324), result.getId());
-    assertEquals(BigInteger.valueOf(24), result.getTargetId());
+    assertEquals(BigInteger.valueOf(400003382), result.getId());
+    assertEquals(BigInteger.valueOf(3382), result.getTargetId());
     assertEquals(WorkType.ChainFabricate, result.getType());
     assertEquals(WorkState.Queued, result.getState());
     // assert #1
     result = resultIterator.next();
-    assertEquals(BigInteger.valueOf(1157), result.getId());
+    assertEquals(BigInteger.valueOf(30000157), result.getId());
     assertEquals(BigInteger.valueOf(157), result.getTargetId());
-    assertEquals(WorkType.AudioErase, result.getType());
+    assertEquals(WorkType.ChainErase, result.getType());
     assertEquals(WorkState.Queued, result.getState());
     // assert #2
     result = resultIterator.next();
-    assertEquals(BigInteger.valueOf(33382), result.getId());
-    assertEquals(BigInteger.valueOf(3382), result.getTargetId());
+    assertEquals(BigInteger.valueOf(4000024), result.getId());
+    assertEquals(BigInteger.valueOf(24), result.getTargetId());
     assertEquals(WorkType.ChainFabricate, result.getType());
     assertEquals(WorkState.Queued, result.getState());
     // assert #3
     result = resultIterator.next();
-    assertEquals(BigInteger.valueOf(28907), result.getId());
+    assertEquals(BigInteger.valueOf(300008907), result.getId());
     assertEquals(BigInteger.valueOf(8907), result.getTargetId());
     assertEquals(WorkType.ChainErase, result.getType());
     assertEquals(WorkState.Expected, result.getState());
     // assert #4
     result = resultIterator.next();
-    assertEquals(BigInteger.valueOf(2157), result.getId());
+    assertEquals(BigInteger.valueOf(20000157), result.getId());
     assertEquals(BigInteger.valueOf(157), result.getTargetId());
-    assertEquals(WorkType.ChainErase, result.getType());
+    assertEquals(WorkType.AudioErase, result.getType());
     assertEquals(WorkState.Queued, result.getState());
   }
 
@@ -289,7 +341,7 @@ public class WorkManagerImplTest {
     Iterator<Work> resultIterator = result.iterator();
     // assert #0
     Work result0 = resultIterator.next();
-    assertEquals(BigInteger.valueOf(28907), result0.getId());
+    assertEquals(BigInteger.valueOf(300008907), result0.getId());
     assertEquals(BigInteger.valueOf(8907), result0.getTargetId());
     assertEquals(WorkType.ChainErase, result0.getType());
     assertEquals(WorkState.Queued, result0.getState());

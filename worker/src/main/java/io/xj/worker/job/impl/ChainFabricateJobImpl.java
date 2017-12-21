@@ -95,8 +95,8 @@ public class ChainFabricateJobImpl implements ChainFabricateJob {
     Link createdLink = linkDAO.create(Access.internal(), linkToCreate);
     log.info("Created link, id:{}, chainId:{}, offset:{}", createdLink.getId(), createdLink.getChainId(), createdLink.getOffset());
 
-    workManager.scheduleLinkCraft(createdLink.getId(), Config.workBufferCraftDelaySeconds());
-    workManager.scheduleLinkDub(createdLink.getId(), Config.workBufferDubDelaySeconds());
+    workManager.scheduleLinkCraft(Config.workBufferCraftDelaySeconds(), createdLink.getId());
+    workManager.scheduleLinkDub(Config.workBufferDubDelaySeconds(), createdLink.getId());
   }
 
   /**

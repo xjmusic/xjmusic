@@ -49,8 +49,8 @@ public class LibraryIndexResource {
   @RolesAllowed(UserRoleType.USER)
   public Response readAll(@Context ContainerRequestContext crc) throws IOException {
 
-    if (Objects.isNull(accountId) || accountId.isEmpty()) {
-      return response.notAcceptable("Account id is required");
+    if (Objects.nonNull(accountId) && accountId.isEmpty()) {
+      accountId = null;
     }
 
     try {
@@ -58,7 +58,7 @@ public class LibraryIndexResource {
         Library.KEY_MANY,
         libraryDAO.readAll(
           Access.fromContext(crc),
-          new BigInteger(accountId)));
+          Objects.nonNull(accountId) ? new BigInteger(accountId) : null));
 
     } catch (Exception e) {
       return response.failure(e);

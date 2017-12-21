@@ -9,11 +9,15 @@ import com.google.common.collect.ImmutableList;
 import java.util.Objects;
 
 public enum WorkType {
+  AudioClone,
   AudioErase,
   ChainErase,
   ChainFabricate,
+  InstrumentClone,
   LinkCraft,
-  LinkDub;
+  LinkDub,
+  PatternClone,
+  PhaseClone;
 
   /**
    String Values

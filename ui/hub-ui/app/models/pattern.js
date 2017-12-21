@@ -2,13 +2,13 @@
 import DS from 'ember-data';
 
 export default DS.Model.extend({
+  library: DS.belongsTo({}),
+  user: DS.belongsTo({}),
   density: DS.attr('number'),
   key: DS.attr('string'),
-  library: DS.belongsTo({}),
   name: DS.attr('string'),
   tempo: DS.attr('number'),
   type: DS.attr('string'),
-  user: DS.belongsTo({}),
 
   memes: DS.hasMany('pattern-meme'),
   voices: DS.hasMany('voice'),
