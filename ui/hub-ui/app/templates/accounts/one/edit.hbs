@@ -19,24 +19,4 @@
 
 </div>
 
-{{#if auth.isAdmin}}
-  <!-- Lower Container -->
-  <div class="form-horizontal container-fluid danger-zone">
-
-    <!-- Header -->
-    <div class="form-group row">
-      <div class="col-sm-12">
-
-        <h4>Danger Zone</h4>
-      </div>
-    </div>
-
-    <div class="form-group row">
-      <div class="offset-sm-2 col-sm-10">
-        <button class="btn btn-danger btn-xs" {{action 'destroyAccount' model}}>Delete Account</button>
-      </div>
-    </div>
-
-  </div>
-{{/if}}
 {{/modal-dialog}}

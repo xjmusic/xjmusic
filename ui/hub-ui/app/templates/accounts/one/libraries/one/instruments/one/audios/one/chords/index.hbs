@@ -26,7 +26,7 @@
             <td>{{chord.position}}</td>
             <td>{{chord.name}}</td>
             <td>
-              {{#link-to 'accounts.one.libraries.one.instruments.one.audios.one.chords.one.edit' chord.audio.instrument.library.account chord.audio.instrument.library chord.audio.instrument chord.audio chord}}{{fa-icon 'edit'}}{{/link-to}}
+              {{entity-actions 'accounts.one.libraries.one.instruments.one.audios.one.chords.one' 'edit|destroy' chord.audio.instrument.library.account chord.audio.instrument.library chord.audio.instrument chord.audio chord}}
             </td>
             <th scope="row">{{chord.id}}</th>
           </tr>

@@ -30,27 +30,12 @@ export default Route.extend({
       model.save().then(
         () => {
           get(self, 'display').success('Updated account ' + model.get('name') + '.');
-          self.transitionTo('accounts.one');
+          history.back();
         },
         (error) => {
           get(self, 'display').error(error);
         }
       );
-    },
-
-    destroyAccount(model) {
-      let self = this;
-      let confirmation = confirm("Are you sure? If there are Users or Libraries belonging to this account, deletion will fail anyway.");
-      if (confirmation) {
-        model.destroyRecord({}).then(
-          () => {
-            get(self, 'display').success('Deleted account ' + model.get('name') + '.');
-            self.transitionTo('accounts');
-          },
-          (error) => {
-            get(self, 'display').error(error);
-          });
-      }
     },
 
     willTransition(transition) {

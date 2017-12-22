@@ -12,8 +12,9 @@
       <!-- Title -->
       <h1>
         {{model.description}}
-        <!-- should only show following edit icon is user has privileges to edit pattern -->
-        <small>{{#link-to 'accounts.one.libraries.one.patterns.one.phases.one.voices.one.edit' model.phase.pattern.library.account model.phase.pattern.library model.phase.pattern model.phase model}}{{fa-icon 'edit'}}{{/link-to}}</small>
+        <small>
+          {{entity-actions 'accounts.one.libraries.one.patterns.one.phases.one.voices.one' 'edit|destroy' model.phase.pattern.library.account model.phase.pattern.library model.phase.pattern model.phase model}}
+        </small>
       </h1>
 
     </div>

@@ -28,10 +28,9 @@
             <td>{{instrument.type}}</td>
             <td>{{instrument.density}}</td>
             <td>
-              {{#link-to 'accounts.one.libraries.one.instruments.one.edit' instrument.library.account instrument.library instrument}}{{fa-icon 'edit'}}{{/link-to}}
-              |&nbsp;{{#link-to 'accounts.one.libraries.one.instruments.one.clone' instrument.library.account instrument.library instrument}}{{fa-icon 'files-o'}}{{/link-to}}
-              |&nbsp;{{#link-to 'accounts.one.libraries.one.instruments.one.memes' instrument.library.account instrument.library instrument}}Memes{{/link-to}}
-              |&nbsp;{{#link-to 'accounts.one.libraries.one.instruments.one.audios' instrument.library.account instrument.library instrument}}Audios{{/link-to}}
+              {{#link-to 'accounts.one.libraries.one.instruments.one.memes' instrument.library.account instrument.library instrument}}Memes{{/link-to}}<span>&nbsp;</span>
+              {{#link-to 'accounts.one.libraries.one.instruments.one.audios' instrument.library.account instrument.library instrument}}Audios{{/link-to}}<span>&nbsp;</span>
+              {{entity-actions "accounts.one.libraries.one.instruments.one" "edit|clone|destroy" instrument.library.account instrument.library instrument}}
             </td>
             <th scope="row">{{instrument.id}}</th>
           </tr>

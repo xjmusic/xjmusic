@@ -12,9 +12,9 @@
       <!-- Title -->
       <h1>
         {{model.description}}
-        <!-- should only show following edit icon is user has privileges to edit instrument -->
-        <small>{{#link-to 'accounts.one.libraries.one.instruments.one.edit' model.library.account model.library model}}{{fa-icon 'edit'}}{{/link-to}}</small>
-        <small>{{#link-to 'accounts.one.libraries.one.instruments.one.clone' model.library.account model.library model}}{{fa-icon 'files-o'}}{{/link-to}}</small>
+        <small>
+          {{entity-actions "accounts.one.libraries.one.instruments.one" "edit|clone|destroy" model.library.account model.library model}}
+        </small>
       </h1>
 
     </div>

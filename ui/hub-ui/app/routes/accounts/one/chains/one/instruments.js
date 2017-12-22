@@ -63,6 +63,7 @@ export default Route.extend({
         },
         (error) => {
           get(this, 'display').error(error);
+          model.rollbackAttributes();
         });
     },
 

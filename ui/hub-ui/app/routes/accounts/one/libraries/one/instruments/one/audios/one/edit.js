@@ -44,20 +44,6 @@ export default Route.extend({
         });
     },
 
-    destroyAudio(model) {
-      let instrument = model.get('instrument');
-      let library = instrument.get('library');
-      let account = library.get('account');
-      model.destroyRecord({}).then(
-        () => {
-          get(this, 'display').success('Deleted audio "' + model.get('name') + '".');
-          this.transitionTo('accounts.one.libraries.one.instruments.one.audios', account, library, instrument);
-        },
-        (error) => {
-          get(this, 'display').error(error);
-        });
-    },
-
     willTransition(transition) {
       let model = this.controller.get('model');
       if (model.get('hasDirtyAttributes')) {

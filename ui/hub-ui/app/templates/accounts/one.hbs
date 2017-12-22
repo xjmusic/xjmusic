@@ -12,7 +12,9 @@
       <!-- Title -->
       <h1>
         {{model.name}}
-        {{#if auth.isAdmin}}<small>{{#link-to 'accounts.one.edit' model}}{{fa-icon 'edit'}}{{/link-to}}</small>{{/if}}
+        <small>
+          {{entity-actions "accounts.one" "edit|destroy" model}}
+        </small>
       </h1>
 
     </div>

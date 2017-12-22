@@ -26,8 +26,7 @@
               {{chord.name}}
             </td>
             <td>
-              {{#link-to 'accounts.one.libraries.one.patterns.one.phases.one.chords.one.edit' chord}}{{fa-icon
-                'edit'}}{{/link-to}}
+              {{entity-actions 'accounts.one.libraries.one.patterns.one.phases.one.chords.one' 'edit|destroy' chord.phase.pattern.library.account chord.phase.pattern.library chord.phase.pattern chord.phase chord}}
             </td>
             <th scope="row">{{chord.id}}</th>
           </tr>

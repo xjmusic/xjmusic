@@ -66,22 +66,6 @@ export default Route.extend({
         });
     },
 
-    destroyInstrument(model) {
-      let confirmation = confirm("Are you sure? If there are Instruments or Instruments belonging to this Instrument, deletion will fail anyway.");
-      let library = model.get('library');
-      let account = library.get('account');
-      if (confirmation) {
-        model.destroyRecord({}).then(
-          () => {
-            get(this, 'display').success('Deleted instrument ' + model.get('description') + '.');
-            this.transitionTo('accounts.one.libraries.one.instruments', account, library);
-          },
-          (error) => {
-            get(this, 'display').error(error);
-          });
-      }
-    },
-
     willTransition(transition) {
       let model = this.controller.get('model');
       if (model.get('hasDirtyAttributes')) {

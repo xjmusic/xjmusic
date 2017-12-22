@@ -15,8 +15,9 @@
       <h1>
         {{model.name}}
         <!-- should only show following edit icon if user has privileges to edit this chain -->
-        <small>{{#link-to
-        'accounts.one.chains.one.edit' model.account model}}{{fa-icon 'edit'}}{{/link-to}}</small>
+        <small>
+          {{entity-actions "accounts.one.chains.one" "edit|destroy" model.account model}}
+        </small>
         &lpar;{{model.state}}&rpar;
       </h1>
 

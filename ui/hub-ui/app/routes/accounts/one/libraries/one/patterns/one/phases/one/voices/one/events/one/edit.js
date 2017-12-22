@@ -44,22 +44,6 @@ export default Route.extend({
         });
     },
 
-    destroyEvent(model) {
-      let voice = model.get('voice');
-      let phase = voice.get('phase');
-      let pattern = phase.get('pattern');
-      let library = pattern.get('library');
-      let account = library.get('account');
-      model.destroyRecord({}).then(
-        () => {
-          get(this, 'display').success('Deleted event "' + model.get('inflection') + '" event in ' + model.get('note') + '.');
-          this.transitionTo('accounts.one.libraries.one.patterns.one.phases.one.voices.one.events', account, library, pattern, phase, voice);
-        },
-        (error) => {
-          get(this, 'display').error(error);
-        });
-    },
-
     willTransition(transition) {
       let model = this.controller.get('model');
       if (model.get('hasDirtyAttributes')) {

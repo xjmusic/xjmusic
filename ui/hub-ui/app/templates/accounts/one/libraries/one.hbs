@@ -12,8 +12,10 @@
       <!-- Title -->
       <h1>
         {{model.name}}
-        <!-- should only show following edit icon is user has privileges to edit library -->
-        <small>{{#link-to 'accounts.one.libraries.one.edit' model.account model}}{{fa-icon 'edit'}}{{/link-to}}</small>
+
+        <small>
+          {{entity-actions "accounts.one.libraries.one" "edit|destroy" model.account model}}
+        </small>
       </h1>
 
     </div>

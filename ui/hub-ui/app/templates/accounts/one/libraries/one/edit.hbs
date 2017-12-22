@@ -5,37 +5,18 @@
 
 <!-- Upper Container -->
 {{#modal-dialog onClickOverlay='goBack'}}
-<div class="form-horizontal container-fluid">
+  
+  <div class="form-horizontal container-fluid">
 
-  {{partial "accounts/one/libraries/one/form"}}
+    {{partial "accounts/one/libraries/one/form"}}
 
-  {{#if auth.isAdmin}}
-    <div class="form-group row">
-      <div class="offset-sm-2 col-sm-10">
-        <button type="submit" class="btn btn-default" {{action 'saveLibrary' model}}>Save changes</button>
+    {{#if auth.isAdmin}}
+      <div class="form-group row">
+        <div class="offset-sm-2 col-sm-10">
+          <button type="submit" class="btn btn-default" {{action 'saveLibrary' model}}>Save changes</button>
+        </div>
       </div>
-    </div>
-  {{/if}}
-</div>
-
-{{#if auth.isAdmin}}
-  <!-- Lower Container -->
-  <div class="form-horizontal container-fluid danger-zone">
-
-    <!-- Header -->
-    <div class="form-group row">
-      <div class="col-sm-12">
-
-        <h4>Danger Zone</h4>
-      </div>
-    </div>
-
-    <div class="form-group row">
-      <div class="offset-sm-2 col-sm-10">
-        <button class="btn btn-danger btn-xs" {{action 'destroyLibrary' model}}>Delete Library</button>
-      </div>
-    </div>
-
+    {{/if}}
   </div>
-{{/if}}
+
 {{/modal-dialog}}

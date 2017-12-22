@@ -34,7 +34,9 @@
             <td>{{event.tonality}}</td>
             <td>{{event.velocity}}</td>
             <td>
-              {{#link-to 'accounts.one.libraries.one.instruments.one.audios.one.events.one.edit' event.audio.instrument.library.account event.audio.instrument.library event.audio.instrument event.audio event}}{{fa-icon 'edit'}}{{/link-to}}
+              {{entity-actions 'accounts.one.libraries.one.instruments.one.audios.one.events.one' 'edit|destroy'
+                               event.audio.instrument.library.account event.audio.instrument.library
+                               event.audio.instrument event.audio event}}
             </td>
             <td>{{event.id}}</td>
           </tr>
@@ -46,7 +48,9 @@
 
   {{#if (or auth.isArtist auth.isAdmin)}}
     <div class="col-sm-12">
-      Or: {{#link-to 'accounts.one.libraries.one.instruments.one.audios.one.events.new' model.audio.instrument.library.account model.audio.instrument.library model.audio.instrument model.audio}}Create New Event{{/link-to}}
+      Or: {{#link-to 'accounts.one.libraries.one.instruments.one.audios.one.events.new'
+                     model.audio.instrument.library.account model.audio.instrument.library model.audio.instrument
+                     model.audio}}Create New Event{{/link-to}}
     </div>
   {{/if}}
 </div>

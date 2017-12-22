@@ -33,6 +33,9 @@ img.icon {
     tr {
       td, th {
         border: 0 none;
+        div {
+          display: inline-block;
+        }
       }
     }
   }

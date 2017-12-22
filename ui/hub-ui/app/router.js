@@ -1,4 +1,3 @@
-// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 import EmberRouter from '@ember/routing/router';
 import config from "./config/environment";
 import googlePageView from "./mixins/google-pageview";
@@ -21,146 +20,158 @@ function users() {
 }
 
 function accounts() {
-  this.route('new'); // New Account
-  this.route('one', {path: '/:account_id'}, account); // One Account
+  this.route('new');
+  this.route('one', {path: '/:account_id'}, account);
 }
 
 function platform() {
-  this.route('messages', function() {
+  this.route('messages', function () {
     this.route('new');
   });
   this.route('works');
 }
 
 function account() {
-  this.route('edit'); // Edit Account
-  this.route('users'); // Users in Account
-  this.route('libraries', {path: '/lib'}, accountLibraries); // Libraries in Account
-  this.route('chains', accountChains); // Chains in Account
+  this.route('edit');
+  this.route('destroy');
+  this.route('users');
+  this.route('libraries', {path: '/lib'}, accountLibraries);
+  this.route('chains', accountChains);
 }
 
 function accountLibraries() {
-  this.route('new'); // New Library
-  this.route('one', {path: '/:library_id'}, accountLibrary); // One Library
+  this.route('new');
+  this.route('one', {path: '/:library_id'}, accountLibrary);
 }
 
 function accountLibrary() {
-  this.route('edit'); // Edit Library
-  this.route('patterns', accountLibraryPatterns); // Patterns in Library
-  this.route('instruments', accountLibraryInstruments); // Instruments in Library
+  this.route('edit');
+  this.route('destroy');
+  this.route('patterns', accountLibraryPatterns);
+  this.route('instruments', accountLibraryInstruments);
 }
 
 function accountLibraryPatterns() {
-  this.route('new'); // New Pattern
-  this.route('one', {path: '/:pattern_id'}, accountLibraryPattern); // One Pattern
+  this.route('new');
+  this.route('one', {path: '/:pattern_id'}, accountLibraryPattern);
 }
 
 function accountLibraryPattern() {
-  this.route('edit'); // Edit Pattern
-  this.route('clone'); // Clone Pattern
-  this.route('memes'); // Memes in Pattern
-  this.route('phases', accountLibraryPatternPhases); // Phases in Pattern
+  this.route('edit');
+  this.route('clone');
+  this.route('destroy');
+  this.route('memes');
+  this.route('phases', accountLibraryPatternPhases);
 }
 
 function accountLibraryPatternPhases() {
-  this.route('new'); // New Phase
-  this.route('one', {path: '/:phase_id'}, accountLibraryPatternPhase); // One Phase
+  this.route('new');
+  this.route('one', {path: '/:phase_id'}, accountLibraryPatternPhase);
 }
 
 function accountLibraryPatternPhase() {
-  this.route('edit'); // Edit Phase
-  this.route('clone'); // Clone Phase
-  this.route('memes'); // Memes in Phase
-  this.route('chords', accountLibraryPatternPhaseChords); // Chords in Phase
-  this.route('voices', accountLibraryPatternPhaseVoices); // Voices in Phase
+  this.route('edit');
+  this.route('clone');
+  this.route('destroy');
+  this.route('memes');
+  this.route('chords', accountLibraryPatternPhaseChords);
+  this.route('voices', accountLibraryPatternPhaseVoices);
 }
 
 function accountLibraryPatternPhaseChords() {
-  this.route('new'); // New Chord
-  this.route('one', {path: '/:chord_id'}, accountLibraryPatternPhaseChord); // One Chord
+  this.route('new');
+  this.route('one', {path: '/:chord_id'}, accountLibraryPatternPhaseChord);
 }
 
 function accountLibraryPatternPhaseChord() {
-  this.route('edit'); // Edit Phase
+  this.route('edit');
+  this.route('destroy');
 }
 
 function accountLibraryPatternPhaseVoices() {
-  this.route('new'); // New Voice
-  this.route('one', {path: '/:voice_id'}, accountLibraryPatternPhaseVoice); // One Voice
+  this.route('new');
+  this.route('one', {path: '/:voice_id'}, accountLibraryPatternPhaseVoice);
 }
 
 function accountLibraryPatternPhaseVoice() {
-  this.route('edit'); // Edit Phase
-  this.route('events', accountLibraryPatternPhaseVoiceEvents); // Events in Voice
+  this.route('edit');
+  this.route('destroy');
+  this.route('events', accountLibraryPatternPhaseVoiceEvents);
 }
 
 function accountLibraryPatternPhaseVoiceEvents() {
-  this.route('new'); // New Event
-  this.route('one', {path: '/:event_id'}, accountLibraryPatternPhaseVoiceEvent); // One Event
+  this.route('new');
+  this.route('one', {path: '/:event_id'}, accountLibraryPatternPhaseVoiceEvent);
 }
 
 function accountLibraryPatternPhaseVoiceEvent() {
-  this.route('edit'); // Edit Event
+  this.route('edit');
+  this.route('destroy');
 }
 
 function accountLibraryInstruments() {
-  this.route('new'); // New Instrument
-  this.route('one', {path: '/:instrument_id'}, accountLibraryInstrument); // One Instrument
+  this.route('new');
+  this.route('one', {path: '/:instrument_id'}, accountLibraryInstrument);
 }
 
 function accountLibraryInstrument() {
-  this.route('edit'); // Edit Instrument
-  this.route('clone'); // Clone Instrument
-  this.route('memes'); // Memes in Instrument
+  this.route('edit');
+  this.route('clone');
+  this.route('destroy');
+  this.route('memes');
   this.route('audios', accountLibraryInstrumentAudios);
 }
 
 function accountLibraryInstrumentAudios() {
-  this.route('new'); // New Audio
-  this.route('one', {path: '/:audio_id'}, accountLibraryInstrumentAudio); // One Audio
+  this.route('new');
+  this.route('one', {path: '/:audio_id'}, accountLibraryInstrumentAudio);
 }
 
 function accountLibraryInstrumentAudio() {
-  this.route('edit'); // Edit Audio
-  this.route('clone'); // Clone Audio
-  this.route('events', accountLibraryInstrumentAudioEvents); // Events in Audio
-  this.route('chords', accountLibraryInstrumentAudioChords); // Chords in Audio
+  this.route('edit');
+  this.route('clone');
+  this.route('destroy');
+  this.route('events', accountLibraryInstrumentAudioEvents);
+  this.route('chords', accountLibraryInstrumentAudioChords);
 }
 
 function accountLibraryInstrumentAudioEvents() {
-  this.route('new'); // New Event
-  this.route('one', {path: '/:event_id'}, accountLibraryInstrumentAudioEvent); // One Event
+  this.route('new');
+  this.route('one', {path: '/:event_id'}, accountLibraryInstrumentAudioEvent);
 }
 
 function accountLibraryInstrumentAudioEvent() {
-  this.route('edit'); // Edit Event
+  this.route('edit');
+  this.route('destroy');
 }
 
 function accountLibraryInstrumentAudioChords() {
-  this.route('new'); // New Chord
-  this.route('one', {path: '/:chord_id'}, accountLibraryInstrumentAudioChord); // One Chord
+  this.route('new');
+  this.route('one', {path: '/:chord_id'}, accountLibraryInstrumentAudioChord);
 }
 
 function accountLibraryInstrumentAudioChord() {
-  this.route('edit'); // Edit Chord
+  this.route('edit');
+  this.route('destroy');
 }
 
 function accountChains() {
-  this.route('new'); // New Chain
-  this.route('one', {path: '/:chain_id'}, accountChain); // One Chain
+  this.route('new');
+  this.route('one', {path: '/:chain_id'}, accountChain);
 }
 
 function accountChain() {
-  this.route('edit'); // Edit Chain
-  this.route('libraries'); // Libraries in Chain
-  this.route('configs'); // Configs in Chain
-  this.route('patterns'); // Patterns in Chain
-  this.route('instruments'); // instruments in Chain
-  this.route('links', accountChainLinks); // Links in Chain
+  this.route('edit');
+  this.route('destroy');
+  this.route('libraries');
+  this.route('configs');
+  this.route('patterns');
+  this.route('instruments');
+  this.route('links', accountChainLinks);
 }
 
 function accountChainLinks() {
-  this.route('one', {path: '/:link_id'}, accountChainLink); // One Link
+  this.route('one', {path: '/:link_id'}, accountChainLink);
 }
 
 function accountChainLink() {

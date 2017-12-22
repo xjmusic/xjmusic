@@ -5,7 +5,7 @@ body {
   background: $body-background-color;
   color: $body-color;
   font-family: OxygenMono, monospace;
-  padding-top:60px; // because of navbar pinned to top
+  padding-top: 60px; // because of navbar pinned to top
 }
 
 a {
@@ -39,6 +39,9 @@ h1 {
   small {
     font-size: 0.6em;
     vertical-align: super;
+  }
+  small, div {
+    display: inline-block;
   }
 }
 

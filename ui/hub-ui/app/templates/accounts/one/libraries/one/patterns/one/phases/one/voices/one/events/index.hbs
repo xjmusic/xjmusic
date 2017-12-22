@@ -33,7 +33,7 @@
             <td>{{event.inflection}}</td>
             <td>{{event.tonality}}</td>
             <td>
-              {{#link-to 'accounts.one.libraries.one.patterns.one.phases.one.voices.one.events.one.edit' event}}{{fa-icon 'edit'}}{{/link-to}}
+              {{entity-actions 'accounts.one.libraries.one.patterns.one.phases.one.voices.one.events.one' 'edit|destroy' event.voice.phase.pattern.library.account event.voice.phase.pattern.library event.voice.phase.pattern event.voice.phase event.voice event}}
             </td>
             <td>{{event.id}}</td>
           </tr>

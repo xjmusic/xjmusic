@@ -5,10 +5,19 @@
     height: 3em;
     border: 1px solid #555;
     opacity: 0.6;
-    background: url("/assets/icons/open.png") no-repeat center center rgba(128,128,128,0.6);
+    background: url("/assets/icons/open.png") no-repeat center center rgba(128, 128, 128, 0.6);
     background-size: 1.612em 1.612em;
     &:hover {
       opacity: 1.0;
     }
+  }
+}
+
+.action-destroy {
+  margin-left: 0.6rem;
+  margin-right: 0.6rem;
+  opacity: 0.15;
+  &:hover, &:active, &:focus {
+    opacity: 1.0;
   }
 }

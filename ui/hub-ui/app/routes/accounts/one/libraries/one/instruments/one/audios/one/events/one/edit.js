@@ -44,21 +44,6 @@ export default Route.extend({
         });
     },
 
-    destroyEvent(model) {
-      let audio = model.get('audio');
-      let instrument = audio.get('instrument');
-      let library = instrument.get('library');
-      let account = library.get('account');
-      model.destroyRecord({}).then(
-        () => {
-          get(this, 'display').success('Deleted event "' + model.get('inflection') + '" event in ' + model.get('note') + '.');
-          this.transitionTo('accounts.one.libraries.one.instruments.one.audios.one.events', account, library, instrument, audio);
-        },
-        (error) => {
-          get(this, 'display').error(error);
-        });
-    },
-
     willTransition(transition) {
       let model = this.controller.get('model');
       if (model.get('hasDirtyAttributes')) {

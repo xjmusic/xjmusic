@@ -54,25 +54,11 @@ export default Route.extend({
       model.save().then(
         () => {
           get(this, 'display').success('Updated chain.');
-          this.transitionTo('accounts.one.chains.one', model);
+          history.back();
         },
         (error) => {
           get(this, 'display').error(error);
         });
-    },
-
-    deleteChain(model) {
-      let confirmation = confirm("ARE YOU SURE ???");
-      if (confirmation) {
-        model.destroyRecord({}).then(
-          () => {
-            get(this, 'display').success('Deleted chain ' + model.get('name') + '.');
-            this.transitionTo('accounts.one.chains');
-          },
-          (error) => {
-            get(this, 'display').error(error);
-          });
-      }
     },
 
     willTransition(transition) {

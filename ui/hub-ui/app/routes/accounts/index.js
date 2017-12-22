@@ -1,6 +1,6 @@
 // Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 import { get } from '@ember/object';
-
+import { hash } from 'rsvp';
 import { inject as service } from '@ember/service';
 import Route from '@ember/routing/route';
 
@@ -15,11 +15,13 @@ export default Route.extend({
    */
   model: function () {
     let self = this;
-    return this.store.findAll('account')
-      .catch((error) => {
-        get(self, 'display').error(error);
-        self.transitionTo('');
-      });
+    return hash({
+      index: this.store.findAll('account')
+        .catch((error) => {
+          get(self, 'display').error(error);
+          self.transitionTo('');
+        })
+    });
   },
 
   /**

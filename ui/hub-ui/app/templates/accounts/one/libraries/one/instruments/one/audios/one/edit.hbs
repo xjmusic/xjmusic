@@ -5,6 +5,7 @@
 
 <!-- Upper Container -->
 {{#modal-dialog onClickOverlay='goBack'}}
+
   <div class="form-horizontal container-fluid">
 
     {{partial "accounts/one/libraries/one/instruments/one/audios/one/form"}}
@@ -16,22 +17,4 @@
     </div>
   </div>
 
-  <!-- Lower Container -->
-  <div class="form-horizontal container-fluid danger-zone">
-
-    <!-- Header -->
-    <div class="form-group row">
-      <div class="col-sm-12">
-
-        <h4>Danger Zone</h4>
-      </div>
-    </div>
-
-    <div class="form-group row">
-      <div class="offset-sm-2 col-sm-10">
-        <button class="btn btn-danger btn-xs" {{action 'destroyAudio' model}}>Delete Audio</button>
-      </div>
-    </div>
-
-  </div>
 {{/modal-dialog}}

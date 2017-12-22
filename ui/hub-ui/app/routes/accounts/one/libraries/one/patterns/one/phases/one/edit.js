@@ -67,23 +67,6 @@ export default Route.extend({
         });
     },
 
-    destroyPhase(model) {
-      let pattern = model.get('pattern');
-      let library = pattern.get('library');
-      let account = library.get('account');
-      let confirmation = confirm("Are you sure? If there are Phases or Instruments belonging to this Phase, deletion will fail anyway.");
-      if (confirmation) {
-        model.destroyRecord({}).then(
-          () => {
-            get(this, 'display').success('Deleted phase ' + model.get('name') + '.');
-            this.transitionTo('accounts.one.libraries.one.patterns.one.phases', account, library, pattern);
-          },
-          (error) => {
-            get(this, 'display').error(error);
-          });
-      }
-    },
-
     willTransition(transition) {
       let model = this.controller.get('model');
       if (model.get('hasDirtyAttributes')) {

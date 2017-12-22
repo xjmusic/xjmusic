@@ -66,23 +66,6 @@ export default Route.extend({
         });
     },
 
-    destroyPattern(model) {
-      let confirmation = confirm("Are you sure? If there are Patterns or Instruments belonging to this Pattern, deletion will fail anyway.");
-      let library = model.get('library');
-      let account = library.get('account');
-
-      if (confirmation) {
-        model.destroyRecord({}).then(
-          () => {
-            get(this, 'display').success('Deleted pattern ' + model.get('name') + '.');
-            this.transitionTo('accounts.one.libraries.one.patterns', account, library);
-          },
-          (error) => {
-            get(this, 'display').error(error);
-          });
-      }
-    },
-
     willTransition(transition) {
       let model = this.controller.get('model');
       if (model.get('hasDirtyAttributes')) {

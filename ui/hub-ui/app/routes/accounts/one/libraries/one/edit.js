@@ -36,21 +36,6 @@ export default Route.extend({
         });
     },
 
-    destroyLibrary(model) {
-      let confirmation = confirm("Are you sure? If there are Patterns or Instruments belonging to this Library, deletion will fail anyway.");
-      let account = model.get("account");
-      if (confirmation) {
-        model.destroyRecord({}).then(
-          () => {
-            get(this, 'display').success('Deleted library ' + model.get('name') + '.');
-            this.transitionTo('accounts.one.libraries', account);
-          },
-          (error) => {
-            get(this, 'display').error(error);
-          });
-      }
-    },
-
     willTransition(transition) {
       let model = this.controller.get('model');
       if (model.get('hasDirtyAttributes')) {

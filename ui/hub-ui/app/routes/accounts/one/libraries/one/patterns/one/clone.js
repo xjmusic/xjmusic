@@ -41,7 +41,8 @@ export default Route.extend({
     let pattern = this.store.createRecord('pattern', {
       user: fromPattern.get('user'),
       type: fromPattern.get('type'),
-      library: fromPattern.get('library')
+      library: fromPattern.get('library'),
+      name: fromPattern.get('name')
     });
 
     return hash({
