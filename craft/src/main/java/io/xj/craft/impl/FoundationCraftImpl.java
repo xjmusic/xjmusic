@@ -1,12 +1,7 @@
 // Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.craft.impl;
 
-import com.google.common.collect.Maps;
-import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
-
 import io.xj.core.access.impl.Access;
-import io.xj.craft.FoundationCraft;
 import io.xj.core.dao.ChoiceDAO;
 import io.xj.core.dao.LinkChordDAO;
 import io.xj.core.dao.LinkMemeDAO;
@@ -23,8 +18,15 @@ import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.phase.Phase;
 import io.xj.core.util.Value;
 import io.xj.core.work.basis.Basis;
+import io.xj.craft.FoundationCraft;
 import io.xj.music.Chord;
 import io.xj.music.Key;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -143,12 +145,12 @@ public class FoundationCraftImpl implements FoundationCraft {
    @throws Exception on any failure
    */
   private void craftMemes() throws Exception {
-    linkMemes().forEach((memeName, linkMeme) -> {
+    linkMemes().forEach((linkMeme) -> {
       try {
         linkMemeDAO.create(Access.internal(), linkMeme);
 
       } catch (Exception e) {
-        log.warn("failed to create link meme {}", memeName, e);
+        log.warn("failed to create link meme {}", linkMeme.getName(), e);
       }
     });
   }
@@ -495,26 +497,32 @@ public class FoundationCraftImpl implements FoundationCraft {
 
    @return map of meme name to LinkMeme entity
    */
-  private Map<String, LinkMeme> linkMemes() throws Exception {
-    Map<String, LinkMeme> out = Maps.newHashMap();
+  private Collection<LinkMeme> linkMemes() throws Exception {
+    Map<String, LinkMeme> uniqueResults = Maps.newHashMap();
 
     basis.patternMemes(macroPattern().getId())
-      .forEach(meme -> out.put(
+      .forEach(meme -> uniqueResults.put(
         meme.getName(), LinkMeme.of(basis.linkId(), meme.getName())));
 
     basis.phaseMemes(macroPhase().getId())
-      .forEach(meme -> out.put(
+      .forEach(meme -> uniqueResults.put(
         meme.getName(), LinkMeme.of(basis.linkId(), meme.getName())));
 
     basis.patternMemes(mainPattern().getId())
-      .forEach(meme -> out.put(
+      .forEach(meme -> uniqueResults.put(
         meme.getName(), LinkMeme.of(basis.linkId(), meme.getName())));
 
     basis.phaseMemes(mainPhase().getId())
-      .forEach(meme -> out.put(
+      .forEach(meme -> uniqueResults.put(
         meme.getName(), LinkMeme.of(basis.linkId(), meme.getName())));
 
-    return out;
+    Collection<LinkMeme> result = Lists.newArrayList();
+    uniqueResults.forEach((key, val) -> result.add(val));
+
+    // cache results in basis, to avoid race condition causing [#153888310] During craft, instruments should be chosen based on combined memes of all chosen patterns for that link.
+    basis.setLinkMemes(result);
+
+    return result;
   }
 
   /**

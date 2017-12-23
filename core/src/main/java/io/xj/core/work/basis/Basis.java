@@ -242,7 +242,7 @@ public interface Basis {
    (caches results)
 
    @param patternId to get memes for
-   @return result of pattern memes
+   @return collection of pattern memes
    @throws Exception on failure
    */
   Collection<PatternMeme> patternMemes(BigInteger patternId) throws Exception;
@@ -253,7 +253,7 @@ public interface Basis {
 
    @param patternId   to get memes for
    @param phaseOffset within pattern
-   @return result of pattern memes
+   @return collection of pattern memes
    @throws Exception on failure
    */
   Collection<Meme> patternPhaseMemes(BigInteger patternId, BigInteger phaseOffset) throws Exception;
@@ -263,7 +263,7 @@ public interface Basis {
    (caches results)
 
    @param linkId to get memes for
-   @return result of link memes
+   @return collection of link memes
    @throws Exception on failure
    */
   Collection<LinkMeme> linkMemes(BigInteger linkId) throws Exception;
@@ -273,7 +273,7 @@ public interface Basis {
    (caches results)
 
    @param voiceId to get events for
-   @return result of voice events
+   @return collection of voice events
    @throws Exception on failure
    */
   Collection<VoiceEvent> voiceEvents(BigInteger voiceId) throws Exception;
@@ -338,13 +338,21 @@ public interface Basis {
   Collection<LinkChord> linkChords() throws Exception;
 
   /**
-   Fetch all memes for the current link
-   (caches results)
+   Fetch memes for the current link
+   (results can be overridden by caching setLinkMemes, otherwise it's a db lookup)
 
-   @return link memes
+   @return collection of link memes
    @throws Exception on failure
    */
   Collection<LinkMeme> linkMemes() throws Exception;
+
+  /**
+   Cache link memes (instead of relying on writing to db followed by reading)
+   Avoid race condition causing [#153888310] During craft, instruments should be chosen based on combined memes of all chosen patterns for that link.
+   * @param memes memes for the current link
+
+   */
+  void setLinkMemes(Collection<LinkMeme> memes);
 
   /**
    Fetch all memes for the previous link
@@ -360,7 +368,7 @@ public interface Basis {
    (caches results)
 
    @param phaseId to get memes for
-   @return result of phase memes
+   @return collection of phase memes
    @throws Exception on failure
    */
   Collection<PhaseMeme> phaseMemes(BigInteger phaseId) throws Exception;

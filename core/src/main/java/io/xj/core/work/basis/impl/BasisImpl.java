@@ -108,6 +108,7 @@ public class BasisImpl implements Basis {
   private MemeIsometry _currentMacroMemeIsometry;
   private MemeIsometry _previousMacroMemeIsometry;
   private MemeIsometry _currentLinkMemeIsometry;
+  private Collection<LinkMeme> _currentLinkMemes;
   private final Map<Double, Double> _positionSeconds = Maps.newConcurrentMap();
   private final Map<BigInteger, Pattern> _patterns = Maps.newConcurrentMap();
   private final Map<BigInteger, Collection<Audio>> _instrumentAudios = Maps.newConcurrentMap();
@@ -494,7 +495,16 @@ public class BasisImpl implements Basis {
 
   @Override
   public Collection<LinkMeme> linkMemes() throws Exception {
+    if (Objects.nonNull(_currentLinkMemes)) {
+      return Collections.unmodifiableCollection(_currentLinkMemes);
+    }
+
     return linkMemes(linkId());
+  }
+
+  @Override
+  public void setLinkMemes(Collection<LinkMeme> memes) {
+    _currentLinkMemes = Lists.newArrayList(memes);
   }
 
   @Override
