@@ -27,13 +27,13 @@ export default Route.extend({
 
     destroy(model) {
       let self = this;
-      let confirmation = confirm("Are you sure? If there are Instruments or Instruments belonging to this Instrument, deletion will fail anyway.");
+      let confirmation = confirm("Are you sure? If there are Instruments or Instruments belonging to this Instrument, destruction will fail anyway.");
       let library = model.get('library');
       let account = library.get('account');
       if (confirmation) {
         model.destroyRecord({}).then(
           () => {
-            get(self, 'display').success('Deleted instrument ' + model.get('description') + '.');
+            get(self, 'display').success('Destroyed instrument ' + model.get('description') + '.');
             this.transitionTo('accounts.one.libraries.one.instruments', account, library);
           },
           (error) => {

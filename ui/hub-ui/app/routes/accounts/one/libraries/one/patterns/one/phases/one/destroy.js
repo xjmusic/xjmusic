@@ -29,11 +29,11 @@ export default Route.extend({
       let pattern = model.get('pattern');
       let library = pattern.get('library');
       let account = library.get('account');
-      let confirmation = confirm("Are you sure? If there are Phases or Instruments belonging to this Phase, deletion will fail anyway.");
+      let confirmation = confirm("Are you sure?");
       if (confirmation) {
         model.destroyRecord({}).then(
           () => {
-            get(this, 'display').success('Deleted phase ' + model.get('name') + '.');
+            get(this, 'display').success('Destroyed phase ' + model.get('name') + '.');
             this.transitionTo('accounts.one.libraries.one.patterns.one.phases', account, library, pattern);
           },
           (error) => {

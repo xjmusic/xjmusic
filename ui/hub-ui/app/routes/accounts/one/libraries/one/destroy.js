@@ -26,12 +26,12 @@ export default Route.extend({
   actions: {
 
     destroy(model) {
-      let confirmation = confirm("Are you sure? If there are Patterns or Instruments belonging to this Library, deletion will fail anyway.");
+      let confirmation = confirm("Are you sure? If there are Patterns or Instruments belonging to this Library, destruction will fail anyway.");
       let account = model.get("account");
       if (confirmation) {
         model.destroyRecord({}).then(
           () => {
-            get(this, 'display').success('Deleted library ' + model.get('name') + '.');
+            get(this, 'display').success('Destroyed library ' + model.get('name') + '.');
             this.transitionTo('accounts.one.libraries', account);
           },
           (error) => {

@@ -27,11 +27,11 @@ export default Route.extend({
 
     destroy(model) {
       let self = this;
-      let confirmation = confirm("Are you sure? If there are Users or Libraries belonging to this account, deletion will fail anyway.");
+      let confirmation = confirm("Are you sure? If there are Users or Libraries belonging to this account, destruction will fail anyway.");
       if (confirmation) {
         model.destroyRecord({}).then(
           () => {
-            get(self, 'display').success('Deleted account ' + model.get('name') + '.');
+            get(self, 'display').success('Destroyed account ' + model.get('name') + '.');
             self.transitionTo('accounts');
           },
           (error) => {

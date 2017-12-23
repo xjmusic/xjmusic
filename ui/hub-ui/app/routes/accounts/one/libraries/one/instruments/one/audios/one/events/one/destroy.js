@@ -24,7 +24,7 @@ export default Route.extend({
     let self = this;
     self.model().destroyRecord({}).then(
       () => {
-        get(self, 'display').success('Deleted event ' + self.model().get('inflection') + '.');
+        get(self, 'display').success('Destroyed event ' + self.model().get('inflection') + '.');
         history.back();
       },
       (error) => {

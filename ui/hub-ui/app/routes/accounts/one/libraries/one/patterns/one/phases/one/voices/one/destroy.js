@@ -32,7 +32,7 @@ export default Route.extend({
       let account = library.get('account');
       model.destroyRecord({}).then(
         () => {
-          get(this, 'display').success('Deleted "' + model.get('description') + '" voice.');
+          get(this, 'display').success('Destroyed "' + model.get('description') + '" voice.');
           this.transitionTo('accounts.one.libraries.one.patterns.one.phases.one.voices', account, library, pattern, phase);
         },
         (error) => {

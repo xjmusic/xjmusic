@@ -3,12 +3,14 @@ package io.xj.core.dao.impl;
 
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.PhaseDAO;
+import io.xj.core.dao.VoiceDAO;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.exception.ConfigException;
 import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.phase.Phase;
 import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import io.xj.core.persistence.sql.impl.SQLConnection;
+import io.xj.core.tables.records.VoiceRecord;
 import io.xj.core.work.WorkManager;
 
 import org.jooq.DSLContext;
@@ -25,22 +27,25 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
 
+import static io.xj.core.Tables.PHASE_CHORD;
 import static io.xj.core.tables.Library.LIBRARY;
 import static io.xj.core.tables.Pattern.PATTERN;
 import static io.xj.core.tables.Phase.PHASE;
-import static io.xj.core.tables.PhaseChord.PHASE_CHORD;
 import static io.xj.core.tables.PhaseMeme.PHASE_MEME;
 import static io.xj.core.tables.Voice.VOICE;
 
 public class PhaseDAOImpl extends DAOImpl implements PhaseDAO {
 
+  private final VoiceDAO voiceDAO;
   private final WorkManager workManager;
 
   @Inject
   public PhaseDAOImpl(
     SQLDatabaseProvider dbProvider,
+    VoiceDAO voiceDAO,
     WorkManager workManager
   ) {
+    this.voiceDAO = voiceDAO;
     this.workManager = workManager;
     this.dbProvider = dbProvider;
   }
@@ -276,22 +281,7 @@ public class PhaseDAOImpl extends DAOImpl implements PhaseDAO {
    @throws ConfigException   if not configured properly
    @throws BusinessException if fails business rule
    */
-  private static void delete(Access access, DSLContext db, ULong id) throws Exception {
-    requireNotExists("Voice in Phase", db.select(VOICE.ID)
-      .from(VOICE)
-      .where(VOICE.PHASE_ID.eq(id))
-      .fetch());
-
-    requireNotExists("Meme in Phase", db.select(PHASE_MEME.ID)
-      .from(PHASE_MEME)
-      .where(PHASE_MEME.PHASE_ID.eq(id))
-      .fetch());
-
-    requireNotExists("Chord in Phase", db.select(PHASE_CHORD.ID)
-      .from(PHASE_CHORD)
-      .where(PHASE_CHORD.PHASE_ID.eq(id))
-      .fetch());
-
+  private void delete(Access access, DSLContext db, ULong id) throws Exception {
     if (!access.isTopLevel())
       requireExists("Phase", db.selectCount().from(PHASE)
         .join(PATTERN).on(PATTERN.ID.eq(PHASE.PATTERN_ID))
@@ -300,23 +290,21 @@ public class PhaseDAOImpl extends DAOImpl implements PhaseDAO {
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .fetchOne(0, int.class));
 
+    for (VoiceRecord record : db.select(VOICE.ID).from(VOICE)
+      .where(VOICE.PHASE_ID.eq(id)).fetch()
+      .into(VOICE))
+      voiceDAO.delete(access, record.getId().toBigInteger());
+
+    db.deleteFrom(PHASE_MEME)
+      .where(PHASE_MEME.PHASE_ID.eq(id))
+      .execute();
+
+    db.deleteFrom(PHASE_CHORD)
+      .where(PHASE_CHORD.PHASE_ID.eq(id))
+      .execute();
+
     db.deleteFrom(PHASE)
       .where(PHASE.ID.eq(id))
-      .andNotExists(
-        db.select(VOICE.ID)
-          .from(VOICE)
-          .where(VOICE.PHASE_ID.eq(id))
-      )
-      .andNotExists(
-        db.select(PHASE_MEME.ID)
-          .from(PHASE_MEME)
-          .where(PHASE_MEME.PHASE_ID.eq(id))
-      )
-      .andNotExists(
-        db.select(PHASE_CHORD.ID)
-          .from(PHASE_CHORD)
-          .where(PHASE_CHORD.PHASE_ID.eq(id))
-      )
       .execute();
   }
 

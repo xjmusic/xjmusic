@@ -24,7 +24,7 @@ export default Route.extend({
     let self = this;
     self.model().destroyRecord({}).then(
       () => {
-        get(self, 'display').success('Deleted chord ' + self.model().get('name') + '.');
+        get(self, 'display').success('Destroyed chord ' + self.model().get('name') + '.');
         history.back();
       },
       (error) => {

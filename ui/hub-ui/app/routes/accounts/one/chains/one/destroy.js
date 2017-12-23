@@ -32,7 +32,7 @@ export default Route.extend({
       if (confirmation) {
         model.destroyRecord({}).then(
           () => {
-            get(self, 'display').success('Deleted Chain ' + model.get('name') + '.');
+            get(self, 'display').success('Destroyed Chain ' + model.get('name') + '.');
             self.transitionTo('accounts.one.chains', account);
           },
           (error) => {

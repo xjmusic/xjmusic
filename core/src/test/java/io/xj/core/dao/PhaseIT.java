@@ -5,7 +5,10 @@ import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.integration.IntegrationTestEntity;
-import io.xj.core.model.pattern.Pattern;
+import io.xj.core.model.chain.ChainState;
+import io.xj.core.model.chain.ChainType;
+import io.xj.core.model.instrument.InstrumentType;
+import io.xj.core.model.link.LinkState;
 import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.phase.Phase;
 import io.xj.core.model.user_role.UserRoleType;
@@ -30,6 +33,7 @@ import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigInteger;
+import java.sql.Timestamp;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -590,25 +594,40 @@ public class PhaseIT {
   }
 
   @Test
-  public void delete_FailsIfPatternHasChilds() throws Exception {
+  public void delete_SucceedsEvenIfPatternHasManyChildren_andWasUsedInProduction() throws Exception {
     Access access = Access.from(ImmutableMap.of(
       "userId", "2",
       "roles", "Artist",
       "accounts", "1"
     ));
-    IntegrationTestEntity.insertPhaseMeme(1, 1, "mashup");
+    IntegrationTestEntity.insertPhaseMeme(2001, 1, "mashup");
+    IntegrationTestEntity.insertPhaseChord(2011, 1, 0, "G");
+    IntegrationTestEntity.insertPhaseChord(2012, 1, 2, "D");
+    IntegrationTestEntity.insertVoice(2051, 1, InstrumentType.Percussive, "Smash");
+    IntegrationTestEntity.insertVoiceEvent(2061, 2051, 1, 4, "Bang", "G2", 0, 1);
+    IntegrationTestEntity.insertVoiceEvent(2062, 2051, 3, 4, "Crash", "D2", 0, 1);
+    IntegrationTestEntity.insertVoice(2052, 1, InstrumentType.Percussive, "Boom");
+    IntegrationTestEntity.insertVoiceEvent(2063, 2052, 0, 4, "Poom", "C3", 1, 1);
+    IntegrationTestEntity.insertVoiceEvent(2064, 2052, 2, 4, "Paam", "F4", 1, 1);
+    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Ready, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"), null);
+    IntegrationTestEntity.insertLink(1, 1, 0, LinkState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120, "chain-1-link-97898asdf7892.wav");
+    IntegrationTestEntity.insertInstrument(9, 1, 2, "jams", InstrumentType.Percussive, 0.6);
+    IntegrationTestEntity.insertChoice(1, 1, 1, PatternType.Main, 0, -5);
+    IntegrationTestEntity.insertArrangement(1,1,2051,9);
 
-    failure.expect(BusinessException.class);
-    failure.expectMessage("Found Meme in Phase");
+    testDAO.delete(access, BigInteger.valueOf(1));
 
-    try {
-      testDAO.delete(access, BigInteger.valueOf(1));
-
-    } catch (Exception e) {
-      Phase result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1));
-      assertNotNull(result);
-      throw e;
-    }
+    // Assert total annihilation
+    assertNull(testDAO.readOne(Access.internal(), BigInteger.valueOf(1)));
+    assertNull(injector.getInstance(VoiceEventDAO.class).readOne(Access.internal(), BigInteger.valueOf(2061)));
+    assertNull(injector.getInstance(VoiceEventDAO.class).readOne(Access.internal(), BigInteger.valueOf(2062)));
+    assertNull(injector.getInstance(VoiceEventDAO.class).readOne(Access.internal(), BigInteger.valueOf(2063)));
+    assertNull(injector.getInstance(VoiceEventDAO.class).readOne(Access.internal(), BigInteger.valueOf(2064)));
+    assertNull(injector.getInstance(VoiceDAO.class).readOne(Access.internal(), BigInteger.valueOf(2051)));
+    assertNull(injector.getInstance(VoiceDAO.class).readOne(Access.internal(), BigInteger.valueOf(2052)));
+    assertNull(injector.getInstance(PhaseChordDAO.class).readOne(Access.internal(), BigInteger.valueOf(2012)));
+    assertNull(injector.getInstance(PhaseChordDAO.class).readOne(Access.internal(), BigInteger.valueOf(2011)));
+    assertNull(injector.getInstance(PhaseMemeDAO.class).readOne(Access.internal(), BigInteger.valueOf(2001)));
   }
 
   // future test: PhaseDAO cannot delete record unless user has account access

@@ -311,23 +311,27 @@ public class VoiceIT {
     testDAO.delete(access, BigInteger.valueOf(1));
   }
 
-  @Test(expected = BusinessException.class)
-  public void delete_FailsIfPatternHasChilds() throws Exception {
+  @Test
+  public void delete_SuccessEvenIfPatternHasChildren_andWasUsedInProduction() throws Exception {
     Access access = Access.from(ImmutableMap.of(
       "userId", "2",
       "roles", "Artist",
       "accounts", "1"
     ));
-    IntegrationTestEntity.insertVoiceEvent(1, 1, 0.42, 0.41, "HEAVY", "C", 0.7, 0.98);
+    IntegrationTestEntity.insertVoiceEvent(21, 1, 0.42, 0.41, "HEAVY", "C", 0.7, 0.98);
+    IntegrationTestEntity.insertVoiceEvent(22, 1, 2.42, 0.41, "HEAVY", "C", 0.7, 0.98);
+    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Ready, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"), null);
+    IntegrationTestEntity.insertLink(1, 1, 0, LinkState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120, "chain-1-link-97898asdf7892.wav");
+    IntegrationTestEntity.insertInstrument(9, 1, 2, "jams", InstrumentType.Percussive, 0.6);
+    IntegrationTestEntity.insertChoice(1, 1, 1, PatternType.Main, 0, -5);
+    IntegrationTestEntity.insertArrangement(1,1,1,9);
 
-    try {
       testDAO.delete(access, BigInteger.valueOf(1));
 
-    } catch (Exception e) {
-      Voice result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1));
-      assertNotNull(result);
-      throw e;
-    }
+    // Assert total annihilation
+    assertNull(testDAO.readOne(Access.internal(), BigInteger.valueOf(1)));
+    assertNull(injector.getInstance(VoiceEventDAO.class).readOne(Access.internal(), BigInteger.valueOf(21)));
+    assertNull(injector.getInstance(VoiceEventDAO.class).readOne(Access.internal(), BigInteger.valueOf(21)));
   }
 
   // future test: VoiceDAO cannot delete record unless user has account access

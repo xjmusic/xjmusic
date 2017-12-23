@@ -240,11 +240,6 @@ public class VoiceDAOImpl extends DAOImpl implements VoiceDAO {
    @throws BusinessException if fails business rule
    */
   private static void delete(Access access, DSLContext db, ULong id) throws Exception {
-    requireNotExists("Event in Voice", db.select(VOICE_EVENT.ID)
-      .from(VOICE_EVENT)
-      .where(VOICE_EVENT.VOICE_ID.eq(id))
-      .fetch());
-
     if (!access.isTopLevel())
       requireExists("Voice", db.selectCount().from(VOICE)
         .join(PHASE).on(PHASE.ID.eq(VOICE.PHASE_ID))
@@ -253,6 +248,10 @@ public class VoiceDAOImpl extends DAOImpl implements VoiceDAO {
         .where(VOICE.ID.eq(id))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .fetchOne(0, int.class));
+
+    db.deleteFrom(VOICE_EVENT)
+      .where(VOICE_EVENT.VOICE_ID.eq(id))
+      .execute();
 
     db.deleteFrom(PICK)
       .where(PICK.ARRANGEMENT_ID.in(

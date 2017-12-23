@@ -32,7 +32,7 @@ export default Route.extend({
       let account = library.get('account');
       model.destroyRecord({}).then(
         () => {
-          get(self, 'display').success('Deleted audio "' + model.get('name') + '".');
+          get(self, 'display').success('Destroyed audio "' + model.get('name') + '".');
           self.transitionTo('accounts.one.libraries.one.instruments.one.audios', account, library, instrument);
         },
         (error) => {
