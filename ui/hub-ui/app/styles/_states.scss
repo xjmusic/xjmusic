@@ -3,6 +3,7 @@
 .table-list tr,
 div.chain-state-change,
 div.play-chain,
+.modal-header,
 .badge {
 
   &.planned-state {
@@ -65,7 +66,7 @@ div.play-chain,
   }
 
   &.warning-type {
-    background: darken(#8a8a6a, 15%);
+    background: darken(#8a825a, 15%);
     border-color: darken(#ffffc4, 15%);
     color: lighten(#ffffc4, 10%);
     a {

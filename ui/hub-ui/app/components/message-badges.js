@@ -1,7 +1,7 @@
 // Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 import $ from 'jquery';
 
-import { inject as service } from '@ember/service';
+import {inject as service} from '@ember/service';
 import Component from '@ember/component';
 
 /**
@@ -18,8 +18,12 @@ const MessageBadgesComponent = Component.extend({
   actions: {
 
     showMessage(message) {
-      $('#messageBadgesModalTitle').html(properCase(message.get('type')) + ', Link #' + message.get('link').get('id') );
+      $('#messageBadgesModalTitle').html(properCase(message.get('type')) + ', Link #' + message.get('link').get('id'));
       $('#messageBadgesModalBody').html(message.get('body'));
+
+      let msgClass = (message.get('type') + '-type').toLowerCase();
+      this.$('.modal-header').addClass(msgClass);
+      console.log("add your shit", this.$('.modal-header'), msgClass, this.$('.modal-header').hasClass(msgClass));
     }
 
   },

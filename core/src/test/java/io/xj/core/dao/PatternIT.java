@@ -7,6 +7,7 @@ import io.xj.core.exception.BusinessException;
 import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
+import io.xj.core.model.instrument.InstrumentType;
 import io.xj.core.model.link.LinkState;
 import io.xj.core.model.pattern.Pattern;
 import io.xj.core.model.pattern.PatternType;
@@ -386,7 +387,7 @@ public class PatternIT {
   }
 
   @Test(expected = BusinessException.class)
-  public void delete_FailsIfPatternHasChilds() throws Exception {
+  public void delete_FailsIfPatternHasChildren() throws Exception {
     Access access = Access.from(ImmutableMap.of(
       "roles", "Admin"
     ));
@@ -401,5 +402,21 @@ public class PatternIT {
       throw e;
     }
   }
+
+  @Test
+  public void delete_succeedsAfterChosenForProduction() throws Exception {
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Admin"
+    ));
+    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Ready, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"), null);
+    IntegrationTestEntity.insertLink(1, 1, 0, LinkState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120, "chain-1-link-97898asdf7892.wav");
+    IntegrationTestEntity.insertChoice(1, 1, 2, PatternType.Main, 0, -5);
+
+    testDAO.delete(access, BigInteger.valueOf(2));
+
+    Pattern result = testDAO.readOne(Access.internal(), BigInteger.valueOf(2));
+    assertNull(result);
+  }
+
 
 }

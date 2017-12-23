@@ -26,7 +26,7 @@
           </tr>
           </thead>
           <tbody>
-          {{#each chain.chains as |chain|}}
+          {{#each model.chains as |chain|}}
             <tr class="item {{lowercase chain.state}}-state {{if (eq player.currentChain.id chain.id) 'now-playing'}}">
               <td>{{#link-to "accounts.one.chains.one" chain class="btn btn-icon-open"}}{{/link-to}}</td>
               <td>{{#link-to "accounts.one.chains.one" chain}}{{chain.name}}{{/link-to}}</td>

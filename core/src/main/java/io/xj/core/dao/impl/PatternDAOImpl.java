@@ -415,31 +415,16 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
       .where(PHASE.PATTERN_ID.eq(id))
       .fetchOne(0, int.class));
 
-    requireNotExists("Choice in Pattern", db.selectCount().from(CHOICE)
-      .where(CHOICE.PATTERN_ID.eq(id))
-      .fetchOne(0, int.class));
-
-    requireNotExists("Meme in Pattern", db.selectCount().from(PATTERN_MEME)
+    db.deleteFrom(PATTERN_MEME)
       .where(PATTERN_MEME.PATTERN_ID.eq(id))
-      .fetchOne(0, int.class));
+      .execute();
+
+    db.deleteFrom(CHOICE)
+      .where(CHOICE.PATTERN_ID.eq(id))
+      .execute();
 
     db.deleteFrom(PATTERN)
       .where(PATTERN.ID.eq(id))
-      .andNotExists(
-        db.select(PHASE.ID)
-          .from(PHASE)
-          .where(PHASE.PATTERN_ID.eq(id))
-      )
-      .andNotExists(
-        db.select(CHOICE.ID)
-          .from(CHOICE)
-          .where(CHOICE.PATTERN_ID.eq(id))
-      )
-      .andNotExists(
-        db.select(PATTERN_MEME.ID)
-          .from(PATTERN_MEME)
-          .where(PATTERN_MEME.PATTERN_ID.eq(id))
-      )
       .execute();
   }
 
