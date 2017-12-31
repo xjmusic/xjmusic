@@ -4,7 +4,7 @@
 . $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/common/functions
 
 # apps, configs, static assets
-HUB_BASEURL="http://hub.xj.dev/api/1"
+HUB_BASEURL="http://localhost/api/1"
 HEARTBEAT_KEY="a123b41c2d34e123f4g12h34i1j23k412l341m23n41o2p341q23r4s12t341u234vwxyz"
 
 curl -v -X POST --data "key=${HEARTBEAT_KEY}" -H "Content-Type: application/x-www-form-urlencoded" "${HUB_BASEURL}/heartbeat"

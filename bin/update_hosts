@@ -8,7 +8,7 @@ DOCKER_IP_REGEX='"IPAddress": "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}",'
 HOSTS_FILE=/etc/hosts
 
 #
-LOOPBACK_HOST=hub.xj.dev
+LOOPBACK_HOST=localhost
 
 #
 add_host() {

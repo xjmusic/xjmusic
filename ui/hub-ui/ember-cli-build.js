@@ -71,7 +71,7 @@ function urlForEnvironment(environment) {
     case 'production':
       return 'https://hub.xj.io/';
     case 'development':
-      return 'http://hub.xj.dev/';
+      return 'http://localhost/';
     default:
       return '/';
   }

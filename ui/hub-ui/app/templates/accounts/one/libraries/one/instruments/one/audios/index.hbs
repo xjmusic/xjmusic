@@ -36,11 +36,9 @@
             <td>{{audio.start}}</td>
             <td>{{audio.length}}</td>
             <td>
-              {{#link-to 'accounts.one.libraries.one.instruments.one.audios.one.events' audio.instrument.library.account audio.instrument.library audio.instrument audio}}<span>&nbsp;</span>
-              Events{{/link-to}}
-              {{#link-to 'accounts.one.libraries.one.instruments.one.audios.one.chords' audio.instrument.library.account audio.instrument.library audio.instrument audio}}<span>&nbsp;</span>
+              {{#link-to 'accounts.one.libraries.one.instruments.one.audios.one.events' audio.instrument.library.account audio.instrument.library audio.instrument audio}}Events{{/link-to}}<span>&nbsp;</span>
+              {{#link-to 'accounts.one.libraries.one.instruments.one.audios.one.chords' audio.instrument.library.account audio.instrument.library audio.instrument audio}}Chords{{/link-to}}<span>&nbsp;</span>
               {{entity-actions "accounts.one.libraries.one.instruments.one.audios.one" "edit|clone|destroy" audio.instrument.library.account audio.instrument.library audio.instrument audio}}
-              Chords{{/link-to}}
             </td>
             <th scope="row">{{audio.id}}</th>
           </tr>

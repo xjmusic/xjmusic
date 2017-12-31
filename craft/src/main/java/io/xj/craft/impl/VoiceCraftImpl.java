@@ -39,7 +39,7 @@ import java.util.Objects;
 public class VoiceCraftImpl implements VoiceCraft {
   private final Logger log = LoggerFactory.getLogger(VoiceCraftImpl.class);
   private static final double SCORE_INSTRUMENT_ENTROPY = 0.5;
-  private static final double SCORE_MATCHED_MEMES = 3;
+  private static final double SCORE_MATCHED_MEMES = 5;
   private final Basis basis;
   private final ArrangementDAO arrangementDAO;
   private final PickDAO pickDAO;

@@ -1,13 +1,17 @@
 // Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
-import {later} from '@ember/runloop';
-
-import {get} from '@ember/object';
+import $ from 'jquery';
 import EmberMap from '@ember/map';
-import Service, {inject as service} from '@ember/service';
 import LinkAudio from "./player/link-audio";
 import Moment from "moment";
 import RSVP from "rsvp";
+import Service, {inject as service} from '@ember/service';
+import {get} from '@ember/object';
+import {later} from '@ember/runloop';
 
+/**
+ State constants
+ * @type {string}
+ */
 const STANDBY = 'Standby';
 const PLAYING = 'Playing';
 
@@ -248,8 +252,27 @@ export default Service.extend({
       this.get('linkAudios').set(linkId, linkAudio);
     }
     if (linkAudio.isPlaying()) {
-      this.set('currentLink', link);
+      this.setNowPlayingLink(link);
     }
+  },
+
+  /**
+   Update `currentLink` and
+   scroll to the now-playing link.
+   */
+  setNowPlayingLink: function (link) {
+    // return if no change
+    let previousLink = this.get('currentLink');
+    if (previousLink && previousLink.get('id') === link.get('id')) {
+      return;
+    }
+
+    this.set('currentLink', link);
+    let linkId = "link-" + link.get('id');
+    let elLink = $("#" + linkId);
+    let navHeight = $("#navigation").outerHeight();
+    let verticalMargin = ($(window).innerHeight() - elLink.outerHeight() + navHeight) / 2;
+    $('html, body').scrollTop( elLink.offset().top - verticalMargin);
   },
 
   /**
