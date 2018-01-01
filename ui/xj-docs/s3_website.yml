@@ -1,23 +1,24 @@
 s3_id: <%= ENV['S3_ID'] %>
 s3_secret: <%= ENV['S3_SECRET'] %>
-s3_bucket: xj.io
-cloudfront_distribution_id: E2Z2I2EWQB5O75
+s3_bucket: docs.xj.io
+cloudfront_distribution_id: E22SA7UP9DT7TC
 
 # ---------------------------------------------------------------------
 # Redirect Legacy URLs via Amazon S3
 
 # ---------------------------------------------------------------------
 redirects:
-  events/index.html: https://docs.xj.io/events/
-  memes/index.html: https://docs.xj.io/memes/
+  privacy/index.html: https://xj.io/privacy/
+  terms/index.html: https://xj.io/terms/
+  cookies/index.html: https://xj.io/cookies/
 
-
-
-
-# Below are examples of all the available configurations.
-# See README for more detailed info on each of them.
-
+# location of files for distribution
 site: public
+
+
+
+
+
 
 # max_age:
 #   "assets/*": 6000

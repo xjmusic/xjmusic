@@ -1,0 +1,30 @@
+{
+  "version": "1.1.0",
+  "description": "HTML/CSS Theme for www.aubm.net",
+  "repository": "https://github.com/aubm/aubm-website-theme.git",
+  "license": "MIT",
+  "dependencies": {
+    "bootstrap-sass": "^3.3.6"
+  },
+  "devDependencies": {
+    "gulp": "^3.9.0",
+    "gulp-bump": "^1.0.0",
+    "gulp-concat": "^2.6.0",
+    "gulp-conventional-changelog": "^0.7.0",
+    "gulp-cssnano": "^2.1.0",
+    "gulp-git": "^1.7.0",
+    "gulp-rename": "^1.2.2",
+    "gulp-sass": "^2.1.1",
+    "gulp-uglify": "^1.5.1",
+    "gulp-util": "^3.0.7",
+    "run-sequence": "^1.1.5",
+    "semver": "^5.1.0"
+  },
+  "scripts": {
+    "build": "gulp",
+    "watch": "gulp watch",
+    "release-major": "gulp release-major",
+    "release-minor": "gulp release-minor",
+    "release-patch": "gulp release-patch"
+  }
+}

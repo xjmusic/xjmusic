@@ -1,10 +1,10 @@
 +++
 date = "2017-06-19T18:49:24-04:00"
-categories = ["musical"]
-tags = ["events"]
+categories = ["core"]
+tags = ["event"]
 slug = "events"
 title = "Events"
-description = "Musical patterns and performances in the XJ platform are encoded as Events"
+description = "Musical events are symmetrically encoded in Instrument-Audio and Pattern-Phase-Voices"
 draft = false
 
 +++

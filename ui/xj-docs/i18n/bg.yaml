@@ -1,0 +1,38 @@
+- id: about
+  translation: "За нас"
+
+- id: home
+  translation: "Начало"
+
+- id: recentPosts
+  translation: "Предишни"
+
+- id: readMore
+  translation: "Вижте още →"
+
+- id: translations
+  translation: "Преводи"
+
+- id: share
+  translation: "Сподели"
+
+- id: paginatorPrevious
+  translation: "Назад"
+
+- id: paginatorNext
+  translation: "Напред"
+
+- id: cookieMessage
+  translation: "Този сайт ползва кукита."
+
+- id: cookieLink
+  translation: "Научете повече."
+
+- id: cookieDismiss
+  translation: "Разбрах!"
+
+- id: backToTop
+  translation: "Нагоре"
+
+- id: links
+  translation: "Линкове"

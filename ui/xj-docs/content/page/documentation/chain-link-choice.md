@@ -1,10 +1,10 @@
 +++
 date = "2017-06-19T18:49:24-04:00"
-categories = ["musical"]
+categories = ["craft"]
 tags = ["chain","link","choice"]
 slug = "chain-link-choice"
 title = "Chain-Link Choice"
-description = "Music in the XJ platform is stored in Chains composed of Links"
+description = "Music in the XJ platform is fabricated in Chains composed of Links"
 draft = true
 
 +++

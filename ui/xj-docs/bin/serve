@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+
+fail() {
+    MSG=${1}
+    printf "\n${MSG}\n"
+    exit 1
+}
+
+# Title & Usage
+TITLE="Serve local site with Hugo (watch & rebuild)"
+USAGE="
+   Usage:
+     bin/serve <arguments...>
+
+   <arguments...> (optional) passed to Hugo
+"
+
+# App Arguments
+ARGS=$@
+
+# Require Gulp
+gulp -v || fail "Requires Gulp. Please ensure Gulp is installed on this machine. Then use 'npm install' to ensure dependencies are installed for this project!"
+
+# Require Gulp
+hugo version || fail "Requires Hugo. Please ensure Hugo is installed on this machine."
+
+# Gulp asset pipeline !!! for theme only !!!
+cd themes/xj-docs-theme && npm install && gulp watch &
+GULP_PID=$!
+
+# Hugo static site generator + local server
+# (Blocks until exit signal is received)
+hugo server -w -p 3000 ${ARGS}
+
+# Stop Gulp
+kill ${GULP_PID}

@@ -1,0 +1,18 @@
+@import "./variables";
+
+ul.pagination {
+  padding-left: 0px;
+  margin: 14px auto;
+  width: 200px;
+  text-align: center;
+  li {
+    display: inline-block;
+    padding: 3px;
+    &.active {
+      text-decoration: underline;
+    }
+    &.disabled a {
+      color: $text-color;
+    }
+  }
+}

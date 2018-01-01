@@ -41,18 +41,6 @@
             <div class="collapse navbar-collapse" id="navbarMain">
                 <ul class="navbar-nav ml-auto">
 
-                    <li class='nav-item dropdown'>
-                        <div class='nav-link dropdown-toggle {{ if in .Params.categories "musical" }}active{{ end }}'
-                             href="#" id="dropdownMenuMusic" data-toggle="dropdown" aria-expanded="false">
-                            Documentation
-                        </div>
-                        <div class="dropdown-menu" aria-labelledby="dropdownMenuMusic">
-                            {{ range .Site.Pages }}{{- if in .Params.categories "musical" -}}
-                            <a href="{{ .Permalink }}" class="dropdown-item">{{ .Title | title }}</a>
-                            {{- end -}}{{ end }}
-                        </div>
-                    </li>
-
                     <li class='nav-item dropdown '>
                         <div class='nav-link dropdown-toggle {{ if in .Params.categories "legal" }}active{{ end }}'
                              href="#" id="dropdownMenuLegal" data-toggle="dropdown"

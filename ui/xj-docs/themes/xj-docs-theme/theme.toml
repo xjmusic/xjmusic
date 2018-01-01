@@ -1,0 +1,14 @@
+# theme.toml template for a Hugo theme
+# See https://github.com/spf13/hugoThemes#themetoml for an example
+
+name = "Code Editor"
+license = "MIT"
+licenselink = "https://github.com/aubm/hugo-code-editor-theme/blob/master/LICENSE.md"
+description = "Inspired by Atom editor"
+homepage = "http://www.aubm.net/"
+tags = ["Atom", "Code"]
+min_version = 0.14
+
+[author]
+  name = "Aurélien Baumann (Aubm)"
+  homepage = "http://www.aubm.net"

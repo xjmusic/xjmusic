@@ -1,0 +1,27 @@
+<nav class="col-md-3">
+    <h3 class="home-link"><a href='{{ index .Site.Params "rootlink" | default .Site.BaseURL }}'>{{ .Site.Title }}</a></h3>
+
+    {{ $pages := .Site.RegularPages }}
+    {{ range $name, $taxonomy := .Site.Taxonomies.categories }}
+    <div id="posts-for-category-{{ $name }}" class="open">
+        <h3 data-open="posts-for-category-{{ $name }}">{{ humanize $name }}</h3>
+        <ul class="categories">
+            {{ range $pages }}{{ if (in .Params.categories $name)}}
+            <li><a href="{{ .Permalink }}">{{ .Title }}</a></li>
+            {{ end }}{{ end }}
+        </ul>
+    </div>
+    {{ end }}
+
+    {{ with .Site.Taxonomies.tags }}
+    <div id="tags" class="open">
+        <h3 data-open="tags">{{ ( index $.Site.Data.translations $.Site.Params.locale ).tags }}</h3>
+        <ul class="tags">
+            {{ range $name, $taxonomy := . }}
+            <li><a href="/tags/{{ $name | urlize }}">{{ humanize $name }}</a></li>
+            {{ end }}
+        </ul>
+    </div>
+    {{ end }}
+
+</nav>
