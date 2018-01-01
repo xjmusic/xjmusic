@@ -13,7 +13,7 @@ export default Route.extend({
   display: service(),
 
   // for persisting the auto-refresh interval
-  refreshInteval: null,
+  refreshInterval: null,
 
   // # of seconds between auto-refresh
   refreshSeconds: 5,

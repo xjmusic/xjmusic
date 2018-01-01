@@ -1,5 +1,4 @@
 // Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
-import $ from 'jquery';
 import EmberMap from '@ember/map';
 import LinkAudio from "./player/link-audio";
 import Moment from "moment";
@@ -64,6 +63,9 @@ export default Service.extend({
 
   // Inject: binary resource service
   binaryResource: service(),
+
+  // Inject: link scroll service
+  linkScroll: service(),
 
   // Base URL of link waveforms
   linkBaseUrl: '',
@@ -227,6 +229,7 @@ export default Service.extend({
       activeLinkIds.push(link.get('id'));
     });
     self.teardownLinkAudioExcept(activeLinkIds);
+    self.scrollToNowPlayingLink();
   },
 
   /**
@@ -257,8 +260,7 @@ export default Service.extend({
   },
 
   /**
-   Update `currentLink` and
-   scroll to the now-playing link.
+   Update `currentLink`
    */
   setNowPlayingLink: function (link) {
     // return if no change
@@ -268,11 +270,17 @@ export default Service.extend({
     }
 
     this.set('currentLink', link);
-    let linkId = "link-" + link.get('id');
-    let elLink = $("#" + linkId);
-    let navHeight = $("#navigation").outerHeight();
-    let verticalMargin = ($(window).innerHeight() - elLink.outerHeight() + navHeight) / 2;
-    $('html, body').scrollTop( elLink.offset().top - verticalMargin);
+  },
+
+  /**
+   Scroll to the now-playing link
+   @param doAnimation boolean, default true
+   */
+  scrollToNowPlayingLink: function (doAnimation) {
+    let currentLink = this.get('currentLink');
+    if (currentLink) {
+      this.get('linkScroll').scrollTo(currentLink, doAnimation);
+    }
   },
 
   /**

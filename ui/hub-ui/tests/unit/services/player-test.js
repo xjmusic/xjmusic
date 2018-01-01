@@ -3,7 +3,7 @@ import Moment from "moment";
 
 moduleFor('service:player', 'Unit | Service | player', {
   // Specify the other units that are required for this test.
-  needs: ['service:config', 'service:display', 'service:binaryResource']
+  needs: ['service:config', 'service:display', 'service:binaryResource', 'service:linkScroll']
 });
 
 window.AudioContext = function () {

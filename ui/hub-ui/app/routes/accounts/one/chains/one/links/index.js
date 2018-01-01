@@ -19,8 +19,11 @@ export default Route.extend({
   // Inject: chain-link player service
   player: service(),
 
+  // Inject: link scroll service
+  linkScroll: service(),
+
   // for persisting the auto-refresh interval
-  refreshInteval: null,
+  refreshInterval: null,
 
   // # of seconds between auto-refresh
   refreshSeconds: 5,
@@ -58,6 +61,18 @@ export default Route.extend({
         links: links
       }));
     });
+  },
+
+  /**
+   Spy on render template,
+   in order to trigger link scroll
+   * @param controller
+   * @param model
+   */
+  renderTemplate(controller, model) {
+    this._super(controller, model);
+
+    this.get('player').scrollToNowPlayingLink(false);
   },
 
   /**
