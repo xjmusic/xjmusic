@@ -14,6 +14,7 @@ public enum WorkType {
   ChainErase,
   ChainFabricate,
   InstrumentClone,
+  LinkFabricate,
   LinkCraft,
   LinkDub,
   PatternClone,

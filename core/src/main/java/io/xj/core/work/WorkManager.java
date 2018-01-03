@@ -67,16 +67,7 @@ public interface WorkManager {
    @param delaySeconds from now to schedule job at
    @param linkId       for which to schedule Craft
    */
-  void scheduleLinkCraft(Integer delaySeconds, BigInteger linkId);
-
-  /**
-   Schedule the dubbing of a Link,
-   by creating a scheduled `LinkDubJob`.
-
-   @param delaySeconds from now to schedule job at
-   @param linkId       for which to schedule Dub
-   */
-  void scheduleLinkDub(Integer delaySeconds, BigInteger linkId);
+  void scheduleLinkFabricate(Integer delaySeconds, BigInteger linkId);
 
   /**
    Start erasing a Chain,

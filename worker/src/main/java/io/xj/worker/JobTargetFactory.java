@@ -6,8 +6,7 @@ import io.xj.worker.job.AudioEraseJob;
 import io.xj.worker.job.ChainEraseJob;
 import io.xj.worker.job.ChainFabricateJob;
 import io.xj.worker.job.InstrumentCloneJob;
-import io.xj.worker.job.LinkCraftJob;
-import io.xj.worker.job.LinkDubJob;
+import io.xj.worker.job.LinkFabricateJob;
 import io.xj.worker.job.PatternCloneJob;
 import io.xj.worker.job.PhaseCloneJob;
 
@@ -42,7 +41,7 @@ public interface JobTargetFactory {
 
 
   /**
-   ChainFabricateJobImpl job instance
+   ChainFabricateJob instance
 
    @param entityId chain id
    @return job instance
@@ -52,27 +51,17 @@ public interface JobTargetFactory {
   );
 
   /**
-   LinkCraftJobImpl job instance
+   LinkCreateJob instance
 
    @param entityId link id
    @return job instance
    */
-  LinkCraftJob makeLinkCraftJob(
+  LinkFabricateJob makeLinkFabricateJob(
     @Assisted("entityId") BigInteger entityId
   );
 
   /**
-   LinkDubJobImpl job instance
-
-   @param entityId link id
-   @return job instance
-   */
-  LinkDubJob makeLinkDubJob(
-    @Assisted("entityId") BigInteger entityId
-  );
-
-  /**
-   InstrumentCloneJobImpl job instance
+   InstrumentCloneJob instance
 
    @param fromId entity to clone from
    @param toId to clone instrument into
@@ -84,7 +73,7 @@ public interface JobTargetFactory {
   );
 
   /**
-   AudioCloneJobImpl job instance
+   AudioCloneJob instance
 
    @param fromId entity to clone from
    @param toId to clone audio into
@@ -96,7 +85,7 @@ public interface JobTargetFactory {
   );
 
   /**
-   PatternCloneJobImpl job instance
+   PatternCloneJob instance
 
    @param fromId entity to clone from
    @param toId to clone pattern into
@@ -108,7 +97,7 @@ public interface JobTargetFactory {
   );
 
   /**
-   PhaseCloneJobImpl job instance
+   PhaseCloneJob instance
 
    @param fromId entity to clone from
    @param toId to clone phase into

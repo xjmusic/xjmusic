@@ -101,27 +101,14 @@ public class WorkManagerImplTest {
   }
 
   @Test
-  public void scheduleLinkCraft() throws Exception {
+  public void scheduleLinkFabricate() throws Exception {
     when(redisDatabaseProvider.getQueueClient()).thenReturn(queueClient);
 
-    subject.scheduleLinkCraft(10, BigInteger.valueOf(5977));
+    subject.scheduleLinkFabricate(10, BigInteger.valueOf(5977));
 
     verify(queueClient).delayedEnqueue(
       eq(Config.workQueueName()),
-      eq(new Job(WorkType.LinkCraft.toString(), BigInteger.valueOf(5977))),
-      anyInt());
-    verify(queueClient).end();
-  }
-
-  @Test
-  public void scheduleLinkDub() throws Exception {
-    when(redisDatabaseProvider.getQueueClient()).thenReturn(queueClient);
-
-    subject.scheduleLinkDub(10, BigInteger.valueOf(5977));
-
-    verify(queueClient).delayedEnqueue(
-      eq(Config.workQueueName()),
-      eq(new Job(WorkType.LinkDub.toString(), BigInteger.valueOf(5977))),
+      eq(new Job(WorkType.LinkFabricate.toString(), BigInteger.valueOf(5977))),
       anyInt());
     verify(queueClient).end();
   }

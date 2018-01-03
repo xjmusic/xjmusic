@@ -11,6 +11,7 @@ redirects:
   privacy/index.html: https://xj.io/privacy/
   terms/index.html: https://xj.io/terms/
   cookies/index.html: https://xj.io/cookies/
+  post/index.html: https://docs.xj.io/
 
 # location of files for distribution
 site: public

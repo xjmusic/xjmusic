@@ -67,13 +67,8 @@ public class WorkManagerImpl implements WorkManager {
   }
 
   @Override
-  public void scheduleLinkCraft(Integer delaySeconds, BigInteger linkId) {
-    scheduleJob(WorkType.LinkCraft, delaySeconds, linkId);
-  }
-
-  @Override
-  public void scheduleLinkDub(Integer delaySeconds, BigInteger linkId) {
-    scheduleJob(WorkType.LinkDub, delaySeconds, linkId);
+  public void scheduleLinkFabricate(Integer delaySeconds, BigInteger linkId) {
+    scheduleJob(WorkType.LinkFabricate, delaySeconds, linkId);
   }
 
   @Override
@@ -184,8 +179,6 @@ public class WorkManagerImpl implements WorkManager {
 
           case AudioClone:
           case InstrumentClone:
-          case LinkCraft:
-          case LinkDub:
           case PatternClone:
           case PhaseClone:
             // does not warrant job creation

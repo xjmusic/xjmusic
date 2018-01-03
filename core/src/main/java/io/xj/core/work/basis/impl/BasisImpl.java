@@ -1,12 +1,6 @@
 // Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.work.basis.impl;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
-
 import io.xj.core.access.impl.Access;
 import io.xj.core.config.Config;
 import io.xj.core.dao.ArrangementDAO;
@@ -57,6 +51,13 @@ import io.xj.music.Chord;
 import io.xj.music.MusicalException;
 import io.xj.music.Note;
 import io.xj.music.Tuning;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
@@ -77,6 +78,7 @@ import java.util.Objects;
 public class BasisImpl implements Basis {
   private static final int MICROSECONDS_PER_SECOND = 1000000;
   private static final double COMPUTE_INTEGRAL_DX = 0.25d; // # beats granularity to compute tempo change integral
+  private static final double NANOS_PER_SECOND = 1000000000.0;
   private final ArrangementDAO arrangementDAO;
   private final AudioDAO audioDAO;
   private final AudioEventDAO audioEventDAO;
@@ -97,6 +99,7 @@ public class BasisImpl implements Basis {
   private final Tuning tuning;
   private final VoiceDAO voiceDAO;
   private final VoiceEventDAO voiceEventDAO;
+  private final long startTime;
   private BasisType _type;
   private Boolean _sentReport = false;
   private Link _link;
@@ -170,6 +173,8 @@ public class BasisImpl implements Basis {
     } catch (MusicalException e) {
       throw new BusinessException("Could not tune XJ!", e);
     }
+
+    startTime = System.nanoTime();
   }
 
   @Override
@@ -598,6 +603,9 @@ public class BasisImpl implements Basis {
     if (report.isEmpty())
       return;
 
+    double totalSeconds = (System.nanoTime() - startTime) / NANOS_PER_SECOND;
+    report.put("totalNanos", totalSeconds);
+
     String body = new Yaml().dumpAsMap(report);
     try {
       linkMessageDAO.create(Access.internal(),
@@ -605,6 +613,7 @@ public class BasisImpl implements Basis {
           .setType(MessageType.Info.toString())
           .setLinkId(linkId())
           .setBody(body));
+      log.info("Completed work and sent basis report for Link #{} in {}s", linkId(), totalSeconds);
 
     } catch (Exception e) {
       log.warn("Failed to send final craft report message for Link {} Message {}", _link, body, e);

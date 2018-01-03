@@ -254,12 +254,8 @@ public interface Config {
     return getIntOrDefault("work.buffer.seconds", DEFAULT_WORK_BUFFER_SECONDS);
   }
 
-  static int workBufferCraftDelaySeconds() {
-    return getIntOrDefault("work.buffer.craft.delay.seconds", DEFAULT_WORK_BUFFER_CRAFT_DELAY_SECONDS);
-  }
-
-  static int workBufferDubDelaySeconds() {
-    return getIntOrDefault("work.buffer.dub.delay.seconds", DEFAULT_WORK_BUFFER_DUB_DELAY_SECONDS);
+  static int workBufferFabricateDelaySeconds() {
+    return getIntOrDefault("work.buffer.fabricate.delay.seconds", DEFAULT_WORK_BUFFER_CRAFT_DELAY_SECONDS);
   }
 
   static Integer workChainRecurSeconds() {

@@ -9,22 +9,11 @@ GREEN=`tput setaf 2`
 RESET=`tput sgr0`
 
 # Title & Usage
-TITLE="build & push latest version of site to source repo and S3 distribution"
+TITLE="build & push latest version of site to S3 distribution"
 USAGE="
    Usage:
-     bin/publish <message>
-
-   <message> to commit and push to repo
+     bin/publish
 "
-
-# Must specify <message> argument
-message=$1
-if [ "${message}" == "" ]; then
-  printf "${RED}ERROR!${RESET} Please specify a message.\n"
-  echo "${USAGE}"
-  exit 1
-fi
-shift
 
 # do it and exit if any step fails
 gulp || exit 1

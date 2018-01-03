@@ -6,8 +6,7 @@ import io.xj.worker.job.AudioEraseJob;
 import io.xj.worker.job.ChainEraseJob;
 import io.xj.worker.job.ChainFabricateJob;
 import io.xj.worker.job.InstrumentCloneJob;
-import io.xj.worker.job.LinkCraftJob;
-import io.xj.worker.job.LinkDubJob;
+import io.xj.worker.job.LinkFabricateJob;
 import io.xj.worker.job.PatternCloneJob;
 import io.xj.worker.job.PhaseCloneJob;
 import io.xj.worker.job.impl.AudioCloneJobImpl;
@@ -15,8 +14,7 @@ import io.xj.worker.job.impl.AudioEraseJobImpl;
 import io.xj.worker.job.impl.ChainEraseJobImpl;
 import io.xj.worker.job.impl.ChainFabricateJobImpl;
 import io.xj.worker.job.impl.InstrumentCloneJobImpl;
-import io.xj.worker.job.impl.LinkCraftJobImpl;
-import io.xj.worker.job.impl.LinkDubJobImpl;
+import io.xj.worker.job.impl.LinkFabricateJobImpl;
 import io.xj.worker.job.impl.PatternCloneJobImpl;
 import io.xj.worker.job.impl.PhaseCloneJobImpl;
 
@@ -38,8 +36,7 @@ public class WorkerModule extends AbstractModule {
   private void installJobTargetFactory() {
     install(new FactoryModuleBuilder()
       .implement(ChainFabricateJob.class, ChainFabricateJobImpl.class)
-      .implement(LinkCraftJob.class, LinkCraftJobImpl.class)
-      .implement(LinkDubJob.class, LinkDubJobImpl.class)
+      .implement(LinkFabricateJob.class, LinkFabricateJobImpl.class)
       .implement(AudioEraseJob.class, AudioEraseJobImpl.class)
       .implement(ChainEraseJob.class, ChainEraseJobImpl.class)
       .implement(InstrumentCloneJob.class, InstrumentCloneJobImpl.class)

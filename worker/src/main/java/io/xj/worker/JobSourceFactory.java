@@ -64,11 +64,8 @@ public class JobSourceFactory implements JobFactory {
       case ChainFabricate:
         return jobTargetFactory.makeChainFabricateJob(entityId(args[0]));
 
-      case LinkCraft:
-        return jobTargetFactory.makeLinkCraftJob(entityId(args[0]));
-
-      case LinkDub:
-        return jobTargetFactory.makeLinkDubJob(entityId(args[0]));
+      case LinkFabricate:
+        return jobTargetFactory.makeLinkFabricateJob(entityId(args[0]));
 
       case InstrumentClone:
         return jobTargetFactory.makeInstrumentCloneJob(entityId(args[0]), entityId(args[1]));
