@@ -1,8 +1,8 @@
 // Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
-import { hash } from 'rsvp';
+import {hash} from 'rsvp';
 
-import { get } from '@ember/object';
-import { inject as service } from '@ember/service';
+import {get} from '@ember/object';
+import {inject as service} from '@ember/service';
 import Route from '@ember/routing/route';
 
 export default Route.extend({

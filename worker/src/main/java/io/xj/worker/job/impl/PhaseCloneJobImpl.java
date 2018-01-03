@@ -5,13 +5,11 @@ import io.xj.core.access.impl.Access;
 import io.xj.core.dao.PhaseChordDAO;
 import io.xj.core.dao.PhaseDAO;
 import io.xj.core.dao.PhaseMemeDAO;
-import io.xj.core.dao.VoiceDAO;
 import io.xj.core.dao.VoiceEventDAO;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.model.phase.Phase;
 import io.xj.core.model.phase_chord.PhaseChord;
 import io.xj.core.model.phase_meme.PhaseMeme;
-import io.xj.core.model.voice.Voice;
 import io.xj.core.model.voice_event.VoiceEvent;
 import io.xj.core.transport.JSON;
 import io.xj.worker.job.PhaseCloneJob;
@@ -30,7 +28,6 @@ public class PhaseCloneJobImpl implements PhaseCloneJob {
   private final BigInteger toId;
   private final PhaseDAO phaseDAO;
   private final BigInteger fromId;
-  private final VoiceDAO voiceDAO;
   private final PhaseMemeDAO phaseMemeDAO;
   private final PhaseChordDAO phaseChordDAO;
   private final VoiceEventDAO voiceEventDAO;
@@ -40,7 +37,6 @@ public class PhaseCloneJobImpl implements PhaseCloneJob {
     @Assisted("fromId") BigInteger fromId,
     @Assisted("toId") BigInteger toId,
     PhaseDAO phaseDAO,
-    VoiceDAO voiceDAO,
     PhaseMemeDAO phaseMemeDAO,
     PhaseChordDAO phaseChordDAO,
     VoiceEventDAO voiceEventDAO
@@ -48,7 +44,6 @@ public class PhaseCloneJobImpl implements PhaseCloneJob {
     this.fromId = fromId;
     this.toId = toId;
     this.phaseDAO = phaseDAO;
-    this.voiceDAO = voiceDAO;
     this.phaseMemeDAO = phaseMemeDAO;
     this.phaseChordDAO = phaseChordDAO;
     this.voiceEventDAO = voiceEventDAO;
@@ -108,29 +103,16 @@ public class PhaseCloneJobImpl implements PhaseCloneJob {
       }
     });
 
-    // Clone each Voice
-    voiceDAO.readAll(Access.internal(), fromId).forEach(voice -> {
-      voice.setPhaseId(toId);
+    //  Clone each VoiceEvent
+    voiceEventDAO.readAll(Access.internal(), fromId).forEach(voiceEvent -> {
+      voiceEvent.setPhaseId(toId);
 
       try {
-        Voice toVoice = voiceDAO.create(Access.internal(), voice);
-        log.info("Cloned Voice from #{} to {}", voice.getId(), JSON.objectFrom(toVoice));
-
-        //  Clone each VoiceEvent
-        voiceEventDAO.readAll(Access.internal(), voice.getId()).forEach(voiceEvent -> {
-          voiceEvent.setVoiceId(toVoice.getId());
-
-          try {
-            VoiceEvent toVoiceEvent = voiceEventDAO.create(Access.internal(), voiceEvent);
-            log.info("Cloned VoiceEvent from #{} to {}", voiceEvent.getId(), JSON.objectFrom(toVoiceEvent));
-
-          } catch (Exception e) {
-            log.error("Failed to clone VoiceEvent from {}", JSON.objectFrom(voiceEvent), e);
-          }
-        });
+        VoiceEvent toVoiceEvent = voiceEventDAO.create(Access.internal(), voiceEvent);
+        log.info("Cloned VoiceEvent from #{} to {}", voiceEvent.getId(), JSON.objectFrom(toVoiceEvent));
 
       } catch (Exception e) {
-        log.error("Failed to clone Voice {}", JSON.objectFrom(voice), e);
+        log.error("Failed to clone VoiceEvent from {}", JSON.objectFrom(voiceEvent), e);
       }
     });
 

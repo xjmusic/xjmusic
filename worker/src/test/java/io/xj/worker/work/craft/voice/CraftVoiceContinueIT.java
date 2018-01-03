@@ -88,6 +88,7 @@ public class CraftVoiceContinueIT {
     // A basic beat
     IntegrationTestEntity.insertPattern(35, 3, 2, PatternType.Rhythm, "Basic Beat", 0.2, "C", 121);
     IntegrationTestEntity.insertPatternMeme(343, 35, "Basic");
+    IntegrationTestEntity.insertVoice(1, 35, InstrumentType.Percussive, "drums");
 
     // basic beat first phase
     IntegrationTestEntity.insertPhase(316, 35, 0, 16, "Continue", 0.5, "C", 125.0);
@@ -96,13 +97,18 @@ public class CraftVoiceContinueIT {
     // setup voice second phase
     IntegrationTestEntity.insertPhase(315, 35, 1, 4, "Drop", 0.5, "C", 125.0);
     IntegrationTestEntity.insertPhaseMeme(346, 315, "Heavy");
-    IntegrationTestEntity.insertVoice(1, 315, InstrumentType.Percussive, "drums");
 
     // Voice "Drums" has events sounding like "KICK" or "SNARE" 2x each
-    IntegrationTestEntity.insertVoiceEvent(1, 1, 0, 1, "COCK", "C2", 0.8, 1.0);
-    IntegrationTestEntity.insertVoiceEvent(2, 1, 1, 1, "SNORT", "G5", 0.1, 0.8);
-    IntegrationTestEntity.insertVoiceEvent(3, 1, 2.5, 1, "KICK", "C2", 0.8, 0.6);
-    IntegrationTestEntity.insertVoiceEvent(4, 1, 3, 1, "SNARL", "G5", 0.1, 0.9);
+    IntegrationTestEntity.insertVoiceEvent(1, 315, 1, 0, 1, "CLOCK", "C2", 0.8, 1.0);
+    IntegrationTestEntity.insertVoiceEvent(2, 315, 1, 1, 1, "SNORT", "G5", 0.1, 0.8);
+    IntegrationTestEntity.insertVoiceEvent(3, 315, 1, 2.5, 1, "KICK", "C2", 0.8, 0.6);
+    IntegrationTestEntity.insertVoiceEvent(4, 315, 1, 3, 1, "SNARL", "G5", 0.1, 0.9);
+
+    // These events should not be used, they are here to resolve issues from [#153976336] VoiceEvent belongs to Phase
+    IntegrationTestEntity.insertVoiceEvent(5, 316, 1, 0, 1, "JAM", "C2", 0.8, 1.0);
+    IntegrationTestEntity.insertVoiceEvent(6, 316, 1, 1, 1, "HAM", "G5", 0.1, 0.8);
+    IntegrationTestEntity.insertVoiceEvent(7, 316, 1, 2.5, 1, "MARMALADE", "C2", 0.8, 0.6);
+    IntegrationTestEntity.insertVoiceEvent(8, 316, 1, 3, 1, "TOAST", "G5", 0.1, 0.9);
 
     // detail pattern
     IntegrationTestEntity.insertPattern(7, 3, 2, PatternType.Detail, "Detail Jam", 0.3, "Cb minor", 170);

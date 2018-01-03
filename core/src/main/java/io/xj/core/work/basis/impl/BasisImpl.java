@@ -121,7 +121,7 @@ public class BasisImpl implements Basis {
   private final Map<BigInteger, Collection<LinkMeme>> _linkMemes = Maps.newConcurrentMap();
   private final Map<BigInteger, Collection<PhaseMeme>> _phaseMemes = Maps.newConcurrentMap();
   private final Map<BigInteger, Collection<VoiceEvent>> _voiceEvents = Maps.newConcurrentMap();
-  private final Map<BigInteger, Collection<Voice>> _voicesByPhase = Maps.newConcurrentMap();
+  private final Map<BigInteger, Collection<Voice>> _voicesByPattern = Maps.newConcurrentMap();
 
   @Inject
   public BasisImpl(
@@ -419,11 +419,11 @@ public class BasisImpl implements Basis {
   }
 
   @Override
-  public Collection<VoiceEvent> voiceEvents(BigInteger voiceId) throws Exception {
-    if (!_voiceEvents.containsKey(voiceId))
-      _voiceEvents.put(voiceId, voiceEventDAO.readAll(Access.internal(), voiceId));
+  public Collection<VoiceEvent> voiceEvents(BigInteger phaseId) throws Exception {
+    if (!_voiceEvents.containsKey(phaseId))
+      _voiceEvents.put(phaseId, voiceEventDAO.readAll(Access.internal(), phaseId));
 
-    return _voiceEvents.get(voiceId);
+    return _voiceEvents.get(phaseId);
   }
 
   @Override
@@ -570,12 +570,12 @@ public class BasisImpl implements Basis {
   }
 
   @Override
-  public Collection<Voice> voices(BigInteger phaseId) throws Exception {
-    if (!_voicesByPhase.containsKey(phaseId))
-      _voicesByPhase.put(phaseId,
-        voiceDAO.readAll(Access.internal(), phaseId));
+  public Collection<Voice> voices(BigInteger patternId) throws Exception {
+    if (!_voicesByPattern.containsKey(patternId))
+      _voicesByPattern.put(patternId,
+        voiceDAO.readAll(Access.internal(), patternId));
 
-    return _voicesByPhase.get(phaseId);
+    return _voicesByPattern.get(patternId);
   }
 
   @Override

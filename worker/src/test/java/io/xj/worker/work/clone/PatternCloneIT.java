@@ -94,7 +94,7 @@ public class PatternCloneIT {
 
     // Phase "Snare"
     IntegrationTestEntity.insertPhase(2, 1, 1, 16, "Verse", 0.5, "C", 120.0);
-    IntegrationTestEntity.insertVoice(2, 2, InstrumentType.Percussive, "SNARE");
+    IntegrationTestEntity.insertVoice(2, 1, InstrumentType.Percussive, "SNARE");
     IntegrationTestEntity.insertPhaseChord(2, 2, 0, "Gm9");
 
     // Newly cloned pattern -- awaiting PatternClone job to run, and create its child entities

@@ -21,6 +21,7 @@ public class VoiceEvent extends Event {
   public static final String KEY_ONE = "voiceEvent";
   public static final String KEY_MANY = "voiceEvents";
   private BigInteger voiceId;
+  private BigInteger phaseId;
 
   @Override
   public VoiceEvent setDuration(Double duration) {
@@ -69,10 +70,21 @@ public class VoiceEvent extends Event {
 
   @Override
   public void validate() throws BusinessException {
-    super.validate();
     if (null == voiceId) {
       throw new BusinessException("Voice ID is required.");
     }
+    if (null == phaseId) {
+      throw new BusinessException("Phase ID is required.");
+    }
+    super.validate();
   }
 
+  public VoiceEvent setPhaseId(BigInteger phaseId) {
+    this.phaseId = phaseId;
+    return this;
+  }
+
+  public BigInteger getPhaseId() {
+    return phaseId;
+  }
 }

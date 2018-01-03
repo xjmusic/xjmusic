@@ -25,7 +25,7 @@ import java.io.IOException;
  */
 @Path("auth/no")
 public class AuthNullifyResource {
-  private Injector injector = Guice.createInjector(new CoreModule());
+  private final Injector injector = Guice.createInjector(new CoreModule());
   private final UserDAO userDAO = injector.getInstance(UserDAO.class);
   private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
   private final AccessControlProvider accessControlProvider = injector.getInstance(AccessControlProvider.class);
@@ -37,7 +37,7 @@ public class AuthNullifyResource {
    */
   @GET
   @WebResult
-  @RolesAllowed({UserRoleType.USER})
+  @RolesAllowed(UserRoleType.USER)
   public Response getCurrentAuthentication(@Context ContainerRequestContext crc) throws IOException {
     Access access = Access.fromContext(crc);
     try {

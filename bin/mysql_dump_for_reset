@@ -38,9 +38,11 @@ EXAMPLE_SQL=${PWD}/reset_database.sql
 # ensure platform is packaged
 ensure_file ${EXAMPLE_SQL} "Example MySQL database"
 
-# connect to ${HOST}
 step "Client SQL execution"
-${MYSQLDUMP_COMMAND} -u${MYSQL_USER} -h 127.0.0.1 -P ${MYSQL_PORT} ${MYSQL_ARGS} ${MYSQL_DB} ${MYSQL_TABLES} > ${EXAMPLE_SQL}
+# first structure of all tables
+${MYSQLDUMP_COMMAND} --no-data -u${MYSQL_USER} -h 127.0.0.1 -P ${MYSQL_PORT} ${MYSQL_ARGS} ${MYSQL_DB} > ${EXAMPLE_SQL}
+# then append data from only certain tables
+${MYSQLDUMP_COMMAND} --no-create-info -u${MYSQL_USER} -h 127.0.0.1 -P ${MYSQL_PORT} ${MYSQL_ARGS} ${MYSQL_DB} ${MYSQL_TABLES} >> ${EXAMPLE_SQL}
 step_ok
 
 #

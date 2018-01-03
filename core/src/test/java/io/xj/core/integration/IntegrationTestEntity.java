@@ -295,18 +295,19 @@ public interface IntegrationTestEntity {
     record.store();
   }
 
-  static void insertVoice(int id, int phaseId, InstrumentType type, String description) {
+  static void insertVoice(int id, int patternId, InstrumentType type, String description) {
     VoiceRecord record = IntegrationTestService.getDb().newRecord(VOICE);
     record.setId(ULong.valueOf(id));
-    record.setPhaseId(ULong.valueOf(phaseId));
+    record.setPatternId(ULong.valueOf(patternId));
     record.setType(type.toString());
     record.setDescription(description);
     record.store();
   }
 
-  static void insertVoiceEvent(int id, int voiceId, double position, double duration, String inflection, String note, double tonality, double velocity) {
+  static void insertVoiceEvent(int id, int phaseId, int voiceId, double position, double duration, String inflection, String note, double tonality, double velocity) {
     VoiceEventRecord record = IntegrationTestService.getDb().newRecord(VOICE_EVENT);
     record.setId(ULong.valueOf(id));
+    record.setPhaseId(ULong.valueOf(phaseId));
     record.setVoiceId(ULong.valueOf(voiceId));
     record.setPosition(position);
     record.setDuration(duration);

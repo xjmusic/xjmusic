@@ -16,10 +16,9 @@ a {
   }
 }
 
-p {
-  strong {
-    color: $bright;
-  }
+strong,
+p strong {
+  color: $bright;
 }
 
 img {

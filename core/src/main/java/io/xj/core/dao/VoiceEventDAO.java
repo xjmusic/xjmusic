@@ -34,11 +34,11 @@ public interface VoiceEventDAO {
    Fetch all accessible Voice Event for one Voice by id
 
    @param access  control
-   @param voiceId to fetch voices for.
+   @param phaseId to fetch voices for.
    @return JSONArray of voices.
    @throws Exception on failure
    */
-  Collection<VoiceEvent> readAll(Access access, BigInteger voiceId) throws Exception;
+  Collection<VoiceEvent> readAll(Access access, BigInteger phaseId) throws Exception;
 
   /**
    Update a specified Voice Event if accessible

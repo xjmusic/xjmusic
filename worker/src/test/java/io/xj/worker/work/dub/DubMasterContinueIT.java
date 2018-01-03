@@ -106,13 +106,13 @@ public class DubMasterContinueIT {
     // setup voice second phase
     IntegrationTestEntity.insertPhase(315, 35, 1, 4, "Drop", 0.5, "C", 125.0);
     IntegrationTestEntity.insertPhaseMeme(346, 315, "Heavy");
-    IntegrationTestEntity.insertVoice(1, 315, InstrumentType.Percussive, "drums");
+    IntegrationTestEntity.insertVoice(1, 35, InstrumentType.Percussive, "drums");
 
     // Voice "Drums" has events "BOOM" and "SMACK" 2x each
-    IntegrationTestEntity.insertVoiceEvent(1, 1, 0, 1, "BOOM", "C2", 0.8, 1.0);
-    IntegrationTestEntity.insertVoiceEvent(2, 1, 1, 1, "SMACK", "G5", 0.1, 0.8);
-    IntegrationTestEntity.insertVoiceEvent(3, 1, 2.5, 1, "BOOM", "C2", 0.8, 0.6);
-    IntegrationTestEntity.insertVoiceEvent(4, 1, 3, 1, "SMACK", "G5", 0.1, 0.9);
+    IntegrationTestEntity.insertVoiceEvent(1, 315, 1, 0, 1, "BOOM", "C2", 0.8, 1.0);
+    IntegrationTestEntity.insertVoiceEvent(2, 315, 1, 1, 1, "SMACK", "G5", 0.1, 0.8);
+    IntegrationTestEntity.insertVoiceEvent(3, 315, 1, 2.5, 1, "BOOM", "C2", 0.8, 0.6);
+    IntegrationTestEntity.insertVoiceEvent(4, 315, 1, 3, 1, "SMACK", "G5", 0.1, 0.9);
 
     // detail pattern
     IntegrationTestEntity.insertPattern(7, 3, 2, PatternType.Detail, "Detail Jam", 0.3, "Cb minor", 170);

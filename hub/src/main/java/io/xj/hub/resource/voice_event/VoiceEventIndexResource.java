@@ -38,8 +38,8 @@ public class VoiceEventIndexResource {
   private final VoiceEventDAO voiceEventDAO = injector.getInstance(VoiceEventDAO.class);
   private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
 
-  @QueryParam("voiceId")
-  String voiceId;
+  @QueryParam("phaseId")
+  String phaseId;
 
   /**
    Get all voiceEvents.
@@ -51,8 +51,8 @@ public class VoiceEventIndexResource {
   @RolesAllowed(UserRoleType.ARTIST)
   public Response readAll(@Context ContainerRequestContext crc) throws IOException {
 
-    if (Objects.isNull(voiceId) || voiceId.isEmpty()) {
-      return response.notAcceptable("Voice id is required");
+    if (Objects.isNull(phaseId) || phaseId.isEmpty()) {
+      return response.notAcceptable("Phase id is required");
     }
 
     try {
@@ -60,7 +60,7 @@ public class VoiceEventIndexResource {
         VoiceEvent.KEY_MANY,
         voiceEventDAO.readAll(
           Access.fromContext(crc),
-          new BigInteger(voiceId)));
+          new BigInteger(phaseId)));
 
     } catch (Exception e) {
       return response.failure(e);

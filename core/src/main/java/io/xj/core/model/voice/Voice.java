@@ -10,7 +10,7 @@ import java.util.Objects;
 
 /**
  POJO for persisting data in memory while performing business logic,
-or decoding messages received by JAX-RS resources.
+ or decoding messages received by JAX-RS resources.
  a.k.a. JSON input will be stored into an instance of this object
  <p>
  Business logic ought to be performed beginning with an instance of this object,
@@ -23,17 +23,17 @@ public class Voice extends Entity {
   public static final String KEY_ONE = "voice";
   public static final String KEY_MANY = "voices";
 
-  private BigInteger phaseId;
   private String _type; // to hold value before validation
   private InstrumentType type;
   private String description;
+  private BigInteger patternId;
 
-  public BigInteger getPhaseId() {
-    return phaseId;
+  public BigInteger getPatternId() {
+    return patternId;
   }
 
-  public Voice setPhaseId(BigInteger phaseId) {
-    this.phaseId = phaseId;
+  public Voice setPatternId(BigInteger patternId) {
+    this.patternId = patternId;
     return this;
   }
 
@@ -64,8 +64,8 @@ public class Voice extends Entity {
     // throws its own BusinessException on failure
     type = InstrumentType.validate(_type);
 
-    if (Objects.isNull(phaseId)) {
-      throw new BusinessException("Phase ID is required.");
+    if (Objects.isNull(patternId)) {
+      throw new BusinessException("Pattern ID is required.");
     }
     if (Objects.isNull(type)) {
       throw new BusinessException("Type is required.");

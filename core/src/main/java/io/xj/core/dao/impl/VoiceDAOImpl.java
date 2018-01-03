@@ -25,7 +25,6 @@ import static io.xj.core.Tables.PICK;
 import static io.xj.core.tables.Arrangement.ARRANGEMENT;
 import static io.xj.core.tables.Library.LIBRARY;
 import static io.xj.core.tables.Pattern.PATTERN;
-import static io.xj.core.tables.Phase.PHASE;
 import static io.xj.core.tables.Voice.VOICE;
 import static io.xj.core.tables.VoiceEvent.VOICE_EVENT;
 
@@ -61,20 +60,10 @@ public class VoiceDAOImpl extends DAOImpl implements VoiceDAO {
 
   @Override
   @Nullable
-  public Collection<Voice> readAll(Access access, BigInteger phaseId) throws Exception {
+  public Collection<Voice> readAll(Access access, BigInteger patternId) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readAll(tx.getContext(), access, ULong.valueOf(phaseId)));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public Collection<Voice> readAllForPatternPhaseOffset(Access access, BigInteger patternId, BigInteger phaseOffset) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readAllForPatternPhaseOffset(tx.getContext(), access, ULong.valueOf(patternId), ULong.valueOf(phaseOffset)));
+      return tx.success(readAll(tx.getContext(), access, ULong.valueOf(patternId)));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -113,22 +102,9 @@ public class VoiceDAOImpl extends DAOImpl implements VoiceDAO {
    */
   private static Voice create(DSLContext db, Access access, Voice entity) throws BusinessException {
     entity.validate();
+    requireRelationships(db, access, entity);
 
-    Map<Field, Object> fieldValues = fieldValueMap(entity);
-
-    if (access.isTopLevel())
-      requireExists("Phase", db.selectCount().from(PHASE)
-        .where(PHASE.ID.eq(ULong.valueOf(entity.getPhaseId())))
-        .fetchOne(0, int.class));
-    else
-      requireExists("Phase", db.selectCount().from(PHASE)
-        .join(PATTERN).on(PATTERN.ID.eq(PHASE.PATTERN_ID))
-        .join(LIBRARY).on(LIBRARY.ID.eq(PATTERN.LIBRARY_ID))
-        .where(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
-        .and(PHASE.ID.eq(ULong.valueOf(entity.getPhaseId())))
-        .fetchOne(0, int.class));
-
-    return modelFrom(executeCreate(db, VOICE, fieldValues), Voice.class);
+    return modelFrom(executeCreate(db, VOICE, fieldValueMap(entity)), Voice.class);
   }
 
   /**
@@ -147,8 +123,7 @@ public class VoiceDAOImpl extends DAOImpl implements VoiceDAO {
     else
       return modelFrom(db.select(VOICE.fields())
         .from(VOICE)
-        .join(PHASE).on(PHASE.ID.eq(VOICE.PHASE_ID))
-        .join(PATTERN).on(PATTERN.ID.eq(PHASE.PATTERN_ID))
+        .join(PATTERN).on(PATTERN.ID.eq(VOICE.PATTERN_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(PATTERN.LIBRARY_ID))
         .where(VOICE.ID.eq(id))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
@@ -158,45 +133,25 @@ public class VoiceDAOImpl extends DAOImpl implements VoiceDAO {
   /**
    Read all Voice able for an Phase
 
-   @param db      context
-   @param access  control
-   @param phaseId to readMany all voice of
+   @param db        context
+   @param access    control
+   @param patternId to readMany all voice of
    @return array of voices
    */
-  private static Collection<Voice> readAll(DSLContext db, Access access, ULong phaseId) throws BusinessException {
+  private static Collection<Voice> readAll(DSLContext db, Access access, ULong patternId) throws BusinessException {
     if (access.isTopLevel())
       return modelsFrom(db.select(VOICE.fields())
         .from(VOICE)
-        .where(VOICE.PHASE_ID.eq(phaseId))
+        .where(VOICE.PATTERN_ID.eq(patternId))
         .fetch(), Voice.class);
     else
       return modelsFrom(db.select(VOICE.fields())
         .from(VOICE)
-        .join(PHASE).on(PHASE.ID.eq(VOICE.PHASE_ID))
-        .join(PATTERN).on(PATTERN.ID.eq(PHASE.PATTERN_ID))
+        .join(PATTERN).on(PATTERN.ID.eq(VOICE.PATTERN_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(PATTERN.LIBRARY_ID))
-        .where(VOICE.PHASE_ID.eq(phaseId))
+        .where(VOICE.PATTERN_ID.eq(patternId))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .fetch(), Voice.class);
-  }
-
-  /**
-   Fetch all accessible Voice for an pattern phase by offset
-
-   @param access      control
-   @param patternId   to fetch phase voices for
-   @param phaseOffset offset of phase in pattern
-   @return voices in phase
-   */
-  private static Collection<Voice> readAllForPatternPhaseOffset(DSLContext db, Access access, ULong patternId, ULong phaseOffset) throws Exception {
-    requireTopLevel(access);
-
-    return modelsFrom(db.select(VOICE.fields())
-      .from(VOICE)
-      .join(PHASE).on(PHASE.ID.eq(VOICE.PHASE_ID))
-      .where(PHASE.PATTERN_ID.eq(patternId))
-      .and(PHASE.OFFSET.eq(phaseOffset))
-      .fetch(), Voice.class);
   }
 
   /**
@@ -210,22 +165,10 @@ public class VoiceDAOImpl extends DAOImpl implements VoiceDAO {
    */
   private static void update(DSLContext db, Access access, ULong id, Voice entity) throws Exception {
     entity.validate();
+    requireRelationships(db, access, entity);
 
     Map<Field, Object> fieldValues = fieldValueMap(entity);
     fieldValues.put(VOICE.ID, id);
-
-    if (access.isTopLevel())
-      requireExists("Phase", db.selectCount().from(PHASE)
-        .where(PHASE.ID.eq(ULong.valueOf(entity.getPhaseId())))
-        .fetchOne(0, int.class));
-    else
-      requireExists("Phase", db.selectCount().from(PHASE)
-        .join(PATTERN).on(PATTERN.ID.eq(PHASE.PATTERN_ID))
-        .join(LIBRARY).on(LIBRARY.ID.eq(PATTERN.LIBRARY_ID))
-        .where(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
-        .and(PHASE.ID.eq(ULong.valueOf(entity.getPhaseId())))
-        .fetchOne(0, int.class));
-
     if (0 == executeUpdate(db, VOICE, fieldValues))
       throw new BusinessException("No records updated.");
   }
@@ -242,8 +185,7 @@ public class VoiceDAOImpl extends DAOImpl implements VoiceDAO {
   private static void delete(Access access, DSLContext db, ULong id) throws Exception {
     if (!access.isTopLevel())
       requireExists("Voice", db.selectCount().from(VOICE)
-        .join(PHASE).on(PHASE.ID.eq(VOICE.PHASE_ID))
-        .join(PATTERN).on(PATTERN.ID.eq(PHASE.PATTERN_ID))
+        .join(PATTERN).on(PATTERN.ID.eq(VOICE.PATTERN_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(PATTERN.LIBRARY_ID))
         .where(VOICE.ID.eq(id))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
@@ -269,6 +211,27 @@ public class VoiceDAOImpl extends DAOImpl implements VoiceDAO {
   }
 
   /**
+   Require that related records exist
+
+   @param db     context
+   @param access control
+   @param entity to validate
+   @throws BusinessException if relationships do not exist
+   */
+  private static void requireRelationships(DSLContext db, Access access, Voice entity) throws BusinessException {
+    if (access.isTopLevel())
+      requireExists("Pattern", db.selectCount().from(PATTERN)
+        .where(PATTERN.ID.eq(ULong.valueOf(entity.getPatternId())))
+        .fetchOne(0, int.class));
+    else
+      requireExists("Pattern", db.selectCount().from(PATTERN)
+        .join(LIBRARY).on(LIBRARY.ID.eq(PATTERN.LIBRARY_ID))
+        .where(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+        .and(PATTERN.ID.eq(ULong.valueOf(entity.getPatternId())))
+        .fetchOne(0, int.class));
+  }
+
+  /**
    Only certain (writable) fields are mapped back to jOOQ records--
    Read-only fields are excluded from here.
 
@@ -277,7 +240,7 @@ public class VoiceDAOImpl extends DAOImpl implements VoiceDAO {
    */
   private static Map<Field, Object> fieldValueMap(Voice entity) {
     Map<Field, Object> fieldValues = Maps.newHashMap();
-    fieldValues.put(VOICE.PHASE_ID, entity.getPhaseId());
+    fieldValues.put(VOICE.PATTERN_ID, entity.getPatternId());
     fieldValues.put(VOICE.TYPE, entity.getType());
     fieldValues.put(VOICE.DESCRIPTION, entity.getDescription());
     return fieldValues;

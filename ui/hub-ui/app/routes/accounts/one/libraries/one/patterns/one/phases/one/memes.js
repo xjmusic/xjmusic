@@ -50,7 +50,7 @@ export default Route.extend({
       });
       phaseMeme.save().then(
         () => {
-          get(this, 'display').success('Added ' + phaseMeme.get('name') + ' to ' + model.phase.get('name') + '.');
+          get(this, 'display').success('Added ' + phaseMeme.get('name') + ' to ' + model.pattern.get('name') + '.');
           this.send("sessionChanged");
         },
         (error) => {

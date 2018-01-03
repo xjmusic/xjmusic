@@ -36,8 +36,8 @@ public class VoiceIndexResource {
   private final VoiceDAO voiceDAO = injector.getInstance(VoiceDAO.class);
   private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
 
-  @QueryParam("phaseId")
-  String phaseId;
+  @QueryParam("patternId")
+  String patternId;
 
   /**
    Get all voices.
@@ -49,8 +49,8 @@ public class VoiceIndexResource {
   @RolesAllowed(UserRoleType.ARTIST)
   public Response readAll(@Context ContainerRequestContext crc) throws IOException {
 
-    if (Objects.isNull(phaseId) || phaseId.isEmpty()) {
-      return response.notAcceptable("Phase id is required");
+    if (Objects.isNull(patternId) || patternId.isEmpty()) {
+      return response.notAcceptable("Pattern id is required");
     }
 
     try {
@@ -58,7 +58,7 @@ public class VoiceIndexResource {
         Voice.KEY_MANY,
         voiceDAO.readAll(
           Access.fromContext(crc),
-          new BigInteger(phaseId)));
+          new BigInteger(patternId)));
 
     } catch (Exception e) {
       return response.failure(e);

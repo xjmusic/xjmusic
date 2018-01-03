@@ -1,18 +1,15 @@
 @import "ember-modal-dialog/ember-modal-structure";
 @import "ember-modal-dialog/ember-modal-appearance";
 
-#modal-overlays
-{
+#modal-overlays {
   z-index: 40000;
 
-  .ember-modal-overlay
-  {
+  .ember-modal-overlay {
     background-color: rgba(0, 0, 0, 0.6);
     position: fixed; //??
   }
 
-  .ember-modal-dialog
-  {
+  .ember-modal-dialog {
     z-index: 60000;
     position: fixed;
     background-color: $lower-gray;
@@ -22,4 +19,16 @@
     overflow: auto; //??
   }
 
+}
+
+.modal-content {
+  width: 100%;
+  .modal-body {
+    width: 100%;
+    pre {
+      overflow: auto;
+      word-wrap: normal;
+      white-space: pre;
+    }
+  }
 }

@@ -28,7 +28,7 @@ export default Route.extend({
           resolve(self.resolvedModel());
         },
         (error) => {
-          reject('Could not instantiate Voice model', error);
+          reject('Could not instantiate Phase model', error);
         }
       );
     });
@@ -43,9 +43,9 @@ export default Route.extend({
     let auth = this.get('auth');
     if (auth.isArtist || auth.isAdmin) {
       let pattern = this.modelFor('accounts.one.libraries.one.patterns.one');
-      let phase = this.modelFor('accounts.one.libraries.one.patterns.one.phases.one');
-      phase.set('pattern', pattern);
-      return phase;
+      let model = this.modelFor('accounts.one.libraries.one.patterns.one.phases.one');
+      model.set('pattern', pattern);
+      return model;
     } else {
       this.transitionTo('accounts.one.libraries.one.patterns.one.phases');
     }

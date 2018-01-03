@@ -17,6 +17,7 @@ public class VoiceEventTest {
   public void validate() throws Exception {
     new VoiceEvent()
       .setVoiceId(BigInteger.valueOf(1235))
+      .setPhaseId(BigInteger.valueOf(1235))
       .setPosition(0.75)
       .setDuration(3.45)
       .setInflection("SMACK")
@@ -33,6 +34,7 @@ public class VoiceEventTest {
 
     new VoiceEvent()
       .setVoiceId(BigInteger.valueOf(1235))
+      .setPhaseId(BigInteger.valueOf(1235))
       .setPosition(0.75)
       .setInflection("SMACK")
       .setNote("D6")
@@ -47,6 +49,23 @@ public class VoiceEventTest {
     failure.expectMessage("Voice ID is required");
 
     new VoiceEvent()
+      .setPhaseId(BigInteger.valueOf(1235))
+      .setPosition(0.75)
+      .setDuration(3.45)
+      .setInflection("SMACK")
+      .setNote("D6")
+      .setTonality(0.6)
+      .setVelocity(0.9)
+      .validate();
+  }
+
+  @Test
+  public void validate_failsWithoutPhaseID() throws Exception {
+    failure.expect(BusinessException.class);
+    failure.expectMessage("Phase ID is required");
+
+    new VoiceEvent()
+      .setVoiceId(BigInteger.valueOf(1235))
       .setPosition(0.75)
       .setDuration(3.45)
       .setInflection("SMACK")
@@ -62,6 +81,7 @@ public class VoiceEventTest {
     failure.expectMessage("Position is required");
 
     new VoiceEvent()
+      .setPhaseId(BigInteger.valueOf(1235))
       .setVoiceId(BigInteger.valueOf(1235))
       .setDuration(3.45)
       .setInflection("SMACK")
@@ -77,6 +97,7 @@ public class VoiceEventTest {
     failure.expectMessage("Inflection is required");
 
     new VoiceEvent()
+      .setPhaseId(BigInteger.valueOf(1235))
       .setVoiceId(BigInteger.valueOf(1235))
       .setPosition(0.75)
       .setDuration(3.45)
@@ -92,6 +113,7 @@ public class VoiceEventTest {
     failure.expectMessage("Note is required");
 
     new VoiceEvent()
+      .setPhaseId(BigInteger.valueOf(1235))
       .setVoiceId(BigInteger.valueOf(1235))
       .setPosition(0.75)
       .setDuration(3.45)
@@ -107,6 +129,7 @@ public class VoiceEventTest {
     failure.expectMessage("Tonality is required");
 
     new VoiceEvent()
+      .setPhaseId(BigInteger.valueOf(1235))
       .setVoiceId(BigInteger.valueOf(1235))
       .setPosition(0.75)
       .setDuration(3.45)
@@ -122,6 +145,7 @@ public class VoiceEventTest {
     failure.expectMessage("Velocity is required");
 
     new VoiceEvent()
+      .setPhaseId(BigInteger.valueOf(1235))
       .setVoiceId(BigInteger.valueOf(1235))
       .setPosition(0.75)
       .setDuration(3.45)

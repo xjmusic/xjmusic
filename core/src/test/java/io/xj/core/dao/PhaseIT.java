@@ -604,11 +604,11 @@ public class PhaseIT {
     IntegrationTestEntity.insertPhaseChord(2011, 1, 0, "G");
     IntegrationTestEntity.insertPhaseChord(2012, 1, 2, "D");
     IntegrationTestEntity.insertVoice(2051, 1, InstrumentType.Percussive, "Smash");
-    IntegrationTestEntity.insertVoiceEvent(2061, 2051, 1, 4, "Bang", "G2", 0, 1);
-    IntegrationTestEntity.insertVoiceEvent(2062, 2051, 3, 4, "Crash", "D2", 0, 1);
+    IntegrationTestEntity.insertVoiceEvent(2061, 1, 2051, 1, 4, "Bang", "G2", 0, 1);
+    IntegrationTestEntity.insertVoiceEvent(2062, 1, 2051, 3, 4, "Crash", "D2", 0, 1);
     IntegrationTestEntity.insertVoice(2052, 1, InstrumentType.Percussive, "Boom");
-    IntegrationTestEntity.insertVoiceEvent(2063, 2052, 0, 4, "Poom", "C3", 1, 1);
-    IntegrationTestEntity.insertVoiceEvent(2064, 2052, 2, 4, "Paam", "F4", 1, 1);
+    IntegrationTestEntity.insertVoiceEvent(2063, 1, 2052, 0, 4, "Poom", "C3", 1, 1);
+    IntegrationTestEntity.insertVoiceEvent(2064, 1, 2052, 2, 4, "Paam", "F4", 1, 1);
     IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Ready, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"), null);
     IntegrationTestEntity.insertLink(1, 1, 0, LinkState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120, "chain-1-link-97898asdf7892.wav");
     IntegrationTestEntity.insertInstrument(9, 1, 2, "jams", InstrumentType.Percussive, 0.6);
@@ -623,8 +623,6 @@ public class PhaseIT {
     assertNull(injector.getInstance(VoiceEventDAO.class).readOne(Access.internal(), BigInteger.valueOf(2062)));
     assertNull(injector.getInstance(VoiceEventDAO.class).readOne(Access.internal(), BigInteger.valueOf(2063)));
     assertNull(injector.getInstance(VoiceEventDAO.class).readOne(Access.internal(), BigInteger.valueOf(2064)));
-    assertNull(injector.getInstance(VoiceDAO.class).readOne(Access.internal(), BigInteger.valueOf(2051)));
-    assertNull(injector.getInstance(VoiceDAO.class).readOne(Access.internal(), BigInteger.valueOf(2052)));
     assertNull(injector.getInstance(PhaseChordDAO.class).readOne(Access.internal(), BigInteger.valueOf(2012)));
     assertNull(injector.getInstance(PhaseChordDAO.class).readOne(Access.internal(), BigInteger.valueOf(2011)));
     assertNull(injector.getInstance(PhaseMemeDAO.class).readOne(Access.internal(), BigInteger.valueOf(2001)));

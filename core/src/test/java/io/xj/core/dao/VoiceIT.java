@@ -77,7 +77,7 @@ public class VoiceIT {
       "accounts", "1"
     ));
     Voice inputData = new Voice()
-      .setPhaseId(BigInteger.valueOf(2))
+      .setPatternId(BigInteger.valueOf(1))
       .setType("Harmonic")
       .setDescription("This is harmonious");
 
@@ -86,11 +86,11 @@ public class VoiceIT {
     assertNotNull(result);
     assertEquals(InstrumentType.Harmonic, result.getType());
     assertEquals("This is harmonious", result.getDescription());
-    assertEquals(BigInteger.valueOf(2), result.getPhaseId());
+    assertEquals(BigInteger.valueOf(1), result.getPatternId());
   }
 
   @Test(expected = BusinessException.class)
-  public void create_FailsWithoutPhaseID() throws Exception {
+  public void create_FailsWithoutPatternID() throws Exception {
     Access access = Access.from(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
@@ -109,7 +109,7 @@ public class VoiceIT {
       "accounts", "1"
     ));
     Voice inputData = new Voice()
-      .setPhaseId(BigInteger.valueOf(2))
+      .setPatternId(BigInteger.valueOf(2))
       .setDescription("This is harmonious");
 
     testDAO.create(access, inputData);
@@ -126,7 +126,7 @@ public class VoiceIT {
 
     assertNotNull(result);
     assertEquals(BigInteger.valueOf(2), result.getId());
-    assertEquals(BigInteger.valueOf(1), result.getPhaseId());
+    assertEquals(BigInteger.valueOf(1), result.getPatternId());
     assertEquals(InstrumentType.Melodic, result.getType());
     assertEquals("This is melodious", result.getDescription());
   }
@@ -177,22 +177,6 @@ public class VoiceIT {
     assertEquals(0, result.length());
   }
 
-  @Test
-  public void readAllForPatternPhaseOffset() throws Exception {
-    JSONArray result = JSON.arrayOf(testDAO.readAllForPatternPhaseOffset(Access.internal(), BigInteger.valueOf(1), BigInteger.valueOf(0)));
-
-    assertNotNull(result);
-    assertEquals(4, result.length());
-    JSONObject result1 = (JSONObject) result.get(0);
-    assertEquals("This is a percussive voice", result1.get("description"));
-    JSONObject result2 = (JSONObject) result.get(1);
-    assertEquals("This is melodious", result2.get("description"));
-    JSONObject result3 = (JSONObject) result.get(2);
-    assertEquals("This is harmonious", result3.get("description"));
-    JSONObject result4 = (JSONObject) result.get(3);
-    assertEquals("This is a vocal voice", result4.get("description"));
-  }
-
   @Test(expected = BusinessException.class)
   public void update_FailsWithoutPhaseID() throws Exception {
     Access access = Access.from(ImmutableMap.of(
@@ -213,7 +197,7 @@ public class VoiceIT {
       "accounts", "1"
     ));
     Voice inputData = new Voice()
-      .setPhaseId(BigInteger.valueOf(2))
+      .setPatternId(BigInteger.valueOf(2))
       .setDescription("This is harmonious");
 
     testDAO.update(access, BigInteger.valueOf(3), inputData);
@@ -226,7 +210,7 @@ public class VoiceIT {
       "accounts", "1"
     ));
     Voice inputData = new Voice()
-      .setPhaseId(BigInteger.valueOf(7))
+      .setPatternId(BigInteger.valueOf(7))
       .setType("Melodic")
       .setDescription("This is melodious");
 
@@ -238,7 +222,7 @@ public class VoiceIT {
       assertNotNull(result);
       assertEquals(InstrumentType.Harmonic, result.getType());
       assertEquals("This is harmonious", result.getDescription());
-      assertEquals(BigInteger.valueOf(1), result.getPhaseId());
+      assertEquals(BigInteger.valueOf(1), result.getPatternId());
       throw e;
     }
   }
@@ -250,7 +234,7 @@ public class VoiceIT {
       "accounts", "1"
     ));
     Voice inputData = new Voice()
-      .setPhaseId(BigInteger.valueOf(1))
+      .setPatternId(BigInteger.valueOf(1))
       .setType("Melodic")
       .setDescription("This is melodious; Yoza!");
 
@@ -260,7 +244,7 @@ public class VoiceIT {
     assertNotNull(result);
     assertEquals("This is melodious; Yoza!", result.getDescription());
     assertEquals(InstrumentType.Melodic, result.getType());
-    assertEquals(BigInteger.valueOf(1), result.getPhaseId());
+    assertEquals(BigInteger.valueOf(1), result.getPatternId());
   }
 
   // future test: DAO cannot update Pattern to a User or Library not owned by current session
@@ -318,8 +302,8 @@ public class VoiceIT {
       "roles", "Artist",
       "accounts", "1"
     ));
-    IntegrationTestEntity.insertVoiceEvent(21, 1, 0.42, 0.41, "HEAVY", "C", 0.7, 0.98);
-    IntegrationTestEntity.insertVoiceEvent(22, 1, 2.42, 0.41, "HEAVY", "C", 0.7, 0.98);
+    IntegrationTestEntity.insertVoiceEvent(21, 1, 1, 0.42, 0.41, "HEAVY", "C", 0.7, 0.98);
+    IntegrationTestEntity.insertVoiceEvent(22, 1, 1, 2.42, 0.41, "HEAVY", "C", 0.7, 0.98);
     IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Ready, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"), null);
     IntegrationTestEntity.insertLink(1, 1, 0, LinkState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120, "chain-1-link-97898asdf7892.wav");
     IntegrationTestEntity.insertInstrument(9, 1, 2, "jams", InstrumentType.Percussive, 0.6);

@@ -62,6 +62,17 @@ function accountLibraryPattern() {
   this.route('destroy');
   this.route('memes');
   this.route('phases', accountLibraryPatternPhases);
+  this.route('voices', accountLibraryPatternVoices);
+}
+
+function accountLibraryPatternVoices() {
+  this.route('new');
+  this.route('one', {path: '/:voice_id'}, accountLibraryPatternVoice);
+}
+
+function accountLibraryPatternVoice() {
+  this.route('edit');
+  this.route('destroy');
 }
 
 function accountLibraryPatternPhases() {
@@ -75,7 +86,7 @@ function accountLibraryPatternPhase() {
   this.route('destroy');
   this.route('memes');
   this.route('chords', accountLibraryPatternPhaseChords);
-  this.route('voices', accountLibraryPatternPhaseVoices);
+  this.route('events', accountLibraryPatternPhaseEvents);
 }
 
 function accountLibraryPatternPhaseChords() {
@@ -88,23 +99,12 @@ function accountLibraryPatternPhaseChord() {
   this.route('destroy');
 }
 
-function accountLibraryPatternPhaseVoices() {
+function accountLibraryPatternPhaseEvents() {
   this.route('new');
-  this.route('one', {path: '/:voice_id'}, accountLibraryPatternPhaseVoice);
+  this.route('one', {path: '/:event_id'}, accountLibraryPatternPhaseEvent);
 }
 
-function accountLibraryPatternPhaseVoice() {
-  this.route('edit');
-  this.route('destroy');
-  this.route('events', accountLibraryPatternPhaseVoiceEvents);
-}
-
-function accountLibraryPatternPhaseVoiceEvents() {
-  this.route('new');
-  this.route('one', {path: '/:event_id'}, accountLibraryPatternPhaseVoiceEvent);
-}
-
-function accountLibraryPatternPhaseVoiceEvent() {
+function accountLibraryPatternPhaseEvent() {
   this.route('edit');
   this.route('destroy');
 }

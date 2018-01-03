@@ -52,14 +52,14 @@ public class VoiceEventIT {
     IntegrationTestEntity.insertPhase(2, 1, 1, 4, "Outro", 0.583, "E major", 140.0);
 
     // Voice "Caterpillars" has voices "Drums" and "Bass"
-    IntegrationTestEntity.insertVoice(1, 2, InstrumentType.Percussive, "Drums");
-    IntegrationTestEntity.insertVoice(2, 2, InstrumentType.Harmonic, "Bass");
+    IntegrationTestEntity.insertVoice(1, 1, InstrumentType.Percussive, "Drums");
+    IntegrationTestEntity.insertVoice(2, 1, InstrumentType.Harmonic, "Bass");
 
     // Voice "Drums" has events "BOOM" and "SMACK" 2x each
-    IntegrationTestEntity.insertVoiceEvent(1, 1, 0, 1, "BOOM", "C", 0.8, 1.0);
-    IntegrationTestEntity.insertVoiceEvent(2, 1, 1, 1, "SMACK", "G", 0.1, 0.8);
-    IntegrationTestEntity.insertVoiceEvent(3, 1, 2.5, 1, "BOOM", "C", 0.8, 0.6);
-    IntegrationTestEntity.insertVoiceEvent(4, 1, 3, 1, "SMACK", "G", 0.1, 0.9);
+    IntegrationTestEntity.insertVoiceEvent(1, 1, 1, 0, 1, "BOOM", "C", 0.8, 1.0);
+    IntegrationTestEntity.insertVoiceEvent(2, 1, 1, 1, 1, "SMACK", "G", 0.1, 0.8);
+    IntegrationTestEntity.insertVoiceEvent(3, 1, 1, 2.5, 1, "BOOM", "C", 0.8, 0.6);
+    IntegrationTestEntity.insertVoiceEvent(4, 1, 1, 3, 1, "SMACK", "G", 0.1, 0.9);
 
     // Instantiate the test subject
     testDAO = injector.getInstance(VoiceEventDAO.class);
@@ -83,6 +83,7 @@ public class VoiceEventIT {
       .setPosition(0.42)
       .setTonality(0.92)
       .setVelocity(0.72)
+      .setPhaseId(BigInteger.valueOf(1))
       .setVoiceId(BigInteger.valueOf(2));
 
     JSONObject result = JSON.objectFrom(testDAO.create(access, inputData));
@@ -94,6 +95,7 @@ public class VoiceEventIT {
     assertEquals("BOOM", result.get("inflection"));
     assertEquals(0.92, result.get("tonality"));
     assertEquals(0.72, result.get("velocity"));
+    assertEquals(1, result.get("phaseId"));
     assertEquals(2, result.get("voiceId"));
   }
 
@@ -209,6 +211,25 @@ public class VoiceEventIT {
       .setNote("C")
       .setPosition(0.0)
       .setTonality(1.0)
+      .setPhaseId(BigInteger.valueOf(1))
+      .setVelocity(1.0);
+
+    testDAO.update(access, BigInteger.valueOf(3), inputData);
+  }
+
+  @Test(expected = BusinessException.class)
+  public void update_FailsWithoutPhaseID() throws Exception {
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
+      "accounts", "1"
+    ));
+    VoiceEvent inputData = new VoiceEvent()
+      .setDuration(1.0)
+      .setInflection("BOOM")
+      .setNote("C")
+      .setPosition(0.0)
+      .setTonality(1.0)
+      .setVoiceId(BigInteger.valueOf(1))
       .setVelocity(1.0);
 
     testDAO.update(access, BigInteger.valueOf(3), inputData);
@@ -244,6 +265,7 @@ public class VoiceEventIT {
       .setPosition(0.0)
       .setTonality(1.0)
       .setVelocity(1.0)
+      .setPhaseId(BigInteger.valueOf(1))
       .setVoiceId(BigInteger.valueOf(287));
 
     try {
@@ -254,6 +276,34 @@ public class VoiceEventIT {
       assertNotNull(result);
       assertEquals("BOOM", result.getInflection());
       assertEquals(BigInteger.valueOf(1), result.getVoiceId());
+      throw e;
+    }
+  }
+
+  @Test(expected = BusinessException.class)
+  public void update_FailsUpdatingToNonexistentPhase() throws Exception {
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
+      "accounts", "1"
+    ));
+    VoiceEvent inputData = new VoiceEvent()
+      .setDuration(1.0)
+      .setInflection("SMACK")
+      .setNote("C")
+      .setPosition(0.0)
+      .setTonality(1.0)
+      .setVelocity(1.0)
+      .setPhaseId(BigInteger.valueOf(287))
+      .setVoiceId(BigInteger.valueOf(1));
+
+    try {
+      testDAO.update(access, BigInteger.valueOf(3), inputData);
+
+    } catch (Exception e) {
+      VoiceEvent result = testDAO.readOne(Access.internal(), BigInteger.valueOf(3));
+      assertNotNull(result);
+      assertEquals("BOOM", result.getInflection());
+      assertEquals(BigInteger.valueOf(1), result.getPhaseId());
       throw e;
     }
   }
@@ -271,6 +321,7 @@ public class VoiceEventIT {
       .setPosition(0.42)
       .setTonality(0.92)
       .setVelocity(0.72)
+      .setPhaseId(BigInteger.valueOf(1))
       .setVoiceId(BigInteger.valueOf(1));
 
     testDAO.update(access, BigInteger.valueOf(1), inputData);
@@ -283,6 +334,7 @@ public class VoiceEventIT {
     assertEquals(0.92, result.getTonality(), 0.01);
     assertEquals(0.72, result.getVelocity(), 0.01);
     assertEquals(BigInteger.valueOf(1), result.getVoiceId());
+    assertEquals(BigInteger.valueOf(1), result.getPhaseId());
   }
 
   // future test: DAO cannot update Pattern to a User or Library not owned by current session

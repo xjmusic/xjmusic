@@ -33,22 +33,12 @@ public interface VoiceDAO {
   /**
    Fetch all accessible Voice for one phase by id
 
-   @param access  control
-   @param phaseId to fetch voices for.
    @return JSONArray of voices.
    @throws Exception on failure
+    @param access  control
+   @param patternId to fetch voices for.
    */
-  Collection<Voice> readAll(Access access, BigInteger phaseId) throws Exception;
-
-  /**
-   Fetch all accessible Voice for an pattern phase by offset
-
-   @param access      control
-   @param patternId   to fetch phase voices for
-   @param phaseOffset offset of phase in pattern
-   @return voices in phase
-   */
-  Collection<Voice> readAllForPatternPhaseOffset(Access access, BigInteger patternId, BigInteger phaseOffset) throws Exception;
+  Collection<Voice> readAll(Access access, BigInteger patternId) throws Exception;
 
   /**
    Update a specified Voice if accessible

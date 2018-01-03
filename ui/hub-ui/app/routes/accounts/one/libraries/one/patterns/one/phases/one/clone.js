@@ -60,6 +60,11 @@ export default Route.extend({
     },
 
     clonePhase(model) {
+      if (!model) {
+        get(this, 'display').warning('Not enough information to clone.');
+        return;
+      }
+
       let pattern = model.get('pattern');
       let library = pattern.get('library');
       let account = library.get('account');

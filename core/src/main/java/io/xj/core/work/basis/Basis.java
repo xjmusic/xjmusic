@@ -272,11 +272,11 @@ public interface Basis {
    Fetch all events for a given voice
    (caches results)
 
-   @param voiceId to get events for
+   @param phaseId to get events for
    @return collection of voice events
    @throws Exception on failure
    */
-  Collection<VoiceEvent> voiceEvents(BigInteger voiceId) throws Exception;
+  Collection<VoiceEvent> voiceEvents(BigInteger phaseId) throws Exception;
 
 
   /**
@@ -424,10 +424,10 @@ public interface Basis {
    Fetch voices for a phase by id
    (caches results)
 
-   @param phaseId to fetch voices for
    @return voices
+    @param patternId to fetch voices for
    */
-  Collection<Voice> voices(BigInteger phaseId) throws Exception;
+  Collection<Voice> voices(BigInteger patternId) throws Exception;
 
   /**
    Fetch an pattern by pattern

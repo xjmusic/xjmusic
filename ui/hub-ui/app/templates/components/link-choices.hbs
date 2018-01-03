@@ -13,11 +13,10 @@
       T{{choice.transpose}}
       {{#each choice.arrangements as |arrangement|}}
         <div class="arrangement">
-          {{#link-to 'accounts.one.libraries.one.patterns.one.phases.one.voices.one.events'
-                     arrangement.voice.phase.pattern.library.account
-                     arrangement.voice.phase.pattern.library
-                     arrangement.voice.phase.pattern
-                     arrangement.voice.phase
+          {{#link-to 'accounts.one.libraries.one.patterns.one.voices.one'
+                     arrangement.voice.pattern.library.account
+                     arrangement.voice.pattern.library
+                     arrangement.voice.pattern
                      arrangement.voice}}{{arrangement.voice.description}}{{/link-to}}
           &rarr;
           {{#link-to 'accounts.one.libraries.one.instruments.one'

@@ -185,7 +185,7 @@ public class VoiceCraftImpl implements VoiceCraft {
     Arrangement arrangement
   /*-*/) throws Exception {
     double repeat = basis.link().getTotal().doubleValue() / phase.getTotal().doubleValue();
-    Collection<VoiceEvent> voiceEvents = basis.voiceEvents(voice.getId());
+    Collection<VoiceEvent> voiceEvents = basis.voiceEvents(phase.getId());
 
     int size = voiceEvents.size();
     int i = 0;
@@ -292,7 +292,7 @@ public class VoiceCraftImpl implements VoiceCraft {
    */
   private Iterable<Voice> rhythmPhaseVoices() throws Exception {
     List<Voice> voices = Lists.newArrayList();
-    voices.addAll(basis.voices(rhythmPhase().getId()));
+    voices.addAll(basis.voices(basis.currentRhythmChoice().getPatternId()));
     return voices;
   }
 

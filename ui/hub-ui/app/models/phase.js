@@ -9,12 +9,17 @@ export default DS.Model.extend({
   tempo: DS.attr('number'),
   offset: DS.attr('number'),
   total: DS.attr('number'),
+  events: DS.hasMany('voice-event'),
 
   getTitle() {
     let name = this.get("name");
     let title = name ? name : '';
     title += '@' + this.get("offset");
     return title;
+  },
+
+  toString() {
+    return this.getTitle();
   }
 
 });
