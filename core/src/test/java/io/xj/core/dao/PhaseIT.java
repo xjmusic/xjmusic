@@ -34,10 +34,13 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigInteger;
 import java.sql.Timestamp;
+import java.util.Collection;
+import java.util.Iterator;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
@@ -47,7 +50,7 @@ import static org.mockito.Mockito.verify;
 public class PhaseIT {
   @Rule public ExpectedException failure = ExpectedException.none();
   private Injector injector;
-  private PhaseDAO testDAO;
+  private PhaseDAO subject;
   @Spy final WorkManager workManager = Guice.createInjector(new CoreModule()).getInstance(WorkManager.class);
 
   @Before
@@ -79,7 +82,7 @@ public class PhaseIT {
     IntegrationTestEntity.insertPhase(2, 1, 1, 16, "Caterpillars", 0.583, "E major", 140.0);
 
     // Instantiate the test subject
-    testDAO = injector.getInstance(PhaseDAO.class);
+    subject = injector.getInstance(PhaseDAO.class);
   }
 
   private void createInjector() {
@@ -94,7 +97,7 @@ public class PhaseIT {
 
   @After
   public void tearDown() throws Exception {
-    testDAO = null;
+    subject = null;
   }
 
   @Test
@@ -112,7 +115,7 @@ public class PhaseIT {
       .setOffset(BigInteger.valueOf(16))
       .setTotal(16);
 
-    Phase result = testDAO.create(access, inputData);
+    Phase result = subject.create(access, inputData);
 
     assertNotNull(result);
     assertEquals(0.42, result.getDensity(), 0.01);
@@ -138,10 +141,33 @@ public class PhaseIT {
       .setTempo(129.4)
       .setOffset(BigInteger.valueOf(16));
 
-    Phase result = testDAO.create(access, inputData);
+    Phase result = subject.create(access, inputData);
 
     assertNotNull(result);
     assertNull(result.getTotal());
+  }
+
+  /**
+   [#150279647] Artist wants to create multiple Phases with the same offset in the same Pattern, in order that XJ randomly select one of the phases at that offset.
+   Reverts legacy [Trello#237] shouldn't be able to create phase with same offset in pattern
+   */
+  @Test
+  public void create_MultiplePhasesAtSameOffset() throws Exception {
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Admin"
+    ));
+    Phase inputData = new Phase()
+      .setOffset(BigInteger.valueOf(1))
+      .setDensity(0.42)
+      .setPatternId(BigInteger.valueOf(1))
+      .setKey("G minor 7")
+      .setName("cannons")
+      .setTempo(129.4)
+      .setTotal(16);
+
+    Phase result = subject.create(access, inputData);
+    assertNotNull(result);
+    assertEquals(BigInteger.valueOf(1), result.getOffset());
   }
 
   @Test
@@ -161,7 +187,7 @@ public class PhaseIT {
     failure.expect(BusinessException.class);
     failure.expectMessage("for a phase of a non-macro-type pattern, total (# beats) is required");
 
-    testDAO.create(access, inputData);
+    subject.create(access, inputData);
   }
 
   @Test
@@ -182,7 +208,7 @@ public class PhaseIT {
     failure.expect(BusinessException.class);
     failure.expectMessage("for a phase of a non-macro-type pattern, total (# beats) must be greater than zero");
 
-    testDAO.create(access, inputData);
+    subject.create(access, inputData);
   }
 
   @Test
@@ -200,7 +226,7 @@ public class PhaseIT {
       .setOffset(BigInteger.valueOf(0))
       .setTotal(16);
 
-    Phase result = testDAO.create(access, inputData);
+    Phase result = subject.create(access, inputData);
 
     assertNotNull(result);
     assertEquals(BigInteger.valueOf(2), result.getPatternId());
@@ -229,7 +255,7 @@ public class PhaseIT {
     failure.expect(BusinessException.class);
     failure.expectMessage("Pattern ID is required");
 
-    testDAO.create(access, inputData);
+    subject.create(access, inputData);
   }
 
   @Test
@@ -249,30 +275,7 @@ public class PhaseIT {
     failure.expect(BusinessException.class);
     failure.expectMessage("Offset is required");
 
-    testDAO.create(access, inputData);
-  }
-
-  /**
-   [#237] shouldn't be able to create phase with same offset in pattern
-   */
-  @Test
-  public void create_FailsIfPatternAlreadyHasPhaseWithThisOffset() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
-      "roles", "Admin"
-    ));
-    Phase inputData = new Phase()
-      .setOffset(BigInteger.valueOf(1))
-      .setDensity(0.42)
-      .setPatternId(BigInteger.valueOf(1))
-      .setKey("G minor 7")
-      .setName("cannons")
-      .setTempo(129.4)
-      .setTotal(16);
-
-    failure.expect(BusinessException.class);
-    failure.expectMessage("Found phase with same offset in pattern");
-
-    testDAO.create(access, inputData);
+    subject.create(access, inputData);
   }
 
   @Test
@@ -287,7 +290,7 @@ public class PhaseIT {
       .setOffset(BigInteger.valueOf(5))
       .setName("cannons fifty nine");
 
-    Phase result = testDAO.clone(access, BigInteger.valueOf(1), inputData);
+    Phase result = subject.clone(access, BigInteger.valueOf(1), inputData);
 
     assertNotNull(result);
     assertEquals(0.583, result.getDensity(), 0.01);
@@ -298,6 +301,27 @@ public class PhaseIT {
 
     // Verify enqueued audio clone jobs
     verify(workManager).schedulePhaseClone(eq(0), eq(BigInteger.valueOf(1)), any());
+  }
+
+  /**
+   [#150279647] Artist wants to create multiple Phases with the same offset in the same Pattern, in order that XJ randomly select one of the phases at that offset.
+   */
+  @Test
+  public void clone_fromOriginal_toOffsetOfExistingPhase() throws Exception {
+    Access access = Access.from(ImmutableMap.of(
+      "userId", "2",
+      "roles", "User",
+      "accounts", "1"
+    ));
+    Phase inputData = new Phase()
+      .setPatternId(BigInteger.valueOf(1))
+      .setOffset(BigInteger.valueOf(1))
+      .setName("cannons fifty nine");
+
+    Phase result = subject.clone(access, BigInteger.valueOf(1), inputData);
+
+    assertNotNull(result);
+    assertEquals(BigInteger.valueOf(1), result.getOffset());
   }
 
   @Test(expected = BusinessException.class)
@@ -311,22 +335,7 @@ public class PhaseIT {
       .setPatternId(BigInteger.valueOf(2))
       .setName("cannons fifty nine");
 
-    testDAO.clone(access, BigInteger.valueOf(1), inputData);
-  }
-
-  @Test(expected = BusinessException.class)
-  public void clone_fromOriginal_failsWithOffsetAlreadyExists() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
-      "userId", "2",
-      "roles", "User",
-      "accounts", "1"
-    ));
-    Phase inputData = new Phase()
-      .setPatternId(BigInteger.valueOf(1))
-      .setOffset(BigInteger.valueOf(1))
-      .setName("cannons fifty nine");
-
-    testDAO.clone(access, BigInteger.valueOf(1), inputData);
+    subject.clone(access, BigInteger.valueOf(1), inputData);
   }
 
   @Test
@@ -336,7 +345,7 @@ public class PhaseIT {
       "accounts", "1"
     ));
 
-    Phase result = testDAO.readOne(access, BigInteger.valueOf(2));
+    Phase result = subject.readOne(access, BigInteger.valueOf(2));
 
     assertNotNull(result);
     assertEquals(BigInteger.valueOf(2), result.getId());
@@ -351,36 +360,58 @@ public class PhaseIT {
       "accounts", "326"
     ));
 
-    Phase result = testDAO.readOne(access, BigInteger.valueOf(1));
+    Phase result = subject.readOne(access, BigInteger.valueOf(1));
 
     assertNull(result);
   }
 
   @Test
-  public void readOneForPattern() throws Exception {
+  public void readAllAtPatternOffset() throws Exception {
     Access access = Access.from(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
 
-    Phase result = testDAO.readOneForPattern(access, BigInteger.valueOf(1), BigInteger.valueOf(1));
+    Collection<Phase> result = subject.readAllAtPatternOffset(access, BigInteger.valueOf(1), BigInteger.valueOf(1));
 
     assertNotNull(result);
-    assertEquals(BigInteger.valueOf(2), result.getId());
-    assertEquals(BigInteger.valueOf(1), result.getPatternId());
-    assertEquals("Caterpillars", result.getName());
+    Phase resultOne = result.iterator().next();
+    assertEquals(BigInteger.valueOf(2), resultOne.getId());
+    assertEquals(BigInteger.valueOf(1), resultOne.getPatternId());
+    assertEquals("Caterpillars", resultOne.getName());
+  }
+
+  /**
+   [#150279647] Artist wants to create multiple Phases with the same offset in the same Pattern, in order that XJ randomly select one of the phases at that offset.
+   */
+  @Test
+  public void readAllAtPatternOffset_multiplePhasesAtOffset() throws Exception {
+    IntegrationTestEntity.insertPhase(5, 1, 0, 16, "Army Ants", 0.683, "Eb minor", 122.4);
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
+      "accounts", "1"
+    ));
+
+    Collection<Phase> result = subject.readAllAtPatternOffset(access, BigInteger.valueOf(1), BigInteger.valueOf(0));
+
+    assertNotNull(result);
+    assertEquals(2, result.size());
+    Iterator<Phase> it = result.iterator();
+    assertEquals("Ants", it.next().getName());
+    assertEquals("Army Ants", it.next().getName());
   }
 
   @Test
-  public void readOneForPattern_FailsWhenUserIsNotInAccount() throws Exception {
+  public void readAllAtPatternOffset_FailsWhenUserIsNotInAccount() throws Exception {
     Access access = Access.from(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "143"
     ));
 
-    Phase result = testDAO.readOneForPattern(access, BigInteger.valueOf(1), BigInteger.valueOf(1));
+    Collection<Phase> result = subject.readAllAtPatternOffset(access, BigInteger.valueOf(1), BigInteger.valueOf(1));
 
-    assertNull(result);
+    assertNotNull(result);
+    assertTrue(result.isEmpty());
   }
 
   @Test
@@ -390,7 +421,7 @@ public class PhaseIT {
       "accounts", "1"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, BigInteger.valueOf(1)));
+    JSONArray result = JSON.arrayOf(subject.readAll(access, BigInteger.valueOf(1)));
 
     assertNotNull(result);
     assertEquals(2, result.length());
@@ -407,7 +438,7 @@ public class PhaseIT {
       "accounts", "345"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, BigInteger.valueOf(1)));
+    JSONArray result = JSON.arrayOf(subject.readAll(access, BigInteger.valueOf(1)));
 
     assertNotNull(result);
     assertEquals(0, result.length());
@@ -430,9 +461,9 @@ public class PhaseIT {
       .setKey("")
       .setTempo((double) 0);
 
-    testDAO.update(access, BigInteger.valueOf(1), inputData);
+    subject.update(access, BigInteger.valueOf(1), inputData);
 
-    Phase result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1));
+    Phase result = subject.readOne(Access.internal(), BigInteger.valueOf(1));
     assertNotNull(result);
     assertNull(result.getName());
     assertNull(result.getDensity());
@@ -441,6 +472,31 @@ public class PhaseIT {
     assertEquals(BigInteger.valueOf(7), result.getOffset());
     assertEquals(Integer.valueOf(32), result.getTotal());
     assertEquals(BigInteger.valueOf(1), result.getPatternId());
+  }
+
+  /**
+   [#150279647] Artist wants to create multiple Phases with the same offset in the same Pattern, in order that XJ randomly select one of the phases at that offset.
+   */
+  @Test
+  public void update_toOffsetOfExistingPhase() throws Exception {
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
+      "accounts", "1"
+    ));
+    Phase inputData = new Phase()
+      .setPatternId(BigInteger.valueOf(1))
+      .setOffset(BigInteger.valueOf(0))
+      .setTotal(16)
+      .setName("Caterpillars")
+      .setDensity(0.583)
+      .setKey("E major")
+      .setTempo(140.0);
+
+    subject.update(access, BigInteger.valueOf(2), inputData);
+
+    Phase result = subject.readOne(Access.internal(), BigInteger.valueOf(2));
+    assertNotNull(result);
+    assertEquals(BigInteger.valueOf(0), result.getOffset());
   }
 
   @Test
@@ -460,7 +516,7 @@ public class PhaseIT {
     failure.expect(BusinessException.class);
     failure.expectMessage("Pattern ID is required");
 
-    testDAO.update(access, BigInteger.valueOf(1), inputData);
+    subject.update(access, BigInteger.valueOf(1), inputData);
   }
 
   @Test
@@ -477,7 +533,7 @@ public class PhaseIT {
       .setTempo(129.4)
       .setOffset(BigInteger.valueOf(16));
 
-    testDAO.update(access, BigInteger.valueOf(1), inputData);
+    subject.update(access, BigInteger.valueOf(1), inputData);
   }
 
   @Test
@@ -497,7 +553,7 @@ public class PhaseIT {
     failure.expect(BusinessException.class);
     failure.expectMessage("for a phase of a non-macro-type pattern, total (# beats) is required");
 
-    testDAO.update(access, BigInteger.valueOf(1), inputData);
+    subject.update(access, BigInteger.valueOf(1), inputData);
   }
 
   @Test
@@ -518,7 +574,7 @@ public class PhaseIT {
     failure.expect(BusinessException.class);
     failure.expectMessage("for a phase of a non-macro-type pattern, total (# beats) must be greater than zero");
 
-    testDAO.update(access, BigInteger.valueOf(1), inputData);
+    subject.update(access, BigInteger.valueOf(1), inputData);
   }
 
   @Test
@@ -537,7 +593,7 @@ public class PhaseIT {
     failure.expect(BusinessException.class);
     failure.expectMessage("Offset is required");
 
-    testDAO.update(access, BigInteger.valueOf(1), inputData);
+    subject.update(access, BigInteger.valueOf(1), inputData);
   }
 
   @Test
@@ -559,10 +615,10 @@ public class PhaseIT {
     failure.expectMessage("Pattern does not exist");
 
     try {
-      testDAO.update(access, BigInteger.valueOf(2), inputData);
+      subject.update(access, BigInteger.valueOf(2), inputData);
 
     } catch (Exception e) {
-      Phase result = testDAO.readOne(Access.internal(), BigInteger.valueOf(2));
+      Phase result = subject.readOne(Access.internal(), BigInteger.valueOf(2));
       assertNotNull(result);
       assertEquals("Caterpillars", result.getName());
       assertEquals(BigInteger.valueOf(1), result.getPatternId());
@@ -577,9 +633,9 @@ public class PhaseIT {
       "accounts", "1"
     ));
 
-    testDAO.delete(access, BigInteger.valueOf(1));
+    subject.delete(access, BigInteger.valueOf(1));
 
-    Phase result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1));
+    Phase result = subject.readOne(Access.internal(), BigInteger.valueOf(1));
     assertNull(result);
   }
 
@@ -590,7 +646,7 @@ public class PhaseIT {
       "accounts", "2"
     ));
 
-    testDAO.delete(access, BigInteger.valueOf(1));
+    subject.delete(access, BigInteger.valueOf(1));
   }
 
   @Test
@@ -613,12 +669,12 @@ public class PhaseIT {
     IntegrationTestEntity.insertLink(1, 1, 0, LinkState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120, "chain-1-link-97898asdf7892.wav");
     IntegrationTestEntity.insertInstrument(9, 1, 2, "jams", InstrumentType.Percussive, 0.6);
     IntegrationTestEntity.insertChoice(1, 1, 1, PatternType.Main, 0, -5);
-    IntegrationTestEntity.insertArrangement(1,1,2051,9);
+    IntegrationTestEntity.insertArrangement(1, 1, 2051, 9);
 
-    testDAO.delete(access, BigInteger.valueOf(1));
+    subject.delete(access, BigInteger.valueOf(1));
 
     // Assert total annihilation
-    assertNull(testDAO.readOne(Access.internal(), BigInteger.valueOf(1)));
+    assertNull(subject.readOne(Access.internal(), BigInteger.valueOf(1)));
     assertNull(injector.getInstance(VoiceEventDAO.class).readOne(Access.internal(), BigInteger.valueOf(2061)));
     assertNull(injector.getInstance(VoiceEventDAO.class).readOne(Access.internal(), BigInteger.valueOf(2062)));
     assertNull(injector.getInstance(VoiceEventDAO.class).readOne(Access.internal(), BigInteger.valueOf(2063)));

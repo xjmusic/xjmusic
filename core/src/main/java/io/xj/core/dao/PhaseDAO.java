@@ -41,7 +41,7 @@ public interface PhaseDAO {
   Phase readOne(Access access, BigInteger id) throws Exception;
 
   /**
-   Fetch one Phase if accessible, by Pattern id and phase #
+   Fetch all Phase accessible, by Pattern id and offset #
 
    @param access             control
    @param patternId          of pattern in which to read phase
@@ -50,7 +50,7 @@ public interface PhaseDAO {
    @throws Exception on failure
    */
   @Nullable
-  Phase readOneForPattern(Access access, BigInteger patternId, BigInteger patternPhaseOffset) throws Exception;
+  Collection<Phase> readAllAtPatternOffset(Access access, BigInteger patternId, BigInteger patternPhaseOffset) throws Exception;
 
   /**
    Fetch all accessible Phase for one Account by id

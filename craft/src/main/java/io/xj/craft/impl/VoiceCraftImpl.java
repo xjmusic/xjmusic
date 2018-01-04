@@ -295,7 +295,7 @@ public class VoiceCraftImpl implements VoiceCraft {
    @throws Exception on failure
    */
   private Phase rhythmPhase() throws Exception {
-    return basis.phaseByOffset(
+    return basis.phaseAtOffset(
       basis.currentRhythmChoice().getPatternId(),
       basis.currentRhythmChoice().getPhaseOffset());
   }

@@ -335,7 +335,7 @@ public class FoundationCraftImpl implements FoundationCraft {
    @throws Exception on failure
    */
   private Phase macroPhase() throws Exception {
-    Phase phase = basis.phaseByOffset(macroPattern().getId(), macroPhaseOffset());
+    Phase phase = basis.phaseAtOffset(macroPattern().getId(), macroPhaseOffset());
 
     if (Objects.isNull(phase))
       throw new BusinessException("macro-phase does not exist!");
@@ -350,7 +350,7 @@ public class FoundationCraftImpl implements FoundationCraft {
    @throws Exception on failure
    */
   private Phase mainPhase() throws Exception {
-    Phase phase = basis.phaseByOffset(mainPattern().getId(), mainPhaseOffset());
+    Phase phase = basis.phaseAtOffset(mainPattern().getId(), mainPhaseOffset());
 
     if (Objects.isNull(phase))
       throw new BusinessException("main-phase does not exist!");
@@ -456,7 +456,7 @@ public class FoundationCraftImpl implements FoundationCraft {
     score += basis.previousMacroNextPhaseMemeIsometry().score(basis.patternPhaseMemes(pattern.getId(), BigInteger.valueOf(0))) * SCORE_MATCHED_MEMES;
 
     // Score includes matching mode to previous link's macro-pattern's next phase (major/minor)
-    if (Key.isSameMode(basis.previousMacroNextPhase().getKey(), basis.phaseByOffset(pattern.getId(), BigInteger.valueOf(0)).getKey())) {
+    if (Key.isSameMode(basis.previousMacroNextPhase().getKey(), basis.phaseAtOffset(pattern.getId(), BigInteger.valueOf(0)).getKey())) {
       score += SCORE_MATCHED_KEY_MODE;
     }
 

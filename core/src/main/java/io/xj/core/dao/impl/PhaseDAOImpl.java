@@ -78,10 +78,10 @@ public class PhaseDAOImpl extends DAOImpl implements PhaseDAO {
 
   @Nullable
   @Override
-  public Phase readOneForPattern(Access access, BigInteger patternId, BigInteger patternPhaseOffset) throws Exception {
+  public Collection<Phase> readAllAtPatternOffset(Access access, BigInteger patternId, BigInteger patternPhaseOffset) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readOneForPattern(tx.getContext(), access, patternId, patternPhaseOffset));
+      return tx.success(readAllAtPatternOffset(tx.getContext(), access, patternId, patternPhaseOffset));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -133,13 +133,6 @@ public class PhaseDAOImpl extends DAOImpl implements PhaseDAO {
     entity.validate();
 
     Map<Field, Object> fieldValues = fieldValueMap(entity);
-
-    // [#237] shouldn't be able to create phase with same offset in pattern
-    requireNotExists("phase with same offset in pattern",
-      db.select(PHASE.ID).from(PHASE)
-        .where(PHASE.PATTERN_ID.eq(ULong.valueOf(entity.getPatternId())))
-        .and(PHASE.OFFSET.eq(ULong.valueOf(entity.getOffset())))
-        .fetch());
 
     // Common for Create/Update
     deepValidate(db, access, entity);
@@ -204,21 +197,21 @@ public class PhaseDAOImpl extends DAOImpl implements PhaseDAO {
    @return phase record
    */
   @Nullable
-  private static Phase readOneForPattern(DSLContext db, Access access, BigInteger patternId, BigInteger patternPhaseOffset) throws BusinessException {
+  private static Collection<Phase> readAllAtPatternOffset(DSLContext db, Access access, BigInteger patternId, BigInteger patternPhaseOffset) throws BusinessException {
     if (access.isTopLevel())
-      return modelFrom(db.selectFrom(PHASE)
+      return modelsFrom(db.selectFrom(PHASE)
         .where(PHASE.PATTERN_ID.eq(ULong.valueOf(patternId)))
         .and(PHASE.OFFSET.eq(ULong.valueOf(patternPhaseOffset)))
-        .fetchOne(), Phase.class);
+        .fetch(), Phase.class);
     else
-      return modelFrom(db.select(PHASE.fields())
+      return modelsFrom(db.select(PHASE.fields())
         .from(PHASE)
         .join(PATTERN).on(PATTERN.ID.eq(PHASE.PATTERN_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(PATTERN.LIBRARY_ID))
         .where(PHASE.PATTERN_ID.eq(ULong.valueOf(patternId)))
         .and(PHASE.OFFSET.eq(ULong.valueOf(patternPhaseOffset)))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
-        .fetchOne(), Phase.class);
+        .fetch(), Phase.class);
   }
 
   /**

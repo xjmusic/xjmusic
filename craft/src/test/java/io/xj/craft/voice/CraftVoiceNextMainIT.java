@@ -134,6 +134,18 @@ public class CraftVoiceNextMainIT {
     IntegrationTestEntity.insertVoiceEvent(3, 315, 1, 2.5, 1, "KICK", "C2", 0.8, 0.6);
     IntegrationTestEntity.insertVoiceEvent(4, 315, 1, 3, 1, "SNARL", "G5", 0.1, 0.9);
 
+    /*
+    this is an alternate phase at the same offset
+    [#150279647] Artist wants to create multiple Phases with the same offset in the same Pattern, in order that XJ randomly select one of the phases at that offset.
+    they are also onomatopoeic to "KICK" and "SNARE" 2x each
+     */
+    IntegrationTestEntity.insertPhase(317, 35, 1, 4, "Drop Alt", 0.5, "C", 125.0);
+    IntegrationTestEntity.insertPhaseMeme(349, 317, "Heavy");
+    IntegrationTestEntity.insertVoiceEvent(11, 317, 1, 0, 1, "CLACK", "B5", 0.1, 0.9);
+    IntegrationTestEntity.insertVoiceEvent(12, 317, 1, 1, 1, "SNARL", "D2", 0.5, 1.0);
+    IntegrationTestEntity.insertVoiceEvent(14, 317, 1, 2.5, 1, "CLICK", "E4", 0.1, 0.7);
+    IntegrationTestEntity.insertVoiceEvent(15, 317, 1, 3, 1, "SNAP", "C3", 0.5, 0.5);
+
     // basic beat second phase
     IntegrationTestEntity.insertPhase(316, 35, 1, 4, "Continue", 0.5, "C", 125.0);
     IntegrationTestEntity.insertPhaseMeme(347, 316, "Heavy");

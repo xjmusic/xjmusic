@@ -149,7 +149,7 @@ public class StructureCraftImpl implements StructureCraft {
    @throws Exception on failure
    */
   private Phase rhythmPhase() throws Exception {
-    Phase phase = basis.phaseByOffset(rhythmPattern().getId(), rhythmPhaseOffset());
+    Phase phase = basis.phaseAtOffset(rhythmPattern().getId(), rhythmPhaseOffset());
 
     if (Objects.isNull(phase))
       throw new BusinessException("rhythm-phase does not exist!");

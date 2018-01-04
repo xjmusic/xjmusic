@@ -96,11 +96,23 @@ public class CraftVoiceContinueIT {
     IntegrationTestEntity.insertPhase(315, 35, 1, 4, "Drop", 0.5, "C", 125.0);
     IntegrationTestEntity.insertPhaseMeme(346, 315, "Heavy");
 
-    // Voice "Drums" has events sounding like "KICK" or "SNARE" 2x each
+    // Voice "Drums" are onomatopoeic to "KICK" and "SNARE" 2x each
     IntegrationTestEntity.insertVoiceEvent(1, 315, 1, 0, 1, "CLOCK", "C2", 0.8, 1.0);
     IntegrationTestEntity.insertVoiceEvent(2, 315, 1, 1, 1, "SNORT", "G5", 0.1, 0.8);
     IntegrationTestEntity.insertVoiceEvent(3, 315, 1, 2.5, 1, "KICK", "C2", 0.8, 0.6);
     IntegrationTestEntity.insertVoiceEvent(4, 315, 1, 3, 1, "SNARL", "G5", 0.1, 0.9);
+
+    /*
+    this is an alternate phase at the same offset
+    [#150279647] Artist wants to create multiple Phases with the same offset in the same Pattern, in order that XJ randomly select one of the phases at that offset.
+    they are also onomatopoeic to "KICK" and "SNARE" 2x each
+     */
+    IntegrationTestEntity.insertPhase(317, 35, 1, 4, "Drop Alt", 0.5, "C", 125.0);
+    IntegrationTestEntity.insertPhaseMeme(349, 317, "Heavy");
+    IntegrationTestEntity.insertVoiceEvent(11, 317, 1, 0, 1, "CLACK", "B5", 0.1, 0.9);
+    IntegrationTestEntity.insertVoiceEvent(12, 317, 1, 1, 1, "SNARL", "D2", 0.5, 1.0);
+    IntegrationTestEntity.insertVoiceEvent(14, 317, 1, 2.5, 1, "CLICK", "E4", 0.1, 0.7);
+    IntegrationTestEntity.insertVoiceEvent(15, 317, 1, 3, 1, "SNAP", "C3", 0.5, 0.5);
 
     // These events should not be used, they are here to resolve issues from [#153976336] VoiceEvent belongs to Phase
     IntegrationTestEntity.insertVoiceEvent(5, 316, 1, 0, 1, "JAM", "C2", 0.8, 1.0);

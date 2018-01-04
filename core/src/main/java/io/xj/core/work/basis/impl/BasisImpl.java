@@ -26,7 +26,9 @@ import io.xj.core.model.audio.Audio;
 import io.xj.core.model.audio_event.AudioEvent;
 import io.xj.core.model.chain_config.ChainConfig;
 import io.xj.core.model.chain_config.ChainConfigType;
+import io.xj.core.model.choice.Chance;
 import io.xj.core.model.choice.Choice;
+import io.xj.core.model.choice.Chooser;
 import io.xj.core.model.instrument_meme.InstrumentMeme;
 import io.xj.core.model.link.Link;
 import io.xj.core.model.link_chord.LinkChord;
@@ -118,7 +120,8 @@ public class BasisImpl implements Basis {
   private final Map<BigInteger, Collection<AudioEvent>> _audioWithFirstEvent = Maps.newConcurrentMap();
   private final Map<BigInteger, Map<PatternType, Choice>> _linkChoicesByType = Maps.newConcurrentMap();
   private final Map<BigInteger, Map<BigInteger, Link>> _linksByOffset = Maps.newConcurrentMap();
-  private final Map<BigInteger, Map<BigInteger, Phase>> _patternPhasesByOffset = Maps.newConcurrentMap();
+  private final Map<BigInteger, Map<BigInteger, Phase>> _patternPhaseByOffset = Maps.newConcurrentMap();
+  private final Map<BigInteger, Map<BigInteger, Collection<Phase>>> _patternPhasesByOffset = Maps.newConcurrentMap();
   private final Map<BigInteger, Collection<PatternMeme>> _patternMemes = Maps.newConcurrentMap();
   private final Map<BigInteger, Collection<LinkMeme>> _linkMemes = Maps.newConcurrentMap();
   private final Map<BigInteger, Collection<PhaseMeme>> _phaseMemes = Maps.newConcurrentMap();
@@ -311,14 +314,14 @@ public class BasisImpl implements Basis {
 
   @Override
   public Phase currentMacroPhase() throws Exception {
-    return phaseByOffset(
+    return phaseAtOffset(
       currentMacroChoice().getPatternId(),
       currentMacroChoice().getPhaseOffset());
   }
 
   @Override
   public Phase previousMacroNextPhase() throws Exception {
-    return isInitialLink() ? null : phaseByOffset(
+    return isInitialLink() ? null : phaseAtOffset(
       previousMacroChoice().getPatternId(),
       previousMacroChoice().nextPhaseOffset());
   }
@@ -414,7 +417,7 @@ public class BasisImpl implements Basis {
     baseMemes.addAll(patternMemes(patternId));
 
     // add pattern phase memes
-    Phase phase = phaseByOffset(patternId, phaseOffset);
+    Phase phase = phaseAtOffset(patternId, phaseOffset);
     baseMemes.addAll(phaseMemes(phase.getId()));
 
     return baseMemes;
@@ -543,13 +546,34 @@ public class BasisImpl implements Basis {
   }
 
   @Override
-  public Phase phaseByOffset(BigInteger patternId, BigInteger phaseOffset) throws Exception {
+  public Phase phaseAtOffset(BigInteger patternId, BigInteger phaseOffset) throws Exception {
+    if (!_patternPhaseByOffset.containsKey(patternId))
+      _patternPhaseByOffset.put(patternId, Maps.newConcurrentMap());
+
+    if (!_patternPhaseByOffset.get(patternId).containsKey(phaseOffset))
+      _patternPhaseByOffset.get(patternId).put(phaseOffset,
+        phaseRandomAtOffset(patternId, phaseOffset));
+
+    return _patternPhaseByOffset.get(patternId).get(phaseOffset);
+  }
+
+  @Override
+  public Phase phaseRandomAtOffset(BigInteger patternId, BigInteger phaseOffset) throws Exception {
+    Chooser<Phase> chooser = new Chooser<>();
+    phasesAtOffset(patternId, phaseOffset).forEach((phase) -> {
+      chooser.add(phase, Chance.normallyAround(0.0, 1.0));
+    });
+    return chooser.getTop();
+  }
+
+  @Override
+  public Collection<Phase> phasesAtOffset(BigInteger patternId, BigInteger phaseOffset) throws Exception {
     if (!_patternPhasesByOffset.containsKey(patternId))
       _patternPhasesByOffset.put(patternId, Maps.newConcurrentMap());
 
     if (!_patternPhasesByOffset.get(patternId).containsKey(phaseOffset))
       _patternPhasesByOffset.get(patternId).put(phaseOffset,
-        phaseDAO.readOneForPattern(Access.internal(), patternId, phaseOffset));
+        phaseDAO.readAllAtPatternOffset(Access.internal(), patternId, phaseOffset));
 
     return _patternPhasesByOffset.get(patternId).get(phaseOffset);
   }

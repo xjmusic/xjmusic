@@ -406,15 +406,37 @@ public interface Basis {
   Duration linkTotalLength() throws Exception;
 
   /**
-   Fetch current phase of macro-type pattern
-   (caches results)
+   Selects one (at random) from all available phases an at offset of a pattern.
+   Caches the selection, so it will always return the same output for any given input.
 
    @param patternId   of phase
    @param phaseOffset within pattern
    @return phase record
    @throws Exception on failure
    */
-  Phase phaseByOffset(BigInteger patternId, BigInteger phaseOffset) throws Exception;
+  Phase phaseAtOffset(BigInteger patternId, BigInteger phaseOffset) throws Exception;
+
+  /**
+   Selects one (at random) from all available phases an at offset of a pattern.
+   DOES NOT CACHE the selection, so it will (potentially) return a different output, given the same input.
+
+   @param patternId   of phase
+   @param phaseOffset within pattern
+   @return phase record
+   @throws Exception on failure
+   */
+  Phase phaseRandomAtOffset(BigInteger patternId, BigInteger phaseOffset) throws Exception;
+
+  /**
+   Fetch all phases an at offset of a pattern
+   (caches results)
+
+   @return phase record
+   @throws Exception on failure
+    @param patternId   of phase
+   @param phaseOffset within pattern
+   */
+  Collection<Phase> phasesAtOffset(BigInteger patternId, BigInteger phaseOffset) throws Exception;
 
   /**
    Fetch a link in a chain, by offset
