@@ -15,10 +15,10 @@ import io.xj.core.dao.PatternDAO;
 import io.xj.core.dao.PatternMemeDAO;
 import io.xj.core.dao.PhaseDAO;
 import io.xj.core.dao.PhaseMemeDAO;
-import io.xj.core.dao.PickDAO;
 import io.xj.core.dao.VoiceDAO;
 import io.xj.core.dao.VoiceEventDAO;
 import io.xj.core.model.link.Link;
+import io.xj.core.model.pick.Pick;
 import io.xj.core.work.basis.Basis;
 import io.xj.core.work.basis.BasisFactory;
 import io.xj.music.Tuning;
@@ -36,6 +36,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigInteger;
+import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
@@ -61,7 +62,6 @@ public class BasisImplTest {
   @Mock LinkMessageDAO linkMessageDAO;
   @Mock PhaseDAO phaseDAO;
   @Mock PhaseMemeDAO phaseMemeDAO;
-  @Mock PickDAO pickDAO;
   @Mock Tuning tuning;
   @Mock VoiceDAO voiceDAO;
   @Mock VoiceEventDAO voiceEventDAO;
@@ -97,7 +97,6 @@ public class BasisImplTest {
           bind(LinkMessageDAO.class).toInstance(linkMessageDAO);
           bind(PhaseDAO.class).toInstance(phaseDAO);
           bind(PhaseMemeDAO.class).toInstance(phaseMemeDAO);
-          bind(PickDAO.class).toInstance(pickDAO);
           bind(Tuning.class).toInstance(tuning);
           bind(VoiceDAO.class).toInstance(voiceDAO);
           bind(VoiceEventDAO.class).toInstance(voiceEventDAO);
@@ -320,7 +319,24 @@ public class BasisImplTest {
   }
 
   @Test
-  public void picks() throws Exception {
+  public void pick_returned_by_picks() throws Exception {
+    subject = basisFactory.createBasis(new Link());
+    subject.pick(new Pick()
+      .setArrangementId(BigInteger.valueOf(1234))
+      .setAudioId(BigInteger.valueOf(78874))
+      .setStart(0.273)
+      .setLength(1.571)
+      .setAmplitude(0.8)
+      .setPitch(432.0));
+
+    Collection<Pick> result = subject.picks();
+    Pick resultPick = result.iterator().next();
+      assertEquals(BigInteger.valueOf(1234), resultPick.getArrangementId());
+      assertEquals(BigInteger.valueOf(78874), resultPick.getAudioId());
+      assertEquals(0.273, resultPick.getStart(),0.001);
+      assertEquals(1.571, resultPick.getLength(),0.001);
+      assertEquals(0.8, resultPick.getAmplitude(),0.1);
+      assertEquals(432.0, resultPick.getPitch(),0.1);
   }
 
   @Test

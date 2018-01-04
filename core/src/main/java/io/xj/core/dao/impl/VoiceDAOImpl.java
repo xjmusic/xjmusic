@@ -21,7 +21,6 @@ import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Map;
 
-import static io.xj.core.Tables.PICK;
 import static io.xj.core.tables.Arrangement.ARRANGEMENT;
 import static io.xj.core.tables.Library.LIBRARY;
 import static io.xj.core.tables.Pattern.PATTERN;
@@ -193,12 +192,6 @@ public class VoiceDAOImpl extends DAOImpl implements VoiceDAO {
 
     db.deleteFrom(VOICE_EVENT)
       .where(VOICE_EVENT.VOICE_ID.eq(id))
-      .execute();
-
-    db.deleteFrom(PICK)
-      .where(PICK.ARRANGEMENT_ID.in(
-        db.select(ARRANGEMENT.ID).from(ARRANGEMENT)
-          .where(ARRANGEMENT.VOICE_ID.eq(id))))
       .execute();
 
     db.deleteFrom(ARRANGEMENT)

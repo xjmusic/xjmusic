@@ -257,21 +257,4 @@ public class ArrangementIT {
     assertNull(result);
   }
 
-  @Test(expected = BusinessException.class)
-  public void delete_FailsIfArrangementHasChilds() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
-      "roles", "Admin"
-    ));
-    IntegrationTestEntity.insertAudio(1, 9, "Published", "Kick", "https://static.xj.io/instrument/percussion/808/kick1.wav", 0.01, 2.123, 120.0, 440);
-    IntegrationTestEntity.insertPick(1, 1, 1, 0.125, 1.23, 0.94, 440);
-
-    try {
-      testDAO.delete(access, BigInteger.valueOf(1));
-
-    } catch (Exception e) {
-      Arrangement result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1));
-      assertNotNull(result);
-      throw e;
-    }
-  }
 }

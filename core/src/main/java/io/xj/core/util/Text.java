@@ -3,6 +3,7 @@ package io.xj.core.util;
 
 import io.xj.core.config.Config;
 
+import javax.annotation.Nullable;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
@@ -245,7 +246,8 @@ public interface Text {
    @param e exception to format the stack trace of
    @return formatted stack trace
    */
-  static String formatStackTrace(Exception e) {
+  static String formatStackTrace(@Nullable Exception e) {
+    if (Objects.isNull(e)) return "";
     StackTraceElement[] stack = e.getStackTrace();
     int numStackLines = stack.length;
     String[] stackLines = new String[numStackLines];

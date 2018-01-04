@@ -66,36 +66,48 @@ public class LinkFabricateJobImpl implements LinkFabricateJob {
     try {
       link = linkDAO.readOne(Access.internal(), entityId);
     } catch (Exception e) {
-      itFailedWhile("retrieving", e);
+      didFailWhile("retrieving", e);
       return;
     }
 
     if (Objects.isNull(link)) {
-      itFailedWhile("retrieving null");
+      didFailWhile("retrieving null");
       return;
     }
 
     try {
       basis = basisFactory.createBasis(link);
     } catch (ConfigException e) {
-      itFailedWhile("creating basis", e);
+      didFailWhile("creating basis", e);
       return;
     }
 
     try {
       doCraftWork();
     } catch (Exception e) {
-      itFailedWhile("doing Craft work", e);
+      didFailWhile("doing Craft work", e);
       return;
     }
 
     try {
       doDubWork();
     } catch (Exception e) {
-      itFailedWhile("doing Dub work", e);
+      didFailWhile("doing Dub work", e);
       return;
     }
 
+    try {
+      finishWork();
+    } catch (Exception e) {
+      didFailWhile("finishing work", e);
+    }
+  }
+
+  /**
+   Finish work on Link
+   */
+  private void finishWork() throws Exception {
+    updateLinkState(LinkState.Dubbing, LinkState.Dubbed);
     basis.sendReport();
   }
 
@@ -106,11 +118,10 @@ public class LinkFabricateJobImpl implements LinkFabricateJob {
    @throws BusinessException on failure
    */
   private void doCraftWork() throws Exception {
-    updateToWorkingState(LinkState.Planned, LinkState.Crafting);
+    updateLinkState(LinkState.Planned, LinkState.Crafting);
     craftFactory.foundation(basis).doWork();
     craftFactory.structure(basis).doWork();
     craftFactory.voice(basis).doWork();
-    updateToFinishedState(LinkState.Crafted);
   }
 
   /**
@@ -120,10 +131,9 @@ public class LinkFabricateJobImpl implements LinkFabricateJob {
    @throws BusinessException on failure
    */
   protected void doDubWork() throws Exception {
-    updateToWorkingState(LinkState.Crafted, LinkState.Dubbing);
+    updateLinkState(LinkState.Crafting, LinkState.Dubbing);
     dubFactory.master(basis).doWork();
     dubFactory.ship(basis).doWork();
-    updateToFinishedState(LinkState.Dubbed);
   }
 
   /**
@@ -132,7 +142,7 @@ public class LinkFabricateJobImpl implements LinkFabricateJob {
    @param message phrased like "Doing work"
    @param e       exception (optional)
    */
-  private void itFailedWhile(String message, Exception e) {
+  private void didFailWhile(String message, Exception e) {
     createLinkMessage(MessageType.Error, String.format("Failed while %s for Link #%s:%s%s", message, entityId, Config.lineSeparator(), Text.formatStackTrace(e)));
     log.error("Failed while {} for Link #{}", message, entityId, e);
   }
@@ -142,7 +152,7 @@ public class LinkFabricateJobImpl implements LinkFabricateJob {
 
    @param message phrased like "Doing work"
    */
-  private void itFailedWhile(String message) {
+  private void didFailWhile(String message) {
     createLinkMessage(MessageType.Error, String.format("Failed while %s for Link #%s", message, entityId));
     log.error("Failed while {} for Link #{}", message, entityId);
   }
@@ -170,23 +180,14 @@ public class LinkFabricateJobImpl implements LinkFabricateJob {
 
    @throws Exception on failure
    */
-  private void updateToWorkingState(LinkState fromState, LinkState toState) throws Exception {
+  private void updateLinkState(LinkState fromState, LinkState toState) throws Exception {
     if (fromState != link.getState()) {
       log.error("{} requires Link must be in {} state.", toState, fromState);
       return;
     }
     linkDAO.updateState(Access.internal(), link.getId(), toState);
     link.setStateEnum(toState);
-  }
-
-  /**
-   Update Link to finished state
-   */
-  private void updateToFinishedState(LinkState toState) throws Exception {
-    linkDAO.updateState(Access.internal(), entityId, toState);
-    link.setStateEnum(toState);
     log.info("{} Link OK (id={})", toState, entityId);
   }
-
 
 }

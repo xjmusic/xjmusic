@@ -157,21 +157,7 @@ public class DubMasterContinueIT {
     // insert arrangement of choice 103
     IntegrationTestEntity.insertArrangement(1, 103, 1, 1);
 
-    // future: insert 8 picks of audio 1
-    IntegrationTestEntity.insertPick(1, 1, 1, 0, 1, 1, 440);
-    IntegrationTestEntity.insertPick(2, 1, 1, 1, 1, 1, 440);
-    IntegrationTestEntity.insertPick(3, 1, 1, 2, 1, 1, 440);
-    IntegrationTestEntity.insertPick(4, 1, 1, 3, 1, 1, 440);
-    IntegrationTestEntity.insertPick(5, 1, 1, 4, 1, 1, 440);
-    IntegrationTestEntity.insertPick(6, 1, 1, 5, 1, 1, 440);
-    IntegrationTestEntity.insertPick(7, 1, 1, 6, 1, 1, 440);
-    IntegrationTestEntity.insertPick(8, 1, 1, 7, 1, 1, 440);
-
-    // future: insert 4 picks of audio 2
-    IntegrationTestEntity.insertPick(9, 1, 2, 1, 1, 1, 600);
-    IntegrationTestEntity.insertPick(10, 1, 2, 3, 1, 1, 600);
-    IntegrationTestEntity.insertPick(11, 1, 2, 5, 1, 1, 600);
-    IntegrationTestEntity.insertPick(12, 1, 2, 7, 1, 1, 600);
+    // FUTURE: determine new test vector for [#154014731] persist Audio pick in memory
 
     // Bind the library to the chain
     IntegrationTestEntity.insertChainLibrary(1, 1, 2);

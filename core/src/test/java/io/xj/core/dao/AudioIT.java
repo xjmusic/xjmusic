@@ -117,10 +117,8 @@ public class AudioIT {
     // Choice, Arrangement, Pick
     IntegrationTestEntity.insertChoice(7, 1, 1, PatternType.Macro, 2, -5);
     IntegrationTestEntity.insertArrangement(1, 7, 8, 1);
-    IntegrationTestEntity.insertPick(1, 1, 1, 0.125, 1.23, 0.94, 440);
-    IntegrationTestEntity.insertPick(2, 1, 1, 1.125, 1.23, 0.94, 220);
-    IntegrationTestEntity.insertPick(3, 1, 1, 2.125, 1.23, 0.94, 110);
-    IntegrationTestEntity.insertPick(4, 1, 1, 3.125, 1.23, 0.94, 55);
+
+    // FUTURE: determine new test vector for [#154014731] persist Audio pick in memory
 
   }
 
@@ -331,16 +329,6 @@ public class AudioIT {
 
     assertNotNull(result);
     assertEquals(0, result.length());
-  }
-
-  @Test
-  public void readAllPickedForLink() throws Exception {
-    setUpTwo();
-
-    JSONArray result = JSON.arrayOf(testDAO.readAllPickedForLink(Access.internal(), BigInteger.valueOf(1)));
-
-    assertNotNull(result);
-    assertEquals(4, result.length());
   }
 
   @Test

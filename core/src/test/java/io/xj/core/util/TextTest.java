@@ -91,4 +91,9 @@ public class TextTest extends Mockito {
     assertEquals("C# major", Text.toNote("   C# m___ajor "));
   }
 
+  @Test
+  public void formatStackStrace_nullOutputsEmptyString() throws Exception {
+    assertEquals("", Text.formatStackTrace(null));
+  }
+
 }

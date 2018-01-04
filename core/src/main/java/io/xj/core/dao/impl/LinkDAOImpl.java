@@ -44,7 +44,6 @@ import static io.xj.core.tables.Choice.CHOICE;
 import static io.xj.core.tables.Link.LINK;
 import static io.xj.core.tables.LinkChord.LINK_CHORD;
 import static io.xj.core.tables.LinkMessage.LINK_MESSAGE;
-import static io.xj.core.tables.Pick.PICK;
 
 public class LinkDAOImpl extends DAOImpl implements LinkDAO {
   private static final long MILLIS_PER_SECOND = 1000;
@@ -443,7 +442,7 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
         break;
 
       case Crafting:
-        onlyAllowTransitions(toState, LinkState.Crafting, LinkState.Crafted, LinkState.Failed);
+        onlyAllowTransitions(toState, LinkState.Crafting, LinkState.Crafted, LinkState.Dubbing, LinkState.Failed);
         break;
 
       case Crafted:
@@ -525,11 +524,6 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
     db.select(ARRANGEMENT.ID).from(ARRANGEMENT)
       .where(ARRANGEMENT.CHOICE_ID.in(choiceIds)).fetch()
       .forEach(record -> arrangementIds.add(record.get(ARRANGEMENT.ID)));
-
-    // Delete Picks in arrangements
-    db.deleteFrom(PICK)
-      .where(PICK.ARRANGEMENT_ID.in(arrangementIds))
-      .execute();
 
     // Delete Arrangements
     db.deleteFrom(ARRANGEMENT)

@@ -17,7 +17,6 @@ import io.xj.core.dao.PatternDAO;
 import io.xj.core.dao.PatternMemeDAO;
 import io.xj.core.dao.PhaseDAO;
 import io.xj.core.dao.PhaseMemeDAO;
-import io.xj.core.dao.PickDAO;
 import io.xj.core.dao.VoiceDAO;
 import io.xj.core.dao.VoiceEventDAO;
 import io.xj.core.exception.BusinessException;
@@ -95,7 +94,6 @@ public class BasisImpl implements Basis {
   private final Map<String, Object> report = Maps.newConcurrentMap();
   private final PhaseDAO phaseDAO;
   private final PhaseMemeDAO phaseMemeDAO;
-  private final PickDAO pickDAO;
   private final Tuning tuning;
   private final VoiceDAO voiceDAO;
   private final VoiceEventDAO voiceEventDAO;
@@ -105,15 +103,16 @@ public class BasisImpl implements Basis {
   private Link _link;
   private Collection<Arrangement> _choiceArrangements;
   private Collection<LinkChord> _linkChords;
-  private List<Pick> _picks;
   private Map<ChainConfigType, ChainConfig> _chainConfigs;
   private Map<BigInteger, Audio> _audiosFromPicks;
   private MemeIsometry _currentMacroMemeIsometry;
   private MemeIsometry _previousMacroMemeIsometry;
   private MemeIsometry _currentLinkMemeIsometry;
   private Collection<LinkMeme> _currentLinkMemes;
+  private final List<Pick> _picks = Lists.newArrayList();
   private final Map<Double, Double> _positionSeconds = Maps.newConcurrentMap();
   private final Map<BigInteger, Pattern> _patterns = Maps.newConcurrentMap();
+  private final Map<BigInteger, Audio> _audios = Maps.newConcurrentMap();
   private final Map<BigInteger, Collection<Audio>> _instrumentAudios = Maps.newConcurrentMap();
   private final Map<BigInteger, Collection<InstrumentMeme>> _instrumentMemes = Maps.newConcurrentMap();
   private final Map<BigInteger, Collection<AudioEvent>> _audioWithFirstEvent = Maps.newConcurrentMap();
@@ -142,7 +141,6 @@ public class BasisImpl implements Basis {
     LinkMessageDAO linkMessageDAO,
     PhaseDAO phaseDAO,
     PhaseMemeDAO phaseMemeDAO,
-    PickDAO pickDAO,
     VoiceDAO voiceDAO,
     VoiceEventDAO voiceEventDAO
   /*-*/) throws BusinessException {
@@ -161,7 +159,6 @@ public class BasisImpl implements Basis {
     this.linkMessageDAO = linkMessageDAO;
     this.phaseDAO = phaseDAO;
     this.phaseMemeDAO = phaseMemeDAO;
-    this.pickDAO = pickDAO;
     this.voiceDAO = voiceDAO;
     this.voiceEventDAO = voiceEventDAO;
 
@@ -464,6 +461,14 @@ public class BasisImpl implements Basis {
   }
 
   @Override
+  public Audio audio(BigInteger id) throws Exception {
+    if (!_audios.containsKey(id))
+      _audios.put(id, audioDAO.readOne(Access.internal(), id));
+
+    return _audios.get(id);
+  }
+
+  @Override
   public Audio linkAudio(BigInteger audioId) throws Exception {
     if (linkAudios().containsKey(audioId))
       return linkAudios().get(audioId);
@@ -475,10 +480,9 @@ public class BasisImpl implements Basis {
   public Map<BigInteger, Audio> linkAudios() throws Exception {
     if (Objects.isNull(_audiosFromPicks) || _audiosFromPicks.isEmpty()) {
       _audiosFromPicks = Maps.newConcurrentMap();
-      audioDAO.readAllPickedForLink(Access.internal(), link().getId())
-        .forEach(model -> _audiosFromPicks.put(
-          model.getId(),
-          model));
+      for (Pick pick : _picks) {
+        _audiosFromPicks.put(pick.getAudioId(), audio(pick.getAudioId()));
+      }
     }
 
     return Collections.unmodifiableMap(_audiosFromPicks);
@@ -513,12 +517,12 @@ public class BasisImpl implements Basis {
   }
 
   @Override
-  public List<Pick> picks() throws Exception {
-    if (Objects.isNull(_picks) || _picks.isEmpty()) {
-      _picks = Lists.newArrayList();
-      _picks.addAll(pickDAO.readAllInLink(Access.internal(), link().getId()));
-    }
+  public void pick(Pick pick) {
+    _picks.add(pick);
+  }
 
+  @Override
+  public Collection<Pick> picks() throws Exception {
     return Collections.unmodifiableList(_picks);
   }
 

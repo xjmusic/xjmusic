@@ -14,7 +14,6 @@ import io.xj.core.dao.PatternDAO;
 import io.xj.core.dao.PatternMemeDAO;
 import io.xj.core.dao.PhaseDAO;
 import io.xj.core.dao.PhaseMemeDAO;
-import io.xj.core.dao.PickDAO;
 import io.xj.core.dao.VoiceDAO;
 import io.xj.core.dao.VoiceEventDAO;
 import io.xj.core.work.basis.Basis;
@@ -54,7 +53,6 @@ public class FoundationCraftImplTest {
   @Mock LinkMessageDAO linkMessageDAO;
   @Mock PhaseDAO phaseDAO;
   @Mock PhaseMemeDAO phaseMemeDAO;
-  @Mock PickDAO pickDAO;
   @Mock Tuning tuning;
   @Mock VoiceDAO voiceDAO;
   @Mock VoiceEventDAO voiceEventDAO;
@@ -89,7 +87,6 @@ public class FoundationCraftImplTest {
           bind(LinkMessageDAO.class).toInstance(linkMessageDAO);
           bind(PhaseDAO.class).toInstance(phaseDAO);
           bind(PhaseMemeDAO.class).toInstance(phaseMemeDAO);
-          bind(PickDAO.class).toInstance(pickDAO);
           bind(Tuning.class).toInstance(tuning);
           bind(VoiceDAO.class).toInstance(voiceDAO);
           bind(VoiceEventDAO.class).toInstance(voiceEventDAO);

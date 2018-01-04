@@ -4,7 +4,6 @@ package io.xj.worker.work.craft.voice;
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.ArrangementDAO;
-import io.xj.core.dao.PickDAO;
 import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
@@ -32,7 +31,6 @@ import org.junit.rules.ExpectedException;
 import java.math.BigInteger;
 import java.sql.Timestamp;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 public class CraftVoiceNextMacroIT {
@@ -197,7 +195,7 @@ public class CraftVoiceNextMacroIT {
 
     assertFalse(injector.getInstance(ArrangementDAO.class).readAll(Access.internal(), BigInteger.valueOf(103)).isEmpty());
 
-    assertEquals(16, injector.getInstance(PickDAO.class).readAllInLink(Access.internal(), link4.getId()).size());
+    // FUTURE: determine new test vector for [#154014731] persist Audio pick in memory
   }
 
 }

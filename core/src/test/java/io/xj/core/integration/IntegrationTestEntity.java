@@ -38,7 +38,6 @@ import io.xj.core.tables.records.PatternRecord;
 import io.xj.core.tables.records.PhaseChordRecord;
 import io.xj.core.tables.records.PhaseMemeRecord;
 import io.xj.core.tables.records.PhaseRecord;
-import io.xj.core.tables.records.PickRecord;
 import io.xj.core.tables.records.PlatformMessageRecord;
 import io.xj.core.tables.records.UserAccessTokenRecord;
 import io.xj.core.tables.records.UserAuthRecord;
@@ -83,7 +82,6 @@ import static io.xj.core.Tables.PATTERN_MEME;
 import static io.xj.core.Tables.PHASE;
 import static io.xj.core.Tables.PHASE_CHORD;
 import static io.xj.core.Tables.PHASE_MEME;
-import static io.xj.core.Tables.PICK;
 import static io.xj.core.Tables.PLATFORM_MESSAGE;
 import static io.xj.core.Tables.USER;
 import static io.xj.core.Tables.USER_ACCESS_TOKEN;
@@ -101,9 +99,6 @@ public interface IntegrationTestEntity {
   static void deleteAll() throws DatabaseException {
     DSLContext db = IntegrationTestService.getDb();
     try {
-      // Pick
-      db.deleteFrom(PICK).execute(); // before Morph & Audio
-
       // Arrangement
       db.deleteFrom(ARRANGEMENT).execute(); // before Instrument, Voice & Choice
 
@@ -504,18 +499,6 @@ public interface IntegrationTestEntity {
     record.setChoiceId(ULong.valueOf(choiceId));
     record.setVoiceId(ULong.valueOf(voiceId));
     record.setInstrumentId(ULong.valueOf(instrumentId));
-    record.store();
-  }
-
-  static void insertPick(int id, int arrangementId, int audioId, double start, double length, double amplitude, double pitch) {
-    PickRecord record = IntegrationTestService.getDb().newRecord(PICK);
-    record.setId(ULong.valueOf(id));
-    record.setArrangementId(ULong.valueOf(arrangementId));
-    record.setAudioId(ULong.valueOf(audioId));
-    record.setStart(start);
-    record.setLength(length);
-    record.setAmplitude(amplitude);
-    record.setPitch(pitch);
     record.store();
   }
 

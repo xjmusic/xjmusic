@@ -556,8 +556,7 @@ public class LinkIT {
     // Arrangement
     IntegrationTestEntity.insertArrangement(1, 1, 8, 9);
 
-    // Pick is in Morph
-    IntegrationTestEntity.insertPick(1, 1, 1, 0.125, 1.23, 0.94, 440);
+    // FUTURE: determine new test vector for [#154014731] persist Audio pick in memory
 
     Access access = Access.from(ImmutableMap.of(
       "roles", "Admin"
@@ -589,9 +588,6 @@ public class LinkIT {
 
     // Assert destroyed Choice
     assertNull(injector.getInstance(ChoiceDAO.class).readOne(Access.internal(), BigInteger.valueOf(1)));
-
-    // Assert destroyed Pick
-    assertNull(injector.getInstance(PickDAO.class).readOne(Access.internal(), BigInteger.valueOf(1)));
 
   }
 

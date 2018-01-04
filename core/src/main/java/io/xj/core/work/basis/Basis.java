@@ -30,7 +30,6 @@ import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.time.Duration;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 public interface Basis {
@@ -282,9 +281,9 @@ public interface Basis {
   /**
    Read all AudioEvent that are first in an audio, for all audio in an Instrument
 
+   @param instrumentId to get audio for
    @return audio events
    @throws Exception on failure
-    @param instrumentId to get audio for
    */
   Collection<AudioEvent> instrumentAudioEvents(BigInteger instrumentId) throws Exception;
 
@@ -303,6 +302,14 @@ public interface Basis {
    @return memes for instrument
    */
   Collection<InstrumentMeme> instrumentMemes(BigInteger instrumentId) throws Exception;
+
+  /**
+   Read one Audio by id
+
+   @param id of audio
+   @return audio
+   */
+  Audio audio(BigInteger id) throws Exception;
 
   /**
    Read an Audio by id, assumed to be in the set of audio found for all picks in the link
@@ -349,8 +356,8 @@ public interface Basis {
   /**
    Cache link memes (instead of relying on writing to db followed by reading)
    Avoid race condition causing [#153888310] During craft, instruments should be chosen based on combined memes of all chosen patterns for that link.
-   * @param memes memes for the current link
 
+   @param memes memes for the current link
    */
   void setLinkMemes(Collection<LinkMeme> memes);
 
@@ -374,13 +381,21 @@ public interface Basis {
   Collection<PhaseMeme> phaseMemes(BigInteger phaseId) throws Exception;
 
   /**
+   Add a Pick to the in-memory store
+   [#154014731] Ops wants platform to use SQL only for business state persistence, in order to improve performance.
+
+   @param pick to add
+   */
+  void pick(Pick pick);
+
+  /**
    Fetch all picks for the current link
    (caches results)
 
    @return link picks
    @throws Exception on failure
    */
-  List<Pick> picks() throws Exception;
+  Collection<Pick> picks() throws Exception;
 
   /**
    Total length of link from beginning to end
@@ -424,8 +439,8 @@ public interface Basis {
    Fetch voices for a phase by id
    (caches results)
 
+   @param patternId to fetch voices for
    @return voices
-    @param patternId to fetch voices for
    */
   Collection<Voice> voices(BigInteger patternId) throws Exception;
 

@@ -78,16 +78,6 @@ public interface AudioDAO {
   Collection<Audio> readAllInState(Access access, AudioState state) throws Exception;
 
   /**
-   Fetch all accessible Audio picked for a link
-
-   @param access control
-   @param linkId to fetch audios picked for.
-   @return Result of audio records.
-   @throws Exception on failure
-   */
-  Collection<Audio> readAllPickedForLink(Access access, BigInteger linkId) throws Exception;
-
-  /**
    Update a specified Audio if accessible
 
    @param access control

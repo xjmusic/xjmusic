@@ -273,7 +273,6 @@ public class VoiceIT {
     IntegrationTestEntity.insertLink(1, 1, 0, LinkState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120, "chain-1-link-97898asdf7892.wav");
     IntegrationTestEntity.insertChoice(7, 1, 1, PatternType.Macro, 2, -5);
     IntegrationTestEntity.insertArrangement(1, 7, 1, 9);
-    IntegrationTestEntity.insertPick(1, 1, 1, 0.125, 1.23, 0.94, 440);
     Access access = Access.from(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"

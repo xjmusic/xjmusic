@@ -26,7 +26,6 @@ import static io.xj.core.Tables.ARRANGEMENT;
 import static io.xj.core.Tables.CHAIN;
 import static io.xj.core.Tables.CHOICE;
 import static io.xj.core.Tables.LINK;
-import static io.xj.core.tables.Pick.PICK;
 
 public class ArrangementDAOImpl extends DAOImpl implements ArrangementDAO {
 
@@ -240,10 +239,6 @@ public class ArrangementDAOImpl extends DAOImpl implements ArrangementDAO {
 
     requireExists("Arrangement", db.selectCount().from(ARRANGEMENT)
       .where(ARRANGEMENT.ID.eq(id))
-      .fetchOne(0, int.class));
-
-    requireNotExists("Pick", db.selectCount().from(PICK)
-      .where(PICK.ARRANGEMENT_ID.eq(id))
       .fetchOne(0, int.class));
 
     db.deleteFrom(ARRANGEMENT)

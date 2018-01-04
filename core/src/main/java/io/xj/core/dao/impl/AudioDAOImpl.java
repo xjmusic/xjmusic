@@ -36,11 +36,8 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
 
-import static io.xj.core.Tables.ARRANGEMENT;
 import static io.xj.core.Tables.AUDIO_CHORD;
 import static io.xj.core.Tables.AUDIO_EVENT;
-import static io.xj.core.Tables.CHOICE;
-import static io.xj.core.Tables.PICK;
 import static io.xj.core.tables.Audio.AUDIO;
 import static io.xj.core.tables.Instrument.INSTRUMENT;
 import static io.xj.core.tables.Library.LIBRARY;
@@ -119,16 +116,6 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readAllInState(tx.getContext(), access, state));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public Collection<Audio> readAllPickedForLink(Access access, BigInteger linkId) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readAllPickedForLink(tx.getContext(), access, ULong.valueOf(linkId)));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -307,28 +294,6 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
       .fetch(), Audio.class);
   }
 
-
-  /**
-   Read all Audio able picked for a Link
-
-   @param db     context
-   @param access control
-   @param linkId to get audio picked for
-   @return Result of audio records.
-   @throws Exception on failure
-   */
-  private static Collection<Audio> readAllPickedForLink(DSLContext db, Access access, ULong linkId) throws Exception {
-    requireTopLevel(access);
-
-    return modelsFrom(db.select(AUDIO.fields())
-      .from(AUDIO)
-      .join(PICK).on(PICK.AUDIO_ID.eq(AUDIO.ID))
-      .join(ARRANGEMENT).on(ARRANGEMENT.ID.eq(PICK.ARRANGEMENT_ID))
-      .join(CHOICE).on(CHOICE.ID.eq(ARRANGEMENT.CHOICE_ID))
-      .where(CHOICE.LINK_ID.eq(linkId))
-      .fetch(), Audio.class);
-  }
-
   /**
    Update an Audio record
    <p>
@@ -417,11 +382,6 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
       .where(AUDIO.ID.eq(audioId))
       .fetchOne();
     requireExists("Audio to destroy", audioRecord);
-
-    // Picks of Audio
-    db.deleteFrom(PICK)
-      .where(PICK.AUDIO_ID.eq(audioId))
-      .execute();
 
     // [#163] When an Audio record is deleted, remove its related S3 object in order to save storage space.
     // Only Delete audio waveform from S3 if non-null

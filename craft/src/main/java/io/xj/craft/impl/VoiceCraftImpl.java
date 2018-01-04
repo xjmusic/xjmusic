@@ -2,10 +2,8 @@
 package io.xj.craft.impl;
 
 import io.xj.core.access.impl.Access;
-import io.xj.craft.VoiceCraft;
 import io.xj.core.dao.ArrangementDAO;
 import io.xj.core.dao.InstrumentDAO;
-import io.xj.core.dao.PickDAO;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.isometry.EventIsometry;
 import io.xj.core.model.arrangement.Arrangement;
@@ -19,6 +17,7 @@ import io.xj.core.model.pick.Pick;
 import io.xj.core.model.voice.Voice;
 import io.xj.core.model.voice_event.VoiceEvent;
 import io.xj.core.work.basis.Basis;
+import io.xj.craft.VoiceCraft;
 import io.xj.music.Chord;
 import io.xj.music.Note;
 
@@ -42,20 +41,17 @@ public class VoiceCraftImpl implements VoiceCraft {
   private static final double SCORE_MATCHED_MEMES = 5;
   private final Basis basis;
   private final ArrangementDAO arrangementDAO;
-  private final PickDAO pickDAO;
   private final InstrumentDAO instrumentDAO;
 
   @Inject
   public VoiceCraftImpl(
     @Assisted("basis") Basis basis,
     ArrangementDAO arrangementDAO,
-    InstrumentDAO instrumentDAO,
-    PickDAO pickDAO
+    InstrumentDAO instrumentDAO
     /*-*/) {
     this.basis = basis;
     this.arrangementDAO = arrangementDAO;
     this.instrumentDAO = instrumentDAO;
-    this.pickDAO = pickDAO;
   }
 
   @Override
@@ -92,7 +88,6 @@ public class VoiceCraftImpl implements VoiceCraft {
 
     craftArrangement(
       rhythmPhase(),
-      voice,
       basis.currentRhythmChoice().getTranspose(),
       percussiveInstrument,
       arrangementDAO.create(Access.internal(),
@@ -170,16 +165,14 @@ public class VoiceCraftImpl implements VoiceCraft {
    Craft an arrangement based around a newly created arrangement
    for each event in voice phase (repeat N times if needed to fill length of link)
 
-   @param phase       that voice belongs to
-   @param voice       that is being arranged
+   @throws Exception on failure
+    @param phase       that voice belongs to
    @param transpose   audio +/- semitones
    @param instrument  to arrange audio of
    @param arrangement to create arrangement around
-   @throws Exception on failure
    */
   private void craftArrangement(
     Phase phase,
-    Voice voice,
     int transpose,
     Instrument instrument,
     Arrangement arrangement
@@ -246,15 +239,13 @@ public class VoiceCraftImpl implements VoiceCraft {
     double lengthSeconds = basis.secondsAtPosition(position + duration) - startSeconds;
 
     // create pick
-    pickDAO.create(Access.internal(),
-      new Pick()
-        .setArrangementId(arrangement.getId())
-        .setAudioId(audio.getId())
-        .setStart(startSeconds)
-        .setLength(lengthSeconds)
-        .setAmplitude(voiceEvent.getVelocity())
-        .setPitch(basis.pitch(note)));
-
+    basis.pick(new Pick()
+      .setArrangementId(arrangement.getId())
+      .setAudioId(audio.getId())
+      .setStart(startSeconds)
+      .setLength(lengthSeconds)
+      .setAmplitude(voiceEvent.getVelocity())
+      .setPitch(basis.pitch(note)));
   }
 
   /**

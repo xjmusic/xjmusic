@@ -3,9 +3,7 @@ package io.xj.worker.work.craft.voice;
 
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
-import io.xj.craft.CraftFactory;
 import io.xj.core.dao.ArrangementDAO;
-import io.xj.core.dao.PickDAO;
 import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
@@ -16,6 +14,7 @@ import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.work.basis.Basis;
 import io.xj.core.work.basis.BasisFactory;
+import io.xj.craft.CraftFactory;
 import io.xj.craft.CraftModule;
 import io.xj.dub.DubModule;
 import io.xj.worker.WorkerModule;
@@ -32,7 +31,6 @@ import org.junit.rules.ExpectedException;
 import java.math.BigInteger;
 import java.sql.Timestamp;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 public class CraftVoiceInitialIT {
@@ -157,7 +155,7 @@ public class CraftVoiceInitialIT {
 
     assertFalse(injector.getInstance(ArrangementDAO.class).readAll(Access.internal(), BigInteger.valueOf(103)).isEmpty());
 
-    assertEquals(16, injector.getInstance(PickDAO.class).readAllInLink(Access.internal(), link6.getId()).size());
+    // FUTURE: determine new test vector for [#154014731] persist Audio pick in memory
   }
 
 }
