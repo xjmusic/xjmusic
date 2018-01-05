@@ -41,6 +41,8 @@ ensure_file ${EXAMPLE_SQL} "Example MySQL database"
 step "Client SQL execution"
 # first structure of all tables
 ${MYSQLDUMP_COMMAND} --no-data -u${MYSQL_USER} -h 127.0.0.1 -P ${MYSQL_PORT} ${MYSQL_ARGS} ${MYSQL_DB} > ${EXAMPLE_SQL}
+# blank spaces
+for i in x x x x x x x x x x x x x x x x x x x x x x; do echo "" >> ${EXAMPLE_SQL}; done
 # then append data from only certain tables
 ${MYSQLDUMP_COMMAND} --no-create-info -u${MYSQL_USER} -h 127.0.0.1 -P ${MYSQL_PORT} ${MYSQL_ARGS} ${MYSQL_DB} ${MYSQL_TABLES} >> ${EXAMPLE_SQL}
 step_ok

@@ -11,6 +11,7 @@ import io.xj.core.model.instrument.InstrumentType;
 import io.xj.core.model.link.Link;
 import io.xj.core.model.link.LinkState;
 import io.xj.core.model.pattern.PatternType;
+import io.xj.core.model.phase.PhaseType;
 import io.xj.core.model.pick.Pick;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.work.basis.Basis;
@@ -67,16 +68,16 @@ public class CraftVoiceNextMacroIT {
     IntegrationTestEntity.insertPattern(4, 3, 2, PatternType.Macro, "Tropical, Wild to Cozy", 0.5, "C", 120);
     IntegrationTestEntity.insertPatternMeme(2, 4, "Tropical");
     // " phase offset 0
-    IntegrationTestEntity.insertPhase(3, 4, 0, 0, "Start Wild", 0.6, "C", 125);
+    IntegrationTestEntity.insertPhase(3, 4, PhaseType.Macro, 0, 0, "Start Wild", 0.6, "C", 125);
     IntegrationTestEntity.insertPhaseMeme(3, 3, "Wild");
     IntegrationTestEntity.insertPhaseChord(3, 3, 0, "C");
     // " phase offset 1
-    IntegrationTestEntity.insertPhase(4, 4, 1, 0, "Intermediate", 0.4, "Bb minor", 115);
+    IntegrationTestEntity.insertPhase(4, 4, PhaseType.Macro, 1, 0, "Intermediate", 0.4, "Bb minor", 115);
     IntegrationTestEntity.insertPhaseMeme(4, 4, "Cozy");
     IntegrationTestEntity.insertPhaseMeme(49, 4, "Wild");
     IntegrationTestEntity.insertPhaseChord(4, 4, 0, "Bb minor");
     // " phase offset 2
-    IntegrationTestEntity.insertPhase(5, 4, 2, 0, "Finish Cozy", 0.4, "Ab minor", 125);
+    IntegrationTestEntity.insertPhase(5, 4, PhaseType.Macro, 2, 0, "Finish Cozy", 0.4, "Ab minor", 125);
     IntegrationTestEntity.insertPhaseMeme(5, 4, "Cozy");
     IntegrationTestEntity.insertPhaseChord(5, 5, 0, "Ab minor");
 
@@ -84,11 +85,11 @@ public class CraftVoiceNextMacroIT {
     IntegrationTestEntity.insertPattern(3, 3, 2, PatternType.Macro, "Tangy, Chunky to Smooth", 0.5, "G minor", 120);
     IntegrationTestEntity.insertPatternMeme(1, 3, "Tangy");
     // # phase offset 0
-    IntegrationTestEntity.insertPhase(1, 3, 0, 0, "Start Chunky", 0.4, "G minor", 115);
+    IntegrationTestEntity.insertPhase(1, 3, PhaseType.Macro, 0, 0, "Start Chunky", 0.4, "G minor", 115);
     IntegrationTestEntity.insertPhaseMeme(1, 1, "Chunky");
     IntegrationTestEntity.insertPhaseChord(1, 1, 0, "G minor");
     // # phase offset 1
-    IntegrationTestEntity.insertPhase(2, 3, 1, 0, "Finish Smooth", 0.6, "C", 125);
+    IntegrationTestEntity.insertPhase(2, 3, PhaseType.Macro, 1, 0, "Finish Smooth", 0.6, "C", 125);
     IntegrationTestEntity.insertPhaseMeme(2, 2, "Smooth");
     IntegrationTestEntity.insertPhaseChord(2, 2, 0, "C");
 
@@ -96,12 +97,12 @@ public class CraftVoiceNextMacroIT {
     IntegrationTestEntity.insertPattern(5, 3, 2, PatternType.Main, "Main Jam", 0.2, "C minor", 140);
     IntegrationTestEntity.insertPatternMeme(3, 5, "Outlook");
     // # phase offset 0
-    IntegrationTestEntity.insertPhase(15, 5, 0, 16, "Intro", 0.5, "G major", 135.0);
+    IntegrationTestEntity.insertPhase(15, 5, PhaseType.Main, 0, 16, "Intro", 0.5, "G major", 135.0);
     IntegrationTestEntity.insertPhaseMeme(6, 15, "Optimism");
     IntegrationTestEntity.insertPhaseChord(12, 15, 0, "G major");
     IntegrationTestEntity.insertPhaseChord(14, 15, 8, "Ab minor");
     // # phase offset 1
-    IntegrationTestEntity.insertPhase(16, 5, 1, 16, "Drop", 0.5, "G minor", 135.0);
+    IntegrationTestEntity.insertPhase(16, 5, PhaseType.Main, 1, 16, "Drop", 0.5, "G minor", 135.0);
     IntegrationTestEntity.insertPhaseMeme(7, 16, "Pessimism");
     IntegrationTestEntity.insertPhaseChord(16, 16, 0, "C major");
     IntegrationTestEntity.insertPhaseChord(18, 16, 8, "Bb minor");
@@ -109,11 +110,11 @@ public class CraftVoiceNextMacroIT {
     // Another Main pattern to go to
     IntegrationTestEntity.insertPattern(15, 3, 2, PatternType.Main, "Next Jam", 0.2, "Db minor", 140);
     IntegrationTestEntity.insertPatternMeme(43, 15, "Hindsight");
-    IntegrationTestEntity.insertPhase(415, 15, 0, 16, "Intro", 0.5, "G minor", 135.0);
+    IntegrationTestEntity.insertPhase(415, 15, PhaseType.Main, 0, 16, "Intro", 0.5, "G minor", 135.0);
     IntegrationTestEntity.insertPhaseMeme(46, 415, "Regret");
     IntegrationTestEntity.insertPhaseChord(412, 415, 0, "G minor");
     IntegrationTestEntity.insertPhaseChord(414, 415, 8, "Ab minor");
-    IntegrationTestEntity.insertPhase(416, 15, 1, 16, "Outro", 0.5, "A major", 135.0);
+    IntegrationTestEntity.insertPhase(416, 15, PhaseType.Main, 1, 16, "Outro", 0.5, "A major", 135.0);
     IntegrationTestEntity.insertPhaseMeme(47, 416, "Pride");
     IntegrationTestEntity.insertPhaseMeme(149, 416, "Shame");
     IntegrationTestEntity.insertPhaseChord(416, 416, 0, "C major");
@@ -122,13 +123,14 @@ public class CraftVoiceNextMacroIT {
     // A basic beat
     IntegrationTestEntity.insertPattern(35, 3, 2, PatternType.Rhythm, "Basic Beat", 0.2, "C", 121);
     IntegrationTestEntity.insertPatternMeme(343, 35, "Basic");
-    IntegrationTestEntity.insertPhase(315, 35, 0, 4, "Drop", 0.5, "C", 125.0);
-    IntegrationTestEntity.insertPhaseMeme(346, 315, "Heavy");
-
-    // setup voice phase events
     IntegrationTestEntity.insertVoice(1, 35, InstrumentType.Percussive, "drums");
 
-    // Voice "Drums" has events sounding like "KICK" or "SNARE" 2x each
+    /*
+    Voice "Drums" are onomatopoeic to "KICK" and "SNARE" 2x each
+    There are two types of phases: Intro and Loop [#153976073] Artist wants Phase to have type *Macro* or *Main* (for Macro- or Main-type patterns), or *Intro*, *Loop*, or *Outro* (for Rhythm or Detail-type Pattern) in order to create a composition that is dynamic when chosen to fill a Link.
+     */
+    IntegrationTestEntity.insertPhase(315, 35, PhaseType.Intro, 0, 4, "Drop", 0.5, "C", 125.0);
+    IntegrationTestEntity.insertPhaseMeme(346, 315, "Heavy");
     IntegrationTestEntity.insertVoiceEvent(1, 315, 1, 0, 1, "CLOCK", "C2", 0.8, 1.0);
     IntegrationTestEntity.insertVoiceEvent(2, 315, 1, 1, 1, "SNORT", "G5", 0.1, 0.8);
     IntegrationTestEntity.insertVoiceEvent(3, 315, 1, 2.5, 1, "KICK", "C2", 0.8, 0.6);
@@ -139,7 +141,7 @@ public class CraftVoiceNextMacroIT {
     [#150279647] Artist wants to create multiple Phases with the same offset in the same Pattern, in order that XJ randomly select one of the phases at that offset.
     they are also onomatopoeic to "KICK" and "SNARE" 2x each
      */
-    IntegrationTestEntity.insertPhase(317, 35, 1, 4, "Drop Alt", 0.5, "C", 125.0);
+    IntegrationTestEntity.insertPhase(317, 35, PhaseType.Loop, 0, 4, "Drop Alt", 0.5, "C", 125.0);
     IntegrationTestEntity.insertPhaseMeme(349, 317, "Heavy");
     IntegrationTestEntity.insertVoiceEvent(11, 317, 1, 0, 1, "CLACK", "B5", 0.1, 0.9);
     IntegrationTestEntity.insertVoiceEvent(12, 317, 1, 1, 1, "SNARL", "D2", 0.5, 1.0);
@@ -147,7 +149,7 @@ public class CraftVoiceNextMacroIT {
     IntegrationTestEntity.insertVoiceEvent(15, 317, 1, 3, 1, "SNAP", "C3", 0.5, 0.5);
 
     // basic beat second phase
-    IntegrationTestEntity.insertPhase(316, 35, 1, 4, "Continue", 0.5, "C", 125.0);
+    IntegrationTestEntity.insertPhase(316, 35, PhaseType.Loop, 1, 4, "Continue", 0.5, "C", 125.0);
     IntegrationTestEntity.insertPhaseMeme(347, 316, "Heavy");
 
     // Chain "Test Print #1" has 5 total links

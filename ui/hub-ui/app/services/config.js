@@ -28,6 +28,8 @@ export default Service.extend({
     this.promises.chainTypes = this.newSubPromise("chainTypes");
     this.promises.choiceTypes = this.newSubPromise("choiceTypes");
     this.promises.patternTypes = this.newSubPromise("patternTypes");
+    this.promises.phaseTypes = this.newSubPromise("phaseTypes");
+    this.promises.phaseDetailTypes = this.newSubPromise("phaseDetailTypes");
     this.promises.instrumentTypes = this.newSubPromise("instrumentTypes");
     this.promises.linkStates = this.newSubPromise("linkStates");
     this.promises.linkBaseUrl = this.newSubPromise("linkBaseUrl");

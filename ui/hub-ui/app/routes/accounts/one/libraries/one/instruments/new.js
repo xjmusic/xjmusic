@@ -89,7 +89,7 @@ export default Route.extend({
       }
     },
 
-    cancelCreateInstrument(transition)
+    cancelCreateInstrument()
     {
       let model = this.controller.get('model');
       if (model.get('hasDirtyAttributes')) {
@@ -97,8 +97,6 @@ export default Route.extend({
         if (confirmation) {
           model.rollbackAttributes();
           this.transitionTo('accounts.one.libraries.one.instruments');
-        } else {
-          transition.abort();
         }
       }
     }

@@ -3,7 +3,10 @@ package io.xj.core.util;
 
 import io.xj.core.config.Config;
 
+import com.google.common.collect.ImmutableList;
+
 import javax.annotation.Nullable;
+import java.util.List;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
@@ -256,4 +259,17 @@ public interface Text {
     return String.join(Config.lineSeparator(), stackLines);
   }
 
+  /**
+   Format an immutable list of string values from an array of enum
+
+   @param values to include
+   @return array of string values
+   */
+  static List<String> stringValues(Object[] values) {
+    ImmutableList.Builder<String> valuesBuilder = ImmutableList.builder();
+    for (Object value : values) {
+      valuesBuilder.add(value.toString());
+    }
+    return valuesBuilder.build();
+  }
 }

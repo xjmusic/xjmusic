@@ -8,6 +8,7 @@ import io.xj.core.dao.AudioDAO;
 import io.xj.core.dao.AudioEventDAO;
 import io.xj.core.dao.ChainConfigDAO;
 import io.xj.core.dao.ChoiceDAO;
+import io.xj.core.dao.InstrumentDAO;
 import io.xj.core.dao.InstrumentMemeDAO;
 import io.xj.core.dao.LinkChordDAO;
 import io.xj.core.dao.LinkDAO;
@@ -29,6 +30,7 @@ import io.xj.core.model.chain_config.ChainConfigType;
 import io.xj.core.model.choice.Chance;
 import io.xj.core.model.choice.Choice;
 import io.xj.core.model.choice.Chooser;
+import io.xj.core.model.instrument.Instrument;
 import io.xj.core.model.instrument_meme.InstrumentMeme;
 import io.xj.core.model.link.Link;
 import io.xj.core.model.link_chord.LinkChord;
@@ -40,6 +42,7 @@ import io.xj.core.model.pattern.Pattern;
 import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.pattern_meme.PatternMeme;
 import io.xj.core.model.phase.Phase;
+import io.xj.core.model.phase.PhaseType;
 import io.xj.core.model.phase_meme.PhaseMeme;
 import io.xj.core.model.pick.Pick;
 import io.xj.core.model.voice.Voice;
@@ -63,6 +66,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 
+import javax.annotation.Nullable;
 import javax.sound.sampled.AudioFormat;
 import java.math.BigInteger;
 import java.sql.Timestamp;
@@ -86,6 +90,7 @@ public class BasisImpl implements Basis {
   private final ChainConfigDAO chainConfigDAO;
   private final ChoiceDAO choiceDAO;
   private final PatternDAO patternDAO;
+  private final InstrumentDAO instrumentDAO;
   private final PatternMemeDAO patternMemeDAO;
   private final InstrumentMemeDAO instrumentMemeDAO;
   private final LinkChordDAO linkChordDAO;
@@ -103,7 +108,6 @@ public class BasisImpl implements Basis {
   private BasisType _type;
   private Boolean _sentReport = false;
   private Link _link;
-  private Collection<Arrangement> _choiceArrangements;
   private Collection<LinkChord> _linkChords;
   private Map<ChainConfigType, ChainConfig> _chainConfigs;
   private Map<BigInteger, Audio> _audiosFromPicks;
@@ -112,21 +116,23 @@ public class BasisImpl implements Basis {
   private MemeIsometry _currentLinkMemeIsometry;
   private Collection<LinkMeme> _currentLinkMemes;
   private final List<Pick> _picks = Lists.newArrayList();
-  private final Map<Double, Double> _positionSeconds = Maps.newConcurrentMap();
-  private final Map<BigInteger, Pattern> _patterns = Maps.newConcurrentMap();
   private final Map<BigInteger, Audio> _audios = Maps.newConcurrentMap();
+  private final Map<BigInteger, Collection<Arrangement>> _choiceArrangements = Maps.newConcurrentMap();
   private final Map<BigInteger, Collection<Audio>> _instrumentAudios = Maps.newConcurrentMap();
-  private final Map<BigInteger, Collection<InstrumentMeme>> _instrumentMemes = Maps.newConcurrentMap();
   private final Map<BigInteger, Collection<AudioEvent>> _audioWithFirstEvent = Maps.newConcurrentMap();
-  private final Map<BigInteger, Map<PatternType, Choice>> _linkChoicesByType = Maps.newConcurrentMap();
-  private final Map<BigInteger, Map<BigInteger, Link>> _linksByOffset = Maps.newConcurrentMap();
-  private final Map<BigInteger, Map<BigInteger, Phase>> _patternPhaseByOffset = Maps.newConcurrentMap();
-  private final Map<BigInteger, Map<BigInteger, Collection<Phase>>> _patternPhasesByOffset = Maps.newConcurrentMap();
-  private final Map<BigInteger, Collection<PatternMeme>> _patternMemes = Maps.newConcurrentMap();
+  private final Map<BigInteger, Collection<InstrumentMeme>> _instrumentMemes = Maps.newConcurrentMap();
   private final Map<BigInteger, Collection<LinkMeme>> _linkMemes = Maps.newConcurrentMap();
+  private final Map<BigInteger, Collection<PatternMeme>> _patternMemes = Maps.newConcurrentMap();
   private final Map<BigInteger, Collection<PhaseMeme>> _phaseMemes = Maps.newConcurrentMap();
-  private final Map<BigInteger, Collection<VoiceEvent>> _voiceEvents = Maps.newConcurrentMap();
   private final Map<BigInteger, Collection<Voice>> _voicesByPattern = Maps.newConcurrentMap();
+  private final Map<BigInteger, Collection<VoiceEvent>> _phaseVoiceEvents = Maps.newConcurrentMap();
+  private final Map<BigInteger, Map<BigInteger, Collection<Phase>>> _patternPhasesByOffset = Maps.newConcurrentMap();
+  private final Map<BigInteger, Map<BigInteger, Link>> _linksByOffset = Maps.newConcurrentMap();
+  private final Map<BigInteger, Map<BigInteger, Map<PhaseType, Phase>>> _patternPhaseByOffsetAndType = Maps.newConcurrentMap();
+  private final Map<BigInteger, Map<PatternType, Choice>> _linkChoicesByType = Maps.newConcurrentMap();
+  private final Map<BigInteger, Pattern> _patterns = Maps.newConcurrentMap();
+  private final Map<BigInteger, Instrument> _instruments = Maps.newConcurrentMap();
+  private final Map<Double, Double> _positionSeconds = Maps.newConcurrentMap();
 
   @Inject
   public BasisImpl(
@@ -137,7 +143,7 @@ public class BasisImpl implements Basis {
     ChainConfigDAO chainConfigDAO,
     ChoiceDAO choiceDAO,
     PatternDAO patternDAO,
-    PatternMemeDAO patternMemeDAO,
+    InstrumentDAO instrumentDAO, PatternMemeDAO patternMemeDAO,
     InstrumentMemeDAO instrumentMemeDAO, LinkDAO linkDAO,
     LinkChordDAO linkChordDAO,
     LinkMemeDAO linkMemeDAO,
@@ -154,6 +160,7 @@ public class BasisImpl implements Basis {
     this.chainConfigDAO = chainConfigDAO;
     this.choiceDAO = choiceDAO;
     this.patternDAO = patternDAO;
+    this.instrumentDAO = instrumentDAO;
     this.patternMemeDAO = patternMemeDAO;
     this.instrumentMemeDAO = instrumentMemeDAO;
     this.linkDAO = linkDAO;
@@ -316,14 +323,16 @@ public class BasisImpl implements Basis {
   public Phase currentMacroPhase() throws Exception {
     return phaseAtOffset(
       currentMacroChoice().getPatternId(),
-      currentMacroChoice().getPhaseOffset());
+      currentMacroChoice().getPhaseOffset(),
+      PhaseType.Macro);
   }
 
   @Override
   public Phase previousMacroNextPhase() throws Exception {
     return isInitialLink() ? null : phaseAtOffset(
       previousMacroChoice().getPatternId(),
-      previousMacroChoice().nextPhaseOffset());
+      previousMacroChoice().nextPhaseOffset(),
+      PhaseType.Macro);
   }
 
   @Override
@@ -332,6 +341,14 @@ public class BasisImpl implements Basis {
       _patterns.put(id, patternDAO.readOne(Access.internal(), id));
 
     return _patterns.get(id);
+  }
+
+  @Override
+  public Instrument instrument(BigInteger id) throws Exception {
+    if (!_instruments.containsKey(id))
+      _instruments.put(id, instrumentDAO.readOne(Access.internal(), id));
+
+    return _instruments.get(id);
   }
 
   @Override
@@ -349,11 +366,16 @@ public class BasisImpl implements Basis {
 
   @Override
   public Collection<Arrangement> choiceArrangements(BigInteger choiceId) throws Exception {
-    if (Objects.isNull(_choiceArrangements) || _choiceArrangements.isEmpty()) {
-      _choiceArrangements = arrangementDAO.readAll(Access.internal(), choiceId);
+    if (!_choiceArrangements.containsKey(choiceId)) {
+      _choiceArrangements.put(choiceId, arrangementDAO.readAll(Access.internal(), choiceId));
     }
 
-    return Collections.unmodifiableCollection(_choiceArrangements);
+    return Collections.unmodifiableCollection(_choiceArrangements.get(choiceId));
+  }
+
+  @Override
+  public void setChoiceArrangements(BigInteger choiceId, Collection<Arrangement> arrangements) {
+    _choiceArrangements.put(choiceId, arrangements);
   }
 
   @Override
@@ -410,25 +432,36 @@ public class BasisImpl implements Basis {
   }
 
   @Override
-  public Collection<Meme> patternPhaseMemes(BigInteger patternId, BigInteger phaseOffset) throws Exception {
-    Collection<Meme> baseMemes = Lists.newArrayList();
+  public Collection<Meme> patternAndPhaseMemes(BigInteger patternId, BigInteger phaseOffset, PhaseType... phaseTypes) throws Exception {
+    Map<String, Meme> baseMemes = Maps.newConcurrentMap();
 
     // add pattern memes
-    baseMemes.addAll(patternMemes(patternId));
+    patternMemes(patternId).forEach((patternMeme ->
+      baseMemes.put(patternMeme.getName(), patternMeme)));
 
     // add pattern phase memes
-    Phase phase = phaseAtOffset(patternId, phaseOffset);
-    baseMemes.addAll(phaseMemes(phase.getId()));
+    for (PhaseType phaseType : phaseTypes) {
+      Phase phase = phaseAtOffset(patternId, phaseOffset, phaseType);
+      phaseMemes(phase.getId()).forEach((patternMeme ->
+        baseMemes.put(patternMeme.getName(), patternMeme)));
+    }
 
-    return baseMemes;
+    return baseMemes.values();
   }
 
   @Override
-  public Collection<VoiceEvent> voiceEvents(BigInteger phaseId) throws Exception {
-    if (!_voiceEvents.containsKey(phaseId))
-      _voiceEvents.put(phaseId, voiceEventDAO.readAll(Access.internal(), phaseId));
+  public Collection<VoiceEvent> phaseVoiceEvents(BigInteger phaseId, BigInteger voiceId) throws Exception {
+    if (!_phaseVoiceEvents.containsKey(phaseId))
+      _phaseVoiceEvents.put(phaseId, voiceEventDAO.readAll(Access.internal(), phaseId));
 
-    return _voiceEvents.get(phaseId);
+    // filter cache results based on required type-- minimize DAO calls
+    Collection<VoiceEvent> result = Lists.newArrayList();
+    _phaseVoiceEvents.get(phaseId).forEach((voiceEvent -> {
+      if (Objects.equals(voiceEvent.getVoiceId(), voiceId)) {
+        result.add(voiceEvent);
+      }
+    }));
+    return result;
   }
 
   @Override
@@ -546,22 +579,31 @@ public class BasisImpl implements Basis {
   }
 
   @Override
-  public Phase phaseAtOffset(BigInteger patternId, BigInteger phaseOffset) throws Exception {
-    if (!_patternPhaseByOffset.containsKey(patternId))
-      _patternPhaseByOffset.put(patternId, Maps.newConcurrentMap());
+  @Nullable
+  public Phase phaseAtOffset(BigInteger patternId, BigInteger phaseOffset, PhaseType phaseType) throws Exception {
+    if (!_patternPhaseByOffsetAndType.containsKey(patternId))
+      _patternPhaseByOffsetAndType.put(patternId, Maps.newConcurrentMap());
 
-    if (!_patternPhaseByOffset.get(patternId).containsKey(phaseOffset))
-      _patternPhaseByOffset.get(patternId).put(phaseOffset,
-        phaseRandomAtOffset(patternId, phaseOffset));
+    if (!_patternPhaseByOffsetAndType.get(patternId).containsKey(phaseOffset))
+      _patternPhaseByOffsetAndType.get(patternId).put(phaseOffset, Maps.newConcurrentMap());
 
-    return _patternPhaseByOffset.get(patternId).get(phaseOffset);
+    if (!_patternPhaseByOffsetAndType.get(patternId).get(phaseOffset).containsKey(phaseType)) {
+      Phase phase = phaseRandomAtOffset(patternId, phaseOffset, phaseType);
+      if (Objects.nonNull(phase)) {
+        _patternPhaseByOffsetAndType.get(patternId).get(phaseOffset).put(phaseType, phase);
+      }
+    }
+
+    return _patternPhaseByOffsetAndType.get(patternId).get(phaseOffset).getOrDefault(phaseType, null);
   }
 
   @Override
-  public Phase phaseRandomAtOffset(BigInteger patternId, BigInteger phaseOffset) throws Exception {
+  public Phase phaseRandomAtOffset(BigInteger patternId, BigInteger phaseOffset, PhaseType phaseType) throws Exception {
     Chooser<Phase> chooser = new Chooser<>();
     phasesAtOffset(patternId, phaseOffset).forEach((phase) -> {
-      chooser.add(phase, Chance.normallyAround(0.0, 1.0));
+      if (Objects.equals(phase.getType(), phaseType)) {
+        chooser.add(phase, Chance.normallyAround(0.0, 1.0));
+      }
     });
     return chooser.getTop();
   }
@@ -656,9 +698,10 @@ public class BasisImpl implements Basis {
   @Override
   public MemeIsometry previousMacroNextPhaseMemeIsometry() throws Exception {
     if (Objects.isNull(_previousMacroMemeIsometry)) {
-      _previousMacroMemeIsometry = MemeIsometry.of(patternPhaseMemes(
+      _previousMacroMemeIsometry = MemeIsometry.of(patternAndPhaseMemes(
         previousMacroChoice().getPatternId(),
-        Value.inc(previousMacroChoice().getPhaseOffset(), 1)));
+        Value.inc(previousMacroChoice().getPhaseOffset(), 1),
+        PhaseType.Macro));
     }
 
     return _previousMacroMemeIsometry;
@@ -667,9 +710,10 @@ public class BasisImpl implements Basis {
   @Override
   public MemeIsometry currentMacroMemeIsometry() throws Exception {
     if (Objects.isNull(_currentMacroMemeIsometry)) {
-      _currentMacroMemeIsometry = MemeIsometry.of(patternPhaseMemes(
+      _currentMacroMemeIsometry = MemeIsometry.of(patternAndPhaseMemes(
         currentMacroChoice().getPatternId(),
-        currentMacroChoice().getPhaseOffset()));
+        currentMacroChoice().getPhaseOffset(),
+        PhaseType.Macro));
     }
 
     return _currentMacroMemeIsometry;

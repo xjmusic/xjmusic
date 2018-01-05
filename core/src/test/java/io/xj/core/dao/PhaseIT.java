@@ -11,6 +11,7 @@ import io.xj.core.model.instrument.InstrumentType;
 import io.xj.core.model.link.LinkState;
 import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.phase.Phase;
+import io.xj.core.model.phase.PhaseType;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.transport.JSON;
 import io.xj.core.work.WorkManager;
@@ -78,8 +79,8 @@ public class PhaseIT {
     IntegrationTestEntity.insertPattern(2, 2, 1, PatternType.Macro, "coconuts", 8.02, "D", 130.2);
 
     // Pattern "leaves" has phases "Ants" and "Caterpillars"
-    IntegrationTestEntity.insertPhase(1, 1, 0, 16, "Ants", 0.583, "D minor", 120.0);
-    IntegrationTestEntity.insertPhase(2, 1, 1, 16, "Caterpillars", 0.583, "E major", 140.0);
+    IntegrationTestEntity.insertPhase(1, 1, PhaseType.Main, 0, 16, "Ants", 0.583, "D minor", 120.0);
+    IntegrationTestEntity.insertPhase(2, 1, PhaseType.Main, 1, 16, "Caterpillars", 0.583, "E major", 140.0);
 
     // Instantiate the test subject
     subject = injector.getInstance(PhaseDAO.class);
@@ -110,6 +111,7 @@ public class PhaseIT {
       .setDensity(0.42)
       .setKey("G minor 7")
       .setPatternId(BigInteger.valueOf(2))
+      .setTypeEnum(PhaseType.Macro)
       .setName("cannons")
       .setTempo(129.4)
       .setOffset(BigInteger.valueOf(16))
@@ -127,6 +129,108 @@ public class PhaseIT {
     assertEquals(Integer.valueOf(16), result.getTotal());
   }
 
+  /**
+   [#153976073] Artist wants Macro-type Pattern to have Macro-type Phase
+   */
+  @Test
+  public void create_failsWithWrongTypeForMacroPattern() throws Exception {
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
+      "accounts", "1"
+    ));
+    Phase inputData = new Phase()
+      .setDensity(0.42)
+      .setKey("G minor 7")
+      .setPatternId(BigInteger.valueOf(2))
+      .setTypeEnum(PhaseType.Loop)
+      .setName("cannons")
+      .setTempo(129.4)
+      .setOffset(BigInteger.valueOf(16))
+      .setTotal(16);
+
+    failure.expect(BusinessException.class);
+    failure.expectMessage("Macro-type Phase in Macro-type Pattern is required");
+
+    subject.create(access, inputData);
+  }
+
+  /**
+   [#153976073] Artist wants Main-type Pattern to have Main-type Phase
+   */
+  @Test
+  public void create_failsWithWrongTypeForMainPattern() throws Exception {
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
+      "accounts", "1"
+    ));
+    Phase inputData = new Phase()
+      .setDensity(0.42)
+      .setKey("G minor 7")
+      .setPatternId(BigInteger.valueOf(1))
+      .setTypeEnum(PhaseType.Loop)
+      .setName("cannons")
+      .setTempo(129.4)
+      .setOffset(BigInteger.valueOf(16))
+      .setTotal(16);
+
+    failure.expect(BusinessException.class);
+    failure.expectMessage("Main-type Phase in Main-type Pattern is required");
+
+    subject.create(access, inputData);
+  }
+
+  /**
+   [#153976073] Artist wants Rhythm-type Pattern to have Intro-, Loop-, or Outro- type Phase
+   */
+  @Test
+  public void create_failsWithWrongTypeForRhythmPattern() throws Exception {
+    IntegrationTestEntity.insertPattern(51, 2, 1, PatternType.Rhythm, "tester-b", 0.342, "C#", 110.286);
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
+      "accounts", "1"
+    ));
+    Phase inputData = new Phase()
+      .setDensity(0.42)
+      .setKey("G minor 7")
+      .setPatternId(BigInteger.valueOf(51))
+      .setTypeEnum(PhaseType.Main)
+      .setName("cannons")
+      .setTempo(129.4)
+      .setOffset(BigInteger.valueOf(16))
+      .setTotal(16);
+
+    failure.expect(BusinessException.class);
+    failure.expectMessage("Phase of type (Intro,Loop,Outro) in Rhythm-type Pattern is required");
+
+    subject.create(access, inputData);
+  }
+
+  /**
+   [#153976073] Artist wants Detail-type Pattern to have Intro-, Loop-, or Outro- type Phase
+   */
+  @Test
+  public void create_failsWithWrongTypeForDetailPattern() throws Exception {
+    IntegrationTestEntity.insertPattern(51, 2, 1, PatternType.Detail, "tester-b", 0.342, "C#", 110.286);
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Artist",
+      "accounts", "1"
+    ));
+    Phase inputData = new Phase()
+      .setDensity(0.42)
+      .setKey("G minor 7")
+      .setPatternId(BigInteger.valueOf(51))
+      .setTypeEnum(PhaseType.Main)
+      .setName("cannons")
+      .setTempo(129.4)
+      .setOffset(BigInteger.valueOf(16))
+      .setTotal(16);
+
+    failure.expect(BusinessException.class);
+    failure.expectMessage("Phase of type (Intro,Loop,Outro) in Detail-type Pattern is required");
+
+    subject.create(access, inputData);
+  }
+
   @Test
   public void create_TotalNotRequiredForMacroPatternPhase() throws Exception {
     Access access = Access.from(ImmutableMap.of(
@@ -137,6 +241,7 @@ public class PhaseIT {
       .setDensity(0.42)
       .setKey("G minor 7")
       .setPatternId(BigInteger.valueOf(2))
+      .setTypeEnum(PhaseType.Macro)
       .setName("cannons")
       .setTempo(129.4)
       .setOffset(BigInteger.valueOf(16));
@@ -160,6 +265,7 @@ public class PhaseIT {
       .setOffset(BigInteger.valueOf(1))
       .setDensity(0.42)
       .setPatternId(BigInteger.valueOf(1))
+      .setTypeEnum(PhaseType.Main)
       .setKey("G minor 7")
       .setName("cannons")
       .setTempo(129.4)
@@ -180,12 +286,13 @@ public class PhaseIT {
       .setDensity(0.42)
       .setKey("G minor 7")
       .setPatternId(BigInteger.valueOf(1))
+      .setTypeEnum(PhaseType.Main)
       .setName("cannons")
       .setTempo(129.4)
       .setOffset(BigInteger.valueOf(16));
 
     failure.expect(BusinessException.class);
-    failure.expectMessage("for a phase of a non-macro-type pattern, total (# beats) is required");
+    failure.expectMessage("for a phase of a non-macro-type pattern, total (# beats) must be greater than zero");
 
     subject.create(access, inputData);
   }
@@ -200,6 +307,7 @@ public class PhaseIT {
       .setDensity(0.42)
       .setKey("G minor 7")
       .setPatternId(BigInteger.valueOf(1))
+      .setTypeEnum(PhaseType.Main)
       .setName("cannons")
       .setTempo(129.4)
       .setOffset(BigInteger.valueOf(16))
@@ -221,6 +329,7 @@ public class PhaseIT {
       .setDensity(null)
       .setKey(null)
       .setPatternId(BigInteger.valueOf(2))
+      .setTypeEnum(PhaseType.Macro)
       .setName(null)
       .setTempo(null)
       .setOffset(BigInteger.valueOf(0))
@@ -245,6 +354,7 @@ public class PhaseIT {
       "accounts", "1"
     ));
     Phase inputData = new Phase()
+      .setTypeEnum(PhaseType.Macro)
       .setDensity(0.42)
       .setKey("G minor 7")
       .setName("cannons")
@@ -267,6 +377,7 @@ public class PhaseIT {
     Phase inputData = new Phase()
       .setDensity(0.42)
       .setPatternId(BigInteger.valueOf(2))
+      .setTypeEnum(PhaseType.Macro)
       .setKey("G minor 7")
       .setName("cannons")
       .setTempo(129.4)
@@ -287,6 +398,7 @@ public class PhaseIT {
     ));
     Phase inputData = new Phase()
       .setPatternId(BigInteger.valueOf(2))
+      .setTypeEnum(PhaseType.Macro)
       .setOffset(BigInteger.valueOf(5))
       .setName("cannons fifty nine");
 
@@ -315,6 +427,7 @@ public class PhaseIT {
     ));
     Phase inputData = new Phase()
       .setPatternId(BigInteger.valueOf(1))
+      .setTypeEnum(PhaseType.Main)
       .setOffset(BigInteger.valueOf(1))
       .setName("cannons fifty nine");
 
@@ -333,6 +446,7 @@ public class PhaseIT {
     ));
     Phase inputData = new Phase()
       .setPatternId(BigInteger.valueOf(2))
+      .setTypeEnum(PhaseType.Macro)
       .setName("cannons fifty nine");
 
     subject.clone(access, BigInteger.valueOf(1), inputData);
@@ -386,7 +500,7 @@ public class PhaseIT {
    */
   @Test
   public void readAllAtPatternOffset_multiplePhasesAtOffset() throws Exception {
-    IntegrationTestEntity.insertPhase(5, 1, 0, 16, "Army Ants", 0.683, "Eb minor", 122.4);
+    IntegrationTestEntity.insertPhase(5, 1, PhaseType.Main, 0, 16, "Army Ants", 0.683, "Eb minor", 122.4);
     Access access = Access.from(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
@@ -454,6 +568,7 @@ public class PhaseIT {
     ));
     Phase inputData = new Phase()
       .setPatternId(BigInteger.valueOf(1))
+      .setTypeEnum(PhaseType.Main)
       .setOffset(BigInteger.valueOf(7))
       .setTotal(32)
       .setName(null)
@@ -485,6 +600,7 @@ public class PhaseIT {
     ));
     Phase inputData = new Phase()
       .setPatternId(BigInteger.valueOf(1))
+      .setTypeEnum(PhaseType.Main)
       .setOffset(BigInteger.valueOf(0))
       .setTotal(16)
       .setName("Caterpillars")
@@ -506,6 +622,7 @@ public class PhaseIT {
       "accounts", "1"
     ));
     Phase inputData = new Phase()
+      .setTypeEnum(PhaseType.Macro)
       .setDensity(0.42)
       .setKey("G minor 7")
       .setName("cannons")
@@ -526,9 +643,11 @@ public class PhaseIT {
       "accounts", "1"
     ));
     Phase inputData = new Phase()
+      .setTypeEnum(PhaseType.Macro)
       .setDensity(0.42)
       .setKey("G minor 7")
       .setPatternId(BigInteger.valueOf(2))
+      .setTypeEnum(PhaseType.Macro)
       .setName("cannons")
       .setTempo(129.4)
       .setOffset(BigInteger.valueOf(16));
@@ -546,12 +665,13 @@ public class PhaseIT {
       .setDensity(0.42)
       .setKey("G minor 7")
       .setPatternId(BigInteger.valueOf(1))
+      .setTypeEnum(PhaseType.Main)
       .setName("cannons")
       .setTempo(129.4)
       .setOffset(BigInteger.valueOf(16));
 
     failure.expect(BusinessException.class);
-    failure.expectMessage("for a phase of a non-macro-type pattern, total (# beats) is required");
+    failure.expectMessage("for a phase of a non-macro-type pattern, total (# beats) must be greater than zero");
 
     subject.update(access, BigInteger.valueOf(1), inputData);
   }
@@ -566,6 +686,7 @@ public class PhaseIT {
       .setDensity(0.42)
       .setKey("G minor 7")
       .setPatternId(BigInteger.valueOf(1))
+      .setTypeEnum(PhaseType.Main)
       .setName("cannons")
       .setTempo(129.4)
       .setOffset(BigInteger.valueOf(16))
@@ -587,6 +708,7 @@ public class PhaseIT {
       .setDensity(0.42)
       .setKey("G minor 7")
       .setPatternId(BigInteger.valueOf(2))
+      .setTypeEnum(PhaseType.Macro)
       .setTempo(129.4)
       .setTotal(16);
 
@@ -606,6 +728,7 @@ public class PhaseIT {
       .setDensity(0.42)
       .setKey("G minor 7")
       .setPatternId(BigInteger.valueOf(57))
+      .setTypeEnum(PhaseType.Macro)
       .setName("Smash!")
       .setTempo(129.4)
       .setOffset(BigInteger.valueOf(0))

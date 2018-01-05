@@ -9,6 +9,7 @@ import io.xj.core.model.audio_event.AudioEvent;
 import io.xj.core.model.chain_config.ChainConfig;
 import io.xj.core.model.chain_config.ChainConfigType;
 import io.xj.core.model.choice.Choice;
+import io.xj.core.model.instrument.Instrument;
 import io.xj.core.model.instrument_meme.InstrumentMeme;
 import io.xj.core.model.link.Link;
 import io.xj.core.model.link_chord.LinkChord;
@@ -18,6 +19,7 @@ import io.xj.core.model.pattern.Pattern;
 import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.pattern_meme.PatternMeme;
 import io.xj.core.model.phase.Phase;
+import io.xj.core.model.phase.PhaseType;
 import io.xj.core.model.phase_meme.PhaseMeme;
 import io.xj.core.model.pick.Pick;
 import io.xj.core.model.voice.Voice;
@@ -25,6 +27,7 @@ import io.xj.core.model.voice_event.VoiceEvent;
 import io.xj.music.Chord;
 import io.xj.music.Note;
 
+import javax.annotation.Nullable;
 import javax.sound.sampled.AudioFormat;
 import java.math.BigInteger;
 import java.sql.Timestamp;
@@ -201,6 +204,14 @@ public interface Basis {
   Collection<Arrangement> choiceArrangements(BigInteger choiceId) throws Exception;
 
   /**
+   Set the cached contents of the choice arrangements array
+
+   @param choiceId     to set content for
+   @param arrangements to return for basis choice arrangements
+   */
+  void setChoiceArrangements(BigInteger choiceId, Collection<Arrangement> arrangements);
+
+  /**
    Get current Chord for any position in Link.
    Defaults to returning a chord based on the link key, if nothing else is found
 
@@ -252,10 +263,11 @@ public interface Basis {
 
    @param patternId   to get memes for
    @param phaseOffset within pattern
+   @param phaseTypes  to match
    @return collection of pattern memes
    @throws Exception on failure
    */
-  Collection<Meme> patternPhaseMemes(BigInteger patternId, BigInteger phaseOffset) throws Exception;
+  Collection<Meme> patternAndPhaseMemes(BigInteger patternId, BigInteger phaseOffset, PhaseType... phaseTypes) throws Exception;
 
   /**
    Fetch all memes for a given link
@@ -272,10 +284,11 @@ public interface Basis {
    (caches results)
 
    @param phaseId to get events for
+   @param voiceId to get events for
    @return collection of voice events
    @throws Exception on failure
    */
-  Collection<VoiceEvent> voiceEvents(BigInteger phaseId) throws Exception;
+  Collection<VoiceEvent> phaseVoiceEvents(BigInteger phaseId, BigInteger voiceId) throws Exception;
 
 
   /**
@@ -411,10 +424,12 @@ public interface Basis {
 
    @param patternId   of phase
    @param phaseOffset within pattern
+   @param phaseType   to match
    @return phase record
    @throws Exception on failure
    */
-  Phase phaseAtOffset(BigInteger patternId, BigInteger phaseOffset) throws Exception;
+  @Nullable
+  Phase phaseAtOffset(BigInteger patternId, BigInteger phaseOffset, PhaseType phaseType) throws Exception;
 
   /**
    Selects one (at random) from all available phases an at offset of a pattern.
@@ -422,19 +437,20 @@ public interface Basis {
 
    @param patternId   of phase
    @param phaseOffset within pattern
+   @param phaseType   to match
    @return phase record
    @throws Exception on failure
    */
-  Phase phaseRandomAtOffset(BigInteger patternId, BigInteger phaseOffset) throws Exception;
+  Phase phaseRandomAtOffset(BigInteger patternId, BigInteger phaseOffset, PhaseType phaseType) throws Exception;
 
   /**
    Fetch all phases an at offset of a pattern
    (caches results)
 
+   @param patternId   of phase
+   @param phaseOffset within pattern
    @return phase record
    @throws Exception on failure
-    @param patternId   of phase
-   @param phaseOffset within pattern
    */
   Collection<Phase> phasesAtOffset(BigInteger patternId, BigInteger phaseOffset) throws Exception;
 
@@ -467,7 +483,7 @@ public interface Basis {
   Collection<Voice> voices(BigInteger patternId) throws Exception;
 
   /**
-   Fetch an pattern by pattern
+   Fetch an pattern by id
    (caches results)
 
    @param id of pattern to fetch
@@ -475,6 +491,16 @@ public interface Basis {
    @throws Exception on failure
    */
   Pattern pattern(BigInteger id) throws Exception;
+
+  /**
+   Fetch an instrument by id
+   (caches results)
+
+   @param id of instrument to fetch
+   @return Instrument
+   @throws Exception on failure
+   */
+  Instrument instrument(BigInteger id) throws Exception;
 
   /**
    Update the original Link submitted for craft,

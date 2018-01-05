@@ -12,6 +12,7 @@
         <thead>
         <tr>
           <th width="1%">Offset</th>
+          <th width="1%">Type</th>
           <th width="1%">Total</th>
           <th>Name</th>
           <th width="1%">Key</th>
@@ -25,6 +26,7 @@
         {{#each model.phases as |phase|}}
           <tr class="item">
             <td>{{phase.offset}}</td>
+            <td>{{phase.type}}</td>
             <td>{{phase.total}}</td>
             <td>{{#link-to 'accounts.one.libraries.one.patterns.one.phases.one' phase.pattern.library.account phase.pattern.library phase.pattern phase}}{{phase.name}}{{/link-to}}</td>
             <td>{{phase.key}}</td>

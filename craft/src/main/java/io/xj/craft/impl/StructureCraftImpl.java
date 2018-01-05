@@ -10,8 +10,7 @@ import io.xj.core.model.choice.Choice;
 import io.xj.core.model.choice.Chooser;
 import io.xj.core.model.pattern.Pattern;
 import io.xj.core.model.pattern.PatternType;
-import io.xj.core.model.phase.Phase;
-import io.xj.core.util.Value;
+import io.xj.core.model.phase.PhaseType;
 import io.xj.core.work.basis.Basis;
 import io.xj.craft.StructureCraft;
 import io.xj.music.Key;
@@ -139,33 +138,12 @@ public class StructureCraftImpl implements StructureCraft {
   }
 
   /**
-   Fetch current phase of rhythm-type pattern
-   <p>
-   FUTURE: This will be more intelligent about choosing the phase of the rhythm pattern.
-   FUTURE: Avoid choosing non-existent phase of rhythm pattern
-   FUTURE: If rhythm pattern is shorter than link, and rhythm pattern has multiple phases, play rhythm phases in sequence?
-
-   @return phase
-   @throws Exception on failure
-   */
-  private Phase rhythmPhase() throws Exception {
-    Phase phase = basis.phaseAtOffset(rhythmPattern().getId(), rhythmPhaseOffset());
-
-    if (Objects.isNull(phase))
-      throw new BusinessException("rhythm-phase does not exist!");
-
-    return phase;
-  }
-
-  /**
    Transposition for rhythm-type pattern choice for link
 
    @return +/- semitones transposition of rhythm-type pattern choice
    */
   private Integer rhythmTranspose() throws Exception {
-    return Key.delta(
-      Value.eitherOr(rhythmPhase().getKey(), rhythmPattern().getKey())
-      , basis.link().getKey(), 0);
+    return Key.delta(rhythmPattern().getKey(), basis.link().getKey(), 0);
   }
 
   /**
@@ -189,13 +167,9 @@ public class StructureCraftImpl implements StructureCraft {
       sourcePatterns = patternDAO.readAllBoundToChainLibrary(Access.internal(), basis.chainId(), PatternType.Rhythm);
 
     // (3) score each source pattern based on meme isometry
-    sourcePatterns.forEach((pattern -> {
-      try {
-        chooser.add(pattern, scoreRhythm(pattern));
-      } catch (Exception e) {
-        log.debug("While scoring rhythm patterns", e);
-      }
-    }));
+    for (Pattern pattern : sourcePatterns) {
+      chooser.add(pattern, scoreRhythm(pattern));
+    }
 
     // (3b) Avoid previous rhythm pattern
     if (!basis.isInitialLink())
@@ -217,13 +191,19 @@ public class StructureCraftImpl implements StructureCraft {
 
    @param pattern to score
    @return score, including +/- entropy
-   @throws Exception on failure
    */
-  private double scoreRhythm(Pattern pattern) throws Exception {
+  private double scoreRhythm(Pattern pattern) {
     Double score = Chance.normallyAround(0, SCORE_RHYTHM_ENTROPY);
 
     // Score includes matching memes, previous link to macro pattern first phase
-    score += basis.currentLinkMemeIsometry().score(basis.patternPhaseMemes(pattern.getId(), BigInteger.valueOf(0))) * SCORE_MATCHED_MEMES;
+    try {
+      score += basis.currentLinkMemeIsometry().score(
+        basis.patternAndPhaseMemes(pattern.getId(), BigInteger.valueOf(0),
+          PhaseType.Intro, PhaseType.Loop, PhaseType.Outro))
+        * SCORE_MATCHED_MEMES;
+    } catch (Exception e) {
+      log.warn("While scoring rhythm {}", pattern, e);
+    }
 
     return score;
   }

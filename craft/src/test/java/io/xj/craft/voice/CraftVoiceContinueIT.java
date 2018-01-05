@@ -11,6 +11,7 @@ import io.xj.core.model.instrument.InstrumentType;
 import io.xj.core.model.link.Link;
 import io.xj.core.model.link.LinkState;
 import io.xj.core.model.pattern.PatternType;
+import io.xj.core.model.phase.PhaseType;
 import io.xj.core.model.pick.Pick;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.work.basis.Basis;
@@ -64,21 +65,21 @@ public class CraftVoiceContinueIT {
     // "Classic, Wild to Cozy" macro-pattern in house library
     IntegrationTestEntity.insertPattern(4, 3, 2, PatternType.Macro, "Classic, Wild to Cozy", 0.5, "C", 120);
     IntegrationTestEntity.insertPatternMeme(2, 4, "Classic");
-    IntegrationTestEntity.insertPhase(3, 4, 0, 64, "Start Wild", 0.6, "C", 125);
+    IntegrationTestEntity.insertPhase(3, 4, PhaseType.Macro, 0, 64, "Start Wild", 0.6, "C", 125);
     IntegrationTestEntity.insertPhaseMeme(3, 3, "Wild");
     IntegrationTestEntity.insertPhaseChord(3, 3, 0, "C");
-    IntegrationTestEntity.insertPhase(4, 4, 1, 64, "Finish Finish Cozy", 0.4, "Bb minor", 115);
+    IntegrationTestEntity.insertPhase(4, 4, PhaseType.Macro, 1, 64, "Finish Finish Cozy", 0.4, "Bb minor", 115);
     IntegrationTestEntity.insertPhaseMeme(4, 4, "Cozy");
     IntegrationTestEntity.insertPhaseChord(4, 4, 0, "Bb minor");
 
     // Main pattern
     IntegrationTestEntity.insertPattern(5, 3, 2, PatternType.Main, "Main Jam", 0.2, "Gb minor", 140);
     IntegrationTestEntity.insertPatternMeme(3, 5, "Outlook");
-    IntegrationTestEntity.insertPhase(15, 5, 0, 16, "Intro", 0.5, "Gb minor", 135.0);
+    IntegrationTestEntity.insertPhase(15, 5, PhaseType.Main, 0, 16, "Intro", 0.5, "Gb minor", 135.0);
     IntegrationTestEntity.insertPhaseMeme(6, 15, "Cloudy");
     IntegrationTestEntity.insertPhaseChord(12, 15, 0, "Gb minor");
     IntegrationTestEntity.insertPhaseChord(14, 15, 8, "G minor");
-    IntegrationTestEntity.insertPhase(16, 5, 1, 16, "Intro", 0.5, "G major", 135.0);
+    IntegrationTestEntity.insertPhase(16, 5, PhaseType.Main, 1, 16, "Intro", 0.5, "G major", 135.0);
     IntegrationTestEntity.insertPhaseMeme(7, 16, "Rosy");
     IntegrationTestEntity.insertPhaseChord(16, 16, 0, "D minor");
     IntegrationTestEntity.insertPhaseChord(18, 16, 8, "G major");
@@ -89,14 +90,15 @@ public class CraftVoiceContinueIT {
     IntegrationTestEntity.insertVoice(1, 35, InstrumentType.Percussive, "drums");
 
     // basic beat first phase
-    IntegrationTestEntity.insertPhase(316, 35, 0, 16, "Continue", 0.5, "C", 125.0);
+    IntegrationTestEntity.insertPhase(316, 35, PhaseType.Loop, 0, 16, "Continue", 0.5, "C", 125.0);
     IntegrationTestEntity.insertPhaseMeme(347, 316, "Heavy");
 
-    // setup voice second phase
-    IntegrationTestEntity.insertPhase(315, 35, 1, 4, "Drop", 0.5, "C", 125.0);
+    /*
+    Voice "Drums" are onomatopoeic to "KICK" and "SNARE" 2x each
+    There are two types of phases: Intro and Loop [#153976073] Artist wants Phase to have type *Macro* or *Main* (for Macro- or Main-type patterns), or *Intro*, *Loop*, or *Outro* (for Rhythm or Detail-type Pattern) in order to create a composition that is dynamic when chosen to fill a Link.
+     */
+    IntegrationTestEntity.insertPhase(315, 35, PhaseType.Intro, 1, 4, "Drop", 0.5, "C", 125.0);
     IntegrationTestEntity.insertPhaseMeme(346, 315, "Heavy");
-
-    // Voice "Drums" are onomatopoeic to "KICK" and "SNARE" 2x each
     IntegrationTestEntity.insertVoiceEvent(1, 315, 1, 0, 1, "CLOCK", "C2", 0.8, 1.0);
     IntegrationTestEntity.insertVoiceEvent(2, 315, 1, 1, 1, "SNORT", "G5", 0.1, 0.8);
     IntegrationTestEntity.insertVoiceEvent(3, 315, 1, 2.5, 1, "KICK", "C2", 0.8, 0.6);
@@ -107,7 +109,7 @@ public class CraftVoiceContinueIT {
     [#150279647] Artist wants to create multiple Phases with the same offset in the same Pattern, in order that XJ randomly select one of the phases at that offset.
     they are also onomatopoeic to "KICK" and "SNARE" 2x each
      */
-    IntegrationTestEntity.insertPhase(317, 35, 1, 4, "Drop Alt", 0.5, "C", 125.0);
+    IntegrationTestEntity.insertPhase(317, 35, PhaseType.Loop, 1, 4, "Drop Alt", 0.5, "C", 125.0);
     IntegrationTestEntity.insertPhaseMeme(349, 317, "Heavy");
     IntegrationTestEntity.insertVoiceEvent(11, 317, 1, 0, 1, "CLACK", "B5", 0.1, 0.9);
     IntegrationTestEntity.insertVoiceEvent(12, 317, 1, 1, 1, "SNARL", "D2", 0.5, 1.0);

@@ -1,12 +1,11 @@
 // Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.model.link;
 
-import com.google.common.collect.ImmutableList;
-
 import io.xj.core.exception.BusinessException;
 import io.xj.core.transport.CSV;
 import io.xj.core.util.Text;
 
+import java.util.List;
 import java.util.Objects;
 
 public enum LinkState {
@@ -19,14 +18,11 @@ public enum LinkState {
 
   /**
    String Values
+
    @return ImmutableList of string values
    */
-  public static ImmutableList<String> stringValues() {
-    ImmutableList.Builder<String> valuesBuilder = ImmutableList.builder();
-    for (LinkState value : values()) {
-      valuesBuilder.add(value.toString());
-    }
-    return valuesBuilder.build();
+  public static List<String> stringValues() {
+    return Text.stringValues(values());
   }
 
   /**
@@ -45,15 +41,6 @@ public enum LinkState {
     } catch (Exception e) {
       throw new BusinessException("'" + value + "' is not a valid state (" + CSV.joinEnum(values()) + ").", e);
     }
-  }
-
-  /**
-   * compare to string value
-   * @param value to compare
-   * @return true if equal
-   */
-  public boolean equals(String value) {
-    return this.toString().equals(value);
   }
 
 }

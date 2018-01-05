@@ -21,6 +21,7 @@ import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.lang.reflect.Method;
 import java.math.BigInteger;
 import java.util.Collection;
@@ -196,8 +197,8 @@ public class DAOImpl {
    @param mustBeGreaterThanZero value
    @throws BusinessException if null
    */
-  static void requireGreaterThanZero(String description, Integer mustBeGreaterThanZero) throws BusinessException {
-    require(description, "must be greater than zero", 0 < mustBeGreaterThanZero);
+  static void requireGreaterThanZero(String description, @Nullable Integer mustBeGreaterThanZero) throws BusinessException {
+    require(description, "must be greater than zero", Objects.nonNull(mustBeGreaterThanZero) && 0 < mustBeGreaterThanZero);
   }
 
   /**
@@ -227,7 +228,7 @@ public class DAOImpl {
    @param mustBeTrue to require true
    @throws BusinessException if not true
    */
-  private static void require(String name, Boolean mustBeTrue) throws BusinessException {
+  static void require(String name, Boolean mustBeTrue) throws BusinessException {
     require(name, "is required", mustBeTrue);
   }
 

@@ -174,9 +174,11 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
    @return newly readMany record
    @throws BusinessException if a Business Rule is violated
    */
-  private Link create(DSLContext db, Access access, Link entity) throws BusinessException {
-    entity.validate();
+  private Link create(DSLContext db, Access access, Link entity) throws Exception {
+    // top-level access
+    requireTopLevel(access);
 
+    entity.validate();
     Map<Field, Object> fieldValues = fieldValueMap(entity);
 
     // [#126] Links are always readMany in PLANNED state
@@ -185,8 +187,13 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
     // [#267] Link has `waveform_key` referencing xj-link-* S3 bucket object key
     fieldValues.put(LINK.WAVEFORM_KEY, generateKey(entity.getChainId()));
 
-    // top-level access
-    requireTopLevel(access);
+    // Chain ID and offset are read-only, set at creation
+    requireNotExists("Link at same offset in Chain", db.selectCount().from(LINK)
+      .where(LINK.CHAIN_ID.eq(ULong.valueOf(entity.getChainId())))
+      .and(LINK.OFFSET.eq(ULong.valueOf(entity.getOffset())))
+      .fetchOne(0, int.class));
+    fieldValues.put(LINK.CHAIN_ID, entity.getChainId());
+    fieldValues.put(LINK.OFFSET, entity.getOffset());
 
     return modelFrom(executeCreate(db, LINK, fieldValues), Link.class);
   }
@@ -584,8 +591,6 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
    */
   private static Map<Field, Object> fieldValueMap(Link entity) {
     Map<Field, Object> fieldValues = Maps.newHashMap();
-    fieldValues.put(LINK.CHAIN_ID, entity.getChainId());
-    fieldValues.put(LINK.OFFSET, entity.getOffset());
     fieldValues.put(LINK.STATE, entity.getState());
     fieldValues.put(LINK.BEGIN_AT, entity.getBeginAt());
     fieldValues.put(LINK.END_AT, valueOrNull(entity.getEndAt()));
@@ -593,7 +598,7 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
     fieldValues.put(LINK.DENSITY, valueOrNull(entity.getDensity()));
     fieldValues.put(LINK.KEY, valueOrNull(entity.getKey()));
     fieldValues.put(LINK.TEMPO, valueOrNull(entity.getTempo()));
-    // Excluding AUDIO.WAVEFORM_KEY a.k.a. waveformKey because it is read-only
+    // Exclude LINK.WAVEFORM_KEY, LINK.CHAIN_ID and LINK.OFFSET because they are read-only
     return fieldValues;
   }
 

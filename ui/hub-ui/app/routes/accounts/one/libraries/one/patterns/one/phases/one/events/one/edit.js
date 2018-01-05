@@ -56,7 +56,7 @@ export default Route.extend({
     },
 
     willTransition(transition) {
-      let model = this.controller.get('model');
+      let model = get(this, 'controller.model.event');
       if (model.get('hasDirtyAttributes')) {
         let confirmation = confirm("Your changes haven't saved yet. Would you like to leave this form?");
         if (confirmation) {

@@ -16,6 +16,7 @@ import io.xj.core.model.link_meme.LinkMeme;
 import io.xj.core.model.pattern.Pattern;
 import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.phase.Phase;
+import io.xj.core.model.phase.PhaseType;
 import io.xj.core.util.Value;
 import io.xj.core.work.basis.Basis;
 import io.xj.craft.FoundationCraft;
@@ -335,7 +336,7 @@ public class FoundationCraftImpl implements FoundationCraft {
    @throws Exception on failure
    */
   private Phase macroPhase() throws Exception {
-    Phase phase = basis.phaseAtOffset(macroPattern().getId(), macroPhaseOffset());
+    Phase phase = basis.phaseAtOffset(macroPattern().getId(), macroPhaseOffset(), PhaseType.Macro);
 
     if (Objects.isNull(phase))
       throw new BusinessException("macro-phase does not exist!");
@@ -350,7 +351,7 @@ public class FoundationCraftImpl implements FoundationCraft {
    @throws Exception on failure
    */
   private Phase mainPhase() throws Exception {
-    Phase phase = basis.phaseAtOffset(mainPattern().getId(), mainPhaseOffset());
+    Phase phase = basis.phaseAtOffset(mainPattern().getId(), mainPhaseOffset(), PhaseType.Main);
 
     if (Objects.isNull(phase))
       throw new BusinessException("main-phase does not exist!");
@@ -453,10 +454,13 @@ public class FoundationCraftImpl implements FoundationCraft {
     }
 
     // Score includes matching memes to previous link's macro-pattern's next phase (major/minor)
-    score += basis.previousMacroNextPhaseMemeIsometry().score(basis.patternPhaseMemes(pattern.getId(), BigInteger.valueOf(0))) * SCORE_MATCHED_MEMES;
+    score += basis.previousMacroNextPhaseMemeIsometry().score(
+      basis.patternAndPhaseMemes(pattern.getId(), BigInteger.valueOf(0), PhaseType.Macro))
+      * SCORE_MATCHED_MEMES;
 
     // Score includes matching mode to previous link's macro-pattern's next phase (major/minor)
-    if (Key.isSameMode(basis.previousMacroNextPhase().getKey(), basis.phaseAtOffset(pattern.getId(), BigInteger.valueOf(0)).getKey())) {
+    if (Key.isSameMode(basis.previousMacroNextPhase().getKey(),
+      basis.phaseAtOffset(pattern.getId(), BigInteger.valueOf(0), PhaseType.Macro).getKey())) {
       score += SCORE_MATCHED_KEY_MODE;
     }
 
@@ -487,7 +491,9 @@ public class FoundationCraftImpl implements FoundationCraft {
     }
 
     // Score includes matching memes, previous link to macro pattern first phase
-    score += basis.currentMacroMemeIsometry().score(basis.patternPhaseMemes(pattern.getId(), BigInteger.valueOf(0))) * SCORE_MATCHED_MEMES;
+    score += basis.currentMacroMemeIsometry().score(
+      basis.patternAndPhaseMemes(pattern.getId(), BigInteger.valueOf(0), PhaseType.Main))
+      * SCORE_MATCHED_MEMES;
 
     return score;
   }

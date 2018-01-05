@@ -7,8 +7,10 @@ import io.xj.core.exception.BusinessException;
 import io.xj.core.exception.ConfigException;
 import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.phase.Phase;
+import io.xj.core.model.phase.PhaseType;
 import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import io.xj.core.persistence.sql.impl.SQLConnection;
+import io.xj.core.transport.CSV;
 import io.xj.core.work.WorkManager;
 
 import org.jooq.DSLContext;
@@ -17,6 +19,7 @@ import org.jooq.Record;
 import org.jooq.types.ULong;
 
 import com.google.api.client.util.Maps;
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 
 import javax.annotation.Nullable;
@@ -34,6 +37,7 @@ import static io.xj.core.tables.PhaseMeme.PHASE_MEME;
 
 public class PhaseDAOImpl extends DAOImpl implements PhaseDAO {
 
+  private static final Collection<PhaseType> phaseTypesAllowedInRhythmOrDetailPatterns = ImmutableList.of(PhaseType.Intro, PhaseType.Loop, PhaseType.Outro);
   private final WorkManager workManager;
 
   @Inject
@@ -319,11 +323,28 @@ public class PhaseDAOImpl extends DAOImpl implements PhaseDAO {
 
     requireExists("Pattern", pattern);
 
-    // [#199] Macro-type Pattern `total` not required; still is required for other types of Pattern
-    if (!Objects.equals(pattern.get(PATTERN.TYPE), PatternType.Macro.toString())) {
-      String msg = "for a phase of a non-macro-type pattern, total (# beats)";
-      requireNonNull(msg, entity.getTotal());
-      requireGreaterThanZero(msg, entity.getTotal());
+    // [#199] Macro-type Pattern `total` not required; still
+    // it is required for other types of Pattern
+    PatternType patternType = PatternType.validate(pattern.get(PATTERN.TYPE));
+    if (!Objects.equals(patternType, PatternType.Macro)) {
+      requireGreaterThanZero("for a phase of a non-macro-type pattern, total (# beats)", entity.getTotal());
+    }
+
+    // [#153976073] Artist wants Phase to have
+    // type Macro or Main (for Macro- or Main-type patterns), or
+    // type Intro, Loop, or Outro (for Rhythm or Detail-type Pattern)
+    // in order to create a composition that is dynamic when chosen to fill a Link.
+    switch (patternType) {
+
+      case Macro:
+      case Main:
+        require(String.format("%s-type Phase in %s-type Pattern", patternType, patternType), Objects.equals(patternType.toString(), entity.getType().toString()));
+        break;
+
+      case Rhythm:
+      case Detail:
+        require(String.format("Phase of type (%s) in %s-type Pattern", CSV.joinEnum(PhaseType.valuesForDetailPattern()), patternType), phaseTypesAllowedInRhythmOrDetailPatterns.contains(entity.getType()));
+        break;
     }
   }
 
@@ -337,6 +358,7 @@ public class PhaseDAOImpl extends DAOImpl implements PhaseDAO {
   private static Map<Field, Object> fieldValueMap(Phase entity) {
     Map<Field, Object> fieldValues = Maps.newHashMap();
     fieldValues.put(PHASE.PATTERN_ID, entity.getPatternId());
+    fieldValues.put(PHASE.TYPE, entity.getType());
     fieldValues.put(PHASE.OFFSET, entity.getOffset());
     fieldValues.put(PHASE.TOTAL, valueOrNull(entity.getTotal()));
     fieldValues.put(PHASE.NAME, valueOrNull(entity.getName()));

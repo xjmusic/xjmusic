@@ -1,7 +1,8 @@
 // Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
-import { get } from '@ember/object';
+import {get} from '@ember/object';
 import {hash} from 'rsvp';
-import { inject as service } from '@ember/service';
+
+import {inject as service} from '@ember/service';
 import Route from '@ember/routing/route';
 
 export default Route.extend({
@@ -12,7 +13,6 @@ export default Route.extend({
   // Inject: flash message service
   display: service(),
 
-
   /**
    * Route Model
    * @returns {*|DS.Model|Promise}
@@ -22,8 +22,16 @@ export default Route.extend({
     if (auth.isArtist || auth.isAdmin) {
       let phase = this.modelFor('accounts.one.libraries.one.patterns.one.phases.one');
       let pattern = this.modelFor('accounts.one.libraries.one.patterns.one');
+      let originalEvent = this.modelFor('accounts.one.libraries.one.patterns.one.phases.one.events.one');
       let event = this.store.createRecord('voice-event', {
-        phase: phase,
+        voice: originalEvent.get('voice'),
+        phase: originalEvent.get('phase'),
+        duration: originalEvent.get('duration'),
+        inflection: originalEvent.get('inflection'),
+        note: originalEvent.get('note'),
+        position: originalEvent.get('position'),
+        tonality: originalEvent.get('tonality'),
+        velocity: originalEvent.get('velocity'),
       });
       event.set('phase', phase);
       let self = this;
@@ -46,12 +54,11 @@ export default Route.extend({
    */
   actions: {
 
-    createEvent() {
-      let model = get(this, 'controller.model.event');
+    cloneEvent(model) {
       model.save().then(
         () => {
-          get(this, 'display').success('Created "' + model.get('inflection') + '" event in ' + model.get('note') + '.');
-          this.transitionTo('accounts.one.libraries.one.patterns.one.phases.one.events');
+          get(this, 'display').success('Cloned event "' + model.get('inflection') + '" event in ' + model.get('note') + '.');
+          history.back();
         },
         (error) => {
           get(this, 'display').error(error);
@@ -68,18 +75,8 @@ export default Route.extend({
           transition.abort();
         }
       }
-    },
-
-    cancelCreateEvent() {
-      let model = get(this, 'controller.model.event');
-      if (model.get('hasDirtyAttributes')) {
-        let confirmation = confirm("Your changes haven't saved yet. Would you like to leave this form?");
-        if (confirmation) {
-          model.rollbackAttributes();
-          this.transitionTo('accounts.one.libraries.one.patterns.one.phases.one.events');
-        }
-      }
     }
 
   }
+
 });

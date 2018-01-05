@@ -4,6 +4,7 @@ import DS from 'ember-data';
 export default DS.Model.extend({
   density: DS.attr('number'),
   key: DS.attr('string'),
+  type: DS.attr('string'),
   pattern: DS.belongsTo({}),
   name: DS.attr('string'),
   tempo: DS.attr('number'),

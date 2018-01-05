@@ -11,6 +11,7 @@ import io.xj.core.external.amazon.AmazonProvider;
 import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.phase.Phase;
+import io.xj.core.model.phase.PhaseType;
 import io.xj.core.model.phase_chord.PhaseChord;
 import io.xj.core.model.phase_meme.PhaseMeme;
 import io.xj.core.model.user_role.UserRoleType;
@@ -83,18 +84,18 @@ public class PhaseCloneJobIT {
     IntegrationTestEntity.insertPattern(12, 2, 42, PatternType.Rhythm, "2020 Drums", 0.9, "G", 120);
 
     // Phase "Verse"
-    IntegrationTestEntity.insertPhase(1, 1, 0, 16, "Verse 1", 0.5, "G", 120);
+    IntegrationTestEntity.insertPhase(1, 1, PhaseType.Loop, 0, 16, "Verse 1", 0.5, "G", 120);
     IntegrationTestEntity.insertPhaseMeme(1, 1, "GREEN");
     IntegrationTestEntity.insertPhaseChord(1, 1, 0, "Db7");
 
     // Phase "Verse"
-    IntegrationTestEntity.insertPhase(2, 1, 0, 16, "Verse 2", 0.5, "G", 120);
+    IntegrationTestEntity.insertPhase(2, 1, PhaseType.Loop, 0, 16, "Verse 2", 0.5, "G", 120);
     IntegrationTestEntity.insertPhaseMeme(2, 2, "YELLOW");
     IntegrationTestEntity.insertPhaseChord(2, 2, 0, "Gm9");
 
     // Newly cloned phases -- awaiting PhaseClone job to run, and create their child entities
-    IntegrationTestEntity.insertPhase(3, 1, 0, 16, "Verse 34", 0.5, "G", 120);
-    IntegrationTestEntity.insertPhase(4, 12, 0, 16, "Verse 79", 0.5, "G", 120);
+    IntegrationTestEntity.insertPhase(3, 1, PhaseType.Loop, 0, 16, "Verse 34", 0.5, "G", 120);
+    IntegrationTestEntity.insertPhase(4, 12, PhaseType.Loop, 0, 16, "Verse 79", 0.5, "G", 120);
 
     // Don't sleep between processing work
     System.setProperty("app.port", "9043");

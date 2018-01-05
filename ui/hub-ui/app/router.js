@@ -106,6 +106,7 @@ function accountLibraryPatternPhaseEvents() {
 
 function accountLibraryPatternPhaseEvent() {
   this.route('edit');
+  this.route('clone');
   this.route('destroy');
 }
 

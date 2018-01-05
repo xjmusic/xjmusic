@@ -3,6 +3,7 @@ package io.xj.craft.foundation;
 
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
+import io.xj.core.model.phase.PhaseType;
 import io.xj.craft.CraftFactory;
 import io.xj.core.dao.ChoiceDAO;
 import io.xj.core.dao.LinkChordDAO;
@@ -73,27 +74,27 @@ public class CraftFoundationNextMacroIT {
     // "Metal, Wild to Basement" macro-pattern in house library
     IntegrationTestEntity.insertPattern(4, 3, 2, PatternType.Macro, "Wild to Basement", 0.5, "C", 120);
     // " phase offset 0
-    IntegrationTestEntity.insertPhase(3, 4, 0, 0, "Start Wild", 0.6, "C", 125);
+    IntegrationTestEntity.insertPhase(3, 4, PhaseType.Macro, 0, 0, "Start Wild", 0.6, "C", 125);
     IntegrationTestEntity.insertPhaseMeme(3, 3, "Wild");
     IntegrationTestEntity.insertPhaseChord(3, 3, 0, "C");
     // " phase offset 1
-    IntegrationTestEntity.insertPhase(4, 4, 1, 0, "Intermediate", 0.4, "Bb minor", 115);
+    IntegrationTestEntity.insertPhase(4, 4, PhaseType.Macro, 1, 0, "Intermediate", 0.4, "Bb minor", 115);
     IntegrationTestEntity.insertPhaseMeme(4, 4, "Basement");
     IntegrationTestEntity.insertPhaseMeme(49, 4, "Wild");
     IntegrationTestEntity.insertPhaseChord(4, 4, 0, "Bb minor");
     // " phase offset 2
-    IntegrationTestEntity.insertPhase(5, 4, 2, 0, "Finish Basement", 0.4, "Ab minor", 125);
+    IntegrationTestEntity.insertPhase(5, 4, PhaseType.Macro, 2, 0, "Finish Basement", 0.4, "Ab minor", 125);
     IntegrationTestEntity.insertPhaseMeme(5, 4, "Basement");
     IntegrationTestEntity.insertPhaseChord(5, 5, 0, "Ab minor");
 
     // "Chunky to Smooth" macro-pattern in house library
     IntegrationTestEntity.insertPattern(3, 3, 2, PatternType.Macro, "Chunky to Smooth", 0.5, "G minor", 120);
     // # phase offset 0
-    IntegrationTestEntity.insertPhase(1, 3, 0, 0, "Start Chunky", 0.4, "G minor", 115);
+    IntegrationTestEntity.insertPhase(1, 3, PhaseType.Macro, 0, 0, "Start Chunky", 0.4, "G minor", 115);
     IntegrationTestEntity.insertPhaseMeme(1, 1, "Chunky");
     IntegrationTestEntity.insertPhaseChord(1, 1, 0, "G minor");
     // # phase offset 1
-    IntegrationTestEntity.insertPhase(2, 3, 1, 0, "Finish Smooth", 0.6, "C", 125);
+    IntegrationTestEntity.insertPhase(2, 3, PhaseType.Macro, 1, 0, "Finish Smooth", 0.6, "C", 125);
     IntegrationTestEntity.insertPhaseMeme(2, 2, "Smooth");
     IntegrationTestEntity.insertPhaseChord(2, 2, 0, "C");
 
@@ -101,12 +102,12 @@ public class CraftFoundationNextMacroIT {
     IntegrationTestEntity.insertPattern(5, 3, 2, PatternType.Main, "Main Jam", 0.2, "C minor", 140);
     IntegrationTestEntity.insertPatternMeme(3, 5, "Outlook");
     // # phase offset 0
-    IntegrationTestEntity.insertPhase(15, 5, 0, 16, "Intro", 0.5, "G major", 135.0);
+    IntegrationTestEntity.insertPhase(15, 5, PhaseType.Main, 0, 16, "Intro", 0.5, "G major", 135.0);
     IntegrationTestEntity.insertPhaseMeme(6, 15, "Optimism");
     IntegrationTestEntity.insertPhaseChord(12, 15, 0, "G major");
     IntegrationTestEntity.insertPhaseChord(14, 15, 8, "Ab minor");
     // # phase offset 1
-    IntegrationTestEntity.insertPhase(16, 5, 1, 16, "Drop", 0.5, "G minor", 135.0);
+    IntegrationTestEntity.insertPhase(16, 5, PhaseType.Main, 1, 16, "Drop", 0.5, "G minor", 135.0);
     IntegrationTestEntity.insertPhaseMeme(7, 16, "Pessimism");
     IntegrationTestEntity.insertPhaseChord(16, 16, 0, "C major");
     IntegrationTestEntity.insertPhaseChord(18, 16, 8, "Bb minor");
@@ -114,11 +115,11 @@ public class CraftFoundationNextMacroIT {
     // Another Main pattern to go to
     IntegrationTestEntity.insertPattern(15, 3, 2, PatternType.Main, "Next Jam", 0.2, "Db minor", 140);
     IntegrationTestEntity.insertPatternMeme(43, 15, "Hindsight");
-    IntegrationTestEntity.insertPhase(415, 15, 0, 16, "Intro", 0.5, "G minor", 135.0);
+    IntegrationTestEntity.insertPhase(415, 15, PhaseType.Main, 0, 16, "Intro", 0.5, "G minor", 135.0);
     IntegrationTestEntity.insertPhaseMeme(46, 415, "Regret");
     IntegrationTestEntity.insertPhaseChord(412, 415, 0, "G minor");
     IntegrationTestEntity.insertPhaseChord(414, 415, 8, "Ab minor");
-    IntegrationTestEntity.insertPhase(416, 15, 1, 16, "Outro", 0.5, "A major", 135.0);
+    IntegrationTestEntity.insertPhase(416, 15, PhaseType.Main, 1, 16, "Outro", 0.5, "A major", 135.0);
     IntegrationTestEntity.insertPhaseMeme(47, 416, "Pride");
     IntegrationTestEntity.insertPhaseMeme(149, 416, "Shame");
     IntegrationTestEntity.insertPhaseChord(416, 416, 0, "C major");

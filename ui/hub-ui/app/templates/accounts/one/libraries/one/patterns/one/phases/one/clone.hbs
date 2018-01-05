@@ -27,6 +27,26 @@
       </div>
     </div>
 
+    <!-- Type -->
+    <div class="form-group row">
+      <label class="col-sm-2 control-label">Type</label>
+      <div class="col-sm-10">
+        {{#if (or (eq model.phase.pattern.type "Macro") (eq model.phase.pattern.type "Main"))}}
+          <strong>{{model.phase.type}}</strong>
+        {{else}}
+          <select class="form-control" onchange={{action "selectPhaseType" value="target.value"}} title="Type">
+            {{#if config.phaseDetailTypes}}
+              {{#each config.phaseDetailTypes as |type|}}
+                <option value={{type}} selected={{eq model.phase.type type}}>{{type}}</option>
+              {{/each}}
+            {{else}}
+              <option value={{model.phase.type}} selected>{{model.phase.type}}</option>
+            {{/if}}
+          </select>
+        {{/if}}
+      </div>
+    </div>
+
     <!-- Offset -->
     <div class="form-group row">
       <label class="col-sm-2 control-label">Offset</label>

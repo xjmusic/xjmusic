@@ -170,6 +170,7 @@ public class WorkManagerImpl implements WorkManager {
           case ChainErase:
           case AudioErase:
           case ChainFabricate:
+          case LinkFabricate:
             try {
               reinstatedWork.add(reinstate(work));
             } catch (Exception e) {

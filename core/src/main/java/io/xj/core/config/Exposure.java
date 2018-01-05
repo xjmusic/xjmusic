@@ -5,13 +5,13 @@ import io.xj.core.exception.ConfigException;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
 import io.xj.core.model.chain_config.ChainConfigType;
-import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.instrument.InstrumentType;
 import io.xj.core.model.link.LinkState;
+import io.xj.core.model.pattern.PatternType;
+import io.xj.core.model.phase.PhaseType;
 
 import org.json.JSONObject;
 
-import java.io.File;
 import java.net.URI;
 
 /**
@@ -30,7 +30,6 @@ public interface Exposure {
   String FILE_DOT = ".";
   String FILE_INSTRUMENT = "instrument";
   String FILE_SEPARATOR = "-";
-  String FOLDER_SEPARATOR = File.separator;
 
   // key special resources (e.g. upload policy)
   String KEY_UPLOAD_ACCESS_KEY = "awsAccessKeyId";
@@ -56,6 +55,8 @@ public interface Exposure {
   String KEY_LINK_STATES = "linkStates";
   String KEY_STATS = "stats";
   String KEY_VOICE_TYPES = "voiceTypes";
+  String KEY_PHASE_TYPES = "phaseTypes";
+  String KEY_PHASE_DETAIL_TYPES = "phaseDetailTypes";
 
   /**
    Get URL String for an audio file, by key
@@ -99,11 +100,14 @@ public interface Exposure {
     config.put(KEY_LINK_BASE_URL, Config.linkBaseUrl());
     config.put(KEY_BASE_URL, Config.appBaseUrl());
     config.put(KEY_CHAIN_CONFIG_TYPES, ChainConfigType.stringValues());
+    config.put(KEY_CHAIN_CONFIG_TYPES, ChainConfigType.stringValues());
     config.put(KEY_CHAIN_STATES, ChainState.stringValues());
     config.put(KEY_CHAIN_TYPES, ChainType.stringValues());
     config.put(KEY_LINK_STATES, LinkState.stringValues());
     config.put(KEY_CHOICE_TYPES, PatternType.stringValues());
     config.put(KEY_PATTERN_TYPES, PatternType.stringValues());
+    config.put(KEY_PHASE_TYPES, PhaseType.stringValues());
+    config.put(KEY_PHASE_DETAIL_TYPES, PhaseType.stringValuesForDetailPattern());
     config.put(KEY_INSTRUMENT_TYPES, InstrumentType.stringValues());
     config.put(KEY_VOICE_TYPES, InstrumentType.stringValues());
     return config;

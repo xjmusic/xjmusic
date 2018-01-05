@@ -14,6 +14,7 @@ import io.xj.core.model.pattern.Pattern;
 import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.pattern_meme.PatternMeme;
 import io.xj.core.model.phase.Phase;
+import io.xj.core.model.phase.PhaseType;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.work.WorkManager;
 import io.xj.craft.CraftModule;
@@ -88,12 +89,12 @@ public class PatternCloneJobIT {
     IntegrationTestEntity.insertPattern(12, 2, 42, PatternType.Rhythm, "2020 Drums", 0.9, "G", 120);
 
     // Phase "Kick"
-    IntegrationTestEntity.insertPhase(1, 1, 0, 16, "Verse", 0.5, "C", 120.0);
+    IntegrationTestEntity.insertPhase(1, 1, PhaseType.Loop, 0, 16, "Verse", 0.5, "C", 120.0);
     IntegrationTestEntity.insertVoice(1, 1, InstrumentType.Percussive, "KICK");
     IntegrationTestEntity.insertPhaseChord(1, 1, 0, "Db7");
 
     // Phase "Snare"
-    IntegrationTestEntity.insertPhase(2, 1, 1, 16, "Verse", 0.5, "C", 120.0);
+    IntegrationTestEntity.insertPhase(2, 1, PhaseType.Loop, 1, 16, "Verse", 0.5, "C", 120.0);
     IntegrationTestEntity.insertVoice(2, 1, InstrumentType.Percussive, "SNARE");
     IntegrationTestEntity.insertPhaseChord(2, 2, 0, "Gm9");
 

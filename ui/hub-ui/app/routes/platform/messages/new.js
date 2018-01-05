@@ -46,15 +46,13 @@ export default Route.extend({
       }
     },
 
-    cancelCreateMessage(transition) {
+    cancelCreateMessage() {
       let model = this.controller.get('model');
       if (model.get('hasDirtyAttributes')) {
         let confirmation = confirm("Your changes haven't saved yet. Would you like to leave this form?");
         if (confirmation) {
           model.rollbackAttributes();
           this.transitionTo('platform.messages');
-        } else {
-          transition.abort();
         }
       }
     },

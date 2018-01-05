@@ -7,10 +7,10 @@ import io.xj.core.exception.BusinessException;
 import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
-import io.xj.core.model.instrument.InstrumentType;
 import io.xj.core.model.link.LinkState;
 import io.xj.core.model.pattern.Pattern;
 import io.xj.core.model.pattern.PatternType;
+import io.xj.core.model.phase.PhaseType;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.transport.JSON;
 import io.xj.core.work.WorkManager;
@@ -391,7 +391,7 @@ public class PatternIT {
     Access access = Access.from(ImmutableMap.of(
       "roles", "Admin"
     ));
-    IntegrationTestEntity.insertPhase(1, 2, 0, 14, "testPhase", 0.524, "F#", 125.49);
+    IntegrationTestEntity.insertPhase(1, 2, PhaseType.Main, 0, 14, "testPhase", 0.524, "F#", 125.49);
 
     try {
       testDAO.delete(access, BigInteger.valueOf(2));

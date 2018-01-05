@@ -1,7 +1,7 @@
 // Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
-import { get } from '@ember/object';
+import {get} from '@ember/object';
 
-import { inject as service } from '@ember/service';
+import {inject as service} from '@ember/service';
 import Route from '@ember/routing/route';
 
 export default Route.extend({
@@ -45,15 +45,13 @@ export default Route.extend({
       }
     },
 
-    cancelCreateAccount(transition) {
+    cancelCreateAccount() {
       let model = this.controller.get('model');
       if (model.get('hasDirtyAttributes')) {
         let confirmation = confirm("Your changes haven't saved yet. Would you like to leave this form?");
         if (confirmation) {
           model.rollbackAttributes();
           this.transitionTo('accounts');
-        } else {
-          transition.abort();
         }
       }
     },

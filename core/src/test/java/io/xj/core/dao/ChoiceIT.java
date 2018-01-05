@@ -11,6 +11,7 @@ import io.xj.core.model.choice.Choice;
 import io.xj.core.model.instrument.InstrumentType;
 import io.xj.core.model.link.LinkState;
 import io.xj.core.model.pattern.PatternType;
+import io.xj.core.model.phase.PhaseType;
 import io.xj.core.transport.JSON;
 
 import com.google.common.collect.ImmutableList;
@@ -186,9 +187,9 @@ public class ChoiceIT {
     IntegrationTestEntity.insertPatternMeme(12, 2, "leafy");
     IntegrationTestEntity.insertPatternMeme(14, 2, "smooth");
 
-    IntegrationTestEntity.insertPhase(10, 2, 0, 64, "intro", 0.5, "C", 121);
-    IntegrationTestEntity.insertPhase(11, 2, 1, 64, "drop", 0.5, "C", 121);
-    IntegrationTestEntity.insertPhase(12, 2, 2, 64, "break", 0.5, "C", 121);
+    IntegrationTestEntity.insertPhase(10, 2, PhaseType.Loop, 0, 64, "intro", 0.5, "C", 121);
+    IntegrationTestEntity.insertPhase(11, 2, PhaseType.Loop, 1, 64, "drop", 0.5, "C", 121);
+    IntegrationTestEntity.insertPhase(12, 2, PhaseType.Loop, 2, 64, "break", 0.5, "C", 121);
 
     Choice result = testDAO.readOneLinkTypeWithAvailablePhaseOffsets(Access.internal(), BigInteger.valueOf(1), PatternType.Rhythm);
 
@@ -364,7 +365,7 @@ public class ChoiceIT {
     Access access = Access.from(ImmutableMap.of(
       "roles", "Admin"
     ));
-    IntegrationTestEntity.insertPhase(1, 1, 0, 16, "Ants", 0.583, "D minor", 120.0);
+    IntegrationTestEntity.insertPhase(1, 1, PhaseType.Main, 0, 16, "Ants", 0.583, "D minor", 120.0);
     IntegrationTestEntity.insertVoice(1, 1, InstrumentType.Percussive, "This is a percussive voice");
     IntegrationTestEntity.insertInstrument(1, 1, 2, "jams", InstrumentType.Percussive, 0.6);
     IntegrationTestEntity.insertArrangement(1, 1, 1, 1);

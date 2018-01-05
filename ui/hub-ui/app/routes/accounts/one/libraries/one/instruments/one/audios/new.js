@@ -90,7 +90,7 @@ export default Route.extend({
       }
     },
 
-    cancelCreateAudio(transition)
+    cancelCreateAudio()
     {
       let model = this.controller.get('model');
       if (model.get('hasDirtyAttributes')) {
@@ -98,8 +98,6 @@ export default Route.extend({
         if (confirmation) {
           model.rollbackAttributes();
           this.transitionTo('accounts.one.libraries.one.instruments.one.audios', model.instrument.library.account, model.instrument.library, model.instrument);
-        } else {
-          transition.abort();
         }
       }
     }

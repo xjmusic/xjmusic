@@ -35,7 +35,7 @@ export default Route.extend({
   },
 
   /**
-   * Resolved (with configs) model
+   * Resolved model
    * @returns {*}
    */
   resolvedModel() {

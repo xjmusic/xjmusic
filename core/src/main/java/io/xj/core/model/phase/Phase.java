@@ -23,33 +23,15 @@ public class Phase extends Entity {
    */
   public static final String KEY_ONE = "phase";
   public static final String KEY_MANY = "phases";
-  /**
-   Name
-   */
+
   private String name;
-  /**
-   Pattern
-   */
+  private String _type; // to hold value before validation
+  private PhaseType type;
   private BigInteger patternId;
-  /**
-   Key
-   */
   private String key;
-  /**
-   Total
-   */
   private Integer total;
-  /**
-   Offset
-   */
   private BigInteger offset;
-  /**
-   Density
-   */
   private Double density;
-  /**
-   Tempo
-   */
   private Double tempo;
 
   public String getName() {
@@ -58,6 +40,20 @@ public class Phase extends Entity {
 
   public Phase setName(String name) {
     this.name = name;
+    return this;
+  }
+
+  public PhaseType getType() {
+    return type;
+  }
+
+  public Phase setType(String value) {
+    _type = value;
+    return this;
+  }
+
+  public Phase setTypeEnum(PhaseType type) {
+    this.type = type;
     return this;
   }
 
@@ -117,6 +113,10 @@ public class Phase extends Entity {
 
   @Override
   public void validate() throws BusinessException {
+    // throws its own BusinessException on failure
+    if (Objects.isNull(type))
+      type = PhaseType.validate(_type);
+
     if (Objects.nonNull(name) && name.isEmpty()) {
       name = null;
     }

@@ -3,11 +3,12 @@ package io.xj.core.model.chain_config;
 
 import io.xj.core.exception.BusinessException;
 import io.xj.core.transport.CSV;
+import io.xj.core.util.Text;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 import javax.sound.sampled.AudioFormat;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -52,12 +53,8 @@ public enum ChainConfigType {
 
    @return ImmutableList of string values
    */
-  public static ImmutableList<String> stringValues() {
-    ImmutableList.Builder<String> valuesBuilder = ImmutableList.builder();
-    for (ChainConfigType value : values()) {
-      valuesBuilder.add(value.toString());
-    }
-    return valuesBuilder.build();
+  public static List<String> stringValues() {
+    return Text.stringValues(values());
   }
 
   /**

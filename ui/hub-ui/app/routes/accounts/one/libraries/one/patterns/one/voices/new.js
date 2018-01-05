@@ -82,16 +82,13 @@ export default Route.extend({
       }
     },
 
-    cancelCreateVoice(transition)
-    {
+    cancelCreateVoice() {
       let model = this.controller.get('model');
       if (model.get('hasDirtyAttributes')) {
         let confirmation = confirm("Your changes haven't saved yet. Would you like to leave this form?");
         if (confirmation) {
           model.rollbackAttributes();
           this.transitionTo('accounts.one.libraries.one.patterns.one.voices');
-        } else {
-          transition.abort();
         }
       }
     }

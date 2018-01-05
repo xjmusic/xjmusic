@@ -59,15 +59,13 @@ export default Route.extend({
       }
     },
 
-    cancelCreateEvent(transition) {
+    cancelCreateEvent() {
       let model = this.controller.get('model');
       if (model.get('hasDirtyAttributes')) {
         let confirmation = confirm("Your changes haven't saved yet. Would you like to leave this form?");
         if (confirmation) {
           model.rollbackAttributes();
           this.transitionTo('accounts.one.libraries.one.instruments.one.audios.one.events', model.audio.instrument.library.account, model.audio.instrument.library, model.audio.instrument, model.audio, model);
-        } else {
-          transition.abort();
         }
       }
     }

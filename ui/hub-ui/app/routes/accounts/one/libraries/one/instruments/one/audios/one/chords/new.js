@@ -59,7 +59,7 @@ export default Route.extend({
       }
     },
 
-    cancelCreateChord(transition)
+    cancelCreateChord()
     {
       let model = this.controller.get('model');
       if (model.get('hasDirtyAttributes')) {
@@ -67,8 +67,6 @@ export default Route.extend({
         if (confirmation) {
           model.rollbackAttributes();
           this.transitionTo('accounts.one.libraries.one.instruments.one.audios.one.chords', model.audio.instrument.library.account, model.audio.instrument.library, model.audio.instrument, model.audio);
-        } else {
-          transition.abort();
         }
       }
     }

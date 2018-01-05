@@ -19,6 +19,7 @@ public class PhaseTest {
       .setPatternId(BigInteger.valueOf(9812))
       .setName("Mic Check One Two")
       .setKey("D major")
+      .setTypeEnum(PhaseType.Macro)
       .setTotal(64)
       .setOffset(BigInteger.valueOf(14))
       .setDensity(0.6)
@@ -31,6 +32,7 @@ public class PhaseTest {
     new Phase()
       .setPatternId(BigInteger.valueOf(9812))
       .setOffset(BigInteger.valueOf(14))
+      .setTypeEnum(PhaseType.Macro)
       .validate();
   }
 
@@ -40,6 +42,18 @@ public class PhaseTest {
     failure.expectMessage("Pattern ID is required");
 
     new Phase()
+      .setOffset(BigInteger.valueOf(14))
+      .setTypeEnum(PhaseType.Macro)
+      .validate();
+  }
+
+  @Test
+  public void validate_failsWithoutType() throws Exception {
+    failure.expect(BusinessException.class);
+    failure.expectMessage("Type is required");
+
+    new Phase()
+      .setPatternId(BigInteger.valueOf(9812))
       .setOffset(BigInteger.valueOf(14))
       .validate();
   }
@@ -51,6 +65,7 @@ public class PhaseTest {
 
     new Phase()
       .setPatternId(BigInteger.valueOf(9812))
+      .setTypeEnum(PhaseType.Macro)
       .validate();
   }
 

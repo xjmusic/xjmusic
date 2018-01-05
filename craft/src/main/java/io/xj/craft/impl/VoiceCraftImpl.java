@@ -9,10 +9,12 @@ import io.xj.core.isometry.EventIsometry;
 import io.xj.core.model.arrangement.Arrangement;
 import io.xj.core.model.audio.Audio;
 import io.xj.core.model.choice.Chance;
+import io.xj.core.model.choice.Choice;
 import io.xj.core.model.choice.Chooser;
 import io.xj.core.model.instrument.Instrument;
 import io.xj.core.model.instrument.InstrumentType;
 import io.xj.core.model.phase.Phase;
+import io.xj.core.model.phase.PhaseType;
 import io.xj.core.model.pick.Pick;
 import io.xj.core.model.voice.Voice;
 import io.xj.core.model.voice_event.VoiceEvent;
@@ -28,6 +30,7 @@ import com.google.inject.assistedinject.Assisted;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigInteger;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -58,6 +61,7 @@ public class VoiceCraftImpl implements VoiceCraft {
   public void doWork() throws BusinessException {
     try {
       craftRhythmVoiceArrangements();
+      craftRhythmPhases();
       report();
 
     } catch (BusinessException e) {
@@ -73,8 +77,10 @@ public class VoiceCraftImpl implements VoiceCraft {
    craft link events for all rhythm voices
    */
   private void craftRhythmVoiceArrangements() throws Exception {
-    for (Voice voice : rhythmPhaseVoices())
-      craftArrangementForRhythmVoice(voice);
+    Collection<Arrangement> arrangements = Lists.newArrayList();
+    for (Voice voice : voices(basis.currentRhythmChoice().getPatternId()))
+      arrangements.add(craftArrangementForRhythmVoice(voice));
+    basis.setChoiceArrangements(basis.currentRhythmChoice().getId(), arrangements);
   }
 
   /**
@@ -83,18 +89,14 @@ public class VoiceCraftImpl implements VoiceCraft {
    @param voice to craft events for
    @throws Exception on failure
    */
-  private void craftArrangementForRhythmVoice(Voice voice) throws Exception {
+  private Arrangement craftArrangementForRhythmVoice(Voice voice) throws Exception {
     Instrument percussiveInstrument = choosePercussiveInstrument(voice);
 
-    craftArrangement(
-      rhythmPhase(),
-      basis.currentRhythmChoice().getTranspose(),
-      percussiveInstrument,
-      arrangementDAO.create(Access.internal(),
-        new Arrangement()
-          .setChoiceId(basis.currentRhythmChoice().getId())
-          .setVoiceId(voice.getId())
-          .setInstrumentId(percussiveInstrument.getId())));
+    return arrangementDAO.create(Access.internal(),
+      new Arrangement()
+        .setChoiceId(basis.currentRhythmChoice().getId())
+        .setVoiceId(voice.getId())
+        .setInstrumentId(percussiveInstrument.getId()));
   }
 
   /**
@@ -162,33 +164,60 @@ public class VoiceCraftImpl implements VoiceCraft {
   }
 
   /**
-   Craft an arrangement based around a newly created arrangement
-   for each event in voice phase (repeat N times if needed to fill length of link)
+   [#153976073] Artist wants Phase to have type Macro or Main (for Macro- or Main-type patterns), or Intro, Loop, or Outro (for Rhythm or Detail-type Pattern) in order to create a composition that is dynamic when chosen to fill a Link.
 
    @throws Exception on failure
-    @param phase       that voice belongs to
-   @param transpose   audio +/- semitones
-   @param instrument  to arrange audio of
-   @param arrangement to create arrangement around
    */
-  private void craftArrangement(
-    Phase phase,
-    int transpose,
-    Instrument instrument,
-    Arrangement arrangement
-  /*-*/) throws Exception {
-    double repeat = basis.link().getTotal().doubleValue() / phase.getTotal().doubleValue();
-    Collection<VoiceEvent> voiceEvents = basis.voiceEvents(phase.getId());
+  private void craftRhythmPhases(
+  ) throws Exception {
+    // choose intro phase (if available)
+    Phase introPhase = basis.phaseAtOffset(basis.currentRhythmChoice().getPatternId(), basis.currentRhythmChoice().getPhaseOffset(), PhaseType.Intro);
 
-    int size = voiceEvents.size();
-    int i = 0;
-    for (int r = 0; r < repeat; r++) {
+    // choose outro phase (if available)
+    Phase outroPhase = basis.phaseAtOffset(basis.currentRhythmChoice().getPatternId(), basis.currentRhythmChoice().getPhaseOffset(), PhaseType.Outro);
+
+    // compute in and out points, and length # beats for which loop phases will be required
+    long loopOutPos = basis.link().getTotal() - (Objects.nonNull(outroPhase) ? outroPhase.getTotal() : 0);
+
+    // begin at the beginning and fabricate events for the link from beginning to end
+    double curPos = 0.0;
+
+    // if intro phase, fabricate those voice event first
+    if (Objects.nonNull(introPhase)) {
+      curPos += craftRhythmPhaseVoiceEvents(curPos, introPhase, loopOutPos);
+    }
+
+    // choose loop phases until arrive at the out point or end of link
+    while (curPos < loopOutPos) {
+      Phase loopPhase = basis.phaseRandomAtOffset(basis.currentRhythmChoice().getPatternId(), basis.currentRhythmChoice().getPhaseOffset(), PhaseType.Loop);
+      curPos += craftRhythmPhaseVoiceEvents(curPos, loopPhase, loopOutPos);
+    }
+
+    // if outro phase, fabricate those voice event last
+    if (Objects.nonNull(outroPhase)) {
+      craftRhythmPhaseVoiceEvents(curPos, outroPhase, loopOutPos);
+    }
+  }
+
+  /**
+   Craft the voice events of a single rhythm phase
+
+   @param fromPos to write events to link
+   @param phase   to source events
+   @param maxPos  to write events to link
+   @return deltaPos from start
+   */
+  private double craftRhythmPhaseVoiceEvents(double fromPos, Phase phase, double maxPos) throws Exception {
+    Choice choice = basis.currentRhythmChoice();
+    Collection<Arrangement> arrangements = basis.choiceArrangements(choice.getId());
+    for (Arrangement arrangement : arrangements) {
+      Collection<VoiceEvent> voiceEvents = basis.phaseVoiceEvents(phase.getId(), arrangement.getVoiceId());
+      Instrument instrument = basis.instrument(arrangement.getInstrumentId());
       for (VoiceEvent voiceEvent : voiceEvents) {
-        pickInstrumentAudio(instrument, arrangement, voiceEvent, transpose,
-          Math.floor(i / (double) size) * phase.getTotal().doubleValue());
-        i++;
+        pickInstrumentAudio(instrument, arrangement, voiceEvent, choice.getTranspose(), fromPos);
       }
     }
+    return Math.min(maxPos - fromPos, phase.getTotal());
   }
 
   /**
@@ -278,27 +307,16 @@ public class VoiceCraftImpl implements VoiceCraft {
   /**
    all voices in current phase of chosen rhythm-type pattern
 
-   @return voices
+   @param patternId to get voices of
+   @return voices for pattern
    @throws Exception on failure
    */
-  private Iterable<Voice> rhythmPhaseVoices() throws Exception {
+  private Iterable<Voice> voices(BigInteger patternId) throws Exception {
     List<Voice> voices = Lists.newArrayList();
-    voices.addAll(basis.voices(basis.currentRhythmChoice().getPatternId()));
+    voices.addAll(basis.voices(patternId));
     return voices;
   }
 
-  /**
-   get current rhythm phase
-   (cache result)
-
-   @return current rhythm phase
-   @throws Exception on failure
-   */
-  private Phase rhythmPhase() throws Exception {
-    return basis.phaseAtOffset(
-      basis.currentRhythmChoice().getPatternId(),
-      basis.currentRhythmChoice().getPhaseOffset());
-  }
 
   /**
    Report

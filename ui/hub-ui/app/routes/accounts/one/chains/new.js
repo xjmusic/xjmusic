@@ -75,7 +75,7 @@ export default Route.extend({
       }
     },
 
-    cancelCreateChain(transition)
+    cancelCreateChain()
     {
       let model = this.controller.get('model.chain');
       if (model.get('hasDirtyAttributes')) {
@@ -83,8 +83,6 @@ export default Route.extend({
         if (confirmation) {
           model.rollbackAttributes();
           this.transitionTo('accounts.one.chains');
-        } else {
-          transition.abort();
         }
       }
     }

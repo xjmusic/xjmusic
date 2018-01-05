@@ -12,6 +12,7 @@ import io.xj.core.model.link.LinkState;
 import io.xj.core.model.message.MessageType;
 import io.xj.core.model.pattern.Pattern;
 import io.xj.core.model.pattern.PatternType;
+import io.xj.core.model.phase.PhaseType;
 import io.xj.core.model.user_auth.UserAuthType;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.tables.records.AccountRecord;
@@ -260,7 +261,7 @@ public interface IntegrationTestEntity {
     record.store();
   }
 
-  static void insertPhase(int id, int patternId, int offset, int total, String name, double density, String key, double tempo) {
+  static void insertPhase(int id, int patternId, PhaseType type, int offset, int total, String name, double density, String key, double tempo) {
     PhaseRecord record = IntegrationTestService.getDb().newRecord(PHASE);
     record.setId(ULong.valueOf(id));
     record.setPatternId(ULong.valueOf(patternId));
@@ -270,6 +271,7 @@ public interface IntegrationTestEntity {
     record.setDensity(density);
     record.setKey(key);
     record.setTempo(tempo);
+    record.setType(type.toString());
     record.store();
   }
 
