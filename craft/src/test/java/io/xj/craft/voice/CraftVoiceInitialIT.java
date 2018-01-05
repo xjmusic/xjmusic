@@ -4,6 +4,7 @@ package io.xj.craft.voice;
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.ArrangementDAO;
+import io.xj.core.dao.ChoiceDAO;
 import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
@@ -212,6 +213,14 @@ public class CraftVoiceInitialIT {
     assertEquals(12, pickedSnare);
     assertEquals(4, pickedBleep);
     assertEquals(4, pickedToot);
+  }
+
+  @Test
+  public void craftVoiceInitial_okWhenNoRhythmChoice() throws Exception {
+    Basis basis = basisFactory.createBasis(link6);
+    injector.getInstance(ChoiceDAO.class).delete(Access.internal(), BigInteger.valueOf(103));
+
+    craftFactory.voice(basis).doWork();
   }
 
 }

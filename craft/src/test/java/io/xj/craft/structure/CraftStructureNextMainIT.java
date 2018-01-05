@@ -171,4 +171,15 @@ public class CraftStructureNextMainIT {
     assertNotNull(injector.getInstance(ChoiceDAO.class).readOneLinkTypeWithAvailablePhaseOffsets(Access.internal(), BigInteger.valueOf(4), PatternType.Rhythm));
   }
 
+  @Test
+  public void craftStructureNextMain_okEvenWithoutPreviousLinkRhythmChoice() throws Exception {
+    Basis basis = basisFactory.createBasis(link4);
+    injector.getInstance(ChoiceDAO.class).delete(Access.internal(), BigInteger.valueOf(27));
+
+    craftFactory.structure(basis).doWork();
+
+    // choice of rhythm-type pattern
+    assertNotNull(injector.getInstance(ChoiceDAO.class).readOneLinkTypeWithAvailablePhaseOffsets(Access.internal(), BigInteger.valueOf(4), PatternType.Rhythm));
+  }
+
 }

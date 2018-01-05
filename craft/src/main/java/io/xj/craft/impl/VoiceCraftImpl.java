@@ -77,6 +77,7 @@ public class VoiceCraftImpl implements VoiceCraft {
    craft link events for all rhythm voices
    */
   private void craftRhythmVoiceArrangements() throws Exception {
+    if (Objects.isNull(basis.currentRhythmChoice())) return;
     Collection<Arrangement> arrangements = Lists.newArrayList();
     for (Voice voice : voices(basis.currentRhythmChoice().getPatternId()))
       arrangements.add(craftArrangementForRhythmVoice(voice));
@@ -170,6 +171,8 @@ public class VoiceCraftImpl implements VoiceCraft {
    */
   private void craftRhythmPhases(
   ) throws Exception {
+    if (Objects.isNull(basis.currentRhythmChoice())) return;
+
     // choose intro phase (if available)
     Phase introPhase = basis.phaseAtOffset(basis.currentRhythmChoice().getPatternId(), basis.currentRhythmChoice().getPhaseOffset(), PhaseType.Intro);
 

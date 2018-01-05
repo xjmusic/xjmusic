@@ -58,7 +58,7 @@ public class VoiceEventIndexResource {
     try {
       return response.readMany(
         VoiceEvent.KEY_MANY,
-        voiceEventDAO.readAll(
+        voiceEventDAO.readAllOfPhase(
           Access.fromContext(crc),
           new BigInteger(phaseId)));
 

@@ -59,11 +59,20 @@ public class VoiceEventDAOImpl extends DAOImpl implements VoiceEventDAO {
   }
 
   @Override
-  @Nullable
-  public Collection<VoiceEvent> readAll(Access access, BigInteger phaseId) throws Exception {
+  public Collection<VoiceEvent> readAllOfPhase(Access access, BigInteger phaseId) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readAll(tx.getContext(), access, ULong.valueOf(phaseId)));
+      return tx.success(readAllOfPhase(tx.getContext(), access, ULong.valueOf(phaseId)));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public Collection<VoiceEvent> readAllOfVoice(Access access, BigInteger voiceId) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readAllOfVoice(tx.getContext(), access, ULong.valueOf(voiceId)));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -140,7 +149,7 @@ public class VoiceEventDAOImpl extends DAOImpl implements VoiceEventDAO {
    @param phaseId to readMany all voice of
    @return array of voices
    */
-  private static Collection<VoiceEvent> readAll(DSLContext db, Access access, ULong phaseId) throws BusinessException {
+  private static Collection<VoiceEvent> readAllOfPhase(DSLContext db, Access access, ULong phaseId) throws BusinessException {
     if (access.isTopLevel())
       return modelsFrom(db.select(VOICE_EVENT.fields())
         .from(VOICE_EVENT)
@@ -154,6 +163,33 @@ public class VoiceEventDAOImpl extends DAOImpl implements VoiceEventDAO {
         .join(PATTERN).on(PATTERN.ID.eq(VOICE.PATTERN_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(PATTERN.LIBRARY_ID))
         .where(VOICE_EVENT.PHASE_ID.eq(phaseId))
+        .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+        .orderBy(VOICE_EVENT.POSITION)
+        .fetch(), VoiceEvent.class);
+  }
+
+  /**
+   Read all VoiceEvent for a Voice
+
+   @param db      context
+   @param access  control
+   @param voiceId to readMany all voice of
+   @return array of voices
+   */
+  private static Collection<VoiceEvent> readAllOfVoice(DSLContext db, Access access, ULong voiceId) throws BusinessException {
+    if (access.isTopLevel())
+      return modelsFrom(db.select(VOICE_EVENT.fields())
+        .from(VOICE_EVENT)
+        .where(VOICE_EVENT.VOICE_ID.eq(voiceId))
+        .orderBy(VOICE_EVENT.POSITION)
+        .fetch(), VoiceEvent.class);
+    else
+      return modelsFrom(db.select(VOICE_EVENT.fields())
+        .from(VOICE_EVENT)
+        .join(VOICE).on(VOICE.ID.eq(VOICE_EVENT.VOICE_ID))
+        .join(PATTERN).on(PATTERN.ID.eq(VOICE.PATTERN_ID))
+        .join(LIBRARY).on(LIBRARY.ID.eq(PATTERN.LIBRARY_ID))
+        .where(VOICE_EVENT.VOICE_ID.eq(voiceId))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .orderBy(VOICE_EVENT.POSITION)
         .fetch(), VoiceEvent.class);

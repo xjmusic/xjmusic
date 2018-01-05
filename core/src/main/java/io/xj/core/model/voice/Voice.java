@@ -28,6 +28,12 @@ public class Voice extends Entity {
   private String description;
   private BigInteger patternId;
 
+  public Voice() {}
+
+  public Voice(BigInteger id) {
+    this.id = id;
+  }
+
   public BigInteger getPatternId() {
     return patternId;
   }

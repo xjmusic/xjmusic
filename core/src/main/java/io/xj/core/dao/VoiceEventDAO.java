@@ -2,6 +2,7 @@
 package io.xj.core.dao;
 
 import io.xj.core.access.impl.Access;
+import io.xj.core.exception.DatabaseException;
 import io.xj.core.model.voice_event.VoiceEvent;
 
 import javax.annotation.Nullable;
@@ -38,7 +39,16 @@ public interface VoiceEventDAO {
    @return JSONArray of voices.
    @throws Exception on failure
    */
-  Collection<VoiceEvent> readAll(Access access, BigInteger phaseId) throws Exception;
+  Collection<VoiceEvent> readAllOfPhase(Access access, BigInteger phaseId) throws Exception;
+
+  /**
+   Read all events in a given voice
+
+   @param access control
+   @param voiceId to read events for
+   @return events
+   */
+  Collection<VoiceEvent> readAllOfVoice(Access access, BigInteger voiceId) throws Exception;
 
   /**
    Update a specified Voice Event if accessible

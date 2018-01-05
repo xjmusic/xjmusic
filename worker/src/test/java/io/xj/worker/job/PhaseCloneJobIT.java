@@ -7,14 +7,17 @@ import io.xj.core.app.App;
 import io.xj.core.dao.PhaseChordDAO;
 import io.xj.core.dao.PhaseDAO;
 import io.xj.core.dao.PhaseMemeDAO;
+import io.xj.core.dao.VoiceEventDAO;
 import io.xj.core.external.amazon.AmazonProvider;
 import io.xj.core.integration.IntegrationTestEntity;
+import io.xj.core.model.instrument.InstrumentType;
 import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.phase.Phase;
 import io.xj.core.model.phase.PhaseType;
 import io.xj.core.model.phase_chord.PhaseChord;
 import io.xj.core.model.phase_meme.PhaseMeme;
 import io.xj.core.model.user_role.UserRoleType;
+import io.xj.core.model.voice_event.VoiceEvent;
 import io.xj.core.work.WorkManager;
 import io.xj.craft.CraftModule;
 import io.xj.dub.DubModule;
@@ -47,7 +50,7 @@ public class PhaseCloneJobIT {
   @Rule public ExpectedException failure = ExpectedException.none();
   private Injector injector;
   private App app;
-  private static final int TEST_DURATION_SECONDS = 1;
+  private static final int TEST_DURATION_SECONDS = 2;
   private static final int MILLIS_PER_SECOND = 1000;
   @Mock AmazonProvider amazonProvider;
   @Spy final WorkManager workManager = Guice.createInjector(new CoreModule()).getInstance(WorkManager.class);
@@ -81,17 +84,26 @@ public class PhaseCloneJobIT {
     // Pattern "808" and "2020"
     IntegrationTestEntity.insertPattern(1, 2, 2, PatternType.Rhythm, "808 Drums", 0.9, "G", 120);
     IntegrationTestEntity.insertPatternMeme(1, 1, "heavy");
+    IntegrationTestEntity.insertVoice(1, 1, InstrumentType.Percussive, "Kick Drum");
+    IntegrationTestEntity.insertVoice(2, 1, InstrumentType.Percussive, "Snare Drum");
     IntegrationTestEntity.insertPattern(12, 2, 42, PatternType.Rhythm, "2020 Drums", 0.9, "G", 120);
+    IntegrationTestEntity.insertVoice(3, 12, InstrumentType.Percussive, "Kack Dram");
+    IntegrationTestEntity.insertVoice(4, 12, InstrumentType.Percussive, "Snarr Dram");
 
     // Phase "Verse"
     IntegrationTestEntity.insertPhase(1, 1, PhaseType.Loop, 0, 16, "Verse 1", 0.5, "G", 120);
     IntegrationTestEntity.insertPhaseMeme(1, 1, "GREEN");
     IntegrationTestEntity.insertPhaseChord(1, 1, 0, "Db7");
+    IntegrationTestEntity.insertVoiceEvent(101,1,1,0.0,1.0,"KICK","C5",1.0,1.0);
+    IntegrationTestEntity.insertVoiceEvent(102,1,2,1.0,1.0,"SNARE","C5",1.0,1.0);
+
 
     // Phase "Verse"
     IntegrationTestEntity.insertPhase(2, 1, PhaseType.Loop, 0, 16, "Verse 2", 0.5, "G", 120);
     IntegrationTestEntity.insertPhaseMeme(2, 2, "YELLOW");
     IntegrationTestEntity.insertPhaseChord(2, 2, 0, "Gm9");
+    IntegrationTestEntity.insertVoiceEvent(103,2,1,0.0,1.0,"KICK","C5",1.0,1.0);
+    IntegrationTestEntity.insertVoiceEvent(104,2,2,1.0,1.0,"SNARE","C5",1.0,1.0);
 
     // Newly cloned phases -- awaiting PhaseClone job to run, and create their child entities
     IntegrationTestEntity.insertPhase(3, 1, PhaseType.Loop, 0, 16, "Verse 34", 0.5, "G", 120);
@@ -150,8 +162,10 @@ public class PhaseCloneJobIT {
     // Verify existence of children of cloned phase #1
     Collection<PhaseMeme> memesOne = injector.getInstance(PhaseMemeDAO.class).readAll(Access.internal(), resultOne.getId());
     Collection<PhaseChord> chordsOne = injector.getInstance(PhaseChordDAO.class).readAll(Access.internal(), resultOne.getId());
+    Collection<VoiceEvent> eventsOne = injector.getInstance(VoiceEventDAO.class).readAllOfPhase(Access.internal(), resultOne.getId());
     assertEquals(1, memesOne.size());
     assertEquals(1, chordsOne.size());
+    assertEquals(2, eventsOne.size());
     PhaseMeme memeOne = memesOne.iterator().next();
     assertEquals("Green", memeOne.getName());
     PhaseChord chordOne = chordsOne.iterator().next();
@@ -161,8 +175,10 @@ public class PhaseCloneJobIT {
     // Verify existence of children of cloned phase #2
     Collection<PhaseMeme> memesTwo = injector.getInstance(PhaseMemeDAO.class).readAll(Access.internal(), resultTwo.getId());
     Collection<PhaseChord> chordsTwo = injector.getInstance(PhaseChordDAO.class).readAll(Access.internal(), resultTwo.getId());
+    Collection<VoiceEvent> eventsTwo = injector.getInstance(VoiceEventDAO.class).readAllOfPhase(Access.internal(), resultTwo.getId());
     assertEquals(1, memesTwo.size());
     assertEquals(1, chordsTwo.size());
+    assertEquals(2, eventsTwo.size());
     PhaseMeme memeTwo = memesTwo.iterator().next();
     assertEquals("Yellow", memeTwo.getName());
     PhaseChord chordTwo = chordsTwo.iterator().next();

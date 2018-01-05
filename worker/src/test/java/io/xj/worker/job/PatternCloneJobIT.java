@@ -7,6 +7,8 @@ import io.xj.core.app.App;
 import io.xj.core.dao.PatternDAO;
 import io.xj.core.dao.PatternMemeDAO;
 import io.xj.core.dao.PhaseDAO;
+import io.xj.core.dao.VoiceDAO;
+import io.xj.core.dao.VoiceEventDAO;
 import io.xj.core.external.amazon.AmazonProvider;
 import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.model.instrument.InstrumentType;
@@ -16,6 +18,8 @@ import io.xj.core.model.pattern_meme.PatternMeme;
 import io.xj.core.model.phase.Phase;
 import io.xj.core.model.phase.PhaseType;
 import io.xj.core.model.user_role.UserRoleType;
+import io.xj.core.model.voice.Voice;
+import io.xj.core.model.voice_event.VoiceEvent;
 import io.xj.core.work.WorkManager;
 import io.xj.craft.CraftModule;
 import io.xj.dub.DubModule;
@@ -52,7 +56,7 @@ public class PatternCloneJobIT {
   @Rule public ExpectedException failure = ExpectedException.none();
   private Injector injector;
   private App app;
-  private static final int TEST_DURATION_SECONDS = 1;
+  private static final int TEST_DURATION_SECONDS = 2; // FUTURE: asynchronously listen for completion conditions
   private static final int MILLIS_PER_SECOND = 1000;
   @Mock AmazonProvider amazonProvider;
   @Spy final WorkManager workManager = Guice.createInjector(new CoreModule()).getInstance(WorkManager.class);
@@ -86,17 +90,21 @@ public class PatternCloneJobIT {
     // Pattern "808" and "2020"
     IntegrationTestEntity.insertPattern(1, 2, 2, PatternType.Rhythm, "808 Drums", 0.9, "C", 120);
     IntegrationTestEntity.insertPatternMeme(1, 1, "heavy");
+    IntegrationTestEntity.insertVoice(1, 1, InstrumentType.Percussive, "Kick Drum");
+    IntegrationTestEntity.insertVoice(2, 1, InstrumentType.Percussive, "Snare Drum");
     IntegrationTestEntity.insertPattern(12, 2, 42, PatternType.Rhythm, "2020 Drums", 0.9, "G", 120);
 
-    // Phase "Kick"
-    IntegrationTestEntity.insertPhase(1, 1, PhaseType.Loop, 0, 16, "Verse", 0.5, "C", 120.0);
-    IntegrationTestEntity.insertVoice(1, 1, InstrumentType.Percussive, "KICK");
+    // Phase
+    IntegrationTestEntity.insertPhase(1, 1, PhaseType.Loop, 0, 16, "Verse 1", 0.5, "C", 120.0);
     IntegrationTestEntity.insertPhaseChord(1, 1, 0, "Db7");
+    IntegrationTestEntity.insertVoiceEvent(101,1,1,0.0,1.0,"KICK","C5",1.0,1.0);
+    IntegrationTestEntity.insertVoiceEvent(102,1,2,1.0,1.0,"SNARE","C5",1.0,1.0);
 
-    // Phase "Snare"
-    IntegrationTestEntity.insertPhase(2, 1, PhaseType.Loop, 1, 16, "Verse", 0.5, "C", 120.0);
-    IntegrationTestEntity.insertVoice(2, 1, InstrumentType.Percussive, "SNARE");
+    // Phase
+    IntegrationTestEntity.insertPhase(2, 1, PhaseType.Loop, 1, 16, "Verse 2", 0.5, "C", 120.0);
     IntegrationTestEntity.insertPhaseChord(2, 2, 0, "Gm9");
+    IntegrationTestEntity.insertVoiceEvent(103,2,1,0.0,1.0,"KICK","C5",1.0,1.0);
+    IntegrationTestEntity.insertVoiceEvent(104,2,2,1.0,1.0,"SNARE","C5",1.0,1.0);
 
     // Newly cloned pattern -- awaiting PatternClone job to run, and create its child entities
     IntegrationTestEntity.insertPattern(14, 2, 42, PatternType.Rhythm, "808 Drums Clone Y'all", 0.9, "D", 120);
@@ -147,16 +155,28 @@ public class PatternCloneJobIT {
     app.stop();
 
     // Verify existence of cloned pattern
-    Pattern result = injector.getInstance(PatternDAO.class).readOne(Access.internal(), BigInteger.valueOf(14));
-    assertNotNull(result);
+    Pattern resultPattern = injector.getInstance(PatternDAO.class).readOne(Access.internal(), BigInteger.valueOf(14));
+    assertNotNull(resultPattern);
 
     // Verify existence of cloned memes
-    Collection<PatternMeme> memes = injector.getInstance(PatternMemeDAO.class).readAll(Access.internal(), result.getId());
-    assertEquals(1, memes.size());
+    Collection<PatternMeme> resultMemes = injector.getInstance(PatternMemeDAO.class).readAll(Access.internal(), resultPattern.getId());
+    assertEquals(1, resultMemes.size());
 
     // Verify existence of cloned phases
-    Collection<Phase> phases = injector.getInstance(PhaseDAO.class).readAll(Access.internal(), result.getId());
-    assertEquals(2, phases.size());
+    Collection<Phase> resultPhases = injector.getInstance(PhaseDAO.class).readAll(Access.internal(), resultPattern.getId());
+    assertEquals(2, resultPhases.size());
+    for (Phase resultPhase : resultPhases) {
+      Collection<VoiceEvent> resultVoiceEvents = injector.getInstance(VoiceEventDAO.class).readAllOfPhase(Access.internal(), resultPhase.getId());
+      assertEquals(2, resultVoiceEvents.size());
+    }
+
+    // Verify existence of cloned voices
+    Collection<Voice> resultVoices = injector.getInstance(VoiceDAO.class).readAll(Access.internal(), resultPattern.getId());
+    assertEquals(2, resultVoices.size());
+    for (Voice resultVoice : resultVoices) {
+      Collection<VoiceEvent> resultVoiceEvents = injector.getInstance(VoiceEventDAO.class).readAllOfVoice(Access.internal(), resultVoice.getId());
+      assertEquals(2, resultVoiceEvents.size());
+    }
 
     // Verify enqueued phase clone jobs
     verify(workManager).schedulePhaseClone(eq(0), eq(BigInteger.valueOf(1)), any());

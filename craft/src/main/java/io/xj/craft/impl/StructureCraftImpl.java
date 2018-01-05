@@ -71,13 +71,15 @@ public class StructureCraftImpl implements StructureCraft {
    craft link rhythm
    */
   private void craftRhythm() throws Exception {
-    choiceDAO.create(Access.internal(),
-      new Choice()
-        .setLinkId(basis.linkId())
-        .setType(PatternType.Rhythm.toString())
-        .setPatternId(rhythmPattern().getId())
-        .setTranspose(rhythmTranspose())
-        .setPhaseOffset(rhythmPhaseOffset()));
+    Pattern pattern = rhythmPattern();
+    if (Objects.nonNull(pattern))
+      choiceDAO.create(Access.internal(),
+        new Choice()
+          .setLinkId(basis.linkId())
+          .setType(PatternType.Rhythm.toString())
+          .setPatternId(pattern.getId())
+          .setTranspose(rhythmTranspose())
+          .setPhaseOffset(rhythmPhaseOffset()));
   }
 
   /**
@@ -98,9 +100,13 @@ public class StructureCraftImpl implements StructureCraft {
 
         case Continue:
           Choice previousChoice = basis.previousRhythmChoice();
-          if (Objects.isNull(previousChoice))
-            throw new BusinessException("No rhythm-type pattern chosen in previous link!");
-          _rhythmPattern = basis.pattern(previousChoice.getPatternId());
+          if (Objects.nonNull(previousChoice))
+            _rhythmPattern = basis.pattern(previousChoice.getPatternId());
+          else {
+            log.warn("No rhythm-type pattern chosen in previous Link #{}", basis.previousLink().getId());
+            _rhythmPattern = chooseRhythm();
+          }
+
           break;
 
         case Initial:
@@ -125,7 +131,7 @@ public class StructureCraftImpl implements StructureCraft {
       switch (basis.type()) {
 
         case Continue:
-          _rhythmPhaseOffset = basis.previousRhythmChoice().nextPhaseOffset();
+          _rhythmPhaseOffset = Objects.nonNull(basis.previousRhythmChoice()) ? basis.previousRhythmChoice().nextPhaseOffset() : BigInteger.valueOf(0);
           break;
 
         case Initial:
@@ -173,7 +179,8 @@ public class StructureCraftImpl implements StructureCraft {
 
     // (3b) Avoid previous rhythm pattern
     if (!basis.isInitialLink())
-      chooser.score(basis.previousRhythmChoice().getPatternId(), -SCORE_AVOID_CHOOSING_PREVIOUS_RHYTHM);
+      if (Objects.nonNull(basis.previousRhythmChoice()))
+        chooser.score(basis.previousRhythmChoice().getPatternId(), -SCORE_AVOID_CHOOSING_PREVIOUS_RHYTHM);
 
     // report
     basis.report("rhythmChoice", chooser.report());

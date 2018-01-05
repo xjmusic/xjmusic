@@ -2,7 +2,6 @@
 package io.xj.worker.job.impl;
 
 import io.xj.core.access.impl.Access;
-import io.xj.core.config.Config;
 import io.xj.core.dao.LinkDAO;
 import io.xj.core.dao.LinkMessageDAO;
 import io.xj.core.exception.BusinessException;
@@ -143,7 +142,7 @@ public class LinkFabricateJobImpl implements LinkFabricateJob {
    @param e       exception (optional)
    */
   private void didFailWhile(String message, Exception e) {
-    createLinkMessage(MessageType.Error, String.format("Failed while %s for Link #%s:%s%s", message, entityId, Config.lineSeparator(), Text.formatStackTrace(e)));
+    createLinkMessage(MessageType.Error, String.format("Failed while %s for Link #%s:\n\n%s\n%s", message, entityId, e.getMessage(), Text.formatStackTrace(e)));
     log.error("Failed while {} for Link #{}", message, entityId, e);
   }
 

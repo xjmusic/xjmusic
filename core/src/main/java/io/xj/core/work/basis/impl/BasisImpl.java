@@ -337,18 +337,22 @@ public class BasisImpl implements Basis {
 
   @Override
   public Pattern pattern(BigInteger id) throws Exception {
-    if (!_patterns.containsKey(id))
-      _patterns.put(id, patternDAO.readOne(Access.internal(), id));
+    if (!_patterns.containsKey(id)) {
+      Pattern pattern = patternDAO.readOne(Access.internal(), id);
+      if (Objects.nonNull(pattern)) _patterns.put(id, pattern);
+    }
 
-    return _patterns.get(id);
+    return _patterns.getOrDefault(id, null);
   }
 
   @Override
   public Instrument instrument(BigInteger id) throws Exception {
-    if (!_instruments.containsKey(id))
-      _instruments.put(id, instrumentDAO.readOne(Access.internal(), id));
+    if (!_instruments.containsKey(id)) {
+      Instrument instrument = instrumentDAO.readOne(Access.internal(), id);
+      if (Objects.nonNull(instrument)) _instruments.put(id, instrument);
+    }
 
-    return _instruments.get(id);
+    return _instruments.getOrDefault(id, null);
   }
 
   @Override
@@ -442,8 +446,9 @@ public class BasisImpl implements Basis {
     // add pattern phase memes
     for (PhaseType phaseType : phaseTypes) {
       Phase phase = phaseAtOffset(patternId, phaseOffset, phaseType);
-      phaseMemes(phase.getId()).forEach((patternMeme ->
-        baseMemes.put(patternMeme.getName(), patternMeme)));
+      if (Objects.nonNull(phase))
+        phaseMemes(phase.getId()).forEach((patternMeme ->
+          baseMemes.put(patternMeme.getName(), patternMeme)));
     }
 
     return baseMemes.values();
@@ -452,7 +457,7 @@ public class BasisImpl implements Basis {
   @Override
   public Collection<VoiceEvent> phaseVoiceEvents(BigInteger phaseId, BigInteger voiceId) throws Exception {
     if (!_phaseVoiceEvents.containsKey(phaseId))
-      _phaseVoiceEvents.put(phaseId, voiceEventDAO.readAll(Access.internal(), phaseId));
+      _phaseVoiceEvents.put(phaseId, voiceEventDAO.readAllOfPhase(Access.internal(), phaseId));
 
     // filter cache results based on required type-- minimize DAO calls
     Collection<VoiceEvent> result = Lists.newArrayList();
@@ -625,11 +630,12 @@ public class BasisImpl implements Basis {
     if (!_linksByOffset.containsKey(chainId))
       _linksByOffset.put(chainId, Maps.newConcurrentMap());
 
-    if (!_linksByOffset.get(chainId).containsKey(offset))
-      _linksByOffset.get(chainId).put(offset,
-        linkDAO.readOneAtChainOffset(Access.internal(), chainId, offset));
+    if (!_linksByOffset.get(chainId).containsKey(offset)) {
+      Link link = linkDAO.readOneAtChainOffset(Access.internal(), chainId, offset);
+      if (Objects.nonNull(link)) _linksByOffset.get(chainId).put(offset, link);
+    }
 
-    return _linksByOffset.get(chainId).get(offset);
+    return _linksByOffset.get(chainId).getOrDefault(offset, null);
   }
 
   @Override
@@ -637,11 +643,12 @@ public class BasisImpl implements Basis {
     if (!_linkChoicesByType.containsKey(linkId))
       _linkChoicesByType.put(linkId, Maps.newConcurrentMap());
 
-    if (!_linkChoicesByType.get(linkId).containsKey(patternType))
-      _linkChoicesByType.get(linkId).put(patternType,
-        choiceDAO.readOneLinkTypeWithAvailablePhaseOffsets(Access.internal(), linkId, patternType));
+    if (!_linkChoicesByType.get(linkId).containsKey(patternType)) {
+      Choice choice = choiceDAO.readOneLinkTypeWithAvailablePhaseOffsets(Access.internal(), linkId, patternType);
+      if (Objects.nonNull(choice)) _linkChoicesByType.get(linkId).put(patternType, choice);
+    }
 
-    return _linkChoicesByType.get(linkId).get(patternType);
+    return _linkChoicesByType.get(linkId).getOrDefault(patternType, null);
   }
 
   @Override

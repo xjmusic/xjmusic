@@ -1,6 +1,7 @@
 package io.xj.core.work.basis.impl;// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
 import io.xj.core.CoreModule;
+import io.xj.core.access.impl.Access;
 import io.xj.core.dao.ArrangementDAO;
 import io.xj.core.dao.AudioDAO;
 import io.xj.core.dao.AudioEventDAO;
@@ -17,7 +18,9 @@ import io.xj.core.dao.PhaseDAO;
 import io.xj.core.dao.PhaseMemeDAO;
 import io.xj.core.dao.VoiceDAO;
 import io.xj.core.dao.VoiceEventDAO;
+import io.xj.core.model.choice.Choice;
 import io.xj.core.model.link.Link;
+import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.pick.Pick;
 import io.xj.core.work.basis.Basis;
 import io.xj.core.work.basis.BasisFactory;
@@ -39,6 +42,8 @@ import java.math.BigInteger;
 import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
@@ -65,6 +70,7 @@ public class BasisImplTest {
   @Mock Tuning tuning;
   @Mock VoiceDAO voiceDAO;
   @Mock VoiceEventDAO voiceEventDAO;
+  @Mock Choice choice;
 
   @Before
   public void setUp() throws Exception {
@@ -361,6 +367,39 @@ public class BasisImplTest {
 
   @Test
   public void linkChoiceByType() throws Exception {
+    when(choiceDAO.readOneLinkTypeWithAvailablePhaseOffsets(any(), eq(BigInteger.valueOf(123)), eq(PatternType.Rhythm))).thenReturn(choice);
+    subject = basisFactory.createBasis(new Link(4213)
+      .setOffset(BigInteger.valueOf(2))
+      .setDensity(0.6)
+      .setKey("G major")
+      .setState("Crafting")
+      .setTempo(120.0)
+      .setChainId(BigInteger.valueOf(977))
+      .setTotal(8)
+      .setBeginAt("2017-12-12 01:00:16.000000")
+      .setEndAt("2017-12-12 01:00:22.000000"));
+
+    Choice result = subject.linkChoiceByType(BigInteger.valueOf(123), PatternType.Rhythm);
+    assertNotNull(result);
+    assertEquals(choice, result);
+  }
+
+  @Test
+  public void linkChoiceByType_nullPassesThrough() throws Exception {
+    when(choiceDAO.readOneLinkTypeWithAvailablePhaseOffsets(any(), eq(BigInteger.valueOf(123)), eq(PatternType.Rhythm))).thenReturn(null);
+    subject = basisFactory.createBasis(new Link(4213)
+      .setOffset(BigInteger.valueOf(2))
+      .setDensity(0.6)
+      .setKey("G major")
+      .setState("Crafting")
+      .setTempo(120.0)
+      .setChainId(BigInteger.valueOf(977))
+      .setTotal(8)
+      .setBeginAt("2017-12-12 01:00:16.000000")
+      .setEndAt("2017-12-12 01:00:22.000000"));
+
+    Choice result = subject.linkChoiceByType(BigInteger.valueOf(123), PatternType.Rhythm);
+    assertNull(result);
   }
 
   @Test

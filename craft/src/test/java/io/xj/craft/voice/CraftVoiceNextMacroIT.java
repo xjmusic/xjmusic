@@ -4,6 +4,7 @@ package io.xj.craft.voice;
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.ArrangementDAO;
+import io.xj.core.dao.ChoiceDAO;
 import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
@@ -18,8 +19,6 @@ import io.xj.core.work.basis.Basis;
 import io.xj.core.work.basis.BasisFactory;
 import io.xj.craft.CraftFactory;
 import io.xj.craft.CraftModule;
-
-
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -222,6 +221,14 @@ public class CraftVoiceNextMacroIT {
     }
     assertEquals(8, pickedKick);
     assertEquals(8, pickedSnare);
+  }
+
+  @Test
+  public void craftVoiceNextMacro_okIfNoRhythmChoice() throws Exception {
+    Basis basis = basisFactory.createBasis(link4);
+    injector.getInstance(ChoiceDAO.class).delete(Access.internal(), BigInteger.valueOf(103));
+
+    craftFactory.voice(basis).doWork();
   }
 
 }
