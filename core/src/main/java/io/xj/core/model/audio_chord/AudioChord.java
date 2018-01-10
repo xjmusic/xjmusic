@@ -5,27 +5,22 @@ import io.xj.core.exception.BusinessException;
 import io.xj.core.model.chord.Chord;
 
 import java.math.BigInteger;
+import java.util.Objects;
 
 /**
  POJO for persisting data in memory while performing business logic,
-or decoding messages received by JAX-RS resources.
+ or decoding messages received by JAX-RS resources.
  a.k.a. JSON input will be stored into an instance of this object
-
+ <p>
  Business logic ought to be performed beginning with an instance of this object,
  to implement common methods.
-
+ <p>
  NOTE: There can only be ONE of any getter/setter (with the same # of input params)
  */
 public class AudioChord extends Chord {
-
-  /**
-   For use in maps.
-   */
   public static final String KEY_ONE = "audioChord";
   public static final String KEY_MANY = "audioChords";
-  /**
-   Audio
-   */
+
   private BigInteger audioId;
 
   public AudioChord setName(String name) {
@@ -42,17 +37,22 @@ public class AudioChord extends Chord {
     return this;
   }
 
-  public AudioChord setPosition(Double position) {
+  public AudioChord setPosition(Integer position) {
     this.position = position;
     return this;
   }
 
   @Override
   public void validate() throws BusinessException {
-    if (this.audioId == null) {
+    if (Objects.isNull(audioId)) {
       throw new BusinessException("Audio ID is required.");
     }
     super.validate();
+  }
+
+  @Override
+  public AudioChord of(String name) {
+    return new AudioChord().setName(name);
   }
 
 }

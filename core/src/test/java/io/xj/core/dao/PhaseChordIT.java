@@ -71,14 +71,14 @@ public class PhaseChordIT {
       "accounts", "1"
     ));
     PhaseChord inputData = new PhaseChord()
-      .setPosition(0.42)
+      .setPosition(4)
       .setName("G minor 7")
       .setPhaseId(BigInteger.valueOf(2));
 
     JSONObject result = JSON.objectFrom(testDAO.create(access, inputData));
 
     assertNotNull(result);
-    assertEquals(0.42, result.get("position"));
+    assertEquals(4, result.get("position"));
     assertEquals("G minor 7", result.get("name"));
     assertEquals(2, result.get("phaseId"));
   }
@@ -90,7 +90,7 @@ public class PhaseChordIT {
       "accounts", "1"
     ));
     PhaseChord inputData = new PhaseChord()
-      .setPosition(0.42)
+      .setPosition(4)
       .setName("G minor 7");
 
     testDAO.create(access, inputData);
@@ -103,7 +103,7 @@ public class PhaseChordIT {
       "accounts", "1"
     ));
     PhaseChord inputData = new PhaseChord()
-      .setPosition(0.42)
+      .setPosition(4)
       .setPhaseId(BigInteger.valueOf(2));
 
     testDAO.create(access, inputData);
@@ -173,7 +173,7 @@ public class PhaseChordIT {
       "accounts", "1"
     ));
     PhaseChord inputData = new PhaseChord()
-      .setPosition(0.42)
+      .setPosition(4)
       .setName("G minor 7");
 
     testDAO.update(access, BigInteger.valueOf(3), inputData);
@@ -186,7 +186,7 @@ public class PhaseChordIT {
       "accounts", "1"
     ));
     PhaseChord inputData = new PhaseChord()
-      .setPosition(0.42)
+      .setPosition(4)
       .setPhaseId(BigInteger.valueOf(2));
 
     testDAO.update(access, BigInteger.valueOf(2), inputData);
@@ -199,7 +199,7 @@ public class PhaseChordIT {
       "accounts", "1"
     ));
     PhaseChord inputData = new PhaseChord()
-      .setPosition(0.42)
+      .setPosition(4)
       .setPhaseId(BigInteger.valueOf(57))
       .setName("D minor");
 
@@ -224,14 +224,14 @@ public class PhaseChordIT {
     PhaseChord inputData = new PhaseChord()
       .setPhaseId(BigInteger.valueOf(1))
       .setName("POPPYCOCK")
-      .setPosition(0.42);
+      .setPosition(4);
 
     testDAO.update(access, BigInteger.valueOf(1), inputData);
 
     PhaseChord result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1));
     assertNotNull(result);
     assertEquals("POPPYCOCK", result.getName());
-    assertEquals((Double) 0.42, result.getPosition());
+    assertEquals((Integer) 4, result.getPosition());
     assertEquals(BigInteger.valueOf(1), result.getPhaseId());
   }
 

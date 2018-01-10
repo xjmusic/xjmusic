@@ -4,25 +4,18 @@ package io.xj.core.model.chord;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.model.Entity;
 
+import java.util.Objects;
+
 /**
  This represents common properties of all chords,
  although a Chord only actually exists as a Link Chord, Phase Chord, etc.
  */
 public abstract class Chord extends Entity {
-
-  /**
-   For use in maps.
-   */
   public static final String KEY_ONE = "chord";
   public static final String KEY_MANY = "chords";
-  /**
-   Name
-   */
+
   protected String name;
-  /**
-   Position
-   */
-  protected Double position;
+  protected Integer position;
 
   public String getName() {
     return name;
@@ -30,23 +23,21 @@ public abstract class Chord extends Entity {
 
   public abstract Chord setName(String name);
 
-  public Double getPosition() {
+  public Integer getPosition() {
     return position;
   }
 
-  public abstract Chord setPosition(Double position);
+  public abstract Chord setPosition(Integer position);
 
   @Override
   public void validate() throws BusinessException {
-    if (this.name == null || this.name.length() == 0) {
+    if (Objects.isNull(name) || name.isEmpty()) {
       throw new BusinessException("Name is required.");
     }
-    if (this.position == null) {
+    if (Objects.isNull(position)) {
       throw new BusinessException("Position is required.");
     }
   }
 
-  public static Chord of(String key) {
-    return null;
-  }
+  public abstract Chord of(String name);
 }

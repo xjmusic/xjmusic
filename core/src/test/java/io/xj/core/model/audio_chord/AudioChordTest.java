@@ -18,7 +18,7 @@ public class AudioChordTest {
     new AudioChord()
       .setName("C# minor")
       .setAudioId(BigInteger.valueOf(1235))
-      .setPosition(0.75)
+      .setPosition(7)
       .validate();
   }
 
@@ -29,7 +29,7 @@ public class AudioChordTest {
 
     new AudioChord()
       .setAudioId(BigInteger.valueOf(1235))
-      .setPosition(0.75)
+      .setPosition(7)
       .validate();
   }
 
@@ -40,7 +40,7 @@ public class AudioChordTest {
 
     new AudioChord()
       .setName("C# minor")
-      .setPosition(0.75)
+      .setPosition(7)
       .validate();
   }
 

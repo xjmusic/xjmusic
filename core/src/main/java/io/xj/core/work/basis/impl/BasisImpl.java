@@ -383,10 +383,10 @@ public class BasisImpl implements Basis {
   }
 
   @Override
-  public Chord chordAt(double position) throws Exception {
+  public Chord chordAt(int position) throws Exception {
     // default to returning a chord based on the link key, if nothing else is found
     Chord foundChord = Chord.of(link().getKey());
-    Double foundPosition = null;
+    Integer foundPosition = null;
 
     // we assume that these chords are in order of position ascending (see: LinkChordDAO.readAllExpectedWork)
     for (LinkChord linkChord : linkChords()) {

@@ -174,11 +174,11 @@ public class CraftFoundationNextMacroIT {
     Iterator<LinkChord> it = resultLinkChords.iterator();
 
     LinkChord chordOne = it.next();
-    assertEquals(Double.valueOf(0), chordOne.getPosition());
+    assertEquals(Integer.valueOf(0), chordOne.getPosition());
     assertEquals("F minor", chordOne.getName());
 
     LinkChord chordTwo = it.next();
-    assertEquals(Double.valueOf(8), chordTwo.getPosition());
+    assertEquals(Integer.valueOf(8), chordTwo.getPosition());
     assertEquals("Gb minor", chordTwo.getName());
 
     // choice of macro-type pattern

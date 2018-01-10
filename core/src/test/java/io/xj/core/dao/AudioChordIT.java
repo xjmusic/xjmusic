@@ -71,14 +71,14 @@ public class AudioChordIT {
       "accounts", "1"
     ));
     AudioChord inputData = new AudioChord()
-      .setPosition(0.42)
+      .setPosition(4)
       .setName("G minor 7")
       .setAudioId(BigInteger.valueOf(1));
 
     AudioChord result = testDAO.create(access, inputData);
 
     assertNotNull(result);
-    assertEquals(0.42, result.getPosition(), 0.01);
+    assertEquals(4, result.getPosition(), 0.01);
     assertEquals("G minor 7", result.getName());
     assertEquals(BigInteger.valueOf(1), result.getAudioId());
   }
@@ -90,7 +90,7 @@ public class AudioChordIT {
       "accounts", "1"
     ));
     AudioChord inputData = new AudioChord()
-      .setPosition(0.42)
+      .setPosition(4)
       .setName("G minor 7");
 
     testDAO.create(access, inputData);
@@ -103,7 +103,7 @@ public class AudioChordIT {
       "accounts", "1"
     ));
     AudioChord inputData = new AudioChord()
-      .setPosition(0.42)
+      .setPosition(4)
       .setAudioId(BigInteger.valueOf(2));
 
     testDAO.create(access, inputData);
@@ -173,7 +173,7 @@ public class AudioChordIT {
       "accounts", "1"
     ));
     AudioChord inputData = new AudioChord()
-      .setPosition(0.42)
+      .setPosition(4)
       .setName("G minor 7");
 
     testDAO.update(access, BigInteger.valueOf(3), inputData);
@@ -186,7 +186,7 @@ public class AudioChordIT {
       "accounts", "1"
     ));
     AudioChord inputData = new AudioChord()
-      .setPosition(0.42)
+      .setPosition(4)
       .setAudioId(BigInteger.valueOf(2));
 
     testDAO.update(access, BigInteger.valueOf(2), inputData);
@@ -199,7 +199,7 @@ public class AudioChordIT {
       "accounts", "1"
     ));
     AudioChord inputData = new AudioChord()
-      .setPosition(0.42)
+      .setPosition(4)
       .setAudioId(BigInteger.valueOf(57))
       .setName("cannons");
 
@@ -224,14 +224,14 @@ public class AudioChordIT {
     AudioChord inputData = new AudioChord()
       .setAudioId(BigInteger.valueOf(1))
       .setName("POPPYCOCK")
-      .setPosition(0.42);
+      .setPosition(4);
 
     testDAO.update(access, BigInteger.valueOf(1), inputData);
 
     AudioChord result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1));
     assertNotNull(result);
     assertEquals("POPPYCOCK", result.getName());
-    assertEquals((Double) 0.42, result.getPosition());
+    assertEquals((Integer) 4, result.getPosition());
     assertEquals(BigInteger.valueOf(1), result.getAudioId());
   }
 

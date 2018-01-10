@@ -259,7 +259,7 @@ public class VoiceCraftImpl implements VoiceCraft {
     // Morph & Point attributes are expressed in beats
     double position = voiceEvent.getPosition() + shiftPosition;
     double duration = voiceEvent.getDuration();
-    Chord chord = basis.chordAt(position);
+    Chord chord = basis.chordAt((int) Math.floor(position));
 
     // The final note is transformed based on instrument type
     Note note = pickNote(

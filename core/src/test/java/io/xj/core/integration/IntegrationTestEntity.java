@@ -291,7 +291,7 @@ public interface IntegrationTestEntity {
     record.store();
   }
 
-  static void insertPhaseChord(int id, int phaseId, double position, String name) {
+  static void insertPhaseChord(int id, int phaseId, int position, String name) {
     PhaseChordRecord record = IntegrationTestService.getDb().newRecord(PHASE_CHORD);
     record.setId(ULong.valueOf(id));
     record.setPhaseId(ULong.valueOf(phaseId));
@@ -370,7 +370,7 @@ public interface IntegrationTestEntity {
   }
 
 
-  static void insertAudioChord(int id, int audioId, double position, String name) {
+  static void insertAudioChord(int id, int audioId, int position, String name) {
     AudioChordRecord record = IntegrationTestService.getDb().newRecord(AUDIO_CHORD);
     record.setId(ULong.valueOf(id));
     record.setAudioId(ULong.valueOf(audioId));
@@ -474,7 +474,7 @@ public interface IntegrationTestEntity {
     return result;
   }
 
-  static void insertLinkChord(int id, int linkId, double position, String name) {
+  static void insertLinkChord(int id, int linkId, int position, String name) {
     LinkChordRecord record = IntegrationTestService.getDb().newRecord(LINK_CHORD);
     record.setId(ULong.valueOf(id));
     record.setLinkId(ULong.valueOf(linkId));

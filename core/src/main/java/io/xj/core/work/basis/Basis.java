@@ -215,10 +215,10 @@ public interface Basis {
    Get current Chord for any position in Link.
    Defaults to returning a chord based on the link key, if nothing else is found
 
-   @param position in link
    @return Chord
+    @param position in link
    */
-  Chord chordAt(double position) throws Exception;
+  Chord chordAt(int position) throws Exception;
 
   /**
    Pitch for any Note, in Hz

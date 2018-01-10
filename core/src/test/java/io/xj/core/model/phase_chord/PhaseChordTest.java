@@ -18,7 +18,7 @@ public class PhaseChordTest {
     new PhaseChord()
       .setName("C# minor")
       .setPhaseId(BigInteger.valueOf(1235))
-      .setPosition(0.75)
+      .setPosition(7)
       .validate();
   }
 
@@ -29,7 +29,7 @@ public class PhaseChordTest {
 
     new PhaseChord()
       .setPhaseId(BigInteger.valueOf(1235))
-      .setPosition(0.75)
+      .setPosition(7)
       .validate();
   }
 
@@ -40,7 +40,7 @@ public class PhaseChordTest {
 
     new PhaseChord()
       .setName("C# minor")
-      .setPosition(0.75)
+      .setPosition(7)
       .validate();
   }
 

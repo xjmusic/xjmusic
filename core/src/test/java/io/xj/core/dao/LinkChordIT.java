@@ -68,14 +68,14 @@ public class LinkChordIT {
       "roles", "Admin"
     ));
     LinkChord inputData = new LinkChord()
-      .setPosition(0.42)
+      .setPosition(4)
       .setName("G minor 7")
       .setLinkId(BigInteger.valueOf(1));
 
     JSONObject result = JSON.objectFrom(testDAO.create(access, inputData));
 
     assertNotNull(result);
-    assertEquals(0.42, result.get("position"));
+    assertEquals(4, result.get("position"));
     assertEquals("G minor 7", result.get("name"));
     assertEquals(1, result.get("linkId"));
   }
@@ -87,7 +87,7 @@ public class LinkChordIT {
       "accounts", "1"
     ));
     LinkChord inputData = new LinkChord()
-      .setPosition(0.42)
+      .setPosition(4)
       .setName("G minor 7")
       .setLinkId(BigInteger.valueOf(2));
 
@@ -100,7 +100,7 @@ public class LinkChordIT {
       "roles", "Admin"
     ));
     LinkChord inputData = new LinkChord()
-      .setPosition(0.42)
+      .setPosition(4)
       .setName("G minor 7");
 
     testDAO.create(access, inputData);
@@ -112,7 +112,7 @@ public class LinkChordIT {
       "roles", "Admin"
     ));
     LinkChord inputData = new LinkChord()
-      .setPosition(0.42)
+      .setPosition(4)
       .setLinkId(BigInteger.valueOf(2));
 
     testDAO.create(access, inputData);
@@ -221,7 +221,7 @@ public class LinkChordIT {
       "accounts", "1"
     ));
     LinkChord inputData = new LinkChord()
-      .setPosition(0.42)
+      .setPosition(4)
       .setName("G minor 7");
 
     testDAO.update(access, BigInteger.valueOf(3), inputData);
@@ -234,7 +234,7 @@ public class LinkChordIT {
       "accounts", "1"
     ));
     LinkChord inputData = new LinkChord()
-      .setPosition(0.42)
+      .setPosition(4)
       .setLinkId(BigInteger.valueOf(2));
 
     testDAO.update(access, BigInteger.valueOf(2), inputData);
@@ -247,7 +247,7 @@ public class LinkChordIT {
       "accounts", "1"
     ));
     LinkChord inputData = new LinkChord()
-      .setPosition(0.42)
+      .setPosition(4)
       .setLinkId(BigInteger.valueOf(57))
       .setName("D minor");
 
@@ -271,14 +271,14 @@ public class LinkChordIT {
     LinkChord inputData = new LinkChord()
       .setLinkId(BigInteger.valueOf(1))
       .setName("POPPYCOCK")
-      .setPosition(0.42);
+      .setPosition(4);
 
     testDAO.update(access, BigInteger.valueOf(1), inputData);
 
     LinkChord result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1));
     assertNotNull(result);
     assertEquals("POPPYCOCK", result.getName());
-    assertEquals((Double) 0.42, result.getPosition());
+    assertEquals((Integer) 4, result.getPosition());
     assertEquals(BigInteger.valueOf(1), result.getLinkId());
   }
 
@@ -291,7 +291,7 @@ public class LinkChordIT {
     LinkChord inputData = new LinkChord()
       .setLinkId(BigInteger.valueOf(1))
       .setName("POPPYCOCK")
-      .setPosition(0.42);
+      .setPosition(4);
 
     testDAO.update(access, BigInteger.valueOf(1), inputData);
   }
