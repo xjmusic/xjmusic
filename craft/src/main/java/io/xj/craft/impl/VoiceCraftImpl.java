@@ -69,7 +69,7 @@ public class VoiceCraftImpl implements VoiceCraft {
     } catch (Exception e) {
       throw new BusinessException(
         String.format("Failed to do %s-type VoiceCraft for link #%s",
-          basis.type(), basis.linkId().toString()), e);
+          basis.type(), basis.link().getId().toString()), e);
     }
   }
 

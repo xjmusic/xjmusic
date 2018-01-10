@@ -91,6 +91,9 @@ public class CraftFoundationContinueIT {
     IntegrationTestEntity.insertPhaseChord(16, 16, 0, "D minor");
     IntegrationTestEntity.insertPhaseChord(18, 16, 8, "G major");
 
+    // [#154090557] this Chord should be ignored, because it's past the end of the main-phase total
+    IntegrationTestEntity.insertPhaseChord(42, 16, 75, "G-9");
+
     // Extra patterns
     IntegrationTestEntity.insertPattern(6, 3, 2, PatternType.Rhythm, "Beat Jam", 0.6, "D#", 150);
     IntegrationTestEntity.insertPattern(7, 3, 2, PatternType.Detail, "Detail Jam", 0.3, "Cb minor", 170);
@@ -141,6 +144,7 @@ public class CraftFoundationContinueIT {
     resultLinkMemes.forEach(linkMemeRecord -> Testing.assertIn(new String[]{"Cozy", "Tropical", "Outlook", "Optimism"}, linkMemeRecord.getName()));
 
     Collection<LinkChord> resultLinkChords = injector.getInstance(LinkChordDAO.class).readAll(Access.internal(), resultLink.getId());
+    assertEquals(2, resultLinkChords.size());
     Iterator<LinkChord> it = resultLinkChords.iterator();
 
     LinkChord chordOne = it.next();

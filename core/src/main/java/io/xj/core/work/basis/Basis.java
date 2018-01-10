@@ -73,13 +73,6 @@ public interface Basis {
   Boolean isInitialLink();
 
   /**
-   current link id
-
-   @return id of current link
-   */
-  BigInteger linkId();
-
-  /**
    Chain id, from link
 
    @return chain id
@@ -504,7 +497,7 @@ public interface Basis {
 
   /**
    Update the original Link submitted for craft,
-   in the internal in-memory object, and persisted in the database
+   cache it in the internal in-memory object, and persisted in the database
 
    @param link Link to replace current link, and update database with
    */
@@ -555,5 +548,4 @@ public interface Basis {
    @throws Exception on failure
    */
   MemeIsometry currentLinkMemeIsometry() throws Exception;
-
 }

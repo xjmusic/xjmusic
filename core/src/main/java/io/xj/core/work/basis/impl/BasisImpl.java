@@ -236,11 +236,6 @@ public class BasisImpl implements Basis {
   }
 
   @Override
-  public BigInteger linkId() {
-    return _link.getId();
-  }
-
-  @Override
   public BigInteger chainId() {
     return _link.getChainId();
   }
@@ -549,7 +544,7 @@ public class BasisImpl implements Basis {
       return Collections.unmodifiableCollection(_currentLinkMemes);
     }
 
-    return linkMemes(linkId());
+    return linkMemes(link().getId());
   }
 
   @Override
@@ -688,9 +683,9 @@ public class BasisImpl implements Basis {
       linkMessageDAO.create(Access.internal(),
         new LinkMessage()
           .setType(MessageType.Info.toString())
-          .setLinkId(linkId())
+          .setLinkId(link().getId())
           .setBody(body));
-      log.info("Completed work and sent basis report for Link #{} in {}s", linkId(), totalSeconds);
+      log.info("Completed work and sent basis report for Link #{} in {}s", link().getId(), totalSeconds);
 
     } catch (Exception e) {
       log.warn("Failed to send final craft report message for Link {} Message {}", _link, body, e);

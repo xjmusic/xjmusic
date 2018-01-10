@@ -82,13 +82,13 @@ public class FoundationCraftImpl implements FoundationCraft {
       craftMacro();
       craftMain();
       craftMemes();
-      craftChords();
       basis.updateLink(basis.link()
         .setDensity(linkDensity())
         .setTempo(linkTempo())
         .setKey(linkKey())
         .setTotal(linkTotal())
         .setEndAtTimestamp(linkEndTimestamp()));
+      craftChords();
       report();
 
     } catch (BusinessException e) {
@@ -96,7 +96,7 @@ public class FoundationCraftImpl implements FoundationCraft {
     } catch (Exception e) {
       throw new BusinessException(
         String.format("Failed to do %s-type FoundationCraft for link #%s",
-          basis.type(), basis.linkId().toString()), e);
+          basis.type(), basis.link().getId().toString()), e);
     }
   }
 
@@ -116,7 +116,7 @@ public class FoundationCraftImpl implements FoundationCraft {
   private void craftMacro() throws Exception {
     choiceDAO.create(Access.internal(),
       new Choice()
-        .setLinkId(basis.linkId())
+        .setLinkId(basis.link().getId())
         .setType(PatternType.Macro.toString())
         .setPatternId(macroPattern().getId())
         .setTranspose(macroTranspose())
@@ -132,7 +132,7 @@ public class FoundationCraftImpl implements FoundationCraft {
   private void craftMain() throws Exception {
     choiceDAO.create(Access.internal(),
       new Choice()
-        .setLinkId(basis.linkId())
+        .setLinkId(basis.link().getId())
         .setType(PatternType.Main.toString())
         .setPatternId(mainPattern().getId())
         .setTranspose(mainTranspose())
@@ -159,26 +159,30 @@ public class FoundationCraftImpl implements FoundationCraft {
   /**
    Make Chords
    Link Chords = Main Pattern Phase Chords, transposed according to to main pattern choice
+   [#154090557] don't create chord past end of Link
 
    @throws Exception on any failure
    */
   private void craftChords() throws Exception {
     phaseChordDAO.readAll(Access.internal(), mainPhase().getId())
       .forEach(phaseChord -> {
-        String name = "NaN";
-        try {
-          // delta the chord name
-          name = Chord.of(phaseChord.getName()).transpose(mainTranspose()).getFullDescription();
-          // create the transposed chord
-          linkChordDAO.create(Access.internal(),
-            new LinkChord()
-              .setLinkId(basis.linkId())
-              .setName(name)
-              .setPosition(phaseChord.getPosition()));
 
-        } catch (Exception e) {
-          log.warn("failed to create transposed link chord {}@{}",
-            String.valueOf(name), phaseChord.getPosition(), e);
+        if (phaseChord.getPosition() < basis.link().getTotal()) {
+          String name = "NaN";
+          try {
+            // delta the chord name
+            name = Chord.of(phaseChord.getName()).transpose(mainTranspose()).getFullDescription();
+            // create the transposed chord
+            linkChordDAO.create(Access.internal(),
+              new LinkChord()
+                .setLinkId(basis.link().getId())
+                .setName(name)
+                .setPosition(phaseChord.getPosition()));
+
+          } catch (Exception e) {
+            log.warn("failed to create transposed link chord {}@{}",
+              String.valueOf(name), phaseChord.getPosition(), e);
+          }
         }
       });
   }
@@ -508,19 +512,19 @@ public class FoundationCraftImpl implements FoundationCraft {
 
     basis.patternMemes(macroPattern().getId())
       .forEach(meme -> uniqueResults.put(
-        meme.getName(), LinkMeme.of(basis.linkId(), meme.getName())));
+        meme.getName(), LinkMeme.of(basis.link().getId(), meme.getName())));
 
     basis.phaseMemes(macroPhase().getId())
       .forEach(meme -> uniqueResults.put(
-        meme.getName(), LinkMeme.of(basis.linkId(), meme.getName())));
+        meme.getName(), LinkMeme.of(basis.link().getId(), meme.getName())));
 
     basis.patternMemes(mainPattern().getId())
       .forEach(meme -> uniqueResults.put(
-        meme.getName(), LinkMeme.of(basis.linkId(), meme.getName())));
+        meme.getName(), LinkMeme.of(basis.link().getId(), meme.getName())));
 
     basis.phaseMemes(mainPhase().getId())
       .forEach(meme -> uniqueResults.put(
-        meme.getName(), LinkMeme.of(basis.linkId(), meme.getName())));
+        meme.getName(), LinkMeme.of(basis.link().getId(), meme.getName())));
 
     Collection<LinkMeme> result = Lists.newArrayList();
     uniqueResults.forEach((key, val) -> result.add(val));

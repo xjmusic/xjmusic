@@ -68,7 +68,7 @@ public class MasterDubImpl implements MasterDub {
     } catch (Exception e) {
       throw new BusinessException(
         String.format("Failed to do %s-type MasterDub for link #%s",
-          basis.type(), basis.linkId().toString()), e);
+          basis.type(), basis.link().getId().toString()), e);
     }
   }
 

@@ -63,7 +63,7 @@ public class StructureCraftImpl implements StructureCraft {
     } catch (Exception e) {
       throw new BusinessException(
         String.format("Failed to do %s-type StructureCraft for link #%s",
-          basis.type(), basis.linkId().toString()), e);
+          basis.type(), basis.link().getId().toString()), e);
     }
   }
 
@@ -75,7 +75,7 @@ public class StructureCraftImpl implements StructureCraft {
     if (Objects.nonNull(pattern))
       choiceDAO.create(Access.internal(),
         new Choice()
-          .setLinkId(basis.linkId())
+          .setLinkId(basis.link().getId())
           .setType(PatternType.Rhythm.toString())
           .setPatternId(pattern.getId())
           .setTranspose(rhythmTranspose())

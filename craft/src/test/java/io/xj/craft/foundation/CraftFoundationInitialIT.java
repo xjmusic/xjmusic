@@ -3,8 +3,6 @@ package io.xj.craft.foundation;
 
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
-import io.xj.core.model.phase.PhaseType;
-import io.xj.craft.CraftFactory;
 import io.xj.core.dao.ChoiceDAO;
 import io.xj.core.dao.LinkChordDAO;
 import io.xj.core.dao.LinkDAO;
@@ -17,13 +15,13 @@ import io.xj.core.model.link.Link;
 import io.xj.core.model.link_chord.LinkChord;
 import io.xj.core.model.link_meme.LinkMeme;
 import io.xj.core.model.pattern.PatternType;
+import io.xj.core.model.phase.PhaseType;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.testing.Testing;
 import io.xj.core.work.basis.Basis;
 import io.xj.core.work.basis.BasisFactory;
+import io.xj.craft.CraftFactory;
 import io.xj.craft.CraftModule;
-
-
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -75,10 +73,8 @@ public class CraftFoundationInitialIT {
     IntegrationTestEntity.insertPatternMeme(2, 4, "Tropical");
     IntegrationTestEntity.insertPhase(3, 4, PhaseType.Macro, 0, 64, "Start Wild", 0.6, "C", 125);
     IntegrationTestEntity.insertPhaseMeme(3, 3, "Wild");
-    IntegrationTestEntity.insertPhaseChord(3, 3, 0, "C");
     IntegrationTestEntity.insertPhase(4, 4, PhaseType.Macro, 1, 64, "Finish Finish Cozy", 0.4, "Bb minor", 115);
     IntegrationTestEntity.insertPhaseMeme(4, 4, "Cozy");
-    IntegrationTestEntity.insertPhaseChord(4, 4, 0, "Bb minor");
 
     // Main pattern
     IntegrationTestEntity.insertPattern(5, 3, 2, PatternType.Main, "Main Jam", 0.2, "F# minor", 140);
@@ -91,6 +87,9 @@ public class CraftFoundationInitialIT {
     IntegrationTestEntity.insertPhaseMeme(7, 16, "Optimism");
     IntegrationTestEntity.insertPhaseChord(16, 16, 0, "D minor");
     IntegrationTestEntity.insertPhaseChord(18, 16, 8, "G major");
+
+    // [#154090557] this Chord should be ignored, because it's past the end of the main-phase total
+    IntegrationTestEntity.insertPhaseChord(42, 15, 75, "G-9");
 
     // Extra patterns
     IntegrationTestEntity.insertPattern(6, 3, 2, PatternType.Rhythm, "Beat Jam", 0.6, "D#", 150);
@@ -133,6 +132,7 @@ public class CraftFoundationInitialIT {
     resultLinkMemes.forEach(linkMemeRecord -> Testing.assertIn(new String[]{"Tropical", "Wild", "Pessimism", "Outlook"}, linkMemeRecord.getName()));
 
     Collection<LinkChord> resultLinkChords = injector.getInstance(LinkChordDAO.class).readAll(Access.internal(), resultLink.getId());
+    assertEquals(2, resultLinkChords.size());
     Iterator<LinkChord> it = resultLinkChords.iterator();
 
     LinkChord chordOne = it.next();
