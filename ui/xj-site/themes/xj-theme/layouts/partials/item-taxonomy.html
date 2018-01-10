@@ -1,10 +1,10 @@
 <div class="taxonomy">
     {{ with .Params.categories }}{{ range $i, $e := . }}
     <a class="badge badge-primary"
-       href="/categories/{{ lower $e }}/">{{ $e }}</a>
+       href='/categories/{{ replace (lower $e) " " "-" }}/'>{{ $e }}</a>
     {{ end }}{{ end }}
   {{ with .Params.tags }}{{ range $i, $e := . }}
   <a class="badge badge-default"
-     href="/tags/{{ lower $e }}/">{{ $e }}</a>
+     href='/tags/{{ replace (lower $e) " " "-" }}/'>{{ $e }}</a>
   {{ end }}{{ end }}
 </div>
