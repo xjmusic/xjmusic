@@ -178,18 +178,11 @@ public class LinkChordDAOImpl extends DAOImpl implements LinkChordDAO {
    @return array of records
    */
   private static Collection<LinkChord> readAllInLinks(DSLContext db, Access access, Collection<ULong> linkIds) throws Exception {
-    if (access.isTopLevel())
-      return modelsFrom(db.select(LINK_CHORD.fields()).from(LINK_CHORD)
+    requireAccessToLinks(db, access, linkIds);
+
+    return modelsFrom(db.select(LINK_CHORD.fields()).from(LINK_CHORD)
         .join(LINK).on(LINK.ID.eq(LINK_CHORD.LINK_ID))
         .where(LINK.ID.in(linkIds))
-        .orderBy(LINK_CHORD.POSITION.desc())
-        .fetch(), LinkChord.class);
-    else
-      return modelsFrom(db.select(LINK_CHORD.fields()).from(LINK_CHORD)
-        .join(LINK).on(LINK.ID.eq(LINK_CHORD.LINK_ID))
-        .join(CHAIN).on(CHAIN.ID.eq(LINK.CHAIN_ID))
-        .where(LINK.ID.in(linkIds))
-        .and(CHAIN.ACCOUNT_ID.in(access.getAccountIds()))
         .orderBy(LINK_CHORD.POSITION.desc())
         .fetch(), LinkChord.class);
   }

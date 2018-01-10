@@ -28,6 +28,9 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
 
+import static io.xj.core.Tables.CHAIN;
+import static io.xj.core.Tables.LINK;
+
 public class DAOImpl {
   private static final Logger log = LoggerFactory.getLogger(DAOImpl.class);
   SQLDatabaseProvider dbProvider;
@@ -138,6 +141,24 @@ public class DAOImpl {
   }
 
   /**
+   Require access to all of a collection of links
+
+   @param db      context
+   @param access  control
+   @param linkIds to require access to
+   */
+  static void requireAccessToLinks(DSLContext db, Access access, Collection<ULong> linkIds) throws BusinessException {
+    if (!access.isTopLevel()) {
+      int accessLinkCount = db.selectCount().from(LINK)
+        .join(CHAIN).on(LINK.CHAIN_ID.eq(CHAIN.ID))
+        .where(LINK.ID.in(linkIds))
+        .and(CHAIN.ACCOUNT_ID.in(access.getAccountIds()))
+        .fetchOne(0, int.class);
+      require(String.format("exactly the provided count (%d) links in chain(s) to which user has access", linkIds.size()), Objects.equals(linkIds.size(), accessLinkCount));
+    }
+  }
+
+  /**
    Require that a count of any of a list of record isNonNull
 
    @param message for error, if thrown
@@ -179,16 +200,17 @@ public class DAOImpl {
     require("access to account #" + accountId, access.hasAccount(accountId.toBigInteger()));
   }
 
-  /**
+  /*
    Require a given object is not null
 
    @param description  what is it
    @param cannotBeNull value
    @throws BusinessException if null
-   */
+   *
   static void requireNonNull(String description, Object cannotBeNull) throws BusinessException {
     require(description, Objects.nonNull(cannotBeNull));
   }
+  */
 
   /**
    Require a given integer is greater than zero

@@ -177,18 +177,12 @@ public class LinkMemeDAOImpl extends DAOImpl implements LinkMemeDAO {
    @return array of records
    */
   private static Collection<LinkMeme> readAllInLinks(DSLContext db, Access access, Collection<ULong> linkIds) throws Exception {
-    if (access.isTopLevel())
-      return modelsFrom(db.select(LINK_MEME.fields()).from(LINK_MEME)
-        .join(LINK).on(LINK.ID.eq(LINK_MEME.LINK_ID))
-        .where(LINK.ID.in(linkIds))
-        .fetch(), LinkMeme.class);
-    else
-      return modelsFrom(db.select(LINK_MEME.fields()).from(LINK_MEME)
-        .join(LINK).on(LINK.ID.eq(LINK_MEME.LINK_ID))
-        .join(CHAIN).on(CHAIN.ID.eq(LINK.CHAIN_ID))
-        .where(LINK.ID.in(linkIds))
-        .and(CHAIN.ACCOUNT_ID.in(access.getAccountIds()))
-        .fetch(), LinkMeme.class);
+    requireAccessToLinks(db, access, linkIds);
+
+    return modelsFrom(db.select(LINK_MEME.fields()).from(LINK_MEME)
+      .join(LINK).on(LINK.ID.eq(LINK_MEME.LINK_ID))
+      .where(LINK.ID.in(linkIds))
+      .fetch(), LinkMeme.class);
   }
 
   /**

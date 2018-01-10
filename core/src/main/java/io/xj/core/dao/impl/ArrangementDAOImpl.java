@@ -8,7 +8,6 @@ import io.xj.core.exception.ConfigException;
 import io.xj.core.model.arrangement.Arrangement;
 import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import io.xj.core.persistence.sql.impl.SQLConnection;
-import io.xj.core.tables.Link;
 
 import org.jooq.DSLContext;
 import org.jooq.Field;
@@ -182,20 +181,13 @@ public class ArrangementDAOImpl extends DAOImpl implements ArrangementDAO {
    @return array of records
    */
   private static Collection<Arrangement> readAllInLinks(DSLContext db, Access access, Collection<ULong> linkIds) throws Exception {
-    if (access.isTopLevel())
-      return modelsFrom(db.select(ARRANGEMENT.fields())
-        .from(ARRANGEMENT)
-        .join(CHOICE).on(CHOICE.ID.eq(ARRANGEMENT.CHOICE_ID))
-        .where(CHOICE.LINK_ID.in(linkIds))
-        .fetch(), Arrangement.class);
-    else
-      return modelsFrom(db.select(ARRANGEMENT.fields())
-        .from(ARRANGEMENT)
-        .join(CHOICE).on(CHOICE.ID.eq(ARRANGEMENT.CHOICE_ID))
-        .join(CHAIN).on(CHAIN.ID.eq(Link.LINK.CHAIN_ID))
-        .where(LINK.ID.in(linkIds))
-        .and(CHAIN.ACCOUNT_ID.in(access.getAccountIds()))
-        .fetch(), Arrangement.class);
+    requireAccessToLinks(db, access, linkIds);
+
+    return modelsFrom(db.select(ARRANGEMENT.fields())
+      .from(ARRANGEMENT)
+      .join(CHOICE).on(CHOICE.ID.eq(ARRANGEMENT.CHOICE_ID))
+      .where(CHOICE.LINK_ID.in(linkIds))
+      .fetch(), Arrangement.class);
   }
 
   /**

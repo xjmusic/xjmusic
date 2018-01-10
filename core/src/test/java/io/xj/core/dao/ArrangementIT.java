@@ -14,6 +14,7 @@ import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.phase.PhaseType;
 import io.xj.core.transport.JSON;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -22,16 +23,20 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.math.BigInteger;
 import java.sql.Timestamp;
+import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 public class ArrangementIT {
+  @Rule public ExpectedException failure = ExpectedException.none();
   private final Injector injector = Guice.createInjector(new CoreModule());
   private ArrangementDAO testDAO;
 
@@ -192,6 +197,84 @@ public class ArrangementIT {
 
     assertNotNull(result);
     assertEquals(0, result.length());
+  }
+
+  /**
+   [#154118202] FIX: Artist should have access to view and listen to Chain from Account
+   */
+  @Test
+  public void readAllInLinks_adminAccess() throws Exception {
+    IntegrationTestEntity.insertLink(101, 1, 1, LinkState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:30.000001"), Timestamp.valueOf("2017-02-14 12:01:40.000001"), "D major", 64, 0.73, 120, "chain-1-link-97898asdf7892.wav");
+    IntegrationTestEntity.insertLink(102, 1, 2, LinkState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:40.000001"), Timestamp.valueOf("2017-02-14 12:01:50.000001"), "D major", 64, 0.73, 120, "chain-1-link-97898asdf7892.wav");
+    IntegrationTestEntity.insertLink(103, 1, 3, LinkState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:50.000001"), Timestamp.valueOf("2017-02-14 12:02:00.000001"), "D major", 64, 0.73, 120, "chain-1-link-97898asdf7892.wav");
+    IntegrationTestEntity.insertChoice(201, 101, 1, PatternType.Macro, 2, -5);
+    IntegrationTestEntity.insertChoice(202, 102, 1, PatternType.Macro, 2, -5);
+    IntegrationTestEntity.insertChoice(203, 103, 1, PatternType.Macro, 2, -5);
+    IntegrationTestEntity.insertArrangement(301, 201, 8, 9);
+    IntegrationTestEntity.insertArrangement(302, 202, 8, 9);
+    IntegrationTestEntity.insertArrangement(303, 203, 8, 9);
+
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Admin"
+    ));
+
+    Collection<Arrangement> result = testDAO.readAllInLinks(access, ImmutableList.of(BigInteger.valueOf(101), BigInteger.valueOf(102)));
+
+    assertNotNull(result);
+    assertEquals(2, result.size());
+  }
+
+  /**
+   [#154118202] FIX: Artist should have access to view and listen to Chain from Account
+   */
+  @Test
+  public void readAllInLinks_regularUserAccess() throws Exception {
+    IntegrationTestEntity.insertLink(101, 1, 1, LinkState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:30.000001"), Timestamp.valueOf("2017-02-14 12:01:40.000001"), "D major", 64, 0.73, 120, "chain-1-link-97898asdf7892.wav");
+    IntegrationTestEntity.insertLink(102, 1, 2, LinkState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:40.000001"), Timestamp.valueOf("2017-02-14 12:01:50.000001"), "D major", 64, 0.73, 120, "chain-1-link-97898asdf7892.wav");
+    IntegrationTestEntity.insertLink(103, 1, 3, LinkState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:50.000001"), Timestamp.valueOf("2017-02-14 12:02:00.000001"), "D major", 64, 0.73, 120, "chain-1-link-97898asdf7892.wav");
+    IntegrationTestEntity.insertChoice(201, 101, 1, PatternType.Macro, 2, -5);
+    IntegrationTestEntity.insertChoice(202, 102, 1, PatternType.Macro, 2, -5);
+    IntegrationTestEntity.insertChoice(203, 103, 1, PatternType.Macro, 2, -5);
+    IntegrationTestEntity.insertArrangement(301, 201, 8, 9);
+    IntegrationTestEntity.insertArrangement(302, 202, 8, 9);
+    IntegrationTestEntity.insertArrangement(303, 203, 8, 9);
+
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "User",
+      "accounts", "1"
+    ));
+
+    Collection<Arrangement> result = testDAO.readAllInLinks(access, ImmutableList.of(BigInteger.valueOf(101), BigInteger.valueOf(102)));
+
+    assertNotNull(result);
+    assertEquals(2, result.size());
+  }
+
+  /**
+   [#154118202] FIX: Artist should have access to view and listen to Chain from Account
+   */
+  @Test
+  public void readAllInLinks_regularUserAccess_failsIfLinkOutsideAccount() throws Exception {
+    IntegrationTestEntity.insertLink(101, 1, 1, LinkState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:30.000001"), Timestamp.valueOf("2017-02-14 12:01:40.000001"), "D major", 64, 0.73, 120, "chain-1-link-97898asdf7892.wav");
+    IntegrationTestEntity.insertLink(102, 1, 2, LinkState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:40.000001"), Timestamp.valueOf("2017-02-14 12:01:50.000001"), "D major", 64, 0.73, 120, "chain-1-link-97898asdf7892.wav");
+    IntegrationTestEntity.insertChoice(201, 101, 1, PatternType.Macro, 2, -5);
+    IntegrationTestEntity.insertChoice(202, 102, 1, PatternType.Macro, 2, -5);
+    IntegrationTestEntity.insertArrangement(301, 201, 8, 9);
+    IntegrationTestEntity.insertArrangement(302, 202, 8, 9);
+    IntegrationTestEntity.insertAccount(79, "Account that user does not have access to");
+    IntegrationTestEntity.insertChain(7903, 79, "chain that user does not have access to", ChainType.Production, ChainState.Ready, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"), null);
+    IntegrationTestEntity.insertLink(7003, 7903, 3, LinkState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:50.000001"), Timestamp.valueOf("2017-02-14 12:02:00.000001"), "D major", 64, 0.73, 120, "chain-1-link-97898asdf7892.wav");
+    IntegrationTestEntity.insertChoice(8003, 7003, 1, PatternType.Macro, 2, -5);
+    IntegrationTestEntity.insertArrangement(9003, 8003, 8, 9);
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "User",
+      "accounts", "1"
+    ));
+
+    failure.expect(BusinessException.class);
+    failure.expectMessage("exactly the provided count (3) links in chain(s) to which user has access is required");
+
+    testDAO.readAllInLinks(access, ImmutableList.of(BigInteger.valueOf(101), BigInteger.valueOf(102), BigInteger.valueOf(7003)));
   }
 
   @Test

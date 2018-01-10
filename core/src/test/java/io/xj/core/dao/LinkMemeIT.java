@@ -22,12 +22,13 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.util.Collection;
-import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -35,9 +36,9 @@ import static org.junit.Assert.assertNull;
 
 // future test: permissions of different users to readMany vs. create vs. update or delete link memes
 public class LinkMemeIT {
+  @Rule public ExpectedException failure = ExpectedException.none();
   private final Injector injector = Guice.createInjector(new CoreModule());
   private LinkMemeDAO testDAO;
-  private final List<BigInteger> linkIds = ImmutableList.of(BigInteger.valueOf(1), BigInteger.valueOf(2), BigInteger.valueOf(3), BigInteger.valueOf(4));
 
   @Before
   public void setUp() throws Exception {
@@ -187,40 +188,42 @@ public class LinkMemeIT {
   }
 
   @Test
-  public void readAllInChain() throws Exception {
-    Collection<LinkMeme> result = testDAO.readAllInLinks(Access.internal(), linkIds);
+  public void readAllInLinks() throws Exception {
+    Collection<LinkMeme> result = testDAO.readAllInLinks(Access.internal(), ImmutableList.of(BigInteger.valueOf(1), BigInteger.valueOf(2), BigInteger.valueOf(3), BigInteger.valueOf(4)));
 
     assertEquals(3, result.size());
   }
 
   @Test
-  public void readAllInChain_nullIfChainNotExist() throws Exception {
+  public void readAllInLinks_nullIfChainNotExist() throws Exception {
     LinkMeme result = testDAO.readOne(Access.internal(), BigInteger.valueOf(12097));
 
     assertNull(result);
   }
 
   @Test
-  public void readAllInChain_okIfUserInAccount() throws Exception {
+  public void readAllInLinks_okIfUserInAccount() throws Exception {
     Access access = Access.from(ImmutableMap.of(
       "roles", "User",
       "accounts", "1"
     ));
 
-    Collection<LinkMeme> result = testDAO.readAllInLinks(access, linkIds);
+    Collection<LinkMeme> result = testDAO.readAllInLinks(access, ImmutableList.of(BigInteger.valueOf(1), BigInteger.valueOf(2), BigInteger.valueOf(3), BigInteger.valueOf(4)));
 
     assertEquals(3, result.size());
   }
 
   @Test
-  public void readAllInChain_emptyIfUserNotInAccount() throws Exception {
+  public void readAllInLinks_failsIfUserNotInAccount() throws Exception {
     Access access = Access.from(ImmutableMap.of(
       "roles", "User",
       "accounts", "73"
     ));
 
-    Collection<LinkMeme> result = testDAO.readAllInLinks(access, linkIds);
-    assertEquals(0, result.size());
+    failure.expect(BusinessException.class);
+    failure.expectMessage("exactly the provided count (4) links in chain(s) to which user has access is required");
+
+    testDAO.readAllInLinks(access, ImmutableList.of(BigInteger.valueOf(1), BigInteger.valueOf(2), BigInteger.valueOf(3), BigInteger.valueOf(4)));
   }
 
   @Test

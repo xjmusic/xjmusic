@@ -14,6 +14,7 @@ import org.jooq.Field;
 import org.jooq.types.ULong;
 
 import com.google.api.client.util.Maps;
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 
 import javax.annotation.Nullable;
@@ -143,21 +144,13 @@ public class LinkMessageDAOImpl extends DAOImpl implements LinkMessageDAO {
    @return array of records
    */
   private static Collection<LinkMessage> readAllInLink(DSLContext db, Access access, ULong linkId) throws Exception {
-    if (access.isTopLevel())
-      return modelsFrom(db.select(LINK_MESSAGE.fields())
-        .from(LINK_MESSAGE)
-        .where(LINK_MESSAGE.LINK_ID.eq(linkId))
-        .orderBy(LINK_MESSAGE.TYPE)
-        .fetch(), LinkMessage.class);
-    else
-      return modelsFrom(db.select(LINK_MESSAGE.fields())
-        .from(LINK_MESSAGE)
-        .join(LINK).on(LINK.ID.eq(LINK_MESSAGE.LINK_ID))
-        .join(CHAIN).on(CHAIN.ID.eq(LINK.CHAIN_ID))
-        .where(LINK_MESSAGE.LINK_ID.eq(linkId))
-        .and(CHAIN.ACCOUNT_ID.in(access.getAccountIds()))
-        .orderBy(LINK_MESSAGE.TYPE)
-        .fetch(), LinkMessage.class);
+    requireAccessToLinks(db, access, ImmutableList.of(linkId));
+
+    return modelsFrom(db.select(LINK_MESSAGE.fields())
+      .from(LINK_MESSAGE)
+      .where(LINK_MESSAGE.LINK_ID.eq(linkId))
+      .orderBy(LINK_MESSAGE.TYPE)
+      .fetch(), LinkMessage.class);
   }
 
   /**
@@ -169,22 +162,14 @@ public class LinkMessageDAOImpl extends DAOImpl implements LinkMessageDAO {
    @return array of records
    */
   private static Collection<LinkMessage> readAllInLinks(DSLContext db, Access access, Collection<ULong> linkIds) throws Exception {
-    if (access.isTopLevel())
-      return modelsFrom(db.select(LINK_MESSAGE.fields())
-        .from(LINK_MESSAGE)
-        .join(LINK).on(LINK.ID.eq(LINK_MESSAGE.LINK_ID))
-        .where(LINK.ID.in(linkIds))
-        .orderBy(LINK_MESSAGE.TYPE)
-        .fetch(), LinkMessage.class);
-    else
-      return modelsFrom(db.select(LINK_MESSAGE.fields())
-        .from(LINK_MESSAGE)
-        .join(LINK).on(LINK.ID.eq(LINK_MESSAGE.LINK_ID))
-        .join(CHAIN).on(CHAIN.ID.eq(LINK.CHAIN_ID))
-        .where(LINK.ID.in(linkIds))
-        .and(CHAIN.ACCOUNT_ID.in(access.getAccountIds()))
-        .orderBy(LINK_MESSAGE.TYPE)
-        .fetch(), LinkMessage.class);
+    requireAccessToLinks(db, access, linkIds);
+
+    return modelsFrom(db.select(LINK_MESSAGE.fields())
+      .from(LINK_MESSAGE)
+      .join(LINK).on(LINK.ID.eq(LINK_MESSAGE.LINK_ID))
+      .where(LINK.ID.in(linkIds))
+      .orderBy(LINK_MESSAGE.TYPE)
+      .fetch(), LinkMessage.class);
   }
 
   /**

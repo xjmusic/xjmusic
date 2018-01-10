@@ -260,17 +260,10 @@ public class ChoiceDAOImpl extends DAOImpl implements ChoiceDAO {
    @return array of records
    */
   private static Collection<Choice> readAllInLinks(DSLContext db, Access access, Collection<ULong> linkIds) throws Exception {
-    if (access.isTopLevel())
-      return modelsFrom(db.select(CHOICE.fields()).from(CHOICE)
+    requireAccessToLinks(db, access, linkIds);
+
+    return modelsFrom(db.select(CHOICE.fields()).from(CHOICE)
         .where(CHOICE.LINK_ID.in(linkIds))
-        .orderBy(CHOICE.TYPE)
-        .fetch(), Choice.class);
-    else
-      return modelsFrom(db.select(CHOICE.fields()).from(CHOICE)
-        .join(LINK).on(LINK.ID.eq(CHOICE.LINK_ID))
-        .join(CHAIN).on(CHAIN.ID.eq(LINK.CHAIN_ID))
-        .where(LINK.ID.in(linkIds))
-        .and(CHAIN.ACCOUNT_ID.in(access.getAccountIds()))
         .orderBy(CHOICE.TYPE)
         .fetch(), Choice.class);
   }
