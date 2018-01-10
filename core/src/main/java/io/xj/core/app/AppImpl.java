@@ -58,14 +58,14 @@ public class AppImpl implements App {
 
   @Override
   public void configureServer(
-    String[] packages
+    String... packages
   ) {
     // Use specified packages plus default resource package
     String[] finalPackages = new String[packages.length + 1];
     finalPackages[0] = "io.xj.core.resource";
     System.arraycopy(packages, 0, finalPackages, 1, packages.length);
     for (String finalPackage : finalPackages) {
-      log.info("Resources: " + finalPackage);
+      log.info("Resources: {}", finalPackage);
     }
 
     // scans for all resource classes in packages
@@ -104,9 +104,7 @@ public class AppImpl implements App {
 
       // Handle errors from the worker pool
       workerPool.getWorkerEventEmitter().addListener(
-        (event, worker, queue, errorJob, runner, result, t) -> {
-          log.error("Worker Pool: event: {}, worker: {}, queue: {}, errorJob: {}, runner: {}, result: {}, t: {}", event, worker, queue, errorJob, runner, result, t);
-        }, WorkerEvent.WORKER_ERROR
+        (event, worker, queue, errorJob, runner, result, t) -> log.error("Worker Pool: event: {}, worker: {}, queue: {}, errorJob: {}, runner: {}, result: {}, t: {}", event, worker, queue, errorJob, runner, result, t), WorkerEvent.WORKER_ERROR
       );
 
       workerPool.run();

@@ -4,10 +4,10 @@ package io.xj.core.integration;
 import io.xj.core.CoreModule;
 import io.xj.core.exception.ConfigException;
 import io.xj.core.exception.DatabaseException;
-import io.xj.core.persistence.redis.RedisDatabaseProvider;
-import io.xj.core.persistence.sql.impl.SQLConnection;
-import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import io.xj.core.migration.MigrationService;
+import io.xj.core.persistence.redis.RedisDatabaseProvider;
+import io.xj.core.persistence.sql.SQLDatabaseProvider;
+import io.xj.core.persistence.sql.impl.SQLConnection;
 
 import org.jooq.DSLContext;
 
@@ -17,11 +17,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import redis.clients.jedis.Jedis;
 
+import java.util.Objects;
+
 public enum IntegrationTestService {
   INSTANCE;
-  private Logger log = LoggerFactory.getLogger(IntegrationTestService.class);
-  private SQLConnection sqlConnection;
-  private Jedis redisConnection;
+  final Logger log = LoggerFactory.getLogger(IntegrationTestService.class);
+  final SQLConnection sqlConnection;
+  final Jedis redisConnection;
 
   IntegrationTestService() {
     log.info("Will prepare integration database.");
@@ -31,18 +33,17 @@ public enum IntegrationTestService {
     System.setProperty("env.test", "true");
     SQLDatabaseProvider dbProvider = Guice.createInjector(new CoreModule())
       .getInstance(SQLDatabaseProvider.class);
-    try {
-      sqlConnection = dbProvider.getConnection();
-    } catch (DatabaseException e) {
-      log.error("DatabaseException: " + e);
+    sqlConnection = getSqlConnection(dbProvider);
+    if (Objects.isNull(sqlConnection))
       System.exit(1);
-    }
 
     // One Redis connection remains open until main program exit
     System.setProperty("work.queue.name", "xj_test");
     RedisDatabaseProvider redisDatabaseProvider = Guice.createInjector(new CoreModule())
       .getInstance(RedisDatabaseProvider.class);
     redisConnection = redisDatabaseProvider.getClient();
+    if (Objects.isNull(redisConnection))
+      System.exit(1);
 
     // Shut it down before program exit
     Runtime.getRuntime().addShutdownHook(new Thread(IntegrationTestService::shutdown));
@@ -51,12 +52,27 @@ public enum IntegrationTestService {
     try {
       MigrationService.migrate(dbProvider);
     } catch (ConfigException e) {
-      log.error("ConfigException: " + e);
+      log.error("ConfigException", e);
       System.exit(1);
     }
 
     // Like a boy scout
     log.info("Did open master connection and prepare integration database.");
+  }
+
+  /**
+   Get SQL database connection from provider
+
+   @param dbProvider to get from
+   @return connection
+   */
+  private SQLConnection getSqlConnection(SQLDatabaseProvider dbProvider) {
+    try {
+      return dbProvider.getConnection();
+    } catch (DatabaseException e) {
+      log.error("DatabaseException", e);
+      return null;
+    }
   }
 
   /**
@@ -69,7 +85,7 @@ public enum IntegrationTestService {
   }
 
   /**
-   * Flush entire Redis contents and database
+   Flush entire Redis contents and database
    */
   public static void flushRedis() {
     INSTANCE.redisConnection.flushAll();
