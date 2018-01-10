@@ -4,22 +4,29 @@ package io.xj.core.transport;
 import org.junit.Test;
 
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+
+import static org.junit.Assert.assertEquals;
 
 public class CSVTest {
   @Test
   public void split() throws Exception {
-    List<String> expected = Arrays.asList("one", "two", "three");
-    Collection<String> actual = CSV.split("one,two,three");
-    assert expected.equals(actual);
+    assertEquals(
+      Arrays.asList("one", "two", "three"),
+      CSV.split("one,two,three"));
+  }
+
+  @Test
+  public void splitProperSlug() throws Exception {
+    assertEquals(
+      Arrays.asList("One", "Two", "Three"),
+      CSV.splitProperSlug("one,two,three"));
   }
 
   @Test
   public void join() throws Exception {
-    String expected = "one,two,three";
-    String actual = CSV.join(Arrays.asList("one", "two", "three"));
-    assert expected.equals(actual);
+    assertEquals(
+      "one,two,three",
+      CSV.join(Arrays.asList("one", "two", "three")));
   }
 
 }

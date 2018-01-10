@@ -486,12 +486,15 @@ public class UserDAOImpl extends DAOImpl implements UserDAO {
 
     // Prepare key entity
     String userIdString = String.valueOf(userId);
-    Collection<String> newRoles = CSV.split(entity.getRoles());
+    Collection<String> newRoles = CSV.splitProperSlug(entity.getRoles());
 
     // First check all provided roles for validity.
+    Boolean foundValidRole = false;
     for (String checkRole : newRoles) {
       UserRoleType.validate(checkRole);
+      foundValidRole = true;
     }
+    require("Valid Role", foundValidRole);
 
     // Iterate through all rows; each will produce either an INSERT WHERE NOT EXISTS or a DELETE IF EXISTS.
     for (String role : UserRoleType.stringValues()) {

@@ -3,12 +3,12 @@ package io.xj.core.dao;
 
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
+import io.xj.core.exception.BusinessException;
 import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.model.user.User;
 import io.xj.core.model.user_access_token.UserAccessToken;
 import io.xj.core.model.user_auth.UserAuth;
 import io.xj.core.model.user_auth.UserAuthType;
-import io.xj.core.model.user_role.UserRole;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.transport.JSON;
 
@@ -20,7 +20,9 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.math.BigInteger;
 
@@ -29,6 +31,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 public class UserIT {
+  @Rule public ExpectedException failure = ExpectedException.none();
   private final Injector injector = Guice.createInjector(new CoreModule());
   private UserDAO testDAO;
 
@@ -280,11 +283,96 @@ public class UserIT {
     assertNull(result);
     // future test: token destroyed in Redis
     // Added artist role
-    UserRole addedRole = testDAO.readOneRole(Access.internal(), BigInteger.valueOf(2), UserRoleType.Artist);
-    assertNotNull(addedRole);
+    assertNotNull(testDAO.readOneRole(Access.internal(), BigInteger.valueOf(2), UserRoleType.Artist));
     // Removed admin role
-    UserRole removedRole = testDAO.readOneRole(Access.internal(), BigInteger.valueOf(2), UserRoleType.Admin);
-    assertNull(removedRole);
+    assertNull(testDAO.readOneRole(Access.internal(), BigInteger.valueOf(2), UserRoleType.Admin));
+  }
+
+  /**
+   [#154118206] Admin wants to change user roles, even if they are in lowercase legacy format
+   */
+  @Test
+  public void updateUserRoles_fromLegacyFormat() throws Exception {
+    IntegrationTestEntity.insertUser(53, "julio", "julio.rodriguez@xj.io", "http://pictures.com/julio.gif");
+    IntegrationTestEntity.insertUserRole(152, 53, "user");
+    IntegrationTestEntity.insertUserRole(153, 53, "artist");
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Admin"
+    ));
+    User inputData = new User()
+      .setRoles("User,Artist,Engineer,Admin");
+
+    testDAO.updateUserRolesAndDestroyTokens(access, BigInteger.valueOf(53), inputData);
+
+    assertNotNull(testDAO.readOneRole(Access.internal(), BigInteger.valueOf(53), UserRoleType.User));
+    assertNotNull(testDAO.readOneRole(Access.internal(), BigInteger.valueOf(53), UserRoleType.Artist));
+    assertNotNull(testDAO.readOneRole(Access.internal(), BigInteger.valueOf(53), UserRoleType.Engineer));
+    assertNotNull(testDAO.readOneRole(Access.internal(), BigInteger.valueOf(53), UserRoleType.Admin));
+  }
+
+  /**
+   [#154118206] Admin wants to change user roles, even if they are in lowercase legacy format
+   */
+  @Test
+  public void updateUserRoles_withLegacyFormat() throws Exception {
+    IntegrationTestEntity.insertUser(53, "julio", "julio.rodriguez@xj.io", "http://pictures.com/julio.gif");
+    IntegrationTestEntity.insertUserRole(152, 53, "user");
+    IntegrationTestEntity.insertUserRole(153, 53, "artist");
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Admin"
+    ));
+    User inputData = new User()
+      .setRoles("user,artist,engineer,admin");
+
+    testDAO.updateUserRolesAndDestroyTokens(access, BigInteger.valueOf(53), inputData);
+
+    assertNotNull(testDAO.readOneRole(Access.internal(), BigInteger.valueOf(53), UserRoleType.User));
+    assertNotNull(testDAO.readOneRole(Access.internal(), BigInteger.valueOf(53), UserRoleType.Artist));
+    assertNotNull(testDAO.readOneRole(Access.internal(), BigInteger.valueOf(53), UserRoleType.Engineer));
+    assertNotNull(testDAO.readOneRole(Access.internal(), BigInteger.valueOf(53), UserRoleType.Admin));
+  }
+
+  /**
+   [#154118206]should be impossible to remove all roles.
+   */
+  @Test
+  public void updateUserRoles_cannotRemoveAllRoles() throws Exception {
+    IntegrationTestEntity.insertUser(53, "julio", "julio.rodriguez@xj.io", "http://pictures.com/julio.gif");
+    IntegrationTestEntity.insertUserRole(152, 53, UserRoleType.User);
+    IntegrationTestEntity.insertUserRole(153, 53, UserRoleType.Artist);
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Admin"
+    ));
+    User inputData = new User()
+      .setRoles(",");
+
+    failure.expect(BusinessException.class);
+    failure.expectMessage("Valid Role is required");
+
+    testDAO.updateUserRolesAndDestroyTokens(access, BigInteger.valueOf(53), inputData);
+  }
+
+  /**
+   [#154118206]should be impossible to remove all roles.
+   */
+  @Test
+  public void updateUserRoles_cannotRemoveAllRoles_invalidRole() throws Exception {
+    IntegrationTestEntity.insertUser(53, "julio", "julio.rodriguez@xj.io", "http://pictures.com/julio.gif");
+    IntegrationTestEntity.insertUserRole(152, 53, UserRoleType.User);
+    IntegrationTestEntity.insertUserRole(153, 53, UserRoleType.Artist);
+    Access access = Access.from(ImmutableMap.of(
+      "roles", "Admin"
+    ));
+    User inputData = new User()
+      .setRoles("shmengineer");
+
+    failure.expect(BusinessException.class);
+    failure.expectMessage("'Shmengineer' is not a valid role");
+
+    testDAO.updateUserRolesAndDestroyTokens(access, BigInteger.valueOf(53), inputData);
+
+    assertNotNull(testDAO.readOneRole(Access.internal(), BigInteger.valueOf(53), UserRoleType.Admin));
+    assertNotNull(testDAO.readOneRole(Access.internal(), BigInteger.valueOf(53), UserRoleType.Artist));
   }
 
 }

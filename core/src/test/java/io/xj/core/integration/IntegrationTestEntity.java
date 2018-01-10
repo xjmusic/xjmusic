@@ -198,6 +198,14 @@ public interface IntegrationTestEntity {
     record.store();
   }
 
+  static void insertUserRole(Integer id, Integer userId, String legacyType) {
+    UserRoleRecord record = IntegrationTestService.getDb().newRecord(USER_ROLE);
+    record.setId(ULong.valueOf(id));
+    record.setUserId(ULong.valueOf(userId));
+    record.setType(legacyType);
+    record.store();
+  }
+
   static void insertAccountUser(Integer id, Integer accountId, Integer userId) {
     AccountUserRecord record = IntegrationTestService.getDb().newRecord(ACCOUNT_USER);
     record.setId(ULong.valueOf(id));

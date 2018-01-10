@@ -46,8 +46,8 @@ public enum UserRoleType {
 
     try {
       return valueOf(Text.toProperSlug(value));
-    } catch (Exception e) {
-      throw new BusinessException("'" + value + "' is not a valid role (" + CSV.joinEnum(values()) + ").", e);
+    } catch (Exception ignored) {
+      throw new BusinessException("'" + value + "' is not a valid role (" + CSV.joinEnum(values()) + ").");
     }
   }
 
