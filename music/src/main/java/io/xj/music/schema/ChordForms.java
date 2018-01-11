@@ -1,4 +1,4 @@
-// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.music.schema;
 
 import io.xj.music.Interval;
@@ -8,6 +8,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
@@ -448,6 +449,22 @@ public interface ChordForms {
 			),*/
 
   );
+
+  Map<String, String> colloquialFormNames =
+    ImmutableMap.<String, String>builder()
+      .put("Basic", "Major")
+      .put("Basic Add Seventh Dominant Seventh Add Ninth", "Major Seventh Add Ninth")
+      .put("Basic Add Ninth", "Major Add Ninth")
+      .put("Basic Add Ninth Dominant Ninth", "Major Ninth")
+      .put("Basic Add Sixth", "Major Sixth")
+      .put("Basic Add Seventh Dominant Seventh", "Major Seventh")
+      .put("Basic Diminished Triad", "Diminished Major")
+      .put("Basic Minor Triad", "Minor")
+      .put("Basic Minor Triad Add Sixth", "Minor Sixth")
+      .put("Basic Minor Triad Add Seventh Minor Seventh", "Minor Seventh")
+      .put("Basic Minor Triad Diminished Triad", "Diminished Minor")
+      .put("Basic Minor Triad Omit Fifth Add Seventh Minor Seventh", "Minor Seventh Omit Fifth")
+      .build();
 
   /**
    Run an action on all known forms

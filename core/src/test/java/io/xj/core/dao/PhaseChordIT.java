@@ -1,4 +1,4 @@
-// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.dao;
 
 import io.xj.core.CoreModule;
@@ -28,6 +28,9 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 // future test: permissions of different users to readMany vs. create vs. update or delete phase chords
+
+// future test readAllSequences() which supports [#154234716] library analysis requires enumerating all possible sub-sequences of chords for any phase
+
 public class PhaseChordIT {
   private final Injector injector = Guice.createInjector(new CoreModule());
   private PhaseChordDAO testDAO;

@@ -1,4 +1,4 @@
-// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.resource.pattern_meme;
 
 import io.xj.core.CoreModule;

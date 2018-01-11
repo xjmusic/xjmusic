@@ -1,4 +1,4 @@
-// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.config;
 
 import io.xj.core.exception.ConfigException;
@@ -25,7 +25,6 @@ public interface Config {
   int DEFAULT_PLAY_BUFFER_AHEAD_SECONDS = 60;
   int DEFAULT_PLAY_BUFFER_DELAY_SECONDS = 5;
   int DEFAULT_WORK_BUFFER_CRAFT_DELAY_SECONDS = 1;
-  int DEFAULT_WORK_BUFFER_DUB_DELAY_SECONDS = 30;
   int DEFAULT_WORK_BUFFER_SECONDS = 300;
   int HOURS_PER_DAY = 24;
   int MINUTES_PER_HOUR = 60;
@@ -62,6 +61,21 @@ public interface Config {
 
   static int awsS3RetryLimit() {
     return getIntOrDefault("aws.s3.retry.limit", 10);
+  }
+
+  static int analysisChordSequenceLengthMax() {
+    return getIntOrDefault("analysis.chord.sequence.length.max", 4);
+  }
+
+  /**
+   specifies a threshold X, where during pruning of redundant subsets of chord sequence descriptors, a redundant subset with length greater than or equal to X will have its chord sequences preserved, meaning that they are moved into the analysis that is deprecating their original sequence descriptor.
+   */
+  static int analysisChordSequencePreserveLengthMin() {
+    return getIntOrDefault("analysis.chord.sequence.preserve.length.min", 2);
+  }
+
+  static int analysisChordSequenceRedundancyThreshold() {
+    return getIntOrDefault("analysis.chord.sequence.redundancy.threshold", 1);
   }
 
   static int audioFileUploadExpireMinutes() throws ConfigException {

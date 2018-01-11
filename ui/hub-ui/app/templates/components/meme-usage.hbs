@@ -1,0 +1,46 @@
+<!-- Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved. -->
+
+<div class="meme-usage">
+
+  <div class="name">{{name}}</div>
+
+  {{#each model.patternsWithMeme as |pattern|}}
+    {{#if pattern.patternHasMeme}}
+      <div class="pattern">
+        {{#link-to "go.pattern" pattern.patternId}}
+          <small>{{pattern.patternType}}-Pattern #{{pattern.patternId}}</small>
+          {{#if pattern.patternName}}
+            &quot;{{pattern.patternName}}&quot;{{/if}}
+        {{/link-to}}
+      </div>
+    {{/if}}
+    {{#each pattern.phasesWithMeme as |phase|}}
+      <div class="pattern-phase">
+        {{#link-to "go.pattern" pattern.patternId}}
+          <small>{{pattern.patternType}}-Pattern #{{pattern.patternId}}</small>
+          {{#if pattern.patternName}}
+            &quot;{{pattern.patternName}}&quot;{{/if}}
+        {{/link-to}}
+        {{#link-to "go.phase" phase.phaseId}}
+          <small>{{phase.phaseType}}-Phase #{{phase.phaseId}}</small>
+          {{#if phase.phaseName}}
+            &quot;{{phase.phaseName}}&quot;{{/if}}
+          {{#if phase.phaseOffset}}
+            @{{phase.phaseOffset}}{{/if}}
+        {{/link-to}}
+      </div>
+    {{/each}}
+  {{/each}}
+
+  {{#each model.instrumentsWithMeme as |instrument|}}
+    <div class="instrument">
+      {{#link-to "go.instrument" instrument.instrumentId}}
+        <small>{{instrument.instrumentType}}-Instrument #{{instrument.instrumentId}}</small>
+        {{#if instrument.instrumentDescription}}
+          &quot;{{instrument.instrumentDescription}}&quot;{{/if}}
+      {{/link-to}}
+    </div>
+  {{/each}}
+
+  {{yield}}
+</div>

@@ -1,4 +1,4 @@
-// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.util;
 
 import io.xj.core.config.Config;
@@ -6,6 +6,7 @@ import io.xj.core.config.Config;
 import com.google.common.collect.ImmutableList;
 
 import javax.annotation.Nullable;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Pattern;
@@ -25,6 +26,7 @@ public interface Text {
 //  Pattern oneOrMorePeriod = Pattern.compile("\\.+");
   String UNDERSCORE = "_";
   String NOTHING = "";
+  Comparator<? super String> byStringLengthDescending = (o1, o2) -> -Integer.compare(o2.length(), o1.length());
 
   /**
    Alphabetical characters only, no case modification

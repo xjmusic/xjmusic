@@ -1,4 +1,4 @@
-package io.xj.core.work.impl;// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
+package io.xj.core.work.impl;// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
 import io.xj.core.CoreModule;
 import io.xj.core.config.Config;

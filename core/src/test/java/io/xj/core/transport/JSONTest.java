@@ -1,5 +1,5 @@
-// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
-package io.xj.core.transport;// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+package io.xj.core.transport;// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
 import io.xj.core.model.chain.Chain;
 import io.xj.core.model.chain.ChainState;
@@ -11,6 +11,7 @@ import org.junit.Test;
 import java.math.BigInteger;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class JSONTest {
 
@@ -38,5 +39,10 @@ public class JSONTest {
     assertEquals("Production",result.get("type"));
     assertEquals("2009-08-12 12:17:02.687327Z",result.get("createdAt"));
     assertEquals("2010-09-11 12:17:01.989941Z",result.get("updatedAt"));
+  }
+
+  @Test
+  public void objectFrom_passThroughNull() throws Exception {
+    assertNull(JSON.objectFrom(null));
   }
 }

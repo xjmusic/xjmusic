@@ -1,4 +1,4 @@
-// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.model.work;
 
 import io.xj.core.exception.BusinessException;
@@ -7,16 +7,9 @@ import io.xj.core.model.Entity;
 import java.math.BigInteger;
 
 public class Work extends Entity {
-
-  /**
-   For use in maps.
-   */
   public static final String KEY_ONE = "work";
   public static final String KEY_MANY = "works";
 
-  /**
-   Fields
-   */
   private BigInteger targetId;
   private WorkState state;
   private WorkType type;

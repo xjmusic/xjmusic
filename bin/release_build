@@ -10,4 +10,4 @@ bin/verify || exit 1
 bin/package || exit 1
 
 # Build Web Front-end
-bin/ui_build || exit 1
+bin/ui/build || exit 1

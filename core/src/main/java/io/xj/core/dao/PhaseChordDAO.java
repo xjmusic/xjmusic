@@ -1,7 +1,9 @@
-// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.dao;
 
 import io.xj.core.access.impl.Access;
+import io.xj.core.exception.DatabaseException;
+import io.xj.core.model.chord.ChordSequence;
 import io.xj.core.model.phase_chord.PhaseChord;
 
 import javax.annotation.Nullable;
@@ -39,6 +41,14 @@ public interface PhaseChordDAO {
    @throws Exception on failure
    */
   Collection<PhaseChord> readAll(Access access, BigInteger phaseId) throws Exception;
+
+  /**
+   Read all possible chord sequences for the specified phase
+   @param access control
+   @param phaseId to read chord sequences of
+   @return collection of chord sequences
+   */
+  Collection<ChordSequence> readAllSequences(Access access, BigInteger phaseId) throws Exception;
 
   /**
    Update a specified Phase Chord if accessible

@@ -1,4 +1,4 @@
-// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.transport;
 
 import io.xj.core.config.Exposure;
@@ -13,12 +13,14 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import javax.annotation.Nullable;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.Map;
+import java.util.Objects;
 
 public interface JSON {
 
@@ -161,7 +163,9 @@ public interface JSON {
    @param obj to create JSONObject from
    @return JSONObject
    */
-  static JSONObject objectFrom(Entity obj) {
+  @Nullable
+  static JSONObject objectFrom(@Nullable Object obj) {
+    if (Objects.isNull(obj)) return null;
     return new JSONObject(gson().toJson(obj));
   }
 

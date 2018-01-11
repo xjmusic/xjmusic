@@ -105,11 +105,9 @@ function importDependencies(app, environment) {
     case "production":
       // Wavesurfer
       app.import('node_modules/wavesurfer.js/dist/wavesurfer.min.js');
-
       // Popper
       app.import('node_modules/popper.js/dist/umd/popper.min.js');
-
-      // Bootstrap (minified)
+      // Bootstrap
       app.import('node_modules/bootstrap/dist/css/bootstrap-reboot.min.css');
       app.import('node_modules/bootstrap/dist/css/bootstrap-grid.min.css');
       app.import('node_modules/bootstrap/dist/css/bootstrap.min.css');
@@ -117,13 +115,10 @@ function importDependencies(app, environment) {
       break;
 
     default:
-
       // Wavesurfer
       app.import('node_modules/wavesurfer.js/dist/wavesurfer.js');
-
       // Popper
       app.import('node_modules/popper.js/dist/umd/popper.js');
-
       // Bootstrap
       app.import('node_modules/bootstrap/dist/css/bootstrap-reboot.css');
       app.import('node_modules/bootstrap/dist/css/bootstrap-grid.css');
@@ -132,7 +127,7 @@ function importDependencies(app, environment) {
       break;
   }
 
-  // Runs in any environment
+  // Wavesurfer any environment
   app.import('vendor/shims/wavesurfer.js', {
     exports: {
       'wavesurfer': [ 'default' ]

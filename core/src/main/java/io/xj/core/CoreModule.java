@@ -1,4 +1,4 @@
-// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core;
 
 import io.xj.core.access.AccessControlProvider;
@@ -7,6 +7,8 @@ import io.xj.core.access.AccessTokenAuthFilter;
 import io.xj.core.access.impl.AccessControlProviderImpl;
 import io.xj.core.access.impl.AccessLogFilterProviderImpl;
 import io.xj.core.access.impl.AccessTokenAuthFilterImpl;
+import io.xj.core.analysis.AnalysisProvider;
+import io.xj.core.analysis.impl.AnalysisProviderImpl;
 import io.xj.core.app.App;
 import io.xj.core.app.AppImpl;
 import io.xj.core.cache.audio.AudioCacheProvider;
@@ -115,6 +117,7 @@ public class CoreModule extends AbstractModule {
   }
 
   private void bindApp() {
+    bind(AnalysisProvider.class).to(AnalysisProviderImpl.class);
     bind(AccessControlProvider.class).to(AccessControlProviderImpl.class);
     bind(AccessLogFilterProvider.class).to(AccessLogFilterProviderImpl.class);
     bind(AccessTokenAuthFilter.class).to(AccessTokenAuthFilterImpl.class);

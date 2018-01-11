@@ -1,4 +1,4 @@
-// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.model.chain;
 
 import io.xj.core.exception.BusinessException;
@@ -34,8 +34,8 @@ public enum ChainType {
 
     try {
       return valueOf(Text.toProperSlug(value));
-    } catch (Exception e) {
-      throw new BusinessException("'" + value + "' is not a valid type (" + CSV.joinEnum(values()) + ").", e);
+    } catch (Exception ignored) {
+      throw new BusinessException("'" + value + "' is not a valid type (" + CSV.joinEnum(values()) + ").");
     }
   }
 

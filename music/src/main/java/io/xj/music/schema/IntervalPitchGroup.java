@@ -1,4 +1,4 @@
-// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.music.schema;
 
 import io.xj.music.AdjSymbol;
@@ -32,7 +32,7 @@ public abstract class IntervalPitchGroup {
   public IntervalPitchGroup(String name) {
 
     // initialize tones map
-    this.tones = Maps.newTreeMap();
+    tones = Maps.newTreeMap();
 
     // Don't set values if there's nothing to set
     if (Objects.isNull(name) || name.length() == 0)
@@ -42,7 +42,7 @@ public abstract class IntervalPitchGroup {
     this.name = name;
 
     // determine whether the name is "sharps" or "flats"
-    this.adjSymbol = AdjSymbol.of(name);
+    adjSymbol = AdjSymbol.of(name);
 
     // Root utility separates root from remaining text
     Root root = Root.of(name);
@@ -51,10 +51,10 @@ public abstract class IntervalPitchGroup {
     this.root = root.getPitchClass();
 
     // description is everything AFTER the root, in the original name
-    this.description = root.getRemainingText();
+    description = root.getRemainingText();
 
     // parse the chord Form
-    this.parseSchema(root.getRemainingText());
+    parseSchema(root.getRemainingText());
   }
 
   public static String detailsOf(Map<Interval, PitchClass> intervalPitchClasses, AdjSymbol adjSymbol) {
@@ -74,7 +74,7 @@ public abstract class IntervalPitchGroup {
    @return full description
    */
   public String getFullDescription() {
-    return this.root.toString(adjSymbol) + " " + description;
+    return root.toString(adjSymbol) + " " + description;
   }
 
   public String getOriginalDescription() {
@@ -86,7 +86,7 @@ public abstract class IntervalPitchGroup {
 
    @param text to parse schema from
    */
-  abstract protected void parseSchema(String text);
+  protected abstract void parseSchema(String text);
 
   /**
    Notes to obtain the notes from the Chord, in a particular octave
@@ -97,7 +97,7 @@ public abstract class IntervalPitchGroup {
   public List<Note> toNotes(int octave) {
     List<Note> notes = Lists.newArrayList();
     Note rootNote = Note.of(root, octave);
-    this.tones.forEach((interval, offsetSemitones) ->
+    tones.forEach((interval, offsetSemitones) ->
       notes.add(rootNote.transpose(offsetSemitones)));
     return notes;
   }
@@ -139,7 +139,7 @@ public abstract class IntervalPitchGroup {
    @return delta +/- semitones to another key
    */
   public int delta(IntervalPitchGroup target) {
-    return this.root.delta(target.getRootPitchClass());
+    return root.delta(target.getRootPitchClass());
   }
 
   public String getName() {

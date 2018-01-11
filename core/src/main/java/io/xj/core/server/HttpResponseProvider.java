@@ -1,7 +1,9 @@
-// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.server;
 
 import io.xj.core.model.Entity;
+
+import org.json.JSONObject;
 
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
@@ -93,10 +95,19 @@ public interface HttpResponseProvider {
    Return a response that one record has been read, else an error
 
    @param keyOne key for one record
-   @param result of record that was read, or null if a 404 ought to be returned instead
+   @param entity of record that was read, or null if a 404 ought to be returned instead
    @return response
    */
-  Response readOne(String keyOne, Entity result);
+  Response readOne(String keyOne, Entity entity);
+
+  /**
+   Return a response that one JSON object has been read, else an error
+
+   @param keyOne key for one record
+   @param obj of JSON object that was read, or null if a 404 ought to be returned instead
+   @return response
+   */
+  Response readOne(String keyOne, JSONObject obj);
 
   /**
    Return a response that many records have been read, else an error

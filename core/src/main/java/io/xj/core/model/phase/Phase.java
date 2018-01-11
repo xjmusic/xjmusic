@@ -1,4 +1,4 @@
-// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.model.phase;
 
 import io.xj.core.exception.BusinessException;
@@ -135,6 +135,11 @@ public class Phase extends Entity {
     if (Objects.nonNull(tempo) && 0 == tempo) {
       tempo = null;
     }
+  }
+
+  @Override
+  public String toString() {
+    return (Objects.nonNull(name) ? name + " " : "") + "(" + "@" + offset + ")";
   }
 
 }

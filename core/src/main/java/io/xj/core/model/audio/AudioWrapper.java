@@ -1,22 +1,31 @@
-// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.model.audio;
 
 import io.xj.core.exception.BusinessException;
 import io.xj.core.model.EntityWrapper;
+
+import java.util.Objects;
 
 /**
  Wrapper for use as POJO for decoding messages received by JAX-RS resources
  a.k.a. JSON input will be stored into an entity inside this object
  */
 public class AudioWrapper extends EntityWrapper {
-
-  // Audio
   private Audio audio;
 
+  /**
+   Get Audio
+   @return audio
+   */
   public Audio getAudio() {
     return audio;
   }
 
+  /**
+   Set audio
+   @param audio to set
+   @return audio wrapper
+   */
   public AudioWrapper setAudio(Audio audio) {
     this.audio = audio;
     return this;
@@ -29,11 +38,11 @@ public class AudioWrapper extends EntityWrapper {
    */
   @Override
   public Audio validate() throws BusinessException {
-    if (this.audio == null) {
+    if (Objects.isNull(audio)) {
       throw new BusinessException("Audio is required.");
     }
-    this.audio.validate();
-    return this.audio;
+    audio.validate();
+    return audio;
   }
 
 }

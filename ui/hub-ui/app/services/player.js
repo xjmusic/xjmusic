@@ -1,4 +1,4 @@
-// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 import EmberMap from '@ember/map';
 import LinkAudio from "./player/link-audio";
 import Moment from "moment";

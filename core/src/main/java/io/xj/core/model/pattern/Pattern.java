@@ -1,4 +1,4 @@
-// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.model.pattern;
 
 import io.xj.core.exception.BusinessException;
@@ -127,6 +127,11 @@ public class Pattern extends Entity {
 
     if (Objects.isNull(tempo))
       throw new BusinessException("Tempo is required.");
-
   }
+
+  @Override
+  public String toString() {
+    return name + " " + "(" + type + ")";
+  }
+
 }

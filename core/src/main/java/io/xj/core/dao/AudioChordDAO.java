@@ -1,8 +1,9 @@
-// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.dao;
 
 import io.xj.core.access.impl.Access;
 import io.xj.core.model.audio_chord.AudioChord;
+import io.xj.core.model.chord.ChordSequence;
 
 import javax.annotation.Nullable;
 import java.math.BigInteger;
@@ -39,6 +40,14 @@ public interface AudioChordDAO {
    @throws Exception on failure
    */
   Collection<AudioChord> readAll(Access access, BigInteger audioId) throws Exception;
+
+  /**
+   Read all possible chord sequences for the specified audio
+   @param access control
+   @param audioId to read chord sequences of
+   @return collection of chord sequences
+   */
+  Collection<ChordSequence> readAllSequences(Access access, BigInteger audioId) throws Exception;
 
   /**
    Update a specified Audio Chord if accessible

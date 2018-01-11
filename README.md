@@ -1,6 +1,6 @@
 # xj
 
-Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
+Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
 **Composite Music Fabrication Platform**
 
@@ -248,7 +248,7 @@ Migrate the local database (not usually necessary; migration happens automatical
 
 Build the Web user interface:
 
-    bin/ui_build
+    bin/ui/build
 
 Build and serve (with live updates) the Web user interface:
 

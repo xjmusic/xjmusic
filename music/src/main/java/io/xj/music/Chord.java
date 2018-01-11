@@ -1,4 +1,4 @@
-// Copyright (c) 2017, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.music;
 
 import io.xj.music.schema.ChordForm;
@@ -7,6 +7,7 @@ import io.xj.music.schema.IntervalPitchGroup;
 
 import com.google.common.collect.Lists;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.function.Consumer;
@@ -15,15 +16,6 @@ import java.util.function.Consumer;
  Chord in a particular key
  */
 public class Chord extends IntervalPitchGroup {
-  public List<ChordForm> getForms() {
-    return forms;
-  }
-
-  public Chord setForms(List<ChordForm> forms) {
-    this.forms = forms;
-    return this;
-  }
-
   List<ChordForm> forms;
 
   /**
@@ -52,6 +44,15 @@ public class Chord extends IntervalPitchGroup {
     return new Chord(name);
   }
 
+  public List<ChordForm> getForms() {
+    return Collections.unmodifiableList(forms);
+  }
+
+  public Chord setForms(List<ChordForm> forms) {
+    this.forms = Lists.newArrayList(forms);
+    return this;
+  }
+
   /**
    Copies this object to a new Chord
 
@@ -72,7 +73,7 @@ public class Chord extends IntervalPitchGroup {
   public Chord transpose(int deltaSemitones) {
     return copy()
       .setAdjSymbol(adjSymbol)
-      .setRootPitchClass(this.root.step(deltaSemitones).getPitchClass());
+      .setRootPitchClass(root.step(deltaSemitones).getPitchClass());
   }
 
   /**
@@ -83,13 +84,13 @@ public class Chord extends IntervalPitchGroup {
    */
   protected void parseSchema(String text) {
     List<Interval> toDelete = Lists.newArrayList();
-    this.forms = Lists.newArrayList();
+    forms = Lists.newArrayList();
 
     // consumer tests (and applies, if matching) a chord form
     Consumer<? super ChordForm> applyForm = chordForm -> {
       if (chordForm.in(text)) {
-        this.forms.add(chordForm);
-        this.tones.putAll(chordForm.getAdd());
+        forms.add(chordForm);
+        tones.putAll(chordForm.getAdd());
         toDelete.addAll(chordForm.getOmit());
       }
     };
@@ -98,7 +99,7 @@ public class Chord extends IntervalPitchGroup {
     ChordForms.forEach(applyForm);
 
     // finally delete anything that's been set for deletion
-    toDelete.forEach(this.tones::remove);
+    toDelete.forEach(tones::remove);
   }
 
   /**
@@ -106,9 +107,10 @@ public class Chord extends IntervalPitchGroup {
 
    @return chord form string
    */
-  private String formString() {
-    String[] formStrings = new String[forms.size()];
-    for (int i = 0; i < forms.size(); i++) {
+  public String formString() {
+    int size = forms.size();
+    String[] formStrings = new String[size];
+    for (int i = 0; i < size; i++) {
       formStrings[i] = forms.get(i).getName();
     }
     return String.join(" ", formStrings);
@@ -138,4 +140,11 @@ public class Chord extends IntervalPitchGroup {
     return root.toString(adjSymbol) + " " + formString();
   }
 
+  /**
+   Retrieve the colloquial name of a form, if exists
+   @return colloquial name of form
+   */
+  public String colloquialFormName() {
+    return ChordForms.colloquialFormNames.getOrDefault(formString(), formString());
+  }
 }
