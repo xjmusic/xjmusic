@@ -35,49 +35,6 @@ public class PlatformMessageDAOImpl extends DAOImpl implements PlatformMessageDA
     this.dbProvider = dbProvider;
   }
 
-  @Override
-  public PlatformMessage create(Access access, PlatformMessage entity) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(create(tx.getContext(), access, entity));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  @Nullable
-  public PlatformMessage readOne(Access access, BigInteger id) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readOne(tx.getContext(), access, ULong.valueOf(id)));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  @Nullable
-  public Collection<PlatformMessage> readAllPreviousDays(Access access, Integer previousDays) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readAllPreviousDays(tx.getContext(), access, previousDays));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public void delete(Access access, BigInteger id) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      delete(tx.getContext(), access, ULong.valueOf(id));
-      tx.success();
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
   /**
    Create a record
 
@@ -163,6 +120,60 @@ public class PlatformMessageDAOImpl extends DAOImpl implements PlatformMessageDA
     fieldValues.put(PLATFORM_MESSAGE.BODY, entity.getBody());
     fieldValues.put(PLATFORM_MESSAGE.TYPE, entity.getType());
     return fieldValues;
+  }
+
+  @Override
+  public PlatformMessage create(Access access, PlatformMessage entity) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(create(tx.getContext(), access, entity));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  @Nullable
+  public PlatformMessage readOne(Access access, BigInteger id) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readOne(tx.getContext(), access, ULong.valueOf(id)));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public Collection<PlatformMessage> readAll(Access access, Collection<BigInteger> parentIds) throws Exception {
+    throw new BusinessException("Not allowed to read all Platform Messages (must specify # previous days).");
+
+  }
+
+  @Override
+  public void update(Access access, BigInteger id, PlatformMessage entity) throws Exception {
+    throw new BusinessException("Not allowed to update PlatformMessage record.");
+  }
+
+  @Override
+  @Nullable
+  public Collection<PlatformMessage> readAllPreviousDays(Access access, Integer previousDays) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readAllPreviousDays(tx.getContext(), access, previousDays));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public void destroy(Access access, BigInteger id) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      delete(tx.getContext(), access, ULong.valueOf(id));
+      tx.success();
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
   }
 
 

@@ -67,121 +67,6 @@ public class UserDAOImpl extends DAOImpl implements UserDAO {
     this.accessControlProvider = accessControlProvider;
   }
 
-  @Override
-  public String authenticate(UserAuthType authType, String account, String externalAccessToken, String externalRefreshToken, String name, String avatarUrl, String email) throws AccessException, DatabaseException, BusinessException {
-    SQLConnection tx = dbProvider.getConnection(true);
-
-    Collection<AccountUser> accounts;
-    Collection<UserRole> roles;
-    UserAuth userAuth = readOneAuth(tx.getContext(), authType, account);
-    if (Objects.nonNull(userAuth)) {
-      accounts = fetchAccounts(tx.getContext(), ULong.valueOf(userAuth.getUserId()));
-      roles = fetchRoles(tx.getContext(), ULong.valueOf(userAuth.getUserId()));
-    } else {
-      try {
-        UserRecord user = newUser(tx.getContext(), name, avatarUrl, email);
-        accounts = Lists.newArrayList();
-        roles = newRoles(tx.getContext(), user.getId());
-        userAuth = newUserAuth(tx.getContext(), user.getId(), authType, account, externalAccessToken, externalRefreshToken);
-      } catch (Exception e) {
-        throw tx.failure(new AccessException(e));
-      }
-    }
-
-    String accessToken = accessControlProvider.create(userAuth, accounts, roles);
-    try {
-      newUserAccessTokenRecord(tx.getContext(),
-        ULong.valueOf(userAuth.getUserId()),
-        ULong.valueOf(userAuth.getId()),
-        accessToken
-      );
-    } catch (Exception e) {
-      throw tx.failure(new AccessException(e));
-    }
-
-    try {
-      return tx.success(accessToken);
-    } catch (DatabaseException e) {
-      throw tx.failure(new AccessException(e));
-    }
-  }
-
-  @Override
-  public User readOne(Access access, BigInteger userId) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readOne(tx.getContext(), access, ULong.valueOf(userId)));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Nullable
-  public Collection<User> readAll(Access access) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readAll(tx.getContext(), access));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public UserAccessToken readOneAccessToken(Access access, String accessToken) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readOneAccessToken(tx.getContext(), access, accessToken));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public UserAuth readOneAuth(Access access, BigInteger userAuthId) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readOneAuth(tx.getContext(), access, ULong.valueOf(userAuthId)));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public UserRole readOneRole(Access access, BigInteger userId, UserRoleType type) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readOneRole(tx.getContext(), access, ULong.valueOf(userId), type));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-
-  @Override
-  public void destroyAllTokens(BigInteger userId) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      destroyAllTokens(tx.getContext(), ULong.valueOf(userId));
-      tx.success();
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public void updateUserRolesAndDestroyTokens(Access access, BigInteger userId, User entity) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-
-    try {
-      requireTopLevel(access);
-      updateUserRoles(tx.getContext(), ULong.valueOf(userId), entity);
-      destroyAllTokens(tx.getContext(), ULong.valueOf(userId));
-      tx.success();
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
   /**
    This is used to select many User records
    with a virtual column containing a CSV of its role types
@@ -331,7 +216,6 @@ public class UserDAOImpl extends DAOImpl implements UserDAO {
       .fetch(), UserRole.class);
   }
 
-
   /**
    Read one record
 
@@ -400,7 +284,6 @@ public class UserDAOImpl extends DAOImpl implements UserDAO {
         .fetch(), User.class);
     }
   }
-
 
   /**
    Read one user access token
@@ -472,7 +355,6 @@ public class UserDAOImpl extends DAOImpl implements UserDAO {
       .fetchOne(), UserAuth.class);
   }
 
-
   /**
    Update all roles for a specified User, by providing a list of roles to grant;
    all other roles will be denied to this User.
@@ -516,6 +398,151 @@ public class UserDAOImpl extends DAOImpl implements UserDAO {
   }
 
   /**
+   Only certain (writable) fields are mapped back to jOOQ records--
+   Read-only fields are excluded from here.
+
+   @param entity to source values from
+   @return values mapped to record fields
+   */
+  public static Map<Field, Object> fieldValueMap(User entity) {
+    Map<Field, Object> fieldValues = Maps.newHashMap();
+    fieldValues.put(USER.NAME, entity.getName());
+    fieldValues.put(USER.AVATAR_URL, entity.getAvatarUrl());
+    fieldValues.put(USER.EMAIL, entity.getEmail());
+    return fieldValues;
+  }
+
+  @Override
+  public String authenticate(UserAuthType authType, String account, String externalAccessToken, String externalRefreshToken, String name, String avatarUrl, String email) throws AccessException, DatabaseException, BusinessException {
+    SQLConnection tx = dbProvider.getConnection(true);
+
+    Collection<AccountUser> accounts;
+    Collection<UserRole> roles;
+    UserAuth userAuth = readOneAuth(tx.getContext(), authType, account);
+    if (Objects.nonNull(userAuth)) {
+      accounts = fetchAccounts(tx.getContext(), ULong.valueOf(userAuth.getUserId()));
+      roles = fetchRoles(tx.getContext(), ULong.valueOf(userAuth.getUserId()));
+    } else {
+      try {
+        UserRecord user = newUser(tx.getContext(), name, avatarUrl, email);
+        accounts = Lists.newArrayList();
+        roles = newRoles(tx.getContext(), user.getId());
+        userAuth = newUserAuth(tx.getContext(), user.getId(), authType, account, externalAccessToken, externalRefreshToken);
+      } catch (Exception e) {
+        throw tx.failure(new AccessException(e));
+      }
+    }
+
+    String accessToken = accessControlProvider.create(userAuth, accounts, roles);
+    try {
+      newUserAccessTokenRecord(tx.getContext(),
+        ULong.valueOf(userAuth.getUserId()),
+        ULong.valueOf(userAuth.getId()),
+        accessToken
+      );
+    } catch (Exception e) {
+      throw tx.failure(new AccessException(e));
+    }
+
+    try {
+      return tx.success(accessToken);
+    } catch (DatabaseException e) {
+      throw tx.failure(new AccessException(e));
+    }
+  }
+
+  @Override
+  public User create(Access access, User entity) throws Exception {
+    throw new BusinessException("Not allowed to create a User record (must implement 'authenticate' method).");
+
+  }
+
+  @Override
+  public User readOne(Access access, BigInteger id) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readOne(tx.getContext(), access, ULong.valueOf(id)));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Nullable
+  public Collection<User> readAll(Access access, Collection<BigInteger> parentIds) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readAll(tx.getContext(), access));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public void update(Access access, BigInteger id, User entity) throws Exception {
+    throw new BusinessException("Not allowed to update User record.");
+  }
+
+  @Override
+  public void destroy(Access access, BigInteger id) throws Exception {
+    throw new BusinessException("Not allowed to destroy User record.");
+  }
+
+  @Override
+  public UserAccessToken readOneAccessToken(Access access, String accessToken) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readOneAccessToken(tx.getContext(), access, accessToken));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public UserAuth readOneAuth(Access access, BigInteger userAuthId) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readOneAuth(tx.getContext(), access, ULong.valueOf(userAuthId)));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public UserRole readOneRole(Access access, BigInteger userId, UserRoleType type) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readOneRole(tx.getContext(), access, ULong.valueOf(userId), type));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public void destroyAllTokens(BigInteger userId) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      destroyAllTokens(tx.getContext(), ULong.valueOf(userId));
+      tx.success();
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public void updateUserRolesAndDestroyTokens(Access access, BigInteger userId, User entity) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+
+    try {
+      requireTopLevel(access);
+      updateUserRoles(tx.getContext(), ULong.valueOf(userId), entity);
+      destroyAllTokens(tx.getContext(), ULong.valueOf(userId));
+      tx.success();
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  /**
    Destroy all access tokens for a specified User
 
    @param userId to destroy all access tokens for.
@@ -541,21 +568,6 @@ public class UserDAOImpl extends DAOImpl implements UserDAO {
       .where(USER_ACCESS_TOKEN.ID.eq(userAccessToken.getId()))
       .execute();
     log.info("Deleted UserAccessToken, id:{}, userId:{}, userAuthId:{}, accessToken:{}", userAccessToken.getId(), userAccessToken.getUserId(), userAccessToken.getUserAuthId(), userAccessToken.getAccessToken());
-  }
-
-  /**
-   Only certain (writable) fields are mapped back to jOOQ records--
-   Read-only fields are excluded from here.
-
-   @param entity to source values from
-   @return values mapped to record fields
-   */
-  public static Map<Field, Object> fieldValueMap(User entity) {
-    Map<Field, Object> fieldValues = Maps.newHashMap();
-    fieldValues.put(USER.NAME, entity.getName());
-    fieldValues.put(USER.AVATAR_URL, entity.getAvatarUrl());
-    fieldValues.put(USER.EMAIL, entity.getEmail());
-    return fieldValues;
   }
 
 }

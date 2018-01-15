@@ -7,8 +7,9 @@ import io.xj.core.dao.ChainDAO;
 import io.xj.core.model.chain.Chain;
 import io.xj.core.model.chain.ChainWrapper;
 import io.xj.core.model.user_role.UserRoleType;
-import io.xj.core.server.HttpResponseProvider;
+import io.xj.core.transport.HttpResponseProvider;
 
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
@@ -57,7 +58,7 @@ public class ChainIndexResource {
         Chain.KEY_MANY,
         chainDAO.readAll(
           Access.fromContext(crc),
-          new BigInteger(accountId)));
+          ImmutableList.of(new BigInteger(accountId))));
 
     } catch (Exception e) {
       return response.failure(e);

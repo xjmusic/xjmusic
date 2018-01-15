@@ -59,7 +59,7 @@ public class MixerImpl implements Mixer {
   private Map<Long, Put> donePuts = Maps.newConcurrentMap();
   private int uniquePutId = 0; // key for storage in map of Puts
 
-  // fields : mix factory and audio format
+  // fields : mix macro and audio format
   private final AudioFormat outputFormat;
   private final OutputContainer outputContainer;
   private MixerFactory mixerFactory;

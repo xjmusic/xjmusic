@@ -3,6 +3,9 @@ package io.xj.craft;
 
 import io.xj.core.exception.ConfigException;
 import io.xj.core.work.basis.Basis;
+import io.xj.craft.macro.MacroMainCraft;
+import io.xj.craft.harmonic.HarmonicDetailCraft;
+import io.xj.craft.rhythm.RhythmCraft;
 
 import com.google.inject.assistedinject.Assisted;
 
@@ -13,8 +16,8 @@ import com.google.inject.assistedinject.Assisted;
  3. Low
  <p>
  Basis basis = basisFactory.createBasis(link);
- craftFactory.foundation(basis).craft();
- craftFactory.structure(basis).craft();
+ craftFactory.macroMain(basis).craft();
+ craftFactory.rhythm(basis).craft();
  craftFactory.voice(basis).craft();
  basis.sendReport();
  */
@@ -25,32 +28,32 @@ public interface CraftFactory {
    [#138] Foundation craft for Link of a Chain
 
    @param basis of craft
-   @return FoundationCraft
+   @return MacroMainCraft
    @throws ConfigException on failure
    */
-  FoundationCraft foundation(
+  MacroMainCraft macroMain(
     @Assisted("basis") Basis basis
   ) throws ConfigException;
 
   /**
-   Create Structure Craft instance for a particular link
+   Create Rhythm Craft instance for a particular link
 
    @param basis of craft
-   @return StructureCraft
+   @return RhythmCraft
    @throws ConfigException on failure
    */
-  StructureCraft structure(
+  RhythmCraft rhythm(
     @Assisted("basis") Basis basis
   ) throws ConfigException;
 
   /**
-   Create Voice Craft instance for a particular link
+   Create Detail Craft instance for a particular link
 
    @param basis of craft
-   @return VoiceCraft
+   @return HarmonicDetailCraft
    @throws ConfigException on failure
    */
-  VoiceCraft voice(
+  HarmonicDetailCraft harmonicDetail(
     @Assisted("basis") Basis basis
   ) throws ConfigException;
 

@@ -42,92 +42,6 @@ public class ChoiceDAOImpl extends DAOImpl implements ChoiceDAO {
     this.dbProvider = dbProvider;
   }
 
-  @Override
-  public Choice create(Access access, Choice entity) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(create(tx.getContext(), access, entity));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  @Nullable
-  public Choice readOne(Access access, BigInteger choiceId) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readOne(tx.getContext(), access, ULong.valueOf(choiceId)));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Nullable
-  @Override
-  public Choice readOneLinkPattern(Access access, BigInteger linkId, BigInteger patternId) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readOneLinkPattern(tx.getContext(), access, ULong.valueOf(linkId), ULong.valueOf(patternId)));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  @Nullable
-  public Choice readOneLinkTypeWithAvailablePhaseOffsets(Access access, BigInteger linkId, PatternType patternType) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readOneLinkTypeWithAvailablePhaseOffsets(tx.getContext(), access, ULong.valueOf(linkId), patternType));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  @Nullable
-  public Collection<Choice> readAll(Access access, BigInteger linkId) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readAll(tx.getContext(), access, ULong.valueOf(linkId)));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public Collection<Choice> readAllInLinks(Access access, Collection<BigInteger> linkIds) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readAllInLinks(tx.getContext(), access, idCollection(linkIds)));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public void update(Access access, BigInteger choiceId, Choice entity) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      update(tx.getContext(), access, ULong.valueOf(choiceId), entity);
-      tx.success();
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public void delete(Access access, BigInteger choiceId) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      delete(tx.getContext(), access, ULong.valueOf(choiceId));
-      tx.success();
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
   /**
    Create a new record
 
@@ -228,25 +142,24 @@ public class ChoiceDAOImpl extends DAOImpl implements ChoiceDAO {
     return model;
   }
 
-
   /**
    Read all records in parent by id
 
-   @param db     context
-   @param access control
-   @param linkId of parent
+   @param db      context
+   @param access  control
+   @param linkIds of parent
    @return array of records
    */
-  private static Collection<Choice> readAll(DSLContext db, Access access, ULong linkId) throws BusinessException {
+  private static Collection<Choice> readAll(DSLContext db, Access access, Collection<ULong> linkIds) throws BusinessException {
     if (access.isTopLevel())
       return modelsFrom(db.select(CHOICE.fields()).from(CHOICE)
-        .where(CHOICE.LINK_ID.eq(linkId))
+        .where(CHOICE.LINK_ID.in(linkIds))
         .fetch(), Choice.class);
     else
       return modelsFrom(db.select(CHOICE.fields()).from(CHOICE)
         .join(LINK).on(LINK.ID.eq(CHOICE.LINK_ID))
         .join(CHAIN).on(CHAIN.ID.eq(LINK.CHAIN_ID))
-        .where(CHOICE.LINK_ID.eq(linkId))
+        .where(CHOICE.LINK_ID.in(linkIds))
         .and(CHAIN.ACCOUNT_ID.in(access.getAccountIds()))
         .fetch(), Choice.class);
   }
@@ -263,9 +176,9 @@ public class ChoiceDAOImpl extends DAOImpl implements ChoiceDAO {
     requireAccessToLinks(db, access, linkIds);
 
     return modelsFrom(db.select(CHOICE.fields()).from(CHOICE)
-        .where(CHOICE.LINK_ID.in(linkIds))
-        .orderBy(CHOICE.TYPE)
-        .fetch(), Choice.class);
+      .where(CHOICE.LINK_ID.in(linkIds))
+      .orderBy(CHOICE.TYPE)
+      .fetch(), Choice.class);
   }
 
   /**
@@ -341,6 +254,92 @@ public class ChoiceDAOImpl extends DAOImpl implements ChoiceDAO {
     fieldValues.put(CHOICE.TRANSPOSE, entity.getTranspose());
     fieldValues.put(CHOICE.PHASE_OFFSET, entity.getPhaseOffset());
     return fieldValues;
+  }
+
+  @Override
+  public Choice create(Access access, Choice entity) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(create(tx.getContext(), access, entity));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  @Nullable
+  public Choice readOne(Access access, BigInteger id) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readOne(tx.getContext(), access, ULong.valueOf(id)));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Nullable
+  @Override
+  public Choice readOneLinkPattern(Access access, BigInteger linkId, BigInteger patternId) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readOneLinkPattern(tx.getContext(), access, ULong.valueOf(linkId), ULong.valueOf(patternId)));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  @Nullable
+  public Choice readOneLinkTypeWithAvailablePhaseOffsets(Access access, BigInteger linkId, PatternType patternType) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readOneLinkTypeWithAvailablePhaseOffsets(tx.getContext(), access, ULong.valueOf(linkId), patternType));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  @Nullable
+  public Collection<Choice> readAll(Access access, Collection<BigInteger> parentIds) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readAll(tx.getContext(), access, uLongValuesOf(parentIds)));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public Collection<Choice> readAllInLinks(Access access, Collection<BigInteger> linkIds) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readAllInLinks(tx.getContext(), access, idCollection(linkIds)));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public void update(Access access, BigInteger id, Choice entity) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      update(tx.getContext(), access, ULong.valueOf(id), entity);
+      tx.success();
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public void destroy(Access access, BigInteger id) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      delete(tx.getContext(), access, ULong.valueOf(id));
+      tx.success();
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
   }
 
 }

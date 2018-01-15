@@ -7,7 +7,7 @@ import io.xj.core.dao.AudioChordDAO;
 import io.xj.core.model.audio_chord.AudioChord;
 import io.xj.core.model.audio_chord.AudioChordWrapper;
 import io.xj.core.model.user_role.UserRoleType;
-import io.xj.core.server.HttpResponseProvider;
+import io.xj.core.transport.HttpResponseProvider;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -89,7 +89,7 @@ public class AudioChordOneResource {
   @RolesAllowed(UserRoleType.ARTIST)
   public Response delete(@Context ContainerRequestContext crc) {
     try {
-      audioChordDAO.delete(Access.fromContext(crc), new BigInteger(id));
+      audioChordDAO.destroy(Access.fromContext(crc), new BigInteger(id));
       return Response.accepted("{}").build();
 
     } catch (Exception e) {

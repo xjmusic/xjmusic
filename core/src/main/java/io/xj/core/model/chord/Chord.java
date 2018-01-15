@@ -6,6 +6,7 @@ import io.xj.core.model.Entity;
 
 import org.json.JSONObject;
 
+import java.math.BigInteger;
 import java.util.Comparator;
 import java.util.Objects;
 
@@ -31,6 +32,8 @@ public abstract class Chord extends Entity {
   }
 
   public abstract Chord setPosition(Integer position);
+
+  public abstract BigInteger getParentId();
 
   @Override
   public void validate() throws BusinessException {

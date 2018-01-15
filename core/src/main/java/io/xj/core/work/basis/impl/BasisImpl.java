@@ -19,7 +19,7 @@ import io.xj.core.dao.PatternMemeDAO;
 import io.xj.core.dao.PhaseDAO;
 import io.xj.core.dao.PhaseMemeDAO;
 import io.xj.core.dao.VoiceDAO;
-import io.xj.core.dao.VoiceEventDAO;
+import io.xj.core.dao.PhaseEventDAO;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.isometry.MemeIsometry;
 import io.xj.core.model.arrangement.Arrangement;
@@ -46,7 +46,7 @@ import io.xj.core.model.phase.PhaseType;
 import io.xj.core.model.phase_meme.PhaseMeme;
 import io.xj.core.model.pick.Pick;
 import io.xj.core.model.voice.Voice;
-import io.xj.core.model.voice_event.VoiceEvent;
+import io.xj.core.model.phase_event.PhaseEvent;
 import io.xj.core.util.Value;
 import io.xj.core.work.basis.Basis;
 import io.xj.core.work.basis.BasisType;
@@ -79,6 +79,8 @@ import java.util.Objects;
 
 /**
  [#214] If a Chain has Patterns associated with it directly, prefer those choices to any in the Library
+ <p>
+ TODO think about an opportunity to remove some redundant DAO access methods from the Basis, and instead have the Basis accept an Evaluation on its creation, for the purpose of sourcing entities bound to chain
  */
 public class BasisImpl implements Basis {
   private static final int MICROSECONDS_PER_SECOND = 1000000;
@@ -103,18 +105,8 @@ public class BasisImpl implements Basis {
   private final PhaseMemeDAO phaseMemeDAO;
   private final Tuning tuning;
   private final VoiceDAO voiceDAO;
-  private final VoiceEventDAO voiceEventDAO;
+  private final PhaseEventDAO phaseEventDAO;
   private final long startTime;
-  private BasisType _type;
-  private Boolean _sentReport = false;
-  private Link _link;
-  private Collection<LinkChord> _linkChords;
-  private Map<ChainConfigType, ChainConfig> _chainConfigs;
-  private Map<BigInteger, Audio> _audiosFromPicks;
-  private MemeIsometry _currentMacroMemeIsometry;
-  private MemeIsometry _previousMacroMemeIsometry;
-  private MemeIsometry _currentLinkMemeIsometry;
-  private Collection<LinkMeme> _currentLinkMemes;
   private final List<Pick> _picks = Lists.newArrayList();
   private final Map<BigInteger, Audio> _audios = Maps.newConcurrentMap();
   private final Map<BigInteger, Collection<Arrangement>> _choiceArrangements = Maps.newConcurrentMap();
@@ -125,7 +117,7 @@ public class BasisImpl implements Basis {
   private final Map<BigInteger, Collection<PatternMeme>> _patternMemes = Maps.newConcurrentMap();
   private final Map<BigInteger, Collection<PhaseMeme>> _phaseMemes = Maps.newConcurrentMap();
   private final Map<BigInteger, Collection<Voice>> _voicesByPattern = Maps.newConcurrentMap();
-  private final Map<BigInteger, Collection<VoiceEvent>> _phaseVoiceEvents = Maps.newConcurrentMap();
+  private final Map<BigInteger, Collection<PhaseEvent>> _phasePhaseEvents = Maps.newConcurrentMap();
   private final Map<BigInteger, Map<BigInteger, Collection<Phase>>> _patternPhasesByOffset = Maps.newConcurrentMap();
   private final Map<BigInteger, Map<BigInteger, Link>> _linksByOffset = Maps.newConcurrentMap();
   private final Map<BigInteger, Map<BigInteger, Map<PhaseType, Phase>>> _patternPhaseByOffsetAndType = Maps.newConcurrentMap();
@@ -133,6 +125,16 @@ public class BasisImpl implements Basis {
   private final Map<BigInteger, Pattern> _patterns = Maps.newConcurrentMap();
   private final Map<BigInteger, Instrument> _instruments = Maps.newConcurrentMap();
   private final Map<Double, Double> _positionSeconds = Maps.newConcurrentMap();
+  private BasisType _type;
+  private Boolean _sentReport = false;
+  private Link _link;
+  private Collection<LinkChord> _linkChords;
+  private Map<ChainConfigType, ChainConfig> _chainConfigs;
+  private Map<BigInteger, Audio> _audiosFromPicks;
+  private MemeIsometry _currentMacroMemeIsometry;
+  private MemeIsometry _previousMacroMemeIsometry;
+  private MemeIsometry _currentLinkMemeIsometry;
+  private Collection<LinkMeme> _currentLinkMemes;
 
   @Inject
   public BasisImpl(
@@ -151,7 +153,7 @@ public class BasisImpl implements Basis {
     PhaseDAO phaseDAO,
     PhaseMemeDAO phaseMemeDAO,
     VoiceDAO voiceDAO,
-    VoiceEventDAO voiceEventDAO
+    PhaseEventDAO phaseEventDAO
   /*-*/) throws BusinessException {
     _link = link;
     this.arrangementDAO = arrangementDAO;
@@ -170,7 +172,7 @@ public class BasisImpl implements Basis {
     this.phaseDAO = phaseDAO;
     this.phaseMemeDAO = phaseMemeDAO;
     this.voiceDAO = voiceDAO;
-    this.voiceEventDAO = voiceEventDAO;
+    this.phaseEventDAO = phaseEventDAO;
 
     // [#255] Tuning based on root note configured in environment parameters.
     try {
@@ -354,7 +356,7 @@ public class BasisImpl implements Basis {
   public Map<ChainConfigType, ChainConfig> chainConfigs() throws Exception {
     if (Objects.isNull(_chainConfigs) || _chainConfigs.isEmpty()) {
       _chainConfigs = Maps.newConcurrentMap();
-      chainConfigDAO.readAll(Access.internal(), link().getId())
+      chainConfigDAO.readAll(Access.internal(), ImmutableList.of(link().getId()))
         .forEach(record -> _chainConfigs.put(
           record.getType(),
           record));
@@ -366,7 +368,7 @@ public class BasisImpl implements Basis {
   @Override
   public Collection<Arrangement> choiceArrangements(BigInteger choiceId) throws Exception {
     if (!_choiceArrangements.containsKey(choiceId)) {
-      _choiceArrangements.put(choiceId, arrangementDAO.readAll(Access.internal(), choiceId));
+      _choiceArrangements.put(choiceId, arrangementDAO.readAll(Access.internal(), ImmutableList.of(choiceId)));
     }
 
     return Collections.unmodifiableCollection(_choiceArrangements.get(choiceId));
@@ -417,7 +419,7 @@ public class BasisImpl implements Basis {
   @Override
   public Collection<LinkMeme> linkMemes(BigInteger linkId) throws Exception {
     if (!_linkMemes.containsKey(linkId))
-      _linkMemes.put(linkId, linkMemeDAO.readAll(Access.internal(), linkId));
+      _linkMemes.put(linkId, linkMemeDAO.readAll(Access.internal(), ImmutableList.of(linkId)));
 
     return _linkMemes.get(linkId);
   }
@@ -425,7 +427,7 @@ public class BasisImpl implements Basis {
   @Override
   public Collection<PatternMeme> patternMemes(BigInteger patternId) throws Exception {
     if (!_patternMemes.containsKey(patternId))
-      _patternMemes.put(patternId, patternMemeDAO.readAll(Access.internal(), patternId));
+      _patternMemes.put(patternId, patternMemeDAO.readAll(Access.internal(), ImmutableList.of(patternId)));
 
     return _patternMemes.get(patternId);
   }
@@ -450,15 +452,15 @@ public class BasisImpl implements Basis {
   }
 
   @Override
-  public Collection<VoiceEvent> phaseVoiceEvents(BigInteger phaseId, BigInteger voiceId) throws Exception {
-    if (!_phaseVoiceEvents.containsKey(phaseId))
-      _phaseVoiceEvents.put(phaseId, voiceEventDAO.readAllOfPhase(Access.internal(), phaseId));
+  public Collection<PhaseEvent> phasePhaseEvents(BigInteger phaseId, BigInteger voiceId) throws Exception {
+    if (!_phasePhaseEvents.containsKey(phaseId))
+      _phasePhaseEvents.put(phaseId, phaseEventDAO.readAll(Access.internal(), ImmutableList.of(phaseId)));
 
     // filter cache results based on required type-- minimize DAO calls
-    Collection<VoiceEvent> result = Lists.newArrayList();
-    _phaseVoiceEvents.get(phaseId).forEach((voiceEvent -> {
-      if (Objects.equals(voiceEvent.getVoiceId(), voiceId)) {
-        result.add(voiceEvent);
+    Collection<PhaseEvent> result = Lists.newArrayList();
+    _phasePhaseEvents.get(phaseId).forEach((phaseEvent -> {
+      if (Objects.equals(phaseEvent.getVoiceId(), voiceId)) {
+        result.add(phaseEvent);
       }
     }));
     return result;
@@ -476,7 +478,7 @@ public class BasisImpl implements Basis {
   public Collection<Audio> instrumentAudios(BigInteger instrumentId) throws Exception {
     if (!_instrumentAudios.containsKey(instrumentId)) {
       _instrumentAudios.put(instrumentId, Lists.newArrayList());
-      audioDAO.readAll(Access.internal(), instrumentId)
+      audioDAO.readAll(Access.internal(), ImmutableList.of(instrumentId))
         .forEach(model -> _instrumentAudios.get(instrumentId)
           .add(model));
     }
@@ -488,7 +490,7 @@ public class BasisImpl implements Basis {
   public Collection<InstrumentMeme> instrumentMemes(BigInteger instrumentId) throws Exception {
     if (!_instrumentMemes.containsKey(instrumentId)) {
       _instrumentMemes.put(instrumentId, Lists.newArrayList());
-      instrumentMemeDAO.readAll(Access.internal(), instrumentId)
+      instrumentMemeDAO.readAll(Access.internal(), ImmutableList.of(instrumentId))
         .forEach(model -> _instrumentMemes.get(instrumentId)
           .add(model));
     }
@@ -532,7 +534,7 @@ public class BasisImpl implements Basis {
   @Override
   public Collection<LinkChord> linkChords() throws Exception {
     if (Objects.isNull(_linkChords) || _linkChords.isEmpty()) {
-      _linkChords = linkChordDAO.readAll(Access.internal(), link().getId());
+      _linkChords = linkChordDAO.readAll(Access.internal(), ImmutableList.of(link().getId()));
     }
 
     return Collections.unmodifiableCollection(_linkChords);
@@ -573,7 +575,7 @@ public class BasisImpl implements Basis {
   @Override
   public Collection<PhaseMeme> phaseMemes(BigInteger phaseId) throws Exception {
     if (!_phaseMemes.containsKey(phaseId))
-      _phaseMemes.put(phaseId, phaseMemeDAO.readAll(Access.internal(), phaseId));
+      _phaseMemes.put(phaseId, phaseMemeDAO.readAll(Access.internal(), ImmutableList.of(phaseId)));
 
     return _phaseMemes.get(phaseId);
   }
@@ -650,7 +652,7 @@ public class BasisImpl implements Basis {
   public Collection<Voice> voices(BigInteger patternId) throws Exception {
     if (!_voicesByPattern.containsKey(patternId))
       _voicesByPattern.put(patternId,
-        voiceDAO.readAll(Access.internal(), patternId));
+        voiceDAO.readAll(Access.internal(), ImmutableList.of(patternId)));
 
     return _voicesByPattern.get(patternId);
   }

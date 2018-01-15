@@ -29,7 +29,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import static io.xj.core.Tables.PHASE_CHORD;
-import static io.xj.core.Tables.VOICE_EVENT;
+import static io.xj.core.Tables.PHASE_EVENT;
 import static io.xj.core.tables.Library.LIBRARY;
 import static io.xj.core.tables.Pattern.PATTERN;
 import static io.xj.core.tables.Phase.PHASE;
@@ -47,81 +47,6 @@ public class PhaseDAOImpl extends DAOImpl implements PhaseDAO {
   ) {
     this.workManager = workManager;
     this.dbProvider = dbProvider;
-  }
-
-  @Override
-  public Phase create(Access access, Phase entity) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(create(tx.getContext(), access, entity));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public Phase clone(Access access, BigInteger cloneId, Phase entity) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(clone(tx.getContext(), access, cloneId, entity));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  @Nullable
-  public Phase readOne(Access access, BigInteger id) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readOne(tx.getContext(), access, ULong.valueOf(id)));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Nullable
-  @Override
-  public Collection<Phase> readAllAtPatternOffset(Access access, BigInteger patternId, BigInteger patternPhaseOffset) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readAllAtPatternOffset(tx.getContext(), access, patternId, patternPhaseOffset));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  @Nullable
-  public Collection<Phase> readAll(Access access, BigInteger patternId) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readAll(tx.getContext(), access, patternId));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public void update(Access access, BigInteger id, Phase entity) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      update(tx.getContext(), access, ULong.valueOf(id), entity);
-      tx.success();
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public void delete(Access access, BigInteger id) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      delete(access, tx.getContext(), ULong.valueOf(id));
-      tx.success();
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
   }
 
   /**
@@ -142,30 +67,6 @@ public class PhaseDAOImpl extends DAOImpl implements PhaseDAO {
     deepValidate(db, access, entity);
 
     return modelFrom(executeCreate(db, PHASE, fieldValues), Phase.class);
-  }
-
-  /**
-   Clone a Phase into a new Phase
-
-   @param db      context
-   @param access  control
-   @param cloneId of phase to clone
-   @param entity  for the new Account User.
-   @return newly readMany record
-   @throws BusinessException on failure
-   */
-  private Phase clone(DSLContext db, Access access, BigInteger cloneId, Phase entity) throws Exception {
-    Phase from = readOne(db, access, ULong.valueOf(cloneId));
-    if (Objects.isNull(from)) throw new BusinessException("Can't clone nonexistent Phase");
-
-    entity.setDensity(from.getDensity());
-    entity.setKey(from.getKey());
-    entity.setTempo(from.getTempo());
-    entity.setTotal(from.getTotal());
-
-    Phase result = create(db, access, entity);
-    workManager.schedulePhaseClone(0, cloneId, result.getId());
-    return result;
   }
 
   /**
@@ -226,18 +127,18 @@ public class PhaseDAOImpl extends DAOImpl implements PhaseDAO {
    @param patternId to readMany all phase of
    @return array of phases
    */
-  private static Collection<Phase> readAll(DSLContext db, Access access, BigInteger patternId) throws BusinessException {
+  private static Collection<Phase> readAll(DSLContext db, Access access, Collection<ULong> patternId) throws BusinessException {
     if (access.isTopLevel())
       return modelsFrom(db.select(PHASE.fields())
         .from(PHASE)
-        .where(PHASE.PATTERN_ID.eq(ULong.valueOf(patternId)))
+        .where(PHASE.PATTERN_ID.in(patternId))
         .fetch(), Phase.class);
     else
       return modelsFrom(db.select(PHASE.fields())
         .from(PHASE)
         .join(PATTERN).on(PATTERN.ID.eq(PHASE.PATTERN_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(PATTERN.LIBRARY_ID))
-        .where(PHASE.PATTERN_ID.eq(ULong.valueOf(patternId)))
+        .where(PHASE.PATTERN_ID.in(patternId))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .fetch(), Phase.class);
   }
@@ -282,8 +183,8 @@ public class PhaseDAOImpl extends DAOImpl implements PhaseDAO {
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .fetchOne(0, int.class));
 
-    db.deleteFrom(VOICE_EVENT)
-      .where(VOICE_EVENT.PHASE_ID.eq(id))
+    db.deleteFrom(PHASE_EVENT)
+      .where(PHASE_EVENT.PHASE_ID.eq(id))
       .execute();
 
     db.deleteFrom(PHASE_MEME)
@@ -366,6 +267,105 @@ public class PhaseDAOImpl extends DAOImpl implements PhaseDAO {
     fieldValues.put(PHASE.TEMPO, valueOrNull(entity.getTempo()));
     fieldValues.put(PHASE.DENSITY, valueOrNull(entity.getDensity()));
     return fieldValues;
+  }
+
+  @Override
+  public Phase create(Access access, Phase entity) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(create(tx.getContext(), access, entity));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public Phase clone(Access access, BigInteger cloneId, Phase entity) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(clone(tx.getContext(), access, cloneId, entity));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  @Nullable
+  public Phase readOne(Access access, BigInteger id) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readOne(tx.getContext(), access, ULong.valueOf(id)));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Nullable
+  @Override
+  public Collection<Phase> readAllAtPatternOffset(Access access, BigInteger patternId, BigInteger patternPhaseOffset) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readAllAtPatternOffset(tx.getContext(), access, patternId, patternPhaseOffset));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  @Nullable
+  public Collection<Phase> readAll(Access access, Collection<BigInteger> parentIds) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readAll(tx.getContext(), access, uLongValuesOf(parentIds)));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public void update(Access access, BigInteger id, Phase entity) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      update(tx.getContext(), access, ULong.valueOf(id), entity);
+      tx.success();
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public void destroy(Access access, BigInteger id) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      delete(access, tx.getContext(), ULong.valueOf(id));
+      tx.success();
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  /**
+   Clone a Phase into a new Phase
+
+   @param db      context
+   @param access  control
+   @param cloneId of phase to clone
+   @param entity  for the new Account User.
+   @return newly readMany record
+   @throws BusinessException on failure
+   */
+  private Phase clone(DSLContext db, Access access, BigInteger cloneId, Phase entity) throws Exception {
+    Phase from = readOne(db, access, ULong.valueOf(cloneId));
+    if (Objects.isNull(from)) throw new BusinessException("Can't clone nonexistent Phase");
+
+    entity.setDensity(from.getDensity());
+    entity.setKey(from.getKey());
+    entity.setTempo(from.getTempo());
+    entity.setTotal(from.getTotal());
+
+    Phase result = create(db, access, entity);
+    workManager.schedulePhaseClone(0, cloneId, result.getId());
+    return result;
   }
 
 

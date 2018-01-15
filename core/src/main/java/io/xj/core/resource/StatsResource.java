@@ -3,7 +3,7 @@ package io.xj.core.resource;
 
 import io.xj.core.CoreModule;
 import io.xj.core.config.Exposure;
-import io.xj.core.stats.StatsProvider;
+import io.xj.core.transport.StatsProvider;
 import io.xj.core.transport.JSON;
 
 import com.google.inject.Guice;

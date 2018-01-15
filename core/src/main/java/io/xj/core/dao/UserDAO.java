@@ -2,7 +2,6 @@
 package io.xj.core.dao;
 
 import io.xj.core.access.impl.Access;
-import io.xj.core.exception.DatabaseException;
 import io.xj.core.model.user.User;
 import io.xj.core.model.user_access_token.UserAccessToken;
 import io.xj.core.model.user_auth.UserAuth;
@@ -12,9 +11,9 @@ import io.xj.core.model.user_role.UserRoleType;
 
 import javax.annotation.Nullable;
 import java.math.BigInteger;
-import java.util.Collection;
 
-public interface UserDAO {
+public interface UserDAO extends DAO<User> {
+
   /**
    Authenticates a User using external credentials:
    <p>
@@ -38,25 +37,6 @@ public interface UserDAO {
    @return access token
    */
   String authenticate(UserAuthType authType, String account, String externalAccessToken, String externalRefreshToken, String name, String avatarUrl, String email) throws Exception;
-
-  /**
-   Fetch one User by id, if accessible
-
-   @param access control
-   @param userId to fetch
-   @return User if found and visible, as JSON object
-   @throws Exception on failure
-   */
-  @Nullable
-  User readOne(Access access, BigInteger userId) throws Exception;
-
-  /**
-   Read Users accessible, and their roles
-
-   @param access control
-   @return Users as JSON array.
-   */
-  Collection<User> readAll(Access access) throws Exception;
 
   /**
    (ADMIN ONLY)

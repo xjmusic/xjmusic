@@ -14,6 +14,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
+import org.assertj.core.util.Lists;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.After;
@@ -76,7 +77,7 @@ public class AccountIT {
       "accounts", "1"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, Lists.newArrayList()));
 
     assertNotNull(result);
     assertEquals(1, result.length());
@@ -123,7 +124,7 @@ public class AccountIT {
       "accounts", "1"
     ));
 
-    testDAO.delete(access, BigInteger.valueOf(1));
+    testDAO.destroy(access, BigInteger.valueOf(1));
 
     Account result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1));
     assertNull(result);
@@ -139,7 +140,7 @@ public class AccountIT {
     failure.expect(BusinessException.class);
     failure.expectMessage("top-level access is required");
 
-    testDAO.delete(access, BigInteger.valueOf(1));
+    testDAO.destroy(access, BigInteger.valueOf(1));
   }
 
   @Test
@@ -153,7 +154,7 @@ public class AccountIT {
     failure.expect(BusinessException.class);
     failure.expectMessage("Found Chain in Account");
 
-    testDAO.delete(access, BigInteger.valueOf(1));
+    testDAO.destroy(access, BigInteger.valueOf(1));
   }
 
   @Test
@@ -167,7 +168,7 @@ public class AccountIT {
     failure.expect(BusinessException.class);
     failure.expectMessage("Found Library in Account");
 
-    testDAO.delete(access, BigInteger.valueOf(1));
+    testDAO.destroy(access, BigInteger.valueOf(1));
   }
 
   @Test
@@ -182,7 +183,7 @@ public class AccountIT {
     failure.expect(BusinessException.class);
     failure.expectMessage("Found User in Account");
 
-    testDAO.delete(access, BigInteger.valueOf(1));
+    testDAO.destroy(access, BigInteger.valueOf(1));
   }
 
 }

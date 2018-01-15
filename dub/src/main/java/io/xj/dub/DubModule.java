@@ -1,8 +1,10 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.dub;
 
-import io.xj.dub.impl.MasterDubImpl;
-import io.xj.dub.impl.ShipDubImpl;
+import io.xj.dub.master.impl.MasterDubImpl;
+import io.xj.dub.ship.impl.ShipDubImpl;
+import io.xj.dub.master.MasterDub;
+import io.xj.dub.ship.ShipDub;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.assistedinject.FactoryModuleBuilder;

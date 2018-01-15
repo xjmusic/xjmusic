@@ -7,8 +7,9 @@ import io.xj.core.dao.InstrumentMemeDAO;
 import io.xj.core.model.instrument_meme.InstrumentMeme;
 import io.xj.core.model.instrument_meme.InstrumentMemeWrapper;
 import io.xj.core.model.user_role.UserRoleType;
-import io.xj.core.server.HttpResponseProvider;
+import io.xj.core.transport.HttpResponseProvider;
 
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
@@ -58,7 +59,7 @@ public class InstrumentMemeIndexResource {
         InstrumentMeme.KEY_MANY,
         instrumentMemeDAO.readAll(
           Access.fromContext(crc),
-          new BigInteger(instrumentId)));
+          ImmutableList.of(new BigInteger(instrumentId))));
 
     } catch (Exception e) {
       return response.failure(e);

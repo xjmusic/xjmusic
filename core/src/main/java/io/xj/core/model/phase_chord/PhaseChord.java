@@ -4,8 +4,6 @@ package io.xj.core.model.phase_chord;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.model.chord.Chord;
 
-import org.json.JSONObject;
-
 import java.math.BigInteger;
 import java.util.Objects;
 
@@ -37,6 +35,10 @@ public class PhaseChord extends Chord {
   public PhaseChord setPhaseId(BigInteger phaseId) {
     this.phaseId = phaseId;
     return this;
+  }
+
+  public BigInteger getParentId() {
+    return phaseId;
   }
 
   public PhaseChord setPosition(Integer position) {

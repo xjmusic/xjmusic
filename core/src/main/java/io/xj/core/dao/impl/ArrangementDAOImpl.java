@@ -35,70 +35,6 @@ public class ArrangementDAOImpl extends DAOImpl implements ArrangementDAO {
     this.dbProvider = dbProvider;
   }
 
-  @Override
-  public Arrangement create(Access access, Arrangement entity) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(create(tx.getContext(), access, entity));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  @Nullable
-  public Arrangement readOne(Access access, BigInteger id) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readOne(tx.getContext(), access, ULong.valueOf(id)));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  @Nullable
-  public Collection<Arrangement> readAll(Access access, BigInteger choiceId) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readAll(tx.getContext(), access, ULong.valueOf(choiceId)));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public Collection<Arrangement> readAllInLinks(Access access, Collection<BigInteger> linkIds) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readAllInLinks(tx.getContext(), access, idCollection(linkIds)));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public void update(Access access, BigInteger id, Arrangement entity) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      update(tx.getContext(), access, ULong.valueOf(id), entity);
-      tx.success();
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public void delete(Access access, BigInteger arrangementId) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      delete(tx.getContext(), access, ULong.valueOf(arrangementId));
-      tx.success();
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
   /**
    Create a new record
 
@@ -150,16 +86,16 @@ public class ArrangementDAOImpl extends DAOImpl implements ArrangementDAO {
   /**
    Read all records in parent by id
 
-   @param db       context
-   @param access   control
-   @param choiceId of parent
+   @param db        context
+   @param access    control
+   @param choiceIds of parent
    @return array of records
    */
-  private static Collection<Arrangement> readAll(DSLContext db, Access access, ULong choiceId) throws BusinessException {
+  private static Collection<Arrangement> readAll(DSLContext db, Access access, Collection<ULong> choiceIds) throws BusinessException {
     if (access.isTopLevel())
       return modelsFrom(db.select(ARRANGEMENT.fields())
         .from(ARRANGEMENT)
-        .where(ARRANGEMENT.CHOICE_ID.eq(choiceId))
+        .where(ARRANGEMENT.CHOICE_ID.in(choiceIds))
         .fetch(), Arrangement.class);
     else
       return modelsFrom(db.select(ARRANGEMENT.fields())
@@ -167,7 +103,7 @@ public class ArrangementDAOImpl extends DAOImpl implements ArrangementDAO {
         .join(CHOICE).on(CHOICE.ID.eq(ARRANGEMENT.CHOICE_ID))
         .join(LINK).on(LINK.ID.eq(CHOICE.LINK_ID))
         .join(CHAIN).on(CHAIN.ID.eq(LINK.CHAIN_ID))
-        .where(ARRANGEMENT.CHOICE_ID.eq(choiceId))
+        .where(ARRANGEMENT.CHOICE_ID.in(choiceIds))
         .and(CHAIN.ACCOUNT_ID.in(access.getAccountIds()))
         .fetch(), Arrangement.class);
   }
@@ -251,5 +187,69 @@ public class ArrangementDAOImpl extends DAOImpl implements ArrangementDAO {
     fieldValues.put(ARRANGEMENT.VOICE_ID, ULong.valueOf(entity.getVoiceId()));
     fieldValues.put(ARRANGEMENT.INSTRUMENT_ID, ULong.valueOf(entity.getInstrumentId()));
     return fieldValues;
+  }
+
+  @Override
+  public Arrangement create(Access access, Arrangement entity) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(create(tx.getContext(), access, entity));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  @Nullable
+  public Arrangement readOne(Access access, BigInteger id) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readOne(tx.getContext(), access, ULong.valueOf(id)));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  @Nullable
+  public Collection<Arrangement> readAll(Access access, Collection<BigInteger> parentIds) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readAll(tx.getContext(), access, uLongValuesOf(parentIds)));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public Collection<Arrangement> readAllInLinks(Access access, Collection<BigInteger> linkIds) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readAllInLinks(tx.getContext(), access, idCollection(linkIds)));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public void update(Access access, BigInteger id, Arrangement entity) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      update(tx.getContext(), access, ULong.valueOf(id), entity);
+      tx.success();
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public void destroy(Access access, BigInteger id) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      delete(tx.getContext(), access, ULong.valueOf(id));
+      tx.success();
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
   }
 }

@@ -8,7 +8,7 @@ import io.xj.core.dao.AccountDAO;
 import io.xj.core.model.account.Account;
 import io.xj.core.model.account.AccountWrapper;
 import io.xj.core.model.user_role.UserRoleType;
-import io.xj.core.server.HttpResponseProvider;
+import io.xj.core.transport.HttpResponseProvider;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -88,7 +88,7 @@ public class AccountOneResource {
   @RolesAllowed(UserRoleType.ADMIN)
   public Response delete(@Context ContainerRequestContext crc) {
     try {
-      accountDAO.delete(Access.fromContext(crc), new BigInteger(id));
+      accountDAO.destroy(Access.fromContext(crc), new BigInteger(id));
       return Response.accepted("{}").build();
 
     } catch (Exception e) {

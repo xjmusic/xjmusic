@@ -10,7 +10,7 @@ import io.xj.core.dao.AudioDAO;
 import io.xj.core.model.audio.Audio;
 import io.xj.core.model.audio.AudioWrapper;
 import io.xj.core.model.user_role.UserRoleType;
-import io.xj.core.server.HttpResponseProvider;
+import io.xj.core.transport.HttpResponseProvider;
 import io.xj.core.transport.JSON;
 import org.json.JSONObject;
 

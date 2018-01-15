@@ -15,6 +15,7 @@ import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.transport.JSON;
 import io.xj.core.work.WorkManager;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -246,7 +247,7 @@ public class PatternIT {
     assertNull(result);
   }
 
-  // future test: readAllInAccount vs readAllInLibrary, positive and negative cases
+  // future test: readAllInAccount vs readAllInLibraries, positive and negative cases
 
   @Test
   public void readAll() throws Exception {
@@ -255,7 +256,7 @@ public class PatternIT {
       "accounts", "1"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAllInLibrary(access, BigInteger.valueOf(1)));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1))));
 
     assertNotNull(result);
     assertEquals(2, result.length());
@@ -296,7 +297,7 @@ public class PatternIT {
       "accounts", "345"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAllInLibrary(access, BigInteger.valueOf(1)));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1))));
 
     assertNotNull(result);
     assertEquals(0, result.length());
@@ -380,7 +381,7 @@ public class PatternIT {
       "roles", "Admin"
     ));
 
-    testDAO.delete(access, BigInteger.valueOf(2));
+    testDAO.destroy(access, BigInteger.valueOf(2));
 
     Pattern result = testDAO.readOne(Access.internal(), BigInteger.valueOf(2));
     assertNull(result);
@@ -394,7 +395,7 @@ public class PatternIT {
     IntegrationTestEntity.insertPhase(1, 2, PhaseType.Main, 0, 14, "testPhase", 0.524, "F#", 125.49);
 
     try {
-      testDAO.delete(access, BigInteger.valueOf(2));
+      testDAO.destroy(access, BigInteger.valueOf(2));
 
     } catch (Exception e) {
       Pattern result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1));
@@ -412,7 +413,7 @@ public class PatternIT {
     IntegrationTestEntity.insertLink(1, 1, 0, LinkState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120, "chain-1-link-97898asdf7892.wav");
     IntegrationTestEntity.insertChoice(1, 1, 2, PatternType.Main, 0, -5);
 
-    testDAO.delete(access, BigInteger.valueOf(2));
+    testDAO.destroy(access, BigInteger.valueOf(2));
 
     Pattern result = testDAO.readOne(Access.internal(), BigInteger.valueOf(2));
     assertNull(result);

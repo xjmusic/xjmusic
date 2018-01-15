@@ -4,7 +4,7 @@ package io.xj.hub.resource.link_chord;
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
 import io.xj.core.model.user_role.UserRoleType;
-import io.xj.core.server.HttpResponseProvider;
+import io.xj.core.transport.HttpResponseProvider;
 import io.xj.core.dao.LinkChordDAO;
 import io.xj.core.model.link_chord.LinkChord;
 

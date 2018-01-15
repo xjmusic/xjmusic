@@ -4,7 +4,7 @@ package io.xj.hub.resource.phase_chord;
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
 import io.xj.core.model.user_role.UserRoleType;
-import io.xj.core.server.HttpResponseProvider;
+import io.xj.core.transport.HttpResponseProvider;
 import io.xj.core.dao.PhaseChordDAO;
 import io.xj.core.model.phase_chord.PhaseChord;
 import io.xj.core.model.phase_chord.PhaseChordWrapper;
@@ -90,7 +90,7 @@ public class PhaseChordOneResource {
   @RolesAllowed(UserRoleType.ARTIST)
   public Response delete(@Context ContainerRequestContext crc) {
     try {
-      phaseChordDAO.delete(Access.fromContext(crc), new BigInteger(id));
+      phaseChordDAO.destroy(Access.fromContext(crc), new BigInteger(id));
       return Response.accepted("{}").build();
 
     } catch (Exception e) {

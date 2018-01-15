@@ -7,11 +7,11 @@ import io.xj.core.model.link.Link;
 import com.google.inject.assistedinject.Assisted;
 
 /**
- <p>
  Basis basis = basisFactory.createBasis(link);
  ... do things with this basis, like craft or dub ...
  basis.sendReport();
  */
+@FunctionalInterface
 public interface BasisFactory {
   /**
    Create a basis for Macro & Main pattern craft (previous link and other cached resources)
@@ -23,5 +23,4 @@ public interface BasisFactory {
   Basis createBasis(
     @Assisted("link") Link link
   ) throws ConfigException;
-
 }

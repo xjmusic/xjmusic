@@ -7,8 +7,9 @@ import io.xj.core.dao.AudioDAO;
 import io.xj.core.model.audio.Audio;
 import io.xj.core.model.audio.AudioWrapper;
 import io.xj.core.model.user_role.UserRoleType;
-import io.xj.core.server.HttpResponseProvider;
+import io.xj.core.transport.HttpResponseProvider;
 
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
@@ -60,7 +61,7 @@ public class AudioIndexResource {
         Audio.KEY_MANY,
         audioDAO.readAll(
           Access.fromContext(crc),
-          new BigInteger(instrumentId)));
+          ImmutableList.of(new BigInteger(instrumentId))));
 
     } catch (Exception e) {
       return response.failure(e);

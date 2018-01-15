@@ -44,109 +44,6 @@ public class InstrumentDAOImpl extends DAOImpl implements InstrumentDAO {
     this.dbProvider = dbProvider;
   }
 
-  @Override
-  public Instrument create(Access access, Instrument entity) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(create(tx.getContext(), access, entity));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public Instrument clone(Access access, BigInteger cloneId, Instrument entity) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(clone(tx.getContext(), access, cloneId, entity));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  @Nullable
-  public Instrument readOne(Access access, BigInteger id) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readOne(tx.getContext(), access, ULong.valueOf(id)));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public Collection<Instrument> readAllInAccount(Access access, BigInteger accountId) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readAllInAccount(tx.getContext(), access, ULong.valueOf(accountId)));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public Collection<Instrument> readAllInLibrary(Access access, BigInteger libraryId) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readAllInLibrary(tx.getContext(), access, ULong.valueOf(libraryId)));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public Collection<Instrument> readAll(Access access) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readAll(tx.getContext(), access));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public Collection<Instrument> readAllBoundToChain(Access access, BigInteger chainId, InstrumentType instrumentType) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readAllBoundToChain(tx.getContext(), access, ULong.valueOf(chainId), instrumentType));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public Collection<Instrument> readAllBoundToChainLibrary(Access access, BigInteger chainId, InstrumentType instrumentType) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readAllBoundToChainLibrary(tx.getContext(), access, ULong.valueOf(chainId), instrumentType));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public void update(Access access, BigInteger instrumentId, Instrument entity) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      update(tx.getContext(), access, ULong.valueOf(instrumentId), entity);
-      tx.success();
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public void delete(Access access, BigInteger id) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      delete(tx.getContext(), access, ULong.valueOf(id));
-      tx.success();
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
   /**
    Create a record
 
@@ -175,30 +72,6 @@ public class InstrumentDAOImpl extends DAOImpl implements InstrumentDAO {
     fieldValues.put(INSTRUMENT.USER_ID, access.getUserId());
 
     return modelFrom(executeCreate(db, INSTRUMENT, fieldValues), Instrument.class);
-  }
-
-  /**
-   Clone a Instrument into a new Instrument
-
-   @param db      context
-   @param access  control
-   @param cloneId of instrument to clone
-   @param entity  for the new Account User.
-   @return newly readMany record
-   @throws BusinessException on failure
-   */
-  private Instrument clone(DSLContext db, Access access, BigInteger cloneId, Instrument entity) throws BusinessException {
-    Instrument from = readOne(db, access, ULong.valueOf(cloneId));
-    if (Objects.isNull(from)) throw new BusinessException("Can't clone nonexistent Instrument");
-
-    entity.setUserId(from.getUserId());
-    entity.setDensity(from.getDensity());
-    entity.setUserId(from.getUserId());
-    entity.setTypeEnum(from.getType());
-
-    Instrument result = create(db, access, entity);
-    workManager.scheduleInstrumentClone(0, cloneId, result.getId());
-    return result;
   }
 
   /**
@@ -253,23 +126,23 @@ public class InstrumentDAOImpl extends DAOImpl implements InstrumentDAO {
   /**
    Read all records in parent record by id
 
-   @param db        context
-   @param access    control
-   @param libraryId of parent
+   @param db         context
+   @param access     control
+   @param libraryIds of parent
    @return array of records
    */
-  private static Collection<Instrument> readAllInLibrary(DSLContext db, Access access, ULong libraryId) throws BusinessException {
+  private static Collection<Instrument> readAllInLibraries(DSLContext db, Access access, Collection<ULong> libraryIds) throws BusinessException {
     if (access.isTopLevel())
       return modelsFrom(db.select(INSTRUMENT.fields())
         .from(INSTRUMENT)
-        .where(INSTRUMENT.LIBRARY_ID.eq(libraryId))
+        .where(INSTRUMENT.LIBRARY_ID.in(libraryIds))
         .orderBy(INSTRUMENT.TYPE, INSTRUMENT.DESCRIPTION)
         .fetch(), Instrument.class);
     else
       return modelsFrom(db.select(INSTRUMENT.fields())
         .from(INSTRUMENT)
         .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
-        .where(INSTRUMENT.LIBRARY_ID.eq(libraryId))
+        .where(INSTRUMENT.LIBRARY_ID.in(libraryIds))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .orderBy(INSTRUMENT.TYPE, INSTRUMENT.DESCRIPTION)
         .fetch(), Instrument.class);
@@ -417,6 +290,133 @@ public class InstrumentDAOImpl extends DAOImpl implements InstrumentDAO {
     fieldValues.put(INSTRUMENT.TYPE, entity.getType());
     fieldValues.put(INSTRUMENT.DENSITY, entity.getDensity());
     return fieldValues;
+  }
+
+  @Override
+  public Instrument create(Access access, Instrument entity) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(create(tx.getContext(), access, entity));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public Instrument clone(Access access, BigInteger cloneId, Instrument entity) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(clone(tx.getContext(), access, cloneId, entity));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  @Nullable
+  public Instrument readOne(Access access, BigInteger id) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readOne(tx.getContext(), access, ULong.valueOf(id)));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public Collection<Instrument> readAllInAccount(Access access, BigInteger accountId) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readAllInAccount(tx.getContext(), access, ULong.valueOf(accountId)));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public Collection<Instrument> readAll(Access access, Collection<BigInteger> parentIds) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readAllInLibraries(tx.getContext(), access, uLongValuesOf(parentIds)));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public Collection<Instrument> readAll(Access access) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readAll(tx.getContext(), access));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public Collection<Instrument> readAllBoundToChain(Access access, BigInteger chainId, InstrumentType instrumentType) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readAllBoundToChain(tx.getContext(), access, ULong.valueOf(chainId), instrumentType));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public Collection<Instrument> readAllBoundToChainLibrary(Access access, BigInteger chainId, InstrumentType instrumentType) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readAllBoundToChainLibrary(tx.getContext(), access, ULong.valueOf(chainId), instrumentType));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public void update(Access access, BigInteger instrumentId, Instrument entity) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      update(tx.getContext(), access, ULong.valueOf(instrumentId), entity);
+      tx.success();
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public void destroy(Access access, BigInteger id) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      delete(tx.getContext(), access, ULong.valueOf(id));
+      tx.success();
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  /**
+   Clone a Instrument into a new Instrument
+
+   @param db      context
+   @param access  control
+   @param cloneId of instrument to clone
+   @param entity  for the new Account User.
+   @return newly readMany record
+   @throws BusinessException on failure
+   */
+  private Instrument clone(DSLContext db, Access access, BigInteger cloneId, Instrument entity) throws BusinessException {
+    Instrument from = readOne(db, access, ULong.valueOf(cloneId));
+    if (Objects.isNull(from)) throw new BusinessException("Can't clone nonexistent Instrument");
+
+    entity.setUserId(from.getUserId());
+    entity.setDensity(from.getDensity());
+    entity.setUserId(from.getUserId());
+    entity.setTypeEnum(from.getType());
+
+    Instrument result = create(db, access, entity);
+    workManager.scheduleInstrumentClone(0, cloneId, result.getId());
+    return result;
   }
 
 

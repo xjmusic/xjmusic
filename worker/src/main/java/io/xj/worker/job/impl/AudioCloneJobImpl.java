@@ -14,6 +14,7 @@ import io.xj.core.model.audio_event.AudioEvent;
 import io.xj.core.transport.JSON;
 import io.xj.worker.job.AudioCloneJob;
 
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
@@ -79,7 +80,7 @@ public class AudioCloneJobImpl implements AudioCloneJob {
       throw new BusinessException("Could not fetch clone target Audio");
 
     // Clone AudioEvent
-    audioEventDAO.readAll(Access.internal(), fromId).forEach(audioEvent -> {
+    audioEventDAO.readAll(Access.internal(), ImmutableList.of(fromId)).forEach(audioEvent -> {
       audioEvent.setAudioId(toId);
 
       try {
@@ -93,7 +94,7 @@ public class AudioCloneJobImpl implements AudioCloneJob {
     });
 
     // Clone AudioChord
-    audioChordDAO.readAll(Access.internal(), fromId).forEach(audioChord -> {
+    audioChordDAO.readAll(Access.internal(), ImmutableList.of(fromId)).forEach(audioChord -> {
       audioChord.setAudioId(toId);
 
       try {

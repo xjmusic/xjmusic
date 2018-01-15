@@ -43,6 +43,11 @@ public class LinkChord extends Chord {
   }
 
   @Override
+  public BigInteger getParentId() {
+    return linkId;
+  }
+
+  @Override
   public void validate() throws BusinessException {
     if (Objects.isNull(linkId)) {
       throw new BusinessException("Link ID is required.");

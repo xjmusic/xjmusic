@@ -38,47 +38,6 @@ public class PatternMemeDAOImpl extends DAOImpl implements PatternMemeDAO {
     this.dbProvider = dbProvider;
   }
 
-  @Override
-  public PatternMeme create(Access access, PatternMeme entity) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(create(tx.getContext(), access, entity));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public PatternMeme readOne(Access access, BigInteger id) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readOne(tx.getContext(), access, ULong.valueOf(id)));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public Collection<PatternMeme> readAll(Access access, BigInteger patternId) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readAll(tx.getContext(), access, ULong.valueOf(patternId)));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public void delete(Access access, BigInteger id) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      delete(tx.getContext(), access, ULong.valueOf(id));
-      tx.success();
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
   /**
    Create a new Pattern Meme record
 
@@ -140,21 +99,21 @@ public class PatternMemeDAOImpl extends DAOImpl implements PatternMemeDAO {
   /**
    Read all Memes of an Pattern where able
 
-   @param db        context
-   @param access    control
-   @param patternId to readMany memes for
+   @param db         context
+   @param access     control
+   @param patternIds to readMany memes for
    @return array of pattern memes
    */
-  private static Collection<PatternMeme> readAll(DSLContext db, Access access, ULong patternId) throws BusinessException {
+  private static Collection<PatternMeme> readAll(DSLContext db, Access access, Collection<ULong> patternIds) throws BusinessException {
     if (access.isTopLevel())
       return modelsFrom(db.selectFrom(PATTERN_MEME)
-        .where(PATTERN_MEME.PATTERN_ID.eq(patternId))
+        .where(PATTERN_MEME.PATTERN_ID.in(patternIds))
         .fetch(), PatternMeme.class);
     else
       return modelsFrom(db.select(PATTERN_MEME.fields()).from(PATTERN_MEME)
         .join(PATTERN).on(PATTERN.ID.eq(PATTERN_MEME.PATTERN_ID))
         .join(LIBRARY).on(PATTERN.LIBRARY_ID.eq(LIBRARY.ID))
-        .where(PATTERN.ID.eq(patternId))
+        .where(PATTERN.ID.in(patternIds))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .fetch(), PatternMeme.class);
   }
@@ -193,6 +152,52 @@ public class PatternMemeDAOImpl extends DAOImpl implements PatternMemeDAO {
     fieldValues.put(PATTERN_MEME.PATTERN_ID, ULong.valueOf(entity.getPatternId()));
     fieldValues.put(PATTERN_MEME.NAME, entity.getName());
     return fieldValues;
+  }
+
+  @Override
+  public PatternMeme create(Access access, PatternMeme entity) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(create(tx.getContext(), access, entity));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public PatternMeme readOne(Access access, BigInteger id) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readOne(tx.getContext(), access, ULong.valueOf(id)));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public Collection<PatternMeme> readAll(Access access, Collection<BigInteger> parentIds) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readAll(tx.getContext(), access, uLongValuesOf(parentIds)));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public void update(Access access, BigInteger id, PatternMeme entity) throws Exception {
+    throw new BusinessException("Not allowed to update PatternMeme record.");
+  }
+
+  @Override
+  public void destroy(Access access, BigInteger id) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      delete(tx.getContext(), access, ULong.valueOf(id));
+      tx.success();
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
   }
 
 

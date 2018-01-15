@@ -2,13 +2,10 @@
 package io.xj.core.dao.impl;
 
 import io.xj.core.access.impl.Access;
-import io.xj.core.config.Config;
 import io.xj.core.dao.AudioChordDAO;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.exception.ConfigException;
 import io.xj.core.model.audio_chord.AudioChord;
-import io.xj.core.model.chord.Chord;
-import io.xj.core.model.chord.ChordSequence;
 import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import io.xj.core.persistence.sql.impl.SQLConnection;
 
@@ -17,13 +14,11 @@ import org.jooq.Field;
 import org.jooq.types.ULong;
 
 import com.google.api.client.util.Maps;
-import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 
 import javax.annotation.Nullable;
 import java.math.BigInteger;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 import static io.xj.core.Tables.AUDIO;
@@ -38,70 +33,6 @@ public class AudioChordDAOImpl extends DAOImpl implements AudioChordDAO {
     SQLDatabaseProvider dbProvider
   ) {
     this.dbProvider = dbProvider;
-  }
-
-  @Override
-  public AudioChord create(Access access, AudioChord entity) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(createRecord(tx.getContext(), access, entity));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  @Nullable
-  public AudioChord readOne(Access access, BigInteger id) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readOneRecord(tx.getContext(), access, ULong.valueOf(id)));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  @Nullable
-  public Collection<AudioChord> readAll(Access access, BigInteger audioId) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readAll(tx.getContext(), access, ULong.valueOf(audioId)));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public Collection<ChordSequence> readAllSequences(Access access, BigInteger audioId) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readAllSequences(tx.getContext(), access, audioId));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public void update(Access access, BigInteger id, AudioChord entity) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      update(tx.getContext(), access, ULong.valueOf(id), entity);
-      tx.success();
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public void delete(Access access, BigInteger id) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      delete(access, tx.getContext(), ULong.valueOf(id));
-      tx.success();
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
   }
 
   /**
@@ -160,16 +91,16 @@ public class AudioChordDAOImpl extends DAOImpl implements AudioChordDAO {
   /**
    Read all Chord able for an Instrument
 
-   @param db      context
-   @param access  control
-   @param audioId to readMany all audio of
+   @param db       context
+   @param access   control
+   @param audioIds to readMany all audio of
    @return array of audios
    */
-  private static Collection<AudioChord> readAll(DSLContext db, Access access, ULong audioId) throws BusinessException {
+  private static Collection<AudioChord> readAll(DSLContext db, Access access, Collection<ULong> audioIds) throws BusinessException {
     if (access.isTopLevel())
       return modelsFrom(db.select(AUDIO_CHORD.fields())
         .from(AUDIO_CHORD)
-        .where(AUDIO_CHORD.AUDIO_ID.eq(audioId))
+        .where(AUDIO_CHORD.AUDIO_ID.in(audioIds))
         .orderBy(AUDIO_CHORD.POSITION)
         .fetch(), AudioChord.class);
     else
@@ -178,39 +109,10 @@ public class AudioChordDAOImpl extends DAOImpl implements AudioChordDAO {
         .join(AUDIO).on(AUDIO.ID.eq(AUDIO_CHORD.AUDIO_ID))
         .join(INSTRUMENT).on(INSTRUMENT.ID.eq(AUDIO.INSTRUMENT_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
-        .where(AUDIO_CHORD.AUDIO_ID.eq(audioId))
+        .where(AUDIO_CHORD.AUDIO_ID.in(audioIds))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .orderBy(AUDIO_CHORD.POSITION)
         .fetch(), AudioChord.class);
-  }
-
-  /**
-   Read all possible audio chord sequences for an audio
-
-   @param db      context
-   @param access  control
-   @param audioId to readMany all audio of
-   @return array of audios
-   */
-  private static Collection<ChordSequence> readAllSequences(DSLContext db, Access access, BigInteger audioId) throws BusinessException {
-    List<ChordSequence> result = Lists.newArrayList();
-
-    List<AudioChord> allChords = Lists.newArrayList(readAll(db, access, ULong.valueOf(audioId)));
-    allChords.sort(Chord.byPositionAscending);
-
-    int totalChords = allChords.size();
-    for (int fromChord = 0; fromChord < totalChords; fromChord++) {
-      int maxToChord = Math.min(totalChords, fromChord + Config.analysisChordSequenceLengthMax());
-      for (int toChord = fromChord; toChord < maxToChord; toChord++) {
-        List<AudioChord> subset = Lists.newArrayList();
-        for (int i = fromChord; i <= toChord; i++) {
-          subset.add(allChords.get(i));
-        }
-        result.add(new ChordSequence(audioId, subset));
-      }
-    }
-
-    return result;
   }
 
   /**
@@ -281,6 +183,60 @@ public class AudioChordDAOImpl extends DAOImpl implements AudioChordDAO {
     fieldValues.put(AUDIO_CHORD.AUDIO_ID, ULong.valueOf(entity.getAudioId()));
     fieldValues.put(AUDIO_CHORD.POSITION, entity.getPosition());
     return fieldValues;
+  }
+
+  @Override
+  public AudioChord create(Access access, AudioChord entity) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(createRecord(tx.getContext(), access, entity));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  @Nullable
+  public AudioChord readOne(Access access, BigInteger id) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readOneRecord(tx.getContext(), access, ULong.valueOf(id)));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  @Nullable
+  public Collection<AudioChord> readAll(Access access, Collection<BigInteger> parentIds) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readAll(tx.getContext(), access, uLongValuesOf(parentIds)));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public void update(Access access, BigInteger id, AudioChord entity) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      update(tx.getContext(), access, ULong.valueOf(id), entity);
+      tx.success();
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public void destroy(Access access, BigInteger id) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      delete(access, tx.getContext(), ULong.valueOf(id));
+      tx.success();
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
   }
 
 }

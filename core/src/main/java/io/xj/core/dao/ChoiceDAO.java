@@ -9,25 +9,7 @@ import javax.annotation.Nullable;
 import java.math.BigInteger;
 import java.util.Collection;
 
-public interface ChoiceDAO {
-  /**
-   Create a new Choice
-
-   @param entity for the new Choice.
-   @return newly readMany Choice record.
-   */
-  Choice create(Access access, Choice entity) throws Exception;
-
-  /**
-   Fetch one Choice by id, if accessible
-
-   @param access   control
-   @param choiceId to fetch
-   @return Choice if found
-   @throws Exception on failure
-   */
-  @Nullable
-  Choice readOne(Access access, BigInteger choiceId) throws Exception;
+public interface ChoiceDAO extends DAO<Choice> {
 
   /**
    Read one choice, binding a given pattern to a given link
@@ -55,16 +37,6 @@ public interface ChoiceDAO {
   Choice readOneLinkTypeWithAvailablePhaseOffsets(Access access, BigInteger linkId, PatternType patternType) throws Exception;
 
   /**
-   Read all Choices that are accessible
-
-   @param access control
-   @param linkId to read choices for
-   @return array of choices as JSON
-   @throws Exception on failure
-   */
-  Collection<Choice> readAll(Access access, BigInteger linkId) throws Exception;
-
-  /**
    Fetch many choice for many Links by id, if accessible
 
    @param access  control
@@ -73,20 +45,5 @@ public interface ChoiceDAO {
    @throws Exception on failure
    */
   Collection<Choice> readAllInLinks(Access access, Collection<BigInteger> linkIds) throws Exception;
-
-  /**
-   Update a specified Choice
-
-   @param choiceId of specific Choice to update.
-   @param entity   for the updated Choice.
-   */
-  void update(Access access, BigInteger choiceId, Choice entity) throws Exception;
-
-  /**
-   Delete a specified Choice
-
-   @param choiceId of specific Choice to delete.
-   */
-  void delete(Access access, BigInteger choiceId) throws Exception;
 
 }

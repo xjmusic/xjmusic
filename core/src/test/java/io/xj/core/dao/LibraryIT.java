@@ -11,13 +11,15 @@ import io.xj.core.model.library.LibraryHash;
 import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.phase.PhaseType;
 import io.xj.core.model.user_role.UserRoleType;
-import io.xj.core.model.voice_event.VoiceEvent;
+import io.xj.core.model.phase_event.PhaseEvent;
 import io.xj.core.transport.JSON;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
+import org.assertj.core.util.Lists;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.After;
@@ -72,10 +74,10 @@ public class LibraryIT {
     IntegrationTestEntity.insertPhaseMeme(1103, 902, "Peel", at);
     IntegrationTestEntity.insertVoice(1201, 701, InstrumentType.Percussive, "Drums", at);
     IntegrationTestEntity.insertVoice(1202, 702, InstrumentType.Harmonic, "Bass", at);
-    IntegrationTestEntity.insertVoiceEvent(1401, 901, 1201, 0, 1, "BOOM", "C", 0.8, 1.0, at);
-    IntegrationTestEntity.insertVoiceEvent(1402, 901, 1201, 1, 1, "SMACK", "G", 0.1, 0.8, at);
-    IntegrationTestEntity.insertVoiceEvent(1403, 901, 1201, 2.5, 1, "BOOM", "C", 0.8, 0.6, at);
-    IntegrationTestEntity.insertVoiceEvent(1404, 901, 1201, 3, 1, "SMACK", "G", 0.1, 0.9, at);
+    IntegrationTestEntity.insertPhaseEvent(1401, 901, 1201, 0, 1, "BOOM", "C", 0.8, 1.0, at);
+    IntegrationTestEntity.insertPhaseEvent(1402, 901, 1201, 1, 1, "SMACK", "G", 0.1, 0.8, at);
+    IntegrationTestEntity.insertPhaseEvent(1403, 901, 1201, 2.5, 1, "BOOM", "C", 0.8, 0.6, at);
+    IntegrationTestEntity.insertPhaseEvent(1404, 901, 1201, 3, 1, "SMACK", "G", 0.1, 0.9, at);
   }
 
   @Before
@@ -156,24 +158,20 @@ public class LibraryIT {
   }
 
   @Test
-  public void readChecksum() throws Exception {
+  public void readHash() throws Exception {
     setUpLibraryHashTest();
 
     LibraryHash result = testDAO.readHash(Access.internal(), BigInteger.valueOf(10000001));
 
     assertNotNull(result);
     assertEquals(BigInteger.valueOf(10000001), result.getLibraryId());
-    assertEquals("VoiceEvent-1401=1407871023000,VoiceEvent-1403=1407871023000,VoiceEvent-1402=1407871023000,VoiceEvent-1404=1407871023000,Library-10000001=1407871023000,Audio-402=1407871023000,Audio-401=1407871023000,AudioEvent-604=1407871023000,Pattern-703=1407871023000,AudioEvent-603=1407871023000,Pattern-702=1407871023000,Pattern-701=1407871023000,PhaseChord-1001=1407871023000,PhaseChord-1002=1407871023000,InstrumentMeme-303=1407871023000,AudioEvent-602=1407871023000,AudioEvent-601=1407871023000,Voice-1202=1407871023000,Voice-1201=1407871023000,AudioChord-502=1407871023000,PhaseMeme-1103=1407871023000,PhaseMeme-1102=1407871023000,InstrumentMeme-301=1407871023000,InstrumentMeme-302=1407871023000,PatternMeme-803=1407871023000,PatternMeme-802=1407871023000,PhaseMeme-1101=1407871023000,PatternMeme-801=1407871023000,Phase-902=1407871023000,Phase-901=1407871023000,Instrument-202=1407871023000,Instrument-201=1407871023000,AudioChord-501=1407871023000", result.toString());
+    assertEquals("PhaseEvent-1403=1407871023000,PhaseEvent-1404=1407871023000,PhaseEvent-1401=1407871023000,PhaseEvent-1402=1407871023000,Library-10000001=1407871023000,Audio-402=1407871023000,Audio-401=1407871023000,AudioEvent-604=1407871023000,Pattern-703=1407871023000,AudioEvent-603=1407871023000,Pattern-702=1407871023000,Pattern-701=1407871023000,PhaseChord-1001=1407871023000,PhaseChord-1002=1407871023000,InstrumentMeme-303=1407871023000,AudioEvent-602=1407871023000,AudioEvent-601=1407871023000,Voice-1202=1407871023000,Voice-1201=1407871023000,AudioChord-502=1407871023000,PhaseMeme-1103=1407871023000,PhaseMeme-1102=1407871023000,InstrumentMeme-301=1407871023000,InstrumentMeme-302=1407871023000,PatternMeme-803=1407871023000,PatternMeme-802=1407871023000,PhaseMeme-1101=1407871023000,PatternMeme-801=1407871023000,Phase-902=1407871023000,Phase-901=1407871023000,Instrument-202=1407871023000,Instrument-201=1407871023000,AudioChord-501=1407871023000", result.toString());
     JSONObject resultJson = result.toJSONObject();
     assertEquals(33, resultJson.length());
-    assertEquals("20333918a461d66e98621f49939dc2dbdaf4f0211c1621d876dba0be9bc4efc5", result.sha256());
-  }
+    assertEquals("e5e683cd746f175d45b1bc77502a361bc67835f9e6206ef80502b0100a50bc70", result.sha256());
 
-  @Test
-  public void readChecksum_afterModification() throws Exception {
-    setUpLibraryHashTest();
-    injector.getInstance(VoiceEventDAO.class).update(Access.internal(), BigInteger.valueOf(1404),
-      new VoiceEvent()
+    injector.getInstance(PhaseEventDAO.class).update(Access.internal(), BigInteger.valueOf(1404),
+      new PhaseEvent()
         .setDuration(0.21)
         .setInflection("ding")
         .setPosition(7.23)
@@ -183,13 +181,13 @@ public class LibraryIT {
         .setPhaseId(BigInteger.valueOf(901))
         .setNote("D4"));
 
-    LibraryHash result = testDAO.readHash(Access.internal(), BigInteger.valueOf(10000001));
+    LibraryHash result2 = testDAO.readHash(Access.internal(), BigInteger.valueOf(10000001));
 
-    assertNotNull(result);
-    assertEquals(BigInteger.valueOf(10000001), result.getLibraryId());
-    JSONObject resultJson = result.toJSONObject();
-    assertEquals(33, resultJson.length());
-    assertNotEquals("20333918a461d66e98621f49939dc2dbdaf4f0211c1621d876dba0be9bc4efc5", result.sha256()); // should have changed
+    assertNotNull(result2);
+    assertEquals(BigInteger.valueOf(10000001), result2.getLibraryId());
+    JSONObject resultJson2 = result2.toJSONObject();
+    assertEquals(33, resultJson2.length());
+    assertNotEquals("e5e683cd746f175d45b1bc77502a361bc67835f9e6206ef80502b0100a50bc70", result2.sha256()); // should have changed
   }
 
   @Test
@@ -199,7 +197,7 @@ public class LibraryIT {
       "accounts", "1"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, BigInteger.valueOf(1)));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1))));
 
     assertNotNull(result);
     assertEquals(2, result.length());
@@ -216,7 +214,7 @@ public class LibraryIT {
       "accounts", "1,2"
     ));
 
-    Collection<Library> result = testDAO.readAll(access, null);
+    Collection<Library> result = testDAO.readAll(access, Lists.newArrayList());
 
     assertEquals(4, result.size());
     Iterator<Library> it = result.iterator();
@@ -233,7 +231,7 @@ public class LibraryIT {
       "accounts", "345"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, BigInteger.valueOf(1)));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1))));
 
     assertNotNull(result);
     assertEquals(0, result.length());
@@ -339,7 +337,7 @@ public class LibraryIT {
       "roles", "Admin"
     ));
 
-    testDAO.delete(access, BigInteger.valueOf(1));
+    testDAO.destroy(access, BigInteger.valueOf(1));
 
     Library result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1));
     assertNull(result);
@@ -354,7 +352,7 @@ public class LibraryIT {
     IntegrationTestEntity.insertPattern(301, 101, 2, PatternType.Main, "brilliant", 0.342, "C#", 0.286);
 
     try {
-      testDAO.delete(access, BigInteger.valueOf(2));
+      testDAO.destroy(access, BigInteger.valueOf(2));
     } catch (Exception e) {
       Library result = testDAO.readOne(Access.internal(), BigInteger.valueOf(2));
       assertNotNull(result);

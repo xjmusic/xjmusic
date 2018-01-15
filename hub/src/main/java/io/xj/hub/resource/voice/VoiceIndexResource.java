@@ -7,8 +7,9 @@ import io.xj.core.dao.VoiceDAO;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.model.voice.Voice;
 import io.xj.core.model.voice.VoiceWrapper;
-import io.xj.core.server.HttpResponseProvider;
+import io.xj.core.transport.HttpResponseProvider;
 
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
@@ -58,7 +59,7 @@ public class VoiceIndexResource {
         Voice.KEY_MANY,
         voiceDAO.readAll(
           Access.fromContext(crc),
-          new BigInteger(patternId)));
+          ImmutableList.of(new BigInteger(patternId))));
 
     } catch (Exception e) {
       return response.failure(e);

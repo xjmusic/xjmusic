@@ -6,6 +6,6 @@ export default DS.Model.extend({
   type: DS.attr('string'),
   description: DS.attr('string'),
   arrangements: DS.hasMany('arrangement'),
-  events: DS.hasMany('voice-event')
+  events: DS.hasMany('phase-event')
 
 });

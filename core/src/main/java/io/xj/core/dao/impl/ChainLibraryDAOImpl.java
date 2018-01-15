@@ -33,47 +33,6 @@ public class ChainLibraryDAOImpl extends DAOImpl implements ChainLibraryDAO {
     this.dbProvider = dbProvider;
   }
 
-  @Override
-  public ChainLibrary create(Access access, ChainLibrary entity) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(create(tx.getContext(), access, entity));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public ChainLibrary readOne(Access access, BigInteger id) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readOne(tx.getContext(), access, ULong.valueOf(id)));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public Collection<ChainLibrary> readAll(Access access, BigInteger chainId) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readAll(tx.getContext(), access, ULong.valueOf(chainId)));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public void delete(Access access, BigInteger id) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      delete(tx.getContext(), access, ULong.valueOf(id));
-      tx.success();
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
   /**
    Create a new Chain Library record
 
@@ -140,20 +99,20 @@ public class ChainLibraryDAOImpl extends DAOImpl implements ChainLibraryDAO {
   /**
    Read all records in parent record
 
-   @param db      context
-   @param access  control
-   @param chainId of parent
+   @param db       context
+   @param access   control
+   @param chainIds of parent
    @return array of child records
    */
-  private static Collection<ChainLibrary> readAll(DSLContext db, Access access, ULong chainId) throws BusinessException {
+  private static Collection<ChainLibrary> readAll(DSLContext db, Access access, Collection<ULong> chainIds) throws BusinessException {
     if (access.isTopLevel())
       return modelsFrom(db.selectFrom(CHAIN_LIBRARY)
-        .where(CHAIN_LIBRARY.CHAIN_ID.eq(chainId))
+        .where(CHAIN_LIBRARY.CHAIN_ID.in(chainIds))
         .fetch(), ChainLibrary.class);
     else
       return modelsFrom(db.select(CHAIN_LIBRARY.fields()).from(CHAIN_LIBRARY)
         .join(LIBRARY).on(LIBRARY.ID.eq(CHAIN_LIBRARY.LIBRARY_ID))
-        .where(CHAIN_LIBRARY.CHAIN_ID.eq(chainId))
+        .where(CHAIN_LIBRARY.CHAIN_ID.in(chainIds))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .fetch(), ChainLibrary.class);
   }
@@ -195,6 +154,52 @@ public class ChainLibraryDAOImpl extends DAOImpl implements ChainLibraryDAO {
     fieldValues.put(CHAIN_LIBRARY.CHAIN_ID, ULong.valueOf(entity.getChainId()));
     fieldValues.put(CHAIN_LIBRARY.LIBRARY_ID, ULong.valueOf(entity.getLibraryId()));
     return fieldValues;
+  }
+
+  @Override
+  public ChainLibrary create(Access access, ChainLibrary entity) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(create(tx.getContext(), access, entity));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public ChainLibrary readOne(Access access, BigInteger id) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readOne(tx.getContext(), access, ULong.valueOf(id)));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public Collection<ChainLibrary> readAll(Access access, Collection<BigInteger> parentIds) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readAll(tx.getContext(), access, uLongValuesOf(parentIds)));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public void update(Access access, BigInteger id, ChainLibrary entity) throws Exception {
+    throw new BusinessException("Not allowed to update ChainLibrary record.");
+  }
+
+  @Override
+  public void destroy(Access access, BigInteger id) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      delete(tx.getContext(), access, ULong.valueOf(id));
+      tx.success();
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
   }
 
 

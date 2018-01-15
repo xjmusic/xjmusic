@@ -13,6 +13,7 @@ import io.xj.core.transport.JSON;
 import io.xj.core.work.WorkManager;
 import io.xj.worker.job.InstrumentCloneJob;
 
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
@@ -77,7 +78,7 @@ public class InstrumentCloneJobImpl implements InstrumentCloneJob {
       throw new BusinessException("Could not fetch clone target Instrument");
 
     // Clone InstrumentMeme
-    instrumentMemeDAO.readAll(Access.internal(), fromId).forEach(instrumentMeme -> {
+    instrumentMemeDAO.readAll(Access.internal(), ImmutableList.of(fromId)).forEach(instrumentMeme -> {
       instrumentMeme.setInstrumentId(toId);
 
       try {
@@ -90,7 +91,7 @@ public class InstrumentCloneJobImpl implements InstrumentCloneJob {
     });
 
     // Clone each Audio and schedule an AudioClone job
-    audioDAO.readAll(Access.internal(), fromId).forEach(audio -> {
+    audioDAO.readAll(Access.internal(), ImmutableList.of(fromId)).forEach(audio -> {
       audio.setInstrumentId(toId);
       BigInteger fromAudioId = audio.getId();
 

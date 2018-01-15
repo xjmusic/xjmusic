@@ -16,6 +16,7 @@ import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.transport.JSON;
 import io.xj.core.work.WorkManager;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -45,9 +46,9 @@ import static org.mockito.Mockito.verify;
 // future test: permissions of different users to readMany vs. create vs. update or delete instruments
 @RunWith(MockitoJUnitRunner.class)
 public class InstrumentIT {
+  @Spy final WorkManager workManager = Guice.createInjector(new CoreModule()).getInstance(WorkManager.class);
   private Injector injector;
   private InstrumentDAO testDAO;
-  @Spy final WorkManager workManager = Guice.createInjector(new CoreModule()).getInstance(WorkManager.class);
 
   @Before
   public void setUp() throws Exception {
@@ -199,7 +200,7 @@ public class InstrumentIT {
     assertNull(result);
   }
 
-  // future test: readAllInAccount vs readAllInLibrary, positive and negative cases
+  // future test: readAllInAccount vs readAllInLibraries, positive and negative cases
 
   @Test
   public void readAll() throws Exception {
@@ -208,7 +209,7 @@ public class InstrumentIT {
       "accounts", "1"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAllInLibrary(access, BigInteger.valueOf(1)));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1))));
 
     assertNotNull(result);
     assertEquals(2, result.length());
@@ -225,7 +226,7 @@ public class InstrumentIT {
       "accounts", "345"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAllInLibrary(access, BigInteger.valueOf(1)));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1))));
 
     assertNotNull(result);
     assertEquals(0, result.length());
@@ -330,7 +331,7 @@ public class InstrumentIT {
     ));
     IntegrationTestEntity.insertInstrument(86, 1, 2, "jub", InstrumentType.Harmonic, 0.4);
 
-    testDAO.delete(access, BigInteger.valueOf(86));
+    testDAO.destroy(access, BigInteger.valueOf(86));
 
     Instrument result = testDAO.readOne(Access.internal(), BigInteger.valueOf(86));
     assertNull(result);
@@ -350,7 +351,7 @@ public class InstrumentIT {
     IntegrationTestEntity.insertChoice(7, 1, 1, PatternType.Macro, 2, -5);
     IntegrationTestEntity.insertArrangement(1, 7, 8, 86);
 
-    testDAO.delete(access, BigInteger.valueOf(86));
+    testDAO.destroy(access, BigInteger.valueOf(86));
 
     Instrument result = testDAO.readOne(Access.internal(), BigInteger.valueOf(86));
     assertNull(result);
@@ -366,7 +367,7 @@ public class InstrumentIT {
     IntegrationTestEntity.insertInstrumentMeme(6, 86, "ham");
 
     try {
-      testDAO.delete(access, BigInteger.valueOf(86));
+      testDAO.destroy(access, BigInteger.valueOf(86));
 
     } catch (Exception e) {
       Instrument result = testDAO.readOne(Access.internal(), BigInteger.valueOf(86));

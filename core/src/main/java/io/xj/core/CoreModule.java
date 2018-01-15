@@ -7,19 +7,18 @@ import io.xj.core.access.AccessTokenAuthFilter;
 import io.xj.core.access.impl.AccessControlProviderImpl;
 import io.xj.core.access.impl.AccessLogFilterProviderImpl;
 import io.xj.core.access.impl.AccessTokenAuthFilterImpl;
-import io.xj.core.analysis.AnalysisProvider;
-import io.xj.core.analysis.impl.AnalysisProviderImpl;
 import io.xj.core.app.App;
 import io.xj.core.app.AppImpl;
 import io.xj.core.cache.audio.AudioCacheProvider;
 import io.xj.core.cache.audio.impl.AudioCacheProviderImpl;
+import io.xj.core.cache.evaluation.EvaluationCacheProvider;
+import io.xj.core.cache.evaluation.impl.EvaluationCacheProviderImpl;
 import io.xj.core.dao.AccountDAO;
 import io.xj.core.dao.AccountUserDAO;
 import io.xj.core.dao.ArrangementDAO;
 import io.xj.core.dao.AudioChordDAO;
 import io.xj.core.dao.AudioDAO;
 import io.xj.core.dao.AudioEventDAO;
-import io.xj.core.dao.AuthDAO;
 import io.xj.core.dao.ChainConfigDAO;
 import io.xj.core.dao.ChainDAO;
 import io.xj.core.dao.ChainInstrumentDAO;
@@ -37,18 +36,17 @@ import io.xj.core.dao.PatternDAO;
 import io.xj.core.dao.PatternMemeDAO;
 import io.xj.core.dao.PhaseChordDAO;
 import io.xj.core.dao.PhaseDAO;
+import io.xj.core.dao.PhaseEventDAO;
 import io.xj.core.dao.PhaseMemeDAO;
 import io.xj.core.dao.PlatformMessageDAO;
 import io.xj.core.dao.UserDAO;
 import io.xj.core.dao.VoiceDAO;
-import io.xj.core.dao.VoiceEventDAO;
 import io.xj.core.dao.impl.AccountDAOImpl;
 import io.xj.core.dao.impl.AccountUserDAOImpl;
 import io.xj.core.dao.impl.ArrangementDAOImpl;
 import io.xj.core.dao.impl.AudioChordDAOImpl;
 import io.xj.core.dao.impl.AudioDAOImpl;
 import io.xj.core.dao.impl.AudioEventDAOImpl;
-import io.xj.core.dao.impl.AuthDAOImpl;
 import io.xj.core.dao.impl.ChainConfigDAOImpl;
 import io.xj.core.dao.impl.ChainDAOImpl;
 import io.xj.core.dao.impl.ChainInstrumentDAOImpl;
@@ -66,11 +64,19 @@ import io.xj.core.dao.impl.PatternDAOImpl;
 import io.xj.core.dao.impl.PatternMemeDAOImpl;
 import io.xj.core.dao.impl.PhaseChordDAOImpl;
 import io.xj.core.dao.impl.PhaseDAOImpl;
+import io.xj.core.dao.impl.PhaseEventDAOImpl;
 import io.xj.core.dao.impl.PhaseMemeDAOImpl;
 import io.xj.core.dao.impl.PlatformMessageDAOImpl;
 import io.xj.core.dao.impl.UserDAOImpl;
 import io.xj.core.dao.impl.VoiceDAOImpl;
-import io.xj.core.dao.impl.VoiceEventDAOImpl;
+import io.xj.core.evaluation.DigestFactory;
+import io.xj.core.evaluation.Evaluation;
+import io.xj.core.evaluation.EvaluationFactory;
+import io.xj.core.evaluation.digest_chords.DigestChords;
+import io.xj.core.evaluation.digest_chords.impl.DigestChordsImpl;
+import io.xj.core.evaluation.digest_memes.DigestMemes;
+import io.xj.core.evaluation.digest_memes.impl.DigestMemesImpl;
+import io.xj.core.evaluation.impl.EvaluationImpl;
 import io.xj.core.external.amazon.AmazonProvider;
 import io.xj.core.external.amazon.AmazonProviderImpl;
 import io.xj.core.external.google.GoogleHttpProvider;
@@ -81,16 +87,16 @@ import io.xj.core.persistence.redis.RedisDatabaseProvider;
 import io.xj.core.persistence.redis.impl.RedisDatabaseProviderImpl;
 import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import io.xj.core.persistence.sql.impl.SQLDatabaseProviderImpl;
-import io.xj.core.server.HttpResponseProvider;
-import io.xj.core.server.HttpResponseProviderImpl;
-import io.xj.core.server.HttpServerProvider;
-import io.xj.core.server.HttpServerProviderImpl;
-import io.xj.core.server.ResourceConfigProvider;
-import io.xj.core.server.ResourceConfigProviderImpl;
-import io.xj.core.stats.StatsProvider;
-import io.xj.core.stats.StatsProviderImpl;
 import io.xj.core.token.TokenGenerator;
 import io.xj.core.token.TokenGeneratorImpl;
+import io.xj.core.transport.HttpResponseProvider;
+import io.xj.core.transport.HttpServerProvider;
+import io.xj.core.transport.ResourceConfigProvider;
+import io.xj.core.transport.StatsProvider;
+import io.xj.core.transport.impl.HttpResponseProviderImpl;
+import io.xj.core.transport.impl.HttpServerProviderImpl;
+import io.xj.core.transport.impl.ResourceConfigProviderImpl;
+import io.xj.core.transport.impl.StatsProviderImpl;
 import io.xj.core.work.WorkManager;
 import io.xj.core.work.basis.Basis;
 import io.xj.core.work.basis.BasisFactory;
@@ -114,10 +120,10 @@ public class CoreModule extends AbstractModule {
     bindExternal();
     install(new MixerModule());
     installBasisFactory();
+    cfgEvaluation();
   }
 
   private void bindApp() {
-    bind(AnalysisProvider.class).to(AnalysisProviderImpl.class);
     bind(AccessControlProvider.class).to(AccessControlProviderImpl.class);
     bind(AccessLogFilterProvider.class).to(AccessLogFilterProviderImpl.class);
     bind(AccessTokenAuthFilter.class).to(AccessTokenAuthFilterImpl.class);
@@ -144,7 +150,6 @@ public class CoreModule extends AbstractModule {
     bind(AudioChordDAO.class).to(AudioChordDAOImpl.class);
     bind(AudioDAO.class).to(AudioDAOImpl.class);
     bind(AudioEventDAO.class).to(AudioEventDAOImpl.class);
-    bind(AuthDAO.class).to(AuthDAOImpl.class);
     bind(ChainConfigDAO.class).to(ChainConfigDAOImpl.class);
     bind(ChainDAO.class).to(ChainDAOImpl.class);
     bind(ChainPatternDAO.class).to(ChainPatternDAOImpl.class);
@@ -166,7 +171,7 @@ public class CoreModule extends AbstractModule {
     bind(PlatformMessageDAO.class).to(PlatformMessageDAOImpl.class);
     bind(UserDAO.class).to(UserDAOImpl.class);
     bind(VoiceDAO.class).to(VoiceDAOImpl.class);
-    bind(VoiceEventDAO.class).to(VoiceEventDAOImpl.class);
+    bind(PhaseEventDAO.class).to(PhaseEventDAOImpl.class);
   }
 
   private void bindExternal() {
@@ -179,6 +184,17 @@ public class CoreModule extends AbstractModule {
     install(new FactoryModuleBuilder()
       .implement(Basis.class, BasisImpl.class)
       .build(BasisFactory.class));
+  }
+
+  private void cfgEvaluation() {
+    bind(EvaluationCacheProvider.class).to(EvaluationCacheProviderImpl.class);
+    install(new FactoryModuleBuilder()
+      .implement(Evaluation.class, EvaluationImpl.class)
+      .build(EvaluationFactory.class));
+    install(new FactoryModuleBuilder()
+      .implement(DigestChords.class, DigestChordsImpl.class)
+      .implement(DigestMemes.class, DigestMemesImpl.class)
+      .build(DigestFactory.class));
   }
 
 }

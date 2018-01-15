@@ -63,19 +63,19 @@ public interface Config {
     return getIntOrDefault("aws.s3.retry.limit", 10);
   }
 
-  static int analysisChordSequenceLengthMax() {
-    return getIntOrDefault("analysis.chord.sequence.length.max", 4);
+  static int evaluationChordSequenceLengthMax() {
+    return getIntOrDefault("evaluation.chord.sequence.length.max", 4);
   }
 
   /**
-   specifies a threshold X, where during pruning of redundant subsets of chord sequence descriptors, a redundant subset with length greater than or equal to X will have its chord sequences preserved, meaning that they are moved into the analysis that is deprecating their original sequence descriptor.
+   specifies a threshold X, where during pruning of redundant subsets of chord sequence descriptors, a redundant subset with length greater than or equal to X will have its chord sequences preserved, meaning that they are moved into the evaluation that is deprecating their original sequence descriptor.
    */
-  static int analysisChordSequencePreserveLengthMin() {
-    return getIntOrDefault("analysis.chord.sequence.preserve.length.min", 2);
+  static int evaluationChordSequencePreserveLengthMin() {
+    return getIntOrDefault("evaluation.chord.sequence.preserve.length.min", 2);
   }
 
-  static int analysisChordSequenceRedundancyThreshold() {
-    return getIntOrDefault("analysis.chord.sequence.redundancy.threshold", 1);
+  static int evaluationChordSequenceRedundancyThreshold() {
+    return getIntOrDefault("evaluation.chord.sequence.redundancy.threshold", 1);
   }
 
   static int audioFileUploadExpireMinutes() throws ConfigException {

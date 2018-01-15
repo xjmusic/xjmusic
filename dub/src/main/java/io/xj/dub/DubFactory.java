@@ -3,6 +3,8 @@ package io.xj.dub;
 
 import io.xj.core.exception.ConfigException;
 import io.xj.core.work.basis.Basis;
+import io.xj.dub.master.MasterDub;
+import io.xj.dub.ship.ShipDub;
 
 import com.google.inject.assistedinject.Assisted;
 

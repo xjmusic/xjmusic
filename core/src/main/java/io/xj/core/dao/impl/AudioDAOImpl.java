@@ -58,6 +58,130 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
     this.dbProvider = dbProvider;
   }
 
+  /**
+   Read one Audio if able
+
+   @param db     context
+   @param access control
+   @param id     of audio
+   @return audio
+   */
+  private static Audio readOne(DSLContext db, Access access, ULong id) throws BusinessException {
+    if (access.isTopLevel())
+      return modelFrom(db.selectFrom(AUDIO)
+        .where(AUDIO.ID.eq(id))
+        .fetchOne(), Audio.class);
+    else
+      return modelFrom(db.select(AUDIO.fields())
+        .from(AUDIO)
+        .join(INSTRUMENT).on(INSTRUMENT.ID.eq(AUDIO.INSTRUMENT_ID))
+        .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
+        .where(AUDIO.ID.eq(id))
+        .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+        .fetchOne(), Audio.class);
+  }
+
+  /**
+   Read all Audio able for an Instrument
+   [#326] Instruments Audios returned in order of name
+
+   @param db            context
+   @param access        control
+   @param instrumentIds to readMany all audio of
+   @return Result of audio records.
+   @throws Exception on failure
+   */
+  private static Collection<Audio> readAll(DSLContext db, Access access, Collection<ULong> instrumentIds) throws Exception {
+    if (access.isTopLevel())
+      return modelsFrom(db.select(AUDIO.fields())
+        .from(AUDIO)
+        .where(AUDIO.INSTRUMENT_ID.in(instrumentIds))
+        .and(AUDIO.STATE.notEqual(String.valueOf(AudioState.Erase)))
+        .orderBy(AUDIO.NAME.desc())
+        .fetch(), Audio.class);
+    else
+      return modelsFrom(db.select(AUDIO.fields())
+        .from(AUDIO)
+        .join(INSTRUMENT).on(INSTRUMENT.ID.eq(AUDIO.INSTRUMENT_ID))
+        .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
+        .where(AUDIO.INSTRUMENT_ID.in(instrumentIds))
+        .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+        .and(AUDIO.STATE.notEqual(String.valueOf(AudioState.Erase)))
+        .orderBy(AUDIO.NAME.desc())
+        .fetch(), Audio.class);
+  }
+
+  /**
+   Read all records in a given state
+
+   @param db     context
+   @param access control
+   @param state  to read audios in
+   @return array of records
+   */
+  private static Collection<Audio> readAllInState(DSLContext db, Access access, AudioState state) throws Exception {
+    requireRole("platform access", access, UserRoleType.Admin, UserRoleType.Engineer);
+
+    return modelsFrom(db.select(AUDIO.fields())
+      .from(AUDIO)
+      .where(AUDIO.STATE.eq(state.toString()))
+      .or(AUDIO.STATE.eq(state.toString().toLowerCase()))
+      .fetch(), Audio.class);
+  }
+
+  /**
+   Update an Audio record
+   <p>
+   future: should ensure that the user access has access to this Audio by id
+   future: should ensure ALL RECORDS HAVE ACCESS CONTROL that asserts the record primary id against the user access-- build a system for it and implement it over all DAO methods
+
+   @param db     context
+   @param access control
+   @param id     to update
+   @param entity to update with
+   @throws BusinessException if failure
+   */
+  private static void update(DSLContext db, Access access, ULong id, Audio entity) throws Exception {
+    entity.validate();
+
+    Map<Field, Object> fieldValues = fieldValueMap(entity);
+    fieldValues.put(AUDIO.ID, id);
+
+    if (access.isTopLevel())
+      requireExists("Instrument", db.selectCount().from(INSTRUMENT)
+        .where(INSTRUMENT.ID.eq(ULong.valueOf(entity.getInstrumentId())))
+        .fetchOne(0, int.class));
+    else
+      requireExists("Instrument", db.selectCount().from(INSTRUMENT)
+        .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
+        .where(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+        .and(INSTRUMENT.ID.eq(ULong.valueOf(entity.getInstrumentId())))
+        .fetchOne(0, int.class));
+
+    if (0 == executeUpdate(db, AUDIO, fieldValues))
+      throw new BusinessException("No records updated.");
+  }
+
+  /**
+   Only certain (writable) fields are mapped back to jOOQ records--
+   Read-only fields are excluded from here.
+
+   @param entity to source values from
+   @return values mapped to record fields
+   */
+  private static Map<Field, Object> fieldValueMap(Audio entity) {
+    Map<Field, Object> fieldValues = com.google.api.client.util.Maps.newHashMap();
+    fieldValues.put(Tables.AUDIO.INSTRUMENT_ID, ULong.valueOf(entity.getInstrumentId()));
+    fieldValues.put(Tables.AUDIO.NAME, entity.getName());
+    fieldValues.put(Tables.AUDIO.STATE, entity.getState());
+    fieldValues.put(Tables.AUDIO.START, entity.getStart());
+    fieldValues.put(Tables.AUDIO.LENGTH, entity.getLength());
+    fieldValues.put(Tables.AUDIO.TEMPO, entity.getTempo());
+    fieldValues.put(Tables.AUDIO.PITCH, entity.getPitch());
+    // Excluding AUDIO.WAVEFORM_KEY a.k.a. waveformKey because that is read-only
+    return fieldValues;
+  }
+
   @Override
   public Audio create(Access access, Audio entity) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
@@ -102,10 +226,10 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
 
   @Override
   @Nullable
-  public Collection<Audio> readAll(Access access, BigInteger instrumentId) throws Exception {
+  public Collection<Audio> readAll(Access access, Collection<BigInteger> parentIds) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readAll(tx.getContext(), access, ULong.valueOf(instrumentId)));
+      return tx.success(readAll(tx.getContext(), access, uLongValuesOf(parentIds)));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -224,110 +348,6 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
   }
 
   /**
-   Read one Audio if able
-
-   @param db     context
-   @param access control
-   @param id     of audio
-   @return audio
-   */
-  private static Audio readOne(DSLContext db, Access access, ULong id) throws BusinessException {
-    if (access.isTopLevel())
-      return modelFrom(db.selectFrom(AUDIO)
-        .where(AUDIO.ID.eq(id))
-        .fetchOne(), Audio.class);
-    else
-      return modelFrom(db.select(AUDIO.fields())
-        .from(AUDIO)
-        .join(INSTRUMENT).on(INSTRUMENT.ID.eq(AUDIO.INSTRUMENT_ID))
-        .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
-        .where(AUDIO.ID.eq(id))
-        .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
-        .fetchOne(), Audio.class);
-  }
-
-  /**
-   Read all Audio able for an Instrument
-   [#326] Instruments Audios returned in order of name
-
-   @param db           context
-   @param access       control
-   @param instrumentId to readMany all audio of
-   @return Result of audio records.
-   @throws Exception on failure
-   */
-  private static Collection<Audio> readAll(DSLContext db, Access access, ULong instrumentId) throws Exception {
-    if (access.isTopLevel())
-      return modelsFrom(db.select(AUDIO.fields())
-        .from(AUDIO)
-        .where(AUDIO.INSTRUMENT_ID.eq(instrumentId))
-        .and(AUDIO.STATE.notEqual(String.valueOf(AudioState.Erase)))
-        .orderBy(AUDIO.NAME.desc())
-        .fetch(), Audio.class);
-    else
-      return modelsFrom(db.select(AUDIO.fields())
-        .from(AUDIO)
-        .join(INSTRUMENT).on(INSTRUMENT.ID.eq(AUDIO.INSTRUMENT_ID))
-        .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
-        .where(AUDIO.INSTRUMENT_ID.eq(instrumentId))
-        .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
-        .and(AUDIO.STATE.notEqual(String.valueOf(AudioState.Erase)))
-        .orderBy(AUDIO.NAME.desc())
-        .fetch(), Audio.class);
-  }
-
-  /**
-   Read all records in a given state
-
-   @param db     context
-   @param access control
-   @param state  to read audios in
-   @return array of records
-   */
-  private static Collection<Audio> readAllInState(DSLContext db, Access access, AudioState state) throws Exception {
-    requireRole("platform access", access, UserRoleType.Admin, UserRoleType.Engineer);
-
-    return modelsFrom(db.select(AUDIO.fields())
-      .from(AUDIO)
-      .where(AUDIO.STATE.eq(state.toString()))
-      .or(AUDIO.STATE.eq(state.toString().toLowerCase()))
-      .fetch(), Audio.class);
-  }
-
-  /**
-   Update an Audio record
-   <p>
-   future: should ensure that the user access has access to this Audio by id
-   future: should ensure ALL RECORDS HAVE ACCESS CONTROL that asserts the record primary id against the user access-- build a system for it and implement it over all DAO methods
-
-   @param db     context
-   @param access control
-   @param id     to update
-   @param entity to update with
-   @throws BusinessException if failure
-   */
-  private static void update(DSLContext db, Access access, ULong id, Audio entity) throws Exception {
-    entity.validate();
-
-    Map<Field, Object> fieldValues = fieldValueMap(entity);
-    fieldValues.put(AUDIO.ID, id);
-
-    if (access.isTopLevel())
-      requireExists("Instrument", db.selectCount().from(INSTRUMENT)
-        .where(INSTRUMENT.ID.eq(ULong.valueOf(entity.getInstrumentId())))
-        .fetchOne(0, int.class));
-    else
-      requireExists("Instrument", db.selectCount().from(INSTRUMENT)
-        .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
-        .where(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
-        .and(INSTRUMENT.ID.eq(ULong.valueOf(entity.getInstrumentId())))
-        .fetchOne(0, int.class));
-
-    if (0 == executeUpdate(db, AUDIO, fieldValues))
-      throw new BusinessException("No records updated.");
-  }
-
-  /**
    Update an Audio record
 
    @param db     context
@@ -441,25 +461,5 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
     } catch (Exception e) {
       log.error("Failed to start AudioErase work after updating Audio to Erase state. See the elusive [#153492153] Audio can be deleted without an error", e);
     }
-  }
-
-  /**
-   Only certain (writable) fields are mapped back to jOOQ records--
-   Read-only fields are excluded from here.
-
-   @param entity to source values from
-   @return values mapped to record fields
-   */
-  private static Map<Field, Object> fieldValueMap(Audio entity) {
-    Map<Field, Object> fieldValues = com.google.api.client.util.Maps.newHashMap();
-    fieldValues.put(Tables.AUDIO.INSTRUMENT_ID, ULong.valueOf(entity.getInstrumentId()));
-    fieldValues.put(Tables.AUDIO.NAME, entity.getName());
-    fieldValues.put(Tables.AUDIO.STATE, entity.getState());
-    fieldValues.put(Tables.AUDIO.START, entity.getStart());
-    fieldValues.put(Tables.AUDIO.LENGTH, entity.getLength());
-    fieldValues.put(Tables.AUDIO.TEMPO, entity.getTempo());
-    fieldValues.put(Tables.AUDIO.PITCH, entity.getPitch());
-    // Excluding AUDIO.WAVEFORM_KEY a.k.a. waveformKey because that is read-only
-    return fieldValues;
   }
 }

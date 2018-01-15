@@ -11,6 +11,7 @@ import io.xj.core.model.chain_config.ChainConfig;
 import io.xj.core.model.chain_config.ChainConfigType;
 import io.xj.core.transport.JSON;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -190,7 +191,7 @@ public class ChainConfigIT {
       "accounts", "1"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, BigInteger.valueOf(2)));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(2))));
 
     assertNotNull(result);
     assertEquals(2, result.length());
@@ -209,7 +210,7 @@ public class ChainConfigIT {
       "accounts", "345"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, BigInteger.valueOf(1)));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1))));
 
     assertNotNull(result);
     assertEquals(0, result.length());
@@ -222,7 +223,7 @@ public class ChainConfigIT {
       "accounts", "1"
     ));
 
-    testDAO.delete(access, BigInteger.valueOf(1));
+    testDAO.destroy(access, BigInteger.valueOf(1));
 
     ChainConfig result = testDAO.readOne(Access.internal(),BigInteger.valueOf(1));
     assertNull(result);
@@ -235,6 +236,6 @@ public class ChainConfigIT {
       "accounts", "5"
     ));
 
-    testDAO.delete(access, BigInteger.valueOf(1));
+    testDAO.destroy(access, BigInteger.valueOf(1));
   }
 }

@@ -7,7 +7,7 @@ import io.xj.core.dao.PhaseMemeDAO;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.model.phase_meme.PhaseMeme;
 import io.xj.core.model.user_role.UserRoleType;
-import io.xj.core.server.HttpResponseProvider;
+import io.xj.core.transport.HttpResponseProvider;
 import io.xj.core.transport.JSON;
 
 
@@ -71,7 +71,7 @@ public class PhaseMemeOneResource {
   @RolesAllowed(UserRoleType.ARTIST)
   public Response delete(@Context ContainerRequestContext crc) {
     try {
-      phaseMemeDAO.delete(Access.fromContext(crc), new BigInteger(id));
+      phaseMemeDAO.destroy(Access.fromContext(crc), new BigInteger(id));
     } catch (BusinessException e) {
       return Response
         .status(HttpStatus.SC_BAD_REQUEST)

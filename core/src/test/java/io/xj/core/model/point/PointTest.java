@@ -17,7 +17,7 @@ public class PointTest {
   public void validate() throws Exception {
     new Point()
       .setMorphId(BigInteger.valueOf(457832))
-      .setVoiceEventId(BigInteger.valueOf(76943))
+      .setPhaseEventId(BigInteger.valueOf(76943))
       .setPosition(1.25)
       .setNote("F")
       .setDuration(0.74)
@@ -30,7 +30,7 @@ public class PointTest {
     failure.expectMessage("Morph ID is required");
 
     new Point()
-      .setVoiceEventId(BigInteger.valueOf(76943))
+      .setPhaseEventId(BigInteger.valueOf(76943))
       .setPosition(1.25)
       .setNote("F")
       .setDuration(0.74)
@@ -38,9 +38,9 @@ public class PointTest {
   }
 
   @Test
-  public void validate_failsWithoutVoiceEventID() throws Exception {
+  public void validate_failsWithoutPhaseEventID() throws Exception {
     failure.expect(BusinessException.class);
-    failure.expectMessage("VoiceEvent ID is required");
+    failure.expectMessage("PhaseEvent ID is required");
 
     new Point()
       .setMorphId(BigInteger.valueOf(457832))
@@ -57,7 +57,7 @@ public class PointTest {
 
     new Point()
       .setMorphId(BigInteger.valueOf(457832))
-      .setVoiceEventId(BigInteger.valueOf(76943))
+      .setPhaseEventId(BigInteger.valueOf(76943))
       .setNote("F")
       .setDuration(0.74)
       .validate();
@@ -70,7 +70,7 @@ public class PointTest {
 
     new Point()
       .setMorphId(BigInteger.valueOf(457832))
-      .setVoiceEventId(BigInteger.valueOf(76943))
+      .setPhaseEventId(BigInteger.valueOf(76943))
       .setPosition(1.25)
       .setNote("F")
       .validate();
@@ -83,7 +83,7 @@ public class PointTest {
 
     new Point()
       .setMorphId(BigInteger.valueOf(457832))
-      .setVoiceEventId(BigInteger.valueOf(76943))
+      .setPhaseEventId(BigInteger.valueOf(76943))
       .setPosition(1.25)
       .setDuration(0.74)
       .validate();

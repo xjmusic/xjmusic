@@ -4,7 +4,7 @@ import Component from '@ember/component';
 import {inject as service} from '@ember/service';
 
 /**
- * Displays the analysis-performing and result-viewing U.I.
+ * Displays the evaluation-performing and result-viewing U.I.
  */
 const ChordSequenceComponent = Component.extend({
 

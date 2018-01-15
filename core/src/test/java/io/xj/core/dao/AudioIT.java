@@ -19,6 +19,7 @@ import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.transport.JSON;
 import io.xj.core.work.WorkManager;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -291,7 +292,7 @@ public class AudioIT {
       "accounts", "1"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, BigInteger.valueOf(1)));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1))));
 
     assertNotNull(result);
     assertEquals(2, result.length());
@@ -309,7 +310,7 @@ public class AudioIT {
       "accounts", "1"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, BigInteger.valueOf(1)));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1))));
 
     assertNotNull(result);
     assertEquals(2, result.length());
@@ -326,7 +327,7 @@ public class AudioIT {
       "accounts", "345"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, BigInteger.valueOf(1)));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1))));
 
     assertNotNull(result);
     assertEquals(0, result.length());

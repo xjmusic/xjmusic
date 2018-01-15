@@ -9,8 +9,8 @@ import io.xj.core.dao.PlatformMessageDAO;
 import io.xj.core.exception.ConfigException;
 import io.xj.core.model.message.MessageType;
 import io.xj.core.model.platform_message.PlatformMessage;
-import io.xj.core.server.HttpServerProvider;
-import io.xj.core.server.ResourceConfigProvider;
+import io.xj.core.transport.HttpServerProvider;
+import io.xj.core.transport.ResourceConfigProvider;
 import io.xj.core.work.WorkManager;
 import io.xj.core.work.impl.RobustWorkerPool;
 

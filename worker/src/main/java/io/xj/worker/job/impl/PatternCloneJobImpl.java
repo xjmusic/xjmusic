@@ -15,7 +15,7 @@ import io.xj.core.transport.JSON;
 import io.xj.core.work.WorkManager;
 import io.xj.worker.job.PatternCloneJob;
 
-import com.google.common.collect.Maps;
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
@@ -23,7 +23,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigInteger;
-import java.util.Map;
 import java.util.Objects;
 
 public class PatternCloneJobImpl implements PatternCloneJob {
@@ -84,7 +83,7 @@ public class PatternCloneJobImpl implements PatternCloneJob {
       throw new BusinessException("Could not fetch clone target Pattern");
 
     // Clone PatternMeme
-    patternMemeDAO.readAll(Access.internal(), fromId).forEach(patternMeme -> {
+    patternMemeDAO.readAll(Access.internal(), ImmutableList.of(fromId)).forEach(patternMeme -> {
       patternMeme.setPatternId(toId);
       try {
         PatternMeme toPatternMeme = patternMemeDAO.create(Access.internal(), patternMeme);
@@ -96,7 +95,7 @@ public class PatternCloneJobImpl implements PatternCloneJob {
     });
 
     // Clone each Voice and schedule an VoiceClone job
-    voiceDAO.readAll(Access.internal(), fromId).forEach(fromVoice -> {
+    voiceDAO.readAll(Access.internal(), ImmutableList.of(fromId)).forEach(fromVoice -> {
       fromVoice.setPatternId(toId);
       try {
         Voice toVoice = voiceDAO.create(Access.internal(), fromVoice);
@@ -108,7 +107,7 @@ public class PatternCloneJobImpl implements PatternCloneJob {
     });
 
     // Clone each Phase and schedule an PhaseClone job
-    phaseDAO.readAll(Access.internal(), fromId).forEach(phase -> {
+    phaseDAO.readAll(Access.internal(), ImmutableList.of(fromId)).forEach(phase -> {
       phase.setPatternId(toId);
       try {
         Phase toPhase = phaseDAO.create(Access.internal(), phase);

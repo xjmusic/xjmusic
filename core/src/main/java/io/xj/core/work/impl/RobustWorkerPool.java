@@ -98,7 +98,7 @@ public class RobustWorkerPool implements Worker {
 
    @param workerFactory a Callable that returns an implementation of Worker
    @param numWorkers    the number of Workers to create
-   @param threadFactory the factory to create pre-configured Threads
+   @param threadFactory the macro to create pre-configured Threads
    */
   public RobustWorkerPool(Callable<? extends Worker> workerFactory, int numWorkers,
                           ThreadFactory threadFactory) {
@@ -111,7 +111,7 @@ public class RobustWorkerPool implements Worker {
 
    @param workerFactory             a Callable that returns an implementation of Worker
    @param numWorkers                the number of Workers to create
-   @param threadFactory             the factory to create pre-configured Threads
+   @param threadFactory             the macro to create pre-configured Threads
    @param delayToStartPollingMillis the milliseconds that represents delay to start polling when a new worker is spawned
    */
   public RobustWorkerPool(Callable<? extends Worker> workerFactory, int numWorkers,

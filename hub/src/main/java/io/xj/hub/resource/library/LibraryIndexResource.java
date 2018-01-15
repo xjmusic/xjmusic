@@ -7,8 +7,10 @@ import io.xj.core.dao.LibraryDAO;
 import io.xj.core.model.library.Library;
 import io.xj.core.model.library.LibraryWrapper;
 import io.xj.core.model.user_role.UserRoleType;
-import io.xj.core.server.HttpResponseProvider;
+import io.xj.core.transport.HttpResponseProvider;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
@@ -58,7 +60,7 @@ public class LibraryIndexResource {
         Library.KEY_MANY,
         libraryDAO.readAll(
           Access.fromContext(crc),
-          Objects.nonNull(accountId) ? new BigInteger(accountId) : null));
+          Objects.nonNull(accountId) ? ImmutableList.of(new BigInteger(accountId)) : Lists.newArrayList()));
 
     } catch (Exception e) {
       return response.failure(e);

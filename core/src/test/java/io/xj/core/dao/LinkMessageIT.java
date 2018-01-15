@@ -31,8 +31,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 public class LinkMessageIT {
-  @Rule public ExpectedException failure = ExpectedException.none();
   private final Injector injector = Guice.createInjector(new CoreModule());
+  @Rule public ExpectedException failure = ExpectedException.none();
   private LinkMessageDAO testDAO;
 
   @Before
@@ -135,7 +135,7 @@ public class LinkMessageIT {
 
   @Test
   public void readAllInLink() throws Exception {
-    Collection<LinkMessage> result = testDAO.readAllInLink(Access.internal(), BigInteger.valueOf(1));
+    Collection<LinkMessage> result = testDAO.readAll(Access.internal(), ImmutableList.of(BigInteger.valueOf(1)));
 
     assertEquals(2, result.size());
   }
@@ -154,7 +154,7 @@ public class LinkMessageIT {
       "accounts", "1"
     ));
 
-    Collection<LinkMessage> result = testDAO.readAllInLink(access, BigInteger.valueOf(1));
+    Collection<LinkMessage> result = testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1)));
 
     assertEquals(2, result.size());
   }
@@ -169,12 +169,12 @@ public class LinkMessageIT {
     failure.expect(BusinessException.class);
     failure.expectMessage("exactly the provided count (1) links in chain(s) to which user has access is required");
 
-    testDAO.readAllInLink(access, BigInteger.valueOf(1));
+    testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1)));
   }
 
   @Test
   public void readAllInLinks() throws Exception {
-    Collection<LinkMessage> result = testDAO.readAllInLinks(Access.internal(), ImmutableList.of(BigInteger.valueOf(1), BigInteger.valueOf(2), BigInteger.valueOf(3), BigInteger.valueOf(4)));
+    Collection<LinkMessage> result = testDAO.readAll(Access.internal(), ImmutableList.of(BigInteger.valueOf(1), BigInteger.valueOf(2), BigInteger.valueOf(3), BigInteger.valueOf(4)));
 
     assertEquals(4, result.size());
   }
@@ -193,7 +193,7 @@ public class LinkMessageIT {
       "accounts", "1"
     ));
 
-    Collection<LinkMessage> result = testDAO.readAllInLinks(access, ImmutableList.of(BigInteger.valueOf(1), BigInteger.valueOf(2), BigInteger.valueOf(3), BigInteger.valueOf(4)));
+    Collection<LinkMessage> result = testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1), BigInteger.valueOf(2), BigInteger.valueOf(3), BigInteger.valueOf(4)));
 
     assertEquals(4, result.size());
   }
@@ -208,12 +208,12 @@ public class LinkMessageIT {
     failure.expect(BusinessException.class);
     failure.expectMessage("exactly the provided count (4) links in chain(s) to which user has access is required");
 
-    testDAO.readAllInLinks(access, ImmutableList.of(BigInteger.valueOf(1), BigInteger.valueOf(2), BigInteger.valueOf(3), BigInteger.valueOf(4)));
+    testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1), BigInteger.valueOf(2), BigInteger.valueOf(3), BigInteger.valueOf(4)));
   }
 
   @Test
   public void delete() throws Exception {
-    testDAO.delete(Access.internal(), BigInteger.valueOf(12));
+    testDAO.destroy(Access.internal(), BigInteger.valueOf(12));
 
     assertNull(testDAO.readOne(Access.internal(), BigInteger.valueOf(12)));
   }
@@ -228,7 +228,7 @@ public class LinkMessageIT {
     failure.expect(BusinessException.class);
     failure.expectMessage("top-level access is required");
 
-    testDAO.delete(access, BigInteger.valueOf(12));
+    testDAO.destroy(access, BigInteger.valueOf(12));
   }
 
 

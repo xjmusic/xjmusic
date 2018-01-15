@@ -39,47 +39,6 @@ public class InstrumentMemeDAOImpl extends DAOImpl implements InstrumentMemeDAO 
     this.dbProvider = dbProvider;
   }
 
-  @Override
-  public InstrumentMeme create(Access access, InstrumentMeme entity) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(create(tx.getContext(), access, entity));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public InstrumentMeme readOne(Access access, BigInteger id) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readOne(tx.getContext(), access, ULong.valueOf(id)));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public Collection<InstrumentMeme> readAll(Access access, BigInteger instrumentId) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readAll(tx.getContext(), access, ULong.valueOf(instrumentId)));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public void delete(Access access, BigInteger id) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      delete(tx.getContext(), access, ULong.valueOf(id));
-      tx.success();
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
   /**
    Create a new Instrument Meme record
 
@@ -146,16 +105,16 @@ public class InstrumentMemeDAOImpl extends DAOImpl implements InstrumentMemeDAO 
    @param instrumentId to readMany memes for
    @return array of instrument memes
    */
-  private static Collection<InstrumentMeme> readAll(DSLContext db, Access access, ULong instrumentId) throws BusinessException {
+  private static Collection<InstrumentMeme> readAll(DSLContext db, Access access, Collection<ULong> instrumentId) throws BusinessException {
     if (access.isTopLevel())
       return modelsFrom(db.selectFrom(INSTRUMENT_MEME)
-        .where(INSTRUMENT_MEME.INSTRUMENT_ID.eq(instrumentId))
+        .where(INSTRUMENT_MEME.INSTRUMENT_ID.in(instrumentId))
         .fetch(), InstrumentMeme.class);
     else
       return modelsFrom(db.select(INSTRUMENT_MEME.fields()).from(INSTRUMENT_MEME)
         .join(INSTRUMENT).on(INSTRUMENT.ID.eq(INSTRUMENT_MEME.INSTRUMENT_ID))
         .join(LIBRARY).on(INSTRUMENT.LIBRARY_ID.eq(LIBRARY.ID))
-        .where(INSTRUMENT.ID.eq(instrumentId))
+        .where(INSTRUMENT.ID.in(instrumentId))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .fetch(), InstrumentMeme.class);
   }
@@ -194,6 +153,52 @@ public class InstrumentMemeDAOImpl extends DAOImpl implements InstrumentMemeDAO 
     fieldValues.put(INSTRUMENT_MEME.INSTRUMENT_ID, ULong.valueOf(entity.getInstrumentId()));
     fieldValues.put(INSTRUMENT_MEME.NAME, entity.getName());
     return fieldValues;
+  }
+
+  @Override
+  public InstrumentMeme create(Access access, InstrumentMeme entity) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(create(tx.getContext(), access, entity));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public InstrumentMeme readOne(Access access, BigInteger id) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readOne(tx.getContext(), access, ULong.valueOf(id)));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public Collection<InstrumentMeme> readAll(Access access, Collection<BigInteger> parentIds) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readAll(tx.getContext(), access, uLongValuesOf(parentIds)));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public void update(Access access, BigInteger id, InstrumentMeme entity) throws Exception {
+    throw new BusinessException("Not allowed to update InstrumentMeme record.");
+  }
+
+  @Override
+  public void destroy(Access access, BigInteger id) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      delete(tx.getContext(), access, ULong.valueOf(id));
+      tx.success();
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
   }
 
 }

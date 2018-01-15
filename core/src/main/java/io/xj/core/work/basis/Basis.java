@@ -23,7 +23,7 @@ import io.xj.core.model.phase.PhaseType;
 import io.xj.core.model.phase_meme.PhaseMeme;
 import io.xj.core.model.pick.Pick;
 import io.xj.core.model.voice.Voice;
-import io.xj.core.model.voice_event.VoiceEvent;
+import io.xj.core.model.phase_event.PhaseEvent;
 import io.xj.music.Chord;
 import io.xj.music.Note;
 
@@ -281,7 +281,7 @@ public interface Basis {
    @return collection of voice events
    @throws Exception on failure
    */
-  Collection<VoiceEvent> phaseVoiceEvents(BigInteger phaseId, BigInteger voiceId) throws Exception;
+  Collection<PhaseEvent> phasePhaseEvents(BigInteger phaseId, BigInteger voiceId) throws Exception;
 
 
   /**

@@ -58,159 +58,6 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
     this.dbProvider = dbProvider;
   }
 
-  @Override
-  public Link create(Access access, Link entity) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(create(tx.getContext(), access, entity));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  @Nullable
-  public Link readOne(Access access, BigInteger id) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readOne(tx.getContext(), access, ULong.valueOf(id)));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  @Nullable
-  public Link readOneAtChainOffset(Access access, BigInteger chainId, BigInteger offset) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readOneAtChainOffset(tx.getContext(), access, ULong.valueOf(chainId), ULong.valueOf(offset)));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Nullable
-  @Override
-  public Link readOneInState(Access access, BigInteger chainId, LinkState linkState, Timestamp linkBeginBefore) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readOneInState(tx.getContext(), access, ULong.valueOf(chainId), linkState, linkBeginBefore));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public Collection<Link> readAll(Access access, BigInteger chainId) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readAll(tx.getContext(), access, ULong.valueOf(chainId)));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public Collection<Link> readAllFromOffset(Access access, BigInteger chainId, BigInteger fromOffset) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readAllFromOffset(tx.getContext(), access, ULong.valueOf(chainId), ULong.valueOf(fromOffset)));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public Collection<Link> readAllFromSecondsUTC(Access access, BigInteger chainId, BigInteger fromSecondsUTC) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readAllFromSecondsUTC(tx.getContext(), access, ULong.valueOf(chainId), ULong.valueOf(fromSecondsUTC)));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public void update(Access access, BigInteger id, Link entity) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      updateAllFields(tx.getContext(), access, ULong.valueOf(id), entity);
-      tx.success();
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public void updateState(Access access, BigInteger id, LinkState state) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      updateState(tx.getContext(), access, ULong.valueOf(id), state);
-      tx.success();
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public void destroy(Access access, BigInteger linkId) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      destroy(tx.getContext(), access, ULong.valueOf(linkId));
-      tx.success();
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-
-  /**
-   Create a new record
-
-   @param db     context
-   @param access control
-   @param entity for new record
-   @return newly readMany record
-   @throws BusinessException if a Business Rule is violated
-   */
-  private Link create(DSLContext db, Access access, Link entity) throws Exception {
-    // top-level access
-    requireTopLevel(access);
-
-    entity.validate();
-    Map<Field, Object> fieldValues = fieldValueMap(entity);
-
-    // [#126] Links are always readMany in PLANNED state
-    fieldValues.put(LINK.STATE, LinkState.Planned);
-
-    // [#267] Link has `waveform_key` referencing xj-link-* S3 bucket object key
-    fieldValues.put(LINK.WAVEFORM_KEY, generateKey(entity.getChainId()));
-
-    // Chain ID and offset are read-only, set at creation
-    requireNotExists("Link at same offset in Chain", db.selectCount().from(LINK)
-      .where(LINK.CHAIN_ID.eq(ULong.valueOf(entity.getChainId())))
-      .and(LINK.OFFSET.eq(ULong.valueOf(entity.getOffset())))
-      .fetchOne(0, int.class));
-    fieldValues.put(LINK.CHAIN_ID, entity.getChainId());
-    fieldValues.put(LINK.OFFSET, entity.getOffset());
-
-    return modelFrom(executeCreate(db, LINK, fieldValues), Link.class);
-  }
-
-  /**
-   General a Link URL
-
-   @param chainId to generate URL for
-   @return URL as string
-   */
-  private String generateKey(BigInteger chainId) {
-    return amazonProvider.generateKey(
-      Exposure.FILE_CHAIN + Exposure.FILE_SEPARATOR +
-        chainId + Exposure.FILE_SEPARATOR +
-        Exposure.FILE_LINK, Link.FILE_EXTENSION);
-  }
-
   /**
    Read one record
 
@@ -284,11 +131,11 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
    @param chainId of parent
    @return array of records
    */
-  private static Collection<Link> readAll(DSLContext db, Access access, ULong chainId) throws BusinessException {
+  private static Collection<Link> readAll(DSLContext db, Access access, Collection<ULong> chainId) throws BusinessException {
     if (access.isTopLevel())
       return modelsFrom(db.select(LINK.fields())
         .from(LINK)
-        .where(LINK.CHAIN_ID.eq(chainId))
+        .where(LINK.CHAIN_ID.in(chainId))
         .orderBy(LINK.OFFSET.desc())
         .limit(Config.limitLinkReadSize())
         .fetch(), Link.class);
@@ -296,7 +143,7 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
       return modelsFrom(db.select(LINK.fields())
         .from(LINK)
         .join(CHAIN).on(CHAIN.ID.eq(LINK.CHAIN_ID))
-        .where(LINK.CHAIN_ID.eq(chainId))
+        .where(LINK.CHAIN_ID.in(chainId))
         .and(CHAIN.ACCOUNT_ID.in(access.getAccountIds()))
         .orderBy(LINK.OFFSET.desc())
         .limit(Config.limitLinkReadSize())
@@ -494,6 +341,197 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
   }
 
   /**
+   Require state is in an array of states
+
+   @param toState       to check
+   @param allowedStates required to be in
+   @throws CancelException if not in required states
+   */
+  private static void onlyAllowTransitions(LinkState toState, LinkState... allowedStates) throws CancelException {
+    List<String> allowedStateNames = Lists.newArrayList();
+    for (LinkState search : allowedStates) {
+      allowedStateNames.add(search.toString());
+      if (Objects.equals(search, toState)) {
+        return;
+      }
+    }
+    throw new CancelException(String.format("transition to %s not in allowed (%s)",
+      toState, CSV.join(allowedStateNames)));
+  }
+
+  /**
+   Only certain (writable) fields are mapped back to jOOQ records--
+   Read-only fields are excluded from here.
+
+   @param entity to source values from
+   @return values mapped to record fields
+   */
+  private static Map<Field, Object> fieldValueMap(Link entity) {
+    Map<Field, Object> fieldValues = Maps.newHashMap();
+    fieldValues.put(LINK.STATE, entity.getState());
+    fieldValues.put(LINK.BEGIN_AT, entity.getBeginAt());
+    fieldValues.put(LINK.END_AT, valueOrNull(entity.getEndAt()));
+    fieldValues.put(LINK.TOTAL, valueOrNull(entity.getTotal()));
+    fieldValues.put(LINK.DENSITY, valueOrNull(entity.getDensity()));
+    fieldValues.put(LINK.KEY, valueOrNull(entity.getKey()));
+    fieldValues.put(LINK.TEMPO, valueOrNull(entity.getTempo()));
+    // Exclude LINK.WAVEFORM_KEY, LINK.CHAIN_ID and LINK.OFFSET because they are read-only
+    return fieldValues;
+  }
+
+  @Override
+  public Link create(Access access, Link entity) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(create(tx.getContext(), access, entity));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  @Nullable
+  public Link readOne(Access access, BigInteger id) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readOne(tx.getContext(), access, ULong.valueOf(id)));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  @Nullable
+  public Link readOneAtChainOffset(Access access, BigInteger chainId, BigInteger offset) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readOneAtChainOffset(tx.getContext(), access, ULong.valueOf(chainId), ULong.valueOf(offset)));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Nullable
+  @Override
+  public Link readOneInState(Access access, BigInteger chainId, LinkState linkState, Timestamp linkBeginBefore) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readOneInState(tx.getContext(), access, ULong.valueOf(chainId), linkState, linkBeginBefore));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public Collection<Link> readAll(Access access, Collection<BigInteger> parentIds) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readAll(tx.getContext(), access, uLongValuesOf(parentIds)));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public Collection<Link> readAllFromOffset(Access access, BigInteger chainId, BigInteger fromOffset) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readAllFromOffset(tx.getContext(), access, ULong.valueOf(chainId), ULong.valueOf(fromOffset)));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public Collection<Link> readAllFromSecondsUTC(Access access, BigInteger chainId, BigInteger fromSecondsUTC) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readAllFromSecondsUTC(tx.getContext(), access, ULong.valueOf(chainId), ULong.valueOf(fromSecondsUTC)));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public void update(Access access, BigInteger id, Link entity) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      updateAllFields(tx.getContext(), access, ULong.valueOf(id), entity);
+      tx.success();
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public void updateState(Access access, BigInteger id, LinkState state) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      updateState(tx.getContext(), access, ULong.valueOf(id), state);
+      tx.success();
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public void destroy(Access access, BigInteger id) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      destroy(tx.getContext(), access, ULong.valueOf(id));
+      tx.success();
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  /**
+   Create a new record
+
+   @param db     context
+   @param access control
+   @param entity for new record
+   @return newly readMany record
+   @throws BusinessException if a Business Rule is violated
+   */
+  private Link create(DSLContext db, Access access, Link entity) throws Exception {
+    // top-level access
+    requireTopLevel(access);
+
+    entity.validate();
+    Map<Field, Object> fieldValues = fieldValueMap(entity);
+
+    // [#126] Links are always readMany in PLANNED state
+    fieldValues.put(LINK.STATE, LinkState.Planned);
+
+    // [#267] Link has `waveform_key` referencing xj-link-* S3 bucket object key
+    fieldValues.put(LINK.WAVEFORM_KEY, generateKey(entity.getChainId()));
+
+    // Chain ID and offset are read-only, set at creation
+    requireNotExists("Link at same offset in Chain", db.selectCount().from(LINK)
+      .where(LINK.CHAIN_ID.eq(ULong.valueOf(entity.getChainId())))
+      .and(LINK.OFFSET.eq(ULong.valueOf(entity.getOffset())))
+      .fetchOne(0, int.class));
+    fieldValues.put(LINK.CHAIN_ID, entity.getChainId());
+    fieldValues.put(LINK.OFFSET, entity.getOffset());
+
+    return modelFrom(executeCreate(db, LINK, fieldValues), Link.class);
+  }
+
+  /**
+   General a Link URL
+
+   @param chainId to generate URL for
+   @return URL as string
+   */
+  private String generateKey(BigInteger chainId) {
+    return amazonProvider.generateKey(
+      Exposure.FILE_CHAIN + Exposure.FILE_SEPARATOR +
+        chainId + Exposure.FILE_SEPARATOR +
+        Exposure.FILE_LINK, Link.FILE_EXTENSION);
+  }
+
+  /**
    Destroy a Link, its child entities, and S3 object
    [#301] Link destruction (by Eraseworker) should not spike database CPU
 
@@ -561,45 +599,6 @@ public class LinkDAOImpl extends DAOImpl implements LinkDAO {
       .where(LINK.ID.eq(linkId))
       .execute();
 
-  }
-
-  /**
-   Require state is in an array of states
-
-   @param toState       to check
-   @param allowedStates required to be in
-   @throws CancelException if not in required states
-   */
-  private static void onlyAllowTransitions(LinkState toState, LinkState... allowedStates) throws CancelException {
-    List<String> allowedStateNames = Lists.newArrayList();
-    for (LinkState search : allowedStates) {
-      allowedStateNames.add(search.toString());
-      if (Objects.equals(search, toState)) {
-        return;
-      }
-    }
-    throw new CancelException(String.format("transition to %s not in allowed (%s)",
-      toState, CSV.join(allowedStateNames)));
-  }
-
-  /**
-   Only certain (writable) fields are mapped back to jOOQ records--
-   Read-only fields are excluded from here.
-
-   @param entity to source values from
-   @return values mapped to record fields
-   */
-  private static Map<Field, Object> fieldValueMap(Link entity) {
-    Map<Field, Object> fieldValues = Maps.newHashMap();
-    fieldValues.put(LINK.STATE, entity.getState());
-    fieldValues.put(LINK.BEGIN_AT, entity.getBeginAt());
-    fieldValues.put(LINK.END_AT, valueOrNull(entity.getEndAt()));
-    fieldValues.put(LINK.TOTAL, valueOrNull(entity.getTotal()));
-    fieldValues.put(LINK.DENSITY, valueOrNull(entity.getDensity()));
-    fieldValues.put(LINK.KEY, valueOrNull(entity.getKey()));
-    fieldValues.put(LINK.TEMPO, valueOrNull(entity.getTempo()));
-    // Exclude LINK.WAVEFORM_KEY, LINK.CHAIN_ID and LINK.OFFSET because they are read-only
-    return fieldValues;
   }
 
 }

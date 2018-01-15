@@ -19,6 +19,7 @@ import io.xj.craft.CraftModule;
 import io.xj.dub.DubModule;
 import io.xj.worker.WorkerModule;
 
+import com.google.common.collect.ImmutableList;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -43,12 +44,12 @@ import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ChainEraseJobIT {
-  @Rule public ExpectedException failure = ExpectedException.none();
-  private Injector injector;
-  private App app;
   private static final int TEST_DURATION_SECONDS = 5;
   private static final int MILLIS_PER_SECOND = 1000;
+  @Rule public ExpectedException failure = ExpectedException.none();
   @Mock AmazonProvider amazonProvider;
+  private Injector injector;
+  private App app;
 
   @Before
   public void setUp() throws Exception {
@@ -141,10 +142,10 @@ public class ChainEraseJobIT {
     IntegrationTestEntity.insertVoice(1, 35, InstrumentType.Percussive, "drums");
 
     // Voice "Drums" has events "BOOM" and "SMACK" 2x each
-    IntegrationTestEntity.insertVoiceEvent(1, 315, 1, 0, 1, "BOOM", "C2", 0.8, 1.0);
-    IntegrationTestEntity.insertVoiceEvent(2, 315, 1, 1, 1, "SMACK", "G5", 0.1, 0.8);
-    IntegrationTestEntity.insertVoiceEvent(3, 315, 1, 2.5, 1, "BOOM", "C2", 0.8, 0.6);
-    IntegrationTestEntity.insertVoiceEvent(4, 315, 1, 3, 1, "SMACK", "G5", 0.1, 0.9);
+    IntegrationTestEntity.insertPhaseEvent(1, 315, 1, 0, 1, "BOOM", "C2", 0.8, 1.0);
+    IntegrationTestEntity.insertPhaseEvent(2, 315, 1, 1, 1, "SMACK", "G5", 0.1, 0.8);
+    IntegrationTestEntity.insertPhaseEvent(3, 315, 1, 2.5, 1, "BOOM", "C2", 0.8, 0.6);
+    IntegrationTestEntity.insertPhaseEvent(4, 315, 1, 3, 1, "SMACK", "G5", 0.1, 0.9);
 
     // basic beat second phase
     IntegrationTestEntity.insertPhase(316, 35, PhaseType.Loop, 1, 4, "Continue", 0.5, "C", 125.0);
@@ -217,7 +218,7 @@ public class ChainEraseJobIT {
   }
 
   /**
-   * [#294] Eraseworker finds Links and Audio in deleted state and actually deletes the records, child entities and S3 objects
+   [#294] Eraseworker finds Links and Audio in deleted state and actually deletes the records, child entities and S3 objects
    */
   @Test
   public void runWorker() throws Exception {
@@ -229,10 +230,10 @@ public class ChainEraseJobIT {
     Thread.sleep(TEST_DURATION_SECONDS * MILLIS_PER_SECOND);
     app.stop();
 
-    assertEquals(0, injector.getInstance(ChainDAO.class).readAll(Access.internal(),BigInteger.valueOf(1)).size());
+    assertEquals(0, injector.getInstance(ChainDAO.class).readAll(Access.internal(), ImmutableList.of(BigInteger.valueOf(1))).size());
 
-    assertEquals(0, injector.getInstance(LinkDAO.class).readAll(Access.internal(),BigInteger.valueOf(1)).size());
-    assertEquals(0, injector.getInstance(LinkDAO.class).readAll(Access.internal(),BigInteger.valueOf(2)).size());
+    assertEquals(0, injector.getInstance(LinkDAO.class).readAll(Access.internal(), ImmutableList.of(BigInteger.valueOf(1))).size());
+    assertEquals(0, injector.getInstance(LinkDAO.class).readAll(Access.internal(), ImmutableList.of(BigInteger.valueOf(2))).size());
 
     verify(amazonProvider).deleteS3Object("xj-link-test", "chain-1-link-97898asdf7892.wav");
     verify(amazonProvider).deleteS3Object("xj-link-test", "chain-1-link-2807fdghj3272.wav");

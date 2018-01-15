@@ -18,7 +18,7 @@ import io.xj.core.model.phase.Phase;
 import io.xj.core.model.phase_chord.PhaseChord;
 import io.xj.core.model.phase_meme.PhaseMeme;
 import io.xj.core.model.voice.Voice;
-import io.xj.core.model.voice_event.VoiceEvent;
+import io.xj.core.model.phase_event.PhaseEvent;
 import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import io.xj.core.persistence.sql.impl.SQLConnection;
 
@@ -51,7 +51,7 @@ import static io.xj.core.tables.PatternMeme.PATTERN_MEME;
 import static io.xj.core.tables.Phase.PHASE;
 import static io.xj.core.tables.PhaseMeme.PHASE_MEME;
 import static io.xj.core.tables.Voice.VOICE;
-import static io.xj.core.tables.VoiceEvent.VOICE_EVENT;
+import static io.xj.core.tables.PhaseEvent.PHASE_EVENT;
 
 public class LibraryDAOImpl extends DAOImpl implements LibraryDAO {
 
@@ -110,16 +110,16 @@ public class LibraryDAOImpl extends DAOImpl implements LibraryDAO {
    @param accountId of parent
    @return array of records
    */
-  private static Collection<Library> readAll(DSLContext db, Access access, ULong accountId) throws BusinessException {
+  private static Collection<Library> readAll(DSLContext db, Access access, Collection<ULong> accountId) throws BusinessException {
     if (access.isTopLevel())
       return modelsFrom(db.select(LIBRARY.fields())
         .from(LIBRARY)
-        .where(LIBRARY.ACCOUNT_ID.eq(accountId))
+        .where(LIBRARY.ACCOUNT_ID.in(accountId))
         .fetch(), Library.class);
     else
       return modelsFrom(db.select(LIBRARY.fields())
         .from(LIBRARY)
-        .where(LIBRARY.ACCOUNT_ID.eq(accountId))
+        .where(LIBRARY.ACCOUNT_ID.in(accountId))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .fetch(), Library.class);
   }
@@ -222,6 +222,8 @@ public class LibraryDAOImpl extends DAOImpl implements LibraryDAO {
 
   /**
    [#154343470] Ops wants LibraryHash to compute the hash of an entire library, which can be used as a unique stamp of the state of the library's entire contents at any instant
+   <p>
+   // TODO deprecate the libraryDAO hash method with the new Evaluation Hash method
 
    @param db     context
    @param access control
@@ -319,9 +321,9 @@ public class LibraryDAOImpl extends DAOImpl implements LibraryDAO {
       .fetch());
 
     // SELECT `id,updated_at` FROM  `voice_event` --> add entities to result objects
-    putEntity(result, VoiceEvent.class, db.select(VOICE_EVENT.ID, VOICE_EVENT.UPDATED_AT)
-      .from(VOICE_EVENT)
-      .join(VOICE).on(VOICE_EVENT.VOICE_ID.eq(VOICE.ID))
+    putEntity(result, PhaseEvent.class, db.select(PHASE_EVENT.ID, PHASE_EVENT.UPDATED_AT)
+      .from(PHASE_EVENT)
+      .join(VOICE).on(PHASE_EVENT.VOICE_ID.eq(VOICE.ID))
       .join(PATTERN).on(VOICE.PATTERN_ID.eq(PATTERN.ID))
       .where(PATTERN.LIBRARY_ID.eq(id))
       .fetch());
@@ -374,12 +376,11 @@ public class LibraryDAOImpl extends DAOImpl implements LibraryDAO {
   }
 
   @Override
-  @Nullable
-  public Collection<Library> readAll(Access access, @Nullable BigInteger accountId) throws Exception {
+  public Collection<Library> readAll(Access access, Collection<BigInteger> parentIds) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      if (Objects.nonNull(accountId)) {
-        return tx.success(readAll(tx.getContext(), access, ULong.valueOf(accountId)));
+      if (Objects.nonNull(parentIds) && !parentIds.isEmpty()) {
+        return tx.success(readAll(tx.getContext(), access, uLongValuesOf(parentIds)));
       } else {
         return tx.success(readAll(tx.getContext(), access));
       }
@@ -401,7 +402,7 @@ public class LibraryDAOImpl extends DAOImpl implements LibraryDAO {
   }
 
   @Override
-  public void delete(Access access, BigInteger id) throws Exception {
+  public void destroy(Access access, BigInteger id) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
       delete(tx.getContext(), access, ULong.valueOf(id));

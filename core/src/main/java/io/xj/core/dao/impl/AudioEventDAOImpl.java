@@ -39,71 +39,6 @@ public class AudioEventDAOImpl extends DAOImpl implements AudioEventDAO {
     this.dbProvider = dbProvider;
   }
 
-  @Override
-  public AudioEvent create(Access access, AudioEvent entity) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(createRecord(tx.getContext(), access, entity));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  @Nullable
-  public AudioEvent readOne(Access access, BigInteger id) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readOne(tx.getContext(), access, ULong.valueOf(id)));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  @Nullable
-  public Collection<AudioEvent> readAll(Access access, BigInteger audioId) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readAll(tx.getContext(), access, ULong.valueOf(audioId)));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public Collection<AudioEvent> readAllFirstEventsForInstrument(Access access, BigInteger instrumentId) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-
-      return tx.success(readAllFirstEventsForInstrument(tx.getContext(), access, ULong.valueOf(instrumentId)));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public void update(Access access, BigInteger id, AudioEvent entity) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      update(tx.getContext(), access, ULong.valueOf(id), entity);
-      tx.success();
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public void delete(Access access, BigInteger id) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      delete(access, tx.getContext(), ULong.valueOf(id));
-      tx.success();
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
   /**
    Create a new Audio Event
 
@@ -160,16 +95,16 @@ public class AudioEventDAOImpl extends DAOImpl implements AudioEventDAO {
   /**
    Read all Event able for an Instrument
 
-   @param db      context
-   @param access  control
-   @param audioId to readMany all audio of
+   @param db       context
+   @param access   control
+   @param audioIds to readMany all audio of
    @return array of audios
    */
-  private static Collection<AudioEvent> readAll(DSLContext db, Access access, ULong audioId) throws BusinessException {
+  private static Collection<AudioEvent> readAll(DSLContext db, Access access, Collection<ULong> audioIds) throws BusinessException {
     if (access.isTopLevel())
       return modelsFrom(db.select(AUDIO_EVENT.fields())
         .from(AUDIO_EVENT)
-        .where(AUDIO_EVENT.AUDIO_ID.eq(audioId))
+        .where(AUDIO_EVENT.AUDIO_ID.in(audioIds))
         .orderBy(AUDIO_EVENT.POSITION)
         .fetch(), AudioEvent.class);
     else
@@ -178,7 +113,7 @@ public class AudioEventDAOImpl extends DAOImpl implements AudioEventDAO {
         .join(AUDIO).on(AUDIO.ID.eq(AUDIO_EVENT.AUDIO_ID))
         .join(INSTRUMENT).on(INSTRUMENT.ID.eq(AUDIO.INSTRUMENT_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
-        .where(AUDIO_EVENT.AUDIO_ID.eq(audioId))
+        .where(AUDIO_EVENT.AUDIO_ID.in(audioIds))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .orderBy(AUDIO_EVENT.POSITION)
         .fetch(), AudioEvent.class);
@@ -296,6 +231,71 @@ public class AudioEventDAOImpl extends DAOImpl implements AudioEventDAO {
     fieldValues.put(AUDIO_EVENT.VELOCITY, entity.getVelocity());
     fieldValues.put(AUDIO_EVENT.AUDIO_ID, ULong.valueOf(entity.getAudioId()));
     return fieldValues;
+  }
+
+  @Override
+  public AudioEvent create(Access access, AudioEvent entity) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(createRecord(tx.getContext(), access, entity));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  @Nullable
+  public AudioEvent readOne(Access access, BigInteger id) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readOne(tx.getContext(), access, ULong.valueOf(id)));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  @Nullable
+  public Collection<AudioEvent> readAll(Access access, Collection<BigInteger> parentIds) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readAll(tx.getContext(), access, uLongValuesOf(parentIds)));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public Collection<AudioEvent> readAllFirstEventsForInstrument(Access access, BigInteger instrumentId) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+
+      return tx.success(readAllFirstEventsForInstrument(tx.getContext(), access, ULong.valueOf(instrumentId)));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public void update(Access access, BigInteger id, AudioEvent entity) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      update(tx.getContext(), access, ULong.valueOf(id), entity);
+      tx.success();
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public void destroy(Access access, BigInteger id) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      delete(access, tx.getContext(), ULong.valueOf(id));
+      tx.success();
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
   }
 
 

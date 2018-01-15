@@ -19,7 +19,7 @@ import io.xj.core.model.link_message.LinkMessage;
 import io.xj.core.model.meme.Meme;
 import io.xj.core.model.message.Message;
 import io.xj.core.model.user_role.UserRoleType;
-import io.xj.core.server.HttpResponseProvider;
+import io.xj.core.transport.HttpResponseProvider;
 import io.xj.core.transport.JSON;
 
 import com.google.common.collect.ImmutableList;
@@ -109,7 +109,7 @@ public class LinkIndexResource {
     Collection<BigInteger> linkIds = linkIds(links);
 
     if (Objects.nonNull(include) && include.contains(Message.KEY_MANY))
-      out.put(LinkMessage.KEY_MANY, JSON.arrayOf(linkMessageDAO.readAllInLinks(access, linkIds)));
+      out.put(LinkMessage.KEY_MANY, JSON.arrayOf(linkMessageDAO.readAll(access, linkIds)));
 
     if (Objects.nonNull(include) && include.contains(Meme.KEY_MANY))
       out.put(LinkMeme.KEY_MANY, JSON.arrayOf(linkMemeDAO.readAllInLinks(access, linkIds)));
@@ -141,7 +141,7 @@ public class LinkIndexResource {
     if (Objects.nonNull(fromSecondsUTC))
       return linkDAO.readAllFromSecondsUTC(access, new BigInteger(chainId), fromSecondsUTC);
 
-    return linkDAO.readAll(access, new BigInteger(chainId));
+    return linkDAO.readAll(access, ImmutableList.of(new BigInteger(chainId)));
   }
 
   /**

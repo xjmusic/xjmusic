@@ -6,7 +6,7 @@ import io.xj.core.access.impl.Access;
 import io.xj.core.dao.ArrangementDAO;
 import io.xj.core.model.arrangement.Arrangement;
 import io.xj.core.model.user_role.UserRoleType;
-import io.xj.core.server.HttpResponseProvider;
+import io.xj.core.transport.HttpResponseProvider;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;

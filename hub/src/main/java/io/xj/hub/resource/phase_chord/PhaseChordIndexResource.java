@@ -7,8 +7,9 @@ import io.xj.core.dao.PhaseChordDAO;
 import io.xj.core.model.phase_chord.PhaseChord;
 import io.xj.core.model.phase_chord.PhaseChordWrapper;
 import io.xj.core.model.user_role.UserRoleType;
-import io.xj.core.server.HttpResponseProvider;
+import io.xj.core.transport.HttpResponseProvider;
 
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
@@ -58,7 +59,7 @@ public class PhaseChordIndexResource {
         PhaseChord.KEY_MANY,
         phaseChordDAO.readAll(
           Access.fromContext(crc),
-          new BigInteger(phaseId)));
+          ImmutableList.of(new BigInteger(phaseId))));
 
     } catch (Exception e) {
       return response.failure(e);

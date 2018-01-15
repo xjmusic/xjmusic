@@ -17,7 +17,7 @@ import io.xj.core.dao.PatternMemeDAO;
 import io.xj.core.dao.PhaseDAO;
 import io.xj.core.dao.PhaseMemeDAO;
 import io.xj.core.dao.VoiceDAO;
-import io.xj.core.dao.VoiceEventDAO;
+import io.xj.core.dao.PhaseEventDAO;
 import io.xj.core.model.choice.Choice;
 import io.xj.core.model.link.Link;
 import io.xj.core.model.pattern.PatternType;
@@ -69,7 +69,7 @@ public class BasisImplTest {
   @Mock PhaseMemeDAO phaseMemeDAO;
   @Mock Tuning tuning;
   @Mock VoiceDAO voiceDAO;
-  @Mock VoiceEventDAO voiceEventDAO;
+  @Mock PhaseEventDAO phaseEventDAO;
   @Mock Choice choice;
 
   @Before
@@ -105,7 +105,7 @@ public class BasisImplTest {
           bind(PhaseMemeDAO.class).toInstance(phaseMemeDAO);
           bind(Tuning.class).toInstance(tuning);
           bind(VoiceDAO.class).toInstance(voiceDAO);
-          bind(VoiceEventDAO.class).toInstance(voiceEventDAO);
+          bind(PhaseEventDAO.class).toInstance(phaseEventDAO);
         }
       }));
   }
@@ -293,7 +293,7 @@ public class BasisImplTest {
   }
 
   @Test
-  public void voiceEvents() throws Exception {
+  public void phaseEvents() throws Exception {
   }
 
   @Test

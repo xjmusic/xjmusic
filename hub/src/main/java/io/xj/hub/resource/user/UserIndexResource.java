@@ -3,11 +3,12 @@ package io.xj.hub.resource.user;
 
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
-import io.xj.core.server.HttpResponseProvider;
 import io.xj.core.dao.UserDAO;
-import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.model.user.User;
+import io.xj.core.model.user_role.UserRoleType;
+import io.xj.core.transport.HttpResponseProvider;
 
+import com.google.common.collect.Lists;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
@@ -26,7 +27,7 @@ import java.io.IOException;
 @Path("users")
 public class UserIndexResource {
   private static final Injector injector = Guice.createInjector(new CoreModule());
-  private final UserDAO DAO = injector.getInstance(UserDAO.class);
+  private final UserDAO userDAO = injector.getInstance(UserDAO.class);
   private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
 
   /**
@@ -36,13 +37,14 @@ public class UserIndexResource {
    */
   @GET
   @WebResult
-  @RolesAllowed({UserRoleType.USER})
+  @RolesAllowed(UserRoleType.USER)
   public Response readAll(@Context ContainerRequestContext crc) throws IOException {
     try {
       return response.readMany(
         User.KEY_MANY,
-        DAO.readAll(
-          Access.fromContext(crc)));
+        userDAO.readAll(
+          Access.fromContext(crc),
+          Lists.newArrayList()));
 
     } catch (Exception e) {
       return response.failure(e);

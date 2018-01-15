@@ -44,7 +44,7 @@ import io.xj.core.tables.records.UserAccessTokenRecord;
 import io.xj.core.tables.records.UserAuthRecord;
 import io.xj.core.tables.records.UserRecord;
 import io.xj.core.tables.records.UserRoleRecord;
-import io.xj.core.tables.records.VoiceEventRecord;
+import io.xj.core.tables.records.PhaseEventRecord;
 import io.xj.core.tables.records.VoiceRecord;
 
 import org.jooq.DSLContext;
@@ -90,7 +90,7 @@ import static io.xj.core.Tables.USER_ACCESS_TOKEN;
 import static io.xj.core.Tables.USER_AUTH;
 import static io.xj.core.Tables.USER_ROLE;
 import static io.xj.core.Tables.VOICE;
-import static io.xj.core.Tables.VOICE_EVENT;
+import static io.xj.core.Tables.PHASE_EVENT;
 
 public interface IntegrationTestEntity {
   Logger log = LoggerFactory.getLogger(IntegrationTestEntity.class);
@@ -110,7 +110,7 @@ public interface IntegrationTestEntity {
       db.deleteFrom(AUDIO).execute(); // before Instrument
 
       // Voice
-      db.deleteFrom(VOICE_EVENT).execute(); // before Voice
+      db.deleteFrom(PHASE_EVENT).execute(); // before Voice
       db.deleteFrom(VOICE).execute(); // before Phase
 
       // Choice
@@ -352,12 +352,12 @@ public interface IntegrationTestEntity {
     record.store();
   }
 
-  static void insertVoiceEvent(int id, int phaseId, int voiceId, double position, double duration, String inflection, String note, double tonality, double velocity) {
-    insertVoiceEvent(id, phaseId, voiceId, position, duration, inflection, note, tonality, velocity, Timestamp.from(Instant.now()));
+  static void insertPhaseEvent(int id, int phaseId, int voiceId, double position, double duration, String inflection, String note, double tonality, double velocity) {
+    insertPhaseEvent(id, phaseId, voiceId, position, duration, inflection, note, tonality, velocity, Timestamp.from(Instant.now()));
   }
 
-  static void insertVoiceEvent(int id, int phaseId, int voiceId, double position, double duration, String inflection, String note, double tonality, double velocity, Timestamp createdUpdatedAt) {
-    VoiceEventRecord record = IntegrationTestService.getDb().newRecord(VOICE_EVENT);
+  static void insertPhaseEvent(int id, int phaseId, int voiceId, double position, double duration, String inflection, String note, double tonality, double velocity, Timestamp createdUpdatedAt) {
+    PhaseEventRecord record = IntegrationTestService.getDb().newRecord(PHASE_EVENT);
     record.setId(ULong.valueOf(id));
     record.setPhaseId(ULong.valueOf(phaseId));
     record.setVoiceId(ULong.valueOf(voiceId));

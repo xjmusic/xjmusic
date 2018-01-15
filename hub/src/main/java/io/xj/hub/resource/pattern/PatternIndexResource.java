@@ -7,8 +7,9 @@ import io.xj.core.dao.PatternDAO;
 import io.xj.core.model.pattern.Pattern;
 import io.xj.core.model.pattern.PatternWrapper;
 import io.xj.core.model.user_role.UserRoleType;
-import io.xj.core.server.HttpResponseProvider;
+import io.xj.core.transport.HttpResponseProvider;
 
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
@@ -83,9 +84,9 @@ public class PatternIndexResource {
     try {
       return response.readMany(
         Pattern.KEY_MANY,
-        patternDAO.readAllInLibrary(
+        patternDAO.readAll(
           access,
-          new BigInteger(libraryId)));
+          ImmutableList.of(new BigInteger(libraryId))));
 
     } catch (Exception e) {
       return response.failure(e);

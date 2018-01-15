@@ -4,7 +4,7 @@ package io.xj.hub.resource.instrument_meme;
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
 import io.xj.core.model.user_role.UserRoleType;
-import io.xj.core.server.HttpResponseProvider;
+import io.xj.core.transport.HttpResponseProvider;
 import io.xj.core.dao.InstrumentMemeDAO;
 import io.xj.core.model.instrument_meme.InstrumentMeme;
 
@@ -67,7 +67,7 @@ public class InstrumentMemeRecordResource {
   @RolesAllowed(UserRoleType.ARTIST)
   public Response delete(@Context ContainerRequestContext crc) {
     try {
-      instrumentMemeDAO.delete(Access.fromContext(crc), new BigInteger(id));
+      instrumentMemeDAO.destroy(Access.fromContext(crc), new BigInteger(id));
       return Response.accepted("{}").build();
     } catch (Exception e) {
       return response.failure(e);

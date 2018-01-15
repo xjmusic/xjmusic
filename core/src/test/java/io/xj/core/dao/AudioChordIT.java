@@ -10,6 +10,7 @@ import io.xj.core.model.instrument.InstrumentType;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.transport.JSON;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -28,7 +29,7 @@ import static org.junit.Assert.assertNull;
 
 // future test: permissions of different users to readMany vs. create vs. update or delete audio chords
 
-// future test readAllSequences() which supports [#154234716] library analysis requires enumerating all possible sub-sequences of chords for any audio
+// future test readAllSequences() which supports [#154234716] library evaluation requires enumerating all possible sub-sequences of chords for any audio
 
 public class AudioChordIT {
   private final Injector injector = Guice.createInjector(new CoreModule());
@@ -146,7 +147,7 @@ public class AudioChordIT {
       "accounts", "1"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, BigInteger.valueOf(1)));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1))));
 
     assertNotNull(result);
     assertEquals(2, result.length());
@@ -163,7 +164,7 @@ public class AudioChordIT {
       "accounts", "345"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, BigInteger.valueOf(1)));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1))));
 
     assertNotNull(result);
     assertEquals(0, result.length());
@@ -247,7 +248,7 @@ public class AudioChordIT {
       "accounts", "1"
     ));
 
-    testDAO.delete(access, BigInteger.valueOf(1));
+    testDAO.destroy(access, BigInteger.valueOf(1));
 
     AudioChord result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1));
     assertNull(result);
@@ -260,7 +261,7 @@ public class AudioChordIT {
       "accounts", "2"
     ));
 
-    testDAO.delete(access, BigInteger.valueOf(1));
+    testDAO.destroy(access, BigInteger.valueOf(1));
   }
 
 }

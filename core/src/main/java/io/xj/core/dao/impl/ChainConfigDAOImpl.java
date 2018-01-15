@@ -33,58 +33,6 @@ public class ChainConfigDAOImpl extends DAOImpl implements ChainConfigDAO {
     this.dbProvider = dbProvider;
   }
 
-  @Override
-  public ChainConfig create(Access access, ChainConfig entity) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(create(tx.getContext(), access, entity));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public ChainConfig readOne(Access access, BigInteger id) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readOne(tx.getContext(), access, ULong.valueOf(id)));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public Collection<ChainConfig> readAll(Access access, BigInteger chainId) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readAll(tx.getContext(), access, ULong.valueOf(chainId)));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public void update(Access access, BigInteger id, ChainConfig entity) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      update(tx.getContext(), access, ULong.valueOf(id), entity);
-      tx.success();
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public void delete(Access access, BigInteger id) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      delete(tx.getContext(), access, ULong.valueOf(id));
-      tx.success();
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
   /**
    Create a new Chain config record
 
@@ -148,19 +96,18 @@ public class ChainConfigDAOImpl extends DAOImpl implements ChainConfigDAO {
    @param chainId of parent
    @return array of child records
    */
-  private static Collection<ChainConfig> readAll(DSLContext db, Access access, ULong chainId) throws BusinessException {
+  private static Collection<ChainConfig> readAll(DSLContext db, Access access, Collection<ULong> chainId) throws BusinessException {
     if (access.isTopLevel())
       return modelsFrom(db.selectFrom(CHAIN_CONFIG)
-        .where(CHAIN_CONFIG.CHAIN_ID.eq(chainId))
+        .where(CHAIN_CONFIG.CHAIN_ID.in(chainId))
         .fetch(), ChainConfig.class);
     else
       return modelsFrom(db.select(CHAIN_CONFIG.fields()).from(CHAIN_CONFIG)
         .join(CHAIN).on(CHAIN.ID.eq(CHAIN_CONFIG.CHAIN_ID))
-        .where(CHAIN.ID.eq(chainId))
+        .where(CHAIN.ID.in(chainId))
         .and(CHAIN.ACCOUNT_ID.in(access.getAccountIds()))
         .fetch(), ChainConfig.class);
   }
-
 
   /**
    Update a record
@@ -234,6 +181,58 @@ public class ChainConfigDAOImpl extends DAOImpl implements ChainConfigDAO {
     fieldValues.put(Tables.CHAIN_CONFIG.TYPE, entity.getType());
     fieldValues.put(Tables.CHAIN_CONFIG.VALUE, entity.getValue());
     return fieldValues;
+  }
+
+  @Override
+  public ChainConfig create(Access access, ChainConfig entity) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(create(tx.getContext(), access, entity));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public ChainConfig readOne(Access access, BigInteger id) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readOne(tx.getContext(), access, ULong.valueOf(id)));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public Collection<ChainConfig> readAll(Access access, Collection<BigInteger> parentIds) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readAll(tx.getContext(), access, uLongValuesOf(parentIds)));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public void update(Access access, BigInteger id, ChainConfig entity) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      update(tx.getContext(), access, ULong.valueOf(id), entity);
+      tx.success();
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public void destroy(Access access, BigInteger id) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      delete(tx.getContext(), access, ULong.valueOf(id));
+      tx.success();
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
   }
 
 }

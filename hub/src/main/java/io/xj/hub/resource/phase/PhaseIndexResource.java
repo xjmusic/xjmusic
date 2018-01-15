@@ -7,8 +7,9 @@ import io.xj.core.dao.PhaseDAO;
 import io.xj.core.model.phase.Phase;
 import io.xj.core.model.phase.PhaseWrapper;
 import io.xj.core.model.user_role.UserRoleType;
-import io.xj.core.server.HttpResponseProvider;
+import io.xj.core.transport.HttpResponseProvider;
 
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
@@ -61,7 +62,7 @@ public class PhaseIndexResource {
         Phase.KEY_MANY,
         phaseDAO.readAll(
           Access.fromContext(crc),
-          new BigInteger(patternId)));
+          ImmutableList.of(new BigInteger(patternId))));
 
     } catch (Exception e) {
       return response.failure(e);

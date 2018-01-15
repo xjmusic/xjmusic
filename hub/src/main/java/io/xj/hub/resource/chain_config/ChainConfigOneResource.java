@@ -4,7 +4,7 @@ package io.xj.hub.resource.chain_config;
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
 import io.xj.core.model.user_role.UserRoleType;
-import io.xj.core.server.HttpResponseProvider;
+import io.xj.core.transport.HttpResponseProvider;
 import io.xj.core.dao.ChainConfigDAO;
 import io.xj.core.model.chain_config.ChainConfig;
 
@@ -67,7 +67,7 @@ public class ChainConfigOneResource {
   @RolesAllowed({UserRoleType.ENGINEER, UserRoleType.ADMIN})
   public Response delete(@Context ContainerRequestContext crc) {
     try {
-      chainConfigDAO.delete(Access.fromContext(crc), new BigInteger(id));
+      chainConfigDAO.destroy(Access.fromContext(crc), new BigInteger(id));
       return Response.accepted("{}").build();
     } catch (Exception e) {
       return response.failure(e);

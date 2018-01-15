@@ -18,6 +18,7 @@ import io.xj.craft.CraftModule;
 import io.xj.dub.DubModule;
 import io.xj.worker.WorkerModule;
 
+import com.google.common.collect.ImmutableList;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -211,7 +212,7 @@ public class ChainLinkFabricateJobsIT {
     // assertions
     int assertShippedLinksMinimum = 3;
     verify(amazonProvider, atLeast(assertShippedLinksMinimum)).putS3Object(eq("/tmp/chain-1-link-12345.mp3"), eq("xj-link-test"), any());
-    Collection<Link> result = injector.getInstance(LinkDAO.class).readAll(Access.internal(), BigInteger.valueOf(1));
+    Collection<Link> result = injector.getInstance(LinkDAO.class).readAll(Access.internal(), ImmutableList.of(BigInteger.valueOf(1)));
     assertTrue(assertShippedLinksMinimum < result.size());
   }
 

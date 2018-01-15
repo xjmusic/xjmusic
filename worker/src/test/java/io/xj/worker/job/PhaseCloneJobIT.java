@@ -7,7 +7,7 @@ import io.xj.core.app.App;
 import io.xj.core.dao.PhaseChordDAO;
 import io.xj.core.dao.PhaseDAO;
 import io.xj.core.dao.PhaseMemeDAO;
-import io.xj.core.dao.VoiceEventDAO;
+import io.xj.core.dao.PhaseEventDAO;
 import io.xj.core.external.amazon.AmazonProvider;
 import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.model.instrument.InstrumentType;
@@ -17,12 +17,13 @@ import io.xj.core.model.phase.PhaseType;
 import io.xj.core.model.phase_chord.PhaseChord;
 import io.xj.core.model.phase_meme.PhaseMeme;
 import io.xj.core.model.user_role.UserRoleType;
-import io.xj.core.model.voice_event.VoiceEvent;
+import io.xj.core.model.phase_event.PhaseEvent;
 import io.xj.core.work.WorkManager;
 import io.xj.craft.CraftModule;
 import io.xj.dub.DubModule;
 import io.xj.worker.WorkerModule;
 
+import com.google.common.collect.ImmutableList;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -47,13 +48,13 @@ import static org.junit.Assert.assertNotNull;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PhaseCloneJobIT {
-  @Rule public ExpectedException failure = ExpectedException.none();
-  private Injector injector;
-  private App app;
   private static final int TEST_DURATION_SECONDS = 2;
   private static final int MILLIS_PER_SECOND = 1000;
-  @Mock AmazonProvider amazonProvider;
   @Spy final WorkManager workManager = Guice.createInjector(new CoreModule()).getInstance(WorkManager.class);
+  @Rule public ExpectedException failure = ExpectedException.none();
+  @Mock AmazonProvider amazonProvider;
+  private Injector injector;
+  private App app;
 
   @Before
   public void setUp() throws Exception {
@@ -94,16 +95,16 @@ public class PhaseCloneJobIT {
     IntegrationTestEntity.insertPhase(1, 1, PhaseType.Loop, 0, 16, "Verse 1", 0.5, "G", 120);
     IntegrationTestEntity.insertPhaseMeme(1, 1, "GREEN");
     IntegrationTestEntity.insertPhaseChord(1, 1, 0, "Db7");
-    IntegrationTestEntity.insertVoiceEvent(101,1,1,0.0,1.0,"KICK","C5",1.0,1.0);
-    IntegrationTestEntity.insertVoiceEvent(102,1,2,1.0,1.0,"SNARE","C5",1.0,1.0);
+    IntegrationTestEntity.insertPhaseEvent(101, 1, 1, 0.0, 1.0, "KICK", "C5", 1.0, 1.0);
+    IntegrationTestEntity.insertPhaseEvent(102, 1, 2, 1.0, 1.0, "SNARE", "C5", 1.0, 1.0);
 
 
     // Phase "Verse"
     IntegrationTestEntity.insertPhase(2, 1, PhaseType.Loop, 0, 16, "Verse 2", 0.5, "G", 120);
     IntegrationTestEntity.insertPhaseMeme(2, 2, "YELLOW");
     IntegrationTestEntity.insertPhaseChord(2, 2, 0, "Gm9");
-    IntegrationTestEntity.insertVoiceEvent(103,2,1,0.0,1.0,"KICK","C5",1.0,1.0);
-    IntegrationTestEntity.insertVoiceEvent(104,2,2,1.0,1.0,"SNARE","C5",1.0,1.0);
+    IntegrationTestEntity.insertPhaseEvent(103, 2, 1, 0.0, 1.0, "KICK", "C5", 1.0, 1.0);
+    IntegrationTestEntity.insertPhaseEvent(104, 2, 2, 1.0, 1.0, "SNARE", "C5", 1.0, 1.0);
 
     // Newly cloned phases -- awaiting PhaseClone job to run, and create their child entities
     IntegrationTestEntity.insertPhase(3, 1, PhaseType.Loop, 0, 16, "Verse 34", 0.5, "G", 120);
@@ -160,9 +161,9 @@ public class PhaseCloneJobIT {
     assertNotNull(resultTwo);
 
     // Verify existence of children of cloned phase #1
-    Collection<PhaseMeme> memesOne = injector.getInstance(PhaseMemeDAO.class).readAll(Access.internal(), resultOne.getId());
-    Collection<PhaseChord> chordsOne = injector.getInstance(PhaseChordDAO.class).readAll(Access.internal(), resultOne.getId());
-    Collection<VoiceEvent> eventsOne = injector.getInstance(VoiceEventDAO.class).readAllOfPhase(Access.internal(), resultOne.getId());
+    Collection<PhaseMeme> memesOne = injector.getInstance(PhaseMemeDAO.class).readAll(Access.internal(), ImmutableList.of(resultOne.getId()));
+    Collection<PhaseChord> chordsOne = injector.getInstance(PhaseChordDAO.class).readAll(Access.internal(), ImmutableList.of(resultOne.getId()));
+    Collection<PhaseEvent> eventsOne = injector.getInstance(PhaseEventDAO.class).readAll(Access.internal(), ImmutableList.of(resultOne.getId()));
     assertEquals(1, memesOne.size());
     assertEquals(1, chordsOne.size());
     assertEquals(2, eventsOne.size());
@@ -173,9 +174,9 @@ public class PhaseCloneJobIT {
     assertEquals("Db7", chordOne.getName());
 
     // Verify existence of children of cloned phase #2
-    Collection<PhaseMeme> memesTwo = injector.getInstance(PhaseMemeDAO.class).readAll(Access.internal(), resultTwo.getId());
-    Collection<PhaseChord> chordsTwo = injector.getInstance(PhaseChordDAO.class).readAll(Access.internal(), resultTwo.getId());
-    Collection<VoiceEvent> eventsTwo = injector.getInstance(VoiceEventDAO.class).readAllOfPhase(Access.internal(), resultTwo.getId());
+    Collection<PhaseMeme> memesTwo = injector.getInstance(PhaseMemeDAO.class).readAll(Access.internal(), ImmutableList.of(resultTwo.getId()));
+    Collection<PhaseChord> chordsTwo = injector.getInstance(PhaseChordDAO.class).readAll(Access.internal(), ImmutableList.of(resultTwo.getId()));
+    Collection<PhaseEvent> eventsTwo = injector.getInstance(PhaseEventDAO.class).readAll(Access.internal(), ImmutableList.of(resultTwo.getId()));
     assertEquals(1, memesTwo.size());
     assertEquals(1, chordsTwo.size());
     assertEquals(2, eventsTwo.size());

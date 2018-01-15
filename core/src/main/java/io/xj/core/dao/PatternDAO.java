@@ -9,37 +9,17 @@ import javax.annotation.Nullable;
 import java.math.BigInteger;
 import java.util.Collection;
 
-public interface PatternDAO {
-
-  /**
-   Create a new Pattern
-
-   @param access control
-   @param entity for the new Pattern
-   @return newly readMany record
-   */
-  Pattern create(Access access, Pattern entity) throws Exception;
+public interface PatternDAO extends DAO<Pattern> {
 
   /**
    Clone a Pattern into a new Pattern
 
-   @param access control
+   @param access  control
    @param cloneId of pattern to clone
-   @param entity for the new Pattern
+   @param entity  for the new Pattern
    @return newly readMany record
    */
   Pattern clone(Access access, BigInteger cloneId, Pattern entity) throws Exception;
-
-  /**
-   Fetch one pattern if accessible
-
-   @param access control
-   @param id     of pattern
-   @return retrieved record
-   @throws Exception on failure
-   */
-  @Nullable
-  Pattern readOne(Access access, BigInteger id) throws Exception;
 
   /**
    Read a given type of pattern for a given link
@@ -85,41 +65,12 @@ public interface PatternDAO {
   Collection<Pattern> readAllInAccount(Access access, BigInteger accountId) throws Exception;
 
   /**
-   Fetch many pattern for one Library by id, if accessible
-
-   @param access    control
-   @param libraryId to fetch patterns for.
-   @return JSONArray of patterns.
-   @throws Exception on failure
-   */
-  Collection<Pattern> readAllInLibrary(Access access, BigInteger libraryId) throws Exception;
-
-  /**
    Fetch all pattern visible to given access
 
-   @param access    control
+   @param access control
    @return JSONArray of patterns.
    @throws Exception on failure
    */
   Collection<Pattern> readAll(Access access) throws Exception;
-
-  /**
-   (ADMIN ONLY)
-   Update a specified Pattern
-
-   @param access    control
-   @param patternId of specific Pattern to update.
-   @param entity    for the updated Pattern.
-   */
-  void update(Access access, BigInteger patternId, Pattern entity) throws Exception;
-
-  /**
-   (ADMIN ONLY)
-   Delete a specified pattern
-
-   @param access control
-   @param id     of specific pattern to delete.
-   */
-  void delete(Access access, BigInteger id) throws Exception;
 
 }

@@ -34,70 +34,6 @@ public class LinkChordDAOImpl extends DAOImpl implements LinkChordDAO {
     this.dbProvider = dbProvider;
   }
 
-  @Override
-  public LinkChord create(Access access, LinkChord entity) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(createRecord(tx.getContext(), access, entity));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  @Nullable
-  public LinkChord readOne(Access access, BigInteger id) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readOne(tx.getContext(), access, ULong.valueOf(id)));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  @Nullable
-  public Collection<LinkChord> readAll(Access access, BigInteger linkId) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readAll(tx.getContext(), access, ULong.valueOf(linkId)));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public Collection<LinkChord> readAllInLinks(Access access, Collection<BigInteger> linkIds) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readAllInLinks(tx.getContext(), access, idCollection(linkIds)));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public void update(Access access, BigInteger id, LinkChord entity) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      update(tx.getContext(), access, ULong.valueOf(id), entity);
-      tx.success();
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public void delete(Access access, BigInteger id) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      delete(access, tx.getContext(), ULong.valueOf(id));
-      tx.success();
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
   /**
    Create a new Link Chord
 
@@ -152,17 +88,17 @@ public class LinkChordDAOImpl extends DAOImpl implements LinkChordDAO {
    @param linkId to readMany all link of
    @return array of links
    */
-  private static Collection<LinkChord> readAll(DSLContext db, Access access, ULong linkId) throws BusinessException {
+  private static Collection<LinkChord> readAll(DSLContext db, Access access, Collection<ULong> linkId) throws BusinessException {
     if (access.isTopLevel())
       return modelsFrom(db.select(LINK_CHORD.fields()).from(LINK_CHORD)
-        .where(LINK_CHORD.LINK_ID.eq(linkId))
+        .where(LINK_CHORD.LINK_ID.in(linkId))
         .orderBy(LINK_CHORD.POSITION)
         .fetch(), LinkChord.class);
     else
       return modelsFrom(db.select(LINK_CHORD.fields()).from(LINK_CHORD)
         .join(LINK).on(LINK.ID.eq(LINK_CHORD.LINK_ID))
         .join(CHAIN).on(CHAIN.ID.eq(LINK.CHAIN_ID))
-        .where(LINK_CHORD.LINK_ID.eq(linkId))
+        .where(LINK_CHORD.LINK_ID.in(linkId))
         .and(CHAIN.ACCOUNT_ID.in(access.getAccountIds()))
         .orderBy(LINK_CHORD.POSITION)
         .fetch(), LinkChord.class);
@@ -181,10 +117,10 @@ public class LinkChordDAOImpl extends DAOImpl implements LinkChordDAO {
     requireAccessToLinks(db, access, linkIds);
 
     return modelsFrom(db.select(LINK_CHORD.fields()).from(LINK_CHORD)
-        .join(LINK).on(LINK.ID.eq(LINK_CHORD.LINK_ID))
-        .where(LINK.ID.in(linkIds))
-        .orderBy(LINK_CHORD.POSITION.desc())
-        .fetch(), LinkChord.class);
+      .join(LINK).on(LINK.ID.eq(LINK_CHORD.LINK_ID))
+      .where(LINK.ID.in(linkIds))
+      .orderBy(LINK_CHORD.POSITION.desc())
+      .fetch(), LinkChord.class);
   }
 
   /**
@@ -244,6 +180,70 @@ public class LinkChordDAOImpl extends DAOImpl implements LinkChordDAO {
     fieldValues.put(LINK_CHORD.LINK_ID, ULong.valueOf(entity.getLinkId()));
     fieldValues.put(LINK_CHORD.POSITION, entity.getPosition());
     return fieldValues;
+  }
+
+  @Override
+  public LinkChord create(Access access, LinkChord entity) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(createRecord(tx.getContext(), access, entity));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  @Nullable
+  public LinkChord readOne(Access access, BigInteger id) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readOne(tx.getContext(), access, ULong.valueOf(id)));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  @Nullable
+  public Collection<LinkChord> readAll(Access access, Collection<BigInteger> parentIds) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readAll(tx.getContext(), access, uLongValuesOf(parentIds)));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public Collection<LinkChord> readAllInLinks(Access access, Collection<BigInteger> linkIds) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readAllInLinks(tx.getContext(), access, idCollection(linkIds)));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public void update(Access access, BigInteger id, LinkChord entity) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      update(tx.getContext(), access, ULong.valueOf(id), entity);
+      tx.success();
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public void destroy(Access access, BigInteger id) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      delete(access, tx.getContext(), ULong.valueOf(id));
+      tx.success();
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
   }
 
 }

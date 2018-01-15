@@ -140,7 +140,7 @@ public class PlatformMessageIT {
 
   @Test
   public void delete() throws Exception {
-    testDAO.delete(Access.internal(), BigInteger.valueOf(12));
+    testDAO.destroy(Access.internal(), BigInteger.valueOf(12));
 
     assertNull(testDAO.readOne(Access.internal(), BigInteger.valueOf(2)));
   }
@@ -155,7 +155,7 @@ public class PlatformMessageIT {
     failure.expect(BusinessException.class);
     failure.expectMessage("top-level access is required");
 
-    testDAO.delete(access, BigInteger.valueOf(12));
+    testDAO.destroy(access, BigInteger.valueOf(12));
   }
 
 

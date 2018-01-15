@@ -35,47 +35,6 @@ public class ChainPatternDAOImpl extends DAOImpl implements ChainPatternDAO {
     this.dbProvider = dbProvider;
   }
 
-  @Override
-  public ChainPattern create(Access access, ChainPattern entity) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(create(tx.getContext(), access, entity));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public ChainPattern readOne(Access access, BigInteger id) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readOne(tx.getContext(), access, ULong.valueOf(id)));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public Collection<ChainPattern> readAll(Access access, BigInteger chainId) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readAll(tx.getContext(), access, ULong.valueOf(chainId)));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public void delete(Access access, BigInteger id) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      delete(tx.getContext(), access, ULong.valueOf(id));
-      tx.success();
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
   /**
    Create a new Chain Pattern record
 
@@ -149,16 +108,16 @@ public class ChainPatternDAOImpl extends DAOImpl implements ChainPatternDAO {
    @param chainId of parent
    @return array of child records
    */
-  private static Collection<ChainPattern> readAll(DSLContext db, Access access, ULong chainId) throws BusinessException {
+  private static Collection<ChainPattern> readAll(DSLContext db, Access access, Collection<ULong> chainId) throws BusinessException {
     if (access.isTopLevel())
       return modelsFrom(db.selectFrom(CHAIN_PATTERN)
-        .where(CHAIN_PATTERN.CHAIN_ID.eq(chainId))
+        .where(CHAIN_PATTERN.CHAIN_ID.in(chainId))
         .fetch(), ChainPattern.class);
     else
       return modelsFrom(db.select(CHAIN_PATTERN.fields()).from(CHAIN_PATTERN)
         .join(PATTERN).on(PATTERN.ID.eq(CHAIN_PATTERN.PATTERN_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(PATTERN.LIBRARY_ID))
-        .where(CHAIN_PATTERN.CHAIN_ID.eq(chainId))
+        .where(CHAIN_PATTERN.CHAIN_ID.in(chainId))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .fetch(), ChainPattern.class);
   }
@@ -201,6 +160,52 @@ public class ChainPatternDAOImpl extends DAOImpl implements ChainPatternDAO {
     fieldValues.put(Tables.CHAIN_PATTERN.CHAIN_ID, ULong.valueOf(entity.getChainId()));
     fieldValues.put(Tables.CHAIN_PATTERN.PATTERN_ID, ULong.valueOf(entity.getPatternId()));
     return fieldValues;
+  }
+
+  @Override
+  public ChainPattern create(Access access, ChainPattern entity) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(create(tx.getContext(), access, entity));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public ChainPattern readOne(Access access, BigInteger id) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readOne(tx.getContext(), access, ULong.valueOf(id)));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public Collection<ChainPattern> readAll(Access access, Collection<BigInteger> parentIds) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readAll(tx.getContext(), access, uLongValuesOf(parentIds)));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public void update(Access access, BigInteger id, ChainPattern entity) throws Exception {
+    throw new BusinessException("Not allowed to update ChainPattern record.");
+  }
+
+  @Override
+  public void destroy(Access access, BigInteger id) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      delete(tx.getContext(), access, ULong.valueOf(id));
+      tx.success();
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
   }
 
 }

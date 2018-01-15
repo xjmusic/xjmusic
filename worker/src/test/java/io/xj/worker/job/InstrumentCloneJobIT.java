@@ -20,6 +20,7 @@ import io.xj.dub.DubModule;
 import io.xj.worker.WorkerModule;
 
 import com.google.common.base.Objects;
+import com.google.common.collect.ImmutableList;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -49,13 +50,28 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class InstrumentCloneJobIT {
-  @Rule public ExpectedException failure = ExpectedException.none();
-  private Injector injector;
-  private App app;
   private static final int TEST_DURATION_SECONDS = 1;
   private static final int MILLIS_PER_SECOND = 1000;
-  @Mock AmazonProvider amazonProvider;
   @Spy final WorkManager workManager = Guice.createInjector(new CoreModule()).getInstance(WorkManager.class);
+  @Rule public ExpectedException failure = ExpectedException.none();
+  @Mock AmazonProvider amazonProvider;
+  private Injector injector;
+  private App app;
+
+  /**
+   Filter instruments by name, return match or null
+
+   @param instrumentsInOne to filter
+   @param findDescription  to match
+   @return match or null
+   */
+  @Nullable
+  private static Instrument filterInstrumentByDescription(Collection<Instrument> instrumentsInOne, String findDescription) {
+    for (Instrument instrument : instrumentsInOne) {
+      if (Objects.equal(findDescription, instrument.getDescription())) return instrument;
+    }
+    return null;
+  }
 
   @Before
   public void setUp() throws Exception {
@@ -151,31 +167,16 @@ public class InstrumentCloneJobIT {
     assertNotNull(result);
 
     // Verify existence of cloned memes
-    Collection<InstrumentMeme> memes = injector.getInstance(InstrumentMemeDAO.class).readAll(Access.internal(), result.getId());
+    Collection<InstrumentMeme> memes = injector.getInstance(InstrumentMemeDAO.class).readAll(Access.internal(), ImmutableList.of(result.getId()));
     assertEquals(1, memes.size());
 
     // Verify existence of cloned audios
-    Collection<Audio> audios = injector.getInstance(AudioDAO.class).readAll(Access.internal(), result.getId());
+    Collection<Audio> audios = injector.getInstance(AudioDAO.class).readAll(Access.internal(), ImmutableList.of(result.getId()));
     assertEquals(2, audios.size());
 
     // Verify enqueued audio clone jobs
     verify(workManager).scheduleAudioClone(eq(0), eq(BigInteger.valueOf(1)), any());
     verify(workManager).scheduleAudioClone(eq(0), eq(BigInteger.valueOf(2)), any());
-  }
-
-  /**
-   Filter instruments by name, return match or null
-
-   @param instrumentsInOne to filter
-   @param findDescription  to match
-   @return match or null
-   */
-  @Nullable
-  private static Instrument filterInstrumentByDescription(Collection<Instrument> instrumentsInOne, String findDescription) {
-    for (Instrument instrument : instrumentsInOne) {
-      if (Objects.equal(findDescription, instrument.getDescription())) return instrument;
-    }
-    return null;
   }
 
 }

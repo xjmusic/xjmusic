@@ -19,6 +19,7 @@ import io.xj.craft.CraftModule;
 import io.xj.dub.DubModule;
 import io.xj.worker.WorkerModule;
 
+import com.google.common.collect.ImmutableList;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -149,8 +150,8 @@ public class AudioCloneJobIT {
     assertNotNull(resultTwo);
 
     // Verify existence of children of cloned audio #1
-    Collection<AudioEvent> eventsOne = injector.getInstance(AudioEventDAO.class).readAll(Access.internal(), resultOne.getId());
-    Collection<AudioChord> chordsOne = injector.getInstance(AudioChordDAO.class).readAll(Access.internal(), resultOne.getId());
+    Collection<AudioEvent> eventsOne = injector.getInstance(AudioEventDAO.class).readAll(Access.internal(), ImmutableList.of(resultOne.getId()));
+    Collection<AudioChord> chordsOne = injector.getInstance(AudioChordDAO.class).readAll(Access.internal(), ImmutableList.of(resultOne.getId()));
     assertEquals(1, eventsOne.size());
     assertEquals(1, chordsOne.size());
     AudioEvent eventOne = eventsOne.iterator().next();
@@ -163,8 +164,8 @@ public class AudioCloneJobIT {
     assertEquals("Db7", chordOne.getName());
 
     // Verify existence of children of cloned audio #2
-    Collection<AudioEvent> eventsTwo = injector.getInstance(AudioEventDAO.class).readAll(Access.internal(), resultTwo.getId());
-    Collection<AudioChord> chordsTwo = injector.getInstance(AudioChordDAO.class).readAll(Access.internal(), resultTwo.getId());
+    Collection<AudioEvent> eventsTwo = injector.getInstance(AudioEventDAO.class).readAll(Access.internal(), ImmutableList.of(resultTwo.getId()));
+    Collection<AudioChord> chordsTwo = injector.getInstance(AudioChordDAO.class).readAll(Access.internal(), ImmutableList.of(resultTwo.getId()));
     assertEquals(1, eventsTwo.size());
     assertEquals(1, chordsTwo.size());
     AudioEvent eventTwo = eventsTwo.iterator().next();

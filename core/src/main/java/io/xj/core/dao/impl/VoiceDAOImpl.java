@@ -25,7 +25,7 @@ import static io.xj.core.tables.Arrangement.ARRANGEMENT;
 import static io.xj.core.tables.Library.LIBRARY;
 import static io.xj.core.tables.Pattern.PATTERN;
 import static io.xj.core.tables.Voice.VOICE;
-import static io.xj.core.tables.VoiceEvent.VOICE_EVENT;
+import static io.xj.core.tables.PhaseEvent.PHASE_EVENT;
 
 public class VoiceDAOImpl extends DAOImpl implements VoiceDAO {
 
@@ -34,60 +34,6 @@ public class VoiceDAOImpl extends DAOImpl implements VoiceDAO {
     SQLDatabaseProvider dbProvider
   ) {
     this.dbProvider = dbProvider;
-  }
-
-  @Override
-  public Voice create(Access access, Voice entity) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(create(tx.getContext(), access, entity));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  @Nullable
-  public Voice readOne(Access access, BigInteger id) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readOne(tx.getContext(), access, ULong.valueOf(id)));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  @Nullable
-  public Collection<Voice> readAll(Access access, BigInteger patternId) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readAll(tx.getContext(), access, ULong.valueOf(patternId)));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public void update(Access access, BigInteger id, Voice entity) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      update(tx.getContext(), access, ULong.valueOf(id), entity);
-      tx.success();
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public void delete(Access access, BigInteger id) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      delete(access, tx.getContext(), ULong.valueOf(id));
-      tx.success();
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
   }
 
   /**
@@ -137,18 +83,18 @@ public class VoiceDAOImpl extends DAOImpl implements VoiceDAO {
    @param patternId to readMany all voice of
    @return array of voices
    */
-  private static Collection<Voice> readAll(DSLContext db, Access access, ULong patternId) throws BusinessException {
+  private static Collection<Voice> readAll(DSLContext db, Access access, Collection<ULong> patternId) throws BusinessException {
     if (access.isTopLevel())
       return modelsFrom(db.select(VOICE.fields())
         .from(VOICE)
-        .where(VOICE.PATTERN_ID.eq(patternId))
+        .where(VOICE.PATTERN_ID.in(patternId))
         .fetch(), Voice.class);
     else
       return modelsFrom(db.select(VOICE.fields())
         .from(VOICE)
         .join(PATTERN).on(PATTERN.ID.eq(VOICE.PATTERN_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(PATTERN.LIBRARY_ID))
-        .where(VOICE.PATTERN_ID.eq(patternId))
+        .where(VOICE.PATTERN_ID.in(patternId))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .fetch(), Voice.class);
   }
@@ -190,8 +136,8 @@ public class VoiceDAOImpl extends DAOImpl implements VoiceDAO {
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .fetchOne(0, int.class));
 
-    db.deleteFrom(VOICE_EVENT)
-      .where(VOICE_EVENT.VOICE_ID.eq(id))
+    db.deleteFrom(PHASE_EVENT)
+      .where(PHASE_EVENT.VOICE_ID.eq(id))
       .execute();
 
     db.deleteFrom(ARRANGEMENT)
@@ -237,6 +183,60 @@ public class VoiceDAOImpl extends DAOImpl implements VoiceDAO {
     fieldValues.put(VOICE.TYPE, entity.getType());
     fieldValues.put(VOICE.DESCRIPTION, entity.getDescription());
     return fieldValues;
+  }
+
+  @Override
+  public Voice create(Access access, Voice entity) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(create(tx.getContext(), access, entity));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  @Nullable
+  public Voice readOne(Access access, BigInteger id) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readOne(tx.getContext(), access, ULong.valueOf(id)));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  @Nullable
+  public Collection<Voice> readAll(Access access, Collection<BigInteger> parentIds) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readAll(tx.getContext(), access, uLongValuesOf(parentIds)));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public void update(Access access, BigInteger id, Voice entity) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      update(tx.getContext(), access, ULong.valueOf(id), entity);
+      tx.success();
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public void destroy(Access access, BigInteger id) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      delete(access, tx.getContext(), ULong.valueOf(id));
+      tx.success();
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
   }
 
 }

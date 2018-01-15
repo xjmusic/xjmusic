@@ -7,10 +7,9 @@ import io.xj.core.dao.PatternMemeDAO;
 import io.xj.core.model.pattern_meme.PatternMeme;
 import io.xj.core.model.pattern_meme.PatternMemeWrapper;
 import io.xj.core.model.user_role.UserRoleType;
-import io.xj.core.server.HttpResponseProvider;
+import io.xj.core.transport.HttpResponseProvider;
 
-
-
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
@@ -59,7 +58,7 @@ public class PatternMemeIndexResource {
         PatternMeme.KEY_MANY,
         patternMemeDAO.readAll(
           Access.fromContext(crc),
-          new BigInteger(patternId)));
+          ImmutableList.of(new BigInteger(patternId))));
 
     } catch (Exception e) {
       return response.failure(e);

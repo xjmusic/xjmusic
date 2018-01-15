@@ -5,7 +5,7 @@ import io.xj.core.CoreModule;
 import io.xj.core.config.Config;
 import io.xj.core.exception.ConfigException;
 import io.xj.core.model.work.Work;
-import io.xj.core.server.HttpResponseProvider;
+import io.xj.core.transport.HttpResponseProvider;
 import io.xj.core.work.WorkManager;
 import io.xj.hub.resource.auth.google.AuthGoogleCallbackResource;
 

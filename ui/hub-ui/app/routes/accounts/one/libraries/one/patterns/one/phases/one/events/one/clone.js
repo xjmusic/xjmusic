@@ -23,7 +23,7 @@ export default Route.extend({
       let phase = this.modelFor('accounts.one.libraries.one.patterns.one.phases.one');
       let pattern = this.modelFor('accounts.one.libraries.one.patterns.one');
       let originalEvent = this.modelFor('accounts.one.libraries.one.patterns.one.phases.one.events.one');
-      let event = this.store.createRecord('voice-event', {
+      let event = this.store.createRecord('phase-event', {
         voice: originalEvent.get('voice'),
         phase: originalEvent.get('phase'),
         duration: originalEvent.get('duration'),

@@ -7,7 +7,7 @@ import io.xj.core.dao.AudioEventDAO;
 import io.xj.core.model.audio_event.AudioEvent;
 import io.xj.core.model.audio_event.AudioEventWrapper;
 import io.xj.core.model.user_role.UserRoleType;
-import io.xj.core.server.HttpResponseProvider;
+import io.xj.core.transport.HttpResponseProvider;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -88,7 +88,7 @@ public class AudioEventOneResource {
   @RolesAllowed(UserRoleType.ARTIST)
   public Response delete(@Context ContainerRequestContext crc) {
     try {
-      audioEventDAO.delete(Access.fromContext(crc), new BigInteger(id));
+      audioEventDAO.destroy(Access.fromContext(crc), new BigInteger(id));
       return Response.accepted("{}").build();
 
     } catch (Exception e) {

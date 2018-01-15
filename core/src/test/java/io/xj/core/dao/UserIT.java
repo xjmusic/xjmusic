@@ -16,6 +16,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
+import org.assertj.core.util.Lists;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.After;
@@ -224,7 +225,7 @@ public class UserIT {
       "accounts", "1"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, Lists.newArrayList()));
 
     assertNotNull(result);
     assertEquals(3, result.length());
@@ -237,7 +238,7 @@ public class UserIT {
       "accounts", "1"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, Lists.newArrayList()));
 
     assertNotNull(result);
     assertEquals(2, result.length());
@@ -251,7 +252,7 @@ public class UserIT {
       "accounts", ""
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, Lists.newArrayList()));
 
     assertNotNull(result);
     assertEquals(1, result.length());

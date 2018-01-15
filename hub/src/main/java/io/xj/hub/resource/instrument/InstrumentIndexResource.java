@@ -7,8 +7,9 @@ import io.xj.core.dao.InstrumentDAO;
 import io.xj.core.model.instrument.Instrument;
 import io.xj.core.model.instrument.InstrumentWrapper;
 import io.xj.core.model.user_role.UserRoleType;
-import io.xj.core.server.HttpResponseProvider;
+import io.xj.core.transport.HttpResponseProvider;
 
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
@@ -80,9 +81,9 @@ public class InstrumentIndexResource {
     try {
       return response.readMany(
         Instrument.KEY_MANY,
-        instrumentDAO.readAllInLibrary(
+        instrumentDAO.readAll(
           access,
-          new BigInteger(libraryId)));
+          ImmutableList.of(new BigInteger(libraryId))));
 
     } catch (Exception e) {
       return response.failure(e);

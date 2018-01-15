@@ -3,14 +3,13 @@ package io.xj.hub.resource.chain_config;
 
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
-import io.xj.core.model.user_role.UserRoleType;
-import io.xj.core.server.HttpResponseProvider;
 import io.xj.core.dao.ChainConfigDAO;
 import io.xj.core.model.chain_config.ChainConfig;
 import io.xj.core.model.chain_config.ChainConfigWrapper;
+import io.xj.core.model.user_role.UserRoleType;
+import io.xj.core.transport.HttpResponseProvider;
 
-
-
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
@@ -48,7 +47,7 @@ public class ChainConfigIndexResource {
    */
   @GET
   @WebResult
-  @RolesAllowed({UserRoleType.USER})
+  @RolesAllowed(UserRoleType.USER)
   public Response readAll(@Context ContainerRequestContext crc) throws IOException {
     if (Objects.isNull(chainId) || chainId.isEmpty()) {
       return response.notAcceptable("Chain id is required");
@@ -59,7 +58,7 @@ public class ChainConfigIndexResource {
         ChainConfig.KEY_MANY,
         chainConfigDAO.readAll(
           Access.fromContext(crc),
-          new BigInteger(chainId)));
+          ImmutableList.of(new BigInteger(chainId))));
 
     } catch (Exception e) {
       return response.failure(e);

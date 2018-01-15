@@ -10,25 +10,7 @@ import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.util.Collection;
 
-public interface LinkDAO {
-  /**
-   Create a new Link
-
-   @param entity for the new Link.
-   @return newly readMany Link record.
-   */
-  Link create(Access access, Link entity) throws Exception;
-
-  /**
-   Fetch one Link by id, if accessible
-
-   @param access control
-   @param id     to fetch
-   @return Link if found
-   @throws Exception on failure
-   */
-  @Nullable
-  Link readOne(Access access, BigInteger id) throws Exception;
+public interface LinkDAO extends DAO<Link> {
 
   /**
    Fetch id for the Link in a Chain at a given offset, if present
@@ -52,17 +34,6 @@ public interface LinkDAO {
    */
   @Nullable
   Link readOneInState(Access access, BigInteger chainId, LinkState linkState, Timestamp linkBeginBefore) throws Exception;
-
-  /**
-   Read all Links that are accessible
-   limit max # of links readable at once in environment configuration
-
-   @param access  control
-   @param chainId to read links for
-   @return array of links as JSON
-   @throws Exception on failure
-   */
-  Collection<Link> readAll(Access access, BigInteger chainId) throws Exception;
 
   /**
    Read all Links that are accessible, starting at a particular offset
@@ -91,26 +62,11 @@ public interface LinkDAO {
   Collection<Link> readAllFromSecondsUTC(Access access, BigInteger chainId, BigInteger fromSecondsUTC) throws Exception;
 
   /**
-   Update a specified Link
-
-   @param id     of specific Link to update.
-   @param entity for the updated Link.
-   */
-  void update(Access access, BigInteger id, Link entity) throws Exception;
-
-  /**
    Update the state of a specified Link
 
    @param id    of specific Link to update.
    @param state for the updated Link.
    */
   void updateState(Access access, BigInteger id, LinkState state) throws Exception;
-
-  /**
-   Destroy a specified Link, and all its child entities
-
-   @param linkId of specific Link to destroy.
-   */
-  void destroy(Access access, BigInteger linkId) throws Exception;
 
 }

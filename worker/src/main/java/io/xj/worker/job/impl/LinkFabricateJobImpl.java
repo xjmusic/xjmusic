@@ -33,12 +33,10 @@ public class LinkFabricateJobImpl implements LinkFabricateJob {
   private final LinkMessageDAO linkMessageDAO;
   private final BigInteger entityId;
   private final BasisFactory basisFactory;
-  private Basis basis;
-  private Link link;
-
-
   private final CraftFactory craftFactory;
   private final DubFactory dubFactory;
+  private Basis basis;
+  private Link link;
 
   @Inject
   public LinkFabricateJobImpl(
@@ -118,9 +116,9 @@ public class LinkFabricateJobImpl implements LinkFabricateJob {
    */
   private void doCraftWork() throws Exception {
     updateLinkState(LinkState.Planned, LinkState.Crafting);
-    craftFactory.foundation(basis).doWork();
-    craftFactory.structure(basis).doWork();
-    craftFactory.voice(basis).doWork();
+    craftFactory.macroMain(basis).doWork();
+    craftFactory.rhythm(basis).doWork();
+    craftFactory.harmonicDetail(basis).doWork();
   }
 
   /**

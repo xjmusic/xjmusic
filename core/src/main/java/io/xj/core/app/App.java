@@ -33,7 +33,7 @@ public interface App {
   String baseURI();
 
   /**
-   Set job factory for resque client
+   Set job macro for resque client
 
    @param jobFactory for app
    */

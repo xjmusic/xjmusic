@@ -8,6 +8,7 @@ import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.model.account_user.AccountUser;
 import io.xj.core.transport.JSON;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -149,7 +150,7 @@ public class AccountUserIT {
       "roles", "Admin"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, BigInteger.valueOf(1)));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1))));
 
     assertNotNull(result);
     assertEquals(2, result.length());
@@ -166,7 +167,7 @@ public class AccountUserIT {
       "accounts", "1"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, BigInteger.valueOf(1)));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1))));
 
     assertNotNull(result);
     assertEquals(2, result.length());
@@ -183,7 +184,7 @@ public class AccountUserIT {
       "accounts", "345"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, BigInteger.valueOf(1)));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1))));
 
     assertNotNull(result);
     assertEquals(0, result.length());
@@ -195,7 +196,7 @@ public class AccountUserIT {
       "roles", "Admin"
     ));
 
-    testDAO.delete(access, BigInteger.valueOf(1));
+    testDAO.destroy(access, BigInteger.valueOf(1));
 
     AccountUser result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1));
     assertNull(result);
@@ -207,6 +208,6 @@ public class AccountUserIT {
       "roles", "User"
     ));
 
-    testDAO.delete(access, BigInteger.valueOf(1));
+    testDAO.destroy(access, BigInteger.valueOf(1));
   }
 }

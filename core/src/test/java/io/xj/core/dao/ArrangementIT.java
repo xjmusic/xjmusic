@@ -177,7 +177,7 @@ public class ArrangementIT {
       "accounts", "1"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, BigInteger.valueOf(7)));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(7))));
 
     assertNotNull(result);
     assertEquals(1, result.length());
@@ -193,7 +193,7 @@ public class ArrangementIT {
       "accounts", "345"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, BigInteger.valueOf(1)));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1))));
 
     assertNotNull(result);
     assertEquals(0, result.length());
@@ -335,7 +335,7 @@ public class ArrangementIT {
       "roles", "Admin"
     ));
 
-    testDAO.delete(access, BigInteger.valueOf(1));
+    testDAO.destroy(access, BigInteger.valueOf(1));
 
     Arrangement result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1));
     assertNull(result);

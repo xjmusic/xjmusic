@@ -20,6 +20,7 @@ import io.xj.core.transport.JSON;
 
 import org.jooq.impl.DSL;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -309,7 +310,7 @@ public class LinkIT {
       "accounts", "1"
     ));
 
-    Collection<Link> result = testDAO.readAll(access, BigInteger.valueOf(1));
+    Collection<Link> result = testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1)));
 
     assertNotNull(result);
     assertEquals(5, result.size());
@@ -367,7 +368,7 @@ public class LinkIT {
       "accounts", "345"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, BigInteger.valueOf(1)));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1))));
 
     assertNotNull(result);
     assertEquals(0, result.length());
@@ -533,7 +534,7 @@ public class LinkIT {
     IntegrationTestEntity.insertPattern(1, 2, 1, PatternType.Macro, "epic concept", 0.342, "C#", 0.286);
     IntegrationTestEntity.insertPhase(1, 1, PhaseType.Macro, 0, 16, "Ants", 0.583, "D minor", 120.0);
     IntegrationTestEntity.insertVoice(8, 1, InstrumentType.Percussive, "This is a percussive voice");
-    IntegrationTestEntity.insertVoiceEvent(1, 1, 8, 0, 1, "KICK", "C", 0.8, 1.0);
+    IntegrationTestEntity.insertPhaseEvent(1, 1, 8, 0, 1, "KICK", "C", 0.8, 1.0);
 
     // Library has Instrument with Audio
     IntegrationTestEntity.insertInstrument(9, 1, 2, "jams", InstrumentType.Percussive, 0.6);

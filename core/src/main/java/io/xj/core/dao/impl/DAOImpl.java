@@ -423,4 +423,17 @@ public class DAOImpl {
     return false;
   }
 
+  /**
+   Collection of ULong from collection of BigInteger
+
+   @param libraryIds source collection
+   @return collection of ULong
+   */
+  protected static Collection<ULong> uLongValuesOf(Collection<BigInteger> libraryIds) {
+    Collection<ULong> result = Lists.newArrayList();
+    libraryIds.forEach(id -> result.add(ULong.valueOf(id)));
+    return result;
+  }
+
+
 }

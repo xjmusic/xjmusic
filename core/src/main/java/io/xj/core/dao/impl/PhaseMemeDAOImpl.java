@@ -40,47 +40,6 @@ public class PhaseMemeDAOImpl extends DAOImpl implements PhaseMemeDAO {
     this.dbProvider = dbProvider;
   }
 
-  @Override
-  public PhaseMeme create(Access access, PhaseMeme entity) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(create(tx.getContext(), access, entity));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public PhaseMeme readOne(Access access, BigInteger id) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readOne(tx.getContext(), access, ULong.valueOf(id)));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public Collection<PhaseMeme> readAll(Access access, BigInteger phaseId) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readAll(tx.getContext(), access, ULong.valueOf(phaseId)));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public void delete(Access access, BigInteger id) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      delete(tx.getContext(), access, ULong.valueOf(id));
-      tx.success();
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
   /**
    Create a new Phase Meme record
 
@@ -144,22 +103,22 @@ public class PhaseMemeDAOImpl extends DAOImpl implements PhaseMemeDAO {
   /**
    Read all Memes of an Phase where able
 
-   @param db      context
-   @param access  control
-   @param phaseId to readMany memes for
+   @param db       context
+   @param access   control
+   @param phaseIds to readMany memes for
    @return array of phase memes
    */
-  private static Collection<PhaseMeme> readAll(DSLContext db, Access access, ULong phaseId) throws BusinessException {
+  private static Collection<PhaseMeme> readAll(DSLContext db, Access access, Collection<ULong> phaseIds) throws BusinessException {
     if (access.isTopLevel())
       return modelsFrom(db.selectFrom(PHASE_MEME)
-        .where(PHASE_MEME.PHASE_ID.eq(phaseId))
+        .where(PHASE_MEME.PHASE_ID.in(phaseIds))
         .fetch(), PhaseMeme.class);
     else
       return modelsFrom(db.select(PHASE_MEME.fields()).from(PHASE_MEME)
         .join(PHASE).on(PHASE.ID.eq(PHASE_MEME.PHASE_ID))
         .join(PATTERN).on(PATTERN.ID.eq(PHASE.PATTERN_ID))
         .join(LIBRARY).on(PATTERN.LIBRARY_ID.eq(LIBRARY.ID))
-        .where(PHASE.ID.eq(phaseId))
+        .where(PHASE.ID.in(phaseIds))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .fetch(), PhaseMeme.class);
   }
@@ -199,6 +158,53 @@ public class PhaseMemeDAOImpl extends DAOImpl implements PhaseMemeDAO {
     fieldValues.put(Tables.PHASE_MEME.PHASE_ID, ULong.valueOf(entity.getPhaseId()));
     fieldValues.put(Tables.PHASE_MEME.NAME, entity.getName());
     return fieldValues;
+  }
+
+  @Override
+  public PhaseMeme create(Access access, PhaseMeme entity) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(create(tx.getContext(), access, entity));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public PhaseMeme readOne(Access access, BigInteger id) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readOne(tx.getContext(), access, ULong.valueOf(id)));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public Collection<PhaseMeme> readAll(Access access, Collection<BigInteger> parentIds) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readAll(tx.getContext(), access, uLongValuesOf(parentIds)));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public void update(Access access, BigInteger id, PhaseMeme entity) throws Exception {
+    throw new BusinessException("Not allowed to update PhaseMeme record.");
+
+  }
+
+  @Override
+  public void destroy(Access access, BigInteger id) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      delete(tx.getContext(), access, ULong.valueOf(id));
+      tx.success();
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
   }
 
 

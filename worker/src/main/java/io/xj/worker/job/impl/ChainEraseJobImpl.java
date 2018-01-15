@@ -9,6 +9,7 @@ import io.xj.core.transport.CSV;
 import io.xj.core.work.WorkManager;
 import io.xj.worker.job.ChainEraseJob;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
@@ -58,11 +59,11 @@ public class ChainEraseJobImpl implements ChainEraseJob {
    @throws Exception on failure
    */
   private void eraseChain() throws Exception {
-    Collection<Link> links = linkDAO.readAll(Access.internal(), entityId);
+    Collection<Link> links = linkDAO.readAll(Access.internal(), ImmutableList.of(entityId));
     if (links.isEmpty())
       try {
         log.info("Found ZERO links in chainId={}; attempting to delete...", entityId);
-        chainDAO.delete(Access.internal(), entityId);
+        chainDAO.destroy(Access.internal(), entityId);
       } catch (Exception e) {
         log.warn("Failed to delete chainId={}", entityId, e);
         workManager.stopChainErase(entityId);

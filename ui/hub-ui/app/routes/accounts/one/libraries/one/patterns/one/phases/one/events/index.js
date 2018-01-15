@@ -17,7 +17,7 @@ export default Route.extend({
   model: function () {
     let self = this;
     let phase = this.modelFor('accounts.one.libraries.one.patterns.one.phases.one');
-    let events = this.store.query('voice-event', {phaseId: phase.get('id')})
+    let events = this.store.query('phase-event', {phaseId: phase.get('id')})
       .catch((error) => {
         get(self, 'display').error(error);
         self.transitionTo('');

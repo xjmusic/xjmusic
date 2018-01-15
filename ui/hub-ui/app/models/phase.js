@@ -10,7 +10,7 @@ export default DS.Model.extend({
   tempo: DS.attr('number'),
   offset: DS.attr('number'),
   total: DS.attr('number'),
-  events: DS.hasMany('voice-event'),
+  events: DS.hasMany('phase-event'),
 
   getTitle() {
     let name = this.get("name");

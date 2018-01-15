@@ -8,7 +8,7 @@ const SEPARATOR_PRIMARY = ":";
 const SEPARATOR_SECONDARY = "|";
 
 /**
- * Displays the analysis-performing and result-viewing U.I.
+ * Displays the evaluation-performing and result-viewing U.I.
  */
 const ChordSequenceDescriptorComponent = Component.extend({
 
@@ -42,7 +42,7 @@ const ChordSequenceDescriptorComponent = Component.extend({
 /**
  * Example Usage (e.g, in Handlebars):
  *
- *   {{chord-sequence-descriptor analyzedChordSequence.descriptor}}
+ *   {{chord-sequence-descriptor evaluatedChordSequence.descriptor}}
  */
 ChordSequenceDescriptorComponent.reopenClass({
   positionalParams: ['descriptor']

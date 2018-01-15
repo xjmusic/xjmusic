@@ -7,8 +7,7 @@ import io.xj.core.config.Config;
 import io.xj.core.exception.AccessException;
 import io.xj.core.exception.ConfigException;
 import io.xj.core.exception.DatabaseException;
-import io.xj.core.server.HttpResponseProvider;
-import io.xj.core.dao.impl.AuthDAOImpl;
+import io.xj.core.transport.HttpResponseProvider;
 
 import com.google.api.client.auth.oauth2.AuthorizationCodeResponseUrl;
 import com.google.inject.Guice;
@@ -34,7 +33,6 @@ public class AuthGoogleCallbackResource {
   private static final String redirectPathSuccess = Config.appPathSuccess();
   private final Logger log = LoggerFactory.getLogger(AuthGoogleCallbackResource.class);
   private final Injector injector = Guice.createInjector(new CoreModule());
-  private final AuthDAOImpl googleAuthController = injector.getInstance(AuthDAOImpl.class);
   private final AccessControlProvider accessControlProvider = injector.getInstance(AccessControlProvider.class);
   private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
 
@@ -61,7 +59,7 @@ public class AuthGoogleCallbackResource {
 
     String accessToken;
     try {
-      accessToken = googleAuthController.authenticate(authResponse.getCode());
+      accessToken = accessControlProvider.authenticate(authResponse.getCode());
     } catch (AccessException e) {
       return errorResponse("Authentication failed:" + e.getMessage());
     } catch (ConfigException e) {

@@ -1,0 +1,45 @@
+<!-- Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved. -->
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="evaluation col-12">
+
+      <div class="do-evaluation">
+        {{#each types as |type|}}
+          <button type="button" class="btn btn-default align-middle {{type}}" {{action 'doEvaluation' type}}>
+            {{type}} Evaluation
+          </button>
+        {{/each}}
+      </div>
+
+      <div class="loader">&nbsp;</div>
+
+      <div class="result container-fluid">
+        {{yield}}
+
+        <!-- meme usage-->
+        {{#each-in result.memeUsage as |name usage|}}
+          <div class="row">
+            <div class="col-12 evaluated-meme-usage">
+              {{meme-usage name usage}}
+            </div>
+          </div>
+        {{/each-in}}
+
+        <!-- evaluated chord sequences -->
+        {{#each result.chordSequencesByDescriptor as |evaluatedChordSequence|}}
+          <div class="row">
+            <div class="col-12 evaluated-chord-sequence">
+              {{chord-sequence-descriptor evaluatedChordSequence.descriptor}}
+              {{#each evaluatedChordSequence.chordSequences as |chordSequence|}}
+                {{chord-sequence chordSequence}}
+              {{/each}}
+            </div>
+          </div>
+        {{/each}}
+
+      </div>
+
+    </div>
+  </div>
+</div>

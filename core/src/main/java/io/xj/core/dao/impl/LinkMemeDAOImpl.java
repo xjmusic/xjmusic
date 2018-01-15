@@ -38,57 +38,6 @@ public class LinkMemeDAOImpl extends DAOImpl implements LinkMemeDAO {
     this.dbProvider = dbProvider;
   }
 
-  @Override
-  public LinkMeme create(Access access, LinkMeme entity) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(createRecord(tx.getContext(), access, entity));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public LinkMeme readOne(Access access, BigInteger id) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readOne(tx.getContext(), access, ULong.valueOf(id)));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public Collection<LinkMeme> readAll(Access access, BigInteger linkId) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readAll(tx.getContext(), access, ULong.valueOf(linkId)));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public Collection<LinkMeme> readAllInLinks(Access access, Collection<BigInteger> linkIds) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readAllInLinks(tx.getContext(), access, idCollection(linkIds)));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public void delete(Access access, BigInteger id) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      delete(tx.getContext(), access, ULong.valueOf(id));
-      tx.success();
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
   /**
    Create a new Link Meme record
 
@@ -154,16 +103,16 @@ public class LinkMemeDAOImpl extends DAOImpl implements LinkMemeDAO {
    @param linkId to readMany memes for
    @return array of link memes
    */
-  private static Collection<LinkMeme> readAll(DSLContext db, Access access, ULong linkId) throws BusinessException {
+  private static Collection<LinkMeme> readAll(DSLContext db, Access access, Collection<ULong> linkId) throws BusinessException {
     if (access.isTopLevel())
       return modelsFrom(db.selectFrom(LINK_MEME)
-        .where(LINK_MEME.LINK_ID.eq(linkId))
+        .where(LINK_MEME.LINK_ID.in(linkId))
         .fetch(), LinkMeme.class);
     else
       return modelsFrom(db.select(LINK_MEME.fields()).from(LINK_MEME)
         .join(LINK).on(LINK.ID.eq(LINK_MEME.LINK_ID))
         .join(CHAIN).on(LINK.CHAIN_ID.eq(CHAIN.ID))
-        .where(LINK.ID.eq(linkId))
+        .where(LINK.ID.in(linkId))
         .and(CHAIN.ACCOUNT_ID.in(access.getAccountIds()))
         .fetch(), LinkMeme.class);
   }
@@ -219,6 +168,62 @@ public class LinkMemeDAOImpl extends DAOImpl implements LinkMemeDAO {
     fieldValues.put(LINK_MEME.LINK_ID, entity.getLinkId());
     fieldValues.put(LINK_MEME.NAME, entity.getName());
     return fieldValues;
+  }
+
+  @Override
+  public LinkMeme create(Access access, LinkMeme entity) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(createRecord(tx.getContext(), access, entity));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public LinkMeme readOne(Access access, BigInteger id) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readOne(tx.getContext(), access, ULong.valueOf(id)));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public Collection<LinkMeme> readAll(Access access, Collection<BigInteger> parentIds) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readAll(tx.getContext(), access, uLongValuesOf(parentIds)));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public void update(Access access, BigInteger id, LinkMeme entity) throws Exception {
+    throw new BusinessException("Not allowed to update LinkMeme record.");
+  }
+
+  @Override
+  public Collection<LinkMeme> readAllInLinks(Access access, Collection<BigInteger> linkIds) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readAllInLinks(tx.getContext(), access, idCollection(linkIds)));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public void destroy(Access access, BigInteger id) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      delete(tx.getContext(), access, ULong.valueOf(id));
+      tx.success();
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
   }
 
 

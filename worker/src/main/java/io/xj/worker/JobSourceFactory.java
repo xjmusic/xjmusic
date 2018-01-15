@@ -14,7 +14,7 @@ import java.util.Objects;
 
 /**
  Factory to instantiate workers for jobs,
- pluggable to Jesque job factory API.
+ pluggable to Jesque job macro API.
  */
 public class JobSourceFactory implements JobFactory {
   //  private static final Logger log = LoggerFactory.getLogger(JobSourceFactory.class);

@@ -4,12 +4,12 @@ package io.xj.hub.resource.choice;
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
 import io.xj.core.model.user_role.UserRoleType;
-import io.xj.core.server.HttpResponseProvider;
+import io.xj.core.transport.HttpResponseProvider;
 import io.xj.core.dao.ChoiceDAO;
 import io.xj.core.model.choice.Choice;
 
 
-
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
@@ -55,7 +55,7 @@ public class ChoiceIndexResource {
         Choice.KEY_MANY,
         choiceDAO.readAll(
           Access.fromContext(crc),
-          new BigInteger(linkId)));
+          ImmutableList.of(new BigInteger(linkId))));
 
     } catch (Exception e) {
       return response.failure(e);

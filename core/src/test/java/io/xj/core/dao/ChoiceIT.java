@@ -210,7 +210,7 @@ public class ChoiceIT {
       "accounts", "1"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, BigInteger.valueOf(1)));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1))));
 
     assertNotNull(result);
     assertEquals(4, result.length());
@@ -232,7 +232,7 @@ public class ChoiceIT {
       "accounts", "345"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, BigInteger.valueOf(1)));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1))));
 
     assertNotNull(result);
     assertEquals(0, result.length());
@@ -357,7 +357,7 @@ public class ChoiceIT {
       "roles", "Admin"
     ));
 
-    testDAO.delete(access, BigInteger.valueOf(1));
+    testDAO.destroy(access, BigInteger.valueOf(1));
 
     Choice result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1));
     assertNull(result);
@@ -374,7 +374,7 @@ public class ChoiceIT {
     IntegrationTestEntity.insertArrangement(1, 1, 1, 1);
 
     try {
-      testDAO.delete(access, BigInteger.valueOf(1));
+      testDAO.destroy(access, BigInteger.valueOf(1));
 
     } catch (Exception e) {
       Choice result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1));

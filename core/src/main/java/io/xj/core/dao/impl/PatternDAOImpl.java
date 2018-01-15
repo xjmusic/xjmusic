@@ -44,120 +44,6 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
     this.dbProvider = dbProvider;
   }
 
-  @Override
-  public Pattern create(Access access, Pattern entity) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(create(tx.getContext(), access, entity));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public Pattern clone(Access access, BigInteger cloneId, Pattern entity) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(clone(tx.getContext(), access, cloneId, entity));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  @Nullable
-  public Pattern readOne(Access access, BigInteger id) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readOne(tx.getContext(), access, ULong.valueOf(id)));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Nullable
-  @Override
-  public Pattern readOneTypeInLink(Access access, BigInteger linkId, PatternType patternType) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readOneTypeInLink(tx.getContext(), access, ULong.valueOf(linkId), patternType));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public Collection<Pattern> readAllBoundToChain(Access access, BigInteger chainId, PatternType patternType) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readAllBoundToChain(tx.getContext(), access, ULong.valueOf(chainId), patternType));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public Collection<Pattern> readAllBoundToChainLibrary(Access access, BigInteger chainId, PatternType patternType) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readAllBoundToChainLibrary(tx.getContext(), access, ULong.valueOf(chainId), patternType));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public Collection<Pattern> readAllInAccount(Access access, BigInteger accountId) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readAllInAccount(tx.getContext(), access, ULong.valueOf(accountId)));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public Collection<Pattern> readAllInLibrary(Access access, BigInteger libraryId) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readAllInLibrary(tx.getContext(), access, ULong.valueOf(libraryId)));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public Collection<Pattern> readAll(Access access) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readAll(tx.getContext(), access));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public void update(Access access, BigInteger patternId, Pattern entity) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      update(tx.getContext(), access, ULong.valueOf(patternId), entity);
-      tx.success();
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public void delete(Access access, BigInteger id) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      delete(tx.getContext(), access, ULong.valueOf(id));
-      tx.success();
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
   /**
    Create a record
 
@@ -186,31 +72,6 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
     fieldValues.put(PATTERN.USER_ID, access.getUserId());
 
     return modelFrom(executeCreate(db, PATTERN, fieldValues), Pattern.class);
-  }
-
-  /**
-   Clone a Pattern into a new Pattern
-
-   @param db      context
-   @param access  control
-   @param cloneId of pattern to clone
-   @param entity  for the new Account User.
-   @return newly readMany record
-   @throws BusinessException on failure
-   */
-  private Pattern clone(DSLContext db, Access access, BigInteger cloneId, Pattern entity) throws BusinessException {
-    Pattern from = readOne(db, access, ULong.valueOf(cloneId));
-    if (Objects.isNull(from)) throw new BusinessException("Can't clone nonexistent Pattern");
-
-    entity.setUserId(from.getUserId());
-    entity.setDensity(from.getDensity());
-    entity.setKey(from.getKey());
-    entity.setTempo(from.getTempo());
-    entity.setTypeEnum(from.getType());
-
-    Pattern result = create(db, access, entity);
-    workManager.schedulePatternClone(0, cloneId, result.getId());
-    return result;
   }
 
   /**
@@ -256,7 +117,6 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
       .fetchOne(), Pattern.class);
   }
 
-
   /**
    Read all records in parent record by id
 
@@ -284,21 +144,21 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
   /**
    Read all records in parent record by id
 
-   @param db        context
-   @param access    control
-   @param libraryId of parent
+   @param db         context
+   @param access     control
+   @param libraryIds of parent
    @return array of records
    */
-  private static Collection<Pattern> readAllInLibrary(DSLContext db, Access access, ULong libraryId) throws BusinessException {
+  private static Collection<Pattern> readAllInLibraries(DSLContext db, Access access, Collection<ULong> libraryIds) throws BusinessException {
     if (access.isTopLevel())
       return modelsFrom(db.select(PATTERN.fields()).from(PATTERN)
-        .where(PATTERN.LIBRARY_ID.eq(libraryId))
+        .where(PATTERN.LIBRARY_ID.in(libraryIds))
         .orderBy(PATTERN.TYPE, PATTERN.NAME)
         .fetch(), Pattern.class);
     else
       return modelsFrom(db.select(PATTERN.fields()).from(PATTERN)
         .join(LIBRARY).on(LIBRARY.ID.eq(PATTERN.LIBRARY_ID))
-        .where(PATTERN.LIBRARY_ID.eq(libraryId))
+        .where(PATTERN.LIBRARY_ID.in(libraryIds))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .orderBy(PATTERN.TYPE, PATTERN.NAME)
         .fetch(), Pattern.class);
@@ -445,6 +305,145 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
     fieldValues.put(PATTERN.TEMPO, entity.getTempo());
     fieldValues.put(PATTERN.DENSITY, entity.getDensity());
     return fieldValues;
+  }
+
+  @Override
+  public Pattern create(Access access, Pattern entity) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(create(tx.getContext(), access, entity));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public Pattern clone(Access access, BigInteger cloneId, Pattern entity) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(clone(tx.getContext(), access, cloneId, entity));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  @Nullable
+  public Pattern readOne(Access access, BigInteger id) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readOne(tx.getContext(), access, ULong.valueOf(id)));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Nullable
+  @Override
+  public Pattern readOneTypeInLink(Access access, BigInteger linkId, PatternType patternType) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readOneTypeInLink(tx.getContext(), access, ULong.valueOf(linkId), patternType));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public Collection<Pattern> readAllBoundToChain(Access access, BigInteger chainId, PatternType patternType) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readAllBoundToChain(tx.getContext(), access, ULong.valueOf(chainId), patternType));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public Collection<Pattern> readAllBoundToChainLibrary(Access access, BigInteger chainId, PatternType patternType) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readAllBoundToChainLibrary(tx.getContext(), access, ULong.valueOf(chainId), patternType));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public Collection<Pattern> readAllInAccount(Access access, BigInteger accountId) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readAllInAccount(tx.getContext(), access, ULong.valueOf(accountId)));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public Collection<Pattern> readAll(Access access, Collection<BigInteger> parentIds) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readAllInLibraries(tx.getContext(), access, uLongValuesOf(parentIds)));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public Collection<Pattern> readAll(Access access) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readAll(tx.getContext(), access));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public void update(Access access, BigInteger patternId, Pattern entity) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      update(tx.getContext(), access, ULong.valueOf(patternId), entity);
+      tx.success();
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public void destroy(Access access, BigInteger id) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      delete(tx.getContext(), access, ULong.valueOf(id));
+      tx.success();
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  /**
+   Clone a Pattern into a new Pattern
+
+   @param db      context
+   @param access  control
+   @param cloneId of pattern to clone
+   @param entity  for the new Account User.
+   @return newly readMany record
+   @throws BusinessException on failure
+   */
+  private Pattern clone(DSLContext db, Access access, BigInteger cloneId, Pattern entity) throws BusinessException {
+    Pattern from = readOne(db, access, ULong.valueOf(cloneId));
+    if (Objects.isNull(from)) throw new BusinessException("Can't clone nonexistent Pattern");
+
+    entity.setUserId(from.getUserId());
+    entity.setDensity(from.getDensity());
+    entity.setKey(from.getKey());
+    entity.setTempo(from.getTempo());
+    entity.setTypeEnum(from.getType());
+
+    Pattern result = create(db, access, entity);
+    workManager.schedulePatternClone(0, cloneId, result.getId());
+    return result;
   }
 
 }

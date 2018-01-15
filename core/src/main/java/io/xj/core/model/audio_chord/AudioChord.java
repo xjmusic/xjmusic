@@ -37,6 +37,10 @@ public class AudioChord extends Chord {
     return this;
   }
 
+  public BigInteger getParentId() {
+    return audioId;
+  }
+
   public AudioChord setPosition(Integer position) {
     this.position = position;
     return this;

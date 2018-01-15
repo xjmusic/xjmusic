@@ -6,7 +6,7 @@ import io.xj.core.access.impl.Access;
 import io.xj.core.dao.LinkMessageDAO;
 import io.xj.core.model.link_message.LinkMessage;
 import io.xj.core.model.user_role.UserRoleType;
-import io.xj.core.server.HttpResponseProvider;
+import io.xj.core.transport.HttpResponseProvider;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;

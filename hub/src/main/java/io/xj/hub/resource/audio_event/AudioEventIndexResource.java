@@ -3,14 +3,14 @@ package io.xj.hub.resource.audio_event;
 
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
-import io.xj.core.server.HttpResponseProvider;
+import io.xj.core.transport.HttpResponseProvider;
 import io.xj.core.dao.AudioEventDAO;
 import io.xj.core.model.audio_event.AudioEvent;
 import io.xj.core.model.audio_event.AudioEventWrapper;
 import io.xj.core.model.user_role.UserRoleType;
 
 
-
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
@@ -59,7 +59,7 @@ public class AudioEventIndexResource {
         AudioEvent.KEY_MANY,
         audioEventDAO.readAll(
           Access.fromContext(crc),
-          new BigInteger(audioId)));
+          ImmutableList.of(new BigInteger(audioId))));
 
     } catch (Exception e) {
       return response.failure(e);

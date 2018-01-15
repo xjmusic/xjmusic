@@ -7,7 +7,7 @@ import io.xj.core.dao.ChainDAO;
 import io.xj.core.model.chain.Chain;
 import io.xj.core.model.chain.ChainWrapper;
 import io.xj.core.model.user_role.UserRoleType;
-import io.xj.core.server.HttpResponseProvider;
+import io.xj.core.transport.HttpResponseProvider;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;

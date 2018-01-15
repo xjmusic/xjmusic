@@ -7,8 +7,9 @@ import io.xj.core.dao.AccountDAO;
 import io.xj.core.model.account.Account;
 import io.xj.core.model.account.AccountWrapper;
 import io.xj.core.model.user_role.UserRoleType;
-import io.xj.core.server.HttpResponseProvider;
+import io.xj.core.transport.HttpResponseProvider;
 
+import com.google.common.collect.Lists;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
@@ -46,7 +47,8 @@ public class AccountIndexResource {
       return response.readMany(
         Account.KEY_MANY,
         accountDAO.readAll(
-          Access.fromContext(crc)));
+          Access.fromContext(crc),
+          Lists.newArrayList()));
 
     } catch (Exception e) {
       return response.failure(e);

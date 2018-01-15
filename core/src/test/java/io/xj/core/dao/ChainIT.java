@@ -17,6 +17,7 @@ import io.xj.core.model.link.LinkState;
 import io.xj.core.model.pattern.PatternType;
 import io.xj.core.transport.JSON;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -363,7 +364,7 @@ public class ChainIT {
       "accounts", "1"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, BigInteger.valueOf(1L)));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1L))));
 
     assertNotNull(result);
     assertEquals(2, result.length());
@@ -381,7 +382,7 @@ public class ChainIT {
       "accounts", "1"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, BigInteger.valueOf(1L)));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1L))));
 
     assertNotNull(result);
     assertEquals(2, result.length());
@@ -409,7 +410,7 @@ public class ChainIT {
       "accounts", "345"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, BigInteger.valueOf(1L)));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1L))));
 
     assertNotNull(result);
     assertEquals(0, result.length());
@@ -993,7 +994,7 @@ public class ChainIT {
       "roles", "Admin"
     ));
 
-    testDAO.delete(access, BigInteger.valueOf(1L));
+    testDAO.destroy(access, BigInteger.valueOf(1L));
 
     Chain result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1));
     assertNull(result);
@@ -1008,7 +1009,7 @@ public class ChainIT {
     IntegrationTestEntity.insertChainConfig(101, 1, ChainConfigType.OutputSampleBits, "3");
 
     try {
-      testDAO.delete(access, BigInteger.valueOf(1L));
+      testDAO.destroy(access, BigInteger.valueOf(1L));
 
     } catch (Exception e) {
       Chain result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1));

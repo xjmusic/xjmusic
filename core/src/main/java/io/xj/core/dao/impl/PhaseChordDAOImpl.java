@@ -2,12 +2,9 @@
 package io.xj.core.dao.impl;
 
 import io.xj.core.access.impl.Access;
-import io.xj.core.config.Config;
 import io.xj.core.dao.PhaseChordDAO;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.exception.ConfigException;
-import io.xj.core.model.chord.Chord;
-import io.xj.core.model.chord.ChordSequence;
 import io.xj.core.model.phase_chord.PhaseChord;
 import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import io.xj.core.persistence.sql.impl.SQLConnection;
@@ -18,13 +15,11 @@ import org.jooq.Field;
 import org.jooq.types.ULong;
 
 import com.google.api.client.util.Maps;
-import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 
 import javax.annotation.Nullable;
 import java.math.BigInteger;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 import static io.xj.core.Tables.PHASE;
@@ -39,70 +34,6 @@ public class PhaseChordDAOImpl extends DAOImpl implements PhaseChordDAO {
     SQLDatabaseProvider dbProvider
   ) {
     this.dbProvider = dbProvider;
-  }
-
-  @Override
-  public PhaseChord create(Access access, PhaseChord entity) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(createRecord(tx.getContext(), access, entity));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  @Nullable
-  public PhaseChord readOne(Access access, BigInteger id) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readOne(tx.getContext(), access, ULong.valueOf(id)));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  @Nullable
-  public Collection<PhaseChord> readAll(Access access, BigInteger phaseId) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readAll(tx.getContext(), access, ULong.valueOf(phaseId)));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public Collection<ChordSequence> readAllSequences(Access access, BigInteger phaseId) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readAllSequences(tx.getContext(), access, phaseId));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public void update(Access access, BigInteger id, PhaseChord entity) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      update(tx.getContext(), access, id, entity);
-      tx.success();
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public void delete(Access access, BigInteger id) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      delete(access, tx.getContext(), id);
-      tx.success();
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
   }
 
   /**
@@ -161,16 +92,16 @@ public class PhaseChordDAOImpl extends DAOImpl implements PhaseChordDAO {
   /**
    Read all Chord able for a Phase
 
-   @param db      context
-   @param access  control
-   @param phaseId to readMany all phase of
+   @param db       context
+   @param access   control
+   @param phaseIds to readMany all phase of
    @return array of phases
    */
-  private static Collection<PhaseChord> readAll(DSLContext db, Access access, ULong phaseId) throws BusinessException {
+  private static Collection<PhaseChord> readAll(DSLContext db, Access access, Collection<ULong> phaseIds) throws BusinessException {
     if (access.isTopLevel())
       return modelsFrom(db.select(PHASE_CHORD.fields())
         .from(PHASE_CHORD)
-        .where(PHASE_CHORD.PHASE_ID.eq(phaseId))
+        .where(PHASE_CHORD.PHASE_ID.in(phaseIds))
         .orderBy(PHASE_CHORD.POSITION)
         .fetch(), PhaseChord.class);
     else
@@ -179,39 +110,10 @@ public class PhaseChordDAOImpl extends DAOImpl implements PhaseChordDAO {
         .join(PHASE).on(PHASE.ID.eq(PHASE_CHORD.PHASE_ID))
         .join(PATTERN).on(PATTERN.ID.eq(PHASE.PATTERN_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(PATTERN.LIBRARY_ID))
-        .where(PHASE_CHORD.PHASE_ID.eq(phaseId))
+        .where(PHASE_CHORD.PHASE_ID.in(phaseIds))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .orderBy(PHASE_CHORD.POSITION)
         .fetch(), PhaseChord.class);
-  }
-
-  /**
-   Read all possible phase chord sequences for a phase
-
-   @param db      context
-   @param access  control
-   @param phaseId to readMany all phase of
-   @return array of phases
-   */
-  private static Collection<ChordSequence> readAllSequences(DSLContext db, Access access, BigInteger phaseId) throws BusinessException {
-    List<ChordSequence> result = Lists.newArrayList();
-
-    List<PhaseChord> allChords = Lists.newArrayList(readAll(db, access, ULong.valueOf(phaseId)));
-    allChords.sort(Chord.byPositionAscending);
-
-    int totalChords = allChords.size();
-    for (int fromChord = 0; fromChord < totalChords; fromChord++) {
-      int maxToChord = Math.min(totalChords, fromChord + Config.analysisChordSequenceLengthMax());
-      for (int toChord = fromChord; toChord < maxToChord; toChord++) {
-        List<PhaseChord> subset = Lists.newArrayList();
-        for (int i = fromChord; i <= toChord; i++) {
-          subset.add(allChords.get(i));
-        }
-        result.add(new ChordSequence(phaseId, subset));
-      }
-    }
-
-    return result;
   }
 
   /**
@@ -269,7 +171,6 @@ public class PhaseChordDAOImpl extends DAOImpl implements PhaseChordDAO {
       .execute();
   }
 
-
   /**
    Only certain (writable) fields are mapped back to jOOQ records--
    Read-only fields are excluded from here.
@@ -283,6 +184,60 @@ public class PhaseChordDAOImpl extends DAOImpl implements PhaseChordDAO {
     fieldValues.put(PHASE_CHORD.PHASE_ID, entity.getPhaseId());
     fieldValues.put(PHASE_CHORD.POSITION, entity.getPosition());
     return fieldValues;
+  }
+
+  @Override
+  public PhaseChord create(Access access, PhaseChord entity) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(createRecord(tx.getContext(), access, entity));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  @Nullable
+  public PhaseChord readOne(Access access, BigInteger id) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readOne(tx.getContext(), access, ULong.valueOf(id)));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  @Nullable
+  public Collection<PhaseChord> readAll(Access access, Collection<BigInteger> parentIds) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readAll(tx.getContext(), access, uLongValuesOf(parentIds)));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public void update(Access access, BigInteger id, PhaseChord entity) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      update(tx.getContext(), access, id, entity);
+      tx.success();
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public void destroy(Access access, BigInteger id) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      delete(access, tx.getContext(), id);
+      tx.success();
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
   }
 
 }

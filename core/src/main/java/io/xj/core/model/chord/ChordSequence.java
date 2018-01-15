@@ -16,7 +16,7 @@ import java.util.regex.Pattern;
 
 /**
  Sequence of chords
- likely related to [#154234716] analysis of library contents includes sequences of chords.
+ likely related to [#154234716] evaluation of library contents includes sequences of chords.
  */
 public class ChordSequence {
   public static final int MAX_SEMITONES = 12;

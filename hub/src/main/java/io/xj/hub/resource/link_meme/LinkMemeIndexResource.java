@@ -6,10 +6,9 @@ import io.xj.core.access.impl.Access;
 import io.xj.core.dao.LinkMemeDAO;
 import io.xj.core.model.link_meme.LinkMeme;
 import io.xj.core.model.user_role.UserRoleType;
-import io.xj.core.server.HttpResponseProvider;
+import io.xj.core.transport.HttpResponseProvider;
 
-
-
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
@@ -55,7 +54,7 @@ public class LinkMemeIndexResource {
         LinkMeme.KEY_MANY,
         linkMemeDAO.readAll(
           Access.fromContext(crc),
-          new BigInteger(linkId)));
+          ImmutableList.of(new BigInteger(linkId))));
 
     } catch (Exception e) {
       return response.failure(e);

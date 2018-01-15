@@ -3,7 +3,7 @@ package io.xj.hub.resource.user;
 
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
-import io.xj.core.server.HttpResponseProvider;
+import io.xj.core.transport.HttpResponseProvider;
 import io.xj.core.dao.UserDAO;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.model.user.User;

@@ -76,6 +76,157 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
     previewLengthMax = Config.chainPreviewLengthMax();
   }
 
+  /**
+   Read one record
+
+   @param db     context
+   @param access control
+   @param id     of record
+   @return record
+   */
+  private static Chain readOne(DSLContext db, Access access, ULong id) throws BusinessException {
+    if (access.isTopLevel())
+      return modelFrom(db.selectFrom(CHAIN)
+        .where(CHAIN.ID.eq(id))
+        .fetchOne(), Chain.class);
+    else
+      return modelFrom(db.selectFrom(CHAIN)
+        .where(CHAIN.ID.eq(id))
+        .and(CHAIN.ACCOUNT_ID.in(access.getAccountIds()))
+        .fetchOne(), Chain.class);
+  }
+
+  /**
+   Read all records in parent by id
+
+   @param db         context
+   @param access     control
+   @param accountIds of parent
+   @return array of records
+   */
+  private static Collection<Chain> readAll(DSLContext db, Access access, Collection<ULong> accountIds) throws BusinessException {
+    if (access.isTopLevel())
+      return modelsFrom(db.select(CHAIN.fields())
+        .from(CHAIN)
+        .where(CHAIN.ACCOUNT_ID.in(accountIds))
+        .and(CHAIN.STATE.notEqual(ChainState.Erase.toString()))
+        .fetch(), Chain.class);
+    else
+      return modelsFrom(db.select(CHAIN.fields())
+        .from(CHAIN)
+        .where(CHAIN.ACCOUNT_ID.in(accountIds))
+        .and(CHAIN.ACCOUNT_ID.in(access.getAccountIds()))
+        .and(CHAIN.STATE.notEqual(ChainState.Erase.toString()))
+        .fetch(), Chain.class);
+  }
+
+  /**
+   Read all records in a given state
+
+   @param db     context
+   @param access control
+   @param state  to read chains in
+   @return array of records
+   */
+  private static Collection<Chain> readAllInState(DSLContext db, Access access, ChainState state) throws Exception {
+    requireRole("platform access", access, UserRoleType.Admin, UserRoleType.Engineer);
+
+    return modelsFrom(db.select(CHAIN.fields())
+      .from(CHAIN)
+      .where(CHAIN.STATE.eq(state.toString()))
+      .or(CHAIN.STATE.eq(state.toString().toLowerCase()))
+      .fetch(), Chain.class);
+  }
+
+  /**
+   Delete a Chain
+
+   @param db     context
+   @param access control
+   @param id     to delete
+   @throws Exception         if database failure
+   @throws ConfigException   if not configured properly
+   @throws BusinessException if fails business rule
+   */
+  private static void delete(DSLContext db, Access access, ULong id) throws Exception {
+    if (access.isTopLevel())
+      requireExists("Chain", db.selectCount().from(CHAIN)
+        .where(CHAIN.ID.eq(id))
+        .fetchOne(0, int.class));
+    else
+      requireExists("Chain", db.selectCount().from(CHAIN)
+        .where(CHAIN.ID.eq(id))
+        .and(CHAIN.ACCOUNT_ID.in(access.getAccountIds()))
+        .fetchOne(0, int.class));
+
+    requireNotExists("Link in Chain", db.select(LINK.ID)
+      .from(LINK)
+      .where(LINK.CHAIN_ID.eq(id))
+      .fetch());
+
+    // Chain-Pattern before Chain
+    db.deleteFrom(CHAIN_PATTERN)
+      .where(CHAIN_PATTERN.CHAIN_ID.eq(id))
+      .execute();
+
+    // Chain-Instrument before Chain
+    db.deleteFrom(CHAIN_INSTRUMENT)
+      .where(CHAIN_INSTRUMENT.CHAIN_ID.eq(id))
+      .execute();
+
+    // Chain-Library before Chain
+    db.deleteFrom(CHAIN_LIBRARY)
+      .where(CHAIN_LIBRARY.CHAIN_ID.eq(id))
+      .execute();
+
+    // Chain-Config before Chain
+    db.deleteFrom(CHAIN_CONFIG)
+      .where(CHAIN_CONFIG.CHAIN_ID.eq(id))
+      .execute();
+
+    db.deleteFrom(CHAIN)
+      .where(CHAIN.ID.eq(id))
+      .execute();
+  }
+
+  /**
+   Require state is in an array of states
+
+   @param toState       to check
+   @param allowedStates required to be in
+   @throws CancelException if not in required states
+   */
+  private static void onlyAllowTransitions(ChainState toState, ChainState... allowedStates) throws CancelException {
+    List<String> allowedStateNames = Lists.newArrayList();
+    for (ChainState search : allowedStates) {
+      allowedStateNames.add(search.toString());
+      if (Objects.equals(search, toState)) {
+        return;
+      }
+    }
+    throw new CancelException(String.format("transition to %s not in allowed (%s)",
+      toState, CSV.join(allowedStateNames)));
+  }
+
+  /**
+   Only certain (writable) fields are mapped back to jOOQ records--
+   Read-only fields are excluded from here.
+
+   @param entity to source values from
+   @return values mapped to record fields
+   */
+  private static Map<Field, Object> fieldValueMap(Chain entity) {
+    Map<Field, Object> fieldValues = com.google.api.client.util.Maps.newHashMap();
+    fieldValues.put(CHAIN.ACCOUNT_ID, ULong.valueOf(entity.getAccountId()));
+    fieldValues.put(CHAIN.NAME, entity.getName());
+    fieldValues.put(CHAIN.TYPE, entity.getType());
+    fieldValues.put(CHAIN.STATE, entity.getState());
+    fieldValues.put(CHAIN.START_AT, entity.getStartAt());
+    fieldValues.put(CHAIN.STOP_AT, entity.getStopAt());
+    fieldValues.put(CHAIN.EMBED_KEY, entity.getEmbedKey());
+    return fieldValues;
+  }
+
   @Override
   public Chain create(Access access, Chain entity) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
@@ -88,10 +239,10 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
 
   @Override
   @Nullable
-  public Chain readOne(Access access, BigInteger chainId) throws Exception {
+  public Chain readOne(Access access, BigInteger id) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readOne(tx.getContext(), access, ULong.valueOf(chainId)));
+      return tx.success(readOne(tx.getContext(), access, ULong.valueOf(id)));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -99,10 +250,10 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
 
   @Override
   @Nullable
-  public Collection<Chain> readAll(Access access, BigInteger accountId) throws Exception {
+  public Collection<Chain> readAll(Access access, Collection<BigInteger> parentIds) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readAll(tx.getContext(), access, accountId));
+      return tx.success(readAll(tx.getContext(), access, uLongValuesOf(parentIds)));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -151,10 +302,10 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
   }
 
   @Override
-  public void delete(Access access, BigInteger chainId) throws Exception {
+  public void destroy(Access access, BigInteger id) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      delete(tx.getContext(), access, ULong.valueOf(chainId));
+      delete(tx.getContext(), access, ULong.valueOf(id));
       tx.success();
     } catch (Exception e) {
       throw tx.failure(e);
@@ -226,68 +377,6 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
     }
 
     return modelFrom(executeCreate(db, CHAIN, fieldValues), Chain.class);
-  }
-
-  /**
-   Read one record
-
-   @param db     context
-   @param access control
-   @param id     of record
-   @return record
-   */
-  private static Chain readOne(DSLContext db, Access access, ULong id) throws BusinessException {
-    if (access.isTopLevel())
-      return modelFrom(db.selectFrom(CHAIN)
-        .where(CHAIN.ID.eq(id))
-        .fetchOne(), Chain.class);
-    else
-      return modelFrom(db.selectFrom(CHAIN)
-        .where(CHAIN.ID.eq(id))
-        .and(CHAIN.ACCOUNT_ID.in(access.getAccountIds()))
-        .fetchOne(), Chain.class);
-  }
-
-  /**
-   Read all records in parent by id
-
-   @param db        context
-   @param access    control
-   @param accountId of parent
-   @return array of records
-   */
-  private static Collection<Chain> readAll(DSLContext db, Access access, BigInteger accountId) throws BusinessException {
-    if (access.isTopLevel())
-      return modelsFrom(db.select(CHAIN.fields())
-        .from(CHAIN)
-        .where(CHAIN.ACCOUNT_ID.eq(ULong.valueOf(accountId)))
-        .and(CHAIN.STATE.notEqual(ChainState.Erase.toString()))
-        .fetch(), Chain.class);
-    else
-      return modelsFrom(db.select(CHAIN.fields())
-        .from(CHAIN)
-        .where(CHAIN.ACCOUNT_ID.eq(ULong.valueOf(accountId)))
-        .and(CHAIN.ACCOUNT_ID.in(access.getAccountIds()))
-        .and(CHAIN.STATE.notEqual(ChainState.Erase.toString()))
-        .fetch(), Chain.class);
-  }
-
-  /**
-   Read all records in a given state
-
-   @param db     context
-   @param access control
-   @param state  to read chains in
-   @return array of records
-   */
-  private static Collection<Chain> readAllInState(DSLContext db, Access access, ChainState state) throws Exception {
-    requireRole("platform access", access, UserRoleType.Admin, UserRoleType.Engineer);
-
-    return modelsFrom(db.select(CHAIN.fields())
-      .from(CHAIN)
-      .where(CHAIN.STATE.eq(state.toString()))
-      .or(CHAIN.STATE.eq(state.toString().toLowerCase()))
-      .fetch(), Chain.class);
   }
 
   /**
@@ -564,95 +653,6 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
     pilotTemplate.setOffset(pilotOffset.toBigInteger());
     pilotTemplate.setState(LinkState.Planned.toString());
     return pilotTemplate;
-  }
-
-  /**
-   Delete a Chain
-
-   @param db     context
-   @param access control
-   @param id     to delete
-   @throws Exception         if database failure
-   @throws ConfigException   if not configured properly
-   @throws BusinessException if fails business rule
-   */
-  private static void delete(DSLContext db, Access access, ULong id) throws Exception {
-    if (access.isTopLevel())
-      requireExists("Chain", db.selectCount().from(CHAIN)
-        .where(CHAIN.ID.eq(id))
-        .fetchOne(0, int.class));
-    else
-      requireExists("Chain", db.selectCount().from(CHAIN)
-        .where(CHAIN.ID.eq(id))
-        .and(CHAIN.ACCOUNT_ID.in(access.getAccountIds()))
-        .fetchOne(0, int.class));
-
-    requireNotExists("Link in Chain", db.select(LINK.ID)
-      .from(LINK)
-      .where(LINK.CHAIN_ID.eq(id))
-      .fetch());
-
-    // Chain-Pattern before Chain
-    db.deleteFrom(CHAIN_PATTERN)
-      .where(CHAIN_PATTERN.CHAIN_ID.eq(id))
-      .execute();
-
-    // Chain-Instrument before Chain
-    db.deleteFrom(CHAIN_INSTRUMENT)
-      .where(CHAIN_INSTRUMENT.CHAIN_ID.eq(id))
-      .execute();
-
-    // Chain-Library before Chain
-    db.deleteFrom(CHAIN_LIBRARY)
-      .where(CHAIN_LIBRARY.CHAIN_ID.eq(id))
-      .execute();
-
-    // Chain-Config before Chain
-    db.deleteFrom(CHAIN_CONFIG)
-      .where(CHAIN_CONFIG.CHAIN_ID.eq(id))
-      .execute();
-
-    db.deleteFrom(CHAIN)
-      .where(CHAIN.ID.eq(id))
-      .execute();
-  }
-
-  /**
-   Require state is in an array of states
-
-   @param toState       to check
-   @param allowedStates required to be in
-   @throws CancelException if not in required states
-   */
-  private static void onlyAllowTransitions(ChainState toState, ChainState... allowedStates) throws CancelException {
-    List<String> allowedStateNames = Lists.newArrayList();
-    for (ChainState search : allowedStates) {
-      allowedStateNames.add(search.toString());
-      if (Objects.equals(search, toState)) {
-        return;
-      }
-    }
-    throw new CancelException(String.format("transition to %s not in allowed (%s)",
-      toState, CSV.join(allowedStateNames)));
-  }
-
-  /**
-   Only certain (writable) fields are mapped back to jOOQ records--
-   Read-only fields are excluded from here.
-
-   @param entity to source values from
-   @return values mapped to record fields
-   */
-  private static Map<Field, Object> fieldValueMap(Chain entity) {
-    Map<Field, Object> fieldValues = com.google.api.client.util.Maps.newHashMap();
-    fieldValues.put(CHAIN.ACCOUNT_ID, ULong.valueOf(entity.getAccountId()));
-    fieldValues.put(CHAIN.NAME, entity.getName());
-    fieldValues.put(CHAIN.TYPE, entity.getType());
-    fieldValues.put(CHAIN.STATE, entity.getState());
-    fieldValues.put(CHAIN.START_AT, entity.getStartAt());
-    fieldValues.put(CHAIN.STOP_AT, entity.getStopAt());
-    fieldValues.put(CHAIN.EMBED_KEY, entity.getEmbedKey());
-    return fieldValues;
   }
 
 

@@ -7,7 +7,7 @@ import io.xj.core.dao.PatternDAO;
 import io.xj.core.model.pattern.Pattern;
 import io.xj.core.model.pattern.PatternWrapper;
 import io.xj.core.model.user_role.UserRoleType;
-import io.xj.core.server.HttpResponseProvider;
+import io.xj.core.transport.HttpResponseProvider;
 
 
 
@@ -90,7 +90,7 @@ public class PatternOneResource {
   @RolesAllowed(UserRoleType.ADMIN)
   public Response delete(@Context ContainerRequestContext crc) {
     try {
-      patternDAO.delete(Access.fromContext(crc), new BigInteger(id));
+      patternDAO.destroy(Access.fromContext(crc), new BigInteger(id));
       return Response.accepted("{}").build();
 
     } catch (Exception e) {

@@ -6,7 +6,7 @@ import io.xj.core.access.impl.Access;
 import io.xj.core.dao.ChainPatternDAO;
 import io.xj.core.model.chain_pattern.ChainPattern;
 import io.xj.core.model.user_role.UserRoleType;
-import io.xj.core.server.HttpResponseProvider;
+import io.xj.core.transport.HttpResponseProvider;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -65,7 +65,7 @@ public class ChainPatternRecordResource {
   @RolesAllowed({UserRoleType.ARTIST, UserRoleType.ENGINEER, UserRoleType.ADMIN})
   public Response delete(@Context ContainerRequestContext crc) {
     try {
-      chainPatternDAO.delete(Access.fromContext(crc), new BigInteger(id));
+      chainPatternDAO.destroy(Access.fromContext(crc), new BigInteger(id));
       return Response.accepted("{}").build();
     } catch (Exception e) {
       return response.failure(e);

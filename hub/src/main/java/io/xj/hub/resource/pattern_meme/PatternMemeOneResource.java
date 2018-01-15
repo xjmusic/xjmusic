@@ -6,7 +6,7 @@ import io.xj.core.access.impl.Access;
 import io.xj.core.dao.PatternMemeDAO;
 import io.xj.core.model.pattern_meme.PatternMeme;
 import io.xj.core.model.user_role.UserRoleType;
-import io.xj.core.server.HttpResponseProvider;
+import io.xj.core.transport.HttpResponseProvider;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -65,7 +65,7 @@ public class PatternMemeOneResource {
   @RolesAllowed(UserRoleType.ARTIST)
   public Response delete(@Context ContainerRequestContext crc) {
     try {
-      patternMemeDAO.delete(Access.fromContext(crc), new BigInteger(id));
+      patternMemeDAO.destroy(Access.fromContext(crc), new BigInteger(id));
       return Response.accepted("{}").build();
     } catch (Exception e) {
       return response.failure(e);

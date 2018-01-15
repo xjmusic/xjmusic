@@ -22,7 +22,7 @@ export default Route.extend({
     if (auth.isArtist || auth.isAdmin) {
       let phase = this.modelFor('accounts.one.libraries.one.patterns.one.phases.one');
       let pattern = this.modelFor('accounts.one.libraries.one.patterns.one');
-      let event = this.store.createRecord('voice-event', {
+      let event = this.store.createRecord('phase-event', {
         phase: phase,
       });
       event.set('phase', phase);
