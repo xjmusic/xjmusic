@@ -26,7 +26,7 @@ public abstract class CSV {
     return slugs.build();
   }
 
-  public static String join(List<String> parts) {
+  public static String join(Collection<String> parts) {
     return String.join(",", parts);
   }
 
