@@ -2,7 +2,7 @@
 package io.xj.core.model.library;
 
 import io.xj.core.exception.BusinessException;
-import io.xj.core.model.Entity;
+import io.xj.core.model.entity.Entity;
 
 import java.math.BigInteger;
 import java.util.Objects;
@@ -50,6 +50,11 @@ public class Library extends Entity {
   public Library setAccountId(BigInteger accountId) {
     this.accountId = accountId;
     return this;
+  }
+
+  @Override
+  public BigInteger getParentId() {
+    return accountId;
   }
 
   @Override

@@ -1,29 +1,22 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.craft.macro.impl;
 
-import io.xj.core.access.impl.Access;
-import io.xj.core.dao.ChoiceDAO;
-import io.xj.core.dao.LinkChordDAO;
-import io.xj.core.dao.LinkMemeDAO;
-import io.xj.core.dao.PatternDAO;
-import io.xj.core.dao.PhaseChordDAO;
+import io.xj.core.basis.Basis;
 import io.xj.core.exception.BusinessException;
-import io.xj.core.model.choice.Chance;
 import io.xj.core.model.choice.Choice;
-import io.xj.core.model.choice.Chooser;
+import io.xj.core.model.entity.EntityRank;
 import io.xj.core.model.link_chord.LinkChord;
 import io.xj.core.model.link_meme.LinkMeme;
 import io.xj.core.model.pattern.Pattern;
 import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.phase.Phase;
 import io.xj.core.model.phase.PhaseType;
+import io.xj.core.util.Chance;
 import io.xj.core.util.Value;
-import io.xj.core.work.basis.Basis;
 import io.xj.craft.macro.MacroMainCraft;
 import io.xj.music.Chord;
 import io.xj.music.Key;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
@@ -49,11 +42,6 @@ public class MacroMainCraftImpl implements MacroMainCraft {
   private static final double SCORE_MAIN_ENTROPY = 0.5;
   private static final long NANOS_PER_SECOND = 1_000_000_000;
   private final Logger log = LoggerFactory.getLogger(MacroMainCraftImpl.class);
-  private final ChoiceDAO choiceDAO;
-  private final PatternDAO patternDAO;
-  private final LinkChordDAO linkChordDAO;
-  private final LinkMemeDAO linkMemeDAO;
-  private final PhaseChordDAO phaseChordDAO;
   private final Basis basis;
   private Pattern _macroPattern;
   private Pattern _mainPattern;
@@ -62,19 +50,9 @@ public class MacroMainCraftImpl implements MacroMainCraft {
 
   @Inject
   public MacroMainCraftImpl(
-    @Assisted("basis") Basis basis,
-    ChoiceDAO choiceDAO,
-    PatternDAO patternDAO,
-    LinkChordDAO linkChordDAO,
-    LinkMemeDAO linkMemeDAO,
-    PhaseChordDAO phaseChordDAO
+    @Assisted("basis") Basis basis
   /*-*/) {
     this.basis = basis;
-    this.choiceDAO = choiceDAO;
-    this.patternDAO = patternDAO;
-    this.linkChordDAO = linkChordDAO;
-    this.linkMemeDAO = linkMemeDAO;
-    this.phaseChordDAO = phaseChordDAO;
   }
 
   @Override
@@ -115,13 +93,12 @@ public class MacroMainCraftImpl implements MacroMainCraft {
    @throws Exception on any failure
    */
   private void craftMacro() throws Exception {
-    choiceDAO.create(Access.internal(),
-      new Choice()
-        .setLinkId(basis.link().getId())
-        .setType(PatternType.Macro.toString())
-        .setPatternId(macroPattern().getId())
-        .setTranspose(macroTranspose())
-        .setPhaseOffset(macroPhaseOffset()));
+    basis.create(new Choice()
+      .setLinkId(basis.link().getId())
+      .setType(PatternType.Macro.toString())
+      .setPatternId(macroPattern().getId())
+      .setTranspose(macroTranspose())
+      .setPhaseOffset(macroPhaseOffset()));
   }
 
   /**
@@ -131,13 +108,12 @@ public class MacroMainCraftImpl implements MacroMainCraft {
    @throws Exception on any failure
    */
   private void craftMain() throws Exception {
-    choiceDAO.create(Access.internal(),
-      new Choice()
-        .setLinkId(basis.link().getId())
-        .setType(PatternType.Main.toString())
-        .setPatternId(mainPattern().getId())
-        .setTranspose(mainTranspose())
-        .setPhaseOffset(mainPhaseOffset()));
+    basis.create(new Choice()
+      .setLinkId(basis.link().getId())
+      .setType(PatternType.Main.toString())
+      .setPatternId(mainPattern().getId())
+      .setTranspose(mainTranspose())
+      .setPhaseOffset(mainPhaseOffset()));
   }
 
   /**
@@ -149,7 +125,7 @@ public class MacroMainCraftImpl implements MacroMainCraft {
   private void craftMemes() throws Exception {
     linkMemes().forEach((linkMeme) -> {
       try {
-        linkMemeDAO.create(Access.internal(), linkMeme);
+        basis.create(linkMeme);
 
       } catch (Exception e) {
         log.warn("failed to create link meme {}", linkMeme.getName(), e);
@@ -165,7 +141,7 @@ public class MacroMainCraftImpl implements MacroMainCraft {
    @throws Exception on any failure
    */
   private void craftChords() throws Exception {
-    phaseChordDAO.readAll(Access.internal(), ImmutableList.of(mainPhase().getId()))
+    basis.evaluation().phaseChords(mainPhase().getId())
       .forEach(phaseChord -> {
 
         if (phaseChord.getPosition() < basis.link().getTotal()) {
@@ -174,11 +150,10 @@ public class MacroMainCraftImpl implements MacroMainCraft {
             // delta the chord name
             name = Chord.of(phaseChord.getName()).transpose(mainTranspose()).getFullDescription();
             // create the transposed chord
-            linkChordDAO.create(Access.internal(),
-              new LinkChord()
-                .setLinkId(basis.link().getId())
-                .setName(name)
-                .setPosition(phaseChord.getPosition()));
+            basis.create(new LinkChord()
+              .setLinkId(basis.link().getId())
+              .setName(name)
+              .setPosition(phaseChord.getPosition()));
 
           } catch (Exception e) {
             log.warn("failed to create transposed link chord {}@{}",
@@ -207,7 +182,7 @@ public class MacroMainCraftImpl implements MacroMainCraft {
           Choice previousChoice = basis.previousMacroChoice();
           if (Objects.isNull(previousChoice))
             throw new BusinessException("No macro-type pattern chosen in previous link!");
-          _macroPattern = basis.pattern(previousChoice.getPatternId());
+          _macroPattern = basis.evaluation().pattern(previousChoice.getPatternId());
           break;
 
         case NextMacro:
@@ -229,7 +204,7 @@ public class MacroMainCraftImpl implements MacroMainCraft {
           Choice previousChoice = basis.previousMainChoice();
           if (Objects.isNull(previousChoice))
             throw new BusinessException("No main-type pattern chosen in previous link!");
-          _mainPattern = basis.pattern(previousChoice.getPatternId());
+          _mainPattern = basis.evaluation().pattern(previousChoice.getPatternId());
           break;
 
         case Initial:
@@ -341,7 +316,7 @@ public class MacroMainCraftImpl implements MacroMainCraft {
    @throws Exception on failure
    */
   private Phase macroPhase() throws Exception {
-    Phase phase = basis.phaseAtOffset(macroPattern().getId(), macroPhaseOffset(), PhaseType.Macro);
+    Phase phase = basis.evaluation().phaseAtOffset(macroPattern().getId(), macroPhaseOffset(), PhaseType.Macro);
 
     if (Objects.isNull(phase))
       throw new BusinessException("macro-phase does not exist!");
@@ -356,7 +331,7 @@ public class MacroMainCraftImpl implements MacroMainCraft {
    @throws Exception on failure
    */
   private Phase mainPhase() throws Exception {
-    Phase phase = basis.phaseAtOffset(mainPattern().getId(), mainPhaseOffset(), PhaseType.Main);
+    Phase phase = basis.evaluation().phaseAtOffset(mainPattern().getId(), mainPhaseOffset(), PhaseType.Main);
 
     if (Objects.isNull(phase))
       throw new BusinessException("main-phase does not exist!");
@@ -371,19 +346,19 @@ public class MacroMainCraftImpl implements MacroMainCraft {
    @throws Exception on failure
    */
   private Pattern chooseMacro() throws Exception {
-    Chooser<Pattern> chooser = new Chooser<>();
+    EntityRank<Pattern> entityRank = new EntityRank<>();
 
     // (1a) retrieve patterns bound directly to chain
-    Collection<Pattern> sourcePatterns = patternDAO.readAllBoundToChain(Access.internal(), basis.chainId(), PatternType.Macro);
+    Collection<Pattern> sourcePatterns = basis.evaluation().patterns(PatternType.Macro);
 
     // (1b) only if none were found in the previous transpose, retrieve patterns bound to chain library
     if (sourcePatterns.isEmpty())
-      sourcePatterns = patternDAO.readAllBoundToChainLibrary(Access.internal(), basis.chainId(), PatternType.Macro);
+      sourcePatterns = basis.libraryEvaluation().patterns(PatternType.Macro);
 
     // (3) score each source pattern
     sourcePatterns.forEach((pattern -> {
       try {
-        chooser.add(pattern, scoreMacro(pattern));
+        entityRank.add(pattern, scoreMacro(pattern));
       } catch (Exception e) {
         log.warn("while scoring macro patterns", e);
       }
@@ -391,13 +366,13 @@ public class MacroMainCraftImpl implements MacroMainCraft {
 
     // (3b) Avoid previous macro pattern
     if (!basis.isInitialLink())
-      chooser.score(basis.previousMacroChoice().getPatternId(), -SCORE_AVOID_PREVIOUS);
+      entityRank.score(basis.previousMacroChoice().getPatternId(), -SCORE_AVOID_PREVIOUS);
 
     // report
-    basis.report("macroChoice", chooser.report());
+    basis.report("macroChoice", entityRank.report());
 
     // (4) return the top choice
-    Pattern pattern = chooser.getTop();
+    Pattern pattern = entityRank.getTop();
     if (Objects.nonNull(pattern))
       return pattern;
     else
@@ -413,31 +388,31 @@ public class MacroMainCraftImpl implements MacroMainCraft {
    future: don't we need to pass in the current phase of the macro pattern?
    */
   private Pattern chooseMain() throws Exception {
-    Chooser<Pattern> chooser = new Chooser<>();
+    EntityRank<Pattern> entityRank = new EntityRank<>();
 
     // future: only choose major patterns for major keys, minor for minor! [#223] Key of first Phase of chosen Main-Pattern must match the `minor` or `major` with the Key of the current Link.
 
     // (2a) retrieve patterns bound directly to chain
-    Collection<Pattern> sourcePatterns = patternDAO.readAllBoundToChain(Access.internal(), basis.chainId(), PatternType.Main);
+    Collection<Pattern> sourcePatterns = basis.evaluation().patterns(PatternType.Main);
 
     // (2b) only if none were found in the previous transpose, retrieve patterns bound to chain library
     if (sourcePatterns.isEmpty())
-      sourcePatterns = patternDAO.readAllBoundToChainLibrary(Access.internal(), basis.chainId(), PatternType.Main);
+      sourcePatterns = basis.libraryEvaluation().patterns(PatternType.Main);
 
     // (3) score each source pattern based on meme isometry
     sourcePatterns.forEach((pattern -> {
       try {
-        chooser.add(pattern, scoreMain(pattern));
+        entityRank.add(pattern, scoreMain(pattern));
       } catch (Exception e) {
         log.warn("while scoring main patterns", e);
       }
     }));
 
     // report
-    basis.report("mainChoice", chooser.report());
+    basis.report("mainChoice", entityRank.report());
 
     // (4) return the top choice
-    Pattern pattern = chooser.getTop();
+    Pattern pattern = entityRank.getTop();
     if (Objects.nonNull(pattern))
       return pattern;
     else
@@ -460,11 +435,11 @@ public class MacroMainCraftImpl implements MacroMainCraft {
 
     // Score includes matching memes to previous link's macro-pattern's next phase (major/minor)
     score += basis.previousMacroNextPhaseMemeIsometry().score(
-      basis.patternAndPhaseMemes(pattern.getId(), BigInteger.valueOf(0), PhaseType.Macro))
+      basis.evaluation().patternAndPhaseMemes(pattern.getId(), BigInteger.valueOf(0), PhaseType.Macro))
       * SCORE_MATCHED_MEMES;
 
     // Score includes matching mode to previous link's macro-pattern's next phase (major/minor)
-    Phase phaseAtOffset = basis.phaseAtOffset(pattern.getId(), BigInteger.valueOf(0), PhaseType.Macro);
+    Phase phaseAtOffset = basis.evaluation().phaseAtOffset(pattern.getId(), BigInteger.valueOf(0), PhaseType.Macro);
     if (Objects.nonNull(phaseAtOffset) && Key.isSameMode(basis.previousMacroNextPhase().getKey(), phaseAtOffset.getKey())) {
       score += SCORE_MATCHED_KEY_MODE;
     }
@@ -497,7 +472,7 @@ public class MacroMainCraftImpl implements MacroMainCraft {
 
     // Score includes matching memes, previous link to macro pattern first phase
     score += basis.currentMacroMemeIsometry().score(
-      basis.patternAndPhaseMemes(pattern.getId(), BigInteger.valueOf(0), PhaseType.Main))
+      basis.evaluation().patternAndPhaseMemes(pattern.getId(), BigInteger.valueOf(0), PhaseType.Main))
       * SCORE_MATCHED_MEMES;
 
     return score;
@@ -511,19 +486,19 @@ public class MacroMainCraftImpl implements MacroMainCraft {
   private Collection<LinkMeme> linkMemes() throws Exception {
     Map<String, LinkMeme> uniqueResults = Maps.newHashMap();
 
-    basis.patternMemes(macroPattern().getId())
+    basis.evaluation().patternMemes(macroPattern().getId())
       .forEach(meme -> uniqueResults.put(
         meme.getName(), LinkMeme.of(basis.link().getId(), meme.getName())));
 
-    basis.phaseMemes(macroPhase().getId())
+    basis.evaluation().phaseMemes(macroPhase().getId())
       .forEach(meme -> uniqueResults.put(
         meme.getName(), LinkMeme.of(basis.link().getId(), meme.getName())));
 
-    basis.patternMemes(mainPattern().getId())
+    basis.evaluation().patternMemes(mainPattern().getId())
       .forEach(meme -> uniqueResults.put(
         meme.getName(), LinkMeme.of(basis.link().getId(), meme.getName())));
 
-    basis.phaseMemes(mainPhase().getId())
+    basis.evaluation().phaseMemes(mainPhase().getId())
       .forEach(meme -> uniqueResults.put(
         meme.getName(), LinkMeme.of(basis.link().getId(), meme.getName())));
 

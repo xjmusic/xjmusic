@@ -1,28 +1,23 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.craft.rhythm.impl;
 
-import io.xj.core.access.impl.Access;
-import io.xj.core.dao.ArrangementDAO;
-import io.xj.core.dao.ChoiceDAO;
-import io.xj.core.dao.InstrumentDAO;
-import io.xj.core.dao.PatternDAO;
+import io.xj.core.basis.Basis;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.isometry.EventIsometry;
 import io.xj.core.model.arrangement.Arrangement;
 import io.xj.core.model.audio.Audio;
-import io.xj.core.model.choice.Chance;
 import io.xj.core.model.choice.Choice;
-import io.xj.core.model.choice.Chooser;
+import io.xj.core.model.entity.EntityRank;
 import io.xj.core.model.instrument.Instrument;
 import io.xj.core.model.instrument.InstrumentType;
 import io.xj.core.model.pattern.Pattern;
 import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.phase.Phase;
 import io.xj.core.model.phase.PhaseType;
+import io.xj.core.model.phase_event.PhaseEvent;
 import io.xj.core.model.pick.Pick;
 import io.xj.core.model.voice.Voice;
-import io.xj.core.model.phase_event.PhaseEvent;
-import io.xj.core.work.basis.Basis;
+import io.xj.core.util.Chance;
 import io.xj.craft.rhythm.RhythmCraft;
 import io.xj.music.Chord;
 import io.xj.music.Key;
@@ -49,28 +44,16 @@ public class RhythmCraftImpl implements RhythmCraft {
   private static final double SCORE_INSTRUMENT_ENTROPY = 0.5;
   private static final double SCORE_MATCHED_MEMES = 5;
   private static final double SCORE_RHYTHM_ENTROPY = 0.5;
-  private final ArrangementDAO arrangementDAO;
   private final Basis basis;
-  private final ChoiceDAO choiceDAO;
-  private final InstrumentDAO instrumentDAO;
   private final Logger log = LoggerFactory.getLogger(RhythmCraftImpl.class);
-  private final PatternDAO patternDAO;
   private BigInteger _rhythmPhaseOffset;
   private Pattern _rhythmPattern;
 
   @Inject
   public RhythmCraftImpl(
-    @Assisted("basis") Basis basis,
-    ArrangementDAO arrangementDAO,
-    ChoiceDAO choiceDAO,
-    InstrumentDAO instrumentDAO,
-    PatternDAO patternDAO
+    @Assisted("basis") Basis basis
   /*-*/) {
-    this.arrangementDAO = arrangementDAO;
     this.basis = basis;
-    this.choiceDAO = choiceDAO;
-    this.instrumentDAO = instrumentDAO;
-    this.patternDAO = patternDAO;
   }
 
   @Override
@@ -96,7 +79,7 @@ public class RhythmCraftImpl implements RhythmCraft {
   private void craftRhythm() throws Exception {
     Pattern pattern = rhythmPattern();
     if (Objects.nonNull(pattern))
-      choiceDAO.create(Access.internal(),
+      basis.create(
         new Choice()
           .setLinkId(basis.link().getId())
           .setType(PatternType.Rhythm.toString())
@@ -117,7 +100,7 @@ public class RhythmCraftImpl implements RhythmCraft {
         case Continue:
           Choice previousChoice = basis.previousRhythmChoice();
           if (Objects.nonNull(previousChoice))
-            _rhythmPattern = basis.pattern(previousChoice.getPatternId());
+            _rhythmPattern = basis.evaluation().pattern(previousChoice.getPatternId());
           else {
             log.warn("No rhythm-type pattern chosen in previous Link #{}", basis.previousLink().getId());
             _rhythmPattern = chooseRhythm();
@@ -177,32 +160,32 @@ public class RhythmCraftImpl implements RhythmCraft {
    future: actually choose rhythm pattern
    */
   private Pattern chooseRhythm() throws Exception {
-    Chooser<Pattern> chooser = new Chooser<>();
+    EntityRank<Pattern> entityRank = new EntityRank<>();
 
     // future: only choose major patterns for major keys, minor for minor! [#223] Key of first Phase of chosen Rhythm-Pattern must match the `minor` or `major` with the Key of the current Link.
 
     // (2a) retrieve patterns bound directly to chain
-    Collection<Pattern> sourcePatterns = patternDAO.readAllBoundToChain(Access.internal(), basis.chainId(), PatternType.Rhythm);
+    Collection<Pattern> sourcePatterns = basis.evaluation().patterns(PatternType.Rhythm);
 
     // (2b) only if none were found in the previous step, retrieve patterns bound to chain library
     if (sourcePatterns.isEmpty())
-      sourcePatterns = patternDAO.readAllBoundToChainLibrary(Access.internal(), basis.chainId(), PatternType.Rhythm);
+      sourcePatterns = basis.libraryEvaluation().patterns(PatternType.Rhythm);
 
     // (3) score each source pattern based on meme isometry
     for (Pattern pattern : sourcePatterns) {
-      chooser.add(pattern, scoreRhythm(pattern));
+      entityRank.add(pattern, scoreRhythm(pattern));
     }
 
     // (3b) Avoid previous rhythm pattern
     if (!basis.isInitialLink())
       if (Objects.nonNull(basis.previousRhythmChoice()))
-        chooser.score(basis.previousRhythmChoice().getPatternId(), -SCORE_AVOID_CHOOSING_PREVIOUS_RHYTHM);
+        entityRank.score(basis.previousRhythmChoice().getPatternId(), -SCORE_AVOID_CHOOSING_PREVIOUS_RHYTHM);
 
     // report
-    basis.report("rhythmChoice", chooser.report());
+    basis.report("rhythmChoice", entityRank.report());
 
     // (4) return the top choice
-    Pattern pattern = chooser.getTop();
+    Pattern pattern = entityRank.getTop();
     if (Objects.nonNull(pattern))
       return pattern;
     else
@@ -221,7 +204,7 @@ public class RhythmCraftImpl implements RhythmCraft {
     // Score includes matching memes, previous link to macro pattern first phase
     try {
       score += basis.currentLinkMemeIsometry().score(
-        basis.patternAndPhaseMemes(pattern.getId(), BigInteger.valueOf(0),
+        basis.evaluation().patternAndPhaseMemes(pattern.getId(), BigInteger.valueOf(0),
           PhaseType.Intro, PhaseType.Loop, PhaseType.Outro))
         * SCORE_MATCHED_MEMES;
     } catch (Exception e) {
@@ -251,11 +234,10 @@ public class RhythmCraftImpl implements RhythmCraft {
   private Arrangement craftArrangementForRhythmVoice(Voice voice) throws Exception {
     Instrument percussiveInstrument = choosePercussiveInstrument(voice);
 
-    return arrangementDAO.create(Access.internal(),
-      new Arrangement()
-        .setChoiceId(basis.currentRhythmChoice().getId())
-        .setVoiceId(voice.getId())
-        .setInstrumentId(percussiveInstrument.getId()));
+    return basis.create(new Arrangement()
+      .setChoiceId(basis.currentRhythmChoice().getId())
+      .setVoiceId(voice.getId())
+      .setInstrumentId(percussiveInstrument.getId()));
   }
 
   /**
@@ -267,14 +249,14 @@ public class RhythmCraftImpl implements RhythmCraft {
    @throws Exception on failure
    */
   private Instrument choosePercussiveInstrument(Voice voice) throws Exception {
-    Chooser<Instrument> chooser = new Chooser<>();
+    EntityRank<Instrument> entityRank = new EntityRank<>();
 
     // (2a) retrieve instruments bound directly to chain
-    Collection<Instrument> sourceInstruments = instrumentDAO.readAllBoundToChain(Access.internal(), basis.chainId(), InstrumentType.Percussive);
+    Collection<Instrument> sourceInstruments = basis.evaluation().instruments(InstrumentType.Percussive);
 
     // (2b) only if none were found in the previous transpose, retrieve instruments bound to chain library
     if (sourceInstruments.isEmpty())
-      sourceInstruments = instrumentDAO.readAllBoundToChainLibrary(Access.internal(), basis.chainId(), InstrumentType.Percussive);
+      sourceInstruments = basis.libraryEvaluation().instruments(InstrumentType.Percussive);
 
     // future: [#258] Instrument selection is based on Text Isometry between the voice description and the instrument description
     log.debug("not currently in use: {}", voice);
@@ -282,7 +264,7 @@ public class RhythmCraftImpl implements RhythmCraft {
     // (3) score each source instrument based on meme isometry
     sourceInstruments.forEach((instrument -> {
       try {
-        chooser.add(instrument, scorePercussiveInstrument(instrument));
+        entityRank.add(instrument, scorePercussiveInstrument(instrument));
       } catch (Exception e) {
         log.debug("while scoring perussive instrument", e);
       }
@@ -293,14 +275,14 @@ public class RhythmCraftImpl implements RhythmCraft {
     // (3b) Avoid previous percussive instrument
     if (!basis.isInitialLink())
       basis.previousPercussiveArrangements().forEach(arrangement ->
-        chooser.score(arrangement.getInstrumentId(), -SCORE_AVOID_CHOOSING_PREVIOUS));
+        entityRank.score(arrangement.getInstrumentId(), -SCORE_AVOID_CHOOSING_PREVIOUS));
         */
 
     // report
-    basis.report("percussiveChoice", chooser.report());
+    basis.report("percussiveChoice", entityRank.report());
 
     // (4) return the top choice
-    Instrument instrument = chooser.getTop();
+    Instrument instrument = entityRank.getTop();
     if (Objects.nonNull(instrument))
       return instrument;
     else
@@ -317,7 +299,7 @@ public class RhythmCraftImpl implements RhythmCraft {
     Double score = Chance.normallyAround(0, SCORE_INSTRUMENT_ENTROPY);
 
     // Score includes matching memes, previous link to macro instrument first phase
-    score += basis.currentLinkMemeIsometry().score(basis.instrumentMemes(instrument.getId())) * SCORE_MATCHED_MEMES;
+    score += basis.currentLinkMemeIsometry().score(basis.evaluation().instrumentMemes(instrument.getId())) * SCORE_MATCHED_MEMES;
 
     return score;
   }
@@ -332,10 +314,10 @@ public class RhythmCraftImpl implements RhythmCraft {
     if (Objects.isNull(basis.currentRhythmChoice())) return;
 
     // choose intro phase (if available)
-    Phase introPhase = basis.phaseAtOffset(basis.currentRhythmChoice().getPatternId(), basis.currentRhythmChoice().getPhaseOffset(), PhaseType.Intro);
+    Phase introPhase = basis.evaluation().phaseAtOffset(basis.currentRhythmChoice().getPatternId(), basis.currentRhythmChoice().getPhaseOffset(), PhaseType.Intro);
 
     // choose outro phase (if available)
-    Phase outroPhase = basis.phaseAtOffset(basis.currentRhythmChoice().getPatternId(), basis.currentRhythmChoice().getPhaseOffset(), PhaseType.Outro);
+    Phase outroPhase = basis.evaluation().phaseAtOffset(basis.currentRhythmChoice().getPatternId(), basis.currentRhythmChoice().getPhaseOffset(), PhaseType.Outro);
 
     // compute in and out points, and length # beats for which loop phases will be required
     long loopOutPos = basis.link().getTotal() - (Objects.nonNull(outroPhase) ? outroPhase.getTotal() : 0);
@@ -350,7 +332,7 @@ public class RhythmCraftImpl implements RhythmCraft {
 
     // choose loop phases until arrive at the out point or end of link
     while (curPos < loopOutPos) {
-      Phase loopPhase = basis.phaseRandomAtOffset(basis.currentRhythmChoice().getPatternId(), basis.currentRhythmChoice().getPhaseOffset(), PhaseType.Loop);
+      Phase loopPhase = basis.evaluation().phaseRandomAtOffset(basis.currentRhythmChoice().getPatternId(), basis.currentRhythmChoice().getPhaseOffset(), PhaseType.Loop);
       curPos += craftRhythmPhasePhaseEvents(curPos, loopPhase, loopOutPos);
     }
 
@@ -372,8 +354,8 @@ public class RhythmCraftImpl implements RhythmCraft {
     Choice choice = basis.currentRhythmChoice();
     Collection<Arrangement> arrangements = basis.choiceArrangements(choice.getId());
     for (Arrangement arrangement : arrangements) {
-      Collection<PhaseEvent> phaseEvents = basis.phasePhaseEvents(phase.getId(), arrangement.getVoiceId());
-      Instrument instrument = basis.instrument(arrangement.getInstrumentId());
+      Collection<PhaseEvent> phaseEvents = basis.evaluation().phaseVoiceEvents(phase.getId(), arrangement.getVoiceId());
+      Instrument instrument = basis.evaluation().instrument(arrangement.getInstrumentId());
       for (PhaseEvent phaseEvent : phaseEvents) {
         pickInstrumentAudio(instrument, arrangement, phaseEvent, choice.getTranspose(), fromPos);
       }
@@ -396,21 +378,21 @@ public class RhythmCraftImpl implements RhythmCraft {
     int transpose,
     Double shiftPosition
   /*-*/) throws Exception {
-    Chooser<Audio> audioChooser = new Chooser<>();
+    EntityRank<Audio> audioEntityRank = new EntityRank<>();
 
     // add all audio to chooser
-    audioChooser.addAll(basis.instrumentAudios(instrument.getId()));
+    audioEntityRank.addAll(basis.evaluation().audios(instrument.getId()));
 
     // score each audio against the current voice event, with some variability
-    basis.instrumentAudioEvents(instrument.getId())
+    basis.evaluation().instrumentAudioFirstEvents(instrument.getId())
       .forEach(audioEvent ->
-        audioChooser.score(audioEvent.getAudioId(),
+        audioEntityRank.score(audioEvent.getAudioId(),
           Chance.normallyAround(
             EventIsometry.similarity(phaseEvent, audioEvent),
             SCORE_INSTRUMENT_ENTROPY)));
 
     // final chosen audio event
-    Audio audio = audioChooser.getTop();
+    Audio audio = audioEntityRank.getTop();
     if (Objects.isNull(audio))
       throw new BusinessException("No acceptable Audio found!");
 
@@ -474,7 +456,7 @@ public class RhythmCraftImpl implements RhythmCraft {
    */
   private Iterable<Voice> voices(BigInteger patternId) throws Exception {
     List<Voice> voices = Lists.newArrayList();
-    voices.addAll(basis.voices(patternId));
+    voices.addAll(basis.evaluation().voices(patternId));
     return voices;
   }
 

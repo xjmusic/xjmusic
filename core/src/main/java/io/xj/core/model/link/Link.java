@@ -2,7 +2,7 @@
 package io.xj.core.model.link;
 
 import io.xj.core.exception.BusinessException;
-import io.xj.core.model.Entity;
+import io.xj.core.model.entity.Entity;
 import io.xj.core.timestamp.TimestampUTC;
 import io.xj.core.util.Value;
 
@@ -178,17 +178,22 @@ public class Link extends Entity {
 
 
   @Override
+  public BigInteger getParentId() {
+    return chainId;
+  }
+
+  @Override
   public void validate() throws BusinessException {
     // throws its own BusinessException on failure
-    if (Objects.isNull(this.state)) {
+    if (Objects.isNull(state)) {
       state = LinkState.validate(_state);
     }
 
-    if (Objects.isNull(this.chainId)) {
+    if (Objects.isNull(chainId)) {
       throw new BusinessException("Chain ID is required.");
     }
 
-    if (Objects.isNull(this.beginAt)) {
+    if (Objects.isNull(beginAt)) {
       throw new BusinessException("Begin-at is required." + (Objects.nonNull(beginAtError) ? " " + beginAtError : ""));
     }
 
@@ -196,7 +201,7 @@ public class Link extends Entity {
       throw new BusinessException("End-at must be isValid time." + endAtError);
     }
 
-    if (Objects.isNull(this.offset)) {
+    if (Objects.isNull(offset)) {
       throw new BusinessException("Offset is required.");
     }
   }

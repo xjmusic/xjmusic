@@ -2,9 +2,7 @@
 package io.xj.core.model.chord;
 
 import io.xj.core.exception.BusinessException;
-import io.xj.core.model.Entity;
-
-import org.json.JSONObject;
+import io.xj.core.model.entity.Entity;
 
 import java.math.BigInteger;
 import java.util.Comparator;

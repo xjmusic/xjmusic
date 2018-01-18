@@ -1,7 +1,7 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.transport;
 
-import io.xj.core.model.Entity;
+import io.xj.core.model.entity.Entity;
 
 import org.json.JSONObject;
 

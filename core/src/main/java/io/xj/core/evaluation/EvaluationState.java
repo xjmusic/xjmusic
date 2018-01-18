@@ -10,6 +10,7 @@ import java.util.Objects;
 
 /**
  [#154234716] Architect wants evaluation of library contents, to modularize graph mathematics used during craft, and provide the Artist with useful insight for developing the library.
+ [#154350346] Architect wants a universal Evaluation Factory, to modularize graph mathematics used during craft to evaluate any combination of Library, Pattern, and Instrument for any purpose.
  */
 public enum EvaluationState {
   Done;

@@ -31,7 +31,7 @@ public class AccessTest extends Mockito {
 
   @Test
   public void matchRoles() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User,Artist"
     ));
 
@@ -43,7 +43,7 @@ public class AccessTest extends Mockito {
 
   @Test
   public void getUserId() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "userId", "2"
     ));
 
@@ -52,7 +52,7 @@ public class AccessTest extends Mockito {
 
   @Test
   public void fromContext() throws Exception {
-    Access expectAccess = Access.from(ImmutableMap.of(
+    Access expectAccess = new Access(ImmutableMap.of(
       "userId", "2"
     ));
     when(crc.getProperty(Access.CONTEXT_KEY))
@@ -65,7 +65,7 @@ public class AccessTest extends Mockito {
 
   @Test
   public void toJSON() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "userId", "2",
       "roles", "User,Artist",
       "accounts", "1"
@@ -76,7 +76,7 @@ public class AccessTest extends Mockito {
 
   @Test
   public void getAccounts() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "accounts", "1,3,7"
     ));
 
@@ -85,7 +85,7 @@ public class AccessTest extends Mockito {
 
   @Test
   public void isAdmin() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User,Admin"
     ));
 
@@ -94,7 +94,7 @@ public class AccessTest extends Mockito {
 
   @Test
   public void isAdmin_Not() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User,Artist"
     ));
 
@@ -129,7 +129,7 @@ public class AccessTest extends Mockito {
 
   @Test
   public void valid() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "userAuthId", "1",
       "userId", "1",
       "roles", "User,Artist",
@@ -141,7 +141,7 @@ public class AccessTest extends Mockito {
 
   @Test
   public void valid_not() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "userAuthId", "1",
       "userId", "1",
       "accounts", "101"

@@ -37,10 +37,10 @@ public class AccessTokenAuthFilterImpl implements AccessTokenAuthFilter {
   private final String accessTokenName = Config.accessTokenName();
 
   /**
-   * This field is assigned internally by ContainerRequestFilter
+   This field is assigned internally by ContainerRequestFilter
    */
   @Context
-  private ResourceInfo resourceInfo;
+  private ResourceInfo resourceInfo; // NOTE This field is assigned internally by ContainerRequestFilter
 
   @Override
   public void filter(ContainerRequestContext requestContext) throws IOException {
@@ -77,21 +77,24 @@ public class AccessTokenAuthFilterImpl implements AccessTokenAuthFilter {
       return "no access permitted";
     }
 
-    // permit-all is exactly that (but overridden by deny-all)
-    if (Objects.nonNull(aPermitAll)) {
-      return null; // allowed
-    }
-
     // roles required from here on
-    if (Objects.isNull(aRolesAllowed)) {
+    if (Objects.isNull(aPermitAll) && Objects.isNull(aRolesAllowed)) {
       return "resource allows no roles";
     }
 
     // get AccessControl from (required from here on) access token
     Map<String, Cookie> cookies = context.getCookies();
-    Cookie accessTokenCookie = cookies.get(accessTokenName);
-    if (Objects.isNull(accessTokenCookie)) {
+    Cookie accessTokenCookie = cookies.getOrDefault(accessTokenName, null);
+    if (Objects.isNull(aPermitAll) && Objects.isNull(accessTokenCookie)) {
       return "token-less access";
+    }
+
+    // permit-all is exactly that (but overridden by deny-all)
+    // BUT if an access token was provided, we're going to treat this as a user auth
+    // Required, for example, to implement an idempotent /logout endpoint that redirects somewhere, never returning a 401, whether or not the user is auth'd
+    // [#153110625] Logout, expect redirect to logged-out home view
+    if (Objects.nonNull(aPermitAll) && Objects.isNull(accessTokenCookie)) {
+      return null; // allowed
     }
 
     Access access;
@@ -99,11 +102,19 @@ public class AccessTokenAuthFilterImpl implements AccessTokenAuthFilter {
       access = accessControlProvider.get(accessTokenCookie.getValue());
     } catch (Exception e) {
       log.warn("Could not retrieve access token {}", accessTokenCookie.getValue(), e);
-      return "cannot get access token";
+      if (Objects.nonNull(aPermitAll)) {
+        return null; // allowed to supply bad access token for a permit-all route
+      } else {
+        return "cannot get access token";
+      }
     }
 
     if (!access.isValid()) {
-      return "invalid access_token";
+      if (Objects.nonNull(aPermitAll)) {
+        return null; // allowed to have invalid access for a permit-all route
+      } else {
+        return "invalid access token";
+      }
     }
 
     if (!access.isTopLevel() && !access.isAllowed(aRolesAllowed.value())) {
@@ -111,7 +122,7 @@ public class AccessTokenAuthFilterImpl implements AccessTokenAuthFilter {
     }
 
     // setContent AccessControl in context for use by resource
-    context.setProperty(Access.CONTEXT_KEY, access);
+    access.toContext(context);
     return null; // authenticated
   }
 

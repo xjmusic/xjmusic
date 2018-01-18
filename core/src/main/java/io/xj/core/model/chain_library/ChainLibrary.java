@@ -2,7 +2,7 @@
 package io.xj.core.model.chain_library;
 
 import io.xj.core.exception.BusinessException;
-import io.xj.core.model.Entity;
+import io.xj.core.model.entity.Entity;
 
 import java.math.BigInteger;
 
@@ -44,6 +44,11 @@ public class ChainLibrary extends Entity {
   public ChainLibrary setLibraryId(BigInteger libraryId) {
     this.libraryId = libraryId;
     return this;
+  }
+
+  @Override
+  public BigInteger getParentId() {
+    return chainId;
   }
 
   @Override

@@ -78,7 +78,7 @@ public class ArrangementIT {
 
   @Test
   public void create() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
     Arrangement inputData = new Arrangement()
@@ -96,7 +96,7 @@ public class ArrangementIT {
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutTopLevelAccess() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User"
     ));
     Arrangement inputData = new Arrangement()
@@ -109,7 +109,7 @@ public class ArrangementIT {
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutChoiceID() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
     Arrangement inputData = new Arrangement()
@@ -121,7 +121,7 @@ public class ArrangementIT {
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutVoiceID() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
     Arrangement inputData = new Arrangement()
@@ -133,7 +133,7 @@ public class ArrangementIT {
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutInstrumentID() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
     Arrangement inputData = new Arrangement()
@@ -145,7 +145,7 @@ public class ArrangementIT {
 
   @Test
   public void readOne_asSetToModel() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User",
       "accounts", "1"
     ));
@@ -160,7 +160,7 @@ public class ArrangementIT {
 
   @Test
   public void readOne_FailsWhenUserIsNotInChoice() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User",
       "accounts", "326"
     ));
@@ -172,7 +172,7 @@ public class ArrangementIT {
 
   @Test
   public void readAll() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User",
       "accounts", "1"
     ));
@@ -188,7 +188,7 @@ public class ArrangementIT {
 
   @Test
   public void readAll_SeesNothingOutsideOfChoice() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User",
       "accounts", "345"
     ));
@@ -214,7 +214,7 @@ public class ArrangementIT {
     IntegrationTestEntity.insertArrangement(302, 202, 8, 9);
     IntegrationTestEntity.insertArrangement(303, 203, 8, 9);
 
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
 
@@ -239,7 +239,7 @@ public class ArrangementIT {
     IntegrationTestEntity.insertArrangement(302, 202, 8, 9);
     IntegrationTestEntity.insertArrangement(303, 203, 8, 9);
 
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User",
       "accounts", "1"
     ));
@@ -266,7 +266,7 @@ public class ArrangementIT {
     IntegrationTestEntity.insertLink(7003, 7903, 3, LinkState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:50.000001"), Timestamp.valueOf("2017-02-14 12:02:00.000001"), "D major", 64, 0.73, 120, "chain-1-link-97898asdf7892.wav");
     IntegrationTestEntity.insertChoice(8003, 7003, 1, PatternType.Macro, 2, -5);
     IntegrationTestEntity.insertArrangement(9003, 8003, 8, 9);
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User",
       "accounts", "1"
     ));
@@ -279,7 +279,7 @@ public class ArrangementIT {
 
   @Test
   public void update() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
     Arrangement inputData = new Arrangement()
@@ -298,7 +298,7 @@ public class ArrangementIT {
 
   @Test(expected = BusinessException.class)
   public void update_FailsWithoutChoiceID() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
     Arrangement inputData = new Arrangement()
@@ -310,7 +310,7 @@ public class ArrangementIT {
 
   @Test(expected = BusinessException.class)
   public void update_FailsToChangeChoice() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
     Arrangement inputData = new Arrangement()
@@ -331,7 +331,7 @@ public class ArrangementIT {
 
   @Test
   public void delete() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
 

@@ -2,7 +2,7 @@
 package io.xj.core.model.work;
 
 import io.xj.core.exception.BusinessException;
-import io.xj.core.model.Entity;
+import io.xj.core.model.entity.Entity;
 
 import java.math.BigInteger;
 
@@ -39,6 +39,11 @@ public class Work extends Entity {
   public Work setType(WorkType value) {
     type = value;
     return this;
+  }
+
+  @Override
+  public BigInteger getParentId() {
+    return targetId;
   }
 
   @Override

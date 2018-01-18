@@ -6,10 +6,11 @@ import io.xj.core.model.meme.Meme;
 import io.xj.core.util.Text;
 
 import java.math.BigInteger;
+import java.util.Objects;
 
 /**
  POJO for persisting data in memory while performing business logic,
-or decoding messages received by JAX-RS resources.
+ or decoding messages received by JAX-RS resources.
  a.k.a. JSON input will be stored into an instance of this object
  <p>
  Business logic ought to be performed beginning with an instance of this object,
@@ -36,18 +37,19 @@ public class InstrumentMeme extends Meme {
     return this;
   }
 
-  public String getName() {
-    return name;
-  }
-
   public InstrumentMeme setName(String name) {
     this.name = Text.toProperSlug(name);
     return this;
   }
 
   @Override
+  public BigInteger getParentId() {
+    return instrumentId;
+  }
+
+  @Override
   public void validate() throws BusinessException {
-    if (this.instrumentId == null) {
+    if (Objects.isNull(instrumentId)) {
       throw new BusinessException("Instrument ID is required.");
     }
     super.validate();

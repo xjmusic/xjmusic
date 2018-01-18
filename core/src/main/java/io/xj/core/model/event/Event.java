@@ -2,7 +2,7 @@
 package io.xj.core.model.event;
 
 import io.xj.core.exception.BusinessException;
-import io.xj.core.model.Entity;
+import io.xj.core.model.entity.Entity;
 
 /**
  POJO for persisting data in memory while performing business logic,
@@ -14,7 +14,7 @@ or decoding messages received by JAX-RS resources.
  <p>
  NOTE: There can only be ONE of any getter/setter (with the same # of input params)
  */
-public class Event extends Entity {
+public abstract class Event extends Entity {
   public static final String KEY_ONE = "event";
   public static final String KEY_MANY = "events";
   protected Double duration;

@@ -76,7 +76,7 @@ public class ChoiceIT {
 
   @Test
   public void create() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
     Choice inputData = new Choice()
@@ -98,7 +98,7 @@ public class ChoiceIT {
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutTopLevelAccess() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User"
     ));
     Choice inputData = new Choice()
@@ -113,7 +113,7 @@ public class ChoiceIT {
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutLinkID() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
     Choice inputData = new Choice()
@@ -127,7 +127,7 @@ public class ChoiceIT {
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithInvalidType() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
     Choice inputData = new Choice()
@@ -142,7 +142,7 @@ public class ChoiceIT {
 
   @Test
   public void readOne() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User",
       "accounts", "1"
     ));
@@ -173,7 +173,7 @@ public class ChoiceIT {
 
   @Test
   public void readOne_FailsWhenUserIsNotInLink() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User",
       "accounts", "326"
     ));
@@ -205,7 +205,7 @@ public class ChoiceIT {
 
   @Test
   public void readAll() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User",
       "accounts", "1"
     ));
@@ -227,7 +227,7 @@ public class ChoiceIT {
 
   @Test
   public void readAll_SeesNothingOutsideOfLink() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User",
       "accounts", "345"
     ));
@@ -254,7 +254,7 @@ public class ChoiceIT {
 
   @Test
   public void readAllInLinks_okIfUserInAccount() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User",
       "accounts", "1"
     ));
@@ -266,7 +266,7 @@ public class ChoiceIT {
 
   @Test
   public void readAllInLinks_failsIfUserNotInAccount() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User",
       "accounts", "73"
     ));
@@ -279,7 +279,7 @@ public class ChoiceIT {
 
   @Test
   public void update() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
     Choice inputData = new Choice()
@@ -302,7 +302,7 @@ public class ChoiceIT {
 
   @Test(expected = BusinessException.class)
   public void update_FailsWithoutLinkID() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
     Choice inputData = new Choice()
@@ -316,7 +316,7 @@ public class ChoiceIT {
 
   @Test(expected = BusinessException.class)
   public void update_FailsWithoutType() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
     Choice inputData = new Choice()
@@ -330,7 +330,7 @@ public class ChoiceIT {
 
   @Test(expected = BusinessException.class)
   public void update_FailsToChangeLink() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
     Choice inputData = new Choice()
@@ -353,7 +353,7 @@ public class ChoiceIT {
 
   @Test
   public void delete() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
 
@@ -365,7 +365,7 @@ public class ChoiceIT {
 
   @Test(expected = BusinessException.class)
   public void delete_FailsIfChoiceHasChilds() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
     IntegrationTestEntity.insertPhase(1, 1, PhaseType.Main, 0, 16, "Ants", 0.583, "D minor", 120.0);

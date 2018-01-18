@@ -2,7 +2,7 @@
 package io.xj.core.model.pick;
 
 import io.xj.core.exception.BusinessException;
-import io.xj.core.model.Entity;
+import io.xj.core.model.entity.Entity;
 
 import javax.annotation.Nullable;
 import java.math.BigInteger;
@@ -101,6 +101,11 @@ public class Pick extends Entity {
   public Pick setPitch(Double pitch) {
     this.pitch = pitch;
     return this;
+  }
+
+  @Override
+  public BigInteger getParentId() {
+    return arrangementId;
   }
 
   @Override

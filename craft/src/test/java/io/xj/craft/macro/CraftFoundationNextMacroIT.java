@@ -20,8 +20,8 @@ import io.xj.core.model.link_meme.LinkMeme;
 import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.testing.Testing;
-import io.xj.core.work.basis.Basis;
-import io.xj.core.work.basis.BasisFactory;
+import io.xj.core.basis.Basis;
+import io.xj.core.basis.BasisFactory;
 import io.xj.craft.CraftModule;
 
 

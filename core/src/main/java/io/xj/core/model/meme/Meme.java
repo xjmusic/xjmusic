@@ -2,13 +2,15 @@
 package io.xj.core.model.meme;
 
 import io.xj.core.exception.BusinessException;
-import io.xj.core.model.Entity;
+import io.xj.core.model.entity.Entity;
+
+import java.math.BigInteger;
 
 /**
  This represents common properties of all memes,
  although a Meme only actually exists as a Link Meme, Pattern Meme, etc.
  */
-public class Meme extends Entity {
+public abstract class Meme extends Entity {
   public static final String KEY_ONE = "meme";
   public static final String KEY_MANY = "memes";
 

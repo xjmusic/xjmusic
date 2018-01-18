@@ -3,6 +3,8 @@ package io.xj.core.model.platform_message;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.model.message.Message;
 
+import java.math.BigInteger;
+
 /**
  POJO for persisting data in memory while performing business logic,
 or decoding messages received by JAX-RS resources.
@@ -22,6 +24,11 @@ public class PlatformMessage extends Message {
 
   private static final int BODY_LENGTH_LIMIT = 65535;
   private static final String BODY_TRUNCATE_SUFFIX = " (truncated to fit character limit)";
+
+  @Override
+  public BigInteger getParentId() {
+    return new BigInteger(""); // no parent
+  }
 
   @Override
   public void validate() throws BusinessException {

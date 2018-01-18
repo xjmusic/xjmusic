@@ -1,9 +1,11 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.isometry;
 
+import io.xj.core.model.event.Event;
+import io.xj.core.model.phase_event.PhaseEvent;
+
 import com.google.common.collect.Lists;
 
-import io.xj.core.model.event.Event;
 import me.xdrop.fuzzywuzzy.FuzzySearch;
 import org.apache.commons.codec.language.DoubleMetaphone;
 
@@ -54,7 +56,7 @@ public class EventIsometry {
 
     // use Event as a generic event-- we could use any extender of Event
     sourceEventRecords.forEach(record -> sourceEvents.add(
-      new Event().setInflection(String.valueOf(record.getInflection()))
+      new PhaseEvent().setInflection(String.valueOf(record.getInflection()))
     ));
 
     return new EventIsometry(sourceEvents);
@@ -71,7 +73,7 @@ public class EventIsometry {
 
     // use Event as a generic event-- we could use any extender of Event
     stringEventMap.forEach((key, record) -> sourceEvents.add(
-      new Event().setInflection(record.getInflection())
+      new PhaseEvent().setInflection(record.getInflection())
     ));
 
     return new EventIsometry(sourceEvents);

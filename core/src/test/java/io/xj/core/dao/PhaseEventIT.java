@@ -74,7 +74,7 @@ public class PhaseEventIT {
 
   @Test
   public void create() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -103,7 +103,7 @@ public class PhaseEventIT {
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutVoiceID() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -120,7 +120,7 @@ public class PhaseEventIT {
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutNote() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -137,7 +137,7 @@ public class PhaseEventIT {
 
   @Test
   public void readOne() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -157,7 +157,7 @@ public class PhaseEventIT {
 
   @Test
   public void readOne_FailsWhenUserIsNotInAccount() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "326"
     ));
@@ -169,7 +169,7 @@ public class PhaseEventIT {
 
   @Test
   public void readAll() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -190,7 +190,7 @@ public class PhaseEventIT {
 
   @Test
   public void readAll_SeesNothingOutsideOfLibrary() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "345"
     ));
@@ -203,7 +203,7 @@ public class PhaseEventIT {
 
   @Test(expected = BusinessException.class)
   public void update_FailsWithoutVoiceID() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -221,7 +221,7 @@ public class PhaseEventIT {
 
   @Test(expected = BusinessException.class)
   public void update_FailsWithoutPhaseID() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -239,7 +239,7 @@ public class PhaseEventIT {
 
   @Test(expected = BusinessException.class)
   public void update_FailsWithoutNote() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -256,7 +256,7 @@ public class PhaseEventIT {
 
   @Test(expected = BusinessException.class)
   public void update_FailsUpdatingToNonexistentVoice() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -284,7 +284,7 @@ public class PhaseEventIT {
 
   @Test(expected = BusinessException.class)
   public void update_FailsUpdatingToNonexistentPhase() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -312,7 +312,7 @@ public class PhaseEventIT {
 
   @Test
   public void update() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -343,7 +343,7 @@ public class PhaseEventIT {
 
   @Test
   public void delete() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -356,7 +356,7 @@ public class PhaseEventIT {
 
   @Test(expected = BusinessException.class)
   public void delete_failsIfNotInAccount() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "2"
     ));

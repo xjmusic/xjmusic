@@ -71,7 +71,7 @@ public class PlatformMessageIT {
 
   @Test
   public void create_asEngineer() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User,Engineer",
       "accounts", "1"
     ));
@@ -87,7 +87,7 @@ public class PlatformMessageIT {
 
   @Test
   public void create_failsIfNotEngineer() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User,Artist",
       "accounts", "1"
     ));
@@ -147,7 +147,7 @@ public class PlatformMessageIT {
 
   @Test
   public void delete_failsIfNotTopLevelAccess() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User",
       "accounts", "1"
     ));

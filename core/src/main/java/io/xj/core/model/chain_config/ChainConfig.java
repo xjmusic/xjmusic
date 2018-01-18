@@ -2,7 +2,7 @@
 package io.xj.core.model.chain_config;
 
 import io.xj.core.exception.BusinessException;
-import io.xj.core.model.Entity;
+import io.xj.core.model.entity.Entity;
 import io.xj.core.util.Text;
 
 import java.math.BigInteger;
@@ -62,6 +62,11 @@ public class ChainConfig extends Entity {
   public ChainConfig setValue(String value) {
     this.value = value;
     return this;
+  }
+
+  @Override
+  public BigInteger getParentId() {
+    return chainId;
   }
 
   @Override

@@ -17,8 +17,8 @@ import io.xj.core.model.link.Link;
 import io.xj.core.model.link.LinkState;
 import io.xj.core.model.phase.PhaseType;
 import io.xj.core.model.user_role.UserRoleType;
-import io.xj.core.work.basis.Basis;
-import io.xj.core.work.basis.BasisFactory;
+import io.xj.core.basis.Basis;
+import io.xj.core.basis.BasisFactory;
 import io.xj.craft.CraftFactory;
 import io.xj.craft.CraftModule;
 

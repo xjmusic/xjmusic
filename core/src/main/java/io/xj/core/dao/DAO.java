@@ -2,7 +2,7 @@
 package io.xj.core.dao;
 
 import io.xj.core.access.impl.Access;
-import io.xj.core.model.Entity;
+import io.xj.core.model.entity.Entity;
 
 import javax.annotation.Nullable;
 import java.math.BigInteger;

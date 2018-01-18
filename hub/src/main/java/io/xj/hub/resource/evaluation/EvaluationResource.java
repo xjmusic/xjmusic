@@ -3,10 +3,11 @@ package io.xj.hub.resource.evaluation;
 
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
-import io.xj.core.evaluation.Digest;
-import io.xj.core.evaluation.DigestFactory;
-import io.xj.core.evaluation.DigestType;
-import io.xj.core.evaluation.EvaluationFactory;
+import io.xj.core.cache.digest.DigestCacheProvider;
+import io.xj.core.cache.evaluation.EvaluationCacheProvider;
+import io.xj.core.evaluation.digest.Digest;
+import io.xj.core.evaluation.digest.DigestFactory;
+import io.xj.core.evaluation.digest.DigestType;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.model.library.Library;
 import io.xj.core.model.user_role.UserRoleType;
@@ -36,8 +37,8 @@ import java.util.Objects;
 public class EvaluationResource {
   private static final Injector injector = Guice.createInjector(new CoreModule());
   private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
-  private final EvaluationFactory evaluation = injector.getInstance(EvaluationFactory.class);
-  private final DigestFactory digest = injector.getInstance(DigestFactory.class);
+  private final EvaluationCacheProvider evaluationProvider = injector.getInstance(EvaluationCacheProvider.class);
+  private final DigestCacheProvider digestProvider = injector.getInstance(DigestCacheProvider.class);
 
   @QueryParam("libraryId")
   String libraryIdString;
@@ -99,11 +100,14 @@ public class EvaluationResource {
   private Digest evaluate(Access access, DigestType type, BigInteger targetId) throws Exception {
     switch (type) {
 
+      case DigestHash:
+        return digestProvider.hashOf(evaluationProvider.evaluate(access, ImmutableList.of(new Library(targetId))));
+
       case DigestMemes:
-        return digest.memesOf(evaluation.of(access, ImmutableList.of(new Library(targetId))));
+        return digestProvider.memesOf(evaluationProvider.evaluate(access, ImmutableList.of(new Library(targetId))));
 
       case DigestChords:
-        return digest.chordsOf(evaluation.of(access, ImmutableList.of(new Library(targetId))));
+        return digestProvider.chordsOf(evaluationProvider.evaluate(access, ImmutableList.of(new Library(targetId))));
 
       default:
         throw new BusinessException(String.format("Invalid type: %s", type));

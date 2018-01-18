@@ -29,6 +29,11 @@ public class LinkMessage extends Message {
   protected BigInteger linkId;
 
   @Override
+  public BigInteger getParentId() {
+    return linkId;
+  }
+
+  @Override
   public void validate() throws BusinessException {
     super.validate();
     if (Objects.isNull(linkId)) {

@@ -2,7 +2,7 @@
 package io.xj.core.model.point;
 
 import io.xj.core.exception.BusinessException;
-import io.xj.core.model.Entity;
+import io.xj.core.model.entity.Entity;
 import io.xj.core.util.Text;
 
 import java.math.BigInteger;
@@ -82,6 +82,11 @@ public class Point extends Entity {
   public Point setNote(String note) {
     this.note = Text.toNote(note);
     return this;
+  }
+
+  @Override
+  public BigInteger getParentId() {
+    return morphId;
   }
 
   @Override

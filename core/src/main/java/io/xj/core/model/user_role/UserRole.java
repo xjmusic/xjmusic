@@ -2,7 +2,7 @@
 package io.xj.core.model.user_role;
 
 import io.xj.core.exception.BusinessException;
-import io.xj.core.model.Entity;
+import io.xj.core.model.entity.Entity;
 
 import java.math.BigInteger;
 import java.util.Objects;
@@ -21,6 +21,11 @@ public class UserRole extends Entity {
   private String _type; // to hold value before validation
 
   @Override
+  public BigInteger getParentId() {
+    return userId;
+  }
+
+  @Override
   public void validate() throws BusinessException {
     // throws its own BusinessException on failure
     type = UserRoleType.validate(_type);
@@ -34,12 +39,12 @@ public class UserRole extends Entity {
     this.type = type;
   }
 
-  public void setType(String value) {
-    _type = value;
-  }
-
   public UserRoleType getType() {
     return type;
+  }
+
+  public void setType(String value) {
+    _type = value;
   }
 
   public BigInteger getUserId() {

@@ -74,7 +74,7 @@ public class VoiceIT {
 
   @Test
   public void create() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -93,7 +93,7 @@ public class VoiceIT {
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutPatternID() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -106,7 +106,7 @@ public class VoiceIT {
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutType() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -119,7 +119,7 @@ public class VoiceIT {
 
   @Test
   public void readOne() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -135,7 +135,7 @@ public class VoiceIT {
 
   @Test
   public void readOne_FailsWhenUserIsNotInAccount() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "326"
     ));
@@ -147,7 +147,7 @@ public class VoiceIT {
 
   @Test
   public void readAll() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -168,7 +168,7 @@ public class VoiceIT {
 
   @Test
   public void readAll_SeesNothingOutsideOfLibrary() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "345"
     ));
@@ -181,7 +181,7 @@ public class VoiceIT {
 
   @Test(expected = BusinessException.class)
   public void update_FailsWithoutPhaseID() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -194,7 +194,7 @@ public class VoiceIT {
 
   @Test(expected = BusinessException.class)
   public void update_FailsWithoutType() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -207,7 +207,7 @@ public class VoiceIT {
 
   @Test(expected = BusinessException.class)
   public void update_FailsUpdatingToNonexistentPhase() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -231,7 +231,7 @@ public class VoiceIT {
 
   @Test
   public void update() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -253,7 +253,7 @@ public class VoiceIT {
 
   @Test
   public void delete() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -275,7 +275,7 @@ public class VoiceIT {
     IntegrationTestEntity.insertLink(1, 1, 0, LinkState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120, "chain-1-link-97898asdf7892.wav");
     IntegrationTestEntity.insertChoice(7, 1, 1, PatternType.Macro, 2, -5);
     IntegrationTestEntity.insertArrangement(1, 7, 1, 9);
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -288,7 +288,7 @@ public class VoiceIT {
 
   @Test(expected = BusinessException.class)
   public void delete_failsIfNotInAccount() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "2"
     ));
@@ -298,7 +298,7 @@ public class VoiceIT {
 
   @Test
   public void delete_SuccessEvenIfPatternHasChildren_andWasUsedInProduction() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "userId", "2",
       "roles", "Artist",
       "accounts", "1"

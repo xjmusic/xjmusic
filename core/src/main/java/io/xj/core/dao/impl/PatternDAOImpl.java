@@ -24,7 +24,6 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
 
-import static io.xj.core.Tables.CHAIN_LIBRARY;
 import static io.xj.core.Tables.CHOICE;
 import static io.xj.core.Tables.LIBRARY;
 import static io.xj.core.Tables.PATTERN;
@@ -187,36 +186,16 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
   /**
    Read all pattern records bound to a Chain via ChainPattern records
 
-   @param db          context
-   @param access      control
-   @param chainId     of parent
-   @param patternType of which to read all bound to chain
+   @param db      context
+   @param access  control
+   @param chainId of parent
    @return array of records
    */
-  private static Collection<Pattern> readAllBoundToChain(DSLContext db, Access access, ULong chainId, PatternType patternType) throws Exception {
+  private static Collection<Pattern> readAllBoundToChain(DSLContext db, Access access, ULong chainId) throws Exception {
     requireTopLevel(access);
     return modelsFrom(db.select(PATTERN.fields()).from(PATTERN)
       .join(CHAIN_PATTERN).on(CHAIN_PATTERN.PATTERN_ID.eq(PATTERN.ID))
       .where(CHAIN_PATTERN.CHAIN_ID.eq(chainId))
-      .and(PATTERN.TYPE.eq(patternType.toString()))
-      .fetch(), Pattern.class);
-  }
-
-  /**
-   Read all pattern records bound to a Chain via ChainLibrary records
-
-   @param db          context
-   @param access      control
-   @param chainId     of parent
-   @param patternType of which to read all bound to chain library
-   @return array of records
-   */
-  private static Collection<Pattern> readAllBoundToChainLibrary(DSLContext db, Access access, ULong chainId, PatternType patternType) throws Exception {
-    requireTopLevel(access);
-    return modelsFrom(db.select(PATTERN.fields()).from(PATTERN)
-      .join(CHAIN_LIBRARY).on(CHAIN_LIBRARY.LIBRARY_ID.eq(PATTERN.LIBRARY_ID))
-      .where(CHAIN_LIBRARY.CHAIN_ID.eq(chainId))
-      .and(PATTERN.TYPE.eq(patternType.toString()))
       .fetch(), Pattern.class);
   }
 
@@ -350,20 +329,10 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
   }
 
   @Override
-  public Collection<Pattern> readAllBoundToChain(Access access, BigInteger chainId, PatternType patternType) throws Exception {
+  public Collection<Pattern> readAllBoundToChain(Access access, BigInteger chainId) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readAllBoundToChain(tx.getContext(), access, ULong.valueOf(chainId), patternType));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public Collection<Pattern> readAllBoundToChainLibrary(Access access, BigInteger chainId, PatternType patternType) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readAllBoundToChainLibrary(tx.getContext(), access, ULong.valueOf(chainId), patternType));
+      return tx.success(readAllBoundToChain(tx.getContext(), access, ULong.valueOf(chainId)));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -400,10 +369,10 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
   }
 
   @Override
-  public void update(Access access, BigInteger patternId, Pattern entity) throws Exception {
+  public void update(Access access, BigInteger id, Pattern entity) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      update(tx.getContext(), access, ULong.valueOf(patternId), entity);
+      update(tx.getContext(), access, ULong.valueOf(id), entity);
       tx.success();
     } catch (Exception e) {
       throw tx.failure(e);

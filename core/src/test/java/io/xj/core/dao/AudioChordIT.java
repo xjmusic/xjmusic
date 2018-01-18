@@ -70,7 +70,7 @@ public class AudioChordIT {
 
   @Test
   public void create() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -89,7 +89,7 @@ public class AudioChordIT {
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutAudioID() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -102,7 +102,7 @@ public class AudioChordIT {
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutName() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -115,7 +115,7 @@ public class AudioChordIT {
 
   @Test
   public void readOne() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -130,7 +130,7 @@ public class AudioChordIT {
 
   @Test
   public void readOne_FailsWhenUserIsNotInAccount() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "326"
     ));
@@ -142,7 +142,7 @@ public class AudioChordIT {
 
   @Test
   public void readAll() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -159,7 +159,7 @@ public class AudioChordIT {
 
   @Test
   public void readAll_SeesNothingOutsideOfLibrary() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "345"
     ));
@@ -172,7 +172,7 @@ public class AudioChordIT {
 
   @Test(expected = BusinessException.class)
   public void update_FailsWithoutAudioID() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -185,7 +185,7 @@ public class AudioChordIT {
 
   @Test(expected = BusinessException.class)
   public void update_FailsWithoutName() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -198,7 +198,7 @@ public class AudioChordIT {
 
   @Test(expected = BusinessException.class)
   public void update_FailsUpdatingToNonexistentAudio() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -221,7 +221,7 @@ public class AudioChordIT {
 
   @Test
   public void update() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -243,7 +243,7 @@ public class AudioChordIT {
 
   @Test
   public void delete() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -256,7 +256,7 @@ public class AudioChordIT {
 
   @Test(expected = BusinessException.class)
   public void delete_failsIfNotInAccount() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "2"
     ));

@@ -9,8 +9,15 @@ import io.xj.core.access.impl.AccessLogFilterProviderImpl;
 import io.xj.core.access.impl.AccessTokenAuthFilterImpl;
 import io.xj.core.app.App;
 import io.xj.core.app.AppImpl;
+import io.xj.core.basis.Basis;
+import io.xj.core.basis.BasisFactory;
+import io.xj.core.basis.impl.BasisImpl;
 import io.xj.core.cache.audio.AudioCacheProvider;
 import io.xj.core.cache.audio.impl.AudioCacheProviderImpl;
+import io.xj.core.cache.digest.DigestCacheProvider;
+import io.xj.core.cache.digest.impl.DigestCacheProviderImpl;
+import io.xj.core.cache.entity.EntityCacheProvider;
+import io.xj.core.cache.entity.impl.EntityCacheProviderImpl;
 import io.xj.core.cache.evaluation.EvaluationCacheProvider;
 import io.xj.core.cache.evaluation.impl.EvaluationCacheProviderImpl;
 import io.xj.core.dao.AccountDAO;
@@ -69,13 +76,15 @@ import io.xj.core.dao.impl.PhaseMemeDAOImpl;
 import io.xj.core.dao.impl.PlatformMessageDAOImpl;
 import io.xj.core.dao.impl.UserDAOImpl;
 import io.xj.core.dao.impl.VoiceDAOImpl;
-import io.xj.core.evaluation.DigestFactory;
 import io.xj.core.evaluation.Evaluation;
 import io.xj.core.evaluation.EvaluationFactory;
-import io.xj.core.evaluation.digest_chords.DigestChords;
-import io.xj.core.evaluation.digest_chords.impl.DigestChordsImpl;
-import io.xj.core.evaluation.digest_memes.DigestMemes;
-import io.xj.core.evaluation.digest_memes.impl.DigestMemesImpl;
+import io.xj.core.evaluation.digest.DigestFactory;
+import io.xj.core.evaluation.digest.chords.DigestChords;
+import io.xj.core.evaluation.digest.chords.impl.DigestChordsImpl;
+import io.xj.core.evaluation.digest.hash.DigestHash;
+import io.xj.core.evaluation.digest.hash.impl.DigestHashImpl;
+import io.xj.core.evaluation.digest.memes.DigestMemes;
+import io.xj.core.evaluation.digest.memes.impl.DigestMemesImpl;
 import io.xj.core.evaluation.impl.EvaluationImpl;
 import io.xj.core.external.amazon.AmazonProvider;
 import io.xj.core.external.amazon.AmazonProviderImpl;
@@ -98,9 +107,6 @@ import io.xj.core.transport.impl.HttpServerProviderImpl;
 import io.xj.core.transport.impl.ResourceConfigProviderImpl;
 import io.xj.core.transport.impl.StatsProviderImpl;
 import io.xj.core.work.WorkManager;
-import io.xj.core.work.basis.Basis;
-import io.xj.core.work.basis.BasisFactory;
-import io.xj.core.work.basis.impl.BasisImpl;
 import io.xj.core.work.impl.WorkManagerImpl;
 import io.xj.mixer.MixerModule;
 
@@ -130,6 +136,7 @@ public class CoreModule extends AbstractModule {
     bind(App.class).to(AppImpl.class);
     bind(AudioCacheProvider.class).to(AudioCacheProviderImpl.class);
     bind(DataStoreFactory.class).to(MemoryDataStoreFactory.class);
+    bind(EntityCacheProvider.class).to(EntityCacheProviderImpl.class);
     bind(HttpResponseProvider.class).to(HttpResponseProviderImpl.class);
     bind(HttpServerProvider.class).to(HttpServerProviderImpl.class);
     bind(HttpTransport.class).to(NetHttpTransport.class);
@@ -188,11 +195,13 @@ public class CoreModule extends AbstractModule {
 
   private void cfgEvaluation() {
     bind(EvaluationCacheProvider.class).to(EvaluationCacheProviderImpl.class);
+    bind(DigestCacheProvider.class).to(DigestCacheProviderImpl.class);
     install(new FactoryModuleBuilder()
       .implement(Evaluation.class, EvaluationImpl.class)
       .build(EvaluationFactory.class));
     install(new FactoryModuleBuilder()
       .implement(DigestChords.class, DigestChordsImpl.class)
+      .implement(DigestHash.class, DigestHashImpl.class)
       .implement(DigestMemes.class, DigestMemesImpl.class)
       .build(DigestFactory.class));
   }

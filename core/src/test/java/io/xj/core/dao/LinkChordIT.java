@@ -64,7 +64,7 @@ public class LinkChordIT {
 
   @Test
   public void create() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
     LinkChord inputData = new LinkChord()
@@ -82,7 +82,7 @@ public class LinkChordIT {
 
   @Test(expected = BusinessException.class)
   public void create_failsWithoutTopLevelAccess() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -96,7 +96,7 @@ public class LinkChordIT {
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutLinkID() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
     LinkChord inputData = new LinkChord()
@@ -108,7 +108,7 @@ public class LinkChordIT {
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutName() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
     LinkChord inputData = new LinkChord()
@@ -120,7 +120,7 @@ public class LinkChordIT {
 
   @Test
   public void readOne() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -135,7 +135,7 @@ public class LinkChordIT {
 
   @Test
   public void readOne_FailsWhenUserIsNotInAccount() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "326"
     ));
@@ -147,7 +147,7 @@ public class LinkChordIT {
 
   @Test
   public void readAll() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -164,7 +164,7 @@ public class LinkChordIT {
 
   @Test
   public void readAll_SeesNothingOutsideOfLibrary() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "345"
     ));
@@ -191,7 +191,7 @@ public class LinkChordIT {
 
   @Test
   public void readAllInLinks_okIfUserInAccount() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User",
       "accounts", "1"
     ));
@@ -203,7 +203,7 @@ public class LinkChordIT {
 
   @Test
   public void readAllInLinks_failsIfUserNotInAccount() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User",
       "accounts", "73"
     ));
@@ -216,7 +216,7 @@ public class LinkChordIT {
 
   @Test(expected = BusinessException.class)
   public void update_FailsWithoutLinkID() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -229,7 +229,7 @@ public class LinkChordIT {
 
   @Test(expected = BusinessException.class)
   public void update_FailsWithoutName() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -242,7 +242,7 @@ public class LinkChordIT {
 
   @Test(expected = BusinessException.class)
   public void update_FailsUpdatingToNonexistentLink() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -265,7 +265,7 @@ public class LinkChordIT {
 
   @Test
   public void update() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
     LinkChord inputData = new LinkChord()
@@ -284,7 +284,7 @@ public class LinkChordIT {
 
   @Test(expected = BusinessException.class)
   public void update_FailsWithoutTopLevelAccess() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -300,7 +300,7 @@ public class LinkChordIT {
 
   @Test
   public void delete() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
 
@@ -312,7 +312,7 @@ public class LinkChordIT {
 
   @Test(expected = BusinessException.class)
   public void delete_failsWithoutTopLevelAccess() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));

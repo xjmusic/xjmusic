@@ -1,11 +1,9 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.craft.harmonic.impl;
 
-import io.xj.core.dao.ChoiceDAO;
-import io.xj.core.dao.PatternDAO;
+import io.xj.core.basis.Basis;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.model.pattern.Pattern;
-import io.xj.core.work.basis.Basis;
 import io.xj.craft.harmonic.HarmonicDetailCraft;
 
 import com.google.inject.Inject;
@@ -26,20 +24,14 @@ public class HarmonicDetailCraftImpl implements HarmonicDetailCraft {
   private static final double SCORE_MATCHED_MEMES = 3;
   private final Logger log = LoggerFactory.getLogger(HarmonicDetailCraftImpl.class);
   private final Basis basis;
-  private final ChoiceDAO choiceDAO;
-  private final PatternDAO patternDAO;
   private Pattern _detailPattern;
   private BigInteger _detailPhaseOffset;
 
   @Inject
   public HarmonicDetailCraftImpl(
-    @Assisted("basis") Basis basis,
-    ChoiceDAO choiceDAO,
-    PatternDAO patternDAO
+    @Assisted("basis") Basis basis
   /*-*/) {
     this.basis = basis;
-    this.choiceDAO = choiceDAO;
-    this.patternDAO = patternDAO;
   }
 
   @Override

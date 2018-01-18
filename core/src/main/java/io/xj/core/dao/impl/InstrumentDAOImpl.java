@@ -6,7 +6,6 @@ import io.xj.core.dao.InstrumentDAO;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.exception.ConfigException;
 import io.xj.core.model.instrument.Instrument;
-import io.xj.core.model.instrument.InstrumentType;
 import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import io.xj.core.persistence.sql.impl.SQLConnection;
 import io.xj.core.work.WorkManager;
@@ -30,7 +29,6 @@ import static io.xj.core.Tables.CHAIN_INSTRUMENT;
 import static io.xj.core.Tables.INSTRUMENT;
 import static io.xj.core.Tables.INSTRUMENT_MEME;
 import static io.xj.core.Tables.LIBRARY;
-import static io.xj.core.tables.ChainLibrary.CHAIN_LIBRARY;
 
 public class InstrumentDAOImpl extends DAOImpl implements InstrumentDAO {
   private final WorkManager workManager;
@@ -173,37 +171,16 @@ public class InstrumentDAOImpl extends DAOImpl implements InstrumentDAO {
   /**
    Read all instrument records bound to a Chain via ChainInstrument records
 
-   @param db             context
-   @param access         control
-   @param chainId        of parent
-   @param instrumentType of which to read all bound to chain
+   @param db      context
+   @param access  control
+   @param chainId of parent
    @return array of records
    */
-  private static Collection<Instrument> readAllBoundToChain(DSLContext db, Access access, ULong chainId, InstrumentType
-    instrumentType) throws Exception {
+  private static Collection<Instrument> readAllBoundToChain(DSLContext db, Access access, ULong chainId) throws Exception {
     requireTopLevel(access);
     return modelsFrom(db.select(INSTRUMENT.fields()).from(INSTRUMENT)
       .join(CHAIN_INSTRUMENT).on(CHAIN_INSTRUMENT.INSTRUMENT_ID.eq(INSTRUMENT.ID))
       .where(CHAIN_INSTRUMENT.CHAIN_ID.eq(chainId))
-      .and(INSTRUMENT.TYPE.eq(instrumentType.toString()))
-      .fetch(), Instrument.class);
-  }
-
-  /**
-   Read all instrument records bound to a Chain via ChainLibrary records
-
-   @param db             context
-   @param access         control
-   @param chainId        of parent
-   @param instrumentType of which to read all bound to chain
-   @return array of records
-   */
-  private static Collection<Instrument> readAllBoundToChainLibrary(DSLContext db, Access access, ULong chainId, InstrumentType instrumentType) throws Exception {
-    requireTopLevel(access);
-    return modelsFrom(db.select(INSTRUMENT.fields()).from(INSTRUMENT)
-      .join(CHAIN_LIBRARY).on(CHAIN_LIBRARY.LIBRARY_ID.eq(INSTRUMENT.LIBRARY_ID))
-      .where(CHAIN_LIBRARY.CHAIN_ID.eq(chainId))
-      .and(INSTRUMENT.TYPE.eq(instrumentType.toString()))
       .fetch(), Instrument.class);
   }
 
@@ -354,30 +331,20 @@ public class InstrumentDAOImpl extends DAOImpl implements InstrumentDAO {
   }
 
   @Override
-  public Collection<Instrument> readAllBoundToChain(Access access, BigInteger chainId, InstrumentType instrumentType) throws Exception {
+  public Collection<Instrument> readAllBoundToChain(Access access, BigInteger chainId) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readAllBoundToChain(tx.getContext(), access, ULong.valueOf(chainId), instrumentType));
+      return tx.success(readAllBoundToChain(tx.getContext(), access, ULong.valueOf(chainId)));
     } catch (Exception e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public Collection<Instrument> readAllBoundToChainLibrary(Access access, BigInteger chainId, InstrumentType instrumentType) throws Exception {
+  public void update(Access access, BigInteger id, Instrument entity) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readAllBoundToChainLibrary(tx.getContext(), access, ULong.valueOf(chainId), instrumentType));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public void update(Access access, BigInteger instrumentId, Instrument entity) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      update(tx.getContext(), access, ULong.valueOf(instrumentId), entity);
+      update(tx.getContext(), access, ULong.valueOf(id), entity);
       tx.success();
     } catch (Exception e) {
       throw tx.failure(e);

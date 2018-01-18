@@ -2,7 +2,7 @@
 package io.xj.core.model.chain_pattern;
 
 import io.xj.core.exception.BusinessException;
-import io.xj.core.model.Entity;
+import io.xj.core.model.entity.Entity;
 
 import java.math.BigInteger;
 
@@ -44,6 +44,11 @@ public class ChainPattern extends Entity {
   public ChainPattern setPatternId(BigInteger patternId) {
     this.patternId = patternId;
     return this;
+  }
+
+  @Override
+  public BigInteger getParentId() {
+    return chainId;
   }
 
   @Override

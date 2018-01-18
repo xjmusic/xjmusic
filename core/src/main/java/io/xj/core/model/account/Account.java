@@ -2,16 +2,18 @@
 package io.xj.core.model.account;
 
 import io.xj.core.exception.BusinessException;
-import io.xj.core.model.Entity;
+import io.xj.core.model.entity.Entity;
+
+import java.math.BigInteger;
 
 /**
  POJO for persisting data in memory while performing business logic,
-or decoding messages received by JAX-RS resources.
+ or decoding messages received by JAX-RS resources.
  a.k.a. JSON input will be stored into an instance of this object
-
+ <p>
  Business logic ought to be performed beginning with an instance of this object,
  to implement common methods.
-
+ <p>
  NOTE: There can only be ONE of any getter/setter (with the same # of input params)
  */
 public class Account extends Entity {
@@ -31,6 +33,11 @@ public class Account extends Entity {
   public Account setName(String name) {
     this.name = name;
     return this;
+  }
+
+  @Override
+  public BigInteger getParentId() {
+    return new BigInteger(""); // has no parent!
   }
 
   @Override

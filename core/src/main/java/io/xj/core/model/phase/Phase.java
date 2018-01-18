@@ -2,7 +2,7 @@
 package io.xj.core.model.phase;
 
 import io.xj.core.exception.BusinessException;
-import io.xj.core.model.Entity;
+import io.xj.core.model.entity.Entity;
 
 import java.math.BigInteger;
 import java.util.Objects;
@@ -33,6 +33,16 @@ public class Phase extends Entity {
   private BigInteger offset;
   private Double density;
   private Double tempo;
+
+  public Phase() {}
+
+  public Phase(int id) {
+    this.id = BigInteger.valueOf(id);
+  }
+
+  public Phase(BigInteger id) {
+    this.id = id;
+  }
 
   public String getName() {
     return name;
@@ -109,6 +119,11 @@ public class Phase extends Entity {
   public Phase setTempo(Double tempo) {
     this.tempo = tempo;
     return this;
+  }
+
+  @Override
+  public BigInteger getParentId() {
+    return patternId;
   }
 
   @Override

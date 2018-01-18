@@ -2,7 +2,7 @@
 package io.xj.core.model.instrument;
 
 import io.xj.core.exception.BusinessException;
-import io.xj.core.model.Entity;
+import io.xj.core.model.entity.Entity;
 
 import java.math.BigInteger;
 import java.util.Objects;
@@ -18,10 +18,6 @@ import java.util.Objects;
  NOTE: There can only be ONE of any getter/setter (with the same # of input params)
  */
 public class Instrument extends Entity {
-
-  /**
-   For use in maps.
-   */
   public static final String KEY_ONE = "instrument";
   public static final String KEY_MANY = "instruments";
 
@@ -31,6 +27,17 @@ public class Instrument extends Entity {
   private BigInteger libraryId;
   private BigInteger userId;
   private Double density;
+
+  public Instrument() {}
+
+  public Instrument(int id) {
+    this.id = BigInteger.valueOf(id);
+  }
+
+  public Instrument(BigInteger id) {
+    this.id = id;
+  }
+
 
   public String getDescription() {
     return description;
@@ -79,6 +86,11 @@ public class Instrument extends Entity {
   public Instrument setDensity(Double value) {
     density = value;
     return this;
+  }
+
+  @Override
+  public BigInteger getParentId() {
+    return libraryId;
   }
 
   @Override

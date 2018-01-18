@@ -2,9 +2,10 @@
 package io.xj.core.model.account_user;
 
 import io.xj.core.exception.BusinessException;
-import io.xj.core.model.Entity;
+import io.xj.core.model.entity.Entity;
 
 import java.math.BigInteger;
+import java.util.Objects;
 
 /**
  POJO for persisting data in memory while performing business logic,
@@ -47,11 +48,16 @@ public class AccountUser extends Entity {
   }
 
   @Override
+  public BigInteger getParentId() {
+    return accountId;
+  }
+
+  @Override
   public void validate() throws BusinessException {
-    if (this.accountId == null) {
+    if (Objects.isNull(accountId)) {
       throw new BusinessException("Account ID is required.");
     }
-    if (this.userId == null) {
+    if (Objects.isNull(userId)) {
       throw new BusinessException("User ID is required.");
     }
   }

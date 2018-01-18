@@ -2,7 +2,7 @@
 package io.xj.core.model.choice;
 
 import io.xj.core.exception.BusinessException;
-import io.xj.core.model.Entity;
+import io.xj.core.model.entity.Entity;
 import io.xj.core.model.pattern.PatternType;
 import io.xj.core.transport.CSV;
 
@@ -154,6 +154,11 @@ public class Choice extends Entity {
     Collections.sort(availablePhaseOffsets);
 
     return this;
+  }
+
+  @Override
+  public BigInteger getParentId() {
+    return linkId;
   }
 
   @Override

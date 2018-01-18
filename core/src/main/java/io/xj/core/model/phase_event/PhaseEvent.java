@@ -69,6 +69,11 @@ public class PhaseEvent extends Event {
   }
 
   @Override
+  public BigInteger getParentId() {
+    return phaseId;
+  }
+
+  @Override
   public void validate() throws BusinessException {
     if (null == voiceId) {
       throw new BusinessException("Voice ID is required.");

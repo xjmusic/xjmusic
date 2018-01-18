@@ -84,7 +84,7 @@ public class PhaseMemeIT {
 
   @Test
   public void create() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "userId", "2",
       "roles", "Artist",
       "accounts", "1"
@@ -102,7 +102,7 @@ public class PhaseMemeIT {
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutPhaseID() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -114,7 +114,7 @@ public class PhaseMemeIT {
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutName() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -126,7 +126,7 @@ public class PhaseMemeIT {
 
   @Test
   public void readOne() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -141,7 +141,7 @@ public class PhaseMemeIT {
 
   @Test
   public void readOne_FailsWhenUserIsNotInAccount() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "326"
     ));
@@ -153,7 +153,7 @@ public class PhaseMemeIT {
 
   @Test
   public void readAll() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -170,7 +170,7 @@ public class PhaseMemeIT {
 
   @Test
   public void readAll_SeesNothingOutsideOfAccount() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "345"
     ));
@@ -183,7 +183,7 @@ public class PhaseMemeIT {
 
   @Test
   public void delete() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -195,7 +195,7 @@ public class PhaseMemeIT {
 
   @Test(expected = BusinessException.class)
   public void delete_failsIfNotInAccount() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "2"
     ));

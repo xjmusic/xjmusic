@@ -2,7 +2,7 @@
 package io.xj.core.model.user_access_token;
 
 import io.xj.core.exception.BusinessException;
-import io.xj.core.model.Entity;
+import io.xj.core.model.entity.Entity;
 
 import java.math.BigInteger;
 
@@ -10,6 +10,11 @@ public class UserAccessToken extends Entity {
 
   private BigInteger userAuthId;
   private BigInteger userId;
+
+  @Override
+  public BigInteger getParentId() {
+    return userId;
+  }
 
   /**
    Validate data.

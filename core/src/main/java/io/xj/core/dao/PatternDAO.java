@@ -33,26 +33,14 @@ public interface PatternDAO extends DAO<Pattern> {
   Pattern readOneTypeInLink(Access access, BigInteger linkId, PatternType patternType) throws Exception;
 
   /**
-   Fetch many pattern for one Account by id, if accessible
+   Fetch many pattern bound to a particular chain
 
-   @param access      control
-   @param chainId     to fetch patterns for.
-   @param patternType to fetch
-   @return JSONArray of patterns.
+   @param access  control
+   @param chainId to fetch patterns for.
+   @return collection of patterns.
    @throws Exception on failure
    */
-  Collection<Pattern> readAllBoundToChain(Access access, BigInteger chainId, PatternType patternType) throws Exception;
-
-  /**
-   Fetch many pattern for one Account by id, if accessible
-
-   @param access      control
-   @param chainId     to fetch patterns for.
-   @param patternType to fetch
-   @return JSONArray of patterns.
-   @throws Exception on failure
-   */
-  Collection<Pattern> readAllBoundToChainLibrary(Access access, BigInteger chainId, PatternType patternType) throws Exception;
+  Collection<Pattern> readAllBoundToChain(Access access, BigInteger chainId) throws Exception;
 
   /**
    Fetch many pattern for one Account by id, if accessible

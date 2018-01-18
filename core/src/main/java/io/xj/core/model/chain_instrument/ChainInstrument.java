@@ -2,7 +2,7 @@
 package io.xj.core.model.chain_instrument;
 
 import io.xj.core.exception.BusinessException;
-import io.xj.core.model.Entity;
+import io.xj.core.model.entity.Entity;
 
 import java.math.BigInteger;
 
@@ -44,6 +44,11 @@ public class ChainInstrument extends Entity {
   public ChainInstrument setInstrumentId(BigInteger instrumentId) {
     this.instrumentId = instrumentId;
     return this;
+  }
+
+  @Override
+  public BigInteger getParentId() {
+    return chainId;
   }
 
   @Override

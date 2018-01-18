@@ -2,7 +2,7 @@
 package io.xj.core.model.message;
 
 import io.xj.core.exception.BusinessException;
-import io.xj.core.model.Entity;
+import io.xj.core.model.entity.Entity;
 
 import java.util.Objects;
 
@@ -43,7 +43,7 @@ public abstract class Message extends Entity {
   }
 
   public Message setType(String type) {
-    this._type = type;
+    _type = type;
     return this;
   }
 

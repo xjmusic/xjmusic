@@ -2,7 +2,7 @@
 package io.xj.core.model.morph;
 
 import io.xj.core.exception.BusinessException;
-import io.xj.core.model.Entity;
+import io.xj.core.model.entity.Entity;
 import io.xj.core.util.Text;
 
 import java.math.BigInteger;
@@ -74,6 +74,11 @@ public class Morph extends Entity {
   public Morph setDuration(Double duration) {
     this.duration = duration;
     return this;
+  }
+
+  @Override
+  public BigInteger getParentId() {
+    return arrangementId;
   }
 
   @Override

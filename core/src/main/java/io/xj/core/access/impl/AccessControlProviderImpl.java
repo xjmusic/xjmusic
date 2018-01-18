@@ -83,7 +83,7 @@ public class AccessControlProviderImpl implements AccessControlProvider {
   @Override
   public Access get(String token) throws DatabaseException {
     try {
-      return Access.from(redisDatabaseProvider.getClient().hgetAll(token));
+      return new Access(redisDatabaseProvider.getClient().hgetAll(token));
     } catch (Exception e) {
       throw new DatabaseException("Redis error(" + e.getClass().getName() + ")", e);
     }

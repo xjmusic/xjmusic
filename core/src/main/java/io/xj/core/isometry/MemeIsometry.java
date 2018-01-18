@@ -2,6 +2,7 @@
 package io.xj.core.isometry;
 
 import io.xj.core.model.meme.Meme;
+import io.xj.core.model.phase_meme.PhaseMeme;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
@@ -51,7 +52,7 @@ public class MemeIsometry {
     List<Meme> sourceMemes = Lists.newArrayList();
 
     stringMemeMap.forEach((key, record) -> sourceMemes.add(
-      new Meme().setName(record.getName())
+      new PhaseMeme().setName(record.getName())
     ));
 
     return new MemeIsometry(sourceMemes);

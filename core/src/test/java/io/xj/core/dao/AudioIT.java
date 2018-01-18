@@ -133,7 +133,7 @@ public class AudioIT {
 
   @Test
   public void create() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -162,7 +162,7 @@ public class AudioIT {
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutInstrumentID() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -179,7 +179,7 @@ public class AudioIT {
 
   @Test
   public void create_SucceedsWithoutWaveformKey() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -199,7 +199,7 @@ public class AudioIT {
 
   @Test
   public void clone_fromOriginal() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "userId", "2",
       "roles", "User",
       "accounts", "1"
@@ -226,7 +226,7 @@ public class AudioIT {
 
   @Test
   public void readOne() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -245,7 +245,7 @@ public class AudioIT {
 
   @Test
   public void uploadOne() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -275,7 +275,7 @@ public class AudioIT {
 
   @Test
   public void readOne_FailsWhenUserIsNotInAccount() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "326"
     ));
@@ -287,7 +287,7 @@ public class AudioIT {
 
   @Test
   public void readAll() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -305,7 +305,7 @@ public class AudioIT {
   @Test
   public void readAll_excludesAudiosInEraseState() throws Exception {
     IntegrationTestEntity.insertAudio(27, 1, "Erase", "shammy", "instrument-1-audio-09897fhjdf.wav", 0, 1, 120, 440);
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User",
       "accounts", "1"
     ));
@@ -322,7 +322,7 @@ public class AudioIT {
 
   @Test
   public void readAll_SeesNothingOutsideOfLibrary() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "345"
     ));
@@ -335,7 +335,7 @@ public class AudioIT {
 
   @Test
   public void update_FailsWithoutInstrumentID() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -355,7 +355,7 @@ public class AudioIT {
 
   @Test
   public void update_FailsUpdatingToNonexistentInstrument() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -385,7 +385,7 @@ public class AudioIT {
 
   @Test
   public void update() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -414,7 +414,7 @@ public class AudioIT {
 
   @Test
   public void erase() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -428,7 +428,7 @@ public class AudioIT {
 
   @Test
   public void erase_failsIfNotInAccount() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "2"
     ));
@@ -441,7 +441,7 @@ public class AudioIT {
 
   @Test
   public void erase_SucceedsEvenWithChilds() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "userId", "2",
       "roles", "Artist",
       "accounts", "1"

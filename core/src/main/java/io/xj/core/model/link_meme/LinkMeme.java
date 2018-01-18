@@ -43,6 +43,11 @@ public class LinkMeme extends Meme {
   }
 
   @Override
+  public BigInteger getParentId() {
+    return linkId;
+  }
+
+  @Override
   public void validate() throws BusinessException {
     if (null == linkId) {
       throw new BusinessException("Link ID is required.");

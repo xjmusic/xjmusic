@@ -2,7 +2,7 @@
 package io.xj.core.transport;
 
 import io.xj.core.config.Exposure;
-import io.xj.core.model.Entity;
+import io.xj.core.model.entity.Entity;
 import io.xj.core.transport.impl.TimestampSerializer;
 import io.xj.core.util.CamelCasify;
 

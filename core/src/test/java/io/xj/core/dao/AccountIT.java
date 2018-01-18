@@ -58,7 +58,7 @@ public class AccountIT {
 
   @Test
   public void readOne_asSetToModel() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User",
       "accounts", "1"
     ));
@@ -72,7 +72,7 @@ public class AccountIT {
 
   @Test
   public void readAll() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User",
       "accounts", "1"
     ));
@@ -88,7 +88,7 @@ public class AccountIT {
 
   @Test
   public void update() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin",
       "accounts", "1"
     ));
@@ -104,7 +104,7 @@ public class AccountIT {
 
   @Test
   public void update_failsIfNotAdmin() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User",
       "accounts", "1"
     ));
@@ -119,7 +119,7 @@ public class AccountIT {
 
   @Test
   public void delete() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin",
       "accounts", "1"
     ));
@@ -132,7 +132,7 @@ public class AccountIT {
 
   @Test
   public void delete_failsIfNotAdmin() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User",
       "accounts", "1"
     ));
@@ -145,7 +145,7 @@ public class AccountIT {
 
   @Test
   public void delete_failsIfHasChain() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin",
       "accounts", "1"
     ));
@@ -159,7 +159,7 @@ public class AccountIT {
 
   @Test
   public void delete_failsIfHasLibrary() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin",
       "accounts", "1"
     ));
@@ -173,7 +173,7 @@ public class AccountIT {
 
   @Test
   public void delete_failsIfHasAccountUser() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin",
       "accounts", "1"
     ));

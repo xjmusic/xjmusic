@@ -81,7 +81,7 @@ public class InstrumentMemeIT {
 
   @Test
   public void create() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "userId", "2",
       "roles", "Artist",
       "accounts", "1"
@@ -99,7 +99,7 @@ public class InstrumentMemeIT {
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutInstrumentID() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -111,7 +111,7 @@ public class InstrumentMemeIT {
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutName() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -123,7 +123,7 @@ public class InstrumentMemeIT {
 
   @Test
   public void readOne() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -138,7 +138,7 @@ public class InstrumentMemeIT {
 
   @Test
   public void readOne_FailsWhenUserIsNotInAccount() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "326"
     ));
@@ -150,7 +150,7 @@ public class InstrumentMemeIT {
 
   @Test
   public void readAll() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -167,7 +167,7 @@ public class InstrumentMemeIT {
 
   @Test
   public void readAll_SeesNothingOutsideOfAccount() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "345"
     ));
@@ -180,7 +180,7 @@ public class InstrumentMemeIT {
 
   @Test
   public void delete() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));

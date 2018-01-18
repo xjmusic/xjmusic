@@ -84,13 +84,13 @@ public class PhaseEventDAOImpl extends DAOImpl implements PhaseEventDAO {
    @return array of voices
     @param db      context
    @param access  control
-   @param phaseId to readMany all voice of
+   @param phaseIds to readMany all voice of
    */
-  private static Collection<PhaseEvent> readAll(DSLContext db, Access access, Collection<ULong> phaseId) throws BusinessException {
+  private static Collection<PhaseEvent> readAll(DSLContext db, Access access, Collection<ULong> phaseIds) throws BusinessException {
     if (access.isTopLevel())
       return modelsFrom(db.select(PHASE_EVENT.fields())
         .from(PHASE_EVENT)
-        .where(PHASE_EVENT.PHASE_ID.in(phaseId))
+        .where(PHASE_EVENT.PHASE_ID.in(phaseIds))
         .orderBy(PHASE_EVENT.POSITION)
         .fetch(), PhaseEvent.class);
     else
@@ -99,7 +99,7 @@ public class PhaseEventDAOImpl extends DAOImpl implements PhaseEventDAO {
         .join(VOICE).on(VOICE.ID.eq(PHASE_EVENT.VOICE_ID))
         .join(PATTERN).on(PATTERN.ID.eq(VOICE.PATTERN_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(PATTERN.LIBRARY_ID))
-        .where(PHASE_EVENT.PHASE_ID.in(phaseId))
+        .where(PHASE_EVENT.PHASE_ID.in(phaseIds))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .orderBy(PHASE_EVENT.POSITION)
         .fetch(), PhaseEvent.class);

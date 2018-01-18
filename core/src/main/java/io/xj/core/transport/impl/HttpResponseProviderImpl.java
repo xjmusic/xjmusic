@@ -4,7 +4,7 @@ package io.xj.core.transport.impl;
 import io.xj.core.config.Config;
 import io.xj.core.config.Exposure;
 import io.xj.core.exception.BusinessException;
-import io.xj.core.model.Entity;
+import io.xj.core.model.entity.Entity;
 import io.xj.core.transport.HttpResponseProvider;
 import io.xj.core.transport.JSON;
 

@@ -2,7 +2,7 @@
 package io.xj.core.model.account_user;
 
 import io.xj.core.exception.BusinessException;
-import io.xj.core.model.EntityWrapper;
+import io.xj.core.model.entity.EntityWrapper;
 
 /**
  Wrapper for use as POJO for decoding messages received by JAX-RS resources

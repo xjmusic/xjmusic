@@ -3,20 +3,19 @@ package io.xj.core.dao;
 
 import io.xj.core.access.impl.Access;
 import io.xj.core.model.library.Library;
-import io.xj.core.model.library.LibraryHash;
 
 import java.math.BigInteger;
+import java.util.Collection;
 
 public interface LibraryDAO extends DAO<Library> {
 
   /**
-   [#154343470] Ops wants LibraryHash to compute the hash of an entire library, which can be used as a unique stamp of the state of the library's entire contents at any instant
+   Fetch many pattern bound to a particular chain
 
-   @param access control
-   @param id     of library   to get hash of
-   @return a JSONObject, which can then be reduced by whatever means to a simpler hash, e.g. MD5
+   @param access  control
+   @param chainId to fetch patterns for.
+   @return collection of patterns.
    @throws Exception on failure
    */
-  LibraryHash readHash(Access access, BigInteger id) throws Exception;
-
+  Collection<Library> readAllBoundToChain(Access access, BigInteger chainId) throws Exception;
 }

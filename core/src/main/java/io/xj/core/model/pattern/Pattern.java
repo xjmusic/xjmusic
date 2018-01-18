@@ -2,7 +2,7 @@
 package io.xj.core.model.pattern;
 
 import io.xj.core.exception.BusinessException;
-import io.xj.core.model.Entity;
+import io.xj.core.model.entity.Entity;
 
 import java.math.BigInteger;
 import java.util.Objects;
@@ -33,6 +33,16 @@ public class Pattern extends Entity {
   private String key;
   private Double density;
   private Double tempo;
+
+  public Pattern() {}
+
+  public Pattern(BigInteger id) {
+    this.id = id;
+  }
+
+  public Pattern(int id) {
+    this.id = BigInteger.valueOf(id);
+  }
 
   public String getName() {
     return name;
@@ -99,6 +109,11 @@ public class Pattern extends Entity {
   public Pattern setTempo(Double value) {
     tempo = value;
     return this;
+  }
+
+  @Override
+  public BigInteger getParentId() {
+    return libraryId;
   }
 
   @Override

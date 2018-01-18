@@ -2,7 +2,7 @@
 package io.xj.core.model.link_chord;
 
 import io.xj.core.exception.BusinessException;
-import io.xj.core.model.EntityWrapper;
+import io.xj.core.model.entity.EntityWrapper;
 
 import java.util.Objects;
 

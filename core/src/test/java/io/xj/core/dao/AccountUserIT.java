@@ -56,7 +56,7 @@ public class AccountUserIT {
 
   @Test
   public void create() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
     IntegrationTestEntity.insertUser(5, "Jim", "jim@email.com", "http://pictures.com/jim.gif");
@@ -73,7 +73,7 @@ public class AccountUserIT {
 
   @Test(expected = BusinessException.class)
   public void create_FailIfAlreadyExists() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
     AccountUser inputData = new AccountUser()
@@ -85,7 +85,7 @@ public class AccountUserIT {
 
   @Test(expected = BusinessException.class)
   public void create_FailIfNotAdmin() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User"
     ));
     AccountUser inputData = new AccountUser()
@@ -97,7 +97,7 @@ public class AccountUserIT {
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutAccountID() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
     AccountUser inputData = new AccountUser()
@@ -108,7 +108,7 @@ public class AccountUserIT {
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutUserId() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
     AccountUser inputData = new AccountUser()
@@ -119,7 +119,7 @@ public class AccountUserIT {
 
   @Test
   public void readOne() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -134,7 +134,7 @@ public class AccountUserIT {
 
   @Test
   public void readOne_FailsWhenUserIsNotInAccount() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "326"
     ));
@@ -146,7 +146,7 @@ public class AccountUserIT {
 
   @Test
   public void readAll_Admin() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
 
@@ -162,7 +162,7 @@ public class AccountUserIT {
 
   @Test
   public void readAll_UserCanSeeInsideOwnAccount() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User",
       "accounts", "1"
     ));
@@ -179,7 +179,7 @@ public class AccountUserIT {
 
   @Test
   public void readAll_SeesNothingOutsideOfAccount() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "345"
     ));
@@ -192,7 +192,7 @@ public class AccountUserIT {
 
   @Test
   public void delete() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
 
@@ -204,7 +204,7 @@ public class AccountUserIT {
 
   @Test(expected = BusinessException.class)
   public void delete_FailIfNotAdmin() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User"
     ));
 

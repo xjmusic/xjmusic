@@ -72,7 +72,7 @@ public class ChainConfigIT {
 
   @Test
   public void create() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -91,7 +91,7 @@ public class ChainConfigIT {
 
   @Test(expected = BusinessException.class)
   public void create_FailIfAlreadyExists() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -105,7 +105,7 @@ public class ChainConfigIT {
 
   @Test(expected = BusinessException.class)
   public void create_FailIfUserNotInChainAccount() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -119,7 +119,7 @@ public class ChainConfigIT {
 
   @Test(expected = BusinessException.class)
   public void create_FailIfUserNotInLibraryAccount() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -133,7 +133,7 @@ public class ChainConfigIT {
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutChainID() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -146,7 +146,7 @@ public class ChainConfigIT {
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutLibraryId() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -158,7 +158,7 @@ public class ChainConfigIT {
 
   @Test
   public void readOne() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -174,7 +174,7 @@ public class ChainConfigIT {
 
   @Test
   public void readOne_FailsWhenChainIsNotInAccount() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "326"
     ));
@@ -186,7 +186,7 @@ public class ChainConfigIT {
 
   @Test
   public void readAll() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -205,7 +205,7 @@ public class ChainConfigIT {
 
   @Test
   public void readAll_SeesNothingOutsideOfAccount() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "345"
     ));
@@ -218,7 +218,7 @@ public class ChainConfigIT {
 
   @Test
   public void delete() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -231,7 +231,7 @@ public class ChainConfigIT {
 
   @Test(expected = BusinessException.class)
   public void delete_FailIfNotInAccount() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Engineer",
       "accounts", "5"
     ));

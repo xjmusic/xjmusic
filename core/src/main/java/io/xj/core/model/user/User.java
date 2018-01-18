@@ -2,8 +2,9 @@
 package io.xj.core.model.user;
 
 import io.xj.core.exception.BusinessException;
-import io.xj.core.model.Entity;
+import io.xj.core.model.entity.Entity;
 
+import java.math.BigInteger;
 import java.util.Objects;
 
 /**
@@ -63,6 +64,11 @@ public class User extends Entity {
   public User setName(String name) {
     this.name = name;
     return this;
+  }
+
+  @Override
+  public BigInteger getParentId() {
+    return new BigInteger(""); // no parent
   }
 
   @Override

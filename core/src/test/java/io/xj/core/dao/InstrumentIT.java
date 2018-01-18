@@ -96,7 +96,7 @@ public class InstrumentIT {
 
   @Test
   public void create() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "userId", "2",
       "roles", "User",
       "accounts", "1"
@@ -120,7 +120,7 @@ public class InstrumentIT {
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutLibraryID() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User",
       "accounts", "1"
     ));
@@ -135,7 +135,7 @@ public class InstrumentIT {
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutUserID() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User",
       "accounts", "1"
     ));
@@ -150,7 +150,7 @@ public class InstrumentIT {
 
   @Test
   public void clone_fromOriginal() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "userId", "2",
       "roles", "User",
       "accounts", "1"
@@ -175,7 +175,7 @@ public class InstrumentIT {
 
   @Test
   public void readOne() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User",
       "accounts", "1"
     ));
@@ -190,7 +190,7 @@ public class InstrumentIT {
 
   @Test
   public void readOne_FailsWhenUserIsNotInLibrary() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User",
       "accounts", "326"
     ));
@@ -204,7 +204,7 @@ public class InstrumentIT {
 
   @Test
   public void readAll() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin",
       "accounts", "1"
     ));
@@ -221,7 +221,7 @@ public class InstrumentIT {
 
   @Test
   public void readAll_SeesNothingOutsideOfLibrary() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User",
       "accounts", "345"
     ));
@@ -231,32 +231,9 @@ public class InstrumentIT {
     assertNotNull(result);
     assertEquals(0, result.length());
   }
-
-  @Test
-  public void readAllBoundToChain() throws Exception {
-    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, null);
-    IntegrationTestEntity.insertChainInstrument(1, 1, 1);
-
-    Collection<Instrument> result = testDAO.readAllBoundToChain(Access.internal(), BigInteger.valueOf(1), InstrumentType.Percussive);
-
-    assertEquals(1, result.size());
-    assertEquals("jams", result.iterator().next().getDescription());
-  }
-
-  @Test
-  public void readAllBoundToChainLibrary() throws Exception {
-    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, null);
-    IntegrationTestEntity.insertChainLibrary(1, 1, 1);
-
-    Collection<Instrument> result = testDAO.readAllBoundToChainLibrary(Access.internal(), BigInteger.valueOf(1), InstrumentType.Percussive);
-
-    assertEquals(1, result.size());
-    assertEquals("jams", result.iterator().next().getDescription());
-  }
-
   @Test(expected = BusinessException.class)
   public void update_FailsWithoutLibraryID() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User",
       "accounts", "1"
     ));
@@ -268,7 +245,7 @@ public class InstrumentIT {
 
   @Test(expected = BusinessException.class)
   public void update_FailsWithoutName() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User",
       "accounts", "1"
     ));
@@ -280,7 +257,7 @@ public class InstrumentIT {
 
   @Test(expected = BusinessException.class)
   public void update_FailsUpdatingToNonexistentLibrary() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User",
       "accounts", "1"
     ));
@@ -302,7 +279,7 @@ public class InstrumentIT {
 
   @Test
   public void update_Name() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "userId", "2",
       "roles", "User",
       "accounts", "1"
@@ -326,7 +303,7 @@ public class InstrumentIT {
 
   @Test
   public void delete() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
     IntegrationTestEntity.insertInstrument(86, 1, 2, "jub", InstrumentType.Harmonic, 0.4);
@@ -339,7 +316,7 @@ public class InstrumentIT {
 
   @Test
   public void delete_evenAfterUsedInArrangement() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
     IntegrationTestEntity.insertInstrument(86, 1, 2, "jub", InstrumentType.Harmonic, 0.4);
@@ -359,7 +336,7 @@ public class InstrumentIT {
 
   @Test(expected = BusinessException.class)
   public void delete_FailsIfInstrumentHasChilds() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
     IntegrationTestEntity.insertInstrument(86, 1, 2, "hamsicle", InstrumentType.Harmonic, 0.4);

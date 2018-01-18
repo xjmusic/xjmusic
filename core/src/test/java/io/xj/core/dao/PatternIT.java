@@ -104,7 +104,7 @@ public class PatternIT {
 
   @Test
   public void create() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "userId", "2",
       "roles", "User",
       "accounts", "1"
@@ -132,7 +132,7 @@ public class PatternIT {
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutLibraryID() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User",
       "accounts", "1"
     ));
@@ -149,7 +149,7 @@ public class PatternIT {
 
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutUserID() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User",
       "accounts", "1"
     ));
@@ -166,7 +166,7 @@ public class PatternIT {
 
   @Test
   public void clone_fromOriginal() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "userId", "2",
       "roles", "User",
       "accounts", "1"
@@ -192,7 +192,7 @@ public class PatternIT {
 
   @Test
   public void readOne() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User",
       "accounts", "1"
     ));
@@ -237,7 +237,7 @@ public class PatternIT {
 
   @Test
   public void readOne_FailsWhenUserIsNotInLibrary() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User",
       "accounts", "326"
     ));
@@ -251,7 +251,7 @@ public class PatternIT {
 
   @Test
   public void readAll() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin",
       "accounts", "1"
     ));
@@ -271,19 +271,7 @@ public class PatternIT {
     IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, null);
     IntegrationTestEntity.insertChainPattern(1, 1, 1);
 
-    Collection<Pattern> result = testDAO.readAllBoundToChain(Access.internal(), BigInteger.valueOf(1), PatternType.Main);
-
-    assertEquals(1, result.size());
-    Pattern result0 = result.iterator().next();
-    assertEquals("fonds", result0.getName());
-  }
-
-  @Test
-  public void readAllBoundToChainLibrary() throws Exception {
-    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, null);
-    IntegrationTestEntity.insertChainLibrary(1, 1, 1);
-
-    Collection<Pattern> result = testDAO.readAllBoundToChainLibrary(Access.internal(), BigInteger.valueOf(1), PatternType.Main);
+    Collection<Pattern> result = testDAO.readAllBoundToChain(Access.internal(), BigInteger.valueOf(1));
 
     assertEquals(1, result.size());
     Pattern result0 = result.iterator().next();
@@ -292,7 +280,7 @@ public class PatternIT {
 
   @Test
   public void readAll_SeesNothingOutsideOfLibrary() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User",
       "accounts", "345"
     ));
@@ -305,7 +293,7 @@ public class PatternIT {
 
   @Test(expected = BusinessException.class)
   public void update_FailsWithoutLibraryID() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User",
       "accounts", "1"
     ));
@@ -317,7 +305,7 @@ public class PatternIT {
 
   @Test(expected = BusinessException.class)
   public void update_FailsWithoutName() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User",
       "accounts", "1"
     ));
@@ -329,7 +317,7 @@ public class PatternIT {
 
   @Test(expected = BusinessException.class)
   public void update_FailsUpdatingToNonexistentLibrary() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User",
       "accounts", "1"
     ));
@@ -351,7 +339,7 @@ public class PatternIT {
 
   @Test
   public void update_Name() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "userId", "2",
       "roles", "User",
       "accounts", "1"
@@ -377,7 +365,7 @@ public class PatternIT {
 
   @Test
   public void delete() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
 
@@ -389,7 +377,7 @@ public class PatternIT {
 
   @Test(expected = BusinessException.class)
   public void delete_FailsIfPatternHasChildren() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
     IntegrationTestEntity.insertPhase(1, 2, PhaseType.Main, 0, 14, "testPhase", 0.524, "F#", 125.49);
@@ -406,7 +394,7 @@ public class PatternIT {
 
   @Test
   public void delete_succeedsAfterChosenForProduction() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
     IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Ready, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"), null);

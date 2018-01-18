@@ -104,7 +104,7 @@ public class PhaseIT {
 
   @Test
   public void create() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -135,7 +135,7 @@ public class PhaseIT {
    */
   @Test
   public void create_failsWithWrongTypeForMacroPattern() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -160,7 +160,7 @@ public class PhaseIT {
    */
   @Test
   public void create_failsWithWrongTypeForMainPattern() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -186,7 +186,7 @@ public class PhaseIT {
   @Test
   public void create_failsWithWrongTypeForRhythmPattern() throws Exception {
     IntegrationTestEntity.insertPattern(51, 2, 1, PatternType.Rhythm, "tester-b", 0.342, "C#", 110.286);
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -212,7 +212,7 @@ public class PhaseIT {
   @Test
   public void create_failsWithWrongTypeForDetailPattern() throws Exception {
     IntegrationTestEntity.insertPattern(51, 2, 1, PatternType.Detail, "tester-b", 0.342, "C#", 110.286);
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -234,7 +234,7 @@ public class PhaseIT {
 
   @Test
   public void create_TotalNotRequiredForMacroPatternPhase() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -259,7 +259,7 @@ public class PhaseIT {
    */
   @Test
   public void create_MultiplePhasesAtSameOffset() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
     Phase inputData = new Phase()
@@ -279,7 +279,7 @@ public class PhaseIT {
 
   @Test
   public void create_TotalIsRequiredForNonMacroTypePatternPhase() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -300,7 +300,7 @@ public class PhaseIT {
 
   @Test
   public void create_TotalMustBeGreaterThanZeroForNonMacroTypePatternPhase() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -322,7 +322,7 @@ public class PhaseIT {
 
   @Test
   public void create_NullOptionalFieldsAllowed() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -350,7 +350,7 @@ public class PhaseIT {
 
   @Test
   public void create_FailsWithoutPatternID() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -371,7 +371,7 @@ public class PhaseIT {
 
   @Test
   public void create_FailsWithoutOffset() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -392,7 +392,7 @@ public class PhaseIT {
 
   @Test
   public void clone_fromOriginal() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "userId", "2",
       "roles", "User",
       "accounts", "1"
@@ -421,7 +421,7 @@ public class PhaseIT {
    */
   @Test
   public void clone_fromOriginal_toOffsetOfExistingPhase() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "userId", "2",
       "roles", "User",
       "accounts", "1"
@@ -440,7 +440,7 @@ public class PhaseIT {
 
   @Test(expected = BusinessException.class)
   public void clone_fromOriginal_failsWithoutOffset() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "userId", "2",
       "roles", "User",
       "accounts", "1"
@@ -455,7 +455,7 @@ public class PhaseIT {
 
   @Test
   public void readOne() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -470,7 +470,7 @@ public class PhaseIT {
 
   @Test
   public void readOne_FailsWhenUserIsNotInAccount() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "326"
     ));
@@ -482,7 +482,7 @@ public class PhaseIT {
 
   @Test
   public void readAllAtPatternOffset() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -502,7 +502,7 @@ public class PhaseIT {
   @Test
   public void readAllAtPatternOffset_multiplePhasesAtOffset() throws Exception {
     IntegrationTestEntity.insertPhase(5, 1, PhaseType.Main, 0, 16, "Army Ants", 0.683, "Eb minor", 122.4);
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -518,7 +518,7 @@ public class PhaseIT {
 
   @Test
   public void readAllAtPatternOffset_FailsWhenUserIsNotInAccount() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "143"
     ));
@@ -531,7 +531,7 @@ public class PhaseIT {
 
   @Test
   public void readAll() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -548,7 +548,7 @@ public class PhaseIT {
 
   @Test
   public void readAll_SeesNothingOutsideOfLibrary() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "345"
     ));
@@ -563,7 +563,7 @@ public class PhaseIT {
 
   @Test
   public void update() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -595,7 +595,7 @@ public class PhaseIT {
    */
   @Test
   public void update_toOffsetOfExistingPhase() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -618,7 +618,7 @@ public class PhaseIT {
 
   @Test
   public void update_FailsWithoutPatternID() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -639,7 +639,7 @@ public class PhaseIT {
 
   @Test
   public void update_TotalNotRequiredForMacroPatternPhase() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -658,7 +658,7 @@ public class PhaseIT {
 
   @Test
   public void update_TotalIsRequiredForNonMacroTypePatternPhase() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -679,7 +679,7 @@ public class PhaseIT {
 
   @Test
   public void update_TotalMustBeGreaterThanZeroForNonMacroTypePatternPhase() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -701,7 +701,7 @@ public class PhaseIT {
 
   @Test
   public void update_FailsWithoutOffset() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -721,7 +721,7 @@ public class PhaseIT {
 
   @Test
   public void update_FailsUpdatingToNonexistentPattern() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -752,7 +752,7 @@ public class PhaseIT {
 
   @Test
   public void delete() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
@@ -765,7 +765,7 @@ public class PhaseIT {
 
   @Test(expected = BusinessException.class)
   public void delete_failsIfNotInAccount() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "2"
     ));
@@ -775,7 +775,7 @@ public class PhaseIT {
 
   @Test
   public void delete_SucceedsEvenIfPatternHasManyChildren_andWasUsedInProduction() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "userId", "2",
       "roles", "Artist",
       "accounts", "1"

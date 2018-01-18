@@ -16,7 +16,7 @@ import io.xj.core.model.link_message.LinkMessage;
 import io.xj.core.model.message.MessageType;
 import io.xj.core.model.pick.Pick;
 import io.xj.core.util.Text;
-import io.xj.core.work.basis.Basis;
+import io.xj.core.basis.Basis;
 import io.xj.mixer.Mixer;
 import io.xj.mixer.MixerFactory;
 import io.xj.mixer.OutputContainer;

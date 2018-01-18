@@ -42,6 +42,11 @@ public class PhaseMeme extends Meme {
   }
 
   @Override
+  public BigInteger getParentId() {
+    return phaseId;
+  }
+
+  @Override
   public void validate() throws BusinessException {
     if (this.phaseId == null) {
       throw new BusinessException("Phase ID is required.");

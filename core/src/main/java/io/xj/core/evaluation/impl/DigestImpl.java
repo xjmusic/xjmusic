@@ -1,8 +1,8 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.evaluation.impl;
 
-import io.xj.core.evaluation.Digest;
-import io.xj.core.evaluation.DigestType;
+import io.xj.core.evaluation.digest.Digest;
+import io.xj.core.evaluation.digest.DigestType;
 import io.xj.core.evaluation.Evaluation;
 import io.xj.core.evaluation.EvaluationState;
 import io.xj.core.model.audio.Audio;
@@ -36,7 +36,7 @@ public abstract class DigestImpl implements Digest {
    @return audio
    */
   public Audio getAudio(BigInteger id) {
-    return evaluation.getAudioMap().get(id);
+    return evaluation.audioMap().get(id);
   }
 
   /**
@@ -46,7 +46,7 @@ public abstract class DigestImpl implements Digest {
    @return pattern
    */
   public Pattern getPattern(BigInteger id) {
-    return evaluation.getPatternMap().get(id);
+    return evaluation.patternMap().get(id);
   }
 
   /**
@@ -56,7 +56,7 @@ public abstract class DigestImpl implements Digest {
    @return phase
    */
   public Phase getPhase(BigInteger id) {
-    return evaluation.getPhaseMap().get(id);
+    return evaluation.phaseMap().get(id);
   }
 
   /**
@@ -66,7 +66,7 @@ public abstract class DigestImpl implements Digest {
    @return instrument
    */
   public Instrument getInstrument(BigInteger id) {
-    return evaluation.getInstrumentMap().get(id);
+    return evaluation.instrumentMap().get(id);
   }
 
 

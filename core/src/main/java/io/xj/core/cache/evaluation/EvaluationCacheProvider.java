@@ -2,31 +2,26 @@
 package io.xj.core.cache.evaluation;
 
 import io.xj.core.access.impl.Access;
-import io.xj.core.evaluation.digest_chords.DigestChords;
-import io.xj.core.evaluation.digest_memes.DigestMemes;
+import io.xj.core.evaluation.Evaluation;
+import io.xj.core.model.entity.Entity;
 
-import java.math.BigInteger;
+import java.util.Collection;
 
+/**
+ [#154350346] Architect wants a universal Evaluation Factory, to modularize graph mathematics used during craft to evaluate any combination of Library, Pattern, and Instrument for any purpose.
+ Evaluation evaluation = evaluationFactory.of(...any combination of libraries, instruments, and patterns...);
+ */
+@FunctionalInterface
 public interface EvaluationCacheProvider {
 
   /**
-   Perform meme evaluation of target library and return resulting JSON Object
-   CACHE: results until N seconds have transpired (from system property) *and* library hash changes
+   Evaluate any combination of Entities for evaluation. Assumes inclusion of child entities of all entities provided
+   CACHES the result for any access+entities signature, for N seconds.
+   Where N is configurable in system properties `evaluation.cache.seconds`
 
-   @param access    control
-   @param libraryId of target library to evaluate memes of
-   @return evaluation results as JSON object
+   @param access control
+   @return entities to be evaluated
+   @throws Exception on failure to of target entities
    */
-  DigestMemes libraryMemes(Access access, BigInteger libraryId) throws Exception;
-
-  /**
-   Perform chord evaluation of target library and return resulting JSON Object
-   CACHE: results until N seconds have transpired (from system property) *and* library hash changes
-
-   @param access    control
-   @param libraryId of target library to evaluate chords of
-   @return evaluation results as JSON object
-   */
-  DigestChords libraryChords(Access access, BigInteger libraryId) throws Exception;
-
+  Evaluation evaluate(Access access, Collection<Entity> entities) throws Exception;
 }

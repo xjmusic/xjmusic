@@ -92,7 +92,7 @@ public class ChainIT {
 
   @Test
   public void create() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
     Chain inputData = new Chain()
@@ -116,7 +116,7 @@ public class ChainIT {
 
   @Test
   public void create_withEmbedKey() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
     Chain inputData = new Chain()
@@ -146,7 +146,7 @@ public class ChainIT {
     failure.expect(BusinessException.class);
     failure.expectMessage("Found Existing Chain with this embed_key");
 
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
     Chain inputData = new Chain()
@@ -163,7 +163,7 @@ public class ChainIT {
 
   @Test
   public void create_PreviewType() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
     Chain inputData = new Chain()
@@ -189,7 +189,7 @@ public class ChainIT {
   @Test
   // [#126] Chains are always readMany in DRAFT state
   public void create_alwaysCreatedInDraftState() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
     Chain inputData = new Chain()
@@ -213,7 +213,7 @@ public class ChainIT {
 
   @Test
   public void create_WithoutStopAt() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
     Chain inputData = new Chain()
@@ -236,7 +236,7 @@ public class ChainIT {
 
   @Test
   public void create_WithEmptyStopAt() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
     Chain inputData = new Chain()
@@ -260,7 +260,7 @@ public class ChainIT {
 
   @Test
   public void create_FailsWithoutAccountID() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
     Chain inputData = new Chain()
@@ -278,7 +278,7 @@ public class ChainIT {
 
   @Test
   public void create_FailsWithInvalidState() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
     Chain inputData = new Chain()
@@ -297,7 +297,7 @@ public class ChainIT {
 
   @Test
   public void readOne_FailsWhenUserIsNotInAccount() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User",
       "accounts", "326"
     ));
@@ -309,7 +309,7 @@ public class ChainIT {
 
   @Test
   public void readOne() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User",
       "accounts", "1"
     ));
@@ -328,7 +328,7 @@ public class ChainIT {
 
   @Test
   public void readOne_toJSONObject() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User",
       "accounts", "1"
     ));
@@ -347,7 +347,7 @@ public class ChainIT {
 
   @Test
   public void readOneJSONObject_FailsWhenUserIsNotInAccount() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User",
       "accounts", "326"
     ));
@@ -359,7 +359,7 @@ public class ChainIT {
 
   @Test
   public void readAll() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User",
       "accounts", "1"
     ));
@@ -377,7 +377,7 @@ public class ChainIT {
   @Test
   public void readAll_excludesChainsInEraseState() throws Exception {
     IntegrationTestEntity.insertChain(17, 1, "sham", ChainType.Production, ChainState.Erase, Timestamp.valueOf("2015-05-10 12:17:02.527142"), Timestamp.valueOf("2015-06-09 12:17:01.047563"), null);
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User",
       "accounts", "1"
     ));
@@ -405,7 +405,7 @@ public class ChainIT {
 
   @Test
   public void readAll_SeesNothingOutsideOfAccount() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User",
       "accounts", "345"
     ));
@@ -418,7 +418,7 @@ public class ChainIT {
 
   @Test
   public void update() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
     Chain inputData = new Chain()
@@ -443,7 +443,7 @@ public class ChainIT {
 
   @Test
   public void update_addEmbedKey() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
     Chain inputData = new Chain()
@@ -471,7 +471,7 @@ public class ChainIT {
   @Test
   public void update_removeEmbedKey() throws Exception {
     IntegrationTestEntity.insertChain(3, 1, "bucket", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2015-05-10 12:17:02.527142"), Timestamp.valueOf("2015-06-09 12:17:01.047563"), "twenty_four_hours");
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
     Chain inputData = new Chain()
@@ -502,7 +502,7 @@ public class ChainIT {
     failure.expect(BusinessException.class);
     failure.expectMessage("Found Existing Chain with this embed_key");
 
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
     Chain inputData = new Chain()
@@ -519,7 +519,7 @@ public class ChainIT {
 
   @Test
   public void update_cannotChangeType() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
     Chain inputData = new Chain()
@@ -544,7 +544,7 @@ public class ChainIT {
 
   @Test
   public void update_failsToChangeStartAt_whenChainsHasLink() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
     Chain inputData = new Chain()
@@ -564,7 +564,7 @@ public class ChainIT {
 
   @Test
   public void update_canChangeName_whenChainsHasLink() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
     Chain inputData = new Chain()
@@ -590,7 +590,7 @@ public class ChainIT {
 
   @Test
   public void update_RemoveStopAt() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
     Chain inputData = new Chain()
@@ -614,7 +614,7 @@ public class ChainIT {
 
   @Test
   public void update_FailsWithoutAccountID() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
     Chain inputData = new Chain()
@@ -632,7 +632,7 @@ public class ChainIT {
 
   @Test
   public void update_FailsWithoutName() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
     Chain inputData = new Chain()
@@ -650,7 +650,7 @@ public class ChainIT {
 
   @Test
   public void update_CannotChangeAccount() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
     Chain inputData = new Chain()
@@ -670,7 +670,7 @@ public class ChainIT {
 
   @Test
   public void updateState() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "internal"
     ));
 
@@ -683,7 +683,7 @@ public class ChainIT {
 
   @Test
   public void updateState_WithoutAccountAccess_Fails() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User",
       "accounts", "54"
     ));
@@ -696,7 +696,7 @@ public class ChainIT {
 
   @Test
   public void updateState_WithAccountAccess() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User,Engineer",
       "accounts", "1"
     ));
@@ -710,7 +710,7 @@ public class ChainIT {
 
   @Test
   public void updateState_WithAccountAccess_FailsWithoutEngineerRole_ForProductionChain() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User",
       "accounts", "1"
     ));
@@ -724,7 +724,7 @@ public class ChainIT {
   @Test
   public void updateState_WithAccountAccess_FailsWithoutArtistOrEngineerRole_ForPreviewChain() throws Exception {
     IntegrationTestEntity.insertChain(3, 1, "bucket", ChainType.Preview, ChainState.Fabricate, Timestamp.valueOf("2015-05-10 12:17:02.527142"), Timestamp.valueOf("2015-06-09 12:17:01.047563"), null);
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User",
       "accounts", "1"
     ));
@@ -738,7 +738,7 @@ public class ChainIT {
   @Test
   public void updateState_outOfDraft_WithoutEntitiesBound_Fails() throws Exception {
     IntegrationTestEntity.insertChain(3, 1, "bucket", ChainType.Production, ChainState.Draft, Timestamp.valueOf("2015-05-10 12:17:02.527142"), null, null);
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User,Artist,Engineer",
       "accounts", "1"
     ));
@@ -755,7 +755,7 @@ public class ChainIT {
     IntegrationTestEntity.insertLibrary(3, 1, "pajamas");
     IntegrationTestEntity.insertChainLibrary(1, 3, 3);
 
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User,Artist,Engineer",
       "accounts", "1"
     ));
@@ -775,7 +775,7 @@ public class ChainIT {
     IntegrationTestEntity.insertPattern(3, 3, 3, PatternType.Main, "fonds", 0.342, "C#", 0.286);
     IntegrationTestEntity.insertChainPattern(1, 3, 3);
 
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User,Artist,Engineer",
       "accounts", "1"
     ));
@@ -801,7 +801,7 @@ public class ChainIT {
     IntegrationTestEntity.insertChainPattern(3, 3, 5);
     IntegrationTestEntity.insertChainPattern(4, 3, 6);
 
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User,Artist,Engineer",
       "accounts", "1"
     ));
@@ -821,7 +821,7 @@ public class ChainIT {
     IntegrationTestEntity.insertInstrument(3, 3, 3, "fonds", InstrumentType.Harmonic, 0.342);
     IntegrationTestEntity.insertChainInstrument(1, 3, 3);
 
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User,Artist,Engineer",
       "accounts", "1"
     ));
@@ -836,7 +836,7 @@ public class ChainIT {
 
   @Test
   public void buildNextLinkOrComplete_chainWithLinksReadyForNextLink() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "internal"
     ));
     IntegrationTestEntity.insertChain(12, 1, "Test Print #2", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-02-14 12:03:40.000001"), Timestamp.valueOf("2014-02-14 14:03:40.000001"), null);
@@ -856,7 +856,7 @@ public class ChainIT {
 
   @Test
   public void buildNextLinkOrComplete_chainWithLinksReadyForNextLink_butChainIsAlreadyFull_butNotSoLongEnoughToBeComplete() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "internal"
     ));
     IntegrationTestEntity.insertChain(12, 1, "Test Print #2", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-02-14 12:03:40.000001"), Timestamp.valueOf("2014-02-14 14:03:40.000001"), null);
@@ -876,7 +876,7 @@ public class ChainIT {
 
   @Test
   public void buildNextLinkOrComplete_chainWithLinksReadyForNextLink_butChainIsAlreadyFull_butLastLinkNotDubbedSoChainNotComplete() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "internal"
     ));
     IntegrationTestEntity.insertChain(12, 1, "Test Print #2", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-02-14 12:03:40.000001"), Timestamp.valueOf("2014-02-14 14:03:40.000001"), null);
@@ -896,7 +896,7 @@ public class ChainIT {
 
   @Test
   public void buildNextLinkOrComplete_chainWithLinksReadyForNextLink_butChainIsAlreadyFull_andGetsUpdatedToComplete() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "internal"
     ));
     IntegrationTestEntity.insertChain(12, 1, "Test Print #2", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-02-14 12:03:40.000001"), Timestamp.valueOf("2014-02-14 14:03:40.000001"), null);
@@ -916,7 +916,7 @@ public class ChainIT {
 
   @Test
   public void buildNextLinkOrComplete_chainWithLinksReadyForNextLink_butChainIsAlreadyFull_butCantKnowBecauseBoundsProvidedAreNull() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "internal"
     ));
     IntegrationTestEntity.insertChain(12, 1, "Test Print #2", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-02-14 12:03:40.000001"), Timestamp.valueOf("2014-02-14 14:03:40.000001"), null);
@@ -935,7 +935,7 @@ public class ChainIT {
 
   @Test
   public void buildNextLinkOrComplete_chainWithLinksAlreadyHasNextLink() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "internal"
     ));
     IntegrationTestEntity.insertLink_Planned(5, 1, 4, Timestamp.valueOf("2017-02-14 12:03:08.000001"));
@@ -951,7 +951,7 @@ public class ChainIT {
 
   @Test
   public void buildNextLinkOrComplete_chainEndingInCraftedLink() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "internal"
     ));
     IntegrationTestEntity.insertChain(12, 1, "Test Print #2", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"), null);
@@ -971,7 +971,7 @@ public class ChainIT {
 
   @Test
   public void buildNextLinkOrComplete_newEmptyChain() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "internal"
     ));
     IntegrationTestEntity.insertChain(12, 1, "Test Print #2", ChainType.Production, ChainState.Ready, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, null);
@@ -990,7 +990,7 @@ public class ChainIT {
 
   @Test
   public void delete() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
 
@@ -1002,7 +1002,7 @@ public class ChainIT {
 
   @Test
   public void delete_SucceedsEvenWithChildren() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
     IntegrationTestEntity.insertLibrary(1, 1, "nerds");
@@ -1021,7 +1021,7 @@ public class ChainIT {
   @Test
   public void erase_inDraftState() throws Exception {
     IntegrationTestEntity.insertChain(3, 1, "bucket", ChainType.Production, ChainState.Draft, Timestamp.valueOf("2015-05-10 12:17:02.527142"), Timestamp.valueOf("2015-06-09 12:17:01.047563"), null);
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
 
@@ -1035,7 +1035,7 @@ public class ChainIT {
   @Test
   public void erase_inCompleteState() throws Exception {
     IntegrationTestEntity.insertChain(3, 1, "bucket", ChainType.Production, ChainState.Complete, Timestamp.valueOf("2015-05-10 12:17:02.527142"), Timestamp.valueOf("2015-06-09 12:17:01.047563"), null);
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
 
@@ -1049,7 +1049,7 @@ public class ChainIT {
   @Test
   public void erase_removesEmbedKey() throws Exception {
     IntegrationTestEntity.insertChain(3, 1, "bucket", ChainType.Production, ChainState.Complete, Timestamp.valueOf("2015-05-10 12:17:02.527142"), Timestamp.valueOf("2015-06-09 12:17:01.047563"), "play_me");
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
 
@@ -1064,7 +1064,7 @@ public class ChainIT {
   @Test
   public void erase_inFailedState() throws Exception {
     IntegrationTestEntity.insertChain(3, 1, "bucket", ChainType.Production, ChainState.Failed, Timestamp.valueOf("2015-05-10 12:17:02.527142"), Timestamp.valueOf("2015-06-09 12:17:01.047563"), null);
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
 
@@ -1078,7 +1078,7 @@ public class ChainIT {
   @Test
   public void erase_failsInFabricateState() throws Exception {
     IntegrationTestEntity.insertChain(3, 1, "bucket", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2015-05-10 12:17:02.527142"), Timestamp.valueOf("2015-06-09 12:17:01.047563"), null);
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
 
@@ -1091,7 +1091,7 @@ public class ChainIT {
   @Test
   public void erase_failsInReadyState() throws Exception {
     IntegrationTestEntity.insertChain(3, 1, "bucket", ChainType.Production, ChainState.Ready, Timestamp.valueOf("2015-05-10 12:17:02.527142"), Timestamp.valueOf("2015-06-09 12:17:01.047563"), null);
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
 

@@ -2,7 +2,7 @@
 package io.xj.core.model.user_auth;
 
 import io.xj.core.exception.BusinessException;
-import io.xj.core.model.Entity;
+import io.xj.core.model.entity.Entity;
 
 import java.math.BigInteger;
 import java.util.Objects;
@@ -22,6 +22,11 @@ public class UserAuth extends Entity {
   private String externalAccount;
   private BigInteger userId;
   private String _type; // to hold value before validation
+
+  @Override
+  public BigInteger getParentId() {
+    return userId;
+  }
 
   @Override
   public void validate() throws BusinessException {

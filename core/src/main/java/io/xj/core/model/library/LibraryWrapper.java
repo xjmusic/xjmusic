@@ -2,7 +2,9 @@
 package io.xj.core.model.library;
 
 import io.xj.core.exception.BusinessException;
-import io.xj.core.model.EntityWrapper;
+import io.xj.core.model.entity.EntityWrapper;
+
+import java.util.Objects;
 
 /**
  Wrapper for use as POJO for decoding messages received by JAX-RS resources
@@ -28,11 +30,11 @@ public class LibraryWrapper extends EntityWrapper {
    @throws BusinessException if invalid.
    */
   public Library validate() throws BusinessException {
-    if (this.library == null) {
+    if (Objects.isNull(library)) {
       throw new BusinessException("Library is required.");
     }
-    this.library.validate();
-    return this.library;
+    library.validate();
+    return library;
   }
 
 }

@@ -13,8 +13,8 @@ import io.xj.core.model.link.Link;
 import io.xj.core.model.link.LinkState;
 import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.user_role.UserRoleType;
-import io.xj.core.work.basis.Basis;
-import io.xj.core.work.basis.BasisFactory;
+import io.xj.core.basis.Basis;
+import io.xj.core.basis.BasisFactory;
 import io.xj.craft.CraftModule;
 
 

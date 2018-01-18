@@ -12,6 +12,7 @@ import io.xj.core.transport.CSV;
 import io.xj.core.util.Text;
 
 import com.google.api.client.json.JsonFactory;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.inject.Guice;
@@ -39,10 +40,10 @@ public class Access {
   private static final String KEY_ROLE_TYPES = User.KEY_ROLES;
   private static final UserRoleType[] topLevelRoles = {UserRoleType.Admin, UserRoleType.Internal};
   private final JsonFactory jsonFactory = injector.getInstance(JsonFactory.class);
-  private Collection<UserRoleType> roleTypes;
-  private Collection<BigInteger> accountIds;
-  private BigInteger userId;
-  private BigInteger userAuthId;
+  private final Collection<UserRoleType> roleTypes;
+  private final Collection<BigInteger> accountIds;
+  private final BigInteger userId;
+  private final BigInteger userAuthId;
 
   /**
    Construct an Access model from models retrieved from structured data persistence layer
@@ -67,39 +68,49 @@ public class Access {
 
    @param data to parse
    */
-  public static Access from(Map<String, String> data) {
-    Access result = new Access();
+  public Access(Map<String, String> data) {
+    if (data.containsKey(KEY_USER_ID))
+      userId = new BigInteger(data.get(KEY_USER_ID));
+    else
+      userId = null;
 
+    if (data.containsKey(KEY_USER_AUTH_ID))
+      userAuthId = new BigInteger(data.get(KEY_USER_AUTH_ID));
+    else
+      userAuthId = null;
 
-    if (data.containsKey(KEY_USER_ID)) {
-      result.setUserId(new BigInteger(data.get(KEY_USER_ID)));
-    }
-    if (data.containsKey(KEY_USER_AUTH_ID)) {
-      result.setUserAuthId(new BigInteger(data.get(KEY_USER_AUTH_ID)));
-    }
-    if (data.containsKey(KEY_ROLE_TYPES)) {
-      result.setRoleTypes(roleTypesFromCSV(data.get(KEY_ROLE_TYPES)));
-    }
-    if (data.containsKey(KEY_ACCOUNT_IDS)) {
-      result.setAccountIds(idsFromCSV(data.get(KEY_ACCOUNT_IDS)));
-    }
+    if (data.containsKey(KEY_ROLE_TYPES))
+      roleTypes = roleTypesFromCSV(data.get(KEY_ROLE_TYPES));
+    else
+      roleTypes = Lists.newArrayList();
 
-    return result;
+    if (data.containsKey(KEY_ACCOUNT_IDS))
+      accountIds = idsFromCSV(data.get(KEY_ACCOUNT_IDS));
+    else
+      accountIds = Lists.newArrayList();
   }
 
   /**
-   Supports the static Access.from(Map) method
+   New access with only role types, e.g. top level direct access
+
+   @param userRoleTypes to grant
    */
-  private Access() {
+  public Access(Collection<UserRoleType> userRoleTypes) {
+    userId = null;
+    userAuthId = null;
+    accountIds = Lists.newArrayList();
+    roleTypes = Lists.newArrayList(userRoleTypes);
   }
 
   /**
    Create an access control object from request context
+   Mirror of toContext()
 
    @param crc container request context
    @return access control
    */
   public static Access fromContext(ContainerRequestContext crc) {
+    // YES it's a cast to a concrete class. Maybe future extract an interface for `Access` and implement Guice, but that seems monstrous given the 99% use case of the Access class does not trespass here.
     return (Access) crc.getProperty(CONTEXT_KEY);
   }
 
@@ -109,157 +120,7 @@ public class Access {
    @return access control
    */
   public static Access internal() {
-    Access result = new Access();
-    result.setRoleTypes(Lists.newArrayList(UserRoleType.Internal));
-    return result;
-  }
-
-  /**
-   Determine if user access roles match any of the given resource access roles.
-
-   @param matchRoles of the resource to match.
-   @return whether user access roles match resource access roles.
-   */
-  public boolean isAllowed(UserRoleType... matchRoles) {
-    // inefficient?
-
-    for (UserRoleType matchRole : matchRoles) {
-      for (UserRoleType userRoleType : roleTypes) {
-        if (userRoleType == matchRole) {
-          return true;
-        }
-      }
-    }
-    return false;
-  }
-
-  /**
-   Determine if user access roles match any of the given resource access roles.
-
-   @param matchRoles of the resource to match.
-   @return whether user access roles match resource access roles.
-   */
-  public boolean isAllowed(String... matchRoles) {
-    // inefficient?
-
-    for (String matchRole : matchRoles) {
-      for (UserRoleType userRoleType : roleTypes) {
-        if (userRoleType == UserRoleType.valueOf(matchRole)) {
-          return true;
-        }
-      }
-    }
-    return false;
-  }
-
-  /**
-   Get user ID of this access control
-
-   @return id
-   */
-  public BigInteger getUserId() {
-    return userId;
-  }
-
-  /**
-   Get Accounts
-
-   @return array of account id
-   */
-  public Collection<BigInteger> getAccountIds() {
-    return Collections.unmodifiableCollection(accountIds);
-  }
-
-
-  /**
-   Get user role types
-
-   @return user role types
-   */
-  public Collection<UserRoleType> getRoleTypes() {
-    return Collections.unmodifiableCollection(roleTypes);
-  }
-
-  /**
-   Get user auth id
-
-   @return user auth id
-   */
-  public BigInteger getUserAuthId() {
-    return userAuthId;
-  }
-
-  /**
-   PACKAGE PRIVATE set role types
-
-   @param roleTypes to set
-   */
-  void setRoleTypes(Iterable<UserRoleType> roleTypes) {
-    this.roleTypes = Lists.newArrayList(roleTypes);
-  }
-
-  /**
-   PACKAGE PRIVATE set account ids
-
-   @param accountIds to set
-   */
-  void setAccountIds(Iterable<BigInteger> accountIds) {
-    this.accountIds = Lists.newLinkedList(accountIds);
-  }
-
-  /**
-   PACKAGE PRIVATE set user id
-
-   @param userId to set
-   */
-  void setUserId(BigInteger userId) {
-    this.userId = userId;
-  }
-
-  /**
-   PACKAGE PRIVATE set user auth id
-
-   @param userAuthId to set
-   */
-  void setUserAuthId(BigInteger userAuthId) {
-    this.userAuthId = userAuthId;
-  }
-
-  /**
-   Is Top Level?
-
-   @return boolean
-   */
-  public Boolean isTopLevel() {
-    return isAllowed(topLevelRoles);
-  }
-
-  /**
-   Validation
-   */
-  public boolean isValid() {
-    return
-      Objects.nonNull(userId) &&
-        Objects.nonNull(userAuthId) &&
-        Objects.nonNull(roleTypes) &&
-        Objects.nonNull(accountIds);
-  }
-
-  /**
-   Has access to account id?
-
-   @param accountId to check
-   @return true if has access
-   */
-  public Boolean hasAccount(BigInteger accountId) {
-    if (null != accountId) {
-      for (BigInteger matchAccountId : accountIds) {
-        if (accountId.equals(matchAccountId)) {
-          return true;
-        }
-      }
-    }
-    return false;
+    return new Access(ImmutableList.of(UserRoleType.Internal));
   }
 
   /**
@@ -363,6 +224,127 @@ public class Access {
   }
 
   /**
+   Put this access to the container request context.
+   Mirror of fromContext()
+
+   @param context to put
+   */
+  public void toContext(ContainerRequestContext context) {
+    context.setProperty(CONTEXT_KEY, this);
+  }
+
+  /**
+   Determine if user access roles match any of the given resource access roles.
+
+   @param matchRoles of the resource to match.
+   @return whether user access roles match resource access roles.
+   */
+  public boolean isAllowed(UserRoleType... matchRoles) {
+    // inefficient?
+
+    for (UserRoleType matchRole : matchRoles) {
+      for (UserRoleType userRoleType : roleTypes) {
+        if (userRoleType == matchRole) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  /**
+   Determine if user access roles match any of the given resource access roles.
+
+   @param matchRoles of the resource to match.
+   @return whether user access roles match resource access roles.
+   */
+  public boolean isAllowed(String... matchRoles) {
+    // inefficient?
+
+    for (String matchRole : matchRoles) {
+      for (UserRoleType userRoleType : roleTypes) {
+        if (userRoleType == UserRoleType.valueOf(matchRole)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  /**
+   Get user ID of this access control
+
+   @return id
+   */
+  public BigInteger getUserId() {
+    return userId;
+  }
+
+  /**
+   Get Accounts
+
+   @return array of account id
+   */
+  public Collection<BigInteger> getAccountIds() {
+    return Collections.unmodifiableCollection(accountIds);
+  }
+
+  /**
+   Get user role types
+
+   @return user role types
+   */
+  public Collection<UserRoleType> getRoleTypes() {
+    return Collections.unmodifiableCollection(roleTypes);
+  }
+
+  /**
+   Get user auth id
+
+   @return user auth id
+   */
+  public BigInteger getUserAuthId() {
+    return userAuthId;
+  }
+
+  /**
+   Is Top Level?
+
+   @return boolean
+   */
+  public Boolean isTopLevel() {
+    return isAllowed(topLevelRoles);
+  }
+
+  /**
+   Validation
+   */
+  public boolean isValid() {
+    if (Objects.isNull(userId)) return false;
+    if (Objects.isNull(userAuthId)) return false;
+    if (Objects.isNull(roleTypes) || roleTypes.isEmpty()) return false;
+    if (Objects.isNull(accountIds) || accountIds.isEmpty()) return false;
+    return true;
+  }
+
+  /**
+   Has access to account id?
+
+   @param accountId to check
+   @return true if has access
+   */
+  public Boolean hasAccount(BigInteger accountId) {
+    if (null != accountId) {
+      for (BigInteger matchAccountId : accountIds) {
+        if (accountId.equals(matchAccountId)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  /**
    Get a representation of this access control
 
    @return JSON
@@ -396,5 +378,4 @@ public class Access {
 
     return result;
   }
-
 }

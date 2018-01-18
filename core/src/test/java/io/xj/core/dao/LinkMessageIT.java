@@ -107,7 +107,7 @@ public class LinkMessageIT {
 
   @Test
   public void readOne_okIfUserInAccount() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User",
       "accounts", "1"
     ));
@@ -123,7 +123,7 @@ public class LinkMessageIT {
 
   @Test
   public void readOne_emptyIfUserNotInAccount() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User",
       "accounts", "6123"
     ));
@@ -149,7 +149,7 @@ public class LinkMessageIT {
 
   @Test
   public void readAllInLink_okIfUserInAccount() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User",
       "accounts", "1"
     ));
@@ -161,7 +161,7 @@ public class LinkMessageIT {
 
   @Test
   public void readAllInLink_failsIfUserNotInAccount() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User",
       "accounts", "73"
     ));
@@ -188,7 +188,7 @@ public class LinkMessageIT {
 
   @Test
   public void readAllInLinks_okIfUserInAccount() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User",
       "accounts", "1"
     ));
@@ -200,7 +200,7 @@ public class LinkMessageIT {
 
   @Test
   public void readAllInLinks_failsIfUserNotInAccount() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User",
       "accounts", "73"
     ));
@@ -220,7 +220,7 @@ public class LinkMessageIT {
 
   @Test
   public void delete_failsIfNotTopLevelAccess() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User",
       "accounts", "1"
     ));

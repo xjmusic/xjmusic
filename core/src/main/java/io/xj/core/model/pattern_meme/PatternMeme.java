@@ -44,6 +44,11 @@ public class PatternMeme extends Meme {
   }
 
   @Override
+  public BigInteger getParentId() {
+    return patternId;
+  }
+
+  @Override
   public void validate() throws BusinessException {
     if (null == patternId) {
       throw new BusinessException("Pattern ID is required.");

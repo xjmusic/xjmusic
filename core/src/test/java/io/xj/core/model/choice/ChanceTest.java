@@ -1,6 +1,8 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.model.choice;
 
+import io.xj.core.util.Chance;
+
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

@@ -2,7 +2,7 @@
 package io.xj.core.model.audio;
 
 import io.xj.core.exception.BusinessException;
-import io.xj.core.model.Entity;
+import io.xj.core.model.entity.Entity;
 import io.xj.core.util.Text;
 
 import java.math.BigInteger;
@@ -32,13 +32,15 @@ public class Audio extends Entity {
   private Double pitch;
   private String _stateString; // pending validation, copied to `state` field
 
-  public Audio() {
+  public Audio() {}
+
+  public Audio(int id) {
+    this.id = BigInteger.valueOf(id);
   }
 
   public Audio(BigInteger id) {
     this.id = id;
   }
-
 
   public BigInteger getInstrumentId() {
     return instrumentId;
@@ -123,6 +125,11 @@ public class Audio extends Entity {
   public Audio setPitch(Double pitch) {
     this.pitch = pitch;
     return this;
+  }
+
+  @Override
+  public BigInteger getParentId() {
+    return instrumentId;
   }
 
   @Override

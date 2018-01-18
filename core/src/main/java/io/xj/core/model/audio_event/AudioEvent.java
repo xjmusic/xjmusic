@@ -68,6 +68,11 @@ public class AudioEvent extends Event {
   }
 
   @Override
+  public BigInteger getParentId() {
+    return audioId;
+  }
+
+  @Override
   public void validate() throws BusinessException {
     super.validate();
     if (this.audioId == null) {

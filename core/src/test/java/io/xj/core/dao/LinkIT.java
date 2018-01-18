@@ -103,7 +103,7 @@ public class LinkIT {
 
   @Test
   public void create() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
     Link inputData = new Link()
@@ -138,7 +138,7 @@ public class LinkIT {
   @Test
   // [#126] Links are always readMany in PLANNED state
   public void create_alwaysInPlannedState() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
     Link inputData = new Link()
@@ -172,7 +172,7 @@ public class LinkIT {
 
   @Test
   public void create_FailsIfNotUniqueChainOffset() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
     Link inputData = new Link()
@@ -197,7 +197,7 @@ public class LinkIT {
 
   @Test
   public void create_FailsWithoutTopLevelAccess() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User"
     ));
     Link inputData = new Link()
@@ -222,7 +222,7 @@ public class LinkIT {
 
   @Test
   public void create_FailsWithoutChainID() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
     Link inputData = new Link()
@@ -246,7 +246,7 @@ public class LinkIT {
 
   @Test
   public void create_FailsWithInvalidState() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
     Link inputData = new Link()
@@ -271,7 +271,7 @@ public class LinkIT {
 
   @Test
   public void readOne() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User",
       "accounts", "1"
     ));
@@ -293,7 +293,7 @@ public class LinkIT {
 
   @Test
   public void readOne_FailsWhenUserIsNotInChain() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User",
       "accounts", "326"
     ));
@@ -305,7 +305,7 @@ public class LinkIT {
 
   @Test
   public void readAll() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User",
       "accounts", "1"
     ));
@@ -334,7 +334,7 @@ public class LinkIT {
 
   @Test
   public void readOneInState() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "internal"
     ));
 
@@ -351,7 +351,7 @@ public class LinkIT {
 
   @Test
   public void readOneInState_nullIfNoneInChain() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "internal"
     ));
     IntegrationTestEntity.insertChain(2, 1, "Test Print #2", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, null);
@@ -363,7 +363,7 @@ public class LinkIT {
 
   @Test
   public void readAll_SeesNothingOutsideOfChain() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User",
       "accounts", "345"
     ));
@@ -376,7 +376,7 @@ public class LinkIT {
 
   @Test
   public void update() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
     Link inputData = new Link()
@@ -403,7 +403,7 @@ public class LinkIT {
 
   @Test
   public void update_failsToTransitionFromDubbingToCrafting() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
 
@@ -415,7 +415,7 @@ public class LinkIT {
 
   @Test
   public void update_FailsWithoutChainID() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
     Link inputData = new Link()
@@ -436,7 +436,7 @@ public class LinkIT {
 
   @Test
   public void update_FailsWithInvalidState() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
     Link inputData = new Link()
@@ -457,7 +457,7 @@ public class LinkIT {
 
   @Test
   public void update_FailsToChangeChain() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
     Link inputData = new Link()
@@ -517,7 +517,7 @@ public class LinkIT {
 
   @Test
   public void destroy_okRegardlessOfChainState() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
 
@@ -561,7 +561,7 @@ public class LinkIT {
 
     // FUTURE: determine new test vector for [#154014731] persist Audio pick in memory
 
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
 

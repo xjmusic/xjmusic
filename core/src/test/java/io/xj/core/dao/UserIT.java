@@ -141,7 +141,7 @@ public class UserIT {
 
   @Test
   public void readOne() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User",
       "accounts", "1"
     ));
@@ -158,7 +158,7 @@ public class UserIT {
 
   @Test
   public void readOne_toJSONObject() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User",
       "accounts", "1"
     ));
@@ -177,7 +177,7 @@ public class UserIT {
 
   @Test
   public void readOne_UserSeesAnotherUserWithCommonAccountMembership() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User",
       "accounts", "1"
     ));
@@ -194,7 +194,7 @@ public class UserIT {
 
   @Test
   public void readOne_UserCannotSeeUserWithoutCommonAccountMembership() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User",
       "accounts", "1"
     ));
@@ -206,7 +206,7 @@ public class UserIT {
 
   @Test
   public void readOne_UserWithNoAccountMembershipCanStillSeeSelf() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "userId", "4", // Bill has no account membership
       "roles", "User",
       "accounts", ""
@@ -220,7 +220,7 @@ public class UserIT {
 
   @Test
   public void readAll() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User,Admin",
       "accounts", "1"
     ));
@@ -233,7 +233,7 @@ public class UserIT {
 
   @Test
   public void readAll_UserSeesSelfAndOtherUsersInSameAccount() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "User",
       "accounts", "1"
     ));
@@ -246,7 +246,7 @@ public class UserIT {
 
   @Test
   public void readAll_UserWithoutAccountMembershipSeesOnlySelf() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "userId", "4", // Bill is in no accounts
       "roles", "User",
       "accounts", ""
@@ -271,7 +271,7 @@ public class UserIT {
 
   @Test
   public void updateUserRolesAndDestroyTokens() throws Exception {
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
     User inputData = new User()
@@ -297,7 +297,7 @@ public class UserIT {
     IntegrationTestEntity.insertUser(53, "julio", "julio.rodriguez@xj.io", "http://pictures.com/julio.gif");
     IntegrationTestEntity.insertUserRole(152, 53, "user");
     IntegrationTestEntity.insertUserRole(153, 53, "artist");
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
     User inputData = new User()
@@ -319,7 +319,7 @@ public class UserIT {
     IntegrationTestEntity.insertUser(53, "julio", "julio.rodriguez@xj.io", "http://pictures.com/julio.gif");
     IntegrationTestEntity.insertUserRole(152, 53, "user");
     IntegrationTestEntity.insertUserRole(153, 53, "artist");
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
     User inputData = new User()
@@ -341,7 +341,7 @@ public class UserIT {
     IntegrationTestEntity.insertUser(53, "julio", "julio.rodriguez@xj.io", "http://pictures.com/julio.gif");
     IntegrationTestEntity.insertUserRole(152, 53, UserRoleType.User);
     IntegrationTestEntity.insertUserRole(153, 53, UserRoleType.Artist);
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
     User inputData = new User()
@@ -361,7 +361,7 @@ public class UserIT {
     IntegrationTestEntity.insertUser(53, "julio", "julio.rodriguez@xj.io", "http://pictures.com/julio.gif");
     IntegrationTestEntity.insertUserRole(152, 53, UserRoleType.User);
     IntegrationTestEntity.insertUserRole(153, 53, UserRoleType.Artist);
-    Access access = Access.from(ImmutableMap.of(
+    Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
     User inputData = new User()

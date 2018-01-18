@@ -30,6 +30,12 @@ public interface Config {
   int MINUTES_PER_HOUR = 60;
   int SECONDS_PER_MINUTE = 60;
   int DEFAULT_REDIS_PORT = 6300;
+  int DEFAULT_EVALUATION_CACHE_SECONDS = 60;
+  int DEFAULT_EVALUATION_CHORD_SEQUENCE_REDUNDANCY_THRESHOLD = 1;
+  long DEFAULT_EVALUATION_DIGEST_CACHE_SIZE = 1_000_000L;
+  int DEFAULT_EVALUATION_DIGEST_CACHE_EXPIRE_MINUTES = 3;
+  int DEFAULT_EVALUATION_DIGEST_CACHE_REFRESH_MINUTES = 1;
+  int DEFAULT_ENTITY_CACHE_SECONDS = 60;
 
   static Boolean isTestEnvironment() {
     return getBoolOrDefault("env.test", false);
@@ -63,6 +69,13 @@ public interface Config {
     return getIntOrDefault("aws.s3.retry.limit", 10);
   }
 
+  /**
+   number of seconds to cache an entity before re-reading it from the DAOs
+   */
+  static int entityCacheSeconds() {
+    return getIntOrDefault("entity.cache.seconds", DEFAULT_ENTITY_CACHE_SECONDS);
+  }
+
   static int evaluationChordSequenceLengthMax() {
     return getIntOrDefault("evaluation.chord.sequence.length.max", 4);
   }
@@ -74,8 +87,33 @@ public interface Config {
     return getIntOrDefault("evaluation.chord.sequence.preserve.length.min", 2);
   }
 
+  /**
+   specifies a threshold X, where during pruning of redundant subsets of chord sequence descriptors, in order to be considered redundant, a subset must have length of at least X less than the length of the superset.
+   */
   static int evaluationChordSequenceRedundancyThreshold() {
-    return getIntOrDefault("evaluation.chord.sequence.redundancy.threshold", 1);
+    return getIntOrDefault("evaluation.chord.sequence.redundancy.threshold", DEFAULT_EVALUATION_CHORD_SEQUENCE_REDUNDANCY_THRESHOLD);
+  }
+
+  /**
+   number of seconds to cache an evaluation before re-reading it from the DAOs
+   */
+  static int evaluationCacheSeconds() {
+    return getIntOrDefault("evaluation.cache.seconds", DEFAULT_EVALUATION_CACHE_SECONDS);
+  }
+
+  /**
+   max size (in memory) for the evaluation cache of one type of digest
+   */
+  static long evaluationDigestCacheSize() {
+    return getLongOrDefault("evaluation.digest.cache.size", DEFAULT_EVALUATION_DIGEST_CACHE_SIZE);
+  }
+
+  static int evaluationDigestCacheExpireMinutes() {
+    return getIntOrDefault("evaluation.digest.cache.expire.minutes", DEFAULT_EVALUATION_DIGEST_CACHE_EXPIRE_MINUTES);
+  }
+
+  static int evaluationDigestCacheRefreshMinutes() {
+    return getIntOrDefault("evaluation.digest.cache.refresh.minutes", DEFAULT_EVALUATION_DIGEST_CACHE_REFRESH_MINUTES);
   }
 
   static int audioFileUploadExpireMinutes() throws ConfigException {
