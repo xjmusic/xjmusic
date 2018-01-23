@@ -14,7 +14,6 @@ import io.xj.core.model.phase.PhaseType;
 import io.xj.core.util.Chance;
 import io.xj.core.util.Value;
 import io.xj.craft.macro.MacroMainCraft;
-import io.xj.music.Chord;
 import io.xj.music.Key;
 
 import com.google.common.collect.Lists;
@@ -148,7 +147,7 @@ public class MacroMainCraftImpl implements MacroMainCraft {
           String name = "NaN";
           try {
             // delta the chord name
-            name = Chord.of(phaseChord.getName()).transpose(mainTranspose()).getFullDescription();
+            name = phaseChord.toMusical().transpose(mainTranspose()).getFullDescription();
             // create the transposed chord
             basis.create(new LinkChord()
               .setLinkId(basis.link().getId())

@@ -229,7 +229,7 @@ public class Access {
 
    @param context to put
    */
-  public void toContext(ContainerRequestContext context) {
+  void toContext(ContainerRequestContext context) {
     context.setProperty(CONTEXT_KEY, this);
   }
 
@@ -258,7 +258,7 @@ public class Access {
    @param matchRoles of the resource to match.
    @return whether user access roles match resource access roles.
    */
-  public boolean isAllowed(String... matchRoles) {
+  boolean isAllowed(String... matchRoles) {
     // inefficient?
 
     for (String matchRole : matchRoles) {
@@ -318,12 +318,12 @@ public class Access {
 
   /**
    Validation
+   [#154580129] valid with no accounts, because User expects to login without having access to any accounts.
    */
   public boolean isValid() {
-    if (Objects.isNull(userId)) return false;
-    if (Objects.isNull(userAuthId)) return false;
     if (Objects.isNull(roleTypes) || roleTypes.isEmpty()) return false;
-    if (Objects.isNull(accountIds) || accountIds.isEmpty()) return false;
+    if (Objects.isNull(userAuthId)) return false;
+    if (Objects.isNull(userId)) return false;
     return true;
   }
 

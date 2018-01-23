@@ -9,6 +9,7 @@ import io.xj.core.config.Config;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
+import io.xj.core.exception.BusinessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +33,7 @@ import java.util.Objects;
 public class AccessTokenAuthFilterImpl implements AccessTokenAuthFilter {
   private static final Injector injector = Guice.createInjector(new CoreModule());
   private final Logger log = LoggerFactory.getLogger(AccessTokenAuthFilterImpl.class);
-  private final AccessControlProvider accessControlProvider = injector.getInstance(AccessControlProvider.class);
+  private AccessControlProvider accessControlProvider = injector.getInstance(AccessControlProvider.class);
 
   private final String accessTokenName = Config.accessTokenName();
 
@@ -47,11 +48,21 @@ public class AccessTokenAuthFilterImpl implements AccessTokenAuthFilter {
     try {
       String errorMessage = authenticate(requestContext);
       if (Objects.nonNull(errorMessage)) {
-        deny(requestContext, errorMessage);
+        deny(requestContext, new BusinessException(errorMessage));
       }
     } catch (Exception e) {
-      fail(requestContext, e.getMessage());
+      fail(requestContext, e);
     }
+  }
+
+  /**
+   Override resource info-- FOR TESTING PURPOSES ONLY, in order to mock a resource
+
+   @param resourceInfo to set
+   */
+  public void setTestResources(ResourceInfo resourceInfo, AccessControlProvider accessControlProvider) {
+    this.resourceInfo = resourceInfo;
+    this.accessControlProvider = accessControlProvider;
   }
 
   /**
@@ -73,53 +84,45 @@ public class AccessTokenAuthFilterImpl implements AccessTokenAuthFilter {
     DenyAll aDenyAll = method.getAnnotation(DenyAll.class);
 
     // deny-all is exactly that
-    if (Objects.nonNull(aDenyAll)) {
+    if (Objects.nonNull(aDenyAll))
       return "no access permitted";
-    }
 
     // roles required from here on
-    if (Objects.isNull(aPermitAll) && Objects.isNull(aRolesAllowed)) {
+    if (Objects.isNull(aPermitAll) && Objects.isNull(aRolesAllowed))
       return "resource allows no roles";
-    }
 
     // get AccessControl from (required from here on) access token
     Map<String, Cookie> cookies = context.getCookies();
     Cookie accessTokenCookie = cookies.getOrDefault(accessTokenName, null);
-    if (Objects.isNull(aPermitAll) && Objects.isNull(accessTokenCookie)) {
+    if (Objects.isNull(aPermitAll) && Objects.isNull(accessTokenCookie))
       return "token-less access";
-    }
 
     // permit-all is exactly that (but overridden by deny-all)
     // BUT if an access token was provided, we're going to treat this as a user auth
     // Required, for example, to implement an idempotent /logout endpoint that redirects somewhere, never returning a 401, whether or not the user is auth'd
     // [#153110625] Logout, expect redirect to logged-out home view
-    if (Objects.nonNull(aPermitAll) && Objects.isNull(accessTokenCookie)) {
+    if (Objects.nonNull(aPermitAll) && Objects.isNull(accessTokenCookie))
       return null; // allowed
-    }
 
     Access access;
     try {
       access = accessControlProvider.get(accessTokenCookie.getValue());
     } catch (Exception e) {
       log.warn("Could not retrieve access token {}", accessTokenCookie.getValue(), e);
-      if (Objects.nonNull(aPermitAll)) {
+      if (Objects.nonNull(aPermitAll))
         return null; // allowed to supply bad access token for a permit-all route
-      } else {
+      else
         return "cannot get access token";
-      }
     }
 
-    if (!access.isValid()) {
-      if (Objects.nonNull(aPermitAll)) {
+    if (!access.isValid())
+      if (Objects.nonNull(aPermitAll))
         return null; // allowed to have invalid access for a permit-all route
-      } else {
+      else
         return "invalid access token";
-      }
-    }
 
-    if (!access.isTopLevel() && !access.isAllowed(aRolesAllowed.value())) {
+    if (!access.isTopLevel() && Objects.isNull(aPermitAll) && !access.isAllowed(aRolesAllowed.value()))
       return "user has no accessible role";
-    }
 
     // setContent AccessControl in context for use by resource
     access.toContext(context);
@@ -128,11 +131,11 @@ public class AccessTokenAuthFilterImpl implements AccessTokenAuthFilter {
 
   /**
    Access denial implements this central method for logging.
+   * @param e pertaining to denial.
 
-   @param msg pertaining to denial.
    */
-  private void deny(ContainerRequestContext context, String msg) {
-    log.debug("Denied {} /{} ({})", context.getRequest().getMethod(), context.getUriInfo().getPath(), msg);
+  private void deny(ContainerRequestContext context, Exception e) {
+    log.debug("Denied {} /{} ({})", context.getRequest().getMethod(), context.getUriInfo().getPath(), e);
     context.abortWith(
       Response
         .noContent()
@@ -144,10 +147,10 @@ public class AccessTokenAuthFilterImpl implements AccessTokenAuthFilter {
   /**
    Access failure implements this central method for logging.
 
-   @param msg pertaining to internal server error.
+   @param e pertaining to internal server error.
    */
-  private void fail(ContainerRequestContext context, String msg) {
-    log.error("Failed {} /{} ({})", context.getRequest().getMethod(), context.getUriInfo().getPath(), msg);
+  private void fail(ContainerRequestContext context, Exception e) {
+    log.error("Failed {} /{} ({})", context.getRequest().getMethod(), context.getUriInfo().getPath(), e);
     context.abortWith(Response.serverError().build());
   }
 

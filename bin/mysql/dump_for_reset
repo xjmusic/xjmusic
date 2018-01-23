@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 
 # Include common functions
-. $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/common/functions
+. $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/../common/functions
 
 # Title & Usage
 TITLE="Dump reset_database.sql to MySQL db"
 USAGE="
    Usage:
-     bin/mysql_dump_for_reset <host> <arguments...>
+     bin/mysql/dump_for_reset <host> <arguments...>
 
    <host> to run, as in: mysql -h <host>
    <arguments...> (optional) passed to 'mysql' client

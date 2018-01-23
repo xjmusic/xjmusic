@@ -88,7 +88,7 @@ After logging in via Google, there will be a user created for you. It will have 
 
 Even better than ^^^, there's a convenience script to easily connect to the MySQL database in the Docker container.
 
-    bin/mysql
+    bin/mysql/connect
 
 And inside mysql shell, for example to impersonate user #1 (after being auto-logged-in as new user #21):
 
@@ -103,17 +103,17 @@ There is a MySQL dump of a complete example database, for quickly bootstrapping 
 
 Load the example database into `mysql01xj1` using the port forwarding from local port 3300 (to Docker Mysql container port 3306). There's a convenience script to do this:
 
-    bin/mysql_reset
+    bin/mysql/reset_from_dump
 
 The **reset_database.sql** file can be quickly updated from the current dev database with this script:
 
-    bin/mysql_dump_for_reset
+    bin/mysql/dump_for_reset
 
 It is NOT necessary to have any local MySQL server running. The build process will use your Docker `mysql01xj1`, or more specifically (for cross-platform compatibility) it will use port 3300 which Docker maps to `mysql01xj1` port 3306, for Maven to use during the build process.
 
 Connect to the Docker `mysql01xj1` server:
 
-    bin/mysql
+    bin/mysql/connect
 
 You will need to create two databases in your local MySQL server, `xj` and `xj_test`:
 

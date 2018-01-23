@@ -139,6 +139,20 @@ public class AccessTest extends Mockito {
     assertTrue(access.isValid());
   }
 
+  /**
+   [#154580129] User expects to login without having access to any accounts.
+   */
+  @Test
+  public void valid_evenWithNoAccounts() throws Exception {
+    Access access = new Access(ImmutableMap.of(
+      "userAuthId", "1",
+      "userId", "1",
+      "roles", "User,Artist"
+    ));
+
+    assertTrue(access.isValid());
+  }
+
   @Test
   public void valid_not() throws Exception {
     Access access = new Access(ImmutableMap.of(
