@@ -7,6 +7,12 @@
 <!-- Upper Container -->
 <div class="form-horizontal container-fluid">
 
+  {{#if auth.isAdmin}}
+    <div class="col-sm-12 text-right">
+      {{#link-to 'accounts.one.chains.new' model.account}}{{fa-icon "plus"}} Create New Chain{{/link-to}}
+    </div>
+  {{/if}}
+
   <!-- List of Chains -->
   {{#if model.chains.length}}
     <div class="col-sm-12">
@@ -60,9 +66,4 @@
     </div>
   {{/if}}
 
-  {{#if auth.isAdmin}}
-    <div class="col-sm-12">
-      Or: {{#link-to 'accounts.one.chains.new' model.account}}Create New Chain{{/link-to}}
-    </div>
-  {{/if}}
 </div>

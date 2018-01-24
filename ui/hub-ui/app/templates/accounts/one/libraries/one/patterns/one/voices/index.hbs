@@ -6,6 +6,12 @@
 <!-- Upper Container -->
 <div class="form-horizontal container-fluid">
 
+  {{#if (or auth.isArtist auth.isAdmin)}}
+    <div class="col-sm-12 text-right">
+      {{#link-to 'accounts.one.libraries.one.patterns.one.voices.new' model.pattern.library.account model.pattern.library model.pattern}}{{fa-icon "plus"}} Create New Voice{{/link-to}}
+    </div>
+  {{/if}}
+
   <!-- List of Voices -->
   <div class="col-sm-12">
     <div class="table-list">
@@ -34,9 +40,4 @@
     </div>
   </div>
 
-  {{#if (or auth.isArtist auth.isAdmin)}}
-    <div class="col-sm-12">
-      Or: {{#link-to 'accounts.one.libraries.one.patterns.one.voices.new' model.pattern.library.account model.pattern.library model.pattern}}Create New Voice{{/link-to}}
-    </div>
-  {{/if}}
 </div>

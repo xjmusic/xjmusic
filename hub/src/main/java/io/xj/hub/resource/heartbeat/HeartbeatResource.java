@@ -7,7 +7,6 @@ import io.xj.core.exception.ConfigException;
 import io.xj.core.model.work.Work;
 import io.xj.core.transport.HttpResponseProvider;
 import io.xj.core.work.WorkManager;
-import io.xj.hub.resource.auth.google.AuthGoogleCallbackResource;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -32,7 +31,7 @@ import java.util.Objects;
 @Path("heartbeat")
 public class HeartbeatResource {
   private static final Injector injector = Guice.createInjector(new CoreModule());
-  private final Logger log = LoggerFactory.getLogger(AuthGoogleCallbackResource.class);
+  private final Logger log = LoggerFactory.getLogger(HeartbeatResource.class);
   private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
   private final WorkManager workManager = injector.getInstance(WorkManager.class);
 

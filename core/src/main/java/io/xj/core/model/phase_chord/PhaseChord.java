@@ -23,6 +23,25 @@ public class PhaseChord extends Chord {
 
   private BigInteger phaseId;
 
+  /**
+   Empty constructor
+   */
+  public PhaseChord() {
+  }
+
+  /**
+   Constructor
+
+   @param phaseId  phase to which chord belongs
+   @param position of chord in phase, starting at 0
+   @param name     of chord
+   */
+  public PhaseChord(BigInteger phaseId, Integer position, String name) {
+    this.phaseId = phaseId;
+    this.position = position;
+    this.name = name;
+  }
+
   public PhaseChord setName(String name) {
     this.name = name;
     return this;

@@ -4,6 +4,9 @@ package io.xj.hub.resource.pattern;
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.PatternDAO;
+import io.xj.core.evaluation.EvaluationFactory;
+import io.xj.core.generation.GenerationFactory;
+import io.xj.core.model.library.Library;
 import io.xj.core.model.pattern.Pattern;
 import io.xj.core.model.pattern.PatternWrapper;
 import io.xj.core.model.user_role.UserRoleType;
@@ -12,6 +15,9 @@ import io.xj.core.transport.HttpResponseProvider;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.security.RolesAllowed;
 import javax.jws.WebResult;
@@ -34,8 +40,11 @@ import java.util.Objects;
 @Path("patterns")
 public class PatternIndexResource {
   private static final Injector injector = Guice.createInjector(new CoreModule());
+  private final Logger log = LoggerFactory.getLogger(PatternIndexResource.class);
   private final PatternDAO patternDAO = injector.getInstance(PatternDAO.class);
   private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
+  private final GenerationFactory generationFactory = injector.getInstance(GenerationFactory.class);
+  private final EvaluationFactory evaluationFactory = injector.getInstance(EvaluationFactory.class);
 
   @QueryParam("accountId")
   String accountId;
@@ -45,6 +54,9 @@ public class PatternIndexResource {
 
   @QueryParam("cloneId")
   String cloneId;
+
+  @QueryParam("generateLibrarySuperpattern")
+  Boolean generateLibrarySuperpattern;
 
   /**
    Get all patterns.
@@ -106,7 +118,9 @@ public class PatternIndexResource {
   }
 
   /**
-   Create new pattern
+   Create new pattern.
+   <p>
+   [#154548999] if query parameter ?generateLibrarySuperpattern=true then generate a Library Superpattern
 
    @param data with which to update Pattern record.
    @return Response
@@ -117,16 +131,23 @@ public class PatternIndexResource {
   public Response create(PatternWrapper data, @Context ContainerRequestContext crc) {
     try {
       Pattern created;
-      if (Objects.nonNull(cloneId)) {
-        created = patternDAO.clone(
-          Access.fromContext(crc),
-          new BigInteger(cloneId),
-          data.getPattern());
-      } else {
-        created = patternDAO.create(
-          Access.fromContext(crc),
-          data.getPattern());
-      }
+
+      if (Objects.nonNull(cloneId)) created = patternDAO.clone(
+        Access.fromContext(crc),
+        new BigInteger(cloneId),
+        data.getPattern());
+
+      else created = patternDAO.create(
+        Access.fromContext(crc),
+        data.getPattern());
+
+      if (Objects.nonNull(generateLibrarySuperpattern))
+        log.info("Generated Library Superpattern: {}",
+          generationFactory.librarySuperpattern(created,
+            evaluationFactory.evaluate(Access.fromContext(crc),
+              ImmutableList.of(new Library(created.getLibraryId()))
+            )).toJSONObject());
+
       return response.create(
         Pattern.KEY_MANY,
         Pattern.KEY_ONE,

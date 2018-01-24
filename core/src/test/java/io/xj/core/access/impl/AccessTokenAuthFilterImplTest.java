@@ -1,15 +1,16 @@
 package io.xj.core.access.impl;// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 
+import io.xj.core.CoreModule;
+import io.xj.core.access.AccessControlProvider;
+import io.xj.core.access.AccessTokenAuthFilter;
+import io.xj.core.model.user_role.UserRoleType;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 
-import io.xj.core.CoreModule;
-import io.xj.core.access.AccessControlProvider;
-import io.xj.core.access.AccessTokenAuthFilter;
-import io.xj.core.model.user_role.UserRoleType;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,6 +42,15 @@ public class AccessTokenAuthFilterImplTest {
   @Mock private ContainerRequestContext requestContext;
   @Mock private ResourceInfo resourceInfo;
 
+  private static Injector createInjector() {
+    return Guice.createInjector(Modules.override(new CoreModule()).with(
+      new AbstractModule() {
+        @Override
+        public void configure() {
+        }
+      }));
+  }
+
   @Before
   public void setUp() throws Exception {
     System.setProperty("auth.google.id", "my-google-id");
@@ -56,15 +66,6 @@ public class AccessTokenAuthFilterImplTest {
     injector = null;
     System.clearProperty("auth.google.secret");
     System.clearProperty("auth.google.id");
-  }
-
-  private Injector createInjector() {
-    return Guice.createInjector(Modules.override(new CoreModule()).with(
-      new AbstractModule() {
-        @Override
-        public void configure() {
-        }
-      }));
   }
 
   /**

@@ -6,6 +6,12 @@
 <!-- Upper container -->
 <div class="form-horizontal container-fluid">
 
+  {{#if auth.isAdmin}}
+    <div class="col-sm-12 text-right">
+      {{#link-to 'accounts.new'}}{{fa-icon "plus"}} Create New Account{{/link-to}}
+    </div>
+  {{/if}}
+
   <!-- List of Accounts -->
   <div class="col-sm-12">
     <div class="table-list">
@@ -35,9 +41,4 @@
     </div>
   </div>
 
-  {{#if auth.isAdmin}}
-    <div class="col-sm-12">
-      Or: {{#link-to 'accounts.new'}}Create New Account{{/link-to}}
-    </div>
-  {{/if}}
 </div>

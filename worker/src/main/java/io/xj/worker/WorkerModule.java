@@ -35,12 +35,12 @@ public class WorkerModule extends AbstractModule {
 
   private void installJobTargetFactory() {
     install(new FactoryModuleBuilder()
-      .implement(ChainFabricateJob.class, ChainFabricateJobImpl.class)
-      .implement(LinkFabricateJob.class, LinkFabricateJobImpl.class)
+      .implement(AudioCloneJob.class, AudioCloneJobImpl.class)
       .implement(AudioEraseJob.class, AudioEraseJobImpl.class)
       .implement(ChainEraseJob.class, ChainEraseJobImpl.class)
+      .implement(ChainFabricateJob.class, ChainFabricateJobImpl.class)
       .implement(InstrumentCloneJob.class, InstrumentCloneJobImpl.class)
-      .implement(AudioCloneJob.class, AudioCloneJobImpl.class)
+      .implement(LinkFabricateJob.class, LinkFabricateJobImpl.class)
       .implement(PatternCloneJob.class, PatternCloneJobImpl.class)
       .implement(PhaseCloneJob.class, PhaseCloneJobImpl.class)
       .build(JobTargetFactory.class));

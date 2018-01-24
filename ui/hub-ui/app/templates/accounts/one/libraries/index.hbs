@@ -6,6 +6,12 @@
 <!-- Upper Container -->
 <div class="form-horizontal container-fluid">
 
+  {{#if auth.isAdmin}}
+    <div class="col-sm-12 text-right">
+      {{#link-to 'accounts.one.libraries.new' model.account}}{{fa-icon "plus"}} Create New Library{{/link-to}}
+    </div>
+  {{/if}}
+
   <!-- List of Libraries -->
   <div class="col-sm-12">
     <div class="table-list">
@@ -35,9 +41,4 @@
     </div>
   </div>
 
-  {{#if auth.isAdmin}}
-    <div class="col-sm-12">
-      Or: {{#link-to 'accounts.one.libraries.new' model.account}}Create New Library{{/link-to}}
-    </div>
-  {{/if}}
 </div>

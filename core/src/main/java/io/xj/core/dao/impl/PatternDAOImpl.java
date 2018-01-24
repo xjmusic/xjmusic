@@ -5,6 +5,7 @@ import io.xj.core.access.impl.Access;
 import io.xj.core.dao.PatternDAO;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.exception.ConfigException;
+import io.xj.core.model.library.Library;
 import io.xj.core.model.pattern.Pattern;
 import io.xj.core.model.pattern.PatternType;
 import io.xj.core.persistence.sql.SQLDatabaseProvider;
@@ -121,7 +122,7 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
 
    @param db        context
    @param access    control
-   @param accountId of parent
+   @param accountId to get patterns in
    @return array of records
    */
   private static Collection<Pattern> readAllInAccount(DSLContext db, Access access, ULong accountId) throws BusinessException {
@@ -396,7 +397,7 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
    @param db      context
    @param access  control
    @param cloneId of pattern to clone
-   @param entity  for the new Account User.
+   @param entity  for the new pattern
    @return newly readMany record
    @throws BusinessException on failure
    */

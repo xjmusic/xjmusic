@@ -25,9 +25,9 @@ const EvaluationContainerComponent = Component.extend({
 
     /**
      Action: Do Evaluation
-     * @param type
+     * @param type should be proper digestType like "DigestChordMarkov"
      */
-    doEvaluation(type) {
+    doEvaluation(type, name) {
       let self = this;
       let div = self.$('.evaluation');
       div.find('.active').removeClass('active');
@@ -46,14 +46,14 @@ const EvaluationContainerComponent = Component.extend({
         (data) => {
           if (data.hasOwnProperty('digest')) {
             set(self, 'result', data['digest']);
-            get(self, 'display').success('Did ' + type + ' evaluation.');
+            get(self, 'display').success('Did ' + name + ' evaluation.');
             div.addClass('done');
             div.removeClass('loading');
 
           } else {
             div.addClass('failed');
             div.removeClass('loading');
-            get(self, 'display').error('Failed; ' + type + ' evaluation was empty.');
+            get(self, 'display').error('Failed; ' + name + ' evaluation was empty.');
           }
 
         },
@@ -72,7 +72,7 @@ const EvaluationContainerComponent = Component.extend({
 /**
  * Example Usage (e.g, in Handlebars):
  *
- *   {{evaluation-container model 'DigestMemes|DigestChords'}}
+ *   {{evaluation-container model 'Digest Memes|Digest Chords'}}
  */
 EvaluationContainerComponent.reopenClass({
   positionalParams: ['model', 'types']

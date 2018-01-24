@@ -1,0 +1,22 @@
+<!-- Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved. -->
+
+<div class="chord-progression">
+
+  {{#each segments as |segment|}}
+    <div class="chord-progression-segment">
+
+      {{#if segment.form}}
+        <div class="form">{{segment.form}}</div>{{/if}}
+
+      {{#if segment.deltaRootPitchClass}}
+        <div class="delta">
+          <small>&Delta;</small>{{segment.deltaRootPitchClass}}
+        </div>
+      {{/if}}
+
+    </div>
+  {{/each}}
+
+  {{yield}}
+
+</div>

@@ -1,9 +1,14 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.evaluation.impl;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
+
 import io.xj.core.access.impl.Access;
 import io.xj.core.cache.entity.EntityCacheProvider;
-import io.xj.core.config.Config;
 import io.xj.core.dao.AudioChordDAO;
 import io.xj.core.dao.AudioDAO;
 import io.xj.core.dao.AudioEventDAO;
@@ -22,8 +27,6 @@ import io.xj.core.evaluation.Evaluation;
 import io.xj.core.model.audio.Audio;
 import io.xj.core.model.audio_chord.AudioChord;
 import io.xj.core.model.audio_event.AudioEvent;
-import io.xj.core.model.chord.Chord;
-import io.xj.core.model.chord.ChordSequence;
 import io.xj.core.model.entity.Entity;
 import io.xj.core.model.entity.EntityRank;
 import io.xj.core.model.instrument.Instrument;
@@ -41,13 +44,7 @@ import io.xj.core.model.phase_event.PhaseEvent;
 import io.xj.core.model.phase_meme.PhaseMeme;
 import io.xj.core.model.voice.Voice;
 import io.xj.core.util.Chance;
-
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
-
+import io.xj.music.Key;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,7 +52,6 @@ import javax.annotation.Nullable;
 import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -77,6 +73,7 @@ public class EvaluationImpl implements Evaluation {
   private final PhaseMemeDAO phaseMemeDAO;
   private final VoiceDAO voiceDAO;
   private final PhaseEventDAO phaseEventDAO;
+
   private final Access access;
   private final PhaseChordDAO phaseChordDAO;
   private final AudioChordDAO audioChordDAO;
@@ -134,49 +131,7 @@ public class EvaluationImpl implements Evaluation {
     this.phaseMemeDAO = phaseMemeDAO;
     this.voiceDAO = voiceDAO;
     this.phaseEventDAO = phaseEventDAO;
-    readAll(); // must happen before chord sequences are computed
-  }
-
-  /**
-   Compute all possible chord sequences given a set of chords (e.g. from a Phase or Audio)
-
-   @param parentId parent of chords
-   @param chords   to compute all possible sequences of
-   @return array of phaseMap
-   */
-  private static Collection<ChordSequence> computeChordSequences(BigInteger parentId, Collection<Chord> chords) {
-    List<ChordSequence> result = Lists.newArrayList();
-
-    List<Chord> allChords = Lists.newArrayList(chords);
-    allChords.sort(Chord.byPositionAscending);
-
-    int totalChords = allChords.size();
-    for (int fromChord = 0; fromChord < totalChords; fromChord++) {
-      int maxToChord = Math.min(totalChords, fromChord + Config.evaluationChordSequenceLengthMax());
-      for (int toChord = fromChord; toChord < maxToChord; toChord++) {
-        List<Chord> subset = Lists.newArrayList();
-        for (int i = fromChord; i <= toChord; i++) {
-          subset.add(allChords.get(i));
-        }
-        result.add(new ChordSequence(parentId, subset));
-      }
-    }
-
-    return result;
-  }
-
-  /**
-   Get only the audio chords of a particular audio
-
-   @param chordMap to search for chords
-   @return collection of audio chords
-   */
-  private static <C extends Chord> Collection<Chord> chordsOf(Map<BigInteger, C> chordMap, BigInteger parentId) {
-    Collection<Chord> result = Lists.newArrayList();
-    chordMap.values().forEach(chord -> {
-      if (Objects.equals(parentId, chord.getParentId())) result.add(chord);
-    });
-    return result;
+    readAll(); // must happen before chord progressions are computed
   }
 
   /**
@@ -209,20 +164,6 @@ public class EvaluationImpl implements Evaluation {
   @Override
   public Map<BigInteger, Instrument> instrumentMap() {
     return Collections.unmodifiableMap(instrumentMap);
-  }
-
-  /**
-   Compute all possible chord sequences for contents in evaluation
-   */
-  private Collection<ChordSequence> computeAllChordSequences() {
-    Collection<ChordSequence> result = Lists.newArrayList();
-
-    phaseMap.keySet().forEach(phaseId ->
-      result.addAll(computeChordSequences(phaseId, chordsOf(phaseChordMap, phaseId))));
-    audioMap.keySet().forEach(audioId ->
-      result.addAll(computeChordSequences(audioId, chordsOf(audioChordMap, audioId))));
-
-    return result;
   }
 
   /**
@@ -302,6 +243,11 @@ public class EvaluationImpl implements Evaluation {
         result.add(pattern);
     });
     return result.build();
+  }
+
+  @Override
+  public Access access() {
+    return access;
   }
 
   @Override
@@ -459,6 +405,24 @@ public class EvaluationImpl implements Evaluation {
   }
 
   @Override
+  public Key phaseKey(BigInteger id) {
+    // if null phase return empty key
+    Phase phase = fetchOne(Phase.class, phaseMap, phaseDAO, id);
+    if (Objects.isNull(phase))
+      return Key.of("");
+
+    // if phase has key, use that
+    if (Objects.nonNull(phase.getKey()) && !phase.getKey().isEmpty())
+      return Key.of(phase.getKey());
+
+    // phase has no key; use pattern key. if null pattern return empty key
+    Pattern pattern = pattern(phase.getPatternId());
+    if (Objects.isNull(pattern))
+      return Key.of("");
+    return Key.of(pattern.getKey());
+  }
+
+  @Override
   public Collection<AudioChord> audioChords() {
     return audioChordMap.values();
   }
@@ -502,11 +466,6 @@ public class EvaluationImpl implements Evaluation {
         result.add(phaseEvent);
     });
     return result.build();
-  }
-
-  @Override
-  public Collection<ChordSequence> chordSequences() {
-    return computeAllChordSequences();
   }
 
   @Override

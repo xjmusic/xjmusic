@@ -18,8 +18,8 @@ public enum AdjSymbol {
   private static final Pattern rgxFlatIn = Pattern.compile("[♭b]");
   private static final Pattern rgxSharpBegin = Pattern.compile("^[♯#]");
   private static final Pattern rgxFlatBegin = Pattern.compile("^[♭b]");
-  private static final Pattern rgxSharpishIn = Pattern.compile("(M|maj|major|aug)");
-  private static final Pattern rgxFlattishIn = Pattern.compile("([^a-z]|^)(m|min|minor|dim)");
+  private static final Pattern rgxSharpishIn = Pattern.compile("(M|maj|Major|major|aug)");
+  private static final Pattern rgxFlattishIn = Pattern.compile("([^a-z]|^)(m|min|Minor|minor|dim)");
 
   /**
    AdjSymbol the adjustment symbol (Sharp or Flat) for a given name (e.g. of a chord, scale or key)

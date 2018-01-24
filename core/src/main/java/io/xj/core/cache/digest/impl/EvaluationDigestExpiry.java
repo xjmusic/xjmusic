@@ -2,7 +2,7 @@
 package io.xj.core.cache.digest.impl;
 
 import io.xj.core.evaluation.Evaluation;
-import io.xj.core.evaluation.digest.Digest;
+import io.xj.core.digest.Digest;
 
 import com.github.benmanes.caffeine.cache.Expiry;
 

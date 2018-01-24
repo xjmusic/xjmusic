@@ -19,7 +19,7 @@ public class AccessLogFilterProviderImpl implements AccessLogFilterProvider {
   private final Logger log = LoggerFactory.getLogger(AccessLogFilterProviderImpl.class);
   private final String pathToWriteAccessLog = Config.logAccessFilename();
   private final Integer maxSizeEntitiesInAccessLog = Config.logAccessEntitiesMaxsize();
-  private final Boolean showEntitiesInAccessLog = Config.logAccessEntitiesAll();
+  private final Boolean showEntitiesInAccessLog = Config.isLogAccessEntitiesAll();
 
   /**
    Setup a path and max entity size

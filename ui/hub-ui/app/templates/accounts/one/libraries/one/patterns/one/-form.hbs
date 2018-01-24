@@ -32,6 +32,16 @@
   </div>
 </div>
 
+{{#if (and (eq "Detail" model.type) (eq null model.id))}}
+  <!-- Generate Library Superpattern? -->
+  <div class="form-group row">
+    <label class="col-sm-8 control-label">Generate Library Superpattern?</label>
+    <div class="col-sm-4">
+      <input type="checkbox" class="form-control" placeholder="Whether a Library Pattern should be generated" id="generateLibrarySuperpattern" />
+    </div>
+  </div>
+{{/if}}
+
 <!-- Name -->
 <div class="form-group row">
   <label class="col-sm-2 control-label">Name</label>
@@ -45,7 +55,7 @@
 <div class="form-group row">
   <label class="col-sm-2 control-label">Key</label>
   <div class="col-sm-10">
-    {{input type="text" value=model.key class="form-control" autofocus="autofocus"
+    {{input type="text" value=model.key class="form-control"
             placeholder="The key of the Pattern"}}
   </div>
 </div>

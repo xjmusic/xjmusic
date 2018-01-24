@@ -1,8 +1,9 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
-import { get } from '@ember/object';
+import {get} from '@ember/object';
+import $ from 'jquery';
 
-import { Promise as EmberPromise } from 'rsvp';
-import { inject as service } from '@ember/service';
+import {Promise as EmberPromise} from 'rsvp';
+import {inject as service} from '@ember/service';
 import Route from '@ember/routing/route';
 
 export default Route.extend({
@@ -65,9 +66,20 @@ export default Route.extend({
   actions: {
 
     createPattern(model) {
-      model.save().then(
+      let generateLibrarySuperpattern = $('#generateLibrarySuperpattern:checked').length > 0;
+      model.save({
+        adapterOptions: {
+          query: {
+            generateLibrarySuperpattern: generateLibrarySuperpattern
+          }
+        }
+      }).then(
         () => {
-          get(this, 'display').success('Created pattern ' + model.get('name') + '.');
+          if (generateLibrarySuperpattern) {
+            get(this, 'display').success('Generate library superpattern ' + model.get('name') + '.');
+          } else {
+            get(this, 'display').success('Created pattern ' + model.get('name') + '.');
+          }
           this.transitionTo('accounts.one.libraries.one.patterns.one', model);
         },
         (error) => {

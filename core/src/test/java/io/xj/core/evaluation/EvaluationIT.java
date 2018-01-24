@@ -1,15 +1,20 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.evaluation;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.PhaseEventDAO;
-import io.xj.core.evaluation.digest.DigestFactory;
-import io.xj.core.evaluation.digest.DigestType;
-import io.xj.core.evaluation.digest.chords.DigestChords;
-import io.xj.core.evaluation.digest.hash.DigestHash;
-import io.xj.core.evaluation.digest.memes.DigestMemes;
-import io.xj.core.evaluation.digest.memes.impl.DigestMemesItem;
+import io.xj.core.digest.DigestFactory;
+import io.xj.core.digest.DigestType;
+import io.xj.core.digest.chord_sequence.DigestChordProgression;
+import io.xj.core.digest.hash.DigestHash;
+import io.xj.core.digest.meme.DigestMeme;
+import io.xj.core.digest.meme.impl.DigestMemesItem;
 import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.model.entity.Entity;
 import io.xj.core.model.instrument.InstrumentType;
@@ -18,12 +23,7 @@ import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.phase.PhaseType;
 import io.xj.core.model.phase_event.PhaseEvent;
 import io.xj.core.model.user_role.UserRoleType;
-
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-
+import io.xj.music.PitchClass;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.After;
@@ -164,147 +164,22 @@ public class EvaluationIT {
   }
 
   @Test
-  public void doEntityEvaluation_DigestMemes() throws Exception {
+  public void evaluate() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
 
-    DigestMemes result = digestFactory.memesOf(evaluationFactory.evaluate(access, ImmutableList.of(new Library(10000001))));
+    Evaluation result = evaluationFactory.evaluate(access, ImmutableList.of(new Library(10000001)));
 
-    // Fuzz
-    DigestMemesItem result1 = result.getMemes().get("Fuzz");
-    assertEquivalent(ImmutableList.of(), result1.getPatternIds());
-    assertEquivalent(ImmutableList.of(), result1.getInstrumentIds());
-    assertEquivalent(ImmutableList.of(BigInteger.valueOf(701)), result1.getPhasePatternIds());
-    assertEquivalent(ImmutableList.of(BigInteger.valueOf(901)), result1.getPhaseIds(BigInteger.valueOf(701)));
-
-    // Ants
-    DigestMemesItem result2 = result.getMemes().get("Ants");
-    assertEquivalent(ImmutableList.of(BigInteger.valueOf(701)), result2.getPatternIds());
-    assertEquivalent(ImmutableList.of(BigInteger.valueOf(201)), result2.getInstrumentIds());
-    assertEquivalent(ImmutableList.of(), result2.getPhasePatternIds());
-    assertEquivalent(ImmutableList.of(), result2.getPhaseIds(BigInteger.valueOf(701)));
-
-    // Peel
-    DigestMemesItem result3 = result.getMemes().get("Peel");
-    assertEquivalent(ImmutableList.of(BigInteger.valueOf(703)), result3.getPatternIds());
-    assertEquivalent(ImmutableList.of(BigInteger.valueOf(202)), result3.getInstrumentIds());
-    assertEquivalent(ImmutableList.of(BigInteger.valueOf(701)), result3.getPhasePatternIds());
-    assertEquivalent(ImmutableList.of(BigInteger.valueOf(902)), result3.getPhaseIds(BigInteger.valueOf(701)));
-
-    // Gravel
-    DigestMemesItem result4 = result.getMemes().get("Gravel");
-    assertEquivalent(ImmutableList.of(), result4.getPatternIds());
-    assertEquivalent(ImmutableList.of(), result4.getInstrumentIds());
-    assertEquivalent(ImmutableList.of(BigInteger.valueOf(701)), result4.getPhasePatternIds());
-    assertEquivalent(ImmutableList.of(BigInteger.valueOf(901)), result4.getPhaseIds(BigInteger.valueOf(701)));
-
-    // Mold
-    DigestMemesItem result5 = result.getMemes().get("Mold");
-    assertEquivalent(ImmutableList.of(BigInteger.valueOf(701)), result5.getPatternIds());
-    assertEquivalent(ImmutableList.of(BigInteger.valueOf(201)), result5.getInstrumentIds());
-    assertEquivalent(ImmutableList.of(), result5.getPhasePatternIds());
-    assertEquivalent(ImmutableList.of(), result5.getPhaseIds(BigInteger.valueOf(701)));
-  }
-
-  @Test
-  public void doEntityEvaluation_DigestChords() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "Artist",
-      "accounts", "1"
-    ));
-
-    DigestChords result = digestFactory.chordsOf(evaluationFactory.evaluate(access, ImmutableList.of(new Library(10000001))));
-
-    assertNotNull(result);
+    assertEquals(PitchClass.Cs, result.phaseKey(BigInteger.valueOf(901)).getRootPitchClass());
   }
 
   @Test
   public void evaluationType() throws Exception {
-    assertEquals(DigestType.DigestMemes, DigestType.validate("DigestMemes"));
-    assertEquals(DigestType.DigestChords, DigestType.validate("DigestChords"));
+    assertEquals(DigestType.DigestMeme, DigestType.validate("DigestMeme"));
+    assertEquals(DigestType.DigestChordProgression, DigestType.validate("DigestChordProgression"));
     assertEquals(DigestType.DigestHash, DigestType.validate("DigestHash"));
-  }
-
-  @Test
-  public void digestChords_ofLibrary() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "User,Artist",
-      "accounts", "1"
-    ));
-    Collection<Entity> entities = ImmutableList.of(new Library(10000001));
-
-    DigestChords digestChords = digestFactory.chordsOf(evaluationFactory.evaluate(access, entities));
-
-    JSONObject result = digestChords.toJSONObject();
-    assertNotNull(result);
-    JSONArray resultSequences = result.getJSONArray("chordSequencesByDescriptor");
-    assertNotNull(resultSequences);
-    assertEquals(24, resultSequences.length());
-  }
-
-  @Test
-  public void readHash_ofLibrary() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "User,Artist",
-      "accounts", "1"
-    ));
-    Collection<Entity> entities = ImmutableList.of(new Library(10000001));
-
-    DigestHash result = digestFactory.hashOf(evaluationFactory.evaluate(access, entities));
-
-    assertNotNull(result);
-    assertEquals("Audio-401=1407871023,Audio-402=1407871023,AudioChord-501=1407871023,AudioChord-502=1407871023,AudioChord-503=1407871023,AudioChord-504=1407871023,AudioChord-505=1407871023,AudioChord-506=1407871023,AudioEvent-601=1407871023,AudioEvent-602=1407871023,AudioEvent-603=1407871023,AudioEvent-604=1407871023,Instrument-201=1407871023,Instrument-202=1407871023,InstrumentMeme-301=1407871023,InstrumentMeme-302=1407871023,InstrumentMeme-303=1407871023,Library-10000001=1407871023,Pattern-701=1407871023,Pattern-702=1407871023,Pattern-703=1407871023,PatternMeme-801=1407871023,PatternMeme-802=1407871023,PatternMeme-803=1407871023,Phase-901=1407871023,Phase-902=1407871023,PhaseChord-1001=1407871023,PhaseChord-1002=1407871023,PhaseChord-1003=1407871023,PhaseChord-1004=1407871023,PhaseChord-1005=1407871023,PhaseChord-1006=1407871023,PhaseEvent-1401=1407871023,PhaseEvent-1402=1407871023,PhaseEvent-1403=1407871023,PhaseEvent-1404=1407871023,PhaseMeme-1101=1407871023,PhaseMeme-1102=1407871023,PhaseMeme-1103=1407871023,Voice-1201=1407871023,Voice-1202=1407871023", result.toString());
-    JSONObject resultJson = result.toJSONObject();
-    assertEquals(41, resultJson.length());
-    assertEquals("a22531890987364093f470e0d846a7469b494e83ca014b075724a9c722f99391", result.sha256());
-  }
-
-  @Test
-  public void readHash_ofLibrary_afterUpdateEntity() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "User,Artist",
-      "accounts", "1"
-    ));
-    Collection<Entity> entities = ImmutableList.of(new Library(10000001));
-    injector.getInstance(PhaseEventDAO.class).update(Access.internal(), BigInteger.valueOf(1404),
-      new PhaseEvent()
-        .setDuration(0.21)
-        .setInflection("ding")
-        .setPosition(7.23)
-        .setTonality(0.1)
-        .setVelocity(0.9)
-        .setVoiceId(BigInteger.valueOf(1201))
-        .setPhaseId(BigInteger.valueOf(901))
-        .setNote("D4"));
-
-    DigestHash result = digestFactory.hashOf(evaluationFactory.evaluate(access, entities));
-
-    assertNotNull(result);
-    PhaseEvent updatedEvent = injector.getInstance(PhaseEventDAO.class).readOne(Access.internal(), BigInteger.valueOf(1404));
-    assertNotNull(updatedEvent);
-    assertEquals(String.format("Audio-401=1407871023,Audio-402=1407871023,AudioChord-501=1407871023,AudioChord-502=1407871023,AudioChord-503=1407871023,AudioChord-504=1407871023,AudioChord-505=1407871023,AudioChord-506=1407871023,AudioEvent-601=1407871023,AudioEvent-602=1407871023,AudioEvent-603=1407871023,AudioEvent-604=1407871023,Instrument-201=1407871023,Instrument-202=1407871023,InstrumentMeme-301=1407871023,InstrumentMeme-302=1407871023,InstrumentMeme-303=1407871023,Library-10000001=1407871023,Pattern-701=1407871023,Pattern-702=1407871023,Pattern-703=1407871023,PatternMeme-801=1407871023,PatternMeme-802=1407871023,PatternMeme-803=1407871023,Phase-901=1407871023,Phase-902=1407871023,PhaseChord-1001=1407871023,PhaseChord-1002=1407871023,PhaseChord-1003=1407871023,PhaseChord-1004=1407871023,PhaseChord-1005=1407871023,PhaseChord-1006=1407871023,PhaseEvent-1401=1407871023,PhaseEvent-1402=1407871023,PhaseEvent-1403=1407871023,PhaseEvent-1404=%s,PhaseMeme-1101=1407871023,PhaseMeme-1102=1407871023,PhaseMeme-1103=1407871023,Voice-1201=1407871023,Voice-1202=1407871023", updatedEvent.getUpdatedAt().toInstant().getEpochSecond()), result.toString());
-    JSONObject resultJson = result.toJSONObject();
-    assertEquals(41, resultJson.length());
-  }
-
-  @Test
-  public void readHash_ofLibrary_afterDestroyEntity() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "User,Artist",
-      "accounts", "1"
-    ));
-    Collection<Entity> entities = ImmutableList.of(new Library(10000001));
-    injector.getInstance(PhaseEventDAO.class).destroy(Access.internal(), BigInteger.valueOf(1404));
-
-    DigestHash result = digestFactory.hashOf(evaluationFactory.evaluate(access, entities));
-
-    assertNotNull(result);
-    assertEquals("Audio-401=1407871023,Audio-402=1407871023,AudioChord-501=1407871023,AudioChord-502=1407871023,AudioChord-503=1407871023,AudioChord-504=1407871023,AudioChord-505=1407871023,AudioChord-506=1407871023,AudioEvent-601=1407871023,AudioEvent-602=1407871023,AudioEvent-603=1407871023,AudioEvent-604=1407871023,Instrument-201=1407871023,Instrument-202=1407871023,InstrumentMeme-301=1407871023,InstrumentMeme-302=1407871023,InstrumentMeme-303=1407871023,Library-10000001=1407871023,Pattern-701=1407871023,Pattern-702=1407871023,Pattern-703=1407871023,PatternMeme-801=1407871023,PatternMeme-802=1407871023,PatternMeme-803=1407871023,Phase-901=1407871023,Phase-902=1407871023,PhaseChord-1001=1407871023,PhaseChord-1002=1407871023,PhaseChord-1003=1407871023,PhaseChord-1004=1407871023,PhaseChord-1005=1407871023,PhaseChord-1006=1407871023,PhaseEvent-1401=1407871023,PhaseEvent-1402=1407871023,PhaseEvent-1403=1407871023,PhaseMeme-1101=1407871023,PhaseMeme-1102=1407871023,PhaseMeme-1103=1407871023,Voice-1201=1407871023,Voice-1202=1407871023", result.toString());
-    JSONObject resultJson = result.toJSONObject();
-    assertEquals(40, resultJson.length());
-    assertEquals("8779ddab2a59d459088939ef0503d522e37f4482b591febbc303f9d4b48289c3", result.sha256());
   }
 
 }

@@ -1,0 +1,31 @@
+<!-- Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved. -->
+
+<div class="chord-progression-usages">
+
+  <!-- Phase Chord Progression -->
+    <div class="parent">
+      {{#link-to "go.pattern" model.patternId}}
+        <small>{{model.patternType}}-Pattern #{{model.patternId}}</small>
+        {{#if model.patternName}}
+          &quot;{{model.patternName}}&quot;{{/if}}
+      {{/link-to}}
+      {{#link-to "go.phase" model.phaseId}}
+        <small>{{model.phaseType}}-Phase #{{model.phaseId}}</small>
+        {{#if model.phaseName}}
+          &quot;{{model.phaseName}}&quot;{{/if}}
+      {{/link-to}}
+    </div>
+
+  <!-- Chords -->
+  <div class="chords">
+    {{#each model.chords as |chord|}}
+      <div class="chord">
+        ({{chord.chordPosition}})
+        {{chord.chordName}}
+      </div>
+    {{/each}}
+  </div>
+
+  {{yield}}
+
+</div>

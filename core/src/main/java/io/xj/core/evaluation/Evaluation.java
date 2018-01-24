@@ -1,10 +1,10 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 package io.xj.core.evaluation;
 
+import io.xj.core.access.impl.Access;
 import io.xj.core.model.audio.Audio;
 import io.xj.core.model.audio_chord.AudioChord;
 import io.xj.core.model.audio_event.AudioEvent;
-import io.xj.core.model.chord.ChordSequence;
 import io.xj.core.model.entity.Entity;
 import io.xj.core.model.instrument.Instrument;
 import io.xj.core.model.instrument.InstrumentType;
@@ -20,6 +20,7 @@ import io.xj.core.model.phase_chord.PhaseChord;
 import io.xj.core.model.phase_event.PhaseEvent;
 import io.xj.core.model.phase_meme.PhaseMeme;
 import io.xj.core.model.voice.Voice;
+import io.xj.music.Key;
 
 import javax.annotation.Nullable;
 import java.math.BigInteger;
@@ -111,6 +112,13 @@ public interface Evaluation {
    @return collection of patterns
    */
   Collection<Pattern> patterns(PatternType type);
+
+  /**
+   Get the access with which this Evaluation was instantiated.
+
+   @return access
+   */
+  Access access();
 
   /**
    Get a Pattern by id, ideally in the original entity map, and if not, from a cached read of the DAO
@@ -327,13 +335,6 @@ public interface Evaluation {
   Collection<PhaseEvent> phaseVoiceEvents(BigInteger phaseId, BigInteger voiceId);
 
   /**
-   Get a collection of all chord sequences iterated from all available phase or audio chords for evaluation
-
-   @return collection of chord sequences
-   */
-  Collection<ChordSequence> chordSequences();
-
-  /**
    Get the internal map of id to audio entities
 
    @return map of audio id to audio
@@ -371,5 +372,13 @@ public interface Evaluation {
    @return audio
    */
   Audio audio(BigInteger id);
+
+  /**
+   Get the key of any phase-- if the phase has no key, get the phase of its pattern
+
+   @param id of phase to get key of
+   @return key of phase
+   */
+  Key phaseKey(BigInteger id);
 
 }

@@ -15,6 +15,9 @@ import java.util.Objects;
 public abstract class Chord extends Entity {
   public static final String KEY_ONE = "chord";
   public static final String KEY_MANY = "chords";
+  static final String SEPARATOR_DESCRIPTOR = ":";
+  static final String SEPARATOR_DESCRIPTOR_UNIT = "|";
+  static final String MARKER_NON_CHORD = "---";
 
   protected String name;
   protected Integer position;
@@ -47,6 +50,7 @@ public abstract class Chord extends Entity {
 
   /**
    Returns a musical chord of the current entity, for music related operations
+
    @return musical chord
    */
   public io.xj.music.Chord toMusical() {
@@ -55,6 +59,7 @@ public abstract class Chord extends Entity {
 
   /**
    String of Chord
+
    @return string
    */
   public String toString() {

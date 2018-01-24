@@ -8,6 +8,14 @@
 <!-- Upper Container -->
 <div class="form-horizontal container-fluid">
 
+  {{#if (or auth.isArtist auth.isAdmin)}}
+    <div class="col-sm-12 text-right">
+      {{#link-to 'accounts.one.libraries.one.instruments.one.audios.one.events.new'
+                     model.audio.instrument.library.account model.audio.instrument.library model.audio.instrument
+                     model.audio}}{{fa-icon "plus"}} Create New Event{{/link-to}}
+    </div>
+  {{/if}}
+
   <!-- List of Events -->
   <div class="col-sm-12">
     <div class="table-list">
@@ -46,11 +54,4 @@
     </div>
   </div>
 
-  {{#if (or auth.isArtist auth.isAdmin)}}
-    <div class="col-sm-12">
-      Or: {{#link-to 'accounts.one.libraries.one.instruments.one.audios.one.events.new'
-                     model.audio.instrument.library.account model.audio.instrument.library model.audio.instrument
-                     model.audio}}Create New Event{{/link-to}}
-    </div>
-  {{/if}}
 </div>

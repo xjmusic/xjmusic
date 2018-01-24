@@ -1,21 +1,21 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.resource.evaluation;
 
+import com.google.common.collect.ImmutableList;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
 import io.xj.core.cache.digest.DigestCacheProvider;
 import io.xj.core.cache.evaluation.EvaluationCacheProvider;
-import io.xj.core.evaluation.digest.Digest;
-import io.xj.core.evaluation.digest.DigestFactory;
-import io.xj.core.evaluation.digest.DigestType;
+import io.xj.core.digest.Digest;
+import io.xj.core.digest.DigestType;
+import io.xj.core.evaluation.Evaluation;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.model.library.Library;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.transport.HttpResponseProvider;
-
-import com.google.common.collect.ImmutableList;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
 
 import javax.annotation.security.RolesAllowed;
 import javax.jws.WebResult;
@@ -98,16 +98,20 @@ public class EvaluationResource {
    @return evaluation
    */
   private Digest evaluate(Access access, DigestType type, BigInteger targetId) throws Exception {
+    Evaluation evaluation = evaluationProvider.evaluate(access, ImmutableList.of(new Library(targetId)));
     switch (type) {
 
       case DigestHash:
-        return digestProvider.hashOf(evaluationProvider.evaluate(access, ImmutableList.of(new Library(targetId))));
+        return digestProvider.hash(evaluation);
 
-      case DigestMemes:
-        return digestProvider.memesOf(evaluationProvider.evaluate(access, ImmutableList.of(new Library(targetId))));
+      case DigestMeme:
+        return digestProvider.meme(evaluation);
 
-      case DigestChords:
-        return digestProvider.chordsOf(evaluationProvider.evaluate(access, ImmutableList.of(new Library(targetId))));
+      case DigestChordProgression:
+        return digestProvider.chordProgression(evaluation);
+
+      case DigestChordMarkov:
+        return digestProvider.chordMarkov(evaluation);
 
       default:
         throw new BusinessException(String.format("Invalid type: %s", type));

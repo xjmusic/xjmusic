@@ -28,14 +28,6 @@ public interface HttpResponseProvider {
   Response internalRedirectWithCookie(String path, NewCookie... cookies);
 
   /**
-   Respond with a set-cookie in addition to unauthorized
-
-   @param cookies to set before unauthorized.
-   @return response.
-   */
-  Response unauthorizedWithCookie(NewCookie... cookies);
-
-  /**
    Response with unauthorized
 
    @return response.
@@ -104,7 +96,7 @@ public interface HttpResponseProvider {
    Return a response that one JSON object has been read, else an error
 
    @param keyOne key for one record
-   @param obj of JSON object that was read, or null if a 404 ought to be returned instead
+   @param obj    of JSON object that was read, or null if a 404 ought to be returned instead
    @return response
    */
   Response readOne(String keyOne, JSONObject obj);

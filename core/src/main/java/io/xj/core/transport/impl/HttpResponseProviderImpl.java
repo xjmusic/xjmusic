@@ -37,14 +37,6 @@ public class HttpResponseProviderImpl implements HttpResponseProvider {
   }
 
   @Override
-  public Response unauthorizedWithCookie(NewCookie... cookies) {
-    return Response
-      .status(Response.Status.UNAUTHORIZED)
-      .cookie(cookies)
-      .build();
-  }
-
-  @Override
   public Response unauthorized() {
     return Response
       .status(Response.Status.UNAUTHORIZED)
