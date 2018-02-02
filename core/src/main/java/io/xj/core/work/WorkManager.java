@@ -86,60 +86,64 @@ public interface WorkManager {
   void stopChainErase(BigInteger chainId);
 
   /**
+   Start erasing a Pattern,
+   by creating a recurring `PatternEraseJob`.
+
+   @param patternId to begin erasing
+   */
+  void doPatternErase(BigInteger patternId);
+
+  /**
+   Start erasing a Phase,
+   by creating a recurring `PhaseEraseJob`.
+
+   @param phaseId to begin erasing
+   */
+  void doPhaseErase(BigInteger phaseId);
+
+  /**
    Start erasing an Audio,
    by creating a `AudioEraseJob`.
 
    @param audioId to begin erasing
    */
-  void startAudioErase(BigInteger audioId);
-
-  /**
-   Stop deletion of a Audio,
-   by ending the recurring `AudioEraseJob`.
-
-   @param audioId to stop erasing
-   */
-  void stopAudioErase(BigInteger audioId);
+  void doAudioErase(BigInteger audioId);
 
   /**
    Schedule the cloning of a Instrument,
    by creating a scheduled `InstrumentCloneJob`.
-   * @param delaySeconds from now to schedule job at
-   @param fromId for which to schedule Clone
+   * @param fromId for which to schedule Clone
    @param toId    to clone instrument to
 
    */
-  void scheduleInstrumentClone(Integer delaySeconds, BigInteger fromId, BigInteger toId);
+  void doInstrumentClone(BigInteger fromId, BigInteger toId);
 
   /**
    Schedule the cloning of a Audio,
    by creating a scheduled `AudioCloneJob`.
-   * @param delaySeconds from now to schedule job at
-   @param fromId      for which to schedule Clone
+   * @param fromId      for which to schedule Clone
    @param toId    to clone audio to
 
    */
-  void scheduleAudioClone(Integer delaySeconds, BigInteger fromId, BigInteger toId);
+  void doAudioClone(BigInteger fromId, BigInteger toId);
 
   /**
    Schedule the cloning of a Pattern,
    by creating a scheduled `PatternCloneJob`.
-   * @param delaySeconds from now to schedule job at
-   @param fromId for which to schedule Clone
+   * @param fromId for which to schedule Clone
    @param toId    to clone pattern to
 
    */
-  void schedulePatternClone(Integer delaySeconds, BigInteger fromId, BigInteger toId);
+  void doPatternClone(BigInteger fromId, BigInteger toId);
 
   /**
    Schedule the cloning of a Phase,
    by creating a scheduled `PhaseCloneJob`.
-   * @param delaySeconds from now to schedule job at
-   @param fromId      for which to schedule Clone
+   * @param fromId      for which to schedule Clone
    @param toId    to clone phase to
 
    */
-  void schedulePhaseClone(Integer delaySeconds, BigInteger fromId, BigInteger toId);
+  void doPhaseClone(BigInteger fromId, BigInteger toId);
 
   /**
    Get a Worker

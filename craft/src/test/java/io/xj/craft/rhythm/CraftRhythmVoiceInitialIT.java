@@ -11,7 +11,9 @@ import io.xj.core.model.chain.ChainType;
 import io.xj.core.model.instrument.InstrumentType;
 import io.xj.core.model.link.Link;
 import io.xj.core.model.link.LinkState;
+import io.xj.core.model.pattern.PatternState;
 import io.xj.core.model.pattern.PatternType;
+import io.xj.core.model.phase.PhaseState;
 import io.xj.core.model.phase.PhaseType;
 import io.xj.core.model.pick.Pick;
 import io.xj.core.model.user_role.UserRoleType;
@@ -48,7 +50,7 @@ public class CraftRhythmVoiceInitialIT {
 
   @Before
   public void setUp() throws Exception {
-    IntegrationTestEntity.deleteAll();
+    IntegrationTestEntity.reset();
 
     // Account "pigs"
     IntegrationTestEntity.insertAccount(1, "pigs");
@@ -66,29 +68,29 @@ public class CraftRhythmVoiceInitialIT {
     IntegrationTestEntity.insertLibrary(2, 1, "house");
 
     // "Special, Wild to Cozy" macro-pattern in house library
-    IntegrationTestEntity.insertPattern(4, 3, 2, PatternType.Macro, "Special, Wild to Cozy", 0.5, "C", 120);
+    IntegrationTestEntity.insertPattern(4, 3, 2, PatternType.Macro, PatternState.Published, "Special, Wild to Cozy", 0.5, "C", 120);
     IntegrationTestEntity.insertPatternMeme(2, 4, "Special");
-    IntegrationTestEntity.insertPhase(3, 4, PhaseType.Macro, 0, 64, "Start Wild", 0.6, "C", 125);
+    IntegrationTestEntity.insertPhase(3, 4, PhaseType.Macro, PhaseState.Published, 0, 64, "Start Wild", 0.6, "C", 125);
     IntegrationTestEntity.insertPhaseMeme(3, 3, "Wild");
     IntegrationTestEntity.insertPhaseChord(3, 3, 0, "C");
-    IntegrationTestEntity.insertPhase(4, 4, PhaseType.Macro, 1, 64, "Finish Finish Cozy", 0.4, "Bb minor", 115);
+    IntegrationTestEntity.insertPhase(4, 4, PhaseType.Macro, PhaseState.Published, 1, 64, "Finish Finish Cozy", 0.4, "Bb minor", 115);
     IntegrationTestEntity.insertPhaseMeme(4, 4, "Cozy");
     IntegrationTestEntity.insertPhaseChord(4, 4, 0, "Bb minor");
 
     // Main pattern
-    IntegrationTestEntity.insertPattern(5, 3, 2, PatternType.Main, "Main Jam", 0.2, "F# minor", 140);
+    IntegrationTestEntity.insertPattern(5, 3, 2, PatternType.Main, PatternState.Published, "Main Jam", 0.2, "F# minor", 140);
     IntegrationTestEntity.insertPatternMeme(3, 5, "Outlook");
-    IntegrationTestEntity.insertPhase(15, 5, PhaseType.Main, 0, 16, "Intro", 0.5, "F# minor", 135.0);
+    IntegrationTestEntity.insertPhase(15, 5, PhaseType.Main, PhaseState.Published, 0, 16, "Intro", 0.5, "F# minor", 135.0);
     IntegrationTestEntity.insertPhaseMeme(6, 15, "Pessimism");
     IntegrationTestEntity.insertPhaseChord(12, 15, 0, "F# minor");
     IntegrationTestEntity.insertPhaseChord(14, 15, 8, "G minor");
-    IntegrationTestEntity.insertPhase(16, 5, PhaseType.Main, 1, 16, "Intro", 0.5, "G major", 135.0);
+    IntegrationTestEntity.insertPhase(16, 5, PhaseType.Main, PhaseState.Published, 1, 16, "Intro", 0.5, "G major", 135.0);
     IntegrationTestEntity.insertPhaseMeme(7, 16, "Optimism");
     IntegrationTestEntity.insertPhaseChord(16, 16, 0, "D minor");
     IntegrationTestEntity.insertPhaseChord(18, 16, 8, "G major");
 
     // A basic beat, first phase has voice and events
-    IntegrationTestEntity.insertPattern(35, 3, 2, PatternType.Rhythm, "Basic Beat", 0.2, "C", 121);
+    IntegrationTestEntity.insertPattern(35, 3, 2, PatternType.Rhythm, PatternState.Published, "Basic Beat", 0.2, "C", 121);
     IntegrationTestEntity.insertPatternMeme(343, 35, "Basic");
     IntegrationTestEntity.insertVoice(1, 35, InstrumentType.Percussive, "drums");
 
@@ -101,28 +103,28 @@ public class CraftRhythmVoiceInitialIT {
     and an Outro Phase with all TOOTS
      */
     // Intro Phase
-    IntegrationTestEntity.insertPhase(315, 35, PhaseType.Intro, 0, 4, "Intro", 0.5, "C", 125.0);
+    IntegrationTestEntity.insertPhase(315, 35, PhaseType.Intro, PhaseState.Published, 0, 4, "Intro", 0.5, "C", 125.0);
     IntegrationTestEntity.insertPhaseMeme(345, 315, "Heavy");
     IntegrationTestEntity.insertPhaseEvent(1, 315, 1, 0, 1, "BLEEP", "C2", 0.8, 1.0);
     IntegrationTestEntity.insertPhaseEvent(2, 315, 1, 1, 1, "BLEIP", "G5", 0.1, 0.8);
     IntegrationTestEntity.insertPhaseEvent(3, 315, 1, 2.5, 1, "BLEAP", "C2", 0.8, 0.6);
     IntegrationTestEntity.insertPhaseEvent(4, 315, 1, 3, 1, "BLEEEP", "G5", 0.1, 0.9);
     // Loop Phase A
-    IntegrationTestEntity.insertPhase(316, 35, PhaseType.Loop, 0, 4, "Loop A", 0.5, "C", 125.0);
+    IntegrationTestEntity.insertPhase(316, 35, PhaseType.Loop, PhaseState.Published, 0, 4, "Loop A", 0.5, "C", 125.0);
     IntegrationTestEntity.insertPhaseMeme(346, 316, "Heavy");
     IntegrationTestEntity.insertPhaseEvent(5, 316, 1, 0, 1, "CLOCK", "C2", 0.8, 1.0);
     IntegrationTestEntity.insertPhaseEvent(6, 316, 1, 1, 1, "SNORT", "G5", 0.1, 0.8);
     IntegrationTestEntity.insertPhaseEvent(7, 316, 1, 2.5, 1, "KICK", "C2", 0.8, 0.6);
     IntegrationTestEntity.insertPhaseEvent(8, 316, 1, 3, 1, "SNARL", "G5", 0.1, 0.9);
     // Loop Phase A
-    IntegrationTestEntity.insertPhase(317, 35, PhaseType.Loop, 0, 4, "Loop B", 0.5, "C", 125.0);
+    IntegrationTestEntity.insertPhase(317, 35, PhaseType.Loop, PhaseState.Published, 0, 4, "Loop B", 0.5, "C", 125.0);
     IntegrationTestEntity.insertPhaseMeme(347, 317, "Heavy");
     IntegrationTestEntity.insertPhaseEvent(11, 317, 1, 0, 1, "KIICK", "B5", 0.1, 0.9);
     IntegrationTestEntity.insertPhaseEvent(12, 317, 1, 1, 1, "SNARR", "D2", 0.5, 1.0);
     IntegrationTestEntity.insertPhaseEvent(14, 317, 1, 2.5, 1, "KEICK", "E4", 0.1, 0.7);
     IntegrationTestEntity.insertPhaseEvent(15, 317, 1, 3, 1, "SNAER", "C3", 0.5, 0.5);
     // Outro Phase
-    IntegrationTestEntity.insertPhase(318, 35, PhaseType.Outro, 0, 4, "Outro", 0.5, "C", 125.0);
+    IntegrationTestEntity.insertPhase(318, 35, PhaseType.Outro, PhaseState.Published, 0, 4, "Outro", 0.5, "C", 125.0);
     IntegrationTestEntity.insertPhaseMeme(348, 318, "Heavy");
     IntegrationTestEntity.insertPhaseEvent(16, 318, 1, 0, 1, "TOOT", "C2", 0.8, 1.0);
     IntegrationTestEntity.insertPhaseEvent(17, 318, 1, 1, 1, "TOOOT", "G5", 0.1, 0.8);
@@ -130,11 +132,11 @@ public class CraftRhythmVoiceInitialIT {
     IntegrationTestEntity.insertPhaseEvent(19, 318, 1, 3, 1, "TOUT", "G5", 0.1, 0.9);
 
     // basic beat second phase
-    IntegrationTestEntity.insertPhase(319, 35, PhaseType.Loop, 1, 16, "Continue", 0.5, "C", 125.0);
+    IntegrationTestEntity.insertPhase(319, 35, PhaseType.Loop, PhaseState.Published, 1, 16, "Continue", 0.5, "C", 125.0);
     IntegrationTestEntity.insertPhaseMeme(349, 319, "Heavy");
 
     // Detail Pattern
-    IntegrationTestEntity.insertPattern(7, 3, 2, PatternType.Detail, "Detail Jam", 0.3, "Cb minor", 170);
+    IntegrationTestEntity.insertPattern(7, 3, 2, PatternType.Detail, PatternState.Published, "Detail Jam", 0.3, "Cb minor", 170);
 
     // Chain "Print #2" has 1 initial link in crafting state - Foundation is complete
     IntegrationTestEntity.insertChain(2, 1, "Print #2", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, null);

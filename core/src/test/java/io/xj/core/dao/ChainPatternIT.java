@@ -8,6 +8,7 @@ import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
 import io.xj.core.model.chain_pattern.ChainPattern;
+import io.xj.core.model.pattern.PatternState;
 import io.xj.core.model.pattern.PatternType;
 import io.xj.core.transport.JSON;
 
@@ -36,7 +37,7 @@ public class ChainPatternIT {
 
   @Before
   public void setUp() throws Exception {
-    IntegrationTestEntity.deleteAll();
+    IntegrationTestEntity.reset();
 
     // Account "fish" has chain "school" and chain "bucket"
     IntegrationTestEntity.insertAccount(1, "fish");
@@ -53,13 +54,13 @@ public class ChainPatternIT {
 
     // Library "palm tree" has pattern "fonds" and pattern "nuts"
     IntegrationTestEntity.insertLibrary(1, 1, "palm tree");
-    IntegrationTestEntity.insertPattern(1, 2, 1, PatternType.Main, "fonds", 0.342, "C#", 0.286);
-    IntegrationTestEntity.insertPattern(2, 2, 1, PatternType.Rhythm, "nuts", 0.342, "C#", 0.286);
+    IntegrationTestEntity.insertPattern(1, 2, 1, PatternType.Main, PatternState.Published, "fonds", 0.342, "C#", 0.286);
+    IntegrationTestEntity.insertPattern(2, 2, 1, PatternType.Rhythm, PatternState.Published, "nuts", 0.342, "C#", 0.286);
 
     // Library "boat" has pattern "helm" and pattern "sail"
     IntegrationTestEntity.insertLibrary(2, 2, "boat");
-    IntegrationTestEntity.insertPattern(3, 3, 2, PatternType.Macro, "helm", 0.342, "C#", 0.286);
-    IntegrationTestEntity.insertPattern(4, 2, 2, PatternType.Detail, "sail", 0.342, "C#", 0.286);
+    IntegrationTestEntity.insertPattern(3, 3, 2, PatternType.Macro, PatternState.Published, "helm", 0.342, "C#", 0.286);
+    IntegrationTestEntity.insertPattern(4, 2, 2, PatternType.Detail, PatternState.Published, "sail", 0.342, "C#", 0.286);
 
     // Chain "school" has pattern "helm"
     IntegrationTestEntity.insertChainPattern(1, 1, 3);

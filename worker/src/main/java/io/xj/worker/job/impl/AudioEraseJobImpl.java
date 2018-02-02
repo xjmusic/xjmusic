@@ -41,7 +41,6 @@ public class AudioEraseJobImpl implements AudioEraseJob {
       if (Objects.nonNull(audio)) {
         erase(audio);
       }
-      workManager.stopAudioErase(entityId);
 
     } catch (Exception e) {
       log.error("{}:{} failed ({})",

@@ -1,6 +1,9 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.resource.phase;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.PhaseDAO;
@@ -8,9 +11,6 @@ import io.xj.core.model.phase.Phase;
 import io.xj.core.model.phase.PhaseWrapper;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.transport.HttpResponseProvider;
-
-import com.google.inject.Guice;
-import com.google.inject.Injector;
 
 import javax.annotation.security.RolesAllowed;
 import javax.jws.WebResult;
@@ -86,9 +86,9 @@ public class PhaseOneResource {
    */
   @DELETE
   @RolesAllowed(UserRoleType.ARTIST)
-  public Response delete(@Context ContainerRequestContext crc) {
+  public Response erase(@Context ContainerRequestContext crc) {
     try {
-      phaseDAO.destroy(Access.fromContext(crc), new BigInteger(id));
+      phaseDAO.erase(Access.fromContext(crc), new BigInteger(id));
       return Response.accepted("{}").build();
 
     } catch (Exception e) {

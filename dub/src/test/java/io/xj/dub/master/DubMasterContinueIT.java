@@ -9,7 +9,9 @@ import io.xj.core.model.chain.ChainType;
 import io.xj.core.model.instrument.InstrumentType;
 import io.xj.core.model.link.Link;
 import io.xj.core.model.link.LinkState;
+import io.xj.core.model.pattern.PatternState;
 import io.xj.core.model.pattern.PatternType;
+import io.xj.core.model.phase.PhaseState;
 import io.xj.core.model.phase.PhaseType;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.basis.Basis;
@@ -55,7 +57,7 @@ public class DubMasterContinueIT {
   public void setUp() throws Exception {
     createInjector();
 
-    IntegrationTestEntity.deleteAll();
+    IntegrationTestEntity.reset();
 
     // Account "elephants"
     IntegrationTestEntity.insertAccount(1, "elephants");
@@ -73,37 +75,37 @@ public class DubMasterContinueIT {
     IntegrationTestEntity.insertLibrary(2, 1, "house");
 
     // "Classic, Wild to Cozy" macro-pattern in house library
-    IntegrationTestEntity.insertPattern(4, 3, 2, PatternType.Macro, "Classic, Wild to Cozy", 0.5, "C", 120);
+    IntegrationTestEntity.insertPattern(4, 3, 2, PatternType.Macro, PatternState.Published, "Classic, Wild to Cozy", 0.5, "C", 120);
     IntegrationTestEntity.insertPatternMeme(2, 4, "Classic");
-    IntegrationTestEntity.insertPhase(3, 4, PhaseType.Macro, 0, 64, "Start Wild", 0.6, "C", 125);
+    IntegrationTestEntity.insertPhase(3, 4, PhaseType.Macro, PhaseState.Published, 0, 64, "Start Wild", 0.6, "C", 125);
     IntegrationTestEntity.insertPhaseMeme(3, 3, "Wild");
     IntegrationTestEntity.insertPhaseChord(3, 3, 0, "C");
-    IntegrationTestEntity.insertPhase(4, 4, PhaseType.Macro, 1, 64, "Finish Finish Cozy", 0.4, "Bb minor", 115);
+    IntegrationTestEntity.insertPhase(4, 4, PhaseType.Macro, PhaseState.Published, 1, 64, "Finish Finish Cozy", 0.4, "Bb minor", 115);
     IntegrationTestEntity.insertPhaseMeme(4, 4, "Cozy");
     IntegrationTestEntity.insertPhaseChord(4, 4, 0, "Bb minor");
 
     // Main pattern
-    IntegrationTestEntity.insertPattern(5, 3, 2, PatternType.Main, "Main Jam", 0.2, "Gb minor", 140);
+    IntegrationTestEntity.insertPattern(5, 3, 2, PatternType.Main, PatternState.Published, "Main Jam", 0.2, "Gb minor", 140);
     IntegrationTestEntity.insertPatternMeme(3, 5, "Outlook");
-    IntegrationTestEntity.insertPhase(15, 5, PhaseType.Main, 0, 16, "Intro", 0.5, "Gb minor", 135.0);
+    IntegrationTestEntity.insertPhase(15, 5, PhaseType.Main, PhaseState.Published, 0, 16, "Intro", 0.5, "Gb minor", 135.0);
     IntegrationTestEntity.insertPhaseMeme(6, 15, "Cloudy");
     IntegrationTestEntity.insertPhaseChord(12, 15, 0, "Gb minor");
     IntegrationTestEntity.insertPhaseChord(14, 15, 8, "G minor");
-    IntegrationTestEntity.insertPhase(16, 5, PhaseType.Main, 1, 16, "Intro", 0.5, "G major", 135.0);
+    IntegrationTestEntity.insertPhase(16, 5, PhaseType.Main, PhaseState.Published, 1, 16, "Intro", 0.5, "G major", 135.0);
     IntegrationTestEntity.insertPhaseMeme(7, 16, "Rosy");
     IntegrationTestEntity.insertPhaseChord(16, 16, 0, "D minor");
     IntegrationTestEntity.insertPhaseChord(18, 16, 8, "G major");
 
     // A basic beat
-    IntegrationTestEntity.insertPattern(35, 3, 2, PatternType.Rhythm, "Basic Beat", 0.2, "C", 121);
+    IntegrationTestEntity.insertPattern(35, 3, 2, PatternType.Rhythm, PatternState.Published, "Basic Beat", 0.2, "C", 121);
     IntegrationTestEntity.insertPatternMeme(343, 35, "Basic");
 
     // basic beat first phase
-    IntegrationTestEntity.insertPhase(316, 35, PhaseType.Loop, 0, 16, "Continue", 0.5, "C", 125.0);
+    IntegrationTestEntity.insertPhase(316, 35, PhaseType.Loop, PhaseState.Published, 0, 16, "Continue", 0.5, "C", 125.0);
     IntegrationTestEntity.insertPhaseMeme(347, 316, "Heavy");
 
     // setup voice second phase
-    IntegrationTestEntity.insertPhase(315, 35, PhaseType.Loop, 1, 4, "Drop", 0.5, "C", 125.0);
+    IntegrationTestEntity.insertPhase(315, 35, PhaseType.Loop, PhaseState.Published, 1, 4, "Drop", 0.5, "C", 125.0);
     IntegrationTestEntity.insertPhaseMeme(346, 315, "Heavy");
     IntegrationTestEntity.insertVoice(1, 35, InstrumentType.Percussive, "drums");
 
@@ -114,7 +116,7 @@ public class DubMasterContinueIT {
     IntegrationTestEntity.insertPhaseEvent(4, 315, 1, 3, 1, "SMACK", "G5", 0.1, 0.9);
 
     // detail pattern
-    IntegrationTestEntity.insertPattern(7, 3, 2, PatternType.Detail, "Detail Jam", 0.3, "Cb minor", 170);
+    IntegrationTestEntity.insertPattern(7, 3, 2, PatternType.Detail, PatternState.Published, "Detail Jam", 0.3, "Cb minor", 170);
 
     // Chain "Test Print #1" has 5 total links
     IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, null);

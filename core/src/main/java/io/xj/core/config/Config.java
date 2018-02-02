@@ -11,50 +11,52 @@ import java.util.Objects;
  ALL APPLICATION CONFIGURATION MUST IMPLEMENT THIS CENTRAL CLASS.
  */
 public interface Config {
-
   Double DEFAULT_TUNING_ROOT_PITCH = 432.0;
   Integer DAYS_PER_MONTH = 28;
   Integer DEFAULT_APP_PORT = 80;
-  Long DEFAULT_CACHE_FILE_ALLOCATE_BYTES = 1_000_000_000L; // 1 gigabyte
+  Integer DEFAULT_AWS_S3_RETRY_LIMIT = 10;
   Integer DEFAULT_CHAIN_PREVIEW_LENGTH_MAX = 300;
+  Integer DEFAULT_CHORD_MARKOV_ORDER = 3;
+  Integer DEFAULT_ENTITY_CACHE_SECONDS = 60;
+  Integer DEFAULT_EVALUATION_CACHE_SECONDS = 60;
+  Integer DEFAULT_EVALUATION_CHORD_SEQUENCE_LENGTH_MAX = 5;
+  Integer DEFAULT_EVALUATION_CHORD_SEQUENCE_PRESERVE_LENGTH_MIN = 2;
+  Integer DEFAULT_EVALUATION_CHORD_SEQUENCE_REDUNDANCY_THRESHOLD = 1;
+  Integer DEFAULT_EVALUATION_DIGEST_CACHE_EXPIRE_MINUTES = 3;
+  Integer DEFAULT_EVALUATION_DIGEST_CACHE_REFRESH_MINUTES = 1;
+  Integer DEFAULT_GENERATION_SUPERPATTERN_PHASE_COUNT = 7;
   Integer DEFAULT_LIMIT_LINK_READ_SIZE = 20;
+  Integer DEFAULT_LOG_ACCESS_ENTITIES_MAX_SIZE = 0;
   Integer DEFAULT_PLATFORM_MESSAGE_READ_PREVIOUS_DAYS = 90;
   Integer DEFAULT_PLAY_BUFFER_AHEAD_SECONDS = 60;
   Integer DEFAULT_PLAY_BUFFER_DELAY_SECONDS = 5;
+  Integer DEFAULT_REDIS_PORT = 6300;
   Integer DEFAULT_WORK_BUFFER_CRAFT_DELAY_SECONDS = 1;
   Integer DEFAULT_WORK_BUFFER_SECONDS = 300;
+  Integer DEFAULT_WORK_CHAIN_DELAY_SECONDS = 1;
+  Integer DEFAULT_WORK_CHAIN_ERASE_RECUR_SECONDS = 10;
+  Integer DEFAULT_WORK_CHAIN_RECUR_SECONDS = 2;
+  Integer DEFAULT_WORK_CONCURRENCY = 10;
   Integer HOURS_PER_DAY = 24;
   Integer MINUTES_PER_HOUR = 60;
   Integer SECONDS_PER_MINUTE = 60;
-  Integer DEFAULT_REDIS_PORT = 6300;
-  Integer DEFAULT_EVALUATION_CACHE_SECONDS = 60;
-  Integer DEFAULT_EVALUATION_CHORD_SEQUENCE_REDUNDANCY_THRESHOLD = 1;
+  Long DEFAULT_CACHE_FILE_ALLOCATE_BYTES = 1_000_000_000L; // 1 gigabyte
   Long DEFAULT_EVALUATION_DIGEST_CACHE_SIZE = 1_000_000L;
-  Integer DEFAULT_EVALUATION_DIGEST_CACHE_EXPIRE_MINUTES = 3;
-  Integer DEFAULT_EVALUATION_DIGEST_CACHE_REFRESH_MINUTES = 1;
-  Integer DEFAULT_ENTITY_CACHE_SECONDS = 60;
-  Integer DEFAULT_GENERATION_SUPERPATTERN_PHASE_COUNT = 7;
-  Integer DEFAULT_EVALUATION_CHORD_SEQUENCE_LENGTH_MAX = 5;
-  Integer DEFAULT_EVALUATION_CHORD_SEQUENCE_PRESERVE_LENGTH_MIN = 2;
-  Integer DEFAULT_WORK_CONCURRENCY = 10;
-  Integer DEFAULT_CHAIN_RECUR_SECONDS = 2;
-  Integer DEFAULT_AWS_S3_RETRY_LIMIT = 10;
-  Integer DEFAULT_LOG_ACCESS_ENTITIES_MAX_SIZE = 0;
-  String DEFAULT_AWS_DEFAULT_REGION = "us-east-1";
-  String DEFAULT_APP_BASE_URL = "http://localhost/";
-  String DEFAULT_API_PATH = "api/1/";
-  String DEFAULT_APP_NAME = "app";
   String DEFAULT_ACCESS_TOKEN_NAME = "access_token";
-  String DEFAULT_APP_HOSTNAME = "localhost";
+  String DEFAULT_API_PATH = "api/1/";
+  String DEFAULT_APP_BASE_URL = "http://localhost/";
   String DEFAULT_APP_HOST = "0.0.0.0";
+  String DEFAULT_APP_HOSTNAME = "localhost";
+  String DEFAULT_APP_NAME = "app";
   String DEFAULT_APP_PATH_UNAUTHORIZED = "unauthorized";
   String DEFAULT_APP_PATH_WELCOME = "";
-  String DEFAULT_PLATFORM_RELEASE = "develop";
+  String DEFAULT_AWS_DEFAULT_REGION = "us-east-1";
   String DEFAULT_LOG_ACCESS_FILE_NAME_SUFFIX = "access.log";
+  String DEFAULT_PLATFORM_RELEASE = "develop";
   String DEFAULT_TEMP_FILE_PATH_PREFIX_CHUNK = "tmp";
   String DEFAULT_TEMP_FILE_PATH_PREFIX_CREATE_NAME = "temp-file-name";
   String DEFAULT_TEMP_FILE_PATH_PREFIX_CREATE_SUFFIX = ".tmp";
-  Integer DEFAULT_CHORD_MARKOV_ORDER = 3;
+  String DEFAULT_TUNING_ROOT_NOTE = "A4";
 
   static String authGoogleId() throws ConfigException {
     return get("auth.google.id");
@@ -400,7 +402,7 @@ public interface Config {
    @return Note of root tuning
    */
   static String tuningRootNote() {
-    return getOrDefault("tuning.root.note", "A4");
+    return getOrDefault("tuning.root.note", DEFAULT_TUNING_ROOT_NOTE);
   }
 
   /**
@@ -458,21 +460,21 @@ public interface Config {
    @return Work Chain Recur Seconds
    */
   static Integer workChainRecurSeconds() {
-    return getIntOrDefault("work.chain.recur.seconds", DEFAULT_CHAIN_RECUR_SECONDS);
+    return getIntOrDefault("work.chain.recur.seconds", DEFAULT_WORK_CHAIN_RECUR_SECONDS);
   }
 
   /**
-   @return Work Chain Delete Recur Seconds
+   @return Work Chain Erase Recur Seconds
    */
-  static Integer workChainDeleteRecurSeconds() {
-    return getIntOrDefault("work.chain.delete.recur.seconds", 10);
+  static Integer workChainEraseRecurSeconds() {
+    return getIntOrDefault("work.chain.delete.recur.seconds", DEFAULT_WORK_CHAIN_ERASE_RECUR_SECONDS);
   }
 
   /**
    @return Work Chain Delay Seconds
    */
   static Integer workChainDelaySeconds() {
-    return getIntOrDefault("work.chain.delay.seconds", 1);
+    return getIntOrDefault("work.chain.delay.seconds", DEFAULT_WORK_CHAIN_DELAY_SECONDS);
   }
 
   /**

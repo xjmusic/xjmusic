@@ -10,7 +10,9 @@ import io.xj.core.model.chain.ChainType;
 import io.xj.core.model.choice.Choice;
 import io.xj.core.model.instrument.InstrumentType;
 import io.xj.core.model.link.LinkState;
+import io.xj.core.model.pattern.PatternState;
 import io.xj.core.model.pattern.PatternType;
+import io.xj.core.model.phase.PhaseState;
 import io.xj.core.model.phase.PhaseType;
 import io.xj.core.transport.JSON;
 
@@ -42,7 +44,7 @@ public class ChoiceIT {
 
   @Before
   public void setUp() throws Exception {
-    IntegrationTestEntity.deleteAll();
+    IntegrationTestEntity.reset();
 
     // Account "Testing", User "bill"
     IntegrationTestEntity.insertAccount(1, "Testing");
@@ -50,10 +52,10 @@ public class ChoiceIT {
 
     // Library "test sounds"
     IntegrationTestEntity.insertLibrary(1, 1, "test sounds");
-    IntegrationTestEntity.insertPattern(1, 2, 1, PatternType.Macro, "epic concept", 0.342, "C#", 0.286);
-    IntegrationTestEntity.insertPattern(2, 2, 1, PatternType.Rhythm, "fat beat", 0.342, "C#", 0.286);
-    IntegrationTestEntity.insertPattern(3, 2, 1, PatternType.Main, "dope jam", 0.342, "C#", 0.286);
-    IntegrationTestEntity.insertPattern(4, 2, 1, PatternType.Detail, "great accompaniment", 0.342, "C#", 0.286);
+    IntegrationTestEntity.insertPattern(1, 2, 1, PatternType.Macro, PatternState.Published, "epic concept", 0.342, "C#", 0.286);
+    IntegrationTestEntity.insertPattern(2, 2, 1, PatternType.Rhythm, PatternState.Published, "fat beat", 0.342, "C#", 0.286);
+    IntegrationTestEntity.insertPattern(3, 2, 1, PatternType.Main, PatternState.Published, "dope jam", 0.342, "C#", 0.286);
+    IntegrationTestEntity.insertPattern(4, 2, 1, PatternType.Detail, PatternState.Published, "great accompaniment", 0.342, "C#", 0.286);
 
     // Chain "Test Print #1" has one link
     IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Ready, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"), null);
@@ -188,9 +190,9 @@ public class ChoiceIT {
     IntegrationTestEntity.insertPatternMeme(12, 2, "leafy");
     IntegrationTestEntity.insertPatternMeme(14, 2, "smooth");
 
-    IntegrationTestEntity.insertPhase(10, 2, PhaseType.Loop, 0, 64, "intro", 0.5, "C", 121);
-    IntegrationTestEntity.insertPhase(11, 2, PhaseType.Loop, 1, 64, "drop", 0.5, "C", 121);
-    IntegrationTestEntity.insertPhase(12, 2, PhaseType.Loop, 2, 64, "break", 0.5, "C", 121);
+    IntegrationTestEntity.insertPhase(10, 2, PhaseType.Loop, PhaseState.Published, 0, 64, "intro", 0.5, "C", 121);
+    IntegrationTestEntity.insertPhase(11, 2, PhaseType.Loop, PhaseState.Published, 1, 64, "drop", 0.5, "C", 121);
+    IntegrationTestEntity.insertPhase(12, 2, PhaseType.Loop, PhaseState.Published, 2, 64, "break", 0.5, "C", 121);
 
     Choice result = testDAO.readOneLinkTypeWithAvailablePhaseOffsets(Access.internal(), BigInteger.valueOf(1), PatternType.Rhythm);
 
@@ -368,7 +370,7 @@ public class ChoiceIT {
     Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
-    IntegrationTestEntity.insertPhase(1, 1, PhaseType.Main, 0, 16, "Ants", 0.583, "D minor", 120.0);
+    IntegrationTestEntity.insertPhase(1, 1, PhaseType.Main, PhaseState.Published, 0, 16, "Ants", 0.583, "D minor", 120.0);
     IntegrationTestEntity.insertVoice(1, 1, InstrumentType.Percussive, "This is a percussive voice");
     IntegrationTestEntity.insertInstrument(1, 1, 2, "jams", InstrumentType.Percussive, 0.6);
     IntegrationTestEntity.insertArrangement(1, 1, 1, 1);

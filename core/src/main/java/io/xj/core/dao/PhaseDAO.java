@@ -2,7 +2,10 @@
 package io.xj.core.dao;
 
 import io.xj.core.access.impl.Access;
+import io.xj.core.model.audio.Audio;
+import io.xj.core.model.audio.AudioState;
 import io.xj.core.model.phase.Phase;
+import io.xj.core.model.phase.PhaseState;
 
 import javax.annotation.Nullable;
 import java.math.BigInteger;
@@ -31,5 +34,25 @@ public interface PhaseDAO extends DAO<Phase> {
    */
   @Nullable
   Collection<Phase> readAllAtPatternOffset(Access access, BigInteger patternId, BigInteger patternPhaseOffset) throws Exception;
+
+  /**
+   Fetch all Phase in a certain state
+   [INTERNAL USE ONLY]
+
+   @param access control
+   @param state  to get phases in
+   @return Result of phase records.
+   @throws Exception on failure
+   */
+  Collection<Phase> readAllInState(Access access, PhaseState state) throws Exception;
+
+  /**
+   Erase a specified Phase if accessible
+   [#153976888] PhaseErase job erase a Phase in the background, in order to keep the UI functioning at a reasonable speed.
+
+   @param access control
+   @param id     of specific phase to erase.
+   */
+  void erase(Access access, BigInteger id) throws Exception;
 
 }

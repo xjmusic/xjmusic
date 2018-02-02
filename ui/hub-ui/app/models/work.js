@@ -9,33 +9,11 @@ export default DS.Model.extend({
   targetId: DS.attr('number'),
 
   targetType: computed(function () {
-    switch (this.get('type')) {
-      case 'AudioErase':
-        return 'Audio';
-      case 'ChainErase':
-        return 'Chain';
-      case 'ChainFabricate':
-        return 'Chain';
-      case 'LinkCraft':
-        return 'Link';
-      case 'LinkDub':
-        return 'Link';
-    }
+    return this.get('type');
   }),
 
   targetAction: computed(function () {
-    switch (this.get('type')) {
-      case 'AudioErase':
-        return 'Erase';
-      case 'ChainErase':
-        return 'Erase';
-      case 'ChainFabricate':
-        return 'Fabricate';
-      case 'LinkCraft':
-        return 'Craft';
-      case 'LinkDub':
-        return 'Dub';
-    }
+    return this.get('type');
   }),
 
 });

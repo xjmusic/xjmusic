@@ -47,7 +47,7 @@ public class AudioEraseJobIT {
 
   @Before
   public void setUp() throws Exception {
-    IntegrationTestEntity.deleteAll();
+    IntegrationTestEntity.reset();
 
     // inject mocks
     createInjector();
@@ -121,8 +121,8 @@ public class AudioEraseJobIT {
   public void runWorker() throws Exception {
     app.start();
 
-    app.getWorkManager().startAudioErase(BigInteger.valueOf(1));
-    app.getWorkManager().startAudioErase(BigInteger.valueOf(2));
+    app.getWorkManager().doAudioErase(BigInteger.valueOf(1));
+    app.getWorkManager().doAudioErase(BigInteger.valueOf(2));
 
     Thread.sleep(TEST_DURATION_SECONDS * MILLIS_PER_SECOND);
     app.stop();
@@ -134,8 +134,6 @@ public class AudioEraseJobIT {
       "instrument-1-audio-asdg709a709835789agw73yh87.wav");
     verify(amazonProvider).deleteS3Object("xj-audio-test",
       "instrument-1-audio-978as789dgih35hi897gjhyi8f.wav");
-    verify(workManager).stopAudioErase(BigInteger.valueOf(1));
-    verify(workManager).stopAudioErase(BigInteger.valueOf(2));
   }
 
 }

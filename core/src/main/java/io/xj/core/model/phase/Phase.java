@@ -3,6 +3,7 @@ package io.xj.core.model.phase;
 
 import io.xj.core.exception.BusinessException;
 import io.xj.core.model.entity.Entity;
+import io.xj.core.util.Text;
 
 import java.math.BigInteger;
 import java.util.Objects;
@@ -33,6 +34,9 @@ public class Phase extends Entity {
   private BigInteger offset;
   private Double density;
   private Double tempo;
+  private PhaseState state;
+  private String _stateString; // pending validation, copied to `state` field
+
 
   public Phase() {}
 
@@ -50,6 +54,26 @@ public class Phase extends Entity {
 
   public Phase setName(String name) {
     this.name = name;
+    return this;
+  }
+
+  public PhaseState getState() {
+    return state;
+  }
+
+  /**
+   This sets the state String, however the value will remain null
+   until validate() is called and the value is cast to enum
+
+   @param stateString pending validation
+   */
+  public Phase setState(String stateString) {
+    _stateString = Text.toAlphabetical(stateString);
+    return this;
+  }
+
+  public Phase setStateEnum(PhaseState state) {
+    this.state = state;
     return this;
   }
 
@@ -131,6 +155,10 @@ public class Phase extends Entity {
     // throws its own BusinessException on failure
     if (Objects.isNull(type))
       type = PhaseType.validate(_type);
+
+    // throws its own BusinessException on failure
+    if (Objects.isNull(state))
+      state = PhaseState.validate(_stateString);
 
     if (Objects.nonNull(name) && name.isEmpty()) {
       name = null;

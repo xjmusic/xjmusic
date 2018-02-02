@@ -55,6 +55,9 @@ public class JobSourceFactory implements JobFactory {
   private Runnable makeTarget(WorkType workType, Object[] args) throws WorkException {
     switch (workType) {
 
+      case AudioClone:
+        return jobTargetFactory.makeAudioCloneJob(entityId(args[0]), entityId(args[1]));
+
       case AudioErase:
         return jobTargetFactory.makeAudioEraseJob(entityId(args[0]));
 
@@ -64,20 +67,23 @@ public class JobSourceFactory implements JobFactory {
       case ChainFabricate:
         return jobTargetFactory.makeChainFabricateJob(entityId(args[0]));
 
-      case LinkFabricate:
-        return jobTargetFactory.makeLinkFabricateJob(entityId(args[0]));
-
       case InstrumentClone:
         return jobTargetFactory.makeInstrumentCloneJob(entityId(args[0]), entityId(args[1]));
 
-      case AudioClone:
-        return jobTargetFactory.makeAudioCloneJob(entityId(args[0]), entityId(args[1]));
+      case LinkFabricate:
+        return jobTargetFactory.makeLinkFabricateJob(entityId(args[0]));
 
       case PatternClone:
         return jobTargetFactory.makePatternCloneJob(entityId(args[0]), entityId(args[1]));
 
+      case PatternErase:
+        return jobTargetFactory.makePatternEraseJob(entityId(args[0]));
+
       case PhaseClone:
         return jobTargetFactory.makePhaseCloneJob(entityId(args[0]), entityId(args[1]));
+
+      case PhaseErase:
+        return jobTargetFactory.makePhaseEraseJob(entityId(args[0]));
 
       default:
         throw new WorkException("Invalid Job Type");

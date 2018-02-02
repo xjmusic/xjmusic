@@ -10,7 +10,9 @@ import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
 import io.xj.core.model.instrument.InstrumentType;
 import io.xj.core.model.link.LinkState;
+import io.xj.core.model.pattern.PatternState;
 import io.xj.core.model.pattern.PatternType;
+import io.xj.core.model.phase.PhaseState;
 import io.xj.core.model.phase.PhaseType;
 import io.xj.core.transport.JSON;
 
@@ -42,7 +44,7 @@ public class ArrangementIT {
 
   @Before
   public void setUp() throws Exception {
-    IntegrationTestEntity.deleteAll();
+    IntegrationTestEntity.reset();
 
     // Account "Testing", User "bill"
     IntegrationTestEntity.insertAccount(1, "Testing");
@@ -50,8 +52,8 @@ public class ArrangementIT {
 
     // Library "test sounds"
     IntegrationTestEntity.insertLibrary(1, 1, "test sounds");
-    IntegrationTestEntity.insertPattern(1, 2, 1, PatternType.Macro, "epic concept", 0.342, "C#", 0.286);
-    IntegrationTestEntity.insertPhase(1, 1, PhaseType.Macro, 0, 16, "Ants", 0.583, "D minor", 120.0);
+    IntegrationTestEntity.insertPattern(1, 2, 1, PatternType.Macro, PatternState.Published, "epic concept", 0.342, "C#", 0.286);
+    IntegrationTestEntity.insertPhase(1, 1, PhaseType.Macro, PhaseState.Published, 0, 16, "Ants", 0.583, "D minor", 120.0);
     IntegrationTestEntity.insertVoice(8, 1, InstrumentType.Percussive, "This is a percussive voice");
 
     // Library has Instrument

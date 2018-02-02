@@ -5,10 +5,14 @@ import io.xj.core.access.impl.Access;
 import io.xj.core.config.Config;
 import io.xj.core.dao.AudioDAO;
 import io.xj.core.dao.ChainDAO;
+import io.xj.core.dao.PatternDAO;
+import io.xj.core.dao.PhaseDAO;
 import io.xj.core.dao.PlatformMessageDAO;
 import io.xj.core.model.audio.AudioState;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.message.MessageType;
+import io.xj.core.model.pattern.PatternState;
+import io.xj.core.model.phase.PhaseState;
 import io.xj.core.model.platform_message.PlatformMessage;
 import io.xj.core.model.work.Work;
 import io.xj.core.model.work.WorkState;
@@ -42,18 +46,24 @@ public class WorkManagerImpl implements WorkManager {
   private final RedisDatabaseProvider redisDatabaseProvider;
   private final ChainDAO chainDAO;
   private final AudioDAO audioDAO;
+  private final PatternDAO patternDAO;
+  private final PhaseDAO phaseDAO;
 
   @Inject
   WorkManagerImpl(
+    AudioDAO audioDAO,
     ChainDAO chainDAO,
+    PatternDAO patternDAO,
+    PhaseDAO phaseDAO,
     PlatformMessageDAO platformMessageDAO,
-    RedisDatabaseProvider redisDatabaseProvider,
-    AudioDAO audioDAO
+    RedisDatabaseProvider redisDatabaseProvider
   ) {
+    this.audioDAO = audioDAO;
     this.chainDAO = chainDAO;
+    this.patternDAO = patternDAO;
+    this.phaseDAO = phaseDAO;
     this.platformMessageDAO = platformMessageDAO;
     this.redisDatabaseProvider = redisDatabaseProvider;
-    this.audioDAO = audioDAO;
   }
 
   @Override
@@ -73,7 +83,7 @@ public class WorkManagerImpl implements WorkManager {
 
   @Override
   public void startChainErase(BigInteger chainId) {
-    startRecurringJob(WorkType.ChainErase, Config.workChainDelaySeconds(), Config.workChainDeleteRecurSeconds(), chainId);
+    startRecurringJob(WorkType.ChainErase, Config.workChainDelaySeconds(), Config.workChainEraseRecurSeconds(), chainId);
   }
 
   @Override
@@ -82,33 +92,38 @@ public class WorkManagerImpl implements WorkManager {
   }
 
   @Override
-  public void startAudioErase(BigInteger audioId) {
+  public void doPatternErase(BigInteger patternId) {
+    doJob(WorkType.PatternErase, patternId);
+  }
+
+  @Override
+  public void doPhaseErase(BigInteger phaseId) {
+    doJob(WorkType.PhaseErase, phaseId);
+  }
+
+  @Override
+  public void doAudioErase(BigInteger audioId) {
     doJob(WorkType.AudioErase, audioId);
   }
 
   @Override
-  public void stopAudioErase(BigInteger audioId) {
-    removeRecurringWork(buildJob(WorkType.AudioErase, audioId));
+  public void doInstrumentClone(BigInteger fromId, BigInteger toId) {
+    doJob(WorkType.InstrumentClone, fromId, toId);
   }
 
   @Override
-  public void scheduleInstrumentClone(Integer delaySeconds, BigInteger fromId, BigInteger toId) {
-    scheduleJob(WorkType.InstrumentClone, delaySeconds, fromId, toId);
+  public void doAudioClone(BigInteger fromId, BigInteger toId) {
+    doJob(WorkType.AudioClone, fromId, toId);
   }
 
   @Override
-  public void scheduleAudioClone(Integer delaySeconds, BigInteger fromId, BigInteger toId) {
-    scheduleJob(WorkType.AudioClone, delaySeconds, fromId, toId);
+  public void doPatternClone(BigInteger fromId, BigInteger toId) {
+    doJob(WorkType.PatternClone, fromId, toId);
   }
 
   @Override
-  public void schedulePatternClone(Integer delaySeconds, BigInteger fromId, BigInteger toId) {
-    scheduleJob(WorkType.PatternClone, delaySeconds, fromId, toId);
-  }
-
-  @Override
-  public void schedulePhaseClone(Integer delaySeconds, BigInteger fromId, BigInteger toId) {
-    scheduleJob(WorkType.PhaseClone, delaySeconds, fromId, toId);
+  public void doPhaseClone(BigInteger fromId, BigInteger toId) {
+    doJob(WorkType.PhaseClone, fromId, toId);
   }
 
   @Override
@@ -123,6 +138,18 @@ public class WorkManagerImpl implements WorkManager {
     // Add Expected Work: Audio in 'Erase' state
     audioDAO.readAllInState(Access.internal(), AudioState.Erase).forEach(record -> {
       Work work = buildWork(WorkType.AudioErase, WorkState.Expected, record.getId());
+      workMap.put(work.getId(), work);
+    });
+
+    // Add Expected Work: Pattern in 'Erase' state
+    patternDAO.readAllInState(Access.internal(), PatternState.Erase).forEach(record -> {
+      Work work = buildWork(WorkType.PatternErase, WorkState.Expected, record.getId());
+      workMap.put(work.getId(), work);
+    });
+
+    // Add Expected Work: Phase in 'Erase' state
+    phaseDAO.readAllInState(Access.internal(), PhaseState.Erase).forEach(record -> {
+      Work work = buildWork(WorkType.PhaseErase, WorkState.Expected, record.getId());
       workMap.put(work.getId(), work);
     });
 
@@ -169,6 +196,8 @@ public class WorkManagerImpl implements WorkManager {
 
           case ChainErase:
           case AudioErase:
+          case PatternErase:
+          case PhaseErase:
           case ChainFabricate:
           case LinkFabricate:
             try {
@@ -198,7 +227,7 @@ public class WorkManagerImpl implements WorkManager {
    @return reinstated work
    */
   private Work reinstate(Work work) throws Exception {
-    startRecurringJob(work.getType(), Config.workChainDelaySeconds(), Config.workChainDeleteRecurSeconds(), work.getTargetId()
+    startRecurringJob(work.getType(), Config.workChainDelaySeconds(), Config.workChainEraseRecurSeconds(), work.getTargetId()
     );
     work.setState(WorkState.Queued);
     platformMessageDAO.create(Access.internal(),
@@ -315,6 +344,18 @@ public class WorkManagerImpl implements WorkManager {
   private void scheduleJob(WorkType workType, Integer delaySeconds, BigInteger fromId, BigInteger toId) {
     log.info("Schedule targeted {} job, delaySeconds:{}, fromId:{}, toId:{}", workType, delaySeconds, fromId, toId);
     enqueueDelayedWork(buildJob(workType, fromId, toId), delaySeconds);
+  }
+
+  /**
+   Do a Job from one entity to another
+
+   @param workType     type of job
+   @param fromId       entity to source values and child entities from
+   @param toId         entity to clone entities onto
+   */
+  private void doJob(WorkType workType, BigInteger fromId, BigInteger toId) {
+    log.info("Schedule targeted {} job, fromId:{}, toId:{}", workType, fromId, toId);
+    enqueueWork(buildJob(workType, fromId, toId));
   }
 
   /**

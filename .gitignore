@@ -6,6 +6,10 @@ target/
 */target/
 classes/
 
+# container logs
+log/
+*/log/
+
 # IDE
 .idea/
 */.idea

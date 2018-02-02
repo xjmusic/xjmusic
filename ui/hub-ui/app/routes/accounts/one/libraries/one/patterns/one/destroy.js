@@ -26,7 +26,7 @@ export default Route.extend({
   actions: {
 
     destroy(model) {
-      let confirmation = confirm("Are you sure? If there are Phases or Memes belonging to this Pattern, destruction will fail anyway.");
+      let confirmation = confirm("Are you sure?");
       let library = model.get('library');
       let account = library.get('account');
 

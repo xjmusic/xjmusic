@@ -1,36 +1,26 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.worker.job;
 
-import io.xj.core.CoreModule;
-import io.xj.core.access.impl.Access;
-import io.xj.core.app.App;
-import io.xj.core.dao.PhaseChordDAO;
-import io.xj.core.dao.PhaseDAO;
-import io.xj.core.dao.PhaseMemeDAO;
-import io.xj.core.dao.PhaseEventDAO;
-import io.xj.core.external.amazon.AmazonProvider;
-import io.xj.core.integration.IntegrationTestEntity;
-import io.xj.core.model.instrument.InstrumentType;
-import io.xj.core.model.pattern.PatternState;
-import io.xj.core.model.pattern.PatternType;
-import io.xj.core.model.phase.Phase;
-import io.xj.core.model.phase.PhaseState;
-import io.xj.core.model.phase.PhaseType;
-import io.xj.core.model.phase_chord.PhaseChord;
-import io.xj.core.model.phase_meme.PhaseMeme;
-import io.xj.core.model.user_role.UserRoleType;
-import io.xj.core.model.phase_event.PhaseEvent;
-import io.xj.core.work.WorkManager;
-import io.xj.craft.CraftModule;
-import io.xj.dub.DubModule;
-import io.xj.worker.WorkerModule;
-
-import com.google.common.collect.ImmutableList;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 
+import io.xj.core.CoreModule;
+import io.xj.core.access.impl.Access;
+import io.xj.core.app.App;
+import io.xj.core.dao.PhaseDAO;
+import io.xj.core.integration.IntegrationTestEntity;
+import io.xj.core.model.instrument.InstrumentType;
+import io.xj.core.model.pattern.PatternState;
+import io.xj.core.model.pattern.PatternType;
+import io.xj.core.model.phase.PhaseState;
+import io.xj.core.model.phase.PhaseType;
+import io.xj.core.model.user_role.UserRoleType;
+import io.xj.core.work.WorkManager;
+import io.xj.craft.CraftModule;
+import io.xj.dub.DubModule;
+import io.xj.worker.WorkerModule;
 import net.greghaines.jesque.worker.JobFactory;
 import org.junit.After;
 import org.junit.Before;
@@ -38,25 +28,24 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigInteger;
-import java.util.Collection;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
+/**
+ [#153976888] PhaseErase job erase a Phase in the background, in order to keep the UI functioning at a reasonable speed.
+ */
 @RunWith(MockitoJUnitRunner.class)
-public class PhaseCloneJobIT {
-  private static final int TEST_DURATION_SECONDS = 2;
-  private static final int MILLIS_PER_SECOND = 1000;
-  @Spy final WorkManager workManager = Guice.createInjector(new CoreModule()).getInstance(WorkManager.class);
+public class PhaseEraseJobIT {
   @Rule public ExpectedException failure = ExpectedException.none();
-  @Mock AmazonProvider amazonProvider;
   private Injector injector;
   private App app;
+  private static final int TEST_DURATION_SECONDS = 3;
+  private static final int MILLIS_PER_SECOND = 1000;
+  @Spy private final WorkManager workManager = Guice.createInjector(new CoreModule()).getInstance(WorkManager.class);
 
   @Before
   public void setUp() throws Exception {
@@ -64,9 +53,6 @@ public class PhaseCloneJobIT {
 
     // inject mocks
     createInjector();
-
-    // configs
-    System.setProperty("phase.file.bucket", "xj-phase-test");
 
     // Account "pilots"
     IntegrationTestEntity.insertAccount(1, "pilots");
@@ -100,7 +86,6 @@ public class PhaseCloneJobIT {
     IntegrationTestEntity.insertPhaseEvent(101, 1, 1, 0.0, 1.0, "KICK", "C5", 1.0, 1.0);
     IntegrationTestEntity.insertPhaseEvent(102, 1, 2, 1.0, 1.0, "SNARE", "C5", 1.0, 1.0);
 
-
     // Phase "Verse"
     IntegrationTestEntity.insertPhase(2, 1, PhaseType.Loop, PhaseState.Published, 0, 16, "Verse 2", 0.5, "G", 120);
     IntegrationTestEntity.insertPhaseMeme(2, 2, "YELLOW");
@@ -129,7 +114,6 @@ public class PhaseCloneJobIT {
       new AbstractModule() {
         @Override
         public void configure() {
-          bind(AmazonProvider.class).toInstance(amazonProvider);
           bind(WorkManager.class).toInstance(workManager);
         }
       }));
@@ -139,54 +123,20 @@ public class PhaseCloneJobIT {
   public void tearDown() throws Exception {
     app = null;
     injector = null;
-
-    System.clearProperty("link.file.bucket");
-    System.clearProperty("phase.file.bucket");
   }
 
-  /**
-   [#294] Cloneworker finds Links and Phase in deleted state and actually deletes the records, child entities and S3 objects
-   */
   @Test
   public void runWorker() throws Exception {
     app.start();
-    app.getWorkManager().doPhaseClone(BigInteger.valueOf(1), BigInteger.valueOf(3));
-    app.getWorkManager().doPhaseClone(BigInteger.valueOf(2), BigInteger.valueOf(4));
+
+    app.getWorkManager().doPhaseErase(BigInteger.valueOf(1));
+    app.getWorkManager().doPhaseErase(BigInteger.valueOf(2));
 
     Thread.sleep(TEST_DURATION_SECONDS * MILLIS_PER_SECOND);
     app.stop();
 
-    // Verify existence of cloned phases
-    Phase resultOne = injector.getInstance(PhaseDAO.class).readOne(Access.internal(), BigInteger.valueOf(3));
-    Phase resultTwo = injector.getInstance(PhaseDAO.class).readOne(Access.internal(), BigInteger.valueOf(4));
-    assertNotNull(resultOne);
-    assertNotNull(resultTwo);
-
-    // Verify existence of children of cloned phase #1
-    Collection<PhaseMeme> memesOne = injector.getInstance(PhaseMemeDAO.class).readAll(Access.internal(), ImmutableList.of(resultOne.getId()));
-    Collection<PhaseChord> chordsOne = injector.getInstance(PhaseChordDAO.class).readAll(Access.internal(), ImmutableList.of(resultOne.getId()));
-    Collection<PhaseEvent> eventsOne = injector.getInstance(PhaseEventDAO.class).readAll(Access.internal(), ImmutableList.of(resultOne.getId()));
-    assertEquals(1, memesOne.size());
-    assertEquals(1, chordsOne.size());
-    assertEquals(2, eventsOne.size());
-    PhaseMeme memeOne = memesOne.iterator().next();
-    assertEquals("Green", memeOne.getName());
-    PhaseChord chordOne = chordsOne.iterator().next();
-    assertEquals(0, chordOne.getPosition(), 0.01);
-    assertEquals("Db7", chordOne.getName());
-
-    // Verify existence of children of cloned phase #2
-    Collection<PhaseMeme> memesTwo = injector.getInstance(PhaseMemeDAO.class).readAll(Access.internal(), ImmutableList.of(resultTwo.getId()));
-    Collection<PhaseChord> chordsTwo = injector.getInstance(PhaseChordDAO.class).readAll(Access.internal(), ImmutableList.of(resultTwo.getId()));
-    Collection<PhaseEvent> eventsTwo = injector.getInstance(PhaseEventDAO.class).readAll(Access.internal(), ImmutableList.of(resultTwo.getId()));
-    assertEquals(1, memesTwo.size());
-    assertEquals(1, chordsTwo.size());
-    assertEquals(2, eventsTwo.size());
-    PhaseMeme memeTwo = memesTwo.iterator().next();
-    assertEquals("Yellow", memeTwo.getName());
-    PhaseChord chordTwo = chordsTwo.iterator().next();
-    assertEquals(0, chordTwo.getPosition(), 0.01);
-    assertEquals("Gm9", chordTwo.getName());
+    assertNull( injector.getInstance(PhaseDAO.class).readOne(Access.internal(), BigInteger.valueOf(1)));
+    assertNull( injector.getInstance(PhaseDAO.class).readOne(Access.internal(), BigInteger.valueOf(2)));
   }
 
 }

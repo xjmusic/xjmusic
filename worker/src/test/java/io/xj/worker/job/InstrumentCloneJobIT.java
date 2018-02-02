@@ -75,7 +75,7 @@ public class InstrumentCloneJobIT {
 
   @Before
   public void setUp() throws Exception {
-    IntegrationTestEntity.deleteAll();
+    IntegrationTestEntity.reset();
 
     // inject mocks
     createInjector();
@@ -157,7 +157,7 @@ public class InstrumentCloneJobIT {
     when(amazonProvider.generateKey(any(), any())).thenReturn("superAwesomeKey123");
 
     app.start();
-    app.getWorkManager().scheduleInstrumentClone(0, BigInteger.valueOf(1), BigInteger.valueOf(14));
+    app.getWorkManager().doInstrumentClone(BigInteger.valueOf(1), BigInteger.valueOf(14));
 
     Thread.sleep(TEST_DURATION_SECONDS * MILLIS_PER_SECOND);
     app.stop();
@@ -175,8 +175,8 @@ public class InstrumentCloneJobIT {
     assertEquals(2, audios.size());
 
     // Verify enqueued audio clone jobs
-    verify(workManager).scheduleAudioClone(eq(0), eq(BigInteger.valueOf(1)), any());
-    verify(workManager).scheduleAudioClone(eq(0), eq(BigInteger.valueOf(2)), any());
+    verify(workManager).doAudioClone(eq(BigInteger.valueOf(1)), any());
+    verify(workManager).doAudioClone(eq(BigInteger.valueOf(2)), any());
   }
 
 }

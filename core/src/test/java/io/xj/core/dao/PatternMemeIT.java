@@ -5,6 +5,7 @@ import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.integration.IntegrationTestEntity;
+import io.xj.core.model.pattern.PatternState;
 import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.pattern_meme.PatternMeme;
 import io.xj.core.model.user_auth.UserAuthType;
@@ -35,7 +36,7 @@ public class PatternMemeIT {
 
   @Before
   public void setUp() throws Exception {
-    IntegrationTestEntity.deleteAll();
+    IntegrationTestEntity.reset();
 
     // Account "bananas"
     IntegrationTestEntity.insertAccount(1, "bananas");
@@ -59,9 +60,9 @@ public class PatternMemeIT {
 
     // Library "palm tree" has pattern "leaves", pattern "coconuts" and pattern "bananas"
     IntegrationTestEntity.insertLibrary(1, 1, "palm tree");
-    IntegrationTestEntity.insertPattern(1, 2, 1, PatternType.Main, "leaves", 0.342, "C#", 120.4);
-    IntegrationTestEntity.insertPattern(2, 2, 1, PatternType.Main, "coconuts", 0.25, "F#", 110.3);
-    IntegrationTestEntity.insertPattern(3, 2, 1, PatternType.Main, "bananas", 0.27, "Gb", 100.6);
+    IntegrationTestEntity.insertPattern(1, 2, 1, PatternType.Main, PatternState.Published, "leaves", 0.342, "C#", 120.4);
+    IntegrationTestEntity.insertPattern(2, 2, 1, PatternType.Main, PatternState.Published, "coconuts", 0.25, "F#", 110.3);
+    IntegrationTestEntity.insertPattern(3, 2, 1, PatternType.Main, PatternState.Published, "bananas", 0.27, "Gb", 100.6);
 
     // Pattern "leaves" has memes "ants" and "mold"
     IntegrationTestEntity.insertPatternMeme(1, 1, "Ants");

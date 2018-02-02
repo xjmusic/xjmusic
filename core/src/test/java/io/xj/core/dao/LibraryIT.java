@@ -6,6 +6,7 @@ import io.xj.core.access.impl.Access;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.model.library.Library;
+import io.xj.core.model.pattern.PatternState;
 import io.xj.core.model.pattern.PatternType;
 import io.xj.core.transport.JSON;
 
@@ -35,7 +36,7 @@ public class LibraryIT {
 
   @Before
   public void setUp() throws Exception {
-    IntegrationTestEntity.deleteAll();
+    IntegrationTestEntity.reset();
 
     // Account "palm tree" has library "leaves" and library "coconuts"
     IntegrationTestEntity.insertAccount(1, "palm tree");
@@ -269,7 +270,7 @@ public class LibraryIT {
       "roles", "Admin"
     ));
     IntegrationTestEntity.insertUser(101, "bill", "bill@email.com", "http://pictures.com/bill.gif");
-    IntegrationTestEntity.insertPattern(301, 101, 2, PatternType.Main, "brilliant", 0.342, "C#", 0.286);
+    IntegrationTestEntity.insertPattern(301, 101, 2, PatternType.Main, PatternState.Published, "brilliant", 0.342, "C#", 0.286);
 
     try {
       testDAO.destroy(access, BigInteger.valueOf(2));

@@ -56,7 +56,7 @@ public class AudioCloneJobIT {
 
   @Before
   public void setUp() throws Exception {
-    IntegrationTestEntity.deleteAll();
+    IntegrationTestEntity.reset();
 
     // inject mocks
     createInjector();
@@ -137,8 +137,8 @@ public class AudioCloneJobIT {
   @Test
   public void runWorker() throws Exception {
     app.start();
-    app.getWorkManager().scheduleAudioClone(0, BigInteger.valueOf(1), BigInteger.valueOf(3));
-    app.getWorkManager().scheduleAudioClone(0, BigInteger.valueOf(2), BigInteger.valueOf(4));
+    app.getWorkManager().doAudioClone(BigInteger.valueOf(1), BigInteger.valueOf(3));
+    app.getWorkManager().doAudioClone(BigInteger.valueOf(2), BigInteger.valueOf(4));
 
     Thread.sleep(TEST_DURATION_SECONDS * MILLIS_PER_SECOND);
     app.stop();

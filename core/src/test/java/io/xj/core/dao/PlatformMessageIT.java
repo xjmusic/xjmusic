@@ -8,6 +8,8 @@ import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
 import io.xj.core.model.message.MessageType;
+import io.xj.core.model.phase.PhaseState;
+import io.xj.core.model.phase.PhaseType;
 import io.xj.core.model.platform_message.PlatformMessage;
 import io.xj.core.timestamp.TimestampUTC;
 
@@ -37,7 +39,7 @@ public class PlatformMessageIT {
 
   @Before
   public void setUp() throws Exception {
-    IntegrationTestEntity.deleteAll();
+    IntegrationTestEntity.reset();
 
     // Account "Testing" has chain "Test Print #1"
     IntegrationTestEntity.insertAccount(1, "Testing");
@@ -157,6 +159,5 @@ public class PlatformMessageIT {
 
     testDAO.destroy(access, BigInteger.valueOf(12));
   }
-
 
 }

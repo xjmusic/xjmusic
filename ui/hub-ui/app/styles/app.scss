@@ -1,5 +1,4 @@
 /* Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved. */
-
 @import "evaluation";
 @import "audio_waveform";
 @import "breadcrumb";
@@ -10,6 +9,7 @@
 @import "forms";
 @import "global";
 @import "headline";
+@import "loader";
 @import "mailchimp";
 @import "marketing";
 @import "meme_usage";
@@ -22,7 +22,6 @@
 @import "states";
 @import "table";
 @import "typography";
-
 // noinspection CssUnknownTarget - imported from module of same name
 @import "ember-power-select";
 

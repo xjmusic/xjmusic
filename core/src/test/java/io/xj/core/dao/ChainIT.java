@@ -14,6 +14,7 @@ import io.xj.core.model.chain_config.ChainConfigType;
 import io.xj.core.model.instrument.InstrumentType;
 import io.xj.core.model.link.Link;
 import io.xj.core.model.link.LinkState;
+import io.xj.core.model.pattern.PatternState;
 import io.xj.core.model.pattern.PatternType;
 import io.xj.core.transport.JSON;
 
@@ -52,7 +53,7 @@ public class ChainIT {
 
   @Before
   public void setUp() throws Exception {
-    IntegrationTestEntity.deleteAll();
+    IntegrationTestEntity.reset();
 
     // inject mocks
     createInjector();
@@ -772,7 +773,7 @@ public class ChainIT {
     IntegrationTestEntity.insertUser(3, "jenny", "jenny@email.com", "http://pictures.com/jenny.gif");
     IntegrationTestEntity.insertChain(3, 1, "bucket", ChainType.Production, ChainState.Draft, Timestamp.valueOf("2015-05-10 12:17:02.527142"), null, null);
     IntegrationTestEntity.insertLibrary(3, 1, "pajamas");
-    IntegrationTestEntity.insertPattern(3, 3, 3, PatternType.Main, "fonds", 0.342, "C#", 0.286);
+    IntegrationTestEntity.insertPattern(3, 3, 3, PatternType.Main, PatternState.Published, "fonds", 0.342, "C#", 0.286);
     IntegrationTestEntity.insertChainPattern(1, 3, 3);
 
     Access access = new Access(ImmutableMap.of(
@@ -792,10 +793,10 @@ public class ChainIT {
     IntegrationTestEntity.insertUser(3, "jenny", "jenny@email.com", "http://pictures.com/jenny.gif");
     IntegrationTestEntity.insertChain(3, 1, "bucket", ChainType.Production, ChainState.Draft, Timestamp.valueOf("2015-05-10 12:17:02.527142"), null, null);
     IntegrationTestEntity.insertLibrary(3, 1, "pajamas");
-    IntegrationTestEntity.insertPattern(3, 3, 3, PatternType.Main, "fonds", 0.342, "C#", 0.286);
-    IntegrationTestEntity.insertPattern(4, 3, 3, PatternType.Macro, "trees A to B", 0.7, "D#", 0.4);
-    IntegrationTestEntity.insertPattern(5, 3, 3, PatternType.Macro, "trees B to A", 0.6, "F", 0.6);
-    IntegrationTestEntity.insertPattern(6, 3, 3, PatternType.Rhythm, "beets", 0.5, "C", 1.5);
+    IntegrationTestEntity.insertPattern(3, 3, 3, PatternType.Main, PatternState.Published, "fonds", 0.342, "C#", 0.286);
+    IntegrationTestEntity.insertPattern(4, 3, 3, PatternType.Macro, PatternState.Published, "trees A to B", 0.7, "D#", 0.4);
+    IntegrationTestEntity.insertPattern(5, 3, 3, PatternType.Macro, PatternState.Published, "trees B to A", 0.6, "F", 0.6);
+    IntegrationTestEntity.insertPattern(6, 3, 3, PatternType.Rhythm, PatternState.Published, "beets", 0.5, "C", 1.5);
     IntegrationTestEntity.insertChainPattern(1, 3, 3);
     IntegrationTestEntity.insertChainPattern(2, 3, 4);
     IntegrationTestEntity.insertChainPattern(3, 3, 5);

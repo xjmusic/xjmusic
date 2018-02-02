@@ -10,7 +10,9 @@ import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
 import io.xj.core.model.link.Link;
+import io.xj.core.model.pattern.PatternState;
 import io.xj.core.model.pattern.PatternType;
+import io.xj.core.model.phase.PhaseState;
 import io.xj.core.model.phase.PhaseType;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.timestamp.TimestampUTC;
@@ -55,7 +57,7 @@ public class ChainLinkFabricateJobsIT {
 
   @Before
   public void setUp() throws Exception {
-    IntegrationTestEntity.deleteAll();
+    IntegrationTestEntity.reset();
 
     // inject mocks
     createInjector();
@@ -76,65 +78,65 @@ public class ChainLinkFabricateJobsIT {
     IntegrationTestEntity.insertLibrary(2, 1, "house");
 
     // "Heavy, Deep to Metal" macro-pattern in house library
-    IntegrationTestEntity.insertPattern(4, 3, 2, PatternType.Macro, "Heavy, Deep to Metal", 0.5, "C", 120);
+    IntegrationTestEntity.insertPattern(4, 3, 2, PatternType.Macro, PatternState.Published, "Heavy, Deep to Metal", 0.5, "C", 120);
     IntegrationTestEntity.insertPatternMeme(2, 4, "Heavy");
     // " phase offset 0
-    IntegrationTestEntity.insertPhase(3, 4, PhaseType.Macro, 0, 0, "Start Deep", 0.6, "C", 125);
+    IntegrationTestEntity.insertPhase(3, 4, PhaseType.Macro, PhaseState.Published, 0, 0, "Start Deep", 0.6, "C", 125);
     IntegrationTestEntity.insertPhaseMeme(3, 3, "Deep");
     IntegrationTestEntity.insertPhaseChord(3, 3, 0, "C");
     // " phase offset 1
-    IntegrationTestEntity.insertPhase(4, 4, PhaseType.Macro, 1, 0, "Intermediate", 0.4, "Bb minor", 115);
+    IntegrationTestEntity.insertPhase(4, 4, PhaseType.Macro, PhaseState.Published, 1, 0, "Intermediate", 0.4, "Bb minor", 115);
     IntegrationTestEntity.insertPhaseMeme(4, 4, "Metal");
     IntegrationTestEntity.insertPhaseMeme(49, 4, "Deep");
     IntegrationTestEntity.insertPhaseChord(4, 4, 0, "Bb minor");
     // " phase offset 2
-    IntegrationTestEntity.insertPhase(5, 4, PhaseType.Macro, 2, 0, "Finish Metal", 0.4, "Ab minor", 125);
+    IntegrationTestEntity.insertPhase(5, 4, PhaseType.Macro, PhaseState.Published, 2, 0, "Finish Metal", 0.4, "Ab minor", 125);
     IntegrationTestEntity.insertPhaseMeme(5, 4, "Metal");
     IntegrationTestEntity.insertPhaseChord(5, 5, 0, "Ab minor");
 
     // "Tech, Steampunk to Modern" macro-pattern in house library
-    IntegrationTestEntity.insertPattern(3, 3, 2, PatternType.Macro, "Tech, Steampunk to Modern", 0.5, "G minor", 120);
+    IntegrationTestEntity.insertPattern(3, 3, 2, PatternType.Macro, PatternState.Published, "Tech, Steampunk to Modern", 0.5, "G minor", 120);
     IntegrationTestEntity.insertPatternMeme(1, 3, "Tech");
     // # phase offset 0
-    IntegrationTestEntity.insertPhase(1, 3, PhaseType.Macro, 0, 0, "Start Steampunk", 0.4, "G minor", 115);
+    IntegrationTestEntity.insertPhase(1, 3, PhaseType.Macro, PhaseState.Published, 0, 0, "Start Steampunk", 0.4, "G minor", 115);
     IntegrationTestEntity.insertPhaseMeme(1, 1, "Steampunk");
     IntegrationTestEntity.insertPhaseChord(1, 1, 0, "G minor");
     // # phase offset 1
-    IntegrationTestEntity.insertPhase(2, 3, PhaseType.Macro, 1, 0, "Finish Modern", 0.6, "C", 125);
+    IntegrationTestEntity.insertPhase(2, 3, PhaseType.Macro, PhaseState.Published, 1, 0, "Finish Modern", 0.6, "C", 125);
     IntegrationTestEntity.insertPhaseMeme(2, 2, "Modern");
     IntegrationTestEntity.insertPhaseChord(2, 2, 0, "C");
 
     // Main pattern
-    IntegrationTestEntity.insertPattern(5, 3, 2, PatternType.Main, "Main Jam", 0.2, "C minor", 140);
+    IntegrationTestEntity.insertPattern(5, 3, 2, PatternType.Main, PatternState.Published, "Main Jam", 0.2, "C minor", 140);
     IntegrationTestEntity.insertPatternMeme(3, 5, "Attitude");
     // # phase offset 0
-    IntegrationTestEntity.insertPhase(15, 5, PhaseType.Main, 0, 16, "Intro", 0.5, "G major", 135.0);
+    IntegrationTestEntity.insertPhase(15, 5, PhaseType.Main, PhaseState.Published, 0, 16, "Intro", 0.5, "G major", 135.0);
     IntegrationTestEntity.insertPhaseMeme(6, 15, "Gritty");
     IntegrationTestEntity.insertPhaseChord(12, 15, 0, "G major");
     IntegrationTestEntity.insertPhaseChord(14, 15, 8, "Ab minor");
     // # phase offset 1
-    IntegrationTestEntity.insertPhase(16, 5, PhaseType.Main, 1, 16, "Drop", 0.5, "G minor", 135.0);
+    IntegrationTestEntity.insertPhase(16, 5, PhaseType.Main, PhaseState.Published, 1, 16, "Drop", 0.5, "G minor", 135.0);
     IntegrationTestEntity.insertPhaseMeme(7, 16, "Gentle");
     IntegrationTestEntity.insertPhaseChord(16, 16, 0, "C major");
     IntegrationTestEntity.insertPhaseChord(18, 16, 8, "Bb minor");
 
     // Another Main pattern to go to
-    IntegrationTestEntity.insertPattern(15, 3, 2, PatternType.Main, "Next Jam", 0.2, "Db minor", 140);
+    IntegrationTestEntity.insertPattern(15, 3, 2, PatternType.Main, PatternState.Published, "Next Jam", 0.2, "Db minor", 140);
     IntegrationTestEntity.insertPatternMeme(43, 15, "Temptation");
-    IntegrationTestEntity.insertPhase(415, 15, PhaseType.Main, 0, 16, "Intro", 0.5, "G minor", 135.0);
+    IntegrationTestEntity.insertPhase(415, 15, PhaseType.Main, PhaseState.Published, 0, 16, "Intro", 0.5, "G minor", 135.0);
     IntegrationTestEntity.insertPhaseMeme(46, 415, "Food");
     IntegrationTestEntity.insertPhaseChord(412, 415, 0, "G minor");
     IntegrationTestEntity.insertPhaseChord(414, 415, 8, "Ab minor");
-    IntegrationTestEntity.insertPhase(416, 15, PhaseType.Main, 1, 16, "Outro", 0.5, "A major", 135.0);
+    IntegrationTestEntity.insertPhase(416, 15, PhaseType.Main, PhaseState.Published, 1, 16, "Outro", 0.5, "A major", 135.0);
     IntegrationTestEntity.insertPhaseMeme(47, 416, "Drink");
     IntegrationTestEntity.insertPhaseMeme(149, 416, "Shame");
     IntegrationTestEntity.insertPhaseChord(416, 416, 0, "C major");
     IntegrationTestEntity.insertPhaseChord(418, 416, 8, "Bb major");
 
     // A basic beat
-    IntegrationTestEntity.insertPattern(35, 3, 2, PatternType.Rhythm, "Basic Beat", 0.2, "C", 121);
+    IntegrationTestEntity.insertPattern(35, 3, 2, PatternType.Rhythm, PatternState.Published, "Basic Beat", 0.2, "C", 121);
     IntegrationTestEntity.insertPatternMeme(343, 35, "Basic");
-    IntegrationTestEntity.insertPhase(315, 35, PhaseType.Loop, 0, 16, "Drop", 0.5, "C", 125.0);
+    IntegrationTestEntity.insertPhase(315, 35, PhaseType.Loop, PhaseState.Published, 0, 16, "Drop", 0.5, "C", 125.0);
     IntegrationTestEntity.insertPhaseMeme(346, 315, "Heavy");
 
     // Chain "Test Print #1" is ready to begin

@@ -97,7 +97,7 @@ public class InstrumentCloneJobImpl implements InstrumentCloneJob {
 
       try {
         Audio toAudio = audioDAO.create(Access.internal(), audio);
-        workManager.scheduleAudioClone(0, fromAudioId, toAudio.getId());
+        workManager.doAudioClone(fromAudioId, toAudio.getId());
         log.info("Cloned Audio from #{} to {} and scheduled AudioClone job", audio.getId(), JSON.objectFrom(toAudio));
 
       } catch (Exception e) {

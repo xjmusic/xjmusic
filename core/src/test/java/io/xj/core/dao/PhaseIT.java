@@ -1,6 +1,13 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.dao;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.util.Modules;
+
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
 import io.xj.core.exception.BusinessException;
@@ -9,20 +16,14 @@ import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
 import io.xj.core.model.instrument.InstrumentType;
 import io.xj.core.model.link.LinkState;
+import io.xj.core.model.pattern.PatternState;
 import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.phase.Phase;
+import io.xj.core.model.phase.PhaseState;
 import io.xj.core.model.phase.PhaseType;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.transport.JSON;
 import io.xj.core.work.WorkManager;
-
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.util.Modules;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.After;
@@ -47,17 +48,17 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 
-// future test: permissions of different users to readMany vs. create vs. update or delete phases
+// future test: permissions of different users to readMany vs. create vs. update or destroy phases
 @RunWith(MockitoJUnitRunner.class)
 public class PhaseIT {
   @Rule public ExpectedException failure = ExpectedException.none();
   private Injector injector;
   private PhaseDAO subject;
-  @Spy final WorkManager workManager = Guice.createInjector(new CoreModule()).getInstance(WorkManager.class);
+  @Spy private final WorkManager workManager = Guice.createInjector(new CoreModule()).getInstance(WorkManager.class);
 
   @Before
   public void setUp() throws Exception {
-    IntegrationTestEntity.deleteAll();
+    IntegrationTestEntity.reset();
 
     // inject mocks
     createInjector();
@@ -76,12 +77,12 @@ public class PhaseIT {
 
     // Library "palm tree" has pattern "leaves" and pattern "coconuts"
     IntegrationTestEntity.insertLibrary(1, 1, "palm tree");
-    IntegrationTestEntity.insertPattern(1, 2, 1, PatternType.Main, "leaves", 0.342, "C#", 110.286);
-    IntegrationTestEntity.insertPattern(2, 2, 1, PatternType.Macro, "coconuts", 8.02, "D", 130.2);
+    IntegrationTestEntity.insertPattern(1, 2, 1, PatternType.Main, PatternState.Published, "leaves", 0.342, "C#", 110.286);
+    IntegrationTestEntity.insertPattern(2, 2, 1, PatternType.Macro, PatternState.Published, "coconuts", 8.02, "D", 130.2);
 
     // Pattern "leaves" has phases "Ants" and "Caterpillars"
-    IntegrationTestEntity.insertPhase(1, 1, PhaseType.Main, 0, 16, "Ants", 0.583, "D minor", 120.0);
-    IntegrationTestEntity.insertPhase(2, 1, PhaseType.Main, 1, 16, "Caterpillars", 0.583, "E major", 140.0);
+    IntegrationTestEntity.insertPhase(1, 1, PhaseType.Main, PhaseState.Published, 0, 16, "Ants", 0.583, "D minor", 120.0);
+    IntegrationTestEntity.insertPhase(2, 1, PhaseType.Main, PhaseState.Published, 1, 16, "Caterpillars", 0.583, "E major", 140.0);
 
     // Instantiate the test subject
     subject = injector.getInstance(PhaseDAO.class);
@@ -185,7 +186,7 @@ public class PhaseIT {
    */
   @Test
   public void create_failsWithWrongTypeForRhythmPattern() throws Exception {
-    IntegrationTestEntity.insertPattern(51, 2, 1, PatternType.Rhythm, "tester-b", 0.342, "C#", 110.286);
+    IntegrationTestEntity.insertPattern(51, 2, 1, PatternType.Rhythm, PatternState.Published, "tester-b", 0.342, "C#", 110.286);
     Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
@@ -211,7 +212,7 @@ public class PhaseIT {
    */
   @Test
   public void create_failsWithWrongTypeForDetailPattern() throws Exception {
-    IntegrationTestEntity.insertPattern(51, 2, 1, PatternType.Detail, "tester-b", 0.342, "C#", 110.286);
+    IntegrationTestEntity.insertPattern(51, 2, 1, PatternType.Detail, PatternState.Published, "tester-b", 0.342, "C#", 110.286);
     Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
@@ -413,7 +414,7 @@ public class PhaseIT {
     assertEquals(120.0, result.getTempo(), 0.1);
 
     // Verify enqueued audio clone jobs
-    verify(workManager).schedulePhaseClone(eq(0), eq(BigInteger.valueOf(1)), any());
+    verify(workManager).doPhaseClone(eq(BigInteger.valueOf(1)), any());
   }
 
   /**
@@ -501,7 +502,7 @@ public class PhaseIT {
    */
   @Test
   public void readAllAtPatternOffset_multiplePhasesAtOffset() throws Exception {
-    IntegrationTestEntity.insertPhase(5, 1, PhaseType.Main, 0, 16, "Army Ants", 0.683, "Eb minor", 122.4);
+    IntegrationTestEntity.insertPhase(5, 1, PhaseType.Main, PhaseState.Published, 0, 16, "Army Ants", 0.683, "Eb minor", 122.4);
     Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
@@ -557,6 +558,24 @@ public class PhaseIT {
 
     assertNotNull(result);
     assertEquals(0, result.length());
+  }
+
+  @Test
+  public void readAll_excludesPhasesInEraseState() throws Exception {
+    IntegrationTestEntity.insertPhase(27, 1, PhaseType.Main, PhaseState.Erase, 0, 16, "Ants", 0.583, "D minor", 120.0);
+    Access access = new Access(ImmutableMap.of(
+      "roles", "User",
+      "accounts", "1"
+    ));
+
+    JSONArray result = JSON.arrayOf(subject.readAll(access, ImmutableList.of(BigInteger.valueOf(1))));
+
+    assertNotNull(result);
+    assertEquals(2, result.length());
+    JSONObject result2 = (JSONObject) result.get(0);
+    assertEquals("Ants", result2.get("name"));
+    JSONObject result1 = (JSONObject) result.get(1);
+    assertEquals("Caterpillars", result1.get("name"));
   }
 
   // future test: DAO cannot update Pattern to a User or Library not owned by current session
@@ -751,7 +770,7 @@ public class PhaseIT {
   }
 
   @Test
-  public void delete() throws Exception {
+  public void destroy() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
@@ -764,7 +783,7 @@ public class PhaseIT {
   }
 
   @Test(expected = BusinessException.class)
-  public void delete_failsIfNotInAccount() throws Exception {
+  public void destroy_failsIfNotInAccount() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "2"
@@ -774,7 +793,7 @@ public class PhaseIT {
   }
 
   @Test
-  public void delete_SucceedsEvenIfPatternHasManyChildren_andWasUsedInProduction() throws Exception {
+  public void destroy_SucceedsEvenIfPatternHasManyChildren_andWasUsedInProduction() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "userId", "2",
       "roles", "Artist",
@@ -808,6 +827,21 @@ public class PhaseIT {
     assertNull(injector.getInstance(PhaseMemeDAO.class).readOne(Access.internal(), BigInteger.valueOf(2001)));
   }
 
-  // future test: PhaseDAO cannot delete record unless user has account access
+  // future test: PhaseDAO cannot destroy record unless user has account access
+
+  @Test
+  public void erase_SucceedsEvenWithChildren() throws Exception {
+    Access access = new Access(ImmutableMap.of(
+      "userId", "2",
+      "roles", "Artist",
+      "accounts", "1"
+    ));
+    subject.erase(access, BigInteger.valueOf(1));
+
+    Phase result = subject.readOne(Access.internal(), BigInteger.valueOf(1));
+    assertNotNull(result);
+    assertEquals(PhaseState.Erase, result.getState());
+  }
+
 
 }

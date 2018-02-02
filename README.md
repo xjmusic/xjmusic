@@ -76,11 +76,13 @@ For a complete rebuild, including configurations and front-end, we could run:
 
 The data on `mysql01xj1` and `redis01xj1` persists until those containers are explicitly destroyed.
 
-Attach to the shell on the main server `hub01xj1` while it's running, and tail the logs:
+Tail the docker container logs for the `hub` app while it's running (/var/log in the container is mounted from local volume ./log):
 
-    docker attach hub01xj1
-    # now inside shell
-    tail -f /var/log/nginx/*.log /var/log/hub/*.log
+    tail -f log/hub/*
+
+Or tail container logs for the `worker` app:
+
+    tail -f log/worker/*
 
 After logging in via Google, there will be a user created for you. It will have an `id`, for example 21. To grant the `admin` user role, you'll connect directly to the database on `mysql01xj1` using the port forwarding from local port 3300 (to Docker Mysql container port 3306):
 

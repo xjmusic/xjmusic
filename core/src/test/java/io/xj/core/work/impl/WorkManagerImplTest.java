@@ -1,21 +1,5 @@
 package io.xj.core.work.impl;// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-import io.xj.core.CoreModule;
-import io.xj.core.config.Config;
-import io.xj.core.dao.AudioDAO;
-import io.xj.core.dao.ChainDAO;
-import io.xj.core.dao.PlatformMessageDAO;
-import io.xj.core.model.audio.Audio;
-import io.xj.core.model.audio.AudioState;
-import io.xj.core.model.chain.Chain;
-import io.xj.core.model.chain.ChainState;
-import io.xj.core.model.platform_message.PlatformMessage;
-import io.xj.core.model.work.Work;
-import io.xj.core.model.work.WorkState;
-import io.xj.core.model.work.WorkType;
-import io.xj.core.persistence.redis.RedisDatabaseProvider;
-import io.xj.core.work.WorkManager;
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.inject.AbstractModule;
@@ -23,6 +7,27 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 
+import io.xj.core.CoreModule;
+import io.xj.core.config.Config;
+import io.xj.core.dao.AudioDAO;
+import io.xj.core.dao.ChainDAO;
+import io.xj.core.dao.PatternDAO;
+import io.xj.core.dao.PhaseDAO;
+import io.xj.core.dao.PlatformMessageDAO;
+import io.xj.core.model.audio.Audio;
+import io.xj.core.model.audio.AudioState;
+import io.xj.core.model.chain.Chain;
+import io.xj.core.model.chain.ChainState;
+import io.xj.core.model.pattern.Pattern;
+import io.xj.core.model.pattern.PatternState;
+import io.xj.core.model.phase.Phase;
+import io.xj.core.model.phase.PhaseState;
+import io.xj.core.model.platform_message.PlatformMessage;
+import io.xj.core.model.work.Work;
+import io.xj.core.model.work.WorkState;
+import io.xj.core.model.work.WorkType;
+import io.xj.core.persistence.redis.RedisDatabaseProvider;
+import io.xj.core.work.WorkManager;
 import net.greghaines.jesque.Job;
 import net.greghaines.jesque.client.Client;
 import net.greghaines.jesque.worker.JobFactory;
@@ -51,22 +56,22 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class WorkManagerImplTest {
   private WorkManager subject;
-  private Injector injector;
-  @Mock ChainDAO chainDAO;
-  @Mock AudioDAO audioDAO;
-  @Mock RedisDatabaseProvider redisDatabaseProvider;
+  @Mock private ChainDAO chainDAO;
+  @Mock private AudioDAO audioDAO;
+  @Mock private RedisDatabaseProvider redisDatabaseProvider;
   @Mock private Client queueClient;
   @Mock private JobFactory jobFactory;
   @Mock private Worker worker;
   @Mock private Jedis client;
-  @Mock PlatformMessageDAO platformMessageDAO;
+  @Mock private PlatformMessageDAO platformMessageDAO;
+  @Mock private PatternDAO patternDAO;
+  @Mock private PhaseDAO phaseDAO;
 
   @Before
   public void setUp() throws Exception {
-    createInjector();
     System.setProperty("work.queue.name", "xj_test");
 
-    subject = injector.getInstance(WorkManager.class);
+    subject = createInjector().getInstance(WorkManager.class);
   }
 
   @After
@@ -138,10 +143,34 @@ public class WorkManagerImplTest {
   }
 
   @Test
-  public void startAudioErase() throws Exception {
+  public void doPatternErase() throws Exception {
     when(redisDatabaseProvider.getQueueClient()).thenReturn(queueClient);
 
-    subject.startAudioErase(BigInteger.valueOf(5977));
+    subject.doPatternErase(BigInteger.valueOf(5977));
+
+    verify(queueClient).enqueue(
+      eq(Config.workQueueName()),
+      eq(new Job(WorkType.PatternErase.toString(), BigInteger.valueOf(5977))));
+    verify(queueClient).end();
+  }
+
+  @Test
+  public void doPhaseErase() throws Exception {
+    when(redisDatabaseProvider.getQueueClient()).thenReturn(queueClient);
+
+    subject.doPhaseErase(BigInteger.valueOf(5977));
+
+    verify(queueClient).enqueue(
+      eq(Config.workQueueName()),
+      eq(new Job(WorkType.PhaseErase.toString(), BigInteger.valueOf(5977))));
+    verify(queueClient).end();
+  }
+
+  @Test
+  public void doAudioErase() throws Exception {
+    when(redisDatabaseProvider.getQueueClient()).thenReturn(queueClient);
+
+    subject.doAudioErase(BigInteger.valueOf(5977));
 
     verify(queueClient).enqueue(
       eq(Config.workQueueName()),
@@ -150,65 +179,50 @@ public class WorkManagerImplTest {
   }
 
   @Test
-  public void stopAudioErase() throws Exception {
+  public void doInstrumentClone() throws Exception {
     when(redisDatabaseProvider.getQueueClient()).thenReturn(queueClient);
 
-    subject.stopAudioErase(BigInteger.valueOf(5977));
+    subject.doInstrumentClone(BigInteger.valueOf(421), BigInteger.valueOf(78));
 
-    verify(queueClient).removeRecurringEnqueue(Config.workQueueName(),
-      new Job(WorkType.AudioErase.toString(), BigInteger.valueOf(5977)));
+    verify(queueClient).enqueue(
+      eq(Config.workQueueName()),
+      eq(new Job(WorkType.InstrumentClone.toString(), BigInteger.valueOf(421), BigInteger.valueOf(78))));
     verify(queueClient).end();
   }
 
   @Test
-  public void scheduleInstrumentClone() throws Exception {
+  public void doAudioClone() throws Exception {
     when(redisDatabaseProvider.getQueueClient()).thenReturn(queueClient);
 
-    subject.scheduleInstrumentClone(10, BigInteger.valueOf(421), BigInteger.valueOf(78));
+    subject.doAudioClone(BigInteger.valueOf(890), BigInteger.valueOf(23));
 
-    verify(queueClient).delayedEnqueue(
+    verify(queueClient).enqueue(
       eq(Config.workQueueName()),
-      eq(new Job(WorkType.InstrumentClone.toString(), BigInteger.valueOf(421), BigInteger.valueOf(78))),
-      anyInt());
+      eq(new Job(WorkType.AudioClone.toString(), BigInteger.valueOf(890), BigInteger.valueOf(23))));
     verify(queueClient).end();
   }
 
   @Test
-  public void scheduleAudioClone() throws Exception {
+  public void doPatternClone() throws Exception {
     when(redisDatabaseProvider.getQueueClient()).thenReturn(queueClient);
 
-    subject.scheduleAudioClone(10, BigInteger.valueOf(890), BigInteger.valueOf(23));
+    subject.doPatternClone(BigInteger.valueOf(421), BigInteger.valueOf(78));
 
-    verify(queueClient).delayedEnqueue(
+    verify(queueClient).enqueue(
       eq(Config.workQueueName()),
-      eq(new Job(WorkType.AudioClone.toString(), BigInteger.valueOf(890), BigInteger.valueOf(23))),
-      anyInt());
+      eq(new Job(WorkType.PatternClone.toString(), BigInteger.valueOf(421), BigInteger.valueOf(78))));
     verify(queueClient).end();
   }
 
   @Test
-  public void schedulePatternClone() throws Exception {
+  public void doPhaseClone() throws Exception {
     when(redisDatabaseProvider.getQueueClient()).thenReturn(queueClient);
 
-    subject.schedulePatternClone(10, BigInteger.valueOf(421), BigInteger.valueOf(78));
+    subject.doPhaseClone(BigInteger.valueOf(890), BigInteger.valueOf(23));
 
-    verify(queueClient).delayedEnqueue(
+    verify(queueClient).enqueue(
       eq(Config.workQueueName()),
-      eq(new Job(WorkType.PatternClone.toString(), BigInteger.valueOf(421), BigInteger.valueOf(78))),
-      anyInt());
-    verify(queueClient).end();
-  }
-
-  @Test
-  public void schedulePhaseClone() throws Exception {
-    when(redisDatabaseProvider.getQueueClient()).thenReturn(queueClient);
-
-    subject.schedulePhaseClone(10, BigInteger.valueOf(890), BigInteger.valueOf(23));
-
-    verify(queueClient).delayedEnqueue(
-      eq(Config.workQueueName()),
-      eq(new Job(WorkType.PhaseClone.toString(), BigInteger.valueOf(890), BigInteger.valueOf(23))),
-      anyInt());
+      eq(new Job(WorkType.PhaseClone.toString(), BigInteger.valueOf(890), BigInteger.valueOf(23))));
     verify(queueClient).end();
   }
 
@@ -227,6 +241,14 @@ public class WorkManagerImplTest {
     Collection<Audio> testAudioErase = Lists.newArrayList();
     testAudioErase.add(new Audio(BigInteger.valueOf(157)).setState("Erase"));
     when(audioDAO.readAllInState(any(), eq(AudioState.Erase))).thenReturn(testAudioErase);
+    // mock Pattern records in Erase state
+    Collection<Pattern> testPatternErase = Lists.newArrayList();
+    testPatternErase.add(new Pattern(BigInteger.valueOf(2965)).setState("Erase"));
+    when(patternDAO.readAllInState(any(), eq(PatternState.Erase))).thenReturn(testPatternErase);
+    // mock Phase records in Erase state
+    Collection<Phase> testPhaseErase = Lists.newArrayList();
+    testPhaseErase.add(new Phase(BigInteger.valueOf(587)).setState("Erase"));
+    when(phaseDAO.readAllInState(any(), eq(PhaseState.Erase))).thenReturn(testPhaseErase);
     // mock Chain records in Erase state
     Collection<Chain> testChainErase = Lists.newArrayList();
     testChainErase.add(new Chain(BigInteger.valueOf(157)).setState("ChainErase"));
@@ -244,6 +266,8 @@ public class WorkManagerImplTest {
     testQueueData.add("{\"class\":\"ChainFabricate\",\"args\":[\"3382\"],\"vars\":null}");
     testQueueData.add("{\"class\":\"ChainErase\",\"args\":[\"157\"],\"vars\":null}");
     testQueueData.add("{\"class\":\"AudioErase\",\"args\":[\"157\"],\"vars\":null}");
+    testQueueData.add("{\"class\":\"PatternErase\",\"args\":[\"2965\"],\"vars\":null}");
+    testQueueData.add("{\"class\":\"PhaseErase\",\"args\":[\"587\"],\"vars\":null}");
     when(client.zrange("xj:queue:xj_test", 0, -1)).thenReturn(testQueueData);
 
     Collection<Work> allResults = subject.readAllWork();
@@ -251,6 +275,7 @@ public class WorkManagerImplTest {
     verify(client).zrange("xj:queue:xj_test", 0, -1);
     // assert results
     Iterator<Work> resultIterator = allResults.iterator();
+    assertEquals(7, allResults.size());
     Work result;
     // assert #0
     result = resultIterator.next();
@@ -270,17 +295,29 @@ public class WorkManagerImplTest {
     assertEquals(BigInteger.valueOf(24), result.getTargetId());
     assertEquals(WorkType.ChainFabricate, result.getType());
     assertEquals(WorkState.Queued, result.getState());
-    // assert #3
+    // assert #5
+    result = resultIterator.next();
+    assertEquals(BigInteger.valueOf(800002965), result.getId());
+    assertEquals(BigInteger.valueOf(2965), result.getTargetId());
+    assertEquals(WorkType.PatternErase, result.getType());
+    assertEquals(WorkState.Queued, result.getState());
+    // assert #6
     result = resultIterator.next();
     assertEquals(BigInteger.valueOf(300008907), result.getId());
     assertEquals(BigInteger.valueOf(8907), result.getTargetId());
     assertEquals(WorkType.ChainErase, result.getType());
     assertEquals(WorkState.Expected, result.getState());
-    // assert #4
+    // assert #7
     result = resultIterator.next();
     assertEquals(BigInteger.valueOf(20000157), result.getId());
     assertEquals(BigInteger.valueOf(157), result.getTargetId());
     assertEquals(WorkType.AudioErase, result.getType());
+    assertEquals(WorkState.Queued, result.getState());
+    // assert #8
+    result = resultIterator.next();
+    assertEquals(BigInteger.valueOf(100000587), result.getId());
+    assertEquals(BigInteger.valueOf(587), result.getTargetId());
+    assertEquals(WorkType.PhaseErase, result.getType());
     assertEquals(WorkState.Queued, result.getState());
   }
 
@@ -300,6 +337,14 @@ public class WorkManagerImplTest {
     testChainFabricate.add(new Chain(BigInteger.valueOf(24)).setState("ChainFabricate"));
     testChainFabricate.add(new Chain(BigInteger.valueOf(3382)).setState("ChainFabricate"));
     when(chainDAO.readAllInState(any(), eq(ChainState.Fabricate))).thenReturn(testChainFabricate);
+    // mock Pattern records in Erase state
+    Collection<Pattern> testPatternErase = Lists.newArrayList();
+    testPatternErase.add(new Pattern(BigInteger.valueOf(2965)).setState("Erase"));
+    when(patternDAO.readAllInState(any(), eq(PatternState.Erase))).thenReturn(testPatternErase);
+    // mock Phase records in Erase state
+    Collection<Phase> testPhaseErase = Lists.newArrayList();
+    testPhaseErase.add(new Phase(BigInteger.valueOf(587)).setState("Erase"));
+    when(phaseDAO.readAllInState(any(), eq(PhaseState.Erase))).thenReturn(testPhaseErase);
     // mock direct query of Redis Jesque jobs
     when(redisDatabaseProvider.getClient()).thenReturn(client);
     Set<String> testQueueData = Sets.newConcurrentHashSet();
@@ -307,6 +352,8 @@ public class WorkManagerImplTest {
     testQueueData.add("{\"class\":\"ChainFabricate\",\"args\":[\"3382\"],\"vars\":null}");
     testQueueData.add("{\"class\":\"ChainErase\",\"args\":[\"157\"],\"vars\":null}");
     testQueueData.add("{\"class\":\"AudioErase\",\"args\":[\"157\"],\"vars\":null}");
+    testQueueData.add("{\"class\":\"PatternErase\",\"args\":[\"2965\"],\"vars\":null}");
+    testQueueData.add("{\"class\":\"PhaseErase\",\"args\":[\"587\"],\"vars\":null}");
     when(client.zrange("xj:queue:xj_test", 0, -1)).thenReturn(testQueueData);
     // mock redis queue client
     when(redisDatabaseProvider.getQueueClient()).thenReturn(queueClient);
@@ -334,13 +381,15 @@ public class WorkManagerImplTest {
     assertEquals(WorkState.Queued, result0.getState());
   }
 
-  private void createInjector() {
-    injector = Guice.createInjector(Modules.override(new CoreModule()).with(
+  private Injector createInjector() {
+    return Guice.createInjector(Modules.override(new CoreModule()).with(
       new AbstractModule() {
         @Override
         public void configure() {
           bind(ChainDAO.class).toInstance(chainDAO);
           bind(AudioDAO.class).toInstance(audioDAO);
+          bind(PatternDAO.class).toInstance(patternDAO);
+          bind(PhaseDAO.class).toInstance(phaseDAO);
           bind(PlatformMessageDAO.class).toInstance(platformMessageDAO);
           bind(RedisDatabaseProvider.class).toInstance(redisDatabaseProvider);
         }

@@ -38,7 +38,7 @@ public class UserIT {
 
   @Before
   public void setUp() throws Exception {
-    IntegrationTestEntity.deleteAll();
+    IntegrationTestEntity.reset();
 
     // Account "bananas"
     IntegrationTestEntity.insertAccount(1, "bananas");

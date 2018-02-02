@@ -1,7 +1,6 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.dao.impl;
 
-import io.xj.core.Tables;
 import io.xj.core.access.impl.Access;
 import io.xj.core.config.Config;
 import io.xj.core.config.Exposure;
@@ -171,13 +170,13 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
    */
   private static Map<Field, Object> fieldValueMap(Audio entity) {
     Map<Field, Object> fieldValues = com.google.api.client.util.Maps.newHashMap();
-    fieldValues.put(Tables.AUDIO.INSTRUMENT_ID, ULong.valueOf(entity.getInstrumentId()));
-    fieldValues.put(Tables.AUDIO.NAME, entity.getName());
-    fieldValues.put(Tables.AUDIO.STATE, entity.getState());
-    fieldValues.put(Tables.AUDIO.START, entity.getStart());
-    fieldValues.put(Tables.AUDIO.LENGTH, entity.getLength());
-    fieldValues.put(Tables.AUDIO.TEMPO, entity.getTempo());
-    fieldValues.put(Tables.AUDIO.PITCH, entity.getPitch());
+    fieldValues.put(AUDIO.INSTRUMENT_ID, ULong.valueOf(entity.getInstrumentId()));
+    fieldValues.put(AUDIO.NAME, entity.getName());
+    fieldValues.put(AUDIO.STATE, entity.getState());
+    fieldValues.put(AUDIO.START, entity.getStart());
+    fieldValues.put(AUDIO.LENGTH, entity.getLength());
+    fieldValues.put(AUDIO.TEMPO, entity.getTempo());
+    fieldValues.put(AUDIO.PITCH, entity.getPitch());
     // Excluding AUDIO.WAVEFORM_KEY a.k.a. waveformKey because that is read-only
     return fieldValues;
   }
@@ -236,16 +235,6 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
   }
 
   @Override
-  public Collection<Audio> readAllInState(Access access, AudioState state) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readAllInState(tx.getContext(), access, state));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
   public void update(Access access, BigInteger id, Audio entity) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
@@ -262,6 +251,16 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
     try {
       destroy(access, tx.getContext(), ULong.valueOf(id));
       tx.success();
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public Collection<Audio> readAllInState(Access access, AudioState state) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readAllInState(tx.getContext(), access, state));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -330,7 +329,7 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
     entity.setPitch(from.getPitch());
 
     Audio result = create(db, access, entity);
-    workManager.scheduleAudioClone(0, cloneId, result.getId());
+    workManager.doAudioClone(cloneId, result.getId());
     return result;
   }
 
@@ -457,9 +456,9 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
 
     // Schedule audio deletion job
     try {
-      workManager.startAudioErase(id.toBigInteger());
+      workManager.doAudioErase(id.toBigInteger());
     } catch (Exception e) {
-      log.error("Failed to start AudioErase work after updating Audio to Erase state. See the elusive [#153492153] Audio can be deleted without an error", e);
+      log.error("Failed to start AudioErase work after updating Audio to Erase state. See the elusive [#153492153] Entity erase job can be spawned without an error", e);
     }
   }
 }

@@ -111,7 +111,7 @@ public class PatternCloneJobImpl implements PatternCloneJob {
       phase.setPatternId(toId);
       try {
         Phase toPhase = phaseDAO.create(Access.internal(), phase);
-        workManager.schedulePhaseClone(0, phase.getId(), toPhase.getId());
+        workManager.doPhaseClone(phase.getId(), toPhase.getId());
         log.info("Cloned Phase from #{} to {} and scheduled PhaseClone job", phase.getId(), JSON.objectFrom(toPhase));
 
       } catch (Exception e) {

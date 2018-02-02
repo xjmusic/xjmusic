@@ -8,7 +8,9 @@ import io.xj.worker.job.ChainFabricateJob;
 import io.xj.worker.job.InstrumentCloneJob;
 import io.xj.worker.job.LinkFabricateJob;
 import io.xj.worker.job.PatternCloneJob;
+import io.xj.worker.job.PatternEraseJob;
 import io.xj.worker.job.PhaseCloneJob;
+import io.xj.worker.job.PhaseEraseJob;
 import io.xj.worker.job.impl.AudioCloneJobImpl;
 import io.xj.worker.job.impl.AudioEraseJobImpl;
 import io.xj.worker.job.impl.ChainEraseJobImpl;
@@ -16,11 +18,13 @@ import io.xj.worker.job.impl.ChainFabricateJobImpl;
 import io.xj.worker.job.impl.InstrumentCloneJobImpl;
 import io.xj.worker.job.impl.LinkFabricateJobImpl;
 import io.xj.worker.job.impl.PatternCloneJobImpl;
+import io.xj.worker.job.impl.PatternEraseJobImpl;
 import io.xj.worker.job.impl.PhaseCloneJobImpl;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
 
+import io.xj.worker.job.impl.PhaseEraseJobImpl;
 import net.greghaines.jesque.worker.JobFactory;
 
 public class WorkerModule extends AbstractModule {
@@ -42,7 +46,9 @@ public class WorkerModule extends AbstractModule {
       .implement(InstrumentCloneJob.class, InstrumentCloneJobImpl.class)
       .implement(LinkFabricateJob.class, LinkFabricateJobImpl.class)
       .implement(PatternCloneJob.class, PatternCloneJobImpl.class)
+      .implement(PatternEraseJob.class, PatternEraseJobImpl.class)
       .implement(PhaseCloneJob.class, PhaseCloneJobImpl.class)
+      .implement(PhaseEraseJob.class, PhaseEraseJobImpl.class)
       .build(JobTargetFactory.class));
   }
 

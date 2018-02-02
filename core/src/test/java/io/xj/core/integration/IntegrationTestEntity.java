@@ -11,7 +11,9 @@ import io.xj.core.model.link.Link;
 import io.xj.core.model.link.LinkState;
 import io.xj.core.model.message.MessageType;
 import io.xj.core.model.pattern.Pattern;
+import io.xj.core.model.pattern.PatternState;
 import io.xj.core.model.pattern.PatternType;
+import io.xj.core.model.phase.PhaseState;
 import io.xj.core.model.phase.PhaseType;
 import io.xj.core.model.user_auth.UserAuthType;
 import io.xj.core.model.user_role.UserRoleType;
@@ -98,7 +100,7 @@ public interface IntegrationTestEntity {
   /**
    Reset the database before an integration test.
    */
-  static void deleteAll() throws DatabaseException {
+  static void reset() throws DatabaseException {
     DSLContext db = IntegrationTestService.getDb();
     try {
       // Arrangement
@@ -244,11 +246,11 @@ public interface IntegrationTestEntity {
     record.store();
   }
 
-  static Pattern insertPattern(int id, int userId, int libraryId, PatternType type, String name, double density, String key, double tempo) {
-    return insertPattern(id, userId, libraryId, type, name, density, key, tempo, Timestamp.from(Instant.now()));
+  static Pattern insertPattern(int id, int userId, int libraryId, PatternType type, PatternState state, String name, double density, String key, double tempo) {
+    return insertPattern(id, userId, libraryId, type, state, name, density, key, tempo, Timestamp.from(Instant.now()));
   }
 
-  static Pattern insertPattern(int id, int userId, int libraryId, PatternType type, String name, double density, String key, double tempo, Timestamp createdUpdatedAt) {
+  static Pattern insertPattern(int id, int userId, int libraryId, PatternType type, PatternState state, String name, double density, String key, double tempo, Timestamp createdUpdatedAt) {
     PatternRecord record = IntegrationTestService.getDb().newRecord(PATTERN);
     record.setId(ULong.valueOf(id));
     record.setUserId(ULong.valueOf(userId));
@@ -260,6 +262,7 @@ public interface IntegrationTestEntity {
     record.setTempo(tempo);
     record.setCreatedAt(createdUpdatedAt);
     record.setUpdatedAt(createdUpdatedAt);
+    record.setState(state.toString());
     record.store();
 
     Pattern result = new Pattern();
@@ -288,11 +291,11 @@ public interface IntegrationTestEntity {
     record.store();
   }
 
-  static void insertPhase(int id, int patternId, PhaseType type, int offset, int total, String name, double density, String key, double tempo) {
-    insertPhase(id, patternId, type, offset, total, name, density, key, tempo, Timestamp.from(Instant.now()));
+  static void insertPhase(int id, int patternId, PhaseType type, PhaseState state, int offset, int total, String name, double density, String key, double tempo) {
+    insertPhase(id, patternId, type, state, offset, total, name, density, key, tempo, Timestamp.from(Instant.now()));
   }
 
-  static void insertPhase(int id, int patternId, PhaseType type, int offset, int total, String name, double density, String key, double tempo, Timestamp createdUpdatedAt) {
+  static void insertPhase(int id, int patternId, PhaseType type, PhaseState state, int offset, int total, String name, double density, String key, double tempo, Timestamp createdUpdatedAt) {
     PhaseRecord record = IntegrationTestService.getDb().newRecord(PHASE);
     record.setId(ULong.valueOf(id));
     record.setPatternId(ULong.valueOf(patternId));
@@ -303,6 +306,7 @@ public interface IntegrationTestEntity {
     record.setKey(key);
     record.setTempo(tempo);
     record.setType(type.toString());
+    record.setState(state.toString());
     record.setCreatedAt(createdUpdatedAt);
     record.setUpdatedAt(createdUpdatedAt);
     record.store();

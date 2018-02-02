@@ -8,7 +8,9 @@ import io.xj.worker.job.ChainFabricateJob;
 import io.xj.worker.job.InstrumentCloneJob;
 import io.xj.worker.job.LinkFabricateJob;
 import io.xj.worker.job.PatternCloneJob;
+import io.xj.worker.job.PatternEraseJob;
 import io.xj.worker.job.PhaseCloneJob;
+import io.xj.worker.job.PhaseEraseJob;
 
 import com.google.inject.assistedinject.Assisted;
 
@@ -26,6 +28,28 @@ public interface JobTargetFactory {
    @return job instance
    */
   ChainEraseJob makeChainEraseJob(
+    @Assisted("entityId") BigInteger entityId
+  );
+
+  /**
+   PatternErase job instance
+   [#154887174] PatternErase job erase a Pattern and all its Phases in the background, in order to keep the UI functioning at a reasonable speed.
+
+   @param entityId to delete
+   @return job instance
+   */
+  PatternEraseJob makePatternEraseJob(
+    @Assisted("entityId") BigInteger entityId
+  );
+
+  /**
+   PhaseErase job instance
+   [#153976888] PhaseErase job erase a Phase in the background, in order to keep the UI functioning at a reasonable speed.
+
+   @param entityId to delete
+   @return job instance
+   */
+  PhaseEraseJob makePhaseEraseJob(
     @Assisted("entityId") BigInteger entityId
   );
 

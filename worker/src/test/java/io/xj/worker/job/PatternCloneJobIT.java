@@ -13,9 +13,11 @@ import io.xj.core.external.amazon.AmazonProvider;
 import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.model.instrument.InstrumentType;
 import io.xj.core.model.pattern.Pattern;
+import io.xj.core.model.pattern.PatternState;
 import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.pattern_meme.PatternMeme;
 import io.xj.core.model.phase.Phase;
+import io.xj.core.model.phase.PhaseState;
 import io.xj.core.model.phase.PhaseType;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.model.voice.Voice;
@@ -64,7 +66,7 @@ public class PatternCloneJobIT {
 
   @Before
   public void setUp() throws Exception {
-    IntegrationTestEntity.deleteAll();
+    IntegrationTestEntity.reset();
 
     // inject mocks
     createInjector();
@@ -89,26 +91,26 @@ public class PatternCloneJobIT {
     IntegrationTestEntity.insertLibrary(42, 1, "pajamas");
 
     // Pattern "808" and "2020"
-    IntegrationTestEntity.insertPattern(1, 2, 2, PatternType.Rhythm, "808 Drums", 0.9, "C", 120);
+    IntegrationTestEntity.insertPattern(1, 2, 2, PatternType.Rhythm, PatternState.Published, "808 Drums", 0.9, "C", 120);
     IntegrationTestEntity.insertPatternMeme(1, 1, "heavy");
     IntegrationTestEntity.insertVoice(1, 1, InstrumentType.Percussive, "Kick Drum");
     IntegrationTestEntity.insertVoice(2, 1, InstrumentType.Percussive, "Snare Drum");
-    IntegrationTestEntity.insertPattern(12, 2, 42, PatternType.Rhythm, "2020 Drums", 0.9, "G", 120);
+    IntegrationTestEntity.insertPattern(12, 2, 42, PatternType.Rhythm, PatternState.Published, "2020 Drums", 0.9, "G", 120);
 
     // Phase
-    IntegrationTestEntity.insertPhase(1, 1, PhaseType.Loop, 0, 16, "Verse 1", 0.5, "C", 120.0);
+    IntegrationTestEntity.insertPhase(1, 1, PhaseType.Loop, PhaseState.Published, 0, 16, "Verse 1", 0.5, "C", 120.0);
     IntegrationTestEntity.insertPhaseChord(1, 1, 0, "Db7");
     IntegrationTestEntity.insertPhaseEvent(101, 1, 1, 0.0, 1.0, "KICK", "C5", 1.0, 1.0);
     IntegrationTestEntity.insertPhaseEvent(102, 1, 2, 1.0, 1.0, "SNARE", "C5", 1.0, 1.0);
 
     // Phase
-    IntegrationTestEntity.insertPhase(2, 1, PhaseType.Loop, 1, 16, "Verse 2", 0.5, "C", 120.0);
+    IntegrationTestEntity.insertPhase(2, 1, PhaseType.Loop, PhaseState.Published, 1, 16, "Verse 2", 0.5, "C", 120.0);
     IntegrationTestEntity.insertPhaseChord(2, 2, 0, "Gm9");
     IntegrationTestEntity.insertPhaseEvent(103, 2, 1, 0.0, 1.0, "KICK", "C5", 1.0, 1.0);
     IntegrationTestEntity.insertPhaseEvent(104, 2, 2, 1.0, 1.0, "SNARE", "C5", 1.0, 1.0);
 
     // Newly cloned pattern -- awaiting PatternClone job to run, and create its child entities
-    IntegrationTestEntity.insertPattern(14, 2, 42, PatternType.Rhythm, "808 Drums Clone Y'all", 0.9, "D", 120);
+    IntegrationTestEntity.insertPattern(14, 2, 42, PatternType.Rhythm, PatternState.Published, "808 Drums Clone Y'all", 0.9, "D", 120);
 
     // Don't sleep between processing work
     System.setProperty("app.port", "9043");
@@ -150,7 +152,7 @@ public class PatternCloneJobIT {
     when(amazonProvider.generateKey(any(), any())).thenReturn("superAwesomeKey123");
 
     app.start();
-    app.getWorkManager().schedulePatternClone(0, BigInteger.valueOf(1), BigInteger.valueOf(14));
+    app.getWorkManager().doPatternClone(BigInteger.valueOf(1), BigInteger.valueOf(14));
 
     Thread.sleep(TEST_DURATION_SECONDS * MILLIS_PER_SECOND);
     app.stop();
@@ -180,8 +182,8 @@ public class PatternCloneJobIT {
     }
 
     // Verify enqueued phase clone jobs
-    verify(workManager).schedulePhaseClone(eq(0), eq(BigInteger.valueOf(1)), any());
-    verify(workManager).schedulePhaseClone(eq(0), eq(BigInteger.valueOf(2)), any());
+    verify(workManager).doPhaseClone(eq(BigInteger.valueOf(1)), any());
+    verify(workManager).doPhaseClone(eq(BigInteger.valueOf(2)), any());
   }
 
 }

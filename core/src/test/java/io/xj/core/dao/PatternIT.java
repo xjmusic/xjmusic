@@ -9,7 +9,9 @@ import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
 import io.xj.core.model.link.LinkState;
 import io.xj.core.model.pattern.Pattern;
+import io.xj.core.model.pattern.PatternState;
 import io.xj.core.model.pattern.PatternType;
+import io.xj.core.model.phase.PhaseState;
 import io.xj.core.model.phase.PhaseType;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.transport.JSON;
@@ -44,17 +46,18 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 
-// future test: permissions of different users to readMany vs. create vs. update or delete patterns
+// future test: permissions of different users to readMany vs. create vs. update or destroy patterns
 @RunWith(MockitoJUnitRunner.class)
 public class PatternIT {
   @Rule public ExpectedException failure = ExpectedException.none();
   private Injector injector;
   private PatternDAO testDAO;
-  @Spy final WorkManager workManager = Guice.createInjector(new CoreModule()).getInstance(WorkManager.class);
+  @Spy
+  private final WorkManager workManager = Guice.createInjector(new CoreModule()).getInstance(WorkManager.class);
 
   @Before
   public void setUp() throws Exception {
-    IntegrationTestEntity.deleteAll();
+    IntegrationTestEntity.reset();
 
     // inject mocks
     createInjector();
@@ -73,15 +76,15 @@ public class PatternIT {
 
     // Library "palm tree" has pattern "fonds" and pattern "nuts"
     IntegrationTestEntity.insertLibrary(1, 1, "palm tree");
-    IntegrationTestEntity.insertPattern(1, 2, 1, PatternType.Main, "fonds", 0.342, "C#", 0.286);
+    IntegrationTestEntity.insertPattern(1, 2, 1, PatternType.Main, PatternState.Published, "fonds", 0.342, "C#", 0.286);
     IntegrationTestEntity.insertPatternMeme(12, 1, "leafy");
     IntegrationTestEntity.insertPatternMeme(14, 1, "smooth");
-    IntegrationTestEntity.insertPattern(2, 2, 1, PatternType.Rhythm, "nuts", 0.342, "C#", 0.286);
+    IntegrationTestEntity.insertPattern(2, 2, 1, PatternType.Rhythm, PatternState.Published, "nuts", 0.342, "C#", 0.286);
 
     // Library "boat" has pattern "helm" and pattern "sail"
     IntegrationTestEntity.insertLibrary(2, 1, "boat");
-    IntegrationTestEntity.insertPattern(3, 3, 2, PatternType.Macro, "helm", 0.342, "C#", 0.286);
-    IntegrationTestEntity.insertPattern(4, 2, 2, PatternType.Detail, "sail", 0.342, "C#", 0.286);
+    IntegrationTestEntity.insertPattern(3, 3, 2, PatternType.Macro, PatternState.Published, "helm", 0.342, "C#", 0.286);
+    IntegrationTestEntity.insertPattern(4, 2, 2, PatternType.Detail, PatternState.Published, "sail", 0.342, "C#", 0.286);
 
     // Instantiate the test subject
     testDAO = injector.getInstance(PatternDAO.class);
@@ -187,7 +190,7 @@ public class PatternIT {
     assertEquals(BigInteger.valueOf(2), result.getUserId());
 
     // Verify enqueued audio clone jobs
-    verify(workManager).schedulePatternClone(eq(0), eq(BigInteger.valueOf(1)), any());
+    verify(workManager).doPatternClone(eq(BigInteger.valueOf(1)), any());
   }
 
   @Test
@@ -264,6 +267,24 @@ public class PatternIT {
     assertEquals("fonds", result1.get("name"));
     JSONObject result2 = (JSONObject) result.get(1);
     assertEquals("nuts", result2.get("name"));
+  }
+
+  @Test
+  public void readAll_excludesPatternsInEraseState() throws Exception {
+    IntegrationTestEntity.insertPattern(27, 2, 1, PatternType.Main, PatternState.Erase, "fonds", 0.342, "C#", 0.286);
+    Access access = new Access(ImmutableMap.of(
+      "roles", "User",
+      "accounts", "1"
+    ));
+
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1))));
+
+    assertNotNull(result);
+    assertEquals(2, result.length());
+    JSONObject result2 = (JSONObject) result.get(0);
+    assertEquals("fonds", result2.get("name"));
+    JSONObject result1 = (JSONObject) result.get(1);
+    assertEquals("nuts", result1.get("name"));
   }
 
   @Test
@@ -364,7 +385,7 @@ public class PatternIT {
   // future test: DAO cannot update Pattern to a User or Library not owned by current session
 
   @Test
-  public void delete() throws Exception {
+  public void destroy() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
@@ -375,25 +396,40 @@ public class PatternIT {
     assertNull(result);
   }
 
-  @Test(expected = BusinessException.class)
-  public void delete_FailsIfPatternHasChildren() throws Exception {
+  /**
+   [#154881808] Artist wants to destroy a Pattern along with any Phases in it, in order to save time.
+   */
+  @Test
+  public void destroy_SucceedsEvenIfPatternHasMeme() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
-    IntegrationTestEntity.insertPhase(1, 2, PhaseType.Main, 0, 14, "testPhase", 0.524, "F#", 125.49);
+    IntegrationTestEntity.insertPatternMeme(1001, 2, "Blue");
 
-    try {
-      testDAO.destroy(access, BigInteger.valueOf(2));
+    testDAO.destroy(access, BigInteger.valueOf(2));
 
-    } catch (Exception e) {
-      Pattern result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1));
-      assertNotNull(result);
-      throw e;
-    }
+    Pattern result = testDAO.readOne(Access.internal(), BigInteger.valueOf(2));
+    assertNull(result);
+  }
+
+  /**
+   [#154881808] Artist wants to destroy a Pattern along with any Phases in it, in order to save time.
+   */
+  @Test
+  public void destroy_FailsIfPatternHasPhase() throws Exception {
+    Access access = new Access(ImmutableMap.of(
+      "roles", "Admin"
+    ));
+    IntegrationTestEntity.insertPhase(1, 2, PhaseType.Main, PhaseState.Published, 0, 14, "testPhase", 0.524, "F#", 125.49);
+
+    failure.expect(BusinessException.class);
+    failure.expectMessage("Phase in Pattern");
+
+    testDAO.destroy(access, BigInteger.valueOf(2));
   }
 
   @Test
-  public void delete_succeedsAfterChosenForProduction() throws Exception {
+  public void destroy_succeedsAfterChosenForProduction() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
@@ -408,4 +444,63 @@ public class PatternIT {
   }
 
 
+  @Test
+  public void erase() throws Exception {
+    Access access = new Access(ImmutableMap.of(
+      "roles", "Artist",
+      "accounts", "1"
+    ));
+    IntegrationTestEntity.insertPattern(1001, 2, 1, PatternType.Main, PatternState.Published, "fonds", 0.342, "C#", 0.286);
+
+    testDAO.erase(access, BigInteger.valueOf(1001));
+
+    Pattern result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1001));
+    assertNotNull(result);
+    assertEquals(PatternState.Erase, result.getState());
+  }
+
+  @Test
+  public void erase_failsIfNotInAccount() throws Exception {
+    Access access = new Access(ImmutableMap.of(
+      "roles", "Artist",
+      "accounts", "2"
+    ));
+
+    failure.expect(BusinessException.class);
+    failure.expectMessage("Pattern does not exist");
+
+    testDAO.erase(access, BigInteger.valueOf(1));
+  }
+
+  @Test
+  public void erase_FailsIfPatternHasMeme() throws Exception {
+    Access access = new Access(ImmutableMap.of(
+      "userId", "2",
+      "roles", "Artist",
+      "accounts", "1"
+    ));
+    IntegrationTestEntity.insertPhase(1001, 1, PhaseType.Main, PhaseState.Published, 0, 16, "Intro", 0.6, "C", 120.0);
+
+    failure.expect(BusinessException.class);
+    failure.expectMessage("Meme in Pattern");
+
+    testDAO.erase(access, BigInteger.valueOf(1));
+  }
+
+  @Test
+  public void erase_SucceedsEvenWithChildren() throws Exception {
+    Access access = new Access(ImmutableMap.of(
+      "userId", "2",
+      "roles", "Artist",
+      "accounts", "1"
+    ));
+    IntegrationTestEntity.insertPattern(1001, 2, 1, PatternType.Main, PatternState.Published, "fonds", 0.342, "C#", 0.286);
+    IntegrationTestEntity.insertPhase(1002, 1001, PhaseType.Main, PhaseState.Published, 0, 16, "Intro", 0.6, "C", 120.0);
+
+    testDAO.erase(access, BigInteger.valueOf(1001));
+
+    Pattern result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1001));
+    assertNotNull(result);
+    assertEquals(PatternState.Erase, result.getState());
+  }
 }

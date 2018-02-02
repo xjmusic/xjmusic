@@ -6,7 +6,9 @@ import io.xj.core.access.impl.Access;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.model.instrument.InstrumentType;
+import io.xj.core.model.pattern.PatternState;
 import io.xj.core.model.pattern.PatternType;
+import io.xj.core.model.phase.PhaseState;
 import io.xj.core.model.phase.PhaseType;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.model.phase_event.PhaseEvent;
@@ -36,7 +38,7 @@ public class PhaseEventIT {
 
   @Before
   public void setUp() throws Exception {
-    IntegrationTestEntity.deleteAll();
+    IntegrationTestEntity.reset();
 
     // Account "bananas"
     IntegrationTestEntity.insertAccount(1, "bananas");
@@ -47,11 +49,11 @@ public class PhaseEventIT {
 
     // Library "palm tree" has pattern "leaves" and pattern "coconuts"
     IntegrationTestEntity.insertLibrary(1, 1, "palm tree");
-    IntegrationTestEntity.insertPattern(1, 2, 1, PatternType.Main, "leaves", 0.342, "C#", 110.286);
+    IntegrationTestEntity.insertPattern(1, 2, 1, PatternType.Main, PatternState.Published, "leaves", 0.342, "C#", 110.286);
 
     // Pattern "leaves" has voices "Intro" and "Outro"
-    IntegrationTestEntity.insertPhase(1, 1, PhaseType.Main, 0, 4, "Intro", 0.583, "D minor", 120.0);
-    IntegrationTestEntity.insertPhase(2, 1, PhaseType.Main, 1, 4, "Outro", 0.583, "E major", 140.0);
+    IntegrationTestEntity.insertPhase(1, 1, PhaseType.Main, PhaseState.Published, 0, 4, "Intro", 0.583, "D minor", 120.0);
+    IntegrationTestEntity.insertPhase(2, 1, PhaseType.Main, PhaseState.Published, 1, 4, "Outro", 0.583, "E major", 140.0);
 
     // Voice "Caterpillars" has voices "Drums" and "Bass"
     IntegrationTestEntity.insertVoice(1, 1, InstrumentType.Percussive, "Drums");

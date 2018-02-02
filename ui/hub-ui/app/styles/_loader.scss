@@ -1,0 +1,42 @@
+/* Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved. */
+@import 'palette';
+
+.loader {
+  height: 1rem;
+  width: 100%;
+  position: relative;
+  display: block;
+  overflow: hidden;
+  background-color: #555;
+  &:before {
+    display: block;
+    position: absolute;
+    content: "";
+    right: -200px;
+    width: 200px;
+    height: 1rem;
+    background-color: $gold;
+    animation: loaderAnimation 2s linear infinite;
+  }
+  @keyframes loaderAnimation {
+    from {
+      right: -200px;
+      width: 30%;
+    }
+    50% {
+      width: 30%;
+    }
+    70% {
+      width: 70%;
+    }
+    80% {
+      right: 50%;
+    }
+    95% {
+      right: 120%;
+    }
+    to {
+      right: 100%;
+    }
+  }
+}

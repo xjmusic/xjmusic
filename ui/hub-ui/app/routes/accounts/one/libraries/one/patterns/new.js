@@ -67,6 +67,9 @@ export default Route.extend({
 
     createPattern(model) {
       let generateLibrarySuperpattern = $('#generateLibrarySuperpattern:checked').length > 0;
+      if (generateLibrarySuperpattern) {
+        $('.generate-superpattern').html('<div class="loader">&nbsp;</div>');
+      }
       model.save({
         adapterOptions: {
           query: {

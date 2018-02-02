@@ -13,7 +13,9 @@ import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
 import io.xj.core.model.instrument.InstrumentType;
 import io.xj.core.model.link.LinkState;
+import io.xj.core.model.pattern.PatternState;
 import io.xj.core.model.pattern.PatternType;
+import io.xj.core.model.phase.PhaseState;
 import io.xj.core.model.phase.PhaseType;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.transport.JSON;
@@ -61,7 +63,7 @@ public class AudioIT {
 
   @Before
   public void setUp() throws Exception {
-    IntegrationTestEntity.deleteAll();
+    IntegrationTestEntity.reset();
 
     // inject mocks
     createInjector();
@@ -108,8 +110,8 @@ public class AudioIT {
     IntegrationTestEntity.insertAudioChord(1, 1, 4, "D major");
 
     // Pattern, Phase, Voice
-    IntegrationTestEntity.insertPattern(1, 2, 1, PatternType.Macro, "epic concept", 0.342, "C#", 0.286);
-    IntegrationTestEntity.insertPhase(1, 1, PhaseType.Macro, 0, 16, "Ants", 0.583, "D minor", 120.0);
+    IntegrationTestEntity.insertPattern(1, 2, 1, PatternType.Macro, PatternState.Published, "epic concept", 0.342, "C#", 0.286);
+    IntegrationTestEntity.insertPhase(1, 1, PhaseType.Macro, PhaseState.Published, 0, 16, "Ants", 0.583, "D minor", 120.0);
     IntegrationTestEntity.insertVoice(8, 1, InstrumentType.Percussive, "This is a percussive voice");
 
     // Chain, Link
@@ -221,7 +223,7 @@ public class AudioIT {
     assertEquals(440.0, result.getPitch(), 0.01);
 
     // Verify enqueued audio clone jobs
-    verify(workManager).scheduleAudioClone(eq(0), eq(BigInteger.valueOf(1)), any());
+    verify(workManager).doAudioClone(eq(BigInteger.valueOf(1)), any());
   }
 
   @Test
@@ -440,7 +442,7 @@ public class AudioIT {
   }
 
   @Test
-  public void erase_SucceedsEvenWithChilds() throws Exception {
+  public void erase_SucceedsEvenWithChildren() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "userId", "2",
       "roles", "Artist",

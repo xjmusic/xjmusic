@@ -25,14 +25,16 @@ public class Audio extends Entity {
   private BigInteger instrumentId;
   private String waveformKey;
   private String name;
-  private AudioState state;
   private Double start;
   private Double length;
   private Double tempo;
   private Double pitch;
+  private AudioState state;
   private String _stateString; // pending validation, copied to `state` field
 
-  public Audio() {}
+
+  public Audio() {
+  }
 
   public Audio(int id) {
     this.id = BigInteger.valueOf(id);
@@ -138,7 +140,8 @@ public class Audio extends Entity {
       throw new BusinessException("Instrument ID is required.");
 
     // throws its own BusinessException on failure
-    state = AudioState.validate(_stateString);
+    if (Objects.isNull(state))
+      state = AudioState.validate(_stateString);
 
     if (Objects.isNull(name) || name.isEmpty())
       throw new BusinessException("Name is required.");

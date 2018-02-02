@@ -3,6 +3,7 @@ package io.xj.core.model.pattern;
 
 import io.xj.core.exception.BusinessException;
 import io.xj.core.model.entity.Entity;
+import io.xj.core.util.Text;
 
 import java.math.BigInteger;
 import java.util.Objects;
@@ -33,6 +34,9 @@ public class Pattern extends Entity {
   private String key;
   private Double density;
   private Double tempo;
+  private PatternState state;
+  private String _stateString; // pending validation, copied to `state` field
+
 
   public Pattern() {}
 
@@ -52,6 +56,27 @@ public class Pattern extends Entity {
     name = value;
     return this;
   }
+
+  public PatternState getState() {
+    return state;
+  }
+
+  /**
+   This sets the state String, however the value will remain null
+   until validate() is called and the value is cast to enum
+
+   @param stateString pending validation
+   */
+  public Pattern setState(String stateString) {
+    _stateString = Text.toAlphabetical(stateString);
+    return this;
+  }
+
+  public Pattern setStateEnum(PatternState state) {
+    this.state = state;
+    return this;
+  }
+
 
   public PatternType getType() {
     return type;
@@ -121,6 +146,10 @@ public class Pattern extends Entity {
     // throws its own BusinessException on failure
     if (Objects.isNull(type))
       type = PatternType.validate(_type);
+
+    // throws its own BusinessException on failure
+    if (Objects.isNull(state))
+      state = PatternState.validate(_stateString);
 
     if (Objects.isNull(name) || name.isEmpty())
       throw new BusinessException("Name is required.");

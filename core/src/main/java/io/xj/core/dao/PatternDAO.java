@@ -2,7 +2,10 @@
 package io.xj.core.dao;
 
 import io.xj.core.access.impl.Access;
+import io.xj.core.model.audio.Audio;
+import io.xj.core.model.audio.AudioState;
 import io.xj.core.model.pattern.Pattern;
+import io.xj.core.model.pattern.PatternState;
 import io.xj.core.model.pattern.PatternType;
 
 import javax.annotation.Nullable;
@@ -61,4 +64,23 @@ public interface PatternDAO extends DAO<Pattern> {
    */
   Collection<Pattern> readAll(Access access) throws Exception;
 
+  /**
+   Fetch all Pattern in a certain state
+   [INTERNAL USE ONLY]
+
+   @param access control
+   @param state  to get patterns in
+   @return Result of pattern records.
+   @throws Exception on failure
+   */
+  Collection<Pattern> readAllInState(Access access, PatternState state) throws Exception;
+
+  /**
+   Erase a specified Pattern if accessible.
+   [#154887174] PatternErase job erase a Pattern and all its Phases in the background, in order to keep the UI functioning at a reasonable speed.
+
+   @param access control
+   @param id     of specific pattern to erase.
+   */
+  void erase(Access access, BigInteger id) throws Exception;
 }

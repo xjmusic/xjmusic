@@ -1,23 +1,27 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.dao.impl;
 
-import io.xj.core.access.impl.Access;
-import io.xj.core.dao.PatternDAO;
-import io.xj.core.exception.BusinessException;
-import io.xj.core.exception.ConfigException;
-import io.xj.core.model.library.Library;
-import io.xj.core.model.pattern.Pattern;
-import io.xj.core.model.pattern.PatternType;
-import io.xj.core.persistence.sql.SQLDatabaseProvider;
-import io.xj.core.persistence.sql.impl.SQLConnection;
-import io.xj.core.work.WorkManager;
-
 import org.jooq.DSLContext;
 import org.jooq.Field;
 import org.jooq.types.ULong;
 
 import com.google.api.client.util.Maps;
 import com.google.inject.Inject;
+
+import io.xj.core.access.impl.Access;
+import io.xj.core.dao.PatternDAO;
+import io.xj.core.exception.BusinessException;
+import io.xj.core.exception.ConfigException;
+import io.xj.core.model.pattern.Pattern;
+import io.xj.core.model.pattern.PatternState;
+import io.xj.core.model.pattern.PatternType;
+import io.xj.core.model.user_role.UserRoleType;
+import io.xj.core.persistence.sql.SQLDatabaseProvider;
+import io.xj.core.persistence.sql.impl.SQLConnection;
+import io.xj.core.tables.Library;
+import io.xj.core.work.WorkManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.math.BigInteger;
@@ -29,10 +33,14 @@ import static io.xj.core.Tables.CHOICE;
 import static io.xj.core.Tables.LIBRARY;
 import static io.xj.core.Tables.PATTERN;
 import static io.xj.core.Tables.PATTERN_MEME;
-import static io.xj.core.Tables.PHASE;
+import static io.xj.core.Tables.PHASE_EVENT;
+import static io.xj.core.Tables.VOICE;
+import static io.xj.core.tables.Arrangement.ARRANGEMENT;
 import static io.xj.core.tables.ChainPattern.CHAIN_PATTERN;
+import static io.xj.core.tables.Phase.PHASE;
 
 public class PatternDAOImpl extends DAOImpl implements PatternDAO {
+  private static final Logger log = LoggerFactory.getLogger(PatternDAOImpl.class);
   private final WorkManager workManager;
 
   @Inject
@@ -130,12 +138,14 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
       return modelsFrom(db.select(PATTERN.fields()).from(PATTERN)
         .join(LIBRARY).on(PATTERN.LIBRARY_ID.eq(LIBRARY.ID))
         .where(LIBRARY.ACCOUNT_ID.eq(accountId))
+        .and(PATTERN.STATE.notEqual(String.valueOf(PatternState.Erase)))
         .orderBy(PATTERN.TYPE, PATTERN.NAME)
         .fetch(), Pattern.class);
     else
       return modelsFrom(db.select(PATTERN.fields()).from(PATTERN)
         .join(LIBRARY).on(PATTERN.LIBRARY_ID.eq(LIBRARY.ID))
         .where(LIBRARY.ACCOUNT_ID.in(accountId))
+        .and(PATTERN.STATE.notEqual(String.valueOf(PatternState.Erase)))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .orderBy(PATTERN.TYPE, PATTERN.NAME)
         .fetch(), Pattern.class);
@@ -153,12 +163,14 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
     if (access.isTopLevel())
       return modelsFrom(db.select(PATTERN.fields()).from(PATTERN)
         .where(PATTERN.LIBRARY_ID.in(libraryIds))
+        .and(PATTERN.STATE.notEqual(String.valueOf(PatternState.Erase)))
         .orderBy(PATTERN.TYPE, PATTERN.NAME)
         .fetch(), Pattern.class);
     else
       return modelsFrom(db.select(PATTERN.fields()).from(PATTERN)
         .join(LIBRARY).on(LIBRARY.ID.eq(PATTERN.LIBRARY_ID))
         .where(PATTERN.LIBRARY_ID.in(libraryIds))
+        .and(PATTERN.STATE.notEqual(String.valueOf(PatternState.Erase)))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .orderBy(PATTERN.TYPE, PATTERN.NAME)
         .fetch(), Pattern.class);
@@ -174,12 +186,14 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
   private static Collection<Pattern> readAll(DSLContext db, Access access) throws BusinessException {
     if (access.isTopLevel())
       return modelsFrom(db.select(PATTERN.fields()).from(PATTERN)
+        .where(PATTERN.STATE.notEqual(String.valueOf(PatternState.Erase)))
         .orderBy(PATTERN.TYPE, PATTERN.NAME)
         .fetch(), Pattern.class);
     else
       return modelsFrom(db.select(PATTERN.fields()).from(PATTERN)
         .join(LIBRARY).on(LIBRARY.ID.eq(PATTERN.LIBRARY_ID))
         .where(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+        .and(PATTERN.STATE.notEqual(String.valueOf(PatternState.Erase)))
         .orderBy(PATTERN.TYPE, PATTERN.NAME)
         .fetch(), Pattern.class);
   }
@@ -197,6 +211,26 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
     return modelsFrom(db.select(PATTERN.fields()).from(PATTERN)
       .join(CHAIN_PATTERN).on(CHAIN_PATTERN.PATTERN_ID.eq(PATTERN.ID))
       .where(CHAIN_PATTERN.CHAIN_ID.eq(chainId))
+      .and(PATTERN.STATE.notEqual(String.valueOf(PatternState.Erase)))
+      .fetch(), Pattern.class);
+  }
+
+  /**
+   Read all records in a given state
+
+   @param db     context
+   @param access control
+   @param state  to read patterns in
+   @return array of records
+   */
+  private static Collection<Pattern> readAllInState(DSLContext db, Access access, PatternState state) throws Exception {
+    requireRole("platform access", access, UserRoleType.Admin, UserRoleType.Engineer);
+    // FUTURE: engineer should only see patterns in account?
+
+    return modelsFrom(db.select(PATTERN.fields())
+      .from(PATTERN)
+      .where(PATTERN.STATE.eq(state.toString()))
+      .or(PATTERN.STATE.eq(state.toString().toLowerCase()))
       .fetch(), Pattern.class);
   }
 
@@ -234,7 +268,7 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
   }
 
   /**
-   Delete an Pattern
+   Destroy a Pattern
 
    @param db context
    @param id to delete
@@ -242,7 +276,7 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
    @throws ConfigException   if not configured properly
    @throws BusinessException if fails business rule
    */
-  private static void delete(DSLContext db, Access access, ULong id) throws Exception {
+  private static void destroy(DSLContext db, Access access, ULong id) throws Exception {
     if (!access.isTopLevel())
       requireExists("Pattern belonging to you", db.selectCount().from(PATTERN)
         .join(LIBRARY).on(PATTERN.LIBRARY_ID.eq(LIBRARY.ID))
@@ -254,6 +288,20 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
     requireNotExists("Phase in Pattern", db.selectCount().from(PHASE)
       .where(PHASE.PATTERN_ID.eq(id))
       .fetchOne(0, int.class));
+
+    requireNotExists("Arrangements of Voice in Pattern", db.selectCount().from(ARRANGEMENT)
+      .join(VOICE).on(ARRANGEMENT.VOICE_ID.eq(VOICE.ID))
+      .where(VOICE.PATTERN_ID.eq(id))
+      .fetchOne(0, int.class));
+
+    requireNotExists("Phase Events of Voice in Pattern", db.selectCount().from(PHASE_EVENT)
+      .join(VOICE).on(PHASE_EVENT.VOICE_ID.eq(VOICE.ID))
+      .where(VOICE.PATTERN_ID.eq(id))
+      .fetchOne(0, int.class));
+
+    db.deleteFrom(VOICE)
+      .where(VOICE.PATTERN_ID.eq(id))
+      .execute();
 
     db.deleteFrom(PATTERN_MEME)
       .where(PATTERN_MEME.PATTERN_ID.eq(id))
@@ -269,6 +317,47 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
   }
 
   /**
+   Update a pattern to Erase state
+
+   @param db context
+   @param id to delete
+   @throws Exception         if database failure
+   @throws ConfigException   if not configured properly
+   @throws BusinessException if fails business rule
+   */
+  private void erase(Access access, DSLContext db, ULong id) throws Exception {
+    if (access.isTopLevel())
+      requireExists("Pattern", db.selectCount().from(PATTERN)
+        .where(PATTERN.ID.eq(id))
+        .fetchOne(0, int.class));
+    else requireExists("Pattern", db.selectCount().from(PATTERN)
+      .join(Library.LIBRARY).on(Library.LIBRARY.ID.eq(PATTERN.LIBRARY_ID))
+      .where(PATTERN.ID.eq(id))
+      .and(Library.LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+      .fetchOne(0, int.class));
+
+    requireNotExists("Meme in Pattern", db.selectCount().from(PATTERN_MEME)
+      .where(PATTERN_MEME.PATTERN_ID.eq(id))
+      .fetchOne(0, int.class));
+
+    // Update pattern state to Erase
+    Map<Field, Object> fieldValues = com.google.common.collect.Maps.newHashMap();
+    fieldValues.put(PATTERN.ID, id);
+    fieldValues.put(PATTERN.STATE, PatternState.Erase);
+
+    if (0 == executeUpdate(db, PATTERN, fieldValues))
+      throw new BusinessException("No records updated.");
+
+    // Schedule pattern deletion job
+    try {
+      workManager.doPatternErase(id.toBigInteger());
+    } catch (Exception e) {
+      log.error("Failed to start PatternErase work after updating Pattern to Erase state. See the elusive [#153492153] Entity erase job can be spawned without an error", e);
+    }
+  }
+
+
+  /**
    Only certain (writable) fields are mapped back to jOOQ records--
    Read-only fields are excluded from here.
 
@@ -282,6 +371,7 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
     fieldValues.put(PATTERN.USER_ID, ULong.valueOf(entity.getUserId()));
     fieldValues.put(PATTERN.KEY, entity.getKey());
     fieldValues.put(PATTERN.TYPE, entity.getType());
+    fieldValues.put(PATTERN.STATE, entity.getState());
     fieldValues.put(PATTERN.TEMPO, entity.getTempo());
     fieldValues.put(PATTERN.DENSITY, entity.getDensity());
     return fieldValues;
@@ -384,12 +474,34 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
   public void destroy(Access access, BigInteger id) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      delete(tx.getContext(), access, ULong.valueOf(id));
+      destroy(tx.getContext(), access, ULong.valueOf(id));
       tx.success();
     } catch (Exception e) {
       throw tx.failure(e);
     }
   }
+
+  @Override
+  public Collection<Pattern> readAllInState(Access access, PatternState state) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readAllInState(tx.getContext(), access, state));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public void erase(Access access, BigInteger id) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      erase(access, tx.getContext(), ULong.valueOf(id));
+      tx.success();
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
 
   /**
    Clone a Pattern into a new Pattern
@@ -403,7 +515,8 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
    */
   private Pattern clone(DSLContext db, Access access, BigInteger cloneId, Pattern entity) throws BusinessException {
     Pattern from = readOne(db, access, ULong.valueOf(cloneId));
-    if (Objects.isNull(from)) throw new BusinessException("Can't clone nonexistent Pattern");
+    if (Objects.isNull(from))
+      throw new BusinessException("Can't clone nonexistent Pattern");
 
     entity.setUserId(from.getUserId());
     entity.setDensity(from.getDensity());
@@ -412,7 +525,7 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
     entity.setTypeEnum(from.getType());
 
     Pattern result = create(db, access, entity);
-    workManager.schedulePatternClone(0, cloneId, result.getId());
+    workManager.doPatternClone(cloneId, result.getId());
     return result;
   }
 

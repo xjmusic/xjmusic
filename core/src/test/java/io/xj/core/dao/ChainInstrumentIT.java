@@ -36,7 +36,7 @@ public class ChainInstrumentIT {
 
   @Before
   public void setUp() throws Exception {
-    IntegrationTestEntity.deleteAll();
+    IntegrationTestEntity.reset();
 
     // Account "fish" has chain "school" and chain "bucket"
     IntegrationTestEntity.insertAccount(1, "fish");

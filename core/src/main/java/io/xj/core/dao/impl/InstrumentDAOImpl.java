@@ -382,7 +382,7 @@ public class InstrumentDAOImpl extends DAOImpl implements InstrumentDAO {
     entity.setTypeEnum(from.getType());
 
     Instrument result = create(db, access, entity);
-    workManager.scheduleInstrumentClone(0, cloneId, result.getId());
+    workManager.doInstrumentClone(cloneId, result.getId());
     return result;
   }
 

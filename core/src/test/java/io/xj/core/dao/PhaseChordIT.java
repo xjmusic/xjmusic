@@ -5,7 +5,9 @@ import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.integration.IntegrationTestEntity;
+import io.xj.core.model.pattern.PatternState;
 import io.xj.core.model.pattern.PatternType;
+import io.xj.core.model.phase.PhaseState;
 import io.xj.core.model.phase.PhaseType;
 import io.xj.core.model.phase_chord.PhaseChord;
 import io.xj.core.model.user_role.UserRoleType;
@@ -38,7 +40,7 @@ public class PhaseChordIT {
 
   @Before
   public void setUp() throws Exception {
-    IntegrationTestEntity.deleteAll();
+    IntegrationTestEntity.reset();
 
     // Account "bananas"
     IntegrationTestEntity.insertAccount(1, "bananas");
@@ -49,11 +51,11 @@ public class PhaseChordIT {
 
     // Library "palm tree" has pattern "leaves" and pattern "coconuts"
     IntegrationTestEntity.insertLibrary(1, 1, "palm tree");
-    IntegrationTestEntity.insertPattern(1, 2, 1, PatternType.Main, "leaves", 0.342, "C#", 110.286);
+    IntegrationTestEntity.insertPattern(1, 2, 1, PatternType.Main, PatternState.Published, "leaves", 0.342, "C#", 110.286);
 
     // Pattern "leaves" has phases "Ants" and "Caterpillars"
-    IntegrationTestEntity.insertPhase(1, 1, PhaseType.Main, 0, 16, "Ants", 0.583, "D minor", 120.0);
-    IntegrationTestEntity.insertPhase(2, 1, PhaseType.Main, 1, 16, "Caterpillars", 0.583, "E major", 140.0);
+    IntegrationTestEntity.insertPhase(1, 1, PhaseType.Main, PhaseState.Published, 0, 16, "Ants", 0.583, "D minor", 120.0);
+    IntegrationTestEntity.insertPhase(2, 1, PhaseType.Main, PhaseState.Published, 1, 16, "Caterpillars", 0.583, "E major", 140.0);
 
     // Phase "Caterpillars" has chords "C minor" and "D major"
     IntegrationTestEntity.insertPhaseChord(1, 2, 0, "C minor");

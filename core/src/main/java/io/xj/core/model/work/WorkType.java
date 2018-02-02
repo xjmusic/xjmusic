@@ -16,7 +16,9 @@ public enum WorkType {
   InstrumentClone,
   LinkFabricate,
   PatternClone,
-  PhaseClone;
+  PatternErase,
+  PhaseClone,
+  PhaseErase;
 
   /**
    String Values

@@ -8,24 +8,17 @@ import com.google.inject.Injector;
 
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
-import io.xj.core.dao.PhaseEventDAO;
 import io.xj.core.digest.DigestFactory;
 import io.xj.core.digest.DigestType;
-import io.xj.core.digest.chord_sequence.DigestChordProgression;
-import io.xj.core.digest.hash.DigestHash;
-import io.xj.core.digest.meme.DigestMeme;
-import io.xj.core.digest.meme.impl.DigestMemesItem;
 import io.xj.core.integration.IntegrationTestEntity;
-import io.xj.core.model.entity.Entity;
 import io.xj.core.model.instrument.InstrumentType;
 import io.xj.core.model.library.Library;
+import io.xj.core.model.pattern.PatternState;
 import io.xj.core.model.pattern.PatternType;
+import io.xj.core.model.phase.PhaseState;
 import io.xj.core.model.phase.PhaseType;
-import io.xj.core.model.phase_event.PhaseEvent;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.music.PitchClass;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -61,7 +54,7 @@ public class EvaluationIT {
 
   @Before
   public void setUp() throws Exception {
-    IntegrationTestEntity.deleteAll();
+    IntegrationTestEntity.reset();
 
     IntegrationTestEntity.insertAccount(1, "testing");
     IntegrationTestEntity.insertUser(101, "john", "john@email.com", "http://pictures.com/john.gif");
@@ -86,14 +79,14 @@ public class EvaluationIT {
     IntegrationTestEntity.insertAudioEvent(602, 401, 3, 1, "SNARE", "Ab", 0.1, 0.8, at);
     IntegrationTestEntity.insertAudioEvent(603, 401, 0, 1, "KICK", "C", 0.8, 1.0, at);
     IntegrationTestEntity.insertAudioEvent(604, 401, 1, 1, "SNARE", "G", 0.1, 0.8, at);
-    IntegrationTestEntity.insertPattern(701, 101, 10000001, PatternType.Rhythm, "leaves", 0.342, "C#", 120.4, at);
-    IntegrationTestEntity.insertPattern(702, 101, 10000001, PatternType.Detail, "coconuts", 0.25, "F#", 110.3, at);
-    IntegrationTestEntity.insertPattern(703, 101, 10000001, PatternType.Main, "bananas", 0.27, "Gb", 100.6, at);
+    IntegrationTestEntity.insertPattern(701, 101, 10000001, PatternType.Rhythm, PatternState.Published, "leaves", 0.342, "C#", 120.4, at);
+    IntegrationTestEntity.insertPattern(702, 101, 10000001, PatternType.Detail, PatternState.Published, "coconuts", 0.25, "F#", 110.3, at);
+    IntegrationTestEntity.insertPattern(703, 101, 10000001, PatternType.Main, PatternState.Published, "bananas", 0.27, "Gb", 100.6, at);
     IntegrationTestEntity.insertPatternMeme(801, 701, "Ants", at);
     IntegrationTestEntity.insertPatternMeme(802, 701, "Mold", at);
     IntegrationTestEntity.insertPatternMeme(803, 703, "Peel", at);
-    IntegrationTestEntity.insertPhase(901, 701, PhaseType.Main, 0, 16, "growth", 0.342, "C#", 120.4, at);
-    IntegrationTestEntity.insertPhase(902, 701, PhaseType.Main, 1, 16, "decay", 0.25, "F#", 110.3, at);
+    IntegrationTestEntity.insertPhase(901, 701, PhaseType.Main, PhaseState.Published, 0, 16, "growth", 0.342, "C#", 120.4, at);
+    IntegrationTestEntity.insertPhase(902, 701, PhaseType.Main, PhaseState.Published, 1, 16, "decay", 0.25, "F#", 110.3, at);
     IntegrationTestEntity.insertPhaseChord(1001, 902, 0, "G minor", at);
     IntegrationTestEntity.insertPhaseChord(1002, 902, 4, "C major", at);
     IntegrationTestEntity.insertPhaseChord(1003, 902, 8, "F7", at);
@@ -129,14 +122,14 @@ public class EvaluationIT {
     IntegrationTestEntity.insertAudioEvent(652, 451, 3, 1, "GARBAGE", "Ab", 0.1, 0.8, at);
     IntegrationTestEntity.insertAudioEvent(653, 451, 0, 1, "GARBAGE", "C", 0.8, 1.0, at);
     IntegrationTestEntity.insertAudioEvent(654, 451, 1, 1, "GARBAGE", "G", 0.1, 0.8, at);
-    IntegrationTestEntity.insertPattern(751, 101, 10000002, PatternType.Rhythm, "Garbage Pattern A", 0.342, "C#", 120.4, at);
-    IntegrationTestEntity.insertPattern(752, 101, 10000002, PatternType.Detail, "Garbage Pattern B", 0.25, "F#", 110.3, at);
-    IntegrationTestEntity.insertPattern(753, 101, 10000002, PatternType.Main, "Garbage Pattern C", 0.27, "Gb", 100.6, at);
+    IntegrationTestEntity.insertPattern(751, 101, 10000002, PatternType.Rhythm, PatternState.Published, "Garbage Pattern A", 0.342, "C#", 120.4, at);
+    IntegrationTestEntity.insertPattern(752, 101, 10000002, PatternType.Detail, PatternState.Published, "Garbage Pattern B", 0.25, "F#", 110.3, at);
+    IntegrationTestEntity.insertPattern(753, 101, 10000002, PatternType.Main, PatternState.Published, "Garbage Pattern C", 0.27, "Gb", 100.6, at);
     IntegrationTestEntity.insertPatternMeme(851, 751, "Garbage Pattern Meme A", at);
     IntegrationTestEntity.insertPatternMeme(852, 751, "Garbage Pattern Meme B", at);
     IntegrationTestEntity.insertPatternMeme(853, 753, "Garbage Pattern Meme C", at);
-    IntegrationTestEntity.insertPhase(951, 751, PhaseType.Main, 0, 16, "Garbage Phase A", 0.342, "C#", 120.4, at);
-    IntegrationTestEntity.insertPhase(952, 751, PhaseType.Main, 1, 16, "Garbage Phase A", 0.25, "F#", 110.3, at);
+    IntegrationTestEntity.insertPhase(951, 751, PhaseType.Main, PhaseState.Published, 0, 16, "Garbage Phase A", 0.342, "C#", 120.4, at);
+    IntegrationTestEntity.insertPhase(952, 751, PhaseType.Main, PhaseState.Published, 1, 16, "Garbage Phase A", 0.25, "F#", 110.3, at);
     IntegrationTestEntity.insertPhaseChord(1051, 952, 0, "G minor garbage", at);
     IntegrationTestEntity.insertPhaseChord(1052, 952, 4, "C major garbage", at);
     IntegrationTestEntity.insertPhaseChord(1053, 952, 8, "F7 garbage", at);

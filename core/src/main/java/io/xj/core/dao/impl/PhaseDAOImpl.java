@@ -1,18 +1,6 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.dao.impl;
 
-import io.xj.core.access.impl.Access;
-import io.xj.core.dao.PhaseDAO;
-import io.xj.core.exception.BusinessException;
-import io.xj.core.exception.ConfigException;
-import io.xj.core.model.pattern.PatternType;
-import io.xj.core.model.phase.Phase;
-import io.xj.core.model.phase.PhaseType;
-import io.xj.core.persistence.sql.SQLDatabaseProvider;
-import io.xj.core.persistence.sql.impl.SQLConnection;
-import io.xj.core.transport.CSV;
-import io.xj.core.work.WorkManager;
-
 import org.jooq.DSLContext;
 import org.jooq.Field;
 import org.jooq.Record;
@@ -21,6 +9,22 @@ import org.jooq.types.ULong;
 import com.google.api.client.util.Maps;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
+
+import io.xj.core.access.impl.Access;
+import io.xj.core.dao.PhaseDAO;
+import io.xj.core.exception.BusinessException;
+import io.xj.core.exception.ConfigException;
+import io.xj.core.model.pattern.PatternType;
+import io.xj.core.model.phase.Phase;
+import io.xj.core.model.phase.PhaseState;
+import io.xj.core.model.phase.PhaseType;
+import io.xj.core.model.user_role.UserRoleType;
+import io.xj.core.persistence.sql.SQLDatabaseProvider;
+import io.xj.core.persistence.sql.impl.SQLConnection;
+import io.xj.core.transport.CSV;
+import io.xj.core.work.WorkManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.math.BigInteger;
@@ -36,7 +40,7 @@ import static io.xj.core.tables.Phase.PHASE;
 import static io.xj.core.tables.PhaseMeme.PHASE_MEME;
 
 public class PhaseDAOImpl extends DAOImpl implements PhaseDAO {
-
+  private static final Logger log = LoggerFactory.getLogger(PhaseDAOImpl.class);
   private static final Collection<PhaseType> phaseTypesAllowedInRhythmOrDetailPatterns = ImmutableList.of(PhaseType.Intro, PhaseType.Loop, PhaseType.Outro);
   private final WorkManager workManager;
 
@@ -107,6 +111,7 @@ public class PhaseDAOImpl extends DAOImpl implements PhaseDAO {
       return modelsFrom(db.selectFrom(PHASE)
         .where(PHASE.PATTERN_ID.eq(ULong.valueOf(patternId)))
         .and(PHASE.OFFSET.eq(ULong.valueOf(patternPhaseOffset)))
+        .and(PHASE.STATE.notEqual(String.valueOf(PhaseState.Erase)))
         .fetch(), Phase.class);
     else
       return modelsFrom(db.select(PHASE.fields())
@@ -115,6 +120,7 @@ public class PhaseDAOImpl extends DAOImpl implements PhaseDAO {
         .join(LIBRARY).on(LIBRARY.ID.eq(PATTERN.LIBRARY_ID))
         .where(PHASE.PATTERN_ID.eq(ULong.valueOf(patternId)))
         .and(PHASE.OFFSET.eq(ULong.valueOf(patternPhaseOffset)))
+        .and(PHASE.STATE.notEqual(String.valueOf(PhaseState.Erase)))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .fetch(), Phase.class);
   }
@@ -132,6 +138,7 @@ public class PhaseDAOImpl extends DAOImpl implements PhaseDAO {
       return modelsFrom(db.select(PHASE.fields())
         .from(PHASE)
         .where(PHASE.PATTERN_ID.in(patternId))
+        .and(PHASE.STATE.notEqual(String.valueOf(PhaseState.Erase)))
         .fetch(), Phase.class);
     else
       return modelsFrom(db.select(PHASE.fields())
@@ -139,8 +146,27 @@ public class PhaseDAOImpl extends DAOImpl implements PhaseDAO {
         .join(PATTERN).on(PATTERN.ID.eq(PHASE.PATTERN_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(PATTERN.LIBRARY_ID))
         .where(PHASE.PATTERN_ID.in(patternId))
+        .and(PHASE.STATE.notEqual(String.valueOf(PhaseState.Erase)))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .fetch(), Phase.class);
+  }
+
+  /**
+   Read all records in a given state
+
+   @param db     context
+   @param access control
+   @param state  to read phases in
+   @return array of records
+   */
+  private static Collection<Phase> readAllInState(DSLContext db, Access access, PhaseState state) throws Exception {
+    requireRole("platform access", access, UserRoleType.Admin, UserRoleType.Engineer);
+
+    return modelsFrom(db.select(PHASE.fields())
+      .from(PHASE)
+      .where(PHASE.STATE.eq(state.toString()))
+      .or(PHASE.STATE.eq(state.toString().toLowerCase()))
+      .fetch(), Phase.class);
   }
 
   /**
@@ -174,7 +200,7 @@ public class PhaseDAOImpl extends DAOImpl implements PhaseDAO {
    @throws ConfigException   if not configured properly
    @throws BusinessException if fails business rule
    */
-  private static void delete(Access access, DSLContext db, ULong id) throws Exception {
+  private static void destroy(Access access, DSLContext db, ULong id) throws Exception {
     if (!access.isTopLevel())
       requireExists("Phase", db.selectCount().from(PHASE)
         .join(PATTERN).on(PATTERN.ID.eq(PHASE.PATTERN_ID))
@@ -198,6 +224,42 @@ public class PhaseDAOImpl extends DAOImpl implements PhaseDAO {
     db.deleteFrom(PHASE)
       .where(PHASE.ID.eq(id))
       .execute();
+  }
+
+  /**
+   Update an phase to Erase state
+
+   @param db context
+   @param id to delete
+   @throws Exception         if database failure
+   @throws ConfigException   if not configured properly
+   @throws BusinessException if fails business rule
+   */
+  private void erase(Access access, DSLContext db, ULong id) throws Exception {
+    if (access.isTopLevel()) requireExists("Phase", db.selectCount().from(PHASE)
+      .where(PHASE.ID.eq(id))
+      .fetchOne(0, int.class));
+    else requireExists("Phase", db.selectCount().from(PHASE)
+      .join(PATTERN).on(PATTERN.ID.eq(PHASE.PATTERN_ID))
+      .join(LIBRARY).on(LIBRARY.ID.eq(PATTERN.LIBRARY_ID))
+      .where(PHASE.ID.eq(id))
+      .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+      .fetchOne(0, int.class));
+
+    // Update phase state to Erase
+    Map<Field, Object> fieldValues = com.google.common.collect.Maps.newHashMap();
+    fieldValues.put(PHASE.ID, id);
+    fieldValues.put(PHASE.STATE, PhaseState.Erase);
+
+    if (0 == executeUpdate(db, PHASE, fieldValues))
+      throw new BusinessException("No records updated.");
+
+    // Schedule phase deletion job
+    try {
+      workManager.doPhaseErase(id.toBigInteger());
+    } catch (Exception e) {
+      log.error("Failed to start PhaseErase work after updating Phase to Erase state. See the elusive [#153492153] Entity erase job can be spawned without an error", e);
+    }
   }
 
   /**
@@ -260,6 +322,7 @@ public class PhaseDAOImpl extends DAOImpl implements PhaseDAO {
     Map<Field, Object> fieldValues = Maps.newHashMap();
     fieldValues.put(PHASE.PATTERN_ID, entity.getPatternId());
     fieldValues.put(PHASE.TYPE, entity.getType());
+    fieldValues.put(PHASE.STATE, entity.getState());
     fieldValues.put(PHASE.OFFSET, entity.getOffset());
     fieldValues.put(PHASE.TOTAL, valueOrNull(entity.getTotal()));
     fieldValues.put(PHASE.NAME, valueOrNull(entity.getName()));
@@ -323,6 +386,27 @@ public class PhaseDAOImpl extends DAOImpl implements PhaseDAO {
   }
 
   @Override
+  public Collection<Phase> readAllInState(Access access, PhaseState state) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readAllInState(tx.getContext(), access, state));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public void erase(Access access, BigInteger id) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      erase(access, tx.getContext(), ULong.valueOf(id));
+      tx.success();
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
   public void update(Access access, BigInteger id, Phase entity) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
@@ -337,7 +421,7 @@ public class PhaseDAOImpl extends DAOImpl implements PhaseDAO {
   public void destroy(Access access, BigInteger id) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      delete(access, tx.getContext(), ULong.valueOf(id));
+      destroy(access, tx.getContext(), ULong.valueOf(id));
       tx.success();
     } catch (Exception e) {
       throw tx.failure(e);
@@ -356,7 +440,8 @@ public class PhaseDAOImpl extends DAOImpl implements PhaseDAO {
    */
   private Phase clone(DSLContext db, Access access, BigInteger cloneId, Phase entity) throws Exception {
     Phase from = readOne(db, access, ULong.valueOf(cloneId));
-    if (Objects.isNull(from)) throw new BusinessException("Can't clone nonexistent Phase");
+    if (Objects.isNull(from))
+      throw new BusinessException("Can't clone nonexistent Phase");
 
     entity.setDensity(from.getDensity());
     entity.setKey(from.getKey());
@@ -364,7 +449,7 @@ public class PhaseDAOImpl extends DAOImpl implements PhaseDAO {
     entity.setTotal(from.getTotal());
 
     Phase result = create(db, access, entity);
-    workManager.schedulePhaseClone(0, cloneId, result.getId());
+    workManager.doPhaseClone(cloneId, result.getId());
     return result;
   }
 

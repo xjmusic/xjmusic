@@ -88,9 +88,9 @@ public class PatternOneResource {
    */
   @DELETE
   @RolesAllowed(UserRoleType.ADMIN)
-  public Response delete(@Context ContainerRequestContext crc) {
+  public Response erase(@Context ContainerRequestContext crc) {
     try {
-      patternDAO.destroy(Access.fromContext(crc), new BigInteger(id));
+      patternDAO.erase(Access.fromContext(crc), new BigInteger(id));
       return Response.accepted("{}").build();
 
     } catch (Exception e) {
