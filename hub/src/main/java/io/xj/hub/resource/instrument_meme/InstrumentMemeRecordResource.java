@@ -1,17 +1,12 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.resource.instrument_meme;
 
-import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
-import io.xj.core.model.user_role.UserRoleType;
-import io.xj.core.transport.HttpResponseProvider;
 import io.xj.core.dao.InstrumentMemeDAO;
 import io.xj.core.model.instrument_meme.InstrumentMeme;
-
-
-
-import com.google.inject.Guice;
-import com.google.inject.Injector;
+import io.xj.core.model.user_role.UserRoleType;
+import io.xj.core.transport.HttpResponseProvider;
+import io.xj.hub.HubResource;
 
 import javax.annotation.security.RolesAllowed;
 import javax.jws.WebResult;
@@ -29,8 +24,7 @@ import java.math.BigInteger;
  Instrument record
  */
 @Path("instrument-memes/{id}")
-public class InstrumentMemeRecordResource {
-  private static final Injector injector = Guice.createInjector(new CoreModule());
+public class InstrumentMemeRecordResource extends HubResource {
   private final InstrumentMemeDAO instrumentMemeDAO = injector.getInstance(InstrumentMemeDAO.class);
   private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
 

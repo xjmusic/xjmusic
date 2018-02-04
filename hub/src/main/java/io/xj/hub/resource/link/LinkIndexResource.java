@@ -1,7 +1,9 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.resource.link;
 
-import io.xj.core.CoreModule;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Maps;
+
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.ArrangementDAO;
 import io.xj.core.dao.ChoiceDAO;
@@ -21,12 +23,7 @@ import io.xj.core.model.message.Message;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.transport.HttpResponseProvider;
 import io.xj.core.transport.JSON;
-
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Maps;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-
+import io.xj.hub.HubResource;
 import org.json.JSONArray;
 
 import javax.annotation.security.RolesAllowed;
@@ -48,8 +45,7 @@ import java.util.Objects;
  Links
  */
 @Path("links")
-public class LinkIndexResource {
-  private static final Injector injector = Guice.createInjector(new CoreModule());
+public class LinkIndexResource extends HubResource {
   private final ChoiceDAO choiceDAO = injector.getInstance(ChoiceDAO.class);
   private final ArrangementDAO arrangementDAO = injector.getInstance(ArrangementDAO.class);
   private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
@@ -69,6 +65,18 @@ public class LinkIndexResource {
 
   @QueryParam("fromSecondsUTC")
   BigInteger fromSecondsUTC;
+
+  /**
+   Get an immutable list of ids from a result of Links
+
+   @param links to get ids of
+   @return list of ids
+   */
+  private static Collection<BigInteger> linkIds(Iterable<Link> links) {
+    ImmutableList.Builder<BigInteger> builder = ImmutableList.builder();
+    links.forEach(link -> builder.add(link.getId()));
+    return builder.build();
+  }
 
   /**
    Get all links.
@@ -142,18 +150,6 @@ public class LinkIndexResource {
       return linkDAO.readAllFromSecondsUTC(access, new BigInteger(chainId), fromSecondsUTC);
 
     return linkDAO.readAll(access, ImmutableList.of(new BigInteger(chainId)));
-  }
-
-  /**
-   Get an immutable list of ids from a result of Links
-
-   @param links to get ids of
-   @return list of ids
-   */
-  private static Collection<BigInteger> linkIds(Iterable<Link> links) {
-    ImmutableList.Builder<BigInteger> builder = ImmutableList.builder();
-    links.forEach(link -> builder.add(link.getId()));
-    return builder.build();
   }
 
 }

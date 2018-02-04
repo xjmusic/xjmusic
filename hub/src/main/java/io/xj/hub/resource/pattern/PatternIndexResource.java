@@ -1,21 +1,18 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.resource.pattern;
 
-import io.xj.core.CoreModule;
+import com.google.common.collect.ImmutableList;
+
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.PatternDAO;
-import io.xj.core.evaluation.EvaluationFactory;
-import io.xj.core.generation.GenerationFactory;
 import io.xj.core.model.library.Library;
 import io.xj.core.model.pattern.Pattern;
 import io.xj.core.model.pattern.PatternWrapper;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.transport.HttpResponseProvider;
-
-import com.google.common.collect.ImmutableList;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-
+import io.xj.craft.generation.GenerationFactory;
+import io.xj.craft.ingest.IngestFactory;
+import io.xj.hub.HubResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,13 +35,12 @@ import java.util.Objects;
  Patterns
  */
 @Path("patterns")
-public class PatternIndexResource {
-  private static final Injector injector = Guice.createInjector(new CoreModule());
+public class PatternIndexResource extends HubResource {
   private final Logger log = LoggerFactory.getLogger(PatternIndexResource.class);
   private final PatternDAO patternDAO = injector.getInstance(PatternDAO.class);
   private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
   private final GenerationFactory generationFactory = injector.getInstance(GenerationFactory.class);
-  private final EvaluationFactory evaluationFactory = injector.getInstance(EvaluationFactory.class);
+  private final IngestFactory ingestFactory = injector.getInstance(IngestFactory.class);
 
   @QueryParam("accountId")
   String accountId;
@@ -144,7 +140,7 @@ public class PatternIndexResource {
       if (Objects.nonNull(generateLibrarySuperpattern))
         log.info("Generated Library Superpattern: {}",
           generationFactory.librarySuperpattern(created,
-            evaluationFactory.evaluate(Access.fromContext(crc),
+            ingestFactory.evaluate(Access.fromContext(crc),
               ImmutableList.of(new Library(created.getLibraryId()))
             )).toJSONObject());
 

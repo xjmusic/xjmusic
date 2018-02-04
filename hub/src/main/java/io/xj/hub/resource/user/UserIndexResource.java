@@ -1,16 +1,14 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.resource.user;
 
-import io.xj.core.CoreModule;
+import com.google.common.collect.Lists;
+
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.UserDAO;
 import io.xj.core.model.user.User;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.transport.HttpResponseProvider;
-
-import com.google.common.collect.Lists;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
+import io.xj.hub.HubResource;
 
 import javax.annotation.security.RolesAllowed;
 import javax.jws.WebResult;
@@ -25,8 +23,7 @@ import java.io.IOException;
  Current user
  */
 @Path("users")
-public class UserIndexResource {
-  private static final Injector injector = Guice.createInjector(new CoreModule());
+public class UserIndexResource extends HubResource {
   private final UserDAO userDAO = injector.getInstance(UserDAO.class);
   private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
 

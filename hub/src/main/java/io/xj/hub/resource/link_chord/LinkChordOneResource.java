@@ -1,17 +1,12 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.resource.link_chord;
 
-import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
-import io.xj.core.model.user_role.UserRoleType;
-import io.xj.core.transport.HttpResponseProvider;
 import io.xj.core.dao.LinkChordDAO;
 import io.xj.core.model.link_chord.LinkChord;
-
-
-
-import com.google.inject.Guice;
-import com.google.inject.Injector;
+import io.xj.core.model.user_role.UserRoleType;
+import io.xj.core.transport.HttpResponseProvider;
+import io.xj.hub.HubResource;
 
 import javax.annotation.security.RolesAllowed;
 import javax.jws.WebResult;
@@ -28,8 +23,7 @@ import java.math.BigInteger;
  LinkChord record
  */
 @Path("link-chords/{id}")
-public class LinkChordOneResource {
-  private static final Injector injector = Guice.createInjector(new CoreModule());
+public class LinkChordOneResource extends HubResource {
   private final LinkChordDAO linkChordDAO = injector.getInstance(LinkChordDAO.class);
   private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
 

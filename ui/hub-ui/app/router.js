@@ -43,7 +43,7 @@ function accountLibraryOne() {
   this.route('destroy');
   this.route('patterns', accountLibraryPatternIndex);
   this.route('instruments', accountLibraryInstrumentIndex);
-  this.route('evaluation');
+  this.route('digest');
 }
 
 function accountLibraryPatternIndex() {

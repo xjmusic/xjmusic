@@ -13,8 +13,9 @@ import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.phase.PhaseState;
 import io.xj.core.model.phase.PhaseType;
 import io.xj.core.model.user_role.UserRoleType;
-import io.xj.core.basis.Basis;
-import io.xj.core.basis.BasisFactory;
+import io.xj.craft.CraftModule;
+import io.xj.craft.basis.Basis;
+import io.xj.craft.basis.BasisFactory;
 import io.xj.dub.DubFactory;
 import io.xj.dub.DubModule;
 
@@ -31,7 +32,7 @@ import java.sql.Timestamp;
 
 public class DubMasterInitialIT {
   @Rule public ExpectedException failure = ExpectedException.none();
-  private final Injector injector = Guice.createInjector(new CoreModule(), new DubModule());
+  private final Injector injector = Guice.createInjector(new CoreModule(), new CraftModule(), new DubModule());
   private DubFactory dubFactory;
   private BasisFactory basisFactory;
 

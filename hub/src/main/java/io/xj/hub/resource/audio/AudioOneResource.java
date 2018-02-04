@@ -1,10 +1,6 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.resource.audio;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-
-import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.AudioDAO;
 import io.xj.core.model.audio.Audio;
@@ -12,6 +8,7 @@ import io.xj.core.model.audio.AudioWrapper;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.transport.HttpResponseProvider;
 import io.xj.core.transport.JSON;
+import io.xj.hub.HubResource;
 import org.json.JSONObject;
 
 import javax.annotation.security.RolesAllowed;
@@ -33,8 +30,7 @@ import java.math.BigInteger;
  Audio record
  */
 @Path("audios/{id}")
-public class AudioOneResource {
-  private static final Injector injector = Guice.createInjector(new CoreModule());
+public class AudioOneResource extends HubResource {
   private final AudioDAO audioDAO = injector.getInstance(AudioDAO.class);
   private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
 

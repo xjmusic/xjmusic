@@ -1,17 +1,15 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.resource.chain_library;
 
-import io.xj.core.CoreModule;
+import com.google.common.collect.ImmutableList;
+
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.ChainLibraryDAO;
 import io.xj.core.model.chain_library.ChainLibrary;
 import io.xj.core.model.chain_library.ChainLibraryWrapper;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.transport.HttpResponseProvider;
-
-import com.google.common.collect.ImmutableList;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
+import io.xj.hub.HubResource;
 
 import javax.annotation.security.RolesAllowed;
 import javax.jws.WebResult;
@@ -32,8 +30,7 @@ import java.util.Objects;
  Chain Library record
  */
 @Path("chain-libraries")
-public class ChainLibraryIndexResource {
-  private static final Injector injector = Guice.createInjector(new CoreModule());
+public class ChainLibraryIndexResource extends HubResource {
   private final ChainLibraryDAO chainLibraryDAO = injector.getInstance(ChainLibraryDAO.class);
   private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
 

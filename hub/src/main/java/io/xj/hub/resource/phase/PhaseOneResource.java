@@ -1,16 +1,13 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.resource.phase;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-
-import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.PhaseDAO;
 import io.xj.core.model.phase.Phase;
 import io.xj.core.model.phase.PhaseWrapper;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.transport.HttpResponseProvider;
+import io.xj.hub.HubResource;
 
 import javax.annotation.security.RolesAllowed;
 import javax.jws.WebResult;
@@ -31,8 +28,7 @@ import java.math.BigInteger;
  Phase record
  */
 @Path("phases/{id}")
-public class PhaseOneResource {
-  private static final Injector injector = Guice.createInjector(new CoreModule());
+public class PhaseOneResource extends HubResource {
   private final PhaseDAO phaseDAO = injector.getInstance(PhaseDAO.class);
   private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
 

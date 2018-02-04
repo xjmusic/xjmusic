@@ -19,9 +19,6 @@ import java.util.Objects;
  NOTE: There can only be ONE of any getter/setter (with the same # of input params)
  */
 public class Phase extends Entity {
-  /**
-   For use in maps.
-   */
   public static final String KEY_ONE = "phase";
   public static final String KEY_MANY = "phases";
 

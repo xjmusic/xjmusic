@@ -1,9 +1,9 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.craft.rhythm.impl;
 
-import io.xj.core.basis.Basis;
+import io.xj.craft.basis.Basis;
 import io.xj.core.exception.BusinessException;
-import io.xj.core.isometry.EventIsometry;
+import io.xj.craft.isometry.EventIsometry;
 import io.xj.core.model.arrangement.Arrangement;
 import io.xj.core.model.audio.Audio;
 import io.xj.core.model.choice.Choice;
@@ -100,7 +100,7 @@ public class RhythmCraftImpl implements RhythmCraft {
         case Continue:
           Choice previousChoice = basis.previousRhythmChoice();
           if (Objects.nonNull(previousChoice))
-            _rhythmPattern = basis.evaluation().pattern(previousChoice.getPatternId());
+            _rhythmPattern = basis.ingest().pattern(previousChoice.getPatternId());
           else {
             log.warn("No rhythm-type pattern chosen in previous Link #{}", basis.previousLink().getId());
             _rhythmPattern = chooseRhythm();
@@ -165,11 +165,11 @@ public class RhythmCraftImpl implements RhythmCraft {
     // future: only choose major patterns for major keys, minor for minor! [#223] Key of first Phase of chosen Rhythm-Pattern must match the `minor` or `major` with the Key of the current Link.
 
     // (2a) retrieve patterns bound directly to chain
-    Collection<Pattern> sourcePatterns = basis.evaluation().patterns(PatternType.Rhythm);
+    Collection<Pattern> sourcePatterns = basis.ingest().patterns(PatternType.Rhythm);
 
     // (2b) only if none were found in the previous step, retrieve patterns bound to chain library
     if (sourcePatterns.isEmpty())
-      sourcePatterns = basis.libraryEvaluation().patterns(PatternType.Rhythm);
+      sourcePatterns = basis.libraryIngest().patterns(PatternType.Rhythm);
 
     // (3) score each source pattern based on meme isometry
     for (Pattern pattern : sourcePatterns) {
@@ -204,7 +204,7 @@ public class RhythmCraftImpl implements RhythmCraft {
     // Score includes matching memes, previous link to macro pattern first phase
     try {
       score += basis.currentLinkMemeIsometry().score(
-        basis.evaluation().patternAndPhaseMemes(pattern.getId(), BigInteger.valueOf(0),
+        basis.ingest().patternAndPhaseMemes(pattern.getId(), BigInteger.valueOf(0),
           PhaseType.Intro, PhaseType.Loop, PhaseType.Outro))
         * SCORE_MATCHED_MEMES;
     } catch (Exception e) {
@@ -252,11 +252,11 @@ public class RhythmCraftImpl implements RhythmCraft {
     EntityRank<Instrument> entityRank = new EntityRank<>();
 
     // (2a) retrieve instruments bound directly to chain
-    Collection<Instrument> sourceInstruments = basis.evaluation().instruments(InstrumentType.Percussive);
+    Collection<Instrument> sourceInstruments = basis.ingest().instruments(InstrumentType.Percussive);
 
     // (2b) only if none were found in the previous transpose, retrieve instruments bound to chain library
     if (sourceInstruments.isEmpty())
-      sourceInstruments = basis.libraryEvaluation().instruments(InstrumentType.Percussive);
+      sourceInstruments = basis.libraryIngest().instruments(InstrumentType.Percussive);
 
     // future: [#258] Instrument selection is based on Text Isometry between the voice description and the instrument description
     log.debug("not currently in use: {}", voice);
@@ -299,7 +299,7 @@ public class RhythmCraftImpl implements RhythmCraft {
     Double score = Chance.normallyAround(0, SCORE_INSTRUMENT_ENTROPY);
 
     // Score includes matching memes, previous link to macro instrument first phase
-    score += basis.currentLinkMemeIsometry().score(basis.evaluation().instrumentMemes(instrument.getId())) * SCORE_MATCHED_MEMES;
+    score += basis.currentLinkMemeIsometry().score(basis.ingest().instrumentMemes(instrument.getId())) * SCORE_MATCHED_MEMES;
 
     return score;
   }
@@ -314,10 +314,10 @@ public class RhythmCraftImpl implements RhythmCraft {
     if (Objects.isNull(basis.currentRhythmChoice())) return;
 
     // choose intro phase (if available)
-    Phase introPhase = basis.evaluation().phaseAtOffset(basis.currentRhythmChoice().getPatternId(), basis.currentRhythmChoice().getPhaseOffset(), PhaseType.Intro);
+    Phase introPhase = basis.ingest().phaseAtOffset(basis.currentRhythmChoice().getPatternId(), basis.currentRhythmChoice().getPhaseOffset(), PhaseType.Intro);
 
     // choose outro phase (if available)
-    Phase outroPhase = basis.evaluation().phaseAtOffset(basis.currentRhythmChoice().getPatternId(), basis.currentRhythmChoice().getPhaseOffset(), PhaseType.Outro);
+    Phase outroPhase = basis.ingest().phaseAtOffset(basis.currentRhythmChoice().getPatternId(), basis.currentRhythmChoice().getPhaseOffset(), PhaseType.Outro);
 
     // compute in and out points, and length # beats for which loop phases will be required
     long loopOutPos = basis.link().getTotal() - (Objects.nonNull(outroPhase) ? outroPhase.getTotal() : 0);
@@ -332,7 +332,7 @@ public class RhythmCraftImpl implements RhythmCraft {
 
     // choose loop phases until arrive at the out point or end of link
     while (curPos < loopOutPos) {
-      Phase loopPhase = basis.evaluation().phaseRandomAtOffset(basis.currentRhythmChoice().getPatternId(), basis.currentRhythmChoice().getPhaseOffset(), PhaseType.Loop);
+      Phase loopPhase = basis.ingest().phaseRandomAtOffset(basis.currentRhythmChoice().getPatternId(), basis.currentRhythmChoice().getPhaseOffset(), PhaseType.Loop);
       curPos += craftRhythmPhasePhaseEvents(curPos, loopPhase, loopOutPos);
     }
 
@@ -354,8 +354,8 @@ public class RhythmCraftImpl implements RhythmCraft {
     Choice choice = basis.currentRhythmChoice();
     Collection<Arrangement> arrangements = basis.choiceArrangements(choice.getId());
     for (Arrangement arrangement : arrangements) {
-      Collection<PhaseEvent> phaseEvents = basis.evaluation().phaseVoiceEvents(phase.getId(), arrangement.getVoiceId());
-      Instrument instrument = basis.evaluation().instrument(arrangement.getInstrumentId());
+      Collection<PhaseEvent> phaseEvents = basis.ingest().phaseVoiceEvents(phase.getId(), arrangement.getVoiceId());
+      Instrument instrument = basis.ingest().instrument(arrangement.getInstrumentId());
       for (PhaseEvent phaseEvent : phaseEvents) {
         pickInstrumentAudio(instrument, arrangement, phaseEvent, choice.getTranspose(), fromPos);
       }
@@ -381,10 +381,10 @@ public class RhythmCraftImpl implements RhythmCraft {
     EntityRank<Audio> audioEntityRank = new EntityRank<>();
 
     // add all audio to chooser
-    audioEntityRank.addAll(basis.evaluation().audios(instrument.getId()));
+    audioEntityRank.addAll(basis.ingest().audios(instrument.getId()));
 
     // score each audio against the current voice event, with some variability
-    basis.evaluation().instrumentAudioFirstEvents(instrument.getId())
+    basis.ingest().instrumentAudioFirstEvents(instrument.getId())
       .forEach(audioEvent ->
         audioEntityRank.score(audioEvent.getAudioId(),
           Chance.normallyAround(
@@ -456,7 +456,7 @@ public class RhythmCraftImpl implements RhythmCraft {
    */
   private Iterable<Voice> voices(BigInteger patternId) throws Exception {
     List<Voice> voices = Lists.newArrayList();
-    voices.addAll(basis.evaluation().voices(patternId));
+    voices.addAll(basis.ingest().voices(patternId));
     return voices;
   }
 

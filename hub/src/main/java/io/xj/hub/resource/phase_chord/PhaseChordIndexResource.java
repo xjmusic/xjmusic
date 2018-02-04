@@ -1,17 +1,15 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.resource.phase_chord;
 
-import io.xj.core.CoreModule;
+import com.google.common.collect.ImmutableList;
+
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.PhaseChordDAO;
 import io.xj.core.model.phase_chord.PhaseChord;
 import io.xj.core.model.phase_chord.PhaseChordWrapper;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.transport.HttpResponseProvider;
-
-import com.google.common.collect.ImmutableList;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
+import io.xj.hub.HubResource;
 
 import javax.annotation.security.RolesAllowed;
 import javax.jws.WebResult;
@@ -32,8 +30,7 @@ import java.util.Objects;
  PhaseChords
  */
 @Path("phase-chords")
-public class PhaseChordIndexResource {
-  private static final Injector injector = Guice.createInjector(new CoreModule());
+public class PhaseChordIndexResource extends HubResource {
   private final PhaseChordDAO phaseChordDAO = injector.getInstance(PhaseChordDAO.class);
   private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
 

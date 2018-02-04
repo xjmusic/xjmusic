@@ -2,16 +2,13 @@
 package io.xj.hub.resource.account;
 
 
-import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.AccountDAO;
 import io.xj.core.model.account.Account;
 import io.xj.core.model.account.AccountWrapper;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.transport.HttpResponseProvider;
-
-import com.google.inject.Guice;
-import com.google.inject.Injector;
+import io.xj.hub.HubResource;
 
 import javax.annotation.security.RolesAllowed;
 import javax.jws.WebResult;
@@ -32,8 +29,7 @@ import java.math.BigInteger;
  Account record
  */
 @Path("accounts/{id}")
-public class AccountOneResource {
-  private static final Injector injector = Guice.createInjector(new CoreModule());
+public class AccountOneResource extends HubResource {
   private final AccountDAO accountDAO = injector.getInstance(AccountDAO.class);
   private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
 

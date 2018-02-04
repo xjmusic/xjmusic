@@ -1,7 +1,7 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.craft.macro.impl;
 
-import io.xj.core.basis.Basis;
+import io.xj.craft.basis.Basis;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.model.choice.Choice;
 import io.xj.core.model.entity.EntityRank;
@@ -140,7 +140,7 @@ public class MacroMainCraftImpl implements MacroMainCraft {
    @throws Exception on any failure
    */
   private void craftChords() throws Exception {
-    basis.evaluation().phaseChords(mainPhase().getId())
+    basis.ingest().phaseChords(mainPhase().getId())
       .forEach(phaseChord -> {
 
         if (phaseChord.getPosition() < basis.link().getTotal()) {
@@ -181,7 +181,7 @@ public class MacroMainCraftImpl implements MacroMainCraft {
           Choice previousChoice = basis.previousMacroChoice();
           if (Objects.isNull(previousChoice))
             throw new BusinessException("No macro-type pattern chosen in previous link!");
-          _macroPattern = basis.evaluation().pattern(previousChoice.getPatternId());
+          _macroPattern = basis.ingest().pattern(previousChoice.getPatternId());
           break;
 
         case NextMacro:
@@ -203,7 +203,7 @@ public class MacroMainCraftImpl implements MacroMainCraft {
           Choice previousChoice = basis.previousMainChoice();
           if (Objects.isNull(previousChoice))
             throw new BusinessException("No main-type pattern chosen in previous link!");
-          _mainPattern = basis.evaluation().pattern(previousChoice.getPatternId());
+          _mainPattern = basis.ingest().pattern(previousChoice.getPatternId());
           break;
 
         case Initial:
@@ -315,7 +315,7 @@ public class MacroMainCraftImpl implements MacroMainCraft {
    @throws Exception on failure
    */
   private Phase macroPhase() throws Exception {
-    Phase phase = basis.evaluation().phaseAtOffset(macroPattern().getId(), macroPhaseOffset(), PhaseType.Macro);
+    Phase phase = basis.ingest().phaseAtOffset(macroPattern().getId(), macroPhaseOffset(), PhaseType.Macro);
 
     if (Objects.isNull(phase))
       throw new BusinessException("macro-phase does not exist!");
@@ -330,7 +330,7 @@ public class MacroMainCraftImpl implements MacroMainCraft {
    @throws Exception on failure
    */
   private Phase mainPhase() throws Exception {
-    Phase phase = basis.evaluation().phaseAtOffset(mainPattern().getId(), mainPhaseOffset(), PhaseType.Main);
+    Phase phase = basis.ingest().phaseAtOffset(mainPattern().getId(), mainPhaseOffset(), PhaseType.Main);
 
     if (Objects.isNull(phase))
       throw new BusinessException("main-phase does not exist!");
@@ -348,11 +348,11 @@ public class MacroMainCraftImpl implements MacroMainCraft {
     EntityRank<Pattern> entityRank = new EntityRank<>();
 
     // (1a) retrieve patterns bound directly to chain
-    Collection<Pattern> sourcePatterns = basis.evaluation().patterns(PatternType.Macro);
+    Collection<Pattern> sourcePatterns = basis.ingest().patterns(PatternType.Macro);
 
     // (1b) only if none were found in the previous transpose, retrieve patterns bound to chain library
     if (sourcePatterns.isEmpty())
-      sourcePatterns = basis.libraryEvaluation().patterns(PatternType.Macro);
+      sourcePatterns = basis.libraryIngest().patterns(PatternType.Macro);
 
     // (3) score each source pattern
     sourcePatterns.forEach((pattern -> {
@@ -392,11 +392,11 @@ public class MacroMainCraftImpl implements MacroMainCraft {
     // future: only choose major patterns for major keys, minor for minor! [#223] Key of first Phase of chosen Main-Pattern must match the `minor` or `major` with the Key of the current Link.
 
     // (2a) retrieve patterns bound directly to chain
-    Collection<Pattern> sourcePatterns = basis.evaluation().patterns(PatternType.Main);
+    Collection<Pattern> sourcePatterns = basis.ingest().patterns(PatternType.Main);
 
     // (2b) only if none were found in the previous transpose, retrieve patterns bound to chain library
     if (sourcePatterns.isEmpty())
-      sourcePatterns = basis.libraryEvaluation().patterns(PatternType.Main);
+      sourcePatterns = basis.libraryIngest().patterns(PatternType.Main);
 
     // (3) score each source pattern based on meme isometry
     sourcePatterns.forEach((pattern -> {
@@ -434,11 +434,11 @@ public class MacroMainCraftImpl implements MacroMainCraft {
 
     // Score includes matching memes to previous link's macro-pattern's next phase (major/minor)
     score += basis.previousMacroNextPhaseMemeIsometry().score(
-      basis.evaluation().patternAndPhaseMemes(pattern.getId(), BigInteger.valueOf(0), PhaseType.Macro))
+      basis.ingest().patternAndPhaseMemes(pattern.getId(), BigInteger.valueOf(0), PhaseType.Macro))
       * SCORE_MATCHED_MEMES;
 
     // Score includes matching mode to previous link's macro-pattern's next phase (major/minor)
-    Phase phaseAtOffset = basis.evaluation().phaseAtOffset(pattern.getId(), BigInteger.valueOf(0), PhaseType.Macro);
+    Phase phaseAtOffset = basis.ingest().phaseAtOffset(pattern.getId(), BigInteger.valueOf(0), PhaseType.Macro);
     if (Objects.nonNull(phaseAtOffset) && Key.isSameMode(basis.previousMacroNextPhase().getKey(), phaseAtOffset.getKey())) {
       score += SCORE_MATCHED_KEY_MODE;
     }
@@ -471,7 +471,7 @@ public class MacroMainCraftImpl implements MacroMainCraft {
 
     // Score includes matching memes, previous link to macro pattern first phase
     score += basis.currentMacroMemeIsometry().score(
-      basis.evaluation().patternAndPhaseMemes(pattern.getId(), BigInteger.valueOf(0), PhaseType.Main))
+      basis.ingest().patternAndPhaseMemes(pattern.getId(), BigInteger.valueOf(0), PhaseType.Main))
       * SCORE_MATCHED_MEMES;
 
     return score;
@@ -485,19 +485,19 @@ public class MacroMainCraftImpl implements MacroMainCraft {
   private Collection<LinkMeme> linkMemes() throws Exception {
     Map<String, LinkMeme> uniqueResults = Maps.newHashMap();
 
-    basis.evaluation().patternMemes(macroPattern().getId())
+    basis.ingest().patternMemes(macroPattern().getId())
       .forEach(meme -> uniqueResults.put(
         meme.getName(), LinkMeme.of(basis.link().getId(), meme.getName())));
 
-    basis.evaluation().phaseMemes(macroPhase().getId())
+    basis.ingest().phaseMemes(macroPhase().getId())
       .forEach(meme -> uniqueResults.put(
         meme.getName(), LinkMeme.of(basis.link().getId(), meme.getName())));
 
-    basis.evaluation().patternMemes(mainPattern().getId())
+    basis.ingest().patternMemes(mainPattern().getId())
       .forEach(meme -> uniqueResults.put(
         meme.getName(), LinkMeme.of(basis.link().getId(), meme.getName())));
 
-    basis.evaluation().phaseMemes(mainPhase().getId())
+    basis.ingest().phaseMemes(mainPhase().getId())
       .forEach(meme -> uniqueResults.put(
         meme.getName(), LinkMeme.of(basis.link().getId(), meme.getName())));
 

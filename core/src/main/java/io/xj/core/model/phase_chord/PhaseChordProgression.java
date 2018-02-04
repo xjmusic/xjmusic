@@ -16,7 +16,7 @@ import java.util.Objects;
 
 /**
  Sequence of chords
- likely related to [#154234716] evaluation of library contents includes sequences of chords.
+ likely related to [#154234716] ingest of library contents includes sequences of chords.
  <p>
  FUTURE: evaluate audio chords. As of this message, there is no actual implementation of fabrication based on audio chords.
  FUTURE: implementation of AudioChordProgression will examine opportunity to extend a common ChordProgression interface.

@@ -4,7 +4,7 @@ import Component from '@ember/component';
 // import {inject as service} from '@ember/service';
 
 /**
- * Displays the evaluation-performing and result-viewing U.I.
+ * Displays the digest-performing and result-viewing U.I.
  */
 const ChordMarkovObservationsComponent = Component.extend({
 });

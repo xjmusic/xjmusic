@@ -1,16 +1,13 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.resource.voice;
 
-import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.VoiceDAO;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.model.voice.Voice;
 import io.xj.core.model.voice.VoiceWrapper;
 import io.xj.core.transport.HttpResponseProvider;
-
-import com.google.inject.Guice;
-import com.google.inject.Injector;
+import io.xj.hub.HubResource;
 
 import javax.annotation.security.RolesAllowed;
 import javax.jws.WebResult;
@@ -31,8 +28,7 @@ import java.math.BigInteger;
  Voice record
  */
 @Path("voices/{id}")
-public class VoiceOneResource {
-  private static final Injector injector = Guice.createInjector(new CoreModule());
+public class VoiceOneResource extends HubResource {
   private final VoiceDAO voiceDAO = injector.getInstance(VoiceDAO.class);
   private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
 

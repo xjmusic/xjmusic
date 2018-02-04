@@ -1,16 +1,12 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.resource.heartbeat;
 
-import io.xj.core.CoreModule;
 import io.xj.core.config.Config;
 import io.xj.core.exception.ConfigException;
 import io.xj.core.model.work.Work;
 import io.xj.core.transport.HttpResponseProvider;
 import io.xj.core.work.WorkManager;
-
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-
+import io.xj.hub.HubResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,8 +25,7 @@ import java.util.Objects;
  Platform heartbeat is called from outside the platform, exactly once per X.
  */
 @Path("heartbeat")
-public class HeartbeatResource {
-  private static final Injector injector = Guice.createInjector(new CoreModule());
+public class HeartbeatResource extends HubResource {
   private final Logger log = LoggerFactory.getLogger(HeartbeatResource.class);
   private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
   private final WorkManager workManager = injector.getInstance(WorkManager.class);

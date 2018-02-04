@@ -32,7 +32,7 @@ import static org.junit.Assert.assertNull;
 
 // future test: permissions of different users to readMany vs. create vs. update or delete phase chords
 
-// future test readAllSequences() which supports [#154234716] library evaluation requires enumerating all possible sub-sequences of chords for any phase
+// future test readAllSequences() which supports [#154234716] library ingest requires enumerating all possible sub-sequences of chords for any phase
 
 public class PhaseChordIT {
   private final Injector injector = Guice.createInjector(new CoreModule());

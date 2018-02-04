@@ -8,7 +8,7 @@ const SEPARATOR_PRIMARY = ":";
 const SEPARATOR_SECONDARY = "|";
 
 /**
- * Displays the evaluation-performing and result-viewing U.I.
+ * Displays the digest-performing and result-viewing U.I.
  */
 const ChordProgressionComponent = Component.extend({
 

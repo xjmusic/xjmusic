@@ -1,14 +1,11 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.resource.work;
 
-import io.xj.core.CoreModule;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.model.work.Work;
 import io.xj.core.transport.HttpResponseProvider;
 import io.xj.core.work.WorkManager;
-
-import com.google.inject.Guice;
-import com.google.inject.Injector;
+import io.xj.hub.HubResource;
 
 import javax.annotation.security.RolesAllowed;
 import javax.jws.WebResult;
@@ -23,8 +20,7 @@ import java.io.IOException;
  Works
  */
 @Path("works")
-public class WorkIndexResource {
-  private static final Injector injector = Guice.createInjector(new CoreModule());
+public class WorkIndexResource extends HubResource {
   private final WorkManager workManager = injector.getInstance(WorkManager.class);
   private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
 

@@ -4,7 +4,7 @@ package io.xj.dub.ship.impl;
 import io.xj.core.config.Config;
 import io.xj.dub.ship.ShipDub;
 import io.xj.core.exception.BusinessException;
-import io.xj.core.basis.Basis;
+import io.xj.craft.basis.Basis;
 import io.xj.core.external.amazon.AmazonProvider;
 
 import com.google.inject.Inject;

@@ -1,15 +1,12 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.resource.arrangement;
 
-import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.ArrangementDAO;
 import io.xj.core.model.arrangement.Arrangement;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.transport.HttpResponseProvider;
-
-import com.google.inject.Guice;
-import com.google.inject.Injector;
+import io.xj.hub.HubResource;
 
 import javax.annotation.security.RolesAllowed;
 import javax.jws.WebResult;
@@ -26,8 +23,7 @@ import java.math.BigInteger;
  Arrangement record
  */
 @Path("arrangements/{id}")
-public class ArrangementOneResource {
-  private static final Injector injector = Guice.createInjector(new CoreModule());
+public class ArrangementOneResource extends HubResource {
   private final ArrangementDAO arrangementDAO = injector.getInstance(ArrangementDAO.class);
   private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
 

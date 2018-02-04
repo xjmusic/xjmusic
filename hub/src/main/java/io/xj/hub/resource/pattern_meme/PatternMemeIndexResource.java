@@ -1,17 +1,15 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.resource.pattern_meme;
 
-import io.xj.core.CoreModule;
+import com.google.common.collect.ImmutableList;
+
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.PatternMemeDAO;
 import io.xj.core.model.pattern_meme.PatternMeme;
 import io.xj.core.model.pattern_meme.PatternMemeWrapper;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.transport.HttpResponseProvider;
-
-import com.google.common.collect.ImmutableList;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
+import io.xj.hub.HubResource;
 
 import javax.annotation.security.RolesAllowed;
 import javax.jws.WebResult;
@@ -31,8 +29,7 @@ import java.math.BigInteger;
  Pattern record
  */
 @Path("pattern-memes")
-public class PatternMemeIndexResource {
-  private static final Injector injector = Guice.createInjector(new CoreModule());
+public class PatternMemeIndexResource extends HubResource {
   private final PatternMemeDAO patternMemeDAO = injector.getInstance(PatternMemeDAO.class);
   private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
 

@@ -1,17 +1,15 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.resource.account_user;
 
-import io.xj.core.CoreModule;
+import com.google.common.collect.ImmutableList;
+
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.AccountUserDAO;
 import io.xj.core.model.account_user.AccountUser;
 import io.xj.core.model.account_user.AccountUserWrapper;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.transport.HttpResponseProvider;
-
-import com.google.common.collect.ImmutableList;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
+import io.xj.hub.HubResource;
 
 import javax.annotation.security.RolesAllowed;
 import javax.jws.WebResult;
@@ -32,8 +30,7 @@ import java.util.Objects;
  Account record
  */
 @Path("account-users")
-public class AccountUserIndexResource {
-  private static final Injector injector = Guice.createInjector(new CoreModule());
+public class AccountUserIndexResource extends HubResource {
   private final AccountUserDAO DAO = injector.getInstance(AccountUserDAO.class);
   private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
 

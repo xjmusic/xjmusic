@@ -1,7 +1,7 @@
 import { moduleForComponent, test } from 'ember-qunit';
 import hbs from 'htmlbars-inline-precompile';
 
-moduleForComponent('chord-progression', 'Integration | Component | evaluation chord descriptor', {
+moduleForComponent('chord-progression', 'Integration | Component | digest chord descriptor', {
   integration: true
 });
 

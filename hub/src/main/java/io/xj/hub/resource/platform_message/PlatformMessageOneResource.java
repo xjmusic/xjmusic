@@ -1,15 +1,12 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.resource.platform_message;
 
-import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.PlatformMessageDAO;
 import io.xj.core.model.platform_message.PlatformMessage;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.transport.HttpResponseProvider;
-
-import com.google.inject.Guice;
-import com.google.inject.Injector;
+import io.xj.hub.HubResource;
 
 import javax.annotation.security.RolesAllowed;
 import javax.jws.WebResult;
@@ -26,8 +23,7 @@ import java.math.BigInteger;
  PlatformMessage record
  */
 @Path("platform-messages/{id}")
-public class PlatformMessageOneResource {
-  private static final Injector injector = Guice.createInjector(new CoreModule());
+public class PlatformMessageOneResource extends HubResource {
   private final PlatformMessageDAO platformMessageDAO = injector.getInstance(PlatformMessageDAO.class);
   private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
 

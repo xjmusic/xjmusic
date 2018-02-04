@@ -56,11 +56,11 @@
       <version>4.0</version>
     </dependency>
 
-    <!-- https://mvnrepository.com/artifact/com.google.guava/guava-jdk5 -->
+    <!-- https://mvnrepository.com/artifact/com.google.guava/guava -->
     <dependency>
       <groupId>com.google.guava</groupId>
-      <artifactId>guava-jdk5</artifactId>
-      <version>17.0</version>
+      <artifactId>guava</artifactId>
+      <version>24.0-jre</version>
     </dependency>
 
     <!-- currently used only in tests: https://mvnrepository.com/artifact/org.yaml/snakeyaml -->

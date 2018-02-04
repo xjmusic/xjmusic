@@ -8,7 +8,6 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.store.DataStoreFactory;
 import com.google.api.client.util.store.MemoryDataStoreFactory;
 import com.google.inject.AbstractModule;
-import com.google.inject.assistedinject.FactoryModuleBuilder;
 
 import io.xj.core.access.AccessControlProvider;
 import io.xj.core.access.AccessLogFilterProvider;
@@ -18,17 +17,10 @@ import io.xj.core.access.impl.AccessLogFilterProviderImpl;
 import io.xj.core.access.impl.AccessTokenAuthFilterImpl;
 import io.xj.core.app.App;
 import io.xj.core.app.AppImpl;
-import io.xj.core.basis.Basis;
-import io.xj.core.basis.BasisFactory;
-import io.xj.core.basis.impl.BasisImpl;
 import io.xj.core.cache.audio.AudioCacheProvider;
 import io.xj.core.cache.audio.impl.AudioCacheProviderImpl;
-import io.xj.core.cache.digest.DigestCacheProvider;
-import io.xj.core.cache.digest.impl.DigestCacheProviderImpl;
 import io.xj.core.cache.entity.EntityCacheProvider;
 import io.xj.core.cache.entity.impl.EntityCacheProviderImpl;
-import io.xj.core.cache.evaluation.EvaluationCacheProvider;
-import io.xj.core.cache.evaluation.impl.EvaluationCacheProviderImpl;
 import io.xj.core.dao.AccountDAO;
 import io.xj.core.dao.AccountUserDAO;
 import io.xj.core.dao.ArrangementDAO;
@@ -85,28 +77,12 @@ import io.xj.core.dao.impl.PhaseMemeDAOImpl;
 import io.xj.core.dao.impl.PlatformMessageDAOImpl;
 import io.xj.core.dao.impl.UserDAOImpl;
 import io.xj.core.dao.impl.VoiceDAOImpl;
-import io.xj.core.digest.DigestFactory;
-import io.xj.core.digest.chord_markov.DigestChordMarkov;
-import io.xj.core.digest.chord_markov.impl.DigestChordMarkovImpl;
-import io.xj.core.digest.chord_sequence.DigestChordProgression;
-import io.xj.core.digest.chord_sequence.impl.DigestChordProgressionImpl;
-import io.xj.core.digest.hash.DigestHash;
-import io.xj.core.digest.hash.impl.DigestHashImpl;
-import io.xj.core.digest.meme.DigestMeme;
-import io.xj.core.digest.meme.impl.DigestMemeImpl;
-import io.xj.core.evaluation.Evaluation;
-import io.xj.core.evaluation.EvaluationFactory;
-import io.xj.core.evaluation.impl.EvaluationImpl;
 import io.xj.core.external.amazon.AmazonProvider;
 import io.xj.core.external.amazon.AmazonProviderImpl;
 import io.xj.core.external.google.GoogleHttpProvider;
 import io.xj.core.external.google.GoogleHttpProviderImpl;
 import io.xj.core.external.google.GoogleProvider;
 import io.xj.core.external.google.GoogleProviderImpl;
-import io.xj.core.generation.Generation;
-import io.xj.core.generation.GenerationFactory;
-import io.xj.core.generation.superpattern.LibrarySuperpatternGeneration;
-import io.xj.core.generation.superpattern.impl.LibrarySuperpatternGenerationImpl;
 import io.xj.core.persistence.redis.RedisDatabaseProvider;
 import io.xj.core.persistence.redis.impl.RedisDatabaseProviderImpl;
 import io.xj.core.persistence.sql.SQLDatabaseProvider;
@@ -131,10 +107,6 @@ public class CoreModule extends AbstractModule {
     bindDAO();
     bindExternal();
     install(new MixerModule());
-    cfgBasis();
-    cfgDigest();
-    cfgEvaluation();
-    cfgGeneration();
   }
 
   private void bindApp() {
@@ -195,34 +167,5 @@ public class CoreModule extends AbstractModule {
     bind(GoogleProvider.class).to(GoogleProviderImpl.class);
   }
 
-  private void cfgBasis() {
-    install(new FactoryModuleBuilder()
-      .implement(Basis.class, BasisImpl.class)
-      .build(BasisFactory.class));
-  }
-
-  private void cfgGeneration() {
-    install(new FactoryModuleBuilder()
-      .implement(Generation.class, LibrarySuperpatternGenerationImpl.class)
-      .implement(LibrarySuperpatternGeneration.class, LibrarySuperpatternGenerationImpl.class)
-      .build(GenerationFactory.class));
-  }
-
-  private void cfgEvaluation() {
-    bind(EvaluationCacheProvider.class).to(EvaluationCacheProviderImpl.class);
-    install(new FactoryModuleBuilder()
-      .implement(Evaluation.class, EvaluationImpl.class)
-      .build(EvaluationFactory.class));
-  }
-
-  private void cfgDigest() {
-    bind(DigestCacheProvider.class).to(DigestCacheProviderImpl.class);
-    install(new FactoryModuleBuilder()
-      .implement(DigestChordProgression.class, DigestChordProgressionImpl.class)
-      .implement(DigestChordMarkov.class, DigestChordMarkovImpl.class)
-      .implement(DigestHash.class, DigestHashImpl.class)
-      .implement(DigestMeme.class, DigestMemeImpl.class)
-      .build(DigestFactory.class));
-  }
 
 }

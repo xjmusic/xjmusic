@@ -1,0 +1,64 @@
+<!-- Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved. -->
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="digest col-12">
+
+      <div class="do-digest">
+        {{#each types as |type|}}
+          <button type="button"
+                  class="btn btn-default align-middle {{digest-type
+                    type}}" {{action
+            'doDigest' (digest-type type) type}}>
+            {{type}}
+          </button>
+        {{/each}}
+      </div>
+
+      <div class="loader">&nbsp;</div>
+
+      <div class="result container-fluid">
+        {{yield}}
+
+        <!-- meme usage-->
+        {{#each-in result.memeUsage as |name usage|}}
+          <div class="row">
+            <div class="col-12 digest-meme-usage">
+              {{meme-usage name usage}}
+            </div>
+          </div>
+        {{/each-in}}
+
+        <!-- digested chord sequences -->
+        {{#each result.chordProgressions as |chordProgressionGroup|}}
+          <div class="row">
+            <div class="col-12 digest-chord-progression-usages">
+              {{chord-progression chordProgressionGroup.descriptor}}
+              {{#each
+                chordProgressionGroup.chordProgressions as |chordProgression|}}
+                {{chord-progression-usages chordProgression}}
+              {{/each}}
+            </div>
+          </div>
+        {{/each}}
+
+        <!-- digested chord markov-->
+        {{#each-in result.observationsByState as |state observation|}}
+          <div class="row">
+            <div class="col-12 digest-chord-markov">
+              {{chord-progression state}}
+              {{chord-markov-observations observation.observations}}
+            </div>
+          </div>
+        {{/each-in}}
+
+        <!-- digested pattern style-->
+        {{#if result.patternStyle}}
+          {{object-tree result.patternStyle}}
+        {{/if}}
+
+      </div>
+
+    </div>
+  </div>
+</div>

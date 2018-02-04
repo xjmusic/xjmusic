@@ -8,7 +8,7 @@ import io.xj.core.dao.PhaseMemeDAO;
 import io.xj.core.dao.VoiceDAO;
 import io.xj.core.dao.PhaseEventDAO;
 import io.xj.core.exception.BusinessException;
-import io.xj.core.isometry.VoiceIsometry;
+import io.xj.craft.isometry.VoiceIsometry;
 import io.xj.core.model.phase.Phase;
 import io.xj.core.model.phase_chord.PhaseChord;
 import io.xj.core.model.phase_meme.PhaseMeme;

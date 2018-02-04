@@ -1,18 +1,16 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.resource.library;
 
-import io.xj.core.CoreModule;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.LibraryDAO;
 import io.xj.core.model.library.Library;
 import io.xj.core.model.library.LibraryWrapper;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.transport.HttpResponseProvider;
-
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
+import io.xj.hub.HubResource;
 
 import javax.annotation.security.RolesAllowed;
 import javax.jws.WebResult;
@@ -33,8 +31,7 @@ import java.util.Objects;
  Libraries
  */
 @Path("libraries")
-public class LibraryIndexResource {
-  private static final Injector injector = Guice.createInjector(new CoreModule());
+public class LibraryIndexResource extends HubResource {
   private final LibraryDAO libraryDAO = injector.getInstance(LibraryDAO.class);
   private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
 

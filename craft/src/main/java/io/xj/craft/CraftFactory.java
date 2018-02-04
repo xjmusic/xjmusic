@@ -2,7 +2,7 @@
 package io.xj.craft;
 
 import io.xj.core.exception.ConfigException;
-import io.xj.core.basis.Basis;
+import io.xj.craft.basis.Basis;
 import io.xj.craft.macro.MacroMainCraft;
 import io.xj.craft.harmonic.HarmonicDetailCraft;
 import io.xj.craft.rhythm.RhythmCraft;

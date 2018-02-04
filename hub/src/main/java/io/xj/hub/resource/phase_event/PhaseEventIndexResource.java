@@ -1,18 +1,15 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.resource.phase_event;
 
-import io.xj.core.CoreModule;
+import com.google.common.collect.ImmutableList;
+
 import io.xj.core.access.impl.Access;
-import io.xj.core.model.user_role.UserRoleType;
-import io.xj.core.transport.HttpResponseProvider;
 import io.xj.core.dao.PhaseEventDAO;
 import io.xj.core.model.phase_event.PhaseEvent;
 import io.xj.core.model.phase_event.PhaseEventWrapper;
-
-
-import com.google.common.collect.ImmutableList;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
+import io.xj.core.model.user_role.UserRoleType;
+import io.xj.core.transport.HttpResponseProvider;
+import io.xj.hub.HubResource;
 
 import javax.annotation.security.RolesAllowed;
 import javax.jws.WebResult;
@@ -33,8 +30,7 @@ import java.util.Objects;
  PhaseEvents
  */
 @Path("phase-events")
-public class PhaseEventIndexResource {
-  private static final Injector injector = Guice.createInjector(new CoreModule());
+public class PhaseEventIndexResource extends HubResource {
   private final PhaseEventDAO phaseEventDAO = injector.getInstance(PhaseEventDAO.class);
   private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
 

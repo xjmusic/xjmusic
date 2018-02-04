@@ -2,7 +2,7 @@
 
 import { moduleFor, test } from 'ember-qunit';
 
-moduleFor('route:accounts/one/libraries/one/evaluation', 'Unit | Route | accounts/one/libraries/one/evaluation', {
+moduleFor('route:accounts/one/libraries/one/digest', 'Unit | Route | accounts/one/libraries/one/digest', {
   // Specify the other units that are required for this test.
   // needs: ['service:config', 'service:display']
 });

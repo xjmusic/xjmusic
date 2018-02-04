@@ -1,7 +1,6 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.resource.phase_meme;
 
-import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.PhaseMemeDAO;
 import io.xj.core.exception.BusinessException;
@@ -9,12 +8,7 @@ import io.xj.core.model.phase_meme.PhaseMeme;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.transport.HttpResponseProvider;
 import io.xj.core.transport.JSON;
-
-
-
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-
+import io.xj.hub.HubResource;
 import org.apache.http.HttpStatus;
 
 import javax.annotation.security.RolesAllowed;
@@ -33,8 +27,7 @@ import java.math.BigInteger;
  Phase record
  */
 @Path("phase-memes/{id}")
-public class PhaseMemeOneResource {
-  private static final Injector injector = Guice.createInjector(new CoreModule());
+public class PhaseMemeOneResource extends HubResource {
   private final PhaseMemeDAO phaseMemeDAO = injector.getInstance(PhaseMemeDAO.class);
   private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
 

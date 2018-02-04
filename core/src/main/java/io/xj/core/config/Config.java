@@ -18,12 +18,12 @@ public interface Config {
   Integer DEFAULT_CHAIN_PREVIEW_LENGTH_MAX = 300;
   Integer DEFAULT_CHORD_MARKOV_ORDER = 3;
   Integer DEFAULT_ENTITY_CACHE_SECONDS = 60;
-  Integer DEFAULT_EVALUATION_CACHE_SECONDS = 60;
-  Integer DEFAULT_EVALUATION_CHORD_SEQUENCE_LENGTH_MAX = 5;
-  Integer DEFAULT_EVALUATION_CHORD_SEQUENCE_PRESERVE_LENGTH_MIN = 2;
-  Integer DEFAULT_EVALUATION_CHORD_SEQUENCE_REDUNDANCY_THRESHOLD = 1;
-  Integer DEFAULT_EVALUATION_DIGEST_CACHE_EXPIRE_MINUTES = 3;
-  Integer DEFAULT_EVALUATION_DIGEST_CACHE_REFRESH_MINUTES = 1;
+  Integer DEFAULT_INGEST_ACHE_SECONDS = 60;
+  Integer DEFAULT_INGEST_CHORD_SEQUENCE_LENGTH_MAX = 5;
+  Integer DEFAULT_INGEST_CHORD_SEQUENCE_PRESERVE_LENGTH_MIN = 2;
+  Integer DEFAULT_INGEST_CHORD_SEQUENCE_REDUNDANCY_THRESHOLD = 1;
+  Integer DEFAULT_DIGEST_CACHE_EXPIRE_MINUTES = 3;
+  Integer DEFAULT_DIGEST_CACHE_REFRESH_MINUTES = 1;
   Integer DEFAULT_GENERATION_SUPERPATTERN_PHASE_COUNT = 7;
   Integer DEFAULT_LIMIT_LINK_READ_SIZE = 20;
   Integer DEFAULT_LOG_ACCESS_ENTITIES_MAX_SIZE = 0;
@@ -41,7 +41,7 @@ public interface Config {
   Integer MINUTES_PER_HOUR = 60;
   Integer SECONDS_PER_MINUTE = 60;
   Long DEFAULT_CACHE_FILE_ALLOCATE_BYTES = 1_000_000_000L; // 1 gigabyte
-  Long DEFAULT_EVALUATION_DIGEST_CACHE_SIZE = 1_000_000L;
+  Long DEFAULT_DIGEST_CACHE_SIZE = 1_000_000L;
   String DEFAULT_ACCESS_TOKEN_NAME = "access_token";
   String DEFAULT_API_PATH = "api/1/";
   String DEFAULT_APP_BASE_URL = "http://localhost/";
@@ -94,52 +94,52 @@ public interface Config {
   }
 
   /**
-   @return Max length of chord progression for evaluation
+   @return Max length of chord progression for ingest
    */
-  static int evaluationChordProgressionLengthMax() {
-    return getIntOrDefault("evaluation.chord.sequence.length.max", DEFAULT_EVALUATION_CHORD_SEQUENCE_LENGTH_MAX);
+  static int ingestChordProgressionLengthMax() {
+    return getIntOrDefault("ingest.chord.sequence.length.max", DEFAULT_INGEST_CHORD_SEQUENCE_LENGTH_MAX);
   }
 
   /**
-   @return threshold X, where during pruning of redundant subsets of chord progressions, a redundant subset with length greater than or equal to X will have its chord progressions preserved, meaning that they are moved into the evaluation that is deprecating their original sequence descriptor.
+   @return threshold X, where during pruning of redundant subsets of chord progressions, a redundant subset with length greater than or equal to X will have its chord progressions preserved, meaning that they are moved into the ingest that is deprecating their original sequence descriptor.
    */
-  static int evaluationChordProgressionPreserveLengthMin() {
-    return getIntOrDefault("evaluation.chord.sequence.preserve.length.min", DEFAULT_EVALUATION_CHORD_SEQUENCE_PRESERVE_LENGTH_MIN);
+  static int ingestChordProgressionPreserveLengthMin() {
+    return getIntOrDefault("ingest.chord.sequence.preserve.length.min", DEFAULT_INGEST_CHORD_SEQUENCE_PRESERVE_LENGTH_MIN);
   }
 
   /**
    @return threshold X, where during pruning of redundant subsets of chord progressions, in order to be considered redundant, a subset must have length of at least X less than the length of the superset.
    */
-  static int evaluationChordProgressionRedundancyThreshold() {
-    return getIntOrDefault("evaluation.chord.sequence.redundancy.threshold", DEFAULT_EVALUATION_CHORD_SEQUENCE_REDUNDANCY_THRESHOLD);
+  static int ingestChordProgressionRedundancyThreshold() {
+    return getIntOrDefault("ingest.chord.sequence.redundancy.threshold", DEFAULT_INGEST_CHORD_SEQUENCE_REDUNDANCY_THRESHOLD);
   }
 
   /**
-   @return number of seconds to cache an evaluation before re-reading it from the DAOs
+   @return number of seconds to cache an ingest before re-reading it from the DAOs
    */
-  static int evaluationCacheSeconds() {
-    return getIntOrDefault("evaluation.cache.seconds", DEFAULT_EVALUATION_CACHE_SECONDS);
+  static int ingestCacheSeconds() {
+    return getIntOrDefault("ingest.cache.seconds", DEFAULT_INGEST_ACHE_SECONDS);
   }
 
   /**
-   @return max size (in memory) for the evaluation cache of one type of digest
+   @return max size (in memory) for the ingest cache of one type of digest
    */
-  static long evaluationDigestCacheSize() {
-    return getLongOrDefault("evaluation.digest.cache.size", DEFAULT_EVALUATION_DIGEST_CACHE_SIZE);
+  static long digestCacheSize() {
+    return getLongOrDefault("digest.cache.size", DEFAULT_DIGEST_CACHE_SIZE);
   }
 
   /**
-   @return evaluation digest cache expire # minutes
+   @return ingest digest cache expire # minutes
    */
-  static int evaluationDigestCacheExpireMinutes() {
-    return getIntOrDefault("evaluation.digest.cache.expire.minutes", DEFAULT_EVALUATION_DIGEST_CACHE_EXPIRE_MINUTES);
+  static int digestCacheExpireMinutes() {
+    return getIntOrDefault("digest.cache.expire.minutes", DEFAULT_DIGEST_CACHE_EXPIRE_MINUTES);
   }
 
   /**
-   @return evaluation digest cache refresh # minutes
+   @return ingest digest cache refresh # minutes
    */
-  static int evaluationDigestCacheRefreshMinutes() {
-    return getIntOrDefault("evaluation.digest.cache.refresh.minutes", DEFAULT_EVALUATION_DIGEST_CACHE_REFRESH_MINUTES);
+  static int digestCacheRefreshMinutes() {
+    return getIntOrDefault("digest.cache.refresh.minutes", DEFAULT_DIGEST_CACHE_REFRESH_MINUTES);
   }
 
   /**

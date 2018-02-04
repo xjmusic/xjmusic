@@ -1,18 +1,15 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.resource.auth.google;
 
-import io.xj.core.CoreModule;
+import com.google.api.client.auth.oauth2.AuthorizationCodeResponseUrl;
+
 import io.xj.core.access.AccessControlProvider;
 import io.xj.core.config.Config;
 import io.xj.core.exception.AccessException;
 import io.xj.core.exception.ConfigException;
 import io.xj.core.exception.DatabaseException;
 import io.xj.core.transport.HttpResponseProvider;
-
-import com.google.api.client.auth.oauth2.AuthorizationCodeResponseUrl;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-
+import io.xj.hub.HubResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,11 +25,10 @@ import javax.ws.rs.core.UriInfo;
  Root resource (exposed at "o2" path)
  */
 @Path("auth/google/callback")
-public class AuthGoogleCallbackResource {
+public class AuthGoogleCallbackResource extends HubResource {
   private static final String redirectPathUnauthorized = Config.appPathUnauthorized();
   private static final String redirectPathSuccess = Config.appPathSuccess();
   private final Logger log = LoggerFactory.getLogger(AuthGoogleCallbackResource.class);
-  private final Injector injector = Guice.createInjector(new CoreModule());
   private final AccessControlProvider accessControlProvider = injector.getInstance(AccessControlProvider.class);
   private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
 
