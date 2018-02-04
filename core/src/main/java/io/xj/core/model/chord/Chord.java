@@ -75,4 +75,13 @@ public abstract class Chord extends Entity {
     return 0;
   };
 
+  /**
+   For sorting chords by position descending
+   */
+  public static final Comparator<? super Chord> byPositionDescending = (Comparator<? super Chord>) (o1, o2) -> {
+    if (o1.getPosition() > o2.getPosition()) return -1;
+    if (o1.getPosition() < o2.getPosition()) return 1;
+    return 0;
+  };
+
 }

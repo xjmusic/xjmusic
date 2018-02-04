@@ -1,6 +1,7 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 package io.xj.craft.digest.pattern_style.impl;
 
+import com.google.common.collect.Maps;
 import com.google.common.math.StatsAccumulator;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
@@ -12,11 +13,13 @@ import io.xj.craft.digest.DigestType;
 import io.xj.craft.digest.impl.DigestImpl;
 import io.xj.craft.digest.pattern_style.DigestPatternStyle;
 import io.xj.craft.ingest.Ingest;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
+import java.util.Map;
 
 /**
  In-memory cache of ingest of all memes in a library
@@ -27,6 +30,7 @@ public class DigestPatternStyleImpl extends DigestImpl implements DigestPatternS
   private final Logger log = LoggerFactory.getLogger(DigestPatternStyleImpl.class);
   private final StatsAccumulator mainPhasesPerPattern = new StatsAccumulator();
   private final StatsAccumulator mainPhaseTotal = new StatsAccumulator();
+  private final Map<Integer, Integer> mainPhaseTotalCount = Maps.newConcurrentMap();
 
   /**
    Instantiate a new digest with a collection of target entities
@@ -53,7 +57,12 @@ public class DigestPatternStyleImpl extends DigestImpl implements DigestPatternS
       Collection<Phase> phases = ingest.phases(pattern.getId());
       mainPhasesPerPattern.add(phases.size());
       for (Phase phase : phases) {
-        mainPhaseTotal.add(phase.getTotal());
+        Integer total = phase.getTotal();
+        mainPhaseTotal.add(total);
+        mainPhaseTotalCount.put(total,
+          mainPhaseTotalCount.containsKey(total) ?
+            mainPhaseTotalCount.get(total) + 1 :
+            0);
       }
     }
     log.debug("Digested style of {} main-type patterns containing {} phases.", mainPhasesPerPattern.count(), mainPhaseTotal.count());
@@ -74,12 +83,24 @@ public class DigestPatternStyleImpl extends DigestImpl implements DigestPatternS
     return result;
   }
 
+  private JSONArray phaseTotalCountJSONArray() {
+    JSONArray result = new JSONArray();
+    mainPhaseTotalCount.forEach((total, count) -> {
+      JSONObject obj = new JSONObject();
+      obj.put(KEY_PHASE_TOTAL, total);
+      obj.put(KEY_STAT_COUNT, count);
+      result.put(obj);
+    });
+    return result;
+  }
+
   @Override
   public JSONObject toJSONObject() {
     JSONObject result = new JSONObject();
     JSONObject patternStyle = new JSONObject();
     patternStyle.put(KEY_MAIN_PHASES_PER_PATTERN, toJSONObject(mainPhasesPerPattern));
     patternStyle.put(KEY_MAIN_PHASE_TOTAL, toJSONObject(mainPhaseTotal));
+    patternStyle.put(KEY_MAIN_PHASE_TOTAL_COUNT, phaseTotalCountJSONArray());
     result.put(KEY_PATTERN_STYLE, patternStyle);
     return result;
   }
@@ -94,4 +115,8 @@ public class DigestPatternStyleImpl extends DigestImpl implements DigestPatternS
     return mainPhaseTotal;
   }
 
+  @Override
+  public Map<Integer, Integer> getMainPhaseTotalCount() {
+    return mainPhaseTotalCount;
+  }
 }

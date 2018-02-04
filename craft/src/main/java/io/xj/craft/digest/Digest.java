@@ -19,11 +19,13 @@ public interface Digest {
   String KEY_INSTRUMENT_TYPE = "instrumentType";
   String KEY_INSTRUMENTS = "instrumentsWithMeme";
   String KEY_MAIN_PHASE_TOTAL = "mainPhaseTotal";
+  String KEY_MAIN_PHASE_TOTAL_COUNT = "mainPhaseTotalCount";
   String KEY_MAIN_PHASES_PER_PATTERN = "mainPhasesPerPattern";
   String KEY_MANY = "digests";
   String KEY_MEME_USAGE = "memeUsage";
   String KEY_OBSERVATIONS = "observations";
-  String KEY_OBSERVATIONS_BY_STATE = "observationsByState";
+  String KEY_OBSERVATIONS_FORWARD = "observationsForward";
+  String KEY_OBSERVATIONS_REVERSE = "observationsReverse";
   String KEY_ONE = "digest";
   String KEY_PATTERN_HAS_MEME = "patternHasMeme";
   String KEY_PATTERN_ID = "patternId";
@@ -34,6 +36,7 @@ public interface Digest {
   String KEY_PHASE_ID = "phaseId";
   String KEY_PHASE_NAME = "phaseName";
   String KEY_PHASE_OFFSET = "phaseOffset";
+  String KEY_PHASE_TOTAL = "phaseTotal";
   String KEY_PHASE_TYPE = "phaseType";
   String KEY_PHASES_WITH_MEME = "phasesWithMeme";
   String KEY_STAT_COUNT = "count";

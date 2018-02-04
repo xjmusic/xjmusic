@@ -163,6 +163,8 @@ public class DigestPatternStyleIT {
     assertEquals(32.0, result.getMainPhaseTotal().max(), 0.1);
     assertEquals(24.0, result.getMainPhaseTotal().mean(), 0.1);
     assertEquals(4.0, result.getMainPhaseTotal().count(), 0.1);
+    assertEquals(Integer.valueOf(1), result.getMainPhaseTotalCount().get(16));
+    assertEquals(Integer.valueOf(1), result.getMainPhaseTotalCount().get(32));
   }
 
   @Test
@@ -182,6 +184,7 @@ public class DigestPatternStyleIT {
     assertNotNull(result.getJSONObject(Digest.KEY_PATTERN_STYLE).getJSONObject(Digest.KEY_MAIN_PHASE_TOTAL).get(Digest.KEY_STAT_MAX));
     assertNotNull(result.getJSONObject(Digest.KEY_PATTERN_STYLE).getJSONObject(Digest.KEY_MAIN_PHASE_TOTAL).get(Digest.KEY_STAT_MIN));
     assertNotNull(result.getJSONObject(Digest.KEY_PATTERN_STYLE).getJSONObject(Digest.KEY_MAIN_PHASE_TOTAL).get(Digest.KEY_STAT_MEAN));
+    assertEquals(2, result.getJSONObject(Digest.KEY_PATTERN_STYLE).getJSONArray(Digest.KEY_MAIN_PHASE_TOTAL_COUNT).length());
   }
 
 }

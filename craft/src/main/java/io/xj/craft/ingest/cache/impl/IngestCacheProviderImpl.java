@@ -1,9 +1,9 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
-package io.xj.craft.cache.ingest.impl;
+package io.xj.craft.ingest.cache.impl;
 
 import io.xj.core.access.impl.Access;
 import io.xj.core.cache.CacheKey;
-import io.xj.craft.cache.ingest.IngestCacheProvider;
+import io.xj.craft.ingest.cache.IngestCacheProvider;
 import io.xj.craft.ingest.Ingest;
 import io.xj.craft.ingest.IngestFactory;
 import io.xj.core.model.entity.Entity;

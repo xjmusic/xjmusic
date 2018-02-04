@@ -4,7 +4,6 @@ package io.xj.craft.digest.pattern_style;
 import com.google.common.math.StatsAccumulator;
 
 import io.xj.craft.digest.Digest;
-import io.xj.craft.digest.meme.impl.DigestMemesItem;
 
 import java.util.Map;
 
@@ -19,5 +18,10 @@ public interface DigestPatternStyle extends Digest {
    @return total-per-phase statistics
    */
   StatsAccumulator getMainPhaseTotal();
+
+  /**
+   @return count of each phase total (value # of times a phase appeared with a total of N key)
+   */
+  Map<Integer, Integer> getMainPhaseTotalCount();
 
 }

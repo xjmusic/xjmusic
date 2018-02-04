@@ -1,5 +1,5 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
-package io.xj.craft.cache.ingest.impl;
+package io.xj.craft.ingest.cache.impl;
 
 import io.xj.core.config.Config;
 import io.xj.craft.ingest.Ingest;

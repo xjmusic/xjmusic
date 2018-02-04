@@ -1,5 +1,5 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
-package io.xj.craft.cache.digest;
+package io.xj.craft.digest.cache;
 
 import io.xj.craft.digest.Digest;
 import io.xj.craft.digest.chord_markov.DigestChordMarkov;

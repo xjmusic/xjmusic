@@ -6,7 +6,7 @@ import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
-import io.xj.craft.cache.digest.DigestCacheProvider;
+import io.xj.craft.digest.cache.DigestCacheProvider;
 import io.xj.core.config.Config;
 import io.xj.core.dao.PhaseChordDAO;
 import io.xj.core.dao.PhaseDAO;
@@ -209,9 +209,9 @@ public class LibrarySuperpatternGenerationImpl extends GenerationImpl implements
     List<ChordNode> result = Lists.newArrayList();
     for (int n = 0; n < buffer.size(); n++) {
       String key = new ChordMarkovNode(buffer.subList(n, buffer.size())).precedentStateDescriptor();
-      if (digestChordMarkov.getChordMarkovNodeMap().containsKey(key))
+      if (digestChordMarkov.getForwardNodeMap().containsKey(key))
         for (int r = 0; r <= n; r++) // add observations N times
-          result.addAll(digestChordMarkov.getChordMarkovNodeMap().get(key).getNodeMap());
+          result.addAll(digestChordMarkov.getForwardNodeMap().get(key).getNodeMap());
     }
     return result;
   }

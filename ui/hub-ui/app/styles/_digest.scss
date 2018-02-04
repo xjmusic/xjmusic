@@ -23,23 +23,17 @@
   }
 
   &.loading {
-    h1, h2, h3, h4, h5, h6 {
-      color: $gold;
-    }
     .active.btn-default {
       background: #222;
       color: $gold;
       border: 2px solid darken($gold, 25%);
     }
     .loader {
-      display:block;
+      display: block;
     }
   }
 
   &.failed {
-    h1, h2, h3, h4, h5, h6 {
-      color: $red;
-    }
     .active.btn-default {
       background: #222;
       color: $red;
@@ -51,9 +45,6 @@
     .result {
       display: block;
       width: 100%;
-    }
-    h1, h2, h3, h4, h5, h6 {
-      color: $green;
     }
     .active.btn-default {
       background: #222;
@@ -72,7 +63,6 @@
   }
 
   .digest-chord-markov {
-
   }
 
 }

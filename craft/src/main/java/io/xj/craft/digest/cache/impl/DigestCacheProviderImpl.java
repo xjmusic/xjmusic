@@ -1,11 +1,11 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
-package io.xj.craft.cache.digest.impl;
+package io.xj.craft.digest.cache.impl;
 
 import com.google.inject.Inject;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
-import io.xj.craft.cache.digest.DigestCacheProvider;
+import io.xj.craft.digest.cache.DigestCacheProvider;
 import io.xj.core.config.Config;
 import io.xj.craft.digest.DigestFactory;
 import io.xj.craft.digest.chord_markov.DigestChordMarkov;

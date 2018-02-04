@@ -1,5 +1,5 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
-package io.xj.craft.cache.ingest;
+package io.xj.craft.ingest.cache;
 
 import io.xj.core.access.impl.Access;
 import io.xj.craft.ingest.Ingest;

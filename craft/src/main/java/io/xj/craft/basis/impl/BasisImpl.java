@@ -4,7 +4,7 @@ package io.xj.craft.basis.impl;
 import io.xj.core.access.impl.Access;
 import io.xj.craft.basis.Basis;
 import io.xj.craft.basis.BasisType;
-import io.xj.craft.cache.ingest.IngestCacheProvider;
+import io.xj.craft.ingest.cache.IngestCacheProvider;
 import io.xj.core.config.Config;
 import io.xj.core.dao.ArrangementDAO;
 import io.xj.core.dao.ChainConfigDAO;
