@@ -155,16 +155,19 @@ public class DigestPatternStyleIT {
     DigestPatternStyle result = digestFactory.patternStyle(ingestFactory.evaluate(access, ImmutableList.of(new Library(10000001))));
 
     assertNotNull(result);
-    assertEquals(1.0, result.getMainPhasesPerPattern().min(), 0.1);
-    assertEquals(3.0, result.getMainPhasesPerPattern().max(), 0.1);
-    assertEquals(2.0, result.getMainPhasesPerPattern().mean(), 0.1);
-    assertEquals(2.0, result.getMainPhasesPerPattern().count(), 0.1);
-    assertEquals(16.0, result.getMainPhaseTotal().min(), 0.1);
-    assertEquals(32.0, result.getMainPhaseTotal().max(), 0.1);
-    assertEquals(24.0, result.getMainPhaseTotal().mean(), 0.1);
-    assertEquals(4.0, result.getMainPhaseTotal().count(), 0.1);
-    assertEquals(Integer.valueOf(1), result.getMainPhaseTotalCount().get(16));
-    assertEquals(Integer.valueOf(1), result.getMainPhaseTotalCount().get(32));
+    assertEquals(1.0, result.getMainPhasesPerPatternStats().min(), 0.1);
+    assertEquals(3.0, result.getMainPhasesPerPatternStats().max(), 0.1);
+    assertEquals(2.0, result.getMainPhasesPerPatternStats().mean(), 0.1);
+    assertEquals(2.0, result.getMainPhasesPerPatternStats().count(), 0.1);
+    assertEquals(1, result.getMainPhasesPerPatternHistogram().count(1));
+    assertEquals(1, result.getMainPhasesPerPatternHistogram().count(3));
+    assertEquals(16.0, result.getMainPhaseTotalStats().min(), 0.1);
+    assertEquals(32.0, result.getMainPhaseTotalStats().max(), 0.1);
+    assertEquals(24.0, result.getMainPhaseTotalStats().mean(), 0.1);
+    assertEquals(4.0, result.getMainPhaseTotalStats().count(), 0.1);
+    assertEquals(2, result.getMainPhaseTotalHistogram().count(16));
+    assertEquals(2, result.getMainPhaseTotalHistogram().count(32));
+    // TODO integration test digest pattern style chord spacing methods
   }
 
   @Test
@@ -180,11 +183,13 @@ public class DigestPatternStyleIT {
     assertNotNull(result.getJSONObject(Digest.KEY_PATTERN_STYLE).getJSONObject(Digest.KEY_MAIN_PHASES_PER_PATTERN).get(Digest.KEY_STAT_MAX));
     assertNotNull(result.getJSONObject(Digest.KEY_PATTERN_STYLE).getJSONObject(Digest.KEY_MAIN_PHASES_PER_PATTERN).get(Digest.KEY_STAT_MIN));
     assertNotNull(result.getJSONObject(Digest.KEY_PATTERN_STYLE).getJSONObject(Digest.KEY_MAIN_PHASES_PER_PATTERN).get(Digest.KEY_STAT_MEAN));
+    assertEquals(2, result.getJSONObject(Digest.KEY_PATTERN_STYLE).getJSONObject(Digest.KEY_MAIN_PHASES_PER_PATTERN).getJSONArray(Digest.KEY_HISTOGRAM).length());
     assertNotNull(result.getJSONObject(Digest.KEY_PATTERN_STYLE).getJSONObject(Digest.KEY_MAIN_PHASE_TOTAL).get(Digest.KEY_STAT_COUNT));
     assertNotNull(result.getJSONObject(Digest.KEY_PATTERN_STYLE).getJSONObject(Digest.KEY_MAIN_PHASE_TOTAL).get(Digest.KEY_STAT_MAX));
     assertNotNull(result.getJSONObject(Digest.KEY_PATTERN_STYLE).getJSONObject(Digest.KEY_MAIN_PHASE_TOTAL).get(Digest.KEY_STAT_MIN));
     assertNotNull(result.getJSONObject(Digest.KEY_PATTERN_STYLE).getJSONObject(Digest.KEY_MAIN_PHASE_TOTAL).get(Digest.KEY_STAT_MEAN));
-    assertEquals(2, result.getJSONObject(Digest.KEY_PATTERN_STYLE).getJSONArray(Digest.KEY_MAIN_PHASE_TOTAL_COUNT).length());
+    assertEquals(2, result.getJSONObject(Digest.KEY_PATTERN_STYLE).getJSONObject(Digest.KEY_MAIN_PHASE_TOTAL).getJSONArray(Digest.KEY_HISTOGRAM).length());
+    // TODO integration test digest pattern style chord spacing json output
   }
 
 }

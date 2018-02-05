@@ -19,4 +19,15 @@ public interface TremendouslyRandom {
     return ThreadLocalRandom.current().nextInt(0, limit);
   }
 
+  /**
+   Make a tremendously random selection of an double n, where 0 <= n < limit
+
+   @param limit 0 <= n < limit
+   @return random double n, where 0 <= n < limit
+   */
+  static Double zeroToLimit(Double limit) {
+    if (0 >= limit) return 0.0;
+    return ThreadLocalRandom.current().nextDouble(0, limit);
+  }
+
 }

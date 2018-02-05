@@ -104,7 +104,8 @@ public class PhaseChordProgressionTest {
       new PhaseChordProgression(
         new ChordProgression("0|Major Seventh Add Ninth:7|Minor Seventh:9|Major Seventh:5|Minor Flat Nine"),
         BigInteger.valueOf(27),
-        PitchClass.F
+        PitchClass.F,
+        4
       ).getChords());
 
     assertEquivalent(
@@ -116,7 +117,8 @@ public class PhaseChordProgressionTest {
       new PhaseChordProgression(
         new ChordProgression("0|Minor Flat Five:7|Major Seven:6|Major Seven Flat Nine"),
         BigInteger.valueOf(27),
-        PitchClass.B
+        PitchClass.B,
+        4
       ).getChords());
   }
 

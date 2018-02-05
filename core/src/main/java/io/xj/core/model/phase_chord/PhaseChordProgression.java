@@ -3,7 +3,6 @@ package io.xj.core.model.phase_chord;
 
 import com.google.common.collect.Lists;
 
-import io.xj.core.model.chord.Chord;
 import io.xj.core.model.chord.ChordNode;
 import io.xj.core.model.chord.ChordProgression;
 import io.xj.music.AdjSymbol;
@@ -22,7 +21,6 @@ import java.util.Objects;
  FUTURE: implementation of AudioChordProgression will examine opportunity to extend a common ChordProgression interface.
  */
 public class PhaseChordProgression {
-  private static final int DEFAULT_PHASE_CHORD_POSITION_ADVANCE = 4; // # beats to advance between phase chords by default
   private final List<PhaseChord> chords;
   private final BigInteger parentId;
 
@@ -46,8 +44,9 @@ public class PhaseChordProgression {
    @param chordProgression to construct phase chord progression from
    @param phaseId          of phase to create phase chords in
    @param rootPitchClass   of initial chord
+   @param spacing          # beats spacing in between chords
    */
-  public PhaseChordProgression(ChordProgression chordProgression, BigInteger phaseId, PitchClass rootPitchClass) {
+  public PhaseChordProgression(ChordProgression chordProgression, BigInteger phaseId, PitchClass rootPitchClass, Integer spacing) {
     chords = Lists.newArrayList();
     parentId = phaseId;
     List<ChordNode> units = chordProgression.getChordNodes();
@@ -57,7 +56,7 @@ public class PhaseChordProgression {
         chords.add(buildPhaseChord(phaseId, n,
           rootPitchClass.step(unit.getDelta()).getPitchClass(),
           unit.getForm()));
-        n += DEFAULT_PHASE_CHORD_POSITION_ADVANCE;
+        n += spacing;
       }
   }
 
@@ -111,16 +110,6 @@ public class PhaseChordProgression {
    */
   public ChordProgression getChordProgression() {
     return ChordProgression.of(chords);
-  }
-
-  /**
-   Estimate the phase total based on the chords in this sequence
-
-   @return phase total (estimated)
-   */
-  public Integer estimatePhaseTotal() {
-    if (chords.isEmpty()) return 0;
-    return chords.get(chords.size() - 1).getPosition() + DEFAULT_PHASE_CHORD_POSITION_ADVANCE;
   }
 
 }

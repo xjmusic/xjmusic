@@ -152,7 +152,6 @@ public class GenerationIT {
     generationFactory.librarySuperpattern(target, ingestFactory.evaluate(Access.internal(), ImmutableList.of(new Library(10000001))));
 
     Collection<Phase> generatedPhases = injector.getInstance(PhaseDAO.class).readAll(Access.internal(), ImmutableList.of(BigInteger.valueOf(2702)));
-    assertEquals(7, generatedPhases.size());
     // TODO make assertions about generation from markov digest -- assertEquals(0, generatedPhases.size());
     // FUTURE assert more of the actual phase chords after generation of library superpattern in integration testing
   }

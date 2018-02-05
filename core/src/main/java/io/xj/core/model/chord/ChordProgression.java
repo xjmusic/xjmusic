@@ -11,6 +11,8 @@ import java.util.Objects;
 
 public class ChordProgression {
   private final List<ChordNode> chordNodes;
+  private int total;
+  private int spacing;
 
   /**
    Construct empty chord progression.
@@ -151,6 +153,66 @@ public class ChordProgression {
     }
 
     return new ChordProgression(chordNodes);
+  }
+
+  /**
+   @return reversed copy of this chord progression
+   */
+  public ChordProgression reversed() {
+    ChordProgression result = new ChordProgression(Lists.reverse(chordNodes));
+    result.setTotal(total);
+    result.setSpacing(spacing);
+    return result;
+  }
+
+  /**
+   Set the intended phase total.
+
+   @param beats # beats length of phase that this chord progression will occupy.
+   */
+  public void setTotal(int beats) {
+    this.total = beats;
+  }
+
+  /**
+   Get the intended phase total.
+
+   @return # beats length of phase that this chord progression will occupy.
+   */
+  public int getTotal() {
+    return total;
+  }
+
+  /**
+   Set the intended chord spacing.
+
+   @param beats # beats spacing between the chords of this progression.
+   */
+  public void setSpacing(int beats) {
+    this.spacing = beats;
+  }
+
+  /**
+   Get the intended chord spacing.
+
+   @return # beats length of spacing between the chords of this progression.
+   */
+  public int getSpacing() {
+    return spacing;
+  }
+
+  /**
+   Whether this chord progression has the same total, spacing, and # of cords as another
+
+   @param other to compare to
+   @return true is has same total, spacing, and # of chords.
+   */
+  public boolean hasSameTotalSpacingChords(ChordProgression other) {
+    if (!Objects.equals(total, other.getTotal())) return false;
+    if (!Objects.equals(spacing, other.getSpacing())) return false;
+    if (!Objects.equals(chordNodes.size(), other.getChordNodes().size()))
+      return false;
+    return true;
   }
 
 }

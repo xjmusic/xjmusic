@@ -17,14 +17,15 @@ public interface Config {
   Integer DEFAULT_AWS_S3_RETRY_LIMIT = 10;
   Integer DEFAULT_CHAIN_PREVIEW_LENGTH_MAX = 300;
   Integer DEFAULT_CHORD_MARKOV_ORDER = 3;
+  Integer DEFAULT_DIGEST_CACHE_EXPIRE_MINUTES = 3;
+  Integer DEFAULT_DIGEST_CACHE_REFRESH_MINUTES = 1;
   Integer DEFAULT_ENTITY_CACHE_SECONDS = 60;
+  Integer DEFAULT_GENERATION_COLLISION_ATTEMPTS_MAX = 40;
+  Integer DEFAULT_GENERATION_PATTERN_PHASES_MULTIPLIER = 3;
   Integer DEFAULT_INGEST_ACHE_SECONDS = 60;
   Integer DEFAULT_INGEST_CHORD_SEQUENCE_LENGTH_MAX = 5;
   Integer DEFAULT_INGEST_CHORD_SEQUENCE_PRESERVE_LENGTH_MIN = 2;
   Integer DEFAULT_INGEST_CHORD_SEQUENCE_REDUNDANCY_THRESHOLD = 1;
-  Integer DEFAULT_DIGEST_CACHE_EXPIRE_MINUTES = 3;
-  Integer DEFAULT_DIGEST_CACHE_REFRESH_MINUTES = 1;
-  Integer DEFAULT_GENERATION_SUPERPATTERN_PHASE_COUNT = 7;
   Integer DEFAULT_LIMIT_LINK_READ_SIZE = 20;
   Integer DEFAULT_LOG_ACCESS_ENTITIES_MAX_SIZE = 0;
   Integer DEFAULT_PLATFORM_MESSAGE_READ_PREVIOUS_DAYS = 90;
@@ -657,16 +658,23 @@ public interface Config {
   }
 
   /**
-   @return # of phases to generate during library superpattern generation
-   */
-  static Integer generationSuperpatternPhaseCount() {
-    return getIntOrDefault("generate.superpattern.phase.count", DEFAULT_GENERATION_SUPERPATTERN_PHASE_COUNT);
-  }
-
-  /**
    @return order (# of past states upon which the current state prediction is dependent) of Markov-chain prediction
    */
   static Integer chordMarkovOrder() {
     return getIntOrDefault("chord.markov.order", DEFAULT_CHORD_MARKOV_ORDER);
+  }
+
+  /**
+   @return maximum # of attempts to generate forward-reverse colliding chord progressions
+   */
+  static Integer generationCollisionAttemptsMax() {
+    return getIntOrDefault("generation.collision.attempts.max", DEFAULT_GENERATION_COLLISION_ATTEMPTS_MAX);
+  }
+
+  /**
+   @return multiplier of # of phases per pattern, when generating a pattern
+   */
+  static Integer generationPatternPhasesMultiplier() {
+    return getIntOrDefault("generation.pattern.phases.multiplier", DEFAULT_GENERATION_PATTERN_PHASES_MULTIPLIER);
   }
 }

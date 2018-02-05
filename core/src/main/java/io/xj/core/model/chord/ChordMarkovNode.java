@@ -41,7 +41,7 @@ public class ChordMarkovNode {
   /**
    @return the observations (possible outcomes a.k.a. chord change) of this node.
    */
-  public Collection<ChordNode> getNodeMap() {
+  public Collection<ChordNode> getNodes() {
     return nodeMap.values();
   }
 

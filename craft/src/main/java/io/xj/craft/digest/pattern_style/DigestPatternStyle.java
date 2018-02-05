@@ -1,27 +1,35 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 package io.xj.craft.digest.pattern_style;
 
+import com.google.common.collect.Multiset;
 import com.google.common.math.StatsAccumulator;
 
 import io.xj.craft.digest.Digest;
 
-import java.util.Map;
-
 public interface DigestPatternStyle extends Digest {
 
   /**
-   @return count-of-phases-per-pattern statistics
+   @return main-type pattern count-of-phases-per-pattern statistics
    */
-  StatsAccumulator getMainPhasesPerPattern();
+  StatsAccumulator getMainPhasesPerPatternStats();
 
   /**
-   @return total-per-phase statistics
+   @return main-type pattern histogram of count-of-phases-per-pattern
    */
-  StatsAccumulator getMainPhaseTotal();
+  Multiset<Integer> getMainPhasesPerPatternHistogram();
 
   /**
-   @return count of each phase total (value # of times a phase appeared with a total of N key)
+   @return main-type pattern total-per-phase statistics
    */
-  Map<Integer, Integer> getMainPhaseTotalCount();
+  StatsAccumulator getMainPhaseTotalStats();
 
+  /**
+   @return histogram of main-type pattern phase totals
+   */
+  Multiset<Integer> getMainPhaseTotalHistogram();
+
+  /**
+   @return histogram of main-type pattern chord spacing
+   */
+  Multiset<Integer> getMainChordSpacingHistogram();
 }

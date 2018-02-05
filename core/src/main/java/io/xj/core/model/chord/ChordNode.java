@@ -202,7 +202,7 @@ public class ChordNode {
    @param other to match
    @return true if equivalent
    */
-  boolean isEquivalentTo(ChordNode other) {
+  public boolean isEquivalentTo(ChordNode other) {
     if (!Objects.equals(form, other.getForm())) return false;
     if (Objects.isNull(delta) || Objects.isNull(other.getDelta())) return true;
     return Objects.equals(delta, other.getDelta());

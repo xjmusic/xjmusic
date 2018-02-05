@@ -65,7 +65,7 @@ public class DigestChordMarkovImpl extends DigestImpl implements DigestChordMark
    */
   private static JSONObject toJSONObject(ChordMarkovNode node) {
     JSONArray obsArr = new JSONArray();
-    node.getNodeMap().forEach(observation -> obsArr.put(JSON.objectFrom(observation)));
+    node.getNodes().forEach(observation -> obsArr.put(JSON.objectFrom(observation)));
     JSONObject result = new JSONObject();
     result.put(KEY_OBSERVATIONS, obsArr);
     return result;

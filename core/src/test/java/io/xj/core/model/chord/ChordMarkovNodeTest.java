@@ -33,7 +33,7 @@ public class ChordMarkovNodeTest {
     subject.addObservation(new ChordNode("7|Major"));
     subject.addObservation(new ChordNode("9|Major"));
 
-    assertEquals(2, subject.getNodeMap().size());
+    assertEquals(2, subject.getNodes().size());
   }
 
   @Test
@@ -67,7 +67,7 @@ public class ChordMarkovNodeTest {
     subject.addObservation(new ChordNode("7|Major"));
     subject.addObservation(new ChordNode("9|Major"));
 
-    assertEquals(2, subject.getNodeMap().size());
+    assertEquals(2, subject.getNodes().size());
   }
 
 
