@@ -46,11 +46,11 @@ public class PhaseChordProgression {
    @param rootPitchClass   of initial chord
    @param spacing          # beats spacing in between chords
    */
-  public PhaseChordProgression(ChordProgression chordProgression, BigInteger phaseId, PitchClass rootPitchClass, Integer spacing) {
+  public PhaseChordProgression(ChordProgression chordProgression, BigInteger phaseId, PitchClass rootPitchClass, Double spacing) {
     chords = Lists.newArrayList();
     parentId = phaseId;
     List<ChordNode> units = chordProgression.getChordNodes();
-    int n = 0;
+    double n = 0;
     for (ChordNode unit : units)
       if (Objects.nonNull(unit.getDelta()) && Objects.nonNull(unit.getForm())) {
         chords.add(buildPhaseChord(phaseId, n,
@@ -69,7 +69,7 @@ public class PhaseChordProgression {
    @param form           of chord
    @return new phase chord
    */
-  private static PhaseChord buildPhaseChord(BigInteger phaseId, Integer position, PitchClass rootPitchClass, String form) {
+  private static PhaseChord buildPhaseChord(BigInteger phaseId, Double position, PitchClass rootPitchClass, String form) {
     return new PhaseChord(phaseId, position,
       String.format("%s %s",
         rootPitchClass.toString(AdjSymbol.of(form)),

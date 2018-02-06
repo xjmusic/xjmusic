@@ -56,7 +56,7 @@ public abstract class Event extends Entity {
   }
 
   public Event setPosition(Double position) {
-    this.position = position;
+    this.position = roundPosition(position);
     return this;
   }
 

@@ -12,7 +12,7 @@ import java.util.Objects;
 public class ChordProgression {
   private final List<ChordNode> chordNodes;
   private int total;
-  private int spacing;
+  private Double spacing;
 
   /**
    Construct empty chord progression.
@@ -188,7 +188,7 @@ public class ChordProgression {
 
    @param beats # beats spacing between the chords of this progression.
    */
-  public void setSpacing(int beats) {
+  public void setSpacing(Double beats) {
     this.spacing = beats;
   }
 
@@ -197,7 +197,7 @@ public class ChordProgression {
 
    @return # beats length of spacing between the chords of this progression.
    */
-  public int getSpacing() {
+  public Double getSpacing() {
     return spacing;
   }
 

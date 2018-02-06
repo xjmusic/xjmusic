@@ -43,7 +43,7 @@ public class PhaseEvent extends Event {
 
   @Override
   public PhaseEvent setPosition(Double position) {
-    this.position = position;
+    this.position = roundPosition(position);
     return this;
   }
 

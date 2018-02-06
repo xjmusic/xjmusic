@@ -37,8 +37,8 @@ public class LinkChord extends Chord {
     return this;
   }
 
-  public LinkChord setPosition(Integer position) {
-    this.position = position;
+  public LinkChord setPosition(Double position) {
+    this.position = roundPosition(position);
     return this;
   }
 

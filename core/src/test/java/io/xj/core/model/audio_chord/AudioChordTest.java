@@ -2,12 +2,13 @@
 package io.xj.core.model.audio_chord;
 
 import io.xj.core.exception.BusinessException;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import java.math.BigInteger;
+
+import static org.junit.Assert.assertEquals;
 
 public class AudioChordTest {
 
@@ -18,7 +19,7 @@ public class AudioChordTest {
     new AudioChord()
       .setName("C# minor")
       .setAudioId(BigInteger.valueOf(1235))
-      .setPosition(7)
+      .setPosition(7.0)
       .validate();
   }
 
@@ -29,7 +30,7 @@ public class AudioChordTest {
 
     new AudioChord()
       .setAudioId(BigInteger.valueOf(1235))
-      .setPosition(7)
+      .setPosition(7.0)
       .validate();
   }
 
@@ -40,7 +41,7 @@ public class AudioChordTest {
 
     new AudioChord()
       .setName("C# minor")
-      .setPosition(7)
+      .setPosition(7.0)
       .validate();
   }
 
@@ -55,5 +56,12 @@ public class AudioChordTest {
       .validate();
   }
 
+  /**
+   [#154976066] Architect wants to limit the floating point precision of chord and event position, in order to limit obsession over the position of things.
+   */
+  @Test
+  public void position_rounded() throws Exception {
+    assertEquals(1.25, new AudioChord().setPosition(1.25179957).getPosition(), 0.0000001);
+  }
 
 }

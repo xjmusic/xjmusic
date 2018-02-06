@@ -42,7 +42,7 @@ public class AudioEvent extends Event {
 
   @Override
   public AudioEvent setPosition(Double position) {
-    this.position = position;
+    this.position = roundPosition(position);
     return this;
   }
 

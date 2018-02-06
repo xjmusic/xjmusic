@@ -31,5 +31,5 @@ public interface DigestPatternStyle extends Digest {
   /**
    @return histogram of main-type pattern chord spacing
    */
-  Multiset<Integer> getMainChordSpacingHistogram();
+  Multiset<Double> getMainChordSpacingHistogram();
 }

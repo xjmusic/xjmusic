@@ -20,7 +20,7 @@ public abstract class Chord extends Entity {
   static final String MARKER_NON_CHORD = "---";
 
   protected String name;
-  protected Integer position;
+  protected Double position;
 
   public String getName() {
     return name;
@@ -28,11 +28,11 @@ public abstract class Chord extends Entity {
 
   public abstract Chord setName(String name);
 
-  public Integer getPosition() {
+  public Double getPosition() {
     return position;
   }
 
-  public abstract Chord setPosition(Integer position);
+  public abstract Chord setPosition(Double position);
 
   public abstract BigInteger getParentId();
 

@@ -32,7 +32,7 @@ import java.util.List;
  */
 public class DigestPatternStyleImpl extends DigestImpl implements DigestPatternStyle {
   private final Logger log = LoggerFactory.getLogger(DigestPatternStyleImpl.class);
-  private final Multiset<Integer> mainChordSpacingHistogram = ConcurrentHashMultiset.create();
+  private final Multiset<Double> mainChordSpacingHistogram = ConcurrentHashMultiset.create();
   private final Multiset<Integer> mainPhasesPerPatternHistogram = ConcurrentHashMultiset.create();
   private final Multiset<Integer> mainPhaseTotalHistogram = ConcurrentHashMultiset.create();
   private final StatsAccumulator mainPhasesPerPatternStats = new StatsAccumulator();
@@ -68,7 +68,7 @@ public class DigestPatternStyleImpl extends DigestImpl implements DigestPatternS
         mainPhaseTotalStats.add(total);
         mainPhaseTotalHistogram.add(total);
 
-        int cursor = 0;
+        double cursor = 0;
         List<PhaseChord> chords = Lists.newArrayList(ingest.phaseChords(phase.getId()));
         chords.sort(Chord.byPositionAscending);
         for (Chord chord : chords)
@@ -99,11 +99,11 @@ public class DigestPatternStyleImpl extends DigestImpl implements DigestPatternS
   }
 
   /**
-   Represent a phase total count as a json array
+   Represent a number histogram as a json array
 
    @return json array
    */
-  private JSONArray toJSONArray(Multiset<Integer> histogram) {
+  private <N extends Number> JSONArray toJSONArray(Multiset<N> histogram) {
     JSONArray result = new JSONArray();
     histogram.elementSet().forEach((total) -> {
       JSONObject obj = new JSONObject();
@@ -146,7 +146,7 @@ public class DigestPatternStyleImpl extends DigestImpl implements DigestPatternS
   }
 
   @Override
-  public Multiset<Integer> getMainChordSpacingHistogram() {
+  public Multiset<Double> getMainChordSpacingHistogram() {
     return mainChordSpacingHistogram;
   }
 }

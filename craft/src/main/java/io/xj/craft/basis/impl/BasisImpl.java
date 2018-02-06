@@ -425,7 +425,7 @@ public class BasisImpl implements Basis {
   public Chord chordAt(int position) throws Exception {
     // default to returning a chord based on the link key, if nothing else is found
     Chord foundChord = Chord.of(link().getKey());
-    Integer foundPosition = null;
+    Double foundPosition = null;
 
     // we assume that these chords are in order of position ascending (see: LinkChordDAO.readAllExpectedWork)
     for (LinkChord linkChord : linkChords()) {

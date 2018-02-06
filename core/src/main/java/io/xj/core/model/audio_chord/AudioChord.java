@@ -41,8 +41,8 @@ public class AudioChord extends Chord {
     return audioId;
   }
 
-  public AudioChord setPosition(Integer position) {
-    this.position = position;
+  public AudioChord setPosition(Double position) {
+    this.position = roundPosition(position);
     return this;
   }
 

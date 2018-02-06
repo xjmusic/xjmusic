@@ -75,7 +75,7 @@ public class AudioChordIT {
       "accounts", "1"
     ));
     AudioChord inputData = new AudioChord()
-      .setPosition(4)
+      .setPosition(4.0)
       .setName("G minor 7")
       .setAudioId(BigInteger.valueOf(1));
 
@@ -94,7 +94,7 @@ public class AudioChordIT {
       "accounts", "1"
     ));
     AudioChord inputData = new AudioChord()
-      .setPosition(4)
+      .setPosition(4.0)
       .setName("G minor 7");
 
     testDAO.create(access, inputData);
@@ -107,7 +107,7 @@ public class AudioChordIT {
       "accounts", "1"
     ));
     AudioChord inputData = new AudioChord()
-      .setPosition(4)
+      .setPosition(4.0)
       .setAudioId(BigInteger.valueOf(2));
 
     testDAO.create(access, inputData);
@@ -177,7 +177,7 @@ public class AudioChordIT {
       "accounts", "1"
     ));
     AudioChord inputData = new AudioChord()
-      .setPosition(4)
+      .setPosition(4.0)
       .setName("G minor 7");
 
     testDAO.update(access, BigInteger.valueOf(3), inputData);
@@ -190,7 +190,7 @@ public class AudioChordIT {
       "accounts", "1"
     ));
     AudioChord inputData = new AudioChord()
-      .setPosition(4)
+      .setPosition(4.0)
       .setAudioId(BigInteger.valueOf(2));
 
     testDAO.update(access, BigInteger.valueOf(2), inputData);
@@ -203,7 +203,7 @@ public class AudioChordIT {
       "accounts", "1"
     ));
     AudioChord inputData = new AudioChord()
-      .setPosition(4)
+      .setPosition(4.0)
       .setAudioId(BigInteger.valueOf(57))
       .setName("cannons");
 
@@ -228,14 +228,14 @@ public class AudioChordIT {
     AudioChord inputData = new AudioChord()
       .setAudioId(BigInteger.valueOf(1))
       .setName("POPPYCOCK")
-      .setPosition(4);
+      .setPosition(4.0);
 
     testDAO.update(access, BigInteger.valueOf(1), inputData);
 
     AudioChord result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1));
     assertNotNull(result);
     assertEquals("POPPYCOCK", result.getName());
-    assertEquals((Integer) 4, result.getPosition());
+    assertEquals(Double.valueOf(4), result.getPosition());
     assertEquals(BigInteger.valueOf(1), result.getAudioId());
   }
 

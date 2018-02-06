@@ -139,11 +139,11 @@ public class CraftFoundationInitialIT {
     Iterator<LinkChord> it = resultLinkChords.iterator();
 
     LinkChord chordOne = it.next();
-    assertEquals(Integer.valueOf(0), chordOne.getPosition());
+    assertEquals(Double.valueOf(0), chordOne.getPosition());
     assertEquals("C minor", chordOne.getName());
 
     LinkChord chordTwo = it.next();
-    assertEquals(Integer.valueOf(8), chordTwo.getPosition());
+    assertEquals(Double.valueOf(8), chordTwo.getPosition());
     assertEquals("Db minor", chordTwo.getName());
 
 

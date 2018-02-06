@@ -3,11 +3,14 @@ package io.xj.core.model.phase_chord;
 
 import io.xj.core.exception.BusinessException;
 
+import io.xj.core.model.phase_event.PhaseEvent;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import java.math.BigInteger;
+
+import static org.junit.Assert.assertEquals;
 
 public class PhaseChordTest {
 
@@ -18,7 +21,7 @@ public class PhaseChordTest {
     new PhaseChord()
       .setName("C# minor")
       .setPhaseId(BigInteger.valueOf(1235))
-      .setPosition(7)
+      .setPosition(7.0)
       .validate();
   }
 
@@ -29,7 +32,7 @@ public class PhaseChordTest {
 
     new PhaseChord()
       .setPhaseId(BigInteger.valueOf(1235))
-      .setPosition(7)
+      .setPosition(7.0)
       .validate();
   }
 
@@ -40,7 +43,7 @@ public class PhaseChordTest {
 
     new PhaseChord()
       .setName("C# minor")
-      .setPosition(7)
+      .setPosition(7.0)
       .validate();
   }
 
@@ -53,6 +56,14 @@ public class PhaseChordTest {
       .setName("C# minor")
       .setPhaseId(BigInteger.valueOf(1235))
       .validate();
+  }
+
+  /**
+   [#154976066] Architect wants to limit the floating point precision of chord and chord position, in order to limit obsession over the position of things.
+   */
+  @Test
+  public void position_rounded() throws Exception {
+    assertEquals(1.25, new PhaseChord().setPosition(1.25179957).getPosition(), 0.0000001);
   }
 
 }

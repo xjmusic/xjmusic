@@ -11,6 +11,7 @@ import org.junit.Test;
 import java.math.BigInteger;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 public class JSONTest {
@@ -30,6 +31,7 @@ public class JSONTest {
 
     JSONObject result = JSON.objectFrom(source);
 
+    assertNotNull(result);
     assertEquals(517,result.get("accountId"));
     assertEquals("donuts",result.get("embedKey"));
     assertEquals("gold chain",result.get("name"));

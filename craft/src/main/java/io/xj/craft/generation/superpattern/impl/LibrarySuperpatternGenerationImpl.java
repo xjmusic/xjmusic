@@ -153,7 +153,7 @@ public class LibrarySuperpatternGenerationImpl extends GenerationImpl implements
   private List<ChordProgression> generateChordProgressions() throws Exception {
     List<ChordProgression> result = Lists.newArrayList();
 
-    int spacing = selectMostPopular(digestPatternStyle.getMainChordSpacingHistogram());
+    double spacing = selectMostPopular(digestPatternStyle.getMainChordSpacingHistogram());
     int limit = selectByLottery(digestPatternStyle.getMainPhasesPerPatternHistogram()) * patternPhasesMultiplier;
     for (int n = 0; n < limit; n++) {
       int total = selectByLottery(digestPatternStyle.getMainPhaseTotalHistogram());
@@ -170,7 +170,7 @@ public class LibrarySuperpatternGenerationImpl extends GenerationImpl implements
    @param total   # beats in between chords, for resulting chord progressions
    @return chord progression
    */
-  private ChordProgression generateChordProgression(int total, int spacing) throws BusinessException {
+  private ChordProgression generateChordProgression(Integer total, Double spacing) throws BusinessException {
     int attempt = 0;
     while (true) {
       attempt++;
@@ -273,7 +273,7 @@ public class LibrarySuperpatternGenerationImpl extends GenerationImpl implements
    @param total   # beats in between chords, for resulting chord progressions
    @return chord progression
    */
-  private ChordProgression generateChordProgression(Map<String, ChordMarkovNode> nodeMap, Integer spacing, Integer total) {
+  private ChordProgression generateChordProgression(Map<String, ChordMarkovNode> nodeMap, Double spacing, Integer total) {
     // note the RESULT is different from the BUFFER (only caches previous N chords)
     List<ChordNode> result = Lists.newArrayList();
     List<ChordNode> buf = Lists.newArrayList();
@@ -305,10 +305,10 @@ public class LibrarySuperpatternGenerationImpl extends GenerationImpl implements
    @param histogram to get most popular entry of
    @return most popular entry
    */
-  private Integer selectMostPopular(Multiset<Integer> histogram) {
-    Integer result = null;
+  private <N extends Number> N selectMostPopular(Multiset<N> histogram) {
+    N result = null;
     Integer popularity = null;
-    for (Multiset.Entry<Integer> entry : histogram.entrySet()) {
+    for (Multiset.Entry<N> entry : histogram.entrySet()) {
       if (Objects.isNull(popularity) || entry.getCount() > popularity) {
         popularity = entry.getCount();
         result = entry.getElement();

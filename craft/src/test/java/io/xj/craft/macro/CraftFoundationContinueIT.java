@@ -151,11 +151,11 @@ public class CraftFoundationContinueIT {
     Iterator<LinkChord> it = resultLinkChords.iterator();
 
     LinkChord chordOne = it.next();
-    assertEquals(Integer.valueOf(0), chordOne.getPosition());
+    assertEquals(Double.valueOf(0), chordOne.getPosition());
     assertEquals("A minor", chordOne.getName());
 
     LinkChord chordTwo = it.next();
-    assertEquals(Integer.valueOf(8), chordTwo.getPosition());
+    assertEquals(Double.valueOf(8), chordTwo.getPosition());
     assertEquals("D major", chordTwo.getName());
 
     // choice of macro-type pattern

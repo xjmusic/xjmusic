@@ -18,30 +18,56 @@ import java.sql.Timestamp;
  NOTE: There can only be ONE of any getter/setter (with the same # of input params)
  */
 public abstract class Entity {
-
   public static final String KEY_ONE = "entity";
   public static final String KEY_MANY = "entities";
-
-  // fields
+  private static final double entityPositionDecimalPlaces = 2;
+  private static final double roundPositionMultiplier = Math.pow(10, entityPositionDecimalPlaces);
   protected BigInteger id;
   protected Timestamp createdAt;
   protected Timestamp updatedAt;
 
+  /**
+   Get entity id
+
+   @return entity id
+   */
   public BigInteger getId() {
     return id;
   }
 
+  /**
+   Set entity id
+
+   @param id to set
+   @return entity
+   */
   public Entity setId(BigInteger id) {
     this.id = id;
     return this;
   }
 
+  /**
+   Get parent id
+
+   @return parent id
+   */
   public abstract BigInteger getParentId();
 
+  /**
+   Get created-at timestamp
+
+   @return created-at timestamp
+   */
   public Timestamp getCreatedAt() {
     return createdAt;
   }
 
+  /**
+   Set created at time
+
+   @param createdAt time
+   @return entity
+   */
   public Entity setCreatedAt(String createdAt) {
     try {
       this.createdAt = TimestampUTC.valueOf(createdAt);
@@ -51,18 +77,21 @@ public abstract class Entity {
     return this;
   }
 
-  public void setCreatedAtTimestamp(Timestamp createdAt) {
-    this.createdAt = createdAt;
-  }
+  /**
+   Get updated-at time
 
-  public void setUpdatedAtTimestamp(Timestamp updatedAt) {
-    this.updatedAt = updatedAt;
-  }
-
+   @return updated-at time
+   */
   public Timestamp getUpdatedAt() {
     return updatedAt;
   }
 
+  /**
+   Set updated-at time
+
+   @param updatedAt time
+   @return entity
+   */
   public Entity setUpdatedAt(String updatedAt) {
     try {
       this.updatedAt = TimestampUTC.valueOf(updatedAt);
@@ -70,6 +99,17 @@ public abstract class Entity {
       this.updatedAt = null;
     }
     return this;
+  }
+
+  /**
+   Round a position to N decimal places.
+   [#154976066] Architect wants to limit the floating point precision of chord and event position, in order to limit obsession over the position of things.
+
+   @param position to round
+   @return rounded position
+   */
+  protected static Double roundPosition(Double position) {
+    return Math.floor(position * roundPositionMultiplier) / roundPositionMultiplier;
   }
 
   /**

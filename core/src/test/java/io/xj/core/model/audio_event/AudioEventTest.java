@@ -2,12 +2,13 @@
 package io.xj.core.model.audio_event;
 
 import io.xj.core.exception.BusinessException;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import java.math.BigInteger;
+
+import static org.junit.Assert.assertEquals;
 
 public class AudioEventTest {
 
@@ -129,6 +130,14 @@ public class AudioEventTest {
       .setNote("D6")
       .setTonality(0.6)
       .validate();
+  }
+
+  /**
+   [#154976066] Architect wants to limit the floating point precision of chord and event position, in order to limit obsession over the position of things.
+   */
+  @Test
+  public void position_rounded() throws Exception {
+    assertEquals(1.25, new AudioEvent().setPosition(1.25179957).getPosition(), 0.0000001);
   }
 
 

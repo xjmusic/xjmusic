@@ -55,12 +55,12 @@ public class ChordProgressionTest {
   public void reversed_retainsSpacingAndTotal() throws Exception {
     ChordProgression from = new ChordProgression("2|Major:7|Minor:5|Major:10|Minor");
     from.setTotal(16);
-    from.setSpacing(2);
+    from.setSpacing(2.0);
 
     ChordProgression subject = from.reversed();
 
     assertEquals(16, subject.getTotal());
-    assertEquals(2, subject.getSpacing());
+    assertEquals(Double.valueOf(2), subject.getSpacing());
   }
 
   @Test
@@ -73,26 +73,26 @@ public class ChordProgressionTest {
   @Test
   public void chordSpacing() throws Exception {
     ChordProgression subject = new ChordProgression("2|Major:7|Minor:5|Major:10|Minor");
-    subject.setSpacing(2);
-    assertEquals(2, subject.getSpacing());
+    subject.setSpacing(2.0);
+    assertEquals(Double.valueOf(2.0), subject.getSpacing());
   }
 
   @Test
   public void hasSameTotalSpacingChords() throws Exception {
     ChordProgression subject = new ChordProgression("2|Major:7|Minor:5|Major:10|Minor");
-    subject.setSpacing(2);
+    subject.setSpacing(2.0);
     subject.setTotal(2);
     ChordProgression same = new ChordProgression("5|Major:6|Major:10|Minor:4|Minor");
-    same.setSpacing(2);
+    same.setSpacing(2.0);
     same.setTotal(2);
     ChordProgression diff1 = new ChordProgression("6|Major:10|Minor:4|Minor");
-    diff1.setSpacing(2);
+    diff1.setSpacing(2.0);
     diff1.setTotal(2);
     ChordProgression diff2 = new ChordProgression("5|Major:6|Major:10|Minor:4|Minor");
-    diff2.setSpacing(3);
+    diff2.setSpacing(3.0);
     diff2.setTotal(2);
     ChordProgression diff3 = new ChordProgression("5|Major:6|Major:10|Minor:4|Minor");
-    diff3.setSpacing(2);
+    diff3.setSpacing(2.0);
     diff3.setTotal(4);
 
     assertTrue(subject.hasSameTotalSpacingChords(same));

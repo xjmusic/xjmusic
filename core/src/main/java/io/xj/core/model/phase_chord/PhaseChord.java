@@ -36,9 +36,9 @@ public class PhaseChord extends Chord {
    @param position of chord in phase, starting at 0
    @param name     of chord
    */
-  public PhaseChord(BigInteger phaseId, Integer position, String name) {
+  public PhaseChord(BigInteger phaseId, Double position, String name) {
     this.phaseId = phaseId;
-    this.position = position;
+    this.position = roundPosition(position);
     this.name = name;
   }
 
@@ -60,8 +60,8 @@ public class PhaseChord extends Chord {
     return phaseId;
   }
 
-  public PhaseChord setPosition(Integer position) {
-    this.position = position;
+  public PhaseChord setPosition(Double position) {
+    this.position = roundPosition(position);
     return this;
   }
 

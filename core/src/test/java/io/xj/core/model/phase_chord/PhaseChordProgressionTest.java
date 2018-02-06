@@ -41,14 +41,14 @@ public class PhaseChordProgressionTest {
   @Test
   public void getDescriptor_basic() throws Exception {
     PhaseChordProgression subjectA = new PhaseChordProgression(BigInteger.valueOf(25), ImmutableList.of(
-      new PhaseChord().setPosition(0).setName("D").setPhaseId(BigInteger.valueOf(25)),
-      new PhaseChord().setPosition(2).setName("A").setPhaseId(BigInteger.valueOf(25)),
-      new PhaseChord().setPosition(7).setName("B").setPhaseId(BigInteger.valueOf(25))
+      new PhaseChord().setPosition(0.0).setName("D").setPhaseId(BigInteger.valueOf(25)),
+      new PhaseChord().setPosition(2.0).setName("A").setPhaseId(BigInteger.valueOf(25)),
+      new PhaseChord().setPosition(7.0).setName("B").setPhaseId(BigInteger.valueOf(25))
     ));
     PhaseChordProgression subjectB = new PhaseChordProgression(BigInteger.valueOf(29), ImmutableList.of(
-      new PhaseChord().setPosition(4).setName("F").setPhaseId(BigInteger.valueOf(29)),
-      new PhaseChord().setPosition(6).setName("C").setPhaseId(BigInteger.valueOf(29)),
-      new PhaseChord().setPosition(11).setName("D").setPhaseId(BigInteger.valueOf(29))
+      new PhaseChord().setPosition(4.0).setName("F").setPhaseId(BigInteger.valueOf(29)),
+      new PhaseChord().setPosition(6.0).setName("C").setPhaseId(BigInteger.valueOf(29)),
+      new PhaseChord().setPosition(11.0).setName("D").setPhaseId(BigInteger.valueOf(29))
     ));
 
     // Note: These two end up having identical descriptors, because the chords are positioned identically relative to each other
@@ -59,14 +59,14 @@ public class PhaseChordProgressionTest {
   @Test
   public void getDescriptor_moreComplex() throws Exception {
     PhaseChordProgression subjectA = new PhaseChordProgression(BigInteger.valueOf(25), ImmutableList.of(
-      new PhaseChord().setPosition(0).setName("D7+9").setPhaseId(BigInteger.valueOf(25)),
-      new PhaseChord().setPosition(2).setName("Am7").setPhaseId(BigInteger.valueOf(25)),
-      new PhaseChord().setPosition(7).setName("B7+5").setPhaseId(BigInteger.valueOf(25))
+      new PhaseChord().setPosition(0.0).setName("D7+9").setPhaseId(BigInteger.valueOf(25)),
+      new PhaseChord().setPosition(2.0).setName("Am7").setPhaseId(BigInteger.valueOf(25)),
+      new PhaseChord().setPosition(7.0).setName("B7+5").setPhaseId(BigInteger.valueOf(25))
     ));
     PhaseChordProgression subjectB = new PhaseChordProgression(BigInteger.valueOf(29), ImmutableList.of(
-      new PhaseChord().setPosition(4).setName("F7+9").setPhaseId(BigInteger.valueOf(29)),
-      new PhaseChord().setPosition(6).setName("Cm7").setPhaseId(BigInteger.valueOf(29)),
-      new PhaseChord().setPosition(11).setName("D7+5").setPhaseId(BigInteger.valueOf(29))
+      new PhaseChord().setPosition(4.0).setName("F7+9").setPhaseId(BigInteger.valueOf(29)),
+      new PhaseChord().setPosition(6.0).setName("Cm7").setPhaseId(BigInteger.valueOf(29)),
+      new PhaseChord().setPosition(11.0).setName("D7+5").setPhaseId(BigInteger.valueOf(29))
     ));
 
     // Note: These two end up having identical descriptors, because the chords are positioned identically relative to each other
@@ -77,14 +77,14 @@ public class PhaseChordProgressionTest {
   @Test
   public void getRootChord() throws Exception {
     PhaseChordProgression subjectA = new PhaseChordProgression(BigInteger.valueOf(25), ImmutableList.of(
-      new PhaseChord().setPosition(0).setName("D").setPhaseId(BigInteger.valueOf(25)),
-      new PhaseChord().setPosition(2).setName("A").setPhaseId(BigInteger.valueOf(25)),
-      new PhaseChord().setPosition(7).setName("B").setPhaseId(BigInteger.valueOf(25))
+      new PhaseChord().setPosition(0.0).setName("D").setPhaseId(BigInteger.valueOf(25)),
+      new PhaseChord().setPosition(2.0).setName("A").setPhaseId(BigInteger.valueOf(25)),
+      new PhaseChord().setPosition(7.0).setName("B").setPhaseId(BigInteger.valueOf(25))
     ));
     PhaseChordProgression subjectB = new PhaseChordProgression(BigInteger.valueOf(29), ImmutableList.of(
-      new PhaseChord().setPosition(4).setName("F").setPhaseId(BigInteger.valueOf(29)),
-      new PhaseChord().setPosition(6).setName("C").setPhaseId(BigInteger.valueOf(29)),
-      new PhaseChord().setPosition(11).setName("D").setPhaseId(BigInteger.valueOf(29))
+      new PhaseChord().setPosition(4.0).setName("F").setPhaseId(BigInteger.valueOf(29)),
+      new PhaseChord().setPosition(6.0).setName("C").setPhaseId(BigInteger.valueOf(29)),
+      new PhaseChord().setPosition(11.0).setName("D").setPhaseId(BigInteger.valueOf(29))
     ));
 
     // Note: These two end up having identical descriptors, because the chords are positioned identically relative to each other
@@ -96,29 +96,29 @@ public class PhaseChordProgressionTest {
   public void createFromProgression() throws Exception {
     assertEquivalent(
       ImmutableList.of(
-        new PhaseChord(BigInteger.valueOf(27), 0, "F Major Seventh Add Ninth"),
-        new PhaseChord(BigInteger.valueOf(27), 4, "C Minor Seventh"),
-        new PhaseChord(BigInteger.valueOf(27), 8, "D Major Seventh"),
-        new PhaseChord(BigInteger.valueOf(27), 12, "Bb Minor Flat Nine")
+        new PhaseChord(BigInteger.valueOf(27), 0.0, "F Major Seventh Add Ninth"),
+        new PhaseChord(BigInteger.valueOf(27), 4.0, "C Minor Seventh"),
+        new PhaseChord(BigInteger.valueOf(27), 8.0, "D Major Seventh"),
+        new PhaseChord(BigInteger.valueOf(27), 12.0, "Bb Minor Flat Nine")
       ),
       new PhaseChordProgression(
         new ChordProgression("0|Major Seventh Add Ninth:7|Minor Seventh:9|Major Seventh:5|Minor Flat Nine"),
         BigInteger.valueOf(27),
         PitchClass.F,
-        4
+        4.0
       ).getChords());
 
     assertEquivalent(
       ImmutableList.of(
-        new PhaseChord(BigInteger.valueOf(27), 0, "B Minor Flat Five"),
-        new PhaseChord(BigInteger.valueOf(27), 4, "F# Major Seven"),
-        new PhaseChord(BigInteger.valueOf(27), 8, "F Major Seven Flat Nine")
+        new PhaseChord(BigInteger.valueOf(27), 0.0, "B Minor Flat Five"),
+        new PhaseChord(BigInteger.valueOf(27), 4.0, "F# Major Seven"),
+        new PhaseChord(BigInteger.valueOf(27), 8.0, "F Major Seven Flat Nine")
       ),
       new PhaseChordProgression(
         new ChordProgression("0|Minor Flat Five:7|Major Seven:6|Major Seven Flat Nine"),
         BigInteger.valueOf(27),
         PitchClass.B,
-        4
+        4.0
       ).getChords());
   }
 
