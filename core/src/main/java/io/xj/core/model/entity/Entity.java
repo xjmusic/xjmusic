@@ -2,7 +2,7 @@
 package io.xj.core.model.entity;
 
 import io.xj.core.exception.BusinessException;
-import io.xj.core.timestamp.TimestampUTC;
+import io.xj.core.util.TimestampUTC;
 
 import java.math.BigInteger;
 import java.sql.Timestamp;

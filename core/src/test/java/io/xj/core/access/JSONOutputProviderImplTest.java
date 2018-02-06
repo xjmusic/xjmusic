@@ -8,7 +8,7 @@ import io.xj.core.model.user_auth.UserAuth;
 import io.xj.core.model.user_role.UserRole;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.persistence.redis.RedisDatabaseProvider;
-import io.xj.core.token.TokenGenerator;
+import io.xj.core.access.token.TokenGenerator;
 
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;

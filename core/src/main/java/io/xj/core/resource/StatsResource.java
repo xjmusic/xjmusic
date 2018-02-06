@@ -17,7 +17,15 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 /**
- Get platform stats
+ This resource (along with everything in this `core/resource` package)
+ is imported by all JAX-RS resources (e.g. in the Hub or Worker app),
+ and results in an /stats platform stats route made available in all apps.
+ <p>
+ Due to Jersey JAX-RS implementing an HK2 injection vector,
+ we cannot use Guice injection at the class level.
+ That's why it appears inside this class as a manual inject.getInstance(...for each class...)
+ <p>
+ FUTURE: determine a more testable injection vector
  */
 @Path("stats")
 public class StatsResource {

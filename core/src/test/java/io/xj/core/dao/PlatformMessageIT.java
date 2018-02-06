@@ -8,10 +8,8 @@ import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
 import io.xj.core.model.message.MessageType;
-import io.xj.core.model.phase.PhaseState;
-import io.xj.core.model.phase.PhaseType;
 import io.xj.core.model.platform_message.PlatformMessage;
-import io.xj.core.timestamp.TimestampUTC;
+import io.xj.core.util.TimestampUTC;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Guice;

@@ -12,7 +12,7 @@ import io.xj.core.model.user_auth.UserAuth;
 import io.xj.core.model.user_auth.UserAuthType;
 import io.xj.core.model.user_role.UserRole;
 import io.xj.core.persistence.redis.RedisDatabaseProvider;
-import io.xj.core.token.TokenGenerator;
+import io.xj.core.access.token.TokenGenerator;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
 import com.google.api.services.plus.model.Person;

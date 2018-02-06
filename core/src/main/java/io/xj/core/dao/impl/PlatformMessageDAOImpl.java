@@ -9,7 +9,7 @@ import io.xj.core.model.platform_message.PlatformMessage;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import io.xj.core.persistence.sql.impl.SQLConnection;
-import io.xj.core.timestamp.TimestampUTC;
+import io.xj.core.util.TimestampUTC;
 
 import org.jooq.DSLContext;
 import org.jooq.Field;

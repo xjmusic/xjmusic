@@ -102,7 +102,7 @@ public class SQLConnection {
   }
 
   /**
-   Commit the database transaction.
+   Commit the transaction.
 
    @throws DatabaseException on failure.
    */
@@ -124,7 +124,7 @@ public class SQLConnection {
   }
 
   /**
-   Commit the SQL Database transaction and close the connection.
+   Commit the transaction, and close the connection.
 
    @throws DatabaseException if something goes wrong
    */
@@ -141,7 +141,7 @@ public class SQLConnection {
   }
 
   /**
-   Commit the SQL Database transaction and close the connection. Eats exceptions, to simplify implementation logic since this will be the final action taken.
+   Rollback the transaction, and close the connection.
    */
   private void rollbackAndClose() {
     try {

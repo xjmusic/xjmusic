@@ -1,5 +1,5 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
-package io.xj.core.migration;
+package io.xj.core.persistence.sql.migration;
 
 import io.xj.core.exception.ConfigException;
 import io.xj.core.persistence.sql.SQLDatabaseProvider;

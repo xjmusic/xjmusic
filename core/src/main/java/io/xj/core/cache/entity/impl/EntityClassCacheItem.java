@@ -3,7 +3,7 @@ package io.xj.core.cache.entity.impl;
 
 import io.xj.core.config.Config;
 import io.xj.core.model.entity.Entity;
-import io.xj.core.timestamp.TimestampUTC;
+import io.xj.core.util.TimestampUTC;
 
 import java.sql.Timestamp;
 

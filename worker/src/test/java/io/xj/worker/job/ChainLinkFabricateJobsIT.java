@@ -15,7 +15,7 @@ import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.phase.PhaseState;
 import io.xj.core.model.phase.PhaseType;
 import io.xj.core.model.user_role.UserRoleType;
-import io.xj.core.timestamp.TimestampUTC;
+import io.xj.core.util.TimestampUTC;
 import io.xj.craft.CraftModule;
 import io.xj.dub.DubModule;
 import io.xj.worker.WorkerModule;

@@ -6,6 +6,15 @@ div.play-chain,
 .modal-header,
 .badge {
 
+  &.complete-state {
+    background: darken(#5f6061, 15%);
+    border-color: darken(#c5c6c7, 15%);
+    color: darken(#c5c6c7, 10%);
+    a {
+      color: #c5c6c7;
+    }
+  }
+
   &.planned-state {
     background: darken(#614e61, 15%);
     border-color: darken(#ebd8eb, 15%);
@@ -25,6 +34,7 @@ div.play-chain,
   }
 
   &.crafted-state,
+  &.ready-state,
   &.debug-type {
     background: darken(#4b5261, 15%);
     border-color: darken(#b9bec7, 15%);
@@ -34,7 +44,6 @@ div.play-chain,
     }
   }
 
-  &.fabricate-state,
   &.dubbing-state {
     background: darken(#002061, 15%);
     border-color: darken(#91afeb, 15%);
@@ -44,7 +53,7 @@ div.play-chain,
     }
   }
 
-  &.complete-state,
+  &.fabricate-state,
   &.dubbed-state,
   &.queued-state,
   &.info-type {

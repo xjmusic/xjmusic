@@ -5,7 +5,7 @@ import io.xj.core.config.Config;
 import io.xj.core.config.Exposure;
 import io.xj.core.exception.ConfigException;
 import io.xj.core.exception.NetworkException;
-import io.xj.core.token.TokenGenerator;
+import io.xj.core.access.token.TokenGenerator;
 
 import com.google.inject.Inject;
 

@@ -4,7 +4,7 @@ package io.xj.core.integration;
 import io.xj.core.CoreModule;
 import io.xj.core.exception.ConfigException;
 import io.xj.core.exception.DatabaseException;
-import io.xj.core.migration.MigrationService;
+import io.xj.core.persistence.sql.migration.MigrationService;
 import io.xj.core.persistence.redis.RedisDatabaseProvider;
 import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import io.xj.core.persistence.sql.impl.SQLConnection;

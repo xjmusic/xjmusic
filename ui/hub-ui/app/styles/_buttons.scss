@@ -11,6 +11,13 @@
       opacity: 1.0;
     }
   }
+
+  &.btn-safety {
+    opacity: 0.3;
+    &:hover, &:active {
+      opacity: 1;
+    }
+  }
 }
 
 .action-destroy {
@@ -21,3 +28,4 @@
     opacity: 1.0;
   }
 }
+

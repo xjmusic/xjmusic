@@ -3,7 +3,7 @@ package io.xj.craft.ingest.cache.impl;
 
 import io.xj.core.config.Config;
 import io.xj.craft.ingest.Ingest;
-import io.xj.core.timestamp.TimestampUTC;
+import io.xj.core.util.TimestampUTC;
 
 import java.sql.Timestamp;
 
