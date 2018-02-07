@@ -8,8 +8,8 @@ import com.google.inject.assistedinject.Assisted;
 
 import io.xj.core.config.Config;
 import io.xj.core.model.chord.Chord;
-import io.xj.core.model.chord.ChordMarkovNode;
-import io.xj.core.model.chord.ChordNode;
+import io.xj.craft.chord.ChordMarkovNode;
+import io.xj.craft.chord.ChordNode;
 import io.xj.core.transport.JSON;
 import io.xj.craft.digest.DigestType;
 import io.xj.craft.digest.chord_markov.DigestChordMarkov;
@@ -58,20 +58,6 @@ public class DigestChordMarkovImpl extends DigestImpl implements DigestChordMark
   }
 
   /**
-   Express a single chord markov node as a JSON object, for digest reporting purposes
-
-   @param node to express
-   @return JSON object
-   */
-  private static JSONObject toJSONObject(ChordMarkovNode node) {
-    JSONArray obsArr = new JSONArray();
-    node.getNodes().forEach(observation -> obsArr.put(JSON.objectFrom(observation)));
-    JSONObject result = new JSONObject();
-    result.put(KEY_OBSERVATIONS, obsArr);
-    return result;
-  }
-
-  /**
    Get only the chords of a particular parent (probably phase chords in a parent phase)
 
    @param chords   to search for chords
@@ -84,41 +70,6 @@ public class DigestChordMarkovImpl extends DigestImpl implements DigestChordMark
       if (Objects.equals(parentId, chord.getParentId())) result.add(chord);
     });
     return result;
-  }
-
-  @Override
-  public JSONObject toJSONObject() {
-    JSONObject result = new JSONObject();
-    result.put(KEY_OBSERVATIONS_FORWARD, toJSONObject(forwardNodeMap));
-    result.put(KEY_OBSERVATIONS_REVERSE, toJSONObject(reverseNodeMap));
-    return result;
-  }
-
-  /**
-   Represent a node map as JSON object for reporting
-
-   @param nodeMap to represent
-   @return json object
-   */
-  private JSONObject toJSONObject(Map<String, ChordMarkovNode> nodeMap) {
-    JSONObject result = new JSONObject();
-    nodeMap.forEach((key, markovNode) -> result.put(key, toJSONObject(markovNode)));
-    return result;
-  }
-
-  @Override
-  public Map<String, ChordMarkovNode> getForwardNodeMap() {
-    return forwardNodeMap;
-  }
-
-  @Override
-  public Map<String, ChordMarkovNode> getReverseNodeMap() {
-    return reverseNodeMap;
-  }
-
-  @Override
-  public Integer getMarkovOrder() {
-    return markovOrder;
   }
 
   /**
@@ -156,7 +107,7 @@ public class DigestChordMarkovImpl extends DigestImpl implements DigestChordMark
    @param key           relative to which each chord's root will be computed in semitones modulo
    @param orderedChords to compute all possible markov nodes of -- THE ORDER IS IMPORTANT: any node's precedent state is a snapshot of the nodes preceding it.
    */
-  private void computeNodes(Map<String, ChordMarkovNode> nodeMap, Key key, List<Chord> orderedChords) {
+  private void computeNodes(Map<String, ChordMarkovNode> markovNodeMap, Key key, List<Chord> orderedChords) {
     if (orderedChords.isEmpty()) return;
 
     // keep a buffer of the preceding N chords
@@ -172,7 +123,7 @@ public class DigestChordMarkovImpl extends DigestImpl implements DigestChordMark
       ChordNode chordNode = new ChordNode(key, chord);
 
       // all the observation to all subsets
-      addObservationToAllSubsets(nodeMap, buffer, chordNode);
+      addObservationToAllSubsets(markovNodeMap, buffer, chordNode);
 
       // add the just-added chord to the buffer; if buffer is longer than the markov order, shift items from the top until it's the right size
       buffer.add(chordNode);
@@ -180,18 +131,18 @@ public class DigestChordMarkovImpl extends DigestImpl implements DigestChordMark
     }
 
     // "end of phase" marker (null bookend)
-    addObservationToAllSubsets(nodeMap, buffer, new ChordNode());
+    addObservationToAllSubsets(markovNodeMap, buffer, new ChordNode());
   }
 
 
   /**
    Add an observation to all subsets of a precedent state (a 3-order chain requires 3 passes, the 1-order pass, 2-order pass, and 3-order pass)
    */
-  private void addObservationToAllSubsets(Map<String, ChordMarkovNode> nodeMap, List<ChordNode> fromBuffer, ChordNode observation) {
+  private void addObservationToAllSubsets(Map<String, ChordMarkovNode> markovNodeMap, List<ChordNode> fromBuffer, ChordNode observation) {
     List<ChordNode> buffer = Lists.newArrayList(fromBuffer);
     boolean more = !buffer.isEmpty();
     while (more) {
-      addObservation(nodeMap, buffer, observation);
+      addObservation(markovNodeMap, buffer, observation);
       buffer.remove(0);
       more = !buffer.isEmpty();
     }
@@ -204,12 +155,65 @@ public class DigestChordMarkovImpl extends DigestImpl implements DigestChordMark
    @param precedentState the chord progression preceding this observation
    @param observation    observation to add.
    */
-  private void addObservation(Map<String, ChordMarkovNode> nodeMap, List<ChordNode> precedentState, ChordNode observation) {
+  private void addObservation(Map<String, ChordMarkovNode> markovNodeMap, List<ChordNode> precedentState, ChordNode observation) {
     String key = new ChordMarkovNode(precedentState).precedentStateDescriptor();
-    if (!nodeMap.containsKey(key))
-      nodeMap.put(key, new ChordMarkovNode(precedentState));
+    if (!markovNodeMap.containsKey(key))
+      markovNodeMap.put(key, new ChordMarkovNode(precedentState));
 
-    nodeMap.get(key).addObservation(observation);
+    markovNodeMap.get(key).addObservation(observation);
+  }
+
+
+  /**
+   Express a single chord markov node as a JSON object, for digest reporting purposes
+
+   @param markovNode to express
+   @return JSON object
+   */
+  private static JSONObject toJSONObject(ChordMarkovNode markovNode) {
+    JSONArray obsArr = new JSONArray();
+    markovNode.getNodes().forEach(node -> obsArr.put(JSON.objectFrom(node)));
+    JSONObject result = new JSONObject();
+    result.put(KEY_OBSERVATIONS, obsArr);
+    result.put(KEY_PRECEDENT_STATE, markovNode.precedentStateDescriptor());
+    return result;
+  }
+
+  /**
+   Represent a node map as JSON object for reporting
+
+   @param markovNodeMap to represent
+   @return json object
+   */
+  private JSONArray toJSONArray(Map<String, ChordMarkovNode> markovNodeMap) {
+    JSONArray result = new JSONArray();
+    List<ChordMarkovNode> nodes = Lists.newArrayList(markovNodeMap.values());
+    nodes.sort(ChordMarkovNode.byPopularityDescending);
+    nodes.forEach(markovNode -> result.put(toJSONObject(markovNode)));
+    return result;
+  }
+
+  @Override
+  public JSONObject toJSONObject() {
+    JSONObject result = new JSONObject();
+    result.put(KEY_OBSERVATIONS_FORWARD, toJSONArray(forwardNodeMap));
+    result.put(KEY_OBSERVATIONS_REVERSE, toJSONArray(reverseNodeMap));
+    return result;
+  }
+
+  @Override
+  public Map<String, ChordMarkovNode> getForwardNodeMap() {
+    return forwardNodeMap;
+  }
+
+  @Override
+  public Map<String, ChordMarkovNode> getReverseNodeMap() {
+    return reverseNodeMap;
+  }
+
+  @Override
+  public Integer getMarkovOrder() {
+    return markovOrder;
   }
 
 }

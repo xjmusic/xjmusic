@@ -1,9 +1,12 @@
-package io.xj.core.model.phase_chord;// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+package io.xj.craft.chord;// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+
+import io.xj.core.model.phase_chord.PhaseChord;
+import io.xj.craft.chord.ChordProgression;
+import io.xj.craft.chord.PhaseChordProgression;
+import io.xj.music.PitchClass;
 
 import com.google.common.collect.ImmutableList;
 
-import io.xj.core.model.chord.ChordProgression;
-import io.xj.music.PitchClass;
 import org.junit.Test;
 
 import java.math.BigInteger;
@@ -39,7 +42,7 @@ public class PhaseChordProgressionTest {
   }
 
   @Test
-  public void getDescriptor_basic() throws Exception {
+  public void getDescriptor_basic() {
     PhaseChordProgression subjectA = new PhaseChordProgression(BigInteger.valueOf(25), ImmutableList.of(
       new PhaseChord().setPosition(0.0).setName("D").setPhaseId(BigInteger.valueOf(25)),
       new PhaseChord().setPosition(2.0).setName("A").setPhaseId(BigInteger.valueOf(25)),
@@ -57,7 +60,7 @@ public class PhaseChordProgressionTest {
   }
 
   @Test
-  public void getDescriptor_moreComplex() throws Exception {
+  public void getDescriptor_moreComplex() {
     PhaseChordProgression subjectA = new PhaseChordProgression(BigInteger.valueOf(25), ImmutableList.of(
       new PhaseChord().setPosition(0.0).setName("D7+9").setPhaseId(BigInteger.valueOf(25)),
       new PhaseChord().setPosition(2.0).setName("Am7").setPhaseId(BigInteger.valueOf(25)),
@@ -75,7 +78,7 @@ public class PhaseChordProgressionTest {
   }
 
   @Test
-  public void getRootChord() throws Exception {
+  public void getRootChord() {
     PhaseChordProgression subjectA = new PhaseChordProgression(BigInteger.valueOf(25), ImmutableList.of(
       new PhaseChord().setPosition(0.0).setName("D").setPhaseId(BigInteger.valueOf(25)),
       new PhaseChord().setPosition(2.0).setName("A").setPhaseId(BigInteger.valueOf(25)),
@@ -93,7 +96,7 @@ public class PhaseChordProgressionTest {
   }
 
   @Test
-  public void createFromProgression() throws Exception {
+  public void createFromProgression() {
     assertEquivalent(
       ImmutableList.of(
         new PhaseChord(BigInteger.valueOf(27), 0.0, "F Major Seventh Add Ninth"),

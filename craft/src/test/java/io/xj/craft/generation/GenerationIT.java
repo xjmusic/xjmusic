@@ -1,10 +1,6 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.craft.generation;
 
-import com.google.common.collect.ImmutableList;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.PhaseDAO;
@@ -20,6 +16,11 @@ import io.xj.core.model.phase.PhaseType;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.craft.CraftModule;
 import io.xj.craft.ingest.IngestFactory;
+
+import com.google.common.collect.ImmutableList;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,7 +31,7 @@ import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.util.Collection;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 @RunWith(MockitoJUnitRunner.class)
 public class GenerationIT {
@@ -152,7 +153,7 @@ public class GenerationIT {
     generationFactory.librarySuperpattern(target, ingestFactory.evaluate(Access.internal(), ImmutableList.of(new Library(10000001))));
 
     Collection<Phase> generatedPhases = injector.getInstance(PhaseDAO.class).readAll(Access.internal(), ImmutableList.of(BigInteger.valueOf(2702)));
-    // TODO make assertions about generation from markov digest -- assertEquals(0, generatedPhases.size());
+    assertFalse(generatedPhases.isEmpty());
     // FUTURE assert more of the actual phase chords after generation of library superpattern in integration testing
   }
 

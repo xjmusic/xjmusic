@@ -4,7 +4,6 @@ package io.xj.core.model.chord;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.model.entity.Entity;
 
-import java.math.BigInteger;
 import java.util.Comparator;
 import java.util.Objects;
 
@@ -15,10 +14,19 @@ import java.util.Objects;
 public abstract class Chord extends Entity {
   public static final String KEY_ONE = "chord";
   public static final String KEY_MANY = "chords";
-  static final String SEPARATOR_DESCRIPTOR = ":";
-  static final String SEPARATOR_DESCRIPTOR_UNIT = "|";
-  static final String MARKER_NON_CHORD = "---";
-
+  public static final String SEPARATOR_DESCRIPTOR = ":";
+  public static final String SEPARATOR_DESCRIPTOR_UNIT = "|";
+  public static final String MARKER_NON_CHORD = "---";
+  public static final Comparator<? super Chord> byPositionAscending = (Comparator<? super Chord>) (o1, o2) -> {
+    if (o1.getPosition() > o2.getPosition()) return 1;
+    if (o1.getPosition() < o2.getPosition()) return -1;
+    return 0;
+  };
+  public static final Comparator<? super Chord> byPositionDescending = (Comparator<? super Chord>) (o1, o2) -> {
+    if (o1.getPosition() > o2.getPosition()) return -1;
+    if (o1.getPosition() < o2.getPosition()) return 1;
+    return 0;
+  };
   protected String name;
   protected Double position;
 
@@ -33,8 +41,6 @@ public abstract class Chord extends Entity {
   }
 
   public abstract Chord setPosition(Double position);
-
-  public abstract BigInteger getParentId();
 
   @Override
   public void validate() throws BusinessException {
@@ -65,23 +71,5 @@ public abstract class Chord extends Entity {
   public String toString() {
     return name + "@" + position;
   }
-
-  /**
-   For sorting chords by position ascending
-   */
-  public static final Comparator<? super Chord> byPositionAscending = (Comparator<? super Chord>) (o1, o2) -> {
-    if (o1.getPosition() > o2.getPosition()) return 1;
-    if (o1.getPosition() < o2.getPosition()) return -1;
-    return 0;
-  };
-
-  /**
-   For sorting chords by position descending
-   */
-  public static final Comparator<? super Chord> byPositionDescending = (Comparator<? super Chord>) (o1, o2) -> {
-    if (o1.getPosition() > o2.getPosition()) return -1;
-    if (o1.getPosition() < o2.getPosition()) return 1;
-    return 0;
-  };
 
 }

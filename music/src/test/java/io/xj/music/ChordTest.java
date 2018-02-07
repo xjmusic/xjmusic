@@ -1,10 +1,9 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.music;
 
-import io.xj.music.schema.IntervalPitchGroup;
-
 import com.google.common.collect.Maps;
 
+import io.xj.music.schema.IntervalPitchGroup;
 import org.junit.Test;
 import org.yaml.snakeyaml.Yaml;
 
@@ -105,6 +104,60 @@ public class ChordTest {
 
     assertEquals("C m nondominant -5 +6 +7 +9", chord.getFullDescription());
     assertEquals("Eb m nondominant -5 +6 +7 +9", chord.transpose(3).getFullDescription());
+  }
+
+  @Test
+  public void TestTranspose_officialDescription() {
+    Chord chord = Chord.of("Cm nondominant -5 +6 +7 +9");
+
+    assertEquals("C Basic NonDominant Minor Triad Omit Fifth Add Sixth Add Seventh Add Ninth", chord.officialDescription());
+  }
+
+  @Test
+  public void getForms_setForms() {
+    Chord source = Chord.of("Cm nondominant -5 +6 +7 +9");
+    Chord result = new Chord();
+    result.setForms(source.getForms());
+
+    assertEquals(7, result.getForms().size());
+  }
+
+  @Test
+  public void formString() {
+    Chord chord = Chord.of("Cm nondominant -5 +6 +7 +9");
+
+    assertEquals("Basic NonDominant Minor Triad Omit Fifth Add Sixth Add Seventh Add Ninth", chord.formString());
+  }
+
+  /**
+   [#154985948] Architect wants to determine tonal similarity (% of shared pitch classes) between two Chords, in order to perform fuzzy matching operations.
+   */
+  @Test
+  public void similarity() {
+    assertEquals(1.0000,
+      Chord.of("Cm nondominant -5 +6 +7 +9").similarity(
+        Chord.of("Cm nondominant -5 +6 +7 +9")), 0.001);
+
+    assertEquals(0.2499,
+      Chord.of("Cm nondominant -5 +6 +7 +9").similarity(
+        Chord.of("Gm nondominant -5 +6 +7 +9")), 0.001);
+
+    assertEquals(0.3125,
+      Chord.of("Cm nondominant -5 +6 +7 +9").similarity(
+        Chord.of("D7 minor")), 0.001);
+
+    assertEquals(0.1042,
+      Chord.of("Cm nondominant -5 +6 +7 +9").similarity(
+        Chord.of("C major")), 0.001);
+
+    assertEquals(0.6250,
+      Chord.of("C minor 7").similarity(
+        Chord.of("C major 7")), 0.001);
+
+    assertEquals(0.7792,
+      Chord.of("C minor 7").similarity(
+        Chord.of("C major m7")), 0.001);
+
   }
 
 }

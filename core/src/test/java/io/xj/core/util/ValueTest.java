@@ -1,15 +1,13 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.util;// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 
 import org.junit.Test;
 
 import java.math.BigInteger;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 public class ValueTest {
   @Test
@@ -31,6 +29,12 @@ public class ValueTest {
     assertEquals(BigInteger.valueOf(23), Value.inc(BigInteger.valueOf(24), -1));
     assertEquals(BigInteger.valueOf(9543), Value.inc(BigInteger.valueOf(9000), 543));
     assertEquals(BigInteger.valueOf(742), Value.inc(BigInteger.valueOf(1000), -258));
+  }
+
+  @Test
+  public void dividedBy() throws Exception {
+    assertEquals(ImmutableSet.of(2, 8, 23, 31, 40), Value.dividedBy(2.0, ImmutableSet.of(4, 16, 62, 80, 46)));
+    assertEquals(ImmutableSet.of(1, 6, 18, 24, 32), Value.dividedBy(2.5, ImmutableSet.of(4, 16, 62, 80, 46)));
   }
 
 }

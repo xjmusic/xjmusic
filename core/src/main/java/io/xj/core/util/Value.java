@@ -1,9 +1,11 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.util;
 
+import com.google.common.collect.Sets;
+
 import java.math.BigInteger;
-import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 public interface Value {
 
@@ -46,4 +48,16 @@ public interface Value {
       return s2;
   }
 
+  /**
+   Divide a set of integers by a double and return the divided set
+
+   @param divisor   to divide by
+   @param originals to divide
+   @return divided originals
+   */
+  static Set<Integer> dividedBy(Double divisor, Set<Integer> originals) {
+    Set<Integer> result = Sets.newHashSet();
+    originals.forEach(original -> result.add((int) Math.floor(original / divisor)));
+    return result;
+  }
 }

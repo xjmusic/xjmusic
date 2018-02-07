@@ -1,7 +1,6 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.craft.digest.cache;
 
-import io.xj.craft.digest.Digest;
 import io.xj.craft.digest.chord_markov.DigestChordMarkov;
 import io.xj.craft.digest.chord_progression.DigestChordProgression;
 import io.xj.craft.digest.hash.DigestHash;
@@ -22,9 +21,8 @@ public interface DigestCacheProvider {
 
    @param ingest to digest
    @return chord progression digest of ingest
-   @throws Exception on failure to of target entities
    */
-  DigestChordProgression chordProgression(Ingest ingest) throws Exception;
+  DigestChordProgression chordProgression(Ingest ingest);
 
   /**
    Digest chord Markov chords of any ingest of entities.
@@ -32,9 +30,8 @@ public interface DigestCacheProvider {
 
    @param ingest to digest
    @return chord Markov digest of ingest
-   @throws Exception on failure to of target entities
    */
-  DigestChordMarkov chordMarkov(Ingest ingest) throws Exception;
+  DigestChordMarkov chordMarkov(Ingest ingest);
 
   /**
    Digest hash of any ingest of entities.
@@ -42,9 +39,8 @@ public interface DigestCacheProvider {
 
    @param ingest to digest
    @return hash digest of ingest
-   @throws Exception on failure to of target entities
    */
-  DigestHash hash(Ingest ingest) throws Exception;
+  DigestHash hash(Ingest ingest);
 
   /**
    Digest memes of any ingest of entities.
@@ -52,9 +48,8 @@ public interface DigestCacheProvider {
 
    @param ingest to digest
    @return meme digest of ingest
-   @throws Exception on failure to of target entities
    */
-  DigestMeme meme(Ingest ingest) throws Exception;
+  DigestMeme meme(Ingest ingest);
 
   /**
    Digest pattern style of any ingest of entities.
@@ -62,8 +57,7 @@ public interface DigestCacheProvider {
 
    @param ingest to digest
    @return pattern style digest of ingest
-   @throws Exception on failure to of target entities
    */
-  DigestPatternStyle patternStyle(Ingest ingest) throws Exception;
+  DigestPatternStyle patternStyle(Ingest ingest);
 
 }

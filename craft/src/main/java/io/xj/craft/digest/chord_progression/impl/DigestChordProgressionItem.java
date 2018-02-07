@@ -1,8 +1,8 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 package io.xj.craft.digest.chord_progression.impl;
 
-import io.xj.core.model.chord.ChordProgression;
-import io.xj.core.model.phase_chord.PhaseChordProgression;
+import io.xj.craft.chord.ChordProgression;
+import io.xj.craft.chord.PhaseChordProgression;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;

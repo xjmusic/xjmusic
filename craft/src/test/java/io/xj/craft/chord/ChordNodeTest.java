@@ -1,6 +1,7 @@
-package io.xj.core.model.chord;// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+package io.xj.craft.chord;// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 
 import io.xj.core.model.phase_chord.PhaseChord;
+import io.xj.craft.chord.ChordNode;
 
 import org.junit.Test;
 

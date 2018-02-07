@@ -167,7 +167,6 @@ public class DigestPatternStyleIT {
     assertEquals(4.0, result.getMainPhaseTotalStats().count(), 0.1);
     assertEquals(2, result.getMainPhaseTotalHistogram().count(16));
     assertEquals(2, result.getMainPhaseTotalHistogram().count(32));
-    // TODO integration test digest pattern style chord spacing methods
   }
 
   @Test
@@ -189,7 +188,6 @@ public class DigestPatternStyleIT {
     assertNotNull(result.getJSONObject(Digest.KEY_PATTERN_STYLE).getJSONObject(Digest.KEY_MAIN_PHASE_TOTAL).get(Digest.KEY_STAT_MIN));
     assertNotNull(result.getJSONObject(Digest.KEY_PATTERN_STYLE).getJSONObject(Digest.KEY_MAIN_PHASE_TOTAL).get(Digest.KEY_STAT_MEAN));
     assertEquals(2, result.getJSONObject(Digest.KEY_PATTERN_STYLE).getJSONObject(Digest.KEY_MAIN_PHASE_TOTAL).getJSONArray(Digest.KEY_HISTOGRAM).length());
-    // TODO integration test digest pattern style chord spacing json output
   }
 
 }

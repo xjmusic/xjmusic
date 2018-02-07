@@ -1,10 +1,11 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
-package io.xj.core.model.chord;
+package io.xj.craft.chord;
 
-import com.google.common.base.Splitter;
-
+import io.xj.core.model.chord.Chord;
 import io.xj.music.Key;
 import io.xj.music.PitchClass;
+
+import com.google.common.base.Splitter;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -12,12 +13,13 @@ import java.util.Objects;
 import java.util.regex.Pattern;
 
 public class ChordNode {
+  private static final PitchClass defaultChordRootPitchClass = PitchClass.C;
   private static final int MAX_SEMITONES = 12;
   private static final String NOTHING = "";
   private static final Pattern NON_CHORD_DESCRIPTOR = Pattern.compile("[^a-zA-Z0-9+\\-#♭ ]");
   private final String form;
-  private Long weight;
   private final Integer delta; // NOTE: delta is null when this is the first unit of a sequence.
+  private Long weight;
 
   /**
    Construct a "null" chord descriptor unit with NO chord, and NO delta.
@@ -91,47 +93,6 @@ public class ChordNode {
   }
 
   /**
-   Compute Δ semitones modulo n from root chord to add chord
-
-   @param key   relative to which each chord's root will be computed in semitones modulo
-   @param chord compute Δ to
-   @return Δ semitones modulo n (where n = max # of semitones, probably 12)
-   */
-  private Integer deltaSemitonesModulo(Key key, Chord chord) {
-    return deltaSemitonesModulo(key.getRootPitchClass(), chord.toMusical().getRootPitchClass());
-  }
-
-  /**
-   Compute Δ semitones modulo n from root chord to add chord
-
-   @param addChord compute Δ to
-   @return Δ semitones modulo n (where n = max # of semitones, probably 12)
-   */
-  private int deltaSemitonesModulo(Chord prevChord, Chord addChord) {
-    return deltaSemitonesModulo(prevChord.toMusical().getRootPitchClass(), addChord.toMusical().getRootPitchClass());
-  }
-
-  /**
-   Compute Δ semitones modulo n from root chord to add chord
-
-   @param next compute Δ to
-   @return Δ semitones modulo n (where n = max # of semitones, probably 12)
-   */
-  private int deltaSemitonesModulo(PitchClass prev, PitchClass next) {
-    return Math.floorMod(prev.delta(next), MAX_SEMITONES);
-  }
-
-  /**
-   Compute descriptor.
-
-   @param chord to compute descriptor of
-   @return descriptor
-   */
-  private String formOf(Chord chord) {
-    return formOf(chord.toMusical().colloquialFormName());
-  }
-
-  /**
    Compute descriptor.
 
    @param form to sanitize descriptor of
@@ -143,7 +104,71 @@ public class ChordNode {
   }
 
   /**
+   Compute Δ semitones modulo n from root chord to add chord
+
+   @param key   relative to which each chord's root will be computed in semitones modulo
+   @param chord compute Δ to
+   @return Δ semitones modulo n (where n = max # of semitones, probably 12)
+   */
+  private static Integer deltaSemitonesModulo(Key key, Chord chord) {
+    return deltaSemitonesModulo(key.getRootPitchClass(), chord.toMusical().getRootPitchClass());
+  }
+
+  /**
+   Compute Δ semitones modulo n from root chord to add chord
+
+   @param addChord compute Δ to
+   @return Δ semitones modulo n (where n = max # of semitones, probably 12)
+   */
+  private static int deltaSemitonesModulo(Chord prevChord, Chord addChord) {
+    return deltaSemitonesModulo(prevChord.toMusical().getRootPitchClass(), addChord.toMusical().getRootPitchClass());
+  }
+
+  /**
+   Compute Δ semitones modulo n from root chord to add chord
+
+   @param next compute Δ to
+   @return Δ semitones modulo n (where n = max # of semitones, probably 12)
+   */
+  private static int deltaSemitonesModulo(PitchClass prev, PitchClass next) {
+    return Math.floorMod(prev.delta(next), MAX_SEMITONES);
+  }
+
+  /**
+   Similarity between the chord of two nodes
+
+   @param other chord node
+   @return similarity ratio from 0 to 1
+   */
+  public Double similarity(ChordNode other) {
+    return io.xj.music.Chord.of(String.format("%s %s", defaultChordRootPitchClass.step(defaultZero(getDelta())).getPitchClass(), getForm()))
+      .similarity(io.xj.music.Chord.of(String.format("%s %s", defaultChordRootPitchClass.step(defaultZero(other.getDelta())).getPitchClass(), other.getForm())));
+  }
+
+  /**
+   Return the original value, or (if null) return zero
+
+   @param value to check for null and return, or return zero
+   @return original value or zero
+   */
+  private static Integer defaultZero(@Nullable Integer value) {
+    if (Objects.nonNull(value)) return value;
+    else return 0;
+  }
+
+  /**
+   Compute descriptor.
+
+   @param chord to compute descriptor of
+   @return descriptor
+   */
+  private static String formOf(Chord chord) {
+    return formOf(chord.toMusical().colloquialFormName());
+  }
+
+  /**
    Get the weight of this node
+
    @return weight
    */
   public Long getWeight() {

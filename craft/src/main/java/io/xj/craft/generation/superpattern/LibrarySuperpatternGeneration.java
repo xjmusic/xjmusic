@@ -1,7 +1,7 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
 package io.xj.craft.generation.superpattern;
 
-import io.xj.core.model.chord.ChordNode;
+import io.xj.craft.chord.ChordNode;
 import io.xj.craft.generation.Generation;
 import io.xj.core.model.pattern.Pattern;
 import io.xj.core.model.phase.Phase;

@@ -62,17 +62,17 @@
               <div class="tab-content" id="markovObservationsContent">
                 <div class="tab-pane fade show active" id="forward"
                      role="tabpanel" aria-labelledby="forward-tab">
-                  {{#each-in result.observationsForward as |state observation|}}
-                    {{chord-progression state}}
-                    {{chord-markov-observations observation.observations}}
-                  {{/each-in}}
+                  {{#each result.observationsForward as |node|}}
+                    {{chord-progression node.state}}
+                    {{chord-markov-observations node.observations}}
+                  {{/each}}
                 </div>
                 <div class="tab-pane fade" id="reverse" role="tabpanel"
                      aria-labelledby="reverse-tab">
-                  {{#each-in result.observationsReverse as |state observation|}}
-                    {{chord-progression state}}
-                    {{chord-markov-observations observation.observations}}
-                  {{/each-in}}
+                  {{#each result.observationsReverse as |node|}}
+                    {{chord-progression node.state}}
+                    {{chord-markov-observations node.observations}}
+                  {{/each}}
                 </div>
               </div>
             </div>

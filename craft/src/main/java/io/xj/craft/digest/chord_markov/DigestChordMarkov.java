@@ -2,7 +2,7 @@
 package io.xj.craft.digest.chord_markov;
 
 import io.xj.craft.digest.Digest;
-import io.xj.core.model.chord.ChordMarkovNode;
+import io.xj.craft.chord.ChordMarkovNode;
 
 import java.util.Map;
 

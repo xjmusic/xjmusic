@@ -20,8 +20,8 @@ public interface Config {
   Integer DEFAULT_DIGEST_CACHE_EXPIRE_MINUTES = 3;
   Integer DEFAULT_DIGEST_CACHE_REFRESH_MINUTES = 1;
   Integer DEFAULT_ENTITY_CACHE_SECONDS = 60;
-  Integer DEFAULT_GENERATION_COLLISION_ATTEMPTS_MAX = 40;
   Integer DEFAULT_GENERATION_PATTERN_PHASES_MULTIPLIER = 3;
+  Integer DEFAULT_GENERATION_SPLICE_SAFETY_MARGIN = 1;
   Integer DEFAULT_INGEST_ACHE_SECONDS = 60;
   Integer DEFAULT_INGEST_CHORD_SEQUENCE_LENGTH_MAX = 5;
   Integer DEFAULT_INGEST_CHORD_SEQUENCE_PRESERVE_LENGTH_MIN = 2;
@@ -665,16 +665,16 @@ public interface Config {
   }
 
   /**
-   @return maximum # of attempts to generate forward-reverse colliding chord progressions
-   */
-  static Integer generationCollisionAttemptsMax() {
-    return getIntOrDefault("generation.collision.attempts.max", DEFAULT_GENERATION_COLLISION_ATTEMPTS_MAX);
-  }
-
-  /**
    @return multiplier of # of phases per pattern, when generating a pattern
    */
   static Integer generationPatternPhasesMultiplier() {
     return getIntOrDefault("generation.pattern.phases.multiplier", DEFAULT_GENERATION_PATTERN_PHASES_MULTIPLIER);
+  }
+
+  /**
+   @return safety margin (# beats) at beginning and end of phase during splice
+   */
+  static Integer generationSpliceSafetyMargin() {
+    return getIntOrDefault("generation.splice.safety.margin", DEFAULT_GENERATION_SPLICE_SAFETY_MARGIN);
   }
 }

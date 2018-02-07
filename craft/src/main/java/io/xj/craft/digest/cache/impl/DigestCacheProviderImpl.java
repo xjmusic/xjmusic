@@ -51,27 +51,27 @@ public class DigestCacheProviderImpl implements DigestCacheProvider {
   }
 
   @Override
-  public DigestMeme meme(Ingest ingest) throws Exception {
+  public DigestMeme meme(Ingest ingest) {
     return digestMeme.get(ingest);
   }
 
   @Override
-  public DigestPatternStyle patternStyle(Ingest ingest) throws Exception {
+  public DigestPatternStyle patternStyle(Ingest ingest) {
     return digestPatternStyle.get(ingest);
   }
 
   @Override
-  public DigestChordProgression chordProgression(Ingest ingest) throws Exception {
+  public DigestChordProgression chordProgression(Ingest ingest) {
     return digestChordProgression.get(ingest);
   }
 
   @Override
-  public DigestChordMarkov chordMarkov(Ingest ingest) throws Exception {
+  public DigestChordMarkov chordMarkov(Ingest ingest) {
     return digestChordMarkov.get(ingest);
   }
 
   @Override
-  public DigestHash hash(Ingest ingest) throws Exception {
+  public DigestHash hash(Ingest ingest) {
     return digestFactory.hashOf(ingest);
   }
 

@@ -150,9 +150,9 @@ public enum PitchClass {
    @return Note
    */
   public Step step(int inc) {
-    if (inc > 0)
+    if (0 < inc)
       return stepUp(inc);
-    else if (inc < 0)
+    else if (0 > inc)
       return stepDown(-inc);
     else
       return Step.to(this, 0);

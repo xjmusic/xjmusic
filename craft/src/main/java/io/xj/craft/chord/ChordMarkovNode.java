@@ -1,13 +1,17 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
-package io.xj.core.model.chord;
+package io.xj.craft.chord;
+
+import io.xj.core.model.chord.Chord;
+import io.xj.core.util.TremendouslyRandom;
 
 import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-import io.xj.core.util.TremendouslyRandom;
-
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -17,9 +21,9 @@ import java.util.Map;
  ChordMarkovNode toJSONObject provides a view of the N-order Markov map built from the library chord progressions.
  */
 public class ChordMarkovNode {
-  //  private final Logger log = LoggerFactory.getLogger(ChordMarkovNode.class);
+  public static final Comparator<? super ChordMarkovNode> byPopularityDescending = (Comparator<? super ChordMarkovNode>) (o1, o2) -> Integer.compare(o2.getPopularity(), o1.getPopularity());
   private final List<ChordNode> precedentState;
-  private final Map<String, ChordNode> nodeMap;
+  private final Map<String, ChordNode> nodeMap = Maps.newConcurrentMap();
 
   /**
    Construct chord markov node from a list of chords, being the precedent state of all observations (possible outcomes a.k.a. chord change) to be added to this node.
@@ -27,15 +31,26 @@ public class ChordMarkovNode {
    @param precedentState chord progression preceding these observations
    */
   public ChordMarkovNode(List<ChordNode> precedentState) {
-    this.precedentState = precedentState;
-    nodeMap = Maps.newConcurrentMap();
+    this.precedentState = ImmutableList.copyOf(precedentState);
+  }
+
+  /**
+   Get the aggregate popularity, meaning the sum number of all observations at this node.
+
+   @return popularity count
+   */
+  private int getPopularity() {
+    int result = 0;
+    for (ChordNode chordNode : nodeMap.values())
+      result += chordNode.getWeight();
+    return result;
   }
 
   /**
    @return the state (sequence of chords) that precedes the observations (possible outcomes a.k.a. chord change) of this node.
    */
   List<ChordNode> getPrecedentState() {
-    return precedentState;
+    return Collections.unmodifiableList(precedentState);
   }
 
   /**
@@ -52,9 +67,12 @@ public class ChordMarkovNode {
    */
   ChordNode getRandomObservation() {
     List<String> lottery = Lists.newArrayList();
-    for (String key : nodeMap.keySet())
-      for (int n = 0; n < nodeMap.get(key).getWeight(); n++)
-        lottery.add(key);
+    for (Map.Entry<String, ChordNode> stringChordNodeEntry : nodeMap.entrySet()) {
+      ChordNode value = stringChordNodeEntry.getValue();
+      Long weight = value.getWeight();
+      for (int n = 0; n < weight; n++)
+        lottery.add(stringChordNodeEntry.getKey());
+    }
 
     return nodeMap.get(lottery.get(TremendouslyRandom.zeroToLimit(lottery.size())));
   }

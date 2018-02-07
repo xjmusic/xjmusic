@@ -1,12 +1,11 @@
 // Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
-package io.xj.core.model.phase_chord;
+package io.xj.craft.chord;
 
-import com.google.common.collect.Lists;
-
-import io.xj.core.model.chord.ChordNode;
-import io.xj.core.model.chord.ChordProgression;
+import io.xj.core.model.phase_chord.PhaseChord;
 import io.xj.music.AdjSymbol;
 import io.xj.music.PitchClass;
+
+import com.google.common.collect.Lists;
 
 import java.math.BigInteger;
 import java.util.Collections;
@@ -16,6 +15,8 @@ import java.util.Objects;
 /**
  Sequence of chords
  likely related to [#154234716] ingest of library contents includes sequences of chords.
+ <p>
+ A regular ChordProgression has no actual time or pitch classes, but a PhaseChordProgression has all those things because it's made of real actual chords in a phase.
  <p>
  FUTURE: evaluate audio chords. As of this message, there is no actual implementation of fabrication based on audio chords.
  FUTURE: implementation of AudioChordProgression will examine opportunity to extend a common ChordProgression interface.
@@ -50,13 +51,13 @@ public class PhaseChordProgression {
     chords = Lists.newArrayList();
     parentId = phaseId;
     List<ChordNode> units = chordProgression.getChordNodes();
-    double n = 0;
+    double cursor = 0.0;
     for (ChordNode unit : units)
       if (Objects.nonNull(unit.getDelta()) && Objects.nonNull(unit.getForm())) {
-        chords.add(buildPhaseChord(phaseId, n,
+        chords.add(buildPhaseChord(phaseId, cursor,
           rootPitchClass.step(unit.getDelta()).getPitchClass(),
           unit.getForm()));
-        n += spacing;
+        cursor += spacing;
       }
   }
 

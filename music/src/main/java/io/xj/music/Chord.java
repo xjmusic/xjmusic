@@ -6,9 +6,12 @@ import io.xj.music.schema.ChordForms;
 import io.xj.music.schema.IntervalPitchGroup;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.SortedMap;
 import java.util.function.Consumer;
 
@@ -16,7 +19,9 @@ import java.util.function.Consumer;
  Chord in a particular key
  */
 public class Chord extends IntervalPitchGroup {
-  List<ChordForm> forms;
+  private static final double semitonesModulo = 12;
+  private static final double semitonesModuloDeltaMax = semitonesModulo / 2;
+  private List<ChordForm> forms;
 
   /**
    Construct an empty Chord
@@ -44,11 +49,52 @@ public class Chord extends IntervalPitchGroup {
     return new Chord(name);
   }
 
-  public List<ChordForm> getForms() {
+  /**
+   Get the mean of a collection of values
+
+   @param values to get mean of
+   @return mean
+   */
+  private static <N extends Number> Double mean(Collection<N> values) {
+    double sum = 0.0;
+    double count = 0;
+    for (N value : values) {
+      sum += value.doubleValue();
+      count++;
+    }
+    return sum / count;
+  }
+
+  /**
+   Assumes a modulo-N system,
+   such that the greatest possible delta is N/2,
+   ergo returns a ratio from 0 to 1 (no match to full match).
+   corresponding to a delta of N/2 to 0.
+
+   @param t1 semitone value 1
+   @param t2 semitone value 2
+   @return similarity of semitone value 1 and value 2
+   */
+  private static Double similarity(PitchClass t1, PitchClass t2) {
+    return 1 - Math.abs(t1.delta(t2)) / semitonesModuloDeltaMax;
+  }
+
+  /**
+   Get forms
+
+   @return forms
+   */
+  List<ChordForm> getForms() {
     return Collections.unmodifiableList(forms);
   }
 
-  public Chord setForms(List<ChordForm> forms) {
+  /**
+   Set forms
+
+   @param forms to set
+   @return chord after forms are set
+   */
+  Chord setForms(List<ChordForm> forms) {
     this.forms = Lists.newArrayList(forms);
     return this;
   }
@@ -107,7 +153,7 @@ public class Chord extends IntervalPitchGroup {
 
    @return chord form string
    */
-  public String formString() {
+  String formString() {
     int size = forms.size();
     String[] formStrings = new String[size];
     for (int i = 0; i < size; i++) {
@@ -116,32 +162,110 @@ public class Chord extends IntervalPitchGroup {
     return String.join(" ", formStrings);
   }
 
+  /**
+   Set the tones of the chord.
+
+   @param tones to set
+   @return Chord after setting tones
+   */
   private Chord setTones(SortedMap<Interval, Integer> tones) {
     this.tones = tones;
     return this;
   }
 
+  /**
+   Set the original description of the chord.
+
+   @param description to set
+   @return Chord after setting description
+   */
   private Chord setOriginalDescription(String description) {
     this.description = description;
     return this;
   }
 
+  /**
+   Set the root pitch class of the chord.
+
+   @param root pitch class to set
+   @return Chord after setting root pitch class
+   */
   private Chord setRootPitchClass(PitchClass root) {
     this.root = root;
     return this;
   }
 
+  /**
+   Set the adjustment symbol of the chord.
+
+   @param adjSymbol to set
+   @return Chord after setting adjustment symbol
+   */
   private Chord setAdjSymbol(AdjSymbol adjSymbol) {
     this.adjSymbol = adjSymbol;
     return this;
   }
 
-  public String officialDescription() {
+  /**
+   Get the official description of the chord.
+
+   @return official description
+   */
+  String officialDescription() {
     return root.toString(adjSymbol) + " " + formString();
   }
 
   /**
+   [#154985948] Architect wants to determine tonal similarity (% of shared pitch classes) between two Chords, in order to perform fuzzy matching operations.
+
+   @param other chord to compare with
+   @return ratio (0 to 1) of similarity.
+   */
+  public Double similarity(Chord other) {
+    return (similarityAtSameIntervals(other) + similarityAtAnyIntervals(other)) / 2;
+  }
+
+  /**
+   [#154985948] Architect wants to determine tonal similarity (% of shared pitch classes) between two Chords, in order to perform fuzzy matching operations.
+
+   @param other chord to compare with
+   @return ratio (0 to 1) of similarity.
+   */
+  private Double similarityAtSameIntervals(Chord other) {
+    Map<Interval, Double> pcDeltas = Maps.newConcurrentMap();
+    getPitchClasses().forEach(((interval, pitchClass) -> {
+      if (other.getPitchClasses().containsKey(interval))
+        pcDeltas.put(interval, similarity(pitchClass, other.getPitchClasses().get(interval)));
+      else
+        pcDeltas.put(interval, 0.0);
+    }));
+    return mean(pcDeltas.values());
+  }
+
+  /**
+   [#154985948] Architect wants to determine tonal similarity (% of shared pitch classes) between two Chords, in order to perform fuzzy matching operations.
+
+   @param other chord to compare with
+   @return ratio (0 to 1) of similarity.
+   */
+  private Double similarityAtAnyIntervals(Chord other) {
+    Map<PitchClass, Integer> pcDeltas = Maps.newConcurrentMap();
+    getPitchClasses().values().forEach((pitchClass -> {
+      if (other.getPitchClasses().values().contains(pitchClass))
+        pcDeltas.put(pitchClass, 1);
+      else
+        pcDeltas.put(pitchClass, 0);
+    }));
+    other.getPitchClasses().values().forEach(pitchClass -> {
+      if (!pcDeltas.containsKey(pitchClass))
+        pcDeltas.put(pitchClass, 0);
+    });
+    return mean(pcDeltas.values());
+  }
+
+  /**
    Retrieve the colloquial name of a form, if exists
+
    @return colloquial name of form
    */
   public String colloquialFormName() {

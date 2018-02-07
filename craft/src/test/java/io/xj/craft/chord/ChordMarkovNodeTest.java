@@ -1,4 +1,7 @@
-package io.xj.core.model.chord;// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+package io.xj.craft.chord;// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+
+import io.xj.craft.chord.ChordMarkovNode;
+import io.xj.craft.chord.ChordNode;
 
 import com.google.common.collect.ImmutableList;
 
@@ -11,7 +14,7 @@ import static org.junit.Assert.assertTrue;
 public class ChordMarkovNodeTest {
 
   @Test
-  public void getPrecedentState() throws Exception {
+  public void getPrecedentState() {
     ChordMarkovNode subject = new ChordMarkovNode(ImmutableList.of(
       new ChordNode("5|Major"),
       new ChordNode("7|Major"),
@@ -23,7 +26,7 @@ public class ChordMarkovNodeTest {
   }
 
   @Test
-  public void getObservations() throws Exception {
+  public void getObservations() {
     ChordMarkovNode subject = new ChordMarkovNode(ImmutableList.of(
       new ChordNode("5|Major"),
       new ChordNode("7|Major"),
@@ -37,7 +40,7 @@ public class ChordMarkovNodeTest {
   }
 
   @Test
-  public void getRandomObservation() throws Exception {
+  public void getRandomObservation() {
     ChordMarkovNode subject = new ChordMarkovNode(ImmutableList.of(
       new ChordNode("5|Major"),
       new ChordNode("7|Major"),
@@ -51,12 +54,12 @@ public class ChordMarkovNodeTest {
 
     Integer resultDelta = result.getDelta();
     assertNotNull(resultDelta);
-    assertTrue(resultDelta == 7 || resultDelta == 9);
+    assertTrue(7 == resultDelta || 9 == resultDelta);
     assertEquals("Major", result.getForm());
   }
 
   @Test
-  public void addObservation() throws Exception {
+  public void addObservation() {
     ChordMarkovNode subject = new ChordMarkovNode(ImmutableList.of(
       new ChordNode("5|Major"),
       new ChordNode("7|Major"),
@@ -72,7 +75,7 @@ public class ChordMarkovNodeTest {
 
 
   @Test
-  public void precedentStateDescriptor() throws Exception {
+  public void precedentStateDescriptor() {
     assertEquals("5|Major:7|Major:9|Minor Seven:5|Minor Diminished", new ChordMarkovNode(ImmutableList.of(
       new ChordNode("5|Major"),
       new ChordNode("7|Major"),
@@ -95,7 +98,6 @@ public class ChordMarkovNodeTest {
     )).precedentStateDescriptor());
 
   }
-
 
 
 }
