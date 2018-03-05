@@ -139,4 +139,18 @@ public class PatternEraseJobIT {
     assertNull( injector.getInstance(PhaseDAO.class).readOne(Access.internal(), BigInteger.valueOf(3)));
   }
 
+  /**
+   [#155682779] Engineer expects PatternErase job to be cancelled if the Pattern has already been deleted.
+   */
+  @Test
+  public void cancelsJobIfEntityDoesNotExist() throws Exception {
+    app.start();
+
+    app.getWorkManager().doPatternErase(BigInteger.valueOf(712));
+
+    Thread.sleep(TEST_DURATION_SECONDS * MILLIS_PER_SECOND);
+    app.stop();
+  }
+
+
 }

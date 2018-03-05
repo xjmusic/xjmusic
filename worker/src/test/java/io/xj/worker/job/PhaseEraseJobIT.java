@@ -139,4 +139,19 @@ public class PhaseEraseJobIT {
     assertNull( injector.getInstance(PhaseDAO.class).readOne(Access.internal(), BigInteger.valueOf(2)));
   }
 
+  /**
+   [#155682779] Engineer expects PhaseErase job to be cancelled if the Phase has already been deleted.
+   */
+  @Test
+  public void cancelsJobIfEntityDoesNotExist() throws Exception {
+    app.start();
+
+    app.getWorkManager().doPhaseErase(BigInteger.valueOf(876));
+
+    Thread.sleep(TEST_DURATION_SECONDS * MILLIS_PER_SECOND);
+    app.stop();
+  }
+
+
+
 }

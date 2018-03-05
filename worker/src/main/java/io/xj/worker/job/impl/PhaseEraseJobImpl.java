@@ -1,15 +1,14 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.worker.job.impl;
 
+import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
+
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.PhaseDAO;
 import io.xj.core.model.phase.Phase;
 import io.xj.core.work.WorkManager;
 import io.xj.worker.job.PhaseEraseJob;
-
-import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +38,10 @@ public class PhaseEraseJobImpl implements PhaseEraseJob {
     try {
       Phase phase = phaseDAO.readOne(Access.internal(), entityId);
       if (Objects.nonNull(phase)) {
-        erase(phase);
+        log.info("Attempting to destroy phaseId={}", entityId);
+        phaseDAO.destroy(Access.internal(), entityId);
+      } else {
+        log.info("Found NO phaseId={}", entityId);
       }
 
     } catch (Exception e) {

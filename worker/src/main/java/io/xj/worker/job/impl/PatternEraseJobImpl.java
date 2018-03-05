@@ -9,6 +9,7 @@ import com.google.inject.assistedinject.Assisted;
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.PatternDAO;
 import io.xj.core.dao.PhaseDAO;
+import io.xj.core.model.pattern.Pattern;
 import io.xj.core.model.phase.Phase;
 import io.xj.core.model.phase.Phase;
 import io.xj.core.transport.CSV;
@@ -20,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import java.math.BigInteger;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 public class PatternEraseJobImpl implements PatternEraseJob {
   private static final Logger log = LoggerFactory.getLogger(PatternEraseJobImpl.class);
@@ -62,8 +64,14 @@ public class PatternEraseJobImpl implements PatternEraseJob {
     Collection<Phase> phases = phaseDAO.readAll(Access.internal(), ImmutableList.of(entityId));
     if (phases.isEmpty())
       try {
-        log.info("Found ZERO phases in patternId={}; attempting to delete...", entityId);
-        patternDAO.destroy(Access.internal(), entityId);
+        log.info("Found ZERO phases in patternId={}", entityId);
+        Pattern pattern = patternDAO.readOne(Access.internal(), entityId);
+        if (Objects.nonNull(pattern)) {
+          log.info("Attempting to destroy patternId={}", entityId);
+          patternDAO.destroy(Access.internal(), entityId);
+        } else {
+          log.info("Found NO patternId={}", entityId);
+        }
       } catch (Exception e) {
         log.warn("Failed to delete patternId={}", entityId, e);
       }
