@@ -64,7 +64,7 @@ public class LibraryOneResource extends HubResource {
    */
   @PUT
   @Consumes(MediaType.APPLICATION_JSON)
-  @RolesAllowed(UserRoleType.ADMIN)
+  @RolesAllowed({UserRoleType.ADMIN, UserRoleType.ENGINEER})
   public Response update(LibraryWrapper data, @Context ContainerRequestContext crc) {
     try {
       libraryDAO.update(Access.fromContext(crc), new BigInteger(id), data.getLibrary());
@@ -81,7 +81,7 @@ public class LibraryOneResource extends HubResource {
    @return Response
    */
   @DELETE
-  @RolesAllowed(UserRoleType.ADMIN)
+  @RolesAllowed({UserRoleType.ADMIN, UserRoleType.ENGINEER})
   public Response delete(@Context ContainerRequestContext crc) {
     try {
       libraryDAO.destroy(Access.fromContext(crc), new BigInteger(id));

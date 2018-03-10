@@ -51,7 +51,11 @@ public class LibraryDAOImpl extends DAOImpl implements LibraryDAO {
 
     Map<Field, Object> fieldValues = fieldValueMap(entity);
 
-    requireTopLevel(access);
+    if (!access.isTopLevel())
+      requireExists("Account",
+        db.selectCount().from(ACCOUNT)
+          .where(ACCOUNT.ID.in(access.getAccountIds()))
+          .fetchOne(0, int.class));
 
     return modelFrom(executeCreate(db, LIBRARY, fieldValues), Library.class);
   }
@@ -80,8 +84,8 @@ public class LibraryDAOImpl extends DAOImpl implements LibraryDAO {
   /**
    Read all records in parent by id
 
-   @param db        context
-   @param access    control
+   @param db         context
+   @param access     control
    @param accountIds of parent
    @return array of records
    */
@@ -121,8 +125,8 @@ public class LibraryDAOImpl extends DAOImpl implements LibraryDAO {
   /**
    Read all records bound to a chain by ChainLibrary
 
-   @param db        context
-   @param access    control
+   @param db      context
+   @param access  control
    @param chainId for which to get records bound
    @return array of records
    */
@@ -156,12 +160,16 @@ public class LibraryDAOImpl extends DAOImpl implements LibraryDAO {
     Map<Field, Object> fieldValues = fieldValueMap(entity);
     fieldValues.put(LIBRARY.ID, id);
 
-    requireTopLevel(access);
-
-    requireExists("Account",
-      db.selectCount().from(ACCOUNT)
-        .where(ACCOUNT.ID.eq(ULong.valueOf(entity.getAccountId())))
-        .fetchOne(0, int.class));
+    if (!access.isTopLevel()) {
+      requireExists("Library",
+        db.selectCount().from(LIBRARY)
+          .where(LIBRARY.ID.eq(id))
+          .fetchOne(0, int.class));
+      requireExists("Account",
+        db.selectCount().from(ACCOUNT)
+          .where(ACCOUNT.ID.in(access.getAccountIds()))
+          .fetchOne(0, int.class));
+    }
 
     if (0 == executeUpdate(db, LIBRARY, fieldValues))
       throw new BusinessException("No records updated.");

@@ -1,9 +1,6 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.resource.library;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.LibraryDAO;
 import io.xj.core.model.library.Library;
@@ -11,6 +8,9 @@ import io.xj.core.model.library.LibraryWrapper;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.transport.HttpResponseProvider;
 import io.xj.hub.HubResource;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 
 import javax.annotation.security.RolesAllowed;
 import javax.jws.WebResult;
@@ -72,7 +72,7 @@ public class LibraryIndexResource extends HubResource {
    */
   @POST
   @Consumes(MediaType.APPLICATION_JSON)
-  @RolesAllowed(UserRoleType.ADMIN)
+  @RolesAllowed({UserRoleType.ADMIN, UserRoleType.ENGINEER})
   public Response create(LibraryWrapper data, @Context ContainerRequestContext crc) {
     try {
       return response.create(

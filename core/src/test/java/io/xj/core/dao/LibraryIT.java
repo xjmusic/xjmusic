@@ -73,6 +73,42 @@ public class LibraryIT {
     assertEquals("manuts", result.getName());
   }
 
+  /**
+   [#155089641] Engineer expects to be able to create and update a Library.
+   */
+  @Test
+  public void create_asEngineer() throws Exception {
+    Access access = new Access(ImmutableMap.of(
+      "roles", "Engineer",
+      "accounts", "1"
+    ));
+    Library inputData = new Library()
+      .setName("manuts")
+      .setAccountId(BigInteger.valueOf(1));
+
+    Library result = testDAO.create(access, inputData);
+
+    assertNotNull(result);
+    assertEquals(BigInteger.valueOf(1), result.getAccountId());
+    assertEquals("manuts", result.getName());
+  }
+
+  /**
+   [#155089641] Engineer expects to be able to create and update a Library.
+   */
+  @Test(expected = BusinessException.class)
+  public void create_asEngineer_failsWithoutAccountAccess() throws Exception {
+    Access access = new Access(ImmutableMap.of(
+      "roles", "Engineer",
+      "accounts", "12"
+    ));
+    Library inputData = new Library()
+      .setName("manuts")
+      .setAccountId(BigInteger.valueOf(1));
+
+    testDAO.create(access, inputData);
+  }
+
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutAccountID() throws Exception {
     Access access = new Access(ImmutableMap.of(
@@ -195,6 +231,43 @@ public class LibraryIT {
     assertNotNull(result);
     assertEquals("cannons", result.getName());
     assertEquals(BigInteger.valueOf(1), result.getAccountId());
+  }
+
+  /**
+   [#155089641] Engineer expects to be able to create and update a Library.
+   */
+  @Test
+  public void update_asEngineer() throws Exception {
+    Access access = new Access(ImmutableMap.of(
+      "roles", "Engineer",
+      "accounts","1"
+    ));
+    Library inputData = new Library()
+      .setName("cannons")
+      .setAccountId(BigInteger.valueOf(1));
+
+    testDAO.update(access, BigInteger.valueOf(3), inputData);
+
+    Library result = testDAO.readOne(Access.internal(), BigInteger.valueOf(3));
+    assertNotNull(result);
+    assertEquals("cannons", result.getName());
+    assertEquals(BigInteger.valueOf(1), result.getAccountId());
+  }
+
+  /**
+   [#155089641] Engineer expects to be able to create and update a Library.
+   */
+  @Test(expected = BusinessException.class)
+  public void update_asEngineer_failsWithoutAccountAccess() throws Exception {
+    Access access = new Access(ImmutableMap.of(
+      "roles", "Engineer",
+      "accounts","12"
+    ));
+    Library inputData = new Library()
+      .setName("cannons")
+      .setAccountId(BigInteger.valueOf(1));
+
+    testDAO.update(access, BigInteger.valueOf(3), inputData);
   }
 
   @Test(expected = BusinessException.class)

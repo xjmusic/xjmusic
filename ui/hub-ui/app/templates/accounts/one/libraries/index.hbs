@@ -6,7 +6,7 @@
 <!-- Upper Container -->
 <div class="form-horizontal container-fluid">
 
-  {{#if auth.isAdmin}}
+  {{#if (or auth.isAdmin auth.isEngineer)}}
     <div class="col-sm-12 text-right">
       {{#link-to 'accounts.one.libraries.new' model.account}}{{fa-icon "plus"}} Create New Library{{/link-to}}
     </div>
