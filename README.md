@@ -8,12 +8,14 @@ Also see: Documents in `site/docs` which are published to https://docs.xi.io
 
 # Laws
 
+  * The XJ platform has no launches. We pertain only to a platform spanning time, and the availability of said platform and its components at any moment in time.
   * The XJ platform does not send or receive email.
   * The XJ platform does not implement passwords; it relies on OAuth.
   * Any network connection can and will fail.
-  * Bugs are described as expectation versus actual, e.g.:
-    - DO THIS: "I clicked the button labeled 'Turn;' I expected the Earth to turn; actually, it stood still."
-    - NOT THIS: "I click the button and nothing happened."
+  * Features are described as the desire of a person to take an action for a particular reason, e.g. "Artist wants Pattern and Phase to be named according to musical norms, in order to make the most sense of XJ as a musical instrument."
+  * Bugs are described as expectation versus actual, e.g. "Artist expects to be able to list Audios after deleting an Audio from an Instrument," then:
+    - DESCRIBE LIKE THIS: "I clicked the button labeled 'Turn;' I expected the Earth to turn; actually, it stood still."
+    - NOT LIKE THIS: "I click the button and nothing happened."
   * Commits reference issues by id #.
   * Time is tracked against issues by id #.
   * Branches are named according to `git-flow` including issue id #, e.g.:
@@ -61,6 +63,10 @@ The front-end UI is served by the Nginx server on `hub01xj1` via the local `ui/h
 
     cd ui/hub-ui
     ember build --watch
+
+Preferably, use the script from the project root, to build and watch the UI during dev:
+
+    bin/ui/dev
 
 To compile the Java server-side applications and package them for deployment:
 
