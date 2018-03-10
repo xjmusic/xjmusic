@@ -291,7 +291,8 @@ The production deployment procedure is:
   2. Upload .zip file as "new application version" to `xj` application.
   3. Deploy the new version to the `prod-hub` environment, and confirm migrations run successfully.
   4. Deploy the new version to the `prod-work` environment.
-  5. Monitor health checks until confirmed consistently OK.  
+  5. Monitor health checks until confirmed consistently OK.
+  6. Invalidate the CloudFront cache for hub.xj.io   
 
 ## Cleanup
 
