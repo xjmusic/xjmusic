@@ -1,10 +1,10 @@
-var gulp = require('gulp'),
+let gulp = require('gulp'),
     imageResize = require('gulp-image-resize'),
     imageMin = require('gulp-imagemin'),
     rename = require('gulp-rename'),
     sass = require('gulp-sass');
 
-var sassConfig = {
+let sassConfig = {
     inputDirectory: 'themes/xj-theme/sass/**/*.scss',
     outputDirectory: 'themes/xj-theme/static/css',
     options: {

@@ -1,0 +1,10 @@
+.idea/
+/dist/
+.env
+/node_modules/
+
+# this will only contain the output of gulp image processing
+/static/
+
+# this will contain temporary files during reconciliation-and-release to GitHub
+/release/

@@ -566,3 +566,9 @@ On OSX, because we are unable to connect to the container from the host, we are 
 
 Docker documentation: https://docs.docker.com/docker-for-mac/networking/#per-container-ip-addressing-is-not-possible
 GitHub Open Issue: https://github.com/docker/for-mac/issues/155
+
+# Open Source Web Player on GitHub
+
+Architect wants minimal, open-source web browser based XJ Music™ player, in order to embed XJ Music™ on any website, and ensure that the experience is as widely accessible as possible.
+
+See [player-web README](ui/player-web/README.md)

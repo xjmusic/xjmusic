@@ -16,7 +16,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@code.outright.io:web/xj.git"
+    "url": "git@code.outright.io:xj/xj.git"
   },
   "author": "XJ Platform LLC",
   "license": "ISC"
