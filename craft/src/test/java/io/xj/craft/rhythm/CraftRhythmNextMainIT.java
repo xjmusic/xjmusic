@@ -3,17 +3,17 @@ package io.xj.craft.rhythm;
 
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
+import io.xj.core.model.sequence.SequenceState;
 import io.xj.core.model.pattern.PatternState;
-import io.xj.core.model.phase.PhaseState;
-import io.xj.core.model.phase.PhaseType;
+import io.xj.core.model.pattern.PatternType;
 import io.xj.craft.CraftFactory;
 import io.xj.core.dao.ChoiceDAO;
 import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
-import io.xj.core.model.link.Link;
-import io.xj.core.model.link.LinkState;
-import io.xj.core.model.pattern.PatternType;
+import io.xj.core.model.segment.Segment;
+import io.xj.core.model.segment.SegmentState;
+import io.xj.core.model.sequence.SequenceType;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.craft.basis.Basis;
 import io.xj.craft.basis.BasisFactory;
@@ -42,7 +42,7 @@ public class CraftRhythmNextMainIT {
   private BasisFactory basisFactory;
 
   // Testing entities for reference
-  private Link link4;
+  private Segment segment4;
 
   @Before
   public void setUp() throws Exception {
@@ -63,91 +63,91 @@ public class CraftRhythmNextMainIT {
     // Library "house"
     IntegrationTestEntity.insertLibrary(2, 1, "house");
 
-    // "Tropical, Sky to Ocean" macro-pattern in house library
-    IntegrationTestEntity.insertPattern(4, 3, 2, PatternType.Macro, PatternState.Published, "Tropical, Sky to Ocean", 0.5, "C", 120);
-    IntegrationTestEntity.insertPatternMeme(2, 4, "Tropical");
-    // " phase offset 0
-    IntegrationTestEntity.insertPhase(3, 4, PhaseType.Macro, PhaseState.Published, 0, 0, "Start Sky", 0.6, "C", 125);
-    IntegrationTestEntity.insertPhaseMeme(3, 3, "Sky");
-    IntegrationTestEntity.insertPhaseChord(3, 3, 0, "C");
-    // " phase offset 1
-    IntegrationTestEntity.insertPhase(4, 4, PhaseType.Macro, PhaseState.Published, 1, 0, "Intermediate", 0.4, "Bb minor", 115);
-    IntegrationTestEntity.insertPhaseMeme(4, 4, "Ocean");
-    IntegrationTestEntity.insertPhaseMeme(49, 4, "Sky");
-    IntegrationTestEntity.insertPhaseChord(4, 4, 0, "Bb minor");
-    // " phase offset 2
-    IntegrationTestEntity.insertPhase(5, 4, PhaseType.Macro, PhaseState.Published, 2, 0, "Finish Ocean", 0.4, "Ab minor", 125);
-    IntegrationTestEntity.insertPhaseMeme(5, 4, "Ocean");
-    IntegrationTestEntity.insertPhaseChord(5, 5, 0, "Ab minor");
+    // "Tropical, Sky to Ocean" macro-sequence in house library
+    IntegrationTestEntity.insertSequence(4, 3, 2, SequenceType.Macro, SequenceState.Published, "Tropical, Sky to Ocean", 0.5, "C", 120);
+    IntegrationTestEntity.insertSequenceMeme(2, 4, "Tropical");
+    // " pattern offset 0
+    IntegrationTestEntity.insertPattern(3, 4, PatternType.Macro, PatternState.Published, 0, 0, "Start Sky", 0.6, "C", 125);
+    IntegrationTestEntity.insertPatternMeme(3, 3, "Sky");
+    IntegrationTestEntity.insertPatternChord(3, 3, 0, "C");
+    // " pattern offset 1
+    IntegrationTestEntity.insertPattern(4, 4, PatternType.Macro, PatternState.Published, 1, 0, "Intermediate", 0.4, "Bb minor", 115);
+    IntegrationTestEntity.insertPatternMeme(4, 4, "Ocean");
+    IntegrationTestEntity.insertPatternMeme(49, 4, "Sky");
+    IntegrationTestEntity.insertPatternChord(4, 4, 0, "Bb minor");
+    // " pattern offset 2
+    IntegrationTestEntity.insertPattern(5, 4, PatternType.Macro, PatternState.Published, 2, 0, "Finish Ocean", 0.4, "Ab minor", 125);
+    IntegrationTestEntity.insertPatternMeme(5, 4, "Ocean");
+    IntegrationTestEntity.insertPatternChord(5, 5, 0, "Ab minor");
 
-    // "Tangy, Chunky to Smooth" macro-pattern in house library
-    IntegrationTestEntity.insertPattern(3, 3, 2, PatternType.Macro, PatternState.Published, "Tangy, Chunky to Smooth", 0.5, "G minor", 120);
-    IntegrationTestEntity.insertPatternMeme(1, 3, "Tangy");
-    // # phase offset 0
-    IntegrationTestEntity.insertPhase(1, 3, PhaseType.Macro, PhaseState.Published, 0, 0, "Start Chunky", 0.4, "G minor", 115);
-    IntegrationTestEntity.insertPhaseMeme(1, 1, "Chunky");
-    IntegrationTestEntity.insertPhaseChord(1, 1, 0, "G minor");
-    // # phase offset 1
-    IntegrationTestEntity.insertPhase(2, 3, PhaseType.Macro, PhaseState.Published, 1, 0, "Finish Smooth", 0.6, "C", 125);
-    IntegrationTestEntity.insertPhaseMeme(2, 2, "Smooth");
-    IntegrationTestEntity.insertPhaseChord(2, 2, 0, "C");
+    // "Tangy, Chunky to Smooth" macro-sequence in house library
+    IntegrationTestEntity.insertSequence(3, 3, 2, SequenceType.Macro, SequenceState.Published, "Tangy, Chunky to Smooth", 0.5, "G minor", 120);
+    IntegrationTestEntity.insertSequenceMeme(1, 3, "Tangy");
+    // # pattern offset 0
+    IntegrationTestEntity.insertPattern(1, 3, PatternType.Macro, PatternState.Published, 0, 0, "Start Chunky", 0.4, "G minor", 115);
+    IntegrationTestEntity.insertPatternMeme(1, 1, "Chunky");
+    IntegrationTestEntity.insertPatternChord(1, 1, 0, "G minor");
+    // # pattern offset 1
+    IntegrationTestEntity.insertPattern(2, 3, PatternType.Macro, PatternState.Published, 1, 0, "Finish Smooth", 0.6, "C", 125);
+    IntegrationTestEntity.insertPatternMeme(2, 2, "Smooth");
+    IntegrationTestEntity.insertPatternChord(2, 2, 0, "C");
 
-    // Main pattern
-    IntegrationTestEntity.insertPattern(5, 3, 2, PatternType.Main, PatternState.Published, "Main Jam", 0.2, "C minor", 140);
-    IntegrationTestEntity.insertPatternMeme(3, 5, "Outlook");
-    // # phase offset 0
-    IntegrationTestEntity.insertPhase(15, 5, PhaseType.Main, PhaseState.Published, 0, 16, "Intro", 0.5, "G major", 135.0);
-    IntegrationTestEntity.insertPhaseMeme(6, 15, "Optimism");
-    IntegrationTestEntity.insertPhaseChord(12, 15, 0, "G major");
-    IntegrationTestEntity.insertPhaseChord(14, 15, 8, "Ab minor");
-    // # phase offset 1
-    IntegrationTestEntity.insertPhase(16, 5, PhaseType.Main, PhaseState.Published, 1, 16, "Drop", 0.5, "G minor", 135.0);
-    IntegrationTestEntity.insertPhaseMeme(7, 16, "Pessimism");
-    IntegrationTestEntity.insertPhaseChord(16, 16, 0, "C major");
-    IntegrationTestEntity.insertPhaseChord(18, 16, 8, "Bb minor");
+    // Main sequence
+    IntegrationTestEntity.insertSequence(5, 3, 2, SequenceType.Main, SequenceState.Published, "Main Jam", 0.2, "C minor", 140);
+    IntegrationTestEntity.insertSequenceMeme(3, 5, "Outlook");
+    // # pattern offset 0
+    IntegrationTestEntity.insertPattern(15, 5, PatternType.Main, PatternState.Published, 0, 16, "Intro", 0.5, "G major", 135.0);
+    IntegrationTestEntity.insertPatternMeme(6, 15, "Optimism");
+    IntegrationTestEntity.insertPatternChord(12, 15, 0, "G major");
+    IntegrationTestEntity.insertPatternChord(14, 15, 8, "Ab minor");
+    // # pattern offset 1
+    IntegrationTestEntity.insertPattern(16, 5, PatternType.Main, PatternState.Published, 1, 16, "Drop", 0.5, "G minor", 135.0);
+    IntegrationTestEntity.insertPatternMeme(7, 16, "Pessimism");
+    IntegrationTestEntity.insertPatternChord(16, 16, 0, "C major");
+    IntegrationTestEntity.insertPatternChord(18, 16, 8, "Bb minor");
 
-    // Another Main pattern to go to
-    IntegrationTestEntity.insertPattern(15, 3, 2, PatternType.Main, PatternState.Published, "Next Jam", 0.2, "Db minor", 140);
-    IntegrationTestEntity.insertPatternMeme(43, 15, "Hindsight");
-    IntegrationTestEntity.insertPhase(415, 15, PhaseType.Main, PhaseState.Published, 0, 16, "Intro", 0.5, "G minor", 135.0);
-    IntegrationTestEntity.insertPhaseMeme(46, 415, "Regret");
-    IntegrationTestEntity.insertPhaseChord(412, 415, 0, "G minor");
-    IntegrationTestEntity.insertPhaseChord(414, 415, 8, "Ab minor");
-    IntegrationTestEntity.insertPhase(416, 15, PhaseType.Main, PhaseState.Published, 1, 16, "Outro", 0.5, "A major", 135.0);
-    IntegrationTestEntity.insertPhaseMeme(47, 416, "Pride");
-    IntegrationTestEntity.insertPhaseMeme(149, 416, "Shame");
-    IntegrationTestEntity.insertPhaseChord(416, 416, 0, "C major");
-    IntegrationTestEntity.insertPhaseChord(418, 416, 8, "Bb major");
+    // Another Main sequence to go to
+    IntegrationTestEntity.insertSequence(15, 3, 2, SequenceType.Main, SequenceState.Published, "Next Jam", 0.2, "Db minor", 140);
+    IntegrationTestEntity.insertSequenceMeme(43, 15, "Hindsight");
+    IntegrationTestEntity.insertPattern(415, 15, PatternType.Main, PatternState.Published, 0, 16, "Intro", 0.5, "G minor", 135.0);
+    IntegrationTestEntity.insertPatternMeme(46, 415, "Regret");
+    IntegrationTestEntity.insertPatternChord(412, 415, 0, "G minor");
+    IntegrationTestEntity.insertPatternChord(414, 415, 8, "Ab minor");
+    IntegrationTestEntity.insertPattern(416, 15, PatternType.Main, PatternState.Published, 1, 16, "Outro", 0.5, "A major", 135.0);
+    IntegrationTestEntity.insertPatternMeme(47, 416, "Pride");
+    IntegrationTestEntity.insertPatternMeme(149, 416, "Shame");
+    IntegrationTestEntity.insertPatternChord(416, 416, 0, "C major");
+    IntegrationTestEntity.insertPatternChord(418, 416, 8, "Bb major");
 
     // A basic beat
-    IntegrationTestEntity.insertPattern(35, 3, 2, PatternType.Rhythm, PatternState.Published, "Basic Beat", 0.2, "C", 121);
-    IntegrationTestEntity.insertPatternMeme(343, 35, "Basic");
-    IntegrationTestEntity.insertPhase(315, 35, PhaseType.Intro, PhaseState.Published, 0, 16, "Drop", 0.5, "C", 125.0);
-    IntegrationTestEntity.insertPhaseMeme(346, 315, "Heavy");
-    IntegrationTestEntity.insertPhase(316, 35, PhaseType.Loop, PhaseState.Published, 0, 16, "Continue", 0.5, "C", 125.0);
-    IntegrationTestEntity.insertPhaseMeme(347, 316, "Heavy");
+    IntegrationTestEntity.insertSequence(35, 3, 2, SequenceType.Rhythm, SequenceState.Published, "Basic Beat", 0.2, "C", 121);
+    IntegrationTestEntity.insertSequenceMeme(343, 35, "Basic");
+    IntegrationTestEntity.insertPattern(315, 35, PatternType.Intro, PatternState.Published, 0, 16, "Drop", 0.5, "C", 125.0);
+    IntegrationTestEntity.insertPatternMeme(346, 315, "Heavy");
+    IntegrationTestEntity.insertPattern(316, 35, PatternType.Loop, PatternState.Published, 0, 16, "Continue", 0.5, "C", 125.0);
+    IntegrationTestEntity.insertPatternMeme(347, 316, "Heavy");
 
-    // Chain "Test Print #1" has 5 total links
+    // Chain "Test Print #1" has 5 total segments
     IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, null);
-    IntegrationTestEntity.insertLink(1, 1, 0, LinkState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120, "chain-1-link-97898asdf7892.wav");
-    IntegrationTestEntity.insertLink(2, 1, 1, LinkState.Dubbing, Timestamp.valueOf("2017-02-14 12:01:32.000001"), Timestamp.valueOf("2017-02-14 12:02:04.000001"), "Db minor", 64, 0.85, 120, "chain-1-link-97898asdf7892.wav");
+    IntegrationTestEntity.insertSegment(1, 1, 0, SegmentState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120, "chain-1-segment-97898asdf7892.wav");
+    IntegrationTestEntity.insertSegment(2, 1, 1, SegmentState.Dubbing, Timestamp.valueOf("2017-02-14 12:01:32.000001"), Timestamp.valueOf("2017-02-14 12:02:04.000001"), "Db minor", 64, 0.85, 120, "chain-1-segment-97898asdf7892.wav");
 
-    // Chain "Test Print #1" has this link that was just crafted
-    IntegrationTestEntity.insertLink(3, 1, 2, LinkState.Crafted, Timestamp.valueOf("2017-02-14 12:02:04.000001"), Timestamp.valueOf("2017-02-14 12:02:36.000001"), "F major", 64, 0.30, 120, "chain-1-link-97898asdf7892.wav");
-    IntegrationTestEntity.insertChoice(25, 3, 4, PatternType.Macro, 0, 3);
-    IntegrationTestEntity.insertChoice(26, 3, 5, PatternType.Main, 1, -4);
-    IntegrationTestEntity.insertChoice(27, 3, 35, PatternType.Rhythm, 0, 5);
+    // Chain "Test Print #1" has this segment that was just crafted
+    IntegrationTestEntity.insertSegment(3, 1, 2, SegmentState.Crafted, Timestamp.valueOf("2017-02-14 12:02:04.000001"), Timestamp.valueOf("2017-02-14 12:02:36.000001"), "F major", 64, 0.30, 120, "chain-1-segment-97898asdf7892.wav");
+    IntegrationTestEntity.insertChoice(25, 3, 4, SequenceType.Macro, 0, 3);
+    IntegrationTestEntity.insertChoice(26, 3, 5, SequenceType.Main, 1, -4);
+    IntegrationTestEntity.insertChoice(27, 3, 35, SequenceType.Rhythm, 0, 5);
 
-    // Chain "Test Print #1" has a link in crafting state - Foundation is complete
-    link4 = IntegrationTestEntity.insertLink(4, 1, 3, LinkState.Crafting, Timestamp.valueOf("2017-02-14 12:03:08.000001"), Timestamp.valueOf("2017-02-14 12:03:15.836735"), "G minor", 16, 0.45, 125, "chain-1-link-97898asdf7892.wav");
-    IntegrationTestEntity.insertLinkMeme(101,4,"Regret");
-    IntegrationTestEntity.insertLinkMeme(102,4,"Sky");
-    IntegrationTestEntity.insertLinkMeme(103,4,"Hindsight");
-    IntegrationTestEntity.insertLinkMeme(104,4,"Tropical");
-    IntegrationTestEntity.insertChoice(101,4, 4, PatternType.Macro,1,3);
-    IntegrationTestEntity.insertChoice(102,4, 15, PatternType.Main,0,0);
-    IntegrationTestEntity.insertLinkChord(101,4,0,"G minor");
-    IntegrationTestEntity.insertLinkChord(102,4,8,"Ab minor");
+    // Chain "Test Print #1" has a segment in crafting state - Foundation is complete
+    segment4 = IntegrationTestEntity.insertSegment(4, 1, 3, SegmentState.Crafting, Timestamp.valueOf("2017-02-14 12:03:08.000001"), Timestamp.valueOf("2017-02-14 12:03:15.836735"), "G minor", 16, 0.45, 125, "chain-1-segment-97898asdf7892.wav");
+    IntegrationTestEntity.insertSegmentMeme(101,4,"Regret");
+    IntegrationTestEntity.insertSegmentMeme(102,4,"Sky");
+    IntegrationTestEntity.insertSegmentMeme(103,4,"Hindsight");
+    IntegrationTestEntity.insertSegmentMeme(104,4,"Tropical");
+    IntegrationTestEntity.insertChoice(101,4, 4, SequenceType.Macro,1,3);
+    IntegrationTestEntity.insertChoice(102,4, 15, SequenceType.Main,0,0);
+    IntegrationTestEntity.insertSegmentChord(101,4,0,"G minor");
+    IntegrationTestEntity.insertSegmentChord(102,4,8,"Ab minor");
 
     // Bind the library to the chain
     IntegrationTestEntity.insertChainLibrary(1, 1, 2);
@@ -165,23 +165,23 @@ public class CraftRhythmNextMainIT {
 
   @Test
   public void craftRhythmNextMain() throws Exception {
-    Basis basis = basisFactory.createBasis(link4);
+    Basis basis = basisFactory.createBasis(segment4);
 
     craftFactory.rhythm(basis).doWork();
 
-    // choice of rhythm-type pattern
-    assertNotNull(injector.getInstance(ChoiceDAO.class).readOneLinkTypeWithAvailablePhaseOffsets(Access.internal(), BigInteger.valueOf(4), PatternType.Rhythm));
+    // choice of rhythm-type sequence
+    assertNotNull(injector.getInstance(ChoiceDAO.class).readOneSegmentTypeWithAvailablePatternOffsets(Access.internal(), BigInteger.valueOf(4), SequenceType.Rhythm));
   }
 
   @Test
-  public void craftRhythmNextMain_okEvenWithoutPreviousLinkRhythmChoice() throws Exception {
-    Basis basis = basisFactory.createBasis(link4);
+  public void craftRhythmNextMain_okEvenWithoutPreviousSegmentRhythmChoice() throws Exception {
+    Basis basis = basisFactory.createBasis(segment4);
     injector.getInstance(ChoiceDAO.class).destroy(Access.internal(), BigInteger.valueOf(27));
 
     craftFactory.rhythm(basis).doWork();
 
-    // choice of rhythm-type pattern
-    assertNotNull(injector.getInstance(ChoiceDAO.class).readOneLinkTypeWithAvailablePhaseOffsets(Access.internal(), BigInteger.valueOf(4), PatternType.Rhythm));
+    // choice of rhythm-type sequence
+    assertNotNull(injector.getInstance(ChoiceDAO.class).readOneSegmentTypeWithAvailablePatternOffsets(Access.internal(), BigInteger.valueOf(4), SequenceType.Rhythm));
   }
 
 }

@@ -82,7 +82,7 @@ public interface AmazonProvider {
 
   /**
    Put an object to S3 (from a file)
-   [#361] Link & Audio S3 object key schema ought to have random UUID at the beginning of the key, in order to be optimized for S3 partitioning.
+   [#361] Segment & Audio S3 object key schema ought to have random UUID at the beginning of the key, in order to be optimized for S3 partitioning.
 
    @param filePath path to file for upload
    @param bucket   to put file to

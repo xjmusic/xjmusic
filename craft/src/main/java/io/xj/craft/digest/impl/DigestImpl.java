@@ -7,14 +7,14 @@ import io.xj.craft.ingest.Ingest;
 import io.xj.craft.ingest.IngestState;
 import io.xj.core.model.audio.Audio;
 import io.xj.core.model.instrument.Instrument;
+import io.xj.core.model.sequence.Sequence;
 import io.xj.core.model.pattern.Pattern;
-import io.xj.core.model.phase.Phase;
 
 import java.math.BigInteger;
 
 /**
  [#154234716] Architect wants ingest of library contents, to modularize graph mathematics used during craft, and provide the Artist with useful insight for developing the library.
- [#154350346] Architect wants a universal Ingest Provider, to modularize graph mathematics used during craft to evaluate any combination of Library, Pattern, and Instrument for any purpose.
+ [#154350346] Architect wants a universal Ingest Provider, to modularize graph mathematics used during craft to evaluate any combination of Library, Sequence, and Instrument for any purpose.
  */
 public abstract class DigestImpl implements Digest {
   protected final Ingest ingest;
@@ -40,6 +40,16 @@ public abstract class DigestImpl implements Digest {
   }
 
   /**
+   Retrieved a cached sequence
+
+   @param id of sequence
+   @return sequence
+   */
+  public Sequence getSequence(BigInteger id) {
+    return ingest.sequenceMap().get(id);
+  }
+
+  /**
    Retrieved a cached pattern
 
    @param id of pattern
@@ -47,16 +57,6 @@ public abstract class DigestImpl implements Digest {
    */
   public Pattern getPattern(BigInteger id) {
     return ingest.patternMap().get(id);
-  }
-
-  /**
-   Retrieved a cached phase
-
-   @param id of phase
-   @return phase
-   */
-  public Phase getPhase(BigInteger id) {
-    return ingest.phaseMap().get(id);
   }
 
   /**

@@ -1,5 +1,5 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
-#player-info {
+#player-embed {
   display: inline-block;
   background: #101010;
   border: 2px solid #444;
@@ -10,24 +10,26 @@
   align-content: center;
   text-align: center;
   padding: 8px 12px 0 12px;
-
   button.stop {
-    padding: 0 0 0 0;
-    width: 24px;
-    height: 24px;
-    font-size: 12px;
-    opacity: 0.25;
-    background: red;
-    border: darkred;
-    color: darkred;
-    &:hover {
-      opacity: 1.0;
-    }
+    width: 1.6em;
+    height: 1.6em;
   }
-
 }
 
-button.link-play {
+button.stop {
+  padding: 0 0 0 0;
+  width: 2.3em;
+  height: 2.3em;
+  opacity: 0.25;
+  background: red;
+  border: darkred;
+  color: darkred;
+  &:hover {
+    opacity: 1.0;
+  }
+}
+
+button.segment-play {
   background-color: darkgreen;
   color: whitesmoke;
   opacity: 0.38;
@@ -37,11 +39,11 @@ button.link-play {
   }
 }
 
-.now-playing button.link-play {
+.now-playing button.segment-play {
   opacity: 1.0;
   background-color: #00c000;
   color: #000;
-  cursor:default;
+  cursor: default;
   /*
   display: none;
   */

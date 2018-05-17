@@ -29,6 +29,7 @@ public class LibraryWrapper extends EntityWrapper {
 
    @throws BusinessException if invalid.
    */
+  @Override
   public Library validate() throws BusinessException {
     if (Objects.isNull(library)) {
       throw new BusinessException("Library is required.");

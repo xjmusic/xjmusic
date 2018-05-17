@@ -76,8 +76,8 @@ public class ChainLibraryIT {
       "accounts", "1"
     ));
     ChainLibrary inputData = new ChainLibrary()
-      .setChainId(BigInteger.valueOf(1))
-      .setLibraryId(BigInteger.valueOf(2));
+      .setChainId(BigInteger.valueOf(1L))
+      .setLibraryId(BigInteger.valueOf(2L));
 
     JSONObject result = JSON.objectFrom(testDAO.create(access, inputData));
 
@@ -93,8 +93,8 @@ public class ChainLibraryIT {
       "accounts", "1"
     ));
     ChainLibrary inputData = new ChainLibrary()
-      .setChainId(BigInteger.valueOf(1))
-      .setLibraryId(BigInteger.valueOf(1));
+      .setChainId(BigInteger.valueOf(1L))
+      .setLibraryId(BigInteger.valueOf(1L));
 
     testDAO.create(access, inputData);
   }
@@ -106,8 +106,8 @@ public class ChainLibraryIT {
       "accounts", "1"
     ));
     ChainLibrary inputData = new ChainLibrary()
-      .setChainId(BigInteger.valueOf(3))
-      .setLibraryId(BigInteger.valueOf(1));
+      .setChainId(BigInteger.valueOf(3L))
+      .setLibraryId(BigInteger.valueOf(1L));
 
     testDAO.create(access, inputData);
   }
@@ -119,8 +119,8 @@ public class ChainLibraryIT {
       "accounts", "1"
     ));
     ChainLibrary inputData = new ChainLibrary()
-      .setChainId(BigInteger.valueOf(1))
-      .setLibraryId(BigInteger.valueOf(3));
+      .setChainId(BigInteger.valueOf(1L))
+      .setLibraryId(BigInteger.valueOf(3L));
 
     testDAO.create(access, inputData);
   }
@@ -132,7 +132,7 @@ public class ChainLibraryIT {
       "accounts", "1"
     ));
     ChainLibrary inputData = new ChainLibrary()
-      .setLibraryId(BigInteger.valueOf(2));
+      .setLibraryId(BigInteger.valueOf(2L));
 
     testDAO.create(access, inputData);
   }
@@ -144,7 +144,7 @@ public class ChainLibraryIT {
       "accounts", "1"
     ));
     ChainLibrary inputData = new ChainLibrary()
-      .setChainId(BigInteger.valueOf(1));
+      .setChainId(BigInteger.valueOf(1L));
 
     testDAO.create(access, inputData);
   }
@@ -156,12 +156,12 @@ public class ChainLibraryIT {
       "accounts", "1"
     ));
 
-    ChainLibrary result = testDAO.readOne(access, BigInteger.valueOf(1));
+    ChainLibrary result = testDAO.readOne(access, BigInteger.valueOf(1L));
 
     assertNotNull(result);
-    assertEquals(BigInteger.valueOf(1), result.getId());
-    assertEquals(BigInteger.valueOf(1), result.getChainId());
-    assertEquals(BigInteger.valueOf(1), result.getLibraryId());
+    assertEquals(BigInteger.valueOf(1L), result.getId());
+    assertEquals(BigInteger.valueOf(1L), result.getChainId());
+    assertEquals(BigInteger.valueOf(1L), result.getLibraryId());
   }
 
   @Test
@@ -171,7 +171,7 @@ public class ChainLibraryIT {
       "accounts", "326"
     ));
 
-    ChainLibrary result = testDAO.readOne(access, BigInteger.valueOf(1));
+    ChainLibrary result = testDAO.readOne(access, BigInteger.valueOf(1L));
 
     assertNull(result);
   }
@@ -183,10 +183,10 @@ public class ChainLibraryIT {
       "accounts", "1"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(2))));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(2L))));
 
     assertNotNull(result);
-    assertEquals(2, result.length());
+    assertEquals(2L, (long) result.length());
     JSONObject result1 = (JSONObject) result.get(0);
     assertEquals(1, result1.get("libraryId"));
     JSONObject result2 = (JSONObject) result.get(1);
@@ -200,10 +200,10 @@ public class ChainLibraryIT {
       "accounts", "345"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1))));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1L))));
 
     assertNotNull(result);
-    assertEquals(0, result.length());
+    assertEquals(0L, (long) result.length());
   }
 
   @Test
@@ -213,9 +213,9 @@ public class ChainLibraryIT {
       "accounts", "1"
     ));
 
-    testDAO.destroy(access, BigInteger.valueOf(1));
+    testDAO.destroy(access, BigInteger.valueOf(1L));
 
-    ChainLibrary result = testDAO.readOne(Access.internal(),BigInteger.valueOf(1));
+    ChainLibrary result = testDAO.readOne(Access.internal(),BigInteger.valueOf(1L));
     assertNull(result);
   }
 
@@ -226,6 +226,6 @@ public class ChainLibraryIT {
       "accounts", "5"
     ));
 
-    testDAO.destroy(access, BigInteger.valueOf(1));
+    testDAO.destroy(access, BigInteger.valueOf(1L));
   }
 }

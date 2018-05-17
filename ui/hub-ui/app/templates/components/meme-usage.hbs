@@ -4,29 +4,29 @@
 
   <div class="name">{{name}}</div>
 
-  {{#each model.patternsWithMeme as |pattern|}}
-    {{#if pattern.patternHasMeme}}
-      <div class="pattern">
-        {{#link-to "go.pattern" pattern.patternId}}
-          <small>{{pattern.patternType}}-Pattern #{{pattern.patternId}}</small>
-          {{#if pattern.patternName}}
-            &quot;{{pattern.patternName}}&quot;{{/if}}
+  {{#each model.sequencesWithMeme as |sequence|}}
+    {{#if sequence.sequenceHasMeme}}
+      <div class="sequence">
+        {{#link-to "go.sequence" sequence.sequenceId}}
+          <small>{{sequence.sequenceType}}-Sequence #{{sequence.sequenceId}}</small>
+          {{#if sequence.sequenceName}}
+            &quot;{{sequence.sequenceName}}&quot;{{/if}}
         {{/link-to}}
       </div>
     {{/if}}
-    {{#each pattern.phasesWithMeme as |phase|}}
-      <div class="pattern-phase">
+    {{#each sequence.patternsWithMeme as |pattern|}}
+      <div class="sequence-pattern">
+        {{#link-to "go.sequence" sequence.sequenceId}}
+          <small>{{sequence.sequenceType}}-Sequence #{{sequence.sequenceId}}</small>
+          {{#if sequence.sequenceName}}
+            &quot;{{sequence.sequenceName}}&quot;{{/if}}
+        {{/link-to}}
         {{#link-to "go.pattern" pattern.patternId}}
           <small>{{pattern.patternType}}-Pattern #{{pattern.patternId}}</small>
           {{#if pattern.patternName}}
             &quot;{{pattern.patternName}}&quot;{{/if}}
-        {{/link-to}}
-        {{#link-to "go.phase" phase.phaseId}}
-          <small>{{phase.phaseType}}-Phase #{{phase.phaseId}}</small>
-          {{#if phase.phaseName}}
-            &quot;{{phase.phaseName}}&quot;{{/if}}
-          {{#if phase.phaseOffset}}
-            @{{phase.phaseOffset}}{{/if}}
+          {{#if pattern.patternOffset}}
+            @{{pattern.patternOffset}}{{/if}}
         {{/link-to}}
       </div>
     {{/each}}

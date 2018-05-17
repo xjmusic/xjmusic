@@ -3,8 +3,8 @@ package io.xj.craft.generation;
 
 import io.xj.craft.ingest.Ingest;
 import io.xj.core.exception.ConfigException;
-import io.xj.craft.generation.superpattern.LibrarySuperpatternGeneration;
-import io.xj.core.model.pattern.Pattern;
+import io.xj.craft.generation.supersequence.LibrarySupersequenceGeneration;
+import io.xj.core.model.sequence.Sequence;
 
 import com.google.inject.assistedinject.Assisted;
 
@@ -15,15 +15,15 @@ import com.google.inject.assistedinject.Assisted;
 public interface GenerationFactory {
 
   /**
-   [#154548999] Artist wants to generate a Library Superpattern in order to create a Detail pattern that covers the chord progressions of all existing Main Patterns in a Library.
+   [#154548999] Artist wants to generate a Library Supersequence in order to create a Detail sequence that covers the chord progressions of all existing Main Sequences in a Library.
 
-   @param pattern    target to build generation around
+   @param sequence    target to build generation around
    @param ingest Ingest to be generated from
-   @return LibrarySuperpatternGeneration
+   @return LibrarySupersequenceGeneration
    @throws ConfigException on failure
    */
-  LibrarySuperpatternGeneration librarySuperpattern(
-    @Assisted("pattern") Pattern pattern,
+  LibrarySupersequenceGeneration librarySupersequence(
+    @Assisted("sequence") Sequence sequence,
     @Assisted("ingest") Ingest ingest
   ) throws ConfigException;
 

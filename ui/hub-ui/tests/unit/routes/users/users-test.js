@@ -1,4 +1,6 @@
 
+// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+
 // import { moduleFor, test } from 'ember-qunit';
 //
 // moduleFor('route:admin/users', 'Unit | Route | admin/users', {

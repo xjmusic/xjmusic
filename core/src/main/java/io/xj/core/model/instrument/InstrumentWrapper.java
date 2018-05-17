@@ -27,6 +27,7 @@ public class InstrumentWrapper extends EntityWrapper {
 
    @throws BusinessException if invalid.
    */
+  @Override
   public Instrument validate() throws BusinessException {
     if (this.instrument == null) {
       throw new BusinessException("Instrument is required.");

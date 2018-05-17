@@ -3,7 +3,7 @@ package io.xj.core.model.choice;
 
 import io.xj.core.exception.BusinessException;
 import io.xj.core.model.entity.Entity;
-import io.xj.core.model.pattern.PatternType;
+import io.xj.core.model.sequence.SequenceType;
 import io.xj.core.transport.CSV;
 
 import com.google.common.collect.Lists;
@@ -27,34 +27,34 @@ or decoding messages received by JAX-RS resources.
 public class Choice extends Entity {
   public static final String KEY_ONE = "choice";
   public static final String KEY_MANY = "choices";
-  private List<BigInteger> availablePhaseOffsets = Lists.newArrayList();
+  private List<BigInteger> availablePatternOffsets = Lists.newArrayList();
 
-  private BigInteger linkId;
-  private BigInteger patternId;
+  private BigInteger segmentId;
+  private BigInteger sequenceId;
   private String _type; // to hold value before validation
-  private PatternType type;
-  private BigInteger phaseOffset;
+  private SequenceType type;
+  private BigInteger patternOffset;
   private Integer transpose;
 
-  public BigInteger getLinkId() {
-    return linkId;
+  public BigInteger getSegmentId() {
+    return segmentId;
   }
 
-  public Choice setLinkId(BigInteger value) {
-    linkId = value;
+  public Choice setSegmentId(BigInteger value) {
+    segmentId = value;
     return this;
   }
 
-  public BigInteger getPatternId() {
-    return patternId;
+  public BigInteger getSequenceId() {
+    return sequenceId;
   }
 
-  public Choice setPatternId(BigInteger value) {
-    patternId = value;
+  public Choice setSequenceId(BigInteger value) {
+    sequenceId = value;
     return this;
   }
 
-  public PatternType getType() {
+  public SequenceType getType() {
     return type;
   }
 
@@ -63,16 +63,16 @@ public class Choice extends Entity {
     return this;
   }
 
-  public void setTypeEnum(PatternType type) {
+  public void setTypeEnum(SequenceType type) {
     this.type = type;
   }
 
-  public BigInteger getPhaseOffset() {
-    return phaseOffset;
+  public BigInteger getPatternOffset() {
+    return patternOffset;
   }
 
-  public Choice setPhaseOffset(BigInteger value) {
-    phaseOffset = value;
+  public Choice setPatternOffset(BigInteger value) {
+    patternOffset = value;
     return this;
   }
 
@@ -86,28 +86,25 @@ public class Choice extends Entity {
   }
 
   /**
-   Whether the current Link Choice has one or more phases
-   with a higher phase offset than the current one
+   Whether the current Segment Choice has one or more patterns
+   with a higher pattern offset than the current one
 
-   @return true if it has one more phase
+   @return true if it has one more pattern
    */
-  public boolean hasOneMorePhase() {
-    for (BigInteger availableOffset : availablePhaseOffsets)
-      if (0 < availableOffset.compareTo(phaseOffset))
-        return true;
-    return false;
+  public boolean hasOneMorePattern() {
+    return availablePatternOffsets.stream().anyMatch(availableOffset -> 0 < availableOffset.compareTo(patternOffset));
   }
 
   /**
-   Whether the current Link Choice has two or more phases
-   with a higher phase offset than the current two
+   Whether the current Segment Choice has two or more patterns
+   with a higher pattern offset than the current two
 
-   @return true if it has two more phase
+   @return true if it has two more pattern
    */
-  public boolean hasTwoMorePhases() {
+  public boolean hasTwoMorePatterns() {
     int num = 0;
-    for (BigInteger availableOffset : availablePhaseOffsets)
-      if (0 < availableOffset.compareTo(phaseOffset)) {
+    for (BigInteger availableOffset : availablePatternOffsets)
+      if (0 < availableOffset.compareTo(patternOffset)) {
         num++;
         if (2 <= num)
           return true;
@@ -116,67 +113,67 @@ public class Choice extends Entity {
   }
 
   /**
-   Returns the phase offset immediately after the current one,
-   or loop back to zero is past the end of the available phases
+   Returns the pattern offset immediately after the current one,
+   or loop back to zero is past the end of the available patterns
 
-   @return next phase offset
+   @return next pattern offset
    */
   @Nullable
-  public BigInteger nextPhaseOffset() {
+  public BigInteger nextPatternOffset() {
     BigInteger offset = null;
-    for (BigInteger availableOffset : availablePhaseOffsets)
-      if (0 < availableOffset.compareTo(phaseOffset))
+    for (BigInteger availableOffset : availablePatternOffsets)
+      if (0 < availableOffset.compareTo(patternOffset))
         if (Objects.isNull(offset) ||
           0 > availableOffset.compareTo(offset))
           offset = availableOffset;
-    return Objects.nonNull(offset) ? offset : BigInteger.valueOf(0);
+    return Objects.nonNull(offset) ? offset : BigInteger.valueOf(0L);
   }
 
   /**
-   Get eitherOr phase offsets for the chosen pattern
+   Get eitherOr pattern offsets for the chosen sequence
 
-   @return eitherOr phase offsets
+   @return eitherOr pattern offsets
    */
-  public List<BigInteger> getAvailablePhaseOffsets() {
-    return Collections.unmodifiableList(availablePhaseOffsets);
+  public List<BigInteger> getAvailablePatternOffsets() {
+    return Collections.unmodifiableList(availablePatternOffsets);
   }
 
   /**
-   set available phase offsets from CSV
+   set available pattern offsets from CSV
 
-   @param phaseOffsets to set from
+   @param patternOffsets to set from
    */
-  public Choice setAvailablePhaseOffsets(String phaseOffsets) {
-    availablePhaseOffsets = Lists.newArrayList();
-    CSV.split(phaseOffsets)
-      .forEach(phaseOffsetToSet ->
-        availablePhaseOffsets.add(new BigInteger(phaseOffsetToSet)));
-    Collections.sort(availablePhaseOffsets);
+  public Choice setAvailablePatternOffsets(String patternOffsets) {
+    availablePatternOffsets = Lists.newArrayList();
+    CSV.split(patternOffsets)
+      .forEach(patternOffsetToSet ->
+        availablePatternOffsets.add(new BigInteger(patternOffsetToSet)));
+    Collections.sort(availablePatternOffsets);
 
     return this;
   }
 
   @Override
   public BigInteger getParentId() {
-    return linkId;
+    return segmentId;
   }
 
   @Override
   public void validate() throws BusinessException {
     // throws its own BusinessException on failure
-    type = PatternType.validate(_type);
+    type = SequenceType.validate(_type);
 
-    if (Objects.isNull(linkId))
-      throw new BusinessException("Link ID is required.");
+    if (Objects.isNull(segmentId))
+      throw new BusinessException("Segment ID is required.");
 
-    if (Objects.isNull(patternId))
-      throw new BusinessException("Pattern ID is required.");
+    if (Objects.isNull(sequenceId))
+      throw new BusinessException("Sequence ID is required.");
 
     if (Objects.isNull(type))
       throw new BusinessException("Type is required.");
 
-    if (Objects.isNull(phaseOffset))
-      throw new BusinessException("Phase Offset is required.");
+    if (Objects.isNull(patternOffset))
+      throw new BusinessException("Pattern Offset is required.");
 
     if (Objects.isNull(transpose))
       transpose = 0;

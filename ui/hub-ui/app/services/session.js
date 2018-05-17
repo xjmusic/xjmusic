@@ -1,6 +1,4 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
-// import Ember from 'ember';
-// import DS from "ember-data";
 import ESASession from "ember-simple-auth/services/session";
 
 export default ESASession.extend({

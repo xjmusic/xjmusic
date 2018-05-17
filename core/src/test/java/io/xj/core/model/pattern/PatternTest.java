@@ -16,58 +16,34 @@ public class PatternTest {
   @Test
   public void validate() throws Exception {
     new Pattern()
-      .setLibraryId(BigInteger.valueOf(23))
-      .setType("Main")
-      .setDensity(0.75)
-      .setKey("D# major 7")
+      .setSequenceId(BigInteger.valueOf(9812L))
       .setName("Mic Check One Two")
-      .setTempo(120.0)
-      .setUserId(BigInteger.valueOf(987))
+      .setKey("D major")
+      .setTypeEnum(PatternType.Macro)
+      .setTotal(64)
+      .setOffset(BigInteger.valueOf(14L))
+      .setDensity(0.6)
+      .setTempo(140.5)
       .validate();
   }
 
   @Test
-  public void validate_failsWithoutName() throws Exception {
-    failure.expect(BusinessException.class);
-    failure.expectMessage("Name is required");
-
+  public void validate_withMinimalAttributes() throws Exception {
     new Pattern()
-      .setLibraryId(BigInteger.valueOf(23))
-      .setType("Main")
-      .setDensity(0.75)
-      .setKey("D# major 7")
-      .setTempo(120.0)
-      .setUserId(BigInteger.valueOf(987))
+      .setSequenceId(BigInteger.valueOf(9812L))
+      .setOffset(BigInteger.valueOf(14L))
+      .setTypeEnum(PatternType.Macro)
       .validate();
   }
 
   @Test
-  public void validate_failsWithoutLibraryID() throws Exception {
+  public void validate_failsWithoutSequenceID() throws Exception {
     failure.expect(BusinessException.class);
-    failure.expectMessage("Library ID is required");
+    failure.expectMessage("Sequence ID is required");
 
     new Pattern()
-      .setType("Main")
-      .setDensity(0.75)
-      .setKey("D# major 7")
-      .setName("Mic Check One Two")
-      .setTempo(120.0)
-      .setUserId(BigInteger.valueOf(987))
-      .validate();
-  }
-
-  @Test
-  public void validate_failsWithoutUserID() throws Exception {
-    failure.expect(BusinessException.class);
-    failure.expectMessage("User ID is required");
-
-    new Pattern()
-      .setLibraryId(BigInteger.valueOf(23))
-      .setType("Main")
-      .setDensity(0.75)
-      .setKey("D# major 7")
-      .setName("Mic Check One Two")
-      .setTempo(120.0)
+      .setOffset(BigInteger.valueOf(14L))
+      .setTypeEnum(PatternType.Macro)
       .validate();
   }
 
@@ -77,74 +53,21 @@ public class PatternTest {
     failure.expectMessage("Type is required");
 
     new Pattern()
-      .setLibraryId(BigInteger.valueOf(23))
-      .setDensity(0.75)
-      .setKey("D# major 7")
-      .setName("Mic Check One Two")
-      .setTempo(120.0)
-      .setUserId(BigInteger.valueOf(987))
+      .setSequenceId(BigInteger.valueOf(9812L))
+      .setOffset(BigInteger.valueOf(14L))
       .validate();
   }
 
   @Test
-  public void validate_failsWithInvalidType() throws Exception {
+  public void validate_failsWithoutOffset() throws Exception {
     failure.expect(BusinessException.class);
-    failure.expectMessage("'funk' is not a valid type");
+    failure.expectMessage("Offset is required");
 
     new Pattern()
-      .setLibraryId(BigInteger.valueOf(23))
-      .setType("funk")
-      .setDensity(0.75)
-      .setKey("D# major 7")
-      .setName("Mic Check One Two")
-      .setTempo(120.0)
-      .setUserId(BigInteger.valueOf(987))
+      .setSequenceId(BigInteger.valueOf(9812L))
+      .setTypeEnum(PatternType.Macro)
       .validate();
   }
 
-  @Test
-  public void validate_failsWithoutKey() throws Exception {
-    failure.expect(BusinessException.class);
-    failure.expectMessage("Key is required");
-
-    new Pattern()
-      .setLibraryId(BigInteger.valueOf(23))
-      .setType("Main")
-      .setDensity(0.75)
-      .setName("Mic Check One Two")
-      .setTempo(120.0)
-      .setUserId(BigInteger.valueOf(987))
-      .validate();
-  }
-
-  @Test
-  public void validate_failsWithoutDensity() throws Exception {
-    failure.expect(BusinessException.class);
-    failure.expectMessage("Density is required");
-
-    new Pattern()
-      .setLibraryId(BigInteger.valueOf(23))
-      .setType("Main")
-      .setKey("D# major 7")
-      .setName("Mic Check One Two")
-      .setTempo(120.0)
-      .setUserId(BigInteger.valueOf(987))
-      .validate();
-  }
-
-  @Test
-  public void validate_failsWithoutTempo() throws Exception {
-    failure.expect(BusinessException.class);
-    failure.expectMessage("Tempo is required");
-
-    new Pattern()
-      .setLibraryId(BigInteger.valueOf(23))
-      .setType("Main")
-      .setDensity(0.75)
-      .setKey("D# major 7")
-      .setName("Mic Check One Two")
-      .setUserId(BigInteger.valueOf(987))
-      .validate();
-  }
 
 }

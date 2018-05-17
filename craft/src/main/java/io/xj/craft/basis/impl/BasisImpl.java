@@ -10,12 +10,12 @@ import io.xj.core.dao.ArrangementDAO;
 import io.xj.core.dao.ChainConfigDAO;
 import io.xj.core.dao.ChainInstrumentDAO;
 import io.xj.core.dao.ChainLibraryDAO;
-import io.xj.core.dao.ChainPatternDAO;
+import io.xj.core.dao.ChainSequenceDAO;
 import io.xj.core.dao.ChoiceDAO;
-import io.xj.core.dao.LinkChordDAO;
-import io.xj.core.dao.LinkDAO;
-import io.xj.core.dao.LinkMemeDAO;
-import io.xj.core.dao.LinkMessageDAO;
+import io.xj.core.dao.SegmentChordDAO;
+import io.xj.core.dao.SegmentDAO;
+import io.xj.core.dao.SegmentMemeDAO;
+import io.xj.core.dao.SegmentMessageDAO;
 import io.xj.craft.ingest.Ingest;
 import io.xj.core.exception.BusinessException;
 import io.xj.craft.isometry.MemeIsometry;
@@ -25,20 +25,20 @@ import io.xj.core.model.chain_config.ChainConfig;
 import io.xj.core.model.chain_config.ChainConfigType;
 import io.xj.core.model.chain_instrument.ChainInstrument;
 import io.xj.core.model.chain_library.ChainLibrary;
-import io.xj.core.model.chain_pattern.ChainPattern;
+import io.xj.core.model.chain_sequence.ChainSequence;
 import io.xj.core.model.choice.Choice;
 import io.xj.core.model.entity.Entity;
 import io.xj.core.model.instrument.Instrument;
 import io.xj.core.model.library.Library;
-import io.xj.core.model.link.Link;
-import io.xj.core.model.link_chord.LinkChord;
-import io.xj.core.model.link_meme.LinkMeme;
-import io.xj.core.model.link_message.LinkMessage;
+import io.xj.core.model.segment.Segment;
+import io.xj.core.model.segment_chord.SegmentChord;
+import io.xj.core.model.segment_meme.SegmentMeme;
+import io.xj.core.model.segment_message.SegmentMessage;
 import io.xj.core.model.message.MessageType;
+import io.xj.core.model.sequence.Sequence;
+import io.xj.core.model.sequence.SequenceType;
 import io.xj.core.model.pattern.Pattern;
 import io.xj.core.model.pattern.PatternType;
-import io.xj.core.model.phase.Phase;
-import io.xj.core.model.phase.PhaseType;
 import io.xj.core.model.pick.Pick;
 import io.xj.core.util.Value;
 import io.xj.music.BPM;
@@ -68,7 +68,7 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- [#214] If a Chain has Patterns associated with it directly, prefer those choices to any in the Library
+ [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
  */
 public class BasisImpl implements Basis {
   private static final int MICROSECONDS_PER_SECOND = 1000000;
@@ -77,64 +77,64 @@ public class BasisImpl implements Basis {
   private final ArrangementDAO arrangementDAO;
   private final ChainConfigDAO chainConfigDAO;
   private final ChainLibraryDAO chainLibraryDAO;
-  private final ChainPatternDAO chainPatternDAO;
+  private final ChainSequenceDAO chainSequenceDAO;
   private final ChainInstrumentDAO chainInstrumentDAO;
   private final ChoiceDAO choiceDAO;
   private final IngestCacheProvider ingestProvider;
-  private final LinkChordDAO linkChordDAO;
-  private final LinkDAO linkDAO;
-  private final LinkMemeDAO linkMemeDAO;
-  private final LinkMessageDAO linkMessageDAO;
+  private final SegmentChordDAO segmentChordDAO;
+  private final SegmentDAO segmentDAO;
+  private final SegmentMemeDAO segmentMemeDAO;
+  private final SegmentMessageDAO segmentMessageDAO;
   private final Logger log = LoggerFactory.getLogger(BasisImpl.class);
   private final Map<String, Object> report = Maps.newConcurrentMap();
   private final Tuning tuning;
   private final long startTime;
   private final List<Pick> _picks = Lists.newArrayList();
   private final Map<BigInteger, Collection<Arrangement>> _choiceArrangements = Maps.newConcurrentMap();
-  private final Map<BigInteger, Collection<LinkMeme>> _linkMemes = Maps.newConcurrentMap();
-  private final Map<BigInteger, Map<BigInteger, Link>> _linksByOffset = Maps.newConcurrentMap();
-  private final Map<BigInteger, Map<PatternType, Choice>> _linkChoicesByType = Maps.newConcurrentMap();
+  private final Map<BigInteger, Collection<SegmentMeme>> _segmentMemes = Maps.newConcurrentMap();
+  private final Map<BigInteger, Map<BigInteger, Segment>> _segmentsByOffset = Maps.newConcurrentMap();
+  private final Map<BigInteger, Map<SequenceType, Choice>> _segmentChoicesByType = Maps.newConcurrentMap();
   private final Map<Double, Double> _positionSeconds = Maps.newConcurrentMap();
   private BasisType _type;
   private Boolean _sentReport = false;
-  private Link _link;
-  private Collection<LinkChord> _linkChords;
+  private Segment _segment;
+  private Collection<SegmentChord> _segmentChords;
   private Map<ChainConfigType, ChainConfig> _chainConfigs;
   private Map<BigInteger, Audio> _audiosFromPicks;
   private MemeIsometry _currentMacroMemeIsometry;
   private MemeIsometry _previousMacroMemeIsometry;
-  private MemeIsometry _currentLinkMemeIsometry;
-  private Collection<LinkMeme> _currentLinkMemes;
+  private MemeIsometry _currentSegmentMemeIsometry;
+  private Collection<SegmentMeme> _currentSegmentMemes;
   private Ingest _ingest;
   private Ingest _libraryIngest;
 
   @Inject
   public BasisImpl(
-    @Assisted("link") Link link,
+    @Assisted("segment") Segment segment,
     ArrangementDAO arrangementDAO,
     ChainConfigDAO chainConfigDAO,
     ChainLibraryDAO chainLibraryDAO,
-    ChainPatternDAO chainPatternDAO,
+    ChainSequenceDAO chainSequenceDAO,
     ChainInstrumentDAO chainInstrumentDAO,
     ChoiceDAO choiceDAO,
     IngestCacheProvider ingestProvider,
-    LinkChordDAO linkChordDAO,
-    LinkDAO linkDAO,
-    LinkMemeDAO linkMemeDAO,
-    LinkMessageDAO linkMessageDAO
+    SegmentChordDAO segmentChordDAO,
+    SegmentDAO segmentDAO,
+    SegmentMemeDAO segmentMemeDAO,
+    SegmentMessageDAO segmentMessageDAO
   /*-*/) throws BusinessException {
-    _link = link;
+    _segment = segment;
     this.arrangementDAO = arrangementDAO;
     this.chainConfigDAO = chainConfigDAO;
     this.chainLibraryDAO = chainLibraryDAO;
-    this.chainPatternDAO = chainPatternDAO;
+    this.chainSequenceDAO = chainSequenceDAO;
     this.chainInstrumentDAO = chainInstrumentDAO;
     this.choiceDAO = choiceDAO;
     this.ingestProvider = ingestProvider;
-    this.linkChordDAO = linkChordDAO;
-    this.linkDAO = linkDAO;
-    this.linkMemeDAO = linkMemeDAO;
-    this.linkMessageDAO = linkMessageDAO;
+    this.segmentChordDAO = segmentChordDAO;
+    this.segmentDAO = segmentDAO;
+    this.segmentMemeDAO = segmentMemeDAO;
+    this.segmentMessageDAO = segmentMessageDAO;
 
     // [#255] Tuning based on root note configured in environment parameters.
     try {
@@ -150,10 +150,10 @@ public class BasisImpl implements Basis {
 
   @Override
   public String outputFilePath() throws BusinessException {
-    if (Objects.isNull(link().getWaveformKey()))
-      throw new BusinessException("Link has no waveform key!");
+    if (Objects.isNull(segment().getWaveformKey()))
+      throw new BusinessException("Segment has no waveform key!");
 
-    return Config.workTempFilePathPrefix() + link().getWaveformKey();
+    return Config.workTempFilePathPrefix() + segment().getWaveformKey();
   }
 
   @Override
@@ -173,11 +173,11 @@ public class BasisImpl implements Basis {
   public BasisType type() {
     if (Objects.isNull(_type))
       try {
-        if (isInitialLink())
+        if (isInitialSegment())
           _type = BasisType.Initial;
-        else if (previousMainChoice().hasOneMorePhase())
+        else if (previousMainChoice().hasOneMorePattern())
           _type = BasisType.Continue;
-        else if (previousMacroChoice().hasTwoMorePhases())
+        else if (previousMacroChoice().hasTwoMorePatterns())
           _type = BasisType.NextMain;
         else
           _type = BasisType.NextMacro;
@@ -213,7 +213,7 @@ public class BasisImpl implements Basis {
   private Collection<Entity> entitiesBoundToChain() throws Exception {
     Collection<Entity> result = Lists.newArrayList();
     result.addAll(librariesBoundToChain());
-    result.addAll(patternsBoundToChain());
+    result.addAll(sequencesBoundToChain());
     result.addAll(instrumentsBoundToChain());
     return result;
   }
@@ -240,24 +240,24 @@ public class BasisImpl implements Basis {
   }
 
   /**
-   Get all patterns bound to chain.
+   Get all sequences bound to chain.
    CACHES results.
 
-   @return patterns bound to chain.
+   @return sequences bound to chain.
    */
-  private Collection<Pattern> patternsBoundToChain() throws Exception {
-    ImmutableList.Builder<Pattern> builder = ImmutableList.builder();
-    chainPatterns().forEach(chainPattern -> builder.add(new Pattern(chainPattern.getPatternId())));
+  private Collection<Sequence> sequencesBoundToChain() throws Exception {
+    ImmutableList.Builder<Sequence> builder = ImmutableList.builder();
+    chainSequences().forEach(chainSequence -> builder.add(new Sequence(chainSequence.getSequenceId())));
     return builder.build();
   }
 
   /**
-   Get ChainPattern bindings for the current chain
+   Get ChainSequence bindings for the current chain
 
-   @return collection of ChainPattern
+   @return collection of ChainSequence
    */
-  private Collection<ChainPattern> chainPatterns() throws Exception {
-    return chainPatternDAO.readAll(Access.internal(), ImmutableList.of(chainId()));
+  private Collection<ChainSequence> chainSequences() throws Exception {
+    return chainSequenceDAO.readAll(Access.internal(), ImmutableList.of(chainId()));
   }
 
   /**
@@ -290,24 +290,24 @@ public class BasisImpl implements Basis {
   private Collection<Entity> entitiesBoundToChainOrInferred() throws Exception {
     Map<BigInteger, Entity> result = Maps.newConcurrentMap();
     librariesBoundToChain().forEach(library -> result.put(library.getId(), library));
-    patternsBoundToChain().forEach(pattern -> result.put(pattern.getLibraryId(), new Library(pattern.getLibraryId())));
+    sequencesBoundToChain().forEach(sequence -> result.put(sequence.getLibraryId(), new Library(sequence.getLibraryId())));
     instrumentsBoundToChain().forEach(instrument -> result.put(instrument.getLibraryId(), new Library(instrument.getLibraryId())));
     return result.values();
   }
 
   @Override
-  public Link link() {
-    return _link;
+  public Segment segment() {
+    return _segment;
   }
 
   @Override
-  public Boolean isInitialLink() {
-    return _link.isInitial();
+  public Boolean isInitialSegment() {
+    return _segment.isInitial();
   }
 
   @Override
   public BigInteger chainId() {
-    return _link.getChainId();
+    return _segment.getChainId();
   }
 
   @Override
@@ -322,83 +322,83 @@ public class BasisImpl implements Basis {
   }
 
   @Override
-  public Timestamp linkBeginAt() {
-    return _link.getBeginAt();
+  public Timestamp segmentBeginAt() {
+    return _segment.getBeginAt();
   }
 
   @Override
-  public Link previousLink() throws Exception {
-    if (isInitialLink()) return null;
+  public Segment previousSegment() throws Exception {
+    if (isInitialSegment()) return null;
 
-    return linkByOffset(chainId(), Value.inc(_link.getOffset(), -1));
+    return segmentByOffset(chainId(), Value.inc(_segment.getOffset(), -1));
   }
 
   @Override
-  public Collection<LinkMeme> previousLinkMemes() throws Exception {
-    if (isInitialLink()) return null;
+  public Collection<SegmentMeme> previousSegmentMemes() throws Exception {
+    if (isInitialSegment()) return null;
 
-    Link previousLink = previousLink();
-    if (Objects.isNull(previousLink)) return Lists.newArrayList();
+    Segment previousSegment = previousSegment();
+    if (Objects.isNull(previousSegment)) return Lists.newArrayList();
 
-    return linkMemes(previousLink.getId());
+    return segmentMemes(previousSegment.getId());
   }
 
   @Override
   public Choice previousMacroChoice() throws Exception {
-    return isInitialLink() ? null : linkChoiceByType(previousLink().getId(), PatternType.Macro);
+    return isInitialSegment() ? null : segmentChoiceByType(previousSegment().getId(), SequenceType.Macro);
   }
 
   @Override
   public Choice previousMainChoice() throws Exception {
-    return isInitialLink() ? null : linkChoiceByType(previousLink().getId(), PatternType.Main);
+    return isInitialSegment() ? null : segmentChoiceByType(previousSegment().getId(), SequenceType.Main);
   }
 
   @Override
   public Choice previousRhythmChoice() throws Exception {
-    return isInitialLink() ? null : linkChoiceByType(previousLink().getId(), PatternType.Rhythm);
+    return isInitialSegment() ? null : segmentChoiceByType(previousSegment().getId(), SequenceType.Rhythm);
   }
 
   @Override
   public Collection<Arrangement> previousPercussiveArrangements() throws Exception {
-    return isInitialLink() ? null : choiceArrangements(previousRhythmChoice().getId());
+    return isInitialSegment() ? null : choiceArrangements(previousRhythmChoice().getId());
   }
 
   @Override
   public Choice currentMacroChoice() throws Exception {
-    return linkChoiceByType(link().getId(), PatternType.Macro);
+    return segmentChoiceByType(segment().getId(), SequenceType.Macro);
   }
 
   @Override
   public Choice currentMainChoice() throws Exception {
-    return linkChoiceByType(link().getId(), PatternType.Main);
+    return segmentChoiceByType(segment().getId(), SequenceType.Main);
   }
 
   @Override
   public Choice currentRhythmChoice() throws Exception {
-    return linkChoiceByType(link().getId(), PatternType.Rhythm);
+    return segmentChoiceByType(segment().getId(), SequenceType.Rhythm);
   }
 
   @Override
-  public Phase currentMacroPhase() throws Exception {
-    return ingest().phaseAtOffset(
-      currentMacroChoice().getPatternId(),
-      currentMacroChoice().getPhaseOffset(),
-      PhaseType.Macro);
+  public Pattern currentMacroPattern() throws Exception {
+    return ingest().patternAtOffset(
+      currentMacroChoice().getSequenceId(),
+      currentMacroChoice().getPatternOffset(),
+      PatternType.Macro);
   }
 
   @Override
-  public Phase previousMacroNextPhase() throws Exception {
-    return isInitialLink() ? null : ingest().phaseAtOffset(
-      previousMacroChoice().getPatternId(),
-      previousMacroChoice().nextPhaseOffset(),
-      PhaseType.Macro);
+  public Pattern previousMacroNextPattern() throws Exception {
+    return isInitialSegment() ? null : ingest().patternAtOffset(
+      previousMacroChoice().getSequenceId(),
+      previousMacroChoice().nextPatternOffset(),
+      PatternType.Macro);
   }
 
   @Override
   public Map<ChainConfigType, ChainConfig> chainConfigs() throws Exception {
     if (Objects.isNull(_chainConfigs) || _chainConfigs.isEmpty()) {
       _chainConfigs = Maps.newConcurrentMap();
-      chainConfigDAO.readAll(Access.internal(), ImmutableList.of(link().getId()))
+      chainConfigDAO.readAll(Access.internal(), ImmutableList.of(segment().getId()))
         .forEach(record -> _chainConfigs.put(
           record.getType(),
           record));
@@ -423,17 +423,17 @@ public class BasisImpl implements Basis {
 
   @Override
   public Chord chordAt(int position) throws Exception {
-    // default to returning a chord based on the link key, if nothing else is found
-    Chord foundChord = Chord.of(link().getKey());
+    // default to returning a chord based on the segment key, if nothing else is found
+    Chord foundChord = Chord.of(segment().getKey());
     Double foundPosition = null;
 
-    // we assume that these chords are in order of position ascending (see: LinkChordDAO.readAllExpectedWork)
-    for (LinkChord linkChord : linkChords()) {
+    // we assume that these chords are in order of position ascending (see: SegmentChordDAO.readAllExpectedWork)
+    for (SegmentChord segmentChord : segmentChords()) {
       // if it's a better match (or no match has yet been found) then use it
       if (Objects.isNull(foundPosition) ||
-        linkChord.getPosition() > foundPosition && linkChord.getPosition() < position) {
-        foundPosition = linkChord.getPosition();
-        foundChord = Chord.of(linkChord.getName());
+        segmentChord.getPosition() > foundPosition && segmentChord.getPosition() < position) {
+        foundPosition = segmentChord.getPosition();
+        foundChord = Chord.of(segmentChord.getName());
       }
     }
 
@@ -459,23 +459,23 @@ public class BasisImpl implements Basis {
   }
 
   @Override
-  public Collection<LinkMeme> linkMemes(BigInteger linkId) throws Exception {
-    if (!_linkMemes.containsKey(linkId))
-      _linkMemes.put(linkId, linkMemeDAO.readAll(Access.internal(), ImmutableList.of(linkId)));
+  public Collection<SegmentMeme> segmentMemes(BigInteger segmentId) throws Exception {
+    if (!_segmentMemes.containsKey(segmentId))
+      _segmentMemes.put(segmentId, segmentMemeDAO.readAll(Access.internal(), ImmutableList.of(segmentId)));
 
-    return _linkMemes.get(linkId);
+    return _segmentMemes.get(segmentId);
   }
 
   @Override
-  public Audio linkAudio(BigInteger audioId) throws Exception {
-    if (linkAudios().containsKey(audioId))
-      return linkAudios().get(audioId);
+  public Audio segmentAudio(BigInteger audioId) throws Exception {
+    if (segmentAudios().containsKey(audioId))
+      return segmentAudios().get(audioId);
 
-    throw new BusinessException(String.format("Audio #%s is not in link picks!", audioId.toString()));
+    throw new BusinessException(String.format("Audio #%s is not in segment picks!", audioId.toString()));
   }
 
   @Override
-  public Map<BigInteger, Audio> linkAudios() throws Exception {
+  public Map<BigInteger, Audio> segmentAudios() throws Exception {
     if (Objects.isNull(_audiosFromPicks) || _audiosFromPicks.isEmpty()) {
       _audiosFromPicks = Maps.newConcurrentMap();
       for (Pick pick : _picks) {
@@ -487,31 +487,31 @@ public class BasisImpl implements Basis {
   }
 
   @Override
-  public Collection<BigInteger> linkAudioIds() throws Exception {
-    return ImmutableList.copyOf(linkAudios().keySet());
+  public Collection<BigInteger> segmentAudioIds() throws Exception {
+    return ImmutableList.copyOf(segmentAudios().keySet());
   }
 
   @Override
-  public Collection<LinkChord> linkChords() throws Exception {
-    if (Objects.isNull(_linkChords) || _linkChords.isEmpty()) {
-      _linkChords = linkChordDAO.readAll(Access.internal(), ImmutableList.of(link().getId()));
+  public Collection<SegmentChord> segmentChords() throws Exception {
+    if (Objects.isNull(_segmentChords) || _segmentChords.isEmpty()) {
+      _segmentChords = segmentChordDAO.readAll(Access.internal(), ImmutableList.of(segment().getId()));
     }
 
-    return Collections.unmodifiableCollection(_linkChords);
+    return Collections.unmodifiableCollection(_segmentChords);
   }
 
   @Override
-  public Collection<LinkMeme> linkMemes() throws Exception {
-    if (Objects.nonNull(_currentLinkMemes)) {
-      return Collections.unmodifiableCollection(_currentLinkMemes);
+  public Collection<SegmentMeme> segmentMemes() throws Exception {
+    if (Objects.nonNull(_currentSegmentMemes)) {
+      return Collections.unmodifiableCollection(_currentSegmentMemes);
     }
 
-    return linkMemes(link().getId());
+    return segmentMemes(segment().getId());
   }
 
   @Override
-  public void setLinkMemes(Collection<LinkMeme> memes) {
-    _currentLinkMemes = Lists.newArrayList(memes);
+  public void setSegmentMemes(Collection<SegmentMeme> memes) {
+    _currentSegmentMemes = Lists.newArrayList(memes);
   }
 
   @Override
@@ -525,43 +525,43 @@ public class BasisImpl implements Basis {
   }
 
   @Override
-  public Duration linkTotalLength() throws Exception {
-    if (Objects.isNull(link().getEndAt()))
-      throw new BusinessException("Cannot compute total length of link with no end!");
+  public Duration segmentTotalLength() throws Exception {
+    if (Objects.isNull(segment().getEndAt()))
+      throw new BusinessException("Cannot compute total length of segment with no end!");
 
-    return Duration.ofMillis(link().getEndAt().getTime() - link().getBeginAt().getTime());
+    return Duration.ofMillis(segment().getEndAt().getTime() - segment().getBeginAt().getTime());
   }
 
   @Override
-  public Link linkByOffset(BigInteger chainId, BigInteger offset) throws Exception {
-    if (!_linksByOffset.containsKey(chainId))
-      _linksByOffset.put(chainId, Maps.newConcurrentMap());
+  public Segment segmentByOffset(BigInteger chainId, BigInteger offset) throws Exception {
+    if (!_segmentsByOffset.containsKey(chainId))
+      _segmentsByOffset.put(chainId, Maps.newConcurrentMap());
 
-    if (!_linksByOffset.get(chainId).containsKey(offset)) {
-      Link link = linkDAO.readOneAtChainOffset(Access.internal(), chainId, offset);
-      if (Objects.nonNull(link)) _linksByOffset.get(chainId).put(offset, link);
+    if (!_segmentsByOffset.get(chainId).containsKey(offset)) {
+      Segment segment = segmentDAO.readOneAtChainOffset(Access.internal(), chainId, offset);
+      if (Objects.nonNull(segment)) _segmentsByOffset.get(chainId).put(offset, segment);
     }
 
-    return _linksByOffset.get(chainId).getOrDefault(offset, null);
+    return _segmentsByOffset.get(chainId).getOrDefault(offset, null);
   }
 
   @Override
-  public Choice linkChoiceByType(BigInteger linkId, PatternType patternType) throws Exception {
-    if (!_linkChoicesByType.containsKey(linkId))
-      _linkChoicesByType.put(linkId, Maps.newConcurrentMap());
+  public Choice segmentChoiceByType(BigInteger segmentId, SequenceType sequenceType) throws Exception {
+    if (!_segmentChoicesByType.containsKey(segmentId))
+      _segmentChoicesByType.put(segmentId, Maps.newConcurrentMap());
 
-    if (!_linkChoicesByType.get(linkId).containsKey(patternType)) {
-      Choice choice = choiceDAO.readOneLinkTypeWithAvailablePhaseOffsets(Access.internal(), linkId, patternType);
-      if (Objects.nonNull(choice)) _linkChoicesByType.get(linkId).put(patternType, choice);
+    if (!_segmentChoicesByType.get(segmentId).containsKey(sequenceType)) {
+      Choice choice = choiceDAO.readOneSegmentTypeWithAvailablePatternOffsets(Access.internal(), segmentId, sequenceType);
+      if (Objects.nonNull(choice)) _segmentChoicesByType.get(segmentId).put(sequenceType, choice);
     }
 
-    return _linkChoicesByType.get(linkId).getOrDefault(patternType, null);
+    return _segmentChoicesByType.get(segmentId).getOrDefault(sequenceType, null);
   }
 
   @Override
-  public void updateLink(Link link) throws Exception {
-    _link = link;
-    linkDAO.update(Access.internal(), link.getId(), link);
+  public void updateSegment(Segment segment) throws Exception {
+    _segment = segment;
+    segmentDAO.update(Access.internal(), segment.getId(), segment);
   }
 
   @Override
@@ -583,15 +583,15 @@ public class BasisImpl implements Basis {
 
     String body = new Yaml().dumpAsMap(report);
     try {
-      linkMessageDAO.create(Access.internal(),
-        new LinkMessage()
+      segmentMessageDAO.create(Access.internal(),
+        new SegmentMessage()
           .setType(MessageType.Info.toString())
-          .setLinkId(link().getId())
+          .setSegmentId(segment().getId())
           .setBody(body));
-      log.info("Completed work and sent basis report for Link #{} in {}s", link().getId(), totalSeconds);
+      log.info("Completed work and sent basis report for Segment #{} in {}s", segment().getId(), totalSeconds);
 
     } catch (Exception e) {
-      log.warn("Failed to send final craft report message for Link {} Message {}", _link, body, e);
+      log.warn("Failed to send final craft report message for Segment {} Message {}", _segment, body, e);
     }
   }
 
@@ -601,12 +601,12 @@ public class BasisImpl implements Basis {
   }
 
   @Override
-  public MemeIsometry previousMacroNextPhaseMemeIsometry() throws Exception {
+  public MemeIsometry previousMacroNextPatternMemeIsometry() throws Exception {
     if (Objects.isNull(_previousMacroMemeIsometry)) {
-      _previousMacroMemeIsometry = MemeIsometry.of(ingest().patternAndPhaseMemes(
-        previousMacroChoice().getPatternId(),
-        Value.inc(previousMacroChoice().getPhaseOffset(), 1),
-        PhaseType.Macro));
+      _previousMacroMemeIsometry = MemeIsometry.of(ingest().sequenceAndPatternMemes(
+        previousMacroChoice().getSequenceId(),
+        Value.inc(previousMacroChoice().getPatternOffset(), 1),
+        PatternType.Macro));
     }
 
     return _previousMacroMemeIsometry;
@@ -615,22 +615,22 @@ public class BasisImpl implements Basis {
   @Override
   public MemeIsometry currentMacroMemeIsometry() throws Exception {
     if (Objects.isNull(_currentMacroMemeIsometry)) {
-      _currentMacroMemeIsometry = MemeIsometry.of(ingest().patternAndPhaseMemes(
-        currentMacroChoice().getPatternId(),
-        currentMacroChoice().getPhaseOffset(),
-        PhaseType.Macro));
+      _currentMacroMemeIsometry = MemeIsometry.of(ingest().sequenceAndPatternMemes(
+        currentMacroChoice().getSequenceId(),
+        currentMacroChoice().getPatternOffset(),
+        PatternType.Macro));
     }
 
     return _currentMacroMemeIsometry;
   }
 
   @Override
-  public MemeIsometry currentLinkMemeIsometry() throws Exception {
-    if (Objects.isNull(_currentLinkMemeIsometry)) {
-      _currentLinkMemeIsometry = MemeIsometry.of(linkMemes());
+  public MemeIsometry currentSegmentMemeIsometry() throws Exception {
+    if (Objects.isNull(_currentSegmentMemeIsometry)) {
+      _currentSegmentMemeIsometry = MemeIsometry.of(segmentMemes());
     }
 
-    return _currentLinkMemeIsometry;
+    return _currentSegmentMemeIsometry;
   }
 
   @Override
@@ -644,19 +644,19 @@ public class BasisImpl implements Basis {
   }
 
   @Override
-  public LinkMeme create(LinkMeme linkMeme) throws Exception {
-    return linkMemeDAO.create(Access.internal(), linkMeme);
+  public SegmentMeme create(SegmentMeme segmentMeme) throws Exception {
+    return segmentMemeDAO.create(Access.internal(), segmentMeme);
   }
 
   @Override
-  public LinkChord create(LinkChord linkChord) throws Exception {
-    return linkChordDAO.create(Access.internal(), linkChord);
+  public SegmentChord create(SegmentChord segmentChord) throws Exception {
+    return segmentChordDAO.create(Access.internal(), segmentChord);
   }
 
   /**
    Compute using an integral
    the seconds from start for any given position in beats
-   [#153542275] Link wherein tempo changes expect perfectly smooth sound from previous link through to following link
+   [#153542275] Segment wherein tempo changes expect perfectly smooth sound from previous segment through to following segment
 
    @param B position in beats
    @return seconds from start
@@ -666,10 +666,10 @@ public class BasisImpl implements Basis {
     Double x = 0.0d;
     Double dx = COMPUTE_INTEGRAL_DX;
 
-    Double T = link().getTotal().doubleValue();
-    double v2 = BPM.velocity(link().getTempo()); // velocity at current link tempo
-    double v1 = isInitialLink() ? v2 :
-      BPM.velocity(previousLink().getTempo()); // velocity at previous link tempo
+    Double T = segment().getTotal().doubleValue();
+    double v2 = BPM.velocity(segment().getTempo()); // velocity at current segment tempo
+    double v1 = isInitialSegment() ? v2 :
+      BPM.velocity(previousSegment().getTempo()); // velocity at previous segment tempo
 
     while (x < B) {
       sum += Math.min(dx, B - x) * // increment by dx, unless in the last (less than B-x) segment

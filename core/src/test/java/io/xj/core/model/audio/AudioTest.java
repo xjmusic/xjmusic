@@ -16,7 +16,7 @@ public class AudioTest {
   @Test
   public void validate() throws Exception {
     new Audio()
-      .setInstrumentId(BigInteger.valueOf(53))
+      .setInstrumentId(BigInteger.valueOf(53L))
       .setLength(3.4)
       .setName("Mic Check One Two")
       .setPitch(57.4)
@@ -47,7 +47,7 @@ public class AudioTest {
     failure.expectMessage("Name is required");
 
     new Audio()
-      .setInstrumentId(BigInteger.valueOf(53))
+      .setInstrumentId(BigInteger.valueOf(53L))
       .setLength(3.4)
       .setPitch(57.4)
       .setStart(0.212)
@@ -62,7 +62,7 @@ public class AudioTest {
     failure.expectMessage("Tempo is required");
 
     new Audio()
-      .setInstrumentId(BigInteger.valueOf(53))
+      .setInstrumentId(BigInteger.valueOf(53L))
       .setLength(3.4)
       .setName("Mic Check One Two")
       .setPitch(57.4)
@@ -77,7 +77,7 @@ public class AudioTest {
     failure.expectMessage("Root Pitch is required");
 
     new Audio()
-      .setInstrumentId(BigInteger.valueOf(53))
+      .setInstrumentId(BigInteger.valueOf(53L))
       .setLength(3.4)
       .setName("Mic Check One Two")
       .setStart(0.212)

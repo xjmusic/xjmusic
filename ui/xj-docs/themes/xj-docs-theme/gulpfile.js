@@ -1,3 +1,5 @@
+// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+
 var gulp = require('gulp');
 var gutil = require('gulp-util');
 var sass = require('gulp-sass');

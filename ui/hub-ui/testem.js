@@ -1,3 +1,5 @@
+// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+
 /*jshint node:true*/
 module.exports = {
   "framework": "qunit",

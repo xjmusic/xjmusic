@@ -5,13 +5,13 @@ import io.xj.craft.digest.chord_markov.DigestChordMarkov;
 import io.xj.craft.digest.chord_progression.DigestChordProgression;
 import io.xj.craft.digest.hash.DigestHash;
 import io.xj.craft.digest.meme.DigestMeme;
-import io.xj.craft.digest.pattern_style.DigestPatternStyle;
+import io.xj.craft.digest.sequence_style.DigestSequenceStyle;
 import io.xj.craft.ingest.Ingest;
 
 import com.google.inject.assistedinject.Assisted;
 
 /**
- [#154350346] Architect wants a universal Ingest Factory, to modularize graph mathematics used during craft to evaluate any combination of Library, Pattern, and Instrument for any purpose.
+ [#154350346] Architect wants a universal Ingest Factory, to modularize graph mathematics used during craft to evaluate any combination of Library, Sequence, and Instrument for any purpose.
  DigestChordProgression chords = digestFactory.chordProgression(ingest);
  DigestMeme memes = digestFactory.meme(ingest);
  */
@@ -58,12 +58,12 @@ public interface DigestFactory {
   );
 
   /**
-   Digest pattern style of any ingest of entities.
+   Digest sequence style of any ingest of entities.
 
    @param ingest to digest
-   @return pattern style digest of ingest
+   @return sequence style digest of ingest
    */
-  DigestPatternStyle patternStyle(
+  DigestSequenceStyle sequenceStyle(
     @Assisted("ingest") Ingest ingest
   );
 

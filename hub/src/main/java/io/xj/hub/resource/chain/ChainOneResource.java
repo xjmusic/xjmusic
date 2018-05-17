@@ -7,8 +7,10 @@ import io.xj.core.model.chain.Chain;
 import io.xj.core.model.chain.ChainWrapper;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.transport.HttpResponseProvider;
+import io.xj.core.util.Text;
 import io.xj.hub.HubResource;
 
+import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 import javax.jws.WebResult;
 import javax.ws.rs.Consumes;
@@ -43,21 +45,44 @@ public class ChainOneResource extends HubResource {
    */
   @GET
   @WebResult
-  @RolesAllowed(UserRoleType.USER)
+  @PermitAll
   public Response readOne(@Context ContainerRequestContext crc) throws IOException {
+    Access access = Access.fromContext(crc);
+
     if (Objects.isNull(id) || id.isEmpty())
       return response.notAcceptable("Chain id is required");
 
     try {
-      return response.readOne(
-        Chain.KEY_ONE,
-        chainDAO.readOne(
-          Access.fromContext(crc),
-          new BigInteger(id)));
+      if (Text.isInteger(id)) return readOneById(access);
+      else return readOneByEmbedKey(access);
 
     } catch (Exception e) {
       return response.failure(e);
     }
+  }
+
+  /**
+   @param access control
+   @return response to chain read by embed key
+   */
+  private Response readOneByEmbedKey(Access access) throws Exception {
+    return response.readOne(
+      Chain.KEY_ONE,
+      chainDAO.readOne(
+        access,
+        id));
+  }
+
+  /**
+   @param access control
+   @return response to chain read by id
+   */
+  private Response readOneById(Access access) throws Exception {
+    return response.readOne(
+      Chain.KEY_ONE,
+      chainDAO.readOne(
+        access,
+        new BigInteger(id)));
   }
 
   /**
@@ -82,7 +107,7 @@ public class ChainOneResource extends HubResource {
   /**
    Delete one chain
    <p>
-   [#294] Eraseworker finds Links and Audio in deleted state and actually deletes the records, child entities and S3 objects
+   [#294] Eraseworker finds Segments and Audio in deleted state and actually deletes the records, child entities and S3 objects
    Hub DELETE /chains/# is actually a state update to ERASE
    Hub cannot invoke chain destroy chainDAO method!
 

@@ -1,8 +1,6 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.util;
 
-import io.xj.core.util.Text;
-
 import com.google.common.base.Objects;
 
 import java.sql.Timestamp;
@@ -49,9 +47,8 @@ public interface TimestampUTC {
 
    @param value string
    @return timestamp
-   @throws Exception on failure
    */
-  static Timestamp valueOf(String value) throws Exception {
+  static Timestamp valueOf(String value) {
     if (null != value && !value.isEmpty()) {
       if (Objects.equal("now", Text.toLowerSlug(value))) {
         return now();

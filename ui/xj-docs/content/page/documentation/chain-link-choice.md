@@ -1,147 +1,147 @@
 +++
 date = "2017-06-19T18:49:24-04:00"
 categories = ["craft"]
-tags = ["chain","link","choice"]
-slug = "chain-link-choice"
-title = "Chain-Link Choice"
-description = "Music in the XJ platform is fabricated in Chains composed of Links"
+tags = ["chain","segment","choice"]
+slug = "chain-segment-choice"
+title = "Chain-Segment Choice"
+description = "Music in the XJ platform is fabricated in Chains composed of Segments"
 draft = true
 
 +++
 
-Music in the [XJ Music](https://hub.xj.io/login) is stored in Chains comprising of Links.
+Music in the [XJ Music](https://hub.xj.io/login) is stored in Chains comprising of Segments.
 
 In the cloud, worker-bots construct the complex arrangements of events that comprise these Chains.
 
-Work is performed sequentially, one Link after another. There are layers of work to be performed. First, each Link is "crafted," then, each Link is "dubbed."
+Work is performed sequentially, one Segment after another. There are layers of work to be performed. First, each Segment is "crafted," then, each Segment is "dubbed."
 
-## Craft: Macro & Main Choices for Link
+## Craft: Macro & Main Choices for Segment
 
-In this section is described the algorithm by which the Craftworker performs Macro & Main choices for each Link.
+In this pattern is described the algorithm by which the Craftworker performs Macro & Main choices for each Segment.
 
-### (A) Link: Initial
+### (A) Segment: Initial
 
-For the first Link in a Chain.
+For the first Segment in a Chain.
 
-#### (A.1) Select Macro-Pattern
-
-TODO: implement & document
-
-#### (A.2) Link Memes, Key, Density & Tempo = from First Phase of Macro-Pattern
+#### (A.1) Select Macro-Sequence
 
 TODO: implement & document
 
-#### (A.3) Select Main-Pattern based on Link Memes
+#### (A.2) Segment Memes, Key, Density & Tempo = from First Pattern of Macro-Sequence
 
 TODO: implement & document
 
-#### (A.4) Transpose Main-Pattern to Link Key
+#### (A.3) Select Main-Sequence based on Segment Memes
 
 TODO: implement & document
 
-#### (A.5) Link Memes += from First Phase of Main-Pattern
+#### (A.4) Transpose Main-Sequence to Segment Key
 
 TODO: implement & document
 
-#### (A.6) Link Length (# Beats) = from First Phase of Main-Pattern
+#### (A.5) Segment Memes += from First Pattern of Main-Sequence
 
 TODO: implement & document
 
-#### (A.7) Link Length Time = Link Tempo (time per Beat) * Link Length (# Beats)
+#### (A.6) Segment Length (# Beats) = from First Pattern of Main-Sequence
 
 TODO: implement & document
 
-### (B) Link: Continue Main-Pattern
-
-For a sequential Link in a Chain, when the previous Link's Main-Pattern has remaining Phase(s).
-
-#### (B.1) Continue Main-Pattern, if has Phase remaining
+#### (A.7) Segment Length Time = Segment Tempo (time per Beat) * Segment Length (# Beats)
 
 TODO: implement & document
 
-#### (B.2) Link Key, Density & Tempo = next Phase of Main-Pattern, transposed to current Phase of Macro Pattern
+### (B) Segment: Continue Main-Sequence
+
+For a sequential Segment in a Chain, when the previous Segment's Main-Sequence has remaining Pattern(s).
+
+#### (B.1) Continue Main-Sequence, if has Pattern remaining
 
 TODO: implement & document
 
-#### (B.3) Link Memes = next Phase of Main-Pattern + current Phase of Macro-Pattern
+#### (B.2) Segment Key, Density & Tempo = next Pattern of Main-Sequence, transposed to current Pattern of Macro Sequence
 
 TODO: implement & document
 
-#### (B.4) Link Length (# Beats) = from current Phase of Main-Pattern
+#### (B.3) Segment Memes = next Pattern of Main-Sequence + current Pattern of Macro-Sequence
 
 TODO: implement & document
 
-#### (B.5) Link Length Time = Link Tempo (time per Beat) * Link Length (# Beats)
+#### (B.4) Segment Length (# Beats) = from current Pattern of Main-Sequence
 
 TODO: implement & document
 
-### (C) Link: Next Main-Pattern, Continue Macro-Pattern
-
-For a sequential Link in a Chain, when the previous Link reached the end of its Main-Pattern.
-
-#### (C.1) Continue Macro-Pattern, if has 2 or more phases remaining
+#### (B.5) Segment Length Time = Segment Tempo (time per Beat) * Segment Length (# Beats)
 
 TODO: implement & document
 
-#### (C.2) Link Memes, Key, Density & Tempo = from current Phase of Macro-Pattern
+### (C) Segment: Next Main-Sequence, Continue Macro-Sequence
+
+For a sequential Segment in a Chain, when the previous Segment reached the end of its Main-Sequence.
+
+#### (C.1) Continue Macro-Sequence, if has 2 or more patterns remaining
 
 TODO: implement & document
 
-#### (C.3) Select Main-Pattern based on Link Memes
+#### (C.2) Segment Memes, Key, Density & Tempo = from current Pattern of Macro-Sequence
 
 TODO: implement & document
 
-#### (C.4) Transpose Main-Pattern to Link Key
+#### (C.3) Select Main-Sequence based on Segment Memes
 
 TODO: implement & document
 
-#### (C.5) Link Memes += from First Phase of Main-Pattern
+#### (C.4) Transpose Main-Sequence to Segment Key
 
 TODO: implement & document
 
-#### (C.6) Link Length (# Beats) = from First Phase of Main-Pattern
+#### (C.5) Segment Memes += from First Pattern of Main-Sequence
 
 TODO: implement & document
 
-#### (C.7) Link Length Time = Link Tempo (time per Beat) * Link Length (# Beats)
+#### (C.6) Segment Length (# Beats) = from First Pattern of Main-Sequence
 
 TODO: implement & document
 
-### (D) Link: Next Macro-Pattern
-
-For a sequential Link in a Chain, when the previous Link's Macro-Pattern has only one more Phase remaining.
-
-A Macro-type Pattern must have a minimum of two phases. The last phase of the Macro-pattern is never actually used; it is replaced by the first phase of the next Macro-pattern. However, the next Macro-pattern has been transposed according to the last Macro-pattern's final Phase.
-
-#### (D.1) first phase of next Macro-Pattern will overlap (replacing) the last phase of the current Macro-Pattern
+#### (C.7) Segment Length Time = Segment Tempo (time per Beat) * Segment Length (# Beats)
 
 TODO: implement & document
 
-#### (D.2) Select next Macro-Pattern to overlap last phase of current
+### (D) Segment: Next Macro-Sequence
+
+For a sequential Segment in a Chain, when the previous Segment's Macro-Sequence has only one more Pattern remaining.
+
+A Macro-type Sequence must have a minimum of two patterns. The last pattern of the Macro-sequence is never actually used; it is replaced by the first pattern of the next Macro-sequence. However, the next Macro-sequence has been transposed according to the last Macro-sequence's final Pattern.
+
+#### (D.1) first pattern of next Macro-Sequence will overlap (replacing) the last pattern of the current Macro-Sequence
 
 TODO: implement & document
 
-#### (D.3) Link Memes, Key, Density & Tempo = from first Phase of new Macro-Pattern
+#### (D.2) Select next Macro-Sequence to overlap last pattern of current
 
 TODO: implement & document
 
-#### (D.4) Select Main-Pattern based on Link Memes
+#### (D.3) Segment Memes, Key, Density & Tempo = from first Pattern of new Macro-Sequence
 
 TODO: implement & document
 
-#### (D.5) Transpose Main-Pattern to Link Key
+#### (D.4) Select Main-Sequence based on Segment Memes
 
 TODO: implement & document
 
-#### (D.6) Link Memes += from First Phase of Main-Pattern
+#### (D.5) Transpose Main-Sequence to Segment Key
 
 TODO: implement & document
 
-#### (D.7) Link Length (# Beats) = from First Phase of Main-Pattern
+#### (D.6) Segment Memes += from First Pattern of Main-Sequence
 
 TODO: implement & document
 
-#### (D.8) Link Length Time = Link Tempo (time per Beat) * Link Length (# Beats)
+#### (D.7) Segment Length (# Beats) = from First Pattern of Main-Sequence
+
+TODO: implement & document
+
+#### (D.8) Segment Length Time = Segment Tempo (time per Beat) * Segment Length (# Beats)
 
 TODO: implement & document
 

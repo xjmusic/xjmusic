@@ -9,11 +9,11 @@ import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
 import io.xj.core.model.instrument.Instrument;
 import io.xj.core.model.instrument.InstrumentType;
-import io.xj.core.model.link.LinkState;
+import io.xj.core.model.segment.SegmentState;
+import io.xj.core.model.sequence.SequenceState;
+import io.xj.core.model.sequence.SequenceType;
 import io.xj.core.model.pattern.PatternState;
 import io.xj.core.model.pattern.PatternType;
-import io.xj.core.model.phase.PhaseState;
-import io.xj.core.model.phase.PhaseType;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.transport.JSON;
 import io.xj.core.work.WorkManager;
@@ -104,19 +104,19 @@ public class InstrumentIT {
     ));
     Instrument inputData = new Instrument()
       .setDensity(0.42)
-      .setLibraryId(BigInteger.valueOf(1))
+      .setLibraryId(BigInteger.valueOf(1L))
       .setDescription("bimmies")
       .setType("Percussive")
-      .setUserId(BigInteger.valueOf(2));
+      .setUserId(BigInteger.valueOf(2L));
 
     Instrument result = testDAO.create(access, inputData);
 
     assertNotNull(result);
     assertEquals(0.42, result.getDensity(), 0.01);
-    assertEquals(BigInteger.valueOf(1), result.getLibraryId());
+    assertEquals(BigInteger.valueOf(1L), result.getLibraryId());
     assertEquals("bimmies", result.getDescription());
     assertEquals(InstrumentType.Percussive, result.getType());
-    assertEquals(BigInteger.valueOf(2), result.getUserId());
+    assertEquals(BigInteger.valueOf(2L), result.getUserId());
   }
 
   @Test(expected = BusinessException.class)
@@ -129,7 +129,7 @@ public class InstrumentIT {
       .setDensity(0.42)
       .setDescription("bimmies")
       .setType("Percussive")
-      .setUserId(BigInteger.valueOf(2));
+      .setUserId(BigInteger.valueOf(2L));
 
     testDAO.create(access, inputData);
   }
@@ -144,7 +144,7 @@ public class InstrumentIT {
       .setDensity(0.42)
       .setDescription("bimmies")
       .setType("Percussive")
-      .setLibraryId(BigInteger.valueOf(2));
+      .setLibraryId(BigInteger.valueOf(2L));
 
     testDAO.create(access, inputData);
   }
@@ -157,21 +157,21 @@ public class InstrumentIT {
       "accounts", "1"
     ));
     Instrument inputData = new Instrument()
-      .setLibraryId(BigInteger.valueOf(1))
+      .setLibraryId(BigInteger.valueOf(1L))
       .setDescription("cannons fifty nine");
 
-    Instrument result = testDAO.clone(access, BigInteger.valueOf(1), inputData);
+    Instrument result = testDAO.clone(access, BigInteger.valueOf(1L), inputData);
 
     assertNotNull(result);
     assertEquals(0.6, result.getDensity(), 0.01);
-    assertEquals(BigInteger.valueOf(2), result.getUserId());
-    assertEquals(BigInteger.valueOf(1), result.getLibraryId());
+    assertEquals(BigInteger.valueOf(2L), result.getUserId());
+    assertEquals(BigInteger.valueOf(1L), result.getLibraryId());
     assertEquals("cannons fifty nine", result.getDescription());
     assertEquals(InstrumentType.Percussive, result.getType());
-    assertEquals(BigInteger.valueOf(2), result.getUserId());
+    assertEquals(BigInteger.valueOf(2L), result.getUserId());
 
     // Verify enqueued audio clone jobs
-    verify(workManager).doInstrumentClone(eq(BigInteger.valueOf(1)), any());
+    verify(workManager).doInstrumentClone(eq(BigInteger.valueOf(1L)), any());
   }
 
   @Test
@@ -181,11 +181,11 @@ public class InstrumentIT {
       "accounts", "1"
     ));
 
-    Instrument result = testDAO.readOne(access, BigInteger.valueOf(2));
+    Instrument result = testDAO.readOne(access, BigInteger.valueOf(2L));
 
     assertNotNull(result);
-    assertEquals(BigInteger.valueOf(2), result.getId());
-    assertEquals(BigInteger.valueOf(1), result.getLibraryId());
+    assertEquals(BigInteger.valueOf(2L), result.getId());
+    assertEquals(BigInteger.valueOf(1L), result.getLibraryId());
     assertEquals("buns", result.getDescription());
   }
 
@@ -196,7 +196,7 @@ public class InstrumentIT {
       "accounts", "326"
     ));
 
-    Instrument result = testDAO.readOne(access, BigInteger.valueOf(1));
+    Instrument result = testDAO.readOne(access, BigInteger.valueOf(1L));
 
     assertNull(result);
   }
@@ -210,10 +210,10 @@ public class InstrumentIT {
       "accounts", "1"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1))));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1L))));
 
     assertNotNull(result);
-    assertEquals(2, result.length());
+    assertEquals(2L, (long) result.length());
     JSONObject result1 = (JSONObject) result.get(0);
     assertEquals("buns", result1.get("description"));
     JSONObject result2 = (JSONObject) result.get(1);
@@ -227,10 +227,10 @@ public class InstrumentIT {
       "accounts", "345"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1))));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1L))));
 
     assertNotNull(result);
-    assertEquals(0, result.length());
+    assertEquals(0L, (long) result.length());
   }
   @Test(expected = BusinessException.class)
   public void update_FailsWithoutLibraryID() throws Exception {
@@ -241,7 +241,7 @@ public class InstrumentIT {
     Instrument inputData = new Instrument()
       .setDescription("bimmies");
 
-    testDAO.update(access, BigInteger.valueOf(3), inputData);
+    testDAO.update(access, BigInteger.valueOf(3L), inputData);
   }
 
   @Test(expected = BusinessException.class)
@@ -251,9 +251,9 @@ public class InstrumentIT {
       "accounts", "1"
     ));
     Instrument inputData = new Instrument()
-      .setLibraryId(BigInteger.valueOf(3));
+      .setLibraryId(BigInteger.valueOf(3L));
 
-    testDAO.update(access, BigInteger.valueOf(3), inputData);
+    testDAO.update(access, BigInteger.valueOf(3L), inputData);
   }
 
   @Test(expected = BusinessException.class)
@@ -264,16 +264,16 @@ public class InstrumentIT {
     ));
     Instrument inputData = new Instrument()
       .setDescription("bimmies")
-      .setLibraryId(BigInteger.valueOf(387));
+      .setLibraryId(BigInteger.valueOf(387L));
 
     try {
-      testDAO.update(access, BigInteger.valueOf(2), inputData);
+      testDAO.update(access, BigInteger.valueOf(2L), inputData);
 
     } catch (Exception e) {
-      Instrument result = testDAO.readOne(Access.internal(), BigInteger.valueOf(2));
+      Instrument result = testDAO.readOne(Access.internal(), BigInteger.valueOf(2L));
       assertNotNull(result);
       assertEquals("buns", result.getDescription());
-      assertEquals(BigInteger.valueOf(1), result.getLibraryId());
+      assertEquals(BigInteger.valueOf(1L), result.getLibraryId());
       throw e;
     }
   }
@@ -287,17 +287,17 @@ public class InstrumentIT {
     ));
     Instrument inputData = new Instrument()
       .setDensity(0.42)
-      .setLibraryId(BigInteger.valueOf(1))
+      .setLibraryId(BigInteger.valueOf(1L))
       .setDescription("bimmies")
       .setType("Percussive")
-      .setUserId(BigInteger.valueOf(2));
+      .setUserId(BigInteger.valueOf(2L));
 
-    testDAO.update(access, BigInteger.valueOf(2), inputData);
+    testDAO.update(access, BigInteger.valueOf(2L), inputData);
 
-    Instrument result = testDAO.readOne(Access.internal(), BigInteger.valueOf(2));
+    Instrument result = testDAO.readOne(Access.internal(), BigInteger.valueOf(2L));
     assertNotNull(result);
     assertEquals("bimmies", result.getDescription());
-    assertEquals(BigInteger.valueOf(1), result.getLibraryId());
+    assertEquals(BigInteger.valueOf(1L), result.getLibraryId());
   }
 
   // future test: DAO cannot update Instrument to a User or Library not owned by current session
@@ -309,9 +309,9 @@ public class InstrumentIT {
     ));
     IntegrationTestEntity.insertInstrument(86, 1, 2, "jub", InstrumentType.Harmonic, 0.4);
 
-    testDAO.destroy(access, BigInteger.valueOf(86));
+    testDAO.destroy(access, BigInteger.valueOf(86L));
 
-    Instrument result = testDAO.readOne(Access.internal(), BigInteger.valueOf(86));
+    Instrument result = testDAO.readOne(Access.internal(), BigInteger.valueOf(86L));
     assertNull(result);
   }
 
@@ -321,17 +321,17 @@ public class InstrumentIT {
       "roles", "Admin"
     ));
     IntegrationTestEntity.insertInstrument(86, 1, 2, "jub", InstrumentType.Harmonic, 0.4);
-    IntegrationTestEntity.insertPattern(1, 2, 1, PatternType.Macro, PatternState.Published, "epic concept", 0.342, "C#", 0.286);
-    IntegrationTestEntity.insertPhase(1, 1, PhaseType.Macro, PhaseState.Published, 0, 16, "Ants", 0.583, "D minor", 120.0);
+    IntegrationTestEntity.insertSequence(1, 2, 1, SequenceType.Macro, SequenceState.Published, "epic concept", 0.342, "C#", 0.286);
+    IntegrationTestEntity.insertPattern(1, 1, PatternType.Macro, PatternState.Published, 0, 16, "Ants", 0.583, "D minor", 120.0);
     IntegrationTestEntity.insertVoice(8, 1, InstrumentType.Percussive, "This is a percussive voice");
     IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Ready, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"), null);
-    IntegrationTestEntity.insertLink(1, 1, 0, LinkState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120, "chain-1-link-97898asdf7892.wav");
-    IntegrationTestEntity.insertChoice(7, 1, 1, PatternType.Macro, 2, -5);
+    IntegrationTestEntity.insertSegment(1, 1, 0, SegmentState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120.0, "chain-1-segment-97898asdf7892.wav");
+    IntegrationTestEntity.insertChoice(7, 1, 1, SequenceType.Macro, 2, -5);
     IntegrationTestEntity.insertArrangement(1, 7, 8, 86);
 
-    testDAO.destroy(access, BigInteger.valueOf(86));
+    testDAO.destroy(access, BigInteger.valueOf(86L));
 
-    Instrument result = testDAO.readOne(Access.internal(), BigInteger.valueOf(86));
+    Instrument result = testDAO.readOne(Access.internal(), BigInteger.valueOf(86L));
     assertNull(result);
   }
 
@@ -345,10 +345,10 @@ public class InstrumentIT {
     IntegrationTestEntity.insertInstrumentMeme(6, 86, "ham");
 
     try {
-      testDAO.destroy(access, BigInteger.valueOf(86));
+      testDAO.destroy(access, BigInteger.valueOf(86L));
 
     } catch (Exception e) {
-      Instrument result = testDAO.readOne(Access.internal(), BigInteger.valueOf(86));
+      Instrument result = testDAO.readOne(Access.internal(), BigInteger.valueOf(86L));
       assertNotNull(result);
       throw e;
     }

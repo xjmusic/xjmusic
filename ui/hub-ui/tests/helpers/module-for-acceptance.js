@@ -1,3 +1,5 @@
+// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+
 import { module } from 'qunit';
 import startApp from '../helpers/start-app';
 import destroyApp from '../helpers/destroy-app';

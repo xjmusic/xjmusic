@@ -11,7 +11,7 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
 /**
- [#264] Link audio is compressed to MP3 and shipped to https://link.xj.io
+ [#264] Segment audio is compressed to MP3 and shipped to https://segment.xj.io
  */
 public class ShipDubImpl implements ShipDub {
 //  private final Logger log = LoggerFactory.getLogger(ShipDubImpl.class);
@@ -37,8 +37,8 @@ public class ShipDubImpl implements ShipDub {
       throw e;
     } catch (Exception e) {
       throw new BusinessException(
-        String.format("Failed to do %s-type ShipDub for link #%s",
-          basis.type(), basis.link().getId().toString()), e);
+        String.format("Failed to do %s-type ShipDub for segment #%s",
+          basis.type(), basis.segment().getId().toString()), e);
     }
   }
 
@@ -51,8 +51,8 @@ public class ShipDubImpl implements ShipDub {
   private void shipFinalAudio() throws Exception {
     amazonProvider.putS3Object(
       basis.outputFilePath(),
-      Config.linkFileBucket(),
-      basis.link().getWaveformKey());
+      Config.segmentFileBucket(),
+      basis.segment().getWaveformKey());
   }
 
   /**

@@ -7,12 +7,12 @@ import io.xj.core.dao.ChoiceDAO;
 import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
-import io.xj.core.model.link.Link;
-import io.xj.core.model.link.LinkState;
+import io.xj.core.model.segment.Segment;
+import io.xj.core.model.segment.SegmentState;
+import io.xj.core.model.sequence.SequenceState;
+import io.xj.core.model.sequence.SequenceType;
 import io.xj.core.model.pattern.PatternState;
 import io.xj.core.model.pattern.PatternType;
-import io.xj.core.model.phase.PhaseState;
-import io.xj.core.model.phase.PhaseType;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.craft.basis.Basis;
 import io.xj.craft.basis.BasisFactory;
@@ -40,7 +40,7 @@ public class CraftRhythmInitialIT {
   private BasisFactory basisFactory;
 
   // Testing entities for reference
-  private Link link6;
+  private Segment segment6;
 
   @Before
   public void setUp() throws Exception {
@@ -61,50 +61,50 @@ public class CraftRhythmInitialIT {
     // Library "house"
     IntegrationTestEntity.insertLibrary(2, 1, "house");
 
-    // "Special, Wild to Cozy" macro-pattern in house library
-    IntegrationTestEntity.insertPattern(4, 3, 2, PatternType.Macro, PatternState.Published, "Special, Wild to Cozy", 0.5, "C", 120);
-    IntegrationTestEntity.insertPatternMeme(2, 4, "Special");
-    IntegrationTestEntity.insertPhase(3, 4, PhaseType.Macro, PhaseState.Published, 0, 64, "Start Wild", 0.6, "C", 125);
-    IntegrationTestEntity.insertPhaseMeme(3, 3, "Wild");
-    IntegrationTestEntity.insertPhaseChord(3, 3, 0, "C");
-    IntegrationTestEntity.insertPhase(4, 4, PhaseType.Macro, PhaseState.Published, 1, 64, "Finish Finish Cozy", 0.4, "Bb minor", 115);
-    IntegrationTestEntity.insertPhaseMeme(4, 4, "Cozy");
-    IntegrationTestEntity.insertPhaseChord(4, 4, 0, "Bb minor");
+    // "Special, Wild to Cozy" macro-sequence in house library
+    IntegrationTestEntity.insertSequence(4, 3, 2, SequenceType.Macro, SequenceState.Published, "Special, Wild to Cozy", 0.5, "C", 120);
+    IntegrationTestEntity.insertSequenceMeme(2, 4, "Special");
+    IntegrationTestEntity.insertPattern(3, 4, PatternType.Macro, PatternState.Published, 0, 64, "Start Wild", 0.6, "C", 125);
+    IntegrationTestEntity.insertPatternMeme(3, 3, "Wild");
+    IntegrationTestEntity.insertPatternChord(3, 3, 0, "C");
+    IntegrationTestEntity.insertPattern(4, 4, PatternType.Macro, PatternState.Published, 1, 64, "Finish Finish Cozy", 0.4, "Bb minor", 115);
+    IntegrationTestEntity.insertPatternMeme(4, 4, "Cozy");
+    IntegrationTestEntity.insertPatternChord(4, 4, 0, "Bb minor");
 
-    // Main pattern
-    IntegrationTestEntity.insertPattern(5, 3, 2, PatternType.Main, PatternState.Published, "Main Jam", 0.2, "F# minor", 140);
-    IntegrationTestEntity.insertPatternMeme(3, 5, "Outlook");
-    IntegrationTestEntity.insertPhase(15, 5, PhaseType.Main, PhaseState.Published, 0, 16, "Intro", 0.5, "F# minor", 135.0);
-    IntegrationTestEntity.insertPhaseMeme(6, 15, "Pessimism");
-    IntegrationTestEntity.insertPhaseChord(12, 15, 0, "F# minor");
-    IntegrationTestEntity.insertPhaseChord(14, 15, 8, "G minor");
-    IntegrationTestEntity.insertPhase(16, 5, PhaseType.Main, PhaseState.Published, 1, 16, "Intro", 0.5, "G major", 135.0);
-    IntegrationTestEntity.insertPhaseMeme(7, 16, "Optimism");
-    IntegrationTestEntity.insertPhaseChord(16, 16, 0, "D minor");
-    IntegrationTestEntity.insertPhaseChord(18, 16, 8, "G major");
+    // Main sequence
+    IntegrationTestEntity.insertSequence(5, 3, 2, SequenceType.Main, SequenceState.Published, "Main Jam", 0.2, "F# minor", 140);
+    IntegrationTestEntity.insertSequenceMeme(3, 5, "Outlook");
+    IntegrationTestEntity.insertPattern(15, 5, PatternType.Main, PatternState.Published, 0, 16, "Intro", 0.5, "F# minor", 135.0);
+    IntegrationTestEntity.insertPatternMeme(6, 15, "Pessimism");
+    IntegrationTestEntity.insertPatternChord(12, 15, 0, "F# minor");
+    IntegrationTestEntity.insertPatternChord(14, 15, 8, "G minor");
+    IntegrationTestEntity.insertPattern(16, 5, PatternType.Main, PatternState.Published, 1, 16, "Intro", 0.5, "G major", 135.0);
+    IntegrationTestEntity.insertPatternMeme(7, 16, "Optimism");
+    IntegrationTestEntity.insertPatternChord(16, 16, 0, "D minor");
+    IntegrationTestEntity.insertPatternChord(18, 16, 8, "G major");
 
     // A basic beat
-    IntegrationTestEntity.insertPattern(35, 3, 2, PatternType.Rhythm, PatternState.Published, "Basic Beat", 0.2, "C", 121);
-    IntegrationTestEntity.insertPatternMeme(343, 35, "Basic");
-    IntegrationTestEntity.insertPhase(315, 35, PhaseType.Intro, PhaseState.Published, 0, 16, "Drop", 0.5, "C", 125.0);
-    IntegrationTestEntity.insertPhaseMeme(346, 315, "Heavy");
-    IntegrationTestEntity.insertPhase(316, 35, PhaseType.Loop, PhaseState.Published, 0, 16, "Continue", 0.5, "C", 125.0);
-    IntegrationTestEntity.insertPhaseMeme(347, 316, "Heavy");
+    IntegrationTestEntity.insertSequence(35, 3, 2, SequenceType.Rhythm, SequenceState.Published, "Basic Beat", 0.2, "C", 121);
+    IntegrationTestEntity.insertSequenceMeme(343, 35, "Basic");
+    IntegrationTestEntity.insertPattern(315, 35, PatternType.Intro, PatternState.Published, 0, 16, "Drop", 0.5, "C", 125.0);
+    IntegrationTestEntity.insertPatternMeme(346, 315, "Heavy");
+    IntegrationTestEntity.insertPattern(316, 35, PatternType.Loop, PatternState.Published, 0, 16, "Continue", 0.5, "C", 125.0);
+    IntegrationTestEntity.insertPatternMeme(347, 316, "Heavy");
 
-    // Detail Pattern
-    IntegrationTestEntity.insertPattern(7, 3, 2, PatternType.Detail, PatternState.Published, "Detail Jam", 0.3, "Cb minor", 170);
+    // Detail Sequence
+    IntegrationTestEntity.insertSequence(7, 3, 2, SequenceType.Detail, SequenceState.Published, "Detail Jam", 0.3, "Cb minor", 170);
 
-    // Chain "Print #2" has 1 initial link in crafting state - Foundation is complete
+    // Chain "Print #2" has 1 initial segment in crafting state - Foundation is complete
     IntegrationTestEntity.insertChain(2, 1, "Print #2", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, null);
-    link6 = IntegrationTestEntity.insertLink(6, 2, 0, LinkState.Crafting, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:07.384616"), "C minor", 16, 0.55, 130, "chain-1-link-97898asdf7892.wav");
-    IntegrationTestEntity.insertLinkMeme(101, 6, "Special");
-    IntegrationTestEntity.insertLinkMeme(102, 6, "Wild");
-    IntegrationTestEntity.insertLinkMeme(103, 6, "Pessimism");
-    IntegrationTestEntity.insertLinkMeme(104, 6, "Outlook");
-    IntegrationTestEntity.insertChoice(101, 6, 4, PatternType.Macro, 0, 0);
-    IntegrationTestEntity.insertChoice(102, 6, 5, PatternType.Main, 10, -6);
-    IntegrationTestEntity.insertLinkChord(101, 6, 0, "C minor");
-    IntegrationTestEntity.insertLinkChord(102, 6, 8, "Db minor");
+    segment6 = IntegrationTestEntity.insertSegment(6, 2, 0, SegmentState.Crafting, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:07.384616"), "C minor", 16, 0.55, 130, "chain-1-segment-97898asdf7892.wav");
+    IntegrationTestEntity.insertSegmentMeme(101, 6, "Special");
+    IntegrationTestEntity.insertSegmentMeme(102, 6, "Wild");
+    IntegrationTestEntity.insertSegmentMeme(103, 6, "Pessimism");
+    IntegrationTestEntity.insertSegmentMeme(104, 6, "Outlook");
+    IntegrationTestEntity.insertChoice(101, 6, 4, SequenceType.Macro, 0, 0);
+    IntegrationTestEntity.insertChoice(102, 6, 5, SequenceType.Main, 10, -6);
+    IntegrationTestEntity.insertSegmentChord(101, 6, 0, "C minor");
+    IntegrationTestEntity.insertSegmentChord(102, 6, 8, "Db minor");
 
     // bind the library to the chain
     IntegrationTestEntity.insertChainLibrary(1, 2, 2);
@@ -122,11 +122,11 @@ public class CraftRhythmInitialIT {
 
   @Test
   public void craftRhythmInitial() throws Exception {
-    Basis basis = basisFactory.createBasis(link6);
+    Basis basis = basisFactory.createBasis(segment6);
 
     craftFactory.rhythm(basis).doWork();
 
-    // choice of rhythm-type pattern
-    assertNotNull(injector.getInstance(ChoiceDAO.class).readOneLinkTypeWithAvailablePhaseOffsets(Access.internal(), BigInteger.valueOf(6), PatternType.Rhythm));
+    // choice of rhythm-type sequence
+    assertNotNull(injector.getInstance(ChoiceDAO.class).readOneSegmentTypeWithAvailablePatternOffsets(Access.internal(), BigInteger.valueOf(6), SequenceType.Rhythm));
   }
 }

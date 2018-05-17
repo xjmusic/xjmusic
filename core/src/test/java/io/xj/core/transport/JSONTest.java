@@ -18,8 +18,8 @@ public class JSONTest {
 
   @Test
   public void objectFrom() throws Exception {
-    Chain source = new Chain(BigInteger.valueOf(25));
-    source.setAccountId(BigInteger.valueOf(517));
+    Chain source = new Chain(BigInteger.valueOf(25L));
+    source.setAccountId(BigInteger.valueOf(517L));
     source.setEmbedKey("donuts");
     source.setName("gold chain");
     source.setStartAt("2011-08-12 12:17:02.687327");

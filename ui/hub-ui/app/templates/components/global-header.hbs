@@ -22,10 +22,12 @@
       {{/if}}
     </ul>
     <ul class="nav navbar-nav navbar-right">
-      {{#if auth.isUser}}
-        <li class="nav-item">{{player-info target=this}}</li>{{/if}}
+
+      {{#if auth.isUser}}<li class="nav-item">{{player-embed target=this}}</li>{{/if}}
+
       <li class="nav-item"><a id="clock" class="nav-link" title="Copy time UTC to clipboard"
                               aria-label="Copy time UTC to clipboard">&nbsp;</a></li>
+
       {{#if auth.isUser}}
         <li class="nav-item dropdown">
           <a href="#" data-toggle="dropdown" class="nav-link dropdown-toggle">

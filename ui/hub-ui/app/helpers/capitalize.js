@@ -1,3 +1,5 @@
+// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+
 import { helper } from '@ember/component/helper';
 
 export function capitalize(params/*, hash*/) {

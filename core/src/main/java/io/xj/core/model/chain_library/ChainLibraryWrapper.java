@@ -27,6 +27,7 @@ public class ChainLibraryWrapper extends EntityWrapper {
 
    @throws BusinessException if invalid.
    */
+  @Override
   public ChainLibrary validate() throws BusinessException {
     if (this.chainLibrary == null) {
       throw new BusinessException("Chain Library is required.");

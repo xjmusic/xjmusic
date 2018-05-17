@@ -20,7 +20,7 @@ public enum MessageType {
    @return ImmutableList of string values
    */
   public static List<String> stringValues() {
-    return Text.stringValues(values());
+    return Text.stringValues((Object[]) values());
   }
 
   /**

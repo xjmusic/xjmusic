@@ -37,15 +37,16 @@ public class AuthNullifyResource extends HubResource {
   public Response nullifyAuthentication(@Context ContainerRequestContext crc) throws IOException {
     Access access = Access.fromContext(crc);
 
-    if (Objects.nonNull(access)) try {
-      userDAO.destroyAllTokens(access.getUserId());
-      return response.internalRedirectWithCookie("", accessControlProvider.newExpiredCookie());
+    if (access.isValid()) {
+      try {
+        userDAO.destroyAllTokens(access.getUserId());
+        return response.internalRedirectWithCookie("", accessControlProvider.newExpiredCookie());
 
-    } catch (Exception e) {
-      return response.failure(e);
-    }
+      } catch (Exception e) {
+        return response.failure(e);
+      }
 
-    else
+    } else
       return response.internalRedirectWithCookie("", accessControlProvider.newExpiredCookie());
   }
 

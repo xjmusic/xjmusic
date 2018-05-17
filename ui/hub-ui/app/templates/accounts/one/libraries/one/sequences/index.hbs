@@ -1,0 +1,55 @@
+<!-- Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved. -->
+
+<!-- Inner Content -->
+{{outlet}}
+
+<!-- Upper Container -->
+<div class="form-horizontal container-fluid">
+
+  {{#if (or auth.isArtist auth.isAdmin)}}
+    <div class="col-sm-12 text-right">
+      {{#link-to 'accounts.one.libraries.one.sequences.new' model.library.account model.library}}{{fa-icon "plus"}} Create New Sequence{{/link-to}}
+    </div>
+  {{/if}}
+
+  <!-- List of Sequences -->
+  <div class="col-sm-12">
+    <div class="table-list">
+      <table class="table">
+        <thead>
+        <tr>
+          <th width="1%">By</th>
+          <th width="1%">Type</th>
+          <th>Name</th>
+          <th width="4%">Key</th>
+          <th width="4%">Density</th>
+          <th width="4%">Tempo</th>
+          <th><!-- Actions --></th>
+          <th width="1%">#</th>
+        </tr>
+        </thead>
+        <tbody>
+        {{#each model.sequences as |sequence|}}
+          <tr class="item">
+            <td>{{#link-to "users.one" sequence.user}}
+              <img src="{{sequence.user.avatarUrl}}" alt="{{sequence.user.name}}" class="avatar"/>{{/link-to}}</td>
+            <td>{{sequence.type}}</td>
+            <td>{{#link-to "accounts.one.libraries.one.sequences.one" sequence.library.account sequence.library sequence}}{{sequence.name}}{{/link-to}}</td>
+            <td>{{sequence.key}}</td>
+            <td style="white-space: nowrap">{{sequence.density}}</td>
+            <td>{{sequence.tempo}}</td>
+            <td>
+              {{#link-to 'accounts.one.libraries.one.sequences.one.memes' sequence.library.account sequence.library sequence}}Memes{{/link-to}}<span>&nbsp;</span>
+              {{#link-to 'accounts.one.libraries.one.sequences.one.voices' sequence.library.account sequence.library sequence}}Voices{{/link-to}}<span>&nbsp;</span>
+              {{#link-to 'accounts.one.libraries.one.sequences.one.patterns' sequence.library.account sequence.library sequence}}Patterns{{/link-to}}<span>&nbsp;</span>
+              {{entity-actions 'accounts.one.libraries.one.sequences.one' 'edit|clone|destroy' sequence.library.account sequence.library sequence}}
+            </td>
+            <th scope="row">{{sequence.id}}</th>
+          </tr>
+        {{/each}}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>

@@ -18,7 +18,7 @@ public class AudioChordTest {
   public void validate() throws Exception {
     new AudioChord()
       .setName("C# minor")
-      .setAudioId(BigInteger.valueOf(1235))
+      .setAudioId(BigInteger.valueOf(1235L))
       .setPosition(7.0)
       .validate();
   }
@@ -29,7 +29,7 @@ public class AudioChordTest {
     failure.expectMessage("Name is required");
 
     new AudioChord()
-      .setAudioId(BigInteger.valueOf(1235))
+      .setAudioId(BigInteger.valueOf(1235L))
       .setPosition(7.0)
       .validate();
   }
@@ -52,7 +52,7 @@ public class AudioChordTest {
 
     new AudioChord()
       .setName("C# minor")
-      .setAudioId(BigInteger.valueOf(1235))
+      .setAudioId(BigInteger.valueOf(1235L))
       .validate();
   }
 

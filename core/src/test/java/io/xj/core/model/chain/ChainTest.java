@@ -21,7 +21,7 @@ public class ChainTest {
       .setName("Mic Check One Two")
       .setType("Production")
       .setState("Draft")
-      .setAccountId(BigInteger.valueOf(9743))
+      .setAccountId(BigInteger.valueOf(9743L))
       .setStartAt("2014-08-12 12:17:02.527142")
       .setStopAt("2015-08-12 12:17:02.527142")
       .validate();
@@ -33,7 +33,7 @@ public class ChainTest {
       .setName("Mic Check One Two")
       .setType("Production")
       .setState("Draft")
-      .setAccountId(BigInteger.valueOf(9743))
+      .setAccountId(BigInteger.valueOf(9743L))
       .setStartAt("2014-08-12 12:17:02.527142")
       .validate();
   }
@@ -44,7 +44,7 @@ public class ChainTest {
       .setName("Mic Check One Two")
       .setType("Preview")
       .setState("Draft")
-      .setAccountId(BigInteger.valueOf(9743))
+      .setAccountId(BigInteger.valueOf(9743L))
       .validate();
   }
 
@@ -67,7 +67,7 @@ public class ChainTest {
     Chain chain = new Chain()
       .setName("Mic Check One Two")
       .setState("Draft")
-      .setAccountId(BigInteger.valueOf(9743))
+      .setAccountId(BigInteger.valueOf(9743L))
       .setStartAt("2014-08-12 12:17:02.527142")
       .setStopAt("2015-08-12 12:17:02.527142");
 
@@ -84,7 +84,7 @@ public class ChainTest {
       .setName("Mic Check One Two")
       .setType("bungle")
       .setState("Draft")
-      .setAccountId(BigInteger.valueOf(9743))
+      .setAccountId(BigInteger.valueOf(9743L))
       .setStartAt("2014-08-12 12:17:02.527142")
       .setStopAt("2015-08-12 12:17:02.527142")
       .validate();
@@ -95,7 +95,7 @@ public class ChainTest {
     Chain chain = new Chain()
       .setName("Mic Check One Two")
       .setType("Production")
-      .setAccountId(BigInteger.valueOf(9743))
+      .setAccountId(BigInteger.valueOf(9743L))
       .setStartAt("2014-08-12 12:17:02.527142")
       .setStopAt("2015-08-12 12:17:02.527142");
 
@@ -113,7 +113,7 @@ public class ChainTest {
       .setName("Mic Check One Two")
       .setType("Production")
       .setState("dangling")
-      .setAccountId(BigInteger.valueOf(9743))
+      .setAccountId(BigInteger.valueOf(9743L))
       .setStartAt("2014-08-12 12:17:02.527142")
       .setStopAt("2015-08-12 12:17:02.527142")
       .validate();
@@ -127,7 +127,7 @@ public class ChainTest {
     new Chain()
       .setType("Production")
       .setState("Draft")
-      .setAccountId(BigInteger.valueOf(9743))
+      .setAccountId(BigInteger.valueOf(9743L))
       .setStartAt("2014-08-12 12:17:02.527142")
       .setStopAt("2015-08-12 12:17:02.527142")
       .validate();
@@ -142,7 +142,7 @@ public class ChainTest {
       .setName("Mic Check One Two")
       .setType("Production")
       .setState("Draft")
-      .setAccountId(BigInteger.valueOf(9743))
+      .setAccountId(BigInteger.valueOf(9743L))
       .validate();
   }
 
@@ -155,7 +155,7 @@ public class ChainTest {
       .setName("Mic Check One Two")
       .setType("Production")
       .setState("Draft")
-      .setAccountId(BigInteger.valueOf(9743))
+      .setAccountId(BigInteger.valueOf(9743L))
       .setStartAt("2014-08-12 12:17:02.527142")
       .setStopAt("totally illegitimate expression of time")
       .validate();

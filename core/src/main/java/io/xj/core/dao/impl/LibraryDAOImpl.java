@@ -24,7 +24,7 @@ import java.util.Objects;
 
 import static io.xj.core.Tables.CHAIN_LIBRARY;
 import static io.xj.core.Tables.LIBRARY;
-import static io.xj.core.Tables.PATTERN;
+import static io.xj.core.Tables.SEQUENCE;
 import static io.xj.core.tables.Account.ACCOUNT;
 import static io.xj.core.tables.Instrument.INSTRUMENT;
 
@@ -188,10 +188,10 @@ public class LibraryDAOImpl extends DAOImpl implements LibraryDAO {
   private static void delete(DSLContext db, Access access, ULong libraryId) throws Exception {
     requireTopLevel(access);
 
-    requireNotExists("Pattern in Library", db.select(PATTERN.ID)
-      .from(PATTERN)
-      .where(PATTERN.LIBRARY_ID.eq(libraryId))
-      .fetch().into(PATTERN));
+    requireNotExists("Sequence in Library", db.select(SEQUENCE.ID)
+      .from(SEQUENCE)
+      .where(SEQUENCE.LIBRARY_ID.eq(libraryId))
+      .fetch().into(SEQUENCE));
 
     requireNotExists("Instrument in Library", db.select(INSTRUMENT.ID)
       .from(INSTRUMENT)
@@ -201,9 +201,9 @@ public class LibraryDAOImpl extends DAOImpl implements LibraryDAO {
     db.deleteFrom(LIBRARY)
       .where(LIBRARY.ID.eq(libraryId))
       .andNotExists(
-        db.select(PATTERN.ID)
-          .from(PATTERN)
-          .where(PATTERN.LIBRARY_ID.eq(libraryId))
+        db.select(SEQUENCE.ID)
+          .from(SEQUENCE)
+          .where(SEQUENCE.LIBRARY_ID.eq(libraryId))
       )
       .andNotExists(
         db.select(INSTRUMENT.ID)

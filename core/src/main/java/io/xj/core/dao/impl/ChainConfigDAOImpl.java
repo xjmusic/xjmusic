@@ -20,6 +20,7 @@ import com.google.inject.Inject;
 import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Objects;
 
 import static io.xj.core.tables.Chain.CHAIN;
 import static io.xj.core.tables.ChainConfig.CHAIN_CONFIG;
@@ -136,7 +137,7 @@ public class ChainConfigDAOImpl extends DAOImpl implements ChainConfigDAO {
 
     // [#128] cannot change chainId of a chainConfig
     Object updateChainId = fieldValues.get(CHAIN_CONFIG.CHAIN_ID);
-    if (isNonNull(updateChainId) && !updateChainId.equals(entity.getChainId()))
+    if (isNonNull(updateChainId) && !Objects.equals(updateChainId, entity.getChainId()))
       throw new BusinessException("cannot change chainId of a chainConfig");
 
     if (0 == executeUpdate(db, CHAIN_CONFIG, fieldValues))

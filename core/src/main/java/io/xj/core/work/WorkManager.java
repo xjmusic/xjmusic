@@ -10,31 +10,31 @@ import java.math.BigInteger;
 import java.util.Collection;
 
 /**
- [#286] True Chain-Link work management
- (deprecating each link worker reading whatever links are in a certain state)
+ [#286] True Chain-Segment work management
+ (deprecating each segment worker reading whatever segments are in a certain state)
  in order to prevent the train wrecks we are already seeing at small scale.
  <p>
- # ChainFabricateJob, ChainStopJob, LinkCraftJob, LinkDubJob
+ # ChainFabricateJob, ChainStopJob, SegmentCraftJob, SegmentDubJob
  <p>
  Work module deprecates craftworker, dubworker, and eraseworker. These modules will likely be moved into sub-modules of the new worker module
  Hub enqueues a recurring ChainFabricateJob on creation of a Chain
  Hub enqueues a recurring ChainFabricateJob on retry of a Chain in a Failed state
  Hub stops any recurring ChainFabricateJob and creates a ChainStopJob on completion or deletion of a Chain
  Work establishes a pool of threads to run Clients which will execute jobs of any type
- Work client executes a ChainFabricateJob, update Chain to Fabricate state, for any necessitated new Link, do macro-choice and create new Link in Planned state, for each Link create scheduled LinkCraftJob and LinkDubJob
- Work client executes a LinkCraftJob, update Link to Crafting state, do main-choice and link craft, update Link to Crafted state.
- Work client executes a LinkDubJob, if Link is not in Crafted state, reject the job to be retried
- Work client executes a LinkDubJob, update Link to Dubbing state, do master dub, do ship dub, update Link to Dubbed state, job complete
+ Work client executes a ChainFabricateJob, update Chain to Fabricate state, for any necessitated new Segment, do macro-choice and create new Segment in Planned state, for each Segment create scheduled SegmentCraftJob and SegmentDubJob
+ Work client executes a SegmentCraftJob, update Segment to Crafting state, do main-choice and segment craft, update Segment to Crafted state.
+ Work client executes a SegmentDubJob, if Segment is not in Crafted state, reject the job to be retried
+ Work client executes a SegmentDubJob, update Segment to Dubbing state, do master dub, do ship dub, update Segment to Dubbed state, job complete
  Work client executes a ChainFabricateJob and determines the Chain is complete, then update the Chain state to Complete
- Work client executes a ChainFabricateJob and periodically does garbage collection, expiring all Links before a certain staleness, and enqueing LinkDeleteJob for those Link
+ Work client executes a ChainFabricateJob and periodically does garbage collection, expiring all Segments before a certain staleness, and enqueing SegmentDeleteJob for those Segment
  Work client executes a ChainFabricateJob and determines the Chain is no longer in a Fabricate state, cancels the recurring ChainFabricateJob
  Work client executes a ChainStopJob and updates the Chain to Stopped state.
  <p>
- # ChainDeleteJob, LinkDeleteJob
+ # ChainDeleteJob, SegmentDeleteJob
  <p>
  Hub enqueues a recurring ChainDeleteJob on delete of a Chain
- Work client executes a ChainDeleteJob and enqueues LinkDeleteJob for each Link in the Chain
- Work client executes a LinkDeleteJob and deletes the corresponding S3 object, then the Link record
+ Work client executes a ChainDeleteJob and enqueues SegmentDeleteJob for each Segment in the Chain
+ Work client executes a SegmentDeleteJob and deletes the corresponding S3 object, then the Segment record
  Work client executes a ChainDeleteJob and determines the Chain is empty, deletes Chain record, stops ChainDeleteJob
  <p>
  # AudioDeleteJob
@@ -61,13 +61,13 @@ public interface WorkManager {
   void stopChainFabrication(BigInteger chainId);
 
   /**
-   Schedule the crafting of a Link,
-   by creating a scheduled `LinkCraftJob`.
+   Schedule the crafting of a Segment,
+   by creating a scheduled `SegmentCraftJob`.
 
    @param delaySeconds from now to schedule job at
-   @param linkId       for which to schedule Craft
+   @param segmentId       for which to schedule Craft
    */
-  void scheduleLinkFabricate(Integer delaySeconds, BigInteger linkId);
+  void scheduleSegmentFabricate(Integer delaySeconds, BigInteger segmentId);
 
   /**
    Start erasing a Chain,
@@ -86,20 +86,20 @@ public interface WorkManager {
   void stopChainErase(BigInteger chainId);
 
   /**
+   Start erasing a Sequence,
+   by creating a recurring `SequenceEraseJob`.
+
+   @param sequenceId to begin erasing
+   */
+  void doSequenceErase(BigInteger sequenceId);
+
+  /**
    Start erasing a Pattern,
    by creating a recurring `PatternEraseJob`.
 
    @param patternId to begin erasing
    */
   void doPatternErase(BigInteger patternId);
-
-  /**
-   Start erasing a Phase,
-   by creating a recurring `PhaseEraseJob`.
-
-   @param phaseId to begin erasing
-   */
-  void doPhaseErase(BigInteger phaseId);
 
   /**
    Start erasing an Audio,
@@ -128,22 +128,22 @@ public interface WorkManager {
   void doAudioClone(BigInteger fromId, BigInteger toId);
 
   /**
+   Schedule the cloning of a Sequence,
+   by creating a scheduled `SequenceCloneJob`.
+   * @param fromId for which to schedule Clone
+   @param toId    to clone sequence to
+
+   */
+  void doSequenceClone(BigInteger fromId, BigInteger toId);
+
+  /**
    Schedule the cloning of a Pattern,
    by creating a scheduled `PatternCloneJob`.
-   * @param fromId for which to schedule Clone
+   * @param fromId      for which to schedule Clone
    @param toId    to clone pattern to
 
    */
   void doPatternClone(BigInteger fromId, BigInteger toId);
-
-  /**
-   Schedule the cloning of a Phase,
-   by creating a scheduled `PhaseCloneJob`.
-   * @param fromId      for which to schedule Clone
-   @param toId    to clone phase to
-
-   */
-  void doPhaseClone(BigInteger fromId, BigInteger toId);
 
   /**
    Get a Worker

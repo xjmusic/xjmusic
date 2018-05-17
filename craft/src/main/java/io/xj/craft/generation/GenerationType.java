@@ -9,10 +9,10 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- Type of Macro-Craft, depending on previous link existence and choices
+ Type of Macro-Craft, depending on previous segment existence and choices
  */
 public enum GenerationType {
-  LibrarySuperpattern; // the first macro and main patterns in the chain
+  LibrarySupersequence; // the first macro and main sequences in the chain
 
 
   /**

@@ -24,12 +24,14 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nullable;
 import java.lang.reflect.Method;
 import java.math.BigInteger;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static io.xj.core.Tables.CHAIN;
-import static io.xj.core.Tables.LINK;
+import static io.xj.core.Tables.SEGMENT;
 
 public class DAOImpl {
   private static final Logger log = LoggerFactory.getLogger(DAOImpl.class);
@@ -141,20 +143,20 @@ public class DAOImpl {
   }
 
   /**
-   Require access to all of a collection of links
+   Require access to all of a collection of segments
 
    @param db      context
    @param access  control
-   @param linkIds to require access to
+   @param segmentIds to require access to
    */
-  static void requireAccessToLinks(DSLContext db, Access access, Collection<ULong> linkIds) throws BusinessException {
+  static void requireAccessToSegments(DSLContext db, Access access, Collection<ULong> segmentIds) throws BusinessException {
     if (!access.isTopLevel()) {
-      int accessLinkCount = db.selectCount().from(LINK)
-        .join(CHAIN).on(LINK.CHAIN_ID.eq(CHAIN.ID))
-        .where(LINK.ID.in(linkIds))
+      int accessSegmentCount = db.selectCount().from(SEGMENT)
+        .join(CHAIN).on(SEGMENT.CHAIN_ID.eq(CHAIN.ID))
+        .where(SEGMENT.ID.in(segmentIds))
         .and(CHAIN.ACCOUNT_ID.in(access.getAccountIds()))
         .fetchOne(0, int.class);
-      require(String.format("exactly the provided count (%d) links in chain(s) to which user has access", linkIds.size()), Objects.equals(linkIds.size(), accessLinkCount));
+      require(String.format("exactly the provided count (%d) segments in chain(s) to which user has access", segmentIds.size()), Objects.equals(segmentIds.size(), accessSegmentCount));
     }
   }
 
@@ -281,12 +283,11 @@ public class DAOImpl {
   /**
    Build collection of jooq ULong from global BigInteger
 
-   @param linkIds to build from
-   @return collection of link ids
+   @param segmentIds to build from
+   @return collection of segment ids
    */
-  static Collection<ULong> idCollection(Collection<BigInteger> linkIds) {
-    Collection<ULong> result = Lists.newArrayList();
-    linkIds.forEach((id) -> result.add(ULong.valueOf(id)));
+  static Collection<ULong> idCollection(Collection<BigInteger> segmentIds) {
+    Collection<ULong> result = segmentIds.stream().map(ULong::valueOf).collect(Collectors.toList());
     return result;
   }
 
@@ -417,10 +418,7 @@ public class DAOImpl {
    @return true if found, else false
    */
   private static <E extends Entity> boolean hasMethod(E model, String setterName) {
-    for (Method method : model.getClass().getMethods()) {
-      if (Objects.equals(method.getName(), setterName)) return true;
-    }
-    return false;
+    return Arrays.stream(model.getClass().getMethods()).anyMatch(method -> Objects.equals(method.getName(), setterName));
   }
 
   /**
@@ -430,8 +428,7 @@ public class DAOImpl {
    @return collection of ULong
    */
   protected static Collection<ULong> uLongValuesOf(Collection<BigInteger> libraryIds) {
-    Collection<ULong> result = Lists.newArrayList();
-    libraryIds.forEach(id -> result.add(ULong.valueOf(id)));
+    Collection<ULong> result = libraryIds.stream().map(ULong::valueOf).collect(Collectors.toList());
     return result;
   }
 

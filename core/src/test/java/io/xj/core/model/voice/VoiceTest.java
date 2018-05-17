@@ -16,16 +16,16 @@ public class VoiceTest {
   @Test
   public void validate() throws Exception {
     new Voice()
-      .setPatternId(BigInteger.valueOf(251))
+      .setSequenceId(BigInteger.valueOf(251L))
       .setType("Harmonic")
       .setDescription("Mic Check One Two")
       .validate();
   }
 
   @Test
-  public void validate_failsWithoutPhaseID() throws Exception {
+  public void validate_failsWithoutPatternID() throws Exception {
     failure.expect(BusinessException.class);
-    failure.expectMessage("Pattern ID is required");
+    failure.expectMessage("Sequence ID is required");
 
     new Voice()
       .setType("Harmonic")
@@ -39,7 +39,7 @@ public class VoiceTest {
     failure.expectMessage("Type is required");
 
     new Voice()
-      .setPatternId(BigInteger.valueOf(251))
+      .setSequenceId(BigInteger.valueOf(251L))
       .setDescription("Mic Check One Two")
       .validate();
   }
@@ -50,7 +50,7 @@ public class VoiceTest {
     failure.expectMessage("'chimney' is not a valid type");
 
     new Voice()
-      .setPatternId(BigInteger.valueOf(251))
+      .setSequenceId(BigInteger.valueOf(251L))
       .setType("chimney")
       .setDescription("Mic Check One Two")
       .validate();
@@ -62,7 +62,7 @@ public class VoiceTest {
     failure.expectMessage("Description is required");
 
     new Voice()
-      .setPatternId(BigInteger.valueOf(251))
+      .setSequenceId(BigInteger.valueOf(251L))
       .setType("Harmonic")
       .validate();
   }

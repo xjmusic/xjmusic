@@ -10,11 +10,11 @@ import io.xj.core.model.choice.Choice;
 import io.xj.core.model.entity.EntityRank;
 import io.xj.core.model.instrument.Instrument;
 import io.xj.core.model.instrument.InstrumentType;
+import io.xj.core.model.sequence.Sequence;
+import io.xj.core.model.sequence.SequenceType;
 import io.xj.core.model.pattern.Pattern;
 import io.xj.core.model.pattern.PatternType;
-import io.xj.core.model.phase.Phase;
-import io.xj.core.model.phase.PhaseType;
-import io.xj.core.model.phase_event.PhaseEvent;
+import io.xj.core.model.pattern_event.PatternEvent;
 import io.xj.core.model.pick.Pick;
 import io.xj.core.model.voice.Voice;
 import io.xj.core.util.Chance;
@@ -36,8 +36,8 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- Rhythm craft for the current link
- [#214] If a Chain has Patterns associated with it directly, prefer those choices to any in the Library
+ Rhythm craft for the current segment
+ [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
  */
 public class RhythmCraftImpl implements RhythmCraft {
   private static final double SCORE_AVOID_CHOOSING_PREVIOUS_RHYTHM = 10;
@@ -46,8 +46,8 @@ public class RhythmCraftImpl implements RhythmCraft {
   private static final double SCORE_RHYTHM_ENTROPY = 0.5;
   private final Basis basis;
   private final Logger log = LoggerFactory.getLogger(RhythmCraftImpl.class);
-  private BigInteger _rhythmPhaseOffset;
-  private Pattern _rhythmPattern;
+  private BigInteger _rhythmPatternOffset;
+  private Sequence _rhythmSequence;
 
   @Inject
   public RhythmCraftImpl(
@@ -61,49 +61,49 @@ public class RhythmCraftImpl implements RhythmCraft {
     try {
       craftRhythm();
       craftRhythmVoiceArrangements();
-      craftRhythmPhases();
+      craftRhythmPatterns();
       report();
 
     } catch (BusinessException e) {
       throw e;
     } catch (Exception e) {
       throw new BusinessException(
-        String.format("Failed to do %s-type RhythmCraft for link #%s",
-          basis.type(), basis.link().getId().toString()), e);
+        String.format("Failed to do %s-type RhythmCraft for segment #%s",
+          basis.type(), basis.segment().getId().toString()), e);
     }
   }
 
   /**
-   craft link rhythm
+   craft segment rhythm
    */
   private void craftRhythm() throws Exception {
-    Pattern pattern = rhythmPattern();
-    if (Objects.nonNull(pattern))
+    Sequence sequence = rhythmSequence();
+    if (Objects.nonNull(sequence))
       basis.create(
         new Choice()
-          .setLinkId(basis.link().getId())
-          .setType(PatternType.Rhythm.toString())
-          .setPatternId(pattern.getId())
+          .setSegmentId(basis.segment().getId())
+          .setType(SequenceType.Rhythm.toString())
+          .setSequenceId(sequence.getId())
           .setTranspose(rhythmTranspose())
-          .setPhaseOffset(rhythmPhaseOffset()));
+          .setPatternOffset(rhythmPatternOffset()));
   }
 
   /**
-   compute (and cache) the mainPattern
+   compute (and cache) the mainSequence
 
-   @return mainPattern
+   @return mainSequence
    */
-  private Pattern rhythmPattern() throws Exception {
-    if (Objects.isNull(_rhythmPattern))
+  private Sequence rhythmSequence() throws Exception {
+    if (Objects.isNull(_rhythmSequence))
       switch (basis.type()) {
 
         case Continue:
           Choice previousChoice = basis.previousRhythmChoice();
           if (Objects.nonNull(previousChoice))
-            _rhythmPattern = basis.ingest().pattern(previousChoice.getPatternId());
+            _rhythmSequence = basis.ingest().sequence(previousChoice.getSequenceId());
           else {
-            log.warn("No rhythm-type pattern chosen in previous Link #{}", basis.previousLink().getId());
-            _rhythmPattern = chooseRhythm();
+            log.warn("No rhythm-type sequence chosen in previous Segment #{}", basis.previousSegment().getId());
+            _rhythmSequence = chooseRhythm();
           }
 
           break;
@@ -111,122 +111,122 @@ public class RhythmCraftImpl implements RhythmCraft {
         case Initial:
         case NextMain:
         case NextMacro:
-          _rhythmPattern = chooseRhythm();
+          _rhythmSequence = chooseRhythm();
       }
 
-    return _rhythmPattern;
+    return _rhythmSequence;
   }
 
   /**
-   Phase offset for rhythm-type pattern choice for link
-   if continues past available rhythm-type pattern phases, loops back to beginning of pattern phases
+   Pattern offset for rhythm-type sequence choice for segment
+   if continues past available rhythm-type sequence patterns, loops back to beginning of sequence patterns
 
-   @return offset of rhythm-type pattern choice
+   @return offset of rhythm-type sequence choice
    <p>
-   future: actually compute rhythm pattern phase offset
+   future: actually compute rhythm sequence pattern offset
    */
-  private BigInteger rhythmPhaseOffset() throws Exception {
-    if (Objects.isNull(_rhythmPhaseOffset))
+  private BigInteger rhythmPatternOffset() throws Exception {
+    if (Objects.isNull(_rhythmPatternOffset))
       switch (basis.type()) {
 
         case Continue:
-          _rhythmPhaseOffset = Objects.nonNull(basis.previousRhythmChoice()) ? basis.previousRhythmChoice().nextPhaseOffset() : BigInteger.valueOf(0);
+          _rhythmPatternOffset = Objects.nonNull(basis.previousRhythmChoice()) ? basis.previousRhythmChoice().nextPatternOffset() : BigInteger.valueOf(0);
           break;
 
         case Initial:
         case NextMain:
         case NextMacro:
-          _rhythmPhaseOffset = BigInteger.valueOf(0);
+          _rhythmPatternOffset = BigInteger.valueOf(0);
       }
 
-    return _rhythmPhaseOffset;
+    return _rhythmPatternOffset;
   }
 
   /**
-   Transposition for rhythm-type pattern choice for link
+   Transposition for rhythm-type sequence choice for segment
 
-   @return +/- semitones transposition of rhythm-type pattern choice
+   @return +/- semitones transposition of rhythm-type sequence choice
    */
   private Integer rhythmTranspose() throws Exception {
-    return Key.delta(rhythmPattern().getKey(), basis.link().getKey(), 0);
+    return Key.delta(rhythmSequence().getKey(), basis.segment().getKey(), 0);
   }
 
   /**
-   Choose rhythm pattern
+   Choose rhythm sequence
 
-   @return rhythm-type Pattern
+   @return rhythm-type Sequence
    @throws Exception on failure
    <p>
-   future: actually choose rhythm pattern
+   future: actually choose rhythm sequence
    */
-  private Pattern chooseRhythm() throws Exception {
-    EntityRank<Pattern> entityRank = new EntityRank<>();
+  private Sequence chooseRhythm() throws Exception {
+    EntityRank<Sequence> entityRank = new EntityRank<>();
 
-    // future: only choose major patterns for major keys, minor for minor! [#223] Key of first Phase of chosen Rhythm-Pattern must match the `minor` or `major` with the Key of the current Link.
+    // future: only choose major sequences for major keys, minor for minor! [#223] Key of first Pattern of chosen Rhythm-Sequence must match the `minor` or `major` with the Key of the current Segment.
 
-    // (2a) retrieve patterns bound directly to chain
-    Collection<Pattern> sourcePatterns = basis.ingest().patterns(PatternType.Rhythm);
+    // (2a) retrieve sequences bound directly to chain
+    Collection<Sequence> sourceSequences = basis.ingest().sequences(SequenceType.Rhythm);
 
-    // (2b) only if none were found in the previous step, retrieve patterns bound to chain library
-    if (sourcePatterns.isEmpty())
-      sourcePatterns = basis.libraryIngest().patterns(PatternType.Rhythm);
+    // (2b) only if none were found in the previous step, retrieve sequences bound to chain library
+    if (sourceSequences.isEmpty())
+      sourceSequences = basis.libraryIngest().sequences(SequenceType.Rhythm);
 
-    // (3) score each source pattern based on meme isometry
-    for (Pattern pattern : sourcePatterns) {
-      entityRank.add(pattern, scoreRhythm(pattern));
+    // (3) score each source sequence based on meme isometry
+    for (Sequence sequence : sourceSequences) {
+      entityRank.add(sequence, scoreRhythm(sequence));
     }
 
-    // (3b) Avoid previous rhythm pattern
-    if (!basis.isInitialLink())
+    // (3b) Avoid previous rhythm sequence
+    if (!basis.isInitialSegment())
       if (Objects.nonNull(basis.previousRhythmChoice()))
-        entityRank.score(basis.previousRhythmChoice().getPatternId(), -SCORE_AVOID_CHOOSING_PREVIOUS_RHYTHM);
+        entityRank.score(basis.previousRhythmChoice().getSequenceId(), -SCORE_AVOID_CHOOSING_PREVIOUS_RHYTHM);
 
     // report
     basis.report("rhythmChoice", entityRank.report());
 
     // (4) return the top choice
-    Pattern pattern = entityRank.getTop();
-    if (Objects.nonNull(pattern))
-      return pattern;
+    Sequence sequence = entityRank.getTop();
+    if (Objects.nonNull(sequence))
+      return sequence;
     else
-      throw new BusinessException("Found no rhythm-type pattern bound to Chain!");
+      throw new BusinessException("Found no rhythm-type sequence bound to Chain!");
   }
 
   /**
-   Score a candidate for rhythm pattern, given current basis
+   Score a candidate for rhythm sequence, given current basis
 
-   @param pattern to score
+   @param sequence to score
    @return score, including +/- entropy
    */
-  private double scoreRhythm(Pattern pattern) {
+  private double scoreRhythm(Sequence sequence) {
     Double score = Chance.normallyAround(0, SCORE_RHYTHM_ENTROPY);
 
-    // Score includes matching memes, previous link to macro pattern first phase
+    // Score includes matching memes, previous segment to macro sequence first pattern
     try {
-      score += basis.currentLinkMemeIsometry().score(
-        basis.ingest().patternAndPhaseMemes(pattern.getId(), BigInteger.valueOf(0),
-          PhaseType.Intro, PhaseType.Loop, PhaseType.Outro))
+      score += basis.currentSegmentMemeIsometry().score(
+        basis.ingest().sequenceAndPatternMemes(sequence.getId(), BigInteger.valueOf(0),
+          PatternType.Intro, PatternType.Loop, PatternType.Outro))
         * SCORE_MATCHED_MEMES;
     } catch (Exception e) {
-      log.warn("While scoring rhythm {}", pattern, e);
+      log.warn("While scoring rhythm {}", sequence, e);
     }
 
     return score;
   }
 
   /**
-   craft link events for all rhythm voices
+   craft segment events for all rhythm voices
    */
   private void craftRhythmVoiceArrangements() throws Exception {
     if (Objects.isNull(basis.currentRhythmChoice())) return;
     Collection<Arrangement> arrangements = Lists.newArrayList();
-    for (Voice voice : voices(basis.currentRhythmChoice().getPatternId()))
+    for (Voice voice : voices(basis.currentRhythmChoice().getSequenceId()))
       arrangements.add(craftArrangementForRhythmVoice(voice));
     basis.setChoiceArrangements(basis.currentRhythmChoice().getId(), arrangements);
   }
 
   /**
-   craft link events for one rhythm voice
+   craft segment events for one rhythm voice
 
    @param voice to craft events for
    @throws Exception on failure
@@ -242,7 +242,7 @@ public class RhythmCraftImpl implements RhythmCraft {
 
   /**
    Choose percussive instrument
-   [#325] Possible to choose multiple instruments for different voices in the same pattern
+   [#325] Possible to choose multiple instruments for different voices in the same sequence
 
    @param voice to choose instrument for
    @return percussive-type Instrument
@@ -271,9 +271,9 @@ public class RhythmCraftImpl implements RhythmCraft {
     }));
 
     /*
-    DISABLED for [#324] Don't take into account which instruments were previously chosen, when choosing instruments for current link.
+    DISABLED for [#324] Don't take into account which instruments were previously chosen, when choosing instruments for current segment.
     // (3b) Avoid previous percussive instrument
-    if (!basis.isInitialLink())
+    if (!basis.isInitialSegment())
       basis.previousPercussiveArrangements().forEach(arrangement ->
         entityRank.score(arrangement.getInstrumentId(), -SCORE_AVOID_CHOOSING_PREVIOUS));
         */
@@ -298,83 +298,83 @@ public class RhythmCraftImpl implements RhythmCraft {
   private double scorePercussiveInstrument(Instrument instrument) throws Exception {
     Double score = Chance.normallyAround(0, SCORE_INSTRUMENT_ENTROPY);
 
-    // Score includes matching memes, previous link to macro instrument first phase
-    score += basis.currentLinkMemeIsometry().score(basis.ingest().instrumentMemes(instrument.getId())) * SCORE_MATCHED_MEMES;
+    // Score includes matching memes, previous segment to macro instrument first pattern
+    score += basis.currentSegmentMemeIsometry().score(basis.ingest().instrumentMemes(instrument.getId())) * SCORE_MATCHED_MEMES;
 
     return score;
   }
 
   /**
-   [#153976073] Artist wants Phase to have type Macro or Main (for Macro- or Main-type patterns), or Intro, Loop, or Outro (for Rhythm or Detail-type Pattern) in order to create a composition that is dynamic when chosen to fill a Link.
+   [#153976073] Artist wants Pattern to have type Macro or Main (for Macro- or Main-type sequences), or Intro, Loop, or Outro (for Rhythm or Detail-type Sequence) in order to create a composition that is dynamic when chosen to fill a Segment.
 
    @throws Exception on failure
    */
-  private void craftRhythmPhases(
+  private void craftRhythmPatterns(
   ) throws Exception {
     if (Objects.isNull(basis.currentRhythmChoice())) return;
 
-    // choose intro phase (if available)
-    Phase introPhase = basis.ingest().phaseAtOffset(basis.currentRhythmChoice().getPatternId(), basis.currentRhythmChoice().getPhaseOffset(), PhaseType.Intro);
+    // choose intro pattern (if available)
+    Pattern introPattern = basis.ingest().patternAtOffset(basis.currentRhythmChoice().getSequenceId(), basis.currentRhythmChoice().getPatternOffset(), PatternType.Intro);
 
-    // choose outro phase (if available)
-    Phase outroPhase = basis.ingest().phaseAtOffset(basis.currentRhythmChoice().getPatternId(), basis.currentRhythmChoice().getPhaseOffset(), PhaseType.Outro);
+    // choose outro pattern (if available)
+    Pattern outroPattern = basis.ingest().patternAtOffset(basis.currentRhythmChoice().getSequenceId(), basis.currentRhythmChoice().getPatternOffset(), PatternType.Outro);
 
-    // compute in and out points, and length # beats for which loop phases will be required
-    long loopOutPos = basis.link().getTotal() - (Objects.nonNull(outroPhase) ? outroPhase.getTotal() : 0);
+    // compute in and out points, and length # beats for which loop patterns will be required
+    long loopOutPos = basis.segment().getTotal() - (Objects.nonNull(outroPattern) ? outroPattern.getTotal() : 0);
 
-    // begin at the beginning and fabricate events for the link from beginning to end
+    // begin at the beginning and fabricate events for the segment from beginning to end
     double curPos = 0.0;
 
-    // if intro phase, fabricate those voice event first
-    if (Objects.nonNull(introPhase)) {
-      curPos += craftRhythmPhasePhaseEvents(curPos, introPhase, loopOutPos);
+    // if intro pattern, fabricate those voice event first
+    if (Objects.nonNull(introPattern)) {
+      curPos += craftRhythmPatternPatternEvents(curPos, introPattern, loopOutPos);
     }
 
-    // choose loop phases until arrive at the out point or end of link
+    // choose loop patterns until arrive at the out point or end of segment
     while (curPos < loopOutPos) {
-      Phase loopPhase = basis.ingest().phaseRandomAtOffset(basis.currentRhythmChoice().getPatternId(), basis.currentRhythmChoice().getPhaseOffset(), PhaseType.Loop);
-      curPos += craftRhythmPhasePhaseEvents(curPos, loopPhase, loopOutPos);
+      Pattern loopPattern = basis.ingest().patternRandomAtOffset(basis.currentRhythmChoice().getSequenceId(), basis.currentRhythmChoice().getPatternOffset(), PatternType.Loop);
+      curPos += craftRhythmPatternPatternEvents(curPos, loopPattern, loopOutPos);
     }
 
-    // if outro phase, fabricate those voice event last
-    if (Objects.nonNull(outroPhase)) {
-      craftRhythmPhasePhaseEvents(curPos, outroPhase, loopOutPos);
+    // if outro pattern, fabricate those voice event last
+    if (Objects.nonNull(outroPattern)) {
+      craftRhythmPatternPatternEvents(curPos, outroPattern, loopOutPos);
     }
   }
 
   /**
-   Craft the voice events of a single rhythm phase
+   Craft the voice events of a single rhythm pattern
 
-   @param fromPos to write events to link
-   @param phase   to source events
-   @param maxPos  to write events to link
+   @param fromPos to write events to segment
+   @param pattern   to source events
+   @param maxPos  to write events to segment
    @return deltaPos from start
    */
-  private double craftRhythmPhasePhaseEvents(double fromPos, Phase phase, double maxPos) throws Exception {
+  private double craftRhythmPatternPatternEvents(double fromPos, Pattern pattern, double maxPos) throws Exception {
     Choice choice = basis.currentRhythmChoice();
     Collection<Arrangement> arrangements = basis.choiceArrangements(choice.getId());
     for (Arrangement arrangement : arrangements) {
-      Collection<PhaseEvent> phaseEvents = basis.ingest().phaseVoiceEvents(phase.getId(), arrangement.getVoiceId());
+      Collection<PatternEvent> patternEvents = basis.ingest().patternVoiceEvents(pattern.getId(), arrangement.getVoiceId());
       Instrument instrument = basis.ingest().instrument(arrangement.getInstrumentId());
-      for (PhaseEvent phaseEvent : phaseEvents) {
-        pickInstrumentAudio(instrument, arrangement, phaseEvent, choice.getTranspose(), fromPos);
+      for (PatternEvent patternEvent : patternEvents) {
+        pickInstrumentAudio(instrument, arrangement, patternEvent, choice.getTranspose(), fromPos);
       }
     }
-    return Math.min(maxPos - fromPos, phase.getTotal());
+    return Math.min(maxPos - fromPos, pattern.getTotal());
   }
 
   /**
-   create a pick of instrument-audio for each event, where events are conformed to chords/scales based on the master link chords
-   pick instrument audio for one event, in a voice in a phase, belonging to an arrangement
+   create a pick of instrument-audio for each event, where events are conformed to chords/scales based on the master segment chords
+   pick instrument audio for one event, in a voice in a pattern, belonging to an arrangement
 
    @param arrangement   to create pick within
-   @param phaseEvent    to pick audio for
-   @param shiftPosition offset voice event zero within current link
+   @param patternEvent    to pick audio for
+   @param shiftPosition offset voice event zero within current segment
    */
   private void pickInstrumentAudio(
     Instrument instrument,
     Arrangement arrangement,
-    PhaseEvent phaseEvent,
+    PatternEvent patternEvent,
     int transpose,
     Double shiftPosition
   /*-*/) throws Exception {
@@ -388,7 +388,7 @@ public class RhythmCraftImpl implements RhythmCraft {
       .forEach(audioEvent ->
         audioEntityRank.score(audioEvent.getAudioId(),
           Chance.normallyAround(
-            EventIsometry.similarity(phaseEvent, audioEvent),
+            EventIsometry.similarity(patternEvent, audioEvent),
             SCORE_INSTRUMENT_ENTROPY)));
 
     // final chosen audio event
@@ -397,13 +397,13 @@ public class RhythmCraftImpl implements RhythmCraft {
       throw new BusinessException("No acceptable Audio found!");
 
     // Morph & Point attributes are expressed in beats
-    double position = phaseEvent.getPosition() + shiftPosition;
-    double duration = phaseEvent.getDuration();
+    double position = patternEvent.getPosition() + shiftPosition;
+    double duration = patternEvent.getDuration();
     Chord chord = basis.chordAt((int) Math.floor(position));
 
     // The final note is transformed based on instrument type
     Note note = pickNote(
-      Note.of(phaseEvent.getNote()).transpose(transpose),
+      Note.of(patternEvent.getNote()).transpose(transpose),
       chord, audio, instrument.getType());
 
     // Pick attributes are expressed "rendered" as actual seconds
@@ -416,7 +416,7 @@ public class RhythmCraftImpl implements RhythmCraft {
       .setAudioId(audio.getId())
       .setStart(startSeconds)
       .setLength(lengthSeconds)
-      .setAmplitude(phaseEvent.getVelocity())
+      .setAmplitude(patternEvent.getVelocity())
       .setPitch(basis.pitch(note)));
   }
 
@@ -448,15 +448,15 @@ public class RhythmCraftImpl implements RhythmCraft {
   }
 
   /**
-   all voices in current phase of chosen rhythm-type pattern
+   all voices in current pattern of chosen rhythm-type sequence
 
-   @param patternId to get voices of
-   @return voices for pattern
+   @param sequenceId to get voices of
+   @return voices for sequence
    @throws Exception on failure
    */
-  private Iterable<Voice> voices(BigInteger patternId) throws Exception {
+  private Iterable<Voice> voices(BigInteger sequenceId) throws Exception {
     List<Voice> voices = Lists.newArrayList();
-    voices.addAll(basis.ingest().voices(patternId));
+    voices.addAll(basis.ingest().voices(sequenceId));
     return voices;
   }
 

@@ -9,8 +9,8 @@ import com.google.inject.assistedinject.Assisted;
 import java.util.Collection;
 
 /**
- [#154350346] Architect wants a universal Ingest Factory, to modularize graph mathematics used during craft to evaluate any combination of Library, Pattern, and Instrument for any purpose.
- Ingest ingest = evaluationFactory.of(...any combination of libraries, instruments, and patterns...);
+ [#154350346] Architect wants a universal Ingest Factory, to modularize graph mathematics used during craft to evaluate any combination of Library, Sequence, and Instrument for any purpose.
+ Ingest ingest = evaluationFactory.of(...any combination of libraries, instruments, and sequences...);
  */
 @FunctionalInterface
 public interface IngestFactory {

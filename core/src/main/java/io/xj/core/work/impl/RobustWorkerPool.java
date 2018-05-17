@@ -1,19 +1,4 @@
-/*
- * Copyright 2011 Greg Haines
- * Copyright 2015 moznion, http://moznion.net/ <moznion@gmail.com>
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.work.impl;
 
 import net.greghaines.jesque.utils.ConcurrentHashSet;
@@ -52,7 +37,7 @@ public class RobustWorkerPool implements Worker {
   public static final int NAME_MAX_LENGTH = 128;
   final Logger log = LoggerFactory.getLogger(RobustWorkerPool.class);
 
-  private static final long NO_DELAY = 0;
+  private static final long NO_DELAY = 0L;
 
   private final ConcurrentSet<Worker> workerSet;
   private final ConcurrentMap<Worker, Thread> workerThreadMap;
@@ -126,7 +111,7 @@ public class RobustWorkerPool implements Worker {
     isStarted = false;
     isEnded = false;
     isCalledJoin = false;
-    joinMillis = -1;
+    joinMillis = -1L;
 
     workerSet = new ConcurrentHashSet<>(numWorkers);
     workerThreadMap = new ConcurrentHashMap<>(numWorkers);
@@ -183,13 +168,8 @@ public class RobustWorkerPool implements Worker {
 
   @Override
   public String getName() {
-    StringBuilder sb = new StringBuilder(NAME_MAX_LENGTH * workerThreadMap.size());
-    String prefix = "";
-    for (Worker worker : workerSet) {
-      sb.append(prefix).append(worker.getName());
-      prefix = " | ";
-    }
-    return sb.toString();
+    String sb = workerSet.stream().map(Worker::getName).collect(Collectors.joining(" | "));
+    return sb;
   }
 
   @Override
@@ -436,7 +416,7 @@ public class RobustWorkerPool implements Worker {
       addListener((event, worker, queue, job, runner, result, t) -> {
         log.debug("Worker is started (Worker Name: {})", worker.getName());
         long delay = this.pool.delayToStartPollingMillis;
-        if (delay > 0) {
+        if (delay > 0L) {
           try {
             Thread.sleep(delay);
           } catch (InterruptedException e) {

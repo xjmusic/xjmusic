@@ -42,7 +42,7 @@ public class PatternOneResource extends HubResource {
    */
   @GET
   @WebResult
-  @RolesAllowed(UserRoleType.USER)
+  @RolesAllowed(UserRoleType.ARTIST)
   public Response readOne(@Context ContainerRequestContext crc) throws IOException {
     try {
       return response.readOne(
@@ -81,7 +81,7 @@ public class PatternOneResource extends HubResource {
    @return Response
    */
   @DELETE
-  @RolesAllowed(UserRoleType.ADMIN)
+  @RolesAllowed(UserRoleType.ARTIST)
   public Response erase(@Context ContainerRequestContext crc) {
     try {
       patternDAO.erase(Access.fromContext(crc), new BigInteger(id));

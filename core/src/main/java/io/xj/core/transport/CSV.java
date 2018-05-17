@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public interface CSV {
   static Collection<String> split(String csv) {
@@ -19,10 +20,7 @@ public interface CSV {
   static Collection<String> splitProperSlug(String csv) {
     List<String> items = Arrays.asList(csv.split(","));
     ImmutableList.Builder<String> slugs = new ImmutableList.Builder<>();
-    items.forEach((item) -> {
-      if (Objects.nonNull(item) && !item.isEmpty())
-        slugs.add(Text.toProperSlug(item));
-    });
+    items.stream().filter(item -> Objects.nonNull(item) && !item.isEmpty()).map(Text::toProperSlug).forEach(slugs::add);
     return slugs.build();
   }
 
@@ -30,15 +28,12 @@ public interface CSV {
     return String.join(",", parts);
   }
 
-  static String join(String[] parts) {
+  static String join(String... parts) {
     return String.join(",", parts);
   }
 
-  static <E extends Enum<E>> String joinEnum(E[] objects) {
-    List<String> objectStrings = Lists.newArrayList();
-    for (Object obj : objects)
-      if (Objects.nonNull(obj))
-        objectStrings.add(obj.toString());
+  static <E extends Enum<E>> String joinEnum(E... objects) {
+    List<String> objectStrings = Arrays.stream(objects).filter(Objects::nonNull).map(Enum::toString).collect(Collectors.toList());
     return join(objectStrings);
   }
 }

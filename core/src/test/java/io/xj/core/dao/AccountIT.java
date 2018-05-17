@@ -63,10 +63,10 @@ public class AccountIT {
       "accounts", "1"
     ));
 
-    Account result = testDAO.readOne(access, BigInteger.valueOf(1));
+    Account result = testDAO.readOne(access, BigInteger.valueOf(1L));
 
     assertNotNull(result);
-    assertEquals(BigInteger.valueOf(1), result.getId());
+    assertEquals(BigInteger.valueOf(1L), result.getId());
     assertEquals("bananas", result.getName());
   }
 
@@ -80,7 +80,7 @@ public class AccountIT {
     JSONArray result = JSON.arrayOf(testDAO.readAll(access, Lists.newArrayList()));
 
     assertNotNull(result);
-    assertEquals(1, result.length());
+    assertEquals(1L, (long) result.length());
 
     JSONObject actualResult0 = (JSONObject) result.get(0);
     assertEquals("bananas", actualResult0.get("name"));
@@ -95,9 +95,9 @@ public class AccountIT {
     Account entity = new Account()
       .setName("jammers");
 
-    testDAO.update(access, BigInteger.valueOf(1), entity);
+    testDAO.update(access, BigInteger.valueOf(1L), entity);
 
-    Account result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1));
+    Account result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1L));
     assertNotNull(result);
     assertEquals("jammers", result.getName());
   }
@@ -114,7 +114,7 @@ public class AccountIT {
     failure.expect(BusinessException.class);
     failure.expectMessage("top-level access is required");
 
-    testDAO.update(access, BigInteger.valueOf(1), entity);
+    testDAO.update(access, BigInteger.valueOf(1L), entity);
   }
 
   @Test
@@ -124,9 +124,9 @@ public class AccountIT {
       "accounts", "1"
     ));
 
-    testDAO.destroy(access, BigInteger.valueOf(1));
+    testDAO.destroy(access, BigInteger.valueOf(1L));
 
-    Account result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1));
+    Account result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1L));
     assertNull(result);
   }
 
@@ -140,7 +140,7 @@ public class AccountIT {
     failure.expect(BusinessException.class);
     failure.expectMessage("top-level access is required");
 
-    testDAO.destroy(access, BigInteger.valueOf(1));
+    testDAO.destroy(access, BigInteger.valueOf(1L));
   }
 
   @Test
@@ -154,7 +154,7 @@ public class AccountIT {
     failure.expect(BusinessException.class);
     failure.expectMessage("Found Chain in Account");
 
-    testDAO.destroy(access, BigInteger.valueOf(1));
+    testDAO.destroy(access, BigInteger.valueOf(1L));
   }
 
   @Test
@@ -168,7 +168,7 @@ public class AccountIT {
     failure.expect(BusinessException.class);
     failure.expectMessage("Found Library in Account");
 
-    testDAO.destroy(access, BigInteger.valueOf(1));
+    testDAO.destroy(access, BigInteger.valueOf(1L));
   }
 
   @Test
@@ -183,7 +183,7 @@ public class AccountIT {
     failure.expect(BusinessException.class);
     failure.expectMessage("Found User in Account");
 
-    testDAO.destroy(access, BigInteger.valueOf(1));
+    testDAO.destroy(access, BigInteger.valueOf(1L));
   }
 
 }

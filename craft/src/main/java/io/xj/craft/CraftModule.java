@@ -20,15 +20,15 @@ import io.xj.craft.digest.hash.DigestHash;
 import io.xj.craft.digest.hash.impl.DigestHashImpl;
 import io.xj.craft.digest.meme.DigestMeme;
 import io.xj.craft.digest.meme.impl.DigestMemeImpl;
-import io.xj.craft.digest.pattern_style.DigestPatternStyle;
-import io.xj.craft.digest.pattern_style.impl.DigestPatternStyleImpl;
+import io.xj.craft.digest.sequence_style.DigestSequenceStyle;
+import io.xj.craft.digest.sequence_style.impl.DigestSequenceStyleImpl;
 import io.xj.craft.ingest.Ingest;
 import io.xj.craft.ingest.IngestFactory;
 import io.xj.craft.ingest.impl.IngestImpl;
 import io.xj.craft.generation.Generation;
 import io.xj.craft.generation.GenerationFactory;
-import io.xj.craft.generation.superpattern.LibrarySuperpatternGeneration;
-import io.xj.craft.generation.superpattern.impl.LibrarySuperpatternGenerationImpl;
+import io.xj.craft.generation.supersequence.LibrarySupersequenceGeneration;
+import io.xj.craft.generation.supersequence.impl.LibrarySupersequenceGenerationImpl;
 import io.xj.craft.harmonic.HarmonicDetailCraft;
 import io.xj.craft.harmonic.impl.HarmonicDetailCraftImpl;
 import io.xj.craft.macro.MacroMainCraft;
@@ -63,8 +63,8 @@ public class CraftModule extends AbstractModule {
 
   private void cfgGeneration() {
     install(new FactoryModuleBuilder()
-      .implement(Generation.class, LibrarySuperpatternGenerationImpl.class)
-      .implement(LibrarySuperpatternGeneration.class, LibrarySuperpatternGenerationImpl.class)
+      .implement(Generation.class, LibrarySupersequenceGenerationImpl.class)
+      .implement(LibrarySupersequenceGeneration.class, LibrarySupersequenceGenerationImpl.class)
       .build(GenerationFactory.class));
   }
 
@@ -82,7 +82,7 @@ public class CraftModule extends AbstractModule {
       .implement(DigestChordMarkov.class, DigestChordMarkovImpl.class)
       .implement(DigestHash.class, DigestHashImpl.class)
       .implement(DigestMeme.class, DigestMemeImpl.class)
-      .implement(DigestPatternStyle.class, DigestPatternStyleImpl.class)
+      .implement(DigestSequenceStyle.class, DigestSequenceStyleImpl.class)
       .build(DigestFactory.class));
   }
 }

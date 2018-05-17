@@ -27,6 +27,7 @@ public class ChainConfigWrapper extends EntityWrapper {
 
    @throws BusinessException if invalid.
    */
+  @Override
   public ChainConfig validate() throws BusinessException {
     if (this.chainConfig == null) {
       throw new BusinessException("Chain config is required.");

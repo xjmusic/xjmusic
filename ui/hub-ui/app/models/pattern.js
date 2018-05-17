@@ -2,16 +2,25 @@
 import DS from 'ember-data';
 
 export default DS.Model.extend({
-  library: DS.belongsTo({}),
-  user: DS.belongsTo({}),
   density: DS.attr('number'),
   key: DS.attr('string'),
+  type: DS.attr('string'),
+  sequence: DS.belongsTo({}),
   name: DS.attr('string'),
   tempo: DS.attr('number'),
-  type: DS.attr('string'),
+  offset: DS.attr('number'),
+  total: DS.attr('number'),
+  events: DS.hasMany('pattern-event'),
 
-  memes: DS.hasMany('pattern-meme'),
-  voices: DS.hasMany('voice'),
-  phases: DS.hasMany('phase'),
-  choices: DS.hasMany('choice'),
+  getTitle() {
+    let name = this.get("name");
+    let title = name ? name : '';
+    title += '@' + this.get("offset");
+    return title;
+  },
+
+  toString() {
+    return this.getTitle();
+  }
+
 });

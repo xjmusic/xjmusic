@@ -60,18 +60,22 @@ public class AudioCacheProviderImpl implements AudioCacheProvider {
     items = loadItems;
   }
 
+  @Override
   public Long estimatedSize() {
     return items.estimatedSize();
   }
 
+  @Override
   public CacheStats stats() {
     return items.stats();
   }
 
+  @Override
   public Item get(String key) {
     return items.get(key);
   }
 
+  @Override
   public void refresh(String key) {
     items.refresh(key);
   }

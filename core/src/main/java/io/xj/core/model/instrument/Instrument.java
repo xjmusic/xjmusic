@@ -31,7 +31,7 @@ public class Instrument extends Entity {
   public Instrument() {}
 
   public Instrument(int id) {
-    this.id = BigInteger.valueOf(id);
+    this.id = BigInteger.valueOf((long) id);
   }
 
   public Instrument(BigInteger id) {

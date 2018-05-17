@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- EntityRank is a collection of one type of Entity (e.g. Pattern or Instrument),
+ EntityRank is a collection of one type of Entity (e.g. Sequence or Instrument),
  stored in a HashMap using its id as an index.
  <p>
  A separate quality-score (Q-score) index uses the entity id as an index

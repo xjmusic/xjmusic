@@ -1,3 +1,5 @@
+// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+
 let totalBars = 64;
 let totalCycles = 1;
 let totalSeconds = 4;

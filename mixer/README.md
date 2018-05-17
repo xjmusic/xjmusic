@@ -36,7 +36,7 @@ See `demo/demo.go`:
       snare      = "snare.wav"
       hitom      = "hightom.wav"
       clhat      = "cl_hihat.wav"
-      pattern    = []string{
+      sequence    = []string{
         kick2,
         marac,
         clhat,
@@ -66,10 +66,10 @@ See `demo/demo.go`:
 
       t := 2 * time.Second // padding before music
       for n := 0; n < loops; n++ {
-        for s := 0; s < len(pattern); s++ {
-          mix.SetFire(pattern[s], t+time.Duration(s)*step, 0, 1.0, 0)
+        for s := 0; s < len(sequence); s++ {
+          mix.SetFire(sequence[s], t+time.Duration(s)*step, 0, 1.0, 0)
         }
-        t += time.Duration(len(pattern)) * step
+        t += time.Duration(len(sequence)) * step
       }
 
       fmt.Printf("Mix, pid:%v, spec:%v\n", os.Getpid(), spec)
@@ -90,7 +90,7 @@ Or export WAV via stdout `> demo/output.wav`:
 
 [Charney Kaye](http://w.charney.io)
 
-[Outright Mental](https://xj.io)
+[XJ Music™](https://xj.io)
 
 ### What?
 

@@ -6,7 +6,7 @@ import io.xj.core.config.Config;
 import com.google.common.collect.ImmutableList;
 
 import javax.annotation.Nullable;
-import java.util.Comparator;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Pattern;
@@ -22,11 +22,12 @@ public interface Text {
   Pattern nonSlug = Pattern.compile("[^a-zA-Z]");
   Pattern nonScored = Pattern.compile("[^a-zA-Z0-9_]");
   Pattern nonNote = Pattern.compile("[^#0-9a-zA-Z ]");
+  Pattern isInteger = Pattern.compile("[0-9]+");
   //  Pattern nonDocKey = Pattern.compile("[^0-9a-zA-Z_\\-.]");
 //  Pattern oneOrMorePeriod = Pattern.compile("\\.+");
   String UNDERSCORE = "_";
   String NOTHING = "";
-  Comparator<? super String> byStringLengthDescending = (o1, o2) -> -Integer.compare(o2.length(), o1.length());
+//  Comparator<? super String> byStringLengthDescending = (o1, o2) -> -Integer.compare(o2.length(), o1.length());
 
   /**
    Alphabetical characters only, no case modification
@@ -246,6 +247,15 @@ public interface Text {
   }
 
   /**
+   True if input string is an integer
+   @param raw text to check if it's an integer
+   @return true if it's an integer
+   */
+  static Boolean isInteger(String raw) {
+    return isInteger.matcher(raw).matches();
+  }
+
+  /**
    Format a stack trace in carriage-return-separated lines
 
    @param e exception to format the stack trace of
@@ -254,10 +264,7 @@ public interface Text {
   static String formatStackTrace(@Nullable Exception e) {
     if (Objects.isNull(e)) return "";
     StackTraceElement[] stack = e.getStackTrace();
-    int numStackLines = stack.length;
-    String[] stackLines = new String[numStackLines];
-    for (int i = 0; i < numStackLines; i++)
-      stackLines[i] = stack[i].toString();
+    String[] stackLines = Arrays.stream(stack).map(StackTraceElement::toString).toArray(String[]::new);
     return String.join(Config.lineSeparator(), stackLines);
   }
 
@@ -267,7 +274,7 @@ public interface Text {
    @param values to include
    @return array of string values
    */
-  static List<String> stringValues(Object[] values) {
+  static List<String> stringValues(Object... values) {
     ImmutableList.Builder<String> valuesBuilder = ImmutableList.builder();
     for (Object value : values) {
       valuesBuilder.add(value.toString());

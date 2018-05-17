@@ -27,6 +27,7 @@ public class UserWrapper extends EntityWrapper {
 
    @throws BusinessException if invalid.
    */
+  @Override
   public User validate() throws BusinessException {
     if (this.user == null) {
       throw new BusinessException("User is required.");

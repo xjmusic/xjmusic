@@ -24,6 +24,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.Objects;
 
 /**
  Pattern record
@@ -46,7 +47,7 @@ public class PatternMemeIndexResource extends HubResource {
   @RolesAllowed(UserRoleType.ARTIST)
   public Response readAll(@Context ContainerRequestContext crc) throws IOException {
 
-    if (null == patternId || patternId.isEmpty()) {
+    if (Objects.isNull(patternId) || patternId.isEmpty()) {
       return response.notAcceptable("Pattern id is required");
     }
 
@@ -84,5 +85,4 @@ public class PatternMemeIndexResource extends HubResource {
       return response.failureToCreate(e);
     }
   }
-
 }

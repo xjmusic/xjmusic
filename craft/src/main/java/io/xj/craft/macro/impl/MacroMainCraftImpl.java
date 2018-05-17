@@ -5,12 +5,12 @@ import io.xj.craft.basis.Basis;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.model.choice.Choice;
 import io.xj.core.model.entity.EntityRank;
-import io.xj.core.model.link_chord.LinkChord;
-import io.xj.core.model.link_meme.LinkMeme;
+import io.xj.core.model.segment_chord.SegmentChord;
+import io.xj.core.model.segment_meme.SegmentMeme;
+import io.xj.core.model.sequence.Sequence;
+import io.xj.core.model.sequence.SequenceType;
 import io.xj.core.model.pattern.Pattern;
 import io.xj.core.model.pattern.PatternType;
-import io.xj.core.model.phase.Phase;
-import io.xj.core.model.phase.PhaseType;
 import io.xj.core.util.Chance;
 import io.xj.core.util.Value;
 import io.xj.craft.macro.MacroMainCraft;
@@ -31,7 +31,7 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- [#214] If a Chain has Patterns associated with it directly, prefer those choices to any in the Library
+ [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
  */
 public class MacroMainCraftImpl implements MacroMainCraft {
   private static final double SCORE_MATCHED_KEY_MODE = 2;
@@ -42,10 +42,10 @@ public class MacroMainCraftImpl implements MacroMainCraft {
   private static final long NANOS_PER_SECOND = 1_000_000_000;
   private final Logger log = LoggerFactory.getLogger(MacroMainCraftImpl.class);
   private final Basis basis;
-  private Pattern _macroPattern;
-  private Pattern _mainPattern;
-  private BigInteger _macroPhaseOffset;
-  private BigInteger _mainPhaseOffset;
+  private Sequence _macroSequence;
+  private Sequence _mainSequence;
+  private BigInteger _macroPatternOffset;
+  private BigInteger _mainPatternOffset;
 
   @Inject
   public MacroMainCraftImpl(
@@ -60,12 +60,12 @@ public class MacroMainCraftImpl implements MacroMainCraft {
       craftMacro();
       craftMain();
       craftMemes();
-      basis.updateLink(basis.link()
-        .setDensity(linkDensity())
-        .setTempo(linkTempo())
-        .setKey(linkKey())
-        .setTotal(linkTotal())
-        .setEndAtTimestamp(linkEndTimestamp()));
+      basis.updateSegment(basis.segment()
+        .setDensity(segmentDensity())
+        .setTempo(segmentTempo())
+        .setKey(segmentKey())
+        .setTotal(segmentTotal())
+        .setEndAtTimestamp(segmentEndTimestamp()));
       craftChords();
       report();
 
@@ -73,8 +73,8 @@ public class MacroMainCraftImpl implements MacroMainCraft {
       throw e;
     } catch (Exception e) {
       throw new BusinessException(
-        String.format("Failed to do %s-type MacroMainCraft for link #%s",
-          basis.type(), basis.link().getId().toString()), e);
+        String.format("Failed to do %s-type MacroMainCraft for segment #%s",
+          basis.type(), basis.segment().getId().toString()), e);
     }
   }
 
@@ -86,134 +86,134 @@ public class MacroMainCraftImpl implements MacroMainCraft {
   }
 
   /**
-   Make Macro-type Pattern Choice
-   add macro-pattern choice to link
+   Make Macro-type Sequence Choice
+   add macro-sequence choice to segment
 
    @throws Exception on any failure
    */
   private void craftMacro() throws Exception {
     basis.create(new Choice()
-      .setLinkId(basis.link().getId())
-      .setType(PatternType.Macro.toString())
-      .setPatternId(macroPattern().getId())
+      .setSegmentId(basis.segment().getId())
+      .setType(SequenceType.Macro.toString())
+      .setSequenceId(macroSequence().getId())
       .setTranspose(macroTranspose())
-      .setPhaseOffset(macroPhaseOffset()));
+      .setPatternOffset(macroPatternOffset()));
   }
 
   /**
-   Make Main-type Pattern Choice
-   add macro-pattern choice to link
+   Make Main-type Sequence Choice
+   add macro-sequence choice to segment
 
    @throws Exception on any failure
    */
   private void craftMain() throws Exception {
     basis.create(new Choice()
-      .setLinkId(basis.link().getId())
-      .setType(PatternType.Main.toString())
-      .setPatternId(mainPattern().getId())
+      .setSegmentId(basis.segment().getId())
+      .setType(SequenceType.Main.toString())
+      .setSequenceId(mainSequence().getId())
       .setTranspose(mainTranspose())
-      .setPhaseOffset(mainPhaseOffset()));
+      .setPatternOffset(mainPatternOffset()));
   }
 
   /**
    Make Memes
-   add all memes to link
+   add all memes to segment
 
    @throws Exception on any failure
    */
   private void craftMemes() throws Exception {
-    linkMemes().forEach((linkMeme) -> {
+    segmentMemes().forEach((segmentMeme) -> {
       try {
-        basis.create(linkMeme);
+        basis.create(segmentMeme);
 
       } catch (Exception e) {
-        log.warn("failed to create link meme {}", linkMeme.getName(), e);
+        log.warn("failed to create segment meme {}", segmentMeme.getName(), e);
       }
     });
   }
 
   /**
    Make Chords
-   Link Chords = Main Pattern Phase Chords, transposed according to to main pattern choice
-   [#154090557] don't create chord past end of Link
+   Segment Chords = Main Sequence Pattern Chords, transposed according to to main sequence choice
+   [#154090557] don't create chord past end of Segment
 
    @throws Exception on any failure
    */
   private void craftChords() throws Exception {
-    basis.ingest().phaseChords(mainPhase().getId())
-      .forEach(phaseChord -> {
+    basis.ingest().patternChords(mainPattern().getId())
+      .forEach(patternChord -> {
 
-        if (phaseChord.getPosition() < basis.link().getTotal()) {
+        if (patternChord.getPosition() < basis.segment().getTotal()) {
           String name = "NaN";
           try {
             // delta the chord name
-            name = phaseChord.toMusical().transpose(mainTranspose()).getFullDescription();
+            name = patternChord.toMusical().transpose(mainTranspose()).getFullDescription();
             // create the transposed chord
-            basis.create(new LinkChord()
-              .setLinkId(basis.link().getId())
+            basis.create(new SegmentChord()
+              .setSegmentId(basis.segment().getId())
               .setName(name)
-              .setPosition(phaseChord.getPosition()));
+              .setPosition(patternChord.getPosition()));
 
           } catch (Exception e) {
-            log.warn("failed to create transposed link chord {}@{}",
-              String.valueOf(name), phaseChord.getPosition(), e);
+            log.warn("failed to create transposed segment chord {}@{}",
+              String.valueOf(name), patternChord.getPosition(), e);
           }
         }
       });
   }
 
   /**
-   compute (and cache) the chosen macro pattern
+   compute (and cache) the chosen macro sequence
 
-   @return macro-type pattern
+   @return macro-type sequence
    @throws Exception on failure
    */
-  private Pattern macroPattern() throws Exception {
-    if (Objects.isNull(_macroPattern))
+  private Sequence macroSequence() throws Exception {
+    if (Objects.isNull(_macroSequence))
       switch (basis.type()) {
 
         case Initial:
-          _macroPattern = chooseMacro();
+          _macroSequence = chooseMacro();
           break;
 
         case Continue:
         case NextMain:
           Choice previousChoice = basis.previousMacroChoice();
           if (Objects.isNull(previousChoice))
-            throw new BusinessException("No macro-type pattern chosen in previous link!");
-          _macroPattern = basis.ingest().pattern(previousChoice.getPatternId());
+            throw new BusinessException("No macro-type sequence chosen in previous segment!");
+          _macroSequence = basis.ingest().sequence(previousChoice.getSequenceId());
           break;
 
         case NextMacro:
-          _macroPattern = chooseMacro();
+          _macroSequence = chooseMacro();
       }
-    return _macroPattern;
+    return _macroSequence;
   }
 
   /**
-   compute (and cache) the mainPattern
+   compute (and cache) the mainSequence
 
-   @return mainPattern
+   @return mainSequence
    */
-  private Pattern mainPattern() throws Exception {
-    if (Objects.isNull(_mainPattern))
+  private Sequence mainSequence() throws Exception {
+    if (Objects.isNull(_mainSequence))
       switch (basis.type()) {
 
         case Continue:
           Choice previousChoice = basis.previousMainChoice();
           if (Objects.isNull(previousChoice))
-            throw new BusinessException("No main-type pattern chosen in previous link!");
-          _mainPattern = basis.ingest().pattern(previousChoice.getPatternId());
+            throw new BusinessException("No main-type sequence chosen in previous segment!");
+          _mainSequence = basis.ingest().sequence(previousChoice.getSequenceId());
           break;
 
         case Initial:
         case NextMain:
         case NextMacro:
-          _mainPattern = chooseMain();
+          _mainSequence = chooseMain();
       }
 
 
-    return _mainPattern;
+    return _mainSequence;
   }
 
   /**
@@ -232,178 +232,178 @@ public class MacroMainCraftImpl implements MacroMainCraft {
         return basis.previousMacroChoice().getTranspose();
 
       case NextMacro:
-        return Key.delta(macroPattern().getKey(),
-          basis.previousMacroNextPhase().getKey(),
+        return Key.delta(macroSequence().getKey(),
+          basis.previousMacroNextPattern().getKey(),
           basis.previousMacroChoice().getTranspose());
 
       default:
-        throw new BusinessException("unable to determine macro-type pattern transposition");
+        throw new BusinessException("unable to determine macro-type sequence transposition");
     }
   }
 
   /**
-   compute (and cache) Transpose Main-Pattern to the transposed key of the current macro phase
+   compute (and cache) Transpose Main-Sequence to the transposed key of the current macro pattern
 
    @return mainTranspose
    */
   private Integer mainTranspose() throws Exception {
-    return Key.delta(mainPattern().getKey(),
-      Value.eitherOr(macroPhase().getKey(), macroPattern().getKey()),
+    return Key.delta(mainSequence().getKey(),
+      Value.eitherOr(macroPattern().getKey(), macroSequence().getKey()),
       macroTranspose());
   }
 
   /**
-   compute (and cache) the macroPhaseOffset
+   compute (and cache) the macroPatternOffset
 
-   @return macroPhaseOffset
+   @return macroPatternOffset
    */
-  private BigInteger macroPhaseOffset() throws Exception {
-    if (Objects.isNull(_macroPhaseOffset))
+  private BigInteger macroPatternOffset() throws Exception {
+    if (Objects.isNull(_macroPatternOffset))
       switch (basis.type()) {
 
         case Initial:
-          _macroPhaseOffset = BigInteger.valueOf(0);
+          _macroPatternOffset = BigInteger.valueOf(0);
           break;
 
         case Continue:
-          _macroPhaseOffset = basis.previousMacroChoice().getPhaseOffset();
+          _macroPatternOffset = basis.previousMacroChoice().getPatternOffset();
           break;
 
         case NextMain:
-          _macroPhaseOffset = basis.previousMacroChoice().nextPhaseOffset();
+          _macroPatternOffset = basis.previousMacroChoice().nextPatternOffset();
           break;
 
         case NextMacro:
-          _macroPhaseOffset = BigInteger.valueOf(0);
+          _macroPatternOffset = BigInteger.valueOf(0);
       }
 
-    return _macroPhaseOffset;
+    return _macroPatternOffset;
   }
 
   /**
-   compute (and cache) the mainPhaseOffset
+   compute (and cache) the mainPatternOffset
 
-   @return mainPhaseOffset
+   @return mainPatternOffset
    */
-  private BigInteger mainPhaseOffset() throws Exception {
-    if (Objects.isNull(_mainPhaseOffset))
+  private BigInteger mainPatternOffset() throws Exception {
+    if (Objects.isNull(_mainPatternOffset))
       switch (basis.type()) {
 
         case Initial:
-          _mainPhaseOffset = BigInteger.valueOf(0);
+          _mainPatternOffset = BigInteger.valueOf(0);
           break;
 
         case Continue:
-          _mainPhaseOffset = basis.previousMainChoice().nextPhaseOffset();
+          _mainPatternOffset = basis.previousMainChoice().nextPatternOffset();
           break;
 
         case NextMain:
-          _mainPhaseOffset = BigInteger.valueOf(0);
+          _mainPatternOffset = BigInteger.valueOf(0);
           break;
 
         case NextMacro:
-          _mainPhaseOffset = BigInteger.valueOf(0);
+          _mainPatternOffset = BigInteger.valueOf(0);
       }
 
-    return _mainPhaseOffset;
+    return _mainPatternOffset;
   }
 
   /**
-   Fetch current phase of macro-type pattern
+   Fetch current pattern of macro-type sequence
 
-   @return phase
+   @return pattern
    @throws Exception on failure
    */
-  private Phase macroPhase() throws Exception {
-    Phase phase = basis.ingest().phaseAtOffset(macroPattern().getId(), macroPhaseOffset(), PhaseType.Macro);
+  private Pattern macroPattern() throws Exception {
+    Pattern pattern = basis.ingest().patternAtOffset(macroSequence().getId(), macroPatternOffset(), PatternType.Macro);
 
-    if (Objects.isNull(phase))
-      throw new BusinessException("macro-phase does not exist!");
+    if (Objects.isNull(pattern))
+      throw new BusinessException("macro-pattern does not exist!");
 
-    return phase;
+    return pattern;
   }
 
   /**
-   Fetch current phase of main-type pattern
+   Fetch current pattern of main-type sequence
 
-   @return phase
+   @return pattern
    @throws Exception on failure
    */
-  private Phase mainPhase() throws Exception {
-    Phase phase = basis.ingest().phaseAtOffset(mainPattern().getId(), mainPhaseOffset(), PhaseType.Main);
+  private Pattern mainPattern() throws Exception {
+    Pattern pattern = basis.ingest().patternAtOffset(mainSequence().getId(), mainPatternOffset(), PatternType.Main);
 
-    if (Objects.isNull(phase))
-      throw new BusinessException("main-phase does not exist!");
+    if (Objects.isNull(pattern))
+      throw new BusinessException("main-pattern does not exist!");
 
-    return phase;
+    return pattern;
   }
 
   /**
-   Choose macro pattern
+   Choose macro sequence
 
-   @return macro-type pattern
+   @return macro-type sequence
    @throws Exception on failure
    */
-  private Pattern chooseMacro() throws Exception {
-    EntityRank<Pattern> entityRank = new EntityRank<>();
+  private Sequence chooseMacro() throws Exception {
+    EntityRank<Sequence> entityRank = new EntityRank<>();
 
-    // (1a) retrieve patterns bound directly to chain
-    Collection<Pattern> sourcePatterns = basis.ingest().patterns(PatternType.Macro);
+    // (1a) retrieve sequences bound directly to chain
+    Collection<Sequence> sourceSequences = basis.ingest().sequences(SequenceType.Macro);
 
-    // (1b) only if none were found in the previous transpose, retrieve patterns bound to chain library
-    if (sourcePatterns.isEmpty())
-      sourcePatterns = basis.libraryIngest().patterns(PatternType.Macro);
+    // (1b) only if none were found in the previous transpose, retrieve sequences bound to chain library
+    if (sourceSequences.isEmpty())
+      sourceSequences = basis.libraryIngest().sequences(SequenceType.Macro);
 
-    // (3) score each source pattern
-    sourcePatterns.forEach((pattern -> {
+    // (3) score each source sequence
+    sourceSequences.forEach((sequence -> {
       try {
-        entityRank.add(pattern, scoreMacro(pattern));
+        entityRank.add(sequence, scoreMacro(sequence));
       } catch (Exception e) {
-        log.warn("while scoring macro patterns", e);
+        log.warn("while scoring macro sequences", e);
       }
     }));
 
-    // (3b) Avoid previous macro pattern
-    if (!basis.isInitialLink())
-      entityRank.score(basis.previousMacroChoice().getPatternId(), -SCORE_AVOID_PREVIOUS);
+    // (3b) Avoid previous macro sequence
+    if (!basis.isInitialSegment())
+      entityRank.score(basis.previousMacroChoice().getSequenceId(), -SCORE_AVOID_PREVIOUS);
 
     // report
     basis.report("macroChoice", entityRank.report());
 
     // (4) return the top choice
-    Pattern pattern = entityRank.getTop();
-    if (Objects.nonNull(pattern))
-      return pattern;
+    Sequence sequence = entityRank.getTop();
+    if (Objects.nonNull(sequence))
+      return sequence;
     else
-      throw new BusinessException("Found no macro-type pattern bound to Chain!");
+      throw new BusinessException("Found no macro-type sequence bound to Chain!");
   }
 
   /**
-   Choose main pattern
+   Choose main sequence
 
-   @return main-type Pattern
+   @return main-type Sequence
    @throws Exception on failure
    <p>
-   future: don't we need to pass in the current phase of the macro pattern?
+   future: don't we need to pass in the current pattern of the macro sequence?
    */
-  private Pattern chooseMain() throws Exception {
-    EntityRank<Pattern> entityRank = new EntityRank<>();
+  private Sequence chooseMain() throws Exception {
+    EntityRank<Sequence> entityRank = new EntityRank<>();
 
-    // future: only choose major patterns for major keys, minor for minor! [#223] Key of first Phase of chosen Main-Pattern must match the `minor` or `major` with the Key of the current Link.
+    // future: only choose major sequences for major keys, minor for minor! [#223] Key of first Pattern of chosen Main-Sequence must match the `minor` or `major` with the Key of the current Segment.
 
-    // (2a) retrieve patterns bound directly to chain
-    Collection<Pattern> sourcePatterns = basis.ingest().patterns(PatternType.Main);
+    // (2a) retrieve sequences bound directly to chain
+    Collection<Sequence> sourceSequences = basis.ingest().sequences(SequenceType.Main);
 
-    // (2b) only if none were found in the previous transpose, retrieve patterns bound to chain library
-    if (sourcePatterns.isEmpty())
-      sourcePatterns = basis.libraryIngest().patterns(PatternType.Main);
+    // (2b) only if none were found in the previous transpose, retrieve sequences bound to chain library
+    if (sourceSequences.isEmpty())
+      sourceSequences = basis.libraryIngest().sequences(SequenceType.Main);
 
-    // (3) score each source pattern based on meme isometry
-    sourcePatterns.forEach((pattern -> {
+    // (3) score each source sequence based on meme isometry
+    sourceSequences.forEach((sequence -> {
       try {
-        entityRank.add(pattern, scoreMain(pattern));
+        entityRank.add(sequence, scoreMain(sequence));
       } catch (Exception e) {
-        log.warn("while scoring main patterns", e);
+        log.warn("while scoring main sequences", e);
       }
     }));
 
@@ -411,35 +411,35 @@ public class MacroMainCraftImpl implements MacroMainCraft {
     basis.report("mainChoice", entityRank.report());
 
     // (4) return the top choice
-    Pattern pattern = entityRank.getTop();
-    if (Objects.nonNull(pattern))
-      return pattern;
+    Sequence sequence = entityRank.getTop();
+    if (Objects.nonNull(sequence))
+      return sequence;
     else
-      throw new BusinessException("Found no main-type pattern bound to Chain!");
+      throw new BusinessException("Found no main-type sequence bound to Chain!");
   }
 
   /**
-   Score a candidate for next macro pattern, given current basis
+   Score a candidate for next macro sequence, given current basis
 
-   @param pattern to score
+   @param sequence to score
    @return score, including +/- entropy
    @throws Exception on failure
    */
-  private double scoreMacro(Pattern pattern) throws Exception {
+  private double scoreMacro(Sequence sequence) throws Exception {
     double score = Chance.normallyAround(0, SCORE_MACRO_ENTROPY);
 
-    if (basis.isInitialLink()) {
+    if (basis.isInitialSegment()) {
       return score;
     }
 
-    // Score includes matching memes to previous link's macro-pattern's next phase (major/minor)
-    score += basis.previousMacroNextPhaseMemeIsometry().score(
-      basis.ingest().patternAndPhaseMemes(pattern.getId(), BigInteger.valueOf(0), PhaseType.Macro))
+    // Score includes matching memes to previous segment's macro-sequence's next pattern (major/minor)
+    score += basis.previousMacroNextPatternMemeIsometry().score(
+      basis.ingest().sequenceAndPatternMemes(sequence.getId(), BigInteger.valueOf(0), PatternType.Macro))
       * SCORE_MATCHED_MEMES;
 
-    // Score includes matching mode to previous link's macro-pattern's next phase (major/minor)
-    Phase phaseAtOffset = basis.ingest().phaseAtOffset(pattern.getId(), BigInteger.valueOf(0), PhaseType.Macro);
-    if (Objects.nonNull(phaseAtOffset) && Key.isSameMode(basis.previousMacroNextPhase().getKey(), phaseAtOffset.getKey())) {
+    // Score includes matching mode to previous segment's macro-sequence's next pattern (major/minor)
+    Pattern patternAtOffset = basis.ingest().patternAtOffset(sequence.getId(), BigInteger.valueOf(0), PatternType.Macro);
+    if (Objects.nonNull(patternAtOffset) && Key.isSameMode(basis.previousMacroNextPattern().getKey(), patternAtOffset.getKey())) {
       score += SCORE_MATCHED_KEY_MODE;
     }
 
@@ -447,138 +447,138 @@ public class MacroMainCraftImpl implements MacroMainCraft {
   }
 
   /**
-   Score a candidate for next main pattern, given current basis
+   Score a candidate for next main sequence, given current basis
 
-   @param pattern to score
+   @param sequence to score
    @return score, including +/- entropy
    @throws Exception on failure
    */
-  private double scoreMain(Pattern pattern) throws Exception {
+  private double scoreMain(Sequence sequence) throws Exception {
     double score = Chance.normallyAround(0, SCORE_MAIN_ENTROPY);
 
-    if (!basis.isInitialLink()) {
+    if (!basis.isInitialSegment()) {
 
-      // Avoid previous main pattern
-      if (Objects.equals(pattern.getId(), basis.previousMainChoice().getPatternId())) {
+      // Avoid previous main sequence
+      if (Objects.equals(sequence.getId(), basis.previousMainChoice().getSequenceId())) {
         score -= SCORE_AVOID_PREVIOUS;
       }
 
-      // Score includes matching mode, previous link to macro pattern first phase (major/minor)
-      if (Key.isSameMode(basis.currentMacroPhase().getKey(), pattern.getKey())) {
+      // Score includes matching mode, previous segment to macro sequence first pattern (major/minor)
+      if (Key.isSameMode(basis.currentMacroPattern().getKey(), sequence.getKey())) {
         score += SCORE_MATCHED_KEY_MODE;
       }
     }
 
-    // Score includes matching memes, previous link to macro pattern first phase
+    // Score includes matching memes, previous segment to macro sequence first pattern
     score += basis.currentMacroMemeIsometry().score(
-      basis.ingest().patternAndPhaseMemes(pattern.getId(), BigInteger.valueOf(0), PhaseType.Main))
+      basis.ingest().sequenceAndPatternMemes(sequence.getId(), BigInteger.valueOf(0), PatternType.Main))
       * SCORE_MATCHED_MEMES;
 
     return score;
   }
 
   /**
-   prepare map of final link memes
+   prepare map of final segment memes
 
-   @return map of meme name to LinkMeme entity
+   @return map of meme name to SegmentMeme entity
    */
-  private Collection<LinkMeme> linkMemes() throws Exception {
-    Map<String, LinkMeme> uniqueResults = Maps.newHashMap();
+  private Collection<SegmentMeme> segmentMemes() throws Exception {
+    Map<String, SegmentMeme> uniqueResults = Maps.newHashMap();
+
+    basis.ingest().sequenceMemes(macroSequence().getId())
+      .forEach(meme -> uniqueResults.put(
+        meme.getName(), SegmentMeme.of(basis.segment().getId(), meme.getName())));
 
     basis.ingest().patternMemes(macroPattern().getId())
       .forEach(meme -> uniqueResults.put(
-        meme.getName(), LinkMeme.of(basis.link().getId(), meme.getName())));
+        meme.getName(), SegmentMeme.of(basis.segment().getId(), meme.getName())));
 
-    basis.ingest().phaseMemes(macroPhase().getId())
+    basis.ingest().sequenceMemes(mainSequence().getId())
       .forEach(meme -> uniqueResults.put(
-        meme.getName(), LinkMeme.of(basis.link().getId(), meme.getName())));
+        meme.getName(), SegmentMeme.of(basis.segment().getId(), meme.getName())));
 
     basis.ingest().patternMemes(mainPattern().getId())
       .forEach(meme -> uniqueResults.put(
-        meme.getName(), LinkMeme.of(basis.link().getId(), meme.getName())));
+        meme.getName(), SegmentMeme.of(basis.segment().getId(), meme.getName())));
 
-    basis.ingest().phaseMemes(mainPhase().getId())
-      .forEach(meme -> uniqueResults.put(
-        meme.getName(), LinkMeme.of(basis.link().getId(), meme.getName())));
-
-    Collection<LinkMeme> result = Lists.newArrayList();
+    Collection<SegmentMeme> result = Lists.newArrayList();
     uniqueResults.forEach((key, val) -> result.add(val));
 
-    // cache results in basis, to avoid race condition causing [#153888310] During craft, instruments should be chosen based on combined memes of all chosen patterns for that link.
-    basis.setLinkMemes(result);
+    // cache results in basis, to avoid race condition causing [#153888310] During craft, instruments should be chosen based on combined memes of all chosen sequences for that segment.
+    basis.setSegmentMemes(result);
 
     return result;
   }
 
   /**
-   Get Link length, in nanoseconds
-   If a previous link exists, the tempo is averaged with its tempo, because the tempo will increase at a linear rate from start to finish.
+   Get Segment length, in nanoseconds
+   If a previous segment exists, the tempo is averaged with its tempo, because the tempo will increase at a linear rate from start to finish.
 
-   @return link length, in nanoseconds
+   @return segment length, in nanoseconds
    @throws Exception on failure
    */
-  private long linkLengthNanos() throws Exception {
-    return (long) (basis.secondsAtPosition(linkTotal()) * NANOS_PER_SECOND);
+  private long segmentLengthNanos() throws Exception {
+    return (long) (basis.secondsAtPosition(segmentTotal()) * NANOS_PER_SECOND);
   }
 
   /**
-   Get Link End Timestamp
-   Link Length Time = Link Tempo (time per Beat) * Link Length (# Beats)
+   Get Segment End Timestamp
+   Segment Length Time = Segment Tempo (time per Beat) * Segment Length (# Beats)
 
    @return end timestamp
    @throws BusinessException on failure
    */
-  private Timestamp linkEndTimestamp() throws Exception {
-    return Timestamp.from(basis.linkBeginAt().toInstant().plusNanos(linkLengthNanos()));
+  private Timestamp segmentEndTimestamp() throws Exception {
+    return Timestamp.from(basis.segmentBeginAt().toInstant().plusNanos(segmentLengthNanos()));
   }
 
   /**
-   Compute the total # of beats of the current link
-   Link Total (# Beats) = from current Phase of Main-Pattern
+   Compute the total # of beats of the current segment
+   Segment Total (# Beats) = from current Pattern of Main-Sequence
 
    @return # beats total
    @throws Exception on failure
    */
-  private Integer linkTotal() throws Exception {
-    return mainPhase().getTotal();
+  private Integer segmentTotal() throws Exception {
+    return mainPattern().getTotal();
   }
 
   /**
-   Compute the final key of the current link
-   Link Key is the transposed key of the current main phase
+   Compute the final key of the current segment
+   Segment Key is the transposed key of the current main pattern
 
    @return key
    @throws Exception on failure
    */
-  private String linkKey() throws Exception {
-    String mainKey = mainPhase().getKey();
+  private String segmentKey() throws Exception {
+    String mainKey = mainPattern().getKey();
     if (null == mainKey || mainKey.isEmpty()) {
-      mainKey = mainPattern().getKey();
+      mainKey = mainSequence().getKey();
     }
     return Key.of(mainKey).transpose(mainTranspose()).getFullDescription();
   }
 
   /**
-   Compute the final tempo of the current link
+   Compute the final tempo of the current segment
 
    @return tempo
    @throws Exception on failure
    */
-  private double linkTempo() throws Exception {
-    return (Value.eitherOr(macroPhase().getTempo(), macroPattern().getTempo()) +
-      Value.eitherOr(mainPhase().getTempo(), mainPattern().getTempo())) / 2;
+  private double segmentTempo() throws Exception {
+    return (Value.eitherOr(macroPattern().getTempo(), macroSequence().getTempo()) +
+      Value.eitherOr(mainPattern().getTempo(), mainSequence().getTempo())) / 2;
   }
 
   /**
-   Compute the final density of the current link
-   future: Link Density = average of macro and main-pattern phases
+   Compute the final density of the current segment
+   future: Segment Density = average of macro and main-sequence patterns
 
    @return density
    @throws Exception on failure
    */
-  private Double linkDensity() throws Exception {
-    return (Value.eitherOr(macroPhase().getDensity(), macroPattern().getDensity()) +
-      Value.eitherOr(mainPhase().getDensity(), mainPattern().getDensity())) / 2;
+  private Double segmentDensity() throws Exception {
+    return (Value.eitherOr(macroPattern().getDensity(), macroSequence().getDensity()) +
+      Value.eitherOr(mainPattern().getDensity(), mainSequence().getDensity())) / 2;
   }
 
 }

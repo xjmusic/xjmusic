@@ -84,8 +84,8 @@ public class ChainInstrumentIT {
       "accounts", "1"
     ));
     ChainInstrument inputData = new ChainInstrument()
-      .setChainId(BigInteger.valueOf(1))
-      .setInstrumentId(BigInteger.valueOf(2));
+      .setChainId(BigInteger.valueOf(1L))
+      .setInstrumentId(BigInteger.valueOf(2L));
 
     JSONObject result = JSON.objectFrom(testDAO.create(access, inputData));
 
@@ -101,8 +101,8 @@ public class ChainInstrumentIT {
       "accounts", "1"
     ));
     ChainInstrument inputData = new ChainInstrument()
-      .setChainId(BigInteger.valueOf(1))
-      .setInstrumentId(BigInteger.valueOf(3));
+      .setChainId(BigInteger.valueOf(1L))
+      .setInstrumentId(BigInteger.valueOf(3L));
 
     testDAO.create(access, inputData);
   }
@@ -114,8 +114,8 @@ public class ChainInstrumentIT {
       "accounts", "1"
     ));
     ChainInstrument inputData = new ChainInstrument()
-      .setChainId(BigInteger.valueOf(3))
-      .setInstrumentId(BigInteger.valueOf(1));
+      .setChainId(BigInteger.valueOf(3L))
+      .setInstrumentId(BigInteger.valueOf(1L));
 
     testDAO.create(access, inputData);
   }
@@ -127,8 +127,8 @@ public class ChainInstrumentIT {
       "accounts", "1"
     ));
     ChainInstrument inputData = new ChainInstrument()
-      .setChainId(BigInteger.valueOf(1))
-      .setInstrumentId(BigInteger.valueOf(3));
+      .setChainId(BigInteger.valueOf(1L))
+      .setInstrumentId(BigInteger.valueOf(3L));
 
     testDAO.create(access, inputData);
   }
@@ -140,7 +140,7 @@ public class ChainInstrumentIT {
       "accounts", "1"
     ));
     ChainInstrument inputData = new ChainInstrument()
-      .setInstrumentId(BigInteger.valueOf(2));
+      .setInstrumentId(BigInteger.valueOf(2L));
 
     testDAO.create(access, inputData);
   }
@@ -152,7 +152,7 @@ public class ChainInstrumentIT {
       "accounts", "1"
     ));
     ChainInstrument inputData = new ChainInstrument()
-      .setChainId(BigInteger.valueOf(1));
+      .setChainId(BigInteger.valueOf(1L));
 
     testDAO.create(access, inputData);
   }
@@ -164,12 +164,12 @@ public class ChainInstrumentIT {
       "accounts", "2"
     ));
 
-    ChainInstrument result = testDAO.readOne(access, BigInteger.valueOf(1));
+    ChainInstrument result = testDAO.readOne(access, BigInteger.valueOf(1L));
 
     assertNotNull(result);
-    assertEquals(BigInteger.valueOf(1), result.getId());
-    assertEquals(BigInteger.valueOf(1), result.getChainId());
-    assertEquals(BigInteger.valueOf(3), result.getInstrumentId());
+    assertEquals(BigInteger.valueOf(1L), result.getId());
+    assertEquals(BigInteger.valueOf(1L), result.getChainId());
+    assertEquals(BigInteger.valueOf(3L), result.getInstrumentId());
   }
 
   @Test
@@ -179,7 +179,7 @@ public class ChainInstrumentIT {
       "accounts", "326"
     ));
 
-    ChainInstrument result = testDAO.readOne(access, BigInteger.valueOf(1));
+    ChainInstrument result = testDAO.readOne(access, BigInteger.valueOf(1L));
 
     assertNull(result);
   }
@@ -191,10 +191,10 @@ public class ChainInstrumentIT {
       "accounts", "1"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(2))));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(2L))));
 
     assertNotNull(result);
-    assertEquals(2, result.length());
+    assertEquals(2L, (long) result.length());
     JSONObject result1 = (JSONObject) result.get(0);
     assertEquals(1, result1.get("instrumentId"));
     JSONObject result2 = (JSONObject) result.get(1);
@@ -208,10 +208,10 @@ public class ChainInstrumentIT {
       "accounts", "345"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1))));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1L))));
 
     assertNotNull(result);
-    assertEquals(0, result.length());
+    assertEquals(0L, (long) result.length());
   }
 
   @Test
@@ -221,9 +221,9 @@ public class ChainInstrumentIT {
       "accounts", "2"
     ));
 
-    testDAO.destroy(access, BigInteger.valueOf(1));
+    testDAO.destroy(access, BigInteger.valueOf(1L));
 
-    ChainInstrument result = testDAO.readOne(Access.internal(),BigInteger.valueOf(1));
+    ChainInstrument result = testDAO.readOne(Access.internal(),BigInteger.valueOf(1L));
     assertNull(result);
   }
 
@@ -234,6 +234,6 @@ public class ChainInstrumentIT {
       "accounts", "5"
     ));
 
-    testDAO.destroy(access, BigInteger.valueOf(1));
+    testDAO.destroy(access, BigInteger.valueOf(1L));
   }
 }

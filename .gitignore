@@ -15,5 +15,8 @@ log/
 */.idea
 *.iml
 
+# Node.js
+/node_modules/
+
 # Static site generation
 docs/public/

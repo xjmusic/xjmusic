@@ -15,8 +15,8 @@ public class ChainInstrumentTest {
   @Test
   public void validate() throws Exception {
     new ChainInstrument()
-      .setInstrumentId(BigInteger.valueOf(125434))
-      .setChainId(BigInteger.valueOf(125434))
+      .setInstrumentId(BigInteger.valueOf(125434L))
+      .setChainId(BigInteger.valueOf(125434L))
       .validate();
   }
 
@@ -26,7 +26,7 @@ public class ChainInstrumentTest {
     failure.expectMessage("Chain ID is required");
 
     new ChainInstrument()
-      .setInstrumentId(BigInteger.valueOf(125434))
+      .setInstrumentId(BigInteger.valueOf(125434L))
       .validate();
   }
 
@@ -36,7 +36,7 @@ public class ChainInstrumentTest {
     failure.expectMessage("Instrument ID is required");
 
     new ChainInstrument()
-      .setChainId(BigInteger.valueOf(125434))
+      .setChainId(BigInteger.valueOf(125434L))
       .validate();
   }
 

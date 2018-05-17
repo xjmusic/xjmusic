@@ -1,5 +1,7 @@
 {{ partial "top.html" . }}
 {{ $paginator := .Paginate .Data.Pages.ByPublishDate }}
+<!-- Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved. -->
+
 <div class="articles-list">
     {{ range $paginator.Pages }}
     <article>

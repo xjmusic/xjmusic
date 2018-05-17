@@ -12,11 +12,11 @@ import io.xj.core.model.audio.AudioState;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
 import io.xj.core.model.instrument.InstrumentType;
-import io.xj.core.model.link.LinkState;
+import io.xj.core.model.segment.SegmentState;
+import io.xj.core.model.sequence.SequenceState;
+import io.xj.core.model.sequence.SequenceType;
 import io.xj.core.model.pattern.PatternState;
 import io.xj.core.model.pattern.PatternType;
-import io.xj.core.model.phase.PhaseState;
-import io.xj.core.model.phase.PhaseType;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.transport.JSON;
 import io.xj.core.work.WorkManager;
@@ -78,16 +78,16 @@ public class AudioIT {
     IntegrationTestEntity.insertUser(2, "john", "john@email.com", "http://pictures.com/john.gif");
     IntegrationTestEntity.insertUserRole(1, 2, UserRoleType.Admin);
 
-    // Library "palm tree" has pattern "leaves" and pattern "coconuts"
+    // Library "palm tree" has sequence "leaves" and sequence "coconuts"
     IntegrationTestEntity.insertLibrary(1, 1, "palm tree");
 
-    // Pattern "leaves" has instruments "808" and "909"
+    // Sequence "leaves" has instruments "808" and "909"
     IntegrationTestEntity.insertInstrument(1, 1, 2, "808 Drums", InstrumentType.Percussive, 0.9);
     IntegrationTestEntity.insertInstrument(2, 1, 2, "909 Drums", InstrumentType.Percussive, 0.8);
 
     // Instrument "808" has Audios "Kick" and "Snare"
-    IntegrationTestEntity.insertAudio(1, 1, "Published", "Kick", "instrument" + File.separator + "percussion" + File.separator + "808" + File.separator + "kick1.wav", 0.01, 2.123, 120.0, 440);
-    IntegrationTestEntity.insertAudio(2, 1, "Published", "Snare", "instrument" + File.separator + "percussion" + File.separator + "808" + File.separator + "snare.wav", 0.0023, 1.05, 131.0, 702);
+    IntegrationTestEntity.insertAudio(1, 1, "Published", "Kick", "instrument" + File.separator + "percussion" + File.separator + "808" + File.separator + "kick1.wav", 0.01, 2.123, 120.0, 440.0);
+    IntegrationTestEntity.insertAudio(2, 1, "Published", "Snare", "instrument" + File.separator + "percussion" + File.separator + "808" + File.separator + "snare.wav", 0.0023, 1.05, 131.0, 702.0);
 
     // Instantiate the test subject
     testDAO = injector.getInstance(AudioDAO.class);
@@ -106,20 +106,20 @@ public class AudioIT {
 
   private static void setUpTwo() throws Exception {
     // Event and Chord on Audio 1
-    IntegrationTestEntity.insertAudioEvent(1, 1, 2.5, 1, "KICK", "Eb", 0.8, 1.0);
+    IntegrationTestEntity.insertAudioEvent(1, 1, 2.5, 1.0, "KICK", "Eb", 0.8, 1.0);
     IntegrationTestEntity.insertAudioChord(1, 1, 4, "D major");
 
-    // Pattern, Phase, Voice
-    IntegrationTestEntity.insertPattern(1, 2, 1, PatternType.Macro, PatternState.Published, "epic concept", 0.342, "C#", 0.286);
-    IntegrationTestEntity.insertPhase(1, 1, PhaseType.Macro, PhaseState.Published, 0, 16, "Ants", 0.583, "D minor", 120.0);
+    // Sequence, Pattern, Voice
+    IntegrationTestEntity.insertSequence(1, 2, 1, SequenceType.Macro, SequenceState.Published, "epic concept", 0.342, "C#", 0.286);
+    IntegrationTestEntity.insertPattern(1, 1, PatternType.Macro, PatternState.Published, 0, 16, "Ants", 0.583, "D minor", 120.0);
     IntegrationTestEntity.insertVoice(8, 1, InstrumentType.Percussive, "This is a percussive voice");
 
-    // Chain, Link
+    // Chain, Segment
     IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Ready, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"), null);
-    IntegrationTestEntity.insertLink(1, 1, 0, LinkState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120, "chain-1-link-97898asdf7892.wav");
+    IntegrationTestEntity.insertSegment(1, 1, 0, SegmentState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120.0, "chain-1-segment-97898asdf7892.wav");
 
     // Choice, Arrangement, Pick
-    IntegrationTestEntity.insertChoice(7, 1, 1, PatternType.Macro, 2, -5);
+    IntegrationTestEntity.insertChoice(7, 1, 1, SequenceType.Macro, 2, -5);
     IntegrationTestEntity.insertArrangement(1, 7, 8, 1);
 
     // FUTURE: determine new test vector for [#154014731] persist Audio pick in memory
@@ -140,7 +140,7 @@ public class AudioIT {
       "accounts", "1"
     ));
     Audio inputData = new Audio()
-      .setInstrumentId(BigInteger.valueOf(2))
+      .setInstrumentId(BigInteger.valueOf(2L))
       .setName("maracas")
       .setStart(0.009)
       .setLength(0.21)
@@ -153,7 +153,7 @@ public class AudioIT {
     Audio result = testDAO.create(access, inputData);
 
     assertNotNull(result);
-    assertEquals(BigInteger.valueOf(2), result.getInstrumentId());
+    assertEquals(BigInteger.valueOf(2L), result.getInstrumentId());
     assertEquals("maracas", result.getName());
     assertNotNull(result.getWaveformKey());
     assertEquals(0.009, result.getStart(), 0.01);
@@ -186,7 +186,7 @@ public class AudioIT {
       "accounts", "1"
     ));
     Audio inputData = new Audio()
-      .setInstrumentId(BigInteger.valueOf(2))
+      .setInstrumentId(BigInteger.valueOf(2L))
       .setName("maracas")
       .setStart(0.009)
       .setLength(0.21)
@@ -207,14 +207,14 @@ public class AudioIT {
       "accounts", "1"
     ));
     Audio inputData = new Audio()
-      .setInstrumentId(BigInteger.valueOf(2))
+      .setInstrumentId(BigInteger.valueOf(2L))
       .setName("cannons fifty nine");
     when(amazonProvider.generateKey(any(), any())).thenReturn("superAwesomeKey123");
 
-    Audio result = testDAO.clone(access, BigInteger.valueOf(1), inputData);
+    Audio result = testDAO.clone(access, BigInteger.valueOf(1L), inputData);
 
     assertEquals("cannons fifty nine", result.getName());
-    assertEquals(BigInteger.valueOf(2), result.getInstrumentId());
+    assertEquals(BigInteger.valueOf(2L), result.getInstrumentId());
     assertEquals("superAwesomeKey123", result.getWaveformKey());
     assertEquals(AudioState.Published, result.getState());
     assertEquals(0.01, result.getStart(),0.01);
@@ -223,7 +223,7 @@ public class AudioIT {
     assertEquals(440.0, result.getPitch(), 0.01);
 
     // Verify enqueued audio clone jobs
-    verify(workManager).doAudioClone(eq(BigInteger.valueOf(1)), any());
+    verify(workManager).doAudioClone(eq(BigInteger.valueOf(1L)), any());
   }
 
   @Test
@@ -233,10 +233,10 @@ public class AudioIT {
       "accounts", "1"
     ));
 
-    Audio result = testDAO.readOne(access, BigInteger.valueOf(2));
+    Audio result = testDAO.readOne(access, BigInteger.valueOf(2L));
 
     assertNotNull(result);
-    assertEquals(BigInteger.valueOf(1), result.getInstrumentId());
+    assertEquals(BigInteger.valueOf(1L), result.getInstrumentId());
     assertEquals("Snare", result.getName());
     assertEquals("instrument" + File.separator + "percussion" + File.separator + "808" + File.separator + "snare.wav", result.getWaveformKey());
     assertEquals(Double.valueOf(0.0023), result.getStart());
@@ -263,7 +263,7 @@ public class AudioIT {
     when(amazonProvider.getAudioUploadACL())
       .thenReturn("bucket-owner-is-awesome");
 
-    JSONObject result = testDAO.authorizeUpload(access, BigInteger.valueOf(2));
+    JSONObject result = testDAO.authorizeUpload(access, BigInteger.valueOf(2L));
 
     assertNotNull(result);
     assertEquals("instrument" + File.separator + "percussion" + File.separator + "808" + File.separator + "snare.wav", result.get("waveformKey"));
@@ -282,7 +282,7 @@ public class AudioIT {
       "accounts", "326"
     ));
 
-    Audio result = testDAO.readOne(access, BigInteger.valueOf(1));
+    Audio result = testDAO.readOne(access, BigInteger.valueOf(1L));
 
     assertNull(result);
   }
@@ -294,10 +294,10 @@ public class AudioIT {
       "accounts", "1"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1))));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1L))));
 
     assertNotNull(result);
-    assertEquals(2, result.length());
+    assertEquals(2L, (long) result.length());
     JSONObject result2 = (JSONObject) result.get(0);
     assertEquals("Snare", result2.get("name"));
     JSONObject result1 = (JSONObject) result.get(1);
@@ -306,16 +306,16 @@ public class AudioIT {
 
   @Test
   public void readAll_excludesAudiosInEraseState() throws Exception {
-    IntegrationTestEntity.insertAudio(27, 1, "Erase", "shammy", "instrument-1-audio-09897fhjdf.wav", 0, 1, 120, 440);
+    IntegrationTestEntity.insertAudio(27, 1, "Erase", "shammy", "instrument-1-audio-09897fhjdf.wav", (double) 0, 1.0, 120.0, 440.0);
     Access access = new Access(ImmutableMap.of(
       "roles", "User",
       "accounts", "1"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1))));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1L))));
 
     assertNotNull(result);
-    assertEquals(2, result.length());
+    assertEquals(2L, (long) result.length());
     JSONObject result2 = (JSONObject) result.get(0);
     assertEquals("Snare", result2.get("name"));
     JSONObject result1 = (JSONObject) result.get(1);
@@ -329,10 +329,10 @@ public class AudioIT {
       "accounts", "345"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1))));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1L))));
 
     assertNotNull(result);
-    assertEquals(0, result.length());
+    assertEquals(0L, (long) result.length());
   }
 
   @Test
@@ -352,7 +352,7 @@ public class AudioIT {
     failure.expect(BusinessException.class);
     failure.expectMessage("Instrument ID is required");
 
-    testDAO.update(access, BigInteger.valueOf(3), inputData);
+    testDAO.update(access, BigInteger.valueOf(3L), inputData);
   }
 
   @Test
@@ -362,7 +362,7 @@ public class AudioIT {
       "accounts", "1"
     ));
     Audio inputData = new Audio()
-      .setInstrumentId(BigInteger.valueOf(7))
+      .setInstrumentId(BigInteger.valueOf(7L))
       .setName("maracas")
       .setWaveformKey("instrument" + File.separator + "percussion" + File.separator + "808" + File.separator + "maracas.wav")
       .setStart(0.009)
@@ -374,13 +374,13 @@ public class AudioIT {
     failure.expectMessage("Instrument does not exist");
 
     try {
-      testDAO.update(access, BigInteger.valueOf(2), inputData);
+      testDAO.update(access, BigInteger.valueOf(2L), inputData);
 
     } catch (Exception e) {
-      Audio result = testDAO.readOne(Access.internal(), BigInteger.valueOf(2));
+      Audio result = testDAO.readOne(Access.internal(), BigInteger.valueOf(2L));
       assertNotNull(result);
       assertEquals("Snare", result.getName());
-      assertEquals(BigInteger.valueOf(1), result.getInstrumentId());
+      assertEquals(BigInteger.valueOf(1L), result.getInstrumentId());
       throw e;
     }
   }
@@ -392,18 +392,18 @@ public class AudioIT {
       "accounts", "1"
     ));
     Audio inputData = new Audio()
-      .setInstrumentId(BigInteger.valueOf(2))
+      .setInstrumentId(BigInteger.valueOf(2L))
       .setName("maracas")
       .setStart(0.009)
       .setLength(0.21)
       .setPitch(1567.0)
       .setTempo(80.5);
 
-    testDAO.update(access, BigInteger.valueOf(1), inputData);
+    testDAO.update(access, BigInteger.valueOf(1L), inputData);
 
-    Audio result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1));
+    Audio result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1L));
     assertNotNull(result);
-    assertEquals(BigInteger.valueOf(2), result.getInstrumentId());
+    assertEquals(BigInteger.valueOf(2L), result.getInstrumentId());
     assertEquals("maracas", result.getName());
     assertEquals("instrument" + File.separator + "percussion" + File.separator + "808" + File.separator + "kick1.wav", result.getWaveformKey());
     assertEquals(Double.valueOf(0.009), result.getStart());
@@ -412,7 +412,7 @@ public class AudioIT {
     assertEquals(Double.valueOf(1567.0), result.getPitch());
   }
 
-  // future test: DAO cannot update Pattern to a User or Library not owned by current session
+  // future test: DAO cannot update Sequence to a User or Library not owned by current session
 
   @Test
   public void erase() throws Exception {
@@ -421,9 +421,9 @@ public class AudioIT {
       "accounts", "1"
     ));
 
-    testDAO.erase(access, BigInteger.valueOf(1));
+    testDAO.erase(access, BigInteger.valueOf(1L));
 
-    Audio result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1));
+    Audio result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1L));
     assertNotNull(result);
     assertEquals(AudioState.Erase, result.getState());
   }
@@ -438,7 +438,7 @@ public class AudioIT {
     failure.expect(BusinessException.class);
     failure.expectMessage("Audio does not exist");
 
-    testDAO.erase(access, BigInteger.valueOf(1));
+    testDAO.erase(access, BigInteger.valueOf(1L));
   }
 
   @Test
@@ -451,10 +451,10 @@ public class AudioIT {
     IntegrationTestEntity.insertAudioEvent(1, 1, 0.42, 0.41, "HEAVY", "C", 0.7, 0.98);
 
     try {
-      testDAO.erase(access, BigInteger.valueOf(1));
+      testDAO.erase(access, BigInteger.valueOf(1L));
 
     } catch (Exception e) {
-      Audio result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1));
+      Audio result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1L));
       assertNotNull(result);
       throw e;
     }
@@ -464,9 +464,9 @@ public class AudioIT {
   public void destroy() throws Exception {
     Access access = Access.internal();
 
-    testDAO.destroy(access, BigInteger.valueOf(1));
+    testDAO.destroy(access, BigInteger.valueOf(1L));
 
-    Audio result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1));
+    Audio result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1L));
     assertNull(result);
   }
 
@@ -475,9 +475,9 @@ public class AudioIT {
     setUpTwo(); // create picks for audio id 1
     Access access = Access.internal();
 
-    testDAO.destroy(access, BigInteger.valueOf(1));
+    testDAO.destroy(access, BigInteger.valueOf(1L));
 
-    Audio result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1));
+    Audio result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1L));
     assertNull(result);
   }
 

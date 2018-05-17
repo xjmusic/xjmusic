@@ -1,3 +1,5 @@
+// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+
 import { moduleForModel, test } from 'ember-qunit';
 
 moduleForModel('user', 'Unit | Model | user', {

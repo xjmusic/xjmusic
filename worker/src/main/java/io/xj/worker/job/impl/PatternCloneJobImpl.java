@@ -2,20 +2,23 @@
 package io.xj.worker.job.impl;
 
 import io.xj.core.access.impl.Access;
+import io.xj.core.dao.PatternChordDAO;
 import io.xj.core.dao.PatternDAO;
 import io.xj.core.dao.PatternMemeDAO;
-import io.xj.core.dao.PhaseDAO;
 import io.xj.core.dao.VoiceDAO;
+import io.xj.core.dao.PatternEventDAO;
 import io.xj.core.exception.BusinessException;
+import io.xj.craft.isometry.VoiceIsometry;
 import io.xj.core.model.pattern.Pattern;
+import io.xj.core.model.pattern_chord.PatternChord;
 import io.xj.core.model.pattern_meme.PatternMeme;
-import io.xj.core.model.phase.Phase;
 import io.xj.core.model.voice.Voice;
+import io.xj.core.model.pattern_event.PatternEvent;
 import io.xj.core.transport.JSON;
-import io.xj.core.work.WorkManager;
 import io.xj.worker.job.PatternCloneJob;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
@@ -23,6 +26,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigInteger;
+import java.util.Collection;
+import java.util.Map;
 import java.util.Objects;
 
 public class PatternCloneJobImpl implements PatternCloneJob {
@@ -30,28 +35,28 @@ public class PatternCloneJobImpl implements PatternCloneJob {
   private final BigInteger toId;
   private final PatternDAO patternDAO;
   private final BigInteger fromId;
-  private final PhaseDAO phaseDAO;
-  private final VoiceDAO voiceDAO;
-  private final WorkManager workManager;
   private final PatternMemeDAO patternMemeDAO;
+  private final PatternChordDAO patternChordDAO;
+  private final PatternEventDAO patternEventDAO;
+  private final VoiceDAO voiceDAO;
 
   @Inject
   public PatternCloneJobImpl(
     @Assisted("fromId") BigInteger fromId,
     @Assisted("toId") BigInteger toId,
     PatternDAO patternDAO,
-    PhaseDAO phaseDAO,
-    VoiceDAO voiceDAO,
-    WorkManager workManager,
-    PatternMemeDAO patternMemeDAO
+    PatternMemeDAO patternMemeDAO,
+    PatternChordDAO patternChordDAO,
+    PatternEventDAO patternEventDAO,
+    VoiceDAO voiceDAO
   ) {
     this.fromId = fromId;
     this.toId = toId;
     this.patternDAO = patternDAO;
-    this.phaseDAO = phaseDAO;
-    this.voiceDAO = voiceDAO;
-    this.workManager = workManager;
     this.patternMemeDAO = patternMemeDAO;
+    this.patternChordDAO = patternChordDAO;
+    this.patternEventDAO = patternEventDAO;
+    this.voiceDAO = voiceDAO;
   }
 
   @Override
@@ -85,6 +90,7 @@ public class PatternCloneJobImpl implements PatternCloneJob {
     // Clone PatternMeme
     patternMemeDAO.readAll(Access.internal(), ImmutableList.of(fromId)).forEach(patternMeme -> {
       patternMeme.setPatternId(toId);
+
       try {
         PatternMeme toPatternMeme = patternMemeDAO.create(Access.internal(), patternMeme);
         log.info("Cloned PatternMeme from #{} to {}", patternMeme.getId(), JSON.objectFrom(toPatternMeme));
@@ -94,28 +100,48 @@ public class PatternCloneJobImpl implements PatternCloneJob {
       }
     });
 
-    // Clone each Voice and schedule an VoiceClone job
-    voiceDAO.readAll(Access.internal(), ImmutableList.of(fromId)).forEach(fromVoice -> {
-      fromVoice.setPatternId(toId);
+    // Clone PatternChord
+    patternChordDAO.readAll(Access.internal(), ImmutableList.of(fromId)).forEach(patternChord -> {
+      patternChord.setPatternId(toId);
+
       try {
-        Voice toVoice = voiceDAO.create(Access.internal(), fromVoice);
-        log.info("Cloned Voice from #{} to {}", fromVoice.getId(), JSON.objectFrom(toVoice));
+        PatternChord toPatternChord = patternChordDAO.create(Access.internal(), patternChord);
+        log.info("Cloned PatternChord from #{} to {}", patternChord.getId(), JSON.objectFrom(toPatternChord));
 
       } catch (Exception e) {
-        log.error("Failed to clone Voice {}", JSON.objectFrom(fromVoice), e);
+        log.error("Failed to clone PatternChord {}", JSON.objectFrom(patternChord), e);
       }
     });
 
-    // Clone each Phase and schedule an PhaseClone job
-    phaseDAO.readAll(Access.internal(), ImmutableList.of(fromId)).forEach(phase -> {
-      phase.setPatternId(toId);
+    // In order to assign cloned voice events to their new voice
+    // Get all voices from source and (optionally, if different) target sequences;
+    // map source to target voice ids
+    Map<BigInteger, BigInteger> voiceCloneIds = Maps.newConcurrentMap();
+    Collection<Voice> sourceVoices = voiceDAO.readAll(Access.internal(), ImmutableList.of(from.getSequenceId()));
+    if (Objects.equals(from.getSequenceId(), to.getSequenceId()))
+      sourceVoices.forEach((voice) -> voiceCloneIds.put(voice.getId(), voice.getId()));
+    else {
+      VoiceIsometry targetVoices = VoiceIsometry.of(voiceDAO.readAll(Access.internal(), ImmutableList.of(to.getSequenceId())));
+      sourceVoices.forEach((sourceVoice) -> {
+        Voice targetVoice = targetVoices.find(sourceVoice);
+        if (Objects.nonNull(targetVoice))
+          voiceCloneIds.put(sourceVoice.getId(), targetVoice.getId());
+      });
+    }
+
+    //  Clone each PatternEvent
+    patternEventDAO.readAll(Access.internal(), ImmutableList.of(fromId)).forEach(fromPatternEvent -> {
+      fromPatternEvent.setPatternId(toId);
+      BigInteger toVoiceId = voiceCloneIds.getOrDefault(fromPatternEvent.getVoiceId(), null);
+      if (Objects.isNull(toVoiceId)) return;
+      fromPatternEvent.setVoiceId(toVoiceId);
+
       try {
-        Phase toPhase = phaseDAO.create(Access.internal(), phase);
-        workManager.doPhaseClone(phase.getId(), toPhase.getId());
-        log.info("Cloned Phase from #{} to {} and scheduled PhaseClone job", phase.getId(), JSON.objectFrom(toPhase));
+        PatternEvent toPatternEvent = patternEventDAO.create(Access.internal(), fromPatternEvent);
+        log.info("Cloned PatternEvent from #{} to {}", fromPatternEvent.getId(), JSON.objectFrom(toPatternEvent));
 
       } catch (Exception e) {
-        log.error("Failed to clone Phase {}", JSON.objectFrom(phase), e);
+        log.error("Failed to clone PatternEvent from {}", JSON.objectFrom(fromPatternEvent), e);
       }
     });
 

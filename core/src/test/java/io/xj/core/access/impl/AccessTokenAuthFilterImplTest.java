@@ -1,4 +1,6 @@
-package io.xj.core.access.impl;// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+
+package io.xj.core.access.impl;// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
 import io.xj.core.CoreModule;
 import io.xj.core.access.AccessControlProvider;

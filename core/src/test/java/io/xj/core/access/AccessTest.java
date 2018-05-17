@@ -47,7 +47,7 @@ public class AccessTest extends Mockito {
       "userId", "2"
     ));
 
-    assertEquals(BigInteger.valueOf(2), access.getUserId());
+    assertEquals(BigInteger.valueOf(2L), access.getUserId());
   }
 
   @Test
@@ -80,7 +80,7 @@ public class AccessTest extends Mockito {
       "accounts", "1,3,7"
     ));
 
-    assertArrayEquals(new BigInteger[]{BigInteger.valueOf(1), BigInteger.valueOf(3), BigInteger.valueOf(7)}, access.getAccountIds().toArray());
+    assertArrayEquals(new BigInteger[]{BigInteger.valueOf(1L), BigInteger.valueOf(3L), BigInteger.valueOf(7L)}, access.getAccountIds().toArray());
   }
 
   @Test
@@ -104,17 +104,17 @@ public class AccessTest extends Mockito {
   @Test
   public void intoMap() throws Exception {
     UserAuth userAuth = new UserAuth();
-    userAuth.setId(BigInteger.valueOf(1));
-    userAuth.setUserId(BigInteger.valueOf(1));
+    userAuth.setId(BigInteger.valueOf(1L));
+    userAuth.setUserId(BigInteger.valueOf(1L));
     AccountUser accountUser = new AccountUser();
-    accountUser.setUserId(BigInteger.valueOf(1));
-    accountUser.setAccountId(BigInteger.valueOf(101));
+    accountUser.setUserId(BigInteger.valueOf(1L));
+    accountUser.setAccountId(BigInteger.valueOf(101L));
     Collection<AccountUser> userAccountRoles = ImmutableList.of(accountUser);
     UserRole userRole1 = new UserRole();
-    userRole1.setUserId(BigInteger.valueOf(1));
+    userRole1.setUserId(BigInteger.valueOf(1L));
     userRole1.setTypeEnum(UserRoleType.User);
     UserRole userRole2 = new UserRole();
-    userRole2.setUserId(BigInteger.valueOf(1));
+    userRole2.setUserId(BigInteger.valueOf(1L));
     userRole2.setTypeEnum(UserRoleType.Artist);
     Collection<UserRole> userRoles = ImmutableList.of(userRole1, userRole2);
     Access access = new Access(userAuth, userAccountRoles, userRoles);

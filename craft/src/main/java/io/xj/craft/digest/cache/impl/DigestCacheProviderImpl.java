@@ -1,4 +1,4 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.craft.digest.cache.impl;
 
 import com.google.inject.Inject;
@@ -12,7 +12,7 @@ import io.xj.craft.digest.chord_markov.DigestChordMarkov;
 import io.xj.craft.digest.chord_progression.DigestChordProgression;
 import io.xj.craft.digest.hash.DigestHash;
 import io.xj.craft.digest.meme.DigestMeme;
-import io.xj.craft.digest.pattern_style.DigestPatternStyle;
+import io.xj.craft.digest.sequence_style.DigestSequenceStyle;
 import io.xj.craft.ingest.Ingest;
 
 import java.util.concurrent.TimeUnit;
@@ -23,7 +23,7 @@ public class DigestCacheProviderImpl implements DigestCacheProvider {
   private final LoadingCache<Ingest, DigestMeme> digestMeme;
   private final LoadingCache<Ingest, DigestChordMarkov> digestChordMarkov;
   private final LoadingCache<Ingest, DigestChordProgression> digestChordProgression;
-  private final LoadingCache<Ingest, DigestPatternStyle> digestPatternStyle;
+  private final LoadingCache<Ingest, DigestSequenceStyle> digestSequenceStyle;
 
   @Inject
   DigestCacheProviderImpl(
@@ -31,7 +31,7 @@ public class DigestCacheProviderImpl implements DigestCacheProvider {
   ) {
     this.digestFactory = digestFactory;
     digestMeme = cacheBuilder().build(digestFactory::meme);
-    digestPatternStyle = cacheBuilder().build(digestFactory::patternStyle);
+    digestSequenceStyle = cacheBuilder().build(digestFactory::sequenceStyle);
     digestChordProgression = cacheBuilder().build(digestFactory::chordProgression);
     digestChordMarkov = cacheBuilder().build(digestFactory::chordMarkov);
   }
@@ -56,8 +56,8 @@ public class DigestCacheProviderImpl implements DigestCacheProvider {
   }
 
   @Override
-  public DigestPatternStyle patternStyle(Ingest ingest) {
-    return digestPatternStyle.get(ingest);
+  public DigestSequenceStyle sequenceStyle(Ingest ingest) {
+    return digestSequenceStyle.get(ingest);
   }
 
   @Override

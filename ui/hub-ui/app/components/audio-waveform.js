@@ -1,3 +1,5 @@
+// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+
 import {get} from '@ember/object';
 import {inject as service} from '@ember/service';
 import Component from '@ember/component';
@@ -67,9 +69,9 @@ const AudioWaveformComponent = Component.extend(
   });
 
 /**
- * Usage (e.g, in Handlebars, where link model is "myLinkModel"):
+ * Usage (e.g, in Handlebars, where segment model is "mySegmentModel"):
  *
- *   {{link-choices myLinkModel}}
+ *   {{segment-choices mySegmentModel}}
  */
 AudioWaveformComponent.reopenClass(
   {

@@ -2,10 +2,10 @@
 import DS from 'ember-data';
 
 export default DS.Model.extend({
-  pattern: DS.belongsTo({}),
+  sequence: DS.belongsTo({}),
   type: DS.attr('string'),
   description: DS.attr('string'),
   arrangements: DS.hasMany('arrangement'),
-  events: DS.hasMany('phase-event')
+  events: DS.hasMany('pattern-event')
 
 });

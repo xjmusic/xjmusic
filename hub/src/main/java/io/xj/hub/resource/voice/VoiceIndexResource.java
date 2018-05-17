@@ -34,8 +34,8 @@ public class VoiceIndexResource extends HubResource {
   private final VoiceDAO voiceDAO = injector.getInstance(VoiceDAO.class);
   private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
 
-  @QueryParam("patternId")
-  String patternId;
+  @QueryParam("sequenceId")
+  String sequenceId;
 
   /**
    Get all voices.
@@ -47,8 +47,8 @@ public class VoiceIndexResource extends HubResource {
   @RolesAllowed(UserRoleType.ARTIST)
   public Response readAll(@Context ContainerRequestContext crc) throws IOException {
 
-    if (Objects.isNull(patternId) || patternId.isEmpty()) {
-      return response.notAcceptable("Pattern id is required");
+    if (Objects.isNull(sequenceId) || sequenceId.isEmpty()) {
+      return response.notAcceptable("Sequence id is required");
     }
 
     try {
@@ -56,7 +56,7 @@ public class VoiceIndexResource extends HubResource {
         Voice.KEY_MANY,
         voiceDAO.readAll(
           Access.fromContext(crc),
-          ImmutableList.of(new BigInteger(patternId))));
+          ImmutableList.of(new BigInteger(sequenceId))));
 
     } catch (Exception e) {
       return response.failure(e);

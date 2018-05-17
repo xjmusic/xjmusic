@@ -16,7 +16,7 @@ public class PatternMemeTest {
   @Test
   public void validate() throws Exception {
     new PatternMeme()
-      .setPatternId(BigInteger.valueOf(23678))
+      .setPatternId(BigInteger.valueOf(23678L))
       .setName("Miccheckonetwo")
       .validate();
   }
@@ -37,7 +37,7 @@ public class PatternMemeTest {
     failure.expectMessage("Name is required");
 
     new PatternMeme()
-      .setPatternId(BigInteger.valueOf(23678))
+      .setPatternId(BigInteger.valueOf(23678L))
       .validate();
   }
 

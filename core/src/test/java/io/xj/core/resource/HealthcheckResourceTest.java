@@ -1,8 +1,6 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.resource;
 
-import static org.junit.Assert.assertTrue;
-
 /**
  THIS CLASS IS NOT ACTUALLY IN USE, UNTIL WE IMPLEMENT [#225] Jersey JAX-RS resource tests mock external dependencies, in order to ensure specific conditions.
  */

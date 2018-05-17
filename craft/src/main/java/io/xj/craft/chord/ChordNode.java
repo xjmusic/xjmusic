@@ -1,4 +1,4 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.craft.chord;
 
 import io.xj.core.model.chord.Chord;
@@ -23,7 +23,7 @@ public class ChordNode {
 
   /**
    Construct a "null" chord descriptor unit with NO chord, and NO delta.
-   This is used as a "bookend" marker, e.g. meaning "phase has ended" during chord markov computation
+   This is used as a "bookend" marker, e.g. meaning "pattern has ended" during chord markov computation
    */
   public ChordNode() {
     form = null;

@@ -12,15 +12,15 @@ import com.google.inject.assistedinject.Assisted;
  Dub is performed:
  1. Dub
  <p>
- Basis basis = basisFactory.createBasis(link);
+ Basis basis = basisFactory.createBasis(segment);
  dubFactory.master(basis).dub();
  basis.sendReport();
  */
 public interface DubFactory {
 
   /**
-   Create Master Dub instance for a particular link
-   [#141] Dubworker Link mix final output from instrument-audio-arrangements
+   Create Master Dub instance for a particular segment
+   [#141] Dubworker Segment mix final output from instrument-audio-arrangements
 
    @param basis of dub
    @return MasterDub
@@ -31,8 +31,8 @@ public interface DubFactory {
   ) throws ConfigException;
 
   /**
-   Create Ship Dub instance for a particular link
-   [#264] Link audio is compressed to MP3 and shipped to https://link.xj.io
+   Create Ship Dub instance for a particular segment
+   [#264] Segment audio is compressed to MP3 and shipped to https://segment.xj.io
 
    @param basis of dub
    @return ShipDub

@@ -15,8 +15,8 @@ public class ChainLibraryTest {
   @Test
   public void validate() throws Exception {
     new ChainLibrary()
-      .setLibraryId(BigInteger.valueOf(125434))
-      .setChainId(BigInteger.valueOf(125434))
+      .setLibraryId(BigInteger.valueOf(125434L))
+      .setChainId(BigInteger.valueOf(125434L))
       .validate();
   }
 
@@ -26,7 +26,7 @@ public class ChainLibraryTest {
     failure.expectMessage("Chain ID is required");
 
     new ChainLibrary()
-      .setLibraryId(BigInteger.valueOf(125434))
+      .setLibraryId(BigInteger.valueOf(125434L))
       .validate();
   }
 
@@ -36,7 +36,7 @@ public class ChainLibraryTest {
     failure.expectMessage("Library ID is required");
 
     new ChainLibrary()
-      .setChainId(BigInteger.valueOf(125434))
+      .setChainId(BigInteger.valueOf(125434L))
       .validate();
   }
 

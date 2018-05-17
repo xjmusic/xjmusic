@@ -9,7 +9,7 @@ import java.util.Objects;
 
 /**
  This represents common properties of all chords,
- although a Chord only actually exists as a Link Chord, Phase Chord, etc.
+ although a Chord only actually exists as a Segment Chord, Pattern Chord, etc.
  */
 public abstract class Chord extends Entity {
   public static final String KEY_ONE = "chord";

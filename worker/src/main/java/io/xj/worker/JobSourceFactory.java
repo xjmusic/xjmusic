@@ -70,20 +70,20 @@ public class JobSourceFactory implements JobFactory {
       case InstrumentClone:
         return jobTargetFactory.makeInstrumentCloneJob(entityId(args[0]), entityId(args[1]));
 
-      case LinkFabricate:
-        return jobTargetFactory.makeLinkFabricateJob(entityId(args[0]));
+      case SegmentFabricate:
+        return jobTargetFactory.makeSegmentFabricateJob(entityId(args[0]));
+
+      case SequenceClone:
+        return jobTargetFactory.makeSequenceCloneJob(entityId(args[0]), entityId(args[1]));
+
+      case SequenceErase:
+        return jobTargetFactory.makeSequenceEraseJob(entityId(args[0]));
 
       case PatternClone:
         return jobTargetFactory.makePatternCloneJob(entityId(args[0]), entityId(args[1]));
 
       case PatternErase:
         return jobTargetFactory.makePatternEraseJob(entityId(args[0]));
-
-      case PhaseClone:
-        return jobTargetFactory.makePhaseCloneJob(entityId(args[0]), entityId(args[1]));
-
-      case PhaseErase:
-        return jobTargetFactory.makePhaseEraseJob(entityId(args[0]));
 
       default:
         throw new WorkException("Invalid Job Type");

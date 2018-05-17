@@ -27,6 +27,7 @@ public class InstrumentMemeWrapper extends EntityWrapper {
 
    @throws BusinessException if invalid.
    */
+  @Override
   public InstrumentMeme validate() throws BusinessException {
     if (this.instrumentMeme == null) {
       throw new BusinessException("Instrument is required.");

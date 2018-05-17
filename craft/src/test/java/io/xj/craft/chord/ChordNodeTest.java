@@ -1,6 +1,8 @@
-package io.xj.craft.chord;// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-import io.xj.core.model.phase_chord.PhaseChord;
+package io.xj.craft.chord;// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+
+import io.xj.core.model.pattern_chord.PatternChord;
 import io.xj.craft.chord.ChordNode;
 
 import org.junit.Test;
@@ -22,11 +24,11 @@ public class ChordNodeTest {
       new ChordNode("7|Major").getForm());
 
     assertEquals("Major",
-      new ChordNode(new PhaseChord(BigInteger.valueOf(21), 1.0, "C Minor"),
-        new PhaseChord(BigInteger.valueOf(21), 2.0, "G Major")).getForm());
+      new ChordNode(new PatternChord(BigInteger.valueOf(21), 1.0, "C Minor"),
+        new PatternChord(BigInteger.valueOf(21), 2.0, "G Major")).getForm());
 
     assertEquals("Major",
-      new ChordNode(new PhaseChord(BigInteger.valueOf(21), 2.0, "G Major")).getForm());
+      new ChordNode(new PatternChord(BigInteger.valueOf(21), 2.0, "G Major")).getForm());
   }
 
   @Test
@@ -38,11 +40,11 @@ public class ChordNodeTest {
       new ChordNode("7|Major").getWeight());
 
     assertEquals(Long.valueOf(1),
-      new ChordNode(new PhaseChord(BigInteger.valueOf(21), 1.0, "C Minor"),
-        new PhaseChord(BigInteger.valueOf(21), 2.0, "G Major")).getWeight());
+      new ChordNode(new PatternChord(BigInteger.valueOf(21), 1.0, "C Minor"),
+        new PatternChord(BigInteger.valueOf(21), 2.0, "G Major")).getWeight());
 
     assertEquals(Long.valueOf(1),
-      new ChordNode(new PhaseChord(BigInteger.valueOf(21), 2.0, "G Major")).getWeight());
+      new ChordNode(new PatternChord(BigInteger.valueOf(21), 2.0, "G Major")).getWeight());
   }
 
   @Test
@@ -61,10 +63,10 @@ public class ChordNodeTest {
       new ChordNode("7|Major").getDelta());
 
     assertEquals(Integer.valueOf(7),
-      new ChordNode(new PhaseChord(BigInteger.valueOf(21), 1.0, "C Minor"),
-        new PhaseChord(BigInteger.valueOf(21), 2.0, "G Major")).getDelta());
+      new ChordNode(new PatternChord(BigInteger.valueOf(21), 1.0, "C Minor"),
+        new PatternChord(BigInteger.valueOf(21), 2.0, "G Major")).getDelta());
 
-    assertNull(new ChordNode(new PhaseChord(BigInteger.valueOf(21), 2.0, "G Major")).getDelta());
+    assertNull(new ChordNode(new PatternChord(BigInteger.valueOf(21), 2.0, "G Major")).getDelta());
   }
 
   @Test
@@ -76,11 +78,11 @@ public class ChordNodeTest {
       new ChordNode("7|Major").toString());
 
     assertEquals("7|Major",
-      new ChordNode(new PhaseChord(BigInteger.valueOf(21), 1.0, "C Minor"),
-        new PhaseChord(BigInteger.valueOf(21), 2.0, "G Major")).toString());
+      new ChordNode(new PatternChord(BigInteger.valueOf(21), 1.0, "C Minor"),
+        new PatternChord(BigInteger.valueOf(21), 2.0, "G Major")).toString());
 
     assertEquals("Major",
-      new ChordNode(new PhaseChord(BigInteger.valueOf(21), 2.0, "G Major")).toString());
+      new ChordNode(new PatternChord(BigInteger.valueOf(21), 2.0, "G Major")).toString());
   }
 
   @Test
@@ -91,14 +93,14 @@ public class ChordNodeTest {
     assertFalse(new ChordNode("Minor").isEquivalentTo(new ChordNode("9|Major")));
     assertTrue(new ChordNode("7|Major").isEquivalentTo(new ChordNode("7|Major")));
     assertFalse(new ChordNode("8|Major").isEquivalentTo(new ChordNode("7|Major")));
-    assertTrue(new ChordNode(new PhaseChord(BigInteger.valueOf(21), 1.0, "C Minor"),
-        new PhaseChord(BigInteger.valueOf(21), 2.0, "G Major")).isEquivalentTo(new ChordNode("7|Major")));
-    assertTrue(new ChordNode(new PhaseChord(BigInteger.valueOf(21), 2.0, "G Major")).isEquivalentTo(new ChordNode("Major")));
+    assertTrue(new ChordNode(new PatternChord(BigInteger.valueOf(21), 1.0, "C Minor"),
+        new PatternChord(BigInteger.valueOf(21), 2.0, "G Major")).isEquivalentTo(new ChordNode("7|Major")));
+    assertTrue(new ChordNode(new PatternChord(BigInteger.valueOf(21), 2.0, "G Major")).isEquivalentTo(new ChordNode("Major")));
   }
 
   @Test
-  public void bookendMarkerPhaseHasEnded() throws Exception {
-     // This is used as a "bookend" marker, e.g. meaning "phase has ended" during chord markov computation
+  public void bookendMarkerPatternHasEnded() throws Exception {
+     // This is used as a "bookend" marker, e.g. meaning "pattern has ended" during chord markov computation
     ChordNode subject = new ChordNode();
 
     assertNull(subject.getDelta());

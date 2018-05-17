@@ -63,7 +63,7 @@ public interface JSON {
           } else if (Types.DOUBLE == data.getColumnType(i)) {
             obj.put(key[i], rs.getDouble(i));
           } else if (Types.FLOAT == data.getColumnType(i)) {
-            obj.put(key[i], rs.getFloat(i));
+            obj.put(key[i], (double) rs.getFloat(i));
           } else if (Types.INTEGER == data.getColumnType(i)) {
             obj.put(key[i], rs.getInt(i));
           } else if (Types.NVARCHAR == data.getColumnType(i)) {

@@ -64,19 +64,26 @@
           <table>
             <tbody>
             <tr class="row">
-              <th class="align-middle">
-                {{#if (eq player.currentChain.id model.id)}}
+              {{#if (eq player.currentChain.id model.id)}}
+                <th class="align-middle">
                   {{player.state}}
-                {{else}}
+                </th>
+                <td>
+                  {{#if (eq player.state "Playing")}}
+                    <button class="stop" {{action "stop"}}>&#9640;</button>
+                  {{/if}}
+                </td>
+              {{else}}
+                <th class="align-middle">
                   Play
-                {{/if}}
-              </th>
-              <td>
-                <button type="button" aria-label="play chain #{{model.id}}"
-                        class="btn btn-success link-play" {{action 'play' model}}>
-                  &#9658;
-                </button>
-              </td>
+                </th>
+                <td>
+                  <button type="button" aria-label="play chain #{{model.id}}"
+                          class="btn btn-success link-play" {{action 'play' model}}>
+                    &#9658;
+                  </button>
+                </td>
+              {{/if}}
             </tr>
             </tbody>
           </table>
@@ -90,11 +97,11 @@
 <!-- Upper Container -->
 <div class="form-horizontal container-fluid">
 
-  <!-- Links to actions -->
+  <!-- Segments to actions -->
   <div class="form-group row">
     <ul class="nav nav-tabs">
       <li class="nav-item">
-        {{#link-to 'accounts.one.chains.one.links' model class='nav-link' class='nav-link'}}Links{{/link-to}}
+        {{#link-to 'accounts.one.chains.one.segments' model class='nav-link' class='nav-link'}}Segments{{/link-to}}
       </li>
       <li class="nav-item">
         &nbsp;
@@ -109,7 +116,7 @@
         {{#link-to 'accounts.one.chains.one.instruments' model class='nav-link' class='nav-link'}}Instruments{{/link-to}}
       </li>
       <li class="nav-item">
-        {{#link-to 'accounts.one.chains.one.patterns' model class='nav-link' class='nav-link'}}Patterns{{/link-to}}
+        {{#link-to 'accounts.one.chains.one.sequences' model class='nav-link' class='nav-link'}}Sequences{{/link-to}}
       </li>
     </ul>
   </div>

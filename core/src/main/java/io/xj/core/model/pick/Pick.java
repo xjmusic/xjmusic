@@ -57,7 +57,7 @@ public class Pick extends Entity {
   }
 
   /**
-   Start position from beginning of link, in Seconds
+   Start position from beginning of segment, in Seconds
 
    @return seconds
    */
@@ -119,13 +119,13 @@ public class Pick extends Entity {
     if (this.start == null) {
       throw new BusinessException("Start is required.");
     }
-    if (this.length == null || this.length == 0) {
+    if (this.length == null || this.length == (double) 0) {
       throw new BusinessException("Length is required.");
     }
-    if (this.amplitude == null || this.amplitude == 0) {
+    if (this.amplitude == null || this.amplitude == (double) 0) {
       throw new BusinessException("Amplitude is required.");
     }
-    if (this.pitch == null || this.pitch == 0) {
+    if (this.pitch == null || this.pitch == (double) 0) {
       throw new BusinessException("Pitch is required.");
     }
   }

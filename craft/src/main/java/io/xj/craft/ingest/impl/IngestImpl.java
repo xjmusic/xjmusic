@@ -16,12 +16,12 @@ import io.xj.core.dao.DAO;
 import io.xj.core.dao.InstrumentDAO;
 import io.xj.core.dao.InstrumentMemeDAO;
 import io.xj.core.dao.LibraryDAO;
+import io.xj.core.dao.SequenceDAO;
+import io.xj.core.dao.SequenceMemeDAO;
+import io.xj.core.dao.PatternChordDAO;
 import io.xj.core.dao.PatternDAO;
+import io.xj.core.dao.PatternEventDAO;
 import io.xj.core.dao.PatternMemeDAO;
-import io.xj.core.dao.PhaseChordDAO;
-import io.xj.core.dao.PhaseDAO;
-import io.xj.core.dao.PhaseEventDAO;
-import io.xj.core.dao.PhaseMemeDAO;
 import io.xj.core.dao.VoiceDAO;
 import io.xj.craft.ingest.Ingest;
 import io.xj.core.model.audio.Audio;
@@ -34,14 +34,14 @@ import io.xj.core.model.instrument.InstrumentType;
 import io.xj.core.model.instrument_meme.InstrumentMeme;
 import io.xj.core.model.library.Library;
 import io.xj.core.model.meme.Meme;
+import io.xj.core.model.sequence.Sequence;
+import io.xj.core.model.sequence.SequenceType;
+import io.xj.core.model.sequence_meme.SequenceMeme;
 import io.xj.core.model.pattern.Pattern;
 import io.xj.core.model.pattern.PatternType;
+import io.xj.core.model.pattern_chord.PatternChord;
+import io.xj.core.model.pattern_event.PatternEvent;
 import io.xj.core.model.pattern_meme.PatternMeme;
-import io.xj.core.model.phase.Phase;
-import io.xj.core.model.phase.PhaseType;
-import io.xj.core.model.phase_chord.PhaseChord;
-import io.xj.core.model.phase_event.PhaseEvent;
-import io.xj.core.model.phase_meme.PhaseMeme;
 import io.xj.core.model.voice.Voice;
 import io.xj.core.util.Chance;
 import io.xj.music.Key;
@@ -56,43 +56,43 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- [#154350346] Architect wants a universal Ingest Factory, to modularize graph mathematics used during craft to evaluate any combination of Library, Pattern, and Instrument for any purpose.
+ [#154350346] Architect wants a universal Ingest Factory, to modularize graph mathematics used during craft to evaluate any combination of Library, Sequence, and Instrument for any purpose.
  */
 public class IngestImpl implements Ingest {
   private final Logger log = LoggerFactory.getLogger(IngestImpl.class);
   private final AudioDAO audioDAO;
   private final AudioEventDAO audioEventDAO;
-  private final PatternDAO patternDAO;
+  private final SequenceDAO sequenceDAO;
   private final EntityCacheProvider entityCacheProvider;
   private final InstrumentDAO instrumentDAO;
-  private final PatternMemeDAO patternMemeDAO;
+  private final SequenceMemeDAO sequenceMemeDAO;
   private final InstrumentMemeDAO instrumentMemeDAO;
-  private final PhaseDAO phaseDAO;
-  private final PhaseMemeDAO phaseMemeDAO;
+  private final PatternDAO patternDAO;
+  private final PatternMemeDAO patternMemeDAO;
   private final VoiceDAO voiceDAO;
-  private final PhaseEventDAO phaseEventDAO;
+  private final PatternEventDAO patternEventDAO;
 
   private final Access access;
-  private final PhaseChordDAO phaseChordDAO;
+  private final PatternChordDAO patternChordDAO;
   private final AudioChordDAO audioChordDAO;
   private final LibraryDAO libraryDAO;
   private final Collection<Entity> sourceEntities;
+  private final Map<BigInteger, Sequence> sequenceMap = Maps.newConcurrentMap();
+  private final Map<BigInteger, SequenceMeme> sequenceMemeMap = Maps.newConcurrentMap();
   private final Map<BigInteger, Pattern> patternMap = Maps.newConcurrentMap();
   private final Map<BigInteger, PatternMeme> patternMemeMap = Maps.newConcurrentMap();
-  private final Map<BigInteger, Phase> phaseMap = Maps.newConcurrentMap();
-  private final Map<BigInteger, PhaseMeme> phaseMemeMap = Maps.newConcurrentMap();
   private final Map<BigInteger, Instrument> instrumentMap = Maps.newConcurrentMap();
   private final Map<BigInteger, InstrumentMeme> instrumentMemeMap = Maps.newConcurrentMap();
   private final Map<BigInteger, Library> libraryMap = Maps.newConcurrentMap();
   private final Map<BigInteger, Audio> audioMap = Maps.newConcurrentMap();
   private final Map<BigInteger, AudioChord> audioChordMap = Maps.newConcurrentMap();
   private final Map<BigInteger, AudioEvent> audioEventMap = Maps.newConcurrentMap();
-  private final Map<BigInteger, PhaseChord> phaseChordMap = Maps.newConcurrentMap();
+  private final Map<BigInteger, PatternChord> patternChordMap = Maps.newConcurrentMap();
   private final Map<BigInteger, Voice> voiceMap = Maps.newConcurrentMap();
-  private final Map<BigInteger, PhaseEvent> phaseEventMap = Maps.newConcurrentMap();
+  private final Map<BigInteger, PatternEvent> patternEventMap = Maps.newConcurrentMap();
   private final Map<BigInteger, Collection<AudioEvent>> _audioWithFirstEvent = Maps.newConcurrentMap();
-  private final Map<BigInteger, Map<BigInteger, Collection<Phase>>> _patternPhasesByOffset = Maps.newConcurrentMap();
-  private final Map<BigInteger, Map<BigInteger, Map<PhaseType, Phase>>> _patternPhaseByOffsetAndType = Maps.newConcurrentMap();
+  private final Map<BigInteger, Map<BigInteger, Collection<Pattern>>> _sequencePatternsByOffset = Maps.newConcurrentMap();
+  private final Map<BigInteger, Map<BigInteger, Map<PatternType, Pattern>>> _sequencePatternByOffsetAndType = Maps.newConcurrentMap();
 
   @Inject
   public IngestImpl(
@@ -105,13 +105,13 @@ public class IngestImpl implements Ingest {
     InstrumentDAO instrumentDAO,
     InstrumentMemeDAO instrumentMemeDAO,
     LibraryDAO libraryDAO,
+    SequenceDAO sequenceDAO,
+    SequenceMemeDAO sequenceMemeDAO,
+    PatternChordDAO patternChordDAO,
     PatternDAO patternDAO,
     PatternMemeDAO patternMemeDAO,
-    PhaseChordDAO phaseChordDAO,
-    PhaseDAO phaseDAO,
-    PhaseMemeDAO phaseMemeDAO,
     VoiceDAO voiceDAO,
-    PhaseEventDAO phaseEventDAO
+    PatternEventDAO patternEventDAO
   ) {
     this.access = access;
     this.audioChordDAO = audioChordDAO;
@@ -122,13 +122,13 @@ public class IngestImpl implements Ingest {
     this.instrumentDAO = instrumentDAO;
     this.instrumentMemeDAO = instrumentMemeDAO;
     this.libraryDAO = libraryDAO;
+    this.sequenceDAO = sequenceDAO;
+    this.sequenceMemeDAO = sequenceMemeDAO;
+    this.patternChordDAO = patternChordDAO;
     this.patternDAO = patternDAO;
     this.patternMemeDAO = patternMemeDAO;
-    this.phaseChordDAO = phaseChordDAO;
-    this.phaseDAO = phaseDAO;
-    this.phaseMemeDAO = phaseMemeDAO;
     this.voiceDAO = voiceDAO;
-    this.phaseEventDAO = phaseEventDAO;
+    this.patternEventDAO = patternEventDAO;
     readAll(); // must happen before chord progressions are computed
   }
 
@@ -150,13 +150,13 @@ public class IngestImpl implements Ingest {
   }
 
   @Override
-  public Map<BigInteger, Pattern> patternMap() {
-    return Collections.unmodifiableMap(patternMap);
+  public Map<BigInteger, Sequence> sequenceMap() {
+    return Collections.unmodifiableMap(sequenceMap);
   }
 
   @Override
-  public Map<BigInteger, Phase> phaseMap() {
-    return Collections.unmodifiableMap(phaseMap);
+  public Map<BigInteger, Pattern> patternMap() {
+    return Collections.unmodifiableMap(patternMap);
   }
 
   @Override
@@ -177,13 +177,13 @@ public class IngestImpl implements Ingest {
       readAll(Audio.class, audioMap, instrumentMap.keySet(), audioDAO);
       readAll(AudioChord.class, audioChordMap, audioMap.keySet(), audioChordDAO);
       readAll(AudioEvent.class, audioEventMap, audioMap.keySet(), audioEventDAO);
-      readAll(Pattern.class, patternMap, libraryMap.keySet(), patternDAO);
+      readAll(Sequence.class, sequenceMap, libraryMap.keySet(), sequenceDAO);
+      readAll(SequenceMeme.class, sequenceMemeMap, sequenceMap.keySet(), sequenceMemeDAO);
+      readAll(Pattern.class, patternMap, sequenceMap.keySet(), patternDAO);
+      readAll(PatternChord.class, patternChordMap, patternMap.keySet(), patternChordDAO);
+      readAll(PatternEvent.class, patternEventMap, patternMap.keySet(), patternEventDAO);
       readAll(PatternMeme.class, patternMemeMap, patternMap.keySet(), patternMemeDAO);
-      readAll(Phase.class, phaseMap, patternMap.keySet(), phaseDAO);
-      readAll(PhaseChord.class, phaseChordMap, phaseMap.keySet(), phaseChordDAO);
-      readAll(PhaseEvent.class, phaseEventMap, phaseMap.keySet(), phaseEventDAO);
-      readAll(PhaseMeme.class, phaseMemeMap, phaseMap.keySet(), phaseMemeDAO);
-      readAll(Voice.class, voiceMap, patternMap.keySet(), voiceDAO);
+      readAll(Voice.class, voiceMap, sequenceMap.keySet(), voiceDAO);
     } catch (Exception e) {
       log.error("Failed to read all entities for ingest.", e);
     }
@@ -229,16 +229,16 @@ public class IngestImpl implements Ingest {
   }
 
   @Override
-  public Collection<Pattern> patterns() {
-    return patternMap.values();
+  public Collection<Sequence> sequences() {
+    return sequenceMap.values();
   }
 
   @Override
-  public Collection<Pattern> patterns(PatternType type) {
-    ImmutableList.Builder<Pattern> result = ImmutableList.builder();
-    patternMap.values().forEach(pattern -> {
-      if (Objects.equals(type, pattern.getType()))
-        result.add(pattern);
+  public Collection<Sequence> sequences(SequenceType type) {
+    ImmutableList.Builder<Sequence> result = ImmutableList.builder();
+    sequenceMap.values().forEach(sequence -> {
+      if (Objects.equals(type, sequence.getType()))
+        result.add(sequence);
     });
     return result.build();
   }
@@ -249,8 +249,47 @@ public class IngestImpl implements Ingest {
   }
 
   @Override
-  public Pattern pattern(BigInteger id) {
-    return fetchOne(Pattern.class, patternMap, patternDAO, id);
+  public Sequence sequence(BigInteger id) {
+    return fetchOne(Sequence.class, sequenceMap, sequenceDAO, id);
+  }
+
+  @Override
+  public Collection<SequenceMeme> sequenceMemes() {
+    return sequenceMemeMap.values();
+  }
+
+  @Override
+  public Collection<SequenceMeme> sequenceMemes(BigInteger sequenceId) {
+    return fetchMany(sequenceMemeMap, sequenceId);
+  }
+
+  @Override
+  public Collection<Meme> sequenceAndPatternMemes(BigInteger sequenceId, BigInteger patternOffset, PatternType... patternTypes) throws Exception {
+    Map<String, Meme> baseMemes = Maps.newConcurrentMap();
+
+    // add sequence memes
+    sequenceMemes(sequenceId).forEach((sequenceMeme ->
+      baseMemes.put(sequenceMeme.getName(), sequenceMeme)));
+
+    // add sequence pattern memes
+    for (PatternType patternType : patternTypes) {
+      Pattern pattern = patternAtOffset(sequenceId, patternOffset, patternType);
+      if (Objects.nonNull(pattern))
+        patternMemes(pattern.getId()).forEach((sequenceMeme ->
+          baseMemes.put(sequenceMeme.getName(), sequenceMeme)));
+    }
+
+    return baseMemes.values();
+  }
+
+  @Override
+  public Collection<Pattern> patterns() {
+    return patternMap.values();
+  }
+
+  @Override
+  public Collection<Pattern> patterns(BigInteger sequenceId) {
+    return fetchMany(patternMap, sequenceId);
   }
 
   @Override
@@ -264,84 +303,45 @@ public class IngestImpl implements Ingest {
   }
 
   @Override
-  public Collection<Meme> patternAndPhaseMemes(BigInteger patternId, BigInteger phaseOffset, PhaseType... phaseTypes) throws Exception {
-    Map<String, Meme> baseMemes = Maps.newConcurrentMap();
-
-    // add pattern memes
-    patternMemes(patternId).forEach((patternMeme ->
-      baseMemes.put(patternMeme.getName(), patternMeme)));
-
-    // add pattern phase memes
-    for (PhaseType phaseType : phaseTypes) {
-      Phase phase = phaseAtOffset(patternId, phaseOffset, phaseType);
-      if (Objects.nonNull(phase))
-        phaseMemes(phase.getId()).forEach((patternMeme ->
-          baseMemes.put(patternMeme.getName(), patternMeme)));
-    }
-
-    return baseMemes.values();
-  }
-
-  @Override
-  public Collection<Phase> phases() {
-    return phaseMap.values();
-  }
-
-  @Override
-  public Collection<Phase> phases(BigInteger patternId) {
-    return fetchMany(phaseMap, patternId);
-  }
-
-  @Override
-  public Collection<PhaseMeme> phaseMemes() {
-    return phaseMemeMap.values();
-  }
-
-  @Override
-  public Collection<PhaseMeme> phaseMemes(BigInteger phaseId) {
-    return fetchMany(phaseMemeMap, phaseId);
-  }
-
-  @Override
   @Nullable
-  public Phase phaseAtOffset(BigInteger patternId, BigInteger phaseOffset, PhaseType phaseType) throws Exception {
-    if (!_patternPhaseByOffsetAndType.containsKey(patternId))
-      _patternPhaseByOffsetAndType.put(patternId, Maps.newConcurrentMap());
+  public Pattern patternAtOffset(BigInteger sequenceId, BigInteger patternOffset, PatternType patternType) throws Exception {
+    if (!_sequencePatternByOffsetAndType.containsKey(sequenceId))
+      _sequencePatternByOffsetAndType.put(sequenceId, Maps.newConcurrentMap());
 
-    if (!_patternPhaseByOffsetAndType.get(patternId).containsKey(phaseOffset))
-      _patternPhaseByOffsetAndType.get(patternId).put(phaseOffset, Maps.newConcurrentMap());
+    if (!_sequencePatternByOffsetAndType.get(sequenceId).containsKey(patternOffset))
+      _sequencePatternByOffsetAndType.get(sequenceId).put(patternOffset, Maps.newConcurrentMap());
 
-    if (!_patternPhaseByOffsetAndType.get(patternId).get(phaseOffset).containsKey(phaseType)) {
-      Phase phase = phaseRandomAtOffset(patternId, phaseOffset, phaseType);
-      if (Objects.nonNull(phase)) {
-        _patternPhaseByOffsetAndType.get(patternId).get(phaseOffset).put(phaseType, phase);
+    if (!_sequencePatternByOffsetAndType.get(sequenceId).get(patternOffset).containsKey(patternType)) {
+      Pattern pattern = patternRandomAtOffset(sequenceId, patternOffset, patternType);
+      if (Objects.nonNull(pattern)) {
+        _sequencePatternByOffsetAndType.get(sequenceId).get(patternOffset).put(patternType, pattern);
       }
     }
 
-    return _patternPhaseByOffsetAndType.get(patternId).get(phaseOffset).getOrDefault(phaseType, null);
+    return _sequencePatternByOffsetAndType.get(sequenceId).get(patternOffset).getOrDefault(patternType, null);
   }
 
   @Override
-  public Phase phaseRandomAtOffset(BigInteger patternId, BigInteger phaseOffset, PhaseType phaseType) throws Exception {
-    EntityRank<Phase> entityRank = new EntityRank<>();
-    phasesAtOffset(patternId, phaseOffset).forEach((phase) -> {
-      if (Objects.equals(phase.getType(), phaseType)) {
-        entityRank.add(phase, Chance.normallyAround(0.0, 1.0));
+  public Pattern patternRandomAtOffset(BigInteger sequenceId, BigInteger patternOffset, PatternType patternType) throws Exception {
+    EntityRank<Pattern> entityRank = new EntityRank<>();
+    patternsAtOffset(sequenceId, patternOffset).forEach((pattern) -> {
+      if (Objects.equals(pattern.getType(), patternType)) {
+        entityRank.add(pattern, Chance.normallyAround(0.0, 1.0));
       }
     });
     return entityRank.getTop();
   }
 
   @Override
-  public Collection<Phase> phasesAtOffset(BigInteger patternId, BigInteger phaseOffset) throws Exception {
-    if (!_patternPhasesByOffset.containsKey(patternId))
-      _patternPhasesByOffset.put(patternId, Maps.newConcurrentMap());
+  public Collection<Pattern> patternsAtOffset(BigInteger sequenceId, BigInteger patternOffset) throws Exception {
+    if (!_sequencePatternsByOffset.containsKey(sequenceId))
+      _sequencePatternsByOffset.put(sequenceId, Maps.newConcurrentMap());
 
-    if (!_patternPhasesByOffset.get(patternId).containsKey(phaseOffset))
-      _patternPhasesByOffset.get(patternId).put(phaseOffset,
-        phaseDAO.readAllAtPatternOffset(Access.internal(), patternId, phaseOffset));
+    if (!_sequencePatternsByOffset.get(sequenceId).containsKey(patternOffset))
+      _sequencePatternsByOffset.get(sequenceId).put(patternOffset,
+        patternDAO.readAllAtSequenceOffset(Access.internal(), sequenceId, patternOffset));
 
-    return _patternPhasesByOffset.get(patternId).get(phaseOffset);
+    return _sequencePatternsByOffset.get(sequenceId).get(patternOffset);
   }
 
   @Override
@@ -403,21 +403,21 @@ public class IngestImpl implements Ingest {
   }
 
   @Override
-  public Key phaseKey(BigInteger id) {
-    // if null phase return empty key
-    Phase phase = fetchOne(Phase.class, phaseMap, phaseDAO, id);
-    if (Objects.isNull(phase))
-      return Key.of("");
-
-    // if phase has key, use that
-    if (Objects.nonNull(phase.getKey()) && !phase.getKey().isEmpty())
-      return Key.of(phase.getKey());
-
-    // phase has no key; use pattern key. if null pattern return empty key
-    Pattern pattern = pattern(phase.getPatternId());
+  public Key patternKey(BigInteger id) {
+    // if null pattern return empty key
+    Pattern pattern = fetchOne(Pattern.class, patternMap, patternDAO, id);
     if (Objects.isNull(pattern))
       return Key.of("");
-    return Key.of(pattern.getKey());
+
+    // if pattern has key, use that
+    if (Objects.nonNull(pattern.getKey()) && !pattern.getKey().isEmpty())
+      return Key.of(pattern.getKey());
+
+    // pattern has no key; use sequence key. if null sequence return empty key
+    Sequence sequence = sequence(pattern.getSequenceId());
+    if (Objects.isNull(sequence))
+      return Key.of("");
+    return Key.of(sequence.getKey());
   }
 
   @Override
@@ -431,13 +431,13 @@ public class IngestImpl implements Ingest {
   }
 
   @Override
-  public Collection<PhaseChord> phaseChords() {
-    return phaseChordMap.values();
+  public Collection<PatternChord> patternChords() {
+    return patternChordMap.values();
   }
 
   @Override
-  public Collection<PhaseChord> phaseChords(BigInteger phaseId) {
-    return fetchMany(phaseChordMap, phaseId);
+  public Collection<PatternChord> patternChords(BigInteger patternId) {
+    return fetchMany(patternChordMap, patternId);
   }
 
   @Override
@@ -446,22 +446,22 @@ public class IngestImpl implements Ingest {
   }
 
   @Override
-  public Collection<Voice> voices(BigInteger patternId) {
-    return fetchMany(voiceMap, patternId);
+  public Collection<Voice> voices(BigInteger sequenceId) {
+    return fetchMany(voiceMap, sequenceId);
   }
 
   @Override
-  public Collection<PhaseEvent> phaseEvents() {
-    return phaseEventMap.values();
+  public Collection<PatternEvent> patternEvents() {
+    return patternEventMap.values();
   }
 
   @Override
-  public Collection<PhaseEvent> phaseVoiceEvents(BigInteger phaseId, BigInteger voiceId) {
-    ImmutableList.Builder<PhaseEvent> result = ImmutableList.builder();
-    phaseEventMap.values().forEach(phaseEvent -> {
-      if (Objects.equals(phaseId, phaseEvent.getPhaseId()) &&
-        Objects.equals(voiceId, phaseEvent.getVoiceId()))
-        result.add(phaseEvent);
+  public Collection<PatternEvent> patternVoiceEvents(BigInteger patternId, BigInteger voiceId) {
+    ImmutableList.Builder<PatternEvent> result = ImmutableList.builder();
+    patternEventMap.values().forEach(patternEvent -> {
+      if (Objects.equals(patternId, patternEvent.getPatternId()) &&
+        Objects.equals(voiceId, patternEvent.getVoiceId()))
+        result.add(patternEvent);
     });
     return result.build();
   }
@@ -480,12 +480,12 @@ public class IngestImpl implements Ingest {
     result.addAll(instrumentMemes());
     result.addAll(instruments());
     result.addAll(libraries());
+    result.addAll(sequenceMemes());
+    result.addAll(sequences());
+    result.addAll(patternChords());
+    result.addAll(patternEvents());
     result.addAll(patternMemes());
     result.addAll(patterns());
-    result.addAll(phaseChords());
-    result.addAll(phaseEvents());
-    result.addAll(phaseMemes());
-    result.addAll(phases());
     result.addAll(voices());
     return result.build();
   }

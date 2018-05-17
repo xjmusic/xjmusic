@@ -16,9 +16,9 @@ public class ArrangementTest {
   @Test
   public void validate() throws Exception {
     new Arrangement()
-      .setVoiceId(BigInteger.valueOf(354))
-      .setChoiceId(BigInteger.valueOf(879))
-      .setInstrumentId(BigInteger.valueOf(432))
+      .setVoiceId(BigInteger.valueOf(354L))
+      .setChoiceId(BigInteger.valueOf(879L))
+      .setInstrumentId(BigInteger.valueOf(432L))
       .validate();
   }
 
@@ -28,8 +28,8 @@ public class ArrangementTest {
     failure.expectMessage("Voice ID is required");
 
     new Arrangement()
-      .setChoiceId(BigInteger.valueOf(879))
-      .setInstrumentId(BigInteger.valueOf(432))
+      .setChoiceId(BigInteger.valueOf(879L))
+      .setInstrumentId(BigInteger.valueOf(432L))
       .validate();
   }
 
@@ -39,8 +39,8 @@ public class ArrangementTest {
     failure.expectMessage("Choice ID is required");
 
     new Arrangement()
-      .setVoiceId(BigInteger.valueOf(354))
-      .setInstrumentId(BigInteger.valueOf(432))
+      .setVoiceId(BigInteger.valueOf(354L))
+      .setInstrumentId(BigInteger.valueOf(432L))
       .validate();
   }
 
@@ -50,8 +50,8 @@ public class ArrangementTest {
     failure.expectMessage("Instrument ID is required");
 
     new Arrangement()
-      .setVoiceId(BigInteger.valueOf(354))
-      .setChoiceId(BigInteger.valueOf(879))
+      .setVoiceId(BigInteger.valueOf(354L))
+      .setChoiceId(BigInteger.valueOf(879L))
       .validate();
   }
 

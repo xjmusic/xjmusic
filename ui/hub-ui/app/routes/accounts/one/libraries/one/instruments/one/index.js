@@ -127,7 +127,7 @@ export default Route.extend({
     chain.save().then(
       () => {
         get(self, 'display').success('Advanced chain state to ' + FABRICATE + '.');
-        self.transitionTo('accounts.one.chains.one.links', chain);
+        self.transitionTo('accounts.one.chains.one.segments', chain);
       },
       (error) => {
         get(self, 'display').error(error);

@@ -29,11 +29,11 @@ public class VoiceWrapper extends EntityWrapper {
    */
   @Override
   public Voice validate() throws BusinessException {
-    if (this.voice == null) {
+    if (null == voice) {
       throw new BusinessException("Voice is required.");
     }
-    this.voice.validate();
-    return this.voice;
+    voice.validate();
+    return voice;
   }
 
 }

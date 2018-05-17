@@ -1,4 +1,4 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.craft.digest;
 
 import io.xj.core.util.TremendouslyRandom;
@@ -16,7 +16,7 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- [#154350346] Architect wants a universal Ingest Factory, to modularize graph mathematics used during craft to evaluate any combination of Library, Pattern, and Instrument for any purpose.
+ [#154350346] Architect wants a universal Ingest Factory, to modularize graph mathematics used during craft to evaluate any combination of Library, Sequence, and Instrument for any purpose.
  */
 @FunctionalInterface
 public interface Digest {
@@ -31,26 +31,26 @@ public interface Digest {
   String KEY_INSTRUMENT_ID = "instrumentId";
   String KEY_INSTRUMENT_TYPE = "instrumentType";
   String KEY_INSTRUMENTS = "instrumentsWithMeme";
-  String KEY_MAIN_PHASE_TOTAL = "mainPhaseTotal";
+  String KEY_MAIN_PATTERN_TOTAL = "mainPatternTotal";
   String KEY_MAIN_CHORD_SPACING_HISTOGRAM = "mainChordSpacingHistogram";
-  String KEY_MAIN_PHASES_PER_PATTERN = "mainPhasesPerPattern";
+  String KEY_MAIN_PATTERNS_PER_SEQUENCE = "mainPatternsPerSequence";
   String KEY_MANY = "digests";
   String KEY_MEME_USAGE = "memeUsage";
   String KEY_OBSERVATIONS = "observations";
   String KEY_OBSERVATIONS_FORWARD = "observationsForward";
   String KEY_OBSERVATIONS_REVERSE = "observationsReverse";
   String KEY_ONE = "digest";
-  String KEY_PATTERN_HAS_MEME = "patternHasMeme";
+  String KEY_SEQUENCE_HAS_MEME = "sequenceHasMeme";
+  String KEY_SEQUENCE_ID = "sequenceId";
+  String KEY_SEQUENCE_NAME = "sequenceName";
+  String KEY_SEQUENCE_STYLE = "sequenceStyle";
+  String KEY_SEQUENCE_TYPE = "sequenceType";
+  String KEY_SEQUENCES = "sequencesWithMeme";
   String KEY_PATTERN_ID = "patternId";
   String KEY_PATTERN_NAME = "patternName";
-  String KEY_PATTERN_STYLE = "patternStyle";
+  String KEY_PATTERN_OFFSET = "patternOffset";
   String KEY_PATTERN_TYPE = "patternType";
-  String KEY_PATTERNS = "patternsWithMeme";
-  String KEY_PHASE_ID = "phaseId";
-  String KEY_PHASE_NAME = "phaseName";
-  String KEY_PHASE_OFFSET = "phaseOffset";
-  String KEY_PHASE_TYPE = "phaseType";
-  String KEY_PHASES_WITH_MEME = "phasesWithMeme";
+  String KEY_PATTERNS_WITH_MEME = "patternsWithMeme";
   String KEY_PRECEDENT_STATE = "state";
   String KEY_STAT_COUNT = "count";
   String KEY_STAT_MAX = "max";

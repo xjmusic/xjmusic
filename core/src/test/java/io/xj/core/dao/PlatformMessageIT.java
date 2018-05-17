@@ -44,10 +44,10 @@ public class PlatformMessageIT {
     IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, null);
 
     // One platform already has a message
-    IntegrationTestEntity.insertPlatformMessage(12, MessageType.Info, "Consider yourself informed.", TimestampUTC.nowMinusSeconds(10 * secondsPerDay));
-    IntegrationTestEntity.insertPlatformMessage(3, MessageType.Warning, "Consider yourself warned, too.", TimestampUTC.nowMinusSeconds(10 * secondsPerDay));
-    IntegrationTestEntity.insertPlatformMessage(14, MessageType.Info, "Others were informed.", TimestampUTC.nowMinusSeconds(10 * secondsPerDay));
-    IntegrationTestEntity.insertPlatformMessage(15, MessageType.Info, "Even further persons were warned twice.", TimestampUTC.nowMinusSeconds(10 * secondsPerDay));
+    IntegrationTestEntity.insertPlatformMessage(12, MessageType.Info, "Consider yourself informed.", TimestampUTC.nowMinusSeconds(10L * secondsPerDay));
+    IntegrationTestEntity.insertPlatformMessage(3, MessageType.Warning, "Consider yourself warned, too.", TimestampUTC.nowMinusSeconds(10L * secondsPerDay));
+    IntegrationTestEntity.insertPlatformMessage(14, MessageType.Info, "Others were informed.", TimestampUTC.nowMinusSeconds(10L * secondsPerDay));
+    IntegrationTestEntity.insertPlatformMessage(15, MessageType.Info, "Even further persons were warned twice.", TimestampUTC.nowMinusSeconds(10L * secondsPerDay));
 
     // Instantiate the test subject
     testDAO = injector.getInstance(PlatformMessageDAO.class);
@@ -102,17 +102,17 @@ public class PlatformMessageIT {
 
   @Test
   public void readOne() throws Exception {
-    PlatformMessage result = testDAO.readOne(Access.internal(), BigInteger.valueOf(12));
+    PlatformMessage result = testDAO.readOne(Access.internal(), BigInteger.valueOf(12L));
 
     assertNotNull(result);
-    assertEquals(BigInteger.valueOf(12), result.getId());
+    assertEquals(BigInteger.valueOf(12L), result.getId());
     assertEquals(MessageType.Info, result.getType());
     assertEquals("Consider yourself informed.", result.getBody());
   }
 
   @Test
   public void readOne_nullIfNotExist() throws Exception {
-    PlatformMessage result = testDAO.readOne(Access.internal(), BigInteger.valueOf(357));
+    PlatformMessage result = testDAO.readOne(Access.internal(), BigInteger.valueOf(357L));
 
     assertNull(result);
   }
@@ -121,28 +121,28 @@ public class PlatformMessageIT {
   public void readAllInPreviousDays() throws Exception {
     Collection<PlatformMessage> result = testDAO.readAllPreviousDays(Access.internal(), 20);
 
-    assertEquals(4, result.size());
+    assertEquals(4L, (long) result.size());
   }
 
   @Test
   public void readAllInPreviousDays_emptyIfOutOfRange() throws Exception {
     Collection<PlatformMessage> result = testDAO.readAllPreviousDays(Access.internal(), 5);
 
-    assertEquals(0, result.size());
+    assertEquals(0L, (long) result.size());
   }
 
   @Test
   public void readAllInPlatform_nullIfPlatformNotExist() throws Exception {
-    PlatformMessage result = testDAO.readOne(Access.internal(), BigInteger.valueOf(12097));
+    PlatformMessage result = testDAO.readOne(Access.internal(), BigInteger.valueOf(12097L));
 
     assertNull(result);
   }
 
   @Test
   public void delete() throws Exception {
-    testDAO.destroy(Access.internal(), BigInteger.valueOf(12));
+    testDAO.destroy(Access.internal(), BigInteger.valueOf(12L));
 
-    assertNull(testDAO.readOne(Access.internal(), BigInteger.valueOf(2)));
+    assertNull(testDAO.readOne(Access.internal(), BigInteger.valueOf(2L)));
   }
 
   @Test
@@ -155,7 +155,7 @@ public class PlatformMessageIT {
     failure.expect(BusinessException.class);
     failure.expectMessage("top-level access is required");
 
-    testDAO.destroy(access, BigInteger.valueOf(12));
+    testDAO.destroy(access, BigInteger.valueOf(12L));
   }
 
 }

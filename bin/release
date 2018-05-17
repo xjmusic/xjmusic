@@ -83,10 +83,17 @@ cp ${PWD}/.elasticbeanstalk/tomcat-settings.config \
 step_ok
 
 #
-step "Add static content to target"
+step "Add Hub UI to target"
 indent "${PWD}/target/ui/hub-ui/dist"
 mkdir -p ${PWD}/target/ui/hub-ui
 cp -r ui/hub-ui/dist ${PWD}/target/ui/hub-ui/
+step_ok
+
+#
+step "Add Player UI to target"
+indent "${PWD}/target/ui/player-ui/dist"
+mkdir -p ${PWD}/target/ui/player-ui
+cp -r ui/player-ui/dist ${PWD}/target/ui/player-ui/
 step_ok
 
 #

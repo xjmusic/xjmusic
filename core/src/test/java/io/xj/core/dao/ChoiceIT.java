@@ -9,11 +9,11 @@ import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
 import io.xj.core.model.choice.Choice;
 import io.xj.core.model.instrument.InstrumentType;
-import io.xj.core.model.link.LinkState;
+import io.xj.core.model.segment.SegmentState;
+import io.xj.core.model.sequence.SequenceState;
+import io.xj.core.model.sequence.SequenceType;
 import io.xj.core.model.pattern.PatternState;
 import io.xj.core.model.pattern.PatternType;
-import io.xj.core.model.phase.PhaseState;
-import io.xj.core.model.phase.PhaseType;
 import io.xj.core.transport.JSON;
 
 import com.google.common.collect.ImmutableList;
@@ -52,20 +52,20 @@ public class ChoiceIT {
 
     // Library "test sounds"
     IntegrationTestEntity.insertLibrary(1, 1, "test sounds");
-    IntegrationTestEntity.insertPattern(1, 2, 1, PatternType.Macro, PatternState.Published, "epic concept", 0.342, "C#", 0.286);
-    IntegrationTestEntity.insertPattern(2, 2, 1, PatternType.Rhythm, PatternState.Published, "fat beat", 0.342, "C#", 0.286);
-    IntegrationTestEntity.insertPattern(3, 2, 1, PatternType.Main, PatternState.Published, "dope jam", 0.342, "C#", 0.286);
-    IntegrationTestEntity.insertPattern(4, 2, 1, PatternType.Detail, PatternState.Published, "great accompaniment", 0.342, "C#", 0.286);
+    IntegrationTestEntity.insertSequence(1, 2, 1, SequenceType.Macro, SequenceState.Published, "epic concept", 0.342, "C#", 0.286);
+    IntegrationTestEntity.insertSequence(2, 2, 1, SequenceType.Rhythm, SequenceState.Published, "fat beat", 0.342, "C#", 0.286);
+    IntegrationTestEntity.insertSequence(3, 2, 1, SequenceType.Main, SequenceState.Published, "dope jam", 0.342, "C#", 0.286);
+    IntegrationTestEntity.insertSequence(4, 2, 1, SequenceType.Detail, SequenceState.Published, "great accompaniment", 0.342, "C#", 0.286);
 
-    // Chain "Test Print #1" has one link
+    // Chain "Test Print #1" has one segment
     IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Ready, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"), null);
-    IntegrationTestEntity.insertLink(1, 1, 0, LinkState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120, "chain-1-link-97898asdf7892.wav");
+    IntegrationTestEntity.insertSegment(1, 1, 0, SegmentState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120.0, "chain-1-segment-97898asdf7892.wav");
 
-    // Link "Test Print #1" has 4 choices
-    IntegrationTestEntity.insertChoice(1, 1, 1, PatternType.Macro, 2, -5);
-    IntegrationTestEntity.insertChoice(2, 1, 2, PatternType.Rhythm, 1, +2);
-    IntegrationTestEntity.insertChoice(3, 1, 4, PatternType.Detail, 4, -7);
-    IntegrationTestEntity.insertChoice(4, 1, 3, PatternType.Main, 3, -4);
+    // Segment "Test Print #1" has 4 choices
+    IntegrationTestEntity.insertChoice(1, 1, 1, SequenceType.Macro, 2, -5);
+    IntegrationTestEntity.insertChoice(2, 1, 2, SequenceType.Rhythm, 1, +2);
+    IntegrationTestEntity.insertChoice(3, 1, 4, SequenceType.Detail, 4, -7);
+    IntegrationTestEntity.insertChoice(4, 1, 3, SequenceType.Main, 3, -4);
 
     // Instantiate the test subject
     testDAO = injector.getInstance(ChoiceDAO.class);
@@ -82,19 +82,19 @@ public class ChoiceIT {
       "roles", "Admin"
     ));
     Choice inputData = new Choice()
-      .setLinkId(BigInteger.valueOf(1))
-      .setPatternId(BigInteger.valueOf(3))
+      .setSegmentId(BigInteger.valueOf(1L))
+      .setSequenceId(BigInteger.valueOf(3L))
       .setType("Main")
-      .setPhaseOffset(BigInteger.valueOf(2))
+      .setPatternOffset(BigInteger.valueOf(2L))
       .setTranspose(-3);
 
     Choice result = testDAO.create(access, inputData);
 
     assertNotNull(result);
-    assertEquals(BigInteger.valueOf(1), result.getLinkId());
-    assertEquals(BigInteger.valueOf(3), result.getPatternId());
-    assertEquals(PatternType.Main, result.getType());
-    assertEquals(BigInteger.valueOf(2), result.getPhaseOffset());
+    assertEquals(BigInteger.valueOf(1L), result.getSegmentId());
+    assertEquals(BigInteger.valueOf(3L), result.getSequenceId());
+    assertEquals(SequenceType.Main, result.getType());
+    assertEquals(BigInteger.valueOf(2L), result.getPatternOffset());
     assertEquals(Integer.valueOf(-3), result.getTranspose());
   }
 
@@ -104,24 +104,24 @@ public class ChoiceIT {
       "roles", "User"
     ));
     Choice inputData = new Choice()
-      .setLinkId(BigInteger.valueOf(1))
-      .setPatternId(BigInteger.valueOf(3))
+      .setSegmentId(BigInteger.valueOf(1L))
+      .setSequenceId(BigInteger.valueOf(3L))
       .setType("Main")
-      .setPhaseOffset(BigInteger.valueOf(2))
+      .setPatternOffset(BigInteger.valueOf(2L))
       .setTranspose(-3);
 
     testDAO.create(access, inputData);
   }
 
   @Test(expected = BusinessException.class)
-  public void create_FailsWithoutLinkID() throws Exception {
+  public void create_FailsWithoutSegmentID() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
     Choice inputData = new Choice()
-      .setPatternId(BigInteger.valueOf(3))
+      .setSequenceId(BigInteger.valueOf(3L))
       .setType("Main")
-      .setPhaseOffset(BigInteger.valueOf(2))
+      .setPatternOffset(BigInteger.valueOf(2L))
       .setTranspose(-3);
 
     testDAO.create(access, inputData);
@@ -133,10 +133,10 @@ public class ChoiceIT {
       "roles", "Admin"
     ));
     Choice inputData = new Choice()
-      .setLinkId(BigInteger.valueOf(1))
-      .setPatternId(BigInteger.valueOf(3))
+      .setSegmentId(BigInteger.valueOf(1L))
+      .setSequenceId(BigInteger.valueOf(3L))
       .setType("BULLSHIT TYPE!")
-      .setPhaseOffset(BigInteger.valueOf(2))
+      .setPatternOffset(BigInteger.valueOf(2L))
       .setTranspose(-3);
 
     testDAO.create(access, inputData);
@@ -149,59 +149,59 @@ public class ChoiceIT {
       "accounts", "1"
     ));
 
-    Choice result = testDAO.readOne(access, BigInteger.valueOf(2));
+    Choice result = testDAO.readOne(access, BigInteger.valueOf(2L));
 
     assertNotNull(result);
-    assertEquals(BigInteger.valueOf(2), result.getId());
-    assertEquals(BigInteger.valueOf(1), result.getLinkId());
-    assertEquals(BigInteger.valueOf(2), result.getPatternId());
-    assertEquals(PatternType.Rhythm, result.getType());
-    assertEquals(BigInteger.valueOf(1), result.getPhaseOffset());
+    assertEquals(BigInteger.valueOf(2L), result.getId());
+    assertEquals(BigInteger.valueOf(1L), result.getSegmentId());
+    assertEquals(BigInteger.valueOf(2L), result.getSequenceId());
+    assertEquals(SequenceType.Rhythm, result.getType());
+    assertEquals(BigInteger.valueOf(1L), result.getPatternOffset());
     assertEquals(Integer.valueOf(+2), result.getTranspose());
   }
 
   @Test
-  public void readOne_LinkPattern() throws Exception {
-    Choice result = testDAO.readOneLinkPattern(Access.internal(), BigInteger.valueOf(1), BigInteger.valueOf(2));
+  public void readOne_SegmentSequence() throws Exception {
+    Choice result = testDAO.readOneSegmentSequence(Access.internal(), BigInteger.valueOf(1L), BigInteger.valueOf(2L));
 
     assertNotNull(result);
-    assertEquals(BigInteger.valueOf(2), result.getId());
-    assertEquals(BigInteger.valueOf(1), result.getLinkId());
-    assertEquals(BigInteger.valueOf(2), result.getPatternId());
-    assertEquals(PatternType.Rhythm, result.getType());
-    assertEquals(BigInteger.valueOf(1), result.getPhaseOffset());
+    assertEquals(BigInteger.valueOf(2L), result.getId());
+    assertEquals(BigInteger.valueOf(1L), result.getSegmentId());
+    assertEquals(BigInteger.valueOf(2L), result.getSequenceId());
+    assertEquals(SequenceType.Rhythm, result.getType());
+    assertEquals(BigInteger.valueOf(1L), result.getPatternOffset());
     assertEquals(Integer.valueOf(+2), result.getTranspose());
   }
 
   @Test
-  public void readOne_FailsWhenUserIsNotInLink() throws Exception {
+  public void readOne_FailsWhenUserIsNotInSegment() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "User",
       "accounts", "326"
     ));
 
-    Choice result = testDAO.readOne(access, BigInteger.valueOf(1));
+    Choice result = testDAO.readOne(access, BigInteger.valueOf(1L));
 
     assertNull(result);
   }
 
   @Test
-  public void readOneLinkType() throws Exception {
-    IntegrationTestEntity.insertPatternMeme(12, 2, "leafy");
-    IntegrationTestEntity.insertPatternMeme(14, 2, "smooth");
+  public void readOneSegmentType() throws Exception {
+    IntegrationTestEntity.insertSequenceMeme(12, 2, "leafy");
+    IntegrationTestEntity.insertSequenceMeme(14, 2, "smooth");
 
-    IntegrationTestEntity.insertPhase(10, 2, PhaseType.Loop, PhaseState.Published, 0, 64, "intro", 0.5, "C", 121);
-    IntegrationTestEntity.insertPhase(11, 2, PhaseType.Loop, PhaseState.Published, 1, 64, "drop", 0.5, "C", 121);
-    IntegrationTestEntity.insertPhase(12, 2, PhaseType.Loop, PhaseState.Published, 2, 64, "break", 0.5, "C", 121);
+    IntegrationTestEntity.insertPattern(10, 2, PatternType.Loop, PatternState.Published, 0, 64, "intro", 0.5, "C", 121.0);
+    IntegrationTestEntity.insertPattern(11, 2, PatternType.Loop, PatternState.Published, 1, 64, "drop", 0.5, "C", 121.0);
+    IntegrationTestEntity.insertPattern(12, 2, PatternType.Loop, PatternState.Published, 2, 64, "break", 0.5, "C", 121.0);
 
-    Choice result = testDAO.readOneLinkTypeWithAvailablePhaseOffsets(Access.internal(), BigInteger.valueOf(1), PatternType.Rhythm);
+    Choice result = testDAO.readOneSegmentTypeWithAvailablePatternOffsets(Access.internal(), BigInteger.valueOf(1L), SequenceType.Rhythm);
 
     assertNotNull(result);
-    assertEquals(BigInteger.valueOf(2), result.getPatternId());
-    assertEquals(PatternType.Rhythm, result.getType());
-    assertEquals(BigInteger.valueOf(1), result.getPhaseOffset());
+    assertEquals(BigInteger.valueOf(2L), result.getSequenceId());
+    assertEquals(SequenceType.Rhythm, result.getType());
+    assertEquals(BigInteger.valueOf(1L), result.getPatternOffset());
     assertEquals(Integer.valueOf(2), result.getTranspose());
-    assertEquals(ImmutableList.of(BigInteger.valueOf(0), BigInteger.valueOf(1), BigInteger.valueOf(2)), result.getAvailablePhaseOffsets());
+    assertEquals(ImmutableList.of(BigInteger.valueOf(0L), BigInteger.valueOf(1L), BigInteger.valueOf(2L)), result.getAvailablePatternOffsets());
   }
 
 
@@ -212,10 +212,10 @@ public class ChoiceIT {
       "accounts", "1"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1))));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1L))));
 
     assertNotNull(result);
-    assertEquals(4, result.length());
+    assertEquals(4L, (long) result.length());
 
     JSONObject actualResult0 = (JSONObject) result.get(0);
     assertEquals("Macro", actualResult0.get("type"));
@@ -228,55 +228,55 @@ public class ChoiceIT {
   }
 
   @Test
-  public void readAll_SeesNothingOutsideOfLink() throws Exception {
+  public void readAll_SeesNothingOutsideOfSegment() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "User",
       "accounts", "345"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1))));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1L))));
 
     assertNotNull(result);
-    assertEquals(0, result.length());
+    assertEquals(0L, (long) result.length());
   }
 
   @Test
-  public void readAllInLinks() throws Exception {
-    Collection<Choice> result = testDAO.readAllInLinks(Access.internal(), ImmutableList.of(BigInteger.valueOf(1)));
+  public void readAllInSegments() throws Exception {
+    Collection<Choice> result = testDAO.readAllInSegments(Access.internal(), ImmutableList.of(BigInteger.valueOf(1L)));
 
-    assertEquals(4, result.size());
+    assertEquals(4L, (long) result.size());
   }
 
   @Test
   public void readOne_nullIfChainNotExist() throws Exception {
-    Choice result = testDAO.readOne(Access.internal(), BigInteger.valueOf(12097));
+    Choice result = testDAO.readOne(Access.internal(), BigInteger.valueOf(12097L));
 
     assertNull(result);
   }
 
   @Test
-  public void readAllInLinks_okIfUserInAccount() throws Exception {
+  public void readAllInSegments_okIfUserInAccount() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "User",
       "accounts", "1"
     ));
 
-    Collection<Choice> result = testDAO.readAllInLinks(access, ImmutableList.of(BigInteger.valueOf(1)));
+    Collection<Choice> result = testDAO.readAllInSegments(access, ImmutableList.of(BigInteger.valueOf(1L)));
 
-    assertEquals(4, result.size());
+    assertEquals(4L, (long) result.size());
   }
 
   @Test
-  public void readAllInLinks_failsIfUserNotInAccount() throws Exception {
+  public void readAllInSegments_failsIfUserNotInAccount() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "User",
       "accounts", "73"
     ));
 
     failure.expect(BusinessException.class);
-    failure.expectMessage("exactly the provided count (1) links in chain(s) to which user has access is required");
+    failure.expectMessage("exactly the provided count (1) segments in chain(s) to which user has access is required");
 
-    testDAO.readAllInLinks(access, ImmutableList.of(BigInteger.valueOf(1)));
+    testDAO.readAllInSegments(access, ImmutableList.of(BigInteger.valueOf(1L)));
   }
 
   @Test
@@ -285,35 +285,35 @@ public class ChoiceIT {
       "roles", "Admin"
     ));
     Choice inputData = new Choice()
-      .setLinkId(BigInteger.valueOf(1))
-      .setPatternId(BigInteger.valueOf(3))
+      .setSegmentId(BigInteger.valueOf(1L))
+      .setSequenceId(BigInteger.valueOf(3L))
       .setType("Main")
-      .setPhaseOffset(BigInteger.valueOf(2))
+      .setPatternOffset(BigInteger.valueOf(2L))
       .setTranspose(-3);
 
-    testDAO.update(access, BigInteger.valueOf(2), inputData);
+    testDAO.update(access, BigInteger.valueOf(2L), inputData);
 
-    Choice result = testDAO.readOne(Access.internal(), BigInteger.valueOf(2));
+    Choice result = testDAO.readOne(Access.internal(), BigInteger.valueOf(2L));
     assertNotNull(result);
-    assertEquals(BigInteger.valueOf(1), result.getLinkId());
-    assertEquals(BigInteger.valueOf(3), result.getPatternId());
-    assertEquals(PatternType.Main, result.getType());
-    assertEquals(BigInteger.valueOf(2), result.getPhaseOffset());
+    assertEquals(BigInteger.valueOf(1L), result.getSegmentId());
+    assertEquals(BigInteger.valueOf(3L), result.getSequenceId());
+    assertEquals(SequenceType.Main, result.getType());
+    assertEquals(BigInteger.valueOf(2L), result.getPatternOffset());
     assertEquals(Integer.valueOf(-3), result.getTranspose());
   }
 
   @Test(expected = BusinessException.class)
-  public void update_FailsWithoutLinkID() throws Exception {
+  public void update_FailsWithoutSegmentID() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
     Choice inputData = new Choice()
-      .setPatternId(BigInteger.valueOf(3))
+      .setSequenceId(BigInteger.valueOf(3L))
       .setType("Main")
-      .setPhaseOffset(BigInteger.valueOf(2))
+      .setPatternOffset(BigInteger.valueOf(2L))
       .setTranspose(-3);
 
-    testDAO.update(access, BigInteger.valueOf(2), inputData);
+    testDAO.update(access, BigInteger.valueOf(2L), inputData);
   }
 
   @Test(expected = BusinessException.class)
@@ -322,33 +322,33 @@ public class ChoiceIT {
       "roles", "Admin"
     ));
     Choice inputData = new Choice()
-      .setLinkId(BigInteger.valueOf(1))
-      .setPatternId(BigInteger.valueOf(3))
-      .setPhaseOffset(BigInteger.valueOf(2))
+      .setSegmentId(BigInteger.valueOf(1L))
+      .setSequenceId(BigInteger.valueOf(3L))
+      .setPatternOffset(BigInteger.valueOf(2L))
       .setTranspose(-3);
 
-    testDAO.update(access, BigInteger.valueOf(2), inputData);
+    testDAO.update(access, BigInteger.valueOf(2L), inputData);
   }
 
   @Test(expected = BusinessException.class)
-  public void update_FailsToChangeLink() throws Exception {
+  public void update_FailsToChangeSegment() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
     Choice inputData = new Choice()
-      .setLinkId(BigInteger.valueOf(7))
-      .setPatternId(BigInteger.valueOf(3))
+      .setSegmentId(BigInteger.valueOf(7L))
+      .setSequenceId(BigInteger.valueOf(3L))
       .setType("Main")
-      .setPhaseOffset(BigInteger.valueOf(2))
+      .setPatternOffset(BigInteger.valueOf(2L))
       .setTranspose(-3);
 
     try {
-      testDAO.update(access, BigInteger.valueOf(2), inputData);
+      testDAO.update(access, BigInteger.valueOf(2L), inputData);
 
     } catch (Exception e) {
-      Choice result = testDAO.readOne(Access.internal(), BigInteger.valueOf(2));
+      Choice result = testDAO.readOne(Access.internal(), BigInteger.valueOf(2L));
       assertNotNull(result);
-      assertEquals(BigInteger.valueOf(1), result.getLinkId());
+      assertEquals(BigInteger.valueOf(1L), result.getSegmentId());
       throw e;
     }
   }
@@ -359,9 +359,9 @@ public class ChoiceIT {
       "roles", "Admin"
     ));
 
-    testDAO.destroy(access, BigInteger.valueOf(1));
+    testDAO.destroy(access, BigInteger.valueOf(1L));
 
-    Choice result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1));
+    Choice result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1L));
     assertNull(result);
   }
 
@@ -370,16 +370,16 @@ public class ChoiceIT {
     Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
-    IntegrationTestEntity.insertPhase(1, 1, PhaseType.Main, PhaseState.Published, 0, 16, "Ants", 0.583, "D minor", 120.0);
+    IntegrationTestEntity.insertPattern(1, 1, PatternType.Main, PatternState.Published, 0, 16, "Ants", 0.583, "D minor", 120.0);
     IntegrationTestEntity.insertVoice(1, 1, InstrumentType.Percussive, "This is a percussive voice");
     IntegrationTestEntity.insertInstrument(1, 1, 2, "jams", InstrumentType.Percussive, 0.6);
     IntegrationTestEntity.insertArrangement(1, 1, 1, 1);
 
     try {
-      testDAO.destroy(access, BigInteger.valueOf(1));
+      testDAO.destroy(access, BigInteger.valueOf(1L));
 
     } catch (Exception e) {
-      Choice result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1));
+      Choice result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1L));
       assertNotNull(result);
       throw e;
     }

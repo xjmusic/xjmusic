@@ -9,13 +9,13 @@ import com.google.inject.util.Modules;
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
 import io.xj.core.app.App;
-import io.xj.core.dao.PhaseDAO;
+import io.xj.core.dao.PatternDAO;
 import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.model.instrument.InstrumentType;
+import io.xj.core.model.sequence.SequenceState;
+import io.xj.core.model.sequence.SequenceType;
 import io.xj.core.model.pattern.PatternState;
 import io.xj.core.model.pattern.PatternType;
-import io.xj.core.model.phase.PhaseState;
-import io.xj.core.model.phase.PhaseType;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.work.WorkManager;
 import io.xj.craft.CraftModule;
@@ -36,7 +36,7 @@ import java.math.BigInteger;
 import static org.junit.Assert.assertNull;
 
 /**
- [#153976888] PhaseErase job erase a Phase in the background, in order to keep the UI functioning at a reasonable speed.
+ [#153976888] PatternErase job erase a Pattern in the background, in order to keep the UI functioning at a reasonable speed.
  */
 @RunWith(MockitoJUnitRunner.class)
 public class PatternEraseJobIT {
@@ -70,32 +70,32 @@ public class PatternEraseJobIT {
     IntegrationTestEntity.insertLibrary(2, 1, "house");
     IntegrationTestEntity.insertLibrary(42, 1, "pajamas");
 
-    // Pattern "808" and "2020"
-    IntegrationTestEntity.insertPattern(1, 2, 2, PatternType.Rhythm, PatternState.Published, "808 Drums", 0.9, "G", 120);
-    IntegrationTestEntity.insertPatternMeme(1, 1, "heavy");
+    // Sequence "808" and "2020"
+    IntegrationTestEntity.insertSequence(1, 2, 2, SequenceType.Rhythm, SequenceState.Published, "808 Drums", 0.9, "G", 120);
+    IntegrationTestEntity.insertSequenceMeme(1, 1, "heavy");
     IntegrationTestEntity.insertVoice(1, 1, InstrumentType.Percussive, "Kick Drum");
     IntegrationTestEntity.insertVoice(2, 1, InstrumentType.Percussive, "Snare Drum");
-    IntegrationTestEntity.insertPattern(12, 2, 42, PatternType.Rhythm, PatternState.Published, "2020 Drums", 0.9, "G", 120);
+    IntegrationTestEntity.insertSequence(12, 2, 42, SequenceType.Rhythm, SequenceState.Published, "2020 Drums", 0.9, "G", 120);
     IntegrationTestEntity.insertVoice(3, 12, InstrumentType.Percussive, "Kack Dram");
     IntegrationTestEntity.insertVoice(4, 12, InstrumentType.Percussive, "Snarr Dram");
 
-    // Phase "Verse"
-    IntegrationTestEntity.insertPhase(1, 1, PhaseType.Loop, PhaseState.Published, 0, 16, "Verse 1", 0.5, "G", 120);
-    IntegrationTestEntity.insertPhaseMeme(1, 1, "GREEN");
-    IntegrationTestEntity.insertPhaseChord(1, 1, 0, "Db7");
-    IntegrationTestEntity.insertPhaseEvent(101, 1, 1, 0.0, 1.0, "KICK", "C5", 1.0, 1.0);
-    IntegrationTestEntity.insertPhaseEvent(102, 1, 2, 1.0, 1.0, "SNARE", "C5", 1.0, 1.0);
+    // Pattern "Verse"
+    IntegrationTestEntity.insertPattern(1, 1, PatternType.Loop, PatternState.Published, 0, 16, "Verse 1", 0.5, "G", 120);
+    IntegrationTestEntity.insertPatternMeme(1, 1, "GREEN");
+    IntegrationTestEntity.insertPatternChord(1, 1, 0, "Db7");
+    IntegrationTestEntity.insertPatternEvent(101, 1, 1, 0.0, 1.0, "KICK", "C5", 1.0, 1.0);
+    IntegrationTestEntity.insertPatternEvent(102, 1, 2, 1.0, 1.0, "SNARE", "C5", 1.0, 1.0);
 
-    // Phase "Verse"
-    IntegrationTestEntity.insertPhase(2, 1, PhaseType.Loop, PhaseState.Published, 0, 16, "Verse 2", 0.5, "G", 120);
-    IntegrationTestEntity.insertPhaseMeme(2, 2, "YELLOW");
-    IntegrationTestEntity.insertPhaseChord(2, 2, 0, "Gm9");
-    IntegrationTestEntity.insertPhaseEvent(103, 2, 1, 0.0, 1.0, "KICK", "C5", 1.0, 1.0);
-    IntegrationTestEntity.insertPhaseEvent(104, 2, 2, 1.0, 1.0, "SNARE", "C5", 1.0, 1.0);
+    // Pattern "Verse"
+    IntegrationTestEntity.insertPattern(2, 1, PatternType.Loop, PatternState.Published, 0, 16, "Verse 2", 0.5, "G", 120);
+    IntegrationTestEntity.insertPatternMeme(2, 2, "YELLOW");
+    IntegrationTestEntity.insertPatternChord(2, 2, 0, "Gm9");
+    IntegrationTestEntity.insertPatternEvent(103, 2, 1, 0.0, 1.0, "KICK", "C5", 1.0, 1.0);
+    IntegrationTestEntity.insertPatternEvent(104, 2, 2, 1.0, 1.0, "SNARE", "C5", 1.0, 1.0);
 
-    // Newly cloned phases -- awaiting PhaseClone job to run, and create their child entities
-    IntegrationTestEntity.insertPhase(3, 1, PhaseType.Loop, PhaseState.Published, 0, 16, "Verse 34", 0.5, "G", 120);
-    IntegrationTestEntity.insertPhase(4, 12, PhaseType.Loop, PhaseState.Published, 0, 16, "Verse 79", 0.5, "G", 120);
+    // Newly cloned patterns -- awaiting PatternClone job to run, and create their child entities
+    IntegrationTestEntity.insertPattern(3, 1, PatternType.Loop, PatternState.Published, 0, 16, "Verse 34", 0.5, "G", 120);
+    IntegrationTestEntity.insertPattern(4, 12, PatternType.Loop, PatternState.Published, 0, 16, "Verse 79", 0.5, "G", 120);
 
     // Don't sleep between processing work
     System.setProperty("app.port", "9043");
@@ -130,13 +130,13 @@ public class PatternEraseJobIT {
     app.start();
 
     app.getWorkManager().doPatternErase(BigInteger.valueOf(1));
+    app.getWorkManager().doPatternErase(BigInteger.valueOf(2));
 
     Thread.sleep(TEST_DURATION_SECONDS * MILLIS_PER_SECOND);
     app.stop();
 
-    assertNull( injector.getInstance(PhaseDAO.class).readOne(Access.internal(), BigInteger.valueOf(1)));
-    assertNull( injector.getInstance(PhaseDAO.class).readOne(Access.internal(), BigInteger.valueOf(2)));
-    assertNull( injector.getInstance(PhaseDAO.class).readOne(Access.internal(), BigInteger.valueOf(3)));
+    assertNull( injector.getInstance(PatternDAO.class).readOne(Access.internal(), BigInteger.valueOf(1)));
+    assertNull( injector.getInstance(PatternDAO.class).readOne(Access.internal(), BigInteger.valueOf(2)));
   }
 
   /**
@@ -146,11 +146,12 @@ public class PatternEraseJobIT {
   public void cancelsJobIfEntityDoesNotExist() throws Exception {
     app.start();
 
-    app.getWorkManager().doPatternErase(BigInteger.valueOf(712));
+    app.getWorkManager().doPatternErase(BigInteger.valueOf(876));
 
     Thread.sleep(TEST_DURATION_SECONDS * MILLIS_PER_SECOND);
     app.stop();
   }
+
 
 
 }

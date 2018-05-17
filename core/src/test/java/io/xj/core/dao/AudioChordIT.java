@@ -46,14 +46,14 @@ public class AudioChordIT {
     IntegrationTestEntity.insertUser(2, "john", "john@email.com", "http://pictures.com/john.gif");
     IntegrationTestEntity.insertUserRole(1, 2, UserRoleType.Admin);
 
-    // Library "palm tree" has pattern "leaves" and pattern "coconuts"
+    // Library "palm tree" has sequence "leaves" and sequence "coconuts"
     IntegrationTestEntity.insertLibrary(1, 1, "palm tree");
 
-    // Pattern "leaves" has instruments "808" and "909"
+    // Sequence "leaves" has instruments "808" and "909"
     IntegrationTestEntity.insertInstrument(1, 1, 2, "Harmonic Performance", InstrumentType.Percussive, 0.9);
 
     // Instrument "808" has Audio "Chords Cm to D"
-    IntegrationTestEntity.insertAudio(1, 1, "Published", "Chords Cm to D", "https://static.xj.io/instrument/percussion/808/kick1.wav", 0.01, 2.123, 120.0, 440);
+    IntegrationTestEntity.insertAudio(1, 1, "Published", "Chords Cm to D", "https://static.xj.io/instrument/percussion/808/kick1.wav", 0.01, 2.123, 120.0, 440.0);
 
     // Audio "Drums" has events "C minor" and "D major" 2x each
     IntegrationTestEntity.insertAudioChord(1, 1, 4, "D major");
@@ -77,14 +77,14 @@ public class AudioChordIT {
     AudioChord inputData = new AudioChord()
       .setPosition(4.0)
       .setName("G minor 7")
-      .setAudioId(BigInteger.valueOf(1));
+      .setAudioId(BigInteger.valueOf(1L));
 
     AudioChord result = testDAO.create(access, inputData);
 
     assertNotNull(result);
-    assertEquals(4, result.getPosition(), 0.01);
+    assertEquals(4.0, result.getPosition(), 0.01);
     assertEquals("G minor 7", result.getName());
-    assertEquals(BigInteger.valueOf(1), result.getAudioId());
+    assertEquals(BigInteger.valueOf(1L), result.getAudioId());
   }
 
   @Test(expected = BusinessException.class)
@@ -108,7 +108,7 @@ public class AudioChordIT {
     ));
     AudioChord inputData = new AudioChord()
       .setPosition(4.0)
-      .setAudioId(BigInteger.valueOf(2));
+      .setAudioId(BigInteger.valueOf(2L));
 
     testDAO.create(access, inputData);
   }
@@ -120,11 +120,11 @@ public class AudioChordIT {
       "accounts", "1"
     ));
 
-    AudioChord result = testDAO.readOne(access, BigInteger.valueOf(1));
+    AudioChord result = testDAO.readOne(access, BigInteger.valueOf(1L));
 
     assertNotNull(result);
-    assertEquals(BigInteger.valueOf(1), result.getId());
-    assertEquals(BigInteger.valueOf(1), result.getAudioId());
+    assertEquals(BigInteger.valueOf(1L), result.getId());
+    assertEquals(BigInteger.valueOf(1L), result.getAudioId());
     assertEquals("D major", result.getName());
   }
 
@@ -135,7 +135,7 @@ public class AudioChordIT {
       "accounts", "326"
     ));
 
-    AudioChord result = testDAO.readOne(access, BigInteger.valueOf(1));
+    AudioChord result = testDAO.readOne(access, BigInteger.valueOf(1L));
 
     assertNull(result);
   }
@@ -147,10 +147,10 @@ public class AudioChordIT {
       "accounts", "1"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1))));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1L))));
 
     assertNotNull(result);
-    assertEquals(2, result.length());
+    assertEquals(2L, (long) result.length());
     JSONObject result1 = (JSONObject) result.get(0);
     assertEquals("C minor", result1.get("name"));
     JSONObject result2 = (JSONObject) result.get(1);
@@ -164,10 +164,10 @@ public class AudioChordIT {
       "accounts", "345"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1))));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1L))));
 
     assertNotNull(result);
-    assertEquals(0, result.length());
+    assertEquals(0L, (long) result.length());
   }
 
   @Test(expected = BusinessException.class)
@@ -180,7 +180,7 @@ public class AudioChordIT {
       .setPosition(4.0)
       .setName("G minor 7");
 
-    testDAO.update(access, BigInteger.valueOf(3), inputData);
+    testDAO.update(access, BigInteger.valueOf(3L), inputData);
   }
 
   @Test(expected = BusinessException.class)
@@ -191,9 +191,9 @@ public class AudioChordIT {
     ));
     AudioChord inputData = new AudioChord()
       .setPosition(4.0)
-      .setAudioId(BigInteger.valueOf(2));
+      .setAudioId(BigInteger.valueOf(2L));
 
-    testDAO.update(access, BigInteger.valueOf(2), inputData);
+    testDAO.update(access, BigInteger.valueOf(2L), inputData);
   }
 
   @Test(expected = BusinessException.class)
@@ -204,17 +204,17 @@ public class AudioChordIT {
     ));
     AudioChord inputData = new AudioChord()
       .setPosition(4.0)
-      .setAudioId(BigInteger.valueOf(57))
+      .setAudioId(BigInteger.valueOf(57L))
       .setName("cannons");
 
     try {
-      testDAO.update(access, BigInteger.valueOf(2), inputData);
+      testDAO.update(access, BigInteger.valueOf(2L), inputData);
 
     } catch (Exception e) {
-      AudioChord result = testDAO.readOne(Access.internal(), BigInteger.valueOf(2));
+      AudioChord result = testDAO.readOne(Access.internal(), BigInteger.valueOf(2L));
       assertNotNull(result);
       assertEquals("C minor", result.getName());
-      assertEquals(BigInteger.valueOf(1), result.getAudioId());
+      assertEquals(BigInteger.valueOf(1L), result.getAudioId());
       throw e;
     }
   }
@@ -226,17 +226,17 @@ public class AudioChordIT {
       "accounts", "1"
     ));
     AudioChord inputData = new AudioChord()
-      .setAudioId(BigInteger.valueOf(1))
+      .setAudioId(BigInteger.valueOf(1L))
       .setName("POPPYCOCK")
       .setPosition(4.0);
 
-    testDAO.update(access, BigInteger.valueOf(1), inputData);
+    testDAO.update(access, BigInteger.valueOf(1L), inputData);
 
-    AudioChord result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1));
+    AudioChord result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1L));
     assertNotNull(result);
     assertEquals("POPPYCOCK", result.getName());
-    assertEquals(Double.valueOf(4), result.getPosition());
-    assertEquals(BigInteger.valueOf(1), result.getAudioId());
+    assertEquals(Double.valueOf(4.0), result.getPosition());
+    assertEquals(BigInteger.valueOf(1L), result.getAudioId());
   }
 
   // future test: DAO cannot update audio chord to a User or Library not owned by current session
@@ -248,9 +248,9 @@ public class AudioChordIT {
       "accounts", "1"
     ));
 
-    testDAO.destroy(access, BigInteger.valueOf(1));
+    testDAO.destroy(access, BigInteger.valueOf(1L));
 
-    AudioChord result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1));
+    AudioChord result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1L));
     assertNull(result);
   }
 
@@ -261,7 +261,7 @@ public class AudioChordIT {
       "accounts", "2"
     ));
 
-    testDAO.destroy(access, BigInteger.valueOf(1));
+    testDAO.destroy(access, BigInteger.valueOf(1L));
   }
 
 }

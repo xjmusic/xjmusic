@@ -1,3 +1,5 @@
+// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+
 function afterBodyLoad() {
     //Hamburger menu toggle
     $(".navbar-nav li a").click(function (event) {

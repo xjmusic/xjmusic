@@ -1,6 +1,8 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.testing;
 
+import java.util.Objects;
+
 import static org.junit.Assert.fail;
 
 /**
@@ -16,7 +18,7 @@ public class Testing {
    */
   public static void assertIn(String[] matches, String result) {
     for (String match : matches) {
-      if (match.equals(result))
+      if (Objects.equals(match, result))
         return;
     }
     fail("'" + result + "' is an invalid result");

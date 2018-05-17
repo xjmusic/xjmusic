@@ -79,7 +79,7 @@ public class AudioOneResource extends HubResource {
 
   /**
    Delete one audio
-   [#294] Eraseworker finds Links and Audio in deleted state and actually deletes the records, child entities and S3 objects
+   [#294] Eraseworker finds Segments and Audio in deleted state and actually deletes the records, child entities and S3 objects
    Hub DELETE /audios/# is actually a state update to ERASE
 
    @return Response

@@ -16,7 +16,7 @@ public class ChainConfigTest {
   @Test
   public void validate() throws Exception {
     new ChainConfig()
-      .setChainId(BigInteger.valueOf(974))
+      .setChainId(BigInteger.valueOf(974L))
       .setType("OutputChannels")
       .setValue(String.valueOf(4))
       .validate();
@@ -39,7 +39,7 @@ public class ChainConfigTest {
     failure.expectMessage("Type is required");
 
     new ChainConfig()
-      .setChainId(BigInteger.valueOf(974))
+      .setChainId(BigInteger.valueOf(974L))
       .setValue(String.valueOf(4))
       .validate();
   }
@@ -50,7 +50,7 @@ public class ChainConfigTest {
     failure.expectMessage("'jello' is not a valid type");
 
     new ChainConfig()
-      .setChainId(BigInteger.valueOf(974))
+      .setChainId(BigInteger.valueOf(974L))
       .setType("jello")
       .setValue(String.valueOf(4))
       .validate();
@@ -62,7 +62,7 @@ public class ChainConfigTest {
     failure.expectMessage("Value is required");
 
     new ChainConfig()
-      .setChainId(BigInteger.valueOf(974))
+      .setChainId(BigInteger.valueOf(974L))
       .setType("OutputChannels")
       .validate();
   }

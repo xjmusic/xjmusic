@@ -8,11 +8,15 @@ import io.xj.core.util.Text;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ [#153976073] Artist wants Pattern to have type *Macro* or *Main* (for Macro- or Main-type sequences), or *Intro*, *Loop*, or *Outro* (for Rhythm or Detail-type Sequence) in order to create a composition that is dynamic when chosen to fill a Segment.
+ */
 public enum PatternType {
   Macro,
   Main,
-  Rhythm,
-  Detail;
+  Intro,
+  Loop,
+  Outro;
 
   /**
    String Values
@@ -40,5 +44,24 @@ public enum PatternType {
       throw new BusinessException("'" + value + "' is not a valid type (" + CSV.joinEnum(values()) + ").", e);
     }
   }
+
+  /**
+   Pattern types available for detail (including Rhythm) sequences
+
+   @return types
+   */
+  public static PatternType[] valuesForDetailSequence() {
+    return new PatternType[]{Intro, Loop, Outro};
+  }
+
+  /**
+   String Values
+
+   @return ImmutableList of string values
+   */
+  public static List<String> stringValuesForDetailSequence() {
+    return Text.stringValues(valuesForDetailSequence());
+  }
+
 
 }

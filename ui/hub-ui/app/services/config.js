@@ -1,3 +1,5 @@
+// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+
 import { get } from '@ember/object';
 import $ from 'jquery';
 import Service, { inject as service } from '@ember/service';
@@ -27,12 +29,12 @@ export default Service.extend({
     this.promises.chainStates = this.newSubPromise("chainStates");
     this.promises.chainTypes = this.newSubPromise("chainTypes");
     this.promises.choiceTypes = this.newSubPromise("choiceTypes");
+    this.promises.sequenceTypes = this.newSubPromise("sequenceTypes");
     this.promises.patternTypes = this.newSubPromise("patternTypes");
-    this.promises.phaseTypes = this.newSubPromise("phaseTypes");
-    this.promises.phaseDetailTypes = this.newSubPromise("phaseDetailTypes");
+    this.promises.patternDetailTypes = this.newSubPromise("patternDetailTypes");
     this.promises.instrumentTypes = this.newSubPromise("instrumentTypes");
-    this.promises.linkStates = this.newSubPromise("linkStates");
-    this.promises.linkBaseUrl = this.newSubPromise("linkBaseUrl");
+    this.promises.segmentStates = this.newSubPromise("segmentStates");
+    this.promises.segmentBaseUrl = this.newSubPromise("segmentBaseUrl");
     this.promises.voiceTypes = this.newSubPromise("voiceTypes");
   },
 

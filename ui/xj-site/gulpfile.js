@@ -1,3 +1,5 @@
+// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+
 let gulp = require('gulp'),
     imageResize = require('gulp-image-resize'),
     imageMin = require('gulp-imagemin'),

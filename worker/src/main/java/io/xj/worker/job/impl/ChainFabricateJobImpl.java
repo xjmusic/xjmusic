@@ -4,11 +4,11 @@ package io.xj.worker.job.impl;
 import io.xj.core.access.impl.Access;
 import io.xj.core.config.Config;
 import io.xj.core.dao.ChainDAO;
-import io.xj.core.dao.LinkDAO;
+import io.xj.core.dao.SegmentDAO;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.model.chain.Chain;
 import io.xj.core.model.chain.ChainState;
-import io.xj.core.model.link.Link;
+import io.xj.core.model.segment.Segment;
 import io.xj.core.util.TimestampUTC;
 import io.xj.core.work.WorkManager;
 import io.xj.worker.job.ChainFabricateJob;
@@ -26,19 +26,19 @@ public class ChainFabricateJobImpl implements ChainFabricateJob {
   private static final Logger log = LoggerFactory.getLogger(ChainFabricateJobImpl.class);
   private final BigInteger entityId;
   private final ChainDAO chainDAO;
-  private final LinkDAO linkDAO;
+  private final SegmentDAO segmentDAO;
   private final WorkManager workManager;
 
   @Inject
   public ChainFabricateJobImpl(
     @Assisted("entityId") BigInteger entityId,
     ChainDAO chainDAO,
-    LinkDAO linkDAO,
+    SegmentDAO segmentDAO,
     WorkManager workManager
   ) {
     this.entityId = entityId;
     this.chainDAO = chainDAO;
-    this.linkDAO = linkDAO;
+    this.segmentDAO = segmentDAO;
     this.workManager = workManager;
   }
 
@@ -60,7 +60,7 @@ public class ChainFabricateJobImpl implements ChainFabricateJob {
   }
 
   /**
-   Build a Link in the Chain, or Complete the Chain
+   Build a Segment in the Chain, or Complete the Chain
 
    @param chain to build on
    @throws Exception on failure
@@ -73,29 +73,29 @@ public class ChainFabricateJobImpl implements ChainFabricateJob {
     }
 
     int bufferSeconds = Config.workBufferSeconds();
-    Link linkToCreate = chainDAO.buildNextLinkOrComplete(
+    Segment segmentToCreate = chainDAO.buildNextSegmentOrComplete(
       Access.internal(),
       chain,
       TimestampUTC.nowPlusSeconds(bufferSeconds),
       TimestampUTC.nowMinusSeconds(bufferSeconds));
 
-    if (Objects.nonNull(linkToCreate)) {
-      createLinkAndJobs(linkToCreate);
+    if (Objects.nonNull(segmentToCreate)) {
+      createSegmentAndJobs(segmentToCreate);
     }
   }
 
   /**
-   Create Link, and jobs to craft & dub it
+   Create Segment, and jobs to craft & dub it
 
-   @param linkToCreate to create
+   @param segmentToCreate to create
    @throws BusinessException on failure
    */
-  private void createLinkAndJobs(Link linkToCreate) throws Exception {
-    linkToCreate.validate();
-    Link createdLink = linkDAO.create(Access.internal(), linkToCreate);
-    log.info("Created link, id:{}, chainId:{}, offset:{}", createdLink.getId(), createdLink.getChainId(), createdLink.getOffset());
+  private void createSegmentAndJobs(Segment segmentToCreate) throws Exception {
+    segmentToCreate.validate();
+    Segment createdSegment = segmentDAO.create(Access.internal(), segmentToCreate);
+    log.info("Created segment, id:{}, chainId:{}, offset:{}", createdSegment.getId(), createdSegment.getChainId(), createdSegment.getOffset());
 
-    workManager.scheduleLinkFabricate(Config.workBufferFabricateDelaySeconds(), createdLink.getId());
+    workManager.scheduleSegmentFabricate(Config.workBufferFabricateDelaySeconds(), createdSegment.getId());
   }
 
   /**

@@ -10,10 +10,10 @@ export default DS.Model.extend({
   stopAt: DS.attr('string',{defaultValue:''}),
   embedKey: DS.attr('string',{defaultValue:''}),
 
-  links: DS.hasMany('link'),
+  segments: DS.hasMany('segment'),
   configs: DS.hasMany('chain-config'),
   libraries: DS.hasMany('chain-library'),
   instruments: DS.hasMany('chain-instrument'),
-  patterns: DS.hasMany('chain-pattern')
+  sequences: DS.hasMany('chain-sequence')
 });
 

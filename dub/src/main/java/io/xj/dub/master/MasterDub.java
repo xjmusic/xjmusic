@@ -4,12 +4,12 @@ package io.xj.dub.master;
 import io.xj.core.exception.BusinessException;
 
 /**
- [#141] Dubworker Link mix final output from instrument-audio-arrangements
+ [#141] Dubworker Segment mix final output from instrument-audio-arrangements
  */
 public interface MasterDub {
 
   /**
-   perform master dub for the current link
+   perform master dub for the current segment
    */
   void doWork() throws BusinessException;
 

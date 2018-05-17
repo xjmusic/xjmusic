@@ -29,11 +29,11 @@ public class ChoiceWrapper extends EntityWrapper {
    */
   @Override
   public Choice validate() throws BusinessException {
-    if (this.choice == null) {
+    if (null == choice) {
       throw new BusinessException("Choice is required.");
     }
-    this.choice.validate();
-    return this.choice;
+    choice.validate();
+    return choice;
   }
 
 }

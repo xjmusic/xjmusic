@@ -24,7 +24,6 @@ public class PatternMeme extends Meme {
    */
   public static final String KEY_ONE = "patternMeme";
   public static final String KEY_MANY = "patternMemes";
-
   // Pattern ID
   private BigInteger patternId;
 
@@ -50,7 +49,7 @@ public class PatternMeme extends Meme {
 
   @Override
   public void validate() throws BusinessException {
-    if (null == patternId) {
+    if (this.patternId == null) {
       throw new BusinessException("Pattern ID is required.");
     }
     super.validate();

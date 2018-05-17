@@ -12,10 +12,10 @@ import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
 import io.xj.core.model.chain_config.ChainConfigType;
 import io.xj.core.model.instrument.InstrumentType;
-import io.xj.core.model.link.Link;
-import io.xj.core.model.link.LinkState;
-import io.xj.core.model.pattern.PatternState;
-import io.xj.core.model.pattern.PatternType;
+import io.xj.core.model.segment.Segment;
+import io.xj.core.model.segment.SegmentState;
+import io.xj.core.model.sequence.SequenceState;
+import io.xj.core.model.sequence.SequenceType;
 import io.xj.core.transport.JSON;
 
 import com.google.common.collect.ImmutableList;
@@ -47,9 +47,9 @@ import static org.junit.Assert.assertNull;
 @RunWith(MockitoJUnitRunner.class)
 public class ChainIT {
   @Rule public ExpectedException failure = ExpectedException.none();
+  @Mock AmazonProvider amazonProvider;
   private Injector injector;
   private ChainDAO testDAO;
-  @Mock AmazonProvider amazonProvider;
 
   @Before
   public void setUp() throws Exception {
@@ -58,8 +58,8 @@ public class ChainIT {
     // inject mocks
     createInjector();
 
-    // link waveform config
-    System.setProperty("link.file.bucket", "xj-link-test");
+    // segment waveform config
+    System.setProperty("segment.file.bucket", "xj-segment-test");
 
     // Account "fish" has chain "school" and chain "bucket"
     IntegrationTestEntity.insertAccount(1, "fish");
@@ -88,7 +88,7 @@ public class ChainIT {
     testDAO = null;
     injector = null;
 
-    System.clearProperty("link.file.bucket");
+    System.clearProperty("segment.file.bucket");
   }
 
   @Test
@@ -327,6 +327,27 @@ public class ChainIT {
     assertEquals(Timestamp.valueOf("2015-06-09 12:17:01.047563"), result.getStopAt());
   }
 
+  /**
+   [#150279540] Unauthenticated or specifically-authenticated public Client wants to access a Chain by embed key (as alias for chain id) in order to provide data for playback.
+   */
+  @Test
+  public void readOne_byEmbedKey_unauthenticatedOk() throws Exception {
+    IntegrationTestEntity.insertChain(102, 1, "cats test", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2015-05-10 12:17:02.527142"), Timestamp.valueOf("2015-06-09 12:17:01.047563"), "cats");
+    Access access = Access.unauthenticated();
+
+    Chain result = testDAO.readOne(access, "cats");
+
+    assertNotNull(result);
+    assertEquals(BigInteger.valueOf(102L), result.getId());
+    assertEquals(BigInteger.valueOf(1L), result.getAccountId());
+    assertEquals("cats test", result.getName());
+    assertEquals(ChainState.Fabricate, result.getState());
+    assertEquals(ChainType.Production, result.getType());
+    assertEquals(Timestamp.valueOf("2015-05-10 12:17:02.527142"), result.getStartAt());
+    assertEquals(Timestamp.valueOf("2015-06-09 12:17:01.047563"), result.getStopAt());
+    assertEquals("cats", result.getEmbedKey());
+  }
+
   @Test
   public void readOne_toJSONObject() throws Exception {
     Access access = new Access(ImmutableMap.of(
@@ -368,7 +389,7 @@ public class ChainIT {
     JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1L))));
 
     assertNotNull(result);
-    assertEquals(2, result.length());
+    assertEquals(2L, (long) result.length());
     JSONObject result1 = (JSONObject) result.get(0);
     assertEquals("school", result1.get("name"));
     JSONObject result2 = (JSONObject) result.get(1);
@@ -386,7 +407,7 @@ public class ChainIT {
     JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1L))));
 
     assertNotNull(result);
-    assertEquals(2, result.length());
+    assertEquals(2L, (long) result.length());
     JSONObject result1 = (JSONObject) result.get(0);
     assertEquals("school", result1.get("name"));
     JSONObject result2 = (JSONObject) result.get(1);
@@ -398,7 +419,7 @@ public class ChainIT {
     Collection<Chain> result = testDAO.readAllInState(Access.internal(), ChainState.Fabricate);
 
     assertNotNull(result);
-    assertEquals(1, result.size());
+    assertEquals(1L, (long) result.size());
     Chain result0 = result.iterator().next();
 
     assertEquals("bucket", result0.getName());
@@ -414,7 +435,7 @@ public class ChainIT {
     JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1L))));
 
     assertNotNull(result);
-    assertEquals(0, result.length());
+    assertEquals(0L, (long) result.length());
   }
 
   @Test
@@ -432,7 +453,7 @@ public class ChainIT {
 
     testDAO.update(access, BigInteger.valueOf(2L), inputData);
 
-    Chain result = testDAO.readOne(Access.internal(), BigInteger.valueOf(2));
+    Chain result = testDAO.readOne(Access.internal(), BigInteger.valueOf(2L));
     assertNotNull(result);
     assertEquals("manuts", result.getName());
     assertEquals(BigInteger.valueOf(1L), result.getAccountId());
@@ -458,7 +479,7 @@ public class ChainIT {
 
     testDAO.update(access, BigInteger.valueOf(2L), inputData);
 
-    Chain result = testDAO.readOne(Access.internal(), BigInteger.valueOf(2));
+    Chain result = testDAO.readOne(Access.internal(), BigInteger.valueOf(2L));
     assertNotNull(result);
     assertEquals("manuts", result.getName());
     assertEquals("twenty_four_hours", result.getEmbedKey());
@@ -486,7 +507,7 @@ public class ChainIT {
 
     testDAO.update(access, BigInteger.valueOf(3L), inputData);
 
-    Chain result = testDAO.readOne(Access.internal(), BigInteger.valueOf(3));
+    Chain result = testDAO.readOne(Access.internal(), BigInteger.valueOf(3L));
     assertNotNull(result);
     assertEquals("manuts", result.getName());
     assertNull(result.getEmbedKey());
@@ -519,6 +540,35 @@ public class ChainIT {
   }
 
   @Test
+  public void update_okayWithEmbedKey() throws Exception {
+    Access access = new Access(ImmutableMap.of(
+      "roles", "Admin"
+    ));
+    IntegrationTestEntity.insertChain(274, 1, "school", ChainType.Production, ChainState.Ready, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"), "jabberwocky");
+    Chain inputData = new Chain()
+      .setAccountId(BigInteger.valueOf(274L))
+      .setName("manuts")
+      .setType("Production")
+      .setState("Ready")
+      .setEmbedKey("jabberwocky")
+      .setStartAt("2009-08-12 12:17:02.687327")
+      .setStopAt("2009-09-11 12:17:01.989941");
+
+    testDAO.update(access, BigInteger.valueOf(274L), inputData);
+
+    Chain result = testDAO.readOne(Access.internal(), BigInteger.valueOf(274L));
+    assertNotNull(result);
+    assertEquals("manuts", result.getName());
+    assertEquals("jabberwocky", result.getEmbedKey());
+    assertEquals(BigInteger.valueOf(1L), result.getAccountId());
+    assertEquals(ChainState.Ready, result.getState());
+    assertEquals(ChainType.Production, result.getType());
+    assertEquals(Timestamp.valueOf("2009-08-12 12:17:02.687327"), result.getStartAt());
+    assertEquals(Timestamp.valueOf("2009-09-11 12:17:01.989941"), result.getStopAt());
+  }
+
+
+  @Test
   public void update_cannotChangeType() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
@@ -533,7 +583,7 @@ public class ChainIT {
 
     testDAO.update(access, BigInteger.valueOf(2L), inputData);
 
-    Chain result = testDAO.readOne(Access.internal(), BigInteger.valueOf(2));
+    Chain result = testDAO.readOne(Access.internal(), BigInteger.valueOf(2L));
     assertNotNull(result);
     assertEquals("manuts", result.getName());
     assertEquals(BigInteger.valueOf(1L), result.getAccountId());
@@ -544,7 +594,7 @@ public class ChainIT {
   }
 
   @Test
-  public void update_failsToChangeStartAt_whenChainsHasLink() throws Exception {
+  public void update_failsToChangeStartAt_whenChainsHasSegment() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
@@ -555,16 +605,16 @@ public class ChainIT {
       .setState("Fabricate")
       .setStartAt("2015-05-10 12:17:03.527142")
       .setStopAt("2015-06-09 12:17:01.047563");
-    IntegrationTestEntity.insertLink(6, 2, 5, LinkState.Crafted, Timestamp.valueOf("2015-05-10 12:18:02.527142"), Timestamp.valueOf("2015-05-10 12:18:32.527142"), "A major", 64, 0.52, 120, "chain-1-link-97898asdf7892.wav");
+    IntegrationTestEntity.insertSegment(6, 2, 5, SegmentState.Crafted, Timestamp.valueOf("2015-05-10 12:18:02.527142"), Timestamp.valueOf("2015-05-10 12:18:32.527142"), "A major", 64, 0.52, 120.0, "chain-1-segment-97898asdf7892.wav");
 
     failure.expect(BusinessException.class);
-    failure.expectMessage("cannot change chain startAt time after it has links");
+    failure.expectMessage("cannot change chain startAt time after it has segments");
 
     testDAO.update(access, BigInteger.valueOf(2L), inputData);
   }
 
   @Test
-  public void update_canChangeName_whenChainsHasLink() throws Exception {
+  public void update_canChangeName_whenChainsHasSegment() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
@@ -575,11 +625,11 @@ public class ChainIT {
       .setType("Production")
       .setStartAt("2015-05-10 12:17:02.527142")
       .setStopAt("2015-06-09 12:17:01.047563");
-    IntegrationTestEntity.insertLink(6, 2, 5, LinkState.Crafted, Timestamp.valueOf("2015-05-10 12:18:02.527142"), Timestamp.valueOf("2015-05-10 12:18:32.527142"), "A major", 64, 0.52, 120, "chain-1-link-97898asdf7892.wav");
+    IntegrationTestEntity.insertSegment(6, 2, 5, SegmentState.Crafted, Timestamp.valueOf("2015-05-10 12:18:02.527142"), Timestamp.valueOf("2015-05-10 12:18:32.527142"), "A major", 64, 0.52, 120.0, "chain-1-segment-97898asdf7892.wav");
 
     testDAO.update(access, BigInteger.valueOf(2L), inputData);
 
-    Chain result = testDAO.readOne(Access.internal(), BigInteger.valueOf(2));
+    Chain result = testDAO.readOne(Access.internal(), BigInteger.valueOf(2L));
     assertNotNull(result);
     assertEquals("manuts", result.getName());
     assertEquals(BigInteger.valueOf(1L), result.getAccountId());
@@ -603,7 +653,7 @@ public class ChainIT {
 
     testDAO.update(access, BigInteger.valueOf(2L), inputData);
 
-    Chain result = testDAO.readOne(Access.internal(), BigInteger.valueOf(2));
+    Chain result = testDAO.readOne(Access.internal(), BigInteger.valueOf(2L));
     assertNotNull(result);
     assertEquals("manuts", result.getName());
     assertEquals(BigInteger.valueOf(1L), result.getAccountId());
@@ -664,7 +714,7 @@ public class ChainIT {
 
     testDAO.update(access, BigInteger.valueOf(2L), inputData);
 
-    Chain result = testDAO.readOne(Access.internal(), BigInteger.valueOf(2));
+    Chain result = testDAO.readOne(Access.internal(), BigInteger.valueOf(2L));
     assertNotNull(result);
     assertEquals(BigInteger.valueOf(1L), result.getAccountId());
   }
@@ -677,7 +727,7 @@ public class ChainIT {
 
     testDAO.updateState(access, BigInteger.valueOf(2L), ChainState.Complete);
 
-    Chain result = testDAO.readOne(Access.internal(), BigInteger.valueOf(2));
+    Chain result = testDAO.readOne(Access.internal(), BigInteger.valueOf(2L));
     assertNotNull(result);
     assertEquals(ChainState.Complete, result.getState());
   }
@@ -704,7 +754,7 @@ public class ChainIT {
 
     testDAO.updateState(access, BigInteger.valueOf(2L), ChainState.Complete);
 
-    Chain result = testDAO.readOne(Access.internal(), BigInteger.valueOf(2));
+    Chain result = testDAO.readOne(Access.internal(), BigInteger.valueOf(2L));
     assertNotNull(result);
     assertEquals(ChainState.Complete, result.getState());
   }
@@ -745,7 +795,7 @@ public class ChainIT {
     ));
 
     failure.expect(BusinessException.class);
-    failure.expectMessage("Chain must be bound to at least one Library, Pattern, or Instrument");
+    failure.expectMessage("Chain must be bound to at least one Library, Sequence, or Instrument");
 
     testDAO.updateState(access, BigInteger.valueOf(3L), ChainState.Ready);
   }
@@ -763,18 +813,18 @@ public class ChainIT {
 
     testDAO.updateState(access, BigInteger.valueOf(3L), ChainState.Ready);
 
-    Chain result = testDAO.readOne(Access.internal(), BigInteger.valueOf(3));
+    Chain result = testDAO.readOne(Access.internal(), BigInteger.valueOf(3L));
     assertNotNull(result);
     assertEquals(ChainState.Ready, result.getState());
   }
 
   @Test
-  public void updateState_outOfDraft_BoundToPattern() throws Exception {
+  public void updateState_outOfDraft_BoundToSequence() throws Exception {
     IntegrationTestEntity.insertUser(3, "jenny", "jenny@email.com", "http://pictures.com/jenny.gif");
     IntegrationTestEntity.insertChain(3, 1, "bucket", ChainType.Production, ChainState.Draft, Timestamp.valueOf("2015-05-10 12:17:02.527142"), null, null);
     IntegrationTestEntity.insertLibrary(3, 1, "pajamas");
-    IntegrationTestEntity.insertPattern(3, 3, 3, PatternType.Main, PatternState.Published, "fonds", 0.342, "C#", 0.286);
-    IntegrationTestEntity.insertChainPattern(1, 3, 3);
+    IntegrationTestEntity.insertSequence(3, 3, 3, SequenceType.Main, SequenceState.Published, "fonds", 0.342, "C#", 0.286);
+    IntegrationTestEntity.insertChainSequence(1, 3, 3);
 
     Access access = new Access(ImmutableMap.of(
       "roles", "User,Artist,Engineer",
@@ -783,24 +833,24 @@ public class ChainIT {
 
     testDAO.updateState(access, BigInteger.valueOf(3L), ChainState.Ready);
 
-    Chain result = testDAO.readOne(Access.internal(), BigInteger.valueOf(3));
+    Chain result = testDAO.readOne(Access.internal(), BigInteger.valueOf(3L));
     assertNotNull(result);
     assertEquals(ChainState.Ready, result.getState());
   }
 
   @Test
-  public void updateState_outOfDraft_BoundToMultiplePatterns() throws Exception {
+  public void updateState_outOfDraft_BoundToMultipleSequences() throws Exception {
     IntegrationTestEntity.insertUser(3, "jenny", "jenny@email.com", "http://pictures.com/jenny.gif");
     IntegrationTestEntity.insertChain(3, 1, "bucket", ChainType.Production, ChainState.Draft, Timestamp.valueOf("2015-05-10 12:17:02.527142"), null, null);
     IntegrationTestEntity.insertLibrary(3, 1, "pajamas");
-    IntegrationTestEntity.insertPattern(3, 3, 3, PatternType.Main, PatternState.Published, "fonds", 0.342, "C#", 0.286);
-    IntegrationTestEntity.insertPattern(4, 3, 3, PatternType.Macro, PatternState.Published, "trees A to B", 0.7, "D#", 0.4);
-    IntegrationTestEntity.insertPattern(5, 3, 3, PatternType.Macro, PatternState.Published, "trees B to A", 0.6, "F", 0.6);
-    IntegrationTestEntity.insertPattern(6, 3, 3, PatternType.Rhythm, PatternState.Published, "beets", 0.5, "C", 1.5);
-    IntegrationTestEntity.insertChainPattern(1, 3, 3);
-    IntegrationTestEntity.insertChainPattern(2, 3, 4);
-    IntegrationTestEntity.insertChainPattern(3, 3, 5);
-    IntegrationTestEntity.insertChainPattern(4, 3, 6);
+    IntegrationTestEntity.insertSequence(3, 3, 3, SequenceType.Main, SequenceState.Published, "fonds", 0.342, "C#", 0.286);
+    IntegrationTestEntity.insertSequence(4, 3, 3, SequenceType.Macro, SequenceState.Published, "trees A to B", 0.7, "D#", 0.4);
+    IntegrationTestEntity.insertSequence(5, 3, 3, SequenceType.Macro, SequenceState.Published, "trees B to A", 0.6, "F", 0.6);
+    IntegrationTestEntity.insertSequence(6, 3, 3, SequenceType.Rhythm, SequenceState.Published, "beets", 0.5, "C", 1.5);
+    IntegrationTestEntity.insertChainSequence(1, 3, 3);
+    IntegrationTestEntity.insertChainSequence(2, 3, 4);
+    IntegrationTestEntity.insertChainSequence(3, 3, 5);
+    IntegrationTestEntity.insertChainSequence(4, 3, 6);
 
     Access access = new Access(ImmutableMap.of(
       "roles", "User,Artist,Engineer",
@@ -809,7 +859,7 @@ public class ChainIT {
 
     testDAO.updateState(access, BigInteger.valueOf(3L), ChainState.Ready);
 
-    Chain result = testDAO.readOne(Access.internal(), BigInteger.valueOf(3));
+    Chain result = testDAO.readOne(Access.internal(), BigInteger.valueOf(3L));
     assertNotNull(result);
     assertEquals(ChainState.Ready, result.getState());
   }
@@ -829,25 +879,25 @@ public class ChainIT {
 
     testDAO.updateState(access, BigInteger.valueOf(3L), ChainState.Ready);
 
-    Chain result = testDAO.readOne(Access.internal(), BigInteger.valueOf(3));
+    Chain result = testDAO.readOne(Access.internal(), BigInteger.valueOf(3L));
     assertNotNull(result);
     assertEquals(ChainState.Ready, result.getState());
   }
 
 
   @Test
-  public void buildNextLinkOrComplete_chainWithLinksReadyForNextLink() throws Exception {
+  public void buildNextSegmentOrComplete_chainWithSegmentsReadyForNextSegment() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "internal"
     ));
     IntegrationTestEntity.insertChain(12, 1, "Test Print #2", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-02-14 12:03:40.000001"), Timestamp.valueOf("2014-02-14 14:03:40.000001"), null);
-    IntegrationTestEntity.insertLink(6, 12, 5, LinkState.Crafting, Timestamp.valueOf("2014-02-14 12:03:40.000001"), Timestamp.valueOf("2014-02-14 12:04:10.000001"), "E minor", 64, 0.41, 120, "chain-1-link-97898asdf7892.wav");
+    IntegrationTestEntity.insertSegment(6, 12, 5, SegmentState.Crafting, Timestamp.valueOf("2014-02-14 12:03:40.000001"), Timestamp.valueOf("2014-02-14 12:04:10.000001"), "E minor", 64, 0.41, 120.0, "chain-1-segment-97898asdf7892.wav");
 
     Chain fromChain = new Chain();
     fromChain.setId(BigInteger.valueOf(12L));
     fromChain.setStartAtTimestamp(Timestamp.valueOf("2014-02-14 12:03:40.000001"));
     fromChain.setStopAtTimestamp(Timestamp.valueOf("2014-02-14 14:03:40.000001"));
-    Link result = testDAO.buildNextLinkOrComplete(access, fromChain, Timestamp.valueOf("2014-02-14 12:03:40.000001"), Timestamp.valueOf("2014-02-14 11:53:40.000001"));
+    Segment result = testDAO.buildNextSegmentOrComplete(access, fromChain, Timestamp.valueOf("2014-02-14 12:03:40.000001"), Timestamp.valueOf("2014-02-14 11:53:40.000001"));
 
     assertNotNull(result);
     assertEquals(BigInteger.valueOf(12L), result.getChainId());
@@ -856,113 +906,113 @@ public class ChainIT {
   }
 
   @Test
-  public void buildNextLinkOrComplete_chainWithLinksReadyForNextLink_butChainIsAlreadyFull_butNotSoLongEnoughToBeComplete() throws Exception {
+  public void buildNextSegmentOrComplete_chainWithSegmentsReadyForNextSegment_butChainIsAlreadyFull_butNotSoLongEnoughToBeComplete() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "internal"
     ));
     IntegrationTestEntity.insertChain(12, 1, "Test Print #2", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-02-14 12:03:40.000001"), Timestamp.valueOf("2014-02-14 14:03:40.000001"), null);
-    IntegrationTestEntity.insertLink(6, 12, 5, LinkState.Crafting, Timestamp.valueOf("2014-02-14 14:03:15.000001"), Timestamp.valueOf("2014-02-14 14:03:45.000001"), "E minor", 64, 0.41, 120, "chain-1-link-97898asdf7892.wav");
+    IntegrationTestEntity.insertSegment(6, 12, 5, SegmentState.Crafting, Timestamp.valueOf("2014-02-14 14:03:15.000001"), Timestamp.valueOf("2014-02-14 14:03:45.000001"), "E minor", 64, 0.41, 120.0, "chain-1-segment-97898asdf7892.wav");
 
     Chain fromChain = new Chain();
     fromChain.setId(BigInteger.valueOf(12L));
     fromChain.setStopAtTimestamp(Timestamp.valueOf("2014-02-14 12:03:40.000001"));
     fromChain.setStopAtTimestamp(Timestamp.valueOf("2014-02-14 14:03:40.000001"));
-    Link result = testDAO.buildNextLinkOrComplete(access, fromChain, Timestamp.valueOf("2014-02-14 14:03:50.000001"), Timestamp.valueOf("2014-02-14 13:53:50.000001"));
+    Segment result = testDAO.buildNextSegmentOrComplete(access, fromChain, Timestamp.valueOf("2014-02-14 14:03:50.000001"), Timestamp.valueOf("2014-02-14 13:53:50.000001"));
 
     assertNull(result);
-    Chain resultFinal = testDAO.readOne(Access.internal(), BigInteger.valueOf(12));
+    Chain resultFinal = testDAO.readOne(Access.internal(), BigInteger.valueOf(12L));
     assertNotNull(resultFinal);
     assertEquals(ChainState.Fabricate, resultFinal.getState());
   }
 
   @Test
-  public void buildNextLinkOrComplete_chainWithLinksReadyForNextLink_butChainIsAlreadyFull_butLastLinkNotDubbedSoChainNotComplete() throws Exception {
+  public void buildNextSegmentOrComplete_chainWithSegmentsReadyForNextSegment_butChainIsAlreadyFull_butLastSegmentNotDubbedSoChainNotComplete() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "internal"
     ));
     IntegrationTestEntity.insertChain(12, 1, "Test Print #2", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-02-14 12:03:40.000001"), Timestamp.valueOf("2014-02-14 14:03:40.000001"), null);
-    IntegrationTestEntity.insertLink(6, 12, 5, LinkState.Dubbing, Timestamp.valueOf("2014-02-14 14:03:15.000001"), Timestamp.valueOf("2014-02-14 14:03:45.000001"), "E minor", 64, 0.41, 120, "chain-1-link-97898asdf7892.wav");
+    IntegrationTestEntity.insertSegment(6, 12, 5, SegmentState.Dubbing, Timestamp.valueOf("2014-02-14 14:03:15.000001"), Timestamp.valueOf("2014-02-14 14:03:45.000001"), "E minor", 64, 0.41, 120.0, "chain-1-segment-97898asdf7892.wav");
 
     Chain fromChain = new Chain();
     fromChain.setId(BigInteger.valueOf(12L));
     fromChain.setStartAtTimestamp(Timestamp.valueOf("2014-02-14 12:03:40.000001"));
     fromChain.setStopAtTimestamp(Timestamp.valueOf("2014-02-14 14:03:40.000001"));
-    Link result = testDAO.buildNextLinkOrComplete(access, fromChain, Timestamp.valueOf("2014-02-14 14:03:50.000001"), Timestamp.valueOf("2014-02-14 14:15:50.000001"));
+    Segment result = testDAO.buildNextSegmentOrComplete(access, fromChain, Timestamp.valueOf("2014-02-14 14:03:50.000001"), Timestamp.valueOf("2014-02-14 14:15:50.000001"));
     assertNull(result);
 
-    Chain resultFinal = testDAO.readOne(Access.internal(), BigInteger.valueOf(12));
+    Chain resultFinal = testDAO.readOne(Access.internal(), BigInteger.valueOf(12L));
     assertNotNull(resultFinal);
     assertEquals(ChainState.Fabricate, resultFinal.getState());
   }
 
   @Test
-  public void buildNextLinkOrComplete_chainWithLinksReadyForNextLink_butChainIsAlreadyFull_andGetsUpdatedToComplete() throws Exception {
+  public void buildNextSegmentOrComplete_chainWithSegmentsReadyForNextSegment_butChainIsAlreadyFull_andGetsUpdatedToComplete() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "internal"
     ));
     IntegrationTestEntity.insertChain(12, 1, "Test Print #2", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-02-14 12:03:40.000001"), Timestamp.valueOf("2014-02-14 14:03:40.000001"), null);
-    IntegrationTestEntity.insertLink(6, 12, 5, LinkState.Dubbed, Timestamp.valueOf("2014-02-14 14:03:15.000001"), Timestamp.valueOf("2014-02-14 14:03:45.000001"), "E minor", 64, 0.41, 120, "chain-1-link-97898asdf7892.wav");
+    IntegrationTestEntity.insertSegment(6, 12, 5, SegmentState.Dubbed, Timestamp.valueOf("2014-02-14 14:03:15.000001"), Timestamp.valueOf("2014-02-14 14:03:45.000001"), "E minor", 64, 0.41, 120.0, "chain-1-segment-97898asdf7892.wav");
 
     Chain fromChain = new Chain();
     fromChain.setId(BigInteger.valueOf(12L));
     fromChain.setStartAtTimestamp(Timestamp.valueOf("2014-02-14 12:03:40.000001"));
     fromChain.setStopAtTimestamp(Timestamp.valueOf("2014-02-14 14:03:40.000001"));
-    Link result = testDAO.buildNextLinkOrComplete(access, fromChain, Timestamp.valueOf("2014-02-14 14:03:50.000001"), Timestamp.valueOf("2014-02-14 14:15:50.000001"));
+    Segment result = testDAO.buildNextSegmentOrComplete(access, fromChain, Timestamp.valueOf("2014-02-14 14:03:50.000001"), Timestamp.valueOf("2014-02-14 14:15:50.000001"));
     assertNull(result);
 
-    Chain resultFinal = testDAO.readOne(Access.internal(), BigInteger.valueOf(12));
+    Chain resultFinal = testDAO.readOne(Access.internal(), BigInteger.valueOf(12L));
     assertNotNull(resultFinal);
     assertEquals(ChainState.Complete, resultFinal.getState());
   }
 
   @Test
-  public void buildNextLinkOrComplete_chainWithLinksReadyForNextLink_butChainIsAlreadyFull_butCantKnowBecauseBoundsProvidedAreNull() throws Exception {
+  public void buildNextSegmentOrComplete_chainWithSegmentsReadyForNextSegment_butChainIsAlreadyFull_butCantKnowBecauseBoundsProvidedAreNull() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "internal"
     ));
     IntegrationTestEntity.insertChain(12, 1, "Test Print #2", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-02-14 12:03:40.000001"), Timestamp.valueOf("2014-02-14 14:03:40.000001"), null);
-    IntegrationTestEntity.insertLink(6, 12, 5, LinkState.Dubbed, Timestamp.valueOf("2014-02-14 14:03:15.000001"), Timestamp.valueOf("2014-02-14 14:03:45.000001"), "E minor", 64, 0.41, 120, "chain-1-link-97898asdf7892.wav");
+    IntegrationTestEntity.insertSegment(6, 12, 5, SegmentState.Dubbed, Timestamp.valueOf("2014-02-14 14:03:15.000001"), Timestamp.valueOf("2014-02-14 14:03:45.000001"), "E minor", 64, 0.41, 120.0, "chain-1-segment-97898asdf7892.wav");
 
     Chain fromChain = new Chain();
     fromChain.setId(BigInteger.valueOf(12L));
     fromChain.setStartAtTimestamp(Timestamp.valueOf("2014-02-14 12:03:40.000001"));
-    Link result = testDAO.buildNextLinkOrComplete(access, fromChain, Timestamp.valueOf("2014-02-14 14:03:50.000001"), Timestamp.valueOf("2014-02-14 14:15:50.000001"));
+    Segment result = testDAO.buildNextSegmentOrComplete(access, fromChain, Timestamp.valueOf("2014-02-14 14:03:50.000001"), Timestamp.valueOf("2014-02-14 14:15:50.000001"));
     assertNotNull(result);
 
-    Chain resultFinal = testDAO.readOne(Access.internal(), BigInteger.valueOf(12));
+    Chain resultFinal = testDAO.readOne(Access.internal(), BigInteger.valueOf(12L));
     assertNotNull(resultFinal);
     assertEquals(ChainState.Fabricate, resultFinal.getState());
   }
 
   @Test
-  public void buildNextLinkOrComplete_chainWithLinksAlreadyHasNextLink() throws Exception {
+  public void buildNextSegmentOrComplete_chainWithSegmentsAlreadyHasNextSegment() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "internal"
     ));
-    IntegrationTestEntity.insertLink_Planned(5, 1, 4, Timestamp.valueOf("2017-02-14 12:03:08.000001"));
+    IntegrationTestEntity.insertSegment_Planned(5, 1, 4, Timestamp.valueOf("2017-02-14 12:03:08.000001"));
 
     Chain fromChain = new Chain();
     fromChain.setId(BigInteger.valueOf(1L));
     fromChain.setStartAtTimestamp(Timestamp.valueOf("2015-02-14 12:03:40.000001"));
     fromChain.setStopAt(null);
-    Link result = testDAO.buildNextLinkOrComplete(access, fromChain, Timestamp.valueOf("2014-08-12 14:03:38.000001"), Timestamp.valueOf("2014-08-12 13:53:38.000001"));
+    Segment result = testDAO.buildNextSegmentOrComplete(access, fromChain, Timestamp.valueOf("2014-08-12 14:03:38.000001"), Timestamp.valueOf("2014-08-12 13:53:38.000001"));
 
     assertNull(result);
   }
 
   @Test
-  public void buildNextLinkOrComplete_chainEndingInCraftedLink() throws Exception {
+  public void buildNextSegmentOrComplete_chainEndingInCraftedSegment() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "internal"
     ));
     IntegrationTestEntity.insertChain(12, 1, "Test Print #2", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"), null);
-    IntegrationTestEntity.insertLink(6, 12, 5, LinkState.Crafted, Timestamp.valueOf("2014-08-12 14:03:08.000001"), Timestamp.valueOf("2014-08-12 14:03:38.000001"), "A major", 64, 0.52, 120, "chain-1-link-97898asdf7892.wav");
+    IntegrationTestEntity.insertSegment(6, 12, 5, SegmentState.Crafted, Timestamp.valueOf("2014-08-12 14:03:08.000001"), Timestamp.valueOf("2014-08-12 14:03:38.000001"), "A major", 64, 0.52, 120.0, "chain-1-segment-97898asdf7892.wav");
 
     Chain fromChain = new Chain();
     fromChain.setId(BigInteger.valueOf(12L));
     fromChain.setStartAtTimestamp(Timestamp.valueOf("2014-08-12 12:17:02.527142"));
     fromChain.setStopAtTimestamp(Timestamp.valueOf("2014-09-11 12:17:01.047563"));
-    Link result = testDAO.buildNextLinkOrComplete(access, fromChain, Timestamp.valueOf("2014-08-12 14:03:38.000001"), Timestamp.valueOf("2014-08-12 13:53:38.000001"));
+    Segment result = testDAO.buildNextSegmentOrComplete(access, fromChain, Timestamp.valueOf("2014-08-12 14:03:38.000001"), Timestamp.valueOf("2014-08-12 13:53:38.000001"));
 
     assertNotNull(result);
     assertEquals(BigInteger.valueOf(12L), result.getChainId());
@@ -971,7 +1021,7 @@ public class ChainIT {
   }
 
   @Test
-  public void buildNextLinkOrComplete_newEmptyChain() throws Exception {
+  public void buildNextSegmentOrComplete_newEmptyChain() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "internal"
     ));
@@ -981,28 +1031,28 @@ public class ChainIT {
     fromChain.setId(BigInteger.valueOf(12L));
     fromChain.setStartAtTimestamp(Timestamp.valueOf("2014-08-12 12:17:02.527142"));
     fromChain.setStopAt(null);
-    Link result = testDAO.buildNextLinkOrComplete(access, fromChain, Timestamp.valueOf("2014-08-12 14:03:38.000001"), Timestamp.valueOf("2014-08-12 13:53:38.000001"));
+    Segment result = testDAO.buildNextSegmentOrComplete(access, fromChain, Timestamp.valueOf("2014-08-12 14:03:38.000001"), Timestamp.valueOf("2014-08-12 13:53:38.000001"));
 
     assertNotNull(result);
     assertEquals(BigInteger.valueOf(12L), result.getChainId());
-    assertEquals(BigInteger.valueOf(0), result.getOffset());
+    assertEquals(BigInteger.valueOf(0L), result.getOffset());
     assertEquals(Timestamp.valueOf("2014-08-12 12:17:02.527142"), result.getBeginAt());
   }
 
   @Test
-  public void delete() throws Exception {
+  public void destroy() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
 
     testDAO.destroy(access, BigInteger.valueOf(1L));
 
-    Chain result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1));
+    Chain result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1L));
     assertNull(result);
   }
 
   @Test
-  public void delete_SucceedsEvenWithChildren() throws Exception {
+  public void destroy_SucceedsEvenWithChildren() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
@@ -1013,7 +1063,7 @@ public class ChainIT {
       testDAO.destroy(access, BigInteger.valueOf(1L));
 
     } catch (Exception e) {
-      Chain result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1));
+      Chain result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1L));
       assertNotNull(result);
       throw e;
     }
@@ -1028,7 +1078,7 @@ public class ChainIT {
 
     testDAO.erase(access, BigInteger.valueOf(3L));
 
-    Chain result = testDAO.readOne(Access.internal(), BigInteger.valueOf(3));
+    Chain result = testDAO.readOne(Access.internal(), BigInteger.valueOf(3L));
     assertNotNull(result);
     assertEquals(ChainState.Erase, result.getState());
   }
@@ -1042,11 +1092,14 @@ public class ChainIT {
 
     testDAO.erase(access, BigInteger.valueOf(3L));
 
-    Chain result = testDAO.readOne(Access.internal(), BigInteger.valueOf(3));
+    Chain result = testDAO.readOne(Access.internal(), BigInteger.valueOf(3L));
     assertNotNull(result);
     assertEquals(ChainState.Erase, result.getState());
   }
 
+  /**
+   [#150279533] Engineer expects when Chain is set to erase state, its `embed_key` is set to null immediately, in order to prevent public consumption of a chain in erase state, and enable a new chain to be created immediately with that `embed_key`
+   */
   @Test
   public void erase_removesEmbedKey() throws Exception {
     IntegrationTestEntity.insertChain(3, 1, "bucket", ChainType.Production, ChainState.Complete, Timestamp.valueOf("2015-05-10 12:17:02.527142"), Timestamp.valueOf("2015-06-09 12:17:01.047563"), "play_me");
@@ -1056,7 +1109,7 @@ public class ChainIT {
 
     testDAO.erase(access, BigInteger.valueOf(3L));
 
-    Chain result = testDAO.readOne(Access.internal(), BigInteger.valueOf(3));
+    Chain result = testDAO.readOne(Access.internal(), BigInteger.valueOf(3L));
     assertNotNull(result);
     assertEquals(ChainState.Erase, result.getState());
     assertNull(result.getEmbedKey());
@@ -1071,7 +1124,7 @@ public class ChainIT {
 
     testDAO.erase(access, BigInteger.valueOf(3L));
 
-    Chain result = testDAO.readOne(Access.internal(), BigInteger.valueOf(3));
+    Chain result = testDAO.readOne(Access.internal(), BigInteger.valueOf(3L));
     assertNotNull(result);
     assertEquals(ChainState.Erase, result.getState());
   }

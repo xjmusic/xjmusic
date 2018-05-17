@@ -42,7 +42,7 @@ public class Morph extends Entity {
   }
 
   /**
-   position in beats from start of link
+   position in beats from start of segment
 
    @param position in beats
    @return morph
@@ -66,7 +66,7 @@ public class Morph extends Entity {
   }
 
   /**
-   duration in beats from start of link
+   duration in beats from start of segment
 
    @param duration in beats
    @return morph

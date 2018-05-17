@@ -20,13 +20,13 @@ public interface Config {
   Integer DEFAULT_DIGEST_CACHE_EXPIRE_MINUTES = 3;
   Integer DEFAULT_DIGEST_CACHE_REFRESH_MINUTES = 1;
   Integer DEFAULT_ENTITY_CACHE_SECONDS = 60;
-  Integer DEFAULT_GENERATION_PATTERN_PHASES_MULTIPLIER = 3;
+  Integer DEFAULT_GENERATION_SEQUENCE_PATTERNS_MULTIPLIER = 3;
   Integer DEFAULT_GENERATION_SPLICE_SAFETY_MARGIN = 1;
   Integer DEFAULT_INGEST_ACHE_SECONDS = 60;
   Integer DEFAULT_INGEST_CHORD_SEQUENCE_LENGTH_MAX = 5;
   Integer DEFAULT_INGEST_CHORD_SEQUENCE_PRESERVE_LENGTH_MIN = 2;
   Integer DEFAULT_INGEST_CHORD_SEQUENCE_REDUNDANCY_THRESHOLD = 1;
-  Integer DEFAULT_LIMIT_LINK_READ_SIZE = 20;
+  Integer DEFAULT_LIMIT_SEGMENT_READ_SIZE = 20;
   Integer DEFAULT_LOG_ACCESS_ENTITIES_MAX_SIZE = 0;
   Integer DEFAULT_PLATFORM_MESSAGE_READ_PREVIOUS_DAYS = 90;
   Integer DEFAULT_PLAY_BUFFER_AHEAD_SECONDS = 60;
@@ -172,17 +172,17 @@ public interface Config {
   }
 
   /**
-   @return Link File Bucket (for Amazon S3)
+   @return Segment File Bucket (for Amazon S3)
    */
-  static String linkFileBucket() throws ConfigException {
-    return get("link.file.bucket");
+  static String segmentFileBucket() throws ConfigException {
+    return get("segment.file.bucket");
   }
 
   /**
-   @return Links base URL (for Amazon S3)
+   @return Segments base URL (for Amazon S3)
    */
-  static String linkBaseUrl() throws ConfigException {
-    return get("link.url.base");
+  static String segmentBaseUrl() throws ConfigException {
+    return get("segment.url.base");
   }
 
   /**
@@ -416,10 +416,10 @@ public interface Config {
   }
 
   /**
-   @return Limit Link Read Size
+   @return Limit Segment Read Size
    */
-  static int limitLinkReadSize() {
-    return getIntOrDefault("limit.link.read.size", DEFAULT_LIMIT_LINK_READ_SIZE);
+  static int limitSegmentReadSize() {
+    return getIntOrDefault("limit.segment.read.size", DEFAULT_LIMIT_SEGMENT_READ_SIZE);
   }
 
   /**
@@ -665,14 +665,14 @@ public interface Config {
   }
 
   /**
-   @return multiplier of # of phases per pattern, when generating a pattern
+   @return multiplier of # of patterns per sequence, when generating a sequence
    */
-  static Integer generationPatternPhasesMultiplier() {
-    return getIntOrDefault("generation.pattern.phases.multiplier", DEFAULT_GENERATION_PATTERN_PHASES_MULTIPLIER);
+  static Integer generationSequencePatternsMultiplier() {
+    return getIntOrDefault("generation.sequence.patterns.multiplier", DEFAULT_GENERATION_SEQUENCE_PATTERNS_MULTIPLIER);
   }
 
   /**
-   @return safety margin (# beats) at beginning and end of phase during splice
+   @return safety margin (# beats) at beginning and end of pattern during splice
    */
   static Integer generationSpliceSafetyMargin() {
     return getIntOrDefault("generation.splice.safety.margin", DEFAULT_GENERATION_SPLICE_SAFETY_MARGIN);

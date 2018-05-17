@@ -2,11 +2,11 @@
 package io.xj.craft.basis;
 
 /**
- Type of Macro-Craft, depending on previous link existence and choices
+ Type of Macro-Craft, depending on previous segment existence and choices
  */
 public enum BasisType {
-  Initial, // the first macro and main patterns in the chain
-  Continue, // Main-Pattern, if has Phase remaining.
-  NextMain, // and Continue Macro-Pattern, if has 2 or more phases remaining.
-  NextMacro // such that the first phase of the next Macro-Pattern will overlap (replacing) the last phase of the current Macro-Pattern.
+  Initial, // the first macro and main sequences in the chain
+  Continue, // Main-Sequence, if has Pattern remaining.
+  NextMain, // and Continue Macro-Sequence, if has 2 or more patterns remaining.
+  NextMacro // such that the first pattern of the next Macro-Sequence will overlap (replacing) the last pattern of the current Macro-Sequence.
 }

@@ -1,0 +1,9 @@
+<!-- Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved. -->
+
+{{yield}}
+
+<div class="segment-memes">
+  {{#each model.memes as |meme|}}
+    <div class="badge badge-default meme">{{meme.name}}</div>
+  {{/each}}
+</div>

@@ -1,3 +1,5 @@
+// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+
 package io.xj.craft.basis.impl;// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
 import io.xj.core.CoreModule;
@@ -7,19 +9,19 @@ import io.xj.core.dao.AudioEventDAO;
 import io.xj.core.dao.ChainConfigDAO;
 import io.xj.core.dao.ChoiceDAO;
 import io.xj.core.dao.InstrumentMemeDAO;
-import io.xj.core.dao.LinkChordDAO;
-import io.xj.core.dao.LinkDAO;
-import io.xj.core.dao.LinkMemeDAO;
-import io.xj.core.dao.LinkMessageDAO;
+import io.xj.core.dao.SegmentChordDAO;
+import io.xj.core.dao.SegmentDAO;
+import io.xj.core.dao.SegmentMemeDAO;
+import io.xj.core.dao.SegmentMessageDAO;
+import io.xj.core.dao.SequenceDAO;
+import io.xj.core.dao.SequenceMemeDAO;
 import io.xj.core.dao.PatternDAO;
 import io.xj.core.dao.PatternMemeDAO;
-import io.xj.core.dao.PhaseDAO;
-import io.xj.core.dao.PhaseMemeDAO;
 import io.xj.core.dao.VoiceDAO;
-import io.xj.core.dao.PhaseEventDAO;
+import io.xj.core.dao.PatternEventDAO;
 import io.xj.core.model.choice.Choice;
-import io.xj.core.model.link.Link;
-import io.xj.core.model.pattern.PatternType;
+import io.xj.core.model.segment.Segment;
+import io.xj.core.model.sequence.SequenceType;
 import io.xj.core.model.pick.Pick;
 import io.xj.craft.CraftModule;
 import io.xj.craft.basis.Basis;
@@ -58,18 +60,18 @@ public class BasisImplTest {
   @Mock private AudioEventDAO audioEventDAO;
   @Mock private ChainConfigDAO chainConfigDAO;
   @Mock private ChoiceDAO choiceDAO;
+  @Mock private SequenceDAO sequenceDAO;
+  @Mock private SequenceMemeDAO sequenceMemeDAO;
+  @Mock private InstrumentMemeDAO instrumentMemeDAO;
+  @Mock private SegmentChordDAO segmentChordDAO;
+  @Mock private SegmentDAO segmentDAO;
+  @Mock private SegmentMemeDAO segmentMemeDAO;
+  @Mock private SegmentMessageDAO segmentMessageDAO;
   @Mock private PatternDAO patternDAO;
   @Mock private PatternMemeDAO patternMemeDAO;
-  @Mock private InstrumentMemeDAO instrumentMemeDAO;
-  @Mock private LinkChordDAO linkChordDAO;
-  @Mock private LinkDAO linkDAO;
-  @Mock private LinkMemeDAO linkMemeDAO;
-  @Mock private LinkMessageDAO linkMessageDAO;
-  @Mock private PhaseDAO phaseDAO;
-  @Mock private PhaseMemeDAO phaseMemeDAO;
   @Mock private Tuning tuning;
   @Mock private VoiceDAO voiceDAO;
-  @Mock private PhaseEventDAO phaseEventDAO;
+  @Mock private PatternEventDAO patternEventDAO;
   @Mock private Choice choice;
 
   @Before
@@ -94,18 +96,18 @@ public class BasisImplTest {
           bind(AudioEventDAO.class).toInstance(audioEventDAO);
           bind(ChainConfigDAO.class).toInstance(chainConfigDAO);
           bind(ChoiceDAO.class).toInstance(choiceDAO);
+          bind(SequenceDAO.class).toInstance(sequenceDAO);
+          bind(SequenceMemeDAO.class).toInstance(sequenceMemeDAO);
+          bind(InstrumentMemeDAO.class).toInstance(instrumentMemeDAO);
+          bind(SegmentChordDAO.class).toInstance(segmentChordDAO);
+          bind(SegmentDAO.class).toInstance(segmentDAO);
+          bind(SegmentMemeDAO.class).toInstance(segmentMemeDAO);
+          bind(SegmentMessageDAO.class).toInstance(segmentMessageDAO);
           bind(PatternDAO.class).toInstance(patternDAO);
           bind(PatternMemeDAO.class).toInstance(patternMemeDAO);
-          bind(InstrumentMemeDAO.class).toInstance(instrumentMemeDAO);
-          bind(LinkChordDAO.class).toInstance(linkChordDAO);
-          bind(LinkDAO.class).toInstance(linkDAO);
-          bind(LinkMemeDAO.class).toInstance(linkMemeDAO);
-          bind(LinkMessageDAO.class).toInstance(linkMessageDAO);
-          bind(PhaseDAO.class).toInstance(phaseDAO);
-          bind(PhaseMemeDAO.class).toInstance(phaseMemeDAO);
           bind(Tuning.class).toInstance(tuning);
           bind(VoiceDAO.class).toInstance(voiceDAO);
-          bind(PhaseEventDAO.class).toInstance(phaseEventDAO);
+          bind(PatternEventDAO.class).toInstance(patternEventDAO);
         }
       }));
   }
@@ -123,15 +125,15 @@ public class BasisImplTest {
   }
 
   @Test
-  public void link() throws Exception {
+  public void segment() throws Exception {
   }
 
   @Test
-  public void isInitialLink() throws Exception {
+  public void isInitialSegment() throws Exception {
   }
 
   @Test
-  public void linkId() throws Exception {
+  public void segmentId() throws Exception {
   }
 
   @Test
@@ -143,11 +145,11 @@ public class BasisImplTest {
   }
 
   @Test
-  public void linkBeginAt() throws Exception {
+  public void segmentBeginAt() throws Exception {
   }
 
   @Test
-  public void previousLink() throws Exception {
+  public void previousSegment() throws Exception {
   }
 
   @Test
@@ -179,15 +181,15 @@ public class BasisImplTest {
   }
 
   @Test
-  public void previousMacroPhase() throws Exception {
+  public void previousMacroPattern() throws Exception {
   }
 
   @Test
-  public void previousMacroNextPhase() throws Exception {
+  public void previousMacroNextPattern() throws Exception {
   }
 
   @Test
-  public void pattern() throws Exception {
+  public void sequence() throws Exception {
   }
 
   @Test
@@ -212,7 +214,7 @@ public class BasisImplTest {
 
   @Test
   public void secondsAtPosition_zero() throws Exception {
-    when(linkDAO.readOneAtChainOffset(any(), eq(BigInteger.valueOf(977)), eq(BigInteger.valueOf(1)))).thenReturn(new Link(4212)
+    when(segmentDAO.readOneAtChainOffset(any(), eq(BigInteger.valueOf(977)), eq(BigInteger.valueOf(1)))).thenReturn(new Segment(4212)
       .setOffset(BigInteger.valueOf(1))
       .setDensity(0.6)
       .setKey("F major")
@@ -222,7 +224,7 @@ public class BasisImplTest {
       .setTotal(8)
       .setBeginAt("2017-12-12 01:00:08.000000")
       .setEndAt("2017-12-12 01:00:16.000000"));
-    subject = basisFactory.createBasis(new Link(4213)
+    subject = basisFactory.createBasis(new Segment(4213)
       .setOffset(BigInteger.valueOf(2))
       .setDensity(0.6)
       .setKey("G major")
@@ -238,7 +240,7 @@ public class BasisImplTest {
 
   @Test
   public void secondsAtPosition_tempoChangeMiddle() throws Exception {
-    when(linkDAO.readOneAtChainOffset(any(), eq(BigInteger.valueOf(977)), eq(BigInteger.valueOf(1)))).thenReturn(new Link(4212)
+    when(segmentDAO.readOneAtChainOffset(any(), eq(BigInteger.valueOf(977)), eq(BigInteger.valueOf(1)))).thenReturn(new Segment(4212)
       .setOffset(BigInteger.valueOf(1))
       .setDensity(0.6)
       .setKey("F major")
@@ -248,7 +250,7 @@ public class BasisImplTest {
       .setTotal(8)
       .setBeginAt("2017-12-12 01:00:08.000000")
       .setEndAt("2017-12-12 01:00:16.000000"));
-    subject = basisFactory.createBasis(new Link(4213)
+    subject = basisFactory.createBasis(new Segment(4213)
       .setOffset(BigInteger.valueOf(2))
       .setDensity(0.6)
       .setKey("G major")
@@ -264,7 +266,7 @@ public class BasisImplTest {
 
   @Test
   public void secondsAtPosition_tempoChangeEnd() throws Exception {
-    when(linkDAO.readOneAtChainOffset(any(), eq(BigInteger.valueOf(977)), eq(BigInteger.valueOf(1)))).thenReturn(new Link(4212)
+    when(segmentDAO.readOneAtChainOffset(any(), eq(BigInteger.valueOf(977)), eq(BigInteger.valueOf(1)))).thenReturn(new Segment(4212)
       .setOffset(BigInteger.valueOf(1))
       .setDensity(0.6)
       .setKey("F major")
@@ -274,7 +276,7 @@ public class BasisImplTest {
       .setTotal(8)
       .setBeginAt("2017-12-12 01:00:08.000000")
       .setEndAt("2017-12-12 01:00:16.000000"));
-    subject = basisFactory.createBasis(new Link(4213)
+    subject = basisFactory.createBasis(new Segment(4213)
       .setOffset(BigInteger.valueOf(2))
       .setDensity(0.6)
       .setKey("G major")
@@ -289,11 +291,11 @@ public class BasisImplTest {
   }
 
   @Test
-  public void patternMemes() throws Exception {
+  public void sequenceMemes() throws Exception {
   }
 
   @Test
-  public void phaseEvents() throws Exception {
+  public void patternEvents() throws Exception {
   }
 
   @Test
@@ -305,28 +307,28 @@ public class BasisImplTest {
   }
 
   @Test
-  public void linkAudio() throws Exception {
+  public void segmentAudio() throws Exception {
   }
 
   @Test
-  public void linkAudios() throws Exception {
+  public void segmentAudios() throws Exception {
   }
 
   @Test
-  public void linkAudioIds() throws Exception {
+  public void segmentAudioIds() throws Exception {
   }
 
   @Test
-  public void linkChords() throws Exception {
+  public void segmentChords() throws Exception {
   }
 
   @Test
-  public void linkMemes() throws Exception {
+  public void segmentMemes() throws Exception {
   }
 
   @Test
   public void pick_returned_by_picks() throws Exception {
-    subject = basisFactory.createBasis(new Link());
+    subject = basisFactory.createBasis(new Segment());
     subject.pick(new Pick()
       .setArrangementId(BigInteger.valueOf(1234))
       .setAudioId(BigInteger.valueOf(78874))
@@ -346,29 +348,29 @@ public class BasisImplTest {
   }
 
   @Test
-  public void linkTotalLength() throws Exception {
+  public void segmentTotalLength() throws Exception {
   }
 
   @Test
-  public void linkMeme() throws Exception {
+  public void segmentMeme() throws Exception {
   }
 
   @Test
-  public void phaseMemes() throws Exception {
+  public void patternMemes() throws Exception {
   }
 
   @Test
-  public void phaseByOffset() throws Exception {
+  public void patternByOffset() throws Exception {
   }
 
   @Test
-  public void linkByOffset() throws Exception {
+  public void segmentByOffset() throws Exception {
   }
 
   @Test
-  public void linkChoiceByType() throws Exception {
-    when(choiceDAO.readOneLinkTypeWithAvailablePhaseOffsets(any(), eq(BigInteger.valueOf(123)), eq(PatternType.Rhythm))).thenReturn(choice);
-    subject = basisFactory.createBasis(new Link(4213)
+  public void segmentChoiceByType() throws Exception {
+    when(choiceDAO.readOneSegmentTypeWithAvailablePatternOffsets(any(), eq(BigInteger.valueOf(123)), eq(SequenceType.Rhythm))).thenReturn(choice);
+    subject = basisFactory.createBasis(new Segment(4213)
       .setOffset(BigInteger.valueOf(2))
       .setDensity(0.6)
       .setKey("G major")
@@ -379,15 +381,15 @@ public class BasisImplTest {
       .setBeginAt("2017-12-12 01:00:16.000000")
       .setEndAt("2017-12-12 01:00:22.000000"));
 
-    Choice result = subject.linkChoiceByType(BigInteger.valueOf(123), PatternType.Rhythm);
+    Choice result = subject.segmentChoiceByType(BigInteger.valueOf(123), SequenceType.Rhythm);
     assertNotNull(result);
     assertEquals(choice, result);
   }
 
   @Test
-  public void linkChoiceByType_nullPassesThrough() throws Exception {
-    when(choiceDAO.readOneLinkTypeWithAvailablePhaseOffsets(any(), eq(BigInteger.valueOf(123)), eq(PatternType.Rhythm))).thenReturn(null);
-    subject = basisFactory.createBasis(new Link(4213)
+  public void segmentChoiceByType_nullPassesThrough() throws Exception {
+    when(choiceDAO.readOneSegmentTypeWithAvailablePatternOffsets(any(), eq(BigInteger.valueOf(123)), eq(SequenceType.Rhythm))).thenReturn(null);
+    subject = basisFactory.createBasis(new Segment(4213)
       .setOffset(BigInteger.valueOf(2))
       .setDensity(0.6)
       .setKey("G major")
@@ -398,7 +400,7 @@ public class BasisImplTest {
       .setBeginAt("2017-12-12 01:00:16.000000")
       .setEndAt("2017-12-12 01:00:22.000000"));
 
-    Choice result = subject.linkChoiceByType(BigInteger.valueOf(123), PatternType.Rhythm);
+    Choice result = subject.segmentChoiceByType(BigInteger.valueOf(123), SequenceType.Rhythm);
     assertNull(result);
   }
 
@@ -407,7 +409,7 @@ public class BasisImplTest {
   }
 
   @Test
-  public void updateLink() throws Exception {
+  public void updateSegment() throws Exception {
   }
 
   @Test

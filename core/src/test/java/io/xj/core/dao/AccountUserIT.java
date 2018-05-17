@@ -61,14 +61,14 @@ public class AccountUserIT {
     ));
     IntegrationTestEntity.insertUser(5, "Jim", "jim@email.com", "http://pictures.com/jim.gif");
     AccountUser inputData = new AccountUser()
-      .setAccountId(BigInteger.valueOf(1))
-      .setUserId(BigInteger.valueOf(5));
+      .setAccountId(BigInteger.valueOf(1L))
+      .setUserId(BigInteger.valueOf(5L));
 
     AccountUser result = testDAO.create(access, inputData);
 
     assertNotNull(result);
-    assertEquals(BigInteger.valueOf(1), result.getAccountId());
-    assertEquals(BigInteger.valueOf(5), result.getUserId());
+    assertEquals(BigInteger.valueOf(1L), result.getAccountId());
+    assertEquals(BigInteger.valueOf(5L), result.getUserId());
   }
 
   @Test(expected = BusinessException.class)
@@ -77,8 +77,8 @@ public class AccountUserIT {
       "roles", "Admin"
     ));
     AccountUser inputData = new AccountUser()
-      .setAccountId(BigInteger.valueOf(1))
-      .setUserId(BigInteger.valueOf(2));
+      .setAccountId(BigInteger.valueOf(1L))
+      .setUserId(BigInteger.valueOf(2L));
 
     testDAO.create(access, inputData);
   }
@@ -89,8 +89,8 @@ public class AccountUserIT {
       "roles", "User"
     ));
     AccountUser inputData = new AccountUser()
-      .setAccountId(BigInteger.valueOf(1))
-      .setUserId(BigInteger.valueOf(2));
+      .setAccountId(BigInteger.valueOf(1L))
+      .setUserId(BigInteger.valueOf(2L));
 
     testDAO.create(access, inputData);
   }
@@ -101,7 +101,7 @@ public class AccountUserIT {
       "roles", "Admin"
     ));
     AccountUser inputData = new AccountUser()
-      .setUserId(BigInteger.valueOf(2));
+      .setUserId(BigInteger.valueOf(2L));
 
     testDAO.create(access, inputData);
   }
@@ -112,7 +112,7 @@ public class AccountUserIT {
       "roles", "Admin"
     ));
     AccountUser inputData = new AccountUser()
-      .setAccountId(BigInteger.valueOf(1));
+      .setAccountId(BigInteger.valueOf(1L));
 
     testDAO.create(access, inputData);
   }
@@ -124,12 +124,12 @@ public class AccountUserIT {
       "accounts", "1"
     ));
 
-    AccountUser result = testDAO.readOne(access, BigInteger.valueOf(1));
+    AccountUser result = testDAO.readOne(access, BigInteger.valueOf(1L));
 
     assertNotNull(result);
-    assertEquals(BigInteger.valueOf(1), result.getId());
-    assertEquals(BigInteger.valueOf(1), result.getAccountId());
-    assertEquals(BigInteger.valueOf(2), result.getUserId());
+    assertEquals(BigInteger.valueOf(1L), result.getId());
+    assertEquals(BigInteger.valueOf(1L), result.getAccountId());
+    assertEquals(BigInteger.valueOf(2L), result.getUserId());
   }
 
   @Test
@@ -139,7 +139,7 @@ public class AccountUserIT {
       "accounts", "326"
     ));
 
-    AccountUser result = testDAO.readOne(access, BigInteger.valueOf(1));
+    AccountUser result = testDAO.readOne(access, BigInteger.valueOf(1L));
 
     assertNull(result);
   }
@@ -150,10 +150,10 @@ public class AccountUserIT {
       "roles", "Admin"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1))));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1L))));
 
     assertNotNull(result);
-    assertEquals(2, result.length());
+    assertEquals(2L, (long) result.length());
     JSONObject result1 = (JSONObject) result.get(0);
     assertEquals(2, result1.get("userId"));
     JSONObject result2 = (JSONObject) result.get(1);
@@ -167,10 +167,10 @@ public class AccountUserIT {
       "accounts", "1"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1))));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1L))));
 
     assertNotNull(result);
-    assertEquals(2, result.length());
+    assertEquals(2L, (long) result.length());
     JSONObject result1 = (JSONObject) result.get(0);
     assertEquals(2, result1.get("userId"));
     JSONObject result2 = (JSONObject) result.get(1);
@@ -184,10 +184,10 @@ public class AccountUserIT {
       "accounts", "345"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1))));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1L))));
 
     assertNotNull(result);
-    assertEquals(0, result.length());
+    assertEquals(0L, (long) result.length());
   }
 
   @Test
@@ -196,9 +196,9 @@ public class AccountUserIT {
       "roles", "Admin"
     ));
 
-    testDAO.destroy(access, BigInteger.valueOf(1));
+    testDAO.destroy(access, BigInteger.valueOf(1L));
 
-    AccountUser result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1));
+    AccountUser result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1L));
     assertNull(result);
   }
 
@@ -208,6 +208,6 @@ public class AccountUserIT {
       "roles", "User"
     ));
 
-    testDAO.destroy(access, BigInteger.valueOf(1));
+    testDAO.destroy(access, BigInteger.valueOf(1L));
   }
 }

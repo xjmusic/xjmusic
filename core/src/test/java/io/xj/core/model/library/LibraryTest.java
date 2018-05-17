@@ -16,7 +16,7 @@ public class LibraryTest {
   @Test
   public void validate() throws Exception {
     new Library()
-      .setAccountId(BigInteger.valueOf(562))
+      .setAccountId(BigInteger.valueOf(562L))
       .setName("Mic Check One Two")
       .validate();
   }
@@ -37,7 +37,7 @@ public class LibraryTest {
     failure.expectMessage("Name is required");
 
     new Library()
-      .setAccountId(BigInteger.valueOf(562))
+      .setAccountId(BigInteger.valueOf(562L))
       .validate();
   }
 

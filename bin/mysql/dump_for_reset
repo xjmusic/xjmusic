@@ -16,7 +16,7 @@ USAGE="
 # Connect as root
 MYSQL_USER="root"
 MYSQL_PORT=3300
-MYSQL_TABLES="account account_user audio audio_chord audio_event instrument instrument_meme library pattern pattern_meme phase phase_chord phase_meme schema_version user user_role voice voice_event"
+MYSQL_TABLES="account account_user audio audio_chord audio_event instrument instrument_meme library sequence sequence_meme pattern pattern_chord pattern_meme pattern_event schema_version user user_role voice"
 
 # Find MySQL executable
 MYSQLDUMP_COMMAND=mysqldump

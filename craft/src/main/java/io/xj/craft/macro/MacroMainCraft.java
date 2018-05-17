@@ -4,13 +4,13 @@ package io.xj.craft.macro;
 import io.xj.core.exception.BusinessException;
 
 /**
- [#138] Foundation craft for Initial Link of a Chain
- [#214] If a Chain has Patterns associated with it directly, prefer those choices to any in the Library
+ [#138] Foundation craft for Initial Segment of a Chain
+ [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
  */
 public interface MacroMainCraft {
 
   /**
-   perform macro craft for the current link
+   perform macro craft for the current segment
    */
   void doWork() throws BusinessException;
 

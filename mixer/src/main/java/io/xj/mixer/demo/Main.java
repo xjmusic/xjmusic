@@ -55,7 +55,7 @@ public class Main {
     clhat
   };
 
-  private static final String[] demoPattern = new String[]{
+  private static final String[] demoSequence = new String[]{
     kick2,
     marac,
     clhat,
@@ -101,8 +101,8 @@ public class Main {
 
     // setup the music
     for (int n = 0; n < loopTimes; n++) {
-      for (int s = 0; s < demoPattern.length; s++) {
-        demoMixer.put(demoPattern[s], atMicros(n, s), atMicros(n, s + 3), 1.0, 1.0, 0);
+      for (int s = 0; s < demoSequence.length; s++) {
+        demoMixer.put(demoSequence[s], atMicros(n, s), atMicros(n, s + 3), 1.0, 1.0, 0);
       }
     }
 
@@ -119,7 +119,7 @@ public class Main {
   }
 
   private static Duration loopLength() {
-    return step.multipliedBy(demoPattern.length);
+    return step.multipliedBy(demoSequence.length);
   }
 
 }

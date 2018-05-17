@@ -96,4 +96,36 @@ public class TextTest extends Mockito {
     assertEquals("", Text.formatStackTrace(null));
   }
 
+  @Test
+  public void toProper() {
+    assertEquals("Jammy biscuit", Text.toProper("jaMMy bISCUIT"));
+    assertEquals("Jammy", Text.toProper("jaMMy"));
+    assertEquals("J#mmy", Text.toProper("j#MMy"));
+    assertEquals("%&(#", Text.toProper("%&(#"));
+  }
+
+  @Test
+  public void toScored() {
+    assertEquals("HAMMY_jaMMy", Text.toScored("HAMMY jaMMy"));
+    assertEquals("jaMMy", Text.toScored("jaMMy"));
+    assertEquals("jaM_42", Text.toScored("jaM &&$ 42"));
+    assertEquals("jaM_42", Text.toScored("  ## jaM &&$ 42"));
+    assertEquals("jaM_42", Text.toScored("jaM &&$ 42 !!!!"));
+    assertEquals("HAMMY_jaMMy_bunbuns", Text.toScored("HAMMY $%& jaMMy bun%buns"));
+    assertEquals("p", Text.toScored("%&(#p"));
+    assertEquals("", Text.toScored("%&(#"));
+  }
+
+  @Test
+  public void isInteger() {
+    assertEquals(false, Text.isInteger("a"));
+    assertEquals(false, Text.isInteger("125a"));
+    assertEquals(true, Text.isInteger("377"));
+    assertEquals(false, Text.isInteger("237.1"));
+    assertEquals(true, Text.isInteger("100000045"));
+    assertEquals(false, Text.isInteger(" 97"));
+    assertEquals(false, Text.isInteger(" 27773"));
+    assertEquals(true, Text.isInteger("32"));
+  }
+
 }

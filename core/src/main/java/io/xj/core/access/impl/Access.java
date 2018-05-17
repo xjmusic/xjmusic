@@ -13,6 +13,7 @@ import io.xj.core.util.Text;
 
 import com.google.api.client.json.JsonFactory;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.inject.Guice;
@@ -24,11 +25,13 @@ import org.slf4j.LoggerFactory;
 import javax.ws.rs.container.ContainerRequestContext;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class Access {
   public static final String CONTEXT_KEY = "userAccess";
@@ -111,7 +114,9 @@ public class Access {
    */
   public static Access fromContext(ContainerRequestContext crc) {
     // YES it's a cast to a concrete class. Maybe future extract an interface for `Access` and implement Guice, but that seems monstrous given the 99% use case of the Access class does not trespass here.
-    return (Access) crc.getProperty(CONTEXT_KEY);
+    Access access = (Access) crc.getProperty(CONTEXT_KEY);
+    if (Objects.nonNull(access)) return access;
+    else return unauthenticated();
   }
 
   /**
@@ -121,6 +126,15 @@ public class Access {
    */
   public static Access internal() {
     return new Access(ImmutableList.of(UserRoleType.Internal));
+  }
+
+  /**
+   Create an access control object for an unauthenticated access
+
+   @return access control
+   */
+  public static Access unauthenticated() {
+    return new Access(Maps.newHashMap());
   }
 
   /**
@@ -169,7 +183,7 @@ public class Access {
     Collection<UserRoleType> result = Lists.newArrayList();
 
     if (Objects.nonNull(userRoles) && !userRoles.isEmpty()) {
-      userRoles.forEach((userRole) -> result.add(userRole.getType()));
+      result = userRoles.stream().map(UserRole::getType).collect(Collectors.toList());
     }
 
     return result;
@@ -185,7 +199,7 @@ public class Access {
     Collection<UserRoleType> result = Lists.newArrayList();
 
     if (Objects.nonNull(csv) && !csv.isEmpty()) {
-      CSV.split(csv).forEach((type) -> result.add(UserRoleType.valueOf(Text.toProperSlug(type))));
+      result = CSV.split(csv).stream().map(type -> UserRoleType.valueOf(Text.toProperSlug(type))).collect(Collectors.toList());
     }
 
     return result;
@@ -201,7 +215,7 @@ public class Access {
     Collection<BigInteger> result = Lists.newArrayList();
 
     if (Objects.nonNull(accountUsers) && !accountUsers.isEmpty()) {
-      accountUsers.forEach((accountUser) -> result.add(accountUser.getAccountId()));
+      result = accountUsers.stream().map(AccountUser::getAccountId).collect(Collectors.toList());
     }
 
     return result;
@@ -217,7 +231,7 @@ public class Access {
     Collection<BigInteger> result = Lists.newArrayList();
 
     if (Objects.nonNull(csv) && !csv.isEmpty()) {
-      CSV.split(csv).forEach((id) -> result.add(new BigInteger((id))));
+      result = CSV.split(csv).stream().map(id -> new BigInteger((id))).collect(Collectors.toList());
     }
 
     return result;
@@ -242,14 +256,7 @@ public class Access {
   public boolean isAllowed(UserRoleType... matchRoles) {
     // inefficient?
 
-    for (UserRoleType matchRole : matchRoles) {
-      for (UserRoleType userRoleType : roleTypes) {
-        if (userRoleType == matchRole) {
-          return true;
-        }
-      }
-    }
-    return false;
+    return Arrays.stream(matchRoles).anyMatch(matchRole -> roleTypes.stream().anyMatch(userRoleType -> userRoleType == matchRole));
   }
 
   /**
@@ -261,14 +268,7 @@ public class Access {
   boolean isAllowed(String... matchRoles) {
     // inefficient?
 
-    for (String matchRole : matchRoles) {
-      for (UserRoleType userRoleType : roleTypes) {
-        if (userRoleType == UserRoleType.valueOf(matchRole)) {
-          return true;
-        }
-      }
-    }
-    return false;
+    return Arrays.stream(matchRoles).anyMatch(matchRole -> roleTypes.stream().anyMatch(userRoleType -> userRoleType == UserRoleType.valueOf(matchRole)));
   }
 
   /**
@@ -335,11 +335,7 @@ public class Access {
    */
   public Boolean hasAccount(BigInteger accountId) {
     if (null != accountId) {
-      for (BigInteger matchAccountId : accountIds) {
-        if (accountId.equals(matchAccountId)) {
-          return true;
-        }
-      }
+      return accountIds.stream().anyMatch(matchAccountId -> Objects.equals(accountId, matchAccountId));
     }
     return false;
   }

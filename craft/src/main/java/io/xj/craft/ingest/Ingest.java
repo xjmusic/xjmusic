@@ -1,4 +1,4 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.craft.ingest;
 
 import io.xj.core.access.impl.Access;
@@ -11,14 +11,14 @@ import io.xj.core.model.instrument.InstrumentType;
 import io.xj.core.model.instrument_meme.InstrumentMeme;
 import io.xj.core.model.library.Library;
 import io.xj.core.model.meme.Meme;
+import io.xj.core.model.sequence.Sequence;
+import io.xj.core.model.sequence.SequenceType;
+import io.xj.core.model.sequence_meme.SequenceMeme;
 import io.xj.core.model.pattern.Pattern;
 import io.xj.core.model.pattern.PatternType;
+import io.xj.core.model.pattern_chord.PatternChord;
+import io.xj.core.model.pattern_event.PatternEvent;
 import io.xj.core.model.pattern_meme.PatternMeme;
-import io.xj.core.model.phase.Phase;
-import io.xj.core.model.phase.PhaseType;
-import io.xj.core.model.phase_chord.PhaseChord;
-import io.xj.core.model.phase_event.PhaseEvent;
-import io.xj.core.model.phase_meme.PhaseMeme;
 import io.xj.core.model.voice.Voice;
 import io.xj.music.Key;
 
@@ -28,7 +28,7 @@ import java.util.Collection;
 import java.util.Map;
 
 /**
- [#154350346] Architect wants a universal Ingest Factory, to modularize graph mathematics used during craft to evaluate any combination of Library, Pattern, and Instrument for any purpose.
+ [#154350346] Architect wants a universal Ingest Factory, to modularize graph mathematics used during craft to evaluate any combination of Library, Sequence, and Instrument for any purpose.
  <p>
  # Component
  <p>
@@ -79,18 +79,18 @@ public interface Ingest {
   String KEY_MANY = "evaluations";
 
   /**
+   Get the internal map of id to sequence entities
+
+   @return map of sequence id to sequence
+   */
+  Map<BigInteger, Sequence> sequenceMap();
+
+  /**
    Get the internal map of id to pattern entities
 
    @return map of pattern id to pattern
    */
   Map<BigInteger, Pattern> patternMap();
-
-  /**
-   Get the internal map of id to phase entities
-
-   @return map of phase id to phase
-   */
-  Map<BigInteger, Phase> phaseMap();
 
   /**
    Get the internal map of id to instrument entities
@@ -100,18 +100,18 @@ public interface Ingest {
   Map<BigInteger, Instrument> instrumentMap();
 
   /**
-   Get a collection of all patterns for ingest
+   Get a collection of all sequences for ingest
 
-   @return collection of patterns
+   @return collection of sequences
    */
-  Collection<Pattern> patterns();
+  Collection<Sequence> sequences();
 
   /**
-   Get a collection of all patterns of a particular type for ingest
+   Get a collection of all sequences of a particular type for ingest
 
-   @return collection of patterns
+   @return collection of sequences
    */
-  Collection<Pattern> patterns(PatternType type);
+  Collection<Sequence> sequences(SequenceType type);
 
   /**
    Get the access with which this Ingest was instantiated.
@@ -121,12 +121,55 @@ public interface Ingest {
   Access access();
 
   /**
-   Get a Pattern by id, ideally in the original entity map, and if not, from a cached read of the DAO
+   Get a Sequence by id, ideally in the original entity map, and if not, from a cached read of the DAO
 
-   @param id of pattern to read
-   @return pattern
+   @param id of sequence to read
+   @return sequence
    */
-  Pattern pattern(BigInteger id);
+  Sequence sequence(BigInteger id);
+
+  /**
+   Get a collection of all sequence memes for ingest
+
+   @return collection of sequence memes
+   */
+  Collection<SequenceMeme> sequenceMemes();
+
+  /**
+   Get all Sequence Memes for a Sequence
+   CACHE readAll()
+
+   @param sequenceId to get sequence memes for
+   @return sequence memes
+   */
+  Collection<SequenceMeme> sequenceMemes(BigInteger sequenceId);
+
+  /**
+   Fetch all memes for a given sequence and patternOffset
+   (caches results)
+
+   @param sequenceId   to get memes for
+   @param patternOffset within sequence
+   @param patternTypes  to match
+   @return collection of sequence memes
+   @throws Exception on failure
+   */
+  Collection<Meme> sequenceAndPatternMemes(BigInteger sequenceId, BigInteger patternOffset, PatternType... patternTypes) throws Exception;
+
+  /**
+   Get a collection of all patterns for ingest
+
+   @return collection of patterns
+   */
+  Collection<Pattern> patterns();
+
+  /**
+   Get a collection of patterns for a sequence
+
+   @param sequenceId to get patterns for
+   @return collection of patterns
+   */
+  Collection<Pattern> patterns(BigInteger sequenceId);
 
   /**
    Get a collection of all pattern memes for ingest
@@ -145,83 +188,40 @@ public interface Ingest {
   Collection<PatternMeme> patternMemes(BigInteger patternId);
 
   /**
-   Fetch all memes for a given pattern and phaseOffset
-   (caches results)
-
-   @param patternId   to get memes for
-   @param phaseOffset within pattern
-   @param phaseTypes  to match
-   @return collection of pattern memes
-   @throws Exception on failure
-   */
-  Collection<Meme> patternAndPhaseMemes(BigInteger patternId, BigInteger phaseOffset, PhaseType... phaseTypes) throws Exception;
-
-  /**
-   Get a collection of all phases for ingest
-
-   @return collection of phases
-   */
-  Collection<Phase> phases();
-
-  /**
-   Get a collection of phases for a pattern
-
-   @param patternId to get phases for
-   @return collection of phases
-   */
-  Collection<Phase> phases(BigInteger patternId);
-
-  /**
-   Get a collection of all phase memes for ingest
-
-   @return collection of phase memes
-   */
-  Collection<PhaseMeme> phaseMemes();
-
-  /**
-   Get all Phase Memes for a Phase
-   CACHE readAll()
-
-   @param phaseId to get phase memes for
-   @return phase memes
-   */
-  Collection<PhaseMeme> phaseMemes(BigInteger phaseId);
-
-  /**
-   Selects one (at random) from all available phases an at offset of a pattern.
+   Selects one (at random) from all available patterns an at offset of a sequence.
    Caches the selection, so it will always return the same output for any given input.
 
-   @param patternId   of phase
-   @param phaseOffset within pattern
-   @param phaseType   to match
-   @return phase record
+   @param sequenceId   of pattern
+   @param patternOffset within sequence
+   @param patternType   to match
+   @return pattern record
    @throws Exception on failure
    */
   @Nullable
-  Phase phaseAtOffset(BigInteger patternId, BigInteger phaseOffset, PhaseType phaseType) throws Exception;
+  Pattern patternAtOffset(BigInteger sequenceId, BigInteger patternOffset, PatternType patternType) throws Exception;
 
   /**
-   Selects one (at random) from all available phases an at offset of a pattern.
+   Selects one (at random) from all available patterns an at offset of a sequence.
    DOES NOT CACHE the selection, so it will (potentially) return a different output, given the same input.
 
-   @param patternId   of phase
-   @param phaseOffset within pattern
-   @param phaseType   to match
-   @return phase record
+   @param sequenceId   of pattern
+   @param patternOffset within sequence
+   @param patternType   to match
+   @return pattern record
    @throws Exception on failure
    */
-  Phase phaseRandomAtOffset(BigInteger patternId, BigInteger phaseOffset, PhaseType phaseType) throws Exception;
+  Pattern patternRandomAtOffset(BigInteger sequenceId, BigInteger patternOffset, PatternType patternType) throws Exception;
 
   /**
-   Fetch all phases an at offset of a pattern
+   Fetch all patterns an at offset of a sequence
    (caches results)
 
-   @param patternId   of phase
-   @param phaseOffset within pattern
-   @return phase record
+   @param sequenceId   of pattern
+   @param patternOffset within sequence
+   @return pattern record
    @throws Exception on failure
    */
-  Collection<Phase> phasesAtOffset(BigInteger patternId, BigInteger phaseOffset) throws Exception;
+  Collection<Pattern> patternsAtOffset(BigInteger sequenceId, BigInteger patternOffset) throws Exception;
 
   /**
    Get a collection of all instruments for ingest
@@ -289,19 +289,19 @@ public interface Ingest {
   Collection<AudioEvent> audioEvents();
 
   /**
-   Get a collection of all PhaseChords for ingest
+   Get a collection of all PatternChords for ingest
 
-   @return collection of PhaseChords
+   @return collection of PatternChords
    */
-  Collection<PhaseChord> phaseChords();
+  Collection<PatternChord> patternChords();
 
   /**
-   Get a collection of PhaseChord for a particular Phase
+   Get a collection of PatternChord for a particular Pattern
 
-   @param phaseId to get chord for
-   @return collection of PhaseChord
+   @param patternId to get chord for
+   @return collection of PatternChord
    */
-  Collection<PhaseChord> phaseChords(BigInteger phaseId);
+  Collection<PatternChord> patternChords(BigInteger patternId);
 
   /**
    Get a collection of all Voices for ingest
@@ -311,28 +311,28 @@ public interface Ingest {
   Collection<Voice> voices();
 
   /**
-   Get a collection of Voices for a Pattern
+   Get a collection of Voices for a Sequence
 
-   @param patternId to get voices for
+   @param sequenceId to get voices for
    @return voices
    */
-  Collection<Voice> voices(BigInteger patternId);
+  Collection<Voice> voices(BigInteger sequenceId);
 
   /**
-   Get a collection of all PhaseEvents for ingest
+   Get a collection of all PatternEvents for ingest
 
-   @return collection of PhaseEvents
+   @return collection of PatternEvents
    */
-  Collection<PhaseEvent> phaseEvents();
+  Collection<PatternEvent> patternEvents();
 
   /**
-   Get a collection of PhaseEvents from a particular phase and voice
+   Get a collection of PatternEvents from a particular pattern and voice
 
-   @param phaseId to get events of
+   @param patternId to get events of
    @param voiceId to get events of
-   @return collection of PhaseEvents
+   @return collection of PatternEvents
    */
-  Collection<PhaseEvent> phaseVoiceEvents(BigInteger phaseId, BigInteger voiceId);
+  Collection<PatternEvent> patternVoiceEvents(BigInteger patternId, BigInteger voiceId);
 
   /**
    Get the internal map of id to audio entities
@@ -374,11 +374,11 @@ public interface Ingest {
   Audio audio(BigInteger id);
 
   /**
-   Get the key of any phase-- if the phase has no key, get the phase of its pattern
+   Get the key of any pattern-- if the pattern has no key, get the pattern of its sequence
 
-   @param id of phase to get key of
-   @return key of phase
+   @param id of pattern to get key of
+   @return key of pattern
    */
-  Key phaseKey(BigInteger id);
+  Key patternKey(BigInteger id);
 
 }

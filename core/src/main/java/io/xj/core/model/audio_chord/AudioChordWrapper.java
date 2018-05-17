@@ -27,6 +27,7 @@ public class AudioChordWrapper extends EntityWrapper {
 
    @throws BusinessException if invalid.
    */
+  @Override
   public AudioChord validate() throws BusinessException {
     if (this.audioChord == null) {
       throw new BusinessException("audioChord is required.");

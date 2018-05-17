@@ -17,7 +17,7 @@ public class AudioEventTest {
   @Test
   public void validate() throws Exception {
     new AudioEvent()
-      .setAudioId(BigInteger.valueOf(1235))
+      .setAudioId(BigInteger.valueOf(1235L))
       .setPosition(0.75)
       .setDuration(3.45)
       .setInflection("SMACK")
@@ -33,7 +33,7 @@ public class AudioEventTest {
     failure.expectMessage("Duration is required");
 
     new AudioEvent()
-      .setAudioId(BigInteger.valueOf(1235))
+      .setAudioId(BigInteger.valueOf(1235L))
       .setPosition(0.75)
       .setInflection("SMACK")
       .setNote("D6")
@@ -63,7 +63,7 @@ public class AudioEventTest {
     failure.expectMessage("Position is required");
 
     new AudioEvent()
-      .setAudioId(BigInteger.valueOf(1235))
+      .setAudioId(BigInteger.valueOf(1235L))
       .setDuration(3.45)
       .setInflection("SMACK")
       .setNote("D6")
@@ -78,7 +78,7 @@ public class AudioEventTest {
     failure.expectMessage("Inflection is required");
 
     new AudioEvent()
-      .setAudioId(BigInteger.valueOf(1235))
+      .setAudioId(BigInteger.valueOf(1235L))
       .setPosition(0.75)
       .setDuration(3.45)
       .setNote("D6")
@@ -93,7 +93,7 @@ public class AudioEventTest {
     failure.expectMessage("Note is required");
 
     new AudioEvent()
-      .setAudioId(BigInteger.valueOf(1235))
+      .setAudioId(BigInteger.valueOf(1235L))
       .setPosition(0.75)
       .setDuration(3.45)
       .setInflection("SMACK")
@@ -108,7 +108,7 @@ public class AudioEventTest {
     failure.expectMessage("Tonality is required");
 
     new AudioEvent()
-      .setAudioId(BigInteger.valueOf(1235))
+      .setAudioId(BigInteger.valueOf(1235L))
       .setPosition(0.75)
       .setDuration(3.45)
       .setInflection("SMACK")
@@ -123,7 +123,7 @@ public class AudioEventTest {
     failure.expectMessage("Velocity is required");
 
     new AudioEvent()
-      .setAudioId(BigInteger.valueOf(1235))
+      .setAudioId(BigInteger.valueOf(1235L))
       .setPosition(0.75)
       .setDuration(3.45)
       .setInflection("SMACK")

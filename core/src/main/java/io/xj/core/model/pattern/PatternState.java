@@ -15,7 +15,7 @@ public enum PatternState {
   /**
    cast string to enum
    <p>
-   FUTURE: Pattern can be created in draft state, then published
+   FUTURE: Sequence can be created in draft state, then published
    </p>
 
    @param value to cast to enum

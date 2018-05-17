@@ -37,7 +37,7 @@ public class Audio extends Entity {
   }
 
   public Audio(int id) {
-    this.id = BigInteger.valueOf(id);
+    this.id = BigInteger.valueOf((long) id);
   }
 
   public Audio(BigInteger id) {

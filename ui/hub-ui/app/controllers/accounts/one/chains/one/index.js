@@ -6,8 +6,8 @@ import Controller from '@ember/controller';
 export default Controller.extend({
 
   /**
-   Inject: chain-link player service, implemented directly by the template in order to
-   [#279] Now-playing Chain or Link appears highlighted
+   Inject: chain-segment player service, implemented directly by the template in order to
+   [#279] Now-playing Chain or Segment appears highlighted
    */
   player: service(),
 

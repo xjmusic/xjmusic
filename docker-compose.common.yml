@@ -5,7 +5,7 @@ services:
   xj:
     volumes:
       - .:/var/app/current
-      - ./log:/var/app-log
+      - ./log:/var/log
 
   runner:
     extends: xj

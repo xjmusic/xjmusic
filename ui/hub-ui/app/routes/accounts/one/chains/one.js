@@ -9,7 +9,7 @@ export default Route.extend({
   // Inject: flash message service
   display: service(),
 
-  // Inject: chain-link player service
+  // Inject: chain-segment player service
   player: service(),
 
   /**
@@ -18,6 +18,9 @@ export default Route.extend({
   actions: {
     play(chain) {
       this.get('player').play(chain, null);
+    },
+    stop() {
+      this.get('player').stop();
     }
   },
 

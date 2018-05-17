@@ -1,0 +1,35 @@
+<!-- Parent (Section) -->
+<div class="form-group row">
+  <label class="col-sm-2 control-label">Pattern</label>
+  <div class="col-sm-10">
+    <div class="readonly-field">{{model.pattern.name}}@{{model.pattern.offset}}</div>
+  </div>
+</div>
+
+<!-- Type -->
+<div class="form-group row">
+  <label class="col-sm-2 control-label">Type</label>
+  <div class="col-sm-10">
+    <select class="form-control" onchange={{action "selectVoiceType" value="target.value"}} title="Type">
+      {{#if config.voiceTypes}}
+        {{#each config.voiceTypes as |type|}}
+          <option value={{type}} selected={{eq model.type type}}>{{type}}</option>
+        {{/each}}
+      {{else}}
+        <option value={{model.type}} selected>{{model.type}}</option>
+      {{/if}}
+    </select>
+    <!--input type="text" value=model.type class="form-control" autofocus="autofocus"
+            placeholder="The type of the Chain"}} -->
+  </div>
+</div>
+
+
+<!-- Description -->
+<div class="form-group row">
+  <label class="col-sm-2 control-label">Description</label>
+  <div class="col-sm-10">
+    {{input type="text" value=model.description class="form-control" autofocus="autofocus"
+            placeholder="The description of the Voice"}}
+  </div>
+</div>

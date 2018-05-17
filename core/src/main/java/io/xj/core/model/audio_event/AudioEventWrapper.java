@@ -27,6 +27,7 @@ public class AudioEventWrapper extends EntityWrapper {
 
    @throws BusinessException if invalid.
    */
+  @Override
   public AudioEvent validate() throws BusinessException {
     if (this.audioEvent == null) {
       throw new BusinessException("audioEvent is required.");

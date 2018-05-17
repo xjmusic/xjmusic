@@ -4,24 +4,22 @@ package io.xj.worker.job;
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
 import io.xj.core.app.App;
+import io.xj.core.dao.PatternChordDAO;
 import io.xj.core.dao.PatternDAO;
 import io.xj.core.dao.PatternMemeDAO;
-import io.xj.core.dao.PhaseDAO;
-import io.xj.core.dao.VoiceDAO;
-import io.xj.core.dao.PhaseEventDAO;
+import io.xj.core.dao.PatternEventDAO;
 import io.xj.core.external.amazon.AmazonProvider;
 import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.model.instrument.InstrumentType;
+import io.xj.core.model.sequence.SequenceState;
+import io.xj.core.model.sequence.SequenceType;
 import io.xj.core.model.pattern.Pattern;
 import io.xj.core.model.pattern.PatternState;
 import io.xj.core.model.pattern.PatternType;
+import io.xj.core.model.pattern_chord.PatternChord;
 import io.xj.core.model.pattern_meme.PatternMeme;
-import io.xj.core.model.phase.Phase;
-import io.xj.core.model.phase.PhaseState;
-import io.xj.core.model.phase.PhaseType;
 import io.xj.core.model.user_role.UserRoleType;
-import io.xj.core.model.voice.Voice;
-import io.xj.core.model.phase_event.PhaseEvent;
+import io.xj.core.model.pattern_event.PatternEvent;
 import io.xj.core.work.WorkManager;
 import io.xj.craft.CraftModule;
 import io.xj.dub.DubModule;
@@ -49,14 +47,10 @@ import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PatternCloneJobIT {
-  private static final int TEST_DURATION_SECONDS = 2; // FUTURE: asynchronously listen for completion conditions
+  private static final int TEST_DURATION_SECONDS = 2;
   private static final int MILLIS_PER_SECOND = 1000;
   @Spy final WorkManager workManager = Guice.createInjector(new CoreModule()).getInstance(WorkManager.class);
   @Rule public ExpectedException failure = ExpectedException.none();
@@ -72,7 +66,7 @@ public class PatternCloneJobIT {
     createInjector();
 
     // configs
-    System.setProperty("phase.file.bucket", "xj-phase-test");
+    System.setProperty("pattern.file.bucket", "xj-pattern-test");
 
     // Account "pilots"
     IntegrationTestEntity.insertAccount(1, "pilots");
@@ -90,27 +84,33 @@ public class PatternCloneJobIT {
     IntegrationTestEntity.insertLibrary(2, 1, "house");
     IntegrationTestEntity.insertLibrary(42, 1, "pajamas");
 
-    // Pattern "808" and "2020"
-    IntegrationTestEntity.insertPattern(1, 2, 2, PatternType.Rhythm, PatternState.Published, "808 Drums", 0.9, "C", 120);
-    IntegrationTestEntity.insertPatternMeme(1, 1, "heavy");
+    // Sequence "808" and "2020"
+    IntegrationTestEntity.insertSequence(1, 2, 2, SequenceType.Rhythm, SequenceState.Published, "808 Drums", 0.9, "G", 120);
+    IntegrationTestEntity.insertSequenceMeme(1, 1, "heavy");
     IntegrationTestEntity.insertVoice(1, 1, InstrumentType.Percussive, "Kick Drum");
     IntegrationTestEntity.insertVoice(2, 1, InstrumentType.Percussive, "Snare Drum");
-    IntegrationTestEntity.insertPattern(12, 2, 42, PatternType.Rhythm, PatternState.Published, "2020 Drums", 0.9, "G", 120);
+    IntegrationTestEntity.insertSequence(12, 2, 42, SequenceType.Rhythm, SequenceState.Published, "2020 Drums", 0.9, "G", 120);
+    IntegrationTestEntity.insertVoice(3, 12, InstrumentType.Percussive, "Kack Dram");
+    IntegrationTestEntity.insertVoice(4, 12, InstrumentType.Percussive, "Snarr Dram");
 
-    // Phase
-    IntegrationTestEntity.insertPhase(1, 1, PhaseType.Loop, PhaseState.Published, 0, 16, "Verse 1", 0.5, "C", 120.0);
-    IntegrationTestEntity.insertPhaseChord(1, 1, 0, "Db7");
-    IntegrationTestEntity.insertPhaseEvent(101, 1, 1, 0.0, 1.0, "KICK", "C5", 1.0, 1.0);
-    IntegrationTestEntity.insertPhaseEvent(102, 1, 2, 1.0, 1.0, "SNARE", "C5", 1.0, 1.0);
+    // Pattern "Verse"
+    IntegrationTestEntity.insertPattern(1, 1, PatternType.Loop, PatternState.Published, 0, 16, "Verse 1", 0.5, "G", 120);
+    IntegrationTestEntity.insertPatternMeme(1, 1, "GREEN");
+    IntegrationTestEntity.insertPatternChord(1, 1, 0, "Db7");
+    IntegrationTestEntity.insertPatternEvent(101, 1, 1, 0.0, 1.0, "KICK", "C5", 1.0, 1.0);
+    IntegrationTestEntity.insertPatternEvent(102, 1, 2, 1.0, 1.0, "SNARE", "C5", 1.0, 1.0);
 
-    // Phase
-    IntegrationTestEntity.insertPhase(2, 1, PhaseType.Loop, PhaseState.Published, 1, 16, "Verse 2", 0.5, "C", 120.0);
-    IntegrationTestEntity.insertPhaseChord(2, 2, 0, "Gm9");
-    IntegrationTestEntity.insertPhaseEvent(103, 2, 1, 0.0, 1.0, "KICK", "C5", 1.0, 1.0);
-    IntegrationTestEntity.insertPhaseEvent(104, 2, 2, 1.0, 1.0, "SNARE", "C5", 1.0, 1.0);
 
-    // Newly cloned pattern -- awaiting PatternClone job to run, and create its child entities
-    IntegrationTestEntity.insertPattern(14, 2, 42, PatternType.Rhythm, PatternState.Published, "808 Drums Clone Y'all", 0.9, "D", 120);
+    // Pattern "Verse"
+    IntegrationTestEntity.insertPattern(2, 1, PatternType.Loop, PatternState.Published, 0, 16, "Verse 2", 0.5, "G", 120);
+    IntegrationTestEntity.insertPatternMeme(2, 2, "YELLOW");
+    IntegrationTestEntity.insertPatternChord(2, 2, 0, "Gm9");
+    IntegrationTestEntity.insertPatternEvent(103, 2, 1, 0.0, 1.0, "KICK", "C5", 1.0, 1.0);
+    IntegrationTestEntity.insertPatternEvent(104, 2, 2, 1.0, 1.0, "SNARE", "C5", 1.0, 1.0);
+
+    // Newly cloned patterns -- awaiting PatternClone job to run, and create their child entities
+    IntegrationTestEntity.insertPattern(3, 1, PatternType.Loop, PatternState.Published, 0, 16, "Verse 34", 0.5, "G", 120);
+    IntegrationTestEntity.insertPattern(4, 12, PatternType.Loop, PatternState.Published, 0, 16, "Verse 79", 0.5, "G", 120);
 
     // Don't sleep between processing work
     System.setProperty("app.port", "9043");
@@ -140,50 +140,53 @@ public class PatternCloneJobIT {
     app = null;
     injector = null;
 
-    System.clearProperty("link.file.bucket");
-    System.clearProperty("phase.file.bucket");
+    System.clearProperty("segment.file.bucket");
+    System.clearProperty("pattern.file.bucket");
   }
 
   /**
-   [#294] Cloneworker finds Links and Phase in deleted state and actually deletes the records, child entities and S3 objects
+   [#294] Cloneworker finds Segments and Pattern in deleted state and actually deletes the records, child entities and S3 objects
    */
   @Test
   public void runWorker() throws Exception {
-    when(amazonProvider.generateKey(any(), any())).thenReturn("superAwesomeKey123");
-
     app.start();
-    app.getWorkManager().doPatternClone(BigInteger.valueOf(1), BigInteger.valueOf(14));
+    app.getWorkManager().doPatternClone(BigInteger.valueOf(1), BigInteger.valueOf(3));
+    app.getWorkManager().doPatternClone(BigInteger.valueOf(2), BigInteger.valueOf(4));
 
     Thread.sleep(TEST_DURATION_SECONDS * MILLIS_PER_SECOND);
     app.stop();
 
-    // Verify existence of cloned pattern
-    Pattern resultPattern = injector.getInstance(PatternDAO.class).readOne(Access.internal(), BigInteger.valueOf(14));
-    assertNotNull(resultPattern);
+    // Verify existence of cloned patterns
+    Pattern resultOne = injector.getInstance(PatternDAO.class).readOne(Access.internal(), BigInteger.valueOf(3));
+    Pattern resultTwo = injector.getInstance(PatternDAO.class).readOne(Access.internal(), BigInteger.valueOf(4));
+    assertNotNull(resultOne);
+    assertNotNull(resultTwo);
 
-    // Verify existence of cloned memes
-    Collection<PatternMeme> resultMemes = injector.getInstance(PatternMemeDAO.class).readAll(Access.internal(), ImmutableList.of(resultPattern.getId()));
-    assertEquals(1, resultMemes.size());
+    // Verify existence of children of cloned pattern #1
+    Collection<PatternMeme> memesOne = injector.getInstance(PatternMemeDAO.class).readAll(Access.internal(), ImmutableList.of(resultOne.getId()));
+    Collection<PatternChord> chordsOne = injector.getInstance(PatternChordDAO.class).readAll(Access.internal(), ImmutableList.of(resultOne.getId()));
+    Collection<PatternEvent> eventsOne = injector.getInstance(PatternEventDAO.class).readAll(Access.internal(), ImmutableList.of(resultOne.getId()));
+    assertEquals(1, memesOne.size());
+    assertEquals(1, chordsOne.size());
+    assertEquals(2, eventsOne.size());
+    PatternMeme memeOne = memesOne.iterator().next();
+    assertEquals("Green", memeOne.getName());
+    PatternChord chordOne = chordsOne.iterator().next();
+    assertEquals(0, chordOne.getPosition(), 0.01);
+    assertEquals("Db7", chordOne.getName());
 
-    // Verify existence of cloned phases
-    Collection<Phase> resultPhases = injector.getInstance(PhaseDAO.class).readAll(Access.internal(), ImmutableList.of(resultPattern.getId()));
-    assertEquals(2, resultPhases.size());
-    for (Phase resultPhase : resultPhases) {
-      Collection<PhaseEvent> resultPhaseEvents = injector.getInstance(PhaseEventDAO.class).readAll(Access.internal(), ImmutableList.of(resultPhase.getId()));
-      assertEquals(2, resultPhaseEvents.size());
-    }
-
-    // Verify existence of cloned voices
-    Collection<Voice> resultVoices = injector.getInstance(VoiceDAO.class).readAll(Access.internal(), ImmutableList.of(resultPattern.getId()));
-    assertEquals(2, resultVoices.size());
-    for (Voice resultVoice : resultVoices) {
-      Collection<PhaseEvent> resultPhaseEvents = injector.getInstance(PhaseEventDAO.class).readAllOfVoice(Access.internal(), resultVoice.getId());
-      assertEquals(2, resultPhaseEvents.size());
-    }
-
-    // Verify enqueued phase clone jobs
-    verify(workManager).doPhaseClone(eq(BigInteger.valueOf(1)), any());
-    verify(workManager).doPhaseClone(eq(BigInteger.valueOf(2)), any());
+    // Verify existence of children of cloned pattern #2
+    Collection<PatternMeme> memesTwo = injector.getInstance(PatternMemeDAO.class).readAll(Access.internal(), ImmutableList.of(resultTwo.getId()));
+    Collection<PatternChord> chordsTwo = injector.getInstance(PatternChordDAO.class).readAll(Access.internal(), ImmutableList.of(resultTwo.getId()));
+    Collection<PatternEvent> eventsTwo = injector.getInstance(PatternEventDAO.class).readAll(Access.internal(), ImmutableList.of(resultTwo.getId()));
+    assertEquals(1, memesTwo.size());
+    assertEquals(1, chordsTwo.size());
+    assertEquals(2, eventsTwo.size());
+    PatternMeme memeTwo = memesTwo.iterator().next();
+    assertEquals("Yellow", memeTwo.getName());
+    PatternChord chordTwo = chordsTwo.iterator().next();
+    assertEquals(0, chordTwo.getPosition(), 0.01);
+    assertEquals("Gm9", chordTwo.getName());
   }
 
 }

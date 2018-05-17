@@ -2,11 +2,11 @@
 import DS from 'ember-data';
 
 export default DS.Model.extend({
-  link: DS.belongsTo({}),
-  phaseOffset: DS.attr('number'),
+  segment: DS.belongsTo({}),
+  patternOffset: DS.attr('number'),
   transpose: DS.attr('number'),
   type: DS.attr('string'),
-  pattern: DS.belongsTo({}),
+  sequence: DS.belongsTo({}),
   arrangements: DS.hasMany('arrangement'),
 });
 

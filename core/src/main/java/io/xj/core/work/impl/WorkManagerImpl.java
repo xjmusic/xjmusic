@@ -5,14 +5,15 @@ import io.xj.core.access.impl.Access;
 import io.xj.core.config.Config;
 import io.xj.core.dao.AudioDAO;
 import io.xj.core.dao.ChainDAO;
+import io.xj.core.dao.SequenceDAO;
 import io.xj.core.dao.PatternDAO;
-import io.xj.core.dao.PhaseDAO;
 import io.xj.core.dao.PlatformMessageDAO;
 import io.xj.core.model.audio.AudioState;
 import io.xj.core.model.chain.ChainState;
+import io.xj.core.model.entity.Entity;
 import io.xj.core.model.message.MessageType;
+import io.xj.core.model.sequence.SequenceState;
 import io.xj.core.model.pattern.PatternState;
-import io.xj.core.model.phase.PhaseState;
 import io.xj.core.model.platform_message.PlatformMessage;
 import io.xj.core.model.work.Work;
 import io.xj.core.model.work.WorkState;
@@ -36,6 +37,7 @@ import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class WorkManagerImpl implements WorkManager {
   private static final Logger log = LoggerFactory.getLogger(WorkManagerImpl.class);
@@ -46,22 +48,22 @@ public class WorkManagerImpl implements WorkManager {
   private final RedisDatabaseProvider redisDatabaseProvider;
   private final ChainDAO chainDAO;
   private final AudioDAO audioDAO;
+  private final SequenceDAO sequenceDAO;
   private final PatternDAO patternDAO;
-  private final PhaseDAO phaseDAO;
 
   @Inject
   WorkManagerImpl(
     AudioDAO audioDAO,
     ChainDAO chainDAO,
+    SequenceDAO sequenceDAO,
     PatternDAO patternDAO,
-    PhaseDAO phaseDAO,
     PlatformMessageDAO platformMessageDAO,
     RedisDatabaseProvider redisDatabaseProvider
   ) {
     this.audioDAO = audioDAO;
     this.chainDAO = chainDAO;
+    this.sequenceDAO = sequenceDAO;
     this.patternDAO = patternDAO;
-    this.phaseDAO = phaseDAO;
     this.platformMessageDAO = platformMessageDAO;
     this.redisDatabaseProvider = redisDatabaseProvider;
   }
@@ -77,8 +79,8 @@ public class WorkManagerImpl implements WorkManager {
   }
 
   @Override
-  public void scheduleLinkFabricate(Integer delaySeconds, BigInteger linkId) {
-    scheduleJob(WorkType.LinkFabricate, delaySeconds, linkId);
+  public void scheduleSegmentFabricate(Integer delaySeconds, BigInteger segmentId) {
+    scheduleJob(WorkType.SegmentFabricate, delaySeconds, segmentId);
   }
 
   @Override
@@ -92,13 +94,13 @@ public class WorkManagerImpl implements WorkManager {
   }
 
   @Override
-  public void doPatternErase(BigInteger patternId) {
-    doJob(WorkType.PatternErase, patternId);
+  public void doSequenceErase(BigInteger sequenceId) {
+    doJob(WorkType.SequenceErase, sequenceId);
   }
 
   @Override
-  public void doPhaseErase(BigInteger phaseId) {
-    doJob(WorkType.PhaseErase, phaseId);
+  public void doPatternErase(BigInteger patternId) {
+    doJob(WorkType.PatternErase, patternId);
   }
 
   @Override
@@ -117,13 +119,13 @@ public class WorkManagerImpl implements WorkManager {
   }
 
   @Override
-  public void doPatternClone(BigInteger fromId, BigInteger toId) {
-    doJob(WorkType.PatternClone, fromId, toId);
+  public void doSequenceClone(BigInteger fromId, BigInteger toId) {
+    doJob(WorkType.SequenceClone, fromId, toId);
   }
 
   @Override
-  public void doPhaseClone(BigInteger fromId, BigInteger toId) {
-    doJob(WorkType.PhaseClone, fromId, toId);
+  public void doPatternClone(BigInteger fromId, BigInteger toId) {
+    doJob(WorkType.PatternClone, fromId, toId);
   }
 
   @Override
@@ -133,40 +135,24 @@ public class WorkManagerImpl implements WorkManager {
 
   @Override
   public Collection<Work> readAllWork() throws Exception {
-    Map<BigInteger, Work> workMap = Maps.newHashMap();
+    Map<BigInteger, Work> workMap = audioDAO.readAllInState(Access.internal(), AudioState.Erase).stream().map(record -> buildWork(WorkType.AudioErase, WorkState.Expected, record.getId())).collect(Collectors.toMap(Entity::getId, work -> work, (a, b) -> b));
 
     // Add Expected Work: Audio in 'Erase' state
-    audioDAO.readAllInState(Access.internal(), AudioState.Erase).forEach(record -> {
-      Work work = buildWork(WorkType.AudioErase, WorkState.Expected, record.getId());
-      workMap.put(work.getId(), work);
-    });
+
+    // Add Expected Work: Sequence in 'Erase' state
+    sequenceDAO.readAllInState(Access.internal(), SequenceState.Erase).stream().map(record -> buildWork(WorkType.SequenceErase, WorkState.Expected, record.getId())).forEach(work -> workMap.put(work.getId(), work));
 
     // Add Expected Work: Pattern in 'Erase' state
-    patternDAO.readAllInState(Access.internal(), PatternState.Erase).forEach(record -> {
-      Work work = buildWork(WorkType.PatternErase, WorkState.Expected, record.getId());
-      workMap.put(work.getId(), work);
-    });
-
-    // Add Expected Work: Phase in 'Erase' state
-    phaseDAO.readAllInState(Access.internal(), PhaseState.Erase).forEach(record -> {
-      Work work = buildWork(WorkType.PhaseErase, WorkState.Expected, record.getId());
-      workMap.put(work.getId(), work);
-    });
+    patternDAO.readAllInState(Access.internal(), PatternState.Erase).stream().map(record -> buildWork(WorkType.PatternErase, WorkState.Expected, record.getId())).forEach(work -> workMap.put(work.getId(), work));
 
     // Add Expected Work: Chain in 'Erase' state
-    chainDAO.readAllInState(Access.internal(), ChainState.Erase).forEach(record -> {
-      Work work = buildWork(WorkType.ChainErase, WorkState.Expected, record.getId());
-      workMap.put(work.getId(), work);
-    });
+    chainDAO.readAllInState(Access.internal(), ChainState.Erase).stream().map(record -> buildWork(WorkType.ChainErase, WorkState.Expected, record.getId())).forEach(work -> workMap.put(work.getId(), work));
 
     // Add Expected Work: Chain in 'Fabricate' state
-    chainDAO.readAllInState(Access.internal(), ChainState.Fabricate).forEach(record -> {
-      Work work = buildWork(WorkType.ChainFabricate, WorkState.Expected, record.getId());
-      workMap.put(work.getId(), work);
-    });
+    chainDAO.readAllInState(Access.internal(), ChainState.Fabricate).stream().map(record -> buildWork(WorkType.ChainFabricate, WorkState.Expected, record.getId())).forEach(work -> workMap.put(work.getId(), work));
 
     // Overwrite and Add all Queued Work
-    Set<String> queuedWork = redisDatabaseProvider.getClient().zrange(computeRedisWorkQueueKey(), 0, -1);
+    Set<String> queuedWork = redisDatabaseProvider.getClient().zrange(computeRedisWorkQueueKey(), 0L, -1L);
     queuedWork.forEach((value) -> {
       try {
         JSONObject json = new JSONObject(value);
@@ -196,10 +182,10 @@ public class WorkManagerImpl implements WorkManager {
 
           case ChainErase:
           case AudioErase:
+          case SequenceErase:
           case PatternErase:
-          case PhaseErase:
           case ChainFabricate:
-          case LinkFabricate:
+          case SegmentFabricate:
             try {
               reinstatedWork.add(reinstate(work));
             } catch (Exception e) {
@@ -209,8 +195,8 @@ public class WorkManagerImpl implements WorkManager {
 
           case AudioClone:
           case InstrumentClone:
+          case SequenceClone:
           case PatternClone:
-          case PhaseClone:
             // does not warrant job creation
             break;
         }
@@ -388,7 +374,7 @@ public class WorkManagerImpl implements WorkManager {
    */
   private void enqueueDelayedWork(Job job, long delaySeconds) {
     Client client = getQueueClient();
-    client.delayedEnqueue(Config.workQueueName(), job, System.currentTimeMillis() + delaySeconds * MILLIS_PER_SECOND);
+    client.delayedEnqueue(Config.workQueueName(), job, System.currentTimeMillis() + (delaySeconds * MILLIS_PER_SECOND));
     client.end();
   }
 
@@ -401,7 +387,7 @@ public class WorkManagerImpl implements WorkManager {
    */
   private void enqueueRecurringWork(Job job, long delaySeconds, long recurSeconds) {
     Client client = getQueueClient();
-    client.recurringEnqueue(Config.workQueueName(), job, System.currentTimeMillis() + delaySeconds * MILLIS_PER_SECOND, recurSeconds * MILLIS_PER_SECOND);
+    client.recurringEnqueue(Config.workQueueName(), job, System.currentTimeMillis() + (delaySeconds * MILLIS_PER_SECOND), recurSeconds * MILLIS_PER_SECOND);
     client.end();
   }
 

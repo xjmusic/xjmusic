@@ -16,7 +16,7 @@ public class MorphTest {
   @Test
   public void validate() throws Exception {
     new Morph()
-      .setArrangementId(BigInteger.valueOf(987))
+      .setArrangementId(BigInteger.valueOf(987L))
       .setPosition(3.5)
       .setDuration(1.5)
       .setNote("G5")
@@ -41,7 +41,7 @@ public class MorphTest {
     failure.expectMessage("Position is required");
 
     new Morph()
-      .setArrangementId(BigInteger.valueOf(987))
+      .setArrangementId(BigInteger.valueOf(987L))
       .setDuration(1.5)
       .setNote("G5")
       .validate();
@@ -53,7 +53,7 @@ public class MorphTest {
     failure.expectMessage("Duration is required");
 
     new Morph()
-      .setArrangementId(BigInteger.valueOf(987))
+      .setArrangementId(BigInteger.valueOf(987L))
       .setPosition(3.5)
       .setNote("G5")
       .validate();
@@ -65,7 +65,7 @@ public class MorphTest {
     failure.expectMessage("Note is required");
 
     new Morph()
-      .setArrangementId(BigInteger.valueOf(987))
+      .setArrangementId(BigInteger.valueOf(987L))
       .setPosition(3.5)
       .setDuration(1.5)
       .validate();

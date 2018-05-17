@@ -27,6 +27,7 @@ public class PatternWrapper extends EntityWrapper {
 
    @throws BusinessException if invalid.
    */
+  @Override
   public Pattern validate() throws BusinessException {
     if (this.pattern == null) {
       throw new BusinessException("Pattern is required.");

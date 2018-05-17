@@ -16,11 +16,11 @@ public class InstrumentTest {
   @Test
   public void validate() throws Exception {
     new Instrument()
-      .setLibraryId(BigInteger.valueOf(907834))
+      .setLibraryId(BigInteger.valueOf(907834L))
       .setType("Percussive")
       .setDensity(0.8)
       .setDescription("TR-808")
-      .setUserId(BigInteger.valueOf(1128743))
+      .setUserId(BigInteger.valueOf(1128743L))
       .validate();
   }
 
@@ -30,10 +30,10 @@ public class InstrumentTest {
     failure.expectMessage("Type is required");
 
     new Instrument()
-      .setLibraryId(BigInteger.valueOf(907834))
+      .setLibraryId(BigInteger.valueOf(907834L))
       .setDensity(0.8)
       .setDescription("TR-808")
-      .setUserId(BigInteger.valueOf(1128743))
+      .setUserId(BigInteger.valueOf(1128743L))
       .validate();
   }
 
@@ -46,7 +46,7 @@ public class InstrumentTest {
       .setType("Percussive")
       .setDensity(0.8)
       .setDescription("TR-808")
-      .setUserId(BigInteger.valueOf(1128743))
+      .setUserId(BigInteger.valueOf(1128743L))
       .validate();
   }
 
@@ -56,7 +56,7 @@ public class InstrumentTest {
     failure.expectMessage("User ID is required");
 
     new Instrument()
-      .setLibraryId(BigInteger.valueOf(907834))
+      .setLibraryId(BigInteger.valueOf(907834L))
       .setType("Percussive")
       .setDensity(0.8)
       .setDescription("TR-808")
@@ -69,10 +69,10 @@ public class InstrumentTest {
     failure.expectMessage("Description is required");
 
     new Instrument()
-      .setLibraryId(BigInteger.valueOf(907834))
+      .setLibraryId(BigInteger.valueOf(907834L))
       .setType("Percussive")
       .setDensity(0.8)
-      .setUserId(BigInteger.valueOf(1128743))
+      .setUserId(BigInteger.valueOf(1128743L))
       .validate();
   }
 
@@ -82,11 +82,11 @@ public class InstrumentTest {
     failure.expectMessage("'butt' is not a valid type");
 
     new Instrument()
-      .setLibraryId(BigInteger.valueOf(907834))
+      .setLibraryId(BigInteger.valueOf(907834L))
       .setType("butt")
       .setDensity(0.8)
       .setDescription("TR-808")
-      .setUserId(BigInteger.valueOf(1128743))
+      .setUserId(BigInteger.valueOf(1128743L))
       .validate();
   }
 
@@ -96,10 +96,10 @@ public class InstrumentTest {
     failure.expectMessage("Density is required");
 
     new Instrument()
-      .setLibraryId(BigInteger.valueOf(907834))
+      .setLibraryId(BigInteger.valueOf(907834L))
       .setType("Percussive")
       .setDescription("TR-808")
-      .setUserId(BigInteger.valueOf(1128743))
+      .setUserId(BigInteger.valueOf(1128743L))
       .validate();
   }
 

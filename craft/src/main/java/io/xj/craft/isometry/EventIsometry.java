@@ -2,7 +2,7 @@
 package io.xj.craft.isometry;
 
 import io.xj.core.model.event.Event;
-import io.xj.core.model.phase_event.PhaseEvent;
+import io.xj.core.model.pattern_event.PatternEvent;
 
 import com.google.common.collect.Lists;
 
@@ -56,7 +56,7 @@ public class EventIsometry {
 
     // use Event as a generic event-- we could use any extender of Event
     sourceEventRecords.forEach(record -> sourceEvents.add(
-      new PhaseEvent().setInflection(String.valueOf(record.getInflection()))
+      new PatternEvent().setInflection(String.valueOf(record.getInflection()))
     ));
 
     return new EventIsometry(sourceEvents);
@@ -73,7 +73,7 @@ public class EventIsometry {
 
     // use Event as a generic event-- we could use any extender of Event
     stringEventMap.forEach((key, record) -> sourceEvents.add(
-      new PhaseEvent().setInflection(record.getInflection())
+      new PatternEvent().setInflection(record.getInflection())
     ));
 
     return new EventIsometry(sourceEvents);

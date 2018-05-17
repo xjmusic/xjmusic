@@ -11,10 +11,10 @@ import io.xj.core.access.impl.Access;
 import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.model.instrument.InstrumentType;
 import io.xj.core.model.library.Library;
+import io.xj.core.model.sequence.SequenceState;
+import io.xj.core.model.sequence.SequenceType;
 import io.xj.core.model.pattern.PatternState;
 import io.xj.core.model.pattern.PatternType;
-import io.xj.core.model.phase.PhaseState;
-import io.xj.core.model.phase.PhaseType;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.craft.CraftModule;
 import io.xj.craft.digest.meme.DigestMeme;
@@ -79,29 +79,29 @@ public class DigestMemeIT {
     IntegrationTestEntity.insertAudioEvent(602, 401, 3, 1, "SNARE", "Ab", 0.1, 0.8, at);
     IntegrationTestEntity.insertAudioEvent(603, 401, 0, 1, "KICK", "C", 0.8, 1.0, at);
     IntegrationTestEntity.insertAudioEvent(604, 401, 1, 1, "SNARE", "G", 0.1, 0.8, at);
-    IntegrationTestEntity.insertPattern(701, 101, 10000001, PatternType.Rhythm, PatternState.Published, "leaves", 0.342, "C#", 120.4, at);
-    IntegrationTestEntity.insertPattern(702, 101, 10000001, PatternType.Detail, PatternState.Published, "coconuts", 0.25, "F#", 110.3, at);
-    IntegrationTestEntity.insertPattern(703, 101, 10000001, PatternType.Main, PatternState.Published, "bananas", 0.27, "Gb", 100.6, at);
-    IntegrationTestEntity.insertPatternMeme(801, 701, "Ants", at);
-    IntegrationTestEntity.insertPatternMeme(802, 701, "Mold", at);
-    IntegrationTestEntity.insertPatternMeme(803, 703, "Peel", at);
-    IntegrationTestEntity.insertPhase(901, 701, PhaseType.Main, PhaseState.Published, 0, 16, "growth", 0.342, "C#", 120.4, at);
-    IntegrationTestEntity.insertPhase(902, 701, PhaseType.Main, PhaseState.Published, 1, 16, "decay", 0.25, "F#", 110.3, at);
-    IntegrationTestEntity.insertPhaseChord(1001, 902, 0, "G minor", at);
-    IntegrationTestEntity.insertPhaseChord(1002, 902, 4, "C major", at);
-    IntegrationTestEntity.insertPhaseChord(1003, 902, 8, "F7", at);
-    IntegrationTestEntity.insertPhaseChord(1004, 902, 12, "G7", at);
-    IntegrationTestEntity.insertPhaseChord(1005, 902, 16, "F minor", at);
-    IntegrationTestEntity.insertPhaseChord(1006, 902, 20, "Bb major", at);
-    IntegrationTestEntity.insertPhaseMeme(1101, 901, "Gravel", at);
-    IntegrationTestEntity.insertPhaseMeme(1102, 901, "Fuzz", at);
-    IntegrationTestEntity.insertPhaseMeme(1103, 902, "Peel", at);
+    IntegrationTestEntity.insertSequence(701, 101, 10000001, SequenceType.Rhythm, SequenceState.Published, "leaves", 0.342, "C#", 120.4, at);
+    IntegrationTestEntity.insertSequence(702, 101, 10000001, SequenceType.Detail, SequenceState.Published, "coconuts", 0.25, "F#", 110.3, at);
+    IntegrationTestEntity.insertSequence(703, 101, 10000001, SequenceType.Main, SequenceState.Published, "bananas", 0.27, "Gb", 100.6, at);
+    IntegrationTestEntity.insertSequenceMeme(801, 701, "Ants", at);
+    IntegrationTestEntity.insertSequenceMeme(802, 701, "Mold", at);
+    IntegrationTestEntity.insertSequenceMeme(803, 703, "Peel", at);
+    IntegrationTestEntity.insertPattern(901, 701, PatternType.Main, PatternState.Published, 0, 16, "growth", 0.342, "C#", 120.4, at);
+    IntegrationTestEntity.insertPattern(902, 701, PatternType.Main, PatternState.Published, 1, 16, "decay", 0.25, "F#", 110.3, at);
+    IntegrationTestEntity.insertPatternChord(1001, 902, 0, "G minor", at);
+    IntegrationTestEntity.insertPatternChord(1002, 902, 4, "C major", at);
+    IntegrationTestEntity.insertPatternChord(1003, 902, 8, "F7", at);
+    IntegrationTestEntity.insertPatternChord(1004, 902, 12, "G7", at);
+    IntegrationTestEntity.insertPatternChord(1005, 902, 16, "F minor", at);
+    IntegrationTestEntity.insertPatternChord(1006, 902, 20, "Bb major", at);
+    IntegrationTestEntity.insertPatternMeme(1101, 901, "Gravel", at);
+    IntegrationTestEntity.insertPatternMeme(1102, 901, "Fuzz", at);
+    IntegrationTestEntity.insertPatternMeme(1103, 902, "Peel", at);
     IntegrationTestEntity.insertVoice(1201, 701, InstrumentType.Percussive, "Drums", at);
     IntegrationTestEntity.insertVoice(1202, 702, InstrumentType.Harmonic, "Bass", at);
-    IntegrationTestEntity.insertPhaseEvent(1401, 901, 1201, 0, 1, "BOOM", "C", 0.8, 1.0, at);
-    IntegrationTestEntity.insertPhaseEvent(1402, 901, 1201, 1, 1, "SMACK", "G", 0.1, 0.8, at);
-    IntegrationTestEntity.insertPhaseEvent(1403, 901, 1201, 2.5, 1, "BOOM", "C", 0.8, 0.6, at);
-    IntegrationTestEntity.insertPhaseEvent(1404, 901, 1201, 3, 1, "SMACK", "G", 0.1, 0.9, at);
+    IntegrationTestEntity.insertPatternEvent(1401, 901, 1201, 0, 1, "BOOM", "C", 0.8, 1.0, at);
+    IntegrationTestEntity.insertPatternEvent(1402, 901, 1201, 1, 1, "SMACK", "G", 0.1, 0.8, at);
+    IntegrationTestEntity.insertPatternEvent(1403, 901, 1201, 2.5, 1, "BOOM", "C", 0.8, 0.6, at);
+    IntegrationTestEntity.insertPatternEvent(1404, 901, 1201, 3, 1, "SMACK", "G", 0.1, 0.9, at);
     //
     // stuff that should not get used because it's in a different library
     IntegrationTestEntity.insertLibrary(10000002, 1, "Garbage Library", at);
@@ -122,29 +122,29 @@ public class DigestMemeIT {
     IntegrationTestEntity.insertAudioEvent(652, 451, 3, 1, "GARBAGE", "Ab", 0.1, 0.8, at);
     IntegrationTestEntity.insertAudioEvent(653, 451, 0, 1, "GARBAGE", "C", 0.8, 1.0, at);
     IntegrationTestEntity.insertAudioEvent(654, 451, 1, 1, "GARBAGE", "G", 0.1, 0.8, at);
-    IntegrationTestEntity.insertPattern(751, 101, 10000002, PatternType.Rhythm, PatternState.Published, "Garbage Pattern A", 0.342, "C#", 120.4, at);
-    IntegrationTestEntity.insertPattern(752, 101, 10000002, PatternType.Detail, PatternState.Published, "Garbage Pattern B", 0.25, "F#", 110.3, at);
-    IntegrationTestEntity.insertPattern(753, 101, 10000002, PatternType.Main, PatternState.Published, "Garbage Pattern C", 0.27, "Gb", 100.6, at);
-    IntegrationTestEntity.insertPatternMeme(851, 751, "Garbage Pattern Meme A", at);
-    IntegrationTestEntity.insertPatternMeme(852, 751, "Garbage Pattern Meme B", at);
-    IntegrationTestEntity.insertPatternMeme(853, 753, "Garbage Pattern Meme C", at);
-    IntegrationTestEntity.insertPhase(951, 751, PhaseType.Main, PhaseState.Published, 0, 16, "Garbage Phase A", 0.342, "C#", 120.4, at);
-    IntegrationTestEntity.insertPhase(952, 751, PhaseType.Main, PhaseState.Published, 1, 16, "Garbage Phase A", 0.25, "F#", 110.3, at);
-    IntegrationTestEntity.insertPhaseChord(1051, 952, 0, "G minor garbage", at);
-    IntegrationTestEntity.insertPhaseChord(1052, 952, 4, "C major garbage", at);
-    IntegrationTestEntity.insertPhaseChord(1053, 952, 8, "F7 garbage", at);
-    IntegrationTestEntity.insertPhaseChord(1054, 952, 12, "G7 garbage", at);
-    IntegrationTestEntity.insertPhaseChord(1055, 952, 16, "F minor garbage", at);
-    IntegrationTestEntity.insertPhaseChord(1056, 952, 20, "Bb major garbage", at);
-    IntegrationTestEntity.insertPhaseMeme(1151, 951, "Garbage Phase Meme A", at);
-    IntegrationTestEntity.insertPhaseMeme(1152, 951, "Garbage Phase Meme B", at);
-    IntegrationTestEntity.insertPhaseMeme(1153, 952, "Garbage Phase Meme C", at);
+    IntegrationTestEntity.insertSequence(751, 101, 10000002, SequenceType.Rhythm, SequenceState.Published, "Garbage Sequence A", 0.342, "C#", 120.4, at);
+    IntegrationTestEntity.insertSequence(752, 101, 10000002, SequenceType.Detail, SequenceState.Published, "Garbage Sequence B", 0.25, "F#", 110.3, at);
+    IntegrationTestEntity.insertSequence(753, 101, 10000002, SequenceType.Main, SequenceState.Published, "Garbage Sequence C", 0.27, "Gb", 100.6, at);
+    IntegrationTestEntity.insertSequenceMeme(851, 751, "Garbage Sequence Meme A", at);
+    IntegrationTestEntity.insertSequenceMeme(852, 751, "Garbage Sequence Meme B", at);
+    IntegrationTestEntity.insertSequenceMeme(853, 753, "Garbage Sequence Meme C", at);
+    IntegrationTestEntity.insertPattern(951, 751, PatternType.Main, PatternState.Published, 0, 16, "Garbage Pattern A", 0.342, "C#", 120.4, at);
+    IntegrationTestEntity.insertPattern(952, 751, PatternType.Main, PatternState.Published, 1, 16, "Garbage Pattern A", 0.25, "F#", 110.3, at);
+    IntegrationTestEntity.insertPatternChord(1051, 952, 0, "G minor garbage", at);
+    IntegrationTestEntity.insertPatternChord(1052, 952, 4, "C major garbage", at);
+    IntegrationTestEntity.insertPatternChord(1053, 952, 8, "F7 garbage", at);
+    IntegrationTestEntity.insertPatternChord(1054, 952, 12, "G7 garbage", at);
+    IntegrationTestEntity.insertPatternChord(1055, 952, 16, "F minor garbage", at);
+    IntegrationTestEntity.insertPatternChord(1056, 952, 20, "Bb major garbage", at);
+    IntegrationTestEntity.insertPatternMeme(1151, 951, "Garbage Pattern Meme A", at);
+    IntegrationTestEntity.insertPatternMeme(1152, 951, "Garbage Pattern Meme B", at);
+    IntegrationTestEntity.insertPatternMeme(1153, 952, "Garbage Pattern Meme C", at);
     IntegrationTestEntity.insertVoice(1251, 751, InstrumentType.Percussive, "Garbage Voice A", at);
     IntegrationTestEntity.insertVoice(1252, 752, InstrumentType.Harmonic, "Garbage Voice B", at);
-    IntegrationTestEntity.insertPhaseEvent(1451, 951, 1251, 0, 1, "GARBAGE", "C", 0.8, 1.0, at);
-    IntegrationTestEntity.insertPhaseEvent(1452, 951, 1251, 1, 1, "GARBAGE", "G", 0.1, 0.8, at);
-    IntegrationTestEntity.insertPhaseEvent(1453, 951, 1251, 2.5, 1, "GARBAGE", "C", 0.8, 0.6, at);
-    IntegrationTestEntity.insertPhaseEvent(1454, 951, 1251, 3, 1, "GARBAGE", "G", 0.1, 0.9, at);
+    IntegrationTestEntity.insertPatternEvent(1451, 951, 1251, 0, 1, "GARBAGE", "C", 0.8, 1.0, at);
+    IntegrationTestEntity.insertPatternEvent(1452, 951, 1251, 1, 1, "GARBAGE", "G", 0.1, 0.8, at);
+    IntegrationTestEntity.insertPatternEvent(1453, 951, 1251, 2.5, 1, "GARBAGE", "C", 0.8, 0.6, at);
+    IntegrationTestEntity.insertPatternEvent(1454, 951, 1251, 3, 1, "GARBAGE", "G", 0.1, 0.9, at);
 
     // Instantiate the test ingest and digestFactory
     ingestFactory = injector.getInstance(IngestFactory.class);
@@ -167,38 +167,38 @@ public class DigestMemeIT {
 
     // Fuzz
     DigestMemesItem result1 = result.getMemes().get("Fuzz");
-    assertEquivalent(ImmutableList.of(), result1.getPatternIds());
+    assertEquivalent(ImmutableList.of(), result1.getSequenceIds());
     assertEquivalent(ImmutableList.of(), result1.getInstrumentIds());
-    assertEquivalent(ImmutableList.of(BigInteger.valueOf(701)), result1.getPhasePatternIds());
-    assertEquivalent(ImmutableList.of(BigInteger.valueOf(901)), result1.getPhaseIds(BigInteger.valueOf(701)));
+    assertEquivalent(ImmutableList.of(BigInteger.valueOf(701)), result1.getPatternSequenceIds());
+    assertEquivalent(ImmutableList.of(BigInteger.valueOf(901)), result1.getPatternIds(BigInteger.valueOf(701)));
 
     // Ants
     DigestMemesItem result2 = result.getMemes().get("Ants");
-    assertEquivalent(ImmutableList.of(BigInteger.valueOf(701)), result2.getPatternIds());
+    assertEquivalent(ImmutableList.of(BigInteger.valueOf(701)), result2.getSequenceIds());
     assertEquivalent(ImmutableList.of(BigInteger.valueOf(201)), result2.getInstrumentIds());
-    assertEquivalent(ImmutableList.of(), result2.getPhasePatternIds());
-    assertEquivalent(ImmutableList.of(), result2.getPhaseIds(BigInteger.valueOf(701)));
+    assertEquivalent(ImmutableList.of(), result2.getPatternSequenceIds());
+    assertEquivalent(ImmutableList.of(), result2.getPatternIds(BigInteger.valueOf(701)));
 
     // Peel
     DigestMemesItem result3 = result.getMemes().get("Peel");
-    assertEquivalent(ImmutableList.of(BigInteger.valueOf(703)), result3.getPatternIds());
+    assertEquivalent(ImmutableList.of(BigInteger.valueOf(703)), result3.getSequenceIds());
     assertEquivalent(ImmutableList.of(BigInteger.valueOf(202)), result3.getInstrumentIds());
-    assertEquivalent(ImmutableList.of(BigInteger.valueOf(701)), result3.getPhasePatternIds());
-    assertEquivalent(ImmutableList.of(BigInteger.valueOf(902)), result3.getPhaseIds(BigInteger.valueOf(701)));
+    assertEquivalent(ImmutableList.of(BigInteger.valueOf(701)), result3.getPatternSequenceIds());
+    assertEquivalent(ImmutableList.of(BigInteger.valueOf(902)), result3.getPatternIds(BigInteger.valueOf(701)));
 
     // Gravel
     DigestMemesItem result4 = result.getMemes().get("Gravel");
-    assertEquivalent(ImmutableList.of(), result4.getPatternIds());
+    assertEquivalent(ImmutableList.of(), result4.getSequenceIds());
     assertEquivalent(ImmutableList.of(), result4.getInstrumentIds());
-    assertEquivalent(ImmutableList.of(BigInteger.valueOf(701)), result4.getPhasePatternIds());
-    assertEquivalent(ImmutableList.of(BigInteger.valueOf(901)), result4.getPhaseIds(BigInteger.valueOf(701)));
+    assertEquivalent(ImmutableList.of(BigInteger.valueOf(701)), result4.getPatternSequenceIds());
+    assertEquivalent(ImmutableList.of(BigInteger.valueOf(901)), result4.getPatternIds(BigInteger.valueOf(701)));
 
     // Mold
     DigestMemesItem result5 = result.getMemes().get("Mold");
-    assertEquivalent(ImmutableList.of(BigInteger.valueOf(701)), result5.getPatternIds());
+    assertEquivalent(ImmutableList.of(BigInteger.valueOf(701)), result5.getSequenceIds());
     assertEquivalent(ImmutableList.of(BigInteger.valueOf(201)), result5.getInstrumentIds());
-    assertEquivalent(ImmutableList.of(), result5.getPhasePatternIds());
-    assertEquivalent(ImmutableList.of(), result5.getPhaseIds(BigInteger.valueOf(701)));
+    assertEquivalent(ImmutableList.of(), result5.getPatternSequenceIds());
+    assertEquivalent(ImmutableList.of(), result5.getPatternIds(BigInteger.valueOf(701)));
   }
 
 }

@@ -7,12 +7,12 @@ import com.google.inject.assistedinject.Assisted;
 
 import io.xj.core.access.impl.Access;
 import io.xj.core.cache.audio.AudioCacheProvider;
-import io.xj.core.dao.LinkMessageDAO;
+import io.xj.core.dao.SegmentMessageDAO;
 import io.xj.dub.master.MasterDub;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.model.audio.Audio;
 import io.xj.core.model.chain_config.ChainConfigType;
-import io.xj.core.model.link_message.LinkMessage;
+import io.xj.core.model.segment_message.SegmentMessage;
 import io.xj.core.model.message.MessageType;
 import io.xj.core.model.pick.Pick;
 import io.xj.core.util.Text;
@@ -30,13 +30,13 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- [#214] If a Chain has Patterns associated with it directly, prefer those choices to any in the Library
+ [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
  */
 public class MasterDubImpl implements MasterDub {
   private final Logger log = LoggerFactory.getLogger(MasterDubImpl.class);
   private final Basis basis;
   private final MixerFactory mixerFactory;
-  private final LinkMessageDAO linkMessageDAO;
+  private final SegmentMessageDAO segmentMessageDAO;
   private Mixer _mixer;
   private List<String> warnings = Lists.newArrayList();
   private AudioCacheProvider audioCacheProvider;
@@ -45,12 +45,12 @@ public class MasterDubImpl implements MasterDub {
   public MasterDubImpl(
     @Assisted("basis") Basis basis,
     AudioCacheProvider audioCacheProvider,
-    LinkMessageDAO linkMessageDAO,
+    SegmentMessageDAO segmentMessageDAO,
     MixerFactory mixerFactory
   /*-*/) throws BusinessException {
     this.audioCacheProvider = audioCacheProvider;
     this.basis = basis;
-    this.linkMessageDAO = linkMessageDAO;
+    this.segmentMessageDAO = segmentMessageDAO;
     this.mixerFactory = mixerFactory;
   }
 
@@ -67,8 +67,8 @@ public class MasterDubImpl implements MasterDub {
       throw e;
     } catch (Exception e) {
       throw new BusinessException(
-        String.format("Failed to do %s-type MasterDub for link #%s",
-          basis.type(), basis.link().getId().toString()), e);
+        String.format("Failed to do %s-type MasterDub for segment #%s",
+          basis.type(), basis.segment().getId().toString()), e);
     }
   }
 
@@ -76,8 +76,8 @@ public class MasterDubImpl implements MasterDub {
    @throws Exception if failed to stream data of item from cache
    */
   private void doMixerSourceLoading() throws Exception {
-    for (BigInteger audioId : basis.linkAudioIds()) {
-      Audio audio = basis.linkAudio(audioId);
+    for (BigInteger audioId : basis.segmentAudioIds()) {
+      Audio audio = basis.segmentAudio(audioId);
       String key = audio.getWaveformKey();
 
       try {
@@ -93,7 +93,7 @@ public class MasterDubImpl implements MasterDub {
   }
 
   /**
-   Implements Mixer module to set playback for Picks in current Link
+   Implements Mixer module to set playback for Picks in current Segment
    */
   private void doMixerTargetSetting() throws Exception {
     for (Pick pick : basis.picks())
@@ -113,8 +113,8 @@ public class MasterDubImpl implements MasterDub {
    @param pick to set playback for
    */
   private void setupTarget(Pick pick) throws Exception {
-    double pitchRatio = basis.linkAudio(pick.getAudioId()).getPitch() / pick.getPitch();
-    double offsetStart = basis.linkAudio(pick.getAudioId()).getStart() / pitchRatio;
+    double pitchRatio = basis.segmentAudio(pick.getAudioId()).getPitch() / pick.getPitch();
+    double offsetStart = basis.segmentAudio(pick.getAudioId()).getStart() / pitchRatio;
 
     mixer().put(
       pick.getAudioId().toString(),
@@ -144,7 +144,7 @@ public class MasterDubImpl implements MasterDub {
       _mixer = mixerFactory.createMixer(
         outputAudioContainer(),
         basis.outputAudioFormat(),
-        basis.linkTotalLength());
+        basis.segmentTotalLength());
 
     return _mixer;
   }
@@ -167,7 +167,7 @@ public class MasterDubImpl implements MasterDub {
   }
 
   /**
-   Report warnings in a concatenated Link Message
+   Report warnings in a concatenated Segment Message
    */
   private void reportWarnings() {
     if (warnings.isEmpty()) return;
@@ -176,23 +176,23 @@ public class MasterDubImpl implements MasterDub {
     for (String warning : warnings) {
       body.append(String.format("%n%n%s", warning));
     }
-    createLinkMessage(MessageType.Warning, body.toString());
+    createSegmentMessage(MessageType.Warning, body.toString());
   }
 
   /**
-   [#226] Messages pertaining to a Link
+   [#226] Messages pertaining to a Segment
 
    @param type of message
    @param body of message
    */
-  private void createLinkMessage(MessageType type, String body) {
+  private void createSegmentMessage(MessageType type, String body) {
     try {
-      linkMessageDAO.create(Access.internal(), new LinkMessage()
+      segmentMessageDAO.create(Access.internal(), new SegmentMessage()
         .setType(type.toString())
-        .setLinkId(basis.link().getId())
+        .setSegmentId(basis.segment().getId())
         .setBody(body));
     } catch (Exception e1) {
-      log.warn("Failed to create LinkMessage", e1);
+      log.warn("Failed to create SegmentMessage", e1);
     }
   }
 

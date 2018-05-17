@@ -18,7 +18,7 @@ public class ChanceTest {
     for (int i = 0; i < totalRuns; i++)
       floorCounts[
         (int) Math.floor(Math.abs(
-          Chance.normallyAround(0, 10) // values up to +/- 10
+          Chance.normallyAround((double) 0, 10.0) // values up to +/- 10
         ))
         ]++;
 
@@ -29,7 +29,7 @@ public class ChanceTest {
           ": " + floorCounts[c]);
 
     // Assert that no value has exceeded 10
-    assertEquals(0, floorCounts[10]);
+    assertEquals(0L, floorCounts[10]);
   }
 
 }

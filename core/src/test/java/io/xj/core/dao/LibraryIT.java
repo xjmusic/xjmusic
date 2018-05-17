@@ -6,8 +6,8 @@ import io.xj.core.access.impl.Access;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.model.library.Library;
-import io.xj.core.model.pattern.PatternState;
-import io.xj.core.model.pattern.PatternType;
+import io.xj.core.model.sequence.SequenceState;
+import io.xj.core.model.sequence.SequenceType;
 import io.xj.core.transport.JSON;
 
 import com.google.common.collect.ImmutableList;
@@ -64,12 +64,12 @@ public class LibraryIT {
     ));
     Library inputData = new Library()
       .setName("manuts")
-      .setAccountId(BigInteger.valueOf(1));
+      .setAccountId(BigInteger.valueOf(1L));
 
     Library result = testDAO.create(access, inputData);
 
     assertNotNull(result);
-    assertEquals(BigInteger.valueOf(1), result.getAccountId());
+    assertEquals(BigInteger.valueOf(1L), result.getAccountId());
     assertEquals("manuts", result.getName());
   }
 
@@ -84,12 +84,12 @@ public class LibraryIT {
     ));
     Library inputData = new Library()
       .setName("manuts")
-      .setAccountId(BigInteger.valueOf(1));
+      .setAccountId(BigInteger.valueOf(1L));
 
     Library result = testDAO.create(access, inputData);
 
     assertNotNull(result);
-    assertEquals(BigInteger.valueOf(1), result.getAccountId());
+    assertEquals(BigInteger.valueOf(1L), result.getAccountId());
     assertEquals("manuts", result.getName());
   }
 
@@ -104,7 +104,7 @@ public class LibraryIT {
     ));
     Library inputData = new Library()
       .setName("manuts")
-      .setAccountId(BigInteger.valueOf(1));
+      .setAccountId(BigInteger.valueOf(1L));
 
     testDAO.create(access, inputData);
   }
@@ -127,11 +127,11 @@ public class LibraryIT {
       "accounts", "1"
     ));
 
-    Library result = testDAO.readOne(access, BigInteger.valueOf(2));
+    Library result = testDAO.readOne(access, BigInteger.valueOf(2L));
 
     assertNotNull(result);
-    assertEquals(BigInteger.valueOf(2), result.getId());
-    assertEquals(BigInteger.valueOf(1), result.getAccountId());
+    assertEquals(BigInteger.valueOf(2L), result.getId());
+    assertEquals(BigInteger.valueOf(1L), result.getAccountId());
     assertEquals("coconuts", result.getName());
   }
 
@@ -142,7 +142,7 @@ public class LibraryIT {
       "accounts", "326"
     ));
 
-    Library result = testDAO.readOne(access, BigInteger.valueOf(1));
+    Library result = testDAO.readOne(access, BigInteger.valueOf(1L));
 
     assertNull(result);
   }
@@ -154,10 +154,10 @@ public class LibraryIT {
       "accounts", "1"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1))));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1L))));
 
     assertNotNull(result);
-    assertEquals(2, result.length());
+    assertEquals(2L, (long) result.length());
     JSONObject result1 = (JSONObject) result.get(0);
     assertEquals("leaves", result1.get("name"));
     JSONObject result2 = (JSONObject) result.get(1);
@@ -173,7 +173,7 @@ public class LibraryIT {
 
     Collection<Library> result = testDAO.readAll(access, Lists.newArrayList());
 
-    assertEquals(4, result.size());
+    assertEquals(4L, (long) result.size());
     Iterator<Library> it = result.iterator();
     assertEquals("leaves", it.next().getName());
     assertEquals("coconuts", it.next().getName());
@@ -188,10 +188,10 @@ public class LibraryIT {
       "accounts", "345"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1))));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1L))));
 
     assertNotNull(result);
-    assertEquals(0, result.length());
+    assertEquals(0L, (long) result.length());
   }
 
   @Test(expected = BusinessException.class)
@@ -202,7 +202,7 @@ public class LibraryIT {
     Library inputData = new Library()
       .setName("cannons");
 
-    testDAO.update(access, BigInteger.valueOf(3), inputData);
+    testDAO.update(access, BigInteger.valueOf(3L), inputData);
   }
 
   @Test(expected = BusinessException.class)
@@ -211,9 +211,9 @@ public class LibraryIT {
       "roles", "Admin"
     ));
     Library inputData = new Library()
-      .setAccountId(BigInteger.valueOf(3));
+      .setAccountId(BigInteger.valueOf(3L));
 
-    testDAO.update(access, BigInteger.valueOf(3), inputData);
+    testDAO.update(access, BigInteger.valueOf(3L), inputData);
   }
 
   @Test
@@ -223,14 +223,14 @@ public class LibraryIT {
     ));
     Library inputData = new Library()
       .setName("cannons")
-      .setAccountId(BigInteger.valueOf(1));
+      .setAccountId(BigInteger.valueOf(1L));
 
-    testDAO.update(access, BigInteger.valueOf(3), inputData);
+    testDAO.update(access, BigInteger.valueOf(3L), inputData);
 
-    Library result = testDAO.readOne(Access.internal(), BigInteger.valueOf(3));
+    Library result = testDAO.readOne(Access.internal(), BigInteger.valueOf(3L));
     assertNotNull(result);
     assertEquals("cannons", result.getName());
-    assertEquals(BigInteger.valueOf(1), result.getAccountId());
+    assertEquals(BigInteger.valueOf(1L), result.getAccountId());
   }
 
   /**
@@ -244,14 +244,14 @@ public class LibraryIT {
     ));
     Library inputData = new Library()
       .setName("cannons")
-      .setAccountId(BigInteger.valueOf(1));
+      .setAccountId(BigInteger.valueOf(1L));
 
-    testDAO.update(access, BigInteger.valueOf(3), inputData);
+    testDAO.update(access, BigInteger.valueOf(3L), inputData);
 
-    Library result = testDAO.readOne(Access.internal(), BigInteger.valueOf(3));
+    Library result = testDAO.readOne(Access.internal(), BigInteger.valueOf(3L));
     assertNotNull(result);
     assertEquals("cannons", result.getName());
-    assertEquals(BigInteger.valueOf(1), result.getAccountId());
+    assertEquals(BigInteger.valueOf(1L), result.getAccountId());
   }
 
   /**
@@ -265,9 +265,9 @@ public class LibraryIT {
     ));
     Library inputData = new Library()
       .setName("cannons")
-      .setAccountId(BigInteger.valueOf(1));
+      .setAccountId(BigInteger.valueOf(1L));
 
-    testDAO.update(access, BigInteger.valueOf(3), inputData);
+    testDAO.update(access, BigInteger.valueOf(3L), inputData);
   }
 
   @Test(expected = BusinessException.class)
@@ -277,16 +277,16 @@ public class LibraryIT {
     ));
     Library inputData = new Library()
       .setName("cannons")
-      .setAccountId(BigInteger.valueOf(3978));
+      .setAccountId(BigInteger.valueOf(3978L));
 
     try {
-      testDAO.update(access, BigInteger.valueOf(3), inputData);
+      testDAO.update(access, BigInteger.valueOf(3L), inputData);
 
     } catch (Exception e) {
-      Library result = testDAO.readOne(Access.internal(), BigInteger.valueOf(3));
+      Library result = testDAO.readOne(Access.internal(), BigInteger.valueOf(3L));
       assertNotNull(result);
       assertEquals("helm", result.getName());
-      assertEquals(BigInteger.valueOf(2), result.getAccountId());
+      assertEquals(BigInteger.valueOf(2L), result.getAccountId());
       throw e;
     }
   }
@@ -298,14 +298,14 @@ public class LibraryIT {
     ));
     Library inputData = new Library()
       .setName("cannons")
-      .setAccountId(BigInteger.valueOf(2));
+      .setAccountId(BigInteger.valueOf(2L));
 
-    testDAO.update(access, BigInteger.valueOf(3), inputData);
+    testDAO.update(access, BigInteger.valueOf(3L), inputData);
 
-    Library result = testDAO.readOne(Access.internal(), BigInteger.valueOf(3));
+    Library result = testDAO.readOne(Access.internal(), BigInteger.valueOf(3L));
     assertNotNull(result);
     assertEquals("cannons", result.getName());
-    assertEquals(BigInteger.valueOf(2), result.getAccountId());
+    assertEquals(BigInteger.valueOf(2L), result.getAccountId());
   }
 
   @Test
@@ -315,14 +315,14 @@ public class LibraryIT {
     ));
     Library inputData = new Library()
       .setName("trunk")
-      .setAccountId(BigInteger.valueOf(1));
+      .setAccountId(BigInteger.valueOf(1L));
 
-    testDAO.update(access, BigInteger.valueOf(3), inputData);
+    testDAO.update(access, BigInteger.valueOf(3L), inputData);
 
-    Library result = testDAO.readOne(Access.internal(), BigInteger.valueOf(3));
+    Library result = testDAO.readOne(Access.internal(), BigInteger.valueOf(3L));
     assertNotNull(result);
     assertEquals("trunk", result.getName());
-    assertEquals(BigInteger.valueOf(1), result.getAccountId());
+    assertEquals(BigInteger.valueOf(1L), result.getAccountId());
   }
 
   @Test
@@ -331,9 +331,9 @@ public class LibraryIT {
       "roles", "Admin"
     ));
 
-    testDAO.destroy(access, BigInteger.valueOf(1));
+    testDAO.destroy(access, BigInteger.valueOf(1L));
 
-    Library result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1));
+    Library result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1L));
     assertNull(result);
   }
 
@@ -343,12 +343,12 @@ public class LibraryIT {
       "roles", "Admin"
     ));
     IntegrationTestEntity.insertUser(101, "bill", "bill@email.com", "http://pictures.com/bill.gif");
-    IntegrationTestEntity.insertPattern(301, 101, 2, PatternType.Main, PatternState.Published, "brilliant", 0.342, "C#", 0.286);
+    IntegrationTestEntity.insertSequence(301, 101, 2, SequenceType.Main, SequenceState.Published, "brilliant", 0.342, "C#", 0.286);
 
     try {
-      testDAO.destroy(access, BigInteger.valueOf(2));
+      testDAO.destroy(access, BigInteger.valueOf(2L));
     } catch (Exception e) {
-      Library result = testDAO.readOne(Access.internal(), BigInteger.valueOf(2));
+      Library result = testDAO.readOne(Access.internal(), BigInteger.valueOf(2L));
       assertNotNull(result);
       throw e;
     }

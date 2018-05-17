@@ -5,11 +5,20 @@
 
 #
 step "Build Hub UI"
-cd ui/hub-ui || exit 1
+cd ${BASEPATH}/ui/hub-ui || exit 1
 npm install || exit 1
 ember test || exit 1
 ember build --environment=production || exit 1
 chmod 755 -R dist/assets
+step_ok
+
+#
+step "Build Player UI"
+cd ${BASEPATH}/ui/player-ui || exit 1
+npm install || exit 1
+jest || exit 1
+gulp || exit 1
+chmod 755 -R dist/
 step_ok
 
 #

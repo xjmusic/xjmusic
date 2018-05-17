@@ -21,6 +21,7 @@ public abstract class Message extends Entity {
   private String _type;
   private MessageType type;
 
+  @Override
   public void validate() throws BusinessException {
     // throws its own BusinessException on failure
     type = MessageType.validate(_type);

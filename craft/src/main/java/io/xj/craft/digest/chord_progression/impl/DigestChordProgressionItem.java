@@ -1,8 +1,8 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.craft.digest.chord_progression.impl;
 
 import io.xj.craft.chord.ChordProgression;
-import io.xj.craft.chord.PhaseChordProgression;
+import io.xj.craft.chord.PatternChordProgression;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
@@ -22,7 +22,7 @@ import java.util.Map;
 public class DigestChordProgressionItem {
   static final Comparator<? super DigestChordProgressionItem> byUsageTimesLengthDescending = (o1, o2) -> Integer.compare(o2.computeUsageTimesLength(), o1.computeUsageTimesLength());
   private final ChordProgression chordProgression;
-  private final Collection<PhaseChordProgression> usages = Lists.newArrayList();
+  private final Collection<PatternChordProgression> usages = Lists.newArrayList();
 
   /**
    New instance
@@ -38,7 +38,7 @@ public class DigestChordProgressionItem {
 
    @return chord progressions
    */
-  Collection<PhaseChordProgression> getUsages() {
+  Collection<PatternChordProgression> getUsages() {
     return Collections.unmodifiableCollection(usages);
   }
 
@@ -65,7 +65,7 @@ public class DigestChordProgressionItem {
 
    @param chordProgression to add
    */
-  public void add(PhaseChordProgression chordProgression) {
+  public void add(PatternChordProgression chordProgression) {
     usages.add(chordProgression);
   }
 
@@ -74,8 +74,8 @@ public class DigestChordProgressionItem {
 
    @param candidate to maybe add
    */
-  void addIfUniqueParent(PhaseChordProgression candidate) {
-    for (PhaseChordProgression existing : usages)
+  void addIfUniqueParent(PatternChordProgression candidate) {
+    for (PatternChordProgression existing : usages)
       if (Objects.equal(existing.getParentId(), candidate.getParentId()))
         return;
 

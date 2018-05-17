@@ -1,0 +1,58 @@
+<!-- Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved. -->
+
+<!-- Inner Content -->
+{{outlet}}
+
+<div class="form-horizontal container-fluid">
+
+  {{#if (or auth.isArtist auth.isAdmin)}}
+    <div class="col-sm-12 text-right">
+      {{#link-to 'accounts.one.libraries.one.sequences.one.patterns.new' model.sequence.library.account model.sequence.library model.sequence}}{{fa-icon "plus"}} Create New Pattern{{/link-to}}
+    </div>
+  {{/if}}
+
+  <!-- List of Sections -->
+  <div class="col-sm-12">
+    <div class="table-list">
+      <table class="table">
+        <thead>
+        <tr>
+          <th width="1%">Offset</th>
+          <th width="1%">Type</th>
+          <th width="1%">Total</th>
+          <th>Name</th>
+          <th width="1%">Key</th>
+          <th width="1%">Density</th>
+          <th width="1%">Tempo</th>
+          <th><!-- Actions --></th>
+          <th width="1%">#</th>
+        </tr>
+        </thead>
+        <tbody>
+        {{#each model.patterns as |pattern|}}
+          <tr class="item">
+            <td>{{pattern.offset}}</td>
+            <td>{{pattern.type}}</td>
+            <td>{{pattern.total}}</td>
+            <td>{{#link-to 'accounts.one.libraries.one.sequences.one.patterns.one' pattern.sequence.library.account pattern.sequence.library pattern.sequence pattern}}{{pattern.name}}{{/link-to}}</td>
+            <td>{{pattern.key}}</td>
+            <td>{{pattern.density}}</td>
+            <td>{{pattern.tempo}}</td>
+            <td>
+              {{#link-to 'accounts.one.libraries.one.sequences.one.patterns.one.memes' pattern.sequence.library.account pattern.sequence.library pattern.sequence pattern}}Memes{{/link-to}}<span>&nbsp;</span>
+              {{#if (not-eq model.sequence.type "macro")}}
+                {{#link-to 'accounts.one.libraries.one.sequences.one.patterns.one.chords' pattern.sequence.library.account pattern.sequence.library pattern.sequence pattern}}Chords{{/link-to}}<span>&nbsp;</span>
+                {{#link-to 'accounts.one.libraries.one.sequences.one.patterns.one.events' pattern.sequence.library.account pattern.sequence.library pattern.sequence pattern}}Events{{/link-to}}<span>&nbsp;</span>
+                {{entity-actions 'accounts.one.libraries.one.sequences.one.patterns.one' 'edit|clone|destroy' pattern.sequence.library.account pattern.sequence.library pattern.sequence pattern}}
+              {{/if}}
+            </td>
+            <th scope="row">{{#link-to "accounts.one.libraries.one.sequences.one.patterns.one"
+                                       pattern.sequence.library.account pattern.sequence.library pattern.sequence pattern}}{{pattern.id}}{{/link-to}}</th>
+          </tr>
+        {{/each}}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>

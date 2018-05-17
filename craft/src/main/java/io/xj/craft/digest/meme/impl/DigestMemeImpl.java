@@ -1,4 +1,4 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.craft.digest.meme.impl;
 
 import io.xj.craft.ingest.Ingest;
@@ -7,8 +7,8 @@ import io.xj.craft.digest.meme.DigestMeme;
 import io.xj.craft.digest.impl.DigestImpl;
 import io.xj.core.model.instrument.Instrument;
 import io.xj.core.model.meme.Meme;
+import io.xj.core.model.sequence.Sequence;
 import io.xj.core.model.pattern.Pattern;
-import io.xj.core.model.phase.Phase;
 
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
@@ -56,17 +56,17 @@ public class DigestMemeImpl extends DigestImpl implements DigestMeme {
   private void digest() throws Exception {
     // in-memory caches of original objects
     Map<BigInteger, Collection<? extends Meme>> instrumentMemes = Maps.newConcurrentMap();
-    Map<BigInteger, Collection<? extends Meme>> patternMemes = Maps.newConcurrentMap();
-    Map<BigInteger, Map<BigInteger, Collection<? extends Meme>>> patternPhaseMemes = Maps.newConcurrentMap();
+    Map<BigInteger, Collection<? extends Meme>> sequenceMemes = Maps.newConcurrentMap();
+    Map<BigInteger, Map<BigInteger, Collection<? extends Meme>>> sequencePatternMemes = Maps.newConcurrentMap();
 
-    // for each pattern, stash collection of pattern memes and prepare map of phases
-    for (Pattern pattern : ingest.patterns()) {
-      patternMemes.put(pattern.getId(), ingest.patternMemes(pattern.getId()));
-      patternPhaseMemes.put(pattern.getId(), Maps.newConcurrentMap());
+    // for each sequence, stash collection of sequence memes and prepare map of patterns
+    for (Sequence sequence : ingest.sequences()) {
+      sequenceMemes.put(sequence.getId(), ingest.sequenceMemes(sequence.getId()));
+      sequencePatternMemes.put(sequence.getId(), Maps.newConcurrentMap());
 
-      // for each phase in pattern, stash collection of phase memes
-      for (Phase phase : ingest.phases(pattern.getId())) {
-        patternPhaseMemes.get(pattern.getId()).put(phase.getId(), ingest.phaseMemes(phase.getId()));
+      // for each pattern in sequence, stash collection of pattern memes
+      for (Pattern pattern : ingest.patterns(sequence.getId())) {
+        sequencePatternMemes.get(sequence.getId()).put(pattern.getId(), ingest.patternMemes(pattern.getId()));
       }
     }
 
@@ -76,12 +76,12 @@ public class DigestMemeImpl extends DigestImpl implements DigestMeme {
     }
 
     // reverse-match everything and store it
-    patternMemes.forEach((patternId, memesInPattern) -> memesInPattern.forEach(meme -> {
-      digestMemesItem(meme.getName()).addPatternId(patternId);
+    sequenceMemes.forEach((sequenceId, memesInSequence) -> memesInSequence.forEach(meme -> {
+      digestMemesItem(meme.getName()).addSequenceId(sequenceId);
     }));
-    patternPhaseMemes.forEach((patternId, patternPhases) ->
-      patternPhases.forEach((phaseId, phaseMemes) -> {
-      phaseMemes.forEach(meme -> digestMemesItem(meme.getName()).addPatternPhaseId(patternId, phaseId));
+    sequencePatternMemes.forEach((sequenceId, sequencePatterns) ->
+      sequencePatterns.forEach((patternId, patternMemes) -> {
+      patternMemes.forEach(meme -> digestMemesItem(meme.getName()).addSequencePatternId(sequenceId, patternId));
     }));
     instrumentMemes.forEach((instrumentId, memesInInstrument) -> memesInInstrument.forEach(meme -> {
       digestMemesItem(meme.getName()).addInstrumentId(instrumentId);
@@ -126,35 +126,35 @@ public class DigestMemeImpl extends DigestImpl implements DigestMeme {
       });
       memeObj.put(KEY_INSTRUMENTS, memeInstrumentsArr);
 
-      JSONArray memePatternsArr = new JSONArray();
-      memeDigestItem.getPhasePatternIds().forEach(patternId -> {
-        JSONObject patternObj = new JSONObject();
-        JSONArray patternPhasesArr = new JSONArray();
-        memeDigestItem.getPhaseIds(patternId).forEach(phaseId -> {
-          JSONObject phaseObj = new JSONObject();
-          phaseObj.put(KEY_PHASE_ID, phaseId);
-          phaseObj.put(KEY_PHASE_NAME, getPhase(phaseId).getName());
-          phaseObj.put(KEY_PHASE_TYPE, getPhase(phaseId).getType());
-          phaseObj.put(KEY_PHASE_OFFSET, getPhase(phaseId).getOffset());
-          patternPhasesArr.put(phaseObj);
+      JSONArray memeSequencesArr = new JSONArray();
+      memeDigestItem.getPatternSequenceIds().forEach(sequenceId -> {
+        JSONObject sequenceObj = new JSONObject();
+        JSONArray sequencePatternsArr = new JSONArray();
+        memeDigestItem.getPatternIds(sequenceId).forEach(patternId -> {
+          JSONObject patternObj = new JSONObject();
+          patternObj.put(KEY_PATTERN_ID, patternId);
+          patternObj.put(KEY_PATTERN_NAME, getPattern(patternId).getName());
+          patternObj.put(KEY_PATTERN_TYPE, getPattern(patternId).getType());
+          patternObj.put(KEY_PATTERN_OFFSET, getPattern(patternId).getOffset());
+          sequencePatternsArr.put(patternObj);
         });
-        patternObj.put(KEY_PATTERN_ID, patternId);
-        patternObj.put(KEY_PATTERN_TYPE, getPattern(patternId).getType());
-        patternObj.put(KEY_PATTERN_NAME, getPattern(patternId).getName());
-        patternObj.put(KEY_PATTERN_HAS_MEME, memeDigestItem.getPatternIds().contains(patternId));
-        patternObj.put(KEY_PHASES_WITH_MEME, patternPhasesArr);
-        memePatternsArr.put(patternObj);
+        sequenceObj.put(KEY_SEQUENCE_ID, sequenceId);
+        sequenceObj.put(KEY_SEQUENCE_TYPE, getSequence(sequenceId).getType());
+        sequenceObj.put(KEY_SEQUENCE_NAME, getSequence(sequenceId).getName());
+        sequenceObj.put(KEY_SEQUENCE_HAS_MEME, memeDigestItem.getSequenceIds().contains(sequenceId));
+        sequenceObj.put(KEY_PATTERNS_WITH_MEME, sequencePatternsArr);
+        memeSequencesArr.put(sequenceObj);
       });
-      memeDigestItem.getPatternIds().forEach(patternId -> {
-        if (memeDigestItem.getPhasePatternIds().contains(patternId)) return;
-        JSONObject patternObj = new JSONObject();
-        patternObj.put(KEY_PATTERN_ID, patternId);
-        patternObj.put(KEY_PATTERN_TYPE, getPattern(patternId).getType());
-        patternObj.put(KEY_PATTERN_NAME, getPattern(patternId).getName());
-        patternObj.put(KEY_PATTERN_HAS_MEME, true);
-        memePatternsArr.put(patternObj);
+      memeDigestItem.getSequenceIds().forEach(sequenceId -> {
+        if (memeDigestItem.getPatternSequenceIds().contains(sequenceId)) return;
+        JSONObject sequenceObj = new JSONObject();
+        sequenceObj.put(KEY_SEQUENCE_ID, sequenceId);
+        sequenceObj.put(KEY_SEQUENCE_TYPE, getSequence(sequenceId).getType());
+        sequenceObj.put(KEY_SEQUENCE_NAME, getSequence(sequenceId).getName());
+        sequenceObj.put(KEY_SEQUENCE_HAS_MEME, true);
+        memeSequencesArr.put(sequenceObj);
       });
-      memeObj.put(KEY_PATTERNS, memePatternsArr);
+      memeObj.put(KEY_SEQUENCES, memeSequencesArr);
 
       memeUsage.put(memeName, memeObj);
     });

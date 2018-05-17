@@ -1,0 +1,23 @@
+<!-- Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved. -->
+
+<div id="player-embed">
+  {{capitalize player.state}}
+
+  {{#if player.currentChain}}
+    {{#link-to "accounts.one.chains.one" player.currentChain}}Chain <sup>#</sup>{{player.currentChain.id}}{{/link-to}}
+  {{/if}}
+
+  {{#if player.currentSegment}}
+    Segment {{player.currentSegment.offset}}
+  {{/if}}
+
+  {{#if (eq player.state "Playing")}}
+    <button class="stop" {{action "stop"}}>&#9640;</button>
+  {{/if}}
+
+  <div id="player-embed-container"></div>
+
+</div>
+
+
+{{yield}}

@@ -18,6 +18,7 @@ import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import java.net.URI;
 import java.util.Collection;
+import java.util.Objects;
 
 public class HttpResponseProviderImpl implements HttpResponseProvider {
   private static final Logger log = LoggerFactory.getLogger(HttpResponseProviderImpl.class);
@@ -59,7 +60,7 @@ public class HttpResponseProviderImpl implements HttpResponseProvider {
 
   @Override
   public Response failure(Exception e, int code) {
-    if (e.getClass().equals(BusinessException.class))
+    if (Objects.equals(e.getClass(), BusinessException.class))
       return failureBusiness(e, code);
     else
       return failureUnknown(e);

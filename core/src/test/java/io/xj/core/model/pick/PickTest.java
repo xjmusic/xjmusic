@@ -16,9 +16,9 @@ public class PickTest {
   @Test
   public void validate() throws Exception {
     new Pick()
-      .setArrangementId(BigInteger.valueOf(1269))
-      .setMorphId(BigInteger.valueOf(6945))
-      .setAudioId(BigInteger.valueOf(6329))
+      .setArrangementId(BigInteger.valueOf(1269L))
+      .setMorphId(BigInteger.valueOf(6945L))
+      .setAudioId(BigInteger.valueOf(6329L))
       .setStart(0.92)
       .setLength(2.7)
       .setAmplitude(0.84)
@@ -32,8 +32,8 @@ public class PickTest {
     failure.expectMessage("Arrangement ID is required");
 
     new Pick()
-      .setMorphId(BigInteger.valueOf(6945))
-      .setAudioId(BigInteger.valueOf(6329))
+      .setMorphId(BigInteger.valueOf(6945L))
+      .setAudioId(BigInteger.valueOf(6329L))
       .setStart(0.92)
       .setLength(2.7)
       .setAmplitude(0.84)
@@ -44,8 +44,8 @@ public class PickTest {
   @Test
   public void validate_withoutMorphID() throws Exception {
     new Pick()
-      .setArrangementId(BigInteger.valueOf(1269))
-      .setAudioId(BigInteger.valueOf(6329))
+      .setArrangementId(BigInteger.valueOf(1269L))
+      .setAudioId(BigInteger.valueOf(6329L))
       .setStart(0.92)
       .setLength(2.7)
       .setAmplitude(0.84)
@@ -59,8 +59,8 @@ public class PickTest {
     failure.expectMessage("Audio ID is required");
 
     new Pick()
-      .setArrangementId(BigInteger.valueOf(1269))
-      .setMorphId(BigInteger.valueOf(6945))
+      .setArrangementId(BigInteger.valueOf(1269L))
+      .setMorphId(BigInteger.valueOf(6945L))
       .setStart(0.92)
       .setLength(2.7)
       .setAmplitude(0.84)
@@ -74,9 +74,9 @@ public class PickTest {
     failure.expectMessage("Start is required");
 
     new Pick()
-      .setArrangementId(BigInteger.valueOf(1269))
-      .setMorphId(BigInteger.valueOf(6945))
-      .setAudioId(BigInteger.valueOf(6329))
+      .setArrangementId(BigInteger.valueOf(1269L))
+      .setMorphId(BigInteger.valueOf(6945L))
+      .setAudioId(BigInteger.valueOf(6329L))
       .setLength(2.7)
       .setAmplitude(0.84)
       .setPitch(42.9)
@@ -89,9 +89,9 @@ public class PickTest {
     failure.expectMessage("Length is required");
 
     new Pick()
-      .setArrangementId(BigInteger.valueOf(1269))
-      .setMorphId(BigInteger.valueOf(6945))
-      .setAudioId(BigInteger.valueOf(6329))
+      .setArrangementId(BigInteger.valueOf(1269L))
+      .setMorphId(BigInteger.valueOf(6945L))
+      .setAudioId(BigInteger.valueOf(6329L))
       .setStart(0.92)
       .setAmplitude(0.84)
       .setPitch(42.9)
@@ -104,9 +104,9 @@ public class PickTest {
     failure.expectMessage("Amplitude is required");
 
     new Pick()
-      .setArrangementId(BigInteger.valueOf(1269))
-      .setMorphId(BigInteger.valueOf(6945))
-      .setAudioId(BigInteger.valueOf(6329))
+      .setArrangementId(BigInteger.valueOf(1269L))
+      .setMorphId(BigInteger.valueOf(6945L))
+      .setAudioId(BigInteger.valueOf(6329L))
       .setStart(0.92)
       .setLength(2.7)
       .setPitch(42.9)
@@ -119,9 +119,9 @@ public class PickTest {
     failure.expectMessage("Pitch is required");
 
     new Pick()
-      .setArrangementId(BigInteger.valueOf(1269))
-      .setMorphId(BigInteger.valueOf(6945))
-      .setAudioId(BigInteger.valueOf(6329))
+      .setArrangementId(BigInteger.valueOf(1269L))
+      .setMorphId(BigInteger.valueOf(6945L))
+      .setAudioId(BigInteger.valueOf(6329L))
       .setStart(0.92)
       .setLength(2.7)
       .setAmplitude(0.84)

@@ -104,7 +104,7 @@ public class S3UploadPolicy {
         return base64Encode(mac.doFinal(base64EncodedPolicy.getBytes()));
     }
 
-    private String base64Encode(byte [] data) {
+    private String base64Encode(byte... data) {
         return Base64.encodeAsString(data).replaceAll("\\s", "");
     }
 

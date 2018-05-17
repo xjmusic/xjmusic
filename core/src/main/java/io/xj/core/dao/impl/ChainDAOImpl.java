@@ -11,13 +11,13 @@ import io.xj.core.exception.DatabaseException;
 import io.xj.core.model.chain.Chain;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
-import io.xj.core.model.link.Link;
-import io.xj.core.model.link.LinkState;
+import io.xj.core.model.segment.Segment;
+import io.xj.core.model.segment.SegmentState;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import io.xj.core.persistence.sql.impl.SQLConnection;
 import io.xj.core.tables.records.ChainRecord;
-import io.xj.core.tables.records.LinkRecord;
+import io.xj.core.tables.records.SegmentRecord;
 import io.xj.core.transport.CSV;
 import io.xj.core.work.WorkManager;
 
@@ -47,8 +47,8 @@ import static io.xj.core.Tables.CHAIN;
 import static io.xj.core.Tables.CHAIN_CONFIG;
 import static io.xj.core.Tables.CHAIN_INSTRUMENT;
 import static io.xj.core.Tables.CHAIN_LIBRARY;
-import static io.xj.core.Tables.CHAIN_PATTERN;
-import static io.xj.core.Tables.LINK;
+import static io.xj.core.Tables.CHAIN_SEQUENCE;
+import static io.xj.core.Tables.SEGMENT;
 
 /**
  Chain D.A.O. Implementation
@@ -58,8 +58,8 @@ import static io.xj.core.Tables.LINK;
  All variants on an update resolve (after entity transformation,
  or additional validation) to one singular central update(fieldValues)
  <p>
- Also note buildNextLinkOrComplete(...) is one singular central implementation
- of the logic around adding links to chains and updating chain state to complete.
+ Also note buildNextSegmentOrComplete(...) is one singular central implementation
+ of the logic around adding segments to chains and updating chain state to complete.
  */
 public class ChainDAOImpl extends DAOImpl implements ChainDAO {
   //  private static final Logger log = LoggerFactory.getLogger(ChainDAOImpl.class);
@@ -77,7 +77,7 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
   }
 
   /**
-   Read one record
+   Read one record by id
 
    @param db     context
    @param access control
@@ -94,6 +94,19 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
         .where(CHAIN.ID.eq(id))
         .and(CHAIN.ACCOUNT_ID.in(access.getAccountIds()))
         .fetchOne(), Chain.class);
+  }
+
+  /**
+   [#150279540] Unauthenticated or specifically-authenticated public Client wants to access a Chain by embed key (as alias for chain id) in order to provide data for playback.
+
+   @param db     context
+   @param embedKey of record
+   @return record
+   */
+  private static Chain readOne(DSLContext db, String embedKey) throws BusinessException {
+    return modelFrom(db.selectFrom(CHAIN)
+      .where(CHAIN.EMBED_KEY.eq(embedKey))
+      .fetchOne(), Chain.class);
   }
 
   /**
@@ -159,14 +172,14 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
         .and(CHAIN.ACCOUNT_ID.in(access.getAccountIds()))
         .fetchOne(0, int.class));
 
-    requireNotExists("Link in Chain", db.select(LINK.ID)
-      .from(LINK)
-      .where(LINK.CHAIN_ID.eq(id))
+    requireNotExists("Segment in Chain", db.select(SEGMENT.ID)
+      .from(SEGMENT)
+      .where(SEGMENT.CHAIN_ID.eq(id))
       .fetch());
 
-    // Chain-Pattern before Chain
-    db.deleteFrom(CHAIN_PATTERN)
-      .where(CHAIN_PATTERN.CHAIN_ID.eq(id))
+    // Chain-Sequence before Chain
+    db.deleteFrom(CHAIN_SEQUENCE)
+      .where(CHAIN_SEQUENCE.CHAIN_ID.eq(id))
       .execute();
 
     // Chain-Instrument before Chain
@@ -248,6 +261,17 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
     }
   }
 
+  @Nullable
+  @Override
+  public Chain readOne(Access access, String embedKey) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readOne(tx.getContext(), embedKey));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
   @Override
   @Nullable
   public Collection<Chain> readAll(Access access, Collection<BigInteger> parentIds) throws Exception {
@@ -292,10 +316,10 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
   }
 
   @Override
-  public Link buildNextLinkOrComplete(Access access, Chain chain, Timestamp linkBeginBefore, Timestamp chainStopCompleteBefore) throws Exception {
+  public Segment buildNextSegmentOrComplete(Access access, Chain chain, Timestamp segmentBeginBefore, Timestamp chainStopCompleteBefore) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(buildNextLinkOrComplete(tx.getContext(), access, chain, linkBeginBefore, chainStopCompleteBefore));
+      return tx.success(buildNextSegmentOrComplete(tx.getContext(), access, chain, segmentBeginBefore, chainStopCompleteBefore));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -367,7 +391,7 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
       case Preview:
         requireRole("Artist to create preview Chain", access, UserRoleType.Artist);
         fieldValues.put(CHAIN.START_AT,
-          Timestamp.from(Instant.now().minusSeconds(previewLengthMax)));
+          Timestamp.from(Instant.now().minusSeconds((long) previewLengthMax)));
         fieldValues.put(CHAIN.STOP_AT,
           Timestamp.from(Instant.now()));
 
@@ -461,7 +485,8 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
         // [#403] Chain must have unique `embed_key`
         if (Objects.nonNull(fieldValues.get(CHAIN.EMBED_KEY)))
           requireNotExists("Existing Chain with this embed_key", db.select(CHAIN.ID).from(CHAIN)
-            .where(CHAIN.EMBED_KEY.eq(fieldValues.get(CHAIN.EMBED_KEY).toString()))
+            .where(CHAIN.ID.notEqual(id))
+            .and(CHAIN.EMBED_KEY.eq(fieldValues.get(CHAIN.EMBED_KEY).toString()))
             .fetch());
         break;
 
@@ -479,9 +504,9 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
       case Draft:
         onlyAllowTransitions(toState, ChainState.Draft, ChainState.Ready, ChainState.Erase);
         if (Objects.equals(ChainState.Ready, toState)) {
-          requireExistsAnyOf(String.format("Chain must be bound to %s", "at least one Library, Pattern, or Instrument"),
+          requireExistsAnyOf(String.format("Chain must be bound to %s", "at least one Library, Sequence, or Instrument"),
             db.selectCount().from(CHAIN_LIBRARY).where(CHAIN_LIBRARY.CHAIN_ID.eq(id)).fetchOne(0, int.class),
-            db.selectCount().from(CHAIN_PATTERN).where(CHAIN_PATTERN.CHAIN_ID.eq(id)).fetchOne(0, int.class),
+            db.selectCount().from(CHAIN_SEQUENCE).where(CHAIN_SEQUENCE.CHAIN_ID.eq(id)).fetchOne(0, int.class),
             db.selectCount().from(CHAIN_INSTRUMENT).where(CHAIN_INSTRUMENT.CHAIN_ID.eq(id)).fetchOne(0, int.class)
           );
         }
@@ -528,14 +553,14 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
         break;
     }
 
-    // [#116] cannot change chain startAt time after has links
+    // [#116] cannot change chain startAt time after has segments
     Object updateStartAt = fieldValues.get(CHAIN.START_AT);
     if (Objects.nonNull(updateStartAt)
-      && !chain.getStartAt().equals(Timestamp.valueOf(updateStartAt.toString())))
+      && !Objects.equals(chain.getStartAt(), Timestamp.valueOf(updateStartAt.toString())))
       requireNotExists(
-        "cannot change chain startAt time after it has links",
-        db.select(LINK.ID).from(LINK)
-          .where(LINK.CHAIN_ID.eq(chain.getId()))
+        "cannot change chain startAt time after it has segments",
+        db.select(SEGMENT.ID).from(SEGMENT)
+          .where(SEGMENT.CHAIN_ID.eq(chain.getId()))
           .fetch()
       );
 
@@ -582,76 +607,76 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
    Read all records in parent by id
 
    @param db                      context
-   @param chain                   to readMany pilot template link for
-   @param linkBeginBefore         time upper threshold
+   @param chain                   to readMany pilot template segment for
+   @param segmentBeginBefore      time upper threshold
    @param chainStopCompleteBefore time upper threshold
-   @return Link template
+   @return Segment template
    */
   @Nullable
-  private Link buildNextLinkOrComplete(DSLContext db, Access access, Chain chain, Timestamp linkBeginBefore, Timestamp chainStopCompleteBefore) throws Exception {
+  private Segment buildNextSegmentOrComplete(DSLContext db, Access access, Chain chain, Timestamp segmentBeginBefore, Timestamp chainStopCompleteBefore) throws Exception {
     requireTopLevel(access);
 
-    Record lastRecordWithNoEndAtTime = db.select(LINK.CHAIN_ID)
-      .from(LINK)
-      .where(LINK.END_AT.isNull())
-      .and(LINK.CHAIN_ID.eq(ULong.valueOf(chain.getId())))
-      .groupBy(LINK.CHAIN_ID, LINK.OFFSET, LINK.END_AT)
-      .orderBy(LINK.OFFSET.desc())
+    Record lastRecordWithNoEndAtTime = db.select(SEGMENT.CHAIN_ID)
+      .from(SEGMENT)
+      .where(SEGMENT.END_AT.isNull())
+      .and(SEGMENT.CHAIN_ID.eq(ULong.valueOf(chain.getId())))
+      .groupBy(SEGMENT.CHAIN_ID, SEGMENT.OFFSET, SEGMENT.END_AT)
+      .orderBy(SEGMENT.OFFSET.desc())
       .limit(1)
       .fetchOne();
 
-    // If there's already a no-endAt-time-having Link
+    // If there's already a no-endAt-time-having Segment
     // at the end of this Chain, get outta here
     if (Objects.nonNull(lastRecordWithNoEndAtTime))
       return null;
 
-    // Get the last link in the chain
-    LinkRecord lastLinkInChain = db.selectFrom(LINK)
-      .where(LINK.CHAIN_ID.eq(ULong.valueOf(chain.getId())))
-      .and(LINK.BEGIN_AT.isNotNull())
-      .and(LINK.END_AT.isNotNull())
-      .groupBy(LINK.CHAIN_ID, LINK.OFFSET, LINK.END_AT)
-      .orderBy(LINK.OFFSET.desc())
+    // Get the last segment in the chain
+    SegmentRecord lastSegmentInChain = db.selectFrom(SEGMENT)
+      .where(SEGMENT.CHAIN_ID.eq(ULong.valueOf(chain.getId())))
+      .and(SEGMENT.BEGIN_AT.isNotNull())
+      .and(SEGMENT.END_AT.isNotNull())
+      .groupBy(SEGMENT.CHAIN_ID, SEGMENT.OFFSET, SEGMENT.END_AT)
+      .orderBy(SEGMENT.OFFSET.desc())
       .limit(1)
       .fetchOne();
 
-    // If the chain had no last link, it must be empty; return a template for its first link
-    if (Objects.isNull(lastLinkInChain)) {
-      Link pilotTemplate = new Link();
+    // If the chain had no last segment, it must be empty; return a template for its first segment
+    if (Objects.isNull(lastSegmentInChain)) {
+      Segment pilotTemplate = new Segment();
       pilotTemplate.setChainId(chain.getId());
       pilotTemplate.setBeginAtTimestamp(chain.getStartAt());
       pilotTemplate.setOffset(BigInteger.ZERO);
-      pilotTemplate.setState(LinkState.Planned.toString());
+      pilotTemplate.setState(SegmentState.Planned.toString());
       return pilotTemplate;
     }
 
-    // If the last link begins after our boundary, we're here early; get outta here.
-    if (lastLinkInChain.getBeginAt().after(linkBeginBefore)) {
+    // If the last segment begins after our boundary, we're here early; get outta here.
+    if (lastSegmentInChain.getBeginAt().after(segmentBeginBefore)) {
       return null;
     }
 
     /*
-     [#204] Craftworker updates Chain to COMPLETE state when the final link is in dubbed state.
+     [#204] Craftworker updates Chain to COMPLETE state when the final segment is in dubbed state.
      */
-    if (Objects.nonNull(lastLinkInChain.getEndAt())
+    if (Objects.nonNull(lastSegmentInChain.getEndAt())
       && Objects.nonNull(chain.getStopAt())
-      && lastLinkInChain.getEndAt().after(chain.getStopAt())) {
+      && lastSegmentInChain.getEndAt().after(chain.getStopAt())) {
       // this is where we check to see if the chain is ready to be COMPLETE.
       if (chain.getStopAt().before(chainStopCompleteBefore)
-        // and [#122] require the last link in the chain to be in state DUBBED.
-        && Objects.equals(lastLinkInChain.getState(), LinkState.Dubbed.toString())) {
+        // and [#122] require the last segment in the chain to be in state DUBBED.
+        && Objects.equals(lastSegmentInChain.getState(), SegmentState.Dubbed.toString())) {
         updateState(db, access, ULong.valueOf(chain.getId()), ChainState.Complete);
       }
       return null;
     }
 
-    // Build the template of the link that follows the last known one
-    Link pilotTemplate = new Link();
-    ULong pilotOffset = ULong.valueOf(lastLinkInChain.getOffset().toBigInteger().add(BigInteger.valueOf(1)));
+    // Build the template of the segment that follows the last known one
+    Segment pilotTemplate = new Segment();
+    ULong pilotOffset = ULong.valueOf(lastSegmentInChain.getOffset().toBigInteger().add(BigInteger.valueOf(1L)));
     pilotTemplate.setChainId(chain.getId());
-    pilotTemplate.setBeginAtTimestamp(lastLinkInChain.getEndAt());
+    pilotTemplate.setBeginAtTimestamp(lastSegmentInChain.getEndAt());
     pilotTemplate.setOffset(pilotOffset.toBigInteger());
-    pilotTemplate.setState(LinkState.Planned.toString());
+    pilotTemplate.setState(SegmentState.Planned.toString());
     return pilotTemplate;
   }
 

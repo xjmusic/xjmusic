@@ -5,7 +5,7 @@ import {inject as service} from '@ember/service';
 import Component from '@ember/component';
 
 /**
- * Displays a Message badges U.I., e.g. Link Messages
+ * Displays a Message badges U.I., e.g. Segment Messages
  */
 const MessageBadgesComponent = Component.extend({
 
@@ -18,7 +18,7 @@ const MessageBadgesComponent = Component.extend({
   actions: {
 
     showMessage(message) {
-      $('#messageBadgesModalTitle').html(properCase(message.get('type')) + ', Link #' + message.get('link').get('id'));
+      $('#messageBadgesModalTitle').html(properCase(message.get('type')) + ', Segment #' + message.get('segment').get('id'));
       $('#messageBadgesModalBody').html(message.get('body'));
 
       let msgClass = (message.get('type') + '-type').toLowerCase();
@@ -40,9 +40,9 @@ function properCase(raw) {
 }
 
 /**
- * Usage (e.g, in Handlebars, where link model is "myLinkModel"):
+ * Usage (e.g, in Handlebars, where segment model is "mySegmentModel"):
  *
- *   {{message-badges myLinkModel}}
+ *   {{message-badges mySegmentModel}}
  */
 MessageBadgesComponent.reopenClass({
   positionalParams: ['model']

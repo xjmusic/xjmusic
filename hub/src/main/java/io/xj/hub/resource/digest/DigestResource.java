@@ -110,8 +110,8 @@ public class DigestResource extends HubResource {
       case DigestChordMarkov:
         return digestProvider.chordMarkov(ingest);
 
-      case DigestPatternStyle:
-        return digestProvider.patternStyle(ingest);
+      case DigestSequenceStyle:
+        return digestProvider.sequenceStyle(ingest);
 
       default:
         throw new BusinessException(String.format("Invalid type: %s", type));

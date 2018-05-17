@@ -3,8 +3,8 @@ package io.xj.worker.job.impl;
 
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.ChainDAO;
-import io.xj.core.dao.LinkDAO;
-import io.xj.core.model.link.Link;
+import io.xj.core.dao.SegmentDAO;
+import io.xj.core.model.segment.Segment;
 import io.xj.core.transport.CSV;
 import io.xj.core.work.WorkManager;
 import io.xj.worker.job.ChainEraseJob;
@@ -25,19 +25,19 @@ public class ChainEraseJobImpl implements ChainEraseJob {
   private static final Logger log = LoggerFactory.getLogger(ChainEraseJobImpl.class);
   private final BigInteger entityId;
   private final ChainDAO chainDAO;
-  private final LinkDAO linkDAO;
+  private final SegmentDAO segmentDAO;
   private final WorkManager workManager;
 
   @Inject
   public ChainEraseJobImpl(
     @Assisted("entityId") BigInteger entityId,
     ChainDAO chainDAO,
-    LinkDAO linkDAO,
+    SegmentDAO segmentDAO,
     WorkManager workManager
   ) {
     this.entityId = entityId;
     this.chainDAO = chainDAO;
-    this.linkDAO = linkDAO;
+    this.segmentDAO = segmentDAO;
     this.workManager = workManager;
   }
 
@@ -59,49 +59,49 @@ public class ChainEraseJobImpl implements ChainEraseJob {
    @throws Exception on failure
    */
   private void eraseChain() throws Exception {
-    Collection<Link> links = linkDAO.readAll(Access.internal(), ImmutableList.of(entityId));
-    if (links.isEmpty())
+    Collection<Segment> segments = segmentDAO.readAll(Access.internal(), ImmutableList.of(entityId));
+    if (segments.isEmpty())
       try {
-        log.info("Found ZERO links in chainId={}; attempting to delete...", entityId);
+        log.info("Found ZERO segments in chainId={}; attempting to delete...", entityId);
         chainDAO.destroy(Access.internal(), entityId);
       } catch (Exception e) {
         log.warn("Failed to delete chainId={}", entityId, e);
         workManager.stopChainErase(entityId);
       }
     else {
-      List<String> linkIds = Lists.newArrayList();
-      for (Link link : links) {
-        linkIds.add(link.getId().toString());
+      List<String> segmentIds = Lists.newArrayList();
+      for (Segment segment : segments) {
+        segmentIds.add(segment.getId().toString());
       }
-      log.info("Found {} links in chainId={}; linksIds={}; attempting to erase...", links.size(), entityId, CSV.join(linkIds));
-      eraseLinks(links);
+      log.info("Found {} segments in chainId={}; segmentsIds={}; attempting to erase...", segments.size(), entityId, CSV.join(segmentIds));
+      eraseSegments(segments);
     }
   }
 
   /**
-   Erase many links
-   Eraseworker iterates on each link in the chain, reading in batches of a limited size
+   Erase many segments
+   Eraseworker iterates on each segment in the chain, reading in batches of a limited size
 
-   @param links to erase
+   @param segments to erase
    @throws Exception on failure
    */
-  private void eraseLinks(Iterable<Link> links) throws Exception {
-    for (Link link : links)
-      eraseLink(link);
+  private void eraseSegments(Iterable<Segment> segments) throws Exception {
+    for (Segment segment : segments)
+      eraseSegment(segment);
   }
 
   /**
-   Erase a link
-   Eraseworker removes all child entities for the Link
-   Eraseworker deletes all S3 objects for the Link
-   If the Link is empty and the S3 object is confirmed deleted, Eraseworker deletes the Link
+   Erase a segment
+   Eraseworker removes all child entities for the Segment
+   Eraseworker deletes all S3 objects for the Segment
+   If the Segment is empty and the S3 object is confirmed deleted, Eraseworker deletes the Segment
 
-   @param link to erase
+   @param segment to erase
    @throws Exception on failure
    */
-  private void eraseLink(Link link) throws Exception {
-    linkDAO.destroy(Access.internal(), link.getId());
-    log.info("Erased Link #{}, destroyed child entities, and deleted s3 object {}", link.getId(), link.getWaveformKey());
+  private void eraseSegment(Segment segment) throws Exception {
+    segmentDAO.destroy(Access.internal(), segment.getId());
+    log.info("Erased Segment #{}, destroyed child entities, and deleted s3 object {}", segment.getId(), segment.getWaveformKey());
   }
 
 }

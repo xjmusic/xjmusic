@@ -1,0 +1,45 @@
+<!-- Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved. -->
+
+<!-- Inner Content -->
+{{outlet}}
+
+<!-- Upper Container -->
+<div class="form-horizontal container-fluid">
+
+  {{#if (or auth.isArtist auth.isAdmin)}}
+    <div class="col-sm-12 text-right">
+      {{#link-to 'accounts.one.libraries.one.sequences.one.patterns.one.chords.new' model.pattern.sequence.library.account model.pattern.sequence.library model.pattern.sequence model.pattern}}{{fa-icon "plus"}} Create New Chord{{/link-to}}
+    </div>
+  {{/if}}
+
+  <!-- List of Chords -->
+  <div class="col-sm-12">
+    <div class="table-list">
+      <table class="table">
+        <thead>
+        <tr>
+          <th width="1%">Position</th>
+          <th>Name</th>
+          <th><!--Actions--></th>
+          <th width="1%">#</th>
+        </tr>
+        </thead>
+        <tbody>
+        {{#each model.chords as |chord|}}
+          <tr class="item">
+            <td>{{chord.position}}</td>
+            <td>
+              {{chord.name}}
+            </td>
+            <td>
+              {{entity-actions 'accounts.one.libraries.one.sequences.one.patterns.one.chords.one' 'edit|destroy' chord.pattern.sequence.library.account chord.pattern.sequence.library chord.pattern.sequence chord.pattern chord}}
+            </td>
+            <th scope="row">{{chord.id}}</th>
+          </tr>
+        {{/each}}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>

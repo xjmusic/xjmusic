@@ -127,12 +127,12 @@ public class AudioCloneJobIT {
     app = null;
     injector = null;
 
-    System.clearProperty("link.file.bucket");
+    System.clearProperty("segment.file.bucket");
     System.clearProperty("audio.file.bucket");
   }
 
   /**
-   [#294] Cloneworker finds Links and Audio in deleted state and actually deletes the records, child entities and S3 objects
+   [#294] Cloneworker finds Segments and Audio in deleted state and actually deletes the records, child entities and S3 objects
    */
   @Test
   public void runWorker() throws Exception {

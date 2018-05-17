@@ -8,21 +8,21 @@ public interface Generation {
   String KEY_ONE = "digest";
   String KEY_MANY = "digests";
   String KEY_CHORD_SEQUENCE = "chordProgression";
-  String KEY_SUPERPATTERN = "superpattern";
-  String KEY_PATTERN_ID = "patternId";
-  String KEY_PATTERN_NAME = "patternName";
-  String KEY_PATTERN_TYPE = "patternType";
+  String KEY_SUPERSEQUENCE = "supersequence";
+  String KEY_SEQUENCE_ID = "sequenceId";
+  String KEY_SEQUENCE_NAME = "sequenceName";
+  String KEY_SEQUENCE_TYPE = "sequenceType";
 
   /**
-   Determine type of generation, e.g. initial link in chain, or next macro-pattern
+   Determine type of generation, e.g. initial segment in chain, or next macro-sequence
 
    @return macro-craft type
    */
   GenerationType type();
 
   /**
-   An Ingest collection of entities that this chain link fabrication generation will ingest.
-   Based on primary chain-bindings, e.g. ChainLibrary, ChainInstrument, and ChainPattern.
+   An Ingest collection of entities that this chain segment fabrication generation will ingest.
+   Based on primary chain-bindings, e.g. ChainLibrary, ChainInstrument, and ChainSequence.
 
    @return Ingest
    */

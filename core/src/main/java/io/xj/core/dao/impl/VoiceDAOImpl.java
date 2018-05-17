@@ -23,9 +23,9 @@ import java.util.Map;
 
 import static io.xj.core.tables.Arrangement.ARRANGEMENT;
 import static io.xj.core.tables.Library.LIBRARY;
-import static io.xj.core.tables.Pattern.PATTERN;
+import static io.xj.core.tables.Sequence.SEQUENCE;
 import static io.xj.core.tables.Voice.VOICE;
-import static io.xj.core.tables.PhaseEvent.PHASE_EVENT;
+import static io.xj.core.tables.PatternEvent.PATTERN_EVENT;
 
 public class VoiceDAOImpl extends DAOImpl implements VoiceDAO {
 
@@ -68,33 +68,33 @@ public class VoiceDAOImpl extends DAOImpl implements VoiceDAO {
     else
       return modelFrom(db.select(VOICE.fields())
         .from(VOICE)
-        .join(PATTERN).on(PATTERN.ID.eq(VOICE.PATTERN_ID))
-        .join(LIBRARY).on(LIBRARY.ID.eq(PATTERN.LIBRARY_ID))
+        .join(SEQUENCE).on(SEQUENCE.ID.eq(VOICE.SEQUENCE_ID))
+        .join(LIBRARY).on(LIBRARY.ID.eq(SEQUENCE.LIBRARY_ID))
         .where(VOICE.ID.eq(id))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .fetchOne(), Voice.class);
   }
 
   /**
-   Read all Voice able for an Phase
+   Read all Voice able for an Pattern
 
    @param db        context
    @param access    control
-   @param patternId to readMany all voice of
+   @param sequenceId to readMany all voice of
    @return array of voices
    */
-  private static Collection<Voice> readAll(DSLContext db, Access access, Collection<ULong> patternId) throws BusinessException {
+  private static Collection<Voice> readAll(DSLContext db, Access access, Collection<ULong> sequenceId) throws BusinessException {
     if (access.isTopLevel())
       return modelsFrom(db.select(VOICE.fields())
         .from(VOICE)
-        .where(VOICE.PATTERN_ID.in(patternId))
+        .where(VOICE.SEQUENCE_ID.in(sequenceId))
         .fetch(), Voice.class);
     else
       return modelsFrom(db.select(VOICE.fields())
         .from(VOICE)
-        .join(PATTERN).on(PATTERN.ID.eq(VOICE.PATTERN_ID))
-        .join(LIBRARY).on(LIBRARY.ID.eq(PATTERN.LIBRARY_ID))
-        .where(VOICE.PATTERN_ID.in(patternId))
+        .join(SEQUENCE).on(SEQUENCE.ID.eq(VOICE.SEQUENCE_ID))
+        .join(LIBRARY).on(LIBRARY.ID.eq(SEQUENCE.LIBRARY_ID))
+        .where(VOICE.SEQUENCE_ID.in(sequenceId))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .fetch(), Voice.class);
   }
@@ -130,14 +130,14 @@ public class VoiceDAOImpl extends DAOImpl implements VoiceDAO {
   private static void delete(Access access, DSLContext db, ULong id) throws Exception {
     if (!access.isTopLevel())
       requireExists("Voice", db.selectCount().from(VOICE)
-        .join(PATTERN).on(PATTERN.ID.eq(VOICE.PATTERN_ID))
-        .join(LIBRARY).on(LIBRARY.ID.eq(PATTERN.LIBRARY_ID))
+        .join(SEQUENCE).on(SEQUENCE.ID.eq(VOICE.SEQUENCE_ID))
+        .join(LIBRARY).on(LIBRARY.ID.eq(SEQUENCE.LIBRARY_ID))
         .where(VOICE.ID.eq(id))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .fetchOne(0, int.class));
 
-    db.deleteFrom(PHASE_EVENT)
-      .where(PHASE_EVENT.VOICE_ID.eq(id))
+    db.deleteFrom(PATTERN_EVENT)
+      .where(PATTERN_EVENT.VOICE_ID.eq(id))
       .execute();
 
     db.deleteFrom(ARRANGEMENT)
@@ -159,14 +159,14 @@ public class VoiceDAOImpl extends DAOImpl implements VoiceDAO {
    */
   private static void requireRelationships(DSLContext db, Access access, Voice entity) throws BusinessException {
     if (access.isTopLevel())
-      requireExists("Pattern", db.selectCount().from(PATTERN)
-        .where(PATTERN.ID.eq(ULong.valueOf(entity.getPatternId())))
+      requireExists("Sequence", db.selectCount().from(SEQUENCE)
+        .where(SEQUENCE.ID.eq(ULong.valueOf(entity.getSequenceId())))
         .fetchOne(0, int.class));
     else
-      requireExists("Pattern", db.selectCount().from(PATTERN)
-        .join(LIBRARY).on(LIBRARY.ID.eq(PATTERN.LIBRARY_ID))
+      requireExists("Sequence", db.selectCount().from(SEQUENCE)
+        .join(LIBRARY).on(LIBRARY.ID.eq(SEQUENCE.LIBRARY_ID))
         .where(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
-        .and(PATTERN.ID.eq(ULong.valueOf(entity.getPatternId())))
+        .and(SEQUENCE.ID.eq(ULong.valueOf(entity.getSequenceId())))
         .fetchOne(0, int.class));
   }
 
@@ -179,7 +179,7 @@ public class VoiceDAOImpl extends DAOImpl implements VoiceDAO {
    */
   private static Map<Field, Object> fieldValueMap(Voice entity) {
     Map<Field, Object> fieldValues = Maps.newHashMap();
-    fieldValues.put(VOICE.PATTERN_ID, entity.getPatternId());
+    fieldValues.put(VOICE.SEQUENCE_ID, entity.getSequenceId());
     fieldValues.put(VOICE.TYPE, entity.getType());
     fieldValues.put(VOICE.DESCRIPTION, entity.getDescription());
     return fieldValues;

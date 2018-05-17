@@ -1,4 +1,4 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.craft.chord;
 
 import io.xj.core.model.chord.Chord;
@@ -84,7 +84,7 @@ public class ChordProgression {
 
   /**
    Search for a point at which forward-reverse collide, between a forward-generated chord progression and a reverse-generated chord progression into one final progression, which begins in the forward-generated chords and ends with the reverse-generated chords.
-   - score all possible combinations of phase total and splice point. Any pair of phase total and splice point determines one potential outcome.
+   - score all possible combinations of pattern total and splice point. Any pair of pattern total and splice point determines one potential outcome.
 
    @param target chord progression to consolidate
    @return final progression, which begins in the forward-generated chords and ends with the reverse-generated chords.

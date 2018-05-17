@@ -241,7 +241,7 @@ public class UserDAOImpl extends DAOImpl implements UserDAO {
         .and(ACCOUNT_USER.ACCOUNT_ID.in(access.getAccountIds()))
         .groupBy(USER_ROLE.USER_ID)
         .fetchOne(), User.class);
-    } else if (ULong.valueOf(access.getUserId()).equals(userId)) {
+    } else if (Objects.equals(ULong.valueOf(access.getUserId()), userId)) {
       return modelFrom(select(db)
         .from(USER_ROLE)
         .join(USER).on(USER.ID.eq(USER_ROLE.USER_ID))
@@ -467,6 +467,7 @@ public class UserDAOImpl extends DAOImpl implements UserDAO {
     }
   }
 
+  @Override
   @Nullable
   public Collection<User> readAll(Access access, Collection<BigInteger> parentIds) throws Exception {
     SQLConnection tx = dbProvider.getConnection();

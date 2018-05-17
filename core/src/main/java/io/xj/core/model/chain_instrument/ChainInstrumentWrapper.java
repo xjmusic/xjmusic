@@ -27,6 +27,7 @@ public class ChainInstrumentWrapper extends EntityWrapper {
 
    @throws BusinessException if invalid.
    */
+  @Override
   public ChainInstrument validate() throws BusinessException {
     if (this.chainInstrument == null) {
       throw new BusinessException("Chain Instrument is required.");

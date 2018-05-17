@@ -4,12 +4,12 @@ categories = ["core"]
 tags = ["event"]
 slug = "events"
 title = "Events"
-description = "Musical events are symmetrically encoded in Instrument-Audio and Pattern-Phase-Voices"
+description = "Musical events are symmetrically encoded in Instrument-Audio and Sequence-Pattern-Voices"
 draft = false
 
 +++
 
-There are two types of **Events**, the **Pattern Phase Voice-Event** and the **Instrument Audio-Event**. Automatic fabrication performs a search for matching Instrument Audio-Events for the chosen Pattern Phase Voice-Events. That is how an Audio is chosen inside of an Instrument, based on its Audio-Events.
+There are two types of **Events**, the **Sequence Pattern Voice-Event** and the **Instrument Audio-Event**. Automatic fabrication performs a search for matching Instrument Audio-Events for the chosen Sequence Pattern Voice-Events. That is how an Audio is chosen inside of an Instrument, based on its Audio-Events.
 
 # Percussive-type Instruments
 

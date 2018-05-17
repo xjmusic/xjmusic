@@ -2,7 +2,7 @@
 package io.xj.core.model.choice;
 
 import io.xj.core.model.entity.EntityRank;
-import io.xj.core.model.pattern.Pattern;
+import io.xj.core.model.sequence.Sequence;
 
 import com.google.common.collect.ImmutableList;
 
@@ -18,75 +18,75 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class EntityRankTest {
-  private EntityRank<Pattern> entityRank;
+  private EntityRank<Sequence> entityRank;
 
-  private Pattern patternB;
-  private Pattern patternC;
-  private Pattern patternD;
-  private Pattern patternE;
+  private Sequence sequenceB;
+  private Sequence sequenceC;
+  private Sequence sequenceD;
+  private Sequence sequenceE;
 
   @Before
   public void setUp() throws Exception {
-    patternB = new Pattern();
-    patternB.setId(BigInteger.valueOf(5));
-    patternB.setName("Super Jam");
+    sequenceB = new Sequence();
+    sequenceB.setId(BigInteger.valueOf(5L));
+    sequenceB.setName("Super Jam");
 
-    patternC = new Pattern();
-    patternC.setId(BigInteger.valueOf(12));
-    patternC.setName("Dope Beat");
+    sequenceC = new Sequence();
+    sequenceC.setId(BigInteger.valueOf(12L));
+    sequenceC.setName("Dope Beat");
 
-    patternD = new Pattern();
-    patternD.setId(BigInteger.valueOf(15));
-    patternD.setName("The Illest");
+    sequenceD = new Sequence();
+    sequenceD.setId(BigInteger.valueOf(15L));
+    sequenceD.setName("The Illest");
 
-    patternE = new Pattern();
-    patternE.setId(BigInteger.valueOf(22));
-    patternE.setName("Good News");
+    sequenceE = new Sequence();
+    sequenceE.setId(BigInteger.valueOf(22L));
+    sequenceE.setName("Good News");
 
     entityRank = new EntityRank<>();
 
-    entityRank.add(patternB, 0.75);
-    entityRank.add(patternC, 0.25);
-    entityRank.add(patternD, 0.5);
+    entityRank.add(sequenceB, 0.75);
+    entityRank.add(sequenceC, 0.25);
+    entityRank.add(sequenceD, 0.5);
   }
 
   @After
   public void tearDown() throws Exception {
     entityRank = null;
-    patternB = null;
-    patternC = null;
-    patternD = null;
-    patternE = null;
+    sequenceB = null;
+    sequenceC = null;
+    sequenceD = null;
+    sequenceE = null;
   }
 
   @Test
   public void add() throws Exception {
-    entityRank.add(patternE);
+    entityRank.add(sequenceE);
 
-    assertTrue(entityRank.getAll().contains(patternE));
+    assertTrue(entityRank.getAll().contains(sequenceE));
   }
 
   @Test
   public void addAll() throws Exception {
-    EntityRank<Pattern> result = new EntityRank<>();
+    EntityRank<Sequence> result = new EntityRank<>();
     result.addAll(
-      ImmutableList.of(patternB, patternC, patternD));
+      ImmutableList.of(sequenceB, sequenceC, sequenceD));
 
-    assertTrue(entityRank.getAll().contains(patternB));
-    assertTrue(entityRank.getAll().contains(patternC));
-    assertTrue(entityRank.getAll().contains(patternD));
+    assertTrue(entityRank.getAll().contains(sequenceB));
+    assertTrue(entityRank.getAll().contains(sequenceC));
+    assertTrue(entityRank.getAll().contains(sequenceD));
   }
 
   @Test
   public void addWithScore() throws Exception {
-    entityRank.add(patternE, 2.0);
+    entityRank.add(sequenceE, 2.0);
 
     assertArrayEquals(
-      new Pattern[]{
-        patternB,
-        patternC,
-        patternD,
-        patternE
+      new Sequence[]{
+        sequenceB,
+        sequenceC,
+        sequenceD,
+        sequenceE
       },
       entityRank.getAll().toArray()
     );
@@ -94,13 +94,13 @@ public class EntityRankTest {
 
   @Test
   public void score() throws Exception {
-    entityRank.score(patternC, 2.0);
+    entityRank.score(sequenceC, 2.0);
 
     assertArrayEquals(
-      new Pattern[]{
-        patternC,
-        patternB,
-        patternD
+      new Sequence[]{
+        sequenceC,
+        sequenceB,
+        sequenceD
       },
       entityRank.getAllScored().toArray()
     );
@@ -108,13 +108,13 @@ public class EntityRankTest {
 
   @Test
   public void scoreById() throws Exception {
-    entityRank.score(BigInteger.valueOf(12), 2.0);
+    entityRank.score(BigInteger.valueOf(12L), 2.0);
 
     assertArrayEquals(
-      new Pattern[]{
-        patternC,
-        patternB,
-        patternD
+      new Sequence[]{
+        sequenceC,
+        sequenceB,
+        sequenceD
       },
       entityRank.getAllScored().toArray()
     );
@@ -123,10 +123,10 @@ public class EntityRankTest {
   @Test
   public void getAll() throws Exception {
     assertArrayEquals(
-      new Pattern[]{
-        patternB,
-        patternC,
-        patternD
+      new Sequence[]{
+        sequenceB,
+        sequenceC,
+        sequenceD
       },
       entityRank.getAll().toArray()
     );
@@ -134,10 +134,10 @@ public class EntityRankTest {
 
   @Test
   public void score_adjustExisting() throws Exception {
-    entityRank.score(patternC, 2.0);
+    entityRank.score(sequenceC, 2.0);
 
     Map<BigInteger, Double> result = entityRank.getScores();
-    assertEquals(Double.valueOf(2.25), result.get(BigInteger.valueOf(12)));
+    assertEquals(Double.valueOf(2.25), result.get(BigInteger.valueOf(12L)));
   }
 
 
@@ -145,22 +145,22 @@ public class EntityRankTest {
   public void getScores() throws Exception {
     Map<BigInteger, Double> result = entityRank.getScores();
 
-    assertEquals(Double.valueOf(0.75), result.get(BigInteger.valueOf(5)));
-    assertEquals(Double.valueOf(0.25), result.get(BigInteger.valueOf(12)));
-    assertEquals(Double.valueOf(0.5), result.get(BigInteger.valueOf(15)));
+    assertEquals(Double.valueOf(0.75), result.get(BigInteger.valueOf(5L)));
+    assertEquals(Double.valueOf(0.25), result.get(BigInteger.valueOf(12L)));
+    assertEquals(Double.valueOf(0.5), result.get(BigInteger.valueOf(15L)));
   }
 
   @Test
   public void getTop() throws Exception {
-    assertEquals(patternB, entityRank.getTop());
+    assertEquals(sequenceB, entityRank.getTop());
   }
 
   @Test
   public void getScored() throws Exception {
     assertArrayEquals(
-      new Pattern[]{
-        patternB,
-        patternD
+      new Sequence[]{
+        sequenceB,
+        sequenceD
       },
       entityRank.getScored(2).toArray()
     );
@@ -169,10 +169,10 @@ public class EntityRankTest {
   @Test
   public void getAllScored() throws Exception {
     assertArrayEquals(
-      new Pattern[]{
-        patternB,
-        patternD,
-        patternC
+      new Sequence[]{
+        sequenceB,
+        sequenceD,
+        sequenceC
       },
       entityRank.getAllScored().toArray()
     );
@@ -180,7 +180,7 @@ public class EntityRankTest {
 
   @Test
   public void size() throws Exception {
-    assertEquals(3, entityRank.size());
+    assertEquals(3L, (long) entityRank.size());
   }
 
 }

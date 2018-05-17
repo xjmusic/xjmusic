@@ -16,7 +16,7 @@ public class InstrumentMemeTest {
   @Test
   public void validate() throws Exception {
     new InstrumentMeme()
-      .setInstrumentId(BigInteger.valueOf(23678))
+      .setInstrumentId(BigInteger.valueOf(23678L))
       .setName("Miccheckonetwo")
       .validate();
   }
@@ -37,7 +37,7 @@ public class InstrumentMemeTest {
     failure.expectMessage("Name is required");
 
     new InstrumentMeme()
-      .setInstrumentId(BigInteger.valueOf(23678))
+      .setInstrumentId(BigInteger.valueOf(23678L))
       .validate();
   }
 

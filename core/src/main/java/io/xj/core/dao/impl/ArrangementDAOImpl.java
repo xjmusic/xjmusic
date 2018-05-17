@@ -24,7 +24,7 @@ import java.util.Map;
 import static io.xj.core.Tables.ARRANGEMENT;
 import static io.xj.core.Tables.CHAIN;
 import static io.xj.core.Tables.CHOICE;
-import static io.xj.core.Tables.LINK;
+import static io.xj.core.Tables.SEGMENT;
 
 public class ArrangementDAOImpl extends DAOImpl implements ArrangementDAO {
 
@@ -76,8 +76,8 @@ public class ArrangementDAOImpl extends DAOImpl implements ArrangementDAO {
       return modelFrom(db.select(ARRANGEMENT.fields())
         .from(ARRANGEMENT)
         .join(CHOICE).on(CHOICE.ID.eq(ARRANGEMENT.CHOICE_ID))
-        .join(LINK).on(LINK.ID.eq(CHOICE.LINK_ID))
-        .join(CHAIN).on(CHAIN.ID.eq(LINK.CHAIN_ID))
+        .join(SEGMENT).on(SEGMENT.ID.eq(CHOICE.SEGMENT_ID))
+        .join(CHAIN).on(CHAIN.ID.eq(SEGMENT.CHAIN_ID))
         .where(ARRANGEMENT.ID.eq(id))
         .and(CHAIN.ACCOUNT_ID.in(access.getAccountIds()))
         .fetchOne(), Arrangement.class);
@@ -101,8 +101,8 @@ public class ArrangementDAOImpl extends DAOImpl implements ArrangementDAO {
       return modelsFrom(db.select(ARRANGEMENT.fields())
         .from(ARRANGEMENT)
         .join(CHOICE).on(CHOICE.ID.eq(ARRANGEMENT.CHOICE_ID))
-        .join(LINK).on(LINK.ID.eq(CHOICE.LINK_ID))
-        .join(CHAIN).on(CHAIN.ID.eq(LINK.CHAIN_ID))
+        .join(SEGMENT).on(SEGMENT.ID.eq(CHOICE.SEGMENT_ID))
+        .join(CHAIN).on(CHAIN.ID.eq(SEGMENT.CHAIN_ID))
         .where(ARRANGEMENT.CHOICE_ID.in(choiceIds))
         .and(CHAIN.ACCOUNT_ID.in(access.getAccountIds()))
         .fetch(), Arrangement.class);
@@ -113,16 +113,16 @@ public class ArrangementDAOImpl extends DAOImpl implements ArrangementDAO {
 
    @param db      context
    @param access  control
-   @param linkIds id of parent's parent (the chain)
+   @param segmentIds id of parent's parent (the chain)
    @return array of records
    */
-  private static Collection<Arrangement> readAllInLinks(DSLContext db, Access access, Collection<ULong> linkIds) throws Exception {
-    requireAccessToLinks(db, access, linkIds);
+  private static Collection<Arrangement> readAllInSegments(DSLContext db, Access access, Collection<ULong> segmentIds) throws Exception {
+    requireAccessToSegments(db, access, segmentIds);
 
     return modelsFrom(db.select(ARRANGEMENT.fields())
       .from(ARRANGEMENT)
       .join(CHOICE).on(CHOICE.ID.eq(ARRANGEMENT.CHOICE_ID))
-      .where(CHOICE.LINK_ID.in(linkIds))
+      .where(CHOICE.SEGMENT_ID.in(segmentIds))
       .fetch(), Arrangement.class);
   }
 
@@ -222,10 +222,10 @@ public class ArrangementDAOImpl extends DAOImpl implements ArrangementDAO {
   }
 
   @Override
-  public Collection<Arrangement> readAllInLinks(Access access, Collection<BigInteger> linkIds) throws Exception {
+  public Collection<Arrangement> readAllInSegments(Access access, Collection<BigInteger> segmentIds) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readAllInLinks(tx.getContext(), access, idCollection(linkIds)));
+      return tx.success(readAllInSegments(tx.getContext(), access, idCollection(segmentIds)));
     } catch (Exception e) {
       throw tx.failure(e);
     }

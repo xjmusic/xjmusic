@@ -3,12 +3,12 @@ package io.xj.core.access;
 
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.AccessControlProviderImpl;
+import io.xj.core.access.token.TokenGenerator;
 import io.xj.core.model.account_user.AccountUser;
 import io.xj.core.model.user_auth.UserAuth;
 import io.xj.core.model.user_role.UserRole;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.persistence.redis.RedisDatabaseProvider;
-import io.xj.core.access.token.TokenGenerator;
 
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
@@ -57,14 +57,14 @@ public class JSONOutputProviderImplTest {
     accessControlProvider = injector.getInstance(AccessControlProvider.class);
 
     userAuth = new UserAuth();
-    userAuth.setUserId(BigInteger.valueOf(5609877));
-    userAuth.setId(BigInteger.valueOf(12363));
+    userAuth.setUserId(BigInteger.valueOf(5609877L));
+    userAuth.setId(BigInteger.valueOf(12363L));
 
     accounts = new LinkedList<>();
     AccountUser accountRole1 = new AccountUser();
-    accountRole1.setAccountId(BigInteger.valueOf(790809874));
+    accountRole1.setAccountId(BigInteger.valueOf(790809874L));
     AccountUser accountRole2 = new AccountUser();
-    accountRole2.setAccountId(BigInteger.valueOf(90888932));
+    accountRole2.setAccountId(BigInteger.valueOf(90888932L));
     accounts.add(accountRole1);
     accounts.add(accountRole2);
 

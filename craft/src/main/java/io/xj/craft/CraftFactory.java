@@ -15,7 +15,7 @@ import com.google.inject.assistedinject.Assisted;
  2. Mid
  3. Low
  <p>
- Basis basis = basisFactory.createBasis(link);
+ Basis basis = basisFactory.createBasis(segment);
  craftFactory.macroMain(basis).craft();
  craftFactory.rhythm(basis).craft();
  craftFactory.voice(basis).craft();
@@ -24,8 +24,8 @@ import com.google.inject.assistedinject.Assisted;
 public interface CraftFactory {
 
   /**
-   Create Foundation Craft instance for a particular link
-   [#138] Foundation craft for Link of a Chain
+   Create Foundation Craft instance for a particular segment
+   [#138] Foundation craft for Segment of a Chain
 
    @param basis of craft
    @return MacroMainCraft
@@ -36,7 +36,7 @@ public interface CraftFactory {
   ) throws ConfigException;
 
   /**
-   Create Rhythm Craft instance for a particular link
+   Create Rhythm Craft instance for a particular segment
 
    @param basis of craft
    @return RhythmCraft
@@ -47,7 +47,7 @@ public interface CraftFactory {
   ) throws ConfigException;
 
   /**
-   Create Detail Craft instance for a particular link
+   Create Detail Craft instance for a particular segment
 
    @param basis of craft
    @return HarmonicDetailCraft

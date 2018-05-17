@@ -26,7 +26,7 @@ public class Voice extends Entity {
   private String _type; // to hold value before validation
   private InstrumentType type;
   private String description;
-  private BigInteger patternId;
+  private BigInteger sequenceId;
 
   public Voice() {}
 
@@ -34,12 +34,12 @@ public class Voice extends Entity {
     this.id = id;
   }
 
-  public BigInteger getPatternId() {
-    return patternId;
+  public BigInteger getSequenceId() {
+    return sequenceId;
   }
 
-  public Voice setPatternId(BigInteger patternId) {
-    this.patternId = patternId;
+  public Voice setSequenceId(BigInteger sequenceId) {
+    this.sequenceId = sequenceId;
     return this;
   }
 
@@ -67,7 +67,7 @@ public class Voice extends Entity {
 
   @Override
   public BigInteger getParentId() {
-    return patternId;
+    return sequenceId;
   }
 
   @Override
@@ -75,8 +75,8 @@ public class Voice extends Entity {
     // throws its own BusinessException on failure
     type = InstrumentType.validate(_type);
 
-    if (Objects.isNull(patternId)) {
-      throw new BusinessException("Pattern ID is required.");
+    if (Objects.isNull(sequenceId)) {
+      throw new BusinessException("Sequence ID is required.");
     }
     if (Objects.isNull(type)) {
       throw new BusinessException("Type is required.");

@@ -1,4 +1,4 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.cache;
 
 import io.xj.core.access.impl.Access;
@@ -9,6 +9,7 @@ import com.google.common.collect.Lists;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  Get a cache key for a variety of things.
@@ -56,10 +57,8 @@ public interface CacheKey {
    @return signature
    */
   static String of(Collection<Entity> entities) {
-    List<String> pieces = Lists.newArrayList();
-    entities.forEach(entity -> pieces.add(String.format("%s%s%s",
-      entity.getClass().getSimpleName(), SIGNATURE_DELIMITER_ALPHA, entity.getId())));
-    pieces.sort(Comparator.naturalOrder());
+    List<String> pieces = entities.stream().map(entity -> String.format("%s%s%s",
+      entity.getClass().getSimpleName(), SIGNATURE_DELIMITER_ALPHA, entity.getId())).sorted(Comparator.naturalOrder()).collect(Collectors.toList());
     return String.join(SIGNATURE_DELIMITER_BRAVO, pieces);
   }
 

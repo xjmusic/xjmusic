@@ -24,7 +24,7 @@ public class Point extends Entity {
   public static final String KEY_ONE = "point";
   public static final String KEY_MANY = "points";
   private BigInteger morphId;
-  private BigInteger phaseEventId;
+  private BigInteger patternEventId;
   private Double position;
   private Double duration;
   private String note;
@@ -38,12 +38,12 @@ public class Point extends Entity {
     return this;
   }
 
-  public BigInteger getPhaseEventId() {
-    return phaseEventId;
+  public BigInteger getPatternEventId() {
+    return patternEventId;
   }
 
-  public Point setPhaseEventId(BigInteger phaseEventId) {
-    this.phaseEventId = phaseEventId;
+  public Point setPatternEventId(BigInteger patternEventId) {
+    this.patternEventId = patternEventId;
     return this;
   }
 
@@ -94,13 +94,13 @@ public class Point extends Entity {
     if (this.morphId == null) {
       throw new BusinessException("Morph ID is required.");
     }
-    if (this.phaseEventId == null) {
-      throw new BusinessException("PhaseEvent ID is required.");
+    if (this.patternEventId == null) {
+      throw new BusinessException("PatternEvent ID is required.");
     }
     if (this.position == null) {
       throw new BusinessException("Position is required.");
     }
-    if (this.duration == null || this.duration == 0) {
+    if (this.duration == null || this.duration == (double) 0) {
       throw new BusinessException("Duration is required.");
     }
     if (this.note == null || this.note.length() == 0) {

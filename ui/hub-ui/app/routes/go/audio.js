@@ -1,3 +1,5 @@
+// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+
 import Route from '@ember/routing/route';
 import { later } from '@ember/runloop';
 import {get} from '@ember/object';

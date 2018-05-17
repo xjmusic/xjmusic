@@ -37,6 +37,7 @@ public class InstrumentMeme extends Meme {
     return this;
   }
 
+  @Override
   public InstrumentMeme setName(String name) {
     this.name = Text.toProperSlug(name);
     return this;

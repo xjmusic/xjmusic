@@ -1,4 +1,4 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.cache.entity.impl;
 
 import io.xj.core.config.Config;
@@ -32,7 +32,7 @@ public class EntityClassCacheItem<N extends Entity> {
    */
   public Boolean isValid() {
     return TimestampUTC.now().toInstant().getEpochSecond() <
-      createdAt.toInstant().getEpochSecond() + Config.entityCacheSeconds();
+      createdAt.toInstant().getEpochSecond() + (long) Config.entityCacheSeconds();
   }
 
   /**

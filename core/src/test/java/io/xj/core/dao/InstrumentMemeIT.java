@@ -87,7 +87,7 @@ public class InstrumentMemeIT {
       "accounts", "1"
     ));
     InstrumentMeme inputData = new InstrumentMeme()
-      .setInstrumentId(BigInteger.valueOf(1))
+      .setInstrumentId(BigInteger.valueOf(1L))
       .setName("  !!2gnarLY    ");
 
     JSONObject result = JSON.objectFrom(testDAO.create(access, inputData));
@@ -116,7 +116,7 @@ public class InstrumentMemeIT {
       "accounts", "1"
     ));
     InstrumentMeme inputData = new InstrumentMeme()
-      .setInstrumentId(BigInteger.valueOf(1));
+      .setInstrumentId(BigInteger.valueOf(1L));
 
     testDAO.create(access, inputData);
   }
@@ -128,11 +128,11 @@ public class InstrumentMemeIT {
       "accounts", "1"
     ));
 
-    InstrumentMeme result = testDAO.readOne(access, BigInteger.valueOf(2));
+    InstrumentMeme result = testDAO.readOne(access, BigInteger.valueOf(2L));
 
     assertNotNull(result);
-    assertEquals(BigInteger.valueOf(2), result.getId());
-    assertEquals(BigInteger.valueOf(1), result.getInstrumentId());
+    assertEquals(BigInteger.valueOf(2L), result.getId());
+    assertEquals(BigInteger.valueOf(1L), result.getInstrumentId());
     assertEquals("Mold", result.getName());
   }
 
@@ -143,7 +143,7 @@ public class InstrumentMemeIT {
       "accounts", "326"
     ));
 
-    InstrumentMeme result = testDAO.readOne(access, BigInteger.valueOf(1));
+    InstrumentMeme result = testDAO.readOne(access, BigInteger.valueOf(1L));
 
     assertNull(result);
   }
@@ -155,10 +155,10 @@ public class InstrumentMemeIT {
       "accounts", "1"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1))));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1L))));
 
     assertNotNull(result);
-    assertEquals(2, result.length());
+    assertEquals(2L, (long) result.length());
     JSONObject result1 = (JSONObject) result.get(0);
     assertEquals("Ants", result1.get("name"));
     JSONObject result2 = (JSONObject) result.get(1);
@@ -172,10 +172,10 @@ public class InstrumentMemeIT {
       "accounts", "345"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1))));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1L))));
 
     assertNotNull(result);
-    assertEquals(0, result.length());
+    assertEquals(0L, (long) result.length());
   }
 
   @Test
@@ -184,9 +184,9 @@ public class InstrumentMemeIT {
       "roles", "Artist",
       "accounts", "1"
     ));
-    testDAO.destroy(access, BigInteger.valueOf(1));
+    testDAO.destroy(access, BigInteger.valueOf(1L));
 
-    InstrumentMeme result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1));
+    InstrumentMeme result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1L));
     assertNull(result);
   }
 }

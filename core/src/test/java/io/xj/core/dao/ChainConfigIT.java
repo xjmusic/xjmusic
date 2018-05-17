@@ -57,7 +57,7 @@ public class ChainConfigIT {
     // Chain "school" has library "buns"
     IntegrationTestEntity.insertChainConfig(1, 1, ChainConfigType.OutputSampleBits, "1");
 
-    // Chain "bucket" has patterns and instruments
+    // Chain "bucket" has sequences and instruments
     IntegrationTestEntity.insertChainConfig(2, 2, ChainConfigType.OutputFrameRate, "1,4,35");
     IntegrationTestEntity.insertChainConfig(3, 2, ChainConfigType.OutputChannels, "2,83,4");
 
@@ -77,7 +77,7 @@ public class ChainConfigIT {
       "accounts", "1"
     ));
     ChainConfig inputData = new ChainConfig()
-      .setChainId(BigInteger.valueOf(1))
+      .setChainId(BigInteger.valueOf(1L))
       .setType("OutputFrameRate")
       .setValue("3,4,74");
 
@@ -96,7 +96,7 @@ public class ChainConfigIT {
       "accounts", "1"
     ));
     ChainConfig inputData = new ChainConfig()
-      .setChainId(BigInteger.valueOf(1))
+      .setChainId(BigInteger.valueOf(1L))
       .setType("OutputSampleBits")
       .setValue("3");
 
@@ -110,7 +110,7 @@ public class ChainConfigIT {
       "accounts", "1"
     ));
     ChainConfig inputData = new ChainConfig()
-      .setChainId(BigInteger.valueOf(3))
+      .setChainId(BigInteger.valueOf(3L))
       .setType("OutputSampleBits")
       .setValue("3");
 
@@ -124,7 +124,7 @@ public class ChainConfigIT {
       "accounts", "1"
     ));
     ChainConfig inputData = new ChainConfig()
-      .setChainId(BigInteger.valueOf(1))
+      .setChainId(BigInteger.valueOf(1L))
       .setType("OutputSampleBits")
       .setValue("3");
 
@@ -151,7 +151,7 @@ public class ChainConfigIT {
       "accounts", "1"
     ));
     ChainConfig inputData = new ChainConfig()
-      .setChainId(BigInteger.valueOf(1));
+      .setChainId(BigInteger.valueOf(1L));
 
     testDAO.create(access, inputData);
   }
@@ -163,11 +163,11 @@ public class ChainConfigIT {
       "accounts", "1"
     ));
 
-    ChainConfig result = testDAO.readOne(access, BigInteger.valueOf(1));
+    ChainConfig result = testDAO.readOne(access, BigInteger.valueOf(1L));
 
     assertNotNull(result);
-    assertEquals(BigInteger.valueOf(1), result.getId());
-    assertEquals(BigInteger.valueOf(1), result.getChainId());
+    assertEquals(BigInteger.valueOf(1L), result.getId());
+    assertEquals(BigInteger.valueOf(1L), result.getChainId());
     assertEquals(ChainConfigType.OutputSampleBits, result.getType());
     assertEquals("1", result.getValue());
   }
@@ -179,7 +179,7 @@ public class ChainConfigIT {
       "accounts", "326"
     ));
 
-    ChainConfig result = testDAO.readOne(access, BigInteger.valueOf(1));
+    ChainConfig result = testDAO.readOne(access, BigInteger.valueOf(1L));
 
     assertNull(result);
   }
@@ -191,10 +191,10 @@ public class ChainConfigIT {
       "accounts", "1"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(2))));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(2L))));
 
     assertNotNull(result);
-    assertEquals(2, result.length());
+    assertEquals(2L, (long) result.length());
     JSONObject result1 = (JSONObject) result.get(0);
     assertEquals("OutputFrameRate", result1.get("type"));
     assertEquals("1,4,35", result1.get("value"));
@@ -210,10 +210,10 @@ public class ChainConfigIT {
       "accounts", "345"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1))));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1L))));
 
     assertNotNull(result);
-    assertEquals(0, result.length());
+    assertEquals(0L, (long) result.length());
   }
 
   @Test
@@ -223,9 +223,9 @@ public class ChainConfigIT {
       "accounts", "1"
     ));
 
-    testDAO.destroy(access, BigInteger.valueOf(1));
+    testDAO.destroy(access, BigInteger.valueOf(1L));
 
-    ChainConfig result = testDAO.readOne(Access.internal(),BigInteger.valueOf(1));
+    ChainConfig result = testDAO.readOne(Access.internal(),BigInteger.valueOf(1L));
     assertNull(result);
   }
 
@@ -236,6 +236,6 @@ public class ChainConfigIT {
       "accounts", "5"
     ));
 
-    testDAO.destroy(access, BigInteger.valueOf(1));
+    testDAO.destroy(access, BigInteger.valueOf(1L));
   }
 }

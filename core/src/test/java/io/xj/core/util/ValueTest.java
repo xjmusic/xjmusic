@@ -12,9 +12,9 @@ import static org.junit.Assert.assertEquals;
 public class ValueTest {
   @Test
   public void eitherOr_Double() throws Exception {
-    assertEquals(Double.valueOf(5), Value.eitherOr(Double.valueOf(5), null));
-    assertEquals(Double.valueOf(5), Value.eitherOr(null, Double.valueOf(5)));
-    assertEquals(Double.valueOf(5), Value.eitherOr(Double.valueOf(5), Double.valueOf(7)));
+    assertEquals(Double.valueOf(5.0), Value.eitherOr(Double.valueOf(5.0), null));
+    assertEquals(Double.valueOf(5.0), Value.eitherOr(null, Double.valueOf(5.0)));
+    assertEquals(Double.valueOf(5.0), Value.eitherOr(Double.valueOf(5.0), Double.valueOf(7.0)));
   }
 
   @Test
@@ -26,9 +26,9 @@ public class ValueTest {
 
   @Test
   public void inc() throws Exception {
-    assertEquals(BigInteger.valueOf(23), Value.inc(BigInteger.valueOf(24), -1));
-    assertEquals(BigInteger.valueOf(9543), Value.inc(BigInteger.valueOf(9000), 543));
-    assertEquals(BigInteger.valueOf(742), Value.inc(BigInteger.valueOf(1000), -258));
+    assertEquals(BigInteger.valueOf(23L), Value.inc(BigInteger.valueOf(24L), -1));
+    assertEquals(BigInteger.valueOf(9543L), Value.inc(BigInteger.valueOf(9000L), 543));
+    assertEquals(BigInteger.valueOf(742L), Value.inc(BigInteger.valueOf(1000L), -258));
   }
 
   @Test

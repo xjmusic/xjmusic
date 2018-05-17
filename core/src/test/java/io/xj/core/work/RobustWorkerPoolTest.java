@@ -1,6 +1,6 @@
-package io.xj.core.work;
+// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-import io.xj.core.work.impl.RobustWorkerPool;
+package io.xj.core.work;
 
 import net.greghaines.jesque.Config;
 import net.greghaines.jesque.ConfigBuilder;
@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * Testing for {@link RobustWorkerPool}.
+ * Testing for {@segment RobustWorkerPool}.
  * <p>
  * NOTES: redis-server must upped on testing environment.
  */

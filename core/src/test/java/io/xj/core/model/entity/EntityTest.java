@@ -1,7 +1,7 @@
-package io.xj.core.model.entity;// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-import org.junit.After;
-import org.junit.Before;
+package io.xj.core.model.entity;// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

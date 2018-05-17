@@ -23,6 +23,7 @@ public class AudioChord extends Chord {
 
   private BigInteger audioId;
 
+  @Override
   public AudioChord setName(String name) {
     this.name = name;
     return this;
@@ -37,10 +38,12 @@ public class AudioChord extends Chord {
     return this;
   }
 
+  @Override
   public BigInteger getParentId() {
     return audioId;
   }
 
+  @Override
   public AudioChord setPosition(Double position) {
     this.position = roundPosition(position);
     return this;

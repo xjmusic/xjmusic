@@ -19,19 +19,16 @@ import java.util.Objects;
  NOTE: There can only be ONE of any getter/setter (with the same # of input params)
  */
 public class Pattern extends Entity {
-
-  /**
-   For use in maps.
-   */
   public static final String KEY_ONE = "pattern";
   public static final String KEY_MANY = "patterns";
 
   private String name;
   private String _type; // to hold value before validation
   private PatternType type;
-  private BigInteger libraryId;
-  private BigInteger userId;
+  private BigInteger sequenceId;
   private String key;
+  private Integer total;
+  private BigInteger offset;
   private Double density;
   private Double tempo;
   private PatternState state;
@@ -40,20 +37,20 @@ public class Pattern extends Entity {
 
   public Pattern() {}
 
-  public Pattern(BigInteger id) {
-    this.id = id;
+  public Pattern(int id) {
+    this.id = BigInteger.valueOf((long) id);
   }
 
-  public Pattern(int id) {
-    this.id = BigInteger.valueOf(id);
+  public Pattern(BigInteger id) {
+    this.id = id;
   }
 
   public String getName() {
     return name;
   }
 
-  public Pattern setName(String value) {
-    name = value;
+  public Pattern setName(String name) {
+    this.name = name;
     return this;
   }
 
@@ -77,7 +74,6 @@ public class Pattern extends Entity {
     return this;
   }
 
-
   public PatternType getType() {
     return type;
   }
@@ -87,25 +83,17 @@ public class Pattern extends Entity {
     return this;
   }
 
-  public void setTypeEnum(PatternType type) {
+  public Pattern setTypeEnum(PatternType type) {
     this.type = type;
-  }
-
-  public BigInteger getLibraryId() {
-    return libraryId;
-  }
-
-  public Pattern setLibraryId(BigInteger value) {
-    libraryId = value;
     return this;
   }
 
-  public BigInteger getUserId() {
-    return userId;
+  public BigInteger getSequenceId() {
+    return sequenceId;
   }
 
-  public Pattern setUserId(BigInteger value) {
-    userId = value;
+  public Pattern setSequenceId(BigInteger sequenceId) {
+    this.sequenceId = sequenceId;
     return this;
   }
 
@@ -113,8 +101,26 @@ public class Pattern extends Entity {
     return key;
   }
 
-  public Pattern setKey(String value) {
-    key = value;
+  public Pattern setKey(String key) {
+    this.key = key;
+    return this;
+  }
+
+  public Integer getTotal() {
+    return total;
+  }
+
+  public Pattern setTotal(Integer total) {
+    this.total = total;
+    return this;
+  }
+
+  public BigInteger getOffset() {
+    return offset;
+  }
+
+  public Pattern setOffset(BigInteger offset) {
+    this.offset = offset;
     return this;
   }
 
@@ -122,8 +128,8 @@ public class Pattern extends Entity {
     return density;
   }
 
-  public Pattern setDensity(Double value) {
-    density = value;
+  public Pattern setDensity(Double density) {
+    this.density = density;
     return this;
   }
 
@@ -131,14 +137,14 @@ public class Pattern extends Entity {
     return tempo;
   }
 
-  public Pattern setTempo(Double value) {
-    tempo = value;
+  public Pattern setTempo(Double tempo) {
+    this.tempo = tempo;
     return this;
   }
 
   @Override
   public BigInteger getParentId() {
-    return libraryId;
+    return sequenceId;
   }
 
   @Override
@@ -151,31 +157,29 @@ public class Pattern extends Entity {
     if (Objects.isNull(state))
       state = PatternState.validate(_stateString);
 
-    if (Objects.isNull(name) || name.isEmpty())
-      throw new BusinessException("Name is required.");
-
-    if (Objects.isNull(libraryId))
-      throw new BusinessException("Library ID is required.");
-
-    if (Objects.isNull(userId))
-      throw new BusinessException("User ID is required.");
-
-    if (Objects.isNull(type))
-      throw new BusinessException("Type is required.");
-
-    if (Objects.isNull(key) || key.isEmpty())
-      throw new BusinessException("Key is required.");
-
-    if (Objects.isNull(density))
-      throw new BusinessException("Density is required.");
-
-    if (Objects.isNull(tempo))
-      throw new BusinessException("Tempo is required.");
+    if (Objects.nonNull(name) && name.isEmpty()) {
+      name = null;
+    }
+    if (null == sequenceId) {
+      throw new BusinessException("Sequence ID is required.");
+    }
+    if (Objects.nonNull(key) && key.isEmpty()) {
+      key = null;
+    }
+    if (null == offset) {
+      throw new BusinessException("Offset is required.");
+    }
+    if (Objects.nonNull(density) && (double) 0 == density) {
+      density = null;
+    }
+    if (Objects.nonNull(tempo) && (double) 0 == tempo) {
+      tempo = null;
+    }
   }
 
   @Override
   public String toString() {
-    return name + " " + "(" + type + ")";
+    return (Objects.nonNull(name) ? name + " " : "") + "(" + "@" + offset + ")";
   }
 
 }

@@ -1,4 +1,4 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.craft.digest.meme.impl;
 
 import com.google.common.collect.ImmutableList;
@@ -13,13 +13,13 @@ import java.util.Map;
 /**
  In-memory cache of ingest of a meme usage in a library
  <p>
- [#154234716] Artist wants to run a library ingest in order to understand all of the existing contents within the patterns in a library.
+ [#154234716] Artist wants to run a library ingest in order to understand all of the existing contents within the sequences in a library.
  */
 public class DigestMemesItem {
   private final String name;
   private final Collection<BigInteger> instrumentIds = Lists.newArrayList();
-  private final Collection<BigInteger> patternIds = Lists.newArrayList();
-  private final Map<BigInteger, Collection<BigInteger>> patternPhaseIds = Maps.newConcurrentMap();
+  private final Collection<BigInteger> sequenceIds = Lists.newArrayList();
+  private final Map<BigInteger, Collection<BigInteger>> sequencePatternIds = Maps.newConcurrentMap();
 
   /**
    New instance
@@ -40,27 +40,27 @@ public class DigestMemesItem {
   }
 
   /**
-   Add a pattern id, if it isn't already in the list
+   Add a sequence id, if it isn't already in the list
 
-   @param id of pattern to add
+   @param id of sequence to add
    */
-  public void addPatternId(BigInteger id) {
-    if (!patternIds.contains(id))
-      patternIds.add(id);
+  public void addSequenceId(BigInteger id) {
+    if (!sequenceIds.contains(id))
+      sequenceIds.add(id);
   }
 
   /**
-   Add a pattern id, if it isn't already in the list
+   Add a sequence id, if it isn't already in the list
 
-   @param patternId parent of phase
-   @param phaseId        of phase to add
+   @param sequenceId parent of pattern
+   @param patternId        of pattern to add
    */
-  public void addPatternPhaseId(BigInteger patternId, BigInteger phaseId) {
-    if (!patternPhaseIds.containsKey(patternId))
-      patternPhaseIds.put(patternId, Lists.newArrayList());
+  public void addSequencePatternId(BigInteger sequenceId, BigInteger patternId) {
+    if (!sequencePatternIds.containsKey(sequenceId))
+      sequencePatternIds.put(sequenceId, Lists.newArrayList());
 
-    if (!patternPhaseIds.get(patternId).contains(phaseId))
-      patternPhaseIds.get(patternId).add(phaseId);
+    if (!sequencePatternIds.get(sequenceId).contains(patternId))
+      sequencePatternIds.get(sequenceId).add(patternId);
   }
 
   /**
@@ -83,30 +83,30 @@ public class DigestMemesItem {
   }
 
   /**
-   Get the pattern ids in which this meme is used
+   Get the sequence ids in which this meme is used
 
-   @return collection of pattern id
+   @return collection of sequence id
    */
-  public Collection<BigInteger> getPatternIds() {
-    return Collections.unmodifiableCollection(patternIds);
+  public Collection<BigInteger> getSequenceIds() {
+    return Collections.unmodifiableCollection(sequenceIds);
   }
 
   /**
-   Get the pattern ids for which this meme is used in phases therein
+   Get the sequence ids for which this meme is used in patterns therein
 
-   @return collection of pattern id
+   @return collection of sequence id
    */
-  public Collection<BigInteger> getPhasePatternIds() {
-    return patternPhaseIds.keySet();
+  public Collection<BigInteger> getPatternSequenceIds() {
+    return sequencePatternIds.keySet();
   }
 
   /**
-   Get the phase ids in which this meme is used, for a given pattern
+   Get the pattern ids in which this meme is used, for a given sequence
 
-   @param patternId to get phases in which the meme is used
-   @return collection of pattern phase id
+   @param sequenceId to get patterns in which the meme is used
+   @return collection of sequence pattern id
    */
-  public Collection<BigInteger> getPhaseIds(BigInteger patternId) {
-    return patternPhaseIds.getOrDefault(patternId, ImmutableList.of());
+  public Collection<BigInteger> getPatternIds(BigInteger sequenceId) {
+    return sequencePatternIds.getOrDefault(sequenceId, ImmutableList.of());
   }
 }

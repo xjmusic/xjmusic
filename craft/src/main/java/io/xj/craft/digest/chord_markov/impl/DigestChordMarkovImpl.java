@@ -1,4 +1,4 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.craft.digest.chord_markov.impl;
 
 import com.google.common.collect.Lists;
@@ -31,7 +31,7 @@ import java.util.Objects;
  <p>
  [#154234716] Architect wants ingest of library contents, to modularize graph mathematics used during craft, and provide the Artist with useful insight for developing the library.
  <p>
- DigestChordMarkov transposes all of its observations into the Key of the pattern/phase the chords are being observed in-- so if a Sequence in the Key of GenericChord begins with a Chord D Major, that will be considered a modulo 2 semitones delta at the beginning of the sequence. Later, when generating a superpattern, if the target pattern is in the key of G and this outcome is selected, the first chord in the generated sequence which actually be A.
+ DigestChordMarkov transposes all of its observations into the Key of the sequence/pattern the chords are being observed in-- so if a Sequence in the Key of GenericChord begins with a Chord D Major, that will be considered a modulo 2 semitones delta at the beginning of the sequence. Later, when generating a supersequence, if the target sequence is in the key of G and this outcome is selected, the first chord in the generated sequence which actually be A.
  */
 public class DigestChordMarkovImpl extends DigestImpl implements DigestChordMarkov {
   private final Map<String, ChordMarkovNode> forwardNodeMap = Maps.newConcurrentMap();
@@ -58,10 +58,10 @@ public class DigestChordMarkovImpl extends DigestImpl implements DigestChordMark
   }
 
   /**
-   Get only the chords of a particular parent (probably phase chords in a parent phase)
+   Get only the chords of a particular parent (probably pattern chords in a parent pattern)
 
    @param chords   to search for chords
-   @param parentId (phase) to get phase chords of
+   @param parentId (pattern) to get pattern chords of
    @return collection of audio chords
    */
   private static Collection<Chord> chordsOf(Collection<? extends Chord> chords, Object parentId) {
@@ -76,13 +76,13 @@ public class DigestChordMarkovImpl extends DigestImpl implements DigestChordMark
    Digest entities from ingest
    */
   private void digest() {
-    ingest.phases().forEach(phase ->
-      computeAllNodes(ingest.phaseKey(phase.getId()),
-        chordsOf(ingest.phaseChords(), phase.getId())));
+    ingest.patterns().forEach(pattern ->
+      computeAllNodes(ingest.patternKey(pattern.getId()),
+        chordsOf(ingest.patternChords(), pattern.getId())));
   }
 
   /**
-   Compute all possible chord markov nodes given a set of chords (e.g. from a Phase or Audio)
+   Compute all possible chord markov nodes given a set of chords (e.g. from a Pattern or Audio)
 
    @param key    relative to which each chord's root will be computed in semitones modulo
    @param chords to compute all possible markov nodes of
@@ -102,7 +102,7 @@ public class DigestChordMarkovImpl extends DigestImpl implements DigestChordMark
   }
 
   /**
-   Compute all possible chord markov nodes given a set of chords (e.g. from a Phase or Audio)
+   Compute all possible chord markov nodes given a set of chords (e.g. from a Pattern or Audio)
 
    @param key           relative to which each chord's root will be computed in semitones modulo
    @param orderedChords to compute all possible markov nodes of -- THE ORDER IS IMPORTANT: any node's precedent state is a snapshot of the nodes preceding it.
@@ -113,13 +113,13 @@ public class DigestChordMarkovImpl extends DigestImpl implements DigestChordMark
     // keep a buffer of the preceding N chords
     List<ChordNode> buffer = Lists.newArrayList();
 
-    // "beginning of phase" marker (null bookend)
+    // "beginning of pattern" marker (null bookend)
     buffer.add(new ChordNode());
 
     // for each chord in sequence, compute and store all possible orders preceding it.
     for (Chord chord : orderedChords) {
 
-      // the observation is transposed to the key of the phase/pattern
+      // the observation is transposed to the key of the pattern/sequence
       ChordNode chordNode = new ChordNode(key, chord);
 
       // all the observation to all subsets
@@ -130,7 +130,7 @@ public class DigestChordMarkovImpl extends DigestImpl implements DigestChordMark
       if (buffer.size() > markovOrder) buffer.remove(0);
     }
 
-    // "end of phase" marker (null bookend)
+    // "end of pattern" marker (null bookend)
     addObservationToAllSubsets(markovNodeMap, buffer, new ChordNode());
   }
 

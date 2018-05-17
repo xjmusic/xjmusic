@@ -9,11 +9,11 @@ import io.xj.core.model.arrangement.Arrangement;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
 import io.xj.core.model.instrument.InstrumentType;
-import io.xj.core.model.link.LinkState;
+import io.xj.core.model.segment.SegmentState;
+import io.xj.core.model.sequence.SequenceState;
+import io.xj.core.model.sequence.SequenceType;
 import io.xj.core.model.pattern.PatternState;
 import io.xj.core.model.pattern.PatternType;
-import io.xj.core.model.phase.PhaseState;
-import io.xj.core.model.phase.PhaseType;
 import io.xj.core.transport.JSON;
 
 import com.google.common.collect.ImmutableList;
@@ -52,19 +52,19 @@ public class ArrangementIT {
 
     // Library "test sounds"
     IntegrationTestEntity.insertLibrary(1, 1, "test sounds");
-    IntegrationTestEntity.insertPattern(1, 2, 1, PatternType.Macro, PatternState.Published, "epic concept", 0.342, "C#", 0.286);
-    IntegrationTestEntity.insertPhase(1, 1, PhaseType.Macro, PhaseState.Published, 0, 16, "Ants", 0.583, "D minor", 120.0);
+    IntegrationTestEntity.insertSequence(1, 2, 1, SequenceType.Macro, SequenceState.Published, "epic concept", 0.342, "C#", 0.286);
+    IntegrationTestEntity.insertPattern(1, 1, PatternType.Macro, PatternState.Published, 0, 16, "Ants", 0.583, "D minor", 120.0);
     IntegrationTestEntity.insertVoice(8, 1, InstrumentType.Percussive, "This is a percussive voice");
 
     // Library has Instrument
     IntegrationTestEntity.insertInstrument(9, 1, 2, "jams", InstrumentType.Percussive, 0.6);
 
-    // Chain "Test Print #1" has one link
+    // Chain "Test Print #1" has one segment
     IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Ready, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"), null);
-    IntegrationTestEntity.insertLink(1, 1, 0, LinkState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120, "chain-1-link-97898asdf7892.wav");
+    IntegrationTestEntity.insertSegment(1, 1, 0, SegmentState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120.0, "chain-1-segment-97898asdf7892.wav");
 
-    // Link "Test Print #1" has 4 choices
-    IntegrationTestEntity.insertChoice(7, 1, 1, PatternType.Macro, 2, -5);
+    // Segment "Test Print #1" has 4 choices
+    IntegrationTestEntity.insertChoice(7, 1, 1, SequenceType.Macro, 2, -5);
 
     // Arrangement picks something
     IntegrationTestEntity.insertArrangement(1, 7, 8, 9);
@@ -84,16 +84,16 @@ public class ArrangementIT {
       "roles", "Admin"
     ));
     Arrangement inputData = new Arrangement()
-      .setChoiceId(BigInteger.valueOf(7))
-      .setVoiceId(BigInteger.valueOf(8))
-      .setInstrumentId(BigInteger.valueOf(9));
+      .setChoiceId(BigInteger.valueOf(7L))
+      .setVoiceId(BigInteger.valueOf(8L))
+      .setInstrumentId(BigInteger.valueOf(9L));
 
     Arrangement result = testDAO.create(access, inputData);
 
     assertNotNull(result);
-    assertEquals(BigInteger.valueOf(7), result.getChoiceId());
-    assertEquals(BigInteger.valueOf(8), result.getVoiceId());
-    assertEquals(BigInteger.valueOf(9), result.getInstrumentId());
+    assertEquals(BigInteger.valueOf(7L), result.getChoiceId());
+    assertEquals(BigInteger.valueOf(8L), result.getVoiceId());
+    assertEquals(BigInteger.valueOf(9L), result.getInstrumentId());
   }
 
   @Test(expected = BusinessException.class)
@@ -102,9 +102,9 @@ public class ArrangementIT {
       "roles", "User"
     ));
     Arrangement inputData = new Arrangement()
-      .setChoiceId(BigInteger.valueOf(7))
-      .setVoiceId(BigInteger.valueOf(8))
-      .setInstrumentId(BigInteger.valueOf(9));
+      .setChoiceId(BigInteger.valueOf(7L))
+      .setVoiceId(BigInteger.valueOf(8L))
+      .setInstrumentId(BigInteger.valueOf(9L));
 
     testDAO.create(access, inputData);
   }
@@ -115,8 +115,8 @@ public class ArrangementIT {
       "roles", "Admin"
     ));
     Arrangement inputData = new Arrangement()
-      .setVoiceId(BigInteger.valueOf(8))
-      .setInstrumentId(BigInteger.valueOf(9));
+      .setVoiceId(BigInteger.valueOf(8L))
+      .setInstrumentId(BigInteger.valueOf(9L));
 
     testDAO.create(access, inputData);
   }
@@ -127,8 +127,8 @@ public class ArrangementIT {
       "roles", "Admin"
     ));
     Arrangement inputData = new Arrangement()
-      .setChoiceId(BigInteger.valueOf(7))
-      .setInstrumentId(BigInteger.valueOf(9));
+      .setChoiceId(BigInteger.valueOf(7L))
+      .setInstrumentId(BigInteger.valueOf(9L));
 
     testDAO.create(access, inputData);
   }
@@ -139,8 +139,8 @@ public class ArrangementIT {
       "roles", "Admin"
     ));
     Arrangement inputData = new Arrangement()
-      .setChoiceId(BigInteger.valueOf(7))
-      .setVoiceId(BigInteger.valueOf(8));
+      .setChoiceId(BigInteger.valueOf(7L))
+      .setVoiceId(BigInteger.valueOf(8L));
 
     testDAO.create(access, inputData);
   }
@@ -152,12 +152,12 @@ public class ArrangementIT {
       "accounts", "1"
     ));
 
-    Arrangement result = testDAO.readOne(access, BigInteger.valueOf(1));
+    Arrangement result = testDAO.readOne(access, BigInteger.valueOf(1L));
 
     assertNotNull(result);
-    assertEquals(BigInteger.valueOf(7), result.getChoiceId());
-    assertEquals(BigInteger.valueOf(8), result.getVoiceId());
-    assertEquals(BigInteger.valueOf(9), result.getInstrumentId());
+    assertEquals(BigInteger.valueOf(7L), result.getChoiceId());
+    assertEquals(BigInteger.valueOf(8L), result.getVoiceId());
+    assertEquals(BigInteger.valueOf(9L), result.getInstrumentId());
   }
 
   @Test
@@ -167,7 +167,7 @@ public class ArrangementIT {
       "accounts", "326"
     ));
 
-    Arrangement result = testDAO.readOne(access, BigInteger.valueOf(1));
+    Arrangement result = testDAO.readOne(access, BigInteger.valueOf(1L));
 
     assertNull(result);
   }
@@ -179,10 +179,10 @@ public class ArrangementIT {
       "accounts", "1"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(7))));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(7L))));
 
     assertNotNull(result);
-    assertEquals(1, result.length());
+    assertEquals(1L, (long) result.length());
 
     JSONObject actualResult0 = (JSONObject) result.get(0);
     assertEquals(8, actualResult0.get("voiceId"));
@@ -195,23 +195,23 @@ public class ArrangementIT {
       "accounts", "345"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1))));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1L))));
 
     assertNotNull(result);
-    assertEquals(0, result.length());
+    assertEquals(0L, (long) result.length());
   }
 
   /**
    [#154118202] FIX: Artist should have access to view and listen to Chain from Account
    */
   @Test
-  public void readAllInLinks_adminAccess() throws Exception {
-    IntegrationTestEntity.insertLink(101, 1, 1, LinkState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:30.000001"), Timestamp.valueOf("2017-02-14 12:01:40.000001"), "D major", 64, 0.73, 120, "chain-1-link-97898asdf7892.wav");
-    IntegrationTestEntity.insertLink(102, 1, 2, LinkState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:40.000001"), Timestamp.valueOf("2017-02-14 12:01:50.000001"), "D major", 64, 0.73, 120, "chain-1-link-97898asdf7892.wav");
-    IntegrationTestEntity.insertLink(103, 1, 3, LinkState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:50.000001"), Timestamp.valueOf("2017-02-14 12:02:00.000001"), "D major", 64, 0.73, 120, "chain-1-link-97898asdf7892.wav");
-    IntegrationTestEntity.insertChoice(201, 101, 1, PatternType.Macro, 2, -5);
-    IntegrationTestEntity.insertChoice(202, 102, 1, PatternType.Macro, 2, -5);
-    IntegrationTestEntity.insertChoice(203, 103, 1, PatternType.Macro, 2, -5);
+  public void readAllInSegments_adminAccess() throws Exception {
+    IntegrationTestEntity.insertSegment(101, 1, 1, SegmentState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:30.000001"), Timestamp.valueOf("2017-02-14 12:01:40.000001"), "D major", 64, 0.73, 120.0, "chain-1-segment-97898asdf7892.wav");
+    IntegrationTestEntity.insertSegment(102, 1, 2, SegmentState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:40.000001"), Timestamp.valueOf("2017-02-14 12:01:50.000001"), "D major", 64, 0.73, 120.0, "chain-1-segment-97898asdf7892.wav");
+    IntegrationTestEntity.insertSegment(103, 1, 3, SegmentState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:50.000001"), Timestamp.valueOf("2017-02-14 12:02:00.000001"), "D major", 64, 0.73, 120.0, "chain-1-segment-97898asdf7892.wav");
+    IntegrationTestEntity.insertChoice(201, 101, 1, SequenceType.Macro, 2, -5);
+    IntegrationTestEntity.insertChoice(202, 102, 1, SequenceType.Macro, 2, -5);
+    IntegrationTestEntity.insertChoice(203, 103, 1, SequenceType.Macro, 2, -5);
     IntegrationTestEntity.insertArrangement(301, 201, 8, 9);
     IntegrationTestEntity.insertArrangement(302, 202, 8, 9);
     IntegrationTestEntity.insertArrangement(303, 203, 8, 9);
@@ -220,23 +220,23 @@ public class ArrangementIT {
       "roles", "Admin"
     ));
 
-    Collection<Arrangement> result = testDAO.readAllInLinks(access, ImmutableList.of(BigInteger.valueOf(101), BigInteger.valueOf(102)));
+    Collection<Arrangement> result = testDAO.readAllInSegments(access, ImmutableList.of(BigInteger.valueOf(101L), BigInteger.valueOf(102L)));
 
     assertNotNull(result);
-    assertEquals(2, result.size());
+    assertEquals(2L, (long) result.size());
   }
 
   /**
    [#154118202] FIX: Artist should have access to view and listen to Chain from Account
    */
   @Test
-  public void readAllInLinks_regularUserAccess() throws Exception {
-    IntegrationTestEntity.insertLink(101, 1, 1, LinkState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:30.000001"), Timestamp.valueOf("2017-02-14 12:01:40.000001"), "D major", 64, 0.73, 120, "chain-1-link-97898asdf7892.wav");
-    IntegrationTestEntity.insertLink(102, 1, 2, LinkState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:40.000001"), Timestamp.valueOf("2017-02-14 12:01:50.000001"), "D major", 64, 0.73, 120, "chain-1-link-97898asdf7892.wav");
-    IntegrationTestEntity.insertLink(103, 1, 3, LinkState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:50.000001"), Timestamp.valueOf("2017-02-14 12:02:00.000001"), "D major", 64, 0.73, 120, "chain-1-link-97898asdf7892.wav");
-    IntegrationTestEntity.insertChoice(201, 101, 1, PatternType.Macro, 2, -5);
-    IntegrationTestEntity.insertChoice(202, 102, 1, PatternType.Macro, 2, -5);
-    IntegrationTestEntity.insertChoice(203, 103, 1, PatternType.Macro, 2, -5);
+  public void readAllInSegments_regularUserAccess() throws Exception {
+    IntegrationTestEntity.insertSegment(101, 1, 1, SegmentState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:30.000001"), Timestamp.valueOf("2017-02-14 12:01:40.000001"), "D major", 64, 0.73, 120.0, "chain-1-segment-97898asdf7892.wav");
+    IntegrationTestEntity.insertSegment(102, 1, 2, SegmentState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:40.000001"), Timestamp.valueOf("2017-02-14 12:01:50.000001"), "D major", 64, 0.73, 120.0, "chain-1-segment-97898asdf7892.wav");
+    IntegrationTestEntity.insertSegment(103, 1, 3, SegmentState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:50.000001"), Timestamp.valueOf("2017-02-14 12:02:00.000001"), "D major", 64, 0.73, 120.0, "chain-1-segment-97898asdf7892.wav");
+    IntegrationTestEntity.insertChoice(201, 101, 1, SequenceType.Macro, 2, -5);
+    IntegrationTestEntity.insertChoice(202, 102, 1, SequenceType.Macro, 2, -5);
+    IntegrationTestEntity.insertChoice(203, 103, 1, SequenceType.Macro, 2, -5);
     IntegrationTestEntity.insertArrangement(301, 201, 8, 9);
     IntegrationTestEntity.insertArrangement(302, 202, 8, 9);
     IntegrationTestEntity.insertArrangement(303, 203, 8, 9);
@@ -246,27 +246,27 @@ public class ArrangementIT {
       "accounts", "1"
     ));
 
-    Collection<Arrangement> result = testDAO.readAllInLinks(access, ImmutableList.of(BigInteger.valueOf(101), BigInteger.valueOf(102)));
+    Collection<Arrangement> result = testDAO.readAllInSegments(access, ImmutableList.of(BigInteger.valueOf(101L), BigInteger.valueOf(102L)));
 
     assertNotNull(result);
-    assertEquals(2, result.size());
+    assertEquals(2L, (long) result.size());
   }
 
   /**
    [#154118202] FIX: Artist should have access to view and listen to Chain from Account
    */
   @Test
-  public void readAllInLinks_regularUserAccess_failsIfLinkOutsideAccount() throws Exception {
-    IntegrationTestEntity.insertLink(101, 1, 1, LinkState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:30.000001"), Timestamp.valueOf("2017-02-14 12:01:40.000001"), "D major", 64, 0.73, 120, "chain-1-link-97898asdf7892.wav");
-    IntegrationTestEntity.insertLink(102, 1, 2, LinkState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:40.000001"), Timestamp.valueOf("2017-02-14 12:01:50.000001"), "D major", 64, 0.73, 120, "chain-1-link-97898asdf7892.wav");
-    IntegrationTestEntity.insertChoice(201, 101, 1, PatternType.Macro, 2, -5);
-    IntegrationTestEntity.insertChoice(202, 102, 1, PatternType.Macro, 2, -5);
+  public void readAllInSegments_regularUserAccess_failsIfSegmentOutsideAccount() throws Exception {
+    IntegrationTestEntity.insertSegment(101, 1, 1, SegmentState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:30.000001"), Timestamp.valueOf("2017-02-14 12:01:40.000001"), "D major", 64, 0.73, 120.0, "chain-1-segment-97898asdf7892.wav");
+    IntegrationTestEntity.insertSegment(102, 1, 2, SegmentState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:40.000001"), Timestamp.valueOf("2017-02-14 12:01:50.000001"), "D major", 64, 0.73, 120.0, "chain-1-segment-97898asdf7892.wav");
+    IntegrationTestEntity.insertChoice(201, 101, 1, SequenceType.Macro, 2, -5);
+    IntegrationTestEntity.insertChoice(202, 102, 1, SequenceType.Macro, 2, -5);
     IntegrationTestEntity.insertArrangement(301, 201, 8, 9);
     IntegrationTestEntity.insertArrangement(302, 202, 8, 9);
     IntegrationTestEntity.insertAccount(79, "Account that user does not have access to");
     IntegrationTestEntity.insertChain(7903, 79, "chain that user does not have access to", ChainType.Production, ChainState.Ready, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"), null);
-    IntegrationTestEntity.insertLink(7003, 7903, 3, LinkState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:50.000001"), Timestamp.valueOf("2017-02-14 12:02:00.000001"), "D major", 64, 0.73, 120, "chain-1-link-97898asdf7892.wav");
-    IntegrationTestEntity.insertChoice(8003, 7003, 1, PatternType.Macro, 2, -5);
+    IntegrationTestEntity.insertSegment(7003, 7903, 3, SegmentState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:50.000001"), Timestamp.valueOf("2017-02-14 12:02:00.000001"), "D major", 64, 0.73, 120.0, "chain-1-segment-97898asdf7892.wav");
+    IntegrationTestEntity.insertChoice(8003, 7003, 1, SequenceType.Macro, 2, -5);
     IntegrationTestEntity.insertArrangement(9003, 8003, 8, 9);
     Access access = new Access(ImmutableMap.of(
       "roles", "User",
@@ -274,9 +274,9 @@ public class ArrangementIT {
     ));
 
     failure.expect(BusinessException.class);
-    failure.expectMessage("exactly the provided count (3) links in chain(s) to which user has access is required");
+    failure.expectMessage("exactly the provided count (3) segments in chain(s) to which user has access is required");
 
-    testDAO.readAllInLinks(access, ImmutableList.of(BigInteger.valueOf(101), BigInteger.valueOf(102), BigInteger.valueOf(7003)));
+    testDAO.readAllInSegments(access, ImmutableList.of(BigInteger.valueOf(101L), BigInteger.valueOf(102L), BigInteger.valueOf(7003L)));
   }
 
   @Test
@@ -285,17 +285,17 @@ public class ArrangementIT {
       "roles", "Admin"
     ));
     Arrangement inputData = new Arrangement()
-      .setChoiceId(BigInteger.valueOf(7))
-      .setVoiceId(BigInteger.valueOf(8))
-      .setInstrumentId(BigInteger.valueOf(9));
+      .setChoiceId(BigInteger.valueOf(7L))
+      .setVoiceId(BigInteger.valueOf(8L))
+      .setInstrumentId(BigInteger.valueOf(9L));
 
-    testDAO.update(access, BigInteger.valueOf(1), inputData);
+    testDAO.update(access, BigInteger.valueOf(1L), inputData);
 
-    Arrangement result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1));
+    Arrangement result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1L));
     assertNotNull(result);
-    assertEquals(BigInteger.valueOf(7), result.getChoiceId());
-    assertEquals(BigInteger.valueOf(8), result.getVoiceId());
-    assertEquals(BigInteger.valueOf(9), result.getInstrumentId());
+    assertEquals(BigInteger.valueOf(7L), result.getChoiceId());
+    assertEquals(BigInteger.valueOf(8L), result.getVoiceId());
+    assertEquals(BigInteger.valueOf(9L), result.getInstrumentId());
   }
 
   @Test(expected = BusinessException.class)
@@ -304,10 +304,10 @@ public class ArrangementIT {
       "roles", "Admin"
     ));
     Arrangement inputData = new Arrangement()
-      .setVoiceId(BigInteger.valueOf(8))
-      .setInstrumentId(BigInteger.valueOf(9));
+      .setVoiceId(BigInteger.valueOf(8L))
+      .setInstrumentId(BigInteger.valueOf(9L));
 
-    testDAO.update(access, BigInteger.valueOf(2), inputData);
+    testDAO.update(access, BigInteger.valueOf(2L), inputData);
   }
 
   @Test(expected = BusinessException.class)
@@ -316,17 +316,17 @@ public class ArrangementIT {
       "roles", "Admin"
     ));
     Arrangement inputData = new Arrangement()
-      .setChoiceId(BigInteger.valueOf(12))
-      .setVoiceId(BigInteger.valueOf(8))
-      .setInstrumentId(BigInteger.valueOf(9));
+      .setChoiceId(BigInteger.valueOf(12L))
+      .setVoiceId(BigInteger.valueOf(8L))
+      .setInstrumentId(BigInteger.valueOf(9L));
 
     try {
-      testDAO.update(access, BigInteger.valueOf(1), inputData);
+      testDAO.update(access, BigInteger.valueOf(1L), inputData);
 
     } catch (Exception e) {
-      Arrangement result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1));
+      Arrangement result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1L));
       assertNotNull(result);
-      assertEquals(BigInteger.valueOf(7), result.getChoiceId());
+      assertEquals(BigInteger.valueOf(7L), result.getChoiceId());
       throw e;
     }
   }
@@ -337,9 +337,9 @@ public class ArrangementIT {
       "roles", "Admin"
     ));
 
-    testDAO.destroy(access, BigInteger.valueOf(1));
+    testDAO.destroy(access, BigInteger.valueOf(1L));
 
-    Arrangement result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1));
+    Arrangement result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1L));
     assertNull(result);
   }
 

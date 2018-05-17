@@ -110,12 +110,12 @@ public class AudioEraseJobIT {
     app = null;
     injector = null;
 
-    System.clearProperty("link.file.bucket");
+    System.clearProperty("segment.file.bucket");
     System.clearProperty("audio.file.bucket");
   }
 
   /**
-   [#294] Eraseworker finds Links and Audio in deleted state and actually deletes the records, child entities and S3 objects
+   [#294] Eraseworker finds Segments and Audio in deleted state and actually deletes the records, child entities and S3 objects
    */
   @Test
   public void runWorker() throws Exception {

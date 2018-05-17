@@ -4,11 +4,9 @@ package io.xj.core.model.meme;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.model.entity.Entity;
 
-import java.math.BigInteger;
-
 /**
  This represents common properties of all memes,
- although a Meme only actually exists as a Link Meme, Pattern Meme, etc.
+ although a Meme only actually exists as a Segment Meme, Sequence Meme, etc.
  */
 public abstract class Meme extends Entity {
   public static final String KEY_ONE = "meme";
@@ -25,6 +23,7 @@ public abstract class Meme extends Entity {
     return this;
   }
 
+  @Override
   public void validate() throws BusinessException {
     if (null == name) {
       throw new BusinessException("Name is required.");

@@ -1,6 +1,7 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.dao.impl;
 
+import io.xj.core.Tables;
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.PatternMemeDAO;
 import io.xj.core.exception.BusinessException;
@@ -21,6 +22,7 @@ import java.util.Collection;
 import java.util.Map;
 
 import static io.xj.core.tables.Library.LIBRARY;
+import static io.xj.core.tables.Sequence.SEQUENCE;
 import static io.xj.core.tables.Pattern.PATTERN;
 import static io.xj.core.tables.PatternMeme.PATTERN_MEME;
 
@@ -60,7 +62,8 @@ public class PatternMemeDAOImpl extends DAOImpl implements PatternMemeDAO {
         .fetchOne(0, int.class));
     else
       requireExists("Pattern", db.selectCount().from(PATTERN)
-        .join(LIBRARY).on(PATTERN.LIBRARY_ID.eq(LIBRARY.ID))
+        .join(SEQUENCE).on(SEQUENCE.ID.eq(PATTERN.SEQUENCE_ID))
+        .join(LIBRARY).on(SEQUENCE.LIBRARY_ID.eq(LIBRARY.ID))
         .where(PATTERN.ID.eq(ULong.valueOf(entity.getPatternId())))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .fetchOne(0, int.class));
@@ -90,7 +93,8 @@ public class PatternMemeDAOImpl extends DAOImpl implements PatternMemeDAO {
     else
       return modelFrom(db.select(PATTERN_MEME.fields()).from(PATTERN_MEME)
         .join(PATTERN).on(PATTERN.ID.eq(PATTERN_MEME.PATTERN_ID))
-        .join(LIBRARY).on(PATTERN.LIBRARY_ID.eq(LIBRARY.ID))
+        .join(SEQUENCE).on(SEQUENCE.ID.eq(PATTERN.SEQUENCE_ID))
+        .join(LIBRARY).on(SEQUENCE.LIBRARY_ID.eq(LIBRARY.ID))
         .where(PATTERN_MEME.ID.eq(id))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .fetchOne(), PatternMeme.class);
@@ -99,8 +103,8 @@ public class PatternMemeDAOImpl extends DAOImpl implements PatternMemeDAO {
   /**
    Read all Memes of an Pattern where able
 
-   @param db         context
-   @param access     control
+   @param db       context
+   @param access   control
    @param patternIds to readMany memes for
    @return array of pattern memes
    */
@@ -112,7 +116,8 @@ public class PatternMemeDAOImpl extends DAOImpl implements PatternMemeDAO {
     else
       return modelsFrom(db.select(PATTERN_MEME.fields()).from(PATTERN_MEME)
         .join(PATTERN).on(PATTERN.ID.eq(PATTERN_MEME.PATTERN_ID))
-        .join(LIBRARY).on(PATTERN.LIBRARY_ID.eq(LIBRARY.ID))
+        .join(SEQUENCE).on(SEQUENCE.ID.eq(PATTERN.SEQUENCE_ID))
+        .join(LIBRARY).on(SEQUENCE.LIBRARY_ID.eq(LIBRARY.ID))
         .where(PATTERN.ID.in(patternIds))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .fetch(), PatternMeme.class);
@@ -130,7 +135,8 @@ public class PatternMemeDAOImpl extends DAOImpl implements PatternMemeDAO {
     if (!access.isTopLevel())
       requireExists("Pattern Meme", db.selectCount().from(PATTERN_MEME)
         .join(PATTERN).on(PATTERN.ID.eq(PATTERN_MEME.PATTERN_ID))
-        .join(LIBRARY).on(PATTERN.LIBRARY_ID.eq(LIBRARY.ID))
+        .join(SEQUENCE).on(SEQUENCE.ID.eq(PATTERN.SEQUENCE_ID))
+        .join(LIBRARY).on(SEQUENCE.LIBRARY_ID.eq(LIBRARY.ID))
         .where(PATTERN_MEME.ID.eq(id))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .fetchOne(0, int.class));
@@ -149,8 +155,8 @@ public class PatternMemeDAOImpl extends DAOImpl implements PatternMemeDAO {
    */
   private static Map<Field, Object> fieldValueMap(PatternMeme entity) {
     Map<Field, Object> fieldValues = Maps.newHashMap();
-    fieldValues.put(PATTERN_MEME.PATTERN_ID, ULong.valueOf(entity.getPatternId()));
-    fieldValues.put(PATTERN_MEME.NAME, entity.getName());
+    fieldValues.put(Tables.PATTERN_MEME.PATTERN_ID, ULong.valueOf(entity.getPatternId()));
+    fieldValues.put(Tables.PATTERN_MEME.NAME, entity.getName());
     return fieldValues;
   }
 
@@ -187,6 +193,7 @@ public class PatternMemeDAOImpl extends DAOImpl implements PatternMemeDAO {
   @Override
   public void update(Access access, BigInteger id, PatternMeme entity) throws Exception {
     throw new BusinessException("Not allowed to update PatternMeme record.");
+
   }
 
   @Override

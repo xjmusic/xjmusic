@@ -3,10 +3,13 @@ package io.xj.hub.resource.pattern_meme;
 
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.PatternMemeDAO;
+import io.xj.core.exception.BusinessException;
 import io.xj.core.model.pattern_meme.PatternMeme;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.transport.HttpResponseProvider;
+import io.xj.core.transport.JSON;
 import io.xj.hub.HubResource;
+import org.apache.http.HttpStatus;
 
 import javax.annotation.security.RolesAllowed;
 import javax.jws.WebResult;
@@ -48,12 +51,12 @@ public class PatternMemeOneResource extends HubResource {
           new BigInteger(id)));
 
     } catch (Exception e) {
-      return response.failure(e);
+      return Response.serverError().header("error", e.getMessage()).build();
     }
   }
 
   /**
-   Delete one PatternMeme by patternId and memeId
+   Delete one PatternMeme by id
 
    @return application/json response.
    */
@@ -62,10 +65,16 @@ public class PatternMemeOneResource extends HubResource {
   public Response delete(@Context ContainerRequestContext crc) {
     try {
       patternMemeDAO.destroy(Access.fromContext(crc), new BigInteger(id));
-      return Response.accepted("{}").build();
+    } catch (BusinessException e) {
+      return Response
+        .status(HttpStatus.SC_BAD_REQUEST)
+        .entity(JSON.wrapError(e.getMessage()).toString())
+        .build();
     } catch (Exception e) {
-      return response.failure(e);
+      return Response.serverError().header("error", e.getMessage()).build();
     }
+
+    return Response.accepted("{}").build();
   }
 
 }

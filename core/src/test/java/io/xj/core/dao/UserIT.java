@@ -133,7 +133,7 @@ public class UserIT {
     // Created User
     User user = testDAO.readOne(Access.internal(), userAccessToken.getUserId());
     assertNotNull(user);
-    assertEquals(BigInteger.valueOf(2), user.getId());
+    assertEquals(BigInteger.valueOf(2L), user.getId());
     assertEquals("john", user.getName());
     assertEquals("http://pictures.com/john.gif", user.getAvatarUrl());
     assertEquals("john@email.com", user.getEmail());
@@ -146,10 +146,10 @@ public class UserIT {
       "accounts", "1"
     ));
 
-    User result = testDAO.readOne(access, BigInteger.valueOf(2));
+    User result = testDAO.readOne(access, BigInteger.valueOf(2L));
 
     assertNotNull(result);
-    assertEquals(BigInteger.valueOf(2), result.getId());
+    assertEquals(BigInteger.valueOf(2L), result.getId());
     assertEquals("john@email.com", result.getEmail());
     assertEquals("http://pictures.com/john.gif", result.getAvatarUrl());
     assertEquals("john", result.getName());
@@ -163,7 +163,7 @@ public class UserIT {
       "accounts", "1"
     ));
 
-    User result = testDAO.readOne(access, BigInteger.valueOf(2));
+    User result = testDAO.readOne(access, BigInteger.valueOf(2L));
     assertNotNull(result);
     JSONObject resultJSON = JSON.objectFrom(result);
 
@@ -182,10 +182,10 @@ public class UserIT {
       "accounts", "1"
     ));
 
-    User result = testDAO.readOne(access, BigInteger.valueOf(3));
+    User result = testDAO.readOne(access, BigInteger.valueOf(3L));
 
     assertNotNull(result);
-    assertEquals(BigInteger.valueOf(3), result.getId());
+    assertEquals(BigInteger.valueOf(3L), result.getId());
     assertEquals("jenny@email.com", result.getEmail());
     assertEquals("http://pictures.com/jenny.gif", result.getAvatarUrl());
     assertEquals("jenny", result.getName());
@@ -199,7 +199,7 @@ public class UserIT {
       "accounts", "1"
     ));
 
-    User result = testDAO.readOne(access, BigInteger.valueOf(4));
+    User result = testDAO.readOne(access, BigInteger.valueOf(4L));
 
     assertNull(result);
   }
@@ -212,7 +212,7 @@ public class UserIT {
       "accounts", ""
     ));
 
-    User result = testDAO.readOne(access, BigInteger.valueOf(4));
+    User result = testDAO.readOne(access, BigInteger.valueOf(4L));
 
     assertNotNull(result);
     assertEquals("bill", result.getName());
@@ -228,7 +228,7 @@ public class UserIT {
     JSONArray result = JSON.arrayOf(testDAO.readAll(access, Lists.newArrayList()));
 
     assertNotNull(result);
-    assertEquals(3, result.length());
+    assertEquals(3L, (long) result.length());
   }
 
   @Test
@@ -241,7 +241,7 @@ public class UserIT {
     JSONArray result = JSON.arrayOf(testDAO.readAll(access, Lists.newArrayList()));
 
     assertNotNull(result);
-    assertEquals(2, result.length());
+    assertEquals(2L, (long) result.length());
   }
 
   @Test
@@ -255,14 +255,14 @@ public class UserIT {
     JSONArray result = JSON.arrayOf(testDAO.readAll(access, Lists.newArrayList()));
 
     assertNotNull(result);
-    assertEquals(1, result.length());
+    assertEquals(1L, (long) result.length());
     JSONObject resultSub = (JSONObject) result.get(0);
     assertEquals("bill", resultSub.get("name"));
   }
 
   @Test
   public void destroyAllTokens() throws Exception {
-    testDAO.destroyAllTokens(BigInteger.valueOf(2));
+    testDAO.destroyAllTokens(BigInteger.valueOf(2L));
 
     UserAccessToken result = testDAO.readOneAccessToken(Access.internal(), "this-is-my-actual-access-token");
     assertNull(result);
@@ -277,16 +277,16 @@ public class UserIT {
     User inputData = new User()
       .setRoles("User,Artist");
 
-    testDAO.updateUserRolesAndDestroyTokens(access, BigInteger.valueOf(2), inputData);
+    testDAO.updateUserRolesAndDestroyTokens(access, BigInteger.valueOf(2L), inputData);
 
     // Access Token deleted
     UserAccessToken result = testDAO.readOneAccessToken(Access.internal(), "this-is-my-actual-access-token");
     assertNull(result);
     // future test: token destroyed in Redis
     // Added artist role
-    assertNotNull(testDAO.readOneRole(Access.internal(), BigInteger.valueOf(2), UserRoleType.Artist));
+    assertNotNull(testDAO.readOneRole(Access.internal(), BigInteger.valueOf(2L), UserRoleType.Artist));
     // Removed admin role
-    assertNull(testDAO.readOneRole(Access.internal(), BigInteger.valueOf(2), UserRoleType.Admin));
+    assertNull(testDAO.readOneRole(Access.internal(), BigInteger.valueOf(2L), UserRoleType.Admin));
   }
 
   /**
@@ -303,12 +303,12 @@ public class UserIT {
     User inputData = new User()
       .setRoles("User,Artist,Engineer,Admin");
 
-    testDAO.updateUserRolesAndDestroyTokens(access, BigInteger.valueOf(53), inputData);
+    testDAO.updateUserRolesAndDestroyTokens(access, BigInteger.valueOf(53L), inputData);
 
-    assertNotNull(testDAO.readOneRole(Access.internal(), BigInteger.valueOf(53), UserRoleType.User));
-    assertNotNull(testDAO.readOneRole(Access.internal(), BigInteger.valueOf(53), UserRoleType.Artist));
-    assertNotNull(testDAO.readOneRole(Access.internal(), BigInteger.valueOf(53), UserRoleType.Engineer));
-    assertNotNull(testDAO.readOneRole(Access.internal(), BigInteger.valueOf(53), UserRoleType.Admin));
+    assertNotNull(testDAO.readOneRole(Access.internal(), BigInteger.valueOf(53L), UserRoleType.User));
+    assertNotNull(testDAO.readOneRole(Access.internal(), BigInteger.valueOf(53L), UserRoleType.Artist));
+    assertNotNull(testDAO.readOneRole(Access.internal(), BigInteger.valueOf(53L), UserRoleType.Engineer));
+    assertNotNull(testDAO.readOneRole(Access.internal(), BigInteger.valueOf(53L), UserRoleType.Admin));
   }
 
   /**
@@ -325,12 +325,12 @@ public class UserIT {
     User inputData = new User()
       .setRoles("user,artist,engineer,admin");
 
-    testDAO.updateUserRolesAndDestroyTokens(access, BigInteger.valueOf(53), inputData);
+    testDAO.updateUserRolesAndDestroyTokens(access, BigInteger.valueOf(53L), inputData);
 
-    assertNotNull(testDAO.readOneRole(Access.internal(), BigInteger.valueOf(53), UserRoleType.User));
-    assertNotNull(testDAO.readOneRole(Access.internal(), BigInteger.valueOf(53), UserRoleType.Artist));
-    assertNotNull(testDAO.readOneRole(Access.internal(), BigInteger.valueOf(53), UserRoleType.Engineer));
-    assertNotNull(testDAO.readOneRole(Access.internal(), BigInteger.valueOf(53), UserRoleType.Admin));
+    assertNotNull(testDAO.readOneRole(Access.internal(), BigInteger.valueOf(53L), UserRoleType.User));
+    assertNotNull(testDAO.readOneRole(Access.internal(), BigInteger.valueOf(53L), UserRoleType.Artist));
+    assertNotNull(testDAO.readOneRole(Access.internal(), BigInteger.valueOf(53L), UserRoleType.Engineer));
+    assertNotNull(testDAO.readOneRole(Access.internal(), BigInteger.valueOf(53L), UserRoleType.Admin));
   }
 
   /**
@@ -350,7 +350,7 @@ public class UserIT {
     failure.expect(BusinessException.class);
     failure.expectMessage("Valid Role is required");
 
-    testDAO.updateUserRolesAndDestroyTokens(access, BigInteger.valueOf(53), inputData);
+    testDAO.updateUserRolesAndDestroyTokens(access, BigInteger.valueOf(53L), inputData);
   }
 
   /**
@@ -370,10 +370,10 @@ public class UserIT {
     failure.expect(BusinessException.class);
     failure.expectMessage("'Shmengineer' is not a valid role");
 
-    testDAO.updateUserRolesAndDestroyTokens(access, BigInteger.valueOf(53), inputData);
+    testDAO.updateUserRolesAndDestroyTokens(access, BigInteger.valueOf(53L), inputData);
 
-    assertNotNull(testDAO.readOneRole(Access.internal(), BigInteger.valueOf(53), UserRoleType.Admin));
-    assertNotNull(testDAO.readOneRole(Access.internal(), BigInteger.valueOf(53), UserRoleType.Artist));
+    assertNotNull(testDAO.readOneRole(Access.internal(), BigInteger.valueOf(53L), UserRoleType.Admin));
+    assertNotNull(testDAO.readOneRole(Access.internal(), BigInteger.valueOf(53L), UserRoleType.Artist));
   }
 
 }

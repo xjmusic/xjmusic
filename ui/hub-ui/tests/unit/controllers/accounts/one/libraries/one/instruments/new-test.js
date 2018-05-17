@@ -1,3 +1,5 @@
+// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+
 import { moduleFor, test } from 'ember-qunit';
 
 moduleFor('controller:accounts/one/libraries/one/instruments/new', 'Unit | Controller | accounts/one/libraries/one/instruments/new', {

@@ -1,3 +1,5 @@
+// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+
 import EmberRouter from '@ember/routing/router';
 import config from "./config/environment";
 import googlePageView from "./mixins/google-pageview";
@@ -41,65 +43,65 @@ function accountLibraryIndex() {
 function accountLibraryOne() {
   this.route('edit');
   this.route('destroy');
-  this.route('patterns', accountLibraryPatternIndex);
+  this.route('sequences', accountLibrarySequenceIndex);
   this.route('instruments', accountLibraryInstrumentIndex);
   this.route('digest');
 }
 
-function accountLibraryPatternIndex() {
+function accountLibrarySequenceIndex() {
   this.route('new');
-  this.route('one', {path: '/:pattern_id'}, accountLibraryPatternOne);
+  this.route('one', {path: '/:sequence_id'}, accountLibrarySequenceOne);
 }
 
-function accountLibraryPatternOne() {
+function accountLibrarySequenceOne() {
   this.route('edit');
   this.route('clone');
   this.route('destroy');
   this.route('memes');
-  this.route('phases', accountLibraryPatternPhaseIndex);
-  this.route('voices', accountLibraryPatternVoiceIndex);
+  this.route('patterns', accountLibrarySequencePatternIndex);
+  this.route('voices', accountLibrarySequenceVoiceIndex);
 }
 
-function accountLibraryPatternVoiceIndex() {
+function accountLibrarySequenceVoiceIndex() {
   this.route('new');
-  this.route('one', {path: '/:voice_id'}, accountLibraryPatternVoiceOne);
+  this.route('one', {path: '/:voice_id'}, accountLibrarySequenceVoiceOne);
 }
 
-function accountLibraryPatternVoiceOne() {
+function accountLibrarySequenceVoiceOne() {
   this.route('edit');
   this.route('destroy');
 }
 
-function accountLibraryPatternPhaseIndex() {
+function accountLibrarySequencePatternIndex() {
   this.route('new');
-  this.route('one', {path: '/:phase_id'}, accountLibraryPatternPhaseOne);
+  this.route('one', {path: '/:pattern_id'}, accountLibrarySequencePatternOne);
 }
 
-function accountLibraryPatternPhaseOne() {
+function accountLibrarySequencePatternOne() {
   this.route('edit');
   this.route('clone');
   this.route('destroy');
   this.route('memes');
-  this.route('chords', accountLibraryPatternPhaseChordIndex);
-  this.route('events', accountLibraryPatternPhaseEventIndex);
+  this.route('chords', accountLibrarySequencePatternChordIndex);
+  this.route('events', accountLibrarySequencePatternEventIndex);
 }
 
-function accountLibraryPatternPhaseChordIndex() {
+function accountLibrarySequencePatternChordIndex() {
   this.route('new');
-  this.route('one', {path: '/:chord_id'}, accountLibraryPatternPhaseChordOne);
+  this.route('one', {path: '/:chord_id'}, accountLibrarySequencePatternChordOne);
 }
 
-function accountLibraryPatternPhaseChordOne() {
+function accountLibrarySequencePatternChordOne() {
   this.route('edit');
   this.route('destroy');
 }
 
-function accountLibraryPatternPhaseEventIndex() {
+function accountLibrarySequencePatternEventIndex() {
   this.route('new');
-  this.route('one', {path: '/:event_id'}, accountLibraryPatternPhaseEventOne);
+  this.route('one', {path: '/:event_id'}, accountLibrarySequencePatternEventOne);
 }
 
-function accountLibraryPatternPhaseEventOne() {
+function accountLibrarySequencePatternEventOne() {
   this.route('edit');
   this.route('clone');
   this.route('destroy');
@@ -161,16 +163,16 @@ function accountChainOne() {
   this.route('destroy');
   this.route('libraries');
   this.route('configs');
-  this.route('patterns');
+  this.route('sequences');
   this.route('instruments');
-  this.route('links', accountChainLinkIndex);
+  this.route('segments', accountChainSegmentIndex);
 }
 
-function accountChainLinkIndex() {
-  this.route('one', {path: '/:link_id'}, accountChainLinkOne);
+function accountChainSegmentIndex() {
+  this.route('one', {path: '/:segment_id'}, accountChainSegmentOne);
 }
 
-function accountChainLinkOne() {
+function accountChainSegmentOne() {
 }
 
 function platform() {
@@ -182,8 +184,8 @@ function platform() {
 
 function go() {
   this.route('audio', {path: '/audio/:audio_id'});
-  this.route('phase', {path: '/phase/:phase_id'});
   this.route('pattern', {path: '/pattern/:pattern_id'});
+  this.route('sequence', {path: '/sequence/:sequence_id'});
   this.route('instrument', {path: '/instrument/:instrument_id'});
 }
 

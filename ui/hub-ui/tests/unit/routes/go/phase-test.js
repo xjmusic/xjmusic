@@ -1,6 +1,8 @@
+// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+
 import { moduleFor, test } from 'ember-qunit';
 
-moduleFor('route:go/phase', 'Unit | Route | go/phase', {
+moduleFor('route:go/pattern', 'Unit | Route | go/pattern', {
   // Specify the other units that are required for this test.
   // needs: ['controller:foo']
 });

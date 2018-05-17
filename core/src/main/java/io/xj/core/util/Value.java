@@ -6,6 +6,7 @@ import com.google.common.collect.Sets;
 import java.math.BigInteger;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public interface Value {
 
@@ -17,7 +18,7 @@ public interface Value {
    @return incremented base
    */
   static BigInteger inc(BigInteger base, int delta) {
-    return base.add(BigInteger.valueOf(delta));
+    return base.add(BigInteger.valueOf((long) delta));
   }
 
   /**
@@ -28,7 +29,7 @@ public interface Value {
    @return s1 if non-null, else s2
    */
   static Double eitherOr(Double d1, Double d2) {
-    if (Objects.nonNull(d1) && !d1.isNaN() && !d1.equals(0.0d))
+    if (Objects.nonNull(d1) && !d1.isNaN() && !Objects.equals(d1, 0.0d))
       return d1;
     else
       return d2;
@@ -56,8 +57,7 @@ public interface Value {
    @return divided originals
    */
   static Set<Integer> dividedBy(Double divisor, Set<Integer> originals) {
-    Set<Integer> result = Sets.newHashSet();
-    originals.forEach(original -> result.add((int) Math.floor(original / divisor)));
+    Set<Integer> result = originals.stream().map(original -> (int) Math.floor(original / divisor)).collect(Collectors.toSet());
     return result;
   }
 }

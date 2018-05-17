@@ -5,6 +5,8 @@ import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.integration.IntegrationTestEntity;
+import io.xj.core.model.sequence.SequenceState;
+import io.xj.core.model.sequence.SequenceType;
 import io.xj.core.model.pattern.PatternState;
 import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.pattern_meme.PatternMeme;
@@ -58,18 +60,20 @@ public class PatternMemeIT {
     IntegrationTestEntity.insertUser(4, "bill", "bill@email.com", "http://pictures.com/bill.gif");
     IntegrationTestEntity.insertUserRole(6, 4, UserRoleType.User);
 
-    // Library "palm tree" has pattern "leaves", pattern "coconuts" and pattern "bananas"
+    // Library "palm tree" has sequence "leaves"
     IntegrationTestEntity.insertLibrary(1, 1, "palm tree");
-    IntegrationTestEntity.insertPattern(1, 2, 1, PatternType.Main, PatternState.Published, "leaves", 0.342, "C#", 120.4);
-    IntegrationTestEntity.insertPattern(2, 2, 1, PatternType.Main, PatternState.Published, "coconuts", 0.25, "F#", 110.3);
-    IntegrationTestEntity.insertPattern(3, 2, 1, PatternType.Main, PatternState.Published, "bananas", 0.27, "Gb", 100.6);
+    IntegrationTestEntity.insertSequence(1, 2, 1, SequenceType.Main, SequenceState.Published, "leaves", 0.342, "C#", 120.4);
 
-    // Pattern "leaves" has memes "ants" and "mold"
-    IntegrationTestEntity.insertPatternMeme(1, 1, "Ants");
-    IntegrationTestEntity.insertPatternMeme(2, 1, "Mold");
+    // Sequence "leaves" has pattern "growth" and pattern "decay"
+    IntegrationTestEntity.insertPattern(1, 1, PatternType.Main, PatternState.Published, 0, 16, "growth", 0.342, "C#", 120.4);
+    IntegrationTestEntity.insertPattern(2, 1, PatternType.Main, PatternState.Published, 1, 16, "decay", 0.25, "F#", 110.3);
 
-    // Pattern "bananas" has meme "peel"
-    IntegrationTestEntity.insertPatternMeme(3, 3, "Peel");
+    // Pattern "growth" has memes "ants" and "mold"
+    IntegrationTestEntity.insertPatternMeme(1, 1, "Gravel");
+    IntegrationTestEntity.insertPatternMeme(2, 1, "Fuzz");
+
+    // Pattern "decay" has meme "peel"
+    IntegrationTestEntity.insertPatternMeme(3, 2, "Peel");
 
     // Instantiate the test subject
     testDAO = injector.getInstance(PatternMemeDAO.class);
@@ -88,7 +92,7 @@ public class PatternMemeIT {
       "accounts", "1"
     ));
     PatternMeme inputData = new PatternMeme()
-      .setPatternId(BigInteger.valueOf(1))
+      .setPatternId(BigInteger.valueOf(1L))
       .setName("  !!2gnarLY    ");
 
     JSONObject result = JSON.objectFrom(testDAO.create(access, inputData));
@@ -117,7 +121,7 @@ public class PatternMemeIT {
       "accounts", "1"
     ));
     PatternMeme inputData = new PatternMeme()
-      .setPatternId(BigInteger.valueOf(1));
+      .setPatternId(BigInteger.valueOf(1L));
 
     testDAO.create(access, inputData);
   }
@@ -129,12 +133,12 @@ public class PatternMemeIT {
       "accounts", "1"
     ));
 
-    PatternMeme result = testDAO.readOne(access, BigInteger.valueOf(2));
+    PatternMeme result = testDAO.readOne(access, BigInteger.valueOf(2L));
 
     assertNotNull(result);
-    assertEquals(BigInteger.valueOf(2), result.getId());
-    assertEquals(BigInteger.valueOf(1), result.getPatternId());
-    assertEquals("Mold", result.getName());
+    assertEquals(BigInteger.valueOf(2L), result.getId());
+    assertEquals(BigInteger.valueOf(1L), result.getPatternId());
+    assertEquals("Fuzz", result.getName());
   }
 
   @Test
@@ -144,7 +148,7 @@ public class PatternMemeIT {
       "accounts", "326"
     ));
 
-    PatternMeme result = testDAO.readOne(access, BigInteger.valueOf(1));
+    PatternMeme result = testDAO.readOne(access, BigInteger.valueOf(1L));
 
     assertNull(result);
   }
@@ -156,14 +160,14 @@ public class PatternMemeIT {
       "accounts", "1"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1))));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1L))));
 
     assertNotNull(result);
-    assertEquals(2, result.length());
+    assertEquals(2L, (long) result.length());
     JSONObject result1 = (JSONObject) result.get(0);
-    assertEquals("Ants", result1.get("name"));
+    assertEquals("Gravel", result1.get("name"));
     JSONObject result2 = (JSONObject) result.get(1);
-    assertEquals("Mold", result2.get("name"));
+    assertEquals("Fuzz", result2.get("name"));
   }
 
   @Test
@@ -173,10 +177,10 @@ public class PatternMemeIT {
       "accounts", "345"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1))));
+    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1L))));
 
     assertNotNull(result);
-    assertEquals(0, result.length());
+    assertEquals(0L, (long) result.length());
   }
 
   @Test
@@ -185,9 +189,19 @@ public class PatternMemeIT {
       "roles", "Artist",
       "accounts", "1"
     ));
-    testDAO.destroy(access, BigInteger.valueOf(1));
+    testDAO.destroy(access, BigInteger.valueOf(1L));
 
-    PatternMeme result = testDAO.readOne(Access.internal(),BigInteger.valueOf(1));
+    PatternMeme result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1L));
     assertNull(result);
+  }
+
+  @Test(expected = BusinessException.class)
+  public void delete_failsIfNotInAccount() throws Exception {
+    Access access = new Access(ImmutableMap.of(
+      "roles", "Artist",
+      "accounts", "2"
+    ));
+
+    testDAO.destroy(access, BigInteger.valueOf(1L));
   }
 }

@@ -26,7 +26,7 @@ export default Route.extend({
   actions: {
 
     destroy(model) {
-      let confirmation = confirm("Are you sure? If there are Patterns or Instruments belonging to this Library, destruction will fail anyway.");
+      let confirmation = confirm("Are you sure? If there are Sequences or Instruments belonging to this Library, destruction will fail anyway.");
       let account = model.get("account");
       if (confirmation) {
         model.destroyRecord({}).then(

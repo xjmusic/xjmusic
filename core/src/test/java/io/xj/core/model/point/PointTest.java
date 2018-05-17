@@ -16,8 +16,8 @@ public class PointTest {
   @Test
   public void validate() throws Exception {
     new Point()
-      .setMorphId(BigInteger.valueOf(457832))
-      .setPhaseEventId(BigInteger.valueOf(76943))
+      .setMorphId(BigInteger.valueOf(457832L))
+      .setPatternEventId(BigInteger.valueOf(76943L))
       .setPosition(1.25)
       .setNote("F")
       .setDuration(0.74)
@@ -30,7 +30,7 @@ public class PointTest {
     failure.expectMessage("Morph ID is required");
 
     new Point()
-      .setPhaseEventId(BigInteger.valueOf(76943))
+      .setPatternEventId(BigInteger.valueOf(76943L))
       .setPosition(1.25)
       .setNote("F")
       .setDuration(0.74)
@@ -38,12 +38,12 @@ public class PointTest {
   }
 
   @Test
-  public void validate_failsWithoutPhaseEventID() throws Exception {
+  public void validate_failsWithoutPatternEventID() throws Exception {
     failure.expect(BusinessException.class);
-    failure.expectMessage("PhaseEvent ID is required");
+    failure.expectMessage("PatternEvent ID is required");
 
     new Point()
-      .setMorphId(BigInteger.valueOf(457832))
+      .setMorphId(BigInteger.valueOf(457832L))
       .setPosition(1.25)
       .setNote("F")
       .setDuration(0.74)
@@ -56,8 +56,8 @@ public class PointTest {
     failure.expectMessage("Position is required");
 
     new Point()
-      .setMorphId(BigInteger.valueOf(457832))
-      .setPhaseEventId(BigInteger.valueOf(76943))
+      .setMorphId(BigInteger.valueOf(457832L))
+      .setPatternEventId(BigInteger.valueOf(76943L))
       .setNote("F")
       .setDuration(0.74)
       .validate();
@@ -69,8 +69,8 @@ public class PointTest {
     failure.expectMessage("Duration is required");
 
     new Point()
-      .setMorphId(BigInteger.valueOf(457832))
-      .setPhaseEventId(BigInteger.valueOf(76943))
+      .setMorphId(BigInteger.valueOf(457832L))
+      .setPatternEventId(BigInteger.valueOf(76943L))
       .setPosition(1.25)
       .setNote("F")
       .validate();
@@ -82,8 +82,8 @@ public class PointTest {
     failure.expectMessage("Note is required");
 
     new Point()
-      .setMorphId(BigInteger.valueOf(457832))
-      .setPhaseEventId(BigInteger.valueOf(76943))
+      .setMorphId(BigInteger.valueOf(457832L))
+      .setPatternEventId(BigInteger.valueOf(76943L))
       .setPosition(1.25)
       .setDuration(0.74)
       .validate();

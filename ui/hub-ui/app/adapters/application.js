@@ -37,7 +37,7 @@ export default DS.RESTAdapter.extend({
    this.get('store').findRecord('chain', chain.get('id'), {
       adapterOptions: {
         query: {
-          include: "links"
+          include: "segments"
         }
       }
     }).then(...);

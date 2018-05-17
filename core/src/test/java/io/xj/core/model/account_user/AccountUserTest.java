@@ -14,8 +14,8 @@ public class AccountUserTest {
   @Test
   public void validate() throws Exception {
     new AccountUser()
-      .setUserId(BigInteger.valueOf(125434))
-      .setAccountId(BigInteger.valueOf(125434))
+      .setUserId(BigInteger.valueOf(125434L))
+      .setAccountId(BigInteger.valueOf(125434L))
       .validate();
   }
 
@@ -25,7 +25,7 @@ public class AccountUserTest {
     failure.expectMessage("Account ID is required");
 
     new AccountUser()
-      .setUserId(BigInteger.valueOf(125434))
+      .setUserId(BigInteger.valueOf(125434L))
       .validate();
   }
 
@@ -35,7 +35,7 @@ public class AccountUserTest {
     failure.expectMessage("User ID is required");
 
     new AccountUser()
-      .setAccountId(BigInteger.valueOf(125434))
+      .setAccountId(BigInteger.valueOf(125434L))
       .validate();
   }
 

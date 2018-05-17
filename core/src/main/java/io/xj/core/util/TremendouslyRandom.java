@@ -1,4 +1,4 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.util;
 
 import java.util.concurrent.ThreadLocalRandom;
@@ -26,8 +26,8 @@ public interface TremendouslyRandom {
    @return random double n, where 0 <= n < limit
    */
   static Double zeroToLimit(Double limit) {
-    if (0 >= limit) return 0.0;
-    return ThreadLocalRandom.current().nextDouble(0, limit);
+    if ((double) 0 >= limit) return 0.0;
+    return ThreadLocalRandom.current().nextDouble((double) 0, limit);
   }
 
 }

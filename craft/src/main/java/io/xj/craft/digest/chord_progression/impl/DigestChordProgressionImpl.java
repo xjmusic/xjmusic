@@ -1,4 +1,4 @@
-// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.craft.digest.chord_progression.impl;
 
 import com.google.common.collect.Lists;
@@ -13,10 +13,10 @@ import io.xj.craft.digest.impl.DigestImpl;
 import io.xj.craft.ingest.Ingest;
 import io.xj.core.model.chord.Chord;
 import io.xj.craft.chord.ChordProgression;
+import io.xj.core.model.sequence.Sequence;
 import io.xj.core.model.pattern.Pattern;
-import io.xj.core.model.phase.Phase;
-import io.xj.core.model.phase_chord.PhaseChord;
-import io.xj.craft.chord.PhaseChordProgression;
+import io.xj.core.model.pattern_chord.PatternChord;
+import io.xj.craft.chord.PatternChordProgression;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -115,18 +115,18 @@ public class DigestChordProgressionImpl extends DigestImpl implements DigestChor
    Digest entities from ingest
    */
   private void digest() throws Exception {
-    for (PhaseChordProgression chordProgression : computeAllChordProgressions())
+    for (PatternChordProgression chordProgression : computeAllChordProgressions())
       storeDigestedSequence(chordProgression);
   }
 
   /**
    Compute all possible chord progressions for contents in ingest
    */
-  private Collection<PhaseChordProgression> computeAllChordProgressions() {
-    Collection<PhaseChordProgression> result = Lists.newArrayList();
+  private Collection<PatternChordProgression> computeAllChordProgressions() {
+    Collection<PatternChordProgression> result = Lists.newArrayList();
 
-    ingest.phases().forEach(phase ->
-      result.addAll(computeChordProgressions(phase.getId(), phaseChordsOf(ingest.phaseChords(), phase.getId()))));
+    ingest.patterns().forEach(pattern ->
+      result.addAll(computeChordProgressions(pattern.getId(), patternChordsOf(ingest.patternChords(), pattern.getId()))));
 
     return result;
   }
@@ -135,40 +135,40 @@ public class DigestChordProgressionImpl extends DigestImpl implements DigestChor
   /**
    Get only the audio chords of a particular audio
 
-   @param phaseChords to search for chords
-   @param parentId    (phase) to get phase chords of
+   @param patternChords to search for chords
+   @param parentId    (pattern) to get pattern chords of
    @return collection of audio chords
    */
-  private static <C extends PhaseChord> Collection<C> phaseChordsOf(Collection<C> phaseChords, Object parentId) {
+  private static <C extends PatternChord> Collection<C> patternChordsOf(Collection<C> patternChords, Object parentId) {
     Collection<C> result = Lists.newArrayList();
-    phaseChords.forEach(chord -> {
+    patternChords.forEach(chord -> {
       if (Objects.equals(parentId, chord.getParentId())) result.add(chord);
     });
     return result;
   }
 
   /**
-   Compute all possible chord progressions given a set of chords (e.g. from a Phase or Audio)
+   Compute all possible chord progressions given a set of chords (e.g. from a Pattern or Audio)
 
    @param parentId parent of chords
    @param chords   to compute all possible sequences of
-   @return array of phaseMap
+   @return array of patternMap
    */
-  private static Collection<PhaseChordProgression> computeChordProgressions(BigInteger parentId, Collection<PhaseChord> chords) {
-    List<PhaseChordProgression> result = Lists.newArrayList();
+  private static Collection<PatternChordProgression> computeChordProgressions(BigInteger parentId, Collection<PatternChord> chords) {
+    List<PatternChordProgression> result = Lists.newArrayList();
 
-    List<PhaseChord> allChords = Lists.newArrayList(chords);
+    List<PatternChord> allChords = Lists.newArrayList(chords);
     allChords.sort(Chord.byPositionAscending);
 
     int totalChords = allChords.size();
     for (int fromChord = 0; fromChord < totalChords; fromChord++) {
       int maxToChord = Math.min(totalChords, fromChord + Config.ingestChordProgressionLengthMax());
       for (int toChord = fromChord; toChord < maxToChord; toChord++) {
-        List<PhaseChord> subset = Lists.newArrayList();
+        List<PatternChord> subset = Lists.newArrayList();
         for (int i = fromChord; i <= toChord; i++) {
           subset.add(allChords.get(i));
         }
-        result.add(new PhaseChordProgression(parentId, subset));
+        result.add(new PatternChordProgression(parentId, subset));
       }
     }
 
@@ -195,18 +195,18 @@ public class DigestChordProgressionImpl extends DigestImpl implements DigestChor
 
    @return evaluated library chord progression as JSON
    */
-  private JSONObject toJSONObject(PhaseChordProgression chordProgression) {
+  private JSONObject toJSONObject(PatternChordProgression chordProgression) {
     JSONObject result = new JSONObject();
 
-    Phase phase = getPhase(chordProgression.getParentId());
-    result.put(KEY_PHASE_ID, phase.getId().toString());
-    result.put(KEY_PHASE_NAME, phase.getName());
-    result.put(KEY_PHASE_TYPE, phase.getType());
-
-    Pattern pattern = getPattern(phase.getPatternId());
+    Pattern pattern = getPattern(chordProgression.getParentId());
     result.put(KEY_PATTERN_ID, pattern.getId().toString());
     result.put(KEY_PATTERN_NAME, pattern.getName());
     result.put(KEY_PATTERN_TYPE, pattern.getType());
+
+    Sequence sequence = getSequence(pattern.getSequenceId());
+    result.put(KEY_SEQUENCE_ID, sequence.getId().toString());
+    result.put(KEY_SEQUENCE_NAME, sequence.getName());
+    result.put(KEY_SEQUENCE_TYPE, sequence.getType());
 
     JSONArray chordArr = new JSONArray();
     chordProgression.getChords().forEach(chord -> chordArr.put(toJSONObject(chord)));
@@ -219,7 +219,7 @@ public class DigestChordProgressionImpl extends DigestImpl implements DigestChor
 
    @param chordProgression to store
    */
-  private void storeDigestedSequence(PhaseChordProgression chordProgression) {
+  private void storeDigestedSequence(PatternChordProgression chordProgression) {
     ChordProgression descriptor = chordProgression.getChordProgression();
     String descriptorString = descriptor.toString();
     if (!evaluatedSequenceMap.containsKey(descriptorString))
@@ -263,7 +263,7 @@ public class DigestChordProgressionImpl extends DigestImpl implements DigestChor
         // BUT don't preserve if we already have one with this parent
         // AND don't preserve if we have already preserved these chords (by id)
         if (evaluatedNeedle.getDescriptorLength() >= Config.ingestChordProgressionPreserveLengthMin())
-          evaluatedNeedle.getUsages().forEach((PhaseChordProgression candidate) -> {
+          evaluatedNeedle.getUsages().forEach((PatternChordProgression candidate) -> {
             if (candidate.getChords().size() >= evaluatedHaystack.getDescriptorLength() - Config.ingestChordProgressionRedundancyThreshold())
               evaluatedHaystack.addIfUniqueParent(candidate);
           });

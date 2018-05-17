@@ -30,8 +30,8 @@ public class ChoiceIndexResource extends HubResource {
   private final ChoiceDAO choiceDAO = injector.getInstance(ChoiceDAO.class);
   private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
 
-  @QueryParam("linkId")
-  String linkId;
+  @QueryParam("segmentId")
+  String segmentId;
 
   /**
    Get all choices.
@@ -42,8 +42,8 @@ public class ChoiceIndexResource extends HubResource {
   @WebResult
   @RolesAllowed(UserRoleType.USER)
   public Response readAll(@Context ContainerRequestContext crc) throws IOException {
-    if (Objects.isNull(linkId) || linkId.isEmpty()) {
-      return response.notAcceptable("Link id is required");
+    if (Objects.isNull(segmentId) || segmentId.isEmpty()) {
+      return response.notAcceptable("Segment id is required");
     }
 
     try {
@@ -51,7 +51,7 @@ public class ChoiceIndexResource extends HubResource {
         Choice.KEY_MANY,
         choiceDAO.readAll(
           Access.fromContext(crc),
-          ImmutableList.of(new BigInteger(linkId))));
+          ImmutableList.of(new BigInteger(segmentId))));
 
     } catch (Exception e) {
       return response.failure(e);

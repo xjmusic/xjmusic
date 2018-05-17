@@ -127,3 +127,9 @@ ADD \
 
 # Docker bootstrap
 CMD bin/boot-docker
+
+# Nginx needs log directory re-created, and start
+# (because /var/log is mounted as volume, it will have crashed by now)
+RUN mkdir -p /var/log/nginx && chmod a+w /var/log/nginx
+RUN service nginx start
+

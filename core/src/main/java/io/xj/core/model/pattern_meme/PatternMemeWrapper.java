@@ -27,9 +27,10 @@ public class PatternMemeWrapper extends EntityWrapper {
 
    @throws BusinessException if invalid.
    */
+  @Override
   public PatternMeme validate() throws BusinessException {
     if (this.patternMeme == null) {
-      throw new BusinessException("Pattern is required.");
+      throw new BusinessException("patternMeme is required.");
     }
     this.patternMeme.validate();
     return this.patternMeme;

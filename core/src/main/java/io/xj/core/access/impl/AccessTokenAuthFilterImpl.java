@@ -60,6 +60,7 @@ public class AccessTokenAuthFilterImpl implements AccessTokenAuthFilter {
 
    @param resourceInfo to set
    */
+  @Override
   public void setTestResources(ResourceInfo resourceInfo, AccessControlProvider accessControlProvider) {
     this.resourceInfo = resourceInfo;
     this.accessControlProvider = accessControlProvider;

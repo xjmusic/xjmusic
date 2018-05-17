@@ -14,11 +14,11 @@ public enum WorkType {
   ChainErase,
   ChainFabricate,
   InstrumentClone,
-  LinkFabricate,
+  SegmentFabricate,
+  SequenceClone,
+  SequenceErase,
   PatternClone,
-  PatternErase,
-  PhaseClone,
-  PhaseErase;
+  PatternErase;
 
   /**
    String Values

@@ -23,8 +23,8 @@ import java.util.SimpleTimeZone;
 
 public class AmazonProviderImpl implements AmazonProvider {
   private static Logger log = LoggerFactory.getLogger(AmazonProviderImpl.class);
-  private final static float microsInASecond = 1000000;
-  private final static float nanosInASecond = 1000 * microsInASecond;
+  private final static float microsInASecond = 1000000.0F;
+  private final static float nanosInASecond = 1000.0F * microsInASecond;
 
   private final TokenGenerator tokenGenerator;
   // format strings for the date/time and date stamps required during signing
@@ -108,7 +108,7 @@ public class AmazonProviderImpl implements AmazonProvider {
       long startedAt = System.nanoTime();
       s3Client().putObject(new PutObjectRequest(
         bucket, key, new File(filePath)));
-      log.info("Did ship {} to {}/{} OK in {}s", filePath, bucket, key, String.format("%.9f", (double) (System.nanoTime() - startedAt) / nanosInASecond));
+      log.info("Did ship {} to {}/{} OK in {}s", filePath, bucket, key, String.format("%.9f", (double) (System.nanoTime() - startedAt) / (double) nanosInASecond));
 
     } catch (Exception e) {
       throw new NetworkException("Failed to put S3 object", e);

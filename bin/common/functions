@@ -11,7 +11,6 @@ deps() {
   ensure_version "ember -v" "EmberJS CLI"
   ensure_version "phantomjs -v" "PhantomJS"
   ensure_or_copy_file "${PWD}/runtime.env" "Environment variables file" "${PWD}/default.env"
-  # ensure_nslookup "code.outright.io" "Outright Mental VPN"
 }
 
 # Docker

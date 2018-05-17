@@ -1,4 +1,4 @@
-# xj
+# XJ Music™
 
 Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
@@ -17,7 +17,7 @@ Also see: Documents in `site/docs` which are published to https://docs.xi.io
   
 ## Workflow
 
-  * Features are described as the desire of a person to take an action for a particular reason, e.g. "Artist wants Pattern and Phase to be named according to musical norms, in order to make the most sense of XJ as a musical instrument."
+  * Features are described as the desire of a person to take an action for a particular reason, e.g. "Artist wants Sequence and Pattern to be named according to musical norms, in order to make the most sense of XJ as a musical instrument."
   * Bugs are described as expectation versus actual, e.g. "Artist expects to be able to list Audios after deleting an Audio from an Instrument," then:
     - DESCRIBE LIKE THIS: "I clicked the button labeled 'Turn;' I expected the Earth to turn; actually, it stood still."
     - NOT LIKE THIS: "I click the button and nothing happened."
@@ -31,7 +31,19 @@ Also see: Documents in `site/docs` which are published to https://docs.xi.io
 
 ## Chain Work
 
-This term refers (in the **xj** universe) to a layer of work performed on the Links (sequentially, by their offset) in a Chain.
+This term refers (in the **xj** universe) to a layer of work performed on the Segments (sequentially, by their offset) in a Chain.
+
+## Excellent JavaScript testing with Jest
+
+All front-end JavaScript-based web UI is tested at once using a single command executed from the project root:
+
+    jest
+    
+Or, to launch the active development interface:
+
+    jest --watch
+   
+NOTE: Hub UI still has Ember tests. See: [#158271368](https://www.pivotaltracker.com/story/show/158271368) Developer wants Hub UI to be tested from Jest for excellent testing experience.
 
 # Usage
 
@@ -294,6 +306,14 @@ The production deployment procedure is:
   5. Monitor health checks until confirmed consistently OK.
   6. Invalidate the CloudFront cache for hub.xj.io   
 
+## Player UI
+
+While docker containers are up, and running the `bin/ui/develop` script, the Player UI is accessed in a browser at a URL that looks like this:
+
+    http://localhost/player/#embedKey=coolambience&startAtMillisUTC=1528750706104
+    
+It's a bare-metal JavaScript app designed for speed of delivery to customer.
+
 ## Cleanup
 
 Clean all build targets:
@@ -440,7 +460,7 @@ This app exists solely to be run in AWS Lambda, and call the Hub /heartbeat endp
 
 Read more in [the Pulse README](pulse/README.md).
 
-**Craft** fabricates a musical audio composite from source patterns and instrument-audio. Built with Java, Guice, Tomcat, Maven.
+**Craft** fabricates a musical audio composite from source sequences and instrument-audio. Built with Java, Guice, Tomcat, Maven.
 
 Depends on:
 
@@ -571,4 +591,4 @@ GitHub Open Issue: https://github.com/docker/for-mac/issues/155
 
 Architect wants minimal, open-source web browser based XJ Music™ player, in order to embed XJ Music™ on any website, and ensure that the experience is as widely accessible as possible.
 
-See [player-web README](ui/player-web/README.md)
+See [player-ui README](ui/player-ui/README.md)

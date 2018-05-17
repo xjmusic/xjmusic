@@ -1,6 +1,8 @@
+// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+
 import { moduleFor, test } from 'ember-qunit';
 
-moduleFor('route:accounts/one/libraries/one/patterns', 'Unit | Route | accounts/one/libraries/one/patterns', {
+moduleFor('route:accounts/one/libraries/one/sequences', 'Unit | Route | accounts/one/libraries/one/sequences', {
   // Specify the other units that are required for this test.
   // needs: ['controller:foo']
 });

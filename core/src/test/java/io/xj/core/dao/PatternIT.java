@@ -1,22 +1,6 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.dao;
 
-import io.xj.core.CoreModule;
-import io.xj.core.access.impl.Access;
-import io.xj.core.exception.BusinessException;
-import io.xj.core.integration.IntegrationTestEntity;
-import io.xj.core.model.chain.ChainState;
-import io.xj.core.model.chain.ChainType;
-import io.xj.core.model.link.LinkState;
-import io.xj.core.model.pattern.Pattern;
-import io.xj.core.model.pattern.PatternState;
-import io.xj.core.model.pattern.PatternType;
-import io.xj.core.model.phase.PhaseState;
-import io.xj.core.model.phase.PhaseType;
-import io.xj.core.model.user_role.UserRoleType;
-import io.xj.core.transport.JSON;
-import io.xj.core.work.WorkManager;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
@@ -24,6 +8,22 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 
+import io.xj.core.CoreModule;
+import io.xj.core.access.impl.Access;
+import io.xj.core.exception.BusinessException;
+import io.xj.core.integration.IntegrationTestEntity;
+import io.xj.core.model.chain.ChainState;
+import io.xj.core.model.chain.ChainType;
+import io.xj.core.model.instrument.InstrumentType;
+import io.xj.core.model.segment.SegmentState;
+import io.xj.core.model.sequence.SequenceState;
+import io.xj.core.model.sequence.SequenceType;
+import io.xj.core.model.pattern.Pattern;
+import io.xj.core.model.pattern.PatternState;
+import io.xj.core.model.pattern.PatternType;
+import io.xj.core.model.user_role.UserRoleType;
+import io.xj.core.transport.JSON;
+import io.xj.core.work.WorkManager;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.After;
@@ -38,10 +38,12 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.util.Collection;
+import java.util.Iterator;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
@@ -51,9 +53,8 @@ import static org.mockito.Mockito.verify;
 public class PatternIT {
   @Rule public ExpectedException failure = ExpectedException.none();
   private Injector injector;
-  private PatternDAO testDAO;
-  @Spy
-  private final WorkManager workManager = Guice.createInjector(new CoreModule()).getInstance(WorkManager.class);
+  private PatternDAO subject;
+  @Spy private final WorkManager workManager = Guice.createInjector(new CoreModule()).getInstance(WorkManager.class);
 
   @Before
   public void setUp() throws Exception {
@@ -74,20 +75,17 @@ public class PatternIT {
     IntegrationTestEntity.insertUserRole(2, 3, UserRoleType.User);
     IntegrationTestEntity.insertAccountUser(3, 1, 3);
 
-    // Library "palm tree" has pattern "fonds" and pattern "nuts"
+    // Library "palm tree" has sequence "leaves" and sequence "coconuts"
     IntegrationTestEntity.insertLibrary(1, 1, "palm tree");
-    IntegrationTestEntity.insertPattern(1, 2, 1, PatternType.Main, PatternState.Published, "fonds", 0.342, "C#", 0.286);
-    IntegrationTestEntity.insertPatternMeme(12, 1, "leafy");
-    IntegrationTestEntity.insertPatternMeme(14, 1, "smooth");
-    IntegrationTestEntity.insertPattern(2, 2, 1, PatternType.Rhythm, PatternState.Published, "nuts", 0.342, "C#", 0.286);
+    IntegrationTestEntity.insertSequence(1, 2, 1, SequenceType.Main, SequenceState.Published, "leaves", 0.342, "C#", 110.286);
+    IntegrationTestEntity.insertSequence(2, 2, 1, SequenceType.Macro, SequenceState.Published, "coconuts", 8.02, "D", 130.2);
 
-    // Library "boat" has pattern "helm" and pattern "sail"
-    IntegrationTestEntity.insertLibrary(2, 1, "boat");
-    IntegrationTestEntity.insertPattern(3, 3, 2, PatternType.Macro, PatternState.Published, "helm", 0.342, "C#", 0.286);
-    IntegrationTestEntity.insertPattern(4, 2, 2, PatternType.Detail, PatternState.Published, "sail", 0.342, "C#", 0.286);
+    // Sequence "leaves" has patterns "Ants" and "Caterpillars"
+    IntegrationTestEntity.insertPattern(1, 1, PatternType.Main, PatternState.Published, 0, 16, "Ants", 0.583, "D minor", 120.0);
+    IntegrationTestEntity.insertPattern(2, 1, PatternType.Main, PatternState.Published, 1, 16, "Caterpillars", 0.583, "E major", 140.0);
 
     // Instantiate the test subject
-    testDAO = injector.getInstance(PatternDAO.class);
+    subject = injector.getInstance(PatternDAO.class);
   }
 
   private void createInjector() {
@@ -102,69 +100,295 @@ public class PatternIT {
 
   @After
   public void tearDown() throws Exception {
-    testDAO = null;
+    subject = null;
   }
 
   @Test
   public void create() throws Exception {
     Access access = new Access(ImmutableMap.of(
-      "userId", "2",
-      "roles", "User",
+      "roles", "Artist",
       "accounts", "1"
     ));
     Pattern inputData = new Pattern()
       .setDensity(0.42)
       .setKey("G minor 7")
-      .setLibraryId(BigInteger.valueOf(2))
+      .setSequenceId(BigInteger.valueOf(2L))
+      .setTypeEnum(PatternType.Macro)
       .setName("cannons")
       .setTempo(129.4)
-      .setType("Main")
-      .setUserId(BigInteger.valueOf(2));
+      .setOffset(BigInteger.valueOf(16L))
+      .setTotal(16);
 
-    Pattern result = testDAO.create(access, inputData);
+    Pattern result = subject.create(access, inputData);
 
     assertNotNull(result);
     assertEquals(0.42, result.getDensity(), 0.01);
     assertEquals("G minor 7", result.getKey());
-    assertEquals(BigInteger.valueOf(2), result.getLibraryId());
+    assertEquals(BigInteger.valueOf(2L), result.getSequenceId());
     assertEquals("cannons", result.getName());
-    assertEquals(129.4, result.getTempo(), 0.1);
-    assertEquals(PatternType.Main, result.getType());
-    assertEquals(BigInteger.valueOf(2), result.getUserId());
+    assertEquals(129.4, result.getTempo(), 0.01);
+    assertEquals(BigInteger.valueOf(16L), result.getOffset());
+    assertEquals(Integer.valueOf(16), result.getTotal());
   }
 
-  @Test(expected = BusinessException.class)
-  public void create_FailsWithoutLibraryID() throws Exception {
+  /**
+   [#153976073] Artist wants Macro-type Sequence to have Macro-type Pattern
+   */
+  @Test
+  public void create_failsWithWrongTypeForMacroSequence() throws Exception {
     Access access = new Access(ImmutableMap.of(
-      "roles", "User",
+      "roles", "Artist",
       "accounts", "1"
     ));
     Pattern inputData = new Pattern()
       .setDensity(0.42)
       .setKey("G minor 7")
+      .setSequenceId(BigInteger.valueOf(2L))
+      .setTypeEnum(PatternType.Loop)
       .setName("cannons")
       .setTempo(129.4)
-      .setType("Main")
-      .setUserId(BigInteger.valueOf(2));
+      .setOffset(BigInteger.valueOf(16L))
+      .setTotal(16);
 
-    testDAO.create(access, inputData);
+    failure.expect(BusinessException.class);
+    failure.expectMessage("Macro-type Pattern in Macro-type Sequence is required");
+
+    subject.create(access, inputData);
   }
 
-  @Test(expected = BusinessException.class)
-  public void create_FailsWithoutUserID() throws Exception {
+  /**
+   [#153976073] Artist wants Main-type Sequence to have Main-type Pattern
+   */
+  @Test
+  public void create_failsWithWrongTypeForMainSequence() throws Exception {
     Access access = new Access(ImmutableMap.of(
-      "roles", "User",
+      "roles", "Artist",
       "accounts", "1"
     ));
     Pattern inputData = new Pattern()
       .setDensity(0.42)
       .setKey("G minor 7")
+      .setSequenceId(BigInteger.valueOf(1L))
+      .setTypeEnum(PatternType.Loop)
       .setName("cannons")
       .setTempo(129.4)
-      .setType("Main")
-      .setLibraryId(BigInteger.valueOf(2));
+      .setOffset(BigInteger.valueOf(16L))
+      .setTotal(16);
 
-    testDAO.create(access, inputData);
+    failure.expect(BusinessException.class);
+    failure.expectMessage("Main-type Pattern in Main-type Sequence is required");
+
+    subject.create(access, inputData);
+  }
+
+  /**
+   [#153976073] Artist wants Rhythm-type Sequence to have Intro-, Loop-, or Outro- type Pattern
+   */
+  @Test
+  public void create_failsWithWrongTypeForRhythmSequence() throws Exception {
+    IntegrationTestEntity.insertSequence(51, 2, 1, SequenceType.Rhythm, SequenceState.Published, "tester-b", 0.342, "C#", 110.286);
+    Access access = new Access(ImmutableMap.of(
+      "roles", "Artist",
+      "accounts", "1"
+    ));
+    Pattern inputData = new Pattern()
+      .setDensity(0.42)
+      .setKey("G minor 7")
+      .setSequenceId(BigInteger.valueOf(51L))
+      .setTypeEnum(PatternType.Main)
+      .setName("cannons")
+      .setTempo(129.4)
+      .setOffset(BigInteger.valueOf(16L))
+      .setTotal(16);
+
+    failure.expect(BusinessException.class);
+    failure.expectMessage("Pattern of type (Intro,Loop,Outro) in Rhythm-type Sequence is required");
+
+    subject.create(access, inputData);
+  }
+
+  /**
+   [#153976073] Artist wants Detail-type Sequence to have Intro-, Loop-, or Outro- type Pattern
+   */
+  @Test
+  public void create_failsWithWrongTypeForDetailSequence() throws Exception {
+    IntegrationTestEntity.insertSequence(51, 2, 1, SequenceType.Detail, SequenceState.Published, "tester-b", 0.342, "C#", 110.286);
+    Access access = new Access(ImmutableMap.of(
+      "roles", "Artist",
+      "accounts", "1"
+    ));
+    Pattern inputData = new Pattern()
+      .setDensity(0.42)
+      .setKey("G minor 7")
+      .setSequenceId(BigInteger.valueOf(51L))
+      .setTypeEnum(PatternType.Main)
+      .setName("cannons")
+      .setTempo(129.4)
+      .setOffset(BigInteger.valueOf(16L))
+      .setTotal(16);
+
+    failure.expect(BusinessException.class);
+    failure.expectMessage("Pattern of type (Intro,Loop,Outro) in Detail-type Sequence is required");
+
+    subject.create(access, inputData);
+  }
+
+  @Test
+  public void create_TotalNotRequiredForMacroSequencePattern() throws Exception {
+    Access access = new Access(ImmutableMap.of(
+      "roles", "Artist",
+      "accounts", "1"
+    ));
+    Pattern inputData = new Pattern()
+      .setDensity(0.42)
+      .setKey("G minor 7")
+      .setSequenceId(BigInteger.valueOf(2L))
+      .setTypeEnum(PatternType.Macro)
+      .setName("cannons")
+      .setTempo(129.4)
+      .setOffset(BigInteger.valueOf(16L));
+
+    Pattern result = subject.create(access, inputData);
+
+    assertNotNull(result);
+    assertNull(result.getTotal());
+  }
+
+  /**
+   [#150279647] Artist wants to create multiple Patterns with the same offset in the same Sequence, in order that XJ randomly select one of the patterns at that offset.
+   Reverts legacy [Trello#237] shouldn't be able to create pattern with same offset in sequence
+   */
+  @Test
+  public void create_MultiplePatternsAtSameOffset() throws Exception {
+    Access access = new Access(ImmutableMap.of(
+      "roles", "Admin"
+    ));
+    Pattern inputData = new Pattern()
+      .setOffset(BigInteger.valueOf(1L))
+      .setDensity(0.42)
+      .setSequenceId(BigInteger.valueOf(1L))
+      .setTypeEnum(PatternType.Main)
+      .setKey("G minor 7")
+      .setName("cannons")
+      .setTempo(129.4)
+      .setTotal(16);
+
+    Pattern result = subject.create(access, inputData);
+    assertNotNull(result);
+    assertEquals(BigInteger.valueOf(1L), result.getOffset());
+  }
+
+  @Test
+  public void create_TotalIsRequiredForNonMacroTypeSequencePattern() throws Exception {
+    Access access = new Access(ImmutableMap.of(
+      "roles", "Artist",
+      "accounts", "1"
+    ));
+    Pattern inputData = new Pattern()
+      .setDensity(0.42)
+      .setKey("G minor 7")
+      .setSequenceId(BigInteger.valueOf(1L))
+      .setTypeEnum(PatternType.Main)
+      .setName("cannons")
+      .setTempo(129.4)
+      .setOffset(BigInteger.valueOf(16L));
+
+    failure.expect(BusinessException.class);
+    failure.expectMessage("for a pattern of a non-macro-type sequence, total (# beats) must be greater than zero");
+
+    subject.create(access, inputData);
+  }
+
+  @Test
+  public void create_TotalMustBeGreaterThanZeroForNonMacroTypeSequencePattern() throws Exception {
+    Access access = new Access(ImmutableMap.of(
+      "roles", "Artist",
+      "accounts", "1"
+    ));
+    Pattern inputData = new Pattern()
+      .setDensity(0.42)
+      .setKey("G minor 7")
+      .setSequenceId(BigInteger.valueOf(1L))
+      .setTypeEnum(PatternType.Main)
+      .setName("cannons")
+      .setTempo(129.4)
+      .setOffset(BigInteger.valueOf(16L))
+      .setTotal(0);
+
+    failure.expect(BusinessException.class);
+    failure.expectMessage("for a pattern of a non-macro-type sequence, total (# beats) must be greater than zero");
+
+    subject.create(access, inputData);
+  }
+
+  @Test
+  public void create_NullOptionalFieldsAllowed() throws Exception {
+    Access access = new Access(ImmutableMap.of(
+      "roles", "Artist",
+      "accounts", "1"
+    ));
+    Pattern inputData = new Pattern()
+      .setDensity(null)
+      .setKey(null)
+      .setSequenceId(BigInteger.valueOf(2L))
+      .setTypeEnum(PatternType.Macro)
+      .setName(null)
+      .setTempo(null)
+      .setOffset(BigInteger.valueOf(0L))
+      .setTotal(16);
+
+    Pattern result = subject.create(access, inputData);
+
+    assertNotNull(result);
+    assertEquals(BigInteger.valueOf(2L), result.getSequenceId());
+    assertNull(result.getDensity());
+    assertNull(result.getKey());
+    assertNull(result.getName());
+    assertNull(result.getTempo());
+    assertEquals(BigInteger.valueOf(0L), result.getOffset());
+    assertEquals(Integer.valueOf(16), result.getTotal());
+  }
+
+  @Test
+  public void create_FailsWithoutSequenceID() throws Exception {
+    Access access = new Access(ImmutableMap.of(
+      "roles", "Artist",
+      "accounts", "1"
+    ));
+    Pattern inputData = new Pattern()
+      .setTypeEnum(PatternType.Macro)
+      .setDensity(0.42)
+      .setKey("G minor 7")
+      .setName("cannons")
+      .setTempo(129.4)
+      .setOffset(BigInteger.valueOf(0L))
+      .setTotal(16);
+
+    failure.expect(BusinessException.class);
+    failure.expectMessage("Sequence ID is required");
+
+    subject.create(access, inputData);
+  }
+
+  @Test
+  public void create_FailsWithoutOffset() throws Exception {
+    Access access = new Access(ImmutableMap.of(
+      "roles", "Artist",
+      "accounts", "1"
+    ));
+    Pattern inputData = new Pattern()
+      .setDensity(0.42)
+      .setSequenceId(BigInteger.valueOf(2L))
+      .setTypeEnum(PatternType.Macro)
+      .setKey("G minor 7")
+      .setName("cannons")
+      .setTempo(129.4)
+      .setTotal(16);
+
+    failure.expect(BusinessException.class);
+    failure.expectMessage("Offset is required");
+
+    subject.create(access, inputData);
   }
 
   @Test
@@ -175,317 +399,435 @@ public class PatternIT {
       "accounts", "1"
     ));
     Pattern inputData = new Pattern()
-      .setLibraryId(BigInteger.valueOf(2))
+      .setSequenceId(BigInteger.valueOf(2L))
+      .setTypeEnum(PatternType.Macro)
+      .setOffset(BigInteger.valueOf(5L))
       .setName("cannons fifty nine");
 
-    Pattern result = testDAO.clone(access, BigInteger.valueOf(1), inputData);
+    Pattern result = subject.clone(access, BigInteger.valueOf(1L), inputData);
 
     assertNotNull(result);
-    assertEquals(0.342, result.getDensity(), 0.01);
-    assertEquals("C#", result.getKey());
-    assertEquals(BigInteger.valueOf(2), result.getLibraryId());
+    assertEquals(0.583, result.getDensity(), 0.01);
+    assertEquals("D minor", result.getKey());
+    assertEquals(BigInteger.valueOf(2L), result.getSequenceId());
     assertEquals("cannons fifty nine", result.getName());
-    assertEquals(0.286, result.getTempo(), 0.1);
-    assertEquals(PatternType.Main, result.getType());
-    assertEquals(BigInteger.valueOf(2), result.getUserId());
+    assertEquals(120.0, result.getTempo(), 0.1);
 
     // Verify enqueued audio clone jobs
-    verify(workManager).doPatternClone(eq(BigInteger.valueOf(1)), any());
+    verify(workManager).doPatternClone(eq(BigInteger.valueOf(1L)), any());
+  }
+
+  /**
+   [#150279647] Artist wants to create multiple Patterns with the same offset in the same Sequence, in order that XJ randomly select one of the patterns at that offset.
+   */
+  @Test
+  public void clone_fromOriginal_toOffsetOfExistingPattern() throws Exception {
+    Access access = new Access(ImmutableMap.of(
+      "userId", "2",
+      "roles", "User",
+      "accounts", "1"
+    ));
+    Pattern inputData = new Pattern()
+      .setSequenceId(BigInteger.valueOf(1L))
+      .setTypeEnum(PatternType.Main)
+      .setOffset(BigInteger.valueOf(1L))
+      .setName("cannons fifty nine");
+
+    Pattern result = subject.clone(access, BigInteger.valueOf(1L), inputData);
+
+    assertNotNull(result);
+    assertEquals(BigInteger.valueOf(1L), result.getOffset());
+  }
+
+  @Test(expected = BusinessException.class)
+  public void clone_fromOriginal_failsWithoutOffset() throws Exception {
+    Access access = new Access(ImmutableMap.of(
+      "userId", "2",
+      "roles", "User",
+      "accounts", "1"
+    ));
+    Pattern inputData = new Pattern()
+      .setSequenceId(BigInteger.valueOf(2L))
+      .setTypeEnum(PatternType.Macro)
+      .setName("cannons fifty nine");
+
+    subject.clone(access, BigInteger.valueOf(1L), inputData);
   }
 
   @Test
   public void readOne() throws Exception {
     Access access = new Access(ImmutableMap.of(
-      "roles", "User",
+      "roles", "Artist",
       "accounts", "1"
     ));
 
-    Pattern result = testDAO.readOne(access, BigInteger.valueOf(2));
+    Pattern result = subject.readOne(access, BigInteger.valueOf(2L));
 
     assertNotNull(result);
-    assertEquals(BigInteger.valueOf(2), result.getId());
-    assertEquals(BigInteger.valueOf(1), result.getLibraryId());
-    assertEquals("nuts", result.getName());
+    assertEquals(BigInteger.valueOf(2L), result.getId());
+    assertEquals(BigInteger.valueOf(1L), result.getSequenceId());
+    assertEquals("Caterpillars", result.getName());
   }
 
   @Test
-  public void readOneTypeInLink_Macro() throws Exception {
-    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, null);
-    IntegrationTestEntity.insertLink(1, 1, 0, LinkState.Crafting, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-08-12 12:17:32.527142"), "C", 64, 0.6, 121, "chain-1-link-97898asdf7892.wav");
-    IntegrationTestEntity.insertChoice(1, 1, 3, PatternType.Macro, 0, 0);
-    IntegrationTestEntity.insertChoice(2, 1, 1, PatternType.Main, 0, 0);
-
-    Pattern result = testDAO.readOneTypeInLink(Access.internal(), BigInteger.valueOf(1), PatternType.Macro);
-
-    assertNotNull(result);
-    assertEquals(BigInteger.valueOf(3), result.getId());
-    assertEquals(BigInteger.valueOf(2), result.getLibraryId());
-    assertEquals("helm", result.getName());
-  }
-
-  @Test
-  public void readOneTypeInLink_Main() throws Exception {
-    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, null);
-    IntegrationTestEntity.insertLink(1, 1, 0, LinkState.Crafting, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-08-12 12:17:32.527142"), "C", 64, 0.6, 121, "chain-1-link-97898asdf7892.wav");
-    IntegrationTestEntity.insertChoice(1, 1, 3, PatternType.Macro, 0, 0);
-    IntegrationTestEntity.insertChoice(2, 1, 1, PatternType.Main, 0, 0);
-
-    Pattern result = testDAO.readOneTypeInLink(Access.internal(), BigInteger.valueOf(1), PatternType.Main);
-
-    assertNotNull(result);
-    assertEquals(BigInteger.valueOf(1), result.getId());
-    assertEquals(BigInteger.valueOf(1), result.getLibraryId());
-    assertEquals("fonds", result.getName());
-  }
-
-  @Test
-  public void readOne_FailsWhenUserIsNotInLibrary() throws Exception {
+  public void readOne_FailsWhenUserIsNotInAccount() throws Exception {
     Access access = new Access(ImmutableMap.of(
-      "roles", "User",
+      "roles", "Artist",
       "accounts", "326"
     ));
 
-    Pattern result = testDAO.readOne(access, BigInteger.valueOf(1));
+    Pattern result = subject.readOne(access, BigInteger.valueOf(1L));
 
     assertNull(result);
   }
 
-  // future test: readAllInAccount vs readAllInLibraries, positive and negative cases
+  @Test
+  public void readAllAtSequenceOffset() throws Exception {
+    Access access = new Access(ImmutableMap.of(
+      "roles", "Artist",
+      "accounts", "1"
+    ));
+
+    Collection<Pattern> result = subject.readAllAtSequenceOffset(access, BigInteger.valueOf(1L), BigInteger.valueOf(1L));
+
+    assertNotNull(result);
+    Pattern resultOne = result.iterator().next();
+    assertEquals(BigInteger.valueOf(2L), resultOne.getId());
+    assertEquals(BigInteger.valueOf(1L), resultOne.getSequenceId());
+    assertEquals("Caterpillars", resultOne.getName());
+  }
+
+  /**
+   [#150279647] Artist wants to create multiple Patterns with the same offset in the same Sequence, in order that XJ randomly select one of the patterns at that offset.
+   */
+  @Test
+  public void readAllAtSequenceOffset_multiplePatternsAtOffset() throws Exception {
+    IntegrationTestEntity.insertPattern(5, 1, PatternType.Main, PatternState.Published, 0, 16, "Army Ants", 0.683, "Eb minor", 122.4);
+    Access access = new Access(ImmutableMap.of(
+      "roles", "Artist",
+      "accounts", "1"
+    ));
+
+    Collection<Pattern> result = subject.readAllAtSequenceOffset(access, BigInteger.valueOf(1L), BigInteger.valueOf(0L));
+
+    assertNotNull(result);
+    assertEquals(2L, (long) result.size());
+    Iterator<Pattern> it = result.iterator();
+    assertEquals("Ants", it.next().getName());
+    assertEquals("Army Ants", it.next().getName());
+  }
+
+  @Test
+  public void readAllAtSequenceOffset_FailsWhenUserIsNotInAccount() throws Exception {
+    Access access = new Access(ImmutableMap.of(
+      "roles", "Artist",
+      "accounts", "143"
+    ));
+
+    Collection<Pattern> result = subject.readAllAtSequenceOffset(access, BigInteger.valueOf(1L), BigInteger.valueOf(1L));
+
+    assertNotNull(result);
+    assertTrue(result.isEmpty());
+  }
 
   @Test
   public void readAll() throws Exception {
     Access access = new Access(ImmutableMap.of(
-      "roles", "Admin",
+      "roles", "Artist",
       "accounts", "1"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1))));
+    JSONArray result = JSON.arrayOf(subject.readAll(access, ImmutableList.of(BigInteger.valueOf(1L))));
 
     assertNotNull(result);
-    assertEquals(2, result.length());
+    assertEquals(2L, (long) result.length());
     JSONObject result1 = (JSONObject) result.get(0);
-    assertEquals("fonds", result1.get("name"));
+    assertEquals("Ants", result1.get("name"));
     JSONObject result2 = (JSONObject) result.get(1);
-    assertEquals("nuts", result2.get("name"));
-  }
-
-  @Test
-  public void readAll_excludesPatternsInEraseState() throws Exception {
-    IntegrationTestEntity.insertPattern(27, 2, 1, PatternType.Main, PatternState.Erase, "fonds", 0.342, "C#", 0.286);
-    Access access = new Access(ImmutableMap.of(
-      "roles", "User",
-      "accounts", "1"
-    ));
-
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1))));
-
-    assertNotNull(result);
-    assertEquals(2, result.length());
-    JSONObject result2 = (JSONObject) result.get(0);
-    assertEquals("fonds", result2.get("name"));
-    JSONObject result1 = (JSONObject) result.get(1);
-    assertEquals("nuts", result1.get("name"));
-  }
-
-  @Test
-  public void readAllBoundToChain() throws Exception {
-    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, null);
-    IntegrationTestEntity.insertChainPattern(1, 1, 1);
-
-    Collection<Pattern> result = testDAO.readAllBoundToChain(Access.internal(), BigInteger.valueOf(1));
-
-    assertEquals(1, result.size());
-    Pattern result0 = result.iterator().next();
-    assertEquals("fonds", result0.getName());
+    assertEquals("Caterpillars", result2.get("name"));
   }
 
   @Test
   public void readAll_SeesNothingOutsideOfLibrary() throws Exception {
     Access access = new Access(ImmutableMap.of(
-      "roles", "User",
+      "roles", "Artist",
       "accounts", "345"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1))));
+    JSONArray result = JSON.arrayOf(subject.readAll(access, ImmutableList.of(BigInteger.valueOf(1L))));
 
     assertNotNull(result);
-    assertEquals(0, result.length());
-  }
-
-  @Test(expected = BusinessException.class)
-  public void update_FailsWithoutLibraryID() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "User",
-      "accounts", "1"
-    ));
-    Pattern inputData = new Pattern()
-      .setName("cannons");
-
-    testDAO.update(access, BigInteger.valueOf(3), inputData);
-  }
-
-  @Test(expected = BusinessException.class)
-  public void update_FailsWithoutName() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "User",
-      "accounts", "1"
-    ));
-    Pattern inputData = new Pattern()
-      .setLibraryId(BigInteger.valueOf(3));
-
-    testDAO.update(access, BigInteger.valueOf(3), inputData);
-  }
-
-  @Test(expected = BusinessException.class)
-  public void update_FailsUpdatingToNonexistentLibrary() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "User",
-      "accounts", "1"
-    ));
-    Pattern inputData = new Pattern()
-      .setName("cannons")
-      .setLibraryId(BigInteger.valueOf(3));
-
-    try {
-      testDAO.update(access, BigInteger.valueOf(3), inputData);
-
-    } catch (Exception e) {
-      Pattern result = testDAO.readOne(Access.internal(), BigInteger.valueOf(3));
-      assertNotNull(result);
-      assertEquals("helm", result.getName());
-      assertEquals(BigInteger.valueOf(2), result.getLibraryId());
-      throw e;
-    }
+    assertEquals(0L, (long) result.length());
   }
 
   @Test
-  public void update_Name() throws Exception {
+  public void readAll_excludesPatternsInEraseState() throws Exception {
+    IntegrationTestEntity.insertPattern(27, 1, PatternType.Main, PatternState.Erase, 0, 16, "Ants", 0.583, "D minor", 120.0);
     Access access = new Access(ImmutableMap.of(
-      "userId", "2",
       "roles", "User",
+      "accounts", "1"
+    ));
+
+    JSONArray result = JSON.arrayOf(subject.readAll(access, ImmutableList.of(BigInteger.valueOf(1L))));
+
+    assertNotNull(result);
+    assertEquals(2L, (long) result.length());
+    JSONObject result2 = (JSONObject) result.get(0);
+    assertEquals("Ants", result2.get("name"));
+    JSONObject result1 = (JSONObject) result.get(1);
+    assertEquals("Caterpillars", result1.get("name"));
+  }
+
+  // future test: DAO cannot update Sequence to a User or Library not owned by current session
+
+  @Test
+  public void update() throws Exception {
+    Access access = new Access(ImmutableMap.of(
+      "roles", "Artist",
+      "accounts", "1"
+    ));
+    Pattern inputData = new Pattern()
+      .setSequenceId(BigInteger.valueOf(1L))
+      .setTypeEnum(PatternType.Main)
+      .setOffset(BigInteger.valueOf(7L))
+      .setTotal(32)
+      .setName(null)
+      .setDensity(null)
+      .setKey("")
+      .setTempo((double) 0);
+
+    subject.update(access, BigInteger.valueOf(1L), inputData);
+
+    Pattern result = subject.readOne(Access.internal(), BigInteger.valueOf(1L));
+    assertNotNull(result);
+    assertNull(result.getName());
+    assertNull(result.getDensity());
+    assertNull(result.getTempo());
+    assertNull(result.getKey());
+    assertEquals(BigInteger.valueOf(7L), result.getOffset());
+    assertEquals(Integer.valueOf(32), result.getTotal());
+    assertEquals(BigInteger.valueOf(1L), result.getSequenceId());
+  }
+
+  /**
+   [#150279647] Artist wants to create multiple Patterns with the same offset in the same Sequence, in order that XJ randomly select one of the patterns at that offset.
+   */
+  @Test
+  public void update_toOffsetOfExistingPattern() throws Exception {
+    Access access = new Access(ImmutableMap.of(
+      "roles", "Artist",
+      "accounts", "1"
+    ));
+    Pattern inputData = new Pattern()
+      .setSequenceId(BigInteger.valueOf(1L))
+      .setTypeEnum(PatternType.Main)
+      .setOffset(BigInteger.valueOf(0L))
+      .setTotal(16)
+      .setName("Caterpillars")
+      .setDensity(0.583)
+      .setKey("E major")
+      .setTempo(140.0);
+
+    subject.update(access, BigInteger.valueOf(2L), inputData);
+
+    Pattern result = subject.readOne(Access.internal(), BigInteger.valueOf(2L));
+    assertNotNull(result);
+    assertEquals(BigInteger.valueOf(0L), result.getOffset());
+  }
+
+  @Test
+  public void update_FailsWithoutSequenceID() throws Exception {
+    Access access = new Access(ImmutableMap.of(
+      "roles", "Artist",
+      "accounts", "1"
+    ));
+    Pattern inputData = new Pattern()
+      .setTypeEnum(PatternType.Macro)
+      .setDensity(0.42)
+      .setKey("G minor 7")
+      .setName("cannons")
+      .setTempo(129.4)
+      .setOffset(BigInteger.valueOf(0L))
+      .setTotal(16);
+
+    failure.expect(BusinessException.class);
+    failure.expectMessage("Sequence ID is required");
+
+    subject.update(access, BigInteger.valueOf(1L), inputData);
+  }
+
+  @Test
+  public void update_TotalNotRequiredForMacroSequencePattern() throws Exception {
+    Access access = new Access(ImmutableMap.of(
+      "roles", "Artist",
+      "accounts", "1"
+    ));
+    Pattern inputData = new Pattern()
+      .setTypeEnum(PatternType.Macro)
+      .setDensity(0.42)
+      .setKey("G minor 7")
+      .setSequenceId(BigInteger.valueOf(2L))
+      .setTypeEnum(PatternType.Macro)
+      .setName("cannons")
+      .setTempo(129.4)
+      .setOffset(BigInteger.valueOf(16L));
+
+    subject.update(access, BigInteger.valueOf(1L), inputData);
+  }
+
+  @Test
+  public void update_TotalIsRequiredForNonMacroTypeSequencePattern() throws Exception {
+    Access access = new Access(ImmutableMap.of(
+      "roles", "Artist",
       "accounts", "1"
     ));
     Pattern inputData = new Pattern()
       .setDensity(0.42)
       .setKey("G minor 7")
-      .setLibraryId(BigInteger.valueOf(2))
+      .setSequenceId(BigInteger.valueOf(1L))
+      .setTypeEnum(PatternType.Main)
       .setName("cannons")
       .setTempo(129.4)
-      .setType("Main")
-      .setUserId(BigInteger.valueOf(2));
-
-    testDAO.update(access, BigInteger.valueOf(3), inputData);
-
-    Pattern result = testDAO.readOne(Access.internal(), BigInteger.valueOf(3));
-    assertNotNull(result);
-    assertEquals("cannons", result.getName());
-    assertEquals(BigInteger.valueOf(2), result.getLibraryId());
-  }
-
-  // future test: DAO cannot update Pattern to a User or Library not owned by current session
-
-  @Test
-  public void destroy() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "Admin"
-    ));
-
-    testDAO.destroy(access, BigInteger.valueOf(2));
-
-    Pattern result = testDAO.readOne(Access.internal(), BigInteger.valueOf(2));
-    assertNull(result);
-  }
-
-  /**
-   [#154881808] Artist wants to destroy a Pattern along with any Phases in it, in order to save time.
-   */
-  @Test
-  public void destroy_SucceedsEvenIfPatternHasMeme() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "Admin"
-    ));
-    IntegrationTestEntity.insertPatternMeme(1001, 2, "Blue");
-
-    testDAO.destroy(access, BigInteger.valueOf(2));
-
-    Pattern result = testDAO.readOne(Access.internal(), BigInteger.valueOf(2));
-    assertNull(result);
-  }
-
-  /**
-   [#154881808] Artist wants to destroy a Pattern along with any Phases in it, in order to save time.
-   */
-  @Test
-  public void destroy_FailsIfPatternHasPhase() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "Admin"
-    ));
-    IntegrationTestEntity.insertPhase(1, 2, PhaseType.Main, PhaseState.Published, 0, 14, "testPhase", 0.524, "F#", 125.49);
+      .setOffset(BigInteger.valueOf(16L));
 
     failure.expect(BusinessException.class);
-    failure.expectMessage("Phase in Pattern");
+    failure.expectMessage("for a pattern of a non-macro-type sequence, total (# beats) must be greater than zero");
 
-    testDAO.destroy(access, BigInteger.valueOf(2));
+    subject.update(access, BigInteger.valueOf(1L), inputData);
   }
 
   @Test
-  public void destroy_succeedsAfterChosenForProduction() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "Admin"
-    ));
-    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Ready, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"), null);
-    IntegrationTestEntity.insertLink(1, 1, 0, LinkState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120, "chain-1-link-97898asdf7892.wav");
-    IntegrationTestEntity.insertChoice(1, 1, 2, PatternType.Main, 0, -5);
-
-    testDAO.destroy(access, BigInteger.valueOf(2));
-
-    Pattern result = testDAO.readOne(Access.internal(), BigInteger.valueOf(2));
-    assertNull(result);
-  }
-
-
-  @Test
-  public void erase() throws Exception {
+  public void update_TotalMustBeGreaterThanZeroForNonMacroTypeSequencePattern() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
-    IntegrationTestEntity.insertPattern(1001, 2, 1, PatternType.Main, PatternState.Published, "fonds", 0.342, "C#", 0.286);
+    Pattern inputData = new Pattern()
+      .setDensity(0.42)
+      .setKey("G minor 7")
+      .setSequenceId(BigInteger.valueOf(1L))
+      .setTypeEnum(PatternType.Main)
+      .setName("cannons")
+      .setTempo(129.4)
+      .setOffset(BigInteger.valueOf(16L))
+      .setTotal(0);
 
-    testDAO.erase(access, BigInteger.valueOf(1001));
+    failure.expect(BusinessException.class);
+    failure.expectMessage("for a pattern of a non-macro-type sequence, total (# beats) must be greater than zero");
 
-    Pattern result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1001));
-    assertNotNull(result);
-    assertEquals(PatternState.Erase, result.getState());
+    subject.update(access, BigInteger.valueOf(1L), inputData);
   }
 
   @Test
-  public void erase_failsIfNotInAccount() throws Exception {
+  public void update_FailsWithoutOffset() throws Exception {
+    Access access = new Access(ImmutableMap.of(
+      "roles", "Artist",
+      "accounts", "1"
+    ));
+    Pattern inputData = new Pattern()
+      .setDensity(0.42)
+      .setKey("G minor 7")
+      .setSequenceId(BigInteger.valueOf(2L))
+      .setTypeEnum(PatternType.Macro)
+      .setTempo(129.4)
+      .setTotal(16);
+
+    failure.expect(BusinessException.class);
+    failure.expectMessage("Offset is required");
+
+    subject.update(access, BigInteger.valueOf(1L), inputData);
+  }
+
+  @Test
+  public void update_FailsUpdatingToNonexistentSequence() throws Exception {
+    Access access = new Access(ImmutableMap.of(
+      "roles", "Artist",
+      "accounts", "1"
+    ));
+    Pattern inputData = new Pattern()
+      .setDensity(0.42)
+      .setKey("G minor 7")
+      .setSequenceId(BigInteger.valueOf(57L))
+      .setTypeEnum(PatternType.Macro)
+      .setName("Smash!")
+      .setTempo(129.4)
+      .setOffset(BigInteger.valueOf(0L))
+      .setTotal(16);
+
+    failure.expect(BusinessException.class);
+    failure.expectMessage("Sequence does not exist");
+
+    try {
+      subject.update(access, BigInteger.valueOf(2L), inputData);
+
+    } catch (Exception e) {
+      Pattern result = subject.readOne(Access.internal(), BigInteger.valueOf(2L));
+      assertNotNull(result);
+      assertEquals("Caterpillars", result.getName());
+      assertEquals(BigInteger.valueOf(1L), result.getSequenceId());
+      throw e;
+    }
+  }
+
+  @Test
+  public void destroy() throws Exception {
+    Access access = new Access(ImmutableMap.of(
+      "roles", "Artist",
+      "accounts", "1"
+    ));
+
+    subject.destroy(access, BigInteger.valueOf(1L));
+
+    Pattern result = subject.readOne(Access.internal(), BigInteger.valueOf(1L));
+    assertNull(result);
+  }
+
+  @Test(expected = BusinessException.class)
+  public void destroy_failsIfNotInAccount() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "2"
     ));
 
-    failure.expect(BusinessException.class);
-    failure.expectMessage("Pattern does not exist");
-
-    testDAO.erase(access, BigInteger.valueOf(1));
+    subject.destroy(access, BigInteger.valueOf(1L));
   }
 
   @Test
-  public void erase_FailsIfPatternHasMeme() throws Exception {
+  public void destroy_SucceedsEvenIfSequenceHasManyChildren_andWasUsedInProduction() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "userId", "2",
       "roles", "Artist",
       "accounts", "1"
     ));
-    IntegrationTestEntity.insertPhase(1001, 1, PhaseType.Main, PhaseState.Published, 0, 16, "Intro", 0.6, "C", 120.0);
+    IntegrationTestEntity.insertPatternMeme(2001, 1, "mashup");
+    IntegrationTestEntity.insertPatternChord(2011, 1, 0, "G");
+    IntegrationTestEntity.insertPatternChord(2012, 1, 2, "D");
+    IntegrationTestEntity.insertVoice(2051, 1, InstrumentType.Percussive, "Smash");
+    IntegrationTestEntity.insertPatternEvent(2061, 1, 2051, 1.0, 4.0, "Bang", "G2", (double) 0, 1.0);
+    IntegrationTestEntity.insertPatternEvent(2062, 1, 2051, 3.0, 4.0, "Crash", "D2", (double) 0, 1.0);
+    IntegrationTestEntity.insertVoice(2052, 1, InstrumentType.Percussive, "Boom");
+    IntegrationTestEntity.insertPatternEvent(2063, 1, 2052, (double) 0, 4.0, "Poom", "C3", 1.0, 1.0);
+    IntegrationTestEntity.insertPatternEvent(2064, 1, 2052, 2.0, 4.0, "Paam", "F4", 1.0, 1.0);
+    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Ready, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"), null);
+    IntegrationTestEntity.insertSegment(1, 1, 0, SegmentState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120.0, "chain-1-segment-97898asdf7892.wav");
+    IntegrationTestEntity.insertInstrument(9, 1, 2, "jams", InstrumentType.Percussive, 0.6);
+    IntegrationTestEntity.insertChoice(1, 1, 1, SequenceType.Main, 0, -5);
+    IntegrationTestEntity.insertArrangement(1, 1, 2051, 9);
 
-    failure.expect(BusinessException.class);
-    failure.expectMessage("Meme in Pattern");
+    subject.destroy(access, BigInteger.valueOf(1L));
 
-    testDAO.erase(access, BigInteger.valueOf(1));
+    // Assert total annihilation
+    assertNull(subject.readOne(Access.internal(), BigInteger.valueOf(1L)));
+    assertNull(injector.getInstance(PatternEventDAO.class).readOne(Access.internal(), BigInteger.valueOf(2061L)));
+    assertNull(injector.getInstance(PatternEventDAO.class).readOne(Access.internal(), BigInteger.valueOf(2062L)));
+    assertNull(injector.getInstance(PatternEventDAO.class).readOne(Access.internal(), BigInteger.valueOf(2063L)));
+    assertNull(injector.getInstance(PatternEventDAO.class).readOne(Access.internal(), BigInteger.valueOf(2064L)));
+    assertNull(injector.getInstance(PatternChordDAO.class).readOne(Access.internal(), BigInteger.valueOf(2012L)));
+    assertNull(injector.getInstance(PatternChordDAO.class).readOne(Access.internal(), BigInteger.valueOf(2011L)));
+    assertNull(injector.getInstance(PatternMemeDAO.class).readOne(Access.internal(), BigInteger.valueOf(2001L)));
   }
+
+  // future test: PatternDAO cannot destroy record unless user has account access
 
   @Test
   public void erase_SucceedsEvenWithChildren() throws Exception {
@@ -494,13 +836,12 @@ public class PatternIT {
       "roles", "Artist",
       "accounts", "1"
     ));
-    IntegrationTestEntity.insertPattern(1001, 2, 1, PatternType.Main, PatternState.Published, "fonds", 0.342, "C#", 0.286);
-    IntegrationTestEntity.insertPhase(1002, 1001, PhaseType.Main, PhaseState.Published, 0, 16, "Intro", 0.6, "C", 120.0);
+    subject.erase(access, BigInteger.valueOf(1L));
 
-    testDAO.erase(access, BigInteger.valueOf(1001));
-
-    Pattern result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1001));
+    Pattern result = subject.readOne(Access.internal(), BigInteger.valueOf(1L));
     assertNotNull(result);
     assertEquals(PatternState.Erase, result.getState());
   }
+
+
 }

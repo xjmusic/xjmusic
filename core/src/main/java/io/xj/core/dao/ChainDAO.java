@@ -4,8 +4,9 @@ package io.xj.core.dao;
 import io.xj.core.access.impl.Access;
 import io.xj.core.model.chain.Chain;
 import io.xj.core.model.chain.ChainState;
-import io.xj.core.model.link.Link;
+import io.xj.core.model.segment.Segment;
 
+import javax.annotation.Nullable;
 import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.util.Collection;
@@ -24,6 +25,17 @@ public interface ChainDAO extends DAO<Chain> {
   Collection<Chain> readAllInState(Access access, ChainState state) throws Exception;
 
   /**
+   [#150279540] Unauthenticated or specifically-authenticated public Client wants to access a Chain by embed key (as alias for chain id) in order to provide data for playback.
+
+   @param access   control
+   @param embedKey of record to fetch
+   @return retrieved record
+   @throws Exception on failure
+   */
+  @Nullable
+  Chain readOne(Access access, String embedKey) throws Exception;
+
+  /**
    Update the state of a specified Chain
 
    @param id    of specific Chain to update.
@@ -33,14 +45,14 @@ public interface ChainDAO extends DAO<Chain> {
 
   /**
    [INTERNAL USE ONLY]
-   Build a template for the next link in this Chain,
+   Build a template for the next segment in this Chain,
    or set the Chain state to COMPLETE.
 
-   @param chain                   to build link for
-   @param linkBeginBefore         ahead to create Link before end of previous Link  @return array of chain Ids
+   @param chain                   to build segment for
+   @param segmentBeginBefore         ahead to create Segment before end of previous Segment  @return array of chain Ids
    @param chainStopCompleteBefore behind to consider a chain complete
    */
-  Link buildNextLinkOrComplete(Access access, Chain chain, Timestamp linkBeginBefore, Timestamp chainStopCompleteBefore) throws Exception;
+  Segment buildNextSegmentOrComplete(Access access, Chain chain, Timestamp segmentBeginBefore, Timestamp chainStopCompleteBefore) throws Exception;
 
   /**
    Erase a specified Chain (mark it for deletion by worker)

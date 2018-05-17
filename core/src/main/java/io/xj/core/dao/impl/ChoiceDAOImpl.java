@@ -6,7 +6,7 @@ import io.xj.core.dao.ChoiceDAO;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.exception.ConfigException;
 import io.xj.core.model.choice.Choice;
-import io.xj.core.model.pattern.PatternType;
+import io.xj.core.model.sequence.SequenceType;
 import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import io.xj.core.persistence.sql.impl.SQLConnection;
 
@@ -26,14 +26,14 @@ import java.util.Map;
 import java.util.Objects;
 
 import static io.xj.core.Tables.CHOICE;
-import static io.xj.core.Tables.PHASE;
+import static io.xj.core.Tables.PATTERN;
 import static io.xj.core.tables.Arrangement.ARRANGEMENT;
 import static io.xj.core.tables.Chain.CHAIN;
-import static io.xj.core.tables.Link.LINK;
+import static io.xj.core.tables.Segment.SEGMENT;
 import static org.jooq.impl.DSL.groupConcat;
 
 public class ChoiceDAOImpl extends DAOImpl implements ChoiceDAO {
-  private static final String KEY_AVAILABLE_PHASE_OFFSETS = "available_phase_offsets";
+  private static final String KEY_AVAILABLE_PATTERN_OFFSETS = "available_pattern_offsets";
 
   @Inject
   public ChoiceDAOImpl(
@@ -58,8 +58,8 @@ public class ChoiceDAOImpl extends DAOImpl implements ChoiceDAO {
 
     requireTopLevel(access);
 
-    requireExists("Link", db.selectCount().from(LINK)
-      .where(LINK.ID.eq(ULong.valueOf(entity.getLinkId())))
+    requireExists("Segment", db.selectCount().from(SEGMENT)
+      .where(SEGMENT.ID.eq(ULong.valueOf(entity.getSegmentId())))
       .fetchOne(0, int.class));
 
     return modelFrom(executeCreate(db, CHOICE, fieldValues), Choice.class);
@@ -81,27 +81,27 @@ public class ChoiceDAOImpl extends DAOImpl implements ChoiceDAO {
     else
       return modelFrom(db.select(CHOICE.fields())
         .from(CHOICE)
-        .join(LINK).on(LINK.ID.eq(CHOICE.LINK_ID))
-        .join(CHAIN).on(CHAIN.ID.eq(LINK.CHAIN_ID))
+        .join(SEGMENT).on(SEGMENT.ID.eq(CHOICE.SEGMENT_ID))
+        .join(CHAIN).on(CHAIN.ID.eq(SEGMENT.CHAIN_ID))
         .where(CHOICE.ID.eq(id))
         .and(CHAIN.ACCOUNT_ID.in(access.getAccountIds()))
         .fetchOne(), Choice.class);
   }
 
   /**
-   Read one record binding an pattern to a link
+   Read one record binding an sequence to a segment
 
    @param db        context
    @param access    control
-   @param linkId    to get choice for
-   @param patternId to get choice for
+   @param segmentId    to get choice for
+   @param sequenceId to get choice for
    @return record
    */
-  private static Choice readOneLinkPattern(DSLContext db, Access access, ULong linkId, ULong patternId) throws BusinessException {
+  private static Choice readOneSegmentSequence(DSLContext db, Access access, ULong segmentId, ULong sequenceId) throws BusinessException {
     requireTopLevel(access);
     return modelFrom(db.selectFrom(CHOICE)
-      .where(CHOICE.LINK_ID.eq(linkId))
-      .and(CHOICE.PATTERN_ID.eq(patternId))
+      .where(CHOICE.SEGMENT_ID.eq(segmentId))
+      .and(CHOICE.SEQUENCE_ID.eq(sequenceId))
       .fetchOne(), Choice.class);
   }
 
@@ -110,33 +110,33 @@ public class ChoiceDAOImpl extends DAOImpl implements ChoiceDAO {
 
    @param db          context
    @param access      control
-   @param linkId      of record
-   @param patternType of which to read one link with available offsets
+   @param segmentId      of record
+   @param sequenceType of which to read one segment with available offsets
    @return record
    */
-  private static Choice readOneLinkTypeWithAvailablePhaseOffsets(DSLContext db, Access access, ULong linkId, PatternType patternType) throws BusinessException {
+  private static Choice readOneSegmentTypeWithAvailablePatternOffsets(DSLContext db, Access access, ULong segmentId, SequenceType sequenceType) throws BusinessException {
     requireTopLevel(access);
 
     SelectOffsetStep<?> query = db.select(
       CHOICE.ID,
-      CHOICE.PATTERN_ID,
-      CHOICE.LINK_ID,
+      CHOICE.SEQUENCE_ID,
+      CHOICE.SEGMENT_ID,
       CHOICE.TYPE,
-      CHOICE.PHASE_OFFSET,
+      CHOICE.PATTERN_OFFSET,
       CHOICE.TRANSPOSE,
-      groupConcat(PHASE.OFFSET, ",").as(KEY_AVAILABLE_PHASE_OFFSETS)
+      groupConcat(PATTERN.OFFSET, ",").as(KEY_AVAILABLE_PATTERN_OFFSETS)
     )
-      .from(PHASE)
-      .join(CHOICE).on(CHOICE.PATTERN_ID.eq(PHASE.PATTERN_ID))
-      .where(CHOICE.LINK_ID.eq(linkId))
-      .and(CHOICE.TYPE.eq(patternType.toString()))
-      .groupBy(CHOICE.ID, CHOICE.LINK_ID, CHOICE.PATTERN_ID, CHOICE.PHASE_OFFSET, CHOICE.TRANSPOSE)
+      .from(PATTERN)
+      .join(CHOICE).on(CHOICE.SEQUENCE_ID.eq(PATTERN.SEQUENCE_ID))
+      .where(CHOICE.SEGMENT_ID.eq(segmentId))
+      .and(CHOICE.TYPE.eq(sequenceType.toString()))
+      .groupBy(CHOICE.ID, CHOICE.SEGMENT_ID, CHOICE.SEQUENCE_ID, CHOICE.PATTERN_OFFSET, CHOICE.TRANSPOSE)
       .limit(1);
 
     Record record = query.fetchOne();
     Choice model = modelFrom(record, Choice.class);
     if (Objects.nonNull(model)) {
-      model.setAvailablePhaseOffsets((String) record.get(KEY_AVAILABLE_PHASE_OFFSETS));
+      model.setAvailablePatternOffsets((String) record.get(KEY_AVAILABLE_PATTERN_OFFSETS));
     }
 
     return model;
@@ -147,19 +147,19 @@ public class ChoiceDAOImpl extends DAOImpl implements ChoiceDAO {
 
    @param db      context
    @param access  control
-   @param linkIds of parent
+   @param segmentIds of parent
    @return array of records
    */
-  private static Collection<Choice> readAll(DSLContext db, Access access, Collection<ULong> linkIds) throws BusinessException {
+  private static Collection<Choice> readAll(DSLContext db, Access access, Collection<ULong> segmentIds) throws BusinessException {
     if (access.isTopLevel())
       return modelsFrom(db.select(CHOICE.fields()).from(CHOICE)
-        .where(CHOICE.LINK_ID.in(linkIds))
+        .where(CHOICE.SEGMENT_ID.in(segmentIds))
         .fetch(), Choice.class);
     else
       return modelsFrom(db.select(CHOICE.fields()).from(CHOICE)
-        .join(LINK).on(LINK.ID.eq(CHOICE.LINK_ID))
-        .join(CHAIN).on(CHAIN.ID.eq(LINK.CHAIN_ID))
-        .where(CHOICE.LINK_ID.in(linkIds))
+        .join(SEGMENT).on(SEGMENT.ID.eq(CHOICE.SEGMENT_ID))
+        .join(CHAIN).on(CHAIN.ID.eq(SEGMENT.CHAIN_ID))
+        .where(CHOICE.SEGMENT_ID.in(segmentIds))
         .and(CHAIN.ACCOUNT_ID.in(access.getAccountIds()))
         .fetch(), Choice.class);
   }
@@ -169,14 +169,14 @@ public class ChoiceDAOImpl extends DAOImpl implements ChoiceDAO {
 
    @param db      context
    @param access  control
-   @param linkIds id of parent's parent (the chain)
+   @param segmentIds id of parent's parent (the chain)
    @return array of records
    */
-  private static Collection<Choice> readAllInLinks(DSLContext db, Access access, Collection<ULong> linkIds) throws Exception {
-    requireAccessToLinks(db, access, linkIds);
+  private static Collection<Choice> readAllInSegments(DSLContext db, Access access, Collection<ULong> segmentIds) throws Exception {
+    requireAccessToSegments(db, access, segmentIds);
 
     return modelsFrom(db.select(CHOICE.fields()).from(CHOICE)
-      .where(CHOICE.LINK_ID.in(linkIds))
+      .where(CHOICE.SEGMENT_ID.in(segmentIds))
       .orderBy(CHOICE.TYPE)
       .fetch(), Choice.class);
   }
@@ -198,10 +198,10 @@ public class ChoiceDAOImpl extends DAOImpl implements ChoiceDAO {
 
     requireTopLevel(access);
 
-    requireExists("existing Choice with immutable Link membership",
+    requireExists("existing Choice with immutable Segment membership",
       db.selectCount().from(CHOICE)
         .where(CHOICE.ID.eq(id))
-        .and(CHOICE.LINK_ID.eq(ULong.valueOf(entity.getLinkId())))
+        .and(CHOICE.SEGMENT_ID.eq(ULong.valueOf(entity.getSegmentId())))
         .fetchOne(0, int.class));
 
     if (0 == executeUpdate(db, CHOICE, fieldValues))
@@ -248,11 +248,11 @@ public class ChoiceDAOImpl extends DAOImpl implements ChoiceDAO {
    */
   private static Map<Field, Object> fieldValueMap(Choice entity) {
     Map<Field, Object> fieldValues = Maps.newHashMap();
-    fieldValues.put(CHOICE.LINK_ID, entity.getLinkId());
-    fieldValues.put(CHOICE.PATTERN_ID, entity.getPatternId());
+    fieldValues.put(CHOICE.SEGMENT_ID, entity.getSegmentId());
+    fieldValues.put(CHOICE.SEQUENCE_ID, entity.getSequenceId());
     fieldValues.put(CHOICE.TYPE, entity.getType());
     fieldValues.put(CHOICE.TRANSPOSE, entity.getTranspose());
-    fieldValues.put(CHOICE.PHASE_OFFSET, entity.getPhaseOffset());
+    fieldValues.put(CHOICE.PATTERN_OFFSET, entity.getPatternOffset());
     return fieldValues;
   }
 
@@ -279,10 +279,10 @@ public class ChoiceDAOImpl extends DAOImpl implements ChoiceDAO {
 
   @Nullable
   @Override
-  public Choice readOneLinkPattern(Access access, BigInteger linkId, BigInteger patternId) throws Exception {
+  public Choice readOneSegmentSequence(Access access, BigInteger segmentId, BigInteger sequenceId) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readOneLinkPattern(tx.getContext(), access, ULong.valueOf(linkId), ULong.valueOf(patternId)));
+      return tx.success(readOneSegmentSequence(tx.getContext(), access, ULong.valueOf(segmentId), ULong.valueOf(sequenceId)));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -290,10 +290,10 @@ public class ChoiceDAOImpl extends DAOImpl implements ChoiceDAO {
 
   @Override
   @Nullable
-  public Choice readOneLinkTypeWithAvailablePhaseOffsets(Access access, BigInteger linkId, PatternType patternType) throws Exception {
+  public Choice readOneSegmentTypeWithAvailablePatternOffsets(Access access, BigInteger segmentId, SequenceType sequenceType) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readOneLinkTypeWithAvailablePhaseOffsets(tx.getContext(), access, ULong.valueOf(linkId), patternType));
+      return tx.success(readOneSegmentTypeWithAvailablePatternOffsets(tx.getContext(), access, ULong.valueOf(segmentId), sequenceType));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -311,10 +311,10 @@ public class ChoiceDAOImpl extends DAOImpl implements ChoiceDAO {
   }
 
   @Override
-  public Collection<Choice> readAllInLinks(Access access, Collection<BigInteger> linkIds) throws Exception {
+  public Collection<Choice> readAllInSegments(Access access, Collection<BigInteger> segmentIds) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readAllInLinks(tx.getContext(), access, idCollection(linkIds)));
+      return tx.success(readAllInSegments(tx.getContext(), access, idCollection(segmentIds)));
     } catch (Exception e) {
       throw tx.failure(e);
     }

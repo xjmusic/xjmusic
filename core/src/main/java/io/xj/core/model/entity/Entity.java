@@ -20,8 +20,8 @@ import java.sql.Timestamp;
 public abstract class Entity {
   public static final String KEY_ONE = "entity";
   public static final String KEY_MANY = "entities";
-  private static final double entityPositionDecimalPlaces = 2;
-  private static final double roundPositionMultiplier = Math.pow(10, entityPositionDecimalPlaces);
+  private static final double entityPositionDecimalPlaces = 2.0;
+  private static final double roundPositionMultiplier = StrictMath.pow(10.0, entityPositionDecimalPlaces);
   protected BigInteger id;
   protected Timestamp createdAt;
   protected Timestamp updatedAt;

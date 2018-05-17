@@ -9,11 +9,11 @@ import io.xj.core.model.audio.Audio;
 import io.xj.core.model.chain_config.ChainConfig;
 import io.xj.core.model.chain_config.ChainConfigType;
 import io.xj.core.model.choice.Choice;
-import io.xj.core.model.link.Link;
-import io.xj.core.model.link_chord.LinkChord;
-import io.xj.core.model.link_meme.LinkMeme;
-import io.xj.core.model.pattern.PatternType;
-import io.xj.core.model.phase.Phase;
+import io.xj.core.model.segment.Segment;
+import io.xj.core.model.segment_chord.SegmentChord;
+import io.xj.core.model.segment_meme.SegmentMeme;
+import io.xj.core.model.sequence.SequenceType;
+import io.xj.core.model.pattern.Pattern;
 import io.xj.core.model.pick.Pick;
 import io.xj.music.Chord;
 import io.xj.music.Note;
@@ -42,44 +42,44 @@ public interface Basis {
   AudioFormat outputAudioFormat() throws Exception;
 
   /**
-   Determine type of basis, e.g. initial link in chain, or next macro-pattern
+   Determine type of basis, e.g. initial segment in chain, or next macro-sequence
 
    @return macro-craft type
    */
   BasisType type();
 
   /**
-   An Ingest collection of entities that this chain link fabrication basis will ingest.
-   Based on primary chain-bindings, e.g. ChainLibrary, ChainInstrument, and ChainPattern.
+   An Ingest collection of entities that this chain segment fabrication basis will ingest.
+   Based on primary chain-bindings, e.g. ChainLibrary, ChainInstrument, and ChainSequence.
 
    @return Ingest
    */
   Ingest ingest() throws Exception;
 
   /**
-   An Ingest collection of entities that this chain link fabrication basis will ingest.
-   Based on tertiary chain-bindings, e.g. ChainLibrary, and Library from any of the original ChainInstrument or ChainPattern.
+   An Ingest collection of entities that this chain segment fabrication basis will ingest.
+   Based on tertiary chain-bindings, e.g. ChainLibrary, and Library from any of the original ChainInstrument or ChainSequence.
 
    @return Ingest
    */
   Ingest libraryIngest() throws Exception;
 
   /**
-   The original link submitted for craft
+   The original segment submitted for craft
 
-   @return Link
+   @return Segment
    */
-  Link link();
+  Segment segment();
 
   /**
-   is initial link?
+   is initial segment?
 
-   @return whether this is the initial link in a chain
+   @return whether this is the initial segment in a chain
    */
-  Boolean isInitialLink();
+  Boolean isInitialSegment();
 
   /**
-   Chain id, from link
+   Chain id, from segment
 
    @return chain id
    */
@@ -96,40 +96,40 @@ public interface Basis {
   ChainConfig chainConfig(ChainConfigType chainConfigType) throws Exception;
 
   /**
-   Link begin-at timestamp
+   Segment begin-at timestamp
 
    @return begin at
    */
-  Timestamp linkBeginAt();
+  Timestamp segmentBeginAt();
 
   /**
-   fetch the previous link in the chain
+   fetch the previous segment in the chain
    (caches results)
 
-   @return previousLink
+   @return previousSegment
    */
-  Link previousLink() throws Exception;
+  Segment previousSegment() throws Exception;
 
   /**
-   fetch the macro-type choice for the previous link in the chain
+   fetch the macro-type choice for the previous segment in the chain
 
-   @return macro-type link choice
+   @return macro-type segment choice
    @throws Exception on failure
    */
   Choice previousMacroChoice() throws Exception;
 
   /**
-   fetch the main-type choice for the previous link in the chain
+   fetch the main-type choice for the previous segment in the chain
 
-   @return main-type link choice
+   @return main-type segment choice
    @throws Exception on failure
    */
   Choice previousMainChoice() throws Exception;
 
   /**
-   fetch the rhythm-type choice for the previous link in the chain
+   fetch the rhythm-type choice for the previous segment in the chain
 
-   @return rhythm-type link choice
+   @return rhythm-type segment choice
    @throws Exception on failure
    */
   Choice previousRhythmChoice() throws Exception;
@@ -143,46 +143,46 @@ public interface Basis {
   Collection<Arrangement> previousPercussiveArrangements() throws Exception;
 
   /**
-   fetch the macro-type choice for the current link in the chain
+   fetch the macro-type choice for the current segment in the chain
 
-   @return macro-type link choice
+   @return macro-type segment choice
    @throws Exception on failure
    */
   Choice currentMacroChoice() throws Exception;
 
   /**
-   fetch the main-type choice for the current link in the chain
+   fetch the main-type choice for the current segment in the chain
 
-   @return main-type link choice
+   @return main-type segment choice
    @throws Exception on failure
    */
   Choice currentMainChoice() throws Exception;
 
   /**
-   fetch the rhythm-type choice for the current link in the chain
+   fetch the rhythm-type choice for the current segment in the chain
 
-   @return rhythm-type link choice
+   @return rhythm-type segment choice
    @throws Exception on failure
    */
   Choice currentRhythmChoice() throws Exception;
 
   /**
-   macro-type pattern phase in current link
+   macro-type sequence pattern in current segment
    (caches results)
 
-   @return phase
+   @return pattern
    @throws Exception on failure
    */
-  Phase currentMacroPhase() throws Exception;
+  Pattern currentMacroPattern() throws Exception;
 
   /**
-   macro-type pattern phase in previous link
+   macro-type sequence pattern in previous segment
    (caches results)
 
-   @return phase
+   @return pattern
    @throws Exception on failure
    */
-  Phase previousMacroNextPhase() throws Exception;
+  Pattern previousMacroNextPattern() throws Exception;
 
   /**
    Chain configurations
@@ -211,10 +211,10 @@ public interface Basis {
   void setChoiceArrangements(BigInteger choiceId, Collection<Arrangement> arrangements);
 
   /**
-   Get current Chord for any position in Link.
-   Defaults to returning a chord based on the link key, if nothing else is found
+   Get current Chord for any position in Segment.
+   Defaults to returning a chord based on the segment key, if nothing else is found
 
-   @param position in link
+   @param position in segment
    @return Chord
    */
   Chord chordAt(int position) throws Exception;
@@ -237,9 +237,9 @@ public interface Basis {
   Note note(Double pitch);
 
   /**
-   Calculate the position in seconds from the beginning of the link, for any position given in beats.
+   Calculate the position in seconds from the beginning of the segment, for any position given in beats.
    <p>
-   [#256] Velocity of Link meter (beats per minute) increases linearly from the beginning of the Link (at the previous Link's tempo) to the end of the Link (arriving at the current Link's tempo, only at its end)
+   [#256] Velocity of Segment meter (beats per minute) increases linearly from the beginning of the Segment (at the previous Segment's tempo) to the end of the Segment (arriving at the current Segment's tempo, only at its end)
 
    @param p in beats
    @return position in seconds
@@ -247,73 +247,73 @@ public interface Basis {
   Double secondsAtPosition(double p) throws Exception;
 
   /**
-   Fetch all memes for a given link
+   Fetch all memes for a given segment
    (caches results)
 
-   @param linkId to get memes for
-   @return collection of link memes
+   @param segmentId to get memes for
+   @return collection of segment memes
    @throws Exception on failure
    */
-  Collection<LinkMeme> linkMemes(BigInteger linkId) throws Exception;
+  Collection<SegmentMeme> segmentMemes(BigInteger segmentId) throws Exception;
 
   /**
-   Read an Audio by id, assumed to be in the set of audio found for all picks in the link
+   Read an Audio by id, assumed to be in the set of audio found for all picks in the segment
 
    @param audioId to fetch
    @return Audio
    */
-  Audio linkAudio(BigInteger audioId) throws Exception;
+  Audio segmentAudio(BigInteger audioId) throws Exception;
 
   /**
-   All Audio picked for current Link
+   All Audio picked for current Segment
 
    @return audios
    @throws Exception on failure
    */
-  Map<BigInteger, Audio> linkAudios() throws Exception;
+  Map<BigInteger, Audio> segmentAudios() throws Exception;
 
   /**
-   id of all audio picked for current link
+   id of all audio picked for current segment
 
    @return list of audio ids
    @throws Exception on failure
    */
-  Collection<BigInteger> linkAudioIds() throws Exception;
+  Collection<BigInteger> segmentAudioIds() throws Exception;
 
   /**
-   Fetch all chords for the current link
+   Fetch all chords for the current segment
    (caches results)
 
-   @return link chords
+   @return segment chords
    @throws Exception on failure
    */
-  Collection<LinkChord> linkChords() throws Exception;
+  Collection<SegmentChord> segmentChords() throws Exception;
 
   /**
-   Fetch memes for the current link
-   (results can be overridden by caching setLinkMemes, otherwise it's a db lookup)
+   Fetch memes for the current segment
+   (results can be overridden by caching setSegmentMemes, otherwise it's a db lookup)
 
-   @return collection of link memes
+   @return collection of segment memes
    @throws Exception on failure
    */
-  Collection<LinkMeme> linkMemes() throws Exception;
+  Collection<SegmentMeme> segmentMemes() throws Exception;
 
   /**
-   Cache link memes (instead of relying on writing to db followed by reading)
-   Avoid race condition causing [#153888310] During craft, instruments should be chosen based on combined memes of all chosen patterns for that link.
+   Cache segment memes (instead of relying on writing to db followed by reading)
+   Avoid race condition causing [#153888310] During craft, instruments should be chosen based on combined memes of all chosen sequences for that segment.
 
-   @param memes memes for the current link
+   @param memes memes for the current segment
    */
-  void setLinkMemes(Collection<LinkMeme> memes);
+  void setSegmentMemes(Collection<SegmentMeme> memes);
 
   /**
-   Fetch all memes for the previous link
+   Fetch all memes for the previous segment
    (caches results)
 
-   @return previous link memes
+   @return previous segment memes
    @throws Exception on failure
    */
-  Collection<LinkMeme> previousLinkMemes() throws Exception;
+  Collection<SegmentMeme> previousSegmentMemes() throws Exception;
 
   /**
    Add a Pick to the in-memory store
@@ -324,48 +324,48 @@ public interface Basis {
   void pick(Pick pick);
 
   /**
-   Fetch all picks for the current link
+   Fetch all picks for the current segment
    (caches results)
 
-   @return link picks
+   @return segment picks
    @throws Exception on failure
    */
   Collection<Pick> picks() throws Exception;
 
   /**
-   Total length of link from beginning to end
+   Total length of segment from beginning to end
 
    @return total length
    @throws Exception if unable to compute
    */
-  Duration linkTotalLength() throws Exception;
+  Duration segmentTotalLength() throws Exception;
 
   /**
-   Fetch a link in a chain, by offset
+   Fetch a segment in a chain, by offset
 
-   @param chainId to fetch link in
-   @param offset  of link to fetch
-   @return Link
+   @param chainId to fetch segment in
+   @param offset  of segment to fetch
+   @return Segment
    @throws Exception on failure
    */
-  Link linkByOffset(BigInteger chainId, BigInteger offset) throws Exception;
+  Segment segmentByOffset(BigInteger chainId, BigInteger offset) throws Exception;
 
   /**
-   Fetch current choice of macro-type link
+   Fetch current choice of macro-type segment
    (caches results)
 
    @return choice record
    @throws Exception on failure
    */
-  Choice linkChoiceByType(BigInteger linkId, PatternType patternType) throws Exception;
+  Choice segmentChoiceByType(BigInteger segmentId, SequenceType sequenceType) throws Exception;
 
   /**
-   Update the original Link submitted for craft,
+   Update the original Segment submitted for craft,
    cache it in the internal in-memory object, and persisted in the database
 
-   @param link Link to replace current link, and update database with
+   @param segment Segment to replace current segment, and update database with
    */
-  void updateLink(Link link) throws Exception;
+  void updateSegment(Segment segment) throws Exception;
 
   /**
    Put a key-value pair into the report
@@ -376,8 +376,8 @@ public interface Basis {
   void report(String key, String value);
 
   /**
-   Send the final report of craft process, as a link message
-   build YAML and create Link Message
+   Send the final report of craft process, as a segment message
+   build YAML and create Segment Message
    */
   void sendReport();
 
@@ -390,15 +390,15 @@ public interface Basis {
   Long atMicros(Double seconds);
 
   /**
-   Get MemeIsometry instance for previous macro-choice and phase memes
+   Get MemeIsometry instance for previous macro-choice and pattern memes
 
    @return MemeIsometry for previous macro-choice
    @throws Exception on failure
    */
-  MemeIsometry previousMacroNextPhaseMemeIsometry() throws Exception;
+  MemeIsometry previousMacroNextPatternMemeIsometry() throws Exception;
 
   /**
-   Get MemeIsometry instance for macro-choice and phase memes
+   Get MemeIsometry instance for macro-choice and pattern memes
 
    @return MemeIsometry for macro-choice
    @throws Exception on failure
@@ -406,12 +406,12 @@ public interface Basis {
   MemeIsometry currentMacroMemeIsometry() throws Exception;
 
   /**
-   Get MemeIsometry instance for current link
+   Get MemeIsometry instance for current segment
 
-   @return MemeIsometry for current link
+   @return MemeIsometry for current segment
    @throws Exception on failure
    */
-  MemeIsometry currentLinkMemeIsometry() throws Exception;
+  MemeIsometry currentSegmentMemeIsometry() throws Exception;
 
   /**
    Create a new Choice
@@ -428,17 +428,17 @@ public interface Basis {
   Arrangement create(Arrangement arrangement) throws Exception;
 
   /**
-   Create a new LinkMeme
+   Create a new SegmentMeme
 
-   @param linkMeme to create
+   @param segmentMeme to create
    */
-  LinkMeme create(LinkMeme linkMeme) throws Exception;
+  SegmentMeme create(SegmentMeme segmentMeme) throws Exception;
 
   /**
-   Create a new LinkChord
+   Create a new SegmentChord
 
-   @param linkChord to create
+   @param segmentChord to create
    */
-  LinkChord create(LinkChord linkChord) throws Exception;
+  SegmentChord create(SegmentChord segmentChord) throws Exception;
 
 }

@@ -6,9 +6,9 @@ import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
 import io.xj.core.model.chain_config.ChainConfigType;
 import io.xj.core.model.instrument.InstrumentType;
-import io.xj.core.model.link.LinkState;
+import io.xj.core.model.segment.SegmentState;
+import io.xj.core.model.sequence.SequenceType;
 import io.xj.core.model.pattern.PatternType;
-import io.xj.core.model.phase.PhaseType;
 
 import org.json.JSONObject;
 
@@ -25,7 +25,7 @@ public interface Exposure {
 
   // external file references (e.g. audio files)
   String FILE_AUDIO = "audio";
-  String FILE_LINK = "link";
+  String FILE_SEGMENT = "segment";
   String FILE_CHAIN = "chain";
   String FILE_DOT = ".";
   String FILE_INSTRUMENT = "instrument";
@@ -49,14 +49,14 @@ public interface Exposure {
   String KEY_CHAIN_TYPES = "chainTypes";
   String KEY_CHOICE_TYPES = "choiceTypes";
   String KEY_CONFIG = "config";
-  String KEY_PATTERN_TYPES = "patternTypes";
+  String KEY_SEQUENCE_TYPES = "sequenceTypes";
   String KEY_INSTRUMENT_TYPES = "instrumentTypes";
-  String KEY_LINK_BASE_URL = "linkBaseUrl";
-  String KEY_LINK_STATES = "linkStates";
+  String KEY_SEGMENT_BASE_URL = "segmentBaseUrl";
+  String KEY_SEGMENT_STATES = "segmentStates";
   String KEY_STATS = "stats";
   String KEY_VOICE_TYPES = "voiceTypes";
-  String KEY_PHASE_TYPES = "phaseTypes";
-  String KEY_PHASE_DETAIL_TYPES = "phaseDetailTypes";
+  String KEY_PATTERN_TYPES = "patternTypes";
+  String KEY_PATTERN_DETAIL_TYPES = "patternDetailTypes";
 
   /**
    Get URL String for an audio file, by key
@@ -97,17 +97,17 @@ public interface Exposure {
     JSONObject config = new JSONObject();
     config.put(KEY_API_BASE_URL, Config.appBaseUrl() + Config.apiPath());
     config.put(KEY_AUDIO_BASE_URL, Config.audioBaseUrl());
-    config.put(KEY_LINK_BASE_URL, Config.linkBaseUrl());
+    config.put(KEY_SEGMENT_BASE_URL, Config.segmentBaseUrl());
     config.put(KEY_BASE_URL, Config.appBaseUrl());
     config.put(KEY_CHAIN_CONFIG_TYPES, ChainConfigType.stringValues());
     config.put(KEY_CHAIN_CONFIG_TYPES, ChainConfigType.stringValues());
     config.put(KEY_CHAIN_STATES, ChainState.stringValues());
     config.put(KEY_CHAIN_TYPES, ChainType.stringValues());
-    config.put(KEY_LINK_STATES, LinkState.stringValues());
-    config.put(KEY_CHOICE_TYPES, PatternType.stringValues());
+    config.put(KEY_SEGMENT_STATES, SegmentState.stringValues());
+    config.put(KEY_CHOICE_TYPES, SequenceType.stringValues());
+    config.put(KEY_SEQUENCE_TYPES, SequenceType.stringValues());
     config.put(KEY_PATTERN_TYPES, PatternType.stringValues());
-    config.put(KEY_PHASE_TYPES, PhaseType.stringValues());
-    config.put(KEY_PHASE_DETAIL_TYPES, PhaseType.stringValuesForDetailPattern());
+    config.put(KEY_PATTERN_DETAIL_TYPES, PatternType.stringValuesForDetailSequence());
     config.put(KEY_INSTRUMENT_TYPES, InstrumentType.stringValues());
     config.put(KEY_VOICE_TYPES, InstrumentType.stringValues());
     return config;

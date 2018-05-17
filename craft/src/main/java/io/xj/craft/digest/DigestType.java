@@ -10,14 +10,14 @@ import java.util.Objects;
 
 /**
  [#154234716] Architect wants ingest of library contents, to modularize graph mathematics used during craft, and provide the Artist with useful insight for developing the library.
- [#154350346] Architect wants a universal Ingest Provider, to modularize graph mathematics used during craft to evaluate any combination of Library, Pattern, and Instrument for any purpose.
+ [#154350346] Architect wants a universal Ingest Provider, to modularize graph mathematics used during craft to evaluate any combination of Library, Sequence, and Instrument for any purpose.
  */
 public enum DigestType {
   DigestChordMarkov,
   DigestChordProgression,
   DigestHash,
   DigestMeme,
-  DigestPatternStyle;
+  DigestSequenceStyle;
 
   /**
    String Values

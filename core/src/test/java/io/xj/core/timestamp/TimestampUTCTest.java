@@ -1,3 +1,5 @@
+// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+
 package io.xj.core.timestamp;// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
 import io.xj.core.util.TimestampUTC;
@@ -33,19 +35,19 @@ public class TimestampUTCTest {
 
   @Test
   public void nowPlusSeconds() throws Exception {
-    Timestamp actual = TimestampUTC.nowPlusSeconds(5);
+    Timestamp actual = TimestampUTC.nowPlusSeconds(5L);
 
     assertThat("5 seconds from now",
-      actual.getTime() - (now.getTime() + 5 * MILLIS_PER_SECOND),
+      actual.getTime() - (now.getTime() + 5L * MILLIS_PER_SECOND),
       lessThan(MATCH_THRESHOLD_MILLIS));
   }
 
   @Test
   public void nowMinusSeconds() throws Exception {
-    Timestamp actual = TimestampUTC.nowMinusSeconds(3);
+    Timestamp actual = TimestampUTC.nowMinusSeconds(3L);
 
     assertThat("3 seconds ago",
-      actual.getTime() - (now.getTime() - 3 * MILLIS_PER_SECOND),
+      actual.getTime() - (now.getTime() - 3L * MILLIS_PER_SECOND),
       lessThan(MATCH_THRESHOLD_MILLIS));
   }
 
@@ -60,7 +62,7 @@ public class TimestampUTCTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void valueOf_invalidTimestamp() throws Exception {
-    TimestampUTC.valueOf("terrible pattern for a timestamp");
+    TimestampUTC.valueOf("terrible sequence for a timestamp");
   }
 
   /**
