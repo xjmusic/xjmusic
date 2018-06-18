@@ -262,7 +262,9 @@ public class SequenceDAOImpl extends DAOImpl implements SequenceDAO {
           .where(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
           .and(LIBRARY.ID.eq(ULong.valueOf(entity.getLibraryId())))
           .fetchOne(0, int.class));
-    fieldValues.put(SEQUENCE.USER_ID, access.getUserId());
+
+    // Never update user id! [#156030760] Artist expects owner of Sequence or Instrument to always remain the same as when it was created, even after being updated by another user.
+    fieldValues.remove(SEQUENCE.USER_ID);
 
     if (0 == executeUpdate(db, SEQUENCE, fieldValues))
       throw new BusinessException("No records updated.");

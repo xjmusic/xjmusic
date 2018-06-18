@@ -211,7 +211,9 @@ public class InstrumentDAOImpl extends DAOImpl implements InstrumentDAO {
           .where(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
           .and(LIBRARY.ID.eq(ULong.valueOf(entity.getLibraryId())))
           .fetchOne(0, int.class));
-    fieldValues.put(INSTRUMENT.USER_ID, access.getUserId());
+
+    // Never update user ID! [#156030760] Artist expects owner of Sequence or Instrument to always remain the same as when it was created, even after being updated by another user.
+    fieldValues.remove(INSTRUMENT.USER_ID);
 
     if (0 == executeUpdate(db, INSTRUMENT, fieldValues))
       throw new BusinessException("No records updated.");

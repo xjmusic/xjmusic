@@ -135,6 +135,7 @@ public class SequenceIT {
 
   /**
    [#156144567] Artist expects to create a Main-type sequence without crashing the entire platform
+   NOTE: This simple test fails to invoke the complexity of database call that is/was creating this issue in production.
    */
   @Test
   public void create_asArtist() throws Exception {
@@ -413,7 +414,31 @@ public class SequenceIT {
     assertEquals(BigInteger.valueOf(2L), result.getLibraryId());
   }
 
-  // future test: DAO cannot update Sequence to a User or Library not owned by current session
+  /**
+   [#156030760] Artist expects owner of Sequence or Instrument to always remain the same as when it was created, even after being updated by another user.
+   */
+  @Test
+  public void update_Name_PreservesOriginalOwner() throws Exception {
+    Access access = new Access(ImmutableMap.of(
+      "userId","2", // John will edit a sequence originally belonging to Jenny
+      "roles", "Admin",
+      "accounts", "1"
+    ));
+    Sequence inputData = new Sequence()
+      .setDensity(0.42)
+      .setKey("G minor 7")
+      .setLibraryId(BigInteger.valueOf(2L))
+      .setName("cannons")
+      .setTempo(129.4)
+      .setType("Main")
+      .setUserId(BigInteger.valueOf(3L));
+
+    testDAO.update(access, BigInteger.valueOf(3L), inputData);
+
+    Sequence result = testDAO.readOne(Access.internal(), BigInteger.valueOf(3L));
+    assertNotNull(result);
+    assertEquals(BigInteger.valueOf(3L), result.getUserId());
+  }
 
   @Test
   public void destroy() throws Exception {

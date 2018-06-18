@@ -9,11 +9,11 @@ import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
 import io.xj.core.model.instrument.Instrument;
 import io.xj.core.model.instrument.InstrumentType;
+import io.xj.core.model.pattern.PatternState;
+import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.segment.SegmentState;
 import io.xj.core.model.sequence.SequenceState;
 import io.xj.core.model.sequence.SequenceType;
-import io.xj.core.model.pattern.PatternState;
-import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.transport.JSON;
 import io.xj.core.work.WorkManager;
@@ -232,6 +232,7 @@ public class InstrumentIT {
     assertNotNull(result);
     assertEquals(0L, (long) result.length());
   }
+
   @Test(expected = BusinessException.class)
   public void update_FailsWithoutLibraryID() throws Exception {
     Access access = new Access(ImmutableMap.of(
@@ -300,7 +301,30 @@ public class InstrumentIT {
     assertEquals(BigInteger.valueOf(1L), result.getLibraryId());
   }
 
-  // future test: DAO cannot update Instrument to a User or Library not owned by current session
+  /**
+   [#156030760] Artist expects owner of Sequence or Instrument to always remain the same as when it was created, even after being updated by another user.
+   */
+  @Test
+  public void update_Name_PreservesOriginalOwner() throws Exception {
+    IntegrationTestEntity.insertInstrument(3, 1, 3, "jenny's jams", InstrumentType.Melodic, 0.6);
+    Access access = new Access(ImmutableMap.of(
+      "userId", "2", // John will update an instrument belonging to Jenny
+      "roles", "User",
+      "accounts", "1"
+    ));
+    Instrument inputData = new Instrument()
+      .setDensity(0.42)
+      .setLibraryId(BigInteger.valueOf(1L))
+      .setDescription("bimmies")
+      .setType("Percussive")
+      .setUserId(BigInteger.valueOf(2L));
+
+    testDAO.update(access, BigInteger.valueOf(3L), inputData);
+
+    Instrument result = testDAO.readOne(Access.internal(), BigInteger.valueOf(3L));
+    assertNotNull(result);
+    assertEquals(BigInteger.valueOf(3L), result.getUserId());
+  }
 
   @Test
   public void delete() throws Exception {
