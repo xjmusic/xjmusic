@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nullable;
 import java.math.BigInteger;
 import java.util.Collection;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
@@ -124,7 +125,7 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
     return modelsFrom(db.select(AUDIO.fields())
       .from(AUDIO)
       .where(AUDIO.STATE.eq(state.toString()))
-      .or(AUDIO.STATE.eq(state.toString().toLowerCase()))
+      .or(AUDIO.STATE.eq(state.toString().toLowerCase(Locale.ENGLISH)))
       .fetch(), Audio.class);
   }
 

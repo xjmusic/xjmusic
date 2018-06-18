@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nullable;
 import java.math.BigInteger;
 import java.util.Collection;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
@@ -230,7 +231,7 @@ public class SequenceDAOImpl extends DAOImpl implements SequenceDAO {
     return modelsFrom(db.select(SEQUENCE.fields())
       .from(SEQUENCE)
       .where(SEQUENCE.STATE.eq(state.toString()))
-      .or(SEQUENCE.STATE.eq(state.toString().toLowerCase()))
+      .or(SEQUENCE.STATE.eq(state.toString().toLowerCase(Locale.ENGLISH)))
       .fetch(), Sequence.class);
   }
 

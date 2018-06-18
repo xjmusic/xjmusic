@@ -39,6 +39,7 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
@@ -147,7 +148,7 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
     return modelsFrom(db.select(CHAIN.fields())
       .from(CHAIN)
       .where(CHAIN.STATE.eq(state.toString()))
-      .or(CHAIN.STATE.eq(state.toString().toLowerCase()))
+      .or(CHAIN.STATE.eq(state.toString().toLowerCase(Locale.ENGLISH)))
       .fetch(), Chain.class);
   }
 

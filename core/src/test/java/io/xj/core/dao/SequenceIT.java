@@ -133,6 +133,37 @@ public class SequenceIT {
     assertEquals(BigInteger.valueOf(2L), result.getUserId());
   }
 
+  /**
+   [#156144567] Artist expects to create a Main-type sequence without crashing the entire platform
+   */
+  @Test
+  public void create_asArtist() throws Exception {
+    Access access = new Access(ImmutableMap.of(
+      "userId", "2",
+      "roles", "User,Artist",
+      "accounts", "1"
+    ));
+    Sequence inputData = new Sequence()
+      .setDensity(0.42)
+      .setKey("G minor 7")
+      .setLibraryId(BigInteger.valueOf(2L))
+      .setName("cannons")
+      .setTempo(129.4)
+      .setType("Main")
+      .setUserId(BigInteger.valueOf(2L));
+
+    Sequence result = testDAO.create(access, inputData);
+
+    assertNotNull(result);
+    assertEquals(0.42, result.getDensity(), 0.01);
+    assertEquals("G minor 7", result.getKey());
+    assertEquals(BigInteger.valueOf(2L), result.getLibraryId());
+    assertEquals("cannons", result.getName());
+    assertEquals(129.4, result.getTempo(), 0.1);
+    assertEquals(SequenceType.Main, result.getType());
+    assertEquals(BigInteger.valueOf(2L), result.getUserId());
+  }
+
   @Test(expected = BusinessException.class)
   public void create_FailsWithoutLibraryID() throws Exception {
     Access access = new Access(ImmutableMap.of(

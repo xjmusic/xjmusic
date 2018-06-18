@@ -8,6 +8,7 @@ import com.google.common.collect.ImmutableList;
 import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
@@ -72,7 +73,8 @@ public interface Text {
    */
   static String toSlug(String raw, String defaultValue) {
     String slug = toSlug(raw);
-    return slug.isEmpty() ? defaultValue : slug;
+    if (slug.isEmpty()) return defaultValue;
+    else return slug;
   }
 
   /**
@@ -83,11 +85,11 @@ public interface Text {
    */
   static String toProper(String raw) {
     if (1 < raw.length()) {
-      String lower = raw.toLowerCase();
-      return lower.substring(0, 1).toUpperCase() + lower.substring(1);
+      String lower = raw.toLowerCase(Locale.ENGLISH);
+      return lower.substring(0, 1).toUpperCase(Locale.ENGLISH) + lower.substring(1);
 
     } else if (!raw.isEmpty())
-      return raw.toUpperCase();
+      return raw.toUpperCase(Locale.ENGLISH);
 
     return "";
   }
@@ -120,7 +122,7 @@ public interface Text {
    @return purified
    */
   static String toUpperSlug(String raw) {
-    return toSlug(raw).toUpperCase();
+    return toSlug(raw).toUpperCase(Locale.ENGLISH);
   }
 
   /**
@@ -132,11 +134,11 @@ public interface Text {
    */
   static String toUpperSlug(String raw, String defaultValue) {
     if (Objects.isNull(raw))
-      return defaultValue.toUpperCase();
+      return defaultValue.toUpperCase(Locale.ENGLISH);
 
-    String out = toSlug(raw).toUpperCase();
+    String out = toSlug(raw).toUpperCase(Locale.ENGLISH);
     if (out.isEmpty())
-      return defaultValue.toUpperCase();
+      return defaultValue.toUpperCase(Locale.ENGLISH);
 
     return out;
   }
@@ -148,7 +150,7 @@ public interface Text {
    @return purified
    */
   static String toLowerSlug(String raw) {
-    return toSlug(raw).toLowerCase();
+    return toSlug(raw).toLowerCase(Locale.ENGLISH);
   }
 
   /**
@@ -160,11 +162,11 @@ public interface Text {
    */
   static String toLowerSlug(String raw, String defaultValue) {
     if (Objects.isNull(raw))
-      return defaultValue.toLowerCase();
+      return defaultValue.toLowerCase(Locale.ENGLISH);
 
-    String out = toSlug(raw).toLowerCase();
+    String out = toSlug(raw).toLowerCase(Locale.ENGLISH);
     if (out.isEmpty())
-      return defaultValue.toLowerCase();
+      return defaultValue.toLowerCase(Locale.ENGLISH);
 
     return out;
   }
@@ -197,7 +199,7 @@ public interface Text {
    @return purified
    */
   static String toUpperScored(String raw) {
-    return toScored(raw).toUpperCase();
+    return toScored(raw).toUpperCase(Locale.ENGLISH);
   }
 
   /**
@@ -209,11 +211,11 @@ public interface Text {
    */
   static String toUpperScored(String raw, String defaultValue) {
     if (Objects.isNull(raw))
-      return defaultValue.toUpperCase();
+      return defaultValue.toUpperCase(Locale.ENGLISH);
 
-    String out = toScored(raw).toUpperCase();
+    String out = toScored(raw).toUpperCase(Locale.ENGLISH);
     if (out.isEmpty())
-      return defaultValue.toUpperCase();
+      return defaultValue.toUpperCase(Locale.ENGLISH);
 
     return out;
   }
@@ -225,7 +227,7 @@ public interface Text {
    @return purified
    */
   static String toLowerScored(String raw) {
-    return toScored(raw).toLowerCase();
+    return toScored(raw).toLowerCase(Locale.ENGLISH);
   }
 
   /**
@@ -237,17 +239,18 @@ public interface Text {
    */
   static String toLowerScored(String raw, String defaultValue) {
     if (Objects.isNull(raw))
-      return defaultValue.toLowerCase();
+      return defaultValue.toLowerCase(Locale.ENGLISH);
 
-    String out = toScored(raw).toLowerCase();
+    String out = toScored(raw).toLowerCase(Locale.ENGLISH);
     if (out.isEmpty())
-      return defaultValue.toLowerCase();
+      return defaultValue.toLowerCase(Locale.ENGLISH);
 
     return out;
   }
 
   /**
    True if input string is an integer
+
    @param raw text to check if it's an integer
    @return true if it's an integer
    */

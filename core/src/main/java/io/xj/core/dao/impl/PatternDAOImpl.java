@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nullable;
 import java.math.BigInteger;
 import java.util.Collection;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
@@ -165,7 +166,7 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
     return modelsFrom(db.select(PATTERN.fields())
       .from(PATTERN)
       .where(PATTERN.STATE.eq(state.toString()))
-      .or(PATTERN.STATE.eq(state.toString().toLowerCase()))
+      .or(PATTERN.STATE.eq(state.toString().toLowerCase(Locale.ENGLISH)))
       .fetch(), Pattern.class);
   }
 

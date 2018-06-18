@@ -10,6 +10,7 @@ import org.tartarus.snowball.SnowballStemmer;
 import org.tartarus.snowball.ext.englishStemmer;
 
 import javax.annotation.Nullable;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -72,7 +73,7 @@ public class VoiceIsometry {
    */
   private static String stem(String raw) {
     SnowballStemmer stemmer = new englishStemmer(); // this is the only part proprietary to English
-    stemmer.setCurrent(raw.toLowerCase().trim());
+    stemmer.setCurrent(raw.toLowerCase(Locale.ENGLISH).trim());
     stemmer.stem();
     return stemmer.getCurrent();
   }

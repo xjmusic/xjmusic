@@ -12,6 +12,7 @@ import org.tartarus.snowball.ext.englishStemmer;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -97,7 +98,7 @@ public class MemeIsometry {
    */
   private static String stem(String raw) {
     SnowballStemmer stemmer = new englishStemmer(); // this is the only part proprietary to English
-    stemmer.setCurrent(raw.toLowerCase().trim());
+    stemmer.setCurrent(raw.toLowerCase(Locale.ENGLISH).trim());
     stemmer.stem();
     return stemmer.getCurrent();
   }
