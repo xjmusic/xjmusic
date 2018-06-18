@@ -42,7 +42,7 @@ export class Player {
   /**
    * @type {string} name of this module
    */
-  name = 'XJ Music™ Player';
+  name = 'XJ Music™';
 
   /**
    * @type {boolean} whether in debug mode, which writes HTML output
@@ -256,11 +256,14 @@ export class Player {
     let self = this;
     let segmentId = segment.id;
     let segmentAudio = self.segmentAudios.get(segmentId);
-    if (!segmentAudio) {
+
+    // Must be dubbed in order to instantiate segment audio
+    if (segment.state.toLowerCase() === 'dubbed' && !segmentAudio) {
       segmentAudio = new SegmentAudio(self.audioContext, self.audioContextStartMillisUTC, segment, segmentBaseUrl);
       self.segmentAudios.set(segmentId, segmentAudio);
     }
-    if (segmentAudio.isPlaying() && self.isDebugMode) {
+
+    if (segmentAudio && segmentAudio.isPlaying() && self.isDebugMode) {
       let URL = segmentBaseUrl + segment.waveformKey;
       $('#now-playing').html('<a href="' + URL + '" target="_blank">' + URL + '</a>');
     }
@@ -276,7 +279,7 @@ export class Player {
     this.segmentAudios.forEach((segmentAudio, segmentId) => {
       if (!Player.stringInArray(segmentId.toString(), activeSegmentIds)) {
         self.segmentAudios.delete(segmentId);
-        console.log("[player] tore down de-referenced segment id:" + segmentAudio.segment.offset);
+        self.info('tore down de-referenced [segment-' + segmentAudio.segment.offset + ']');
       }
     });
   }

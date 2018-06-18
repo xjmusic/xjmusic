@@ -6,7 +6,7 @@ import {BinaryResource} from 'binary-resource';
  * RegExp to test for a valid URL
  * @type {RegExp}
  */
-const rgxValidUrl = /(http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
+const rgxValidUrl = /(http|https):\/\/(\w+:?\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@\-\/]))?/;
 
 /**
  * # of seconds of silence to enforce from beginning (0.0 seconds) of WebAudio context
@@ -46,7 +46,7 @@ export class SegmentAudio {
   segmentBaseUrl = '';
 
   /**
-   * @type {object}
+   * @type {object|{beginAt,endAt,waveformKey,offset}}
    */
   segment = null;
 
@@ -93,22 +93,17 @@ export class SegmentAudio {
       self.timeOffset = enforceSilenceSecondsStart - self.beginAtTime;
       self.beginAtTime = enforceSilenceSecondsStart;
     }
-    self.info('beginTime', self.beginAtTime,
-      'timeOffset', self.timeOffset);
 
-    // Must be dubbed and have valid waveform URL, then load and play audio.
-    if (self.segment.state.toLowerCase() !== 'dubbed') {
-      self.info('not dubbed yet');
-
-    } else if (!self.hasValidWaveformUrl()) {
+    if (!self.hasValidWaveformUrl()) {
       self.error('invalid waveform url: ' + self.waveformUrl());
-
-    } else {
-      self.info('will load', self.waveformUrl());
-      self.loadAudio(() => {
-        self.playWebAudio();
-      });
+      return;
     }
+
+    self.info('will play', self.waveformUrl(),
+      'at', self.segment.beginAt);
+    self.loadAudio(() => {
+      self.playWebAudio();
+    });
   }
 
   /**
@@ -140,9 +135,8 @@ export class SegmentAudio {
   loadAudio(onSuccess) {
     let self = this;
 
-    this.debug('loading buffer source...');
     new BinaryResource('GET', self.waveformUrl()).send((audioData) => {
-        self.audioContext.decodeAudioData(audioData, function (buffer) {
+        self.audioContext.decodeAudioData(audioData).then((buffer) => {
             let bufferSource = self.audioContext.createBufferSource();
             bufferSource.buffer = buffer;
             bufferSource.connect(self.audioContext.destination);
@@ -225,7 +219,7 @@ export class SegmentAudio {
    * @param args
    */
   log(level, message, ...args) {
-    console[level]('[player-segment-' + this.segment.offset + '] ' + message, ...args);
+    console[level]('    [segment@' + this.segment.offset + '] ' + message, ...args);
   }
 
 }
