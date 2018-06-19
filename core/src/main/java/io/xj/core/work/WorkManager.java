@@ -2,6 +2,10 @@
 package io.xj.core.work;
 
 import io.xj.core.model.work.Work;
+import io.xj.core.model.work.WorkState;
+import io.xj.core.model.work.WorkType;
+
+import com.google.common.collect.Lists;
 
 import net.greghaines.jesque.worker.JobFactory;
 import net.greghaines.jesque.worker.Worker;
@@ -178,4 +182,11 @@ public interface WorkManager {
    @throws Exception on failure
    */
   Collection<Work> reinstateAllWork() throws Exception;
+
+  /**
+   Determine if a job exists matching the specified criteria
+   @return true if match is found
+   */
+  Boolean isExistingWork(WorkState state, WorkType type, BigInteger targetId) throws Exception;
+
 }

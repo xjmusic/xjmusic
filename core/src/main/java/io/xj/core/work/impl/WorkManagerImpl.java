@@ -5,16 +5,16 @@ import io.xj.core.access.impl.Access;
 import io.xj.core.config.Config;
 import io.xj.core.dao.AudioDAO;
 import io.xj.core.dao.ChainDAO;
-import io.xj.core.dao.SequenceDAO;
 import io.xj.core.dao.PatternDAO;
 import io.xj.core.dao.PlatformMessageDAO;
+import io.xj.core.dao.SequenceDAO;
 import io.xj.core.model.audio.AudioState;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.entity.Entity;
 import io.xj.core.model.message.MessageType;
-import io.xj.core.model.sequence.SequenceState;
 import io.xj.core.model.pattern.PatternState;
 import io.xj.core.model.platform_message.PlatformMessage;
+import io.xj.core.model.sequence.SequenceState;
 import io.xj.core.model.work.Work;
 import io.xj.core.model.work.WorkState;
 import io.xj.core.model.work.WorkType;
@@ -22,7 +22,6 @@ import io.xj.core.persistence.redis.RedisDatabaseProvider;
 import io.xj.core.work.WorkManager;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 
 import net.greghaines.jesque.Job;
@@ -36,6 +35,7 @@ import org.slf4j.LoggerFactory;
 import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -66,6 +66,58 @@ public class WorkManagerImpl implements WorkManager {
     this.patternDAO = patternDAO;
     this.platformMessageDAO = platformMessageDAO;
     this.redisDatabaseProvider = redisDatabaseProvider;
+  }
+
+  /**
+   Compute the key for the Redis work queue
+
+   @return computed key
+   */
+  private static String computeRedisWorkQueueKey() {
+    return String.format("%s:queue:%s",
+      Config.dbRedisQueueNamespace(),
+      Config.workQueueName());
+  }
+
+  /**
+   build a Work from properties
+
+   @param type     of work
+   @param state    of work
+   @param targetId of work
+   @return new work
+   */
+  private static Work buildWork(WorkType type, WorkState state, BigInteger targetId) {
+    Work work = new Work()
+      .setState(state)
+      .setType(type)
+      .setTargetId(targetId);
+    work.setId(computeWorkId(type, targetId));
+    return work;
+  }
+
+  /**
+   Uses the work type ordinal as an integer prefix
+   to prevent collisions between types
+   otherwise determined by entity id
+
+   @param type of work
+   @param id   of target
+   @return type-unique work id
+   */
+  private static BigInteger computeWorkId(WorkType type, BigInteger id) {
+    return new BigInteger(String.format("%d0000%s", type.ordinal() + 1, id));
+  }
+
+  /**
+   Build a job for Jedis enqueing
+
+   @param type of job
+   @param args for job
+   @return new job
+   */
+  private static Job buildJob(WorkType type, Object... args) {
+    return new Job(type.toString(), args);
   }
 
   @Override
@@ -206,6 +258,18 @@ public class WorkManagerImpl implements WorkManager {
     return reinstatedWork;
   }
 
+  @Override
+  public Boolean isExistingWork(WorkState state, WorkType type, BigInteger targetId) throws Exception {
+    for (Work work : readAllWork()) {
+      if (Objects.equals(work.getState(), state) &&
+        Objects.equals(work.getType(), type) &&
+        Objects.equals(work.getTargetId(), targetId)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   /**
    Reinstate work
 
@@ -240,47 +304,6 @@ public class WorkManagerImpl implements WorkManager {
       log.error("Failed to instantiate {} and failed to report platform message {} {}", work, e, e1);
     }
     log.error("Failed to instantiate {}", work, e);
-  }
-
-  /**
-   Compute the key for the Redis work queue
-
-   @return computed key
-   */
-  private static String computeRedisWorkQueueKey() {
-    return String.format("%s:queue:%s",
-      Config.dbRedisQueueNamespace(),
-      Config.workQueueName());
-  }
-
-  /**
-   build a Work from properties
-
-   @param type     of work
-   @param state    of work
-   @param targetId of work
-   @return new work
-   */
-  private static Work buildWork(WorkType type, WorkState state, BigInteger targetId) {
-    Work work = new Work()
-      .setState(state)
-      .setType(type)
-      .setTargetId(targetId);
-    work.setId(computeWorkId(type, targetId));
-    return work;
-  }
-
-  /**
-   Uses the work type ordinal as an integer prefix
-   to prevent collisions between types
-   otherwise determined by entity id
-
-   @param type of work
-   @param id   of target
-   @return type-unique work id
-   */
-  private static BigInteger computeWorkId(WorkType type, BigInteger id) {
-    return new BigInteger(String.format("%d0000%s", type.ordinal() + 1, id));
   }
 
   /**
@@ -335,9 +358,9 @@ public class WorkManagerImpl implements WorkManager {
   /**
    Do a Job from one entity to another
 
-   @param workType     type of job
-   @param fromId       entity to source values and child entities from
-   @param toId         entity to clone entities onto
+   @param workType type of job
+   @param fromId   entity to source values and child entities from
+   @param toId     entity to clone entities onto
    */
   private void doJob(WorkType workType, BigInteger fromId, BigInteger toId) {
     log.info("Schedule targeted {} job, fromId:{}, toId:{}", workType, fromId, toId);
@@ -400,17 +423,6 @@ public class WorkManagerImpl implements WorkManager {
     Client client = getQueueClient();
     client.removeRecurringEnqueue(Config.workQueueName(), job);
     client.end();
-  }
-
-  /**
-   Build a job for Jedis enqueing
-
-   @param type of job
-   @param args for job
-   @return new job
-   */
-  private static Job buildJob(WorkType type, Object... args) {
-    return new Job(type.toString(), args);
   }
 
   /**

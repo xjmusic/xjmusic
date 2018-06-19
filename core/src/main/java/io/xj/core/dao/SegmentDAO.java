@@ -103,4 +103,13 @@ public interface SegmentDAO extends DAO<Segment> {
    */
   void updateState(Access access, BigInteger id, SegmentState state) throws Exception;
 
+  /**
+    Reverts a segment in Planned state, by destroying all its child entities. Only the segment messages remain, for purposes of debugging.
+   [#158610991] Engineer wants a Segment to be reverted, and re-queued for fabrication, in the event that such a Segment has just failed its fabrication process, in order to ensure Chain fabrication fault tolerance
+
+   @param access control
+   @param id of segment to revert
+   @throws Exception on failure
+   */
+  void revert(Access access, BigInteger id) throws Exception;
 }

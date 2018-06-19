@@ -49,6 +49,8 @@ import java.util.Iterator;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
@@ -382,6 +384,59 @@ public class WorkManagerImplTest {
     assertEquals(WorkType.ChainErase, result0.getType());
     assertEquals(WorkState.Queued, result0.getState());
   }
+
+  @Test
+  public void isExistingWork() throws Exception {
+    // mock Audio records in Erase state
+    Collection<Audio> testAudioErase = Lists.newArrayList();
+    testAudioErase.add(new Audio(BigInteger.valueOf(157L)).setState("Erase"));
+    when(audioDAO.readAllInState(any(), eq(AudioState.Erase))).thenReturn(testAudioErase);
+    // mock Sequence records in Erase state
+    Collection<Sequence> testSequenceErase = Lists.newArrayList();
+    testSequenceErase.add(new Sequence(BigInteger.valueOf(2965L)).setState("Erase"));
+    when(sequenceDAO.readAllInState(any(), eq(SequenceState.Erase))).thenReturn(testSequenceErase);
+    // mock Pattern records in Erase state
+    Collection<Pattern> testPatternErase = Lists.newArrayList();
+    testPatternErase.add(new Pattern(BigInteger.valueOf(587L)).setState("Erase"));
+    when(patternDAO.readAllInState(any(), eq(PatternState.Erase))).thenReturn(testPatternErase);
+    // mock Chain records in Erase state
+    Collection<Chain> testChainErase = Lists.newArrayList();
+    testChainErase.add(new Chain(BigInteger.valueOf(157L)).setState("ChainErase"));
+    testChainErase.add(new Chain(BigInteger.valueOf(8907L)).setState("ChainErase"));
+    when(chainDAO.readAllInState(any(), eq(ChainState.Erase))).thenReturn(testChainErase);
+    // mock Chain records in Fabricate state
+    Collection<Chain> testChainFabricate = Lists.newArrayList();
+    testChainFabricate.add(new Chain(BigInteger.valueOf(24L)).setState("ChainFabricate"));
+    testChainFabricate.add(new Chain(BigInteger.valueOf(3382L)).setState("ChainFabricate"));
+    when(chainDAO.readAllInState(any(), eq(ChainState.Fabricate))).thenReturn(testChainFabricate);
+    // mock direct query of Redis Jesque jobs
+    when(redisDatabaseProvider.getClient()).thenReturn(client);
+    Set<String> testQueueData = Sets.newConcurrentHashSet();
+    testQueueData.add("{\"class\":\"ChainFabricate\",\"args\":[\"24\"],\"vars\":null}");
+    testQueueData.add("{\"class\":\"ChainFabricate\",\"args\":[\"3382\"],\"vars\":null}");
+    testQueueData.add("{\"class\":\"ChainErase\",\"args\":[\"157\"],\"vars\":null}");
+    testQueueData.add("{\"class\":\"AudioErase\",\"args\":[\"157\"],\"vars\":null}");
+    testQueueData.add("{\"class\":\"SequenceErase\",\"args\":[\"2965\"],\"vars\":null}");
+    testQueueData.add("{\"class\":\"PatternErase\",\"args\":[\"587\"],\"vars\":null}");
+    when(client.zrange("xj:queue:xj_test", 0L, -1L)).thenReturn(testQueueData);
+
+    // proof is in the assertions
+    assertTrue(subject.isExistingWork(WorkState.Queued, WorkType.ChainFabricate, BigInteger.valueOf(3382L)));
+    assertTrue(subject.isExistingWork(WorkState.Queued, WorkType.ChainErase, BigInteger.valueOf(157L)));
+    assertTrue(subject.isExistingWork(WorkState.Queued, WorkType.ChainFabricate, BigInteger.valueOf(24L)));
+    assertTrue(subject.isExistingWork(WorkState.Queued, WorkType.SequenceErase, BigInteger.valueOf(2965L)));
+    assertTrue(subject.isExistingWork(WorkState.Expected, WorkType.ChainErase, BigInteger.valueOf(8907L)));
+    assertTrue(subject.isExistingWork(WorkState.Queued, WorkType.AudioErase, BigInteger.valueOf(157L)));
+    assertTrue(subject.isExistingWork(WorkState.Queued, WorkType.PatternErase, BigInteger.valueOf(587L)));
+    assertFalse(subject.isExistingWork(WorkState.Expected, WorkType.ChainFabricate, BigInteger.valueOf(3382L)));
+    assertFalse(subject.isExistingWork(WorkState.Queued, WorkType.SequenceErase, BigInteger.valueOf(157L)));
+    assertFalse(subject.isExistingWork(WorkState.Queued, WorkType.ChainFabricate, BigInteger.valueOf(27L)));
+    assertFalse(subject.isExistingWork(WorkState.Expected, WorkType.SequenceErase, BigInteger.valueOf(2965L)));
+    assertFalse(subject.isExistingWork(WorkState.Queued, WorkType.ChainErase, BigInteger.valueOf(8907L)));
+    assertFalse(subject.isExistingWork(WorkState.Queued, WorkType.AudioErase, BigInteger.valueOf(1507L)));
+    assertFalse(subject.isExistingWork(WorkState.Queued, WorkType.PatternErase, BigInteger.valueOf(5087L)));
+  }
+
 
   private Injector createInjector() {
     return Guice.createInjector(Modules.override(new CoreModule()).with(

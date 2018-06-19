@@ -1,6 +1,9 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.dao.impl;
 
+import com.google.api.client.util.Maps;
+import com.google.common.collect.ImmutableMap;
+import com.google.inject.Inject;
 import io.xj.core.access.impl.Access;
 import io.xj.core.config.Config;
 import io.xj.core.config.Exposure;
@@ -15,27 +18,16 @@ import io.xj.core.model.segment.SegmentState;
 import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import io.xj.core.persistence.sql.impl.SQLConnection;
 import io.xj.core.tables.records.SegmentRecord;
-import io.xj.core.transport.CSV;
-
 import org.jooq.DSLContext;
 import org.jooq.Field;
 import org.jooq.UpdateSetFirstStep;
 import org.jooq.types.ULong;
 
-import com.google.api.client.util.Maps;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
-import com.google.inject.Inject;
-
 import javax.annotation.Nullable;
 import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static io.xj.core.Tables.SEGMENT_MEME;
@@ -345,6 +337,54 @@ public class SegmentDAOImpl extends DAOImpl implements SegmentDAO {
   }
 
   /**
+   Reverts a segment in Planned state, by destroying all its child entities. Only the segment messages remain, for purposes of debugging.
+   [#158610991] Engineer wants a Segment to be reverted, and re-queued for fabrication, in the event that such a Segment has just failed its fabrication process, in order to ensure Chain fabrication fault tolerance
+
+   @param db     context
+   @param access control
+   @param segmentId     of record
+   @throws BusinessException if a Business Rule is violated
+   */
+  private static void revert(DSLContext db, Access access, ULong segmentId) throws Exception {
+    requireTopLevel(access);
+
+    // Segment
+    SegmentRecord segment = db.selectFrom(SEGMENT)
+      .where(SEGMENT.ID.eq(segmentId))
+      .fetchOne();
+    requireExists("Segment #" + segmentId, segment);
+
+    // Read all choice id
+    List<ULong> choiceIds = db.select(CHOICE.ID).from(CHOICE)
+      .where(CHOICE.SEGMENT_ID.eq(segmentId)).fetch().stream().map(record -> record.get(CHOICE.ID)).collect(Collectors.toList());
+
+    // Read all arrangement id
+    List<ULong> arrangementIds = db.select(ARRANGEMENT.ID).from(ARRANGEMENT)
+      .where(ARRANGEMENT.CHOICE_ID.in(choiceIds)).fetch().stream().map(record -> record.get(ARRANGEMENT.ID)).collect(Collectors.toList());
+
+    // Delete Arrangements
+    db.deleteFrom(ARRANGEMENT)
+      .where(ARRANGEMENT.ID.in(arrangementIds))
+      .execute();
+
+    // Delete Choices
+    db.deleteFrom(CHOICE)
+      .where(CHOICE.SEGMENT_ID.eq(segmentId)).execute();
+
+    // Delete Segment Chords
+    db.deleteFrom(SEGMENT_CHORD)
+      .where(SEGMENT_CHORD.SEGMENT_ID.eq(segmentId))
+      .execute();
+
+    // Delete Segment Memes
+    db.deleteFrom(SEGMENT_MEME)
+      .where(SEGMENT_MEME.SEGMENT_ID.eq(segmentId))
+      .execute();
+
+    // Note: DON'T delete Segment Messages
+  }
+
+  /**
    Update a record
 
    @param db          context
@@ -364,36 +404,7 @@ public class SegmentDAOImpl extends DAOImpl implements SegmentDAO {
     requireExists("Segment #" + id, segmentRecord);
 
     // logic based on existing Segment State
-    switch (SegmentState.validate(segmentRecord.getState())) {
-
-      case Planned:
-        onlyAllowTransitions(toState, SegmentState.Planned, SegmentState.Crafting);
-        break;
-
-      case Crafting:
-        onlyAllowTransitions(toState, SegmentState.Crafting, SegmentState.Crafted, SegmentState.Dubbing, SegmentState.Failed);
-        break;
-
-      case Crafted:
-        onlyAllowTransitions(toState, SegmentState.Crafted, SegmentState.Dubbing);
-        break;
-
-      case Dubbing:
-        onlyAllowTransitions(toState, SegmentState.Dubbing, SegmentState.Dubbed, SegmentState.Failed);
-        break;
-
-      case Dubbed:
-        onlyAllowTransitions(toState, SegmentState.Dubbed);
-        break;
-
-      case Failed:
-        onlyAllowTransitions(toState, SegmentState.Failed);
-        break;
-
-      default:
-        onlyAllowTransitions(toState, SegmentState.Planned);
-        break;
-    }
+    SegmentState.protectTransition(SegmentState.validate(segmentRecord.getState()), toState);
 
     // [#128] cannot change chainId of a segment
     Object updateChainId = fieldValues.get(SEGMENT.CHAIN_ID);
@@ -413,25 +424,6 @@ public class SegmentDAOImpl extends DAOImpl implements SegmentDAO {
     if (0 == rowsAffected)
       throw new BusinessException("No records updated.");
 
-  }
-
-  /**
-   Require state is in an array of states
-
-   @param toState       to check
-   @param allowedStates required to be in
-   @throws CancelException if not in required states
-   */
-  private static void onlyAllowTransitions(SegmentState toState, SegmentState... allowedStates) throws CancelException {
-    List<String> allowedStateNames = Lists.newArrayList();
-    for (SegmentState search : allowedStates) {
-      allowedStateNames.add(search.toString());
-      if (Objects.equals(search, toState)) {
-        return;
-      }
-    }
-    throw new CancelException(String.format("transition to %s not in allowed (%s)",
-      toState, CSV.join(allowedStateNames)));
   }
 
   /**
@@ -573,6 +565,17 @@ public class SegmentDAOImpl extends DAOImpl implements SegmentDAO {
     SQLConnection tx = dbProvider.getConnection();
     try {
       updateState(tx.getContext(), access, ULong.valueOf(id), state);
+      tx.success();
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public void revert(Access access, BigInteger id) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      revert(tx.getContext(), access, ULong.valueOf(id));
       tx.success();
     } catch (Exception e) {
       throw tx.failure(e);

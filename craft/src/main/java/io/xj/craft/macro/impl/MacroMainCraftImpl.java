@@ -1,18 +1,18 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.craft.macro.impl;
 
-import io.xj.craft.basis.Basis;
-import io.xj.core.exception.BusinessException;
+import io.xj.core.exception.CraftException;
 import io.xj.core.model.choice.Choice;
 import io.xj.core.model.entity.EntityRank;
+import io.xj.core.model.pattern.Pattern;
+import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.segment_chord.SegmentChord;
 import io.xj.core.model.segment_meme.SegmentMeme;
 import io.xj.core.model.sequence.Sequence;
 import io.xj.core.model.sequence.SequenceType;
-import io.xj.core.model.pattern.Pattern;
-import io.xj.core.model.pattern.PatternType;
 import io.xj.core.util.Chance;
 import io.xj.core.util.Value;
+import io.xj.craft.basis.Basis;
 import io.xj.craft.macro.MacroMainCraft;
 import io.xj.music.Key;
 
@@ -50,12 +50,12 @@ public class MacroMainCraftImpl implements MacroMainCraft {
   @Inject
   public MacroMainCraftImpl(
     @Assisted("basis") Basis basis
-  /*-*/) {
+    /*-*/) {
     this.basis = basis;
   }
 
   @Override
-  public void doWork() throws BusinessException {
+  public void doWork() throws Exception {
     try {
       craftMacro();
       craftMain();
@@ -69,12 +69,12 @@ public class MacroMainCraftImpl implements MacroMainCraft {
       craftChords();
       report();
 
-    } catch (BusinessException e) {
+    } catch (CraftException e) {
       throw e;
     } catch (Exception e) {
-      throw new BusinessException(
+      throw new CraftException(
         String.format("Failed to do %s-type MacroMainCraft for segment #%s",
-          basis.type(), basis.segment().getId().toString()), e);
+          basis.type(), basis.segment().getId()), e);
     }
   }
 
@@ -180,7 +180,7 @@ public class MacroMainCraftImpl implements MacroMainCraft {
         case NextMain:
           Choice previousChoice = basis.previousMacroChoice();
           if (Objects.isNull(previousChoice))
-            throw new BusinessException("No macro-type sequence chosen in previous segment!");
+            throw new CraftException(String.format("No macro-type sequence chosen in segment previous to segment #%s!", basis.segment().getId()));
           _macroSequence = basis.ingest().sequence(previousChoice.getSequenceId());
           break;
 
@@ -202,7 +202,7 @@ public class MacroMainCraftImpl implements MacroMainCraft {
         case Continue:
           Choice previousChoice = basis.previousMainChoice();
           if (Objects.isNull(previousChoice))
-            throw new BusinessException("No main-type sequence chosen in previous segment!");
+            throw new CraftException(String.format("No main-type sequence chosen in segment previous to segment #%s!", basis.segment().getId()));
           _mainSequence = basis.ingest().sequence(previousChoice.getSequenceId());
           break;
 
@@ -237,7 +237,7 @@ public class MacroMainCraftImpl implements MacroMainCraft {
           basis.previousMacroChoice().getTranspose());
 
       default:
-        throw new BusinessException("unable to determine macro-type sequence transposition");
+        throw new CraftException(String.format("unable to determine macro-type sequence transposition for segment #%s!", basis.segment().getId()));
     }
   }
 
@@ -318,7 +318,8 @@ public class MacroMainCraftImpl implements MacroMainCraft {
     Pattern pattern = basis.ingest().patternAtOffset(macroSequence().getId(), macroPatternOffset(), PatternType.Macro);
 
     if (Objects.isNull(pattern))
-      throw new BusinessException("macro-pattern does not exist!");
+      throw new CraftException(String.format("failed to determine at least one candidate %s-type pattern in sequence #%s chosen for segment #%s!",
+        PatternType.Macro, macroSequence().getId(), basis.segment().getId()));
 
     return pattern;
   }
@@ -333,7 +334,8 @@ public class MacroMainCraftImpl implements MacroMainCraft {
     Pattern pattern = basis.ingest().patternAtOffset(mainSequence().getId(), mainPatternOffset(), PatternType.Main);
 
     if (Objects.isNull(pattern))
-      throw new BusinessException("main-pattern does not exist!");
+      throw new CraftException(String.format("failed to determine at least one candidate %s-type pattern in sequence #%s chosen for segment #%s!",
+        PatternType.Main, mainSequence().getId(), basis.segment().getId()));
 
     return pattern;
   }
@@ -375,7 +377,7 @@ public class MacroMainCraftImpl implements MacroMainCraft {
     if (Objects.nonNull(sequence))
       return sequence;
     else
-      throw new BusinessException("Found no macro-type sequence bound to Chain!");
+      throw new CraftException("Found no macro-type sequence bound to Chain!");
   }
 
   /**
@@ -415,7 +417,7 @@ public class MacroMainCraftImpl implements MacroMainCraft {
     if (Objects.nonNull(sequence))
       return sequence;
     else
-      throw new BusinessException("Found no main-type sequence bound to Chain!");
+      throw new CraftException("Found no main-type sequence bound to Chain!");
   }
 
   /**
@@ -526,7 +528,7 @@ public class MacroMainCraftImpl implements MacroMainCraft {
    Segment Length Time = Segment Tempo (time per Beat) * Segment Length (# Beats)
 
    @return end timestamp
-   @throws BusinessException on failure
+   @throws CraftException on failure
    */
   private Timestamp segmentEndTimestamp() throws Exception {
     return Timestamp.from(basis.segmentBeginAt().toInstant().plusNanos(segmentLengthNanos()));

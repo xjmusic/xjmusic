@@ -58,6 +58,7 @@ public interface Config {
   String DEFAULT_TEMP_FILE_PATH_PREFIX_CREATE_NAME = "temp-file-name";
   String DEFAULT_TEMP_FILE_PATH_PREFIX_CREATE_SUFFIX = ".tmp";
   String DEFAULT_TUNING_ROOT_NOTE = "A4";
+  Integer DEFAULT_SEGMENT_REQUEUE_SECONDS = 1;
 
   static String authGoogleId() throws ConfigException {
     return get("auth.google.id");
@@ -275,20 +276,6 @@ public interface Config {
    */
   static String logAccessFilename() {
     return getOrDefault("log.access.filename", getTempFilePathPrefix() + DEFAULT_LOG_ACCESS_FILE_NAME_SUFFIX);
-  }
-
-  /**
-   @return Access log file max size
-   */
-  static Integer logAccessEntitiesMaxsize() {
-    return getIntOrDefault("log.access.entities.maxsize", DEFAULT_LOG_ACCESS_ENTITIES_MAX_SIZE);
-  }
-
-  /**
-   @return Should access log all entities?
-   */
-  static Boolean isLogAccessEntitiesAll() {
-    return isOrDefault("log.access.entities.all", false);
   }
 
   /**
@@ -676,5 +663,9 @@ public interface Config {
    */
   static Integer generationSpliceSafetyMargin() {
     return getIntOrDefault("generation.splice.safety.margin", DEFAULT_GENERATION_SPLICE_SAFETY_MARGIN);
+  }
+
+  static Integer segmentRequeueSeconds() {
+    return getIntOrDefault("segment.requeue.seconds", DEFAULT_SEGMENT_REQUEUE_SECONDS);
   }
 }

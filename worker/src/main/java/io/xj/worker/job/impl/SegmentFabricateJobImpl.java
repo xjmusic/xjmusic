@@ -1,25 +1,24 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.worker.job.impl;
 
+import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
 import io.xj.core.access.impl.Access;
-import io.xj.core.dao.SegmentDAO;
-import io.xj.core.dao.SegmentMessageDAO;
+import io.xj.core.config.Config;
+import io.xj.core.dao.*;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.exception.ConfigException;
+import io.xj.core.model.message.MessageType;
 import io.xj.core.model.segment.Segment;
 import io.xj.core.model.segment.SegmentState;
 import io.xj.core.model.segment_message.SegmentMessage;
-import io.xj.core.model.message.MessageType;
 import io.xj.core.util.Text;
+import io.xj.core.work.WorkManager;
+import io.xj.craft.CraftFactory;
 import io.xj.craft.basis.Basis;
 import io.xj.craft.basis.BasisFactory;
-import io.xj.craft.CraftFactory;
 import io.xj.dub.DubFactory;
 import io.xj.worker.job.SegmentFabricateJob;
-
-import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,6 +34,7 @@ public class SegmentFabricateJobImpl implements SegmentFabricateJob {
   private final BasisFactory basisFactory;
   private final CraftFactory craftFactory;
   private final DubFactory dubFactory;
+  private final WorkManager workManager;
   private Basis basis;
   private Segment segment;
 
@@ -45,7 +45,8 @@ public class SegmentFabricateJobImpl implements SegmentFabricateJob {
     BasisFactory basisFactory,
     SegmentDAO segmentDAO,
     SegmentMessageDAO segmentMessageDAO,
-    DubFactory dubFactory
+    DubFactory dubFactory,
+    WorkManager workManager
   ) {
     this.entityId = entityId;
     this.craftFactory = craftFactory;
@@ -53,6 +54,7 @@ public class SegmentFabricateJobImpl implements SegmentFabricateJob {
     this.segmentDAO = segmentDAO;
     this.segmentMessageDAO = segmentMessageDAO;
     this.dubFactory = dubFactory;
+    this.workManager = workManager;
   }
 
   /**
@@ -83,6 +85,7 @@ public class SegmentFabricateJobImpl implements SegmentFabricateJob {
       doCraftWork();
     } catch (Exception e) {
       didFailWhile("doing Craft work", e);
+      revertAndRequeue();
       return;
     }
 
@@ -97,6 +100,19 @@ public class SegmentFabricateJobImpl implements SegmentFabricateJob {
       finishWork();
     } catch (Exception e) {
       didFailWhile("finishing work", e);
+    }
+  }
+
+  /**
+   [#158610991] Engineer wants a Segment to be reverted, and re-queued for Craft, in the event that such a Segment has just failed its Craft process, in order to ensure Chain fabrication fault tolerance
+   */
+  private void revertAndRequeue() {
+    try {
+      updateSegmentState(basis.segment().getState(), SegmentState.Planned);
+      segmentDAO.revert(Access.internal(), basis.segment().getId());
+      workManager.scheduleSegmentFabricate(Config.segmentRequeueSeconds(), basis.segment().getId());
+    } catch (Exception e) {
+      didFailWhile("reverting and re-queueing segment", e);
     }
   }
 
@@ -140,8 +156,8 @@ public class SegmentFabricateJobImpl implements SegmentFabricateJob {
    @param e       exception (optional)
    */
   private void didFailWhile(String message, Exception e) {
-    createSegmentMessage(MessageType.Error, String.format("Failed while %s for Segment #%s:\n\n%s\n%s", message, entityId, e.getMessage(), Text.formatStackTrace(e)));
-    log.error("Failed while {} for Segment #{}", message, entityId, e);
+    createSegmentMessage(MessageType.Error, String.format("Failed while %s for Segment #%s:\n\n%s", message, entityId, e.getMessage()));
+    log.error("Failed while {} for Segment #{}: {}", message, entityId, e.getMessage());
   }
 
   /**

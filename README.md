@@ -553,6 +553,12 @@ Ops engineers may prefer to use the [The Elastic Beanstalk Command Line Interfac
 
 # Developer Setup Gotchas
 
+## IntelliJ IDEA
+
+Here's the official XJ Music Inc copyright Velocity template:
+
+    Copyright (c) 1999-${today.year}, XJ Music Inc. (https://xj.io) All Rights Reserved.
+
 ## GNU/Linux
 
 ### MySQL run as non-root user

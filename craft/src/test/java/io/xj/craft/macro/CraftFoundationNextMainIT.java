@@ -4,27 +4,31 @@ package io.xj.craft.macro;
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.ChoiceDAO;
+import io.xj.core.dao.PatternChordDAO;
+import io.xj.core.dao.PatternDAO;
+import io.xj.core.dao.PatternMemeDAO;
 import io.xj.core.dao.SegmentChordDAO;
 import io.xj.core.dao.SegmentDAO;
 import io.xj.core.dao.SegmentMemeDAO;
+import io.xj.core.exception.BusinessException;
 import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
 import io.xj.core.model.choice.Choice;
+import io.xj.core.model.pattern.PatternState;
+import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.segment.Segment;
 import io.xj.core.model.segment.SegmentState;
 import io.xj.core.model.segment_chord.SegmentChord;
 import io.xj.core.model.segment_meme.SegmentMeme;
 import io.xj.core.model.sequence.SequenceState;
 import io.xj.core.model.sequence.SequenceType;
-import io.xj.core.model.pattern.PatternState;
-import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.testing.Testing;
-import io.xj.craft.basis.Basis;
-import io.xj.craft.basis.BasisFactory;
 import io.xj.craft.CraftFactory;
 import io.xj.craft.CraftModule;
+import io.xj.craft.basis.Basis;
+import io.xj.craft.basis.BasisFactory;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Guice;
@@ -154,8 +158,6 @@ public class CraftFoundationNextMainIT {
 
   @After
   public void tearDown() throws Exception {
-    craftFactory = null;
-    basisFactory = null;
   }
 
   @Test
@@ -204,6 +206,29 @@ public class CraftFoundationNextMainIT {
     assertEquals(Integer.valueOf(0), resultMainChoice.getTranspose());
     assertEquals(BigInteger.valueOf(0), resultMainChoice.getPatternOffset());
 
+  }
+
+  /**
+   [#158610991] Engineer wants a Segment to be reverted, and re-queued for Craft, in the event that such a Segment has just failed its Craft process, in order to ensure Chain fabrication fault tolerance
+   */
+  @Test
+  public void craftFoundationNextMain_revertsAndRequeuesOnFailure() throws Exception {
+    injector.getInstance(PatternMemeDAO.class).destroy(Access.internal(), BigInteger.valueOf(46));
+    injector.getInstance(PatternMemeDAO.class).destroy(Access.internal(), BigInteger.valueOf(47));
+    injector.getInstance(PatternMemeDAO.class).destroy(Access.internal(), BigInteger.valueOf(149));
+    injector.getInstance(PatternChordDAO.class).destroy(Access.internal(), BigInteger.valueOf(412));
+    injector.getInstance(PatternChordDAO.class).destroy(Access.internal(), BigInteger.valueOf(414));
+    injector.getInstance(PatternChordDAO.class).destroy(Access.internal(), BigInteger.valueOf(416));
+    injector.getInstance(PatternChordDAO.class).destroy(Access.internal(), BigInteger.valueOf(418));
+    injector.getInstance(PatternDAO.class).destroy(Access.internal(), BigInteger.valueOf(415));
+    injector.getInstance(PatternDAO.class).destroy(Access.internal(), BigInteger.valueOf(416));
+
+    Basis basis = basisFactory.createBasis(segment4);
+
+    failure.expect(BusinessException.class);
+    failure.expectMessage("main-pattern does not exist");
+
+    craftFactory.macroMain(basis).doWork();
   }
 
 }

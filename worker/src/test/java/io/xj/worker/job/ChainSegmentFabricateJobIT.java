@@ -4,17 +4,23 @@ package io.xj.worker.job;
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
 import io.xj.core.app.App;
-import io.xj.core.dao.SegmentDAO;
+import io.xj.core.dao.*;
 import io.xj.core.external.amazon.AmazonProvider;
 import io.xj.core.integration.IntegrationTestEntity;
+import io.xj.core.model.chain.Chain;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
-import io.xj.core.model.segment.Segment;
-import io.xj.core.model.sequence.SequenceState;
-import io.xj.core.model.sequence.SequenceType;
+import io.xj.core.model.message.MessageType;
 import io.xj.core.model.pattern.PatternState;
 import io.xj.core.model.pattern.PatternType;
+import io.xj.core.model.segment.Segment;
+import io.xj.core.model.segment.SegmentState;
+import io.xj.core.model.segment_message.SegmentMessage;
+import io.xj.core.model.sequence.SequenceState;
+import io.xj.core.model.sequence.SequenceType;
 import io.xj.core.model.user_role.UserRoleType;
+import io.xj.core.model.work.WorkState;
+import io.xj.core.model.work.WorkType;
 import io.xj.core.util.TimestampUTC;
 import io.xj.craft.CraftModule;
 import io.xj.dub.DubModule;
@@ -39,6 +45,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.math.BigInteger;
 import java.util.Collection;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -47,12 +55,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ChainSegmentFabricateJobsIT {
-  @Rule public ExpectedException failure = ExpectedException.none();
-  private Injector injector;
-  @Mock AmazonProvider amazonProvider;
-  private static final int TEST_DURATION_SECONDS = 15;
+public class ChainSegmentFabricateJobIT {
   private static final int MILLIS_PER_SECOND = 1000;
+  @Rule public ExpectedException failure = ExpectedException.none();
+  @Mock AmazonProvider amazonProvider;
+  private Injector injector;
   private App app;
 
   @Before
@@ -198,7 +205,7 @@ public class ChainSegmentFabricateJobsIT {
   }
 
   @Test
-  public void runWorker() throws Exception {
+  public void fabricatesSegment() throws Exception {
     when(amazonProvider.generateKey("chain-1-segment", "mp3"))
       .thenReturn("chain-1-segment-12345.mp3");
 
@@ -207,7 +214,7 @@ public class ChainSegmentFabricateJobsIT {
     app.getWorkManager().startChainFabrication(BigInteger.valueOf(1));
 
     // wait for work, stop chain fabrication, stop app
-    Thread.sleep(TEST_DURATION_SECONDS * MILLIS_PER_SECOND);
+    Thread.sleep(15 * MILLIS_PER_SECOND);
     app.getWorkManager().stopChainFabrication(BigInteger.valueOf(1));
     app.stop();
 
@@ -216,6 +223,76 @@ public class ChainSegmentFabricateJobsIT {
     verify(amazonProvider, atLeast(assertShippedSegmentsMinimum)).putS3Object(eq("/tmp/chain-1-segment-12345.mp3"), eq("xj-segment-test"), any());
     Collection<Segment> result = injector.getInstance(SegmentDAO.class).readAll(Access.internal(), ImmutableList.of(BigInteger.valueOf(1)));
     assertTrue(assertShippedSegmentsMinimum < result.size());
+  }
+
+  /**
+   [#150279582] Engineer expects Worker to tolerate and report malformed sequences or instruments
+   [#158610991] Engineer wants a Segment to be reverted, and re-queued for Craft, in the event that such a Segment has just failed its Craft process, in order to ensure Chain fabrication fault tolerance
+   */
+  @Test
+  public void fabricatesSegment_revertsAndRequeuesOnFailure() throws Exception {
+    injector.getInstance(PatternDAO.class).destroy(Access.internal(), BigInteger.valueOf(15));
+    injector.getInstance(PatternMemeDAO.class).destroy(Access.internal(), BigInteger.valueOf(6));
+    injector.getInstance(PatternChordDAO.class).destroy(Access.internal(), BigInteger.valueOf(12));
+    injector.getInstance(PatternChordDAO.class).destroy(Access.internal(), BigInteger.valueOf(14));
+    injector.getInstance(PatternDAO.class).destroy(Access.internal(), BigInteger.valueOf(16));
+    injector.getInstance(PatternMemeDAO.class).destroy(Access.internal(), BigInteger.valueOf(7));
+    injector.getInstance(PatternChordDAO.class).destroy(Access.internal(), BigInteger.valueOf(16));
+    injector.getInstance(PatternChordDAO.class).destroy(Access.internal(), BigInteger.valueOf(18));
+    injector.getInstance(PatternMemeDAO.class).destroy(Access.internal(), BigInteger.valueOf(46));
+    injector.getInstance(PatternMemeDAO.class).destroy(Access.internal(), BigInteger.valueOf(47));
+    injector.getInstance(PatternMemeDAO.class).destroy(Access.internal(), BigInteger.valueOf(149));
+    injector.getInstance(PatternChordDAO.class).destroy(Access.internal(), BigInteger.valueOf(412));
+    injector.getInstance(PatternChordDAO.class).destroy(Access.internal(), BigInteger.valueOf(414));
+    injector.getInstance(PatternChordDAO.class).destroy(Access.internal(), BigInteger.valueOf(416));
+    injector.getInstance(PatternChordDAO.class).destroy(Access.internal(), BigInteger.valueOf(418));
+    injector.getInstance(PatternDAO.class).destroy(Access.internal(), BigInteger.valueOf(415));
+    injector.getInstance(PatternDAO.class).destroy(Access.internal(), BigInteger.valueOf(416));
+
+    // this segment is already in planned state-- it will end up reverted a.k.a. back in planned state
+    IntegrationTestEntity.insertSegment_Planned(101, 1, 0, TimestampUTC.nowMinusSeconds(1000));
+
+    // This ensures that the re-queued work does not get executed before the end of the test
+    System.setProperty("segment.requeue.seconds", "666");
+
+    // Start app, send individual chain segment fabrication message to queue
+    app.start();
+    app.getWorkManager().scheduleSegmentFabricate(1, BigInteger.valueOf(101));
+
+    // wait for work, stop chain fabrication, stop app
+    Thread.sleep(5 * MILLIS_PER_SECOND);
+    app.getWorkManager().stopChainFabrication(BigInteger.valueOf(1));
+    app.stop();
+
+    // verify that the chain is still in fabricate state
+    Chain resultChain = injector.getInstance(ChainDAO.class).readOne(Access.internal(), BigInteger.valueOf(1));
+    assertNotNull(resultChain);
+    assertEquals(ChainState.Fabricate, resultChain.getState());
+
+    // verify that the segment is in planned state
+    Segment resultSegment = injector.getInstance(SegmentDAO.class).readOne(Access.internal(), BigInteger.valueOf(101));
+    assertNotNull(resultSegment);
+    assertEquals(SegmentState.Planned, resultSegment.getState());
+
+    // verify that a follow-up segment fabricate job has been queued
+    assertTrue(app.getWorkManager().isExistingWork(WorkState.Queued, WorkType.SegmentFabricate, BigInteger.valueOf(101)));
+
+    // verify that an error message has been created and attached to this segment, informing engineers of the problem
+    Collection<SegmentMessage> resultSegmentMessages = injector.getInstance(SegmentMessageDAO.class).readAll(Access.internal(), ImmutableList.of(BigInteger.valueOf(101)));
+    assertEquals(1, resultSegmentMessages.size());
+    assertEquals(MessageType.Error, resultSegmentMessages.iterator().next().getType());
+    String resultErrorBody = resultSegmentMessages.iterator().next().getBody();
+    assertTrue(resultErrorBody.contains("Failed while doing Craft work"));
+    assertTrue(resultErrorBody.contains("sequence #")); // might be one of multiple possibilities
+    assertTrue(resultErrorBody.contains("segment #101"));
+
+    // verify that the segment has no other child entities (besides messages)
+    assertEquals(0, injector.getInstance(SegmentChordDAO.class).readAll(Access.internal(), ImmutableList.of(BigInteger.valueOf(101))).size());
+    assertEquals(0, injector.getInstance(SegmentMemeDAO.class).readAll(Access.internal(), ImmutableList.of(BigInteger.valueOf(101))).size());
+    assertEquals(0, injector.getInstance(ChoiceDAO.class).readAll(Access.internal(), ImmutableList.of(BigInteger.valueOf(101))).size());
+
+    // Cleanup
+    System.clearProperty("segment.requeue.seconds");
   }
 
 }

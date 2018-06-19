@@ -90,7 +90,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install mysql-cl
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install nginx
 EXPOSE 80
 
-# Nginx config (parity with AWS Elastic Beanstalk deployment)
+# Nginx configs and log folder (parity with AWS Elastic Beanstalk deployment)
 ADD \
   .docker/nginx/nginx.conf \
   /etc/nginx/nginx.conf
