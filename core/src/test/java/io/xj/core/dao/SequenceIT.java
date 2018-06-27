@@ -102,7 +102,6 @@ public class SequenceIT {
 
   @After
   public void tearDown() throws Exception {
-    testDAO = null;
   }
 
   @Test
@@ -294,7 +293,7 @@ public class SequenceIT {
     JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1L))));
 
     assertNotNull(result);
-    assertEquals(2L, (long) result.length());
+    assertEquals(2L, result.length());
     JSONObject result1 = (JSONObject) result.get(0);
     assertEquals("fonds", result1.get("name"));
     JSONObject result2 = (JSONObject) result.get(1);
@@ -312,7 +311,7 @@ public class SequenceIT {
     JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1L))));
 
     assertNotNull(result);
-    assertEquals(2L, (long) result.length());
+    assertEquals(2L, result.length());
     JSONObject result2 = (JSONObject) result.get(0);
     assertEquals("fonds", result2.get("name"));
     JSONObject result1 = (JSONObject) result.get(1);
@@ -326,7 +325,7 @@ public class SequenceIT {
 
     Collection<Sequence> result = testDAO.readAllBoundToChain(Access.internal(), BigInteger.valueOf(1L));
 
-    assertEquals(1L, (long) result.size());
+    assertEquals(1L, result.size());
     Sequence result0 = result.iterator().next();
     assertEquals("fonds", result0.getName());
   }
@@ -341,7 +340,7 @@ public class SequenceIT {
     JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1L))));
 
     assertNotNull(result);
-    assertEquals(0L, (long) result.length());
+    assertEquals(0L, result.length());
   }
 
   @Test(expected = BusinessException.class)

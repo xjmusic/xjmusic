@@ -137,8 +137,8 @@ public class SequenceIndexResource extends HubResource {
         Access.fromContext(crc),
         data.getSequence());
 
-      if (Objects.nonNull(generateLibrarySupersequence))
-        log.info("Generated Library Supersequence: {}",
+      if (Objects.nonNull(generateLibrarySupersequence) && generateLibrarySupersequence)
+        log.info("Generated Library Super-sequence: {}",
           generationFactory.librarySupersequence(created,
             ingestFactory.evaluate(Access.fromContext(crc),
               ImmutableList.of(new Library(created.getLibraryId()))
