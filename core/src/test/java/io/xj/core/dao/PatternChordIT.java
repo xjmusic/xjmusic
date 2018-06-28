@@ -30,9 +30,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
-// future test: permissions of different users to readMany vs. create vs. update or delete pattern chords
+// future test: permissions of different users to readMany vs. create vs. update or delete pattern entities
 
-// future test readAllSequences() which supports [#154234716] library ingest requires enumerating all possible sub-sequences of chords for any pattern
+// future test readAllSequences() which supports [#154234716] library ingest requires enumerating all possible sub-sequences of entities for any pattern
 
 public class PatternChordIT {
   private final Injector injector = Guice.createInjector(new CoreModule());
@@ -57,7 +57,7 @@ public class PatternChordIT {
     IntegrationTestEntity.insertPattern(1, 1, PatternType.Main, PatternState.Published, 0, 16, "Ants", 0.583, "D minor", 120.0);
     IntegrationTestEntity.insertPattern(2, 1, PatternType.Main, PatternState.Published, 1, 16, "Caterpillars", 0.583, "E major", 140.0);
 
-    // Pattern "Caterpillars" has chords "C minor" and "D major"
+    // Pattern "Caterpillars" has entities "C minor" and "D major"
     IntegrationTestEntity.insertPatternChord(1, 2, 0, "C minor");
     IntegrationTestEntity.insertPatternChord(2, 2, 4, "D major");
 

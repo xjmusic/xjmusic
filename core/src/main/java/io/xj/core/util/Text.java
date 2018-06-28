@@ -1,15 +1,15 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.util;
 
-import io.xj.core.config.Config;
-
+import com.google.common.collect.ConcurrentHashMultiset;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Multiset;
+import io.xj.core.config.Config;
+import io.xj.core.model.entity.Entity;
 
 import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
+import java.util.*;
 import java.util.regex.Pattern;
 
 public interface Text {
@@ -283,5 +283,31 @@ public interface Text {
       valuesBuilder.add(value.toString());
     }
     return valuesBuilder.build();
+  }
+
+  /**
+   Format a comma-separated list of entity counts from a collection of entities
+
+   @param entities for format a comma-separated list of the # occurences of each class
+   @return comma-separated list in text
+   */
+  static <N extends Entity> String entityHistogram(Collection<N> entities) {
+    Multiset<String> entityHistogram = ConcurrentHashMultiset.create();
+    entities.forEach((N entity) -> entityHistogram.add(entity.getClass().getSimpleName()));
+    List<String> descriptors = Lists.newArrayList();
+    entityHistogram.elementSet().forEach((String name) -> descriptors.add(String.format("%d %s", entityHistogram.count(name), name)));
+    return String.join(", ", descriptors);
+  }
+
+  /**
+   Format a comma-separated list of entities from a collection of entities
+
+   @param entities to format a comma-separated list of
+   @return comma-separated list in text
+   */
+  static <N extends Entity> String entities(List<N> entities) {
+    List<String> descriptors = Lists.newArrayList();
+    entities.forEach((N entity) -> descriptors.add(entity.toString()));
+    return String.join(", ", descriptors);
   }
 }

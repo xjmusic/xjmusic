@@ -7,6 +7,7 @@ import io.xj.music.schema.IntervalPitchGroup;
 import org.junit.Test;
 import org.yaml.snakeyaml.Yaml;
 
+import java.math.BigInteger;
 import java.util.Map;
 
 import static io.xj.music.Interval.I3;
@@ -23,7 +24,9 @@ import static io.xj.music.PitchClass.F;
 import static io.xj.music.PitchClass.Fs;
 import static io.xj.music.PitchClass.None;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class ChordTest {
   private static final String EXPECTED_CHORDS_YAML = "/expect_chord.yaml";
@@ -158,6 +161,12 @@ public class ChordTest {
       Chord.of("C minor 7").similarity(
         Chord.of("C major m7")), 0.001);
 
+  }
+
+  @Test
+  public void isNull() {
+    assertFalse(Chord.of("C#m7").isNoChord());
+    assertTrue(Chord.of("NC").isNoChord());
   }
 
 }

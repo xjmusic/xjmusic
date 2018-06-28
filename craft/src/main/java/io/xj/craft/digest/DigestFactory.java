@@ -12,13 +12,13 @@ import com.google.inject.assistedinject.Assisted;
 
 /**
  [#154350346] Architect wants a universal Ingest Factory, to modularize graph mathematics used during craft to evaluate any combination of Library, Sequence, and Instrument for any purpose.
- DigestChordProgression chords = digestFactory.chordProgression(ingest);
+ DigestChordProgression entities = digestFactory.chordProgression(ingest);
  DigestMeme memes = digestFactory.meme(ingest);
  */
 public interface DigestFactory {
 
   /**
-   Digest chords of any ingest of entities.
+   Digest entities of any ingest of entities.
 
    @param ingest to digest
    @return chord digest of ingest
@@ -28,7 +28,7 @@ public interface DigestFactory {
   );
 
   /**
-   Digest chords of any ingest of entities.
+   Digest entities of any ingest of entities.
 
    @param ingest to digest
    @return chord digest of ingest

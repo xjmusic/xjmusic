@@ -281,10 +281,10 @@ public interface Basis {
   Collection<BigInteger> segmentAudioIds() throws Exception;
 
   /**
-   Fetch all chords for the current segment
+   Fetch all entities for the current segment
    (caches results)
 
-   @return segment chords
+   @return segment entities
    @throws Exception on failure
    */
   Collection<SegmentChord> segmentChords() throws Exception;

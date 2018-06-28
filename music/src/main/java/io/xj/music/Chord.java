@@ -12,6 +12,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.SortedMap;
 import java.util.function.Consumer;
 
@@ -270,5 +271,13 @@ public class Chord extends IntervalPitchGroup {
    */
   public String colloquialFormName() {
     return ChordForms.colloquialFormNames.getOrDefault(formString(), formString());
+  }
+
+  /**
+   Whether this is a No Chord instance
+   @return true if No Chord
+   */
+  public Boolean isNoChord() {
+    return Objects.equals(root, PitchClass.None);
   }
 }

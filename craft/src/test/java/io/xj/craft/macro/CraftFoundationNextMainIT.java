@@ -11,6 +11,7 @@ import io.xj.core.dao.SegmentChordDAO;
 import io.xj.core.dao.SegmentDAO;
 import io.xj.core.dao.SegmentMemeDAO;
 import io.xj.core.exception.BusinessException;
+import io.xj.core.exception.CraftException;
 import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
@@ -225,8 +226,8 @@ public class CraftFoundationNextMainIT {
 
     Basis basis = basisFactory.createBasis(segment4);
 
-    failure.expect(BusinessException.class);
-    failure.expectMessage("main-pattern does not exist");
+    failure.expect(CraftException.class);
+    failure.expectMessage("failed to determine at least one candidate Main-type pattern");
 
     craftFactory.macroMain(basis).doWork();
   }

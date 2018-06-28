@@ -17,7 +17,9 @@ public class ChordNode {
   private static final int MAX_SEMITONES = 12;
   private static final String NOTHING = "";
   private static final Pattern NON_CHORD_DESCRIPTOR = Pattern.compile("[^a-zA-Z0-9+\\-#♭ ]");
+  @Nullable
   private final String form;
+  @Nullable
   private final Integer delta; // NOTE: delta is null when this is the first unit of a sequence.
   private Long weight;
 
@@ -38,7 +40,7 @@ public class ChordNode {
    @param chord to construct descriptor of
    */
   ChordNode(Chord chord) {
-    form = formOf(chord);
+    form = chord.isChord() ? formOf(chord) : null;
     delta = null;
     weight = 1L;
   }
@@ -51,8 +53,8 @@ public class ChordNode {
    @param chord     chord to construct descriptor of
    */
   ChordNode(Chord prevChord, Chord chord) {
-    form = formOf(chord);
-    delta = deltaSemitonesModulo(prevChord, chord);
+    form = chord.isChord() ? formOf(chord) : null;
+    delta = chord.isChord() ? deltaSemitonesModulo(prevChord, chord) : null;
     weight = 1L;
   }
 
@@ -64,8 +66,8 @@ public class ChordNode {
    @param chord chord to construct descriptor of
    */
   public ChordNode(Key key, Chord chord) {
-    form = formOf(chord);
-    delta = deltaSemitonesModulo(key, chord);
+    form = chord.isChord() ? formOf(chord) : null;
+    delta = chord.isChord() ? deltaSemitonesModulo(key, chord) : null;
     weight = 1L;
   }
 
@@ -77,7 +79,7 @@ public class ChordNode {
 
    @param descriptor to reverse engineer into a chord descriptor unit
    */
-  ChordNode(String descriptor) {
+  ChordNode(CharSequence descriptor) {
     List<String> pieces = Splitter.on(Chord.SEPARATOR_DESCRIPTOR_UNIT).splitToList(descriptor);
     if (2 == pieces.size()) {
       delta = Integer.valueOf(pieces.get(0));
@@ -98,7 +100,7 @@ public class ChordNode {
    @param form to sanitize descriptor of
    @return descriptor
    */
-  private static String formOf(String form) {
+  private static String formOf(CharSequence form) {
     return NON_CHORD_DESCRIPTOR.matcher(form)
       .replaceAll(NOTHING);
   }
@@ -135,17 +137,6 @@ public class ChordNode {
   }
 
   /**
-   Similarity between the chord of two nodes
-
-   @param other chord node
-   @return similarity ratio from 0 to 1
-   */
-  public Double similarity(ChordNode other) {
-    return io.xj.music.Chord.of(String.format("%s %s", defaultChordRootPitchClass.step(defaultZero(getDelta())).getPitchClass(), getForm()))
-      .similarity(io.xj.music.Chord.of(String.format("%s %s", defaultChordRootPitchClass.step(defaultZero(other.getDelta())).getPitchClass(), other.getForm())));
-  }
-
-  /**
    Return the original value, or (if null) return zero
 
    @param value to check for null and return, or return zero
@@ -167,18 +158,29 @@ public class ChordNode {
   }
 
   /**
+   Similarity between the chord of two nodes
+
+   @param other chord node
+   @return similarity ratio from 0 to 1
+   */
+  Double similarity(ChordNode other) {
+    return io.xj.music.Chord.of(String.format("%s %s", defaultChordRootPitchClass.step(defaultZero(getDelta())).getPitchClass(), getForm()))
+      .similarity(io.xj.music.Chord.of(String.format("%s %s", defaultChordRootPitchClass.step(defaultZero(other.getDelta())).getPitchClass(), other.getForm())));
+  }
+
+  /**
    Get the weight of this node
 
    @return weight
    */
-  public Long getWeight() {
+  Long getWeight() {
     return weight;
   }
 
   /**
    Get the weight of this node
    */
-  public void addWeight(ChordNode node) {
+  void addWeight(ChordNode node) {
     weight += node.getWeight();
   }
 
@@ -188,7 +190,7 @@ public class ChordNode {
    @return chord form
    */
   @Nullable
-  public String getForm() {
+  String getForm() {
     return form;
   }
 
@@ -199,7 +201,7 @@ public class ChordNode {
    @return unit delta from last chord, in semitones modulo (probably 12).
    */
   @Nullable
-  public Integer getDelta() {
+  Integer getDelta() {
     return delta;
   }
 
@@ -227,7 +229,7 @@ public class ChordNode {
    @param other to match
    @return true if equivalent
    */
-  public boolean isEquivalentTo(ChordNode other) {
+  boolean isEquivalentTo(ChordNode other) {
     if (!Objects.equals(form, other.getForm())) return false;
     if (Objects.isNull(delta) || Objects.isNull(other.getDelta())) return true;
     return Objects.equals(delta, other.getDelta());

@@ -10,7 +10,7 @@ import io.xj.craft.ingest.Ingest;
 
 /**
  [#154350346] Architect wants a universal Ingest Factory, to modularize graph mathematics used during craft to evaluate any combination of Library, Sequence, and Instrument for any purpose.
- DigestChordProgression chords = digestFactory.chordProgression(ingest);
+ DigestChordProgression entities = digestFactory.chordProgression(ingest);
  DigestMeme memes = digestFactory.meme(ingest);
  */
 public interface DigestCacheProvider {
@@ -25,7 +25,7 @@ public interface DigestCacheProvider {
   DigestChordProgression chordProgression(Ingest ingest);
 
   /**
-   Digest chord Markov chords of any ingest of entities.
+   Digest chord Markov entities of any ingest of entities.
    CACHED result based on hash digest of ingest.
 
    @param ingest to digest

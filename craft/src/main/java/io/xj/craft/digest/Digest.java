@@ -24,7 +24,7 @@ public interface Digest {
   String KEY_CHORD_NAME = "chordName";
   String KEY_CHORD_POSITION = "chordPosition";
   String KEY_CHORD_PROGRESSIONS = "chordProgressions";
-  String KEY_CHORDS = "chords";
+  String KEY_CHORDS = "entities";
   String KEY_DESCRIPTOR = "descriptor";
   String KEY_HISTOGRAM = "histogram";
   String KEY_INSTRUMENT_DESCRIPTION = "instrumentDescription";

@@ -19,7 +19,7 @@ public interface DigestChordMarkov extends Digest {
   Map<String, ChordMarkovNode> getReverseNodeMap();
 
   /**
-   @return the order of markov chain computation, e.g. 3 means that 3 preceding chords will be observed at any node.
+   @return the order of markov chain computation, e.g. 3 means that 3 preceding entities will be observed at any node.
    */
   Integer getMarkovOrder();
 

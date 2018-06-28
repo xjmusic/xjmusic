@@ -35,7 +35,7 @@ public class ChordProgression {
   }
 
   /**
-   Construct a new chord progression from a list of chords
+   Construct a new chord progression from a list of entities
 
    @param chords to construct progression from
    @param <C>    type of chord
@@ -83,11 +83,11 @@ public class ChordProgression {
   }
 
   /**
-   Search for a point at which forward-reverse collide, between a forward-generated chord progression and a reverse-generated chord progression into one final progression, which begins in the forward-generated chords and ends with the reverse-generated chords.
+   Search for a point at which forward-reverse collide, between a forward-generated chord progression and a reverse-generated chord progression into one final progression, which begins in the forward-generated entities and ends with the reverse-generated entities.
    - score all possible combinations of pattern total and splice point. Any pair of pattern total and splice point determines one potential outcome.
 
    @param target chord progression to consolidate
-   @return final progression, which begins in the forward-generated chords and ends with the reverse-generated chords.
+   @return final progression, which begins in the forward-generated entities and ends with the reverse-generated entities.
    */
   public ChordProgression spliceAtCollision(ChordProgression target, Set<Integer> sizes, Integer safetyMargin) {
     double highScore = NO_SCORE;
@@ -108,7 +108,7 @@ public class ChordProgression {
 
   /**
    Score a potential splice of opening and closing walks
-   - determine if this splice would even be possible-- the closing walk needs to have enough chords to make it to the end of the size from the splice index, and the opening walk needs to have enough chords to make ti to the splice index
+   - determine if this splice would even be possible-- the closing walk needs to have enough entities to make it to the end of the size from the splice index, and the opening walk needs to have enough entities to make ti to the splice index
    - score the possible splicing of these two walks at this size and splice index
    - Since there may be multiple opportunities to splice on a matching chord even, let's score the splice point chord AND the 50% of the following chord (or something like that!)
 
@@ -225,10 +225,10 @@ public class ChordProgression {
   }
 
   /**
-   Whether this chord progression has the same # of chords as another
+   Whether this chord progression has the same # of entities as another
 
    @param other to compare to
-   @return true is has same # of chords.
+   @return true is has same # of entities.
    */
   boolean isEquivalent(ChordProgression other) {
     if (!Objects.equals(chordNodes.size(), other.getChordNodes().size()))
@@ -237,7 +237,7 @@ public class ChordProgression {
   }
 
   /**
-   compute the standard descriptor for this sequence of chords
+   compute the standard descriptor for this sequence of entities
 
    @return standard descriptor
    */

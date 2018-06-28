@@ -29,7 +29,7 @@ import java.util.Objects;
 /**
  PatternChords
  */
-@Path("pattern-chords")
+@Path("pattern-entities")
 public class PatternChordIndexResource extends HubResource {
   private final PatternChordDAO patternChordDAO = injector.getInstance(PatternChordDAO.class);
   private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);

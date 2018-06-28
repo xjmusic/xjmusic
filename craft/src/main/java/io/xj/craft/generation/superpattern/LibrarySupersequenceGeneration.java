@@ -32,9 +32,9 @@ public interface LibrarySupersequenceGeneration extends Generation {
   List<Pattern> getGeneratedPatterns();
 
   /**
-   Get generated pattern chords.
+   Get generated pattern entities.
 
-   @return map of pattern id to list of generated pattern chords
+   @return map of pattern id to list of generated pattern entities
    */
   Map<BigInteger, List<PatternChord>> getGeneratedPatternChords();
 

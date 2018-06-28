@@ -46,24 +46,26 @@ public class PitchClassTest {
   }
 
   @Test
-  public void StringOfTest() {
-    Assert.assertEquals("C#", PitchClass.Cs.toString(Sharp));
-    Assert.assertEquals("Db", PitchClass.Cs.toString(Flat));
-    Assert.assertEquals("-", PitchClass.Cs.toString(None));
+  public void pitchClass_toString() {
+    assertEquals("C#", PitchClass.Cs.toString(Sharp));
+    assertEquals("Db", PitchClass.Cs.toString(Flat));
+    assertEquals("-", PitchClass.Cs.toString(None));
   }
-
 
   @Test
-  public void PitchClass_DiffTest() {
-    Assert.assertEquals(5, PitchClass.Cs.delta(PitchClass.Fs));
-    Assert.assertEquals(-5, PitchClass.Fs.delta(PitchClass.Cs));
-    Assert.assertEquals(2, PitchClass.Gs.delta(PitchClass.As));
-    Assert.assertEquals(-3, PitchClass.C.delta(PitchClass.A));
-    Assert.assertEquals(4, PitchClass.D.delta(PitchClass.Fs));
-    Assert.assertEquals(-6, PitchClass.F.delta(PitchClass.B));
+  public void delta() {
+    assertEquals(5, PitchClass.Cs.delta(PitchClass.Fs));
+    assertEquals(-5, PitchClass.Fs.delta(PitchClass.Cs));
+    assertEquals(2, PitchClass.Gs.delta(PitchClass.As));
+    assertEquals(-3, PitchClass.C.delta(PitchClass.A));
+    assertEquals(4, PitchClass.D.delta(PitchClass.Fs));
+    assertEquals(-6, PitchClass.F.delta(PitchClass.B));
+    assertEquals(0, PitchClass.Cs.delta(PitchClass.None));
+    assertEquals(0, PitchClass.None.delta(PitchClass.Cs));
+    assertEquals(0, PitchClass.None.delta(PitchClass.None));
   }
 
-  private void assertPitchClassOf(String name, PitchClass expectPitchClass, String expectStringSharp, String expectStringFlat) throws Exception {
+  private void assertPitchClassOf(String name, PitchClass expectPitchClass, String expectStringSharp, String expectStringFlat) {
     PitchClass pitchClass = PitchClass.of(name);
     assertEquals(expectPitchClass, pitchClass);
     assertEquals(expectStringSharp, pitchClass.toString(Sharp));

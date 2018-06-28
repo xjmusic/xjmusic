@@ -364,7 +364,7 @@ public class RhythmCraftImpl implements RhythmCraft {
   }
 
   /**
-   create a pick of instrument-audio for each event, where events are conformed to chords/scales based on the master segment chords
+   create a pick of instrument-audio for each event, where events are conformed to entities/scales based on the master segment entities
    pick instrument audio for one event, in a voice in a pattern, belonging to an arrangement
 
    @param arrangement   to create pick within

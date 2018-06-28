@@ -154,7 +154,7 @@ public class GenerationIT {
 
     Collection<Pattern> generatedPatterns = injector.getInstance(PatternDAO.class).readAll(Access.internal(), ImmutableList.of(BigInteger.valueOf(2702)));
     assertFalse(generatedPatterns.isEmpty());
-    // FUTURE assert more of the actual pattern chords after generation of library supersequence in integration testing
+    // FUTURE assert more of the actual pattern entities after generation of library supersequence in integration testing
   }
 
 }

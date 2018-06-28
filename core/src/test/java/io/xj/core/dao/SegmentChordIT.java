@@ -32,7 +32,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
-// future test: permissions of different users to readMany vs. create vs. update or delete segment chords
+// future test: permissions of different users to readMany vs. create vs. update or delete segment entities
 public class SegmentChordIT {
   @Rule public ExpectedException failure = ExpectedException.none();
   private final Injector injector = Guice.createInjector(new CoreModule());
@@ -49,7 +49,7 @@ public class SegmentChordIT {
     // Chain "Test Print #1" has 5 sequential segments
     IntegrationTestEntity.insertSegment(1, 1, 0, SegmentState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120.0, "chain-1-segment-97898asdf7892.wav");
 
-    // Segment "Caterpillars" has chords "D# minor" and "D major"
+    // Segment "Caterpillars" has entities "D# minor" and "D major"
     IntegrationTestEntity.insertSegmentChord(1, 1, (double) 0, "D# minor");
     IntegrationTestEntity.insertSegmentChord(2, 1, 4.0, "D major");
 

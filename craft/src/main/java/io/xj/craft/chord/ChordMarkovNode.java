@@ -26,7 +26,7 @@ public class ChordMarkovNode {
   private final Map<String, ChordNode> nodeMap = Maps.newConcurrentMap();
 
   /**
-   Construct chord markov node from a list of chords, being the precedent state of all observations (possible outcomes a.k.a. chord change) to be added to this node.
+   Construct chord markov node from a list of entities, being the precedent state of all observations (possible outcomes a.k.a. chord change) to be added to this node.
 
    @param precedentState chord progression preceding these observations
    */
@@ -47,7 +47,7 @@ public class ChordMarkovNode {
   }
 
   /**
-   @return the state (sequence of chords) that precedes the observations (possible outcomes a.k.a. chord change) of this node.
+   @return the state (sequence of entities) that precedes the observations (possible outcomes a.k.a. chord change) of this node.
    */
   List<ChordNode> getPrecedentState() {
     return Collections.unmodifiableList(precedentState);

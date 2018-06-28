@@ -31,7 +31,7 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- In-memory cache of ingest of all chords in a library
+ In-memory cache of ingest of all entities in a library
  <p>
  [#154234716] Architect wants ingest of library contents, to modularize graph mathematics used during craft, and provide the Artist with useful insight for developing the library.
  */
@@ -53,7 +53,7 @@ public class DigestChordProgressionImpl extends DigestImpl implements DigestChor
       prune();
     } catch (Exception e) {
       Logger log = LoggerFactory.getLogger(DigestChordProgressionImpl.class);
-      log.error("Failed to digest chords of ingest {}", ingest, e);
+      log.error("Failed to digest entities of ingest {}", ingest, e);
     }
   }
 
@@ -133,11 +133,11 @@ public class DigestChordProgressionImpl extends DigestImpl implements DigestChor
 
 
   /**
-   Get only the audio chords of a particular audio
+   Get only the audio entities of a particular audio
 
-   @param patternChords to search for chords
-   @param parentId    (pattern) to get pattern chords of
-   @return collection of audio chords
+   @param patternChords to search for entities
+   @param parentId    (pattern) to get pattern entities of
+   @return collection of audio entities
    */
   private static <C extends PatternChord> Collection<C> patternChordsOf(Collection<C> patternChords, Object parentId) {
     Collection<C> result = Lists.newArrayList();
@@ -148,9 +148,9 @@ public class DigestChordProgressionImpl extends DigestImpl implements DigestChor
   }
 
   /**
-   Compute all possible chord progressions given a set of chords (e.g. from a Pattern or Audio)
+   Compute all possible chord progressions given a set of entities (e.g. from a Pattern or Audio)
 
-   @param parentId parent of chords
+   @param parentId parent of entities
    @param chords   to compute all possible sequences of
    @return array of patternMap
    */
@@ -261,7 +261,7 @@ public class DigestChordProgressionImpl extends DigestImpl implements DigestChor
         //
         // preserve if length greater than or equal to threshold
         // BUT don't preserve if we already have one with this parent
-        // AND don't preserve if we have already preserved these chords (by id)
+        // AND don't preserve if we have already preserved these entities (by id)
         if (evaluatedNeedle.getDescriptorLength() >= Config.ingestChordProgressionPreserveLengthMin())
           evaluatedNeedle.getUsages().forEach((PatternChordProgression candidate) -> {
             if (candidate.getChords().size() >= evaluatedHaystack.getDescriptorLength() - Config.ingestChordProgressionRedundancyThreshold())

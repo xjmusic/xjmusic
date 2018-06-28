@@ -427,7 +427,7 @@ public class BasisImpl implements Basis {
     Chord foundChord = Chord.of(segment().getKey());
     Double foundPosition = null;
 
-    // we assume that these chords are in order of position ascending (see: SegmentChordDAO.readAllExpectedWork)
+    // we assume that these entities are in order of position ascending (see: SegmentChordDAO.readAllExpectedWork)
     for (SegmentChord segmentChord : segmentChords()) {
       // if it's a better match (or no match has yet been found) then use it
       if (Objects.isNull(foundPosition) ||

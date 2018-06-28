@@ -209,6 +209,8 @@ public enum PitchClass {
    @return difference +/- semitones
    */
   public int delta(PitchClass target) {
+    if (Objects.equals(None, this)) return 0;
+    if (Objects.equals(None, target)) return 0;
     int deltaUp = deltaDirectional(this, target, 1);
     int deltaDown = deltaDirectional(this, target, -1);
     if (Math.abs(deltaUp) < Math.abs(deltaDown))

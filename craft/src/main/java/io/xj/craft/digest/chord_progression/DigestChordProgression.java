@@ -10,9 +10,9 @@ import java.util.Map;
 public interface DigestChordProgression extends Digest {
 
   /**
-   Get the underlying evaluated sequence map, a map of unique descriptor strings (complete set from evaluated entities) to their digested chords.
+   Get the underlying evaluated sequence map, a map of unique descriptor strings (complete set from evaluated entities) to their digested entities.
 
-   @return map of descriptor strings to digested chords
+   @return map of descriptor strings to digested entities
    */
   Map<String, DigestChordProgressionItem> getEvaluatedSequenceMap();
 

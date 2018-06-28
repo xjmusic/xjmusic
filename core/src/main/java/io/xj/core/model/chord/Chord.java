@@ -8,12 +8,12 @@ import java.util.Comparator;
 import java.util.Objects;
 
 /**
- This represents common properties of all chords,
+ This represents common properties of all entities,
  although a Chord only actually exists as a Segment Chord, Pattern Chord, etc.
  */
 public abstract class Chord extends Entity {
   public static final String KEY_ONE = "chord";
-  public static final String KEY_MANY = "chords";
+  public static final String KEY_MANY = "entities";
   public static final String SEPARATOR_DESCRIPTOR = ":";
   public static final String SEPARATOR_DESCRIPTOR_UNIT = "|";
   public static final String MARKER_NON_CHORD = "---";
@@ -72,4 +72,19 @@ public abstract class Chord extends Entity {
     return name + "@" + position;
   }
 
+  /**
+   Whether this is a No Chord instance
+   [#158715321] Chord nodes able to parse No Chord notation
+   */
+  public Boolean isNoChord() {
+    return toMusical().isNoChord();
+  }
+
+  /**
+   Whether this is a chord of any tonal kind
+   [#158715321] Chord nodes able to parse No Chord notation
+   */
+  public Boolean isChord() {
+    return !isNoChord();
+  }
 }

@@ -19,7 +19,7 @@ import static org.junit.Assert.assertEquals;
 public class PatternChordProgressionTest {
 
   /**
-   Assert two lists of pattern chords are equivalent
+   Assert two lists of pattern entities are equivalent
 
    @param o1 to compare
    @param o2 to compare
@@ -32,7 +32,7 @@ public class PatternChordProgressionTest {
   }
 
   /**
-   Assert two pattern chords are equivalent
+   Assert two pattern entities are equivalent
 
    @param o1 to compare
    @param o2 to compare
@@ -56,7 +56,7 @@ public class PatternChordProgressionTest {
       new PatternChord().setPosition(11.0).setName("D").setPatternId(BigInteger.valueOf(29))
     ));
 
-    // Note: These two end up having identical descriptors, because the chords are positioned identically relative to each other
+    // Note: These two end up having identical descriptors, because the entities are positioned identically relative to each other
     assertEquals("Major:7|Major:2|Major", subjectA.getChordProgression().toString());
     assertEquals("Major:7|Major:2|Major", subjectB.getChordProgression().toString());
   }
@@ -74,7 +74,7 @@ public class PatternChordProgressionTest {
       new PatternChord().setPosition(11.0).setName("D7+5").setPatternId(BigInteger.valueOf(29))
     ));
 
-    // Note: These two end up having identical descriptors, because the chords are positioned identically relative to each other
+    // Note: These two end up having identical descriptors, because the entities are positioned identically relative to each other
     assertEquals("Major Seventh Add Ninth:7|Minor Seventh:2|Major Seventh", subjectA.getChordProgression().toString());
     assertEquals("Major Seventh Add Ninth:7|Minor Seventh:2|Major Seventh", subjectB.getChordProgression().toString());
   }
@@ -92,7 +92,7 @@ public class PatternChordProgressionTest {
       new PatternChord().setPosition(11.0).setName("D").setPatternId(BigInteger.valueOf(29))
     ));
 
-    // Note: These two end up having identical descriptors, because the chords are positioned identically relative to each other
+    // Note: These two end up having identical descriptors, because the entities are positioned identically relative to each other
     assertEquals("D", subjectA.getRootChord().getName());
     assertEquals("F", subjectB.getRootChord().getName());
   }

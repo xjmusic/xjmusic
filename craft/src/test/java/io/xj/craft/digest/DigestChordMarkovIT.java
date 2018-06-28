@@ -74,7 +74,7 @@ public class DigestChordMarkovIT {
     IntegrationTestEntity.insertPattern(902, 701, PatternType.Main, PatternState.Published, 1, 16, "decay", 0.25, "F#", 110.3, at);
     IntegrationTestEntity.insertPatternChord(1001, 902, 0, "G minor", at);
     IntegrationTestEntity.insertPatternChord(1002, 902, 4, "C major", at);
-    IntegrationTestEntity.insertPatternChord(1003, 902, 8, "F7", at);
+    IntegrationTestEntity.insertPatternChord(1003, 902, 8, "NC", at);
     IntegrationTestEntity.insertPatternChord(1004, 902, 12, "G7", at);
     IntegrationTestEntity.insertPatternChord(1005, 902, 16, "F minor", at);
     IntegrationTestEntity.insertPatternChord(1006, 902, 20, "Bb major", at);

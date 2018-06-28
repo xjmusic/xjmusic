@@ -10,6 +10,8 @@ import org.junit.rules.ExpectedException;
 import java.math.BigInteger;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class PatternChordTest {
 
@@ -63,6 +65,12 @@ public class PatternChordTest {
   @Test
   public void position_rounded() throws Exception {
     assertEquals(1.25, new PatternChord().setPosition(1.25179957).getPosition(), 0.0000001);
+  }
+
+  @Test
+  public void isNoChord() {
+    assertFalse(new PatternChord(BigInteger.valueOf(1), 0.0, "C#m7").isNoChord());
+    assertTrue(new PatternChord(BigInteger.valueOf(1), 0.0, "NC").isNoChord());
   }
 
 }

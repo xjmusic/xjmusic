@@ -25,7 +25,7 @@ import java.util.Objects;
 /**
  SegmentChords
  */
-@Path("segment-chords")
+@Path("segment-entities")
 public class SegmentChordIndexResource extends HubResource {
   private final SegmentChordDAO segmentChordDAO = injector.getInstance(SegmentChordDAO.class);
   private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);

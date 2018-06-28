@@ -45,7 +45,7 @@ import java.util.Set;
  <p>
  [#154855269] Artist expects generation of library supersequence to result in a set of patterns of similar size.
  <p>
- [#154882199] Artist expects a generated supersequence to have near-complete coverage of all chord nodes in the library. NOTE: Revised algorithm does not discard entropy using any sort of filter-- entropy of original "dice roll" is maintained, and the reconciliation of forward-reverse chord markov walks is performed using a "tonal similarity" comparison of all chords involved. For extra credit, we should make all potential pattern totals available to that algorithm, choosing the one that suits the best available match of chord for splicing forward and reverse sequences.
+ [#154882199] Artist expects a generated supersequence to have near-complete coverage of all chord nodes in the library. NOTE: Revised algorithm does not discard entropy using any sort of filter-- entropy of original "dice roll" is maintained, and the reconciliation of forward-reverse chord markov walks is performed using a "tonal similarity" comparison of all entities involved. For extra credit, we should make all potential pattern totals available to that algorithm, choosing the one that suits the best available match of chord for splicing forward and reverse sequences.
  <p>
  [#154927374] Architect wants Chord Markov digest to compute both forward nodes (likelihood of following node based on observation of preceding nodes) and reverse nodes (likelihood of preceding node based on observation of following nodes in reverse time), in order to implement forward-reverse random walk during generation, in order to generate a supersequence with excellent coverage of the library contents.
  <p>
@@ -126,7 +126,7 @@ public class LibrarySupersequenceGenerationImpl extends GenerationImpl implement
   }
 
   /**
-   Create a pattern and all pattern chords for a given chord progression
+   Create a pattern and all pattern entities for a given chord progression
 
    @param chordProgression to create pattern of
    */
@@ -144,7 +144,7 @@ public class LibrarySupersequenceGenerationImpl extends GenerationImpl implement
         .setTypeEnum(PatternType.Loop)
         .setTotal((int) Math.floor(chordSpacing * chordProgression.size())));
 
-    // Create pattern chords via DAO, for all chords in the chord progression
+    // Create pattern entities via DAO, for all entities in the chord progression
     PatternChordProgression patternChordProgression = new PatternChordProgression(chordProgression, pattern.getId(), Key.of(sequence.getKey()).getRootPitchClass(), chordSpacing);
     patternChordProgression.getChords().forEach(patternChord -> {
       try {
@@ -182,7 +182,7 @@ public class LibrarySupersequenceGenerationImpl extends GenerationImpl implement
    Generate a chord progression, by collision or random splice of forward-reverse random walks
 
    @param spacing for resulting chord progressions
-   @param total   # beats in between chords, for resulting chord progressions
+   @param total   # beats in between entities, for resulting chord progressions
    @return chord progression
    */
   private ChordProgression generateChordProgression(Integer total, Double spacing) {
@@ -200,11 +200,11 @@ public class LibrarySupersequenceGenerationImpl extends GenerationImpl implement
 
    @param nodeMap to check precedent states for markov observations
    @param spacing for resulting chord progressions
-   @param total   # beats in between chords, for resulting chord progressions
+   @param total   # beats in between entities, for resulting chord progressions
    @return chord progression
    */
   private ChordProgression generateChordProgression(Map<String, ChordMarkovNode> nodeMap, Double spacing, Integer total) {
-    // note the RESULT is different from the BUFFER (only caches previous N chords)
+    // note the RESULT is different from the BUFFER (only caches previous N entities)
     List<ChordNode> result = Lists.newArrayList();
     List<ChordNode> buf = Lists.newArrayList();
 
@@ -219,7 +219,7 @@ public class LibrarySupersequenceGenerationImpl extends GenerationImpl implement
       if (buf.size() > markovOrder) buf.remove(0);
     }
 
-    // mark these chords as used
+    // mark these entities as used
     result.forEach(chordNode -> coveredNodeMap.put(chordNode.toString(), chordNode));
 
     // resulting chord progression includes pattern total and chord spacing
@@ -269,7 +269,7 @@ public class LibrarySupersequenceGenerationImpl extends GenerationImpl implement
   /**
    Cache a generated pattern chord.
    generatedPatternChords is keyed by pattern id.
-   Each pattern id contains a list of pattern chords.
+   Each pattern id contains a list of pattern entities.
 
    @param patternChord to cache
    */

@@ -27,9 +27,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
-// future test: permissions of different users to readMany vs. create vs. update or delete audio chords
+// future test: permissions of different users to readMany vs. create vs. update or delete audio entities
 
-// future test readAllSequences() which supports [#154234716] library ingest requires enumerating all possible sub-sequences of chords for any audio
+// future test readAllSequences() which supports [#154234716] library ingest requires enumerating all possible sub-sequences of entities for any audio
 
 public class AudioChordIT {
   private final Injector injector = Guice.createInjector(new CoreModule());

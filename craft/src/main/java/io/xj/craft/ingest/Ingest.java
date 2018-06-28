@@ -381,4 +381,9 @@ public interface Ingest {
    */
   Key patternKey(BigInteger id);
 
+  /**
+   Get a string representation of the ingest
+   */
+  String toString();
+
 }

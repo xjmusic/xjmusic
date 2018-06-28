@@ -13,12 +13,12 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- Sequence of chords
- likely related to [#154234716] ingest of library contents includes sequences of chords.
+ Sequence of entities
+ likely related to [#154234716] ingest of library contents includes sequences of entities.
  <p>
- A regular ChordProgression has no actual time or pitch classes, but a PatternChordProgression has all those things because it's made of real actual chords in a pattern.
+ A regular ChordProgression has no actual time or pitch classes, but a PatternChordProgression has all those things because it's made of real actual entities in a pattern.
  <p>
- FUTURE: evaluate audio chords. As of this message, there is no actual implementation of fabrication based on audio chords.
+ FUTURE: evaluate audio entities. As of this message, there is no actual implementation of fabrication based on audio entities.
  FUTURE: implementation of AudioChordProgression will examine opportunity to extend a common ChordProgression interface.
  */
 public class PatternChordProgression {
@@ -26,7 +26,7 @@ public class PatternChordProgression {
   private final BigInteger parentId;
 
   /**
-   Constructor with parent id and list of chords
+   Constructor with parent id and list of entities
 
    @param parentId of sequence
    @param chords   to store in sequence
@@ -43,9 +43,9 @@ public class PatternChordProgression {
    // FUTURE: use more colloquial name than descriptor when creating pattern chord name, e.g. "C7b9" not "C MajorSevenFlatNine"
 
    @param chordProgression to construct pattern chord progression from
-   @param patternId          of pattern to create pattern chords in
+   @param patternId          of pattern to create pattern entities in
    @param rootPitchClass   of initial chord
-   @param spacing          # beats spacing in between chords
+   @param spacing          # beats spacing in between entities
    */
   public PatternChordProgression(ChordProgression chordProgression, BigInteger patternId, PitchClass rootPitchClass, Double spacing) {
     chords = Lists.newArrayList();
@@ -96,16 +96,16 @@ public class PatternChordProgression {
   }
 
   /**
-   Get a list of all chords in the sequence
+   Get a list of all entities in the sequence
 
-   @return list of chords
+   @return list of entities
    */
   public List<PatternChord> getChords() {
     return Collections.unmodifiableList(chords);
   }
 
   /**
-   compute the standard descriptor for this sequence of chords
+   compute the standard descriptor for this sequence of entities
 
    @return standard descriptor
    */

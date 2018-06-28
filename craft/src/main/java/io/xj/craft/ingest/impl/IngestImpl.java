@@ -1,29 +1,12 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.craft.ingest.impl;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import com.google.common.collect.*;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-
 import io.xj.core.access.impl.Access;
 import io.xj.core.cache.entity.EntityCacheProvider;
-import io.xj.core.dao.AudioChordDAO;
-import io.xj.core.dao.AudioDAO;
-import io.xj.core.dao.AudioEventDAO;
-import io.xj.core.dao.DAO;
-import io.xj.core.dao.InstrumentDAO;
-import io.xj.core.dao.InstrumentMemeDAO;
-import io.xj.core.dao.LibraryDAO;
-import io.xj.core.dao.SequenceDAO;
-import io.xj.core.dao.SequenceMemeDAO;
-import io.xj.core.dao.PatternChordDAO;
-import io.xj.core.dao.PatternDAO;
-import io.xj.core.dao.PatternEventDAO;
-import io.xj.core.dao.PatternMemeDAO;
-import io.xj.core.dao.VoiceDAO;
-import io.xj.craft.ingest.Ingest;
+import io.xj.core.dao.*;
 import io.xj.core.model.audio.Audio;
 import io.xj.core.model.audio_chord.AudioChord;
 import io.xj.core.model.audio_event.AudioEvent;
@@ -34,26 +17,25 @@ import io.xj.core.model.instrument.InstrumentType;
 import io.xj.core.model.instrument_meme.InstrumentMeme;
 import io.xj.core.model.library.Library;
 import io.xj.core.model.meme.Meme;
-import io.xj.core.model.sequence.Sequence;
-import io.xj.core.model.sequence.SequenceType;
-import io.xj.core.model.sequence_meme.SequenceMeme;
 import io.xj.core.model.pattern.Pattern;
 import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.pattern_chord.PatternChord;
 import io.xj.core.model.pattern_event.PatternEvent;
 import io.xj.core.model.pattern_meme.PatternMeme;
+import io.xj.core.model.sequence.Sequence;
+import io.xj.core.model.sequence.SequenceType;
+import io.xj.core.model.sequence_meme.SequenceMeme;
 import io.xj.core.model.voice.Voice;
 import io.xj.core.util.Chance;
+import io.xj.core.util.Text;
+import io.xj.craft.ingest.Ingest;
 import io.xj.music.Key;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.math.BigInteger;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  [#154350346] Architect wants a universal Ingest Factory, to modularize graph mathematics used during craft to evaluate any combination of Library, Sequence, and Instrument for any purpose.
@@ -507,5 +489,9 @@ public class IngestImpl implements Ingest {
     return entityCacheProvider.fetchOne(access, entityClass, entityDAO, entityId);
   }
 
+  @Override
+  public String toString() {
+    return Text.entityHistogram(all());
+  }
 
 }

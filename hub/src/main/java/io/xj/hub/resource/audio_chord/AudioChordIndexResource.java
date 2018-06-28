@@ -29,7 +29,7 @@ import java.util.Objects;
 /**
  AudioChords
  */
-@Path("audio-chords")
+@Path("audio-entities")
 public class AudioChordIndexResource extends HubResource {
   private final AudioChordDAO audioChordDAO = injector.getInstance(AudioChordDAO.class);
   private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
