@@ -12,6 +12,7 @@ const babel = require('gulp-babel');
 const imagemin = require('gulp-imagemin');
 const plumber = require('gulp-plumber');
 const pump = require('pump');
+const filter = require('gulp-filter');
 
 // ECMAScript 6 transmogrification configuration
 const srcPath = 'src',
@@ -63,6 +64,7 @@ gulp.task('html', () => {
 gulp.task('js', () => {
   pump([
     gulp.src(config.src.js),
+    filter(['**', '!**/__mocks__/**', '!**/__tests__/**']),
     plumber(err => console.error(err)),
     babel(config.babel),
     uglify(),
@@ -93,13 +95,13 @@ gulp.task('image', () => {
 
 gulp.task('watch', ['sass', 'js', 'image', 'vendor', 'html'], () => {
 
-/*
-  // Not useful to launch http://localhost:3000/ because XJ Player is developed via Docker and docker-compose
-  browserSync.init({
-    injectChanges: true,
-    server: config.dist.base,
-  });
-*/
+  /*
+    // Not useful to launch http://localhost:3000/ because XJ Player is developed via Docker and docker-compose
+    browserSync.init({
+      injectChanges: true,
+      server: config.dist.base,
+    });
+  */
 
   gulp.watch(config.src.sass, ['sass']);
   gulp.watch(config.src.js, ['js']);

@@ -15,4 +15,14 @@ export class API {
     console.debug('Mock API instantiated.');
   }
 
+  /**
+   *
+   * @param id
+   * @param callback
+   */
+  chain(id, callback) {
+    console.log("Mock API called", id);
+    // TODO: callback
+  }
+
 }

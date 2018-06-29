@@ -135,7 +135,7 @@ export class SegmentAudio {
   loadAudio(onSuccess) {
     let self = this;
 
-    new BinaryResource('GET', self.waveformUrl()).send((audioData) => {
+    BinaryResource.send('GET', self.waveformUrl(), (audioData) => {
         self.audioContext.decodeAudioData(audioData).then((buffer) => {
             let bufferSource = self.audioContext.createBufferSource();
             bufferSource.buffer = buffer;
