@@ -13,7 +13,7 @@ import java.util.Objects;
  */
 public abstract class Chord extends Entity {
   public static final String KEY_ONE = "chord";
-  public static final String KEY_MANY = "entities";
+  public static final String KEY_MANY = "chords";
   public static final String SEPARATOR_DESCRIPTOR = ":";
   public static final String SEPARATOR_DESCRIPTOR_UNIT = "|";
   public static final String MARKER_NON_CHORD = "---";

@@ -22,7 +22,7 @@ import java.math.BigInteger;
 /**
  SegmentChord record
  */
-@Path("segment-entities/{id}")
+@Path("segment-chords/{id}")
 public class SegmentChordOneResource extends HubResource {
   private final SegmentChordDAO segmentChordDAO = injector.getInstance(SegmentChordDAO.class);
   private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);

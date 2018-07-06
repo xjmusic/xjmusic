@@ -27,7 +27,7 @@ import java.math.BigInteger;
 /**
  PatternChord record
  */
-@Path("pattern-entities/{id}")
+@Path("pattern-chords/{id}")
 public class PatternChordOneResource extends HubResource {
   private final PatternChordDAO patternChordDAO = injector.getInstance(PatternChordDAO.class);
   private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
