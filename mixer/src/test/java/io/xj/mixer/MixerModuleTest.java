@@ -31,7 +31,6 @@ public class MixerModuleTest {
   @Test
   public void createMixerNotNull() throws Exception {
     Mixer mixer = mixerFactory.createMixer(
-      OutputContainer.WAV,
       new AudioFormat(AudioFormat.Encoding.PCM_FLOAT,
         48000, 32, 2, 8, 48000, false),
       Duration.ofSeconds(60)
@@ -45,7 +44,6 @@ public class MixerModuleTest {
   @Test
   public void createMixerNotNull_supportBigEndian() throws Exception {
     mixerFactory.createMixer(
-      OutputContainer.WAV,
       new AudioFormat(AudioFormat.Encoding.PCM_FLOAT,
         48000, 32, 2, 8, 48000, true),
       Duration.ofSeconds(60)

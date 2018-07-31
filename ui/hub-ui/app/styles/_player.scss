@@ -1,18 +1,30 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 #player-embed {
+  a, div, button {
+    vertical-align: top;
+  }
   display: inline-block;
   background: #101010;
   border: 2px solid #444;
   border-top-style: none;
   border-bottom-style: none;
   height: 40px;
-  vertical-align: middle;
+  vertical-align: top;
   align-content: center;
   text-align: center;
   padding: 8px 12px 0 12px;
   button.stop {
     width: 1.6em;
     height: 1.6em;
+  }
+  #player-embed-container {
+    display: inline-block;
+    margin: 0 0 0 0;
+    padding: 0 0 0 0;
+    iframe {
+      margin: 0 0 0 0;
+      padding: 0 0 0 0;
+    }
   }
 }
 

@@ -11,11 +11,11 @@
     Segment {{player.currentSegment.offset}}
   {{/if}}
 
+  <div id="player-embed-container"></div>
+
   {{#if (eq player.state "Playing")}}
     <button class="stop" {{action "stop"}}>&#9640;</button>
   {{/if}}
-
-  <div id="player-embed-container"></div>
 
 </div>
 

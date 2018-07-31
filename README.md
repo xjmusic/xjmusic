@@ -119,6 +119,10 @@ And inside mysql shell, for example to impersonate user #1 (after being auto-log
 
     use xj;
     update user_auth set user_id=1 where user_id=21;
+    
+There's a convenience script to instantly perform the above operation:
+
+    bin/mysql/user_auth
 
 Only between major platform configuration changes (e.g. to **.nginx/locations.conf**), it may be necessary to force Docker to rebuild the container using `--build`:
 

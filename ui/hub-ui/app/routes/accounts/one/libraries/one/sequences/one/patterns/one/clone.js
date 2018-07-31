@@ -40,6 +40,7 @@ export default Route.extend({
     this.set('fromPatternId', fromPattern.get('id'));
     let pattern = this.store.createRecord('pattern', {
       name: fromPattern.get('name'),
+      type: fromPattern.get('type'),
       sequence: fromPattern.get('sequence'),
       offset: fromPattern.get('offset')
     });

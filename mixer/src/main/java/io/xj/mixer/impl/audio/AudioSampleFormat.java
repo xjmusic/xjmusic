@@ -12,34 +12,34 @@ import java.nio.ByteOrder;
  a double is a single value for a channel of a frame of some audio.
 
  @link https://docs.oracle.com/javase/tutorial/java/nutsandbolts/datatypes.html */
-public class AudioSample {
+public enum AudioSampleFormat {
 
   // sample types
-  static final String U8 = "u8"; // unsigned 8-bit integer
-  static final String S8 = "s8"; // signed 8-bit integer
-  static final String F32LSB = "f32lsb"; // 32-bit floating point, LSB order
-  static final String F32MSB = "f32msb"; // 32-bit floating point, MSB order
-  static final String F64LSB = "f64lsb"; // 64-bit floating point, LSB order
-  static final String F64MSB = "f64msb"; // 64-bit floating point, MSB order
-  static final String S16LSB = "s16lsb"; // 16-bit signed integer, LSB order
-  static final String S16MSB = "s16msb"; // 16-bit signed integer, MSB order
-  static final String S24LSB = "s24lsb"; // 24-bit signed integer, LSB order
-  static final String S24MSB = "s24msb"; // 24-bit signed integer, MSB order
-  static final String S32LSB = "s32lsb"; // 32-bit signed integer, LSB order
-  static final String S32MSB = "s32msb"; // 32-bit signed integer, MSB order
-  static final String U16LSB = "u16lsb"; // 16-bit unsigned integer, LSB order
-  static final String U16MSB = "u16msb"; // 16-bit unsigned integer, MSB order
+  U8, // unsigned 8-bit integer
+  S8, // signed 8-bit integer
+  F32LSB, // 32-bit floating point, LSB order
+  F32MSB, // 32-bit floating point, MSB order
+  F64LSB, // 64-bit floating point, LSB order
+  F64MSB, // 64-bit floating point, MSB order
+  S16LSB, // 16-bit signed integer, LSB order
+  S16MSB, // 16-bit signed integer, MSB order
+  S24LSB, // 24-bit signed integer, LSB order
+  S24MSB, // 24-bit signed integer, MSB order
+  S32LSB, // 32-bit signed integer, LSB order
+  S32MSB, // 32-bit signed integer, MSB order
+  U16LSB, // 16-bit unsigned integer, LSB order
+  U16MSB; // 16-bit unsigned integer, MSB order
 
-  // format encoding types
-  private static final AudioFormat.Encoding PCM_UNSIGNED = AudioFormat.Encoding.PCM_UNSIGNED;
-  private static final AudioFormat.Encoding PCM_SIGNED = AudioFormat.Encoding.PCM_SIGNED;
-  private static final AudioFormat.Encoding PCM_FLOAT = AudioFormat.Encoding.PCM_FLOAT;
   public static final int SIGNED_16BIT_MAX = 0x8000;
   public static final int SIGNED_24BIT_MAX = 0x800000;
   public static final int SIGNED_32BIT_MAX = 0x80000000;
   public static final int SIGNED_8BIT_MAX = 0x80;
   public static final int UNSIGNED_16BIT_MAX = 0xffff;
   public static final int UNSIGNED_8BIT_MAX = 0xff;
+  // format encoding types
+  private static final AudioFormat.Encoding PCM_UNSIGNED = AudioFormat.Encoding.PCM_UNSIGNED;
+  private static final AudioFormat.Encoding PCM_SIGNED = AudioFormat.Encoding.PCM_SIGNED;
+  private static final AudioFormat.Encoding PCM_FLOAT = AudioFormat.Encoding.PCM_FLOAT;
 
   /**
    Get the proprietary (to this class) type for output audio
@@ -49,7 +49,7 @@ public class AudioSample {
    @return proprietary sample format
    @throws FormatException if format is unsupported
    */
-  public static String typeOfOutput(AudioFormat format) throws FormatException {
+  public static AudioSampleFormat typeOfOutput(AudioFormat format) throws FormatException {
     return typeOf(format, true);
   }
 
@@ -61,7 +61,7 @@ public class AudioSample {
    @return proprietary sample format
    @throws FormatException if format is unsupported
    */
-  public static String typeOfInput(AudioFormat format) throws FormatException {
+  public static AudioSampleFormat typeOfInput(AudioFormat format) throws FormatException {
     return typeOf(format, false);
   }
 
@@ -74,7 +74,7 @@ public class AudioSample {
    @return proprietary sample format
    @throws FormatException if format is unsupported
    */
-  private static String typeOf(AudioFormat format, boolean isOutput) throws FormatException {
+  private static AudioSampleFormat typeOf(AudioFormat format, boolean isOutput) throws FormatException {
     // switch based on frame size (bytes) and encoding
     AudioFormat.Encoding encoding = format.getEncoding();
     int sampleSizeInBits = format.getSampleSizeInBits();
@@ -133,7 +133,7 @@ public class AudioSample {
    @param type  of sample
    @return output bytes
    */
-  public static byte[] toBytes(double value, String type) {
+  public static byte[] toBytes(double value, AudioSampleFormat type) {
     switch (type) {
       case S8:
         return toBytesS8(value);
@@ -165,7 +165,7 @@ public class AudioSample {
    @param type  of sample
    @return value
    */
-  public static double fromBytes(byte[] value, String type) {
+  public static double fromBytes(byte[] value, AudioSampleFormat type) {
     switch (type) {
       case U8:
         return fromBytesU8(value);

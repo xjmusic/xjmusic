@@ -11,12 +11,22 @@ const rgxValidUrl = /(http|https):\/\/(\w+:?\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?
 /**
  * # of seconds of silence to enforce from beginning (0.0 seconds) of WebAudio context
  */
-const enforceSilenceSecondsStart = 1;
+const ENFORCE_WEBAUDIO_SCHEDULE_PLAYBACK_AHEAD_SECONDS = 0.5;
 
 /**
  * self evident maths
  */
 const MILLIS_PER_SECOND = 1000;
+
+
+/**
+ State constants
+ * @type {string}
+ */
+const STANDBY = 'Standby';
+const SYNCING = 'Syncing';
+const PLAYING = 'Playing';
+const ALL_STATES = [STANDBY, SYNCING, PLAYING];
 
 /**
  SegmentAudio object, a wrapper to play the audio for a single segment in a chain.
@@ -41,7 +51,7 @@ export class SegmentAudio {
   audioContext = null;
 
   /**
-   * @type {String} segmentBaseUrl for segment MP3's
+   * @type {String} segmentBaseUrl for segment OGG's
    */
   segmentBaseUrl = '';
 
@@ -67,10 +77,10 @@ export class SegmentAudio {
   endAtTime;
 
   /**
-   * Time (seconds,floating point) to offset playback within source audio
-   * (in order to begin playback from somewhere in the middle of the source audio)
+   * State of player
+   * @type {string}
    */
-  timeOffset = 0;
+  state = STANDBY;
 
   /**
    * Instantiate a new Segment Audio playback controller
@@ -89,21 +99,21 @@ export class SegmentAudio {
     // compute time-related properties
     self.beginAtTime = (Date.parse(self.segment.beginAt) - audioContextStartMillisUTC) / MILLIS_PER_SECOND;
     self.endAtTime = (Date.parse(self.segment.endAt) - audioContextStartMillisUTC) / MILLIS_PER_SECOND;
-    if (self.beginAtTime < enforceSilenceSecondsStart) {
-      self.timeOffset = enforceSilenceSecondsStart - self.beginAtTime;
-      self.beginAtTime = enforceSilenceSecondsStart;
-    }
 
     if (!self.hasValidWaveformUrl()) {
-      self.error('invalid waveform url: ' + self.waveformUrl());
+      self.error('Invalid waveform URL', self.waveformUrl());
       return;
     }
 
-    self.info('will play', self.waveformUrl(),
-      'at', self.segment.beginAt);
-    self.loadAudio(() => {
-      self.playWebAudio();
-    });
+    if (self.isAudioContextRunning() && self.isFutureEnough()) {
+      self.transitionToState(SYNCING);
+      self.loadAudio(() => {
+        self.playWebAudio();
+      });
+    } else {
+      self.bufferSource = null;
+      self.warn("Skipped", '@', self.segment.beginAt);
+    }
   }
 
   /**
@@ -111,8 +121,14 @@ export class SegmentAudio {
    sound starts precisely via direct message sent to WebAudio
    */
   playWebAudio() {
-    if (this.timeOffset < this.bufferSource.buffer.duration) {
-      this.bufferSource.start(this.beginAtTime, this.timeOffset);
+    let self = this;
+    if (self.isFutureEnough()) {
+      self.transitionToState(PLAYING);
+      self.bufferSource.start(self.beginAtTime, 0);
+      self.info(self.waveformUrl(),
+        '@', self.segment.beginAt);
+    } else {
+      self.warn("Skipped playback of audio without sufficient lead time to in WebAudio context");
     }
   }
 
@@ -169,11 +185,29 @@ export class SegmentAudio {
   }
 
   /**
+   * [#150279553] Listener expects explicit **Play** button in player UI, for browsers that require explicit permission for audio playback.
+   * @returns {boolean}
+   */
+  isAudioContextRunning() {
+    return this.audioContext.state && this.audioContext.state.toLowerCase() === 'running';
+  }
+
+  /**
+   * Transition to new state, and update status
+   * @param toState to transition to
+   */
+  transitionToState(toState) {
+    this.state = toState;
+  }
+
+  /**
    should this segment be playing now?
    */
   isPlaying() {
-    return this.beginAtTime < this.audioContext.currentTime &&
-      this.endAtTime > this.audioContext.currentTime;
+    return null !== this.bufferSource &&
+      this.beginAtTime < this.audioContext.currentTime &&
+      this.endAtTime > this.audioContext.currentTime &&
+      PLAYING === this.state;
   }
 
   /**
@@ -198,7 +232,7 @@ export class SegmentAudio {
    log a warn-level message
    * @param message
    * @param args
-   */
+   */F
   warn(message, ...args) {
     this.log('warn', message, ...args);
   }
@@ -222,5 +256,13 @@ export class SegmentAudio {
     console[level]('    [segment@' + this.segment.offset + '] ' + message, ...args);
   }
 
+  /**
+   * Whether this segment audio is sufficiently ahead of the current web audio context time,
+   * in order to avoid unnecessary loading, or untenable playback requests.
+   * @returns {boolean}
+   */
+  isFutureEnough() {
+    return this.beginAtTime > this.audioContext.currentTime + ENFORCE_WEBAUDIO_SCHEDULE_PLAYBACK_AHEAD_SECONDS;
+  }
 }
 

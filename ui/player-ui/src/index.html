@@ -3,48 +3,61 @@
 
 <html class="no-js" lang="">
 
-    <head>
-        <!-- Global site tag (gtag.js) - Google Analytics -->
-        <script async src="https://www.googletagmanager.com/gtag/js?id=UA-102762643-4"></script>
-        <script>
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', 'UA-102762643-4');
-        </script>
+<head>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-102762643-4"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
 
-        <meta charset="utf-8">
-        <meta http-equiv="x-ua-compatible" content="ie=edge">
-        <title>XJ Music™</title>
-        <meta name="description" content="">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    function gtag() {
+      dataLayer.push(arguments);
+    }
 
-        <link rel="manifest" href="site.webmanifest">
-        <link rel="apple-touch-icon" href="icon.png">
-        <!-- Place favicon.ico in the root directory -->
+    gtag('js', new Date());
+    gtag('config', 'UA-102762643-4');
+  </script>
 
-        <link rel="stylesheet" href="vendor/normalize.css">
-        <link rel="stylesheet" href="css/main.css">
-    </head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <title>XJ Music™</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <body>
-        <!--[if lte IE 9]>
-            <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience and security.</p>
-        <![endif]-->
+  <link rel="manifest" href="site.webmanifest">
+  <link rel="apple-touch-icon" href="icon.png">
+  <!-- Place favicon.ico in the root directory -->
 
-        <header>
-          <h1 id="chain-name"></h1>
-          <h2 id="now-playing"></h2>
-          <h6 id="now-utc"></h6>
-        </header>
+  <link rel="stylesheet" href="vendor/normalize.css">
+  <link rel="stylesheet" href="css/main.css">
+</head>
 
-        <ul id="segments"></ul>
+<body>
+<!--[if lte IE 9]>
+<p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade
+  your browser</a> to improve your experience and security.</p>
+<![endif]-->
 
-        <script src="vendor/modernizr-3.5.0.min.js"></script>
-        <script src="vendor/jquery-3.2.1.min.js"></script>
-        <script src="vendor/require.js"></script>
-        <script src="js/main.js"></script>
-    </body>
+<table class="status">
+  <tr>
+    <td align="center" valign="middle">
+      <div id="status-text"></div>
+    </td>
+  </tr>
+</table>
+
+<div class="debug">
+  <h1 id="chain-name"></h1>
+  <h2 id="now-playing"></h2>
+  <h6 id="now-utc"></h6>
+  <ul id="segments"></ul>
+</div>
+
+
+<script src="vendor/modernizr-3.5.0.min.js"></script>
+<script src="vendor/jquery-3.2.1.min.js"></script>
+<script src="vendor/require.js"></script>
+<script src="js/main.js"></script>
+</body>
 
 </html>
 

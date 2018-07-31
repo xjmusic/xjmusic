@@ -152,7 +152,7 @@ export default Service.extend({
   createEmbeddedPlayer() {
     let chainId = this.get('currentChain').get('id');
     let startAtMillisUTC = this.get('playFromMillisUTC');
-    $('#' + PLAYER_EMBED_PARENT_ID).html('<iframe frameborder="0" height="0" width="0" src="/player/#play=' + chainId + '&startAtMillisUTC=' + startAtMillisUTC + '"></iframe>');
+    $('#' + PLAYER_EMBED_PARENT_ID).html('<iframe frameborder="0" height="25" width="25" scrolling="no" src="/player/#play=' + chainId + '&startAtMillisUTC=' + startAtMillisUTC + '"></iframe>');
   },
 
   /**

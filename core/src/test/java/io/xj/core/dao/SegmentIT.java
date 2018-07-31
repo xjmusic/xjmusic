@@ -119,8 +119,8 @@ public class SegmentIT {
       .setKey("C# minor 7 b9")
       .setTempo(120.0);
 
-    when(amazonProvider.generateKey("chain-1-segment", "mp3"))
-      .thenReturn("chain-1-segment-h2a34j5s34fd987gaw3.mp3");
+    when(amazonProvider.generateKey("chain-1-segment", "ogg"))
+      .thenReturn("chain-1-segment-h2a34j5s34fd987gaw3.ogg");
 
     Segment result = testDAO.create(access, inputData);
 
@@ -154,8 +154,8 @@ public class SegmentIT {
       .setKey("C# minor 7 b9")
       .setTempo(120.0);
 
-    when(amazonProvider.generateKey("chain-1-segment", "mp3"))
-      .thenReturn("chain-1-segment-h2a34j5s34fd987gaw3.mp3");
+    when(amazonProvider.generateKey("chain-1-segment", "ogg"))
+      .thenReturn("chain-1-segment-h2a34j5s34fd987gaw3.ogg");
 
     Segment result = testDAO.create(access, inputData);
 
@@ -188,8 +188,8 @@ public class SegmentIT {
       .setKey("C# minor 7 b9")
       .setTempo(120.0);
 
-    when(amazonProvider.generateKey("chain-1-segment", "mp3"))
-      .thenReturn("chain-1-segment-h2a34j5s34fd987gaw3.mp3");
+    when(amazonProvider.generateKey("chain-1-segment", "ogg"))
+      .thenReturn("chain-1-segment-h2a34j5s34fd987gaw3.ogg");
 
     failure.expect(BusinessException.class);
     failure.expectMessage("Found Segment at same offset in Chain");
@@ -213,8 +213,8 @@ public class SegmentIT {
       .setKey("C# minor 7 b9")
       .setTempo(120.0);
 
-    when(amazonProvider.generateKey("chain-1-segment", "mp3"))
-      .thenReturn("chain-1-segment-h2a34j5s34fd987gaw3.mp3");
+    when(amazonProvider.generateKey("chain-1-segment", "ogg"))
+      .thenReturn("chain-1-segment-h2a34j5s34fd987gaw3.ogg");
 
     failure.expect(BusinessException.class);
     failure.expectMessage("top-level access is required");
@@ -237,8 +237,8 @@ public class SegmentIT {
       .setKey("C# minor 7 b9")
       .setTempo(120.0);
 
-    when(amazonProvider.generateKey("chain-1-segment", "mp3"))
-      .thenReturn("chain-1-segment-h2a34j5s34fd987gaw3.mp3");
+    when(amazonProvider.generateKey("chain-1-segment", "ogg"))
+      .thenReturn("chain-1-segment-h2a34j5s34fd987gaw3.ogg");
 
     failure.expect(BusinessException.class);
     failure.expectMessage("Chain ID is required");
@@ -262,8 +262,8 @@ public class SegmentIT {
       .setKey("C# minor 7 b9")
       .setTempo(120.0);
 
-    when(amazonProvider.generateKey("chain-1-segment", "mp3"))
-      .thenReturn("chain-1-segment-h2a34j5s34fd987gaw3.mp3");
+    when(amazonProvider.generateKey("chain-1-segment", "ogg"))
+      .thenReturn("chain-1-segment-h2a34j5s34fd987gaw3.ogg");
 
     failure.expect(BusinessException.class);
     failure.expectMessage("'mushamush' is not a valid state");
@@ -673,7 +673,7 @@ public class SegmentIT {
 
     // Chain "Test Print #1" has one segment
     IntegrationTestEntity.insertChain(3, 1, "Test Print #1", ChainType.Production, ChainState.Erase, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"), null);
-    IntegrationTestEntity.insertSegment(17, 3, 0, SegmentState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120.0, "chain-1-segment-97898asdf7892.mp3");
+    IntegrationTestEntity.insertSegment(17, 3, 0, SegmentState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120.0, "chain-1-segment-97898asdf7892.ogg");
 
     // Segment Meme
     IntegrationTestEntity.insertSegmentMeme(25, 17, "Jams");
@@ -703,7 +703,7 @@ public class SegmentIT {
     //
 
     // [#263] expect request to delete segment waveform from Amazon S3
-    verify(amazonProvider).deleteS3Object("xj-segment-test", "chain-1-segment-97898asdf7892.mp3");
+    verify(amazonProvider).deleteS3Object("xj-segment-test", "chain-1-segment-97898asdf7892.ogg");
 
     // Assert destroyed Segment
     assertNull(testDAO.readOne(Access.internal(), BigInteger.valueOf(17L)));

@@ -137,13 +137,11 @@
       <version>${org.jooq.version}</version>
     </dependency>
 
-    <!-- database access: https://github.com/xetorthio/jedis -->
+    <!-- database access: https://github.com/xetorthio/jedis - https://mvnrepository.com/artifact/redis.clients/jedis -->
     <dependency>
       <groupId>redis.clients</groupId>
       <artifactId>jedis</artifactId>
       <version>2.9.0</version>
-      <type>jar</type>
-      <scope>compile</scope>
     </dependency>
 
     <!-- external authentication: https://mvnrepository.com/artifact/com.google.api-client/google-api-client -->

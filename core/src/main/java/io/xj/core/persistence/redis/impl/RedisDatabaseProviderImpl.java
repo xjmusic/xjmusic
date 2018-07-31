@@ -1,11 +1,9 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.persistence.redis.impl;
 
+import com.google.common.collect.ImmutableList;
 import io.xj.core.config.Config;
 import io.xj.core.persistence.redis.RedisDatabaseProvider;
-
-import com.google.common.collect.ImmutableList;
-
 import net.greghaines.jesque.ConfigBuilder;
 import net.greghaines.jesque.client.Client;
 import net.greghaines.jesque.client.ClientImpl;
@@ -15,20 +13,17 @@ import net.greghaines.jesque.worker.WorkerImpl;
 import redis.clients.jedis.Jedis;
 
 public class RedisDatabaseProviderImpl implements RedisDatabaseProvider {
+/*
+  private final JedisPool jedisPool;
+  private final Client queueClient;
+*/
 
-  @Override
-  public Jedis getClient() {
-    return new Jedis(host(), port());
-  }
-
-  @Override
-  public Client getQueueClient()  {
-    return new ClientImpl(getQueueConfig());
-  }
-
-  @Override
-  public Worker getQueueWorker(JobFactory jobFactory) {
-    return new WorkerImpl(getQueueConfig(), ImmutableList.of(Config.workQueueName()), jobFactory);
+  public RedisDatabaseProviderImpl() {
+/*
+TODO: use Jedis Pool and Client Pool
+    jedisPool = new JedisPool(host(), port());
+    queueClient = new ClientPoolImpl(getQueueConfig(), jedisPool);
+*/
   }
 
   /**
@@ -54,12 +49,22 @@ public class RedisDatabaseProviderImpl implements RedisDatabaseProvider {
 
    @return port
    */
-  private static int port(){
+  private static int port() {
     return Config.dbRedisPort();
   }
 
   /**
+   Redis server timeout, from config
+
+   @return timeout
+   */
+  private static int timeout() {
+    return Config.dbRedisTimeout();
+  }
+
+  /**
    Jesque work queue configuration
+
    @return config
    */
   private static net.greghaines.jesque.Config getQueueConfig() {
@@ -67,7 +72,23 @@ public class RedisDatabaseProviderImpl implements RedisDatabaseProvider {
       .withHost(host())
       .withPort(port())
       .withNamespace(namespace())
+      .withTimeout(timeout())
       .build();
+  }
+
+  @Override
+  public Jedis getClient() {
+    return new Jedis(host(), port());
+  }
+
+  @Override
+  public Client getQueueClient() {
+    return new ClientImpl(getQueueConfig());
+  }
+
+  @Override
+  public Worker getQueueWorker(JobFactory jobFactory) {
+    return new WorkerImpl(getQueueConfig(), ImmutableList.of(Config.workQueueName()), jobFactory);
   }
 
 }

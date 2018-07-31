@@ -27,7 +27,7 @@ public class Segment extends Entity {
   public static final String KEY_ONE = "segment";
   public static final String KEY_MANY = "segments";
   // attributes
-  public static final String FILE_EXTENSION = "mp3";
+  public static final String FILE_EXTENSION = "ogg";
 
   private BigInteger chainId;
   private String _state; // hold value before validation

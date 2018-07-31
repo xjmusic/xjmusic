@@ -79,18 +79,18 @@ public class AudioStreamLoader {
    @return frames
    */
   public double[][] loadFrames() throws FormatException, IOException {
-    String sampleType = AudioSample.typeOfInput(audioInputStream.getFormat());
+    AudioSampleFormat sampleFormat = AudioSampleFormat.typeOfInput(audioInputStream.getFormat());
 
     int numBytesReadToBuffer;
     int currentFrame = 0;
     byte[] sampleBuffer = new byte[sampleSize];
     byte[] readBuffer = new byte[READ_BUFFER_BYTE_SIZE];
-    while ((numBytesReadToBuffer = audioInputStream.read(readBuffer)) != -1) {
+    while (-1 != (numBytesReadToBuffer = audioInputStream.read(readBuffer))) {
       for (int b = 0; b < numBytesReadToBuffer; b += frameSize) {
         frames[currentFrame] = new double[channels];
         for (int c = 0; c < channels; c++) {
           System.arraycopy(readBuffer, b + c * sampleSize, sampleBuffer, 0, sampleSize);
-          double value = AudioSample.fromBytes(sampleBuffer, sampleType);
+          double value = AudioSampleFormat.fromBytes(sampleBuffer, sampleFormat);
           frames[currentFrame][c] = value;
         }
         currentFrame++;

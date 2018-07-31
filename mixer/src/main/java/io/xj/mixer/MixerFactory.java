@@ -25,12 +25,11 @@ public interface MixerFactory {
   /**
    Create a single Mix instance which mixes to a single output stream and format.
 
-   @param outputFormat to write final output audio
    @return Mixer
    @throws MixerException if unable to create Mixer
+   @param outputFormat to write final output audio
    */
   Mixer createMixer(
-    @Assisted("outputContainer") OutputContainer outputContainer,
     @Assisted("outputFormat") AudioFormat outputFormat,
     @Assisted("outputLength") Duration outputLength
   ) throws MixerException;

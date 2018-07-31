@@ -1,6 +1,9 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.work.impl;
 
+import com.google.api.client.util.Maps;
+import com.google.common.collect.Lists;
+import com.google.inject.Inject;
 import io.xj.core.access.impl.Access;
 import io.xj.core.config.Config;
 import io.xj.core.dao.AudioDAO;
@@ -20,10 +23,6 @@ import io.xj.core.model.work.WorkState;
 import io.xj.core.model.work.WorkType;
 import io.xj.core.persistence.redis.RedisDatabaseProvider;
 import io.xj.core.work.WorkManager;
-
-import com.google.common.collect.Lists;
-import com.google.inject.Inject;
-
 import net.greghaines.jesque.Job;
 import net.greghaines.jesque.client.Client;
 import net.greghaines.jesque.worker.JobFactory;
@@ -31,6 +30,7 @@ import net.greghaines.jesque.worker.Worker;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import redis.clients.jedis.Jedis;
 
 import java.math.BigInteger;
 import java.util.Collection;
@@ -43,7 +43,7 @@ public class WorkManagerImpl implements WorkManager {
   private static final Logger log = LoggerFactory.getLogger(WorkManagerImpl.class);
   private static final Integer MILLIS_PER_SECOND = 1000;
   private static final String KEY_JESQUE_CLASS = "class";
-  private static final String KEY_JESQUE_ARGS = "args";
+  private static final String KEY_JESQUE_VARS = "vars";
   private final PlatformMessageDAO platformMessageDAO;
   private final RedisDatabaseProvider redisDatabaseProvider;
   private final ChainDAO chainDAO;
@@ -110,14 +110,31 @@ public class WorkManagerImpl implements WorkManager {
   }
 
   /**
-   Build a job for Jedis enqueing
+   Build a job for enqueuing
 
-   @param type of job
-   @param args for job
+   @param type     of job
+   @param targetId for job
    @return new job
    */
-  private static Job buildJob(WorkType type, Object... args) {
-    return new Job(type.toString(), args);
+  private static Job buildJob(WorkType type, BigInteger targetId) {
+    Map<String, String> vars = Maps.newHashMap();
+    vars.put(Work.KEY_TARGET_ID, targetId.toString());
+    return new Job(type.toString(), vars);
+  }
+
+  /**
+   Build a job for enqueing
+
+   @param type     of job
+   @param sourceId for job
+   @param targetId for job
+   @return new job
+   */
+  private static Job buildJob(WorkType type, BigInteger sourceId, BigInteger targetId) {
+    Map<String, String> vars = Maps.newHashMap();
+    vars.put(Work.KEY_SOURCE_ID, sourceId.toString());
+    vars.put(Work.KEY_TARGET_ID, targetId.toString());
+    return new Job(type.toString(), vars);
   }
 
   @Override
@@ -161,23 +178,23 @@ public class WorkManagerImpl implements WorkManager {
   }
 
   @Override
-  public void doInstrumentClone(BigInteger fromId, BigInteger toId) {
-    doJob(WorkType.InstrumentClone, fromId, toId);
+  public void doInstrumentClone(BigInteger sourceId, BigInteger targetId) {
+    doJob(WorkType.InstrumentClone, sourceId, targetId);
   }
 
   @Override
-  public void doAudioClone(BigInteger fromId, BigInteger toId) {
-    doJob(WorkType.AudioClone, fromId, toId);
+  public void doAudioClone(BigInteger sourceId, BigInteger targetId) {
+    doJob(WorkType.AudioClone, sourceId, targetId);
   }
 
   @Override
-  public void doSequenceClone(BigInteger fromId, BigInteger toId) {
-    doJob(WorkType.SequenceClone, fromId, toId);
+  public void doSequenceClone(BigInteger sourceId, BigInteger targetId) {
+    doJob(WorkType.SequenceClone, sourceId, targetId);
   }
 
   @Override
-  public void doPatternClone(BigInteger fromId, BigInteger toId) {
-    doJob(WorkType.PatternClone, fromId, toId);
+  public void doPatternClone(BigInteger sourceId, BigInteger targetId) {
+    doJob(WorkType.PatternClone, sourceId, targetId);
   }
 
   @Override
@@ -187,7 +204,7 @@ public class WorkManagerImpl implements WorkManager {
 
   @Override
   public Collection<Work> readAllWork() throws Exception {
-    Map<BigInteger, Work> workMap = audioDAO.readAllInState(Access.internal(), AudioState.Erase).stream().map(record -> buildWork(WorkType.AudioErase, WorkState.Expected, record.getId())).collect(Collectors.toMap(Entity::getId, work -> work, (a, b) -> b));
+    Map<BigInteger, Work> workMap = audioDAO.readAllInState(Access.internal(), AudioState.Erase).stream().map(record -> buildWork(WorkType.AudioErase, WorkState.Expected, record.getId())).collect(Collectors.toMap(Entity::getId, work -> work, (a, work1) -> work1));
 
     // Add Expected Work: Audio in 'Erase' state
 
@@ -204,19 +221,21 @@ public class WorkManagerImpl implements WorkManager {
     chainDAO.readAllInState(Access.internal(), ChainState.Fabricate).stream().map(record -> buildWork(WorkType.ChainFabricate, WorkState.Expected, record.getId())).forEach(work -> workMap.put(work.getId(), work));
 
     // Overwrite and Add all Queued Work
-    Set<String> queuedWork = redisDatabaseProvider.getClient().zrange(computeRedisWorkQueueKey(), 0L, -1L);
+    Jedis client = redisDatabaseProvider.getClient();
+    Set<String> queuedWork = client.zrange(computeRedisWorkQueueKey(), 0L, -1L);
     queuedWork.forEach((value) -> {
       try {
         JSONObject json = new JSONObject(value);
         Work work = buildWork(
           WorkType.valueOf(json.getString(KEY_JESQUE_CLASS)),
           WorkState.Queued,
-          json.getJSONArray(KEY_JESQUE_ARGS).getBigInteger(0));
+          json.getJSONObject(KEY_JESQUE_VARS).getBigInteger(Work.KEY_TARGET_ID));
         workMap.put(work.getId(), work);
       } catch (Exception e) {
         log.error("Failed to parse redis job from value {}", value, e);
       }
     });
+    client.close();
 
     Collection<Work> allWork = Lists.newArrayList();
     workMap.forEach((workId, work) -> allWork.add(work));
@@ -342,50 +361,51 @@ public class WorkManagerImpl implements WorkManager {
     enqueueDelayedWork(buildJob(workType, entityId), delaySeconds);
   }
 
-  /**
+  /*
    Schedule a Job from one entity to another
 
    @param workType     type of job
    @param delaySeconds to wait # seconds
    @param fromId       entity to source values and child entities from
    @param toId         entity to clone entities onto
-   */
+   *
   private void scheduleJob(WorkType workType, Integer delaySeconds, BigInteger fromId, BigInteger toId) {
     log.info("Schedule targeted {} job, delaySeconds:{}, fromId:{}, toId:{}", workType, delaySeconds, fromId, toId);
     enqueueDelayedWork(buildJob(workType, fromId, toId), delaySeconds);
   }
+  */
 
   /**
    Do a Job from one entity to another
 
    @param workType type of job
-   @param fromId   entity to source values and child entities from
-   @param toId     entity to clone entities onto
+   @param sourceId entity to source values and child entities from
+   @param targetId entity to clone entities onto
    */
-  private void doJob(WorkType workType, BigInteger fromId, BigInteger toId) {
-    log.info("Schedule targeted {} job, fromId:{}, toId:{}", workType, fromId, toId);
-    enqueueWork(buildJob(workType, fromId, toId));
+  private void doJob(WorkType workType, BigInteger sourceId, BigInteger targetId) {
+    log.info("Do {} job, sourceId:{}, targetId:{}", workType, sourceId, targetId);
+    enqueueWork(buildJob(workType, sourceId, targetId));
   }
 
   /**
    Do a Job
 
    @param workType type of job
-   @param id       of entity
+   @param targetId of entity
    */
-  private void doJob(WorkType workType, BigInteger id) {
-    log.info("Do {} job, entityId:{}", workType, id);
-    enqueueWork(buildJob(workType, id));
+  private void doJob(WorkType workType, BigInteger targetId) {
+    log.info("Do {} job, targetId:{}", workType, targetId);
+    enqueueWork(buildJob(workType, targetId));
   }
 
   /**
-   Enqueue work
+   Enqueue work (delayed until zero seconds from now)
 
    @param job to enqueue
    */
   private void enqueueWork(Job job) {
     Client client = getQueueClient();
-    client.enqueue(Config.workQueueName(), job);
+    client.delayedEnqueue(Config.workQueueName(), job, System.currentTimeMillis()+ Config.workEnqueueNowDelayMillis());
     client.end();
   }
 

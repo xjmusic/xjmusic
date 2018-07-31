@@ -1,9 +1,10 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
-package io.xj.core.app;
+package io.xj.core.app.impl;
 
 import io.xj.core.access.AccessLogFilterProvider;
 import io.xj.core.access.AccessTokenAuthFilter;
 import io.xj.core.access.impl.Access;
+import io.xj.core.app.App;
 import io.xj.core.config.Config;
 import io.xj.core.dao.PlatformMessageDAO;
 import io.xj.core.exception.ConfigException;

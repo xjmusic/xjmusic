@@ -4,7 +4,7 @@ package io.xj.dub.ship;
 import io.xj.core.exception.BusinessException;
 
 /**
- [#264] Segment audio is compressed to MP3 and shipped to https://segment.xj.io
+ [#264] Segment audio is compressed to OGG_VORBIS and shipped to https://segment.xj.io
  */
 public interface ShipDub {
 

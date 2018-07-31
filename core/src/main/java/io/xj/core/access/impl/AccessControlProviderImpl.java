@@ -2,6 +2,7 @@
 package io.xj.core.access.impl;
 
 import io.xj.core.access.AccessControlProvider;
+import io.xj.core.access.token.TokenGenerator;
 import io.xj.core.config.Config;
 import io.xj.core.dao.UserDAO;
 import io.xj.core.exception.AccessException;
@@ -12,7 +13,6 @@ import io.xj.core.model.user_auth.UserAuth;
 import io.xj.core.model.user_auth.UserAuthType;
 import io.xj.core.model.user_role.UserRole;
 import io.xj.core.persistence.redis.RedisDatabaseProvider;
-import io.xj.core.access.token.TokenGenerator;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
 import com.google.api.services.plus.model.Person;
@@ -20,6 +20,7 @@ import com.google.inject.Inject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import redis.clients.jedis.Jedis;
 
 import javax.ws.rs.core.NewCookie;
 import java.util.Collection;
@@ -61,11 +62,14 @@ public class AccessControlProviderImpl implements AccessControlProvider {
   public Map<String, String> update(String accessToken, UserAuth userAuth, Collection<AccountUser> userAccountRoles, Collection<UserRole> userRoles) throws AccessException {
     Access access = new Access(userAuth, userAccountRoles, userRoles);
     Map<String, String> userMap = access.toMap();
+    Jedis client = redisDatabaseProvider.getClient();
     try {
-      redisDatabaseProvider.getClient().hmset(accessToken, userMap);
+      client.hmset(accessToken, userMap);
+      client.close();
     } catch (Exception e) {
-      log.error("Redis database connection is not get properly!", e);
-      throw new AccessException("Redis database connection is not get properly: " + e);
+      client.close();
+      log.error("Redis database connection", e);
+      throw new AccessException("Redis database connection", e);
     }
     return userMap;
   }
@@ -73,18 +77,25 @@ public class AccessControlProviderImpl implements AccessControlProvider {
 
   @Override
   public void expire(String token) throws DatabaseException {
+    Jedis client = redisDatabaseProvider.getClient();
     try {
-      redisDatabaseProvider.getClient().del(token);
+      client.del(token);
+      client.close();
     } catch (Exception e) {
+      client.close();
       throw new DatabaseException("Redis error", e);
     }
   }
 
   @Override
   public Access get(String token) throws DatabaseException {
+    Jedis client = redisDatabaseProvider.getClient();
     try {
-      return new Access(redisDatabaseProvider.getClient().hgetAll(token));
+      Access access = new Access(client.hgetAll(token));
+      client.close();
+      return access;
     } catch (Exception e) {
+      client.close();
       throw new DatabaseException("Redis error(" + e.getClass().getName() + ")", e);
     }
   }
@@ -111,7 +122,6 @@ public class AccessControlProviderImpl implements AccessControlProvider {
   public String authenticate(String accessCode) throws Exception {
     String externalAccessToken;
     String externalRefreshToken;
-    Person person;
 
     try {
       GoogleTokenResponse tokenResponse = googleProvider.getTokenFromCode(accessCode);
@@ -122,6 +132,7 @@ public class AccessControlProviderImpl implements AccessControlProvider {
       throw new AccessException("Authentication failed", e);
     }
 
+    Person person;
     try {
       person = googleProvider.getMe(externalAccessToken);
     } catch (AccessException e) {

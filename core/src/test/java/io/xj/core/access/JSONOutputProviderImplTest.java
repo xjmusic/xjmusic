@@ -40,7 +40,7 @@ import static org.mockito.Mockito.when;
 public class JSONOutputProviderImplTest {
   @Mock TokenGenerator tokenGenerator;
   @Mock RedisDatabaseProvider redisDatabaseProvider;
-  @Mock private Jedis redisConnection;
+  @Mock private Jedis redisClient;
   private Injector injector;
   private AccessControlProvider accessControlProvider;
   private UserAuth userAuth;
@@ -91,7 +91,7 @@ public class JSONOutputProviderImplTest {
   @Test
   public void create() throws Exception {
     when(redisDatabaseProvider.getClient())
-      .thenReturn(redisConnection);
+      .thenReturn(redisClient);
     when(tokenGenerator.generate())
       .thenReturn("token123");
 
@@ -102,7 +102,7 @@ public class JSONOutputProviderImplTest {
     expectUserAccess.put("userAuthId", "12363");
     expectUserAccess.put("roles", "User,Artist");
     expectUserAccess.put("accounts", "790809874,90888932");
-    verify(redisConnection).hmset("token123", expectUserAccess);
+    verify(redisClient).hmset("token123", expectUserAccess);
   }
 
   @Test

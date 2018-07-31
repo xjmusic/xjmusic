@@ -67,10 +67,11 @@ public interface Mixer {
   /**
    Mix out to a file
 
-   @param outputFilePath path
    @throws MixerException if something goes wrong
+   @param outputFilePath path
+   @param quality of output (if lossy encoding)
    */
-  void mixToFile(String outputFilePath) throws Exception;
+  void mixToFile(OutputEncoder outputEncoder, String outputFilePath, Float quality) throws Exception;
 
   /**
    Get the current count of all sources.

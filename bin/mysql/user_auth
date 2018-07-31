@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+
+# Include common functions
+. $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/../common/functions
+
+# Connect as root
+MYSQL_USER="root"
+MYSQL_PORT=3300
+
+# Update user auth
+MYSQL_EXECUTE="update xj.user_auth set user_id=1;"
+
+# Find MySQL executable
+MYSQL_COMMAND=mysql
+if [ -f /usr/bin/mysql ]; then
+    MYSQL_COMMAND=/usr/bin/mysql
+elif [ -f /usr/local/mysql/bin/mysql ]; then
+    MYSQL_COMMAND=/usr/local/mysql/bin/mysql
+fi
+
+# Host Arguments
+MYSQL_ARGS="${@}"
+
+# Database
+MYSQL_DB="xj"
+
+# connect to ${HOST}
+step "Client SQL execution"
+${MYSQL_COMMAND} -u${MYSQL_USER} -h 127.0.0.1 -P ${MYSQL_PORT} ${MYSQL_ARGS} -e "${MYSQL_EXECUTE}"
+step_ok
+
+#
+finished_ok

@@ -27,11 +27,11 @@ public interface Config {
   Integer DEFAULT_INGEST_CHORD_SEQUENCE_PRESERVE_LENGTH_MIN = 2;
   Integer DEFAULT_INGEST_CHORD_SEQUENCE_REDUNDANCY_THRESHOLD = 1;
   Integer DEFAULT_LIMIT_SEGMENT_READ_SIZE = 20;
-  Integer DEFAULT_LOG_ACCESS_ENTITIES_MAX_SIZE = 0;
   Integer DEFAULT_PLATFORM_MESSAGE_READ_PREVIOUS_DAYS = 90;
   Integer DEFAULT_PLAY_BUFFER_AHEAD_SECONDS = 60;
   Integer DEFAULT_PLAY_BUFFER_DELAY_SECONDS = 5;
   Integer DEFAULT_REDIS_PORT = 6300;
+  Integer DEFAULT_REDIS_TIMEOUT = 300;
   Integer DEFAULT_WORK_BUFFER_CRAFT_DELAY_SECONDS = 1;
   Integer DEFAULT_WORK_BUFFER_SECONDS = 300;
   Integer DEFAULT_WORK_CHAIN_DELAY_SECONDS = 1;
@@ -59,6 +59,7 @@ public interface Config {
   String DEFAULT_TEMP_FILE_PATH_PREFIX_CREATE_SUFFIX = ".tmp";
   String DEFAULT_TUNING_ROOT_NOTE = "A4";
   Integer DEFAULT_SEGMENT_REQUEUE_SECONDS = 1;
+  Integer DEFAULT_WORK_ENQUEUE_NOW_DELAY_MILLIS = 10;
 
   static String authGoogleId() throws ConfigException {
     return get("auth.google.id");
@@ -346,6 +347,13 @@ public interface Config {
    */
   static Integer dbRedisPort() {
     return getIntOrDefault("db.redis.port", DEFAULT_REDIS_PORT);
+  }
+
+  /**
+   @return Database Redis Timeout
+   */
+  static Integer dbRedisTimeout() {
+    return getIntOrDefault("db.redis.timeout", DEFAULT_REDIS_TIMEOUT);
   }
 
   /**
@@ -667,5 +675,9 @@ public interface Config {
 
   static Integer segmentRequeueSeconds() {
     return getIntOrDefault("segment.requeue.seconds", DEFAULT_SEGMENT_REQUEUE_SECONDS);
+  }
+
+  static Integer workEnqueueNowDelayMillis() {
+    return getIntOrDefault("work.enqueue.now.delay.millis", DEFAULT_WORK_ENQUEUE_NOW_DELAY_MILLIS);
   }
 }

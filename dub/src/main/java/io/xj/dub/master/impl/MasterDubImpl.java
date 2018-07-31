@@ -19,7 +19,7 @@ import io.xj.core.util.Text;
 import io.xj.craft.basis.Basis;
 import io.xj.mixer.Mixer;
 import io.xj.mixer.MixerFactory;
-import io.xj.mixer.OutputContainer;
+import io.xj.mixer.OutputEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,7 +47,7 @@ public class MasterDubImpl implements MasterDub {
     AudioCacheProvider audioCacheProvider,
     SegmentMessageDAO segmentMessageDAO,
     MixerFactory mixerFactory
-  /*-*/) throws BusinessException {
+    /*-*/) throws BusinessException {
     this.audioCacheProvider = audioCacheProvider;
     this.basis = basis;
     this.segmentMessageDAO = segmentMessageDAO;
@@ -129,8 +129,8 @@ public class MasterDubImpl implements MasterDub {
    MasterDub implements Mixer module to mix final output to waveform streamed directly to Amazon S3
    */
   private void doMix() throws Exception {
-    // mix it
-    mixer().mixToFile(basis.outputFilePath());
+    float quality = Float.valueOf(basis.chainConfig(ChainConfigType.OutputEncodingQuality).getValue());
+    mixer().mixToFile(OutputEncoder.OGG_VORBIS, basis.outputFilePath(), quality);
   }
 
   /**
@@ -142,7 +142,6 @@ public class MasterDubImpl implements MasterDub {
   private Mixer mixer() throws Exception {
     if (Objects.isNull(_mixer))
       _mixer = mixerFactory.createMixer(
-        outputAudioContainer(),
         basis.outputAudioFormat(),
         basis.segmentTotalLength());
 
@@ -155,8 +154,8 @@ public class MasterDubImpl implements MasterDub {
    @return output container
    @throws Exception on failure
    */
-  private OutputContainer outputAudioContainer() throws Exception {
-    return OutputContainer.valueOf(basis.chainConfig(ChainConfigType.OutputContainer).getValue());
+  private OutputEncoder outputAudioContainer() throws Exception {
+    return OutputEncoder.valueOf(basis.chainConfig(ChainConfigType.OutputContainer).getValue());
   }
 
   /**

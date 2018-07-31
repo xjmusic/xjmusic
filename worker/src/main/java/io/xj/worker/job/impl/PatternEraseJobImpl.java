@@ -1,14 +1,15 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.worker.job.impl;
 
-import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
-
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.PatternDAO;
 import io.xj.core.model.pattern.Pattern;
 import io.xj.core.work.WorkManager;
 import io.xj.worker.job.PatternEraseJob;
+
+import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +42,7 @@ public class PatternEraseJobImpl implements PatternEraseJob {
         log.info("Attempting to destroy patternId={}", entityId);
         patternDAO.destroy(Access.internal(), entityId);
       } else {
-        log.info("Found NO patternId={}", entityId);
+        log.warn("Found NO patternId={}", entityId);
       }
 
     } catch (Exception e) {

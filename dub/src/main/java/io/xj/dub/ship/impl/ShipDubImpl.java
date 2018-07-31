@@ -11,7 +11,7 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
 /**
- [#264] Segment audio is compressed to MP3 and shipped to https://segment.xj.io
+ [#264] Segment audio is compressed to OGG_VORBIS and shipped to https://segment.xj.io
  */
 public class ShipDubImpl implements ShipDub {
 //  private final Logger log = LoggerFactory.getLogger(ShipDubImpl.class);

@@ -9,6 +9,8 @@ import java.math.BigInteger;
 public class Work extends Entity {
   public static final String KEY_ONE = "work";
   public static final String KEY_MANY = "works";
+  public static final String KEY_SOURCE_ID = "sourceId";
+  public static final String KEY_TARGET_ID = "targetId";
 
   private BigInteger targetId;
   private WorkState state;

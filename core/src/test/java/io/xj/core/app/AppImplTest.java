@@ -4,6 +4,7 @@ package io.xj.core.app;
 import io.xj.core.CoreModule;
 import io.xj.core.access.AccessLogFilterProvider;
 import io.xj.core.access.AccessTokenAuthFilter;
+import io.xj.core.app.impl.AppImpl;
 import io.xj.core.exception.ConfigException;
 import io.xj.core.transport.HttpServerProvider;
 import io.xj.core.transport.ResourceConfigProvider;

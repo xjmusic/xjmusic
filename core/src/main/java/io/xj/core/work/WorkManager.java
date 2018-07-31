@@ -5,8 +5,6 @@ import io.xj.core.model.work.Work;
 import io.xj.core.model.work.WorkState;
 import io.xj.core.model.work.WorkType;
 
-import com.google.common.collect.Lists;
-
 import net.greghaines.jesque.worker.JobFactory;
 import net.greghaines.jesque.worker.Worker;
 
@@ -69,7 +67,7 @@ public interface WorkManager {
    by creating a scheduled `SegmentCraftJob`.
 
    @param delaySeconds from now to schedule job at
-   @param segmentId       for which to schedule Craft
+   @param segmentId    for which to schedule Craft
    */
   void scheduleSegmentFabricate(Integer delaySeconds, BigInteger segmentId);
 
@@ -90,64 +88,64 @@ public interface WorkManager {
   void stopChainErase(BigInteger chainId);
 
   /**
-   Start erasing a Sequence,
-   by creating a recurring `SequenceEraseJob`.
+   Erase a Sequence,
+   by creating a one-time`SequenceEraseJob`.
 
-   @param sequenceId to begin erasing
+   @param sequenceId to erase
    */
   void doSequenceErase(BigInteger sequenceId);
 
   /**
-   Start erasing a Pattern,
-   by creating a recurring `PatternEraseJob`.
+   Erase a Pattern,
+   by creating a one-time`PatternEraseJob`.
 
-   @param patternId to begin erasing
+   @param patternId to erase
    */
   void doPatternErase(BigInteger patternId);
 
   /**
-   Start erasing an Audio,
-   by creating a `AudioEraseJob`.
+   Erase an Audio,
+   by creating a one-time `AudioEraseJob`.
 
-   @param audioId to begin erasing
+   @param audioId to erase
    */
   void doAudioErase(BigInteger audioId);
 
   /**
-   Schedule the cloning of a Instrument,
-   by creating a scheduled `InstrumentCloneJob`.
-   * @param fromId for which to schedule Clone
-   @param toId    to clone instrument to
+   Clone an Instrument,
+   by creating a one-time `InstrumentCloneJob`.
 
+   @param sourceId from which to Clone
+   @param targetId to clone into
    */
-  void doInstrumentClone(BigInteger fromId, BigInteger toId);
+  void doInstrumentClone(BigInteger sourceId, BigInteger targetId);
 
   /**
-   Schedule the cloning of a Audio,
-   by creating a scheduled `AudioCloneJob`.
-   * @param fromId      for which to schedule Clone
-   @param toId    to clone audio to
+   Clone an Audio,
+   by creating a one-time `AudioCloneJob`.
 
+   @param sourceId from which to Clone
+   @param targetId to clone into
    */
-  void doAudioClone(BigInteger fromId, BigInteger toId);
+  void doAudioClone(BigInteger sourceId, BigInteger targetId);
 
   /**
-   Schedule the cloning of a Sequence,
-   by creating a scheduled `SequenceCloneJob`.
-   * @param fromId for which to schedule Clone
-   @param toId    to clone sequence to
+   Clone a Sequence,
+   by creating a one-time `SequenceCloneJob`.
 
+   @param sourceId from which to Clone
+   @param targetId to clone into
    */
-  void doSequenceClone(BigInteger fromId, BigInteger toId);
+  void doSequenceClone(BigInteger sourceId, BigInteger targetId);
 
   /**
-   Schedule the cloning of a Pattern,
-   by creating a scheduled `PatternCloneJob`.
-   * @param fromId      for which to schedule Clone
-   @param toId    to clone pattern to
+   Clone an Pattern,
+   by creating a one-time `PatternCloneJob`.
 
+   @param sourceId from which to Clone
+   @param targetId to clone into
    */
-  void doPatternClone(BigInteger fromId, BigInteger toId);
+  void doPatternClone(BigInteger sourceId, BigInteger targetId);
 
   /**
    Get a Worker
@@ -185,6 +183,7 @@ public interface WorkManager {
 
   /**
    Determine if a job exists matching the specified criteria
+
    @return true if match is found
    */
   Boolean isExistingWork(WorkState state, WorkType type, BigInteger targetId) throws Exception;

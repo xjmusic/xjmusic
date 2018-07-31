@@ -398,7 +398,7 @@ public class BasisImpl implements Basis {
   public Map<ChainConfigType, ChainConfig> chainConfigs() throws Exception {
     if (Objects.isNull(_chainConfigs) || _chainConfigs.isEmpty()) {
       _chainConfigs = Maps.newConcurrentMap();
-      chainConfigDAO.readAll(Access.internal(), ImmutableList.of(segment().getId()))
+      chainConfigDAO.readAll(Access.internal(), ImmutableList.of(chainId()))
         .forEach(record -> _chainConfigs.put(
           record.getType(),
           record));

@@ -3,10 +3,9 @@ package io.xj.mixer.impl;
 
 import io.xj.mixer.Mixer;
 import io.xj.mixer.MixerFactory;
-import io.xj.mixer.OutputContainer;
+import io.xj.mixer.OutputEncoder;
 import io.xj.mixer.Put;
 import io.xj.mixer.Source;
-import io.xj.mixer.impl.audio.AudioSample;
 import io.xj.mixer.impl.audio.AudioStreamWriter;
 import io.xj.mixer.impl.exception.FormatException;
 import io.xj.mixer.impl.exception.MixerException;
@@ -23,7 +22,6 @@ import org.slf4j.LoggerFactory;
 import javax.sound.sampled.AudioFormat;
 import java.io.BufferedInputStream;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.time.Duration;
 import java.util.Map;
 import java.util.Objects;
@@ -45,7 +43,6 @@ public class MixerImpl implements Mixer {
   private final int totalBytes;
   private final int totalFrames;
   private final Duration outputLength;
-  private final String outputSampleFormat;
 
   // fields: playback state-machine
   private long nextCycleFrame = 0;
@@ -61,7 +58,6 @@ public class MixerImpl implements Mixer {
 
   // fields : mix macro and audio format
   private final AudioFormat outputFormat;
-  private final OutputContainer outputContainer;
   private MixerFactory mixerFactory;
 
   /**
@@ -71,12 +67,10 @@ public class MixerImpl implements Mixer {
    */
   @Inject
   public MixerImpl(
-    @Assisted("outputContainer") OutputContainer outputContainer,
     @Assisted("outputFormat") AudioFormat outputFormat,
     @Assisted("outputLength") Duration outputLength,
     MixerFactory mixerFactory
   ) throws MixerException {
-    this.outputContainer = outputContainer;
     this.outputFormat = outputFormat;
     this.outputLength = outputLength;
     this.mixerFactory = mixerFactory;
@@ -87,7 +81,6 @@ public class MixerImpl implements Mixer {
       enforceMax(2, "output audio channels", outputChannels);
       outputFrameRate = outputFormat.getFrameRate();
       outputFrameSize = outputFormat.getFrameSize();
-      outputSampleFormat = AudioSample.typeOfOutput(outputFormat);
       microsPerFrame = microsInASecond / outputFrameRate;
       totalSeconds = this.outputLength.toNanos() / nanosInASecond;
       totalFrames = (int) Math.floor(totalSeconds * outputFrameRate);
@@ -117,14 +110,14 @@ public class MixerImpl implements Mixer {
   }
 
   @Override
-  public void mixToFile(String outputFilePath) throws Exception {
+  public void mixToFile(OutputEncoder outputEncoder, String outputFilePath, Float quality) throws Exception {
     // the big show
-    ByteBuffer outputBytes = byteBufferOf(mix());
+    double[][] mix = mix();
 
     state = WRITING;
     long startedAt = System.nanoTime();
     log.info("Will write {} bytes of output audio", totalBytes);
-    new AudioStreamWriter(outputBytes).writeToFile(outputFilePath, outputFormat, outputContainer, totalFrames);
+    new AudioStreamWriter(mix, quality).writeToFile(outputFilePath, outputFormat, outputEncoder, totalFrames);
 
     state = DONE;
     log.info("Did write {} OK in {}s", outputFilePath, String.format("%.9f", (double) (System.nanoTime() - startedAt) / nanosInASecond));
@@ -136,7 +129,6 @@ public class MixerImpl implements Mixer {
       "outputLength:" + outputLength + ", " +
       "outputChannels:" + outputChannels + ", " +
       "outputFrameRate:" + outputFrameRate + ", " +
-      "outputSampleFormat:" + outputSampleFormat + ", " +
       "outputFrameSize:" + outputFrameSize + ", " +
       "microsPerFrame:" + microsPerFrame + ", " +
       "microsPerFrame:" + microsPerFrame + ", " +
@@ -225,21 +217,6 @@ public class MixerImpl implements Mixer {
     state = MIXED;
     log.info("Did mix {} frames in {}s", totalFrames, String.format("%.9f", (double) (System.nanoTime() - startedAt) / nanosInASecond));
     return outputFrames;
-  }
-
-  /**
-   Convert output values into a ByteBuffer
-
-   @param mix output to convert
-   @return output as byte buffer
-   */
-  private ByteBuffer byteBufferOf(double[][] mix) {
-    ByteBuffer outputBytes = ByteBuffer.allocate(totalBytes);
-    for (int offsetFrame = 0; offsetFrame < totalFrames; offsetFrame++)
-      for (int channel = 0; channel < mix[offsetFrame].length; channel++)
-        outputBytes.put(AudioSample.toBytes(mix[offsetFrame][channel], outputSampleFormat));
-
-    return outputBytes;
   }
 
   /**

@@ -8,7 +8,23 @@ import {API} from "api";
  * @type {string}
  */
 const STANDBY = 'Standby';
+const SUSPEND = 'Suspend';
+const SYNCING = 'Syncing';
 const PLAYING = 'Playing';
+const ALL_STATES = [STANDBY, SUSPEND, SYNCING, PLAYING];
+
+/**
+ * HTML icon codes
+ * @type {string}
+ */
+const HTML_RIGHT_ARROW = '&#9658;';
+const HTML_SPEAKER = '&#x1f50a;';
+const HTML_SPACER = '&nbsp;&nbsp;';
+const HTML_STATUS = {};
+HTML_STATUS[PLAYING] = HTML_SPEAKER + HTML_SPACER + '<span class="hidden-when-small">Playing Live Stream</span>';
+HTML_STATUS[SYNCING] = HTML_SPEAKER + HTML_SPACER + '<span class="hidden-when-small">Syncing...</span>';
+HTML_STATUS[SUSPEND] = HTML_RIGHT_ARROW + HTML_SPACER + '<span class="hidden-when-small">Play</span>';
+HTML_STATUS[STANDBY] = '<span class="hidden-when-small">Standby</span>';
 
 /**
  Seconds to delay during a stop action
@@ -50,6 +66,11 @@ export class Player {
   isDebugMode = false;
 
   /**
+   * @type {boolean} whether to simulate blocked autoplay, for development purposes
+   */
+  simulateBlockedAutoplay = false;
+
+  /**
    * @type {string} Chain identifier (embed key or id)
    */
   chainIdentifier = '';
@@ -72,12 +93,12 @@ export class Player {
   /**
    * @type {AudioContext} to store WebAudio context; which is never closed
    */
-  audioContext = Player.newAudioContext();
+  audioContext = null;
 
   /**
    * @type {number} millis UTC that audio context was initiated at.
    */
-  audioContextStartMillisUTC = Date.now();
+  audioContextStartMillisUTC = 0;
 
   /**
    * one API instance per Player
@@ -106,7 +127,7 @@ export class Player {
   cycleInterval = null;
 
   /**
-   * @type {number} count sub cycles between main cycles
+   * @type {object} count sub cycles between main cycles
    */
   cycleSubTicker = null;
 
@@ -126,11 +147,16 @@ export class Player {
       self.isDebugMode = true;
     }
 
+    if (Player.contains(options, 'autoplay')) {
+      self.simulateBlockedAutoplay = true;
+    }
+
     if (Player.contains(options, 'startAtMillisUTC')) {
       self.audioContextStartMillisUTC = options['startAtMillisUTC'];
       self.info('Playback will begin from specified millis UTC', self.audioContextStartMillisUTC);
     }
 
+    self.updateStatus();
   }
 
   /**
@@ -145,13 +171,38 @@ export class Player {
       self.chainIdentifier = chainIdentifier;
       self.api.chain(self.chainIdentifier, (chain) => {
         self.chain = chain;
-        self.state = PLAYING;
-        self.api.config((config) => {
-          self.segmentBaseUrl = config.segmentBaseUrl;
-          self.startCycle();
-        });
-        self.info('Now playing', '#' + chain.embedKey, '(' + chain.name + ')');
+        self.info('Chain', '#' + chain.embedKey, '(' + chain.name + ')');
+        self.suspend();
       });
+    });
+  }
+
+  /**
+   * Add a listener to resume playback when user interacted with the page.
+   * [#150279553] Listener expects explicit *Play* button in player UI, for browsers that require explicit permission for audio playback.
+   */
+  suspend() {
+    this.transitionToState(SUSPEND);
+    let body = $('body');
+    let self = this;
+    body.on('click', function () {
+      body.off();
+      self.resume();
+    });
+  }
+
+  /**
+   * Resuming playback means creating an audio context while bubbling up from a user interaction
+   * [#150279553] Listener expects explicit *Play* button in player UI, for browsers that require explicit permission for audio playback.
+   */
+  resume() {
+    let self = this;
+    self.createAudioContext();
+    self.info('XJ Player did create WebAudio context on page interaction.');
+    self.transitionToState(SYNCING);
+    self.api.config((config) => {
+      self.segmentBaseUrl = config.segmentBaseUrl;
+      self.startCycle();
     });
   }
 
@@ -165,7 +216,7 @@ export class Player {
       self.stopAllSegmentAudio(() => {
         self.chainIdentifier = '';
         self.chain = null;
-        self.state = STANDBY;
+        self.transitionToState(STANDBY);
         self.teardownSegmentAudioExcept([]);
         setTimeout(() => {
           thenFunc();
@@ -180,7 +231,7 @@ export class Player {
    Do Main Cycle every N seconds
    */
   doMainCycle() {
-    if (Player.nonNull(this.chain.id)) {
+    if (Player.nonNull(this.chain.id) && this.isActive()) {
       this.refreshDataThenUpdate();
     }
   }
@@ -189,7 +240,7 @@ export class Player {
    do Sub Cycle every N seconds
    */
   doSubCycle() {
-    if (Player.nonNull(this.chain.id)) {
+    if (Player.nonNull(this.chain.id) && this.isActive()) {
       this.update();
     }
   }
@@ -209,7 +260,7 @@ export class Player {
    The player's current time, in seconds (float precision) since context start
    */
   currentTime() {
-    return this.audioContext.currentTime;
+    return this.audioContext ? this.audioContext.currentTime : 0;
   }
 
   /**
@@ -232,19 +283,39 @@ export class Player {
     let segments = this.activeSegments;
     let activeSegmentIds = [];
     let segmentsHtml = '';
-    self.api.config((config) => {
-      segments.forEach(segment => {
-        self.updateSegmentAudio(config.segmentBaseUrl, segment);
-        activeSegmentIds.push(segment.id);
-        segmentsHtml += '<li>' + segment.state + '@<strong>' + segment.offset + '</strong>: ' + segment.waveformKey + '</li>';
+    if (null !== self.audioContext) {
+      self.api.config((config) => {
+        segments.forEach(segment => {
+          self.updateSegmentAudio(config.segmentBaseUrl, segment);
+          activeSegmentIds.push(segment.id);
+          segmentsHtml += '<li>' + segment.state + '@<strong>' + segment.offset + '</strong>: ' + segment.waveformKey + '</li>';
+        });
+        self.teardownSegmentAudioExcept(activeSegmentIds);
+        self.updateStatus();
+        if (self.isDebugMode) {
+          $('#chain-name').html(self.chain.name);
+          $('#now-utc').html(new Date().toISOString());
+          $('#segments').html(segmentsHtml);
+        }
       });
-      self.teardownSegmentAudioExcept(activeSegmentIds);
-      $('#chain-name').html(self.chain.name);
-      $('#now-utc').html(new Date().toISOString());
-      if (self.isDebugMode) {
-        $('#segments').html(segmentsHtml);
+    }
+  }
+
+  /**
+   * Update status displayed in Player UI
+   */
+  updateStatus() {
+    let body = $('body');
+    let statusText = $('div#status-text');
+    ALL_STATES.forEach((possibleState) => {
+      let stateClass = 'state-' + possibleState.toLowerCase();
+      if (possibleState === this.state) {
+        body.addClass(stateClass);
+      } else {
+        body.removeClass(stateClass);
       }
     });
+    statusText.html(HTML_STATUS[this.state]);
   }
 
   /**
@@ -263,9 +334,13 @@ export class Player {
       self.segmentAudios.set(segmentId, segmentAudio);
     }
 
-    if (segmentAudio && segmentAudio.isPlaying() && self.isDebugMode) {
-      let URL = segmentBaseUrl + segment.waveformKey;
-      $('#now-playing').html('<a href="' + URL + '" target="_blank">' + URL + '</a>');
+    if (segmentAudio && segmentAudio.isPlaying()) {
+      self.transitionToState(PLAYING);
+
+      if (self.isDebugMode) {
+        let URL = segmentBaseUrl + segment.waveformKey;
+        $('#now-playing').html('<a href="' + URL + '" target="_blank">' + URL + '</a>');
+      }
     }
   }
 
@@ -320,14 +395,119 @@ export class Player {
     self.doMainCycle();
   }
 
+  /**
+   * Transition to new state, and update status
+   * @param toState to transition to
+   */
+  transitionToState(toState) {
+    this.state = toState;
+    this.updateStatus();
+  }
 
   /**
-   compute begin time of segment waveform in WebAudio context, relative to playFromTime
-   * @param segment
-   * @returns {*}
+   log a debug-level message
+   * @param message
+   * @param args
    */
-  computeBeginTimeRelative(segment) {
-    return Date.parse(segment.beginAt) / MILLIS_PER_SECOND - this.playFromMillisUTC;
+  debug(message, ...args) {
+    this.log('debug', message, ...args);
+  }
+
+  /**
+   log a info-level message
+   * @param message
+   * @param args
+   */
+  info(message, ...args) {
+    this.log('info', message, ...args);
+  }
+
+  /**
+   log a warn-level message
+   * @param message
+   * @param args
+   */
+  warn(message, ...args) {
+    this.log('warn', message, ...args);
+  }
+
+  /**
+   log an error-level message
+   * @param message
+   * @param args
+   */
+  error(message, ...args) {
+    this.log('error', message, ...args);
+  }
+
+  /**
+   log any level of message
+   * @param message
+   * @param level
+   * @param args
+   */
+  log(level, message, ...args) {
+    console[level]('[' + this.name + '] ' + message, ...args);
+  }
+
+  /**
+   Initialize WebAudio context
+   <p>
+   See API: https://developer.mozilla.org/en-US/docs/Web/API/AudioContext
+   <p>
+   Also see tutorial which includes reasoning for using the more complex constructor of the window.* context below: https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API/Using_Web_Audio_API
+   <p>
+   Also dry-fire an empty sound in a further attempt to enable to WebAudio context on iOS devices
+   [#159579536] Apple iOS user (on Chrome or Firefox mobile browser) expects to be able to hear XJ Music Player embedded a in web browser.
+   */
+  createAudioContext() {
+    let self = this;
+    if (window.AudioContext) {
+      self.audioContext = new window.AudioContext();
+    } else {
+      self.audioContext = new window.webkitAudioContext();
+    }
+    if (0 === self.audioContextStartMillisUTC) {
+      self.audioContextStartMillisUTC = Date.now();
+    }
+
+    // create empty buffer
+    let buffer = self.audioContext.createBuffer(1, 1, 22050);
+    let dryFire = self.audioContext.createBufferSource();
+    dryFire.buffer = buffer;
+
+    // connect to output (your speakers)
+    dryFire.connect(self.audioContext.destination);
+
+    // play the file
+    dryFire.start(0);
+  }
+
+  /**
+   Assume array of strings, find needle in haystack
+   * @param {String} needle
+   * @param {Array} haystack
+   * @return boolean
+   */
+  static stringInArray(needle, haystack) {
+    for (let i = 0; i < haystack.length; i++) {
+      if (String(haystack[i]) === String(needle)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Does object contain key?
+   * @param obj containing keys
+   * @param key to check for
+   * @returns {boolean} if object contains key
+   */
+  static contains(obj, key) {
+    if ('undefined' === typeof obj) return false;
+    if ('object' !== typeof obj) return false;
+    return key in obj && obj.hasOwnProperty(key);
   }
 
   /**
@@ -349,72 +529,11 @@ export class Player {
   }
 
   /**
-   * Info to console
-   * @param msg
-   * @param optionalParams
+   * Is the player active (NOT suspended)?
+   * @returns {Boolean} true if the player is active
    */
-  info(msg, ...optionalParams) {
-    console.info('[' + this.name + '] ' + msg, ...optionalParams);
-  }
-
-  /**
-   * Debug to console
-   * @param msg
-   * @param optionalParams
-   */
-  debug(msg, ...optionalParams) {
-    console.debug('[' + this.name + '] ' + msg, ...optionalParams);
-  }
-
-  /**
-   * Error to console
-   * @param msg
-   * @param optionalParams
-   */
-  error(msg, ...optionalParams) {
-    console.error('[' + this.name + '] ' + msg, ...optionalParams);
-  }
-
-  /**
-   Assume array of strings, find needle in haystack
-   * @param {String} needle
-   * @param {Array} haystack
-   * @return boolean
-   */
-  static stringInArray(needle, haystack) {
-    for (let i = 0; i < haystack.length; i++) {
-      if (String(haystack[i]) === String(needle)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  /**
-   Initialize WebAudio context
-   <p>
-   See API: https://developer.mozilla.org/en-US/docs/Web/API/AudioContext
-   <p>
-   Also see tutorial which includes reasoning for using the more complex constructor of the window.* context below: https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API/Using_Web_Audio_API
-   */
-  static newAudioContext() {
-    if (window.AudioContext) {
-      return new window.AudioContext();
-    } else {
-      return new window.webkitAudioContext();
-    }
-  }
-
-  /**
-   * Does object contain key?
-   * @param obj containing keys
-   * @param key to check for
-   * @returns {boolean} if object contains key
-   */
-  static contains(obj, key) {
-    if ('undefined' === typeof obj) return false;
-    if ('object' !== typeof obj) return false;
-    return key in obj && obj.hasOwnProperty(key);
+  isActive() {
+    return this.state === SYNCING || this.state === PLAYING;
   }
 
 }

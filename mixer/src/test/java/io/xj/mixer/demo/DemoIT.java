@@ -4,7 +4,7 @@ package io.xj.mixer.demo;
 import io.xj.mixer.Mixer;
 import io.xj.mixer.MixerFactory;
 import io.xj.mixer.MixerModule;
-import io.xj.mixer.OutputContainer;
+import io.xj.mixer.OutputEncoder;
 import io.xj.mixer.impl.exception.FormatException;
 import io.xj.mixer.util.InternalResource;
 
@@ -22,27 +22,21 @@ import java.time.Duration;
 import static org.junit.Assert.assertTrue;
 
 public class DemoIT {
-  private static MixerFactory mixerFactory = Guice.createInjector(new MixerModule()).getInstance(MixerFactory.class);
-
   private static final Duration preRoll = Duration.ofMillis(500);
   private static final Duration postRoll = Duration.ofMillis(500);
-
   private static final long bpm = 121;
   private static final Duration beat = Duration.ofMinutes(1).dividedBy(bpm);
   private static final Duration step = beat.dividedBy(4);
-
   private static final String filePrefix = "demo_source_audio/808/";
   private static final String referenceAudioFilePrefix = "demo_reference_outputs/";
-  private static final String tempFilePrefex = "/tmp/";
-  private static final String fileSuffix = ".wav";
-
+  private static final String tempFilePrefix = "/tmp/";
+  private static final String sourceFileSuffix = ".wav";
   private static final String kick1 = "kick1";
   private static final String kick2 = "kick2";
   private static final String marac = "maracas";
   private static final String snare = "snare";
   private static final String lotom = "tom1";
   private static final String clhat = "cl_hihat";
-
   private static final String[] sources = new String[]{
     kick1,
     kick2,
@@ -51,7 +45,6 @@ public class DemoIT {
     lotom,
     clhat
   };
-
   private static final String[] demoSequence = new String[]{
     kick2,
     marac,
@@ -70,6 +63,7 @@ public class DemoIT {
     clhat,
     marac
   };
+  private static MixerFactory mixerFactory = Guice.createInjector(new MixerModule()).getInstance(MixerFactory.class);
 
   /**
    FLOATING-POINT OUTPUT IS NOT SUPPORTED.
@@ -79,27 +73,34 @@ public class DemoIT {
    */
   @Test(expected = FormatException.class)
   public void demo_48000Hz_Float_32bit_2ch() throws Exception {
-    assertMixOutputEqualsReferenceAudio(AudioFormat.Encoding.PCM_FLOAT, 48000, 32, 2, "48000Hz_Float_32bit_2ch");
+    assertMixOutputEqualsReferenceAudio(OutputEncoder.WAV, AudioFormat.Encoding.PCM_FLOAT, 48000, 32, 2, "48000Hz_Float_32bit_2ch.wav");
   }
 
   @Test
   public void demo_48000Hz_Signed_32bit_2ch() throws Exception {
-    assertMixOutputEqualsReferenceAudio(AudioFormat.Encoding.PCM_SIGNED, 48000, 32, 2, "48000Hz_Signed_32bit_2ch");
+    assertMixOutputEqualsReferenceAudio(OutputEncoder.WAV, AudioFormat.Encoding.PCM_SIGNED, 48000, 32, 2, "48000Hz_Signed_32bit_2ch.wav");
   }
 
   @Test
   public void demo_48000Hz_Signed_16bit_2ch() throws Exception {
-    assertMixOutputEqualsReferenceAudio(AudioFormat.Encoding.PCM_SIGNED, 44100, 16, 2, "44100Hz_Signed_16bit_2ch");
+    assertMixOutputEqualsReferenceAudio(OutputEncoder.WAV, AudioFormat.Encoding.PCM_SIGNED, 44100, 16, 2, "44100Hz_Signed_16bit_2ch.wav");
   }
 
   @Test
   public void demo_48000Hz_Signed_8bit_1ch() throws Exception {
-    assertMixOutputEqualsReferenceAudio(AudioFormat.Encoding.PCM_SIGNED, 22000, 8, 1, "22000Hz_Signed_8bit_1ch");
+    assertMixOutputEqualsReferenceAudio(OutputEncoder.WAV, AudioFormat.Encoding.PCM_SIGNED, 22000, 8, 1, "22000Hz_Signed_8bit_1ch.wav");
   }
+
+  @Test
+  public void demo_48000Hz_2ch_OggVorbis() throws Exception {
+    assertMixOutputEqualsReferenceAudio(OutputEncoder.OGG_VORBIS, AudioFormat.Encoding.PCM_SIGNED, 48000, 32, 2, "48000Hz_2ch.ogg");
+  }
+
 
   /**
    assert mix output equals reference audio
 
+   @param encoder       to output
    @param encoding      encoding
    @param frameRate     frame rate
    @param sampleBits    sample bits
@@ -107,16 +108,39 @@ public class DemoIT {
    @param referenceName name
    @throws Exception on failure
    */
-  private void assertMixOutputEqualsReferenceAudio(AudioFormat.Encoding encoding, int frameRate, int sampleBits, int channels, String referenceName) throws Exception {
+  private void assertMixOutputEqualsReferenceAudio(OutputEncoder encoder, AudioFormat.Encoding encoding, int frameRate, int sampleBits, int channels, String referenceName) throws Exception {
     String filename = getUniqueTempFilename(referenceName);
-    mixAndWriteOutput(encoding, frameRate, sampleBits, channels, filename);
-    assertTrue("Demo output does not match reference audio for " + referenceName + "!",
-      Files.equal(new File(filename), resourceFile(getReferenceAudioFilename(referenceName))));
+    mixAndWriteOutput(encoder, encoding, frameRate, sampleBits, channels, filename);
+    switch (encoder) {
+      case WAV:
+        assertTrue("Demo output does not match reference audio for " + referenceName + "!",
+          Files.equal(new File(filename), resourceFile(getReferenceAudioFilename(referenceName))));
+        break;
+      case OGG_VORBIS:
+        assertTrue("Demo output does not match file size +/-2% of reference audio for " + referenceName + "!",
+          fileSizeWithin(new File(filename), resourceFile(getReferenceAudioFilename(referenceName)), 0.02f)
+        );
+        break;
+    }
+  }
+
+  /**
+   Assert size of two different files is within a tolerated threshold
+
+   @param f1        to compare
+   @param f2        to compare
+   @param threshold ratio +/- to tolerate, where 0.0 is perfect equality, 0.1 is 10 percent deviation.
+   @return true if within tolerance
+   */
+  private boolean fileSizeWithin(File f1, File f2, float threshold) {
+    Float deviance = (float) f1.getTotalSpace() / (float) f2.getTotalSpace();
+    return (1 - threshold) < deviance && (1 + threshold) > deviance;
   }
 
   /**
    Execute a mix and write output to file
 
+   @param outputEncoder    to encode pure floating point samples in channels to contained file output
    @param outputEncoding   encoding
    @param outputFrameRate  frame rate
    @param outputSampleBits bits per sample
@@ -124,9 +148,8 @@ public class DemoIT {
    @param outputFilePath   file path to write output
    @throws Exception on failure
    */
-  private void mixAndWriteOutput(AudioFormat.Encoding outputEncoding, int outputFrameRate, int outputSampleBits, int outputChannels, String outputFilePath) throws Exception {
+  private void mixAndWriteOutput(OutputEncoder outputEncoder, AudioFormat.Encoding outputEncoding, int outputFrameRate, int outputSampleBits, int outputChannels, String outputFilePath) throws Exception {
     Mixer demoMixer = mixerFactory.createMixer(
-      OutputContainer.WAV,
       new AudioFormat(outputEncoding, outputFrameRate, outputSampleBits, outputChannels,
         (outputChannels * outputSampleBits / 8), outputFrameRate, false),
       totalLength()
@@ -134,7 +157,7 @@ public class DemoIT {
 
     // setup the sources
     for (String sourceName : sources) {
-      demoMixer.loadSource(sourceName, new BufferedInputStream(new FileInputStream(resourceFile(filePrefix + sourceName + fileSuffix))));
+      demoMixer.loadSource(sourceName, new BufferedInputStream(new FileInputStream(resourceFile(filePrefix + sourceName + sourceFileSuffix))));
     }
 
     // setup the music
@@ -143,7 +166,7 @@ public class DemoIT {
     }
 
     // mix it
-    demoMixer.mixToFile(outputFilePath);
+    demoMixer.mixToFile(outputEncoder, outputFilePath, 1.0f);
   }
 
   /**
@@ -164,7 +187,7 @@ public class DemoIT {
    @return filename
    */
   private String getUniqueTempFilename(String subFilename) {
-    return tempFilePrefex + System.nanoTime() + "-" + subFilename + fileSuffix;
+    return tempFilePrefix + System.nanoTime() + "-" + subFilename;
   }
 
 
@@ -175,7 +198,7 @@ public class DemoIT {
    @return filename
    */
   private String getReferenceAudioFilename(String referenceName) {
-    return referenceAudioFilePrefix + referenceName + fileSuffix;
+    return referenceAudioFilePrefix + referenceName;
   }
 
   /**

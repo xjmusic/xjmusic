@@ -2,6 +2,7 @@
 package io.xj.worker;
 
 import io.xj.core.exception.WorkException;
+import io.xj.core.model.work.Work;
 import io.xj.core.model.work.WorkType;
 
 import com.google.inject.Inject;
@@ -10,6 +11,7 @@ import net.greghaines.jesque.Job;
 import net.greghaines.jesque.worker.JobFactory;
 
 import java.math.BigInteger;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -37,53 +39,53 @@ public class JobSourceFactory implements JobFactory {
   @Override
   public Runnable materializeJob(Job job) throws Exception {
     WorkType workType = WorkType.validate(job.getClassName());
-    Object[] args = job.getArgs();
-    if (Objects.isNull(args) || 1 > args.length) {
-      throw new WorkException("Job requires at least 1 argument");
+    Map<String, Object> vars = job.getVars();
+    if (Objects.isNull(vars) || 1 > vars.size()) {
+      throw new WorkException("Job ought to have been created with at least 1 named variable");
     }
 
-    return makeTarget(workType, args);
+    return makeTarget(workType, vars);
   }
 
   /**
    target is switched on job type
 
-   @param workType type of job
-   @param args     target arguments (the first one needs to be a BigInteger target entity id)
    @return job runnable
+   @param workType type of job
+   @param vars     target arguments (the first one needs to be a BigInteger target entity id)
    */
-  private Runnable makeTarget(WorkType workType, Object[] args) throws WorkException {
+  private Runnable makeTarget(WorkType workType, Map<String, Object> vars) throws WorkException {
     switch (workType) {
 
       case AudioClone:
-        return jobTargetFactory.makeAudioCloneJob(entityId(args[0]), entityId(args[1]));
+        return jobTargetFactory.makeAudioCloneJob(entityId(vars.get(Work.KEY_SOURCE_ID)), entityId(vars.get(Work.KEY_TARGET_ID)));
 
       case AudioErase:
-        return jobTargetFactory.makeAudioEraseJob(entityId(args[0]));
+        return jobTargetFactory.makeAudioEraseJob(entityId(vars.get(Work.KEY_TARGET_ID)));
 
       case ChainErase:
-        return jobTargetFactory.makeChainEraseJob(entityId(args[0]));
+        return jobTargetFactory.makeChainEraseJob(entityId(vars.get(Work.KEY_TARGET_ID)));
 
       case ChainFabricate:
-        return jobTargetFactory.makeChainFabricateJob(entityId(args[0]));
+        return jobTargetFactory.makeChainFabricateJob(entityId(vars.get(Work.KEY_TARGET_ID)));
 
       case InstrumentClone:
-        return jobTargetFactory.makeInstrumentCloneJob(entityId(args[0]), entityId(args[1]));
+        return jobTargetFactory.makeInstrumentCloneJob(entityId(vars.get(Work.KEY_SOURCE_ID)), entityId(vars.get(Work.KEY_TARGET_ID)));
 
       case SegmentFabricate:
-        return jobTargetFactory.makeSegmentFabricateJob(entityId(args[0]));
+        return jobTargetFactory.makeSegmentFabricateJob(entityId(vars.get(Work.KEY_TARGET_ID)));
 
       case SequenceClone:
-        return jobTargetFactory.makeSequenceCloneJob(entityId(args[0]), entityId(args[1]));
+        return jobTargetFactory.makeSequenceCloneJob(entityId(vars.get(Work.KEY_SOURCE_ID)), entityId(vars.get(Work.KEY_TARGET_ID)));
 
       case SequenceErase:
-        return jobTargetFactory.makeSequenceEraseJob(entityId(args[0]));
+        return jobTargetFactory.makeSequenceEraseJob(entityId(vars.get(Work.KEY_TARGET_ID)));
 
       case PatternClone:
-        return jobTargetFactory.makePatternCloneJob(entityId(args[0]), entityId(args[1]));
+        return jobTargetFactory.makePatternCloneJob(entityId(vars.get(Work.KEY_SOURCE_ID)), entityId(vars.get(Work.KEY_TARGET_ID)));
 
       case PatternErase:
-        return jobTargetFactory.makePatternEraseJob(entityId(args[0]));
+        return jobTargetFactory.makePatternEraseJob(entityId(vars.get(Work.KEY_TARGET_ID)));
 
       default:
         throw new WorkException("Invalid Job Type");

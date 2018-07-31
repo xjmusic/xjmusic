@@ -206,8 +206,8 @@ public class ChainSegmentFabricateJobIT {
 
   @Test
   public void fabricatesSegment() throws Exception {
-    when(amazonProvider.generateKey("chain-1-segment", "mp3"))
-      .thenReturn("chain-1-segment-12345.mp3");
+    when(amazonProvider.generateKey("chain-1-segment", "ogg"))
+      .thenReturn("chain-1-segment-12345.ogg");
 
     // Start app, send chain fabrication message to queue
     app.start();
@@ -220,7 +220,7 @@ public class ChainSegmentFabricateJobIT {
 
     // assertions
     int assertShippedSegmentsMinimum = 3;
-    verify(amazonProvider, atLeast(assertShippedSegmentsMinimum)).putS3Object(eq("/tmp/chain-1-segment-12345.mp3"), eq("xj-segment-test"), any());
+    verify(amazonProvider, atLeast(assertShippedSegmentsMinimum)).putS3Object(eq("/tmp/chain-1-segment-12345.ogg"), eq("xj-segment-test"), any());
     Collection<Segment> result = injector.getInstance(SegmentDAO.class).readAll(Access.internal(), ImmutableList.of(BigInteger.valueOf(1)));
     assertTrue(assertShippedSegmentsMinimum < result.size());
   }

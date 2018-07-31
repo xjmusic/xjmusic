@@ -56,7 +56,6 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class AudioIT {
   @Rule public ExpectedException failure = ExpectedException.none();
-  private Injector injector;
   private AudioDAO testDAO;
   @Mock AmazonProvider amazonProvider;
   @Spy final WorkManager workManager = Guice.createInjector(new CoreModule()).getInstance(WorkManager.class);
@@ -65,8 +64,14 @@ public class AudioIT {
   public void setUp() throws Exception {
     IntegrationTestEntity.reset();
 
-    // inject mocks
-    createInjector();
+    Injector injector = Guice.createInjector(Modules.override(new CoreModule()).with(
+      new AbstractModule() {
+        @Override
+        public void configure() {
+          bind(AmazonProvider.class).toInstance(amazonProvider);
+          bind(WorkManager.class).toInstance(workManager);
+        }
+      }));
 
     // audio waveform config
     System.setProperty("audio.file.bucket", "xj-audio-test");
@@ -91,17 +96,6 @@ public class AudioIT {
 
     // Instantiate the test subject
     testDAO = injector.getInstance(AudioDAO.class);
-  }
-
-  private void createInjector() {
-    injector = Guice.createInjector(Modules.override(new CoreModule()).with(
-      new AbstractModule() {
-        @Override
-        public void configure() {
-          bind(AmazonProvider.class).toInstance(amazonProvider);
-          bind(WorkManager.class).toInstance(workManager);
-        }
-      }));
   }
 
   private static void setUpTwo() throws Exception {

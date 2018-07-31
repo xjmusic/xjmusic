@@ -7,7 +7,7 @@ import com.google.inject.Module;
 import io.xj.mixer.Mixer;
 import io.xj.mixer.MixerFactory;
 import io.xj.mixer.MixerModule;
-import io.xj.mixer.OutputContainer;
+import io.xj.mixer.OutputEncoder;
 import io.xj.mixer.util.InternalResource;
 
 import javax.sound.sampled.AudioFormat;
@@ -86,7 +86,6 @@ public class Main {
     MixerFactory mixerFactory = Guice.createInjector(mod).getInstance(MixerFactory.class);
 
     Mixer demoMixer = mixerFactory.createMixer(
-      OutputContainer.WAV,
       new AudioFormat(outputEncoding, outputFrameRate, outputSampleBits, outputChannels,
         (outputChannels * outputSampleBits / 8), outputFrameRate, false),
       totalLength()
@@ -107,7 +106,7 @@ public class Main {
     }
 
     // mix it
-    demoMixer.mixToFile(outputFilePath);
+    demoMixer.mixToFile(OutputEncoder.WAV, outputFilePath, 0.618f);
   }
 
   private static long atMicros(int loopNum, int stepNum) {

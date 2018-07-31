@@ -1,10 +1,9 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.mixer.impl.audio;
 
-import io.xj.mixer.OutputContainer;
+import io.xj.mixer.OutputEncoder;
 import io.xj.mixer.impl.exception.FormatException;
-
-import de.sciss.jump3r.lowlevel.LameEncoder;
+import io.xj.mixer.util.VorbisEncoder;
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
@@ -17,67 +16,74 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 public class AudioStreamWriter {
-  private final ByteBuffer outputBytes;
-
-  // RIFF format values
-  private static final int WAVE_FORMAT_PCM = 0x0001; // PCM
-  private static final int WAVE_FORMAT_IEEE_FLOAT = 0x0003; // IEEE float
-//  private static final int WAVE_FORMAT_ALAW = 0x0006; // 8-bit ITU-T G.711 A-law
-//  private static final int WAVE_FORMAT_MULAW = 0x0007; // 8-bit ITU-T G.711 µ-law
-//  private static final int WAVE_FORMAT_EXTENSIBLE = 0xFFFE; // Determined by SubFormat
+  private static final float DEFAULT_QUALITY = 0.618f;
+  private final double[][] stream;
+  private final float quality;
 
   /**
    create a new audio stream writer instance
 
-   @param outputBytes buffer of bytes to output
+   @param stream to output
    */
-  public AudioStreamWriter(ByteBuffer outputBytes) {
-    this.outputBytes = outputBytes;
+  public AudioStreamWriter(double[][] stream) {
+    this.stream = stream;
+    this.quality = DEFAULT_QUALITY;
+  }
+
+  /**
+   create a new audio stream writer instance, with a specific quality setting
+
+   @param stream to output
+   */
+  public AudioStreamWriter(double[][] stream, float quality) {
+    this.stream = stream;
+    this.quality = quality;
+  }
+
+  /**
+   Convert output values into a ByteBuffer
+
+   @param stream       output to convert
+   @param totalFrames  to output
+   @param outputFormat to wrote
+   @return byte buffer of stream
+   */
+  private static ByteBuffer byteBufferOf(double[][] stream, int totalFrames, AudioFormat outputFormat) throws FormatException {
+    ByteBuffer outputBytes = ByteBuffer.allocate(totalFrames * outputFormat.getFrameSize());
+    for (int offsetFrame = 0; offsetFrame < totalFrames; offsetFrame++) {
+      int streamLength = stream[offsetFrame].length;
+      for (int channel = 0; channel < streamLength; channel++) {
+        outputBytes.put(AudioSampleFormat.toBytes(stream[offsetFrame][channel], AudioSampleFormat.typeOfOutput(outputFormat)));
+      }
+    }
+
+    return outputBytes;
   }
 
   /**
    write output bytes to file
 
-   @param outputFilePath  path
-   @param outputFormat    format
-   @param outputContainer container, e.g. WAV or MP3
-   @param totalFrames     frames
+   @param outputFilePath path
+   @param specs          format
+   @param outputEncoder  container, e.g. WAV or OGG_VORBIS
+   @param totalFrames    frames
    @throws IOException on failure
    */
-  public void writeToFile(String outputFilePath, AudioFormat outputFormat, OutputContainer outputContainer, long totalFrames) throws Exception {
-    switch (outputFormat.getEncoding().toString()) {
-      case "PCM_SIGNED":
-      case "PCM_UNSIGNED":
-        writeAudioInputStreamToFile(outputContainer, outputFilePath, outputFormat, totalFrames);
-        break;
-      case "PCM_FLOAT":
-        throw new FormatException("floating-point output is not currently supported!");
-//        writeDirectToFile(outputFilePath, outputFormat, totalFrames);
-//        break;
-      default:
-        throw new FormatException("unsupported encoding \"" + outputFormat.getEncoding().toString() + "\" for AudioStreamWriter.writeToFile(...)");
-    }
-  }
-
-  /**
-   use AudioInputStream method to write output bytes to file
-
-   @param outputContainer container, e.g. WAV or MP3
-   @param outputFilePath  path
-   @param outputFormat    format
-   @param totalFrames     frames
-   @throws IOException on failure
-   */
-  private void writeAudioInputStreamToFile(OutputContainer outputContainer, String outputFilePath, AudioFormat outputFormat, long totalFrames) throws IOException {
+  public void writeToFile(String outputFilePath, AudioFormat specs, OutputEncoder outputEncoder, int totalFrames) throws Exception {
     File outputFile = new File(outputFilePath);
 
-    if (outputContainer.equals(OutputContainer.WAV))
-      writeWAV(outputFile, outputFormat, totalFrames);
+    switch (outputEncoder) {
+      case WAV:
+        writeWAV(outputFile, specs, totalFrames);
+        break;
 
-    else if (outputContainer.equals(OutputContainer.MP3))
-      writeMP3(outputFile, outputFormat);
+      case OGG_VORBIS:
+        writeOggVorbis(outputFile, specs, quality);
+        break;
 
-    else throw new IOException("Invalid Output Container!");
+      default:
+        throw new IOException("Invalid Output Container!");
+    }
   }
 
   /**
@@ -88,7 +94,18 @@ public class AudioStreamWriter {
    @param totalFrames  to write
    @throws IOException on failure
    */
-  private void writeWAV(File outputFile, AudioFormat outputFormat, long totalFrames) throws IOException {
+  private void writeWAV(File outputFile, AudioFormat outputFormat, int totalFrames) throws IOException, FormatException {
+    switch (outputFormat.getEncoding().toString()) {
+      case "PCM_SIGNED":
+      case "PCM_UNSIGNED":
+        break;
+      case "PCM_FLOAT":
+        throw new FormatException("floating-point .WAV output is not currently supported!");
+      default:
+        throw new FormatException("unsupported .WAV encoding \"" + outputFormat.getEncoding().toString() + "\" for AudioStreamWriter.writeToFile(...)");
+    }
+
+    ByteBuffer outputBytes = byteBufferOf(stream, totalFrames, outputFormat);
     AudioInputStream ais = new AudioInputStream(
       new ByteArrayInputStream(outputBytes.array()), outputFormat,
       totalFrames
@@ -97,33 +114,14 @@ public class AudioStreamWriter {
   }
 
   /**
-   Write output bytes to MP3-compressed container
+   Write output bytes to OGG_VORBIS-compressed container
 
-   @param outputFile   to write output to
-   @param outputFormat of output
+   @param outputFile to write output to
+   @param specs      of output
    @throws IOException on failure
    */
-  private void writeMP3(File outputFile, AudioFormat outputFormat) throws IOException {
-    LameEncoder encoder = new LameEncoder(outputFormat, 256, LameEncoder.CHANNEL_MODE_AUTO, LameEncoder.QUALITY_HIGHEST, false);
-
-    byte[] pcm = outputBytes.array();
-
-    FileOutputStream out = new FileOutputStream(outputFile);
-    byte[] buffer = new byte[encoder.getPCMBufferSize()];
-
-    int bytesToTransfer = Math.min(buffer.length, pcm.length);
-    int bytesWritten;
-    int currentPcmPosition = 0;
-    while (0 < (bytesWritten = encoder.encodeBuffer(pcm, currentPcmPosition, bytesToTransfer, buffer))) {
-      currentPcmPosition += bytesToTransfer;
-      bytesToTransfer = Math.min(buffer.length, pcm.length - currentPcmPosition);
-
-      out.write(buffer, 0, bytesWritten);
-    }
-
-    encoder.close();
-
-
+  private void writeOggVorbis(File outputFile, AudioFormat specs, float quality) throws IOException {
+    new VorbisEncoder(stream, (int) Math.floor(specs.getFrameRate()), quality).encode(new FileOutputStream(outputFile));
   }
 
 }

@@ -19,7 +19,10 @@
     ],
     "moduleNameMapper": {
       "^js(.*)$": "<rootDir>/src/js/$1"
-    }
+    },
+    "setupFiles": [
+      "<rootDir>/test-env.js"
+    ]
   },
   "author": "N. Charney Kaye",
   "license": "GPL-3.0",
