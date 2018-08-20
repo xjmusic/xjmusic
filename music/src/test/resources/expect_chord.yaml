@@ -177,7 +177,7 @@ chords:
       5: Gb
       7: B
 
-  Cm nondominant -5 679:
+  Cm nondominant -5 +6 +7 +9:
     root: C
     pitches:
       3: Eb
@@ -356,3 +356,20 @@ chords:
       3: E
       5: Gb
       7: Bb
+
+  G7b9: #-- [#154310658] Artist expects chords "G7b9" to parse as "G7 flat 9" *not* "G7 add 9"
+    root: G
+    pitches:
+      1: G
+      3: B
+      5: D
+      7: F
+      9: Ab
+
+  Ebmb6: #-- [#154310658] Artist expects chord "Ebmb6" to parse as "Eb minor flat 6" *not* "Eb minor add 6."
+    root: Eb
+    pitches:
+      1: Eb
+      3: Gb
+      5: Bb
+      6: B

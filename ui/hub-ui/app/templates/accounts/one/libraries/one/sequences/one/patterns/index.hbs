@@ -40,9 +40,10 @@
             <td>{{pattern.tempo}}</td>
             <td>
               {{#link-to 'accounts.one.libraries.one.sequences.one.patterns.one.memes' pattern.sequence.library.account pattern.sequence.library pattern.sequence pattern}}Memes{{/link-to}}<span>&nbsp;</span>
-              {{#if (not-eq model.sequence.type "macro")}}
+              {{#if (not-eq pattern.sequence.type "Macro")}}
                 {{#link-to 'accounts.one.libraries.one.sequences.one.patterns.one.chords' pattern.sequence.library.account pattern.sequence.library pattern.sequence pattern}}Chords{{/link-to}}<span>&nbsp;</span>
                 {{#link-to 'accounts.one.libraries.one.sequences.one.patterns.one.events' pattern.sequence.library.account pattern.sequence.library pattern.sequence pattern}}Events{{/link-to}}<span>&nbsp;</span>
+                {{#if (eq pattern.sequence.type "Rhythm")}}{{#link-to 'accounts.one.libraries.one.sequences.one.patterns.one.stepmatic' pattern.sequence.library.account pattern.sequence.library pattern.sequence pattern}}Stepmatic{{/link-to}}<span>&nbsp;</span>{{/if}}
                 {{entity-actions 'accounts.one.libraries.one.sequences.one.patterns.one' 'edit|clone|destroy' pattern.sequence.library.account pattern.sequence.library pattern.sequence pattern}}
               {{/if}}
             </td>

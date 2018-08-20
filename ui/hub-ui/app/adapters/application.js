@@ -1,9 +1,9 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+//  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 import $ from 'jquery';
 
-import {get} from '@ember/object';
-import {dasherize} from '@ember/string';
-import {pluralize} from 'ember-inflector';
+import { get } from '@ember/object';
+import { dasherize } from '@ember/string';
+import { pluralize } from 'ember-inflector';
 import DS from "ember-data";
 
 /*

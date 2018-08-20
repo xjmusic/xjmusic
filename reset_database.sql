@@ -1,8 +1,10 @@
--- MySQL dump 10.13  Distrib 5.5.59, for Linux (x86_64)
+# Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+
+-- MySQL dump 10.13  Distrib 5.7.23, for Linux (x86_64)
 --
--- Host: xj-prod.c4xei3cvxtkt.us-east-1.rds.amazonaws.com    Database: ebdb
+-- Host: 127.0.0.1    Database: xj
 -- ------------------------------------------------------
--- Server version	5.7.16-log
+-- Server version	5.6.34
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -14,6 +16,14 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Current Database: `xj`
+--
+
+CREATE DATABASE /*!32312 IF NOT EXISTS*/ `xj` /*!40100 DEFAULT CHARACTER SET latin1 */;
+
+USE `xj`;
 
 --
 -- Table structure for table `account`
@@ -243,24 +253,24 @@ CREATE TABLE `chain_library` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `chain_pattern`
+-- Table structure for table `chain_sequence`
 --
 
-DROP TABLE IF EXISTS `chain_pattern`;
+DROP TABLE IF EXISTS `chain_sequence`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `chain_pattern` (
+CREATE TABLE `chain_sequence` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `chain_id` bigint(20) unsigned NOT NULL,
-  `pattern_id` bigint(20) unsigned NOT NULL,
+  `sequence_id` bigint(20) unsigned NOT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `id_UNIQUE` (`id`),
-  KEY `chain_idea_fk_chain_idx` (`chain_id`),
-  KEY `chain_pattern_fk_pattern` (`pattern_id`),
-  CONSTRAINT `chain_idea_fk_chain` FOREIGN KEY (`chain_id`) REFERENCES `chain` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  CONSTRAINT `chain_pattern_fk_pattern` FOREIGN KEY (`pattern_id`) REFERENCES `pattern` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+  KEY `chain_sequence_fk_chain` (`chain_id`),
+  KEY `chain_sequence_fk_sequence` (`sequence_id`),
+  CONSTRAINT `chain_sequence_fk_chain` FOREIGN KEY (`chain_id`) REFERENCES `chain` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `chain_sequence_fk_sequence` FOREIGN KEY (`sequence_id`) REFERENCES `sequence` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -273,19 +283,19 @@ DROP TABLE IF EXISTS `choice`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `choice` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `link_id` bigint(20) unsigned NOT NULL,
-  `pattern_id` bigint(20) unsigned NOT NULL,
+  `segment_id` bigint(20) unsigned NOT NULL,
+  `sequence_id` bigint(20) unsigned NOT NULL,
   `type` varchar(255) NOT NULL,
   `transpose` int(11) NOT NULL,
-  `phase_offset` bigint(20) unsigned NOT NULL,
+  `pattern_offset` bigint(20) unsigned NOT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `id_UNIQUE` (`id`),
-  KEY `choice_fk_link_idx` (`link_id`),
-  KEY `choice_fk_pattern` (`pattern_id`),
-  CONSTRAINT `choice_fk_link` FOREIGN KEY (`link_id`) REFERENCES `link` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  CONSTRAINT `choice_fk_pattern` FOREIGN KEY (`pattern_id`) REFERENCES `pattern` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+  KEY `choice_fk_segment` (`segment_id`),
+  KEY `choice_fk_sequence` (`sequence_id`),
+  CONSTRAINT `choice_fk_segment` FOREIGN KEY (`segment_id`) REFERENCES `segment` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `choice_fk_sequence` FOREIGN KEY (`sequence_id`) REFERENCES `sequence` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB AUTO_INCREMENT=4229612 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -355,97 +365,6 @@ CREATE TABLE `library` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `link`
---
-
-DROP TABLE IF EXISTS `link`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `link` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `chain_id` bigint(20) unsigned NOT NULL,
-  `offset` bigint(20) unsigned NOT NULL,
-  `state` varchar(255) NOT NULL,
-  `begin_at` timestamp(6) NULL DEFAULT NULL,
-  `end_at` timestamp(6) NULL DEFAULT NULL,
-  `total` int(10) unsigned DEFAULT NULL,
-  `density` float unsigned DEFAULT NULL,
-  `key` varchar(255) DEFAULT NULL,
-  `tempo` float unsigned DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `waveform_key` varchar(2047) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `id_UNIQUE` (`id`),
-  UNIQUE KEY `unique_chain_offset_index` (`chain_id`,`offset`),
-  KEY `link_fk_chain_idx` (`chain_id`),
-  CONSTRAINT `link_fk_chain` FOREIGN KEY (`chain_id`) REFERENCES `chain` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=2939432 DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `link_chord`
---
-
-DROP TABLE IF EXISTS `link_chord`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `link_chord` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `link_id` bigint(20) unsigned NOT NULL,
-  `name` varchar(255) NOT NULL,
-  `position` float NOT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `id_UNIQUE` (`id`),
-  KEY `chord_fk_link_idx` (`link_id`),
-  CONSTRAINT `chord_fk_link` FOREIGN KEY (`link_id`) REFERENCES `link` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=9324974 DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `link_meme`
---
-
-DROP TABLE IF EXISTS `link_meme`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `link_meme` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `link_id` bigint(20) unsigned NOT NULL,
-  `name` varchar(255) NOT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `id_UNIQUE` (`id`),
-  KEY `meme_fk_link_idx` (`link_id`),
-  CONSTRAINT `meme_fk_link` FOREIGN KEY (`link_id`) REFERENCES `link` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=4868136 DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `link_message`
---
-
-DROP TABLE IF EXISTS `link_message`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `link_message` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `link_id` bigint(20) unsigned NOT NULL,
-  `type` varchar(255) NOT NULL,
-  `body` text NOT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `id_UNIQUE` (`id`),
-  KEY `message_fk_link_idx` (`link_id`),
-  CONSTRAINT `message_fk_link` FOREIGN KEY (`link_id`) REFERENCES `link` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=1492787 DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Table structure for table `pattern`
 --
 
@@ -454,23 +373,74 @@ DROP TABLE IF EXISTS `pattern`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `pattern` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `user_id` bigint(20) unsigned NOT NULL,
-  `library_id` bigint(20) unsigned NOT NULL,
   `type` varchar(255) NOT NULL,
-  `name` varchar(255) NOT NULL,
-  `density` float unsigned NOT NULL,
-  `key` varchar(255) NOT NULL,
-  `tempo` float unsigned NOT NULL,
+  `sequence_id` bigint(20) unsigned NOT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `offset` bigint(20) unsigned NOT NULL,
+  `total` int(10) unsigned DEFAULT NULL,
+  `density` float unsigned DEFAULT NULL,
+  `key` varchar(255) DEFAULT NULL,
+  `tempo` float unsigned DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `state` varchar(255) NOT NULL,
+  `meter_super` int(11) DEFAULT NULL,
+  `meter_sub` int(11) DEFAULT NULL,
+  `meter_swing` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `id_UNIQUE` (`id`),
-  KEY `pattern_fk_user` (`user_id`),
-  KEY `pattern_fk_library` (`library_id`),
-  CONSTRAINT `pattern_fk_library` FOREIGN KEY (`library_id`) REFERENCES `library` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  CONSTRAINT `pattern_fk_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=68 DEFAULT CHARSET=latin1;
+  KEY `pattern_fk_sequence` (`sequence_id`),
+  CONSTRAINT `pattern_fk_sequence` FOREIGN KEY (`sequence_id`) REFERENCES `sequence` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB AUTO_INCREMENT=219 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `pattern_chord`
+--
+
+DROP TABLE IF EXISTS `pattern_chord`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `pattern_chord` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `pattern_id` bigint(20) unsigned NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `position` float NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id_UNIQUE` (`id`),
+  KEY `pattern_chord_fk_pattern` (`pattern_id`),
+  CONSTRAINT `pattern_chord_fk_pattern` FOREIGN KEY (`pattern_id`) REFERENCES `pattern` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB AUTO_INCREMENT=1280 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `pattern_event`
+--
+
+DROP TABLE IF EXISTS `pattern_event`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `pattern_event` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `pattern_id` bigint(20) unsigned NOT NULL,
+  `voice_id` bigint(20) unsigned NOT NULL,
+  `velocity` float unsigned NOT NULL,
+  `tonality` float unsigned NOT NULL,
+  `inflection` varchar(63) NOT NULL,
+  `position` float NOT NULL,
+  `duration` float unsigned NOT NULL,
+  `note` varchar(63) NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id_UNIQUE` (`id`),
+  KEY `pattern_event_fk_pattern` (`pattern_id`),
+  KEY `pattern_event_fk_voice` (`voice_id`),
+  CONSTRAINT `pattern_event_fk_pattern` FOREIGN KEY (`pattern_id`) REFERENCES `pattern` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `pattern_event_fk_voice` FOREIGN KEY (`voice_id`) REFERENCES `voice` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB AUTO_INCREMENT=1293 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -490,102 +460,6 @@ CREATE TABLE `pattern_meme` (
   UNIQUE KEY `id_UNIQUE` (`id`),
   KEY `pattern_meme_fk_pattern` (`pattern_id`),
   CONSTRAINT `pattern_meme_fk_pattern` FOREIGN KEY (`pattern_id`) REFERENCES `pattern` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=73 DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `phase`
---
-
-DROP TABLE IF EXISTS `phase`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `phase` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `type` varchar(255) NOT NULL,
-  `pattern_id` bigint(20) unsigned NOT NULL,
-  `name` varchar(255) DEFAULT NULL,
-  `offset` bigint(20) unsigned NOT NULL,
-  `total` int(10) unsigned DEFAULT NULL,
-  `density` float unsigned DEFAULT NULL,
-  `key` varchar(255) DEFAULT NULL,
-  `tempo` float unsigned DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `state` varchar(255) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `id_UNIQUE` (`id`),
-  KEY `phase_fk_pattern` (`pattern_id`),
-  CONSTRAINT `phase_fk_pattern` FOREIGN KEY (`pattern_id`) REFERENCES `pattern` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=219 DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `phase_chord`
---
-
-DROP TABLE IF EXISTS `phase_chord`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `phase_chord` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `phase_id` bigint(20) unsigned NOT NULL,
-  `name` varchar(255) NOT NULL,
-  `position` float NOT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `id_UNIQUE` (`id`),
-  KEY `chord_fk_phase_idx` (`phase_id`),
-  CONSTRAINT `chord_fk_phase` FOREIGN KEY (`phase_id`) REFERENCES `phase` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=1280 DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `phase_event`
---
-
-DROP TABLE IF EXISTS `phase_event`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `phase_event` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `phase_id` bigint(20) unsigned NOT NULL,
-  `voice_id` bigint(20) unsigned NOT NULL,
-  `velocity` float unsigned NOT NULL,
-  `tonality` float unsigned NOT NULL,
-  `inflection` varchar(63) NOT NULL,
-  `position` float NOT NULL,
-  `duration` float unsigned NOT NULL,
-  `note` varchar(63) NOT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `id_UNIQUE` (`id`),
-  KEY `event_fk_voice_idx` (`voice_id`),
-  KEY `voice_event_fk_phase` (`phase_id`),
-  CONSTRAINT `event_fk_voice` FOREIGN KEY (`voice_id`) REFERENCES `voice` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  CONSTRAINT `voice_event_fk_phase` FOREIGN KEY (`phase_id`) REFERENCES `phase` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=1293 DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `phase_meme`
---
-
-DROP TABLE IF EXISTS `phase_meme`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `phase_meme` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `phase_id` bigint(20) unsigned NOT NULL,
-  `name` varchar(255) NOT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `id_UNIQUE` (`id`),
-  KEY `meme_fk_phase_idx` (`phase_id`),
-  CONSTRAINT `meme_fk_phase` FOREIGN KEY (`phase_id`) REFERENCES `phase` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB AUTO_INCREMENT=96 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -628,6 +502,144 @@ CREATE TABLE `schema_version` (
   PRIMARY KEY (`installed_rank`),
   KEY `schema_version_s_idx` (`success`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `segment`
+--
+
+DROP TABLE IF EXISTS `segment`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `segment` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `chain_id` bigint(20) unsigned NOT NULL,
+  `offset` bigint(20) unsigned NOT NULL,
+  `state` varchar(255) NOT NULL,
+  `begin_at` timestamp(6) NULL DEFAULT NULL,
+  `end_at` timestamp(6) NULL DEFAULT NULL,
+  `total` int(10) unsigned DEFAULT NULL,
+  `density` float unsigned DEFAULT NULL,
+  `key` varchar(255) DEFAULT NULL,
+  `tempo` float unsigned DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `waveform_key` varchar(2047) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id_UNIQUE` (`id`),
+  UNIQUE KEY `unique_chain_offset_index` (`chain_id`,`offset`),
+  CONSTRAINT `segment_fk_chain` FOREIGN KEY (`chain_id`) REFERENCES `chain` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB AUTO_INCREMENT=2939432 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `segment_chord`
+--
+
+DROP TABLE IF EXISTS `segment_chord`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `segment_chord` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `segment_id` bigint(20) unsigned NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `position` float NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id_UNIQUE` (`id`),
+  KEY `chord_fk_segment` (`segment_id`),
+  CONSTRAINT `chord_fk_segment` FOREIGN KEY (`segment_id`) REFERENCES `segment` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB AUTO_INCREMENT=9324974 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `segment_meme`
+--
+
+DROP TABLE IF EXISTS `segment_meme`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `segment_meme` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `segment_id` bigint(20) unsigned NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id_UNIQUE` (`id`),
+  KEY `meme_fk_segment` (`segment_id`),
+  CONSTRAINT `meme_fk_segment` FOREIGN KEY (`segment_id`) REFERENCES `segment` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB AUTO_INCREMENT=4868136 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `segment_message`
+--
+
+DROP TABLE IF EXISTS `segment_message`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `segment_message` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `segment_id` bigint(20) unsigned NOT NULL,
+  `type` varchar(255) NOT NULL,
+  `body` text NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id_UNIQUE` (`id`),
+  KEY `message_fk_segment` (`segment_id`),
+  CONSTRAINT `message_fk_segment` FOREIGN KEY (`segment_id`) REFERENCES `segment` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB AUTO_INCREMENT=1492787 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `sequence`
+--
+
+DROP TABLE IF EXISTS `sequence`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `sequence` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` bigint(20) unsigned NOT NULL,
+  `library_id` bigint(20) unsigned NOT NULL,
+  `type` varchar(255) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `density` float unsigned NOT NULL,
+  `key` varchar(255) NOT NULL,
+  `tempo` float unsigned NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `state` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id_UNIQUE` (`id`),
+  KEY `sequence_fk_user` (`user_id`),
+  KEY `sequence_fk_library` (`library_id`),
+  CONSTRAINT `sequence_fk_library` FOREIGN KEY (`library_id`) REFERENCES `library` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `sequence_fk_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB AUTO_INCREMENT=68 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `sequence_meme`
+--
+
+DROP TABLE IF EXISTS `sequence_meme`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `sequence_meme` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `sequence_id` bigint(20) unsigned NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id_UNIQUE` (`id`),
+  KEY `sequence_meme_fk_sequence` (`sequence_id`),
+  CONSTRAINT `sequence_meme_fk_sequence` FOREIGN KEY (`sequence_id`) REFERENCES `sequence` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB AUTO_INCREMENT=73 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -724,16 +736,747 @@ DROP TABLE IF EXISTS `voice`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `voice` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `pattern_id` bigint(20) unsigned NOT NULL,
+  `sequence_id` bigint(20) unsigned NOT NULL,
   `type` varchar(255) NOT NULL,
   `description` varchar(1023) NOT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `id_UNIQUE` (`id`),
-  KEY `voice_fk_pattern` (`pattern_id`),
-  CONSTRAINT `voice_fk_pattern` FOREIGN KEY (`pattern_id`) REFERENCES `pattern` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+  KEY `voice_fk_sequence` (`sequence_id`),
+  CONSTRAINT `voice_fk_sequence` FOREIGN KEY (`sequence_id`) REFERENCES `sequence` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB AUTO_INCREMENT=40 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Current Database: `xj_test`
+--
+
+CREATE DATABASE /*!32312 IF NOT EXISTS*/ `xj_test` /*!40100 DEFAULT CHARACTER SET latin1 */;
+
+USE `xj_test`;
+
+--
+-- Table structure for table `account`
+--
+
+DROP TABLE IF EXISTS `account`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `account` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id_UNIQUE` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `account_user`
+--
+
+DROP TABLE IF EXISTS `account_user`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `account_user` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `account_id` bigint(20) unsigned NOT NULL,
+  `user_id` bigint(20) unsigned NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id_UNIQUE` (`id`),
+  KEY `account_user_fk_account_idx` (`account_id`),
+  KEY `account_user_fk_user_idx` (`user_id`),
+  CONSTRAINT `account_user_fk_account` FOREIGN KEY (`account_id`) REFERENCES `account` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `account_user_fk_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `arrangement`
+--
+
+DROP TABLE IF EXISTS `arrangement`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `arrangement` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `choice_id` bigint(20) unsigned NOT NULL,
+  `voice_id` bigint(20) unsigned NOT NULL,
+  `instrument_id` bigint(20) unsigned NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id_UNIQUE` (`id`),
+  KEY `arrangement_fk_choice_idx` (`choice_id`),
+  KEY `arrangement_fk_voice_idx` (`voice_id`),
+  KEY `arrangement_fk_instrument_idx` (`instrument_id`),
+  CONSTRAINT `arrangement_fk_choice` FOREIGN KEY (`choice_id`) REFERENCES `choice` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `arrangement_fk_instrument` FOREIGN KEY (`instrument_id`) REFERENCES `instrument` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `arrangement_fk_voice` FOREIGN KEY (`voice_id`) REFERENCES `voice` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `audio`
+--
+
+DROP TABLE IF EXISTS `audio`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `audio` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `instrument_id` bigint(20) unsigned NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `waveform_key` varchar(2047) NOT NULL,
+  `start` float unsigned DEFAULT NULL,
+  `length` float unsigned DEFAULT NULL,
+  `tempo` float unsigned NOT NULL,
+  `pitch` float unsigned NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `state` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id_UNIQUE` (`id`),
+  KEY `audio_fk_instrument_idx` (`instrument_id`),
+  CONSTRAINT `audio_fk_instrument` FOREIGN KEY (`instrument_id`) REFERENCES `instrument` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `audio_chord`
+--
+
+DROP TABLE IF EXISTS `audio_chord`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `audio_chord` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `audio_id` bigint(20) unsigned NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `position` float NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id_UNIQUE` (`id`),
+  KEY `chord_fk_audio_idx` (`audio_id`),
+  CONSTRAINT `chord_fk_audio` FOREIGN KEY (`audio_id`) REFERENCES `audio` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `audio_event`
+--
+
+DROP TABLE IF EXISTS `audio_event`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `audio_event` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `audio_id` bigint(20) unsigned NOT NULL,
+  `velocity` float unsigned NOT NULL,
+  `tonality` float unsigned NOT NULL,
+  `inflection` varchar(63) NOT NULL,
+  `position` float NOT NULL,
+  `duration` float unsigned NOT NULL,
+  `note` varchar(63) NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id_UNIQUE` (`id`),
+  KEY `event_fk_audio_idx` (`audio_id`),
+  CONSTRAINT `event_fk_audio` FOREIGN KEY (`audio_id`) REFERENCES `audio` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `chain`
+--
+
+DROP TABLE IF EXISTS `chain`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `chain` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `type` varchar(255) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `account_id` bigint(20) unsigned NOT NULL,
+  `state` varchar(255) NOT NULL,
+  `start_at` timestamp(6) NULL DEFAULT NULL,
+  `stop_at` timestamp(6) NULL DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `embed_key` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id_UNIQUE` (`id`),
+  UNIQUE KEY `unique_embed_key` (`embed_key`),
+  KEY `chain_fk_account` (`account_id`),
+  CONSTRAINT `chain_fk_account` FOREIGN KEY (`account_id`) REFERENCES `account` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `chain_config`
+--
+
+DROP TABLE IF EXISTS `chain_config`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `chain_config` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `chain_id` bigint(20) unsigned NOT NULL,
+  `type` varchar(255) NOT NULL,
+  `value` varchar(32768) NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id_UNIQUE` (`id`),
+  KEY `chain_config_fk_chain_idx` (`chain_id`),
+  CONSTRAINT `chain_config_fk_chain` FOREIGN KEY (`chain_id`) REFERENCES `chain` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `chain_instrument`
+--
+
+DROP TABLE IF EXISTS `chain_instrument`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `chain_instrument` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `chain_id` bigint(20) unsigned NOT NULL,
+  `instrument_id` bigint(20) unsigned NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id_UNIQUE` (`id`),
+  KEY `chain_instrument_fk_chain_idx` (`chain_id`),
+  KEY `chain_instrument_fk_instrument_idx` (`instrument_id`),
+  CONSTRAINT `chain_instrument_fk_chain` FOREIGN KEY (`chain_id`) REFERENCES `chain` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `chain_instrument_fk_instrument` FOREIGN KEY (`instrument_id`) REFERENCES `instrument` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `chain_library`
+--
+
+DROP TABLE IF EXISTS `chain_library`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `chain_library` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `chain_id` bigint(20) unsigned NOT NULL,
+  `library_id` bigint(20) unsigned NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id_UNIQUE` (`id`),
+  KEY `chain_library_fk_chain_idx` (`chain_id`),
+  KEY `chain_library_fk_library_idx` (`library_id`),
+  CONSTRAINT `chain_library_fk_chain` FOREIGN KEY (`chain_id`) REFERENCES `chain` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `chain_library_fk_library` FOREIGN KEY (`library_id`) REFERENCES `library` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `chain_sequence`
+--
+
+DROP TABLE IF EXISTS `chain_sequence`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `chain_sequence` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `chain_id` bigint(20) unsigned NOT NULL,
+  `sequence_id` bigint(20) unsigned NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id_UNIQUE` (`id`),
+  KEY `chain_sequence_fk_chain` (`chain_id`),
+  KEY `chain_sequence_fk_sequence` (`sequence_id`),
+  CONSTRAINT `chain_sequence_fk_chain` FOREIGN KEY (`chain_id`) REFERENCES `chain` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `chain_sequence_fk_sequence` FOREIGN KEY (`sequence_id`) REFERENCES `sequence` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `choice`
+--
+
+DROP TABLE IF EXISTS `choice`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `choice` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `segment_id` bigint(20) unsigned NOT NULL,
+  `sequence_id` bigint(20) unsigned NOT NULL,
+  `type` varchar(255) NOT NULL,
+  `transpose` int(11) NOT NULL,
+  `pattern_offset` bigint(20) unsigned NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id_UNIQUE` (`id`),
+  KEY `choice_fk_segment` (`segment_id`),
+  KEY `choice_fk_sequence` (`sequence_id`),
+  CONSTRAINT `choice_fk_segment` FOREIGN KEY (`segment_id`) REFERENCES `segment` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `choice_fk_sequence` FOREIGN KEY (`sequence_id`) REFERENCES `sequence` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `instrument`
+--
+
+DROP TABLE IF EXISTS `instrument`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `instrument` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` bigint(20) unsigned NOT NULL,
+  `library_id` bigint(20) unsigned NOT NULL,
+  `type` varchar(255) NOT NULL,
+  `description` varchar(1023) NOT NULL,
+  `density` float unsigned NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id_UNIQUE` (`id`),
+  KEY `instrument_fk_library_idx` (`library_id`),
+  KEY `instrument_fk_user` (`user_id`),
+  CONSTRAINT `instrument_fk_library` FOREIGN KEY (`library_id`) REFERENCES `library` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `instrument_fk_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `instrument_meme`
+--
+
+DROP TABLE IF EXISTS `instrument_meme`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `instrument_meme` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `instrument_id` bigint(20) unsigned NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id_UNIQUE` (`id`),
+  KEY `meme_fk_instrument_idx` (`instrument_id`),
+  CONSTRAINT `meme_fk_instrument` FOREIGN KEY (`instrument_id`) REFERENCES `instrument` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `library`
+--
+
+DROP TABLE IF EXISTS `library`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `library` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `account_id` bigint(20) unsigned NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id_UNIQUE` (`id`),
+  KEY `library_fk_account_idx` (`account_id`),
+  CONSTRAINT `library_fk_account` FOREIGN KEY (`account_id`) REFERENCES `account` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `pattern`
+--
+
+DROP TABLE IF EXISTS `pattern`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `pattern` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `type` varchar(255) NOT NULL,
+  `sequence_id` bigint(20) unsigned NOT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `offset` bigint(20) unsigned NOT NULL,
+  `total` int(10) unsigned DEFAULT NULL,
+  `density` float unsigned DEFAULT NULL,
+  `key` varchar(255) DEFAULT NULL,
+  `tempo` float unsigned DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `state` varchar(255) NOT NULL,
+  `meter_super` int(11) DEFAULT NULL,
+  `meter_sub` int(11) DEFAULT NULL,
+  `meter_swing` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id_UNIQUE` (`id`),
+  KEY `pattern_fk_sequence` (`sequence_id`),
+  CONSTRAINT `pattern_fk_sequence` FOREIGN KEY (`sequence_id`) REFERENCES `sequence` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `pattern_chord`
+--
+
+DROP TABLE IF EXISTS `pattern_chord`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `pattern_chord` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `pattern_id` bigint(20) unsigned NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `position` float NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id_UNIQUE` (`id`),
+  KEY `pattern_chord_fk_pattern` (`pattern_id`),
+  CONSTRAINT `pattern_chord_fk_pattern` FOREIGN KEY (`pattern_id`) REFERENCES `pattern` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `pattern_event`
+--
+
+DROP TABLE IF EXISTS `pattern_event`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `pattern_event` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `pattern_id` bigint(20) unsigned NOT NULL,
+  `voice_id` bigint(20) unsigned NOT NULL,
+  `velocity` float unsigned NOT NULL,
+  `tonality` float unsigned NOT NULL,
+  `inflection` varchar(63) NOT NULL,
+  `position` float NOT NULL,
+  `duration` float unsigned NOT NULL,
+  `note` varchar(63) NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id_UNIQUE` (`id`),
+  KEY `pattern_event_fk_pattern` (`pattern_id`),
+  KEY `pattern_event_fk_voice` (`voice_id`),
+  CONSTRAINT `pattern_event_fk_pattern` FOREIGN KEY (`pattern_id`) REFERENCES `pattern` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `pattern_event_fk_voice` FOREIGN KEY (`voice_id`) REFERENCES `voice` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `pattern_meme`
+--
+
+DROP TABLE IF EXISTS `pattern_meme`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `pattern_meme` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `pattern_id` bigint(20) unsigned NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id_UNIQUE` (`id`),
+  KEY `pattern_meme_fk_pattern` (`pattern_id`),
+  CONSTRAINT `pattern_meme_fk_pattern` FOREIGN KEY (`pattern_id`) REFERENCES `pattern` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `platform_message`
+--
+
+DROP TABLE IF EXISTS `platform_message`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `platform_message` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `type` varchar(255) NOT NULL,
+  `body` text NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id_UNIQUE` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `schema_version`
+--
+
+DROP TABLE IF EXISTS `schema_version`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `schema_version` (
+  `installed_rank` int(11) NOT NULL,
+  `version` varchar(50) DEFAULT NULL,
+  `description` varchar(200) NOT NULL,
+  `type` varchar(20) NOT NULL,
+  `script` varchar(1000) NOT NULL,
+  `checksum` int(11) DEFAULT NULL,
+  `installed_by` varchar(100) NOT NULL,
+  `installed_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `execution_time` int(11) NOT NULL,
+  `success` tinyint(1) NOT NULL,
+  PRIMARY KEY (`installed_rank`),
+  KEY `schema_version_s_idx` (`success`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `segment`
+--
+
+DROP TABLE IF EXISTS `segment`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `segment` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `chain_id` bigint(20) unsigned NOT NULL,
+  `offset` bigint(20) unsigned NOT NULL,
+  `state` varchar(255) NOT NULL,
+  `begin_at` timestamp(6) NULL DEFAULT NULL,
+  `end_at` timestamp(6) NULL DEFAULT NULL,
+  `total` int(10) unsigned DEFAULT NULL,
+  `density` float unsigned DEFAULT NULL,
+  `key` varchar(255) DEFAULT NULL,
+  `tempo` float unsigned DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `waveform_key` varchar(2047) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id_UNIQUE` (`id`),
+  UNIQUE KEY `unique_chain_offset_index` (`chain_id`,`offset`),
+  CONSTRAINT `segment_fk_chain` FOREIGN KEY (`chain_id`) REFERENCES `chain` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `segment_chord`
+--
+
+DROP TABLE IF EXISTS `segment_chord`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `segment_chord` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `segment_id` bigint(20) unsigned NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `position` float NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id_UNIQUE` (`id`),
+  KEY `chord_fk_segment` (`segment_id`),
+  CONSTRAINT `chord_fk_segment` FOREIGN KEY (`segment_id`) REFERENCES `segment` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `segment_meme`
+--
+
+DROP TABLE IF EXISTS `segment_meme`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `segment_meme` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `segment_id` bigint(20) unsigned NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id_UNIQUE` (`id`),
+  KEY `meme_fk_segment` (`segment_id`),
+  CONSTRAINT `meme_fk_segment` FOREIGN KEY (`segment_id`) REFERENCES `segment` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `segment_message`
+--
+
+DROP TABLE IF EXISTS `segment_message`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `segment_message` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `segment_id` bigint(20) unsigned NOT NULL,
+  `type` varchar(255) NOT NULL,
+  `body` text NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id_UNIQUE` (`id`),
+  KEY `message_fk_segment` (`segment_id`),
+  CONSTRAINT `message_fk_segment` FOREIGN KEY (`segment_id`) REFERENCES `segment` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `sequence`
+--
+
+DROP TABLE IF EXISTS `sequence`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `sequence` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` bigint(20) unsigned NOT NULL,
+  `library_id` bigint(20) unsigned NOT NULL,
+  `type` varchar(255) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `density` float unsigned NOT NULL,
+  `key` varchar(255) NOT NULL,
+  `tempo` float unsigned NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `state` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id_UNIQUE` (`id`),
+  KEY `sequence_fk_user` (`user_id`),
+  KEY `sequence_fk_library` (`library_id`),
+  CONSTRAINT `sequence_fk_library` FOREIGN KEY (`library_id`) REFERENCES `library` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `sequence_fk_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `sequence_meme`
+--
+
+DROP TABLE IF EXISTS `sequence_meme`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `sequence_meme` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `sequence_id` bigint(20) unsigned NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id_UNIQUE` (`id`),
+  KEY `sequence_meme_fk_sequence` (`sequence_id`),
+  CONSTRAINT `sequence_meme_fk_sequence` FOREIGN KEY (`sequence_id`) REFERENCES `sequence` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `user`
+--
+
+DROP TABLE IF EXISTS `user`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `user` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `email` varchar(1023) DEFAULT NULL,
+  `avatar_url` varchar(1023) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id_UNIQUE` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `user_access_token`
+--
+
+DROP TABLE IF EXISTS `user_access_token`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `user_access_token` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `user_auth_id` bigint(20) unsigned NOT NULL,
+  `user_id` bigint(20) unsigned NOT NULL,
+  `access_token` text NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id_UNIQUE` (`id`),
+  KEY `user_access_token_fk_user_idx` (`user_id`),
+  KEY `user_access_token_fk_user_auth_idx` (`user_auth_id`),
+  CONSTRAINT `user_access_token_fk_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `user_access_token_fk_user_auth` FOREIGN KEY (`user_auth_id`) REFERENCES `user_auth` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `user_auth`
+--
+
+DROP TABLE IF EXISTS `user_auth`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `user_auth` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `type` varchar(255) NOT NULL,
+  `external_access_token` varchar(1023) NOT NULL,
+  `external_refresh_token` varchar(1023) DEFAULT NULL,
+  `external_account` varchar(1023) NOT NULL,
+  `user_id` bigint(20) unsigned NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id_UNIQUE` (`id`),
+  KEY `user_auth_fk_user_idx` (`user_id`),
+  CONSTRAINT `user_auth_fk_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `user_role`
+--
+
+DROP TABLE IF EXISTS `user_role`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `user_role` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `type` varchar(255) NOT NULL,
+  `user_id` bigint(20) unsigned NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id_UNIQUE` (`id`),
+  KEY `user_role_fk_user_idx` (`user_id`),
+  CONSTRAINT `user_role_fk_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `voice`
+--
+
+DROP TABLE IF EXISTS `voice`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `voice` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `sequence_id` bigint(20) unsigned NOT NULL,
+  `type` varchar(255) NOT NULL,
+  `description` varchar(1023) NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id_UNIQUE` (`id`),
+  KEY `voice_fk_sequence` (`sequence_id`),
+  CONSTRAINT `voice_fk_sequence` FOREIGN KEY (`sequence_id`) REFERENCES `sequence` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -745,7 +1488,7 @@ CREATE TABLE `voice` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-06-19 19:30:36
+-- Dump completed on 2018-08-30  8:54:00
 
 
 
@@ -766,17 +1509,14 @@ CREATE TABLE `voice` (
 
 
 
+#-------------
+USE `xj`;
 
-
-
-
-
-
--- MySQL dump 10.13  Distrib 5.5.59, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 5.7.23, for Linux (x86_64)
 --
--- Host: xj-prod.c4xei3cvxtkt.us-east-1.rds.amazonaws.com    Database: ebdb
+-- Host: 127.0.0.1    Database: xj
 -- ------------------------------------------------------
--- Server version	5.7.16-log
+-- Server version	5.6.34
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -870,13 +1610,43 @@ INSERT INTO `library` VALUES (1,'Pots and Pans #2',1,'2017-02-10 00:03:23','2017
 UNLOCK TABLES;
 
 --
+-- Dumping data for table `sequence`
+--
+
+LOCK TABLES `sequence` WRITE;
+/*!40000 ALTER TABLE `sequence` DISABLE KEYS */;
+INSERT INTO `sequence` VALUES (6,1,1,'Rhythm','2-Step Shuffle Beat',0.62,'C',133,'2017-04-23 23:21:52','2018-02-03 00:56:45','Published'),(7,1,1,'Macro','Deep, from Hot to Cool',0.6,'C',133,'2017-05-01 18:59:22','2018-02-03 00:56:45','Published'),(8,1,1,'Macro','Deep, from Cool to Hot',0.6,'G minor',133,'2017-05-01 18:59:32','2018-02-03 00:56:45','Published'),(9,1,1,'Main','I\'ll House You',0.5,'C',133,'2017-05-13 00:04:19','2018-02-03 00:56:45','Published'),(11,27,3,'Main','Water Galq',0.5,'E-',121,'2017-12-12 22:05:13','2018-03-28 05:44:46','Published'),(12,1,3,'Macro','Earth to Fire',0.5,'Ebm',121,'2017-12-13 06:38:26','2018-02-03 00:56:45','Published'),(13,1,3,'Macro','Earth to Water',0.5,'Gm',121,'2017-12-13 06:40:22','2018-02-03 00:56:45','Published'),(14,1,3,'Macro','Earth to Wind',0.5,'Cm',121,'2017-12-13 06:42:39','2018-02-03 00:56:45','Published'),(15,1,3,'Macro','Fire to Earth',0.5,'G',121,'2017-12-13 06:43:43','2018-02-03 00:56:45','Published'),(16,1,3,'Macro','Fire to Water',0.5,'E',121,'2017-12-13 06:45:43','2018-02-03 00:56:45','Published'),(17,1,3,'Macro','Fire to Wind',0.5,'G',121,'2017-12-13 06:46:56','2018-02-03 00:56:45','Published'),(18,1,3,'Macro','Wind to Earth',0.5,'Ebm',121,'2017-12-13 06:48:06','2018-02-03 00:56:45','Published'),(19,1,3,'Macro','Wind to Fire',0.5,'Bm',121,'2017-12-13 06:49:09','2018-02-03 00:56:45','Published'),(20,1,3,'Macro','Wind to Water',0.5,'Ebm',121,'2017-12-13 06:49:56','2018-02-03 00:56:45','Published'),(29,1,3,'Rhythm','2-Step Shuffle',0.62,'C',121,'2017-12-22 06:43:19','2018-02-03 00:56:45','Published'),(30,1,3,'Macro','Water to Wind',0.5,'G',121,'2017-12-23 22:11:19','2018-02-03 00:56:45','Published'),(31,1,3,'Macro','Water to Fire',0.5,'C',121,'2017-12-23 22:12:58','2018-02-03 00:56:45','Published'),(32,1,3,'Macro','Water to Earth',0.5,'G',121,'2017-12-23 22:14:36','2018-02-03 00:56:45','Published'),(34,1,3,'Rhythm','Half-time 2-Step Shuffle',0.62,'C',121,'2018-01-05 14:54:11','2018-02-03 00:56:45','Published'),(35,27,3,'Main','Fire Camp',0.6,'C',121,'2018-01-19 20:51:14','2018-03-28 05:38:23','Published'),(46,1,3,'Detail','Hella Dope 2 (legacy)',0.5,'C',120,'2018-02-08 08:04:27','2018-03-18 21:29:25','Published'),(47,27,3,'Main','Earth First',0.5,'Bb',121,'2018-02-25 07:46:29','2018-02-25 07:46:29','Published'),(48,27,3,'Main','Fire Babes',0.5,'E-',121,'2018-03-02 06:35:24','2018-03-02 06:35:24','Published'),(49,27,3,'Main','Water Me Up',0.5,'F',121,'2018-03-02 07:00:10','2018-03-02 07:00:10','Published'),(50,27,3,'Main','Wind Terb',0.5,'D-',121,'2018-03-02 07:21:04','2018-03-02 07:21:04','Published'),(52,27,3,'Main','Earth Rudy',0.5,'D',121,'2018-03-02 07:34:58','2018-03-02 07:34:58','Published'),(53,27,3,'Main','Wind Bagz',0.4,'Eb',121,'2018-03-19 01:31:40','2018-03-28 05:16:51','Published'),(54,27,3,'Main','Wind Mole',0.4,'F',121,'2018-03-19 01:31:44','2018-03-19 01:31:44','Published'),(55,27,3,'Main','Bert',0.5,'B',121,'2018-03-22 19:15:11','2018-03-22 19:15:11','Published'),(56,27,3,'Main','Bert',0.5,'B',121,'2018-03-22 19:15:43','2018-03-22 19:15:43','Published'),(57,27,3,'Main','Water Wibs',0.6,'C#-',121,'2018-03-22 19:26:28','2018-03-23 04:23:27','Published'),(59,27,3,'Main','Earthen Satay',0.5,'Db',121,'2018-03-22 19:48:06','2018-03-23 04:37:07','Published'),(60,27,3,'Main','Fire Tom Perez',0.5,'C-',121,'2018-03-22 19:50:57','2018-03-28 04:53:27','Published'),(61,27,3,'Main','Earth Earth',0.5,'C',121,'2018-03-22 19:50:57','2018-06-05 03:32:57','Published'),(62,27,3,'Main','Wind Wind',0.5,'F',121,'2018-03-22 19:50:58','2018-06-05 03:41:09','Published'),(63,27,3,'Main','Temporary',0.5,'C',121,'2018-03-22 19:50:59','2018-03-22 19:50:59','Published'),(64,27,3,'Main','Fire Fire',0.5,'C#-',121,'2018-03-22 19:50:59','2018-06-14 03:04:20','Published'),(65,27,3,'Main','Water Water',0.5,'C#',121,'2018-03-22 19:51:00','2018-06-05 03:54:32','Published'),(66,27,3,'Main','Earth Knyght',0.5,'Bb-',121,'2018-03-22 19:51:00','2018-03-23 04:29:01','Published');
+/*!40000 ALTER TABLE `sequence` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Dumping data for table `sequence_meme`
+--
+
+LOCK TABLES `sequence_meme` WRITE;
+/*!40000 ALTER TABLE `sequence_meme` DISABLE KEYS */;
+INSERT INTO `sequence_meme` VALUES (1,6,'Classic','2017-04-23 23:22:21','2017-04-23 23:22:21'),(2,6,'Deep','2017-04-23 23:22:23','2017-04-23 23:22:23'),(3,6,'Acid','2017-04-23 23:22:24','2017-04-23 23:22:24'),(5,6,'Tech','2017-04-23 23:22:28','2017-04-23 23:22:28'),(6,6,'Electro','2017-04-23 23:22:31','2017-04-23 23:22:31'),(7,6,'Tropical','2017-04-23 23:22:34','2017-04-23 23:22:34'),(8,6,'Hot','2017-04-23 23:22:36','2017-04-23 23:22:36'),(9,6,'Cool','2017-04-23 23:22:39','2017-04-23 23:22:39'),(10,6,'Hard','2017-04-23 23:22:40','2017-04-23 23:22:40'),(11,6,'Easy','2017-04-23 23:22:42','2017-04-23 23:22:42'),(12,6,'Progressive','2017-04-23 23:23:17','2017-04-23 23:23:17'),(15,7,'Deep','2017-05-01 18:59:46','2017-05-01 18:59:46'),(16,8,'Deep','2017-05-01 19:42:36','2017-05-01 19:42:36'),(17,9,'Deep','2017-05-13 00:04:41','2017-05-13 00:04:41'),(18,9,'Classic','2017-05-13 00:04:44','2017-05-13 00:04:44'),(34,9,'Hard','2017-06-16 04:26:57','2017-06-16 04:26:57'),(36,11,'Earth','2017-12-13 00:44:05','2017-12-13 00:44:05'),(68,35,'Earth','2018-01-19 20:56:22','2018-01-19 20:56:22'),(72,47,'Earth','2018-03-18 21:30:31','2018-03-18 21:30:31');
+/*!40000 ALTER TABLE `sequence_meme` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Dumping data for table `pattern`
 --
 
 LOCK TABLES `pattern` WRITE;
 /*!40000 ALTER TABLE `pattern` DISABLE KEYS */;
-INSERT INTO `pattern` VALUES (6,1,1,'Rhythm','2-Step Shuffle Beat',0.62,'C',133,'2017-04-23 23:21:52','2018-02-03 00:56:45','Published'),(7,1,1,'Macro','Deep, from Hot to Cool',0.6,'C',133,'2017-05-01 18:59:22','2018-02-03 00:56:45','Published'),(8,1,1,'Macro','Deep, from Cool to Hot',0.6,'G minor',133,'2017-05-01 18:59:32','2018-02-03 00:56:45','Published'),(9,1,1,'Main','I\'ll House You',0.5,'C',133,'2017-05-13 00:04:19','2018-02-03 00:56:45','Published'),(11,27,3,'Main','Water Galq',0.5,'E-',121,'2017-12-12 22:05:13','2018-03-28 05:44:46','Published'),(12,1,3,'Macro','Earth to Fire',0.5,'Ebm',121,'2017-12-13 06:38:26','2018-02-03 00:56:45','Published'),(13,1,3,'Macro','Earth to Water',0.5,'Gm',121,'2017-12-13 06:40:22','2018-02-03 00:56:45','Published'),(14,1,3,'Macro','Earth to Wind',0.5,'Cm',121,'2017-12-13 06:42:39','2018-02-03 00:56:45','Published'),(15,1,3,'Macro','Fire to Earth',0.5,'G',121,'2017-12-13 06:43:43','2018-02-03 00:56:45','Published'),(16,1,3,'Macro','Fire to Water',0.5,'E',121,'2017-12-13 06:45:43','2018-02-03 00:56:45','Published'),(17,1,3,'Macro','Fire to Wind',0.5,'G',121,'2017-12-13 06:46:56','2018-02-03 00:56:45','Published'),(18,1,3,'Macro','Wind to Earth',0.5,'Ebm',121,'2017-12-13 06:48:06','2018-02-03 00:56:45','Published'),(19,1,3,'Macro','Wind to Fire',0.5,'Bm',121,'2017-12-13 06:49:09','2018-02-03 00:56:45','Published'),(20,1,3,'Macro','Wind to Water',0.5,'Ebm',121,'2017-12-13 06:49:56','2018-02-03 00:56:45','Published'),(29,1,3,'Rhythm','2-Step Shuffle',0.62,'C',121,'2017-12-22 06:43:19','2018-02-03 00:56:45','Published'),(30,1,3,'Macro','Water to Wind',0.5,'G',121,'2017-12-23 22:11:19','2018-02-03 00:56:45','Published'),(31,1,3,'Macro','Water to Fire',0.5,'C',121,'2017-12-23 22:12:58','2018-02-03 00:56:45','Published'),(32,1,3,'Macro','Water to Earth',0.5,'G',121,'2017-12-23 22:14:36','2018-02-03 00:56:45','Published'),(34,1,3,'Rhythm','Half-time 2-Step Shuffle',0.62,'C',121,'2018-01-05 14:54:11','2018-02-03 00:56:45','Published'),(35,27,3,'Main','Fire Camp',0.6,'C',121,'2018-01-19 20:51:14','2018-03-28 05:38:23','Published'),(46,1,3,'Detail','Hella Dope 2 (legacy)',0.5,'C',120,'2018-02-08 08:04:27','2018-03-18 21:29:25','Published'),(47,27,3,'Main','Earth First',0.5,'Bb',121,'2018-02-25 07:46:29','2018-02-25 07:46:29','Published'),(48,27,3,'Main','Fire Babes',0.5,'E-',121,'2018-03-02 06:35:24','2018-03-02 06:35:24','Published'),(49,27,3,'Main','Water Me Up',0.5,'F',121,'2018-03-02 07:00:10','2018-03-02 07:00:10','Published'),(50,27,3,'Main','Wind Terb',0.5,'D-',121,'2018-03-02 07:21:04','2018-03-02 07:21:04','Published'),(52,27,3,'Main','Earth Rudy',0.5,'D',121,'2018-03-02 07:34:58','2018-03-02 07:34:58','Published'),(53,27,3,'Main','Wind Bagz',0.4,'Eb',121,'2018-03-19 01:31:40','2018-03-28 05:16:51','Published'),(54,27,3,'Main','Wind Mole',0.4,'F',121,'2018-03-19 01:31:44','2018-03-19 01:31:44','Published'),(55,27,3,'Main','Bert',0.5,'B',121,'2018-03-22 19:15:11','2018-03-22 19:15:11','Published'),(56,27,3,'Main','Bert',0.5,'B',121,'2018-03-22 19:15:43','2018-03-22 19:15:43','Published'),(57,27,3,'Main','Water Wibs',0.6,'C#-',121,'2018-03-22 19:26:28','2018-03-23 04:23:27','Published'),(59,27,3,'Main','Earthen Satay',0.5,'Db',121,'2018-03-22 19:48:06','2018-03-23 04:37:07','Published'),(60,27,3,'Main','Fire Tom Perez',0.5,'C-',121,'2018-03-22 19:50:57','2018-03-28 04:53:27','Published'),(61,27,3,'Main','Earth Earth',0.5,'C',121,'2018-03-22 19:50:57','2018-06-05 03:32:57','Published'),(62,27,3,'Main','Wind Wind',0.5,'F',121,'2018-03-22 19:50:58','2018-06-05 03:41:09','Published'),(63,27,3,'Main','Temporary',0.5,'C',121,'2018-03-22 19:50:59','2018-03-22 19:50:59','Published'),(64,27,3,'Main','Fire Fire',0.5,'C#-',121,'2018-03-22 19:50:59','2018-06-14 03:04:20','Published'),(65,27,3,'Main','Water Water',0.5,'C#',121,'2018-03-22 19:51:00','2018-06-05 03:54:32','Published'),(66,27,3,'Main','Earth Knyght',0.5,'Bb-',121,'2018-03-22 19:51:00','2018-03-23 04:29:01','Published');
+INSERT INTO `pattern` VALUES (3,'Loop',6,'drop d beet',0,4,NULL,NULL,NULL,'2017-04-23 23:44:19','2018-02-03 00:56:45','Published',NULL,NULL,NULL),(4,'Macro',7,'from Hot',0,0,0.7,'C',133,'2017-05-01 19:39:59','2018-02-03 00:56:45','Published',NULL,NULL,NULL),(5,'Macro',7,'to Cool',1,0,0.5,'Bb Minor',133,'2017-05-01 19:40:18','2018-02-03 00:56:45','Published',NULL,NULL,NULL),(6,'Macro',8,'from Cool',0,0,0.5,'G minor',133,'2017-05-01 19:43:06','2018-02-03 00:56:45','Published',NULL,NULL,NULL),(7,'Macro',8,'to Hot',1,0,0.7,'C',133,'2017-05-01 19:43:26','2018-02-03 00:56:45','Published',NULL,NULL,NULL),(8,'Main',9,'Drop',0,32,0.4,'C',133,'2017-05-13 00:05:29','2018-02-03 00:56:45','Published',NULL,NULL,NULL),(9,'Main',9,'Breakdown A',1,16,0.6,'G minor',133,'2017-05-13 00:07:19','2018-02-03 00:56:45','Published',NULL,NULL,NULL),(14,'Main',9,'Breakdown B',2,16,0.8,'G minor',133,'2017-07-27 17:40:32','2018-02-03 00:56:45','Published',NULL,NULL,NULL),(21,'Macro',12,'Passion Volcano',0,0,NULL,'Ebm',NULL,'2017-12-13 06:39:29','2018-02-03 00:56:45','Published',NULL,NULL,NULL),(22,'Macro',12,'Falling in Love',1,0,NULL,'Db',NULL,'2017-12-13 06:40:03','2018-02-03 00:56:45','Published',NULL,NULL,NULL),(23,'Macro',13,'Nostalgia River',0,0,NULL,'Gm',NULL,'2017-12-13 06:42:02','2018-02-03 00:56:45','Published',NULL,NULL,NULL),(24,'Macro',13,'Passage of Time',1,0,NULL,'C',NULL,'2017-12-13 06:42:21','2018-02-03 00:56:45','Published',NULL,NULL,NULL),(25,'Macro',14,'Spring',0,0,NULL,'Cm',NULL,'2017-12-13 06:43:03','2018-02-03 00:56:45','Published',NULL,NULL,NULL),(26,'Macro',14,'Tornado',1,0,NULL,'F',NULL,'2017-12-13 06:43:24','2018-02-03 00:56:45','Published',NULL,NULL,NULL),(27,'Macro',15,'Lightning Strike',0,0,NULL,'G',NULL,'2017-12-13 06:43:58','2018-02-03 00:56:45','Published',NULL,NULL,NULL),(28,'Macro',15,'Car Racing',1,0,NULL,'E7',NULL,'2017-12-13 06:44:24','2018-02-03 00:56:45','Published',NULL,NULL,NULL),(29,'Macro',16,'Volcanic Island',0,0,NULL,'E',NULL,'2017-12-13 06:46:14','2018-02-03 00:56:45','Published',NULL,NULL,NULL),(30,'Macro',16,'Sex on the Beach',1,0,NULL,'Am',NULL,'2017-12-13 06:46:37','2018-02-03 00:56:45','Published',NULL,NULL,NULL),(31,'Macro',17,'Smoke in the Air',0,0,NULL,'G',NULL,'2017-12-13 06:47:25','2018-02-03 00:56:45','Published',NULL,NULL,NULL),(32,'Macro',17,'Dreams',1,0,NULL,'E',NULL,'2017-12-13 06:47:43','2018-02-03 00:56:45','Published',NULL,NULL,NULL),(33,'Macro',18,'Open Road Tumbleweed',0,0,NULL,'Ebm',NULL,'2017-12-13 06:48:26','2018-02-03 00:56:45','Published',NULL,NULL,NULL),(34,'Macro',18,'Rolling Stone',1,0,NULL,'D',NULL,'2017-12-13 06:48:48','2018-02-03 00:56:45','Published',NULL,NULL,NULL),(35,'Macro',19,'Stoke the Flames',0,0,NULL,'Bm',NULL,'2017-12-13 06:49:21','2018-02-03 00:56:45','Published',NULL,NULL,NULL),(36,'Macro',19,'Inspiration Adventure',1,0,NULL,'E',NULL,'2017-12-13 06:49:41','2018-02-03 00:56:45','Published',NULL,NULL,NULL),(37,'Macro',20,'Make Waves',0,NULL,NULL,'Ebm',NULL,'2017-12-13 06:50:11','2018-02-03 00:56:45','Published',NULL,NULL,NULL),(38,'Macro',20,'Bon Voyage',1,0,NULL,'D',NULL,'2017-12-13 06:50:29','2018-02-03 00:56:45','Published',NULL,NULL,NULL),(64,'Loop',29,'Loop A',0,4,NULL,NULL,NULL,'2017-12-22 06:43:19','2018-02-03 00:56:45','Published',NULL,NULL,NULL),(65,'Macro',12,'Exploding',2,0,NULL,'B',NULL,'2017-12-23 21:50:57','2018-02-03 00:56:45','Published',NULL,NULL,NULL),(66,'Macro',13,'Arrival',2,0,NULL,'F',NULL,'2017-12-23 21:54:53','2018-02-03 00:56:45','Published',NULL,NULL,NULL),(67,'Macro',14,'Fall',2,0,NULL,'Cm',NULL,'2017-12-23 21:57:50','2018-02-03 00:56:45','Published',NULL,NULL,NULL),(68,'Macro',15,'Defeat',2,0,NULL,'Am',NULL,'2017-12-23 22:00:15','2018-02-03 00:56:45','Published',NULL,NULL,NULL),(69,'Macro',16,'Glory',2,0,NULL,'F',NULL,'2017-12-23 22:02:07','2018-02-03 00:56:45','Published',NULL,NULL,NULL),(70,'Macro',17,'Waking',2,0,NULL,'Am',NULL,'2017-12-23 22:04:27','2018-02-03 00:56:45','Published',NULL,NULL,NULL),(71,'Macro',18,'Freedom',2,0,NULL,'Bm',NULL,'2017-12-23 22:05:48','2018-02-03 00:56:45','Published',NULL,NULL,NULL),(72,'Macro',19,'Wilderness',2,0,NULL,'A',NULL,'2017-12-23 22:08:59','2018-02-03 00:56:45','Published',NULL,NULL,NULL),(73,'Macro',20,'Afloat',2,0,NULL,'A',NULL,'2017-12-23 22:10:24','2018-02-03 00:56:45','Published',NULL,NULL,NULL),(74,'Macro',30,'Rain',0,0,NULL,'G',NULL,'2017-12-23 22:11:35','2018-02-03 00:56:45','Published',NULL,NULL,NULL),(75,'Macro',30,'Fog',1,0,NULL,'C',NULL,'2017-12-23 22:12:04','2018-02-03 00:56:45','Published',NULL,NULL,NULL),(76,'Macro',30,'Dew',2,0,NULL,'Am',NULL,'2017-12-23 22:12:28','2018-02-03 00:56:45','Published',NULL,NULL,NULL),(77,'Macro',31,'Hydrant',0,0,NULL,'C',NULL,'2017-12-23 22:13:12','2018-02-03 00:56:45','Published',NULL,NULL,NULL),(78,'Macro',31,'Engine',1,0,NULL,'Dm',NULL,'2017-12-23 22:13:32','2018-02-03 00:56:45','Published',NULL,NULL,NULL),(79,'Macro',31,'Steam',2,0,NULL,'C',NULL,'2017-12-23 22:13:50','2018-02-03 00:56:45','Published',NULL,NULL,NULL),(80,'Macro',32,'Irrigation',0,0,NULL,'G',NULL,'2017-12-23 22:14:53','2018-02-03 00:56:45','Published',NULL,NULL,NULL),(81,'Macro',32,'Nourishment',1,0,NULL,'C',NULL,'2017-12-23 22:15:19','2018-02-03 00:56:45','Published',NULL,NULL,NULL),(82,'Macro',32,'Growth',2,0,NULL,'Am',NULL,'2017-12-23 22:15:42','2018-02-03 00:56:45','Published',NULL,NULL,NULL),(86,'Loop',29,'Loop B',0,4,NULL,NULL,NULL,'2018-01-05 07:39:54','2018-02-03 00:56:45','Published',NULL,NULL,NULL),(87,'Outro',29,'Outro A',0,4,NULL,NULL,NULL,'2018-01-05 08:37:43','2018-02-03 00:56:45','Published',NULL,NULL,NULL),(88,'Outro',29,'Outro B',0,4,NULL,NULL,NULL,'2018-01-05 08:38:44','2018-02-03 00:56:45','Published',NULL,NULL,NULL),(91,'Intro',29,'Intro A',0,4,NULL,NULL,NULL,'2018-01-05 09:43:57','2018-02-03 00:56:45','Published',NULL,NULL,NULL),(92,'Intro',29,'Intro B',0,4,NULL,NULL,NULL,'2018-01-05 10:04:13','2018-02-03 00:56:45','Published',NULL,NULL,NULL),(99,'Loop',34,'Loop A',0,4,NULL,NULL,NULL,'2018-01-05 14:54:11','2018-02-03 00:56:45','Published',NULL,NULL,NULL),(100,'Loop',34,'Loop B',0,4,NULL,NULL,NULL,'2018-01-05 14:54:11','2018-02-03 00:56:45','Published',NULL,NULL,NULL),(101,'Outro',34,'Outro A',0,4,NULL,NULL,NULL,'2018-01-05 14:54:11','2018-02-03 00:56:45','Published',NULL,NULL,NULL),(102,'Outro',34,'Outro B',0,4,NULL,NULL,NULL,'2018-01-05 14:54:11','2018-02-03 00:56:45','Published',NULL,NULL,NULL),(103,'Intro',34,'Intro A',0,4,NULL,NULL,NULL,'2018-01-05 14:54:11','2018-02-03 00:56:45','Published',NULL,NULL,NULL),(104,'Intro',34,'Intro B',0,4,NULL,NULL,NULL,'2018-01-05 14:54:11','2018-02-03 00:56:45','Published',NULL,NULL,NULL),(165,'Loop',46,'Library Superphase',0,32,NULL,NULL,NULL,'2018-02-08 08:04:28','2018-02-08 08:04:28','Published',NULL,NULL,NULL),(166,'Loop',46,'Library Superphase',0,32,NULL,NULL,NULL,'2018-02-08 08:04:28','2018-02-08 08:04:28','Published',NULL,NULL,NULL),(167,'Loop',46,'Library Superphase',0,32,NULL,NULL,NULL,'2018-02-08 08:04:29','2018-02-08 08:04:29','Published',NULL,NULL,NULL),(168,'Loop',46,'Library Superphase',0,16,NULL,NULL,NULL,'2018-02-08 08:04:29','2018-02-08 08:04:29','Published',NULL,NULL,NULL),(169,'Loop',46,'Library Superphase',0,32,NULL,NULL,NULL,'2018-02-08 08:04:29','2018-02-08 08:04:29','Published',NULL,NULL,NULL),(170,'Loop',46,'Library Superphase',0,32,NULL,NULL,NULL,'2018-02-08 08:04:30','2018-02-08 08:04:30','Published',NULL,NULL,NULL),(171,'Loop',46,'Library Superphase',0,32,NULL,NULL,NULL,'2018-02-08 08:04:30','2018-02-08 08:04:30','Published',NULL,NULL,NULL),(172,'Loop',46,'Library Superphase',0,32,NULL,NULL,NULL,'2018-02-08 08:04:30','2018-02-08 08:04:30','Published',NULL,NULL,NULL),(173,'Loop',46,'Library Superphase',0,8,NULL,NULL,NULL,'2018-02-08 08:04:31','2018-02-08 08:04:31','Published',NULL,NULL,NULL),(174,'Loop',46,'Library Superphase',0,32,NULL,NULL,NULL,'2018-02-08 08:04:31','2018-02-08 08:04:31','Published',NULL,NULL,NULL),(175,'Loop',46,'Library Superphase',0,16,NULL,NULL,NULL,'2018-02-08 08:04:31','2018-02-08 08:04:31','Published',NULL,NULL,NULL),(176,'Loop',46,'Library Superphase',0,32,NULL,NULL,NULL,'2018-02-08 08:04:31','2018-02-08 08:04:31','Published',NULL,NULL,NULL),(177,'Loop',46,'Library Superphase',0,16,NULL,NULL,NULL,'2018-02-08 08:04:32','2018-02-08 08:04:32','Published',NULL,NULL,NULL),(178,'Loop',46,'Library Superphase',0,32,NULL,NULL,NULL,'2018-02-08 08:04:32','2018-02-08 08:04:32','Published',NULL,NULL,NULL),(179,'Loop',46,'Library Superphase',0,32,NULL,NULL,NULL,'2018-02-08 08:04:32','2018-02-08 08:04:32','Published',NULL,NULL,NULL),(180,'Main',47,'Verse',0,16,NULL,NULL,NULL,'2018-02-25 07:48:50','2018-02-25 07:49:02','Published',NULL,NULL,NULL),(181,'Main',47,'Chorus',1,32,NULL,NULL,NULL,'2018-02-25 07:55:39','2018-02-25 07:55:39','Published',NULL,NULL,NULL),(182,'Main',47,'Interlude',2,8,NULL,NULL,NULL,'2018-02-25 08:00:47','2018-02-25 08:00:47','Published',NULL,NULL,NULL),(183,'Main',48,'Verse',0,16,NULL,NULL,NULL,'2018-03-02 06:36:51','2018-03-02 06:36:51','Published',NULL,NULL,NULL),(184,'Main',48,'Prechorus',1,32,NULL,NULL,NULL,'2018-03-02 06:39:44','2018-03-02 06:48:15','Published',NULL,NULL,NULL),(185,'Main',48,'Chorus',2,16,NULL,NULL,NULL,'2018-03-02 06:50:11','2018-03-02 06:50:11','Published',NULL,NULL,NULL),(186,'Main',48,'Bridge',3,32,NULL,NULL,NULL,'2018-03-02 06:53:35','2018-03-02 06:53:35','Published',NULL,NULL,NULL),(187,'Main',49,'A',0,16,NULL,NULL,NULL,'2018-03-02 07:01:49','2018-03-02 07:01:49','Published',NULL,NULL,NULL),(188,'Main',49,'B',1,32,NULL,NULL,NULL,'2018-03-02 07:04:34','2018-03-02 07:04:34','Published',NULL,NULL,NULL),(189,'Main',49,'C',2,8,NULL,NULL,NULL,'2018-03-02 07:13:38','2018-03-02 07:13:38','Published',NULL,NULL,NULL),(190,'Main',50,'Intro',0,64,NULL,NULL,NULL,'2018-03-02 07:22:43','2018-03-02 07:22:43','Published',NULL,NULL,NULL),(191,'Main',50,'A',1,16,NULL,NULL,NULL,'2018-03-02 07:25:38','2018-03-02 07:25:38','Published',NULL,NULL,NULL),(192,'Main',50,'B',2,32,NULL,NULL,NULL,'2018-03-02 07:28:02','2018-03-02 07:29:29','Published',NULL,NULL,NULL),(193,'Main',50,'Interlude',3,64,NULL,NULL,NULL,'2018-03-02 07:32:02','2018-03-02 07:32:02','Published',NULL,NULL,NULL),(194,'Main',52,'A',0,32,NULL,'D',NULL,'2018-03-19 01:11:16','2018-03-19 01:11:16','Published',NULL,NULL,NULL),(195,'Main',52,'B',1,32,NULL,NULL,NULL,'2018-03-19 01:20:17','2018-03-19 01:24:27','Published',NULL,NULL,NULL),(196,'Main',52,'C',2,32,NULL,NULL,NULL,'2018-03-19 01:25:28','2018-03-19 01:25:48','Published',NULL,NULL,NULL),(197,'Main',57,'A',0,16,NULL,NULL,NULL,'2018-03-23 04:24:41','2018-03-23 04:24:41','Published',NULL,NULL,NULL),(198,'Main',57,'B',1,16,NULL,NULL,NULL,'2018-03-23 04:25:53','2018-03-23 04:25:53','Published',NULL,NULL,NULL),(199,'Main',66,'I',0,32,NULL,NULL,NULL,'2018-03-23 04:30:25','2018-03-23 04:30:25','Published',NULL,NULL,NULL),(200,'Main',66,'A',1,64,NULL,NULL,NULL,'2018-03-23 04:30:56','2018-03-23 04:30:56','Published',NULL,NULL,NULL),(201,'Main',59,'A',0,16,NULL,NULL,NULL,'2018-03-23 04:37:54','2018-03-23 04:37:54','Published',NULL,NULL,NULL),(202,'Main',59,'B',1,32,NULL,NULL,NULL,'2018-03-23 04:38:37','2018-03-23 04:38:37','Published',NULL,NULL,NULL),(203,'Main',59,'C',2,16,NULL,NULL,NULL,'2018-03-23 04:41:10','2018-03-23 04:41:10','Published',NULL,NULL,NULL),(204,'Main',54,'A',0,16,NULL,NULL,NULL,'2018-03-23 04:45:59','2018-03-23 04:45:59','Published',NULL,NULL,NULL),(205,'Main',54,'B',1,16,NULL,NULL,NULL,'2018-03-23 04:49:50','2018-03-23 04:51:05','Published',NULL,NULL,NULL),(206,'Main',60,'A',0,32,NULL,NULL,NULL,'2018-03-28 04:55:06','2018-03-28 04:55:06','Published',NULL,NULL,NULL),(207,'Main',60,'B',1,16,NULL,NULL,NULL,'2018-03-28 05:03:48','2018-03-28 05:03:48','Published',NULL,NULL,NULL),(208,'Main',53,'A',0,32,NULL,NULL,NULL,'2018-03-28 05:18:04','2018-03-28 05:18:04','Published',NULL,NULL,NULL),(209,'Main',53,'B',1,32,NULL,NULL,NULL,'2018-03-28 05:21:09','2018-03-28 05:21:09','Published',NULL,NULL,NULL),(210,'Main',35,'A',0,16,NULL,NULL,NULL,'2018-03-28 05:32:19','2018-03-28 05:32:19','Published',NULL,NULL,NULL),(211,'Main',35,'B',1,32,NULL,NULL,NULL,'2018-03-28 05:35:23','2018-03-28 05:35:23','Published',NULL,NULL,NULL),(212,'Main',11,'A',0,12,NULL,NULL,NULL,'2018-03-28 05:45:53','2018-03-28 05:45:53','Published',NULL,NULL,NULL),(213,'Main',11,'B',1,12,NULL,NULL,NULL,'2018-03-28 05:52:35','2018-03-28 05:52:35','Published',NULL,NULL,NULL),(214,'Main',11,'X',2,16,NULL,NULL,NULL,'2018-03-28 05:58:54','2018-03-28 05:58:54','Published',NULL,NULL,NULL),(215,'Main',61,'A',0,32,NULL,NULL,NULL,'2018-06-05 03:34:53','2018-06-05 03:34:53','Published',NULL,NULL,NULL),(216,'Main',62,'A',0,64,NULL,NULL,NULL,'2018-06-05 03:41:34','2018-06-05 03:41:34','Published',NULL,NULL,NULL),(217,'Main',65,'A',0,32,NULL,NULL,NULL,'2018-06-05 03:59:09','2018-06-05 03:59:09','Published',NULL,NULL,NULL),(218,'Main',64,'A',0,32,NULL,NULL,NULL,'2018-06-14 03:07:47','2018-06-14 03:27:53','Published',NULL,NULL,NULL);
 /*!40000 ALTER TABLE `pattern` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Dumping data for table `pattern_chord`
+--
+
+LOCK TABLES `pattern_chord` WRITE;
+/*!40000 ALTER TABLE `pattern_chord` DISABLE KEYS */;
+INSERT INTO `pattern_chord` VALUES (7,3,'C',0,'2017-04-23 23:44:43','2017-04-23 23:44:43'),(8,8,'C major 7',0,'2017-05-13 00:05:58','2017-06-16 03:54:30'),(9,8,'Cm7',8,'2017-05-13 00:06:11','2017-06-16 03:55:17'),(10,8,'F7',12,'2017-05-13 00:06:28','2017-06-16 03:58:00'),(11,8,'Bb major 7',16,'2017-05-13 00:06:41','2017-06-16 03:58:13'),(12,9,'D',0,'2017-05-13 00:07:40','2017-06-16 04:00:16'),(13,9,'G',4,'2017-05-13 00:07:47','2017-06-16 04:00:22'),(14,9,'C',8,'2017-05-13 00:07:55','2017-06-16 04:00:31'),(15,9,'F7',12,'2017-05-13 00:08:01','2017-06-16 04:31:20'),(19,8,'Bb m7',24,'2017-06-16 03:59:02','2017-06-16 03:59:02'),(20,8,'Eb7',28,'2017-06-16 03:59:38','2017-06-16 03:59:38'),(21,8,'Ab major 7',30,'2017-06-16 03:59:46','2017-06-16 03:59:46'),(32,14,'E minor 7',0,'2017-07-27 17:41:02','2017-07-27 17:41:02'),(33,14,'Eb minor 7',4,'2017-07-27 17:41:11','2017-07-27 17:41:11'),(38,14,'D minor 7',8,'2017-07-30 23:22:08','2017-07-30 23:22:08'),(39,14,'Db minor 7',12,'2017-07-30 23:22:15','2017-07-30 23:22:15'),(364,64,'C',0,'2017-12-22 06:43:19','2017-12-22 06:43:19'),(368,86,'C',0,'2018-01-05 07:39:55','2018-01-05 07:39:55'),(369,87,'C',0,'2018-01-05 08:37:43','2018-01-05 08:37:43'),(370,88,'C',0,'2018-01-05 08:38:44','2018-01-05 08:38:44'),(372,91,'C',0,'2018-01-05 09:43:58','2018-01-05 09:43:58'),(373,92,'C',0,'2018-01-05 10:04:13','2018-01-05 10:04:13'),(380,99,'C',0,'2018-01-05 14:54:11','2018-01-05 14:54:11'),(381,100,'C',0,'2018-01-05 14:54:11','2018-01-05 14:54:11'),(382,101,'C',0,'2018-01-05 14:54:11','2018-01-05 14:54:11'),(383,102,'C',0,'2018-01-05 14:54:11','2018-01-05 14:54:11'),(384,103,'C',0,'2018-01-05 14:54:11','2018-01-05 14:54:11'),(385,104,'C',0,'2018-01-05 14:54:11','2018-01-05 14:54:11'),(903,165,'C Major',0,'2018-02-08 08:04:28','2018-02-08 08:04:28'),(904,165,'A Minor Sixth',2,'2018-02-08 08:04:28','2018-02-08 08:04:28'),(905,165,'E Minor',4,'2018-02-08 08:04:28','2018-02-08 08:04:28'),(906,165,'E Minor Seventh',6,'2018-02-08 08:04:28','2018-02-08 08:04:28'),(907,165,'E Minor Sixth',8,'2018-02-08 08:04:28','2018-02-08 08:04:28'),(908,165,'D Major',10,'2018-02-08 08:04:28','2018-02-08 08:04:28'),(909,165,'G Major',12,'2018-02-08 08:04:28','2018-02-08 08:04:28'),(910,165,'G Major Ninth',14,'2018-02-08 08:04:28','2018-02-08 08:04:28'),(911,165,'C Major',16,'2018-02-08 08:04:28','2018-02-08 08:04:28'),(912,165,'D Major Ninth',18,'2018-02-08 08:04:28','2018-02-08 08:04:28'),(913,165,'G Major',20,'2018-02-08 08:04:28','2018-02-08 08:04:28'),(914,165,'D Minor Seventh',22,'2018-02-08 08:04:28','2018-02-08 08:04:28'),(915,165,'G Minor Seventh',24,'2018-02-08 08:04:28','2018-02-08 08:04:28'),(916,165,'C Minor Seventh',26,'2018-02-08 08:04:28','2018-02-08 08:04:28'),(917,165,'F Major Seventh',28,'2018-02-08 08:04:28','2018-02-08 08:04:28'),(918,165,'A Diminished Major',30,'2018-02-08 08:04:28','2018-02-08 08:04:28'),(919,166,'G Minor',0,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(920,166,'F Major',2,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(921,166,'D Minor',4,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(922,166,'C Major',6,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(923,166,'A Minor',8,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(924,166,'F Major',10,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(925,166,'D Minor Sixth',12,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(926,166,'A Minor',14,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(927,166,'A# Major',16,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(928,166,'G Minor Seventh',18,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(929,166,'A# Major Add Ninth',20,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(930,166,'G# Major Ninth',22,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(931,166,'D Minor Seventh',24,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(932,166,'G Major Seventh Add Ninth',26,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(933,166,'D# Major',28,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(934,166,'F Minor',30,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(935,167,'E Major',0,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(936,167,'Db Minor',2,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(937,167,'Gb Minor',4,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(938,167,'A Major',6,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(939,167,'B Major',8,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(940,167,'Eb Minor',10,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(941,167,'E Major',12,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(942,167,'F# Major',14,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(943,167,'C# Major',16,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(944,167,'E Major',18,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(945,167,'F# Major',20,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(946,167,'C# Major',22,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(947,167,'F# Major',24,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(948,167,'C# Major',26,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(949,167,'F# Major',28,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(950,167,'A Major Ninth',30,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(951,168,'G Major Seventh',0,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(952,168,'G Major',2,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(953,168,'Db Minor Seventh Omit Fifth',4,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(954,168,'C Major',6,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(955,168,'D Major',8,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(956,168,'Ab Minor Seventh Omit Fifth',10,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(957,168,'G Major',12,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(958,168,'A Minor',14,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(959,169,'A# Major',0,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(960,169,'G Minor Seventh',2,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(961,169,'C Minor Seventh',4,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(962,169,'A# Major',6,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(963,169,'C Minor Seventh',8,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(964,169,'F Major Sixth',10,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(965,169,'F Minor Sixth',12,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(966,169,'G Major Seventh',14,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(967,169,'D# Major Sixth',16,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(968,169,'F Major Sixth',18,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(969,169,'F Minor Sixth',20,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(970,169,'G Major Seventh',22,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(971,169,'D# Major Sixth',24,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(972,169,'F Major Sixth',26,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(973,169,'F Major Seventh',28,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(974,169,'A Diminished Major',30,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(975,170,'Bb Minor Seventh',0,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(976,170,'F Minor Seventh',2,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(977,170,'D# Major',4,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(978,170,'F Minor',6,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(979,170,'Bb Minor Seventh',8,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(980,170,'F Minor Seventh',10,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(981,170,'D# Major',12,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(982,170,'F Minor',14,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(983,170,'Bb Minor Seventh',16,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(984,170,'G# Major',18,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(985,170,'G Minor Seventh',20,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(986,170,'C Minor Seventh',22,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(987,170,'A# Major',24,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(988,170,'F Major',26,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(989,170,'D# Major',28,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(990,170,'C Minor Seventh',30,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(991,171,'G Major Seventh',0,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(992,171,'E Minor Seventh',2,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(993,171,'A Major Seventh',4,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(994,171,'D Minor Seventh',6,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(995,171,'G Major Seventh Add Ninth',8,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(996,171,'C Minor Seventh',10,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(997,171,'C Minor Seventh',12,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(998,171,'A# Major',14,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(999,171,'F Major',16,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(1000,171,'D Minor Sixth',18,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(1001,171,'A Minor',20,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(1002,171,'F Major',22,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(1003,171,'G Minor',24,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(1004,171,'D Major Ninth',26,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(1005,171,'G Major',28,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(1006,171,'G Major Ninth',30,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(1007,172,'F# Major',0,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(1008,172,'B Major',2,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(1009,172,'E Major',4,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(1010,172,'Db Minor',6,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(1011,172,'Gb Minor',8,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(1012,172,'A Major',10,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1013,172,'E Major',12,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1014,172,'A Major',14,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1015,172,'E Major',16,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1016,172,'A Major',18,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1017,172,'E Major',20,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1018,172,'Db Minor',22,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1019,172,'G Major',24,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1020,172,'A Minor Seventh',26,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1021,172,'G Minor Seventh',28,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1022,172,'A Minor Seventh',30,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1023,173,'F# Major',0,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1024,173,'B Major',2,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1025,173,'F Major Sixth',4,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1026,173,'C Minor Seventh',6,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1027,174,'F Major',0,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1028,174,'G Minor',2,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1029,174,'F Major',4,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1030,174,'A# Major',6,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1031,174,'C Major',8,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1032,174,'A Minor',10,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1033,174,'A Minor Seventh',12,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1034,174,'D Minor Seventh',14,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1035,174,'G Major Seventh',16,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1036,174,'E Minor Seventh',18,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1037,174,'D Major',20,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1038,174,'B Major',22,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1039,174,'Eb Minor',24,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1040,174,'E Major',26,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1041,174,'F# Major',28,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1042,174,'A Major Ninth',30,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1043,175,'G Minor',0,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1044,175,'D# Major',2,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1045,175,'F Minor Seventh',4,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1046,175,'G Major',6,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1047,175,'D Major',8,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1048,175,'E Minor Seventh',10,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1049,175,'A Major Seventh',12,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1050,175,'A Major Seventh',14,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1051,176,'E Major',0,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1052,176,'B Major',2,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1053,176,'C Major',4,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1054,176,'A Minor',6,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1055,176,'F Major',8,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1056,176,'D# Major',10,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1057,176,'D Major',12,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1058,176,'A# Diminished Major',14,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1059,176,'D Major Ninth',16,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1060,176,'C Minor Seventh',18,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1061,176,'C Minor Seventh',20,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1062,176,'C Minor Seventh',22,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1063,176,'A# Major',24,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1064,176,'F Major',26,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1065,176,'D# Major',28,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1066,176,'F Minor',30,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1067,177,'A Major Seventh',0,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1068,177,'D Minor',2,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1069,177,'A# Major',4,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1070,177,'C Major',6,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1071,177,'G Major',8,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1072,177,'D# Diminished Major',10,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1073,177,'G Major Seventh',12,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1074,177,'A Minor Seventh',14,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1075,178,'A# Major',0,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1076,178,'C Major',2,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1077,178,'F Major',4,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1078,178,'D Minor Sixth',6,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1079,178,'A Minor',8,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1080,178,'A Minor Seventh',10,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1081,178,'G Minor Seventh',12,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1082,178,'C Minor Seventh',14,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1083,178,'C Major',16,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1084,178,'F Major',18,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1085,178,'G Minor',20,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1086,178,'F Major',22,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1087,178,'C Minor Seventh',24,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1088,178,'F Major',26,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1089,178,'D Minor Sixth',28,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1090,178,'A Minor',30,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1091,179,'C Major',0,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1092,179,'A Major Seventh',2,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1093,179,'D Major',4,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1094,179,'G Major',6,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1095,179,'D# Diminished Major',8,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1096,179,'G Major',10,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1097,179,'G Major Ninth',12,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1098,179,'C Major',14,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1099,179,'A Major Seventh',16,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1100,179,'D# Major',18,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1101,179,'A Major Seventh',20,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1102,179,'D Minor Seventh',22,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1103,179,'G Major Seventh Add Ninth',24,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1104,179,'C Minor Seventh',26,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1105,179,'F Major Seventh',28,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1106,179,'C Minor Seventh',30,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1107,180,'Bb',0,'2018-02-25 07:51:08','2018-02-25 07:51:08'),(1108,180,'D-',4,'2018-02-25 07:51:23','2018-02-25 07:51:23'),(1109,180,'Eb',8,'2018-02-25 07:51:38','2018-02-25 07:51:38'),(1110,180,'Bb',16,'2018-02-25 07:52:39','2018-02-25 07:52:39'),(1111,180,'G-',20,'2018-02-25 07:52:54','2018-02-25 07:52:54'),(1112,180,'Eb',24,'2018-02-25 07:53:43','2018-02-25 07:53:43'),(1113,181,'F',0,'2018-02-25 07:55:58','2018-02-25 07:55:58'),(1114,181,'G-',4,'2018-02-25 07:56:24','2018-02-25 07:56:24'),(1115,181,'Eb',8,'2018-02-25 07:56:56','2018-02-25 07:57:27'),(1116,181,'Bb',12,'2018-02-25 07:57:49','2018-02-25 07:57:49'),(1117,181,'C-',16,'2018-02-25 07:58:08','2018-02-25 07:58:08'),(1118,181,'G-',20,'2018-02-25 07:58:27','2018-02-25 07:58:27'),(1119,181,'Eb',24,'2018-02-25 07:58:37','2018-02-25 07:58:37'),(1120,182,'D-',0,'2018-02-25 08:01:09','2018-02-25 08:01:09'),(1121,182,'Fsus4',1.5,'2018-02-25 08:02:08','2018-03-02 06:33:19'),(1122,183,'E-',0,'2018-03-02 06:37:10','2018-03-02 06:37:10'),(1123,183,'G',8,'2018-03-02 06:37:25','2018-03-02 06:37:25'),(1124,183,'A',12,'2018-03-02 06:38:12','2018-03-02 06:38:12'),(1125,184,'A-',0,'2018-03-02 06:41:00','2018-03-02 06:41:00'),(1126,184,'Bsus4',4,'2018-03-02 06:41:29','2018-03-02 06:41:29'),(1127,184,'C',8,'2018-03-02 06:42:27','2018-03-02 06:42:27'),(1128,184,'G',12,'2018-03-02 06:42:36','2018-03-02 06:42:36'),(1129,184,'F',16,'2018-03-02 06:45:50','2018-03-02 06:45:50'),(1130,184,'C/D',24,'2018-03-02 06:46:26','2018-03-02 06:46:26'),(1131,185,'E-',0,'2018-03-02 06:50:21','2018-03-02 06:50:21'),(1132,185,'C',4,'2018-03-02 06:51:06','2018-03-02 06:51:06'),(1133,185,'A-',8,'2018-03-02 06:51:13','2018-03-02 06:51:13'),(1134,185,'G',12,'2018-03-02 06:51:30','2018-03-02 06:51:30'),(1135,185,'D',14,'2018-03-02 06:51:36','2018-03-02 06:51:36'),(1136,186,'F',0,'2018-03-02 06:53:53','2018-03-02 06:53:53'),(1137,186,'A-',8,'2018-03-02 06:54:21','2018-03-02 06:54:21'),(1138,186,'D-',16,'2018-03-02 06:54:29','2018-03-02 06:54:50'),(1139,186,'C/G',24,'2018-03-02 06:56:22','2018-03-02 06:56:22'),(1140,187,'Fmaj7',0,'2018-03-02 07:02:02','2018-03-02 07:02:02'),(1141,187,'Ebmaj7',4,'2018-03-02 07:02:13','2018-03-02 07:02:13'),(1142,188,'Bb-7',0,'2018-03-02 07:06:34','2018-03-02 07:06:34'),(1143,188,'Gbmaj7',4,'2018-03-02 07:06:45','2018-03-02 07:06:45'),(1144,188,'Eb-7',12,'2018-03-02 07:07:07','2018-03-02 07:07:07'),(1145,188,'Bb-7',16,'2018-03-02 07:08:40','2018-03-02 07:08:40'),(1146,188,'Gbmaj7',20,'2018-03-02 07:08:51','2018-03-02 07:08:51'),(1147,188,'Gbmaj7/Ab',28,'2018-03-02 07:09:17','2018-03-02 07:09:17'),(1148,189,'Fmaj7',0,'2018-03-02 07:13:49','2018-03-02 07:13:49'),(1149,189,'Dbmaj7',3.5,'2018-03-02 07:14:42','2018-03-02 07:14:42'),(1150,189,'Bb-7',7.5,'2018-03-02 07:15:41','2018-03-02 07:15:41'),(1151,189,'Gbmaj7',11.5,'2018-03-02 07:16:09','2018-03-02 07:16:09'),(1152,190,'NC',0,'2018-03-02 07:22:54','2018-03-02 07:22:54'),(1153,191,'D-',0,'2018-03-02 07:25:57','2018-03-02 07:25:57'),(1154,191,'D-/G',3,'2018-03-02 07:26:09','2018-03-02 07:26:09'),(1155,191,'D-/F',11,'2018-03-02 07:26:28','2018-03-02 07:26:28'),(1156,192,'D-/C',0,'2018-03-02 07:29:45','2018-03-02 07:29:45'),(1157,192,'Bbmaj7',8,'2018-03-02 07:30:29','2018-03-02 07:30:29'),(1158,192,'D-/F',16,'2018-03-02 07:31:01','2018-03-02 07:31:01'),(1159,192,'D-/G',24,'2018-03-02 07:31:13','2018-03-02 07:31:13'),(1160,193,'NC',0,'2018-03-02 07:32:10','2018-03-02 07:32:10'),(1161,194,'D',0,'2018-03-19 01:11:31','2018-03-19 01:11:31'),(1162,194,'F#-',3.5,'2018-03-19 01:12:20','2018-03-19 01:12:20'),(1163,194,'G',7.5,'2018-03-19 01:12:39','2018-03-19 01:12:39'),(1164,194,'E-7',13.5,'2018-03-19 01:13:00','2018-03-19 01:13:00'),(1165,194,'D',16,'2018-03-19 01:13:13','2018-03-19 01:13:13'),(1166,194,'F#-',19.5,'2018-03-19 01:13:34','2018-03-19 01:13:34'),(1167,194,'G',23.5,'2018-03-19 01:13:50','2018-03-19 01:13:50'),(1168,194,'Gmaj7/A',29.5,'2018-03-19 01:14:59','2018-03-19 01:14:59'),(1169,195,'B-',0,'2018-03-19 01:20:31','2018-03-19 01:20:31'),(1170,195,'E-',4,'2018-03-19 01:20:47','2018-03-19 01:20:47'),(1171,195,'G',12,'2018-03-19 01:20:55','2018-03-19 01:20:55'),(1172,195,'B-',16,'2018-03-19 01:21:13','2018-03-19 01:21:13'),(1173,195,'E-',20,'2018-03-19 01:21:26','2018-03-19 01:21:26'),(1174,195,'G',28,'2018-03-19 01:23:58','2018-03-19 01:23:58'),(1175,196,'F#-',0,'2018-03-19 01:26:01','2018-03-19 01:26:01'),(1176,197,'C#-7',0,'2018-03-23 04:24:57','2018-03-23 04:24:57'),(1177,197,'D#-7',14.5,'2018-03-23 04:25:34','2018-03-23 04:25:34'),(1178,198,'G#-',0,'2018-03-23 04:26:31','2018-03-23 04:26:31'),(1179,198,'Amaj7/E',3.75,'2018-03-23 04:27:09','2018-03-23 04:27:09'),(1180,198,'Bmaj6',11.75,'2018-03-23 04:27:34','2018-03-23 04:27:34'),(1181,199,'Bb-',0,'2018-03-23 04:30:36','2018-03-23 04:30:36'),(1182,200,'Bb-',0,'2018-03-23 04:31:12','2018-03-23 04:31:12'),(1183,200,'Abmaj6/9',8,'2018-03-23 04:32:20','2018-03-23 04:32:20'),(1184,200,'Gbmaj7',16,'2018-03-23 04:32:33','2018-03-23 04:32:33'),(1185,200,'Db',24,'2018-03-23 04:32:55','2018-03-23 04:32:55'),(1186,200,'Eb-',28,'2018-03-23 04:33:05','2018-03-23 04:33:05'),(1187,200,'Bb-',32,'2018-03-23 04:33:17','2018-03-23 04:33:17'),(1188,200,'Abmaj6/9',40,'2018-03-23 04:33:36','2018-03-23 04:33:36'),(1189,200,'Gbmaj7',48,'2018-03-23 04:33:45','2018-03-23 04:33:45'),(1190,200,'Fsus4',56,'2018-03-23 04:34:03','2018-03-23 04:34:03'),(1191,200,'F',60,'2018-03-23 04:34:11','2018-03-23 04:34:11'),(1192,201,'Bb-',0,'2018-03-23 04:38:06','2018-03-23 04:38:06'),(1193,201,'Db',8,'2018-03-23 04:38:15','2018-03-23 04:38:15'),(1194,202,'Gb',0,'2018-03-23 04:39:01','2018-03-23 04:39:01'),(1195,202,'Ab',4,'2018-03-23 04:39:20','2018-03-23 04:39:20'),(1196,202,'Bb-',6,'2018-03-23 04:39:30','2018-03-23 04:39:30'),(1197,202,'Eb-',8,'2018-03-23 04:39:41','2018-03-23 04:39:41'),(1198,202,'Db/F',14,'2018-03-23 04:39:55','2018-03-23 04:39:55'),(1199,202,'Gb',16,'2018-03-23 04:40:06','2018-03-23 04:40:06'),(1200,202,'Ab',20,'2018-03-23 04:40:16','2018-03-23 04:40:16'),(1201,202,'Bb-',22,'2018-03-23 04:40:27','2018-03-23 04:40:27'),(1202,202,'Eb-',24,'2018-03-23 04:40:35','2018-03-23 04:40:35'),(1203,202,'Ab7sus4',28,'2018-03-23 04:40:53','2018-03-23 04:40:53'),(1204,203,'F-7',0,'2018-03-23 04:41:24','2018-03-23 04:41:24'),(1205,203,'Gbmaj6/9',8,'2018-03-23 04:41:48','2018-03-23 04:41:48'),(1206,203,'Ab7sus4',12,'2018-03-23 04:41:58','2018-03-23 04:41:58'),(1207,204,'Fsus4add3',0,'2018-03-23 04:46:22','2018-03-23 04:46:22'),(1208,204,'C7sus4',8,'2018-03-23 04:47:22','2018-03-23 04:47:22'),(1209,205,'Ebmaj6/9',0,'2018-03-23 04:50:43','2018-03-23 04:50:43'),(1210,205,'Fsus4/Gb',8,'2018-03-23 04:50:54','2018-03-23 04:50:54'),(1211,206,'C-',0,'2018-03-28 04:55:15','2018-03-28 04:55:15'),(1212,206,'Db',4,'2018-03-28 04:55:24','2018-03-28 04:55:24'),(1213,206,'Bb-',12,'2018-03-28 04:55:37','2018-03-28 04:55:37'),(1214,206,'C-',16,'2018-03-28 04:55:44','2018-03-28 04:55:44'),(1215,206,'Db',20,'2018-03-28 04:55:54','2018-03-28 04:55:54'),(1216,206,'E-',29.5,'2018-03-28 05:00:17','2018-03-28 05:00:17'),(1217,207,'Ab-',0,'2018-03-28 05:04:21','2018-03-28 05:04:21'),(1218,207,'B',4,'2018-03-28 05:04:28','2018-03-28 05:04:28'),(1219,207,'Eb-',8,'2018-03-28 05:04:39','2018-03-28 05:04:39'),(1220,208,'Ebmaj7',0,'2018-03-28 05:18:24','2018-03-28 05:18:24'),(1221,208,'G-7',8,'2018-03-28 05:18:44','2018-03-28 05:18:44'),(1222,208,'Ebmaj7',16,'2018-03-28 05:19:09','2018-03-28 05:19:09'),(1223,208,'G-7',24,'2018-03-28 05:19:23','2018-03-28 05:19:23'),(1224,208,'F-7',27.5,'2018-03-28 05:19:40','2018-03-28 05:19:40'),(1225,208,'Abmaj7',29.5,'2018-03-28 05:19:50','2018-03-28 05:19:50'),(1226,209,'Abmaj7',0,'2018-03-28 05:21:23','2018-03-28 05:21:23'),(1227,209,'F-7',8,'2018-03-28 05:21:30','2018-03-28 05:21:30'),(1228,209,'C-',16,'2018-03-28 05:23:40','2018-03-28 05:23:40'),(1229,209,'Bb7sus4',24,'2018-03-28 05:24:05','2018-03-28 05:24:05'),(1230,210,'Cmaj7',0,'2018-03-28 05:32:36','2018-03-28 05:32:36'),(1231,210,'Emaj7',3.5,'2018-03-28 05:32:45','2018-03-28 05:32:45'),(1232,210,'Abmaj7',7.5,'2018-03-28 05:33:06','2018-03-28 05:33:06'),(1233,210,'Fmaj7',11.5,'2018-03-28 05:33:28','2018-03-28 05:33:28'),(1234,211,'Dbmaj7',0,'2018-03-28 05:36:02','2018-03-28 05:36:02'),(1235,211,'Amaj7',3.5,'2018-03-28 05:36:16','2018-03-28 05:36:16'),(1236,211,'Fmaj7',8,'2018-03-28 05:36:25','2018-03-28 05:36:25'),(1237,211,'Dbmaj7',16,'2018-03-28 05:36:38','2018-03-28 05:36:38'),(1238,211,'Amaj7',19.5,'2018-03-28 05:36:49','2018-03-28 05:36:49'),(1239,211,'Fmaj7',24,'2018-03-28 05:37:02','2018-03-28 05:37:02'),(1240,212,'E-7',0,'2018-03-28 05:46:04','2018-03-28 05:47:21'),(1241,212,'Fmaj7',4,'2018-03-28 05:46:15','2018-03-28 05:46:15'),(1242,212,'A-7',8,'2018-03-28 05:47:31','2018-03-28 05:47:31'),(1243,213,'Dmaj6',0,'2018-03-28 05:53:22','2018-03-28 05:53:22'),(1244,213,'Cmaj7/E',4,'2018-03-28 05:53:33','2018-03-28 05:53:33'),(1245,213,'Cmaj7add9',8,'2018-03-28 05:53:49','2018-03-28 05:53:49'),(1246,214,'D/G',0,'2018-03-28 05:59:06','2018-03-28 05:59:06'),(1247,214,'C/G',8,'2018-03-28 05:59:14','2018-03-28 05:59:14'),(1248,215,'C',0,'2018-06-05 03:35:03','2018-06-05 03:35:03'),(1249,215,'A-7',4,'2018-06-05 03:35:12','2018-06-05 03:35:12'),(1250,215,'E-7',8,'2018-06-05 03:35:19','2018-06-05 03:35:19'),(1251,215,'Fmaj6',12,'2018-06-05 03:35:26','2018-06-05 03:35:26'),(1252,215,'C',16,'2018-06-05 03:35:34','2018-06-05 03:35:34'),(1253,215,'A-7',20,'2018-06-05 03:35:44','2018-06-05 03:35:44'),(1254,215,'D-7',24,'2018-06-05 03:35:55','2018-06-05 03:35:55'),(1255,215,'Fmaj6',27.5,'2018-06-05 03:36:27','2018-06-05 03:36:27'),(1256,215,'F/G',29.5,'2018-06-05 03:36:38','2018-06-05 03:36:38'),(1257,216,'F5',0,'2018-06-05 03:41:47','2018-06-05 03:41:47'),(1258,216,'F5/D',16,'2018-06-05 03:42:04','2018-06-05 03:42:04'),(1259,216,'F5/Db',32,'2018-06-05 03:42:21','2018-06-05 03:42:21'),(1260,216,'Abmaj6',48,'2018-06-05 03:43:28','2018-06-05 03:43:28'),(1261,216,'C7sus4',60,'2018-06-05 03:46:02','2018-06-05 03:46:02'),(1262,217,'C#maj7',0,'2018-06-05 03:59:30','2018-06-05 03:59:30'),(1263,217,'F#-7add9',1.5,'2018-06-05 03:59:51','2018-06-05 04:00:19'),(1264,217,'G#-7',8,'2018-06-05 04:00:13','2018-06-05 04:00:13'),(1265,217,'Emaj7add9',9.5,'2018-06-05 04:00:52','2018-06-05 04:00:52'),(1266,217,'C#maj7',16,'2018-06-05 04:01:24','2018-06-05 04:01:24'),(1267,217,'Amaj7',17.5,'2018-06-05 04:01:41','2018-06-05 04:01:41'),(1268,217,'G#-7',24,'2018-06-05 04:02:02','2018-06-05 04:02:02'),(1269,217,'Dmaj7add13',25.5,'2018-06-05 04:03:24','2018-06-05 04:03:24'),(1270,218,'C#-',0,'2018-06-14 03:08:03','2018-06-14 03:08:03'),(1271,218,'C#sus4/D',1.5,'2018-06-14 03:08:25','2018-06-14 03:08:25'),(1272,218,'Emaj7add9',3.5,'2018-06-14 03:08:56','2018-06-14 03:08:56'),(1273,218,'F#-6',5.5,'2018-06-14 03:09:22','2018-06-14 03:09:22'),(1274,218,'C#-7/B',8,'2018-06-14 03:10:10','2018-06-14 03:21:10'),(1275,218,'Emaj7/G#',16,'2018-06-14 03:10:54','2018-06-14 03:22:26'),(1276,218,'E/A',17.5,'2018-06-14 03:24:01','2018-06-14 03:24:01'),(1277,218,'E/B',19.5,'2018-06-14 03:24:20','2018-06-14 03:24:20'),(1278,218,'Bmaj6',21.5,'2018-06-14 03:24:41','2018-06-14 03:24:41'),(1279,218,'Badd4/C#',24,'2018-06-14 03:32:37','2018-06-14 03:35:13');
+/*!40000 ALTER TABLE `pattern_chord` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -885,38 +1655,18 @@ UNLOCK TABLES;
 
 LOCK TABLES `pattern_meme` WRITE;
 /*!40000 ALTER TABLE `pattern_meme` DISABLE KEYS */;
-INSERT INTO `pattern_meme` VALUES (1,6,'Classic','2017-04-23 23:22:21','2017-04-23 23:22:21'),(2,6,'Deep','2017-04-23 23:22:23','2017-04-23 23:22:23'),(3,6,'Acid','2017-04-23 23:22:24','2017-04-23 23:22:24'),(5,6,'Tech','2017-04-23 23:22:28','2017-04-23 23:22:28'),(6,6,'Electro','2017-04-23 23:22:31','2017-04-23 23:22:31'),(7,6,'Tropical','2017-04-23 23:22:34','2017-04-23 23:22:34'),(8,6,'Hot','2017-04-23 23:22:36','2017-04-23 23:22:36'),(9,6,'Cool','2017-04-23 23:22:39','2017-04-23 23:22:39'),(10,6,'Hard','2017-04-23 23:22:40','2017-04-23 23:22:40'),(11,6,'Easy','2017-04-23 23:22:42','2017-04-23 23:22:42'),(12,6,'Progressive','2017-04-23 23:23:17','2017-04-23 23:23:17'),(15,7,'Deep','2017-05-01 18:59:46','2017-05-01 18:59:46'),(16,8,'Deep','2017-05-01 19:42:36','2017-05-01 19:42:36'),(17,9,'Deep','2017-05-13 00:04:41','2017-05-13 00:04:41'),(18,9,'Classic','2017-05-13 00:04:44','2017-05-13 00:04:44'),(34,9,'Hard','2017-06-16 04:26:57','2017-06-16 04:26:57'),(36,11,'Earth','2017-12-13 00:44:05','2017-12-13 00:44:05'),(68,35,'Earth','2018-01-19 20:56:22','2018-01-19 20:56:22'),(72,47,'Earth','2018-03-18 21:30:31','2018-03-18 21:30:31');
+INSERT INTO `pattern_meme` VALUES (5,6,'Cool','2017-05-01 19:43:30','2017-05-01 19:43:30'),(7,7,'Hot','2017-05-01 19:44:52','2017-05-01 19:44:52'),(8,4,'Hot','2017-05-01 19:45:58','2017-05-01 19:45:58'),(9,5,'Cool','2017-05-01 19:46:10','2017-05-01 19:46:10'),(10,4,'Tropical','2017-06-16 03:37:25','2017-06-16 03:37:25'),(11,5,'Electro','2017-06-16 03:38:03','2017-06-16 03:38:03'),(12,6,'Hard','2017-06-16 03:38:19','2017-06-16 03:38:19'),(13,7,'Easy','2017-06-16 03:38:40','2017-06-16 03:38:40'),(15,14,'Hard','2017-07-29 23:48:20','2017-07-29 23:48:20'),(22,21,'Earth','2017-12-13 06:39:45','2017-12-13 06:39:45'),(23,22,'Fire','2017-12-13 06:40:10','2017-12-13 06:40:10'),(24,23,'Earth','2017-12-13 06:42:09','2017-12-13 06:42:09'),(25,24,'Water','2017-12-13 06:42:26','2017-12-13 06:42:26'),(26,25,'Earth','2017-12-13 06:43:08','2017-12-13 06:43:08'),(27,26,'Wind','2017-12-13 06:43:31','2017-12-13 06:43:31'),(28,27,'Fire','2017-12-13 06:44:02','2017-12-13 06:44:02'),(29,28,'Earth','2017-12-13 06:44:33','2017-12-13 06:44:33'),(30,29,'Fire','2017-12-13 06:46:18','2017-12-13 06:46:18'),(31,30,'Water','2017-12-13 06:46:44','2017-12-13 06:46:44'),(32,31,'Fire','2017-12-13 06:47:29','2017-12-13 06:47:29'),(33,32,'Wind','2017-12-13 06:47:51','2017-12-13 06:47:51'),(34,33,'Wind','2017-12-13 06:48:33','2017-12-13 06:48:33'),(35,34,'Earth','2017-12-13 06:48:55','2017-12-13 06:48:55'),(36,35,'Wind','2017-12-13 06:49:27','2017-12-13 06:49:27'),(37,36,'Fire','2017-12-13 06:49:47','2017-12-13 06:49:47'),(38,37,'Wind','2017-12-13 06:50:16','2017-12-13 06:50:16'),(39,38,'Water','2017-12-13 06:50:33','2017-12-13 06:50:33'),(66,65,'Fire','2017-12-23 21:51:03','2017-12-23 21:51:03'),(67,22,'Earth','2017-12-23 21:51:12','2017-12-23 21:51:12'),(68,66,'Water','2017-12-23 21:54:58','2017-12-23 21:54:58'),(69,24,'Earth','2017-12-23 21:55:07','2017-12-23 21:55:07'),(70,67,'Wind','2017-12-23 21:58:02','2017-12-23 21:58:02'),(71,26,'Earth','2017-12-23 21:58:10','2017-12-23 21:58:10'),(72,68,'Earth','2017-12-23 22:00:20','2017-12-23 22:00:20'),(73,28,'Fire','2017-12-23 22:00:39','2017-12-23 22:00:39'),(74,69,'Water','2017-12-23 22:02:13','2017-12-23 22:02:13'),(75,30,'Fire','2017-12-23 22:02:20','2017-12-23 22:02:20'),(76,32,'Fire','2017-12-23 22:04:01','2017-12-23 22:04:01'),(77,70,'Wind','2017-12-23 22:04:33','2017-12-23 22:04:33'),(78,34,'Wind','2017-12-23 22:05:35','2017-12-23 22:05:35'),(79,71,'Earth','2017-12-23 22:05:54','2017-12-23 22:05:54'),(80,72,'Fire','2017-12-23 22:09:04','2017-12-23 22:09:04'),(81,36,'Wind','2017-12-23 22:09:21','2017-12-23 22:09:21'),(82,38,'Wind','2017-12-23 22:10:10','2017-12-23 22:10:10'),(83,73,'Water','2017-12-23 22:10:31','2017-12-23 22:10:31'),(84,74,'Water','2017-12-23 22:11:41','2017-12-23 22:11:41'),(85,75,'Water','2017-12-23 22:12:10','2017-12-23 22:12:10'),(86,75,'Wind','2017-12-23 22:12:14','2017-12-23 22:12:14'),(87,76,'Wind','2017-12-23 22:12:33','2017-12-23 22:12:33'),(88,77,'Water','2017-12-23 22:13:17','2017-12-23 22:13:17'),(89,78,'Water','2017-12-23 22:13:36','2017-12-23 22:13:36'),(90,78,'Fire','2017-12-23 22:13:39','2017-12-23 22:13:39'),(91,79,'Fire','2017-12-23 22:13:54','2017-12-23 22:13:54'),(92,80,'Water','2017-12-23 22:14:58','2017-12-23 22:14:58'),(93,81,'Water','2017-12-23 22:15:25','2017-12-23 22:15:25'),(94,81,'Earth','2017-12-23 22:15:29','2017-12-23 22:15:29'),(95,82,'Earth','2017-12-23 22:15:47','2017-12-23 22:15:47');
 /*!40000 ALTER TABLE `pattern_meme` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
--- Dumping data for table `phase`
+-- Dumping data for table `pattern_event`
 --
 
-LOCK TABLES `phase` WRITE;
-/*!40000 ALTER TABLE `phase` DISABLE KEYS */;
-INSERT INTO `phase` VALUES (3,'Loop',6,'drop d beet',0,4,NULL,NULL,NULL,'2017-04-23 23:44:19','2018-02-03 00:56:45','Published'),(4,'Macro',7,'from Hot',0,0,0.7,'C',133,'2017-05-01 19:39:59','2018-02-03 00:56:45','Published'),(5,'Macro',7,'to Cool',1,0,0.5,'Bb Minor',133,'2017-05-01 19:40:18','2018-02-03 00:56:45','Published'),(6,'Macro',8,'from Cool',0,0,0.5,'G minor',133,'2017-05-01 19:43:06','2018-02-03 00:56:45','Published'),(7,'Macro',8,'to Hot',1,0,0.7,'C',133,'2017-05-01 19:43:26','2018-02-03 00:56:45','Published'),(8,'Main',9,'Drop',0,32,0.4,'C',133,'2017-05-13 00:05:29','2018-02-03 00:56:45','Published'),(9,'Main',9,'Breakdown A',1,16,0.6,'G minor',133,'2017-05-13 00:07:19','2018-02-03 00:56:45','Published'),(14,'Main',9,'Breakdown B',2,16,0.8,'G minor',133,'2017-07-27 17:40:32','2018-02-03 00:56:45','Published'),(21,'Macro',12,'Passion Volcano',0,0,NULL,'Ebm',NULL,'2017-12-13 06:39:29','2018-02-03 00:56:45','Published'),(22,'Macro',12,'Falling in Love',1,0,NULL,'Db',NULL,'2017-12-13 06:40:03','2018-02-03 00:56:45','Published'),(23,'Macro',13,'Nostalgia River',0,0,NULL,'Gm',NULL,'2017-12-13 06:42:02','2018-02-03 00:56:45','Published'),(24,'Macro',13,'Passage of Time',1,0,NULL,'C',NULL,'2017-12-13 06:42:21','2018-02-03 00:56:45','Published'),(25,'Macro',14,'Spring',0,0,NULL,'Cm',NULL,'2017-12-13 06:43:03','2018-02-03 00:56:45','Published'),(26,'Macro',14,'Tornado',1,0,NULL,'F',NULL,'2017-12-13 06:43:24','2018-02-03 00:56:45','Published'),(27,'Macro',15,'Lightning Strike',0,0,NULL,'G',NULL,'2017-12-13 06:43:58','2018-02-03 00:56:45','Published'),(28,'Macro',15,'Car Racing',1,0,NULL,'E7',NULL,'2017-12-13 06:44:24','2018-02-03 00:56:45','Published'),(29,'Macro',16,'Volcanic Island',0,0,NULL,'E',NULL,'2017-12-13 06:46:14','2018-02-03 00:56:45','Published'),(30,'Macro',16,'Sex on the Beach',1,0,NULL,'Am',NULL,'2017-12-13 06:46:37','2018-02-03 00:56:45','Published'),(31,'Macro',17,'Smoke in the Air',0,0,NULL,'G',NULL,'2017-12-13 06:47:25','2018-02-03 00:56:45','Published'),(32,'Macro',17,'Dreams',1,0,NULL,'E',NULL,'2017-12-13 06:47:43','2018-02-03 00:56:45','Published'),(33,'Macro',18,'Open Road Tumbleweed',0,0,NULL,'Ebm',NULL,'2017-12-13 06:48:26','2018-02-03 00:56:45','Published'),(34,'Macro',18,'Rolling Stone',1,0,NULL,'D',NULL,'2017-12-13 06:48:48','2018-02-03 00:56:45','Published'),(35,'Macro',19,'Stoke the Flames',0,0,NULL,'Bm',NULL,'2017-12-13 06:49:21','2018-02-03 00:56:45','Published'),(36,'Macro',19,'Inspiration Adventure',1,0,NULL,'E',NULL,'2017-12-13 06:49:41','2018-02-03 00:56:45','Published'),(37,'Macro',20,'Make Waves',0,NULL,NULL,'Ebm',NULL,'2017-12-13 06:50:11','2018-02-03 00:56:45','Published'),(38,'Macro',20,'Bon Voyage',1,0,NULL,'D',NULL,'2017-12-13 06:50:29','2018-02-03 00:56:45','Published'),(64,'Loop',29,'Loop A',0,4,NULL,NULL,NULL,'2017-12-22 06:43:19','2018-02-03 00:56:45','Published'),(65,'Macro',12,'Exploding',2,0,NULL,'B',NULL,'2017-12-23 21:50:57','2018-02-03 00:56:45','Published'),(66,'Macro',13,'Arrival',2,0,NULL,'F',NULL,'2017-12-23 21:54:53','2018-02-03 00:56:45','Published'),(67,'Macro',14,'Fall',2,0,NULL,'Cm',NULL,'2017-12-23 21:57:50','2018-02-03 00:56:45','Published'),(68,'Macro',15,'Defeat',2,0,NULL,'Am',NULL,'2017-12-23 22:00:15','2018-02-03 00:56:45','Published'),(69,'Macro',16,'Glory',2,0,NULL,'F',NULL,'2017-12-23 22:02:07','2018-02-03 00:56:45','Published'),(70,'Macro',17,'Waking',2,0,NULL,'Am',NULL,'2017-12-23 22:04:27','2018-02-03 00:56:45','Published'),(71,'Macro',18,'Freedom',2,0,NULL,'Bm',NULL,'2017-12-23 22:05:48','2018-02-03 00:56:45','Published'),(72,'Macro',19,'Wilderness',2,0,NULL,'A',NULL,'2017-12-23 22:08:59','2018-02-03 00:56:45','Published'),(73,'Macro',20,'Afloat',2,0,NULL,'A',NULL,'2017-12-23 22:10:24','2018-02-03 00:56:45','Published'),(74,'Macro',30,'Rain',0,0,NULL,'G',NULL,'2017-12-23 22:11:35','2018-02-03 00:56:45','Published'),(75,'Macro',30,'Fog',1,0,NULL,'C',NULL,'2017-12-23 22:12:04','2018-02-03 00:56:45','Published'),(76,'Macro',30,'Dew',2,0,NULL,'Am',NULL,'2017-12-23 22:12:28','2018-02-03 00:56:45','Published'),(77,'Macro',31,'Hydrant',0,0,NULL,'C',NULL,'2017-12-23 22:13:12','2018-02-03 00:56:45','Published'),(78,'Macro',31,'Engine',1,0,NULL,'Dm',NULL,'2017-12-23 22:13:32','2018-02-03 00:56:45','Published'),(79,'Macro',31,'Steam',2,0,NULL,'C',NULL,'2017-12-23 22:13:50','2018-02-03 00:56:45','Published'),(80,'Macro',32,'Irrigation',0,0,NULL,'G',NULL,'2017-12-23 22:14:53','2018-02-03 00:56:45','Published'),(81,'Macro',32,'Nourishment',1,0,NULL,'C',NULL,'2017-12-23 22:15:19','2018-02-03 00:56:45','Published'),(82,'Macro',32,'Growth',2,0,NULL,'Am',NULL,'2017-12-23 22:15:42','2018-02-03 00:56:45','Published'),(86,'Loop',29,'Loop B',0,4,NULL,NULL,NULL,'2018-01-05 07:39:54','2018-02-03 00:56:45','Published'),(87,'Outro',29,'Outro A',0,4,NULL,NULL,NULL,'2018-01-05 08:37:43','2018-02-03 00:56:45','Published'),(88,'Outro',29,'Outro B',0,4,NULL,NULL,NULL,'2018-01-05 08:38:44','2018-02-03 00:56:45','Published'),(91,'Intro',29,'Intro A',0,4,NULL,NULL,NULL,'2018-01-05 09:43:57','2018-02-03 00:56:45','Published'),(92,'Intro',29,'Intro B',0,4,NULL,NULL,NULL,'2018-01-05 10:04:13','2018-02-03 00:56:45','Published'),(99,'Loop',34,'Loop A',0,4,NULL,NULL,NULL,'2018-01-05 14:54:11','2018-02-03 00:56:45','Published'),(100,'Loop',34,'Loop B',0,4,NULL,NULL,NULL,'2018-01-05 14:54:11','2018-02-03 00:56:45','Published'),(101,'Outro',34,'Outro A',0,4,NULL,NULL,NULL,'2018-01-05 14:54:11','2018-02-03 00:56:45','Published'),(102,'Outro',34,'Outro B',0,4,NULL,NULL,NULL,'2018-01-05 14:54:11','2018-02-03 00:56:45','Published'),(103,'Intro',34,'Intro A',0,4,NULL,NULL,NULL,'2018-01-05 14:54:11','2018-02-03 00:56:45','Published'),(104,'Intro',34,'Intro B',0,4,NULL,NULL,NULL,'2018-01-05 14:54:11','2018-02-03 00:56:45','Published'),(165,'Loop',46,'Library Superphase',0,32,NULL,NULL,NULL,'2018-02-08 08:04:28','2018-02-08 08:04:28','Published'),(166,'Loop',46,'Library Superphase',0,32,NULL,NULL,NULL,'2018-02-08 08:04:28','2018-02-08 08:04:28','Published'),(167,'Loop',46,'Library Superphase',0,32,NULL,NULL,NULL,'2018-02-08 08:04:29','2018-02-08 08:04:29','Published'),(168,'Loop',46,'Library Superphase',0,16,NULL,NULL,NULL,'2018-02-08 08:04:29','2018-02-08 08:04:29','Published'),(169,'Loop',46,'Library Superphase',0,32,NULL,NULL,NULL,'2018-02-08 08:04:29','2018-02-08 08:04:29','Published'),(170,'Loop',46,'Library Superphase',0,32,NULL,NULL,NULL,'2018-02-08 08:04:30','2018-02-08 08:04:30','Published'),(171,'Loop',46,'Library Superphase',0,32,NULL,NULL,NULL,'2018-02-08 08:04:30','2018-02-08 08:04:30','Published'),(172,'Loop',46,'Library Superphase',0,32,NULL,NULL,NULL,'2018-02-08 08:04:30','2018-02-08 08:04:30','Published'),(173,'Loop',46,'Library Superphase',0,8,NULL,NULL,NULL,'2018-02-08 08:04:31','2018-02-08 08:04:31','Published'),(174,'Loop',46,'Library Superphase',0,32,NULL,NULL,NULL,'2018-02-08 08:04:31','2018-02-08 08:04:31','Published'),(175,'Loop',46,'Library Superphase',0,16,NULL,NULL,NULL,'2018-02-08 08:04:31','2018-02-08 08:04:31','Published'),(176,'Loop',46,'Library Superphase',0,32,NULL,NULL,NULL,'2018-02-08 08:04:31','2018-02-08 08:04:31','Published'),(177,'Loop',46,'Library Superphase',0,16,NULL,NULL,NULL,'2018-02-08 08:04:32','2018-02-08 08:04:32','Published'),(178,'Loop',46,'Library Superphase',0,32,NULL,NULL,NULL,'2018-02-08 08:04:32','2018-02-08 08:04:32','Published'),(179,'Loop',46,'Library Superphase',0,32,NULL,NULL,NULL,'2018-02-08 08:04:32','2018-02-08 08:04:32','Published'),(180,'Main',47,'Verse',0,16,NULL,NULL,NULL,'2018-02-25 07:48:50','2018-02-25 07:49:02','Published'),(181,'Main',47,'Chorus',1,32,NULL,NULL,NULL,'2018-02-25 07:55:39','2018-02-25 07:55:39','Published'),(182,'Main',47,'Interlude',2,8,NULL,NULL,NULL,'2018-02-25 08:00:47','2018-02-25 08:00:47','Published'),(183,'Main',48,'Verse',0,16,NULL,NULL,NULL,'2018-03-02 06:36:51','2018-03-02 06:36:51','Published'),(184,'Main',48,'Prechorus',1,32,NULL,NULL,NULL,'2018-03-02 06:39:44','2018-03-02 06:48:15','Published'),(185,'Main',48,'Chorus',2,16,NULL,NULL,NULL,'2018-03-02 06:50:11','2018-03-02 06:50:11','Published'),(186,'Main',48,'Bridge',3,32,NULL,NULL,NULL,'2018-03-02 06:53:35','2018-03-02 06:53:35','Published'),(187,'Main',49,'A',0,16,NULL,NULL,NULL,'2018-03-02 07:01:49','2018-03-02 07:01:49','Published'),(188,'Main',49,'B',1,32,NULL,NULL,NULL,'2018-03-02 07:04:34','2018-03-02 07:04:34','Published'),(189,'Main',49,'C',2,8,NULL,NULL,NULL,'2018-03-02 07:13:38','2018-03-02 07:13:38','Published'),(190,'Main',50,'Intro',0,64,NULL,NULL,NULL,'2018-03-02 07:22:43','2018-03-02 07:22:43','Published'),(191,'Main',50,'A',1,16,NULL,NULL,NULL,'2018-03-02 07:25:38','2018-03-02 07:25:38','Published'),(192,'Main',50,'B',2,32,NULL,NULL,NULL,'2018-03-02 07:28:02','2018-03-02 07:29:29','Published'),(193,'Main',50,'Interlude',3,64,NULL,NULL,NULL,'2018-03-02 07:32:02','2018-03-02 07:32:02','Published'),(194,'Main',52,'A',0,32,NULL,'D',NULL,'2018-03-19 01:11:16','2018-03-19 01:11:16','Published'),(195,'Main',52,'B',1,32,NULL,NULL,NULL,'2018-03-19 01:20:17','2018-03-19 01:24:27','Published'),(196,'Main',52,'C',2,32,NULL,NULL,NULL,'2018-03-19 01:25:28','2018-03-19 01:25:48','Published'),(197,'Main',57,'A',0,16,NULL,NULL,NULL,'2018-03-23 04:24:41','2018-03-23 04:24:41','Published'),(198,'Main',57,'B',1,16,NULL,NULL,NULL,'2018-03-23 04:25:53','2018-03-23 04:25:53','Published'),(199,'Main',66,'I',0,32,NULL,NULL,NULL,'2018-03-23 04:30:25','2018-03-23 04:30:25','Published'),(200,'Main',66,'A',1,64,NULL,NULL,NULL,'2018-03-23 04:30:56','2018-03-23 04:30:56','Published'),(201,'Main',59,'A',0,16,NULL,NULL,NULL,'2018-03-23 04:37:54','2018-03-23 04:37:54','Published'),(202,'Main',59,'B',1,32,NULL,NULL,NULL,'2018-03-23 04:38:37','2018-03-23 04:38:37','Published'),(203,'Main',59,'C',2,16,NULL,NULL,NULL,'2018-03-23 04:41:10','2018-03-23 04:41:10','Published'),(204,'Main',54,'A',0,16,NULL,NULL,NULL,'2018-03-23 04:45:59','2018-03-23 04:45:59','Published'),(205,'Main',54,'B',1,16,NULL,NULL,NULL,'2018-03-23 04:49:50','2018-03-23 04:51:05','Published'),(206,'Main',60,'A',0,32,NULL,NULL,NULL,'2018-03-28 04:55:06','2018-03-28 04:55:06','Published'),(207,'Main',60,'B',1,16,NULL,NULL,NULL,'2018-03-28 05:03:48','2018-03-28 05:03:48','Published'),(208,'Main',53,'A',0,32,NULL,NULL,NULL,'2018-03-28 05:18:04','2018-03-28 05:18:04','Published'),(209,'Main',53,'B',1,32,NULL,NULL,NULL,'2018-03-28 05:21:09','2018-03-28 05:21:09','Published'),(210,'Main',35,'A',0,16,NULL,NULL,NULL,'2018-03-28 05:32:19','2018-03-28 05:32:19','Published'),(211,'Main',35,'B',1,32,NULL,NULL,NULL,'2018-03-28 05:35:23','2018-03-28 05:35:23','Published'),(212,'Main',11,'A',0,12,NULL,NULL,NULL,'2018-03-28 05:45:53','2018-03-28 05:45:53','Published'),(213,'Main',11,'B',1,12,NULL,NULL,NULL,'2018-03-28 05:52:35','2018-03-28 05:52:35','Published'),(214,'Main',11,'X',2,16,NULL,NULL,NULL,'2018-03-28 05:58:54','2018-03-28 05:58:54','Published'),(215,'Main',61,'A',0,32,NULL,NULL,NULL,'2018-06-05 03:34:53','2018-06-05 03:34:53','Published'),(216,'Main',62,'A',0,64,NULL,NULL,NULL,'2018-06-05 03:41:34','2018-06-05 03:41:34','Published'),(217,'Main',65,'A',0,32,NULL,NULL,NULL,'2018-06-05 03:59:09','2018-06-05 03:59:09','Published'),(218,'Main',64,'A',0,32,NULL,NULL,NULL,'2018-06-14 03:07:47','2018-06-14 03:27:53','Published');
-/*!40000 ALTER TABLE `phase` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `phase_chord`
---
-
-LOCK TABLES `phase_chord` WRITE;
-/*!40000 ALTER TABLE `phase_chord` DISABLE KEYS */;
-INSERT INTO `phase_chord` VALUES (7,3,'C',0,'2017-04-23 23:44:43','2017-04-23 23:44:43'),(8,8,'C major 7',0,'2017-05-13 00:05:58','2017-06-16 03:54:30'),(9,8,'Cm7',8,'2017-05-13 00:06:11','2017-06-16 03:55:17'),(10,8,'F7',12,'2017-05-13 00:06:28','2017-06-16 03:58:00'),(11,8,'Bb major 7',16,'2017-05-13 00:06:41','2017-06-16 03:58:13'),(12,9,'D',0,'2017-05-13 00:07:40','2017-06-16 04:00:16'),(13,9,'G',4,'2017-05-13 00:07:47','2017-06-16 04:00:22'),(14,9,'C',8,'2017-05-13 00:07:55','2017-06-16 04:00:31'),(15,9,'F7',12,'2017-05-13 00:08:01','2017-06-16 04:31:20'),(19,8,'Bb m7',24,'2017-06-16 03:59:02','2017-06-16 03:59:02'),(20,8,'Eb7',28,'2017-06-16 03:59:38','2017-06-16 03:59:38'),(21,8,'Ab major 7',30,'2017-06-16 03:59:46','2017-06-16 03:59:46'),(32,14,'E minor 7',0,'2017-07-27 17:41:02','2017-07-27 17:41:02'),(33,14,'Eb minor 7',4,'2017-07-27 17:41:11','2017-07-27 17:41:11'),(38,14,'D minor 7',8,'2017-07-30 23:22:08','2017-07-30 23:22:08'),(39,14,'Db minor 7',12,'2017-07-30 23:22:15','2017-07-30 23:22:15'),(364,64,'C',0,'2017-12-22 06:43:19','2017-12-22 06:43:19'),(368,86,'C',0,'2018-01-05 07:39:55','2018-01-05 07:39:55'),(369,87,'C',0,'2018-01-05 08:37:43','2018-01-05 08:37:43'),(370,88,'C',0,'2018-01-05 08:38:44','2018-01-05 08:38:44'),(372,91,'C',0,'2018-01-05 09:43:58','2018-01-05 09:43:58'),(373,92,'C',0,'2018-01-05 10:04:13','2018-01-05 10:04:13'),(380,99,'C',0,'2018-01-05 14:54:11','2018-01-05 14:54:11'),(381,100,'C',0,'2018-01-05 14:54:11','2018-01-05 14:54:11'),(382,101,'C',0,'2018-01-05 14:54:11','2018-01-05 14:54:11'),(383,102,'C',0,'2018-01-05 14:54:11','2018-01-05 14:54:11'),(384,103,'C',0,'2018-01-05 14:54:11','2018-01-05 14:54:11'),(385,104,'C',0,'2018-01-05 14:54:11','2018-01-05 14:54:11'),(903,165,'C Major',0,'2018-02-08 08:04:28','2018-02-08 08:04:28'),(904,165,'A Minor Sixth',2,'2018-02-08 08:04:28','2018-02-08 08:04:28'),(905,165,'E Minor',4,'2018-02-08 08:04:28','2018-02-08 08:04:28'),(906,165,'E Minor Seventh',6,'2018-02-08 08:04:28','2018-02-08 08:04:28'),(907,165,'E Minor Sixth',8,'2018-02-08 08:04:28','2018-02-08 08:04:28'),(908,165,'D Major',10,'2018-02-08 08:04:28','2018-02-08 08:04:28'),(909,165,'G Major',12,'2018-02-08 08:04:28','2018-02-08 08:04:28'),(910,165,'G Major Ninth',14,'2018-02-08 08:04:28','2018-02-08 08:04:28'),(911,165,'C Major',16,'2018-02-08 08:04:28','2018-02-08 08:04:28'),(912,165,'D Major Ninth',18,'2018-02-08 08:04:28','2018-02-08 08:04:28'),(913,165,'G Major',20,'2018-02-08 08:04:28','2018-02-08 08:04:28'),(914,165,'D Minor Seventh',22,'2018-02-08 08:04:28','2018-02-08 08:04:28'),(915,165,'G Minor Seventh',24,'2018-02-08 08:04:28','2018-02-08 08:04:28'),(916,165,'C Minor Seventh',26,'2018-02-08 08:04:28','2018-02-08 08:04:28'),(917,165,'F Major Seventh',28,'2018-02-08 08:04:28','2018-02-08 08:04:28'),(918,165,'A Diminished Major',30,'2018-02-08 08:04:28','2018-02-08 08:04:28'),(919,166,'G Minor',0,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(920,166,'F Major',2,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(921,166,'D Minor',4,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(922,166,'C Major',6,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(923,166,'A Minor',8,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(924,166,'F Major',10,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(925,166,'D Minor Sixth',12,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(926,166,'A Minor',14,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(927,166,'A# Major',16,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(928,166,'G Minor Seventh',18,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(929,166,'A# Major Add Ninth',20,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(930,166,'G# Major Ninth',22,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(931,166,'D Minor Seventh',24,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(932,166,'G Major Seventh Add Ninth',26,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(933,166,'D# Major',28,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(934,166,'F Minor',30,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(935,167,'E Major',0,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(936,167,'Db Minor',2,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(937,167,'Gb Minor',4,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(938,167,'A Major',6,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(939,167,'B Major',8,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(940,167,'Eb Minor',10,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(941,167,'E Major',12,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(942,167,'F# Major',14,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(943,167,'C# Major',16,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(944,167,'E Major',18,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(945,167,'F# Major',20,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(946,167,'C# Major',22,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(947,167,'F# Major',24,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(948,167,'C# Major',26,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(949,167,'F# Major',28,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(950,167,'A Major Ninth',30,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(951,168,'G Major Seventh',0,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(952,168,'G Major',2,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(953,168,'Db Minor Seventh Omit Fifth',4,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(954,168,'C Major',6,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(955,168,'D Major',8,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(956,168,'Ab Minor Seventh Omit Fifth',10,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(957,168,'G Major',12,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(958,168,'A Minor',14,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(959,169,'A# Major',0,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(960,169,'G Minor Seventh',2,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(961,169,'C Minor Seventh',4,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(962,169,'A# Major',6,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(963,169,'C Minor Seventh',8,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(964,169,'F Major Sixth',10,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(965,169,'F Minor Sixth',12,'2018-02-08 08:04:29','2018-02-08 08:04:29'),(966,169,'G Major Seventh',14,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(967,169,'D# Major Sixth',16,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(968,169,'F Major Sixth',18,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(969,169,'F Minor Sixth',20,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(970,169,'G Major Seventh',22,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(971,169,'D# Major Sixth',24,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(972,169,'F Major Sixth',26,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(973,169,'F Major Seventh',28,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(974,169,'A Diminished Major',30,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(975,170,'Bb Minor Seventh',0,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(976,170,'F Minor Seventh',2,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(977,170,'D# Major',4,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(978,170,'F Minor',6,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(979,170,'Bb Minor Seventh',8,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(980,170,'F Minor Seventh',10,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(981,170,'D# Major',12,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(982,170,'F Minor',14,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(983,170,'Bb Minor Seventh',16,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(984,170,'G# Major',18,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(985,170,'G Minor Seventh',20,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(986,170,'C Minor Seventh',22,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(987,170,'A# Major',24,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(988,170,'F Major',26,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(989,170,'D# Major',28,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(990,170,'C Minor Seventh',30,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(991,171,'G Major Seventh',0,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(992,171,'E Minor Seventh',2,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(993,171,'A Major Seventh',4,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(994,171,'D Minor Seventh',6,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(995,171,'G Major Seventh Add Ninth',8,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(996,171,'C Minor Seventh',10,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(997,171,'C Minor Seventh',12,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(998,171,'A# Major',14,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(999,171,'F Major',16,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(1000,171,'D Minor Sixth',18,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(1001,171,'A Minor',20,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(1002,171,'F Major',22,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(1003,171,'G Minor',24,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(1004,171,'D Major Ninth',26,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(1005,171,'G Major',28,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(1006,171,'G Major Ninth',30,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(1007,172,'F# Major',0,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(1008,172,'B Major',2,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(1009,172,'E Major',4,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(1010,172,'Db Minor',6,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(1011,172,'Gb Minor',8,'2018-02-08 08:04:30','2018-02-08 08:04:30'),(1012,172,'A Major',10,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1013,172,'E Major',12,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1014,172,'A Major',14,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1015,172,'E Major',16,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1016,172,'A Major',18,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1017,172,'E Major',20,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1018,172,'Db Minor',22,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1019,172,'G Major',24,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1020,172,'A Minor Seventh',26,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1021,172,'G Minor Seventh',28,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1022,172,'A Minor Seventh',30,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1023,173,'F# Major',0,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1024,173,'B Major',2,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1025,173,'F Major Sixth',4,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1026,173,'C Minor Seventh',6,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1027,174,'F Major',0,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1028,174,'G Minor',2,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1029,174,'F Major',4,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1030,174,'A# Major',6,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1031,174,'C Major',8,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1032,174,'A Minor',10,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1033,174,'A Minor Seventh',12,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1034,174,'D Minor Seventh',14,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1035,174,'G Major Seventh',16,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1036,174,'E Minor Seventh',18,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1037,174,'D Major',20,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1038,174,'B Major',22,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1039,174,'Eb Minor',24,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1040,174,'E Major',26,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1041,174,'F# Major',28,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1042,174,'A Major Ninth',30,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1043,175,'G Minor',0,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1044,175,'D# Major',2,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1045,175,'F Minor Seventh',4,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1046,175,'G Major',6,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1047,175,'D Major',8,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1048,175,'E Minor Seventh',10,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1049,175,'A Major Seventh',12,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1050,175,'A Major Seventh',14,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1051,176,'E Major',0,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1052,176,'B Major',2,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1053,176,'C Major',4,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1054,176,'A Minor',6,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1055,176,'F Major',8,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1056,176,'D# Major',10,'2018-02-08 08:04:31','2018-02-08 08:04:31'),(1057,176,'D Major',12,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1058,176,'A# Diminished Major',14,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1059,176,'D Major Ninth',16,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1060,176,'C Minor Seventh',18,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1061,176,'C Minor Seventh',20,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1062,176,'C Minor Seventh',22,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1063,176,'A# Major',24,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1064,176,'F Major',26,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1065,176,'D# Major',28,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1066,176,'F Minor',30,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1067,177,'A Major Seventh',0,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1068,177,'D Minor',2,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1069,177,'A# Major',4,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1070,177,'C Major',6,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1071,177,'G Major',8,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1072,177,'D# Diminished Major',10,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1073,177,'G Major Seventh',12,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1074,177,'A Minor Seventh',14,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1075,178,'A# Major',0,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1076,178,'C Major',2,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1077,178,'F Major',4,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1078,178,'D Minor Sixth',6,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1079,178,'A Minor',8,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1080,178,'A Minor Seventh',10,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1081,178,'G Minor Seventh',12,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1082,178,'C Minor Seventh',14,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1083,178,'C Major',16,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1084,178,'F Major',18,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1085,178,'G Minor',20,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1086,178,'F Major',22,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1087,178,'C Minor Seventh',24,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1088,178,'F Major',26,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1089,178,'D Minor Sixth',28,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1090,178,'A Minor',30,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1091,179,'C Major',0,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1092,179,'A Major Seventh',2,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1093,179,'D Major',4,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1094,179,'G Major',6,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1095,179,'D# Diminished Major',8,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1096,179,'G Major',10,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1097,179,'G Major Ninth',12,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1098,179,'C Major',14,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1099,179,'A Major Seventh',16,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1100,179,'D# Major',18,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1101,179,'A Major Seventh',20,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1102,179,'D Minor Seventh',22,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1103,179,'G Major Seventh Add Ninth',24,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1104,179,'C Minor Seventh',26,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1105,179,'F Major Seventh',28,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1106,179,'C Minor Seventh',30,'2018-02-08 08:04:32','2018-02-08 08:04:32'),(1107,180,'Bb',0,'2018-02-25 07:51:08','2018-02-25 07:51:08'),(1108,180,'D-',4,'2018-02-25 07:51:23','2018-02-25 07:51:23'),(1109,180,'Eb',8,'2018-02-25 07:51:38','2018-02-25 07:51:38'),(1110,180,'Bb',16,'2018-02-25 07:52:39','2018-02-25 07:52:39'),(1111,180,'G-',20,'2018-02-25 07:52:54','2018-02-25 07:52:54'),(1112,180,'Eb',24,'2018-02-25 07:53:43','2018-02-25 07:53:43'),(1113,181,'F',0,'2018-02-25 07:55:58','2018-02-25 07:55:58'),(1114,181,'G-',4,'2018-02-25 07:56:24','2018-02-25 07:56:24'),(1115,181,'Eb',8,'2018-02-25 07:56:56','2018-02-25 07:57:27'),(1116,181,'Bb',12,'2018-02-25 07:57:49','2018-02-25 07:57:49'),(1117,181,'C-',16,'2018-02-25 07:58:08','2018-02-25 07:58:08'),(1118,181,'G-',20,'2018-02-25 07:58:27','2018-02-25 07:58:27'),(1119,181,'Eb',24,'2018-02-25 07:58:37','2018-02-25 07:58:37'),(1120,182,'D-',0,'2018-02-25 08:01:09','2018-02-25 08:01:09'),(1121,182,'Fsus4',1.5,'2018-02-25 08:02:08','2018-03-02 06:33:19'),(1122,183,'E-',0,'2018-03-02 06:37:10','2018-03-02 06:37:10'),(1123,183,'G',8,'2018-03-02 06:37:25','2018-03-02 06:37:25'),(1124,183,'A',12,'2018-03-02 06:38:12','2018-03-02 06:38:12'),(1125,184,'A-',0,'2018-03-02 06:41:00','2018-03-02 06:41:00'),(1126,184,'Bsus4',4,'2018-03-02 06:41:29','2018-03-02 06:41:29'),(1127,184,'C',8,'2018-03-02 06:42:27','2018-03-02 06:42:27'),(1128,184,'G',12,'2018-03-02 06:42:36','2018-03-02 06:42:36'),(1129,184,'F',16,'2018-03-02 06:45:50','2018-03-02 06:45:50'),(1130,184,'C/D',24,'2018-03-02 06:46:26','2018-03-02 06:46:26'),(1131,185,'E-',0,'2018-03-02 06:50:21','2018-03-02 06:50:21'),(1132,185,'C',4,'2018-03-02 06:51:06','2018-03-02 06:51:06'),(1133,185,'A-',8,'2018-03-02 06:51:13','2018-03-02 06:51:13'),(1134,185,'G',12,'2018-03-02 06:51:30','2018-03-02 06:51:30'),(1135,185,'D',14,'2018-03-02 06:51:36','2018-03-02 06:51:36'),(1136,186,'F',0,'2018-03-02 06:53:53','2018-03-02 06:53:53'),(1137,186,'A-',8,'2018-03-02 06:54:21','2018-03-02 06:54:21'),(1138,186,'D-',16,'2018-03-02 06:54:29','2018-03-02 06:54:50'),(1139,186,'C/G',24,'2018-03-02 06:56:22','2018-03-02 06:56:22'),(1140,187,'Fmaj7',0,'2018-03-02 07:02:02','2018-03-02 07:02:02'),(1141,187,'Ebmaj7',4,'2018-03-02 07:02:13','2018-03-02 07:02:13'),(1142,188,'Bb-7',0,'2018-03-02 07:06:34','2018-03-02 07:06:34'),(1143,188,'Gbmaj7',4,'2018-03-02 07:06:45','2018-03-02 07:06:45'),(1144,188,'Eb-7',12,'2018-03-02 07:07:07','2018-03-02 07:07:07'),(1145,188,'Bb-7',16,'2018-03-02 07:08:40','2018-03-02 07:08:40'),(1146,188,'Gbmaj7',20,'2018-03-02 07:08:51','2018-03-02 07:08:51'),(1147,188,'Gbmaj7/Ab',28,'2018-03-02 07:09:17','2018-03-02 07:09:17'),(1148,189,'Fmaj7',0,'2018-03-02 07:13:49','2018-03-02 07:13:49'),(1149,189,'Dbmaj7',3.5,'2018-03-02 07:14:42','2018-03-02 07:14:42'),(1150,189,'Bb-7',7.5,'2018-03-02 07:15:41','2018-03-02 07:15:41'),(1151,189,'Gbmaj7',11.5,'2018-03-02 07:16:09','2018-03-02 07:16:09'),(1152,190,'NC',0,'2018-03-02 07:22:54','2018-03-02 07:22:54'),(1153,191,'D-',0,'2018-03-02 07:25:57','2018-03-02 07:25:57'),(1154,191,'D-/G',3,'2018-03-02 07:26:09','2018-03-02 07:26:09'),(1155,191,'D-/F',11,'2018-03-02 07:26:28','2018-03-02 07:26:28'),(1156,192,'D-/C',0,'2018-03-02 07:29:45','2018-03-02 07:29:45'),(1157,192,'Bbmaj7',8,'2018-03-02 07:30:29','2018-03-02 07:30:29'),(1158,192,'D-/F',16,'2018-03-02 07:31:01','2018-03-02 07:31:01'),(1159,192,'D-/G',24,'2018-03-02 07:31:13','2018-03-02 07:31:13'),(1160,193,'NC',0,'2018-03-02 07:32:10','2018-03-02 07:32:10'),(1161,194,'D',0,'2018-03-19 01:11:31','2018-03-19 01:11:31'),(1162,194,'F#-',3.5,'2018-03-19 01:12:20','2018-03-19 01:12:20'),(1163,194,'G',7.5,'2018-03-19 01:12:39','2018-03-19 01:12:39'),(1164,194,'E-7',13.5,'2018-03-19 01:13:00','2018-03-19 01:13:00'),(1165,194,'D',16,'2018-03-19 01:13:13','2018-03-19 01:13:13'),(1166,194,'F#-',19.5,'2018-03-19 01:13:34','2018-03-19 01:13:34'),(1167,194,'G',23.5,'2018-03-19 01:13:50','2018-03-19 01:13:50'),(1168,194,'Gmaj7/A',29.5,'2018-03-19 01:14:59','2018-03-19 01:14:59'),(1169,195,'B-',0,'2018-03-19 01:20:31','2018-03-19 01:20:31'),(1170,195,'E-',4,'2018-03-19 01:20:47','2018-03-19 01:20:47'),(1171,195,'G',12,'2018-03-19 01:20:55','2018-03-19 01:20:55'),(1172,195,'B-',16,'2018-03-19 01:21:13','2018-03-19 01:21:13'),(1173,195,'E-',20,'2018-03-19 01:21:26','2018-03-19 01:21:26'),(1174,195,'G',28,'2018-03-19 01:23:58','2018-03-19 01:23:58'),(1175,196,'F#-',0,'2018-03-19 01:26:01','2018-03-19 01:26:01'),(1176,197,'C#-7',0,'2018-03-23 04:24:57','2018-03-23 04:24:57'),(1177,197,'D#-7',14.5,'2018-03-23 04:25:34','2018-03-23 04:25:34'),(1178,198,'G#-',0,'2018-03-23 04:26:31','2018-03-23 04:26:31'),(1179,198,'Amaj7/E',3.75,'2018-03-23 04:27:09','2018-03-23 04:27:09'),(1180,198,'Bmaj6',11.75,'2018-03-23 04:27:34','2018-03-23 04:27:34'),(1181,199,'Bb-',0,'2018-03-23 04:30:36','2018-03-23 04:30:36'),(1182,200,'Bb-',0,'2018-03-23 04:31:12','2018-03-23 04:31:12'),(1183,200,'Abmaj6/9',8,'2018-03-23 04:32:20','2018-03-23 04:32:20'),(1184,200,'Gbmaj7',16,'2018-03-23 04:32:33','2018-03-23 04:32:33'),(1185,200,'Db',24,'2018-03-23 04:32:55','2018-03-23 04:32:55'),(1186,200,'Eb-',28,'2018-03-23 04:33:05','2018-03-23 04:33:05'),(1187,200,'Bb-',32,'2018-03-23 04:33:17','2018-03-23 04:33:17'),(1188,200,'Abmaj6/9',40,'2018-03-23 04:33:36','2018-03-23 04:33:36'),(1189,200,'Gbmaj7',48,'2018-03-23 04:33:45','2018-03-23 04:33:45'),(1190,200,'Fsus4',56,'2018-03-23 04:34:03','2018-03-23 04:34:03'),(1191,200,'F',60,'2018-03-23 04:34:11','2018-03-23 04:34:11'),(1192,201,'Bb-',0,'2018-03-23 04:38:06','2018-03-23 04:38:06'),(1193,201,'Db',8,'2018-03-23 04:38:15','2018-03-23 04:38:15'),(1194,202,'Gb',0,'2018-03-23 04:39:01','2018-03-23 04:39:01'),(1195,202,'Ab',4,'2018-03-23 04:39:20','2018-03-23 04:39:20'),(1196,202,'Bb-',6,'2018-03-23 04:39:30','2018-03-23 04:39:30'),(1197,202,'Eb-',8,'2018-03-23 04:39:41','2018-03-23 04:39:41'),(1198,202,'Db/F',14,'2018-03-23 04:39:55','2018-03-23 04:39:55'),(1199,202,'Gb',16,'2018-03-23 04:40:06','2018-03-23 04:40:06'),(1200,202,'Ab',20,'2018-03-23 04:40:16','2018-03-23 04:40:16'),(1201,202,'Bb-',22,'2018-03-23 04:40:27','2018-03-23 04:40:27'),(1202,202,'Eb-',24,'2018-03-23 04:40:35','2018-03-23 04:40:35'),(1203,202,'Ab7sus4',28,'2018-03-23 04:40:53','2018-03-23 04:40:53'),(1204,203,'F-7',0,'2018-03-23 04:41:24','2018-03-23 04:41:24'),(1205,203,'Gbmaj6/9',8,'2018-03-23 04:41:48','2018-03-23 04:41:48'),(1206,203,'Ab7sus4',12,'2018-03-23 04:41:58','2018-03-23 04:41:58'),(1207,204,'Fsus4add3',0,'2018-03-23 04:46:22','2018-03-23 04:46:22'),(1208,204,'C7sus4',8,'2018-03-23 04:47:22','2018-03-23 04:47:22'),(1209,205,'Ebmaj6/9',0,'2018-03-23 04:50:43','2018-03-23 04:50:43'),(1210,205,'Fsus4/Gb',8,'2018-03-23 04:50:54','2018-03-23 04:50:54'),(1211,206,'C-',0,'2018-03-28 04:55:15','2018-03-28 04:55:15'),(1212,206,'Db',4,'2018-03-28 04:55:24','2018-03-28 04:55:24'),(1213,206,'Bb-',12,'2018-03-28 04:55:37','2018-03-28 04:55:37'),(1214,206,'C-',16,'2018-03-28 04:55:44','2018-03-28 04:55:44'),(1215,206,'Db',20,'2018-03-28 04:55:54','2018-03-28 04:55:54'),(1216,206,'E-',29.5,'2018-03-28 05:00:17','2018-03-28 05:00:17'),(1217,207,'Ab-',0,'2018-03-28 05:04:21','2018-03-28 05:04:21'),(1218,207,'B',4,'2018-03-28 05:04:28','2018-03-28 05:04:28'),(1219,207,'Eb-',8,'2018-03-28 05:04:39','2018-03-28 05:04:39'),(1220,208,'Ebmaj7',0,'2018-03-28 05:18:24','2018-03-28 05:18:24'),(1221,208,'G-7',8,'2018-03-28 05:18:44','2018-03-28 05:18:44'),(1222,208,'Ebmaj7',16,'2018-03-28 05:19:09','2018-03-28 05:19:09'),(1223,208,'G-7',24,'2018-03-28 05:19:23','2018-03-28 05:19:23'),(1224,208,'F-7',27.5,'2018-03-28 05:19:40','2018-03-28 05:19:40'),(1225,208,'Abmaj7',29.5,'2018-03-28 05:19:50','2018-03-28 05:19:50'),(1226,209,'Abmaj7',0,'2018-03-28 05:21:23','2018-03-28 05:21:23'),(1227,209,'F-7',8,'2018-03-28 05:21:30','2018-03-28 05:21:30'),(1228,209,'C-',16,'2018-03-28 05:23:40','2018-03-28 05:23:40'),(1229,209,'Bb7sus4',24,'2018-03-28 05:24:05','2018-03-28 05:24:05'),(1230,210,'Cmaj7',0,'2018-03-28 05:32:36','2018-03-28 05:32:36'),(1231,210,'Emaj7',3.5,'2018-03-28 05:32:45','2018-03-28 05:32:45'),(1232,210,'Abmaj7',7.5,'2018-03-28 05:33:06','2018-03-28 05:33:06'),(1233,210,'Fmaj7',11.5,'2018-03-28 05:33:28','2018-03-28 05:33:28'),(1234,211,'Dbmaj7',0,'2018-03-28 05:36:02','2018-03-28 05:36:02'),(1235,211,'Amaj7',3.5,'2018-03-28 05:36:16','2018-03-28 05:36:16'),(1236,211,'Fmaj7',8,'2018-03-28 05:36:25','2018-03-28 05:36:25'),(1237,211,'Dbmaj7',16,'2018-03-28 05:36:38','2018-03-28 05:36:38'),(1238,211,'Amaj7',19.5,'2018-03-28 05:36:49','2018-03-28 05:36:49'),(1239,211,'Fmaj7',24,'2018-03-28 05:37:02','2018-03-28 05:37:02'),(1240,212,'E-7',0,'2018-03-28 05:46:04','2018-03-28 05:47:21'),(1241,212,'Fmaj7',4,'2018-03-28 05:46:15','2018-03-28 05:46:15'),(1242,212,'A-7',8,'2018-03-28 05:47:31','2018-03-28 05:47:31'),(1243,213,'Dmaj6',0,'2018-03-28 05:53:22','2018-03-28 05:53:22'),(1244,213,'Cmaj7/E',4,'2018-03-28 05:53:33','2018-03-28 05:53:33'),(1245,213,'Cmaj7add9',8,'2018-03-28 05:53:49','2018-03-28 05:53:49'),(1246,214,'D/G',0,'2018-03-28 05:59:06','2018-03-28 05:59:06'),(1247,214,'C/G',8,'2018-03-28 05:59:14','2018-03-28 05:59:14'),(1248,215,'C',0,'2018-06-05 03:35:03','2018-06-05 03:35:03'),(1249,215,'A-7',4,'2018-06-05 03:35:12','2018-06-05 03:35:12'),(1250,215,'E-7',8,'2018-06-05 03:35:19','2018-06-05 03:35:19'),(1251,215,'Fmaj6',12,'2018-06-05 03:35:26','2018-06-05 03:35:26'),(1252,215,'C',16,'2018-06-05 03:35:34','2018-06-05 03:35:34'),(1253,215,'A-7',20,'2018-06-05 03:35:44','2018-06-05 03:35:44'),(1254,215,'D-7',24,'2018-06-05 03:35:55','2018-06-05 03:35:55'),(1255,215,'Fmaj6',27.5,'2018-06-05 03:36:27','2018-06-05 03:36:27'),(1256,215,'F/G',29.5,'2018-06-05 03:36:38','2018-06-05 03:36:38'),(1257,216,'F5',0,'2018-06-05 03:41:47','2018-06-05 03:41:47'),(1258,216,'F5/D',16,'2018-06-05 03:42:04','2018-06-05 03:42:04'),(1259,216,'F5/Db',32,'2018-06-05 03:42:21','2018-06-05 03:42:21'),(1260,216,'Abmaj6',48,'2018-06-05 03:43:28','2018-06-05 03:43:28'),(1261,216,'C7sus4',60,'2018-06-05 03:46:02','2018-06-05 03:46:02'),(1262,217,'C#maj7',0,'2018-06-05 03:59:30','2018-06-05 03:59:30'),(1263,217,'F#-7add9',1.5,'2018-06-05 03:59:51','2018-06-05 04:00:19'),(1264,217,'G#-7',8,'2018-06-05 04:00:13','2018-06-05 04:00:13'),(1265,217,'Emaj7add9',9.5,'2018-06-05 04:00:52','2018-06-05 04:00:52'),(1266,217,'C#maj7',16,'2018-06-05 04:01:24','2018-06-05 04:01:24'),(1267,217,'Amaj7',17.5,'2018-06-05 04:01:41','2018-06-05 04:01:41'),(1268,217,'G#-7',24,'2018-06-05 04:02:02','2018-06-05 04:02:02'),(1269,217,'Dmaj7add13',25.5,'2018-06-05 04:03:24','2018-06-05 04:03:24'),(1270,218,'C#-',0,'2018-06-14 03:08:03','2018-06-14 03:08:03'),(1271,218,'C#sus4/D',1.5,'2018-06-14 03:08:25','2018-06-14 03:08:25'),(1272,218,'Emaj7add9',3.5,'2018-06-14 03:08:56','2018-06-14 03:08:56'),(1273,218,'F#-6',5.5,'2018-06-14 03:09:22','2018-06-14 03:09:22'),(1274,218,'C#-7/B',8,'2018-06-14 03:10:10','2018-06-14 03:21:10'),(1275,218,'Emaj7/G#',16,'2018-06-14 03:10:54','2018-06-14 03:22:26'),(1276,218,'E/A',17.5,'2018-06-14 03:24:01','2018-06-14 03:24:01'),(1277,218,'E/B',19.5,'2018-06-14 03:24:20','2018-06-14 03:24:20'),(1278,218,'Bmaj6',21.5,'2018-06-14 03:24:41','2018-06-14 03:24:41'),(1279,218,'Badd4/C#',24,'2018-06-14 03:32:37','2018-06-14 03:35:13');
-/*!40000 ALTER TABLE `phase_chord` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `phase_meme`
---
-
-LOCK TABLES `phase_meme` WRITE;
-/*!40000 ALTER TABLE `phase_meme` DISABLE KEYS */;
-INSERT INTO `phase_meme` VALUES (5,6,'Cool','2017-05-01 19:43:30','2017-05-01 19:43:30'),(7,7,'Hot','2017-05-01 19:44:52','2017-05-01 19:44:52'),(8,4,'Hot','2017-05-01 19:45:58','2017-05-01 19:45:58'),(9,5,'Cool','2017-05-01 19:46:10','2017-05-01 19:46:10'),(10,4,'Tropical','2017-06-16 03:37:25','2017-06-16 03:37:25'),(11,5,'Electro','2017-06-16 03:38:03','2017-06-16 03:38:03'),(12,6,'Hard','2017-06-16 03:38:19','2017-06-16 03:38:19'),(13,7,'Easy','2017-06-16 03:38:40','2017-06-16 03:38:40'),(15,14,'Hard','2017-07-29 23:48:20','2017-07-29 23:48:20'),(22,21,'Earth','2017-12-13 06:39:45','2017-12-13 06:39:45'),(23,22,'Fire','2017-12-13 06:40:10','2017-12-13 06:40:10'),(24,23,'Earth','2017-12-13 06:42:09','2017-12-13 06:42:09'),(25,24,'Water','2017-12-13 06:42:26','2017-12-13 06:42:26'),(26,25,'Earth','2017-12-13 06:43:08','2017-12-13 06:43:08'),(27,26,'Wind','2017-12-13 06:43:31','2017-12-13 06:43:31'),(28,27,'Fire','2017-12-13 06:44:02','2017-12-13 06:44:02'),(29,28,'Earth','2017-12-13 06:44:33','2017-12-13 06:44:33'),(30,29,'Fire','2017-12-13 06:46:18','2017-12-13 06:46:18'),(31,30,'Water','2017-12-13 06:46:44','2017-12-13 06:46:44'),(32,31,'Fire','2017-12-13 06:47:29','2017-12-13 06:47:29'),(33,32,'Wind','2017-12-13 06:47:51','2017-12-13 06:47:51'),(34,33,'Wind','2017-12-13 06:48:33','2017-12-13 06:48:33'),(35,34,'Earth','2017-12-13 06:48:55','2017-12-13 06:48:55'),(36,35,'Wind','2017-12-13 06:49:27','2017-12-13 06:49:27'),(37,36,'Fire','2017-12-13 06:49:47','2017-12-13 06:49:47'),(38,37,'Wind','2017-12-13 06:50:16','2017-12-13 06:50:16'),(39,38,'Water','2017-12-13 06:50:33','2017-12-13 06:50:33'),(66,65,'Fire','2017-12-23 21:51:03','2017-12-23 21:51:03'),(67,22,'Earth','2017-12-23 21:51:12','2017-12-23 21:51:12'),(68,66,'Water','2017-12-23 21:54:58','2017-12-23 21:54:58'),(69,24,'Earth','2017-12-23 21:55:07','2017-12-23 21:55:07'),(70,67,'Wind','2017-12-23 21:58:02','2017-12-23 21:58:02'),(71,26,'Earth','2017-12-23 21:58:10','2017-12-23 21:58:10'),(72,68,'Earth','2017-12-23 22:00:20','2017-12-23 22:00:20'),(73,28,'Fire','2017-12-23 22:00:39','2017-12-23 22:00:39'),(74,69,'Water','2017-12-23 22:02:13','2017-12-23 22:02:13'),(75,30,'Fire','2017-12-23 22:02:20','2017-12-23 22:02:20'),(76,32,'Fire','2017-12-23 22:04:01','2017-12-23 22:04:01'),(77,70,'Wind','2017-12-23 22:04:33','2017-12-23 22:04:33'),(78,34,'Wind','2017-12-23 22:05:35','2017-12-23 22:05:35'),(79,71,'Earth','2017-12-23 22:05:54','2017-12-23 22:05:54'),(80,72,'Fire','2017-12-23 22:09:04','2017-12-23 22:09:04'),(81,36,'Wind','2017-12-23 22:09:21','2017-12-23 22:09:21'),(82,38,'Wind','2017-12-23 22:10:10','2017-12-23 22:10:10'),(83,73,'Water','2017-12-23 22:10:31','2017-12-23 22:10:31'),(84,74,'Water','2017-12-23 22:11:41','2017-12-23 22:11:41'),(85,75,'Water','2017-12-23 22:12:10','2017-12-23 22:12:10'),(86,75,'Wind','2017-12-23 22:12:14','2017-12-23 22:12:14'),(87,76,'Wind','2017-12-23 22:12:33','2017-12-23 22:12:33'),(88,77,'Water','2017-12-23 22:13:17','2017-12-23 22:13:17'),(89,78,'Water','2017-12-23 22:13:36','2017-12-23 22:13:36'),(90,78,'Fire','2017-12-23 22:13:39','2017-12-23 22:13:39'),(91,79,'Fire','2017-12-23 22:13:54','2017-12-23 22:13:54'),(92,80,'Water','2017-12-23 22:14:58','2017-12-23 22:14:58'),(93,81,'Water','2017-12-23 22:15:25','2017-12-23 22:15:25'),(94,81,'Earth','2017-12-23 22:15:29','2017-12-23 22:15:29'),(95,82,'Earth','2017-12-23 22:15:47','2017-12-23 22:15:47');
-/*!40000 ALTER TABLE `phase_meme` ENABLE KEYS */;
+LOCK TABLES `pattern_event` WRITE;
+/*!40000 ALTER TABLE `pattern_event` DISABLE KEYS */;
+INSERT INTO `pattern_event` VALUES (270,3,4,0.3,1,'KICKLONG',2.5,0.5,'C2','2017-06-02 23:57:53','2018-01-03 21:36:07'),(274,3,4,1,0.2,'SNARE',1,1,'G8','2017-06-02 23:58:37','2018-01-03 21:36:07'),(275,3,5,0.2,0.1,'HIHATCLOSED',0,0.3,'E12','2017-06-03 00:09:06','2018-01-03 21:36:07'),(276,3,5,0.16,0.1,'HIHATCLOSED',1,0.25,'E12','2017-06-03 00:10:09','2018-01-03 21:36:07'),(277,3,5,0.2,0.1,'HIHATCLOSED',2,0.25,'E12','2017-06-03 00:10:14','2018-01-03 21:36:07'),(278,3,5,0.2,0.1,'HIHATCLOSED',3,0.25,'E12','2017-06-03 00:10:19','2018-01-03 21:36:07'),(280,3,5,0.1,0.1,'HIHATCLOSED',0.25,0.2,'G12','2017-06-03 00:11:48','2018-01-05 09:32:21'),(281,3,5,0.1,0.1,'HIHATCLOSED',1.25,0.2,'G12','2017-06-03 00:11:52','2018-01-05 09:32:21'),(282,3,5,0.05,0.1,'HIHATOPEN',2.5,0.25,'G12','2017-06-03 00:11:57','2018-01-03 21:36:07'),(283,3,5,0.1,0.1,'HIHATCLOSED',3.25,0.2,'G12','2017-06-03 00:12:02','2018-01-05 09:32:21'),(284,3,5,0.12,0.06,'HIHATCLOSED',3.75,0.2,'D12','2017-06-03 00:12:32','2018-01-05 09:32:21'),(285,3,5,0.025,0.06,'HIHATCLOSED',2.75,0.2,'D12','2017-06-03 00:12:37','2018-01-05 09:32:21'),(286,3,5,0.12,0.06,'HIHATCLOSED',1.75,0.2,'D12','2017-06-03 00:12:41','2018-01-05 09:32:21'),(287,3,5,0.025,0.06,'HIHATCLOSED',0.75,0.2,'D12','2017-06-03 00:12:46','2018-01-05 09:32:21'),(288,3,5,0.05,0.12,'HIHATOPEN',0.5,0.25,'E8','2017-06-03 00:13:33','2018-01-03 21:36:07'),(290,3,5,0.1,0.12,'HIHATCLOSED',2.25,0.2,'E8','2017-06-03 00:13:43','2018-01-05 09:32:21'),(291,3,5,0.05,0.12,'HIHATOPEN',3.5,0.5,'E8','2017-06-03 00:13:47','2018-01-03 21:36:07'),(294,3,4,0.2,1,'KICK',2.25,0.2,'F#2','2017-06-04 04:26:37','2018-01-05 09:32:21'),(301,3,5,0.05,0.12,'HIHATOPEN',1.5,0.25,'E8','2017-06-04 04:49:14','2018-01-03 21:36:07'),(302,3,5,0.2,0.1,'MARACAS',0.5,0.5,'Bb8','2017-06-04 04:51:11','2018-01-03 21:36:07'),(303,3,5,0.2,0.1,'MARACAS',1.5,0.5,'Bb8','2017-06-04 04:51:23','2018-01-03 21:36:07'),(304,3,5,0.2,0.1,'MARACAS',2.5,0.5,'Bb8','2017-06-04 04:51:28','2018-01-03 21:36:07'),(305,3,5,0.2,0.1,'MARACAS',3.5,0.5,'Bb8','2017-06-04 04:51:34','2018-01-03 21:36:07'),(306,3,5,0.1,0.1,'MARACAS',3.25,0.5,'Bb8','2017-06-04 04:51:43','2018-01-05 09:32:21'),(314,3,8,0.1,0.6,'TOM',0.5,0.75,'C6','2017-06-11 19:51:53','2018-01-03 21:36:07'),(315,3,8,0.05,0.6,'TOM',1.25,0.7,'G5','2017-06-11 19:52:17','2018-01-05 09:32:21'),(316,3,8,0.2,0.6,'TOM',2,1,'C5','2017-06-11 19:53:15','2018-01-03 21:36:07'),(318,3,8,0.1,0.6,'CONGA',0,1,'F5','2017-06-11 20:15:46','2018-01-03 21:36:07'),(320,3,8,0.1,0.6,'TOM',3.5,0.5,'G3','2017-06-11 20:16:54','2018-01-03 21:36:07'),(322,3,4,0.1,0.2,'SNARE',1.75,0.2,'G5','2017-06-12 19:14:16','2018-01-05 09:32:21'),(323,3,8,0.05,0.5,'COWBELL',2,1,'F5','2017-06-12 19:20:22','2018-01-03 21:36:07'),(329,3,8,0.3,0.6,'CONGAHIGH',3.25,0.6,'F5','2017-06-15 22:52:40','2018-01-05 09:32:21'),(339,3,12,1,1,'KICKLONG',0,1,'C2','2017-12-07 03:43:32','2018-01-03 21:36:07'),(341,3,12,0.8,1,'KICK',2.5,1,'C2','2017-12-07 03:43:52','2018-01-03 21:36:07'),(343,3,4,1,0.1,'SNARE',3,1,'G8','2017-12-07 08:17:58','2018-01-03 21:36:07'),(371,3,17,0.05,0.5,'TOMLOW',2,0.8,'G4','2017-12-21 00:38:41','2018-01-07 00:38:37'),(372,3,17,0.08,0.5,'TOMLOW',2.75,0.8,'G4','2017-12-21 00:39:01','2018-01-07 00:38:37'),(373,3,17,0.1,0.5,'TOMLOW',3.5,1,'G4','2017-12-21 00:39:18','2018-01-07 00:38:37'),(374,3,17,0.05,0.5,'TOMLOW',1,0.5,'G4','2017-12-21 00:39:32','2018-01-07 00:38:37'),(375,3,17,0.1,0.5,'TOMLOW',1,1,'G4','2017-12-21 00:39:41','2018-01-07 00:38:37'),(376,64,18,1,0.2,'SNARE',1,1,'G8','2017-12-22 06:43:19','2018-01-03 21:36:07'),(378,64,18,0.1,0.2,'SNARE',1.75,0.2,'G5','2017-12-22 06:43:19','2018-01-05 09:32:21'),(379,64,18,0.2,1,'KICK',2.25,0.2,'F#2','2017-12-22 06:43:19','2018-01-05 09:32:21'),(380,64,18,0.3,1,'KICKLONG',2.5,0.5,'C2','2017-12-22 06:43:19','2018-01-03 21:36:07'),(382,64,18,1,0.1,'SNARE',3,1,'G8','2017-12-22 06:43:19','2018-01-03 21:36:07'),(383,64,19,0.2,0.1,'HIHATCLOSED',0,0.3,'E12','2017-12-22 06:43:19','2018-01-03 21:36:07'),(384,64,19,0.1,0.1,'HIHATCLOSED',0.25,0.2,'G12','2017-12-22 06:43:19','2018-01-05 09:32:21'),(385,64,19,0.2,0.1,'MARACAS',0.5,0.5,'Bb8','2017-12-22 06:43:19','2018-01-03 21:36:07'),(386,64,19,0.05,0.12,'HIHATOPEN',0.5,0.25,'E8','2017-12-22 06:43:19','2018-01-03 21:36:07'),(387,64,19,0.025,0.06,'HIHATCLOSED',0.75,0.2,'D12','2017-12-22 06:43:19','2018-01-05 09:32:21'),(388,64,19,0.16,0.1,'HIHATCLOSED',1,0.25,'E12','2017-12-22 06:43:19','2018-01-03 21:36:07'),(389,64,19,0.1,0.1,'HIHATCLOSED',1.25,0.2,'G12','2017-12-22 06:43:19','2018-01-05 09:32:21'),(390,64,19,0.2,0.1,'MARACAS',1.5,0.5,'Bb8','2017-12-22 06:43:20','2018-01-03 21:36:07'),(391,64,19,0.05,0.12,'HIHATOPEN',1.5,0.25,'E8','2017-12-22 06:43:20','2018-01-03 21:36:07'),(392,64,19,0.12,0.06,'HIHATCLOSED',1.75,0.2,'D12','2017-12-22 06:43:20','2018-01-05 09:32:21'),(393,64,19,0.2,0.1,'HIHATCLOSED',2,0.25,'E12','2017-12-22 06:43:20','2018-01-03 21:36:07'),(394,64,19,0.1,0.12,'HIHATCLOSED',2.25,0.2,'E8','2017-12-22 06:43:20','2018-01-05 09:32:21'),(395,64,19,0.05,0.1,'HIHATOPEN',2.5,0.25,'G12','2017-12-22 06:43:20','2018-01-03 21:36:07'),(396,64,19,0.2,0.1,'MARACAS',2.5,0.5,'Bb8','2017-12-22 06:43:20','2018-01-03 21:36:07'),(397,64,19,0.025,0.06,'HIHATCLOSED',2.75,0.2,'D12','2017-12-22 06:43:20','2018-01-05 09:32:21'),(398,64,19,0.2,0.1,'HIHATCLOSED',3,0.25,'E12','2017-12-22 06:43:20','2018-01-03 21:36:07'),(399,64,19,0.1,0.1,'HIHATCLOSED',3.25,0.2,'G12','2017-12-22 06:43:20','2018-01-05 09:32:21'),(400,64,19,0.1,0.1,'MARACAS',3.25,0.5,'Bb8','2017-12-22 06:43:20','2018-01-05 09:32:21'),(401,64,19,0.05,0.12,'HIHATOPEN',3.5,0.5,'E8','2017-12-22 06:43:20','2018-01-03 21:36:07'),(402,64,19,0.2,0.1,'MARACAS',3.5,0.5,'Bb8','2017-12-22 06:43:20','2018-01-03 21:36:07'),(403,64,19,0.12,0.06,'HIHATCLOSED',3.75,0.2,'D12','2017-12-22 06:43:20','2018-01-05 09:32:21'),(404,64,20,0.1,0.6,'CONGA',0,1,'F5','2017-12-22 06:43:20','2018-01-03 21:36:07'),(405,64,20,0.1,0.6,'TOM',0.5,0.75,'C6','2017-12-22 06:43:20','2018-01-03 21:36:07'),(406,64,20,0.05,0.6,'TOM',1.25,0.7,'G5','2017-12-22 06:43:20','2018-01-05 09:32:21'),(407,64,20,0.2,0.6,'TOM',2,1,'C5','2017-12-22 06:43:20','2018-01-03 21:36:07'),(409,64,20,0.3,0.6,'CONGAHIGH',3.25,0.6,'F5','2017-12-22 06:43:20','2018-01-05 09:32:21'),(410,64,20,0.1,0.6,'TOM',3.5,0.5,'G3','2017-12-22 06:43:20','2018-01-03 21:36:07'),(418,64,23,1,1,'KICKLONG',0,1,'C2','2017-12-22 06:43:20','2018-01-03 21:36:07'),(419,64,23,0.8,1,'KICK',2.5,1,'C2','2017-12-22 06:43:20','2018-01-03 21:36:07'),(420,64,24,0.05,0.5,'TOMLOW',0.5,0.5,'G4','2017-12-22 06:43:20','2018-01-07 00:38:37'),(423,64,24,0.08,0.5,'TOMLOW',2.75,0.8,'G4','2017-12-22 06:43:20','2018-01-07 00:38:37'),(424,64,24,0.1,0.5,'TOMLOW',3.5,1,'G4','2017-12-22 06:43:20','2018-01-07 00:38:37'),(548,86,20,0.1,0.6,'CONGA',0,1,'F5','2018-01-05 07:39:55','2018-01-05 07:39:55'),(549,86,23,1,1,'KICKLONG',0,1,'C2','2018-01-05 07:39:55','2018-01-05 07:39:55'),(550,86,19,0.2,0.1,'HIHATCLOSED',0,0.3,'E12','2018-01-05 07:39:55','2018-01-05 07:39:55'),(551,86,19,0.1,0.1,'HIHATCLOSED',0.25,0.2,'G12','2018-01-05 07:39:55','2018-01-05 09:32:21'),(552,86,20,0.1,0.6,'TOM',0.5,0.75,'C6','2018-01-05 07:39:55','2018-01-05 07:39:55'),(553,86,19,0.2,0.1,'MARACAS',0.5,0.5,'Bb8','2018-01-05 07:39:55','2018-01-05 07:39:55'),(554,86,19,0.05,0.12,'HIHATOPEN',0.5,0.25,'E8','2018-01-05 07:39:55','2018-01-05 07:39:55'),(555,86,24,0.05,0.5,'TOMLOW',0.5,0.5,'G4','2018-01-05 07:39:55','2018-01-07 00:38:37'),(556,86,19,0.025,0.06,'HIHATCLOSED',0.75,0.2,'D12','2018-01-05 07:39:55','2018-01-05 09:32:21'),(557,86,19,0.16,0.1,'HIHATCLOSED',1,0.25,'E12','2018-01-05 07:39:55','2018-01-05 07:39:55'),(558,86,18,1,0.2,'SNARE',1,1,'G8','2018-01-05 07:39:55','2018-01-05 07:39:55'),(560,86,19,0.1,0.1,'HIHATCLOSED',1.25,0.2,'G12','2018-01-05 07:39:55','2018-01-05 09:32:21'),(561,86,20,0.05,0.6,'TOM',1.25,0.7,'G5','2018-01-05 07:39:55','2018-01-05 09:32:21'),(562,86,19,0.2,0.1,'MARACAS',1.5,0.5,'Bb8','2018-01-05 07:39:55','2018-01-05 07:39:55'),(563,86,19,0.05,0.12,'HIHATOPEN',1.5,0.25,'E8','2018-01-05 07:39:55','2018-01-05 07:39:55'),(564,86,19,0.12,0.06,'HIHATCLOSED',1.75,0.2,'D12','2018-01-05 07:39:55','2018-01-05 09:32:21'),(565,86,18,0.1,0.2,'SNARE',1.75,0.2,'G5','2018-01-05 07:39:55','2018-01-05 09:32:21'),(566,86,19,0.2,0.1,'HIHATCLOSED',2,0.25,'E12','2018-01-05 07:39:55','2018-01-05 07:39:55'),(569,86,19,0.1,0.12,'HIHATCLOSED',2.25,0.2,'E8','2018-01-05 07:39:55','2018-01-05 09:32:21'),(571,86,23,0.8,1,'KICK',2.5,1,'C2','2018-01-05 07:39:55','2018-01-05 07:39:55'),(572,86,19,0.2,0.1,'MARACAS',2.5,0.5,'Bb8','2018-01-05 07:39:55','2018-01-05 07:39:55'),(573,86,19,0.05,0.1,'HIHATOPEN',2.5,0.25,'G12','2018-01-05 07:39:55','2018-01-05 07:39:55'),(574,86,18,0.3,1,'KICKLONG',2.5,0.5,'C2','2018-01-05 07:39:55','2018-01-05 07:39:55'),(575,86,19,0.025,0.06,'HIHATCLOSED',2.75,0.2,'D12','2018-01-05 07:39:55','2018-01-05 09:32:21'),(577,86,19,0.2,0.1,'HIHATCLOSED',3,0.25,'E12','2018-01-05 07:39:55','2018-01-05 07:39:55'),(578,86,18,1,0.1,'SNARE',3,1,'G8','2018-01-05 07:39:55','2018-01-05 07:39:55'),(580,86,19,0.1,0.1,'MARACAS',3.25,0.5,'Bb8','2018-01-05 07:39:55','2018-01-05 09:32:21'),(581,86,19,0.1,0.1,'HIHATCLOSED',3.25,0.2,'G12','2018-01-05 07:39:55','2018-01-05 09:32:21'),(582,86,20,0.3,0.6,'CONGAHIGH',3.25,0.6,'F5','2018-01-05 07:39:55','2018-01-05 09:32:21'),(583,86,19,0.05,0.12,'HIHATOPEN',3.5,0.5,'E8','2018-01-05 07:39:55','2018-01-05 07:39:55'),(584,86,19,0.2,0.1,'MARACAS',3.5,0.5,'Bb8','2018-01-05 07:39:55','2018-01-05 07:39:55'),(585,86,20,0.1,0.6,'TOM',3.5,0.5,'G3','2018-01-05 07:39:55','2018-01-05 07:39:55'),(586,86,24,0.1,0.5,'TOMLOW',3.5,1,'G4','2018-01-05 07:39:55','2018-01-07 00:38:37'),(587,86,19,0.12,0.06,'HIHATCLOSED',3.75,0.2,'D12','2018-01-05 07:39:55','2018-01-05 09:32:21'),(588,86,23,0.8,1,'KICK',2,1,'C2','2018-01-05 08:36:52','2018-01-05 08:36:52'),(589,87,20,0.1,0.6,'CONGA',0,1,'F5','2018-01-05 08:37:43','2018-01-05 08:37:43'),(590,87,23,1,1,'KICKLONG',0,1,'C2','2018-01-05 08:37:43','2018-01-05 08:37:43'),(591,87,19,0.2,0.1,'HIHATCLOSED',0,0.3,'E12','2018-01-05 08:37:43','2018-01-05 08:37:43'),(592,87,19,0.1,0.1,'HIHATCLOSED',0.25,0.2,'G12','2018-01-05 08:37:43','2018-01-05 09:32:21'),(593,87,20,0.1,0.6,'TOM',0.5,0.75,'C6','2018-01-05 08:37:43','2018-01-05 08:37:43'),(594,87,19,0.2,0.1,'MARACAS',0.5,0.5,'Bb8','2018-01-05 08:37:43','2018-01-05 08:37:43'),(595,87,19,0.05,0.12,'HIHATOPEN',0.5,0.25,'E8','2018-01-05 08:37:43','2018-01-05 08:37:43'),(596,87,24,0.05,0.5,'TOMLOW',0.5,0.5,'G4','2018-01-05 08:37:43','2018-01-07 00:38:37'),(597,87,19,0.025,0.06,'HIHATCLOSED',0.75,0.2,'D12','2018-01-05 08:37:43','2018-01-05 09:32:21'),(598,87,19,0.16,0.1,'HIHATCLOSED',1,0.25,'E12','2018-01-05 08:37:43','2018-01-05 08:37:43'),(599,87,18,1,0.2,'SNARE',1,1,'G8','2018-01-05 08:37:43','2018-01-05 08:37:43'),(601,87,19,0.1,0.1,'HIHATCLOSED',1.25,0.2,'G12','2018-01-05 08:37:43','2018-01-05 09:32:21'),(602,87,20,0.05,0.6,'TOM',1.25,0.7,'G5','2018-01-05 08:37:43','2018-01-05 09:32:21'),(603,87,19,0.2,0.1,'MARACAS',1.5,0.5,'Bb8','2018-01-05 08:37:43','2018-01-05 08:37:43'),(604,87,19,0.05,0.12,'HIHATOPEN',1.5,0.25,'E8','2018-01-05 08:37:43','2018-01-05 08:37:43'),(605,87,19,0.12,0.06,'HIHATCLOSED',1.75,0.2,'D12','2018-01-05 08:37:43','2018-01-05 09:32:21'),(606,87,18,0.1,0.2,'SNARE',1.75,0.2,'G5','2018-01-05 08:37:43','2018-01-05 09:32:21'),(607,87,19,0.2,0.1,'HIHATCLOSED',2,0.25,'E12','2018-01-05 08:37:44','2018-01-05 08:37:44'),(608,87,20,0.05,0.5,'COWBELL',2,1,'F5','2018-01-05 08:37:44','2018-01-05 08:37:44'),(609,87,20,0.2,0.6,'TOM',2,1,'C5','2018-01-05 08:37:44','2018-01-05 08:37:44'),(610,87,19,0.1,0.12,'HIHATCLOSED',2.25,0.2,'E8','2018-01-05 08:37:44','2018-01-05 09:32:21'),(611,87,18,0.2,1,'KICK',2.25,0.2,'F#2','2018-01-05 08:37:44','2018-01-05 09:32:21'),(612,87,23,0.8,1,'KICK',2.5,1,'C2','2018-01-05 08:37:44','2018-01-05 08:37:44'),(613,87,19,0.2,0.1,'MARACAS',2.5,0.5,'Bb8','2018-01-05 08:37:44','2018-01-05 08:37:44'),(614,87,19,0.05,0.1,'HIHATOPEN',2.5,0.25,'G12','2018-01-05 08:37:44','2018-01-05 08:37:44'),(615,87,18,0.3,1,'KICKLONG',2.5,0.5,'C2','2018-01-05 08:37:44','2018-01-05 08:37:44'),(616,87,19,0.025,0.06,'HIHATCLOSED',2.75,0.2,'D12','2018-01-05 08:37:44','2018-01-05 09:32:21'),(618,87,19,0.2,0.1,'HIHATCLOSED',3,0.25,'E12','2018-01-05 08:37:44','2018-01-05 08:37:44'),(621,87,19,0.1,0.1,'MARACAS',3.25,0.5,'Bb8','2018-01-05 08:37:44','2018-01-05 09:32:21'),(622,87,19,0.1,0.1,'HIHATCLOSED',3.25,0.2,'G12','2018-01-05 08:37:44','2018-01-05 09:32:21'),(623,87,20,0.3,0.6,'CONGAHIGH',3.25,0.6,'F5','2018-01-05 08:37:44','2018-01-05 09:32:21'),(624,87,19,0.05,0.12,'HIHATOPEN',3.5,0.5,'E8','2018-01-05 08:37:44','2018-01-05 08:37:44'),(625,87,19,0.2,0.1,'MARACAS',3.5,0.5,'Bb8','2018-01-05 08:37:44','2018-01-05 08:37:44'),(626,87,20,0.1,0.6,'TOM',3.5,0.5,'G3','2018-01-05 08:37:44','2018-01-05 08:37:44'),(627,87,24,0.1,0.5,'TOMLOW',3.5,1,'G4','2018-01-05 08:37:44','2018-01-07 00:38:37'),(628,87,19,0.12,0.06,'HIHATCLOSED',3.75,0.2,'D12','2018-01-05 08:37:44','2018-01-05 09:32:21'),(629,88,23,1,1,'KICKLONG',0,1,'C2','2018-01-05 08:38:44','2018-01-05 08:38:44'),(630,88,20,0.1,0.6,'CONGA',0,1,'F5','2018-01-05 08:38:44','2018-01-05 08:38:44'),(631,88,19,0.2,0.1,'HIHATCLOSED',0,0.3,'E12','2018-01-05 08:38:44','2018-01-05 08:38:44'),(632,88,19,0.1,0.1,'HIHATCLOSED',0.25,0.2,'G12','2018-01-05 08:38:44','2018-01-05 09:32:21'),(633,88,20,0.1,0.6,'TOM',0.5,0.75,'C6','2018-01-05 08:38:44','2018-01-05 08:38:44'),(634,88,19,0.2,0.1,'MARACAS',0.5,0.5,'Bb8','2018-01-05 08:38:44','2018-01-05 08:38:44'),(635,88,19,0.05,0.12,'HIHATOPEN',0.5,0.25,'E8','2018-01-05 08:38:44','2018-01-05 08:38:44'),(636,88,24,0.05,0.5,'TOMLOW',0.5,0.5,'G4','2018-01-05 08:38:44','2018-01-07 00:38:37'),(637,88,19,0.025,0.06,'HIHATCLOSED',0.75,0.2,'D12','2018-01-05 08:38:44','2018-01-05 09:32:21'),(638,88,18,1,0.2,'SNARE',1,1,'G8','2018-01-05 08:38:44','2018-01-05 08:38:44'),(640,88,19,0.16,0.1,'HIHATCLOSED',1,0.25,'E12','2018-01-05 08:38:45','2018-01-05 08:38:45'),(641,88,19,0.1,0.1,'HIHATCLOSED',1.25,0.2,'G12','2018-01-05 08:38:45','2018-01-05 09:32:21'),(642,88,20,0.05,0.6,'TOM',1.25,0.7,'G5','2018-01-05 08:38:45','2018-01-05 09:32:21'),(643,88,19,0.2,0.1,'MARACAS',1.5,0.5,'Bb8','2018-01-05 08:38:45','2018-01-05 08:38:45'),(644,88,19,0.05,0.12,'HIHATOPEN',1.5,0.25,'E8','2018-01-05 08:38:45','2018-01-05 08:38:45'),(645,88,19,0.12,0.06,'HIHATCLOSED',1.75,0.2,'D12','2018-01-05 08:38:45','2018-01-05 09:32:21'),(646,88,18,0.1,0.2,'SNARE',1.75,0.2,'G5','2018-01-05 08:38:45','2018-01-05 09:32:21'),(647,88,23,0.8,1,'KICK',1.75,1,'C2','2018-01-05 08:38:45','2018-01-05 10:06:35'),(648,88,20,0.05,0.5,'COWBELL',2,1,'F5','2018-01-05 08:38:45','2018-01-05 08:38:45'),(649,88,19,0.2,0.1,'HIHATCLOSED',2,0.25,'E12','2018-01-05 08:38:45','2018-01-05 08:38:45'),(650,88,19,0.1,0.12,'HIHATCLOSED',2.25,0.2,'E8','2018-01-05 08:38:45','2018-01-05 09:32:21'),(651,88,18,0.1,1,'SNARE',2.25,0.2,'F#2','2018-01-05 08:38:45','2018-01-05 10:07:09'),(652,88,19,0.2,0.1,'MARACAS',2.5,0.5,'Bb8','2018-01-05 08:38:45','2018-01-05 08:38:45'),(654,88,19,0.05,0.1,'HIHATOPEN',2.5,0.25,'G12','2018-01-05 08:38:45','2018-01-05 08:38:45'),(656,88,19,0.025,0.06,'HIHATCLOSED',2.75,0.2,'D12','2018-01-05 08:38:45','2018-01-05 09:32:21'),(657,88,24,0.08,0.5,'TOMLOW',2.75,0.8,'G4','2018-01-05 08:38:45','2018-01-07 00:38:37'),(658,88,19,0.2,0.1,'HIHATCLOSED',3,0.25,'E12','2018-01-05 08:38:45','2018-01-05 08:38:45'),(659,88,18,1,0.1,'SNARE',3,1,'G8','2018-01-05 08:38:45','2018-01-05 08:38:45'),(661,88,19,0.1,0.1,'MARACAS',3.25,0.5,'Bb8','2018-01-05 08:38:45','2018-01-05 09:32:21'),(662,88,19,0.1,0.1,'HIHATCLOSED',3.25,0.2,'G12','2018-01-05 08:38:45','2018-01-05 09:32:21'),(663,88,20,0.3,0.6,'CONGAHIGH',3.25,0.6,'F5','2018-01-05 08:38:45','2018-01-05 09:32:21'),(664,88,19,0.05,0.12,'HIHATOPEN',3.5,0.5,'E8','2018-01-05 08:38:45','2018-01-05 08:38:45'),(665,88,19,0.2,0.1,'MARACAS',3.5,0.5,'Bb8','2018-01-05 08:38:45','2018-01-05 08:38:45'),(666,88,20,0.1,0.6,'TOM',3.5,0.5,'G3','2018-01-05 08:38:45','2018-01-05 08:38:45'),(667,88,24,0.1,0.5,'TOMLOW',3.5,1,'G4','2018-01-05 08:38:45','2018-01-07 00:38:37'),(668,88,19,0.12,0.06,'HIHATCLOSED',3.75,0.2,'D12','2018-01-05 08:38:45','2018-01-05 09:32:21'),(669,88,18,0.5,0.1,'SNARE',2.5,1,'G8','2018-01-05 08:39:07','2018-01-05 10:07:25'),(724,91,20,0.1,0.6,'CONGA',0,1,'F5','2018-01-05 09:43:58','2018-01-05 09:43:58'),(725,91,23,1,1,'KICKLONG',0,1,'C2','2018-01-05 09:43:58','2018-01-05 09:43:58'),(726,91,19,0.2,0.1,'HIHATCLOSED',0,0.3,'E12','2018-01-05 09:43:58','2018-01-05 09:43:58'),(727,91,19,0.1,0.1,'HIHATCLOSED',0.25,0.2,'G12','2018-01-05 09:43:58','2018-01-05 09:43:58'),(728,91,20,0.1,0.6,'TOM',0.5,0.75,'C6','2018-01-05 09:43:58','2018-01-05 09:43:58'),(729,91,24,0.05,0.5,'TOMLOW',0.5,0.5,'G4','2018-01-05 09:43:58','2018-01-07 00:38:37'),(730,91,19,0.2,0.1,'MARACAS',0.5,0.5,'Bb8','2018-01-05 09:43:58','2018-01-05 09:43:58'),(731,91,19,0.05,0.12,'HIHATOPEN',0.5,0.25,'E8','2018-01-05 09:43:58','2018-01-05 09:43:58'),(732,91,19,0.025,0.06,'HIHATCLOSED',0.75,0.2,'D12','2018-01-05 09:43:58','2018-01-05 09:43:58'),(733,91,19,0.16,0.1,'HIHATCLOSED',1,0.25,'E12','2018-01-05 09:43:58','2018-01-05 09:43:58'),(734,91,18,1,0.2,'SNARE',1,1,'G8','2018-01-05 09:43:58','2018-01-05 09:43:58'),(736,91,19,0.1,0.1,'HIHATCLOSED',1.25,0.2,'G12','2018-01-05 09:43:58','2018-01-05 09:43:58'),(737,91,20,0.05,0.6,'TOM',1.25,0.7,'G5','2018-01-05 09:43:58','2018-01-05 09:43:58'),(738,91,19,0.2,0.1,'MARACAS',1.5,0.5,'Bb8','2018-01-05 09:43:58','2018-01-05 09:43:58'),(739,91,19,0.05,0.12,'HIHATOPEN',1.5,0.25,'E8','2018-01-05 09:43:58','2018-01-05 09:43:58'),(740,91,19,0.12,0.06,'HIHATCLOSED',1.75,0.2,'D12','2018-01-05 09:43:58','2018-01-05 09:43:58'),(741,91,18,0.1,0.2,'SNARE',1.75,0.2,'G5','2018-01-05 09:43:58','2018-01-05 09:43:58'),(742,91,19,0.2,0.1,'HIHATCLOSED',2,0.25,'E12','2018-01-05 09:43:58','2018-01-05 09:43:58'),(743,91,20,0.05,0.5,'COWBELL',2,1,'F5','2018-01-05 09:43:58','2018-01-05 09:43:58'),(744,91,20,0.2,0.6,'TOM',2,1,'C5','2018-01-05 09:43:58','2018-01-05 09:43:58'),(745,91,19,0.1,0.12,'HIHATCLOSED',2.25,0.2,'E8','2018-01-05 09:43:58','2018-01-05 09:43:58'),(746,91,18,0.2,1,'KICK',2.25,0.2,'F#2','2018-01-05 09:43:58','2018-01-05 09:43:58'),(747,91,23,0.8,1,'KICK',2.5,1,'C2','2018-01-05 09:43:58','2018-01-05 09:43:58'),(748,91,19,0.2,0.1,'MARACAS',2.5,0.5,'Bb8','2018-01-05 09:43:58','2018-01-05 09:43:58'),(749,91,19,0.05,0.1,'HIHATOPEN',2.5,0.25,'G12','2018-01-05 09:43:58','2018-01-05 09:43:58'),(750,91,18,0.3,1,'KICKLONG',2.5,0.5,'C2','2018-01-05 09:43:58','2018-01-05 09:43:58'),(751,91,19,0.025,0.06,'HIHATCLOSED',2.75,0.2,'D12','2018-01-05 09:43:58','2018-01-05 09:43:58'),(752,91,24,0.08,0.5,'TOMLOW',2.75,0.8,'G4','2018-01-05 09:43:58','2018-01-07 00:38:37'),(753,91,19,0.2,0.1,'HIHATCLOSED',3,0.25,'E12','2018-01-05 09:43:58','2018-01-05 09:43:58'),(754,91,18,1,0.1,'SNARE',3,1,'G8','2018-01-05 09:43:58','2018-01-05 09:43:58'),(756,91,19,0.1,0.1,'MARACAS',3.25,0.5,'Bb8','2018-01-05 09:43:58','2018-01-05 09:43:58'),(757,91,19,0.1,0.1,'HIHATCLOSED',3.25,0.2,'G12','2018-01-05 09:43:58','2018-01-05 09:43:58'),(758,91,20,0.3,0.6,'CONGAHIGH',3.25,0.6,'F5','2018-01-05 09:43:58','2018-01-05 09:43:58'),(759,91,19,0.05,0.12,'HIHATOPEN',3.5,0.5,'E8','2018-01-05 09:43:58','2018-01-05 09:43:58'),(760,91,19,0.2,0.1,'MARACAS',3.5,0.5,'Bb8','2018-01-05 09:43:58','2018-01-05 09:43:58'),(761,91,20,0.1,0.6,'TOM',3.5,0.5,'G3','2018-01-05 09:43:58','2018-01-05 09:43:58'),(762,91,24,0.1,0.5,'TOMLOW',3.5,1,'G4','2018-01-05 09:43:58','2018-01-07 00:38:37'),(763,91,19,0.12,0.06,'HIHATCLOSED',3.75,0.2,'D12','2018-01-05 09:43:58','2018-01-05 09:43:58'),(764,91,20,0.25,0,'CYMBALCRASH',0,4,'F5','2018-01-05 09:47:17','2018-01-06 23:29:10'),(765,91,19,0.125,0,'CYMBALCRASH',1.5,4,'F5','2018-01-05 09:57:22','2018-01-06 23:29:10'),(766,91,24,0.0625,0,'CYMBALCRASH',3,4,'F5','2018-01-05 09:57:47','2018-01-06 23:29:10'),(768,92,20,0.25,0,'CYMBALCRASH',0,4,'F5','2018-01-05 10:04:13','2018-01-06 23:29:10'),(769,92,20,1,1,'KICKLONG',1,4,'C5','2018-01-05 10:04:13','2018-01-05 15:51:19'),(770,92,19,0.2,0.1,'HIHATCLOSED',0,0.3,'E12','2018-01-05 10:04:13','2018-01-05 10:04:13'),(771,92,19,0.1,0.1,'HIHATCLOSED',0.25,0.2,'G12','2018-01-05 10:04:13','2018-01-05 10:04:13'),(772,92,20,0.1,0.6,'TOM',0.5,0.75,'C6','2018-01-05 10:04:13','2018-01-05 10:04:13'),(773,92,24,0.05,0.5,'TOMLOW',0.5,0.5,'G4','2018-01-05 10:04:13','2018-01-07 00:38:37'),(774,92,19,0.2,0.1,'MARACAS',0.5,0.5,'Bb8','2018-01-05 10:04:13','2018-01-05 10:04:13'),(775,92,19,0.05,0.12,'HIHATOPEN',0.5,0.25,'E8','2018-01-05 10:04:13','2018-01-05 10:04:13'),(776,92,19,0.025,0.06,'HIHATCLOSED',0.75,0.2,'D12','2018-01-05 10:04:13','2018-01-05 10:04:13'),(777,92,19,0.16,0.1,'HIHATCLOSED',1,0.25,'E12','2018-01-05 10:04:13','2018-01-05 10:04:13'),(780,92,20,0.05,0.6,'TOM',1.25,0.7,'G5','2018-01-05 10:04:13','2018-01-05 10:04:13'),(781,92,19,0.1,0.1,'HIHATCLOSED',1.25,0.2,'G12','2018-01-05 10:04:13','2018-01-05 10:04:13'),(782,92,19,0.2,0.1,'MARACAS',1.5,0.5,'Bb8','2018-01-05 10:04:13','2018-01-05 10:04:13'),(783,92,19,0.05,0.12,'HIHATOPEN',1.5,0.25,'E8','2018-01-05 10:04:13','2018-01-05 10:04:13'),(784,92,19,0.0625,0,'CYMBALCRASH',1.5,4,'F5','2018-01-05 10:04:13','2018-01-06 23:29:10'),(785,92,19,0.12,0.06,'HIHATCLOSED',1.75,0.2,'D12','2018-01-05 10:04:13','2018-01-05 10:04:13'),(786,92,18,0.1,0.2,'SNARE',1.75,0.2,'G5','2018-01-05 10:04:13','2018-01-05 10:04:13'),(787,92,19,0.2,0.1,'HIHATCLOSED',2,0.25,'E12','2018-01-05 10:04:13','2018-01-05 10:04:13'),(788,92,20,0.05,0.5,'COWBELL',2,1,'F5','2018-01-05 10:04:14','2018-01-05 10:04:14'),(789,92,20,0.2,0.6,'TOM',2,1,'C5','2018-01-05 10:04:14','2018-01-05 10:04:14'),(790,92,19,0.1,0.12,'HIHATCLOSED',2.25,0.2,'E8','2018-01-05 10:04:14','2018-01-05 10:04:14'),(791,92,18,0.2,1,'KICK',2.25,0.2,'F#2','2018-01-05 10:04:14','2018-01-05 10:04:14'),(792,92,19,0.05,0.1,'HIHATOPEN',2.5,0.25,'G12','2018-01-05 10:04:14','2018-01-05 10:04:14'),(793,92,18,0.3,1,'KICKLONG',2.5,0.5,'C2','2018-01-05 10:04:14','2018-01-05 10:04:14'),(794,92,19,0.2,0.1,'MARACAS',2.5,0.5,'Bb8','2018-01-05 10:04:14','2018-01-05 10:04:14'),(795,92,23,0.8,1,'KICK',2.5,1,'C2','2018-01-05 10:04:14','2018-01-05 10:04:14'),(796,92,19,0.025,0.06,'HIHATCLOSED',2.75,0.2,'D12','2018-01-05 10:04:14','2018-01-05 10:04:14'),(797,92,24,0.08,0.5,'TOMLOW',2.75,0.8,'G4','2018-01-05 10:04:14','2018-01-07 00:38:37'),(798,92,24,0.03,0,'CYMBALCRASH',3,4,'F5','2018-01-05 10:04:14','2018-01-06 23:29:10'),(800,92,18,1,0.1,'SNARE',3,1,'G8','2018-01-05 10:04:14','2018-01-05 10:04:14'),(801,92,19,0.2,0.1,'HIHATCLOSED',3,0.25,'E12','2018-01-05 10:04:14','2018-01-05 10:04:14'),(802,92,19,0.1,0.1,'MARACAS',3.25,0.5,'Bb8','2018-01-05 10:04:14','2018-01-05 10:04:14'),(803,92,19,0.1,0.1,'HIHATCLOSED',3.25,0.2,'G12','2018-01-05 10:04:14','2018-01-05 10:04:14'),(804,92,20,0.3,0.6,'CONGAHIGH',3.25,0.6,'F5','2018-01-05 10:04:14','2018-01-05 10:04:14'),(805,92,19,0.05,0.12,'HIHATOPEN',3.5,0.5,'E8','2018-01-05 10:04:14','2018-01-05 10:04:14'),(806,92,19,0.2,0.1,'MARACAS',3.5,0.5,'Bb8','2018-01-05 10:04:14','2018-01-05 10:04:14'),(807,92,20,0.1,0.6,'TOM',3.5,0.5,'G3','2018-01-05 10:04:14','2018-01-05 10:04:14'),(808,92,24,0.1,0.5,'TOMLOW',3.5,1,'G4','2018-01-05 10:04:14','2018-01-07 00:38:37'),(809,92,19,0.12,0.06,'HIHATCLOSED',3.75,0.2,'D12','2018-01-05 10:04:14','2018-01-05 10:04:14'),(1048,99,37,1,1,'KICKLONG',0,4,'C5','2018-01-05 14:54:11','2018-01-07 02:14:01'),(1050,99,36,0.2,0.1,'HIHATCLOSED',0,0.3,'E12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1052,99,36,0.1,0.1,'HIHATCLOSED',0.25,0.2,'G12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1053,100,37,1,1,'KICKLONG',0,4,'C5','2018-01-05 14:54:11','2018-01-07 02:13:42'),(1054,102,37,1,1,'KICKLONG',0,4,'C5','2018-01-05 14:54:11','2018-01-07 02:14:39'),(1056,99,37,0.1,0.6,'TOM',0.5,0.75,'C6','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1057,100,36,0.2,0.1,'HIHATCLOSED',0,0.3,'E12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1058,101,36,0.2,0.1,'HIHATCLOSED',0,0.3,'E12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1060,99,39,0.05,0.5,'TOMLOW',0.5,0.5,'G4','2018-01-05 14:54:11','2018-01-07 00:38:37'),(1062,100,36,0.1,0.1,'HIHATCLOSED',0.25,0.2,'G12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1063,102,36,0.2,0.1,'HIHATCLOSED',0,0.3,'E12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1064,101,37,1,1,'KICKLONG',0,4,'c5','2018-01-05 14:54:11','2018-01-07 02:14:16'),(1065,99,36,0.2,0.1,'MARACAS',0.5,0.5,'Bb8','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1066,103,37,0.25,0,'CYMBALCRASH',0,4,'F5','2018-01-05 14:54:11','2018-01-06 23:29:10'),(1067,100,37,0.1,0.6,'TOM',0.5,0.75,'C6','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1068,102,36,0.1,0.1,'HIHATCLOSED',0.25,0.2,'G12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1069,101,36,0.1,0.1,'HIHATCLOSED',0.25,0.2,'G12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1070,99,36,0.05,0.12,'HIHATOPEN',0.5,0.25,'E8','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1071,103,37,1,1,'KICKLONG',0,4,'C5','2018-01-05 14:54:11','2018-01-07 02:14:51'),(1072,100,36,0.2,0.1,'MARACAS',0.5,0.5,'Bb8','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1073,102,37,0.1,0.6,'TOM',0.5,0.75,'C6','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1074,101,37,0.1,0.6,'TOM',0.5,0.75,'C6','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1075,99,36,0.025,0.06,'HIHATCLOSED',0.75,0.2,'D12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1076,103,36,0.2,0.1,'HIHATCLOSED',0,0.3,'E12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1077,100,36,0.05,0.12,'HIHATOPEN',0.5,0.25,'E8','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1078,104,37,1,1,'KICKLONG',0,4,'C5','2018-01-05 14:54:11','2018-01-07 02:15:06'),(1079,102,36,0.2,0.1,'MARACAS',0.5,0.5,'Bb8','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1080,101,36,0.2,0.1,'MARACAS',0.5,0.5,'Bb8','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1081,103,36,0.1,0.1,'HIHATCLOSED',0.25,0.2,'G12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1082,99,36,0.16,0.1,'HIHATCLOSED',1,0.25,'E12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1083,100,39,0.05,0.5,'TOMLOW',0.5,0.5,'G4','2018-01-05 14:54:11','2018-01-07 00:38:37'),(1084,102,36,0.05,0.12,'HIHATOPEN',0.5,0.25,'E8','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1085,101,36,0.05,0.12,'HIHATOPEN',0.5,0.25,'E8','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1086,103,37,0.1,0.6,'TOM',0.5,0.75,'C6','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1087,104,37,0.25,0,'CYMBALCRASH',0,4,'F5','2018-01-05 14:54:11','2018-01-06 23:29:10'),(1089,100,36,0.025,0.06,'HIHATCLOSED',0.75,0.2,'D12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1090,102,39,0.05,0.5,'TOMLOW',0.5,0.5,'G4','2018-01-05 14:54:11','2018-01-07 00:38:37'),(1091,101,39,0.05,0.5,'TOMLOW',0.5,0.5,'G4','2018-01-05 14:54:11','2018-01-07 00:38:37'),(1092,103,39,0.05,0.5,'TOMLOW',0.5,0.5,'G4','2018-01-05 14:54:11','2018-01-07 00:38:37'),(1095,104,36,0.2,0.1,'HIHATCLOSED',0,0.3,'E12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1096,102,36,0.025,0.06,'HIHATCLOSED',0.75,0.2,'D12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1097,101,36,0.025,0.06,'HIHATCLOSED',0.75,0.2,'D12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1098,103,36,0.2,0.1,'MARACAS',0.5,0.5,'Bb8','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1099,99,36,0.1,0.1,'HIHATCLOSED',1.25,0.2,'G12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1101,102,36,0.16,0.1,'HIHATCLOSED',1,0.25,'E12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1103,103,36,0.05,0.12,'HIHATOPEN',0.5,0.25,'E8','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1104,99,37,0.05,0.6,'TOM',1.25,0.7,'G5','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1105,104,36,0.1,0.1,'HIHATCLOSED',0.25,0.2,'G12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1106,100,36,0.16,0.1,'HIHATCLOSED',1,0.25,'E12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1109,103,36,0.025,0.06,'HIHATCLOSED',0.75,0.2,'D12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1110,99,36,0.2,0.1,'MARACAS',1.5,0.5,'Bb8','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1111,100,36,0.1,0.1,'HIHATCLOSED',1.25,0.2,'G12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1112,104,37,0.1,0.6,'TOM',0.5,0.75,'C6','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1113,101,36,0.16,0.1,'HIHATCLOSED',1,0.25,'E12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1115,103,36,0.16,0.1,'HIHATCLOSED',1,0.25,'E12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1116,99,36,0.05,0.12,'HIHATOPEN',1.5,0.25,'E8','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1117,100,37,0.05,0.6,'TOM',1.25,0.7,'G5','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1118,101,36,0.1,0.1,'HIHATCLOSED',1.25,0.2,'G12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1119,102,36,0.1,0.1,'HIHATCLOSED',1.25,0.2,'G12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1120,99,36,0.12,0.06,'HIHATCLOSED',1.75,0.2,'D12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1122,100,36,0.2,0.1,'MARACAS',1.5,0.5,'Bb8','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1123,104,39,0.05,0.5,'TOMLOW',0.5,0.5,'G4','2018-01-05 14:54:11','2018-01-07 00:38:37'),(1126,101,37,0.05,0.6,'TOM',1.25,0.7,'G5','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1127,102,37,0.05,0.6,'TOM',1.25,0.7,'G5','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1128,100,36,0.05,0.12,'HIHATOPEN',1.5,0.25,'E8','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1129,104,36,0.2,0.1,'MARACAS',0.5,0.5,'Bb8','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1130,99,36,0.2,0.1,'HIHATCLOSED',2,0.25,'E12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1131,103,37,0.05,0.6,'TOM',1.25,0.7,'G5','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1132,101,36,0.2,0.1,'MARACAS',1.5,0.5,'Bb8','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1133,102,36,0.2,0.1,'MARACAS',1.5,0.5,'Bb8','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1134,100,36,0.12,0.06,'HIHATCLOSED',1.75,0.2,'D12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1136,103,36,0.1,0.1,'HIHATCLOSED',1.25,0.2,'G12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1137,104,36,0.05,0.12,'HIHATOPEN',0.5,0.25,'E8','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1139,102,36,0.05,0.12,'HIHATOPEN',1.5,0.25,'E8','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1140,101,36,0.05,0.12,'HIHATOPEN',1.5,0.25,'E8','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1141,99,37,0.2,0.6,'TOM',2,1,'C5','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1142,103,36,0.2,0.1,'MARACAS',1.5,0.5,'Bb8','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1144,102,36,0.12,0.06,'HIHATCLOSED',1.75,0.2,'D12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1145,101,36,0.12,0.06,'HIHATCLOSED',1.75,0.2,'D12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1146,104,36,0.025,0.06,'HIHATCLOSED',0.75,0.2,'D12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1147,99,36,0.1,0.12,'HIHATCLOSED',2.25,0.2,'E8','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1148,103,36,0.05,0.12,'HIHATOPEN',1.5,0.25,'E8','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1152,103,36,0.125,0,'CYMBALCRASH',1.5,4,'F5','2018-01-05 14:54:11','2018-01-06 23:29:10'),(1154,101,36,0.2,0.1,'HIHATCLOSED',2,0.25,'E12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1155,104,36,0.16,0.1,'HIHATCLOSED',1,0.25,'E12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1156,100,36,0.2,0.1,'HIHATCLOSED',2,0.25,'E12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1158,103,36,0.12,0.06,'HIHATCLOSED',1.75,0.2,'D12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1160,101,37,0.2,0.6,'TOM',2,1,'C5','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1161,100,36,0.1,0.12,'HIHATCLOSED',2.25,0.2,'E8','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1162,102,36,0.2,0.1,'HIHATCLOSED',2,0.25,'E12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1163,104,36,0.1,0.1,'HIHATCLOSED',1.25,0.2,'G12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1164,99,36,0.2,0.1,'MARACAS',2.5,0.5,'Bb8','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1166,100,36,0.2,0.1,'MARACAS',2.5,0.5,'Bb8','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1167,101,37,0.05,0.5,'COWBELL',2,1,'F5','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1168,102,37,0.05,0.5,'COWBELL',2,1,'F5','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1169,99,36,0.05,0.1,'HIHATOPEN',2.5,0.25,'G12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1170,103,36,0.2,0.1,'HIHATCLOSED',2,0.25,'E12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1171,100,36,0.05,0.1,'HIHATOPEN',2.5,0.25,'G12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1172,104,37,0.05,0.6,'TOM',1.25,0.7,'G5','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1173,102,36,0.1,0.12,'HIHATCLOSED',2.25,0.2,'E8','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1174,101,36,0.1,0.12,'HIHATCLOSED',2.25,0.2,'E8','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1175,103,37,0.05,0.5,'COWBELL',2,1,'F5','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1180,104,36,0.2,0.1,'MARACAS',1.5,0.5,'Bb8','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1181,103,37,0.2,0.6,'TOM',2,1,'C5','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1182,99,36,0.025,0.06,'HIHATCLOSED',2.75,0.2,'D12','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1186,103,36,0.1,0.12,'HIHATCLOSED',2.25,0.2,'E8','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1187,104,36,0.05,0.12,'HIHATOPEN',1.5,0.25,'E8','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1188,99,39,0.08,0.5,'TOMLOW',2.75,0.8,'G4','2018-01-05 14:54:12','2018-01-07 00:38:37'),(1189,100,36,0.025,0.06,'HIHATCLOSED',2.75,0.2,'D12','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1190,101,36,0.2,0.1,'MARACAS',2.5,0.5,'Bb8','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1192,99,36,0.2,0.1,'HIHATCLOSED',3,0.25,'E12','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1194,100,36,0.2,0.1,'HIHATCLOSED',3,0.25,'E12','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1195,101,36,0.05,0.1,'HIHATOPEN',2.5,0.25,'G12','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1196,103,36,0.05,0.1,'HIHATOPEN',2.5,0.25,'G12','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1197,104,36,0.0625,0,'CYMBALCRASH',1.5,4,'F5','2018-01-05 14:54:12','2018-01-06 23:29:10'),(1198,102,36,0.05,0.1,'HIHATOPEN',2.5,0.25,'G12','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1203,102,36,0.2,0.1,'MARACAS',2.5,0.5,'Bb8','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1204,104,36,0.12,0.06,'HIHATCLOSED',1.75,0.2,'D12','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1207,101,36,0.025,0.06,'HIHATCLOSED',2.75,0.2,'D12','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1208,103,36,0.2,0.1,'MARACAS',2.5,0.5,'Bb8','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1209,102,36,0.025,0.06,'HIHATCLOSED',2.75,0.2,'D12','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1210,99,36,0.1,0.1,'MARACAS',3.25,0.5,'Bb8','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1211,100,36,0.1,0.1,'MARACAS',3.25,0.5,'Bb8','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1212,101,36,0.2,0.1,'HIHATCLOSED',3,0.25,'E12','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1215,102,39,0.08,0.5,'TOMLOW',2.75,0.8,'G4','2018-01-05 14:54:12','2018-01-07 00:38:37'),(1216,99,36,0.1,0.1,'HIHATCLOSED',3.25,0.2,'G12','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1217,100,36,0.1,0.1,'HIHATCLOSED',3.25,0.2,'G12','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1218,101,36,0.1,0.1,'MARACAS',3.25,0.5,'Bb8','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1219,103,36,0.025,0.06,'HIHATCLOSED',2.75,0.2,'D12','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1220,102,36,0.2,0.1,'HIHATCLOSED',3,0.25,'E12','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1221,99,37,0.3,0.6,'CONGAHIGH',3.25,0.6,'F5','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1222,104,36,0.2,0.1,'HIHATCLOSED',2,0.25,'E12','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1223,100,37,0.3,0.6,'CONGAHIGH',3.25,0.6,'F5','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1224,101,36,0.1,0.1,'HIHATCLOSED',3.25,0.2,'G12','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1225,103,39,0.08,0.5,'TOMLOW',2.75,0.8,'G4','2018-01-05 14:54:12','2018-01-07 00:38:37'),(1227,99,36,0.05,0.12,'HIHATOPEN',3.5,0.5,'E8','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1228,100,36,0.05,0.12,'HIHATOPEN',3.5,0.5,'E8','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1229,101,37,0.3,0.6,'CONGAHIGH',3.25,0.6,'F5','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1230,103,39,0.0625,0,'CYMBALCRASH',3,4,'F5','2018-01-05 14:54:12','2018-01-06 23:29:10'),(1232,104,37,0.05,0.5,'COWBELL',2,1,'F5','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1233,99,36,0.2,0.1,'MARACAS',3.5,0.5,'Bb8','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1234,100,36,0.2,0.1,'MARACAS',3.5,0.5,'Bb8','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1235,101,36,0.05,0.12,'HIHATOPEN',3.5,0.5,'E8','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1236,102,36,0.1,0.1,'MARACAS',3.25,0.5,'Bb8','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1238,99,37,0.1,0.6,'TOM',3.5,0.5,'G3','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1239,104,37,0.2,0.6,'TOM',2,1,'C5','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1240,102,36,0.1,0.1,'HIHATCLOSED',3.25,0.2,'G12','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1241,100,37,0.1,0.6,'TOM',3.5,0.5,'G3','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1242,101,36,0.2,0.1,'MARACAS',3.5,0.5,'Bb8','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1244,99,39,0.1,0.5,'TOMLOW',3.5,1,'G4','2018-01-05 14:54:12','2018-01-07 00:38:37'),(1245,102,37,0.3,0.6,'CONGAHIGH',3.25,0.6,'F5','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1246,104,36,0.1,0.12,'HIHATCLOSED',2.25,0.2,'E8','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1247,100,39,0.1,0.5,'TOMLOW',3.5,1,'G4','2018-01-05 14:54:12','2018-01-07 00:38:37'),(1248,103,36,0.2,0.1,'HIHATCLOSED',3,0.25,'E12','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1249,99,36,0.12,0.06,'HIHATCLOSED',3.75,0.2,'D12','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1250,101,37,0.1,0.6,'TOM',3.5,0.5,'G3','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1251,100,36,0.12,0.06,'HIHATCLOSED',3.75,0.2,'D12','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1252,102,36,0.05,0.12,'HIHATOPEN',3.5,0.5,'E8','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1253,103,36,0.1,0.1,'MARACAS',3.25,0.5,'Bb8','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1254,101,39,0.1,0.5,'TOMLOW',3.5,1,'G4','2018-01-05 14:54:12','2018-01-07 00:38:37'),(1256,102,36,0.2,0.1,'MARACAS',3.5,0.5,'Bb8','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1257,103,36,0.1,0.1,'HIHATCLOSED',3.25,0.2,'G12','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1258,101,36,0.12,0.06,'HIHATCLOSED',3.75,0.2,'D12','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1259,104,36,0.05,0.1,'HIHATOPEN',2.5,0.25,'G12','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1260,102,37,0.1,0.6,'TOM',3.5,0.5,'G3','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1261,103,37,0.3,0.6,'CONGAHIGH',3.25,0.6,'F5','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1262,102,39,0.1,0.5,'TOMLOW',3.5,1,'G4','2018-01-05 14:54:12','2018-01-07 00:38:37'),(1263,103,36,0.05,0.12,'HIHATOPEN',3.5,0.5,'E8','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1265,102,36,0.12,0.06,'HIHATCLOSED',3.75,0.2,'D12','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1266,103,36,0.2,0.1,'MARACAS',3.5,0.5,'Bb8','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1267,104,36,0.2,0.1,'MARACAS',2.5,0.5,'Bb8','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1268,103,37,0.1,0.6,'TOM',3.5,0.5,'G3','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1269,103,39,0.1,0.5,'TOMLOW',3.5,1,'G4','2018-01-05 14:54:12','2018-01-07 00:38:37'),(1271,103,36,0.12,0.06,'HIHATCLOSED',3.75,0.2,'D12','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1272,104,36,0.025,0.06,'HIHATCLOSED',2.75,0.2,'D12','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1273,104,39,0.08,0.5,'TOMLOW',2.75,0.8,'G4','2018-01-05 14:54:12','2018-01-07 00:38:37'),(1275,104,36,0.2,0.1,'HIHATCLOSED',3,0.25,'E12','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1277,104,39,0.03,0,'CYMBALCRASH',3,4,'F5','2018-01-05 14:54:12','2018-01-06 23:29:10'),(1278,104,36,0.1,0.1,'MARACAS',3.25,0.5,'Bb8','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1279,104,36,0.1,0.1,'HIHATCLOSED',3.25,0.2,'G12','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1280,104,37,0.3,0.6,'CONGAHIGH',3.25,0.6,'F5','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1281,104,36,0.05,0.12,'HIHATOPEN',3.5,0.5,'E8','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1282,104,36,0.2,0.1,'MARACAS',3.5,0.5,'Bb8','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1283,104,37,0.1,0.6,'TOM',3.5,0.5,'G3','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1284,104,39,0.1,0.5,'TOMLOW',3.5,1,'G4','2018-01-05 14:54:12','2018-01-07 00:38:37'),(1285,104,36,0.12,0.06,'HIHATCLOSED',3.75,0.2,'D12','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1286,99,37,0.8,0,'SNARE',2,1,'g5','2018-01-07 02:09:36','2018-01-07 02:09:36'),(1287,100,37,0.4,0,'SNARE',2,1,'g5','2018-01-07 02:10:12','2018-01-07 02:13:24'),(1288,101,37,0.8,0,'SNARE',2,1,'g5','2018-01-07 02:10:51','2018-01-07 02:10:51'),(1289,101,37,0.4,0,'SNARE',3.5,1,'g5','2018-01-07 02:11:06','2018-01-07 02:11:06'),(1290,102,37,0.8,0,'SNARE',2,1,'g5','2018-01-07 02:11:31','2018-01-07 02:11:31'),(1291,103,37,0.8,0,'SNARE',2,1,'g5','2018-01-07 02:12:11','2018-01-07 02:12:11'),(1292,104,37,0.4,0,'SNARE',2,1,'g5','2018-01-07 02:12:55','2018-01-07 02:13:04');
+/*!40000 ALTER TABLE `pattern_event` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -925,7 +1675,7 @@ UNLOCK TABLES;
 
 LOCK TABLES `schema_version` WRITE;
 /*!40000 ALTER TABLE `schema_version` DISABLE KEYS */;
-INSERT INTO `schema_version` VALUES (1,'1','user auth','SQL','V1__user_auth.sql',447090788,'ebroot','2017-02-04 17:36:22',142,1),(2,'2','account','SQL','V2__account.sql',-728725086,'ebroot','2017-02-04 17:36:23',117,1),(3,'3','credit','SQL','V3__credit.sql',-385750700,'ebroot','2017-02-04 17:36:23',54,1),(4,'4','library idea phase meme voice event','SQL','V4__library_idea_phase_meme_voice_event.sql',-1534808241,'ebroot','2017-02-04 17:36:23',387,1),(5,'5','instrument meme audio chord event','SQL','V5__instrument_meme_audio_chord_event.sql',-1907897642,'ebroot','2017-02-04 17:36:23',226,1),(6,'6','chain link chord choice','SQL','V6__chain_link_chord_choice.sql',-2093488888,'ebroot','2017-02-04 17:36:24',525,1),(7,'7','arrangement morph point pick','SQL','V7__arrangement_morph_point_pick.sql',-1775760070,'ebroot','2017-02-04 17:36:24',162,1),(8,'8','user auth column renaming','SQL','V8__user_auth_column_renaming.sql',-1774157694,'ebroot','2017-02-04 17:36:24',64,1),(9,'9','user role','SQL','V9__user_role.sql',-2040912989,'ebroot','2017-02-04 17:36:24',51,1),(10,'10','user access token','SQL','V10__user_access_token.sql',-1589285188,'ebroot','2017-02-04 17:36:24',36,1),(11,'11','user auth column renaming','SQL','V11__user_auth_column_renaming.sql',342405360,'ebroot','2017-02-04 17:36:24',13,1),(12,'12','RENAME account user TO account user role','SQL','V12__RENAME_account_user_TO_account_user_role.sql',569433197,'ebroot','2017-02-04 17:36:24',48,1),(13,'14','ALTER user DROP COLUMN admin','SQL','V14__ALTER_user_DROP_COLUMN_admin.sql',660577316,'ebroot','2017-02-04 17:36:25',54,1),(14,'15','ALTER account ADD COLUMN name','SQL','V15__ALTER_account_ADD_COLUMN_name.sql',2013415455,'ebroot','2017-02-04 17:36:25',54,1),(15,'16','ALTER library ADD COLUMN name','SQL','V16__ALTER_library_ADD_COLUMN_name.sql',652666977,'ebroot','2017-02-04 17:36:25',48,1),(16,'17','RENAME ALTER account user role TO account user','SQL','V17__RENAME_ALTER_account_user_role_TO_account_user.sql',-527669089,'ebroot','2017-02-04 17:36:25',89,1),(17,'18','ALTER chain BELONGS TO account HAS MANY library','SQL','V18__ALTER_chain_BELONGS_TO_account_HAS_MANY_library.sql',407528039,'ebroot','2017-02-04 17:36:25',130,1),(18,'19','DROP credit ALTER idea instrument belong directly to user','SQL','V19__DROP_credit_ALTER_idea_instrument_belong_directly_to_user.sql',-940090323,'ebroot','2017-02-04 17:36:25',382,1),(19,'20','ALTER phase choice BIGINT offset total','SQL','V20__ALTER_phase_choice_BIGINT_offset_total.sql',1174421309,'ebroot','2017-02-04 17:36:26',241,1),(20,'21','ALTER DROP order FORM instrument idea phase meme','SQL','V21__ALTER_DROP_order_FORM_instrument_idea_phase_meme.sql',-825269746,'ebroot','2017-02-04 17:36:26',143,1),(21,'22','ALTER phase optional values','SQL','V22__ALTER_phase_optional_values.sql',2115016285,'ebroot','2017-02-05 23:06:15',315,1),(22,'23','ALTER audio COLUMNS waveformUrl','SQL','V23__ALTER_audio_COLUMNS_waveformUrl.sql',-1407515541,'ebroot','2017-02-07 03:21:14',29,1),(23,'24','ALTER audio FLOAT start length','SQL','V24__ALTER_audio_FLOAT_start_length.sql',-2000888804,'ebroot','2017-02-07 03:21:14',125,1),(24,'25','ALTER chain ADD COLUMNS name state startat stopat','SQL','V25__ALTER_chain_ADD_COLUMNS_name_state_startat_stopat.sql',1356557345,'ebroot','2017-02-10 00:03:21',205,1),(25,'26','ALTER link FLOAT start finish','SQL','V26__ALTER_link_FLOAT_start_finish.sql',-1185447213,'ebroot','2017-02-10 00:03:21',107,1),(26,'27','ALTER all tables ADD COLUMN createdat updatedat','SQL','V27__ALTER_all_tables_ADD_COLUMN_createdat_updatedat.sql',-794640015,'ebroot','2017-02-10 00:03:25',3684,1),(27,'28','ALTER chain link TIMESTAMP microsecond precision','SQL','V28__ALTER_chain_link_TIMESTAMP_microsecond_precision.sql',-1850945451,'ebroot','2017-02-13 19:04:58',239,1),(28,'29','ALTER arrangement DROP COLUMNS name density tempo','SQL','V29__ALTER_arrangement_DROP_COLUMNS_name_density_tempo.sql',-1660342705,'ebroot','2017-02-14 04:55:49',175,1),(29,'30','ALTER pick FLOAT start length','SQL','V30__ALTER_pick_FLOAT_start_length.sql',-1842518453,'ebroot','2017-02-14 04:55:50',126,1),(30,'31','ALTER pick ADD BELONGS TO arrangement','SQL','V31__ALTER_pick_ADD_BELONGS_TO_arrangement.sql',1953331613,'ebroot','2017-02-14 04:55:50',139,1),(31,'32','ALTER link OPTIONAL total density key tempo','SQL','V32__ALTER_link_OPTIONAL_total_density_key_tempo.sql',-98188439,'ebroot','2017-02-19 22:29:51',207,1),(32,'33','ALTER link UNIQUE chain offset','SQL','V33__ALTER_link_UNIQUE_chain_offset.sql',1398816976,'ebroot','2017-02-19 22:29:51',29,1),(33,'34','ALTER audio COLUMNS waveformKey','SQL','V34__ALTER_audio_COLUMNS_waveformKey.sql',66858661,'ebroot','2017-04-21 16:24:11',40,1),(34,'35','CREATE TABLE chain config','SQL','V35__CREATE_TABLE_chain_config.sql',-2134731909,'ebroot','2017-04-28 14:57:19',58,1),(35,'36','CREATE TABLE chain idea','SQL','V36__CREATE_TABLE_chain_idea.sql',2038472760,'ebroot','2017-04-28 14:57:19',52,1),(36,'37','CREATE TABLE chain instrument','SQL','V37__CREATE_TABLE_chain_instrument.sql',1486524130,'ebroot','2017-04-28 14:57:19',53,1),(37,'38','ALTER chain ADD COLUMN type','SQL','V38__ALTER_chain_ADD_COLUMN_type.sql',608321610,'ebroot','2017-04-28 14:57:19',78,1),(38,'39','ALTER phase MODIFY COLUMN total No Longer Required','SQL','V39__ALTER_phase_MODIFY_COLUMN_total_No_Longer_Required.sql',-1504223876,'ebroot','2017-05-01 19:09:45',95,1),(39,'40','ALTER choice MODIFY COLUMN phase offset ULONG','SQL','V40__ALTER_choice_MODIFY_COLUMN_phase_offset_ULONG.sql',-240451169,'ebroot','2017-05-18 00:34:09',63,1),(40,'41','CREATE TABLE link meme','SQL','V41__CREATE_TABLE_link_meme.sql',-18883080,'ebroot','2017-05-18 00:34:09',51,1),(41,'42','ALTER phase link INT total','SQL','V42__ALTER_phase_link_INT_total.sql',-1400879099,'ebroot','2017-05-18 00:34:10',122,1),(42,'43','CREATE TABLE link message','SQL','V43__CREATE_TABLE_link_message.sql',1616909549,'ebroot','2017-05-18 00:34:10',46,1),(43,'44','ALTER pick BELONGS TO arrangement DROP morph point','SQL','V44__ALTER_pick_BELONGS_TO_arrangement_DROP_morph_point.sql',449955118,'ebroot','2017-05-26 00:58:12',563,1),(44,'45','ALTER link ADD COLUMN waveform key','SQL','V45__ALTER_link_ADD_COLUMN_waveform_key.sql',-98370,'ebroot','2017-06-01 16:53:07',811,1),(45,'46','ALTER audio ADD COLUMN state','SQL','V46__ALTER_audio_ADD_COLUMN_state.sql',-1300058820,'ebroot','2017-06-04 21:28:24',161,1),(46,'47','ALTER chain ADD COLUMN embed key','SQL','V47__ALTER_chain_ADD_COLUMN_embed_key.sql',317233573,'ebroot','2017-10-15 09:45:02',903,1),(47,'48','CREATE TABLE platform message','SQL','V48__CREATE_TABLE_platform_message.sql',-1332226532,'ebroot','2017-12-02 07:28:17',114,1),(48,'49','CREATE pattern DEPRECATES idea','SQL','V49__CREATE_pattern_DEPRECATES_idea.sql',517513730,'ebroot','2017-12-07 05:37:18',3380,1),(49,'50','REFACTOR voice BELONGS TO pattern','SQL','V50__REFACTOR_voice_BELONGS_TO_pattern.sql',1202195806,'ebroot','2018-01-03 21:36:08',712,1),(50,'51','DROP TABLE pick','SQL','V51__DROP_TABLE_pick.sql',-319463966,'ebroot','2018-01-04 03:41:36',849,1),(51,'52','ALTER phase ADD COLUMN type','SQL','V52__ALTER_phase_ADD_COLUMN_type.sql',-95957482,'ebroot','2018-01-05 07:32:08',602,1),(52,'53','ALTER chord MODIFY COLUMN position INTEGER','SQL','V53__ALTER_chord_MODIFY_COLUMN_position_INTEGER.sql',523400926,'ebroot','2018-01-10 21:53:43',4877,1),(53,'54','RENAME voice event TO phase event','SQL','V54__RENAME_voice_event_TO_phase_event.sql',-370585949,'ebroot','2018-01-17 06:06:10',56,1),(54,'55','ALTER pattern phase ADD COLUMN state','SQL','V55__ALTER_pattern_phase_ADD_COLUMN_state.sql',-1299872216,'ebroot','2018-02-03 00:56:45',460,1),(55,'56','ALTER chord MODIFY COLUMN position FLOAT','SQL','V56__ALTER_chord_MODIFY_COLUMN_position_FLOAT.sql',-894225407,'ebroot','2018-02-06 21:11:43',15080,1);
+INSERT INTO `schema_version` VALUES (1,'1','user auth','SQL','V1__user_auth.sql',447090788,'ebroot','2017-02-04 17:36:22',142,1),(2,'2','account','SQL','V2__account.sql',-728725086,'ebroot','2017-02-04 17:36:23',117,1),(3,'3','credit','SQL','V3__credit.sql',-385750700,'ebroot','2017-02-04 17:36:23',54,1),(4,'4','library idea phase meme voice event','SQL','V4__library_idea_phase_meme_voice_event.sql',-1534808241,'ebroot','2017-02-04 17:36:23',387,1),(5,'5','instrument meme audio chord event','SQL','V5__instrument_meme_audio_chord_event.sql',-1907897642,'ebroot','2017-02-04 17:36:23',226,1),(6,'6','chain link chord choice','SQL','V6__chain_link_chord_choice.sql',-2093488888,'ebroot','2017-02-04 17:36:24',525,1),(7,'7','arrangement morph point pick','SQL','V7__arrangement_morph_point_pick.sql',-1775760070,'ebroot','2017-02-04 17:36:24',162,1),(8,'8','user auth column renaming','SQL','V8__user_auth_column_renaming.sql',-1774157694,'ebroot','2017-02-04 17:36:24',64,1),(9,'9','user role','SQL','V9__user_role.sql',-2040912989,'ebroot','2017-02-04 17:36:24',51,1),(10,'10','user access token','SQL','V10__user_access_token.sql',-1589285188,'ebroot','2017-02-04 17:36:24',36,1),(11,'11','user auth column renaming','SQL','V11__user_auth_column_renaming.sql',342405360,'ebroot','2017-02-04 17:36:24',13,1),(12,'12','RENAME account user TO account user role','SQL','V12__RENAME_account_user_TO_account_user_role.sql',569433197,'ebroot','2017-02-04 17:36:24',48,1),(13,'14','ALTER user DROP COLUMN admin','SQL','V14__ALTER_user_DROP_COLUMN_admin.sql',660577316,'ebroot','2017-02-04 17:36:25',54,1),(14,'15','ALTER account ADD COLUMN name','SQL','V15__ALTER_account_ADD_COLUMN_name.sql',2013415455,'ebroot','2017-02-04 17:36:25',54,1),(15,'16','ALTER library ADD COLUMN name','SQL','V16__ALTER_library_ADD_COLUMN_name.sql',652666977,'ebroot','2017-02-04 17:36:25',48,1),(16,'17','RENAME ALTER account user role TO account user','SQL','V17__RENAME_ALTER_account_user_role_TO_account_user.sql',-527669089,'ebroot','2017-02-04 17:36:25',89,1),(17,'18','ALTER chain BELONGS TO account HAS MANY library','SQL','V18__ALTER_chain_BELONGS_TO_account_HAS_MANY_library.sql',407528039,'ebroot','2017-02-04 17:36:25',130,1),(18,'19','DROP credit ALTER idea instrument belong directly to user','SQL','V19__DROP_credit_ALTER_idea_instrument_belong_directly_to_user.sql',-940090323,'ebroot','2017-02-04 17:36:25',382,1),(19,'20','ALTER phase choice BIGINT offset total','SQL','V20__ALTER_phase_choice_BIGINT_offset_total.sql',1174421309,'ebroot','2017-02-04 17:36:26',241,1),(20,'21','ALTER DROP order FORM instrument idea phase meme','SQL','V21__ALTER_DROP_order_FORM_instrument_idea_phase_meme.sql',-825269746,'ebroot','2017-02-04 17:36:26',143,1),(21,'22','ALTER phase optional values','SQL','V22__ALTER_phase_optional_values.sql',2115016285,'ebroot','2017-02-05 23:06:15',315,1),(22,'23','ALTER audio COLUMNS waveformUrl','SQL','V23__ALTER_audio_COLUMNS_waveformUrl.sql',-1407515541,'ebroot','2017-02-07 03:21:14',29,1),(23,'24','ALTER audio FLOAT start length','SQL','V24__ALTER_audio_FLOAT_start_length.sql',-2000888804,'ebroot','2017-02-07 03:21:14',125,1),(24,'25','ALTER chain ADD COLUMNS name state startat stopat','SQL','V25__ALTER_chain_ADD_COLUMNS_name_state_startat_stopat.sql',1356557345,'ebroot','2017-02-10 00:03:21',205,1),(25,'26','ALTER link FLOAT start finish','SQL','V26__ALTER_link_FLOAT_start_finish.sql',-1185447213,'ebroot','2017-02-10 00:03:21',107,1),(26,'27','ALTER all tables ADD COLUMN createdat updatedat','SQL','V27__ALTER_all_tables_ADD_COLUMN_createdat_updatedat.sql',-794640015,'ebroot','2017-02-10 00:03:25',3684,1),(27,'28','ALTER chain link TIMESTAMP microsecond precision','SQL','V28__ALTER_chain_link_TIMESTAMP_microsecond_precision.sql',-1850945451,'ebroot','2017-02-13 19:04:58',239,1),(28,'29','ALTER arrangement DROP COLUMNS name density tempo','SQL','V29__ALTER_arrangement_DROP_COLUMNS_name_density_tempo.sql',-1660342705,'ebroot','2017-02-14 04:55:49',175,1),(29,'30','ALTER pick FLOAT start length','SQL','V30__ALTER_pick_FLOAT_start_length.sql',-1842518453,'ebroot','2017-02-14 04:55:50',126,1),(30,'31','ALTER pick ADD BELONGS TO arrangement','SQL','V31__ALTER_pick_ADD_BELONGS_TO_arrangement.sql',1953331613,'ebroot','2017-02-14 04:55:50',139,1),(31,'32','ALTER link OPTIONAL total density key tempo','SQL','V32__ALTER_link_OPTIONAL_total_density_key_tempo.sql',-98188439,'ebroot','2017-02-19 22:29:51',207,1),(32,'33','ALTER link UNIQUE chain offset','SQL','V33__ALTER_link_UNIQUE_chain_offset.sql',1398816976,'ebroot','2017-02-19 22:29:51',29,1),(33,'34','ALTER audio COLUMNS waveformKey','SQL','V34__ALTER_audio_COLUMNS_waveformKey.sql',66858661,'ebroot','2017-04-21 16:24:11',40,1),(34,'35','CREATE TABLE chain config','SQL','V35__CREATE_TABLE_chain_config.sql',-2134731909,'ebroot','2017-04-28 14:57:19',58,1),(35,'36','CREATE TABLE chain idea','SQL','V36__CREATE_TABLE_chain_idea.sql',2038472760,'ebroot','2017-04-28 14:57:19',52,1),(36,'37','CREATE TABLE chain instrument','SQL','V37__CREATE_TABLE_chain_instrument.sql',1486524130,'ebroot','2017-04-28 14:57:19',53,1),(37,'38','ALTER chain ADD COLUMN type','SQL','V38__ALTER_chain_ADD_COLUMN_type.sql',608321610,'ebroot','2017-04-28 14:57:19',78,1),(38,'39','ALTER phase MODIFY COLUMN total No Longer Required','SQL','V39__ALTER_phase_MODIFY_COLUMN_total_No_Longer_Required.sql',-1504223876,'ebroot','2017-05-01 19:09:45',95,1),(39,'40','ALTER choice MODIFY COLUMN phase offset ULONG','SQL','V40__ALTER_choice_MODIFY_COLUMN_phase_offset_ULONG.sql',-240451169,'ebroot','2017-05-18 00:34:09',63,1),(40,'41','CREATE TABLE link meme','SQL','V41__CREATE_TABLE_link_meme.sql',-18883080,'ebroot','2017-05-18 00:34:09',51,1),(41,'42','ALTER phase link INT total','SQL','V42__ALTER_phase_link_INT_total.sql',-1400879099,'ebroot','2017-05-18 00:34:10',122,1),(42,'43','CREATE TABLE link message','SQL','V43__CREATE_TABLE_link_message.sql',1616909549,'ebroot','2017-05-18 00:34:10',46,1),(43,'44','ALTER pick BELONGS TO arrangement DROP morph point','SQL','V44__ALTER_pick_BELONGS_TO_arrangement_DROP_morph_point.sql',449955118,'ebroot','2017-05-26 00:58:12',563,1),(44,'45','ALTER link ADD COLUMN waveform key','SQL','V45__ALTER_link_ADD_COLUMN_waveform_key.sql',-98370,'ebroot','2017-06-01 16:53:07',811,1),(45,'46','ALTER audio ADD COLUMN state','SQL','V46__ALTER_audio_ADD_COLUMN_state.sql',-1300058820,'ebroot','2017-06-04 21:28:24',161,1),(46,'47','ALTER chain ADD COLUMN embed key','SQL','V47__ALTER_chain_ADD_COLUMN_embed_key.sql',317233573,'ebroot','2017-10-15 09:45:02',903,1),(47,'48','CREATE TABLE platform message','SQL','V48__CREATE_TABLE_platform_message.sql',-1332226532,'ebroot','2017-12-02 07:28:17',114,1),(48,'49','CREATE pattern DEPRECATES idea','SQL','V49__CREATE_pattern_DEPRECATES_idea.sql',517513730,'ebroot','2017-12-07 05:37:18',3380,1),(49,'50','REFACTOR voice BELONGS TO pattern','SQL','V50__REFACTOR_voice_BELONGS_TO_pattern.sql',1202195806,'ebroot','2018-01-03 21:36:08',712,1),(50,'51','DROP TABLE pick','SQL','V51__DROP_TABLE_pick.sql',-319463966,'ebroot','2018-01-04 03:41:36',849,1),(51,'52','ALTER phase ADD COLUMN type','SQL','V52__ALTER_phase_ADD_COLUMN_type.sql',-95957482,'ebroot','2018-01-05 07:32:08',602,1),(52,'53','ALTER chord MODIFY COLUMN position INTEGER','SQL','V53__ALTER_chord_MODIFY_COLUMN_position_INTEGER.sql',523400926,'ebroot','2018-01-10 21:53:43',4877,1),(53,'54','RENAME voice event TO phase event','SQL','V54__RENAME_voice_event_TO_phase_event.sql',-370585949,'ebroot','2018-01-17 06:06:10',56,1),(54,'55','ALTER pattern phase ADD COLUMN state','SQL','V55__ALTER_pattern_phase_ADD_COLUMN_state.sql',-1299872216,'ebroot','2018-02-03 00:56:45',460,1),(55,'56','ALTER chord MODIFY COLUMN position FLOAT','SQL','V56__ALTER_chord_MODIFY_COLUMN_position_FLOAT.sql',-894225407,'ebroot','2018-02-06 21:11:43',15080,1),(56,'57','REFACTORING chain segment sequence pattern','SQL','V57__REFACTORING_chain_segment_sequence_pattern.sql',-1235024870,'root','2018-08-30 15:48:36',4256,1),(57,'58','ALTER pattern ADD COLUMNS meter','SQL','V58__ALTER_pattern_ADD_COLUMNS_meter.sql',1342735981,'root','2018-08-30 15:48:36',389,1);
 /*!40000 ALTER TABLE `schema_version` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -955,18 +1705,8 @@ UNLOCK TABLES;
 
 LOCK TABLES `voice` WRITE;
 /*!40000 ALTER TABLE `voice` DISABLE KEYS */;
-INSERT INTO `voice` VALUES (4,6,'percussive','Kick+Snare','2017-04-23 23:45:07','2018-01-03 21:36:07'),(5,6,'percussive','Locomotion','2017-06-03 00:04:07','2018-01-03 21:36:07'),(8,6,'percussive','Toms+Congas+Misc','2017-06-11 19:50:10','2018-01-03 21:36:07'),(10,6,'percussive','Vocal','2017-06-23 23:43:10','2018-01-03 21:36:07'),(11,6,'percussive','Vocal Echo','2017-06-24 01:29:49','2018-01-03 21:36:07'),(12,6,'Percussive','2x4 Stomp','2017-12-07 03:43:08','2018-01-03 21:36:07'),(17,6,'Percussive','Clave','2017-12-21 00:33:48','2018-01-03 21:36:07'),(18,29,'Percussive','Kick+Snare','2017-12-22 06:43:19','2018-01-03 21:36:07'),(19,29,'Percussive','Locomotion','2017-12-22 06:43:19','2018-01-03 21:36:07'),(20,29,'Percussive','Toms+Congas+Misc','2017-12-22 06:43:20','2018-01-03 21:36:07'),(23,29,'Percussive','Additional Stomp and Pop','2017-12-22 06:43:20','2018-03-16 00:46:18'),(24,29,'Percussive','Clave','2017-12-22 06:43:20','2018-01-03 21:36:07'),(36,34,'Percussive','Locomotion','2018-01-05 14:54:11','2018-01-05 14:54:11'),(37,34,'Percussive','Toms+Congas+Misc','2018-01-05 14:54:11','2018-01-05 14:54:11'),(39,34,'Percussive','Clave','2018-01-05 14:54:11','2018-01-05 14:54:11');
+INSERT INTO `voice` VALUES (4,6,'percussive','BoomClap','2017-04-23 23:45:07','2018-01-03 21:36:07'),(5,6,'percussive','Locomotion','2017-06-03 00:04:07','2018-01-03 21:36:07'),(8,6,'percussive','Jangle','2017-06-11 19:50:10','2018-01-03 21:36:07'),(10,6,'percussive','Vocal','2017-06-23 23:43:10','2018-01-03 21:36:07'),(11,6,'percussive','Vocal Echo','2017-06-24 01:29:49','2018-01-03 21:36:07'),(12,6,'Percussive','2x4 Stomp','2017-12-07 03:43:08','2018-01-03 21:36:07'),(17,6,'Percussive','Clave','2017-12-21 00:33:48','2018-01-03 21:36:07'),(18,29,'Percussive','BoomClap','2017-12-22 06:43:19','2018-01-03 21:36:07'),(19,29,'Percussive','Locomotion','2017-12-22 06:43:19','2018-01-03 21:36:07'),(20,29,'Percussive','Jangle','2017-12-22 06:43:20','2018-01-03 21:36:07'),(23,29,'Percussive','Stomp','2017-12-22 06:43:20','2018-03-16 00:46:18'),(24,29,'Percussive','Clave','2017-12-22 06:43:20','2018-01-03 21:36:07'),(36,34,'Percussive','Locomotion','2018-01-05 14:54:11','2018-01-05 14:54:11'),(37,34,'Percussive','Jangle','2018-01-05 14:54:11','2018-01-05 14:54:11'),(39,34,'Percussive','Clave','2018-01-05 14:54:11','2018-01-05 14:54:11');
 /*!40000 ALTER TABLE `voice` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `phase_event`
---
-
-LOCK TABLES `phase_event` WRITE;
-/*!40000 ALTER TABLE `phase_event` DISABLE KEYS */;
-INSERT INTO `phase_event` VALUES (270,3,4,0.3,1,'KICKLONG',2.5,0.5,'C2','2017-06-02 23:57:53','2018-01-03 21:36:07'),(274,3,4,1,0.2,'SNARE',1,1,'G8','2017-06-02 23:58:37','2018-01-03 21:36:07'),(275,3,5,0.2,0.1,'HIHATCLOSED',0,0.3,'E12','2017-06-03 00:09:06','2018-01-03 21:36:07'),(276,3,5,0.16,0.1,'HIHATCLOSED',1,0.25,'E12','2017-06-03 00:10:09','2018-01-03 21:36:07'),(277,3,5,0.2,0.1,'HIHATCLOSED',2,0.25,'E12','2017-06-03 00:10:14','2018-01-03 21:36:07'),(278,3,5,0.2,0.1,'HIHATCLOSED',3,0.25,'E12','2017-06-03 00:10:19','2018-01-03 21:36:07'),(280,3,5,0.1,0.1,'HIHATCLOSED',0.25,0.2,'G12','2017-06-03 00:11:48','2018-01-05 09:32:21'),(281,3,5,0.1,0.1,'HIHATCLOSED',1.25,0.2,'G12','2017-06-03 00:11:52','2018-01-05 09:32:21'),(282,3,5,0.05,0.1,'HIHATOPEN',2.5,0.25,'G12','2017-06-03 00:11:57','2018-01-03 21:36:07'),(283,3,5,0.1,0.1,'HIHATCLOSED',3.25,0.2,'G12','2017-06-03 00:12:02','2018-01-05 09:32:21'),(284,3,5,0.12,0.06,'HIHATCLOSED',3.75,0.2,'D12','2017-06-03 00:12:32','2018-01-05 09:32:21'),(285,3,5,0.025,0.06,'HIHATCLOSED',2.75,0.2,'D12','2017-06-03 00:12:37','2018-01-05 09:32:21'),(286,3,5,0.12,0.06,'HIHATCLOSED',1.75,0.2,'D12','2017-06-03 00:12:41','2018-01-05 09:32:21'),(287,3,5,0.025,0.06,'HIHATCLOSED',0.75,0.2,'D12','2017-06-03 00:12:46','2018-01-05 09:32:21'),(288,3,5,0.05,0.12,'HIHATOPEN',0.5,0.25,'E8','2017-06-03 00:13:33','2018-01-03 21:36:07'),(290,3,5,0.1,0.12,'HIHATCLOSED',2.25,0.2,'E8','2017-06-03 00:13:43','2018-01-05 09:32:21'),(291,3,5,0.05,0.12,'HIHATOPEN',3.5,0.5,'E8','2017-06-03 00:13:47','2018-01-03 21:36:07'),(294,3,4,0.2,1,'KICK',2.25,0.2,'F#2','2017-06-04 04:26:37','2018-01-05 09:32:21'),(301,3,5,0.05,0.12,'HIHATOPEN',1.5,0.25,'E8','2017-06-04 04:49:14','2018-01-03 21:36:07'),(302,3,5,0.2,0.1,'MARACAS',0.5,0.5,'Bb8','2017-06-04 04:51:11','2018-01-03 21:36:07'),(303,3,5,0.2,0.1,'MARACAS',1.5,0.5,'Bb8','2017-06-04 04:51:23','2018-01-03 21:36:07'),(304,3,5,0.2,0.1,'MARACAS',2.5,0.5,'Bb8','2017-06-04 04:51:28','2018-01-03 21:36:07'),(305,3,5,0.2,0.1,'MARACAS',3.5,0.5,'Bb8','2017-06-04 04:51:34','2018-01-03 21:36:07'),(306,3,5,0.1,0.1,'MARACAS',3.25,0.5,'Bb8','2017-06-04 04:51:43','2018-01-05 09:32:21'),(314,3,8,0.1,0.6,'TOM',0.5,0.75,'C6','2017-06-11 19:51:53','2018-01-03 21:36:07'),(315,3,8,0.05,0.6,'TOM',1.25,0.7,'G5','2017-06-11 19:52:17','2018-01-05 09:32:21'),(316,3,8,0.2,0.6,'TOM',2,1,'C5','2017-06-11 19:53:15','2018-01-03 21:36:07'),(318,3,8,0.1,0.6,'CONGA',0,1,'F5','2017-06-11 20:15:46','2018-01-03 21:36:07'),(320,3,8,0.1,0.6,'TOM',3.5,0.5,'G3','2017-06-11 20:16:54','2018-01-03 21:36:07'),(322,3,4,0.1,0.2,'SNARE',1.75,0.2,'G5','2017-06-12 19:14:16','2018-01-05 09:32:21'),(323,3,8,0.05,0.5,'COWBELL',2,1,'F5','2017-06-12 19:20:22','2018-01-03 21:36:07'),(329,3,8,0.3,0.6,'CONGAHIGH',3.25,0.6,'F5','2017-06-15 22:52:40','2018-01-05 09:32:21'),(339,3,12,1,1,'KICKLONG',0,1,'C2','2017-12-07 03:43:32','2018-01-03 21:36:07'),(341,3,12,0.8,1,'KICK',2.5,1,'C2','2017-12-07 03:43:52','2018-01-03 21:36:07'),(343,3,4,1,0.1,'SNARE',3,1,'G8','2017-12-07 08:17:58','2018-01-03 21:36:07'),(371,3,17,0.05,0.5,'TOMLOW',2,0.8,'G4','2017-12-21 00:38:41','2018-01-07 00:38:37'),(372,3,17,0.08,0.5,'TOMLOW',2.75,0.8,'G4','2017-12-21 00:39:01','2018-01-07 00:38:37'),(373,3,17,0.1,0.5,'TOMLOW',3.5,1,'G4','2017-12-21 00:39:18','2018-01-07 00:38:37'),(374,3,17,0.05,0.5,'TOMLOW',1,0.5,'G4','2017-12-21 00:39:32','2018-01-07 00:38:37'),(375,3,17,0.1,0.5,'TOMLOW',1,1,'G4','2017-12-21 00:39:41','2018-01-07 00:38:37'),(376,64,18,1,0.2,'SNARE',1,1,'G8','2017-12-22 06:43:19','2018-01-03 21:36:07'),(378,64,18,0.1,0.2,'SNARE',1.75,0.2,'G5','2017-12-22 06:43:19','2018-01-05 09:32:21'),(379,64,18,0.2,1,'KICK',2.25,0.2,'F#2','2017-12-22 06:43:19','2018-01-05 09:32:21'),(380,64,18,0.3,1,'KICKLONG',2.5,0.5,'C2','2017-12-22 06:43:19','2018-01-03 21:36:07'),(382,64,18,1,0.1,'SNARE',3,1,'G8','2017-12-22 06:43:19','2018-01-03 21:36:07'),(383,64,19,0.2,0.1,'HIHATCLOSED',0,0.3,'E12','2017-12-22 06:43:19','2018-01-03 21:36:07'),(384,64,19,0.1,0.1,'HIHATCLOSED',0.25,0.2,'G12','2017-12-22 06:43:19','2018-01-05 09:32:21'),(385,64,19,0.2,0.1,'MARACAS',0.5,0.5,'Bb8','2017-12-22 06:43:19','2018-01-03 21:36:07'),(386,64,19,0.05,0.12,'HIHATOPEN',0.5,0.25,'E8','2017-12-22 06:43:19','2018-01-03 21:36:07'),(387,64,19,0.025,0.06,'HIHATCLOSED',0.75,0.2,'D12','2017-12-22 06:43:19','2018-01-05 09:32:21'),(388,64,19,0.16,0.1,'HIHATCLOSED',1,0.25,'E12','2017-12-22 06:43:19','2018-01-03 21:36:07'),(389,64,19,0.1,0.1,'HIHATCLOSED',1.25,0.2,'G12','2017-12-22 06:43:19','2018-01-05 09:32:21'),(390,64,19,0.2,0.1,'MARACAS',1.5,0.5,'Bb8','2017-12-22 06:43:20','2018-01-03 21:36:07'),(391,64,19,0.05,0.12,'HIHATOPEN',1.5,0.25,'E8','2017-12-22 06:43:20','2018-01-03 21:36:07'),(392,64,19,0.12,0.06,'HIHATCLOSED',1.75,0.2,'D12','2017-12-22 06:43:20','2018-01-05 09:32:21'),(393,64,19,0.2,0.1,'HIHATCLOSED',2,0.25,'E12','2017-12-22 06:43:20','2018-01-03 21:36:07'),(394,64,19,0.1,0.12,'HIHATCLOSED',2.25,0.2,'E8','2017-12-22 06:43:20','2018-01-05 09:32:21'),(395,64,19,0.05,0.1,'HIHATOPEN',2.5,0.25,'G12','2017-12-22 06:43:20','2018-01-03 21:36:07'),(396,64,19,0.2,0.1,'MARACAS',2.5,0.5,'Bb8','2017-12-22 06:43:20','2018-01-03 21:36:07'),(397,64,19,0.025,0.06,'HIHATCLOSED',2.75,0.2,'D12','2017-12-22 06:43:20','2018-01-05 09:32:21'),(398,64,19,0.2,0.1,'HIHATCLOSED',3,0.25,'E12','2017-12-22 06:43:20','2018-01-03 21:36:07'),(399,64,19,0.1,0.1,'HIHATCLOSED',3.25,0.2,'G12','2017-12-22 06:43:20','2018-01-05 09:32:21'),(400,64,19,0.1,0.1,'MARACAS',3.25,0.5,'Bb8','2017-12-22 06:43:20','2018-01-05 09:32:21'),(401,64,19,0.05,0.12,'HIHATOPEN',3.5,0.5,'E8','2017-12-22 06:43:20','2018-01-03 21:36:07'),(402,64,19,0.2,0.1,'MARACAS',3.5,0.5,'Bb8','2017-12-22 06:43:20','2018-01-03 21:36:07'),(403,64,19,0.12,0.06,'HIHATCLOSED',3.75,0.2,'D12','2017-12-22 06:43:20','2018-01-05 09:32:21'),(404,64,20,0.1,0.6,'CONGA',0,1,'F5','2017-12-22 06:43:20','2018-01-03 21:36:07'),(405,64,20,0.1,0.6,'TOM',0.5,0.75,'C6','2017-12-22 06:43:20','2018-01-03 21:36:07'),(406,64,20,0.05,0.6,'TOM',1.25,0.7,'G5','2017-12-22 06:43:20','2018-01-05 09:32:21'),(407,64,20,0.2,0.6,'TOM',2,1,'C5','2017-12-22 06:43:20','2018-01-03 21:36:07'),(409,64,20,0.3,0.6,'CONGAHIGH',3.25,0.6,'F5','2017-12-22 06:43:20','2018-01-05 09:32:21'),(410,64,20,0.1,0.6,'TOM',3.5,0.5,'G3','2017-12-22 06:43:20','2018-01-03 21:36:07'),(418,64,23,1,1,'KICKLONG',0,1,'C2','2017-12-22 06:43:20','2018-01-03 21:36:07'),(419,64,23,0.8,1,'KICK',2.5,1,'C2','2017-12-22 06:43:20','2018-01-03 21:36:07'),(420,64,24,0.05,0.5,'TOMLOW',0.5,0.5,'G4','2017-12-22 06:43:20','2018-01-07 00:38:37'),(423,64,24,0.08,0.5,'TOMLOW',2.75,0.8,'G4','2017-12-22 06:43:20','2018-01-07 00:38:37'),(424,64,24,0.1,0.5,'TOMLOW',3.5,1,'G4','2017-12-22 06:43:20','2018-01-07 00:38:37'),(548,86,20,0.1,0.6,'CONGA',0,1,'F5','2018-01-05 07:39:55','2018-01-05 07:39:55'),(549,86,23,1,1,'KICKLONG',0,1,'C2','2018-01-05 07:39:55','2018-01-05 07:39:55'),(550,86,19,0.2,0.1,'HIHATCLOSED',0,0.3,'E12','2018-01-05 07:39:55','2018-01-05 07:39:55'),(551,86,19,0.1,0.1,'HIHATCLOSED',0.25,0.2,'G12','2018-01-05 07:39:55','2018-01-05 09:32:21'),(552,86,20,0.1,0.6,'TOM',0.5,0.75,'C6','2018-01-05 07:39:55','2018-01-05 07:39:55'),(553,86,19,0.2,0.1,'MARACAS',0.5,0.5,'Bb8','2018-01-05 07:39:55','2018-01-05 07:39:55'),(554,86,19,0.05,0.12,'HIHATOPEN',0.5,0.25,'E8','2018-01-05 07:39:55','2018-01-05 07:39:55'),(555,86,24,0.05,0.5,'TOMLOW',0.5,0.5,'G4','2018-01-05 07:39:55','2018-01-07 00:38:37'),(556,86,19,0.025,0.06,'HIHATCLOSED',0.75,0.2,'D12','2018-01-05 07:39:55','2018-01-05 09:32:21'),(557,86,19,0.16,0.1,'HIHATCLOSED',1,0.25,'E12','2018-01-05 07:39:55','2018-01-05 07:39:55'),(558,86,18,1,0.2,'SNARE',1,1,'G8','2018-01-05 07:39:55','2018-01-05 07:39:55'),(560,86,19,0.1,0.1,'HIHATCLOSED',1.25,0.2,'G12','2018-01-05 07:39:55','2018-01-05 09:32:21'),(561,86,20,0.05,0.6,'TOM',1.25,0.7,'G5','2018-01-05 07:39:55','2018-01-05 09:32:21'),(562,86,19,0.2,0.1,'MARACAS',1.5,0.5,'Bb8','2018-01-05 07:39:55','2018-01-05 07:39:55'),(563,86,19,0.05,0.12,'HIHATOPEN',1.5,0.25,'E8','2018-01-05 07:39:55','2018-01-05 07:39:55'),(564,86,19,0.12,0.06,'HIHATCLOSED',1.75,0.2,'D12','2018-01-05 07:39:55','2018-01-05 09:32:21'),(565,86,18,0.1,0.2,'SNARE',1.75,0.2,'G5','2018-01-05 07:39:55','2018-01-05 09:32:21'),(566,86,19,0.2,0.1,'HIHATCLOSED',2,0.25,'E12','2018-01-05 07:39:55','2018-01-05 07:39:55'),(569,86,19,0.1,0.12,'HIHATCLOSED',2.25,0.2,'E8','2018-01-05 07:39:55','2018-01-05 09:32:21'),(571,86,23,0.8,1,'KICK',2.5,1,'C2','2018-01-05 07:39:55','2018-01-05 07:39:55'),(572,86,19,0.2,0.1,'MARACAS',2.5,0.5,'Bb8','2018-01-05 07:39:55','2018-01-05 07:39:55'),(573,86,19,0.05,0.1,'HIHATOPEN',2.5,0.25,'G12','2018-01-05 07:39:55','2018-01-05 07:39:55'),(574,86,18,0.3,1,'KICKLONG',2.5,0.5,'C2','2018-01-05 07:39:55','2018-01-05 07:39:55'),(575,86,19,0.025,0.06,'HIHATCLOSED',2.75,0.2,'D12','2018-01-05 07:39:55','2018-01-05 09:32:21'),(577,86,19,0.2,0.1,'HIHATCLOSED',3,0.25,'E12','2018-01-05 07:39:55','2018-01-05 07:39:55'),(578,86,18,1,0.1,'SNARE',3,1,'G8','2018-01-05 07:39:55','2018-01-05 07:39:55'),(580,86,19,0.1,0.1,'MARACAS',3.25,0.5,'Bb8','2018-01-05 07:39:55','2018-01-05 09:32:21'),(581,86,19,0.1,0.1,'HIHATCLOSED',3.25,0.2,'G12','2018-01-05 07:39:55','2018-01-05 09:32:21'),(582,86,20,0.3,0.6,'CONGAHIGH',3.25,0.6,'F5','2018-01-05 07:39:55','2018-01-05 09:32:21'),(583,86,19,0.05,0.12,'HIHATOPEN',3.5,0.5,'E8','2018-01-05 07:39:55','2018-01-05 07:39:55'),(584,86,19,0.2,0.1,'MARACAS',3.5,0.5,'Bb8','2018-01-05 07:39:55','2018-01-05 07:39:55'),(585,86,20,0.1,0.6,'TOM',3.5,0.5,'G3','2018-01-05 07:39:55','2018-01-05 07:39:55'),(586,86,24,0.1,0.5,'TOMLOW',3.5,1,'G4','2018-01-05 07:39:55','2018-01-07 00:38:37'),(587,86,19,0.12,0.06,'HIHATCLOSED',3.75,0.2,'D12','2018-01-05 07:39:55','2018-01-05 09:32:21'),(588,86,23,0.8,1,'KICK',2,1,'C2','2018-01-05 08:36:52','2018-01-05 08:36:52'),(589,87,20,0.1,0.6,'CONGA',0,1,'F5','2018-01-05 08:37:43','2018-01-05 08:37:43'),(590,87,23,1,1,'KICKLONG',0,1,'C2','2018-01-05 08:37:43','2018-01-05 08:37:43'),(591,87,19,0.2,0.1,'HIHATCLOSED',0,0.3,'E12','2018-01-05 08:37:43','2018-01-05 08:37:43'),(592,87,19,0.1,0.1,'HIHATCLOSED',0.25,0.2,'G12','2018-01-05 08:37:43','2018-01-05 09:32:21'),(593,87,20,0.1,0.6,'TOM',0.5,0.75,'C6','2018-01-05 08:37:43','2018-01-05 08:37:43'),(594,87,19,0.2,0.1,'MARACAS',0.5,0.5,'Bb8','2018-01-05 08:37:43','2018-01-05 08:37:43'),(595,87,19,0.05,0.12,'HIHATOPEN',0.5,0.25,'E8','2018-01-05 08:37:43','2018-01-05 08:37:43'),(596,87,24,0.05,0.5,'TOMLOW',0.5,0.5,'G4','2018-01-05 08:37:43','2018-01-07 00:38:37'),(597,87,19,0.025,0.06,'HIHATCLOSED',0.75,0.2,'D12','2018-01-05 08:37:43','2018-01-05 09:32:21'),(598,87,19,0.16,0.1,'HIHATCLOSED',1,0.25,'E12','2018-01-05 08:37:43','2018-01-05 08:37:43'),(599,87,18,1,0.2,'SNARE',1,1,'G8','2018-01-05 08:37:43','2018-01-05 08:37:43'),(601,87,19,0.1,0.1,'HIHATCLOSED',1.25,0.2,'G12','2018-01-05 08:37:43','2018-01-05 09:32:21'),(602,87,20,0.05,0.6,'TOM',1.25,0.7,'G5','2018-01-05 08:37:43','2018-01-05 09:32:21'),(603,87,19,0.2,0.1,'MARACAS',1.5,0.5,'Bb8','2018-01-05 08:37:43','2018-01-05 08:37:43'),(604,87,19,0.05,0.12,'HIHATOPEN',1.5,0.25,'E8','2018-01-05 08:37:43','2018-01-05 08:37:43'),(605,87,19,0.12,0.06,'HIHATCLOSED',1.75,0.2,'D12','2018-01-05 08:37:43','2018-01-05 09:32:21'),(606,87,18,0.1,0.2,'SNARE',1.75,0.2,'G5','2018-01-05 08:37:43','2018-01-05 09:32:21'),(607,87,19,0.2,0.1,'HIHATCLOSED',2,0.25,'E12','2018-01-05 08:37:44','2018-01-05 08:37:44'),(608,87,20,0.05,0.5,'COWBELL',2,1,'F5','2018-01-05 08:37:44','2018-01-05 08:37:44'),(609,87,20,0.2,0.6,'TOM',2,1,'C5','2018-01-05 08:37:44','2018-01-05 08:37:44'),(610,87,19,0.1,0.12,'HIHATCLOSED',2.25,0.2,'E8','2018-01-05 08:37:44','2018-01-05 09:32:21'),(611,87,18,0.2,1,'KICK',2.25,0.2,'F#2','2018-01-05 08:37:44','2018-01-05 09:32:21'),(612,87,23,0.8,1,'KICK',2.5,1,'C2','2018-01-05 08:37:44','2018-01-05 08:37:44'),(613,87,19,0.2,0.1,'MARACAS',2.5,0.5,'Bb8','2018-01-05 08:37:44','2018-01-05 08:37:44'),(614,87,19,0.05,0.1,'HIHATOPEN',2.5,0.25,'G12','2018-01-05 08:37:44','2018-01-05 08:37:44'),(615,87,18,0.3,1,'KICKLONG',2.5,0.5,'C2','2018-01-05 08:37:44','2018-01-05 08:37:44'),(616,87,19,0.025,0.06,'HIHATCLOSED',2.75,0.2,'D12','2018-01-05 08:37:44','2018-01-05 09:32:21'),(618,87,19,0.2,0.1,'HIHATCLOSED',3,0.25,'E12','2018-01-05 08:37:44','2018-01-05 08:37:44'),(621,87,19,0.1,0.1,'MARACAS',3.25,0.5,'Bb8','2018-01-05 08:37:44','2018-01-05 09:32:21'),(622,87,19,0.1,0.1,'HIHATCLOSED',3.25,0.2,'G12','2018-01-05 08:37:44','2018-01-05 09:32:21'),(623,87,20,0.3,0.6,'CONGAHIGH',3.25,0.6,'F5','2018-01-05 08:37:44','2018-01-05 09:32:21'),(624,87,19,0.05,0.12,'HIHATOPEN',3.5,0.5,'E8','2018-01-05 08:37:44','2018-01-05 08:37:44'),(625,87,19,0.2,0.1,'MARACAS',3.5,0.5,'Bb8','2018-01-05 08:37:44','2018-01-05 08:37:44'),(626,87,20,0.1,0.6,'TOM',3.5,0.5,'G3','2018-01-05 08:37:44','2018-01-05 08:37:44'),(627,87,24,0.1,0.5,'TOMLOW',3.5,1,'G4','2018-01-05 08:37:44','2018-01-07 00:38:37'),(628,87,19,0.12,0.06,'HIHATCLOSED',3.75,0.2,'D12','2018-01-05 08:37:44','2018-01-05 09:32:21'),(629,88,23,1,1,'KICKLONG',0,1,'C2','2018-01-05 08:38:44','2018-01-05 08:38:44'),(630,88,20,0.1,0.6,'CONGA',0,1,'F5','2018-01-05 08:38:44','2018-01-05 08:38:44'),(631,88,19,0.2,0.1,'HIHATCLOSED',0,0.3,'E12','2018-01-05 08:38:44','2018-01-05 08:38:44'),(632,88,19,0.1,0.1,'HIHATCLOSED',0.25,0.2,'G12','2018-01-05 08:38:44','2018-01-05 09:32:21'),(633,88,20,0.1,0.6,'TOM',0.5,0.75,'C6','2018-01-05 08:38:44','2018-01-05 08:38:44'),(634,88,19,0.2,0.1,'MARACAS',0.5,0.5,'Bb8','2018-01-05 08:38:44','2018-01-05 08:38:44'),(635,88,19,0.05,0.12,'HIHATOPEN',0.5,0.25,'E8','2018-01-05 08:38:44','2018-01-05 08:38:44'),(636,88,24,0.05,0.5,'TOMLOW',0.5,0.5,'G4','2018-01-05 08:38:44','2018-01-07 00:38:37'),(637,88,19,0.025,0.06,'HIHATCLOSED',0.75,0.2,'D12','2018-01-05 08:38:44','2018-01-05 09:32:21'),(638,88,18,1,0.2,'SNARE',1,1,'G8','2018-01-05 08:38:44','2018-01-05 08:38:44'),(640,88,19,0.16,0.1,'HIHATCLOSED',1,0.25,'E12','2018-01-05 08:38:45','2018-01-05 08:38:45'),(641,88,19,0.1,0.1,'HIHATCLOSED',1.25,0.2,'G12','2018-01-05 08:38:45','2018-01-05 09:32:21'),(642,88,20,0.05,0.6,'TOM',1.25,0.7,'G5','2018-01-05 08:38:45','2018-01-05 09:32:21'),(643,88,19,0.2,0.1,'MARACAS',1.5,0.5,'Bb8','2018-01-05 08:38:45','2018-01-05 08:38:45'),(644,88,19,0.05,0.12,'HIHATOPEN',1.5,0.25,'E8','2018-01-05 08:38:45','2018-01-05 08:38:45'),(645,88,19,0.12,0.06,'HIHATCLOSED',1.75,0.2,'D12','2018-01-05 08:38:45','2018-01-05 09:32:21'),(646,88,18,0.1,0.2,'SNARE',1.75,0.2,'G5','2018-01-05 08:38:45','2018-01-05 09:32:21'),(647,88,23,0.8,1,'KICK',1.75,1,'C2','2018-01-05 08:38:45','2018-01-05 10:06:35'),(648,88,20,0.05,0.5,'COWBELL',2,1,'F5','2018-01-05 08:38:45','2018-01-05 08:38:45'),(649,88,19,0.2,0.1,'HIHATCLOSED',2,0.25,'E12','2018-01-05 08:38:45','2018-01-05 08:38:45'),(650,88,19,0.1,0.12,'HIHATCLOSED',2.25,0.2,'E8','2018-01-05 08:38:45','2018-01-05 09:32:21'),(651,88,18,0.1,1,'SNARE',2.25,0.2,'F#2','2018-01-05 08:38:45','2018-01-05 10:07:09'),(652,88,19,0.2,0.1,'MARACAS',2.5,0.5,'Bb8','2018-01-05 08:38:45','2018-01-05 08:38:45'),(654,88,19,0.05,0.1,'HIHATOPEN',2.5,0.25,'G12','2018-01-05 08:38:45','2018-01-05 08:38:45'),(656,88,19,0.025,0.06,'HIHATCLOSED',2.75,0.2,'D12','2018-01-05 08:38:45','2018-01-05 09:32:21'),(657,88,24,0.08,0.5,'TOMLOW',2.75,0.8,'G4','2018-01-05 08:38:45','2018-01-07 00:38:37'),(658,88,19,0.2,0.1,'HIHATCLOSED',3,0.25,'E12','2018-01-05 08:38:45','2018-01-05 08:38:45'),(659,88,18,1,0.1,'SNARE',3,1,'G8','2018-01-05 08:38:45','2018-01-05 08:38:45'),(661,88,19,0.1,0.1,'MARACAS',3.25,0.5,'Bb8','2018-01-05 08:38:45','2018-01-05 09:32:21'),(662,88,19,0.1,0.1,'HIHATCLOSED',3.25,0.2,'G12','2018-01-05 08:38:45','2018-01-05 09:32:21'),(663,88,20,0.3,0.6,'CONGAHIGH',3.25,0.6,'F5','2018-01-05 08:38:45','2018-01-05 09:32:21'),(664,88,19,0.05,0.12,'HIHATOPEN',3.5,0.5,'E8','2018-01-05 08:38:45','2018-01-05 08:38:45'),(665,88,19,0.2,0.1,'MARACAS',3.5,0.5,'Bb8','2018-01-05 08:38:45','2018-01-05 08:38:45'),(666,88,20,0.1,0.6,'TOM',3.5,0.5,'G3','2018-01-05 08:38:45','2018-01-05 08:38:45'),(667,88,24,0.1,0.5,'TOMLOW',3.5,1,'G4','2018-01-05 08:38:45','2018-01-07 00:38:37'),(668,88,19,0.12,0.06,'HIHATCLOSED',3.75,0.2,'D12','2018-01-05 08:38:45','2018-01-05 09:32:21'),(669,88,18,0.5,0.1,'SNARE',2.5,1,'G8','2018-01-05 08:39:07','2018-01-05 10:07:25'),(724,91,20,0.1,0.6,'CONGA',0,1,'F5','2018-01-05 09:43:58','2018-01-05 09:43:58'),(725,91,23,1,1,'KICKLONG',0,1,'C2','2018-01-05 09:43:58','2018-01-05 09:43:58'),(726,91,19,0.2,0.1,'HIHATCLOSED',0,0.3,'E12','2018-01-05 09:43:58','2018-01-05 09:43:58'),(727,91,19,0.1,0.1,'HIHATCLOSED',0.25,0.2,'G12','2018-01-05 09:43:58','2018-01-05 09:43:58'),(728,91,20,0.1,0.6,'TOM',0.5,0.75,'C6','2018-01-05 09:43:58','2018-01-05 09:43:58'),(729,91,24,0.05,0.5,'TOMLOW',0.5,0.5,'G4','2018-01-05 09:43:58','2018-01-07 00:38:37'),(730,91,19,0.2,0.1,'MARACAS',0.5,0.5,'Bb8','2018-01-05 09:43:58','2018-01-05 09:43:58'),(731,91,19,0.05,0.12,'HIHATOPEN',0.5,0.25,'E8','2018-01-05 09:43:58','2018-01-05 09:43:58'),(732,91,19,0.025,0.06,'HIHATCLOSED',0.75,0.2,'D12','2018-01-05 09:43:58','2018-01-05 09:43:58'),(733,91,19,0.16,0.1,'HIHATCLOSED',1,0.25,'E12','2018-01-05 09:43:58','2018-01-05 09:43:58'),(734,91,18,1,0.2,'SNARE',1,1,'G8','2018-01-05 09:43:58','2018-01-05 09:43:58'),(736,91,19,0.1,0.1,'HIHATCLOSED',1.25,0.2,'G12','2018-01-05 09:43:58','2018-01-05 09:43:58'),(737,91,20,0.05,0.6,'TOM',1.25,0.7,'G5','2018-01-05 09:43:58','2018-01-05 09:43:58'),(738,91,19,0.2,0.1,'MARACAS',1.5,0.5,'Bb8','2018-01-05 09:43:58','2018-01-05 09:43:58'),(739,91,19,0.05,0.12,'HIHATOPEN',1.5,0.25,'E8','2018-01-05 09:43:58','2018-01-05 09:43:58'),(740,91,19,0.12,0.06,'HIHATCLOSED',1.75,0.2,'D12','2018-01-05 09:43:58','2018-01-05 09:43:58'),(741,91,18,0.1,0.2,'SNARE',1.75,0.2,'G5','2018-01-05 09:43:58','2018-01-05 09:43:58'),(742,91,19,0.2,0.1,'HIHATCLOSED',2,0.25,'E12','2018-01-05 09:43:58','2018-01-05 09:43:58'),(743,91,20,0.05,0.5,'COWBELL',2,1,'F5','2018-01-05 09:43:58','2018-01-05 09:43:58'),(744,91,20,0.2,0.6,'TOM',2,1,'C5','2018-01-05 09:43:58','2018-01-05 09:43:58'),(745,91,19,0.1,0.12,'HIHATCLOSED',2.25,0.2,'E8','2018-01-05 09:43:58','2018-01-05 09:43:58'),(746,91,18,0.2,1,'KICK',2.25,0.2,'F#2','2018-01-05 09:43:58','2018-01-05 09:43:58'),(747,91,23,0.8,1,'KICK',2.5,1,'C2','2018-01-05 09:43:58','2018-01-05 09:43:58'),(748,91,19,0.2,0.1,'MARACAS',2.5,0.5,'Bb8','2018-01-05 09:43:58','2018-01-05 09:43:58'),(749,91,19,0.05,0.1,'HIHATOPEN',2.5,0.25,'G12','2018-01-05 09:43:58','2018-01-05 09:43:58'),(750,91,18,0.3,1,'KICKLONG',2.5,0.5,'C2','2018-01-05 09:43:58','2018-01-05 09:43:58'),(751,91,19,0.025,0.06,'HIHATCLOSED',2.75,0.2,'D12','2018-01-05 09:43:58','2018-01-05 09:43:58'),(752,91,24,0.08,0.5,'TOMLOW',2.75,0.8,'G4','2018-01-05 09:43:58','2018-01-07 00:38:37'),(753,91,19,0.2,0.1,'HIHATCLOSED',3,0.25,'E12','2018-01-05 09:43:58','2018-01-05 09:43:58'),(754,91,18,1,0.1,'SNARE',3,1,'G8','2018-01-05 09:43:58','2018-01-05 09:43:58'),(756,91,19,0.1,0.1,'MARACAS',3.25,0.5,'Bb8','2018-01-05 09:43:58','2018-01-05 09:43:58'),(757,91,19,0.1,0.1,'HIHATCLOSED',3.25,0.2,'G12','2018-01-05 09:43:58','2018-01-05 09:43:58'),(758,91,20,0.3,0.6,'CONGAHIGH',3.25,0.6,'F5','2018-01-05 09:43:58','2018-01-05 09:43:58'),(759,91,19,0.05,0.12,'HIHATOPEN',3.5,0.5,'E8','2018-01-05 09:43:58','2018-01-05 09:43:58'),(760,91,19,0.2,0.1,'MARACAS',3.5,0.5,'Bb8','2018-01-05 09:43:58','2018-01-05 09:43:58'),(761,91,20,0.1,0.6,'TOM',3.5,0.5,'G3','2018-01-05 09:43:58','2018-01-05 09:43:58'),(762,91,24,0.1,0.5,'TOMLOW',3.5,1,'G4','2018-01-05 09:43:58','2018-01-07 00:38:37'),(763,91,19,0.12,0.06,'HIHATCLOSED',3.75,0.2,'D12','2018-01-05 09:43:58','2018-01-05 09:43:58'),(764,91,20,0.25,0,'CYMBALCRASH',0,4,'F5','2018-01-05 09:47:17','2018-01-06 23:29:10'),(765,91,19,0.125,0,'CYMBALCRASH',1.5,4,'F5','2018-01-05 09:57:22','2018-01-06 23:29:10'),(766,91,24,0.0625,0,'CYMBALCRASH',3,4,'F5','2018-01-05 09:57:47','2018-01-06 23:29:10'),(768,92,20,0.25,0,'CYMBALCRASH',0,4,'F5','2018-01-05 10:04:13','2018-01-06 23:29:10'),(769,92,20,1,1,'KICKLONG',1,4,'C5','2018-01-05 10:04:13','2018-01-05 15:51:19'),(770,92,19,0.2,0.1,'HIHATCLOSED',0,0.3,'E12','2018-01-05 10:04:13','2018-01-05 10:04:13'),(771,92,19,0.1,0.1,'HIHATCLOSED',0.25,0.2,'G12','2018-01-05 10:04:13','2018-01-05 10:04:13'),(772,92,20,0.1,0.6,'TOM',0.5,0.75,'C6','2018-01-05 10:04:13','2018-01-05 10:04:13'),(773,92,24,0.05,0.5,'TOMLOW',0.5,0.5,'G4','2018-01-05 10:04:13','2018-01-07 00:38:37'),(774,92,19,0.2,0.1,'MARACAS',0.5,0.5,'Bb8','2018-01-05 10:04:13','2018-01-05 10:04:13'),(775,92,19,0.05,0.12,'HIHATOPEN',0.5,0.25,'E8','2018-01-05 10:04:13','2018-01-05 10:04:13'),(776,92,19,0.025,0.06,'HIHATCLOSED',0.75,0.2,'D12','2018-01-05 10:04:13','2018-01-05 10:04:13'),(777,92,19,0.16,0.1,'HIHATCLOSED',1,0.25,'E12','2018-01-05 10:04:13','2018-01-05 10:04:13'),(780,92,20,0.05,0.6,'TOM',1.25,0.7,'G5','2018-01-05 10:04:13','2018-01-05 10:04:13'),(781,92,19,0.1,0.1,'HIHATCLOSED',1.25,0.2,'G12','2018-01-05 10:04:13','2018-01-05 10:04:13'),(782,92,19,0.2,0.1,'MARACAS',1.5,0.5,'Bb8','2018-01-05 10:04:13','2018-01-05 10:04:13'),(783,92,19,0.05,0.12,'HIHATOPEN',1.5,0.25,'E8','2018-01-05 10:04:13','2018-01-05 10:04:13'),(784,92,19,0.0625,0,'CYMBALCRASH',1.5,4,'F5','2018-01-05 10:04:13','2018-01-06 23:29:10'),(785,92,19,0.12,0.06,'HIHATCLOSED',1.75,0.2,'D12','2018-01-05 10:04:13','2018-01-05 10:04:13'),(786,92,18,0.1,0.2,'SNARE',1.75,0.2,'G5','2018-01-05 10:04:13','2018-01-05 10:04:13'),(787,92,19,0.2,0.1,'HIHATCLOSED',2,0.25,'E12','2018-01-05 10:04:13','2018-01-05 10:04:13'),(788,92,20,0.05,0.5,'COWBELL',2,1,'F5','2018-01-05 10:04:14','2018-01-05 10:04:14'),(789,92,20,0.2,0.6,'TOM',2,1,'C5','2018-01-05 10:04:14','2018-01-05 10:04:14'),(790,92,19,0.1,0.12,'HIHATCLOSED',2.25,0.2,'E8','2018-01-05 10:04:14','2018-01-05 10:04:14'),(791,92,18,0.2,1,'KICK',2.25,0.2,'F#2','2018-01-05 10:04:14','2018-01-05 10:04:14'),(792,92,19,0.05,0.1,'HIHATOPEN',2.5,0.25,'G12','2018-01-05 10:04:14','2018-01-05 10:04:14'),(793,92,18,0.3,1,'KICKLONG',2.5,0.5,'C2','2018-01-05 10:04:14','2018-01-05 10:04:14'),(794,92,19,0.2,0.1,'MARACAS',2.5,0.5,'Bb8','2018-01-05 10:04:14','2018-01-05 10:04:14'),(795,92,23,0.8,1,'KICK',2.5,1,'C2','2018-01-05 10:04:14','2018-01-05 10:04:14'),(796,92,19,0.025,0.06,'HIHATCLOSED',2.75,0.2,'D12','2018-01-05 10:04:14','2018-01-05 10:04:14'),(797,92,24,0.08,0.5,'TOMLOW',2.75,0.8,'G4','2018-01-05 10:04:14','2018-01-07 00:38:37'),(798,92,24,0.03,0,'CYMBALCRASH',3,4,'F5','2018-01-05 10:04:14','2018-01-06 23:29:10'),(800,92,18,1,0.1,'SNARE',3,1,'G8','2018-01-05 10:04:14','2018-01-05 10:04:14'),(801,92,19,0.2,0.1,'HIHATCLOSED',3,0.25,'E12','2018-01-05 10:04:14','2018-01-05 10:04:14'),(802,92,19,0.1,0.1,'MARACAS',3.25,0.5,'Bb8','2018-01-05 10:04:14','2018-01-05 10:04:14'),(803,92,19,0.1,0.1,'HIHATCLOSED',3.25,0.2,'G12','2018-01-05 10:04:14','2018-01-05 10:04:14'),(804,92,20,0.3,0.6,'CONGAHIGH',3.25,0.6,'F5','2018-01-05 10:04:14','2018-01-05 10:04:14'),(805,92,19,0.05,0.12,'HIHATOPEN',3.5,0.5,'E8','2018-01-05 10:04:14','2018-01-05 10:04:14'),(806,92,19,0.2,0.1,'MARACAS',3.5,0.5,'Bb8','2018-01-05 10:04:14','2018-01-05 10:04:14'),(807,92,20,0.1,0.6,'TOM',3.5,0.5,'G3','2018-01-05 10:04:14','2018-01-05 10:04:14'),(808,92,24,0.1,0.5,'TOMLOW',3.5,1,'G4','2018-01-05 10:04:14','2018-01-07 00:38:37'),(809,92,19,0.12,0.06,'HIHATCLOSED',3.75,0.2,'D12','2018-01-05 10:04:14','2018-01-05 10:04:14'),(1048,99,37,1,1,'KICKLONG',0,4,'C5','2018-01-05 14:54:11','2018-01-07 02:14:01'),(1050,99,36,0.2,0.1,'HIHATCLOSED',0,0.3,'E12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1052,99,36,0.1,0.1,'HIHATCLOSED',0.25,0.2,'G12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1053,100,37,1,1,'KICKLONG',0,4,'C5','2018-01-05 14:54:11','2018-01-07 02:13:42'),(1054,102,37,1,1,'KICKLONG',0,4,'C5','2018-01-05 14:54:11','2018-01-07 02:14:39'),(1056,99,37,0.1,0.6,'TOM',0.5,0.75,'C6','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1057,100,36,0.2,0.1,'HIHATCLOSED',0,0.3,'E12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1058,101,36,0.2,0.1,'HIHATCLOSED',0,0.3,'E12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1060,99,39,0.05,0.5,'TOMLOW',0.5,0.5,'G4','2018-01-05 14:54:11','2018-01-07 00:38:37'),(1062,100,36,0.1,0.1,'HIHATCLOSED',0.25,0.2,'G12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1063,102,36,0.2,0.1,'HIHATCLOSED',0,0.3,'E12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1064,101,37,1,1,'KICKLONG',0,4,'c5','2018-01-05 14:54:11','2018-01-07 02:14:16'),(1065,99,36,0.2,0.1,'MARACAS',0.5,0.5,'Bb8','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1066,103,37,0.25,0,'CYMBALCRASH',0,4,'F5','2018-01-05 14:54:11','2018-01-06 23:29:10'),(1067,100,37,0.1,0.6,'TOM',0.5,0.75,'C6','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1068,102,36,0.1,0.1,'HIHATCLOSED',0.25,0.2,'G12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1069,101,36,0.1,0.1,'HIHATCLOSED',0.25,0.2,'G12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1070,99,36,0.05,0.12,'HIHATOPEN',0.5,0.25,'E8','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1071,103,37,1,1,'KICKLONG',0,4,'C5','2018-01-05 14:54:11','2018-01-07 02:14:51'),(1072,100,36,0.2,0.1,'MARACAS',0.5,0.5,'Bb8','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1073,102,37,0.1,0.6,'TOM',0.5,0.75,'C6','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1074,101,37,0.1,0.6,'TOM',0.5,0.75,'C6','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1075,99,36,0.025,0.06,'HIHATCLOSED',0.75,0.2,'D12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1076,103,36,0.2,0.1,'HIHATCLOSED',0,0.3,'E12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1077,100,36,0.05,0.12,'HIHATOPEN',0.5,0.25,'E8','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1078,104,37,1,1,'KICKLONG',0,4,'C5','2018-01-05 14:54:11','2018-01-07 02:15:06'),(1079,102,36,0.2,0.1,'MARACAS',0.5,0.5,'Bb8','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1080,101,36,0.2,0.1,'MARACAS',0.5,0.5,'Bb8','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1081,103,36,0.1,0.1,'HIHATCLOSED',0.25,0.2,'G12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1082,99,36,0.16,0.1,'HIHATCLOSED',1,0.25,'E12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1083,100,39,0.05,0.5,'TOMLOW',0.5,0.5,'G4','2018-01-05 14:54:11','2018-01-07 00:38:37'),(1084,102,36,0.05,0.12,'HIHATOPEN',0.5,0.25,'E8','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1085,101,36,0.05,0.12,'HIHATOPEN',0.5,0.25,'E8','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1086,103,37,0.1,0.6,'TOM',0.5,0.75,'C6','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1087,104,37,0.25,0,'CYMBALCRASH',0,4,'F5','2018-01-05 14:54:11','2018-01-06 23:29:10'),(1089,100,36,0.025,0.06,'HIHATCLOSED',0.75,0.2,'D12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1090,102,39,0.05,0.5,'TOMLOW',0.5,0.5,'G4','2018-01-05 14:54:11','2018-01-07 00:38:37'),(1091,101,39,0.05,0.5,'TOMLOW',0.5,0.5,'G4','2018-01-05 14:54:11','2018-01-07 00:38:37'),(1092,103,39,0.05,0.5,'TOMLOW',0.5,0.5,'G4','2018-01-05 14:54:11','2018-01-07 00:38:37'),(1095,104,36,0.2,0.1,'HIHATCLOSED',0,0.3,'E12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1096,102,36,0.025,0.06,'HIHATCLOSED',0.75,0.2,'D12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1097,101,36,0.025,0.06,'HIHATCLOSED',0.75,0.2,'D12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1098,103,36,0.2,0.1,'MARACAS',0.5,0.5,'Bb8','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1099,99,36,0.1,0.1,'HIHATCLOSED',1.25,0.2,'G12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1101,102,36,0.16,0.1,'HIHATCLOSED',1,0.25,'E12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1103,103,36,0.05,0.12,'HIHATOPEN',0.5,0.25,'E8','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1104,99,37,0.05,0.6,'TOM',1.25,0.7,'G5','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1105,104,36,0.1,0.1,'HIHATCLOSED',0.25,0.2,'G12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1106,100,36,0.16,0.1,'HIHATCLOSED',1,0.25,'E12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1109,103,36,0.025,0.06,'HIHATCLOSED',0.75,0.2,'D12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1110,99,36,0.2,0.1,'MARACAS',1.5,0.5,'Bb8','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1111,100,36,0.1,0.1,'HIHATCLOSED',1.25,0.2,'G12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1112,104,37,0.1,0.6,'TOM',0.5,0.75,'C6','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1113,101,36,0.16,0.1,'HIHATCLOSED',1,0.25,'E12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1115,103,36,0.16,0.1,'HIHATCLOSED',1,0.25,'E12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1116,99,36,0.05,0.12,'HIHATOPEN',1.5,0.25,'E8','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1117,100,37,0.05,0.6,'TOM',1.25,0.7,'G5','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1118,101,36,0.1,0.1,'HIHATCLOSED',1.25,0.2,'G12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1119,102,36,0.1,0.1,'HIHATCLOSED',1.25,0.2,'G12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1120,99,36,0.12,0.06,'HIHATCLOSED',1.75,0.2,'D12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1122,100,36,0.2,0.1,'MARACAS',1.5,0.5,'Bb8','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1123,104,39,0.05,0.5,'TOMLOW',0.5,0.5,'G4','2018-01-05 14:54:11','2018-01-07 00:38:37'),(1126,101,37,0.05,0.6,'TOM',1.25,0.7,'G5','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1127,102,37,0.05,0.6,'TOM',1.25,0.7,'G5','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1128,100,36,0.05,0.12,'HIHATOPEN',1.5,0.25,'E8','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1129,104,36,0.2,0.1,'MARACAS',0.5,0.5,'Bb8','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1130,99,36,0.2,0.1,'HIHATCLOSED',2,0.25,'E12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1131,103,37,0.05,0.6,'TOM',1.25,0.7,'G5','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1132,101,36,0.2,0.1,'MARACAS',1.5,0.5,'Bb8','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1133,102,36,0.2,0.1,'MARACAS',1.5,0.5,'Bb8','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1134,100,36,0.12,0.06,'HIHATCLOSED',1.75,0.2,'D12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1136,103,36,0.1,0.1,'HIHATCLOSED',1.25,0.2,'G12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1137,104,36,0.05,0.12,'HIHATOPEN',0.5,0.25,'E8','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1139,102,36,0.05,0.12,'HIHATOPEN',1.5,0.25,'E8','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1140,101,36,0.05,0.12,'HIHATOPEN',1.5,0.25,'E8','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1141,99,37,0.2,0.6,'TOM',2,1,'C5','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1142,103,36,0.2,0.1,'MARACAS',1.5,0.5,'Bb8','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1144,102,36,0.12,0.06,'HIHATCLOSED',1.75,0.2,'D12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1145,101,36,0.12,0.06,'HIHATCLOSED',1.75,0.2,'D12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1146,104,36,0.025,0.06,'HIHATCLOSED',0.75,0.2,'D12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1147,99,36,0.1,0.12,'HIHATCLOSED',2.25,0.2,'E8','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1148,103,36,0.05,0.12,'HIHATOPEN',1.5,0.25,'E8','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1152,103,36,0.125,0,'CYMBALCRASH',1.5,4,'F5','2018-01-05 14:54:11','2018-01-06 23:29:10'),(1154,101,36,0.2,0.1,'HIHATCLOSED',2,0.25,'E12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1155,104,36,0.16,0.1,'HIHATCLOSED',1,0.25,'E12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1156,100,36,0.2,0.1,'HIHATCLOSED',2,0.25,'E12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1158,103,36,0.12,0.06,'HIHATCLOSED',1.75,0.2,'D12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1160,101,37,0.2,0.6,'TOM',2,1,'C5','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1161,100,36,0.1,0.12,'HIHATCLOSED',2.25,0.2,'E8','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1162,102,36,0.2,0.1,'HIHATCLOSED',2,0.25,'E12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1163,104,36,0.1,0.1,'HIHATCLOSED',1.25,0.2,'G12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1164,99,36,0.2,0.1,'MARACAS',2.5,0.5,'Bb8','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1166,100,36,0.2,0.1,'MARACAS',2.5,0.5,'Bb8','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1167,101,37,0.05,0.5,'COWBELL',2,1,'F5','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1168,102,37,0.05,0.5,'COWBELL',2,1,'F5','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1169,99,36,0.05,0.1,'HIHATOPEN',2.5,0.25,'G12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1170,103,36,0.2,0.1,'HIHATCLOSED',2,0.25,'E12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1171,100,36,0.05,0.1,'HIHATOPEN',2.5,0.25,'G12','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1172,104,37,0.05,0.6,'TOM',1.25,0.7,'G5','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1173,102,36,0.1,0.12,'HIHATCLOSED',2.25,0.2,'E8','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1174,101,36,0.1,0.12,'HIHATCLOSED',2.25,0.2,'E8','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1175,103,37,0.05,0.5,'COWBELL',2,1,'F5','2018-01-05 14:54:11','2018-01-05 14:54:11'),(1180,104,36,0.2,0.1,'MARACAS',1.5,0.5,'Bb8','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1181,103,37,0.2,0.6,'TOM',2,1,'C5','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1182,99,36,0.025,0.06,'HIHATCLOSED',2.75,0.2,'D12','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1186,103,36,0.1,0.12,'HIHATCLOSED',2.25,0.2,'E8','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1187,104,36,0.05,0.12,'HIHATOPEN',1.5,0.25,'E8','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1188,99,39,0.08,0.5,'TOMLOW',2.75,0.8,'G4','2018-01-05 14:54:12','2018-01-07 00:38:37'),(1189,100,36,0.025,0.06,'HIHATCLOSED',2.75,0.2,'D12','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1190,101,36,0.2,0.1,'MARACAS',2.5,0.5,'Bb8','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1192,99,36,0.2,0.1,'HIHATCLOSED',3,0.25,'E12','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1194,100,36,0.2,0.1,'HIHATCLOSED',3,0.25,'E12','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1195,101,36,0.05,0.1,'HIHATOPEN',2.5,0.25,'G12','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1196,103,36,0.05,0.1,'HIHATOPEN',2.5,0.25,'G12','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1197,104,36,0.0625,0,'CYMBALCRASH',1.5,4,'F5','2018-01-05 14:54:12','2018-01-06 23:29:10'),(1198,102,36,0.05,0.1,'HIHATOPEN',2.5,0.25,'G12','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1203,102,36,0.2,0.1,'MARACAS',2.5,0.5,'Bb8','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1204,104,36,0.12,0.06,'HIHATCLOSED',1.75,0.2,'D12','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1207,101,36,0.025,0.06,'HIHATCLOSED',2.75,0.2,'D12','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1208,103,36,0.2,0.1,'MARACAS',2.5,0.5,'Bb8','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1209,102,36,0.025,0.06,'HIHATCLOSED',2.75,0.2,'D12','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1210,99,36,0.1,0.1,'MARACAS',3.25,0.5,'Bb8','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1211,100,36,0.1,0.1,'MARACAS',3.25,0.5,'Bb8','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1212,101,36,0.2,0.1,'HIHATCLOSED',3,0.25,'E12','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1215,102,39,0.08,0.5,'TOMLOW',2.75,0.8,'G4','2018-01-05 14:54:12','2018-01-07 00:38:37'),(1216,99,36,0.1,0.1,'HIHATCLOSED',3.25,0.2,'G12','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1217,100,36,0.1,0.1,'HIHATCLOSED',3.25,0.2,'G12','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1218,101,36,0.1,0.1,'MARACAS',3.25,0.5,'Bb8','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1219,103,36,0.025,0.06,'HIHATCLOSED',2.75,0.2,'D12','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1220,102,36,0.2,0.1,'HIHATCLOSED',3,0.25,'E12','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1221,99,37,0.3,0.6,'CONGAHIGH',3.25,0.6,'F5','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1222,104,36,0.2,0.1,'HIHATCLOSED',2,0.25,'E12','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1223,100,37,0.3,0.6,'CONGAHIGH',3.25,0.6,'F5','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1224,101,36,0.1,0.1,'HIHATCLOSED',3.25,0.2,'G12','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1225,103,39,0.08,0.5,'TOMLOW',2.75,0.8,'G4','2018-01-05 14:54:12','2018-01-07 00:38:37'),(1227,99,36,0.05,0.12,'HIHATOPEN',3.5,0.5,'E8','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1228,100,36,0.05,0.12,'HIHATOPEN',3.5,0.5,'E8','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1229,101,37,0.3,0.6,'CONGAHIGH',3.25,0.6,'F5','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1230,103,39,0.0625,0,'CYMBALCRASH',3,4,'F5','2018-01-05 14:54:12','2018-01-06 23:29:10'),(1232,104,37,0.05,0.5,'COWBELL',2,1,'F5','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1233,99,36,0.2,0.1,'MARACAS',3.5,0.5,'Bb8','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1234,100,36,0.2,0.1,'MARACAS',3.5,0.5,'Bb8','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1235,101,36,0.05,0.12,'HIHATOPEN',3.5,0.5,'E8','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1236,102,36,0.1,0.1,'MARACAS',3.25,0.5,'Bb8','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1238,99,37,0.1,0.6,'TOM',3.5,0.5,'G3','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1239,104,37,0.2,0.6,'TOM',2,1,'C5','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1240,102,36,0.1,0.1,'HIHATCLOSED',3.25,0.2,'G12','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1241,100,37,0.1,0.6,'TOM',3.5,0.5,'G3','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1242,101,36,0.2,0.1,'MARACAS',3.5,0.5,'Bb8','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1244,99,39,0.1,0.5,'TOMLOW',3.5,1,'G4','2018-01-05 14:54:12','2018-01-07 00:38:37'),(1245,102,37,0.3,0.6,'CONGAHIGH',3.25,0.6,'F5','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1246,104,36,0.1,0.12,'HIHATCLOSED',2.25,0.2,'E8','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1247,100,39,0.1,0.5,'TOMLOW',3.5,1,'G4','2018-01-05 14:54:12','2018-01-07 00:38:37'),(1248,103,36,0.2,0.1,'HIHATCLOSED',3,0.25,'E12','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1249,99,36,0.12,0.06,'HIHATCLOSED',3.75,0.2,'D12','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1250,101,37,0.1,0.6,'TOM',3.5,0.5,'G3','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1251,100,36,0.12,0.06,'HIHATCLOSED',3.75,0.2,'D12','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1252,102,36,0.05,0.12,'HIHATOPEN',3.5,0.5,'E8','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1253,103,36,0.1,0.1,'MARACAS',3.25,0.5,'Bb8','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1254,101,39,0.1,0.5,'TOMLOW',3.5,1,'G4','2018-01-05 14:54:12','2018-01-07 00:38:37'),(1256,102,36,0.2,0.1,'MARACAS',3.5,0.5,'Bb8','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1257,103,36,0.1,0.1,'HIHATCLOSED',3.25,0.2,'G12','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1258,101,36,0.12,0.06,'HIHATCLOSED',3.75,0.2,'D12','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1259,104,36,0.05,0.1,'HIHATOPEN',2.5,0.25,'G12','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1260,102,37,0.1,0.6,'TOM',3.5,0.5,'G3','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1261,103,37,0.3,0.6,'CONGAHIGH',3.25,0.6,'F5','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1262,102,39,0.1,0.5,'TOMLOW',3.5,1,'G4','2018-01-05 14:54:12','2018-01-07 00:38:37'),(1263,103,36,0.05,0.12,'HIHATOPEN',3.5,0.5,'E8','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1265,102,36,0.12,0.06,'HIHATCLOSED',3.75,0.2,'D12','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1266,103,36,0.2,0.1,'MARACAS',3.5,0.5,'Bb8','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1267,104,36,0.2,0.1,'MARACAS',2.5,0.5,'Bb8','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1268,103,37,0.1,0.6,'TOM',3.5,0.5,'G3','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1269,103,39,0.1,0.5,'TOMLOW',3.5,1,'G4','2018-01-05 14:54:12','2018-01-07 00:38:37'),(1271,103,36,0.12,0.06,'HIHATCLOSED',3.75,0.2,'D12','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1272,104,36,0.025,0.06,'HIHATCLOSED',2.75,0.2,'D12','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1273,104,39,0.08,0.5,'TOMLOW',2.75,0.8,'G4','2018-01-05 14:54:12','2018-01-07 00:38:37'),(1275,104,36,0.2,0.1,'HIHATCLOSED',3,0.25,'E12','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1277,104,39,0.03,0,'CYMBALCRASH',3,4,'F5','2018-01-05 14:54:12','2018-01-06 23:29:10'),(1278,104,36,0.1,0.1,'MARACAS',3.25,0.5,'Bb8','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1279,104,36,0.1,0.1,'HIHATCLOSED',3.25,0.2,'G12','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1280,104,37,0.3,0.6,'CONGAHIGH',3.25,0.6,'F5','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1281,104,36,0.05,0.12,'HIHATOPEN',3.5,0.5,'E8','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1282,104,36,0.2,0.1,'MARACAS',3.5,0.5,'Bb8','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1283,104,37,0.1,0.6,'TOM',3.5,0.5,'G3','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1284,104,39,0.1,0.5,'TOMLOW',3.5,1,'G4','2018-01-05 14:54:12','2018-01-07 00:38:37'),(1285,104,36,0.12,0.06,'HIHATCLOSED',3.75,0.2,'D12','2018-01-05 14:54:12','2018-01-05 14:54:12'),(1286,99,37,0.8,0,'SNARE',2,1,'g5','2018-01-07 02:09:36','2018-01-07 02:09:36'),(1287,100,37,0.4,0,'SNARE',2,1,'g5','2018-01-07 02:10:12','2018-01-07 02:13:24'),(1288,101,37,0.8,0,'SNARE',2,1,'g5','2018-01-07 02:10:51','2018-01-07 02:10:51'),(1289,101,37,0.4,0,'SNARE',3.5,1,'g5','2018-01-07 02:11:06','2018-01-07 02:11:06'),(1290,102,37,0.8,0,'SNARE',2,1,'g5','2018-01-07 02:11:31','2018-01-07 02:11:31'),(1291,103,37,0.8,0,'SNARE',2,1,'g5','2018-01-07 02:12:11','2018-01-07 02:12:11'),(1292,104,37,0.4,0,'SNARE',2,1,'g5','2018-01-07 02:12:55','2018-01-07 02:13:04');
-/*!40000 ALTER TABLE `phase_event` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -978,4 +1718,64 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-06-19 19:27:06
+-- Dump completed on 2018-08-30  8:54:00
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#-------------
+USE `xj_test`;
+
+-- MySQL dump 10.13  Distrib 5.7.23, for Linux (x86_64)
+--
+-- Host: 127.0.0.1    Database: xj_test
+-- ------------------------------------------------------
+-- Server version	5.6.34
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Dumping data for table `schema_version`
+--
+
+LOCK TABLES `schema_version` WRITE;
+/*!40000 ALTER TABLE `schema_version` DISABLE KEYS */;
+INSERT INTO `schema_version` VALUES (1,'1','user auth','SQL','V1__user_auth.sql',447090788,'root','2018-08-30 15:48:58',154,1),(2,'2','account','SQL','V2__account.sql',-728725086,'root','2018-08-30 15:48:58',157,1),(3,'3','credit','SQL','V3__credit.sql',-385750700,'root','2018-08-30 15:48:58',79,1),(4,'4','library idea phase meme voice event','SQL','V4__library_idea_phase_meme_voice_event.sql',-1534808241,'root','2018-08-30 15:48:59',642,1),(5,'5','instrument meme audio chord event','SQL','V5__instrument_meme_audio_chord_event.sql',-1907897642,'root','2018-08-30 15:49:00',396,1),(6,'6','chain link chord choice','SQL','V6__chain_link_chord_choice.sql',-2093488888,'root','2018-08-30 15:49:00',331,1),(7,'7','arrangement morph point pick','SQL','V7__arrangement_morph_point_pick.sql',-1775760070,'root','2018-08-30 15:49:00',373,1),(8,'8','user auth column renaming','SQL','V8__user_auth_column_renaming.sql',-1774157694,'root','2018-08-30 15:49:00',35,1),(9,'9','user role','SQL','V9__user_role.sql',-2040912989,'root','2018-08-30 15:49:00',85,1),(10,'10','user access token','SQL','V10__user_access_token.sql',-1589285188,'root','2018-08-30 15:49:01',91,1),(11,'11','user auth column renaming','SQL','V11__user_auth_column_renaming.sql',342405360,'root','2018-08-30 15:49:01',14,1),(12,'12','RENAME account user TO account user role','SQL','V12__RENAME_account_user_TO_account_user_role.sql',569433197,'root','2018-08-30 15:49:01',31,1),(13,'14','ALTER user DROP COLUMN admin','SQL','V14__ALTER_user_DROP_COLUMN_admin.sql',660577316,'root','2018-08-30 15:49:01',101,1),(14,'15','ALTER account ADD COLUMN name','SQL','V15__ALTER_account_ADD_COLUMN_name.sql',2013415455,'root','2018-08-30 15:49:01',99,1),(15,'16','ALTER library ADD COLUMN name','SQL','V16__ALTER_library_ADD_COLUMN_name.sql',652666977,'root','2018-08-30 15:49:01',133,1),(16,'17','RENAME ALTER account user role TO account user','SQL','V17__RENAME_ALTER_account_user_role_TO_account_user.sql',-527669089,'root','2018-08-30 15:49:01',146,1),(17,'18','ALTER chain BELONGS TO account HAS MANY library','SQL','V18__ALTER_chain_BELONGS_TO_account_HAS_MANY_library.sql',407528039,'root','2018-08-30 15:49:02',363,1),(18,'19','DROP credit ALTER idea instrument belong directly to user','SQL','V19__DROP_credit_ALTER_idea_instrument_belong_directly_to_user.sql',-940090323,'root','2018-08-30 15:49:03',992,1),(19,'20','ALTER phase choice BIGINT offset total','SQL','V20__ALTER_phase_choice_BIGINT_offset_total.sql',1174421309,'root','2018-08-30 15:49:03',661,1),(20,'21','ALTER DROP order FORM instrument idea phase meme','SQL','V21__ALTER_DROP_order_FORM_instrument_idea_phase_meme.sql',-825269746,'root','2018-08-30 15:49:04',362,1),(21,'22','ALTER phase optional values','SQL','V22__ALTER_phase_optional_values.sql',2115016285,'root','2018-08-30 15:49:04',477,1),(22,'23','ALTER audio COLUMNS waveformUrl','SQL','V23__ALTER_audio_COLUMNS_waveformUrl.sql',-1407515541,'root','2018-08-30 15:49:04',174,1),(23,'24','ALTER audio FLOAT start length','SQL','V24__ALTER_audio_FLOAT_start_length.sql',-2000888804,'root','2018-08-30 15:49:05',325,1),(24,'25','ALTER chain ADD COLUMNS name state startat stopat','SQL','V25__ALTER_chain_ADD_COLUMNS_name_state_startat_stopat.sql',1356557345,'root','2018-08-30 15:49:05',491,1),(25,'26','ALTER link FLOAT start finish','SQL','V26__ALTER_link_FLOAT_start_finish.sql',-1185447213,'root','2018-08-30 15:49:06',332,1),(26,'27','ALTER all tables ADD COLUMN createdat updatedat','SQL','V27__ALTER_all_tables_ADD_COLUMN_createdat_updatedat.sql',-794640015,'root','2018-08-30 15:49:13',6857,1),(27,'28','ALTER chain link TIMESTAMP microsecond precision','SQL','V28__ALTER_chain_link_TIMESTAMP_microsecond_precision.sql',-1850945451,'root','2018-08-30 15:49:13',660,1),(28,'29','ALTER arrangement DROP COLUMNS name density tempo','SQL','V29__ALTER_arrangement_DROP_COLUMNS_name_density_tempo.sql',-1660342705,'root','2018-08-30 15:49:14',419,1),(29,'30','ALTER pick FLOAT start length','SQL','V30__ALTER_pick_FLOAT_start_length.sql',-1842518453,'root','2018-08-30 15:49:14',358,1),(30,'31','ALTER pick ADD BELONGS TO arrangement','SQL','V31__ALTER_pick_ADD_BELONGS_TO_arrangement.sql',1953331613,'root','2018-08-30 15:49:14',367,1),(31,'32','ALTER link OPTIONAL total density key tempo','SQL','V32__ALTER_link_OPTIONAL_total_density_key_tempo.sql',-98188439,'root','2018-08-30 15:49:15',486,1),(32,'33','ALTER link UNIQUE chain offset','SQL','V33__ALTER_link_UNIQUE_chain_offset.sql',1398816976,'root','2018-08-30 15:49:15',56,1),(33,'34','ALTER audio COLUMNS waveformKey','SQL','V34__ALTER_audio_COLUMNS_waveformKey.sql',66858661,'root','2018-08-30 15:49:15',19,1),(34,'35','CREATE TABLE chain config','SQL','V35__CREATE_TABLE_chain_config.sql',-2134731909,'root','2018-08-30 15:49:15',79,1),(35,'36','CREATE TABLE chain idea','SQL','V36__CREATE_TABLE_chain_idea.sql',2038472760,'root','2018-08-30 15:49:15',101,1),(36,'37','CREATE TABLE chain instrument','SQL','V37__CREATE_TABLE_chain_instrument.sql',1486524130,'root','2018-08-30 15:49:15',94,1),(37,'38','ALTER chain ADD COLUMN type','SQL','V38__ALTER_chain_ADD_COLUMN_type.sql',608321610,'root','2018-08-30 15:49:16',126,1),(38,'39','ALTER phase MODIFY COLUMN total No Longer Required','SQL','V39__ALTER_phase_MODIFY_COLUMN_total_No_Longer_Required.sql',-1504223876,'root','2018-08-30 15:49:16',115,1),(39,'40','ALTER choice MODIFY COLUMN phase offset ULONG','SQL','V40__ALTER_choice_MODIFY_COLUMN_phase_offset_ULONG.sql',-240451169,'root','2018-08-30 15:49:16',171,1),(40,'41','CREATE TABLE link meme','SQL','V41__CREATE_TABLE_link_meme.sql',-18883080,'root','2018-08-30 15:49:16',89,1),(41,'42','ALTER phase link INT total','SQL','V42__ALTER_phase_link_INT_total.sql',-1400879099,'root','2018-08-30 15:49:16',375,1),(42,'43','CREATE TABLE link message','SQL','V43__CREATE_TABLE_link_message.sql',1616909549,'root','2018-08-30 15:49:16',83,1),(43,'44','ALTER pick BELONGS TO arrangement DROP morph point','SQL','V44__ALTER_pick_BELONGS_TO_arrangement_DROP_morph_point.sql',449955118,'root','2018-08-30 15:49:17',194,1),(44,'45','ALTER link ADD COLUMN waveform key','SQL','V45__ALTER_link_ADD_COLUMN_waveform_key.sql',-98370,'root','2018-08-30 15:49:17',127,1),(45,'46','ALTER audio ADD COLUMN state','SQL','V46__ALTER_audio_ADD_COLUMN_state.sql',-1300058820,'root','2018-08-30 15:49:17',240,1),(46,'47','ALTER chain ADD COLUMN embed key','SQL','V47__ALTER_chain_ADD_COLUMN_embed_key.sql',317233573,'root','2018-08-30 15:49:17',173,1),(47,'48','CREATE TABLE platform message','SQL','V48__CREATE_TABLE_platform_message.sql',-1332226532,'root','2018-08-30 15:49:17',76,1),(48,'49','CREATE pattern DEPRECATES idea','SQL','V49__CREATE_pattern_DEPRECATES_idea.sql',517513730,'root','2018-08-30 15:49:19',1550,1),(49,'50','REFACTOR voice BELONGS TO pattern','SQL','V50__REFACTOR_voice_BELONGS_TO_pattern.sql',1202195806,'root','2018-08-30 15:49:20',1078,1),(50,'51','DROP TABLE pick','SQL','V51__DROP_TABLE_pick.sql',-319463966,'root','2018-08-30 15:49:20',80,1),(51,'52','ALTER phase ADD COLUMN type','SQL','V52__ALTER_phase_ADD_COLUMN_type.sql',-95957482,'root','2018-08-30 15:49:20',243,1),(52,'53','ALTER chord MODIFY COLUMN position INTEGER','SQL','V53__ALTER_chord_MODIFY_COLUMN_position_INTEGER.sql',523400926,'root','2018-08-30 15:49:21',488,1),(53,'54','RENAME voice event TO phase event','SQL','V54__RENAME_voice_event_TO_phase_event.sql',-370585949,'root','2018-08-30 15:49:21',35,1),(54,'55','ALTER pattern phase ADD COLUMN state','SQL','V55__ALTER_pattern_phase_ADD_COLUMN_state.sql',-1299872216,'root','2018-08-30 15:49:22',522,1),(55,'56','ALTER chord MODIFY COLUMN position FLOAT','SQL','V56__ALTER_chord_MODIFY_COLUMN_position_FLOAT.sql',-894225407,'root','2018-08-30 15:49:22',499,1),(56,'57','REFACTORING chain segment sequence pattern','SQL','V57__REFACTORING_chain_segment_sequence_pattern.sql',-1235024870,'root','2018-08-30 15:49:26',4047,1),(57,'58','ALTER pattern ADD COLUMNS meter','SQL','V58__ALTER_pattern_ADD_COLUMNS_meter.sql',1342735981,'root','2018-08-30 15:49:27',357,1);
+/*!40000 ALTER TABLE `schema_version` ENABLE KEYS */;
+UNLOCK TABLES;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2018-08-30  8:54:00

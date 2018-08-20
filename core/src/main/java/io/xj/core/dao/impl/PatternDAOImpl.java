@@ -1,6 +1,20 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.dao.impl;
 
+import io.xj.core.access.impl.Access;
+import io.xj.core.dao.PatternDAO;
+import io.xj.core.exception.BusinessException;
+import io.xj.core.exception.ConfigException;
+import io.xj.core.model.pattern.Pattern;
+import io.xj.core.model.pattern.PatternState;
+import io.xj.core.model.pattern.PatternType;
+import io.xj.core.model.sequence.SequenceType;
+import io.xj.core.model.user_role.UserRoleType;
+import io.xj.core.persistence.sql.SQLDatabaseProvider;
+import io.xj.core.persistence.sql.impl.SQLConnection;
+import io.xj.core.transport.CSV;
+import io.xj.core.work.WorkManager;
+
 import org.jooq.DSLContext;
 import org.jooq.Field;
 import org.jooq.Record;
@@ -10,19 +24,6 @@ import com.google.api.client.util.Maps;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 
-import io.xj.core.access.impl.Access;
-import io.xj.core.dao.PatternDAO;
-import io.xj.core.exception.BusinessException;
-import io.xj.core.exception.ConfigException;
-import io.xj.core.model.sequence.SequenceType;
-import io.xj.core.model.pattern.Pattern;
-import io.xj.core.model.pattern.PatternState;
-import io.xj.core.model.pattern.PatternType;
-import io.xj.core.model.user_role.UserRoleType;
-import io.xj.core.persistence.sql.SQLDatabaseProvider;
-import io.xj.core.persistence.sql.impl.SQLConnection;
-import io.xj.core.transport.CSV;
-import io.xj.core.work.WorkManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,9 +37,9 @@ import java.util.Objects;
 import static io.xj.core.Tables.PATTERN_CHORD;
 import static io.xj.core.Tables.PATTERN_EVENT;
 import static io.xj.core.tables.Library.LIBRARY;
-import static io.xj.core.tables.Sequence.SEQUENCE;
 import static io.xj.core.tables.Pattern.PATTERN;
 import static io.xj.core.tables.PatternMeme.PATTERN_MEME;
+import static io.xj.core.tables.Sequence.SEQUENCE;
 
 public class PatternDAOImpl extends DAOImpl implements PatternDAO {
   private static final Logger log = LoggerFactory.getLogger(PatternDAOImpl.class);
@@ -100,9 +101,9 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
   /**
    Read one Pattern if able
 
-   @param db                 context
-   @param access             control
-   @param sequenceId          of sequence in which to read pattern
+   @param db                    context
+   @param access                control
+   @param sequenceId            of sequence in which to read pattern
    @param sequencePatternOffset of pattern in sequence
    @return pattern record
    */
@@ -129,8 +130,8 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
   /**
    Read all Pattern able for an Sequence
 
-   @param db        context
-   @param access    control
+   @param db         context
+   @param access     control
    @param sequenceId to readMany all pattern of
    @return array of patterns
    */
@@ -228,42 +229,6 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
   }
 
   /**
-   Update an pattern to Erase state
-
-   @param db context
-   @param id to delete
-   @throws Exception         if database failure
-   @throws ConfigException   if not configured properly
-   @throws BusinessException if fails business rule
-   */
-  private void erase(Access access, DSLContext db, ULong id) throws Exception {
-    if (access.isTopLevel()) requireExists("Pattern", db.selectCount().from(PATTERN)
-      .where(PATTERN.ID.eq(id))
-      .fetchOne(0, int.class));
-    else requireExists("Pattern", db.selectCount().from(PATTERN)
-      .join(SEQUENCE).on(SEQUENCE.ID.eq(PATTERN.SEQUENCE_ID))
-      .join(LIBRARY).on(LIBRARY.ID.eq(SEQUENCE.LIBRARY_ID))
-      .where(PATTERN.ID.eq(id))
-      .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
-      .fetchOne(0, int.class));
-
-    // Update pattern state to Erase
-    Map<Field, Object> fieldValues = com.google.common.collect.Maps.newHashMap();
-    fieldValues.put(PATTERN.ID, id);
-    fieldValues.put(PATTERN.STATE, PatternState.Erase);
-
-    if (0 == executeUpdate(db, PATTERN, fieldValues))
-      throw new BusinessException("No records updated.");
-
-    // Schedule pattern deletion job
-    try {
-      workManager.doPatternErase(id.toBigInteger());
-    } catch (Exception e) {
-      log.error("Failed to start PatternErase work after updating Pattern to Erase state. See the elusive [#153492153] Entity erase job can be spawned without an error", e);
-    }
-  }
-
-  /**
    Provides consistent validation of a model for Creation/Update
 
    @param db     context
@@ -326,11 +291,50 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
     fieldValues.put(PATTERN.STATE, entity.getState());
     fieldValues.put(PATTERN.OFFSET, entity.getOffset());
     fieldValues.put(PATTERN.TOTAL, valueOrNull(entity.getTotal()));
+    fieldValues.put(PATTERN.METER_SUPER, valueOrNull(entity.getMeterSuper()));
+    fieldValues.put(PATTERN.METER_SUB, valueOrNull(entity.getMeterSub()));
+    fieldValues.put(PATTERN.METER_SWING, valueOrNull(entity.getMeterSwing()));
     fieldValues.put(PATTERN.NAME, valueOrNull(entity.getName()));
     fieldValues.put(PATTERN.KEY, valueOrNull(entity.getKey()));
     fieldValues.put(PATTERN.TEMPO, valueOrNull(entity.getTempo()));
     fieldValues.put(PATTERN.DENSITY, valueOrNull(entity.getDensity()));
     return fieldValues;
+  }
+
+  /**
+   Update an pattern to Erase state
+
+   @param db context
+   @param id to delete
+   @throws Exception         if database failure
+   @throws ConfigException   if not configured properly
+   @throws BusinessException if fails business rule
+   */
+  private void erase(Access access, DSLContext db, ULong id) throws Exception {
+    if (access.isTopLevel()) requireExists("Pattern", db.selectCount().from(PATTERN)
+      .where(PATTERN.ID.eq(id))
+      .fetchOne(0, int.class));
+    else requireExists("Pattern", db.selectCount().from(PATTERN)
+      .join(SEQUENCE).on(SEQUENCE.ID.eq(PATTERN.SEQUENCE_ID))
+      .join(LIBRARY).on(LIBRARY.ID.eq(SEQUENCE.LIBRARY_ID))
+      .where(PATTERN.ID.eq(id))
+      .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+      .fetchOne(0, int.class));
+
+    // Update pattern state to Erase
+    Map<Field, Object> fieldValues = com.google.common.collect.Maps.newHashMap();
+    fieldValues.put(PATTERN.ID, id);
+    fieldValues.put(PATTERN.STATE, PatternState.Erase);
+
+    if (0 == executeUpdate(db, PATTERN, fieldValues))
+      throw new BusinessException("No records updated.");
+
+    // Schedule pattern deletion job
+    try {
+      workManager.doPatternErase(id.toBigInteger());
+    } catch (Exception e) {
+      log.error("Failed to start PatternErase work after updating Pattern to Erase state. See the elusive [#153492153] Entity erase job can be spawned without an error", e);
+    }
   }
 
   @Override

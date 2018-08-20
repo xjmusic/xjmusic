@@ -85,10 +85,9 @@ public enum IntegrationTestService {
   }
 
   /**
-   Flush entire Redis contents and database
+   Flush entire Redis database
    */
   public static void flushRedis() {
-    INSTANCE.redisConnection.flushAll();
     INSTANCE.redisConnection.flushDB();
     INSTANCE.log.info("Did flush entire Redis contents and database");
   }

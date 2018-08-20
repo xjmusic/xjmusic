@@ -1,0 +1,121 @@
+//  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+@import "palette";
+
+.pattern-stepmatic {
+
+  .meta {
+    .btn, input {
+      width: 100%;
+    }
+  }
+
+  .grid {
+    overflow-x: auto;
+    margin-bottom: 1rem;
+    display: table;
+
+    a {
+      cursor: pointer;
+      color: lighten($green, 10%);
+      opacity: 0.32;
+      &:hover, &:active {
+        color: lighten($green, 40%);
+        opacity: 1.0;
+      }
+    }
+
+    .track-group {
+      display: table-row-group;
+      border-top: 1px solid $color-major;
+      .track {
+        display: table-row;
+        border-top: 1px solid $color-minor;
+        vertical-align: middle;
+        &:not(:first-child) {
+          .group-name {
+            opacity: 0.0;
+          }
+        }
+        .group-name {
+          cursor: pointer;
+          height: 2rem;
+          vertical-align: middle;
+          display: table-cell;
+          text-align: right;
+          padding-right: 0.5rem;
+          color: $color-minor;
+          background-color: $color-sub-sub-micro;
+          border-bottom: 1px solid $color-black;
+          &:hover {
+            color: lighten($green, 30%);
+            background-color: lighten($color-sub-sub-micro, 3);
+          }
+        }
+        .track-name {
+          vertical-align: middle;
+          display: table-cell;
+          padding-right: 1rem;
+          text-align: right;
+          background-color: $color-sub-micro;
+          border-right: 1px solid $color-black;
+          border-bottom: 1px solid $color-black;
+        }
+        .step {
+          vertical-align: middle;
+          display: table-cell;
+          width: 2rem;
+          height: 2rem;
+          text-align: center;
+          background-color: $color-sub-sub-micro;
+          border-bottom: 1px solid $color-black;
+          cursor: pointer;
+          &.measure-type {
+            border-left: 2px solid $color-major;
+          }
+          &.beat-type {
+            border-left: 1px solid $color-minor;
+          }
+          &.step-type {
+            border-left: 1px solid $color-black;
+          }
+          &.velocity-0 {
+            background-color: $color-sub-sub-micro;
+          }
+          &.velocity-1 {
+            background-color: lighten($color-micro, 1);
+          }
+          &.velocity-2 {
+            background-color: lighten($color-micro, 4);
+          }
+          &.velocity-3 {
+            background-color: lighten($color-micro, 7);
+          }
+          &.velocity-4 {
+            background-color: lighten($color-micro, 10);
+          }
+          &.velocity-5 {
+            background-color: lighten($color-micro, 14);
+          }
+          &.velocity-6 {
+            background-color: lighten($color-micro, 17);
+          }
+          &.velocity-7 {
+            background-color: lighten($color-micro, 20);
+          }
+          &.velocity-8 {
+            background-color: lighten($color-micro, 23);
+          }
+          &.velocity-9 {
+            background-color: lighten($color-micro, 26);
+          }
+          &.velocity-10 {
+            background-color: lighten($color-micro, 29);
+          }
+          &.velocity-11 {
+            background-color: lighten($color-micro, 32);
+          }
+        }
+      }
+    }
+  }
+}

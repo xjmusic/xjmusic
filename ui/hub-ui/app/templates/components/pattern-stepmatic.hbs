@@ -1,0 +1,100 @@
+<!-- Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved. -->
+
+<div class="form-horizontal container-fluid pattern-stepmatic {{only-if isDirty 'dirty'}}">
+
+  <!--
+  --
+  Stepmatic meta-controls (upper)
+  --
+  -->
+  <div class="form-group row meta">
+
+    {{#if isWorking}}
+
+      <label class="col-xl-1 col-lg-1 col-sm-2 control-label">{{workStatus}}</label>
+      <div class="col-xl-11 col-lg-11 col-sm-10">
+        <div class="loader">&nbsp;</div>
+      </div>
+
+    {{else}}
+
+      <label class="col-xl-1 col-lg-1 col-sm-2 control-label">Measure</label>
+      <div class="col-xl-1 col-lg-1 col-sm-10">
+        {{input type="number" value=pattern.meterSuper class="form-control" autofocus="autofocus"
+                placeholder="beats" change=(action "didUpdateSuper")}}
+      </div>
+
+      <label class="col-xl-1 col-lg-1 col-sm-2 control-label">Subdiv</label>
+      <div class="col-xl-1 col-lg-1 col-sm-10">
+        {{input type="number" value=pattern.meterSub class="form-control" autofocus="autofocus"
+                placeholder="divs" change=(action "didUpdateSub")}}
+      </div>
+
+      <label class="col-xl-1 col-lg-1 col-sm-2 control-label">Swing</label>
+      <div class="col-xl-1 col-lg-1 col-sm-10">
+        {{input type="number" value=pattern.meterSwing class="form-control" autofocus="autofocus"
+                placeholder="%"}}
+      </div>
+
+      <div class="ml-auto col-xl-1 col-lg-2 col-sm-4">
+        <button class="btn btn-dark" {{action 'clear' pattern}}>Clear</button>
+      </div>
+      <div class="col-xl-1 col-lg-2 col-sm-4">
+        <button class="btn btn-dark" {{action 'revert' pattern}}>Revert</button>
+      </div>
+      <div class="col-xl-1 col-lg-2 col-sm-4">
+        <button class="btn btn-success" {{action 'apply' pattern}}>Apply</button>
+      </div>
+
+    {{/if}}
+
+  </div>
+
+  <!--
+  --
+  Stepmatic grid
+  --
+  -->
+  <div class="form-group row">
+    <div class="col-12">
+
+      <div class="grid">
+        {{#each-in grid as |groupId groupContainer|}}
+          <div class="track-group">
+
+            {{#each-in groupContainer.tracks as |track steps|}}
+              <div class="track">
+                <div {{action 'addTrack' groupId}} class="group-name">
+                  {{groupContainer.group.description}}
+                </div>
+                <div class="track-name">
+                  {{track}}
+                </div>
+                {{#each-in steps as |step event|}}
+                  <div class="step velocity-{{velocity-decascale event.velocity}} {{grid-step-modulo step meter.super meter.sub}}-type"
+                       onclick={{action 'onStepTouch' groupId track step}}
+                  >&nbsp;
+                  </div>
+                {{/each-in}}
+              </div>
+
+            {{else}}
+              <div class="track">
+                <div {{action 'addTrack' groupId}} class="group-name">
+                  {{groupContainer.group.description}}
+                </div>
+              </div>
+            {{/each-in}}
+
+          </div>
+        {{/each-in}}
+      </div>
+
+    </div>
+  </div>
+
+
+</div>
+
+<!-- Inner content -->
+{{yield}}

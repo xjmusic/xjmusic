@@ -1,7 +1,7 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+//  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 import $ from 'jquery';
 
-import {inject as service} from '@ember/service';
+import { inject as service } from '@ember/service';
 import Component from '@ember/component';
 
 /**

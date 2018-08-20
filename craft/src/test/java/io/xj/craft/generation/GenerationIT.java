@@ -72,8 +72,8 @@ public class GenerationIT {
     IntegrationTestEntity.insertSequenceMeme(801, 701, "Ants", at);
     IntegrationTestEntity.insertSequenceMeme(802, 701, "Mold", at);
     IntegrationTestEntity.insertSequenceMeme(803, 703, "Peel", at);
-    IntegrationTestEntity.insertPattern(901, 701, PatternType.Main, PatternState.Published, 0, 16, "growth", 0.342, "C#", 120.4, at);
-    IntegrationTestEntity.insertPattern(902, 701, PatternType.Main, PatternState.Published, 1, 16, "decay", 0.25, "F#", 110.3, at);
+    IntegrationTestEntity.insertPattern(901, 701, PatternType.Main, PatternState.Published, 0, 16, "growth", 0.342, "C#", 120.4, at, 4, 4, 0);
+    IntegrationTestEntity.insertPattern(902, 701, PatternType.Main, PatternState.Published, 1, 16, "decay", 0.25, "F#", 110.3, at, 4, 4, 0);
     IntegrationTestEntity.insertPatternChord(1001, 902, 0, "G minor", at);
     IntegrationTestEntity.insertPatternChord(1002, 902, 4, "C major", at);
     IntegrationTestEntity.insertPatternChord(1003, 902, 8, "F7", at);
@@ -115,8 +115,8 @@ public class GenerationIT {
     IntegrationTestEntity.insertSequenceMeme(851, 751, "Garbage Sequence Meme A", at);
     IntegrationTestEntity.insertSequenceMeme(852, 751, "Garbage Sequence Meme B", at);
     IntegrationTestEntity.insertSequenceMeme(853, 753, "Garbage Sequence Meme C", at);
-    IntegrationTestEntity.insertPattern(951, 751, PatternType.Main, PatternState.Published, 0, 16, "Garbage Pattern A", 0.342, "C#", 120.4, at);
-    IntegrationTestEntity.insertPattern(952, 751, PatternType.Main, PatternState.Published, 1, 16, "Garbage Pattern A", 0.25, "F#", 110.3, at);
+    IntegrationTestEntity.insertPattern(951, 751, PatternType.Main, PatternState.Published, 0, 16, "Garbage Pattern A", 0.342, "C#", 120.4, at, 4, 4, 0);
+    IntegrationTestEntity.insertPattern(952, 751, PatternType.Main, PatternState.Published, 1, 16, "Garbage Pattern A", 0.25, "F#", 110.3, at, 4, 4, 0);
     IntegrationTestEntity.insertPatternChord(1051, 952, 0, "G minor garbage", at);
     IntegrationTestEntity.insertPatternChord(1052, 952, 4, "C major garbage", at);
     IntegrationTestEntity.insertPatternChord(1053, 952, 8, "F7 garbage", at);

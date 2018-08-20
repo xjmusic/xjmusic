@@ -60,6 +60,9 @@ public interface Config {
   String DEFAULT_TUNING_ROOT_NOTE = "A4";
   Integer DEFAULT_SEGMENT_REQUEUE_SECONDS = 1;
   Integer DEFAULT_WORK_ENQUEUE_NOW_DELAY_MILLIS = 10;
+  Integer DEFAULT_PATTERN_DEFAULT_METER_SUPER = 4;
+  Integer DEFAULT_PATTERN_DEFAULT_METER_SUB = 4;
+  Integer DEFAULT_PATTERN_DEFAULT_METER_SWING = 0;
 
   static String authGoogleId() throws ConfigException {
     return get("auth.google.id");
@@ -680,4 +683,17 @@ public interface Config {
   static Integer workEnqueueNowDelayMillis() {
     return getIntOrDefault("work.enqueue.now.delay.millis", DEFAULT_WORK_ENQUEUE_NOW_DELAY_MILLIS);
   }
+
+  static Integer patternDefaultMeterSuper() {
+    return getIntOrDefault("pattern.default.meter.super", DEFAULT_PATTERN_DEFAULT_METER_SUPER);
+  }
+
+  static Integer patternDefaultMeterSub() {
+    return getIntOrDefault("pattern.default.meter.sub", DEFAULT_PATTERN_DEFAULT_METER_SUB);
+  }
+
+  static Integer patternDefaultMeterSwing() {
+    return getIntOrDefault("pattern.default.meter.swing", DEFAULT_PATTERN_DEFAULT_METER_SWING);
+  }
+
 }

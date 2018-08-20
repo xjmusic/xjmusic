@@ -1,6 +1,7 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-/* globals $ */
+/* global $ */
+/* global ArrayBuffer */
 
 export class BinaryResource {
 

@@ -11,9 +11,8 @@ log/
 */log/
 
 # IDE
-.idea/
-*/.idea
-*.iml
+.idea/workspace.xml
+.idea/libraries
 
 # Node.js
 /node_modules/

@@ -1,25 +1,25 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
-@import "digest";
-@import "audio_waveform";
+//  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+@import "audio-waveform";
 @import "breadcrumb";
 @import "buttons";
 @import "chain";
-@import "chord_progression";
+@import "chord-progression";
+@import "digest";
 @import "footer";
 @import "forms";
 @import "global";
 @import "headline";
 @import "loader";
-@import "mailchimp";
 @import "marketing";
-@import "meme_usage";
+@import "meme-usage";
 @import "messages";
 @import "modals";
 @import "nav";
-@import "object_tree";
+@import "object-tree";
 @import "palette";
 @import "player";
 @import "states";
+@import "pattern-stepmatic";
 @import "table";
 @import "typography";
 // noinspection CssUnknownTarget - imported from module of same name

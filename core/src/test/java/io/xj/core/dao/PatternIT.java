@@ -51,10 +51,12 @@ import static org.mockito.Mockito.verify;
 // future test: permissions of different users to readMany vs. create vs. update or destroy patterns
 @RunWith(MockitoJUnitRunner.class)
 public class PatternIT {
-  @Rule public ExpectedException failure = ExpectedException.none();
+  @Rule
+  public ExpectedException failure = ExpectedException.none();
   private Injector injector;
   private PatternDAO subject;
-  @Spy private final WorkManager workManager = Guice.createInjector(new CoreModule()).getInstance(WorkManager.class);
+  @Spy
+  private final WorkManager workManager = Guice.createInjector(new CoreModule()).getInstance(WorkManager.class);
 
   @Before
   public void setUp() throws Exception {
@@ -129,6 +131,34 @@ public class PatternIT {
     assertEquals(129.4, result.getTempo(), 0.01);
     assertEquals(BigInteger.valueOf(16L), result.getOffset());
     assertEquals(Integer.valueOf(16), result.getTotal());
+  }
+
+  /**
+   [#159669804] Artist wants a step sequencer in order to compose rhythm patterns in a familiar way.
+   */
+  @Test
+  public void create_meterDefault() throws Exception {
+    IntegrationTestEntity.insertSequence(27, 2, 1, SequenceType.Rhythm, SequenceState.Published, "beets", 0.342, "D minor", 120);
+    Access access = new Access(ImmutableMap.of(
+      "roles", "Artist",
+      "accounts", "1"
+    ));
+    Pattern inputData = new Pattern()
+      .setDensity(0.42)
+      .setKey("G minor 7")
+      .setSequenceId(BigInteger.valueOf(27L))
+      .setTypeEnum(PatternType.Loop)
+      .setName("cannons")
+      .setTempo(129.4)
+      .setOffset(BigInteger.valueOf(16L))
+      .setTotal(16);
+
+    Pattern result = subject.create(access, inputData);
+
+    assertNotNull(result);
+    assertEquals(Integer.valueOf(4), result.getMeterSuper());
+    assertEquals(Integer.valueOf(4), result.getMeterSub());
+    assertEquals(Integer.valueOf(0), result.getMeterSwing());
   }
 
   /**
@@ -607,6 +637,37 @@ public class PatternIT {
     assertEquals(BigInteger.valueOf(7L), result.getOffset());
     assertEquals(Integer.valueOf(32), result.getTotal());
     assertEquals(BigInteger.valueOf(1L), result.getSequenceId());
+  }
+
+  /**
+   [#159669804] Artist wants a step sequencer in order to compose rhythm patterns in a familiar way.
+   */
+  @Test
+  public void update_meter() throws Exception {
+    Access access = new Access(ImmutableMap.of(
+      "roles", "Artist",
+      "accounts", "1"
+    ));
+    Pattern inputData = new Pattern()
+      .setSequenceId(BigInteger.valueOf(1L))
+      .setTypeEnum(PatternType.Main)
+      .setOffset(BigInteger.valueOf(7L))
+      .setTotal(32)
+      .setName(null)
+      .setDensity(null)
+      .setKey("")
+      .setTempo((double) 0)
+      .setMeterSuper(48)
+      .setMeterSub(16)
+      .setMeterSwing(35);
+
+    subject.update(access, BigInteger.valueOf(1L), inputData);
+
+    Pattern result = subject.readOne(Access.internal(), BigInteger.valueOf(1L));
+    assertNotNull(result);
+    assertEquals(Integer.valueOf(48), result.getMeterSuper());
+    assertEquals(Integer.valueOf(16), result.getMeterSub());
+    assertEquals(Integer.valueOf(35), result.getMeterSwing());
   }
 
   /**

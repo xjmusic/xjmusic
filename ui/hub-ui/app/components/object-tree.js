@@ -1,4 +1,5 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+//  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+/*global Symbol*/
 import Component from '@ember/component';
 
 /**
@@ -111,14 +112,14 @@ let PrintWriter = function () {
     }
   };
   PrintWriter.prototype.printKey = function (key) {
-    this.buffer.push('\"');
+    this.buffer.push('"');
     this.buffer.push("<span class=\"json-key\">" + escapeHtml(key) + "</span>");
-    this.buffer.push('\"');
+    this.buffer.push('"');
   };
   PrintWriter.prototype.printString = function (value) {
-    this.buffer.push('\"');
+    this.buffer.push('"');
     this.buffer.push("<span class=\"json-string\">" + escapeHtml(value) + "</span>");
-    this.buffer.push('\"');
+    this.buffer.push('"');
   };
   PrintWriter.prototype.printBoolean = function (value) {
     this.buffer.push("<span class=\"json-boolean\">" + value + "</span>");

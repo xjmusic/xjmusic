@@ -1,4 +1,4 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+//  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 import DS from 'ember-data';
 
 export default DS.Model.extend({
@@ -10,6 +10,9 @@ export default DS.Model.extend({
   tempo: DS.attr('number'),
   offset: DS.attr('number'),
   total: DS.attr('number'),
+  meterSuper: DS.attr('number'),
+  meterSub: DS.attr('number'),
+  meterSwing: DS.attr('number'),
   events: DS.hasMany('pattern-event'),
 
   getTitle() {

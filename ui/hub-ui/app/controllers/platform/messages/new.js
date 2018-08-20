@@ -1,5 +1,5 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
-import {set} from '@ember/object';
+//  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+import { set } from '@ember/object';
 import Controller from '@ember/controller';
 
 export default Controller.extend({

@@ -1,13 +1,17 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+//  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-import { moduleFor, test } from 'ember-qunit';
+import { expect } from 'chai';
+import { describe, it } from 'mocha';
+import { setupTest } from 'ember-mocha';
 
-moduleFor('route:login', 'Unit | Route | login', {
-  // Specify the other units that are required for this test.
-  needs: ['service:auth','service:config']
-});
+describe('Unit | Route | login', function() {
+  setupTest('route:login', {
+    // Specify the other units that are required for this test.
+    needs: ['service:config','service:display','service:auth']
+  });
 
-test('it exists', function(assert) {
-  let route = this.subject();
-  assert.ok(route);
+  it('exists', function() {
+    let route = this.subject();
+    expect(route).to.be.ok;
+  });
 });

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="core" />
+        <module name="craft" />
+        <module name="dub" />
+        <module name="hub" />
+        <module name="mixer" />
+        <module name="music" />
+        <module name="pulse" />
+        <module name="worker" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="core" target="1.8" />
+      <module name="craft" target="1.8" />
+      <module name="dub" target="1.8" />
+      <module name="hub" target="1.8" />
+      <module name="mixer" target="1.8" />
+      <module name="music" target="1.8" />
+      <module name="pulse" target="1.8" />
+      <module name="worker" target="1.8" />
+      <module name="xj" target="1.5" />
+    </bytecodeTargetLevel>
+  </component>
+</project>

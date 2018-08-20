@@ -7,14 +7,14 @@ import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
 import io.xj.core.model.chain_config.ChainConfigType;
 import io.xj.core.model.instrument.InstrumentType;
+import io.xj.core.model.message.MessageType;
+import io.xj.core.model.pattern.PatternState;
+import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.segment.Segment;
 import io.xj.core.model.segment.SegmentState;
-import io.xj.core.model.message.MessageType;
 import io.xj.core.model.sequence.Sequence;
 import io.xj.core.model.sequence.SequenceState;
 import io.xj.core.model.sequence.SequenceType;
-import io.xj.core.model.pattern.PatternState;
-import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.user_auth.UserAuthType;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.tables.records.AccountRecord;
@@ -26,33 +26,31 @@ import io.xj.core.tables.records.AudioRecord;
 import io.xj.core.tables.records.ChainConfigRecord;
 import io.xj.core.tables.records.ChainInstrumentRecord;
 import io.xj.core.tables.records.ChainLibraryRecord;
-import io.xj.core.tables.records.ChainSequenceRecord;
 import io.xj.core.tables.records.ChainRecord;
+import io.xj.core.tables.records.ChainSequenceRecord;
 import io.xj.core.tables.records.ChoiceRecord;
 import io.xj.core.tables.records.InstrumentMemeRecord;
 import io.xj.core.tables.records.InstrumentRecord;
 import io.xj.core.tables.records.LibraryRecord;
+import io.xj.core.tables.records.PatternChordRecord;
+import io.xj.core.tables.records.PatternEventRecord;
+import io.xj.core.tables.records.PatternMemeRecord;
+import io.xj.core.tables.records.PatternRecord;
+import io.xj.core.tables.records.PlatformMessageRecord;
 import io.xj.core.tables.records.SegmentChordRecord;
 import io.xj.core.tables.records.SegmentMemeRecord;
 import io.xj.core.tables.records.SegmentMessageRecord;
 import io.xj.core.tables.records.SegmentRecord;
 import io.xj.core.tables.records.SequenceMemeRecord;
 import io.xj.core.tables.records.SequenceRecord;
-import io.xj.core.tables.records.PatternChordRecord;
-import io.xj.core.tables.records.PatternMemeRecord;
-import io.xj.core.tables.records.PatternRecord;
-import io.xj.core.tables.records.PlatformMessageRecord;
 import io.xj.core.tables.records.UserAccessTokenRecord;
 import io.xj.core.tables.records.UserAuthRecord;
 import io.xj.core.tables.records.UserRecord;
 import io.xj.core.tables.records.UserRoleRecord;
-import io.xj.core.tables.records.PatternEventRecord;
 import io.xj.core.tables.records.VoiceRecord;
-
 import org.jooq.DSLContext;
 import org.jooq.types.UInteger;
 import org.jooq.types.ULong;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,22 +75,22 @@ import static io.xj.core.Tables.CHOICE;
 import static io.xj.core.Tables.INSTRUMENT;
 import static io.xj.core.Tables.INSTRUMENT_MEME;
 import static io.xj.core.Tables.LIBRARY;
+import static io.xj.core.Tables.PATTERN;
+import static io.xj.core.Tables.PATTERN_CHORD;
+import static io.xj.core.Tables.PATTERN_EVENT;
+import static io.xj.core.Tables.PATTERN_MEME;
+import static io.xj.core.Tables.PLATFORM_MESSAGE;
 import static io.xj.core.Tables.SEGMENT;
 import static io.xj.core.Tables.SEGMENT_CHORD;
 import static io.xj.core.Tables.SEGMENT_MEME;
 import static io.xj.core.Tables.SEGMENT_MESSAGE;
 import static io.xj.core.Tables.SEQUENCE;
 import static io.xj.core.Tables.SEQUENCE_MEME;
-import static io.xj.core.Tables.PATTERN;
-import static io.xj.core.Tables.PATTERN_CHORD;
-import static io.xj.core.Tables.PATTERN_MEME;
-import static io.xj.core.Tables.PLATFORM_MESSAGE;
 import static io.xj.core.Tables.USER;
 import static io.xj.core.Tables.USER_ACCESS_TOKEN;
 import static io.xj.core.Tables.USER_AUTH;
 import static io.xj.core.Tables.USER_ROLE;
 import static io.xj.core.Tables.VOICE;
-import static io.xj.core.Tables.PATTERN_EVENT;
 
 public interface IntegrationTestEntity {
   Logger log = LoggerFactory.getLogger(IntegrationTestEntity.class);
@@ -292,10 +290,14 @@ public interface IntegrationTestEntity {
   }
 
   static void insertPattern(int id, int sequenceId, PatternType type, PatternState state, int offset, int total, String name, double density, String key, double tempo) {
-    insertPattern(id, sequenceId, type, state, offset, total, name, density, key, tempo, Timestamp.from(Instant.now()));
+    insertPattern(id, sequenceId, type, state, offset, total, name, density, key, tempo, Timestamp.from(Instant.now()), 4, 4, 0);
   }
 
-  static void insertPattern(int id, int sequenceId, PatternType type, PatternState state, int offset, int total, String name, double density, String key, double tempo, Timestamp createdUpdatedAt) {
+  static void insertPattern(int id, int sequenceId, PatternType type, PatternState state, int offset, int total, String name, double density, String key, double tempo, int meterSuper, int meterSub, int meterSwing) {
+    insertPattern(id, sequenceId, type, state, offset, total, name, density, key, tempo, Timestamp.from(Instant.now()), meterSuper, meterSub, meterSwing);
+  }
+
+  static void insertPattern(int id, int sequenceId, PatternType type, PatternState state, int offset, int total, String name, double density, String key, double tempo, Timestamp createdUpdatedAt, int meterSuper, int meterSub, int meterSwing) {
     PatternRecord record = IntegrationTestService.getDb().newRecord(PATTERN);
     record.setId(ULong.valueOf((long) id));
     record.setSequenceId(ULong.valueOf((long) sequenceId));
@@ -309,6 +311,9 @@ public interface IntegrationTestEntity {
     record.setState(state.toString());
     record.setCreatedAt(createdUpdatedAt);
     record.setUpdatedAt(createdUpdatedAt);
+    record.setMeterSuper(meterSuper);
+    record.setMeterSub(meterSub);
+    record.setMeterSwing(meterSwing);
     record.store();
   }
 

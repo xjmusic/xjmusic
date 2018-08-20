@@ -28,6 +28,7 @@ public interface ChordForms {
   String sharpExp = "(#|s|sharp)";
   String halfExp = "half";
 
+  String addExp = "(add|\\+)";
   String omitExp = "(omit|\\-)";
 
   String dominantExp = "(^|dom|dominant)";
@@ -61,14 +62,14 @@ public interface ChordForms {
     // Triads
 
     new ChordForm("Major Triad",
-      Pattern.compile("^" + majorExp + "([^a-z]|$)"),
+      Pattern.compile("^" + majorExp + "([^a-z]|$|b)"),
       ImmutableMap.of(
         Interval.I3, 4, // major 3rd
         Interval.I5, 7), // perfect 5th
       null),
 
     new ChordForm("Minor Triad",
-      Pattern.compile("^" + minorExp + "([^a-z]|$)"),
+      Pattern.compile("^" + minorExp + "([^a-z]|$|b)"),
       ImmutableMap.of(
         Interval.I3, 3, // minor 3rd
         Interval.I5, 7), // perfect 5th
@@ -115,9 +116,21 @@ public interface ChordForms {
     // Sixth
 
     new ChordForm("Add Sixth",
-      Pattern.compile("6"),
+      Pattern.compile(addExp + nExp + "6"),
       ImmutableMap.of(
         Interval.I6, 9), // 6th
+      null),
+
+    new ChordForm("Flat Sixth",
+      Pattern.compile(flatExp + nExp + "6"),
+      ImmutableMap.of(
+        Interval.I6, 8), // flat 6th
+      null),
+
+    new ChordForm("Sharp Sixth",
+      Pattern.compile(sharpExp + nExp + "6"),
+      ImmutableMap.of(
+        Interval.I6, 10), // sharp 6th
       null),
 
     new ChordForm("Augmented Sixth",
@@ -207,7 +220,7 @@ public interface ChordForms {
     // Ninth
 
     new ChordForm("Add Ninth",
-      Pattern.compile("9"),
+      Pattern.compile(addExp + nExp + "9"),
       ImmutableMap.of(
         Interval.I9, 14), // 9th
       null),
@@ -231,6 +244,12 @@ public interface ChordForms {
       ImmutableMap.of(
         Interval.I7, 10, // minor 7th
         Interval.I9, 14), // dominant 9th
+      null),
+
+    new ChordForm("Flat Ninth",
+      Pattern.compile(flatExp + nExp + "9"),
+      ImmutableMap.of(
+        Interval.I9, 13), // sharp 9th
       null),
 
     new ChordForm("Sharp Ninth",
@@ -277,6 +296,18 @@ public interface ChordForms {
         Interval.I7, 10, // minor 7th
         Interval.I9, 14, // dominant 9th
         Interval.I11, 17), // dominant 11th
+      null),
+
+    new ChordForm("Flat Eleventh",
+      Pattern.compile(flatExp + nExp + "11"),
+      ImmutableMap.of(
+        Interval.I11, 16), // sharp 9th
+      null),
+
+    new ChordForm("Sharp Eleventh",
+      Pattern.compile(sharpExp + nExp + "11"),
+      ImmutableMap.of(
+        Interval.I11, 18), // sharp 9th
       null),
 
     new ChordForm("Omit Eleventh",

@@ -22,7 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
-import java.lang.reflect.Method;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Collection;
@@ -145,8 +144,8 @@ public class DAOImpl {
   /**
    Require access to all of a collection of segments
 
-   @param db      context
-   @param access  control
+   @param db         context
+   @param access     control
    @param segmentIds to require access to
    */
   static void requireAccessToSegments(DSLContext db, Access access, Collection<ULong> segmentIds) throws BusinessException {
@@ -287,8 +286,7 @@ public class DAOImpl {
    @return collection of segment ids
    */
   static Collection<ULong> idCollection(Collection<BigInteger> segmentIds) {
-    Collection<ULong> result = segmentIds.stream().map(ULong::valueOf).collect(Collectors.toList());
-    return result;
+    return segmentIds.stream().map(ULong::valueOf).collect(Collectors.toList());
   }
 
   /**
@@ -428,8 +426,7 @@ public class DAOImpl {
    @return collection of ULong
    */
   protected static Collection<ULong> uLongValuesOf(Collection<BigInteger> libraryIds) {
-    Collection<ULong> result = libraryIds.stream().map(ULong::valueOf).collect(Collectors.toList());
-    return result;
+    return libraryIds.stream().map(ULong::valueOf).collect(Collectors.toList());
   }
 
 

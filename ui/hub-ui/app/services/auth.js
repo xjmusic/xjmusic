@@ -1,5 +1,5 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
-import Service, {inject as service} from '@ember/service';
+//  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+import Service, { inject as service } from '@ember/service';
 import RSVP from "rsvp";
 
 /**

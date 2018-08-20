@@ -1,14 +1,15 @@
+//  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+import {expect} from 'chai';
+import {describe, it} from 'mocha';
+import {setupTest} from 'ember-mocha';
 
-import { capitalize } from 'hub-ui/helpers/capitalize';
-import { module, test } from 'qunit';
+describe('CapitalizeHelper', function () {
+  setupTest();
 
-module('Unit | Helper | capitalize');
+  it('capitalizes a word', function () {
+    let capitalize = this.owner.lookup('helper:capitalize');
+    expect(capitalize.compute(['junk'])).to.equal('Junk');
+  });
 
-// Replace this with your real tests.
-test('it works', function(assert) {
-  let result = capitalize(["junk"]);
-  assert.ok("Junk"===result);
 });
-

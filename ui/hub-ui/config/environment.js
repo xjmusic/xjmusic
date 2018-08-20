@@ -1,6 +1,9 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+//  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
 /* jshint node: true */
+
+/* eslint-env node */
+'use strict';
 
 module.exports = function (environment) {
   let ENV = {
@@ -14,6 +17,7 @@ module.exports = function (environment) {
       FEATURES: {
         // Here you can enable experimental features on an ember canary build
         // e.g. 'with-controller': true
+        "glimmer-custom-component-manager": true
       },
       EXTEND_PROTOTYPES: {
         Date: false,
@@ -47,6 +51,7 @@ module.exports = function (environment) {
     ENV.APP.LOG_VIEW_LOOKUPS = false;
 
     ENV.APP.rootElement = '#ember-testing';
+    ENV.APP.autoboot = false;
   }
 
   if (environment === 'production') {

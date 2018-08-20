@@ -1,4 +1,4 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+//  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
 import EmberRouter from '@ember/routing/router';
 import config from "./config/environment";
@@ -80,6 +80,7 @@ function accountLibrarySequencePatternIndex() {
 function accountLibrarySequencePatternOne() {
   this.route('edit');
   this.route('clone');
+  this.route('stepmatic');
   this.route('destroy');
   this.route('memes');
   this.route('chords', accountLibrarySequencePatternChordIndex);

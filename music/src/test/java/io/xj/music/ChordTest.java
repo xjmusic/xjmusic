@@ -68,9 +68,9 @@ public class ChordTest {
         "Chord " + chord.details());
     Map<Interval, PitchClass> pitchClasses = chord.getPitchClasses();
     assertEquals(expectRootPitchClass, chord.getRootPitchClass());
-    assertEquals(expectPitchClasses.size(), pitchClasses.size());
+    assertEquals("same number of pitch classes", expectPitchClasses.size(), pitchClasses.size());
     expectPitchClasses.forEach((expectInterval, expectPitchClass) ->
-      assertEquals(expectPitchClass, pitchClasses.get(expectInterval)));
+      assertEquals(String.format("same pitch class at interval %s", expectInterval.getValue()), expectPitchClass, pitchClasses.get(expectInterval)));
   }
 
   @Test

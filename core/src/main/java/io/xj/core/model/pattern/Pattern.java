@@ -1,10 +1,12 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.model.pattern;
 
+import io.xj.core.config.Config;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.model.entity.Entity;
 import io.xj.core.util.Text;
 
+import javax.annotation.Nullable;
 import java.math.BigInteger;
 import java.util.Objects;
 
@@ -22,29 +24,34 @@ public class Pattern extends Entity {
   public static final String KEY_ONE = "pattern";
   public static final String KEY_MANY = "patterns";
 
-  private String name;
+  @Nullable private String name;
   private String _type; // to hold value before validation
   private PatternType type;
   private BigInteger sequenceId;
-  private String key;
+  @Nullable private String key;
   private Integer total;
+  private Integer meterSuper;
+  private Integer meterSub;
+  private Integer meterSwing;
   private BigInteger offset;
-  private Double density;
-  private Double tempo;
+  @Nullable private Double density;
+  @Nullable private Double tempo;
   private PatternState state;
   private String _stateString; // pending validation, copied to `state` field
 
 
-  public Pattern() {}
+  public Pattern() {
+  }
 
   public Pattern(int id) {
-    this.id = BigInteger.valueOf((long) id);
+    this.id = BigInteger.valueOf(id);
   }
 
   public Pattern(BigInteger id) {
     this.id = id;
   }
 
+  @Nullable
   public String getName() {
     return name;
   }
@@ -69,10 +76,12 @@ public class Pattern extends Entity {
     return this;
   }
 
+/*
   public Pattern setStateEnum(PatternState state) {
     this.state = state;
     return this;
   }
+*/
 
   public PatternType getType() {
     return type;
@@ -97,6 +106,7 @@ public class Pattern extends Entity {
     return this;
   }
 
+  @Nullable
   public String getKey() {
     return key;
   }
@@ -115,6 +125,34 @@ public class Pattern extends Entity {
     return this;
   }
 
+  public Integer getMeterSuper() {
+    return meterSuper;
+  }
+
+  public Pattern setMeterSuper(Integer meterSuper) {
+    this.meterSuper = meterSuper;
+    return this;
+  }
+
+  public Integer getMeterSub() {
+    return meterSub;
+  }
+
+  public Pattern setMeterSub(Integer meterSub) {
+    this.meterSub = meterSub;
+    return this;
+  }
+
+  public Integer getMeterSwing() {
+    return meterSwing;
+  }
+
+  public Pattern setMeterSwing(Integer meterSwing) {
+    this.meterSwing = meterSwing;
+    return this;
+  }
+
+
   public BigInteger getOffset() {
     return offset;
   }
@@ -124,6 +162,7 @@ public class Pattern extends Entity {
     return this;
   }
 
+  @Nullable
   public Double getDensity() {
     return density;
   }
@@ -133,6 +172,7 @@ public class Pattern extends Entity {
     return this;
   }
 
+  @Nullable
   public Double getTempo() {
     return tempo;
   }
@@ -174,6 +214,25 @@ public class Pattern extends Entity {
     }
     if (Objects.nonNull(tempo) && (double) 0 == tempo) {
       tempo = null;
+    }
+    switch(type) {
+      case Macro:
+        break;
+      case Main:
+        break;
+      case Intro:
+      case Loop:
+      case Outro:
+        if(Objects.isNull(meterSuper)) {
+          meterSuper = Config.patternDefaultMeterSuper();
+        }
+        if(Objects.isNull(meterSub)) {
+          meterSub = Config.patternDefaultMeterSub();
+        }
+        if(Objects.isNull(meterSwing)) {
+          meterSwing = Config.patternDefaultMeterSwing();
+        }
+        break;
     }
   }
 

@@ -1,15 +1,20 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-// import { moduleFor, test } from 'ember-qunit';
+// TODO test requires session mock
 
+/*
+import { expect } from 'chai';
+import { describe, it } from 'mocha';
+import { setupTest } from 'ember-mocha';
 
-// moduleFor('service:xj', 'Unit | Service | xj auth', {
-//   // Specify the other units that are required for this test.
-//   // needs: ['service:foo']
-// });
-//
-// // Replace this with your real tests.
-// test('it exists', function(assert) {
-//   let service = this.subject();
-//   assert.ok(service);
-// });
+describe('Unit | Service | auth', function() {
+  setupTest('service:auth', {
+    needs: ['service:cookies','service:session','service:messageBus']
+  });
+
+  // Replace this with your real tests.
+  it('exists', function() {
+    let service = this.subject();
+    expect(service).to.be.ok;
+  });
+});
+*/

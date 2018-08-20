@@ -1,14 +1,15 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+import { expect } from 'chai';
+import { describe, it } from 'mocha';
+import { setupTest } from 'ember-mocha';
 
-import { moduleFor, test } from 'ember-qunit';
+describe('Unit | Service | display', function() {
+  setupTest('service:display', {
+    needs: ['service:flashMessages']
+  });
 
-moduleFor('service:display', 'Unit | Service | display', {
-  // Specify the other units that are required for this test.
-  needs: ['service:flashMessages']
-});
-
-// Replace this with your real tests.
-test('it exists', function(assert) {
-  let service = this.subject();
-  assert.ok(service);
+  // Replace this with your real tests.
+  it('exists', function() {
+    let service = this.subject();
+    expect(service).to.be.ok;
+  });
 });

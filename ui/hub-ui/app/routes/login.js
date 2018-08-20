@@ -1,10 +1,10 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+//  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 import Route from '@ember/routing/route';
 
 import { get } from '@ember/object';
 
 import { Promise as EmberPromise } from 'rsvp';
-import {inject as service} from '@ember/service';
+import { inject as service } from '@ember/service';
 
 export default Route.extend({
 

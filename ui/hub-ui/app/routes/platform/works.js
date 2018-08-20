@@ -1,8 +1,8 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+//  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 import Route from '@ember/routing/route';
-import {get} from '@ember/object';
-import {inject as service} from '@ember/service';
-import {Promise} from 'rsvp';
+import { get } from '@ember/object';
+import { inject as service } from '@ember/service';
+import { Promise } from 'rsvp';
 
 export default Route.extend({
 

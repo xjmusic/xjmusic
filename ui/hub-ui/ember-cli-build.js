@@ -1,10 +1,12 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+//  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+'use strict';
 
 /* jshint node:true */
 /* global require, module */
 let EmberApp = require('ember-cli/lib/broccoli/ember-app');
 let fs = require('fs');
 let metadata = require('./metadata');
+const sass = require('node-sass');
 
 module.exports = function (defaults) {
   let app = new EmberApp(defaults, optionsForEnvironment(process.env.EMBER_ENV));
@@ -37,6 +39,7 @@ module.exports = function (defaults) {
  */
 function optionsForEnvironment(environment) {
   return {
+    sassOptions: {implementation: sass},
     fingerprint: {
       enabled: isFingerprintEnabledForEnvironment(environment)
     },
@@ -132,7 +135,7 @@ function importDependencies(app, environment) {
   // Wavesurfer any environment
   app.import('vendor/shims/wavesurfer.js', {
     exports: {
-      'wavesurfer': [ 'default' ]
+      'wavesurfer': ['default']
     }
   });
 }
