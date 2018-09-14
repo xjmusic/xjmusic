@@ -4,6 +4,7 @@ import Component from '@ember/component';
 import {get, set} from '@ember/object';
 import {inject as service} from '@ember/service';
 import {all, task} from 'ember-concurrency';
+import $ from 'jquery';
 
 const PROMPT_UPDATE_VELOCITY = 'Velocity';
 const VELOCITY_TOGGLE_STEPS = [0.66, 0.33, 0.1, 0.05];
@@ -11,6 +12,9 @@ const DOUBLE_CLICK_MILLIS = 382;
 const TASK_MAX_CONCURRENCY = 3;
 const EVENT_DEFAULT_TONALITY = 0.618;
 const EVENT_DEFAULT_NOTE = 'X';
+const SWING_VALUE_MAX = 99;
+const SWING_VALUE_MIN = 0;
+
 
 /**
  [#159669804] Artist wants a step sequencer in order to compose rhythm patterns in a familiar way.
@@ -66,6 +70,7 @@ const PatternStepmaticComponent = Component.extend(
       let self = this;
       get(self, 'config').promises.config.then(
         () => {
+          self.initTooltips()
           self.initSequence();
         },
         (error) => {
@@ -73,6 +78,15 @@ const PatternStepmaticComponent = Component.extend(
         }
       );
       this._super(...arguments);
+    },
+
+    /**
+     * Initialize tooltips (Bootstrap)
+     */
+    initTooltips: function () {
+      $(function () {
+        $('[data-toggle="tooltip"]').tooltip();
+      })
     },
 
     /**
@@ -140,8 +154,8 @@ const PatternStepmaticComponent = Component.extend(
 
       // clear grid
       set(self, 'grid', {});
-      set(get(self,'meter'),'super', meterSuper);
-      set(get(self,'meter'),'sub', meterSub);
+      set(get(self, 'meter'), 'super', meterSuper);
+      set(get(self, 'meter'), 'sub', meterSub);
       let grid = get(self, 'grid');
 
       // compute groups from voices
@@ -463,7 +477,7 @@ const PatternStepmaticComponent = Component.extend(
         let groupContainer = get(get(this, 'grid'), groupId);
         let group = get(groupContainer, 'group');
         let groupName = group.get('description');
-        let name = prompt('Add track to ' + groupName + ':', 'New track');
+        let name = prompt('Add track to ' + groupName + ' group:', 'New track');
         if (null !== name) {
           this.createTrack(groupId, name);
         }
@@ -490,6 +504,13 @@ const PatternStepmaticComponent = Component.extend(
       },
 
       /**
+       * Update the value for % delay odd steps.
+       */
+      didUpdateSwing(ev) {
+        ev.target.value = limitSwingValue(ev.target.value);
+      },
+
+      /**
        * Touch the stepmatic grid to make a modification
        * @param groupId to modify
        * @param trackName to modify
@@ -512,7 +533,7 @@ const PatternStepmaticComponent = Component.extend(
           },
 
           () => { // triple-click to set exact value
-            let updatedVelocity = exactVelocity(priorVelocity);
+            let updatedVelocity = promptVelocity(priorVelocity);
             if (null !== updatedVelocity) {
               self.modEventVelocity(groupId, trackName, step, updatedVelocity);
             }
@@ -560,11 +581,21 @@ function toggleVelocity(v) {
 }
 
 /**
+ * Limit a value provided for Swing %
+ * @param value to limit
+ * @returns {number} limited value
+ */
+function limitSwingValue(value) {
+  let limitedValue = Math.min(Math.max(SWING_VALUE_MIN, value), SWING_VALUE_MAX);
+  return limitedValue > 0 ? limitedValue : 0;
+}
+
+/**
  * Detail velocity value
  * @param defaultValue
  * @returns {string | null}
  */
-function exactVelocity(defaultValue) {
+function promptVelocity(defaultValue) {
   return prompt(PROMPT_UPDATE_VELOCITY, defaultValue);
 }
 

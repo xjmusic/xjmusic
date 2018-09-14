@@ -9,6 +9,26 @@
     }
   }
 
+  .instructions {
+    margin-top:4rem;
+    td {
+      color: $color-minor;
+      border: 0 none;
+    }
+    th {
+      color: $color-super-major;
+      border: 0 none;
+      text-align: right;
+      font-weight: 900;
+    }
+    .btn-instructions, .btn-instructions:hover {
+      opacity: 1.0;
+      cursor: default;
+      background: transparent none;
+      border-color: $color-minor;
+    }
+  }
+
   .grid {
     overflow-x: auto;
     margin-bottom: 1rem;

@@ -48,7 +48,7 @@ step_ok
 #
 step "Add Procfile to target"
 indent "$(cat Procfile)"
-cp ${PWD}/.elasticbeanstalk/Procfile ${PWD}/target/Procfile
+cp ${PWD}/.config/Procfile ${PWD}/target/Procfile
 step_ok
 
 #
@@ -64,7 +64,7 @@ step_ok
 #
 step "Add all Elastic Beanstalk Extensions to target"
 mkdir -p ${PWD}/target/.ebextensions
-cp ${PWD}/.elasticbeanstalk/extensions/* \
+cp ${PWD}/.config/extensions/* \
    ${PWD}/target/.ebextensions/
 step_ok
 
@@ -78,7 +78,7 @@ step_ok
 #
 step "Add Tomcat settings for Elastic Beanstalk config to target"
 mkdir -p ${PWD}/target/.ebsettings
-cp ${PWD}/.elasticbeanstalk/tomcat-settings.config \
+cp ${PWD}/.config/tomcat-settings.config \
    ${PWD}/target/.ebsettings/tomcat-settings.config
 step_ok
 
@@ -107,13 +107,13 @@ step_ok
 step "Add .elasticbeanstalk/production.env"
 indent "(set secret environment vars via the 'eb' CLI)"
 indent "${PWD}/target/runtime.env"
-cp ${PWD}/.elasticbeanstalk/production.env ${PWD}/target/runtime.env
+cp ${PWD}/.config/production.env ${PWD}/target/runtime.env
 step_ok
 
 #
 step "Add .elasticbeanstalk/bin/*"
-indent "$(ls ${PWD}/.elasticbeanstalk/bin/*)"
-cp ${PWD}/.elasticbeanstalk/bin/* ${PWD}/target/bin/
+indent "$(ls ${PWD}/.config/bin/*)"
+cp ${PWD}/.config/bin/* ${PWD}/target/bin/
 step_ok
 
 #

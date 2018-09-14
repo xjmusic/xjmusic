@@ -26,7 +26,7 @@
           <tbody>
           {{#each model as |message|}}
             <tr class="item {{lowercase message.type}}-type">
-              <td class="dont-break">{{message.createdAt}}</td>
+              <td class="do-not-break">{{message.createdAt}}</td>
               <td>{{message.type}}</td>
               <td>{{message.body}}</td>
             </tr>

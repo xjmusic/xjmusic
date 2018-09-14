@@ -549,7 +549,7 @@ The `.ebextensions` and `.ebsettings` folder contain configurations proprietary 
 
 Ops engineers may prefer to use the [The Elastic Beanstalk Command Line Interface](http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/eb-cli3.html) for administration of the AWS production deployment.
 
-***Look out for `eb` trying to modify and/or change git version control for the `.elasticbeanstalk` folder when you do a `eb init`-- revert anything it tries to change!***
+***Look out for `eb` trying to modify and/or change git version control for the `.config` folder when you do a `eb init`-- revert anything it tries to change!***
 
 ## Jersey
 

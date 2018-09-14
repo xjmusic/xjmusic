@@ -19,3 +19,8 @@ log/
 
 # Static site generation
 docs/public/
+
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
