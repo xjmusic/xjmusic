@@ -1,0 +1,90 @@
+// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+@import "fonts";
+@import "palette";
+
+.splash {
+  @include magma-bg;
+  padding: 3rem 0 3rem 0;
+
+  .container {
+    background: rgba(0, 0, 0, 0.62);
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
+  }
+
+  &.resource {
+    @include stone-bg;
+    padding: 40px 0 10px 0;
+  }
+
+  a, p, h1, h2, h3, h4, h5, h6 {
+    color: $font-color-super-bright;
+  }
+
+  p {
+    padding: 0;
+    margin: 1.5rem 1.5rem 0;
+    font-weight: 400;
+    text-shadow: 0.1rem 0.1rem 0.2rem #000;
+  }
+
+  h1 {
+    margin: 0.5rem 1.5rem 0;
+    padding: 0;
+    font-weight: 400;
+    line-height: $font-size-mega;
+    letter-spacing: -0.38pt;
+    text-shadow: 0.3rem 0.1rem 1rem rgba(0, 0, 0, 0.5);
+    strong {
+      font-weight: 900;
+    }
+    sup {
+      font-size: 1rem;
+      vertical-align: top;
+      top: 0.6rem;
+    }
+  }
+
+  /* this is only for full (desktop) nav */
+  @media (min-width: 992px) {
+   h1 {
+     font-size: $font-size-mega;
+     line-height: $font-size-mega * 1.05;
+   }
+    p {
+      font-size: $font-size-xxl;
+      line-height: $font-size-xxl * 1.4;
+    }
+  }
+
+  /* this is only for collapsible (mobile) nav */
+  @media (max-width: 991px) {
+    h1 {
+      font-size: $font-size-super;
+      line-height: $font-size-super * 1.05;
+    }
+    p {
+      font-size: $font-size-xl;
+      line-height: $font-size-xl * 1.4;
+    }
+  }
+
+  h4 {
+    color: #aaa;
+    text-transform: uppercase;
+    font-size: $font-size-s;
+    font-weight: 900;
+  }
+
+  .description {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+  }
+  .taxonomy {
+    margin-top: 2em;
+  }
+  a {
+    color: #ddd;
+  }
+
+}

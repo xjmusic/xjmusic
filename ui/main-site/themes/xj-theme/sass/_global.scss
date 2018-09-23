@@ -1,0 +1,75 @@
+// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+
+@import "fonts";
+@import "palette";
+
+html {
+  font-display: optional;
+}
+
+body {
+  font-display: optional;
+  background: $body-bg-color;
+  margin: 0;
+}
+
+label {
+  font-weight: 500;
+}
+
+.btn {
+  cursor: pointer;
+}
+
+img {
+  width: 100%;
+  height: auto;
+}
+
+p {
+  font-size: $font-size-l;
+}
+
+@media (min-width: 992px) {
+  p {
+    font-size: $font-size-l;
+  }
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+.space-above {
+  margin-top: 20px;
+}
+
+.space-below {
+  margin-bottom: 2em;
+}
+
+iframe {
+  width: 100%;
+}
+
+a {
+  color: $font-color-link;
+  &:hover {
+    color: $font-color-super-bright;
+  }
+}
+
+code, pre {
+  background: #343434;
+  color: $font-color-code;
+}
+
+sup {
+  font-size: 0.65rem;
+  vertical-align: top;
+  top: 0.65rem;
+}
+
+main {
+  margin-bottom: 8rem;
+}

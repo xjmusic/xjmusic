@@ -1,0 +1,10 @@
+<!-- Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved. -->
+<footer class="footer">
+  <div class="container">
+    <span class="text-muted">
+                  {{ if .Site.Copyright }}
+            &copy; 1999-{{ now.Format "2006"}} {{ .Site.Copyright | markdownify }}
+            {{ end }}
+    </span>
+  </div>
+</footer>

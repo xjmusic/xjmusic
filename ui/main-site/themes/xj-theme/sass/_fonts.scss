@@ -1,0 +1,99 @@
+// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+
+@import "fonts_mixin";
+@import "palette";
+
+/* default sizes */
+$font-size-xs: .6rem;
+$font-size-s: .875rem;
+$font-size-m: 1rem;
+$font-size-l: 1.25rem;
+$font-size-xl: 1.5rem;
+$font-size-xxl: 1.875rem;
+$font-size-super: 2.25rem;
+$font-size-mega: 3rem;
+
+/* default line heights */
+$font-line-height-s: 1.25rem;
+$font-line-height-m: 1.5rem;
+$font-line-height-l: 1.7rem;
+$font-line-height-xl: 2.5rem;
+
+/*
+$Averta: "Averta", Arial, sans-serif;
+@include font-face("Averta", "Averta/Averta-Thin", 100, normal, woff2 woff);
+@include font-face("Averta", "Averta/Averta-Regular", normal, normal, woff2 woff);
+@include font-face("Averta", "Averta/Averta-Semibold", 500, normal, woff2 woff);
+@include font-face("Averta", "Averta/Averta-RegularItalic", normal, italic, woff2 woff);
+@include font-face("Averta", "Averta/Averta-Bold", bold, normal, woff2 woff);
+*/
+
+/*
+$RobotoSlab: "RobotoSlab", serif;
+@include font-face("RobotoSlab", "RobotoSlab/RobotoSlab-Thin", 100, normal, ttf);
+@include font-face("RobotoSlab", "RobotoSlab/RobotoSlab-Light", 300, normal, ttf);
+@include font-face("RobotoSlab", "RobotoSlab/RobotoSlab-Regular", 500, normal, ttf);
+@include font-face("RobotoSlab", "RobotoSlab/RobotoSlab-Bold", bold, normal, ttf);
+*/
+
+$Lora: "Lora", serif;
+@include font-face("Lora", "Lora/Lora-Regular", regular, normal, ttf);
+@include font-face("Lora", "Lora/Lora-Italic", regular, italic, ttf);
+@include font-face("Lora", "Lora/Lora-Bold", bold, normal, ttf);
+@include font-face("Lora", "Lora/Lora-BoldItalic", bold, italic, ttf);
+
+$font-family-header: $Lora;
+$font-family-display: $Lora;
+$font-family-body: $Lora;
+
+label, .label, .header {
+  font-family: $font-family-header;
+  font-size: $font-size-s;
+  font-weight: bold;
+  letter-spacing: 1px;
+  line-height: 1.125rem;
+  text-transform: uppercase
+}
+
+h1 {
+  font-family: $font-family-display;
+  font-size: $font-size-xxl;
+  font-weight: bold;
+  line-height: 2.125rem;
+  color: $font-color;
+}
+
+h2 {
+  font-family: $font-family-display;
+  font-size: $font-size-xl;
+  font-weight: bold;
+  line-height: 1.75rem;
+  color: $font-color;
+}
+
+h3 {
+  font-family: $font-family-display;
+  font-size: $font-size-l;
+  line-height: 1.5rem;
+  font-weight: bold;
+  color: $font-color;
+}
+
+h4, h5, h6 {
+  font-family: $font-family-display;
+  font-size: $font-size-m;
+  line-height: 1.5rem;
+  font-weight: bold;
+  color: $font-color;
+}
+
+body, div, p {
+  font-family: $font-family-body;
+  font-size: $font-size-m;
+  line-height: 1.8rem;
+  color: $font-color;
+}
+
+blockquote, blockquote p {
+  font-family: $font-family-body;
+}

@@ -4,17 +4,17 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/core/core.iml" filepath="$PROJECT_DIR$/core/core.iml" />
       <module fileurl="file://$PROJECT_DIR$/craft/craft.iml" filepath="$PROJECT_DIR$/craft/craft.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ui/docs-site/docs-site.iml" filepath="$PROJECT_DIR$/ui/docs-site/docs-site.iml" />
       <module fileurl="file://$PROJECT_DIR$/dub/dub.iml" filepath="$PROJECT_DIR$/dub/dub.iml" />
       <module fileurl="file://$PROJECT_DIR$/hub/hub.iml" filepath="$PROJECT_DIR$/hub/hub.iml" />
       <module fileurl="file://$PROJECT_DIR$/ui/hub-ui/hub-ui.iml" filepath="$PROJECT_DIR$/ui/hub-ui/hub-ui.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ui/main-site/main-site.iml" filepath="$PROJECT_DIR$/ui/main-site/main-site.iml" />
       <module fileurl="file://$PROJECT_DIR$/mixer/mixer.iml" filepath="$PROJECT_DIR$/mixer/mixer.iml" />
       <module fileurl="file://$PROJECT_DIR$/music/music.iml" filepath="$PROJECT_DIR$/music/music.iml" />
       <module fileurl="file://$PROJECT_DIR$/ui/player-ui/player-ui.iml" filepath="$PROJECT_DIR$/ui/player-ui/player-ui.iml" />
       <module fileurl="file://$PROJECT_DIR$/pulse/pulse.iml" filepath="$PROJECT_DIR$/pulse/pulse.iml" />
       <module fileurl="file://$PROJECT_DIR$/worker/worker.iml" filepath="$PROJECT_DIR$/worker/worker.iml" />
       <module fileurl="file://$PROJECT_DIR$/xj.iml" filepath="$PROJECT_DIR$/xj.iml" />
-      <module fileurl="file://$PROJECT_DIR$/ui/xj-docs/xj-docs.iml" filepath="$PROJECT_DIR$/ui/xj-docs/xj-docs.iml" />
-      <module fileurl="file://$PROJECT_DIR$/ui/xj-site/xj-site.iml" filepath="$PROJECT_DIR$/ui/xj-site/xj-site.iml" />
     </modules>
   </component>
 </project>

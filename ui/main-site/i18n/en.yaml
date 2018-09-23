@@ -1,0 +1,77 @@
+- id: about
+  translation: "About"
+
+- id: home
+  translation: "Home"
+
+- id: recentPosts
+  translation: "Recent Posts"
+
+- id: readMore
+  translation: "Read more →"
+
+- id: translations
+  translation: "Translations"
+
+- id: share
+  translation: "Share"
+
+- id: paginatorPrevious
+  translation: "Previous page"
+
+- id: paginatorNext
+  translation: "Next page"
+
+- id: cookieMessage
+  translation: "This website uses cookies."
+
+- id: cookieLink
+  translation: "Learn more."
+
+- id: cookieDismiss
+  translation: "Got it!"
+
+- id: backToTop
+  translation: "Back to top"
+
+- id: links
+  translation: "Links"
+
+- id: xjIsTheFutureOfAmbientMusic
+  translation: "<strong>XJ</strong> is the future of ambient&nbsp;music."
+
+- id: xjSplashSentence
+  translation: "The <strong>XJ Music<sup>&trade;</sup></strong> platform is&nbsp;an&nbsp;entirely&nbsp;new <strong>AI&nbsp;powered&nbsp;medium</strong>, transforming the experience of music in shared&nbsp;spaces."
+
+- id: signIn
+  translation: "Sign In"
+
+- id: aboutCallout
+  translation: "About"
+
+- id: aboutBlurb
+  translation: "We are defining a completely new, information age sound."
+
+- id: loginBlurb
+  translation: "The XJ Music<sup>&trade;</sup> platform is currently in private beta testing."
+
+- id: contactMadeIn
+  translation: "Made in"
+
+- id: contactTeamHead
+  translation: "Join the team"
+
+- id: contactTeamBody
+  translation: "If you are a **scientist**, **music professional**, **software developer,** **engineer,** and/or our work interests you, please email [team@xj.io](mailto:team@xj.io)."
+
+- id: contactBetaHead
+  translation: "Beta testing"
+
+- id: contactBetaBody
+  translation: "[Sign in](https://hub.xj.io/login) for a chance to participate."
+
+- id: contactSolutionsHead
+  translation: "Solutions"
+
+- id: contactSolutionsBody
+  translation: "Research, design, and implementation exclusively by [Ambience AI](https://ambience.co/)<sup>&trade;</sup>"
