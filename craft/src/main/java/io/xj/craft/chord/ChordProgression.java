@@ -218,7 +218,7 @@ public class ChordProgression {
   }
 
   /**
-   @return reversed copy of this chord progression
+   @return reversed revived of this chord progression
    */
   public ChordProgression reversed() {
     return new ChordProgression(Lists.reverse(chordNodes));

@@ -49,7 +49,7 @@ public interface ChainDAO extends DAO<Chain> {
    or set the Chain state to COMPLETE.
 
    @param chain                   to build segment for
-   @param segmentBeginBefore         ahead to create Segment before end of previous Segment  @return array of chain Ids
+   @param segmentBeginBefore      ahead to create Segment before end of previous Segment  @return array of chain Ids
    @param chainStopCompleteBefore behind to consider a chain complete
    */
   Segment buildNextSegmentOrComplete(Access access, Chain chain, Timestamp segmentBeginBefore, Timestamp chainStopCompleteBefore) throws Exception;
@@ -60,4 +60,13 @@ public interface ChainDAO extends DAO<Chain> {
    @param chainId of specific Chain to erase.
    */
   void erase(Access access, BigInteger chainId) throws Exception;
+
+  /**
+   [#160299309] Engineer wants a *revived* action for a live production chain, in case the chain has become stuck, in order to ensure the Chain remains in an operable state.
+
+   @param access      control
+   @param priorChainId to revived
+   @return newly created revived chain
+   */
+  Chain revive(Access access, BigInteger priorChainId) throws Exception;
 }

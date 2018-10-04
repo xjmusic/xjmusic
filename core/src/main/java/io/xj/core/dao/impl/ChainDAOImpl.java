@@ -1,9 +1,20 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.dao.impl;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.inject.Inject;
 import io.xj.core.access.impl.Access;
 import io.xj.core.config.Config;
+import io.xj.core.dao.ChainConfigDAO;
 import io.xj.core.dao.ChainDAO;
+import io.xj.core.dao.ChainInstrumentDAO;
+import io.xj.core.dao.ChainLibraryDAO;
+import io.xj.core.dao.ChainSequenceDAO;
+import io.xj.core.dao.DAO;
+import io.xj.core.dao.PlatformMessageDAO;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.exception.CancelException;
 import io.xj.core.exception.ConfigException;
@@ -11,6 +22,9 @@ import io.xj.core.exception.DatabaseException;
 import io.xj.core.model.chain.Chain;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
+import io.xj.core.model.chain_binding.ChainBinding;
+import io.xj.core.model.message.MessageType;
+import io.xj.core.model.platform_message.PlatformMessage;
 import io.xj.core.model.segment.Segment;
 import io.xj.core.model.segment.SegmentState;
 import io.xj.core.model.user_role.UserRoleType;
@@ -20,18 +34,14 @@ import io.xj.core.tables.records.ChainRecord;
 import io.xj.core.tables.records.SegmentRecord;
 import io.xj.core.transport.CSV;
 import io.xj.core.work.WorkManager;
-
 import org.jooq.DSLContext;
 import org.jooq.Field;
 import org.jooq.Record;
 import org.jooq.UpdateSetFirstStep;
 import org.jooq.impl.DSL;
 import org.jooq.types.ULong;
-
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.inject.Inject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.math.BigInteger;
@@ -56,23 +66,38 @@ import static io.xj.core.Tables.SEGMENT;
  <p>
  Core directive here is to keep business logic CENTRAL ("oneness")
  <p>
- All variants on an update resolve (after entity transformation,
+ All variants on an update resolve (after recordUpdateFirstStep transformation,
  or additional validation) to one singular central update(fieldValues)
  <p>
  Also note buildNextSegmentOrComplete(...) is one singular central implementation
  of the logic around adding segments to chains and updating chain state to complete.
  */
 public class ChainDAOImpl extends DAOImpl implements ChainDAO {
-  //  private static final Logger log = LoggerFactory.getLogger(ChainDAOImpl.class);
+  private static final Logger log = LoggerFactory.getLogger(ChainDAOImpl.class);
   private final int previewLengthMax;
   private final WorkManager workManager;
+  private final ChainConfigDAO chainConfigDAO;
+  private final ChainInstrumentDAO chainInstrumentDAO;
+  private final ChainLibraryDAO chainLibraryDAO;
+  private final ChainSequenceDAO chainSequenceDAO;
+  private final PlatformMessageDAO platformMessageDAO;
 
   @Inject
   public ChainDAOImpl(
     SQLDatabaseProvider dbProvider,
-    WorkManager workManager
+    WorkManager workManager,
+    ChainConfigDAO chainConfigDAO,
+    ChainInstrumentDAO chainInstrumentDAO,
+    ChainLibraryDAO chainLibraryDAO,
+    ChainSequenceDAO chainSequenceDAO,
+    PlatformMessageDAO platformMessageDAO
   ) {
     this.workManager = workManager;
+    this.chainConfigDAO = chainConfigDAO;
+    this.chainInstrumentDAO = chainInstrumentDAO;
+    this.chainLibraryDAO = chainLibraryDAO;
+    this.chainSequenceDAO = chainSequenceDAO;
+    this.platformMessageDAO = platformMessageDAO;
     this.dbProvider = dbProvider;
     previewLengthMax = Config.chainPreviewLengthMax();
   }
@@ -100,7 +125,7 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
   /**
    [#150279540] Unauthenticated or specifically-authenticated public Client wants to access a Chain by embed key (as alias for chain id) in order to provide data for playback.
 
-   @param db     context
+   @param db       context
    @param embedKey of record
    @return record
    */
@@ -241,6 +266,24 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
     return fieldValues;
   }
 
+  /**
+   Copy all of a specific class of ChainBinding from one chain to another
+
+   @param dao         to implement
+   @param access      control
+   @param fromChainId to copy bindings from
+   @param toChainId   to copy bindings to
+   @param <B>         class of binding
+   @throws Exception on failure
+   */
+  private static <B extends ChainBinding> void copyAllBindings(DAO<B> dao, Access access, BigInteger fromChainId, BigInteger toChainId) throws Exception {
+    for (B chainBinding : dao.readAll(access, ImmutableList.of(fromChainId))) {
+      log.info("Copy binding {} from chain {} to chain {}", chainBinding, fromChainId, toChainId);
+      chainBinding.setChainId(toChainId);
+      dao.create(access, chainBinding);
+    }
+  }
+
   @Override
   public Chain create(Access access, Chain entity) throws Exception {
     SQLConnection tx = dbProvider.getConnection();
@@ -348,6 +391,16 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
     }
   }
 
+  @Override
+  public Chain revive(Access access, BigInteger priorChainId) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(revive(tx.getContext(), access, ULong.valueOf(priorChainId)));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
   /**
    Create a new record
 
@@ -362,7 +415,7 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
 
     Map<Field, Object> fieldValues = fieldValueMap(entity);
 
-    // [#126] Chains are always readMany in DRAFT state
+    // [#126] Chains are always created in DRAFT state
     fieldValues.put(CHAIN.STATE, ChainState.Draft);
 
     if (access.isTopLevel())
@@ -392,7 +445,7 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
       case Preview:
         requireRole("Artist to create preview Chain", access, UserRoleType.Artist);
         fieldValues.put(CHAIN.START_AT,
-          Timestamp.from(Instant.now().minusSeconds((long) previewLengthMax)));
+          Timestamp.from(Instant.now().minusSeconds(previewLengthMax)));
         fieldValues.put(CHAIN.STOP_AT,
           Timestamp.from(Instant.now()));
 
@@ -420,12 +473,10 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
     Map<Field, Object> fieldValues = fieldValueMap(entity);
 
     // Cannot update TYPE of chain
-    if (fieldValues.containsKey(CHAIN.TYPE))
-      fieldValues.remove(CHAIN.TYPE);
+    fieldValues.remove(CHAIN.TYPE);
 
     // Cannot update ACCOUNT_ID of chain
-    if (fieldValues.containsKey(CHAIN.ACCOUNT_ID))
-      fieldValues.remove(CHAIN.ACCOUNT_ID);
+    fieldValues.remove(CHAIN.ACCOUNT_ID);
 
     fieldValues.put(CHAIN.ID, id);
     update(db, access, id, fieldValues);
@@ -533,9 +584,6 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
         onlyAllowTransitions(toState, ChainState.Erase);
         break;
 
-      default:
-        onlyAllowTransitions(toState, ChainState.Draft);
-        break;
     }
 
 
@@ -681,5 +729,57 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
     return pilotTemplate;
   }
 
+  /**
+   [#160299309] Engineer wants a *revived* action for a live production chain, in case the chain has become stuck, in order to ensure the Chain remains in an operable state.
+   <p>
+   Step 1 of 3
+   Require exists chain from which to revived, throw error if not found.
+   Throw error if trying to revived from chain that is not production in fabricate state
+   Require engineer access or top level
+
+   @param db           context
+   @param access       control
+   @param priorChainId for new record
+   @return newly readMany record
+   @throws BusinessException if a Business Rule is violated
+   */
+  private Chain revive(DSLContext db, Access access, ULong priorChainId) throws Exception {
+    Chain priorChain = readOne(db, access, priorChainId);
+    requireExists("prior Chain", priorChain);
+
+    // copy the prior chain to a revived chain before modifying original fields
+    Chain revivedChain = priorChain.revived();
+
+    // update the prior chain to failed state and null embed key
+    priorChain.setStateEnum(ChainState.Failed);
+    priorChain.setEmbedKey(null);
+    update(db, access, priorChainId, fieldValueMap(priorChain));
+
+    // create new chain with original properties (but in draft state)
+    Chain createdChain = create(db, access, revivedChain);
+
+    // copy all chain bindings from prior chain to created chain
+    requireExists("created Chain", createdChain);
+    copyAllBindings(chainConfigDAO, access, priorChain.getId(), createdChain.getId());
+    copyAllBindings(chainInstrumentDAO, access, priorChain.getId(), createdChain.getId());
+    copyAllBindings(chainLibraryDAO, access, priorChain.getId(), createdChain.getId());
+    copyAllBindings(chainSequenceDAO, access, priorChain.getId(), createdChain.getId());
+
+    // update new chain into ready state
+    createdChain.setStateEnum(ChainState.Ready);
+    update(db, access, ULong.valueOf(createdChain.getId()), fieldValueMap(createdChain));
+
+    // update new chain into production state
+    createdChain.setStateEnum(ChainState.Fabricate);
+    update(db, access, ULong.valueOf(createdChain.getId()), fieldValueMap(createdChain));
+
+    // create a platform message reporting the event
+    platformMessageDAO.create(Access.internal(), new PlatformMessage()
+      .setType(MessageType.Warning.toString())
+      .setBody(String.format("Revived Chain #%s from prior Chain #%s", createdChain.getId(), priorChain.getId())));
+
+    // return newly created chain
+    return createdChain;
+  }
 
 }

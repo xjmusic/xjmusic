@@ -1,12 +1,13 @@
 //  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
 .table-list tr,
-div.chain-state-change,
+div.chain-state-container,
 div.play-chain,
 .modal-header,
 .badge {
 
-  &.complete-state {
+  &.complete-state,
+  &.draft-state {
     background: darken(#5f6061, 15%);
     border-color: darken(#c5c6c7, 15%);
     color: darken(#c5c6c7, 10%);

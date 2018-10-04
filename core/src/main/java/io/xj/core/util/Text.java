@@ -9,7 +9,11 @@ import io.xj.core.config.Config;
 import io.xj.core.model.entity.Entity;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 public interface Text {
@@ -178,6 +182,7 @@ public interface Text {
    @return purified
    */
   static String toScored(String raw) {
+    if (Objects.isNull(raw)) return "";
     return
       leadingScores.matcher(
         tailingScores.matcher(

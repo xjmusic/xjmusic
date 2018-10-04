@@ -106,7 +106,7 @@
 
     <plugins>
 
-      <!-- copy docs from /reference/docs -->
+      <!-- revived docs from /reference/docs -->
       <plugin>
         <artifactId>maven-resources-plugin</artifactId>
         <version>3.0.2</version>

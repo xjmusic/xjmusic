@@ -131,7 +131,7 @@ public class AmazonProviderImpl implements AmazonProvider {
       s3Client().copyObject(sourceBucket, sourceKey,targetBucket, targetKey);
 
     } catch (Exception e) {
-      throw new NetworkException("Failed to copy S3 object", e);
+      throw new NetworkException("Failed to revived S3 object", e);
     }
   }
 

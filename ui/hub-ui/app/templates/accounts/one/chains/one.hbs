@@ -39,8 +39,8 @@
   <div class="form-group row">
 
     <!-- State Change -->
-    <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
-      <div class="chain-state-change container-fluid {{lowercase model.state}}-state">
+    <div class="col-sm-12 col-md-6 col-lg-6 col-xl-4">
+      <div class="chain-state-container container-fluid {{lowercase model.state}}-state">
         <table>
           <tbody>
           <tr class="row">
@@ -48,7 +48,7 @@
               {{capitalize model.state}}
             </th>
             <td>
-              {{chain-state-change model}}
+              {{chain-state-change model submit=(action "chainsUpdated")}}
             </td>
           </tr>
           </tbody>

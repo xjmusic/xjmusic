@@ -61,7 +61,7 @@ export default DS.RESTAdapter.extend({
    Custom URL for createRecord
 
    Cribbed from https://github.com/emberjs/data/issues/3596#issuecomment-126604014
-   This makes it possible to send query parameters with a findRecord():
+   This makes it possible to send query parameters with a createRecord():
 
    this.get('store').createRecord(chain, {
       adapterOptions: {

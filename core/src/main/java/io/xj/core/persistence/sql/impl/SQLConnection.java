@@ -13,7 +13,7 @@ import java.sql.SQLException;
 
 public class SQLConnection {
 
-  private static Logger log = LoggerFactory.getLogger(SQLConnection.class);
+  private static final Logger log = LoggerFactory.getLogger(SQLConnection.class);
   protected final DSLContext context;
   private final Boolean isTransaction;
   private final Connection connection;
@@ -77,7 +77,7 @@ public class SQLConnection {
     try {
       connection.close();
     } catch (Exception eClose) {
-      throw failureException("to close connection (" + eClose.toString() + ")");
+      throw failureException("to close connection (" + eClose + ")");
     }
   }
 
@@ -113,12 +113,12 @@ public class SQLConnection {
       try {
         connection.rollback();
         throw failureException(
-          "to commit transaction (" + eCommit.toString() + "); " +
+          "to commit transaction (" + eCommit + "); " +
             "rolled back OK");
       } catch (Exception eRollback) {
         throw failureException(
-          "to commit database transaction (" + eCommit.toString() + ", " +
-            "to rollback (" + eRollback.toString() + ") ");
+          "to commit database transaction (" + eCommit + ", " +
+            "to rollback (" + eRollback + ") ");
       }
     }
   }
@@ -153,12 +153,12 @@ public class SQLConnection {
       try {
         connection.close();
         logFailed(
-          "to rollback and close (" + eRollbackClose.toString() + "); " +
+          "to rollback and close (" + eRollbackClose + "); " +
             "closed OK");
       } catch (SQLException eClose) {
         logFailed(
-          "to rollback and close (" + eRollbackClose.toString() + "), " +
-            "to close (" + eClose.toString() + ")");
+          "to rollback and close (" + eRollbackClose + "), " +
+            "to close (" + eClose + ")");
       }
     }
   }

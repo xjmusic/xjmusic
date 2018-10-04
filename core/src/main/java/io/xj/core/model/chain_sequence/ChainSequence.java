@@ -2,13 +2,15 @@
 package io.xj.core.model.chain_sequence;
 
 import io.xj.core.exception.BusinessException;
-import io.xj.core.model.entity.Entity;
+import io.xj.core.model.chain_binding.ChainBinding;
 
 import java.math.BigInteger;
 
 /**
+ [#160980748] Developer wants all chain binding models to extend `ChainBinding` with common properties and methods pertaining to Chain membership.
+
  POJO for persisting data in memory while performing business logic,
-or decoding messages received by JAX-RS resources.
+ or decoding messages received by JAX-RS resources.
  a.k.a. JSON input will be stored into an instance of this object
  <p>
  Business logic ought to be performed beginning with an instance of this object,
@@ -16,47 +18,46 @@ or decoding messages received by JAX-RS resources.
  <p>
  NOTE: There can only be ONE of any getter/setter (with the same # of input params)
  */
-public class ChainSequence extends Entity {
-
-  /**
-   For use in maps.
-   */
+public class ChainSequence extends ChainBinding {
   public static final String KEY_ONE = "chainSequence";
   public static final String KEY_MANY = "chainSequences";
-  // Chain ID
-  private BigInteger chainId;
-  // Sequence ID
   private BigInteger sequenceId;
 
-  public BigInteger getChainId() {
-    return chainId;
-  }
+  /**
+   Set chain id
 
+   @param chainId to set
+   @return self
+   */
   public ChainSequence setChainId(BigInteger chainId) {
-    this.chainId = chainId;
+    super.setChainId(chainId);
     return this;
   }
 
+  /**
+   Get sequence id
+
+   @return sequence id
+   */
   public BigInteger getSequenceId() {
     return sequenceId;
   }
 
+  /**
+   Set sequence id
+
+   @param sequenceId to set
+   @return sequence id
+   */
   public ChainSequence setSequenceId(BigInteger sequenceId) {
     this.sequenceId = sequenceId;
     return this;
   }
 
   @Override
-  public BigInteger getParentId() {
-    return chainId;
-  }
-
-  @Override
   public void validate() throws BusinessException {
-    if (this.chainId == null) {
-      throw new BusinessException("Chain ID is required.");
-    }
-    if (this.sequenceId == null) {
+    super.validate();
+    if (null == sequenceId) {
       throw new BusinessException("Sequence ID is required.");
     }
   }

@@ -102,13 +102,13 @@ public interface AmazonProvider {
 
   /**
    Copy an object within S3
-   If attempting to copy an object that does not exist,
+   If attempting to revived an object that does not exist,
    Amazon S3 returns a success message instead of an error message.
 
-   @param sourceBucket to copy file in
-   @param sourceKey    to copy
-   @param targetBucket to copy file in
-   @param targetKey    to copy
+   @param sourceBucket to revived file in
+   @param sourceKey    to revived
+   @param targetBucket to revived file in
+   @param targetKey    to revived
    */
   void copyS3Object(String sourceBucket, String sourceKey, String targetBucket, String targetKey) throws NetworkException;
 }

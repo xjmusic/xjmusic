@@ -106,6 +106,7 @@ public class TextTest extends Mockito {
 
   @Test
   public void toScored() {
+    assertEquals("", Text.toScored(null));
     assertEquals("HAMMY_jaMMy", Text.toScored("HAMMY jaMMy"));
     assertEquals("jaMMy", Text.toScored("jaMMy"));
     assertEquals("jaM_42", Text.toScored("jaM &&$ 42"));

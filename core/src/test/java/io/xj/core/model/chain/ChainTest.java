@@ -10,6 +10,7 @@ import org.junit.rules.ExpectedException;
 import java.math.BigInteger;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class ChainTest {
 
@@ -159,6 +160,59 @@ public class ChainTest {
       .setStartAt("2014-08-12 12:17:02.527142")
       .setStopAt("totally illegitimate expression of time")
       .validate();
+  }
+
+  /**
+   [#160299309] Engineer wants a *revived* action for a live production chain, in case the chain has become stuck, in order to ensure the Chain remains in an operable state.
+   */
+  @Test
+  public void reviveChain() throws Exception {
+    Chain result = new Chain()
+      .setName("Mic Check One Two")
+      .setType("Production")
+      .setState("Fabricate")
+      .setAccountId(BigInteger.valueOf(9743L))
+      .setStartAt("2014-08-12 12:17:02.527142")
+      .setStopAt("2015-08-12 12:17:02.527142")
+      .revived();
+
+    assertNull("no id", result.getId());
+  }
+
+  /**
+   [#160299309] Engineer wants a *revived* action for a live production chain, in case the chain has become stuck, in order to ensure the Chain remains in an operable state.
+   */
+  @Test
+  public void reviveChain_failsIfNotFabricateState() throws Exception {
+    failure.expect(BusinessException.class);
+    failure.expectMessage("Fabricate-state Chain");
+
+    new Chain()
+      .setName("Mic Check One Two")
+      .setType("Production")
+      .setState("Ready")
+      .setAccountId(BigInteger.valueOf(9743L))
+      .setStartAt("2014-08-12 12:17:02.527142")
+      .setStopAt("2015-08-12 12:17:02.527142")
+      .revived();
+  }
+
+  /**
+   [#160299309] Engineer wants a *revived* action for a live production chain, in case the chain has become stuck, in order to ensure the Chain remains in an operable state.
+   */
+  @Test
+  public void reviveChain_failsIfNotProductionType() throws Exception {
+    failure.expect(BusinessException.class);
+    failure.expectMessage("Production-type Chain");
+
+    new Chain()
+      .setName("Mic Check One Two")
+      .setType("Preview")
+      .setState("Fabricate")
+      .setAccountId(BigInteger.valueOf(9743L))
+      .setStartAt("2014-08-12 12:17:02.527142")
+      .setStopAt("2015-08-12 12:17:02.527142")
+      .revived();
   }
 
 }

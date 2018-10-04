@@ -13,8 +13,19 @@
   </button>
 {{/if}}
 {{#if (eq model.state 'Fabricate')}}
-  <button type="button" class="chain-state btn btn-secondary btn-safety align-middle" {{action 'changeState' 'Complete' true}}>
-    Terminate
-  </button>
+  <table class="inner">
+    <tr>
+      <td>
+        <button type="button" class="chain-state btn btn-secondary btn-safety align-middle" {{action 'revive' true}}>
+          Revive
+        </button>
+      </td>
+      <td>
+        <button type="button" class="chain-state btn btn-secondary btn-safety align-middle" {{action 'changeState' 'Complete' true}}>
+          Finish
+        </button>
+      </td>
+    </tr>
+  </table>
 {{/if}}
 

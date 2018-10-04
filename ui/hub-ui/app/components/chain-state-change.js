@@ -1,7 +1,7 @@
 //  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
-import { get } from '@ember/object';
+import {get} from '@ember/object';
 
-import { inject as service } from '@ember/service';
+import {inject as service} from '@ember/service';
 import Component from '@ember/component';
 
 /**
@@ -9,75 +9,122 @@ import Component from '@ember/component';
  */
 const ChainStateChangeComponent = Component.extend({
 
-  // Inject: flash message service
-  display: service(),
+    // Inject: flash message service
+    display: service(),
 
-  /**
-   * Component Actions
-   */
-  actions: {
+    // Inject: ember data store service
+    store: service(),
 
     /**
-     * Update Chain State, with optional confirmation dialog
-     *
-     * @param {String} toState
-     * @param {bool} askConfirm whether to show a confirmation dialoge first
+     * Component Actions
      */
-    changeState(toState, askConfirm) {
-      let self = this;
-      let model = this.get('model');
+    actions: {
 
-      if (askConfirm && !confirm(this.msgConfirm(toState))) {
-        get(self, 'display').warning('Cancelled.');
-        return;
+      /**
+       * Revive a Chain
+       * @param {bool} askConfirm whether to show a confirmation dialogue first
+       */
+      revive(askConfirm) {
+        let self = this;
+        let model = this.get('model');
+        let reviveId = model.get('id');
+
+        if (askConfirm && !confirm(this.msgConfirmRevive())) {
+          get(self, 'display').warning('Cancelled.');
+          return;
+        }
+        let createNewChain = get(self, 'store').createRecord('chain', {});
+        createNewChain.save({
+          adapterOptions: {
+            query: {
+              reviveId: reviveId
+            }
+          }
+        }).then(
+          (createdChain) => {
+            get(self, 'display').success('Revived Chain #' + createdChain.get('id') + ' from prior Chain #' + reviveId);
+            self.submit();
+          },
+          (error) => {
+            get(this, 'display').error(error);
+          });
+      },
+
+      /**
+       * Update Chain State, with optional confirmation dialog
+       *
+       * @param {String} toState
+       * @param {bool} askConfirm whether to show a confirmation dialogue first
+       */
+      changeState(toState, askConfirm) {
+        let self = this;
+        let model = this.get('model');
+
+        if (askConfirm && !confirm(this.msgConfirmChange(toState))) {
+          get(self, 'display').warning('Cancelled.');
+          return;
+        }
+
+        model.set('state', toState);
+        model.save().then(
+          () => {
+            get(self, 'display').success(self.msgSuccess());
+            self.submit();
+          },
+          (error) => {
+            get(self, 'model').rollbackAttributes();
+            get(self, 'display').error(error);
+          });
       }
 
-      model.set('state', toState);
-      model.save().then(
-        () => {
-          get(self, 'display').success(self.msgSuccess());
-        },
-        (error) => {
-          get(self, 'model').rollbackAttributes();
-          get(self, 'display').error(error);
-        });
+    },
+
+    /**
+     * Success message
+     *
+     * @returns {string}
+     */
+    msgSuccess() {
+      let model = this.get('model');
+      return [
+        model.get('name'),
+        'is now in',
+        model.get('state'),
+        'state'
+      ].join(' ');
+    }
+    ,
+
+    /**
+     * Confirmation message to change state of a chain
+     *
+     * @param {String} toState
+     * @returns {string}
+     */
+    msgConfirmChange(toState) {
+      let model = this.get('model');
+      return [
+        'Really change',
+        model.get('name'),
+        'to',
+        toState,
+        'state?'
+      ].join(' ');
+    }
+    ,
+
+    /**
+     * Confirmation message to revive a chain
+     *
+     * @returns {string}
+     */
+    msgConfirmRevive() {
+      let model = this.get('model');
+      return 'Really revive Chain #' + model.get('id') + '?';
     }
 
-  },
-
-  /**
-   * Success message
-   *
-   * @returns {string}
-   */
-  msgSuccess() {
-    let model = this.get('model');
-    return [
-      model.get('name'),
-      'is now in',
-      model.get('state'),
-      'state'
-    ].join(' ');
-  },
-
-  /**
-   * Confirmation message
-   *
-   * @param {String} toState
-   * @returns {string}
-   */
-  msgConfirm(toState) {
-    let model = this.get('model');
-    return [
-      'Really change',
-      model.get('name'),
-      'to',
-      toState,
-      'state?'
-    ].join(' ');
-  }
-
-});
+  })
+;
 
 /**
  * Usage (e.g, in Handlebars, where chain model is "myChainModel"):

@@ -1,6 +1,12 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.dao;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.util.Modules;
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
 import io.xj.core.exception.BusinessException;
@@ -17,14 +23,7 @@ import io.xj.core.model.segment.SegmentState;
 import io.xj.core.model.sequence.SequenceState;
 import io.xj.core.model.sequence.SequenceType;
 import io.xj.core.transport.JSON;
-
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.util.Modules;
-
+import io.xj.core.work.WorkManager;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.After;
@@ -43,11 +42,16 @@ import java.util.Collection;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ChainIT {
-  @Rule public ExpectedException failure = ExpectedException.none();
-  @Mock AmazonProvider amazonProvider;
+  @Rule
+  public ExpectedException failure = ExpectedException.none();
+  @Mock
+  AmazonProvider amazonProvider;
+  @Mock
+  WorkManager workManager;
   private Injector injector;
   private ChainDAO testDAO;
 
@@ -79,6 +83,7 @@ public class ChainIT {
         @Override
         public void configure() {
           bind(AmazonProvider.class).toInstance(amazonProvider);
+          bind(WorkManager.class).toInstance(workManager);
         }
       }));
   }
@@ -882,6 +887,147 @@ public class ChainIT {
     Chain result = testDAO.readOne(Access.internal(), BigInteger.valueOf(3L));
     assertNotNull(result);
     assertEquals(ChainState.Ready, result.getState());
+  }
+
+  /**
+   [#160299309] Engineer wants a *revived* action for a live production chain, in case the chain has become stuck, in order to ensure the Chain remains in an operable state.
+   */
+  @Test
+  public void revive() throws Exception {
+    Access access = new Access(ImmutableMap.of(
+      "roles", "User,Admin,Artist,Engineer",
+      "accounts", "1,2"
+    ));
+    IntegrationTestEntity.insertChain(274, 1, "school", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"), "jabberwocky");
+    IntegrationTestEntity.insertLibrary(3, 1, "pajamas");
+    IntegrationTestEntity.insertChainLibrary(2, 274, 3);
+
+    Chain result = testDAO.revive(access, BigInteger.valueOf(274L));
+
+    assertNotNull(result);
+    assertEquals("school", result.getName());
+    assertEquals("jabberwocky", result.getEmbedKey());
+    assertEquals(BigInteger.valueOf(1L), result.getAccountId());
+    assertEquals(ChainState.Fabricate, result.getState());
+    assertEquals(ChainType.Production, result.getType());
+    verify(workManager).startChainFabrication(result.getId());
+
+    Chain priorChain = testDAO.readOne(Access.internal(), BigInteger.valueOf(274L));
+    assertNotNull(priorChain);
+    assertEquals(ChainState.Failed, priorChain.getState());
+    assertNull(priorChain.getEmbedKey());
+    verify(workManager).stopChainFabrication(priorChain.getId());
+
+    assertEquals(1, injector.getInstance(PlatformMessageDAO.class).readAllPreviousDays(Access.internal(), 1).size());
+  }
+
+  /**
+   [#160299309] Engineer wants a *revived* action, require exists chain from which to revived, throw error if not found.
+   */
+  @Test
+  public void revive_failsIfNotExistPriorChain() throws Exception {
+    Access access = new Access(ImmutableMap.of(
+      "roles", "Admin"
+    ));
+
+    failure.expect(BusinessException.class);
+    failure.expectMessage("prior Chain does not exist");
+
+    testDAO.revive(access, BigInteger.valueOf(274L));
+  }
+
+  /**
+   [#160299309] Engineer wants a *revived* action, throw error if trying to revived from chain that is not production in fabricate state
+   */
+  @Test
+  public void revive_failsIfNotFabricateState() throws Exception {
+    Access access = new Access(ImmutableMap.of(
+      "roles", "Admin"
+    ));
+    IntegrationTestEntity.insertChain(274, 1, "school", ChainType.Production, ChainState.Ready, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"), "jabberwocky");
+    IntegrationTestEntity.insertLibrary(3, 1, "pajamas");
+    IntegrationTestEntity.insertChainLibrary(2, 274, 3);
+
+    failure.expect(BusinessException.class);
+    failure.expectMessage("Only a Fabricate-state Chain can be revived.");
+
+    testDAO.revive(access, BigInteger.valueOf(274L));
+  }
+
+  /**
+   [#160299309] Engineer wants a *revived* action, require engineer access or top level
+   */
+  @Test
+  public void revive_okayWithEngineerAccess() throws Exception {
+    Access access = new Access(ImmutableMap.of(
+      "roles", "Engineer",
+      "accounts", "1"
+    ));
+    IntegrationTestEntity.insertChain(274, 1, "school", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"), "jabberwocky");
+    IntegrationTestEntity.insertLibrary(3, 1, "pajamas");
+    IntegrationTestEntity.insertChainLibrary(2, 274, 3);
+
+    Chain result = testDAO.revive(access, BigInteger.valueOf(274L));
+
+    assertNotNull(result);
+    assertEquals("school", result.getName());
+    assertEquals("jabberwocky", result.getEmbedKey());
+    assertEquals(BigInteger.valueOf(1L), result.getAccountId());
+    assertEquals(ChainState.Fabricate, result.getState());
+    assertEquals(ChainType.Production, result.getType());
+  }
+
+  /**
+   [#160299309] Engineer wants a *revived* action, require engineer access or top level
+   */
+  @Test
+  public void revive_failsWithArtistAccess() throws Exception {
+    Access access = new Access(ImmutableMap.of(
+      "roles", "Artist"
+    ));
+    IntegrationTestEntity.insertChain(274, 1, "school", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"), "jabberwocky");
+    IntegrationTestEntity.insertLibrary(3, 1, "pajamas");
+    IntegrationTestEntity.insertChainLibrary(2, 274, 3);
+
+    failure.expect(BusinessException.class);
+    failure.expectMessage("prior Chain does not exist");
+
+    testDAO.revive(access, BigInteger.valueOf(274L));
+  }
+
+  /**
+   [#160299309] Engineer wants a *revived* action, duplicates all ChainBindings, including ChainConfig, ChainInstrument, ChainLibrary, and ChainSequence
+   */
+  @Test
+  public void revive_duplicatesAllChainBindings() throws Exception {
+    Access access = new Access(ImmutableMap.of(
+      "roles", "Engineer",
+      "accounts", "1"
+    ));
+    IntegrationTestEntity.insertUser(3, "jenny", "jenny@email.com", "http://pictures.com/jenny.gif");
+    IntegrationTestEntity.insertChain(274, 1, "school", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"), "jabberwocky");
+    IntegrationTestEntity.insertChainConfig(2, 274, ChainConfigType.OutputFrameRate, "1,4,35");
+    IntegrationTestEntity.insertChainConfig(3, 274, ChainConfigType.OutputChannels, "2,83,4");
+    IntegrationTestEntity.insertLibrary(3, 1, "pajamas");
+    IntegrationTestEntity.insertChainLibrary(2, 274, 3);
+    IntegrationTestEntity.insertSequence(3, 3, 3, SequenceType.Main, SequenceState.Published, "fonds", 0.342, "C#", 0.286);
+    IntegrationTestEntity.insertSequence(4, 3, 3, SequenceType.Macro, SequenceState.Published, "trees A to B", 0.7, "D#", 0.4);
+    IntegrationTestEntity.insertSequence(5, 3, 3, SequenceType.Macro, SequenceState.Published, "trees B to A", 0.6, "F", 0.6);
+    IntegrationTestEntity.insertSequence(6, 3, 3, SequenceType.Rhythm, SequenceState.Published, "beets", 0.5, "C", 1.5);
+    IntegrationTestEntity.insertChainSequence(1, 274, 3);
+    IntegrationTestEntity.insertChainSequence(2, 274, 4);
+    IntegrationTestEntity.insertChainSequence(3, 274, 5);
+    IntegrationTestEntity.insertChainSequence(4, 274, 6);
+    IntegrationTestEntity.insertInstrument(3, 3, 3, "fonds", InstrumentType.Harmonic, 0.342);
+    IntegrationTestEntity.insertChainInstrument(2, 274, 3);
+
+    Chain result = testDAO.revive(access, BigInteger.valueOf(274L));
+
+    assertNotNull(result);
+    assertEquals(2, injector.getInstance(ChainConfigDAO.class).readAll(Access.internal(), ImmutableList.of(result.getId())).size());
+    assertEquals(1, injector.getInstance(ChainInstrumentDAO.class).readAll(Access.internal(), ImmutableList.of(result.getId())).size());
+    assertEquals(1, injector.getInstance(ChainLibraryDAO.class).readAll(Access.internal(), ImmutableList.of(result.getId())).size());
+    assertEquals(4, injector.getInstance(ChainSequenceDAO.class).readAll(Access.internal(), ImmutableList.of(result.getId())).size());
   }
 
 

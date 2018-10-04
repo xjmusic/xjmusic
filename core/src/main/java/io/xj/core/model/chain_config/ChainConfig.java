@@ -2,14 +2,16 @@
 package io.xj.core.model.chain_config;
 
 import io.xj.core.exception.BusinessException;
-import io.xj.core.model.entity.Entity;
+import io.xj.core.model.chain_binding.ChainBinding;
 import io.xj.core.util.Text;
 
 import java.math.BigInteger;
 
 /**
+ [#160980748] Developer wants all chain binding models to extend `ChainBinding` with common properties and methods pertaining to Chain membership.
+
  POJO for persisting data in memory while performing business logic,
-or decoding messages received by JAX-RS resources.
+ or decoding messages received by JAX-RS resources.
  a.k.a. JSON input will be stored into an instance of this object
  <p>
  Business logic ought to be performed beginning with an instance of this object,
@@ -17,24 +19,18 @@ or decoding messages received by JAX-RS resources.
  <p>
  NOTE: There can only be ONE of any getter/setter (with the same # of input params)
  */
-public class ChainConfig extends Entity {
-
+public class ChainConfig extends ChainBinding {
   public static final String KEY_ONE = "chainConfig";
   public static final String KEY_MANY = "chainConfigs";
-  private BigInteger chainId;
   private ChainConfigType type;
   private String _typeString; // pending validation, copied to `type` field
   private String value;
 
-  public BigInteger getChainId() {
-    return chainId;
-  }
+  /**
+   Get type
 
-  public ChainConfig setChainId(BigInteger chainId) {
-    this.chainId = chainId;
-    return this;
-  }
-
+   @return type
+   */
   public ChainConfigType getType() {
     return type;
   }
@@ -46,38 +42,60 @@ public class ChainConfig extends Entity {
    @param typeString pending validation
    */
   public ChainConfig setType(String typeString) {
-    this._typeString = Text.toAlphabetical(typeString);
+    _typeString = Text.toAlphabetical(typeString);
     return this;
   }
 
+  /**
+   Set Chain id
+
+   @param chainId of chain
+   @return self
+   */
+  public ChainConfig setChainId(BigInteger chainId) {
+    super.setChainId(chainId);
+    return this;
+  }
+
+  /**
+   Set type enum
+
+   @param type enum to set
+   @return self
+   */
   public ChainConfig setTypeEnum(ChainConfigType type) {
     this.type = type;
     return this;
   }
 
+  /**
+   Get value
+
+   @return value
+   */
   public String getValue() {
     return value;
   }
 
+  /**
+   Set value
+
+   @param value to set
+   @return self
+   */
   public ChainConfig setValue(String value) {
     this.value = value;
     return this;
   }
 
   @Override
-  public BigInteger getParentId() {
-    return chainId;
-  }
-
-  @Override
   public void validate() throws BusinessException {
-    if (this.chainId == null)
-      throw new BusinessException("Chain ID is required.");
+    super.validate();
 
     // throws its own BusinessException on failure
-    this.type = ChainConfigType.validate(_typeString);
+    type = ChainConfigType.validate(_typeString);
 
-    if (this.value == null || this.value.length() == 0)
+    if (null == value || value.isEmpty())
       throw new BusinessException("Value is required.");
 
   }

@@ -3,8 +3,8 @@ package io.xj.core.model.chain;
 
 import io.xj.core.exception.BusinessException;
 import io.xj.core.model.entity.Entity;
-import io.xj.core.util.TimestampUTC;
 import io.xj.core.util.Text;
+import io.xj.core.util.TimestampUTC;
 
 import java.math.BigInteger;
 import java.sql.Timestamp;
@@ -150,16 +150,23 @@ public class Chain extends Entity {
   @Override
   public void validate() throws BusinessException {
     // throws its own BusinessException on failure
-    state = ChainState.validate(_state);
+    if (!Objects.isNull(_state)) {
+      state = ChainState.validate(_state);
+    }
 
     // throws its own BusinessException on failure
-    type = ChainType.validate(_type);
+    if (!Objects.isNull(_type)) {
+      type = ChainType.validate(_type);
+    }
 
     if (null == accountId) {
       throw new BusinessException("Account ID is required.");
     }
     if (null == type || type.toString().isEmpty()) {
-      throw new BusinessException("Type is required.");
+      type = ChainType.Preview;
+    }
+    if (null == state || state.toString().isEmpty()) {
+      state = ChainState.Draft;
     }
     if (null == name || name.isEmpty()) {
       throw new BusinessException("Name is required.");
@@ -189,5 +196,30 @@ public class Chain extends Entity {
       ", createdAt=" + createdAt +
       ", updatedAt=" + updatedAt +
       '}';
+  }
+
+  /**
+   Copy a chain to a revived chain
+   set new chain to start now and go until forever
+
+   @return revived of chain
+   */
+  public Chain revived() throws Exception {
+    validate();
+    if (!Objects.equals(state, ChainState.Fabricate)) {
+      throw new BusinessException("Only a Fabricate-state Chain can be revived.");
+    }
+    if (!Objects.equals(type, ChainType.Production)) {
+      throw new BusinessException("Only a Production-type Chain can be revived.");
+    }
+    Chain copy = new Chain();
+    copy.setAccountId(accountId);
+    copy.setEmbedKey(embedKey);
+    copy.setName(name);
+    copy.setStartAtTimestamp(TimestampUTC.now());
+    copy.setStateEnum(state);
+    copy.setStopAt(null);
+    copy.setTypeEnum(type);
+    return copy;
   }
 }
