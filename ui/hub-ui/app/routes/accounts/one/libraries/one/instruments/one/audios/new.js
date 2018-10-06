@@ -5,7 +5,7 @@ import $ from 'jquery';
 import { set, get } from '@ember/object';
 import { inject as service } from '@ember/service';
 import Route from '@ember/routing/route';
-import EmberUploader from "ember-uploader";
+import Uploader from 'ember-uploader/uploaders/uploader';
 import RSVP from "rsvp";
 
 export default Route.extend({
@@ -136,7 +136,7 @@ export default Route.extend({
     let bucketName = result.audio['bucketName'];
     let acl = result.audio['acl'];
 
-    self.uploader = EmberUploader.Uploader.create({
+    self.uploader = Uploader.create({
       url: uploadUrl,
       method: 'POST'
     });

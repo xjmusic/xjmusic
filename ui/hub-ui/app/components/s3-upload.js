@@ -1,7 +1,6 @@
 //  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-// import Ember from 'ember';
-import EmberUploader from 'ember-uploader';
+import FileField from 'ember-uploader/components/file-field';
 
-export default EmberUploader.FileField.extend({});
+export default FileField.extend({});
 

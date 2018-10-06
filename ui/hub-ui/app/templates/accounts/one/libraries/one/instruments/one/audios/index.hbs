@@ -29,24 +29,23 @@
         </tr>
         </thead>
         <tbody>
-        {{#each model.audios as |audio|}}
+        {{#each model.audios as |audioModel|}}
           <tr class="item">
-            <td>{{#link-to "accounts.one.libraries.one.instruments.one.audios.one"
-                                       audio}}{{audio.name}}{{/link-to}}</td>
+            <td>{{#link-to "accounts.one.libraries.one.instruments.one.audios.one" audioModel.instrument.library.account audioModel.instrument.library audioModel.instrument audioModel}}{{audioModel.name}}{{/link-to}}</td>
             <td><audio controls>
-              <source src="{{model.audioBaseUrl}}{{audio.waveformKey}}" type="audio/wav">
+              <source src="{{model.audioBaseUrl}}{{audioModel.waveformKey}}" type="audio/wav">
               Your browser does not support the audio element.
             </audio></td>
-            <td>{{audio.tempo}}</td>
-            <td>{{audio.pitch}}</td>
-            <td>{{audio.start}}</td>
-            <td>{{audio.length}}</td>
+            <td>{{audioModel.tempo}}</td>
+            <td>{{audioModel.pitch}}</td>
+            <td>{{audioModel.start}}</td>
+            <td>{{audioModel.length}}</td>
             <td>
-              {{#link-to 'accounts.one.libraries.one.instruments.one.audios.one.events' audio.instrument.library.account audio.instrument.library audio.instrument audio}}Events{{/link-to}}<span>&nbsp;</span>
-              {{#link-to 'accounts.one.libraries.one.instruments.one.audios.one.chords' audio.instrument.library.account audio.instrument.library audio.instrument audio}}Chords{{/link-to}}<span>&nbsp;</span>
-              {{entity-actions "accounts.one.libraries.one.instruments.one.audios.one" "edit|clone|destroy" audio.instrument.library.account audio.instrument.library audio.instrument audio}}
+              {{#link-to 'accounts.one.libraries.one.instruments.one.audios.one.events' audioModel.instrument.library.account audioModel.instrument.library audioModel.instrument audioModel}}Events{{/link-to}}<span>&nbsp;</span>
+              {{#link-to 'accounts.one.libraries.one.instruments.one.audios.one.chords' audioModel.instrument.library.account audioModel.instrument.library audioModel.instrument audioModel}}Chords{{/link-to}}<span>&nbsp;</span>
+              {{entity-actions "accounts.one.libraries.one.instruments.one.audios.one" "edit|clone|destroy" audioModel.instrument.library.account audioModel.instrument.library audioModel.instrument audioModel}}
             </td>
-            <th scope="row">{{audio.id}}</th>
+            <th scope="row">{{audioModel.id}}</th>
           </tr>
         {{/each}}
         </tbody>
