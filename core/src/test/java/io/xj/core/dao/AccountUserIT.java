@@ -51,7 +51,6 @@ public class AccountUserIT {
 
   @After
   public void tearDown() throws Exception {
-    testDAO = null;
   }
 
   @Test
