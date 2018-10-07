@@ -33,6 +33,7 @@ import io.xj.core.persistence.sql.impl.SQLConnection;
 import io.xj.core.tables.records.ChainRecord;
 import io.xj.core.tables.records.SegmentRecord;
 import io.xj.core.transport.CSV;
+import io.xj.core.util.TimestampUTC;
 import io.xj.core.work.WorkManager;
 import org.jooq.DSLContext;
 import org.jooq.Field;
@@ -396,6 +397,16 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(revive(tx.getContext(), access, ULong.valueOf(priorChainId)));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public Collection<Chain> checkAndReviveAll(Access access) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(checkAndReviveAll(tx.getContext(), access));
     } catch (Exception e) {
       throw tx.failure(e);
     }
@@ -782,4 +793,46 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
     return createdChain;
   }
 
+
+  /**
+   For each all production-type Chains in fabricate-state
+   -> If Chain start is before T1 AND head dubbed segment end_at is before T2
+   -> revive Chain
+   <p>
+   [#158897383] Engineer wants platform heartbeat to check for any stale production chains in fabricate state,
+
+   @param db     context
+   @param access control
+   @return array of records
+   */
+  private Collection<Chain> checkAndReviveAll(DSLContext db, Access access) throws Exception {
+    requireTopLevel(access);
+
+    Collection<Chain> revivedChains = Lists.newArrayList();
+    Collection<ULong> stalledChainIds = Lists.newArrayList();
+    Timestamp thresholdChainStartAt = TimestampUTC.nowMinusSeconds(Config.chainReviveThresholdStartSeconds());
+    Timestamp thresholdChainHeadAt = TimestampUTC.nowMinusSeconds(Config.chainReviveThresholdHeadSeconds());
+
+    // recursive queries for stalled chains
+    for (ChainRecord record : db.selectFrom(CHAIN)
+      .where(CHAIN.TYPE.equal(ChainType.Production.toString()))
+      .and(CHAIN.STATE.equal(ChainState.Fabricate.toString()))
+      .and(CHAIN.START_AT.lessOrEqual(thresholdChainStartAt))
+      .fetch()) {
+      if (0 == db.selectCount().from(SEGMENT)
+        .where(SEGMENT.CHAIN_ID.eq(record.getId()))
+        .and(SEGMENT.STATE.equal(SegmentState.Dubbed.toString()))
+        .and(SEGMENT.END_AT.greaterOrEqual(thresholdChainHeadAt))
+        .fetchOne(0, int.class)) {
+        stalledChainIds.add(record.getId());
+      }
+    }
+
+    // revive all stalled chains
+    for (ULong chainId : stalledChainIds) {
+      revivedChains.add(revive(db, access, chainId));
+    }
+
+    return revivedChains;
+  }
 }

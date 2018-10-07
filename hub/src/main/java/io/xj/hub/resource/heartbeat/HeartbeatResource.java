@@ -1,6 +1,7 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.resource.heartbeat;
 
+import io.xj.core.app.Heartbeat;
 import io.xj.core.config.Config;
 import io.xj.core.exception.ConfigException;
 import io.xj.core.model.work.Work;
@@ -28,7 +29,7 @@ import java.util.Objects;
 public class HeartbeatResource extends HubResource {
   private final Logger log = LoggerFactory.getLogger(HeartbeatResource.class);
   private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
-  private final WorkManager workManager = injector.getInstance(WorkManager.class);
+  private final Heartbeat heartbeat = injector.getInstance(Heartbeat.class);
 
   @FormParam("key")
   String key;
@@ -53,9 +54,9 @@ public class HeartbeatResource extends HubResource {
     }
 
     try {
-      return response.readMany(
-        Work.KEY_MANY,
-        workManager.reinstateAllWork());
+      return response.readOne(
+        Heartbeat.KEY_ONE,
+        heartbeat.pulse());
 
     } catch (Exception e) {
       return response.failure(e);

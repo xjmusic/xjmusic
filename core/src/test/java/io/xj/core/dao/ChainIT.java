@@ -90,9 +90,6 @@ public class ChainIT {
 
   @After
   public void tearDown() throws Exception {
-    testDAO = null;
-    injector = null;
-
     System.clearProperty("segment.file.bucket");
   }
 
@@ -394,7 +391,7 @@ public class ChainIT {
     JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1L))));
 
     assertNotNull(result);
-    assertEquals(2L, (long) result.length());
+    assertEquals(2L, result.length());
     JSONObject result1 = (JSONObject) result.get(0);
     assertEquals("school", result1.get("name"));
     JSONObject result2 = (JSONObject) result.get(1);
@@ -412,7 +409,7 @@ public class ChainIT {
     JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1L))));
 
     assertNotNull(result);
-    assertEquals(2L, (long) result.length());
+    assertEquals(2L, result.length());
     JSONObject result1 = (JSONObject) result.get(0);
     assertEquals("school", result1.get("name"));
     JSONObject result2 = (JSONObject) result.get(1);
@@ -424,7 +421,7 @@ public class ChainIT {
     Collection<Chain> result = testDAO.readAllInState(Access.internal(), ChainState.Fabricate);
 
     assertNotNull(result);
-    assertEquals(1L, (long) result.size());
+    assertEquals(1L, result.size());
     Chain result0 = result.iterator().next();
 
     assertEquals("bucket", result0.getName());
@@ -440,7 +437,7 @@ public class ChainIT {
     JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1L))));
 
     assertNotNull(result);
-    assertEquals(0L, (long) result.length());
+    assertEquals(0L, result.length());
   }
 
   @Test
@@ -1028,6 +1025,35 @@ public class ChainIT {
     assertEquals(1, injector.getInstance(ChainInstrumentDAO.class).readAll(Access.internal(), ImmutableList.of(result.getId())).size());
     assertEquals(1, injector.getInstance(ChainLibraryDAO.class).readAll(Access.internal(), ImmutableList.of(result.getId())).size());
     assertEquals(4, injector.getInstance(ChainSequenceDAO.class).readAll(Access.internal(), ImmutableList.of(result.getId())).size());
+  }
+
+  /**
+   [#158897383] Engineer wants platform heartbeat to check for any stale production chains in fabricate state,
+   */
+  @Test
+  public void checkAndReviveAll() throws Exception {
+    IntegrationTestEntity.insertSegment(6, 2, 5, SegmentState.Dubbed, Timestamp.valueOf("2015-05-10 12:18:02.527142"), Timestamp.valueOf("2015-05-10 12:18:32.527142"), "A major", 64, 0.52, 120.0, "chain-1-segment-97898asdf7892.wav");
+    IntegrationTestEntity.insertLibrary(3, 1, "pajamas");
+    IntegrationTestEntity.insertChainLibrary(3, 2, 3);
+
+    Collection<Chain> results = testDAO.checkAndReviveAll(Access.internal());
+
+    assertEquals(1, results.size());
+    Chain result = results.iterator().next();
+    assertEquals("bucket", result.getName());
+    assertNull(result.getEmbedKey());
+    assertEquals(BigInteger.valueOf(1L), result.getAccountId());
+    assertEquals(ChainState.Fabricate, result.getState());
+    assertEquals(ChainType.Production, result.getType());
+    verify(workManager).startChainFabrication(result.getId());
+
+    Chain priorChain = testDAO.readOne(Access.internal(), BigInteger.valueOf(2L));
+    assertNotNull(priorChain);
+    assertEquals(ChainState.Failed, priorChain.getState());
+    assertNull(priorChain.getEmbedKey());
+    verify(workManager).stopChainFabrication(priorChain.getId());
+
+    assertEquals(1, injector.getInstance(PlatformMessageDAO.class).readAllPreviousDays(Access.internal(), 1).size());
   }
 
 

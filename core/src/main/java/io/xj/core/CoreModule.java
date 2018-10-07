@@ -1,6 +1,13 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core;
 
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.util.store.DataStoreFactory;
+import com.google.api.client.util.store.MemoryDataStoreFactory;
+import com.google.inject.AbstractModule;
 import io.xj.core.access.AccessControlProvider;
 import io.xj.core.access.AccessLogFilterProvider;
 import io.xj.core.access.AccessTokenAuthFilter;
@@ -11,8 +18,10 @@ import io.xj.core.access.token.TokenGenerator;
 import io.xj.core.access.token.TokenGeneratorImpl;
 import io.xj.core.app.App;
 import io.xj.core.app.Health;
+import io.xj.core.app.Heartbeat;
 import io.xj.core.app.impl.AppImpl;
 import io.xj.core.app.impl.HealthImpl;
+import io.xj.core.app.impl.HeartbeatImpl;
 import io.xj.core.cache.audio.AudioCacheProvider;
 import io.xj.core.cache.audio.impl.AudioCacheProviderImpl;
 import io.xj.core.cache.entity.EntityCacheProvider;
@@ -95,14 +104,6 @@ import io.xj.core.work.WorkManager;
 import io.xj.core.work.impl.WorkManagerImpl;
 import io.xj.mixer.MixerModule;
 
-import com.google.api.client.http.HttpTransport;
-import com.google.api.client.http.javanet.NetHttpTransport;
-import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.client.util.store.DataStoreFactory;
-import com.google.api.client.util.store.MemoryDataStoreFactory;
-import com.google.inject.AbstractModule;
-
 public class CoreModule extends AbstractModule {
   @Override
   protected void configure() {
@@ -132,6 +133,7 @@ public class CoreModule extends AbstractModule {
     bind(StatsProvider.class).to(StatsProviderImpl.class);
     bind(TokenGenerator.class).to(TokenGeneratorImpl.class);
     bind(WorkManager.class).to(WorkManagerImpl.class);
+    bind(Heartbeat.class).to(HeartbeatImpl.class);
   }
 
   private void bindDAO() {

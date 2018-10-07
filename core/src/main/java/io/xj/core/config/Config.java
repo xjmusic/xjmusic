@@ -63,6 +63,8 @@ public interface Config {
   Integer DEFAULT_PATTERN_DEFAULT_METER_SUPER = 4;
   Integer DEFAULT_PATTERN_DEFAULT_METER_SUB = 4;
   Integer DEFAULT_PATTERN_DEFAULT_METER_SWING = 0;
+  Integer DEFAULT_CHAIN_REVIVE_THRESHOLD_START_SECONDS = 300;
+  Integer DEFAULT_CHAIN_REVIVE_THRESHOLD_HEAD_SECONDS = 120;
 
   static String authGoogleId() throws ConfigException {
     return get("auth.google.id");
@@ -696,4 +698,11 @@ public interface Config {
     return getIntOrDefault("pattern.default.meter.swing", DEFAULT_PATTERN_DEFAULT_METER_SWING);
   }
 
+  static Integer chainReviveThresholdStartSeconds() {
+    return getIntOrDefault("chain.revive.threshold.start.seconds", DEFAULT_CHAIN_REVIVE_THRESHOLD_START_SECONDS);
+  }
+
+  static Integer chainReviveThresholdHeadSeconds() {
+    return getIntOrDefault("chain.revive.threshold.head.seconds", DEFAULT_CHAIN_REVIVE_THRESHOLD_HEAD_SECONDS);
+  }
 }

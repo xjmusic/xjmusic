@@ -8,6 +8,7 @@ import io.xj.core.model.segment.Segment;
 
 import javax.annotation.Nullable;
 import java.math.BigInteger;
+import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.util.Collection;
 
@@ -69,4 +70,13 @@ public interface ChainDAO extends DAO<Chain> {
    @return newly created revived chain
    */
   Chain revive(Access access, BigInteger priorChainId) throws Exception;
+
+  /**
+
+   [#158897383] Engineer wants platform heartbeat to check for any stale production chains in fabricate state,
+   and if found, *revive* it in order to ensure the Chain remains in an operable state.
+   @return collection of chains (if any) which were revived from stale chains.
+   @param access  control
+   */
+  Collection<Chain> checkAndReviveAll(Access access) throws Exception;
 }
