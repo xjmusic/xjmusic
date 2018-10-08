@@ -1,6 +1,8 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.dao.impl;
 
+import com.google.api.client.util.Maps;
+import com.google.inject.Inject;
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.ChoiceDAO;
 import io.xj.core.exception.BusinessException;
@@ -9,15 +11,11 @@ import io.xj.core.model.choice.Choice;
 import io.xj.core.model.sequence.SequenceType;
 import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import io.xj.core.persistence.sql.impl.SQLConnection;
-
 import org.jooq.DSLContext;
 import org.jooq.Field;
 import org.jooq.Record;
 import org.jooq.SelectOffsetStep;
 import org.jooq.types.ULong;
-
-import com.google.api.client.util.Maps;
-import com.google.inject.Inject;
 
 import javax.annotation.Nullable;
 import java.math.BigInteger;
@@ -27,10 +25,11 @@ import java.util.Objects;
 
 import static io.xj.core.Tables.CHOICE;
 import static io.xj.core.Tables.PATTERN;
+import static io.xj.core.Tables.SEQUENCE_PATTERN;
 import static io.xj.core.tables.Arrangement.ARRANGEMENT;
 import static io.xj.core.tables.Chain.CHAIN;
 import static io.xj.core.tables.Segment.SEGMENT;
-import static org.jooq.impl.DSL.groupConcat;
+import static org.jooq.impl.DSL.groupConcatDistinct;
 
 public class ChoiceDAOImpl extends DAOImpl implements ChoiceDAO {
   private static final String KEY_AVAILABLE_PATTERN_OFFSETS = "available_pattern_offsets";
@@ -91,9 +90,9 @@ public class ChoiceDAOImpl extends DAOImpl implements ChoiceDAO {
   /**
    Read one record binding an sequence to a segment
 
-   @param db        context
-   @param access    control
-   @param segmentId    to get choice for
+   @param db         context
+   @param access     control
+   @param segmentId  to get choice for
    @param sequenceId to get choice for
    @return record
    */
@@ -106,11 +105,15 @@ public class ChoiceDAOImpl extends DAOImpl implements ChoiceDAO {
   }
 
   /**
-   Read one record
+   Read one of a specified type from a segment, including its available sequence-pattern offsets
+   <p>
+   [#157921430] Artist wants to define custom Sequence-Pattern mapping,
+   in which patterns are repeated and/or alternated between probabilistically
+   during the choice of any given main sequence.
 
-   @param db          context
-   @param access      control
-   @param segmentId      of record
+   @param db           context
+   @param access       control
+   @param segmentId    of record
    @param sequenceType of which to read one segment with available offsets
    @return record
    */
@@ -122,15 +125,16 @@ public class ChoiceDAOImpl extends DAOImpl implements ChoiceDAO {
       CHOICE.SEQUENCE_ID,
       CHOICE.SEGMENT_ID,
       CHOICE.TYPE,
-      CHOICE.PATTERN_OFFSET,
+      CHOICE.SEQUENCE_PATTERN_OFFSET,
       CHOICE.TRANSPOSE,
-      groupConcat(PATTERN.OFFSET, ",").as(KEY_AVAILABLE_PATTERN_OFFSETS)
+      groupConcatDistinct(SEQUENCE_PATTERN.OFFSET).as(KEY_AVAILABLE_PATTERN_OFFSETS)
     )
       .from(PATTERN)
       .join(CHOICE).on(CHOICE.SEQUENCE_ID.eq(PATTERN.SEQUENCE_ID))
+      .join(SEQUENCE_PATTERN).on(CHOICE.SEQUENCE_ID.eq(SEQUENCE_PATTERN.SEQUENCE_ID))
       .where(CHOICE.SEGMENT_ID.eq(segmentId))
       .and(CHOICE.TYPE.eq(sequenceType.toString()))
-      .groupBy(CHOICE.ID, CHOICE.SEGMENT_ID, CHOICE.SEQUENCE_ID, CHOICE.PATTERN_OFFSET, CHOICE.TRANSPOSE)
+      .groupBy(CHOICE.ID, CHOICE.SEGMENT_ID, CHOICE.SEQUENCE_ID, CHOICE.SEQUENCE_PATTERN_OFFSET, CHOICE.TRANSPOSE)
       .limit(1);
 
     Record record = query.fetchOne();
@@ -145,8 +149,8 @@ public class ChoiceDAOImpl extends DAOImpl implements ChoiceDAO {
   /**
    Read all records in parent by id
 
-   @param db      context
-   @param access  control
+   @param db         context
+   @param access     control
    @param segmentIds of parent
    @return array of records
    */
@@ -167,8 +171,8 @@ public class ChoiceDAOImpl extends DAOImpl implements ChoiceDAO {
   /**
    Read all records in parent records by ids
 
-   @param db      context
-   @param access  control
+   @param db         context
+   @param access     control
    @param segmentIds id of parent's parent (the chain)
    @return array of records
    */
@@ -252,7 +256,7 @@ public class ChoiceDAOImpl extends DAOImpl implements ChoiceDAO {
     fieldValues.put(CHOICE.SEQUENCE_ID, entity.getSequenceId());
     fieldValues.put(CHOICE.TYPE, entity.getType());
     fieldValues.put(CHOICE.TRANSPOSE, entity.getTranspose());
-    fieldValues.put(CHOICE.PATTERN_OFFSET, entity.getPatternOffset());
+    fieldValues.put(CHOICE.SEQUENCE_PATTERN_OFFSET, entity.getSequencePatternOffset());
     return fieldValues;
   }
 

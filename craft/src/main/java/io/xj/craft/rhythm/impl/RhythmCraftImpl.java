@@ -85,7 +85,7 @@ public class RhythmCraftImpl implements RhythmCraft {
           .setType(SequenceType.Rhythm.toString())
           .setSequenceId(sequence.getId())
           .setTranspose(rhythmTranspose())
-          .setPatternOffset(rhythmPatternOffset()));
+          .setSequencePatternOffset(rhythmPatternOffset()));
   }
 
   /**
@@ -314,10 +314,10 @@ public class RhythmCraftImpl implements RhythmCraft {
     if (Objects.isNull(basis.currentRhythmChoice())) return;
 
     // choose intro pattern (if available)
-    Pattern introPattern = basis.ingest().patternAtOffset(basis.currentRhythmChoice().getSequenceId(), basis.currentRhythmChoice().getPatternOffset(), PatternType.Intro);
+    Pattern introPattern = basis.ingest().patternAtOffset(basis.currentRhythmChoice().getSequenceId(), basis.currentRhythmChoice().getSequencePatternOffset(), PatternType.Intro);
 
     // choose outro pattern (if available)
-    Pattern outroPattern = basis.ingest().patternAtOffset(basis.currentRhythmChoice().getSequenceId(), basis.currentRhythmChoice().getPatternOffset(), PatternType.Outro);
+    Pattern outroPattern = basis.ingest().patternAtOffset(basis.currentRhythmChoice().getSequenceId(), basis.currentRhythmChoice().getSequencePatternOffset(), PatternType.Outro);
 
     // compute in and out points, and length # beats for which loop patterns will be required
     long loopOutPos = basis.segment().getTotal() - (Objects.nonNull(outroPattern) ? outroPattern.getTotal() : 0);
@@ -332,7 +332,7 @@ public class RhythmCraftImpl implements RhythmCraft {
 
     // choose loop patterns until arrive at the out point or end of segment
     while (curPos < loopOutPos) {
-      Pattern loopPattern = basis.ingest().patternRandomAtOffset(basis.currentRhythmChoice().getSequenceId(), basis.currentRhythmChoice().getPatternOffset(), PatternType.Loop);
+      Pattern loopPattern = basis.ingest().patternRandomAtOffset(basis.currentRhythmChoice().getSequenceId(), basis.currentRhythmChoice().getSequencePatternOffset(), PatternType.Loop);
       curPos += craftRhythmPatternPatternEvents(curPos, loopPattern, loopOutPos);
     }
 

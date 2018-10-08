@@ -65,8 +65,8 @@ public class PatternMemeIT {
     IntegrationTestEntity.insertSequence(1, 2, 1, SequenceType.Main, SequenceState.Published, "leaves", 0.342, "C#", 120.4);
 
     // Sequence "leaves" has pattern "growth" and pattern "decay"
-    IntegrationTestEntity.insertPattern(1, 1, PatternType.Main, PatternState.Published, 0, 16, "growth", 0.342, "C#", 120.4);
-    IntegrationTestEntity.insertPattern(2, 1, PatternType.Main, PatternState.Published, 1, 16, "decay", 0.25, "F#", 110.3);
+    IntegrationTestEntity.insertPatternSequencePattern(1, 1, PatternType.Main, PatternState.Published, 0, 16, "growth", 0.342, "C#", 120.4);
+    IntegrationTestEntity.insertPatternSequencePattern(2, 1, PatternType.Main, PatternState.Published, 1, 16, "decay", 0.25, "F#", 110.3);
 
     // Pattern "growth" has memes "ants" and "mold"
     IntegrationTestEntity.insertPatternMeme(1, 1, "Gravel");

@@ -65,14 +65,14 @@ public class PatternIT {
     // inject mocks
     createInjector();
 
-    // Account "bananas"
-    IntegrationTestEntity.insertAccount(1, "bananas");
+    // Account "oranges"
+    IntegrationTestEntity.insertAccount(1, "oranges");
 
-    // John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
+    // John has "user" and "admin" roles, belongs to account "oranges", has "google" auth
     IntegrationTestEntity.insertUser(2, "john", "john@email.com", "http://pictures.com/john.gif");
     IntegrationTestEntity.insertUserRole(1, 2, UserRoleType.Admin);
 
-    // Jenny has a "user" role and belongs to account "bananas"
+    // Jenny has a "user" role and belongs to account "oranges"
     IntegrationTestEntity.insertUser(3, "jenny", "jenny@email.com", "http://pictures.com/jenny.gif");
     IntegrationTestEntity.insertUserRole(2, 3, UserRoleType.User);
     IntegrationTestEntity.insertAccountUser(3, 1, 3);
@@ -83,8 +83,8 @@ public class PatternIT {
     IntegrationTestEntity.insertSequence(2, 2, 1, SequenceType.Macro, SequenceState.Published, "coconuts", 8.02, "D", 130.2);
 
     // Sequence "leaves" has patterns "Ants" and "Caterpillars"
-    IntegrationTestEntity.insertPattern(1, 1, PatternType.Main, PatternState.Published, 0, 16, "Ants", 0.583, "D minor", 120.0);
-    IntegrationTestEntity.insertPattern(2, 1, PatternType.Main, PatternState.Published, 1, 16, "Caterpillars", 0.583, "E major", 140.0);
+    IntegrationTestEntity.insertPatternSequencePattern(1, 1, PatternType.Main, PatternState.Published, 0, 16, "Ants", 0.583, "D minor", 120.0);
+    IntegrationTestEntity.insertPatternSequencePattern(2, 1, PatternType.Main, PatternState.Published, 1, 16, "Caterpillars", 0.583, "E major", 140.0);
 
     // Instantiate the test subject
     subject = injector.getInstance(PatternDAO.class);
@@ -118,7 +118,6 @@ public class PatternIT {
       .setTypeEnum(PatternType.Macro)
       .setName("cannons")
       .setTempo(129.4)
-      .setOffset(BigInteger.valueOf(16L))
       .setTotal(16);
 
     Pattern result = subject.create(access, inputData);
@@ -129,7 +128,6 @@ public class PatternIT {
     assertEquals(BigInteger.valueOf(2L), result.getSequenceId());
     assertEquals("cannons", result.getName());
     assertEquals(129.4, result.getTempo(), 0.01);
-    assertEquals(BigInteger.valueOf(16L), result.getOffset());
     assertEquals(Integer.valueOf(16), result.getTotal());
   }
 
@@ -150,7 +148,6 @@ public class PatternIT {
       .setTypeEnum(PatternType.Loop)
       .setName("cannons")
       .setTempo(129.4)
-      .setOffset(BigInteger.valueOf(16L))
       .setTotal(16);
 
     Pattern result = subject.create(access, inputData);
@@ -177,8 +174,7 @@ public class PatternIT {
       .setTypeEnum(PatternType.Loop)
       .setName("cannons")
       .setTempo(129.4)
-      .setOffset(BigInteger.valueOf(16L))
-      .setTotal(16);
+            .setTotal(16);
 
     failure.expect(BusinessException.class);
     failure.expectMessage("Macro-type Pattern in Macro-type Sequence is required");
@@ -202,8 +198,7 @@ public class PatternIT {
       .setTypeEnum(PatternType.Loop)
       .setName("cannons")
       .setTempo(129.4)
-      .setOffset(BigInteger.valueOf(16L))
-      .setTotal(16);
+            .setTotal(16);
 
     failure.expect(BusinessException.class);
     failure.expectMessage("Main-type Pattern in Main-type Sequence is required");
@@ -228,8 +223,7 @@ public class PatternIT {
       .setTypeEnum(PatternType.Main)
       .setName("cannons")
       .setTempo(129.4)
-      .setOffset(BigInteger.valueOf(16L))
-      .setTotal(16);
+            .setTotal(16);
 
     failure.expect(BusinessException.class);
     failure.expectMessage("Pattern of type (Intro,Loop,Outro) in Rhythm-type Sequence is required");
@@ -254,8 +248,7 @@ public class PatternIT {
       .setTypeEnum(PatternType.Main)
       .setName("cannons")
       .setTempo(129.4)
-      .setOffset(BigInteger.valueOf(16L))
-      .setTotal(16);
+            .setTotal(16);
 
     failure.expect(BusinessException.class);
     failure.expectMessage("Pattern of type (Intro,Loop,Outro) in Detail-type Sequence is required");
@@ -275,8 +268,7 @@ public class PatternIT {
       .setSequenceId(BigInteger.valueOf(2L))
       .setTypeEnum(PatternType.Macro)
       .setName("cannons")
-      .setTempo(129.4)
-      .setOffset(BigInteger.valueOf(16L));
+      .setTempo(129.4);
 
     Pattern result = subject.create(access, inputData);
 
@@ -294,8 +286,7 @@ public class PatternIT {
       "roles", "Admin"
     ));
     Pattern inputData = new Pattern()
-      .setOffset(BigInteger.valueOf(1L))
-      .setDensity(0.42)
+            .setDensity(0.42)
       .setSequenceId(BigInteger.valueOf(1L))
       .setTypeEnum(PatternType.Main)
       .setKey("G minor 7")
@@ -305,7 +296,6 @@ public class PatternIT {
 
     Pattern result = subject.create(access, inputData);
     assertNotNull(result);
-    assertEquals(BigInteger.valueOf(1L), result.getOffset());
   }
 
   @Test
@@ -320,8 +310,7 @@ public class PatternIT {
       .setSequenceId(BigInteger.valueOf(1L))
       .setTypeEnum(PatternType.Main)
       .setName("cannons")
-      .setTempo(129.4)
-      .setOffset(BigInteger.valueOf(16L));
+      .setTempo(129.4);
 
     failure.expect(BusinessException.class);
     failure.expectMessage("for a pattern of a non-macro-type sequence, total (# beats) must be greater than zero");
@@ -342,8 +331,7 @@ public class PatternIT {
       .setTypeEnum(PatternType.Main)
       .setName("cannons")
       .setTempo(129.4)
-      .setOffset(BigInteger.valueOf(16L))
-      .setTotal(0);
+            .setTotal(0);
 
     failure.expect(BusinessException.class);
     failure.expectMessage("for a pattern of a non-macro-type sequence, total (# beats) must be greater than zero");
@@ -364,8 +352,7 @@ public class PatternIT {
       .setTypeEnum(PatternType.Macro)
       .setName(null)
       .setTempo(null)
-      .setOffset(BigInteger.valueOf(0L))
-      .setTotal(16);
+            .setTotal(16);
 
     Pattern result = subject.create(access, inputData);
 
@@ -375,7 +362,6 @@ public class PatternIT {
     assertNull(result.getKey());
     assertNull(result.getName());
     assertNull(result.getTempo());
-    assertEquals(BigInteger.valueOf(0L), result.getOffset());
     assertEquals(Integer.valueOf(16), result.getTotal());
   }
 
@@ -391,32 +377,10 @@ public class PatternIT {
       .setKey("G minor 7")
       .setName("cannons")
       .setTempo(129.4)
-      .setOffset(BigInteger.valueOf(0L))
-      .setTotal(16);
+            .setTotal(16);
 
     failure.expect(BusinessException.class);
     failure.expectMessage("Sequence ID is required");
-
-    subject.create(access, inputData);
-  }
-
-  @Test
-  public void create_FailsWithoutOffset() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "Artist",
-      "accounts", "1"
-    ));
-    Pattern inputData = new Pattern()
-      .setDensity(0.42)
-      .setSequenceId(BigInteger.valueOf(2L))
-      .setTypeEnum(PatternType.Macro)
-      .setKey("G minor 7")
-      .setName("cannons")
-      .setTempo(129.4)
-      .setTotal(16);
-
-    failure.expect(BusinessException.class);
-    failure.expectMessage("Offset is required");
 
     subject.create(access, inputData);
   }
@@ -431,8 +395,7 @@ public class PatternIT {
     Pattern inputData = new Pattern()
       .setSequenceId(BigInteger.valueOf(2L))
       .setTypeEnum(PatternType.Macro)
-      .setOffset(BigInteger.valueOf(5L))
-      .setName("cannons fifty nine");
+            .setName("cannons fifty nine");
 
     Pattern result = subject.clone(access, BigInteger.valueOf(1L), inputData);
 
@@ -460,28 +423,11 @@ public class PatternIT {
     Pattern inputData = new Pattern()
       .setSequenceId(BigInteger.valueOf(1L))
       .setTypeEnum(PatternType.Main)
-      .setOffset(BigInteger.valueOf(1L))
-      .setName("cannons fifty nine");
+            .setName("cannons fifty nine");
 
     Pattern result = subject.clone(access, BigInteger.valueOf(1L), inputData);
 
     assertNotNull(result);
-    assertEquals(BigInteger.valueOf(1L), result.getOffset());
-  }
-
-  @Test(expected = BusinessException.class)
-  public void clone_fromOriginal_failsWithoutOffset() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "userId", "2",
-      "roles", "User",
-      "accounts", "1"
-    ));
-    Pattern inputData = new Pattern()
-      .setSequenceId(BigInteger.valueOf(2L))
-      .setTypeEnum(PatternType.Macro)
-      .setName("cannons fifty nine");
-
-    subject.clone(access, BigInteger.valueOf(1L), inputData);
   }
 
   @Test
@@ -532,7 +478,7 @@ public class PatternIT {
    */
   @Test
   public void readAllAtSequenceOffset_multiplePatternsAtOffset() throws Exception {
-    IntegrationTestEntity.insertPattern(5, 1, PatternType.Main, PatternState.Published, 0, 16, "Army Ants", 0.683, "Eb minor", 122.4);
+    IntegrationTestEntity.insertPatternSequencePattern(5, 1, PatternType.Main, PatternState.Published, 0, 16, "Army Ants", 0.683, "Eb minor", 122.4);
     Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
@@ -543,8 +489,8 @@ public class PatternIT {
     assertNotNull(result);
     assertEquals(2L, (long) result.size());
     Iterator<Pattern> it = result.iterator();
-    assertEquals("Ants", it.next().getName());
     assertEquals("Army Ants", it.next().getName());
+    assertEquals("Ants", it.next().getName());
   }
 
   @Test
@@ -572,9 +518,9 @@ public class PatternIT {
     assertNotNull(result);
     assertEquals(2L, (long) result.length());
     JSONObject result1 = (JSONObject) result.get(0);
-    assertEquals("Ants", result1.get("name"));
+    assertEquals("Caterpillars", result1.get("name"));
     JSONObject result2 = (JSONObject) result.get(1);
-    assertEquals("Caterpillars", result2.get("name"));
+    assertEquals("Ants", result2.get("name"));
   }
 
   @Test
@@ -592,7 +538,7 @@ public class PatternIT {
 
   @Test
   public void readAll_excludesPatternsInEraseState() throws Exception {
-    IntegrationTestEntity.insertPattern(27, 1, PatternType.Main, PatternState.Erase, 0, 16, "Ants", 0.583, "D minor", 120.0);
+    IntegrationTestEntity.insertPatternSequencePattern(27, 1, PatternType.Main, PatternState.Erase, 0, 16, "Ants", 0.583, "D minor", 120.0);
     Access access = new Access(ImmutableMap.of(
       "roles", "User",
       "accounts", "1"
@@ -602,10 +548,10 @@ public class PatternIT {
 
     assertNotNull(result);
     assertEquals(2L, (long) result.length());
-    JSONObject result2 = (JSONObject) result.get(0);
-    assertEquals("Ants", result2.get("name"));
-    JSONObject result1 = (JSONObject) result.get(1);
+    JSONObject result1 = (JSONObject) result.get(0);
     assertEquals("Caterpillars", result1.get("name"));
+    JSONObject result2 = (JSONObject) result.get(1);
+    assertEquals("Ants", result2.get("name"));
   }
 
   // future test: DAO cannot update Sequence to a User or Library not owned by current session
@@ -619,8 +565,7 @@ public class PatternIT {
     Pattern inputData = new Pattern()
       .setSequenceId(BigInteger.valueOf(1L))
       .setTypeEnum(PatternType.Main)
-      .setOffset(BigInteger.valueOf(7L))
-      .setTotal(32)
+            .setTotal(32)
       .setName(null)
       .setDensity(null)
       .setKey("")
@@ -634,7 +579,6 @@ public class PatternIT {
     assertNull(result.getDensity());
     assertNull(result.getTempo());
     assertNull(result.getKey());
-    assertEquals(BigInteger.valueOf(7L), result.getOffset());
     assertEquals(Integer.valueOf(32), result.getTotal());
     assertEquals(BigInteger.valueOf(1L), result.getSequenceId());
   }
@@ -651,8 +595,7 @@ public class PatternIT {
     Pattern inputData = new Pattern()
       .setSequenceId(BigInteger.valueOf(1L))
       .setTypeEnum(PatternType.Main)
-      .setOffset(BigInteger.valueOf(7L))
-      .setTotal(32)
+            .setTotal(32)
       .setName(null)
       .setDensity(null)
       .setKey("")
@@ -682,8 +625,7 @@ public class PatternIT {
     Pattern inputData = new Pattern()
       .setSequenceId(BigInteger.valueOf(1L))
       .setTypeEnum(PatternType.Main)
-      .setOffset(BigInteger.valueOf(0L))
-      .setTotal(16)
+            .setTotal(16)
       .setName("Caterpillars")
       .setDensity(0.583)
       .setKey("E major")
@@ -693,7 +635,6 @@ public class PatternIT {
 
     Pattern result = subject.readOne(Access.internal(), BigInteger.valueOf(2L));
     assertNotNull(result);
-    assertEquals(BigInteger.valueOf(0L), result.getOffset());
   }
 
   @Test
@@ -708,8 +649,7 @@ public class PatternIT {
       .setKey("G minor 7")
       .setName("cannons")
       .setTempo(129.4)
-      .setOffset(BigInteger.valueOf(0L))
-      .setTotal(16);
+            .setTotal(16);
 
     failure.expect(BusinessException.class);
     failure.expectMessage("Sequence ID is required");
@@ -730,8 +670,7 @@ public class PatternIT {
       .setSequenceId(BigInteger.valueOf(2L))
       .setTypeEnum(PatternType.Macro)
       .setName("cannons")
-      .setTempo(129.4)
-      .setOffset(BigInteger.valueOf(16L));
+      .setTempo(129.4);
 
     subject.update(access, BigInteger.valueOf(1L), inputData);
   }
@@ -748,8 +687,7 @@ public class PatternIT {
       .setSequenceId(BigInteger.valueOf(1L))
       .setTypeEnum(PatternType.Main)
       .setName("cannons")
-      .setTempo(129.4)
-      .setOffset(BigInteger.valueOf(16L));
+      .setTempo(129.4);
 
     failure.expect(BusinessException.class);
     failure.expectMessage("for a pattern of a non-macro-type sequence, total (# beats) must be greater than zero");
@@ -770,31 +708,10 @@ public class PatternIT {
       .setTypeEnum(PatternType.Main)
       .setName("cannons")
       .setTempo(129.4)
-      .setOffset(BigInteger.valueOf(16L))
-      .setTotal(0);
+            .setTotal(0);
 
     failure.expect(BusinessException.class);
     failure.expectMessage("for a pattern of a non-macro-type sequence, total (# beats) must be greater than zero");
-
-    subject.update(access, BigInteger.valueOf(1L), inputData);
-  }
-
-  @Test
-  public void update_FailsWithoutOffset() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "Artist",
-      "accounts", "1"
-    ));
-    Pattern inputData = new Pattern()
-      .setDensity(0.42)
-      .setKey("G minor 7")
-      .setSequenceId(BigInteger.valueOf(2L))
-      .setTypeEnum(PatternType.Macro)
-      .setTempo(129.4)
-      .setTotal(16);
-
-    failure.expect(BusinessException.class);
-    failure.expectMessage("Offset is required");
 
     subject.update(access, BigInteger.valueOf(1L), inputData);
   }
@@ -812,8 +729,7 @@ public class PatternIT {
       .setTypeEnum(PatternType.Macro)
       .setName("Smash!")
       .setTempo(129.4)
-      .setOffset(BigInteger.valueOf(0L))
-      .setTotal(16);
+            .setTotal(16);
 
     failure.expect(BusinessException.class);
     failure.expectMessage("Sequence does not exist");

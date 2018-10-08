@@ -382,7 +382,7 @@ public class BasisImpl implements Basis {
   public Pattern currentMacroPattern() throws Exception {
     return ingest().patternAtOffset(
       currentMacroChoice().getSequenceId(),
-      currentMacroChoice().getPatternOffset(),
+      currentMacroChoice().getSequencePatternOffset(),
       PatternType.Macro);
   }
 
@@ -605,7 +605,7 @@ public class BasisImpl implements Basis {
     if (Objects.isNull(_previousMacroMemeIsometry)) {
       _previousMacroMemeIsometry = MemeIsometry.of(ingest().sequenceAndPatternMemes(
         previousMacroChoice().getSequenceId(),
-        Value.inc(previousMacroChoice().getPatternOffset(), 1),
+        Value.inc(previousMacroChoice().getSequencePatternOffset(), 1),
         PatternType.Macro));
     }
 
@@ -617,7 +617,7 @@ public class BasisImpl implements Basis {
     if (Objects.isNull(_currentMacroMemeIsometry)) {
       _currentMacroMemeIsometry = MemeIsometry.of(ingest().sequenceAndPatternMemes(
         currentMacroChoice().getSequenceId(),
-        currentMacroChoice().getPatternOffset(),
+        currentMacroChoice().getSequencePatternOffset(),
         PatternType.Macro));
     }
 

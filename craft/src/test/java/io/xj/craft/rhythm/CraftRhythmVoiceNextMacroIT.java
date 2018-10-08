@@ -70,16 +70,16 @@ public class CraftRhythmVoiceNextMacroIT {
     IntegrationTestEntity.insertSequence(4, 3, 2, SequenceType.Macro, SequenceState.Published, "Tropical, Wild to Cozy", 0.5, "C", 120);
     IntegrationTestEntity.insertSequenceMeme(2, 4, "Tropical");
     // " pattern offset 0
-    IntegrationTestEntity.insertPattern(3, 4, PatternType.Macro, PatternState.Published, 0, 0, "Start Wild", 0.6, "C", 125);
+    IntegrationTestEntity.insertPatternSequencePattern(3, 4, PatternType.Macro, PatternState.Published, 0, 0, "Start Wild", 0.6, "C", 125);
     IntegrationTestEntity.insertPatternMeme(3, 3, "Wild");
     IntegrationTestEntity.insertPatternChord(3, 3, 0, "C");
     // " pattern offset 1
-    IntegrationTestEntity.insertPattern(4, 4, PatternType.Macro, PatternState.Published, 1, 0, "Intermediate", 0.4, "Bb minor", 115);
+    IntegrationTestEntity.insertPatternSequencePattern(4, 4, PatternType.Macro, PatternState.Published, 1, 0, "Intermediate", 0.4, "Bb minor", 115);
     IntegrationTestEntity.insertPatternMeme(4, 4, "Cozy");
     IntegrationTestEntity.insertPatternMeme(49, 4, "Wild");
     IntegrationTestEntity.insertPatternChord(4, 4, 0, "Bb minor");
     // " pattern offset 2
-    IntegrationTestEntity.insertPattern(5, 4, PatternType.Macro, PatternState.Published, 2, 0, "Finish Cozy", 0.4, "Ab minor", 125);
+    IntegrationTestEntity.insertPatternSequencePattern(5, 4, PatternType.Macro, PatternState.Published, 2, 0, "Finish Cozy", 0.4, "Ab minor", 125);
     IntegrationTestEntity.insertPatternMeme(5, 4, "Cozy");
     IntegrationTestEntity.insertPatternChord(5, 5, 0, "Ab minor");
 
@@ -87,11 +87,11 @@ public class CraftRhythmVoiceNextMacroIT {
     IntegrationTestEntity.insertSequence(3, 3, 2, SequenceType.Macro, SequenceState.Published, "Tangy, Chunky to Smooth", 0.5, "G minor", 120);
     IntegrationTestEntity.insertSequenceMeme(1, 3, "Tangy");
     // # pattern offset 0
-    IntegrationTestEntity.insertPattern(1, 3, PatternType.Macro, PatternState.Published, 0, 0, "Start Chunky", 0.4, "G minor", 115);
+    IntegrationTestEntity.insertPatternSequencePattern(1, 3, PatternType.Macro, PatternState.Published, 0, 0, "Start Chunky", 0.4, "G minor", 115);
     IntegrationTestEntity.insertPatternMeme(1, 1, "Chunky");
     IntegrationTestEntity.insertPatternChord(1, 1, 0, "G minor");
     // # pattern offset 1
-    IntegrationTestEntity.insertPattern(2, 3, PatternType.Macro, PatternState.Published, 1, 0, "Finish Smooth", 0.6, "C", 125);
+    IntegrationTestEntity.insertPatternSequencePattern(2, 3, PatternType.Macro, PatternState.Published, 1, 0, "Finish Smooth", 0.6, "C", 125);
     IntegrationTestEntity.insertPatternMeme(2, 2, "Smooth");
     IntegrationTestEntity.insertPatternChord(2, 2, 0, "C");
 
@@ -99,12 +99,12 @@ public class CraftRhythmVoiceNextMacroIT {
     IntegrationTestEntity.insertSequence(5, 3, 2, SequenceType.Main, SequenceState.Published, "Main Jam", 0.2, "C minor", 140);
     IntegrationTestEntity.insertSequenceMeme(3, 5, "Outlook");
     // # pattern offset 0
-    IntegrationTestEntity.insertPattern(15, 5, PatternType.Main, PatternState.Published, 0, 16, "Intro", 0.5, "G major", 135.0);
+    IntegrationTestEntity.insertPatternSequencePattern(15, 5, PatternType.Main, PatternState.Published, 0, 16, "Intro", 0.5, "G major", 135.0);
     IntegrationTestEntity.insertPatternMeme(6, 15, "Optimism");
     IntegrationTestEntity.insertPatternChord(12, 15, 0, "G major");
     IntegrationTestEntity.insertPatternChord(14, 15, 8, "Ab minor");
     // # pattern offset 1
-    IntegrationTestEntity.insertPattern(16, 5, PatternType.Main, PatternState.Published, 1, 16, "Drop", 0.5, "G minor", 135.0);
+    IntegrationTestEntity.insertPatternSequencePattern(16, 5, PatternType.Main, PatternState.Published, 1, 16, "Drop", 0.5, "G minor", 135.0);
     IntegrationTestEntity.insertPatternMeme(7, 16, "Pessimism");
     IntegrationTestEntity.insertPatternChord(16, 16, 0, "C major");
     IntegrationTestEntity.insertPatternChord(18, 16, 8, "Bb minor");
@@ -112,11 +112,11 @@ public class CraftRhythmVoiceNextMacroIT {
     // Another Main sequence to go to
     IntegrationTestEntity.insertSequence(15, 3, 2, SequenceType.Main, SequenceState.Published, "Next Jam", 0.2, "Db minor", 140);
     IntegrationTestEntity.insertSequenceMeme(43, 15, "Hindsight");
-    IntegrationTestEntity.insertPattern(415, 15, PatternType.Main, PatternState.Published, 0, 16, "Intro", 0.5, "G minor", 135.0);
+    IntegrationTestEntity.insertPatternSequencePattern(415, 15, PatternType.Main, PatternState.Published, 0, 16, "Intro", 0.5, "G minor", 135.0);
     IntegrationTestEntity.insertPatternMeme(46, 415, "Regret");
     IntegrationTestEntity.insertPatternChord(412, 415, 0, "G minor");
     IntegrationTestEntity.insertPatternChord(414, 415, 8, "Ab minor");
-    IntegrationTestEntity.insertPattern(416, 15, PatternType.Main, PatternState.Published, 1, 16, "Outro", 0.5, "A major", 135.0);
+    IntegrationTestEntity.insertPatternSequencePattern(416, 15, PatternType.Main, PatternState.Published, 1, 16, "Outro", 0.5, "A major", 135.0);
     IntegrationTestEntity.insertPatternMeme(47, 416, "Pride");
     IntegrationTestEntity.insertPatternMeme(149, 416, "Shame");
     IntegrationTestEntity.insertPatternChord(416, 416, 0, "C major");
@@ -131,7 +131,7 @@ public class CraftRhythmVoiceNextMacroIT {
     Voice "Drums" are onomatopoeic to "KICK" and "SNARE" 2x each
     There are two types of patterns: Intro and Loop [#153976073] Artist wants Pattern to have type *Macro* or *Main* (for Macro- or Main-type sequences), or *Intro*, *Loop*, or *Outro* (for Rhythm or Detail-type Sequence) in order to create a composition that is dynamic when chosen to fill a Segment.
      */
-    IntegrationTestEntity.insertPattern(315, 35, PatternType.Intro, PatternState.Published, 0, 4, "Drop", 0.5, "C", 125.0);
+    IntegrationTestEntity.insertPatternSequencePattern(315, 35, PatternType.Intro, PatternState.Published, 0, 4, "Drop", 0.5, "C", 125.0);
     IntegrationTestEntity.insertPatternMeme(346, 315, "Heavy");
     IntegrationTestEntity.insertPatternEvent(1, 315, 1, 0, 1, "CLOCK", "C2", 0.8, 1.0);
     IntegrationTestEntity.insertPatternEvent(2, 315, 1, 1, 1, "SNORT", "G5", 0.1, 0.8);
@@ -143,7 +143,7 @@ public class CraftRhythmVoiceNextMacroIT {
     [#150279647] Artist wants to create multiple Patterns with the same offset in the same Sequence, in order that XJ randomly select one of the patterns at that offset.
     they are also onomatopoeic to "KICK" and "SNARE" 2x each
      */
-    IntegrationTestEntity.insertPattern(317, 35, PatternType.Loop, PatternState.Published, 0, 4, "Drop Alt", 0.5, "C", 125.0);
+    IntegrationTestEntity.insertPatternSequencePattern(317, 35, PatternType.Loop, PatternState.Published, 0, 4, "Drop Alt", 0.5, "C", 125.0);
     IntegrationTestEntity.insertPatternMeme(349, 317, "Heavy");
     IntegrationTestEntity.insertPatternEvent(11, 317, 1, 0, 1, "CLACK", "B5", 0.1, 0.9);
     IntegrationTestEntity.insertPatternEvent(12, 317, 1, 1, 1, "SNARL", "D2", 0.5, 1.0);
@@ -151,7 +151,7 @@ public class CraftRhythmVoiceNextMacroIT {
     IntegrationTestEntity.insertPatternEvent(15, 317, 1, 3, 1, "SNAP", "C3", 0.5, 0.5);
 
     // basic beat second pattern
-    IntegrationTestEntity.insertPattern(316, 35, PatternType.Loop, PatternState.Published, 1, 4, "Continue", 0.5, "C", 125.0);
+    IntegrationTestEntity.insertPatternSequencePattern(316, 35, PatternType.Loop, PatternState.Published, 1, 4, "Continue", 0.5, "C", 125.0);
     IntegrationTestEntity.insertPatternMeme(347, 316, "Heavy");
 
     // Chain "Test Print #1" has 5 total segments

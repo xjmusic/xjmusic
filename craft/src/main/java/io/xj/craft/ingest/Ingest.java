@@ -145,16 +145,16 @@ public interface Ingest {
   Collection<SequenceMeme> sequenceMemes(BigInteger sequenceId);
 
   /**
-   Fetch all memes for a given sequence and patternOffset
+   Fetch all memes for a given sequence and sequencePatternOffset
    (caches results)
 
    @param sequenceId   to get memes for
-   @param patternOffset within sequence
+   @param sequencePatternOffset within sequence
    @param patternTypes  to match
    @return collection of sequence memes
    @throws Exception on failure
    */
-  Collection<Meme> sequenceAndPatternMemes(BigInteger sequenceId, BigInteger patternOffset, PatternType... patternTypes) throws Exception;
+  Collection<Meme> sequenceAndPatternMemes(BigInteger sequenceId, BigInteger sequencePatternOffset, PatternType... patternTypes) throws Exception;
 
   /**
    Get a collection of all patterns for ingest
@@ -192,36 +192,36 @@ public interface Ingest {
    Caches the selection, so it will always return the same output for any given input.
 
    @param sequenceId   of pattern
-   @param patternOffset within sequence
+   @param sequencePatternOffset within sequence
    @param patternType   to match
    @return pattern record
    @throws Exception on failure
    */
   @Nullable
-  Pattern patternAtOffset(BigInteger sequenceId, BigInteger patternOffset, PatternType patternType) throws Exception;
+  Pattern patternAtOffset(BigInteger sequenceId, BigInteger sequencePatternOffset, PatternType patternType) throws Exception;
 
   /**
    Selects one (at random) from all available patterns an at offset of a sequence.
    DOES NOT CACHE the selection, so it will (potentially) return a different output, given the same input.
 
    @param sequenceId   of pattern
-   @param patternOffset within sequence
+   @param sequencePatternOffset within sequence
    @param patternType   to match
    @return pattern record
    @throws Exception on failure
    */
-  Pattern patternRandomAtOffset(BigInteger sequenceId, BigInteger patternOffset, PatternType patternType) throws Exception;
+  Pattern patternRandomAtOffset(BigInteger sequenceId, BigInteger sequencePatternOffset, PatternType patternType) throws Exception;
 
   /**
    Fetch all patterns an at offset of a sequence
    (caches results)
 
    @param sequenceId   of pattern
-   @param patternOffset within sequence
+   @param sequencePatternOffset within sequence
    @return pattern record
    @throws Exception on failure
    */
-  Collection<Pattern> patternsAtOffset(BigInteger sequenceId, BigInteger patternOffset) throws Exception;
+  Collection<Pattern> patternsAtOffset(BigInteger sequenceId, BigInteger sequencePatternOffset) throws Exception;
 
   /**
    Get a collection of all instruments for ingest

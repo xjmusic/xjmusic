@@ -52,6 +52,7 @@ import io.xj.core.dao.SegmentMemeDAO;
 import io.xj.core.dao.SegmentMessageDAO;
 import io.xj.core.dao.SequenceDAO;
 import io.xj.core.dao.SequenceMemeDAO;
+import io.xj.core.dao.SequencePatternDAO;
 import io.xj.core.dao.UserDAO;
 import io.xj.core.dao.VoiceDAO;
 import io.xj.core.dao.impl.AccountDAOImpl;
@@ -80,6 +81,7 @@ import io.xj.core.dao.impl.SegmentMemeDAOImpl;
 import io.xj.core.dao.impl.SegmentMessageDAOImpl;
 import io.xj.core.dao.impl.SequenceDAOImpl;
 import io.xj.core.dao.impl.SequenceMemeDAOImpl;
+import io.xj.core.dao.impl.SequencePatternDAOImpl;
 import io.xj.core.dao.impl.UserDAOImpl;
 import io.xj.core.dao.impl.VoiceDAOImpl;
 import io.xj.core.external.amazon.AmazonProvider;
@@ -118,10 +120,11 @@ public class CoreModule extends AbstractModule {
     bind(AccessLogFilterProvider.class).to(AccessLogFilterProviderImpl.class);
     bind(AccessTokenAuthFilter.class).to(AccessTokenAuthFilterImpl.class);
     bind(App.class).to(AppImpl.class);
-    bind(Health.class).to(HealthImpl.class);
     bind(AudioCacheProvider.class).to(AudioCacheProviderImpl.class);
     bind(DataStoreFactory.class).to(MemoryDataStoreFactory.class);
     bind(EntityCacheProvider.class).to(EntityCacheProviderImpl.class);
+    bind(Health.class).to(HealthImpl.class);
+    bind(Heartbeat.class).to(HeartbeatImpl.class);
     bind(HttpResponseProvider.class).to(HttpResponseProviderImpl.class);
     bind(HttpServerProvider.class).to(HttpServerProviderImpl.class);
     bind(HttpTransport.class).to(NetHttpTransport.class);
@@ -133,7 +136,6 @@ public class CoreModule extends AbstractModule {
     bind(StatsProvider.class).to(StatsProviderImpl.class);
     bind(TokenGenerator.class).to(TokenGeneratorImpl.class);
     bind(WorkManager.class).to(WorkManagerImpl.class);
-    bind(Heartbeat.class).to(HeartbeatImpl.class);
   }
 
   private void bindDAO() {
@@ -145,26 +147,27 @@ public class CoreModule extends AbstractModule {
     bind(AudioEventDAO.class).to(AudioEventDAOImpl.class);
     bind(ChainConfigDAO.class).to(ChainConfigDAOImpl.class);
     bind(ChainDAO.class).to(ChainDAOImpl.class);
-    bind(ChainSequenceDAO.class).to(ChainSequenceDAOImpl.class);
     bind(ChainInstrumentDAO.class).to(ChainInstrumentDAOImpl.class);
     bind(ChainLibraryDAO.class).to(ChainLibraryDAOImpl.class);
+    bind(ChainSequenceDAO.class).to(ChainSequenceDAOImpl.class);
     bind(ChoiceDAO.class).to(ChoiceDAOImpl.class);
-    bind(SequenceDAO.class).to(SequenceDAOImpl.class);
-    bind(SequenceMemeDAO.class).to(SequenceMemeDAOImpl.class);
     bind(InstrumentDAO.class).to(InstrumentDAOImpl.class);
     bind(InstrumentMemeDAO.class).to(InstrumentMemeDAOImpl.class);
     bind(LibraryDAO.class).to(LibraryDAOImpl.class);
+    bind(PatternChordDAO.class).to(PatternChordDAOImpl.class);
+    bind(PatternDAO.class).to(PatternDAOImpl.class);
+    bind(PatternEventDAO.class).to(PatternEventDAOImpl.class);
+    bind(PatternMemeDAO.class).to(PatternMemeDAOImpl.class);
+    bind(PlatformMessageDAO.class).to(PlatformMessageDAOImpl.class);
     bind(SegmentChordDAO.class).to(SegmentChordDAOImpl.class);
     bind(SegmentDAO.class).to(SegmentDAOImpl.class);
     bind(SegmentMemeDAO.class).to(SegmentMemeDAOImpl.class);
     bind(SegmentMessageDAO.class).to(SegmentMessageDAOImpl.class);
-    bind(PatternChordDAO.class).to(PatternChordDAOImpl.class);
-    bind(PatternDAO.class).to(PatternDAOImpl.class);
-    bind(PatternMemeDAO.class).to(PatternMemeDAOImpl.class);
-    bind(PlatformMessageDAO.class).to(PlatformMessageDAOImpl.class);
+    bind(SequenceDAO.class).to(SequenceDAOImpl.class);
+    bind(SequenceMemeDAO.class).to(SequenceMemeDAOImpl.class);
+    bind(SequencePatternDAO.class).to(SequencePatternDAOImpl.class);
     bind(UserDAO.class).to(UserDAOImpl.class);
     bind(VoiceDAO.class).to(VoiceDAOImpl.class);
-    bind(PatternEventDAO.class).to(PatternEventDAOImpl.class);
   }
 
   private void bindExternal() {

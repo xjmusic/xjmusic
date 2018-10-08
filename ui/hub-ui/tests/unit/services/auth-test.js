@@ -1,6 +1,4 @@
 
-// TODO test requires session mock
-
 /*
 import { expect } from 'chai';
 import { describe, it } from 'mocha';

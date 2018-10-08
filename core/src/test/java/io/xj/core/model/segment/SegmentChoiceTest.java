@@ -17,7 +17,7 @@ public class SegmentChoiceTest {
   public void nextPatternOffset() throws Exception {
     Choice segmentChoice = new Choice()
       .setSequenceId(BigInteger.valueOf(345L))
-      .setPatternOffset(BigInteger.valueOf(0L))
+      .setSequencePatternOffset(BigInteger.valueOf(0L))
       .setTranspose(5)
       .setType("Main")
       .setAvailablePatternOffsets("0,1");
@@ -29,7 +29,7 @@ public class SegmentChoiceTest {
   public void nextPatternOffset_endLoopsBackToZero() throws Exception {
     Choice segmentChoice = new Choice()
       .setSequenceId(BigInteger.valueOf(345L))
-      .setPatternOffset(BigInteger.valueOf(3L))
+      .setSequencePatternOffset(BigInteger.valueOf(3L))
       .setTranspose(5)
       .setType("Main")
       .setAvailablePatternOffsets("0,1,2,3");
@@ -41,7 +41,7 @@ public class SegmentChoiceTest {
   public void nextPatternOffset_weirdIsOkay() throws Exception {
     Choice segmentChoice = new Choice()
       .setSequenceId(BigInteger.valueOf(345L))
-      .setPatternOffset(BigInteger.valueOf(17L))
+      .setSequencePatternOffset(BigInteger.valueOf(17L))
       .setTranspose(5)
       .setType("Main")
       .setAvailablePatternOffsets("0,1,17,204,1407");
@@ -53,7 +53,7 @@ public class SegmentChoiceTest {
   public void hasOneMorePattern() throws Exception {
     Choice segmentChoice = new Choice()
       .setSequenceId(BigInteger.valueOf(345L))
-      .setPatternOffset(BigInteger.valueOf(0L))
+      .setSequencePatternOffset(BigInteger.valueOf(0L))
       .setTranspose(5)
       .setType("Main")
       .setAvailablePatternOffsets("0,1");
@@ -65,7 +65,7 @@ public class SegmentChoiceTest {
   public void hasOneMorePattern_true() throws Exception {
     Choice segmentChoice = new Choice()
       .setSequenceId(BigInteger.valueOf(345L))
-      .setPatternOffset(BigInteger.valueOf(2L))
+      .setSequencePatternOffset(BigInteger.valueOf(2L))
       .setTranspose(5)
       .setType("Main")
       .setAvailablePatternOffsets("0,1,2,3");
@@ -77,7 +77,7 @@ public class SegmentChoiceTest {
   public void hasOneMorePattern_false() throws Exception {
     Choice segmentChoice = new Choice()
       .setSequenceId(BigInteger.valueOf(21L))
-      .setPatternOffset(BigInteger.valueOf(3L))
+      .setSequencePatternOffset(BigInteger.valueOf(3L))
       .setTranspose(5)
       .setType("Main")
       .setAvailablePatternOffsets("0,1,2,3");
@@ -89,7 +89,7 @@ public class SegmentChoiceTest {
   public void hasTwoMorePatterns() throws Exception {
     Choice segmentChoice = new Choice()
       .setSequenceId(BigInteger.valueOf(64L))
-      .setPatternOffset(BigInteger.valueOf(0L))
+      .setSequencePatternOffset(BigInteger.valueOf(0L))
       .setTranspose(5)
       .setType("Macro")
       .setAvailablePatternOffsets("0,1,2");
@@ -101,7 +101,7 @@ public class SegmentChoiceTest {
   public void hasTwoMorePatterns_true() throws Exception {
     Choice segmentChoice = new Choice()
       .setSequenceId(BigInteger.valueOf(64L))
-      .setPatternOffset(BigInteger.valueOf(1L))
+      .setSequencePatternOffset(BigInteger.valueOf(1L))
       .setTranspose(5)
       .setType("Macro")
       .setAvailablePatternOffsets("0,1,2,3");
@@ -113,7 +113,7 @@ public class SegmentChoiceTest {
   public void hasTwoMorePatterns_false() throws Exception {
     Choice segmentChoice = new Choice()
       .setSequenceId(BigInteger.valueOf(64L))
-      .setPatternOffset(BigInteger.valueOf(2L))
+      .setSequencePatternOffset(BigInteger.valueOf(2L))
       .setTranspose(5)
       .setType("Macro")
       .setAvailablePatternOffsets("0,1,2,3");

@@ -1,7 +1,5 @@
 //  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-// TODO test requires `ember-uploader` module
-
 /*
 import { expect } from 'chai';
 import { describe, it } from 'mocha';

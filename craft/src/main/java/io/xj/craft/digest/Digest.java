@@ -48,7 +48,6 @@ public interface Digest {
   String KEY_SEQUENCES = "sequencesWithMeme";
   String KEY_PATTERN_ID = "patternId";
   String KEY_PATTERN_NAME = "patternName";
-  String KEY_PATTERN_OFFSET = "patternOffset";
   String KEY_PATTERN_TYPE = "patternType";
   String KEY_PATTERNS_WITH_MEME = "patternsWithMeme";
   String KEY_PRECEDENT_STATE = "state";

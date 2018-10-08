@@ -2,8 +2,6 @@
 
 /*
 
-TODO test pattern-stepmatic component
-
 import {expect} from 'chai';
 import {describe, it} from 'mocha';
 import {setupRenderingTest} from 'ember-mocha';

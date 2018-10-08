@@ -1,7 +1,6 @@
 //  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
 /*
-TODO basic acceptance test
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import { setupApplicationTest } from 'ember-mocha';

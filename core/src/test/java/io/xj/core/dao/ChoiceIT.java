@@ -85,7 +85,7 @@ public class ChoiceIT {
       .setSegmentId(BigInteger.valueOf(1L))
       .setSequenceId(BigInteger.valueOf(3L))
       .setType("Main")
-      .setPatternOffset(BigInteger.valueOf(2L))
+      .setSequencePatternOffset(BigInteger.valueOf(2L))
       .setTranspose(-3);
 
     Choice result = testDAO.create(access, inputData);
@@ -94,7 +94,7 @@ public class ChoiceIT {
     assertEquals(BigInteger.valueOf(1L), result.getSegmentId());
     assertEquals(BigInteger.valueOf(3L), result.getSequenceId());
     assertEquals(SequenceType.Main, result.getType());
-    assertEquals(BigInteger.valueOf(2L), result.getPatternOffset());
+    assertEquals(BigInteger.valueOf(2L), result.getSequencePatternOffset());
     assertEquals(Integer.valueOf(-3), result.getTranspose());
   }
 
@@ -107,7 +107,7 @@ public class ChoiceIT {
       .setSegmentId(BigInteger.valueOf(1L))
       .setSequenceId(BigInteger.valueOf(3L))
       .setType("Main")
-      .setPatternOffset(BigInteger.valueOf(2L))
+      .setSequencePatternOffset(BigInteger.valueOf(2L))
       .setTranspose(-3);
 
     testDAO.create(access, inputData);
@@ -121,7 +121,7 @@ public class ChoiceIT {
     Choice inputData = new Choice()
       .setSequenceId(BigInteger.valueOf(3L))
       .setType("Main")
-      .setPatternOffset(BigInteger.valueOf(2L))
+      .setSequencePatternOffset(BigInteger.valueOf(2L))
       .setTranspose(-3);
 
     testDAO.create(access, inputData);
@@ -136,7 +136,7 @@ public class ChoiceIT {
       .setSegmentId(BigInteger.valueOf(1L))
       .setSequenceId(BigInteger.valueOf(3L))
       .setType("BULLSHIT TYPE!")
-      .setPatternOffset(BigInteger.valueOf(2L))
+      .setSequencePatternOffset(BigInteger.valueOf(2L))
       .setTranspose(-3);
 
     testDAO.create(access, inputData);
@@ -156,7 +156,7 @@ public class ChoiceIT {
     assertEquals(BigInteger.valueOf(1L), result.getSegmentId());
     assertEquals(BigInteger.valueOf(2L), result.getSequenceId());
     assertEquals(SequenceType.Rhythm, result.getType());
-    assertEquals(BigInteger.valueOf(1L), result.getPatternOffset());
+    assertEquals(BigInteger.valueOf(1L), result.getSequencePatternOffset());
     assertEquals(Integer.valueOf(+2), result.getTranspose());
   }
 
@@ -169,7 +169,7 @@ public class ChoiceIT {
     assertEquals(BigInteger.valueOf(1L), result.getSegmentId());
     assertEquals(BigInteger.valueOf(2L), result.getSequenceId());
     assertEquals(SequenceType.Rhythm, result.getType());
-    assertEquals(BigInteger.valueOf(1L), result.getPatternOffset());
+    assertEquals(BigInteger.valueOf(1L), result.getSequencePatternOffset());
     assertEquals(Integer.valueOf(+2), result.getTranspose());
   }
 
@@ -186,20 +186,20 @@ public class ChoiceIT {
   }
 
   @Test
-  public void readOneSegmentType() throws Exception {
+  public void readOneSegmentTypeWithAvailablePatternOffsets() throws Exception {
     IntegrationTestEntity.insertSequenceMeme(12, 2, "leafy");
     IntegrationTestEntity.insertSequenceMeme(14, 2, "smooth");
 
-    IntegrationTestEntity.insertPattern(10, 2, PatternType.Loop, PatternState.Published, 0, 64, "intro", 0.5, "C", 121.0);
-    IntegrationTestEntity.insertPattern(11, 2, PatternType.Loop, PatternState.Published, 1, 64, "drop", 0.5, "C", 121.0);
-    IntegrationTestEntity.insertPattern(12, 2, PatternType.Loop, PatternState.Published, 2, 64, "break", 0.5, "C", 121.0);
+    IntegrationTestEntity.insertPatternSequencePattern(10, 2, PatternType.Loop, PatternState.Published, 0, 64, "intro", 0.5, "C", 121.0);
+    IntegrationTestEntity.insertPatternSequencePattern(11, 2, PatternType.Loop, PatternState.Published, 1, 64, "drop", 0.5, "C", 121.0);
+    IntegrationTestEntity.insertPatternSequencePattern(12, 2, PatternType.Loop, PatternState.Published, 2, 64, "break", 0.5, "C", 121.0);
 
     Choice result = testDAO.readOneSegmentTypeWithAvailablePatternOffsets(Access.internal(), BigInteger.valueOf(1L), SequenceType.Rhythm);
 
     assertNotNull(result);
     assertEquals(BigInteger.valueOf(2L), result.getSequenceId());
     assertEquals(SequenceType.Rhythm, result.getType());
-    assertEquals(BigInteger.valueOf(1L), result.getPatternOffset());
+    assertEquals(BigInteger.valueOf(1L), result.getSequencePatternOffset());
     assertEquals(Integer.valueOf(2), result.getTranspose());
     assertEquals(ImmutableList.of(BigInteger.valueOf(0L), BigInteger.valueOf(1L), BigInteger.valueOf(2L)), result.getAvailablePatternOffsets());
   }
@@ -288,7 +288,7 @@ public class ChoiceIT {
       .setSegmentId(BigInteger.valueOf(1L))
       .setSequenceId(BigInteger.valueOf(3L))
       .setType("Main")
-      .setPatternOffset(BigInteger.valueOf(2L))
+      .setSequencePatternOffset(BigInteger.valueOf(2L))
       .setTranspose(-3);
 
     testDAO.update(access, BigInteger.valueOf(2L), inputData);
@@ -298,7 +298,7 @@ public class ChoiceIT {
     assertEquals(BigInteger.valueOf(1L), result.getSegmentId());
     assertEquals(BigInteger.valueOf(3L), result.getSequenceId());
     assertEquals(SequenceType.Main, result.getType());
-    assertEquals(BigInteger.valueOf(2L), result.getPatternOffset());
+    assertEquals(BigInteger.valueOf(2L), result.getSequencePatternOffset());
     assertEquals(Integer.valueOf(-3), result.getTranspose());
   }
 
@@ -310,7 +310,7 @@ public class ChoiceIT {
     Choice inputData = new Choice()
       .setSequenceId(BigInteger.valueOf(3L))
       .setType("Main")
-      .setPatternOffset(BigInteger.valueOf(2L))
+      .setSequencePatternOffset(BigInteger.valueOf(2L))
       .setTranspose(-3);
 
     testDAO.update(access, BigInteger.valueOf(2L), inputData);
@@ -324,7 +324,7 @@ public class ChoiceIT {
     Choice inputData = new Choice()
       .setSegmentId(BigInteger.valueOf(1L))
       .setSequenceId(BigInteger.valueOf(3L))
-      .setPatternOffset(BigInteger.valueOf(2L))
+      .setSequencePatternOffset(BigInteger.valueOf(2L))
       .setTranspose(-3);
 
     testDAO.update(access, BigInteger.valueOf(2L), inputData);
@@ -339,7 +339,7 @@ public class ChoiceIT {
       .setSegmentId(BigInteger.valueOf(7L))
       .setSequenceId(BigInteger.valueOf(3L))
       .setType("Main")
-      .setPatternOffset(BigInteger.valueOf(2L))
+      .setSequencePatternOffset(BigInteger.valueOf(2L))
       .setTranspose(-3);
 
     try {
@@ -370,7 +370,7 @@ public class ChoiceIT {
     Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
-    IntegrationTestEntity.insertPattern(1, 1, PatternType.Main, PatternState.Published, 0, 16, "Ants", 0.583, "D minor", 120.0);
+    IntegrationTestEntity.insertPatternSequencePattern(1, 1, PatternType.Main, PatternState.Published, 0, 16, "Ants", 0.583, "D minor", 120.0);
     IntegrationTestEntity.insertVoice(1, 1, InstrumentType.Percussive, "This is a percussive voice");
     IntegrationTestEntity.insertInstrument(1, 1, 2, "jams", InstrumentType.Percussive, 0.6);
     IntegrationTestEntity.insertArrangement(1, 1, 1, 1);

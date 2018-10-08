@@ -22,7 +22,7 @@ public class SegmentMessageTest {
       .setSequenceId(BigInteger.valueOf(125L))
       .setTranspose(5)
       .setType("Macro")
-      .setPatternOffset(BigInteger.valueOf(4L))
+      .setSequencePatternOffset(BigInteger.valueOf(4L))
       .validate();
   }
 
@@ -35,7 +35,7 @@ public class SegmentMessageTest {
       .setSequenceId(BigInteger.valueOf(125L))
       .setTranspose(5)
       .setType("Macro")
-      .setPatternOffset(BigInteger.valueOf(4L))
+      .setSequencePatternOffset(BigInteger.valueOf(4L))
       .validate();
   }
 
@@ -48,7 +48,7 @@ public class SegmentMessageTest {
       .setSegmentId(BigInteger.valueOf(352L))
       .setTranspose(5)
       .setType("Macro")
-      .setPatternOffset(BigInteger.valueOf(4L))
+      .setSequencePatternOffset(BigInteger.valueOf(4L))
       .validate();
   }
 
@@ -58,7 +58,7 @@ public class SegmentMessageTest {
       .setSegmentId(BigInteger.valueOf(352L))
       .setSequenceId(BigInteger.valueOf(125L))
       .setType("Macro")
-      .setPatternOffset(BigInteger.valueOf(4L));
+      .setSequencePatternOffset(BigInteger.valueOf(4L));
 
     result.validate();
 
@@ -74,7 +74,7 @@ public class SegmentMessageTest {
       .setSegmentId(BigInteger.valueOf(352L))
       .setSequenceId(BigInteger.valueOf(125L))
       .setTranspose(5)
-      .setPatternOffset(BigInteger.valueOf(4L))
+      .setSequencePatternOffset(BigInteger.valueOf(4L))
       .validate();
   }
 
@@ -88,7 +88,7 @@ public class SegmentMessageTest {
       .setSequenceId(BigInteger.valueOf(125L))
       .setTranspose(5)
       .setType("bung")
-      .setPatternOffset(BigInteger.valueOf(4L))
+      .setSequencePatternOffset(BigInteger.valueOf(4L))
       .validate();
   }
 

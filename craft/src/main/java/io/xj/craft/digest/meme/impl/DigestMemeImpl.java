@@ -1,19 +1,17 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.craft.digest.meme.impl;
 
-import io.xj.craft.ingest.Ingest;
-import io.xj.craft.digest.DigestType;
-import io.xj.craft.digest.meme.DigestMeme;
-import io.xj.craft.digest.impl.DigestImpl;
-import io.xj.core.model.instrument.Instrument;
-import io.xj.core.model.meme.Meme;
-import io.xj.core.model.sequence.Sequence;
-import io.xj.core.model.pattern.Pattern;
-
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-
+import io.xj.core.model.instrument.Instrument;
+import io.xj.core.model.meme.Meme;
+import io.xj.core.model.pattern.Pattern;
+import io.xj.core.model.sequence.Sequence;
+import io.xj.craft.digest.DigestType;
+import io.xj.craft.digest.impl.DigestImpl;
+import io.xj.craft.digest.meme.DigestMeme;
+import io.xj.craft.ingest.Ingest;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -81,8 +79,8 @@ public class DigestMemeImpl extends DigestImpl implements DigestMeme {
     }));
     sequencePatternMemes.forEach((sequenceId, sequencePatterns) ->
       sequencePatterns.forEach((patternId, patternMemes) -> {
-      patternMemes.forEach(meme -> digestMemesItem(meme.getName()).addSequencePatternId(sequenceId, patternId));
-    }));
+        patternMemes.forEach(meme -> digestMemesItem(meme.getName()).addSequencePatternId(sequenceId, patternId));
+      }));
     instrumentMemes.forEach((instrumentId, memesInInstrument) -> memesInInstrument.forEach(meme -> {
       digestMemesItem(meme.getName()).addInstrumentId(instrumentId);
     }));
@@ -135,7 +133,6 @@ public class DigestMemeImpl extends DigestImpl implements DigestMeme {
           patternObj.put(KEY_PATTERN_ID, patternId);
           patternObj.put(KEY_PATTERN_NAME, getPattern(patternId).getName());
           patternObj.put(KEY_PATTERN_TYPE, getPattern(patternId).getType());
-          patternObj.put(KEY_PATTERN_OFFSET, getPattern(patternId).getOffset());
           sequencePatternsArr.put(patternObj);
         });
         sequenceObj.put(KEY_SEQUENCE_ID, sequenceId);

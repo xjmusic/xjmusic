@@ -141,7 +141,6 @@ export default Service.extend({
       // now playing
       self.set('state', STANDBY);
 
-      // [#154043509] TODO stop playback via the embedded player
       resolve();
     });
   },

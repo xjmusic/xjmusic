@@ -24,18 +24,21 @@ public class Pattern extends Entity {
   public static final String KEY_ONE = "pattern";
   public static final String KEY_MANY = "patterns";
 
-  @Nullable private String name;
+  @Nullable
+  private String name;
   private String _type; // to hold value before validation
   private PatternType type;
   private BigInteger sequenceId;
-  @Nullable private String key;
+  @Nullable
+  private String key;
   private Integer total;
   private Integer meterSuper;
   private Integer meterSub;
   private Integer meterSwing;
-  private BigInteger offset;
-  @Nullable private Double density;
-  @Nullable private Double tempo;
+  @Nullable
+  private Double density;
+  @Nullable
+  private Double tempo;
   private PatternState state;
   private String _stateString; // pending validation, copied to `state` field
 
@@ -152,16 +155,6 @@ public class Pattern extends Entity {
     return this;
   }
 
-
-  public BigInteger getOffset() {
-    return offset;
-  }
-
-  public Pattern setOffset(BigInteger offset) {
-    this.offset = offset;
-    return this;
-  }
-
   @Nullable
   public Double getDensity() {
     return density;
@@ -206,16 +199,13 @@ public class Pattern extends Entity {
     if (Objects.nonNull(key) && key.isEmpty()) {
       key = null;
     }
-    if (null == offset) {
-      throw new BusinessException("Offset is required.");
-    }
     if (Objects.nonNull(density) && (double) 0 == density) {
       density = null;
     }
     if (Objects.nonNull(tempo) && (double) 0 == tempo) {
       tempo = null;
     }
-    switch(type) {
+    switch (type) {
       case Macro:
         break;
       case Main:
@@ -223,13 +213,13 @@ public class Pattern extends Entity {
       case Intro:
       case Loop:
       case Outro:
-        if(Objects.isNull(meterSuper)) {
+        if (Objects.isNull(meterSuper)) {
           meterSuper = Config.patternDefaultMeterSuper();
         }
-        if(Objects.isNull(meterSub)) {
+        if (Objects.isNull(meterSub)) {
           meterSub = Config.patternDefaultMeterSub();
         }
-        if(Objects.isNull(meterSwing)) {
+        if (Objects.isNull(meterSwing)) {
           meterSwing = Config.patternDefaultMeterSwing();
         }
         break;
@@ -238,7 +228,7 @@ public class Pattern extends Entity {
 
   @Override
   public String toString() {
-    return (Objects.nonNull(name) ? name + " " : "") + "(" + "@" + offset + ")";
+    return (Objects.nonNull(name) ? name + " " : "");
   }
 
 }

@@ -2,7 +2,6 @@
 package io.xj.core.model.pattern;
 
 import io.xj.core.exception.BusinessException;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -11,7 +10,8 @@ import java.math.BigInteger;
 
 public class PatternTest {
 
-  @Rule public ExpectedException failure = ExpectedException.none();
+  @Rule
+  public ExpectedException failure = ExpectedException.none();
 
   @Test
   public void validate() throws Exception {
@@ -21,7 +21,6 @@ public class PatternTest {
       .setKey("D major")
       .setTypeEnum(PatternType.Macro)
       .setTotal(64)
-      .setOffset(BigInteger.valueOf(14L))
       .setDensity(0.6)
       .setTempo(140.5)
       .validate();
@@ -31,7 +30,6 @@ public class PatternTest {
   public void validate_withMinimalAttributes() throws Exception {
     new Pattern()
       .setSequenceId(BigInteger.valueOf(9812L))
-      .setOffset(BigInteger.valueOf(14L))
       .setTypeEnum(PatternType.Macro)
       .validate();
   }
@@ -42,7 +40,6 @@ public class PatternTest {
     failure.expectMessage("Sequence ID is required");
 
     new Pattern()
-      .setOffset(BigInteger.valueOf(14L))
       .setTypeEnum(PatternType.Macro)
       .validate();
   }
@@ -54,20 +51,7 @@ public class PatternTest {
 
     new Pattern()
       .setSequenceId(BigInteger.valueOf(9812L))
-      .setOffset(BigInteger.valueOf(14L))
       .validate();
   }
-
-  @Test
-  public void validate_failsWithoutOffset() throws Exception {
-    failure.expect(BusinessException.class);
-    failure.expectMessage("Offset is required");
-
-    new Pattern()
-      .setSequenceId(BigInteger.valueOf(9812L))
-      .setTypeEnum(PatternType.Macro)
-      .validate();
-  }
-
 
 }

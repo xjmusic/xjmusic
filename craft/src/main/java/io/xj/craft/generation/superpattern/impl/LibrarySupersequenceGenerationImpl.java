@@ -1,13 +1,17 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.craft.generation.supersequence.impl;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
 import io.xj.core.config.Config;
 import io.xj.core.dao.PatternChordDAO;
 import io.xj.core.dao.PatternDAO;
-import io.xj.core.model.sequence.Sequence;
 import io.xj.core.model.pattern.Pattern;
 import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.pattern_chord.PatternChord;
+import io.xj.core.model.sequence.Sequence;
 import io.xj.core.util.TremendouslyRandom;
 import io.xj.craft.chord.ChordMarkovNode;
 import io.xj.craft.chord.ChordNode;
@@ -22,12 +26,6 @@ import io.xj.craft.generation.impl.GenerationImpl;
 import io.xj.craft.generation.supersequence.LibrarySupersequenceGeneration;
 import io.xj.craft.ingest.Ingest;
 import io.xj.music.Key;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -78,7 +76,7 @@ public class LibrarySupersequenceGenerationImpl extends GenerationImpl implement
    Instantiate a new digest with a collection of target entities
 
    @param sequence to build supersequence around
-   @param ingest  to digest
+   @param ingest   to digest
    */
   @Inject
   public LibrarySupersequenceGenerationImpl(
@@ -139,7 +137,6 @@ public class LibrarySupersequenceGenerationImpl extends GenerationImpl implement
     Pattern pattern = patternDAO.create(ingest.access(),
       new Pattern()
         .setSequenceId(sequence.getId())
-        .setOffset(BigInteger.ZERO)
         .setName(GENERATED_PATTERN_NAME)
         .setTypeEnum(PatternType.Loop)
         .setTotal((int) Math.floor(chordSpacing * chordProgression.size())));

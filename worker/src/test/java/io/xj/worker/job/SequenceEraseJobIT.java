@@ -5,17 +5,16 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.util.Modules;
-
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
 import io.xj.core.app.App;
 import io.xj.core.dao.PatternDAO;
 import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.model.instrument.InstrumentType;
-import io.xj.core.model.sequence.SequenceState;
-import io.xj.core.model.sequence.SequenceType;
 import io.xj.core.model.pattern.PatternState;
 import io.xj.core.model.pattern.PatternType;
+import io.xj.core.model.sequence.SequenceState;
+import io.xj.core.model.sequence.SequenceType;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.work.WorkManager;
 import io.xj.craft.CraftModule;
@@ -40,12 +39,14 @@ import static org.junit.Assert.assertNull;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class SequenceEraseJobIT {
-  @Rule public ExpectedException failure = ExpectedException.none();
-  private Injector injector;
-  private App app;
   private static final int TEST_DURATION_SECONDS = 3;
   private static final int MILLIS_PER_SECOND = 1000;
-  @Spy private final WorkManager workManager = Guice.createInjector(new CoreModule()).getInstance(WorkManager.class);
+  @Spy
+  private final WorkManager workManager = Guice.createInjector(new CoreModule()).getInstance(WorkManager.class);
+  @Rule
+  public ExpectedException failure = ExpectedException.none();
+  private Injector injector;
+  private App app;
 
   @Before
   public void setUp() throws Exception {
@@ -66,9 +67,9 @@ public class SequenceEraseJobIT {
     IntegrationTestEntity.insertUserRole(2, 3, UserRoleType.User);
     IntegrationTestEntity.insertAccountUser(3, 1, 3);
 
-    // Library "house" and "pajamas"
+    // Library "house" and "fleeces"
     IntegrationTestEntity.insertLibrary(2, 1, "house");
-    IntegrationTestEntity.insertLibrary(42, 1, "pajamas");
+    IntegrationTestEntity.insertLibrary(42, 1, "fleeces");
 
     // Sequence "808" and "2020"
     IntegrationTestEntity.insertSequence(1, 2, 2, SequenceType.Rhythm, SequenceState.Published, "808 Drums", 0.9, "G", 120);
@@ -80,22 +81,22 @@ public class SequenceEraseJobIT {
     IntegrationTestEntity.insertVoice(4, 12, InstrumentType.Percussive, "Snarr Dram");
 
     // Pattern "Verse"
-    IntegrationTestEntity.insertPattern(1, 1, PatternType.Loop, PatternState.Published, 0, 16, "Verse 1", 0.5, "G", 120);
+    IntegrationTestEntity.insertPatternSequencePattern(1, 1, PatternType.Loop, PatternState.Published, 0, 16, "Verse 1", 0.5, "G", 120);
     IntegrationTestEntity.insertPatternMeme(1, 1, "GREEN");
     IntegrationTestEntity.insertPatternChord(1, 1, 0, "Db7");
     IntegrationTestEntity.insertPatternEvent(101, 1, 1, 0.0, 1.0, "KICK", "C5", 1.0, 1.0);
     IntegrationTestEntity.insertPatternEvent(102, 1, 2, 1.0, 1.0, "SNARE", "C5", 1.0, 1.0);
 
     // Pattern "Verse"
-    IntegrationTestEntity.insertPattern(2, 1, PatternType.Loop, PatternState.Published, 0, 16, "Verse 2", 0.5, "G", 120);
+    IntegrationTestEntity.insertPatternSequencePattern(2, 1, PatternType.Loop, PatternState.Published, 0, 16, "Verse 2", 0.5, "G", 120);
     IntegrationTestEntity.insertPatternMeme(2, 2, "YELLOW");
     IntegrationTestEntity.insertPatternChord(2, 2, 0, "Gm9");
     IntegrationTestEntity.insertPatternEvent(103, 2, 1, 0.0, 1.0, "KICK", "C5", 1.0, 1.0);
     IntegrationTestEntity.insertPatternEvent(104, 2, 2, 1.0, 1.0, "SNARE", "C5", 1.0, 1.0);
 
     // Newly cloned patterns -- awaiting PatternClone job to run, and create their child entities
-    IntegrationTestEntity.insertPattern(3, 1, PatternType.Loop, PatternState.Published, 0, 16, "Verse 34", 0.5, "G", 120);
-    IntegrationTestEntity.insertPattern(4, 12, PatternType.Loop, PatternState.Published, 0, 16, "Verse 79", 0.5, "G", 120);
+    IntegrationTestEntity.insertPatternSequencePattern(3, 1, PatternType.Loop, PatternState.Published, 0, 16, "Verse 34", 0.5, "G", 120);
+    IntegrationTestEntity.insertPatternSequencePattern(4, 12, PatternType.Loop, PatternState.Published, 0, 16, "Verse 79", 0.5, "G", 120);
 
     // Don't sleep between processing work
     System.setProperty("app.port", "9043");
@@ -120,9 +121,7 @@ public class SequenceEraseJobIT {
   }
 
   @After
-  public void tearDown() throws Exception {
-    app = null;
-    injector = null;
+  public void tearDown() {
   }
 
   @Test
@@ -134,9 +133,9 @@ public class SequenceEraseJobIT {
     Thread.sleep(TEST_DURATION_SECONDS * MILLIS_PER_SECOND);
     app.stop();
 
-    assertNull( injector.getInstance(PatternDAO.class).readOne(Access.internal(), BigInteger.valueOf(1)));
-    assertNull( injector.getInstance(PatternDAO.class).readOne(Access.internal(), BigInteger.valueOf(2)));
-    assertNull( injector.getInstance(PatternDAO.class).readOne(Access.internal(), BigInteger.valueOf(3)));
+    assertNull(injector.getInstance(PatternDAO.class).readOne(Access.internal(), BigInteger.valueOf(1)));
+    assertNull(injector.getInstance(PatternDAO.class).readOne(Access.internal(), BigInteger.valueOf(2)));
+    assertNull(injector.getInstance(PatternDAO.class).readOne(Access.internal(), BigInteger.valueOf(3)));
   }
 
   /**

@@ -104,16 +104,28 @@ cp ${PWD}/bin/common/bootstrap ${PWD}/target/bin/
 step_ok
 
 #
-step "Add .elasticbeanstalk/production.env"
+step "Add .config/production.env"
 indent "(set secret environment vars via the 'eb' CLI)"
 indent "${PWD}/target/runtime.env"
 cp ${PWD}/.config/production.env ${PWD}/target/runtime.env
 step_ok
 
 #
-step "Add .elasticbeanstalk/bin/*"
+step "Add .config/bin/*"
 indent "$(ls ${PWD}/.config/bin/*)"
 cp ${PWD}/.config/bin/* ${PWD}/target/bin/
+step_ok
+
+#
+step "Add bin/common/*"
+indent "$(ls ${PWD}/bin/common/*)"
+cp -r ${PWD}/bin/common ${PWD}/target/bin/
+step_ok
+
+#
+step "Add bin/mysql/*"
+indent "$(ls ${PWD}/bin/mysql/*)"
+cp -r ${PWD}/bin/mysql ${PWD}/target/bin/
 step_ok
 
 #

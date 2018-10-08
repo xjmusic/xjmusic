@@ -105,7 +105,7 @@ public class AudioIT {
 
     // Sequence, Pattern, Voice
     IntegrationTestEntity.insertSequence(1, 2, 1, SequenceType.Macro, SequenceState.Published, "epic concept", 0.342, "C#", 0.286);
-    IntegrationTestEntity.insertPattern(1, 1, PatternType.Macro, PatternState.Published, 0, 16, "Ants", 0.583, "D minor", 120.0);
+    IntegrationTestEntity.insertPatternSequencePattern(1, 1, PatternType.Macro, PatternState.Published, 0, 16, "Ants", 0.583, "D minor", 120.0);
     IntegrationTestEntity.insertVoice(8, 1, InstrumentType.Percussive, "This is a percussive voice");
 
     // Chain, Segment

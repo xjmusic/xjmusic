@@ -8,7 +8,6 @@ export default DS.Model.extend({
   sequence: DS.belongsTo({}),
   name: DS.attr('string'),
   tempo: DS.attr('number'),
-  offset: DS.attr('number'),
   total: DS.attr('number'),
   meterSuper: DS.attr('number'),
   meterSub: DS.attr('number'),

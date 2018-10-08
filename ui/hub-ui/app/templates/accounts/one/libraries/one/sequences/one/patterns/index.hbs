@@ -17,7 +17,6 @@
       <table class="table">
         <thead>
         <tr>
-          <th width="1%">Offset</th>
           <th width="1%">Type</th>
           <th width="1%">Total</th>
           <th>Name</th>
@@ -31,7 +30,6 @@
         <tbody>
         {{#each model.patterns as |pattern|}}
           <tr class="item">
-            <td>{{pattern.offset}}</td>
             <td>{{pattern.type}}</td>
             <td>{{pattern.total}}</td>
             <td>{{#link-to 'accounts.one.libraries.one.sequences.one.patterns.one' pattern.sequence.library.account pattern.sequence.library pattern.sequence pattern}}{{pattern.name}}{{/link-to}}</td>
@@ -44,8 +42,8 @@
                 {{#link-to 'accounts.one.libraries.one.sequences.one.patterns.one.chords' pattern.sequence.library.account pattern.sequence.library pattern.sequence pattern}}Chords{{/link-to}}<span>&nbsp;</span>
                 {{#link-to 'accounts.one.libraries.one.sequences.one.patterns.one.events' pattern.sequence.library.account pattern.sequence.library pattern.sequence pattern}}Events{{/link-to}}<span>&nbsp;</span>
                 {{#if (eq pattern.sequence.type "Rhythm")}}{{#link-to 'accounts.one.libraries.one.sequences.one.patterns.one.stepmatic' pattern.sequence.library.account pattern.sequence.library pattern.sequence pattern}}Stepmatic{{/link-to}}<span>&nbsp;</span>{{/if}}
-                {{entity-actions 'accounts.one.libraries.one.sequences.one.patterns.one' 'edit|clone|destroy' pattern.sequence.library.account pattern.sequence.library pattern.sequence pattern}}
               {{/if}}
+              {{entity-actions 'accounts.one.libraries.one.sequences.one.patterns.one' 'edit|clone|destroy' pattern.sequence.library.account pattern.sequence.library pattern.sequence pattern}}
             </td>
             <th scope="row">{{#link-to "accounts.one.libraries.one.sequences.one.patterns.one"
                                        pattern.sequence.library.account pattern.sequence.library pattern.sequence pattern}}{{pattern.id}}{{/link-to}}</th>

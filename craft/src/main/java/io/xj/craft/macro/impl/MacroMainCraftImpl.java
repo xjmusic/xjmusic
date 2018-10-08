@@ -97,7 +97,7 @@ public class MacroMainCraftImpl implements MacroMainCraft {
       .setType(SequenceType.Macro.toString())
       .setSequenceId(macroSequence().getId())
       .setTranspose(macroTranspose())
-      .setPatternOffset(macroPatternOffset()));
+      .setSequencePatternOffset(macroPatternOffset()));
   }
 
   /**
@@ -112,7 +112,7 @@ public class MacroMainCraftImpl implements MacroMainCraft {
       .setType(SequenceType.Main.toString())
       .setSequenceId(mainSequence().getId())
       .setTranspose(mainTranspose())
-      .setPatternOffset(mainPatternOffset()));
+      .setSequencePatternOffset(mainPatternOffset()));
   }
 
   /**
@@ -266,7 +266,7 @@ public class MacroMainCraftImpl implements MacroMainCraft {
           break;
 
         case Continue:
-          _macroPatternOffset = basis.previousMacroChoice().getPatternOffset();
+          _macroPatternOffset = basis.previousMacroChoice().getSequencePatternOffset();
           break;
 
         case NextMain:

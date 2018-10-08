@@ -54,8 +54,8 @@ public class PatternChordIT {
     IntegrationTestEntity.insertSequence(1, 2, 1, SequenceType.Main, SequenceState.Published, "leaves", 0.342, "C#", 110.286);
 
     // Sequence "leaves" has patterns "Ants" and "Caterpillars"
-    IntegrationTestEntity.insertPattern(1, 1, PatternType.Main, PatternState.Published, 0, 16, "Ants", 0.583, "D minor", 120.0);
-    IntegrationTestEntity.insertPattern(2, 1, PatternType.Main, PatternState.Published, 1, 16, "Caterpillars", 0.583, "E major", 140.0);
+    IntegrationTestEntity.insertPatternSequencePattern(1, 1, PatternType.Main, PatternState.Published, 0, 16, "Ants", 0.583, "D minor", 120.0);
+    IntegrationTestEntity.insertPatternSequencePattern(2, 1, PatternType.Main, PatternState.Published, 1, 16, "Caterpillars", 0.583, "E major", 140.0);
 
     // Pattern "Caterpillars" has entities "C minor" and "D major"
     IntegrationTestEntity.insertPatternChord(1, 2, 0, "C minor");

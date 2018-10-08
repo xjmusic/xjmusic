@@ -33,7 +33,7 @@ public class Choice extends Entity {
   private BigInteger sequenceId;
   private String _type; // to hold value before validation
   private SequenceType type;
-  private BigInteger patternOffset;
+  private BigInteger sequencePatternOffset;
   private Integer transpose;
 
   public BigInteger getSegmentId() {
@@ -67,12 +67,12 @@ public class Choice extends Entity {
     this.type = type;
   }
 
-  public BigInteger getPatternOffset() {
-    return patternOffset;
+  public BigInteger getSequencePatternOffset() {
+    return sequencePatternOffset;
   }
 
-  public Choice setPatternOffset(BigInteger value) {
-    patternOffset = value;
+  public Choice setSequencePatternOffset(BigInteger value) {
+    sequencePatternOffset = value;
     return this;
   }
 
@@ -92,7 +92,7 @@ public class Choice extends Entity {
    @return true if it has one more pattern
    */
   public boolean hasOneMorePattern() {
-    return availablePatternOffsets.stream().anyMatch(availableOffset -> 0 < availableOffset.compareTo(patternOffset));
+    return availablePatternOffsets.stream().anyMatch(availableOffset -> 0 < availableOffset.compareTo(sequencePatternOffset));
   }
 
   /**
@@ -104,7 +104,7 @@ public class Choice extends Entity {
   public boolean hasTwoMorePatterns() {
     int num = 0;
     for (BigInteger availableOffset : availablePatternOffsets)
-      if (0 < availableOffset.compareTo(patternOffset)) {
+      if (0 < availableOffset.compareTo(sequencePatternOffset)) {
         num++;
         if (2 <= num)
           return true;
@@ -122,7 +122,7 @@ public class Choice extends Entity {
   public BigInteger nextPatternOffset() {
     BigInteger offset = null;
     for (BigInteger availableOffset : availablePatternOffsets)
-      if (0 < availableOffset.compareTo(patternOffset))
+      if (0 < availableOffset.compareTo(sequencePatternOffset))
         if (Objects.isNull(offset) ||
           0 > availableOffset.compareTo(offset))
           offset = availableOffset;
@@ -172,8 +172,8 @@ public class Choice extends Entity {
     if (Objects.isNull(type))
       throw new BusinessException("Type is required.");
 
-    if (Objects.isNull(patternOffset))
-      throw new BusinessException("Pattern Offset is required.");
+    if (Objects.isNull(sequencePatternOffset))
+      throw new BusinessException("Sequence Pattern Offset is required.");
 
     if (Objects.isNull(transpose))
       transpose = 0;

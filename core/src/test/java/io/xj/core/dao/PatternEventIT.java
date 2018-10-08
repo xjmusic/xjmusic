@@ -52,8 +52,8 @@ public class PatternEventIT {
     IntegrationTestEntity.insertSequence(1, 2, 1, SequenceType.Main, SequenceState.Published, "leaves", 0.342, "C#", 110.286);
 
     // Sequence "leaves" has voices "Intro" and "Outro"
-    IntegrationTestEntity.insertPattern(1, 1, PatternType.Main, PatternState.Published, 0, 4, "Intro", 0.583, "D minor", 120.0);
-    IntegrationTestEntity.insertPattern(2, 1, PatternType.Main, PatternState.Published, 1, 4, "Outro", 0.583, "E major", 140.0);
+    IntegrationTestEntity.insertPatternSequencePattern(1, 1, PatternType.Main, PatternState.Published, 0, 4, "Intro", 0.583, "D minor", 120.0);
+    IntegrationTestEntity.insertPatternSequencePattern(2, 1, PatternType.Main, PatternState.Published, 1, 4, "Outro", 0.583, "E major", 140.0);
 
     // Voice "Caterpillars" has voices "Drums" and "Bass"
     IntegrationTestEntity.insertVoice(1, 1, InstrumentType.Percussive, "Drums");

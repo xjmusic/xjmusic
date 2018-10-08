@@ -80,22 +80,22 @@ public class PatternEraseJobIT {
     IntegrationTestEntity.insertVoice(4, 12, InstrumentType.Percussive, "Snarr Dram");
 
     // Pattern "Verse"
-    IntegrationTestEntity.insertPattern(1, 1, PatternType.Loop, PatternState.Published, 0, 16, "Verse 1", 0.5, "G", 120);
+    IntegrationTestEntity.insertPatternSequencePattern(1, 1, PatternType.Loop, PatternState.Published, 0, 16, "Verse 1", 0.5, "G", 120);
     IntegrationTestEntity.insertPatternMeme(1, 1, "GREEN");
     IntegrationTestEntity.insertPatternChord(1, 1, 0, "Db7");
     IntegrationTestEntity.insertPatternEvent(101, 1, 1, 0.0, 1.0, "KICK", "C5", 1.0, 1.0);
     IntegrationTestEntity.insertPatternEvent(102, 1, 2, 1.0, 1.0, "SNARE", "C5", 1.0, 1.0);
 
     // Pattern "Verse"
-    IntegrationTestEntity.insertPattern(2, 1, PatternType.Loop, PatternState.Published, 0, 16, "Verse 2", 0.5, "G", 120);
+    IntegrationTestEntity.insertPatternSequencePattern(2, 1, PatternType.Loop, PatternState.Published, 0, 16, "Verse 2", 0.5, "G", 120);
     IntegrationTestEntity.insertPatternMeme(2, 2, "YELLOW");
     IntegrationTestEntity.insertPatternChord(2, 2, 0, "Gm9");
     IntegrationTestEntity.insertPatternEvent(103, 2, 1, 0.0, 1.0, "KICK", "C5", 1.0, 1.0);
     IntegrationTestEntity.insertPatternEvent(104, 2, 2, 1.0, 1.0, "SNARE", "C5", 1.0, 1.0);
 
     // Newly cloned patterns -- awaiting PatternClone job to run, and create their child entities
-    IntegrationTestEntity.insertPattern(3, 1, PatternType.Loop, PatternState.Published, 0, 16, "Verse 34", 0.5, "G", 120);
-    IntegrationTestEntity.insertPattern(4, 12, PatternType.Loop, PatternState.Published, 0, 16, "Verse 79", 0.5, "G", 120);
+    IntegrationTestEntity.insertPatternSequencePattern(3, 1, PatternType.Loop, PatternState.Published, 0, 16, "Verse 34", 0.5, "G", 120);
+    IntegrationTestEntity.insertPatternSequencePattern(4, 12, PatternType.Loop, PatternState.Published, 0, 16, "Verse 79", 0.5, "G", 120);
 
     // Don't sleep between processing work
     System.setProperty("app.port", "9043");
@@ -120,9 +120,7 @@ public class PatternEraseJobIT {
   }
 
   @After
-  public void tearDown() throws Exception {
-    app = null;
-    injector = null;
+  public void tearDown(){
   }
 
   @Test

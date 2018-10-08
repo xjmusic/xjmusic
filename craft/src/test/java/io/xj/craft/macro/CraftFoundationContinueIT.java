@@ -75,21 +75,21 @@ public class CraftFoundationContinueIT {
     // "Tropical, Wild to Cozy" macro-sequence in house library
     IntegrationTestEntity.insertSequence(4, 3, 2, SequenceType.Macro, SequenceState.Published, "Tropical, Wild to Cozy", 0.5, "C", 120);
     IntegrationTestEntity.insertSequenceMeme(2, 4, "Tropical");
-    IntegrationTestEntity.insertPattern(3, 4, PatternType.Macro, PatternState.Published, 0, 64, "Start Wild", 0.6, "C", 125);
+    IntegrationTestEntity.insertPatternSequencePattern(3, 4, PatternType.Macro, PatternState.Published, 0, 64, "Start Wild", 0.6, "C", 125);
     IntegrationTestEntity.insertPatternMeme(3, 3, "Wild");
     IntegrationTestEntity.insertPatternChord(3, 3, 0, "C");
-    IntegrationTestEntity.insertPattern(4, 4, PatternType.Macro, PatternState.Published, 1, 64, "Finish Finish Cozy", 0.4, "Bb minor", 115);
+    IntegrationTestEntity.insertPatternSequencePattern(4, 4, PatternType.Macro, PatternState.Published, 1, 64, "Finish Finish Cozy", 0.4, "Bb minor", 115);
     IntegrationTestEntity.insertPatternMeme(4, 4, "Cozy");
     IntegrationTestEntity.insertPatternChord(4, 4, 0, "Bb minor");
 
     // Main sequence
     IntegrationTestEntity.insertSequence(5, 3, 2, SequenceType.Main, SequenceState.Published, "Main Jam", 0.2, "Gb minor", 140);
     IntegrationTestEntity.insertSequenceMeme(3, 5, "Outlook");
-    IntegrationTestEntity.insertPattern(15, 5, PatternType.Main, PatternState.Published, 0, 16, "Intro", 0.5, "Gb minor", 135.0);
+    IntegrationTestEntity.insertPatternSequencePattern(15, 5, PatternType.Main, PatternState.Published, 0, 16, "Intro", 0.5, "Gb minor", 135.0);
     IntegrationTestEntity.insertPatternMeme(6, 15, "Pessimism");
     IntegrationTestEntity.insertPatternChord(12, 15, 0, "Gb minor");
     IntegrationTestEntity.insertPatternChord(14, 15, 8, "G minor");
-    IntegrationTestEntity.insertPattern(16, 5, PatternType.Main, PatternState.Published, 1, 16, "Intro", 0.5, "G major", 135.0);
+    IntegrationTestEntity.insertPatternSequencePattern(16, 5, PatternType.Main, PatternState.Published, 1, 16, "Intro", 0.5, "G major", 135.0);
     IntegrationTestEntity.insertPatternMeme(7, 16, "Optimism");
     IntegrationTestEntity.insertPatternChord(16, 16, 0, "D minor");
     IntegrationTestEntity.insertPatternChord(18, 16, 8, "G major");
@@ -163,14 +163,14 @@ public class CraftFoundationContinueIT {
     assertNotNull(resultMacroChoice);
     assertEquals(BigInteger.valueOf(4), resultMacroChoice.getSequenceId());
     assertEquals(Integer.valueOf(3), resultMacroChoice.getTranspose());
-    assertEquals(BigInteger.valueOf(1), resultMacroChoice.getPatternOffset());
+    assertEquals(BigInteger.valueOf(1), resultMacroChoice.getSequencePatternOffset());
 
     // choice of main-type sequence
     Choice resultMainChoice = injector.getInstance(ChoiceDAO.class).readOneSegmentTypeWithAvailablePatternOffsets(Access.internal(), BigInteger.valueOf(4), SequenceType.Main);
     assertNotNull(resultMainChoice);
     assertEquals(BigInteger.valueOf(5), resultMainChoice.getSequenceId());
     assertEquals(Integer.valueOf(-5), resultMainChoice.getTranspose());
-    assertEquals(BigInteger.valueOf(1), resultMainChoice.getPatternOffset());
+    assertEquals(BigInteger.valueOf(1), resultMainChoice.getSequencePatternOffset());
 
   }
 

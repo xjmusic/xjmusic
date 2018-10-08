@@ -1,6 +1,9 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.dao.impl;
 
+import com.google.api.client.util.Maps;
+import com.google.common.collect.ImmutableList;
+import com.google.inject.Inject;
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.PatternDAO;
 import io.xj.core.exception.BusinessException;
@@ -14,16 +17,10 @@ import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import io.xj.core.persistence.sql.impl.SQLConnection;
 import io.xj.core.transport.CSV;
 import io.xj.core.work.WorkManager;
-
 import org.jooq.DSLContext;
 import org.jooq.Field;
 import org.jooq.Record;
 import org.jooq.types.ULong;
-
-import com.google.api.client.util.Maps;
-import com.google.common.collect.ImmutableList;
-import com.google.inject.Inject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,6 +33,7 @@ import java.util.Objects;
 
 import static io.xj.core.Tables.PATTERN_CHORD;
 import static io.xj.core.Tables.PATTERN_EVENT;
+import static io.xj.core.Tables.SEQUENCE_PATTERN;
 import static io.xj.core.tables.Library.LIBRARY;
 import static io.xj.core.tables.Pattern.PATTERN;
 import static io.xj.core.tables.PatternMeme.PATTERN_MEME;
@@ -110,20 +108,25 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
   @Nullable
   private static Collection<Pattern> readAllAtSequenceOffset(DSLContext db, Access access, BigInteger sequenceId, BigInteger sequencePatternOffset) throws BusinessException {
     if (access.isTopLevel())
-      return modelsFrom(db.selectFrom(PATTERN)
+      return modelsFrom(db.select(PATTERN.fields())
+        .from(PATTERN)
+        .join(SEQUENCE_PATTERN).on(PATTERN.ID.eq(SEQUENCE_PATTERN.PATTERN_ID))
         .where(PATTERN.SEQUENCE_ID.eq(ULong.valueOf(sequenceId)))
-        .and(PATTERN.OFFSET.eq(ULong.valueOf(sequencePatternOffset)))
+        .and(SEQUENCE_PATTERN.OFFSET.eq(ULong.valueOf(sequencePatternOffset)))
         .and(PATTERN.STATE.notEqual(String.valueOf(PatternState.Erase)))
+        .orderBy(PATTERN.NAME.desc())
         .fetch(), Pattern.class);
     else
       return modelsFrom(db.select(PATTERN.fields())
         .from(PATTERN)
+        .join(SEQUENCE_PATTERN).on(PATTERN.ID.eq(SEQUENCE_PATTERN.PATTERN_ID))
         .join(SEQUENCE).on(SEQUENCE.ID.eq(PATTERN.SEQUENCE_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(SEQUENCE.LIBRARY_ID))
         .where(PATTERN.SEQUENCE_ID.eq(ULong.valueOf(sequenceId)))
-        .and(PATTERN.OFFSET.eq(ULong.valueOf(sequencePatternOffset)))
+        .and(SEQUENCE_PATTERN.OFFSET.eq(ULong.valueOf(sequencePatternOffset)))
         .and(PATTERN.STATE.notEqual(String.valueOf(PatternState.Erase)))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+        .orderBy(PATTERN.NAME.desc())
         .fetch(), Pattern.class);
   }
 
@@ -141,6 +144,7 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
         .from(PATTERN)
         .where(PATTERN.SEQUENCE_ID.in(sequenceId))
         .and(PATTERN.STATE.notEqual(String.valueOf(PatternState.Erase)))
+        .orderBy(PATTERN.NAME.desc())
         .fetch(), Pattern.class);
     else
       return modelsFrom(db.select(PATTERN.fields())
@@ -150,6 +154,7 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
         .where(PATTERN.SEQUENCE_ID.in(sequenceId))
         .and(PATTERN.STATE.notEqual(String.valueOf(PatternState.Erase)))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+        .orderBy(PATTERN.NAME.desc())
         .fetch(), Pattern.class);
   }
 
@@ -168,6 +173,7 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
       .from(PATTERN)
       .where(PATTERN.STATE.eq(state.toString()))
       .or(PATTERN.STATE.eq(state.toString().toLowerCase(Locale.ENGLISH)))
+      .orderBy(PATTERN.NAME.desc())
       .fetch(), Pattern.class);
   }
 
@@ -210,6 +216,10 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
         .where(PATTERN.ID.eq(id))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .fetchOne(0, int.class));
+
+    db.deleteFrom(SEQUENCE_PATTERN)
+      .where(SEQUENCE_PATTERN.PATTERN_ID.eq(id))
+      .execute();
 
     db.deleteFrom(PATTERN_EVENT)
       .where(PATTERN_EVENT.PATTERN_ID.eq(id))
@@ -289,7 +299,6 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
     fieldValues.put(PATTERN.SEQUENCE_ID, entity.getSequenceId());
     fieldValues.put(PATTERN.TYPE, entity.getType());
     fieldValues.put(PATTERN.STATE, entity.getState());
-    fieldValues.put(PATTERN.OFFSET, entity.getOffset());
     fieldValues.put(PATTERN.TOTAL, valueOrNull(entity.getTotal()));
     fieldValues.put(PATTERN.METER_SUPER, valueOrNull(entity.getMeterSuper()));
     fieldValues.put(PATTERN.METER_SUB, valueOrNull(entity.getMeterSub()));

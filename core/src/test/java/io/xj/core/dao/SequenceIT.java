@@ -475,7 +475,7 @@ public class SequenceIT {
     Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
-    IntegrationTestEntity.insertPattern(1, 2, PatternType.Main, PatternState.Published, 0, 14, "testPattern", 0.524, "F#", 125.49);
+    IntegrationTestEntity.insertPatternSequencePattern(1, 2, PatternType.Main, PatternState.Published, 0, 14, "testPattern", 0.524, "F#", 125.49);
 
     failure.expect(BusinessException.class);
     failure.expectMessage("Pattern in Sequence");
@@ -534,7 +534,7 @@ public class SequenceIT {
       "roles", "Artist",
       "accounts", "1"
     ));
-    IntegrationTestEntity.insertPattern(1001, 1, PatternType.Main, PatternState.Published, 0, 16, "Intro", 0.6, "C", 120.0);
+    IntegrationTestEntity.insertPatternSequencePattern(1001, 1, PatternType.Main, PatternState.Published, 0, 16, "Intro", 0.6, "C", 120.0);
 
     failure.expect(BusinessException.class);
     failure.expectMessage("Meme in Sequence");
@@ -550,7 +550,7 @@ public class SequenceIT {
       "accounts", "1"
     ));
     IntegrationTestEntity.insertSequence(1001, 2, 1, SequenceType.Main, SequenceState.Published, "fonds", 0.342, "C#", 0.286);
-    IntegrationTestEntity.insertPattern(1002, 1001, PatternType.Main, PatternState.Published, 0, 16, "Intro", 0.6, "C", 120.0);
+    IntegrationTestEntity.insertPatternSequencePattern(1002, 1001, PatternType.Main, PatternState.Published, 0, 16, "Intro", 0.6, "C", 120.0);
 
     testDAO.erase(access, BigInteger.valueOf(1001L));
 

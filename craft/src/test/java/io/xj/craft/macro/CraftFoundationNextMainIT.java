@@ -10,7 +10,6 @@ import io.xj.core.dao.PatternMemeDAO;
 import io.xj.core.dao.SegmentChordDAO;
 import io.xj.core.dao.SegmentDAO;
 import io.xj.core.dao.SegmentMemeDAO;
-import io.xj.core.exception.BusinessException;
 import io.xj.core.exception.CraftException;
 import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.model.chain.ChainState;
@@ -81,16 +80,16 @@ public class CraftFoundationNextMainIT {
     IntegrationTestEntity.insertSequence(4, 3, 2, SequenceType.Macro, SequenceState.Published, "Tropical, Wild to Cozy", 0.5, "C", 120);
     IntegrationTestEntity.insertSequenceMeme(2, 4, "Tropical");
     // " pattern offset 0
-    IntegrationTestEntity.insertPattern(3, 4, PatternType.Macro, PatternState.Published, 0, 0, "Start Wild", 0.6, "C", 125);
+    IntegrationTestEntity.insertPatternSequencePattern(3, 4, PatternType.Macro, PatternState.Published, 0, 0, "Start Wild", 0.6, "C", 125);
     IntegrationTestEntity.insertPatternMeme(3, 3, "Wild");
     IntegrationTestEntity.insertPatternChord(3, 3, 0, "C");
     // " pattern offset 1
-    IntegrationTestEntity.insertPattern(4, 4, PatternType.Macro, PatternState.Published, 1, 0, "Intermediate", 0.4, "Bb minor", 115);
+    IntegrationTestEntity.insertPatternSequencePattern(4, 4, PatternType.Macro, PatternState.Published, 1, 0, "Intermediate", 0.4, "Bb minor", 115);
     IntegrationTestEntity.insertPatternMeme(4, 4, "Cozy");
     IntegrationTestEntity.insertPatternMeme(49, 4, "Wild");
     IntegrationTestEntity.insertPatternChord(4, 4, 0, "Bb minor");
     // " pattern offset 2
-    IntegrationTestEntity.insertPattern(5, 4, PatternType.Macro, PatternState.Published, 2, 0, "Finish Cozy", 0.4, "Ab minor", 125);
+    IntegrationTestEntity.insertPatternSequencePattern(5, 4, PatternType.Macro, PatternState.Published, 2, 0, "Finish Cozy", 0.4, "Ab minor", 125);
     IntegrationTestEntity.insertPatternMeme(5, 4, "Cozy");
     IntegrationTestEntity.insertPatternChord(5, 5, 0, "Ab minor");
 
@@ -98,11 +97,11 @@ public class CraftFoundationNextMainIT {
     IntegrationTestEntity.insertSequence(3, 3, 2, SequenceType.Macro, SequenceState.Published, "Tangy, Chunky to Smooth", 0.5, "G minor", 120);
     IntegrationTestEntity.insertSequenceMeme(1, 3, "Tangy");
     // # pattern offset 0
-    IntegrationTestEntity.insertPattern(1, 3, PatternType.Macro, PatternState.Published, 0, 0, "Start Chunky", 0.4, "G minor", 115);
+    IntegrationTestEntity.insertPatternSequencePattern(1, 3, PatternType.Macro, PatternState.Published, 0, 0, "Start Chunky", 0.4, "G minor", 115);
     IntegrationTestEntity.insertPatternMeme(1, 1, "Chunky");
     IntegrationTestEntity.insertPatternChord(1, 1, 0, "G minor");
     // # pattern offset 1
-    IntegrationTestEntity.insertPattern(2, 3, PatternType.Macro, PatternState.Published, 1, 0, "Finish Smooth", 0.6, "C", 125);
+    IntegrationTestEntity.insertPatternSequencePattern(2, 3, PatternType.Macro, PatternState.Published, 1, 0, "Finish Smooth", 0.6, "C", 125);
     IntegrationTestEntity.insertPatternMeme(2, 2, "Smooth");
     IntegrationTestEntity.insertPatternChord(2, 2, 0, "C");
 
@@ -110,12 +109,12 @@ public class CraftFoundationNextMainIT {
     IntegrationTestEntity.insertSequence(5, 3, 2, SequenceType.Main, SequenceState.Published, "Main Jam", 0.2, "C minor", 140);
     IntegrationTestEntity.insertSequenceMeme(3, 5, "Outlook");
     // # pattern offset 0
-    IntegrationTestEntity.insertPattern(15, 5, PatternType.Main, PatternState.Published, 0, 16, "Intro", 0.5, "G major", 135.0);
+    IntegrationTestEntity.insertPatternSequencePattern(15, 5, PatternType.Main, PatternState.Published, 0, 16, "Intro", 0.5, "G major", 135.0);
     IntegrationTestEntity.insertPatternMeme(6, 15, "Optimism");
     IntegrationTestEntity.insertPatternChord(12, 15, 0, "G major");
     IntegrationTestEntity.insertPatternChord(14, 15, 8, "Ab minor");
     // # pattern offset 1
-    IntegrationTestEntity.insertPattern(16, 5, PatternType.Main, PatternState.Published, 1, 16, "Drop", 0.5, "G minor", 135.0);
+    IntegrationTestEntity.insertPatternSequencePattern(16, 5, PatternType.Main, PatternState.Published, 1, 16, "Drop", 0.5, "G minor", 135.0);
     IntegrationTestEntity.insertPatternMeme(7, 16, "Pessimism");
     IntegrationTestEntity.insertPatternChord(16, 16, 0, "C major");
     IntegrationTestEntity.insertPatternChord(18, 16, 8, "Bb minor");
@@ -123,11 +122,11 @@ public class CraftFoundationNextMainIT {
     // Another Main sequence to go to
     IntegrationTestEntity.insertSequence(15, 3, 2, SequenceType.Main, SequenceState.Published, "Next Jam", 0.2, "Db minor", 140);
     IntegrationTestEntity.insertSequenceMeme(43, 15, "Hindsight");
-    IntegrationTestEntity.insertPattern(415, 15, PatternType.Main, PatternState.Published, 0, 16, "Intro", 0.5, "G minor", 135.0);
+    IntegrationTestEntity.insertPatternSequencePattern(415, 15, PatternType.Main, PatternState.Published, 0, 16, "Intro", 0.5, "G minor", 135.0);
     IntegrationTestEntity.insertPatternMeme(46, 415, "Regret");
     IntegrationTestEntity.insertPatternChord(412, 415, 0, "G minor");
     IntegrationTestEntity.insertPatternChord(414, 415, 8, "Ab minor");
-    IntegrationTestEntity.insertPattern(416, 15, PatternType.Main, PatternState.Published, 1, 16, "Outro", 0.5, "A major", 135.0);
+    IntegrationTestEntity.insertPatternSequencePattern(416, 15, PatternType.Main, PatternState.Published, 1, 16, "Outro", 0.5, "A major", 135.0);
     IntegrationTestEntity.insertPatternMeme(47, 416, "Pride");
     IntegrationTestEntity.insertPatternMeme(149, 416, "Shame");
     IntegrationTestEntity.insertPatternChord(416, 416, 0, "C major");
@@ -198,14 +197,14 @@ public class CraftFoundationNextMainIT {
     assertNotNull(resultMacroChoice);
     assertEquals(BigInteger.valueOf(4), resultMacroChoice.getSequenceId());
     assertEquals(Integer.valueOf(3), resultMacroChoice.getTranspose());
-    assertEquals(BigInteger.valueOf(1), resultMacroChoice.getPatternOffset());
+    assertEquals(BigInteger.valueOf(1), resultMacroChoice.getSequencePatternOffset());
 
     // choice of main-type sequence
     Choice resultMainChoice = injector.getInstance(ChoiceDAO.class).readOneSegmentTypeWithAvailablePatternOffsets(Access.internal(), BigInteger.valueOf(4), SequenceType.Main);
     assertNotNull(resultMainChoice);
     assertEquals(BigInteger.valueOf(15), resultMainChoice.getSequenceId());
     assertEquals(Integer.valueOf(0), resultMainChoice.getTranspose());
-    assertEquals(BigInteger.valueOf(0), resultMainChoice.getPatternOffset());
+    assertEquals(BigInteger.valueOf(0), resultMainChoice.getSequencePatternOffset());
 
   }
 

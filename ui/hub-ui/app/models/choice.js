@@ -3,7 +3,7 @@ import DS from 'ember-data';
 
 export default DS.Model.extend({
   segment: DS.belongsTo({}),
-  patternOffset: DS.attr('number'),
+  sequencePatternOffset: DS.attr('number'),
   transpose: DS.attr('number'),
   type: DS.attr('string'),
   sequence: DS.belongsTo({}),

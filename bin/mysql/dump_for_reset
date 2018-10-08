@@ -8,9 +8,8 @@ COPYRIGHT="Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved
 TITLE="Dump reset_database.sql to MySQL db"
 USAGE="
    Usage:
-     bin/mysql/dump_for_reset <host> <arguments...>
+     bin/mysql/dump_for_reset <arguments...>
 
-   <host> to run, as in: mysql -h <host>
    <arguments...> (optional) passed to 'mysql' client
 "
 
@@ -19,6 +18,7 @@ MYSQL_USER="root"
 MYSQL_PORT=3300
 MYSQL_TABLES="account account_user audio audio_chord audio_event instrument instrument_meme library sequence sequence_meme pattern pattern_chord pattern_meme pattern_event schema_version user user_role voice"
 MYSQL_TEST_TABLES="schema_version"
+MYSQL_HOST="127.0.0.1"
 
 # Find MySQL executable
 MYSQLDUMP_COMMAND=mysqldump
@@ -42,17 +42,17 @@ step "Client SQL execution"
 # empty target file
 printf "# ${COPYRIGHT}\n\n" > ${EXAMPLE_SQL}
 # first structure of all tables, including test db
-${MYSQLDUMP_COMMAND} --no-data -u${MYSQL_USER} -h 127.0.0.1 -P ${MYSQL_PORT} ${MYSQL_ARGS} --databases ${MYSQL_DB} ${MYSQL_TEST_DB} >> ${EXAMPLE_SQL}
+${MYSQLDUMP_COMMAND} --no-data -u${MYSQL_USER} -h ${MYSQL_HOST} -P ${MYSQL_PORT} ${MYSQL_ARGS} --databases ${MYSQL_DB} ${MYSQL_TEST_DB} >> ${EXAMPLE_SQL}
 # blank spaces
 
 # then append data from only certain tables
 for i in $(seq 1 20); do echo "" >> ${EXAMPLE_SQL}; done
 printf "#-------------\nUSE \`${MYSQL_DB}\`;\n\n" >> ${EXAMPLE_SQL}
-${MYSQLDUMP_COMMAND} --no-create-info -u${MYSQL_USER} -h 127.0.0.1 -P ${MYSQL_PORT} ${MYSQL_ARGS} --databases ${MYSQL_DB} --tables ${MYSQL_TABLES} >> ${EXAMPLE_SQL}
+${MYSQLDUMP_COMMAND} --no-create-info -u${MYSQL_USER} -h ${MYSQL_HOST} -P ${MYSQL_PORT} ${MYSQL_ARGS} --databases ${MYSQL_DB} --tables ${MYSQL_TABLES} >> ${EXAMPLE_SQL}
 # and test tables
 for i in $(seq 1 20); do echo "" >> ${EXAMPLE_SQL}; done
 printf "#-------------\nUSE \`${MYSQL_TEST_DB}\`;\n\n" >> ${EXAMPLE_SQL}
-${MYSQLDUMP_COMMAND} --no-create-info -u${MYSQL_USER} -h 127.0.0.1 -P ${MYSQL_PORT} ${MYSQL_ARGS} --databases ${MYSQL_TEST_DB} --tables ${MYSQL_TEST_TABLES} >> ${EXAMPLE_SQL}
+${MYSQLDUMP_COMMAND} --no-create-info -u${MYSQL_USER} -h ${MYSQL_HOST} -P ${MYSQL_PORT} ${MYSQL_ARGS} --databases ${MYSQL_TEST_DB} --tables ${MYSQL_TEST_TABLES} >> ${EXAMPLE_SQL}
 step_ok
 
 # ensure platform is packaged

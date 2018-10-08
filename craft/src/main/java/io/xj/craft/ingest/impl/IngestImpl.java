@@ -246,7 +246,7 @@ public class IngestImpl implements Ingest {
   }
 
   @Override
-  public Collection<Meme> sequenceAndPatternMemes(BigInteger sequenceId, BigInteger patternOffset, PatternType... patternTypes) throws Exception {
+  public Collection<Meme> sequenceAndPatternMemes(BigInteger sequenceId, BigInteger sequencePatternOffset, PatternType... patternTypes) throws Exception {
     Map<String, Meme> baseMemes = Maps.newConcurrentMap();
 
     // add sequence memes
@@ -255,7 +255,7 @@ public class IngestImpl implements Ingest {
 
     // add sequence pattern memes
     for (PatternType patternType : patternTypes) {
-      Pattern pattern = patternAtOffset(sequenceId, patternOffset, patternType);
+      Pattern pattern = patternAtOffset(sequenceId, sequencePatternOffset, patternType);
       if (Objects.nonNull(pattern))
         patternMemes(pattern.getId()).forEach((sequenceMeme ->
           baseMemes.put(sequenceMeme.getName(), sequenceMeme)));
@@ -286,27 +286,27 @@ public class IngestImpl implements Ingest {
 
   @Override
   @Nullable
-  public Pattern patternAtOffset(BigInteger sequenceId, BigInteger patternOffset, PatternType patternType) throws Exception {
+  public Pattern patternAtOffset(BigInteger sequenceId, BigInteger sequencePatternOffset, PatternType patternType) throws Exception {
     if (!_sequencePatternByOffsetAndType.containsKey(sequenceId))
       _sequencePatternByOffsetAndType.put(sequenceId, Maps.newConcurrentMap());
 
-    if (!_sequencePatternByOffsetAndType.get(sequenceId).containsKey(patternOffset))
-      _sequencePatternByOffsetAndType.get(sequenceId).put(patternOffset, Maps.newConcurrentMap());
+    if (!_sequencePatternByOffsetAndType.get(sequenceId).containsKey(sequencePatternOffset))
+      _sequencePatternByOffsetAndType.get(sequenceId).put(sequencePatternOffset, Maps.newConcurrentMap());
 
-    if (!_sequencePatternByOffsetAndType.get(sequenceId).get(patternOffset).containsKey(patternType)) {
-      Pattern pattern = patternRandomAtOffset(sequenceId, patternOffset, patternType);
+    if (!_sequencePatternByOffsetAndType.get(sequenceId).get(sequencePatternOffset).containsKey(patternType)) {
+      Pattern pattern = patternRandomAtOffset(sequenceId, sequencePatternOffset, patternType);
       if (Objects.nonNull(pattern)) {
-        _sequencePatternByOffsetAndType.get(sequenceId).get(patternOffset).put(patternType, pattern);
+        _sequencePatternByOffsetAndType.get(sequenceId).get(sequencePatternOffset).put(patternType, pattern);
       }
     }
 
-    return _sequencePatternByOffsetAndType.get(sequenceId).get(patternOffset).getOrDefault(patternType, null);
+    return _sequencePatternByOffsetAndType.get(sequenceId).get(sequencePatternOffset).getOrDefault(patternType, null);
   }
 
   @Override
-  public Pattern patternRandomAtOffset(BigInteger sequenceId, BigInteger patternOffset, PatternType patternType) throws Exception {
+  public Pattern patternRandomAtOffset(BigInteger sequenceId, BigInteger sequencePatternOffset, PatternType patternType) throws Exception {
     EntityRank<Pattern> entityRank = new EntityRank<>();
-    patternsAtOffset(sequenceId, patternOffset).forEach((pattern) -> {
+    patternsAtOffset(sequenceId, sequencePatternOffset).forEach((pattern) -> {
       if (Objects.equals(pattern.getType(), patternType)) {
         entityRank.add(pattern, Chance.normallyAround(0.0, 1.0));
       }
@@ -315,15 +315,15 @@ public class IngestImpl implements Ingest {
   }
 
   @Override
-  public Collection<Pattern> patternsAtOffset(BigInteger sequenceId, BigInteger patternOffset) throws Exception {
+  public Collection<Pattern> patternsAtOffset(BigInteger sequenceId, BigInteger sequencePatternOffset) throws Exception {
     if (!_sequencePatternsByOffset.containsKey(sequenceId))
       _sequencePatternsByOffset.put(sequenceId, Maps.newConcurrentMap());
 
-    if (!_sequencePatternsByOffset.get(sequenceId).containsKey(patternOffset))
-      _sequencePatternsByOffset.get(sequenceId).put(patternOffset,
-        patternDAO.readAllAtSequenceOffset(Access.internal(), sequenceId, patternOffset));
+    if (!_sequencePatternsByOffset.get(sequenceId).containsKey(sequencePatternOffset))
+      _sequencePatternsByOffset.get(sequenceId).put(sequencePatternOffset,
+        patternDAO.readAllAtSequenceOffset(Access.internal(), sequenceId, sequencePatternOffset));
 
-    return _sequencePatternsByOffset.get(sequenceId).get(patternOffset);
+    return _sequencePatternsByOffset.get(sequenceId).get(sequencePatternOffset);
   }
 
   @Override
