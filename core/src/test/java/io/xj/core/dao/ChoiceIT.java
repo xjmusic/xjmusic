@@ -190,9 +190,9 @@ public class ChoiceIT {
     IntegrationTestEntity.insertSequenceMeme(12, 2, "leafy");
     IntegrationTestEntity.insertSequenceMeme(14, 2, "smooth");
 
-    IntegrationTestEntity.insertPatternSequencePattern(10, 2, PatternType.Loop, PatternState.Published, 0, 64, "intro", 0.5, "C", 121.0);
-    IntegrationTestEntity.insertPatternSequencePattern(11, 2, PatternType.Loop, PatternState.Published, 1, 64, "drop", 0.5, "C", 121.0);
-    IntegrationTestEntity.insertPatternSequencePattern(12, 2, PatternType.Loop, PatternState.Published, 2, 64, "break", 0.5, "C", 121.0);
+    IntegrationTestEntity.insertPattern(10, 2, PatternType.Loop, PatternState.Published, 64, "intro", 0.5, "C", 121.0);
+    IntegrationTestEntity.insertPattern(11, 2, PatternType.Loop, PatternState.Published, 64, "drop", 0.5, "C", 121.0);
+    IntegrationTestEntity.insertPattern(12, 2, PatternType.Loop, PatternState.Published, 64, "break", 0.5, "C", 121.0);
 
     Choice result = testDAO.readOneSegmentTypeWithAvailablePatternOffsets(Access.internal(), BigInteger.valueOf(1L), SequenceType.Rhythm);
 
@@ -201,9 +201,8 @@ public class ChoiceIT {
     assertEquals(SequenceType.Rhythm, result.getType());
     assertEquals(BigInteger.valueOf(1L), result.getSequencePatternOffset());
     assertEquals(Integer.valueOf(2), result.getTranspose());
-    assertEquals(ImmutableList.of(BigInteger.valueOf(0L), BigInteger.valueOf(1L), BigInteger.valueOf(2L)), result.getAvailablePatternOffsets());
+    assertEquals(ImmutableList.of(BigInteger.valueOf(0L)), result.getAvailablePatternOffsets());
   }
-
 
   @Test
   public void readAll() throws Exception {

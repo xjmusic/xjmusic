@@ -112,26 +112,26 @@ public class SequenceCloneJobIT {
     IntegrationTestEntity.insertLibrary(42, 1, "pajamas");
 
     // Sequence "808" and "2020"
-    IntegrationTestEntity.insertSequence(1, 2, 2, SequenceType.Rhythm, SequenceState.Published, "808 Drums", 0.9, "C", 120);
+    IntegrationTestEntity.insertSequence(1, 2, 2, SequenceType.Main, SequenceState.Published, "Bingo", 0.9, "C", 120);
     IntegrationTestEntity.insertSequenceMeme(1, 1, "heavy");
-    IntegrationTestEntity.insertVoice(1, 1, InstrumentType.Percussive, "Kick Drum");
-    IntegrationTestEntity.insertVoice(2, 1, InstrumentType.Percussive, "Snare Drum");
-    IntegrationTestEntity.insertSequence(12, 2, 42, SequenceType.Rhythm, SequenceState.Published, "2020 Drums", 0.9, "G", 120);
+    IntegrationTestEntity.insertVoice(1, 1, InstrumentType.Percussive, "Flute");
+    IntegrationTestEntity.insertVoice(2, 1, InstrumentType.Percussive, "Loot");
+    IntegrationTestEntity.insertSequence(12, 2, 42, SequenceType.Main, SequenceState.Published, "Hammer 2020", 0.9, "G", 120);
 
     // Pattern
-    IntegrationTestEntity.insertPatternSequencePattern(1, 1, PatternType.Loop, PatternState.Published, 0, 16, "Verse 1", 0.5, "C", 120.0);
+    IntegrationTestEntity.insertPatternSequencePattern(1, 1, PatternType.Main, PatternState.Published, 0, 16, "Verse 1", 0.5, "C", 120.0);
     IntegrationTestEntity.insertPatternChord(1, 1, 0, "Db7");
-    IntegrationTestEntity.insertPatternEvent(101, 1, 1, 0.0, 1.0, "KICK", "C5", 1.0, 1.0);
-    IntegrationTestEntity.insertPatternEvent(102, 1, 2, 1.0, 1.0, "SNARE", "C5", 1.0, 1.0);
+    IntegrationTestEntity.insertPatternEvent(101, 1, 1, 0.0, 1.0, "X", "C5", 1.0, 1.0);
+    IntegrationTestEntity.insertPatternEvent(102, 1, 2, 1.0, 1.0, "X", "C5", 1.0, 1.0);
 
     // Pattern
-    IntegrationTestEntity.insertPatternSequencePattern(2, 1, PatternType.Loop, PatternState.Published, 1, 16, "Verse 2", 0.5, "C", 120.0);
+    IntegrationTestEntity.insertPatternSequencePattern(2, 1, PatternType.Main, PatternState.Published, 1, 16, "Verse 2", 0.5, "C", 120.0);
     IntegrationTestEntity.insertPatternChord(2, 2, 0, "Gm9");
-    IntegrationTestEntity.insertPatternEvent(103, 2, 1, 0.0, 1.0, "KICK", "C5", 1.0, 1.0);
-    IntegrationTestEntity.insertPatternEvent(104, 2, 2, 1.0, 1.0, "SNARE", "C5", 1.0, 1.0);
+    IntegrationTestEntity.insertPatternEvent(103, 2, 1, 0.0, 1.0, "X", "C5", 1.0, 1.0);
+    IntegrationTestEntity.insertPatternEvent(104, 2, 2, 1.0, 1.0, "X", "C5", 1.0, 1.0);
 
     // Newly cloned sequence -- awaiting SequenceClone job to run, and create its child entities
-    IntegrationTestEntity.insertSequence(14, 2, 42, SequenceType.Rhythm, SequenceState.Published, "808 Drums Clone Y'all", 0.9, "D", 120);
+    IntegrationTestEntity.insertSequence(14, 2, 42, SequenceType.Main, SequenceState.Published, "Bingo Clone Y'all", 0.9, "D", 120);
 
     // Don't sleep between processing work
     System.setProperty("app.port", "9043");

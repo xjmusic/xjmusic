@@ -260,13 +260,12 @@ const PatternStepmaticComponent = Component.extend(
      */
     newEvent: function (voice, inflection, velocity) {
       let pattern = get(this, 'pattern');
-      let meterSub = pattern.get('meterSub');
       return get(this, 'store').createRecord('pattern-event', {
         pattern: pattern,
         voice: voice,
         velocity: velocity,
         inflection: inflection,
-        duration: 1 / meterSub,
+        duration: 1,
         tonality: EVENT_DEFAULT_TONALITY,
         note: EVENT_DEFAULT_NOTE,
       });
@@ -348,21 +347,40 @@ const PatternStepmaticComponent = Component.extend(
       let meterSwing = pattern.get('meterSwing');
       let tasks = [];
 
+      // update all event positions
       self.forEachGridStep((groupId, trackName, step, event) => {
-        // skip if null
-        if (event) {
+        if (event) { // else skip (no event at this step)
           let swing = isEven(step) ? 0 : meterSwing / (meterSub * 100);
           let position = step / meterSub + swing;
           if (position !== event.get('position')) {
             event.set('position', position);
           }
+        }
+      });
 
-          // if event velocity is zero, delete
+      // [#161041289]
+      // Artist wants Stepmatic-generated events to have duration
+      // lasting until the next event in the same voice, and no shorter.
+      let groupStepDuration = self.computeGroupStepDuration();
+      self.forEachGridStep((groupId, trackName, step, event) => {
+        if (event) { // else skip (no event at this step)
+          let duration = groupStepDuration[groupId][step];
+          if (duration !== event.get('duration')) {
+            event.set('duration', duration);
+          }
+        }
+      });
+
+      // now send all destroy/save tasks
+      self.forEachGridStep((groupId, trackName, step, event) => {
+        if (event) { // else skip (no event at this step)
+
           if (0 === event.get('velocity')) {
+            // zero-velocity events get deleted
             tasks.push(self.eventDestroyTask.perform(event));
 
-            // otherwise, save it
           } else if (event.get('isNew') || event.get('hasDirtyAttributes')) {
+            // dirty events get saved
             tasks.push(self.eventSaveTask.perform(event));
           }
         }
@@ -420,6 +438,56 @@ const PatternStepmaticComponent = Component.extend(
           }
         }
       }
+    },
+
+    /**
+     * Compute the duration for an event in any given group at any given step.
+     *
+     * See: [#161041289] Artist wants Stepmatic-generated events to have duration
+     *                   lasting until the next event in the same voice, and no shorter.
+     *
+     * @return {String}[]{String}[]{Number} array of [Group,Step] -> Duration
+     */
+    computeGroupStepDuration: function () {
+      let pattern = get(this, 'pattern');
+      let meterSub = pattern.get('meterSub');
+      let total = pattern.get('total');
+
+      // output data
+      let duration = {};
+
+      // for each group in grid
+      let grid = get(this, 'grid');
+      for (let groupId in grid) {
+        if (grid.hasOwnProperty(groupId)) {
+          duration[groupId] = {};
+          let position = total;
+          let priorPosition = total;
+          let gridGroup = grid[groupId];
+          let tracks = get(gridGroup, 'tracks');
+
+          // for each step in track
+          for (let step = meterSub * total - 1; step >= 0; step--) {
+
+            // for each track in group
+            for (let trackName in tracks) {
+              if (tracks.hasOwnProperty(trackName)) {
+                let track = tracks[trackName];
+                let event = get(track, step);
+                if (event) { // else skip (no event at step)
+                  position = event.get('position');
+                }
+              }
+            }
+
+            // persist results of scanning the tracks in this group (at this step)
+            duration[groupId][step] = priorPosition - position;
+            priorPosition = position;
+          }
+        }
+      }
+
+      return duration;
     },
 
     /**

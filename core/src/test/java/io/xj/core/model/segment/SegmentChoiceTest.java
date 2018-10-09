@@ -14,7 +14,7 @@ import static org.junit.Assert.assertTrue;
 public class SegmentChoiceTest {
 
   @Test
-  public void nextPatternOffset() throws Exception {
+  public void nextPatternOffset() {
     Choice segmentChoice = new Choice()
       .setSequenceId(BigInteger.valueOf(345L))
       .setSequencePatternOffset(BigInteger.valueOf(0L))
@@ -26,7 +26,19 @@ public class SegmentChoiceTest {
   }
 
   @Test
-  public void nextPatternOffset_endLoopsBackToZero() throws Exception {
+  public void nullPatternOffset() {
+    Choice segmentChoice = new Choice()
+      .setSequenceId(BigInteger.valueOf(345L))
+      .setSequencePatternOffset(BigInteger.valueOf(0L))
+      .setTranspose(5)
+      .setType("Main")
+      .setAvailablePatternOffsets(null);
+
+    assertEquals(BigInteger.valueOf(0L), segmentChoice.nextPatternOffset());
+  }
+
+  @Test
+  public void nextPatternOffset_endLoopsBackToZero() {
     Choice segmentChoice = new Choice()
       .setSequenceId(BigInteger.valueOf(345L))
       .setSequencePatternOffset(BigInteger.valueOf(3L))
@@ -38,7 +50,7 @@ public class SegmentChoiceTest {
   }
 
   @Test
-  public void nextPatternOffset_weirdIsOkay() throws Exception {
+  public void nextPatternOffset_weirdIsOkay() {
     Choice segmentChoice = new Choice()
       .setSequenceId(BigInteger.valueOf(345L))
       .setSequencePatternOffset(BigInteger.valueOf(17L))
@@ -50,7 +62,7 @@ public class SegmentChoiceTest {
   }
 
   @Test
-  public void hasOneMorePattern() throws Exception {
+  public void hasOneMorePattern() {
     Choice segmentChoice = new Choice()
       .setSequenceId(BigInteger.valueOf(345L))
       .setSequencePatternOffset(BigInteger.valueOf(0L))
@@ -62,7 +74,7 @@ public class SegmentChoiceTest {
   }
 
   @Test
-  public void hasOneMorePattern_true() throws Exception {
+  public void hasOneMorePattern_true() {
     Choice segmentChoice = new Choice()
       .setSequenceId(BigInteger.valueOf(345L))
       .setSequencePatternOffset(BigInteger.valueOf(2L))
@@ -74,7 +86,7 @@ public class SegmentChoiceTest {
   }
 
   @Test
-  public void hasOneMorePattern_false() throws Exception {
+  public void hasOneMorePattern_false() {
     Choice segmentChoice = new Choice()
       .setSequenceId(BigInteger.valueOf(21L))
       .setSequencePatternOffset(BigInteger.valueOf(3L))
@@ -86,7 +98,7 @@ public class SegmentChoiceTest {
   }
 
   @Test
-  public void hasTwoMorePatterns() throws Exception {
+  public void hasTwoMorePatterns() {
     Choice segmentChoice = new Choice()
       .setSequenceId(BigInteger.valueOf(64L))
       .setSequencePatternOffset(BigInteger.valueOf(0L))
@@ -98,7 +110,7 @@ public class SegmentChoiceTest {
   }
 
   @Test
-  public void hasTwoMorePatterns_true() throws Exception {
+  public void hasTwoMorePatterns_true() {
     Choice segmentChoice = new Choice()
       .setSequenceId(BigInteger.valueOf(64L))
       .setSequencePatternOffset(BigInteger.valueOf(1L))
@@ -110,7 +122,7 @@ public class SegmentChoiceTest {
   }
 
   @Test
-  public void hasTwoMorePatterns_false() throws Exception {
+  public void hasTwoMorePatterns_false() {
     Choice segmentChoice = new Choice()
       .setSequenceId(BigInteger.valueOf(64L))
       .setSequencePatternOffset(BigInteger.valueOf(2L))

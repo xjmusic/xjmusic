@@ -153,8 +153,6 @@ public class CraftFoundationNextMacroIT {
 
   @After
   public void tearDown() throws Exception {
-    craftFactory = null;
-    basisFactory = null;
   }
 
   @Test

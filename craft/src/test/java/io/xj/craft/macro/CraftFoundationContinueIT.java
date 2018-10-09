@@ -124,8 +124,6 @@ public class CraftFoundationContinueIT {
 
   @After
   public void tearDown() throws Exception {
-    craftFactory = null;
-    basisFactory = null;
   }
 
   @Test

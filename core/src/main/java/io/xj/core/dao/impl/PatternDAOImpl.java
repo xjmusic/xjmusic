@@ -3,6 +3,7 @@ package io.xj.core.dao.impl;
 
 import com.google.api.client.util.Maps;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.PatternDAO;
@@ -97,7 +98,12 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
   }
 
   /**
-   Read one Pattern if able
+   Read all patterns at a particular sequence offset
+   <p>
+   If the pattern is a macro or main type, sequence_pattern relations are mandatory
+   otherwise sequence_pattern relations are ignored
+   <p>
+   [#161076729] Artist wants rhythm patterns to require no sequence-pattern bindings, to keep things simple
 
    @param db                    context
    @param access                control
@@ -105,29 +111,57 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
    @param sequencePatternOffset of pattern in sequence
    @return pattern record
    */
-  @Nullable
   private static Collection<Pattern> readAllAtSequenceOffset(DSLContext db, Access access, BigInteger sequenceId, BigInteger sequencePatternOffset) throws BusinessException {
-    if (access.isTopLevel())
-      return modelsFrom(db.select(PATTERN.fields())
-        .from(PATTERN)
-        .join(SEQUENCE_PATTERN).on(PATTERN.ID.eq(SEQUENCE_PATTERN.PATTERN_ID))
-        .where(PATTERN.SEQUENCE_ID.eq(ULong.valueOf(sequenceId)))
-        .and(SEQUENCE_PATTERN.OFFSET.eq(ULong.valueOf(sequencePatternOffset)))
-        .and(PATTERN.STATE.notEqual(String.valueOf(PatternState.Erase)))
-        .orderBy(PATTERN.NAME.desc())
-        .fetch(), Pattern.class);
-    else
-      return modelsFrom(db.select(PATTERN.fields())
-        .from(PATTERN)
-        .join(SEQUENCE_PATTERN).on(PATTERN.ID.eq(SEQUENCE_PATTERN.PATTERN_ID))
-        .join(SEQUENCE).on(SEQUENCE.ID.eq(PATTERN.SEQUENCE_ID))
-        .join(LIBRARY).on(LIBRARY.ID.eq(SEQUENCE.LIBRARY_ID))
-        .where(PATTERN.SEQUENCE_ID.eq(ULong.valueOf(sequenceId)))
-        .and(SEQUENCE_PATTERN.OFFSET.eq(ULong.valueOf(sequencePatternOffset)))
-        .and(PATTERN.STATE.notEqual(String.valueOf(PatternState.Erase)))
-        .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
-        .orderBy(PATTERN.NAME.desc())
-        .fetch(), Pattern.class);
+    SequenceType sequenceType = SequenceType.validate(db.select(SEQUENCE.TYPE)
+      .from(SEQUENCE)
+      .where(SEQUENCE.ID.eq(ULong.valueOf(sequenceId)))
+      .fetchOne(SEQUENCE.TYPE));
+    Collection<Pattern> patterns = Lists.newArrayList();
+    switch (sequenceType) {
+      case Macro:
+      case Main:
+        if (access.isTopLevel())
+          patterns = modelsFrom(db.select(PATTERN.fields())
+            .from(PATTERN)
+            .join(SEQUENCE_PATTERN).on(PATTERN.ID.eq(SEQUENCE_PATTERN.PATTERN_ID)).and(SEQUENCE_PATTERN.OFFSET.eq(ULong.valueOf(sequencePatternOffset)))
+            .where(PATTERN.SEQUENCE_ID.eq(ULong.valueOf(sequenceId)))
+            .and(PATTERN.STATE.notEqual(String.valueOf(PatternState.Erase)))
+            .orderBy(PATTERN.NAME.desc())
+            .fetch(), Pattern.class);
+        else
+          patterns = modelsFrom(db.select(PATTERN.fields())
+            .from(PATTERN)
+            .join(SEQUENCE_PATTERN).on(PATTERN.ID.eq(SEQUENCE_PATTERN.PATTERN_ID)).and(SEQUENCE_PATTERN.OFFSET.eq(ULong.valueOf(sequencePatternOffset)))
+            .join(SEQUENCE).on(SEQUENCE.ID.eq(PATTERN.SEQUENCE_ID))
+            .join(LIBRARY).on(LIBRARY.ID.eq(SEQUENCE.LIBRARY_ID))
+            .where(PATTERN.SEQUENCE_ID.eq(ULong.valueOf(sequenceId)))
+            .and(PATTERN.STATE.notEqual(String.valueOf(PatternState.Erase)))
+            .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+            .orderBy(PATTERN.NAME.desc())
+            .fetch(), Pattern.class);
+        break;
+      case Rhythm:
+      case Detail:
+        if (access.isTopLevel())
+          patterns = modelsFrom(db.select(PATTERN.fields())
+            .from(PATTERN)
+            .where(PATTERN.SEQUENCE_ID.eq(ULong.valueOf(sequenceId)))
+            .and(PATTERN.STATE.notEqual(String.valueOf(PatternState.Erase)))
+            .orderBy(PATTERN.NAME.desc())
+            .fetch(), Pattern.class);
+        else
+          patterns = modelsFrom(db.select(PATTERN.fields())
+            .from(PATTERN)
+            .join(SEQUENCE).on(SEQUENCE.ID.eq(PATTERN.SEQUENCE_ID))
+            .join(LIBRARY).on(LIBRARY.ID.eq(SEQUENCE.LIBRARY_ID))
+            .where(PATTERN.SEQUENCE_ID.eq(ULong.valueOf(sequenceId)))
+            .and(PATTERN.STATE.notEqual(String.valueOf(PatternState.Erase)))
+            .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+            .orderBy(PATTERN.NAME.desc())
+            .fetch(), Pattern.class);
+        break;
+    }
+    return patterns;
   }
 
   /**

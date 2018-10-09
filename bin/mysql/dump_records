@@ -33,11 +33,11 @@ fi
 
 step "Client SQL execution"
 # empty target file
-printf "# ${COPYRIGHT}\n\n" > ${OUTPUT_SQL}
+printf "-- ${COPYRIGHT}\n\n" > ${OUTPUT_SQL}
 
 # then append data from only certain tables
 for i in $(seq 1 20); do echo "" >> ${OUTPUT_SQL}; done
-printf "#-------------\nUSE \`${MYSQL_DB}\`;\n\n" >> ${OUTPUT_SQL}
+printf "-- -------------\nUSE \`${MYSQL_DB}\`;\n\n" >> ${OUTPUT_SQL}
 ${MYSQLDUMP_COMMAND} --no-create-info -u${MYSQL_USER} -p${MYSQL_PASS} -h ${MYSQL_HOST} -P ${MYSQL_PORT} --databases ${MYSQL_DB} --tables ${MYSQL_TABLES} >> ${OUTPUT_SQL}
 step_ok
 

@@ -1,12 +1,11 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.model.choice;
 
+import com.google.common.collect.Lists;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.model.entity.Entity;
 import io.xj.core.model.sequence.SequenceType;
 import io.xj.core.transport.CSV;
-
-import com.google.common.collect.Lists;
 
 import javax.annotation.Nullable;
 import java.math.BigInteger;
@@ -16,7 +15,7 @@ import java.util.Objects;
 
 /**
  POJO for persisting data in memory while performing business logic,
-or decoding messages received by JAX-RS resources.
+ or decoding messages received by JAX-RS resources.
  a.k.a. JSON input will be stored into an instance of this object
  <p>
  Business logic ought to be performed beginning with an instance of this object,
@@ -145,9 +144,13 @@ public class Choice extends Entity {
    */
   public Choice setAvailablePatternOffsets(String patternOffsets) {
     availablePatternOffsets = Lists.newArrayList();
-    CSV.split(patternOffsets)
-      .forEach(patternOffsetToSet ->
-        availablePatternOffsets.add(new BigInteger(patternOffsetToSet)));
+    if (Objects.nonNull(patternOffsets) && !patternOffsets.isEmpty()) {
+      CSV.split(patternOffsets)
+        .forEach(patternOffsetToSet ->
+          availablePatternOffsets.add(new BigInteger(patternOffsetToSet)));
+    } else {
+      availablePatternOffsets.add(BigInteger.ZERO);
+    }
     Collections.sort(availablePatternOffsets);
 
     return this;

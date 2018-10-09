@@ -131,7 +131,7 @@ public class CraftRhythmVoiceNextMacroIT {
     Voice "Drums" are onomatopoeic to "KICK" and "SNARE" 2x each
     There are two types of patterns: Intro and Loop [#153976073] Artist wants Pattern to have type *Macro* or *Main* (for Macro- or Main-type sequences), or *Intro*, *Loop*, or *Outro* (for Rhythm or Detail-type Sequence) in order to create a composition that is dynamic when chosen to fill a Segment.
      */
-    IntegrationTestEntity.insertPatternSequencePattern(315, 35, PatternType.Intro, PatternState.Published, 0, 4, "Drop", 0.5, "C", 125.0);
+    IntegrationTestEntity.insertPattern(315, 35, PatternType.Intro, PatternState.Published,  4, "Drop", 0.5, "C", 125.0);
     IntegrationTestEntity.insertPatternMeme(346, 315, "Heavy");
     IntegrationTestEntity.insertPatternEvent(1, 315, 1, 0, 1, "CLOCK", "C2", 0.8, 1.0);
     IntegrationTestEntity.insertPatternEvent(2, 315, 1, 1, 1, "SNORT", "G5", 0.1, 0.8);
@@ -143,16 +143,12 @@ public class CraftRhythmVoiceNextMacroIT {
     [#150279647] Artist wants to create multiple Patterns with the same offset in the same Sequence, in order that XJ randomly select one of the patterns at that offset.
     they are also onomatopoeic to "KICK" and "SNARE" 2x each
      */
-    IntegrationTestEntity.insertPatternSequencePattern(317, 35, PatternType.Loop, PatternState.Published, 0, 4, "Drop Alt", 0.5, "C", 125.0);
+    IntegrationTestEntity.insertPattern(317, 35, PatternType.Loop, PatternState.Published,  4, "Drop Alt", 0.5, "C", 125.0);
     IntegrationTestEntity.insertPatternMeme(349, 317, "Heavy");
     IntegrationTestEntity.insertPatternEvent(11, 317, 1, 0, 1, "CLACK", "B5", 0.1, 0.9);
     IntegrationTestEntity.insertPatternEvent(12, 317, 1, 1, 1, "SNARL", "D2", 0.5, 1.0);
     IntegrationTestEntity.insertPatternEvent(14, 317, 1, 2.5, 1, "CLICK", "E4", 0.1, 0.7);
     IntegrationTestEntity.insertPatternEvent(15, 317, 1, 3, 1, "SNAP", "C3", 0.5, 0.5);
-
-    // basic beat second pattern
-    IntegrationTestEntity.insertPatternSequencePattern(316, 35, PatternType.Loop, PatternState.Published, 1, 4, "Continue", 0.5, "C", 125.0);
-    IntegrationTestEntity.insertPatternMeme(347, 316, "Heavy");
 
     // Chain "Test Print #1" has 5 total segments
     IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, null);
@@ -201,8 +197,6 @@ public class CraftRhythmVoiceNextMacroIT {
 
   @After
   public void tearDown() throws Exception {
-    craftFactory = null;
-    basisFactory = null;
   }
 
   @Test

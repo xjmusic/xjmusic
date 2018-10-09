@@ -1,6 +1,11 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.worker.job.special;
 
+import com.google.common.collect.ImmutableList;
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.util.Modules;
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
 import io.xj.core.app.App;
@@ -28,13 +33,6 @@ import io.xj.core.util.TimestampUTC;
 import io.xj.craft.CraftModule;
 import io.xj.dub.DubModule;
 import io.xj.worker.WorkerModule;
-
-import com.google.common.collect.ImmutableList;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.util.Modules;
-
 import net.greghaines.jesque.worker.JobFactory;
 import org.junit.After;
 import org.junit.Before;
@@ -60,8 +58,10 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class MultiJobStressIT {
   private static final int MILLIS_PER_SECOND = 1000;
-  @Rule public ExpectedException failure = ExpectedException.none();
-  @Mock AmazonProvider amazonProvider;
+  @Rule
+  public ExpectedException failure = ExpectedException.none();
+  @Mock
+  AmazonProvider amazonProvider;
   private Injector injector;
   private App app;
 
@@ -152,7 +152,7 @@ public class MultiJobStressIT {
     // A basic beat
     IntegrationTestEntity.insertSequence(35, 3, 2, SequenceType.Rhythm, SequenceState.Published, "Basic Beat", 0.2, "C", 121);
     IntegrationTestEntity.insertSequenceMeme(343, 35, "Basic");
-    IntegrationTestEntity.insertPatternSequencePattern(315, 35, PatternType.Loop, PatternState.Published, 0, 16, "Drop", 0.5, "C", 125.0);
+    IntegrationTestEntity.insertPattern(315, 35, PatternType.Loop, PatternState.Published, 16, "Drop", 0.5, "C", 125.0);
     IntegrationTestEntity.insertPatternMeme(346, 315, "Heavy");
 
     // For cloning-related test: Sequence "808" and "2020"
@@ -165,22 +165,22 @@ public class MultiJobStressIT {
     IntegrationTestEntity.insertVoice(1004, 10012, InstrumentType.Percussive, "Snarr Dram");
 
     // For cloning-related test: Pattern "Verse"
-    IntegrationTestEntity.insertPatternSequencePattern(1001, 1001, PatternType.Loop, PatternState.Published, 0, 16, "Verse 1", 0.5, "G", 120);
+    IntegrationTestEntity.insertPattern(1001, 1001, PatternType.Loop, PatternState.Published, 16, "Verse 1", 0.5, "G", 120);
     IntegrationTestEntity.insertPatternMeme(1001, 1001, "GREEN");
     IntegrationTestEntity.insertPatternChord(1001, 1001, 0, "Db7");
     IntegrationTestEntity.insertPatternEvent(100101, 1001, 1001, 0.0, 1.0, "KICK", "C5", 1.0, 1.0);
     IntegrationTestEntity.insertPatternEvent(100102, 1001, 1002, 1.0, 1.0, "SNARE", "C5", 1.0, 1.0);
 
     // For cloning-related test: Pattern "Verse"
-    IntegrationTestEntity.insertPatternSequencePattern(1002, 1001, PatternType.Loop, PatternState.Published, 0, 16, "Verse 2", 0.5, "G", 120);
+    IntegrationTestEntity.insertPattern(1002, 1001, PatternType.Loop, PatternState.Published, 16, "Verse 2", 0.5, "G", 120);
     IntegrationTestEntity.insertPatternMeme(1002, 1002, "YELLOW");
     IntegrationTestEntity.insertPatternChord(1002, 1002, 0, "Gm9");
     IntegrationTestEntity.insertPatternEvent(100103, 1002, 1001, 0.0, 1.0, "KICK", "C5", 1.0, 1.0);
     IntegrationTestEntity.insertPatternEvent(100104, 1002, 1002, 1.0, 1.0, "SNARE", "C5", 1.0, 1.0);
 
     // Newly cloned patterns -- awaiting PatternClone job to run, and create their child entities
-    IntegrationTestEntity.insertPatternSequencePattern(1003, 1001, PatternType.Loop, PatternState.Published, 0, 16, "Verse 34", 0.5, "G", 120);
-    IntegrationTestEntity.insertPatternSequencePattern(1004, 10012, PatternType.Loop, PatternState.Published, 0, 16, "Verse 79", 0.5, "G", 120);
+    IntegrationTestEntity.insertPattern(1003, 1001, PatternType.Loop, PatternState.Published, 16, "Verse 34", 0.5, "G", 120);
+    IntegrationTestEntity.insertPattern(1004, 10012, PatternType.Loop, PatternState.Published, 16, "Verse 79", 0.5, "G", 120);
 
     // Chain "Test Print #1" is ready to begin
     IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, TimestampUTC.nowMinusSeconds(1000), null, null);
@@ -215,7 +215,7 @@ public class MultiJobStressIT {
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     System.clearProperty("work.concurrency");
     System.clearProperty("work.buffer.seconds");
     System.clearProperty("segment.file.bucket");

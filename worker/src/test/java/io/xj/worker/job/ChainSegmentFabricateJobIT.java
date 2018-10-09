@@ -143,7 +143,7 @@ public class ChainSegmentFabricateJobIT {
     // A basic beat
     IntegrationTestEntity.insertSequence(35, 3, 2, SequenceType.Rhythm, SequenceState.Published, "Basic Beat", 0.2, "C", 121);
     IntegrationTestEntity.insertSequenceMeme(343, 35, "Basic");
-    IntegrationTestEntity.insertPatternSequencePattern(315, 35, PatternType.Loop, PatternState.Published, 0, 16, "Drop", 0.5, "C", 125.0);
+    IntegrationTestEntity.insertPattern(315, 35, PatternType.Loop, PatternState.Published,  16, "Drop", 0.5, "C", 125.0);
     IntegrationTestEntity.insertPatternMeme(346, 315, "Heavy");
 
     // Chain "Test Print #1" is ready to begin

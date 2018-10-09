@@ -1,6 +1,9 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.craft.rhythm;
 
+import com.google.common.collect.ImmutableList;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.ArrangementDAO;
@@ -9,24 +12,18 @@ import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
 import io.xj.core.model.instrument.InstrumentType;
+import io.xj.core.model.pattern.PatternState;
+import io.xj.core.model.pattern.PatternType;
+import io.xj.core.model.pick.Pick;
 import io.xj.core.model.segment.Segment;
 import io.xj.core.model.segment.SegmentState;
 import io.xj.core.model.sequence.SequenceState;
 import io.xj.core.model.sequence.SequenceType;
-import io.xj.core.model.pattern.PatternState;
-import io.xj.core.model.pattern.PatternType;
-import io.xj.core.model.pick.Pick;
 import io.xj.core.model.user_role.UserRoleType;
-import io.xj.craft.basis.Basis;
-import io.xj.craft.basis.BasisFactory;
 import io.xj.craft.CraftFactory;
 import io.xj.craft.CraftModule;
-
-
-import com.google.common.collect.ImmutableList;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-
+import io.xj.craft.basis.Basis;
+import io.xj.craft.basis.BasisFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -40,8 +37,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 public class CraftRhythmVoiceInitialIT {
-  @Rule public ExpectedException failure = ExpectedException.none();
   private final Injector injector = Guice.createInjector(new CoreModule(), new CraftModule());
+  @Rule
+  public ExpectedException failure = ExpectedException.none();
   private CraftFactory craftFactory;
   private BasisFactory basisFactory;
 
@@ -103,37 +101,33 @@ public class CraftRhythmVoiceInitialIT {
     and an Outro Pattern with all TOOTS
      */
     // Intro Pattern
-    IntegrationTestEntity.insertPatternSequencePattern(315, 35, PatternType.Intro, PatternState.Published, 0, 4, "Intro", 0.5, "C", 125.0);
+    IntegrationTestEntity.insertPattern(315, 35, PatternType.Intro, PatternState.Published, 4, "Intro", 0.5, "C", 125.0);
     IntegrationTestEntity.insertPatternMeme(345, 315, "Heavy");
     IntegrationTestEntity.insertPatternEvent(1, 315, 1, 0, 1, "BLEEP", "C2", 0.8, 1.0);
     IntegrationTestEntity.insertPatternEvent(2, 315, 1, 1, 1, "BLEIP", "G5", 0.1, 0.8);
     IntegrationTestEntity.insertPatternEvent(3, 315, 1, 2.5, 1, "BLEAP", "C2", 0.8, 0.6);
     IntegrationTestEntity.insertPatternEvent(4, 315, 1, 3, 1, "BLEEEP", "G5", 0.1, 0.9);
     // Loop Pattern A
-    IntegrationTestEntity.insertPatternSequencePattern(316, 35, PatternType.Loop, PatternState.Published, 0, 4, "Loop A", 0.5, "C", 125.0);
+    IntegrationTestEntity.insertPattern(316, 35, PatternType.Loop, PatternState.Published, 4, "Loop A", 0.5, "C", 125.0);
     IntegrationTestEntity.insertPatternMeme(346, 316, "Heavy");
     IntegrationTestEntity.insertPatternEvent(5, 316, 1, 0, 1, "CLOCK", "C2", 0.8, 1.0);
     IntegrationTestEntity.insertPatternEvent(6, 316, 1, 1, 1, "SNORT", "G5", 0.1, 0.8);
     IntegrationTestEntity.insertPatternEvent(7, 316, 1, 2.5, 1, "KICK", "C2", 0.8, 0.6);
     IntegrationTestEntity.insertPatternEvent(8, 316, 1, 3, 1, "SNARL", "G5", 0.1, 0.9);
     // Loop Pattern A
-    IntegrationTestEntity.insertPatternSequencePattern(317, 35, PatternType.Loop, PatternState.Published, 0, 4, "Loop B", 0.5, "C", 125.0);
+    IntegrationTestEntity.insertPattern(317, 35, PatternType.Loop, PatternState.Published, 4, "Loop B", 0.5, "C", 125.0);
     IntegrationTestEntity.insertPatternMeme(347, 317, "Heavy");
     IntegrationTestEntity.insertPatternEvent(11, 317, 1, 0, 1, "KIICK", "B5", 0.1, 0.9);
     IntegrationTestEntity.insertPatternEvent(12, 317, 1, 1, 1, "SNARR", "D2", 0.5, 1.0);
     IntegrationTestEntity.insertPatternEvent(14, 317, 1, 2.5, 1, "KEICK", "E4", 0.1, 0.7);
     IntegrationTestEntity.insertPatternEvent(15, 317, 1, 3, 1, "SNAER", "C3", 0.5, 0.5);
     // Outro Pattern
-    IntegrationTestEntity.insertPatternSequencePattern(318, 35, PatternType.Outro, PatternState.Published, 0, 4, "Outro", 0.5, "C", 125.0);
+    IntegrationTestEntity.insertPattern(318, 35, PatternType.Outro, PatternState.Published, 4, "Outro", 0.5, "C", 125.0);
     IntegrationTestEntity.insertPatternMeme(348, 318, "Heavy");
     IntegrationTestEntity.insertPatternEvent(16, 318, 1, 0, 1, "TOOT", "C2", 0.8, 1.0);
     IntegrationTestEntity.insertPatternEvent(17, 318, 1, 1, 1, "TOOOT", "G5", 0.1, 0.8);
     IntegrationTestEntity.insertPatternEvent(18, 318, 1, 2.5, 1, "TOOTE", "C2", 0.8, 0.6);
     IntegrationTestEntity.insertPatternEvent(19, 318, 1, 3, 1, "TOUT", "G5", 0.1, 0.9);
-
-    // basic beat second pattern
-    IntegrationTestEntity.insertPatternSequencePattern(319, 35, PatternType.Loop, PatternState.Published, 1, 16, "Continue", 0.5, "C", 125.0);
-    IntegrationTestEntity.insertPatternMeme(349, 319, "Heavy");
 
     // Detail Sequence
     IntegrationTestEntity.insertSequence(7, 3, 2, SequenceType.Detail, SequenceState.Published, "Detail Jam", 0.3, "Cb minor", 170);

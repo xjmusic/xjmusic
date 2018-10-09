@@ -458,7 +458,22 @@ public class PatternIT {
   }
 
   @Test
-  public void readAllAtSequenceOffset() throws Exception {
+  public void readAllAtSequenceOffset_Zero() throws Exception {
+    Access access = new Access(ImmutableMap.of(
+      "roles", "Artist",
+      "accounts", "1"
+    ));
+
+    Collection<Pattern> result = subject.readAllAtSequenceOffset(access, BigInteger.valueOf(1L), BigInteger.valueOf(0L));
+
+    assertNotNull(result);
+    assertEquals(1L, result.size());
+    Pattern resultOne = result.iterator().next();
+    assertEquals("Ants", resultOne.getName());
+  }
+
+  @Test
+  public void readAllAtSequenceOffset_One() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
@@ -467,10 +482,57 @@ public class PatternIT {
     Collection<Pattern> result = subject.readAllAtSequenceOffset(access, BigInteger.valueOf(1L), BigInteger.valueOf(1L));
 
     assertNotNull(result);
+    assertEquals(1L, result.size());
     Pattern resultOne = result.iterator().next();
-    assertEquals(BigInteger.valueOf(2L), resultOne.getId());
-    assertEquals(BigInteger.valueOf(1L), resultOne.getSequenceId());
     assertEquals("Caterpillars", resultOne.getName());
+  }
+
+  /**
+   [#161076729] Artist wants detail and rhythm patterns to require no sequence-pattern bindings, to keep things simple
+   */
+  @Test
+  public void readAllAtSequenceOffset_RhythmPatternsHaveNoSequencePatternBinding() throws Exception {
+    IntegrationTestEntity.insertSequence(5, 2, 1, SequenceType.Rhythm, SequenceState.Published, "b-a-N-A-N-a-s", 8.02, "D", 130.2);
+    IntegrationTestEntity.insertPattern(12, 5, PatternType.Loop, PatternState.Published,  16, "Antelope", 0.583, "D minor", 120.0);
+    IntegrationTestEntity.insertPattern(14, 5, PatternType.Intro, PatternState.Published,  16, "Bear", 0.583, "E major", 140.0);
+    IntegrationTestEntity.insertPattern(15, 5, PatternType.Outro, PatternState.Published,  16, "Cat", 0.583, "E major", 140.0);
+    Access access = new Access(ImmutableMap.of(
+      "roles", "Artist",
+      "accounts", "1"
+    ));
+
+    Collection<Pattern> result = subject.readAllAtSequenceOffset(access, BigInteger.valueOf(5L), BigInteger.valueOf(69L));
+
+    assertNotNull(result);
+    assertEquals(3L, result.size());
+    Iterator<Pattern> it = result.iterator();
+    assertEquals("Cat", it.next().getName());
+    assertEquals("Bear", it.next().getName());
+    assertEquals("Antelope", it.next().getName());
+  }
+
+  /**
+   [#161076729] Artist wants detail and rhythm patterns to require no sequence-pattern bindings, to keep things simple
+   */
+  @Test
+  public void readAllAtSequenceOffset_DetailPatternsHaveNoSequencePatternBinding() throws Exception {
+    IntegrationTestEntity.insertSequence(5, 2, 1, SequenceType.Detail, SequenceState.Published, "b-a-N-A-N-a-s", 8.02, "D", 130.2);
+    IntegrationTestEntity.insertPattern(12, 5, PatternType.Loop, PatternState.Published,  16, "Antelope", 0.583, "D minor", 120.0);
+    IntegrationTestEntity.insertPattern(14, 5, PatternType.Intro, PatternState.Published,  16, "Bear", 0.583, "E major", 140.0);
+    IntegrationTestEntity.insertPattern(15, 5, PatternType.Outro, PatternState.Published,  16, "Cat", 0.583, "E major", 140.0);
+    Access access = new Access(ImmutableMap.of(
+      "roles", "Artist",
+      "accounts", "1"
+    ));
+
+    Collection<Pattern> result = subject.readAllAtSequenceOffset(access, BigInteger.valueOf(5L), BigInteger.valueOf(69L));
+
+    assertNotNull(result);
+    assertEquals(3L, result.size());
+    Iterator<Pattern> it = result.iterator();
+    assertEquals("Cat", it.next().getName());
+    assertEquals("Bear", it.next().getName());
+    assertEquals("Antelope", it.next().getName());
   }
 
   /**
@@ -487,11 +549,12 @@ public class PatternIT {
     Collection<Pattern> result = subject.readAllAtSequenceOffset(access, BigInteger.valueOf(1L), BigInteger.valueOf(0L));
 
     assertNotNull(result);
-    assertEquals(2L, (long) result.size());
+    assertEquals(2L, result.size());
     Iterator<Pattern> it = result.iterator();
     assertEquals("Army Ants", it.next().getName());
     assertEquals("Ants", it.next().getName());
   }
+
 
   @Test
   public void readAllAtSequenceOffset_FailsWhenUserIsNotInAccount() throws Exception {

@@ -83,7 +83,7 @@ public class DubMasterInitialIT {
     // A basic beat, first pattern has voice and events
     IntegrationTestEntity.insertSequence(35, 3, 2, SequenceType.Rhythm, SequenceState.Published, "Basic Beat", 0.2, "C", 121);
     IntegrationTestEntity.insertSequenceMeme(343, 35, "Basic");
-    IntegrationTestEntity.insertPatternSequencePattern(315, 35, PatternType.Loop, PatternState.Published, 0, 4, "Drop", 0.5, "C", 125.0);
+    IntegrationTestEntity.insertPattern(315, 35, PatternType.Loop, PatternState.Published, 4, "Drop", 0.5, "C", 125.0);
     IntegrationTestEntity.insertPatternMeme(346, 315, "Heavy");
 
     // setup voice pattern events
@@ -96,7 +96,7 @@ public class DubMasterInitialIT {
     IntegrationTestEntity.insertPatternEvent(4, 315, 1, 3, 1, "SMACK", "G5", 0.1, 0.9);
 
     // basic beat second pattern
-    IntegrationTestEntity.insertPatternSequencePattern(316, 35, PatternType.Loop, PatternState.Published, 1, 16, "Continue", 0.5, "C", 125.0);
+    IntegrationTestEntity.insertPattern(316, 35, PatternType.Loop, PatternState.Published, 16, "Continue", 0.5, "C", 125.0);
     IntegrationTestEntity.insertPatternMeme(347, 316, "Heavy");
 
     // Detail Sequence

@@ -292,6 +292,33 @@ public interface IntegrationTestEntity {
     record.store();
   }
 
+  static void insertPattern(int id, int sequenceId, PatternType type, PatternState state, int total, String name, double density, String key, double tempo) {
+    insertPattern(id, sequenceId, type, state, total, name, density, key, tempo, Timestamp.from(Instant.now()), 4, 4, 0);
+  }
+
+  static void insertPattern(int id, int sequenceId, PatternType type, PatternState state, int total, String name, double density, String key, double tempo, int meterSuper, int meterSub, int meterSwing) {
+    insertPattern(id, sequenceId, type, state, total, name, density, key, tempo, Timestamp.from(Instant.now()), meterSuper, meterSub, meterSwing);
+  }
+
+  static void insertPattern(int id, int sequenceId, PatternType type, PatternState state, int total, String name, double density, String key, double tempo, Timestamp createdUpdatedAt, int meterSuper, int meterSub, int meterSwing) {
+    PatternRecord record = IntegrationTestService.getDb().newRecord(PATTERN);
+    record.setId(ULong.valueOf(id));
+    record.setSequenceId(ULong.valueOf(sequenceId));
+    record.setTotal(UInteger.valueOf(total));
+    record.setName(name);
+    record.setDensity(density);
+    record.setKey(key);
+    record.setTempo(tempo);
+    record.setType(type.toString());
+    record.setState(state.toString());
+    record.setCreatedAt(createdUpdatedAt);
+    record.setUpdatedAt(createdUpdatedAt);
+    record.setMeterSuper(meterSuper);
+    record.setMeterSub(meterSub);
+    record.setMeterSwing(meterSwing);
+    record.store();
+  }
+
   static void insertPatternSequencePattern(int id, int sequenceId, PatternType type, PatternState state, int offset, int total, String name, double density, String key, double tempo) {
     insertPatternSequencePattern(id, sequenceId, type, state, offset, total, name, density, key, tempo, Timestamp.from(Instant.now()), 4, 4, 0);
   }
@@ -347,7 +374,7 @@ public interface IntegrationTestEntity {
   }
 
   static void insertPatternChord(int id, int patternId, int position, String name) {
-    insertPatternChord(id, patternId,  position, name, Timestamp.from(Instant.now()));
+    insertPatternChord(id, patternId, position, name, Timestamp.from(Instant.now()));
   }
 
   static void insertPatternChord(int id, int patternId, double position, String name, Timestamp createdUpdatedAt) {
@@ -467,7 +494,7 @@ public interface IntegrationTestEntity {
   }
 
   static void insertAudioChord(int id, int audioId, int position, String name) {
-    insertAudioChord(id, audioId,  position, name, Timestamp.from(Instant.now()));
+    insertAudioChord(id, audioId, position, name, Timestamp.from(Instant.now()));
   }
 
   static void insertAudioChord(int id, int audioId, double position, String name, Timestamp createdUpdatedAt) {

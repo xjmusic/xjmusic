@@ -102,11 +102,11 @@ public class DubMasterContinueIT {
     IntegrationTestEntity.insertSequenceMeme(343, 35, "Basic");
 
     // basic beat first pattern
-    IntegrationTestEntity.insertPatternSequencePattern(316, 35, PatternType.Loop, PatternState.Published, 0, 16, "Continue", 0.5, "C", 125.0);
+    IntegrationTestEntity.insertPattern(316, 35, PatternType.Loop, PatternState.Published,  16, "Continue", 0.5, "C", 125.0);
     IntegrationTestEntity.insertPatternMeme(347, 316, "Heavy");
 
     // setup voice second pattern
-    IntegrationTestEntity.insertPatternSequencePattern(315, 35, PatternType.Loop, PatternState.Published, 1, 4, "Drop", 0.5, "C", 125.0);
+    IntegrationTestEntity.insertPattern(315, 35, PatternType.Loop, PatternState.Published,  4, "Drop", 0.5, "C", 125.0);
     IntegrationTestEntity.insertPatternMeme(346, 315, "Heavy");
     IntegrationTestEntity.insertVoice(1, 35, InstrumentType.Percussive, "drums");
 
