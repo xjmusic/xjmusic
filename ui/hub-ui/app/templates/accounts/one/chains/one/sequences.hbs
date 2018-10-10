@@ -54,6 +54,7 @@
         placeholder="Select Sequence"
         options=model.sequences
         selected=model.sequenceToAdd
+        searchField='name'
         onchange=(action "setSequenceToAdd")
       as |sequence| }}
         {{sequence.name}} (#{{sequence.id}})

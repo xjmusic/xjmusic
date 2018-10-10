@@ -7,7 +7,7 @@ export default Route.extend({
 
   /**
    * Route Model
-   * @returns {*}
+   * @returns {*} hash
    */
   model: function() {
     let audio = this.modelFor('accounts.one.libraries.one.instruments.one.audios.one');
@@ -15,7 +15,7 @@ export default Route.extend({
     return hash({
       audio: audio,
       chord: chord,
-    });
+    }, 'audio, chord');
   },
 
 });

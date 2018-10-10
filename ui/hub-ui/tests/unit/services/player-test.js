@@ -4,7 +4,7 @@ import { setupTest } from 'ember-mocha';
 
 describe('Unit | Service | player', function() {
   setupTest('service:player', {
-    needs: ['service:config','service:display','service:binaryResource','service:segmentScroll']
+    needs: ['service:config','service:display','service:segmentScroll']
   });
 
   // Replace this with your real tests.

@@ -6,7 +6,7 @@ export default Route.extend({
 
   /**
    * Route Model
-   * @returns {*}
+   * @returns {*} hash
    */
   model: function () {
     let chain = this.modelFor('accounts.one.chains.one');
@@ -14,7 +14,7 @@ export default Route.extend({
     return hash({
       chain: chain,
       segment: segment,
-    });
+    }, 'chain, segment');
   },
 
 });

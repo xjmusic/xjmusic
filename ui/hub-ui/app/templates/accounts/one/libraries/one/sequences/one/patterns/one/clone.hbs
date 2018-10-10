@@ -20,6 +20,7 @@
           placeholder="Select Sequence"
           options=model.sequences
           selected=model.pattern.sequence
+          searchField='name'
           onchange=(action "setPatternSequence")
         as |sequence| }}
           {{sequence.name}} (#{{sequence.id}})

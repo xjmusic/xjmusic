@@ -20,6 +20,7 @@
           placeholder="Select Library"
           options=model.libraries
           selected=model.sequence.library
+          searchField='name'
           onchange=(action "setSequenceLibrary")
         as |library| }}
           {{library.name}} (#{{library.id}})

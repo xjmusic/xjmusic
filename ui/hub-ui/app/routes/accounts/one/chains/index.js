@@ -15,7 +15,7 @@ export default Route.extend({
 
   /**
    * Route Model
-   * @returns {*}
+   * @returns {*} hash
    */
   model: function () {
     let self = this;
@@ -28,7 +28,7 @@ export default Route.extend({
     return hash({
       account: account,
       chains: chains,
-    });
+    }, 'chains and their parent account');
   },
 
   /**

@@ -1,8 +1,8 @@
 //  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
-import { get } from '@ember/object';
-import { hash } from 'rsvp';
+import {get} from '@ember/object';
+import {hash} from 'rsvp';
 
-import { inject as service } from '@ember/service';
+import {inject as service} from '@ember/service';
 import Route from '@ember/routing/route';
 
 export default Route.extend({
@@ -15,7 +15,7 @@ export default Route.extend({
 
   /**
    * Route Model
-   * @returns {*|DS.Model|Promise}
+   * @returns {*} hash
    */
   model() {
     let auth = this.get('auth');
@@ -43,7 +43,7 @@ export default Route.extend({
       return hash({
         event: event,
         voices: voices,
-      });
+      }, 'cloned event, and all available voices for it to belong to');
     } else {
       this.transitionTo('accounts.one.libraries.one.sequences.one.patterns.one.events');
     }

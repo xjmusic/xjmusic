@@ -1,8 +1,8 @@
 //  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
-import { get } from '@ember/object';
+import {get} from '@ember/object';
 
-import { hash, Promise as EmberPromise } from 'rsvp';
-import { inject as service } from '@ember/service';
+import {hash, Promise as EmberPromise} from 'rsvp';
+import {inject as service} from '@ember/service';
 import Route from '@ember/routing/route';
 
 export default Route.extend({
@@ -33,7 +33,7 @@ export default Route.extend({
 
   /**
    * Resolved (with configs) model
-   * @returns {*}
+   * @returns {*} hash
    */
   resolvedModel() {
     let fromInstrument = this.modelFor('accounts.one.libraries.one.instruments.one');
@@ -46,7 +46,7 @@ export default Route.extend({
     return hash({
       libraries: this.store.query('library', {}),
       instrument: instrument
-    });
+    }, 'libraries, instrument');
   },
 
   /**

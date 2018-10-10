@@ -3,14 +3,54 @@
 
 .pattern-stepmatic {
 
+  .help {
+    font-size: 2rem;
+    color: $low-gray;
+    &:visited {
+      color: $low-gray;
+    }
+    &:hover, &:active {
+      color: $green;
+    }
+  }
+
+  .ember-power-select-selected-item {
+    color: $bright;
+    font-weight: 900;
+  }
+
+  .ember-power-select-trigger {
+    color: $bright;
+    background: $dropdown-selection-bg;
+    padding: 4px 20px 4px 4px;
+  }
+
+  .ember-basic-dropdown-content {
+    color: $bright;
+    background: $dropdown-bg;
+  }
+
+  .disabled {
+    pointer-events: none;
+    opacity: 0.2;
+  }
+
   .meta {
     .btn, input {
       width: 100%;
     }
+    .progress {
+      height: 2.3rem;
+    }
+  }
+
+  label {
+    display: block;
+    margin-top: 0.5rem;
   }
 
   .instructions {
-    margin-top:4rem;
+    margin-top: 4rem;
     td {
       color: $color-minor;
       border: 0 none;
@@ -29,10 +69,14 @@
     }
   }
 
-  .grid {
+  .grid-container {
     overflow-x: auto;
     margin-bottom: 1rem;
+  }
+
+  .grid {
     display: table;
+    table-layout: fixed;
 
     a {
       cursor: pointer;
@@ -57,6 +101,7 @@
           }
         }
         .group-name {
+          white-space: nowrap;
           cursor: pointer;
           height: 2rem;
           vertical-align: middle;
@@ -73,66 +118,89 @@
         }
         .track-name {
           vertical-align: middle;
+          white-space: nowrap;
           display: table-cell;
+          padding-left: 0.5rem;
           padding-right: 1rem;
           text-align: right;
           background-color: $color-sub-micro;
           border-right: 1px solid $color-black;
           border-bottom: 1px solid $color-black;
         }
-        .step {
-          vertical-align: middle;
+        .no-name {
           display: table-cell;
-          width: 2rem;
-          height: 2rem;
-          text-align: center;
-          background-color: $color-sub-sub-micro;
-          border-bottom: 1px solid $color-black;
-          cursor: pointer;
-          &.measure-type {
-            border-left: 2px solid $color-major;
-          }
-          &.beat-type {
-            border-left: 1px solid $color-minor;
-          }
-          &.step-type {
-            border-left: 1px solid $color-black;
-          }
-          &.velocity-0 {
+          padding: 0 0 0 0;
+          margin: 0 0 0 0;
+        }
+        .step-container {
+          display: table-cell;
+          border: 0 none;
+          padding: 0 0 0 0;
+          margin: 0 0 0 0;
+          .beat-step {
             background-color: $color-sub-sub-micro;
+            padding: 0 0 0 0;
+            margin: 0 0 0 0;
+            width: 2rem;
+            height: 0.5rem;
+            &.active {
+              background-color: $green;
+            }
           }
-          &.velocity-1 {
-            background-color: lighten($color-micro, 1);
-          }
-          &.velocity-2 {
-            background-color: lighten($color-micro, 4);
-          }
-          &.velocity-3 {
-            background-color: lighten($color-micro, 7);
-          }
-          &.velocity-4 {
-            background-color: lighten($color-micro, 10);
-          }
-          &.velocity-5 {
-            background-color: lighten($color-micro, 14);
-          }
-          &.velocity-6 {
-            background-color: lighten($color-micro, 17);
-          }
-          &.velocity-7 {
-            background-color: lighten($color-micro, 20);
-          }
-          &.velocity-8 {
-            background-color: lighten($color-micro, 23);
-          }
-          &.velocity-9 {
-            background-color: lighten($color-micro, 26);
-          }
-          &.velocity-10 {
-            background-color: lighten($color-micro, 29);
-          }
-          &.velocity-11 {
-            background-color: lighten($color-micro, 32);
+          .step {
+            vertical-align: middle;
+            display: inline-block;
+            width: 2rem;
+            height: 2rem;
+            text-align: center;
+            background-color: $color-sub-sub-micro;
+            cursor: pointer;
+            border-bottom: 1px solid $color-black;
+            &.measure-type {
+              border-left: 2px solid $color-major;
+            }
+            &.beat-type {
+              border-left: 1px solid $color-minor;
+            }
+            &.step-type {
+              border-left: 1px solid $color-black;
+            }
+            &.velocity-0 {
+              background-color: $color-sub-sub-micro;
+            }
+            &.velocity-1 {
+              background-color: lighten($color-micro, 1);
+            }
+            &.velocity-2 {
+              background-color: lighten($color-micro, 4);
+            }
+            &.velocity-3 {
+              background-color: lighten($color-micro, 7);
+            }
+            &.velocity-4 {
+              background-color: lighten($color-micro, 10);
+            }
+            &.velocity-5 {
+              background-color: lighten($color-micro, 14);
+            }
+            &.velocity-6 {
+              background-color: lighten($color-micro, 17);
+            }
+            &.velocity-7 {
+              background-color: lighten($color-micro, 20);
+            }
+            &.velocity-8 {
+              background-color: lighten($color-micro, 23);
+            }
+            &.velocity-9 {
+              background-color: lighten($color-micro, 26);
+            }
+            &.velocity-10 {
+              background-color: lighten($color-micro, 29);
+            }
+            &.velocity-11 {
+              background-color: lighten($color-micro, 32);
+            }
           }
         }
       }

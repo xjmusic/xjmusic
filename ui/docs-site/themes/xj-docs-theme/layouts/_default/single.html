@@ -6,6 +6,6 @@
     {{ .Content }}
 </article>
 
-<p class="date published"><em>{{ ( index $.Site.Data.translations $.Site.Params.locale ).datepublished }} {{ dateFormat "01-02-2006 15:04:05" .Date }}</em></p>
+<p class="date published"><em>{{ ( index $.Site.Data.translations $.Site.Params.locale ).datepublished }} {{ dateFormat "2006-01-02 15:04:05" .Date }}</em></p>
 
 {{ partial "bottom.html" . }}

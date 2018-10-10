@@ -2,7 +2,6 @@
 package io.xj.hub.resource.audio_event;
 
 import com.google.common.collect.ImmutableList;
-
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.AudioEventDAO;
 import io.xj.core.model.audio_event.AudioEvent;
@@ -34,8 +33,24 @@ public class AudioEventIndexResource extends HubResource {
   private final AudioEventDAO audioEventDAO = injector.getInstance(AudioEventDAO.class);
   private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
 
+  /**
+   [#161197150] Developer wants to request all audioEvent for a specified instrument id, for efficiency loading an entire instrument.
+   */
+  @QueryParam("instrumentId")
+  String instrumentId;
+
   @QueryParam("audioId")
   String audioId;
+
+  /**
+   Is empty?
+
+   @param value to check for emptiness
+   @return true if empty
+   */
+  private static boolean isEmpty(String value) {
+    return Objects.isNull(value) || value.isEmpty();
+  }
 
   /**
    Get all audioEvents.
@@ -46,16 +61,24 @@ public class AudioEventIndexResource extends HubResource {
   @WebResult
   @RolesAllowed(UserRoleType.ARTIST)
   public Response readAll(@Context ContainerRequestContext crc) throws IOException {
-    if (Objects.isNull(audioId) || audioId.isEmpty()) {
-      return response.notAcceptable("Audio id is required");
+    if (isEmpty(audioId) && isEmpty(instrumentId)) {
+      return response.notAcceptable("Instrument or Audio id is required");
     }
 
     try {
-      return response.readMany(
-        AudioEvent.KEY_MANY,
-        audioEventDAO.readAll(
-          Access.fromContext(crc),
-          ImmutableList.of(new BigInteger(audioId))));
+      if (!isEmpty(instrumentId)) {
+        return response.readMany(
+          AudioEvent.KEY_MANY,
+          audioEventDAO.readAllOfInstrument(
+            Access.fromContext(crc),
+            ImmutableList.of(new BigInteger(instrumentId))));
+      } else {
+        return response.readMany(
+          AudioEvent.KEY_MANY,
+          audioEventDAO.readAll(
+            Access.fromContext(crc),
+            ImmutableList.of(new BigInteger(audioId))));
+      }
 
     } catch (Exception e) {
       return response.failure(e);

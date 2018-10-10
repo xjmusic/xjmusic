@@ -1,59 +1,77 @@
 <!-- Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved. -->
 
-<div class="form-horizontal container-fluid pattern-stepmatic {{only-if isDirty 'dirty'}}">
+<div class="pattern-stepmatic {{only-if isDirty 'dirty'}}">
 
   <!--
   --
   Stepmatic meta-controls (upper)
   --
   -->
-  <div class="form-group row meta">
+  <div class="form-horizontal container-fluid {{if isPlaying 'disabled'}}">
+    <div class="form-group row meta">
 
-    {{#if isWorking}}
-
-      <label class="col-xl-1 col-lg-1 col-sm-2 control-label">{{workStatus}}</label>
-      <div class="col-xl-11 col-lg-11 col-sm-10">
-        <div class="loader">&nbsp;</div>
+      <div class="col-xl-1 col-lg-1 col-sm-1 col-xs-2 {{if isWorking 'disabled'}}"><label class="control-label"
+                                                                                          data-toggle="tooltip"
+                                                                                          title="Modify # of beats in a measure, and re-compute events from original pattern.">Measure</label>
       </div>
-
-    {{else}}
-
-      <label class="col-xl-1 col-lg-1 col-sm-2 control-label"><span data-toggle="tooltip"
-                                                                    title="Modify # of beats in a measure, and re-compute events from original pattern.">Measure</span></label>
-      <div class="col-xl-1 col-lg-1 col-sm-10">
-        {{input type="number" value=pattern.meterSuper class="form-control" autofocus="autofocus"
+      <div class="col-xl-1 col-lg-1 col-sm-3 col-xs-10 {{if isWorking 'disabled'}}">
+        {{input type="number" value=pattern.meterSuper class="form-control margin-bottom" autofocus="autofocus"
                 placeholder="beats" change=(action "didUpdateSuper")
                 data-toggle="tooltip" title="# of beats in a measure"}}
       </div>
 
-      <label class="col-xl-1 col-lg-1 col-sm-2 control-label"><span data-toggle="tooltip"
-                                                                    title="Modify # of steps to divide each beat, and re-compute events from original pattern.">Subdiv</span></label>
-      <div class="col-xl-1 col-lg-1 col-sm-10">
-        {{input type="number" value=pattern.meterSub class="form-control" autofocus="autofocus"
+      <div class="col-xl-1 col-lg-1 col-sm-1  col-xs-2 {{if isWorking 'disabled'}}"><label class="control-label"
+                                                                                           data-toggle="tooltip"
+                                                                                           title="Modify # of steps to divide each beat, and re-compute events from original pattern.">Subdiv</label>
+      </div>
+      <div class="col-xl-1 col-lg-1 col-sm-3 col-xs-10 {{if isWorking 'disabled'}}">
+        {{input type="number" value=pattern.meterSub class="form-control margin-bottom" autofocus="autofocus"
                 placeholder="divs" change=(action "didUpdateSub")
                 data-toggle="tooltip" title="# steps to divide each beat"}}
       </div>
 
-      <label class="col-xl-1 col-lg-1 col-sm-2 control-label"><span data-toggle="tooltip"
-                                                                    title="Modify % delay of each odd step.">Swing</span></label>
-      <div class="col-xl-1 col-lg-1 col-sm-10">
-        {{input type="number" value=pattern.meterSwing class="form-control" autofocus="autofocus"
+      <div class="col-xl-1 col-lg-1 col-sm-1  col-xs-2 {{if isWorking 'disabled'}}"><label class="control-label"
+                                                                                           data-toggle="tooltip"
+                                                                                           title="Modify % delay of each odd step.">Swing</label>
+      </div>
+      <div class="col-xl-1 col-lg-1 col-sm-3 col-xs-10 {{if isWorking 'disabled'}}">
+        {{input type="number" value=pattern.meterSwing class="form-control margin-bottom" autofocus="autofocus"
                 placeholder="%"  change=(action "didUpdateSwing")
                 data-toggle="tooltip" title="% delay of each odd step"}}
       </div>
 
-      <div class="ml-auto col-xl-1 col-lg-2 col-sm-4">
-        <button class="btn btn-dark" data-toggle="tooltip" title="Clear all grid events and re-compute events from original pattern." {{action 'clear' pattern}}>Clear</button>
-      </div>
-      <div class="col-xl-1 col-lg-2 col-sm-4">
-        <button class="btn btn-dark" data-toggle="tooltip" title="Revert all grid events and revert to events from original pattern." {{action 'revert' pattern}}>Revert</button>
-      </div>
-      <div class="col-xl-1 col-lg-2 col-sm-4">
-        <button class="btn btn-success" data-toggle="tooltip" title="Apply all grid events to pattern." {{action 'apply' pattern}}>Apply</button>
-      </div>
+      {{#if isWorking}}
 
-    {{/if}}
+        <div class="ml-auto col-xl-1 col-lg-1 col-sm-2 col-xs-12">
+          <label class="control-label margin-bottom">{{workStatus}}</label>
+        </div>
+        <div class="col-xl-5 col-lg-5 col-sm-4 col-xs-12">
+          <div class="loader form-control margin-bottom">&nbsp;</div>
+        </div>
 
+      {{else}}
+
+        <div class="ml-auto col-xl-1 col-lg-2 col-sm-4">
+          <button class="btn btn-dark margin-bottom" data-toggle="tooltip"
+                  title="Clear all grid events and re-compute events from original pattern." {{action 'clear' pattern}}>
+            Clear
+          </button>
+        </div>
+        <div class="col-xl-1 col-lg-2 col-sm-4">
+          <button class="btn btn-dark margin-bottom {{if (not isDirty) 'disabled'}}" data-toggle="tooltip"
+                  title="Revert all grid events and revert to events from original pattern." {{action 'revert'pattern}}>Revert
+          </button>
+        </div>
+        <div class="col-xl-1 col-lg-2 col-sm-4">
+          <button class="btn btn-outline-warning margin-bottom {{if (not isDirty) 'disabled'}}" data-toggle="tooltip"
+                  title="Apply all grid events to pattern." {{action
+            'apply' pattern}}>Apply
+          </button>
+        </div>
+
+      {{/if}}
+
+    </div>
   </div>
 
   <!--
@@ -61,114 +79,108 @@
   Stepmatic grid
   --
   -->
-  <div class="form-group row">
-    <div class="col-12">
+  <div class="grid-container">
+    <div class="grid">
 
-      <div class="grid">
-        {{#each-in grid as |groupId groupContainer|}}
-          <div class="track-group">
+      <!-- play steps light up during preview play -->
+      <div class="track-group">
+        <div class="track">
+          <div class="no-name"></div>
+          <div class="no-name"></div>
+          {{#each gridMeter as |beat|}}
+            <div class="step-container">
+              <div class="beat-step beat-{{beat}}"></div>
+            </div>
+          {{/each}}
+        </div>
+      </div>
 
-            {{#each-in groupContainer.tracks as |track steps|}}
-              <div class="track">
-                <div {{action 'addTrack' groupId}} class="group-name"
-                                                   data-toggle="tooltip"
-                                                   title="create a track in {{groupContainer.group.description}}">
-                  {{groupContainer.group.description}}
-                </div>
-                <div class="track-name">
-                  {{track}}
-                </div>
-                {{#each-in steps as |step event|}}
+      {{#each-in grid as |groupId groupContainer|}}
+        <div class="track-group">
+
+          {{#each-in groupContainer.tracks as |track steps|}}
+            <div class="track">
+              <div {{action 'addTrack' groupId}} class="group-name"
+                                                 data-toggle="tooltip"
+                                                 title="create a track in {{groupContainer.group.description}}">
+                {{groupContainer.group.description}}
+              </div>
+              <div class="track-name">
+                {{track}}
+              </div>
+              {{#each-in steps as |step event|}}
+                <div class="step-container">
                   <div class="step velocity-{{velocity-decascale event.velocity}} {{grid-step-modulo step meter.super
                                                                                                      meter.sub}}-type"
                        onclick={{action 'onStepTouch' groupId track step}}
                   >&nbsp;
                   </div>
-                {{/each-in}}
-              </div>
-
-            {{else}}
-              <div class="track">
-                <div {{action 'addTrack' groupId}} class="group-name"
-                                                   data-toggle="tooltip"
-                                                   title="create a track in {{groupContainer.group.description}}">
-                  {{groupContainer.group.description}}
                 </div>
+              {{/each-in}}
+            </div>
+
+          {{else}}
+            <div class="track">
+              <div {{action 'addTrack' groupId}} class="group-name"
+                                                 data-toggle="tooltip"
+                                                 title="create a track in {{groupContainer.group.description}}">
+                {{groupContainer.group.description}}
               </div>
-            {{/each-in}}
+            </div>
+          {{/each-in}}
 
-          </div>
-        {{/each-in}}
-      </div>
-
+        </div>
+      {{/each-in}}
     </div>
   </div>
 
-
   <!--
   --
-  [#160356534] Stepmatic instructions
+  Stepmatic meta-controls (lower)
   --
   -->
-  <div class="form-group row">
-    <div class="col-12">
-      <table class="table instructions">
-        <thead>
-        <tr>
-          <th scope="col"><h3>Legend</h3></th>
-          <th scope="col">&nbsp;</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr>
-          <th scope="row"><em>Tap on grid</em></th>
-          <td>Toggle step value: 1, {{fraction 2 3}}, {{fraction 1 3}}, {{fraction 1 10}}, {{fraction 1 20}}, or 0</td>
-        </tr>
-        <tr>
-          <th scope="row"><em>Double-tap grid</em></th>
-          <td>Clear step value.</td>
-        </tr>
-        <tr>
-          <th scope="row"><em>Triple-tap grid</em></th>
-          <td>Set exact step value.</td>
-        </tr>
-        <tr>
-          <th scope="row"><em>Tap on group</em></th>
-          <td>Create new drum track in group.</td>
-        </tr>
-        <tr>
-          <th scope="row">Measure</th>
-          <td># of beats in a measure</td>
-        </tr>
-        <tr>
-          <th scope="row">Subdiv</th>
-          <td># of steps to divide each beat</td>
-        </tr>
-        <tr>
-          <th scope="row">Swing</th>
-          <td>% delay of each odd step</td>
-        </tr>
-        <tr>
-          <th scope="row">
-            <div class="btn btn-sm btn-instructions">Clear</div>
-          </th>
-          <td>all grid events and re-compute events from original pattern.</td>
-        </tr>
-        <tr>
-          <th scope="row">
-            <div class="btn btn-sm btn-instructions">Revert</div>
-          </th>
-          <td>all grid events and revert to events from original pattern.</td>
-        </tr>
-        <tr>
-          <th scope="row">
-            <div class="btn btn-sm btn-instructions">Apply</div>
-          </th>
-          <td>all grid events to pattern.</td>
-        </tr>
-        </tbody>
-      </table>
-
+  <div class="form-horizontal container-fluid">
+    <div class="form-group row meta">
+      <div class="col-xl-4 col-lg-6 col-sm-8 col-xs-12">
+        {{#if isPrepping}}
+          <div class="progress bg-dark">
+            <div class="progress-bar progress-bar-striped bg-success" role="progressbar" style={{preparednessStyleWidth}} aria-valuenow="{{preparednessPercentage}}" aria-valuemin="0" aria-valuemax="100"></div>
+          </div>
+        {{else}}
+          <div class="margin-bottom {{if isPlaying 'disabled' }}">
+            {{#power-select
+              placeholder="(select preview instrument)"
+              options=instruments
+              selected=instrumentToPlay
+              searchField='description'
+              onchange=(action "setInstrumentToPlay")
+            as |instrument| }}
+              {{instrument.description}}
+            {{/power-select}}
+          </div>
+        {{/if}}
+      </div>
+      <div class="col-xl-2 col-lg-3 col-sm-4 col-xs-12">
+        <div class="{{if (eq null instrumentToPlay) 'disabled' }}" data-toggle="tooltip" title="Play grid in a loop.">
+          {{#if isPrepping}}
+            <button class="btn btn-outline-warning" {{action 'stop' pattern}}>
+              <!--Stop-->&#9640;
+            </button>
+          {{else if isPlaying}}
+            <button class="btn btn-success" {{action 'stop' pattern}}>
+              <!--Stop-->&#9640;
+            </button>
+          {{else}}
+            <button class="btn btn-outline-success" {{action 'play' pattern}}>
+              <!--Play-->&#9658;
+            </button>
+          {{/if}}
+        </div>
+      </div>
+      <div class="col-12 col-sm-12 col-lg-3 col-xl-6 text-right">
+        <!-- [#161141326] Link to stepmatic instructions in docs.xj.io -->
+        <a class="help" href="https://docs.xj.io/stepmatic" target="_blank">{{fa-icon "question-circle"}}</a>
+      </div>
     </div>
   </div>
 

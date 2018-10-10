@@ -22,7 +22,6 @@ export class API {
    */
   chain(id, callback) {
     console.log("Mock API called", id);
-    // TODO: callback
   }
 
 }

@@ -40,7 +40,6 @@ public interface DAO<N extends Entity> {
    */
   Collection<N> readAll(Access access, Collection<BigInteger> parentIds) throws Exception;
 
-
   /**
    Update a specified Entity
 

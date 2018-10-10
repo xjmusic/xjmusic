@@ -16,7 +16,7 @@ import org.xiph.libvorbis.*;
 
 public class floor_books {
 
-	
+
 //	 _floor_128x4_books
 	static int[] _huff_lengthlist_line_128x4_class0 = {
 		 7, 7, 7,11, 6, 6, 7,11, 7, 6, 6,10,12,10,10,13,
@@ -206,7 +206,7 @@ public class floor_books {
 		null,
 		0
 	);
-	
+
 //	 _floor_128x7_books
 	static int[] _huff_lengthlist_line_128x7_class0 = {
 		10, 7, 8,13, 9, 6, 7,11,10, 8, 8,12,17,17,17,17,
@@ -353,7 +353,7 @@ public class floor_books {
 		null,
 		0
 	);
-	
+
 //	 _floor_256x7_books
 	static int[] _huff_lengthlist_line_256x7_0sub1 = {
 		 0, 2, 3, 3, 3, 3, 4, 3, 4,
@@ -500,8 +500,8 @@ public class floor_books {
 		null,
 		0
 	);
-	
-	
+
+
 //	 _floor_128x11_books
 	static int[] _huff_lengthlist_line_128x11_class1 = {
 		 1, 6, 3, 7, 2, 4, 5, 7,
@@ -725,7 +725,7 @@ public class floor_books {
 		null,
 		0
 	);
-	
+
 
 //	 _floor_128x17_books
 	static int[] _huff_lengthlist_line_128x17_class1 = {
@@ -950,7 +950,7 @@ public class floor_books {
 		null,
 		0
 	);
-	
+
 
 //	 _floor_256x4low_books
 	static int[] _huff_lengthlist_line_256x4low_class0 = {
@@ -1046,8 +1046,8 @@ public class floor_books {
 		null,
 		0
 	);
-	
-	
+
+
 //	 _floor_1024x27_books
 	static int[] _huff_lengthlist_line_1024x27_class1 = {
 		 2,10, 8,14, 7,12,11,14, 1, 5, 3, 7, 4, 9, 7,13,
@@ -1336,8 +1336,8 @@ public class floor_books {
 		null,
 		0
 	);
-	
-	
+
+
 //	 _floor_2048x27_books
 	static int[] _huff_lengthlist_line_2048x27_class1 = {
 		 2, 6, 8, 9, 7,11,13,13, 1, 3, 5, 5, 6, 6,12,10,
@@ -1626,7 +1626,7 @@ public class floor_books {
 		null,
 		0
 	);
-	
+
 //	 _floor_512x17_books
 	static int[] _huff_lengthlist_line_512x17_0sub0 = {
 		 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5,
@@ -1850,8 +1850,8 @@ public class floor_books {
 		null,
 		0
 	);
-	
-	
+
+
 	static static_codebook[] _floor_128x4_books = {
 	  _huff_book_line_128x4_class0,
 	  _huff_book_line_128x4_0sub0,
@@ -1859,7 +1859,7 @@ public class floor_books {
 	  _huff_book_line_128x4_0sub2,
 	  _huff_book_line_128x4_0sub3,
 	};
-	
+
 	static static_codebook[] _floor_256x4_books = {
 	  _huff_book_line_256x4_class0,
 	  _huff_book_line_256x4_0sub0,
@@ -1867,63 +1867,63 @@ public class floor_books {
 	  _huff_book_line_256x4_0sub2,
 	  _huff_book_line_256x4_0sub3,
 	};
-	
+
 	static static_codebook[] _floor_128x7_books = {
 	  _huff_book_line_128x7_class0,
 	  _huff_book_line_128x7_class1,
-	  
+
 	  _huff_book_line_128x7_0sub1,
 	  _huff_book_line_128x7_0sub2,
 	  _huff_book_line_128x7_0sub3,
 	  _huff_book_line_128x7_1sub1,
 	  _huff_book_line_128x7_1sub2,
-	  _huff_book_line_128x7_1sub3, 
+	  _huff_book_line_128x7_1sub3,
 	};
-	
+
 	static static_codebook[] _floor_256x7_books = {
 	  _huff_book_line_256x7_class0,
 	  _huff_book_line_256x7_class1,
-	  
+
 	  _huff_book_line_256x7_0sub1,
 	  _huff_book_line_256x7_0sub2,
 	  _huff_book_line_256x7_0sub3,
 	  _huff_book_line_256x7_1sub1,
 	  _huff_book_line_256x7_1sub2,
-	  _huff_book_line_256x7_1sub3, 
+	  _huff_book_line_256x7_1sub3,
 	};
-	
+
 	static static_codebook[] _floor_128x11_books = {
 	  _huff_book_line_128x11_class1,
 	  _huff_book_line_128x11_class2,
 	  _huff_book_line_128x11_class3,
-	  
+
 	  _huff_book_line_128x11_0sub0,
 	  _huff_book_line_128x11_1sub0,
 	  _huff_book_line_128x11_1sub1,
 	  _huff_book_line_128x11_2sub1,
 	  _huff_book_line_128x11_2sub2,
-	  _huff_book_line_128x11_2sub3, 
+	  _huff_book_line_128x11_2sub3,
 	  _huff_book_line_128x11_3sub1,
 	  _huff_book_line_128x11_3sub2,
-	  _huff_book_line_128x11_3sub3, 
+	  _huff_book_line_128x11_3sub3,
 	};
-	
+
 	static static_codebook[] _floor_128x17_books = {
 	  _huff_book_line_128x17_class1,
 	  _huff_book_line_128x17_class2,
 	  _huff_book_line_128x17_class3,
-	  
+
 	  _huff_book_line_128x17_0sub0,
 	  _huff_book_line_128x17_1sub0,
 	  _huff_book_line_128x17_1sub1,
 	  _huff_book_line_128x17_2sub1,
 	  _huff_book_line_128x17_2sub2,
-	  _huff_book_line_128x17_2sub3, 
+	  _huff_book_line_128x17_2sub3,
 	  _huff_book_line_128x17_3sub1,
 	  _huff_book_line_128x17_3sub2,
-	  _huff_book_line_128x17_3sub3, 
+	  _huff_book_line_128x17_3sub3,
 	};
-	
+
 	static static_codebook[] _floor_256x4low_books = {
 	  _huff_book_line_256x4low_class0,
 	  _huff_book_line_256x4low_0sub0,
@@ -1931,13 +1931,13 @@ public class floor_books {
 	  _huff_book_line_256x4low_0sub2,
 	  _huff_book_line_256x4low_0sub3,
 	};
-	
+
 	static static_codebook[] _floor_1024x27_books = {
 	  _huff_book_line_1024x27_class1,
 	  _huff_book_line_1024x27_class2,
 	  _huff_book_line_1024x27_class3,
 	  _huff_book_line_1024x27_class4,
-	  
+
 	  _huff_book_line_1024x27_0sub0,
 	  _huff_book_line_1024x27_1sub0,
 	  _huff_book_line_1024x27_1sub1,
@@ -1950,13 +1950,13 @@ public class floor_books {
 	  _huff_book_line_1024x27_4sub2,
 	  _huff_book_line_1024x27_4sub3,
 	};
-	
+
 	static static_codebook[] _floor_2048x27_books = {
 	  _huff_book_line_2048x27_class1,
 	  _huff_book_line_2048x27_class2,
 	  _huff_book_line_2048x27_class3,
 	  _huff_book_line_2048x27_class4,
-	  
+
 	  _huff_book_line_2048x27_0sub0,
 	  _huff_book_line_2048x27_1sub0,
 	  _huff_book_line_2048x27_1sub1,
@@ -1969,23 +1969,23 @@ public class floor_books {
 	  _huff_book_line_2048x27_4sub2,
 	  _huff_book_line_2048x27_4sub3,
 	};
-	
+
 	static static_codebook[] _floor_512x17_books = {
 	  _huff_book_line_512x17_class1,
 	  _huff_book_line_512x17_class2,
 	  _huff_book_line_512x17_class3,
-	  
+
 	  _huff_book_line_512x17_0sub0,
 	  _huff_book_line_512x17_1sub0,
 	  _huff_book_line_512x17_1sub1,
 	  _huff_book_line_512x17_2sub1,
 	  _huff_book_line_512x17_2sub2,
-	  _huff_book_line_512x17_2sub3, 
+	  _huff_book_line_512x17_2sub3,
 	  _huff_book_line_512x17_3sub1,
 	  _huff_book_line_512x17_3sub2,
-	  _huff_book_line_512x17_3sub3, 
+	  _huff_book_line_512x17_3sub3,
 	};
-	
+
 	public static_codebook[][] _floor_books = {
 	  _floor_128x4_books,
 	  _floor_256x4_books,
@@ -1998,12 +1998,12 @@ public class floor_books {
 	  _floor_2048x27_books,
 	  _floor_512x17_books,
 	};
-	
-// TODO - class variable initialization
+
+// FUTURE - class variable initialization
 // readup on the best way to do this for java
 // maybe read from external file or project resource
 // to cut down on the .class size footprint
-	
+
 	public floor_books() {}
-	
+
 }

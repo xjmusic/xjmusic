@@ -1,11 +1,14 @@
 //  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
-
-import Component from '@ember/component';
-import {get, set} from '@ember/object';
-import {inject as service} from '@ember/service';
-import {all, task} from 'ember-concurrency';
 import $ from 'jquery';
+import Component from '@ember/component';
+import {all, task} from 'ember-concurrency';
+import {get, set} from '@ember/object';
+import {htmlSafe} from '@ember/string';
+import {inject as service} from '@ember/service';
+import {Promise as EmberPromise} from 'rsvp';
+import InstrumentPlayer from '../custom-objects/instrument-player';
 
+// Configurations
 const PROMPT_UPDATE_VELOCITY = 'Velocity';
 const VELOCITY_TOGGLE_STEPS = [0.66, 0.33, 0.1, 0.05];
 const DOUBLE_CLICK_MILLIS = 382;
@@ -14,13 +17,33 @@ const EVENT_DEFAULT_TONALITY = 0.618;
 const EVENT_DEFAULT_NOTE = 'X';
 const SWING_VALUE_MAX = 99;
 const SWING_VALUE_MIN = 0;
+const PLAY_CYCLE_SECONDS = 0.0618;
+const PLAY_AHEAD_SECONDS = 1;
 
+// States
+const Initializing = 'Initializing';
+const Standby = 'Standby';
+const Working = 'Working';
+const Playing = 'Playing';
+const Prepping = 'Prepping';
 
 /**
  [#159669804] Artist wants a step sequencer in order to compose rhythm patterns in a familiar way.
  */
 const PatternStepmaticComponent = Component.extend(
   {
+    // Name
+    name: 'Stepmatic™',
+
+    // State
+    state: Initializing,
+
+    // persist an InstrumentPlayer instance
+    instrumentPlayer: null,
+
+    // base URL for audio waveform files
+    audioBaseUrl: '',
+
     // Inject: configuration service
     config: service(),
 
@@ -57,11 +80,50 @@ const PatternStepmaticComponent = Component.extend(
     // Is now working?
     isWorking: false,
 
+    // Is now playing?
+    isPlaying: false,
+
+    // is now preparing to play?
+    isPrepping: false,
+
     // Is dirty? Any properties or grid steps changed.
     isDirty: false,
 
     // Current work status
     workStatus: 'Working...',
+
+    // Play begin at seconds (with sub-millisecond floating point precision
+    playBeginSeconds: 0,
+
+    // Interval to persist play cycle
+    playCycleInterval: {},
+
+    // Time in seconds per step during preview play (based on sequence and pattern)
+    playStepSeconds: 1,
+
+    // The last step completed (as in scheduled for playback) during preview play
+    playStepCompleted: -1,
+
+    // The last beat to be marked as now-playing during preview play
+    playBeatNow: -1,
+
+    // select preview instrument from drop-down of all available instruments
+    instruments: [],
+
+    // selected instrument for preview play
+    instrumentToPlay: null,
+
+    // now-playing active beat lit up at the top of the grid during play
+    gridMeter: [],
+
+    // preparedness % of InstrumentPlayer loading audio
+    preparednessPercentage: 0,
+
+    // preparedness style width=n% string
+    preparednessStyleWidth: htmlSafe('width: 0%;'),
+
+    // queue of events to destroy when we apply stepmatic changes
+    eventsToDestroy: [],
 
     /**
      * Initialize the component
@@ -69,15 +131,62 @@ const PatternStepmaticComponent = Component.extend(
     init() {
       let self = this;
       get(self, 'config').promises.config.then(
-        () => {
+        (config) => {
+          self.set('audioBaseUrl', config.audioBaseUrl);
           self.initTooltips()
           self.initSequence();
         },
         (error) => {
-          console.error('Failed to load config', error);
+          self.error('failed to load config', error);
         }
       );
       this._super(...arguments);
+    },
+
+    /**
+     * Before component destruction
+     */
+    willDestroyElement() {
+      let self = this;
+      this.haltPlay().then(() => {
+        self.debug('was halted and destroyed.');
+        self._super(...arguments);
+      }, () => {
+        self.debug('was destroyed.');
+        self._super(...arguments);
+      })
+    },
+
+    /**
+     * Go to the specified state.
+     * Calls hooks depending on what state we are moving from/to
+     * @param {String} targetState for transition into
+     */
+    goToState: function (targetState) {
+      set(this, 'state', targetState);
+      switch (targetState) {
+        case Standby:
+          set(this, 'isWorking', false);
+          set(this, 'isPlaying', false);
+          set(this, 'isPrepping', false);
+          break;
+        case Working:
+          set(this, 'isPlaying', false);
+          set(this, 'isPrepping', false);
+          set(this, 'isWorking', true);
+          break;
+        case Prepping:
+          set(this, 'isWorking', false);
+          this.onPreppingProgress(0);
+          set(this, 'isPlaying', true);
+          set(this, 'isPrepping', true);
+          break;
+        case Playing:
+          set(this, 'isWorking', false);
+          set(this, 'isPrepping', false);
+          set(this, 'isPlaying', true);
+          break;
+      }
     },
 
     /**
@@ -97,13 +206,39 @@ const PatternStepmaticComponent = Component.extend(
       let pattern = get(self, 'pattern');
       pattern.get('sequence').then(
         (sequence) => {
-          console.debug('[stepmatic] did load sequence', sequence);
+          self.debug('did load sequence', sequence);
           set(self, 'sequence', sequence);
-          self.initVoices();
+          self.initInstruments();
         }, (error) => {
           get(self, 'display').error(error);
         }
       );
+    },
+
+    /**
+     * Initialize all available instruments for preview play
+     */
+    initInstruments() {
+      let self = this;
+      let sequence = get(self, 'sequence');
+      get(self, 'store').query('instrument', {libraryId: sequence.get('library').get('id')})
+        .catch((error) => {
+          get(self, 'display').error(error);
+        })
+        .then((instruments) => {
+            let filteredInstruments = [];
+            instruments.forEach((instrument) => {
+              if ('Percussive' === instrument.get('type')) {
+                filteredInstruments.push(instrument);
+              }
+            });
+            self.debug('did load and filter instruments', filteredInstruments);
+            set(self, 'instruments', filteredInstruments);
+            self.initVoices();
+          }, (error) => {
+            get(self, 'display').error(error);
+          }
+        );
     },
 
     /**
@@ -117,7 +252,7 @@ const PatternStepmaticComponent = Component.extend(
           get(self, 'display').error(error);
         })
         .then(voices => {
-          console.debug('[stepmatic] did load voices', voices);
+          self.debug('did load voices', voices);
           set(self, 'voices', voices);
           self.initPattern();
         });
@@ -134,17 +269,17 @@ const PatternStepmaticComponent = Component.extend(
           get(self, 'display').error(error);
         })
         .then(events => {
-          console.debug('[stepmatic] did load events', events);
+          self.debug('did load events', events);
           set(self, 'events', events);
-          self.computeGrid();
+          self.createGridFromPatternEvents();
+          self.goToState(Standby);
         });
     },
 
     /**
      * Compute the grid based on pattern events
      */
-    computeGrid() {
-      let self = this;
+    createGridFromPatternEvents() {
       let pattern = get(this, 'pattern');
       let voices = get(this, 'voices');
       let total = pattern.get('total');
@@ -153,10 +288,18 @@ const PatternStepmaticComponent = Component.extend(
       let events = pattern.get('events');
 
       // clear grid
-      set(self, 'grid', {});
-      set(get(self, 'meter'), 'super', meterSuper);
-      set(get(self, 'meter'), 'sub', meterSub);
-      let grid = get(self, 'grid');
+      set(this, 'grid', {});
+      set(this, 'eventsToDestroy', []);
+      set(get(this, 'meter'), 'super', meterSuper);
+      set(get(this, 'meter'), 'sub', meterSub);
+      let grid = get(this, 'grid');
+
+      // clear gridMeter
+      set(this, 'gridMeter', []);
+      let gridMeter = get(this, 'gridMeter');
+      for (let step = 0; step < meterSub * total; step++) {
+        gridMeter.push(Math.floor(step / meterSub));
+      }
 
       // compute groups from voices
       voices.forEach(voice => {
@@ -193,162 +336,15 @@ const PatternStepmaticComponent = Component.extend(
     },
 
     /**
-     * Do three different actions, based on single, double, or triple-click.
-     *
-     * @param key to identify a unique click
-     * @param onSingleFn
-     * @param onDoubleFn
-     * @param onTripleFn
+     * Re-compute the position and duration of all events
      */
-    doSingleDoubleTriple(key, onSingleFn, onDoubleFn, onTripleFn) {
-      let self = this;
-
-      let onTimeout = () => { // to execute after any number of clicks
-        if (1 === self.clickCache[key].count) {
-          onSingleFn();
-        } else if (2 === self.clickCache[key].count) {
-          onDoubleFn();
-        } else if (3 === self.clickCache[key].count) {
-          onTripleFn();
-        } else {
-          console.debug('no handler for', self.clickCache[key].count, 'clicks', key);
-        }
-        delete self.clickCache[key];
-      };
-
-      if (has(self.clickCache, key)) { // there is already a click for this key, clear its original timeout and update it.
-        clearTimeout(this.clickCache[key].timeout);
-        this.clickCache[key].count++;
-        self.clickCache[key].timeout = setTimeout(onTimeout, DOUBLE_CLICK_MILLIS);
-
-      } else { // this is the first click
-        self.clickCache[key] = {
-          timeout: setTimeout(onTimeout, DOUBLE_CLICK_MILLIS),
-          count: 1
-        };
-      }
-    },
-
-    /**
-     * Modify event velocity at grid step; create event if none exists
-     *
-     * @param groupId to modify
-     * @param trackName to modify
-     * @param step to modify
-     * @param velocity to update/create event with
-     */
-    modEventVelocity(groupId, trackName, step, velocity) {
-      let groupContainer = get(get(this, 'grid'), groupId);
-      let tracks = get(groupContainer, 'tracks');
-      let group = get(groupContainer, 'group');
-      let track = get(tracks, trackName);
-      let event = get(track, step);
-      if (event) {
-        set(event, 'velocity', velocity);
-      } else {
-        set(track, step, this.newEvent(group, trackName, velocity));
-      }
-      this.gotDirty();
-    },
-
-    /**
-     * New pattern event in voice
-     * @param voice to create event event in
-     * @param inflection of new event
-     * @param velocity of new event
-     * @returns {*|DS.Model|EmberPromise}
-     */
-    newEvent: function (voice, inflection, velocity) {
-      let pattern = get(this, 'pattern');
-      return get(this, 'store').createRecord('pattern-event', {
-        pattern: pattern,
-        voice: voice,
-        velocity: velocity,
-        inflection: inflection,
-        duration: 1,
-        tonality: EVENT_DEFAULT_TONALITY,
-        note: EVENT_DEFAULT_NOTE,
-      });
-    },
-
-    /**
-     * Create an empty drum track
-     * @param groupId to create track in
-     * @param trackName of new track
-     */
-    createTrack: function (groupId, trackName) {
-      let pattern = get(this, 'pattern');
-      let total = pattern.get('total');
-      let meterSub = pattern.get('meterSub');
-      let groupContainer = get(get(this, 'grid'), groupId);
-      let tracks = get(groupContainer, 'tracks');
-      set(tracks, trackName, {});
-      for (let step = 0; step < meterSub * total; step++) {
-        set(get(tracks, trackName), step, null);
-      }
-      get(this, 'display').success("Created track '" + trackName + "'");
-    },
-
-    /**
-     * Apply stepmatic changes and all modifications to events
-     * indicate updating state, until task group is complete
-     */
-    applyAll: function () {
-      let self = this;
-      set(self, 'isWorking', true);
-      get(this, 'pattern').save().then(
-        () => {
-          self.eventUpdateAllTask.perform().then(() => {
-            set(self, 'isWorking', false);
-            self.gotClean();
-          });
-        },
-        (error) => {
-          get(self, 'display').error(error);
-        });
-    },
-
-    /**
-     * Revert all stepmatic changes to original pattern and pattern events
-     */
-    revertAll: function () {
-      get(this, 'pattern').rollbackAttributes();
-      this.forEachGridStep((groupId, trackName, step, event) => {
-        if (event) {
-          event.rollbackAttributes();
-        }
-      });
-      this.computeGrid();
-      this.gotClean();
-      get(this, 'display').success('Reverted all changes.');
-    },
-
-    /**
-     * Clear all grid steps by setting existing event velocity to zero
-     */
-    clearAll: function () {
-      let self = this;
-      self.forEachGridStep((groupId, trackName, step, event) => {
-        if (event) {
-          self.modEventVelocity(groupId, trackName, step, 0);
-        }
-      });
-      get(this, 'display').success('Cleared all grid steps.');
-    },
-
-    /**
-     * Apply stepmatic changes
-     * Sends a cascade of HTTP requests to Update/Delete/Create related pattern events
-     */
-    eventUpdateAllTask: task(function* () {
-      let self = this;
+    updateEventPositionDuration() {
       let pattern = get(this, 'pattern');
       let meterSub = pattern.get('meterSub');
       let meterSwing = pattern.get('meterSwing');
-      let tasks = [];
 
       // update all event positions
-      self.forEachGridStep((groupId, trackName, step, event) => {
+      this.forEachGridStep((groupId, trackName, step, event) => {
         if (event) { // else skip (no event at this step)
           let swing = isEven(step) ? 0 : meterSwing / (meterSub * 100);
           let position = step / meterSub + swing;
@@ -361,8 +357,8 @@ const PatternStepmaticComponent = Component.extend(
       // [#161041289]
       // Artist wants Stepmatic-generated events to have duration
       // lasting until the next event in the same voice, and no shorter.
-      let groupStepDuration = self.computeGroupStepDuration();
-      self.forEachGridStep((groupId, trackName, step, event) => {
+      let groupStepDuration = this.updateGroupStepDuration();
+      this.forEachGridStep((groupId, trackName, step, event) => {
         if (event) { // else skip (no event at this step)
           let duration = groupStepDuration[groupId][step];
           if (duration !== event.get('duration')) {
@@ -370,74 +366,6 @@ const PatternStepmaticComponent = Component.extend(
           }
         }
       });
-
-      // now send all destroy/save tasks
-      self.forEachGridStep((groupId, trackName, step, event) => {
-        if (event) { // else skip (no event at this step)
-
-          if (0 === event.get('velocity')) {
-            // zero-velocity events get deleted
-            tasks.push(self.eventDestroyTask.perform(event));
-
-          } else if (event.get('isNew') || event.get('hasDirtyAttributes')) {
-            // dirty events get saved
-            tasks.push(self.eventSaveTask.perform(event));
-          }
-        }
-      });
-
-      yield all(tasks);
-      get(self, 'display').success('Applied stepmatic to pattern ' + pattern.get('name') + '.');
-    }),
-
-    /**
-     * delete an event, as child to concurrent task group
-     * @param event to delete
-     */
-    eventDestroyTask: task(function* (event) {
-      yield event.destroyRecord({});
-    }).enqueue().maxConcurrency(TASK_MAX_CONCURRENCY),
-
-    /**
-     * save an event, as child to concurrent task group
-     * @param event to save
-     */
-    eventSaveTask: task(function* (event) {
-      yield event.save();
-    }).enqueue().maxConcurrency(TASK_MAX_CONCURRENCY),
-
-    /**
-     * Execute a function for each grid step
-     * @param callback to execute
-     */
-    forEachGridStep: function (callback) {
-      let pattern = get(this, 'pattern');
-      let meterSub = pattern.get('meterSub');
-      let total = pattern.get('total');
-
-      // for each group in grid
-      let grid = get(this, 'grid');
-      for (let groupId in grid) {
-        if (grid.hasOwnProperty(groupId)) {
-          let gridGroup = grid[groupId];
-          let tracks = get(gridGroup, 'tracks');
-
-          // for each track in group
-          for (let trackName in tracks) {
-            if (tracks.hasOwnProperty(trackName)) {
-              let track = tracks[trackName];
-
-              // for each step in track
-              for (let step = 0; step < meterSub * total; step++) {
-                let event = get(track, step);
-
-                // execute callback
-                callback(groupId, trackName, step, event);
-              }
-            }
-          }
-        }
-      }
     },
 
     /**
@@ -448,7 +376,7 @@ const PatternStepmaticComponent = Component.extend(
      *
      * @return {String}[]{String}[]{Number} array of [Group,Step] -> Duration
      */
-    computeGroupStepDuration: function () {
+    updateGroupStepDuration() {
       let pattern = get(this, 'pattern');
       let meterSub = pattern.get('meterSub');
       let total = pattern.get('total');
@@ -491,10 +419,406 @@ const PatternStepmaticComponent = Component.extend(
     },
 
     /**
+     * Callback on update to InstrumentPlayer load progress
+     * @param {Number} preparedness from 0 to 1
+     */
+    onPreppingProgress(preparedness) {
+      let percent = 5 + Math.floor(preparedness * 95);
+      set(this, 'preparednessPercentage', percent);
+      set(this, 'preparednessStyleWidth', htmlSafe('width: ' + percent + '%;'))
+    },
+
+    /**
+     *
+     [#154945824] Artist wants to load instrument audio for preview play of events
+     */
+    prepareForPlay() {
+      this.goToState(Prepping);
+      let sequence = get(this, 'sequence');
+      let tempo = sequence.get('tempo');
+      let pattern = get(this, 'pattern');
+      let meterSub = pattern.get('meterSub');
+      let instrument = get(this, 'instrumentToPlay');
+      let instrumentPlayer = InstrumentPlayer.create({audioBaseUrl: get(this, 'audioBaseUrl')});
+      set(this, 'instrumentPlayer', instrumentPlayer);
+      set(this, 'playStepSeconds', ((SECONDS_PER_MINUTE / tempo) / meterSub));
+      set(this, 'playStepCompleted', -1);
+      set(this, 'playBeatCompleted', -1);
+      let self = this;
+      get(self, 'store').query('audio', {instrumentId: instrument.get('id')})
+        .then((audios) => {
+          get(self, 'store').query('audio-event', {instrumentId: instrument.get('id')})
+            .then((audioEvents) => {
+              instrumentPlayer.setup(instrument, audios, audioEvents, (progress) => {
+                self.onPreppingProgress(progress);
+              }).then(() => {
+                get(self, 'display').success('Loaded all audio for preview instrument ' + instrument.get('description') + '.');
+                self.beginPlay();
+              }, (error) => {
+                self.displayErrorAndGoToReadyState(error);
+              });
+            }, (error) => {
+              self.displayErrorAndGoToReadyState(error);
+            });
+        }, (error) => {
+          self.displayErrorAndGoToReadyState(error);
+        });
+    },
+
+    /**
+     * [#160273003] Artist wants to press Play in order to begin play current pattern
+     */
+    beginPlay() {
+      this.goToState(Playing);
+      let instrumentPlayer = get(this, 'instrumentPlayer');
+      let secondsPerStep = get(this, 'playStepSeconds');
+      let pattern = get(this, 'pattern');
+      let meterSub = pattern.get('meterSub');
+      let total = pattern.get('total');
+      set(this, 'playBeginSeconds', this.nowSeconds() + PLAY_AHEAD_SECONDS);
+      set(this, 'playerOffsetSeconds', instrumentPlayer.currentTime());
+
+      let self = this;
+      set(this, 'playCycleInterval', setInterval(() => {
+        self.doPlayCycle(secondsPerStep, meterSub, total);
+      }, Math.round(PLAY_CYCLE_SECONDS * MILLIS_PER_SECOND)));
+    },
+
+    /**
+     * [#160273003] Artist wants to press Stop in order to halt play of current pattern
+     * @return {EmberPromise} promise resolved after playback has been halted
+     */
+    haltPlay() {
+      clearInterval(get(this, 'playCycleInterval'));
+      this.clearPlayBeat();
+      return new EmberPromise((resolve, reject) => {
+        get(this, 'instrumentPlayer').stop().then(() => {
+          this.goToState(Standby);
+          resolve();
+        }, reject);
+      });
+    },
+
+    /**
+     * Get now play seconds since begin play, in sub-millisecond floating point precision
+     * @returns {Number}
+     */
+    playNowSeconds() {
+      return this.nowSeconds() - get(this, 'playBeginSeconds');
+    },
+
+    /**
+     * [#160273003] Artist wants play in a perfect loop, updating in real time with the step grid.
+     * Passed in cached values from original function that instantiated the play cycle:
+     * This process sets up audio for all steps that have not been scheduled
+
+     *
+     * @param secondsPerStep seconds per step
+     * @param meterSub steps per beat
+     * @param total beats
+     */
+    doPlayCycle(secondsPerStep, meterSub, total) {
+      let grid = get(this, 'grid');
+      let stepPrior = get(this, 'playStepCompleted');
+      let nowSeconds = this.playNowSeconds();
+      let playerOffsetSeconds = get(this, 'playerOffsetSeconds');
+      let stepsPerMeasure = total * meterSub;
+      let secondsPerBeat = meterSub * secondsPerStep;
+      let secondsPerMeasure = secondsPerBeat * total;
+      let instrumentPlayer = get(this, 'instrumentPlayer');
+
+      this.doPlayBeatUpdate(Math.floor(nowSeconds / secondsPerStep), meterSub, total);
+
+      let stepNext = Math.floor((nowSeconds + PLAY_AHEAD_SECONDS) / secondsPerStep);
+      if (stepNext > stepPrior) {
+        for (let stepNow = stepPrior + 1; stepNow <= stepNext; stepNow++) {
+          let step = stepNow % stepsPerMeasure;
+          let measure = Math.floor(stepNow / stepsPerMeasure);
+          for (let groupId in grid) {
+            if (grid.hasOwnProperty(groupId)) {
+              let gridGroup = grid[groupId];
+              let tracks = get(gridGroup, 'tracks');
+              for (let trackName in tracks) {
+                if (tracks.hasOwnProperty(trackName)) {
+                  let track = tracks[trackName];
+                  let event = get(track, step);
+                  if (event) { // else skip (no event at step)
+                    let playAudioAt = playerOffsetSeconds + PLAY_AHEAD_SECONDS + measure * secondsPerMeasure + event.get('position') * secondsPerBeat - numberOrZero(event.get('start'));
+                    let playAudioDuration = event.get('duration') * secondsPerBeat;
+                    instrumentPlayer.scheduleAudio(event.get('inflection'), event.get('velocity'), playAudioAt, playAudioDuration);
+                  }
+                }
+              }
+            }
+          }
+        }
+        set(this, 'playStepCompleted', stepNext);
+      }
+    },
+
+    /**
+     * [#160273003] now-playing active beat lit up at the top of the grid during playback
+     *
+     * Passed in cached values from original function that instantiated the play cycle:
+     * @param step currently on
+     * @param meterSub steps per beat
+     * @param total beats
+     */
+    doPlayBeatUpdate(step, meterSub, total) {
+      let playBeatNow = get(this, 'playBeatNow');
+      let beat = Math.floor(step / meterSub) % total;
+      if (beat !== playBeatNow) {
+        set(this, 'playBeatNow', beat);
+        for (let i = 0; i < total; i++) {
+          if (step >= 0 && beat === i) {
+            $('.beat-' + i)['addClass']('active');
+          } else {
+            $('.beat-' + i)['removeClass']('active');
+          }
+        }
+      }
+    },
+
+    /**
+     * [#160273003] now-playing active beat no longer lit up after stop play
+     */
+    clearPlayBeat() {
+      $('.beat-step')['removeClass']('active');
+    },
+
+    /**
+     * Do three different actions, based on single, double, or triple-click.
+     *
+     * @param key to identify a unique click
+     * @param onSingleFn
+     * @param onDoubleFn
+     * @param onTripleFn
+     */
+    doSingleDoubleTriple(key, onSingleFn, onDoubleFn, onTripleFn) {
+      let self = this;
+
+      let onTimeout = () => { // to execute after any number of clicks
+        if (1 === self.clickCache[key].count) {
+          onSingleFn();
+        } else if (2 === self.clickCache[key].count) {
+          onDoubleFn();
+        } else if (3 === self.clickCache[key].count) {
+          onTripleFn();
+        } else {
+          self.debug('no handler for', self.clickCache[key].count, 'clicks', key);
+        }
+        delete self.clickCache[key];
+      };
+
+      if (has(self.clickCache, key)) { // there is already a click for this key, clear its original timeout and update it.
+        clearTimeout(this.clickCache[key].timeout);
+        this.clickCache[key].count++;
+        self.clickCache[key].timeout = setTimeout(onTimeout, DOUBLE_CLICK_MILLIS);
+
+      } else { // this is the first click
+        self.clickCache[key] = {
+          timeout: setTimeout(onTimeout, DOUBLE_CLICK_MILLIS),
+          count: 1
+        };
+      }
+    },
+
+    /**
+     * Modify event velocity at grid step; create event if none exists
+     * modify event while playing and update in real time
+     * fix Attempted to set 'velocity' to '1' on the deleted record <pattern-event:588>"
+     * fix Attempted to handle event `deleteRecord` on <pattern-event:1662> while in state root.deleted.saved." @see if(this.isDestroyed)
+     *
+     * @param groupId to modify
+     * @param trackName to modify
+     * @param step to modify
+     * @param velocity to update/create event with
+     */
+    modEventVelocity(groupId, trackName, step, velocity) {
+      let groupContainer = get(get(this, 'grid'), groupId);
+      let tracks = get(groupContainer, 'tracks');
+      let group = get(groupContainer, 'group');
+      let track = get(tracks, trackName);
+      let event = get(track, step);
+      if (event) {
+        set(event, 'velocity', velocity);
+        if (0 === velocity) {
+          get(this, 'eventsToDestroy').push(event);
+          set(track, step, null);
+        }
+      } else {
+        set(track, step, this.newEvent(group, trackName, velocity));
+      }
+      this.updateEventPositionDuration();
+      this.gotDirty();
+    },
+
+    /**
+     * New pattern event in voice
+     * @param voice to create event event in
+     * @param inflection of new event
+     * @param velocity of new event
+     * @returns {*|DS.Model|EmberPromise}
+     */
+    newEvent(voice, inflection, velocity) {
+      let pattern = get(this, 'pattern');
+      return get(this, 'store').createRecord('pattern-event', {
+        pattern: pattern,
+        voice: voice,
+        velocity: velocity,
+        inflection: inflection,
+        duration: 1,
+        tonality: EVENT_DEFAULT_TONALITY,
+        note: EVENT_DEFAULT_NOTE,
+      });
+    },
+
+    /**
+     * Create an empty drum track
+     * @param groupId to create track in
+     * @param trackName of new track
+     */
+    createTrack(groupId, trackName) {
+      let pattern = get(this, 'pattern');
+      let total = pattern.get('total');
+      let meterSub = pattern.get('meterSub');
+      let groupContainer = get(get(this, 'grid'), groupId);
+      let tracks = get(groupContainer, 'tracks');
+      set(tracks, trackName, {});
+      for (let step = 0; step < meterSub * total; step++) {
+        set(get(tracks, trackName), step, null);
+      }
+      get(this, 'display').success("Created track '" + trackName + "'");
+    },
+
+    /**
+     * Apply stepmatic changes and all modifications to events
+     * indicate updating state, until task group is complete
+     */
+    applyAll() {
+      let self = this;
+      self.goToState(Working);
+      get(this, 'pattern').save().then(
+        () => {
+          self.eventUpdateAllTask.perform().then(() => {
+            self.goToState(Standby);
+            self.gotClean();
+          });
+        },
+        (error) => {
+          get(self, 'display').error(error);
+        });
+    },
+
+    /**
+     * Revert all stepmatic changes to original pattern and pattern events
+     */
+    revertAll() {
+      get(this, 'pattern').rollbackAttributes();
+      this.forEachGridStep((groupId, trackName, step, event) => {
+        if (event) {
+          event.rollbackAttributes();
+        }
+      });
+      this.createGridFromPatternEvents();
+      this.gotClean();
+      get(this, 'display').success('Reverted all changes.');
+    },
+
+    /**
+     * Clear all grid steps by setting existing event velocity to zero
+     */
+    clearAll() {
+      let self = this;
+      self.forEachGridStep((groupId, trackName, step, event) => {
+        if (event) {
+          self.modEventVelocity(groupId, trackName, step, 0);
+        }
+      });
+      get(this, 'display').success('Cleared all grid steps.');
+    },
+
+    /**
+     * Apply stepmatic changes
+     * Sends a cascade of HTTP requests to Update/Delete/Create related pattern events
+     */
+    eventUpdateAllTask: task(function* () {
+      let self = this;
+      let pattern = get(this, 'pattern');
+      let eventsToDestroy = get(this, 'eventsToDestroy');
+      let tasks = [];
+
+      // send all destroy tasks
+      eventsToDestroy.forEach((event) => {
+        tasks.push(self.eventDestroyTask.perform(event));
+      });
+
+      // send all save tasks
+      self.forEachGridStep((groupId, trackName, step, event) => {
+        if (event) { // else skip (no event at this step)
+          tasks.push(self.eventSaveTask.perform(event));
+        }
+      });
+
+      yield all(tasks);
+      get(self, 'display').success('Applied stepmatic to pattern ' + pattern.get('name') + '.');
+    }),
+
+    /**
+     * delete an event, as child to concurrent task group
+     * @param event to delete
+     */
+    eventDestroyTask: task(function* (event) {
+      yield event.destroyRecord({});
+    }).enqueue().maxConcurrency(TASK_MAX_CONCURRENCY),
+
+    /**
+     * save an event, as child to concurrent task group
+     * @param event to save
+     */
+    eventSaveTask: task(function* (event) {
+      yield event.save();
+    }).enqueue().maxConcurrency(TASK_MAX_CONCURRENCY),
+
+    /**
+     * Execute a function for each grid step
+     * @param callback to execute
+     */
+    forEachGridStep(callback) {
+      let pattern = get(this, 'pattern');
+      let meterSub = pattern.get('meterSub');
+      let total = pattern.get('total');
+
+      // for each group in grid
+      let grid = get(this, 'grid');
+      for (let groupId in grid) {
+        if (grid.hasOwnProperty(groupId)) {
+          let gridGroup = grid[groupId];
+          let tracks = get(gridGroup, 'tracks');
+
+          // for each track in group
+          for (let trackName in tracks) {
+            if (tracks.hasOwnProperty(trackName)) {
+              let track = tracks[trackName];
+
+              // for each step in track
+              for (let step = 0; step < meterSub * total; step++) {
+                let event = get(track, step);
+
+                // execute callback
+                callback(groupId, trackName, step, event);
+              }
+            }
+          }
+        }
+      }
+    },
+
+    /**
      * The component got dirty, as in,
      * modifications were made to pattern properties or the step grid
      */
-    gotDirty: function () {
+    gotDirty() {
       set(this, 'isDirty', true);
     },
 
@@ -502,12 +826,102 @@ const PatternStepmaticComponent = Component.extend(
      * The component got clean, as in,
      * the pattern modifications were applied or reverted
      */
-    gotClean: function () {
+    gotClean() {
       set(this, 'isDirty', false);
+    },
+
+    /**
+     * Now seconds with sub-millisecond floating point precision
+     * @returns {number} of seconds since page navigation began
+     */
+    nowSeconds() {
+      return window.performance.now() / MILLIS_PER_SECOND;
+    },
+
+    /**
+     * Display an error, then go to ready state
+     * @param error to display
+     */
+    displayErrorAndGoToReadyState(error) {
+      if ('undefined' !== typeof error && error) {
+        get(this, 'display').error(error);
+      }
+      try {
+        this.goToState(Standby);
+      } catch (e) {
+        this.debug('cannot transition to standby', e);
+      }
+    },
+
+    /**
+     log a debug-level message
+     * @param message
+     * @param args
+     */
+    debug(message, ...args) {
+      this.log('debug', message, ...args);
+    },
+
+    /**
+     log a info-level message
+     * @param message
+     * @param args
+     */
+    info(message, ...args) {
+      this.log('info', message, ...args);
+    },
+
+    /**
+     log a warn-level message
+     * @param message
+     * @param args
+     */
+    warn(message, ...args) {
+      this.log('warn', message, ...args);
+    },
+
+    /**
+     log an error-level message
+     * @param message
+     * @param args
+     */
+    error(message, ...args) {
+      this.log('error', message, ...args);
+    },
+
+    /**
+     log any level of message
+     * @param message
+     * @param level
+     * @param args
+     */
+    log(level, message, ...args) {
+      console[level]('[' + this.name + '] ' + message, ...args);
     },
 
     // Component actions
     actions: {
+
+      /**
+       * [#160273003] Artist wants to press Play in order to begin play current pattern
+       */
+      play() {
+        this.prepareForPlay();
+      },
+
+      /**
+       * [#160273003] Artist wants to press Stop in order to halt play of current pattern
+       */
+      stop() {
+        this.haltPlay();
+      },
+
+      /**
+       * [#154945824] Artist wants to select instrument for preview play
+       */
+      setInstrumentToPlay(instrument) {
+        set(this, 'instrumentToPlay', instrument);
+      },
 
       /**
        * Apply stepmatic changes
@@ -557,7 +971,7 @@ const PatternStepmaticComponent = Component.extend(
        */
       didUpdateSuper() {
         if (confirm('Changing the beat superset will revert all changes. Are you sure?')) {
-          this.computeGrid();
+          this.createGridFromPatternEvents();
         }
       },
 
@@ -567,7 +981,7 @@ const PatternStepmaticComponent = Component.extend(
        */
       didUpdateSub() {
         if (confirm('Changing the subdivisions will revert all changes. Are you sure?')) {
-          this.computeGrid();
+          this.createGridFromPatternEvents();
         }
       },
 
@@ -687,6 +1101,15 @@ function isEven(num) {
 }
 
 /**
+ * Numeric value, or zero, based on input
+ * @param value to filter
+ * @returns {number} numeric value or zero
+ */
+function numberOrZero(value) {
+  return typeof value !== 'undefined' && value && value > 0 ? value : 0;
+}
+
+/**
  * Usage (e.g, in Handlebars, where pattern model is "myPatternModel"):
  *
  *   {{pattern-stepmatic myPatternModel}}
@@ -696,4 +1119,9 @@ PatternStepmaticComponent.reopenClass(
     positionalParams: ['pattern']
   });
 
+// Obvious constants
+const MILLIS_PER_SECOND = 1000;
+const SECONDS_PER_MINUTE = 60;
+
+// Finally, export the component
 export default PatternStepmaticComponent;

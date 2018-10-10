@@ -7,7 +7,7 @@ export default Route.extend({
 
   /**
    * Route Model
-   * @returns {*}
+   * @returns {*} hash
    */
   model() {
     let account = this.modelFor('accounts.one');
@@ -16,7 +16,7 @@ export default Route.extend({
       users: this.store.findAll('user'),
       userToAdd: null,
       accountUsers: this.store.query('account-user', { accountId: account.id }),
-    });
+    }, 'account, users, account users, user to add to account');
   },
 
   /**

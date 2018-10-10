@@ -127,6 +127,27 @@ public class PatternMemeIT {
   }
 
   @Test
+  public void create_MacroSequencePatternMeme() throws Exception {
+    IntegrationTestEntity.insertSequence(15, 2, 1, SequenceType.Macro, SequenceState.Published, "foods", 0.342, "C#", 120.4);
+    IntegrationTestEntity.insertPatternSequencePattern(21, 15, PatternType.Macro, PatternState.Published, 0, 16, "meat", 0.342, "C#", 120.4);
+    IntegrationTestEntity.insertPatternSequencePattern(22, 15, PatternType.Macro, PatternState.Published, 1, 16, "vegetable", 0.25, "F#", 110.3);
+    IntegrationTestEntity.insertPatternMeme(51, 21, "Squash");
+    Access access = new Access(ImmutableMap.of(
+      "roles", "Artist",
+      "accounts", "1"
+    ));
+    PatternMeme inputData = new PatternMeme()
+      .setPatternId(BigInteger.valueOf(21L))
+      .setName("Ham");
+
+    PatternMeme result = testDAO.create(access, inputData);
+
+    assertNotNull(result);
+    assertEquals(BigInteger.valueOf(21L), result.getPatternId());
+    assertEquals("Ham", result.getName());
+  }
+
+  @Test
   public void readOne() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "Artist",

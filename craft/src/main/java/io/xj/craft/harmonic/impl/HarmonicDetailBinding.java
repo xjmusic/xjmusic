@@ -2,5 +2,5 @@
 package io.xj.craft.harmonic.impl;
 
 public class HarmonicDetailBinding {
-  // TODO implement harmonic detail binding
+  // FUTURE implement harmonic detail binding
 }

@@ -40,9 +40,6 @@ export default Service.extend({
   // Inject: flash message service
   display: service(),
 
-  // Inject: binary resource service
-  binaryResource: service(),
-
   // Inject: segment scroll service
   segmentScroll: service(),
 

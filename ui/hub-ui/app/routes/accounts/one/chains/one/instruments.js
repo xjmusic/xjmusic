@@ -33,7 +33,7 @@ export default Route.extend({
 
   /**
    * Resolved (with configs) model
-   * @returns {*}
+   * @returns {*} hash
    */
   resolvedModel() {
     let chain = this.modelFor('accounts.one.chains.one');
@@ -43,7 +43,7 @@ export default Route.extend({
       instruments: this.store.query('instrument', {accountId: account.id}),
       instrumentToAdd: null,
       chainInstruments: this.store.query('chain-instrument', {chainId: chain.id}),
-    });
+    }, 'chain, chain instruments, all available instruments, instrument to add to chain');
   },
 
 

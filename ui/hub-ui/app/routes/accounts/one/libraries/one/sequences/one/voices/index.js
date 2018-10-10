@@ -1,8 +1,8 @@
 //  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
-import { hash } from 'rsvp';
+import {hash} from 'rsvp';
 
-import { get } from '@ember/object';
-import { inject as service } from '@ember/service';
+import {get} from '@ember/object';
+import {inject as service} from '@ember/service';
 import Route from '@ember/routing/route';
 
 export default Route.extend({
@@ -12,7 +12,7 @@ export default Route.extend({
 
   /**
    * Route Model
-   * @returns {*}
+   * @returns {*} hash
    */
   model: function () {
     let self = this;
@@ -25,7 +25,7 @@ export default Route.extend({
     return hash({
       sequence: sequence,
       voices: voices,
-    });
+    }, 'voices and their parent sequence');
   },
 
   /**

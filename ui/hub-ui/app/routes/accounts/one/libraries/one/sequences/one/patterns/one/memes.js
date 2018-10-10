@@ -1,8 +1,8 @@
 //  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
-import { get } from '@ember/object';
+import {get} from '@ember/object';
 
-import { hash } from 'rsvp';
-import { inject as service } from '@ember/service';
+import {hash} from 'rsvp';
+import {inject as service} from '@ember/service';
 import Route from '@ember/routing/route';
 
 export default Route.extend({
@@ -12,7 +12,7 @@ export default Route.extend({
 
   /**
    * Route Model
-   * @returns {*}
+   * @returns {*} hash
    */
   model() {
     let pattern = this.modelFor('accounts.one.libraries.one.sequences.one.patterns.one');
@@ -20,7 +20,7 @@ export default Route.extend({
       pattern: pattern,
       memeToAdd: null,
       patternMemes: this.store.query('pattern-meme', {patternId: pattern.id}),
-    });
+    }, 'pattern, pattern memes, meme to add to pattern');
   },
 
   /**
@@ -44,17 +44,18 @@ export default Route.extend({
     },
 
     addMemeToPattern(model) {
+      let self = this;
       let patternMeme = this.store.createRecord('pattern-meme', {
         pattern: model.pattern,
         name: model.memeToAdd,
       });
       patternMeme.save().then(
         () => {
-          get(this, 'display').success('Added ' + patternMeme.get('name') + ' to ' + model.sequence.get('name') + '.');
-          this.send("sessionChanged");
+          get(self, 'display').success('Added ' + patternMeme.get('name') + ' to ' + model.pattern.get('name') + '.');
+          self.send("sessionChanged");
         },
         (error) => {
-          get(this, 'display').error(error);
+          get(self, 'display').error(error);
         });
     },
   }

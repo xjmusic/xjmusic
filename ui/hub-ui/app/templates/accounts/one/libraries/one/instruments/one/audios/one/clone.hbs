@@ -20,6 +20,7 @@
           placeholder="Select Instrument"
           options=model.instruments
           selected=model.audio.instrument
+          searchField='description'
           onchange=(action "setAudioInstrument")
         as |instrument| }}
           {{instrument.description}} (#{{instrument.id}})

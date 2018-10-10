@@ -52,6 +52,7 @@
         placeholder="Select Library"
         options=model.libraries
         selected=model.libraryToAdd
+        searchField='name'
         onchange=(action "setLibraryToAdd")
       as |library| }}
         {{library.name}} (#{{library.id}})

@@ -11,7 +11,7 @@ export default Route.extend({
 
   /**
    * Route Model
-   * @returns {Promise.<T>}
+   * @returns {*} hash
    */
   model: function () {
     let self = this;
@@ -21,7 +21,7 @@ export default Route.extend({
           get(self, 'display').error(error);
           self.transitionTo('');
         })
-    });
+    }, 'accounts');
   },
 
   /**

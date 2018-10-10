@@ -20,6 +20,7 @@
           placeholder="Select Library"
           options=model.libraries
           selected=model.instrument.library
+          searchField='name'
           onchange=(action "setInstrumentLibrary")
         as |library| }}
           {{library.name}} (#{{library.id}})

@@ -40,7 +40,7 @@
         <td>{{message-badges segment}}</td>
         <td>{{#if (eq segment.state "Dubbed")}}
           <button type="button" aria-label="play segment offset {{segment.offset}}"
-                  class="btn segment-play" {{action 'play' model.chain segment}}>&#9658;
+                  class="btn segment-play" {{action 'play' model.chain segment}}><!--Play-->&#9658;
           </button>
         {{/if}}</td>
       </tr>

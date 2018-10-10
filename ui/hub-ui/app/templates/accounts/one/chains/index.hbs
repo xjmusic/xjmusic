@@ -60,7 +60,7 @@
           </td>
           <td>{{#if (or (eq chain.state "Fabricate") (eq chain.state "Complete"))}}
             <button type="button" aria-label="play chain {{chain.id}}"
-                    class="btn segment-play" {{action 'play' chain}}>&#9658;
+                    class="btn segment-play" {{action 'play' chain}}><!--Play-->&#9658;
             </button>
           {{/if}}</td>
         </tr>

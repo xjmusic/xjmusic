@@ -1,8 +1,8 @@
 //  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
-import { get } from '@ember/object';
+import {get} from '@ember/object';
 
-import { hash } from 'rsvp';
-import { inject as service } from '@ember/service';
+import {hash} from 'rsvp';
+import {inject as service} from '@ember/service';
 import Route from '@ember/routing/route';
 
 export default Route.extend({
@@ -12,7 +12,7 @@ export default Route.extend({
 
   /**
    * Route Model
-   * @returns {*}
+   * @returns {*} hash
    */
   model() {
     let sequence = this.modelFor('accounts.one.libraries.one.sequences.one');
@@ -20,7 +20,7 @@ export default Route.extend({
       sequence: sequence,
       memeToAdd: null,
       sequenceMemes: this.store.query('sequence-meme', {sequenceId: sequence.id}),
-    });
+    }, 'sequence, sequence memes, meme to add to sequence');
   },
 
   /**

@@ -1,8 +1,8 @@
 //  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
-import { get } from '@ember/object';
+import {get} from '@ember/object';
 
-import { Promise as EmberPromise, hash } from 'rsvp';
-import { inject as service } from '@ember/service';
+import {hash, Promise as EmberPromise} from 'rsvp';
+import {inject as service} from '@ember/service';
 import Route from '@ember/routing/route';
 
 export default Route.extend({
@@ -34,7 +34,7 @@ export default Route.extend({
   /**
    * Resolved (with configs) model
    * @param config
-   * @returns {*}
+   * @returns {*} hash
    */
   resolvedModel(config) {
     let account = this.modelFor('accounts.one');
@@ -44,7 +44,7 @@ export default Route.extend({
         state: config.chainStates[0],
         type: config.chainTypes[0]
       })
-    });
+    }, 'new chain');
   },
 
   /**
@@ -75,8 +75,7 @@ export default Route.extend({
       }
     },
 
-    cancelCreateChain()
-    {
+    cancelCreateChain() {
       let model = this.controller.get('model.chain');
       if (model.get('hasDirtyAttributes')) {
         let confirmation = confirm("Your changes haven't saved yet. Would you like to leave this form?");

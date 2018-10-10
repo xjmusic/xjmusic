@@ -1,8 +1,8 @@
 //  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
-import { get } from '@ember/object';
+import {get} from '@ember/object';
 
-import { hash } from 'rsvp';
-import { inject as service } from '@ember/service';
+import {hash} from 'rsvp';
+import {inject as service} from '@ember/service';
 import Route from '@ember/routing/route';
 
 let DRAFT = "draft";
@@ -17,7 +17,7 @@ export default Route.extend({
 
   /**
    * Route Model
-   * @returns {*}
+   * @returns {*} hash
    */
   model: function () {
     let library = this.modelFor('accounts.one.libraries.one');
@@ -25,7 +25,7 @@ export default Route.extend({
     return hash({
       library: library,
       instrument: instrument,
-    });
+    }, 'library, instrument');
   },
 
   /**

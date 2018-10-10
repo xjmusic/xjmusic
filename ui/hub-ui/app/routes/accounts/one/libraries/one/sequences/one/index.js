@@ -17,7 +17,7 @@ export default Route.extend({
 
   /**
    * Route Model
-   * @returns {*}
+   * @returns {*} hash
    */
   model: function() {
     let library = this.modelFor('accounts.one.libraries.one');
@@ -25,7 +25,7 @@ export default Route.extend({
     return hash({
       library: library,
       sequence: sequence,
-    });
+    }, 'library, sequence');
   },
 
   /**

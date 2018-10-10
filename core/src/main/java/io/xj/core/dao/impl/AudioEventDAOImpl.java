@@ -1,6 +1,10 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.dao.impl;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.inject.Inject;
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.AudioEventDAO;
 import io.xj.core.exception.BusinessException;
@@ -9,14 +13,9 @@ import io.xj.core.model.audio_event.AudioEvent;
 import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import io.xj.core.persistence.sql.impl.SQLConnection;
 import io.xj.core.tables.records.AudioEventRecord;
-
 import org.jooq.DSLContext;
 import org.jooq.Field;
 import org.jooq.types.ULong;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.inject.Inject;
 
 import javax.annotation.Nullable;
 import java.math.BigInteger;
@@ -93,11 +92,11 @@ public class AudioEventDAOImpl extends DAOImpl implements AudioEventDAO {
   }
 
   /**
-   Read all Event able for an Instrument
+   Read all Event for an audio
 
    @param db       context
    @param access   control
-   @param audioIds to readMany all audio of
+   @param audioIds of which to read events
    @return array of audios
    */
   private static Collection<AudioEvent> readAll(DSLContext db, Access access, Collection<ULong> audioIds) throws BusinessException {
@@ -114,6 +113,36 @@ public class AudioEventDAOImpl extends DAOImpl implements AudioEventDAO {
         .join(INSTRUMENT).on(INSTRUMENT.ID.eq(AUDIO.INSTRUMENT_ID))
         .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
         .where(AUDIO_EVENT.AUDIO_ID.in(audioIds))
+        .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+        .orderBy(AUDIO_EVENT.POSITION)
+        .fetch(), AudioEvent.class);
+  }
+
+  /**
+   Read all audio event for an Instrument
+
+   Supports [#161197150] Developer wants to request all audioEvent for a specified instrument id, for efficiency loading an entire instrument.
+
+   @param db            context
+   @param access        control
+   @param instrumentIds of which to read audio events
+   @return array of audios
+   */
+  private static Collection<AudioEvent> readAllOfInstrument(DSLContext db, Access access, Collection<ULong> instrumentIds) throws BusinessException {
+    if (access.isTopLevel())
+      return modelsFrom(db.select(AUDIO_EVENT.fields())
+        .from(AUDIO_EVENT)
+        .join(AUDIO).on(AUDIO.ID.eq(AUDIO_EVENT.AUDIO_ID))
+        .where(AUDIO.INSTRUMENT_ID.in(instrumentIds))
+        .orderBy(AUDIO_EVENT.POSITION)
+        .fetch(), AudioEvent.class);
+    else
+      return modelsFrom(db.select(AUDIO_EVENT.fields())
+        .from(AUDIO_EVENT)
+        .join(AUDIO).on(AUDIO.ID.eq(AUDIO_EVENT.AUDIO_ID))
+        .join(INSTRUMENT).on(INSTRUMENT.ID.eq(AUDIO.INSTRUMENT_ID))
+        .join(LIBRARY).on(LIBRARY.ID.eq(INSTRUMENT.LIBRARY_ID))
+        .where(AUDIO.INSTRUMENT_ID.in(instrumentIds))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .orderBy(AUDIO_EVENT.POSITION)
         .fetch(), AudioEvent.class);
@@ -271,6 +300,16 @@ public class AudioEventDAOImpl extends DAOImpl implements AudioEventDAO {
     try {
 
       return tx.success(readAllFirstEventsForInstrument(tx.getContext(), access, ULong.valueOf(instrumentId)));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public Collection<AudioEvent> readAllOfInstrument(Access access, ImmutableList<BigInteger> instrumentIds) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readAllOfInstrument(tx.getContext(), access, uLongValuesOf(instrumentIds)));
     } catch (Exception e) {
       throw tx.failure(e);
     }

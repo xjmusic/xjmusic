@@ -16,14 +16,14 @@ class private_state {
 
 	envelope_lookup ve;			// envelope lookup - *ve;
 	int[] window;				// window[2];
-	
+
 	mdct_lookup[][] transform;		// vorbis_look_transform **transform[2];// block, type
 	drft_lookup[] fft_look;			// fft_look[2];
 
 	int modebits;
 
-// TODO - floor, residue OOP function classes
-	
+// FUTURE - floor, residue OOP function classes
+
 // flr data & functions will always be floor1
 
 	vorbis_look_floor1[] flr;		// **flr;

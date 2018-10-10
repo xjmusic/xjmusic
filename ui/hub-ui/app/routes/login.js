@@ -17,9 +17,9 @@ export default Route.extend({
    * @returns {Ember.RSVP.Promise}
    */
   model() {
+    let self = this;
     return new EmberPromise((resolve, reject) => {
-      let self = this;
-      get(this, 'config').promises.config.then(
+      get(self, 'config').promises.config.then(
         () => {
           resolve(self.resolvedModel());
         },

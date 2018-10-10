@@ -20,7 +20,7 @@ public class RedisDatabaseProviderImpl implements RedisDatabaseProvider {
 
   public RedisDatabaseProviderImpl() {
 /*
-TODO: use Jedis Pool and Client Pool
+FUTURE: use Jedis Pool and Client Pool
     jedisPool = new JedisPool(host(), port());
     queueClient = new ClientPoolImpl(getQueueConfig(), jedisPool);
 */

@@ -12,7 +12,7 @@ export default Route.extend({
 
   /**
    * Route Model
-   * @returns {*}
+   * @returns {*} hash
    */
   model: function () {
     let self = this;
@@ -25,7 +25,7 @@ export default Route.extend({
     return hash({
       library: library,
       instruments: instruments,
-    });
+    }, 'library, instruments');
   },
 
   /**

@@ -6,7 +6,7 @@ export default Route.extend({
 
   /**
    * Route Model
-   * @returns {*}
+   * @returns {*} hash
    */
   model: function() {
     let sequence = this.modelFor('accounts.one.libraries.one.sequences.one');
@@ -14,7 +14,7 @@ export default Route.extend({
     return hash({
       sequence: sequence,
       pattern: pattern,
-    });
+    }, 'pattern and its parent sequence');
   },
 
 });

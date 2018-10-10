@@ -128,15 +128,15 @@ Only between major platform configuration changes (e.g. to **.nginx/locations.co
 
     docker-compose up -d --build    
 
-There is a MySQL dump of a complete example database, for quickly bootstrapping a dev environment. This file is located in the root of the project, at **reset_database.sql**
+There is a MySQL dump of a complete example database, for quickly bootstrapping a dev environment. These files are located in `/.mysql/dump/*`:
 
 Load the example database into `mysql01xj1` using the port forwarding from local port 3300 (to Docker Mysql container port 3306). There's a convenience script to do this:
 
-    bin/mysql/reset_from_dump
+    bin/mysql/reset/all_local
 
-The **reset_database.sql** file can be quickly updated from the current dev database with this script:
+The `/.mysql/dump/*` files can be quickly updated from the current dev database with this script:
 
-    bin/mysql/dump_for_reset
+    bin/mysql/dump/all_local
 
 It is NOT necessary to have any local MySQL server running. The build process will use your Docker `mysql01xj1`, or more specifically (for cross-platform compatibility) it will use port 3300 which Docker maps to `mysql01xj1` port 3306, for Maven to use during the build process.
 
@@ -392,7 +392,7 @@ Here are the public-facing Amazon CloudFront-backed URLs for audio files, and th
 
 # Amazon S3
 
-The `reset_database.sql` is generated from data in the production environment, and refers to audio files located in the production S3 bucket, xj-prod-audio.
+The `/.mysql/dump/*` files are generated from data in the production environment, and refer to audio files located in the dev S3 bucket (synced from the production S3 bucket), xj-dev-audio.
 
 Therefore, it is helpful to be able to sync the audio files from production into the dev environment.
 

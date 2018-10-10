@@ -57,12 +57,12 @@ public class HarmonicDetailCraftImpl implements HarmonicDetailCraft {
    @throws Exception on failure
    */
   private void craftHarmonicDetailSequences() throws Exception {
-    // TODO: determine candidate harmonic harmonic detail sequences
-    // TODO: choose at least one harmonic harmonic detail sequence
-    // TODO: for each harmonic choice, iterate all candidate harmonic bindings
-    // TODO: for each harmonic choice, score all candidate harmonic bindings
-    // TODO: for each harmonic choice, select a complete set of harmonic bindings
-    // TODO: for each harmonic choice, persist harmonic bindings in memory
+    // FUTURE: determine candidate harmonic harmonic detail sequences
+    // FUTURE: choose at least one harmonic harmonic detail sequence
+    // FUTURE: for each harmonic choice, iterate all candidate harmonic bindings
+    // FUTURE: for each harmonic choice, score all candidate harmonic bindings
+    // FUTURE: for each harmonic choice, select a complete set of harmonic bindings
+    // FUTURE: for each harmonic choice, persist harmonic bindings in memory
   }
 
   /**
@@ -71,7 +71,7 @@ public class HarmonicDetailCraftImpl implements HarmonicDetailCraft {
    @throws Exception on failure
    */
   private void craftHarmonicDetailInstruments() throws Exception {
-    // TODO: for each harmonic choice, choose harmonic instruments
+    // FUTURE: for each harmonic choice, choose harmonic instruments
   }
 
   /**
@@ -80,7 +80,7 @@ public class HarmonicDetailCraftImpl implements HarmonicDetailCraft {
    @throws Exception on failure
    */
   private void craftHarmonicDetailPatternEvents() throws Exception {
-    // TODO: for each harmonic choice, craft harmonic voice events
+    // FUTURE: for each harmonic choice, craft harmonic voice events
   }
 
   /**

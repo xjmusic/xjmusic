@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+
+# Include common functions
+. $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/../../common/functions
+
+# Requires 6 arguments
+if [ $# != 6 ]; then echo "
+   Usage:
+     bin/mysql/dump_records <user> <password> <database> <host> <port> <path/to/output.sql>
+
+"
+fi
+MYSQL_USER="${1}"
+MYSQL_PASS="${2}"
+MYSQL_DB="${3}"
+MYSQL_HOST="${4}"
+MYSQL_PORT="${5}"
+OUTPUT_SQL="${6}"
+
+# Tables
+MYSQL_TABLES="schema_version"
+COPYRIGHT="Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved."
+
+# Find MySQL executable
+MYSQLDUMP_COMMAND=mysqldump
+if [ -f /usr/bin/mysqldump ]; then
+    MYSQLDUMP_COMMAND=/usr/bin/mysqldump
+elif [ -f /usr/local/mysql/bin/mysqldump ]; then
+    MYSQLDUMP_COMMAND=/usr/local/mysql/bin/mysqldump
+fi
+
+# empty target file
+printf "# ${COPYRIGHT}\n\n" > ${OUTPUT_SQL}
+
+# only send password argument if there is a non-null password
+if [ -n "${MYSQL_PASS}" ]; then
+  MYSQL_PASS_ARG="-p${MYSQL_PASS}"
+else
+  MYSQL_PASS_ARG=""
+fi
+
+# then append data from only certain tables
+${MYSQLDUMP_COMMAND} --no-data -u${MYSQL_USER} ${MYSQL_PASS_ARG} -h ${MYSQL_HOST} -P ${MYSQL_PORT} ${MYSQL_DB} >> ${OUTPUT_SQL}
+${MYSQLDUMP_COMMAND} --no-create-info -u${MYSQL_USER} ${MYSQL_PASS_ARG} -h ${MYSQL_HOST} -P ${MYSQL_PORT} ${MYSQL_DB} --tables ${MYSQL_TABLES} >> ${OUTPUT_SQL}

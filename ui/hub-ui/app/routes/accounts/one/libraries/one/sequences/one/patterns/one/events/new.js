@@ -15,7 +15,7 @@ export default Route.extend({
 
   /**
    * Route Model
-   * @returns {*|DS.Model|Promise}
+   * @returns {*} hash
    */
   model() {
     let auth = this.get('auth');
@@ -35,7 +35,7 @@ export default Route.extend({
       return hash({
         event: event,
         voices: voices,
-      });
+      }, 'new event, and all available voices for it to belong to');
     } else {
       this.transitionTo('accounts.one.libraries.one.sequences.one.patterns.one.events');
     }

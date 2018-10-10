@@ -9,4 +9,6 @@ export default DS.Model.extend({
   length: DS.attr('number'),
   tempo: DS.attr('number'),
   pitch: DS.attr('number'),
+  events: DS.hasMany('audio-event'),
+  chords: DS.hasMany('audio-chord'),
 });

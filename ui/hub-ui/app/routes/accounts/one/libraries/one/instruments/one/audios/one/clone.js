@@ -33,7 +33,7 @@ export default Route.extend({
 
   /**
    * Resolved (with configs) model
-   * @returns {*}
+   * @returns {*} hash
    */
   resolvedModel() {
     let fromAudio = this.modelFor('accounts.one.libraries.one.instruments.one.audios.one');
@@ -46,7 +46,7 @@ export default Route.extend({
     return hash({
       instruments: this.store.query('instrument', {}),
       audio: audio
-    });
+    }, 'instruments, audio');
   },
 
   /**

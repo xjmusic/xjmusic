@@ -33,7 +33,7 @@ export default Route.extend({
       return hash({
         event: event,
         voices: voices,
-      });
+      }, 'edit event, and all available voices for it to belong to');
     } else {
       this.transitionTo('accounts.one.libraries.one.sequences.one.patterns.one.events');
     }

@@ -1,8 +1,8 @@
 //  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
-import { get } from '@ember/object';
+import {get} from '@ember/object';
 
-import { Promise as EmberPromise, hash } from 'rsvp';
-import { inject as service } from '@ember/service';
+import {hash, Promise as EmberPromise} from 'rsvp';
+import {inject as service} from '@ember/service';
 import Route from '@ember/routing/route';
 
 export default Route.extend({
@@ -34,7 +34,7 @@ export default Route.extend({
   /**
    * Resolved (with configs) model
    * @param config
-   * @returns {*}
+   * @returns {*} hash
    */
   resolvedModel(config) {
     let chain = this.modelFor('accounts.one.chains.one');
@@ -46,7 +46,7 @@ export default Route.extend({
       }),
       chainConfigTypes: config.chainConfigTypes,
       chainConfigs: this.store.query('chain-config', {chainId: chain.id}),
-    });
+    }, 'chain, chain configs, chain config types, config to add to chain');
   },
 
   /**

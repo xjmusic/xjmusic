@@ -1,8 +1,8 @@
 //  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
-import { get } from '@ember/object';
+import {get} from '@ember/object';
 
-import { Promise as EmberPromise, hash } from 'rsvp';
-import { inject as service } from '@ember/service';
+import {hash, Promise as EmberPromise} from 'rsvp';
+import {inject as service} from '@ember/service';
 import Route from '@ember/routing/route';
 
 export default Route.extend({
@@ -15,7 +15,7 @@ export default Route.extend({
 
   /**
    * Route Model
-   * @returns {Ember.RSVP.Promise}
+   * @returns {Ember.RSVP.Promise} that returns {*} hash
    */
   model: function () {
     let self = this;
@@ -31,7 +31,7 @@ export default Route.extend({
               instrument: instrument,
               audioBaseUrl: config.audioBaseUrl,
               audio: audio,
-            }));
+            }, 'instrument, audio, audio base URL'));
           },
           (error) => {
             reject(error);

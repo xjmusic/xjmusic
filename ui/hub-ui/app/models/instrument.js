@@ -8,4 +8,5 @@ export default DS.Model.extend({
   description: DS.attr('string'),
   type: DS.attr('string'),
   arrangements: DS.hasMany('arrangement'),
+  audios: DS.hasMany('audio'),
 });

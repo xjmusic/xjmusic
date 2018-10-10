@@ -32,11 +32,11 @@ class codec_setup_info {
 
 	vorbis_info_mode[] mode_param;			// codec_setup *mode_param[64]
 
-// TODO - Abstract classes
+// FUTURE - Abstract classes
 // vorbis_info_mapping
 // vorbis_info_floor
 // vorbis_info_residue
-	
+
 	int[] map_type;							// int map_type[64] - will always be map0
 	vorbis_info_mapping0[] map_param;		// vorbis_info_mapping *map_param[64]
 
@@ -75,7 +75,7 @@ class codec_setup_info {
 		book_param = new static_codebook[256];
 
 		psy_param = new vorbis_info_psy[4];
-		
+
 		bi = new bitrate_manager_info();
 		hi = new highlevel_encode_setup();
 	}

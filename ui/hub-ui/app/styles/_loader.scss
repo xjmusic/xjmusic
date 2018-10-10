@@ -1,8 +1,7 @@
 //  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 @import 'palette';
 
-.loader {
-  height: 1rem;
+.loader  {
   width: 100%;
   position: relative;
   display: block;
@@ -14,7 +13,8 @@
     content: "";
     right: -200px;
     width: 200px;
-    height: 1rem;
+    height: 100%;
+    top: 0;
     background-color: $gold;
     animation: loaderAnimation 2s linear infinite;
   }
@@ -40,3 +40,4 @@
     }
   }
 }
+

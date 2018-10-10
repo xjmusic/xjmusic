@@ -70,7 +70,7 @@
                 </th>
                 <td>
                   {{#if (eq player.state "Playing")}}
-                    <button class="stop" {{action "stop"}}>&#9640;</button>
+                    <button class="stop" {{action "stop"}}><!--Stop-->&#9640;</button>
                   {{/if}}
                 </td>
               {{else}}
@@ -80,7 +80,7 @@
                 <td>
                   <button type="button" aria-label="play chain #{{model.id}}"
                           class="btn btn-success link-play" {{action 'play' model}}>
-                    &#9658;
+                    <!--Play-->&#9658;
                   </button>
                 </td>
               {{/if}}

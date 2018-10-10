@@ -39,7 +39,7 @@ export default Route.extend({
 
   /**
    * Route Model
-   * @returns {*}
+   * @returns {*} hash
    */
   model: function () {
     let self = this;
@@ -59,7 +59,7 @@ export default Route.extend({
       resolve(hash({
         chain: chain,
         segments: segments
-      }));
+      }, 'chain, segments'));
     });
   },
 

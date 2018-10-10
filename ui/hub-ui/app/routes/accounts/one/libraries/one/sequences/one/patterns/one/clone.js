@@ -33,7 +33,7 @@ export default Route.extend({
 
   /**
    * Resolved (with configs) model
-   * @returns {*}
+   * @returns {*} hash
    */
   resolvedModel() {
     let fromPattern = this.modelFor('accounts.one.libraries.one.sequences.one.patterns.one');
@@ -48,7 +48,7 @@ export default Route.extend({
     return hash({
       sequences: this.store.query('sequence', {}),
       pattern: pattern
-    });
+    }, 'sequences, pattern');
   },
 
   /**
