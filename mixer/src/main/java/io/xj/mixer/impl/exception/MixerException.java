@@ -7,4 +7,11 @@ public class MixerException extends Exception {
     super(msg);
   }
 
+  public MixerException(Exception e) {
+    super(e);
+  }
+
+  public MixerException(String msg, Exception e) {
+    super(msg, e);
+  }
 }

@@ -7,4 +7,12 @@ public class SourceException extends Exception {
     super(msg);
   }
 
+  public SourceException(Exception e) {
+    super(e);
+  }
+
+  public SourceException(String msg, Exception e) {
+    super(msg, e);
+  }
+
 }

@@ -227,7 +227,7 @@ public class MultiJobStressIT {
   }
 
   @Test
-  public void clonesPatternWhileChainFabrication() throws Exception {
+  public void clonesPatternWhileChainFabrication() throws Exception { // TODO investigate this text failure
     when(amazonProvider.generateKey("chain-1-segment", "ogg"))
       .thenReturn("chain-1-segment-12345.ogg");
 

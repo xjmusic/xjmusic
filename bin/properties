@@ -27,7 +27,7 @@ step_ok
 
 #
 step "io.xj.core.config.Config properties:"
-indent "$(grep -oE "\"[a-z]+\.[a-z\.]+\"" core/src/main/java/io/outright/xj/core/app/config/Config.java | sort)"
+indent "$(grep -oE "\"[a-z]+\.[a-z\.]+\"" core/src/main/java/io/xj/core/config/Config.java | sort)"
 step_ok
 
 #

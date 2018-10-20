@@ -36,9 +36,6 @@ import java.io.IOException;
 public interface Mixer {
   String READY = "ready";
   String MIXING = "mixing";
-  String MIXED = "mixed";
-  String WRITING = "writing";
-  String DONE = "done";
 
   /**
    Put a source audio into the mix at a specified time, velocity and pitch ratio.

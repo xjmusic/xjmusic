@@ -1,10 +1,12 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.craft.basis.impl;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
 import io.xj.core.access.impl.Access;
-import io.xj.craft.basis.Basis;
-import io.xj.craft.basis.BasisType;
-import io.xj.craft.ingest.cache.IngestCacheProvider;
 import io.xj.core.config.Config;
 import io.xj.core.dao.ArrangementDAO;
 import io.xj.core.dao.ChainConfigDAO;
@@ -16,9 +18,7 @@ import io.xj.core.dao.SegmentChordDAO;
 import io.xj.core.dao.SegmentDAO;
 import io.xj.core.dao.SegmentMemeDAO;
 import io.xj.core.dao.SegmentMessageDAO;
-import io.xj.craft.ingest.Ingest;
 import io.xj.core.exception.BusinessException;
-import io.xj.craft.isometry.MemeIsometry;
 import io.xj.core.model.arrangement.Arrangement;
 import io.xj.core.model.audio.Audio;
 import io.xj.core.model.chain_config.ChainConfig;
@@ -30,29 +30,27 @@ import io.xj.core.model.choice.Choice;
 import io.xj.core.model.entity.Entity;
 import io.xj.core.model.instrument.Instrument;
 import io.xj.core.model.library.Library;
+import io.xj.core.model.message.MessageType;
+import io.xj.core.model.pattern.Pattern;
+import io.xj.core.model.pattern.PatternType;
+import io.xj.core.model.pick.Pick;
 import io.xj.core.model.segment.Segment;
 import io.xj.core.model.segment_chord.SegmentChord;
 import io.xj.core.model.segment_meme.SegmentMeme;
 import io.xj.core.model.segment_message.SegmentMessage;
-import io.xj.core.model.message.MessageType;
 import io.xj.core.model.sequence.Sequence;
 import io.xj.core.model.sequence.SequenceType;
-import io.xj.core.model.pattern.Pattern;
-import io.xj.core.model.pattern.PatternType;
-import io.xj.core.model.pick.Pick;
 import io.xj.core.util.Value;
+import io.xj.craft.basis.Basis;
+import io.xj.craft.basis.BasisType;
+import io.xj.craft.ingest.Ingest;
+import io.xj.craft.ingest.cache.IngestCacheProvider;
+import io.xj.craft.isometry.MemeIsometry;
 import io.xj.music.BPM;
 import io.xj.music.Chord;
 import io.xj.music.MusicalException;
 import io.xj.music.Note;
 import io.xj.music.Tuning;
-
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
@@ -122,7 +120,7 @@ public class BasisImpl implements Basis {
     SegmentDAO segmentDAO,
     SegmentMemeDAO segmentMemeDAO,
     SegmentMessageDAO segmentMessageDAO
-  /*-*/) throws BusinessException {
+    /*-*/) throws BusinessException {
     _segment = segment;
     this.arrangementDAO = arrangementDAO;
     this.chainConfigDAO = chainConfigDAO;
@@ -175,9 +173,9 @@ public class BasisImpl implements Basis {
       try {
         if (isInitialSegment())
           _type = BasisType.Initial;
-        else if (previousMainChoice().hasOneMorePattern())
+        else if (Objects.nonNull(previousMainChoice()) && previousMainChoice().hasOneMorePattern())
           _type = BasisType.Continue;
-        else if (previousMacroChoice().hasTwoMorePatterns())
+        else if (Objects.nonNull(previousMacroChoice()) && previousMacroChoice().hasTwoMorePatterns())
           _type = BasisType.NextMain;
         else
           _type = BasisType.NextMacro;

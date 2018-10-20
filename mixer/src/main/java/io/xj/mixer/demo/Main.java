@@ -5,6 +5,7 @@ import com.google.inject.Guice;
 import com.google.inject.Module;
 
 import io.xj.mixer.Mixer;
+import io.xj.mixer.MixerConfig;
 import io.xj.mixer.MixerFactory;
 import io.xj.mixer.MixerModule;
 import io.xj.mixer.OutputEncoder;
@@ -85,11 +86,11 @@ public class Main {
 
     MixerFactory mixerFactory = Guice.createInjector(mod).getInstance(MixerFactory.class);
 
-    Mixer demoMixer = mixerFactory.createMixer(
+    Mixer demoMixer = mixerFactory.createMixer(new MixerConfig(
       new AudioFormat(outputEncoding, outputFrameRate, outputSampleBits, outputChannels,
         (outputChannels * outputSampleBits / 8), outputFrameRate, false),
       totalLength()
-    );
+    ));
 
     // setup the sources
     for (String sourceName : sources) {

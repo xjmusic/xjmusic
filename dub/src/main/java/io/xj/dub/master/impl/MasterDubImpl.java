@@ -4,20 +4,21 @@ package io.xj.dub.master.impl;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-
 import io.xj.core.access.impl.Access;
 import io.xj.core.cache.audio.AudioCacheProvider;
+import io.xj.core.config.Config;
 import io.xj.core.dao.SegmentMessageDAO;
-import io.xj.dub.master.MasterDub;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.model.audio.Audio;
 import io.xj.core.model.chain_config.ChainConfigType;
-import io.xj.core.model.segment_message.SegmentMessage;
 import io.xj.core.model.message.MessageType;
 import io.xj.core.model.pick.Pick;
+import io.xj.core.model.segment_message.SegmentMessage;
 import io.xj.core.util.Text;
 import io.xj.craft.basis.Basis;
+import io.xj.dub.master.MasterDub;
 import io.xj.mixer.Mixer;
+import io.xj.mixer.MixerConfig;
 import io.xj.mixer.MixerFactory;
 import io.xj.mixer.OutputEncoder;
 import org.slf4j.Logger;
@@ -37,9 +38,9 @@ public class MasterDubImpl implements MasterDub {
   private final Basis basis;
   private final MixerFactory mixerFactory;
   private final SegmentMessageDAO segmentMessageDAO;
+  private final List<String> warnings = Lists.newArrayList();
+  private final AudioCacheProvider audioCacheProvider;
   private Mixer _mixer;
-  private List<String> warnings = Lists.newArrayList();
-  private AudioCacheProvider audioCacheProvider;
 
   @Inject
   public MasterDubImpl(
@@ -47,7 +48,7 @@ public class MasterDubImpl implements MasterDub {
     AudioCacheProvider audioCacheProvider,
     SegmentMessageDAO segmentMessageDAO,
     MixerFactory mixerFactory
-    /*-*/) throws BusinessException {
+    /*-*/) {
     this.audioCacheProvider = audioCacheProvider;
     this.basis = basis;
     this.segmentMessageDAO = segmentMessageDAO;
@@ -140,10 +141,16 @@ public class MasterDubImpl implements MasterDub {
    @return mixer
    */
   private Mixer mixer() throws Exception {
-    if (Objects.isNull(_mixer))
-      _mixer = mixerFactory.createMixer(
-        basis.outputAudioFormat(),
-        basis.segmentTotalLength());
+    if (Objects.isNull(_mixer)) {
+      MixerConfig config = new MixerConfig(basis.outputAudioFormat(), basis.segmentTotalLength())
+        .setNormalizationMax(Config.getMixerNormalizationMax())
+        .setCompressResolutionRate(Config.getMixerCompressResolutionRate())
+        .setCompressRatioMax(Config.getMixerCompressRatioMax())
+        .setCompressToAmplitude(Config.getMixerCompressToAmplitude())
+        .setCompressAheadSeconds(Config.getMixerCompressAheadSeconds())
+        .setCompressDecaySeconds(Config.getMixerCompressDecaySeconds());
+      _mixer = mixerFactory.createMixer(config);
+    }
 
     return _mixer;
   }

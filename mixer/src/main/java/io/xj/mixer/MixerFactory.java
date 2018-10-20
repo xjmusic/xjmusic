@@ -1,17 +1,14 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.mixer;
 
+import com.google.inject.assistedinject.Assisted;
 import io.xj.mixer.impl.exception.FormatException;
 import io.xj.mixer.impl.exception.MixerException;
 import io.xj.mixer.impl.exception.PutException;
 import io.xj.mixer.impl.exception.SourceException;
 
-import com.google.inject.assistedinject.Assisted;
-
-import javax.sound.sampled.AudioFormat;
 import java.io.BufferedInputStream;
 import java.io.IOException;
-import java.time.Duration;
 
 /**
  Mix Factory provides encapsulated modules
@@ -25,13 +22,12 @@ public interface MixerFactory {
   /**
    Create a single Mix instance which mixes to a single output stream and format.
 
+   @param mixerConfig configuration for mixer
    @return Mixer
    @throws MixerException if unable to create Mixer
-   @param outputFormat to write final output audio
    */
   Mixer createMixer(
-    @Assisted("outputFormat") AudioFormat outputFormat,
-    @Assisted("outputLength") Duration outputLength
+    @Assisted("mixerConfig") MixerConfig mixerConfig
   ) throws MixerException;
 
 

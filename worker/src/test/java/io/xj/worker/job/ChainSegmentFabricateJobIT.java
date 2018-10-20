@@ -205,7 +205,7 @@ public class ChainSegmentFabricateJobIT {
   }
 
   @Test
-  public void fabricatesSegment() throws Exception {
+  public void fabricatesSegment() throws Exception { // TODO investigate this text failure
     when(amazonProvider.generateKey("chain-1-segment", "ogg"))
       .thenReturn("chain-1-segment-12345.ogg");
 

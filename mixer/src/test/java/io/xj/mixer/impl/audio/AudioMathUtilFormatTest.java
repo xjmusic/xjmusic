@@ -10,7 +10,7 @@ import javax.sound.sampled.AudioFormat;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
-public class AudioSampleFormatTest {
+public class AudioMathUtilFormatTest {
 
   @Test
   public void typeOf_U8() throws Exception {

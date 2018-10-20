@@ -2,7 +2,6 @@
 package io.xj.mixer;
 
 import com.google.inject.Guice;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,11 +29,11 @@ public class MixerModuleTest {
 
   @Test
   public void createMixerNotNull() throws Exception {
-    Mixer mixer = mixerFactory.createMixer(
+    Mixer mixer = mixerFactory.createMixer(new MixerConfig(
       new AudioFormat(AudioFormat.Encoding.PCM_FLOAT,
         48000, 32, 2, 8, 48000, false),
       Duration.ofSeconds(60)
-    );
+    ));
     assertNotNull(mixer);
   }
 
@@ -43,11 +42,11 @@ public class MixerModuleTest {
    */
   @Test
   public void createMixerNotNull_supportBigEndian() throws Exception {
-    mixerFactory.createMixer(
+    mixerFactory.createMixer(new MixerConfig(
       new AudioFormat(AudioFormat.Encoding.PCM_FLOAT,
         48000, 32, 2, 8, 48000, true),
       Duration.ofSeconds(60)
-    );
+    ));
   }
 
 }

@@ -1,15 +1,14 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.mixer.impl;
 
+import com.google.inject.Guice;
+import io.xj.mixer.Mixer;
+import io.xj.mixer.MixerConfig;
 import io.xj.mixer.MixerFactory;
 import io.xj.mixer.MixerModule;
-import io.xj.mixer.Mixer;
 import io.xj.mixer.impl.exception.MixerException;
 import io.xj.mixer.impl.exception.SourceException;
 import io.xj.mixer.util.InternalResource;
-
-import com.google.inject.Guice;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,35 +23,41 @@ import static org.junit.Assert.assertTrue;
 
 public class MixerImplTest {
 
-  private MixerFactory mixerFactory = Guice.createInjector(new MixerModule()).getInstance(MixerFactory.class);
+  private final MixerFactory mixerFactory = Guice.createInjector(new MixerModule()).getInstance(MixerFactory.class);
 
   private Mixer testMixer;
+
+  // FUTURE test compression settings
+  // FUTURE test compression special getters for ahead/decay frames
 
   @Before
   public void setUp() throws Exception {
     testMixer = mixerFactory.createMixer(
-      new AudioFormat(AudioFormat.Encoding.PCM_FLOAT,
-        48000, 32, 2, 8, 48000, false),
-      Duration.ofSeconds(60)
+      new MixerConfig(
+        new AudioFormat(AudioFormat.Encoding.PCM_FLOAT,
+          48000, 32, 2, 8, 48000, false),
+        Duration.ofSeconds(60)
+      )
     );
   }
 
   @After
   public void tearDown() throws Exception {
-    testMixer = null;
   }
 
   @Test(expected = MixerException.class)
   public void Mixer_unsupportedOutputChannel_moreThanStereo() throws Exception {
     try {
       mixerFactory.createMixer(
-        new AudioFormat(AudioFormat.Encoding.PCM_FLOAT,
-          48000, 32, 4, 8, 48000, false),
-        Duration.ofSeconds(60)
+        new MixerConfig(
+          new AudioFormat(AudioFormat.Encoding.PCM_FLOAT,
+            48000, 32, 4, 8, 48000, false),
+          Duration.ofSeconds(60)
+        )
       );
 
     } catch (Exception e) {
-      assertTrue(e.getMessage().contains("more than 2 output audio channels not allowed"));
+      assertTrue(e.getCause().getMessage().contains("more than 2 output audio channels not allowed"));
       throw e;
     }
   }
@@ -61,20 +66,22 @@ public class MixerImplTest {
   public void Mixer_unsupportedOutputChannel_lessThanMono() throws Exception {
     try {
       mixerFactory.createMixer(
-        new AudioFormat(AudioFormat.Encoding.PCM_FLOAT,
-          48000, 32, 0, 8, 48000, false),
-        Duration.ofSeconds(60)
+        new MixerConfig(
+          new AudioFormat(AudioFormat.Encoding.PCM_FLOAT,
+            48000, 32, 0, 8, 48000, false),
+          Duration.ofSeconds(60)
+        )
       );
 
     } catch (Exception e) {
-      assertTrue(e.getMessage().contains("less than 1 output audio channels not allowed"));
+      assertTrue(e.getCause().getMessage().contains("less than 1 output audio channels not allowed"));
       throw e;
     }
   }
 
   @Test
-  public void put() throws Exception {
-    // future test: MixerImpl.put(...)
+  public void put() {
+    // FUTURE test: MixerImpl.put(...)
   }
 
   @Test
@@ -98,78 +105,78 @@ public class MixerImplTest {
   }
 
   @Test
-  public void mix() throws Exception {
-    // future test: MixerImpl.mix(...)
+  public void mix() {
+    // FUTURE test: MixerImpl.mix(...)
   }
 
   @Test
-  public void setMixCycleDuration() throws Exception {
-    // future test: MixerImpl.setMixCycleDuration(...)
+  public void setMixCycleDuration() {
+    // FUTURE test: MixerImpl.setMixCycleDuration(...)
   }
 
   @Test
-  public void getSourceCount() throws Exception {
-    // future test: MixerImpl.getSourceCount(...)
+  public void getSourceCount() {
+    // FUTURE test: MixerImpl.getSourceCount(...)
   }
 
   @Test
-  public void getPutCount() throws Exception {
-    // future test: MixerImpl.getPutCount(...)
+  public void getPutCount() {
+    // FUTURE test: MixerImpl.getPutCount(...)
   }
 
   @Test
-  public void getNowAt() throws Exception {
-    // future test: MixerImpl.getNowAt(...)
+  public void getNowAt() {
+    // FUTURE test: MixerImpl.getNowAt(...)
   }
 
   @Test
-  public void getState() throws Exception {
-    // future test: MixerImpl.getState(...)
+  public void getState() {
+    // FUTURE test: MixerImpl.getState(...)
   }
 
   @Test
-  public void mixOutToFile() throws Exception {
-    // future test: MixerImpl.mixToFile(...)
+  public void mixOutToFile() {
+    // FUTURE test: MixerImpl.mixToFile(...)
   }
 
   @Test
-  public void setCycleMicros() throws Exception {
-    // future test: MixerImpl.setCycleMicros(...)
+  public void setCycleMicros() {
+    // FUTURE test: MixerImpl.setCycleMicros(...)
   }
 
   @Test
-  public void getPutReadyCount() throws Exception {
-    // future test: MixerImpl.getPutReadyCount(...)
+  public void getPutReadyCount() {
+    // FUTURE test: MixerImpl.getPutReadyCount(...)
   }
 
   @Test
-  public void getPutLiveCount() throws Exception {
-    // future test: MixerImpl.getPutLiveCount(...)
+  public void getPutLiveCount() {
+    // FUTURE test: MixerImpl.getPutLiveCount(...)
   }
 
   @Test
-  public void getPutDoneCount() throws Exception {
-    // future test: MixerImpl.getPutDoneCount(...)
+  public void getPutDoneCount() {
+    // FUTURE test: MixerImpl.getPutDoneCount(...)
   }
 
   @Test
-  public void getFrameRate() throws Exception {
-    // future test: MixerImpl.getFrameRate(...)
+  public void getFrameRate() {
+    // FUTURE test: MixerImpl.getFrameRate(...)
   }
 
   @Test
-  public void getOutputFormat() throws Exception {
-    // future test: MixerImpl.getOutputFormat(...)
+  public void getOutputFormat() {
+    // FUTURE test: MixerImpl.getOutputFormat(...)
   }
 
   @Test
-  public void isDebugging() throws Exception {
-    // future test: MixerImpl.isDebugging(...)
+  public void isDebugging() {
+    // FUTURE test: MixerImpl.isDebugging(...)
   }
 
   @Test
-  public void setDebugging() throws Exception {
-    // future test: MixerImpl.setDebugging(...)
+  public void setDebugging() {
+    // FUTURE test: MixerImpl.setDebugging(...)
   }
 
 }

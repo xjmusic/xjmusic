@@ -65,6 +65,12 @@ public interface Config {
   Integer DEFAULT_PATTERN_DEFAULT_METER_SWING = 0;
   Integer DEFAULT_CHAIN_REVIVE_THRESHOLD_START_SECONDS = 300;
   Integer DEFAULT_CHAIN_REVIVE_THRESHOLD_HEAD_SECONDS = 120;
+  Double DEFAULT_MIXER_COMPRESS_TO_AMPLITUDE = 1.0;
+  Double DEFAULT_MIXER_COMPRESS_AHEAD_SECONDS = 0.125;
+  Double DEFAULT_MIXER_COMPRESS_DECAY_SECONDS = 0.25;
+  Double DEFAULT_MIXER_COMPRESS_RATIO_MAX = 3.0;
+  Double DEFAULT_MIXER_NORMALIZATION_MAX = 0.999;
+  Double DEFAULT_MIXER_COMPRESS_RESOLUTION_RATE = 100.0;
 
   static String authGoogleId() throws ConfigException {
     return get("auth.google.id");
@@ -704,5 +710,30 @@ public interface Config {
 
   static Integer chainReviveThresholdHeadSeconds() {
     return getIntOrDefault("chain.revive.threshold.head.seconds", DEFAULT_CHAIN_REVIVE_THRESHOLD_HEAD_SECONDS);
+  }
+
+  static Double getMixerCompressToAmplitude() {
+    return getDoubleOrDefault("mixer.compress.to.amplitude", DEFAULT_MIXER_COMPRESS_TO_AMPLITUDE);
+  }
+
+
+  static Double getMixerCompressAheadSeconds() {
+    return getDoubleOrDefault("mixer.compress.ahead.seconds", DEFAULT_MIXER_COMPRESS_AHEAD_SECONDS);
+  }
+
+  static Double getMixerCompressDecaySeconds() {
+    return getDoubleOrDefault("mixer.compress.decay.seconds", DEFAULT_MIXER_COMPRESS_DECAY_SECONDS);
+  }
+
+  static Double getMixerCompressRatioMax() {
+    return getDoubleOrDefault("mixer.compress.ratio.max", DEFAULT_MIXER_COMPRESS_RATIO_MAX);
+  }
+
+  static Double getMixerNormalizationMax() {
+    return getDoubleOrDefault("mixer.normalization.max", DEFAULT_MIXER_NORMALIZATION_MAX);
+  }
+
+  static Double getMixerCompressResolutionRate() {
+    return getDoubleOrDefault("mixer.compress.resolution.rate", DEFAULT_MIXER_COMPRESS_RESOLUTION_RATE);
   }
 }

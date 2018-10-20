@@ -2,6 +2,7 @@
 package io.xj.mixer.demo;
 
 import io.xj.mixer.Mixer;
+import io.xj.mixer.MixerConfig;
 import io.xj.mixer.MixerFactory;
 import io.xj.mixer.MixerModule;
 import io.xj.mixer.OutputEncoder;
@@ -37,7 +38,7 @@ public class DemoIT {
   private static final String snare = "snare";
   private static final String lotom = "tom1";
   private static final String clhat = "cl_hihat";
-  private static final String[] sources = new String[]{
+  private static final String[] sources = {
     kick1,
     kick2,
     marac,
@@ -45,7 +46,7 @@ public class DemoIT {
     lotom,
     clhat
   };
-  private static final String[] demoSequence = new String[]{
+  private static final String[] demoSequence = {
     kick2,
     marac,
     clhat,
@@ -63,7 +64,7 @@ public class DemoIT {
     clhat,
     marac
   };
-  private static MixerFactory mixerFactory = Guice.createInjector(new MixerModule()).getInstance(MixerFactory.class);
+  private static final MixerFactory mixerFactory = Guice.createInjector(new MixerModule()).getInstance(MixerFactory.class);
 
   /**
    FLOATING-POINT OUTPUT IS NOT SUPPORTED.
@@ -108,7 +109,7 @@ public class DemoIT {
    @param referenceName name
    @throws Exception on failure
    */
-  private void assertMixOutputEqualsReferenceAudio(OutputEncoder encoder, AudioFormat.Encoding encoding, int frameRate, int sampleBits, int channels, String referenceName) throws Exception {
+  private static void assertMixOutputEqualsReferenceAudio(OutputEncoder encoder, AudioFormat.Encoding encoding, int frameRate, int sampleBits, int channels, String referenceName) throws Exception {
     String filename = getUniqueTempFilename(referenceName);
     mixAndWriteOutput(encoder, encoding, frameRate, sampleBits, channels, filename);
     switch (encoder) {
@@ -118,7 +119,7 @@ public class DemoIT {
         break;
       case OGG_VORBIS:
         assertTrue("Demo output does not match file size +/-2% of reference audio for " + referenceName + "!",
-          fileSizeWithin(new File(filename), resourceFile(getReferenceAudioFilename(referenceName)), 0.02f)
+          isFileSizeWithin(new File(filename), resourceFile(getReferenceAudioFilename(referenceName)), 0.02f)
         );
         break;
     }
@@ -132,8 +133,8 @@ public class DemoIT {
    @param threshold ratio +/- to tolerate, where 0.0 is perfect equality, 0.1 is 10 percent deviation.
    @return true if within tolerance
    */
-  private boolean fileSizeWithin(File f1, File f2, float threshold) {
-    Float deviance = (float) f1.getTotalSpace() / (float) f2.getTotalSpace();
+  private static boolean isFileSizeWithin(File f1, File f2, float threshold) {
+    Float deviance = (float) f1.getTotalSpace() / f2.getTotalSpace();
     return (1 - threshold) < deviance && (1 + threshold) > deviance;
   }
 
@@ -148,12 +149,12 @@ public class DemoIT {
    @param outputFilePath   file path to write output
    @throws Exception on failure
    */
-  private void mixAndWriteOutput(OutputEncoder outputEncoder, AudioFormat.Encoding outputEncoding, int outputFrameRate, int outputSampleBits, int outputChannels, String outputFilePath) throws Exception {
-    Mixer demoMixer = mixerFactory.createMixer(
+  private static void mixAndWriteOutput(OutputEncoder outputEncoder, AudioFormat.Encoding outputEncoding, int outputFrameRate, int outputSampleBits, int outputChannels, String outputFilePath) throws Exception {
+    Mixer demoMixer = mixerFactory.createMixer(new MixerConfig(
       new AudioFormat(outputEncoding, outputFrameRate, outputSampleBits, outputChannels,
         (outputChannels * outputSampleBits / 8), outputFrameRate, false),
       totalLength()
-    );
+    ));
 
     // setup the sources
     for (String sourceName : sources) {
@@ -175,7 +176,7 @@ public class DemoIT {
    @param filePath to get
    @return File
    */
-  private File resourceFile(String filePath) {
+  private static File resourceFile(String filePath) {
     InternalResource internalResource = new InternalResource(filePath);
     return internalResource.getFile();
   }
@@ -186,7 +187,7 @@ public class DemoIT {
    @param subFilename filename within this filename
    @return filename
    */
-  private String getUniqueTempFilename(String subFilename) {
+  private static String getUniqueTempFilename(String subFilename) {
     return tempFilePrefix + System.nanoTime() + "-" + subFilename;
   }
 
@@ -197,7 +198,7 @@ public class DemoIT {
    @param referenceName within this filename
    @return filename
    */
-  private String getReferenceAudioFilename(String referenceName) {
+  private static String getReferenceAudioFilename(String referenceName) {
     return referenceAudioFilePrefix + referenceName;
   }
 
@@ -207,7 +208,7 @@ public class DemoIT {
    @param stepNum step
    @return microseconds
    */
-  private long atMicros(int stepNum) {
+  private static long atMicros(int stepNum) {
     return preRoll.plus(step.multipliedBy(stepNum)).toNanos() / 1000;
   }
 
@@ -216,7 +217,7 @@ public class DemoIT {
 
    @return duration
    */
-  private Duration totalLength() {
+  private static Duration totalLength() {
     return preRoll.plus(loopLength()).plus(postRoll);
   }
 
@@ -225,7 +226,7 @@ public class DemoIT {
 
    @return duration
    */
-  private Duration loopLength() {
+  private static Duration loopLength() {
     return step.multipliedBy(demoSequence.length);
   }
 
