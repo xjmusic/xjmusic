@@ -3,6 +3,8 @@ package io.xj.mixer;
 
 /**
  Put to represent a single audio source playing at a specific time in the future.
+
+ Provides an attack/release envelope from 0.0 to 1.0 per [#150279617] dub using an Attack/Release envelope
  */
 public interface Put {
   String READY = "ready";
@@ -16,6 +18,15 @@ public interface Put {
    @return corresponding moment in the source audio
    */
   long sourceOffsetMicros(long atMixOffsetMicros);
+
+  /**
+   [#150279617] Engineer wants XJ to dub using an Attack/Release envelope, in order to enhance quality.
+   // FUTURE: smooth (non-linear) envelope
+
+   @param atMixOffsetMicros a moment in the final mix
+   @return corresponding envelope (ratio from 0 to 1) to multiply this source audio by at that instant
+   */
+  Double envelope(long atMixOffsetMicros);
 
   /**
    Is the put alive?
@@ -79,4 +90,19 @@ public interface Put {
    @return Pan
    */
   double getPan();
+
+  /**
+   Get the length of the attack envelope
+
+
+   @return microseconds
+   */
+  long getAttackMicros();
+
+  /**
+   Get the length of the release envelope
+
+   @return microseconds
+   */
+  long getReleaseMicros();
 }

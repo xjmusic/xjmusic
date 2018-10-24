@@ -14,6 +14,7 @@ public interface Source {
 
   /**
    audio frame at a specific Tz, volume (0 to 1), and pan (-1 to +1)
+   Also [#150279617] Attack/Release envelope
 
    @param atMicros    since beginning of source
    @param volume      to mix output to

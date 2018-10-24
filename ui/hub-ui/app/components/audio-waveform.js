@@ -33,7 +33,7 @@ const AudioWaveformComponent = Component.extend({
         self.get('wavesurfer').on('ready', function () {
           self.onWavesurferReady();
         });
-        self.get('wavesurfer').play(waveformURL);
+        self.get('wavesurfer').load(waveformURL);
       },
       (error) => {
         console.error('Failed to load config', error);

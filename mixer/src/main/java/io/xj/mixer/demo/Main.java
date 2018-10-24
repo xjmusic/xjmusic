@@ -21,7 +21,10 @@ import java.time.Duration;
  *
  * @author Charney Kaye
  */
-public class Main {
+public enum Main {
+  ;
+  private static final long attackMicros = 10000;
+  private static final long releaseMicros = 50000;
 
   private static final Duration preRoll = Duration.ofSeconds(1);
   private static final Duration postRoll = Duration.ofSeconds(2);
@@ -47,7 +50,7 @@ public class Main {
   private static final String lotom = "tom1";
   private static final String clhat = "cl_hihat";
 
-  private static final String[] sources = new String[]{
+  private static final String[] sources = {
     kick1,
     kick2,
     marac,
@@ -56,7 +59,7 @@ public class Main {
     clhat
   };
 
-  private static final String[] demoSequence = new String[]{
+  private static final String[] demoSequence = {
     kick2,
     marac,
     clhat,
@@ -100,9 +103,10 @@ public class Main {
     }
 
     // setup the music
-    for (int n = 0; n < loopTimes; n++) {
-      for (int s = 0; s < demoSequence.length; s++) {
-        demoMixer.put(demoSequence[s], atMicros(n, s), atMicros(n, s + 3), 1.0, 1.0, 0);
+    int iL = demoSequence.length;
+    for (int n = 0; loopTimes > n; n++) {
+      for (int i = 0; i < iL; i++) {
+        demoMixer.put(demoSequence[i], atMicros(n, i), atMicros(n, i + 3), attackMicros, releaseMicros, 1.0, 1.0, 0);
       }
     }
 

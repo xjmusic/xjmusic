@@ -990,6 +990,7 @@ const PatternStepmaticComponent = Component.extend(
        */
       didUpdateSwing(ev) {
         ev.target.value = limitSwingValue(ev.target.value);
+        this.gotDirty();
       },
 
       /**

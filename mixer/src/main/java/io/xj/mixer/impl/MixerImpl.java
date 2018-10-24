@@ -103,8 +103,8 @@ public class MixerImpl implements Mixer {
   }
 
   @Override
-  public void put(String sourceId, long startAtMicros, long stopAtMicros, double velocity, double pitchRatio, double pan) throws PutException {
-    readyPuts.put(nextPutId(), factory.createPut(sourceId, startAtMicros, stopAtMicros, velocity, pitchRatio, pan));
+  public void put(String sourceId, long startAtMicros, long stopAtMicros, long attackMicros, long releaseMicros, double velocity, double pitchRatio, double pan) throws PutException {
+    readyPuts.put(nextPutId(), factory.createPut(sourceId, startAtMicros, stopAtMicros, attackMicros, releaseMicros, velocity, pitchRatio, pan));
   }
 
   @Override
@@ -202,8 +202,6 @@ public class MixerImpl implements Mixer {
   /**
    Mix
    runs once per Mixer
-   <p>
-   [#154112129] Engineer wants final Segment audio normalized to +0 dB and mastered with a lookahead-attack compressor before output, in order to conform to broadcast industry standards.
 
    @return mixed output values
    @throws MixerException if unable to mix
@@ -221,14 +219,13 @@ public class MixerImpl implements Mixer {
     for (int i = 0; i < totalFrames; i++)
       buf[i] = mixSourceFrame(i);
 
-    // compress entire buffer towards target amplitude
-    // compute actual compRatio from max of values ahead, less decay rate
-    double compRatio = 1.0;
+    // [#154112129] lookahead-attack compressor compresses entire buffer towards target amplitude
     double targetAmplitude = config.getCompressToAmplitude();
     double maxRatio = config.getCompressRatioMax();
     int framesAhead = config.getCompressAheadFrames();
     int framesPerCycle = config.getCompressResolutionFrames();
     int framesDecay = config.getCompressDecayFrames() / framesPerCycle;
+    double compRatio = 1.0;
     for (int i = 0; i < totalFrames; i++) {
       if (0 == i % framesPerCycle) {
         double maxAbsValue = MathUtil.maxAbs(buf, i, i + framesAhead);
@@ -242,7 +239,7 @@ public class MixerImpl implements Mixer {
     for (int i = 0; i < totalFrames; i++)
       buf[i] = MathUtil.logarithmicCompression(buf[i]);
 
-    // normalize final buffer to normalization threshold
+    // [#154112129] normalize final buffer to normalization threshold
     double normRatio = config.getNormalizationMax() / MathUtil.maxAbs(buf);
     for (int i = 0; i < totalFrames; i++)
       for (int k = 0; k < outputChannels; k++)
@@ -265,14 +262,16 @@ public class MixerImpl implements Mixer {
    */
   private double[] mixSourceFrame(long offsetFrame) {
     mixCycleBeforeEveryNthFrame(offsetFrame);
+    long atMicros = getMicros(offsetFrame);
 
     double[] frame = new double[outputChannels];
     livePuts.forEach((id, livePut) -> {
-      long sourceOffsetMicros = livePut.sourceOffsetMicros(getMicros(offsetFrame));
+      long sourceOffsetMicros = livePut.sourceOffsetMicros(atMicros);
       if (0 < sourceOffsetMicros) {
         double[] inSamples = mixSourceFrameAtMicros(livePut.getSourceId(), livePut.getVelocity(), livePut.getPan(), sourceOffsetMicros);
+        double envelope = livePut.envelope(atMicros);
         for (int i = 0; i < outputChannels; i++)
-          frame[i] += inSamples[i];
+          frame[i] += inSamples[i] * envelope;
       }
     });
 

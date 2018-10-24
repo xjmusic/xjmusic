@@ -51,7 +51,6 @@ export class Application {
    */
   constructor(url) {
     switch (this.browser) {
-      case SAFARI:
       case EXPLORER:
       case EXPLORER_6:
         let body = $('body');

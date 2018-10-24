@@ -122,4 +122,36 @@ public interface MathUtil {
     return Math.min(ceil, Math.max(floor, value));
   }
 
+  /**
+   Volume ratio for right channel for a given pan.
+
+   @param pan -1 to +1
+   @return ratio
+   */
+  static double right(double pan) {
+    if (0 <= pan) {
+      // 0 to +1 (right) = full volume
+      return 1;
+    } else {
+      // <0 to -1 = decay to zero;
+      return 1 - Math.abs(pan);
+    }
+  }
+
+  /**
+   Volume ratio for left channel for a given pan.
+
+   @param pan -1 to +1
+   @return ratio
+   */
+  static double left(double pan) {
+    if (0 >= pan) {
+      // 0 to -1 (left) = full volume
+      return 1;
+    } else {
+      // >0 to +1 = decay to zero;
+      return 1 - pan;
+    }
+  }
+
 }

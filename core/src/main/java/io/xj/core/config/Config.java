@@ -66,11 +66,13 @@ public interface Config {
   Integer DEFAULT_CHAIN_REVIVE_THRESHOLD_START_SECONDS = 300;
   Integer DEFAULT_CHAIN_REVIVE_THRESHOLD_HEAD_SECONDS = 120;
   Double DEFAULT_MIXER_COMPRESS_TO_AMPLITUDE = 1.0;
-  Double DEFAULT_MIXER_COMPRESS_AHEAD_SECONDS = 0.125;
-  Double DEFAULT_MIXER_COMPRESS_DECAY_SECONDS = 0.25;
+  Double DEFAULT_MIXER_COMPRESS_AHEAD_SECONDS = 0.05;
+  Double DEFAULT_MIXER_COMPRESS_DECAY_SECONDS = 0.125;
   Double DEFAULT_MIXER_COMPRESS_RATIO_MAX = 3.0;
   Double DEFAULT_MIXER_NORMALIZATION_MAX = 0.999;
   Double DEFAULT_MIXER_COMPRESS_RESOLUTION_RATE = 100.0;
+  Integer DEFAULT_MIXER_SAMPLE_ATTACK_MICROS = 1000;
+  Integer DEFAULT_MIXER_SAMPLE_RELEASE_MICROS = 50000;
 
   static String authGoogleId() throws ConfigException {
     return get("auth.google.id");
@@ -735,5 +737,13 @@ public interface Config {
 
   static Double getMixerCompressResolutionRate() {
     return getDoubleOrDefault("mixer.compress.resolution.rate", DEFAULT_MIXER_COMPRESS_RESOLUTION_RATE);
+  }
+
+  static Integer getMixerSampleAttackMicros() {
+    return getIntOrDefault("mixer.sample.attack.micros", DEFAULT_MIXER_SAMPLE_ATTACK_MICROS);
+  }
+
+  static Integer getMixerSampleReleaseMicros() {
+    return getIntOrDefault("mixer.sample.release.micros", DEFAULT_MIXER_SAMPLE_RELEASE_MICROS);
   }
 }

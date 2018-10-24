@@ -88,4 +88,28 @@ public class MathUtilTest {
     assertEquals(0.23, MathUtil.limit(-0.12, 0.54, 0.23), 0.001);
     assertEquals(-0.112, MathUtil.limit(-0.12, 0.54, -0.112), 0.001);
   }
+
+  @Test
+  public void right() {
+    assertEquals(0.75,MathUtil.right(-0.25), 0.001);
+    assertEquals(1.0,MathUtil.right(0.345), 0.001);
+    assertEquals(1.0,MathUtil.right(0.9), 0.001);
+    assertEquals(1.0,MathUtil.right(0), 0.001);
+    assertEquals(1.0,MathUtil.right(0.25), 0.001);
+    assertEquals(0.655,MathUtil.right(-0.345), 0.001);
+    assertEquals(0.0999,MathUtil.right(-0.9), 0.001);
+    assertEquals(1.0,MathUtil.right(0), 0.001);
+  }
+
+  @Test
+  public void left() {
+    assertEquals(1.0,MathUtil.left(-0.25), 0.001);
+    assertEquals(0.655,MathUtil.left(0.345), 0.001);
+    assertEquals(0.0999,MathUtil.left(0.9), 0.001);
+    assertEquals(1.0,MathUtil.left(0), 0.001);
+    assertEquals(0.75,MathUtil.left(0.25), 0.001);
+    assertEquals(1.0,MathUtil.left(-0.345), 0.001);
+    assertEquals(1.0,MathUtil.left(-0.9), 0.001);
+    assertEquals(1.0,MathUtil.left(0), 0.001);
+  }
 }

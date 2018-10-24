@@ -1,13 +1,10 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.mixer.impl;
 
+import com.google.inject.Guice;
 import io.xj.mixer.MixerFactory;
 import io.xj.mixer.MixerModule;
 import io.xj.mixer.Put;
-
-import com.google.inject.Guice;
-
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -16,23 +13,17 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class PutImplTest {
-
-  private MixerFactory mixerFactory = Guice.createInjector(new MixerModule()).getInstance(MixerFactory.class);
+  private final MixerFactory mixerFactory = Guice.createInjector(new MixerModule()).getInstance(MixerFactory.class);
 
   private Put testPut;
 
   @Before
   public void setUp() throws Exception {
-    testPut = mixerFactory.createPut("bun1", 1000000, 2000000, 1.0, 1.0, 0);
-  }
-
-  @After
-  public void tearDown() throws Exception {
-    testPut = null;
+    testPut = mixerFactory.createPut("bun1", 1000000, 2000000, 10000, 50000, 1.0, 1.0, 0);
   }
 
   @Test
-  public void lifecycle() throws Exception {
+  public void lifecycle() {
     // before start:
     assertEquals(0, testPut.sourceOffsetMicros(5000));
     assertEquals(0, testPut.sourceOffsetMicros(500000));
@@ -46,7 +37,7 @@ public class PutImplTest {
 
     // after start / before end:
     for (int expectSourceOffsetMicros = 2;
-         expectSourceOffsetMicros < 1000000; // never arrives at the DONE threshold
+         1000000 > expectSourceOffsetMicros; // never arrives at the DONE threshold
          expectSourceOffsetMicros += 1000) {
       assertEquals(expectSourceOffsetMicros,
         testPut.sourceOffsetMicros(1000000 + expectSourceOffsetMicros));
@@ -64,7 +55,7 @@ public class PutImplTest {
   }
 
   @Test
-  public void sourceOffsetMicros() throws Exception {
+  public void sourceOffsetMicros() {
     assertEquals(0, testPut.sourceOffsetMicros(500000)); // before start
     assertEquals(0, testPut.sourceOffsetMicros(1000001)); // start
     assertEquals(500, testPut.sourceOffsetMicros(1000500)); // after start / before end
@@ -73,7 +64,7 @@ public class PutImplTest {
   }
 
   @Test
-  public void isAlive() throws Exception {
+  public void isAlive() {
     testPut.sourceOffsetMicros(500000);
     assertTrue(testPut.isAlive()); // before start
     testPut.sourceOffsetMicros(1000001);
@@ -85,7 +76,7 @@ public class PutImplTest {
   }
 
   @Test
-  public void isPlaying() throws Exception {
+  public void isPlaying() {
     testPut.sourceOffsetMicros(500000);
     assertFalse(testPut.isPlaying()); // before start
     testPut.sourceOffsetMicros(1000001);
@@ -97,12 +88,12 @@ public class PutImplTest {
   }
 
   @Test
-  public void getSourceId() throws Exception {
+  public void getSourceId() {
     assertEquals("bun1", testPut.getSourceId());
   }
 
   @Test
-  public void getState() throws Exception {
+  public void getState() {
     testPut.sourceOffsetMicros(500000);
     assertEquals(Put.READY, testPut.getState()); // before start
     testPut.sourceOffsetMicros(1000001);
@@ -114,27 +105,37 @@ public class PutImplTest {
   }
 
   @Test
-  public void getStartAtMicros() throws Exception {
+  public void getStartAtMicros() {
     assertEquals(1000000, testPut.getStartAtMicros());
   }
 
   @Test
-  public void getStopAtMicros() throws Exception {
+  public void getStopAtMicros() {
     assertEquals(2000000, testPut.getStopAtMicros());
   }
 
   @Test
-  public void getVelocity() throws Exception {
+  public void getAttackMicros() {
+    assertEquals(10000, testPut.getAttackMicros());
+  }
+
+  @Test
+  public void getReleaseMicros() {
+    assertEquals(50000, testPut.getReleaseMicros());
+  }
+
+  @Test
+  public void getVelocity() {
     assertEquals(1.0, testPut.getVelocity(), 0);
   }
 
   @Test
-  public void getPitchRatio() throws Exception {
+  public void getPitchRatio() {
     assertEquals(1.0, testPut.getPitchRatio(), 0);
   }
 
   @Test
-  public void getPan() throws Exception {
+  public void getPan() {
     assertEquals(0.0, testPut.getPan(), 0);
   }
 

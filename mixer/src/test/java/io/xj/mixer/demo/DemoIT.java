@@ -1,6 +1,8 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.mixer.demo;
 
+import com.google.common.io.Files;
+import com.google.inject.Guice;
 import io.xj.mixer.Mixer;
 import io.xj.mixer.MixerConfig;
 import io.xj.mixer.MixerFactory;
@@ -8,10 +10,6 @@ import io.xj.mixer.MixerModule;
 import io.xj.mixer.OutputEncoder;
 import io.xj.mixer.impl.exception.FormatException;
 import io.xj.mixer.util.InternalResource;
-
-import com.google.common.io.Files;
-import com.google.inject.Guice;
-
 import org.junit.Test;
 
 import javax.sound.sampled.AudioFormat;
@@ -23,6 +21,8 @@ import java.time.Duration;
 import static org.junit.Assert.assertTrue;
 
 public class DemoIT {
+  private static final long attackMicros = 1000;
+  private static final long releaseMicros = 5000;
   private static final Duration preRoll = Duration.ofMillis(500);
   private static final Duration postRoll = Duration.ofMillis(500);
   private static final long bpm = 121;
@@ -65,38 +65,6 @@ public class DemoIT {
     marac
   };
   private static final MixerFactory mixerFactory = Guice.createInjector(new MixerModule()).getInstance(MixerFactory.class);
-
-  /**
-   FLOATING-POINT OUTPUT IS NOT SUPPORTED.
-   [#137] Support for floating-point output encoding.
-
-   @throws FormatException to prevent confusion
-   */
-  @Test(expected = FormatException.class)
-  public void demo_48000Hz_Float_32bit_2ch() throws Exception {
-    assertMixOutputEqualsReferenceAudio(OutputEncoder.WAV, AudioFormat.Encoding.PCM_FLOAT, 48000, 32, 2, "48000Hz_Float_32bit_2ch.wav");
-  }
-
-  @Test
-  public void demo_48000Hz_Signed_32bit_2ch() throws Exception {
-    assertMixOutputEqualsReferenceAudio(OutputEncoder.WAV, AudioFormat.Encoding.PCM_SIGNED, 48000, 32, 2, "48000Hz_Signed_32bit_2ch.wav");
-  }
-
-  @Test
-  public void demo_48000Hz_Signed_16bit_2ch() throws Exception {
-    assertMixOutputEqualsReferenceAudio(OutputEncoder.WAV, AudioFormat.Encoding.PCM_SIGNED, 44100, 16, 2, "44100Hz_Signed_16bit_2ch.wav");
-  }
-
-  @Test
-  public void demo_48000Hz_Signed_8bit_1ch() throws Exception {
-    assertMixOutputEqualsReferenceAudio(OutputEncoder.WAV, AudioFormat.Encoding.PCM_SIGNED, 22000, 8, 1, "22000Hz_Signed_8bit_1ch.wav");
-  }
-
-  @Test
-  public void demo_48000Hz_2ch_OggVorbis() throws Exception {
-    assertMixOutputEqualsReferenceAudio(OutputEncoder.OGG_VORBIS, AudioFormat.Encoding.PCM_SIGNED, 48000, 32, 2, "48000Hz_2ch.ogg");
-  }
-
 
   /**
    assert mix output equals reference audio
@@ -162,8 +130,9 @@ public class DemoIT {
     }
 
     // setup the music
-    for (int s = 0; s < demoSequence.length; s++) {
-      demoMixer.put(demoSequence[s], atMicros(s), atMicros(s + 3), 1.0, 1.0, 0);
+    int iL = demoSequence.length;
+    for (int i = 0; i < iL; i++) {
+      demoMixer.put(demoSequence[i], atMicros(i), atMicros(i + 3), attackMicros, releaseMicros, 1.0, 1.0, 0);
     }
 
     // mix it
@@ -190,7 +159,6 @@ public class DemoIT {
   private static String getUniqueTempFilename(String subFilename) {
     return tempFilePrefix + System.nanoTime() + "-" + subFilename;
   }
-
 
   /**
    get reference audio filename
@@ -228,6 +196,37 @@ public class DemoIT {
    */
   private static Duration loopLength() {
     return step.multipliedBy(demoSequence.length);
+  }
+
+  /**
+   FLOATING-POINT OUTPUT IS NOT SUPPORTED.
+   [#137] Support for floating-point output encoding.
+
+   @throws FormatException to prevent confusion
+   */
+  @Test(expected = FormatException.class)
+  public void demo_48000Hz_Float_32bit_2ch() throws Exception {
+    assertMixOutputEqualsReferenceAudio(OutputEncoder.WAV, AudioFormat.Encoding.PCM_FLOAT, 48000, 32, 2, "48000Hz_Float_32bit_2ch.wav");
+  }
+
+  @Test
+  public void demo_48000Hz_Signed_32bit_2ch() throws Exception {
+    assertMixOutputEqualsReferenceAudio(OutputEncoder.WAV, AudioFormat.Encoding.PCM_SIGNED, 48000, 32, 2, "48000Hz_Signed_32bit_2ch.wav");
+  }
+
+  @Test
+  public void demo_48000Hz_Signed_16bit_2ch() throws Exception {
+    assertMixOutputEqualsReferenceAudio(OutputEncoder.WAV, AudioFormat.Encoding.PCM_SIGNED, 44100, 16, 2, "44100Hz_Signed_16bit_2ch.wav");
+  }
+
+  @Test
+  public void demo_48000Hz_Signed_8bit_1ch() throws Exception {
+    assertMixOutputEqualsReferenceAudio(OutputEncoder.WAV, AudioFormat.Encoding.PCM_SIGNED, 22000, 8, 1, "22000Hz_Signed_8bit_1ch.wav");
+  }
+
+  @Test
+  public void demo_48000Hz_2ch_OggVorbis() throws Exception {
+    assertMixOutputEqualsReferenceAudio(OutputEncoder.OGG_VORBIS, AudioFormat.Encoding.PCM_SIGNED, 48000, 32, 2, "48000Hz_2ch.ogg");
   }
 
 }

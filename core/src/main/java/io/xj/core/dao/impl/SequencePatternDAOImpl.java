@@ -113,6 +113,7 @@ public class SequencePatternDAOImpl extends DAOImpl implements SequencePatternDA
     if (access.isTopLevel())
       return modelsFrom(db.selectFrom(SEQUENCE_PATTERN)
         .where(SEQUENCE_PATTERN.SEQUENCE_ID.in(sequenceIds))
+        .orderBy(SEQUENCE_PATTERN.OFFSET.asc())
         .fetch(), SequencePattern.class);
     else
       return modelsFrom(db.select(SEQUENCE_PATTERN.fields()).from(SEQUENCE_PATTERN)
@@ -120,6 +121,7 @@ public class SequencePatternDAOImpl extends DAOImpl implements SequencePatternDA
         .join(LIBRARY).on(SEQUENCE.LIBRARY_ID.eq(LIBRARY.ID))
         .where(SEQUENCE.ID.in(sequenceIds))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+        .orderBy(SEQUENCE_PATTERN.OFFSET.asc())
         .fetch(), SequencePattern.class);
   }
 

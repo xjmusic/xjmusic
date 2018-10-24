@@ -1,20 +1,17 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.mixer.impl;
 
-import io.xj.mixer.Source;
-import io.xj.mixer.impl.audio.AudioStreamLoader;
-import io.xj.mixer.impl.exception.FormatException;
-import io.xj.mixer.impl.exception.SourceException;
-
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-
+import io.xj.mixer.Source;
+import io.xj.mixer.impl.audio.AudioStreamLoader;
+import io.xj.mixer.impl.exception.SourceException;
+import io.xj.mixer.util.MathUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.sound.sampled.AudioFormat;
 import java.io.BufferedInputStream;
-import java.io.IOException;
 
 /**
  models a single audio source
@@ -22,28 +19,26 @@ import java.io.IOException;
  */
 public class SourceImpl implements Source {
   private static final Logger log = LoggerFactory.getLogger(SourceImpl.class);
-  private final static float microsInASecond = 1000000;
-  private final static float nanosInASecond = 1000 * microsInASecond;
+  private static final float microsInASecond = 1000000;
 
   private final float frameRate;
   private final String sourceId;
-  private double[][] frames;
   private final AudioFormat inputFormat;
-  private long inputLengthMicros;
-  private int inputChannels;
-  private double microsPerFrame;
+  private final double[][] frames;
+  private final long inputLengthMicros;
+  private final int inputChannels;
+  private final double microsPerFrame;
   private String state;
 
   @Inject
   public SourceImpl(
     @Assisted("sourceId") String sourceId,
     @Assisted("inputStream") BufferedInputStream inputStream
-  ) throws SourceException, FormatException, IOException, InterruptedException {
+  ) throws Exception {
     this.sourceId = sourceId;
 
     state = STAGED;
-    AudioStreamLoader stream;
-    stream = new AudioStreamLoader(inputStream);
+    AudioStreamLoader stream = new AudioStreamLoader(inputStream);
     inputFormat = stream.getAudioFormat();
     frameRate = inputFormat.getFrameRate();
     inputChannels = inputFormat.getChannels();
@@ -55,7 +50,21 @@ public class SourceImpl implements Source {
     inputLengthMicros = (long) (microsInASecond * stream.getActualFrames() / frameRate);
 
     state = READY;
-    log.info("Did load source {}", this);
+    log.info("Did load source {}", sourceId);
+  }
+
+  /**
+   Enforce a maximum
+
+   @param valueMax   maximum allowable value
+   @param entityName name of entity, for error message
+   @param value      actual
+   @throws SourceException if value greater than allowable
+   */
+  private static void enforceMax(int valueMax, String entityName, int value) throws SourceException {
+    if (value > valueMax) {
+      throw new SourceException("more than " + valueMax + " " + entityName + " not allowed");
+    }
   }
 
   @Override
@@ -63,10 +72,10 @@ public class SourceImpl implements Source {
     int atFrame = frameAtMicros(atMicros);
     if (atMicros < inputLengthMicros && atFrame < inputLengthMicros) {
       switch (outChannels) {
-        case 1:
-          return monoFrameAt(atFrame, volume);
         case 2:
           return stereoFrameAt(atFrame, volume, pan);
+        default:
+          return monoFrameAt(atFrame, volume);
       }
     }
     return new double[outChannels];
@@ -101,7 +110,6 @@ public class SourceImpl implements Source {
     return String.format("id[%s] frames[%d]", sourceId, frames.length);
   }
 
-
   /**
    Get a 1-channel frame a specific Tz, volume (0 to 1), and pan (-1 to +1)
 
@@ -132,48 +140,16 @@ public class SourceImpl implements Source {
     switch (inputChannels) {
       case 1:
         return new double[]{
-          frames[atFrame][0] * volume * left(pan),
-          frames[atFrame][0] * volume * right(pan)
+          frames[atFrame][0] * volume * MathUtil.left(pan),
+          frames[atFrame][0] * volume * MathUtil.right(pan)
         };
       case 2:
         return new double[]{
-          frames[atFrame][0] * volume * left(pan),
-          frames[atFrame][1] * volume * right(pan)
+          frames[atFrame][0] * volume * MathUtil.left(pan),
+          frames[atFrame][1] * volume * MathUtil.right(pan)
         };
       default:
         return new double[2];
-    }
-  }
-
-  /**
-   Volume ratio for right channel for a given pan.
-
-   @param pan -1 to +1
-   @return ratio
-   */
-  private double right(double pan) {
-    if (pan >= 0) {
-      // 0 to +1 (right) = full volume
-      return 1;
-    } else {
-      // <0 to -1 = decay to zero;
-      return 1 - Math.abs(pan);
-    }
-  }
-
-  /**
-   Volume ratio for left channel for a given pan.
-
-   @param pan -1 to +1
-   @return ratio
-   */
-  private double left(double pan) {
-    if (pan <= 0) {
-      // 0 to -1 (left) = full volume
-      return 1;
-    } else {
-      // >0 to +1 = decay to zero;
-      return 1 - pan;
     }
   }
 
@@ -185,20 +161,6 @@ public class SourceImpl implements Source {
    */
   private int frameAtMicros(long atMicros) {
     return (int) Math.floor(atMicros / microsPerFrame);
-  }
-
-  /**
-   Enforce a maximum
-
-   @param valueMax   maximum allowable value
-   @param entityName name of entity, for error message
-   @param value      actual
-   @throws SourceException if value greater than allowable
-   */
-  private void enforceMax(int valueMax, String entityName, int value) throws SourceException {
-    if (value > valueMax) {
-      throw new SourceException("more than " + valueMax + " " + entityName + " not allowed");
-    }
   }
 
 }

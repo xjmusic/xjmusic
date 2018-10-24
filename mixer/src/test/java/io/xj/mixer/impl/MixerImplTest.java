@@ -96,7 +96,6 @@ public class MixerImplTest {
     try {
       InternalResource internalResource = new InternalResource("test_audio/F32LSB_48kHz_6ch.wav");
       testMixer.loadSource("F32LSB_48kHz_6ch", new BufferedInputStream(new FileInputStream(internalResource.getFile())));
-      assertEquals(1, testMixer.getSourceCount());
 
     } catch (Exception e) {
       assertTrue(e.getMessage().contains("more than 2 input audio channels not allowed"));

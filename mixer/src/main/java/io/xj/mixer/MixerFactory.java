@@ -37,6 +37,8 @@ public interface MixerFactory {
    @param sourceId      to reference source by
    @param startAtMicros duration from beginning of mix
    @param stopAtMicros  duration from beginning of mix
+   @param attackMicros  length of the attack envelope
+   @param releaseMicros length of the release envelope
    @param velocity      0 to 1
    @param pitchRatio    relative to original = 1.0
    @param pan           -1 to +1 = Left to Right (stereo), or however many channels there actually are
@@ -47,6 +49,8 @@ public interface MixerFactory {
     @Assisted("sourceId") String sourceId,
     @Assisted("startAtMicros") long startAtMicros,
     @Assisted("stopAtMicros") long stopAtMicros,
+    @Assisted("attackMicros") long attackMicros,
+    @Assisted("releaseMicros") long releaseMicros,
     @Assisted("velocity") double velocity,
     @Assisted("pitchRatio") double pitchRatio,
     @Assisted("pan") double pan

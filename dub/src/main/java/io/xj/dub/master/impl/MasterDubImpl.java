@@ -41,6 +41,8 @@ public class MasterDubImpl implements MasterDub {
   private final List<String> warnings = Lists.newArrayList();
   private final AudioCacheProvider audioCacheProvider;
   private Mixer _mixer;
+  private long audioAttackMicros = Config.getMixerSampleAttackMicros();
+  private long audioReleaseMicros = Config.getMixerSampleReleaseMicros();
 
   @Inject
   public MasterDubImpl(
@@ -121,9 +123,9 @@ public class MasterDubImpl implements MasterDub {
       pick.getAudioId().toString(),
       basis.atMicros(pick.getStart() - offsetStart),
       basis.atMicros(pick.getStart() + pick.getLength()),
-      pick.getAmplitude(),
-      pitchRatio,
-      0);
+      audioAttackMicros,
+      audioReleaseMicros,
+      pick.getAmplitude(), pitchRatio, 0);
   }
 
   /**
