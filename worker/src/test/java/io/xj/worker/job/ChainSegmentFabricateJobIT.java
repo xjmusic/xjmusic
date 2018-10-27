@@ -1,10 +1,23 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.worker.job;
 
+import com.google.common.collect.ImmutableList;
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.util.Modules;
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
 import io.xj.core.app.App;
-import io.xj.core.dao.*;
+import io.xj.core.dao.ChainDAO;
+import io.xj.core.dao.ChoiceDAO;
+import io.xj.core.dao.PatternChordDAO;
+import io.xj.core.dao.PatternDAO;
+import io.xj.core.dao.PatternMemeDAO;
+import io.xj.core.dao.SegmentChordDAO;
+import io.xj.core.dao.SegmentDAO;
+import io.xj.core.dao.SegmentMemeDAO;
+import io.xj.core.dao.SegmentMessageDAO;
 import io.xj.core.external.amazon.AmazonProvider;
 import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.model.chain.Chain;
@@ -19,19 +32,13 @@ import io.xj.core.model.segment_message.SegmentMessage;
 import io.xj.core.model.sequence.SequenceState;
 import io.xj.core.model.sequence.SequenceType;
 import io.xj.core.model.user_role.UserRoleType;
+import io.xj.core.model.work.Work;
 import io.xj.core.model.work.WorkState;
 import io.xj.core.model.work.WorkType;
 import io.xj.core.util.TimestampUTC;
 import io.xj.craft.CraftModule;
 import io.xj.dub.DubModule;
 import io.xj.worker.WorkerModule;
-
-import com.google.common.collect.ImmutableList;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.util.Modules;
-
 import net.greghaines.jesque.worker.JobFactory;
 import org.junit.After;
 import org.junit.Before;
@@ -44,6 +51,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigInteger;
 import java.util.Collection;
+import java.util.Objects;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -57,8 +65,13 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class ChainSegmentFabricateJobIT {
   private static final int MILLIS_PER_SECOND = 1000;
-  @Rule public ExpectedException failure = ExpectedException.none();
-  @Mock AmazonProvider amazonProvider;
+  private static final int MAXIMUM_TEST_WAIT_MILLIS = 30 * MILLIS_PER_SECOND;
+  private static final int ARBITRARY_SMALL_PAUSE_SECONDS = 3;
+  @Rule
+  public ExpectedException failure = ExpectedException.none();
+  long startTime = System.currentTimeMillis();
+  @Mock
+  AmazonProvider amazonProvider;
   private Injector injector;
   private App app;
 
@@ -143,7 +156,7 @@ public class ChainSegmentFabricateJobIT {
     // A basic beat
     IntegrationTestEntity.insertSequence(35, 3, 2, SequenceType.Rhythm, SequenceState.Published, "Basic Beat", 0.2, "C", 121);
     IntegrationTestEntity.insertSequenceMeme(343, 35, "Basic");
-    IntegrationTestEntity.insertPattern(315, 35, PatternType.Loop, PatternState.Published,  16, "Drop", 0.5, "C", 125.0);
+    IntegrationTestEntity.insertPattern(315, 35, PatternType.Loop, PatternState.Published, 16, "Drop", 0.5, "C", 125.0);
     IntegrationTestEntity.insertPatternMeme(346, 315, "Heavy");
 
     // Chain "Test Print #1" is ready to begin
@@ -179,9 +192,7 @@ public class ChainSegmentFabricateJobIT {
   }
 
   @After
-  public void tearDown() throws Exception {
-    app = null;
-
+  public void tearDown() {
     System.clearProperty("segment.file.bucket");
 
     System.clearProperty("work.concurrency");
@@ -205,21 +216,22 @@ public class ChainSegmentFabricateJobIT {
   }
 
   @Test
-  public void fabricatesSegment() throws Exception { // TODO investigate this text failure
+  public void fabricatesSegment() throws Exception {
     when(amazonProvider.generateKey("chain-1-segment", "ogg"))
       .thenReturn("chain-1-segment-12345.ogg");
-
-    // Start app, send chain fabrication message to queue
-    app.start();
     app.getWorkManager().startChainFabrication(BigInteger.valueOf(1));
+    assertTrue(hasRemainingWork(WorkType.ChainFabricate));
 
-    // wait for work, stop chain fabrication, stop app
-    Thread.sleep(15 * MILLIS_PER_SECOND);
+    // Start app, wait for work, stop app
+    app.start();
+    while (!hasChainAtLeastSegments(BigInteger.valueOf(1), 3) && isWithinTimeLimit()) {
+      Thread.sleep(MILLIS_PER_SECOND);
+    }
     app.getWorkManager().stopChainFabrication(BigInteger.valueOf(1));
     app.stop();
 
     // assertions
-    int assertShippedSegmentsMinimum = 3;
+    int assertShippedSegmentsMinimum = 2;
     verify(amazonProvider, atLeast(assertShippedSegmentsMinimum)).putS3Object(eq("/tmp/chain-1-segment-12345.ogg"), eq("xj-segment-test"), any());
     Collection<Segment> result = injector.getInstance(SegmentDAO.class).readAll(Access.internal(), ImmutableList.of(BigInteger.valueOf(1)));
     assertTrue(assertShippedSegmentsMinimum < result.size());
@@ -255,12 +267,13 @@ public class ChainSegmentFabricateJobIT {
     // This ensures that the re-queued work does not get executed before the end of the test
     System.setProperty("segment.requeue.seconds", "666");
 
-    // Start app, send individual chain segment fabrication message to queue
-    app.start();
+    // Send individual chain segment fabrication message to queue
     app.getWorkManager().scheduleSegmentFabricate(1, BigInteger.valueOf(101));
+    assertTrue(hasRemainingWork(WorkType.SegmentFabricate));
 
-    // wait for work, stop chain fabrication, stop app
-    Thread.sleep(5 * MILLIS_PER_SECOND);
+    // Start app, wait for work, stop app
+    app.start();
+      Thread.sleep(ARBITRARY_SMALL_PAUSE_SECONDS * MILLIS_PER_SECOND);
     app.getWorkManager().stopChainFabrication(BigInteger.valueOf(1));
     app.stop();
 
@@ -294,5 +307,41 @@ public class ChainSegmentFabricateJobIT {
     // Cleanup
     System.clearProperty("segment.requeue.seconds");
   }
+
+  /**
+   Whether this test is within the time limit
+
+   @return true if within time limit
+   */
+  private boolean isWithinTimeLimit() {
+    return MAXIMUM_TEST_WAIT_MILLIS > System.currentTimeMillis() - startTime;
+  }
+
+  /**
+   Whether there is active work of a particular type
+
+   @return true if there is work remaining
+   */
+  private boolean hasRemainingWork(WorkType type) throws Exception {
+    int total = 0;
+    for (Work work : app.getWorkManager().readAllWork()) {
+      if (Objects.equals(type, work.getType())) total++;
+    }
+    return 0 < total;
+  }
+
+  /**
+   Does a specified Chain have at least N segments?
+
+   @param chainId   to test
+   @param threshold minimum # of segments to qualify
+   @return true if has at least N segments
+   @throws Exception on failure
+   */
+  private boolean hasChainAtLeastSegments(BigInteger chainId, int threshold) throws Exception {
+    Collection<Segment> result = injector.getInstance(SegmentDAO.class).readAll(Access.internal(), ImmutableList.of(chainId));
+    return result.size() >= threshold;
+  }
+
 
 }

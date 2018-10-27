@@ -1,6 +1,11 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.worker.job;
 
+import com.google.common.collect.ImmutableList;
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.util.Modules;
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
 import io.xj.core.app.App;
@@ -14,18 +19,12 @@ import io.xj.core.model.instrument.Instrument;
 import io.xj.core.model.instrument.InstrumentType;
 import io.xj.core.model.instrument_meme.InstrumentMeme;
 import io.xj.core.model.user_role.UserRoleType;
+import io.xj.core.model.work.Work;
+import io.xj.core.model.work.WorkType;
 import io.xj.core.work.WorkManager;
 import io.xj.craft.CraftModule;
 import io.xj.dub.DubModule;
 import io.xj.worker.WorkerModule;
-
-import com.google.common.base.Objects;
-import com.google.common.collect.ImmutableList;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.util.Modules;
-
 import net.greghaines.jesque.worker.JobFactory;
 import org.junit.After;
 import org.junit.Before;
@@ -37,12 +36,13 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import javax.annotation.Nullable;
 import java.math.BigInteger;
 import java.util.Collection;
+import java.util.Objects;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
@@ -50,28 +50,17 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class InstrumentCloneJobIT {
-  private static final int TEST_DURATION_SECONDS = 1;
   private static final int MILLIS_PER_SECOND = 1000;
-  @Spy final WorkManager workManager = Guice.createInjector(new CoreModule()).getInstance(WorkManager.class);
-  @Rule public ExpectedException failure = ExpectedException.none();
-  @Mock AmazonProvider amazonProvider;
+  private static final int MAXIMUM_TEST_WAIT_MILLIS = 30 * MILLIS_PER_SECOND;
+  @Spy
+  final WorkManager workManager = Guice.createInjector(new CoreModule()).getInstance(WorkManager.class);
+  @Rule
+  public ExpectedException failure = ExpectedException.none();
+  long startTime = System.currentTimeMillis();
+  @Mock
+  AmazonProvider amazonProvider;
   private Injector injector;
   private App app;
-
-  /**
-   Filter instruments by name, return match or null
-
-   @param instrumentsInOne to filter
-   @param findDescription  to match
-   @return match or null
-   */
-  @Nullable
-  private static Instrument filterInstrumentByDescription(Collection<Instrument> instrumentsInOne, String findDescription) {
-    for (Instrument instrument : instrumentsInOne) {
-      if (Objects.equal(findDescription, instrument.getDescription())) return instrument;
-    }
-    return null;
-  }
 
   @Before
   public void setUp() throws Exception {
@@ -141,10 +130,7 @@ public class InstrumentCloneJobIT {
   }
 
   @After
-  public void tearDown() throws Exception {
-    app = null;
-    injector = null;
-
+  public void tearDown() {
     System.clearProperty("segment.file.bucket");
     System.clearProperty("audio.file.bucket");
   }
@@ -155,11 +141,14 @@ public class InstrumentCloneJobIT {
   @Test
   public void runWorker() throws Exception {
     when(amazonProvider.generateKey(any(), any())).thenReturn("superAwesomeKey123");
-
-    app.start();
     app.getWorkManager().doInstrumentClone(BigInteger.valueOf(1), BigInteger.valueOf(14));
+    assertTrue(hasRemainingWork(WorkType.InstrumentClone));
 
-    Thread.sleep(TEST_DURATION_SECONDS * MILLIS_PER_SECOND);
+    // Start app, wait for work, stop app
+    app.start();
+    while ((hasRemainingWork(WorkType.InstrumentClone) || hasRemainingWork(WorkType.AudioClone)) && isWithinTimeLimit()) {
+      Thread.sleep(MILLIS_PER_SECOND);
+    }
     app.stop();
 
     // Verify existence of cloned instrument
@@ -177,6 +166,28 @@ public class InstrumentCloneJobIT {
     // Verify enqueued audio clone jobs
     verify(workManager).doAudioClone(eq(BigInteger.valueOf(1)), any());
     verify(workManager).doAudioClone(eq(BigInteger.valueOf(2)), any());
+  }
+
+  /**
+   Whether this test is within the time limit
+
+   @return true if within time limit
+   */
+  private boolean isWithinTimeLimit() {
+    return MAXIMUM_TEST_WAIT_MILLIS > System.currentTimeMillis() - startTime;
+  }
+
+  /**
+   Whether there is active work of a particular type
+
+   @return true if there is work remaining
+   */
+  private boolean hasRemainingWork(WorkType type) throws Exception {
+    int total = 0;
+    for (Work work : app.getWorkManager().readAllWork()) {
+      if (Objects.equals(type, work.getType())) total++;
+    }
+    return 0 < total;
   }
 
 }

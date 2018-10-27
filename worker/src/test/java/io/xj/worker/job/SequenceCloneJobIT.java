@@ -29,6 +29,8 @@ import io.xj.core.model.sequence_meme.SequenceMeme;
 import io.xj.core.model.sequence_pattern.SequencePattern;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.model.voice.Voice;
+import io.xj.core.model.work.Work;
+import io.xj.core.model.work.WorkType;
 import io.xj.core.work.WorkManager;
 import io.xj.craft.CraftModule;
 import io.xj.dub.DubModule;
@@ -58,12 +60,13 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SequenceCloneJobIT {
-  private static final int TEST_DURATION_SECONDS = 2;
   private static final int MILLIS_PER_SECOND = 1000;
+  private static final int MAXIMUM_TEST_WAIT_MILLIS = 30 * MILLIS_PER_SECOND;
   @Spy
   final WorkManager workManager = Guice.createInjector(new CoreModule()).getInstance(WorkManager.class);
   @Rule
   public ExpectedException failure = ExpectedException.none();
+  long startTime = System.currentTimeMillis();
   @Mock
   AmazonProvider amazonProvider;
   private Injector injector;
@@ -168,11 +171,14 @@ public class SequenceCloneJobIT {
   @Test
   public void runWorker() throws Exception {
     when(amazonProvider.generateKey(any(), any())).thenReturn("superAwesomeKey123");
-
-    app.start();
     app.getWorkManager().doSequenceClone(BigInteger.valueOf(1), BigInteger.valueOf(14));
+    assertTrue(hasRemainingWork(WorkType.SequenceClone));
 
-    Thread.sleep(TEST_DURATION_SECONDS * MILLIS_PER_SECOND);
+    // Start app, wait for work, stop app
+    app.start();
+    while ((hasRemainingWork(WorkType.SequenceClone) || hasFewerChildPatterns(2, BigInteger.valueOf(14))) && isWithinTimeLimit()) {
+      Thread.sleep(MILLIS_PER_SECOND);
+    }
     app.stop();
 
     // Verify existence of cloned sequence
@@ -209,6 +215,39 @@ public class SequenceCloneJobIT {
     // Verify enqueued pattern clone jobs
     verify(workManager).doPatternClone(eq(BigInteger.valueOf(1)), any());
     verify(workManager).doPatternClone(eq(BigInteger.valueOf(2)), any());
+  }
+
+  /**
+   Whether the specified sequence has fewer than # child patterns
+
+   @param threshold  # of child patterns
+   @param sequenceId to test
+   @return true if less than # of child patterns
+   */
+  private boolean hasFewerChildPatterns(int threshold, BigInteger sequenceId) throws Exception {
+    return threshold > injector.getInstance(PatternDAO.class).readAll(Access.internal(), ImmutableList.of(sequenceId)).size();
+  }
+
+  /**
+   Whether this test is within the time limit
+
+   @return true if within time limit
+   */
+  private boolean isWithinTimeLimit() {
+    return MAXIMUM_TEST_WAIT_MILLIS > System.currentTimeMillis() - startTime;
+  }
+
+  /**
+   Whether there is active work of a particular type
+
+   @return true if there is work remaining
+   */
+  private boolean hasRemainingWork(WorkType type) throws Exception {
+    int total = 0;
+    for (Work work : app.getWorkManager().readAllWork()) {
+      if (Objects.equals(type, work.getType())) total++;
+    }
+    return 0 < total;
   }
 
 }

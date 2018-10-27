@@ -1,6 +1,11 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.worker.job;
 
+import com.google.common.collect.ImmutableList;
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.util.Modules;
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
 import io.xj.core.app.App;
@@ -11,22 +16,17 @@ import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
 import io.xj.core.model.instrument.InstrumentType;
+import io.xj.core.model.pattern.PatternState;
+import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.segment.SegmentState;
 import io.xj.core.model.sequence.SequenceState;
 import io.xj.core.model.sequence.SequenceType;
-import io.xj.core.model.pattern.PatternState;
-import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.user_role.UserRoleType;
+import io.xj.core.model.work.Work;
+import io.xj.core.model.work.WorkType;
 import io.xj.craft.CraftModule;
 import io.xj.dub.DubModule;
 import io.xj.worker.WorkerModule;
-
-import com.google.common.collect.ImmutableList;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.util.Modules;
-
 import net.greghaines.jesque.worker.JobFactory;
 import org.junit.After;
 import org.junit.Before;
@@ -40,16 +40,21 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.util.Date;
+import java.util.Objects;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ChainEraseJobIT {
-  private static final int TEST_DURATION_SECONDS = 5;
   private static final int MILLIS_PER_SECOND = 1000;
-  @Rule public ExpectedException failure = ExpectedException.none();
-  @Mock private AmazonProvider amazonProvider;
+  private static final int MAXIMUM_TEST_WAIT_MILLIS = 30 * MILLIS_PER_SECOND;
+  @Rule
+  public ExpectedException failure = ExpectedException.none();
+  long startTime = System.currentTimeMillis();
+  @Mock
+  private AmazonProvider amazonProvider;
   private Injector injector;
   private App app;
 
@@ -137,7 +142,7 @@ public class ChainEraseJobIT {
     // A basic beat
     IntegrationTestEntity.insertSequence(35, 3, 2, SequenceType.Rhythm, SequenceState.Published, "Basic Beat", 0.2, "C", 121);
     IntegrationTestEntity.insertSequenceMeme(343, 35, "Basic");
-    IntegrationTestEntity.insertPattern(315, 35, PatternType.Loop, PatternState.Published,  4, "Drop", 0.5, "C", 125.0);
+    IntegrationTestEntity.insertPattern(315, 35, PatternType.Loop, PatternState.Published, 4, "Drop", 0.5, "C", 125.0);
     IntegrationTestEntity.insertPatternMeme(346, 315, "Heavy");
 
     // setup voice pattern events
@@ -150,7 +155,7 @@ public class ChainEraseJobIT {
     IntegrationTestEntity.insertPatternEvent(4, 315, 1, 3, 1, "SMACK", "G5", 0.1, 0.9);
 
     // basic beat second pattern
-    IntegrationTestEntity.insertPattern(316, 35, PatternType.Loop, PatternState.Published,  4, "Continue", 0.5, "C", 125.0);
+    IntegrationTestEntity.insertPattern(316, 35, PatternType.Loop, PatternState.Published, 4, "Continue", 0.5, "C", 125.0);
     IntegrationTestEntity.insertPatternMeme(347, 316, "Heavy");
 
     // Chain "Test Print #1" has 5 total segments
@@ -211,10 +216,7 @@ public class ChainEraseJobIT {
   }
 
   @After
-  public void tearDown() throws Exception {
-    app = null;
-    injector = null;
-
+  public void tearDown() {
     System.clearProperty("segment.file.bucket");
     System.clearProperty("work.chain.delete.recur.seconds");
   }
@@ -224,16 +226,18 @@ public class ChainEraseJobIT {
    */
   @Test
   public void runWorker() throws Exception {
-    app.start();
-
     app.getWorkManager().startChainErase(BigInteger.valueOf(1));
     app.getWorkManager().startChainErase(BigInteger.valueOf(2));
+    assertTrue(hasRemainingWork(WorkType.ChainErase));
 
-    Thread.sleep(TEST_DURATION_SECONDS * MILLIS_PER_SECOND);
+    // Start app, wait for work, stop app
+    app.start();
+    while (hasRemainingWork(WorkType.ChainErase) && isWithinTimeLimit()) {
+      Thread.sleep(MILLIS_PER_SECOND);
+    }
     app.stop();
 
     assertEquals(0, injector.getInstance(ChainDAO.class).readAll(Access.internal(), ImmutableList.of(BigInteger.valueOf(1))).size());
-
     assertEquals(0, injector.getInstance(SegmentDAO.class).readAll(Access.internal(), ImmutableList.of(BigInteger.valueOf(1))).size());
     assertEquals(0, injector.getInstance(SegmentDAO.class).readAll(Access.internal(), ImmutableList.of(BigInteger.valueOf(2))).size());
 
@@ -242,5 +246,28 @@ public class ChainEraseJobIT {
     verify(amazonProvider).deleteS3Object("xj-segment-test", "chain-1-segment-198745hj78dfs.wav");
     verify(amazonProvider).deleteS3Object("xj-segment-test", "chain-1-segment-897hdfhjd7884.wav");
   }
+
+  /**
+   Whether this test is within the time limit
+
+   @return true if within time limit
+   */
+  private boolean isWithinTimeLimit() {
+    return MAXIMUM_TEST_WAIT_MILLIS > System.currentTimeMillis() - startTime;
+  }
+
+  /**
+   Whether there is active work of a particular type
+
+   @return true if there is work remaining
+   */
+  private boolean hasRemainingWork(WorkType type) throws Exception {
+    int total = 0;
+    for (Work work : app.getWorkManager().readAllWork()) {
+      if (Objects.equals(type, work.getType())) total++;
+    }
+    return 0 < total;
+  }
+
 
 }

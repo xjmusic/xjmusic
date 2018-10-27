@@ -601,8 +601,9 @@ public class BasisImpl implements Basis {
   @Override
   public MemeIsometry previousMacroNextPatternMemeIsometry() throws Exception {
     if (Objects.isNull(_previousMacroMemeIsometry)) {
+      BigInteger previousSequenceId = Objects.nonNull(previousMacroChoice()) ? previousMacroChoice().getSequenceId() : null;
       _previousMacroMemeIsometry = MemeIsometry.of(ingest().sequenceAndPatternMemes(
-        previousMacroChoice().getSequenceId(),
+        previousSequenceId,
         Value.inc(previousMacroChoice().getSequencePatternOffset(), 1),
         PatternType.Macro));
     }

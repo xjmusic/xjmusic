@@ -1,6 +1,7 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.util;// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 
 import org.junit.Test;
@@ -37,4 +38,8 @@ public class ValueTest {
     assertEquals(ImmutableSet.of(1, 6, 18, 24, 32), Value.dividedBy(2.5, ImmutableSet.of(4, 16, 62, 80, 46)));
   }
 
+  @Test
+  public void max() {
+    assertEquals(BigInteger.valueOf(73), Value.max(ImmutableList.of(BigInteger.valueOf(21), BigInteger.valueOf(45), BigInteger.valueOf(73), BigInteger.valueOf(18))));
+  }
 }

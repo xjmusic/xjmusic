@@ -1,6 +1,7 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.worker.job;
 
+import com.google.common.collect.ImmutableList;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -16,6 +17,8 @@ import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.sequence.SequenceState;
 import io.xj.core.model.sequence.SequenceType;
 import io.xj.core.model.user_role.UserRoleType;
+import io.xj.core.model.work.Work;
+import io.xj.core.model.work.WorkType;
 import io.xj.core.work.WorkManager;
 import io.xj.craft.CraftModule;
 import io.xj.dub.DubModule;
@@ -31,20 +34,23 @@ import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigInteger;
+import java.util.Objects;
 
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  [#153976888] PatternErase job erase a Pattern in the background, in order to keep the UI functioning at a reasonable speed.
  */
 @RunWith(MockitoJUnitRunner.class)
 public class SequenceEraseJobIT {
-  private static final int TEST_DURATION_SECONDS = 3;
   private static final int MILLIS_PER_SECOND = 1000;
+  private static final int MAXIMUM_TEST_WAIT_MILLIS = 30 * MILLIS_PER_SECOND;
   @Spy
   private final WorkManager workManager = Guice.createInjector(new CoreModule()).getInstance(WorkManager.class);
   @Rule
   public ExpectedException failure = ExpectedException.none();
+  long startTime = System.currentTimeMillis();
   private Injector injector;
   private App app;
 
@@ -81,22 +87,22 @@ public class SequenceEraseJobIT {
     IntegrationTestEntity.insertVoice(4, 12, InstrumentType.Percussive, "Snarr Dram");
 
     // Pattern "Verse"
-    IntegrationTestEntity.insertPattern(1, 1, PatternType.Loop, PatternState.Published,  16, "Verse 1", 0.5, "G", 120);
+    IntegrationTestEntity.insertPattern(1, 1, PatternType.Loop, PatternState.Published, 16, "Verse 1", 0.5, "G", 120);
     IntegrationTestEntity.insertPatternMeme(1, 1, "GREEN");
     IntegrationTestEntity.insertPatternChord(1, 1, 0, "Db7");
     IntegrationTestEntity.insertPatternEvent(101, 1, 1, 0.0, 1.0, "KICK", "C5", 1.0, 1.0);
     IntegrationTestEntity.insertPatternEvent(102, 1, 2, 1.0, 1.0, "SNARE", "C5", 1.0, 1.0);
 
     // Pattern "Verse"
-    IntegrationTestEntity.insertPattern(2, 1, PatternType.Loop, PatternState.Published,  16, "Verse 2", 0.5, "G", 120);
+    IntegrationTestEntity.insertPattern(2, 1, PatternType.Loop, PatternState.Published, 16, "Verse 2", 0.5, "G", 120);
     IntegrationTestEntity.insertPatternMeme(2, 2, "YELLOW");
     IntegrationTestEntity.insertPatternChord(2, 2, 0, "Gm9");
     IntegrationTestEntity.insertPatternEvent(103, 2, 1, 0.0, 1.0, "KICK", "C5", 1.0, 1.0);
     IntegrationTestEntity.insertPatternEvent(104, 2, 2, 1.0, 1.0, "SNARE", "C5", 1.0, 1.0);
 
     // Newly cloned patterns -- awaiting PatternClone job to run, and create their child entities
-    IntegrationTestEntity.insertPattern(3, 1, PatternType.Loop, PatternState.Published,  16, "Verse 34", 0.5, "G", 120);
-    IntegrationTestEntity.insertPattern(4, 12, PatternType.Loop, PatternState.Published,  16, "Verse 79", 0.5, "G", 120);
+    IntegrationTestEntity.insertPattern(3, 1, PatternType.Loop, PatternState.Published, 16, "Verse 34", 0.5, "G", 120);
+    IntegrationTestEntity.insertPattern(4, 12, PatternType.Loop, PatternState.Published, 16, "Verse 79", 0.5, "G", 120);
 
     // Don't sleep between processing work
     System.setProperty("app.port", "9043");
@@ -126,17 +132,31 @@ public class SequenceEraseJobIT {
 
   @Test
   public void runWorker() throws Exception {
-    app.start();
-
     app.getWorkManager().doSequenceErase(BigInteger.valueOf(1));
+    assertTrue(hasRemainingWork(WorkType.SequenceErase));
 
-    Thread.sleep(TEST_DURATION_SECONDS * MILLIS_PER_SECOND);
+    // Start app, wait for work, stop app
+    app.start();
+    while ((hasRemainingWork(WorkType.SequenceErase) || hasAnyChildPatterns(BigInteger.valueOf(1))) && isWithinTimeLimit()) {
+      Thread.sleep(MILLIS_PER_SECOND);
+    }
     app.stop();
 
     assertNull(injector.getInstance(PatternDAO.class).readOne(Access.internal(), BigInteger.valueOf(1)));
     assertNull(injector.getInstance(PatternDAO.class).readOne(Access.internal(), BigInteger.valueOf(2)));
     assertNull(injector.getInstance(PatternDAO.class).readOne(Access.internal(), BigInteger.valueOf(3)));
   }
+
+  /**
+   Whether the specified sequence has any child patterns
+
+   @param sequenceId to test
+   @return true if has any child patterns
+   */
+  private boolean hasAnyChildPatterns(BigInteger sequenceId) throws Exception {
+    return !injector.getInstance(PatternDAO.class).readAll(Access.internal(), ImmutableList.of(sequenceId)).isEmpty();
+  }
+
 
   /**
    [#155682779] Engineer expects SequenceErase job to be cancelled if the Sequence has already been deleted.
@@ -147,9 +167,32 @@ public class SequenceEraseJobIT {
 
     app.getWorkManager().doSequenceErase(BigInteger.valueOf(712));
 
-    Thread.sleep(TEST_DURATION_SECONDS * MILLIS_PER_SECOND);
+    while (hasRemainingWork(WorkType.SequenceErase) && isWithinTimeLimit()) {
+      Thread.sleep(MILLIS_PER_SECOND);
+    }
     app.stop();
   }
 
+  /**
+   Whether this test is within the time limit
+
+   @return true if within time limit
+   */
+  private boolean isWithinTimeLimit() {
+    return MAXIMUM_TEST_WAIT_MILLIS > System.currentTimeMillis() - startTime;
+  }
+
+  /**
+   Whether there is active work of a particular type
+
+   @return true if there is work remaining
+   */
+  private boolean hasRemainingWork(WorkType type) throws Exception {
+    int total = 0;
+    for (Work work : app.getWorkManager().readAllWork()) {
+      if (Objects.equals(type, work.getType())) total++;
+    }
+    return 0 < total;
+  }
 
 }

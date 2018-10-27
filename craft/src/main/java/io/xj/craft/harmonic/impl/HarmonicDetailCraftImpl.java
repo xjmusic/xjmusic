@@ -1,14 +1,12 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.craft.harmonic.impl;
 
-import io.xj.craft.basis.Basis;
-import io.xj.core.exception.BusinessException;
-import io.xj.core.model.sequence.Sequence;
-import io.xj.craft.harmonic.HarmonicDetailCraft;
-
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-
+import io.xj.core.exception.BusinessException;
+import io.xj.core.model.sequence.Sequence;
+import io.xj.craft.basis.Basis;
+import io.xj.craft.harmonic.HarmonicDetailCraft;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +28,7 @@ public class HarmonicDetailCraftImpl implements HarmonicDetailCraft {
   @Inject
   public HarmonicDetailCraftImpl(
     @Assisted("basis") Basis basis
-  /*-*/) {
+    /*-*/) {
     this.basis = basis;
   }
 

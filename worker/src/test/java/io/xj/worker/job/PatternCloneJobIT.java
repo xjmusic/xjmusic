@@ -20,6 +20,8 @@ import io.xj.core.model.pattern_chord.PatternChord;
 import io.xj.core.model.pattern_meme.PatternMeme;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.model.pattern_event.PatternEvent;
+import io.xj.core.model.work.Work;
+import io.xj.core.model.work.WorkType;
 import io.xj.core.work.WorkManager;
 import io.xj.craft.CraftModule;
 import io.xj.dub.DubModule;
@@ -44,14 +46,17 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigInteger;
 import java.util.Collection;
+import java.util.Objects;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PatternCloneJobIT {
-  private static final int TEST_DURATION_SECONDS = 2;
   private static final int MILLIS_PER_SECOND = 1000;
+  private static final int MAXIMUM_TEST_WAIT_MILLIS = 30 * MILLIS_PER_SECOND;
+  long startTime = System.currentTimeMillis();
   @Spy final WorkManager workManager = Guice.createInjector(new CoreModule()).getInstance(WorkManager.class);
   @Rule public ExpectedException failure = ExpectedException.none();
   @Mock AmazonProvider amazonProvider;
@@ -145,11 +150,15 @@ public class PatternCloneJobIT {
    */
   @Test
   public void runWorker() throws Exception {
-    app.start();
     app.getWorkManager().doPatternClone(BigInteger.valueOf(1), BigInteger.valueOf(3));
     app.getWorkManager().doPatternClone(BigInteger.valueOf(2), BigInteger.valueOf(4));
+    assertTrue(hasRemainingWork(WorkType.PatternClone));
 
-    Thread.sleep(TEST_DURATION_SECONDS * MILLIS_PER_SECOND);
+    // Start app, wait for work, stop app
+    app.start();
+    while (hasRemainingWork(WorkType.PatternClone) && isWithinTimeLimit()) {
+      Thread.sleep(MILLIS_PER_SECOND);
+    }
     app.stop();
 
     // Verify existence of cloned patterns
@@ -183,6 +192,28 @@ public class PatternCloneJobIT {
     PatternChord chordTwo = chordsTwo.iterator().next();
     assertEquals(0, chordTwo.getPosition(), 0.01);
     assertEquals("Gm9", chordTwo.getName());
+  }
+
+  /**
+   Whether this test is within the time limit
+
+   @return true if within time limit
+   */
+  private boolean isWithinTimeLimit() {
+    return MAXIMUM_TEST_WAIT_MILLIS > System.currentTimeMillis() - startTime;
+  }
+
+  /**
+   Whether there is active work of a particular type
+
+   @return true if there is work remaining
+   */
+  private boolean hasRemainingWork(WorkType type) throws Exception {
+    int total = 0;
+    for (Work work : app.getWorkManager().readAllWork()) {
+      if (Objects.equals(type, work.getType())) total++;
+    }
+    return 0 < total;
   }
 
 }

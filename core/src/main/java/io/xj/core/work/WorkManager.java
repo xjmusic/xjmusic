@@ -160,6 +160,8 @@ public interface WorkManager {
    Only recurring jobs can be considered "expected work"
    <p>
    [#153266872] Admin wants Work tab in order to monitor current platform workload, and a Reinstate All Jobs button to ensure all jobs are up and running
+   <p>
+   NOTE: Currently, all work types must be manually accounted for within this method implementation.
 
    @return collection of all work
    @throws Exception on failure

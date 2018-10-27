@@ -1,6 +1,10 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.worker.job;
 
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.util.Modules;
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
 import io.xj.core.app.App;
@@ -9,16 +13,12 @@ import io.xj.core.external.amazon.AmazonProvider;
 import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.model.instrument.InstrumentType;
 import io.xj.core.model.user_role.UserRoleType;
+import io.xj.core.model.work.Work;
+import io.xj.core.model.work.WorkType;
 import io.xj.core.work.WorkManager;
 import io.xj.craft.CraftModule;
 import io.xj.dub.DubModule;
 import io.xj.worker.WorkerModule;
-
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.util.Modules;
-
 import net.greghaines.jesque.worker.JobFactory;
 import org.junit.After;
 import org.junit.Before;
@@ -31,19 +31,25 @@ import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigInteger;
+import java.util.Objects;
 
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AudioEraseJobIT {
-  @Rule public ExpectedException failure = ExpectedException.none();
+  private static final int MILLIS_PER_SECOND = 1000;
+  private static final int MAXIMUM_TEST_WAIT_MILLIS = 30 * MILLIS_PER_SECOND;
+  @Spy
+  final WorkManager workManager = Guice.createInjector(new CoreModule()).getInstance(WorkManager.class);
+  @Rule
+  public ExpectedException failure = ExpectedException.none();
+  long startTime = System.currentTimeMillis();
+  @Mock
+  AmazonProvider amazonProvider;
   private Injector injector;
   private App app;
-  private static final int TEST_DURATION_SECONDS = 3;
-  private static final int MILLIS_PER_SECOND = 1000;
-  @Mock AmazonProvider amazonProvider;
-  @Spy final WorkManager workManager = Guice.createInjector(new CoreModule()).getInstance(WorkManager.class);
 
   @Before
   public void setUp() throws Exception {
@@ -106,10 +112,7 @@ public class AudioEraseJobIT {
   }
 
   @After
-  public void tearDown() throws Exception {
-    app = null;
-    injector = null;
-
+  public void tearDown() {
     System.clearProperty("segment.file.bucket");
     System.clearProperty("audio.file.bucket");
   }
@@ -119,21 +122,47 @@ public class AudioEraseJobIT {
    */
   @Test
   public void runWorker() throws Exception {
-    app.start();
-
     app.getWorkManager().doAudioErase(BigInteger.valueOf(1));
     app.getWorkManager().doAudioErase(BigInteger.valueOf(2));
+    assertTrue(hasRemainingWork(WorkType.AudioErase));
 
-    Thread.sleep(TEST_DURATION_SECONDS * MILLIS_PER_SECOND);
+    // Start app, wait for work, stop app
+    app.start();
+    while (hasRemainingWork(WorkType.AudioErase) && isWithinTimeLimit()) {
+      Thread.sleep(MILLIS_PER_SECOND);
+    }
     app.stop();
 
-    assertNull( injector.getInstance(AudioDAO.class).readOne(Access.internal(), BigInteger.valueOf(1)));
-    assertNull( injector.getInstance(AudioDAO.class).readOne(Access.internal(), BigInteger.valueOf(2)));
+    assertNull(injector.getInstance(AudioDAO.class).readOne(Access.internal(), BigInteger.valueOf(1)));
+    assertNull(injector.getInstance(AudioDAO.class).readOne(Access.internal(), BigInteger.valueOf(2)));
 
     verify(amazonProvider).deleteS3Object("xj-audio-test",
       "instrument-1-audio-asdg709a709835789agw73yh87.wav");
     verify(amazonProvider).deleteS3Object("xj-audio-test",
       "instrument-1-audio-978as789dgih35hi897gjhyi8f.wav");
   }
+
+  /**
+   Whether this test is within the time limit
+
+   @return true if within time limit
+   */
+  private boolean isWithinTimeLimit() {
+    return MAXIMUM_TEST_WAIT_MILLIS > System.currentTimeMillis() - startTime;
+  }
+
+  /**
+   Whether there is active work of a particular type
+
+   @return true if there is work remaining
+   */
+  private boolean hasRemainingWork(WorkType type) throws Exception {
+    int total = 0;
+    for (Work work : app.getWorkManager().readAllWork()) {
+      if (Objects.equals(type, work.getType())) total++;
+    }
+    return 0 < total;
+  }
+
 
 }

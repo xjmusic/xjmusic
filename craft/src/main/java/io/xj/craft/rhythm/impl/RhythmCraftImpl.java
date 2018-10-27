@@ -1,38 +1,40 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.craft.rhythm.impl;
 
-import io.xj.craft.basis.Basis;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
 import io.xj.core.exception.BusinessException;
-import io.xj.craft.isometry.EventIsometry;
 import io.xj.core.model.arrangement.Arrangement;
 import io.xj.core.model.audio.Audio;
 import io.xj.core.model.choice.Choice;
 import io.xj.core.model.entity.EntityRank;
+import io.xj.core.model.event.Event;
 import io.xj.core.model.instrument.Instrument;
 import io.xj.core.model.instrument.InstrumentType;
-import io.xj.core.model.sequence.Sequence;
-import io.xj.core.model.sequence.SequenceType;
 import io.xj.core.model.pattern.Pattern;
 import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.pattern_event.PatternEvent;
 import io.xj.core.model.pick.Pick;
+import io.xj.core.model.sequence.Sequence;
+import io.xj.core.model.sequence.SequenceType;
 import io.xj.core.model.voice.Voice;
 import io.xj.core.util.Chance;
+import io.xj.craft.basis.Basis;
+import io.xj.craft.isometry.EventIsometry;
 import io.xj.craft.rhythm.RhythmCraft;
 import io.xj.music.Chord;
 import io.xj.music.Key;
 import io.xj.music.Note;
-
-import com.google.common.collect.Lists;
-import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigInteger;
+import java.security.SecureRandom;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -48,11 +50,14 @@ public class RhythmCraftImpl implements RhythmCraft {
   private final Logger log = LoggerFactory.getLogger(RhythmCraftImpl.class);
   private BigInteger _rhythmPatternOffset;
   private Sequence _rhythmSequence;
+  private final Map<String, Audio> cachedSelectionInstrumentAudio = Maps.newConcurrentMap();
+  private final SecureRandom random = new SecureRandom();
+
 
   @Inject
   public RhythmCraftImpl(
     @Assisted("basis") Basis basis
-  /*-*/) {
+    /*-*/) {
     this.basis = basis;
   }
 
@@ -266,7 +271,7 @@ public class RhythmCraftImpl implements RhythmCraft {
       try {
         entityRank.add(instrument, scorePercussiveInstrument(instrument));
       } catch (Exception e) {
-        log.debug("while scoring perussive instrument", e);
+        log.debug("while scoring percussive instrument", e);
       }
     }));
 
@@ -306,6 +311,7 @@ public class RhythmCraftImpl implements RhythmCraft {
 
   /**
    [#153976073] Artist wants Pattern to have type Macro or Main (for Macro- or Main-type sequences), or Intro, Loop, or Outro (for Rhythm or Detail-type Sequence) in order to create a composition that is dynamic when chosen to fill a Segment.
+   [#161466708] Artist wants dynamic randomness over the selection of various audio events to fulfill particular pattern events, in order to establish repetition within any given segment.
 
    @throws Exception on failure
    */
@@ -327,37 +333,40 @@ public class RhythmCraftImpl implements RhythmCraft {
 
     // if intro pattern, fabricate those voice event first
     if (Objects.nonNull(introPattern)) {
-      curPos += craftRhythmPatternPatternEvents(curPos, introPattern, loopOutPos);
+      curPos += craftRhythmPatternPatternEvents(curPos, introPattern, loopOutPos, 0);
     }
 
     // choose loop patterns until arrive at the out point or end of segment
     while (curPos < loopOutPos) {
       Pattern loopPattern = basis.ingest().patternRandomAtOffset(basis.currentRhythmChoice().getSequenceId(), basis.currentRhythmChoice().getSequencePatternOffset(), PatternType.Loop);
-      curPos += craftRhythmPatternPatternEvents(curPos, loopPattern, loopOutPos);
+      curPos += craftRhythmPatternPatternEvents(curPos, loopPattern, loopOutPos, 0);
     }
 
     // if outro pattern, fabricate those voice event last
+    // [#161466708] compute how much to go for it in the outro
     if (Objects.nonNull(outroPattern)) {
-      craftRhythmPatternPatternEvents(curPos, outroPattern, loopOutPos);
+      double goForItRatio = basis.currentMainChoice().getSequencePatternOffset().doubleValue() / basis.currentMainChoice().getMaxAvailablePatternOffset().doubleValue();
+      craftRhythmPatternPatternEvents(curPos, outroPattern, loopOutPos, goForItRatio);
     }
   }
 
   /**
    Craft the voice events of a single rhythm pattern
 
-   @param fromPos to write events to segment
-   @param pattern   to source events
-   @param maxPos  to write events to segment
+   @param fromPos      to write events to segment
+   @param pattern      to source events
+   @param maxPos       to write events to segment
+   @param goForItRatio entropy is increased during the progression of a main sequence [#161466708]
    @return deltaPos from start
    */
-  private double craftRhythmPatternPatternEvents(double fromPos, Pattern pattern, double maxPos) throws Exception {
+  private double craftRhythmPatternPatternEvents(double fromPos, Pattern pattern, double maxPos, double goForItRatio) throws Exception {
     Choice choice = basis.currentRhythmChoice();
     Collection<Arrangement> arrangements = basis.choiceArrangements(choice.getId());
     for (Arrangement arrangement : arrangements) {
       Collection<PatternEvent> patternEvents = basis.ingest().patternVoiceEvents(pattern.getId(), arrangement.getVoiceId());
       Instrument instrument = basis.ingest().instrument(arrangement.getInstrumentId());
       for (PatternEvent patternEvent : patternEvents) {
-        pickInstrumentAudio(instrument, arrangement, patternEvent, choice.getTranspose(), fromPos);
+        pickInstrumentAudio(instrument, arrangement, patternEvent, choice.getTranspose(), fromPos, goForItRatio);
       }
     }
     return Math.min(maxPos - fromPos, pattern.getTotal());
@@ -365,36 +374,14 @@ public class RhythmCraftImpl implements RhythmCraft {
 
   /**
    create a pick of instrument-audio for each event, where events are conformed to entities/scales based on the master segment entities
-   pick instrument audio for one event, in a voice in a pattern, belonging to an arrangement
+   pick instrument audio for one event, in a voice in a pattern, belonging to an arrangement@param arrangement   to create pick within
 
-   @param arrangement   to create pick within
-   @param patternEvent    to pick audio for
+   @param patternEvent  to pick audio for
    @param shiftPosition offset voice event zero within current segment
+   @param goForItRatio  entropy is increased during the progression of a main sequence [#161466708]
    */
-  private void pickInstrumentAudio(
-    Instrument instrument,
-    Arrangement arrangement,
-    PatternEvent patternEvent,
-    int transpose,
-    Double shiftPosition
-  /*-*/) throws Exception {
-    EntityRank<Audio> audioEntityRank = new EntityRank<>();
-
-    // add all audio to chooser
-    audioEntityRank.addAll(basis.ingest().audios(instrument.getId()));
-
-    // score each audio against the current voice event, with some variability
-    basis.ingest().instrumentAudioFirstEvents(instrument.getId())
-      .forEach(audioEvent ->
-        audioEntityRank.score(audioEvent.getAudioId(),
-          Chance.normallyAround(
-            EventIsometry.similarity(patternEvent, audioEvent),
-            SCORE_INSTRUMENT_ENTROPY)));
-
-    // final chosen audio event
-    Audio audio = audioEntityRank.getTop();
-    if (Objects.isNull(audio))
-      throw new BusinessException("No acceptable Audio found!");
+  private void pickInstrumentAudio(Instrument instrument, Arrangement arrangement, PatternEvent patternEvent, int transpose, Double shiftPosition, Double goForItRatio) throws Exception {
+    Audio audio = selectInstrumentAudio(instrument, patternEvent, goForItRatio);
 
     // Morph & Point attributes are expressed in beats
     double position = patternEvent.getPosition() + shiftPosition;
@@ -421,6 +408,71 @@ public class RhythmCraftImpl implements RhythmCraft {
   }
 
   /**
+   Determine if we will use a cached or new audio for this selection
+   Cached audio defaults to random selection if none has been previously encountered
+
+   @param instrument      from which to score available audios, and make a selection
+   @param patternEvent    to match
+   @param randomnessRatio from 0 to 1, chance that a random audio will be selected (instead of the cached selection)
+   @return matched new audio
+   @throws Exception on failure
+   */
+  private Audio selectInstrumentAudio(Instrument instrument, Event patternEvent, Double randomnessRatio) throws Exception {
+    if (0 < randomnessRatio && random.nextDouble() <= randomnessRatio) {
+      return selectNewInstrumentAudio(instrument, patternEvent);
+    } else {
+      return selectCachedInstrumentAudio(instrument, patternEvent);
+    }
+  }
+
+  /**
+   Select the cached (already selected for this segment+drum inflection)
+   instrument audio based on a pattern event.
+   <p>
+   If never encountered, default to new selection and cache that.
+
+   @param instrument   from which to score available audios, and make a selection
+   @param patternEvent to match
+   @return matched new audio
+   @throws Exception on failure
+   */
+  private Audio selectCachedInstrumentAudio(Instrument instrument, Event patternEvent) throws Exception {
+    if (!cachedSelectionInstrumentAudio.containsKey(patternEvent.getInflection()))
+      cachedSelectionInstrumentAudio.put(patternEvent.getInflection(), selectNewInstrumentAudio(instrument, patternEvent));
+    return cachedSelectionInstrumentAudio.get(patternEvent.getInflection());
+  }
+
+
+  /**
+   Select a new random instrument audio based on a pattern event
+
+   @param instrument   from which to score available audios, and make a selection
+   @param patternEvent to match
+   @return matched new audio
+   @throws Exception on failure
+   */
+  private Audio selectNewInstrumentAudio(Instrument instrument, Event patternEvent) throws Exception {
+    EntityRank<Audio> audioEntityRank = new EntityRank<>();
+
+    // add all audio to chooser
+    audioEntityRank.addAll(basis.ingest().audios(instrument.getId()));
+
+    // score each audio against the current voice event, with some variability
+    basis.ingest().instrumentAudioFirstEvents(instrument.getId())
+      .forEach(audioEvent ->
+        audioEntityRank.score(audioEvent.getAudioId(),
+          Chance.normallyAround(
+            EventIsometry.similarity(patternEvent, audioEvent),
+            SCORE_INSTRUMENT_ENTROPY)));
+
+    // final chosen audio event
+    Audio audio = audioEntityRank.getTop();
+    if (Objects.isNull(audio))
+      throw new BusinessException("No acceptable Audio found!");
+    return audio;
+  }
+
+  /**
    Pick final note based on instrument type, voice event, transposition and current chord
    <p>
    [#295] Pitch of percussive-type instrument audio is altered the least # semitones possible to conform to the current chord
@@ -432,18 +484,12 @@ public class RhythmCraftImpl implements RhythmCraft {
    @return final note
    */
   private Note pickNote(Note fromNote, Chord chord, Audio audio, InstrumentType instrumentType) {
-    switch (instrumentType) {
-
-      case Percussive:
-        return basis.note(audio.getPitch())
-          .conformedTo(chord);
-
-      case Melodic:
-      case Harmonic:
-      case Vocal:
-      default:
-        return fromNote
-          .conformedTo(chord);
+    if (Objects.equals(InstrumentType.Percussive, instrumentType)) {
+      return basis.note(audio.getPitch())
+        .conformedTo(chord);
+    } else {
+      return fromNote
+        .conformedTo(chord);
     }
   }
 

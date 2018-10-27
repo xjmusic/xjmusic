@@ -156,14 +156,16 @@ public class EventIsometry {
       dm.doubleMetaphone(event2.getInflection())
     );
 
-    // score velocity similarity
+/*
+    // FUTURE: score velocity similarity?
     score += (1 - Math.abs(event2.getVelocity() - event1.getVelocity())) * SIMILARITY_SCORE_VELOCITY;
 
-    // score duration similarity
+    // FUTURE: score duration similarity?
     score += (1 - Math.abs(event2.getDuration() - event1.getDuration())) * SIMILARITY_SCORE_DURATION;
 
-    // score tonality similarity
+    // FUTURE: score tonality similarity?
     score += (1 - Math.abs(event2.getTonality() - event1.getTonality())) * SIMILARITY_SCORE_TONALITY;
+*/
 
     return score;
   }

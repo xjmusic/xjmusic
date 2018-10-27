@@ -17,6 +17,8 @@ import io.xj.core.model.sequence.SequenceType;
 import io.xj.core.model.pattern.PatternState;
 import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.user_role.UserRoleType;
+import io.xj.core.model.work.Work;
+import io.xj.core.model.work.WorkType;
 import io.xj.core.work.WorkManager;
 import io.xj.craft.CraftModule;
 import io.xj.dub.DubModule;
@@ -32,8 +34,10 @@ import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigInteger;
+import java.util.Objects;
 
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  [#153976888] PatternErase job erase a Pattern in the background, in order to keep the UI functioning at a reasonable speed.
@@ -43,8 +47,9 @@ public class PatternEraseJobIT {
   @Rule public ExpectedException failure = ExpectedException.none();
   private Injector injector;
   private App app;
-  private static final int TEST_DURATION_SECONDS = 3;
   private static final int MILLIS_PER_SECOND = 1000;
+  private static final int MAXIMUM_TEST_WAIT_MILLIS = 30 * MILLIS_PER_SECOND;
+  long startTime = System.currentTimeMillis();
   @Spy private final WorkManager workManager = Guice.createInjector(new CoreModule()).getInstance(WorkManager.class);
 
   @Before
@@ -125,12 +130,15 @@ public class PatternEraseJobIT {
 
   @Test
   public void runWorker() throws Exception {
-    app.start();
-
     app.getWorkManager().doPatternErase(BigInteger.valueOf(1));
     app.getWorkManager().doPatternErase(BigInteger.valueOf(2));
+    assertTrue(hasRemainingWork(WorkType.PatternErase));
 
-    Thread.sleep(TEST_DURATION_SECONDS * MILLIS_PER_SECOND);
+    // Start app, wait for work, stop app
+    app.start();
+    while (hasRemainingWork(WorkType.PatternErase) && isWithinTimeLimit()) {
+      Thread.sleep(MILLIS_PER_SECOND);
+    }
     app.stop();
 
     assertNull( injector.getInstance(PatternDAO.class).readOne(Access.internal(), BigInteger.valueOf(1)));
@@ -146,10 +154,33 @@ public class PatternEraseJobIT {
 
     app.getWorkManager().doPatternErase(BigInteger.valueOf(876));
 
-    Thread.sleep(TEST_DURATION_SECONDS * MILLIS_PER_SECOND);
+    while (hasRemainingWork(WorkType.PatternErase) && isWithinTimeLimit()) {
+      Thread.sleep(MILLIS_PER_SECOND);
+    }
     app.stop();
   }
 
+  /**
+   Whether this test is within the time limit
+
+   @return true if within time limit
+   */
+  private boolean isWithinTimeLimit() {
+    return MAXIMUM_TEST_WAIT_MILLIS > System.currentTimeMillis() - startTime;
+  }
+
+  /**
+   Whether there is active work of a particular type
+
+   @return true if there is work remaining
+   */
+  private boolean hasRemainingWork(WorkType type) throws Exception {
+    int total = 0;
+    for (Work work : app.getWorkManager().readAllWork()) {
+      if (Objects.equals(type, work.getType())) total++;
+    }
+    return 0 < total;
+  }
 
 
 }

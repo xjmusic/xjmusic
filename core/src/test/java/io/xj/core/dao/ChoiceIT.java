@@ -1,6 +1,10 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.dao;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
 import io.xj.core.exception.BusinessException;
@@ -9,21 +13,14 @@ import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
 import io.xj.core.model.choice.Choice;
 import io.xj.core.model.instrument.InstrumentType;
+import io.xj.core.model.pattern.PatternState;
+import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.segment.SegmentState;
 import io.xj.core.model.sequence.SequenceState;
 import io.xj.core.model.sequence.SequenceType;
-import io.xj.core.model.pattern.PatternState;
-import io.xj.core.model.pattern.PatternType;
 import io.xj.core.transport.JSON;
-
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -38,7 +35,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 public class ChoiceIT {
-  @Rule public ExpectedException failure = ExpectedException.none();
+  @Rule
+  public ExpectedException failure = ExpectedException.none();
   private final Injector injector = Guice.createInjector(new CoreModule());
   private ChoiceDAO testDAO;
 
@@ -69,11 +67,6 @@ public class ChoiceIT {
 
     // Instantiate the test subject
     testDAO = injector.getInstance(ChoiceDAO.class);
-  }
-
-  @After
-  public void tearDown() throws Exception {
-    testDAO = null;
   }
 
   @Test
@@ -202,6 +195,7 @@ public class ChoiceIT {
     assertEquals(BigInteger.valueOf(1L), result.getSequencePatternOffset());
     assertEquals(Integer.valueOf(2), result.getTranspose());
     assertEquals(ImmutableList.of(BigInteger.valueOf(0L)), result.getAvailablePatternOffsets());
+    assertEquals(BigInteger.valueOf(0L), result.getMaxAvailablePatternOffset());
   }
 
   @Test
@@ -214,7 +208,7 @@ public class ChoiceIT {
     JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1L))));
 
     assertNotNull(result);
-    assertEquals(4L, (long) result.length());
+    assertEquals(4L, result.length());
 
     JSONObject actualResult0 = (JSONObject) result.get(0);
     assertEquals("Macro", actualResult0.get("type"));
@@ -236,14 +230,14 @@ public class ChoiceIT {
     JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1L))));
 
     assertNotNull(result);
-    assertEquals(0L, (long) result.length());
+    assertEquals(0L, result.length());
   }
 
   @Test
   public void readAllInSegments() throws Exception {
     Collection<Choice> result = testDAO.readAllInSegments(Access.internal(), ImmutableList.of(BigInteger.valueOf(1L)));
 
-    assertEquals(4L, (long) result.size());
+    assertEquals(4L, result.size());
   }
 
   @Test
@@ -262,7 +256,7 @@ public class ChoiceIT {
 
     Collection<Choice> result = testDAO.readAllInSegments(access, ImmutableList.of(BigInteger.valueOf(1L)));
 
-    assertEquals(4L, (long) result.size());
+    assertEquals(4L, result.size());
   }
 
   @Test

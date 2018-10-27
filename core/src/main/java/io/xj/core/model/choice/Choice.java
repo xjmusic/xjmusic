@@ -6,6 +6,7 @@ import io.xj.core.exception.BusinessException;
 import io.xj.core.model.entity.Entity;
 import io.xj.core.model.sequence.SequenceType;
 import io.xj.core.transport.CSV;
+import io.xj.core.util.Value;
 
 import javax.annotation.Nullable;
 import java.math.BigInteger;
@@ -154,6 +155,15 @@ public class Choice extends Entity {
     Collections.sort(availablePatternOffsets);
 
     return this;
+  }
+
+  /**
+   Get the maximum available pattern offset for the chosen sequence
+
+   @return max pattern offset
+   */
+  public BigInteger getMaxAvailablePatternOffset() {
+    return Value.max(availablePatternOffsets);
   }
 
   @Override

@@ -1,9 +1,8 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.util;
 
-import com.google.common.collect.Sets;
-
 import java.math.BigInteger;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -57,7 +56,20 @@ public interface Value {
    @return divided originals
    */
   static Set<Integer> dividedBy(Double divisor, Set<Integer> originals) {
-    Set<Integer> result = originals.stream().map(original -> (int) Math.floor(original / divisor)).collect(Collectors.toSet());
-    return result;
+    return originals.stream().map(original -> (int) Math.floor(original / divisor)).collect(Collectors.toSet());
+  }
+
+  /**
+   Return the maximum from a set of values
+
+   @param values to return maximum of
+   @return maximum value
+   */
+  static BigInteger max(List<BigInteger> values) {
+    BigInteger max = BigInteger.ZERO;
+    for (BigInteger value : values)
+      if (Objects.equals(1, value.compareTo(max)))
+        max = value;
+    return max;
   }
 }

@@ -14,6 +14,8 @@ import io.xj.core.model.audio_chord.AudioChord;
 import io.xj.core.model.audio_event.AudioEvent;
 import io.xj.core.model.instrument.InstrumentType;
 import io.xj.core.model.user_role.UserRoleType;
+import io.xj.core.model.work.Work;
+import io.xj.core.model.work.WorkType;
 import io.xj.core.work.WorkManager;
 import io.xj.craft.CraftModule;
 import io.xj.dub.DubModule;
@@ -38,9 +40,11 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigInteger;
 import java.util.Collection;
+import java.util.Objects;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -49,8 +53,9 @@ public class AudioCloneJobIT {
   @Rule public ExpectedException failure = ExpectedException.none();
   private Injector injector;
   private App app;
-  private static final int TEST_DURATION_SECONDS = 1;
   private static final int MILLIS_PER_SECOND = 1000;
+  private static final int MAXIMUM_TEST_WAIT_MILLIS = 30 * MILLIS_PER_SECOND;
+  long startTime = System.currentTimeMillis();
   @Mock AmazonProvider amazonProvider;
   @Spy final WorkManager workManager = Guice.createInjector(new CoreModule()).getInstance(WorkManager.class);
 
@@ -123,10 +128,7 @@ public class AudioCloneJobIT {
   }
 
   @After
-  public void tearDown() throws Exception {
-    app = null;
-    injector = null;
-
+  public void tearDown() {
     System.clearProperty("segment.file.bucket");
     System.clearProperty("audio.file.bucket");
   }
@@ -136,11 +138,15 @@ public class AudioCloneJobIT {
    */
   @Test
   public void runWorker() throws Exception {
-    app.start();
     app.getWorkManager().doAudioClone(BigInteger.valueOf(1), BigInteger.valueOf(3));
     app.getWorkManager().doAudioClone(BigInteger.valueOf(2), BigInteger.valueOf(4));
+    assertTrue(hasRemainingWork(WorkType.AudioClone));
 
-    Thread.sleep(TEST_DURATION_SECONDS * MILLIS_PER_SECOND);
+    // Start app, wait for work, stop app
+    app.start();
+    while (hasRemainingWork(WorkType.AudioClone) && isWithinTimeLimit()) {
+      Thread.sleep(MILLIS_PER_SECOND);
+    }
     app.stop();
 
     // Verify existence of cloned audios
@@ -184,5 +190,26 @@ public class AudioCloneJobIT {
       "instrument-1-audio-978as789dgih35hi897gjhyi8f.wav", "xj-audio-test", "instrument-1-audio-superAwesomeKey2.wav");
   }
 
+  /**
+   Whether this test is within the time limit
+
+   @return true if within time limit
+   */
+  private boolean isWithinTimeLimit() {
+    return MAXIMUM_TEST_WAIT_MILLIS > System.currentTimeMillis() - startTime;
+  }
+
+  /**
+   Whether there is active work of a particular type
+
+   @return true if there is work remaining
+   */
+  private boolean hasRemainingWork(WorkType type) throws Exception {
+    int total = 0;
+    for (Work work : app.getWorkManager().readAllWork()) {
+      if (Objects.equals(type, work.getType())) total++;
+    }
+    return 0 < total;
+  }
 
 }
