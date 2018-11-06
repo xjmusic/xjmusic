@@ -21,6 +21,7 @@ import io.xj.core.model.sequence.Sequence;
 import io.xj.core.model.sequence.SequenceType;
 import io.xj.core.model.voice.Voice;
 import io.xj.core.util.Chance;
+import io.xj.core.util.Value;
 import io.xj.craft.basis.Basis;
 import io.xj.craft.isometry.EventIsometry;
 import io.xj.craft.rhythm.RhythmCraft;
@@ -48,10 +49,10 @@ public class RhythmCraftImpl implements RhythmCraft {
   private static final double SCORE_RHYTHM_ENTROPY = 0.5;
   private final Basis basis;
   private final Logger log = LoggerFactory.getLogger(RhythmCraftImpl.class);
-  private BigInteger _rhythmPatternOffset;
-  private Sequence _rhythmSequence;
   private final Map<String, Audio> cachedSelectionInstrumentAudio = Maps.newConcurrentMap();
   private final SecureRandom random = new SecureRandom();
+  private BigInteger _rhythmPatternOffset;
+  private Sequence _rhythmSequence;
 
 
   @Inject
@@ -351,37 +352,40 @@ public class RhythmCraftImpl implements RhythmCraft {
   }
 
   /**
-   Craft the voice events of a single rhythm pattern
+   Craft the voice events of a single rhythm pattern.
+   [#161601279] Artist during rhythm craft audio selection wants randomness of outro audio selection to gently ramp from zero to N over the course of the outro.
 
    @param fromPos      to write events to segment
    @param pattern      to source events
    @param maxPos       to write events to segment
    @param goForItRatio entropy is increased during the progression of a main sequence [#161466708]
-   @return deltaPos from start
+   @return deltaPos from start, after crafting this batch of rhythm pattern events
    */
   private double craftRhythmPatternPatternEvents(double fromPos, Pattern pattern, double maxPos, double goForItRatio) throws Exception {
+    double totalPos = maxPos - fromPos;
     Choice choice = basis.currentRhythmChoice();
     Collection<Arrangement> arrangements = basis.choiceArrangements(choice.getId());
     for (Arrangement arrangement : arrangements) {
       Collection<PatternEvent> patternEvents = basis.ingest().patternVoiceEvents(pattern.getId(), arrangement.getVoiceId());
       Instrument instrument = basis.ingest().instrument(arrangement.getInstrumentId());
       for (PatternEvent patternEvent : patternEvents) {
-        pickInstrumentAudio(instrument, arrangement, patternEvent, choice.getTranspose(), fromPos, goForItRatio);
+        double chanceOfRandomChoice = 0.0 == goForItRatio ? 0.0 : goForItRatio * Value.ratio(patternEvent.getPosition() - fromPos, totalPos);
+        pickInstrumentAudio(instrument, arrangement, patternEvent, choice.getTranspose(), fromPos, chanceOfRandomChoice);
       }
     }
-    return Math.min(maxPos - fromPos, pattern.getTotal());
+    return Math.min(totalPos, pattern.getTotal());
   }
 
   /**
    create a pick of instrument-audio for each event, where events are conformed to entities/scales based on the master segment entities
    pick instrument audio for one event, in a voice in a pattern, belonging to an arrangement@param arrangement   to create pick within
 
-   @param patternEvent  to pick audio for
-   @param shiftPosition offset voice event zero within current segment
-   @param goForItRatio  entropy is increased during the progression of a main sequence [#161466708]
+   @param patternEvent         to pick audio for
+   @param shiftPosition        offset voice event zero within current segment
+   @param chanceOfRandomChoice entropy is increased during the progression of a main sequence [#161466708]
    */
-  private void pickInstrumentAudio(Instrument instrument, Arrangement arrangement, PatternEvent patternEvent, int transpose, Double shiftPosition, Double goForItRatio) throws Exception {
-    Audio audio = selectInstrumentAudio(instrument, patternEvent, goForItRatio);
+  private void pickInstrumentAudio(Instrument instrument, Arrangement arrangement, PatternEvent patternEvent, int transpose, Double shiftPosition, Double chanceOfRandomChoice) throws Exception {
+    Audio audio = selectInstrumentAudio(instrument, patternEvent, chanceOfRandomChoice);
 
     // Morph & Point attributes are expressed in beats
     double position = patternEvent.getPosition() + shiftPosition;
@@ -411,14 +415,14 @@ public class RhythmCraftImpl implements RhythmCraft {
    Determine if we will use a cached or new audio for this selection
    Cached audio defaults to random selection if none has been previously encountered
 
-   @param instrument      from which to score available audios, and make a selection
-   @param patternEvent    to match
-   @param randomnessRatio from 0 to 1, chance that a random audio will be selected (instead of the cached selection)
+   @param instrument           from which to score available audios, and make a selection
+   @param patternEvent         to match
+   @param chanceOfRandomChoice from 0 to 1, chance that a random audio will be selected (instead of the cached selection)
    @return matched new audio
    @throws Exception on failure
    */
-  private Audio selectInstrumentAudio(Instrument instrument, Event patternEvent, Double randomnessRatio) throws Exception {
-    if (0 < randomnessRatio && random.nextDouble() <= randomnessRatio) {
+  private Audio selectInstrumentAudio(Instrument instrument, PatternEvent patternEvent, Double chanceOfRandomChoice) throws Exception {
+    if (0 < chanceOfRandomChoice && random.nextDouble() <= chanceOfRandomChoice) {
       return selectNewInstrumentAudio(instrument, patternEvent);
     } else {
       return selectCachedInstrumentAudio(instrument, patternEvent);
@@ -436,10 +440,20 @@ public class RhythmCraftImpl implements RhythmCraft {
    @return matched new audio
    @throws Exception on failure
    */
-  private Audio selectCachedInstrumentAudio(Instrument instrument, Event patternEvent) throws Exception {
-    if (!cachedSelectionInstrumentAudio.containsKey(patternEvent.getInflection()))
-      cachedSelectionInstrumentAudio.put(patternEvent.getInflection(), selectNewInstrumentAudio(instrument, patternEvent));
-    return cachedSelectionInstrumentAudio.get(patternEvent.getInflection());
+  private Audio selectCachedInstrumentAudio(Instrument instrument, PatternEvent patternEvent) throws Exception {
+    String key = patternEventKey(patternEvent);
+    if (!cachedSelectionInstrumentAudio.containsKey(key))
+      cachedSelectionInstrumentAudio.put(key, selectNewInstrumentAudio(instrument, patternEvent));
+    return cachedSelectionInstrumentAudio.get(key);
+  }
+
+  /**
+   Unique key for any pattern event (by voice id and inflection)
+   @param patternEvent to get key of
+   @return unique key for pattern event
+   */
+  private static String patternEventKey(PatternEvent patternEvent) {
+    return String.format("%s_%s", patternEvent.getVoiceId(), patternEvent.getInflection());
   }
 
 

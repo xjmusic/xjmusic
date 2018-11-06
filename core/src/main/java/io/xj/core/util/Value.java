@@ -72,4 +72,15 @@ public interface Value {
         max = value;
     return max;
   }
+
+  /**
+   Calculate ratio (from 0 to 1) within a zero-to-N limit
+
+   @param value to calculate radio of
+   @param limit N where ratio will be calculated based on zero-to-N
+   @return ratio between 0 and 1
+   */
+  static double ratio(double value, double limit) {
+    return Math.max(Math.min(1, value / limit), 0);
+  }
 }
