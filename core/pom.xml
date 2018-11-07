@@ -32,7 +32,7 @@
     <db.username>root</db.username>
     <db.driver>com.mysql.cj.jdbc.Driver</db.driver>
     <db.url>jdbc:mysql://127.0.0.1:3300/${db.database}?useSSL=false&amp;serverTimezone=UTC</db.url>
-    <org.jooq.version>3.11.11</org.jooq.version>
+    <org.jooq.version>3.8.6</org.jooq.version>
   </properties>
 
   <!-- deps -->
@@ -260,7 +260,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>2.17</version>
         <configuration>
           <useSystemClassLoader>false</useSystemClassLoader>
         </configuration>
