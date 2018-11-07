@@ -34,8 +34,6 @@ import java.io.IOException;
  the puts for live-ness during the course of a single mix.
  */
 public interface Mixer {
-  String READY = "ready";
-  String MIXING = "mixing";
 
   /**
    Put a source audio into the mix at a specified time, velocity and pitch ratio.
@@ -64,6 +62,8 @@ public interface Mixer {
   void loadSource(String sourceId, BufferedInputStream inputStream) throws FormatException, IOException, SourceException;
 
   /**
+   THE BIG SHOW
+   <p>
    Mix out to a file
 
    @throws MixerException if something goes wrong
@@ -112,7 +112,7 @@ public interface Mixer {
 
    @return state
    */
-  String getState();
+  MixerState getState();
 
   /**
    Get frame rate
@@ -149,4 +149,5 @@ public interface Mixer {
    @param debugging true to activate debugging
    */
   void setDebugging(boolean debugging);
+
 }

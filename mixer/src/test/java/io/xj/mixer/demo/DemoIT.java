@@ -16,6 +16,7 @@ import javax.sound.sampled.AudioFormat;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.time.Duration;
 
 import static org.junit.Assert.assertTrue;
@@ -23,8 +24,6 @@ import static org.junit.Assert.assertTrue;
 public class DemoIT {
   private static final long attackMicros = 1000;
   private static final long releaseMicros = 5000;
-  private static final Duration preRoll = Duration.ofMillis(500);
-  private static final Duration postRoll = Duration.ofMillis(500);
   private static final long bpm = 121;
   private static final Duration beat = Duration.ofMinutes(1).dividedBy(bpm);
   private static final Duration step = beat.dividedBy(4);
@@ -126,7 +125,7 @@ public class DemoIT {
 
     // setup the sources
     for (String sourceName : sources) {
-      demoMixer.loadSource(sourceName, new BufferedInputStream(new FileInputStream(resourceFile(filePrefix + sourceName + sourceFileSuffix))));
+      demoMixer.loadSource(sourceName, inputFile(filePrefix + sourceName + sourceFileSuffix));
     }
 
     // setup the music
@@ -137,6 +136,17 @@ public class DemoIT {
 
     // mix it
     demoMixer.mixToFile(outputEncoder, outputFilePath, 1.0f);
+  }
+
+  /**
+   Fetch new buffered input stream from file
+
+   @param filePath to fetch
+   @return buffered stream of file
+   @throws FileNotFoundException on failure
+   */
+  private static BufferedInputStream inputFile(String filePath) throws FileNotFoundException {
+    return new BufferedInputStream(new FileInputStream(resourceFile(filePath)));
   }
 
   /**
@@ -177,7 +187,7 @@ public class DemoIT {
    @return microseconds
    */
   private static long atMicros(int stepNum) {
-    return preRoll.plus(step.multipliedBy(stepNum)).toNanos() / 1000;
+    return step.multipliedBy(stepNum).toNanos() / 1000;
   }
 
   /**
@@ -186,7 +196,7 @@ public class DemoIT {
    @return duration
    */
   private static Duration totalLength() {
-    return preRoll.plus(loopLength()).plus(postRoll);
+    return loopLength();
   }
 
   /**
@@ -204,11 +214,6 @@ public class DemoIT {
 
    @throws FormatException to prevent confusion
    */
-  @Test(expected = FormatException.class)
-  public void demo_48000Hz_Float_32bit_2ch() throws Exception {
-    assertMixOutputEqualsReferenceAudio(OutputEncoder.WAV, AudioFormat.Encoding.PCM_FLOAT, 48000, 32, 2, "48000Hz_Float_32bit_2ch.wav");
-  }
-
   @Test
   public void demo_48000Hz_Signed_32bit_2ch() throws Exception {
     assertMixOutputEqualsReferenceAudio(OutputEncoder.WAV, AudioFormat.Encoding.PCM_SIGNED, 48000, 32, 2, "48000Hz_Signed_32bit_2ch.wav");
@@ -226,7 +231,7 @@ public class DemoIT {
 
   @Test
   public void demo_48000Hz_2ch_OggVorbis() throws Exception {
-    assertMixOutputEqualsReferenceAudio(OutputEncoder.OGG_VORBIS, AudioFormat.Encoding.PCM_SIGNED, 48000, 32, 2, "48000Hz_2ch.ogg");
+    assertMixOutputEqualsReferenceAudio(OutputEncoder.OGG_VORBIS, AudioFormat.Encoding.PCM_FLOAT, 48000, 32, 2, "48000Hz_Float_32bit_2ch.ogg");
   }
 
 }

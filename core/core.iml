@@ -180,5 +180,6 @@
     <orderEntry type="library" name="Maven: com.google.j2objc:j2objc-annotations:1.1" level="project" />
     <orderEntry type="library" name="Maven: org.codehaus.mojo:animal-sniffer-annotations:1.14" level="project" />
     <orderEntry type="module" module-name="mixer" />
+    <orderEntry type="library" name="Maven: com.github.axet:TarsosDSP:2.4-1" level="project" />
   </component>
 </module>

@@ -1,7 +1,8 @@
 //  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-package io.xj.mixer.util;// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+package io.xj.mixer.util;
 
+import com.google.common.collect.ImmutableList;
 import io.xj.mixer.impl.exception.MixerException;
 import org.junit.Before;
 import org.junit.Test;
@@ -76,9 +77,8 @@ public class MathUtilTest {
 
   @Test
   public void delta() {
-    assertEquals(0, MathUtil.delta(Double.POSITIVE_INFINITY, 0.877, 43), 0.001);
-    assertEquals(0, MathUtil.delta(0.982, 0.877, 0), 0.001);
-    assertEquals(0.0024418604651162785, MathUtil.delta(0.982, 0.877, 43), 0.001);
+    assertEquals(0, MathUtil.delta(0.877, Double.POSITIVE_INFINITY), 0.001);
+    assertEquals(0.104999, MathUtil.delta(0.877, 0.982), 0.001);
   }
 
   @Test
@@ -91,25 +91,36 @@ public class MathUtilTest {
 
   @Test
   public void right() {
-    assertEquals(0.75,MathUtil.right(-0.25), 0.001);
-    assertEquals(1.0,MathUtil.right(0.345), 0.001);
-    assertEquals(1.0,MathUtil.right(0.9), 0.001);
-    assertEquals(1.0,MathUtil.right(0), 0.001);
-    assertEquals(1.0,MathUtil.right(0.25), 0.001);
-    assertEquals(0.655,MathUtil.right(-0.345), 0.001);
-    assertEquals(0.0999,MathUtil.right(-0.9), 0.001);
-    assertEquals(1.0,MathUtil.right(0), 0.001);
+    assertEquals(0.75, MathUtil.right(-0.25), 0.001);
+    assertEquals(1.0, MathUtil.right(0.345), 0.001);
+    assertEquals(1.0, MathUtil.right(0.9), 0.001);
+    assertEquals(1.0, MathUtil.right(0), 0.001);
+    assertEquals(1.0, MathUtil.right(0.25), 0.001);
+    assertEquals(0.655, MathUtil.right(-0.345), 0.001);
+    assertEquals(0.0999, MathUtil.right(-0.9), 0.001);
+    assertEquals(1.0, MathUtil.right(0), 0.001);
   }
 
   @Test
   public void left() {
-    assertEquals(1.0,MathUtil.left(-0.25), 0.001);
-    assertEquals(0.655,MathUtil.left(0.345), 0.001);
-    assertEquals(0.0999,MathUtil.left(0.9), 0.001);
-    assertEquals(1.0,MathUtil.left(0), 0.001);
-    assertEquals(0.75,MathUtil.left(0.25), 0.001);
-    assertEquals(1.0,MathUtil.left(-0.345), 0.001);
-    assertEquals(1.0,MathUtil.left(-0.9), 0.001);
-    assertEquals(1.0,MathUtil.left(0), 0.001);
+    assertEquals(1.0, MathUtil.left(-0.25), 0.001);
+    assertEquals(0.655, MathUtil.left(0.345), 0.001);
+    assertEquals(0.0999, MathUtil.left(0.9), 0.001);
+    assertEquals(1.0, MathUtil.left(0), 0.001);
+    assertEquals(0.75, MathUtil.left(0.25), 0.001);
+    assertEquals(1.0, MathUtil.left(-0.345), 0.001);
+    assertEquals(1.0, MathUtil.left(-0.9), 0.001);
+    assertEquals(1.0, MathUtil.left(0), 0.001);
   }
+
+  @Test
+  public void avg() {
+    assertEquals(175.6, MathUtil.avg(new double[]{0.5, 92.4, 4.2, 779.4, 1.5}), 0.0001);
+  }
+
+  @Test
+  public void avg_ListOfFloat() {
+    assertEquals(175.6, MathUtil.avg(ImmutableList.of(0.5F, 92.4F, 4.2F, 779.4F, 1.5F)), 0.0001);
+  }
+
 }

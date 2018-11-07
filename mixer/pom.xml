@@ -26,10 +26,6 @@
     <maven.compiler.version>2.5.1</maven.compiler.version>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
-    <db.database>xj_test</db.database>
-    <db.username>root</db.username>
-    <db.driver>com.mysql.cj.jdbc.Driver</db.driver>
-    <db.url>jdbc:mysql://localhost:3300/${db.database}</db.url>
   </properties>
 
   <!-- deps -->
@@ -89,6 +85,23 @@
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
       <version>1.2.3</version>
+    </dependency>
+
+    <!-- FFT utilities https://mvnrepository.com/artifact/com.github.wendykierp/JTransforms -->
+<!--
+ TODO deprecate this
+    <dependency>
+      <groupId>com.github.wendykierp</groupId>
+      <artifactId>JTransforms</artifactId>
+      <version>3.0</version>
+    </dependency>
+-->
+
+    <!-- https://mvnrepository.com/artifact/com.github.axet/TarsosDSP -->
+    <dependency>
+      <groupId>com.github.axet</groupId>
+      <artifactId>TarsosDSP</artifactId>
+      <version>2.4-1</version>
     </dependency>
 
   </dependencies>

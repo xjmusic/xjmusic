@@ -156,6 +156,7 @@
     <orderEntry type="library" name="Maven: org.mockito:mockito-all:1.9.5" level="project" />
     <orderEntry type="module" module-name="music" />
     <orderEntry type="module" module-name="mixer" />
+    <orderEntry type="library" name="Maven: com.github.axet:TarsosDSP:2.4-1" level="project" />
     <orderEntry type="module" module-name="core" scope="TEST" production-on-test="" />
     <orderEntry type="module" module-name="craft" />
     <orderEntry type="library" name="Maven: com.google.guava:guava:24.0-jre" level="project" />

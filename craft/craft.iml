@@ -157,6 +157,7 @@
     <orderEntry type="module" module-name="core" scope="TEST" production-on-test="" />
     <orderEntry type="module" module-name="mixer" />
     <orderEntry type="library" name="Maven: com.google.guava:guava-jdk5:17.0" level="project" />
+    <orderEntry type="library" name="Maven: com.github.axet:TarsosDSP:2.4-1" level="project" />
     <orderEntry type="module" module-name="music" />
     <orderEntry type="module" module-name="music" scope="TEST" production-on-test="" />
     <orderEntry type="library" name="Maven: org.glassfish.jersey.containers:jersey-container-grizzly2-http:2.25" level="project" />

@@ -1,15 +1,15 @@
 //  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-package io.xj.mixer;// Copyright (c) 2017, Outright Mental Inc. (http://outright.io) All Rights Reserved.
+package io.xj.mixer;
 
+import io.xj.mixer.impl.exception.MixerException;
 import org.junit.Before;
 import org.junit.Test;
 
 import javax.sound.sampled.AudioFormat;
-
 import java.time.Duration;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class MixerConfigTest {
   MixerConfig config;
@@ -35,8 +35,13 @@ public class MixerConfigTest {
   }
 
   @Test
-  public void getCompressResolutionFrames() {
-    config.setCompressResolutionRate(20.0);
-    assertEquals("compute frames based on rate", 2400, config.getCompressResolutionFrames());
+  public void getDSPBufferSize() throws MixerException {
+    config.setDSPBufferSize(1024);
+    assertEquals("frames per cycle of compressor computation", Integer.valueOf(1024), config.getDSPBufferSize());
+  }
+
+  @Test(expected =  MixerException.class)
+  public void getDSPBufferSize_failsNotPowerOfTwo() throws MixerException {
+    config.setDSPBufferSize(1023);
   }
 }

@@ -56,4 +56,11 @@ public interface Source {
    @return rate
    */
   float getFrameRate();
+
+  /**
+   Get data, array of samples
+
+   @return samples[frame][channel]
+   */
+  double[][] getData();
 }

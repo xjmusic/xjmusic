@@ -146,8 +146,11 @@ public class MasterDubImpl implements MasterDub {
     if (Objects.isNull(_mixer)) {
       MixerConfig config = new MixerConfig(basis.outputAudioFormat(), basis.segmentTotalLength())
         .setNormalizationMax(Config.getMixerNormalizationMax())
-        .setCompressResolutionRate(Config.getMixerCompressResolutionRate())
+        .setDSPBufferSize(Config.getDSPBufferSize())
         .setCompressRatioMax(Config.getMixerCompressRatioMax())
+        .setCompressRatioMin(Config.getMixerCompressRatioMin())
+        .setHighpassThresholdHz(Config.getMixerHighpassThresholdHz())
+        .setLowpassThresholdHz(Config.getMixerLowpassThresholdHz())
         .setCompressToAmplitude(Config.getMixerCompressToAmplitude())
         .setCompressAheadSeconds(Config.getMixerCompressAheadSeconds())
         .setCompressDecaySeconds(Config.getMixerCompressDecaySeconds());

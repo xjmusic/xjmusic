@@ -1,12 +1,16 @@
 //  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.mixer.util;
 
+import com.google.common.collect.ImmutableList;
 import io.xj.mixer.impl.exception.MixerException;
+
+import java.util.List;
 
 /**
  Math utilities for mixer
  */
 public interface MathUtil {
+  List<Integer> POWERS_OF_TWO = ImmutableList.of(2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768, 65536, 131072, 262144, 524288, 1048576, 2097152, 4194304, 8388608, 16777216, 33554432, 67108864, 134217728, 268435456, 536870912, 1073741824);
 
   /**
    Quick implementation of "Mixing two digital audio streams
@@ -99,22 +103,20 @@ public interface MathUtil {
   /**
    Get an incremental delta from actual to target value
 
-   @param target    to move towards
-   @param actual    moving from
-   @param dividedBy total # of increments
    @return incremental value delta
+   @param actual    moving from
+   @param target    to move towards
    */
-  static double delta(double target, double actual, long dividedBy) {
+  static double delta(double actual, double target) {
     if (Double.isInfinite(actual) || Double.isInfinite(target)) return 0;
-    if (0 == dividedBy) return 0;
-    return (target - actual) / dividedBy;
+    return target - actual;
   }
 
   /**
    Limit an input value within a floor and ceiling
 
    @param floor lower limit
-   @param ceil upper limit
+   @param ceil  upper limit
    @param value to limit
    @return limited value
    */
@@ -154,4 +156,37 @@ public interface MathUtil {
     }
   }
 
+  /**
+   Average of an array of double values
+
+   @param ratios to compute array of
+   @return average
+   */
+  static double avg(double[] ratios) {
+    double total = 0;
+    for (double v : ratios) total += v;
+    return total / ratios.length;
+  }
+
+  /**
+   Average of an array of float values
+
+   @param ratios to compute array of
+   @return average
+   */
+  static float avg(List<Float> ratios) {
+    float total = 0;
+    for (float v : ratios) total += v;
+    return total / ratios.size();
+  }
+
+  /**
+   Whether this value is a power of 2
+
+   @param n to check
+   @return true if is a power of two
+   */
+  static boolean isPowerOfTwo(int n) {
+    return POWERS_OF_TWO.contains(n);
+  }
 }

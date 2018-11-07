@@ -26,10 +26,6 @@
     <maven.compiler.version>2.5.1</maven.compiler.version>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
-    <db.database>xj_test</db.database>
-    <db.username>root</db.username>
-    <db.driver>com.mysql.cj.jdbc.Driver</db.driver>
-    <db.url>jdbc:mysql://localhost:3300/${db.database}</db.url>
   </properties>
 
   <!-- deps -->

@@ -31,7 +31,7 @@
     <db.database>xj</db.database>
     <db.username>root</db.username>
     <db.driver>com.mysql.cj.jdbc.Driver</db.driver>
-    <db.url>jdbc:mysql://localhost:3300/${db.database}?useSSL=false&amp;serverTimezone=UTC</db.url>
+    <db.url>jdbc:mysql://127.0.0.1:3300/${db.database}?useSSL=false&amp;serverTimezone=UTC</db.url>
     <org.jooq.version>3.11.11</org.jooq.version>
   </properties>
 

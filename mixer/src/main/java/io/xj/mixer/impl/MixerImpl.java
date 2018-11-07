@@ -7,9 +7,11 @@ import com.google.inject.assistedinject.Assisted;
 import io.xj.mixer.Mixer;
 import io.xj.mixer.MixerConfig;
 import io.xj.mixer.MixerFactory;
+import io.xj.mixer.MixerState;
 import io.xj.mixer.OutputEncoder;
 import io.xj.mixer.Put;
 import io.xj.mixer.Source;
+import io.xj.mixer.dsp.FrequencyRangeLimiter;
 import io.xj.mixer.impl.audio.AudioStreamWriter;
 import io.xj.mixer.impl.exception.FormatException;
 import io.xj.mixer.impl.exception.MixerException;
@@ -42,15 +44,26 @@ public class MixerImpl implements Mixer {
   private final Map<Long, Put> readyPuts = Maps.newConcurrentMap();
   private final Map<Long, Put> livePuts = Maps.newConcurrentMap();
   private final Map<Long, Put> donePuts = Maps.newConcurrentMap();
-  // fields : mix macro and audio format
+  // fields: mix macro and audio format
   private final MixerFactory factory;
   private final MixerConfig config;
+  // fields: from mixer config
+  private final double compressToAmplitude;
+  private final double minRatio;
+  private final double maxRatio;
+  private final int framesAhead;
+  private final int dspBufferSize;
+  private final int framesDecay;
+  private final double highpassThresholdHz;
+  private final double lowpassThresholdHz;
+  // output buffer
+  private final double[][] buf;
   // field: debugging
   private boolean debugging;
   // fields: playback state-machine
   private long nextCycleFrame;
   private long cycleDurFrames = 1000;
-  private String state;
+  private MixerState state = MixerState.Ready;
   private int uniquePutId; // key for storage in map of Puts
 
   /**
@@ -67,6 +80,14 @@ public class MixerImpl implements Mixer {
   ) throws MixerException {
     config = mixerConfig;
     factory = mixerFactory;
+    compressToAmplitude = config.getCompressToAmplitude();
+    dspBufferSize = config.getDSPBufferSize();
+    maxRatio = config.getCompressRatioMax();
+    minRatio = config.getCompressRatioMin();
+    framesAhead = config.getCompressAheadFrames();
+    framesDecay = config.getCompressDecayFrames();
+    highpassThresholdHz = config.getHighpassThresholdHz();
+    lowpassThresholdHz = config.getLowpassThresholdHz();
 
     try {
       outputChannels = config.getOutputFormat().getChannels();
@@ -78,6 +99,7 @@ public class MixerImpl implements Mixer {
       totalSeconds = config.getOutputLength().toNanos() / nanosInASecond;
       totalFrames = (int) Math.floor(totalSeconds * outputFrameRate);
       totalBytes = totalFrames * outputFrameSize;
+      buf = new double[totalFrames][outputChannels];
 
       log.info("Did initialize mixer with " +
           "outputChannels: {}, " +
@@ -98,8 +120,6 @@ public class MixerImpl implements Mixer {
     } catch (Exception e) {
       throw new MixerException("unable to setup internal variables from output audio format", e);
     }
-
-    state = READY;
   }
 
   @Override
@@ -119,10 +139,10 @@ public class MixerImpl implements Mixer {
 
   @Override
   public void mixToFile(OutputEncoder outputEncoder, String outputFilePath, Float quality) throws Exception {
-    double[][] mix = mix(); // the big show
+    mix();
     long startedAt = System.nanoTime();
     log.info("Will write {} bytes of output audio", totalBytes);
-    new AudioStreamWriter(mix, quality).writeToFile(outputFilePath, config.getOutputFormat(), outputEncoder, totalFrames);
+    new AudioStreamWriter(buf, quality).writeToFile(outputFilePath, config.getOutputFormat(), outputEncoder, totalFrames);
     log.info("Did write {} OK in {}s", outputFilePath, String.format("%.9f", (double) (System.nanoTime() - startedAt) / nanosInASecond));
   }
 
@@ -175,7 +195,7 @@ public class MixerImpl implements Mixer {
   }
 
   @Override
-  public String getState() {
+  public MixerState getState() {
     return state;
   }
 
@@ -203,51 +223,114 @@ public class MixerImpl implements Mixer {
    Mix
    runs once per Mixer
 
-   @return mixed output values
    @throws MixerException if unable to mix
    */
-  private double[][] mix() throws Exception {
-    if (!Objects.equals(state, READY))
+  private void mix() throws Exception {
+    if (!Objects.equals(state, MixerState.Ready))
       throw new MixerException("can't mix again; only one mix allowed per Mixer");
 
-    state = MIXING;
+    // start the mixer
+    state = MixerState.Mixing;
+    long startedAt = System.nanoTime();
     log.info("Will mix {} seconds of output audio at {} Hz frame rate", String.format("%.9f", totalSeconds), outputFrameRate);
 
-    // addition of all sources into initial mixed source frames
-    long startedAt = System.nanoTime();
-    double[][] buf = new double[totalFrames][outputChannels];
+    // Start with original sources summed up verbatim
+    applySources();
+
+    // The dynamic range is forced into gentle logarithmic decay.
+    // This alters the relative amplitudes from the previous step, implicitly normalizing them well below amplitude 1.0
+    applyLogarithmicDynamicRange();
+
+    // The lowpass filter ensures there are no screeching extra-high tones in the mix.
+    // The highpass filter ensures there are no distorting ultra-low tones in the mix.
+    applyBandpass();
+
+    // Compression is more predictable within the logarithmic range
+    // TODO compressor is actually an expander
+    applyCompressor();
+
+    // Final step ensures the broadcast signal has an exact constant maximum amplitude
+    applyNormalization();
+
+    //
+    state = MixerState.Done;
+    log.info("Did mix {} frames in {}s", totalFrames, String.format("%.9f", (double) (System.nanoTime() - startedAt) / nanosInASecond));
+  }
+
+  /**
+   apply original sources to mixing buffer
+   addition of all sources into initial mixed source frames
+   */
+  private void applySources() {
     for (int i = 0; i < totalFrames; i++)
       buf[i] = mixSourceFrame(i);
+  }
 
-    // [#154112129] lookahead-attack compressor compresses entire buffer towards target amplitude
-    double targetAmplitude = config.getCompressToAmplitude();
-    double maxRatio = config.getCompressRatioMax();
-    int framesAhead = config.getCompressAheadFrames();
-    int framesPerCycle = config.getCompressResolutionFrames();
-    int framesDecay = config.getCompressDecayFrames() / framesPerCycle;
-    double compRatio = 1.0;
+  /**
+   apply compressor to mixing buffer
+   <p>
+   [#154112129] lookahead-attack compressor compresses entire buffer towards target amplitude
+   <p>
+   only each major cycle, compute the new target compression ratio,
+   but modify the compression ratio *every* frame for max smoothness
+   <p>
+   compression target uses a rate of change of rate of change
+   to maintain inertia over time, required to preserve audio signal
+   */
+  private void applyCompressor() {
+    //
+    double compRatio = computeCompressorTarget(buf, 0, framesAhead);
+    double compRatioDelta = 0; // rate of change
+    double targetCompRatio = compRatio;
     for (int i = 0; i < totalFrames; i++) {
-      if (0 == i % framesPerCycle) {
-        double maxAbsValue = MathUtil.maxAbs(buf, i, i + framesAhead);
-        compRatio = MathUtil.limit(-maxRatio, maxRatio, compRatio + MathUtil.delta(targetAmplitude / maxAbsValue, compRatio, framesDecay));
+      if (0 == i % dspBufferSize) {
+        targetCompRatio = computeCompressorTarget(buf, i, i + framesAhead);
       }
+      double compRatioDeltaDelta = MathUtil.delta(compRatio, targetCompRatio) / framesDecay;
+      compRatioDelta += MathUtil.delta(compRatioDelta, compRatioDeltaDelta) / dspBufferSize;
+      compRatio += compRatioDelta;
       for (int k = 0; k < outputChannels; k++)
         buf[i][k] *= compRatio;
     }
+  }
 
-    // apply logarithmic dynamic range compression to entire buffer
+  /**
+   [#161670248] Engineer wants high-pass and low-pass filters with gradual thresholds, in order to be optimally heard but not listened to.
+   The lowpass filter ensures there are no screeching extra-high tones in the mix.
+   The highpass filter ensures there are no distorting ultra-low tones in the mix.
+   */
+  private void applyBandpass() throws MixerException {
+    FrequencyRangeLimiter.filter(buf, outputFrameRate, dspBufferSize, (float) highpassThresholdHz, (float) lowpassThresholdHz);
+  }
+
+  /**
+   apply logarithmic dynamic range to mixing buffer
+   */
+  private void applyLogarithmicDynamicRange() {
     for (int i = 0; i < totalFrames; i++)
       buf[i] = MathUtil.logarithmicCompression(buf[i]);
+  }
 
-    // [#154112129] normalize final buffer to normalization threshold
+  /**
+   apply normalization to mixing buffer
+   [#154112129] normalize final buffer to normalization threshold
+   */
+  private void applyNormalization() {
     double normRatio = config.getNormalizationMax() / MathUtil.maxAbs(buf);
     for (int i = 0; i < totalFrames; i++)
       for (int k = 0; k < outputChannels; k++)
         buf[i][k] *= normRatio;
+  }
 
-    // finished
-    log.info("Did mix {} frames in {}s", totalFrames, String.format("%.9f", (double) (System.nanoTime() - startedAt) / nanosInASecond));
-    return buf;
+  /**
+   Compute the target amplitude for the compressor
+   [#154112129] lookahead-attack compressor compresses entire buffer towards target amplitude
+
+   @return target amplitude
+   */
+  private double computeCompressorTarget(double[][] input, int iFr, int iTo) {
+    double currentAmplitude = MathUtil.maxAbs(input, iFr, iTo);
+    return MathUtil.limit(minRatio, maxRatio, compressToAmplitude / currentAmplitude);
   }
 
   /**

@@ -1,6 +1,9 @@
 //  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.mixer;
 
+import io.xj.mixer.impl.exception.MixerException;
+import io.xj.mixer.util.MathUtil;
+
 import javax.sound.sampled.AudioFormat;
 import java.time.Duration;
 
@@ -12,12 +15,15 @@ import java.time.Duration;
 public class MixerConfig {
   private AudioFormat outputFormat;
   private Duration outputLength;
-  private Double compressToAmplitude = 0.618;
-  private Double compressAheadSeconds = 0.25;
-  private Double compressDecaySeconds = 0.5;
-  private Double compressRatioMax = 3.0;
+  private Double compressToAmplitude = 5.0;
+  private Double compressAheadSeconds = 0.1;
+  private Double compressDecaySeconds = 0.01;
+  private Double compressRatioMax = 10.0;
+  private Double compressRatioMin = 0.5;
   private Double normalizationMax = 1.0;
-  private Double compressResolutionRate = 100.0;
+  private Integer dspBufferSize = 1024; // DSP buffer size must be a power of 2
+  private double lowpassThresholdHz = 12000;
+  private double highpassThresholdHz = 20.0;
 
   /**
    Instantiate a new mixer configuration with format and length (and default compression settings)
@@ -169,6 +175,26 @@ public class MixerConfig {
   }
 
   /**
+   Get min ratio to multiply by amplitude during compression
+
+   @return min ratio for compression
+   */
+  public Double getCompressRatioMin() {
+    return compressRatioMin;
+  }
+
+  /**
+   Set min ratio to multiply by amplitude during compression
+
+   @param compressRatioMin min ratio for compression
+   @return MixerConfig to chain setters
+   */
+  public MixerConfig setCompressRatioMin(Double compressRatioMin) {
+    this.compressRatioMin = compressRatioMin;
+    return this;
+  }
+
+  /**
    Get normalization max value
 
    @return normalization max value
@@ -190,31 +216,60 @@ public class MixerConfig {
 
   /**
    Get how frequently compression will be recalculated, in terms of # of frames per cycle
-
-   @return # frames per compression cycle
-   */
-  public int getCompressResolutionFrames() {
-    return (int) Math.round(outputFormat.getFrameRate() / compressResolutionRate);
-  }
-
-
-  /**
-   Get how frequently compression will be recalculated, in terms of # of seconds per cycle
+   Note: MUST be a power of 2
 
    @return # seconds per compression cycle
    */
-  public Double getCompressResolutionRate() {
-    return compressResolutionRate;
+  public Integer getDSPBufferSize() {
+    return dspBufferSize;
   }
 
   /**
    Set how frequently compression will be recalculated, in terms of # of seconds per cycle
 
-   @param compressResolutionRate value
+   @param dspBufferSize value
    @return MixerConfig to chain setters
    */
-  public MixerConfig setCompressResolutionRate(Double compressResolutionRate) {
-    this.compressResolutionRate = compressResolutionRate;
+  public MixerConfig setDSPBufferSize(Integer dspBufferSize) throws MixerException {
+    if (!MathUtil.isPowerOfTwo(dspBufferSize)) {
+      throw new MixerException("Compressor resolution frames must be a power of 2");
+    }
+
+    this.dspBufferSize = dspBufferSize;
     return this;
   }
+
+
+  /**
+   @return compressor highpass threshold in Hz
+   */
+  public double getHighpassThresholdHz() {
+    return highpassThresholdHz;
+  }
+
+  /**
+   @param highpassThresholdHz to set
+   @return this, for chaining setters
+   */
+  public MixerConfig setHighpassThresholdHz(double highpassThresholdHz) {
+    this.highpassThresholdHz = highpassThresholdHz;
+    return this;
+  }
+
+  /**
+   @return compressor lowpass threshold in Hz
+   */
+  public double getLowpassThresholdHz() {
+    return lowpassThresholdHz;
+  }
+
+  /**
+   @param lowpassThresholdHz to set
+   @return this, for chaining setters
+   */
+  public MixerConfig setLowpassThresholdHz(double lowpassThresholdHz) {
+    this.lowpassThresholdHz = lowpassThresholdHz;
+    return this;
+  }
+
 }

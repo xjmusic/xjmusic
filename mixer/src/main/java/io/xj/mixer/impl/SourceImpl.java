@@ -24,7 +24,7 @@ public class SourceImpl implements Source {
   private final float frameRate;
   private final String sourceId;
   private final AudioFormat inputFormat;
-  private final double[][] frames;
+  private final double[][] data;
   private final long inputLengthMicros;
   private final int inputChannels;
   private final double microsPerFrame;
@@ -46,7 +46,7 @@ public class SourceImpl implements Source {
     microsPerFrame = microsInASecond / frameRate;
 
     state = LOADING;
-    frames = stream.loadFrames();
+    data = stream.loadFrames();
     inputLengthMicros = (long) (microsInASecond * stream.getActualFrames() / frameRate);
 
     state = READY;
@@ -106,8 +106,13 @@ public class SourceImpl implements Source {
   }
 
   @Override
+  public double[][] getData() {
+    return data;
+  }
+
+  @Override
   public String toString() {
-    return String.format("id[%s] frames[%d]", sourceId, frames.length);
+    return String.format("id[%s] frames[%d]", sourceId, data.length);
   }
 
   /**
@@ -120,9 +125,9 @@ public class SourceImpl implements Source {
   private double[] monoFrameAt(int atFrame, double volume) {
     switch (inputChannels) {
       case 1:
-        return new double[]{frames[atFrame][0] * volume};
+        return new double[]{data[atFrame][0] * volume};
       case 2:
-        return new double[]{volume * (frames[atFrame][0] + frames[atFrame][1]) / 2};
+        return new double[]{volume * (data[atFrame][0] + data[atFrame][1]) / 2};
       default:
         return new double[1];
     }
@@ -140,13 +145,13 @@ public class SourceImpl implements Source {
     switch (inputChannels) {
       case 1:
         return new double[]{
-          frames[atFrame][0] * volume * MathUtil.left(pan),
-          frames[atFrame][0] * volume * MathUtil.right(pan)
+          data[atFrame][0] * volume * MathUtil.left(pan),
+          data[atFrame][0] * volume * MathUtil.right(pan)
         };
       case 2:
         return new double[]{
-          frames[atFrame][0] * volume * MathUtil.left(pan),
-          frames[atFrame][1] * volume * MathUtil.right(pan)
+          data[atFrame][0] * volume * MathUtil.left(pan),
+          data[atFrame][1] * volume * MathUtil.right(pan)
         };
       default:
         return new double[2];
