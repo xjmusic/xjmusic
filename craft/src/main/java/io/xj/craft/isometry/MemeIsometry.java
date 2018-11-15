@@ -1,36 +1,18 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.craft.isometry;
 
+import com.google.common.base.Objects;
+import com.google.common.collect.Lists;
 import io.xj.core.model.meme.Meme;
 import io.xj.core.model.pattern_meme.PatternMeme;
 
-import com.google.common.base.Objects;
-import com.google.common.collect.Lists;
-
-import org.tartarus.snowball.SnowballStemmer;
-import org.tartarus.snowball.ext.englishStemmer;
-
-import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 /**
  Determine the isometry between a source and target group of Memes
  */
-public class MemeIsometry {
-  private final List<String> sourceStems;
-
-  /**
-   Private constructor
-
-   @param sourceMemes source group of memes
-   */
-  private MemeIsometry(Iterable<? extends Meme> sourceMemes) {
-    sourceStems = Lists.newArrayList();
-    sourceMemes.forEach(meme ->
-      sourceStems.add(stem(meme.getName())));
-  }
+public class MemeIsometry extends Isometry {
 
   /**
    Instantiate a new MemeIsometry from a group of source Memes,
@@ -39,9 +21,13 @@ public class MemeIsometry {
    @param sourceMemes to compare from
    @return MemeIsometry ready for comparison to target Memes
    */
-  public static <R extends Meme> MemeIsometry of(Iterable<R> sourceMemes) {
-    return new MemeIsometry(sourceMemes);
+  public static <R extends Meme> MemeIsometry ofMemes(Iterable<R> sourceMemes) {
+    MemeIsometry result = new MemeIsometry();
+    sourceMemes.forEach(meme ->
+      result.addStem(meme.getName()));
+    return result;
   }
+
 
   /**
    Instantiate a new MemeIsometry from a map of source Memes
@@ -49,23 +35,14 @@ public class MemeIsometry {
    @param stringMemeMap to compare from
    @return MemeIsometry ready for comparison to target Memes
    */
-  public static MemeIsometry of(Map<String, Meme> stringMemeMap) {
+  public static MemeIsometry ofMemes(Map<String, Meme> stringMemeMap) {
     List<Meme> sourceMemes = Lists.newArrayList();
 
     stringMemeMap.forEach((key, record) -> sourceMemes.add(
       new PatternMeme().setName(record.getName())
     ));
 
-    return new MemeIsometry(sourceMemes);
-  }
-
-  /**
-   Get the source Memes
-
-   @return source memes
-   */
-  List<String> getSourceStems() {
-    return Collections.unmodifiableList(sourceStems);
+    return ofMemes(sourceMemes);
   }
 
   /**
@@ -81,26 +58,19 @@ public class MemeIsometry {
     for (M targetMeme : targetMemes) {
 
       String targetStem = stem(targetMeme.getName());
-      for (String sourceStem : sourceStems) {
+      for (String sourceStem : getSources()) {
         if (Objects.equal(sourceStem, targetStem)) {
           tally += 1;
         }
       }
     }
-    return tally / sourceStems.size();
+    return tally / getSources().size();
   }
 
   /**
-   Snowball stem of a particular word
-
-   @param raw text to get stem of
-   @return stem
+   Add a meme for isometry comparison
    */
-  private static String stem(String raw) {
-    SnowballStemmer stemmer = new englishStemmer(); // this is the only part proprietary to English
-    stemmer.setCurrent(raw.toLowerCase(Locale.ENGLISH).trim());
-    stemmer.stem();
-    return stemmer.getCurrent();
+  public <R extends Meme> void add(R meme) {
+    addStem(stem(meme.getName()));
   }
-
 }

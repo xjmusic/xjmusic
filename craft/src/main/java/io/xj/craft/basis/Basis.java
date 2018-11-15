@@ -1,23 +1,25 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.craft.basis;
 
-import io.xj.craft.ingest.Ingest;
 import io.xj.core.exception.BusinessException;
-import io.xj.craft.isometry.MemeIsometry;
 import io.xj.core.model.arrangement.Arrangement;
 import io.xj.core.model.audio.Audio;
 import io.xj.core.model.chain_config.ChainConfig;
 import io.xj.core.model.chain_config.ChainConfigType;
 import io.xj.core.model.choice.Choice;
+import io.xj.core.model.pattern.Pattern;
+import io.xj.core.model.pick.Pick;
 import io.xj.core.model.segment.Segment;
 import io.xj.core.model.segment_chord.SegmentChord;
 import io.xj.core.model.segment_meme.SegmentMeme;
+import io.xj.core.model.sequence.Sequence;
 import io.xj.core.model.sequence.SequenceType;
-import io.xj.core.model.pattern.Pattern;
-import io.xj.core.model.pick.Pick;
+import io.xj.craft.ingest.Ingest;
+import io.xj.craft.isometry.MemeIsometry;
 import io.xj.music.Chord;
 import io.xj.music.Note;
 
+import javax.annotation.Nullable;
 import javax.sound.sampled.AudioFormat;
 import java.math.BigInteger;
 import java.sql.Timestamp;
@@ -113,26 +115,29 @@ public interface Basis {
   /**
    fetch the macro-type choice for the previous segment in the chain
 
-   @return macro-type segment choice
+   @return macro-type segment choice, null if none found
    @throws Exception on failure
    */
+  @Nullable
   Choice previousMacroChoice() throws Exception;
 
   /**
    fetch the main-type choice for the previous segment in the chain
 
-   @return main-type segment choice
+   @return main-type segment choice, null if none found
    @throws Exception on failure
    */
+  @Nullable
   Choice previousMainChoice() throws Exception;
 
   /**
    fetch the rhythm-type choice for the previous segment in the chain
 
-   @return rhythm-type segment choice
+   @return rhythm-type segment choice, null if none found
    @throws Exception on failure
    */
-  Choice previousRhythmChoice() throws Exception;
+  @Nullable
+  Choice previousRhythmSelection() throws Exception;
 
   /**
    fetch all arrangements for the previous percussive choice
@@ -179,9 +184,10 @@ public interface Basis {
    macro-type sequence pattern in previous segment
    (caches results)
 
-   @return pattern
+   @return pattern, null if none exists
    @throws Exception on failure
    */
+  @Nullable
   Pattern previousMacroNextPattern() throws Exception;
 
   /**
@@ -255,6 +261,26 @@ public interface Basis {
    @throws Exception on failure
    */
   Collection<SegmentMeme> segmentMemes(BigInteger segmentId) throws Exception;
+
+  /**
+   Fetch all choices for a given segment
+   (caches results)
+
+   @param segmentId to get choices for
+   @return collection of segment choices
+   @throws Exception on failure
+   */
+  Collection<Choice> choices(BigInteger segmentId) throws Exception;
+
+  /**
+   Fetch all arrangements for a given segment
+   (caches results)
+
+   @param segmentId to get arrangements for
+   @return collection of segment arrangements
+   @throws Exception on failure
+   */
+  Collection<Arrangement> arrangements(BigInteger segmentId) throws Exception;
 
   /**
    Read an Audio by id, assumed to be in the set of audio found for all picks in the segment
@@ -441,4 +467,38 @@ public interface Basis {
    */
   SegmentChord create(SegmentChord segmentChord) throws Exception;
 
+  /**
+   Read all previous segments that selected the same main sequence as the current segment
+   <p>
+   [#161736024] Artist wants the rhythm selections to be consistent throughout a main sequence
+
+   @return collection of segments
+   */
+  Collection<Segment> previousSegmentsWithSameMainSequence() throws Exception;
+
+  /**
+   Get any sequence by id
+
+   @param id of sequence
+   @return sequence
+   */
+  Sequence sequence(BigInteger id) throws Exception;
+
+  /**
+   Compute the pattern-meme constellations of any previous segments which selected the same main sequence
+   <p>
+   [#161736024] to compute unique constellations for prior segments with the same main sequence
+
+   @return map of all previous segment meme constellations (as keys) to a collection of choices made
+   */
+  Map<String, Collection<Choice>> previousSegmentMemeConstellationChoices() throws Exception;
+
+  /**
+   Compute the pattern-meme constellations of any previous segments which selected the same main sequence
+   <p>
+   [#161736024] to compute unique constellations for prior segments with the same main sequence
+
+   @return map of all previous segment meme constellations (as keys) to a collection of arrangements made
+   */
+  Map<String, Collection<Arrangement>> previousSegmentMemeConstellationArrangements() throws Exception;
 }

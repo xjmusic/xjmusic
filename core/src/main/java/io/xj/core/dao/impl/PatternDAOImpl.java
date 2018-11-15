@@ -178,7 +178,7 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
         .from(PATTERN)
         .where(PATTERN.SEQUENCE_ID.in(sequenceId))
         .and(PATTERN.STATE.notEqual(String.valueOf(PatternState.Erase)))
-        .orderBy(PATTERN.NAME.desc())
+        .orderBy(PATTERN.NAME.asc())
         .fetch(), Pattern.class);
     else
       return modelsFrom(db.select(PATTERN.fields())
@@ -188,7 +188,7 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
         .where(PATTERN.SEQUENCE_ID.in(sequenceId))
         .and(PATTERN.STATE.notEqual(String.valueOf(PatternState.Erase)))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
-        .orderBy(PATTERN.NAME.desc())
+        .orderBy(PATTERN.NAME.asc())
         .fetch(), Pattern.class);
   }
 

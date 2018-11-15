@@ -8,6 +8,7 @@ import com.google.inject.assistedinject.Assisted;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.model.arrangement.Arrangement;
 import io.xj.core.model.audio.Audio;
+import io.xj.core.model.audio_event.AudioEvent;
 import io.xj.core.model.choice.Choice;
 import io.xj.core.model.entity.EntityRank;
 import io.xj.core.model.event.Event;
@@ -25,6 +26,7 @@ import io.xj.core.util.Chance;
 import io.xj.core.util.Value;
 import io.xj.craft.basis.Basis;
 import io.xj.craft.isometry.EventIsometry;
+import io.xj.craft.isometry.MemeIsometry;
 import io.xj.craft.rhythm.RhythmCraft;
 import io.xj.music.Chord;
 import io.xj.music.Key;
@@ -32,6 +34,7 @@ import io.xj.music.Note;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.Collection;
@@ -44,7 +47,6 @@ import java.util.Objects;
  [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
  */
 public class RhythmCraftImpl implements RhythmCraft {
-  private static final double SCORE_AVOID_CHOOSING_PREVIOUS_RHYTHM = 10;
   private static final double SCORE_INSTRUMENT_ENTROPY = 0.5;
   private static final double SCORE_MATCHED_MEMES = 5;
   private static final double SCORE_RHYTHM_ENTROPY = 0.5;
@@ -61,6 +63,16 @@ public class RhythmCraftImpl implements RhythmCraft {
     @Assisted("basis") Basis basis
     /*-*/) {
     this.basis = basis;
+  }
+
+  /**
+   Unique key for any pattern event (by voice id and inflection)
+
+   @param patternEvent to get key of
+   @return unique key for pattern event
+   */
+  private static String patternEventKey(PatternEvent patternEvent) {
+    return String.format("%s_%s", patternEvent.getVoiceId(), patternEvent.getInflection());
   }
 
   @Override
@@ -105,23 +117,68 @@ public class RhythmCraftImpl implements RhythmCraft {
       switch (basis.type()) {
 
         case Continue:
-          Choice previousChoice = basis.previousRhythmChoice();
-          if (Objects.nonNull(previousChoice))
-            _rhythmSequence = basis.ingest().sequence(previousChoice.getSequenceId());
-          else {
-            log.warn("No rhythm-type sequence chosen in previous Segment #{}", basis.previousSegment().getId());
-            _rhythmSequence = chooseRhythm();
-          }
+          Sequence selectedPreviously = rhythmSequenceSelectedPreviouslyForSegmentMemeConstellation();
+          _rhythmSequence = Objects.nonNull(selectedPreviously) ? selectedPreviously : selectFreshRhythm();
 
           break;
 
         case Initial:
         case NextMain:
         case NextMacro:
-          _rhythmSequence = chooseRhythm();
+          _rhythmSequence = selectFreshRhythm();
       }
 
     return _rhythmSequence;
+  }
+
+  /**
+   Determine if a rhythm sequence has been previously selected
+   in one of the previous segments of the current main sequence
+   wherein the current pattern of the selected main sequence
+   has a non-unique (previously encountered) meme constellation
+   <p>
+   Compute the pattern-meme constellations of any previous segments which selected the same main sequence
+   <p>
+   [#161736024] for each unique sequence-pattern-meme constellation within the main sequence
+
+   @return rhythm sequence if previously selected, or null if none is found
+   */
+  @Nullable
+  private Sequence rhythmSequenceSelectedPreviouslyForSegmentMemeConstellation() throws Exception {
+    Map<String, BigInteger> constellationSequenceIds = Maps.newConcurrentMap();
+    for (String constellation : basis.previousSegmentMemeConstellationChoices().keySet()) {
+      for (Choice choice : basis.previousSegmentMemeConstellationChoices().get(constellation)) {
+        if (Objects.equals(SequenceType.Rhythm, choice.getType()))
+          constellationSequenceIds.put(constellation, choice.getSequenceId());
+      }
+    }
+    String constellation = MemeIsometry.ofMemes(basis.segmentMemes()).getConstellation();
+    return constellationSequenceIds.containsKey(constellation) ? basis.sequence(constellationSequenceIds.get(constellation)) : null;
+  }
+
+  /**
+   Determine if an arrangement has been previously crafted
+   in one of the previous segments of the current main sequence
+   wherein the current pattern of the selected main sequence
+   has a non-unique (previously encountered) meme constellation
+   and a voice we have encountered for that meme constellation
+   <p>
+   Compute the pattern-meme constellations of any previous segments which selected the same main sequence
+   <p>
+   [#161736024] for each unique sequence-pattern-meme constellation within the main sequence
+
+   @return rhythm sequence if previously selected, or null if none is found
+   */
+  @Nullable
+  private BigInteger previousVoiceInstrumentId(String segmentMemeConstellation, BigInteger voiceId) throws Exception {
+    for (String constellation : basis.previousSegmentMemeConstellationArrangements().keySet()) {
+      if (Objects.equals(segmentMemeConstellation, constellation))
+        for (Arrangement arrangement : basis.previousSegmentMemeConstellationArrangements().get(constellation)) {
+          if (Objects.equals(voiceId, arrangement.getVoiceId()))
+            return arrangement.getInstrumentId();
+        }
+    }
+    return null;
   }
 
   /**
@@ -137,7 +194,8 @@ public class RhythmCraftImpl implements RhythmCraft {
       switch (basis.type()) {
 
         case Continue:
-          _rhythmPatternOffset = Objects.nonNull(basis.previousRhythmChoice()) ? basis.previousRhythmChoice().nextPatternOffset() : BigInteger.valueOf(0);
+          Choice previous = basis.previousRhythmSelection();
+          _rhythmPatternOffset = Objects.nonNull(previous) ? previous.nextPatternOffset() : BigInteger.ZERO;
           break;
 
         case Initial:
@@ -159,17 +217,16 @@ public class RhythmCraftImpl implements RhythmCraft {
   }
 
   /**
-   Choose rhythm sequence
+   Choose a fresh rhythm based on a set of memes
+   FUTURE [#150279436] Key of first Pattern of chosen Rhythm-Sequence must match the `minor` or `major` with the Key of the current Segment.
 
    @return rhythm-type Sequence
    @throws Exception on failure
    <p>
    future: actually choose rhythm sequence
    */
-  private Sequence chooseRhythm() throws Exception {
+  private Sequence selectFreshRhythm() throws Exception {
     EntityRank<Sequence> entityRank = new EntityRank<>();
-
-    // future: only choose major sequences for major keys, minor for minor! [#223] Key of first Pattern of chosen Rhythm-Sequence must match the `minor` or `major` with the Key of the current Segment.
 
     // (2a) retrieve sequences bound directly to chain
     Collection<Sequence> sourceSequences = basis.ingest().sequences(SequenceType.Rhythm);
@@ -180,14 +237,9 @@ public class RhythmCraftImpl implements RhythmCraft {
 
     // (3) score each source sequence based on meme isometry
     for (Sequence sequence : sourceSequences) {
-      double score = scoreRhythm(sequence);
-      if (0 < score) entityRank.add(sequence, score);
+      Double score = scoreRhythm(sequence);
+      if (Objects.nonNull(score)) entityRank.add(sequence, score);
     }
-
-    // (3b) Avoid previous rhythm sequence
-    if (!basis.isInitialSegment())
-      if (Objects.nonNull(basis.previousRhythmChoice()))
-        entityRank.score(basis.previousRhythmChoice().getSequenceId(), -SCORE_AVOID_CHOOSING_PREVIOUS_RHYTHM);
 
     // report
     basis.report("rhythmChoice", entityRank.report());
@@ -208,9 +260,10 @@ public class RhythmCraftImpl implements RhythmCraft {
    [#162040109] Artist expects sequence with no memes will never be selected for chain craft.
 
    @param sequence to score
-   @return score, including +/- entropy, ZERO if this sequence has no memes
+   @return score, including +/- entropy, -1 if this sequence has no memes
    */
-  private double scoreRhythm(Sequence sequence) {
+  @Nullable
+  private Double scoreRhythm(Sequence sequence) {
     try {
       Collection<Meme> memes = basis.ingest().sequenceAndPatternMemes(sequence.getId(), BigInteger.valueOf(0),
         PatternType.Intro, PatternType.Loop, PatternType.Outro);
@@ -219,7 +272,7 @@ public class RhythmCraftImpl implements RhythmCraft {
     } catch (Exception e) {
       log.warn("While scoring rhythm {}", sequence, e);
     }
-    return 0;
+    return null;
   }
 
   /**
@@ -235,17 +288,22 @@ public class RhythmCraftImpl implements RhythmCraft {
 
   /**
    craft segment events for one rhythm voice
+   [#161736024] if segment meme constellation already encountered, use that instrument-voice
 
    @param voice to craft events for
    @throws Exception on failure
    */
   private Arrangement craftArrangementForRhythmVoice(Voice voice) throws Exception {
-    Instrument percussiveInstrument = choosePercussiveInstrument(voice);
+    String constellation = MemeIsometry.ofMemes(basis.segmentMemes()).getConstellation();
+    BigInteger instrumentId = previousVoiceInstrumentId(constellation, voice.getId());
+
+    // if no previous instrument found, choose a fresh one
+    if (Objects.isNull(instrumentId)) instrumentId = chooseFreshPercussiveInstrument(voice).getId();
 
     return basis.create(new Arrangement()
       .setChoiceId(basis.currentRhythmChoice().getId())
       .setVoiceId(voice.getId())
-      .setInstrumentId(percussiveInstrument.getId()));
+      .setInstrumentId(instrumentId));
   }
 
   /**
@@ -256,7 +314,7 @@ public class RhythmCraftImpl implements RhythmCraft {
    @return percussive-type Instrument
    @throws Exception on failure
    */
-  private Instrument choosePercussiveInstrument(Voice voice) throws Exception {
+  private Instrument chooseFreshPercussiveInstrument(Voice voice) throws Exception {
     EntityRank<Instrument> entityRank = new EntityRank<>();
 
     // (2a) retrieve instruments bound directly to chain
@@ -270,21 +328,13 @@ public class RhythmCraftImpl implements RhythmCraft {
     log.debug("not currently in use: {}", voice);
 
     // (3) score each source instrument based on meme isometry
-    sourceInstruments.forEach((instrument -> {
+    for (Instrument instrument : sourceInstruments) {
       try {
         entityRank.add(instrument, scorePercussiveInstrument(instrument));
       } catch (Exception e) {
         log.debug("while scoring percussive instrument", e);
       }
-    }));
-
-    /*
-    DISABLED for [#324] Don't take into account which instruments were previously chosen, when choosing instruments for current segment.
-    // (3b) Avoid previous percussive instrument
-    if (!basis.isInitialSegment())
-      basis.previousPercussiveArrangements().forEach(arrangement ->
-        entityRank.score(arrangement.getInstrumentId(), -SCORE_AVOID_CHOOSING_PREVIOUS));
-        */
+    }
 
     // report
     basis.report("percussiveChoice", entityRank.report());
@@ -450,16 +500,6 @@ public class RhythmCraftImpl implements RhythmCraft {
   }
 
   /**
-   Unique key for any pattern event (by voice id and inflection)
-   @param patternEvent to get key of
-   @return unique key for pattern event
-   */
-  private static String patternEventKey(PatternEvent patternEvent) {
-    return String.format("%s_%s", patternEvent.getVoiceId(), patternEvent.getInflection());
-  }
-
-
-  /**
    Select a new random instrument audio based on a pattern event
 
    @param instrument   from which to score available audios, and make a selection
@@ -474,12 +514,11 @@ public class RhythmCraftImpl implements RhythmCraft {
     audioEntityRank.addAll(basis.ingest().audios(instrument.getId()));
 
     // score each audio against the current voice event, with some variability
-    basis.ingest().instrumentAudioFirstEvents(instrument.getId())
-      .forEach(audioEvent ->
-        audioEntityRank.score(audioEvent.getAudioId(),
-          Chance.normallyAround(
-            EventIsometry.similarity(patternEvent, audioEvent),
-            SCORE_INSTRUMENT_ENTROPY)));
+    for (AudioEvent audioEvent : basis.ingest().instrumentAudioFirstEvents(instrument.getId()))
+      audioEntityRank.score(audioEvent.getAudioId(),
+        Chance.normallyAround(
+          EventIsometry.similarity(patternEvent, audioEvent),
+          SCORE_INSTRUMENT_ENTROPY));
 
     // final chosen audio event
     Audio audio = audioEntityRank.getTop();

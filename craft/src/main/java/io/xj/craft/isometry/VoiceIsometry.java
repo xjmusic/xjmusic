@@ -1,22 +1,17 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.craft.isometry;
 
-import io.xj.core.model.voice.Voice;
-
 import com.google.common.collect.Maps;
-
+import io.xj.core.model.voice.Voice;
 import me.xdrop.fuzzywuzzy.FuzzySearch;
-import org.tartarus.snowball.SnowballStemmer;
-import org.tartarus.snowball.ext.englishStemmer;
 
 import javax.annotation.Nullable;
-import java.util.Locale;
 import java.util.Map;
 
 /**
  Determine the isometry between a source and target group of Voices
  */
-public class VoiceIsometry {
+public class VoiceIsometry extends Isometry {
   private final Map<String, Voice> stemmedSourceVoices;
 
   /**
@@ -37,7 +32,7 @@ public class VoiceIsometry {
    @param sourceVoices to compare from
    @return VoiceIsometry ready for comparison to target Voices
    */
-  public static <R extends Voice> VoiceIsometry of(Iterable<R> sourceVoices) {
+  public static <R extends Voice> VoiceIsometry ofVoices(Iterable<R> sourceVoices) {
     return new VoiceIsometry(sourceVoices);
   }
 
@@ -63,19 +58,6 @@ public class VoiceIsometry {
     }
 
     return result;
-  }
-
-  /**
-   Snowball stem of a particular word
-
-   @param raw text to get stem of
-   @return stem
-   */
-  private static String stem(String raw) {
-    SnowballStemmer stemmer = new englishStemmer(); // this is the only part proprietary to English
-    stemmer.setCurrent(raw.toLowerCase(Locale.ENGLISH).trim());
-    stemmer.stem();
-    return stemmer.getCurrent();
   }
 
 }

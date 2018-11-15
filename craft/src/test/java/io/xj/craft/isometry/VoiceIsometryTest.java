@@ -22,14 +22,14 @@ public class VoiceIsometryTest {
 
   @Test
   public void of() throws Exception {
-    VoiceIsometry result = VoiceIsometry.of(testVoicesA);
+    VoiceIsometry result = VoiceIsometry.ofVoices(testVoicesA);
 
     assertNotNull(result);
   }
 
   @Test
   public void find() throws Exception {
-    VoiceIsometry result = VoiceIsometry.of(testVoicesA);
+    VoiceIsometry result = VoiceIsometry.ofVoices(testVoicesA);
 
     Voice find1 = result.find(new Voice().setDescription("Sooper Kewl"));
     assertNotNull(find1);

@@ -85,7 +85,7 @@ public class AudioCloneJobImpl implements AudioCloneJob {
 
       try {
         AudioEvent toAudioEvent = audioEventDAO.create(Access.internal(), audioEvent);
-        log.info("Cloned AudioEvent from #{} to {}", audioEvent.getId(), JSON.objectFrom(toAudioEvent));
+        log.info("Cloned AudioEvent ofMemes #{} to {}", audioEvent.getId(), JSON.objectFrom(toAudioEvent));
 
 
       } catch (Exception e) {
@@ -99,7 +99,7 @@ public class AudioCloneJobImpl implements AudioCloneJob {
 
       try {
         AudioChord toAudioChord = audioChordDAO.create(Access.internal(), audioChord);
-        log.info("Cloned AudioChord from #{} to {}", audioChord.getId(), JSON.objectFrom(toAudioChord));
+        log.info("Cloned AudioChord ofMemes #{} to {}", audioChord.getId(), JSON.objectFrom(toAudioChord));
 
       } catch (Exception e) {
         log.error("Failed to clone AudioChord {}", JSON.objectFrom(audioChord), e);
@@ -108,7 +108,7 @@ public class AudioCloneJobImpl implements AudioCloneJob {
 
     // Clone S3 Data
     amazonProvider.copyS3Object(Config.audioFileBucket(), from.getWaveformKey(), Config.audioFileBucket(), to.getWaveformKey());
-    log.info("Copied S3 Object from {}:{} to {}:{}", Config.audioFileBucket(), from.getWaveformKey(), Config.audioFileBucket(), to.getWaveformKey());
+    log.info("Copied S3 Object ofMemes {}:{} to {}:{}", Config.audioFileBucket(), from.getWaveformKey(), Config.audioFileBucket(), to.getWaveformKey());
 
     log.info("Cloned Audio #{} and child entities to new Audio {}", fromId, JSON.objectFrom(to));
   }

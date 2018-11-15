@@ -140,7 +140,7 @@ public class CraftRhythmVoiceInitialIT {
     IntegrationTestEntity.insertSegmentMeme(103, 6, "Pessimism");
     IntegrationTestEntity.insertSegmentMeme(104, 6, "Outlook");
     IntegrationTestEntity.insertChoice(101, 6, 4, SequenceType.Macro, 0, 0);
-    IntegrationTestEntity.insertChoice(102, 6, 5, SequenceType.Main, 10, -6);
+    IntegrationTestEntity.insertChoice(102, 6, 5, SequenceType.Main, 0, -6);
     IntegrationTestEntity.insertSegmentChord(101, 6, 0, "C minor");
     IntegrationTestEntity.insertSegmentChord(102, 6, 8, "Db minor");
 

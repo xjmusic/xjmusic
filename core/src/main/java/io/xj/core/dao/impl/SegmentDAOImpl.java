@@ -177,7 +177,7 @@ public class SegmentDAOImpl extends DAOImpl implements SegmentDAO {
     // so "from offset zero" means from offset 0 to offset N
     ULong maxOffset = ULong.valueOf(
       fromOffset.toBigInteger().add(
-        BigInteger.valueOf((long) Config.limitSegmentReadSize())));
+        BigInteger.valueOf(Config.limitSegmentReadSize())));
 
     if (access.isTopLevel())
       return modelsFrom(db.select(SEGMENT.fields())
@@ -202,6 +202,38 @@ public class SegmentDAOImpl extends DAOImpl implements SegmentDAO {
   }
 
   /**
+   Read all records in parent by id, beginning and ending at particular offsets
+
+   @param db         context
+   @param access     control
+   @param chainId    of parent
+   @param fromOffset to read segments
+   @return array of records
+   */
+  private static Collection<Segment> readAllFromToOffset(DSLContext db, Access access, ULong chainId, ULong fromOffset, ULong toOffset) throws BusinessException {
+    if (access.isTopLevel())
+      return modelsFrom(db.select(SEGMENT.fields())
+        .from(SEGMENT)
+        .where(SEGMENT.CHAIN_ID.eq(chainId))
+        .and(SEGMENT.OFFSET.greaterOrEqual(fromOffset))
+        .and(SEGMENT.OFFSET.lessOrEqual(toOffset))
+        .orderBy(SEGMENT.OFFSET.desc())
+        .limit(Config.limitSegmentReadSize())
+        .fetch(), Segment.class);
+    else
+      return modelsFrom(db.select(SEGMENT.fields())
+        .from(SEGMENT)
+        .join(CHAIN).on(CHAIN.ID.eq(SEGMENT.CHAIN_ID))
+        .where(SEGMENT.CHAIN_ID.eq(chainId))
+        .and(SEGMENT.OFFSET.greaterOrEqual(fromOffset))
+        .and(SEGMENT.OFFSET.lessOrEqual(toOffset))
+        .and(CHAIN.ACCOUNT_ID.in(access.getAccountIds()))
+        .orderBy(SEGMENT.OFFSET.desc())
+        .limit(Config.limitSegmentReadSize())
+        .fetch(), Segment.class);
+  }
+
+  /**
    Read all records in parent by id, beginning at a particular offset
    <p>
    [#150279540] Unauthenticated public Client wants to access a Chain by embed key (as alias for chain id) in order to provide data for playback.
@@ -215,7 +247,7 @@ public class SegmentDAOImpl extends DAOImpl implements SegmentDAO {
     // so "from offset zero" means from offset 0 to offset N
     ULong maxOffset = ULong.valueOf(
       fromOffset.toBigInteger().add(
-        BigInteger.valueOf((long) Config.limitSegmentReadSize())));
+        BigInteger.valueOf(Config.limitSegmentReadSize())));
 
     return modelsFrom(db.select(SEGMENT.fields())
       .from(SEGMENT)
@@ -243,8 +275,8 @@ public class SegmentDAOImpl extends DAOImpl implements SegmentDAO {
   private static Collection<Segment> readAllFromSecondsUTC(DSLContext db, Access access, ULong chainId, ULong fromSecondsUTC) throws BusinessException {
     // play buffer delay/ahead seconds
     Instant from = new Date(fromSecondsUTC.longValue() * MILLIS_PER_SECOND).toInstant();
-    Timestamp maxBeginAt = Timestamp.from(from.plusSeconds((long) Config.playBufferAheadSeconds()));
-    Timestamp minEndAt = Timestamp.from(from.minusSeconds((long) Config.playBufferDelaySeconds()));
+    Timestamp maxBeginAt = Timestamp.from(from.plusSeconds(Config.playBufferAheadSeconds()));
+    Timestamp minEndAt = Timestamp.from(from.minusSeconds(Config.playBufferDelaySeconds()));
 
     if (access.isTopLevel())
       return modelsFrom(db.select(SEGMENT.fields())
@@ -282,8 +314,8 @@ public class SegmentDAOImpl extends DAOImpl implements SegmentDAO {
   private static Collection<Segment> readAllFromSecondsUTC(DSLContext db, String chainEmbedKey, ULong fromSecondsUTC) throws BusinessException {
     // play buffer delay/ahead seconds
     Instant from = new Date(fromSecondsUTC.longValue() * MILLIS_PER_SECOND).toInstant();
-    Timestamp maxBeginAt = Timestamp.from(from.plusSeconds((long) Config.playBufferAheadSeconds()));
-    Timestamp minEndAt = Timestamp.from(from.minusSeconds((long) Config.playBufferDelaySeconds()));
+    Timestamp maxBeginAt = Timestamp.from(from.plusSeconds(Config.playBufferAheadSeconds()));
+    Timestamp minEndAt = Timestamp.from(from.minusSeconds(Config.playBufferDelaySeconds()));
 
     return modelsFrom(db.select(SEGMENT.fields())
       .from(SEGMENT)
@@ -514,6 +546,16 @@ public class SegmentDAOImpl extends DAOImpl implements SegmentDAO {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readAllFromOffset(tx.getContext(), access, ULong.valueOf(chainId), ULong.valueOf(fromOffset)));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public Collection<Segment> readAllFromToOffset(Access access, BigInteger chainId, BigInteger fromOffset, BigInteger toOffset) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readAllFromToOffset(tx.getContext(), access, ULong.valueOf(chainId), ULong.valueOf(fromOffset), ULong.valueOf(toOffset)));
     } catch (Exception e) {
       throw tx.failure(e);
     }

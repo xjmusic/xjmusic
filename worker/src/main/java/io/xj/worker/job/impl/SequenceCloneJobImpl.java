@@ -91,7 +91,7 @@ public class SequenceCloneJobImpl implements SequenceCloneJob {
       sequenceMeme.setSequenceId(toId);
       try {
         SequenceMeme toSequenceMeme = sequenceMemeDAO.create(Access.internal(), sequenceMeme);
-        log.info("Cloned SequenceMeme from #{} to {}", sequenceMeme.getId(), JSON.objectFrom(toSequenceMeme));
+        log.info("Cloned SequenceMeme ofMemes #{} to {}", sequenceMeme.getId(), JSON.objectFrom(toSequenceMeme));
 
       } catch (Exception e) {
         log.error("Failed to clone SequenceMeme {}", JSON.objectFrom(sequenceMeme), e);
@@ -103,7 +103,7 @@ public class SequenceCloneJobImpl implements SequenceCloneJob {
       fromVoice.setSequenceId(toId);
       try {
         Voice toVoice = voiceDAO.create(Access.internal(), fromVoice);
-        log.info("Cloned Voice from #{} to {}", fromVoice.getId(), JSON.objectFrom(toVoice));
+        log.info("Cloned Voice ofMemes #{} to {}", fromVoice.getId(), JSON.objectFrom(toVoice));
 
       } catch (Exception e) {
         log.error("Failed to clone Voice {}", JSON.objectFrom(fromVoice), e);
@@ -119,7 +119,7 @@ public class SequenceCloneJobImpl implements SequenceCloneJob {
       try {
         Pattern toPattern = patternDAO.create(Access.internal(), pattern);
         workManager.doPatternClone(pattern.getId(), toPattern.getId());
-        log.info("Cloned Pattern from #{} to {} and scheduled PatternClone job", pattern.getId(), JSON.objectFrom(toPattern));
+        log.info("Cloned Pattern ofMemes #{} to {} and scheduled PatternClone job", pattern.getId(), JSON.objectFrom(toPattern));
 
         // Clone SequencePattern only that match the Pattern we're currently cloning
         for (SequencePattern sequencePattern : sequencePatterns) {
@@ -127,7 +127,7 @@ public class SequenceCloneJobImpl implements SequenceCloneJob {
             sequencePattern.setSequenceId(toId);
             sequencePattern.setPatternId(toPattern.getId());
             SequencePattern toSequencePattern = sequencePatternDAO.create(Access.internal(), sequencePattern);
-            log.info("Cloned SequencePattern from #{} to {}", sequencePattern.getId(), JSON.objectFrom(toSequencePattern));
+            log.info("Cloned SequencePattern ofMemes #{} to {}", sequencePattern.getId(), JSON.objectFrom(toSequencePattern));
           }
         }
 

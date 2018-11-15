@@ -315,7 +315,7 @@ public class SegmentIT {
     Collection<Segment> result = testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1L)));
 
     assertNotNull(result);
-    assertEquals(5L, (long) result.size());
+    assertEquals(5L, result.size());
     Iterator<Segment> it = result.iterator();
 
     Segment actualResult0 = it.next();
@@ -346,7 +346,7 @@ public class SegmentIT {
     Collection<Segment> result = testDAO.readAll("JamSandwich");
 
     assertNotNull(result);
-    assertEquals(5L, (long) result.size());
+    assertEquals(5L, result.size());
     Iterator<Segment> it = result.iterator();
 
     Segment actualResult0 = it.next();
@@ -375,7 +375,7 @@ public class SegmentIT {
     Collection<Segment> result = testDAO.readAllFromOffset(access, BigInteger.valueOf(1L), BigInteger.valueOf(2L));
 
     assertNotNull(result);
-    assertEquals(3L, (long) result.size());
+    assertEquals(3L, result.size());
     Iterator<Segment> it = result.iterator();
 
     Segment actualResult0 = it.next();
@@ -389,6 +389,27 @@ public class SegmentIT {
   }
 
   @Test
+  public void readAllFromToOffset() throws Exception {
+    Access access = new Access(ImmutableMap.of(
+      "roles", "User",
+      "accounts", "1"
+    ));
+
+    Collection<Segment> result = testDAO.readAllFromToOffset(access, BigInteger.valueOf(1L), BigInteger.valueOf(2L), BigInteger.valueOf(3L));
+
+    assertNotNull(result);
+    assertEquals(2L, result.size());
+    Iterator<Segment> it = result.iterator();
+
+    Segment result1 = it.next();
+    assertEquals(SegmentState.Crafting, result1.getState());
+
+    Segment result2 = it.next();
+    assertEquals(SegmentState.Crafted, result2.getState());
+  }
+
+
+  @Test
   public void readAllFromOffset_byChainEmbedKey() throws Exception {
     IntegrationTestEntity.insertChain(5, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, "JamSandwich");
     IntegrationTestEntity.insertSegment(51, 5, 0, SegmentState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120.0, "chain-1-segment-97898asdf7892.wav");
@@ -400,7 +421,7 @@ public class SegmentIT {
     Collection<Segment> result = testDAO.readAllFromOffset("JamSandwich", BigInteger.valueOf(2L));
 
     assertNotNull(result);
-    assertEquals(3L, (long) result.size());
+    assertEquals(3L, result.size());
     Iterator<Segment> it = result.iterator();
 
     Segment actualResult0 = it.next();
@@ -424,7 +445,7 @@ public class SegmentIT {
     Collection<Segment> result = testDAO.readAllFromSecondsUTC(access, BigInteger.valueOf(1L), BigInteger.valueOf(1487102524L));
 
     assertNotNull(result);
-    assertEquals(3L, (long) result.size());
+    assertEquals(3L, result.size());
     Iterator<Segment> it = result.iterator();
 
     Segment actualResult0 = it.next();
@@ -449,7 +470,7 @@ public class SegmentIT {
     Collection<Segment> result = testDAO.readAllFromSecondsUTC("JamSandwich", BigInteger.valueOf(1487102524L));
 
     assertNotNull(result);
-    assertEquals(3L, (long) result.size());
+    assertEquals(3L, result.size());
     Iterator<Segment> it = result.iterator();
 
     Segment actualResult0 = it.next();
@@ -502,7 +523,7 @@ public class SegmentIT {
     JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1L))));
 
     assertNotNull(result);
-    assertEquals(0L, (long) result.length());
+    assertEquals(0L, result.length());
   }
 
   @Test
@@ -665,7 +686,7 @@ public class SegmentIT {
     IntegrationTestEntity.insertSequence(1, 2, 1, SequenceType.Macro, SequenceState.Published, "epic concept", 0.342, "C#", 0.286);
     IntegrationTestEntity.insertPatternSequencePattern(1, 1, PatternType.Macro, PatternState.Published, 0, 16, "Ants", 0.583, "D minor", 120.0);
     IntegrationTestEntity.insertVoice(8, 1, InstrumentType.Percussive, "This is a percussive voice");
-    IntegrationTestEntity.insertPatternEvent(1, 1, 8, (double) 0, 1.0, "KICK", "C", 0.8, 1.0);
+    IntegrationTestEntity.insertPatternEvent(1, 1, 8, 0, 1.0, "KICK", "C", 0.8, 1.0);
 
     // Library has Instrument with Audio
     IntegrationTestEntity.insertInstrument(9, 1, 2, "jams", InstrumentType.Percussive, 0.6);
@@ -679,7 +700,7 @@ public class SegmentIT {
     IntegrationTestEntity.insertSegmentMeme(25, 17, "Jams");
 
     // Segment Chord
-    IntegrationTestEntity.insertSegmentChord(25, 17, (double) 0, "D major 7 b9");
+    IntegrationTestEntity.insertSegmentChord(25, 17, 0, "D major 7 b9");
 
     // Segment Message
     IntegrationTestEntity.insertSegmentMessage(25, 17, MessageType.Warning, "Consider yourself warned");

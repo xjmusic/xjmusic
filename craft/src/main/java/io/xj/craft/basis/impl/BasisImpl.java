@@ -18,6 +18,7 @@ import io.xj.core.dao.SegmentChordDAO;
 import io.xj.core.dao.SegmentDAO;
 import io.xj.core.dao.SegmentMemeDAO;
 import io.xj.core.dao.SegmentMessageDAO;
+import io.xj.core.dao.SequenceDAO;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.model.arrangement.Arrangement;
 import io.xj.core.model.audio.Audio;
@@ -45,6 +46,7 @@ import io.xj.craft.basis.Basis;
 import io.xj.craft.basis.BasisType;
 import io.xj.craft.ingest.Ingest;
 import io.xj.craft.ingest.cache.IngestCacheProvider;
+import io.xj.craft.isometry.Isometry;
 import io.xj.craft.isometry.MemeIsometry;
 import io.xj.music.BPM;
 import io.xj.music.Chord;
@@ -55,6 +57,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 
+import javax.annotation.Nullable;
 import javax.sound.sampled.AudioFormat;
 import java.math.BigInteger;
 import java.sql.Timestamp;
@@ -83,6 +86,7 @@ public class BasisImpl implements Basis {
   private final SegmentDAO segmentDAO;
   private final SegmentMemeDAO segmentMemeDAO;
   private final SegmentMessageDAO segmentMessageDAO;
+  private final SequenceDAO sequenceDAO;
   private final Logger log = LoggerFactory.getLogger(BasisImpl.class);
   private final Map<String, Object> report = Maps.newConcurrentMap();
   private final Tuning tuning;
@@ -90,8 +94,11 @@ public class BasisImpl implements Basis {
   private final List<Pick> _picks = Lists.newArrayList();
   private final Map<BigInteger, Collection<Arrangement>> _choiceArrangements = Maps.newConcurrentMap();
   private final Map<BigInteger, Collection<SegmentMeme>> _segmentMemes = Maps.newConcurrentMap();
+  private final Map<BigInteger, Collection<Choice>> _choices = Maps.newConcurrentMap();
+  private final Map<BigInteger, Collection<Arrangement>> _arrangements = Maps.newConcurrentMap();
   private final Map<BigInteger, Map<BigInteger, Segment>> _segmentsByOffset = Maps.newConcurrentMap();
   private final Map<BigInteger, Map<SequenceType, Choice>> _segmentChoicesByType = Maps.newConcurrentMap();
+  private final Map<BigInteger, Sequence> _sequencesById = Maps.newConcurrentMap();
   private final Map<Double, Double> _positionSeconds = Maps.newConcurrentMap();
   private BasisType _type;
   private Boolean _sentReport = false;
@@ -105,6 +112,7 @@ public class BasisImpl implements Basis {
   private Collection<SegmentMeme> _currentSegmentMemes;
   private Ingest _ingest;
   private Ingest _libraryIngest;
+  private Collection<Segment> _previousSegmentsWithThisMainSequence;
 
   @Inject
   public BasisImpl(
@@ -119,8 +127,9 @@ public class BasisImpl implements Basis {
     SegmentChordDAO segmentChordDAO,
     SegmentDAO segmentDAO,
     SegmentMemeDAO segmentMemeDAO,
-    SegmentMessageDAO segmentMessageDAO
-    /*-*/) throws BusinessException {
+    SegmentMessageDAO segmentMessageDAO,
+    SequenceDAO sequenceDAO
+  ) throws BusinessException {
     _segment = segment;
     this.arrangementDAO = arrangementDAO;
     this.chainConfigDAO = chainConfigDAO;
@@ -133,6 +142,7 @@ public class BasisImpl implements Basis {
     this.segmentDAO = segmentDAO;
     this.segmentMemeDAO = segmentMemeDAO;
     this.segmentMessageDAO = segmentMessageDAO;
+    this.sequenceDAO = sequenceDAO;
 
     // [#255] Tuning based on root note configured in environment parameters.
     try {
@@ -171,20 +181,35 @@ public class BasisImpl implements Basis {
   public BasisType type() {
     if (Objects.isNull(_type))
       try {
-        if (isInitialSegment())
-          _type = BasisType.Initial;
-        else if (Objects.nonNull(previousMainChoice()) && previousMainChoice().hasOneMorePattern())
-          _type = BasisType.Continue;
-        else if (Objects.nonNull(previousMacroChoice()) && previousMacroChoice().hasTwoMorePatterns())
-          _type = BasisType.NextMain;
-        else
-          _type = BasisType.NextMacro;
+        _type = computeType();
 
       } catch (Exception e) {
         log.warn("Failed to determine type! {}", e.getMessage(), e);
       }
 
     return _type;
+  }
+
+  /**
+   Compute which type of basis this will be
+
+   @return basis type
+   */
+  private BasisType computeType() throws Exception {
+    if (isInitialSegment())
+      return BasisType.Initial;
+
+    // previous main choice having at least one more pattern?
+    Choice previousMain = previousMainChoice();
+    if (Objects.nonNull(previousMain) && previousMain.hasOneMorePattern())
+      return BasisType.Continue;
+
+    // previous macro choice having at least two more patterns?
+    Choice previousMacro = previousMacroChoice();
+    if (Objects.nonNull(previousMacro) && previousMacro.hasTwoMorePatterns())
+      return BasisType.NextMain;
+
+    return BasisType.NextMacro;
   }
 
   @Override
@@ -325,6 +350,7 @@ public class BasisImpl implements Basis {
   }
 
   @Override
+  @Nullable
   public Segment previousSegment() throws Exception {
     if (isInitialSegment()) return null;
 
@@ -332,6 +358,7 @@ public class BasisImpl implements Basis {
   }
 
   @Override
+  @Nullable
   public Collection<SegmentMeme> previousSegmentMemes() throws Exception {
     if (isInitialSegment()) return null;
 
@@ -342,23 +369,28 @@ public class BasisImpl implements Basis {
   }
 
   @Override
+  @Nullable
   public Choice previousMacroChoice() throws Exception {
-    return isInitialSegment() ? null : segmentChoiceByType(previousSegment().getId(), SequenceType.Macro);
+    return previousChoice(SequenceType.Macro);
   }
 
   @Override
+  @Nullable
   public Choice previousMainChoice() throws Exception {
-    return isInitialSegment() ? null : segmentChoiceByType(previousSegment().getId(), SequenceType.Main);
+    return previousChoice(SequenceType.Main);
   }
 
   @Override
-  public Choice previousRhythmChoice() throws Exception {
-    return isInitialSegment() ? null : segmentChoiceByType(previousSegment().getId(), SequenceType.Rhythm);
+  @Nullable
+  public Choice previousRhythmSelection() throws Exception {
+    return previousChoice(SequenceType.Rhythm);
   }
 
   @Override
   public Collection<Arrangement> previousPercussiveArrangements() throws Exception {
-    return isInitialSegment() ? null : choiceArrangements(previousRhythmChoice().getId());
+    Choice previous = previousRhythmSelection();
+    if (Objects.isNull(previous)) return Lists.newArrayList();
+    return choiceArrangements(previous.getId());
   }
 
   @Override
@@ -385,10 +417,13 @@ public class BasisImpl implements Basis {
   }
 
   @Override
+  @Nullable
   public Pattern previousMacroNextPattern() throws Exception {
-    return isInitialSegment() ? null : ingest().patternAtOffset(
-      previousMacroChoice().getSequenceId(),
-      previousMacroChoice().nextPatternOffset(),
+    Choice previousChoice = previousMacroChoice();
+    if (Objects.isNull(previousChoice)) return null;
+    return ingest().patternAtOffset(
+      previousChoice.getSequenceId(),
+      previousChoice.nextPatternOffset(),
       PatternType.Macro);
   }
 
@@ -465,6 +500,34 @@ public class BasisImpl implements Basis {
   }
 
   @Override
+  public Collection<Choice> choices(BigInteger segmentId) {
+    if (!_choices.containsKey(segmentId)) {
+      try {
+        _choices.put(segmentId, choiceDAO.readAll(Access.internal(), ImmutableList.of(segmentId)));
+      } catch (Exception e) {
+        _choices.put(segmentId, Lists.newArrayList());
+        log.warn("fetching choices for segmentId:{}", segmentId, e);
+      }
+    }
+
+    return _choices.get(segmentId);
+  }
+
+  @Override
+  public Collection<Arrangement> arrangements(BigInteger choiceId) {
+    if (!_arrangements.containsKey(choiceId)) {
+      try {
+        _arrangements.put(choiceId, arrangementDAO.readAll(Access.internal(), ImmutableList.of(choiceId)));
+      } catch (Exception e) {
+        _arrangements.put(choiceId, Lists.newArrayList());
+        log.warn("fetching arrangements for choiceId:{}", choiceId, e);
+      }
+    }
+
+    return _arrangements.get(choiceId);
+  }
+
+  @Override
   public Audio segmentAudio(BigInteger audioId) throws Exception {
     if (segmentAudios().containsKey(audioId))
       return segmentAudios().get(audioId);
@@ -518,7 +581,7 @@ public class BasisImpl implements Basis {
   }
 
   @Override
-  public Collection<Pick> picks() throws Exception {
+  public Collection<Pick> picks() {
     return Collections.unmodifiableList(_picks);
   }
 
@@ -601,11 +664,16 @@ public class BasisImpl implements Basis {
   @Override
   public MemeIsometry previousMacroNextPatternMemeIsometry() throws Exception {
     if (Objects.isNull(_previousMacroMemeIsometry)) {
-      BigInteger previousSequenceId = Objects.nonNull(previousMacroChoice()) ? previousMacroChoice().getSequenceId() : null;
-      _previousMacroMemeIsometry = MemeIsometry.of(ingest().sequenceAndPatternMemes(
-        previousSequenceId,
-        Value.inc(previousMacroChoice().getSequencePatternOffset(), 1),
-        PatternType.Macro));
+      Choice previousChoice = previousMacroChoice();
+      if (Objects.nonNull(previousChoice)) {
+        BigInteger previousSequenceId = Objects.nonNull(previousMacroChoice()) ? previousChoice.getSequenceId() : null;
+        _previousMacroMemeIsometry = MemeIsometry.ofMemes(ingest().sequenceAndPatternMemes(
+          previousSequenceId,
+          Value.inc(previousChoice.getSequencePatternOffset(), 1),
+          PatternType.Macro));
+      } else {
+        _previousMacroMemeIsometry = new MemeIsometry();
+      }
     }
 
     return _previousMacroMemeIsometry;
@@ -614,7 +682,7 @@ public class BasisImpl implements Basis {
   @Override
   public MemeIsometry currentMacroMemeIsometry() throws Exception {
     if (Objects.isNull(_currentMacroMemeIsometry)) {
-      _currentMacroMemeIsometry = MemeIsometry.of(ingest().sequenceAndPatternMemes(
+      _currentMacroMemeIsometry = MemeIsometry.ofMemes(ingest().sequenceAndPatternMemes(
         currentMacroChoice().getSequenceId(),
         currentMacroChoice().getSequencePatternOffset(),
         PatternType.Macro));
@@ -626,7 +694,7 @@ public class BasisImpl implements Basis {
   @Override
   public MemeIsometry currentSegmentMemeIsometry() throws Exception {
     if (Objects.isNull(_currentSegmentMemeIsometry)) {
-      _currentSegmentMemeIsometry = MemeIsometry.of(segmentMemes());
+      _currentSegmentMemeIsometry = MemeIsometry.ofMemes(segmentMemes());
     }
 
     return _currentSegmentMemeIsometry;
@@ -652,9 +720,57 @@ public class BasisImpl implements Basis {
     return segmentChordDAO.create(Access.internal(), segmentChord);
   }
 
+  @Override
+  public Collection<Segment> previousSegmentsWithSameMainSequence() throws Exception {
+    if (Objects.isNull(_previousSegmentsWithThisMainSequence) || _previousSegmentsWithThisMainSequence.isEmpty()) {
+      BigInteger sequencePatternOffset = currentMainChoice().getSequencePatternOffset();
+      if (0 < sequencePatternOffset.compareTo(BigInteger.ZERO)) {
+        BigInteger fromOffset = segment().getOffset().subtract(sequencePatternOffset);
+        BigInteger toOffset = segment().getOffset().subtract(BigInteger.ONE);
+        _previousSegmentsWithThisMainSequence = segmentDAO.readAllFromToOffset(Access.internal(), chainId(), fromOffset, toOffset);
+      } else {
+        _previousSegmentsWithThisMainSequence = Lists.newArrayList();
+      }
+    }
+
+    return Collections.unmodifiableCollection(_previousSegmentsWithThisMainSequence);
+  }
+
+  @Override
+  public Sequence sequence(BigInteger id) throws Exception {
+    if (!_sequencesById.containsKey(id)) {
+      Sequence sequence = sequenceDAO.readOne(Access.internal(), id);
+      if (Objects.nonNull(sequence)) _sequencesById.put(id, sequence);
+    }
+
+    return _sequencesById.getOrDefault(id, null);
+  }
+
+  @Override
+  public Map<String, Collection<Choice>> previousSegmentMemeConstellationChoices() throws Exception {
+    Map<String, Collection<Choice>> result = Maps.newConcurrentMap();
+    for (Segment segment : previousSegmentsWithSameMainSequence()) {
+      Isometry isometry = MemeIsometry.ofMemes(segmentMemes(segment.getId()));
+      String constellation = isometry.getConstellation();
+      result.put(constellation, choices(segment.getId()));
+    }
+    return result;
+  }
+
+  @Override
+  public Map<String, Collection<Arrangement>> previousSegmentMemeConstellationArrangements() throws Exception {
+    Map<String, Collection<Arrangement>> result = Maps.newConcurrentMap();
+    previousSegmentMemeConstellationChoices().forEach((constellation, choices) -> {
+      result.put(constellation, Lists.newArrayList());
+      choices.forEach(choice -> arrangements(choice.getId()).forEach(arrangement -> result.get(constellation).add(arrangement)));
+    });
+    return result;
+  }
+
   /**
    Compute using an integral
    the seconds from start for any given position in beats
+   <p>
    [#153542275] Segment wherein tempo changes expect perfectly smooth sound from previous segment through to following segment
 
    @param B position in beats
@@ -667,8 +783,10 @@ public class BasisImpl implements Basis {
 
     Double T = segment().getTotal().doubleValue();
     double v2 = BPM.velocity(segment().getTempo()); // velocity at current segment tempo
-    double v1 = isInitialSegment() ? v2 :
-      BPM.velocity(previousSegment().getTempo()); // velocity at previous segment tempo
+    Segment previous = previousSegment();
+    double v1 = Objects.nonNull(previous) ?
+      BPM.velocity(previous.getTempo()) : // velocity at previous segment tempo
+      v2; // no previous segment
 
     while (x < B) {
       sum += Math.min(dx, B - x) * // increment by dx, unless in the last (less than B-x) segment
@@ -694,6 +812,20 @@ public class BasisImpl implements Basis {
    */
   private int outputSampleBits() throws Exception {
     return Integer.parseInt(chainConfig(ChainConfigType.OutputSampleBits).getValue());
+  }
+
+  /**
+   fetch the specified type choice for the previous segment in the chain
+
+   @param type to fetch
+   @return specified type segment choice
+   @throws Exception on failure
+   */
+  private Choice previousChoice(SequenceType type) throws Exception {
+    if (isInitialSegment()) return null;
+    Segment previous = previousSegment();
+    if (Objects.isNull(previous)) return null;
+    return segmentChoiceByType(previous.getId(), type);
   }
 
   /**

@@ -57,6 +57,17 @@ public interface SegmentDAO extends DAO<Segment> {
   Collection<Segment> readAllFromOffset(Access access, BigInteger chainId, BigInteger fromOffset) throws Exception;
 
   /**
+   Read all Segments that are accessible, by Chain Id, starting and ending at particular offsets
+
+   @param access     control
+   @param chainId    to read all segments from
+   @param fromOffset to read segments form
+   @return array of segments as JSON
+   @throws Exception on failure
+   */
+  Collection<Segment> readAllFromToOffset(Access access, BigInteger chainId, BigInteger fromOffset, BigInteger toOffset) throws Exception;
+
+  /**
    Read all Segments that are accessible, by Chain Embed Key, starting at a particular offset
    limit max # of segments readable at once in environment configuration
    [#150279540] Unauthenticated public Client wants to access a Chain by embed key (as alias for chain id) in order to provide data for playback.

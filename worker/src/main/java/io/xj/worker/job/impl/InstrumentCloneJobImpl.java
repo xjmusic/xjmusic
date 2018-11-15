@@ -83,7 +83,7 @@ public class InstrumentCloneJobImpl implements InstrumentCloneJob {
 
       try {
         InstrumentMeme toInstrumentMeme = instrumentMemeDAO.create(Access.internal(), instrumentMeme);
-        log.info("Cloned InstrumentMeme from #{} to {}", instrumentMeme.getId(), JSON.objectFrom(toInstrumentMeme));
+        log.info("Cloned InstrumentMeme ofMemes #{} to {}", instrumentMeme.getId(), JSON.objectFrom(toInstrumentMeme));
 
       } catch (Exception e) {
         log.error("Failed to clone InstrumentMeme {}", JSON.objectFrom(instrumentMeme), e);
@@ -98,7 +98,7 @@ public class InstrumentCloneJobImpl implements InstrumentCloneJob {
       try {
         Audio toAudio = audioDAO.create(Access.internal(), audio);
         workManager.doAudioClone(fromAudioId, toAudio.getId());
-        log.info("Cloned Audio from #{} to {} and scheduled AudioClone job", audio.getId(), JSON.objectFrom(toAudio));
+        log.info("Cloned Audio ofMemes #{} to {} and scheduled AudioClone job", audio.getId(), JSON.objectFrom(toAudio));
 
       } catch (Exception e) {
         log.error("Failed to clone Audio {}", JSON.objectFrom(audio), e);

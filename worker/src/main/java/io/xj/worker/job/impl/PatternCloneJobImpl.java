@@ -93,7 +93,7 @@ public class PatternCloneJobImpl implements PatternCloneJob {
 
       try {
         PatternMeme toPatternMeme = patternMemeDAO.create(Access.internal(), patternMeme);
-        log.info("Cloned PatternMeme from #{} to {}", patternMeme.getId(), JSON.objectFrom(toPatternMeme));
+        log.info("Cloned PatternMeme ofMemes #{} to {}", patternMeme.getId(), JSON.objectFrom(toPatternMeme));
 
       } catch (Exception e) {
         log.error("Failed to clone PatternMeme {}", JSON.objectFrom(patternMeme), e);
@@ -106,7 +106,7 @@ public class PatternCloneJobImpl implements PatternCloneJob {
 
       try {
         PatternChord toPatternChord = patternChordDAO.create(Access.internal(), patternChord);
-        log.info("Cloned PatternChord from #{} to {}", patternChord.getId(), JSON.objectFrom(toPatternChord));
+        log.info("Cloned PatternChord ofMemes #{} to {}", patternChord.getId(), JSON.objectFrom(toPatternChord));
 
       } catch (Exception e) {
         log.error("Failed to clone PatternChord {}", JSON.objectFrom(patternChord), e);
@@ -121,7 +121,7 @@ public class PatternCloneJobImpl implements PatternCloneJob {
     if (Objects.equals(from.getSequenceId(), to.getSequenceId()))
       sourceVoices.forEach((voice) -> voiceCloneIds.put(voice.getId(), voice.getId()));
     else {
-      VoiceIsometry targetVoices = VoiceIsometry.of(voiceDAO.readAll(Access.internal(), ImmutableList.of(to.getSequenceId())));
+      VoiceIsometry targetVoices = VoiceIsometry.ofVoices(voiceDAO.readAll(Access.internal(), ImmutableList.of(to.getSequenceId())));
       sourceVoices.forEach((sourceVoice) -> {
         Voice targetVoice = targetVoices.find(sourceVoice);
         if (Objects.nonNull(targetVoice))
@@ -138,10 +138,10 @@ public class PatternCloneJobImpl implements PatternCloneJob {
 
       try {
         PatternEvent toPatternEvent = patternEventDAO.create(Access.internal(), fromPatternEvent);
-        log.info("Cloned PatternEvent from #{} to {}", fromPatternEvent.getId(), JSON.objectFrom(toPatternEvent));
+        log.info("Cloned PatternEvent ofMemes #{} to {}", fromPatternEvent.getId(), JSON.objectFrom(toPatternEvent));
 
       } catch (Exception e) {
-        log.error("Failed to clone PatternEvent from {}", JSON.objectFrom(fromPatternEvent), e);
+        log.error("Failed to clone PatternEvent ofMemes {}", JSON.objectFrom(fromPatternEvent), e);
       }
     });
 

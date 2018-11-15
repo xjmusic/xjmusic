@@ -579,11 +579,11 @@ public class PatternIT {
     JSONArray result = JSON.arrayOf(subject.readAll(access, ImmutableList.of(BigInteger.valueOf(1L))));
 
     assertNotNull(result);
-    assertEquals(2L, (long) result.length());
+    assertEquals(2L, result.length());
     JSONObject result1 = (JSONObject) result.get(0);
-    assertEquals("Caterpillars", result1.get("name"));
+    assertEquals("Ants", result1.get("name"));
     JSONObject result2 = (JSONObject) result.get(1);
-    assertEquals("Ants", result2.get("name"));
+    assertEquals("Caterpillars", result2.get("name"));
   }
 
   @Test
@@ -596,7 +596,7 @@ public class PatternIT {
     JSONArray result = JSON.arrayOf(subject.readAll(access, ImmutableList.of(BigInteger.valueOf(1L))));
 
     assertNotNull(result);
-    assertEquals(0L, (long) result.length());
+    assertEquals(0L, result.length());
   }
 
   @Test
@@ -610,11 +610,11 @@ public class PatternIT {
     JSONArray result = JSON.arrayOf(subject.readAll(access, ImmutableList.of(BigInteger.valueOf(1L))));
 
     assertNotNull(result);
-    assertEquals(2L, (long) result.length());
+    assertEquals(2L, result.length());
     JSONObject result1 = (JSONObject) result.get(0);
-    assertEquals("Caterpillars", result1.get("name"));
+    assertEquals("Ants", result1.get("name"));
     JSONObject result2 = (JSONObject) result.get(1);
-    assertEquals("Ants", result2.get("name"));
+    assertEquals("Caterpillars", result2.get("name"));
   }
 
   // future test: DAO cannot update Sequence to a User or Library not owned by current session
@@ -843,10 +843,10 @@ public class PatternIT {
     IntegrationTestEntity.insertPatternChord(2011, 1, 0, "G");
     IntegrationTestEntity.insertPatternChord(2012, 1, 2, "D");
     IntegrationTestEntity.insertVoice(2051, 1, InstrumentType.Percussive, "Smash");
-    IntegrationTestEntity.insertPatternEvent(2061, 1, 2051, 1.0, 4.0, "Bang", "G2", (double) 0, 1.0);
-    IntegrationTestEntity.insertPatternEvent(2062, 1, 2051, 3.0, 4.0, "Crash", "D2", (double) 0, 1.0);
+    IntegrationTestEntity.insertPatternEvent(2061, 1, 2051, 1.0, 4.0, "Bang", "G2", 0, 1.0);
+    IntegrationTestEntity.insertPatternEvent(2062, 1, 2051, 3.0, 4.0, "Crash", "D2", 0, 1.0);
     IntegrationTestEntity.insertVoice(2052, 1, InstrumentType.Percussive, "Boom");
-    IntegrationTestEntity.insertPatternEvent(2063, 1, 2052, (double) 0, 4.0, "Poom", "C3", 1.0, 1.0);
+    IntegrationTestEntity.insertPatternEvent(2063, 1, 2052, 0, 4.0, "Poom", "C3", 1.0, 1.0);
     IntegrationTestEntity.insertPatternEvent(2064, 1, 2052, 2.0, 4.0, "Paam", "F4", 1.0, 1.0);
     IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Ready, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"), null);
     IntegrationTestEntity.insertSegment(1, 1, 0, SegmentState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120.0, "chain-1-segment-97898asdf7892.wav");
