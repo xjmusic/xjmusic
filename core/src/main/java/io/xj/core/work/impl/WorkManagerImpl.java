@@ -206,8 +206,6 @@ public class WorkManagerImpl implements WorkManager {
   public Collection<Work> readAllWork() throws Exception {
     Map<BigInteger, Work> workMap = audioDAO.readAllInState(Access.internal(), AudioState.Erase).stream().map(record -> buildWork(WorkType.AudioErase, WorkState.Expected, record.getId())).collect(Collectors.toMap(Entity::getId, work -> work, (a, work1) -> work1));
 
-    // TODO: why isn't this method returning the current jobs?
-
     // Add Expected Work: Sequence in 'Erase' state
     sequenceDAO.readAllInState(Access.internal(), SequenceState.Erase).stream().map(record -> buildWork(WorkType.SequenceErase, WorkState.Expected, record.getId())).forEach(work -> workMap.put(work.getId(), work));
 

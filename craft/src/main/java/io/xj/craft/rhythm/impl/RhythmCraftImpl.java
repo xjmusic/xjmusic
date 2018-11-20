@@ -13,6 +13,7 @@ import io.xj.core.model.entity.EntityRank;
 import io.xj.core.model.event.Event;
 import io.xj.core.model.instrument.Instrument;
 import io.xj.core.model.instrument.InstrumentType;
+import io.xj.core.model.meme.Meme;
 import io.xj.core.model.pattern.Pattern;
 import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.pattern_event.PatternEvent;
@@ -179,7 +180,8 @@ public class RhythmCraftImpl implements RhythmCraft {
 
     // (3) score each source sequence based on meme isometry
     for (Sequence sequence : sourceSequences) {
-      entityRank.add(sequence, scoreRhythm(sequence));
+      double score = scoreRhythm(sequence);
+      if (0 < score) entityRank.add(sequence, score);
     }
 
     // (3b) Avoid previous rhythm sequence
@@ -200,24 +202,24 @@ public class RhythmCraftImpl implements RhythmCraft {
 
   /**
    Score a candidate for rhythm sequence, given current basis
+   Score includes matching memes, previous segment to macro sequence first pattern
+   <p>
+   Returns ZERO if the sequence has no memes, in order to fix:
+   [#162040109] Artist expects sequence with no memes will never be selected for chain craft.
 
    @param sequence to score
-   @return score, including +/- entropy
+   @return score, including +/- entropy, ZERO if this sequence has no memes
    */
   private double scoreRhythm(Sequence sequence) {
-    Double score = Chance.normallyAround(0, SCORE_RHYTHM_ENTROPY);
-
-    // Score includes matching memes, previous segment to macro sequence first pattern
     try {
-      score += basis.currentSegmentMemeIsometry().score(
-        basis.ingest().sequenceAndPatternMemes(sequence.getId(), BigInteger.valueOf(0),
-          PatternType.Intro, PatternType.Loop, PatternType.Outro))
-        * SCORE_MATCHED_MEMES;
+      Collection<Meme> memes = basis.ingest().sequenceAndPatternMemes(sequence.getId(), BigInteger.valueOf(0),
+        PatternType.Intro, PatternType.Loop, PatternType.Outro);
+      if (!memes.isEmpty())
+        return basis.currentSegmentMemeIsometry().score(memes) * SCORE_MATCHED_MEMES + Chance.normallyAround(0, SCORE_RHYTHM_ENTROPY);
     } catch (Exception e) {
       log.warn("While scoring rhythm {}", sequence, e);
     }
-
-    return score;
+    return 0;
   }
 
   /**

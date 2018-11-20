@@ -246,7 +246,6 @@ public class MixerImpl implements Mixer {
     applyBandpass();
 
     // Compression is more predictable within the logarithmic range
-    // TODO compressor is actually an expander
     applyCompressor();
 
     // Final step ensures the broadcast signal has an exact constant maximum amplitude
