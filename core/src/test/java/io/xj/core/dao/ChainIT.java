@@ -607,7 +607,7 @@ public class ChainIT {
       .setState("Fabricate")
       .setStartAt("2015-05-10 12:17:03.527142")
       .setStopAt("2015-06-09 12:17:01.047563");
-    IntegrationTestEntity.insertSegment(6, 2, 5, SegmentState.Crafted, Timestamp.valueOf("2015-05-10 12:18:02.527142"), Timestamp.valueOf("2015-05-10 12:18:32.527142"), "A major", 64, 0.52, 120.0, "chain-1-segment-97898asdf7892.wav");
+    IntegrationTestEntity.insertSegment(6, 2, 5, SegmentState.Crafted, Timestamp.valueOf("2015-05-10 12:18:02.527142"), Timestamp.valueOf("2015-05-10 12:18:32.527142"), "A major", 64, 0.52, 120.0, "chain-1-segment-97898asdf7892.wav", new JSONObject());
 
     failure.expect(BusinessException.class);
     failure.expectMessage("cannot change chain startAt time after it has segments");
@@ -627,7 +627,7 @@ public class ChainIT {
       .setType("Production")
       .setStartAt("2015-05-10 12:17:02.527142")
       .setStopAt("2015-06-09 12:17:01.047563");
-    IntegrationTestEntity.insertSegment(6, 2, 5, SegmentState.Crafted, Timestamp.valueOf("2015-05-10 12:18:02.527142"), Timestamp.valueOf("2015-05-10 12:18:32.527142"), "A major", 64, 0.52, 120.0, "chain-1-segment-97898asdf7892.wav");
+    IntegrationTestEntity.insertSegment(6, 2, 5, SegmentState.Crafted, Timestamp.valueOf("2015-05-10 12:18:02.527142"), Timestamp.valueOf("2015-05-10 12:18:32.527142"), "A major", 64, 0.52, 120.0, "chain-1-segment-97898asdf7892.wav", new JSONObject());
 
     testDAO.update(access, BigInteger.valueOf(2L), inputData);
 
@@ -1032,7 +1032,7 @@ public class ChainIT {
    */
   @Test
   public void checkAndReviveAll() throws Exception {
-    IntegrationTestEntity.insertSegment(6, 2, 5, SegmentState.Dubbed, Timestamp.valueOf("2015-05-10 12:18:02.527142"), Timestamp.valueOf("2015-05-10 12:18:32.527142"), "A major", 64, 0.52, 120.0, "chain-1-segment-97898asdf7892.wav");
+    IntegrationTestEntity.insertSegment(6, 2, 5, SegmentState.Dubbed, Timestamp.valueOf("2015-05-10 12:18:02.527142"), Timestamp.valueOf("2015-05-10 12:18:32.527142"), "A major", 64, 0.52, 120.0, "chain-1-segment-97898asdf7892.wav", new JSONObject());
     IntegrationTestEntity.insertLibrary(3, 1, "pajamas");
     IntegrationTestEntity.insertChainLibrary(3, 2, 3);
 
@@ -1063,7 +1063,7 @@ public class ChainIT {
       "roles", "internal"
     ));
     IntegrationTestEntity.insertChain(12, 1, "Test Print #2", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-02-14 12:03:40.000001"), Timestamp.valueOf("2014-02-14 14:03:40.000001"), null);
-    IntegrationTestEntity.insertSegment(6, 12, 5, SegmentState.Crafting, Timestamp.valueOf("2014-02-14 12:03:40.000001"), Timestamp.valueOf("2014-02-14 12:04:10.000001"), "E minor", 64, 0.41, 120.0, "chain-1-segment-97898asdf7892.wav");
+    IntegrationTestEntity.insertSegment(6, 12, 5, SegmentState.Crafting, Timestamp.valueOf("2014-02-14 12:03:40.000001"), Timestamp.valueOf("2014-02-14 12:04:10.000001"), "E minor", 64, 0.41, 120.0, "chain-1-segment-97898asdf7892.wav", new JSONObject());
 
     Chain fromChain = new Chain();
     fromChain.setId(BigInteger.valueOf(12L));
@@ -1083,7 +1083,7 @@ public class ChainIT {
       "roles", "internal"
     ));
     IntegrationTestEntity.insertChain(12, 1, "Test Print #2", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-02-14 12:03:40.000001"), Timestamp.valueOf("2014-02-14 14:03:40.000001"), null);
-    IntegrationTestEntity.insertSegment(6, 12, 5, SegmentState.Crafting, Timestamp.valueOf("2014-02-14 14:03:15.000001"), Timestamp.valueOf("2014-02-14 14:03:45.000001"), "E minor", 64, 0.41, 120.0, "chain-1-segment-97898asdf7892.wav");
+    IntegrationTestEntity.insertSegment(6, 12, 5, SegmentState.Crafting, Timestamp.valueOf("2014-02-14 14:03:15.000001"), Timestamp.valueOf("2014-02-14 14:03:45.000001"), "E minor", 64, 0.41, 120.0, "chain-1-segment-97898asdf7892.wav", new JSONObject());
 
     Chain fromChain = new Chain();
     fromChain.setId(BigInteger.valueOf(12L));
@@ -1103,7 +1103,7 @@ public class ChainIT {
       "roles", "internal"
     ));
     IntegrationTestEntity.insertChain(12, 1, "Test Print #2", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-02-14 12:03:40.000001"), Timestamp.valueOf("2014-02-14 14:03:40.000001"), null);
-    IntegrationTestEntity.insertSegment(6, 12, 5, SegmentState.Dubbing, Timestamp.valueOf("2014-02-14 14:03:15.000001"), Timestamp.valueOf("2014-02-14 14:03:45.000001"), "E minor", 64, 0.41, 120.0, "chain-1-segment-97898asdf7892.wav");
+    IntegrationTestEntity.insertSegment(6, 12, 5, SegmentState.Dubbing, Timestamp.valueOf("2014-02-14 14:03:15.000001"), Timestamp.valueOf("2014-02-14 14:03:45.000001"), "E minor", 64, 0.41, 120.0, "chain-1-segment-97898asdf7892.wav", new JSONObject());
 
     Chain fromChain = new Chain();
     fromChain.setId(BigInteger.valueOf(12L));
@@ -1123,7 +1123,7 @@ public class ChainIT {
       "roles", "internal"
     ));
     IntegrationTestEntity.insertChain(12, 1, "Test Print #2", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-02-14 12:03:40.000001"), Timestamp.valueOf("2014-02-14 14:03:40.000001"), null);
-    IntegrationTestEntity.insertSegment(6, 12, 5, SegmentState.Dubbed, Timestamp.valueOf("2014-02-14 14:03:15.000001"), Timestamp.valueOf("2014-02-14 14:03:45.000001"), "E minor", 64, 0.41, 120.0, "chain-1-segment-97898asdf7892.wav");
+    IntegrationTestEntity.insertSegment(6, 12, 5, SegmentState.Dubbed, Timestamp.valueOf("2014-02-14 14:03:15.000001"), Timestamp.valueOf("2014-02-14 14:03:45.000001"), "E minor", 64, 0.41, 120.0, "chain-1-segment-97898asdf7892.wav", new JSONObject());
 
     Chain fromChain = new Chain();
     fromChain.setId(BigInteger.valueOf(12L));
@@ -1143,7 +1143,7 @@ public class ChainIT {
       "roles", "internal"
     ));
     IntegrationTestEntity.insertChain(12, 1, "Test Print #2", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-02-14 12:03:40.000001"), Timestamp.valueOf("2014-02-14 14:03:40.000001"), null);
-    IntegrationTestEntity.insertSegment(6, 12, 5, SegmentState.Dubbed, Timestamp.valueOf("2014-02-14 14:03:15.000001"), Timestamp.valueOf("2014-02-14 14:03:45.000001"), "E minor", 64, 0.41, 120.0, "chain-1-segment-97898asdf7892.wav");
+    IntegrationTestEntity.insertSegment(6, 12, 5, SegmentState.Dubbed, Timestamp.valueOf("2014-02-14 14:03:15.000001"), Timestamp.valueOf("2014-02-14 14:03:45.000001"), "E minor", 64, 0.41, 120.0, "chain-1-segment-97898asdf7892.wav", new JSONObject());
 
     Chain fromChain = new Chain();
     fromChain.setId(BigInteger.valueOf(12L));
@@ -1161,7 +1161,7 @@ public class ChainIT {
     Access access = new Access(ImmutableMap.of(
       "roles", "internal"
     ));
-    IntegrationTestEntity.insertSegment_Planned(5, 1, 4, Timestamp.valueOf("2017-02-14 12:03:08.000001"));
+    IntegrationTestEntity.insertSegment_Planned(5, 1, 4, Timestamp.valueOf("2017-02-14 12:03:08.000001"), new JSONObject());
 
     Chain fromChain = new Chain();
     fromChain.setId(BigInteger.valueOf(1L));
@@ -1178,7 +1178,7 @@ public class ChainIT {
       "roles", "internal"
     ));
     IntegrationTestEntity.insertChain(12, 1, "Test Print #2", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"), null);
-    IntegrationTestEntity.insertSegment(6, 12, 5, SegmentState.Crafted, Timestamp.valueOf("2014-08-12 14:03:08.000001"), Timestamp.valueOf("2014-08-12 14:03:38.000001"), "A major", 64, 0.52, 120.0, "chain-1-segment-97898asdf7892.wav");
+    IntegrationTestEntity.insertSegment(6, 12, 5, SegmentState.Crafted, Timestamp.valueOf("2014-08-12 14:03:08.000001"), Timestamp.valueOf("2014-08-12 14:03:38.000001"), "A major", 64, 0.52, 120.0, "chain-1-segment-97898asdf7892.wav", new JSONObject());
 
     Chain fromChain = new Chain();
     fromChain.setId(BigInteger.valueOf(12L));

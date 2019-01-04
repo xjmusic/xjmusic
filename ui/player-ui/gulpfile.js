@@ -16,7 +16,8 @@ const filter = require('gulp-filter');
 
 // ECMAScript 6 transmogrification configuration
 const srcPath = 'src',
-  distPath = 'dist';
+  distPath = 'dist',
+  npmPath = 'node_modules';
 
 // Configuration
 const config = {
@@ -29,7 +30,7 @@ const config = {
     img: `${srcPath}/img/*`,
     js: `${srcPath}/js/**/*.js`,
     sass: `${srcPath}/sass/**/*.scss`,
-    vendor: `${srcPath}/vendor/*`,
+    vendArr: [`${srcPath}/vendor/*`, `${npmPath}/howler/dist/*`,  `${npmPath}/jquery/dist/*`],
   },
   dist: {
     base: `./${distPath}`,
@@ -75,9 +76,7 @@ gulp.task('js', () => {
 
 gulp.task('vendor', () => {
   pump([
-    gulp.src([
-      config.src.vendor
-    ]),
+    gulp.src(config.src.vendArr),
     plumber(err => console.error(err)),
     gulp.dest(config.dist.vendor)
     // browserSync.stream()

@@ -1,15 +1,13 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.access;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import io.xj.core.access.impl.Access;
 import io.xj.core.model.account_user.AccountUser;
 import io.xj.core.model.user_auth.UserAuth;
 import io.xj.core.model.user_role.UserRole;
 import io.xj.core.model.user_role.UserRoleType;
-
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -27,10 +25,11 @@ import static org.junit.Assert.assertTrue;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AccessTest extends Mockito {
-  @Mock private ContainerRequestContext crc;
+  @Mock
+  private ContainerRequestContext crc;
 
   @Test
-  public void matchRoles() throws Exception {
+  public void matchRoles() {
     Access access = new Access(ImmutableMap.of(
       "roles", "User,Artist"
     ));
@@ -42,7 +41,7 @@ public class AccessTest extends Mockito {
   }
 
   @Test
-  public void getUserId() throws Exception {
+  public void getUserId() {
     Access access = new Access(ImmutableMap.of(
       "userId", "2"
     ));
@@ -51,7 +50,7 @@ public class AccessTest extends Mockito {
   }
 
   @Test
-  public void fromContext() throws Exception {
+  public void fromContext() {
     Access expectAccess = new Access(ImmutableMap.of(
       "userId", "2"
     ));
@@ -60,11 +59,11 @@ public class AccessTest extends Mockito {
 
     Access actualAccess = Access.fromContext(crc);
 
-    assertEquals(actualAccess, expectAccess);
+    assertEquals(expectAccess, actualAccess);
   }
 
   @Test
-  public void toJSON() throws Exception {
+  public void toJSON() {
     Access access = new Access(ImmutableMap.of(
       "userId", "2",
       "roles", "User,Artist",
@@ -75,7 +74,7 @@ public class AccessTest extends Mockito {
   }
 
   @Test
-  public void getAccounts() throws Exception {
+  public void getAccounts() {
     Access access = new Access(ImmutableMap.of(
       "accounts", "1,3,7"
     ));
@@ -84,7 +83,7 @@ public class AccessTest extends Mockito {
   }
 
   @Test
-  public void isAdmin() throws Exception {
+  public void isAdmin() {
     Access access = new Access(ImmutableMap.of(
       "roles", "User,Admin"
     ));
@@ -93,7 +92,7 @@ public class AccessTest extends Mockito {
   }
 
   @Test
-  public void isAdmin_Not() throws Exception {
+  public void isAdmin_Not() {
     Access access = new Access(ImmutableMap.of(
       "roles", "User,Artist"
     ));
@@ -102,7 +101,7 @@ public class AccessTest extends Mockito {
   }
 
   @Test
-  public void intoMap() throws Exception {
+  public void intoMap() {
     UserAuth userAuth = new UserAuth();
     userAuth.setId(BigInteger.valueOf(1L));
     userAuth.setUserId(BigInteger.valueOf(1L));
@@ -128,7 +127,7 @@ public class AccessTest extends Mockito {
   }
 
   @Test
-  public void valid() throws Exception {
+  public void valid() {
     Access access = new Access(ImmutableMap.of(
       "userAuthId", "1",
       "userId", "1",
@@ -143,7 +142,7 @@ public class AccessTest extends Mockito {
    [#154580129] User expects to login without having access to any accounts.
    */
   @Test
-  public void valid_evenWithNoAccounts() throws Exception {
+  public void valid_evenWithNoAccounts() {
     Access access = new Access(ImmutableMap.of(
       "userAuthId", "1",
       "userId", "1",
@@ -154,7 +153,7 @@ public class AccessTest extends Mockito {
   }
 
   @Test
-  public void valid_not() throws Exception {
+  public void valid_not() {
     Access access = new Access(ImmutableMap.of(
       "userAuthId", "1",
       "userId", "1",

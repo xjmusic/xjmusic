@@ -50,9 +50,10 @@ public class RhythmCraftImpl implements RhythmCraft {
   private static final double SCORE_INSTRUMENT_ENTROPY = 0.5;
   private static final double SCORE_MATCHED_MEMES = 5;
   private static final double SCORE_RHYTHM_ENTROPY = 0.5;
+  private static final String KEY_VOICE_INFLECTION_TEMPLATE = "%s_%s";
   private final Basis basis;
   private final Logger log = LoggerFactory.getLogger(RhythmCraftImpl.class);
-  private final Map<String, Audio> cachedSelectionInstrumentAudio = Maps.newConcurrentMap();
+  private final Map<String, Audio> previousInstrumentAudio = Maps.newConcurrentMap();
   private final SecureRandom random = new SecureRandom();
   private BigInteger _rhythmPatternOffset;
   private Sequence _rhythmSequence;
@@ -66,22 +67,34 @@ public class RhythmCraftImpl implements RhythmCraft {
   }
 
   /**
-   Unique key for any pattern event (by voice id and inflection)
+   Unique event key for any pattern event (by voice id and inflection)
 
    @param patternEvent to get key of
    @return unique key for pattern event
    */
-  private static String patternEventKey(PatternEvent patternEvent) {
-    return String.format("%s_%s", patternEvent.getVoiceId(), patternEvent.getInflection());
+  private static String eventKey(PatternEvent patternEvent) {
+    return String.format(KEY_VOICE_INFLECTION_TEMPLATE, patternEvent.getVoiceId(), patternEvent.getInflection());
+  }
+
+  /**
+   Unique key for any pattern event (by voice id and inflection)
+
+   @param pick to get key of
+   @return unique key for pattern event
+   */
+  private static String eventKey(Pick pick) {
+    return String.format(KEY_VOICE_INFLECTION_TEMPLATE, pick.getVoiceId(), pick.getInflection());
   }
 
   @Override
   public void doWork() throws BusinessException {
     try {
+      parseRelevantPreviousSegments();
       craftRhythm();
       craftRhythmVoiceArrangements();
       craftRhythmPatterns();
       report();
+      basis.updateSegment();
 
     } catch (BusinessException e) {
       throw e;
@@ -90,6 +103,24 @@ public class RhythmCraftImpl implements RhythmCraft {
         String.format("Failed to do %s-type RhythmCraft for segment #%s",
           basis.type(), basis.segment().getId().toString()), e);
     }
+  }
+
+  /**
+   [#162361534] Artist wants segments that continue the use of a main sequence
+   from basis, check for presence of a relevant segment from which we ought to draw all the previously picked instrument audio
+   if relevant, use all picks of previous segment to bootstrap the previously picked instrument audio
+   */
+  private void parseRelevantPreviousSegments() throws Exception {
+    String con = basis.currentSegmentMemeIsometry().getConstellation();
+    if (basis.previousSegmentMemeConstellationPicks().containsKey(con)) {
+      Collection<Pick> picks = basis.previousSegmentMemeConstellationPicks().get(con);
+      log.info("[segId={}] previous meme constellation picks {}", basis.segment().getId(), picks.size());
+      for (Pick pick : picks) {
+        String key = eventKey(pick);
+        previousInstrumentAudio.put(key, basis.ingest().audio(pick.getAudioId()));
+      }
+    }
+
   }
 
   /**
@@ -146,10 +177,11 @@ public class RhythmCraftImpl implements RhythmCraft {
   @Nullable
   private Sequence rhythmSequenceSelectedPreviouslyForSegmentMemeConstellation() throws Exception {
     Map<String, BigInteger> constellationSequenceIds = Maps.newConcurrentMap();
-    for (String constellation : basis.previousSegmentMemeConstellationChoices().keySet()) {
-      for (Choice choice : basis.previousSegmentMemeConstellationChoices().get(constellation)) {
-        if (Objects.equals(SequenceType.Rhythm, choice.getType()))
-          constellationSequenceIds.put(constellation, choice.getSequenceId());
+    String con = basis.currentSegmentMemeIsometry().getConstellation();
+    if (basis.previousSegmentMemeConstellationChoices().containsKey(con)) {
+      for (Choice choice : basis.previousSegmentMemeConstellationChoices().get(con)) {
+        if (SequenceType.Rhythm == choice.getType())
+          constellationSequenceIds.put(con, choice.getSequenceId());
       }
     }
     String constellation = MemeIsometry.ofMemes(basis.segmentMemes()).getConstellation();
@@ -270,7 +302,7 @@ public class RhythmCraftImpl implements RhythmCraft {
       if (!memes.isEmpty())
         return basis.currentSegmentMemeIsometry().score(memes) * SCORE_MATCHED_MEMES + Chance.normallyAround(0, SCORE_RHYTHM_ENTROPY);
     } catch (Exception e) {
-      log.warn("While scoring rhythm {}", sequence, e);
+      log.warn("[segId={}] While scoring rhythm {}", basis.segment().getId(), sequence, e);
     }
     return null;
   }
@@ -325,14 +357,14 @@ public class RhythmCraftImpl implements RhythmCraft {
       sourceInstruments = basis.libraryIngest().instruments(InstrumentType.Percussive);
 
     // future: [#258] Instrument selection is based on Text Isometry between the voice description and the instrument description
-    log.debug("not currently in use: {}", voice);
+    log.debug("[segId={}] not currently in use: {}", basis.segment().getId(), voice);
 
     // (3) score each source instrument based on meme isometry
     for (Instrument instrument : sourceInstruments) {
       try {
         entityRank.add(instrument, scorePercussiveInstrument(instrument));
       } catch (Exception e) {
-        log.debug("while scoring percussive instrument", e);
+        log.debug("[segId={}] while scoring percussive instrument", basis.segment().getId(), e);
       }
     }
 
@@ -354,7 +386,7 @@ public class RhythmCraftImpl implements RhythmCraft {
    @return score, including +/- entropy
    */
   private double scorePercussiveInstrument(Instrument instrument) throws Exception {
-    Double score = Chance.normallyAround(0, SCORE_INSTRUMENT_ENTROPY);
+    double score = Chance.normallyAround(0, SCORE_INSTRUMENT_ENTROPY);
 
     // Score includes matching memes, previous segment to macro instrument first pattern
     score += basis.currentSegmentMemeIsometry().score(basis.ingest().instrumentMemes(instrument.getId())) * SCORE_MATCHED_MEMES;
@@ -457,6 +489,9 @@ public class RhythmCraftImpl implements RhythmCraft {
     basis.pick(new Pick()
       .setArrangementId(arrangement.getId())
       .setAudioId(audio.getId())
+      .setVoiceId(arrangement.getVoiceId())
+      .setPatternEventId(patternEvent.getId())
+      .setInflection(patternEvent.getInflection())
       .setStart(startSeconds)
       .setLength(lengthSeconds)
       .setAmplitude(patternEvent.getVelocity())
@@ -477,7 +512,7 @@ public class RhythmCraftImpl implements RhythmCraft {
     if (0 < chanceOfRandomChoice && random.nextDouble() <= chanceOfRandomChoice) {
       return selectNewInstrumentAudio(instrument, patternEvent);
     } else {
-      return selectCachedInstrumentAudio(instrument, patternEvent);
+      return selectPreviousInstrumentAudio(instrument, patternEvent);
     }
   }
 
@@ -492,11 +527,11 @@ public class RhythmCraftImpl implements RhythmCraft {
    @return matched new audio
    @throws Exception on failure
    */
-  private Audio selectCachedInstrumentAudio(Instrument instrument, PatternEvent patternEvent) throws Exception {
-    String key = patternEventKey(patternEvent);
-    if (!cachedSelectionInstrumentAudio.containsKey(key))
-      cachedSelectionInstrumentAudio.put(key, selectNewInstrumentAudio(instrument, patternEvent));
-    return cachedSelectionInstrumentAudio.get(key);
+  private Audio selectPreviousInstrumentAudio(Instrument instrument, PatternEvent patternEvent) throws Exception {
+    String key = eventKey(patternEvent);
+    if (!previousInstrumentAudio.containsKey(key))
+      previousInstrumentAudio.put(key, selectNewInstrumentAudio(instrument, patternEvent));
+    return previousInstrumentAudio.get(key);
   }
 
   /**
@@ -539,7 +574,7 @@ public class RhythmCraftImpl implements RhythmCraft {
    @return final note
    */
   private Note pickNote(Note fromNote, Chord chord, Audio audio, InstrumentType instrumentType) {
-    if (Objects.equals(InstrumentType.Percussive, instrumentType)) {
+    if (InstrumentType.Percussive == instrumentType) {
       return basis.note(audio.getPitch())
         .conformedTo(chord);
     } else {

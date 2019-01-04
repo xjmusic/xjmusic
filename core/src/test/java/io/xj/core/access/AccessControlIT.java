@@ -70,14 +70,13 @@ public class AccessControlIT {
 
   @Test
   public void get() throws Exception {
-    BigInteger TEST_USER_ID = BigInteger.valueOf(1337);
-    BigInteger TEST_ACCOUNT_ID = BigInteger.valueOf(76);
-    BigInteger TEST_USER_AUTH_ID = BigInteger.valueOf(64);
     when(tokenGenerator.generate())
       .thenReturn("token123");
     // user auth
     UserAuth userAuth = new UserAuth();
+    BigInteger TEST_USER_AUTH_ID = BigInteger.valueOf(64);
     userAuth.setId(TEST_USER_AUTH_ID);
+    BigInteger TEST_USER_ID = BigInteger.valueOf(1337);
     userAuth.setUserId(TEST_USER_ID);
     userAuth.setTypeEnum(UserAuthType.Google);
     userAuth.setExternalAccount("google");
@@ -89,6 +88,7 @@ public class AccessControlIT {
     // account user
     AccountUser accountUser = new AccountUser();
     accountUser.setUserId(TEST_USER_ID);
+    BigInteger TEST_ACCOUNT_ID = BigInteger.valueOf(76);
     accountUser.setAccountId(TEST_ACCOUNT_ID);
     // access control provider
     Collection<AccountUser> accounts = Lists.newArrayList(accountUser);

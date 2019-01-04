@@ -39,6 +39,7 @@ Font Face
   }
 
   @font-face {
+    font-display: block;
     font-family: quote($name);
     font-style: $style;
     font-weight: $weight;

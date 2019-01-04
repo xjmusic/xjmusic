@@ -204,10 +204,17 @@ export class SegmentAudio {
    should this segment be playing now?
    */
   isPlaying() {
-    return null !== this.bufferSource &&
-      this.beginAtTime < this.audioContext.currentTime &&
-      this.endAtTime > this.audioContext.currentTime &&
+    return this.shouldBePlaying() &&
+      null !== this.bufferSource &&
       PLAYING === this.state;
+  }
+
+  /**
+   should this segment be playing now?
+   */
+  shouldBePlaying() {
+    return this.beginAtTime < this.audioContext.currentTime &&
+      this.endAtTime > this.audioContext.currentTime;
   }
 
   /**
@@ -233,6 +240,7 @@ export class SegmentAudio {
    * @param message
    * @param args
    */F
+
   warn(message, ...args) {
     this.log('warn', message, ...args);
   }

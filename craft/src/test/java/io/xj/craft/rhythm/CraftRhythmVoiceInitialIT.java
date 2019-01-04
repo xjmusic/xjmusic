@@ -24,6 +24,7 @@ import io.xj.craft.CraftFactory;
 import io.xj.craft.CraftModule;
 import io.xj.craft.basis.Basis;
 import io.xj.craft.basis.BasisFactory;
+import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -134,7 +135,7 @@ public class CraftRhythmVoiceInitialIT {
 
     // Chain "Print #2" has 1 initial segment in crafting state - Foundation is complete
     IntegrationTestEntity.insertChain(2, 1, "Print #2", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, null);
-    segment6 = IntegrationTestEntity.insertSegment(6, 2, 0, SegmentState.Crafting, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:07.384616"), "C minor", 32, 0.55, 130, "chain-1-segment-97898asdf7892.wav");
+    segment6 = IntegrationTestEntity.insertSegment(6, 2, 0, SegmentState.Crafting, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:07.384616"), "C minor", 32, 0.55, 130, "chain-1-segment-97898asdf7892.wav", new JSONObject());
     IntegrationTestEntity.insertSegmentMeme(101, 6, "Special");
     IntegrationTestEntity.insertSegmentMeme(102, 6, "Wild");
     IntegrationTestEntity.insertSegmentMeme(103, 6, "Pessimism");

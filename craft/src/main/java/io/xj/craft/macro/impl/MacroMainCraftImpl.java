@@ -68,6 +68,7 @@ public class MacroMainCraftImpl implements MacroMainCraft {
         .setEndAtTimestamp(segmentEndTimestamp()));
       craftChords();
       report();
+      basis.updateSegment();
 
     } catch (CraftException e) {
       throw e;
@@ -156,7 +157,7 @@ public class MacroMainCraftImpl implements MacroMainCraft {
 
           } catch (Exception e) {
             log.warn("failed to create transposed segment chord {}@{}",
-              String.valueOf(name), patternChord.getPosition(), e);
+              name, patternChord.getPosition(), e);
           }
         }
       });

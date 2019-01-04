@@ -14,9 +14,9 @@ gitcheck ${PWD}
 
 # Build all release artifacts
 #
-# UNLESS script is run with --nobuild
+# UNLESS script is run with --no-build
 #
-if [ "${1}" = "--nobuild" ]; then
+if [ "${1}" = "--no-build" ]; then
   step "Skipping build!"
   step_ok
 else

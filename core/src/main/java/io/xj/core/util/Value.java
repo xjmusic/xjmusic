@@ -17,7 +17,7 @@ public interface Value {
    @return incremented base
    */
   static BigInteger inc(BigInteger base, int delta) {
-    return base.add(BigInteger.valueOf((long) delta));
+    return base.add(BigInteger.valueOf(delta));
   }
 
   /**
@@ -82,5 +82,14 @@ public interface Value {
    */
   static double ratio(double value, double limit) {
     return Math.max(Math.min(1, value / limit), 0);
+  }
+
+  /**
+   Is value greater than or equal to zero?
+   @param value to check
+   @return true if greater than or equal to zero
+   */
+  static boolean isGreaterThanOrEqualToZero(BigInteger value) {
+    return 0 >= BigInteger.ZERO.compareTo(value);
   }
 }

@@ -22,6 +22,7 @@ import io.xj.dub.DubModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
+import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -135,17 +136,17 @@ public class DubMasterNextMainIT {
 
     // Chain "Test Print #1" has 5 total segments
     IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, null);
-    IntegrationTestEntity.insertSegment(1, 1, 0, SegmentState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120, "chain-1-segment-97898asdf7892.wav");
-    IntegrationTestEntity.insertSegment(2, 1, 1, SegmentState.Dubbing, Timestamp.valueOf("2017-02-14 12:01:32.000001"), Timestamp.valueOf("2017-02-14 12:02:04.000001"), "Db minor", 64, 0.85, 120, "chain-1-segment-97898asdf7892.wav");
+    IntegrationTestEntity.insertSegment(1, 1, 0, SegmentState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120, "chain-1-segment-97898asdf7892.wav", new JSONObject());
+    IntegrationTestEntity.insertSegment(2, 1, 1, SegmentState.Dubbing, Timestamp.valueOf("2017-02-14 12:01:32.000001"), Timestamp.valueOf("2017-02-14 12:02:04.000001"), "Db minor", 64, 0.85, 120, "chain-1-segment-97898asdf7892.wav", new JSONObject());
 
     // Chain "Test Print #1" has this segment that was just dubbed
-    IntegrationTestEntity.insertSegment(3, 1, 2, SegmentState.Dubbed, Timestamp.valueOf("2017-02-14 12:02:04.000001"), Timestamp.valueOf("2017-02-14 12:02:36.000001"), "F major", 64, 0.30, 120, "chain-1-segment-97898asdf7892.wav");
+    IntegrationTestEntity.insertSegment(3, 1, 2, SegmentState.Dubbed, Timestamp.valueOf("2017-02-14 12:02:04.000001"), Timestamp.valueOf("2017-02-14 12:02:36.000001"), "F major", 64, 0.30, 120, "chain-1-segment-97898asdf7892.wav", new JSONObject());
     IntegrationTestEntity.insertChoice(25, 3, 4, SequenceType.Macro, 0, 3);
     IntegrationTestEntity.insertChoice(26, 3, 5, SequenceType.Main, 1, -4);
     IntegrationTestEntity.insertChoice(27, 3, 35, SequenceType.Rhythm, 0, 5);
 
     // Chain "Test Print #1" has a segment in dubbing state - Structure is complete
-    segment4 = IntegrationTestEntity.insertSegment(4, 1, 3, SegmentState.Dubbing, Timestamp.valueOf("2017-02-14 12:03:08.000001"), Timestamp.valueOf("2017-02-14 12:03:15.836735"), "G minor", 16, 0.45, 125, "chain-1-segment-97898asdf7892.wav");
+    segment4 = IntegrationTestEntity.insertSegment(4, 1, 3, SegmentState.Dubbing, Timestamp.valueOf("2017-02-14 12:03:08.000001"), Timestamp.valueOf("2017-02-14 12:03:15.836735"), "G minor", 16, 0.45, 125, "chain-1-segment-97898asdf7892.wav", new JSONObject());
     IntegrationTestEntity.insertSegmentMeme(101,4,"Regret");
     IntegrationTestEntity.insertSegmentMeme(102,4,"Sky");
     IntegrationTestEntity.insertSegmentMeme(103,4,"Hindsight");

@@ -849,7 +849,7 @@ public class PatternIT {
     IntegrationTestEntity.insertPatternEvent(2063, 1, 2052, 0, 4.0, "Poom", "C3", 1.0, 1.0);
     IntegrationTestEntity.insertPatternEvent(2064, 1, 2052, 2.0, 4.0, "Paam", "F4", 1.0, 1.0);
     IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Ready, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"), null);
-    IntegrationTestEntity.insertSegment(1, 1, 0, SegmentState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120.0, "chain-1-segment-97898asdf7892.wav");
+    IntegrationTestEntity.insertSegment(1, 1, 0, SegmentState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120.0, "chain-1-segment-97898asdf7892.wav", new JSONObject());
     IntegrationTestEntity.insertInstrument(9, 1, 2, "jams", InstrumentType.Percussive, 0.6);
     IntegrationTestEntity.insertChoice(1, 1, 1, SequenceType.Main, 0, -5);
     IntegrationTestEntity.insertArrangement(1, 1, 2051, 9);

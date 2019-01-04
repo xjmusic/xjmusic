@@ -17,8 +17,10 @@ public class PickTest {
   public void validate() throws Exception {
     new Pick()
       .setArrangementId(BigInteger.valueOf(1269L))
-      .setMorphId(BigInteger.valueOf(6945L))
+      .setPatternEventId(BigInteger.valueOf(723L))
       .setAudioId(BigInteger.valueOf(6329L))
+      .setVoiceId(BigInteger.valueOf(782L))
+      .setInflection("TANG")
       .setStart(0.92)
       .setLength(2.7)
       .setAmplitude(0.84)
@@ -32,8 +34,10 @@ public class PickTest {
     failure.expectMessage("Arrangement ID is required");
 
     new Pick()
-      .setMorphId(BigInteger.valueOf(6945L))
+      .setPatternEventId(BigInteger.valueOf(723L))
       .setAudioId(BigInteger.valueOf(6329L))
+      .setVoiceId(BigInteger.valueOf(782L))
+      .setInflection("TANG")
       .setStart(0.92)
       .setLength(2.7)
       .setAmplitude(0.84)
@@ -42,10 +46,15 @@ public class PickTest {
   }
 
   @Test
-  public void validate_withoutMorphID() throws Exception {
+  public void validate_failsWithoutPatternEventID() throws Exception {
+    failure.expect(BusinessException.class);
+    failure.expectMessage("Pattern Event ID is required");
+
     new Pick()
       .setArrangementId(BigInteger.valueOf(1269L))
       .setAudioId(BigInteger.valueOf(6329L))
+      .setVoiceId(BigInteger.valueOf(782L))
+      .setInflection("TANG")
       .setStart(0.92)
       .setLength(2.7)
       .setAmplitude(0.84)
@@ -60,7 +69,26 @@ public class PickTest {
 
     new Pick()
       .setArrangementId(BigInteger.valueOf(1269L))
-      .setMorphId(BigInteger.valueOf(6945L))
+      .setPatternEventId(BigInteger.valueOf(723L))
+      .setVoiceId(BigInteger.valueOf(782L))
+      .setInflection("TANG")
+      .setStart(0.92)
+      .setLength(2.7)
+      .setAmplitude(0.84)
+      .setPitch(42.9)
+      .validate();
+  }
+
+  @Test
+  public void validate_failsWithoutVoiceID() throws Exception {
+    failure.expect(BusinessException.class);
+    failure.expectMessage("Voice ID is required");
+
+    new Pick()
+      .setArrangementId(BigInteger.valueOf(1269L))
+      .setPatternEventId(BigInteger.valueOf(723L))
+      .setAudioId(BigInteger.valueOf(6329L))
+      .setInflection("TANG")
       .setStart(0.92)
       .setLength(2.7)
       .setAmplitude(0.84)
@@ -75,8 +103,10 @@ public class PickTest {
 
     new Pick()
       .setArrangementId(BigInteger.valueOf(1269L))
-      .setMorphId(BigInteger.valueOf(6945L))
+      .setPatternEventId(BigInteger.valueOf(723L))
       .setAudioId(BigInteger.valueOf(6329L))
+      .setVoiceId(BigInteger.valueOf(782L))
+      .setInflection("TANG")
       .setLength(2.7)
       .setAmplitude(0.84)
       .setPitch(42.9)
@@ -90,8 +120,10 @@ public class PickTest {
 
     new Pick()
       .setArrangementId(BigInteger.valueOf(1269L))
-      .setMorphId(BigInteger.valueOf(6945L))
+      .setPatternEventId(BigInteger.valueOf(723L))
       .setAudioId(BigInteger.valueOf(6329L))
+      .setVoiceId(BigInteger.valueOf(782L))
+      .setInflection("TANG")
       .setStart(0.92)
       .setAmplitude(0.84)
       .setPitch(42.9)
@@ -105,8 +137,10 @@ public class PickTest {
 
     new Pick()
       .setArrangementId(BigInteger.valueOf(1269L))
-      .setMorphId(BigInteger.valueOf(6945L))
+      .setPatternEventId(BigInteger.valueOf(723L))
       .setAudioId(BigInteger.valueOf(6329L))
+      .setVoiceId(BigInteger.valueOf(782L))
+      .setInflection("TANG")
       .setStart(0.92)
       .setLength(2.7)
       .setPitch(42.9)
@@ -120,8 +154,10 @@ public class PickTest {
 
     new Pick()
       .setArrangementId(BigInteger.valueOf(1269L))
-      .setMorphId(BigInteger.valueOf(6945L))
+      .setPatternEventId(BigInteger.valueOf(723L))
       .setAudioId(BigInteger.valueOf(6329L))
+      .setVoiceId(BigInteger.valueOf(782L))
+      .setInflection("TANG")
       .setStart(0.92)
       .setLength(2.7)
       .setAmplitude(0.84)

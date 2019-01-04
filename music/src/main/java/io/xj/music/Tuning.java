@@ -16,19 +16,17 @@ import java.util.Objects;
  Reference: http://www.phy.mtu.edu/~suits/notefreqs.html
  */
 public class Tuning {
-  private static final double TWELFTH_ROOT_OF_TWO = Math.pow(2d, 1d / 12d);
-  private static final double NATURAL_LOGARITHM_OF_TWELFTH_ROOT_OF_TWO = Math.log(TWELFTH_ROOT_OF_TWO);
-  private static final double ROOT_PITCH_MINIMUM = 1d;
-  private static final double ROOT_PITCH_MAXIMUM = 100000d;
+  private static final double TWELFTH_ROOT_OF_TWO = StrictMath.pow(2.0d, 1.0d / 12.0d);
+  private static final double NATURAL_LOGARITHM_OF_TWELFTH_ROOT_OF_TWO = StrictMath.log(TWELFTH_ROOT_OF_TWO);
+  private static final double ROOT_PITCH_MINIMUM = 1.0d;
+  private static final double ROOT_PITCH_MAXIMUM = 100000.0d;
   private static final int ROOT_OCTAVE_MINIMUM = 0;
   private static final int ROOT_OCTAVE_MAXIMUM = 15;
-  private static final PitchClass ROOT_OCTAVE_PITCH_CLASS = PitchClass.C;
   private final Note rootNote;
   private final Double rootPitch;
-  //  private Map<Integer, Double> _pitches = Maps.newHashMap();
-  private Map<Integer, Map<PitchClass, Double>> _notePitches = Maps.newHashMap();
-  private Map<Double, Integer> _deltaFromRootPitch = Maps.newHashMap();
-  private Map<Double, Note> _pitchNotes = Maps.newHashMap();
+  private final Map<Integer, Map<PitchClass, Double>> _notePitches = Maps.newHashMap();
+  private final Map<Double, Integer> _deltaFromRootPitch = Maps.newHashMap();
+  private final Map<Double, Note> _pitchNotes = Maps.newHashMap();
 
   /**
    A `Tuning` instance, fixed to a given tuning of note A4, in Hz.
@@ -94,7 +92,7 @@ public class Tuning {
   public Integer deltaFromRootPitch(Double pitch) {
     if (!_deltaFromRootPitch.containsKey(pitch))
       _deltaFromRootPitch.put(pitch,
-        (int) (Math.log(pitch / rootPitch) / NATURAL_LOGARITHM_OF_TWELFTH_ROOT_OF_TWO));
+        (int) (StrictMath.log(pitch / rootPitch) / NATURAL_LOGARITHM_OF_TWELFTH_ROOT_OF_TWO));
 
     return _deltaFromRootPitch.get(pitch);
   }
@@ -106,7 +104,7 @@ public class Tuning {
    @return pitch
    */
   private Double pitchAtDelta(Integer delta) {
-    return rootPitch * Math.pow(TWELFTH_ROOT_OF_TWO, delta);
+    return rootPitch * StrictMath.pow(TWELFTH_ROOT_OF_TWO, delta);
   }
 
   /**
@@ -130,16 +128,16 @@ public class Tuning {
     if (Objects.isNull(rootPitch))
       throw new MusicalException("Must specify a root pitch (in Hz) for tuning");
 
-    if (!(rootPitch >= ROOT_PITCH_MINIMUM && rootPitch <= ROOT_PITCH_MAXIMUM))
+    if (!(ROOT_PITCH_MINIMUM <= rootPitch && ROOT_PITCH_MAXIMUM >= rootPitch))
       throw new MusicalException(
         String.format("Root pitch must be between %f and %f (Hz)",
           ROOT_PITCH_MINIMUM, ROOT_PITCH_MAXIMUM));
 
     if (Objects.isNull(rootNote.getPitchClass()) ||
-      rootNote.getPitchClass().equals(PitchClass.None))
+      PitchClass.None == rootNote.getPitchClass())
       throw new MusicalException("Root note must have a pitch class (e.g. 'C')");
 
-    if (!(rootNote.getOctave() >= ROOT_OCTAVE_MINIMUM && rootNote.getOctave() <= ROOT_OCTAVE_MAXIMUM))
+    if (!(ROOT_OCTAVE_MINIMUM <= rootNote.getOctave() && ROOT_OCTAVE_MAXIMUM >= rootNote.getOctave()))
       throw new MusicalException(
         String.format("Root note octave must be between %d and %d",
           ROOT_OCTAVE_MINIMUM, ROOT_OCTAVE_MAXIMUM));

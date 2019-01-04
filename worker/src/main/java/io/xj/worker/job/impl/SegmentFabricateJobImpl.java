@@ -5,14 +5,14 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import io.xj.core.access.impl.Access;
 import io.xj.core.config.Config;
-import io.xj.core.dao.*;
+import io.xj.core.dao.SegmentDAO;
+import io.xj.core.dao.SegmentMessageDAO;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.exception.ConfigException;
 import io.xj.core.model.message.MessageType;
 import io.xj.core.model.segment.Segment;
 import io.xj.core.model.segment.SegmentState;
 import io.xj.core.model.segment_message.SegmentMessage;
-import io.xj.core.util.Text;
 import io.xj.core.work.WorkManager;
 import io.xj.craft.CraftFactory;
 import io.xj.craft.basis.Basis;
@@ -63,6 +63,7 @@ public class SegmentFabricateJobImpl implements SegmentFabricateJob {
   @Override
   public void run() {
     try {
+      log.info("[segId={}] will read Segment for fabrication", entityId);
       segment = segmentDAO.readOne(Access.internal(), entityId);
     } catch (Exception e) {
       didFailWhile("retrieving", e);
@@ -75,6 +76,7 @@ public class SegmentFabricateJobImpl implements SegmentFabricateJob {
     }
 
     try {
+      log.info("[segId={}] will prepare basis", entityId);
       basis = basisFactory.createBasis(segment);
     } catch (ConfigException e) {
       didFailWhile("creating basis", e);
@@ -82,6 +84,7 @@ public class SegmentFabricateJobImpl implements SegmentFabricateJob {
     }
 
     try {
+      log.info("[segId={}] will do craft work", entityId);
       doCraftWork();
     } catch (Exception e) {
       didFailWhile("doing Craft work", e);
@@ -121,7 +124,7 @@ public class SegmentFabricateJobImpl implements SegmentFabricateJob {
    */
   private void finishWork() throws Exception {
     updateSegmentState(SegmentState.Dubbing, SegmentState.Dubbed);
-    basis.sendReport();
+    log.info("[segId={}] Worked for {} seconds", entityId, basis.elapsedSeconds());
   }
 
   /**
@@ -157,7 +160,7 @@ public class SegmentFabricateJobImpl implements SegmentFabricateJob {
    */
   private void didFailWhile(String message, Exception e) {
     createSegmentMessage(MessageType.Error, String.format("Failed while %s for Segment #%s:\n\n%s", message, entityId, e.getMessage()));
-    log.error("Failed while {} for Segment #{}: {}", message, entityId, e.getMessage());
+    log.error("[segId={}] Failed while {}", entityId, message, e);
   }
 
   /**
@@ -167,7 +170,7 @@ public class SegmentFabricateJobImpl implements SegmentFabricateJob {
    */
   private void didFailWhile(String message) {
     createSegmentMessage(MessageType.Error, String.format("Failed while %s for Segment #%s", message, entityId));
-    log.error("Failed while {} for Segment #{}", message, entityId);
+    log.error("[segId={}] Failed while {}", entityId, message);
   }
 
   /**
@@ -184,7 +187,7 @@ public class SegmentFabricateJobImpl implements SegmentFabricateJob {
           .setBody(body)
           .setType(type.toString()));
     } catch (Exception e) {
-      log.error("Could not create Segment Message", e);
+      log.error("[segId={}] Could not create Segment Message", entityId, e);
     }
   }
 
@@ -195,12 +198,12 @@ public class SegmentFabricateJobImpl implements SegmentFabricateJob {
    */
   private void updateSegmentState(SegmentState fromState, SegmentState toState) throws Exception {
     if (fromState != segment.getState()) {
-      log.error("{} requires Segment must be in {} state.", toState, fromState);
+      log.error("[segId={}] {} requires Segment must be in {} state.", entityId, toState, fromState);
       return;
     }
     segmentDAO.updateState(Access.internal(), segment.getId(), toState);
     segment.setStateEnum(toState);
-    log.info("{} Segment OK (id={})", toState, entityId);
+    log.info("[segId={}] Segment transitioned to state {} OK", entityId, toState);
   }
 
 }

@@ -1,6 +1,12 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.access.impl;
 
+import com.google.api.client.json.JsonFactory;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import io.xj.core.CoreModule;
 import io.xj.core.model.account.Account;
 import io.xj.core.model.account_user.AccountUser;
@@ -10,25 +16,16 @@ import io.xj.core.model.user_role.UserRole;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.transport.CSV;
 import io.xj.core.util.Text;
-
-import com.google.api.client.json.JsonFactory;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import javax.ws.rs.container.ContainerRequestContext;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -45,7 +42,9 @@ public class Access {
   private final JsonFactory jsonFactory = injector.getInstance(JsonFactory.class);
   private final Collection<UserRoleType> roleTypes;
   private final Collection<BigInteger> accountIds;
+  @Nullable
   private final BigInteger userId;
+  @Nullable
   private final BigInteger userAuthId;
 
   /**
@@ -138,42 +137,6 @@ public class Access {
   }
 
   /**
-   write a collection of ids to a CSV string
-
-   @param ids to write
-   @return CSV of ids
-   */
-  private static String csvFromIds(Collection<BigInteger> ids) {
-    if (Objects.isNull(ids) || ids.isEmpty()) {
-      return "";
-    }
-    Iterator<BigInteger> it = ids.iterator();
-    StringBuilder result = new StringBuilder(it.next().toString());
-    while (it.hasNext()) {
-      result.append(",").append(it.next());
-    }
-    return result.toString();
-  }
-
-  /**
-   write a collection of types to a CSV string
-
-   @param types to write
-   @return CSV of types
-   */
-  private static String csvFromRoleTypes(Collection<UserRoleType> types) {
-    if (Objects.isNull(types) || types.isEmpty()) {
-      return "";
-    }
-    Iterator<UserRoleType> it = types.iterator();
-    StringBuilder result = new StringBuilder(it.next().toString());
-    while (it.hasNext()) {
-      result.append(",").append(it.next());
-    }
-    return result.toString();
-  }
-
-  /**
    extract collection of role types from collection of user roles
 
    @param userRoles to get types from
@@ -231,7 +194,7 @@ public class Access {
     Collection<BigInteger> result = Lists.newArrayList();
 
     if (Objects.nonNull(csv) && !csv.isEmpty()) {
-      result = CSV.split(csv).stream().map(id -> new BigInteger((id))).collect(Collectors.toList());
+      result = CSV.split(csv).stream().map(BigInteger::new).collect(Collectors.toList());
     }
 
     return result;
@@ -253,22 +216,8 @@ public class Access {
    @param matchRoles of the resource to match.
    @return whether user access roles match resource access roles.
    */
-  public boolean isAllowed(UserRoleType... matchRoles) {
-    // inefficient?
-
-    return Arrays.stream(matchRoles).anyMatch(matchRole -> roleTypes.stream().anyMatch(userRoleType -> userRoleType == matchRole));
-  }
-
-  /**
-   Determine if user access roles match any of the given resource access roles.
-
-   @param matchRoles of the resource to match.
-   @return whether user access roles match resource access roles.
-   */
-  boolean isAllowed(String... matchRoles) {
-    // inefficient?
-
-    return Arrays.stream(matchRoles).anyMatch(matchRole -> roleTypes.stream().anyMatch(userRoleType -> userRoleType == UserRoleType.valueOf(matchRole)));
+  public <T> boolean isAllowed(T... matchRoles) {
+    return Arrays.stream(matchRoles).anyMatch(matchRole -> roleTypes.stream().anyMatch(userRoleType -> userRoleType == UserRoleType.valueOf(matchRole.toString())));
   }
 
   /**
@@ -276,6 +225,7 @@ public class Access {
 
    @return id
    */
+  @Nullable
   public BigInteger getUserId() {
     return userId;
   }
@@ -303,6 +253,7 @@ public class Access {
 
    @return user auth id
    */
+  @Nullable
   public BigInteger getUserAuthId() {
     return userAuthId;
   }
@@ -323,8 +274,7 @@ public class Access {
   public boolean isValid() {
     if (Objects.isNull(roleTypes) || roleTypes.isEmpty()) return false;
     if (Objects.isNull(userAuthId)) return false;
-    if (Objects.isNull(userId)) return false;
-    return true;
+    return !Objects.isNull(userId);
   }
 
   /**
@@ -367,10 +317,10 @@ public class Access {
       result.put(KEY_USER_AUTH_ID, userAuthId.toString());
 
     if (Objects.nonNull(roleTypes))
-      result.put(KEY_ROLE_TYPES, csvFromRoleTypes(roleTypes));
+      result.put(KEY_ROLE_TYPES, CSV.fromStringsOf(roleTypes));
 
     if (Objects.nonNull(accountIds))
-      result.put(KEY_ACCOUNT_IDS, csvFromIds(accountIds));
+      result.put(KEY_ACCOUNT_IDS, CSV.fromStringsOf(accountIds));
 
     return result;
   }

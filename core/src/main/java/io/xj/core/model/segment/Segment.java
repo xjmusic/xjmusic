@@ -5,6 +5,7 @@ import io.xj.core.exception.BusinessException;
 import io.xj.core.model.entity.Entity;
 import io.xj.core.util.TimestampUTC;
 import io.xj.core.util.Value;
+import org.json.JSONObject;
 
 import java.math.BigInteger;
 import java.sql.Timestamp;
@@ -42,6 +43,8 @@ public class Segment extends Entity {
   private Double density;
   private Double tempo;
   private String waveformKey;
+  private JSONObject basis = new JSONObject();
+
 
   public Segment() {
   }
@@ -70,6 +73,33 @@ public class Segment extends Entity {
 
   public SegmentState getState() {
     return state;
+  }
+
+  /**
+   [#162361525] read basis of prior Segment
+   */
+  public JSONObject getBasis() {
+    return basis;
+  }
+
+  /**
+   [#162361525] persist Segment basis as JSON
+
+   @return Segment for chaining setters
+   */
+  public Segment setBasis(JSONObject basis) {
+    this.basis = basis;
+    return this;
+  }
+
+  /**
+   [#162361525] persist Segment basis as JSON
+
+   @return Segment for chaining setters
+   */
+  public Segment setBasis(String basis) {
+    this.basis = new JSONObject(basis);
+    return this;
   }
 
   public Segment setState(String value) {

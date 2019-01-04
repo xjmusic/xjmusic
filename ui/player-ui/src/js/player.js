@@ -335,8 +335,12 @@ export class Player {
       self.segmentAudios.set(segmentId, segmentAudio);
     }
 
-    if (segmentAudio && segmentAudio.isPlaying()) {
-      self.transitionToState(PLAYING);
+    if (segmentAudio && segmentAudio.shouldBePlaying()) {
+      if (segmentAudio.isPlaying()) { // TODO work this out
+        self.transitionToState(PLAYING);
+      } else {
+        self.transitionToState(SYNCING);
+      }
 
       if (self.isDebugMode) {
         let URL = segmentBaseUrl + segment.waveformKey;

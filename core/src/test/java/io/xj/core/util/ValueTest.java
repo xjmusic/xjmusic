@@ -9,13 +9,15 @@ import org.junit.Test;
 import java.math.BigInteger;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class ValueTest {
   @Test
   public void eitherOr_Double() {
-    assertEquals(Double.valueOf(5.0), Value.eitherOr(Double.valueOf(5.0), null));
-    assertEquals(Double.valueOf(5.0), Value.eitherOr(null, Double.valueOf(5.0)));
-    assertEquals(Double.valueOf(5.0), Value.eitherOr(Double.valueOf(5.0), Double.valueOf(7.0)));
+    assertEquals(Double.valueOf(5.0), Value.eitherOr(5.0, null));
+    assertEquals(Double.valueOf(5.0), Value.eitherOr(null, 5.0));
+    assertEquals(Double.valueOf(5.0), Value.eitherOr(5.0, 7.0));
   }
 
   @Test
@@ -47,6 +49,13 @@ public class ValueTest {
   public void ratio() {
     assertEquals(0.0, Value.ratio(0.0,  5.0), 0.01);
     assertEquals(0.6, Value.ratio(3.0,  5.0),0.01);
+  }
+
+  @Test
+  public void isGreaterThanOrEqualToZero() {
+    assertTrue(Value.isGreaterThanOrEqualToZero(BigInteger.valueOf(27)));
+    assertTrue(Value.isGreaterThanOrEqualToZero(BigInteger.valueOf(0)));
+    assertFalse(Value.isGreaterThanOrEqualToZero(BigInteger.valueOf(-5)));
   }
 
 }

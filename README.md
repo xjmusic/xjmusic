@@ -299,7 +299,7 @@ Release as a zip file (e.g. target/xj-release-2016.12.05-UTC.00.37.07.zip) conta
 
     bin/release
     
-Note: `bin/release` relies on `bin/release_build` to pre-build the release, in order to facilitate manual partial rebuild. Run `bin/release --nobuild` to invoke without running the pre-build script.
+Note: `bin/release` relies on `bin/release_build` to pre-build the release, in order to facilitate manual partial rebuild. Run `bin/release --no-build` to invoke without running the pre-build script.
 
 The production deployment procedure is:
 

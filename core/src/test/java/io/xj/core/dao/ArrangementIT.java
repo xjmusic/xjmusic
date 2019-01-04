@@ -61,7 +61,7 @@ public class ArrangementIT {
 
     // Chain "Test Print #1" has one segment
     IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Ready, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"), null);
-    IntegrationTestEntity.insertSegment(1, 1, 0, SegmentState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120.0, "chain-1-segment-97898asdf7892.wav");
+    IntegrationTestEntity.insertSegment(1, 1, 0, SegmentState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120.0, "chain-1-segment-97898asdf7892.wav", new JSONObject());
 
     // Segment "Test Print #1" has 4 choices
     IntegrationTestEntity.insertChoice(7, 1, 1, SequenceType.Macro, 2, -5);
@@ -206,9 +206,9 @@ public class ArrangementIT {
    */
   @Test
   public void readAllInSegments_adminAccess() throws Exception {
-    IntegrationTestEntity.insertSegment(101, 1, 1, SegmentState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:30.000001"), Timestamp.valueOf("2017-02-14 12:01:40.000001"), "D major", 64, 0.73, 120.0, "chain-1-segment-97898asdf7892.wav");
-    IntegrationTestEntity.insertSegment(102, 1, 2, SegmentState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:40.000001"), Timestamp.valueOf("2017-02-14 12:01:50.000001"), "D major", 64, 0.73, 120.0, "chain-1-segment-97898asdf7892.wav");
-    IntegrationTestEntity.insertSegment(103, 1, 3, SegmentState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:50.000001"), Timestamp.valueOf("2017-02-14 12:02:00.000001"), "D major", 64, 0.73, 120.0, "chain-1-segment-97898asdf7892.wav");
+    IntegrationTestEntity.insertSegment(101, 1, 1, SegmentState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:30.000001"), Timestamp.valueOf("2017-02-14 12:01:40.000001"), "D major", 64, 0.73, 120.0, "chain-1-segment-97898asdf7892.wav", new JSONObject());
+    IntegrationTestEntity.insertSegment(102, 1, 2, SegmentState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:40.000001"), Timestamp.valueOf("2017-02-14 12:01:50.000001"), "D major", 64, 0.73, 120.0, "chain-1-segment-97898asdf7892.wav", new JSONObject());
+    IntegrationTestEntity.insertSegment(103, 1, 3, SegmentState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:50.000001"), Timestamp.valueOf("2017-02-14 12:02:00.000001"), "D major", 64, 0.73, 120.0, "chain-1-segment-97898asdf7892.wav", new JSONObject());
     IntegrationTestEntity.insertChoice(201, 101, 1, SequenceType.Macro, 2, -5);
     IntegrationTestEntity.insertChoice(202, 102, 1, SequenceType.Macro, 2, -5);
     IntegrationTestEntity.insertChoice(203, 103, 1, SequenceType.Macro, 2, -5);
@@ -231,9 +231,9 @@ public class ArrangementIT {
    */
   @Test
   public void readAllInSegments_regularUserAccess() throws Exception {
-    IntegrationTestEntity.insertSegment(101, 1, 1, SegmentState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:30.000001"), Timestamp.valueOf("2017-02-14 12:01:40.000001"), "D major", 64, 0.73, 120.0, "chain-1-segment-97898asdf7892.wav");
-    IntegrationTestEntity.insertSegment(102, 1, 2, SegmentState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:40.000001"), Timestamp.valueOf("2017-02-14 12:01:50.000001"), "D major", 64, 0.73, 120.0, "chain-1-segment-97898asdf7892.wav");
-    IntegrationTestEntity.insertSegment(103, 1, 3, SegmentState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:50.000001"), Timestamp.valueOf("2017-02-14 12:02:00.000001"), "D major", 64, 0.73, 120.0, "chain-1-segment-97898asdf7892.wav");
+    IntegrationTestEntity.insertSegment(101, 1, 1, SegmentState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:30.000001"), Timestamp.valueOf("2017-02-14 12:01:40.000001"), "D major", 64, 0.73, 120.0, "chain-1-segment-97898asdf7892.wav", new JSONObject());
+    IntegrationTestEntity.insertSegment(102, 1, 2, SegmentState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:40.000001"), Timestamp.valueOf("2017-02-14 12:01:50.000001"), "D major", 64, 0.73, 120.0, "chain-1-segment-97898asdf7892.wav", new JSONObject());
+    IntegrationTestEntity.insertSegment(103, 1, 3, SegmentState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:50.000001"), Timestamp.valueOf("2017-02-14 12:02:00.000001"), "D major", 64, 0.73, 120.0, "chain-1-segment-97898asdf7892.wav", new JSONObject());
     IntegrationTestEntity.insertChoice(201, 101, 1, SequenceType.Macro, 2, -5);
     IntegrationTestEntity.insertChoice(202, 102, 1, SequenceType.Macro, 2, -5);
     IntegrationTestEntity.insertChoice(203, 103, 1, SequenceType.Macro, 2, -5);
@@ -257,15 +257,15 @@ public class ArrangementIT {
    */
   @Test
   public void readAllInSegments_regularUserAccess_failsIfSegmentOutsideAccount() throws Exception {
-    IntegrationTestEntity.insertSegment(101, 1, 1, SegmentState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:30.000001"), Timestamp.valueOf("2017-02-14 12:01:40.000001"), "D major", 64, 0.73, 120.0, "chain-1-segment-97898asdf7892.wav");
-    IntegrationTestEntity.insertSegment(102, 1, 2, SegmentState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:40.000001"), Timestamp.valueOf("2017-02-14 12:01:50.000001"), "D major", 64, 0.73, 120.0, "chain-1-segment-97898asdf7892.wav");
+    IntegrationTestEntity.insertSegment(101, 1, 1, SegmentState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:30.000001"), Timestamp.valueOf("2017-02-14 12:01:40.000001"), "D major", 64, 0.73, 120.0, "chain-1-segment-97898asdf7892.wav", new JSONObject());
+    IntegrationTestEntity.insertSegment(102, 1, 2, SegmentState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:40.000001"), Timestamp.valueOf("2017-02-14 12:01:50.000001"), "D major", 64, 0.73, 120.0, "chain-1-segment-97898asdf7892.wav", new JSONObject());
     IntegrationTestEntity.insertChoice(201, 101, 1, SequenceType.Macro, 2, -5);
     IntegrationTestEntity.insertChoice(202, 102, 1, SequenceType.Macro, 2, -5);
     IntegrationTestEntity.insertArrangement(301, 201, 8, 9);
     IntegrationTestEntity.insertArrangement(302, 202, 8, 9);
     IntegrationTestEntity.insertAccount(79, "Account that user does not have access to");
     IntegrationTestEntity.insertChain(7903, 79, "chain that user does not have access to", ChainType.Production, ChainState.Ready, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"), null);
-    IntegrationTestEntity.insertSegment(7003, 7903, 3, SegmentState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:50.000001"), Timestamp.valueOf("2017-02-14 12:02:00.000001"), "D major", 64, 0.73, 120.0, "chain-1-segment-97898asdf7892.wav");
+    IntegrationTestEntity.insertSegment(7003, 7903, 3, SegmentState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:50.000001"), Timestamp.valueOf("2017-02-14 12:02:00.000001"), "D major", 64, 0.73, 120.0, "chain-1-segment-97898asdf7892.wav", new JSONObject());
     IntegrationTestEntity.insertChoice(8003, 7003, 1, SequenceType.Macro, 2, -5);
     IntegrationTestEntity.insertArrangement(9003, 8003, 8, 9);
     Access access = new Access(ImmutableMap.of(

@@ -30,6 +30,7 @@ import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 
 import org.json.JSONArray;
+import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -55,8 +56,10 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SegmentIT {
-  @Rule public ExpectedException failure = ExpectedException.none();
-  @Mock AmazonProvider amazonProvider;
+  @Rule
+  public ExpectedException failure = ExpectedException.none();
+  @Mock
+  AmazonProvider amazonProvider;
   private Injector injector;
   private SegmentDAO testDAO;
 
@@ -75,11 +78,11 @@ public class SegmentIT {
     IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, null);
 
     // Chain "Test Print #1" has 5 sequential segments
-    IntegrationTestEntity.insertSegment(1, 1, 0, SegmentState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120.0, "chain-1-segment-97898asdf7892.wav");
-    IntegrationTestEntity.insertSegment(2, 1, 1, SegmentState.Dubbing, Timestamp.valueOf("2017-02-14 12:01:32.000001"), Timestamp.valueOf("2017-02-14 12:02:04.000001"), "Db minor", 64, 0.85, 120.0, "chain-1-segment-97898asdf7892.wav");
-    IntegrationTestEntity.insertSegment(3, 1, 2, SegmentState.Crafted, Timestamp.valueOf("2017-02-14 12:02:04.000001"), Timestamp.valueOf("2017-02-14 12:02:36.000001"), "F major", 64, 0.30, 120.0, "chain-1-segment-97898asdf7892.wav");
-    IntegrationTestEntity.insertSegment(4, 1, 3, SegmentState.Crafting, Timestamp.valueOf("2017-02-14 12:02:36.000001"), Timestamp.valueOf("2017-02-14 12:03:08.000001"), "E minor", 64, 0.41, 120.0, "chain-1-segment-97898asdf7892.wav");
-    IntegrationTestEntity.insertSegment_Planned(5, 1, 4, Timestamp.valueOf("2017-02-14 12:03:08.000001"));
+    IntegrationTestEntity.insertSegment(1, 1, 0, SegmentState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120.0, "chain-1-segment-97898asdf7892.wav", new JSONObject());
+    IntegrationTestEntity.insertSegment(2, 1, 1, SegmentState.Dubbing, Timestamp.valueOf("2017-02-14 12:01:32.000001"), Timestamp.valueOf("2017-02-14 12:02:04.000001"), "Db minor", 64, 0.85, 120.0, "chain-1-segment-97898asdf7892.wav", new JSONObject());
+    IntegrationTestEntity.insertSegment(3, 1, 2, SegmentState.Crafted, Timestamp.valueOf("2017-02-14 12:02:04.000001"), Timestamp.valueOf("2017-02-14 12:02:36.000001"), "F major", 64, 0.30, 120.0, "chain-1-segment-97898asdf7892.wav", new JSONObject());
+    IntegrationTestEntity.insertSegment(4, 1, 3, SegmentState.Crafting, Timestamp.valueOf("2017-02-14 12:02:36.000001"), Timestamp.valueOf("2017-02-14 12:03:08.000001"), "E minor", 64, 0.41, 120.0, "chain-1-segment-97898asdf7892.wav", new JSONObject());
+    IntegrationTestEntity.insertSegment_Planned(5, 1, 4, Timestamp.valueOf("2017-02-14 12:03:08.000001"), new JSONObject());
 
     // Instantiate the test subject
     testDAO = injector.getInstance(SegmentDAO.class);
@@ -337,11 +340,11 @@ public class SegmentIT {
   @Test
   public void readAll_byChainEmbedKey() throws Exception {
     IntegrationTestEntity.insertChain(5, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, "JamSandwich");
-    IntegrationTestEntity.insertSegment(51, 5, 0, SegmentState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120.0, "chain-1-segment-97898asdf7892.wav");
-    IntegrationTestEntity.insertSegment(52, 5, 1, SegmentState.Dubbing, Timestamp.valueOf("2017-02-14 12:01:32.000001"), Timestamp.valueOf("2017-02-14 12:02:04.000001"), "Db minor", 64, 0.85, 120.0, "chain-1-segment-97898asdf7892.wav");
-    IntegrationTestEntity.insertSegment(53, 5, 2, SegmentState.Crafted, Timestamp.valueOf("2017-02-14 12:02:04.000001"), Timestamp.valueOf("2017-02-14 12:02:36.000001"), "F major", 64, 0.30, 120.0, "chain-1-segment-97898asdf7892.wav");
-    IntegrationTestEntity.insertSegment(54, 5, 3, SegmentState.Crafting, Timestamp.valueOf("2017-02-14 12:02:36.000001"), Timestamp.valueOf("2017-02-14 12:03:08.000001"), "E minor", 64, 0.41, 120.0, "chain-1-segment-97898asdf7892.wav");
-    IntegrationTestEntity.insertSegment_Planned(55, 5, 4, Timestamp.valueOf("2017-02-14 12:03:08.000001"));
+    IntegrationTestEntity.insertSegment(51, 5, 0, SegmentState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120.0, "chain-1-segment-97898asdf7892.wav", new JSONObject());
+    IntegrationTestEntity.insertSegment(52, 5, 1, SegmentState.Dubbing, Timestamp.valueOf("2017-02-14 12:01:32.000001"), Timestamp.valueOf("2017-02-14 12:02:04.000001"), "Db minor", 64, 0.85, 120.0, "chain-1-segment-97898asdf7892.wav", new JSONObject());
+    IntegrationTestEntity.insertSegment(53, 5, 2, SegmentState.Crafted, Timestamp.valueOf("2017-02-14 12:02:04.000001"), Timestamp.valueOf("2017-02-14 12:02:36.000001"), "F major", 64, 0.30, 120.0, "chain-1-segment-97898asdf7892.wav", new JSONObject());
+    IntegrationTestEntity.insertSegment(54, 5, 3, SegmentState.Crafting, Timestamp.valueOf("2017-02-14 12:02:36.000001"), Timestamp.valueOf("2017-02-14 12:03:08.000001"), "E minor", 64, 0.41, 120.0, "chain-1-segment-97898asdf7892.wav", new JSONObject());
+    IntegrationTestEntity.insertSegment_Planned(55, 5, 4, Timestamp.valueOf("2017-02-14 12:03:08.000001"), new JSONObject());
 
     Collection<Segment> result = testDAO.readAll("JamSandwich");
 
@@ -412,11 +415,11 @@ public class SegmentIT {
   @Test
   public void readAllFromOffset_byChainEmbedKey() throws Exception {
     IntegrationTestEntity.insertChain(5, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, "JamSandwich");
-    IntegrationTestEntity.insertSegment(51, 5, 0, SegmentState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120.0, "chain-1-segment-97898asdf7892.wav");
-    IntegrationTestEntity.insertSegment(52, 5, 1, SegmentState.Dubbing, Timestamp.valueOf("2017-02-14 12:01:32.000001"), Timestamp.valueOf("2017-02-14 12:02:04.000001"), "Db minor", 64, 0.85, 120.0, "chain-1-segment-97898asdf7892.wav");
-    IntegrationTestEntity.insertSegment(53, 5, 2, SegmentState.Crafted, Timestamp.valueOf("2017-02-14 12:02:04.000001"), Timestamp.valueOf("2017-02-14 12:02:36.000001"), "F major", 64, 0.30, 120.0, "chain-1-segment-97898asdf7892.wav");
-    IntegrationTestEntity.insertSegment(54, 5, 3, SegmentState.Crafting, Timestamp.valueOf("2017-02-14 12:02:36.000001"), Timestamp.valueOf("2017-02-14 12:03:08.000001"), "E minor", 64, 0.41, 120.0, "chain-1-segment-97898asdf7892.wav");
-    IntegrationTestEntity.insertSegment_Planned(55, 5, 4, Timestamp.valueOf("2017-02-14 12:03:08.000001"));
+    IntegrationTestEntity.insertSegment(51, 5, 0, SegmentState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120.0, "chain-1-segment-97898asdf7892.wav", new JSONObject());
+    IntegrationTestEntity.insertSegment(52, 5, 1, SegmentState.Dubbing, Timestamp.valueOf("2017-02-14 12:01:32.000001"), Timestamp.valueOf("2017-02-14 12:02:04.000001"), "Db minor", 64, 0.85, 120.0, "chain-1-segment-97898asdf7892.wav", new JSONObject());
+    IntegrationTestEntity.insertSegment(53, 5, 2, SegmentState.Crafted, Timestamp.valueOf("2017-02-14 12:02:04.000001"), Timestamp.valueOf("2017-02-14 12:02:36.000001"), "F major", 64, 0.30, 120.0, "chain-1-segment-97898asdf7892.wav", new JSONObject());
+    IntegrationTestEntity.insertSegment(54, 5, 3, SegmentState.Crafting, Timestamp.valueOf("2017-02-14 12:02:36.000001"), Timestamp.valueOf("2017-02-14 12:03:08.000001"), "E minor", 64, 0.41, 120.0, "chain-1-segment-97898asdf7892.wav", new JSONObject());
+    IntegrationTestEntity.insertSegment_Planned(55, 5, 4, Timestamp.valueOf("2017-02-14 12:03:08.000001"), new JSONObject());
 
     Collection<Segment> result = testDAO.readAllFromOffset("JamSandwich", BigInteger.valueOf(2L));
 
@@ -461,11 +464,11 @@ public class SegmentIT {
   @Test
   public void readAllFromSecondsUTC_byChainEmbedKey() throws Exception {
     IntegrationTestEntity.insertChain(5, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, "JamSandwich");
-    IntegrationTestEntity.insertSegment(51, 5, 0, SegmentState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120.0, "chain-1-segment-97898asdf7892.wav");
-    IntegrationTestEntity.insertSegment(52, 5, 1, SegmentState.Dubbing, Timestamp.valueOf("2017-02-14 12:01:32.000001"), Timestamp.valueOf("2017-02-14 12:02:04.000001"), "Db minor", 64, 0.85, 120.0, "chain-1-segment-97898asdf7892.wav");
-    IntegrationTestEntity.insertSegment(53, 5, 2, SegmentState.Crafted, Timestamp.valueOf("2017-02-14 12:02:04.000001"), Timestamp.valueOf("2017-02-14 12:02:36.000001"), "F major", 64, 0.30, 120.0, "chain-1-segment-97898asdf7892.wav");
-    IntegrationTestEntity.insertSegment(54, 5, 3, SegmentState.Crafting, Timestamp.valueOf("2017-02-14 12:02:36.000001"), Timestamp.valueOf("2017-02-14 12:03:08.000001"), "E minor", 64, 0.41, 120.0, "chain-1-segment-97898asdf7892.wav");
-    IntegrationTestEntity.insertSegment_Planned(55, 5, 4, Timestamp.valueOf("2017-02-14 12:03:08.000001"));
+    IntegrationTestEntity.insertSegment(51, 5, 0, SegmentState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120.0, "chain-1-segment-97898asdf7892.wav", new JSONObject());
+    IntegrationTestEntity.insertSegment(52, 5, 1, SegmentState.Dubbing, Timestamp.valueOf("2017-02-14 12:01:32.000001"), Timestamp.valueOf("2017-02-14 12:02:04.000001"), "Db minor", 64, 0.85, 120.0, "chain-1-segment-97898asdf7892.wav", new JSONObject());
+    IntegrationTestEntity.insertSegment(53, 5, 2, SegmentState.Crafted, Timestamp.valueOf("2017-02-14 12:02:04.000001"), Timestamp.valueOf("2017-02-14 12:02:36.000001"), "F major", 64, 0.30, 120.0, "chain-1-segment-97898asdf7892.wav", new JSONObject());
+    IntegrationTestEntity.insertSegment(54, 5, 3, SegmentState.Crafting, Timestamp.valueOf("2017-02-14 12:02:36.000001"), Timestamp.valueOf("2017-02-14 12:03:08.000001"), "E minor", 64, 0.41, 120.0, "chain-1-segment-97898asdf7892.wav", new JSONObject());
+    IntegrationTestEntity.insertSegment_Planned(55, 5, 4, Timestamp.valueOf("2017-02-14 12:03:08.000001"), new JSONObject());
 
     Collection<Segment> result = testDAO.readAllFromSecondsUTC("JamSandwich", BigInteger.valueOf(1487102524L));
 
@@ -551,6 +554,35 @@ public class SegmentIT {
     assertEquals(SegmentState.Dubbed, result.getState());
     assertEquals(Timestamp.valueOf("1995-04-28 11:23:00.000001"), result.getBeginAt());
     assertEquals(Timestamp.valueOf("1995-04-28 11:23:32.000001"), result.getEndAt());
+  }
+
+  /**
+   [#162361525] persist Segment basis as JSON, then read prior Segment JSON
+   */
+  @Test
+  public void persistPriorSegmentBasis() throws Exception {
+    Access access = new Access(ImmutableMap.of(
+      "roles", "Admin"
+    ));
+    JSONObject basis = new JSONObject();
+    basis.put("funky", "chicken");
+    Segment inputData = new Segment()
+      .setBasis(basis)
+      .setChainId(BigInteger.valueOf(1L))
+      .setOffset(BigInteger.valueOf(5L))
+      .setState("Dubbed")
+      .setBeginAt("1995-04-28 11:23:00.000001")
+      .setEndAt("1995-04-28 11:23:32.000001")
+      .setTotal(64)
+      .setDensity(0.74)
+      .setKey("C# minor 7 b9")
+      .setTempo(120.0);
+
+    testDAO.update(access, BigInteger.valueOf(2L), inputData);
+
+    Segment result = testDAO.readOne(Access.internal(), BigInteger.valueOf(2L));
+    assertNotNull(result);
+    assertEquals("chicken", result.getBasis().get("funky"));
   }
 
   @Test
@@ -694,7 +726,7 @@ public class SegmentIT {
 
     // Chain "Test Print #1" has one segment
     IntegrationTestEntity.insertChain(3, 1, "Test Print #1", ChainType.Production, ChainState.Erase, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"), null);
-    IntegrationTestEntity.insertSegment(17, 3, 0, SegmentState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120.0, "chain-1-segment-97898asdf7892.ogg");
+    IntegrationTestEntity.insertSegment(17, 3, 0, SegmentState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120.0, "chain-1-segment-97898asdf7892.ogg", new JSONObject());
 
     // Segment Meme
     IntegrationTestEntity.insertSegmentMeme(25, 17, "Jams");

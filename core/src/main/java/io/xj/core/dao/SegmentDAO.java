@@ -68,6 +68,16 @@ public interface SegmentDAO extends DAO<Segment> {
   Collection<Segment> readAllFromToOffset(Access access, BigInteger chainId, BigInteger fromOffset, BigInteger toOffset) throws Exception;
 
   /**
+   Read all Segments in a specified state
+
+   @param access  control
+   @param chainId to read segments in
+   @param state   of segments to read
+   @return segments
+   */
+  Collection<Segment> readAllInState(Access access, BigInteger chainId, SegmentState state) throws Exception;
+
+  /**
    Read all Segments that are accessible, by Chain Embed Key, starting at a particular offset
    limit max # of segments readable at once in environment configuration
    [#150279540] Unauthenticated public Client wants to access a Chain by embed key (as alias for chain id) in order to provide data for playback.
@@ -99,7 +109,7 @@ public interface SegmentDAO extends DAO<Segment> {
    <p>
    [#150279540] Unauthenticated public Client wants to access a Chain by embed key (as alias for chain id) in order to provide data for playback.
 
-   @param chainEmbedKey        to read all segments from
+   @param chainEmbedKey  to read all segments from
    @param fromSecondsUTC to read segments from
    @return array of segments as JSON
    @throws Exception on failure
@@ -115,12 +125,13 @@ public interface SegmentDAO extends DAO<Segment> {
   void updateState(Access access, BigInteger id, SegmentState state) throws Exception;
 
   /**
-    Reverts a segment in Planned state, by destroying all its child entities. Only the segment messages remain, for purposes of debugging.
+   Reverts a segment in Planned state, by destroying all its child entities. Only the segment messages remain, for purposes of debugging.
    [#158610991] Engineer wants a Segment to be reverted, and re-queued for fabrication, in the event that such a Segment has just failed its fabrication process, in order to ensure Chain fabrication fault tolerance
 
    @param access control
-   @param id of segment to revert
+   @param id     of segment to revert
    @throws Exception on failure
    */
   void revert(Access access, BigInteger id) throws Exception;
+
 }

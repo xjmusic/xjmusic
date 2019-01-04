@@ -1,13 +1,13 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.dao.impl;
 
+import com.google.common.collect.Lists;
 import io.xj.core.access.impl.Access;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.model.entity.Entity;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import io.xj.core.util.CamelCasify;
-
 import org.jooq.DSLContext;
 import org.jooq.Field;
 import org.jooq.Record;
@@ -15,9 +15,6 @@ import org.jooq.Table;
 import org.jooq.UpdatableRecord;
 import org.jooq.impl.DSL;
 import org.jooq.types.ULong;
-
-import com.google.common.collect.Lists;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -167,13 +164,13 @@ public class DAOImpl {
    @throws BusinessException if not isNonNull
    */
   static void requireExistsAnyOf(String message, int... counts) throws BusinessException {
-    Boolean exists = false;
+    boolean missing = true;
     for (int count : counts) {
       if (0 < count) {
-        exists = true;
+        missing = false;
       }
     }
-    if (!exists) {
+    if (missing) {
       throw new BusinessException(message);
     }
   }

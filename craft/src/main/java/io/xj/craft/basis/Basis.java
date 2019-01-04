@@ -18,6 +18,7 @@ import io.xj.craft.ingest.Ingest;
 import io.xj.craft.isometry.MemeIsometry;
 import io.xj.music.Chord;
 import io.xj.music.Note;
+import org.json.JSONObject;
 
 import javax.annotation.Nullable;
 import javax.sound.sampled.AudioFormat;
@@ -388,24 +389,34 @@ public interface Basis {
   /**
    Update the original Segment submitted for craft,
    cache it in the internal in-memory object, and persisted in the database
+   [#162361525] ALWAYS persist Segment basis as JSON when work is performed
 
    @param segment Segment to replace current segment, and update database with
    */
   void updateSegment(Segment segment) throws Exception;
 
   /**
+   Update the original Segment submitted for craft,
+   cache it in the internal in-memory object, and persisted in the database
+   [#162361525] ALWAYS persist Segment basis as JSON when work is performed
+   [#162361534] musical evolution depends on segments that continue the use of a main sequence
+   */
+  void updateSegment() throws Exception;
+
+  /**
+   [#162361525] Segment basis is persisted as JSON
+   [#162999779] report is contained in a sub-field of the standard basis JSON
+   */
+  JSONObject toJSONObject();
+
+  /**
    Put a key-value pair into the report
+   [#162999779] only exports data as a sub-field of the standard basis JSON
 
    @param key   to put
    @param value to put
    */
   void report(String key, String value);
-
-  /**
-   Send the final report of craft process, as a segment message
-   build YAML and create Segment Message
-   */
-  void sendReport();
 
   /**
    Microseconds from seconds
@@ -485,6 +496,13 @@ public interface Basis {
   Sequence sequence(BigInteger id) throws Exception;
 
   /**
+   [#162361534] Artist wants segments that continue the use of a main sequence to make the exact same instrument audio assignments, in order to further reign in the randomness, and use very slow evolution of percussive possibilities.
+
+   @return map of all previous segment meme constellations (as keys) to a collection of picks extracted from their basis JSON
+   */
+  Map<String, Collection<Pick>> previousSegmentMemeConstellationPicks() throws Exception;
+
+  /**
    Compute the pattern-meme constellations of any previous segments which selected the same main sequence
    <p>
    [#161736024] to compute unique constellations for prior segments with the same main sequence
@@ -501,4 +519,10 @@ public interface Basis {
    @return map of all previous segment meme constellations (as keys) to a collection of arrangements made
    */
   Map<String, Collection<Arrangement>> previousSegmentMemeConstellationArrangements() throws Exception;
+
+  /**
+   @return Seconds elapsed since basis was instantiated
+   */
+  Double elapsedSeconds();
+
 }

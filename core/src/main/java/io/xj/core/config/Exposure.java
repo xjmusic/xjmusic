@@ -45,18 +45,26 @@ public interface Exposure {
   String KEY_AUDIO_BASE_URL = "audioBaseUrl";
   String KEY_BASE_URL = "baseUrl";
   String KEY_CHAIN_CONFIG_TYPES = "chainConfigTypes";
+  String KEY_CHAIN_CONFIGS = "chainConfigs";
   String KEY_CHAIN_STATES = "chainStates";
   String KEY_CHAIN_TYPES = "chainTypes";
   String KEY_CHOICE_TYPES = "choiceTypes";
   String KEY_CONFIG = "config";
-  String KEY_SEQUENCE_TYPES = "sequenceTypes";
   String KEY_INSTRUMENT_TYPES = "instrumentTypes";
+  String KEY_PATTERN_DETAIL_TYPES = "patternDetailTypes";
+  String KEY_PATTERN_TYPES = "patternTypes";
+  String KEY_PICKS = "picks";
+  String KEY_REPORT = "report";
   String KEY_SEGMENT_BASE_URL = "segmentBaseUrl";
   String KEY_SEGMENT_STATES = "segmentStates";
+  String KEY_SEQUENCE_TYPES = "sequenceTypes";
   String KEY_STATS = "stats";
   String KEY_VOICE_TYPES = "voiceTypes";
-  String KEY_PATTERN_TYPES = "patternTypes";
-  String KEY_PATTERN_DETAIL_TYPES = "patternDetailTypes";
+  String KEY_TYPE = "type";
+  String KEY_CHOICES = "choices";
+  String KEY_ARRANGEMENTS = "arrangements";
+  String KEY_SEGMENT_MEMES = "segmentMemes";
+  String KEY_SEGMENT_CHORDS = "segmentsChords";
 
   /**
    Get URL String for an audio file, by key

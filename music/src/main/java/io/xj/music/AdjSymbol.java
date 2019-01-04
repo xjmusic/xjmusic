@@ -27,20 +27,20 @@ public enum AdjSymbol {
    @param name to get adjustment symbol of
    @return adjustment symbol
    */
-  public static AdjSymbol of(String name) {
+  public static AdjSymbol of(CharSequence name) {
     int numSharps = countMatches(rgxSharpIn.matcher(name));
     int numFlats = countMatches(rgxFlatIn.matcher(name));
     int numSharpish = countMatches(rgxSharpishIn.matcher(name));
     int numFlattish = countMatches(rgxFlattishIn.matcher(name));
 
     // sharp/flat has precedent over sharpish/flattish; overall default is sharp
-    if (numSharps > 0 && numSharps > numFlats)
+    if (0 < numSharps && numSharps > numFlats)
       return Sharp;
-    else if (numFlats > 0)
+    else if (0 < numFlats)
       return Flat;
-    else if (numSharpish > 0 && numSharpish > numFlattish)
+    else if (0 < numSharpish && numSharpish > numFlattish)
       return Sharp;
-    else if (numFlattish > 0)
+    else if (0 < numFlattish)
       return Flat;
     else
       return Sharp;
@@ -65,7 +65,7 @@ public enum AdjSymbol {
    @param name to get adjustment symbol from the beginning of
    @return adjustment symbol
    */
-  public static AdjSymbol firstOf(String name) {
+  public static AdjSymbol firstOf(CharSequence name) {
     if (rgxSharpBegin.matcher(name).find())
       return Sharp;
     else if (rgxFlatBegin.matcher(name).find())

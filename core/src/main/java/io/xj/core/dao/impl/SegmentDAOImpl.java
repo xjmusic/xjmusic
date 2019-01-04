@@ -27,7 +27,11 @@ import javax.annotation.Nullable;
 import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.*;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static io.xj.core.Tables.SEGMENT_MEME;
@@ -234,6 +238,27 @@ public class SegmentDAOImpl extends DAOImpl implements SegmentDAO {
   }
 
   /**
+   Read all records in parent by id, beginning and ending at particular offsets
+
+   @param db      context
+   @param access  control
+   @param chainId of parent
+   @param state   of segments to read
+   @return array of records
+   */
+  private static Collection<Segment> readAllInState(DSLContext db, Access access, ULong chainId, SegmentState state) throws BusinessException {
+    requireTopLevel(access);
+
+    return modelsFrom(db.select(SEGMENT.fields())
+      .from(SEGMENT)
+      .where(SEGMENT.CHAIN_ID.eq(chainId))
+      .and(SEGMENT.STATE.eq(state.toString()))
+      .orderBy(SEGMENT.OFFSET.desc())
+      .limit(Config.limitSegmentReadSize())
+      .fetch(), Segment.class);
+  }
+
+  /**
    Read all records in parent by id, beginning at a particular offset
    <p>
    [#150279540] Unauthenticated public Client wants to access a Chain by embed key (as alias for chain id) in order to provide data for playback.
@@ -372,9 +397,9 @@ public class SegmentDAOImpl extends DAOImpl implements SegmentDAO {
    Reverts a segment in Planned state, by destroying all its child entities. Only the segment messages remain, for purposes of debugging.
    [#158610991] Engineer wants a Segment to be reverted, and re-queued for fabrication, in the event that such a Segment has just failed its fabrication process, in order to ensure Chain fabrication fault tolerance
 
-   @param db     context
-   @param access control
-   @param segmentId     of record
+   @param db        context
+   @param access    control
+   @param segmentId of record
    @throws BusinessException if a Business Rule is violated
    */
   private static void revert(DSLContext db, Access access, ULong segmentId) throws Exception {
@@ -467,6 +492,7 @@ public class SegmentDAOImpl extends DAOImpl implements SegmentDAO {
    */
   private static Map<Field, Object> fieldValueMap(Segment entity) {
     Map<Field, Object> fieldValues = Maps.newHashMap();
+    fieldValues.put(SEGMENT.BASIS, entity.getBasis().toString());
     fieldValues.put(SEGMENT.STATE, entity.getState());
     fieldValues.put(SEGMENT.BEGIN_AT, entity.getBeginAt());
     fieldValues.put(SEGMENT.END_AT, valueOrNull(entity.getEndAt()));
@@ -556,6 +582,16 @@ public class SegmentDAOImpl extends DAOImpl implements SegmentDAO {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readAllFromToOffset(tx.getContext(), access, ULong.valueOf(chainId), ULong.valueOf(fromOffset), ULong.valueOf(toOffset)));
+    } catch (Exception e) {
+      throw tx.failure(e);
+    }
+  }
+
+  @Override
+  public Collection<Segment> readAllInState(Access access, BigInteger chainId, SegmentState state) throws Exception {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readAllInState(tx.getContext(), access, ULong.valueOf(chainId), state));
     } catch (Exception e) {
       throw tx.failure(e);
     }

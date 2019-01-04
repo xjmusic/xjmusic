@@ -7,26 +7,29 @@
 MYSQL_USER="root"
 MYSQL_PORT=3300
 
+# User ID is first parameter
+USER_ID="${1}"
+if [[ -z "${USER_ID}" ]]; then
+  USER_ID=1;
+fi
+
 # Update user auth
-MYSQL_EXECUTE="update xj.user_auth set user_id=1;"
+MYSQL_EXECUTE="update xj.user_auth set user_id=${USER_ID};"
 
 # Find MySQL executable
 MYSQL_COMMAND=mysql
-if [ -f /usr/bin/mysql ]; then
+if [[ -f /usr/bin/mysql ]]; then
     MYSQL_COMMAND=/usr/bin/mysql
-elif [ -f /usr/local/mysql/bin/mysql ]; then
+elif [[ -f /usr/local/mysql/bin/mysql ]]; then
     MYSQL_COMMAND=/usr/local/mysql/bin/mysql
 fi
-
-# Host Arguments
-MYSQL_ARGS="${@}"
 
 # Database
 MYSQL_DB="xj"
 
 # connect to ${HOST}
-step "Client SQL execution"
-${MYSQL_COMMAND} -u${MYSQL_USER} -h 127.0.0.1 -P ${MYSQL_PORT} ${MYSQL_ARGS} -e "${MYSQL_EXECUTE}"
+step "Will update all user_auth records to user_id=${USER_ID}"
+${MYSQL_COMMAND} -u${MYSQL_USER} -h 127.0.0.1 -P ${MYSQL_PORT} -e "${MYSQL_EXECUTE}"
 step_ok
 
 #

@@ -52,6 +52,7 @@ import io.xj.core.tables.records.VoiceRecord;
 import org.jooq.DSLContext;
 import org.jooq.types.UInteger;
 import org.jooq.types.ULong;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -573,7 +574,7 @@ public interface IntegrationTestEntity {
     record.store();
   }
 
-  static Segment insertSegment(int id, int chainId, int offset, SegmentState state, Timestamp beginAt, Timestamp endAt, String key, int total, double density, double tempo, String waveformKey) {
+  static Segment insertSegment(int id, int chainId, int offset, SegmentState state, Timestamp beginAt, Timestamp endAt, String key, int total, double density, double tempo, String waveformKey, JSONObject basis) {
     SegmentRecord record = IntegrationTestService.getDb().newRecord(SEGMENT);
     record.setId(ULong.valueOf(id));
     record.setChainId(ULong.valueOf(chainId));
@@ -586,6 +587,7 @@ public interface IntegrationTestEntity {
     record.setDensity(density);
     record.setTempo(tempo);
     record.setWaveformKey(waveformKey);
+    record.setBasis(basis.toString());
     record.store();
 
     Segment result = new Segment();
@@ -600,6 +602,7 @@ public interface IntegrationTestEntity {
     result.setDensity(density);
     result.setTempo(tempo);
     result.setWaveformKey(waveformKey);
+    result.setBasis(basis);
     return result;
   }
 
@@ -649,13 +652,14 @@ public interface IntegrationTestEntity {
     record.store();
   }
 
-  static Segment insertSegment_Planned(int id, int chainId, int offset, Timestamp beginAt) {
+  static Segment insertSegment_Planned(int id, int chainId, int offset, Timestamp beginAt, JSONObject basis) {
     SegmentRecord record = IntegrationTestService.getDb().newRecord(SEGMENT);
     record.setId(ULong.valueOf(id));
     record.setChainId(ULong.valueOf(chainId));
     record.setOffset(ULong.valueOf(offset));
     record.setState(SegmentState.Planned.toString());
     record.setBeginAt(beginAt);
+    record.setBasis(basis.toString());
     record.store();
 
     Segment result = new Segment();
@@ -664,6 +668,7 @@ public interface IntegrationTestEntity {
     result.setOffset(BigInteger.valueOf(offset));
     result.setStateEnum(SegmentState.Planned);
     result.setBeginAtTimestamp(beginAt);
+    result.setBasis(basis);
     return result;
   }
 

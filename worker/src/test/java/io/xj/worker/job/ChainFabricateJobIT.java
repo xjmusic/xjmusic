@@ -40,6 +40,7 @@ import io.xj.craft.CraftModule;
 import io.xj.dub.DubModule;
 import io.xj.worker.WorkerModule;
 import net.greghaines.jesque.worker.JobFactory;
+import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -51,7 +52,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigInteger;
 import java.util.Collection;
-import java.util.Objects;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -63,7 +63,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ChainSegmentFabricateJobIT {
+public class ChainFabricateJobIT {
   private static final int MILLIS_PER_SECOND = 1000;
   private static final int MAXIMUM_TEST_WAIT_MILLIS = 30 * MILLIS_PER_SECOND;
   private static final int ARBITRARY_SMALL_PAUSE_SECONDS = 3;
@@ -216,7 +216,7 @@ public class ChainSegmentFabricateJobIT {
   }
 
   @Test
-  public void fabricatesSegment() throws Exception {
+  public void fabricatesSegments() throws Exception {
     when(amazonProvider.generateKey("chain-1-segment", "ogg"))
       .thenReturn("chain-1-segment-12345.ogg");
     app.getWorkManager().startChainFabrication(BigInteger.valueOf(1));
@@ -224,14 +224,14 @@ public class ChainSegmentFabricateJobIT {
 
     // Start app, wait for work, stop app
     app.start();
-    while (!hasChainAtLeastSegments(BigInteger.valueOf(1), 3) && isWithinTimeLimit()) {
+    while (!hasChainAtLeastSegments(BigInteger.valueOf(1), 5) && isWithinTimeLimit()) {
       Thread.sleep(MILLIS_PER_SECOND);
     }
     app.getWorkManager().stopChainFabrication(BigInteger.valueOf(1));
     app.stop();
 
     // assertions
-    int assertShippedSegmentsMinimum = 2;
+    int assertShippedSegmentsMinimum = 5;
     verify(amazonProvider, atLeast(assertShippedSegmentsMinimum)).putS3Object(eq("/tmp/chain-1-segment-12345.ogg"), eq("xj-segment-test"), any());
     Collection<Segment> result = injector.getInstance(SegmentDAO.class).readAll(Access.internal(), ImmutableList.of(BigInteger.valueOf(1)));
     assertTrue(assertShippedSegmentsMinimum < result.size());
@@ -242,7 +242,7 @@ public class ChainSegmentFabricateJobIT {
    [#158610991] Engineer wants a Segment to be reverted, and re-queued for Craft, in the event that such a Segment has just failed its Craft process, in order to ensure Chain fabrication fault tolerance
    */
   @Test
-  public void fabricatesSegment_revertsAndRequeuesOnFailure() throws Exception {
+  public void fabricatesSegments_revertsAndRequeuesOnFailure() throws Exception {
     injector.getInstance(PatternDAO.class).destroy(Access.internal(), BigInteger.valueOf(15));
     injector.getInstance(PatternMemeDAO.class).destroy(Access.internal(), BigInteger.valueOf(6));
     injector.getInstance(PatternChordDAO.class).destroy(Access.internal(), BigInteger.valueOf(12));
@@ -262,7 +262,7 @@ public class ChainSegmentFabricateJobIT {
     injector.getInstance(PatternDAO.class).destroy(Access.internal(), BigInteger.valueOf(416));
 
     // this segment is already in planned state-- it will end up reverted a.k.a. back in planned state
-    IntegrationTestEntity.insertSegment_Planned(101, 1, 0, TimestampUTC.nowMinusSeconds(1000));
+    IntegrationTestEntity.insertSegment_Planned(101, 1, 0, TimestampUTC.nowMinusSeconds(1000), new JSONObject());
 
     // This ensures that the re-queued work does not get executed before the end of the test
     System.setProperty("segment.requeue.seconds", "666");
@@ -271,9 +271,9 @@ public class ChainSegmentFabricateJobIT {
     app.getWorkManager().scheduleSegmentFabricate(1, BigInteger.valueOf(101));
     assertTrue(hasRemainingWork(WorkType.SegmentFabricate));
 
-    // Start app, wait for work, stop app
+    // Start app, wait arbitrary # of seconds (it should fail immediately, which is what we are testing for), stop app
     app.start();
-      Thread.sleep(ARBITRARY_SMALL_PAUSE_SECONDS * MILLIS_PER_SECOND);
+    Thread.sleep(ARBITRARY_SMALL_PAUSE_SECONDS * MILLIS_PER_SECOND);
     app.getWorkManager().stopChainFabrication(BigInteger.valueOf(1));
     app.stop();
 
@@ -325,7 +325,7 @@ public class ChainSegmentFabricateJobIT {
   private boolean hasRemainingWork(WorkType type) throws Exception {
     int total = 0;
     for (Work work : app.getWorkManager().readAllWork()) {
-      if (Objects.equals(type, work.getType())) total++;
+      if (type == work.getType()) total++;
     }
     return 0 < total;
   }
@@ -339,7 +339,7 @@ public class ChainSegmentFabricateJobIT {
    @throws Exception on failure
    */
   private boolean hasChainAtLeastSegments(BigInteger chainId, int threshold) throws Exception {
-    Collection<Segment> result = injector.getInstance(SegmentDAO.class).readAll(Access.internal(), ImmutableList.of(chainId));
+    Collection<Segment> result = injector.getInstance(SegmentDAO.class).readAllInState(Access.internal(), chainId, SegmentState.Dubbed);
     return result.size() >= threshold;
   }
 

@@ -29,6 +29,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
+import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -100,7 +101,7 @@ public class CraftFoundationInitialIT {
 
     // Chain "Print #2" has 1 initial planned segment
     IntegrationTestEntity.insertChain(2, 1, "Print #2", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, null);
-    segment6 = IntegrationTestEntity.insertSegment_Planned(6, 2, 0, Timestamp.valueOf("2017-02-14 12:01:00.000001"));
+    segment6 = IntegrationTestEntity.insertSegment_Planned(6, 2, 0, Timestamp.valueOf("2017-02-14 12:01:00.000001"), new JSONObject());
     // bind the library to the chain
     IntegrationTestEntity.insertChainLibrary(1, 2, 2);
 

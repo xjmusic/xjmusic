@@ -4,6 +4,7 @@ package io.xj.core.model.audio;
 import io.xj.core.exception.BusinessException;
 import io.xj.core.model.entity.Entity;
 import io.xj.core.util.Text;
+import org.json.JSONObject;
 
 import java.math.BigInteger;
 import java.util.Objects;
@@ -22,6 +23,14 @@ public class Audio extends Entity {
   public static final String KEY_ONE = "audio";
   public static final String KEY_MANY = "audios";
   public static final String FILE_EXTENSION = "wav";
+  public static final String KEY_INSTRUMENT_ID = "instrumentId";
+  public static final String KEY_WAVEFORM_KEY = "waveformKey";
+  public static final String KEY_NAME = "name";
+  public static final String KEY_START = "start";
+  public static final String KEY_LENGTH = "length";
+  public static final String KEY_TEMPO = "tempo";
+  public static final String KEY_PITCH = "pitch";
+  public static final String KEY_STATE = "state";
   private BigInteger instrumentId;
   private String waveformKey;
   private String name;
@@ -31,7 +40,6 @@ public class Audio extends Entity {
   private Double pitch;
   private AudioState state;
   private String _stateString; // pending validation, copied to `state` field
-
 
   public Audio() {
   }
@@ -78,7 +86,7 @@ public class Audio extends Entity {
   }
 
   public Audio setWaveformKey(String waveformKey) {
-    if (waveformKey != null) {
+    if (null != waveformKey) {
       this.waveformKey = waveformKey.trim();
     }
     return this;

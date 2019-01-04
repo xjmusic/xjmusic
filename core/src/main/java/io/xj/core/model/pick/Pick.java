@@ -3,13 +3,13 @@ package io.xj.core.model.pick;
 
 import io.xj.core.exception.BusinessException;
 import io.xj.core.model.entity.Entity;
+import org.json.JSONObject;
 
-import javax.annotation.Nullable;
 import java.math.BigInteger;
 
 /**
  POJO for persisting data in memory while performing business logic,
-or decoding messages received by JAX-RS resources.
+ or decoding messages received by JAX-RS resources.
  a.k.a. JSON input will be stored into an instance of this object
  <p>
  Business logic ought to be performed beginning with an instance of this object,
@@ -20,13 +20,23 @@ or decoding messages received by JAX-RS resources.
 public class Pick extends Entity {
   public static final String KEY_ONE = "pick";
   public static final String KEY_MANY = "picks";
+  public static final String KEY_ARRANGEMENT_ID = "arrangementId";
+  public static final String KEY_AUDIO_ID = "audioId";
+  public static final String KEY_PATTERN_EVENT_ID = "patternEventId";
+  public static final String KEY_START = "start";
+  public static final String KEY_LENGTH = "length";
+  public static final String KEY_AMPLITUDE = "amplitude";
+  public static final String KEY_PITCH = "pitch";
+  public static final String KEY_INFLECTION = "inflection";
   private BigInteger arrangementId;
-  private BigInteger morphId;
   private BigInteger audioId;
+  private BigInteger patternEventId;
   private Double start;
   private Double length;
   private Double amplitude;
   private Double pitch;
+  private String inflection;
+  private BigInteger voiceId;
 
   public BigInteger getArrangementId() {
     return arrangementId;
@@ -34,16 +44,6 @@ public class Pick extends Entity {
 
   public Pick setArrangementId(BigInteger arrangementId) {
     this.arrangementId = arrangementId;
-    return this;
-  }
-
-  @Nullable
-  public BigInteger getMorphId() {
-    return morphId;
-  }
-
-  public Pick setMorphId(BigInteger morphId) {
-    this.morphId = morphId;
     return this;
   }
 
@@ -110,24 +110,56 @@ public class Pick extends Entity {
 
   @Override
   public void validate() throws BusinessException {
-    if (this.arrangementId == null) {
+    if (null == arrangementId) {
       throw new BusinessException("Arrangement ID is required.");
     }
-    if (this.audioId == null) {
+    if (null == patternEventId) {
+      throw new BusinessException("Pattern Event ID is required.");
+    }
+    if (null == audioId) {
       throw new BusinessException("Audio ID is required.");
     }
-    if (this.start == null) {
+    if (null == voiceId) {
+      throw new BusinessException("Voice ID is required.");
+    }
+    if (null == start) {
       throw new BusinessException("Start is required.");
     }
-    if (this.length == null || this.length == (double) 0) {
+    if (null == length || (double) 0 == length) {
       throw new BusinessException("Length is required.");
     }
-    if (this.amplitude == null || this.amplitude == (double) 0) {
+    if (null == amplitude || (double) 0 == amplitude) {
       throw new BusinessException("Amplitude is required.");
     }
-    if (this.pitch == null || this.pitch == (double) 0) {
+    if (null == pitch || (double) 0 == pitch) {
       throw new BusinessException("Pitch is required.");
     }
   }
 
+  public String getInflection() {
+    return inflection;
+  }
+
+  public Pick setInflection(String inflection) {
+    this.inflection = inflection;
+    return this;
+  }
+
+  public BigInteger getPatternEventId() {
+    return patternEventId;
+  }
+
+  public Pick setPatternEventId(BigInteger patternEventId) {
+    this.patternEventId = patternEventId;
+    return this;
+  }
+
+  public BigInteger getVoiceId() {
+    return voiceId;
+  }
+
+  public Pick setVoiceId(BigInteger voiceId) {
+    this.voiceId = voiceId;
+    return this;
+  }
 }

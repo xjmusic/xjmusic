@@ -1,6 +1,8 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.worker.job.impl;
 
+import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
 import io.xj.core.access.impl.Access;
 import io.xj.core.config.Config;
 import io.xj.core.dao.ChainDAO;
@@ -12,10 +14,6 @@ import io.xj.core.model.segment.Segment;
 import io.xj.core.util.TimestampUTC;
 import io.xj.core.work.WorkManager;
 import io.xj.worker.job.ChainFabricateJob;
-
-import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,6 +48,7 @@ public class ChainFabricateJobImpl implements ChainFabricateJob {
       if (Objects.nonNull(chain)) {
         doWork(chain);
       } else {
+        log.warn("Cannot work on non-existent Chain #{}", entityId);
         cancelFabrication();
       }
 
@@ -66,7 +65,7 @@ public class ChainFabricateJobImpl implements ChainFabricateJob {
    @throws Exception on failure
    */
   private void doWork(Chain chain) throws Exception {
-    if (!Objects.equals(ChainState.Fabricate, chain.getState())) {
+    if (ChainState.Fabricate != chain.getState()) {
       workManager.stopChainFabrication(entityId);
       throw new BusinessException(String.format("Cannot fabricate Chain id:%s in non-Fabricate (%s) state!",
         chain.getId(), chain.getState()));
@@ -103,6 +102,7 @@ public class ChainFabricateJobImpl implements ChainFabricateJob {
    */
   private void cancelFabrication() {
     workManager.stopChainFabrication(entityId);
+    log.info("Canceled fabrication of Chain #{}", entityId);
   }
 
 }

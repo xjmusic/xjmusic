@@ -27,24 +27,28 @@ $RobotoSlab: "RobotoSlab", serif;
 @include font-face("RobotoSlab", "RobotoSlab/RobotoSlab-Bold", bold, normal, ttf);
 */
 @font-face {
+  font-display: block;
   font-family: "Lora";
   font-style: normal;
   font-weight: regular;
   src: url("/fonts/Lora/Lora-Regular.ttf") format("truetype"); }
 
 @font-face {
+  font-display: block;
   font-family: "Lora";
   font-style: italic;
   font-weight: regular;
   src: url("/fonts/Lora/Lora-Italic.ttf") format("truetype"); }
 
 @font-face {
+  font-display: block;
   font-family: "Lora";
   font-style: normal;
   font-weight: bold;
   src: url("/fonts/Lora/Lora-Bold.ttf") format("truetype"); }
 
 @font-face {
+  font-display: block;
   font-family: "Lora";
   font-style: italic;
   font-weight: bold;
@@ -135,24 +139,28 @@ $RobotoSlab: "RobotoSlab", serif;
 @include font-face("RobotoSlab", "RobotoSlab/RobotoSlab-Bold", bold, normal, ttf);
 */
 @font-face {
+  font-display: block;
   font-family: "Lora";
   font-style: normal;
   font-weight: regular;
   src: url("/fonts/Lora/Lora-Regular.ttf") format("truetype"); }
 
 @font-face {
+  font-display: block;
   font-family: "Lora";
   font-style: italic;
   font-weight: regular;
   src: url("/fonts/Lora/Lora-Italic.ttf") format("truetype"); }
 
 @font-face {
+  font-display: block;
   font-family: "Lora";
   font-style: normal;
   font-weight: bold;
   src: url("/fonts/Lora/Lora-Bold.ttf") format("truetype"); }
 
 @font-face {
+  font-display: block;
   font-family: "Lora";
   font-style: italic;
   font-weight: bold;
@@ -253,24 +261,28 @@ $RobotoSlab: "RobotoSlab", serif;
 @include font-face("RobotoSlab", "RobotoSlab/RobotoSlab-Bold", bold, normal, ttf);
 */
 @font-face {
+  font-display: block;
   font-family: "Lora";
   font-style: normal;
   font-weight: regular;
   src: url("/fonts/Lora/Lora-Regular.ttf") format("truetype"); }
 
 @font-face {
+  font-display: block;
   font-family: "Lora";
   font-style: italic;
   font-weight: regular;
   src: url("/fonts/Lora/Lora-Italic.ttf") format("truetype"); }
 
 @font-face {
+  font-display: block;
   font-family: "Lora";
   font-style: normal;
   font-weight: bold;
   src: url("/fonts/Lora/Lora-Bold.ttf") format("truetype"); }
 
 @font-face {
+  font-display: block;
   font-family: "Lora";
   font-style: italic;
   font-weight: bold;
@@ -401,24 +413,28 @@ $RobotoSlab: "RobotoSlab", serif;
 @include font-face("RobotoSlab", "RobotoSlab/RobotoSlab-Bold", bold, normal, ttf);
 */
 @font-face {
+  font-display: block;
   font-family: "Lora";
   font-style: normal;
   font-weight: regular;
   src: url("/fonts/Lora/Lora-Regular.ttf") format("truetype"); }
 
 @font-face {
+  font-display: block;
   font-family: "Lora";
   font-style: italic;
   font-weight: regular;
   src: url("/fonts/Lora/Lora-Italic.ttf") format("truetype"); }
 
 @font-face {
+  font-display: block;
   font-family: "Lora";
   font-style: normal;
   font-weight: bold;
   src: url("/fonts/Lora/Lora-Bold.ttf") format("truetype"); }
 
 @font-face {
+  font-display: block;
   font-family: "Lora";
   font-style: italic;
   font-weight: bold;
@@ -576,24 +592,28 @@ $RobotoSlab: "RobotoSlab", serif;
 @include font-face("RobotoSlab", "RobotoSlab/RobotoSlab-Bold", bold, normal, ttf);
 */
 @font-face {
+  font-display: block;
   font-family: "Lora";
   font-style: normal;
   font-weight: regular;
   src: url("/fonts/Lora/Lora-Regular.ttf") format("truetype"); }
 
 @font-face {
+  font-display: block;
   font-family: "Lora";
   font-style: italic;
   font-weight: regular;
   src: url("/fonts/Lora/Lora-Italic.ttf") format("truetype"); }
 
 @font-face {
+  font-display: block;
   font-family: "Lora";
   font-style: normal;
   font-weight: bold;
   src: url("/fonts/Lora/Lora-Bold.ttf") format("truetype"); }
 
 @font-face {
+  font-display: block;
   font-family: "Lora";
   font-style: italic;
   font-weight: bold;
@@ -756,24 +776,28 @@ $RobotoSlab: "RobotoSlab", serif;
 @include font-face("RobotoSlab", "RobotoSlab/RobotoSlab-Bold", bold, normal, ttf);
 */
 @font-face {
+  font-display: block;
   font-family: "Lora";
   font-style: normal;
   font-weight: regular;
   src: url("/fonts/Lora/Lora-Regular.ttf") format("truetype"); }
 
 @font-face {
+  font-display: block;
   font-family: "Lora";
   font-style: italic;
   font-weight: regular;
   src: url("/fonts/Lora/Lora-Italic.ttf") format("truetype"); }
 
 @font-face {
+  font-display: block;
   font-family: "Lora";
   font-style: normal;
   font-weight: bold;
   src: url("/fonts/Lora/Lora-Bold.ttf") format("truetype"); }
 
 @font-face {
+  font-display: block;
   font-family: "Lora";
   font-style: italic;
   font-weight: bold;
@@ -891,24 +915,28 @@ $RobotoSlab: "RobotoSlab", serif;
 @include font-face("RobotoSlab", "RobotoSlab/RobotoSlab-Bold", bold, normal, ttf);
 */
 @font-face {
+  font-display: block;
   font-family: "Lora";
   font-style: normal;
   font-weight: regular;
   src: url("/fonts/Lora/Lora-Regular.ttf") format("truetype"); }
 
 @font-face {
+  font-display: block;
   font-family: "Lora";
   font-style: italic;
   font-weight: regular;
   src: url("/fonts/Lora/Lora-Italic.ttf") format("truetype"); }
 
 @font-face {
+  font-display: block;
   font-family: "Lora";
   font-style: normal;
   font-weight: bold;
   src: url("/fonts/Lora/Lora-Bold.ttf") format("truetype"); }
 
 @font-face {
+  font-display: block;
   font-family: "Lora";
   font-style: italic;
   font-weight: bold;
@@ -1056,24 +1084,28 @@ $RobotoSlab: "RobotoSlab", serif;
 @include font-face("RobotoSlab", "RobotoSlab/RobotoSlab-Bold", bold, normal, ttf);
 */
 @font-face {
+  font-display: block;
   font-family: "Lora";
   font-style: normal;
   font-weight: regular;
   src: url("/fonts/Lora/Lora-Regular.ttf") format("truetype"); }
 
 @font-face {
+  font-display: block;
   font-family: "Lora";
   font-style: italic;
   font-weight: regular;
   src: url("/fonts/Lora/Lora-Italic.ttf") format("truetype"); }
 
 @font-face {
+  font-display: block;
   font-family: "Lora";
   font-style: normal;
   font-weight: bold;
   src: url("/fonts/Lora/Lora-Bold.ttf") format("truetype"); }
 
 @font-face {
+  font-display: block;
   font-family: "Lora";
   font-style: italic;
   font-weight: bold;
