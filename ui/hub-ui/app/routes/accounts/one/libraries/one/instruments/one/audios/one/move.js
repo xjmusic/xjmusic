@@ -1,4 +1,4 @@
-//  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+//  Copyright (c) 2019, XJ Music Inc. (https://xj.io) All Rights Reserved.
 import {get} from '@ember/object';
 
 import {hash, Promise as EmberPromise} from 'rsvp';
@@ -14,7 +14,7 @@ export default Route.extend({
   display: service(),
 
   /**
-   * Model is a promise because it depends on promised configs
+   * Route Model
    * @returns {*}
    */
   model() {
@@ -36,12 +36,9 @@ export default Route.extend({
    * @returns {*} hash
    */
   resolvedModel() {
-    let fromAudio = this.modelFor('accounts.one.libraries.one.instruments.one.audios.one');
-    this.set('fromAudioId', fromAudio.get('id'));
-    let audio = this.store.createRecord('audio', {
-      instrument: fromAudio.get('instrument'),
-      name: fromAudio.get('name')
-    });
+    let instrument = this.modelFor('accounts.one.libraries.one.instruments.one');
+    let audio = this.modelFor('accounts.one.libraries.one.instruments.one.audios.one');
+    audio.set('instrument', instrument);
 
     return hash({
       instruments: this.store.query('instrument', {}),
@@ -58,26 +55,20 @@ export default Route.extend({
       this.refresh();
     },
 
-    cloneAudio(model) {
+    moveAudio(model) {
       let instrument = model.get('instrument');
       let library = instrument.get('library');
       let account = library.get('account');
-      let cloneAudioId = this.get('fromAudioId');
 
-      model.save({
-        adapterOptions: {
-          query: {
-            cloneId: cloneAudioId
-          }
-        }
-      }).then(
+      model.save().then(
         () => {
-          get(this, 'display').success('Cloned audio ' + model.get('name') + '.');
+          get(this, 'display').success('Moved audio "' + model.get('name') + '" to instrument "' + instrument.get('description') + '"');
           this.transitionTo('accounts.one.libraries.one.instruments.one.audios.one', account, library, instrument, model);
         },
         (error) => {
           get(this, 'display').error(error);
         });
+
     },
 
   },

@@ -129,6 +129,7 @@ function accountLibraryInstrumentAudioIndex() {
 function accountLibraryInstrumentAudioOne() {
   this.route('edit');
   this.route('clone');
+  this.route('move');
   this.route('destroy');
   this.route('events', accountLibraryInstrumentAudioEventIndex);
   this.route('chords', accountLibraryInstrumentAudioChordIndex);

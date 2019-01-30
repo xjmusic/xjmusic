@@ -5,6 +5,7 @@ import { helper } from '@ember/component/helper';
 let icons = {
   "edit": "edit",
   "clone": "files-o",
+  "move": "angle-double-right",
   "destroy": "times"
 };
 
