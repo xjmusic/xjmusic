@@ -69,22 +69,22 @@ public class CraftRhythmVoiceInitialIT {
     // "Special, Wild to Cozy" macro-sequence in house library
     IntegrationTestEntity.insertSequence(4, 3, 2, SequenceType.Macro, SequenceState.Published, "Special, Wild to Cozy", 0.5, "C", 120);
     IntegrationTestEntity.insertSequenceMeme(2, 4, "Special");
-    IntegrationTestEntity.insertPatternSequencePattern(3, 4, PatternType.Macro, PatternState.Published, 0, 64, "Start Wild", 0.6, "C", 125);
-    IntegrationTestEntity.insertPatternMeme(3, 3, "Wild");
+    IntegrationTestEntity.insertPatternAndSequencePattern(3, 4, PatternType.Macro, PatternState.Published, 0, 64, "Start Wild", 0.6, "C", 125);
+    IntegrationTestEntity.insertSequencePatternMeme(3, 4, 3, "Wild");
     IntegrationTestEntity.insertPatternChord(3, 3, 0, "C");
-    IntegrationTestEntity.insertPatternSequencePattern(4, 4, PatternType.Macro, PatternState.Published, 1, 64, "Finish Finish Cozy", 0.4, "Bb minor", 115);
-    IntegrationTestEntity.insertPatternMeme(4, 4, "Cozy");
+    IntegrationTestEntity.insertPatternAndSequencePattern(4, 4, PatternType.Macro, PatternState.Published, 1, 64, "Finish Finish Cozy", 0.4, "Bb minor", 115);
+    IntegrationTestEntity.insertSequencePatternMeme(4, 4, 4, "Cozy");
     IntegrationTestEntity.insertPatternChord(4, 4, 0, "Bb minor");
 
     // Main sequence
     IntegrationTestEntity.insertSequence(5, 3, 2, SequenceType.Main, SequenceState.Published, "Main Jam", 0.2, "F# minor", 140);
     IntegrationTestEntity.insertSequenceMeme(3, 5, "Outlook");
-    IntegrationTestEntity.insertPatternSequencePattern(15, 5, PatternType.Main, PatternState.Published, 0, 16, "Intro", 0.5, "F# minor", 135.0);
-    IntegrationTestEntity.insertPatternMeme(6, 15, "Pessimism");
+    IntegrationTestEntity.insertPatternAndSequencePattern(15, 5, PatternType.Main, PatternState.Published, 0, 16, "Intro", 0.5, "F# minor", 135.0);
+    IntegrationTestEntity.insertSequencePatternMeme(6, 5, 15, "Pessimism");
     IntegrationTestEntity.insertPatternChord(12, 15, 0, "F# minor");
     IntegrationTestEntity.insertPatternChord(14, 15, 8, "G minor");
-    IntegrationTestEntity.insertPatternSequencePattern(16, 5, PatternType.Main, PatternState.Published, 1, 16, "Intro", 0.5, "G major", 135.0);
-    IntegrationTestEntity.insertPatternMeme(7, 16, "Optimism");
+    IntegrationTestEntity.insertPatternAndSequencePattern(16, 5, PatternType.Main, PatternState.Published, 1, 16, "Intro", 0.5, "G major", 135.0);
+    IntegrationTestEntity.insertSequencePatternMeme(7, 5, 16, "Optimism");
     IntegrationTestEntity.insertPatternChord(16, 16, 0, "D minor");
     IntegrationTestEntity.insertPatternChord(18, 16, 8, "G major");
 
@@ -92,6 +92,13 @@ public class CraftRhythmVoiceInitialIT {
     IntegrationTestEntity.insertSequence(35, 3, 2, SequenceType.Rhythm, SequenceState.Published, "Basic Beat", 0.2, "C", 121);
     IntegrationTestEntity.insertSequenceMeme(343, 35, "Basic");
     IntegrationTestEntity.insertVoice(1, 35, InstrumentType.Percussive, "drums");
+
+    /*
+    Note that in any real use case, after
+    [#163158036] memes bound to sequence-patter
+    because sequence-pattern binding is not considered for rhythm sequences,
+    rhythm sequence patterns do not have memes.
+     */
 
     /*
     There are two types of patterns: Intro and Loop [#153976073] Artist wants Pattern to have type *Macro* or *Main* (for Macro- or Main-type sequences), or *Intro*, *Loop*, or *Outro* (for Rhythm or Detail-type Sequence) in order to create a composition that is dynamic when chosen to fill a Segment.
@@ -102,29 +109,29 @@ public class CraftRhythmVoiceInitialIT {
     and an Outro Pattern with all TOOTS
      */
     // Intro Pattern
-    IntegrationTestEntity.insertPattern(315, 35, PatternType.Intro, PatternState.Published, 4, "Intro", 0.5, "C", 125.0);
-    IntegrationTestEntity.insertPatternMeme(345, 315, "Heavy");
+    IntegrationTestEntity.insertPatternAndSequencePattern(315, 35, PatternType.Intro, PatternState.Published, 0, 4, "Intro", 0.5, "C", 125.0);
+    IntegrationTestEntity.insertSequencePatternMeme(345, 35, 315, "Heavy");
     IntegrationTestEntity.insertPatternEvent(1, 315, 1, 0, 1, "BLEEP", "C2", 0.8, 1.0);
     IntegrationTestEntity.insertPatternEvent(2, 315, 1, 1, 1, "BLEIP", "G5", 0.1, 0.8);
     IntegrationTestEntity.insertPatternEvent(3, 315, 1, 2.5, 1, "BLEAP", "C2", 0.8, 0.6);
     IntegrationTestEntity.insertPatternEvent(4, 315, 1, 3, 1, "BLEEEP", "G5", 0.1, 0.9);
     // Loop Pattern A
-    IntegrationTestEntity.insertPattern(316, 35, PatternType.Loop, PatternState.Published, 4, "Loop A", 0.5, "C", 125.0);
-    IntegrationTestEntity.insertPatternMeme(346, 316, "Heavy");
+    IntegrationTestEntity.insertPatternAndSequencePattern(316, 35, PatternType.Loop, PatternState.Published, 0, 4, "Loop A", 0.5, "C", 125.0);
+    IntegrationTestEntity.insertSequencePatternMeme(346, 35, 316, "Heavy");
     IntegrationTestEntity.insertPatternEvent(5, 316, 1, 0, 1, "CLOCK", "C2", 0.8, 1.0);
     IntegrationTestEntity.insertPatternEvent(6, 316, 1, 1, 1, "SNORT", "G5", 0.1, 0.8);
     IntegrationTestEntity.insertPatternEvent(7, 316, 1, 2.5, 1, "KICK", "C2", 0.8, 0.6);
     IntegrationTestEntity.insertPatternEvent(8, 316, 1, 3, 1, "SNARL", "G5", 0.1, 0.9);
     // Loop Pattern A
-    IntegrationTestEntity.insertPattern(317, 35, PatternType.Loop, PatternState.Published, 4, "Loop B", 0.5, "C", 125.0);
-    IntegrationTestEntity.insertPatternMeme(347, 317, "Heavy");
+    IntegrationTestEntity.insertPatternAndSequencePattern(317, 35, PatternType.Loop, PatternState.Published, 0, 4, "Loop B", 0.5, "C", 125.0);
+    IntegrationTestEntity.insertSequencePatternMeme(347, 35, 317, "Heavy");
     IntegrationTestEntity.insertPatternEvent(11, 317, 1, 0, 1, "KIICK", "B5", 0.1, 0.9);
     IntegrationTestEntity.insertPatternEvent(12, 317, 1, 1, 1, "SNARR", "D2", 0.5, 1.0);
     IntegrationTestEntity.insertPatternEvent(14, 317, 1, 2.5, 1, "KEICK", "E4", 0.1, 0.7);
     IntegrationTestEntity.insertPatternEvent(15, 317, 1, 3, 1, "SNAER", "C3", 0.5, 0.5);
     // Outro Pattern
-    IntegrationTestEntity.insertPattern(318, 35, PatternType.Outro, PatternState.Published, 4, "Outro", 0.5, "C", 125.0);
-    IntegrationTestEntity.insertPatternMeme(348, 318, "Heavy");
+    IntegrationTestEntity.insertPatternAndSequencePattern(318, 35, PatternType.Outro, PatternState.Published, 0, 4, "Outro", 0.5, "C", 125.0);
+    IntegrationTestEntity.insertSequencePatternMeme(348, 35, 318, "Heavy");
     IntegrationTestEntity.insertPatternEvent(16, 318, 1, 0, 1, "TOOT", "C2", 0.8, 1.0);
     IntegrationTestEntity.insertPatternEvent(17, 318, 1, 1, 1, "TOOOT", "G5", 0.1, 0.8);
     IntegrationTestEntity.insertPatternEvent(18, 318, 1, 2.5, 1, "TOOTE", "C2", 0.8, 0.6);

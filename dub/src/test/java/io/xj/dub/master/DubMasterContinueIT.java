@@ -1,18 +1,22 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.dub.master;
 
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.util.Modules;
 import io.xj.core.CoreModule;
 import io.xj.core.external.amazon.AmazonProvider;
 import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
 import io.xj.core.model.instrument.InstrumentType;
+import io.xj.core.model.pattern.PatternState;
+import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.segment.Segment;
 import io.xj.core.model.segment.SegmentState;
 import io.xj.core.model.sequence.SequenceState;
 import io.xj.core.model.sequence.SequenceType;
-import io.xj.core.model.pattern.PatternState;
-import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.craft.CraftModule;
 import io.xj.craft.basis.Basis;
@@ -20,12 +24,6 @@ import io.xj.craft.basis.BasisFactory;
 import io.xj.dub.DubFactory;
 import io.xj.dub.DubModule;
 import io.xj.mixer.util.InternalResource;
-
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.util.Modules;
-
 import org.apache.commons.io.FileUtils;
 import org.json.JSONObject;
 import org.junit.After;
@@ -45,15 +43,16 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DubMasterContinueIT {
-  @Rule public ExpectedException failure = ExpectedException.none();
+  private static final String testResourceFilePath = "test_audio" + File.separator + "F32LSB_48kHz_Stereo.wav";
+  @Rule
+  public ExpectedException failure = ExpectedException.none();
+  @Mock
+  AmazonProvider amazonProvider;
   private Injector injector;
   private DubFactory dubFactory;
   private BasisFactory basisFactory;
-  private static final String testResourceFilePath = "test_audio" + File.separator + "F32LSB_48kHz_Stereo.wav";
-
   // Testing entities for reference
   private Segment segment4;
-  @Mock AmazonProvider amazonProvider;
 
   @Before
   public void setUp() throws Exception {
@@ -79,36 +78,43 @@ public class DubMasterContinueIT {
     // "Classic, Wild to Cozy" macro-sequence in house library
     IntegrationTestEntity.insertSequence(4, 3, 2, SequenceType.Macro, SequenceState.Published, "Classic, Wild to Cozy", 0.5, "C", 120);
     IntegrationTestEntity.insertSequenceMeme(2, 4, "Classic");
-    IntegrationTestEntity.insertPatternSequencePattern(3, 4, PatternType.Macro, PatternState.Published, 0, 64, "Start Wild", 0.6, "C", 125);
-    IntegrationTestEntity.insertPatternMeme(3, 3, "Wild");
+    IntegrationTestEntity.insertPatternAndSequencePattern(3, 4, PatternType.Macro, PatternState.Published, 0, 64, "Start Wild", 0.6, "C", 125);
+    IntegrationTestEntity.insertSequencePatternMeme(3, 4, 3, "Wild");
     IntegrationTestEntity.insertPatternChord(3, 3, 0, "C");
-    IntegrationTestEntity.insertPatternSequencePattern(4, 4, PatternType.Macro, PatternState.Published, 1, 64, "Finish Finish Cozy", 0.4, "Bb minor", 115);
-    IntegrationTestEntity.insertPatternMeme(4, 4, "Cozy");
+    IntegrationTestEntity.insertPatternAndSequencePattern(4, 4, PatternType.Macro, PatternState.Published, 1, 64, "Finish Finish Cozy", 0.4, "Bb minor", 115);
+    IntegrationTestEntity.insertSequencePatternMeme(4, 4, 4, "Cozy");
     IntegrationTestEntity.insertPatternChord(4, 4, 0, "Bb minor");
 
     // Main sequence
     IntegrationTestEntity.insertSequence(5, 3, 2, SequenceType.Main, SequenceState.Published, "Main Jam", 0.2, "Gb minor", 140);
     IntegrationTestEntity.insertSequenceMeme(3, 5, "Outlook");
-    IntegrationTestEntity.insertPatternSequencePattern(15, 5, PatternType.Main, PatternState.Published, 0, 16, "Intro", 0.5, "Gb minor", 135.0);
-    IntegrationTestEntity.insertPatternMeme(6, 15, "Cloudy");
+    IntegrationTestEntity.insertPatternAndSequencePattern(15, 5, PatternType.Main, PatternState.Published, 0, 16, "Intro", 0.5, "Gb minor", 135.0);
+    IntegrationTestEntity.insertSequencePatternMeme(6, 5, 15, "Cloudy");
     IntegrationTestEntity.insertPatternChord(12, 15, 0, "Gb minor");
     IntegrationTestEntity.insertPatternChord(14, 15, 8, "G minor");
-    IntegrationTestEntity.insertPatternSequencePattern(16, 5, PatternType.Main, PatternState.Published, 1, 16, "Intro", 0.5, "G major", 135.0);
-    IntegrationTestEntity.insertPatternMeme(7, 16, "Rosy");
+    IntegrationTestEntity.insertPatternAndSequencePattern(16, 5, PatternType.Main, PatternState.Published, 1, 16, "Intro", 0.5, "G major", 135.0);
+    IntegrationTestEntity.insertSequencePatternMeme(7, 5, 16, "Rosy");
     IntegrationTestEntity.insertPatternChord(16, 16, 0, "D minor");
     IntegrationTestEntity.insertPatternChord(18, 16, 8, "G major");
+
+    /*
+    Note that in any real use case, after
+    [#163158036] memes bound to sequence-patter
+    because sequence-pattern binding is not considered for rhythm sequences,
+    rhythm sequence patterns do not have memes.
+     */
 
     // A basic beat
     IntegrationTestEntity.insertSequence(35, 3, 2, SequenceType.Rhythm, SequenceState.Published, "Basic Beat", 0.2, "C", 121);
     IntegrationTestEntity.insertSequenceMeme(343, 35, "Basic");
 
     // basic beat first pattern
-    IntegrationTestEntity.insertPattern(316, 35, PatternType.Loop, PatternState.Published,  16, "Continue", 0.5, "C", 125.0);
-    IntegrationTestEntity.insertPatternMeme(347, 316, "Heavy");
+    IntegrationTestEntity.insertPatternAndSequencePattern(316, 35, PatternType.Loop, PatternState.Published, 0, 16, "Continue", 0.5, "C", 125.0);
+    IntegrationTestEntity.insertSequencePatternMeme(347, 35, 316, "Heavy");
 
     // setup voice second pattern
-    IntegrationTestEntity.insertPattern(315, 35, PatternType.Loop, PatternState.Published,  4, "Drop", 0.5, "C", 125.0);
-    IntegrationTestEntity.insertPatternMeme(346, 315, "Heavy");
+    IntegrationTestEntity.insertPatternAndSequencePattern(315, 35, PatternType.Loop, PatternState.Published, 1, 4, "Drop", 0.5, "C", 125.0);
+    IntegrationTestEntity.insertSequencePatternMeme(346, 35, 315, "Heavy");
     IntegrationTestEntity.insertVoice(1, 35, InstrumentType.Percussive, "drums");
 
     // Voice "Drums" has events "BOOM" and "SMACK" 2x each
@@ -185,9 +191,7 @@ public class DubMasterContinueIT {
 
 
   @After
-  public void tearDown() throws Exception {
-    dubFactory = null;
-    basisFactory = null;
+  public void tearDown() {
     System.clearProperty("audio.file.bucket");
   }
 

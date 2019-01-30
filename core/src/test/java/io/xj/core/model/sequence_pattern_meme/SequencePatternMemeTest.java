@@ -1,5 +1,5 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
-package io.xj.core.model.pattern_meme;
+package io.xj.core.model.sequence_pattern_meme;
 
 import io.xj.core.exception.BusinessException;
 
@@ -9,14 +9,14 @@ import org.junit.rules.ExpectedException;
 
 import java.math.BigInteger;
 
-public class PatternMemeTest {
+public class SequencePatternMemeTest {
 
   @Rule public ExpectedException failure = ExpectedException.none();
 
   @Test
   public void validate() throws Exception {
-    new PatternMeme()
-      .setPatternId(BigInteger.valueOf(23678L))
+    new SequencePatternMeme()
+      .setSequencePatternId(BigInteger.valueOf(23678L))
       .setName("Miccheckonetwo")
       .validate();
   }
@@ -26,7 +26,7 @@ public class PatternMemeTest {
     failure.expect(BusinessException.class);
     failure.expectMessage("Pattern ID is required");
 
-    new PatternMeme()
+    new SequencePatternMeme()
       .setName("Miccheckonetwo")
       .validate();
   }
@@ -36,8 +36,8 @@ public class PatternMemeTest {
     failure.expect(BusinessException.class);
     failure.expectMessage("Name is required");
 
-    new PatternMeme()
-      .setPatternId(BigInteger.valueOf(23678L))
+    new SequencePatternMeme()
+      .setSequencePatternId(BigInteger.valueOf(23678L))
       .validate();
   }
 

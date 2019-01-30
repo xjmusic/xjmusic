@@ -13,7 +13,8 @@
       <h1>
         {{model.name}}
         <small>
-          {{entity-actions 'accounts.one.libraries.one.sequences.one.patterns.one' 'edit|clone|destroy' model.sequence.library.account model.sequence.library model.sequence model}}
+          {{entity-actions 'accounts.one.libraries.one.sequences.one.patterns.one' 'edit|clone|destroy'
+                           model.sequence.library.account model.sequence.library model.sequence model}}
         </small>
       </h1>
 
@@ -25,21 +26,21 @@
 <div class="form-horizontal container-fluid">
   <div class="form-group row">
     <ul class="nav nav-tabs">
-      <li class="nav-item">
-        {{#link-to 'accounts.one.libraries.one.sequences.one.patterns.one.memes' model.sequence.library.account model.sequence.library model.sequence model class='nav-link'}}Memes{{/link-to}}
-      </li>
       {{#if (not-eq model.sequence.type "Macro")}}
-            <li class="nav-item">
-              {{#link-to 'accounts.one.libraries.one.sequences.one.patterns.one.chords' model.sequence.library.account model.sequence.library model.sequence model class='nav-link'}}Chords{{/link-to}}
-            </li>
-            <li class="nav-item">
-              {{#link-to 'accounts.one.libraries.one.sequences.one.patterns.one.events' model.sequence.library.account model.sequence.library model.sequence model class='nav-link'}}Events{{/link-to}}
-            </li>
+        <li class="nav-item">
+          {{#link-to 'accounts.one.libraries.one.sequences.one.patterns.one.chords' model.sequence.library.account
+                     model.sequence.library model.sequence model class='nav-link'}}Chords{{/link-to}}
+        </li>
+        <li class="nav-item">
+          {{#link-to 'accounts.one.libraries.one.sequences.one.patterns.one.events' model.sequence.library.account
+                     model.sequence.library model.sequence model class='nav-link'}}Events{{/link-to}}
+        </li>
       {{/if}}
       {{#if (eq model.sequence.type "Rhythm")}}
-            <li class="nav-item">
-              {{#link-to 'accounts.one.libraries.one.sequences.one.patterns.one.stepmatic' model.sequence.library.account model.sequence.library model.sequence model class='nav-link'}}Stepmatic{{/link-to}}
-            </li>
+        <li class="nav-item">
+          {{#link-to 'accounts.one.libraries.one.sequences.one.patterns.one.stepmatic' model.sequence.library.account
+                     model.sequence.library model.sequence model class='nav-link'}}Stepmatic{{/link-to}}
+        </li>
       {{/if}}
     </ul>
   </div>

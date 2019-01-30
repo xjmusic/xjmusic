@@ -42,7 +42,7 @@ export default Route.extend({
       patternToAdd: null,
       offsetToAdd: 0,
       patterns: this.store.query('pattern', {sequenceId: sequence.id}),
-      sequencePatterns: this.store.query('sequencePattern', {sequenceId: sequence.id}),
+      sequencePatterns: this.store.query('sequencePattern', {sequenceId: sequence.id, include: 'memes'}),
     }, 'sequence, sequence patterns, all available patterns, pattern to add to sequence, offset at which to add pattern to sequence');
   },
 
@@ -67,15 +67,44 @@ export default Route.extend({
         });
     },
 
+    removeMeme(model) {
+      let name = model.get('name');
+      model.destroyRecord({}).then(
+        () => {
+          get(this, 'display').success(`Removed meme "${name}"`);
+        },
+        (error) => {
+          get(this, 'display').error(error);
+          model.rollbackAttributes();
+        });
+    },
+
     addPattern(model) {
-      let sequenceConfig = this.store.createRecord('sequence-pattern', {
+      let sequencePattern = this.store.createRecord('sequence-pattern', {
         sequence: model.sequence,
         pattern: model.patternToAdd,
         offset: model.offsetToAdd
       });
-      sequenceConfig.save().then(
+      sequencePattern.save().then(
         () => {
           get(this, 'display').success('Added ' + model.patternToAdd.get('description') + ' to ' + model.sequence.get('name') + ' at offset ' + model.offsetToAdd + '.');
+          // this.transitionToRoute('sequences.one.patterns',model.sequence);
+          this.send("sessionChanged");
+        },
+        (error) => {
+          get(this, 'display').error(error);
+        });
+    },
+
+    addMeme(sequencePattern) {
+      let name = prompt("Meme to add:");
+      let sequencePatternMeme = this.store.createRecord('sequence-pattern-meme', {
+        sequencePattern: sequencePattern,
+        name: name
+      });
+      sequencePatternMeme.save().then(
+        () => {
+          get(this, 'display').success(`Added meme "${name}"`);
           // this.transitionToRoute('sequences.one.patterns',model.sequence);
           this.send("sessionChanged");
         },

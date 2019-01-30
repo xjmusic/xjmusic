@@ -1,5 +1,6 @@
 //  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 import DS from 'ember-data';
+import {computed} from '@ember/object';
 
 export default DS.Model.extend({
   density: DS.attr('number'),
@@ -13,16 +14,16 @@ export default DS.Model.extend({
   meterSub: DS.attr('number'),
   meterSwing: DS.attr('number'),
   events: DS.hasMany('pattern-event'),
+  chords: DS.hasMany('pattern-chord'),
 
-  getTitle() {
+  title: computed('name', 'offset', function () {
     let name = this.get("name");
     let title = name ? name : '';
-    title += '@' + this.get("offset");
-    return title;
-  },
+    return `${title}@${this.offset}`;
+  }),
 
   toString() {
-    return this.getTitle();
+    return this.get('title');
   }
 
 });

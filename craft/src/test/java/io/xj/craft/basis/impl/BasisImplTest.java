@@ -15,7 +15,7 @@ import io.xj.core.dao.ChoiceDAO;
 import io.xj.core.dao.InstrumentMemeDAO;
 import io.xj.core.dao.PatternDAO;
 import io.xj.core.dao.PatternEventDAO;
-import io.xj.core.dao.PatternMemeDAO;
+import io.xj.core.dao.SequencePatternMemeDAO;
 import io.xj.core.dao.SegmentChordDAO;
 import io.xj.core.dao.SegmentDAO;
 import io.xj.core.dao.SegmentMemeDAO;
@@ -80,7 +80,7 @@ public class BasisImplTest {
   @Mock
   private PatternDAO patternDAO;
   @Mock
-  private PatternMemeDAO patternMemeDAO;
+  private SequencePatternMemeDAO sequencePatternMemeDAO;
   @Mock
   private Tuning tuning;
   @Mock
@@ -118,7 +118,7 @@ public class BasisImplTest {
           bind(SegmentMemeDAO.class).toInstance(segmentMemeDAO);
           bind(SegmentMessageDAO.class).toInstance(segmentMessageDAO);
           bind(PatternDAO.class).toInstance(patternDAO);
-          bind(PatternMemeDAO.class).toInstance(patternMemeDAO);
+          bind(SequencePatternMemeDAO.class).toInstance(sequencePatternMemeDAO);
           bind(Tuning.class).toInstance(tuning);
           bind(VoiceDAO.class).toInstance(voiceDAO);
           bind(PatternEventDAO.class).toInstance(patternEventDAO);

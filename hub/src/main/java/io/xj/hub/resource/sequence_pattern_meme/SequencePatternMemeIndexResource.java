@@ -1,12 +1,12 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
-package io.xj.hub.resource.pattern_meme;
+package io.xj.hub.resource.sequence_pattern_meme;
 
 import com.google.common.collect.ImmutableList;
 
 import io.xj.core.access.impl.Access;
-import io.xj.core.dao.PatternMemeDAO;
-import io.xj.core.model.pattern_meme.PatternMeme;
-import io.xj.core.model.pattern_meme.PatternMemeWrapper;
+import io.xj.core.dao.SequencePatternMemeDAO;
+import io.xj.core.model.sequence_pattern_meme.SequencePatternMeme;
+import io.xj.core.model.sequence_pattern_meme.SequencePatternMemeWrapper;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.transport.HttpResponseProvider;
 import io.xj.hub.HubResource;
@@ -29,13 +29,13 @@ import java.util.Objects;
 /**
  Pattern record
  */
-@Path("pattern-memes")
-public class PatternMemeIndexResource extends HubResource {
-  private final PatternMemeDAO patternMemeDAO = injector.getInstance(PatternMemeDAO.class);
+@Path("sequence-pattern-memes")
+public class SequencePatternMemeIndexResource extends HubResource {
+  private final SequencePatternMemeDAO sequencePatternMemeDAO = injector.getInstance(SequencePatternMemeDAO.class);
   private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
 
-  @QueryParam("patternId")
-  String patternId;
+  @QueryParam("sequencePatternId")
+  String sequencePatternId;
 
   /**
    Get Memes in one pattern.
@@ -47,16 +47,16 @@ public class PatternMemeIndexResource extends HubResource {
   @RolesAllowed(UserRoleType.ARTIST)
   public Response readAll(@Context ContainerRequestContext crc) throws IOException {
 
-    if (Objects.isNull(patternId) || patternId.isEmpty()) {
+    if (Objects.isNull(sequencePatternId) || sequencePatternId.isEmpty()) {
       return response.notAcceptable("Pattern id is required");
     }
 
     try {
       return response.readMany(
-        PatternMeme.KEY_MANY,
-        patternMemeDAO.readAll(
+        SequencePatternMeme.KEY_MANY,
+        sequencePatternMemeDAO.readAll(
           Access.fromContext(crc),
-          ImmutableList.of(new BigInteger(patternId))));
+          ImmutableList.of(new BigInteger(sequencePatternId))));
 
     } catch (Exception e) {
       return response.failure(e);
@@ -72,14 +72,14 @@ public class PatternMemeIndexResource extends HubResource {
   @POST
   @Consumes(MediaType.APPLICATION_JSON)
   @RolesAllowed(UserRoleType.ARTIST)
-  public Response create(PatternMemeWrapper data, @Context ContainerRequestContext crc) {
+  public Response create(SequencePatternMemeWrapper data, @Context ContainerRequestContext crc) {
     try {
       return response.create(
-        PatternMeme.KEY_MANY,
-        PatternMeme.KEY_ONE,
-        patternMemeDAO.create(
+        SequencePatternMeme.KEY_MANY,
+        SequencePatternMeme.KEY_ONE,
+        sequencePatternMemeDAO.create(
           Access.fromContext(crc),
-          data.getPatternMeme()));
+          data.getSequencePatternMeme()));
 
     } catch (Exception e) {
       return response.failureToCreate(e);

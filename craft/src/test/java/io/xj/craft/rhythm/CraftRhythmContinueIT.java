@@ -1,30 +1,25 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.craft.rhythm;
 
-import java.math.BigInteger;
-
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.ChoiceDAO;
 import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
-import io.xj.core.model.sequence.SequenceState;
-import io.xj.core.model.sequence.SequenceType;
-import io.xj.core.model.segment.Segment;
-import io.xj.core.model.segment.SegmentState;
 import io.xj.core.model.pattern.PatternState;
 import io.xj.core.model.pattern.PatternType;
+import io.xj.core.model.segment.Segment;
+import io.xj.core.model.segment.SegmentState;
+import io.xj.core.model.sequence.SequenceState;
+import io.xj.core.model.sequence.SequenceType;
 import io.xj.core.model.user_role.UserRoleType;
-import io.xj.craft.basis.Basis;
-import io.xj.craft.basis.BasisFactory;
 import io.xj.craft.CraftFactory;
 import io.xj.craft.CraftModule;
-
-
+import io.xj.craft.basis.Basis;
+import io.xj.craft.basis.BasisFactory;
 import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
@@ -32,13 +27,15 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import java.math.BigInteger;
 import java.sql.Timestamp;
 
 import static org.junit.Assert.assertNotNull;
 
 public class CraftRhythmContinueIT {
-  @Rule public ExpectedException failure = ExpectedException.none();
   private final Injector injector = Guice.createInjector(new CoreModule(), new CraftModule());
+  @Rule
+  public ExpectedException failure = ExpectedException.none();
   private CraftFactory craftFactory;
   private BasisFactory basisFactory;
 
@@ -67,32 +64,39 @@ public class CraftRhythmContinueIT {
     // "Classic, Wild to Cozy" macro-sequence in house library
     IntegrationTestEntity.insertSequence(4, 3, 2, SequenceType.Macro, SequenceState.Published, "Classic, Wild to Cozy", 0.5, "C", 120);
     IntegrationTestEntity.insertSequenceMeme(2, 4, "Classic");
-    IntegrationTestEntity.insertPatternSequencePattern(3, 4, PatternType.Macro, PatternState.Published, 0, 64, "Start Wild", 0.6, "C", 125);
-    IntegrationTestEntity.insertPatternMeme(3, 3, "Wild");
+    IntegrationTestEntity.insertPatternAndSequencePattern(3, 4, PatternType.Macro, PatternState.Published, 0, 64, "Start Wild", 0.6, "C", 125);
+    IntegrationTestEntity.insertSequencePatternMeme(3, 4, 3, "Wild");
     IntegrationTestEntity.insertPatternChord(3, 3, 0, "C");
-    IntegrationTestEntity.insertPatternSequencePattern(4, 4, PatternType.Macro, PatternState.Published, 1, 64, "Finish Finish Cozy", 0.4, "Bb minor", 115);
-    IntegrationTestEntity.insertPatternMeme(4, 4, "Cozy");
+    IntegrationTestEntity.insertPatternAndSequencePattern(4, 4, PatternType.Macro, PatternState.Published, 1, 64, "Finish Finish Cozy", 0.4, "Bb minor", 115);
+    IntegrationTestEntity.insertSequencePatternMeme(4, 4, 4, "Cozy");
     IntegrationTestEntity.insertPatternChord(4, 4, 0, "Bb minor");
 
     // Main sequence
     IntegrationTestEntity.insertSequence(5, 3, 2, SequenceType.Main, SequenceState.Published, "Main Jam", 0.2, "Gb minor", 140);
     IntegrationTestEntity.insertSequenceMeme(3, 5, "Outlook");
-    IntegrationTestEntity.insertPatternSequencePattern(15, 5, PatternType.Main, PatternState.Published, 0, 16, "Intro", 0.5, "Gb minor", 135.0);
-    IntegrationTestEntity.insertPatternMeme(6, 15, "Cloudy");
+    IntegrationTestEntity.insertPatternAndSequencePattern(15, 5, PatternType.Main, PatternState.Published, 0, 16, "Intro", 0.5, "Gb minor", 135.0);
+    IntegrationTestEntity.insertSequencePatternMeme(6, 5, 15, "Cloudy");
     IntegrationTestEntity.insertPatternChord(12, 15, 0, "Gb minor");
     IntegrationTestEntity.insertPatternChord(14, 15, 8, "G minor");
-    IntegrationTestEntity.insertPatternSequencePattern(16, 5, PatternType.Main, PatternState.Published, 1, 16, "Intro", 0.5, "G major", 135.0);
-    IntegrationTestEntity.insertPatternMeme(7, 16, "Rosy");
+    IntegrationTestEntity.insertPatternAndSequencePattern(16, 5, PatternType.Main, PatternState.Published, 1, 16, "Intro", 0.5, "G major", 135.0);
+    IntegrationTestEntity.insertSequencePatternMeme(7, 5, 16, "Rosy");
     IntegrationTestEntity.insertPatternChord(16, 16, 0, "D minor");
     IntegrationTestEntity.insertPatternChord(18, 16, 8, "G major");
+
+    /*
+    Note that in any real use case, after
+    [#163158036] memes bound to sequence-patter
+    because sequence-pattern binding is not considered for rhythm sequences,
+    rhythm sequence patterns do not have memes.
+     */
 
     // A basic beat
     IntegrationTestEntity.insertSequence(35, 3, 2, SequenceType.Rhythm, SequenceState.Published, "Basic Beat", 0.2, "C", 121);
     IntegrationTestEntity.insertSequenceMeme(343, 35, "Basic");
-    IntegrationTestEntity.insertPattern(315, 35, PatternType.Intro, PatternState.Published, 16, "Drop", 0.5, "C", 125.0);
-    IntegrationTestEntity.insertPatternMeme(346, 315, "Heavy");
-    IntegrationTestEntity.insertPattern(316, 35, PatternType.Loop, PatternState.Published, 16, "Continue", 0.5, "C", 125.0);
-    IntegrationTestEntity.insertPatternMeme(347, 316, "Heavy");
+    IntegrationTestEntity.insertPatternAndSequencePattern(315, 35, PatternType.Intro, PatternState.Published, 0, 16, "Drop", 0.5, "C", 125.0);
+    IntegrationTestEntity.insertSequencePatternMeme(346, 35, 315, "Heavy");
+    IntegrationTestEntity.insertPatternAndSequencePattern(316, 35, PatternType.Loop, PatternState.Published, 1, 16, "Continue", 0.5, "C", 125.0);
+    IntegrationTestEntity.insertSequencePatternMeme(347, 35, 316, "Heavy");
 
     // harmonicDetail sequence
     IntegrationTestEntity.insertSequence(7, 3, 2, SequenceType.Detail, SequenceState.Published, "Detail Jam", 0.3, "Cb minor", 170);
@@ -110,14 +114,14 @@ public class CraftRhythmContinueIT {
 
     // Chain "Test Print #1" is crafting - Foundation is complete
     segment4 = IntegrationTestEntity.insertSegment(4, 1, 3, SegmentState.Crafting, Timestamp.valueOf("2017-02-14 12:03:08.000001"), Timestamp.valueOf("2017-02-14 12:03:15.836735"), "D major", 16, 0.45, 120, "chain-1-segment-97898asdf7892.wav", new JSONObject());
-    IntegrationTestEntity.insertSegmentMeme(101,4,"Cozy");
-    IntegrationTestEntity.insertSegmentMeme(102,4,"Classic");
-    IntegrationTestEntity.insertSegmentMeme(103,4,"Outlook");
-    IntegrationTestEntity.insertSegmentMeme(104,4,"Rosy");
-    IntegrationTestEntity.insertChoice(101,4, 4, SequenceType.Macro,1,3);
-    IntegrationTestEntity.insertChoice(102,4, 5, SequenceType.Main,1,-5);
-    IntegrationTestEntity.insertSegmentChord(101,4,0,"A minor");
-    IntegrationTestEntity.insertSegmentChord(102,4,8,"D major");
+    IntegrationTestEntity.insertSegmentMeme(101, 4, "Cozy");
+    IntegrationTestEntity.insertSegmentMeme(102, 4, "Classic");
+    IntegrationTestEntity.insertSegmentMeme(103, 4, "Outlook");
+    IntegrationTestEntity.insertSegmentMeme(104, 4, "Rosy");
+    IntegrationTestEntity.insertChoice(101, 4, 4, SequenceType.Macro, 1, 3);
+    IntegrationTestEntity.insertChoice(102, 4, 5, SequenceType.Main, 1, -5);
+    IntegrationTestEntity.insertSegmentChord(101, 4, 0, "A minor");
+    IntegrationTestEntity.insertSegmentChord(102, 4, 8, "D major");
 
     // Bind the library to the chain
     IntegrationTestEntity.insertChainLibrary(1, 1, 2);

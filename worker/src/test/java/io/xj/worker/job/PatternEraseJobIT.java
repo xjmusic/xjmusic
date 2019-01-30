@@ -5,17 +5,16 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.util.Modules;
-
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
 import io.xj.core.app.App;
 import io.xj.core.dao.PatternDAO;
 import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.model.instrument.InstrumentType;
-import io.xj.core.model.sequence.SequenceState;
-import io.xj.core.model.sequence.SequenceType;
 import io.xj.core.model.pattern.PatternState;
 import io.xj.core.model.pattern.PatternType;
+import io.xj.core.model.sequence.SequenceState;
+import io.xj.core.model.sequence.SequenceType;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.model.work.Work;
 import io.xj.core.model.work.WorkType;
@@ -34,7 +33,6 @@ import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigInteger;
-import java.util.Objects;
 
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -44,13 +42,15 @@ import static org.junit.Assert.assertTrue;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class PatternEraseJobIT {
-  @Rule public ExpectedException failure = ExpectedException.none();
-  private Injector injector;
-  private App app;
   private static final int MILLIS_PER_SECOND = 1000;
   private static final int MAXIMUM_TEST_WAIT_MILLIS = 30 * MILLIS_PER_SECOND;
+  @Spy
+  private final WorkManager workManager = Guice.createInjector(new CoreModule()).getInstance(WorkManager.class);
+  @Rule
+  public ExpectedException failure = ExpectedException.none();
   long startTime = System.currentTimeMillis();
-  @Spy private final WorkManager workManager = Guice.createInjector(new CoreModule()).getInstance(WorkManager.class);
+  private Injector injector;
+  private App app;
 
   @Before
   public void setUp() throws Exception {
@@ -85,22 +85,22 @@ public class PatternEraseJobIT {
     IntegrationTestEntity.insertVoice(4, 12, InstrumentType.Percussive, "Snarr Dram");
 
     // Pattern "Verse"
-    IntegrationTestEntity.insertPattern(1, 1, PatternType.Loop, PatternState.Published,  16, "Verse 1", 0.5, "G", 120);
-    IntegrationTestEntity.insertPatternMeme(1, 1, "GREEN");
+    IntegrationTestEntity.insertPatternAndSequencePattern(1, 1, PatternType.Loop, PatternState.Published, 0, 16, "Verse 1", 0.5, "G", 120);
+    IntegrationTestEntity.insertSequencePatternMeme(1, 1, 1, "GREEN");
     IntegrationTestEntity.insertPatternChord(1, 1, 0, "Db7");
     IntegrationTestEntity.insertPatternEvent(101, 1, 1, 0.0, 1.0, "KICK", "C5", 1.0, 1.0);
     IntegrationTestEntity.insertPatternEvent(102, 1, 2, 1.0, 1.0, "SNARE", "C5", 1.0, 1.0);
 
     // Pattern "Verse"
-    IntegrationTestEntity.insertPattern(2, 1, PatternType.Loop, PatternState.Published,  16, "Verse 2", 0.5, "G", 120);
-    IntegrationTestEntity.insertPatternMeme(2, 2, "YELLOW");
+    IntegrationTestEntity.insertPatternAndSequencePattern(2, 1, PatternType.Loop, PatternState.Published, 1, 16, "Verse 2", 0.5, "G", 120);
+    IntegrationTestEntity.insertSequencePatternMeme(2, 1, 2, "YELLOW");
     IntegrationTestEntity.insertPatternChord(2, 2, 0, "Gm9");
     IntegrationTestEntity.insertPatternEvent(103, 2, 1, 0.0, 1.0, "KICK", "C5", 1.0, 1.0);
     IntegrationTestEntity.insertPatternEvent(104, 2, 2, 1.0, 1.0, "SNARE", "C5", 1.0, 1.0);
 
     // Newly cloned patterns -- awaiting PatternClone job to run, and create their child entities
-    IntegrationTestEntity.insertPattern(3, 1, PatternType.Loop, PatternState.Published,  16, "Verse 34", 0.5, "G", 120);
-    IntegrationTestEntity.insertPattern(4, 12, PatternType.Loop, PatternState.Published,  16, "Verse 79", 0.5, "G", 120);
+    IntegrationTestEntity.insertPattern(3, 1, PatternType.Loop, PatternState.Published, 16, "Verse 34", 0.5, "G", 120);
+    IntegrationTestEntity.insertPattern(4, 12, PatternType.Loop, PatternState.Published, 16, "Verse 79", 0.5, "G", 120);
 
     // Don't sleep between processing work
     System.setProperty("app.port", "9043");
@@ -125,7 +125,7 @@ public class PatternEraseJobIT {
   }
 
   @After
-  public void tearDown(){
+  public void tearDown() {
   }
 
   @Test
@@ -141,8 +141,8 @@ public class PatternEraseJobIT {
     }
     app.stop();
 
-    assertNull( injector.getInstance(PatternDAO.class).readOne(Access.internal(), BigInteger.valueOf(1)));
-    assertNull( injector.getInstance(PatternDAO.class).readOne(Access.internal(), BigInteger.valueOf(2)));
+    assertNull(injector.getInstance(PatternDAO.class).readOne(Access.internal(), BigInteger.valueOf(1)));
+    assertNull(injector.getInstance(PatternDAO.class).readOne(Access.internal(), BigInteger.valueOf(2)));
   }
 
   /**
@@ -177,7 +177,7 @@ public class PatternEraseJobIT {
   private boolean hasRemainingWork(WorkType type) throws Exception {
     int total = 0;
     for (Work work : app.getWorkManager().readAllWork()) {
-      if (Objects.equals(type, work.getType())) total++;
+      if (type == work.getType()) total++;
     }
     return 0 < total;
   }

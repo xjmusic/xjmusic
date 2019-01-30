@@ -1,5 +1,6 @@
 //  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 import DS from 'ember-data';
+import {computed} from '@ember/object';
 
 export default DS.Model.extend({
   audio: DS.belongsTo({}),
@@ -10,10 +11,8 @@ export default DS.Model.extend({
   tonality: DS.attr('number'),
   velocity: DS.attr('number'),
 
-  getTitle() {
-    return this.get("note") +
-      '(' + this.get("inflection") + ')' +
-      '@' + this.get("position");
-  }
+  title: computed('note', 'inflection', 'position', function () {
+    return `${this.note}(${this.inflection})@${this.position}`;
+  }),
 
 });

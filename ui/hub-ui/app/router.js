@@ -82,7 +82,6 @@ function accountLibrarySequencePatternOne() {
   this.route('clone');
   this.route('stepmatic');
   this.route('destroy');
-  this.route('memes');
   this.route('chords', accountLibrarySequencePatternChordIndex);
   this.route('events', accountLibrarySequencePatternEventIndex);
 }

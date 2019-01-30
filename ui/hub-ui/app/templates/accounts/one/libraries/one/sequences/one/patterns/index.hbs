@@ -7,7 +7,8 @@
 
   {{#if (or auth.isArtist auth.isAdmin)}}
     <div class="col-sm-12 text-right">
-      {{#link-to 'accounts.one.libraries.one.sequences.one.patterns.new' model.sequence.library.account model.sequence.library model.sequence}}{{fa-icon "plus"}} Create New Pattern{{/link-to}}
+      {{#link-to 'accounts.one.libraries.one.sequences.one.patterns.new' model.sequence.library.account
+                 model.sequence.library model.sequence}}{{fa-icon "plus"}} Create New Pattern{{/link-to}}
     </div>
   {{/if}}
 
@@ -32,21 +33,29 @@
           <tr class="item">
             <td>{{pattern.type}}</td>
             <td>{{pattern.total}}</td>
-            <td>{{#link-to 'accounts.one.libraries.one.sequences.one.patterns.one' pattern.sequence.library.account pattern.sequence.library pattern.sequence pattern}}{{pattern.name}}{{/link-to}}</td>
+            <td>{{#link-to 'accounts.one.libraries.one.sequences.one.patterns.one' pattern.sequence.library.account
+                           pattern.sequence.library pattern.sequence pattern}}{{pattern.name}}{{/link-to}}</td>
             <td>{{pattern.key}}</td>
             <td>{{pattern.density}}</td>
             <td>{{pattern.tempo}}</td>
             <td>
-              {{#link-to 'accounts.one.libraries.one.sequences.one.patterns.one.memes' pattern.sequence.library.account pattern.sequence.library pattern.sequence pattern}}Memes{{/link-to}}<span>&nbsp;</span>
               {{#if (not-eq pattern.sequence.type "Macro")}}
-                {{#link-to 'accounts.one.libraries.one.sequences.one.patterns.one.chords' pattern.sequence.library.account pattern.sequence.library pattern.sequence pattern}}Chords{{/link-to}}<span>&nbsp;</span>
-                {{#link-to 'accounts.one.libraries.one.sequences.one.patterns.one.events' pattern.sequence.library.account pattern.sequence.library pattern.sequence pattern}}Events{{/link-to}}<span>&nbsp;</span>
-                {{#if (eq pattern.sequence.type "Rhythm")}}{{#link-to 'accounts.one.libraries.one.sequences.one.patterns.one.stepmatic' pattern.sequence.library.account pattern.sequence.library pattern.sequence pattern}}Stepmatic{{/link-to}}<span>&nbsp;</span>{{/if}}
+                {{#link-to 'accounts.one.libraries.one.sequences.one.patterns.one.chords'
+                           pattern.sequence.library.account pattern.sequence.library pattern.sequence pattern}}
+                  Chords{{/link-to}}<span>&nbsp;</span>
+                {{#link-to 'accounts.one.libraries.one.sequences.one.patterns.one.events'
+                           pattern.sequence.library.account pattern.sequence.library pattern.sequence pattern}}
+                  Events{{/link-to}}<span>&nbsp;</span>
+                {{#if (eq pattern.sequence.type "Rhythm")}}{{#link-to
+                  'accounts.one.libraries.one.sequences.one.patterns.one.stepmatic' pattern.sequence.library.account
+                  pattern.sequence.library pattern.sequence pattern}}Stepmatic{{/link-to}}<span>&nbsp;</span>{{/if}}
               {{/if}}
-              {{entity-actions 'accounts.one.libraries.one.sequences.one.patterns.one' 'edit|clone|destroy' pattern.sequence.library.account pattern.sequence.library pattern.sequence pattern}}
+              {{entity-actions 'accounts.one.libraries.one.sequences.one.patterns.one' 'edit|clone|destroy'
+                               pattern.sequence.library.account pattern.sequence.library pattern.sequence pattern}}
             </td>
             <th scope="row">{{#link-to "accounts.one.libraries.one.sequences.one.patterns.one"
-                                       pattern.sequence.library.account pattern.sequence.library pattern.sequence pattern}}{{pattern.id}}{{/link-to}}</th>
+                                       pattern.sequence.library.account pattern.sequence.library pattern.sequence
+                                       pattern}}{{pattern.id}}{{/link-to}}</th>
           </tr>
         {{/each}}
         </tbody>
@@ -60,80 +69,94 @@
   <!-- Container -->
   <div class="form-horizontal container-fluid">
 
+    <!-- [#163158036] memes bound to sequence-pattern (not pattern) -->
+
     <!-- Info -->
     <div class="row">
       <div class="col-sm-12">
-        <h2>Pattern Order</h2>
+        <h2>Sequence-Pattern Binding</h2>
         <p>After creating patterns, use the controls below to bind your patterns to the sequence in a particular
-          order.</p>
+          order, with particular memes.</p>
       </div>
     </div>
 
     <!-- List records, else display message -->
     <div class="row">
-      {{#if model.sequencePatterns.length}}
-        <div class="col-sm-12">
-          <div class="table-list">
-            <table class="table">
-              <thead>
-              <tr>
-                <th>Offset</th>
-                <th>Name</th>
-                <th>&nbsp;</th>
-              </tr>
-              </thead>
-              <tbody>
+      <div class="col-sm-12">
+        <div class="table-list">
+          <table class="table">
+            <thead>
+            <tr>
+              <th>Offset</th>
+              <th><!-- remove sequence-pattern --></th>
+              <th>Pattern</th>
+              <th><!-- add meme --></th>
+              <th>Memes</th>
+            </tr>
+            </thead>
+            <tbody>
+            {{#if model.sequencePatterns.length}}
               {{#each model.sequencePatterns as |sequencePattern|}}
                 <tr>
-                  <td>{{sequencePattern.offset}}</td>
-                  <td>{{sequencePattern.pattern.name}}</td>
+                  <td width="1%" class="offset">
+                    {{sequencePattern.offset}}
+                  </td>
+                  <td width="1%">
+                    <a {{action "removePattern" sequencePattern}} class="action action-destroy">
+                      {{fa-icon (action-icon "destroy")}}</a>
+                  </td>
+                  <td width="1%" class="do-not-break">{{sequencePattern.pattern.name}}</td>
+                  <td width="1%">
+                    <a {{action "addMeme" sequencePattern}} class="action action-add">
+                      {{fa-icon (action-icon "add")}}</a>
+                  </td>
                   <td>
-                    <button {{action "removePattern" sequencePattern}}>Remove</button>
+                    {{#each sequencePattern.memes as |meme|}}
+                      <div class="sequence-pattern-meme">
+                        <div class="meme-name">{{meme.name}}</div>
+                        <a {{action "removeMeme" meme}} class="action action-destroy">
+                          {{fa-icon (action-icon "destroy")}}</a>
+                      </div>
+                    {{/each}}
                   </td>
                 </tr>
               {{/each}}
-              </tbody>
-            </table>
-          </div>
+            {{else}}
+              <tr>
+                <td colspan="5">
+                  <p>Please bind some sequence-patterns.</p>
+                </td>
+              </tr>
+            {{/if}}
+            <tr>
+              <td>
+                {{input type="text" value=model.offsetToAdd class="form-control" autofocus="autofocus"}}
+              </td>
+              <td><!-- remove sequence-pattern --></td>
+              <td class="do-not-break">
+                <!--input type="text" value=model.newSequencePattern.patternId class="form-control" autofocus="autofocus"-->
+                <!--placeholder="Pattern ID to grant access"}}-->
+                {{#power-select
+                  placeholder="Select Pattern"
+                  options=model.patterns
+                  selected=model.patternToAdd
+                  searchField='name'
+                  onchange=(action "setPatternToAdd")
+                as |pattern| }}
+                  {{pattern.name}}
+                {{/power-select}}
+              </td>
+              <td><!-- add meme --></td>
+              <td>
+                <button type="submit" class="btn btn-default" {{action 'addPattern' model}}>Bind Pattern to
+                  Sequence
+                </button>
+              </td>
+            </tr>
+            </tbody>
+          </table>
         </div>
-      {{else}}
-        <div class="col-sm-12">
-          <p>Please bind some patterns to determine their selection order.</p>
-        </div>
-      {{/if}}
-    </div>
-
-    <div class="form-group row">
-      <label class="col-sm-2 control-label">Select Pattern to bind</label>
-      <div class="col-sm-10">
-        <!--input type="text" value=model.newSequencePattern.patternId class="form-control" autofocus="autofocus"-->
-        <!--placeholder="Pattern ID to grant access"}}-->
-        {{#power-select
-          placeholder="Select Pattern"
-          options=model.patterns
-          selected=model.patternToAdd
-          searchField='name'
-          onchange=(action "setPatternToAdd")
-        as |pattern| }}
-          {{pattern.name}}
-        {{/power-select}}
       </div>
     </div>
-
-    <div class="form-group row">
-      <label class="col-sm-2 control-label">Offset</label>
-      <div class="col-sm-10">
-        {{input type="text" value=model.offsetToAdd class="form-control" autofocus="autofocus"}}
-      </div>
-    </div>
-
-    <div class="form-group row">
-      <div class="offset-sm-2 col-sm-10">
-        <button type="submit" class="btn btn-default" {{action 'addPattern' model}}>Bind Pattern to
-          Sequence
-        </button>
-      </div>
-    </div>
-
   </div>
 {{/if}}

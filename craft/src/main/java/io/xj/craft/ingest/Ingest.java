@@ -18,7 +18,7 @@ import io.xj.core.model.pattern.Pattern;
 import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.pattern_chord.PatternChord;
 import io.xj.core.model.pattern_event.PatternEvent;
-import io.xj.core.model.pattern_meme.PatternMeme;
+import io.xj.core.model.sequence_pattern_meme.SequencePatternMeme;
 import io.xj.core.model.voice.Voice;
 import io.xj.music.Key;
 
@@ -176,7 +176,7 @@ public interface Ingest {
 
    @return collection of pattern memes
    */
-  Collection<PatternMeme> patternMemes();
+  Collection<SequencePatternMeme> patternMemes();
 
   /**
    Get all Pattern Memes for a Pattern
@@ -185,7 +185,7 @@ public interface Ingest {
    @param patternId to get pattern memes for
    @return pattern memes
    */
-  Collection<PatternMeme> patternMemes(BigInteger patternId);
+  Collection<SequencePatternMeme> patternMemes(BigInteger patternId);
 
   /**
    Selects one (at random) from all available patterns an at offset of a sequence.

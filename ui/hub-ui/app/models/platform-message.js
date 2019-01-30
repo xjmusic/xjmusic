@@ -1,5 +1,6 @@
 //  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 import DS from "ember-data";
+import {computed} from '@ember/object';
 
 export default DS.Model.extend({
   body: DS.attr('string'),
@@ -7,8 +8,8 @@ export default DS.Model.extend({
   createdAt: DS.attr('string'),
   updatedAt: DS.attr('string'),
 
-  getTitle() {
-    return '[' + this.get("type") + '] ' + this.get("body");
-  }
+  title: computed('type', 'body', function () {
+    return `[${this.type}] ${this.body}`;
+  }),
 
 });

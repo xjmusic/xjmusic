@@ -5,4 +5,5 @@ export default DS.Model.extend({
   sequence: DS.belongsTo({}),
   pattern: DS.belongsTo({}),
   offset: DS.attr('number'),
+  memes: DS.hasMany('sequence-pattern-meme'),
 });

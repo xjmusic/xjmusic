@@ -21,7 +21,7 @@ import io.xj.core.model.pattern.Pattern;
 import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.pattern_chord.PatternChord;
 import io.xj.core.model.pattern_event.PatternEvent;
-import io.xj.core.model.pattern_meme.PatternMeme;
+import io.xj.core.model.sequence_pattern_meme.SequencePatternMeme;
 import io.xj.core.model.sequence.Sequence;
 import io.xj.core.model.sequence.SequenceType;
 import io.xj.core.model.sequence_meme.SequenceMeme;
@@ -50,7 +50,7 @@ public class IngestImpl implements Ingest {
   private final SequenceMemeDAO sequenceMemeDAO;
   private final InstrumentMemeDAO instrumentMemeDAO;
   private final PatternDAO patternDAO;
-  private final PatternMemeDAO patternMemeDAO;
+  private final SequencePatternMemeDAO sequencePatternMemeDAO;
   private final VoiceDAO voiceDAO;
   private final PatternEventDAO patternEventDAO;
 
@@ -62,7 +62,7 @@ public class IngestImpl implements Ingest {
   private final Map<BigInteger, Sequence> sequenceMap = Maps.newConcurrentMap();
   private final Map<BigInteger, SequenceMeme> sequenceMemeMap = Maps.newConcurrentMap();
   private final Map<BigInteger, Pattern> patternMap = Maps.newConcurrentMap();
-  private final Map<BigInteger, PatternMeme> patternMemeMap = Maps.newConcurrentMap();
+  private final Map<BigInteger, SequencePatternMeme> patternMemeMap = Maps.newConcurrentMap();
   private final Map<BigInteger, Instrument> instrumentMap = Maps.newConcurrentMap();
   private final Map<BigInteger, InstrumentMeme> instrumentMemeMap = Maps.newConcurrentMap();
   private final Map<BigInteger, Library> libraryMap = Maps.newConcurrentMap();
@@ -91,7 +91,7 @@ public class IngestImpl implements Ingest {
     SequenceMemeDAO sequenceMemeDAO,
     PatternChordDAO patternChordDAO,
     PatternDAO patternDAO,
-    PatternMemeDAO patternMemeDAO,
+    SequencePatternMemeDAO sequencePatternMemeDAO,
     VoiceDAO voiceDAO,
     PatternEventDAO patternEventDAO
   ) {
@@ -108,7 +108,7 @@ public class IngestImpl implements Ingest {
     this.sequenceMemeDAO = sequenceMemeDAO;
     this.patternChordDAO = patternChordDAO;
     this.patternDAO = patternDAO;
-    this.patternMemeDAO = patternMemeDAO;
+    this.sequencePatternMemeDAO = sequencePatternMemeDAO;
     this.voiceDAO = voiceDAO;
     this.patternEventDAO = patternEventDAO;
     readAll(); // must happen before chord progressions are computed
@@ -164,7 +164,7 @@ public class IngestImpl implements Ingest {
       readAll(Pattern.class, patternMap, sequenceMap.keySet(), patternDAO);
       readAll(PatternChord.class, patternChordMap, patternMap.keySet(), patternChordDAO);
       readAll(PatternEvent.class, patternEventMap, patternMap.keySet(), patternEventDAO);
-      readAll(PatternMeme.class, patternMemeMap, patternMap.keySet(), patternMemeDAO);
+      readAll(SequencePatternMeme.class, patternMemeMap, patternMap.keySet(), sequencePatternMemeDAO);
       readAll(Voice.class, voiceMap, sequenceMap.keySet(), voiceDAO);
     } catch (Exception e) {
       log.error("Failed to read all entities for ingest.", e);
@@ -275,12 +275,12 @@ public class IngestImpl implements Ingest {
   }
 
   @Override
-  public Collection<PatternMeme> patternMemes() {
+  public Collection<SequencePatternMeme> patternMemes() {
     return patternMemeMap.values();
   }
 
   @Override
-  public Collection<PatternMeme> patternMemes(BigInteger patternId) {
+  public Collection<SequencePatternMeme> patternMemes(BigInteger patternId) {
     return fetchMany(patternMemeMap, patternId);
   }
 

@@ -14,7 +14,7 @@ export default Route.extend({
 
   /**
    * Route Model
-   * @returns {*|DS.Model}
+   * @returns {*}
    */
   model() {
     let auth = this.get('auth');

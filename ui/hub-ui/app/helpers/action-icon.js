@@ -1,12 +1,13 @@
 //  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-import { helper } from '@ember/component/helper';
+import {helper} from '@ember/component/helper';
 
 let icons = {
   "edit": "edit",
   "clone": "files-o",
   "move": "angle-double-right",
-  "destroy": "times"
+  "destroy": "times",
+  "add": "plus-circle",
 };
 
 export function actionIcon(params/*, hash*/) {

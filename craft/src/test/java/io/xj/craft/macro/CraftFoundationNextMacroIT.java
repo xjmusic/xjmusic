@@ -77,54 +77,54 @@ public class CraftFoundationNextMacroIT {
     // "Metal, Wild to Basement" macro-sequence in house library
     IntegrationTestEntity.insertSequence(4, 3, 2, SequenceType.Macro, SequenceState.Published, "Wild to Basement", 0.5, "C", 120);
     // " pattern offset 0
-    IntegrationTestEntity.insertPatternSequencePattern(3, 4, PatternType.Macro, PatternState.Published, 0, 0, "Start Wild", 0.6, "C", 125);
-    IntegrationTestEntity.insertPatternMeme(3, 3, "Wild");
+    IntegrationTestEntity.insertPatternAndSequencePattern(3, 4, PatternType.Macro, PatternState.Published, 0, 0, "Start Wild", 0.6, "C", 125);
+    IntegrationTestEntity.insertSequencePatternMeme(3, 4, 3, "Wild");
     IntegrationTestEntity.insertPatternChord(3, 3, 0, "C");
     // " pattern offset 1
-    IntegrationTestEntity.insertPatternSequencePattern(4, 4, PatternType.Macro, PatternState.Published, 1, 0, "Intermediate", 0.4, "Bb minor", 115);
-    IntegrationTestEntity.insertPatternMeme(4, 4, "Basement");
-    IntegrationTestEntity.insertPatternMeme(49, 4, "Wild");
+    IntegrationTestEntity.insertPatternAndSequencePattern(4, 4, PatternType.Macro, PatternState.Published, 1, 0, "Intermediate", 0.4, "Bb minor", 115);
+    IntegrationTestEntity.insertSequencePatternMeme(4, 4, 4, "Basement");
+    IntegrationTestEntity.insertSequencePatternMeme(49, 4, 4, "Wild");
     IntegrationTestEntity.insertPatternChord(4, 4, 0, "Bb minor");
     // " pattern offset 2
-    IntegrationTestEntity.insertPatternSequencePattern(5, 4, PatternType.Macro, PatternState.Published, 2, 0, "Finish Basement", 0.4, "Ab minor", 125);
-    IntegrationTestEntity.insertPatternMeme(5, 4, "Basement");
+    IntegrationTestEntity.insertPatternAndSequencePattern(5, 4, PatternType.Macro, PatternState.Published, 2, 0, "Finish Basement", 0.4, "Ab minor", 125);
+    IntegrationTestEntity.insertSequencePatternMeme(5, 4, 4, "Basement");
     IntegrationTestEntity.insertPatternChord(5, 5, 0, "Ab minor");
 
     // "Chunky to Smooth" macro-sequence in house library
     IntegrationTestEntity.insertSequence(3, 3, 2, SequenceType.Macro, SequenceState.Published, "Chunky to Smooth", 0.5, "G minor", 120);
     // # pattern offset 0
-    IntegrationTestEntity.insertPatternSequencePattern(1, 3, PatternType.Macro, PatternState.Published, 0, 0, "Start Chunky", 0.4, "G minor", 115);
-    IntegrationTestEntity.insertPatternMeme(1, 1, "Chunky");
+    IntegrationTestEntity.insertPatternAndSequencePattern(1, 3, PatternType.Macro, PatternState.Published, 0, 0, "Start Chunky", 0.4, "G minor", 115);
+    IntegrationTestEntity.insertSequencePatternMeme(1, 3, 1, "Chunky");
     IntegrationTestEntity.insertPatternChord(1, 1, 0, "G minor");
     // # pattern offset 1
-    IntegrationTestEntity.insertPatternSequencePattern(2, 3, PatternType.Macro, PatternState.Published, 1, 0, "Finish Smooth", 0.6, "C", 125);
-    IntegrationTestEntity.insertPatternMeme(2, 2, "Smooth");
+    IntegrationTestEntity.insertPatternAndSequencePattern(2, 3, PatternType.Macro, PatternState.Published, 1, 0, "Finish Smooth", 0.6, "C", 125);
+    IntegrationTestEntity.insertSequencePatternMeme(2, 3, 2, "Smooth");
     IntegrationTestEntity.insertPatternChord(2, 2, 0, "C");
 
     // Main sequence
     IntegrationTestEntity.insertSequence(5, 3, 2, SequenceType.Main, SequenceState.Published, "Main Jam", 0.2, "C minor", 140);
     IntegrationTestEntity.insertSequenceMeme(3, 5, "Outlook");
     // # pattern offset 0
-    IntegrationTestEntity.insertPatternSequencePattern(15, 5, PatternType.Main, PatternState.Published, 0, 16, "Intro", 0.5, "G major", 135.0);
-    IntegrationTestEntity.insertPatternMeme(6, 15, "Optimism");
+    IntegrationTestEntity.insertPatternAndSequencePattern(15, 5, PatternType.Main, PatternState.Published, 0, 16, "Intro", 0.5, "G major", 135.0);
+    IntegrationTestEntity.insertSequencePatternMeme(6, 5, 15, "Optimism");
     IntegrationTestEntity.insertPatternChord(12, 15, 0, "G major");
     IntegrationTestEntity.insertPatternChord(14, 15, 8, "Ab minor");
     // # pattern offset 1
-    IntegrationTestEntity.insertPatternSequencePattern(16, 5, PatternType.Main, PatternState.Published, 1, 16, "Drop", 0.5, "G minor", 135.0);
-    IntegrationTestEntity.insertPatternMeme(7, 16, "Pessimism");
+    IntegrationTestEntity.insertPatternAndSequencePattern(16, 5, PatternType.Main, PatternState.Published, 1, 16, "Drop", 0.5, "G minor", 135.0);
+    IntegrationTestEntity.insertSequencePatternMeme(7, 5, 16, "Pessimism");
     IntegrationTestEntity.insertPatternChord(16, 16, 0, "C major");
     IntegrationTestEntity.insertPatternChord(18, 16, 8, "Bb minor");
 
     // Another Main sequence to go to
     IntegrationTestEntity.insertSequence(15, 3, 2, SequenceType.Main, SequenceState.Published, "Next Jam", 0.2, "Db minor", 140);
     IntegrationTestEntity.insertSequenceMeme(43, 15, "Hindsight");
-    IntegrationTestEntity.insertPatternSequencePattern(415, 15, PatternType.Main, PatternState.Published, 0, 16, "Intro", 0.5, "G minor", 135.0);
-    IntegrationTestEntity.insertPatternMeme(46, 415, "Regret");
+    IntegrationTestEntity.insertPatternAndSequencePattern(415, 15, PatternType.Main, PatternState.Published, 0, 16, "Intro", 0.5, "G minor", 135.0);
+    IntegrationTestEntity.insertSequencePatternMeme(46, 15, 415, "Regret");
     IntegrationTestEntity.insertPatternChord(412, 415, 0, "G minor");
     IntegrationTestEntity.insertPatternChord(414, 415, 8, "Ab minor");
-    IntegrationTestEntity.insertPatternSequencePattern(416, 15, PatternType.Main, PatternState.Published, 1, 16, "Outro", 0.5, "A major", 135.0);
-    IntegrationTestEntity.insertPatternMeme(47, 416, "Pride");
-    IntegrationTestEntity.insertPatternMeme(149, 416, "Shame");
+    IntegrationTestEntity.insertPatternAndSequencePattern(416, 15, PatternType.Main, PatternState.Published, 1, 16, "Outro", 0.5, "A major", 135.0);
+    IntegrationTestEntity.insertSequencePatternMeme(47, 15, 416, "Pride");
+    IntegrationTestEntity.insertSequencePatternMeme(149, 15, 416, "Shame");
     IntegrationTestEntity.insertPatternChord(416, 416, 0, "C major");
     IntegrationTestEntity.insertPatternChord(418, 416, 8, "Bb major");
 

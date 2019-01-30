@@ -83,8 +83,8 @@ public class PatternIT {
     IntegrationTestEntity.insertSequence(2, 2, 1, SequenceType.Macro, SequenceState.Published, "coconuts", 8.02, "D", 130.2);
 
     // Sequence "leaves" has patterns "Ants" and "Caterpillars"
-    IntegrationTestEntity.insertPatternSequencePattern(1, 1, PatternType.Main, PatternState.Published, 0, 16, "Ants", 0.583, "D minor", 120.0);
-    IntegrationTestEntity.insertPatternSequencePattern(2, 1, PatternType.Main, PatternState.Published, 1, 16, "Caterpillars", 0.583, "E major", 140.0);
+    IntegrationTestEntity.insertPatternAndSequencePattern(1, 1, PatternType.Main, PatternState.Published, 0, 16, "Ants", 0.583, "D minor", 120.0);
+    IntegrationTestEntity.insertPatternAndSequencePattern(2, 1, PatternType.Main, PatternState.Published, 1, 16, "Caterpillars", 0.583, "E major", 140.0);
 
     // Instantiate the test subject
     subject = injector.getInstance(PatternDAO.class);
@@ -540,7 +540,7 @@ public class PatternIT {
    */
   @Test
   public void readAllAtSequenceOffset_multiplePatternsAtOffset() throws Exception {
-    IntegrationTestEntity.insertPatternSequencePattern(5, 1, PatternType.Main, PatternState.Published, 0, 16, "Army Ants", 0.683, "Eb minor", 122.4);
+    IntegrationTestEntity.insertPatternAndSequencePattern(5, 1, PatternType.Main, PatternState.Published, 0, 16, "Army Ants", 0.683, "Eb minor", 122.4);
     Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
@@ -601,7 +601,7 @@ public class PatternIT {
 
   @Test
   public void readAll_excludesPatternsInEraseState() throws Exception {
-    IntegrationTestEntity.insertPatternSequencePattern(27, 1, PatternType.Main, PatternState.Erase, 0, 16, "Ants", 0.583, "D minor", 120.0);
+    IntegrationTestEntity.insertPatternAndSequencePattern(27, 1, PatternType.Main, PatternState.Erase, 0, 16, "Ants", 0.583, "D minor", 120.0);
     Access access = new Access(ImmutableMap.of(
       "roles", "User",
       "accounts", "1"
@@ -839,7 +839,8 @@ public class PatternIT {
       "roles", "Artist",
       "accounts", "1"
     ));
-    IntegrationTestEntity.insertPatternMeme(2001, 1, "mashup");
+    IntegrationTestEntity.insertSequencePattern(2011, 1, 1, 0, Timestamp.valueOf("2017-02-14 12:01:00.000001"));
+    IntegrationTestEntity.insertSequencePatternMeme(2001, 1, 1, "mashup");
     IntegrationTestEntity.insertPatternChord(2011, 1, 0, "G");
     IntegrationTestEntity.insertPatternChord(2012, 1, 2, "D");
     IntegrationTestEntity.insertVoice(2051, 1, InstrumentType.Percussive, "Smash");
@@ -864,7 +865,7 @@ public class PatternIT {
     assertNull(injector.getInstance(PatternEventDAO.class).readOne(Access.internal(), BigInteger.valueOf(2064L)));
     assertNull(injector.getInstance(PatternChordDAO.class).readOne(Access.internal(), BigInteger.valueOf(2012L)));
     assertNull(injector.getInstance(PatternChordDAO.class).readOne(Access.internal(), BigInteger.valueOf(2011L)));
-    assertNull(injector.getInstance(PatternMemeDAO.class).readOne(Access.internal(), BigInteger.valueOf(2001L)));
+    assertNull(injector.getInstance(SequencePatternMemeDAO.class).readOne(Access.internal(), BigInteger.valueOf(2001L)));
   }
 
   // future test: PatternDAO cannot destroy record unless user has account access

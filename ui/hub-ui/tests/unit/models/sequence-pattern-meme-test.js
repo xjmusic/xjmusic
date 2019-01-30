@@ -3,7 +3,7 @@ import { describe, it } from 'mocha';
 import { setupModelTest } from 'ember-mocha';
 
 describe('Unit | Model | pattern meme', function() {
-  setupModelTest('pattern-meme', {
+  setupModelTest('sequence-pattern-meme', {
     // Specify the other units that are required for this test.
     needs: []
   });

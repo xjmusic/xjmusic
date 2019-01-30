@@ -4,7 +4,7 @@ package io.xj.craft.isometry;
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 import io.xj.core.model.meme.Meme;
-import io.xj.core.model.pattern_meme.PatternMeme;
+import io.xj.core.model.sequence_pattern_meme.SequencePatternMeme;
 
 import java.util.List;
 import java.util.Map;
@@ -39,7 +39,7 @@ public class MemeIsometry extends Isometry {
     List<Meme> sourceMemes = Lists.newArrayList();
 
     stringMemeMap.forEach((key, record) -> sourceMemes.add(
-      new PatternMeme().setName(record.getName())
+      new SequencePatternMeme().setName(record.getName())
     ));
 
     return ofMemes(sourceMemes);

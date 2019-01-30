@@ -1,38 +1,34 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.worker.job;
 
+import com.google.common.collect.ImmutableList;
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.util.Modules;
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
 import io.xj.core.app.App;
 import io.xj.core.dao.PatternChordDAO;
 import io.xj.core.dao.PatternDAO;
-import io.xj.core.dao.PatternMemeDAO;
 import io.xj.core.dao.PatternEventDAO;
 import io.xj.core.external.amazon.AmazonProvider;
 import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.model.instrument.InstrumentType;
-import io.xj.core.model.sequence.SequenceState;
-import io.xj.core.model.sequence.SequenceType;
 import io.xj.core.model.pattern.Pattern;
 import io.xj.core.model.pattern.PatternState;
 import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.pattern_chord.PatternChord;
-import io.xj.core.model.pattern_meme.PatternMeme;
-import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.model.pattern_event.PatternEvent;
+import io.xj.core.model.sequence.SequenceState;
+import io.xj.core.model.sequence.SequenceType;
+import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.model.work.Work;
 import io.xj.core.model.work.WorkType;
 import io.xj.core.work.WorkManager;
 import io.xj.craft.CraftModule;
 import io.xj.dub.DubModule;
 import io.xj.worker.WorkerModule;
-
-import com.google.common.collect.ImmutableList;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.util.Modules;
-
 import net.greghaines.jesque.worker.JobFactory;
 import org.junit.After;
 import org.junit.Before;
@@ -46,7 +42,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigInteger;
 import java.util.Collection;
-import java.util.Objects;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -56,10 +51,13 @@ import static org.junit.Assert.assertTrue;
 public class PatternCloneJobIT {
   private static final int MILLIS_PER_SECOND = 1000;
   private static final int MAXIMUM_TEST_WAIT_MILLIS = 30 * MILLIS_PER_SECOND;
+  @Spy
+  final WorkManager workManager = Guice.createInjector(new CoreModule()).getInstance(WorkManager.class);
+  @Rule
+  public ExpectedException failure = ExpectedException.none();
   long startTime = System.currentTimeMillis();
-  @Spy final WorkManager workManager = Guice.createInjector(new CoreModule()).getInstance(WorkManager.class);
-  @Rule public ExpectedException failure = ExpectedException.none();
-  @Mock AmazonProvider amazonProvider;
+  @Mock
+  AmazonProvider amazonProvider;
   private Injector injector;
   private App app;
 
@@ -99,22 +97,22 @@ public class PatternCloneJobIT {
     IntegrationTestEntity.insertVoice(4, 12, InstrumentType.Percussive, "Snarr Dram");
 
     // Pattern "Verse"
-    IntegrationTestEntity.insertPattern(1, 1, PatternType.Loop, PatternState.Published,  16, "Verse 1", 0.5, "G", 120);
-    IntegrationTestEntity.insertPatternMeme(1, 1, "GREEN");
+    IntegrationTestEntity.insertPatternAndSequencePattern(1, 1, PatternType.Loop, PatternState.Published, 0, 16, "Verse 1", 0.5, "G", 120);
+    IntegrationTestEntity.insertSequencePatternMeme(1, 1, 1, "GREEN");
     IntegrationTestEntity.insertPatternChord(1, 1, 0, "Db7");
     IntegrationTestEntity.insertPatternEvent(101, 1, 1, 0.0, 1.0, "KICK", "C5", 1.0, 1.0);
     IntegrationTestEntity.insertPatternEvent(102, 1, 2, 1.0, 1.0, "SNARE", "C5", 1.0, 1.0);
 
     // Pattern "Verse"
-    IntegrationTestEntity.insertPattern(2, 1, PatternType.Loop, PatternState.Published,  16, "Verse 2", 0.5, "G", 120);
-    IntegrationTestEntity.insertPatternMeme(2, 2, "YELLOW");
+    IntegrationTestEntity.insertPatternAndSequencePattern(2, 1, PatternType.Loop, PatternState.Published, 1, 16, "Verse 2", 0.5, "G", 120);
+    IntegrationTestEntity.insertSequencePatternMeme(2, 1, 2, "YELLOW");
     IntegrationTestEntity.insertPatternChord(2, 2, 0, "Gm9");
     IntegrationTestEntity.insertPatternEvent(103, 2, 1, 0.0, 1.0, "KICK", "C5", 1.0, 1.0);
     IntegrationTestEntity.insertPatternEvent(104, 2, 2, 1.0, 1.0, "SNARE", "C5", 1.0, 1.0);
 
     // Newly cloned patterns -- awaiting PatternClone job to run, and create their child entities
-    IntegrationTestEntity.insertPattern(3, 1, PatternType.Loop, PatternState.Published,  16, "Verse 34", 0.5, "G", 120);
-    IntegrationTestEntity.insertPattern(4, 12, PatternType.Loop, PatternState.Published,  16, "Verse 79", 0.5, "G", 120);
+    IntegrationTestEntity.insertPattern(3, 1, PatternType.Loop, PatternState.Published, 16, "Verse 34", 0.5, "G", 120);
+    IntegrationTestEntity.insertPattern(4, 12, PatternType.Loop, PatternState.Published, 16, "Verse 79", 0.5, "G", 120);
 
     // Don't sleep between processing work
     System.setProperty("app.port", "9043");
@@ -168,27 +166,19 @@ public class PatternCloneJobIT {
     assertNotNull(resultTwo);
 
     // Verify existence of children of cloned pattern #1
-    Collection<PatternMeme> memesOne = injector.getInstance(PatternMemeDAO.class).readAll(Access.internal(), ImmutableList.of(resultOne.getId()));
     Collection<PatternChord> chordsOne = injector.getInstance(PatternChordDAO.class).readAll(Access.internal(), ImmutableList.of(resultOne.getId()));
     Collection<PatternEvent> eventsOne = injector.getInstance(PatternEventDAO.class).readAll(Access.internal(), ImmutableList.of(resultOne.getId()));
-    assertEquals(1, memesOne.size());
     assertEquals(1, chordsOne.size());
     assertEquals(2, eventsOne.size());
-    PatternMeme memeOne = memesOne.iterator().next();
-    assertEquals("Green", memeOne.getName());
     PatternChord chordOne = chordsOne.iterator().next();
     assertEquals(0, chordOne.getPosition(), 0.01);
     assertEquals("Db7", chordOne.getName());
 
     // Verify existence of children of cloned pattern #2
-    Collection<PatternMeme> memesTwo = injector.getInstance(PatternMemeDAO.class).readAll(Access.internal(), ImmutableList.of(resultTwo.getId()));
     Collection<PatternChord> chordsTwo = injector.getInstance(PatternChordDAO.class).readAll(Access.internal(), ImmutableList.of(resultTwo.getId()));
     Collection<PatternEvent> eventsTwo = injector.getInstance(PatternEventDAO.class).readAll(Access.internal(), ImmutableList.of(resultTwo.getId()));
-    assertEquals(1, memesTwo.size());
     assertEquals(1, chordsTwo.size());
     assertEquals(2, eventsTwo.size());
-    PatternMeme memeTwo = memesTwo.iterator().next();
-    assertEquals("Yellow", memeTwo.getName());
     PatternChord chordTwo = chordsTwo.iterator().next();
     assertEquals(0, chordTwo.getPosition(), 0.01);
     assertEquals("Gm9", chordTwo.getName());
@@ -211,7 +201,7 @@ public class PatternCloneJobIT {
   private boolean hasRemainingWork(WorkType type) throws Exception {
     int total = 0;
     for (Work work : app.getWorkManager().readAllWork()) {
-      if (Objects.equals(type, work.getType())) total++;
+      if (type == work.getType()) total++;
     }
     return 0 < total;
   }

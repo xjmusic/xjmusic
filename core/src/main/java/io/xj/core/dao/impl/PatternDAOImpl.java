@@ -37,8 +37,8 @@ import static io.xj.core.Tables.PATTERN_EVENT;
 import static io.xj.core.Tables.SEQUENCE_PATTERN;
 import static io.xj.core.tables.Library.LIBRARY;
 import static io.xj.core.tables.Pattern.PATTERN;
-import static io.xj.core.tables.PatternMeme.PATTERN_MEME;
 import static io.xj.core.tables.Sequence.SEQUENCE;
+import static io.xj.core.tables.SequencePatternMeme.SEQUENCE_PATTERN_MEME;
 
 public class PatternDAOImpl extends DAOImpl implements PatternDAO {
   private static final Logger log = LoggerFactory.getLogger(PatternDAOImpl.class);
@@ -251,6 +251,12 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .fetchOne(0, int.class));
 
+    db.deleteFrom(SEQUENCE_PATTERN_MEME)
+      .where(SEQUENCE_PATTERN_MEME.SEQUENCE_PATTERN_ID.in(
+        db.select(SEQUENCE_PATTERN.ID).from(SEQUENCE_PATTERN)
+          .where(SEQUENCE_PATTERN.PATTERN_ID.eq(id))
+      )).execute();
+
     db.deleteFrom(SEQUENCE_PATTERN)
       .where(SEQUENCE_PATTERN.PATTERN_ID.eq(id))
       .execute();
@@ -259,8 +265,8 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
       .where(PATTERN_EVENT.PATTERN_ID.eq(id))
       .execute();
 
-    db.deleteFrom(PATTERN_MEME)
-      .where(PATTERN_MEME.PATTERN_ID.eq(id))
+    db.deleteFrom(SEQUENCE_PATTERN_MEME)
+      .where(SEQUENCE_PATTERN_MEME.SEQUENCE_PATTERN_ID.eq(id))
       .execute();
 
     db.deleteFrom(PATTERN_CHORD)

@@ -1,10 +1,10 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
-package io.xj.hub.resource.pattern_meme;
+package io.xj.hub.resource.sequence_pattern_meme;
 
 import io.xj.core.access.impl.Access;
-import io.xj.core.dao.PatternMemeDAO;
+import io.xj.core.dao.SequencePatternMemeDAO;
 import io.xj.core.exception.BusinessException;
-import io.xj.core.model.pattern_meme.PatternMeme;
+import io.xj.core.model.sequence_pattern_meme.SequencePatternMeme;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.transport.HttpResponseProvider;
 import io.xj.core.transport.JSON;
@@ -26,16 +26,16 @@ import java.math.BigInteger;
 /**
  Pattern record
  */
-@Path("pattern-memes/{id}")
-public class PatternMemeOneResource extends HubResource {
-  private final PatternMemeDAO patternMemeDAO = injector.getInstance(PatternMemeDAO.class);
+@Path("sequence-pattern-memes/{id}")
+public class SequencePatternMemeOneResource extends HubResource {
+  private final SequencePatternMemeDAO sequencePatternMemeDAO = injector.getInstance(SequencePatternMemeDAO.class);
   private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
 
   @PathParam("id")
   String id;
 
   /**
-   Get one PatternMeme by patternId and memeId
+   Get one SequencePatternMeme by sequencePatternId and memeId
 
    @return application/json response.
    */
@@ -45,8 +45,8 @@ public class PatternMemeOneResource extends HubResource {
   public Response readOne(@Context ContainerRequestContext crc) throws IOException {
     try {
       return response.readOne(
-        PatternMeme.KEY_ONE,
-        patternMemeDAO.readOne(
+        SequencePatternMeme.KEY_ONE,
+        sequencePatternMemeDAO.readOne(
           Access.fromContext(crc),
           new BigInteger(id)));
 
@@ -56,7 +56,7 @@ public class PatternMemeOneResource extends HubResource {
   }
 
   /**
-   Delete one PatternMeme by id
+   Delete one SequencePatternMeme by id
 
    @return application/json response.
    */
@@ -64,7 +64,7 @@ public class PatternMemeOneResource extends HubResource {
   @RolesAllowed(UserRoleType.ARTIST)
   public Response delete(@Context ContainerRequestContext crc) {
     try {
-      patternMemeDAO.destroy(Access.fromContext(crc), new BigInteger(id));
+      sequencePatternMemeDAO.destroy(Access.fromContext(crc), new BigInteger(id));
     } catch (BusinessException e) {
       return Response
         .status(HttpStatus.SC_BAD_REQUEST)

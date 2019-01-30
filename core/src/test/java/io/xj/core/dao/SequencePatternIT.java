@@ -70,8 +70,8 @@ public class SequencePatternIT {
     IntegrationTestEntity.insertSequence(2, 2, 1, SequenceType.Macro, SequenceState.Published, "coconuts", 8.02, "D", 130.2);
 
     // Sequence "leaves" has patterns "Ants" and "Jibbawhammers"
-    IntegrationTestEntity.insertPatternSequencePattern(1, 1, PatternType.Main, PatternState.Published, 0, 16, "Ants", 0.583, "D minor", 120.0);
-    IntegrationTestEntity.insertPatternSequencePattern(2, 1, PatternType.Main, PatternState.Published, 1, 16, "Jibbawhammers", 0.583, "E major", 140.0);
+    IntegrationTestEntity.insertPatternAndSequencePattern(1, 1, PatternType.Main, PatternState.Published, 0, 16, "Ants", 0.583, "D minor", 120.0);
+    IntegrationTestEntity.insertPatternAndSequencePattern(2, 1, PatternType.Main, PatternState.Published, 1, 16, "Jibbawhammers", 0.583, "E major", 140.0);
 
     // Instantiate the test subject
     subject = injector.getInstance(SequencePatternDAO.class);

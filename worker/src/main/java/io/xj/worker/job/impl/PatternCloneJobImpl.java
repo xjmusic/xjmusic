@@ -1,27 +1,23 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.worker.job.impl;
 
-import io.xj.core.access.impl.Access;
-import io.xj.core.dao.PatternChordDAO;
-import io.xj.core.dao.PatternDAO;
-import io.xj.core.dao.PatternMemeDAO;
-import io.xj.core.dao.VoiceDAO;
-import io.xj.core.dao.PatternEventDAO;
-import io.xj.core.exception.BusinessException;
-import io.xj.craft.isometry.VoiceIsometry;
-import io.xj.core.model.pattern.Pattern;
-import io.xj.core.model.pattern_chord.PatternChord;
-import io.xj.core.model.pattern_meme.PatternMeme;
-import io.xj.core.model.voice.Voice;
-import io.xj.core.model.pattern_event.PatternEvent;
-import io.xj.core.transport.JSON;
-import io.xj.worker.job.PatternCloneJob;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-
+import io.xj.core.access.impl.Access;
+import io.xj.core.dao.PatternChordDAO;
+import io.xj.core.dao.PatternDAO;
+import io.xj.core.dao.PatternEventDAO;
+import io.xj.core.dao.VoiceDAO;
+import io.xj.core.exception.BusinessException;
+import io.xj.core.model.pattern.Pattern;
+import io.xj.core.model.pattern_chord.PatternChord;
+import io.xj.core.model.pattern_event.PatternEvent;
+import io.xj.core.model.voice.Voice;
+import io.xj.core.transport.JSON;
+import io.xj.craft.isometry.VoiceIsometry;
+import io.xj.worker.job.PatternCloneJob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +31,6 @@ public class PatternCloneJobImpl implements PatternCloneJob {
   private final BigInteger toId;
   private final PatternDAO patternDAO;
   private final BigInteger fromId;
-  private final PatternMemeDAO patternMemeDAO;
   private final PatternChordDAO patternChordDAO;
   private final PatternEventDAO patternEventDAO;
   private final VoiceDAO voiceDAO;
@@ -45,7 +40,6 @@ public class PatternCloneJobImpl implements PatternCloneJob {
     @Assisted("fromId") BigInteger fromId,
     @Assisted("toId") BigInteger toId,
     PatternDAO patternDAO,
-    PatternMemeDAO patternMemeDAO,
     PatternChordDAO patternChordDAO,
     PatternEventDAO patternEventDAO,
     VoiceDAO voiceDAO
@@ -53,7 +47,6 @@ public class PatternCloneJobImpl implements PatternCloneJob {
     this.fromId = fromId;
     this.toId = toId;
     this.patternDAO = patternDAO;
-    this.patternMemeDAO = patternMemeDAO;
     this.patternChordDAO = patternChordDAO;
     this.patternEventDAO = patternEventDAO;
     this.voiceDAO = voiceDAO;
@@ -86,19 +79,6 @@ public class PatternCloneJobImpl implements PatternCloneJob {
     Pattern to = patternDAO.readOne(Access.internal(), toId);
     if (Objects.isNull(to))
       throw new BusinessException("Could not fetch clone target Pattern");
-
-    // Clone PatternMeme
-    patternMemeDAO.readAll(Access.internal(), ImmutableList.of(fromId)).forEach(patternMeme -> {
-      patternMeme.setPatternId(toId);
-
-      try {
-        PatternMeme toPatternMeme = patternMemeDAO.create(Access.internal(), patternMeme);
-        log.info("Cloned PatternMeme ofMemes #{} to {}", patternMeme.getId(), JSON.objectFrom(toPatternMeme));
-
-      } catch (Exception e) {
-        log.error("Failed to clone PatternMeme {}", JSON.objectFrom(patternMeme), e);
-      }
-    });
 
     // Clone PatternChord
     patternChordDAO.readAll(Access.internal(), ImmutableList.of(fromId)).forEach(patternChord -> {

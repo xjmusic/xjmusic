@@ -29,7 +29,11 @@ export default Route.extend({
         get(self, 'config').promises.config.then(
           (config) => {
             let instrument = self.modelFor('accounts.one.libraries.one.instruments.one');
-            let audios = self.store.query('audio', {instrumentId: instrument.get('id')})
+            let audioQuery = {
+              instrumentId: instrument.get('id'),
+              include: 'events,chords',
+            };
+            let audios = self.store.query('audio', audioQuery)
               .catch((error) => {
                 get(self, 'display').error(error);
                 self.transitionTo('');

@@ -29,7 +29,7 @@ export default Route.extend({
    */
   afterModel(model) {
     set(this, 'breadCrumb', {
-      title: model.getTitle()
+      title: model.get('title')
     });
   }
 

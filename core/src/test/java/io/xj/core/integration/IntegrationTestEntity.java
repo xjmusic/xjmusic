@@ -34,7 +34,6 @@ import io.xj.core.tables.records.InstrumentRecord;
 import io.xj.core.tables.records.LibraryRecord;
 import io.xj.core.tables.records.PatternChordRecord;
 import io.xj.core.tables.records.PatternEventRecord;
-import io.xj.core.tables.records.PatternMemeRecord;
 import io.xj.core.tables.records.PatternRecord;
 import io.xj.core.tables.records.PlatformMessageRecord;
 import io.xj.core.tables.records.SegmentChordRecord;
@@ -42,6 +41,7 @@ import io.xj.core.tables.records.SegmentMemeRecord;
 import io.xj.core.tables.records.SegmentMessageRecord;
 import io.xj.core.tables.records.SegmentRecord;
 import io.xj.core.tables.records.SequenceMemeRecord;
+import io.xj.core.tables.records.SequencePatternMemeRecord;
 import io.xj.core.tables.records.SequencePatternRecord;
 import io.xj.core.tables.records.SequenceRecord;
 import io.xj.core.tables.records.UserAccessTokenRecord;
@@ -50,6 +50,8 @@ import io.xj.core.tables.records.UserRecord;
 import io.xj.core.tables.records.UserRoleRecord;
 import io.xj.core.tables.records.VoiceRecord;
 import org.jooq.DSLContext;
+import org.jooq.Record1;
+import org.jooq.Result;
 import org.jooq.types.UInteger;
 import org.jooq.types.ULong;
 import org.json.JSONObject;
@@ -80,7 +82,6 @@ import static io.xj.core.Tables.LIBRARY;
 import static io.xj.core.Tables.PATTERN;
 import static io.xj.core.Tables.PATTERN_CHORD;
 import static io.xj.core.Tables.PATTERN_EVENT;
-import static io.xj.core.Tables.PATTERN_MEME;
 import static io.xj.core.Tables.PLATFORM_MESSAGE;
 import static io.xj.core.Tables.SEGMENT;
 import static io.xj.core.Tables.SEGMENT_CHORD;
@@ -89,11 +90,14 @@ import static io.xj.core.Tables.SEGMENT_MESSAGE;
 import static io.xj.core.Tables.SEQUENCE;
 import static io.xj.core.Tables.SEQUENCE_MEME;
 import static io.xj.core.Tables.SEQUENCE_PATTERN;
+import static io.xj.core.Tables.SEQUENCE_PATTERN_MEME;
 import static io.xj.core.Tables.USER;
 import static io.xj.core.Tables.USER_ACCESS_TOKEN;
 import static io.xj.core.Tables.USER_AUTH;
 import static io.xj.core.Tables.USER_ROLE;
 import static io.xj.core.Tables.VOICE;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public interface IntegrationTestEntity {
   Logger log = LoggerFactory.getLogger(IntegrationTestEntity.class);
@@ -137,7 +141,7 @@ public interface IntegrationTestEntity {
       db.deleteFrom(INSTRUMENT).execute(); // before Library & Credit
 
       // Pattern
-      db.deleteFrom(PATTERN_MEME).execute(); // before Pattern
+      db.deleteFrom(SEQUENCE_PATTERN_MEME).execute(); // before Pattern
       db.deleteFrom(PATTERN_CHORD).execute(); // before Pattern
       db.deleteFrom(SEQUENCE_PATTERN).execute(); // before Sequence
       db.deleteFrom(PATTERN).execute(); // before Sequence
@@ -320,15 +324,15 @@ public interface IntegrationTestEntity {
     record.store();
   }
 
-  static void insertPatternSequencePattern(int id, int sequenceId, PatternType type, PatternState state, int offset, int total, String name, double density, String key, double tempo) {
-    insertPatternSequencePattern(id, sequenceId, type, state, offset, total, name, density, key, tempo, Timestamp.from(Instant.now()), 4, 4, 0);
+  static void insertPatternAndSequencePattern(int id, int sequenceId, PatternType type, PatternState state, int offset, int total, String name, double density, String key, double tempo) {
+    insertPatternAndSequencePattern(id, sequenceId, type, state, offset, total, name, density, key, tempo, Timestamp.from(Instant.now()), 4, 4, 0);
   }
 
-  static void insertPatternSequencePattern(int id, int sequenceId, PatternType type, PatternState state, int offset, int total, String name, double density, String key, double tempo, int meterSuper, int meterSub, int meterSwing) {
-    insertPatternSequencePattern(id, sequenceId, type, state, offset, total, name, density, key, tempo, Timestamp.from(Instant.now()), meterSuper, meterSub, meterSwing);
+  static void insertPatternAndSequencePattern(int id, int sequenceId, PatternType type, PatternState state, int offset, int total, String name, double density, String key, double tempo, int meterSuper, int meterSub, int meterSwing) {
+    insertPatternAndSequencePattern(id, sequenceId, type, state, offset, total, name, density, key, tempo, Timestamp.from(Instant.now()), meterSuper, meterSub, meterSwing);
   }
 
-  static void insertPatternSequencePattern(int id, int sequenceId, PatternType type, PatternState state, int offset, int total, String name, double density, String key, double tempo, Timestamp createdUpdatedAt, int meterSuper, int meterSub, int meterSwing) {
+  static void insertPatternAndSequencePattern(int id, int sequenceId, PatternType type, PatternState state, int offset, int total, String name, double density, String key, double tempo, Timestamp createdUpdatedAt, int meterSuper, int meterSub, int meterSwing) {
     PatternRecord record = IntegrationTestService.getDb().newRecord(PATTERN);
     record.setId(ULong.valueOf(id));
     record.setSequenceId(ULong.valueOf(sequenceId));
@@ -360,14 +364,20 @@ public interface IntegrationTestEntity {
     record.store();
   }
 
-  static void insertPatternMeme(int id, int patternId, String name) {
-    insertPatternMeme(id, patternId, name, Timestamp.from(Instant.now()));
+  static void insertSequencePatternMeme(int id, int sequenceId, int patternId, String name) {
+    insertSequencePatternMeme(id, sequenceId, patternId, name, Timestamp.from(Instant.now()));
   }
 
-  static void insertPatternMeme(int id, int patternId, String name, Timestamp createdUpdatedAt) {
-    PatternMemeRecord record = IntegrationTestService.getDb().newRecord(PATTERN_MEME);
+  static void insertSequencePatternMeme(int id, int sequenceId, int patternId, String name, Timestamp createdUpdatedAt) {
+    Result<SequencePatternRecord> parents = IntegrationTestService.getDb().selectFrom(SEQUENCE_PATTERN)
+      .where(SEQUENCE_PATTERN.SEQUENCE_ID.eq(ULong.valueOf(sequenceId)))
+      .and(SEQUENCE_PATTERN.PATTERN_ID.eq(ULong.valueOf(patternId)))
+      .fetch();
+    assertFalse(parents.isEmpty());
+    SequencePatternRecord parent = parents.get(0);
+    SequencePatternMemeRecord record = IntegrationTestService.getDb().newRecord(SEQUENCE_PATTERN_MEME);
     record.setId(ULong.valueOf(id));
-    record.setPatternId(ULong.valueOf(patternId));
+    record.setSequencePatternId(parent.getId());
     record.setName(name);
     record.setCreatedAt(createdUpdatedAt);
     record.setUpdatedAt(createdUpdatedAt);

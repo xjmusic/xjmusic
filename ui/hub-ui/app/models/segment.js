@@ -1,5 +1,6 @@
 //  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 import DS from 'ember-data';
+import {computed} from '@ember/object';
 
 export default DS.Model.extend({
   chain: DS.belongsTo({}),
@@ -18,10 +19,9 @@ export default DS.Model.extend({
   choices: DS.hasMany('choice'),
   chords: DS.hasMany('segment-chord'),
 
-  getTitle() {
-    return 'Segment' +
-      '@' + this.get("offset");
-  }
+  title: computed('offset', function () {
+    return `Segment@${this.offset}`;
+  }),
 
 });
 

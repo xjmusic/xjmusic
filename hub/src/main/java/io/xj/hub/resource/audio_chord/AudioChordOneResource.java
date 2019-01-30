@@ -27,8 +27,7 @@ import java.math.BigInteger;
 /**
  AudioChord record
  */
-@Path("audio-" +
-  "entities/{id}")
+@Path("audio-chords/{id}")
 public class AudioChordOneResource extends HubResource {
   private final AudioChordDAO audioChordDAO = injector.getInstance(AudioChordDAO.class);
   private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);

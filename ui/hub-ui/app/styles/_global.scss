@@ -1,14 +1,15 @@
 //  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 @import "palette";
 
-body {
+body.xj-music  {
   background: $body-background-color;
   color: $body-color;
   font-family: OxygenMono, monospace;
   padding-top: 60px; // because of navbar pinned to top
 }
 
-a {
+.xj-music a, .xj-music a.action {
+  cursor: pointer;
   color: lighten($green, 20%);
 
   &:hover, &:active {

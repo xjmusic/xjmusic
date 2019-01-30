@@ -22,6 +22,7 @@ import static io.xj.core.Tables.PATTERN;
 import static io.xj.core.tables.Library.LIBRARY;
 import static io.xj.core.tables.Sequence.SEQUENCE;
 import static io.xj.core.tables.SequencePattern.SEQUENCE_PATTERN;
+import static io.xj.core.tables.SequencePatternMeme.SEQUENCE_PATTERN_MEME;
 
 /**
  SequencePattern DAO
@@ -141,6 +142,12 @@ public class SequencePatternDAOImpl extends DAOImpl implements SequencePatternDA
         .where(SEQUENCE_PATTERN.ID.eq(id))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .fetchOne(0, int.class));
+
+    db.deleteFrom(SEQUENCE_PATTERN_MEME)
+      .where(SEQUENCE_PATTERN_MEME.SEQUENCE_PATTERN_ID.in(
+        db.select(SEQUENCE_PATTERN.ID).from(SEQUENCE_PATTERN)
+          .where(SEQUENCE_PATTERN.PATTERN_ID.eq(id))
+      )).execute();
 
     db.deleteFrom(SEQUENCE_PATTERN)
       .where(SEQUENCE_PATTERN.ID.eq(id))

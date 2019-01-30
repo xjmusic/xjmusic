@@ -1,6 +1,8 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.resource.segment;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Maps;
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.ArrangementDAO;
 import io.xj.core.dao.ChoiceDAO;
@@ -21,10 +23,6 @@ import io.xj.core.transport.HttpResponseProvider;
 import io.xj.core.transport.JSON;
 import io.xj.core.util.Text;
 import io.xj.hub.HubResource;
-
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Maps;
-
 import org.json.JSONArray;
 
 import javax.annotation.security.PermitAll;

@@ -41,7 +41,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.util.Date;
-import java.util.Objects;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -88,63 +87,70 @@ public class ChainEraseJobIT {
     IntegrationTestEntity.insertSequence(4, 3, 2, SequenceType.Macro, SequenceState.Published, "Heavy, Deep to Metal", 0.5, "C", 120);
     IntegrationTestEntity.insertSequenceMeme(2, 4, "Heavy");
     // " pattern offset 0
-    IntegrationTestEntity.insertPatternSequencePattern(3, 4, PatternType.Macro, PatternState.Published, 0, 0, "Start Deep", 0.6, "C", 125);
-    IntegrationTestEntity.insertPatternMeme(3, 3, "Deep");
+    IntegrationTestEntity.insertPatternAndSequencePattern(3, 4, PatternType.Macro, PatternState.Published, 0, 0, "Start Deep", 0.6, "C", 125);
+    IntegrationTestEntity.insertSequencePatternMeme(3, 4, 3, "Deep");
     IntegrationTestEntity.insertPatternChord(3, 3, 0, "C");
     // " pattern offset 1
-    IntegrationTestEntity.insertPatternSequencePattern(4, 4, PatternType.Macro, PatternState.Published, 1, 0, "Intermediate", 0.4, "Bb minor", 115);
-    IntegrationTestEntity.insertPatternMeme(4, 4, "Metal");
-    IntegrationTestEntity.insertPatternMeme(49, 4, "Deep");
+    IntegrationTestEntity.insertPatternAndSequencePattern(4, 4, PatternType.Macro, PatternState.Published, 1, 0, "Intermediate", 0.4, "Bb minor", 115);
+    IntegrationTestEntity.insertSequencePatternMeme(4, 4, 4, "Metal");
+    IntegrationTestEntity.insertSequencePatternMeme(49, 4, 4, "Deep");
     IntegrationTestEntity.insertPatternChord(4, 4, 0, "Bb minor");
     // " pattern offset 2
-    IntegrationTestEntity.insertPatternSequencePattern(5, 4, PatternType.Macro, PatternState.Published, 2, 0, "Finish Metal", 0.4, "Ab minor", 125);
-    IntegrationTestEntity.insertPatternMeme(5, 4, "Metal");
+    IntegrationTestEntity.insertPatternAndSequencePattern(5, 4, PatternType.Macro, PatternState.Published, 2, 0, "Finish Metal", 0.4, "Ab minor", 125);
+    IntegrationTestEntity.insertSequencePatternMeme(5, 4, 4, "Metal");
     IntegrationTestEntity.insertPatternChord(5, 5, 0, "Ab minor");
 
     // "Tech, Steampunk to Modern" macro-sequence in house library
     IntegrationTestEntity.insertSequence(3, 3, 2, SequenceType.Macro, SequenceState.Published, "Tech, Steampunk to Modern", 0.5, "G minor", 120);
     IntegrationTestEntity.insertSequenceMeme(1, 3, "Tech");
     // # pattern offset 0
-    IntegrationTestEntity.insertPatternSequencePattern(1, 3, PatternType.Macro, PatternState.Published, 0, 0, "Start Steampunk", 0.4, "G minor", 115);
-    IntegrationTestEntity.insertPatternMeme(1, 1, "Steampunk");
+    IntegrationTestEntity.insertPatternAndSequencePattern(1, 3, PatternType.Macro, PatternState.Published, 0, 0, "Start Steampunk", 0.4, "G minor", 115);
+    IntegrationTestEntity.insertSequencePatternMeme(1, 3, 1, "Steampunk");
     IntegrationTestEntity.insertPatternChord(1, 1, 0, "G minor");
     // # pattern offset 1
-    IntegrationTestEntity.insertPatternSequencePattern(2, 3, PatternType.Macro, PatternState.Published, 1, 0, "Finish Modern", 0.6, "C", 125);
-    IntegrationTestEntity.insertPatternMeme(2, 2, "Modern");
+    IntegrationTestEntity.insertPatternAndSequencePattern(2, 3, PatternType.Macro, PatternState.Published, 1, 0, "Finish Modern", 0.6, "C", 125);
+    IntegrationTestEntity.insertSequencePatternMeme(2, 3, 2, "Modern");
     IntegrationTestEntity.insertPatternChord(2, 2, 0, "C");
 
     // Main sequence
     IntegrationTestEntity.insertSequence(5, 3, 2, SequenceType.Main, SequenceState.Published, "Main Jam", 0.2, "C minor", 140);
     IntegrationTestEntity.insertSequenceMeme(3, 5, "Attitude");
     // # pattern offset 0
-    IntegrationTestEntity.insertPatternSequencePattern(15, 5, PatternType.Main, PatternState.Published, 0, 16, "Intro", 0.5, "G major", 135.0);
-    IntegrationTestEntity.insertPatternMeme(6, 15, "Gritty");
+    IntegrationTestEntity.insertPatternAndSequencePattern(15, 5, PatternType.Main, PatternState.Published, 0, 16, "Intro", 0.5, "G major", 135.0);
+    IntegrationTestEntity.insertSequencePatternMeme(6, 5, 15, "Gritty");
     IntegrationTestEntity.insertPatternChord(12, 15, 0, "G major");
     IntegrationTestEntity.insertPatternChord(14, 15, 8, "Ab minor");
     // # pattern offset 1
-    IntegrationTestEntity.insertPatternSequencePattern(16, 5, PatternType.Main, PatternState.Published, 1, 16, "Drop", 0.5, "G minor", 135.0);
-    IntegrationTestEntity.insertPatternMeme(7, 16, "Gentle");
+    IntegrationTestEntity.insertPatternAndSequencePattern(16, 5, PatternType.Main, PatternState.Published, 1, 16, "Drop", 0.5, "G minor", 135.0);
+    IntegrationTestEntity.insertSequencePatternMeme(7, 5, 16, "Gentle");
     IntegrationTestEntity.insertPatternChord(16, 16, 0, "C major");
     IntegrationTestEntity.insertPatternChord(18, 16, 8, "Bb minor");
 
     // Another Main sequence to go to
     IntegrationTestEntity.insertSequence(15, 3, 2, SequenceType.Main, SequenceState.Published, "Next Jam", 0.2, "Db minor", 140);
     IntegrationTestEntity.insertSequenceMeme(43, 15, "Temptation");
-    IntegrationTestEntity.insertPatternSequencePattern(415, 15, PatternType.Main, PatternState.Published, 0, 16, "Intro", 0.5, "G minor", 135.0);
-    IntegrationTestEntity.insertPatternMeme(46, 415, "Food");
+    IntegrationTestEntity.insertPatternAndSequencePattern(415, 15, PatternType.Main, PatternState.Published, 0, 16, "Intro", 0.5, "G minor", 135.0);
+    IntegrationTestEntity.insertSequencePatternMeme(46, 15, 415, "Food");
     IntegrationTestEntity.insertPatternChord(412, 415, 0, "G minor");
     IntegrationTestEntity.insertPatternChord(414, 415, 8, "Ab minor");
-    IntegrationTestEntity.insertPatternSequencePattern(416, 15, PatternType.Main, PatternState.Published, 1, 16, "Outro", 0.5, "A major", 135.0);
-    IntegrationTestEntity.insertPatternMeme(47, 416, "Drink");
-    IntegrationTestEntity.insertPatternMeme(149, 416, "Shame");
+    IntegrationTestEntity.insertPatternAndSequencePattern(416, 15, PatternType.Main, PatternState.Published, 1, 16, "Outro", 0.5, "A major", 135.0);
+    IntegrationTestEntity.insertSequencePatternMeme(47, 15, 416, "Drink");
+    IntegrationTestEntity.insertSequencePatternMeme(149, 15, 416, "Shame");
     IntegrationTestEntity.insertPatternChord(416, 416, 0, "C major");
     IntegrationTestEntity.insertPatternChord(418, 416, 8, "Bb major");
+
+    /*
+    Note that in any real use case, after
+    [#163158036] memes bound to sequence-patter
+    because sequence-pattern binding is not considered for rhythm sequences,
+    rhythm sequence patterns do not have memes.
+     */
 
     // A basic beat
     IntegrationTestEntity.insertSequence(35, 3, 2, SequenceType.Rhythm, SequenceState.Published, "Basic Beat", 0.2, "C", 121);
     IntegrationTestEntity.insertSequenceMeme(343, 35, "Basic");
-    IntegrationTestEntity.insertPattern(315, 35, PatternType.Loop, PatternState.Published, 4, "Drop", 0.5, "C", 125.0);
-    IntegrationTestEntity.insertPatternMeme(346, 315, "Heavy");
+    IntegrationTestEntity.insertPatternAndSequencePattern(315, 35, PatternType.Loop, PatternState.Published, 0, 4, "Drop", 0.5, "C", 125.0);
+    IntegrationTestEntity.insertSequencePatternMeme(346, 35, 315, "Heavy");
 
     // setup voice pattern events
     IntegrationTestEntity.insertVoice(1, 35, InstrumentType.Percussive, "drums");
@@ -156,8 +162,8 @@ public class ChainEraseJobIT {
     IntegrationTestEntity.insertPatternEvent(4, 315, 1, 3, 1, "SMACK", "G5", 0.1, 0.9);
 
     // basic beat second pattern
-    IntegrationTestEntity.insertPattern(316, 35, PatternType.Loop, PatternState.Published, 4, "Continue", 0.5, "C", 125.0);
-    IntegrationTestEntity.insertPatternMeme(347, 316, "Heavy");
+    IntegrationTestEntity.insertPatternAndSequencePattern(316, 35, PatternType.Loop, PatternState.Published, 0, 4, "Continue", 0.5, "C", 125.0);
+    IntegrationTestEntity.insertSequencePatternMeme(347, 35, 316, "Heavy");
 
     // Chain "Test Print #1" has 5 total segments
     IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Erase, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, null);
@@ -265,7 +271,7 @@ public class ChainEraseJobIT {
   private boolean hasRemainingWork(WorkType type) throws Exception {
     int total = 0;
     for (Work work : app.getWorkManager().readAllWork()) {
-      if (Objects.equals(type, work.getType())) total++;
+      if (type == work.getType()) total++;
     }
     return 0 < total;
   }

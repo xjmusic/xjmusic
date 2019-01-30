@@ -122,13 +122,13 @@ public class SequenceCloneJobIT {
     IntegrationTestEntity.insertSequence(12, 2, 42, SequenceType.Main, SequenceState.Published, "Hammer 2020", 0.9, "G", 120);
 
     // Pattern
-    IntegrationTestEntity.insertPatternSequencePattern(1, 1, PatternType.Main, PatternState.Published, 0, 16, "Verse 1", 0.5, "C", 120.0);
+    IntegrationTestEntity.insertPatternAndSequencePattern(1, 1, PatternType.Main, PatternState.Published, 0, 16, "Verse 1", 0.5, "C", 120.0);
     IntegrationTestEntity.insertPatternChord(1, 1, 0, "Db7");
     IntegrationTestEntity.insertPatternEvent(101, 1, 1, 0.0, 1.0, "X", "C5", 1.0, 1.0);
     IntegrationTestEntity.insertPatternEvent(102, 1, 2, 1.0, 1.0, "X", "C5", 1.0, 1.0);
 
     // Pattern
-    IntegrationTestEntity.insertPatternSequencePattern(2, 1, PatternType.Main, PatternState.Published, 1, 16, "Verse 2", 0.5, "C", 120.0);
+    IntegrationTestEntity.insertPatternAndSequencePattern(2, 1, PatternType.Main, PatternState.Published, 1, 16, "Verse 2", 0.5, "C", 120.0);
     IntegrationTestEntity.insertPatternChord(2, 2, 0, "Gm9");
     IntegrationTestEntity.insertPatternEvent(103, 2, 1, 0.0, 1.0, "X", "C5", 1.0, 1.0);
     IntegrationTestEntity.insertPatternEvent(104, 2, 2, 1.0, 1.0, "X", "C5", 1.0, 1.0);

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!-- // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved. -->
 
-<html>
+<html lang="en">
 <head>
   <!-- Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved. -->
   <meta charset="utf-8">
@@ -18,11 +18,12 @@
 
   <!-- these are a few of my fav icons -->
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-  <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
-  <link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16">
-  <link rel="manifest" href="/manifest.json">
-  <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#303030">
-  <meta name="theme-color" content="#303030">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+  <meta name="msapplication-TileColor" content="#303030">
+  <meta name="theme-color" content="#ffffff">
 
   <!-- Facebook Open Graph -->
   <meta property="og:url" content="{{content-for 'url'}}" />
@@ -46,7 +47,7 @@
 
   {{content-for "head-footer"}}
 </head>
-<body>
+<body class="xj-music">
 {{content-for "body"}}
 
 <!-- static-content gets deleted right away -->

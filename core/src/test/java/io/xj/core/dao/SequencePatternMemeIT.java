@@ -9,7 +9,7 @@ import io.xj.core.model.sequence.SequenceState;
 import io.xj.core.model.sequence.SequenceType;
 import io.xj.core.model.pattern.PatternState;
 import io.xj.core.model.pattern.PatternType;
-import io.xj.core.model.pattern_meme.PatternMeme;
+import io.xj.core.model.sequence_pattern_meme.SequencePatternMeme;
 import io.xj.core.model.user_auth.UserAuthType;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.transport.JSON;
@@ -32,9 +32,9 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 // future test: permissions of different users to readMany vs. create vs. update or delete pattern memes
-public class PatternMemeIT {
+public class SequencePatternMemeIT {
   private final Injector injector = Guice.createInjector(new CoreModule());
-  private PatternMemeDAO testDAO;
+  private SequencePatternMemeDAO testDAO;
 
   @Before
   public void setUp() throws Exception {
@@ -65,18 +65,18 @@ public class PatternMemeIT {
     IntegrationTestEntity.insertSequence(1, 2, 1, SequenceType.Main, SequenceState.Published, "leaves", 0.342, "C#", 120.4);
 
     // Sequence "leaves" has pattern "growth" and pattern "decay"
-    IntegrationTestEntity.insertPatternSequencePattern(1, 1, PatternType.Main, PatternState.Published, 0, 16, "growth", 0.342, "C#", 120.4);
-    IntegrationTestEntity.insertPatternSequencePattern(2, 1, PatternType.Main, PatternState.Published, 1, 16, "decay", 0.25, "F#", 110.3);
+    IntegrationTestEntity.insertPatternAndSequencePattern(1, 1, PatternType.Main, PatternState.Published, 0, 16, "growth", 0.342, "C#", 120.4);
+    IntegrationTestEntity.insertPatternAndSequencePattern(2, 1, PatternType.Main, PatternState.Published, 1, 16, "decay", 0.25, "F#", 110.3);
 
     // Pattern "growth" has memes "ants" and "mold"
-    IntegrationTestEntity.insertPatternMeme(1, 1, "Gravel");
-    IntegrationTestEntity.insertPatternMeme(2, 1, "Fuzz");
+    IntegrationTestEntity.insertSequencePatternMeme(1, 1, 1, "Gravel");
+    IntegrationTestEntity.insertSequencePatternMeme(2, 1, 1, "Fuzz");
 
     // Pattern "decay" has meme "peel"
-    IntegrationTestEntity.insertPatternMeme(3, 2, "Peel");
+    IntegrationTestEntity.insertSequencePatternMeme(3, 1, 2, "Peel");
 
     // Instantiate the test subject
-    testDAO = injector.getInstance(PatternMemeDAO.class);
+    testDAO = injector.getInstance(SequencePatternMemeDAO.class);
   }
 
   @After
@@ -91,14 +91,14 @@ public class PatternMemeIT {
       "roles", "Artist",
       "accounts", "1"
     ));
-    PatternMeme inputData = new PatternMeme()
-      .setPatternId(BigInteger.valueOf(1L))
+    SequencePatternMeme inputData = new SequencePatternMeme()
+      .setSequencePatternId(BigInteger.valueOf(1L))
       .setName("  !!2gnarLY    ");
 
     JSONObject result = JSON.objectFrom(testDAO.create(access, inputData));
 
     assertNotNull(result);
-    assertEquals(1, result.get("patternId"));
+    assertEquals(1, result.get("sequencePatternId"));
     assertEquals("Gnarly", result.get("name"));
   }
 
@@ -108,7 +108,7 @@ public class PatternMemeIT {
       "roles", "Artist",
       "accounts", "1"
     ));
-    PatternMeme inputData = new PatternMeme()
+    SequencePatternMeme inputData = new SequencePatternMeme()
       .setName("gnarly");
 
     testDAO.create(access, inputData);
@@ -120,8 +120,8 @@ public class PatternMemeIT {
       "roles", "Artist",
       "accounts", "1"
     ));
-    PatternMeme inputData = new PatternMeme()
-      .setPatternId(BigInteger.valueOf(1L));
+    SequencePatternMeme inputData = new SequencePatternMeme()
+      .setSequencePatternId(BigInteger.valueOf(1L));
 
     testDAO.create(access, inputData);
   }
@@ -129,21 +129,21 @@ public class PatternMemeIT {
   @Test
   public void create_MacroSequencePatternMeme() throws Exception {
     IntegrationTestEntity.insertSequence(15, 2, 1, SequenceType.Macro, SequenceState.Published, "foods", 0.342, "C#", 120.4);
-    IntegrationTestEntity.insertPatternSequencePattern(21, 15, PatternType.Macro, PatternState.Published, 0, 16, "meat", 0.342, "C#", 120.4);
-    IntegrationTestEntity.insertPatternSequencePattern(22, 15, PatternType.Macro, PatternState.Published, 1, 16, "vegetable", 0.25, "F#", 110.3);
-    IntegrationTestEntity.insertPatternMeme(51, 21, "Squash");
+    IntegrationTestEntity.insertPatternAndSequencePattern(21, 15, PatternType.Macro, PatternState.Published, 0, 16, "meat", 0.342, "C#", 120.4);
+    IntegrationTestEntity.insertPatternAndSequencePattern(22, 15, PatternType.Macro, PatternState.Published, 1, 16, "vegetable", 0.25, "F#", 110.3);
+    IntegrationTestEntity.insertSequencePatternMeme(51, 15, 21, "Squash");
     Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
-    PatternMeme inputData = new PatternMeme()
-      .setPatternId(BigInteger.valueOf(21L))
+    SequencePatternMeme inputData = new SequencePatternMeme()
+      .setSequencePatternId(BigInteger.valueOf(21L))
       .setName("Ham");
 
-    PatternMeme result = testDAO.create(access, inputData);
+    SequencePatternMeme result = testDAO.create(access, inputData);
 
     assertNotNull(result);
-    assertEquals(BigInteger.valueOf(21L), result.getPatternId());
+    assertEquals(BigInteger.valueOf(21L), result.getSequencePatternId());
     assertEquals("Ham", result.getName());
   }
 
@@ -154,11 +154,11 @@ public class PatternMemeIT {
       "accounts", "1"
     ));
 
-    PatternMeme result = testDAO.readOne(access, BigInteger.valueOf(2L));
+    SequencePatternMeme result = testDAO.readOne(access, BigInteger.valueOf(2L));
 
     assertNotNull(result);
     assertEquals(BigInteger.valueOf(2L), result.getId());
-    assertEquals(BigInteger.valueOf(1L), result.getPatternId());
+    assertEquals(BigInteger.valueOf(1L), result.getSequencePatternId());
     assertEquals("Fuzz", result.getName());
   }
 
@@ -169,7 +169,7 @@ public class PatternMemeIT {
       "accounts", "326"
     ));
 
-    PatternMeme result = testDAO.readOne(access, BigInteger.valueOf(1L));
+    SequencePatternMeme result = testDAO.readOne(access, BigInteger.valueOf(1L));
 
     assertNull(result);
   }
@@ -212,7 +212,7 @@ public class PatternMemeIT {
     ));
     testDAO.destroy(access, BigInteger.valueOf(1L));
 
-    PatternMeme result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1L));
+    SequencePatternMeme result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1L));
     assertNull(result);
   }
 

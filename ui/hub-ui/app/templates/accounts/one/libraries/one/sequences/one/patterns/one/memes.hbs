@@ -20,11 +20,11 @@
           </tr>
           </thead>
           <tbody>
-          {{#each model.patternMemes as |patternMeme|}}
+          {{#each model.patternMemes as |sequencePatternMeme|}}
             <tr>
-              <td>{{patternMeme.name}}</td>
+              <td>{{sequencePatternMeme.name}}</td>
               <td>
-                <button {{action "destroyPatternMeme" patternMeme}}>Remove</button>
+                <button {{action "destroyPatternMeme" sequencePatternMeme}}>Remove</button>
               </td>
             </tr>
           {{/each}}

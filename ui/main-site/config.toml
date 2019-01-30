@@ -39,7 +39,7 @@ theme = "xj-theme"
 #
 [params]
   # Text
-  author = "XJ™"
+  author = "XJ Music™"
   email = "hello@xj.io"
   images = ["https://xj.io/images/cover.jpg"]
   description = "The XJ Music™ platform is an entirely new AI powered medium, transforming the experience of music in shared spaces."
