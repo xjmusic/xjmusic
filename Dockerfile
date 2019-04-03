@@ -86,9 +86,6 @@ ADD \
 ### App-specific content follows
 ###
 
-# Java system properties
-ADD runtime.env /data/runtime.env
-
 # 'hub'
 EXPOSE 8042
 RUN mkdir -p /var/log/hub && chmod a+w /var/log/hub

@@ -6,6 +6,7 @@ services:
     volumes:
       - .:/var/app/current
       - ./log:/var/log
+      - ./runtime.env:/data/runtime.env
 
   runner:
     extends: xj
