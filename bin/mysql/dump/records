@@ -18,7 +18,7 @@ MYSQL_PORT="${5}"
 OUTPUT_SQL="${6}"
 
 # Tables
-MYSQL_TABLES="account account_user audio audio_chord audio_event instrument instrument_meme library sequence sequence_meme pattern sequence_pattern pattern_chord pattern_meme pattern_event user user_role voice"
+MYSQL_TABLES="account account_user audio audio_chord audio_event instrument instrument_meme library sequence sequence_meme pattern sequence_pattern pattern_chord sequence_pattern_meme pattern_event user user_role voice"
 COPYRIGHT="Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved."
 
 # Find MySQL executable
