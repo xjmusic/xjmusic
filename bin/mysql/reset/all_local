@@ -17,7 +17,7 @@ elif [ -f /usr/local/mysql/bin/mysql ]; then
 fi
 
 # Database
-MYSQL_DB_MAIN="xj_production"
+MYSQL_DB_MAIN="xj"
 MYSQL_DB_TEST="xj_test"
 
 # Reset command SQL

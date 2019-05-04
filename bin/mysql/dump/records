@@ -27,6 +27,7 @@ chain_library
 chain_sequence
 choice
 platform_message
+schema_version
 segment
 segment_chord
 segment_meme
