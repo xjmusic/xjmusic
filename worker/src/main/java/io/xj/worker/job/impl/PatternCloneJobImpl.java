@@ -10,13 +10,12 @@ import io.xj.core.dao.PatternChordDAO;
 import io.xj.core.dao.PatternDAO;
 import io.xj.core.dao.PatternEventDAO;
 import io.xj.core.dao.VoiceDAO;
-import io.xj.core.exception.BusinessException;
+import io.xj.core.exception.CoreException;
+import io.xj.core.isometry.VoiceIsometry;
 import io.xj.core.model.pattern.Pattern;
 import io.xj.core.model.pattern_chord.PatternChord;
 import io.xj.core.model.pattern_event.PatternEvent;
 import io.xj.core.model.voice.Voice;
-import io.xj.core.transport.JSON;
-import io.xj.craft.isometry.VoiceIsometry;
 import io.xj.worker.job.PatternCloneJob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +33,7 @@ public class PatternCloneJobImpl implements PatternCloneJob {
   private final PatternChordDAO patternChordDAO;
   private final PatternEventDAO patternEventDAO;
   private final VoiceDAO voiceDAO;
+  private final Access access = Access.internal();
 
   @Inject
   public PatternCloneJobImpl(
@@ -55,9 +55,10 @@ public class PatternCloneJobImpl implements PatternCloneJob {
   @Override
   public void run() {
     try {
-      if (Objects.nonNull(fromId) && Objects.nonNull(toId)) {
-        doWork();
-      }
+      doWork(patternDAO.readOne(access, fromId), patternDAO.readOne(access, toId));
+
+    } catch (CoreException e) {
+      log.warn("Did not clone Pattern fromId={}, toId={}, reason={}", fromId, toId, e.getMessage());
 
     } catch (Exception e) {
       log.error("{}:{} failed ({})",
@@ -66,67 +67,89 @@ public class PatternCloneJobImpl implements PatternCloneJob {
   }
 
   /**
-   Do Pattern Clone ExpectationOfWork
+   Do Pattern Clone Work
    Worker removes all child entities for the Pattern
    Worker deletes all S3 objects for the Pattern
    Worker deletes the Pattern
+
+   @param from to clone
+   @param to   to clone onto (already created)
    */
-  private void doWork() throws Exception {
-    Pattern from = patternDAO.readOne(Access.internal(), fromId);
-    if (Objects.isNull(from))
-      throw new BusinessException("Could not fetch clone source Pattern");
+  private void doWork(Pattern from, Pattern to) throws Exception {
+    cloneAllPatternChords(from, to);
+    cloneAllPatternEvents(buildVoiceCloneIdMap(from, to), from, to);
+    log.info("Cloned Pattern #{} and child entities to new Pattern {}", fromId, to);
+  }
 
-    Pattern to = patternDAO.readOne(Access.internal(), toId);
-    if (Objects.isNull(to))
-      throw new BusinessException("Could not fetch clone target Pattern");
+  /**
+   Clone all PatternEvent from one Pattern to another
 
-    // Clone PatternChord
-    patternChordDAO.readAll(Access.internal(), ImmutableList.of(fromId)).forEach(patternChord -> {
-      patternChord.setPatternId(toId);
-
-      try {
-        PatternChord toPatternChord = patternChordDAO.create(Access.internal(), patternChord);
-        log.info("Cloned PatternChord ofMemes #{} to {}", patternChord.getId(), JSON.objectFrom(toPatternChord));
-
-      } catch (Exception e) {
-        log.error("Failed to clone PatternChord {}", JSON.objectFrom(patternChord), e);
-      }
-    });
-
-    // In order to assign cloned voice events to their new voice
-    // Get all voices from source and (optionally, if different) target sequences;
-    // map source to target voice ids
-    Map<BigInteger, BigInteger> voiceCloneIds = Maps.newConcurrentMap();
-    Collection<Voice> sourceVoices = voiceDAO.readAll(Access.internal(), ImmutableList.of(from.getSequenceId()));
-    if (Objects.equals(from.getSequenceId(), to.getSequenceId()))
-      sourceVoices.forEach((voice) -> voiceCloneIds.put(voice.getId(), voice.getId()));
-    else {
-      VoiceIsometry targetVoices = VoiceIsometry.ofVoices(voiceDAO.readAll(Access.internal(), ImmutableList.of(to.getSequenceId())));
-      sourceVoices.forEach((sourceVoice) -> {
-        Voice targetVoice = targetVoices.find(sourceVoice);
-        if (Objects.nonNull(targetVoice))
-          voiceCloneIds.put(sourceVoice.getId(), targetVoice.getId());
-      });
-    }
-
-    //  Clone each PatternEvent
-    patternEventDAO.readAll(Access.internal(), ImmutableList.of(fromId)).forEach(fromPatternEvent -> {
-      fromPatternEvent.setPatternId(toId);
-      BigInteger toVoiceId = voiceCloneIds.getOrDefault(fromPatternEvent.getVoiceId(), null);
+   @param voiceCloneIdMap of the id of voices in source pattern, to id of corresponding voice in target pattern
+   @param from            Pattern
+   @param to              Pattern
+   */
+  private void cloneAllPatternEvents(Map<BigInteger, BigInteger> voiceCloneIdMap, Pattern from, Pattern to) throws CoreException {
+    patternEventDAO.readAll(access, ImmutableList.of(from.getId())).forEach(fromPatternEvent -> {
+      fromPatternEvent.setPatternId(to.getId());
+      BigInteger toVoiceId = voiceCloneIdMap.getOrDefault(fromPatternEvent.getVoiceId(), null);
       if (Objects.isNull(toVoiceId)) return;
       fromPatternEvent.setVoiceId(toVoiceId);
 
       try {
-        PatternEvent toPatternEvent = patternEventDAO.create(Access.internal(), fromPatternEvent);
-        log.info("Cloned PatternEvent ofMemes #{} to {}", fromPatternEvent.getId(), JSON.objectFrom(toPatternEvent));
+        PatternEvent toPatternEvent = patternEventDAO.create(access, fromPatternEvent);
+        log.info("Cloned PatternEvent ofMemes #{} to {}", fromPatternEvent.getId(), toPatternEvent);
 
       } catch (Exception e) {
-        log.error("Failed to clone PatternEvent ofMemes {}", JSON.objectFrom(fromPatternEvent), e);
+        log.error("Failed to clone PatternEvent ofMemes {}", fromPatternEvent, e);
       }
     });
-
-    log.info("Cloned Pattern #{} and child entities to new Pattern {}", fromId, JSON.objectFrom(to));
   }
 
+  /**
+   Clone all PatternChords from one pattern to another
+
+   @param from Pattern
+   @param to   Pattern
+   */
+  private void cloneAllPatternChords(Pattern from, Pattern to) throws CoreException {
+    patternChordDAO.readAll(access, ImmutableList.of(from.getId())).forEach(patternChord -> {
+      patternChord.setPatternId(to.getId());
+
+      try {
+        PatternChord toPatternChord = patternChordDAO.create(access, patternChord);
+        log.info("Cloned PatternChord ofMemes #{} to {}", patternChord.getId(), toPatternChord);
+
+      } catch (Exception e) {
+        log.error("Failed to clone PatternChord {}", patternChord, e);
+      }
+    });
+  }
+
+
+  /**
+   In order to assign cloned voice events to their new voice
+   Get all voices from source and (optionally, if different) target sequences;
+   map source to target voice ids
+
+   @param from Pattern
+   @param to   Pattern
+   @return map of the id of voices in source pattern, to id of corresponding voice in target pattern
+   @throws CoreException on failure
+   */
+  private Map<BigInteger, BigInteger> buildVoiceCloneIdMap(Pattern from, Pattern to) throws CoreException {
+    Map<BigInteger, BigInteger> voiceCloneIdMap = Maps.newConcurrentMap();
+    Collection<Voice> sourceVoices = voiceDAO.readAll(access, ImmutableList.of(from.getSequenceId()));
+    if (Objects.equals(from.getSequenceId(), to.getSequenceId()))
+      sourceVoices.forEach((voice) -> voiceCloneIdMap.put(voice.getId(), voice.getId()));
+    else {
+      VoiceIsometry targetVoices = VoiceIsometry.ofVoices(voiceDAO.readAll(access, ImmutableList.of(to.getSequenceId())));
+      sourceVoices.forEach((sourceVoice) -> {
+        Voice targetVoice = targetVoices.find(sourceVoice);
+        if (Objects.nonNull(targetVoice))
+          voiceCloneIdMap.put(sourceVoice.getId(), targetVoice.getId());
+      });
+    }
+    return voiceCloneIdMap;
+  }
 
 }

@@ -8,6 +8,7 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import io.xj.core.util.Value;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -98,6 +99,6 @@ public class ChordMarkovNode {
     if (precedentState.isEmpty()) return "";
     List<String> pieces = Lists.newArrayList();
     precedentState.forEach(chordNode -> pieces.add(chordNode.toString()));
-    return Joiner.on(Chord.SEPARATOR_DESCRIPTOR).join(pieces);
+    return Joiner.on(Value.CHORD_SEPARATOR_DESCRIPTOR).join(pieces);
   }
 }

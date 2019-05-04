@@ -1,47 +1,39 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.model.arrangement;
 
-import io.xj.core.exception.BusinessException;
-import io.xj.core.model.entity.Entity;
+import com.google.common.collect.Lists;
+import io.xj.core.exception.CoreException;
+import io.xj.core.model.segment.Segment;
+import io.xj.core.model.segment.SegmentEntity;
 
 import java.math.BigInteger;
+import java.util.Collection;
+import java.util.Objects;
+import java.util.UUID;
 
 /**
- POJO for persisting data in memory while performing business logic,
-or decoding messages received by JAX-RS resources.
- a.k.a. JSON input will be stored into an instance of this object
-
- Business logic ought to be performed beginning with an instance of this object,
- to implement common methods.
-
+ [#166132897] Segment model handles all of its own entities
+ [#166273140] Segment Child Entities are identified and related by UUID (not id)
+ <p>
  NOTE: There can only be ONE of any getter/setter (with the same # of input params)
  */
-public class Arrangement extends Entity {
-
-  /**
-   For use in maps.
-   */
-  public static final String KEY_ONE = "arrangement";
-  public static final String KEY_MANY = "arrangements";
-  /**
-   Choice
-   */
-  private BigInteger choiceId;
-  /**
-   Voice
-   */
+public class Arrangement extends SegmentEntity {
+  private UUID choiceUuid;
   private BigInteger voiceId;
-  /**
-   Instrument
-   */
   private BigInteger instrumentId;
 
-  public BigInteger getChoiceId() {
-    return choiceId;
+  public static Collection<Arrangement> aggregate(Collection<Segment> segments) {
+    Collection<Arrangement> aggregate = Lists.newArrayList();
+    segments.forEach(segment -> aggregate.addAll(segment.getArrangements()));
+    return aggregate;
   }
 
-  public Arrangement setChoiceId(BigInteger choiceId) {
-    this.choiceId = choiceId;
+  public UUID getChoiceUuid() {
+    return choiceUuid;
+  }
+
+  public Arrangement setChoiceUuid(UUID choiceUuid) {
+    this.choiceUuid = choiceUuid;
     return this;
   }
 
@@ -64,20 +56,23 @@ public class Arrangement extends Entity {
   }
 
   @Override
-  public BigInteger getParentId() {
-    return choiceId;
+  public Arrangement setUuid(UUID uuid) {
+    this.uuid = uuid;
+    return this;
   }
 
   @Override
-  public void validate() throws BusinessException {
-    if (this.choiceId == null) {
-      throw new BusinessException("Choice ID is required.");
+  public void validate() throws CoreException {
+    super.validate();
+
+    if (Objects.isNull(choiceUuid)) {
+      throw new CoreException("Choice ID is required.");
     }
-    if (this.voiceId == null) {
-      throw new BusinessException("Voice ID is required.");
+    if (Objects.isNull(voiceId)) {
+      throw new CoreException("Voice ID is required.");
     }
-    if (this.instrumentId == null) {
-      throw new BusinessException("Instrument ID is required.");
+    if (Objects.isNull(instrumentId)) {
+      throw new CoreException("Instrument ID is required.");
     }
   }
 

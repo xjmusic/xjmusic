@@ -11,7 +11,7 @@ import io.xj.core.model.sequence.SequenceWrapper;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.transport.HttpResponseProvider;
 import io.xj.craft.generation.GenerationFactory;
-import io.xj.craft.ingest.IngestFactory;
+import io.xj.core.ingest.IngestFactory;
 import io.xj.hub.HubResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

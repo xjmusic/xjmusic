@@ -2,6 +2,7 @@
 package io.xj.core.dao;
 
 import io.xj.core.access.impl.Access;
+import io.xj.core.exception.CoreException;
 import io.xj.core.model.library.Library;
 
 import java.math.BigInteger;
@@ -15,7 +16,7 @@ public interface LibraryDAO extends DAO<Library> {
    @param access  control
    @param chainId to fetch sequences for.
    @return collection of sequences.
-   @throws Exception on failure
+   @throws CoreException on failure
    */
-  Collection<Library> readAllBoundToChain(Access access, BigInteger chainId) throws Exception;
+  Collection<Library> readAllBoundToChain(Access access, BigInteger chainId) throws CoreException;
 }

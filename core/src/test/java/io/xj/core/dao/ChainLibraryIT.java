@@ -1,36 +1,34 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.dao;
 
-import io.xj.core.CoreModule;
-import io.xj.core.access.impl.Access;
-import io.xj.core.exception.BusinessException;
-import io.xj.core.integration.IntegrationTestEntity;
-import io.xj.core.model.chain.ChainState;
-import io.xj.core.model.chain.ChainType;
-import io.xj.core.model.chain_library.ChainLibrary;
-import io.xj.core.transport.JSON;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.junit.After;
+import io.xj.core.CoreModule;
+import io.xj.core.access.impl.Access;
+import io.xj.core.exception.CoreException;
+import io.xj.core.integration.IntegrationTestEntity;
+import io.xj.core.model.chain.ChainState;
+import io.xj.core.model.chain.ChainType;
+import io.xj.core.model.chain_library.ChainLibrary;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.math.BigInteger;
 import java.sql.Timestamp;
+import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 
 // future test: permissions of different libraries to readMany vs. create vs. update or delete chain libraries
 public class ChainLibraryIT {
   private final Injector injector = Guice.createInjector(new CoreModule());
+  @Rule
+  public ExpectedException failure = ExpectedException.none();
   private ChainLibraryDAO testDAO;
 
   @Before
@@ -54,19 +52,14 @@ public class ChainLibraryIT {
     IntegrationTestEntity.insertLibrary(3, 2, "pajamas");
 
     // Chain "school" has library "buns"
-    IntegrationTestEntity.insertChainLibrary(1, 1, 1);
+    IntegrationTestEntity.insertChainLibrary(1, 1);
 
     // Chain "bucket" has libraries "buns" and "jams"
-    IntegrationTestEntity.insertChainLibrary(2, 2, 1);
-    IntegrationTestEntity.insertChainLibrary(3, 2, 2);
+    IntegrationTestEntity.insertChainLibrary(2, 1);
+    IntegrationTestEntity.insertChainLibrary(2, 2);
 
     // Instantiate the test subject
     testDAO = injector.getInstance(ChainLibraryDAO.class);
-  }
-
-  @After
-  public void tearDown() throws Exception {
-    testDAO = null;
   }
 
   @Test
@@ -79,14 +72,10 @@ public class ChainLibraryIT {
       .setChainId(BigInteger.valueOf(1L))
       .setLibraryId(BigInteger.valueOf(2L));
 
-    JSONObject result = JSON.objectFrom(testDAO.create(access, inputData));
-
-    assertNotNull(result);
-    assertEquals(1, result.get("chainId"));
-    assertEquals(2, result.get("libraryId"));
+    testDAO.create(access, inputData);
   }
 
-  @Test(expected = BusinessException.class)
+  @Test(expected = CoreException.class)
   public void create_FailIfAlreadyExists() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
@@ -99,7 +88,7 @@ public class ChainLibraryIT {
     testDAO.create(access, inputData);
   }
 
-  @Test(expected = BusinessException.class)
+  @Test(expected = CoreException.class)
   public void create_FailIfUserNotInChainAccount() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
@@ -112,7 +101,7 @@ public class ChainLibraryIT {
     testDAO.create(access, inputData);
   }
 
-  @Test(expected = BusinessException.class)
+  @Test(expected = CoreException.class)
   public void create_FailIfUserNotInLibraryAccount() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
@@ -125,7 +114,7 @@ public class ChainLibraryIT {
     testDAO.create(access, inputData);
   }
 
-  @Test(expected = BusinessException.class)
+  @Test(expected = CoreException.class)
   public void create_FailsWithoutChainID() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
@@ -137,7 +126,7 @@ public class ChainLibraryIT {
     testDAO.create(access, inputData);
   }
 
-  @Test(expected = BusinessException.class)
+  @Test(expected = CoreException.class)
   public void create_FailsWithoutLibraryId() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
@@ -156,10 +145,9 @@ public class ChainLibraryIT {
       "accounts", "1"
     ));
 
-    ChainLibrary result = testDAO.readOne(access, BigInteger.valueOf(1L));
+    ChainLibrary result = testDAO.readOne(access, BigInteger.valueOf(1001000L));
 
     assertNotNull(result);
-    assertEquals(BigInteger.valueOf(1L), result.getId());
     assertEquals(BigInteger.valueOf(1L), result.getChainId());
     assertEquals(BigInteger.valueOf(1L), result.getLibraryId());
   }
@@ -170,10 +158,10 @@ public class ChainLibraryIT {
       "roles", "Artist",
       "accounts", "326"
     ));
+    failure.expect(CoreException.class);
+    failure.expectMessage("does not exist");
 
-    ChainLibrary result = testDAO.readOne(access, BigInteger.valueOf(1L));
-
-    assertNull(result);
+    testDAO.readOne(access, BigInteger.valueOf(1001000L));
   }
 
   @Test
@@ -183,14 +171,9 @@ public class ChainLibraryIT {
       "accounts", "1"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(2L))));
+    Collection<ChainLibrary> result = testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(2L)));
 
-    assertNotNull(result);
-    assertEquals(2L, (long) result.length());
-    JSONObject result1 = (JSONObject) result.get(0);
-    assertEquals(1, result1.get("libraryId"));
-    JSONObject result2 = (JSONObject) result.get(1);
-    assertEquals(2, result2.get("libraryId"));
+    assertEquals(2L, result.size());
   }
 
   @Test
@@ -200,10 +183,9 @@ public class ChainLibraryIT {
       "accounts", "345"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1L))));
+    Collection<ChainLibrary> result = testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1L)));
 
-    assertNotNull(result);
-    assertEquals(0L, (long) result.length());
+    assertEquals(0L, result.size());
   }
 
   @Test
@@ -213,19 +195,18 @@ public class ChainLibraryIT {
       "accounts", "1"
     ));
 
-    testDAO.destroy(access, BigInteger.valueOf(1L));
+    testDAO.destroy(access, BigInteger.valueOf(1001000L));
 
-    ChainLibrary result = testDAO.readOne(Access.internal(),BigInteger.valueOf(1L));
-    assertNull(result);
+    IntegrationTestEntity.assertNotExist(testDAO, BigInteger.valueOf(1001000L));
   }
 
-  @Test(expected = BusinessException.class)
+  @Test(expected = CoreException.class)
   public void delete_FailIfNotInAccount() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "5"
     ));
 
-    testDAO.destroy(access, BigInteger.valueOf(1L));
+    testDAO.destroy(access, BigInteger.valueOf(1001000L));
   }
 }

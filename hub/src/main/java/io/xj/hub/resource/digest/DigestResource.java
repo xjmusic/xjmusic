@@ -4,15 +4,15 @@ package io.xj.hub.resource.digest;
 import com.google.common.collect.ImmutableList;
 
 import io.xj.core.access.impl.Access;
-import io.xj.core.exception.BusinessException;
+import io.xj.core.exception.CoreException;
 import io.xj.core.model.library.Library;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.transport.HttpResponseProvider;
 import io.xj.craft.digest.cache.DigestCacheProvider;
-import io.xj.craft.ingest.cache.IngestCacheProvider;
+import io.xj.core.ingest.cache.IngestCacheProvider;
 import io.xj.craft.digest.Digest;
 import io.xj.craft.digest.DigestType;
-import io.xj.craft.ingest.Ingest;
+import io.xj.core.ingest.Ingest;
 import io.xj.hub.HubResource;
 
 import javax.annotation.security.RolesAllowed;
@@ -51,7 +51,7 @@ public class DigestResource extends HubResource {
   @GET
   @WebResult
   @RolesAllowed({UserRoleType.ARTIST, UserRoleType.ENGINEER})
-  public Response digest(@Context ContainerRequestContext crc) throws Exception {
+  public Response digest(@Context ContainerRequestContext crc) {
 
     if (Objects.isNull(libraryIdString) || libraryIdString.isEmpty()) {
       return response.notAcceptable("Must specify `libraryId` of digest.");
@@ -79,7 +79,7 @@ public class DigestResource extends HubResource {
         evaluate(
           Access.fromContext(crc),
           digestType, libraryId
-        ).toJSONObject());
+        ));
 
     } catch (Exception e) {
       return response.failure(e);
@@ -114,7 +114,7 @@ public class DigestResource extends HubResource {
         return digestProvider.sequenceStyle(ingest);
 
       default:
-        throw new BusinessException(String.format("Invalid type: %s", type));
+        throw new CoreException(String.format("Invalid type: %s", type));
     }
   }
 }

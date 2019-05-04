@@ -11,24 +11,25 @@ import io.xj.core.access.impl.Access;
 import io.xj.core.app.App;
 import io.xj.core.dao.ChainDAO;
 import io.xj.core.dao.SegmentDAO;
+import io.xj.core.exception.CoreException;
 import io.xj.core.external.amazon.AmazonProvider;
 import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
-import io.xj.core.model.instrument.InstrumentType;
-import io.xj.core.model.pattern.PatternState;
-import io.xj.core.model.pattern.PatternType;
+import io.xj.core.model.choice.Choice;
+import io.xj.core.model.segment.Segment;
+import io.xj.core.model.segment.SegmentFactory;
 import io.xj.core.model.segment.SegmentState;
-import io.xj.core.model.sequence.SequenceState;
+import io.xj.core.model.segment_chord.SegmentChord;
+import io.xj.core.model.segment_meme.SegmentMeme;
 import io.xj.core.model.sequence.SequenceType;
-import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.model.work.Work;
 import io.xj.core.model.work.WorkType;
 import io.xj.craft.CraftModule;
 import io.xj.dub.DubModule;
+import io.xj.worker.BaseIT;
 import io.xj.worker.WorkerModule;
 import net.greghaines.jesque.worker.JobFactory;
-import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -47,7 +48,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ChainEraseJobIT {
+public class ChainEraseJobIT extends BaseIT {
   private static final int MILLIS_PER_SECOND = 1000;
   private static final int MAXIMUM_TEST_WAIT_MILLIS = 30 * MILLIS_PER_SECOND;
   @Rule
@@ -60,148 +61,113 @@ public class ChainEraseJobIT {
 
   @Before
   public void setUp() throws Exception {
+    injector = Guice.createInjector(Modules.override(new CoreModule(), new WorkerModule(), new CraftModule(), new DubModule()).with(
+      new AbstractModule() {
+        @Override
+        public void configure() {
+          bind(AmazonProvider.class).toInstance(amazonProvider);
+        }
+      }));
+    SegmentFactory segmentFactory = injector.getInstance(SegmentFactory.class);
+
+    // reset to shared fixtures
     IntegrationTestEntity.reset();
-
-    // inject mocks
-    createInjector();
-
-    // configs
-    System.setProperty("segment.file.bucket", "xj-segment-test");
-
-    // Account "pilots"
-    IntegrationTestEntity.insertAccount(1, "pilots");
-
-    // Ted has "user" and "admin" roles, belongs to account "pilots", has "google" auth
-    IntegrationTestEntity.insertUser(2, "ted", "ted@email.com", "http://pictures.com/ted.gif");
-    IntegrationTestEntity.insertUserRole(1, 2, UserRoleType.Admin);
-
-    // Sally has a "user" role and belongs to account "pilots"
-    IntegrationTestEntity.insertUser(3, "sally", "sally@email.com", "http://pictures.com/sally.gif");
-    IntegrationTestEntity.insertUserRole(2, 3, UserRoleType.User);
-    IntegrationTestEntity.insertAccountUser(3, 1, 3);
-
-    // Library "house"
-    IntegrationTestEntity.insertLibrary(2, 1, "house");
-
-    // "Heavy, Deep to Metal" macro-sequence in house library
-    IntegrationTestEntity.insertSequence(4, 3, 2, SequenceType.Macro, SequenceState.Published, "Heavy, Deep to Metal", 0.5, "C", 120);
-    IntegrationTestEntity.insertSequenceMeme(2, 4, "Heavy");
-    // " pattern offset 0
-    IntegrationTestEntity.insertPatternAndSequencePattern(3, 4, PatternType.Macro, PatternState.Published, 0, 0, "Start Deep", 0.6, "C", 125);
-    IntegrationTestEntity.insertSequencePatternMeme(3, 4, 3, "Deep");
-    IntegrationTestEntity.insertPatternChord(3, 3, 0, "C");
-    // " pattern offset 1
-    IntegrationTestEntity.insertPatternAndSequencePattern(4, 4, PatternType.Macro, PatternState.Published, 1, 0, "Intermediate", 0.4, "Bb minor", 115);
-    IntegrationTestEntity.insertSequencePatternMeme(4, 4, 4, "Metal");
-    IntegrationTestEntity.insertSequencePatternMeme(49, 4, 4, "Deep");
-    IntegrationTestEntity.insertPatternChord(4, 4, 0, "Bb minor");
-    // " pattern offset 2
-    IntegrationTestEntity.insertPatternAndSequencePattern(5, 4, PatternType.Macro, PatternState.Published, 2, 0, "Finish Metal", 0.4, "Ab minor", 125);
-    IntegrationTestEntity.insertSequencePatternMeme(5, 4, 4, "Metal");
-    IntegrationTestEntity.insertPatternChord(5, 5, 0, "Ab minor");
-
-    // "Tech, Steampunk to Modern" macro-sequence in house library
-    IntegrationTestEntity.insertSequence(3, 3, 2, SequenceType.Macro, SequenceState.Published, "Tech, Steampunk to Modern", 0.5, "G minor", 120);
-    IntegrationTestEntity.insertSequenceMeme(1, 3, "Tech");
-    // # pattern offset 0
-    IntegrationTestEntity.insertPatternAndSequencePattern(1, 3, PatternType.Macro, PatternState.Published, 0, 0, "Start Steampunk", 0.4, "G minor", 115);
-    IntegrationTestEntity.insertSequencePatternMeme(1, 3, 1, "Steampunk");
-    IntegrationTestEntity.insertPatternChord(1, 1, 0, "G minor");
-    // # pattern offset 1
-    IntegrationTestEntity.insertPatternAndSequencePattern(2, 3, PatternType.Macro, PatternState.Published, 1, 0, "Finish Modern", 0.6, "C", 125);
-    IntegrationTestEntity.insertSequencePatternMeme(2, 3, 2, "Modern");
-    IntegrationTestEntity.insertPatternChord(2, 2, 0, "C");
-
-    // Main sequence
-    IntegrationTestEntity.insertSequence(5, 3, 2, SequenceType.Main, SequenceState.Published, "Main Jam", 0.2, "C minor", 140);
-    IntegrationTestEntity.insertSequenceMeme(3, 5, "Attitude");
-    // # pattern offset 0
-    IntegrationTestEntity.insertPatternAndSequencePattern(15, 5, PatternType.Main, PatternState.Published, 0, 16, "Intro", 0.5, "G major", 135.0);
-    IntegrationTestEntity.insertSequencePatternMeme(6, 5, 15, "Gritty");
-    IntegrationTestEntity.insertPatternChord(12, 15, 0, "G major");
-    IntegrationTestEntity.insertPatternChord(14, 15, 8, "Ab minor");
-    // # pattern offset 1
-    IntegrationTestEntity.insertPatternAndSequencePattern(16, 5, PatternType.Main, PatternState.Published, 1, 16, "Drop", 0.5, "G minor", 135.0);
-    IntegrationTestEntity.insertSequencePatternMeme(7, 5, 16, "Gentle");
-    IntegrationTestEntity.insertPatternChord(16, 16, 0, "C major");
-    IntegrationTestEntity.insertPatternChord(18, 16, 8, "Bb minor");
-
-    // Another Main sequence to go to
-    IntegrationTestEntity.insertSequence(15, 3, 2, SequenceType.Main, SequenceState.Published, "Next Jam", 0.2, "Db minor", 140);
-    IntegrationTestEntity.insertSequenceMeme(43, 15, "Temptation");
-    IntegrationTestEntity.insertPatternAndSequencePattern(415, 15, PatternType.Main, PatternState.Published, 0, 16, "Intro", 0.5, "G minor", 135.0);
-    IntegrationTestEntity.insertSequencePatternMeme(46, 15, 415, "Food");
-    IntegrationTestEntity.insertPatternChord(412, 415, 0, "G minor");
-    IntegrationTestEntity.insertPatternChord(414, 415, 8, "Ab minor");
-    IntegrationTestEntity.insertPatternAndSequencePattern(416, 15, PatternType.Main, PatternState.Published, 1, 16, "Outro", 0.5, "A major", 135.0);
-    IntegrationTestEntity.insertSequencePatternMeme(47, 15, 416, "Drink");
-    IntegrationTestEntity.insertSequencePatternMeme(149, 15, 416, "Shame");
-    IntegrationTestEntity.insertPatternChord(416, 416, 0, "C major");
-    IntegrationTestEntity.insertPatternChord(418, 416, 8, "Bb major");
-
-    /*
-    Note that in any real use case, after
-    [#163158036] memes bound to sequence-patter
-    because sequence-pattern binding is not considered for rhythm sequences,
-    rhythm sequence patterns do not have memes.
-     */
-
-    // A basic beat
-    IntegrationTestEntity.insertSequence(35, 3, 2, SequenceType.Rhythm, SequenceState.Published, "Basic Beat", 0.2, "C", 121);
-    IntegrationTestEntity.insertSequenceMeme(343, 35, "Basic");
-    IntegrationTestEntity.insertPatternAndSequencePattern(315, 35, PatternType.Loop, PatternState.Published, 0, 4, "Drop", 0.5, "C", 125.0);
-    IntegrationTestEntity.insertSequencePatternMeme(346, 35, 315, "Heavy");
-
-    // setup voice pattern events
-    IntegrationTestEntity.insertVoice(1, 35, InstrumentType.Percussive, "drums");
-
-    // Voice "Drums" has events "BOOM" and "SMACK" 2x each
-    IntegrationTestEntity.insertPatternEvent(1, 315, 1, 0, 1, "BOOM", "C2", 0.8, 1.0);
-    IntegrationTestEntity.insertPatternEvent(2, 315, 1, 1, 1, "SMACK", "G5", 0.1, 0.8);
-    IntegrationTestEntity.insertPatternEvent(3, 315, 1, 2.5, 1, "BOOM", "C2", 0.8, 0.6);
-    IntegrationTestEntity.insertPatternEvent(4, 315, 1, 3, 1, "SMACK", "G5", 0.1, 0.9);
-
-    // basic beat second pattern
-    IntegrationTestEntity.insertPatternAndSequencePattern(316, 35, PatternType.Loop, PatternState.Published, 0, 4, "Continue", 0.5, "C", 125.0);
-    IntegrationTestEntity.insertSequencePatternMeme(347, 35, 316, "Heavy");
+    insertLibraryA();
 
     // Chain "Test Print #1" has 5 total segments
     IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Erase, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, null);
-    IntegrationTestEntity.insertSegment(1, 1, 0, SegmentState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120, "chain-1-segment-97898asdf7892.wav", new JSONObject());
-    IntegrationTestEntity.insertSegment(2, 1, 1, SegmentState.Dubbing, Timestamp.valueOf("2017-02-14 12:01:32.000001"), Timestamp.valueOf("2017-02-14 12:02:04.000001"), "Db minor", 64, 0.85, 120, "chain-1-segment-2807fdghj3272.wav", new JSONObject());
+    IntegrationTestEntity.insertSegment_NoContent(1, 1, 0, SegmentState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120, "chain-1-segment-9f7s89d8a7892-ONE.wav");
+    IntegrationTestEntity.insertSegment_NoContent(2, 1, 1, SegmentState.Dubbing, Timestamp.valueOf("2017-02-14 12:01:32.000001"), Timestamp.valueOf("2017-02-14 12:02:04.000001"), "Db minor", 64, 0.85, 120, "chain-1-segment-2807f2d5g2h32-TWO.wav");
 
     // Chain "Test Print #1" has this segment that was just dubbed
-    IntegrationTestEntity.insertSegment(3, 1, 2, SegmentState.Dubbed, Timestamp.valueOf("2017-02-14 12:02:04.000001"), Timestamp.valueOf("2017-02-14 12:02:36.000001"), "Ab minor", 64, 0.30, 120, "chain-1-segment-198745hj78dfs.wav", new JSONObject()); // final key is based on pattern of main sequence
-    IntegrationTestEntity.insertChoice(25, 3, 4, SequenceType.Macro, 1, 3); // macro-sequence current pattern is transposed to be Db minor
-    IntegrationTestEntity.insertChoice(26, 3, 5, SequenceType.Main, 1, 1); // main-key of previous segment is transposed to match, Db minor
-    IntegrationTestEntity.insertChoice(27, 3, 35, SequenceType.Rhythm, 0, -4);
+    Segment segment3 = segmentFactory.newSegment(BigInteger.valueOf(3))
+      .setChainId(BigInteger.valueOf(1))
+      .setOffset(BigInteger.valueOf(2))
+      .setStateEnum(SegmentState.Dubbed)
+      .setBeginAt("2017-02-14 12:02:04.000001")
+      .setEndAt("2017-02-14 12:02:36.000001")
+      .setKey("Ab minor")
+      .setTotal(64)
+      .setDensity(0.30)
+      .setTempo(120.0)
+      .setWaveformKey("chain-1-segment-198745hj78dfs-THREE.wav");
+    segment3.add(new Choice()
+      .setSegmentId(BigInteger.valueOf(3))
+      .setSequencePatternId(BigInteger.valueOf(340))
+      .setTypeEnum(SequenceType.Macro)
+      .setTranspose(3));
+    segment3.add(new Choice()
+      .setSegmentId(BigInteger.valueOf(3))
+      .setSequencePatternId(BigInteger.valueOf(1651))
+      .setTypeEnum(SequenceType.Main)
+      .setTranspose(1));
+    segment3.add(new Choice()
+      .setSegmentId(BigInteger.valueOf(3))
+      .setSequenceId(BigInteger.valueOf(35))
+      .setTypeEnum(SequenceType.Rhythm)
+      .setTranspose(-4));
+    IntegrationTestEntity.insert(segment3);
 
     // Chain "Test Print #1" has a segment in dubbing state - Structure is complete
-    IntegrationTestEntity.insertSegment(4, 1, 3, SegmentState.Dubbing, Timestamp.valueOf("2017-02-14 12:03:08.000001"), Timestamp.valueOf("2017-02-14 12:03:15.836735"), "F minor", 16, 0.45, 125, "chain-1-segment-897hdfhjd7884.wav", new JSONObject());
-    IntegrationTestEntity.insertSegmentMeme(101, 4, "Hindsight");
-    IntegrationTestEntity.insertSegmentMeme(102, 4, "Chunky");
-    IntegrationTestEntity.insertSegmentMeme(103, 4, "Regret");
-    IntegrationTestEntity.insertSegmentMeme(104, 4, "Tangy");
-    IntegrationTestEntity.insertChoice(101, 4, 3, SequenceType.Macro, 0, 4);
-    IntegrationTestEntity.insertChoice(102, 4, 15, SequenceType.Main, 0, -2);
-    IntegrationTestEntity.insertSegmentChord(101, 4, 0, "F minor");
-    IntegrationTestEntity.insertSegmentChord(102, 4, 8, "Gb minor");
-
-    // choice of rhythm-type sequence
-    IntegrationTestEntity.insertChoice(103, 4, 35, SequenceType.Rhythm, 0, 5);
+    Segment segment4 = segmentFactory.newSegment(BigInteger.valueOf(4))
+      .setChainId(BigInteger.valueOf(1))
+      .setOffset(BigInteger.valueOf(3))
+      .setStateEnum(SegmentState.Dubbing)
+      .setBeginAt("2017-02-14 12:03:08.000001")
+      .setEndAt("2017-02-14 12:03:15.836735")
+      .setKey("F minor")
+      .setTotal(16)
+      .setDensity(0.45)
+      .setTempo(125.0)
+      .setWaveformKey("chain-1-segment-897h4d4f1h2j4-FOUR.wav");
+    segment4.add(new Choice()
+      .setSegmentId(BigInteger.valueOf(4))
+      .setSequencePatternId(BigInteger.valueOf(130))
+      .setTypeEnum(SequenceType.Macro)
+      .setTranspose(4));
+    segment4.add(new Choice()
+      .setSegmentId(BigInteger.valueOf(4))
+      .setSequencePatternId(BigInteger.valueOf(415150))
+      .setTypeEnum(SequenceType.Main)
+      .setTranspose(-2));
+    segment4.add(new Choice()
+      .setSegmentId(BigInteger.valueOf(4))
+      .setSequenceId(BigInteger.valueOf(35))
+      .setTypeEnum(SequenceType.Rhythm)
+      .setTranspose(5));
+    ImmutableList.of("Hindsight", "Chunky", "Regret", "Tangy").forEach(memeName -> {
+      try {
+        segment4.add(new SegmentMeme()
+          .setSegmentId(BigInteger.valueOf(4))
+          .setName(memeName));
+      } catch (CoreException ignored) {
+      }
+    });
+    segment4.add(new SegmentChord()
+      .setSegmentId(BigInteger.valueOf(4))
+      .setPosition(0.0)
+      .setName("G minor"));
+    segment4.add(new SegmentChord()
+      .setSegmentId(BigInteger.valueOf(4))
+      .setPosition(8.0)
+      .setName("Ab minor"));
+    IntegrationTestEntity.insert(segment4);
 
     // Chain "Test Print #1" is ready to begin
     IntegrationTestEntity.insertChain(2, 1, "Test Print #1", ChainType.Production, ChainState.Erase, Timestamp.from(new Date().toInstant().minusSeconds(300)), Timestamp.from(new Date().toInstant()), null);
 
     // Bind the library to the chains
-    IntegrationTestEntity.insertChainLibrary(1, 1, 2);
-    IntegrationTestEntity.insertChainLibrary(2, 2, 2);
+    IntegrationTestEntity.insertChainLibrary(1, 2);
+    IntegrationTestEntity.insertChainLibrary(2, 2);
 
     // Don't sleep between processing work
     System.setProperty("app.port", "9043");
 
     // Recur frequently, as a hack before implementing [#395] ExpectationOfWork client executes a `ChainDeleteJob` and enqueues `SegmentDeleteJob` for each Segment in the Chain
     System.setProperty("work.chain.delete.recur.seconds", "1");
+
+    // bucket config
+    System.setProperty("segment.file.bucket", "xj-segment-test");
 
     // Server App
     app = injector.getInstance(App.class);
@@ -210,16 +176,6 @@ public class ChainEraseJobIT {
     // Attach Job Factory to App
     JobFactory jobFactory = injector.getInstance(JobFactory.class);
     app.setJobFactory(jobFactory);
-  }
-
-  private void createInjector() {
-    injector = Guice.createInjector(Modules.override(new CoreModule(), new WorkerModule(), new CraftModule(), new DubModule()).with(
-      new AbstractModule() {
-        @Override
-        public void configure() {
-          bind(AmazonProvider.class).toInstance(amazonProvider);
-        }
-      }));
   }
 
   @After
@@ -239,7 +195,7 @@ public class ChainEraseJobIT {
 
     // Start app, wait for work, stop app
     app.start();
-    while (hasRemainingWork(WorkType.ChainErase) && isWithinTimeLimit()) {
+    while ((hasRemainingWork(WorkType.ChainErase)) && isWithinTimeLimit()) {
       Thread.sleep(MILLIS_PER_SECOND);
     }
     app.stop();
@@ -248,10 +204,10 @@ public class ChainEraseJobIT {
     assertEquals(0, injector.getInstance(SegmentDAO.class).readAll(Access.internal(), ImmutableList.of(BigInteger.valueOf(1))).size());
     assertEquals(0, injector.getInstance(SegmentDAO.class).readAll(Access.internal(), ImmutableList.of(BigInteger.valueOf(2))).size());
 
-    verify(amazonProvider).deleteS3Object("xj-segment-test", "chain-1-segment-97898asdf7892.wav");
-    verify(amazonProvider).deleteS3Object("xj-segment-test", "chain-1-segment-2807fdghj3272.wav");
-    verify(amazonProvider).deleteS3Object("xj-segment-test", "chain-1-segment-198745hj78dfs.wav");
-    verify(amazonProvider).deleteS3Object("xj-segment-test", "chain-1-segment-897hdfhjd7884.wav");
+    verify(amazonProvider).deleteS3Object("xj-segment-test", "chain-1-segment-9f7s89d8a7892-ONE.wav");
+    verify(amazonProvider).deleteS3Object("xj-segment-test", "chain-1-segment-2807f2d5g2h32-TWO.wav");
+    verify(amazonProvider).deleteS3Object("xj-segment-test", "chain-1-segment-198745hj78dfs-THREE.wav");
+    verify(amazonProvider).deleteS3Object("xj-segment-test", "chain-1-segment-897h4d4f1h2j4-FOUR.wav");
   }
 
   /**

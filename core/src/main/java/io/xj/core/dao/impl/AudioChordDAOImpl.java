@@ -3,8 +3,8 @@ package io.xj.core.dao.impl;
 
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.AudioChordDAO;
-import io.xj.core.exception.BusinessException;
-import io.xj.core.exception.ConfigException;
+import io.xj.core.exception.CoreException;
+import io.xj.core.exception.CoreException;
 import io.xj.core.model.audio_chord.AudioChord;
 import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import io.xj.core.persistence.sql.impl.SQLConnection;
@@ -42,9 +42,9 @@ public class AudioChordDAOImpl extends DAOImpl implements AudioChordDAO {
    @param access control
    @param entity for new audio
    @return newly readMany record
-   @throws BusinessException if failure
+   @throws CoreException if failure
    */
-  private static AudioChord createRecord(DSLContext db, Access access, AudioChord entity) throws BusinessException {
+  private static AudioChord createRecord(DSLContext db, Access access, AudioChord entity) throws CoreException {
     entity.validate();
 
     Map<Field, Object> fieldValues = fieldValueMap(entity);
@@ -72,7 +72,7 @@ public class AudioChordDAOImpl extends DAOImpl implements AudioChordDAO {
    @param id     of audio
    @return audio
    */
-  private static AudioChord readOneRecord(DSLContext db, Access access, ULong id) throws BusinessException {
+  private static AudioChord readOneRecord(DSLContext db, Access access, ULong id) throws CoreException {
     if (access.isTopLevel())
       return modelFrom(db.selectFrom(AUDIO_CHORD)
         .where(AUDIO_CHORD.ID.eq(id))
@@ -96,7 +96,7 @@ public class AudioChordDAOImpl extends DAOImpl implements AudioChordDAO {
    @param audioIds to readMany all audio of
    @return array of audios
    */
-  private static Collection<AudioChord> readAll(DSLContext db, Access access, Collection<ULong> audioIds) throws BusinessException {
+  private static Collection<AudioChord> readAll(DSLContext db, Access access, Collection<ULong> audioIds) throws CoreException {
     if (access.isTopLevel())
       return modelsFrom(db.select(AUDIO_CHORD.fields())
         .from(AUDIO_CHORD)
@@ -122,9 +122,9 @@ public class AudioChordDAOImpl extends DAOImpl implements AudioChordDAO {
    @param access control
    @param id     to update
    @param entity to update with
-   @throws BusinessException if failure
+   @throws CoreException if failure
    */
-  private static void update(DSLContext db, Access access, ULong id, AudioChord entity) throws Exception {
+  private static void update(DSLContext db, Access access, ULong id, AudioChord entity) throws CoreException {
     entity.validate();
 
     Map<Field, Object> fieldValues = fieldValueMap(entity);
@@ -143,7 +143,7 @@ public class AudioChordDAOImpl extends DAOImpl implements AudioChordDAO {
         .fetchOne(0, int.class));
 
     if (0 == executeUpdate(db, AUDIO_CHORD, fieldValues))
-      throw new BusinessException("No records updated.");
+      throw new CoreException("No records updated.");
   }
 
   /**
@@ -151,13 +151,13 @@ public class AudioChordDAOImpl extends DAOImpl implements AudioChordDAO {
 
    @param db context
    @param id to delete
-   @throws Exception         if database failure
-   @throws ConfigException   if not configured properly
-   @throws BusinessException if fails business rule
+   @throws CoreException         if database failure
+   @throws CoreException   if not configured properly
+   @throws CoreException if fails business rule
    */
-  private static void delete(Access access, DSLContext db, ULong id) throws Exception {
+  private static void delete(Access access, DSLContext db, ULong id) throws CoreException {
     if (!access.isTopLevel())
-      requireExists("Audio Meme", db.selectCount().from(AUDIO_CHORD)
+      requireExists("Audio Chord", db.selectCount().from(AUDIO_CHORD)
         .join(AUDIO).on(AUDIO.ID.eq(AUDIO_CHORD.AUDIO_ID))
         .join(INSTRUMENT).on(INSTRUMENT.ID.eq(AUDIO.INSTRUMENT_ID))
         .join(LIBRARY).on(INSTRUMENT.LIBRARY_ID.eq(LIBRARY.ID))
@@ -186,55 +186,55 @@ public class AudioChordDAOImpl extends DAOImpl implements AudioChordDAO {
   }
 
   @Override
-  public AudioChord create(Access access, AudioChord entity) throws Exception {
+  public AudioChord create(Access access, AudioChord entity) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(createRecord(tx.getContext(), access, entity));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
   @Nullable
-  public AudioChord readOne(Access access, BigInteger id) throws Exception {
+  public AudioChord readOne(Access access, BigInteger id) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readOneRecord(tx.getContext(), access, ULong.valueOf(id)));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
   @Nullable
-  public Collection<AudioChord> readAll(Access access, Collection<BigInteger> parentIds) throws Exception {
+  public Collection<AudioChord> readAll(Access access, Collection<BigInteger> parentIds) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readAll(tx.getContext(), access, uLongValuesOf(parentIds)));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public void update(Access access, BigInteger id, AudioChord entity) throws Exception {
+  public void update(Access access, BigInteger id, AudioChord entity) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       update(tx.getContext(), access, ULong.valueOf(id), entity);
       tx.success();
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public void destroy(Access access, BigInteger id) throws Exception {
+  public void destroy(Access access, BigInteger id) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       delete(access, tx.getContext(), ULong.valueOf(id));
       tx.success();
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }

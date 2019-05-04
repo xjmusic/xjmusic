@@ -1,7 +1,7 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.app;
 
-import io.xj.core.exception.ConfigException;
+import io.xj.core.exception.CoreException;
 import io.xj.core.work.WorkManager;
 import net.greghaines.jesque.worker.JobFactory;
 
@@ -18,7 +18,7 @@ public interface App {
   /**
    start App Server
    */
-  void start() throws IOException, ConfigException;
+  void start() throws IOException, CoreException;
 
   /**
    stop App Server

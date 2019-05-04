@@ -1,10 +1,9 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.model.audio;
 
-import io.xj.core.exception.BusinessException;
-import io.xj.core.model.entity.Entity;
+import io.xj.core.exception.CoreException;
+import io.xj.core.model.entity.impl.EntityImpl;
 import io.xj.core.util.Text;
-import org.json.JSONObject;
 
 import java.math.BigInteger;
 import java.util.Objects;
@@ -19,18 +18,10 @@ import java.util.Objects;
  <p>
  NOTE: There can only be ONE of any getter/setter (with the same # of input params)
  */
-public class Audio extends Entity {
+public class Audio extends EntityImpl {
   public static final String KEY_ONE = "audio";
   public static final String KEY_MANY = "audios";
   public static final String FILE_EXTENSION = "wav";
-  public static final String KEY_INSTRUMENT_ID = "instrumentId";
-  public static final String KEY_WAVEFORM_KEY = "waveformKey";
-  public static final String KEY_NAME = "name";
-  public static final String KEY_START = "start";
-  public static final String KEY_LENGTH = "length";
-  public static final String KEY_TEMPO = "tempo";
-  public static final String KEY_PITCH = "pitch";
-  public static final String KEY_STATE = "state";
   private BigInteger instrumentId;
   private String waveformKey;
   private String name;
@@ -45,7 +36,7 @@ public class Audio extends Entity {
   }
 
   public Audio(int id) {
-    this.id = BigInteger.valueOf((long) id);
+    this.id = BigInteger.valueOf(id);
   }
 
   public Audio(BigInteger id) {
@@ -143,16 +134,16 @@ public class Audio extends Entity {
   }
 
   @Override
-  public void validate() throws BusinessException {
+  public void validate() throws CoreException {
     if (Objects.isNull(instrumentId))
-      throw new BusinessException("Instrument ID is required.");
+      throw new CoreException("Instrument ID is required.");
 
-    // throws its own BusinessException on failure
+    // throws its own CoreException on failure
     if (Objects.isNull(state))
       state = AudioState.validate(_stateString);
 
     if (Objects.isNull(name) || name.isEmpty())
-      throw new BusinessException("Name is required.");
+      throw new CoreException("Name is required.");
 
     if (Objects.isNull(waveformKey) || waveformKey.isEmpty())
       waveformKey = "";
@@ -164,10 +155,10 @@ public class Audio extends Entity {
       length = 0.0d;
 
     if (Objects.isNull(tempo))
-      throw new BusinessException("Tempo is required.");
+      throw new CoreException("Tempo is required.");
 
     if (Objects.isNull(pitch))
-      throw new BusinessException("Root Pitch is required.");
+      throw new CoreException("Root Pitch is required.");
   }
 
 }

@@ -1,27 +1,33 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.model.segment_chord;
 
-import io.xj.core.exception.BusinessException;
+import com.google.common.collect.Lists;
+import io.xj.core.exception.CoreException;
 import io.xj.core.model.chord.Chord;
+import io.xj.core.model.segment.Segment;
+import io.xj.core.model.segment.SegmentEntity;
+import io.xj.core.util.Value;
 
 import java.math.BigInteger;
-import java.util.Objects;
+import java.util.Collection;
+import java.util.UUID;
 
 /**
- POJO for persisting data in memory while performing business logic,
- or decoding messages received by JAX-RS resources.
- a.k.a. JSON input will be stored into an instance of this object
- <p>
- Business logic ought to be performed beginning with an instance of this object,
- to implement common methods.
- <p>
- NOTE: There can only be ONE of any getter/setter (with the same # of input params)
+ [#166132897] Segment model handles all of its own entities
  */
-public class SegmentChord extends Chord {
-  public static final String KEY_ONE = "segmentChord";
-  public static final String KEY_MANY = "segmentChords";
+public class SegmentChord extends SegmentEntity implements Chord<SegmentChord> {
+  private String name;
+  private Double position;
 
-  private BigInteger segmentId;
+  public static Collection<SegmentChord> aggregate(Collection<Segment> segments) {
+    Collection<SegmentChord> aggregate = Lists.newArrayList();
+    segments.forEach(segment -> aggregate.addAll(segment.getChords()));
+    return aggregate;
+  }
+
+  public static SegmentChord of(String name) {
+    return new SegmentChord().setName(name);
+  }
 
   @Override
   public SegmentChord setName(String name) {
@@ -29,10 +35,13 @@ public class SegmentChord extends Chord {
     return this;
   }
 
-  public BigInteger getSegmentId() {
-    return segmentId;
+  @Override
+  public SegmentChord setUuid(UUID uuid) {
+    this.uuid = uuid;
+    return this;
   }
 
+  @Override
   public SegmentChord setSegmentId(BigInteger segmentId) {
     this.segmentId = segmentId;
     return this;
@@ -40,27 +49,45 @@ public class SegmentChord extends Chord {
 
   @Override
   public SegmentChord setPosition(Double position) {
-    this.position = roundPosition(position);
+    this.position = Value.limitFloatingPointPlaces(position);
     return this;
   }
 
   @Override
-  public BigInteger getParentId() {
-    return segmentId;
-  }
-
-  @Override
-  public void validate() throws BusinessException {
-    if (Objects.isNull(segmentId)) {
-      throw new BusinessException("Segment ID is required.");
-    }
+  public void validate() throws CoreException {
     super.validate();
+    Chord.validate(this);
   }
 
   @Override
-  public SegmentChord of(String name) {
-    return new SegmentChord().setName(name);
+  public String getName() {
+    return name;
   }
 
+
+  @Override
+  public Double getPosition() {
+    return position;
+  }
+
+  @Override
+  public io.xj.music.Chord toMusical() {
+    return new io.xj.music.Chord(name);
+  }
+
+  @Override
+  public String toString() {
+    return name + "@" + position;
+  }
+
+  @Override
+  public Boolean isNoChord() {
+    return toMusical().isNoChord();
+  }
+
+  @Override
+  public Boolean isChord() {
+    return !isNoChord();
+  }
 
 }

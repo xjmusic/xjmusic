@@ -1,8 +1,8 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.persistence.sql;
 
-import io.xj.core.exception.ConfigException;
-import io.xj.core.exception.DatabaseException;
+import io.xj.core.exception.CoreException;
+import io.xj.core.exception.CoreException;
 import io.xj.core.persistence.sql.impl.SQLConnection;
 
 public interface SQLDatabaseProvider {
@@ -11,9 +11,9 @@ public interface SQLDatabaseProvider {
    IMPORTANT NOTE: When finished, be sure to call success() or failure()
 
    @return Connection to SQL Database
-   @throws DatabaseException if the application is not configured correctly
+   @throws CoreException if the application is not configured correctly
    */
-  SQLConnection getConnection() throws DatabaseException;
+  SQLConnection getConnection() throws CoreException;
 
   /**
    Get a SQL Database connection, potentially in a transaction.
@@ -21,31 +21,31 @@ public interface SQLDatabaseProvider {
 
    @param isTransaction if it's a transaction
    @return Connection to SQL Database
-   @throws DatabaseException if the application is not configured correctly
+   @throws CoreException if the application is not configured correctly
    */
-  SQLConnection getConnection(Boolean isTransaction) throws DatabaseException;
+  SQLConnection getConnection(Boolean isTransaction) throws CoreException;
 
   /**
    Get the SQL Database URL
 
    @return URL
-   @throws ConfigException if the application is not configured correctly
+   @throws CoreException if the application is not configured correctly
    */
-  String getUrl() throws ConfigException;
+  String getUrl() throws CoreException;
 
   /**
    Get the SQL Database User
 
    @return User
-   @throws ConfigException if the application is not configured correctly
+   @throws CoreException if the application is not configured correctly
    */
-  String getUser() throws ConfigException;
+  String getUser() throws CoreException;
 
   /**
    Get the SQL Database password
 
    @return password
-   @throws ConfigException if the application is not configured correctly
+   @throws CoreException if the application is not configured correctly
    */
-  String getPass() throws ConfigException;
+  String getPass() throws CoreException;
 }

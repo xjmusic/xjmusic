@@ -1,76 +1,47 @@
 version: '2'
+
 services:
-
-# Apps
-
-  hub:
+  web:
     environment:
       APPS: hub
-    container_name: hub01xj1
+    container_name: web01xj1
     ports:
       - "80:80"
     extends:
       file: docker-compose.common.yml
-      service: runner
-    networks:
-      app_net:
-        ipv4_address: 172.16.217.10
-        ipv6_address: 2001:3984:3898::10
+      service: base
     depends_on:
       - mysql
       - redis
 
-  work:
+  worker:
     environment:
       APPS: worker
-    container_name: work01xj1
+    container_name: worker01xj1
     extends:
       file: docker-compose.common.yml
-      service: runner
-    networks:
-      app_net:
-        ipv4_address: 172.16.217.20
-        ipv6_address: 2001:3984:3898::20
+      service: base
     depends_on:
-      - hub
+      - web
       - mysql
       - redis
-
-# Resources
 
   mysql:
     container_name: mysql01xj1
     image: mysql:5.7
+    volumes:
+      - /var/lib/mysql
+      - ./log/mysql:/var/log/mysql
+      - ./.mysql/conf.d:/etc/mysql/conf.d
+    entrypoint: ""
+    command: bash -c "chown -R mysql:mysql /var/log/mysql && exec /entrypoint.sh mysqld"
     ports:
       - "3300:3306"
     environment:
       - MYSQL_ALLOW_EMPTY_PASSWORD=yes
-    networks:
-      app_net:
-        ipv4_address: 172.16.217.50
-        ipv6_address: 2001:3984:3898::50
 
   redis:
     container_name: redis01xj1
     image: redis:3.0.7
     ports:
       - "6300:6379"
-    networks:
-      app_net:
-        ipv4_address: 172.16.217.60
-        ipv6_address: 2001:3984:3898::60
-
-# Network
-
-networks:
-  app_net:
-    driver: bridge
-    driver_opts:
-      com.docker.network.enable_ipv6: "true"
-    ipam:
-      driver: default
-      config:
-      - subnet: 172.16.217.0/24
-        gateway: 172.16.217.1
-      - subnet: 2001:3984:3898::/64
-        gateway: 2001:3984:3898::1

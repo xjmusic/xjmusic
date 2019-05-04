@@ -1,27 +1,23 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.worker.job.impl;
 
+import com.google.common.collect.ImmutableList;
+import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.AudioDAO;
 import io.xj.core.dao.InstrumentDAO;
 import io.xj.core.dao.InstrumentMemeDAO;
-import io.xj.core.exception.BusinessException;
+import io.xj.core.exception.CoreException;
 import io.xj.core.model.audio.Audio;
 import io.xj.core.model.instrument.Instrument;
 import io.xj.core.model.instrument_meme.InstrumentMeme;
-import io.xj.core.transport.JSON;
 import io.xj.core.work.WorkManager;
 import io.xj.worker.job.InstrumentCloneJob;
-
-import com.google.common.collect.ImmutableList;
-import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigInteger;
-import java.util.Objects;
 
 public class InstrumentCloneJobImpl implements InstrumentCloneJob {
   static final Logger log = LoggerFactory.getLogger(InstrumentCloneJobImpl.class);
@@ -31,6 +27,7 @@ public class InstrumentCloneJobImpl implements InstrumentCloneJob {
   private final AudioDAO audioDAO;
   private final WorkManager workManager;
   private final InstrumentMemeDAO instrumentMemeDAO;
+  private final Access access = Access.internal();
 
   @Inject
   public InstrumentCloneJobImpl(
@@ -52,9 +49,10 @@ public class InstrumentCloneJobImpl implements InstrumentCloneJob {
   @Override
   public void run() {
     try {
-      if (Objects.nonNull(fromId) && Objects.nonNull(toId)) {
-        doWork();
-      }
+      doWork(instrumentDAO.readOne(access, fromId), instrumentDAO.readOne(access, toId));
+
+    } catch (CoreException e) {
+      log.warn("Did not clone Instrument fromId={}, toId={}, reason={}", fromId, toId, e.getMessage());
 
     } catch (Exception e) {
       log.error("{}:{} failed ({})",
@@ -63,49 +61,61 @@ public class InstrumentCloneJobImpl implements InstrumentCloneJob {
   }
 
   /**
-   Do Instrument Clone ExpectationOfWork
+   Do Instrument Clone Work
    Worker removes all child entities for the Instrument
    Worker deletes all S3 objects for the Instrument
-   Worker deletes the Instrument
+   Worker deletes the Instrument@param instrument
+
+   @param from instrument to clone
+   @param to   target instrument to be cloned onto (already created)
+   @throws CoreException on failure
    */
-  private void doWork() throws Exception {
-    Instrument from = instrumentDAO.readOne(Access.internal(), fromId);
-    if (Objects.isNull(from))
-      throw new BusinessException("Could not fetch clone source Instrument");
+  private void doWork(Instrument from, Instrument to) throws CoreException {
+    cloneAllInstrumentMemes(from, to);
+    cloneAllAudioSAndScheduleAudioCloneJob(from, to);
+    log.info("Cloned Instrument #{} and child entities to new Instrument {}", from.getId(), to);
+  }
 
-    Instrument to = instrumentDAO.readOne(Access.internal(), toId);
-    if (Objects.isNull(to))
-      throw new BusinessException("Could not fetch clone target Instrument");
+  /**
+   Clone all Audio from one Instrument to another, and schedule an AudioClone job for each.
 
-    // Clone InstrumentMeme
-    instrumentMemeDAO.readAll(Access.internal(), ImmutableList.of(fromId)).forEach(instrumentMeme -> {
-      instrumentMeme.setInstrumentId(toId);
-
-      try {
-        InstrumentMeme toInstrumentMeme = instrumentMemeDAO.create(Access.internal(), instrumentMeme);
-        log.info("Cloned InstrumentMeme ofMemes #{} to {}", instrumentMeme.getId(), JSON.objectFrom(toInstrumentMeme));
-
-      } catch (Exception e) {
-        log.error("Failed to clone InstrumentMeme {}", JSON.objectFrom(instrumentMeme), e);
-      }
-    });
-
-    // Clone each Audio and schedule an AudioClone job
-    audioDAO.readAll(Access.internal(), ImmutableList.of(fromId)).forEach(audio -> {
-      audio.setInstrumentId(toId);
+   @param from Instrument
+   @param to   Instrument
+   */
+  private void cloneAllAudioSAndScheduleAudioCloneJob(Instrument from, Instrument to) throws CoreException {
+    audioDAO.readAll(access, ImmutableList.of(from.getId())).forEach(audio -> {
+      audio.setInstrumentId(to.getId());
       BigInteger fromAudioId = audio.getId();
 
       try {
-        Audio toAudio = audioDAO.create(Access.internal(), audio);
+        Audio toAudio = audioDAO.create(access, audio);
         workManager.doAudioClone(fromAudioId, toAudio.getId());
-        log.info("Cloned Audio ofMemes #{} to {} and scheduled AudioClone job", audio.getId(), JSON.objectFrom(toAudio));
+        log.info("Cloned Audio of Instrument #{} to {} and scheduled AudioClone job", audio.getId(), toAudio);
 
       } catch (Exception e) {
-        log.error("Failed to clone Audio {}", JSON.objectFrom(audio), e);
+        log.error("Failed to clone Audio {}", audio, e);
       }
     });
+  }
 
-    log.info("Cloned Instrument #{} and child entities to new Instrument {}", fromId, JSON.objectFrom(to));
+  /**
+   Clone all InstrumentMeme from one Instrument to another
+
+   @param from Instrument
+   @param to   Instrument
+   */
+  private void cloneAllInstrumentMemes(Instrument from, Instrument to) throws CoreException {
+    instrumentMemeDAO.readAll(access, ImmutableList.of(from.getId())).forEach(instrumentMeme -> {
+      instrumentMeme.setInstrumentId(to.getId());
+
+      try {
+        InstrumentMeme toInstrumentMeme = instrumentMemeDAO.create(access, instrumentMeme);
+        log.info("Cloned InstrumentMeme of Instrument #{} to {}", instrumentMeme.getId(), toInstrumentMeme);
+
+      } catch (Exception e) {
+        log.error("Failed to clone InstrumentMeme {}", instrumentMeme, e);
+      }
+    });
   }
 
 

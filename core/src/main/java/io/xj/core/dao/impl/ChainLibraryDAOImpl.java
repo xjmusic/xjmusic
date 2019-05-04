@@ -3,8 +3,8 @@ package io.xj.core.dao.impl;
 
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.ChainLibraryDAO;
-import io.xj.core.exception.BusinessException;
-import io.xj.core.exception.ConfigException;
+import io.xj.core.exception.CoreException;
+import io.xj.core.exception.CoreException;
 import io.xj.core.model.chain_library.ChainLibrary;
 import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import io.xj.core.persistence.sql.impl.SQLConnection;
@@ -39,11 +39,11 @@ public class ChainLibraryDAOImpl extends DAOImpl implements ChainLibraryDAO {
    @param db     context
    @param entity for new ChainLibrary
    @return new record
-   @throws Exception         if database failure
-   @throws ConfigException   if not configured properly
-   @throws BusinessException if fails business rule
+   @throws CoreException         if database failure
+   @throws CoreException   if not configured properly
+   @throws CoreException if fails business rule
    */
-  private static ChainLibrary create(DSLContext db, Access access, ChainLibrary entity) throws Exception {
+  private static ChainLibrary create(DSLContext db, Access access, ChainLibrary entity) throws CoreException {
     entity.validate();
 
     Map<Field, Object> fieldValues = fieldValueMap(entity);
@@ -70,7 +70,7 @@ public class ChainLibraryDAOImpl extends DAOImpl implements ChainLibraryDAO {
       .where(CHAIN_LIBRARY.CHAIN_ID.eq(ULong.valueOf(entity.getChainId())))
       .and(CHAIN_LIBRARY.LIBRARY_ID.eq(ULong.valueOf(entity.getLibraryId())))
       .fetchOne())
-      throw new BusinessException("Library already added to Chain!");
+      throw new CoreException("Library already added to Chain!");
 
     return modelFrom(executeCreate(db, CHAIN_LIBRARY, fieldValues), ChainLibrary.class);
   }
@@ -83,7 +83,7 @@ public class ChainLibraryDAOImpl extends DAOImpl implements ChainLibraryDAO {
    @param id     of record
    @return record
    */
-  private static ChainLibrary readOne(DSLContext db, Access access, ULong id) throws BusinessException {
+  private static ChainLibrary readOne(DSLContext db, Access access, ULong id) throws CoreException {
     if (access.isTopLevel())
       return modelFrom(db.selectFrom(CHAIN_LIBRARY)
         .where(CHAIN_LIBRARY.ID.eq(id))
@@ -104,7 +104,7 @@ public class ChainLibraryDAOImpl extends DAOImpl implements ChainLibraryDAO {
    @param chainIds of parent
    @return array of child records
    */
-  private static Collection<ChainLibrary> readAll(DSLContext db, Access access, Collection<ULong> chainIds) throws BusinessException {
+  private static Collection<ChainLibrary> readAll(DSLContext db, Access access, Collection<ULong> chainIds) throws CoreException {
     if (access.isTopLevel())
       return modelsFrom(db.selectFrom(CHAIN_LIBRARY)
         .where(CHAIN_LIBRARY.CHAIN_ID.in(chainIds))
@@ -123,9 +123,9 @@ public class ChainLibraryDAOImpl extends DAOImpl implements ChainLibraryDAO {
    @param db     context
    @param access control
    @param id     of record
-   @throws BusinessException on failure
+   @throws CoreException on failure
    */
-  private static void delete(DSLContext db, Access access, ULong id) throws BusinessException {
+  private static void delete(DSLContext db, Access access, ULong id) throws CoreException {
     if (access.isTopLevel())
       requireExists("Chain Library", db.selectCount().from(CHAIN_LIBRARY)
         .where(CHAIN_LIBRARY.ID.eq(id))
@@ -157,47 +157,47 @@ public class ChainLibraryDAOImpl extends DAOImpl implements ChainLibraryDAO {
   }
 
   @Override
-  public ChainLibrary create(Access access, ChainLibrary entity) throws Exception {
+  public ChainLibrary create(Access access, ChainLibrary entity) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(create(tx.getContext(), access, entity));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public ChainLibrary readOne(Access access, BigInteger id) throws Exception {
+  public ChainLibrary readOne(Access access, BigInteger id) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readOne(tx.getContext(), access, ULong.valueOf(id)));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public Collection<ChainLibrary> readAll(Access access, Collection<BigInteger> parentIds) throws Exception {
+  public Collection<ChainLibrary> readAll(Access access, Collection<BigInteger> parentIds) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readAll(tx.getContext(), access, uLongValuesOf(parentIds)));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public void update(Access access, BigInteger id, ChainLibrary entity) throws Exception {
-    throw new BusinessException("Not allowed to update ChainLibrary record.");
+  public void update(Access access, BigInteger id, ChainLibrary entity) throws CoreException {
+    throw new CoreException("Not allowed to update ChainLibrary record.");
   }
 
   @Override
-  public void destroy(Access access, BigInteger id) throws Exception {
+  public void destroy(Access access, BigInteger id) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       delete(tx.getContext(), access, ULong.valueOf(id));
       tx.success();
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }

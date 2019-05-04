@@ -1,7 +1,7 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.model.sequence_pattern;
 
-import io.xj.core.exception.BusinessException;
+import io.xj.core.exception.CoreException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -26,7 +26,7 @@ public class SequencePatternTest {
 
   @Test
   public void validate_failsWithoutSequenceID() throws Exception {
-    failure.expect(BusinessException.class);
+    failure.expect(CoreException.class);
     failure.expectMessage("Sequence ID is required");
 
     new SequencePattern()
@@ -37,7 +37,7 @@ public class SequencePatternTest {
 
   @Test
   public void validate_failsWithoutPatternID() throws Exception {
-    failure.expect(BusinessException.class);
+    failure.expect(CoreException.class);
     failure.expectMessage("Pattern ID is required");
 
     new SequencePattern()
@@ -48,7 +48,7 @@ public class SequencePatternTest {
 
   @Test
   public void validate_failsWithoutOffset() throws Exception {
-    failure.expect(BusinessException.class);
+    failure.expect(CoreException.class);
     failure.expectMessage("Offset is required");
 
     new SequencePattern()

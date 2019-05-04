@@ -3,8 +3,8 @@ package io.xj.craft.generation.impl;
 
 import io.xj.craft.generation.Generation;
 import io.xj.craft.generation.GenerationType;
-import io.xj.craft.ingest.Ingest;
-import io.xj.craft.ingest.IngestState;
+import io.xj.core.ingest.Ingest;
+import io.xj.core.ingest.IngestState;
 import io.xj.core.model.audio.Audio;
 import io.xj.core.model.instrument.Instrument;
 import io.xj.core.model.sequence.Sequence;
@@ -36,7 +36,7 @@ public abstract class GenerationImpl implements Generation {
    @return audio
    */
   public Audio getAudio(BigInteger id) {
-    return ingest.audioMap().get(id);
+    return ingest.getAudioMap().get(id);
   }
 
   /**
@@ -46,7 +46,7 @@ public abstract class GenerationImpl implements Generation {
    @return sequence
    */
   public Sequence getSequence(BigInteger id) {
-    return ingest.sequenceMap().get(id);
+    return ingest.getSequenceMap().get(id);
   }
 
   /**
@@ -56,7 +56,7 @@ public abstract class GenerationImpl implements Generation {
    @return pattern
    */
   public Pattern getPattern(BigInteger id) {
-    return ingest.patternMap().get(id);
+    return ingest.getPatternMap().get(id);
   }
 
   /**
@@ -66,7 +66,7 @@ public abstract class GenerationImpl implements Generation {
    @return instrument
    */
   public Instrument getInstrument(BigInteger id) {
-    return ingest.instrumentMap().get(id);
+    return ingest.getInstrumentMap().get(id);
   }
 
 

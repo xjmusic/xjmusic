@@ -1,14 +1,14 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.pulse;
 
-import io.xj.pulse.util.EnvironmentProvider;
-
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
+import io.xj.pulse.config.Config;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.HttpClients;
@@ -22,35 +22,64 @@ import java.util.List;
 
 public class Pulse implements RequestHandler<JSONObject, JSONObject> {
   public static final int CODE_SUCCESS = HttpStatus.SC_ACCEPTED;
-  HttpClient httpClient = HttpClients.createDefault();
-  EnvironmentProvider environmentProvider = new EnvironmentProvider();
+  HttpClient httpClient;
+  Config config;
   String heartbeatKey;
   String requestURL;
+  Integer timeoutMillis;
 
-  void mock(HttpClient httpClient, EnvironmentProvider environmentProvider) {
-    this.httpClient = httpClient;
-    this.environmentProvider = environmentProvider;
+  /**
+   * Instantiate a new Pulse app
+   *
+   * @throws Exception if environment parameter is not set
+   */
+  public Pulse() throws Exception {
+    config = new Config();
+    httpClient = HttpClients.createMinimal();
   }
 
   /**
-   Handles a Lambda Function request
+   * Instantiate a new Pulse app with specified internal components
+   */
+  public Pulse(Config config, HttpClient httpClient) {
+    this.config = config;
+    this.httpClient = httpClient;
+  }
 
-   @param input   The Lambda Function input
-   @param context The Lambda execution environment context object.
-   @return The Lambda Function output
+  /**
+   * Handles a Lambda Function request
+   *
+   * @param input   The Lambda Function input
+   * @param context The Lambda execution environment context object.
+   * @return The Lambda Function output
    */
   @Override
   public JSONObject handleRequest(JSONObject input, Context context) {
     context.getLogger().log("Input: " + input);
+    return send();
+  }
 
+  /**
+   * Send the request
+   *
+   * @return JSON results
+   */
+  public JSONObject send() {
     try {
-      heartbeatKey = environmentProvider.getRequired("platform_heartbeat_key");
-      requestURL = environmentProvider.getRequired("platform_heartbeat_url");
+      heartbeatKey = config.getHeartbeatKey();
+      requestURL = config.getHeartbeatURL();
+      timeoutMillis = config.getTimeoutMillis();
     } catch (Exception e) {
-      return resultJSON(String.format("Configuration failure: %s", e));
+      return resultJSON(String.format("Config failure: %s", e));
     }
 
     HttpPost httpRequest = new HttpPost(requestURL);
+    httpRequest.setConfig(RequestConfig.custom()
+      .setConnectionRequestTimeout(timeoutMillis)
+      .setConnectTimeout(timeoutMillis)
+      .setSocketTimeout(timeoutMillis)
+      .build());
+    httpRequest.setHeader("Connection", "close");
 
     // Request parameters and other properties.
     List<NameValuePair> params = new ArrayList<>(1);
@@ -66,40 +95,27 @@ public class Pulse implements RequestHandler<JSONObject, JSONObject> {
     try {
       response = httpClient.execute(httpRequest);
     } catch (IOException e) {
+
       return resultJSON(String.format("HTTP request failure: %s", e));
     }
 
     int code = response.getStatusLine().getStatusCode();
-    switch (code) {
-      case CODE_SUCCESS:
-        return resultJSON(String.format("Pulse success, code %d", code));
-
-      default:
-        return resultJSON(String.format("Pulse failure, code %d", code));
+    if (CODE_SUCCESS == code) {
+      return resultJSON(String.format("Pulse success, code %d", CODE_SUCCESS));
     }
+    return resultJSON(String.format("Pulse failure, code %d", code));
   }
 
   /**
-   Build JSON of result
-
-   @param msg to encapsulate
-   @return string of JSON object
+   * Build JSON of result
+   *
+   * @param msg to encapsulate
+   * @return string of JSON object
    */
   private static JSONObject resultJSON(String msg) {
     JSONObject json = new JSONObject();
     json.put("message", msg);
     return json;
-  }
-
-  /**
-   Pulse method.
-
-   @param args arguments
-   @throws IOException if execution fails
-   */
-  public static void main(String[] args) throws Exception {
-
-
   }
 
 }

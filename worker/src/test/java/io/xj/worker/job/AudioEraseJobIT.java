@@ -66,27 +66,27 @@ public class AudioEraseJobIT {
 
     // Ted has "user" and "admin" roles, belongs to account "pilots", has "google" auth
     IntegrationTestEntity.insertUser(2, "ted", "ted@email.com", "http://pictures.com/ted.gif");
-    IntegrationTestEntity.insertUserRole(1, 2, UserRoleType.Admin);
+    IntegrationTestEntity.insertUserRole(2, UserRoleType.Admin);
 
     // Sally has a "user" role and belongs to account "pilots"
     IntegrationTestEntity.insertUser(3, "sally", "sally@email.com", "http://pictures.com/sally.gif");
-    IntegrationTestEntity.insertUserRole(2, 3, UserRoleType.User);
-    IntegrationTestEntity.insertAccountUser(3, 1, 3);
+    IntegrationTestEntity.insertUserRole(3, UserRoleType.User);
+    IntegrationTestEntity.insertAccountUser(1, 3);
 
     // Library "house"
     IntegrationTestEntity.insertLibrary(2, 1, "house");
 
     // Instrument "808"
     IntegrationTestEntity.insertInstrument(1, 2, 2, "808 Drums", InstrumentType.Percussive, 0.9);
-    IntegrationTestEntity.insertInstrumentMeme(1, 1, "heavy");
+    IntegrationTestEntity.insertInstrumentMeme(1, "heavy");
 
     // Audio "Kick"
     IntegrationTestEntity.insertAudio(1, 1, "Erase", "Kick", "instrument-1-audio-asdg709a709835789agw73yh87.wav", 0.01, 2.123, 120.0, 440);
-    IntegrationTestEntity.insertAudioEvent(1, 1, 2.5, 1, "KICK", "Eb", 0.8, 1.0);
+    IntegrationTestEntity.insertAudioEvent(1, 2.5, 1, "KICK", "Eb", 0.8, 1.0);
 
     // Audio "Snare"
     IntegrationTestEntity.insertAudio(2, 1, "Erase", "Snare", "instrument-1-audio-978as789dgih35hi897gjhyi8f.wav", 0.01, 1.5, 120.0, 1200);
-    IntegrationTestEntity.insertAudioEvent(2, 2, 3, 1, "SNARE", "Ab", 0.1, 0.8);
+    IntegrationTestEntity.insertAudioEvent(2, 3, 1, "SNARE", "Ab", 0.1, 0.8);
 
     // Don't sleep between processing work
     System.setProperty("app.port", "9043");
@@ -133,8 +133,8 @@ public class AudioEraseJobIT {
     }
     app.stop();
 
-    assertNull(injector.getInstance(AudioDAO.class).readOne(Access.internal(), BigInteger.valueOf(1)));
-    assertNull(injector.getInstance(AudioDAO.class).readOne(Access.internal(), BigInteger.valueOf(2)));
+    IntegrationTestEntity.assertNotExist(injector.getInstance(AudioDAO.class), BigInteger.valueOf(1));
+    IntegrationTestEntity.assertNotExist(injector.getInstance(AudioDAO.class), BigInteger.valueOf(2));
 
     verify(amazonProvider).deleteS3Object("xj-audio-test",
       "instrument-1-audio-asdg709a709835789agw73yh87.wav");
@@ -159,7 +159,7 @@ public class AudioEraseJobIT {
   private boolean hasRemainingWork(WorkType type) throws Exception {
     int total = 0;
     for (Work work : app.getWorkManager().readAllWork()) {
-      if (Objects.equals(type, work.getType())) total++;
+      if (type == work.getType()) total++;
     }
     return 0 < total;
   }

@@ -3,8 +3,8 @@ package io.xj.core.persistence.sql.impl;
 
 import io.xj.core.Xj;
 import io.xj.core.config.Config;
-import io.xj.core.exception.ConfigException;
-import io.xj.core.exception.DatabaseException;
+import io.xj.core.exception.CoreException;
+import io.xj.core.exception.CoreException;
 import io.xj.core.persistence.sql.SQLDatabaseProvider;
 
 import org.jooq.DSLContext;
@@ -33,12 +33,12 @@ public class SQLDatabaseProviderImpl implements SQLDatabaseProvider {
   private final String pass = Config.dbMysqlPass();
 
   @Override
-  public SQLConnection getConnection() throws DatabaseException {
+  public SQLConnection getConnection() throws CoreException {
     return getConnection(false);
   }
 
   @Override
-  public SQLConnection getConnection(Boolean isTransaction) throws DatabaseException {
+  public SQLConnection getConnection(Boolean isTransaction) throws CoreException {
     try {
       Connection connection = DriverManager.getConnection(url, user, pass);
       DSLContext context = getContext(connection);
@@ -48,22 +48,22 @@ public class SQLDatabaseProviderImpl implements SQLDatabaseProvider {
       return new SQLConnection(connection, context, isTransaction);
     } catch (SQLException e) {
       log.error(e.getMessage(), e);
-      throw new DatabaseException("SQLException: " + e.getMessage());
+      throw new CoreException("SQLException: " + e.getMessage());
     }
   }
 
   @Override
-  public String getUrl() throws ConfigException {
+  public String getUrl() throws CoreException {
     return url;
   }
 
   @Override
-  public String getUser() throws ConfigException {
+  public String getUser() throws CoreException {
     return user;
   }
 
   @Override
-  public String getPass() throws ConfigException {
+  public String getPass() throws CoreException {
     return pass;
   }
 

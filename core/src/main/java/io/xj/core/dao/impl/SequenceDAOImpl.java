@@ -1,27 +1,21 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.dao.impl;
 
-import org.jooq.DSLContext;
-import org.jooq.Field;
-import org.jooq.types.ULong;
-
 import com.google.api.client.util.Maps;
 import com.google.inject.Inject;
-
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.SequenceDAO;
-import io.xj.core.exception.BusinessException;
-import io.xj.core.exception.ConfigException;
+import io.xj.core.exception.CoreException;
 import io.xj.core.model.sequence.Sequence;
 import io.xj.core.model.sequence.SequenceState;
-import io.xj.core.model.sequence.SequenceType;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import io.xj.core.persistence.sql.impl.SQLConnection;
 import io.xj.core.tables.Library;
 import io.xj.core.work.WorkManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.jooq.DSLContext;
+import org.jooq.Field;
+import org.jooq.types.ULong;
 
 import javax.annotation.Nullable;
 import java.math.BigInteger;
@@ -30,18 +24,17 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
-import static io.xj.core.Tables.CHOICE;
 import static io.xj.core.Tables.LIBRARY;
+import static io.xj.core.Tables.PATTERN_EVENT;
 import static io.xj.core.Tables.SEQUENCE;
 import static io.xj.core.Tables.SEQUENCE_MEME;
-import static io.xj.core.Tables.PATTERN_EVENT;
+import static io.xj.core.Tables.SEQUENCE_PATTERN;
 import static io.xj.core.Tables.VOICE;
-import static io.xj.core.tables.Arrangement.ARRANGEMENT;
 import static io.xj.core.tables.ChainSequence.CHAIN_SEQUENCE;
 import static io.xj.core.tables.Pattern.PATTERN;
 
 public class SequenceDAOImpl extends DAOImpl implements SequenceDAO {
-  private static final Logger log = LoggerFactory.getLogger(SequenceDAOImpl.class);
+  //  private static final Logger log = LoggerFactory.getLogger(SequenceDAOImpl.class);
   private final WorkManager workManager;
 
   @Inject
@@ -60,24 +53,16 @@ public class SequenceDAOImpl extends DAOImpl implements SequenceDAO {
    @param access control
    @param entity for new record
    @return newly readMany record
-   @throws BusinessException on failure
+   @throws CoreException on failure
    */
-  private static Sequence create(DSLContext db, Access access, Sequence entity) throws BusinessException {
+  private static Sequence create(DSLContext db, Access access, Sequence entity) throws CoreException {
     entity.validate();
 
     Map<Field, Object> fieldValues = fieldValueMap(entity);
 
-    if (access.isTopLevel())
-      requireExists("Library",
-        db.selectCount().from(LIBRARY)
-          .where(LIBRARY.ID.eq(ULong.valueOf(entity.getLibraryId())))
-          .fetchOne(0, int.class));
-    else
-      requireExists("Library",
-        db.selectCount().from(LIBRARY)
-          .where(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
-          .and(LIBRARY.ID.eq(ULong.valueOf(entity.getLibraryId())))
-          .fetchOne(0, int.class));
+    // This entity's parent is a Library
+    requireLibraryAccess(db, access, entity);
+
     fieldValues.put(SEQUENCE.USER_ID, access.getUserId());
 
     return modelFrom(executeCreate(db, SEQUENCE, fieldValues), Sequence.class);
@@ -92,7 +77,7 @@ public class SequenceDAOImpl extends DAOImpl implements SequenceDAO {
    @return record
    */
   @Nullable
-  private static Sequence readOne(DSLContext db, Access access, ULong id) throws BusinessException {
+  private static Sequence readOne(DSLContext db, Access access, ULong id) throws CoreException {
     if (access.isTopLevel())
       return modelFrom(db.selectFrom(SEQUENCE)
         .where(SEQUENCE.ID.eq(id))
@@ -107,26 +92,6 @@ public class SequenceDAOImpl extends DAOImpl implements SequenceDAO {
   }
 
   /**
-   Read one record of a given type for a given segment
-
-   @param db         context
-   @param access     control
-   @param segmentId     of segment
-   @param choiceType of sequence
-   @return record
-   */
-  @Nullable
-  private static Sequence readOneTypeInSegment(DSLContext db, Access access, ULong segmentId, SequenceType choiceType) throws BusinessException {
-    requireTopLevel(access);
-    return modelFrom(db.select(SEQUENCE.fields())
-      .from(SEQUENCE)
-      .join(CHOICE).on(CHOICE.SEQUENCE_ID.eq(SEQUENCE.ID))
-      .where(CHOICE.SEGMENT_ID.eq(segmentId))
-      .and(CHOICE.TYPE.eq(choiceType.toString()))
-      .fetchOne(), Sequence.class);
-  }
-
-  /**
    Read all records in parent record by id
 
    @param db        context
@@ -134,7 +99,7 @@ public class SequenceDAOImpl extends DAOImpl implements SequenceDAO {
    @param accountId to get sequences in
    @return array of records
    */
-  private static Collection<Sequence> readAllInAccount(DSLContext db, Access access, ULong accountId) throws BusinessException {
+  private static Collection<Sequence> readAllInAccount(DSLContext db, Access access, ULong accountId) throws CoreException {
     if (access.isTopLevel())
       return modelsFrom(db.select(SEQUENCE.fields()).from(SEQUENCE)
         .join(LIBRARY).on(SEQUENCE.LIBRARY_ID.eq(LIBRARY.ID))
@@ -160,7 +125,7 @@ public class SequenceDAOImpl extends DAOImpl implements SequenceDAO {
    @param libraryIds of parent
    @return array of records
    */
-  private static Collection<Sequence> readAllInLibraries(DSLContext db, Access access, Collection<ULong> libraryIds) throws BusinessException {
+  private static Collection<Sequence> readAllInLibraries(DSLContext db, Access access, Collection<ULong> libraryIds) throws CoreException {
     if (access.isTopLevel())
       return modelsFrom(db.select(SEQUENCE.fields()).from(SEQUENCE)
         .where(SEQUENCE.LIBRARY_ID.in(libraryIds))
@@ -184,7 +149,7 @@ public class SequenceDAOImpl extends DAOImpl implements SequenceDAO {
    @param access control
    @return array of records
    */
-  private static Collection<Sequence> readAll(DSLContext db, Access access) throws BusinessException {
+  private static Collection<Sequence> readAll(DSLContext db, Access access) throws CoreException {
     if (access.isTopLevel())
       return modelsFrom(db.select(SEQUENCE.fields()).from(SEQUENCE)
         .where(SEQUENCE.STATE.notEqual(String.valueOf(SequenceState.Erase)))
@@ -207,7 +172,7 @@ public class SequenceDAOImpl extends DAOImpl implements SequenceDAO {
    @param chainId of parent
    @return array of records
    */
-  private static Collection<Sequence> readAllBoundToChain(DSLContext db, Access access, ULong chainId) throws Exception {
+  private static Collection<Sequence> readAllBoundToChain(DSLContext db, Access access, ULong chainId) throws CoreException {
     requireTopLevel(access);
     return modelsFrom(db.select(SEQUENCE.fields()).from(SEQUENCE)
       .join(CHAIN_SEQUENCE).on(CHAIN_SEQUENCE.SEQUENCE_ID.eq(SEQUENCE.ID))
@@ -224,7 +189,7 @@ public class SequenceDAOImpl extends DAOImpl implements SequenceDAO {
    @param state  to read sequences in
    @return array of records
    */
-  private static Collection<Sequence> readAllInState(DSLContext db, Access access, SequenceState state) throws Exception {
+  private static Collection<Sequence> readAllInState(DSLContext db, Access access, SequenceState state) throws CoreException {
     requireRole("platform access", access, UserRoleType.Admin, UserRoleType.Engineer);
     // FUTURE: engineer should only see sequences in account?
 
@@ -242,32 +207,23 @@ public class SequenceDAOImpl extends DAOImpl implements SequenceDAO {
    @param access control
    @param id     of record
    @param entity to update with
-   @throws BusinessException if a Business Rule is violated
-   @throws Exception         on database failure
+   @throws CoreException if a Business Rule is violated
+   @throws CoreException on database failure
    */
-  private static void update(DSLContext db, Access access, ULong id, Sequence entity) throws Exception {
+  private static void update(DSLContext db, Access access, ULong id, Sequence entity) throws CoreException {
     entity.validate();
 
     Map<Field, Object> fieldValues = fieldValueMap(entity);
     fieldValues.put(SEQUENCE.ID, id);
 
-    if (access.isTopLevel())
-      requireExists("Library",
-        db.selectCount().from(LIBRARY)
-          .where(LIBRARY.ID.eq(ULong.valueOf(entity.getLibraryId())))
-          .fetchOne(0, int.class));
-    else
-      requireExists("Library",
-        db.selectCount().from(LIBRARY)
-          .where(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
-          .and(LIBRARY.ID.eq(ULong.valueOf(entity.getLibraryId())))
-          .fetchOne(0, int.class));
+    // This entity's parent is a Library
+    requireLibraryAccess(db, access, entity);
 
     // Never update user id! [#156030760] Artist expects owner of Sequence or Instrument to always remain the same as when it was created, even after being updated by another user.
     fieldValues.remove(SEQUENCE.USER_ID);
 
     if (0 == executeUpdate(db, SEQUENCE, fieldValues))
-      throw new BusinessException("No records updated.");
+      throw new CoreException("No records updated.");
   }
 
   /**
@@ -275,11 +231,11 @@ public class SequenceDAOImpl extends DAOImpl implements SequenceDAO {
 
    @param db context
    @param id to delete
-   @throws Exception         if database failure
-   @throws ConfigException   if not configured properly
-   @throws BusinessException if fails business rule
+   @throws CoreException if database failure
+   @throws CoreException if not configured properly
+   @throws CoreException if fails business rule
    */
-  private static void destroy(DSLContext db, Access access, ULong id) throws Exception {
+  private static void destroy(DSLContext db, Access access, ULong id) throws CoreException {
     if (!access.isTopLevel())
       requireExists("Sequence belonging to you", db.selectCount().from(SEQUENCE)
         .join(LIBRARY).on(SEQUENCE.LIBRARY_ID.eq(LIBRARY.ID))
@@ -292,9 +248,8 @@ public class SequenceDAOImpl extends DAOImpl implements SequenceDAO {
       .where(PATTERN.SEQUENCE_ID.eq(id))
       .fetchOne(0, int.class));
 
-    requireNotExists("Arrangements of Voice in Sequence", db.selectCount().from(ARRANGEMENT)
-      .join(VOICE).on(ARRANGEMENT.VOICE_ID.eq(VOICE.ID))
-      .where(VOICE.SEQUENCE_ID.eq(id))
+    requireNotExists("SequencePattern in Sequence", db.selectCount().from(SEQUENCE_PATTERN)
+      .where(SEQUENCE_PATTERN.SEQUENCE_ID.eq(id))
       .fetchOne(0, int.class));
 
     requireNotExists("Pattern Events of Voice in Sequence", db.selectCount().from(PATTERN_EVENT)
@@ -310,55 +265,10 @@ public class SequenceDAOImpl extends DAOImpl implements SequenceDAO {
       .where(SEQUENCE_MEME.SEQUENCE_ID.eq(id))
       .execute();
 
-    db.deleteFrom(CHOICE)
-      .where(CHOICE.SEQUENCE_ID.eq(id))
-      .execute();
-
     db.deleteFrom(SEQUENCE)
       .where(SEQUENCE.ID.eq(id))
       .execute();
   }
-
-  /**
-   Update a sequence to Erase state
-
-   @param db context
-   @param id to delete
-   @throws Exception         if database failure
-   @throws ConfigException   if not configured properly
-   @throws BusinessException if fails business rule
-   */
-  private void erase(Access access, DSLContext db, ULong id) throws Exception {
-    if (access.isTopLevel())
-      requireExists("Sequence", db.selectCount().from(SEQUENCE)
-        .where(SEQUENCE.ID.eq(id))
-        .fetchOne(0, int.class));
-    else requireExists("Sequence", db.selectCount().from(SEQUENCE)
-      .join(Library.LIBRARY).on(Library.LIBRARY.ID.eq(SEQUENCE.LIBRARY_ID))
-      .where(SEQUENCE.ID.eq(id))
-      .and(Library.LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
-      .fetchOne(0, int.class));
-
-    requireNotExists("Meme in Sequence", db.selectCount().from(SEQUENCE_MEME)
-      .where(SEQUENCE_MEME.SEQUENCE_ID.eq(id))
-      .fetchOne(0, int.class));
-
-    // Update sequence state to Erase
-    Map<Field, Object> fieldValues = com.google.common.collect.Maps.newHashMap();
-    fieldValues.put(SEQUENCE.ID, id);
-    fieldValues.put(SEQUENCE.STATE, SequenceState.Erase);
-
-    if (0 == executeUpdate(db, SEQUENCE, fieldValues))
-      throw new BusinessException("No records updated.");
-
-    // Schedule sequence deletion job
-    try {
-      workManager.doSequenceErase(id.toBigInteger());
-    } catch (Exception e) {
-      log.error("Failed to start SequenceErase work after updating Sequence to Erase state. See the elusive [#153492153] Entity erase job can be spawned without an error", e);
-    }
-  }
-
 
   /**
    Only certain (writable) fields are mapped back to jOOQ records--
@@ -380,127 +290,152 @@ public class SequenceDAOImpl extends DAOImpl implements SequenceDAO {
     return fieldValues;
   }
 
+  /**
+   Update a sequence to Erase state
+
+   @param db context
+   @param id to delete
+   @throws CoreException if database failure
+   @throws CoreException if not configured properly
+   @throws CoreException if fails business rule
+   */
+  private void erase(Access access, DSLContext db, ULong id) throws CoreException {
+    if (access.isTopLevel())
+      requireExists("Sequence", db.selectCount().from(SEQUENCE)
+        .where(SEQUENCE.ID.eq(id))
+        .fetchOne(0, int.class));
+    else requireExists("Sequence", db.selectCount().from(SEQUENCE)
+      .join(Library.LIBRARY).on(Library.LIBRARY.ID.eq(SEQUENCE.LIBRARY_ID))
+      .where(SEQUENCE.ID.eq(id))
+      .and(Library.LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+      .fetchOne(0, int.class));
+
+    requireNotExists("Meme in Sequence", db.selectCount().from(SEQUENCE_MEME)
+      .where(SEQUENCE_MEME.SEQUENCE_ID.eq(id))
+      .fetchOne(0, int.class));
+
+    // Update sequence state to Erase
+    Map<Field, Object> fieldValues = com.google.common.collect.Maps.newHashMap();
+    fieldValues.put(SEQUENCE.ID, id);
+    fieldValues.put(SEQUENCE.STATE, SequenceState.Erase);
+
+    if (0 == executeUpdate(db, SEQUENCE, fieldValues))
+      throw new CoreException("No records updated.");
+
+    // Schedule sequence deletion job
+    workManager.doSequenceErase(id.toBigInteger());
+  }
+
   @Override
-  public Sequence create(Access access, Sequence entity) throws Exception {
+  public Sequence create(Access access, Sequence entity) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(create(tx.getContext(), access, entity));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public Sequence clone(Access access, BigInteger cloneId, Sequence entity) throws Exception {
+  public Sequence clone(Access access, BigInteger cloneId, Sequence entity) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(clone(tx.getContext(), access, cloneId, entity));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
   @Nullable
-  public Sequence readOne(Access access, BigInteger id) throws Exception {
+  public Sequence readOne(Access access, BigInteger id) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readOne(tx.getContext(), access, ULong.valueOf(id)));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Nullable
-  @Override
-  public Sequence readOneTypeInSegment(Access access, BigInteger segmentId, SequenceType sequenceType) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-      return tx.success(readOneTypeInSegment(tx.getContext(), access, ULong.valueOf(segmentId), sequenceType));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public Collection<Sequence> readAllBoundToChain(Access access, BigInteger chainId) throws Exception {
+  public Collection<Sequence> readAllBoundToChain(Access access, BigInteger chainId) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readAllBoundToChain(tx.getContext(), access, ULong.valueOf(chainId)));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public Collection<Sequence> readAllInAccount(Access access, BigInteger accountId) throws Exception {
+  public Collection<Sequence> readAllInAccount(Access access, BigInteger accountId) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readAllInAccount(tx.getContext(), access, ULong.valueOf(accountId)));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public Collection<Sequence> readAll(Access access, Collection<BigInteger> parentIds) throws Exception {
+  public Collection<Sequence> readAll(Access access, Collection<BigInteger> parentIds) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readAllInLibraries(tx.getContext(), access, uLongValuesOf(parentIds)));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public Collection<Sequence> readAll(Access access) throws Exception {
+  public Collection<Sequence> readAll(Access access) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readAll(tx.getContext(), access));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public void update(Access access, BigInteger id, Sequence entity) throws Exception {
+  public void update(Access access, BigInteger id, Sequence entity) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       update(tx.getContext(), access, ULong.valueOf(id), entity);
       tx.success();
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public void destroy(Access access, BigInteger id) throws Exception {
+  public void destroy(Access access, BigInteger id) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       destroy(tx.getContext(), access, ULong.valueOf(id));
       tx.success();
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public Collection<Sequence> readAllInState(Access access, SequenceState state) throws Exception {
+  public Collection<Sequence> readAllInState(Access access, SequenceState state) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readAllInState(tx.getContext(), access, state));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public void erase(Access access, BigInteger id) throws Exception {
+  public void erase(Access access, BigInteger id) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       erase(access, tx.getContext(), ULong.valueOf(id));
       tx.success();
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
@@ -514,12 +449,12 @@ public class SequenceDAOImpl extends DAOImpl implements SequenceDAO {
    @param cloneId of sequence to clone
    @param entity  for the new sequence
    @return newly readMany record
-   @throws BusinessException on failure
+   @throws CoreException on failure
    */
-  private Sequence clone(DSLContext db, Access access, BigInteger cloneId, Sequence entity) throws BusinessException {
+  private Sequence clone(DSLContext db, Access access, BigInteger cloneId, Sequence entity) throws CoreException {
     Sequence from = readOne(db, access, ULong.valueOf(cloneId));
     if (Objects.isNull(from))
-      throw new BusinessException("Can't clone nonexistent Sequence");
+      throw new CoreException("Can't clone nonexistent Sequence");
 
     entity.setUserId(from.getUserId());
     entity.setDensity(from.getDensity());

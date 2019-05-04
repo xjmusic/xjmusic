@@ -1,5 +1,5 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
-package io.xj.craft.digest.sequence_style;
+package io.xj.craft.digest.pattern_style;
 
 import com.google.common.collect.Multiset;
 import com.google.common.math.StatsAccumulator;

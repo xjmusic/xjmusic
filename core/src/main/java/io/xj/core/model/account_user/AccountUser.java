@@ -1,32 +1,26 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.model.account_user;
 
-import io.xj.core.exception.BusinessException;
-import io.xj.core.model.entity.Entity;
+import io.xj.core.exception.CoreException;
+import io.xj.core.model.entity.impl.EntityImpl;
 
 import java.math.BigInteger;
 import java.util.Objects;
 
 /**
  POJO for persisting data in memory while performing business logic,
-or decoding messages received by JAX-RS resources.
+ or decoding messages received by JAX-RS resources.
  a.k.a. JSON input will be stored into an instance of this object
-
+ <p>
  Business logic ought to be performed beginning with an instance of this object,
  to implement common methods.
-
+ <p>
  NOTE: There can only be ONE of any getter/setter (with the same # of input params)
  */
-public class AccountUser extends Entity {
-
-  /**
-   For use in maps.
-   */
+public class AccountUser extends EntityImpl {
   public static final String KEY_ONE = "accountUser";
   public static final String KEY_MANY = "accountUsers";
-  // Account ID
   private BigInteger accountId;
-  // User ID
   private BigInteger userId;
 
   public BigInteger getAccountId() {
@@ -53,12 +47,12 @@ public class AccountUser extends Entity {
   }
 
   @Override
-  public void validate() throws BusinessException {
+  public void validate() throws CoreException {
     if (Objects.isNull(accountId)) {
-      throw new BusinessException("Account ID is required.");
+      throw new CoreException("Account ID is required.");
     }
     if (Objects.isNull(userId)) {
-      throw new BusinessException("User ID is required.");
+      throw new CoreException("User ID is required.");
     }
   }
 

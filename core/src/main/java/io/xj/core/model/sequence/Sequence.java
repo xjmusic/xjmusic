@@ -1,8 +1,9 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.model.sequence;
 
-import io.xj.core.exception.BusinessException;
+import io.xj.core.exception.CoreException;
 import io.xj.core.model.entity.Entity;
+import io.xj.core.model.entity.impl.EntityImpl;
 import io.xj.core.util.Text;
 
 import java.math.BigInteger;
@@ -18,7 +19,7 @@ import java.util.Objects;
  <p>
  NOTE: There can only be ONE of any getter/setter (with the same # of input params)
  */
-public class Sequence extends Entity {
+public class Sequence extends EntityImpl {
 
   /**
    For use in maps.
@@ -142,35 +143,35 @@ public class Sequence extends Entity {
   }
 
   @Override
-  public void validate() throws BusinessException {
-    // throws its own BusinessException on failure
+  public void validate() throws CoreException {
+    // throws its own CoreException on failure
     if (Objects.isNull(type))
       type = SequenceType.validate(_type);
 
-    // throws its own BusinessException on failure
+    // throws its own CoreException on failure
     if (Objects.isNull(state))
       state = SequenceState.validate(_stateString);
 
     if (Objects.isNull(name) || name.isEmpty())
-      throw new BusinessException("Name is required.");
+      throw new CoreException("Name is required.");
 
     if (Objects.isNull(libraryId))
-      throw new BusinessException("Library ID is required.");
+      throw new CoreException("Library ID is required.");
 
     if (Objects.isNull(userId))
-      throw new BusinessException("User ID is required.");
+      throw new CoreException("User ID is required.");
 
     if (Objects.isNull(type))
-      throw new BusinessException("Type is required.");
+      throw new CoreException("Type is required.");
 
     if (Objects.isNull(key) || key.isEmpty())
-      throw new BusinessException("Key is required.");
+      throw new CoreException("Key is required.");
 
     if (Objects.isNull(density))
-      throw new BusinessException("Density is required.");
+      throw new CoreException("Density is required.");
 
     if (Objects.isNull(tempo))
-      throw new BusinessException("Tempo is required.");
+      throw new CoreException("Tempo is required.");
   }
 
   @Override

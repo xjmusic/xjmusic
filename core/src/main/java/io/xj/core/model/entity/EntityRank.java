@@ -3,8 +3,8 @@ package io.xj.core.model.entity;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import io.xj.core.exception.CoreException;
 
-import javax.annotation.Nullable;
 import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Collections;
@@ -21,10 +21,10 @@ import java.util.Objects;
  A separate quality-score (Q-score) index uses the entity id as an index
  for a double that represents that entity's score.
 
- @param <T>  */
-public class EntityRank<T extends Entity> {
+ @param <E>  */
+public class EntityRank<E extends Entity> {
   //  final TypeToken<T> type = new TypeToken<T>(getClass()) {};
-  private final List<T> entities;
+  private final List<E> entities;
   private final HashMap<BigInteger, Double> scores;
 
   /**
@@ -40,7 +40,7 @@ public class EntityRank<T extends Entity> {
 
    @param entity to add
    */
-  public void add(T entity) {
+  public void add(E entity) {
     entities.add(entity);
   }
 
@@ -49,7 +49,7 @@ public class EntityRank<T extends Entity> {
 
    @param entities to add
    */
-  public void addAll(Collection<T> entities) {
+  public void addAll(Collection<E> entities) {
     this.entities.addAll(entities);
   }
 
@@ -58,7 +58,7 @@ public class EntityRank<T extends Entity> {
 
    @param entity to add
    */
-  public void add(T entity, double Q) {
+  public void add(E entity, double Q) {
     add(entity);
     score(entity, Q);
   }
@@ -68,7 +68,7 @@ public class EntityRank<T extends Entity> {
 
    @param entity to add
    */
-  public void score(T entity, Double Q) {
+  public void score(E entity, Double Q) {
     score(entity.getId(), Q);
   }
 
@@ -89,7 +89,7 @@ public class EntityRank<T extends Entity> {
 
    @return all entities
    */
-  public List<T> getAll() {
+  public List<E> getAll() {
     return Collections.unmodifiableList(entities);
   }
 
@@ -107,13 +107,12 @@ public class EntityRank<T extends Entity> {
 
    @return T
    */
-  @Nullable
-  public T getTop() {
-    List<T> allScored = getAllScored();
+  public E getTop() throws CoreException {
+    List<E> allScored = getAllScored();
     if (Objects.nonNull(allScored) && 1 <= allScored.size())
       return allScored.get(0);
-    else
-      return null;
+
+    throw new CoreException("Cannot rank zero entities");
   }
 
   /**
@@ -122,7 +121,7 @@ public class EntityRank<T extends Entity> {
    @param total quantity to return
    @return T
    */
-  public List<T> getScored(int total) {
+  public List<E> getScored(int total) {
     return getAllScored().subList(0, total);
   }
 
@@ -131,7 +130,7 @@ public class EntityRank<T extends Entity> {
 
    @return T
    */
-  public List<T> getAllScored() {
+  public List<E> getAllScored() {
     entities.sort(
       Comparator.comparing(
         e -> {

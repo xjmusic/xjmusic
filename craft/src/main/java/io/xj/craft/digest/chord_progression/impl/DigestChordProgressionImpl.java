@@ -5,18 +5,17 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-
 import io.xj.core.config.Config;
+import io.xj.core.ingest.Ingest;
+import io.xj.core.model.chord.Sort;
+import io.xj.core.model.pattern.Pattern;
+import io.xj.core.model.pattern_chord.PatternChord;
+import io.xj.core.model.sequence.Sequence;
+import io.xj.craft.chord.ChordProgression;
+import io.xj.craft.chord.PatternChordProgression;
 import io.xj.craft.digest.DigestType;
 import io.xj.craft.digest.chord_progression.DigestChordProgression;
 import io.xj.craft.digest.impl.DigestImpl;
-import io.xj.craft.ingest.Ingest;
-import io.xj.core.model.chord.Chord;
-import io.xj.craft.chord.ChordProgression;
-import io.xj.core.model.sequence.Sequence;
-import io.xj.core.model.pattern.Pattern;
-import io.xj.core.model.pattern_chord.PatternChord;
-import io.xj.craft.chord.PatternChordProgression;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -63,7 +62,7 @@ public class DigestChordProgressionImpl extends DigestImpl implements DigestChor
    @param chord to express
    @return JSON object
    */
-  private static JSONObject toJSONObject(Chord chord) {
+  private static JSONObject toJSONObject(PatternChord chord) {
     JSONObject result = new JSONObject();
     result.put(KEY_CHORD_ID, chord.getId());
     result.put(KEY_CHORD_NAME, chord.getName());
@@ -86,63 +85,17 @@ public class DigestChordProgressionImpl extends DigestImpl implements DigestChor
     return (int) (evaluatedSequence.getUsages().size() * (descriptorLength - 1) * StrictMath.pow(diversity, 2));
   }
 
-  @Override
-  public Map<String, DigestChordProgressionItem> getEvaluatedSequenceMap() {
-    return Collections.unmodifiableMap(evaluatedSequenceMap);
-  }
-
-  @Override
-  public List<String> getSortedDescriptors() {
-    List<String> result = Lists.newArrayList(evaluatedSequenceMap.keySet());
-    result.sort(Comparator.comparingInt(o -> -score(evaluatedSequenceMap.get(o)))); // determines the order of the first step of the pruning operation that's about to happen
-    return result;
-  }
-
-  @Override
-  public JSONObject toJSONObject() {
-    JSONObject result = new JSONObject();
-    JSONArray sequencesArr = new JSONArray();
-
-    List<DigestChordProgressionItem> evaluatedSequences = Lists.newArrayList(evaluatedSequenceMap.values());
-    evaluatedSequences.sort(DigestChordProgressionItem.byUsageTimesLengthDescending);
-    evaluatedSequences.forEach(evaluatedSequence -> sequencesArr.put(toJSONObject(evaluatedSequence)));
-
-    result.put(KEY_CHORD_PROGRESSIONS, sequencesArr);
-    return result;
-  }
-
-  /**
-   Digest entities from ingest
-   */
-  private void digest() throws Exception {
-    for (PatternChordProgression chordProgression : computeAllChordProgressions())
-      storeDigestedSequence(chordProgression);
-  }
-
-  /**
-   Compute all possible chord progressions for contents in ingest
-   */
-  private Collection<PatternChordProgression> computeAllChordProgressions() {
-    Collection<PatternChordProgression> result = Lists.newArrayList();
-
-    ingest.patterns().forEach(pattern ->
-      result.addAll(computeChordProgressions(pattern.getId(), patternChordsOf(ingest.patternChords(), pattern.getId()))));
-
-    return result;
-  }
-
-
   /**
    Get only the audio entities of a particular audio
 
    @param patternChords to search for entities
-   @param parentId    (pattern) to get pattern entities of
+   @param parentId      (pattern) to get pattern entities of
    @return collection of audio entities
    */
   private static <C extends PatternChord> Collection<C> patternChordsOf(Collection<C> patternChords, Object parentId) {
     Collection<C> result = Lists.newArrayList();
-    patternChords.forEach(chord -> {
-      if (Objects.equals(parentId, chord.getParentId())) result.add(chord);
+    patternChords.forEach(patternChord -> {
+      if (Objects.equals(parentId, patternChord.getParentId())) result.add(patternChord);
     });
     return result;
   }
@@ -158,7 +111,7 @@ public class DigestChordProgressionImpl extends DigestImpl implements DigestChor
     List<PatternChordProgression> result = Lists.newArrayList();
 
     List<PatternChord> allChords = Lists.newArrayList(chords);
-    allChords.sort(Chord.byPositionAscending);
+    allChords.sort(Sort.byPositionAscending);
 
     int totalChords = allChords.size();
     for (int fromChord = 0; fromChord < totalChords; fromChord++) {
@@ -175,6 +128,55 @@ public class DigestChordProgressionImpl extends DigestImpl implements DigestChor
     return result;
   }
 
+  @Override
+  public Map<String, DigestChordProgressionItem> getEvaluatedSequenceMap() {
+    return Collections.unmodifiableMap(evaluatedSequenceMap);
+  }
+
+  @Override
+  public List<String> getSortedDescriptors() {
+    List<String> result = Lists.newArrayList(evaluatedSequenceMap.keySet());
+    result.sort(Comparator.comparingInt(o -> -score(evaluatedSequenceMap.get(o)))); // determines the order of the first step of the pruning operation that's about to happen
+    return result;
+  }
+
+  /*
+  TODO: custom JSON serializer for DigestChordProgression
+
+  @Override
+  public JSONObject toJSONObject() {
+    JSONObject result = new JSONObject();
+    JSONArray sequencesArr = new JSONArray();
+
+    List<DigestChordProgressionItem> evaluatedSequences = Lists.newArrayList(evaluatedSequenceMap.values());
+    evaluatedSequences.sort(DigestChordProgressionItem.byUsageTimesLengthDescending);
+    evaluatedSequences.forEach(evaluatedSequence -> sequencesArr.put(toJSONObject(evaluatedSequence)));
+
+    result.put(KEY_CHORD_PROGRESSIONS, sequencesArr);
+    return result;
+  }
+
+   */
+
+  /**
+   Digest entities from ingest
+   */
+  private void digest() {
+    for (PatternChordProgression chordProgression : computeAllChordProgressions())
+      storeDigestedSequence(chordProgression);
+  }
+
+  /**
+   Compute all possible chord progressions for contents in ingest
+   */
+  private Collection<PatternChordProgression> computeAllChordProgressions() {
+    Collection<PatternChordProgression> result = Lists.newArrayList();
+
+    ingest.getAllPatterns().forEach(pattern ->
+      result.addAll(computeChordProgressions(pattern.getId(), patternChordsOf(ingest.getAllPatternChords(), pattern.getId()))));
+
+    return result;
+  }
 
   /**
    Express all the chord progressions for this descriptor as a JSON object for reporting
@@ -215,7 +217,7 @@ public class DigestChordProgressionImpl extends DigestImpl implements DigestChor
   }
 
   /**
-   Put a Chord progression into the in-memory store
+   Put a PatternChord progression into the in-memory store
 
    @param chordProgression to store
    */

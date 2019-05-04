@@ -4,6 +4,7 @@ package io.xj.core.access;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import io.xj.core.access.impl.Access;
+import io.xj.core.exception.CoreException;
 import io.xj.core.model.account_user.AccountUser;
 import io.xj.core.model.user_auth.UserAuth;
 import io.xj.core.model.user_role.UserRole;
@@ -41,7 +42,7 @@ public class AccessTest extends Mockito {
   }
 
   @Test
-  public void getUserId() {
+  public void getUserId() throws CoreException {
     Access access = new Access(ImmutableMap.of(
       "userId", "2"
     ));

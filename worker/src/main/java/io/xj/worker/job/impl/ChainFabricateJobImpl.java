@@ -7,12 +7,13 @@ import io.xj.core.access.impl.Access;
 import io.xj.core.config.Config;
 import io.xj.core.dao.ChainDAO;
 import io.xj.core.dao.SegmentDAO;
-import io.xj.core.exception.BusinessException;
+import io.xj.core.exception.CoreException;
 import io.xj.core.model.chain.Chain;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.segment.Segment;
 import io.xj.core.util.TimestampUTC;
 import io.xj.core.work.WorkManager;
+import io.xj.craft.exception.CraftException;
 import io.xj.worker.job.ChainFabricateJob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +27,7 @@ public class ChainFabricateJobImpl implements ChainFabricateJob {
   private final ChainDAO chainDAO;
   private final SegmentDAO segmentDAO;
   private final WorkManager workManager;
+  private final Access access = Access.internal();
 
   @Inject
   public ChainFabricateJobImpl(
@@ -42,15 +44,13 @@ public class ChainFabricateJobImpl implements ChainFabricateJob {
 
   @Override
   public void run() {
-
     try {
-      Chain chain = chainDAO.readOne(Access.internal(), entityId);
-      if (Objects.nonNull(chain)) {
-        doWork(chain);
-      } else {
-        log.warn("Cannot work on non-existent Chain #{}", entityId);
-        cancelFabrication();
-      }
+      Chain chain = chainDAO.readOne(access, entityId);
+      doWork(chain);
+
+    } catch (CraftException e) {
+      log.warn("Did not fabricate chainId={}, reason={}", entityId, e.getMessage());
+      cancelFabrication();
 
     } catch (Exception e) {
       log.error("{}:{} failed ({})",
@@ -67,13 +67,13 @@ public class ChainFabricateJobImpl implements ChainFabricateJob {
   private void doWork(Chain chain) throws Exception {
     if (ChainState.Fabricate != chain.getState()) {
       workManager.stopChainFabrication(entityId);
-      throw new BusinessException(String.format("Cannot fabricate Chain id:%s in non-Fabricate (%s) state!",
+      throw new CoreException(String.format("Cannot fabricate Chain id:%s in non-Fabricate (%s) state!",
         chain.getId(), chain.getState()));
     }
 
     int bufferSeconds = Config.workBufferSeconds();
     Segment segmentToCreate = chainDAO.buildNextSegmentOrComplete(
-      Access.internal(),
+      access,
       chain,
       TimestampUTC.nowPlusSeconds(bufferSeconds),
       TimestampUTC.nowMinusSeconds(bufferSeconds));
@@ -87,11 +87,11 @@ public class ChainFabricateJobImpl implements ChainFabricateJob {
    Create Segment, and jobs to craft & dub it
 
    @param segmentToCreate to create
-   @throws BusinessException on failure
+   @throws CoreException on failure
    */
   private void createSegmentAndJobs(Segment segmentToCreate) throws Exception {
     segmentToCreate.validate();
-    Segment createdSegment = segmentDAO.create(Access.internal(), segmentToCreate);
+    Segment createdSegment = segmentDAO.create(access, segmentToCreate);
     log.info("Created segment, id:{}, chainId:{}, offset:{}", createdSegment.getId(), createdSegment.getChainId(), createdSegment.getOffset());
 
     workManager.scheduleSegmentFabricate(Config.workBufferFabricateDelaySeconds(), createdSegment.getId());

@@ -1,7 +1,7 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.model.instrument;
 
-import io.xj.core.exception.BusinessException;
+import io.xj.core.exception.CoreException;
 import io.xj.core.transport.CSV;
 import io.xj.core.util.Text;
 
@@ -28,16 +28,16 @@ public enum InstrumentType {
 
    @param value to cast to enum
    @return enum
-   @throws BusinessException on failure
+   @throws CoreException on failure
    */
-  public static InstrumentType validate(String value) throws BusinessException {
+  public static InstrumentType validate(String value) throws CoreException {
     if (Objects.isNull(value))
-      throw new BusinessException("Type is required");
+      throw new CoreException("Type is required");
 
     try {
       return valueOf(Text.toProperSlug(value));
     } catch (Exception e) {
-      throw new BusinessException("'" + value + "' is not a valid type (" + CSV.joinEnum(values()) + ").", e);
+      throw new CoreException("'" + value + "' is not a valid type (" + CSV.joinEnum(values()) + ").", e);
     }
   }
 

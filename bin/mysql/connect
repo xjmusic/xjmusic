@@ -15,16 +15,4 @@ elif [ -f /usr/local/mysql/bin/mysql ]; then
     MYSQL_COMMAND=/usr/local/mysql/bin/mysql
 fi
 
-# Host Arguments
-MYSQL_ARGS="${@}"
-
-# Database
-MYSQL_DB="xj"
-
-# connect to ${HOST}
-step "Client SQL execution"
-${MYSQL_COMMAND} -u${MYSQL_USER} -h 127.0.0.1 -P ${MYSQL_PORT} ${MYSQL_ARGS}
-step_ok
-
-#
-finished_ok
+${MYSQL_COMMAND} --user=${MYSQL_USER} --host=127.0.0.1 --port=${MYSQL_PORT} "$@"

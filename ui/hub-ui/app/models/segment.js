@@ -2,6 +2,8 @@
 import DS from 'ember-data';
 import {computed} from '@ember/object';
 
+const ROW_HEIGHT_PIXELS_PER_BEAT = 9;
+
 export default DS.Model.extend({
   chain: DS.belongsTo({}),
   offset: DS.attr('number'),
@@ -21,6 +23,11 @@ export default DS.Model.extend({
 
   title: computed('offset', function () {
     return `Segment@${this.offset}`;
+  }),
+
+  rowHeight: computed('total', function () {
+    let pixels = this.total * ROW_HEIGHT_PIXELS_PER_BEAT;
+    return `${pixels}px`;
   }),
 
 });

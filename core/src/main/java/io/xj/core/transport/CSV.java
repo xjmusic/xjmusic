@@ -56,14 +56,14 @@ public interface CSV {
    CSV string of the ids of a list of entities
 
    @param entities to get ids of
-   @param <T>      type of entity
+   @param <E>      type of entity
    @return CSV list of entity ids
    */
-  static <T extends Entity> String fromIdsOf(Collection<T> entities) {
+  static <E extends Entity> String fromIdsOf(Collection<E> entities) {
     if (Objects.isNull(entities) || entities.isEmpty()) {
       return "";
     }
-    Iterator<T> it = entities.iterator();
+    Iterator<E> it = entities.iterator();
     StringBuilder result = new StringBuilder(it.next().getId().toString());
     while (it.hasNext()) {
       result.append(",").append(it.next().getId());

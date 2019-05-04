@@ -4,26 +4,18 @@ package io.xj.hub.resource.segment;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import io.xj.core.access.impl.Access;
-import io.xj.core.dao.ArrangementDAO;
-import io.xj.core.dao.ChoiceDAO;
-import io.xj.core.dao.SegmentChordDAO;
+import io.xj.core.config.Exposure;
 import io.xj.core.dao.SegmentDAO;
-import io.xj.core.dao.SegmentMemeDAO;
-import io.xj.core.dao.SegmentMessageDAO;
 import io.xj.core.model.arrangement.Arrangement;
 import io.xj.core.model.choice.Choice;
-import io.xj.core.model.chord.Chord;
-import io.xj.core.model.meme.Meme;
-import io.xj.core.model.message.Message;
+import io.xj.core.model.pick.Pick;
 import io.xj.core.model.segment.Segment;
 import io.xj.core.model.segment_chord.SegmentChord;
 import io.xj.core.model.segment_meme.SegmentMeme;
 import io.xj.core.model.segment_message.SegmentMessage;
 import io.xj.core.transport.HttpResponseProvider;
-import io.xj.core.transport.JSON;
 import io.xj.core.util.Text;
 import io.xj.hub.HubResource;
-import org.json.JSONArray;
 
 import javax.annotation.security.PermitAll;
 import javax.jws.WebResult;
@@ -45,13 +37,8 @@ import java.util.Objects;
  */
 @Path("segments")
 public class SegmentIndexResource extends HubResource {
-  private final ChoiceDAO choiceDAO = injector.getInstance(ChoiceDAO.class);
-  private final ArrangementDAO arrangementDAO = injector.getInstance(ArrangementDAO.class);
   private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
-  private final SegmentChordDAO segmentChordDAO = injector.getInstance(SegmentChordDAO.class);
   private final SegmentDAO segmentDAO = injector.getInstance(SegmentDAO.class);
-  private final SegmentMemeDAO segmentMemeDAO = injector.getInstance(SegmentMemeDAO.class);
-  private final SegmentMessageDAO segmentMessageDAO = injector.getInstance(SegmentMessageDAO.class);
 
   @QueryParam("chainId")
   String chainId;
@@ -64,18 +51,6 @@ public class SegmentIndexResource extends HubResource {
 
   @QueryParam("fromSecondsUTC")
   BigInteger fromSecondsUTC;
-
-  /**
-   Get an immutable list of ids from a result of Segments
-
-   @param segments to get ids of
-   @return list of ids
-   */
-  private static Collection<BigInteger> segmentIds(Iterable<Segment> segments) {
-    ImmutableList.Builder<BigInteger> builder = ImmutableList.builder();
-    segments.forEach(segment -> builder.add(segment.getId()));
-    return builder.build();
-  }
 
   /**
    Get all segments.
@@ -92,7 +67,7 @@ public class SegmentIndexResource extends HubResource {
 
     try {
       return Response
-        .accepted(JSON.wrap(readAllIncludingRelationships(Access.fromContext(crc))).toString())
+        .accepted(gsonProvider.gson().toJson(readAllIncludingRelationships(Access.fromContext(crc))))
         .type(MediaType.APPLICATION_JSON)
         .build();
 
@@ -102,35 +77,36 @@ public class SegmentIndexResource extends HubResource {
   }
 
   /**
-   Read all segments, including reading relations request in the `?include=` query parameter
+   Read all segments
 
    @param access control
    @return map of entity plural key to array of entities
    @throws Exception on failure
    */
-  private Map<String, JSONArray> readAllIncludingRelationships(Access access) throws Exception {
-    Map<String, JSONArray> out = Maps.newHashMap();
+  private Map<String, Collection> readAllIncludingRelationships(Access access) throws Exception {
+    Map<String, Collection> out = Maps.newHashMap();
 
-    Collection<Segment> segments;
-    if (Text.isInteger(chainId)) segments = readAllSegmentsByChainId(access);
-    else segments = readAllSegmentsByChainEmbedKey();
-    out.put(Segment.KEY_MANY, JSON.arrayOf(segments));
-    Collection<BigInteger> segmentIds = segmentIds(segments);
+    Collection<Segment> segments = Text.isInteger(chainId) ? readAllSegmentsByChainId(access) : readAllSegmentsByChainEmbedKey();
 
-    if (Objects.nonNull(include) && include.contains(Message.KEY_MANY))
-      out.put(SegmentMessage.KEY_MANY, JSON.arrayOf(segmentMessageDAO.readAll(access, segmentIds)));
+    out.put(Segment.KEY_MANY, segments);
 
-    if (Objects.nonNull(include) && include.contains(Meme.KEY_MANY))
-      out.put(SegmentMeme.KEY_MANY, JSON.arrayOf(segmentMemeDAO.readAllInSegments(access, segmentIds)));
+    if (Objects.nonNull(include) && include.contains(Exposure.MESSAGES))
+      out.put(Exposure.SEGMENT_MESSAGES, SegmentMessage.aggregate(segments));
 
-    if (Objects.nonNull(include) && include.contains(Chord.KEY_MANY))
-      out.put(SegmentChord.KEY_MANY, JSON.arrayOf(segmentChordDAO.readAllInSegments(access, segmentIds)));
+    if (Objects.nonNull(include) && include.contains(Exposure.MEMES))
+      out.put(Exposure.SEGMENT_MEMES, SegmentMeme.aggregate(segments));
 
-    if (Objects.nonNull(include) && include.contains(Choice.KEY_MANY))
-      out.put(Choice.KEY_MANY, JSON.arrayOf(choiceDAO.readAllInSegments(access, segmentIds)));
+    if (Objects.nonNull(include) && include.contains(Exposure.CHORDS))
+      out.put(Exposure.SEGMENT_CHORDS, SegmentChord.aggregate(segments));
 
-    if (Objects.nonNull(include) && include.contains(Arrangement.KEY_MANY))
-      out.put(Arrangement.KEY_MANY, JSON.arrayOf(arrangementDAO.readAllInSegments(access, segmentIds)));
+    if (Objects.nonNull(include) && include.contains(Exposure.CHOICES))
+      out.put(Exposure.CHOICES, Choice.aggregate(segments));
+
+    if (Objects.nonNull(include) && include.contains(Exposure.ARRANGEMENTS))
+      out.put(Exposure.ARRANGEMENTS, Arrangement.aggregate(segments));
+
+    if (Objects.nonNull(include) && include.contains(Exposure.PICKS))
+      out.put(Exposure.PICKS, Pick.aggregate(segments));
 
     return out;
   }

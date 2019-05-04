@@ -6,7 +6,7 @@ target/
 */target/
 classes/
 
-# container logs
+# container logs and data
 log/
 */log/
 

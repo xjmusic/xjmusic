@@ -1,8 +1,9 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.model.voice;
 
-import io.xj.core.exception.BusinessException;
+import io.xj.core.exception.CoreException;
 import io.xj.core.model.entity.Entity;
+import io.xj.core.model.entity.impl.EntityImpl;
 import io.xj.core.model.instrument.InstrumentType;
 
 import java.math.BigInteger;
@@ -18,7 +19,7 @@ import java.util.Objects;
  <p>
  NOTE: There can only be ONE of any getter/setter (with the same # of input params)
  */
-public class Voice extends Entity {
+public class Voice extends EntityImpl {
 
   public static final String KEY_ONE = "voice";
   public static final String KEY_MANY = "voices";
@@ -52,8 +53,9 @@ public class Voice extends Entity {
     return this;
   }
 
-  public void setTypeEnum(InstrumentType type) {
+  public Voice setTypeEnum(InstrumentType type) {
     this.type = type;
+    return this;
   }
 
   public String getDescription() {
@@ -71,19 +73,19 @@ public class Voice extends Entity {
   }
 
   @Override
-  public void validate() throws BusinessException {
-    // throws its own BusinessException on failure
+  public void validate() throws CoreException {
+    // throws its own CoreException on failure
     type = InstrumentType.validate(_type);
 
     if (Objects.isNull(sequenceId)) {
-      throw new BusinessException("Sequence ID is required.");
+      throw new CoreException("Sequence ID is required.");
     }
     if (Objects.isNull(type)) {
-      throw new BusinessException("Type is required.");
+      throw new CoreException("Type is required.");
     }
 
     if (Objects.isNull(description) || description.isEmpty()) {
-      throw new BusinessException("Description is required.");
+      throw new CoreException("Description is required.");
     }
   }
 }

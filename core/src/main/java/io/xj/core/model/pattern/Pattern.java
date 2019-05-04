@@ -2,8 +2,8 @@
 package io.xj.core.model.pattern;
 
 import io.xj.core.config.Config;
-import io.xj.core.exception.BusinessException;
-import io.xj.core.model.entity.Entity;
+import io.xj.core.exception.CoreException;
+import io.xj.core.model.entity.impl.EntityImpl;
 import io.xj.core.util.Text;
 
 import javax.annotation.Nullable;
@@ -20,7 +20,7 @@ import java.util.Objects;
  <p>
  NOTE: There can only be ONE of any getter/setter (with the same # of input params)
  */
-public class Pattern extends Entity {
+public class Pattern extends EntityImpl {
   public static final String KEY_ONE = "pattern";
   public static final String KEY_MANY = "patterns";
 
@@ -181,12 +181,12 @@ public class Pattern extends Entity {
   }
 
   @Override
-  public void validate() throws BusinessException {
-    // throws its own BusinessException on failure
+  public void validate() throws CoreException {
+    // throws its own CoreException on failure
     if (Objects.isNull(type))
       type = PatternType.validate(_type);
 
-    // throws its own BusinessException on failure
+    // throws its own CoreException on failure
     if (Objects.isNull(state))
       state = PatternState.validate(_stateString);
 
@@ -194,7 +194,7 @@ public class Pattern extends Entity {
       name = null;
     }
     if (null == sequenceId) {
-      throw new BusinessException("Sequence ID is required.");
+      throw new CoreException("Sequence ID is required.");
     }
     if (Objects.nonNull(key) && key.isEmpty()) {
       key = null;

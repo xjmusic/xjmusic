@@ -2,6 +2,7 @@
 package io.xj.craft.chord;
 
 import io.xj.core.model.chord.Chord;
+import io.xj.core.util.Value;
 import io.xj.music.Key;
 import io.xj.music.PitchClass;
 
@@ -80,7 +81,7 @@ public class ChordNode {
    @param descriptor to reverse engineer into a chord descriptor unit
    */
   ChordNode(CharSequence descriptor) {
-    List<String> pieces = Splitter.on(Chord.SEPARATOR_DESCRIPTOR_UNIT).splitToList(descriptor);
+    List<String> pieces = Splitter.on(Value.CHORD_SEPARATOR_DESCRIPTOR_UNIT).splitToList(descriptor);
     if (2 == pieces.size()) {
       delta = Integer.valueOf(pieces.get(0));
       form = formOf(pieces.get(1));
@@ -215,11 +216,11 @@ public class ChordNode {
   @Override
   public String toString() {
     if (Objects.nonNull(delta) && Objects.nonNull(form))
-      return String.format("%d%s%s", delta, Chord.SEPARATOR_DESCRIPTOR_UNIT, form);
+      return String.format("%d%s%s", delta, Value.CHORD_SEPARATOR_DESCRIPTOR_UNIT, form);
     else if (Objects.nonNull(form))
       return form;
     else
-      return Chord.MARKER_NON_CHORD;
+      return Value.CHORD_MARKER_NON_CHORD;
   }
 
   /**

@@ -1,8 +1,9 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.model.instrument;
 
-import io.xj.core.exception.BusinessException;
+import io.xj.core.exception.CoreException;
 import io.xj.core.model.entity.Entity;
+import io.xj.core.model.entity.impl.EntityImpl;
 
 import java.math.BigInteger;
 import java.util.Objects;
@@ -17,7 +18,7 @@ import java.util.Objects;
  <p>
  NOTE: There can only be ONE of any getter/setter (with the same # of input params)
  */
-public class Instrument extends Entity {
+public class Instrument extends EntityImpl {
   public static final String KEY_ONE = "instrument";
   public static final String KEY_MANY = "instruments";
 
@@ -94,25 +95,25 @@ public class Instrument extends Entity {
   }
 
   @Override
-  public void validate() throws BusinessException {
-    // throws its own BusinessException on failure
+  public void validate() throws CoreException {
+    // throws its own CoreException on failure
     if (Objects.isNull(type))
       type = InstrumentType.validate(_type);
 
     if (Objects.isNull(libraryId))
-      throw new BusinessException("Library ID is required.");
+      throw new CoreException("Library ID is required.");
 
     if (Objects.isNull(userId))
-      throw new BusinessException("User ID is required.");
+      throw new CoreException("User ID is required.");
 
     if (Objects.isNull(type))
-      throw new BusinessException("Type is required.");
+      throw new CoreException("Type is required.");
 
     if (Objects.isNull(description) || description.isEmpty())
-      throw new BusinessException("Description is required.");
+      throw new CoreException("Description is required.");
 
     if (Objects.isNull(density))
-      throw new BusinessException("Density is required.");
+      throw new CoreException("Density is required.");
 
   }
 

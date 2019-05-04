@@ -1,16 +1,11 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.model.chain;
 
-import io.xj.core.exception.BusinessException;
-import io.xj.core.model.entity.EntityWrapper;
-
 /**
  Wrapper for use as POJO for decoding messages received by JAX-RS resources
  a.k.a. JSON input will be stored into an entity inside this object
  */
-public class ChainWrapper extends EntityWrapper {
-
-  // Chain
+public class ChainWrapper {
   private Chain chain;
 
   public Chain getChain() {
@@ -21,19 +16,4 @@ public class ChainWrapper extends EntityWrapper {
     this.chain = chain;
     return this;
   }
-
-  /**
-   Validate data.
-
-   @throws BusinessException if invalid.
-   */
-  @Override
-  public Chain validate() throws BusinessException {
-    if (this.chain == null) {
-      throw new BusinessException("Chain is required.");
-    }
-    this.chain.validate();
-    return this.chain;
-  }
-
 }

@@ -4,8 +4,8 @@ package io.xj.core.dao.impl;
 import io.xj.core.Tables;
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.ChainSequenceDAO;
-import io.xj.core.exception.BusinessException;
-import io.xj.core.exception.ConfigException;
+import io.xj.core.exception.CoreException;
+import io.xj.core.exception.CoreException;
 import io.xj.core.model.chain_sequence.ChainSequence;
 import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import io.xj.core.persistence.sql.impl.SQLConnection;
@@ -41,11 +41,11 @@ public class ChainSequenceDAOImpl extends DAOImpl implements ChainSequenceDAO {
    @param db     context
    @param entity for new ChainSequence
    @return new record
-   @throws Exception         if database failure
-   @throws ConfigException   if not configured properly
-   @throws BusinessException if fails business rule
+   @throws CoreException         if database failure
+   @throws CoreException   if not configured properly
+   @throws CoreException if fails business rule
    */
-  private static ChainSequence create(DSLContext db, Access access, ChainSequence entity) throws Exception {
+  private static ChainSequence create(DSLContext db, Access access, ChainSequence entity) throws CoreException {
     entity.validate();
 
     Map<Field, Object> fieldValues = fieldValueMap(entity);
@@ -73,7 +73,7 @@ public class ChainSequenceDAOImpl extends DAOImpl implements ChainSequenceDAO {
       .where(CHAIN_SEQUENCE.CHAIN_ID.eq(ULong.valueOf(entity.getChainId())))
       .and(CHAIN_SEQUENCE.SEQUENCE_ID.eq(ULong.valueOf(entity.getSequenceId())))
       .fetchOne())
-      throw new BusinessException("Sequence already added to Chain!");
+      throw new CoreException("Sequence already added to Chain!");
 
     return modelFrom(executeCreate(db, CHAIN_SEQUENCE, fieldValues), ChainSequence.class);
   }
@@ -86,7 +86,7 @@ public class ChainSequenceDAOImpl extends DAOImpl implements ChainSequenceDAO {
    @param id     of record
    @return record
    */
-  private static ChainSequence readOne(DSLContext db, Access access, ULong id) throws BusinessException {
+  private static ChainSequence readOne(DSLContext db, Access access, ULong id) throws CoreException {
     if (access.isTopLevel())
       return modelFrom(db.selectFrom(CHAIN_SEQUENCE)
         .where(CHAIN_SEQUENCE.ID.eq(id))
@@ -108,7 +108,7 @@ public class ChainSequenceDAOImpl extends DAOImpl implements ChainSequenceDAO {
    @param chainId of parent
    @return array of child records
    */
-  private static Collection<ChainSequence> readAll(DSLContext db, Access access, Collection<ULong> chainId) throws BusinessException {
+  private static Collection<ChainSequence> readAll(DSLContext db, Access access, Collection<ULong> chainId) throws CoreException {
     if (access.isTopLevel())
       return modelsFrom(db.selectFrom(CHAIN_SEQUENCE)
         .where(CHAIN_SEQUENCE.CHAIN_ID.in(chainId))
@@ -128,9 +128,9 @@ public class ChainSequenceDAOImpl extends DAOImpl implements ChainSequenceDAO {
    @param db     context
    @param access control
    @param id     of record
-   @throws BusinessException on failure
+   @throws CoreException on failure
    */
-  private static void delete(DSLContext db, Access access, ULong id) throws BusinessException {
+  private static void delete(DSLContext db, Access access, ULong id) throws CoreException {
     if (access.isTopLevel())
       requireExists("Chain Sequence", db.selectCount().from(CHAIN_SEQUENCE)
         .where(CHAIN_SEQUENCE.ID.eq(id))
@@ -163,47 +163,47 @@ public class ChainSequenceDAOImpl extends DAOImpl implements ChainSequenceDAO {
   }
 
   @Override
-  public ChainSequence create(Access access, ChainSequence entity) throws Exception {
+  public ChainSequence create(Access access, ChainSequence entity) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(create(tx.getContext(), access, entity));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public ChainSequence readOne(Access access, BigInteger id) throws Exception {
+  public ChainSequence readOne(Access access, BigInteger id) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readOne(tx.getContext(), access, ULong.valueOf(id)));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public Collection<ChainSequence> readAll(Access access, Collection<BigInteger> parentIds) throws Exception {
+  public Collection<ChainSequence> readAll(Access access, Collection<BigInteger> parentIds) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readAll(tx.getContext(), access, uLongValuesOf(parentIds)));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public void update(Access access, BigInteger id, ChainSequence entity) throws Exception {
-    throw new BusinessException("Not allowed to update ChainSequence record.");
+  public void update(Access access, BigInteger id, ChainSequence entity) throws CoreException {
+    throw new CoreException("Not allowed to update ChainSequence record.");
   }
 
   @Override
-  public void destroy(Access access, BigInteger id) throws Exception {
+  public void destroy(Access access, BigInteger id) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       delete(tx.getContext(), access, ULong.valueOf(id));
       tx.success();
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }

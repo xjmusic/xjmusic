@@ -19,19 +19,14 @@ OUTPUT_SQL="${6}"
 
 #
 EXCLUDED_TABLES=(
-arrangement
 chain
 chain_config
 chain_instrument
 chain_library
 chain_sequence
-choice
 platform_message
 schema_version
 segment
-segment_chord
-segment_meme
-segment_message
 )
 
 #

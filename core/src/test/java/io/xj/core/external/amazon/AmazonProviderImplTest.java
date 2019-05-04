@@ -2,7 +2,7 @@
 package io.xj.core.external.amazon;
 
 import io.xj.core.CoreModule;
-import io.xj.core.exception.ConfigException;
+import io.xj.core.exception.CoreException;
 import io.xj.core.access.token.TokenGenerator;
 
 import com.google.inject.AbstractModule;
@@ -23,7 +23,8 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AmazonProviderImplTest {
-  @Mock private TokenGenerator tokenGenerator;
+  @Mock
+  private TokenGenerator tokenGenerator;
   private Injector injector;
   private AmazonProvider amazonProvider;
 
@@ -58,7 +59,7 @@ public class AmazonProviderImplTest {
     assertNotNull(policy);
   }
 
-  @Test(expected=ConfigException.class)
+  @Test(expected = CoreException.class)
   public void generateUploadPolicy_failsWithoutConfigs() throws Exception {
     System.clearProperty("audio.file.upload.expire.minutes");
 

@@ -2,15 +2,17 @@
 @import "palette";
 
 .headline {
+  background: $dark-gray;
   color: whitesmoke;
   line-height: 1.3em;
+  padding-top:7px;
   h1 {
     margin-bottom:0.6rem;
   }
   .entity {
     text-transform: uppercase;
     font-size: 0.8em;
-    color: darken($gray, 20%);
+    color: darken($gray, 5%);
     strong {
       color: $gray;
     }

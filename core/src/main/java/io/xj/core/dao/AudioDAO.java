@@ -2,6 +2,7 @@
 package io.xj.core.dao;
 
 import io.xj.core.access.impl.Access;
+import io.xj.core.exception.CoreException;
 import io.xj.core.model.audio.Audio;
 import io.xj.core.model.audio.AudioState;
 
@@ -21,7 +22,7 @@ public interface AudioDAO extends DAO<Audio> {
    @param entity  for the new Audio
    @return newly readMany record
    */
-  Audio clone(Access access, BigInteger cloneId, Audio entity) throws Exception;
+  Audio clone(Access access, BigInteger cloneId, Audio entity) throws CoreException;
 
   /**
    Generate an Upload policy to upload the corresponding file to 3rd-party storage (e.g. Amazon S3)
@@ -29,10 +30,10 @@ public interface AudioDAO extends DAO<Audio> {
    @param access control
    @param id     of audio
    @return retrieved record
-   @throws Exception on failure
+   @throws CoreException on failure
    */
   @Nullable
-  JSONObject authorizeUpload(Access access, BigInteger id) throws Exception;
+  JSONObject authorizeUpload(Access access, BigInteger id) throws CoreException;
 
   /**
    Fetch all Audio in a certain state
@@ -41,9 +42,9 @@ public interface AudioDAO extends DAO<Audio> {
    @param access control
    @param state  to get audios in
    @return Result of audio records.
-   @throws Exception on failure
+   @throws CoreException on failure
    */
-  Collection<Audio> readAllInState(Access access, AudioState state) throws Exception;
+  Collection<Audio> readAllInState(Access access, AudioState state) throws CoreException;
 
   /**
    Erase a specified Audio if accessible
@@ -51,5 +52,5 @@ public interface AudioDAO extends DAO<Audio> {
    @param access control
    @param id     of specific audio to erase.
    */
-  void erase(Access access, BigInteger id) throws Exception;
+  void erase(Access access, BigInteger id) throws CoreException;
 }

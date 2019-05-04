@@ -1,7 +1,7 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.model.segment_message;
 
-import io.xj.core.exception.BusinessException;
+import io.xj.core.exception.CoreException;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -11,7 +11,8 @@ import java.math.BigInteger;
 
 public class SegmentMessageTest {
 
-  @Rule public ExpectedException failure = ExpectedException.none();
+  @Rule
+  public ExpectedException failure = ExpectedException.none();
 
   @Test
   public void validate() throws Exception {
@@ -24,7 +25,7 @@ public class SegmentMessageTest {
 
   @Test
   public void validate_failsWithoutSegmentID() throws Exception {
-    failure.expect(BusinessException.class);
+    failure.expect(CoreException.class);
     failure.expectMessage("Segment ID is required");
 
     new SegmentMessage()
@@ -35,7 +36,7 @@ public class SegmentMessageTest {
 
   @Test
   public void validate_failsWithoutType() throws Exception {
-    failure.expect(BusinessException.class);
+    failure.expect(CoreException.class);
     failure.expectMessage("Type is required");
 
     new SegmentMessage()
@@ -46,7 +47,7 @@ public class SegmentMessageTest {
 
   @Test
   public void validate_failsWithInvalidType() throws Exception {
-    failure.expect(BusinessException.class);
+    failure.expect(CoreException.class);
     failure.expectMessage("not a valid type");
 
     new SegmentMessage()
@@ -58,7 +59,7 @@ public class SegmentMessageTest {
 
   @Test
   public void validate_failsWithoutBody() throws Exception {
-    failure.expect(BusinessException.class);
+    failure.expect(CoreException.class);
     failure.expectMessage("Body is required");
 
     new SegmentMessage()

@@ -12,8 +12,8 @@ import io.xj.craft.digest.chord_markov.DigestChordMarkov;
 import io.xj.craft.digest.chord_progression.DigestChordProgression;
 import io.xj.craft.digest.hash.DigestHash;
 import io.xj.craft.digest.meme.DigestMeme;
-import io.xj.craft.digest.sequence_style.DigestSequenceStyle;
-import io.xj.craft.ingest.Ingest;
+import io.xj.craft.digest.pattern_style.DigestSequenceStyle;
+import io.xj.core.ingest.Ingest;
 
 import java.util.concurrent.TimeUnit;
 

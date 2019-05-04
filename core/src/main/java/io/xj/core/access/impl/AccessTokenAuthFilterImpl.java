@@ -9,7 +9,7 @@ import io.xj.core.config.Config;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
-import io.xj.core.exception.BusinessException;
+import io.xj.core.exception.CoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +48,7 @@ public class AccessTokenAuthFilterImpl implements AccessTokenAuthFilter {
     try {
       String errorMessage = authenticate(requestContext);
       if (Objects.nonNull(errorMessage)) {
-        deny(requestContext, new BusinessException(errorMessage));
+        deny(requestContext, new CoreException(errorMessage));
       }
     } catch (Exception e) {
       fail(requestContext, e);

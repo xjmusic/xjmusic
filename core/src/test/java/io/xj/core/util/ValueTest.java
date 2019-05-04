@@ -4,7 +4,9 @@ package io.xj.core.util;// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 
+import org.jooq.types.ULong;
 import org.junit.Test;
+import org.omg.CORBA.ULongLongSeqHelper;
 
 import java.math.BigInteger;
 
@@ -47,8 +49,8 @@ public class ValueTest {
 
   @Test
   public void ratio() {
-    assertEquals(0.0, Value.ratio(0.0,  5.0), 0.01);
-    assertEquals(0.6, Value.ratio(3.0,  5.0),0.01);
+    assertEquals(0.0, Value.ratio(0.0, 5.0), 0.01);
+    assertEquals(0.6, Value.ratio(3.0, 5.0), 0.01);
   }
 
   @Test
@@ -58,4 +60,17 @@ public class ValueTest {
     assertFalse(Value.isGreaterThanOrEqualToZero(BigInteger.valueOf(-5)));
   }
 
+  @Test
+  public void safeULong() {
+    assertEquals(ULong.valueOf(0), Value.safeULong(BigInteger.valueOf(-1)));
+    assertEquals(ULong.valueOf(0), Value.safeULong(BigInteger.valueOf(0)));
+    assertEquals(ULong.valueOf(1), Value.safeULong(BigInteger.valueOf(1)));
+  }
+
+  @Test
+  public void isNegative() {
+    assertTrue(Value.isNegative(BigInteger.valueOf(-1)));
+    assertFalse(Value.isNegative(BigInteger.valueOf(0)));
+    assertFalse(Value.isNegative(BigInteger.valueOf(1)));
+  }
 }

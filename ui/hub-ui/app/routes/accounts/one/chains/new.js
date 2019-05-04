@@ -54,9 +54,10 @@ export default Route.extend({
 
     createChain(model) {
       model.save().then(
-        () => {
-          get(this, 'display').success('Created chain ' + model.get('name') + '.');
-          this.transitionTo('accounts.one.chains.one', model);
+        (data) => {
+          console.error("data=", data, "data.get('id')=", data.get("id")); // TODO
+          get(this, 'display').success('Created chain ' + data.get('name') + '.');
+          this.transitionTo('accounts.one.chains.one', data);
         },
         (error) => {
           get(this, 'display').error(error);

@@ -1,7 +1,7 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.model.work;
 
-import io.xj.core.exception.BusinessException;
+import io.xj.core.exception.CoreException;
 import io.xj.core.transport.CSV;
 import io.xj.core.util.Text;
 
@@ -34,16 +34,16 @@ public enum WorkType {
 
    @param value to cast to enum
    @return enum
-   @throws BusinessException on failure
+   @throws CoreException on failure
    */
-  public static WorkType validate(String value) throws BusinessException {
+  public static WorkType validate(String value) throws CoreException {
     if (Objects.isNull(value))
-      throw new BusinessException("Type is required (" + CSV.joinEnum(values()) + ").");
+      throw new CoreException("Type is required (" + CSV.joinEnum(values()) + ").");
 
     try {
       return valueOf(value);
     } catch (Exception e) {
-      throw new BusinessException("'" + value + "' is not a valid type (" + CSV.joinEnum(values()) + ").", e);
+      throw new CoreException("'" + value + "' is not a valid type (" + CSV.joinEnum(values()) + ").", e);
     }
   }
 }

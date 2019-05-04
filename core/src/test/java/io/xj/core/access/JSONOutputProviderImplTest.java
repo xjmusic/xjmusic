@@ -38,9 +38,12 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class JSONOutputProviderImplTest {
-  @Mock TokenGenerator tokenGenerator;
-  @Mock RedisDatabaseProvider redisDatabaseProvider;
-  @Mock private Jedis redisClient;
+  @Mock
+  TokenGenerator tokenGenerator;
+  @Mock
+  RedisDatabaseProvider redisDatabaseProvider;
+  @Mock
+  private Jedis redisClient;
   private Injector injector;
   private AccessControlProvider accessControlProvider;
   private UserAuth userAuth;

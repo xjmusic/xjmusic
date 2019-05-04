@@ -3,8 +3,8 @@ package io.xj.core.dao.impl;
 
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.ChainInstrumentDAO;
-import io.xj.core.exception.BusinessException;
-import io.xj.core.exception.ConfigException;
+import io.xj.core.exception.CoreException;
+import io.xj.core.exception.CoreException;
 import io.xj.core.model.chain_instrument.ChainInstrument;
 import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import io.xj.core.persistence.sql.impl.SQLConnection;
@@ -40,11 +40,11 @@ public class ChainInstrumentDAOImpl extends DAOImpl implements ChainInstrumentDA
    @param db     context
    @param entity for new ChainInstrument
    @return new record
-   @throws Exception         if database failure
-   @throws ConfigException   if not configured properly
-   @throws BusinessException if fails business rule
+   @throws CoreException         if database failure
+   @throws CoreException   if not configured properly
+   @throws CoreException if fails business rule
    */
-  private static ChainInstrument create(DSLContext db, Access access, ChainInstrument entity) throws Exception {
+  private static ChainInstrument create(DSLContext db, Access access, ChainInstrument entity) throws CoreException {
     entity.validate();
 
     Map<Field, Object> fieldValues = fieldValueMap(entity);
@@ -72,7 +72,7 @@ public class ChainInstrumentDAOImpl extends DAOImpl implements ChainInstrumentDA
       .where(CHAIN_INSTRUMENT.CHAIN_ID.eq(ULong.valueOf(entity.getChainId())))
       .and(CHAIN_INSTRUMENT.INSTRUMENT_ID.eq(ULong.valueOf(entity.getInstrumentId())))
       .fetchOne())
-      throw new BusinessException("Instrument already added to Chain!");
+      throw new CoreException("Instrument already added to Chain!");
 
     return modelFrom(executeCreate(db, CHAIN_INSTRUMENT, fieldValues), ChainInstrument.class);
   }
@@ -85,7 +85,7 @@ public class ChainInstrumentDAOImpl extends DAOImpl implements ChainInstrumentDA
    @param id     of record
    @return record
    */
-  private static ChainInstrument readOne(DSLContext db, Access access, ULong id) throws BusinessException {
+  private static ChainInstrument readOne(DSLContext db, Access access, ULong id) throws CoreException {
     if (access.isTopLevel())
       return modelFrom(db.selectFrom(CHAIN_INSTRUMENT)
         .where(CHAIN_INSTRUMENT.ID.eq(id))
@@ -107,7 +107,7 @@ public class ChainInstrumentDAOImpl extends DAOImpl implements ChainInstrumentDA
    @param chainId of parent
    @return array of child records
    */
-  private static Collection<ChainInstrument> readAll(DSLContext db, Access access, Collection<ULong> chainId) throws BusinessException {
+  private static Collection<ChainInstrument> readAll(DSLContext db, Access access, Collection<ULong> chainId) throws CoreException {
     if (access.isTopLevel())
       return modelsFrom(db.selectFrom(CHAIN_INSTRUMENT)
         .where(CHAIN_INSTRUMENT.CHAIN_ID.in(chainId))
@@ -127,9 +127,9 @@ public class ChainInstrumentDAOImpl extends DAOImpl implements ChainInstrumentDA
    @param db     context
    @param access control
    @param id     of record
-   @throws BusinessException on failure
+   @throws CoreException on failure
    */
-  private static void delete(DSLContext db, Access access, ULong id) throws BusinessException {
+  private static void delete(DSLContext db, Access access, ULong id) throws CoreException {
     if (access.isTopLevel())
       requireExists("Chain Instrument", db.selectCount().from(CHAIN_INSTRUMENT)
         .where(CHAIN_INSTRUMENT.ID.eq(id))
@@ -162,47 +162,47 @@ public class ChainInstrumentDAOImpl extends DAOImpl implements ChainInstrumentDA
   }
 
   @Override
-  public ChainInstrument create(Access access, ChainInstrument entity) throws Exception {
+  public ChainInstrument create(Access access, ChainInstrument entity) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(create(tx.getContext(), access, entity));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public ChainInstrument readOne(Access access, BigInteger id) throws Exception {
+  public ChainInstrument readOne(Access access, BigInteger id) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readOne(tx.getContext(), access, ULong.valueOf(id)));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public Collection<ChainInstrument> readAll(Access access, Collection<BigInteger> parentIds) throws Exception {
+  public Collection<ChainInstrument> readAll(Access access, Collection<BigInteger> parentIds) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readAll(tx.getContext(), access, uLongValuesOf(parentIds)));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public void update(Access access, BigInteger id, ChainInstrument entity) throws Exception {
-    throw new BusinessException("Not allowed to update ChainInstrument record.");
+  public void update(Access access, BigInteger id, ChainInstrument entity) throws CoreException {
+    throw new CoreException("Not allowed to update ChainInstrument record.");
   }
 
   @Override
-  public void destroy(Access access, BigInteger id) throws Exception {
+  public void destroy(Access access, BigInteger id) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       delete(tx.getContext(), access, ULong.valueOf(id));
       tx.success();
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }

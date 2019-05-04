@@ -62,16 +62,26 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class WorkManagerImplTest {
   private WorkManager subject;
-  @Mock private ChainDAO chainDAO;
-  @Mock private AudioDAO audioDAO;
-  @Mock private RedisDatabaseProvider redisDatabaseProvider;
-  @Mock private Client queueClient;
-  @Mock private JobFactory jobFactory;
-  @Mock private Worker worker;
-  @Mock private Jedis redisConnection;
-  @Mock private PlatformMessageDAO platformMessageDAO;
-  @Mock private SequenceDAO sequenceDAO;
-  @Mock private PatternDAO patternDAO;
+  @Mock
+  private ChainDAO chainDAO;
+  @Mock
+  private AudioDAO audioDAO;
+  @Mock
+  private RedisDatabaseProvider redisDatabaseProvider;
+  @Mock
+  private Client queueClient;
+  @Mock
+  private JobFactory jobFactory;
+  @Mock
+  private Worker worker;
+  @Mock
+  private Jedis redisConnection;
+  @Mock
+  private PlatformMessageDAO platformMessageDAO;
+  @Mock
+  private SequenceDAO sequenceDAO;
+  @Mock
+  private PatternDAO patternDAO;
 
   @Before
   public void setUp() throws Exception {

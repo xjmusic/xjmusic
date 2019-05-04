@@ -8,6 +8,7 @@ import com.google.common.collect.Maps;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import io.xj.core.CoreModule;
+import io.xj.core.exception.CoreException;
 import io.xj.core.model.account.Account;
 import io.xj.core.model.account_user.AccountUser;
 import io.xj.core.model.user.User;
@@ -217,6 +218,7 @@ public class Access {
    @return whether user access roles match resource access roles.
    */
   public <T> boolean isAllowed(T... matchRoles) {
+    // YES there may be heap pollution. FUTURE: better Java programmer figure out better solution :)
     return Arrays.stream(matchRoles).anyMatch(matchRole -> roleTypes.stream().anyMatch(userRoleType -> userRoleType == UserRoleType.valueOf(matchRole.toString())));
   }
 
@@ -225,8 +227,8 @@ public class Access {
 
    @return id
    */
-  @Nullable
-  public BigInteger getUserId() {
+  public BigInteger getUserId() throws CoreException {
+    if (Objects.isNull(userId)) throw new CoreException("Access has no user");
     return userId;
   }
 

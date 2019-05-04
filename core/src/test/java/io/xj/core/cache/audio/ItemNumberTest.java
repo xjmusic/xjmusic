@@ -22,9 +22,9 @@ public class ItemNumberTest {
 
   @Test
   public void next() throws Exception {
-    assertThat( ItemNumber.next(), is(1));
-    assertThat( ItemNumber.next(), is(2));
-    assertThat( ItemNumber.next(), is(3));
+    assertThat(ItemNumber.next(), is(1));
+    assertThat(ItemNumber.next(), is(2));
+    assertThat(ItemNumber.next(), is(3));
   }
 
 }

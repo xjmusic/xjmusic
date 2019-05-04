@@ -1,11 +1,14 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.model.pick;
 
-import io.xj.core.exception.BusinessException;
-import io.xj.core.model.entity.Entity;
-import org.json.JSONObject;
+import com.google.common.collect.Lists;
+import io.xj.core.exception.CoreException;
+import io.xj.core.model.segment.Segment;
+import io.xj.core.model.segment.SegmentEntity;
 
 import java.math.BigInteger;
+import java.util.Collection;
+import java.util.UUID;
 
 /**
  POJO for persisting data in memory while performing business logic,
@@ -17,18 +20,11 @@ import java.math.BigInteger;
  <p>
  NOTE: There can only be ONE of any getter/setter (with the same # of input params)
  */
-public class Pick extends Entity {
-  public static final String KEY_ONE = "pick";
-  public static final String KEY_MANY = "picks";
-  public static final String KEY_ARRANGEMENT_ID = "arrangementId";
-  public static final String KEY_AUDIO_ID = "audioId";
-  public static final String KEY_PATTERN_EVENT_ID = "patternEventId";
-  public static final String KEY_START = "start";
-  public static final String KEY_LENGTH = "length";
-  public static final String KEY_AMPLITUDE = "amplitude";
-  public static final String KEY_PITCH = "pitch";
-  public static final String KEY_INFLECTION = "inflection";
-  private BigInteger arrangementId;
+public class Pick extends SegmentEntity {
+  private static final Double LENGTH_MINIMUM = 0.01;
+  private static final Double AMPLITUDE_MINIMUM = 0.01;
+  private static final Double PITCH_MINIMUM = 1.0;
+  private UUID arrangementUuid;
   private BigInteger audioId;
   private BigInteger patternEventId;
   private Double start;
@@ -38,12 +34,18 @@ public class Pick extends Entity {
   private String inflection;
   private BigInteger voiceId;
 
-  public BigInteger getArrangementId() {
-    return arrangementId;
+  public static Collection<Pick> aggregate(Collection<Segment> segments) {
+    Collection<Pick> aggregate = Lists.newArrayList();
+    segments.forEach(segment -> aggregate.addAll(segment.getPicks()));
+    return aggregate;
   }
 
-  public Pick setArrangementId(BigInteger arrangementId) {
-    this.arrangementId = arrangementId;
+  public UUID getArrangementUuid() {
+    return arrangementUuid;
+  }
+
+  public Pick setArrangementUuid(UUID arrangementUuid) {
+    this.arrangementUuid = arrangementUuid;
     return this;
   }
 
@@ -64,7 +66,6 @@ public class Pick extends Entity {
   public Double getStart() {
     return start;
   }
-
 
   public Pick setStart(Double start) {
     this.start = start;
@@ -104,35 +105,47 @@ public class Pick extends Entity {
   }
 
   @Override
-  public BigInteger getParentId() {
-    return arrangementId;
+  public Pick setUuid(UUID uuid) {
+    this.uuid = uuid;
+    return this;
   }
 
   @Override
-  public void validate() throws BusinessException {
-    if (null == arrangementId) {
-      throw new BusinessException("Arrangement ID is required.");
+  public void validate() throws CoreException {
+    super.validate();
+
+    if (null == arrangementUuid) {
+      throw new CoreException("Arrangement ID is required.");
     }
     if (null == patternEventId) {
-      throw new BusinessException("Pattern Event ID is required.");
+      throw new CoreException("Pattern Event ID is required.");
     }
     if (null == audioId) {
-      throw new BusinessException("Audio ID is required.");
+      throw new CoreException("Audio ID is required.");
     }
     if (null == voiceId) {
-      throw new BusinessException("Voice ID is required.");
+      throw new CoreException("Voice ID is required.");
     }
     if (null == start) {
-      throw new BusinessException("Start is required.");
+      throw new CoreException("Start is required.");
     }
-    if (null == length || (double) 0 == length) {
-      throw new BusinessException("Length is required.");
+    if (null == length) {
+      throw new CoreException("Length is required.");
     }
-    if (null == amplitude || (double) 0 == amplitude) {
-      throw new BusinessException("Amplitude is required.");
+    if (0 >= length) {
+      length = LENGTH_MINIMUM;
     }
-    if (null == pitch || (double) 0 == pitch) {
-      throw new BusinessException("Pitch is required.");
+    if (null == amplitude) {
+      throw new CoreException("Amplitude is required.");
+    }
+    if (0 >= amplitude) {
+      amplitude = AMPLITUDE_MINIMUM;
+    }
+    if (null == pitch) {
+      throw new CoreException("Pitch is required.");
+    }
+    if (0 >= pitch) {
+      pitch = PITCH_MINIMUM;
     }
   }
 

@@ -1,8 +1,8 @@
 //  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
-import $ from 'jquery';
+import fetch from 'fetch';
 
-import { run } from '@ember/runloop';
-import { Promise as EmberPromise, resolve } from 'rsvp';
+import {run} from '@ember/runloop';
+import {Promise as EmberPromise, resolve} from 'rsvp';
 import Base from "ember-simple-auth/authenticators/base";
 
 /**
@@ -36,7 +36,7 @@ export default Base.extend({
 
    @method restore
    @param {Object} properties The properties to restore the session from
-   @return {Ember.RSVP.Promise} A promise that when it resolves results in the session being authenticated
+   @return {Promise} A promise that when it resolves results in the session being authenticated
    */
   restore(properties) {
     return properties;
@@ -48,7 +48,7 @@ export default Base.extend({
    for this access token, if valid.
 
    @method authenticate
-   @return {Ember.RSVP.Promise} A promise that resolves when an auth token is successfully acquired from the server and rejects otherwise
+   @return {Promise} A promise that resolves when an auth token is successfully acquired from the server and rejects otherwise
    */
   authenticate(/*data*/) {
     // console.log("authenticators/xj authenticate(...)", data);
@@ -58,7 +58,9 @@ export default Base.extend({
           resolve(this.getResponseData(response));
         });
       }, xhr => {
-        run(() => { reject(xhr.responseJSON || xhr.responseText); });
+        run(() => {
+          reject(xhr.responseJSON || xhr.responseText);
+        });
       });
     });
   },
@@ -79,7 +81,7 @@ export default Base.extend({
    Does nothing
 
    @method invalidate
-   @return {Ember.RSVP.Promise} A resolving promise
+   @returns {Promise}
    */
   invalidate() {
     return resolve();
@@ -88,14 +90,19 @@ export default Base.extend({
   /**
    @method makeRequest; access_token implied by browser cookie
    @private
+   @returns {Promise}
    */
   makeRequest() {
-    return $.ajax({
-      url: this.serverTokenEndpoint,
+    return fetch(this.serverTokenEndpoint, {
+      headers: {
+        'Content-Type': 'application/json'
+      },
       method: 'GET',
       xhrFields: {
         withCredentials: true
       }
+    }).then(function (response) {
+      return response.json();
     });
   }
 });

@@ -1,33 +1,35 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.model.meme;
 
-import io.xj.core.exception.BusinessException;
-import io.xj.core.model.entity.Entity;
+import io.xj.core.exception.CoreException;
 
 /**
  This represents common properties of all memes,
  although a Meme only actually exists as a Segment Meme, Sequence Meme, etc.
  */
-public abstract class Meme extends Entity {
-  public static final String KEY_ONE = "meme";
-  public static final String KEY_MANY = "memes";
+public interface Meme<N> {
+  String KEY_ONE = "meme";
+  String KEY_MANY = "memes";
 
-  public String getName() {
-    return name;
-  }
+  /**
+   Get Meme name
 
-  protected String name;
+   @return name
+   */
+  String getName();
 
-  public Meme setName(String name) {
-    this.name = name;
-    return this;
-  }
+  /**
+   Set meme name
 
-  @Override
-  public void validate() throws BusinessException {
-    if (null == name) {
-      throw new BusinessException("Name is required.");
-    }
-  }
+   @param name to set
+   @return this (for chaining setters)
+   */
+  N setName(String name);
 
+  /**
+   Validate the meme
+
+   @throws CoreException if invalid
+   */
+  void validate() throws CoreException;
 }

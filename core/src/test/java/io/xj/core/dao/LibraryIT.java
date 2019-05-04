@@ -1,26 +1,23 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.dao;
 
-import io.xj.core.CoreModule;
-import io.xj.core.access.impl.Access;
-import io.xj.core.exception.BusinessException;
-import io.xj.core.integration.IntegrationTestEntity;
-import io.xj.core.model.library.Library;
-import io.xj.core.model.sequence.SequenceState;
-import io.xj.core.model.sequence.SequenceType;
-import io.xj.core.transport.JSON;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-
+import io.xj.core.CoreModule;
+import io.xj.core.access.impl.Access;
+import io.xj.core.exception.CoreException;
+import io.xj.core.integration.IntegrationTestEntity;
+import io.xj.core.model.library.Library;
+import io.xj.core.model.sequence.SequenceState;
+import io.xj.core.model.sequence.SequenceType;
 import org.assertj.core.util.Lists;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.math.BigInteger;
 import java.util.Collection;
@@ -28,10 +25,11 @@ import java.util.Iterator;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 
 public class LibraryIT {
   private final Injector injector = Guice.createInjector(new CoreModule());
+  @Rule
+  public ExpectedException failure = ExpectedException.none();
   private LibraryDAO testDAO;
 
   @Before
@@ -50,11 +48,6 @@ public class LibraryIT {
 
     // Instantiate the test subject
     testDAO = injector.getInstance(LibraryDAO.class);
-  }
-
-  @After
-  public void tearDown() throws Exception {
-    testDAO = null;
   }
 
   @Test
@@ -96,7 +89,7 @@ public class LibraryIT {
   /**
    [#155089641] Engineer expects to be able to create and update a Library.
    */
-  @Test(expected = BusinessException.class)
+  @Test(expected = CoreException.class)
   public void create_asEngineer_failsWithoutAccountAccess() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "Engineer",
@@ -109,7 +102,7 @@ public class LibraryIT {
     testDAO.create(access, inputData);
   }
 
-  @Test(expected = BusinessException.class)
+  @Test(expected = CoreException.class)
   public void create_FailsWithoutAccountID() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
@@ -141,10 +134,10 @@ public class LibraryIT {
       "roles", "User",
       "accounts", "326"
     ));
+    failure.expect(CoreException.class);
+    failure.expectMessage("does not exist");
 
-    Library result = testDAO.readOne(access, BigInteger.valueOf(1L));
-
-    assertNull(result);
+    testDAO.readOne(access, BigInteger.valueOf(1L));
   }
 
   @Test
@@ -154,14 +147,12 @@ public class LibraryIT {
       "accounts", "1"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1L))));
+    Collection<Library> result = testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1L)));
 
-    assertNotNull(result);
-    assertEquals(2L, (long) result.length());
-    JSONObject result1 = (JSONObject) result.get(0);
-    assertEquals("leaves", result1.get("name"));
-    JSONObject result2 = (JSONObject) result.get(1);
-    assertEquals("coconuts", result2.get("name"));
+    assertEquals(2L, result.size());
+    Iterator<Library> resultIt = result.iterator();
+    assertEquals("leaves", resultIt.next().getName());
+    assertEquals("coconuts", resultIt.next().getName());
   }
 
   @Test
@@ -173,7 +164,7 @@ public class LibraryIT {
 
     Collection<Library> result = testDAO.readAll(access, Lists.newArrayList());
 
-    assertEquals(4L, (long) result.size());
+    assertEquals(4L, result.size());
     Iterator<Library> it = result.iterator();
     assertEquals("leaves", it.next().getName());
     assertEquals("coconuts", it.next().getName());
@@ -188,13 +179,12 @@ public class LibraryIT {
       "accounts", "345"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1L))));
+    Collection<Library> result = testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1L)));
 
-    assertNotNull(result);
-    assertEquals(0L, (long) result.length());
+    assertEquals(0L, result.size());
   }
 
-  @Test(expected = BusinessException.class)
+  @Test(expected = CoreException.class)
   public void update_FailsWithoutAccountID() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
@@ -205,7 +195,7 @@ public class LibraryIT {
     testDAO.update(access, BigInteger.valueOf(3L), inputData);
   }
 
-  @Test(expected = BusinessException.class)
+  @Test(expected = CoreException.class)
   public void update_FailsWithoutName() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
@@ -240,7 +230,7 @@ public class LibraryIT {
   public void update_asEngineer() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "Engineer",
-      "accounts","1"
+      "accounts", "1"
     ));
     Library inputData = new Library()
       .setName("cannons")
@@ -257,11 +247,11 @@ public class LibraryIT {
   /**
    [#155089641] Engineer expects to be able to create and update a Library.
    */
-  @Test(expected = BusinessException.class)
+  @Test(expected = CoreException.class)
   public void update_asEngineer_failsWithoutAccountAccess() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "Engineer",
-      "accounts","12"
+      "accounts", "12"
     ));
     Library inputData = new Library()
       .setName("cannons")
@@ -270,7 +260,7 @@ public class LibraryIT {
     testDAO.update(access, BigInteger.valueOf(3L), inputData);
   }
 
-  @Test(expected = BusinessException.class)
+  @Test(expected = CoreException.class)
   public void update_FailsUpdatingToNonexistentAccount() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
@@ -333,11 +323,10 @@ public class LibraryIT {
 
     testDAO.destroy(access, BigInteger.valueOf(1L));
 
-    Library result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1L));
-    assertNull(result);
+    IntegrationTestEntity.assertNotExist(testDAO, BigInteger.valueOf(1L));
   }
 
-  @Test(expected = BusinessException.class)
+  @Test(expected = CoreException.class)
   public void delete_FailsIfLibraryHasChilds() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "Admin"

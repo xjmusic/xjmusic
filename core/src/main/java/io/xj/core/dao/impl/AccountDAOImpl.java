@@ -1,20 +1,17 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.dao.impl;
 
+import com.google.api.client.util.Maps;
+import com.google.inject.Inject;
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.AccountDAO;
-import io.xj.core.exception.BusinessException;
-import io.xj.core.exception.ConfigException;
+import io.xj.core.exception.CoreException;
 import io.xj.core.model.account.Account;
 import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import io.xj.core.persistence.sql.impl.SQLConnection;
-
 import org.jooq.DSLContext;
 import org.jooq.Field;
 import org.jooq.types.ULong;
-
-import com.google.api.client.util.Maps;
-import com.google.inject.Inject;
 
 import javax.annotation.Nullable;
 import java.math.BigInteger;
@@ -41,9 +38,9 @@ public class AccountDAOImpl extends DAOImpl implements AccountDAO {
    @param db     context
    @param entity for new record
    @return newly readMany record
-   @throws BusinessException if a business rule is violated
+   @throws CoreException if a business rule is violated
    */
-  private static Account create(DSLContext db, Access access, Account entity) throws BusinessException {
+  private static Account create(DSLContext db, Access access, Account entity) throws CoreException {
     entity.validate();
 
     Map<Field, Object> fieldValues = fieldMap(entity);
@@ -61,7 +58,7 @@ public class AccountDAOImpl extends DAOImpl implements AccountDAO {
    @param id     of record
    @return record
    */
-  private static Account readOne(DSLContext db, Access access, ULong id) throws BusinessException {
+  private static Account readOne(DSLContext db, Access access, ULong id) throws CoreException {
     if (access.isTopLevel())
       return modelFrom(db.selectFrom(ACCOUNT)
         .where(ACCOUNT.ID.eq(id))
@@ -81,7 +78,7 @@ public class AccountDAOImpl extends DAOImpl implements AccountDAO {
    @param access control
    @return array of records
    */
-  private static Collection<Account> readAll(DSLContext db, Access access) throws BusinessException {
+  private static Collection<Account> readAll(DSLContext db, Access access) throws CoreException {
     if (access.isTopLevel())
       return modelsFrom(db.selectFrom(ACCOUNT)
         .fetch(), Account.class);
@@ -98,9 +95,9 @@ public class AccountDAOImpl extends DAOImpl implements AccountDAO {
    @param access control
    @param id     of record to update
    @param entity to update record with
-   @throws BusinessException if a business rule is violated
+   @throws CoreException if a business rule is violated
    */
-  private static void update(DSLContext db, Access access, ULong id, Account entity) throws BusinessException {
+  private static void update(DSLContext db, Access access, ULong id, Account entity) throws CoreException {
     requireTopLevel(access);
 
     entity.validate();
@@ -109,7 +106,7 @@ public class AccountDAOImpl extends DAOImpl implements AccountDAO {
     fieldValues.put(ACCOUNT.ID, id);
 
     if (0 == executeUpdate(db, ACCOUNT, fieldValues))
-      throw new BusinessException("No records updated.");
+      throw new CoreException("No records updated.");
   }
 
   /**
@@ -117,11 +114,11 @@ public class AccountDAOImpl extends DAOImpl implements AccountDAO {
 
    @param db        context
    @param accountId to delete
-   @throws Exception         if database failure
-   @throws ConfigException   if not configured properly
-   @throws BusinessException if fails business rule
+   @throws CoreException if database failure
+   @throws CoreException if not configured properly
+   @throws CoreException if fails business rule
    */
-  private static void delete(DSLContext db, Access access, ULong accountId) throws Exception {
+  private static void delete(DSLContext db, Access access, ULong accountId) throws CoreException {
     requireTopLevel(access);
 
     requireNotExists("Library in Account", db.select(LIBRARY.ID)
@@ -170,55 +167,55 @@ public class AccountDAOImpl extends DAOImpl implements AccountDAO {
   }
 
   @Override
-  public Account create(Access access, Account entity) throws Exception {
+  public Account create(Access access, Account entity) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(create(tx.getContext(), access, entity));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
   @Nullable
-  public Account readOne(Access access, BigInteger id) throws Exception {
+  public Account readOne(Access access, BigInteger id) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readOne(tx.getContext(), access, ULong.valueOf(id)));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
   @Nullable
-  public Collection<Account> readAll(Access access, Collection<BigInteger> parentIds) throws Exception {
+  public Collection<Account> readAll(Access access, Collection<BigInteger> parentIds) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readAll(tx.getContext(), access));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public void update(Access access, BigInteger id, Account entity) throws Exception {
+  public void update(Access access, BigInteger id, Account entity) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       update(tx.getContext(), access, ULong.valueOf(id), entity);
       tx.success();
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public void destroy(Access access, BigInteger id) throws Exception {
+  public void destroy(Access access, BigInteger id) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       delete(tx.getContext(), access, ULong.valueOf(id));
       tx.success();
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }

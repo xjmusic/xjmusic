@@ -2,9 +2,12 @@
 
 package io.xj.core.timestamp;// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
+import io.xj.core.exception.CoreException;
 import io.xj.core.util.TimestampUTC;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -15,9 +18,11 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThan;
 
 public class TimestampUTCTest {
-  private Timestamp now;
   private static final Long MATCH_THRESHOLD_MILLIS = 100L;
   private static final Long MILLIS_PER_SECOND = 1000L;
+  @Rule
+  public ExpectedException failure = ExpectedException.none();
+  private Timestamp now;
 
   @Before
   public void setUp() throws Exception {
@@ -25,7 +30,7 @@ public class TimestampUTCTest {
   }
 
   @Test
-  public void now() throws Exception {
+  public void now() {
     Timestamp actual = TimestampUTC.now();
 
     assertThat("now",
@@ -34,7 +39,7 @@ public class TimestampUTCTest {
   }
 
   @Test
-  public void nowPlusSeconds() throws Exception {
+  public void nowPlusSeconds() {
     Timestamp actual = TimestampUTC.nowPlusSeconds(5L);
 
     assertThat("5 seconds from now",
@@ -43,7 +48,7 @@ public class TimestampUTCTest {
   }
 
   @Test
-  public void nowMinusSeconds() throws Exception {
+  public void nowMinusSeconds() {
     Timestamp actual = TimestampUTC.nowMinusSeconds(3L);
 
     assertThat("3 seconds ago",
@@ -60,8 +65,11 @@ public class TimestampUTCTest {
       is(Timestamp.valueOf("2014-08-12 12:17:02.527142")));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void valueOf_invalidTimestamp() throws Exception {
+    failure.expect(CoreException.class);
+    failure.expectMessage("Bad value for timestamp");
+
     TimestampUTC.valueOf("terrible sequence for a timestamp");
   }
 

@@ -2,6 +2,7 @@
 @import "palette";
 
 .table thead th {
+  color: $gray !important;
   border-top: 0 none;
 }
 
@@ -9,49 +10,83 @@ img.icon {
   width: 1em;
 }
 
+.table {
+  color: $gray !important;
+}
+
 .table-list {
-  table, tr, th, td, thead, tbody {
+  color: $gray !important;
+
+  tr {
+    background: lighten($body-background-color, 6%);
+  }
+
+  thead tr {
     background: transparent;
-  }
-
-  .item {
-  }
-
-  .table {
-    tr.item {
-      img.avatar {
-        width: 24px;
-        height: 24px;
-        border: 1px solid $low-gray;
-      }
-      border-top: 1px solid $gray;
-      &.now-playing {
-        border-top: 1px solid #00c000;
-      }
-    }
-    tr {
-      td, th {
-        border: 0 none;
-        div {
-          display: inline-block;
-        }
-      }
-    }
-  }
-
-  .begin-at {
-    opacity: 0.2;
   }
 }
 
+.segment-chords {
+  tr {
+    background: transparent;
+  }
+}
+
+.item {
+  color: $gray !important;
+}
+
+.table {
+  color: $gray !important;
+
+  tr.item {
+    color: $gray !important;
+
+    img.avatar {
+      width: 24px;
+      height: 24px;
+      border: 1px solid $low-gray;
+    }
+
+    border-top: 2px solid $body-background-color;
+
+    &.now-playing {
+      border-top: 2px solid $body-background-color;
+    }
+  }
+
+  tr {
+    color: $gray !important;
+
+    td, th {
+      color: $gray !important;
+      border: 0 none;
+
+      div {
+        color: $gray !important;
+        display: inline-block;
+      }
+    }
+  }
+}
+
+.begin-at {
+  opacity: 0.2;
+}
+
 table.chords {
+  color: $gray !important;
   width: 100%;
+
   tr, th, td {
+    color: $gray !important;
     padding: 0;
     border: 0 none;
     white-space: nowrap;
   }
+
   th {
+    color: $gray !important;
     width: 30%;
     opacity: 0.5;
     text-align: right;

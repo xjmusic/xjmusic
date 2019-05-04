@@ -2,8 +2,8 @@
 package io.xj.core.model.segment;
 
 import com.google.common.collect.Lists;
-import io.xj.core.exception.BusinessException;
-import io.xj.core.exception.CancelException;
+import io.xj.core.exception.CoreException;
+import io.xj.core.exception.CoreException;
 import io.xj.core.transport.CSV;
 import io.xj.core.util.Text;
 
@@ -32,16 +32,16 @@ public enum SegmentState {
 
    @param value to cast to enum
    @return enum
-   @throws BusinessException on failure
+   @throws CoreException on failure
    */
-  public static SegmentState validate(String value) throws BusinessException {
+  public static SegmentState validate(String value) throws CoreException {
     if (Objects.isNull(value))
-      throw new BusinessException("State is required");
+      throw new CoreException("State is required");
 
     try {
       return valueOf(Text.toProperSlug(value));
     } catch (Exception e) {
-      throw new BusinessException("'" + value + "' is not a valid state (" + CSV.joinEnum(values()) + ").", e);
+      throw new CoreException("'" + value + "' is not a valid state (" + CSV.joinEnum(values()) + ").", e);
     }
   }
 
@@ -50,9 +50,9 @@ public enum SegmentState {
 
    @param toState       to check
    @param allowedStates required to be in
-   @throws CancelException if not in required states
+   @throws CoreException if not in required states
    */
-  public static void onlyAllowTransitions(SegmentState toState, SegmentState... allowedStates) throws CancelException {
+  public static void onlyAllowTransitions(SegmentState toState, SegmentState... allowedStates) throws CoreException {
     List<String> allowedStateNames = Lists.newArrayList();
     for (SegmentState search : allowedStates) {
       allowedStateNames.add(search.toString());
@@ -60,7 +60,7 @@ public enum SegmentState {
         return;
       }
     }
-    throw new CancelException(String.format("transition to %s not in allowed (%s)",
+    throw new CoreException(String.format("transition to %s not in allowed (%s)",
       toState, CSV.join(allowedStateNames)));
   }
 
@@ -68,9 +68,9 @@ public enum SegmentState {
    * Segment state transitions are protected, dependent on the state this segment is being transitioned from, and the intended state it is being transitioned to.
    * @param fromState to protect transition from
    * @param toState to test transition to
-   * @throws CancelException on prohibited transition
+   * @throws CoreException on prohibited transition
    */
-  public static void protectTransition(SegmentState fromState, SegmentState toState) throws CancelException {
+  public static void protectTransition(SegmentState fromState, SegmentState toState) throws CoreException {
     switch (fromState) {
 
       case Planned:

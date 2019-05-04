@@ -3,7 +3,6 @@
 <!-- Inner Content -->
 {{outlet}}
 
-
 <!-- List of Segments -->
 <div class="table-list">
   <table class="table">
@@ -26,7 +25,7 @@
     <tbody>
     {{#each model.segments as |segment|}}
       <tr id="segment-{{segment.id}}"
-          class="item {{lowercase segment.state}}-state {{if (eq player.currentSegment.id segment.id) 'now-playing'}}">
+          class="item {{lowercase segment.state}}-state {{if (eq player.currentSegment.id segment.id) 'now-playing'}}" style="height: {{segment.rowHeight}}">
         <th>{{#link-to "accounts.one.chains.one.segments.one" segment}}{{segment.offset}}{{/link-to}}</th>
         <td>{{segment.state}}</td>
         <td>{{segment.endAt}}</td>

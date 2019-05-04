@@ -4,6 +4,7 @@ package io.xj.craft.chord;// Copyright (c) 2018, XJ Music Inc. (https://xj.io) A
 
 import io.xj.core.model.chord.Chord;
 import io.xj.core.model.pattern_chord.PatternChord;
+import io.xj.core.util.Value;
 import io.xj.music.Key;
 
 import org.junit.Test;
@@ -25,7 +26,7 @@ public class ChordNodeTest {
   public void instantiate_NoChord_fromKey() {
     ChordNode noChord = new ChordNode(Key.of("C"), new PatternChord(BigInteger.valueOf(21), 2.0, "NC"));
     assertNotNull(noChord);
-    assertEquals(Chord.MARKER_NON_CHORD, noChord.toString());
+    assertEquals(Value.CHORD_MARKER_NON_CHORD, noChord.toString());
   }
 
   /**
@@ -35,7 +36,7 @@ public class ChordNodeTest {
   public void instantiate_NoChord_fromPrevious() {
     ChordNode noChord = new ChordNode(new PatternChord(BigInteger.valueOf(12), 2.0, "G"), new PatternChord(BigInteger.valueOf(21), 2.0, "NC"));
     assertNotNull(noChord);
-    assertEquals(Chord.MARKER_NON_CHORD, noChord.toString());
+    assertEquals(Value.CHORD_MARKER_NON_CHORD, noChord.toString());
   }
 
   @Test

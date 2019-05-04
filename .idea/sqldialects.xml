@@ -59,6 +59,9 @@
     <file url="file://$PROJECT_DIR$/core/src/main/resources/db/migration/V59__CREATE_TABLE_sequence_pattern.sql" dialect="MySQL" />
     <file url="file://$PROJECT_DIR$/core/src/main/resources/db/migration/V5__instrument_meme_audio_chord_event.sql" dialect="MySQL" />
     <file url="file://$PROJECT_DIR$/core/src/main/resources/db/migration/V60__DELETE_FROM_sequence_pattern_WHERE_sequence_type_rhythm.sql" dialect="MySQL" />
+    <file url="file://$PROJECT_DIR$/core/src/main/resources/db/migration/V63__ALTER_choice_REMOVE_sequence_pattern_offset_ADD_sequence_pattern_id.sql" dialect="MySQL" />
+    <file url="file://$PROJECT_DIR$/core/src/main/resources/db/migration/V64__DROP_TABLES_choice_arrangement_segment_meme_segment_chord.sql" dialect="MySQL" />
+    <file url="file://$PROJECT_DIR$/core/src/main/resources/db/migration/V65__ALTER_segment_basis_renamed_to_content.sql" dialect="MySQL" />
     <file url="file://$PROJECT_DIR$/core/src/main/resources/db/migration/V6__chain_link_chord_choice.sql" dialect="MySQL" />
     <file url="file://$PROJECT_DIR$/core/src/main/resources/db/migration/V7__arrangement_morph_point_pick.sql" dialect="MySQL" />
     <file url="file://$PROJECT_DIR$/core/src/main/resources/db/migration/V8__user_auth_column_renaming.sql" dialect="MySQL" />

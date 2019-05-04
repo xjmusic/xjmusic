@@ -1,10 +1,11 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.model.account;
 
-import io.xj.core.exception.BusinessException;
-import io.xj.core.model.entity.Entity;
+import io.xj.core.exception.CoreException;
+import io.xj.core.model.entity.impl.EntityImpl;
 
 import java.math.BigInteger;
+import java.util.Objects;
 
 /**
  POJO for persisting data in memory while performing business logic,
@@ -16,7 +17,7 @@ import java.math.BigInteger;
  <p>
  NOTE: There can only be ONE of any getter/setter (with the same # of input params)
  */
-public class Account extends Entity {
+public class Account extends EntityImpl {
 
   /**
    For use in maps.
@@ -41,9 +42,9 @@ public class Account extends Entity {
   }
 
   @Override
-  public void validate() throws BusinessException {
-    if (this.name == null || this.name.length() == 0) {
-      throw new BusinessException("Account name is required.");
+  public void validate() throws CoreException {
+    if (Objects.isNull(name)|| name.isEmpty()) {
+      throw new CoreException("Account name is required.");
     }
   }
 

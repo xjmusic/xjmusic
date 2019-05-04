@@ -1,7 +1,7 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.model.sequence;
 
-import io.xj.core.exception.BusinessException;
+import io.xj.core.exception.CoreException;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -11,7 +11,8 @@ import java.math.BigInteger;
 
 public class SequenceTest {
 
-  @Rule public ExpectedException failure = ExpectedException.none();
+  @Rule
+  public ExpectedException failure = ExpectedException.none();
 
   @Test
   public void validate() throws Exception {
@@ -28,7 +29,7 @@ public class SequenceTest {
 
   @Test
   public void validate_failsWithoutName() throws Exception {
-    failure.expect(BusinessException.class);
+    failure.expect(CoreException.class);
     failure.expectMessage("Name is required");
 
     new Sequence()
@@ -43,7 +44,7 @@ public class SequenceTest {
 
   @Test
   public void validate_failsWithoutLibraryID() throws Exception {
-    failure.expect(BusinessException.class);
+    failure.expect(CoreException.class);
     failure.expectMessage("Library ID is required");
 
     new Sequence()
@@ -58,7 +59,7 @@ public class SequenceTest {
 
   @Test
   public void validate_failsWithoutUserID() throws Exception {
-    failure.expect(BusinessException.class);
+    failure.expect(CoreException.class);
     failure.expectMessage("User ID is required");
 
     new Sequence()
@@ -73,7 +74,7 @@ public class SequenceTest {
 
   @Test
   public void validate_failsWithoutType() throws Exception {
-    failure.expect(BusinessException.class);
+    failure.expect(CoreException.class);
     failure.expectMessage("Type is required");
 
     new Sequence()
@@ -88,7 +89,7 @@ public class SequenceTest {
 
   @Test
   public void validate_failsWithInvalidType() throws Exception {
-    failure.expect(BusinessException.class);
+    failure.expect(CoreException.class);
     failure.expectMessage("'funk' is not a valid type");
 
     new Sequence()
@@ -104,7 +105,7 @@ public class SequenceTest {
 
   @Test
   public void validate_failsWithoutKey() throws Exception {
-    failure.expect(BusinessException.class);
+    failure.expect(CoreException.class);
     failure.expectMessage("Key is required");
 
     new Sequence()
@@ -119,7 +120,7 @@ public class SequenceTest {
 
   @Test
   public void validate_failsWithoutDensity() throws Exception {
-    failure.expect(BusinessException.class);
+    failure.expect(CoreException.class);
     failure.expectMessage("Density is required");
 
     new Sequence()
@@ -134,7 +135,7 @@ public class SequenceTest {
 
   @Test
   public void validate_failsWithoutTempo() throws Exception {
-    failure.expect(BusinessException.class);
+    failure.expect(CoreException.class);
     failure.expectMessage("Tempo is required");
 
     new Sequence()

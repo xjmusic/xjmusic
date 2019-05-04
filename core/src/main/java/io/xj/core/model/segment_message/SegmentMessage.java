@@ -2,51 +2,58 @@
 
 package io.xj.core.model.segment_message;
 
-import io.xj.core.exception.BusinessException;
+import com.google.common.collect.Lists;
+import io.xj.core.exception.CoreException;
 import io.xj.core.model.message.Message;
+import io.xj.core.model.message.MessageType;
+import io.xj.core.model.segment.Segment;
+import io.xj.core.model.segment.SegmentEntity;
 
 import java.math.BigInteger;
+import java.util.Collection;
 import java.util.Objects;
+import java.util.UUID;
 
 /**
- POJO for persisting data in memory while performing business logic,
-or decoding messages received by JAX-RS resources.
- a.k.a. JSON input will be stored into an instance of this object
- <p>
- Business logic ought to be performed beginning with an instance of this object,
- to implement common methods.
- <p>
- NOTE: There can only be ONE of any getter/setter (with the same # of input params)
+ [#166273140] Segment Child Entities are identified and related by UUID (not id)
  */
-public class SegmentMessage extends Message {
-  /**
-   For use in maps.
-   */
+public class SegmentMessage extends SegmentEntity implements Message {
   public static final String KEY_ONE = "segmentMessage";
   public static final String KEY_MANY = "segmentMessages";
-
   private static final int BODY_LENGTH_LIMIT = 65535;
   private static final String BODY_TRUNCATE_SUFFIX = " (truncated to fit character limit)";
+  protected String body;
+  private MessageType type;
 
-  protected BigInteger segmentId;
+  public static Collection<SegmentMessage> aggregate(Collection<Segment> segments) {
+    Collection<SegmentMessage> aggregate = Lists.newArrayList();
+    segments.forEach(segment -> aggregate.addAll(segment.getMessages()));
+    return aggregate;
+  }
 
-  @Override
   public BigInteger getParentId() {
     return segmentId;
   }
 
   @Override
-  public void validate() throws BusinessException {
-    super.validate();
+  public void validate() throws CoreException {
+    if (Objects.isNull(type)) {
+      throw new CoreException("Type is required.");
+    }
     if (Objects.isNull(segmentId)) {
-      throw new BusinessException("Segment ID is required.");
+      throw new CoreException("Segment ID is required.");
     }
     if (Objects.isNull(body) || body.isEmpty()) {
-      throw new BusinessException("Body is required.");
+      throw new CoreException("Body is required.");
     }
     if (BODY_LENGTH_LIMIT < body.length()) {
       body = body.substring(0, BODY_LENGTH_LIMIT - BODY_TRUNCATE_SUFFIX.length()) + BODY_TRUNCATE_SUFFIX;
     }
+  }
+
+  @Override
+  public String getBody() {
+    return body;
   }
 
   @Override
@@ -55,8 +62,10 @@ public class SegmentMessage extends Message {
     return this;
   }
 
-  public BigInteger getSegmentId() {
-    return segmentId;
+  @Override
+  public SegmentMessage setUuid(UUID uuid) {
+    this.uuid = uuid;
+    return this;
   }
 
   public SegmentMessage setSegmentId(BigInteger segmentId) {
@@ -65,8 +74,19 @@ public class SegmentMessage extends Message {
   }
 
   @Override
-  public SegmentMessage setType(String type) {
-    super.setType(type);
+  public SegmentMessage setType(String type) throws CoreException {
+    this.type = MessageType.validate(type);
+    return this;
+  }
+
+  @Override
+  public MessageType getType() {
+    return type;
+  }
+
+  @Override
+  public SegmentMessage setTypeEnum(MessageType type) {
+    this.type = type;
     return this;
   }
 

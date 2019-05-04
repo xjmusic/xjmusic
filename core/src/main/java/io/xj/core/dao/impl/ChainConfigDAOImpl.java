@@ -4,8 +4,8 @@ package io.xj.core.dao.impl;
 import io.xj.core.Tables;
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.ChainConfigDAO;
-import io.xj.core.exception.BusinessException;
-import io.xj.core.exception.ConfigException;
+import io.xj.core.exception.CoreException;
+import io.xj.core.exception.CoreException;
 import io.xj.core.model.chain_config.ChainConfig;
 import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import io.xj.core.persistence.sql.impl.SQLConnection;
@@ -40,11 +40,11 @@ public class ChainConfigDAOImpl extends DAOImpl implements ChainConfigDAO {
    @param db     context
    @param entity for new ChainConfig
    @return new record
-   @throws Exception         if database failure
-   @throws ConfigException   if not configured properly
-   @throws BusinessException if fails business rule
+   @throws CoreException         if database failure
+   @throws CoreException   if not configured properly
+   @throws CoreException if fails business rule
    */
-  private static ChainConfig create(DSLContext db, Access access, ChainConfig entity) throws Exception {
+  private static ChainConfig create(DSLContext db, Access access, ChainConfig entity) throws CoreException {
     entity.validate();
 
     Map<Field, Object> fieldValues = fieldValueMap(entity);
@@ -63,7 +63,7 @@ public class ChainConfigDAOImpl extends DAOImpl implements ChainConfigDAO {
       .where(CHAIN_CONFIG.CHAIN_ID.eq(ULong.valueOf(entity.getChainId())))
       .and(CHAIN_CONFIG.TYPE.eq(entity.getType().toString()))
       .fetchOne()))
-      throw new BusinessException(entity.getType() + " config already exists for this Chain!");
+      throw new CoreException(entity.getType() + " config already exists for this Chain!");
 
     return modelFrom(executeCreate(db, CHAIN_CONFIG, fieldValues), ChainConfig.class);
   }
@@ -76,7 +76,7 @@ public class ChainConfigDAOImpl extends DAOImpl implements ChainConfigDAO {
    @param id     of record
    @return record
    */
-  private static ChainConfig readOne(DSLContext db, Access access, ULong id) throws BusinessException {
+  private static ChainConfig readOne(DSLContext db, Access access, ULong id) throws CoreException {
     if (access.isTopLevel())
       return modelFrom(db.selectFrom(CHAIN_CONFIG)
         .where(CHAIN_CONFIG.ID.eq(id))
@@ -97,7 +97,7 @@ public class ChainConfigDAOImpl extends DAOImpl implements ChainConfigDAO {
    @param chainId of parent
    @return array of child records
    */
-  private static Collection<ChainConfig> readAll(DSLContext db, Access access, Collection<ULong> chainId) throws BusinessException {
+  private static Collection<ChainConfig> readAll(DSLContext db, Access access, Collection<ULong> chainId) throws CoreException {
     if (access.isTopLevel())
       return modelsFrom(db.selectFrom(CHAIN_CONFIG)
         .where(CHAIN_CONFIG.CHAIN_ID.in(chainId))
@@ -118,7 +118,7 @@ public class ChainConfigDAOImpl extends DAOImpl implements ChainConfigDAO {
    @param id     of record
    @param entity to update with
    */
-  private static void update(DSLContext db, Access access, ULong id, ChainConfig entity) throws BusinessException {
+  private static void update(DSLContext db, Access access, ULong id, ChainConfig entity) throws CoreException {
     entity.validate();
 
     Map<Field, Object> fieldValues = fieldValueMap(entity);
@@ -138,10 +138,10 @@ public class ChainConfigDAOImpl extends DAOImpl implements ChainConfigDAO {
     // [#128] cannot change chainId of a chainConfig
     Object updateChainId = fieldValues.get(CHAIN_CONFIG.CHAIN_ID);
     if (isNonNull(updateChainId) && !Objects.equals(updateChainId, entity.getChainId()))
-      throw new BusinessException("cannot change chainId of a chainConfig");
+      throw new CoreException("cannot change chainId of a chainConfig");
 
     if (0 == executeUpdate(db, CHAIN_CONFIG, fieldValues))
-      throw new BusinessException("No records updated.");
+      throw new CoreException("No records updated.");
   }
 
   /**
@@ -150,9 +150,9 @@ public class ChainConfigDAOImpl extends DAOImpl implements ChainConfigDAO {
    @param db     context
    @param access control
    @param id     of record
-   @throws BusinessException on failure
+   @throws CoreException on failure
    */
-  private static void delete(DSLContext db, Access access, ULong id) throws BusinessException {
+  private static void delete(DSLContext db, Access access, ULong id) throws CoreException {
     if (access.isTopLevel())
       requireExists("Chain config", db.selectCount().from(CHAIN_CONFIG)
         .where(CHAIN_CONFIG.ID.eq(id))
@@ -185,53 +185,53 @@ public class ChainConfigDAOImpl extends DAOImpl implements ChainConfigDAO {
   }
 
   @Override
-  public ChainConfig create(Access access, ChainConfig entity) throws Exception {
+  public ChainConfig create(Access access, ChainConfig entity) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(create(tx.getContext(), access, entity));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public ChainConfig readOne(Access access, BigInteger id) throws Exception {
+  public ChainConfig readOne(Access access, BigInteger id) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readOne(tx.getContext(), access, ULong.valueOf(id)));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public Collection<ChainConfig> readAll(Access access, Collection<BigInteger> parentIds) throws Exception {
+  public Collection<ChainConfig> readAll(Access access, Collection<BigInteger> parentIds) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readAll(tx.getContext(), access, uLongValuesOf(parentIds)));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public void update(Access access, BigInteger id, ChainConfig entity) throws Exception {
+  public void update(Access access, BigInteger id, ChainConfig entity) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       update(tx.getContext(), access, ULong.valueOf(id), entity);
       tx.success();
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public void destroy(Access access, BigInteger id) throws Exception {
+  public void destroy(Access access, BigInteger id) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       delete(tx.getContext(), access, ULong.valueOf(id));
       tx.success();
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }

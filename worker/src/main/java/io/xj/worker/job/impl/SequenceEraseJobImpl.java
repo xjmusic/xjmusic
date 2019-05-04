@@ -27,6 +27,7 @@ public class SequenceEraseJobImpl implements SequenceEraseJob {
   private final BigInteger entityId;
   private final SequenceDAO sequenceDAO;
   private final PatternDAO patternDAO;
+  private final Access access = Access.internal();
 
   @Inject
   public SequenceEraseJobImpl(
@@ -58,7 +59,7 @@ public class SequenceEraseJobImpl implements SequenceEraseJob {
     try {
 
       // delete patterns
-      Collection<Pattern> patterns = patternDAO.readAll(Access.internal(), ImmutableList.of(entityId));
+      Collection<Pattern> patterns = patternDAO.readAll(access, ImmutableList.of(entityId));
       if (!patterns.isEmpty()) {
         List<String> patternIds = Lists.newArrayList();
         for (Pattern pattern : patterns) {
@@ -71,16 +72,16 @@ public class SequenceEraseJobImpl implements SequenceEraseJob {
       }
 
       // delete sequence
-      Sequence sequence = sequenceDAO.readOne(Access.internal(), entityId);
+      Sequence sequence = sequenceDAO.readOne(access, entityId);
       if (Objects.nonNull(sequence)) {
         log.info("Attempting to destroy sequenceId={}", entityId);
-        sequenceDAO.destroy(Access.internal(), entityId);
+        sequenceDAO.destroy(access, entityId);
       } else {
         log.warn("Found NO sequenceId={}", entityId);
       }
 
     } catch (Exception e) {
-      log.warn("Failed to delete sequenceId={}", entityId, e);
+      log.warn("Did not delete sequenceId={}, reason={}", entityId, e.getMessage());
     }
   }
 
@@ -106,7 +107,7 @@ public class SequenceEraseJobImpl implements SequenceEraseJob {
    @throws Exception on failure
    */
   private void erasePattern(Pattern pattern) throws Exception {
-    patternDAO.destroy(Access.internal(), pattern.getId());
+    patternDAO.destroy(access, pattern.getId());
     log.info("Erased Pattern #{}, destroyed child entities", pattern.getId());
   }
 

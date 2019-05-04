@@ -7,7 +7,6 @@ import io.xj.core.model.audio.Audio;
 import io.xj.core.model.audio.AudioWrapper;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.transport.HttpResponseProvider;
-import io.xj.core.transport.JSON;
 import io.xj.hub.HubResource;
 import org.json.JSONObject;
 
@@ -110,7 +109,7 @@ public class AudioOneResource extends HubResource {
       JSONObject result = audioDAO.authorizeUpload(Access.fromContext(crc), new BigInteger(id));
       if (null != result) {
         return Response
-          .accepted(JSON.wrap(Audio.KEY_ONE, result).toString())
+          .accepted(gsonProvider.wrap(Audio.KEY_ONE, result))
           .type(MediaType.APPLICATION_JSON)
           .build();
       } else {

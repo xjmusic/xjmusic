@@ -1,7 +1,7 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.model.instrument_meme;
 
-import io.xj.core.exception.BusinessException;
+import io.xj.core.exception.CoreException;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -11,7 +11,8 @@ import java.math.BigInteger;
 
 public class InstrumentMemeTest {
 
-  @Rule public ExpectedException failure = ExpectedException.none();
+  @Rule
+  public ExpectedException failure = ExpectedException.none();
 
   @Test
   public void validate() throws Exception {
@@ -23,7 +24,7 @@ public class InstrumentMemeTest {
 
   @Test
   public void validate_failsWithoutInstrumentID() throws Exception {
-    failure.expect(BusinessException.class);
+    failure.expect(CoreException.class);
     failure.expectMessage("Instrument ID is required");
 
     new InstrumentMeme()
@@ -33,7 +34,7 @@ public class InstrumentMemeTest {
 
   @Test
   public void validate_failsWithoutName() throws Exception {
-    failure.expect(BusinessException.class);
+    failure.expect(CoreException.class);
     failure.expectMessage("Name is required");
 
     new InstrumentMeme()

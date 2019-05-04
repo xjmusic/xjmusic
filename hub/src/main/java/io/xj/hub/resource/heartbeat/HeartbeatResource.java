@@ -3,10 +3,8 @@ package io.xj.hub.resource.heartbeat;
 
 import io.xj.core.app.Heartbeat;
 import io.xj.core.config.Config;
-import io.xj.core.exception.ConfigException;
-import io.xj.core.model.work.Work;
+import io.xj.core.exception.CoreException;
 import io.xj.core.transport.HttpResponseProvider;
-import io.xj.core.work.WorkManager;
 import io.xj.hub.HubResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +17,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-import java.io.IOException;
 import java.util.Objects;
 
 /**
@@ -42,7 +39,7 @@ public class HeartbeatResource extends HubResource {
   @POST
   @WebResult
   @PermitAll
-  public Response getConfig(@Context ContainerRequestContext crc) throws IOException, ConfigException {
+  public Response getConfig(@Context ContainerRequestContext crc) throws CoreException {
     if (Objects.isNull(key)) {
       log.warn("heartbeat without key");
       return response.notAcceptable("authorization required");

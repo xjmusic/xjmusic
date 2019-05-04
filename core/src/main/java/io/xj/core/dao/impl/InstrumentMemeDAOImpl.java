@@ -3,8 +3,8 @@ package io.xj.core.dao.impl;
 
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.InstrumentMemeDAO;
-import io.xj.core.exception.BusinessException;
-import io.xj.core.exception.ConfigException;
+import io.xj.core.exception.CoreException;
+import io.xj.core.exception.CoreException;
 import io.xj.core.model.instrument_meme.InstrumentMeme;
 import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import io.xj.core.persistence.sql.impl.SQLConnection;
@@ -46,11 +46,11 @@ public class InstrumentMemeDAOImpl extends DAOImpl implements InstrumentMemeDAO 
    @param access control
    @param entity for new InstrumentMeme
    @return new record
-   @throws Exception         if database failure
-   @throws ConfigException   if not configured properly
-   @throws BusinessException if fails business rule
+   @throws CoreException         if database failure
+   @throws CoreException   if not configured properly
+   @throws CoreException if fails business rule
    */
-  private static InstrumentMeme create(DSLContext db, Access access, InstrumentMeme entity) throws Exception {
+  private static InstrumentMeme create(DSLContext db, Access access, InstrumentMeme entity) throws CoreException {
     entity.validate();
 
     Map<Field, Object> fieldValues = fieldValueMap(entity);
@@ -70,7 +70,7 @@ public class InstrumentMemeDAOImpl extends DAOImpl implements InstrumentMemeDAO 
       .where(INSTRUMENT_MEME.INSTRUMENT_ID.eq(ULong.valueOf(entity.getInstrumentId())))
       .and(INSTRUMENT_MEME.NAME.eq(entity.getName()))
       .fetchOne()))
-      throw new BusinessException("Instrument Meme already exists!");
+      throw new CoreException("Instrument Meme already exists!");
 
     return modelFrom(executeCreate(db, INSTRUMENT_MEME, fieldValues), InstrumentMeme.class);
   }
@@ -83,7 +83,7 @@ public class InstrumentMemeDAOImpl extends DAOImpl implements InstrumentMemeDAO 
    @param id     of record
    @return record
    */
-  private static InstrumentMeme readOne(DSLContext db, Access access, ULong id) throws BusinessException {
+  private static InstrumentMeme readOne(DSLContext db, Access access, ULong id) throws CoreException {
     if (access.isTopLevel())
       return modelFrom(db.selectFrom(INSTRUMENT_MEME)
         .where(INSTRUMENT_MEME.ID.eq(id))
@@ -105,7 +105,7 @@ public class InstrumentMemeDAOImpl extends DAOImpl implements InstrumentMemeDAO 
    @param instrumentId to readMany memes for
    @return array of instrument memes
    */
-  private static Collection<InstrumentMeme> readAll(DSLContext db, Access access, Collection<ULong> instrumentId) throws BusinessException {
+  private static Collection<InstrumentMeme> readAll(DSLContext db, Access access, Collection<ULong> instrumentId) throws CoreException {
     if (access.isTopLevel())
       return modelsFrom(db.selectFrom(INSTRUMENT_MEME)
         .where(INSTRUMENT_MEME.INSTRUMENT_ID.in(instrumentId))
@@ -125,9 +125,9 @@ public class InstrumentMemeDAOImpl extends DAOImpl implements InstrumentMemeDAO 
    @param db     context
    @param access control
    @param id     to delete
-   @throws BusinessException if failure
+   @throws CoreException if failure
    */
-  private static void delete(DSLContext db, Access access, ULong id) throws BusinessException {
+  private static void delete(DSLContext db, Access access, ULong id) throws CoreException {
     if (!access.isTopLevel())
       requireExists("Instrument Meme", db.selectCount().from(INSTRUMENT_MEME)
         .join(INSTRUMENT).on(INSTRUMENT.ID.eq(INSTRUMENT_MEME.INSTRUMENT_ID))
@@ -156,47 +156,47 @@ public class InstrumentMemeDAOImpl extends DAOImpl implements InstrumentMemeDAO 
   }
 
   @Override
-  public InstrumentMeme create(Access access, InstrumentMeme entity) throws Exception {
+  public InstrumentMeme create(Access access, InstrumentMeme entity) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(create(tx.getContext(), access, entity));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public InstrumentMeme readOne(Access access, BigInteger id) throws Exception {
+  public InstrumentMeme readOne(Access access, BigInteger id) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readOne(tx.getContext(), access, ULong.valueOf(id)));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public Collection<InstrumentMeme> readAll(Access access, Collection<BigInteger> parentIds) throws Exception {
+  public Collection<InstrumentMeme> readAll(Access access, Collection<BigInteger> parentIds) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readAll(tx.getContext(), access, uLongValuesOf(parentIds)));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public void update(Access access, BigInteger id, InstrumentMeme entity) throws Exception {
-    throw new BusinessException("Not allowed to update InstrumentMeme record.");
+  public void update(Access access, BigInteger id, InstrumentMeme entity) throws CoreException {
+    throw new CoreException("Not allowed to update InstrumentMeme record.");
   }
 
   @Override
-  public void destroy(Access access, BigInteger id) throws Exception {
+  public void destroy(Access access, BigInteger id) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       delete(tx.getContext(), access, ULong.valueOf(id));
       tx.success();
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }

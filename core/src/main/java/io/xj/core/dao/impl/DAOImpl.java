@@ -3,7 +3,7 @@ package io.xj.core.dao.impl;
 
 import com.google.common.collect.Lists;
 import io.xj.core.access.impl.Access;
-import io.xj.core.exception.BusinessException;
+import io.xj.core.exception.CoreException;
 import io.xj.core.model.entity.Entity;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.persistence.sql.SQLDatabaseProvider;
@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+import java.lang.reflect.InvocationTargetException;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Collection;
@@ -26,8 +27,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static io.xj.core.Tables.CHAIN;
-import static io.xj.core.Tables.SEGMENT;
+import static io.xj.core.Tables.LIBRARY;
 
 public class DAOImpl {
   private static final Logger log = LoggerFactory.getLogger(DAOImpl.class);
@@ -42,7 +42,7 @@ public class DAOImpl {
    @param <R>           record type dynamic
    @return record
    */
-  static <R extends UpdatableRecord<R>> R executeCreate(DSLContext db, Table<R> table, Map<Field, Object> fieldValueMap) throws BusinessException {
+  static <R extends UpdatableRecord<R>> R executeCreate(DSLContext db, Table<R> table, Map<Field, Object> fieldValueMap) throws CoreException {
     R record = db.newRecord(table);
     fieldValueMap.forEach(record::setValue);
 
@@ -50,7 +50,7 @@ public class DAOImpl {
       record.store();
     } catch (Exception e) {
       log.error("Cannot create record", e);
-      throw new BusinessException("Cannot create record", e);
+      throw new CoreException("Cannot create record", e);
     }
 
     return record;
@@ -65,7 +65,7 @@ public class DAOImpl {
    @param <R>           record type dynamic
    @return record
    */
-  static <R extends UpdatableRecord<R>> int executeUpdate(DSLContext db, Table<R> table, Map<Field, Object> fieldValueMap) throws BusinessException {
+  static <R extends UpdatableRecord<R>> int executeUpdate(DSLContext db, Table<R> table, Map<Field, Object> fieldValueMap) throws CoreException {
     R record = db.newRecord(table);
     fieldValueMap.forEach(record::setValue);
 
@@ -73,7 +73,7 @@ public class DAOImpl {
       return db.executeUpdate(record);
     } catch (Exception e) {
       log.error("Cannot update record", e);
-      throw new BusinessException("Cannot update record", e);
+      throw new CoreException("Cannot update record", e);
     }
   }
 
@@ -82,12 +82,12 @@ public class DAOImpl {
 
    @param name   to require
    @param result to check.
-   @throws BusinessException if result set is not empty.
-   @throws Exception         if something goes wrong.
+   @throws CoreException if result set is not empty.
+   @throws CoreException if something goes wrong.
    */
-  static <R extends Record> void requireNotExists(String name, Collection<R> result) throws Exception {
+  static <R extends Record> void requireNotExists(String name, Collection<R> result) throws CoreException {
     if (isNonNull(result) && !result.isEmpty()) {
-      throw new BusinessException("Found" + " " + name);
+      throw new CoreException("Found" + " " + name);
     }
   }
 
@@ -96,12 +96,12 @@ public class DAOImpl {
 
    @param name  to require
    @param count to check.
-   @throws BusinessException if result set is not empty.
-   @throws Exception         if something goes wrong.
+   @throws CoreException if result set is not empty.
+   @throws CoreException if something goes wrong.
    */
-  static void requireNotExists(String name, int count) throws Exception {
+  static void requireNotExists(String name, int count) throws CoreException {
     if (0 < count) {
-      throw new BusinessException("Found" + " " + name);
+      throw new CoreException("Found" + " " + name);
     }
   }
 
@@ -110,9 +110,9 @@ public class DAOImpl {
 
    @param name   name of record (for error message)
    @param record to require existence of
-   @throws BusinessException if not isNonNull
+   @throws CoreException if not isNonNull
    */
-  static void requireExists(String name, Record record) throws BusinessException {
+  static void requireExists(String name, Record record) throws CoreException {
     require(name, "does not exist", isNonNull(record));
   }
 
@@ -121,9 +121,9 @@ public class DAOImpl {
 
    @param name   name of entity (for error message)
    @param entity to require existence of
-   @throws BusinessException if not isNonNull
+   @throws CoreException if not isNonNull
    */
-  static void requireExists(String name, Entity entity) throws BusinessException {
+  static void requireExists(String name, Entity entity) throws CoreException {
     require(name, "does not exist", isNonNull(entity));
   }
 
@@ -132,28 +132,10 @@ public class DAOImpl {
 
    @param name  name of record (for error message)
    @param count to require existence of
-   @throws BusinessException if not isNonNull
+   @throws CoreException if not isNonNull
    */
-  static void requireExists(String name, int count) throws BusinessException {
+  static void requireExists(String name, int count) throws CoreException {
     require(name, "does not exist", 0 < count);
-  }
-
-  /**
-   Require access to all of a collection of segments
-
-   @param db         context
-   @param access     control
-   @param segmentIds to require access to
-   */
-  static void requireAccessToSegments(DSLContext db, Access access, Collection<ULong> segmentIds) throws BusinessException {
-    if (!access.isTopLevel()) {
-      int accessSegmentCount = db.selectCount().from(SEGMENT)
-        .join(CHAIN).on(SEGMENT.CHAIN_ID.eq(CHAIN.ID))
-        .where(SEGMENT.ID.in(segmentIds))
-        .and(CHAIN.ACCOUNT_ID.in(access.getAccountIds()))
-        .fetchOne(0, int.class);
-      require(String.format("exactly the provided count (%d) segments in chain(s) to which user has access", segmentIds.size()), Objects.equals(segmentIds.size(), accessSegmentCount));
-    }
   }
 
   /**
@@ -161,9 +143,9 @@ public class DAOImpl {
 
    @param message for error, if thrown
    @param counts  to require existence of any of
-   @throws BusinessException if not isNonNull
+   @throws CoreException if not isNonNull
    */
-  static void requireExistsAnyOf(String message, int... counts) throws BusinessException {
+  static void requireExistsAnyOf(String message, int... counts) throws CoreException {
     boolean missing = true;
     for (int count : counts) {
       if (0 < count) {
@@ -171,7 +153,7 @@ public class DAOImpl {
       }
     }
     if (missing) {
-      throw new BusinessException(message);
+      throw new CoreException(message);
     }
   }
 
@@ -192,32 +174,20 @@ public class DAOImpl {
 
    @param access    control
    @param accountId to check for access to
-   @throws BusinessException if not admin
+   @throws CoreException if not admin
    */
-  static void requireAccount(Access access, ULong accountId) throws BusinessException {
+  static void requireAccount(Access access, ULong accountId) throws CoreException {
     require("access to account #" + accountId, access.hasAccount(accountId.toBigInteger()));
   }
-
-  /*
-   Require a given object is not null
-
-   @param description  what is it
-   @param cannotBeNull value
-   @throws BusinessException if null
-   *
-  static void requireNonNull(String description, Object cannotBeNull) throws BusinessException {
-    require(description, Objects.nonNull(cannotBeNull));
-  }
-  */
 
   /**
    Require a given integer is greater than zero
 
    @param description           what is it
    @param mustBeGreaterThanZero value
-   @throws BusinessException if null
+   @throws CoreException if null
    */
-  static void requireGreaterThanZero(String description, @Nullable Integer mustBeGreaterThanZero) throws BusinessException {
+  static void requireGreaterThanZero(String description, @Nullable Integer mustBeGreaterThanZero) throws CoreException {
     require(description, "must be greater than zero", Objects.nonNull(mustBeGreaterThanZero) && 0 < mustBeGreaterThanZero);
   }
 
@@ -225,19 +195,42 @@ public class DAOImpl {
    Require user has admin access
 
    @param access control
-   @throws BusinessException if not admin
+   @throws CoreException if not admin
    */
-  static void requireTopLevel(Access access) throws BusinessException {
+  static void requireTopLevel(Access access) throws CoreException {
     require("top-level access", access.isTopLevel());
+  }
+
+  /**
+   ASSUMED an entity.parentId() is a libraryId for this class of entity
+   Require library-level access to an entity
+
+   @param db     context
+   @param access control
+   @param entity to require library access to
+   @throws CoreException if does not have access
+   */
+  static void requireLibraryAccess(DSLContext db, Access access, Entity entity) throws CoreException {
+    if (access.isTopLevel())
+      requireExists("Library access",
+        db.selectCount().from(LIBRARY)
+          .where(LIBRARY.ID.eq(ULong.valueOf(entity.getParentId())))
+          .fetchOne(0, int.class));
+    else
+      requireExists("Library access",
+        db.selectCount().from(LIBRARY)
+          .where(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+          .and(LIBRARY.ID.eq(ULong.valueOf(entity.getParentId())))
+          .fetchOne(0, int.class));
   }
 
   /**
    Require user has admin access
 
    @param access control
-   @throws BusinessException if not admin
+   @throws CoreException if not admin
    */
-  static void requireRole(String message, Access access, UserRoleType... roles) throws BusinessException {
+  static void requireRole(String message, Access access, UserRoleType... roles) throws CoreException {
     require(message, access.isTopLevel() || access.isAllowed(roles));
   }
 
@@ -246,9 +239,9 @@ public class DAOImpl {
 
    @param name       name of condition (for error message)
    @param mustBeTrue to require true
-   @throws BusinessException if not true
+   @throws CoreException if not true
    */
-  static void require(String name, Boolean mustBeTrue) throws BusinessException {
+  static void require(String name, Boolean mustBeTrue) throws CoreException {
     require(name, "is required", mustBeTrue);
   }
 
@@ -258,11 +251,11 @@ public class DAOImpl {
    @param description name of condition (for error message)
    @param mustBeTrue  to require true
    @param condition   to append
-   @throws BusinessException if not true
+   @throws CoreException if not true
    */
-  private static void require(String description, String condition, Boolean mustBeTrue) throws BusinessException {
+  private static void require(String description, String condition, Boolean mustBeTrue) throws CoreException {
     if (!mustBeTrue) {
-      throw new BusinessException(description + " " + condition);
+      throw new CoreException(description + " " + condition);
     }
   }
 
@@ -292,9 +285,9 @@ public class DAOImpl {
    @param records    to source values from
    @param modelClass instance of a single target entity
    @return entity after transmogrification
-   @throws BusinessException on failure to transmogrify
+   @throws CoreException on failure to transmogrify
    */
-  static <R extends Record, E extends Entity> Collection<E> modelsFrom(Iterable<R> records, Class<E> modelClass) throws BusinessException {
+  static <R extends Record, E extends Entity> Collection<E> modelsFrom(Iterable<R> records, Class<E> modelClass) throws CoreException {
     Collection<E> models = Lists.newArrayList();
     for (R record : records) {
       models.add(modelFrom(record, modelClass));
@@ -308,39 +301,58 @@ public class DAOImpl {
    @param record     to source field-values from
    @param modelClass to whose setters the values will be written
    @return entity after transmogrification
-   @throws BusinessException on failure to transmogrify
+   @throws CoreException on failure to transmogrify
    */
-  static <R extends Record, E extends Entity> E modelFrom(R record, Class<E> modelClass) throws BusinessException {
-    if (Objects.isNull(modelClass) || Objects.isNull(record)) {
-      return null;
-    }
+  static <R extends Record, E extends Entity> E modelFrom(R record, Class<E> modelClass) throws CoreException {
+    if (Objects.isNull(modelClass))
+      throw new CoreException("Will not transmogrify null modelClass");
+    if (Objects.isNull(record))
+      throw new CoreException("Record does not exist");
 
+    // new instance of model
     E model;
     try {
       model = modelClass.getConstructor().newInstance();
     } catch (Exception e) {
-      throw new BusinessException(String.format("Could not transmogrify into class: %s", modelClass), e);
+      throw new CoreException(String.format("Could not get a new instance class: %s", modelClass), e);
     }
 
+    // set all values
+    modelSetTransmogrified(record, model);
+
+    // this is necessary to port in some values, e.g. state enums from string setters
+    try {
+      model.validate();
+    } catch (Exception e) {
+      log.error("Entity threw exception during post-transmogrification validation", e);
+      throw new CoreException("Entity threw exception during post-transmogrification validation", e);
+    }
+
+    return model;
+  }
+
+  /**
+   Set all fields of an Entity using values transmogrified from a jOOQ Record
+
+   @param record to transmogrify values from
+   @param model  to set fields of
+   @param <R>    type of Record
+   @param <E>    type of Entity
+   @throws CoreException on failure to set transmogrified values
+   */
+  static <R extends Record, E extends Entity> void modelSetTransmogrified(R record, E model) throws CoreException {
+    if (Objects.isNull(record)) {
+      throw new CoreException("Cannot transmogrify; record does not exist");
+    }
     Map<String, Object> fieldValues = record.intoMap();
     for (Map.Entry<String, Object> field : fieldValues.entrySet()) {
       if (isNonNull(field.getValue())) try {
         modelSetTransmogrified(model, field.getKey(), field.getValue());
       } catch (Exception e) {
         log.error("Could not transmogrify key:{} val:{}", field.getKey(), field.getValue(), e);
-        throw new BusinessException(String.format("Could not transmogrify key:%s val:%s", field.getKey(), field.getValue()), e);
+        throw new CoreException(String.format("Could not transmogrify key:%s val:%s", field.getKey(), field.getValue()), e);
       }
     }
-
-    // this is necessary to port in some values, e.g. state enums from string setters
-    try {
-      model.validate();
-    } catch (BusinessException e) {
-      log.error("Entity threw exception during post-transmogrification validation", e);
-      throw new BusinessException("Entity threw exception during post-transmogrification validation", e);
-    }
-
-    return model;
   }
 
   /**
@@ -351,7 +363,7 @@ public class DAOImpl {
    @param value from the jOOQ Record Field
    @param <E>   is the type of the entity being written to
    */
-  private static <E extends Entity> void modelSetTransmogrified(E model, String key, Object value) throws Exception {
+  private static <E extends Object> void modelSetTransmogrified(E model, String key, Object value) throws CoreException {
     String setterName = String.format("set%s", CamelCasify.upper(key));
 
     /*
@@ -363,44 +375,47 @@ public class DAOImpl {
       return;
     }
 
-    if (isNonNull(value)) switch (value.getClass().getSimpleName()) {
+    try {
+      if (isNonNull(value)) switch (value.getClass().getSimpleName()) {
 
-      case "ULong":
-      case "BigInteger":
-        model.getClass().getMethod(setterName, BigInteger.class)
-          .invoke(model, new BigInteger(String.valueOf(value)));
-        break;
+        case "ULong":
+        case "BigInteger":
+          model.getClass().getMethod(setterName, BigInteger.class)
+            .invoke(model, new BigInteger(String.valueOf(value)));
+          break;
 
-      case "Timestamp":
-        model.getClass().getMethod(setterName, String.class)
-          .invoke(model, String.valueOf(value));
-        break;
+        case "UInteger":
+        case "Integer":
+          model.getClass().getMethod(setterName, Integer.class)
+            .invoke(model, Integer.valueOf(String.valueOf(value)));
+          break;
 
-      case "UInteger":
-      case "Integer":
-        model.getClass().getMethod(setterName, Integer.class)
-          .invoke(model, Integer.valueOf(String.valueOf(value)));
-        break;
+        case "Long":
+          model.getClass().getMethod(setterName, Long.class)
+            .invoke(model, Long.valueOf(String.valueOf(value)));
+          break;
 
-      case "Long":
-        model.getClass().getMethod(setterName, Long.class)
-          .invoke(model, Long.valueOf(String.valueOf(value)));
-        break;
+        case "Double":
+          model.getClass().getMethod(setterName, Double.class)
+            .invoke(model, Double.valueOf(String.valueOf(value)));
+          break;
 
-      case "Double":
-        model.getClass().getMethod(setterName, Double.class)
-          .invoke(model, Double.valueOf(String.valueOf(value)));
-        break;
+        case "Float":
+          model.getClass().getMethod(setterName, Float.class)
+            .invoke(model, Float.valueOf(String.valueOf(value)));
+          break;
 
-      case "Float":
-        model.getClass().getMethod(setterName, Float.class)
-          .invoke(model, Float.valueOf(String.valueOf(value)));
-        break;
+        case "Timestamp":
 
-      default:
-        model.getClass().getMethod(setterName, String.class)
-          .invoke(model, String.valueOf(value));
-        break;
+        default:
+          model.getClass().getMethod(setterName, String.class).invoke(model, String.valueOf(value));
+          break;
+      }
+    } catch (InvocationTargetException ignored) {
+      throw new CoreException(String.format("Failed to set %s, reason: %s", key, ignored.getTargetException().getMessage()));
+
+    } catch (NoSuchMethodException | IllegalAccessException e) {
+      throw new CoreException(String.format("Failed to set transmogrified key=%s, value=%s on model=%s", key, value, model), e);
     }
   }
 
@@ -412,7 +427,7 @@ public class DAOImpl {
    @param <E>        extends Entity
    @return true if found, else false
    */
-  private static <E extends Entity> boolean hasMethod(E model, String setterName) {
+  private static <E extends Object> boolean hasMethod(E model, String setterName) {
     return Arrays.stream(model.getClass().getMethods()).anyMatch(method -> Objects.equals(method.getName(), setterName));
   }
 

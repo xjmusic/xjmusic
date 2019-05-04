@@ -2,46 +2,41 @@
 package io.xj.core.model.choice;
 
 import com.google.common.collect.Lists;
-import io.xj.core.exception.BusinessException;
-import io.xj.core.model.entity.Entity;
+import io.xj.core.exception.CoreException;
+import io.xj.core.model.segment.Segment;
+import io.xj.core.model.segment.SegmentEntity;
 import io.xj.core.model.sequence.SequenceType;
-import io.xj.core.transport.CSV;
-import io.xj.core.util.Value;
 
-import javax.annotation.Nullable;
 import java.math.BigInteger;
-import java.util.Collections;
-import java.util.List;
+import java.util.Collection;
 import java.util.Objects;
+import java.util.UUID;
 
 /**
- POJO for persisting data in memory while performing business logic,
- or decoding messages received by JAX-RS resources.
- a.k.a. JSON input will be stored into an instance of this object
- <p>
- Business logic ought to be performed beginning with an instance of this object,
- to implement common methods.
- <p>
- NOTE: There can only be ONE of any getter/setter (with the same # of input params)
+ [#166132897] Segment model handles all of its own entities
+ [#166273140] Segment Child Entities are identified and related by UUID (not id)
  */
-public class Choice extends Entity {
-  public static final String KEY_ONE = "choice";
-  public static final String KEY_MANY = "choices";
-  private List<BigInteger> availablePatternOffsets = Lists.newArrayList();
-
-  private BigInteger segmentId;
+public class Choice extends SegmentEntity {
   private BigInteger sequenceId;
-  private String _type; // to hold value before validation
   private SequenceType type;
-  private BigInteger sequencePatternOffset;
   private Integer transpose;
+  private BigInteger sequencePatternId;
 
-  public BigInteger getSegmentId() {
-    return segmentId;
+  public static Collection<Choice> aggregate(Collection<Segment> segments) {
+    Collection<Choice> aggregate = Lists.newArrayList();
+    segments.forEach(segment -> aggregate.addAll(segment.getChoices()));
+    return aggregate;
   }
 
-  public Choice setSegmentId(BigInteger value) {
-    segmentId = value;
+  @Override
+  public Choice setUuid(UUID uuid) {
+    this.uuid = uuid;
+    return this;
+  }
+
+  @Override
+  public Choice setSegmentId(BigInteger segmentId) {
+    this.segmentId = segmentId;
     return this;
   }
 
@@ -54,25 +49,26 @@ public class Choice extends Entity {
     return this;
   }
 
+  public BigInteger getSequencePatternId() {
+    return sequencePatternId;
+  }
+
+  public Choice setSequencePatternId(BigInteger value) {
+    sequencePatternId = value;
+    return this;
+  }
+
   public SequenceType getType() {
     return type;
   }
 
   public Choice setType(String value) {
-    _type = value;
+    type = SequenceType.valueOf(value);
     return this;
   }
 
-  public void setTypeEnum(SequenceType type) {
+  public Choice setTypeEnum(SequenceType type) {
     this.type = type;
-  }
-
-  public BigInteger getSequencePatternOffset() {
-    return sequencePatternOffset;
-  }
-
-  public Choice setSequencePatternOffset(BigInteger value) {
-    sequencePatternOffset = value;
     return this;
   }
 
@@ -85,108 +81,18 @@ public class Choice extends Entity {
     return this;
   }
 
-  /**
-   Whether the current Segment Choice has one or more patterns
-   with a higher pattern offset than the current one
-
-   @return true if it has one more pattern
-   */
-  public boolean hasOneMorePattern() {
-    return availablePatternOffsets.stream().anyMatch(availableOffset -> 0 < availableOffset.compareTo(sequencePatternOffset));
-  }
-
-  /**
-   Whether the current Segment Choice has two or more patterns
-   with a higher pattern offset than the current two
-
-   @return true if it has two more pattern
-   */
-  public boolean hasTwoMorePatterns() {
-    int num = 0;
-    for (BigInteger availableOffset : availablePatternOffsets)
-      if (0 < availableOffset.compareTo(sequencePatternOffset)) {
-        num++;
-        if (2 <= num)
-          return true;
-      }
-    return false;
-  }
-
-  /**
-   Returns the pattern offset immediately after the current one,
-   or loop back to zero is past the end of the available patterns
-
-   @return next pattern offset
-   */
-  @Nullable
-  public BigInteger nextPatternOffset() {
-    BigInteger offset = null;
-    for (BigInteger availableOffset : availablePatternOffsets)
-      if (0 < availableOffset.compareTo(sequencePatternOffset))
-        if (Objects.isNull(offset) ||
-          0 > availableOffset.compareTo(offset))
-          offset = availableOffset;
-    return Objects.nonNull(offset) ? offset : BigInteger.valueOf(0L);
-  }
-
-  /**
-   Get eitherOr pattern offsets for the chosen sequence
-
-   @return eitherOr pattern offsets
-   */
-  public List<BigInteger> getAvailablePatternOffsets() {
-    return Collections.unmodifiableList(availablePatternOffsets);
-  }
-
-  /**
-   set available pattern offsets from CSV
-
-   @param patternOffsets to set from
-   */
-  public Choice setAvailablePatternOffsets(String patternOffsets) {
-    availablePatternOffsets = Lists.newArrayList();
-    if (Objects.nonNull(patternOffsets) && !patternOffsets.isEmpty()) {
-      CSV.split(patternOffsets)
-        .forEach(patternOffsetToSet ->
-          availablePatternOffsets.add(new BigInteger(patternOffsetToSet)));
-    } else {
-      availablePatternOffsets.add(BigInteger.ZERO);
-    }
-    Collections.sort(availablePatternOffsets);
-
-    return this;
-  }
-
-  /**
-   Get the maximum available pattern offset for the chosen sequence
-
-   @return max pattern offset
-   */
-  public BigInteger getMaxAvailablePatternOffset() {
-    return Value.max(availablePatternOffsets);
-  }
-
   @Override
-  public BigInteger getParentId() {
-    return segmentId;
-  }
+  public void validate() throws CoreException {
+    super.validate();
 
-  @Override
-  public void validate() throws BusinessException {
-    // throws its own BusinessException on failure
-    type = SequenceType.validate(_type);
+    if (Objects.nonNull(sequenceId) && Objects.nonNull(sequencePatternId))
+      throw new CoreException("Cannot have both Sequence ID and Sequence Pattern ID.");
 
-    if (Objects.isNull(segmentId))
-      throw new BusinessException("Segment ID is required.");
-
-    if (Objects.isNull(sequenceId))
-      throw new BusinessException("Sequence ID is required.");
+    if (Objects.isNull(sequenceId) && Objects.isNull(sequencePatternId))
+      throw new CoreException("Required to have either Sequence ID or Sequence Pattern ID.");
 
     if (Objects.isNull(type))
-      throw new BusinessException("Type is required.");
-
-    if (Objects.isNull(sequencePatternOffset))
-      throw new BusinessException("Sequence Pattern Offset is required.");
+      throw new CoreException("Type is required.");
 
     if (Objects.isNull(transpose))
       transpose = 0;

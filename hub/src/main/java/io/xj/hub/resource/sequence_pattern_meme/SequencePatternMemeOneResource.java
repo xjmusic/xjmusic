@@ -3,11 +3,11 @@ package io.xj.hub.resource.sequence_pattern_meme;
 
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.SequencePatternMemeDAO;
-import io.xj.core.exception.BusinessException;
+import io.xj.core.exception.CoreException;
 import io.xj.core.model.sequence_pattern_meme.SequencePatternMeme;
 import io.xj.core.model.user_role.UserRoleType;
+import io.xj.core.transport.GsonProvider;
 import io.xj.core.transport.HttpResponseProvider;
-import io.xj.core.transport.JSON;
 import io.xj.hub.HubResource;
 import org.apache.http.HttpStatus;
 
@@ -65,10 +65,10 @@ public class SequencePatternMemeOneResource extends HubResource {
   public Response delete(@Context ContainerRequestContext crc) {
     try {
       sequencePatternMemeDAO.destroy(Access.fromContext(crc), new BigInteger(id));
-    } catch (BusinessException e) {
+    } catch (CoreException e) {
       return Response
         .status(HttpStatus.SC_BAD_REQUEST)
-        .entity(JSON.wrapError(e.getMessage()).toString())
+        .entity(gsonProvider.wrapError(e.getMessage()))
         .build();
     } catch (Exception e) {
       return Response.serverError().header("error", e.getMessage()).build();

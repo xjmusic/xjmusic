@@ -1,7 +1,7 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.model.user_role;
 
-import io.xj.core.exception.BusinessException;
+import io.xj.core.exception.CoreException;
 import io.xj.core.transport.CSV;
 import io.xj.core.util.Text;
 
@@ -38,16 +38,16 @@ public enum UserRoleType {
 
    @param value to cast to enum
    @return enum
-   @throws BusinessException on failure
+   @throws CoreException on failure
    */
-  public static UserRoleType validate(String value) throws BusinessException {
+  public static UserRoleType validate(String value) throws CoreException {
     if (Objects.isNull(value))
-      throw new BusinessException("Role is required");
+      throw new CoreException("Role is required");
 
     try {
       return valueOf(Text.toProperSlug(value));
     } catch (Exception ignored) {
-      throw new BusinessException("'" + value + "' is not a valid role (" + CSV.joinEnum(values()) + ").");
+      throw new CoreException("'" + value + "' is not a valid role (" + CSV.joinEnum(values()) + ").");
     }
   }
 

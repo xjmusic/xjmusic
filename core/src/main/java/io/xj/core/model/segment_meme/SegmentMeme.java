@@ -1,66 +1,59 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.model.segment_meme;
 
-import io.xj.core.exception.BusinessException;
+import com.google.common.collect.Lists;
+import io.xj.core.exception.CoreException;
 import io.xj.core.model.meme.Meme;
-import io.xj.core.util.Text;
+import io.xj.core.model.segment.Segment;
+import io.xj.core.model.segment.SegmentEntity;
 
 import java.math.BigInteger;
+import java.util.Collection;
+import java.util.Objects;
+import java.util.UUID;
 
 /**
- POJO for persisting data in memory while performing business logic,
-or decoding messages received by JAX-RS resources.
- a.k.a. JSON input will be stored into an instance of this object
- <p>
- Business logic ought to be performed beginning with an instance of this object,
- to implement common methods.
- <p>
- NOTE: There can only be ONE of any getter/setter (with the same # of input params)
+ [#166132897] Segment model handles all of its own entities
  */
-public class SegmentMeme extends Meme {
+public class SegmentMeme extends SegmentEntity implements Meme {
+  private String name;
 
-  /**
-   For use in maps.
-   */
-  public static final String KEY_ONE = "segmentMeme";
-  public static final String KEY_MANY = "segmentMemes";
-
-  // Segment ID
-  private BigInteger segmentId;
-
-  public BigInteger getSegmentId() {
-    return segmentId;
+  public static SegmentMeme of(String name) {
+    return new SegmentMeme().setName(name);
   }
 
+  public static Collection<SegmentMeme> aggregate(Collection<Segment> segments) {
+    Collection<SegmentMeme> aggregate = Lists.newArrayList();
+    segments.forEach(segment -> aggregate.addAll(segment.getMemes()));
+    return aggregate;
+  }
+
+  public SegmentMeme setName(String name) {
+    this.name = name;
+    return this;
+  }
+
+  @Override
+  public SegmentMeme setUuid(UUID uuid) {
+    this.uuid = uuid;
+    return this;
+  }
+
+  @Override
   public SegmentMeme setSegmentId(BigInteger segmentId) {
     this.segmentId = segmentId;
     return this;
   }
 
   @Override
-  public SegmentMeme setName(String name) {
-    this.name = Text.toProperSlug(name);
-    return this;
-  }
-
-  @Override
-  public BigInteger getParentId() {
-    return segmentId;
-  }
-
-  @Override
-  public void validate() throws BusinessException {
-    if (null == segmentId) {
-      throw new BusinessException("Segment ID is required.");
-    }
+  public void validate() throws CoreException {
     super.validate();
+    if (Objects.isNull(name) || name.isEmpty()) {
+      throw new CoreException("Name is required.");
+    }
   }
 
-  public static SegmentMeme of(BigInteger segmentId, String name) {
-    return
-      new SegmentMeme()
-        .setSegmentId(segmentId)
-        .setName(name);
+  public String getName() {
+    return name;
   }
-
 }

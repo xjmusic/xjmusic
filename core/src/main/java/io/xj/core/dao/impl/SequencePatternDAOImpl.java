@@ -2,11 +2,13 @@
 package io.xj.core.dao.impl;
 
 import com.google.api.client.util.Maps;
+import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.SequencePatternDAO;
-import io.xj.core.exception.BusinessException;
-import io.xj.core.exception.ConfigException;
+import io.xj.core.exception.CoreException;
+import io.xj.core.model.pattern.PatternState;
+import io.xj.core.model.sequence.SequenceType;
 import io.xj.core.model.sequence_pattern.SequencePattern;
 import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import io.xj.core.persistence.sql.impl.SQLConnection;
@@ -14,12 +16,14 @@ import org.jooq.DSLContext;
 import org.jooq.Field;
 import org.jooq.types.ULong;
 
+import javax.annotation.Nullable;
 import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Objects;
 
-import static io.xj.core.Tables.PATTERN;
 import static io.xj.core.tables.Library.LIBRARY;
+import static io.xj.core.tables.Pattern.PATTERN;
 import static io.xj.core.tables.Sequence.SEQUENCE;
 import static io.xj.core.tables.SequencePattern.SEQUENCE_PATTERN;
 import static io.xj.core.tables.SequencePatternMeme.SEQUENCE_PATTERN_MEME;
@@ -45,11 +49,11 @@ public class SequencePatternDAOImpl extends DAOImpl implements SequencePatternDA
    @param access control
    @param entity for new SequencePattern
    @return new record
-   @throws Exception         if database failure
-   @throws ConfigException   if not configured properly
-   @throws BusinessException if fails business rule
+   @throws CoreException if database failure
+   @throws CoreException if not configured properly
+   @throws CoreException if fails business rule
    */
-  private static SequencePattern create(DSLContext db, Access access, SequencePattern entity) throws Exception {
+  private static SequencePattern create(DSLContext db, Access access, SequencePattern entity) throws CoreException {
     entity.validate();
 
     Map<Field, Object> fieldValues = fieldValueMap(entity);
@@ -88,7 +92,7 @@ public class SequencePatternDAOImpl extends DAOImpl implements SequencePatternDA
    @param id     of record
    @return record
    */
-  private static SequencePattern readOne(DSLContext db, Access access, ULong id) throws BusinessException {
+  private static SequencePattern readOne(DSLContext db, Access access, ULong id) throws CoreException {
     if (access.isTopLevel())
       return modelFrom(db.selectFrom(SEQUENCE_PATTERN)
         .where(SEQUENCE_PATTERN.ID.eq(id))
@@ -110,7 +114,7 @@ public class SequencePatternDAOImpl extends DAOImpl implements SequencePatternDA
    @param sequenceIds to readMany patterns for
    @return array of sequence patterns
    */
-  private static Collection<SequencePattern> readAll(DSLContext db, Access access, Collection<ULong> sequenceIds) throws BusinessException {
+  private static Collection<SequencePattern> readAll(DSLContext db, Access access, Collection<ULong> sequenceIds) throws CoreException {
     if (access.isTopLevel())
       return modelsFrom(db.selectFrom(SEQUENCE_PATTERN)
         .where(SEQUENCE_PATTERN.SEQUENCE_ID.in(sequenceIds))
@@ -127,14 +131,88 @@ public class SequencePatternDAOImpl extends DAOImpl implements SequencePatternDA
   }
 
   /**
+   Read all sequence-patterns at a particular sequence offset
+   <p>
+   If the pattern is a macro or main type, sequence_pattern relations are mandatory
+   otherwise sequence_pattern relations are ignored
+   <p>
+   [#161076729] Artist wants rhythm patterns to require no sequence-pattern bindings, to keep things simple
+
+   @param db                    context
+   @param access                control
+   @param sequenceId            of sequence in which to read pattern
+   @param sequencePatternOffset of pattern in sequence
+   @return pattern record
+   */
+  private static Collection<SequencePattern> readAllAtSequenceOffset(DSLContext db, Access access, BigInteger sequenceId, BigInteger sequencePatternOffset) throws CoreException {
+    String type = db.select(SEQUENCE.TYPE)
+      .from(SEQUENCE)
+      .where(SEQUENCE.ID.eq(ULong.valueOf(sequenceId)))
+      .fetchOne(SEQUENCE.TYPE);
+    if (Objects.isNull(type)) {
+      throw new CoreException("That sequence does not exist");
+    }
+    SequenceType sequenceType = SequenceType.validate(type);
+    Collection<SequencePattern> sequencePatterns = Lists.newArrayList();
+    switch (sequenceType) {
+      case Macro:
+      case Main:
+        if (access.isTopLevel())
+          sequencePatterns = modelsFrom(db.select(SEQUENCE_PATTERN.fields())
+            .from(SEQUENCE_PATTERN)
+            .join(PATTERN).on(PATTERN.ID.eq(SEQUENCE_PATTERN.PATTERN_ID))
+            .where(SEQUENCE_PATTERN.SEQUENCE_ID.eq(ULong.valueOf(sequenceId)))
+            .and(PATTERN.STATE.notEqual(String.valueOf(PatternState.Erase)))
+            .and(SEQUENCE_PATTERN.OFFSET.eq(ULong.valueOf(sequencePatternOffset)))
+            .fetch(), SequencePattern.class);
+        else
+          sequencePatterns = modelsFrom(db.select(SEQUENCE_PATTERN.fields())
+            .from(SEQUENCE_PATTERN)
+            .join(PATTERN).on(PATTERN.ID.eq(SEQUENCE_PATTERN.PATTERN_ID))
+            .join(SEQUENCE).on(SEQUENCE.ID.eq(PATTERN.SEQUENCE_ID))
+            .join(LIBRARY).on(LIBRARY.ID.eq(SEQUENCE.LIBRARY_ID))
+            .where(PATTERN.SEQUENCE_ID.eq(ULong.valueOf(sequenceId)))
+            .and(PATTERN.STATE.notEqual(String.valueOf(PatternState.Erase)))
+            .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+            .and(SEQUENCE_PATTERN.OFFSET.eq(ULong.valueOf(sequencePatternOffset)))
+            .fetch(), SequencePattern.class);
+        break;
+      case Rhythm:
+      case Detail:
+        if (access.isTopLevel())
+          sequencePatterns = modelsFrom(db.select(SEQUENCE_PATTERN.fields())
+            .from(SEQUENCE_PATTERN)
+            .join(PATTERN).on(PATTERN.ID.eq(SEQUENCE_PATTERN.PATTERN_ID))
+            .where(PATTERN.SEQUENCE_ID.eq(ULong.valueOf(sequenceId)))
+            .and(PATTERN.STATE.notEqual(String.valueOf(PatternState.Erase)))
+            .and(SEQUENCE_PATTERN.OFFSET.eq(ULong.valueOf(sequencePatternOffset)))
+            .fetch(), SequencePattern.class);
+        else
+          sequencePatterns = modelsFrom(db.select(SEQUENCE_PATTERN.fields())
+            .from(SEQUENCE_PATTERN)
+            .join(PATTERN).on(PATTERN.ID.eq(SEQUENCE_PATTERN.PATTERN_ID))
+            .join(SEQUENCE).on(SEQUENCE.ID.eq(PATTERN.SEQUENCE_ID))
+            .join(LIBRARY).on(LIBRARY.ID.eq(SEQUENCE.LIBRARY_ID))
+            .where(PATTERN.SEQUENCE_ID.eq(ULong.valueOf(sequenceId)))
+            .and(PATTERN.STATE.notEqual(String.valueOf(PatternState.Erase)))
+            .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
+            .and(SEQUENCE_PATTERN.OFFSET.eq(ULong.valueOf(sequencePatternOffset)))
+            .fetch(), SequencePattern.class);
+        break;
+    }
+    return sequencePatterns;
+  }
+
+
+  /**
    Delete an SequencePattern record
 
    @param db     context
    @param access control
    @param id     to delete
-   @throws BusinessException if failure
+   @throws CoreException if failure
    */
-  private static void delete(DSLContext db, Access access, ULong id) throws BusinessException {
+  private static void delete(DSLContext db, Access access, ULong id) throws CoreException {
     if (!access.isTopLevel())
       requireExists("Sequence Pattern", db.selectCount().from(SEQUENCE_PATTERN)
         .join(SEQUENCE).on(SEQUENCE.ID.eq(SEQUENCE_PATTERN.SEQUENCE_ID))
@@ -144,10 +222,7 @@ public class SequencePatternDAOImpl extends DAOImpl implements SequencePatternDA
         .fetchOne(0, int.class));
 
     db.deleteFrom(SEQUENCE_PATTERN_MEME)
-      .where(SEQUENCE_PATTERN_MEME.SEQUENCE_PATTERN_ID.in(
-        db.select(SEQUENCE_PATTERN.ID).from(SEQUENCE_PATTERN)
-          .where(SEQUENCE_PATTERN.PATTERN_ID.eq(id))
-      )).execute();
+      .where(SEQUENCE_PATTERN_MEME.SEQUENCE_PATTERN_ID.eq(id)).execute();
 
     db.deleteFrom(SEQUENCE_PATTERN)
       .where(SEQUENCE_PATTERN.ID.eq(id))
@@ -170,50 +245,61 @@ public class SequencePatternDAOImpl extends DAOImpl implements SequencePatternDA
   }
 
   @Override
-  public SequencePattern create(Access access, SequencePattern entity) throws Exception {
+  public SequencePattern create(Access access, SequencePattern entity) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(create(tx.getContext(), access, entity));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public SequencePattern readOne(Access access, BigInteger id) throws Exception {
+  public SequencePattern readOne(Access access, BigInteger id) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readOne(tx.getContext(), access, ULong.valueOf(id)));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public Collection<SequencePattern> readAll(Access access, Collection<BigInteger> parentIds) throws Exception {
+  public Collection<SequencePattern> readAll(Access access, Collection<BigInteger> parentIds) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readAll(tx.getContext(), access, uLongValuesOf(parentIds)));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public void update(Access access, BigInteger id, SequencePattern entity) throws Exception {
-    throw new BusinessException("Not allowed to update SequencePattern record.");
+  public void update(Access access, BigInteger id, SequencePattern entity) throws CoreException {
+    throw new CoreException("Not allowed to update SequencePattern record.");
   }
 
   @Override
-  public void destroy(Access access, BigInteger id) throws Exception {
+  public void destroy(Access access, BigInteger id) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       delete(tx.getContext(), access, ULong.valueOf(id));
       tx.success();
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
+
+  @Nullable
+  @Override
+  public Collection<SequencePattern> readAllAtSequenceOffset(Access access, BigInteger sequenceId, BigInteger sequencePatternOffset) throws CoreException {
+    SQLConnection tx = dbProvider.getConnection();
+    try {
+      return tx.success(readAllAtSequenceOffset(tx.getContext(), access, sequenceId, sequencePatternOffset));
+    } catch (CoreException e) {
+      throw tx.failure(e);
+    }
+  }
 
 }

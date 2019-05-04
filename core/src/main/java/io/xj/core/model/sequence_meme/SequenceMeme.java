@@ -1,15 +1,18 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.model.sequence_meme;
 
-import io.xj.core.exception.BusinessException;
+import io.xj.core.exception.CoreException;
+import io.xj.core.model.entity.Entity;
+import io.xj.core.model.entity.impl.EntityImpl;
 import io.xj.core.model.meme.Meme;
 import io.xj.core.util.Text;
 
 import java.math.BigInteger;
+import java.util.Objects;
 
 /**
  POJO for persisting data in memory while performing business logic,
-or decoding messages received by JAX-RS resources.
+ or decoding messages received by JAX-RS resources.
  a.k.a. JSON input will be stored into an instance of this object
  <p>
  Business logic ought to be performed beginning with an instance of this object,
@@ -17,7 +20,7 @@ or decoding messages received by JAX-RS resources.
  <p>
  NOTE: There can only be ONE of any getter/setter (with the same # of input params)
  */
-public class SequenceMeme extends Meme {
+public class SequenceMeme extends EntityImpl implements Meme {
 
   /**
    For use in maps.
@@ -27,6 +30,7 @@ public class SequenceMeme extends Meme {
 
   // Sequence ID
   private BigInteger sequenceId;
+  private String name;
 
   public BigInteger getSequenceId() {
     return sequenceId;
@@ -35,6 +39,17 @@ public class SequenceMeme extends Meme {
   public SequenceMeme setSequenceId(BigInteger sequenceId) {
     this.sequenceId = sequenceId;
     return this;
+  }
+
+  @Override
+  public SequenceMeme setId(BigInteger id) {
+    this.id = id;
+    return this;
+  }
+
+  @Override
+  public String getName() {
+    return name;
   }
 
   @Override
@@ -49,11 +64,13 @@ public class SequenceMeme extends Meme {
   }
 
   @Override
-  public void validate() throws BusinessException {
+  public void validate() throws CoreException {
     if (null == sequenceId) {
-      throw new BusinessException("Sequence ID is required.");
+      throw new CoreException("Sequence ID is required.");
     }
-    super.validate();
+    if (Objects.isNull(name) || name.isEmpty()) {
+      throw new CoreException("Name is required.");
+    }
   }
 
 }

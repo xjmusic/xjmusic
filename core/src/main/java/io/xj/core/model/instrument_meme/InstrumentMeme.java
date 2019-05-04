@@ -1,7 +1,8 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.model.instrument_meme;
 
-import io.xj.core.exception.BusinessException;
+import io.xj.core.exception.CoreException;
+import io.xj.core.model.entity.impl.EntityImpl;
 import io.xj.core.model.meme.Meme;
 import io.xj.core.util.Text;
 
@@ -18,15 +19,11 @@ import java.util.Objects;
  <p>
  NOTE: There can only be ONE of any getter/setter (with the same # of input params)
  */
-public class InstrumentMeme extends Meme {
-
-  /**
-   For use in maps.
-   */
+public class InstrumentMeme extends EntityImpl implements Meme {
   public static final String KEY_ONE = "instrumentMeme";
   public static final String KEY_MANY = "instrumentMemes";
-  // Instrument ID
   private BigInteger instrumentId;
+  private String name;
 
   public BigInteger getInstrumentId() {
     return instrumentId;
@@ -35,6 +32,11 @@ public class InstrumentMeme extends Meme {
   public InstrumentMeme setInstrumentId(BigInteger instrumentId) {
     this.instrumentId = instrumentId;
     return this;
+  }
+
+  @Override
+  public String getName() {
+    return name;
   }
 
   @Override
@@ -49,11 +51,13 @@ public class InstrumentMeme extends Meme {
   }
 
   @Override
-  public void validate() throws BusinessException {
+  public void validate() throws CoreException {
     if (Objects.isNull(instrumentId)) {
-      throw new BusinessException("Instrument ID is required.");
+      throw new CoreException("Instrument ID is required.");
     }
-    super.validate();
+    if (Objects.isNull(name) || name.isEmpty()) {
+      throw new CoreException("Name is required.");
+    }
   }
 
 }

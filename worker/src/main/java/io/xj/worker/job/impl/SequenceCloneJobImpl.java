@@ -10,13 +10,12 @@ import io.xj.core.dao.SequenceDAO;
 import io.xj.core.dao.SequenceMemeDAO;
 import io.xj.core.dao.SequencePatternDAO;
 import io.xj.core.dao.VoiceDAO;
-import io.xj.core.exception.BusinessException;
+import io.xj.core.exception.CoreException;
 import io.xj.core.model.pattern.Pattern;
 import io.xj.core.model.sequence.Sequence;
 import io.xj.core.model.sequence_meme.SequenceMeme;
 import io.xj.core.model.sequence_pattern.SequencePattern;
 import io.xj.core.model.voice.Voice;
-import io.xj.core.transport.JSON;
 import io.xj.core.work.WorkManager;
 import io.xj.worker.job.SequenceCloneJob;
 import org.slf4j.Logger;
@@ -36,6 +35,7 @@ public class SequenceCloneJobImpl implements SequenceCloneJob {
   private final WorkManager workManager;
   private final SequenceMemeDAO sequenceMemeDAO;
   private final SequencePatternDAO sequencePatternDAO;
+  private final Access access = Access.internal();
 
   @Inject
   public SequenceCloneJobImpl(
@@ -72,71 +72,71 @@ public class SequenceCloneJobImpl implements SequenceCloneJob {
   }
 
   /**
-   Do Sequence Clone ExpectationOfWork
+   Do Sequence Clone Work
    Worker removes all child entities for the Sequence
    Worker deletes all S3 objects for the Sequence
    Worker deletes the Sequence
    */
   private void doWork() throws Exception {
-    Sequence from = sequenceDAO.readOne(Access.internal(), fromId);
+    Sequence from = sequenceDAO.readOne(access, fromId);
     if (Objects.isNull(from))
-      throw new BusinessException("Could not fetch clone source Sequence");
+      throw new CoreException("Could not fetch clone source Sequence");
 
-    Sequence to = sequenceDAO.readOne(Access.internal(), toId);
+    Sequence to = sequenceDAO.readOne(access, toId);
     if (Objects.isNull(to))
-      throw new BusinessException("Could not fetch clone target Sequence");
+      throw new CoreException("Could not fetch clone target Sequence");
 
     // Clone SequenceMeme
-    for (SequenceMeme sequenceMeme : sequenceMemeDAO.readAll(Access.internal(), ImmutableList.of(fromId))) {
+    for (SequenceMeme sequenceMeme : sequenceMemeDAO.readAll(access, ImmutableList.of(fromId))) {
       sequenceMeme.setSequenceId(toId);
       try {
-        SequenceMeme toSequenceMeme = sequenceMemeDAO.create(Access.internal(), sequenceMeme);
-        log.info("Cloned SequenceMeme ofMemes #{} to {}", sequenceMeme.getId(), JSON.objectFrom(toSequenceMeme));
+        SequenceMeme toSequenceMeme = sequenceMemeDAO.create(access, sequenceMeme);
+        log.info("Cloned SequenceMeme ofMemes #{} to {}", sequenceMeme.getId(), toSequenceMeme);
 
       } catch (Exception e) {
-        log.error("Failed to clone SequenceMeme {}", JSON.objectFrom(sequenceMeme), e);
+        log.error("Failed to clone SequenceMeme {}", sequenceMeme, e);
       }
     }
 
     // Clone each Voice and schedule an VoiceClone job
-    for (Voice fromVoice : voiceDAO.readAll(Access.internal(), ImmutableList.of(fromId))) {
+    for (Voice fromVoice : voiceDAO.readAll(access, ImmutableList.of(fromId))) {
       fromVoice.setSequenceId(toId);
       try {
-        Voice toVoice = voiceDAO.create(Access.internal(), fromVoice);
-        log.info("Cloned Voice ofMemes #{} to {}", fromVoice.getId(), JSON.objectFrom(toVoice));
+        Voice toVoice = voiceDAO.create(access, fromVoice);
+        log.info("Cloned Voice ofMemes #{} to {}", fromVoice.getId(), toVoice);
 
       } catch (Exception e) {
-        log.error("Failed to clone Voice {}", JSON.objectFrom(fromVoice), e);
+        log.error("Failed to clone Voice {}", fromVoice, e);
       }
     }
 
     // Read all SequencePattern to clone, but wait until pattern-cloning to actually create the new ones
-    Collection<SequencePattern> sequencePatterns = sequencePatternDAO.readAll(Access.internal(), ImmutableList.of(fromId));
+    Collection<SequencePattern> sequencePatterns = sequencePatternDAO.readAll(access, ImmutableList.of(fromId));
 
     // Clone each Pattern and schedule an PatternClone job
-    for (Pattern pattern : patternDAO.readAll(Access.internal(), ImmutableList.of(fromId))) {
+    for (Pattern pattern : patternDAO.readAll(access, ImmutableList.of(fromId))) {
       pattern.setSequenceId(toId);
       try {
-        Pattern toPattern = patternDAO.create(Access.internal(), pattern);
+        Pattern toPattern = patternDAO.create(access, pattern);
         workManager.doPatternClone(pattern.getId(), toPattern.getId());
-        log.info("Cloned Pattern ofMemes #{} to {} and scheduled PatternClone job", pattern.getId(), JSON.objectFrom(toPattern));
+        log.info("Cloned Pattern ofMemes #{} to {} and scheduled PatternClone job", pattern.getId(), toPattern);
 
         // Clone SequencePattern only that match the Pattern we're currently cloning
         for (SequencePattern sequencePattern : sequencePatterns) {
           if (Objects.equals(sequencePattern.getPatternId(), pattern.getId())) {
             sequencePattern.setSequenceId(toId);
             sequencePattern.setPatternId(toPattern.getId());
-            SequencePattern toSequencePattern = sequencePatternDAO.create(Access.internal(), sequencePattern);
-            log.info("Cloned SequencePattern ofMemes #{} to {}", sequencePattern.getId(), JSON.objectFrom(toSequencePattern));
+            SequencePattern toSequencePattern = sequencePatternDAO.create(access, sequencePattern);
+            log.info("Cloned SequencePattern ofMemes #{} to {}", sequencePattern.getId(), toSequencePattern);
           }
         }
 
       } catch (Exception e) {
-        log.error("Failed to clone Pattern {}", JSON.objectFrom(pattern), e);
+        log.error("Failed to clone Pattern {}", pattern, e);
       }
     }
 
-    log.info("Cloned Sequence #{} and child entities to new Sequence {}", fromId, JSON.objectFrom(to));
+    log.info("Cloned Sequence #{} and child entities to new Sequence {}", fromId, to);
   }
 
 

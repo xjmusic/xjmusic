@@ -1,7 +1,7 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.model.chain_sequence;
 
-import io.xj.core.exception.BusinessException;
+import io.xj.core.exception.CoreException;
 import io.xj.core.model.chain_binding.ChainBinding;
 
 import java.math.BigInteger;
@@ -55,10 +55,10 @@ public class ChainSequence extends ChainBinding {
   }
 
   @Override
-  public void validate() throws BusinessException {
+  public void validate() throws CoreException {
     super.validate();
     if (null == sequenceId) {
-      throw new BusinessException("Sequence ID is required.");
+      throw new CoreException("Sequence ID is required.");
     }
   }
 

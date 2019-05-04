@@ -3,8 +3,8 @@ package io.xj.core.dao.impl;
 
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.PlatformMessageDAO;
-import io.xj.core.exception.BusinessException;
-import io.xj.core.exception.ConfigException;
+import io.xj.core.exception.CoreException;
+import io.xj.core.exception.CoreException;
 import io.xj.core.model.platform_message.PlatformMessage;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.persistence.sql.SQLDatabaseProvider;
@@ -42,9 +42,9 @@ public class PlatformMessageDAOImpl extends DAOImpl implements PlatformMessageDA
    @param access control
    @param entity for new record
    @return newly readMany record
-   @throws BusinessException on failure
+   @throws CoreException on failure
    */
-  private static PlatformMessage create(DSLContext db, Access access, PlatformMessage entity) throws BusinessException {
+  private static PlatformMessage create(DSLContext db, Access access, PlatformMessage entity) throws CoreException {
     requireRole("platform access", access, UserRoleType.Admin, UserRoleType.Engineer);
 
     entity.validate();
@@ -61,7 +61,7 @@ public class PlatformMessageDAOImpl extends DAOImpl implements PlatformMessageDA
    @return record
    */
   @Nullable
-  private static PlatformMessage readOne(DSLContext db, Access access, ULong id) throws Exception {
+  private static PlatformMessage readOne(DSLContext db, Access access, ULong id) throws CoreException {
     requireRole("platform access", access, UserRoleType.Admin, UserRoleType.Engineer);
 
     return modelFrom(db.selectFrom(PLATFORM_MESSAGE)
@@ -77,7 +77,7 @@ public class PlatformMessageDAOImpl extends DAOImpl implements PlatformMessageDA
    @param previousDays of parent
    @return array of records
    */
-  private static Collection<PlatformMessage> readAllPreviousDays(DSLContext db, Access access, Integer previousDays) throws Exception {
+  private static Collection<PlatformMessage> readAllPreviousDays(DSLContext db, Access access, Integer previousDays) throws CoreException {
     requireRole("platform access", access, UserRoleType.Admin, UserRoleType.Engineer);
 
     return modelsFrom(db.select(PLATFORM_MESSAGE.fields())
@@ -92,11 +92,11 @@ public class PlatformMessageDAOImpl extends DAOImpl implements PlatformMessageDA
 
    @param db context
    @param id to delete
-   @throws Exception         if database failure
-   @throws ConfigException   if not configured properly
-   @throws BusinessException if fails business rule
+   @throws CoreException         if database failure
+   @throws CoreException   if not configured properly
+   @throws CoreException if fails business rule
    */
-  private static void delete(DSLContext db, Access access, ULong id) throws Exception {
+  private static void delete(DSLContext db, Access access, ULong id) throws CoreException {
     requireTopLevel(access);
 
     requireExists("PlatformMessage", db.selectCount().from(PLATFORM_MESSAGE)
@@ -123,55 +123,55 @@ public class PlatformMessageDAOImpl extends DAOImpl implements PlatformMessageDA
   }
 
   @Override
-  public PlatformMessage create(Access access, PlatformMessage entity) throws Exception {
+  public PlatformMessage create(Access access, PlatformMessage entity) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(create(tx.getContext(), access, entity));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
   @Nullable
-  public PlatformMessage readOne(Access access, BigInteger id) throws Exception {
+  public PlatformMessage readOne(Access access, BigInteger id) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readOne(tx.getContext(), access, ULong.valueOf(id)));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public Collection<PlatformMessage> readAll(Access access, Collection<BigInteger> parentIds) throws Exception {
-    throw new BusinessException("Not allowed to read all Platform Messages (must specify # previous days).");
+  public Collection<PlatformMessage> readAll(Access access, Collection<BigInteger> parentIds) throws CoreException {
+    throw new CoreException("Not allowed to read all Platform Messages (must specify # previous days).");
 
   }
 
   @Override
-  public void update(Access access, BigInteger id, PlatformMessage entity) throws Exception {
-    throw new BusinessException("Not allowed to update PlatformMessage record.");
+  public void update(Access access, BigInteger id, PlatformMessage entity) throws CoreException {
+    throw new CoreException("Not allowed to update PlatformMessage record.");
   }
 
   @Override
   @Nullable
-  public Collection<PlatformMessage> readAllPreviousDays(Access access, Integer previousDays) throws Exception {
+  public Collection<PlatformMessage> readAllPreviousDays(Access access, Integer previousDays) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readAllPreviousDays(tx.getContext(), access, previousDays));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public void destroy(Access access, BigInteger id) throws Exception {
+  public void destroy(Access access, BigInteger id) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       delete(tx.getContext(), access, ULong.valueOf(id));
       tx.success();
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }

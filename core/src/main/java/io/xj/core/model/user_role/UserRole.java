@@ -1,8 +1,9 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.model.user_role;
 
-import io.xj.core.exception.BusinessException;
+import io.xj.core.exception.CoreException;
 import io.xj.core.model.entity.Entity;
+import io.xj.core.model.entity.impl.EntityImpl;
 
 import java.math.BigInteger;
 import java.util.Objects;
@@ -15,7 +16,7 @@ import java.util.Objects;
  <p>
  NOTE: There can only be ONE of any getter/setter (with the same # of input params)
  */
-public class UserRole extends Entity {
+public class UserRole extends EntityImpl {
   private UserRoleType type;
   private BigInteger userId;
   private String _type; // to hold value before validation
@@ -26,12 +27,12 @@ public class UserRole extends Entity {
   }
 
   @Override
-  public void validate() throws BusinessException {
-    // throws its own BusinessException on failure
+  public void validate() throws CoreException {
+    // throws its own CoreException on failure
     type = UserRoleType.validate(_type);
 
     if (Objects.isNull(type)) {
-      throw new BusinessException("type is required.");
+      throw new CoreException("type is required.");
     }
   }
 

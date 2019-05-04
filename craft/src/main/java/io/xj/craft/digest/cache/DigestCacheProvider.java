@@ -5,8 +5,8 @@ import io.xj.craft.digest.chord_markov.DigestChordMarkov;
 import io.xj.craft.digest.chord_progression.DigestChordProgression;
 import io.xj.craft.digest.hash.DigestHash;
 import io.xj.craft.digest.meme.DigestMeme;
-import io.xj.craft.digest.sequence_style.DigestSequenceStyle;
-import io.xj.craft.ingest.Ingest;
+import io.xj.craft.digest.pattern_style.DigestSequenceStyle;
+import io.xj.core.ingest.Ingest;
 
 /**
  [#154350346] Architect wants a universal Ingest Factory, to modularize graph mathematics used during craft to evaluate any combination of Library, Sequence, and Instrument for any purpose.

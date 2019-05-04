@@ -2,9 +2,7 @@
 package io.xj.core.access;
 
 import io.xj.core.access.impl.Access;
-import io.xj.core.exception.AccessException;
-import io.xj.core.exception.ConfigException;
-import io.xj.core.exception.DatabaseException;
+import io.xj.core.exception.CoreException;
 import io.xj.core.model.account_user.AccountUser;
 import io.xj.core.model.user_auth.UserAuth;
 import io.xj.core.model.user_role.UserRole;
@@ -22,7 +20,7 @@ public interface AccessControlProvider {
    @param userRoles        roles that this user has access to.
    @return access token
    */
-  String create(UserAuth userAuth, Collection<AccountUser> userAccountRoles, Collection<UserRole> userRoles) throws AccessException;
+  String create(UserAuth userAuth, Collection<AccountUser> userAccountRoles, Collection<UserRole> userRoles) throws CoreException;
 
   /**
    Update an access token to grant a user access to resources.
@@ -32,14 +30,14 @@ public interface AccessControlProvider {
    @param userRoles        roles that this user has access to.
    @return map of cached properties for this user
    */
-  Map<String, String> update(String accessToken, UserAuth userAuth, Collection<AccountUser> userAccountRoles, Collection<UserRole> userRoles) throws AccessException;
+  Map<String, String> update(String accessToken, UserAuth userAuth, Collection<AccountUser> userAccountRoles, Collection<UserRole> userRoles) throws CoreException;
 
   /**
    Expire an access token.
 
    @param token to expire.
    */
-  void expire(String token) throws DatabaseException;
+  void expire(String token) throws CoreException;
 
   /**
    Fetch a token to determine if it is valid,
@@ -47,9 +45,9 @@ public interface AccessControlProvider {
 
    @param token to fetch.
    @return User who is granted access by this token
-   @throws DatabaseException if something goes wrong with storage access.
+   @throws CoreException if something goes wrong with storage access.
    */
-  Access get(String token) throws DatabaseException;
+  Access get(String token) throws CoreException;
 
   /**
    Create a new cookie to set access token.
@@ -73,9 +71,9 @@ public interface AccessControlProvider {
 
    @param accessCode to authenticate against remote system via OAuth2
    @return token for access to this system.
-   @throws AccessException if user is not authenticated.
-   @throws ConfigException if the application is not configured properly.
-   @throws Exception       if database connection(s) fail.
+   @throws CoreException if user is not authenticated.
+   @throws CoreException if the application is not configured properly.
+   @throws Exception     if database connection(s) fail.
    */
   String authenticate(String accessCode) throws Exception;
 }

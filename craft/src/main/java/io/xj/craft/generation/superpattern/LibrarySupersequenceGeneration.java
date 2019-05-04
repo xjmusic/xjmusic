@@ -1,5 +1,5 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
-package io.xj.craft.generation.supersequence;
+package io.xj.craft.generation.superpattern;
 
 import io.xj.craft.chord.ChordNode;
 import io.xj.craft.generation.Generation;

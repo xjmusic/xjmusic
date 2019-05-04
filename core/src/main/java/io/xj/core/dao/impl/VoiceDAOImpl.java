@@ -1,31 +1,27 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.dao.impl;
 
+import com.google.api.client.util.Maps;
+import com.google.inject.Inject;
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.VoiceDAO;
-import io.xj.core.exception.BusinessException;
-import io.xj.core.exception.ConfigException;
+import io.xj.core.exception.CoreException;
 import io.xj.core.model.voice.Voice;
 import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import io.xj.core.persistence.sql.impl.SQLConnection;
-
 import org.jooq.DSLContext;
 import org.jooq.Field;
 import org.jooq.types.ULong;
-
-import com.google.api.client.util.Maps;
-import com.google.inject.Inject;
 
 import javax.annotation.Nullable;
 import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Map;
 
-import static io.xj.core.tables.Arrangement.ARRANGEMENT;
 import static io.xj.core.tables.Library.LIBRARY;
+import static io.xj.core.tables.PatternEvent.PATTERN_EVENT;
 import static io.xj.core.tables.Sequence.SEQUENCE;
 import static io.xj.core.tables.Voice.VOICE;
-import static io.xj.core.tables.PatternEvent.PATTERN_EVENT;
 
 public class VoiceDAOImpl extends DAOImpl implements VoiceDAO {
 
@@ -43,9 +39,9 @@ public class VoiceDAOImpl extends DAOImpl implements VoiceDAO {
    @param access control
    @param entity for new voice
    @return newly readMany record
-   @throws BusinessException if failure
+   @throws CoreException if failure
    */
-  private static Voice create(DSLContext db, Access access, Voice entity) throws BusinessException {
+  private static Voice create(DSLContext db, Access access, Voice entity) throws CoreException {
     entity.validate();
     requireRelationships(db, access, entity);
 
@@ -60,7 +56,7 @@ public class VoiceDAOImpl extends DAOImpl implements VoiceDAO {
    @param id     of voice
    @return voice
    */
-  private static Voice readOne(DSLContext db, Access access, ULong id) throws BusinessException {
+  private static Voice readOne(DSLContext db, Access access, ULong id) throws CoreException {
     if (access.isTopLevel())
       return modelFrom(db.selectFrom(VOICE)
         .where(VOICE.ID.eq(id))
@@ -78,12 +74,12 @@ public class VoiceDAOImpl extends DAOImpl implements VoiceDAO {
   /**
    Read all Voice able for an Pattern
 
-   @param db        context
-   @param access    control
+   @param db         context
+   @param access     control
    @param sequenceId to readMany all voice of
    @return array of voices
    */
-  private static Collection<Voice> readAll(DSLContext db, Access access, Collection<ULong> sequenceId) throws BusinessException {
+  private static Collection<Voice> readAll(DSLContext db, Access access, Collection<ULong> sequenceId) throws CoreException {
     if (access.isTopLevel())
       return modelsFrom(db.select(VOICE.fields())
         .from(VOICE)
@@ -106,16 +102,16 @@ public class VoiceDAOImpl extends DAOImpl implements VoiceDAO {
    @param access control
    @param id     to update
    @param entity to update with
-   @throws BusinessException if failure
+   @throws CoreException if failure
    */
-  private static void update(DSLContext db, Access access, ULong id, Voice entity) throws Exception {
+  private static void update(DSLContext db, Access access, ULong id, Voice entity) throws CoreException {
     entity.validate();
     requireRelationships(db, access, entity);
 
     Map<Field, Object> fieldValues = fieldValueMap(entity);
     fieldValues.put(VOICE.ID, id);
     if (0 == executeUpdate(db, VOICE, fieldValues))
-      throw new BusinessException("No records updated.");
+      throw new CoreException("No records updated.");
   }
 
   /**
@@ -123,11 +119,11 @@ public class VoiceDAOImpl extends DAOImpl implements VoiceDAO {
 
    @param db context
    @param id to delete
-   @throws Exception         if database failure
-   @throws ConfigException   if not configured properly
-   @throws BusinessException if fails business rule
+   @throws CoreException if database failure
+   @throws CoreException if not configured properly
+   @throws CoreException if fails business rule
    */
-  private static void delete(Access access, DSLContext db, ULong id) throws Exception {
+  private static void delete(Access access, DSLContext db, ULong id) throws CoreException {
     if (!access.isTopLevel())
       requireExists("Voice", db.selectCount().from(VOICE)
         .join(SEQUENCE).on(SEQUENCE.ID.eq(VOICE.SEQUENCE_ID))
@@ -138,10 +134,6 @@ public class VoiceDAOImpl extends DAOImpl implements VoiceDAO {
 
     db.deleteFrom(PATTERN_EVENT)
       .where(PATTERN_EVENT.VOICE_ID.eq(id))
-      .execute();
-
-    db.deleteFrom(ARRANGEMENT)
-      .where(ARRANGEMENT.VOICE_ID.eq(id))
       .execute();
 
     db.deleteFrom(VOICE)
@@ -155,9 +147,9 @@ public class VoiceDAOImpl extends DAOImpl implements VoiceDAO {
    @param db     context
    @param access control
    @param entity to validate
-   @throws BusinessException if relationships do not exist
+   @throws CoreException if relationships do not exist
    */
-  private static void requireRelationships(DSLContext db, Access access, Voice entity) throws BusinessException {
+  private static void requireRelationships(DSLContext db, Access access, Voice entity) throws CoreException {
     if (access.isTopLevel())
       requireExists("Sequence", db.selectCount().from(SEQUENCE)
         .where(SEQUENCE.ID.eq(ULong.valueOf(entity.getSequenceId())))
@@ -186,55 +178,55 @@ public class VoiceDAOImpl extends DAOImpl implements VoiceDAO {
   }
 
   @Override
-  public Voice create(Access access, Voice entity) throws Exception {
+  public Voice create(Access access, Voice entity) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(create(tx.getContext(), access, entity));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
   @Nullable
-  public Voice readOne(Access access, BigInteger id) throws Exception {
+  public Voice readOne(Access access, BigInteger id) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readOne(tx.getContext(), access, ULong.valueOf(id)));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
   @Nullable
-  public Collection<Voice> readAll(Access access, Collection<BigInteger> parentIds) throws Exception {
+  public Collection<Voice> readAll(Access access, Collection<BigInteger> parentIds) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readAll(tx.getContext(), access, uLongValuesOf(parentIds)));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public void update(Access access, BigInteger id, Voice entity) throws Exception {
+  public void update(Access access, BigInteger id, Voice entity) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       update(tx.getContext(), access, ULong.valueOf(id), entity);
       tx.success();
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public void destroy(Access access, BigInteger id) throws Exception {
+  public void destroy(Access access, BigInteger id) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       delete(access, tx.getContext(), ULong.valueOf(id));
       tx.success();
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }

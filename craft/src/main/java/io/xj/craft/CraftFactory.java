@@ -1,8 +1,8 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.craft;
 
-import io.xj.core.exception.ConfigException;
-import io.xj.craft.basis.Basis;
+import io.xj.core.exception.CoreException;
+import io.xj.core.fabricator.Fabricator;
 import io.xj.craft.macro.MacroMainCraft;
 import io.xj.craft.harmonic.HarmonicDetailCraft;
 import io.xj.craft.rhythm.RhythmCraft;
@@ -15,11 +15,11 @@ import com.google.inject.assistedinject.Assisted;
  2. Mid
  3. Low
  <p>
- Basis basis = basisFactory.createBasis(segment);
+ Fabricator basis = basisFactory.fabricate(segment);
  craftFactory.macroMain(basis).craft();
  craftFactory.rhythm(basis).craft();
  craftFactory.voice(basis).craft();
- basis.sendReport();
+ basis.putReport();
  */
 public interface CraftFactory {
 
@@ -27,34 +27,34 @@ public interface CraftFactory {
    Create Foundation Craft instance for a particular segment
    [#138] Foundation craft for Segment of a Chain
 
-   @param basis of craft
+   @param fabricator of craft
    @return MacroMainCraft
-   @throws ConfigException on failure
+   @throws CoreException on failure
    */
   MacroMainCraft macroMain(
-    @Assisted("basis") Basis basis
-  ) throws ConfigException;
+    @Assisted("basis") Fabricator fabricator
+  ) throws CoreException;
 
   /**
    Create Rhythm Craft instance for a particular segment
 
-   @param basis of craft
+   @param fabricator of craft
    @return RhythmCraft
-   @throws ConfigException on failure
+   @throws CoreException on failure
    */
   RhythmCraft rhythm(
-    @Assisted("basis") Basis basis
-  ) throws ConfigException;
+    @Assisted("basis") Fabricator fabricator
+  ) throws CoreException;
 
   /**
    Create Detail Craft instance for a particular segment
 
-   @param basis of craft
+   @param fabricator of craft
    @return HarmonicDetailCraft
-   @throws ConfigException on failure
+   @throws CoreException on failure
    */
   HarmonicDetailCraft harmonicDetail(
-    @Assisted("basis") Basis basis
-  ) throws ConfigException;
+    @Assisted("basis") Fabricator fabricator
+  ) throws CoreException;
 
 }

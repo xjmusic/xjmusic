@@ -4,8 +4,8 @@ package io.xj.core.dao.impl;
 import io.xj.core.Tables;
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.SequencePatternMemeDAO;
-import io.xj.core.exception.BusinessException;
-import io.xj.core.exception.ConfigException;
+import io.xj.core.exception.CoreException;
+import io.xj.core.exception.CoreException;
 import io.xj.core.model.sequence_pattern_meme.SequencePatternMeme;
 import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import io.xj.core.persistence.sql.impl.SQLConnection;
@@ -48,11 +48,11 @@ public class SequencePatternMemeDAOImpl extends DAOImpl implements SequencePatte
    @param access control
    @param entity for new SequencePatternMeme
    @return new record
-   @throws Exception         if database failure
-   @throws ConfigException   if not configured properly
-   @throws BusinessException if fails business rule
+   @throws CoreException         if database failure
+   @throws CoreException   if not configured properly
+   @throws CoreException if fails business rule
    */
-  private static SequencePatternMeme create(DSLContext db, Access access, SequencePatternMeme entity) throws Exception {
+  private static SequencePatternMeme create(DSLContext db, Access access, SequencePatternMeme entity) throws CoreException {
     entity.validate();
 
     Map<Field, Object> fieldValues = fieldValueMap(entity);
@@ -73,7 +73,7 @@ public class SequencePatternMemeDAOImpl extends DAOImpl implements SequencePatte
       .where(SEQUENCE_PATTERN_MEME.SEQUENCE_PATTERN_ID.eq(ULong.valueOf(entity.getSequencePatternId())))
       .and(SEQUENCE_PATTERN_MEME.NAME.eq(entity.getName()))
       .fetchOne())
-      throw new BusinessException("Pattern Meme already exists!");
+      throw new CoreException("Pattern Meme already exists!");
 
     return modelFrom(executeCreate(db, SEQUENCE_PATTERN_MEME, fieldValues), SequencePatternMeme.class);
   }
@@ -86,15 +86,15 @@ public class SequencePatternMemeDAOImpl extends DAOImpl implements SequencePatte
    @param id     of record
    @return record
    */
-  private static SequencePatternMeme readOne(DSLContext db, Access access, ULong id) throws BusinessException {
+  private static SequencePatternMeme readOne(DSLContext db, Access access, ULong id) throws CoreException {
     if (access.isTopLevel())
       return modelFrom(db.selectFrom(SEQUENCE_PATTERN_MEME)
         .where(SEQUENCE_PATTERN_MEME.ID.eq(id))
         .fetchOne(), SequencePatternMeme.class);
     else
       return modelFrom(db.select(SEQUENCE_PATTERN_MEME.fields()).from(SEQUENCE_PATTERN_MEME)
-        .join(PATTERN).on(PATTERN.ID.eq(SEQUENCE_PATTERN_MEME.SEQUENCE_PATTERN_ID))
-        .join(SEQUENCE).on(SEQUENCE.ID.eq(PATTERN.SEQUENCE_ID))
+        .join(SEQUENCE_PATTERN).on(SEQUENCE_PATTERN.ID.eq(SEQUENCE_PATTERN_MEME.SEQUENCE_PATTERN_ID))
+        .join(SEQUENCE).on(SEQUENCE.ID.eq(SEQUENCE_PATTERN.SEQUENCE_ID))
         .join(LIBRARY).on(SEQUENCE.LIBRARY_ID.eq(LIBRARY.ID))
         .where(SEQUENCE_PATTERN_MEME.ID.eq(id))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
@@ -106,20 +106,20 @@ public class SequencePatternMemeDAOImpl extends DAOImpl implements SequencePatte
 
    @param db       context
    @param access   control
-   @param patternIds to readMany memes for
+   @param sequencePatternIds to readMany memes for
    @return array of pattern memes
    */
-  private static Collection<SequencePatternMeme> readAll(DSLContext db, Access access, Collection<ULong> patternIds) throws BusinessException {
+  private static Collection<SequencePatternMeme> readAll(DSLContext db, Access access, Collection<ULong> sequencePatternIds) throws CoreException {
     if (access.isTopLevel())
       return modelsFrom(db.selectFrom(SEQUENCE_PATTERN_MEME)
-        .where(SEQUENCE_PATTERN_MEME.SEQUENCE_PATTERN_ID.in(patternIds))
+        .where(SEQUENCE_PATTERN_MEME.SEQUENCE_PATTERN_ID.in(sequencePatternIds))
         .fetch(), SequencePatternMeme.class);
     else
       return modelsFrom(db.select(SEQUENCE_PATTERN_MEME.fields()).from(SEQUENCE_PATTERN_MEME)
-        .join(PATTERN).on(PATTERN.ID.eq(SEQUENCE_PATTERN_MEME.SEQUENCE_PATTERN_ID))
-        .join(SEQUENCE).on(SEQUENCE.ID.eq(PATTERN.SEQUENCE_ID))
+        .join(SEQUENCE_PATTERN).on(SEQUENCE_PATTERN.ID.eq(SEQUENCE_PATTERN_MEME.SEQUENCE_PATTERN_ID))
+        .join(SEQUENCE).on(SEQUENCE.ID.eq(SEQUENCE_PATTERN.SEQUENCE_ID))
         .join(LIBRARY).on(SEQUENCE.LIBRARY_ID.eq(LIBRARY.ID))
-        .where(PATTERN.ID.in(patternIds))
+        .where(SEQUENCE_PATTERN.ID.in(sequencePatternIds))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .fetch(), SequencePatternMeme.class);
   }
@@ -130,13 +130,13 @@ public class SequencePatternMemeDAOImpl extends DAOImpl implements SequencePatte
    @param db     context
    @param access control
    @param id     to delete
-   @throws BusinessException if failure
+   @throws CoreException if failure
    */
-  private static void delete(DSLContext db, Access access, ULong id) throws BusinessException {
+  private static void delete(DSLContext db, Access access, ULong id) throws CoreException {
     if (!access.isTopLevel())
-      requireExists("Pattern Meme", db.selectCount().from(SEQUENCE_PATTERN_MEME)
-        .join(PATTERN).on(PATTERN.ID.eq(SEQUENCE_PATTERN_MEME.SEQUENCE_PATTERN_ID))
-        .join(SEQUENCE).on(SEQUENCE.ID.eq(PATTERN.SEQUENCE_ID))
+      requireExists("Sequence Pattern Meme", db.selectCount().from(SEQUENCE_PATTERN_MEME)
+        .join(SEQUENCE_PATTERN).on(SEQUENCE_PATTERN.ID.eq(SEQUENCE_PATTERN_MEME.SEQUENCE_PATTERN_ID))
+        .join(SEQUENCE).on(SEQUENCE.ID.eq(SEQUENCE_PATTERN.SEQUENCE_ID))
         .join(LIBRARY).on(SEQUENCE.LIBRARY_ID.eq(LIBRARY.ID))
         .where(SEQUENCE_PATTERN_MEME.ID.eq(id))
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
@@ -162,48 +162,48 @@ public class SequencePatternMemeDAOImpl extends DAOImpl implements SequencePatte
   }
 
   @Override
-  public SequencePatternMeme create(Access access, SequencePatternMeme entity) throws Exception {
+  public SequencePatternMeme create(Access access, SequencePatternMeme entity) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(create(tx.getContext(), access, entity));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public SequencePatternMeme readOne(Access access, BigInteger id) throws Exception {
+  public SequencePatternMeme readOne(Access access, BigInteger id) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readOne(tx.getContext(), access, ULong.valueOf(id)));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public Collection<SequencePatternMeme> readAll(Access access, Collection<BigInteger> parentIds) throws Exception {
+  public Collection<SequencePatternMeme> readAll(Access access, Collection<BigInteger> parentIds) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readAll(tx.getContext(), access, uLongValuesOf(parentIds)));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public void update(Access access, BigInteger id, SequencePatternMeme entity) throws Exception {
-    throw new BusinessException("Not allowed to update SequencePatternMeme record.");
+  public void update(Access access, BigInteger id, SequencePatternMeme entity) throws CoreException {
+    throw new CoreException("Not allowed to update SequencePatternMeme record.");
 
   }
 
   @Override
-  public void destroy(Access access, BigInteger id) throws Exception {
+  public void destroy(Access access, BigInteger id) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       delete(tx.getContext(), access, ULong.valueOf(id));
       tx.success();
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }

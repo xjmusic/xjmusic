@@ -2,6 +2,7 @@
 package io.xj.core.dao;
 
 import io.xj.core.access.impl.Access;
+import io.xj.core.exception.CoreException;
 import io.xj.core.model.instrument.Instrument;
 
 import java.math.BigInteger;
@@ -17,7 +18,7 @@ public interface InstrumentDAO extends DAO<Instrument> {
    @param entity  for the new Instrument
    @return newly readMany record
    */
-  Instrument clone(Access access, BigInteger cloneId, Instrument entity) throws Exception;
+  Instrument clone(Access access, BigInteger cloneId, Instrument entity) throws CoreException;
 
   /**
    Fetch many instrument for one Account by id, if accessible
@@ -25,18 +26,18 @@ public interface InstrumentDAO extends DAO<Instrument> {
    @param access    control
    @param accountId to fetch instruments for.
    @return Collection of instruments.
-   @throws Exception on failure
+   @throws CoreException on failure
    */
-  Collection<Instrument> readAllInAccount(Access access, BigInteger accountId) throws Exception;
+  Collection<Instrument> readAllInAccount(Access access, BigInteger accountId) throws CoreException;
 
   /**
    Fetch all instrument visible to given access
 
    @param access control
    @return Collection of instruments.
-   @throws Exception on failure
+   @throws CoreException on failure
    */
-  Collection<Instrument> readAll(Access access) throws Exception;
+  Collection<Instrument> readAll(Access access) throws CoreException;
 
   /**
    Fetch many instrument bound to a particular chain
@@ -44,9 +45,9 @@ public interface InstrumentDAO extends DAO<Instrument> {
    @param access  control
    @param chainId to fetch instruments for.
    @return collection of instruments.
-   @throws Exception on failure
+   @throws CoreException on failure
    */
-  Collection<Instrument> readAllBoundToChain(Access access, BigInteger chainId) throws Exception;
+  Collection<Instrument> readAllBoundToChain(Access access, BigInteger chainId) throws CoreException;
 
 
 }

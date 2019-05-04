@@ -3,8 +3,8 @@ package io.xj.core.dao.impl;
 
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.PatternChordDAO;
-import io.xj.core.exception.BusinessException;
-import io.xj.core.exception.ConfigException;
+import io.xj.core.exception.CoreException;
+import io.xj.core.exception.CoreException;
 import io.xj.core.model.pattern_chord.PatternChord;
 import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import io.xj.core.persistence.sql.impl.SQLConnection;
@@ -43,9 +43,9 @@ public class PatternChordDAOImpl extends DAOImpl implements PatternChordDAO {
    @param access control
    @param entity for new pattern
    @return newly readMany record
-   @throws BusinessException if failure
+   @throws CoreException if failure
    */
-  private static PatternChord createRecord(DSLContext db, Access access, PatternChord entity) throws BusinessException {
+  private static PatternChord createRecord(DSLContext db, Access access, PatternChord entity) throws CoreException {
     entity.validate();
 
     Map<Field, Object> fieldValues = fieldValueMap(entity);
@@ -73,7 +73,7 @@ public class PatternChordDAOImpl extends DAOImpl implements PatternChordDAO {
    @param id     of pattern
    @return pattern
    */
-  private static PatternChord readOne(DSLContext db, Access access, ULong id) throws BusinessException {
+  private static PatternChord readOne(DSLContext db, Access access, ULong id) throws CoreException {
     if (access.isTopLevel())
       return modelFrom(db.selectFrom(PATTERN_CHORD)
         .where(PATTERN_CHORD.ID.eq(id))
@@ -97,7 +97,7 @@ public class PatternChordDAOImpl extends DAOImpl implements PatternChordDAO {
    @param patternIds to readMany all pattern of
    @return array of patterns
    */
-  private static Collection<PatternChord> readAll(DSLContext db, Access access, Collection<ULong> patternIds) throws BusinessException {
+  private static Collection<PatternChord> readAll(DSLContext db, Access access, Collection<ULong> patternIds) throws CoreException {
     if (access.isTopLevel())
       return modelsFrom(db.select(PATTERN_CHORD.fields())
         .from(PATTERN_CHORD)
@@ -123,9 +123,9 @@ public class PatternChordDAOImpl extends DAOImpl implements PatternChordDAO {
    @param access control
    @param id     to update
    @param entity to update with
-   @throws BusinessException if failure
+   @throws CoreException if failure
    */
-  private static void update(DSLContext db, Access access, BigInteger id, PatternChord entity) throws BusinessException {
+  private static void update(DSLContext db, Access access, BigInteger id, PatternChord entity) throws CoreException {
     entity.validate();
 
     Map<Field, Object> fieldValues = fieldValueMap(entity);
@@ -144,7 +144,7 @@ public class PatternChordDAOImpl extends DAOImpl implements PatternChordDAO {
         .fetchOne(0, int.class));
 
     if (0 == executeUpdate(db, PATTERN_CHORD, fieldValues))
-      throw new BusinessException("No records updated.");
+      throw new CoreException("No records updated.");
   }
 
   /**
@@ -152,11 +152,11 @@ public class PatternChordDAOImpl extends DAOImpl implements PatternChordDAO {
 
    @param db context
    @param id to delete
-   @throws Exception         if database failure
-   @throws ConfigException   if not configured properly
-   @throws BusinessException if fails business rule
+   @throws CoreException         if database failure
+   @throws CoreException   if not configured properly
+   @throws CoreException if fails business rule
    */
-  private static void delete(Access access, DSLContext db, BigInteger id) throws Exception {
+  private static void delete(Access access, DSLContext db, BigInteger id) throws CoreException {
     if (!access.isTopLevel())
       requireExists("Pattern Chord", db.selectCount().from(PATTERN_CHORD)
         .join(Pattern.PATTERN).on(Pattern.PATTERN.ID.eq(PATTERN_CHORD.PATTERN_ID))
@@ -187,55 +187,55 @@ public class PatternChordDAOImpl extends DAOImpl implements PatternChordDAO {
   }
 
   @Override
-  public PatternChord create(Access access, PatternChord entity) throws Exception {
+  public PatternChord create(Access access, PatternChord entity) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(createRecord(tx.getContext(), access, entity));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
   @Nullable
-  public PatternChord readOne(Access access, BigInteger id) throws Exception {
+  public PatternChord readOne(Access access, BigInteger id) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readOne(tx.getContext(), access, ULong.valueOf(id)));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
   @Nullable
-  public Collection<PatternChord> readAll(Access access, Collection<BigInteger> parentIds) throws Exception {
+  public Collection<PatternChord> readAll(Access access, Collection<BigInteger> parentIds) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readAll(tx.getContext(), access, uLongValuesOf(parentIds)));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public void update(Access access, BigInteger id, PatternChord entity) throws Exception {
+  public void update(Access access, BigInteger id, PatternChord entity) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       update(tx.getContext(), access, id, entity);
       tx.success();
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public void destroy(Access access, BigInteger id) throws Exception {
+  public void destroy(Access access, BigInteger id) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       delete(access, tx.getContext(), id);
       tx.success();
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }

@@ -2,8 +2,8 @@
 package io.xj.core.cache.audio.impl;
 
 import io.xj.core.config.Config;
-import io.xj.core.exception.ConfigException;
-import io.xj.core.exception.NetworkException;
+import io.xj.core.exception.CoreException;
+import io.xj.core.exception.CoreException;
 import io.xj.core.cache.audio.AudioCacheProvider;
 import io.xj.core.external.amazon.AmazonProvider;
 
@@ -98,7 +98,7 @@ public class AudioCacheProviderImpl implements AudioCacheProvider {
    @param key to compute value for
    @return computed item
    */
-  private Item fetchAndWrite(String key) throws ConfigException, NetworkException, IOException {
+  private Item fetchAndWrite(String key) throws CoreException, CoreException, IOException {
     Item item = new Item(key);
     item.writeFrom(amazonProvider.streamS3Object(
       Config.audioFileBucket(), key));

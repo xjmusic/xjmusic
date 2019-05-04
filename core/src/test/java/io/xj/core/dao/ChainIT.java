@@ -9,8 +9,7 @@ import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
-import io.xj.core.exception.BusinessException;
-import io.xj.core.exception.CancelException;
+import io.xj.core.exception.CoreException;
 import io.xj.core.external.amazon.AmazonProvider;
 import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.model.chain.Chain;
@@ -22,10 +21,7 @@ import io.xj.core.model.segment.Segment;
 import io.xj.core.model.segment.SegmentState;
 import io.xj.core.model.sequence.SequenceState;
 import io.xj.core.model.sequence.SequenceType;
-import io.xj.core.transport.JSON;
 import io.xj.core.work.WorkManager;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -89,7 +85,7 @@ public class ChainIT {
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     System.clearProperty("segment.file.bucket");
   }
 
@@ -146,7 +142,7 @@ public class ChainIT {
   @Test
   public void create_withEmbedKey_failsIfEmbedKeyAlreadyExists() throws Exception {
     IntegrationTestEntity.insertChain(3, 1, "bucket", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2015-05-10 12:17:02.527142"), Timestamp.valueOf("2015-06-09 12:17:01.047563"), "my_favorite_things");
-    failure.expect(BusinessException.class);
+    failure.expect(CoreException.class);
     failure.expectMessage("Found Existing Chain with this embed_key");
 
     Access access = new Access(ImmutableMap.of(
@@ -247,8 +243,7 @@ public class ChainIT {
       .setName("manuts")
       .setState("Draft")
       .setType("Production")
-      .setStartAt("2009-08-12 12:17:02.527142")
-      .setStopAt("");
+      .setStartAt("2009-08-12 12:17:02.527142");
 
     Chain result = testDAO.create(access, inputData);
 
@@ -273,7 +268,7 @@ public class ChainIT {
       .setStartAt("2009-08-12 12:17:02.527142")
       .setStopAt("2009-09-11 12:17:01.047563");
 
-    failure.expect(BusinessException.class);
+    failure.expect(CoreException.class);
     failure.expectMessage("Account ID is required");
 
     testDAO.create(access, inputData);
@@ -292,7 +287,7 @@ public class ChainIT {
       .setStartAt("2009-08-12 12:17:02.527142")
       .setStopAt("2009-09-11 12:17:01.047563");
 
-    failure.expect(BusinessException.class);
+    failure.expect(CoreException.class);
     failure.expectMessage("'bullshit state' is not a valid state");
 
     testDAO.create(access, inputData);
@@ -304,10 +299,10 @@ public class ChainIT {
       "roles", "User",
       "accounts", "326"
     ));
+    failure.expect(CoreException.class);
+    failure.expectMessage("does not exist");
 
-    Chain result = testDAO.readOne(access, BigInteger.valueOf(1L));
-
-    assertNull(result);
+    testDAO.readOne(access, BigInteger.valueOf(1L));
   }
 
   @Test
@@ -351,34 +346,15 @@ public class ChainIT {
   }
 
   @Test
-  public void readOne_toJSONObject() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "User",
-      "accounts", "1"
-    ));
-
-    JSONObject result = JSON.objectFrom(testDAO.readOne(access, BigInteger.valueOf(2L)));
-
-    assertNotNull(result);
-    assertEquals(2, result.get("id"));
-    assertEquals(1, result.get("accountId"));
-    assertEquals("bucket", result.get("name"));
-    assertEquals("2015-05-10 12:17:02.527142Z", result.get("startAt"));
-    assertEquals("2015-06-09 12:17:01.047563Z", result.get("stopAt"));
-    assertEquals("Fabricate", result.get("state"));
-    assertEquals("Production", result.get("type"));
-  }
-
-  @Test
   public void readOneJSONObject_FailsWhenUserIsNotInAccount() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "User",
       "accounts", "326"
     ));
+    failure.expect(CoreException.class);
+    failure.expectMessage("does not exist");
 
-    Chain result = testDAO.readOne(access, BigInteger.valueOf(1L));
-
-    assertNull(result);
+    testDAO.readOne(access, BigInteger.valueOf(1L));
   }
 
   @Test
@@ -388,14 +364,9 @@ public class ChainIT {
       "accounts", "1"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1L))));
+    Collection<Chain> result = testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1L)));
 
-    assertNotNull(result);
-    assertEquals(2L, result.length());
-    JSONObject result1 = (JSONObject) result.get(0);
-    assertEquals("school", result1.get("name"));
-    JSONObject result2 = (JSONObject) result.get(1);
-    assertEquals("bucket", result2.get("name"));
+    assertEquals(2L, result.size());
   }
 
   @Test
@@ -406,14 +377,9 @@ public class ChainIT {
       "accounts", "1"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1L))));
+    Collection<Chain> result = testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1L)));
 
-    assertNotNull(result);
-    assertEquals(2L, result.length());
-    JSONObject result1 = (JSONObject) result.get(0);
-    assertEquals("school", result1.get("name"));
-    JSONObject result2 = (JSONObject) result.get(1);
-    assertEquals("bucket", result2.get("name"));
+    assertEquals(2L, result.size());
   }
 
   @Test
@@ -434,10 +400,10 @@ public class ChainIT {
       "accounts", "345"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1L))));
+    Collection<Chain> result = testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1L)));
 
     assertNotNull(result);
-    assertEquals(0L, result.length());
+    assertEquals(0L, result.size());
   }
 
   @Test
@@ -523,7 +489,7 @@ public class ChainIT {
   @Test
   public void update_addEmbedKey_failsIfEmbedKeyAlreadyExists() throws Exception {
     IntegrationTestEntity.insertChain(3, 1, "bucket", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2015-05-10 12:17:02.527142"), Timestamp.valueOf("2015-06-09 12:17:01.047563"), "twenty_four_hours");
-    failure.expect(BusinessException.class);
+    failure.expect(CoreException.class);
     failure.expectMessage("Found Existing Chain with this embed_key");
 
     Access access = new Access(ImmutableMap.of(
@@ -607,9 +573,9 @@ public class ChainIT {
       .setState("Fabricate")
       .setStartAt("2015-05-10 12:17:03.527142")
       .setStopAt("2015-06-09 12:17:01.047563");
-    IntegrationTestEntity.insertSegment(6, 2, 5, SegmentState.Crafted, Timestamp.valueOf("2015-05-10 12:18:02.527142"), Timestamp.valueOf("2015-05-10 12:18:32.527142"), "A major", 64, 0.52, 120.0, "chain-1-segment-97898asdf7892.wav", new JSONObject());
+    IntegrationTestEntity.insertSegment_NoContent(6, 2, 5, SegmentState.Crafted, Timestamp.valueOf("2015-05-10 12:18:02.527142"), Timestamp.valueOf("2015-05-10 12:18:32.527142"), "A major", 64, 0.52, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
 
-    failure.expect(BusinessException.class);
+    failure.expect(CoreException.class);
     failure.expectMessage("cannot change chain startAt time after it has segments");
 
     testDAO.update(access, BigInteger.valueOf(2L), inputData);
@@ -627,7 +593,7 @@ public class ChainIT {
       .setType("Production")
       .setStartAt("2015-05-10 12:17:02.527142")
       .setStopAt("2015-06-09 12:17:01.047563");
-    IntegrationTestEntity.insertSegment(6, 2, 5, SegmentState.Crafted, Timestamp.valueOf("2015-05-10 12:18:02.527142"), Timestamp.valueOf("2015-05-10 12:18:32.527142"), "A major", 64, 0.52, 120.0, "chain-1-segment-97898asdf7892.wav", new JSONObject());
+    IntegrationTestEntity.insertSegment_NoContent(6, 2, 5, SegmentState.Crafted, Timestamp.valueOf("2015-05-10 12:18:02.527142"), Timestamp.valueOf("2015-05-10 12:18:32.527142"), "A major", 64, 0.52, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
 
     testDAO.update(access, BigInteger.valueOf(2L), inputData);
 
@@ -677,7 +643,7 @@ public class ChainIT {
       .setStartAt("2009-08-12 12:17:02.527142")
       .setStopAt("2009-09-11 12:17:01.047563");
 
-    failure.expect(BusinessException.class);
+    failure.expect(CoreException.class);
     failure.expectMessage("Account ID is required");
 
     testDAO.update(access, BigInteger.valueOf(2L), inputData);
@@ -695,7 +661,7 @@ public class ChainIT {
       .setStartAt("2009-08-12 12:17:02.527142")
       .setStopAt("2009-09-11 12:17:01.047563");
 
-    failure.expect(BusinessException.class);
+    failure.expect(CoreException.class);
     failure.expectMessage("Name is required");
 
     testDAO.update(access, BigInteger.valueOf(2L), inputData);
@@ -741,7 +707,7 @@ public class ChainIT {
       "accounts", "54"
     ));
 
-    failure.expect(BusinessException.class);
+    failure.expect(CoreException.class);
     failure.expectMessage("must have either top-level or account access");
 
     testDAO.updateState(access, BigInteger.valueOf(2L), ChainState.Complete);
@@ -768,7 +734,7 @@ public class ChainIT {
       "accounts", "1"
     ));
 
-    failure.expect(BusinessException.class);
+    failure.expect(CoreException.class);
     failure.expectMessage("Engineer role is required");
 
     testDAO.updateState(access, BigInteger.valueOf(2L), ChainState.Complete);
@@ -782,7 +748,7 @@ public class ChainIT {
       "accounts", "1"
     ));
 
-    failure.expect(BusinessException.class);
+    failure.expect(CoreException.class);
     failure.expectMessage("Artist or Engineer role is required");
 
     testDAO.updateState(access, BigInteger.valueOf(3L), ChainState.Complete);
@@ -796,7 +762,7 @@ public class ChainIT {
       "accounts", "1"
     ));
 
-    failure.expect(BusinessException.class);
+    failure.expect(CoreException.class);
     failure.expectMessage("Chain must be bound to at least one Library, Sequence, or Instrument");
 
     testDAO.updateState(access, BigInteger.valueOf(3L), ChainState.Ready);
@@ -806,7 +772,7 @@ public class ChainIT {
   public void updateState_outOfDraft_BoundToLibrary() throws Exception {
     IntegrationTestEntity.insertChain(3, 1, "bucket", ChainType.Production, ChainState.Draft, Timestamp.valueOf("2015-05-10 12:17:02.527142"), null, null);
     IntegrationTestEntity.insertLibrary(3, 1, "pajamas");
-    IntegrationTestEntity.insertChainLibrary(1, 3, 3);
+    IntegrationTestEntity.insertChainLibrary(3, 3);
 
     Access access = new Access(ImmutableMap.of(
       "roles", "User,Artist,Engineer",
@@ -826,7 +792,7 @@ public class ChainIT {
     IntegrationTestEntity.insertChain(3, 1, "bucket", ChainType.Production, ChainState.Draft, Timestamp.valueOf("2015-05-10 12:17:02.527142"), null, null);
     IntegrationTestEntity.insertLibrary(3, 1, "pajamas");
     IntegrationTestEntity.insertSequence(3, 3, 3, SequenceType.Main, SequenceState.Published, "fonds", 0.342, "C#", 0.286);
-    IntegrationTestEntity.insertChainSequence(1, 3, 3);
+    IntegrationTestEntity.insertChainSequence(3, 3);
 
     Access access = new Access(ImmutableMap.of(
       "roles", "User,Artist,Engineer",
@@ -849,10 +815,10 @@ public class ChainIT {
     IntegrationTestEntity.insertSequence(4, 3, 3, SequenceType.Macro, SequenceState.Published, "trees A to B", 0.7, "D#", 0.4);
     IntegrationTestEntity.insertSequence(5, 3, 3, SequenceType.Macro, SequenceState.Published, "trees B to A", 0.6, "F", 0.6);
     IntegrationTestEntity.insertSequence(6, 3, 3, SequenceType.Rhythm, SequenceState.Published, "beets", 0.5, "C", 1.5);
-    IntegrationTestEntity.insertChainSequence(1, 3, 3);
-    IntegrationTestEntity.insertChainSequence(2, 3, 4);
-    IntegrationTestEntity.insertChainSequence(3, 3, 5);
-    IntegrationTestEntity.insertChainSequence(4, 3, 6);
+    IntegrationTestEntity.insertChainSequence(3, 3);
+    IntegrationTestEntity.insertChainSequence(3, 4);
+    IntegrationTestEntity.insertChainSequence(3, 5);
+    IntegrationTestEntity.insertChainSequence(3, 6);
 
     Access access = new Access(ImmutableMap.of(
       "roles", "User,Artist,Engineer",
@@ -872,7 +838,7 @@ public class ChainIT {
     IntegrationTestEntity.insertChain(3, 1, "bucket", ChainType.Production, ChainState.Draft, Timestamp.valueOf("2015-05-10 12:17:02.527142"), null, null);
     IntegrationTestEntity.insertLibrary(3, 1, "pajamas");
     IntegrationTestEntity.insertInstrument(3, 3, 3, "fonds", InstrumentType.Harmonic, 0.342);
-    IntegrationTestEntity.insertChainInstrument(1, 3, 3);
+    IntegrationTestEntity.insertChainInstrument(3, 3);
 
     Access access = new Access(ImmutableMap.of(
       "roles", "User,Artist,Engineer",
@@ -897,7 +863,7 @@ public class ChainIT {
     ));
     IntegrationTestEntity.insertChain(274, 1, "school", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"), "jabberwocky");
     IntegrationTestEntity.insertLibrary(3, 1, "pajamas");
-    IntegrationTestEntity.insertChainLibrary(2, 274, 3);
+    IntegrationTestEntity.insertChainLibrary(274, 3);
 
     Chain result = testDAO.revive(access, BigInteger.valueOf(274L));
 
@@ -926,9 +892,8 @@ public class ChainIT {
     Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
-
-    failure.expect(BusinessException.class);
-    failure.expectMessage("prior Chain does not exist");
+    failure.expect(CoreException.class);
+    failure.expectMessage("does not exist");
 
     testDAO.revive(access, BigInteger.valueOf(274L));
   }
@@ -943,9 +908,8 @@ public class ChainIT {
     ));
     IntegrationTestEntity.insertChain(274, 1, "school", ChainType.Production, ChainState.Ready, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"), "jabberwocky");
     IntegrationTestEntity.insertLibrary(3, 1, "pajamas");
-    IntegrationTestEntity.insertChainLibrary(2, 274, 3);
-
-    failure.expect(BusinessException.class);
+    IntegrationTestEntity.insertChainLibrary(274, 3);
+    failure.expect(CoreException.class);
     failure.expectMessage("Only a Fabricate-state Chain can be revived.");
 
     testDAO.revive(access, BigInteger.valueOf(274L));
@@ -962,7 +926,7 @@ public class ChainIT {
     ));
     IntegrationTestEntity.insertChain(274, 1, "school", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"), "jabberwocky");
     IntegrationTestEntity.insertLibrary(3, 1, "pajamas");
-    IntegrationTestEntity.insertChainLibrary(2, 274, 3);
+    IntegrationTestEntity.insertChainLibrary(274, 3);
 
     Chain result = testDAO.revive(access, BigInteger.valueOf(274L));
 
@@ -984,10 +948,9 @@ public class ChainIT {
     ));
     IntegrationTestEntity.insertChain(274, 1, "school", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"), "jabberwocky");
     IntegrationTestEntity.insertLibrary(3, 1, "pajamas");
-    IntegrationTestEntity.insertChainLibrary(2, 274, 3);
-
-    failure.expect(BusinessException.class);
-    failure.expectMessage("prior Chain does not exist");
+    IntegrationTestEntity.insertChainLibrary(274, 3);
+    failure.expect(CoreException.class);
+    failure.expectMessage("does not exist");
 
     testDAO.revive(access, BigInteger.valueOf(274L));
   }
@@ -1003,20 +966,20 @@ public class ChainIT {
     ));
     IntegrationTestEntity.insertUser(3, "jenny", "jenny@email.com", "http://pictures.com/jenny.gif");
     IntegrationTestEntity.insertChain(274, 1, "school", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"), "jabberwocky");
-    IntegrationTestEntity.insertChainConfig(2, 274, ChainConfigType.OutputFrameRate, "1,4,35");
-    IntegrationTestEntity.insertChainConfig(3, 274, ChainConfigType.OutputChannels, "2,83,4");
+    IntegrationTestEntity.insertChainConfig(274, ChainConfigType.OutputFrameRate, "1,4,35");
+    IntegrationTestEntity.insertChainConfig(274, ChainConfigType.OutputChannels, "2,83,4");
     IntegrationTestEntity.insertLibrary(3, 1, "pajamas");
-    IntegrationTestEntity.insertChainLibrary(2, 274, 3);
+    IntegrationTestEntity.insertChainLibrary(274, 3);
     IntegrationTestEntity.insertSequence(3, 3, 3, SequenceType.Main, SequenceState.Published, "fonds", 0.342, "C#", 0.286);
     IntegrationTestEntity.insertSequence(4, 3, 3, SequenceType.Macro, SequenceState.Published, "trees A to B", 0.7, "D#", 0.4);
     IntegrationTestEntity.insertSequence(5, 3, 3, SequenceType.Macro, SequenceState.Published, "trees B to A", 0.6, "F", 0.6);
     IntegrationTestEntity.insertSequence(6, 3, 3, SequenceType.Rhythm, SequenceState.Published, "beets", 0.5, "C", 1.5);
-    IntegrationTestEntity.insertChainSequence(1, 274, 3);
-    IntegrationTestEntity.insertChainSequence(2, 274, 4);
-    IntegrationTestEntity.insertChainSequence(3, 274, 5);
-    IntegrationTestEntity.insertChainSequence(4, 274, 6);
+    IntegrationTestEntity.insertChainSequence(274, 3);
+    IntegrationTestEntity.insertChainSequence(274, 4);
+    IntegrationTestEntity.insertChainSequence(274, 5);
+    IntegrationTestEntity.insertChainSequence(274, 6);
     IntegrationTestEntity.insertInstrument(3, 3, 3, "fonds", InstrumentType.Harmonic, 0.342);
-    IntegrationTestEntity.insertChainInstrument(2, 274, 3);
+    IntegrationTestEntity.insertChainInstrument(274, 3);
 
     Chain result = testDAO.revive(access, BigInteger.valueOf(274L));
 
@@ -1032,9 +995,9 @@ public class ChainIT {
    */
   @Test
   public void checkAndReviveAll() throws Exception {
-    IntegrationTestEntity.insertSegment(6, 2, 5, SegmentState.Dubbed, Timestamp.valueOf("2015-05-10 12:18:02.527142"), Timestamp.valueOf("2015-05-10 12:18:32.527142"), "A major", 64, 0.52, 120.0, "chain-1-segment-97898asdf7892.wav", new JSONObject());
+    IntegrationTestEntity.insertSegment_NoContent(6, 2, 5, SegmentState.Dubbed, Timestamp.valueOf("2015-05-10 12:18:02.527142"), Timestamp.valueOf("2015-05-10 12:18:32.527142"), "A major", 64, 0.52, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
     IntegrationTestEntity.insertLibrary(3, 1, "pajamas");
-    IntegrationTestEntity.insertChainLibrary(3, 2, 3);
+    IntegrationTestEntity.insertChainLibrary(2, 3);
 
     Collection<Chain> results = testDAO.checkAndReviveAll(Access.internal());
 
@@ -1063,7 +1026,7 @@ public class ChainIT {
       "roles", "internal"
     ));
     IntegrationTestEntity.insertChain(12, 1, "Test Print #2", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-02-14 12:03:40.000001"), Timestamp.valueOf("2014-02-14 14:03:40.000001"), null);
-    IntegrationTestEntity.insertSegment(6, 12, 5, SegmentState.Crafting, Timestamp.valueOf("2014-02-14 12:03:40.000001"), Timestamp.valueOf("2014-02-14 12:04:10.000001"), "E minor", 64, 0.41, 120.0, "chain-1-segment-97898asdf7892.wav", new JSONObject());
+    IntegrationTestEntity.insertSegment_NoContent(6, 12, 5, SegmentState.Crafting, Timestamp.valueOf("2014-02-14 12:03:40.000001"), Timestamp.valueOf("2014-02-14 12:04:10.000001"), "E minor", 64, 0.41, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
 
     Chain fromChain = new Chain();
     fromChain.setId(BigInteger.valueOf(12L));
@@ -1083,7 +1046,7 @@ public class ChainIT {
       "roles", "internal"
     ));
     IntegrationTestEntity.insertChain(12, 1, "Test Print #2", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-02-14 12:03:40.000001"), Timestamp.valueOf("2014-02-14 14:03:40.000001"), null);
-    IntegrationTestEntity.insertSegment(6, 12, 5, SegmentState.Crafting, Timestamp.valueOf("2014-02-14 14:03:15.000001"), Timestamp.valueOf("2014-02-14 14:03:45.000001"), "E minor", 64, 0.41, 120.0, "chain-1-segment-97898asdf7892.wav", new JSONObject());
+    IntegrationTestEntity.insertSegment_NoContent(6, 12, 5, SegmentState.Crafting, Timestamp.valueOf("2014-02-14 14:03:15.000001"), Timestamp.valueOf("2014-02-14 14:03:45.000001"), "E minor", 64, 0.41, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
 
     Chain fromChain = new Chain();
     fromChain.setId(BigInteger.valueOf(12L));
@@ -1103,7 +1066,7 @@ public class ChainIT {
       "roles", "internal"
     ));
     IntegrationTestEntity.insertChain(12, 1, "Test Print #2", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-02-14 12:03:40.000001"), Timestamp.valueOf("2014-02-14 14:03:40.000001"), null);
-    IntegrationTestEntity.insertSegment(6, 12, 5, SegmentState.Dubbing, Timestamp.valueOf("2014-02-14 14:03:15.000001"), Timestamp.valueOf("2014-02-14 14:03:45.000001"), "E minor", 64, 0.41, 120.0, "chain-1-segment-97898asdf7892.wav", new JSONObject());
+    IntegrationTestEntity.insertSegment_NoContent(6, 12, 5, SegmentState.Dubbing, Timestamp.valueOf("2014-02-14 14:03:15.000001"), Timestamp.valueOf("2014-02-14 14:03:45.000001"), "E minor", 64, 0.41, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
 
     Chain fromChain = new Chain();
     fromChain.setId(BigInteger.valueOf(12L));
@@ -1123,7 +1086,7 @@ public class ChainIT {
       "roles", "internal"
     ));
     IntegrationTestEntity.insertChain(12, 1, "Test Print #2", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-02-14 12:03:40.000001"), Timestamp.valueOf("2014-02-14 14:03:40.000001"), null);
-    IntegrationTestEntity.insertSegment(6, 12, 5, SegmentState.Dubbed, Timestamp.valueOf("2014-02-14 14:03:15.000001"), Timestamp.valueOf("2014-02-14 14:03:45.000001"), "E minor", 64, 0.41, 120.0, "chain-1-segment-97898asdf7892.wav", new JSONObject());
+    IntegrationTestEntity.insertSegment_NoContent(6, 12, 5, SegmentState.Dubbed, Timestamp.valueOf("2014-02-14 14:03:15.000001"), Timestamp.valueOf("2014-02-14 14:03:45.000001"), "E minor", 64, 0.41, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
 
     Chain fromChain = new Chain();
     fromChain.setId(BigInteger.valueOf(12L));
@@ -1143,7 +1106,7 @@ public class ChainIT {
       "roles", "internal"
     ));
     IntegrationTestEntity.insertChain(12, 1, "Test Print #2", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-02-14 12:03:40.000001"), Timestamp.valueOf("2014-02-14 14:03:40.000001"), null);
-    IntegrationTestEntity.insertSegment(6, 12, 5, SegmentState.Dubbed, Timestamp.valueOf("2014-02-14 14:03:15.000001"), Timestamp.valueOf("2014-02-14 14:03:45.000001"), "E minor", 64, 0.41, 120.0, "chain-1-segment-97898asdf7892.wav", new JSONObject());
+    IntegrationTestEntity.insertSegment_NoContent(6, 12, 5, SegmentState.Dubbed, Timestamp.valueOf("2014-02-14 14:03:15.000001"), Timestamp.valueOf("2014-02-14 14:03:45.000001"), "E minor", 64, 0.41, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
 
     Chain fromChain = new Chain();
     fromChain.setId(BigInteger.valueOf(12L));
@@ -1161,7 +1124,7 @@ public class ChainIT {
     Access access = new Access(ImmutableMap.of(
       "roles", "internal"
     ));
-    IntegrationTestEntity.insertSegment_Planned(5, 1, 4, Timestamp.valueOf("2017-02-14 12:03:08.000001"), new JSONObject());
+    IntegrationTestEntity.insertSegment_Planned(5, 1, 4, Timestamp.valueOf("2017-02-14 12:03:08.000001"));
 
     Chain fromChain = new Chain();
     fromChain.setId(BigInteger.valueOf(1L));
@@ -1178,7 +1141,7 @@ public class ChainIT {
       "roles", "internal"
     ));
     IntegrationTestEntity.insertChain(12, 1, "Test Print #2", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"), null);
-    IntegrationTestEntity.insertSegment(6, 12, 5, SegmentState.Crafted, Timestamp.valueOf("2014-08-12 14:03:08.000001"), Timestamp.valueOf("2014-08-12 14:03:38.000001"), "A major", 64, 0.52, 120.0, "chain-1-segment-97898asdf7892.wav", new JSONObject());
+    IntegrationTestEntity.insertSegment_NoContent(6, 12, 5, SegmentState.Crafted, Timestamp.valueOf("2014-08-12 14:03:08.000001"), Timestamp.valueOf("2014-08-12 14:03:38.000001"), "A major", 64, 0.52, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
 
     Chain fromChain = new Chain();
     fromChain.setId(BigInteger.valueOf(12L));
@@ -1219,8 +1182,7 @@ public class ChainIT {
 
     testDAO.destroy(access, BigInteger.valueOf(1L));
 
-    Chain result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1L));
-    assertNull(result);
+    IntegrationTestEntity.assertNotExist(testDAO, BigInteger.valueOf(1L));
   }
 
   @Test
@@ -1229,7 +1191,7 @@ public class ChainIT {
       "roles", "Admin"
     ));
     IntegrationTestEntity.insertLibrary(1, 1, "nerds");
-    IntegrationTestEntity.insertChainConfig(101, 1, ChainConfigType.OutputSampleBits, "3");
+    IntegrationTestEntity.insertChainConfig(1, ChainConfigType.OutputSampleBits, "3");
 
     try {
       testDAO.destroy(access, BigInteger.valueOf(1L));
@@ -1308,7 +1270,7 @@ public class ChainIT {
       "roles", "Admin"
     ));
 
-    failure.expect(CancelException.class);
+    failure.expect(CoreException.class);
     failure.expectMessage("transition to Erase not in allowed (Fabricate,Failed,Complete)");
 
     testDAO.erase(access, BigInteger.valueOf(3L));
@@ -1321,7 +1283,7 @@ public class ChainIT {
       "roles", "Admin"
     ));
 
-    failure.expect(CancelException.class);
+    failure.expect(CoreException.class);
     failure.expectMessage("transition to Erase not in allowed (Draft,Ready,Fabricate)");
 
     testDAO.erase(access, BigInteger.valueOf(3L));

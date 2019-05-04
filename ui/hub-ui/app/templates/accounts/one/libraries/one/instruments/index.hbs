@@ -4,46 +4,48 @@
 {{outlet}}
 
 <!-- Upper Container -->
-<div class="form-horizontal container-fluid">
-
-  {{#if (or auth.isArtist auth.isAdmin)}}
+{{#if (or auth.isArtist auth.isAdmin)}}
+  <div class="form-horizontal container-fluid">
     <div class="col-sm-12 text-right">
-      {{#link-to 'accounts.one.libraries.one.instruments.new' model.library.account model.library}}{{fa-icon "plus"}} Create New Instrument{{/link-to}}
-    </div>
-  {{/if}}
-
-  <!-- List of Instruments -->
-  <div class="col-sm-12">
-    <div class="table-list">
-      <table class="table">
-        <thead>
-        <tr>
-          <th width="1%">By</th>
-          <th>Description</th>
-          <th width="1%">Type</th>
-          <th width="1%">Density</th>
-          <th><!-- Actions --></th>
-          <th width="1%">#</th>
-        </tr>
-        </thead>
-        <tbody>
-        {{#each model.instruments as |instrument|}}
-          <tr class="item">
-            <td>{{#link-to "users.one" instrument.user}}<img src="{{instrument.user.avatarUrl}}" alt="{{instrument.user.name}}" class="avatar" />{{/link-to}}</td>
-            <td>{{#link-to "accounts.one.libraries.one.instruments.one" instrument.library.account instrument.library instrument}}{{instrument.description}}{{/link-to}}</td>
-            <td>{{instrument.type}}</td>
-            <td>{{instrument.density}}</td>
-            <td>
-              {{#link-to 'accounts.one.libraries.one.instruments.one.memes' instrument.library.account instrument.library instrument}}Memes{{/link-to}}<span>&nbsp;</span>
-              {{#link-to 'accounts.one.libraries.one.instruments.one.audios' instrument.library.account instrument.library instrument}}Audios{{/link-to}}<span>&nbsp;</span>
-              {{entity-actions "accounts.one.libraries.one.instruments.one" "edit|clone|destroy" instrument.library.account instrument.library instrument}}
-            </td>
-            <th scope="row">{{instrument.id}}</th>
-          </tr>
-        {{/each}}
-        </tbody>
-      </table>
+      {{#link-to 'accounts.one.libraries.one.instruments.new' model.library.account model.library}}{{fa-icon "plus"}}
+        Create New Instrument{{/link-to}}
     </div>
   </div>
+{{/if}}
 
+<div class="table-list">
+  <table class="table">
+    <thead>
+    <tr>
+      <th width="1%">By</th>
+      <th>Description</th>
+      <th width="1%">Type</th>
+      <th width="1%">Density</th>
+      <th><!-- Actions --></th>
+      <th width="1%">#</th>
+    </tr>
+    </thead>
+    <tbody>
+    {{#each model.instruments as |instrument|}}
+      <tr class="item">
+        <td>{{#link-to "users.one" instrument.user}}
+          <img src="{{instrument.user.avatarUrl}}" alt="{{instrument.user.name}}" class="avatar"/>{{/link-to}}</td>
+        <td>{{#link-to "accounts.one.libraries.one.instruments.one" instrument.library.account instrument.library
+                       instrument}}{{instrument.description}}{{/link-to}}</td>
+        <td>{{instrument.type}}</td>
+        <td>{{instrument.density}}</td>
+        <td>
+          {{#link-to 'accounts.one.libraries.one.instruments.one.memes' instrument.library.account instrument.library
+                     instrument}}Memes{{/link-to}}<span>&nbsp;</span>
+          {{#link-to 'accounts.one.libraries.one.instruments.one.audios' instrument.library.account instrument.library
+                     instrument}}Audios{{/link-to}}<span>&nbsp;</span>
+          {{entity-actions "accounts.one.libraries.one.instruments.one" "edit|clone|destroy" instrument.library.account
+                           instrument.library instrument}}
+        </td>
+        <th scope="row">{{instrument.id}}</th>
+      </tr>
+    {{/each}}
+    </tbody>
+  </table>
 </div>
+

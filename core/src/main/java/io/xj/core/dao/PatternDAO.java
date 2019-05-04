@@ -2,6 +2,7 @@
 package io.xj.core.dao;
 
 import io.xj.core.access.impl.Access;
+import io.xj.core.exception.CoreException;
 import io.xj.core.model.pattern.Pattern;
 import io.xj.core.model.pattern.PatternState;
 
@@ -19,7 +20,7 @@ public interface PatternDAO extends DAO<Pattern> {
    @param entity  for the new Pattern
    @return newly readMany record
    */
-  Pattern clone(Access access, BigInteger cloneId, Pattern entity) throws Exception;
+  Pattern clone(Access access, BigInteger cloneId, Pattern entity) throws CoreException;
 
   /**
    Fetch all Pattern accessible, by Sequence id and offset #
@@ -28,10 +29,10 @@ public interface PatternDAO extends DAO<Pattern> {
    @param sequenceId          of sequence in which to read pattern
    @param sequencePatternOffset of pattern in sequence
    @return retrieved record
-   @throws Exception on failure
+   @throws CoreException on failure
    */
   @Nullable
-  Collection<Pattern> readAllAtSequenceOffset(Access access, BigInteger sequenceId, BigInteger sequencePatternOffset) throws Exception;
+  Collection<Pattern> readAllAtSequenceOffset(Access access, BigInteger sequenceId, BigInteger sequencePatternOffset) throws CoreException;
 
   /**
    Fetch all Pattern in a certain state
@@ -40,9 +41,9 @@ public interface PatternDAO extends DAO<Pattern> {
    @param access control
    @param state  to get patterns in
    @return Result of pattern records.
-   @throws Exception on failure
+   @throws CoreException on failure
    */
-  Collection<Pattern> readAllInState(Access access, PatternState state) throws Exception;
+  Collection<Pattern> readAllInState(Access access, PatternState state) throws CoreException;
 
   /**
    Erase a specified Pattern if accessible
@@ -51,6 +52,6 @@ public interface PatternDAO extends DAO<Pattern> {
    @param access control
    @param id     of specific pattern to erase.
    */
-  void erase(Access access, BigInteger id) throws Exception;
+  void erase(Access access, BigInteger id) throws CoreException;
 
 }

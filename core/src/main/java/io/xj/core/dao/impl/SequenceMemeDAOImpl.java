@@ -3,8 +3,8 @@ package io.xj.core.dao.impl;
 
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.SequenceMemeDAO;
-import io.xj.core.exception.BusinessException;
-import io.xj.core.exception.ConfigException;
+import io.xj.core.exception.CoreException;
+import io.xj.core.exception.CoreException;
 import io.xj.core.model.sequence_meme.SequenceMeme;
 import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import io.xj.core.persistence.sql.impl.SQLConnection;
@@ -45,11 +45,11 @@ public class SequenceMemeDAOImpl extends DAOImpl implements SequenceMemeDAO {
    @param access control
    @param entity for new SequenceMeme
    @return new record
-   @throws Exception         if database failure
-   @throws ConfigException   if not configured properly
-   @throws BusinessException if fails business rule
+   @throws CoreException         if database failure
+   @throws CoreException   if not configured properly
+   @throws CoreException if fails business rule
    */
-  private static SequenceMeme create(DSLContext db, Access access, SequenceMeme entity) throws Exception {
+  private static SequenceMeme create(DSLContext db, Access access, SequenceMeme entity) throws CoreException {
     entity.validate();
 
     Map<Field, Object> fieldValues = fieldValueMap(entity);
@@ -69,7 +69,7 @@ public class SequenceMemeDAOImpl extends DAOImpl implements SequenceMemeDAO {
       .where(SEQUENCE_MEME.SEQUENCE_ID.eq(ULong.valueOf(entity.getSequenceId())))
       .and(SEQUENCE_MEME.NAME.eq(entity.getName()))
       .fetchOne())
-      throw new BusinessException("Sequence Meme already exists!");
+      throw new CoreException("Sequence Meme already exists!");
 
     return modelFrom(executeCreate(db, SEQUENCE_MEME, fieldValues), SequenceMeme.class);
   }
@@ -82,7 +82,7 @@ public class SequenceMemeDAOImpl extends DAOImpl implements SequenceMemeDAO {
    @param id     of record
    @return record
    */
-  private static SequenceMeme readOne(DSLContext db, Access access, ULong id) throws BusinessException {
+  private static SequenceMeme readOne(DSLContext db, Access access, ULong id) throws CoreException {
     if (access.isTopLevel())
       return modelFrom(db.selectFrom(SEQUENCE_MEME)
         .where(SEQUENCE_MEME.ID.eq(id))
@@ -104,7 +104,7 @@ public class SequenceMemeDAOImpl extends DAOImpl implements SequenceMemeDAO {
    @param sequenceIds to readMany memes for
    @return array of sequence memes
    */
-  private static Collection<SequenceMeme> readAll(DSLContext db, Access access, Collection<ULong> sequenceIds) throws BusinessException {
+  private static Collection<SequenceMeme> readAll(DSLContext db, Access access, Collection<ULong> sequenceIds) throws CoreException {
     if (access.isTopLevel())
       return modelsFrom(db.selectFrom(SEQUENCE_MEME)
         .where(SEQUENCE_MEME.SEQUENCE_ID.in(sequenceIds))
@@ -124,9 +124,9 @@ public class SequenceMemeDAOImpl extends DAOImpl implements SequenceMemeDAO {
    @param db     context
    @param access control
    @param id     to delete
-   @throws BusinessException if failure
+   @throws CoreException if failure
    */
-  private static void delete(DSLContext db, Access access, ULong id) throws BusinessException {
+  private static void delete(DSLContext db, Access access, ULong id) throws CoreException {
     if (!access.isTopLevel())
       requireExists("Sequence Meme", db.selectCount().from(SEQUENCE_MEME)
         .join(SEQUENCE).on(SEQUENCE.ID.eq(SEQUENCE_MEME.SEQUENCE_ID))
@@ -155,47 +155,47 @@ public class SequenceMemeDAOImpl extends DAOImpl implements SequenceMemeDAO {
   }
 
   @Override
-  public SequenceMeme create(Access access, SequenceMeme entity) throws Exception {
+  public SequenceMeme create(Access access, SequenceMeme entity) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(create(tx.getContext(), access, entity));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public SequenceMeme readOne(Access access, BigInteger id) throws Exception {
+  public SequenceMeme readOne(Access access, BigInteger id) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readOne(tx.getContext(), access, ULong.valueOf(id)));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public Collection<SequenceMeme> readAll(Access access, Collection<BigInteger> parentIds) throws Exception {
+  public Collection<SequenceMeme> readAll(Access access, Collection<BigInteger> parentIds) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readAll(tx.getContext(), access, uLongValuesOf(parentIds)));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public void update(Access access, BigInteger id, SequenceMeme entity) throws Exception {
-    throw new BusinessException("Not allowed to update SequenceMeme record.");
+  public void update(Access access, BigInteger id, SequenceMeme entity) throws CoreException {
+    throw new CoreException("Not allowed to update SequenceMeme record.");
   }
 
   @Override
-  public void destroy(Access access, BigInteger id) throws Exception {
+  public void destroy(Access access, BigInteger id) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       delete(tx.getContext(), access, ULong.valueOf(id));
       tx.success();
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }

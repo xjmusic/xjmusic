@@ -1,16 +1,13 @@
-# This file is sub-module of docker-compose.yml
+# This file is deliberately not built- only extended by services in docker-compose.yml
 version: '2'
 services:
 
-  xj:
-    volumes:
-      - .:/var/app/current
-      - ./log:/var/log
-      - ./runtime.env:/data/runtime.env
-
-  runner:
-    extends: xj
+  base:
     build:
       context: .
     tty: true
     stdin_open: true
+    volumes:
+      - .:/var/app/current
+      - ./log:/var/log
+      - ./runtime.env:/data/runtime.env

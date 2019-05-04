@@ -1,8 +1,9 @@
 //  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.model.chain_binding;
 
-import io.xj.core.exception.BusinessException;
+import io.xj.core.exception.CoreException;
 import io.xj.core.model.entity.Entity;
+import io.xj.core.model.entity.impl.EntityImpl;
 
 import java.math.BigInteger;
 
@@ -18,8 +19,7 @@ import java.math.BigInteger;
  <p>
  NOTE: There can only be ONE of any getter/setter (with the same # of input params)
  */
-public class ChainBinding extends Entity {
-
+public class ChainBinding extends EntityImpl {
   public static final String KEY_ONE = "chainBinding";
   public static final String KEY_MANY = "chainBindings";
   private BigInteger chainId;
@@ -39,8 +39,8 @@ public class ChainBinding extends Entity {
   }
 
   @Override
-  public void validate() throws BusinessException {
+  public void validate() throws CoreException {
     if (null == chainId)
-      throw new BusinessException("Chain ID is required.");
+      throw new CoreException("Chain ID is required.");
   }
 }

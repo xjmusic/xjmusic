@@ -1,8 +1,9 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.model.sequence_pattern;
 
-import io.xj.core.exception.BusinessException;
+import io.xj.core.exception.CoreException;
 import io.xj.core.model.entity.Entity;
+import io.xj.core.model.entity.impl.EntityImpl;
 
 import java.math.BigInteger;
 
@@ -16,7 +17,7 @@ import java.math.BigInteger;
  <p>
  NOTE: There can only be ONE of any getter/setter (with the same # of input params)
  */
-public class SequencePattern extends Entity {
+public class SequencePattern extends EntityImpl {
   public static final String KEY_ONE = "sequencePattern";
   public static final String KEY_MANY = "sequencePatterns";
   private BigInteger sequenceId;
@@ -89,15 +90,15 @@ public class SequencePattern extends Entity {
   }
 
   @Override
-  public void validate() throws BusinessException {
+  public void validate() throws CoreException {
     if (null == sequenceId) {
-      throw new BusinessException("Sequence ID is required.");
+      throw new CoreException("Sequence ID is required.");
     }
     if (null == patternId) {
-      throw new BusinessException("Pattern ID is required.");
+      throw new CoreException("Pattern ID is required.");
     }
     if (null == offset) {
-      throw new BusinessException("Offset is required.");
+      throw new CoreException("Offset is required.");
     }
   }
 

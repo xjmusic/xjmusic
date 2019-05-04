@@ -1,11 +1,12 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.model.chain;
 
-import io.xj.core.exception.BusinessException;
-import io.xj.core.model.entity.Entity;
+import io.xj.core.exception.CoreException;
+import io.xj.core.model.entity.impl.EntityImpl;
 import io.xj.core.util.Text;
 import io.xj.core.util.TimestampUTC;
 
+import javax.annotation.Nullable;
 import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.util.Objects;
@@ -20,17 +21,9 @@ import java.util.Objects;
  <p>
  NOTE: There can only be ONE of any getter/setter (with the same # of input params)
  */
-public class Chain extends Entity {
-
-  /**
-   For use in maps.
-   */
+public class Chain extends EntityImpl {
   public static final String KEY_ONE = "chain";
   public static final String KEY_MANY = "chains";
-
-  /**
-   Fields
-   */
   private BigInteger accountId;
   private String name;
   private String _state; // hold value before validation
@@ -41,6 +34,7 @@ public class Chain extends Entity {
   private String startAtError;
   private Timestamp stopAt;
   private String stopAtError;
+  @Nullable
   private String embedKey;
 
   public Chain() {
@@ -77,8 +71,9 @@ public class Chain extends Entity {
     return this;
   }
 
-  public void setStateEnum(ChainState state) {
+  public Chain setStateEnum(ChainState state) {
     this.state = state;
+    return this;
   }
 
   public ChainType getType() {
@@ -90,8 +85,9 @@ public class Chain extends Entity {
     return this;
   }
 
-  public void setTypeEnum(ChainType type) {
+  public Chain setTypeEnum(ChainType type) {
     this.type = type;
+    return this;
   }
 
   public Timestamp getStartAt() {
@@ -116,11 +112,12 @@ public class Chain extends Entity {
   }
 
   public Chain setStopAt(String value) {
-    try {
-      stopAt = TimestampUTC.valueOf(value);
-    } catch (Exception e) {
-      stopAtError = e.getMessage();
-    }
+    if (Objects.nonNull(value) && !value.isEmpty())
+      try {
+        stopAt = TimestampUTC.valueOf(value);
+      } catch (Exception e) {
+        stopAtError = e.getMessage();
+      }
     return this;
   }
 
@@ -128,6 +125,7 @@ public class Chain extends Entity {
     stopAt = stopAtTimestamp;
   }
 
+  @Nullable
   public String getEmbedKey() {
     return embedKey;
   }
@@ -148,19 +146,19 @@ public class Chain extends Entity {
   }
 
   @Override
-  public void validate() throws BusinessException {
-    // throws its own BusinessException on failure
+  public void validate() throws CoreException {
+    // throws its own CoreException on failure
     if (!Objects.isNull(_state)) {
       state = ChainState.validate(_state);
     }
 
-    // throws its own BusinessException on failure
+    // throws its own CoreException on failure
     if (!Objects.isNull(_type)) {
       type = ChainType.validate(_type);
     }
 
     if (null == accountId) {
-      throw new BusinessException("Account ID is required.");
+      throw new CoreException("Account ID is required.");
     }
     if (null == type || type.toString().isEmpty()) {
       type = ChainType.Preview;
@@ -169,14 +167,14 @@ public class Chain extends Entity {
       state = ChainState.Draft;
     }
     if (null == name || name.isEmpty()) {
-      throw new BusinessException("Name is required.");
+      throw new CoreException("Name is required.");
     }
-    if (Objects.equals(type, ChainType.Production)) {
+    if (ChainType.Production == type) {
       if (null == startAt) {
-        throw new BusinessException("Start-at is required." + (Objects.nonNull(startAtError) ? (" " + startAtError) : ""));
+        throw new CoreException("Start-at is required." + (Objects.nonNull(startAtError) ? (" " + startAtError) : ""));
       }
-      if (null != stopAtError) {
-        throw new BusinessException("Stop-at is not isValid. " + stopAtError);
+      if (Objects.nonNull(stopAtError)) {
+        throw new CoreException("Stop-at is not isValid. " + stopAtError);
       }
     }
   }
@@ -185,17 +183,17 @@ public class Chain extends Entity {
   public String toString() {
     return "Chain{" +
       "accountId=" + accountId +
-      ", name='" + name + '\'' +
-      ", state='" + state + '\'' +
-      ", type='" + type + '\'' +
+      ", name=" + Text.singleQuoted(name) +
+      ", state=" + Text.singleQuoted(state.toString()) +
+      ", type=" + Text.singleQuoted(type.toString()) +
       ", startAt=" + startAt +
-      ", startAtError='" + startAtError + '\'' +
+      ", startAtError=" + Text.singleQuoted(startAtError) +
       ", stopAt=" + stopAt +
-      ", stopAtError='" + stopAtError + '\'' +
+      ", stopAtError=" + Text.singleQuoted(stopAtError) +
       ", id=" + id +
       ", createdAt=" + createdAt +
       ", updatedAt=" + updatedAt +
-      '}';
+      "}";
   }
 
   /**
@@ -204,13 +202,13 @@ public class Chain extends Entity {
 
    @return revived of chain
    */
-  public Chain revived() throws Exception {
+  public Chain revived() throws CoreException {
     validate();
-    if (!Objects.equals(state, ChainState.Fabricate)) {
-      throw new BusinessException("Only a Fabricate-state Chain can be revived.");
+    if (ChainState.Fabricate != state) {
+      throw new CoreException("Only a Fabricate-state Chain can be revived.");
     }
-    if (!Objects.equals(type, ChainType.Production)) {
-      throw new BusinessException("Only a Production-type Chain can be revived.");
+    if (ChainType.Production != type) {
+      throw new CoreException("Only a Production-type Chain can be revived.");
     }
     Chain copy = new Chain();
     copy.setAccountId(accountId);
@@ -218,7 +216,6 @@ public class Chain extends Entity {
     copy.setName(name);
     copy.setStartAtTimestamp(TimestampUTC.now());
     copy.setStateEnum(state);
-    copy.setStopAt(null);
     copy.setTypeEnum(type);
     return copy;
   }

@@ -1,7 +1,7 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.model.account;
 
-import io.xj.core.exception.BusinessException;
+import io.xj.core.exception.CoreException;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -9,7 +9,8 @@ import org.junit.rules.ExpectedException;
 
 public class AccountTest {
 
-  @Rule public ExpectedException failure = ExpectedException.none();
+  @Rule
+  public ExpectedException failure = ExpectedException.none();
 
   @Test
   public void validate() throws Exception {
@@ -20,7 +21,7 @@ public class AccountTest {
 
   @Test
   public void validate_failsWithoutName() throws Exception {
-    failure.expect(BusinessException.class);
+    failure.expect(CoreException.class);
     failure.expectMessage("Account name is required");
 
     new Account()

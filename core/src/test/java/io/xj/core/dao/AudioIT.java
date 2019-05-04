@@ -1,34 +1,27 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.dao;
 
-import io.xj.core.CoreModule;
-import io.xj.core.access.impl.Access;
-import io.xj.core.exception.BusinessException;
-import io.xj.core.external.amazon.AmazonProvider;
-import io.xj.core.external.amazon.S3UploadPolicy;
-import io.xj.core.integration.IntegrationTestEntity;
-import io.xj.core.model.audio.Audio;
-import io.xj.core.model.audio.AudioState;
-import io.xj.core.model.chain.ChainState;
-import io.xj.core.model.chain.ChainType;
-import io.xj.core.model.instrument.InstrumentType;
-import io.xj.core.model.segment.SegmentState;
-import io.xj.core.model.sequence.SequenceState;
-import io.xj.core.model.sequence.SequenceType;
-import io.xj.core.model.pattern.PatternState;
-import io.xj.core.model.pattern.PatternType;
-import io.xj.core.model.user_role.UserRoleType;
-import io.xj.core.transport.JSON;
-import io.xj.core.work.WorkManager;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.util.Modules;
-
-import org.json.JSONArray;
+import io.xj.core.CoreModule;
+import io.xj.core.access.impl.Access;
+import io.xj.core.exception.CoreException;
+import io.xj.core.external.amazon.AmazonProvider;
+import io.xj.core.external.amazon.S3UploadPolicy;
+import io.xj.core.integration.IntegrationTestEntity;
+import io.xj.core.model.audio.Audio;
+import io.xj.core.model.audio.AudioState;
+import io.xj.core.model.instrument.InstrumentType;
+import io.xj.core.model.pattern.PatternState;
+import io.xj.core.model.pattern.PatternType;
+import io.xj.core.model.sequence.SequenceState;
+import io.xj.core.model.sequence.SequenceType;
+import io.xj.core.model.user_role.UserRoleType;
+import io.xj.core.work.WorkManager;
 import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
@@ -42,11 +35,10 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.File;
 import java.math.BigInteger;
-import java.sql.Timestamp;
+import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
@@ -55,10 +47,25 @@ import static org.mockito.Mockito.when;
 // future test: permissions of different users to readMany vs. create vs. update or delete audios
 @RunWith(MockitoJUnitRunner.class)
 public class AudioIT {
-  @Rule public ExpectedException failure = ExpectedException.none();
+  @Spy
+  final WorkManager workManager = Guice.createInjector(new CoreModule()).getInstance(WorkManager.class);
+  @Rule
+  public ExpectedException failure = ExpectedException.none();
+  @Mock
+  AmazonProvider amazonProvider;
   private AudioDAO testDAO;
-  @Mock AmazonProvider amazonProvider;
-  @Spy final WorkManager workManager = Guice.createInjector(new CoreModule()).getInstance(WorkManager.class);
+
+  private static void setUpTwo() {
+    // Event and Chord on Audio 1
+    IntegrationTestEntity.insertAudioEvent(1, 2.5, 1.0, "KICK", "Eb", 0.8, 1.0);
+    IntegrationTestEntity.insertAudioChord(1, 4, "D major");
+
+    // Sequence, Pattern, Voice
+    IntegrationTestEntity.insertSequence(1, 2, 1, SequenceType.Macro, SequenceState.Published, "epic concept", 0.342, "C#", 0.286);
+    IntegrationTestEntity.insertPattern(1, 1, PatternType.Macro, PatternState.Published, 16, "Ants", 0.583, "D minor", 120.0);
+    IntegrationTestEntity.insertSequencePattern(110, 1, 1, 0);
+    IntegrationTestEntity.insertVoice(8, 1, InstrumentType.Percussive, "This is a percussive voice");
+  }
 
   @Before
   public void setUp() throws Exception {
@@ -81,7 +88,7 @@ public class AudioIT {
 
     // John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
     IntegrationTestEntity.insertUser(2, "john", "john@email.com", "http://pictures.com/john.gif");
-    IntegrationTestEntity.insertUserRole(1, 2, UserRoleType.Admin);
+    IntegrationTestEntity.insertUserRole(2, UserRoleType.Admin);
 
     // Library "palm tree" has sequence "leaves" and sequence "coconuts"
     IntegrationTestEntity.insertLibrary(1, 1, "palm tree");
@@ -98,32 +105,8 @@ public class AudioIT {
     testDAO = injector.getInstance(AudioDAO.class);
   }
 
-  private static void setUpTwo() throws Exception {
-    // Event and Chord on Audio 1
-    IntegrationTestEntity.insertAudioEvent(1, 1, 2.5, 1.0, "KICK", "Eb", 0.8, 1.0);
-    IntegrationTestEntity.insertAudioChord(1, 1, 4, "D major");
-
-    // Sequence, Pattern, Voice
-    IntegrationTestEntity.insertSequence(1, 2, 1, SequenceType.Macro, SequenceState.Published, "epic concept", 0.342, "C#", 0.286);
-    IntegrationTestEntity.insertPatternAndSequencePattern(1, 1, PatternType.Macro, PatternState.Published, 0, 16, "Ants", 0.583, "D minor", 120.0);
-    IntegrationTestEntity.insertVoice(8, 1, InstrumentType.Percussive, "This is a percussive voice");
-
-    // Chain, Segment
-    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Ready, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"), null);
-    IntegrationTestEntity.insertSegment(1, 1, 0, SegmentState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120.0, "chain-1-segment-97898asdf7892.wav", new JSONObject());
-
-    // Choice, Arrangement, Pick
-    IntegrationTestEntity.insertChoice(7, 1, 1, SequenceType.Macro, 2, -5);
-    IntegrationTestEntity.insertArrangement(1, 7, 8, 1);
-
-    // FUTURE: determine new test vector for [#154014731] persist Audio pick in memory
-
-  }
-
   @After
-  public void tearDown() throws Exception {
-    testDAO = null;
-
+  public void tearDown() {
     System.clearProperty("audio.file.bucket");
   }
 
@@ -156,7 +139,7 @@ public class AudioIT {
     assertEquals(1567.0, result.getPitch(), 0.01);
   }
 
-  @Test(expected = BusinessException.class)
+  @Test(expected = CoreException.class)
   public void create_FailsWithoutInstrumentID() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
@@ -211,8 +194,8 @@ public class AudioIT {
     assertEquals(BigInteger.valueOf(2L), result.getInstrumentId());
     assertEquals("superAwesomeKey123", result.getWaveformKey());
     assertEquals(AudioState.Published, result.getState());
-    assertEquals(0.01, result.getStart(),0.01);
-    assertEquals(2.123, result.getLength(),0.001);
+    assertEquals(0.01, result.getStart(), 0.01);
+    assertEquals(2.123, result.getLength(), 0.001);
     assertEquals(120.0, result.getTempo(), 0.01);
     assertEquals(440.0, result.getPitch(), 0.01);
 
@@ -275,10 +258,10 @@ public class AudioIT {
       "roles", "Artist",
       "accounts", "326"
     ));
+    failure.expect(CoreException.class);
+    failure.expectMessage("does not exist");
 
-    Audio result = testDAO.readOne(access, BigInteger.valueOf(1L));
-
-    assertNull(result);
+    testDAO.readOne(access, BigInteger.valueOf(1L));
   }
 
   @Test
@@ -288,32 +271,22 @@ public class AudioIT {
       "accounts", "1"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1L))));
+    Collection<Audio> result = testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1L)));
 
-    assertNotNull(result);
-    assertEquals(2L, (long) result.length());
-    JSONObject result2 = (JSONObject) result.get(0);
-    assertEquals("Snare", result2.get("name"));
-    JSONObject result1 = (JSONObject) result.get(1);
-    assertEquals("Kick", result1.get("name"));
+    assertEquals(2L, result.size());
   }
 
   @Test
   public void readAll_excludesAudiosInEraseState() throws Exception {
-    IntegrationTestEntity.insertAudio(27, 1, "Erase", "shammy", "instrument-1-audio-09897fhjdf.wav", (double) 0, 1.0, 120.0, 440.0);
+    IntegrationTestEntity.insertAudio(27, 1, "Erase", "shammy", "instrument-1-audio-09897f1h2j3d4f5.wav", 0, 1.0, 120.0, 440.0);
     Access access = new Access(ImmutableMap.of(
       "roles", "User",
       "accounts", "1"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1L))));
+    Collection<Audio> result = testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1L)));
 
-    assertNotNull(result);
-    assertEquals(2L, (long) result.length());
-    JSONObject result2 = (JSONObject) result.get(0);
-    assertEquals("Snare", result2.get("name"));
-    JSONObject result1 = (JSONObject) result.get(1);
-    assertEquals("Kick", result1.get("name"));
+    assertEquals(2L, result.size());
   }
 
   @Test
@@ -323,10 +296,9 @@ public class AudioIT {
       "accounts", "345"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1L))));
+    Collection<Audio> result = testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1L)));
 
-    assertNotNull(result);
-    assertEquals(0L, (long) result.length());
+    assertEquals(0L, result.size());
   }
 
   @Test
@@ -343,7 +315,7 @@ public class AudioIT {
       .setPitch(1567.0)
       .setTempo(80.5);
 
-    failure.expect(BusinessException.class);
+    failure.expect(CoreException.class);
     failure.expectMessage("Instrument ID is required");
 
     testDAO.update(access, BigInteger.valueOf(3L), inputData);
@@ -364,7 +336,7 @@ public class AudioIT {
       .setPitch(1567.0)
       .setTempo(80.5);
 
-    failure.expect(BusinessException.class);
+    failure.expect(CoreException.class);
     failure.expectMessage("Instrument does not exist");
 
     try {
@@ -433,7 +405,7 @@ public class AudioIT {
       "accounts", "2"
     ));
 
-    failure.expect(BusinessException.class);
+    failure.expect(CoreException.class);
     failure.expectMessage("Audio does not exist");
 
     testDAO.erase(access, BigInteger.valueOf(1L));
@@ -446,7 +418,7 @@ public class AudioIT {
       "roles", "Artist",
       "accounts", "1"
     ));
-    IntegrationTestEntity.insertAudioEvent(1, 1, 0.42, 0.41, "HEAVY", "C", 0.7, 0.98);
+    IntegrationTestEntity.insertAudioEvent(1, 0.42, 0.41, "HEAVY", "C", 0.7, 0.98);
 
     try {
       testDAO.erase(access, BigInteger.valueOf(1L));
@@ -464,8 +436,7 @@ public class AudioIT {
 
     testDAO.destroy(access, BigInteger.valueOf(1L));
 
-    Audio result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1L));
-    assertNull(result);
+    IntegrationTestEntity.assertNotExist(testDAO, BigInteger.valueOf(1L));
   }
 
   @Test
@@ -475,8 +446,7 @@ public class AudioIT {
 
     testDAO.destroy(access, BigInteger.valueOf(1L));
 
-    Audio result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1L));
-    assertNull(result);
+    IntegrationTestEntity.assertNotExist(testDAO, BigInteger.valueOf(1L));
   }
 
 

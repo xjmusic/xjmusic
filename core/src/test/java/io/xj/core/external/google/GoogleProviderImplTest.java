@@ -2,7 +2,7 @@
 package io.xj.core.external.google;
 
 import io.xj.core.CoreModule;
-import io.xj.core.exception.AccessException;
+import io.xj.core.exception.CoreException;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
 import com.google.api.client.http.HttpTransport;
@@ -28,7 +28,8 @@ import static org.junit.Assert.assertEquals;
 
 @RunWith(MockitoJUnitRunner.class)
 public class GoogleProviderImplTest extends Mockito {
-  @Mock private GoogleHttpProvider googleHttpProvider;
+  @Mock
+  private GoogleHttpProvider googleHttpProvider;
   private Injector injector;
   private GoogleProvider googleProvider;
 
@@ -83,7 +84,7 @@ public class GoogleProviderImplTest extends Mockito {
     assertEquals("abcdef", tokenResponse.getRefreshToken());
   }
 
-  @Test(expected = AccessException.class)
+  @Test(expected = CoreException.class)
   public void getTokenFromCode_IOFailure() throws Exception {
     String responseJson = "garbage response will cause IO failure";
     MockLowLevelHttpResponse httpResponse = new MockLowLevelHttpResponse();
@@ -97,7 +98,7 @@ public class GoogleProviderImplTest extends Mockito {
     googleProvider.getTokenFromCode("red");
   }
 
-  @Test(expected = AccessException.class)
+  @Test(expected = CoreException.class)
   public void getTokenFromCode_TokenResponseFailure() throws Exception {
     String responseJson = "{\"details\":{" +
       "\"error_description\":\"terrible\"," +
@@ -170,7 +171,7 @@ public class GoogleProviderImplTest extends Mockito {
     assertEquals("charneykaye@gmail.com", person.getEmails().get(0).getValue());
   }
 
-  @Test(expected = AccessException.class)
+  @Test(expected = CoreException.class)
   public void getMe_IOFailure() throws Exception {
     MockLowLevelHttpResponse httpResponse = new MockLowLevelHttpResponse();
     httpResponse.setStatusCode(500);
@@ -182,7 +183,7 @@ public class GoogleProviderImplTest extends Mockito {
     googleProvider.getMe("12345");
   }
 
-  @Test(expected = AccessException.class)
+  @Test(expected = CoreException.class)
   public void getMe_ResponseJSONFailure() throws Exception {
     String responseJson = "this ain't JSON";
     MockLowLevelHttpResponse httpResponse = new MockLowLevelHttpResponse();

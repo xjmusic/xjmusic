@@ -336,7 +336,7 @@ export class Player {
     }
 
     if (segmentAudio && segmentAudio.shouldBePlaying()) {
-      if (segmentAudio.isPlaying()) { // TODO work this out
+      if (segmentAudio.isPlaying()) {
         self.transitionToState(PLAYING);
       } else {
         self.transitionToState(SYNCING);

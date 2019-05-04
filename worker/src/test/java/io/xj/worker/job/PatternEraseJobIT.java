@@ -6,7 +6,6 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 import io.xj.core.CoreModule;
-import io.xj.core.access.impl.Access;
 import io.xj.core.app.App;
 import io.xj.core.dao.PatternDAO;
 import io.xj.core.integration.IntegrationTestEntity;
@@ -34,7 +33,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigInteger;
 
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -64,12 +62,12 @@ public class PatternEraseJobIT {
 
     // Ted has "user" and "admin" roles, belongs to account "pilots", has "google" auth
     IntegrationTestEntity.insertUser(2, "ted", "ted@email.com", "http://pictures.com/ted.gif");
-    IntegrationTestEntity.insertUserRole(1, 2, UserRoleType.Admin);
+    IntegrationTestEntity.insertUserRole(2, UserRoleType.Admin);
 
     // Sally has a "user" role and belongs to account "pilots"
     IntegrationTestEntity.insertUser(3, "sally", "sally@email.com", "http://pictures.com/sally.gif");
-    IntegrationTestEntity.insertUserRole(2, 3, UserRoleType.User);
-    IntegrationTestEntity.insertAccountUser(3, 1, 3);
+    IntegrationTestEntity.insertUserRole(3, UserRoleType.User);
+    IntegrationTestEntity.insertAccountUser(1, 3);
 
     // Library "house" and "pajamas"
     IntegrationTestEntity.insertLibrary(2, 1, "house");
@@ -77,7 +75,7 @@ public class PatternEraseJobIT {
 
     // Sequence "808" and "2020"
     IntegrationTestEntity.insertSequence(1, 2, 2, SequenceType.Rhythm, SequenceState.Published, "808 Drums", 0.9, "G", 120);
-    IntegrationTestEntity.insertSequenceMeme(1, 1, "heavy");
+    IntegrationTestEntity.insertSequenceMeme(1, "heavy");
     IntegrationTestEntity.insertVoice(1, 1, InstrumentType.Percussive, "Kick Drum");
     IntegrationTestEntity.insertVoice(2, 1, InstrumentType.Percussive, "Snare Drum");
     IntegrationTestEntity.insertSequence(12, 2, 42, SequenceType.Rhythm, SequenceState.Published, "2020 Drums", 0.9, "G", 120);
@@ -85,18 +83,20 @@ public class PatternEraseJobIT {
     IntegrationTestEntity.insertVoice(4, 12, InstrumentType.Percussive, "Snarr Dram");
 
     // Pattern "Verse"
-    IntegrationTestEntity.insertPatternAndSequencePattern(1, 1, PatternType.Loop, PatternState.Published, 0, 16, "Verse 1", 0.5, "G", 120);
-    IntegrationTestEntity.insertSequencePatternMeme(1, 1, 1, "GREEN");
-    IntegrationTestEntity.insertPatternChord(1, 1, 0, "Db7");
-    IntegrationTestEntity.insertPatternEvent(101, 1, 1, 0.0, 1.0, "KICK", "C5", 1.0, 1.0);
-    IntegrationTestEntity.insertPatternEvent(102, 1, 2, 1.0, 1.0, "SNARE", "C5", 1.0, 1.0);
+    IntegrationTestEntity.insertPattern(1, 1, PatternType.Loop, PatternState.Published, 16, "Verse 1", 0.5, "G", 120);
+    IntegrationTestEntity.insertSequencePattern(110, 1, 1, 0);
+    IntegrationTestEntity.insertSequencePatternMeme(110, "GREEN");
+    IntegrationTestEntity.insertPatternChord(1, 0, "Db7");
+    IntegrationTestEntity.insertPatternEvent(1, 1, 0.0, 1.0, "KICK", "C5", 1.0, 1.0);
+    IntegrationTestEntity.insertPatternEvent(1, 2, 1.0, 1.0, "SNARE", "C5", 1.0, 1.0);
 
     // Pattern "Verse"
-    IntegrationTestEntity.insertPatternAndSequencePattern(2, 1, PatternType.Loop, PatternState.Published, 1, 16, "Verse 2", 0.5, "G", 120);
-    IntegrationTestEntity.insertSequencePatternMeme(2, 1, 2, "YELLOW");
-    IntegrationTestEntity.insertPatternChord(2, 2, 0, "Gm9");
-    IntegrationTestEntity.insertPatternEvent(103, 2, 1, 0.0, 1.0, "KICK", "C5", 1.0, 1.0);
-    IntegrationTestEntity.insertPatternEvent(104, 2, 2, 1.0, 1.0, "SNARE", "C5", 1.0, 1.0);
+    IntegrationTestEntity.insertPattern(2, 1, PatternType.Loop, PatternState.Published, 16, "Verse 2", 0.5, "G", 120);
+    IntegrationTestEntity.insertSequencePattern(211, 1, 2, 1);
+    IntegrationTestEntity.insertSequencePatternMeme(211, "YELLOW");
+    IntegrationTestEntity.insertPatternChord(2, 0, "Gm9");
+    IntegrationTestEntity.insertPatternEvent(2, 1, 0.0, 1.0, "KICK", "C5", 1.0, 1.0);
+    IntegrationTestEntity.insertPatternEvent(2, 2, 1.0, 1.0, "SNARE", "C5", 1.0, 1.0);
 
     // Newly cloned patterns -- awaiting PatternClone job to run, and create their child entities
     IntegrationTestEntity.insertPattern(3, 1, PatternType.Loop, PatternState.Published, 16, "Verse 34", 0.5, "G", 120);
@@ -141,8 +141,8 @@ public class PatternEraseJobIT {
     }
     app.stop();
 
-    assertNull(injector.getInstance(PatternDAO.class).readOne(Access.internal(), BigInteger.valueOf(1)));
-    assertNull(injector.getInstance(PatternDAO.class).readOne(Access.internal(), BigInteger.valueOf(2)));
+    IntegrationTestEntity.assertNotExist(injector.getInstance(PatternDAO.class), BigInteger.valueOf(1));
+    IntegrationTestEntity.assertNotExist(injector.getInstance(PatternDAO.class), BigInteger.valueOf(2));
   }
 
   /**

@@ -1,8 +1,8 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.external.amazon;
 
-import io.xj.core.exception.ConfigException;
-import io.xj.core.exception.NetworkException;
+import io.xj.core.exception.CoreException;
+import io.xj.core.exception.CoreException;
 
 import java.io.InputStream;
 
@@ -17,7 +17,7 @@ public interface AmazonProvider {
   /**
    @return S3UploadPolicy for upload to AWS file storage (S3)
    */
-  S3UploadPolicy generateAudioUploadPolicy() throws ConfigException;
+  S3UploadPolicy generateAudioUploadPolicy() throws CoreException;
 
   /**
    Generate a new key of an object in AWS file storage (S3)
@@ -34,42 +34,42 @@ public interface AmazonProvider {
 
    @return full URL
    */
-  String getUploadURL() throws ConfigException;
+  String getUploadURL() throws CoreException;
 
   /**
    Get the AWS Access Key ID
 
    @return key id
    */
-  String getCredentialId() throws ConfigException;
+  String getCredentialId() throws CoreException;
 
   /**
    Get the AWS Access Key Secret
 
    @return key id
    */
-  String getCredentialSecret() throws ConfigException;
+  String getCredentialSecret() throws CoreException;
 
   /**
    Get the AWS Bucket Name
 
    @return The name of the bucket in AWS file storage (S3)
    */
-  String getAudioBucketName() throws ConfigException;
+  String getAudioBucketName() throws CoreException;
 
   /**
    Get the AWS upload policy expire time in minutes
 
    @return The number of minutes before the upload policy expires and is unable to be used.
    */
-  int getAudioUploadExpireInMinutes() throws ConfigException;
+  int getAudioUploadExpireInMinutes() throws CoreException;
 
   /**
    Get the AWS Access control list
 
    @return Access control list for upload to AWS file storage (S3)
    */
-  String getAudioUploadACL() throws ConfigException;
+  String getAudioUploadACL() throws CoreException;
 
   /**
    Stream an object from S3
@@ -78,7 +78,7 @@ public interface AmazonProvider {
    @param key        of object to stream
    @return stream of object data
    */
-  InputStream streamS3Object(String bucketName, String key) throws NetworkException;
+  InputStream streamS3Object(String bucketName, String key) throws CoreException;
 
   /**
    Put an object to S3 (from a file)
@@ -88,7 +88,7 @@ public interface AmazonProvider {
    @param bucket   to put file to
    @param key      to put file at
    */
-  void putS3Object(String filePath, String bucket, String key) throws NetworkException;
+  void putS3Object(String filePath, String bucket, String key) throws CoreException;
 
   /**
    Delete an object from S3
@@ -98,7 +98,7 @@ public interface AmazonProvider {
    @param bucket to delete file in
    @param key    to delete
    */
-  void deleteS3Object(String bucket, String key) throws NetworkException;
+  void deleteS3Object(String bucket, String key) throws CoreException;
 
   /**
    Copy an object within S3
@@ -110,5 +110,5 @@ public interface AmazonProvider {
    @param targetBucket to revived file in
    @param targetKey    to revived
    */
-  void copyS3Object(String sourceBucket, String sourceKey, String targetBucket, String targetKey) throws NetworkException;
+  void copyS3Object(String sourceBucket, String sourceKey, String targetBucket, String targetKey) throws CoreException;
 }

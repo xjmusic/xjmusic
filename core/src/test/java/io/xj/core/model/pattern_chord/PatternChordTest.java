@@ -1,7 +1,7 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.model.pattern_chord;
 
-import io.xj.core.exception.BusinessException;
+import io.xj.core.exception.CoreException;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -15,7 +15,8 @@ import static org.junit.Assert.assertTrue;
 
 public class PatternChordTest {
 
-  @Rule public ExpectedException failure = ExpectedException.none();
+  @Rule
+  public ExpectedException failure = ExpectedException.none();
 
   @Test
   public void validate() throws Exception {
@@ -28,7 +29,7 @@ public class PatternChordTest {
 
   @Test
   public void validate_failsWithoutName() throws Exception {
-    failure.expect(BusinessException.class);
+    failure.expect(CoreException.class);
     failure.expectMessage("Name is required");
 
     new PatternChord()
@@ -39,7 +40,7 @@ public class PatternChordTest {
 
   @Test
   public void validate_failsWithoutPatternID() throws Exception {
-    failure.expect(BusinessException.class);
+    failure.expect(CoreException.class);
     failure.expectMessage("Pattern ID is required");
 
     new PatternChord()
@@ -50,7 +51,7 @@ public class PatternChordTest {
 
   @Test
   public void validate_failsWithoutPosition() throws Exception {
-    failure.expect(BusinessException.class);
+    failure.expect(CoreException.class);
     failure.expectMessage("Position is required");
 
     new PatternChord()

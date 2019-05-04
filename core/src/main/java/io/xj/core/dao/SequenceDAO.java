@@ -2,11 +2,10 @@
 package io.xj.core.dao;
 
 import io.xj.core.access.impl.Access;
+import io.xj.core.exception.CoreException;
 import io.xj.core.model.sequence.Sequence;
 import io.xj.core.model.sequence.SequenceState;
-import io.xj.core.model.sequence.SequenceType;
 
-import javax.annotation.Nullable;
 import java.math.BigInteger;
 import java.util.Collection;
 
@@ -20,18 +19,7 @@ public interface SequenceDAO extends DAO<Sequence> {
    @param entity  for the new Sequence
    @return newly readMany record
    */
-  Sequence clone(Access access, BigInteger cloneId, Sequence entity) throws Exception;
-
-  /**
-   Read a given type of sequence for a given segment
-
-   @param access      control
-   @param segmentId      to read sequence for
-   @param sequenceType type of sequence to read
-   @return macro-type sequence; null if none found
-   */
-  @Nullable
-  Sequence readOneTypeInSegment(Access access, BigInteger segmentId, SequenceType sequenceType) throws Exception;
+  Sequence clone(Access access, BigInteger cloneId, Sequence entity) throws CoreException;
 
   /**
    Fetch many sequence bound to a particular chain
@@ -39,9 +27,9 @@ public interface SequenceDAO extends DAO<Sequence> {
    @param access  control
    @param chainId to fetch sequences for.
    @return collection of sequences.
-   @throws Exception on failure
+   @throws CoreException on failure
    */
-  Collection<Sequence> readAllBoundToChain(Access access, BigInteger chainId) throws Exception;
+  Collection<Sequence> readAllBoundToChain(Access access, BigInteger chainId) throws CoreException;
 
   /**
    Fetch many sequence for one Account by id, if accessible
@@ -49,18 +37,18 @@ public interface SequenceDAO extends DAO<Sequence> {
    @param access    control
    @param accountId to fetch sequences for.
    @return JSONArray of sequences.
-   @throws Exception on failure
+   @throws CoreException on failure
    */
-  Collection<Sequence> readAllInAccount(Access access, BigInteger accountId) throws Exception;
+  Collection<Sequence> readAllInAccount(Access access, BigInteger accountId) throws CoreException;
 
   /**
    Fetch all sequence visible to given access
 
    @param access control
    @return JSONArray of sequences.
-   @throws Exception on failure
+   @throws CoreException on failure
    */
-  Collection<Sequence> readAll(Access access) throws Exception;
+  Collection<Sequence> readAll(Access access) throws CoreException;
 
   /**
    Fetch all Sequence in a certain state
@@ -69,9 +57,9 @@ public interface SequenceDAO extends DAO<Sequence> {
    @param access control
    @param state  to get sequences in
    @return Result of sequence records.
-   @throws Exception on failure
+   @throws CoreException on failure
    */
-  Collection<Sequence> readAllInState(Access access, SequenceState state) throws Exception;
+  Collection<Sequence> readAllInState(Access access, SequenceState state) throws CoreException;
 
   /**
    Erase a specified Sequence if accessible.
@@ -80,5 +68,5 @@ public interface SequenceDAO extends DAO<Sequence> {
    @param access control
    @param id     of specific sequence to erase.
    */
-  void erase(Access access, BigInteger id) throws Exception;
+  void erase(Access access, BigInteger id) throws CoreException;
 }

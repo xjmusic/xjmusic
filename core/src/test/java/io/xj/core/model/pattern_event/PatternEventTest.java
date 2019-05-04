@@ -1,7 +1,7 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.model.pattern_event;
 
-import io.xj.core.exception.BusinessException;
+import io.xj.core.exception.CoreException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -12,7 +12,8 @@ import static org.junit.Assert.assertEquals;
 
 public class PatternEventTest {
 
-  @Rule public ExpectedException failure = ExpectedException.none();
+  @Rule
+  public ExpectedException failure = ExpectedException.none();
 
   @Test
   public void validate() throws Exception {
@@ -30,7 +31,7 @@ public class PatternEventTest {
 
   @Test
   public void validate_failsWithoutDuration() throws Exception {
-    failure.expect(BusinessException.class);
+    failure.expect(CoreException.class);
     failure.expectMessage("Duration is required");
 
     new PatternEvent()
@@ -46,7 +47,7 @@ public class PatternEventTest {
 
   @Test
   public void validate_failsWithoutVoiceID() throws Exception {
-    failure.expect(BusinessException.class);
+    failure.expect(CoreException.class);
     failure.expectMessage("Voice ID is required");
 
     new PatternEvent()
@@ -62,7 +63,7 @@ public class PatternEventTest {
 
   @Test
   public void validate_failsWithoutPatternID() throws Exception {
-    failure.expect(BusinessException.class);
+    failure.expect(CoreException.class);
     failure.expectMessage("Pattern ID is required");
 
     new PatternEvent()
@@ -78,7 +79,7 @@ public class PatternEventTest {
 
   @Test
   public void validate_failsWithoutPosition() throws Exception {
-    failure.expect(BusinessException.class);
+    failure.expect(CoreException.class);
     failure.expectMessage("Position is required");
 
     new PatternEvent()
@@ -94,7 +95,7 @@ public class PatternEventTest {
 
   @Test
   public void validate_failsWithoutInflection() throws Exception {
-    failure.expect(BusinessException.class);
+    failure.expect(CoreException.class);
     failure.expectMessage("Inflection is required");
 
     new PatternEvent()
@@ -110,7 +111,7 @@ public class PatternEventTest {
 
   @Test
   public void validate_failsWithoutNote() throws Exception {
-    failure.expect(BusinessException.class);
+    failure.expect(CoreException.class);
     failure.expectMessage("Note is required");
 
     new PatternEvent()
@@ -126,7 +127,7 @@ public class PatternEventTest {
 
   @Test
   public void validate_failsWithoutTonality() throws Exception {
-    failure.expect(BusinessException.class);
+    failure.expect(CoreException.class);
     failure.expectMessage("Tonality is required");
 
     new PatternEvent()
@@ -142,7 +143,7 @@ public class PatternEventTest {
 
   @Test
   public void validate_failsWithoutVelocity() throws Exception {
-    failure.expect(BusinessException.class);
+    failure.expect(CoreException.class);
     failure.expectMessage("Velocity is required");
 
     new PatternEvent()

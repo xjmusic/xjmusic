@@ -1,38 +1,36 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.dao;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
-import io.xj.core.exception.BusinessException;
+import io.xj.core.exception.CoreException;
 import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
 import io.xj.core.model.chain_sequence.ChainSequence;
 import io.xj.core.model.sequence.SequenceState;
 import io.xj.core.model.sequence.SequenceType;
-import io.xj.core.transport.JSON;
-
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.math.BigInteger;
 import java.sql.Timestamp;
+import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 
 // future test: permissions of different libraries to readMany vs. create vs. update or delete chain libraries
 public class ChainSequenceIT {
   private final Injector injector = Guice.createInjector(new CoreModule());
+  @Rule
+  public ExpectedException failure = ExpectedException.none();
   private ChainSequenceDAO testDAO;
 
   @Before
@@ -63,19 +61,14 @@ public class ChainSequenceIT {
     IntegrationTestEntity.insertSequence(4, 2, 2, SequenceType.Detail, SequenceState.Published, "sail", 0.342, "C#", 0.286);
 
     // Chain "school" has sequence "helm"
-    IntegrationTestEntity.insertChainSequence(1, 1, 3);
+    IntegrationTestEntity.insertChainSequence(1, 3);
 
     // Chain "bucket" has sequences "fonds" and "nuts"
-    IntegrationTestEntity.insertChainSequence(2, 2, 1);
-    IntegrationTestEntity.insertChainSequence(3, 2, 2);
+    IntegrationTestEntity.insertChainSequence(2, 1);
+    IntegrationTestEntity.insertChainSequence(2, 2);
 
     // Instantiate the test subject
     testDAO = injector.getInstance(ChainSequenceDAO.class);
-  }
-
-  @After
-  public void tearDown() throws Exception {
-    testDAO = null;
   }
 
   @Test
@@ -88,14 +81,10 @@ public class ChainSequenceIT {
       .setChainId(BigInteger.valueOf(1L))
       .setSequenceId(BigInteger.valueOf(2L));
 
-    JSONObject result = JSON.objectFrom(testDAO.create(access, inputData));
-
-    assertNotNull(result);
-    assertEquals(1, result.get("chainId"));
-    assertEquals(2, result.get("sequenceId"));
+    testDAO.create(access, inputData);
   }
 
-  @Test(expected = BusinessException.class)
+  @Test(expected = CoreException.class)
   public void create_FailIfAlreadyExists() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
@@ -108,7 +97,7 @@ public class ChainSequenceIT {
     testDAO.create(access, inputData);
   }
 
-  @Test(expected = BusinessException.class)
+  @Test(expected = CoreException.class)
   public void create_FailIfUserNotInChainAccount() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
@@ -121,7 +110,7 @@ public class ChainSequenceIT {
     testDAO.create(access, inputData);
   }
 
-  @Test(expected = BusinessException.class)
+  @Test(expected = CoreException.class)
   public void create_FailIfUserNotInSequenceAccount() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
@@ -134,7 +123,7 @@ public class ChainSequenceIT {
     testDAO.create(access, inputData);
   }
 
-  @Test(expected = BusinessException.class)
+  @Test(expected = CoreException.class)
   public void create_FailsWithoutChainID() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
@@ -146,7 +135,7 @@ public class ChainSequenceIT {
     testDAO.create(access, inputData);
   }
 
-  @Test(expected = BusinessException.class)
+  @Test(expected = CoreException.class)
   public void create_FailsWithoutSequenceId() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
@@ -165,10 +154,9 @@ public class ChainSequenceIT {
       "accounts", "2"
     ));
 
-    ChainSequence result = testDAO.readOne(access, BigInteger.valueOf(1L));
+    ChainSequence result = testDAO.readOne(access, BigInteger.valueOf(1003000L));
 
     assertNotNull(result);
-    assertEquals(BigInteger.valueOf(1L), result.getId());
     assertEquals(BigInteger.valueOf(1L), result.getChainId());
     assertEquals(BigInteger.valueOf(3L), result.getSequenceId());
   }
@@ -179,10 +167,10 @@ public class ChainSequenceIT {
       "roles", "Artist",
       "accounts", "326"
     ));
+    failure.expect(CoreException.class);
+    failure.expectMessage("does not exist");
 
-    ChainSequence result = testDAO.readOne(access, BigInteger.valueOf(1L));
-
-    assertNull(result);
+    testDAO.readOne(access, BigInteger.valueOf(1003000L));
   }
 
   @Test
@@ -192,14 +180,9 @@ public class ChainSequenceIT {
       "accounts", "1"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(2L))));
+    Collection<ChainSequence> result = testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(2L)));
 
-    assertNotNull(result);
-    assertEquals(2L, (long) result.length());
-    JSONObject result1 = (JSONObject) result.get(0);
-    assertEquals(1, result1.get("sequenceId"));
-    JSONObject result2 = (JSONObject) result.get(1);
-    assertEquals(2, result2.get("sequenceId"));
+    assertEquals(2L, result.size());
   }
 
   @Test
@@ -209,10 +192,9 @@ public class ChainSequenceIT {
       "accounts", "345"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1L))));
+    Collection<ChainSequence> result = testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1L)));
 
-    assertNotNull(result);
-    assertEquals(0L, (long) result.length());
+    assertEquals(0L, result.size());
   }
 
   @Test
@@ -222,19 +204,18 @@ public class ChainSequenceIT {
       "accounts", "2"
     ));
 
-    testDAO.destroy(access, BigInteger.valueOf(1L));
+    testDAO.destroy(access, BigInteger.valueOf(1003000L));
 
-    ChainSequence result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1L));
-    assertNull(result);
+    IntegrationTestEntity.assertNotExist(testDAO, BigInteger.valueOf(1003000L));
   }
 
-  @Test(expected = BusinessException.class)
+  @Test(expected = CoreException.class)
   public void delete_FailIfNotInAccount() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "5"
     ));
 
-    testDAO.destroy(access, BigInteger.valueOf(1L));
+    testDAO.destroy(access, BigInteger.valueOf(1003000L));
   }
 }

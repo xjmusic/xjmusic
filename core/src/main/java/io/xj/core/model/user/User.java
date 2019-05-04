@@ -1,8 +1,9 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.model.user;
 
-import io.xj.core.exception.BusinessException;
+import io.xj.core.exception.CoreException;
 import io.xj.core.model.entity.Entity;
+import io.xj.core.model.entity.impl.EntityImpl;
 
 import java.math.BigInteger;
 import java.util.Objects;
@@ -17,7 +18,7 @@ import java.util.Objects;
  <p>
  NOTE: There can only be ONE of any getter/setter (with the same # of input params)
  */
-public class User extends Entity {
+public class User extends EntityImpl {
 
   // JSON output keys
   public static final String KEY_ONE = "user";
@@ -32,6 +33,11 @@ public class User extends Entity {
 
   public String getRoles() {
     return roles;
+  }
+
+  public User setId(BigInteger id) {
+    this.id = id;
+    return this;
   }
 
   public User setRoles(String roles) {
@@ -72,9 +78,9 @@ public class User extends Entity {
   }
 
   @Override
-  public void validate() throws BusinessException {
+  public void validate() throws CoreException {
     if (Objects.isNull(getRoles()) || getRoles().isEmpty()) {
-      throw new BusinessException("User roles required.");
+      throw new CoreException("User roles required.");
     }
   }
 

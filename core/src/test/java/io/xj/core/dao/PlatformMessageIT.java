@@ -3,7 +3,7 @@ package io.xj.core.dao;
 
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
-import io.xj.core.exception.BusinessException;
+import io.xj.core.exception.CoreException;
 import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
@@ -30,7 +30,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 public class PlatformMessageIT {
-  @Rule public ExpectedException failure = ExpectedException.none();
+  @Rule
+  public ExpectedException failure = ExpectedException.none();
   private final Injector injector = Guice.createInjector(new CoreModule());
   private PlatformMessageDAO testDAO;
   private static final long secondsPerDay = 86400L;
@@ -51,11 +52,6 @@ public class PlatformMessageIT {
 
     // Instantiate the test subject
     testDAO = injector.getInstance(PlatformMessageDAO.class);
-  }
-
-  @After
-  public void tearDown() throws Exception {
-    testDAO = null;
   }
 
   @Test
@@ -92,7 +88,7 @@ public class PlatformMessageIT {
       "accounts", "1"
     ));
 
-    failure.expect(BusinessException.class);
+    failure.expect(CoreException.class);
     failure.expectMessage("platform access is required");
 
     testDAO.create(access, new PlatformMessage()
@@ -111,10 +107,11 @@ public class PlatformMessageIT {
   }
 
   @Test
-  public void readOne_nullIfNotExist() throws Exception {
-    PlatformMessage result = testDAO.readOne(Access.internal(), BigInteger.valueOf(357L));
+  public void readOne_failtIfNotExist() throws Exception {
+    failure.expect(CoreException.class);
+    failure.expectMessage("does not exist");
 
-    assertNull(result);
+    testDAO.readOne(Access.internal(), BigInteger.valueOf(357L));
   }
 
   @Test
@@ -132,17 +129,18 @@ public class PlatformMessageIT {
   }
 
   @Test
-  public void readAllInPlatform_nullIfPlatformNotExist() throws Exception {
-    PlatformMessage result = testDAO.readOne(Access.internal(), BigInteger.valueOf(12097L));
+  public void readAllInPlatform_failIfPlatformNotExist() throws Exception {
+    failure.expect(CoreException.class);
+    failure.expectMessage("does not exist");
 
-    assertNull(result);
+    testDAO.readOne(Access.internal(), BigInteger.valueOf(12097L));
   }
 
   @Test
   public void delete() throws Exception {
     testDAO.destroy(Access.internal(), BigInteger.valueOf(12L));
 
-    assertNull(testDAO.readOne(Access.internal(), BigInteger.valueOf(2L)));
+    IntegrationTestEntity.assertNotExist(testDAO, BigInteger.valueOf(2L));
   }
 
   @Test
@@ -152,7 +150,7 @@ public class PlatformMessageIT {
       "accounts", "1"
     ));
 
-    failure.expect(BusinessException.class);
+    failure.expect(CoreException.class);
     failure.expectMessage("top-level access is required");
 
     testDAO.destroy(access, BigInteger.valueOf(12L));

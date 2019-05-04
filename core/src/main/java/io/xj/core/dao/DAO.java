@@ -2,13 +2,13 @@
 package io.xj.core.dao;
 
 import io.xj.core.access.impl.Access;
+import io.xj.core.exception.CoreException;
 import io.xj.core.model.entity.Entity;
 
-import javax.annotation.Nullable;
 import java.math.BigInteger;
 import java.util.Collection;
 
-public interface DAO<N extends Entity> {
+public interface DAO<E extends Entity> {
 
   /**
    Create a new Record
@@ -17,7 +17,7 @@ public interface DAO<N extends Entity> {
    @param entity for the new Record
    @return newly readMany record
    */
-  N create(Access access, N entity) throws Exception;
+  E create(Access access, E entity) throws CoreException;
 
   /**
    Fetch one record  if accessible
@@ -25,10 +25,9 @@ public interface DAO<N extends Entity> {
    @param access control
    @param id     of record to fetch
    @return retrieved record
-   @throws Exception on failure
+   @throws CoreException on failure
    */
-  @Nullable
-  N readOne(Access access, BigInteger id) throws Exception;
+  E readOne(Access access, BigInteger id) throws CoreException;
 
   /**
    Fetch many records for many parents by id, if accessible
@@ -36,9 +35,9 @@ public interface DAO<N extends Entity> {
    @param access    control
    @param parentIds to fetch records for.
    @return collection of retrieved records
-   @throws Exception on failure
+   @throws CoreException on failure
    */
-  Collection<N> readAll(Access access, Collection<BigInteger> parentIds) throws Exception;
+  Collection<E> readAll(Access access, Collection<BigInteger> parentIds) throws CoreException;
 
   /**
    Update a specified Entity
@@ -47,7 +46,7 @@ public interface DAO<N extends Entity> {
    @param id     of specific Entity to update.
    @param entity for the updated Entity.
    */
-  void update(Access access, BigInteger id, N entity) throws Exception;
+  void update(Access access, BigInteger id, E entity) throws CoreException;
 
   /**
    Delete a specified Entity
@@ -55,5 +54,5 @@ public interface DAO<N extends Entity> {
    @param access control
    @param id     of specific Entity to delete.
    */
-  void destroy(Access access, BigInteger id) throws Exception;
+  void destroy(Access access, BigInteger id) throws CoreException;
 }

@@ -15,7 +15,8 @@ import org.junit.rules.ExpectedException;
 
 public class HealthcheckIT {
   private static final int STRESS_TEST_ITERATIONS = 100;
-  @Rule public ExpectedException failure = ExpectedException.none();
+  @Rule
+  public ExpectedException failure = ExpectedException.none();
   private Health health;
 
   @Before
@@ -26,7 +27,7 @@ public class HealthcheckIT {
   }
 
   @After
-    public void tearDown() throws Exception {
+  public void tearDown() throws Exception {
   }
 
   @Test

@@ -1,15 +1,12 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.craft.digest;
 
-import io.xj.core.util.TremendouslyRandom;
-import io.xj.core.util.Value;
-
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multiset;
 import com.google.common.math.StatsAccumulator;
-
-import org.json.JSONObject;
+import io.xj.core.util.TremendouslyRandom;
+import io.xj.core.util.Value;
 
 import java.util.List;
 import java.util.Objects;
@@ -18,7 +15,6 @@ import java.util.Set;
 /**
  [#154350346] Architect wants a universal Ingest Factory, to modularize graph mathematics used during craft to evaluate any combination of Library, Sequence, and Instrument for any purpose.
  */
-@FunctionalInterface
 public interface Digest {
   String KEY_CHORD_ID = "chordId";
   String KEY_CHORD_NAME = "chordName";
@@ -118,14 +114,5 @@ public interface Digest {
     if (result.isEmpty()) return ImmutableSet.of((int) Math.floor(defaultIfNone / divisor));
     return result;
   }
-
-
-  /**
-   Yes, the order of elements in JSON arrays is preserved,
-   per RFC 7159 JavaScript Object Notation (JSON) Data Interchange Format (emphasis mine).
-
-   @return JSON object of ingest report, probably for display in UI
-   */
-  JSONObject toJSONObject();
 
 }

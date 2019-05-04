@@ -1,9 +1,10 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.model.pattern_event;
 
-import io.xj.core.exception.BusinessException;
-import io.xj.core.model.event.Event;
+import io.xj.core.exception.CoreException;
+import io.xj.core.model.event.impl.EventImpl;
 import io.xj.core.util.Text;
+import io.xj.core.util.Value;
 
 import java.math.BigInteger;
 
@@ -17,7 +18,7 @@ import java.math.BigInteger;
  <p>
  NOTE: There can only be ONE of any getter/setter (with the same # of input params)
  */
-public class PatternEvent extends Event {
+public class PatternEvent extends EventImpl {
   public static final String KEY_ONE = "patternEvent";
   public static final String KEY_MANY = "patternEvents";
   private BigInteger voiceId;
@@ -43,7 +44,7 @@ public class PatternEvent extends Event {
 
   @Override
   public PatternEvent setPosition(Double position) {
-    this.position = roundPosition(position);
+    this.position = Value.limitFloatingPointPlaces(position);
     return this;
   }
 
@@ -74,12 +75,12 @@ public class PatternEvent extends Event {
   }
 
   @Override
-  public void validate() throws BusinessException {
+  public void validate() throws CoreException {
     if (null == voiceId) {
-      throw new BusinessException("Voice ID is required.");
+      throw new CoreException("Voice ID is required.");
     }
     if (null == patternId) {
-      throw new BusinessException("Pattern ID is required.");
+      throw new CoreException("Pattern ID is required.");
     }
     super.validate();
   }

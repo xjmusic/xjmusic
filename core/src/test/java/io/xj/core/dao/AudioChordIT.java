@@ -1,31 +1,28 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.dao;
 
-import io.xj.core.CoreModule;
-import io.xj.core.access.impl.Access;
-import io.xj.core.exception.BusinessException;
-import io.xj.core.integration.IntegrationTestEntity;
-import io.xj.core.model.audio_chord.AudioChord;
-import io.xj.core.model.instrument.InstrumentType;
-import io.xj.core.model.user_role.UserRoleType;
-import io.xj.core.transport.JSON;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
+import io.xj.core.CoreModule;
+import io.xj.core.access.impl.Access;
+import io.xj.core.exception.CoreException;
+import io.xj.core.integration.IntegrationTestEntity;
+import io.xj.core.model.audio_chord.AudioChord;
+import io.xj.core.model.instrument.InstrumentType;
+import io.xj.core.model.user_role.UserRoleType;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.math.BigInteger;
+import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 
 // future test: permissions of different users to readMany vs. create vs. update or delete audio entities
 
@@ -33,6 +30,8 @@ import static org.junit.Assert.assertNull;
 
 public class AudioChordIT {
   private final Injector injector = Guice.createInjector(new CoreModule());
+  @Rule
+  public ExpectedException failure = ExpectedException.none();
   private AudioChordDAO testDAO;
 
   @Before
@@ -44,7 +43,7 @@ public class AudioChordIT {
 
     // John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
     IntegrationTestEntity.insertUser(2, "john", "john@email.com", "http://pictures.com/john.gif");
-    IntegrationTestEntity.insertUserRole(1, 2, UserRoleType.Admin);
+    IntegrationTestEntity.insertUserRole(2, UserRoleType.Admin);
 
     // Library "palm tree" has sequence "leaves" and sequence "coconuts"
     IntegrationTestEntity.insertLibrary(1, 1, "palm tree");
@@ -53,11 +52,11 @@ public class AudioChordIT {
     IntegrationTestEntity.insertInstrument(1, 1, 2, "Harmonic Performance", InstrumentType.Percussive, 0.9);
 
     // Instrument "808" has Audio "Chords Cm to D"
-    IntegrationTestEntity.insertAudio(1, 1, "Published", "Chords Cm to D", "https://static.xj.io/instrument/percussion/808/kick1.wav", 0.01, 2.123, 120.0, 440.0);
+    IntegrationTestEntity.insertAudio(1, 1, "Published", "Chords Cm to D", "instrument/percussion/808/kick1.wav", 0.01, 2.123, 120.0, 440.0);
 
     // Audio "Drums" has events "C minor" and "D major" 2x each
-    IntegrationTestEntity.insertAudioChord(1, 1, 4, "D major");
-    IntegrationTestEntity.insertAudioChord(2, 1, 0, "C minor");
+    IntegrationTestEntity.insertAudioChord(1, 4, "D major");
+    IntegrationTestEntity.insertAudioChord(1, 0, "C minor");
 
     // Instantiate the test subject
     testDAO = injector.getInstance(AudioChordDAO.class);
@@ -87,7 +86,7 @@ public class AudioChordIT {
     assertEquals(BigInteger.valueOf(1L), result.getAudioId());
   }
 
-  @Test(expected = BusinessException.class)
+  @Test(expected = CoreException.class)
   public void create_FailsWithoutAudioID() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
@@ -100,7 +99,7 @@ public class AudioChordIT {
     testDAO.create(access, inputData);
   }
 
-  @Test(expected = BusinessException.class)
+  @Test(expected = CoreException.class)
   public void create_FailsWithoutName() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
@@ -120,10 +119,9 @@ public class AudioChordIT {
       "accounts", "1"
     ));
 
-    AudioChord result = testDAO.readOne(access, BigInteger.valueOf(1L));
+    AudioChord result = testDAO.readOne(access, BigInteger.valueOf(1000L));
 
     assertNotNull(result);
-    assertEquals(BigInteger.valueOf(1L), result.getId());
     assertEquals(BigInteger.valueOf(1L), result.getAudioId());
     assertEquals("D major", result.getName());
   }
@@ -134,10 +132,10 @@ public class AudioChordIT {
       "roles", "Artist",
       "accounts", "326"
     ));
+    failure.expect(CoreException.class);
+    failure.expectMessage("does not exist");
 
-    AudioChord result = testDAO.readOne(access, BigInteger.valueOf(1L));
-
-    assertNull(result);
+    testDAO.readOne(access, BigInteger.valueOf(1000L));
   }
 
   @Test
@@ -147,14 +145,9 @@ public class AudioChordIT {
       "accounts", "1"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1L))));
+    Collection<AudioChord> result = testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1L)));
 
-    assertNotNull(result);
-    assertEquals(2L, (long) result.length());
-    JSONObject result1 = (JSONObject) result.get(0);
-    assertEquals("C minor", result1.get("name"));
-    JSONObject result2 = (JSONObject) result.get(1);
-    assertEquals("D major", result2.get("name"));
+    assertEquals(2, result.size());
   }
 
   @Test
@@ -164,13 +157,13 @@ public class AudioChordIT {
       "accounts", "345"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1L))));
+    Collection<AudioChord> result = testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1L)));
 
     assertNotNull(result);
-    assertEquals(0L, (long) result.length());
+    assertEquals(0, result.size());
   }
 
-  @Test(expected = BusinessException.class)
+  @Test(expected = CoreException.class)
   public void update_FailsWithoutAudioID() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
@@ -183,7 +176,7 @@ public class AudioChordIT {
     testDAO.update(access, BigInteger.valueOf(3L), inputData);
   }
 
-  @Test(expected = BusinessException.class)
+  @Test(expected = CoreException.class)
   public void update_FailsWithoutName() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
@@ -196,7 +189,7 @@ public class AudioChordIT {
     testDAO.update(access, BigInteger.valueOf(2L), inputData);
   }
 
-  @Test(expected = BusinessException.class)
+  @Test(expected = CoreException.class)
   public void update_FailsUpdatingToNonexistentAudio() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
@@ -208,10 +201,10 @@ public class AudioChordIT {
       .setName("cannons");
 
     try {
-      testDAO.update(access, BigInteger.valueOf(2L), inputData);
+      testDAO.update(access, BigInteger.valueOf(1001L), inputData);
 
     } catch (Exception e) {
-      AudioChord result = testDAO.readOne(Access.internal(), BigInteger.valueOf(2L));
+      AudioChord result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1001L));
       assertNotNull(result);
       assertEquals("C minor", result.getName());
       assertEquals(BigInteger.valueOf(1L), result.getAudioId());
@@ -230,9 +223,9 @@ public class AudioChordIT {
       .setName("POPPYCOCK")
       .setPosition(4.0);
 
-    testDAO.update(access, BigInteger.valueOf(1L), inputData);
+    testDAO.update(access, BigInteger.valueOf(1000L), inputData);
 
-    AudioChord result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1L));
+    AudioChord result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1000L));
     assertNotNull(result);
     assertEquals("POPPYCOCK", result.getName());
     assertEquals(Double.valueOf(4.0), result.getPosition());
@@ -248,20 +241,19 @@ public class AudioChordIT {
       "accounts", "1"
     ));
 
-    testDAO.destroy(access, BigInteger.valueOf(1L));
+    testDAO.destroy(access, BigInteger.valueOf(1000L));
 
-    AudioChord result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1L));
-    assertNull(result);
+    IntegrationTestEntity.assertNotExist(testDAO, BigInteger.valueOf(1000L));
   }
 
-  @Test(expected = BusinessException.class)
+  @Test(expected = CoreException.class)
   public void delete_failsIfNotInAccount() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "2"
     ));
 
-    testDAO.destroy(access, BigInteger.valueOf(1L));
+    testDAO.destroy(access, BigInteger.valueOf(1000L));
   }
 
 }

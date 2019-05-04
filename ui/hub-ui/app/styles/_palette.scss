@@ -1,6 +1,6 @@
 //  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 $bright: #f0f0f0;
-$gray: #a0a0a0;
+$gray: #c0c0c0;
 $red: #c00000;
 $magenta: #ff00ff;
 $purple: #750e80;
@@ -9,14 +9,14 @@ $cyan: #3c9ddf;
 $green: #00c000;
 $gold: #ffc000;
 
+$body-background-color: #4b4b4b;
+$body-color: $gray;
+
 $low-gray: darken($gray, 25);
 $lower-gray: darken($gray, 35);
-$dark-gray: darken($gray, 40);
-$darker-gray: darken($gray, 50);
+$dark-gray: darken($body-background-color, 5%);
+$darker-gray: darken($body-background-color, 10%);
 $much-darker-gray: darken($gray, 54);
-
-$body-background-color: #181818;
-$body-color: $gray;
 
 $dropdown-bg: #303030;
 $dropdown-selection-bg: #404040;

@@ -126,10 +126,7 @@ nav.navbar {
 .nav.nav-tabs {
   width: 100%;
   border-bottom: $nav-tabs-border;
-  background: -webkit-linear-gradient($nav-tabs-bg-top-color, $nav-tabs-bg-btm-color); /* Safari 5.1-6.0 */
-  background: -o-linear-gradient($nav-tabs-bg-top-color, $nav-tabs-bg-btm-color); /* Opera 11.1-12.0 */
-  background: -moz-linear-gradient($nav-tabs-bg-top-color, $nav-tabs-bg-btm-color); /* Firefox 3.6-15 */
-  background: linear-gradient($nav-tabs-bg-top-color, $nav-tabs-bg-btm-color); /* Standard syntax */
+  background: $dark-gray;
 
   .nav-link {
     &:first-child {
@@ -143,3 +140,26 @@ nav.navbar {
     }
   }
 }
+
+/*
+.nav.nav-tabs {
+  width: 100%;
+  border-bottom: $nav-tabs-border;
+  background: -webkit-linear-gradient($nav-tabs-bg-top-color, $nav-tabs-bg-btm-color); !* Safari 5.1-6.0 *!
+  background: -o-linear-gradient($nav-tabs-bg-top-color, $nav-tabs-bg-btm-color); !* Opera 11.1-12.0 *!
+  background: -moz-linear-gradient($nav-tabs-bg-top-color, $nav-tabs-bg-btm-color); !* Firefox 3.6-15 *!
+  background: linear-gradient($nav-tabs-bg-top-color, $nav-tabs-bg-btm-color); !* Standard syntax *!
+
+  .nav-link {
+    &:first-child {
+      margin-left: 15px;
+    }
+    &.active {
+      border: $nav-tabs-border;
+      border-bottom-color: $body-background-color;
+      background-color: $body-background-color;
+      color: $bright;
+    }
+  }
+}
+*/

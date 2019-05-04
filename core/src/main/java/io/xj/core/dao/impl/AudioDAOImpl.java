@@ -1,12 +1,13 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.dao.impl;
 
+import com.google.common.collect.Maps;
+import com.google.inject.Inject;
 import io.xj.core.access.impl.Access;
 import io.xj.core.config.Config;
 import io.xj.core.config.Exposure;
 import io.xj.core.dao.AudioDAO;
-import io.xj.core.exception.BusinessException;
-import io.xj.core.exception.ConfigException;
+import io.xj.core.exception.CoreException;
 import io.xj.core.external.amazon.AmazonProvider;
 import io.xj.core.external.amazon.S3UploadPolicy;
 import io.xj.core.model.audio.Audio;
@@ -16,15 +17,10 @@ import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import io.xj.core.persistence.sql.impl.SQLConnection;
 import io.xj.core.tables.records.AudioRecord;
 import io.xj.core.work.WorkManager;
-
 import org.jooq.DSLContext;
 import org.jooq.Field;
 import org.jooq.Record;
 import org.jooq.types.ULong;
-
-import com.google.common.collect.Maps;
-import com.google.inject.Inject;
-
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,7 +62,7 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
    @param id     of audio
    @return audio
    */
-  private static Audio readOne(DSLContext db, Access access, ULong id) throws BusinessException {
+  private static Audio readOne(DSLContext db, Access access, ULong id) throws CoreException {
     if (access.isTopLevel())
       return modelFrom(db.selectFrom(AUDIO)
         .where(AUDIO.ID.eq(id))
@@ -89,9 +85,9 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
    @param access        control
    @param instrumentIds to readMany all audio of
    @return Result of audio records.
-   @throws Exception on failure
+   @throws CoreException on failure
    */
-  private static Collection<Audio> readAll(DSLContext db, Access access, Collection<ULong> instrumentIds) throws Exception {
+  private static Collection<Audio> readAll(DSLContext db, Access access, Collection<ULong> instrumentIds) throws CoreException {
     if (access.isTopLevel())
       return modelsFrom(db.select(AUDIO.fields())
         .from(AUDIO)
@@ -119,7 +115,7 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
    @param state  to read audios in
    @return array of records
    */
-  private static Collection<Audio> readAllInState(DSLContext db, Access access, AudioState state) throws Exception {
+  private static Collection<Audio> readAllInState(DSLContext db, Access access, AudioState state) throws CoreException {
     requireRole("platform access", access, UserRoleType.Admin, UserRoleType.Engineer);
 
     return modelsFrom(db.select(AUDIO.fields())
@@ -139,9 +135,9 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
    @param access control
    @param id     to update
    @param entity to update with
-   @throws BusinessException if failure
+   @throws CoreException if failure
    */
-  private static void update(DSLContext db, Access access, ULong id, Audio entity) throws Exception {
+  private static void update(DSLContext db, Access access, ULong id, Audio entity) throws CoreException {
     entity.validate();
 
     Map<Field, Object> fieldValues = fieldValueMap(entity);
@@ -159,7 +155,7 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
         .fetchOne(0, int.class));
 
     if (0 == executeUpdate(db, AUDIO, fieldValues))
-      throw new BusinessException("No records updated.");
+      throw new CoreException("No records updated.");
   }
 
   /**
@@ -183,97 +179,97 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
   }
 
   @Override
-  public Audio create(Access access, Audio entity) throws Exception {
+  public Audio create(Access access, Audio entity) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(create(tx.getContext(), access, entity));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public Audio clone(Access access, BigInteger cloneId, Audio entity) throws Exception {
+  public Audio clone(Access access, BigInteger cloneId, Audio entity) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(clone(tx.getContext(), access, cloneId, entity));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
   @Nullable
-  public Audio readOne(Access access, BigInteger id) throws Exception {
+  public Audio readOne(Access access, BigInteger id) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readOne(tx.getContext(), access, ULong.valueOf(id)));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
   @Nullable
-  public JSONObject authorizeUpload(Access access, BigInteger id) throws Exception {
+  public JSONObject authorizeUpload(Access access, BigInteger id) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(authorizeUpload(tx.getContext(), access, ULong.valueOf(id)));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
   @Nullable
-  public Collection<Audio> readAll(Access access, Collection<BigInteger> parentIds) throws Exception {
+  public Collection<Audio> readAll(Access access, Collection<BigInteger> parentIds) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readAll(tx.getContext(), access, uLongValuesOf(parentIds)));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public void update(Access access, BigInteger id, Audio entity) throws Exception {
+  public void update(Access access, BigInteger id, Audio entity) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       update(tx.getContext(), access, ULong.valueOf(id), entity);
       tx.success();
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public void destroy(Access access, BigInteger id) throws Exception {
+  public void destroy(Access access, BigInteger id) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       destroy(access, tx.getContext(), ULong.valueOf(id));
       tx.success();
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public Collection<Audio> readAllInState(Access access, AudioState state) throws Exception {
+  public Collection<Audio> readAllInState(Access access, AudioState state) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readAllInState(tx.getContext(), access, state));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public void erase(Access access, BigInteger id) throws Exception {
+  public void erase(Access access, BigInteger id) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       erase(access, tx.getContext(), ULong.valueOf(id));
       tx.success();
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
@@ -285,9 +281,9 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
    @param access control
    @param entity for new audio
    @return newly readMany record
-   @throws BusinessException if failure
+   @throws CoreException if failure
    */
-  private Audio create(DSLContext db, Access access, Audio entity) throws BusinessException {
+  private Audio create(DSLContext db, Access access, Audio entity) throws CoreException {
     entity.validate();
 
     Map<Field, Object> fieldValues = fieldValueMap(entity);
@@ -317,11 +313,11 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
    @param cloneId of audio to clone
    @param entity  for the new Account User.
    @return newly readMany record
-   @throws BusinessException on failure
+   @throws CoreException on failure
    */
-  private Audio clone(DSLContext db, Access access, BigInteger cloneId, Audio entity) throws BusinessException {
+  private Audio clone(DSLContext db, Access access, BigInteger cloneId, Audio entity) throws CoreException {
     Audio from = readOne(db, access, ULong.valueOf(cloneId));
-    if (Objects.isNull(from)) throw new BusinessException("Can't clone nonexistent Audio");
+    if (Objects.isNull(from)) throw new CoreException("Can't clone nonexistent Audio");
 
     entity.setStateEnum(from.getState());
     entity.setStart(from.getStart());
@@ -353,9 +349,9 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
    @param db     context
    @param access control
    @param id     to update
-   @throws BusinessException if failure
+   @throws CoreException if failure
    */
-  private JSONObject authorizeUpload(DSLContext db, Access access, ULong id) throws Exception {
+  private JSONObject authorizeUpload(DSLContext db, Access access, ULong id) throws CoreException {
     Record audioRecord;
 
     if (access.isTopLevel())
@@ -391,11 +387,11 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
 
    @param db      context
    @param audioId to destroy
-   @throws Exception         if database failure
-   @throws ConfigException   if not configured properly
-   @throws BusinessException if fails business rule
+   @throws CoreException if database failure
+   @throws CoreException if not configured properly
+   @throws CoreException if fails business rule
    */
-  private void destroy(Access access, DSLContext db, ULong audioId) throws Exception {
+  private void destroy(Access access, DSLContext db, ULong audioId) throws CoreException {
     requireTopLevel(access);
 
     AudioRecord audioRecord = db.selectFrom(AUDIO)
@@ -432,11 +428,11 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
 
    @param db context
    @param id to delete
-   @throws Exception         if database failure
-   @throws ConfigException   if not configured properly
-   @throws BusinessException if fails business rule
+   @throws CoreException if database failure
+   @throws CoreException if not configured properly
+   @throws CoreException if fails business rule
    */
-  private void erase(Access access, DSLContext db, ULong id) throws Exception {
+  private void erase(Access access, DSLContext db, ULong id) throws CoreException {
     if (access.isTopLevel()) requireExists("Audio", db.selectCount().from(AUDIO)
       .where(AUDIO.ID.eq(id))
       .fetchOne(0, int.class));
@@ -453,13 +449,9 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
     fieldValues.put(AUDIO.STATE, AudioState.Erase);
 
     if (0 == executeUpdate(db, AUDIO, fieldValues))
-      throw new BusinessException("No records updated.");
+      throw new CoreException("No records updated.");
 
     // Schedule audio deletion job
-    try {
-      workManager.doAudioErase(id.toBigInteger());
-    } catch (Exception e) {
-      log.error("Failed to start AudioErase work after updating Audio to Erase state. See the elusive [#153492153] Entity erase job can be spawned without an error", e);
-    }
+    workManager.doAudioErase(id.toBigInteger());
   }
 }

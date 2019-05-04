@@ -103,12 +103,12 @@ public class SequenceCloneJobIT {
 
     // Ted has "user" and "admin" roles, belongs to account "pilots", has "google" auth
     IntegrationTestEntity.insertUser(2, "ted", "ted@email.com", "http://pictures.com/ted.gif");
-    IntegrationTestEntity.insertUserRole(1, 2, UserRoleType.Admin);
+    IntegrationTestEntity.insertUserRole(2, UserRoleType.Admin);
 
     // Sally has a "user" role and belongs to account "pilots"
     IntegrationTestEntity.insertUser(3, "sally", "sally@email.com", "http://pictures.com/sally.gif");
-    IntegrationTestEntity.insertUserRole(2, 3, UserRoleType.User);
-    IntegrationTestEntity.insertAccountUser(3, 1, 3);
+    IntegrationTestEntity.insertUserRole(3, UserRoleType.User);
+    IntegrationTestEntity.insertAccountUser(1, 3);
 
     // Library "house" and "pajamas"
     IntegrationTestEntity.insertLibrary(2, 1, "house");
@@ -116,22 +116,24 @@ public class SequenceCloneJobIT {
 
     // Sequence "808" and "2020"
     IntegrationTestEntity.insertSequence(1, 2, 2, SequenceType.Main, SequenceState.Published, "Bingo", 0.9, "C", 120);
-    IntegrationTestEntity.insertSequenceMeme(1, 1, "heavy");
+    IntegrationTestEntity.insertSequenceMeme(1, "heavy");
     IntegrationTestEntity.insertVoice(1, 1, InstrumentType.Percussive, "Flute");
     IntegrationTestEntity.insertVoice(2, 1, InstrumentType.Percussive, "Loot");
     IntegrationTestEntity.insertSequence(12, 2, 42, SequenceType.Main, SequenceState.Published, "Hammer 2020", 0.9, "G", 120);
 
     // Pattern
-    IntegrationTestEntity.insertPatternAndSequencePattern(1, 1, PatternType.Main, PatternState.Published, 0, 16, "Verse 1", 0.5, "C", 120.0);
-    IntegrationTestEntity.insertPatternChord(1, 1, 0, "Db7");
-    IntegrationTestEntity.insertPatternEvent(101, 1, 1, 0.0, 1.0, "X", "C5", 1.0, 1.0);
-    IntegrationTestEntity.insertPatternEvent(102, 1, 2, 1.0, 1.0, "X", "C5", 1.0, 1.0);
+    IntegrationTestEntity.insertPattern(1, 1, PatternType.Main, PatternState.Published, 16, "Verse 1", 0.5, "C", 120.0);
+    IntegrationTestEntity.insertSequencePattern(110, 1, 1, 0);
+    IntegrationTestEntity.insertPatternChord(1, 0, "Db7");
+    IntegrationTestEntity.insertPatternEvent(1, 1, 0.0, 1.0, "X", "C5", 1.0, 1.0);
+    IntegrationTestEntity.insertPatternEvent(1, 2, 1.0, 1.0, "X", "C5", 1.0, 1.0);
 
     // Pattern
-    IntegrationTestEntity.insertPatternAndSequencePattern(2, 1, PatternType.Main, PatternState.Published, 1, 16, "Verse 2", 0.5, "C", 120.0);
-    IntegrationTestEntity.insertPatternChord(2, 2, 0, "Gm9");
-    IntegrationTestEntity.insertPatternEvent(103, 2, 1, 0.0, 1.0, "X", "C5", 1.0, 1.0);
-    IntegrationTestEntity.insertPatternEvent(104, 2, 2, 1.0, 1.0, "X", "C5", 1.0, 1.0);
+    IntegrationTestEntity.insertPattern(2, 1, PatternType.Main, PatternState.Published, 16, "Verse 2", 0.5, "C", 120.0);
+    IntegrationTestEntity.insertSequencePattern(211, 1, 2, 1);
+    IntegrationTestEntity.insertPatternChord(2, 0, "Gm9");
+    IntegrationTestEntity.insertPatternEvent(2, 1, 0.0, 1.0, "X", "C5", 1.0, 1.0);
+    IntegrationTestEntity.insertPatternEvent(2, 2, 1.0, 1.0, "X", "C5", 1.0, 1.0);
 
     // Newly cloned sequence -- awaiting SequenceClone job to run, and create its child entities
     IntegrationTestEntity.insertSequence(14, 2, 42, SequenceType.Main, SequenceState.Published, "Bingo Clone Y'all", 0.9, "D", 120);
@@ -176,7 +178,11 @@ public class SequenceCloneJobIT {
 
     // Start app, wait for work, stop app
     app.start();
-    while ((hasRemainingWork(WorkType.SequenceClone) || hasFewerChildPatterns(2, BigInteger.valueOf(14))) && isWithinTimeLimit()) {
+    while (hasRemainingWork(WorkType.SequenceClone) && isWithinTimeLimit()) {
+      Thread.sleep(MILLIS_PER_SECOND);
+    }
+    Thread.sleep(MILLIS_PER_SECOND);
+    while (hasRemainingWork(WorkType.PatternClone) && isWithinTimeLimit()) {
       Thread.sleep(MILLIS_PER_SECOND);
     }
     app.stop();
@@ -215,17 +221,6 @@ public class SequenceCloneJobIT {
     // Verify enqueued pattern clone jobs
     verify(workManager).doPatternClone(eq(BigInteger.valueOf(1)), any());
     verify(workManager).doPatternClone(eq(BigInteger.valueOf(2)), any());
-  }
-
-  /**
-   Whether the specified sequence has fewer than # child patterns
-
-   @param threshold  # of child patterns
-   @param sequenceId to test
-   @return true if less than # of child patterns
-   */
-  private boolean hasFewerChildPatterns(int threshold, BigInteger sequenceId) throws Exception {
-    return threshold > injector.getInstance(PatternDAO.class).readAll(Access.internal(), ImmutableList.of(sequenceId)).size();
   }
 
   /**

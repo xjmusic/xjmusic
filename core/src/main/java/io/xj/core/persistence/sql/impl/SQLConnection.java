@@ -1,10 +1,8 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.persistence.sql.impl;
 
-import io.xj.core.exception.DatabaseException;
-
+import io.xj.core.exception.CoreException;
 import org.jooq.DSLContext;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,9 +10,8 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 public class SQLConnection {
-
   private static final Logger log = LoggerFactory.getLogger(SQLConnection.class);
-  protected final DSLContext context;
+  private final DSLContext context;
   private final Boolean isTransaction;
   private final Connection connection;
 
@@ -41,9 +38,9 @@ public class SQLConnection {
    Success- this is the public action,
    and should be overridden by subclasses.
 
-   @throws DatabaseException on failure.
+   @throws CoreException on failure.
    */
-  public void success() throws DatabaseException {
+  public void success() throws CoreException {
     commitAndClose();
   }
 
@@ -51,9 +48,9 @@ public class SQLConnection {
    Success
 
    @param result to return
-   @throws DatabaseException on failure.
+   @throws CoreException on failure.
    */
-  public <T> T success(T result) throws DatabaseException {
+  public <T> T success(T result) throws CoreException {
     commitAndClose();
     return result;
   }
@@ -61,7 +58,7 @@ public class SQLConnection {
   /**
    Failure
 
-   @return DatabaseException to throw
+   @return CoreException to throw
    */
   public <T> T failure(T e) {
     rollbackAndClose();
@@ -71,13 +68,14 @@ public class SQLConnection {
   /**
    Close the database connection.
 
-   @throws DatabaseException on failure.
+   @throws CoreException on failure.
    */
-  private void close() throws DatabaseException {
+  private void close() throws CoreException {
     try {
       connection.close();
-    } catch (Exception eClose) {
-      throw failureException("to close connection (" + eClose + ")");
+
+  } catch (SQLException e) {
+      throw failureException("to close connection", e);
     }
   }
 
@@ -85,56 +83,47 @@ public class SQLConnection {
    All Database failure uses this for central logging and exception
 
    @param toDoSomething that failed "to do something"
-   @return DatabaseException
+   @param e             Exception to encapsulate
+   @return CoreException
    */
-  private DatabaseException failureException(String toDoSomething) {
-    logFailed(toDoSomething);
-    return new DatabaseException("Failed " + toDoSomething);
-  }
-
-  /**
-   All Database failure uses this for central logging
-
-   @param toDoSomething that failed "to do something"
-   */
-  private void logFailed(String toDoSomething) {
-    log.error("Failed " + toDoSomething);
+  private static CoreException failureException(String toDoSomething, Exception e) {
+    log.error("Failed {}", toDoSomething);
+    return new CoreException(String.format("Failed %s", toDoSomething), e);
   }
 
   /**
    Commit the transaction.
 
-   @throws DatabaseException on failure.
+   @throws CoreException on failure.
    */
-  private void commit() throws DatabaseException {
+  private void commit() throws CoreException {
     try {
       connection.commit();
-    } catch (Exception eCommit) {
+
+    } catch (SQLException e) {
       try {
         connection.rollback();
-        throw failureException(
-          "to commit transaction (" + eCommit + "); " +
-            "rolled back OK");
-      } catch (Exception eRollback) {
-        throw failureException(
-          "to commit database transaction (" + eCommit + ", " +
-            "to rollback (" + eRollback + ") ");
+
+      } catch (SQLException e2) {
+        log.error("Failed to rollback after failed commit", e2);
       }
+      throw failureException("to commit transaction; rolled back OK", e);
     }
   }
 
   /**
    Commit the transaction, and close the connection.
 
-   @throws DatabaseException if something goes wrong
+   @throws CoreException if something goes wrong
    */
-  private void commitAndClose() throws DatabaseException {
+  private void commitAndClose() throws CoreException {
     try {
       if (isTransaction) {
         commit();
       }
       close();
-    } catch (Exception e) {
+
+    } catch (CoreException e) {
       close();
       throw e;
     }
@@ -149,17 +138,14 @@ public class SQLConnection {
         connection.rollback();
       }
       connection.close();
-    } catch (SQLException eRollbackClose) {
+
+    } catch (SQLException e) {
       try {
         connection.close();
-        logFailed(
-          "to rollback and close (" + eRollbackClose + "); " +
-            "closed OK");
-      } catch (SQLException eClose) {
-        logFailed(
-          "to rollback and close (" + eRollbackClose + "), " +
-            "to close (" + eClose + ")");
+      } catch (SQLException e2) {
+        log.error("Failed to close after failed rollback", e2);
       }
+      log.error(isTransaction ? "Failed to rollback and close" : "Failed to close", e);
     }
   }
 }

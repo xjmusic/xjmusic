@@ -23,7 +23,6 @@ const MessageBadgesComponent = Component.extend({
 
       let msgClass = (message.get('type') + '-type').toLowerCase();
       this.$('.modal-header').addClass(msgClass);
-      console.log("add your shit", this.$('.modal-header'), msgClass, this.$('.modal-header').hasClass(msgClass));
     }
 
   },

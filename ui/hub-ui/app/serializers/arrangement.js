@@ -2,8 +2,13 @@
 
 import DS from 'ember-data';
 
-export default DS.RESTSerializer.extend({
-  keyForRelationship: function(key /*, relationship, method*/) {
-    return key + 'Id';
+export default DS.JSONSerializer.extend({
+  primaryKey: 'uuid',
+  keyForRelationship: function (key /*, relationship, method*/) {
+    if ("choice" === key) {
+      return key + 'Uuid';
+    } else {
+      return key + 'Id';
+    }
   }
 });

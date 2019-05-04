@@ -4,40 +4,39 @@
 {{outlet}}
 
 <!-- Upper Container -->
-<div class="form-horizontal container-fluid">
-
-  {{#if (or auth.isArtist auth.isAdmin)}}
+{{#if (or auth.isArtist auth.isAdmin)}}
+  <div class="form-horizontal container-fluid">
     <div class="col-sm-12 text-right">
-      {{#link-to 'accounts.one.libraries.one.sequences.one.voices.new' model.sequence.library.account model.sequence.library model.sequence}}{{fa-icon "plus"}} Create New Voice{{/link-to}}
-    </div>
-  {{/if}}
-
-  <!-- List of Voices -->
-  <div class="col-sm-12">
-    <div class="table-list">
-      <table class="table">
-        <thead>
-        <tr>
-          <th width="1%">Type</th>
-          <th>Description</th>
-          <th><!-- Actions --></th>
-          <th width="1%">#</th>
-        </tr>
-        </thead>
-        <tbody>
-        {{#each model.voices as |voice|}}
-          <tr class="item">
-            <td>{{voice.type}}</td>
-            <td>{{#link-to "accounts.one.libraries.one.sequences.one.voices.one" voice.sequence.library.account voice.sequence.library voice.sequence voice}}{{voice.description}}{{/link-to}}</td>
-            <td>
-              {{entity-actions 'accounts.one.libraries.one.sequences.one.voices.one' 'edit|destroy' voice.sequence.library.account voice.sequence.library voice.sequence voice}}
-            </td>
-            <th scope="row">{{voice.id}}</th>
-          </tr>
-        {{/each}}
-        </tbody>
-      </table>
+      {{#link-to 'accounts.one.libraries.one.sequences.one.voices.new' model.sequence.library.account
+                 model.sequence.library model.sequence}}{{fa-icon "plus"}} Create New Voice{{/link-to}}
     </div>
   </div>
+{{/if}}
 
+<!-- List of Voices -->
+<div class="table-list">
+  <table class="table">
+    <thead>
+    <tr>
+      <th width="1%">Type</th>
+      <th>Description</th>
+      <th><!-- Actions --></th>
+      <th width="1%">#</th>
+    </tr>
+    </thead>
+    <tbody>
+    {{#each model.voices as |voice|}}
+      <tr class="item">
+        <td>{{voice.type}}</td>
+        <td>{{#link-to "accounts.one.libraries.one.sequences.one.voices.one" voice.sequence.library.account
+                       voice.sequence.library voice.sequence voice}}{{voice.description}}{{/link-to}}</td>
+        <td>
+          {{entity-actions 'accounts.one.libraries.one.sequences.one.voices.one' 'edit|destroy'
+                           voice.sequence.library.account voice.sequence.library voice.sequence voice}}
+        </td>
+        <th scope="row">{{voice.id}}</th>
+      </tr>
+    {{/each}}
+    </tbody>
+  </table>
 </div>

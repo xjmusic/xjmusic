@@ -11,16 +11,16 @@ import static org.junit.Assert.assertEquals;
 @RunWith(MockitoJUnitRunner.class)
 public class TextTest extends Mockito {
   @Test
-  public void toAlphabetical() throws Exception {
-    assertEquals("Pajamas",Text.toAlphabetical("Pajamas"));
-    assertEquals("Pajamas",Text.toAlphabetical("1P34aj2a3ma321s"));
-    assertEquals("Pajamas",Text.toAlphabetical("  P#$ aj#$@a   @#$$$$ma         s"));
-    assertEquals("Pajamas",Text.toAlphabetical("P_+_+_+_+_(@(#%&!&&&@&%!@)_$*(!_)@()_#()(((a j a m a s "));
-    assertEquals("Pajamas",Text.toAlphabetical("Pajamas"));
+  public void toAlphabetical() {
+    assertEquals("Pajamas", Text.toAlphabetical("Pajamas"));
+    assertEquals("Pajamas", Text.toAlphabetical("1P34aj2a3ma321s"));
+    assertEquals("Pajamas", Text.toAlphabetical("  P#$ aj#$@a   @#$$$$ma         s"));
+    assertEquals("Pajamas", Text.toAlphabetical("P_+_+_+_+_(@(#%&!&&&@&%!@)_$*(!_)@()_#()(((a j a m a s "));
+    assertEquals("Pajamas", Text.toAlphabetical("Pajamas"));
   }
 
   @Test
-  public void toSlug() throws Exception {
+  public void toSlug() {
     assertEquals("jim", Text.toSlug("jim"));
     assertEquals("jim", Text.toSlug("jim-251"));
     assertEquals("jim", Text.toSlug("j i m - 2 5 1"));
@@ -28,7 +28,7 @@ public class TextTest extends Mockito {
   }
 
   @Test
-  public void toProperSlug() throws Exception {
+  public void toProperSlug() {
     assertEquals("Jammybiscuit", Text.toProperSlug("jaMMy bISCUIT"));
     assertEquals("Jammy", Text.toProperSlug("jaMMy"));
     assertEquals("Jmmy", Text.toProperSlug("j#MMy", "neuf"));
@@ -38,7 +38,7 @@ public class TextTest extends Mockito {
   }
 
   @Test
-  public void toLowerSlug() throws Exception {
+  public void toLowerSlug() {
     assertEquals("hammyjammy", Text.toLowerSlug("H4AMMY jaMMy"));
     assertEquals("jammy", Text.toLowerSlug("jaMMy"));
     assertEquals("jmmy", Text.toLowerSlug("j#MMy", "neuf"));
@@ -49,7 +49,7 @@ public class TextTest extends Mockito {
   }
 
   @Test
-  public void toUpperSlug() throws Exception {
+  public void toUpperSlug() {
     assertEquals("JAMMYBUNS", Text.toUpperSlug("jaMMy b#!uns"));
     assertEquals("JAMMY", Text.toUpperSlug("jaMMy"));
     assertEquals("JMMY", Text.toUpperSlug("j#MMy", "neuf"));
@@ -60,7 +60,7 @@ public class TextTest extends Mockito {
   }
 
   @Test
-  public void toLowerScored() throws Exception {
+  public void toLowerScored() {
     assertEquals("hammy_jammy", Text.toLowerScored("HAMMY jaMMy"));
     assertEquals("jammy", Text.toLowerScored("jaMMy"));
     assertEquals("jam_42", Text.toLowerScored("jaM &&$ 42"));
@@ -75,7 +75,7 @@ public class TextTest extends Mockito {
   }
 
   @Test
-  public void toUpperScored() throws Exception {
+  public void toUpperScored() {
     assertEquals("JAMMY_BUNS", Text.toUpperScored("jaMMy b#!uns"));
     assertEquals("JAMMY_BUNS", Text.toUpperScored("  jaMMy    b#!uns   "));
     assertEquals("JAMMY", Text.toUpperScored("jaMMy"));
@@ -87,12 +87,12 @@ public class TextTest extends Mockito {
   }
 
   @Test
-  public void toNote() throws Exception {
+  public void toNote() {
     assertEquals("C# major", Text.toNote("   C# m___ajor "));
   }
 
   @Test
-  public void formatStackStrace_nullOutputsEmptyString() throws Exception {
+  public void formatStackStrace_nullOutputsEmptyString() {
     assertEquals("", Text.formatStackTrace(null));
   }
 
@@ -129,4 +129,8 @@ public class TextTest extends Mockito {
     assertEquals(true, Text.isInteger("32"));
   }
 
+  @Test
+  public void singleQuoted() {
+    assertEquals("'stones'", Text.singleQuoted("stones"));
+  }
 }

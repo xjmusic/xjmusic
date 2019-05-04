@@ -2,7 +2,7 @@
 package io.xj.core.app.impl;
 
 import io.xj.core.app.Health;
-import io.xj.core.exception.DatabaseException;
+import io.xj.core.exception.CoreException;
 import io.xj.core.persistence.redis.RedisDatabaseProvider;
 import io.xj.core.persistence.sql.SQLDatabaseProvider;
 
@@ -35,7 +35,7 @@ public class HealthImpl implements Health {
     String pingResult = client.ping();
     if (!Objects.equals(PONG.toString(), pingResult)) {
       client.close();
-      throw new DatabaseException("Redis server ping result: " + pingResult);
+      throw new CoreException("Redis server ping result: " + pingResult);
     }
     client.close();
 

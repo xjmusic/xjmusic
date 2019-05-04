@@ -1,12 +1,13 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.dao.impl;
 
+import com.google.api.client.util.Maps;
+import com.google.common.collect.Lists;
+import com.google.inject.Inject;
 import io.xj.core.access.AccessControlProvider;
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.UserDAO;
-import io.xj.core.exception.AccessException;
-import io.xj.core.exception.BusinessException;
-import io.xj.core.exception.DatabaseException;
+import io.xj.core.exception.CoreException;
 import io.xj.core.model.account_user.AccountUser;
 import io.xj.core.model.user.User;
 import io.xj.core.model.user_access_token.UserAccessToken;
@@ -21,17 +22,11 @@ import io.xj.core.tables.records.UserAuthRecord;
 import io.xj.core.tables.records.UserRecord;
 import io.xj.core.tables.records.UserRoleRecord;
 import io.xj.core.transport.CSV;
-
 import org.jooq.DSLContext;
 import org.jooq.Field;
 import org.jooq.Result;
 import org.jooq.SelectSelectStep;
 import org.jooq.types.ULong;
-
-import com.google.api.client.util.Maps;
-import com.google.common.collect.Lists;
-import com.google.inject.Inject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -94,9 +89,9 @@ public class UserDAOImpl extends DAOImpl implements UserDAO {
    @param userId      user record id
    @param userAuthId  userAuth record id
    @param accessToken for user access to this system
-   @throws Exception if anything goes wrong
+   @throws CoreException if anything goes wrong
    */
-  private static void newUserAccessTokenRecord(DSLContext db, ULong userId, ULong userAuthId, String accessToken) throws Exception {
+  private static void newUserAccessTokenRecord(DSLContext db, ULong userId, ULong userAuthId, String accessToken) throws CoreException {
     UserAccessTokenRecord userAccessToken = db.insertInto(USER_ACCESS_TOKEN,
       USER_ACCESS_TOKEN.USER_ID,
       USER_ACCESS_TOKEN.USER_AUTH_ID,
@@ -112,7 +107,7 @@ public class UserDAOImpl extends DAOImpl implements UserDAO {
       USER_ACCESS_TOKEN.ACCESS_TOKEN
     ).fetchOne();
     if (Objects.isNull(userAccessToken)) {
-      throw new DatabaseException("Failed to create new UserAccessToken record.");
+      throw new CoreException("Failed to create new UserAccessToken record.");
     }
 
     log.info("Created new UserAccessToken, id:{}, userId:{}, userAuthId:{}, accessToken:{}", userAccessToken.getId(), userAccessToken.getUserId(), userAccessToken.getUserAuthId(), userAccessToken.getAccessToken());
@@ -130,13 +125,13 @@ public class UserDAOImpl extends DAOImpl implements UserDAO {
    @param email     to contact new user
    @return new User record, including actual id
    */
-  private static UserRecord newUser(DSLContext db, String name, String avatarUrl, String email) throws Exception {
+  private static UserRecord newUser(DSLContext db, String name, String avatarUrl, String email) throws CoreException {
     UserRecord user = db.insertInto(USER, USER.NAME, USER.AVATAR_URL, USER.EMAIL)
       .values(name, avatarUrl, email)
       .returning(USER.ID, USER.NAME, USER.AVATAR_URL, USER.EMAIL)
       .fetchOne();
     if (Objects.isNull(user)) {
-      throw new DatabaseException("Failed to create new User record.");
+      throw new CoreException("Failed to create new User record.");
     }
 
     log.info("Created new User, id:{}, name:{}, email:{}", user.getId(), user.getName(), user.getEmail());
@@ -150,13 +145,13 @@ public class UserDAOImpl extends DAOImpl implements UserDAO {
    @param userId of new User.
    @return collection of new UserRole records, including actual id
    */
-  private static Collection<UserRole> newRoles(DSLContext db, ULong userId) throws Exception {
+  private static Collection<UserRole> newRoles(DSLContext db, ULong userId) throws CoreException {
     UserRoleRecord userRole1 = db.insertInto(USER_ROLE, USER_ROLE.USER_ID, USER_ROLE.TYPE)
       .values(userId, UserRoleType.User.toString())
       .returning(USER_ROLE.ID, USER_ROLE.USER_ID, USER_ROLE.TYPE)
       .fetchOne();
     if (Objects.isNull(userRole1)) {
-      throw new DatabaseException("Failed to create new UserRole record.");
+      throw new CoreException("Failed to create new UserRole record.");
     }
 
     log.info("Created new UserRole, id:{}, userId:{}, type:{}", userRole1.getId(), userRole1.getUserId(), userRole1.getType());
@@ -177,13 +172,13 @@ public class UserDAOImpl extends DAOImpl implements UserDAO {
    @param externalRefreshToken for refreshing OAuth2 access
    @return new UserAuth record, including actual id
    */
-  private static UserAuth newUserAuth(DSLContext db, ULong userId, UserAuthType authType, String account, String externalAccessToken, String externalRefreshToken) throws Exception {
+  private static UserAuth newUserAuth(DSLContext db, ULong userId, UserAuthType authType, String account, String externalAccessToken, String externalRefreshToken) throws CoreException {
     UserAuthRecord userAuth = db.insertInto(USER_AUTH, USER_AUTH.USER_ID, USER_AUTH.TYPE, USER_AUTH.EXTERNAL_ACCOUNT, USER_AUTH.EXTERNAL_ACCESS_TOKEN, USER_AUTH.EXTERNAL_REFRESH_TOKEN)
       .values(userId, authType.toString(), account, externalAccessToken, externalRefreshToken)
       .returning(USER_AUTH.ID, USER_AUTH.USER_ID, USER_AUTH.TYPE, USER_AUTH.EXTERNAL_ACCOUNT, USER_AUTH.EXTERNAL_ACCESS_TOKEN, USER_AUTH.EXTERNAL_REFRESH_TOKEN)
       .fetchOne();
     if (Objects.isNull(userAuth)) {
-      throw new DatabaseException("Failed to create new UserAuth record.");
+      throw new CoreException("Failed to create new UserAuth record.");
     }
 
     log.info("Created new UserAuth, id:{}, userId:{}, type:{}, account:{}", userAuth.getId(), userAuth.getUserId(), userAuth.getType(), userAuth.getExternalAccount());
@@ -197,7 +192,7 @@ public class UserDAOImpl extends DAOImpl implements UserDAO {
    @param userId of existing User.
    @return collection of AccountUserRecord.
    */
-  private static Collection<AccountUser> fetchAccounts(DSLContext db, ULong userId) throws BusinessException {
+  private static Collection<AccountUser> fetchAccounts(DSLContext db, ULong userId) throws CoreException {
     return modelsFrom(db.selectFrom(ACCOUNT_USER)
       .where(ACCOUNT_USER.USER_ID.equal(userId))
       .fetch(), AccountUser.class);
@@ -210,7 +205,7 @@ public class UserDAOImpl extends DAOImpl implements UserDAO {
    @param userId of existing User.
    @return collection of UserRoleRecord.
    */
-  private static Collection<UserRole> fetchRoles(DSLContext db, ULong userId) throws BusinessException {
+  private static Collection<UserRole> fetchRoles(DSLContext db, ULong userId) throws CoreException {
     return modelsFrom(db.selectFrom(USER_ROLE)
       .where(USER_ROLE.USER_ID.equal(userId))
       .fetch(), UserRole.class);
@@ -224,7 +219,8 @@ public class UserDAOImpl extends DAOImpl implements UserDAO {
    @param userId to readMany
    @return user
    */
-  private static User readOne(DSLContext db, Access access, ULong userId) throws BusinessException {
+  @Nullable
+  private static User readOne(DSLContext db, Access access, ULong userId) throws CoreException {
     if (access.isTopLevel()) {
       return modelFrom(select(db)
         .from(USER_ROLE)
@@ -241,7 +237,7 @@ public class UserDAOImpl extends DAOImpl implements UserDAO {
         .and(ACCOUNT_USER.ACCOUNT_ID.in(access.getAccountIds()))
         .groupBy(USER_ROLE.USER_ID)
         .fetchOne(), User.class);
-    } else if (Objects.equals(ULong.valueOf(access.getUserId()), userId)) {
+    } else if (Objects.equals(ULong.valueOf(Objects.requireNonNull(access.getUserId())), userId)) {
       return modelFrom(select(db)
         .from(USER_ROLE)
         .join(USER).on(USER.ID.eq(USER_ROLE.USER_ID))
@@ -260,7 +256,7 @@ public class UserDAOImpl extends DAOImpl implements UserDAO {
    @param access control
    @return array of records
    */
-  private static Collection<User> readAll(DSLContext db, Access access) throws BusinessException {
+  private static Collection<User> readAll(DSLContext db, Access access) throws CoreException {
     if (access.isTopLevel()) {
       return modelsFrom(select(db)
         .from(USER_ROLE)
@@ -279,7 +275,7 @@ public class UserDAOImpl extends DAOImpl implements UserDAO {
       return modelsFrom(select(db)
         .from(USER_ROLE)
         .join(USER).on(USER.ID.eq(USER_ROLE.USER_ID))
-        .where(USER_ROLE.USER_ID.eq(ULong.valueOf(access.getUserId())))
+        .where(USER_ROLE.USER_ID.eq(ULong.valueOf(Objects.requireNonNull(access.getUserId()))))
         .groupBy(USER.ID)
         .fetch(), User.class);
     }
@@ -293,7 +289,7 @@ public class UserDAOImpl extends DAOImpl implements UserDAO {
    @param accessToken to read
    @return user access token
    */
-  private static UserAccessToken readOneAccessToken(DSLContext db, Access access, String accessToken) throws BusinessException {
+  private static UserAccessToken readOneAccessToken(DSLContext db, Access access, String accessToken) throws CoreException {
     requireTopLevel(access);
 
     return modelFrom(db.select(USER_ACCESS_TOKEN.fields())
@@ -310,7 +306,7 @@ public class UserDAOImpl extends DAOImpl implements UserDAO {
    @param userAuthId to read
    @return user auth
    */
-  private static UserAuth readOneAuth(DSLContext db, Access access, ULong userAuthId) throws BusinessException {
+  private static UserAuth readOneAuth(DSLContext db, Access access, ULong userAuthId) throws CoreException {
     requireTopLevel(access);
 
     return modelFrom(db.select(USER_AUTH.fields())
@@ -328,7 +324,7 @@ public class UserDAOImpl extends DAOImpl implements UserDAO {
    @param type   of role
    @return user role
    */
-  private static UserRole readOneRole(DSLContext db, Access access, ULong userId, UserRoleType type) throws BusinessException {
+  private static UserRole readOneRole(DSLContext db, Access access, ULong userId, UserRoleType type) throws CoreException {
     requireTopLevel(access);
 
     return modelFrom(db.select(USER_ROLE.fields())
@@ -348,7 +344,7 @@ public class UserDAOImpl extends DAOImpl implements UserDAO {
    @param externalAccount identifier in external system
    @return UserAuth, or null
    */
-  private static UserAuth readOneAuth(DSLContext db, UserAuthType authType, String externalAccount) throws BusinessException {
+  private static UserAuth readOneAuth(DSLContext db, UserAuthType authType, String externalAccount) throws CoreException {
     return modelFrom(db.selectFrom(USER_AUTH)
       .where(USER_AUTH.TYPE.equal(authType.toString()))
       .and(USER_AUTH.EXTERNAL_ACCOUNT.equal(externalAccount))
@@ -363,7 +359,7 @@ public class UserDAOImpl extends DAOImpl implements UserDAO {
    @param userId specific User to update.
    @param entity to update with
    */
-  private static void updateUserRoles(DSLContext db, ULong userId, User entity) throws BusinessException {
+  private static void updateUserRoles(DSLContext db, ULong userId, User entity) throws CoreException {
     entity.validate();
 
     // Prepare key entity
@@ -371,7 +367,7 @@ public class UserDAOImpl extends DAOImpl implements UserDAO {
     Collection<String> newRoles = CSV.splitProperSlug(entity.getRoles());
 
     // First check all provided roles for validity.
-    Boolean foundValidRole = false;
+    boolean foundValidRole = false;
     for (String checkRole : newRoles) {
       UserRoleType.validate(checkRole);
       foundValidRole = true;
@@ -413,23 +409,24 @@ public class UserDAOImpl extends DAOImpl implements UserDAO {
   }
 
   @Override
-  public String authenticate(UserAuthType authType, String account, String externalAccessToken, String externalRefreshToken, String name, String avatarUrl, String email) throws AccessException, DatabaseException, BusinessException {
+  public String authenticate(UserAuthType authType, String account, String externalAccessToken, String externalRefreshToken, String name, String avatarUrl, String email) throws CoreException {
     SQLConnection tx = dbProvider.getConnection(true);
 
     Collection<AccountUser> accounts;
     Collection<UserRole> roles;
-    UserAuth userAuth = readOneAuth(tx.getContext(), authType, account);
-    if (Objects.nonNull(userAuth)) {
+    UserAuth userAuth;
+    try {
+      userAuth = readOneAuth(tx.getContext(), authType, account);
       accounts = fetchAccounts(tx.getContext(), ULong.valueOf(userAuth.getUserId()));
       roles = fetchRoles(tx.getContext(), ULong.valueOf(userAuth.getUserId()));
-    } else {
+    } catch (CoreException ignored) {
       try {
         UserRecord user = newUser(tx.getContext(), name, avatarUrl, email);
         accounts = Lists.newArrayList();
         roles = newRoles(tx.getContext(), user.getId());
         userAuth = newUserAuth(tx.getContext(), user.getId(), authType, account, externalAccessToken, externalRefreshToken);
-      } catch (Exception e) {
-        throw tx.failure(new AccessException(e));
+      } catch (CoreException e) {
+        throw tx.failure(e);
       }
     }
 
@@ -440,97 +437,97 @@ public class UserDAOImpl extends DAOImpl implements UserDAO {
         ULong.valueOf(userAuth.getId()),
         accessToken
       );
-    } catch (Exception e) {
-      throw tx.failure(new AccessException(e));
+    } catch (CoreException e) {
+      throw tx.failure(e);
     }
 
     try {
       return tx.success(accessToken);
-    } catch (DatabaseException e) {
-      throw tx.failure(new AccessException(e));
+    } catch (CoreException e) {
+      throw tx.failure(e);
     }
   }
 
   @Override
-  public User create(Access access, User entity) throws Exception {
-    throw new BusinessException("Not allowed to create a User record (must implement 'authenticate' method).");
+  public User create(Access access, User entity) throws CoreException {
+    throw new CoreException("Not allowed to create a User record (must implement 'authenticate' method).");
 
   }
 
   @Override
-  public User readOne(Access access, BigInteger id) throws Exception {
+  public User readOne(Access access, BigInteger id) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readOne(tx.getContext(), access, ULong.valueOf(id)));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
   @Nullable
-  public Collection<User> readAll(Access access, Collection<BigInteger> parentIds) throws Exception {
+  public Collection<User> readAll(Access access, Collection<BigInteger> parentIds) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readAll(tx.getContext(), access));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public void update(Access access, BigInteger id, User entity) throws Exception {
-    throw new BusinessException("Not allowed to update User record.");
+  public void update(Access access, BigInteger id, User entity) throws CoreException {
+    throw new CoreException("Not allowed to update User record.");
   }
 
   @Override
-  public void destroy(Access access, BigInteger id) throws Exception {
-    throw new BusinessException("Not allowed to destroy User record.");
+  public void destroy(Access access, BigInteger id) throws CoreException {
+    throw new CoreException("Not allowed to destroy User record.");
   }
 
   @Override
-  public UserAccessToken readOneAccessToken(Access access, String accessToken) throws Exception {
+  public UserAccessToken readOneAccessToken(Access access, String accessToken) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readOneAccessToken(tx.getContext(), access, accessToken));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public UserAuth readOneAuth(Access access, BigInteger userAuthId) throws Exception {
+  public UserAuth readOneAuth(Access access, BigInteger userAuthId) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readOneAuth(tx.getContext(), access, ULong.valueOf(userAuthId)));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public UserRole readOneRole(Access access, BigInteger userId, UserRoleType type) throws Exception {
+  public UserRole readOneRole(Access access, BigInteger userId, UserRoleType type) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readOneRole(tx.getContext(), access, ULong.valueOf(userId), type));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public void destroyAllTokens(BigInteger userId) throws Exception {
+  public void destroyAllTokens(BigInteger userId) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       destroyAllTokens(tx.getContext(), ULong.valueOf(userId));
       tx.success();
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public void updateUserRolesAndDestroyTokens(Access access, BigInteger userId, User entity) throws Exception {
+  public void updateUserRolesAndDestroyTokens(Access access, BigInteger userId, User entity) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
 
     try {
@@ -538,7 +535,7 @@ public class UserDAOImpl extends DAOImpl implements UserDAO {
       updateUserRoles(tx.getContext(), ULong.valueOf(userId), entity);
       destroyAllTokens(tx.getContext(), ULong.valueOf(userId));
       tx.success();
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
@@ -548,7 +545,7 @@ public class UserDAOImpl extends DAOImpl implements UserDAO {
 
    @param userId to destroy all access tokens for.
    */
-  private void destroyAllTokens(DSLContext db, ULong userId) throws Exception {
+  private void destroyAllTokens(DSLContext db, ULong userId) throws CoreException {
     Result<UserAccessTokenRecord> userAccessTokens = db.selectFrom(USER_ACCESS_TOKEN)
       .where(USER_ACCESS_TOKEN.USER_ID.eq(userId))
       .fetch();
@@ -563,7 +560,7 @@ public class UserDAOImpl extends DAOImpl implements UserDAO {
    @param db              context
    @param userAccessToken record of user access token to destroy
    */
-  private void destroyToken(DSLContext db, UserAccessTokenRecord userAccessToken) throws Exception {
+  private void destroyToken(DSLContext db, UserAccessTokenRecord userAccessToken) throws CoreException {
     accessControlProvider.expire(userAccessToken.getAccessToken());
     db.deleteFrom(USER_ACCESS_TOKEN)
       .where(USER_ACCESS_TOKEN.ID.eq(userAccessToken.getId()))

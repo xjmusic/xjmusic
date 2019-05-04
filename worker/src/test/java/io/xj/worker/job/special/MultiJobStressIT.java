@@ -17,21 +17,16 @@ import io.xj.core.external.amazon.AmazonProvider;
 import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
-import io.xj.core.model.instrument.InstrumentType;
 import io.xj.core.model.pattern.Pattern;
-import io.xj.core.model.pattern.PatternState;
-import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.pattern_chord.PatternChord;
 import io.xj.core.model.pattern_event.PatternEvent;
 import io.xj.core.model.segment.Segment;
-import io.xj.core.model.sequence.SequenceState;
-import io.xj.core.model.sequence.SequenceType;
-import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.model.work.Work;
 import io.xj.core.model.work.WorkType;
 import io.xj.core.util.TimestampUTC;
 import io.xj.craft.CraftModule;
 import io.xj.dub.DubModule;
+import io.xj.worker.BaseIT;
 import io.xj.worker.WorkerModule;
 import net.greghaines.jesque.worker.JobFactory;
 import org.junit.After;
@@ -51,7 +46,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class MultiJobStressIT {
+public class MultiJobStressIT extends BaseIT {
   private static final int MILLIS_PER_SECOND = 1000;
   private static final int MAXIMUM_TEST_WAIT_MILLIS = 30 * MILLIS_PER_SECOND;
   @Rule
@@ -64,9 +59,6 @@ public class MultiJobStressIT {
 
   @Before
   public void setUp() throws Exception {
-    IntegrationTestEntity.reset();
-
-    // inject with mocks
     injector = Guice.createInjector(Modules.override(new CoreModule(), new WorkerModule(), new CraftModule(), new DubModule()).with(
       new AbstractModule() {
         @Override
@@ -75,122 +67,15 @@ public class MultiJobStressIT {
         }
       }));
 
-    // Account "pilots"
-    IntegrationTestEntity.insertAccount(1, "pilots");
-
-    // Ted has "user" and "admin" roles, belongs to account "pilots", has "google" auth
-    IntegrationTestEntity.insertUser(2, "ted", "ted@email.com", "http://pictures.com/ted.gif");
-    IntegrationTestEntity.insertUserRole(1, 2, UserRoleType.Admin);
-
-    // Sally has a "user" role and belongs to account "pilots"
-    IntegrationTestEntity.insertUser(3, "sally", "sally@email.com", "http://pictures.com/sally.gif");
-    IntegrationTestEntity.insertUserRole(2, 3, UserRoleType.User);
-    IntegrationTestEntity.insertAccountUser(3, 1, 3);
-
-    // Library "house"
-    IntegrationTestEntity.insertLibrary(2, 1, "house");
-
-    // "Heavy, Deep to Metal" macro-sequence in house library
-    IntegrationTestEntity.insertSequence(4, 3, 2, SequenceType.Macro, SequenceState.Published, "Heavy, Deep to Metal", 0.5, "C", 120);
-    IntegrationTestEntity.insertSequenceMeme(2, 4, "Heavy");
-    // " pattern offset 0
-    IntegrationTestEntity.insertPatternAndSequencePattern(3, 4, PatternType.Macro, PatternState.Published, 0, 0, "Start Deep", 0.6, "C", 125);
-    IntegrationTestEntity.insertSequencePatternMeme(3, 4, 3, "Deep");
-    IntegrationTestEntity.insertPatternChord(3, 3, 0, "C");
-    // " pattern offset 1
-    IntegrationTestEntity.insertPatternAndSequencePattern(4, 4, PatternType.Macro, PatternState.Published, 1, 0, "Intermediate", 0.4, "Bb minor", 115);
-    IntegrationTestEntity.insertSequencePatternMeme(4, 4, 4, "Metal");
-    IntegrationTestEntity.insertSequencePatternMeme(49, 4, 4, "Deep");
-    IntegrationTestEntity.insertPatternChord(4, 4, 0, "Bb minor");
-    // " pattern offset 2
-    IntegrationTestEntity.insertPatternAndSequencePattern(5, 4, PatternType.Macro, PatternState.Published, 2, 0, "Finish Metal", 0.4, "Ab minor", 125);
-    IntegrationTestEntity.insertSequencePatternMeme(5, 4, 4, "Metal");
-    IntegrationTestEntity.insertPatternChord(5, 5, 0, "Ab minor");
-
-    // "Tech, Steampunk to Modern" macro-sequence in house library
-    IntegrationTestEntity.insertSequence(3, 3, 2, SequenceType.Macro, SequenceState.Published, "Tech, Steampunk to Modern", 0.5, "G minor", 120);
-    IntegrationTestEntity.insertSequenceMeme(1, 3, "Tech");
-    // # pattern offset 0
-    IntegrationTestEntity.insertPatternAndSequencePattern(1, 3, PatternType.Macro, PatternState.Published, 0, 0, "Start Steampunk", 0.4, "G minor", 115);
-    IntegrationTestEntity.insertSequencePatternMeme(1, 3, 1, "Steampunk");
-    IntegrationTestEntity.insertPatternChord(1, 1, 0, "G minor");
-    // # pattern offset 1
-    IntegrationTestEntity.insertPatternAndSequencePattern(2, 3, PatternType.Macro, PatternState.Published, 1, 0, "Finish Modern", 0.6, "C", 125);
-    IntegrationTestEntity.insertSequencePatternMeme(2, 3, 2, "Modern");
-    IntegrationTestEntity.insertPatternChord(2, 2, 0, "C");
-
-    // Main sequence
-    IntegrationTestEntity.insertSequence(5, 3, 2, SequenceType.Main, SequenceState.Published, "Main Jam", 0.2, "C minor", 140);
-    IntegrationTestEntity.insertSequenceMeme(3, 5, "Attitude");
-    // # pattern offset 0
-    IntegrationTestEntity.insertPatternAndSequencePattern(15, 5, PatternType.Main, PatternState.Published, 0, 16, "Intro", 0.5, "G major", 135.0);
-    IntegrationTestEntity.insertSequencePatternMeme(6, 5, 15, "Gritty");
-    IntegrationTestEntity.insertPatternChord(12, 15, 0, "G major");
-    IntegrationTestEntity.insertPatternChord(14, 15, 8, "Ab minor");
-    // # pattern offset 1
-    IntegrationTestEntity.insertPatternAndSequencePattern(16, 5, PatternType.Main, PatternState.Published, 1, 16, "Drop", 0.5, "G minor", 135.0);
-    IntegrationTestEntity.insertSequencePatternMeme(7, 5, 16, "Gentle");
-    IntegrationTestEntity.insertPatternChord(16, 16, 0, "C major");
-    IntegrationTestEntity.insertPatternChord(18, 16, 8, "Bb minor");
-
-    // Another Main sequence to go to
-    IntegrationTestEntity.insertSequence(15, 3, 2, SequenceType.Main, SequenceState.Published, "Next Jam", 0.2, "Db minor", 140);
-    IntegrationTestEntity.insertSequenceMeme(43, 15, "Temptation");
-    IntegrationTestEntity.insertPatternAndSequencePattern(415, 15, PatternType.Main, PatternState.Published, 0, 16, "Intro", 0.5, "G minor", 135.0);
-    IntegrationTestEntity.insertSequencePatternMeme(46, 15, 415, "Food");
-    IntegrationTestEntity.insertPatternChord(412, 415, 0, "G minor");
-    IntegrationTestEntity.insertPatternChord(414, 415, 8, "Ab minor");
-    IntegrationTestEntity.insertPatternAndSequencePattern(416, 15, PatternType.Main, PatternState.Published, 1, 16, "Outro", 0.5, "A major", 135.0);
-    IntegrationTestEntity.insertSequencePatternMeme(47, 15, 416, "Drink");
-    IntegrationTestEntity.insertSequencePatternMeme(149, 15, 416, "Shame");
-    IntegrationTestEntity.insertPatternChord(416, 416, 0, "C major");
-    IntegrationTestEntity.insertPatternChord(418, 416, 8, "Bb major");
-
-    /*
-    Note that in any real use case, after
-    [#163158036] memes bound to sequence-patter
-    because sequence-pattern binding is not considered for rhythm sequences,
-    rhythm sequence patterns do not have memes.
-     */
-
-    // A basic beat
-    IntegrationTestEntity.insertSequence(35, 3, 2, SequenceType.Rhythm, SequenceState.Published, "Basic Beat", 0.2, "C", 121);
-    IntegrationTestEntity.insertSequenceMeme(343, 35, "Basic");
-    IntegrationTestEntity.insertPatternAndSequencePattern(315, 35, PatternType.Loop, PatternState.Published, 0, 16, "Drop", 0.5, "C", 125.0);
-    IntegrationTestEntity.insertSequencePatternMeme(346, 35, 315, "Heavy");
-
-    // For cloning-related test: Sequence "808" and "2020"
-    IntegrationTestEntity.insertSequence(1001, 2, 2, SequenceType.Rhythm, SequenceState.Published, "808 Drums", 0.9, "G", 120);
-    IntegrationTestEntity.insertSequenceMeme(1001, 1001, "heavy");
-    IntegrationTestEntity.insertVoice(1001, 1001, InstrumentType.Percussive, "Kick Drum");
-    IntegrationTestEntity.insertVoice(1002, 1001, InstrumentType.Percussive, "Snare Drum");
-    IntegrationTestEntity.insertSequence(10012, 2, 2, SequenceType.Rhythm, SequenceState.Published, "2020 Drums", 0.9, "G", 120);
-    IntegrationTestEntity.insertVoice(1003, 10012, InstrumentType.Percussive, "Kack Dram");
-    IntegrationTestEntity.insertVoice(1004, 10012, InstrumentType.Percussive, "Snarr Dram");
-
-    // For cloning-related test: Pattern "Verse"
-    IntegrationTestEntity.insertPatternAndSequencePattern(1001, 1001, PatternType.Loop, PatternState.Published, 0, 16, "Verse 1", 0.5, "G", 120);
-    IntegrationTestEntity.insertSequencePatternMeme(1001, 1001, 1001, "GREEN");
-    IntegrationTestEntity.insertPatternChord(1001, 1001, 0, "Db7");
-    IntegrationTestEntity.insertPatternEvent(100101, 1001, 1001, 0.0, 1.0, "KICK", "C5", 1.0, 1.0);
-    IntegrationTestEntity.insertPatternEvent(100102, 1001, 1002, 1.0, 1.0, "SNARE", "C5", 1.0, 1.0);
-
-    // For cloning-related test: Pattern "Verse"
-    IntegrationTestEntity.insertPatternAndSequencePattern(1002, 1001, PatternType.Loop, PatternState.Published, 0, 16, "Verse 2", 0.5, "G", 120);
-    IntegrationTestEntity.insertSequencePatternMeme(1002, 1001, 1002, "YELLOW");
-    IntegrationTestEntity.insertPatternChord(1002, 1002, 0, "Gm9");
-    IntegrationTestEntity.insertPatternEvent(100103, 1002, 1001, 0.0, 1.0, "KICK", "C5", 1.0, 1.0);
-    IntegrationTestEntity.insertPatternEvent(100104, 1002, 1002, 1.0, 1.0, "SNARE", "C5", 1.0, 1.0);
-
-    // Newly cloned patterns -- awaiting PatternClone job to run, and create their child entities
-    IntegrationTestEntity.insertPattern(1003, 1001, PatternType.Loop, PatternState.Published, 16, "Verse 34", 0.5, "G", 120);
-    IntegrationTestEntity.insertPattern(1004, 10012, PatternType.Loop, PatternState.Published, 16, "Verse 79", 0.5, "G", 120);
+    // reset to shared fixtures
+    IntegrationTestEntity.reset();
+    insertLibraryA();
 
     // Chain "Test Print #1" is ready to begin
     IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, TimestampUTC.nowMinusSeconds(1000), null, null);
 
     // Bind the library to the chain
-    IntegrationTestEntity.insertChainLibrary(1, 1, 2);
+    IntegrationTestEntity.insertChainLibrary(1, 2);
 
     // ExpectationOfWork recurs frequently to speed up test
     System.setProperty("work.buffer.seconds", "1000");

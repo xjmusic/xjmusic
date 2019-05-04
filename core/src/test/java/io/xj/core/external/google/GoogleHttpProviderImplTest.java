@@ -20,7 +20,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class GoogleHttpProviderImplTest extends Mockito {
-  @Mock private GoogleCredential googleCredential;
+  @Mock
+  private GoogleCredential googleCredential;
   private Injector injector;
   private GoogleHttpProvider googleHttpProvider;
 

@@ -7,8 +7,7 @@ import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.PatternDAO;
-import io.xj.core.exception.BusinessException;
-import io.xj.core.exception.ConfigException;
+import io.xj.core.exception.CoreException;
 import io.xj.core.model.pattern.Pattern;
 import io.xj.core.model.pattern.PatternState;
 import io.xj.core.model.pattern.PatternType;
@@ -21,9 +20,9 @@ import io.xj.core.work.WorkManager;
 import org.jooq.DSLContext;
 import org.jooq.Field;
 import org.jooq.Record;
+import org.jooq.Record1;
+import org.jooq.SelectConditionStep;
 import org.jooq.types.ULong;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.math.BigInteger;
@@ -41,7 +40,7 @@ import static io.xj.core.tables.Sequence.SEQUENCE;
 import static io.xj.core.tables.SequencePatternMeme.SEQUENCE_PATTERN_MEME;
 
 public class PatternDAOImpl extends DAOImpl implements PatternDAO {
-  private static final Logger log = LoggerFactory.getLogger(PatternDAOImpl.class);
+  //  private static final Logger log = LoggerFactory.getLogger(PatternDAOImpl.class);
   private static final Collection<PatternType> patternTypesAllowedInRhythmOrDetailSequences = ImmutableList.of(PatternType.Intro, PatternType.Loop, PatternType.Outro);
   private final WorkManager workManager;
 
@@ -61,9 +60,9 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
    @param access control
    @param entity for new pattern
    @return newly readMany record
-   @throws BusinessException if failure
+   @throws CoreException if failure
    */
-  private static Pattern create(DSLContext db, Access access, Pattern entity) throws Exception {
+  private static Pattern create(DSLContext db, Access access, Pattern entity) throws CoreException {
     entity.validate();
 
     Map<Field, Object> fieldValues = fieldValueMap(entity);
@@ -82,7 +81,7 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
    @param id     of pattern
    @return pattern
    */
-  private static Pattern readOne(DSLContext db, Access access, ULong id) throws BusinessException {
+  private static Pattern readOne(DSLContext db, Access access, ULong id) throws CoreException {
     if (access.isTopLevel())
       return modelFrom(db.selectFrom(PATTERN)
         .where(PATTERN.ID.eq(id))
@@ -111,7 +110,7 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
    @param sequencePatternOffset of pattern in sequence
    @return pattern record
    */
-  private static Collection<Pattern> readAllAtSequenceOffset(DSLContext db, Access access, BigInteger sequenceId, BigInteger sequencePatternOffset) throws BusinessException {
+  private static Collection<Pattern> readAllAtSequenceOffset(DSLContext db, Access access, BigInteger sequenceId, BigInteger sequencePatternOffset) throws CoreException {
     SequenceType sequenceType = SequenceType.validate(db.select(SEQUENCE.TYPE)
       .from(SEQUENCE)
       .where(SEQUENCE.ID.eq(ULong.valueOf(sequenceId)))
@@ -172,7 +171,7 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
    @param sequenceId to readMany all pattern of
    @return array of patterns
    */
-  private static Collection<Pattern> readAll(DSLContext db, Access access, Collection<ULong> sequenceId) throws BusinessException {
+  private static Collection<Pattern> readAll(DSLContext db, Access access, Collection<ULong> sequenceId) throws CoreException {
     if (access.isTopLevel())
       return modelsFrom(db.select(PATTERN.fields())
         .from(PATTERN)
@@ -200,7 +199,7 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
    @param state  to read patterns in
    @return array of records
    */
-  private static Collection<Pattern> readAllInState(DSLContext db, Access access, PatternState state) throws Exception {
+  private static Collection<Pattern> readAllInState(DSLContext db, Access access, PatternState state) throws CoreException {
     requireRole("platform access", access, UserRoleType.Admin, UserRoleType.Engineer);
 
     return modelsFrom(db.select(PATTERN.fields())
@@ -218,9 +217,9 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
    @param access control
    @param id     to update
    @param entity to update with
-   @throws BusinessException if failure
+   @throws CoreException if failure
    */
-  private static void update(DSLContext db, Access access, ULong id, Pattern entity) throws Exception {
+  private static void update(DSLContext db, Access access, ULong id, Pattern entity) throws CoreException {
     entity.validate();
 
     Map<Field, Object> fieldValues = fieldValueMap(entity);
@@ -230,7 +229,7 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
     deepValidate(db, access, entity);
 
     if (0 == executeUpdate(db, PATTERN, fieldValues))
-      throw new BusinessException("No records updated.");
+      throw new CoreException("No records updated.");
   }
 
   /**
@@ -238,11 +237,11 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
 
    @param db context
    @param id to delete
-   @throws Exception         if database failure
-   @throws ConfigException   if not configured properly
-   @throws BusinessException if fails business rule
+   @throws CoreException if database failure
+   @throws CoreException if not configured properly
+   @throws CoreException if fails business rule
    */
-  private static void destroy(Access access, DSLContext db, ULong id) throws Exception {
+  private static void destroy(Access access, DSLContext db, ULong id) throws CoreException {
     if (!access.isTopLevel())
       requireExists("Pattern", db.selectCount().from(PATTERN)
         .join(SEQUENCE).on(SEQUENCE.ID.eq(PATTERN.SEQUENCE_ID))
@@ -251,11 +250,12 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
         .and(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
         .fetchOne(0, int.class));
 
+    SelectConditionStep<Record1<ULong>> selectSequencePatternIds =
+      db.select(SEQUENCE_PATTERN.ID).from(SEQUENCE_PATTERN)
+        .where(SEQUENCE_PATTERN.PATTERN_ID.eq(id));
+
     db.deleteFrom(SEQUENCE_PATTERN_MEME)
-      .where(SEQUENCE_PATTERN_MEME.SEQUENCE_PATTERN_ID.in(
-        db.select(SEQUENCE_PATTERN.ID).from(SEQUENCE_PATTERN)
-          .where(SEQUENCE_PATTERN.PATTERN_ID.eq(id))
-      )).execute();
+      .where(SEQUENCE_PATTERN_MEME.SEQUENCE_PATTERN_ID.in(selectSequencePatternIds)).execute();
 
     db.deleteFrom(SEQUENCE_PATTERN)
       .where(SEQUENCE_PATTERN.PATTERN_ID.eq(id))
@@ -263,10 +263,6 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
 
     db.deleteFrom(PATTERN_EVENT)
       .where(PATTERN_EVENT.PATTERN_ID.eq(id))
-      .execute();
-
-    db.deleteFrom(SEQUENCE_PATTERN_MEME)
-      .where(SEQUENCE_PATTERN_MEME.SEQUENCE_PATTERN_ID.eq(id))
       .execute();
 
     db.deleteFrom(PATTERN_CHORD)
@@ -284,9 +280,9 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
    @param db     context
    @param access control
    @param entity to validate
-   @throws BusinessException if invalid
+   @throws CoreException if invalid
    */
-  private static void deepValidate(DSLContext db, Access access, Pattern entity) throws BusinessException {
+  private static void deepValidate(DSLContext db, Access access, Pattern entity) throws CoreException {
     // actually select the parent sequence for validation
     Record sequence;
     if (access.isTopLevel())
@@ -305,7 +301,7 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
     // [#199] Macro-type Sequence `total` not required; still
     // it is required for other types of Sequence
     SequenceType sequenceType = SequenceType.validate(sequence.get(SEQUENCE.TYPE));
-    if (!Objects.equals(sequenceType, SequenceType.Macro)) {
+    if (SequenceType.Macro != sequenceType) {
       requireGreaterThanZero("for a pattern of a non-macro-type sequence, total (# beats)", entity.getTotal());
     }
 
@@ -355,11 +351,11 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
 
    @param db context
    @param id to delete
-   @throws Exception         if database failure
-   @throws ConfigException   if not configured properly
-   @throws BusinessException if fails business rule
+   @throws CoreException if database failure
+   @throws CoreException if not configured properly
+   @throws CoreException if fails business rule
    */
-  private void erase(Access access, DSLContext db, ULong id) throws Exception {
+  private void erase(Access access, DSLContext db, ULong id) throws CoreException {
     if (access.isTopLevel()) requireExists("Pattern", db.selectCount().from(PATTERN)
       .where(PATTERN.ID.eq(id))
       .fetchOne(0, int.class));
@@ -376,108 +372,104 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
     fieldValues.put(PATTERN.STATE, PatternState.Erase);
 
     if (0 == executeUpdate(db, PATTERN, fieldValues))
-      throw new BusinessException("No records updated.");
+      throw new CoreException("No records updated.");
 
     // Schedule pattern deletion job
-    try {
-      workManager.doPatternErase(id.toBigInteger());
-    } catch (Exception e) {
-      log.error("Failed to start PatternErase work after updating Pattern to Erase state. See the elusive [#153492153] Entity erase job can be spawned without an error", e);
-    }
+    workManager.doPatternErase(id.toBigInteger());
   }
 
   @Override
-  public Pattern create(Access access, Pattern entity) throws Exception {
+  public Pattern create(Access access, Pattern entity) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(create(tx.getContext(), access, entity));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public Pattern clone(Access access, BigInteger cloneId, Pattern entity) throws Exception {
+  public Pattern clone(Access access, BigInteger cloneId, Pattern entity) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(clone(tx.getContext(), access, cloneId, entity));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
   @Nullable
-  public Pattern readOne(Access access, BigInteger id) throws Exception {
+  public Pattern readOne(Access access, BigInteger id) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readOne(tx.getContext(), access, ULong.valueOf(id)));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Nullable
   @Override
-  public Collection<Pattern> readAllAtSequenceOffset(Access access, BigInteger sequenceId, BigInteger sequencePatternOffset) throws Exception {
+  public Collection<Pattern> readAllAtSequenceOffset(Access access, BigInteger sequenceId, BigInteger sequencePatternOffset) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readAllAtSequenceOffset(tx.getContext(), access, sequenceId, sequencePatternOffset));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
   @Nullable
-  public Collection<Pattern> readAll(Access access, Collection<BigInteger> parentIds) throws Exception {
+  public Collection<Pattern> readAll(Access access, Collection<BigInteger> parentIds) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readAll(tx.getContext(), access, uLongValuesOf(parentIds)));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public Collection<Pattern> readAllInState(Access access, PatternState state) throws Exception {
+  public Collection<Pattern> readAllInState(Access access, PatternState state) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readAllInState(tx.getContext(), access, state));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public void erase(Access access, BigInteger id) throws Exception {
+  public void erase(Access access, BigInteger id) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       erase(access, tx.getContext(), ULong.valueOf(id));
       tx.success();
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public void update(Access access, BigInteger id, Pattern entity) throws Exception {
+  public void update(Access access, BigInteger id, Pattern entity) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       update(tx.getContext(), access, ULong.valueOf(id), entity);
       tx.success();
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public void destroy(Access access, BigInteger id) throws Exception {
+  public void destroy(Access access, BigInteger id) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       destroy(access, tx.getContext(), ULong.valueOf(id));
       tx.success();
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
@@ -490,12 +482,12 @@ public class PatternDAOImpl extends DAOImpl implements PatternDAO {
    @param cloneId of pattern to clone
    @param entity  for the new Account User.
    @return newly readMany record
-   @throws BusinessException on failure
+   @throws CoreException on failure
    */
-  private Pattern clone(DSLContext db, Access access, BigInteger cloneId, Pattern entity) throws Exception {
+  private Pattern clone(DSLContext db, Access access, BigInteger cloneId, Pattern entity) throws CoreException {
     Pattern from = readOne(db, access, ULong.valueOf(cloneId));
     if (Objects.isNull(from))
-      throw new BusinessException("Can't clone nonexistent Pattern");
+      throw new CoreException("Can't clone nonexistent Pattern");
 
     entity.setDensity(from.getDensity());
     entity.setKey(from.getKey());

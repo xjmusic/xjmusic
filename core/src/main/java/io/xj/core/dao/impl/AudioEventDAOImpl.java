@@ -2,27 +2,21 @@
 package io.xj.core.dao.impl;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.AudioEventDAO;
-import io.xj.core.exception.BusinessException;
-import io.xj.core.exception.ConfigException;
+import io.xj.core.exception.CoreException;
 import io.xj.core.model.audio_event.AudioEvent;
 import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import io.xj.core.persistence.sql.impl.SQLConnection;
-import io.xj.core.tables.records.AudioEventRecord;
 import org.jooq.DSLContext;
 import org.jooq.Field;
 import org.jooq.types.ULong;
 
 import javax.annotation.Nullable;
 import java.math.BigInteger;
-import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Map;
-import java.util.function.Consumer;
 
 import static io.xj.core.Tables.AUDIO;
 import static io.xj.core.Tables.AUDIO_EVENT;
@@ -45,9 +39,9 @@ public class AudioEventDAOImpl extends DAOImpl implements AudioEventDAO {
    @param access control
    @param entity for new audio
    @return newly readMany record
-   @throws BusinessException if failure
+   @throws CoreException if failure
    */
-  private static AudioEvent createRecord(DSLContext db, Access access, AudioEvent entity) throws BusinessException {
+  private static AudioEvent createRecord(DSLContext db, Access access, AudioEvent entity) throws CoreException {
     entity.validate();
 
     Map<Field, Object> fieldValues = fieldValueMap(entity);
@@ -75,7 +69,7 @@ public class AudioEventDAOImpl extends DAOImpl implements AudioEventDAO {
    @param id     of audio
    @return audio
    */
-  private static AudioEvent readOne(DSLContext db, Access access, ULong id) throws BusinessException {
+  private static AudioEvent readOne(DSLContext db, Access access, ULong id) throws CoreException {
     if (access.isTopLevel())
       return modelFrom(db.selectFrom(AUDIO_EVENT)
         .where(AUDIO_EVENT.ID.eq(id))
@@ -99,7 +93,7 @@ public class AudioEventDAOImpl extends DAOImpl implements AudioEventDAO {
    @param audioIds of which to read events
    @return array of audios
    */
-  private static Collection<AudioEvent> readAll(DSLContext db, Access access, Collection<ULong> audioIds) throws BusinessException {
+  private static Collection<AudioEvent> readAll(DSLContext db, Access access, Collection<ULong> audioIds) throws CoreException {
     if (access.isTopLevel())
       return modelsFrom(db.select(AUDIO_EVENT.fields())
         .from(AUDIO_EVENT)
@@ -120,7 +114,7 @@ public class AudioEventDAOImpl extends DAOImpl implements AudioEventDAO {
 
   /**
    Read all audio event for an Instrument
-
+   <p>
    Supports [#161197150] Developer wants to request all audioEvent for a specified instrument id, for efficiency loading an entire instrument.
 
    @param db            context
@@ -128,7 +122,7 @@ public class AudioEventDAOImpl extends DAOImpl implements AudioEventDAO {
    @param instrumentIds of which to read audio events
    @return array of audios
    */
-  private static Collection<AudioEvent> readAllOfInstrument(DSLContext db, Access access, Collection<ULong> instrumentIds) throws BusinessException {
+  private static Collection<AudioEvent> readAllOfInstrument(DSLContext db, Access access, Collection<ULong> instrumentIds) throws CoreException {
     if (access.isTopLevel())
       return modelsFrom(db.select(AUDIO_EVENT.fields())
         .from(AUDIO_EVENT)
@@ -149,55 +143,15 @@ public class AudioEventDAOImpl extends DAOImpl implements AudioEventDAO {
   }
 
   /**
-   Read all AudioEvent that are first in an audio, for all audio in an Instrument
-   for each audio id, the first (in terms of position) AudioEvent
-
-   @param db           context
-   @param access       control
-   @param instrumentId to readMany all audio of
-   @return array of audios
-   @throws SQLException on failure
-   */
-  private static Collection<AudioEvent> readAllFirstEventsForInstrument(DSLContext db, Access access, ULong instrumentId) throws Exception {
-    requireTopLevel(access);
-
-    // for each audio id, the first (in terms of position) AudioEvent
-    Map<ULong, AudioEventRecord> audioFirstEventRecords = Maps.newHashMap();
-
-    // HAVEN'T BEEN ABLE TO GET ANYTHING MORE EFFICIENT TO WORK
-    Consumer<? super AudioEventRecord> putIfEarlierThanExisting = audioEventRecord -> {
-      ULong audioId = audioEventRecord.get(AUDIO_EVENT.AUDIO_ID);
-
-      // for each AudioEvent, if not seen or earlier than what has been seen, store as result for that audio id
-      if (!audioFirstEventRecords.containsKey(audioId) ||
-        audioEventRecord.get(AUDIO_EVENT.POSITION) < audioFirstEventRecords.get(audioId).getPosition())
-        audioFirstEventRecords.put(audioId, audioEventRecord);
-    };
-
-    // just fetch all the AudioEvent records and filter
-    db.select(AUDIO_EVENT.fields())
-      .from(AUDIO_EVENT)
-      .join(AUDIO).on(AUDIO.ID.eq(AUDIO_EVENT.AUDIO_ID))
-      .where(AUDIO.INSTRUMENT_ID.eq(instrumentId))
-      .fetch()
-      .into(AUDIO_EVENT)
-      .forEach(putIfEarlierThanExisting);
-
-    Collection<AudioEventRecord> result = Lists.newArrayList();
-    audioFirstEventRecords.forEach((key, val) -> result.add(val));
-    return modelsFrom(result, AudioEvent.class);
-  }
-
-  /**
    Update a Event record
 
    @param db     context
    @param access control
    @param id     to update
    @param entity to update with
-   @throws BusinessException if failure
+   @throws CoreException if failure
    */
-  private static void update(DSLContext db, Access access, ULong id, AudioEvent entity) throws Exception {
+  private static void update(DSLContext db, Access access, ULong id, AudioEvent entity) throws CoreException {
     entity.validate();
 
     Map<Field, Object> fieldValues = fieldValueMap(entity);
@@ -216,7 +170,7 @@ public class AudioEventDAOImpl extends DAOImpl implements AudioEventDAO {
         .fetchOne(0, int.class));
 
     if (0 == executeUpdate(db, AUDIO_EVENT, fieldValues))
-      throw new BusinessException("No records updated.");
+      throw new CoreException("No records updated.");
   }
 
   /**
@@ -224,13 +178,13 @@ public class AudioEventDAOImpl extends DAOImpl implements AudioEventDAO {
 
    @param db context
    @param id to delete
-   @throws Exception         if database failure
-   @throws ConfigException   if not configured properly
-   @throws BusinessException if fails business rule
+   @throws CoreException if database failure
+   @throws CoreException if not configured properly
+   @throws CoreException if fails business rule
    */
-  private static void delete(Access access, DSLContext db, ULong id) throws Exception {
+  private static void delete(Access access, DSLContext db, ULong id) throws CoreException {
     if (!access.isTopLevel())
-      requireExists("Audio Meme", db.selectCount().from(AUDIO_EVENT)
+      requireExists("Audio Event", db.selectCount().from(AUDIO_EVENT)
         .join(AUDIO).on(AUDIO.ID.eq(AUDIO_EVENT.AUDIO_ID))
         .join(INSTRUMENT).on(INSTRUMENT.ID.eq(AUDIO.INSTRUMENT_ID))
         .join(LIBRARY).on(INSTRUMENT.LIBRARY_ID.eq(LIBRARY.ID))
@@ -263,76 +217,65 @@ public class AudioEventDAOImpl extends DAOImpl implements AudioEventDAO {
   }
 
   @Override
-  public AudioEvent create(Access access, AudioEvent entity) throws Exception {
+  public AudioEvent create(Access access, AudioEvent entity) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(createRecord(tx.getContext(), access, entity));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
   @Nullable
-  public AudioEvent readOne(Access access, BigInteger id) throws Exception {
+  public AudioEvent readOne(Access access, BigInteger id) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readOne(tx.getContext(), access, ULong.valueOf(id)));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
   @Nullable
-  public Collection<AudioEvent> readAll(Access access, Collection<BigInteger> parentIds) throws Exception {
+  public Collection<AudioEvent> readAll(Access access, Collection<BigInteger> parentIds) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readAll(tx.getContext(), access, uLongValuesOf(parentIds)));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public Collection<AudioEvent> readAllFirstEventsForInstrument(Access access, BigInteger instrumentId) throws Exception {
-    SQLConnection tx = dbProvider.getConnection();
-    try {
-
-      return tx.success(readAllFirstEventsForInstrument(tx.getContext(), access, ULong.valueOf(instrumentId)));
-    } catch (Exception e) {
-      throw tx.failure(e);
-    }
-  }
-
-  @Override
-  public Collection<AudioEvent> readAllOfInstrument(Access access, ImmutableList<BigInteger> instrumentIds) throws Exception {
+  public Collection<AudioEvent> readAllOfInstrument(Access access, ImmutableList<BigInteger> instrumentIds) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readAllOfInstrument(tx.getContext(), access, uLongValuesOf(instrumentIds)));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public void update(Access access, BigInteger id, AudioEvent entity) throws Exception {
+  public void update(Access access, BigInteger id, AudioEvent entity) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       update(tx.getContext(), access, ULong.valueOf(id), entity);
       tx.success();
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public void destroy(Access access, BigInteger id) throws Exception {
+  public void destroy(Access access, BigInteger id) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       delete(access, tx.getContext(), ULong.valueOf(id));
       tx.success();
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }

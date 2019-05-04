@@ -1,7 +1,7 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.model.voice;
 
-import io.xj.core.exception.BusinessException;
+import io.xj.core.exception.CoreException;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -11,7 +11,8 @@ import java.math.BigInteger;
 
 public class VoiceTest {
 
-  @Rule public ExpectedException failure = ExpectedException.none();
+  @Rule
+  public ExpectedException failure = ExpectedException.none();
 
   @Test
   public void validate() throws Exception {
@@ -24,7 +25,7 @@ public class VoiceTest {
 
   @Test
   public void validate_failsWithoutPatternID() throws Exception {
-    failure.expect(BusinessException.class);
+    failure.expect(CoreException.class);
     failure.expectMessage("Sequence ID is required");
 
     new Voice()
@@ -35,7 +36,7 @@ public class VoiceTest {
 
   @Test
   public void validate_failsWithoutType() throws Exception {
-    failure.expect(BusinessException.class);
+    failure.expect(CoreException.class);
     failure.expectMessage("Type is required");
 
     new Voice()
@@ -46,7 +47,7 @@ public class VoiceTest {
 
   @Test
   public void validate_failsWithInvalidType() throws Exception {
-    failure.expect(BusinessException.class);
+    failure.expect(CoreException.class);
     failure.expectMessage("'chimney' is not a valid type");
 
     new Voice()
@@ -58,7 +59,7 @@ public class VoiceTest {
 
   @Test
   public void validate_failsWithoutDescription() throws Exception {
-    failure.expect(BusinessException.class);
+    failure.expect(CoreException.class);
     failure.expectMessage("Description is required");
 
     new Voice()

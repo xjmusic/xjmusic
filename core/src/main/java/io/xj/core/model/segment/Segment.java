@@ -1,258 +1,447 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+//  Copyright (c) 2019, XJ Music Inc. (https://xj.io) All Rights Reserved.
+
 package io.xj.core.model.segment;
 
-import io.xj.core.exception.BusinessException;
+import io.xj.core.exception.CoreException;
+import io.xj.core.fabricator.FabricatorType;
+import io.xj.core.model.arrangement.Arrangement;
+import io.xj.core.model.choice.Choice;
 import io.xj.core.model.entity.Entity;
-import io.xj.core.util.TimestampUTC;
-import io.xj.core.util.Value;
-import org.json.JSONObject;
+import io.xj.core.model.pick.Pick;
+import io.xj.core.model.segment.impl.SegmentContent;
+import io.xj.core.model.segment_chord.SegmentChord;
+import io.xj.core.model.segment_meme.SegmentMeme;
+import io.xj.core.model.segment_message.SegmentMessage;
+import io.xj.core.model.sequence.SequenceType;
 
 import java.math.BigInteger;
 import java.sql.Timestamp;
-import java.util.Objects;
+import java.util.Collection;
+import java.util.Map;
 
-/**
- POJO for persisting data in memory while performing business logic,
- or decoding messages received by JAX-RS resources.
- a.k.a. JSON input will be stored into an instance of this object
- <p>
- Business logic ought to be performed beginning with an instance of this object,
- to implement common methods.
- <p>
- NOTE: There can only be ONE of any getter/setter (with the same # of input params)
- */
-public class Segment extends Entity {
-  /**
-   For use in maps.
-   */
-  public static final String KEY_ONE = "segment";
-  public static final String KEY_MANY = "segments";
-  // attributes
-  public static final String FILE_EXTENSION = "ogg";
-
-  private BigInteger chainId;
-  private String _state; // hold value before validation
-  private SegmentState state;
-  private Timestamp beginAt;
-  private String beginAtError;
-  private Timestamp endAt; // optional
-  private String endAtError;
-  private String key;
-  private Integer total;
-  private BigInteger offset;
-  private Double density;
-  private Double tempo;
-  private String waveformKey;
-  private JSONObject basis = new JSONObject();
-
-
-  public Segment() {
-  }
-
-  public Segment(long id) {
-    this.id = BigInteger.valueOf(id);
-  }
+public interface Segment extends Entity {
+  String KEY_ONE = "segment";
+  String KEY_MANY = "segments";
+  String FILE_EXTENSION = "ogg";
 
   /**
-   Whether this Segment is at offset 0
+   Add an Arrangement to Segment
 
-   @return true if offset is 0
+   @param arrangement to add
+   @return Arrangement with newly added unique-to-segment id
    */
-  public boolean isInitial() {
-    return Objects.equals(getOffset(), BigInteger.valueOf(0));
-  }
-
-  public BigInteger getChainId() {
-    return chainId;
-  }
-
-  public Segment setChainId(BigInteger chainId) {
-    this.chainId = chainId;
-    return this;
-  }
-
-  public SegmentState getState() {
-    return state;
-  }
+  Arrangement add(Arrangement arrangement) throws CoreException;
 
   /**
-   [#162361525] read basis of prior Segment
+   Add a Choice to Segment
+
+   @param choice to add
+   @return Choice with newly added unique-to-segment id
    */
-  public JSONObject getBasis() {
-    return basis;
-  }
+  Choice add(Choice choice) throws CoreException;
 
   /**
-   [#162361525] persist Segment basis as JSON
+   Add a Pick to Segment
 
-   @return Segment for chaining setters
+   @param pick to add
+   @return Pick with newly added unique-to-segment id
    */
-  public Segment setBasis(JSONObject basis) {
-    this.basis = basis;
-    return this;
-  }
+  Pick add(Pick pick) throws CoreException;
 
   /**
-   [#162361525] persist Segment basis as JSON
+   Add a SegmentChord to Segment
 
-   @return Segment for chaining setters
+   @param chord to add
+   @return SegmentChord with newly added unique-to-segment id
    */
-  public Segment setBasis(String basis) {
-    this.basis = new JSONObject(basis);
-    return this;
-  }
+  SegmentChord add(SegmentChord chord) throws CoreException;
 
-  public Segment setState(String value) {
-    _state = value;
-    return this;
-  }
+  /**
+   Add a SegmentMeme to Segment
 
-  public Segment setStateEnum(SegmentState value) {
-    state = value;
-    return this;
-  }
+   @param meme to add
+   @return SegmentMeme with newly added unique-to-segment id
+   */
+  SegmentMeme add(SegmentMeme meme) throws CoreException;
 
-  public Timestamp getBeginAt() {
-    return beginAt;
-  }
+  /**
+   Add a SegmentMessage to Segment
 
-  public Segment setBeginAtTimestamp(Timestamp beginAt) {
-    this.beginAt = beginAt;
-    return this;
-  }
+   @param message to add
+   @return SegmentMessage with newly added unique-to-segment id
+   */
+  SegmentMessage add(SegmentMessage message) throws CoreException;
 
-  public Segment setBeginAt(String beginAt) {
-    try {
-      this.beginAt = TimestampUTC.valueOf(beginAt);
-    } catch (Exception e) {
-      beginAtError = e.getMessage();
-    }
-    return this;
-  }
+  /**
+   Get all entities
 
-  public Timestamp getEndAt() {
-    return endAt;
-  }
+   @return collection of entities
+   */
+  Collection<SegmentEntity> getAllEntities();
 
-  public Segment setEndAtTimestamp(Timestamp endAt) {
-    this.endAt = endAt;
-    return this;
-  }
+  /**
+   Get Arrangements
 
-  public Segment setEndAt(String endAt) {
-    try {
-      this.endAt = TimestampUTC.valueOf(endAt);
-    } catch (Exception e) {
-      endAtError = e.getMessage();
-    }
-    return this;
-  }
+   @return Arrangements
+   */
+  Collection<Arrangement> getArrangements();
 
-  public String getKey() {
-    return key;
-  }
+  /**
+   Get Arrangements for a given Choice
 
-  public Segment setKey(String key) {
-    this.key = key;
-    return this;
-  }
+   @param choice to get arrangements for
+   @return Arrangements
+   */
+  Collection<Arrangement> getArrangementsForChoice(Choice choice);
 
-  public Integer getTotal() {
-    return total;
-  }
+  /**
+   Get begin-at time of segment
 
-  public Segment setTotal(Integer total) {
-    this.total = total;
-    return this;
-  }
+   @return begin-at time
+   */
+  Timestamp getBeginAt();
 
-  public BigInteger getOffset() {
-    return offset;
-  }
+  /**
+   Get Chain ID
 
-  public Segment setOffset(BigInteger offset) {
-    if (Objects.nonNull(offset)) {
-      this.offset = offset;
-    } else {
-      this.offset = BigInteger.valueOf(0L);
-    }
-    return this;
-  }
+   @return chain id
+   */
+  BigInteger getChainId();
 
-  public Double getDensity() {
-    return density;
-  }
+  /**
+   Get one Choice of Segment (from Content) of a given type
 
-  public Segment setDensity(Double density) {
-    this.density = density;
-    return this;
-  }
+   @param type of choice to get
+   @return choice of given type
+   @throws CoreException if no such Choice exists for this Segment
+   */
+  Choice getChoiceOfType(SequenceType type) throws CoreException;
 
-  public Double getTempo() {
-    return tempo;
-  }
+  /**
+   Get Choices
 
-  public Segment setTempo(Double tempo) {
-    this.tempo = tempo;
-    return this;
-  }
+   @return Choices
+   */
+  Collection<Choice> getChoices();
 
-  public String getWaveformKey() {
-    return waveformKey;
-  }
+  /**
+   Get all Choices of Segment (from Content) of a given type
 
-  public Segment setWaveformKey(String waveformKey) {
-    this.waveformKey = waveformKey;
-    return this;
-  }
+   @param type of choice to get
+   @return choice of given type
+   */
+  Collection<Choice> getChoicesOfType(SequenceType type);
 
+  /**
+   Get Chords
 
-  @Override
-  public BigInteger getParentId() {
-    return chainId;
-  }
+   @return Chords
+   */
+  Collection<SegmentChord> getChords();
 
-  @Override
-  public void validate() throws BusinessException {
-    // throws its own BusinessException on failure
-    if (Objects.isNull(state)) {
-      state = SegmentState.validate(_state);
-    }
+  /**
+   [#162361525] read content of prior Segment
+   */
+  SegmentContent getContent();
 
-    if (Objects.isNull(chainId)) {
-      throw new BusinessException("Chain ID is required.");
-    }
+  /**
+   Get density of segment
 
-    if (Objects.isNull(beginAt)) {
-      throw new BusinessException("Begin-at is required." + (Objects.nonNull(beginAtError) ? " " + beginAtError : ""));
-    }
+   @return density
+   */
+  Double getDensity();
 
-    if (Objects.nonNull(endAtError) && !endAtError.isEmpty()) {
-      throw new BusinessException("End-at must be isValid time." + endAtError);
-    }
+  /**
+   Get end-at time for Segment
 
-    if (Objects.isNull(offset)) {
-      throw new BusinessException("Offset is required.");
-    }
-  }
+   @return end-at time
+   */
+  Timestamp getEndAt();
+
+  /**
+   Get key for the segment
+
+   @return key
+   */
+  String getKey();
+
+  /**
+   Get Memes
+
+   @return Memes
+   */
+  Collection<SegmentMeme> getMemes();
+
+  /**
+   Get Messages
+
+   @return Messages
+   */
+  Collection<SegmentMessage> getMessages();
+
+  /**
+   Get offset
+
+   @return offset
+   */
+  BigInteger getOffset();
+
+  /**
+   Get Picks
+
+   @return Picks
+   */
+  Collection<Pick> getPicks();
 
   /**
    get offset of previous segment
 
    @return previous segment offset
    */
-  BigInteger getPreviousOffset() throws BusinessException {
-    if (Objects.equals(offset, BigInteger.valueOf(0L)))
-      throw new BusinessException("Cannot get previous id of initial Segment!");
-    return Value.inc(offset, -1);
-  }
+  BigInteger getPreviousOffset() throws CoreException;
 
   /**
-   Override state
+   Gtr ing
 
-   @param state new value
+   @return ing
    */
-  public void overrideState(SegmentState state) {
-    this.state = state;
-  }
+  Map<String, String> getReport();
+
+  /**
+   Get state of Segment
+
+   @return state
+   */
+  SegmentState getState();
+
+  /**
+   Get tempo of segment
+
+   @return tempo
+   */
+  Double getTempo();
+
+  /**
+   Get the total length of the segment
+
+   @return total length
+   */
+  Integer getTotal();
+
+  /**
+   Get Type
+
+   @return Type
+   */
+  FabricatorType getType();
+
+  /**
+   Get waveform key of segment
+
+   @return waveform key
+   */
+  String getWaveformKey();
+
+  /**
+   Whether this Segment is at offset 0
+
+   @return true if offset is 0
+   */
+  boolean isInitial();
+
+  /**
+   Put a key/value into the report
+
+   @param key to put into report
+   */
+  void putReport(String key, String value);
+
+  /**
+   [#158610991] Segment is reverted on failure for fault tolerance of Chain
+   [#166293178] Segment revert does not delete any SegmentMessage
+   */
+  void revert();
+
+  /**
+   Set Arrangement
+
+   @param arrangements to set
+   */
+  void setArrangements(Collection<Arrangement> arrangements) throws CoreException;
+
+  /**
+   Set begin-at time for Segment
+
+   @param beginAt time to set
+   @return this Segment (for chaining setters)
+   */
+  Segment setBeginAt(String beginAt);
+
+  /**
+   Set end-at time for Segment
+
+   @param beginAt time to set
+   @return this Segment (for chaining setters)
+   */
+  Segment setBeginAtTimestamp(Timestamp beginAt);
+
+  /**
+   Set Chain ID
+
+   @param chainId to set
+   @return this Segment (for chaining setters)
+   */
+  Segment setChainId(BigInteger chainId);
+
+  /**
+   Set Choices; copy in contents, to preserve mutability of data persistent internally for this class.
+
+   @param choices to set
+   */
+  void setChoices(Collection<Choice> choices) throws CoreException;
+
+  /**
+   Set Chords
+
+   @param chords to set
+   */
+  void setChords(Collection<SegmentChord> chords) throws CoreException;
+
+  /**
+   [#162361525] persist Segment content as JSON
+   [#166132897] SegmentContent POJO via gson only (no JSONObject)
+
+   @return Segment for chaining setters
+   */
+  Segment setContent(String json) throws CoreException;
+
+  /**
+   Set density of segment
+
+   @param density to set
+   @return this Segment (for chaining setters)
+   */
+  Segment setDensity(Double density);
+
+  /**
+   Set end-at time for Segment
+
+   @param endAt time to set
+   @return this Segment (for chaining setters)
+   */
+  Segment setEndAt(String endAt);
+
+  /**
+   Set end-at time of Segment
+
+   @param endAt time to set
+   @return this Segment (for chaining setters)
+   */
+  Segment setEndAtTimestamp(Timestamp endAt);
+
+  /**
+   Set the key for the segment
+
+   @param key to set
+   @return this Segment (for chaining setters)
+   */
+  Segment setKey(String key);
+
+  /**
+   Set Memes
+
+   @param memes to set
+   */
+  void setMemes(Collection<SegmentMeme> memes) throws CoreException;
+
+  /**
+   Set Messages
+
+   @param messages to set
+   */
+  void setMessages(Collection<SegmentMessage> messages) throws CoreException;
+
+  /**
+   Set offset of segment
+
+   @param offset to set
+   @return this Segment (for chaining setters)
+   */
+  Segment setOffset(BigInteger offset);
+
+  /**
+   Set Picks
+
+   @param picks to set
+   */
+  void setPicks(Collection<Pick> picks) throws CoreException;
+
+  /**
+   Set Report
+
+   @param input to set
+   */
+  void setReport(Map<String, String> input);
+
+  /**
+   Set state of Segment
+
+   @param value to set
+   @return this Segment (for chaining setters)
+   */
+  Segment setState(String value) throws CoreException;
+
+  /**
+   Set state of Segment
+
+   @param value to set
+   @return this Segment (for chaining setters)
+   */
+  Segment setStateEnum(SegmentState value);
+
+  /**
+   Set tempo of segment
+
+   @param tempo to set
+   @return this Segment (for chaining setters)
+   */
+  Segment setTempo(Double tempo);
+
+  /**
+   Set total length of segment
+
+   @param total to set
+   @return this Segment (for chaining setters)
+   */
+  Segment setTotal(Integer total);
+
+  /**
+   Set Type
+
+   @param type to set
+   */
+  void setType(String type);
+
+  /**
+   Set TypeEnum
+
+   @param type to set
+   */
+  void setTypeEnum(FabricatorType type);
+
+  /**
+   Set waveform key of segment
+
+   @param waveformKey to set
+   @return this Segment (for chaining setters)
+   */
+  Segment setWaveformKey(String waveformKey);
+
+  /**
+   Validate that all entities have an id,
+   that none of the entities provided share an id, and that relation ids are OK
+
+   @throws CoreException if invalid attributes, or child entities have duplicate ids or bad relations are detected
+   */
+  void validateContent() throws CoreException;
 }

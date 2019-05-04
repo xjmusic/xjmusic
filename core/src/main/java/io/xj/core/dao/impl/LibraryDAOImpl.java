@@ -3,8 +3,8 @@ package io.xj.core.dao.impl;
 
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.LibraryDAO;
-import io.xj.core.exception.BusinessException;
-import io.xj.core.exception.ConfigException;
+import io.xj.core.exception.CoreException;
+import io.xj.core.exception.CoreException;
 import io.xj.core.model.library.Library;
 import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import io.xj.core.persistence.sql.impl.SQLConnection;
@@ -44,9 +44,9 @@ public class LibraryDAOImpl extends DAOImpl implements LibraryDAO {
    @param access control
    @param entity for new record
    @return newly readMany record
-   @throws BusinessException if a Business Rule is violated
+   @throws CoreException if a Business Rule is violated
    */
-  private static Library create(DSLContext db, Access access, Library entity) throws BusinessException {
+  private static Library create(DSLContext db, Access access, Library entity) throws CoreException {
     entity.validate();
 
     Map<Field, Object> fieldValues = fieldValueMap(entity);
@@ -68,7 +68,7 @@ public class LibraryDAOImpl extends DAOImpl implements LibraryDAO {
    @param id     of record
    @return record
    */
-  private static Library readOne(DSLContext db, Access access, ULong id) throws BusinessException {
+  private static Library readOne(DSLContext db, Access access, ULong id) throws CoreException {
     if (access.isTopLevel())
       return modelFrom(db.selectFrom(LIBRARY)
         .where(LIBRARY.ID.eq(id))
@@ -89,7 +89,7 @@ public class LibraryDAOImpl extends DAOImpl implements LibraryDAO {
    @param accountIds of parent
    @return array of records
    */
-  private static Collection<Library> readAll(DSLContext db, Access access, Collection<ULong> accountIds) throws BusinessException {
+  private static Collection<Library> readAll(DSLContext db, Access access, Collection<ULong> accountIds) throws CoreException {
     if (access.isTopLevel())
       return modelsFrom(db.select(LIBRARY.fields())
         .from(LIBRARY)
@@ -110,7 +110,7 @@ public class LibraryDAOImpl extends DAOImpl implements LibraryDAO {
    @param access control
    @return array of records
    */
-  private static Collection<Library> readAll(DSLContext db, Access access) throws BusinessException {
+  private static Collection<Library> readAll(DSLContext db, Access access) throws CoreException {
     if (access.isTopLevel())
       return modelsFrom(db.select(LIBRARY.fields())
         .from(LIBRARY)
@@ -130,7 +130,7 @@ public class LibraryDAOImpl extends DAOImpl implements LibraryDAO {
    @param chainId for which to get records bound
    @return array of records
    */
-  private static Collection<Library> readAllBoundToChain(DSLContext db, Access access, ULong chainId) throws BusinessException {
+  private static Collection<Library> readAllBoundToChain(DSLContext db, Access access, ULong chainId) throws CoreException {
     if (access.isTopLevel())
       return modelsFrom(db.select(LIBRARY.fields())
         .from(LIBRARY)
@@ -153,9 +153,9 @@ public class LibraryDAOImpl extends DAOImpl implements LibraryDAO {
    @param access control
    @param id     of record
    @param entity to update with
-   @throws BusinessException if a Business Rule is violated
+   @throws CoreException if a Business Rule is violated
    */
-  private static void update(DSLContext db, Access access, ULong id, Library entity) throws BusinessException {
+  private static void update(DSLContext db, Access access, ULong id, Library entity) throws CoreException {
     entity.validate();
     Map<Field, Object> fieldValues = fieldValueMap(entity);
     fieldValues.put(LIBRARY.ID, id);
@@ -172,7 +172,7 @@ public class LibraryDAOImpl extends DAOImpl implements LibraryDAO {
     }
 
     if (0 == executeUpdate(db, LIBRARY, fieldValues))
-      throw new BusinessException("No records updated.");
+      throw new CoreException("No records updated.");
   }
 
   /**
@@ -181,11 +181,11 @@ public class LibraryDAOImpl extends DAOImpl implements LibraryDAO {
    @param db        context
    @param access    control
    @param libraryId to delete
-   @throws Exception         if database failure
-   @throws ConfigException   if not configured properly
-   @throws BusinessException if fails business rule
+   @throws CoreException         if database failure
+   @throws CoreException   if not configured properly
+   @throws CoreException if fails business rule
    */
-  private static void delete(DSLContext db, Access access, ULong libraryId) throws Exception {
+  private static void delete(DSLContext db, Access access, ULong libraryId) throws CoreException {
     requireTopLevel(access);
 
     requireNotExists("Sequence in Library", db.select(SEQUENCE.ID)
@@ -228,28 +228,28 @@ public class LibraryDAOImpl extends DAOImpl implements LibraryDAO {
   }
 
   @Override
-  public Library create(Access access, Library entity) throws Exception {
+  public Library create(Access access, Library entity) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(create(tx.getContext(), access, entity));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
   @Nullable
-  public Library readOne(Access access, BigInteger id) throws Exception {
+  public Library readOne(Access access, BigInteger id) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readOne(tx.getContext(), access, ULong.valueOf(id)));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public Collection<Library> readAll(Access access, Collection<BigInteger> parentIds) throws Exception {
+  public Collection<Library> readAll(Access access, Collection<BigInteger> parentIds) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       if (Objects.nonNull(parentIds) && !parentIds.isEmpty()) {
@@ -258,40 +258,40 @@ public class LibraryDAOImpl extends DAOImpl implements LibraryDAO {
         return tx.success(readAll(tx.getContext(), access));
       }
 
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public Collection<Library> readAllBoundToChain(Access access, BigInteger chainId) throws Exception {
+  public Collection<Library> readAllBoundToChain(Access access, BigInteger chainId) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readAllBoundToChain(tx.getContext(), access, ULong.valueOf(chainId)));
 
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public void update(Access access, BigInteger id, Library entity) throws Exception {
+  public void update(Access access, BigInteger id, Library entity) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       update(tx.getContext(), access, ULong.valueOf(id), entity);
       tx.success();
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public void destroy(Access access, BigInteger id) throws Exception {
+  public void destroy(Access access, BigInteger id) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       delete(tx.getContext(), access, ULong.valueOf(id));
       tx.success();
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }

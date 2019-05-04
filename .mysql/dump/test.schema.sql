@@ -4,7 +4,7 @@
 --
 -- Host: 127.0.0.1    Database: xj_test
 -- ------------------------------------------------------
--- Server version	5.7.25
+-- Server version	5.7.26
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -31,7 +31,7 @@ CREATE TABLE `account` (
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `id_UNIQUE` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -53,32 +53,7 @@ CREATE TABLE `account_user` (
   KEY `account_user_fk_user_idx` (`user_id`),
   CONSTRAINT `account_user_fk_account` FOREIGN KEY (`account_id`) REFERENCES `account` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   CONSTRAINT `account_user_fk_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `arrangement`
---
-
-DROP TABLE IF EXISTS `arrangement`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `arrangement` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `choice_id` bigint(20) unsigned NOT NULL,
-  `voice_id` bigint(20) unsigned NOT NULL,
-  `instrument_id` bigint(20) unsigned NOT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `id_UNIQUE` (`id`),
-  KEY `arrangement_fk_choice_idx` (`choice_id`),
-  KEY `arrangement_fk_voice_idx` (`voice_id`),
-  KEY `arrangement_fk_instrument_idx` (`instrument_id`),
-  CONSTRAINT `arrangement_fk_choice` FOREIGN KEY (`choice_id`) REFERENCES `choice` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  CONSTRAINT `arrangement_fk_instrument` FOREIGN KEY (`instrument_id`) REFERENCES `instrument` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  CONSTRAINT `arrangement_fk_voice` FOREIGN KEY (`voice_id`) REFERENCES `voice` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=1003001 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -104,7 +79,7 @@ CREATE TABLE `audio` (
   UNIQUE KEY `id_UNIQUE` (`id`),
   KEY `audio_fk_instrument_idx` (`instrument_id`),
   CONSTRAINT `audio_fk_instrument` FOREIGN KEY (`instrument_id`) REFERENCES `instrument` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -150,7 +125,7 @@ CREATE TABLE `audio_event` (
   UNIQUE KEY `id_UNIQUE` (`id`),
   KEY `event_fk_audio_idx` (`audio_id`),
   CONSTRAINT `event_fk_audio` FOREIGN KEY (`audio_id`) REFERENCES `audio` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=2002 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -176,7 +151,7 @@ CREATE TABLE `chain` (
   UNIQUE KEY `unique_embed_key` (`embed_key`),
   KEY `chain_fk_account` (`account_id`),
   CONSTRAINT `chain_fk_account` FOREIGN KEY (`account_id`) REFERENCES `account` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -241,7 +216,7 @@ CREATE TABLE `chain_library` (
   KEY `chain_library_fk_library_idx` (`library_id`),
   CONSTRAINT `chain_library_fk_chain` FOREIGN KEY (`chain_id`) REFERENCES `chain` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   CONSTRAINT `chain_library_fk_library` FOREIGN KEY (`library_id`) REFERENCES `library` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=1002001 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -267,31 +242,6 @@ CREATE TABLE `chain_sequence` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `choice`
---
-
-DROP TABLE IF EXISTS `choice`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `choice` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `segment_id` bigint(20) unsigned NOT NULL,
-  `sequence_id` bigint(20) unsigned NOT NULL,
-  `type` varchar(255) NOT NULL,
-  `transpose` int(11) NOT NULL,
-  `pattern_offset` bigint(20) unsigned NOT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `id_UNIQUE` (`id`),
-  KEY `choice_fk_segment` (`segment_id`),
-  KEY `choice_fk_sequence` (`sequence_id`),
-  CONSTRAINT `choice_fk_segment` FOREIGN KEY (`segment_id`) REFERENCES `segment` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  CONSTRAINT `choice_fk_sequence` FOREIGN KEY (`sequence_id`) REFERENCES `sequence` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Table structure for table `instrument`
 --
 
@@ -313,7 +263,7 @@ CREATE TABLE `instrument` (
   KEY `instrument_fk_user` (`user_id`),
   CONSTRAINT `instrument_fk_library` FOREIGN KEY (`library_id`) REFERENCES `library` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   CONSTRAINT `instrument_fk_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -333,7 +283,7 @@ CREATE TABLE `instrument_meme` (
   UNIQUE KEY `id_UNIQUE` (`id`),
   KEY `meme_fk_instrument_idx` (`instrument_id`),
   CONSTRAINT `meme_fk_instrument` FOREIGN KEY (`instrument_id`) REFERENCES `instrument` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=1001 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -353,7 +303,7 @@ CREATE TABLE `library` (
   UNIQUE KEY `id_UNIQUE` (`id`),
   KEY `library_fk_account_idx` (`account_id`),
   CONSTRAINT `library_fk_account` FOREIGN KEY (`account_id`) REFERENCES `account` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -368,7 +318,6 @@ CREATE TABLE `pattern` (
   `type` varchar(255) NOT NULL,
   `sequence_id` bigint(20) unsigned NOT NULL,
   `name` varchar(255) DEFAULT NULL,
-  `offset` bigint(20) unsigned NOT NULL,
   `total` int(10) unsigned DEFAULT NULL,
   `density` float unsigned DEFAULT NULL,
   `key` varchar(255) DEFAULT NULL,
@@ -383,7 +332,7 @@ CREATE TABLE `pattern` (
   UNIQUE KEY `id_UNIQUE` (`id`),
   KEY `pattern_fk_sequence` (`sequence_id`),
   CONSTRAINT `pattern_fk_sequence` FOREIGN KEY (`sequence_id`) REFERENCES `sequence` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=317 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -404,7 +353,7 @@ CREATE TABLE `pattern_chord` (
   UNIQUE KEY `id_UNIQUE` (`id`),
   KEY `pattern_chord_fk_pattern` (`pattern_id`),
   CONSTRAINT `pattern_chord_fk_pattern` FOREIGN KEY (`pattern_id`) REFERENCES `pattern` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=16006 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -432,27 +381,7 @@ CREATE TABLE `pattern_event` (
   KEY `pattern_event_fk_voice` (`voice_id`),
   CONSTRAINT `pattern_event_fk_pattern` FOREIGN KEY (`pattern_id`) REFERENCES `pattern` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   CONSTRAINT `pattern_event_fk_voice` FOREIGN KEY (`voice_id`) REFERENCES `voice` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `pattern_meme`
---
-
-DROP TABLE IF EXISTS `pattern_meme`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `pattern_meme` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `pattern_id` bigint(20) unsigned NOT NULL,
-  `name` varchar(255) NOT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `id_UNIQUE` (`id`),
-  KEY `pattern_meme_fk_pattern` (`pattern_id`),
-  CONSTRAINT `pattern_meme_fk_pattern` FOREIGN KEY (`pattern_id`) REFERENCES `pattern` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=315001004 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -517,73 +446,12 @@ CREATE TABLE `segment` (
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `waveform_key` varchar(2047) DEFAULT NULL,
+  `content` json NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `id_UNIQUE` (`id`),
   UNIQUE KEY `unique_chain_offset_index` (`chain_id`,`offset`),
   CONSTRAINT `segment_fk_chain` FOREIGN KEY (`chain_id`) REFERENCES `chain` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `segment_chord`
---
-
-DROP TABLE IF EXISTS `segment_chord`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `segment_chord` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `segment_id` bigint(20) unsigned NOT NULL,
-  `name` varchar(255) NOT NULL,
-  `position` float NOT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `id_UNIQUE` (`id`),
-  KEY `chord_fk_segment` (`segment_id`),
-  CONSTRAINT `chord_fk_segment` FOREIGN KEY (`segment_id`) REFERENCES `segment` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `segment_meme`
---
-
-DROP TABLE IF EXISTS `segment_meme`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `segment_meme` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `segment_id` bigint(20) unsigned NOT NULL,
-  `name` varchar(255) NOT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `id_UNIQUE` (`id`),
-  KEY `meme_fk_segment` (`segment_id`),
-  CONSTRAINT `meme_fk_segment` FOREIGN KEY (`segment_id`) REFERENCES `segment` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `segment_message`
---
-
-DROP TABLE IF EXISTS `segment_message`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `segment_message` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `segment_id` bigint(20) unsigned NOT NULL,
-  `type` varchar(255) NOT NULL,
-  `body` text NOT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `id_UNIQUE` (`id`),
-  KEY `message_fk_segment` (`segment_id`),
-  CONSTRAINT `message_fk_segment` FOREIGN KEY (`segment_id`) REFERENCES `segment` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -611,7 +479,7 @@ CREATE TABLE `sequence` (
   KEY `sequence_fk_library` (`library_id`),
   CONSTRAINT `sequence_fk_library` FOREIGN KEY (`library_id`) REFERENCES `library` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   CONSTRAINT `sequence_fk_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=36 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -631,7 +499,50 @@ CREATE TABLE `sequence_meme` (
   UNIQUE KEY `id_UNIQUE` (`id`),
   KEY `sequence_meme_fk_sequence` (`sequence_id`),
   CONSTRAINT `sequence_meme_fk_sequence` FOREIGN KEY (`sequence_id`) REFERENCES `sequence` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=35003 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `sequence_pattern`
+--
+
+DROP TABLE IF EXISTS `sequence_pattern`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `sequence_pattern` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `sequence_id` bigint(20) unsigned NOT NULL,
+  `pattern_id` bigint(20) unsigned NOT NULL,
+  `offset` bigint(20) unsigned NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id_UNIQUE` (`id`),
+  KEY `sequence_pattern_fk_sequence` (`sequence_id`),
+  KEY `sequence_pattern_fk_pattern` (`pattern_id`),
+  CONSTRAINT `sequence_pattern_fk_pattern` FOREIGN KEY (`pattern_id`) REFERENCES `pattern` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `sequence_pattern_fk_sequence` FOREIGN KEY (`sequence_id`) REFERENCES `sequence` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB AUTO_INCREMENT=1652 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `sequence_pattern_meme`
+--
+
+DROP TABLE IF EXISTS `sequence_pattern_meme`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `sequence_pattern_meme` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `sequence_pattern_id` bigint(20) unsigned NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id_UNIQUE` (`id`),
+  KEY `sequence_pattern_meme_fk_pattern` (`sequence_pattern_id`),
+  CONSTRAINT `sequence_pattern_meme_fk_pattern` FOREIGN KEY (`sequence_pattern_id`) REFERENCES `sequence_pattern` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB AUTO_INCREMENT=1651004 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -650,7 +561,7 @@ CREATE TABLE `user` (
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `id_UNIQUE` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -716,7 +627,7 @@ CREATE TABLE `user_role` (
   UNIQUE KEY `id_UNIQUE` (`id`),
   KEY `user_role_fk_user_idx` (`user_id`),
   CONSTRAINT `user_role_fk_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=3002 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -737,7 +648,7 @@ CREATE TABLE `voice` (
   UNIQUE KEY `id_UNIQUE` (`id`),
   KEY `voice_fk_sequence` (`sequence_id`),
   CONSTRAINT `voice_fk_sequence` FOREIGN KEY (`sequence_id`) REFERENCES `sequence` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -749,12 +660,12 @@ CREATE TABLE `voice` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-05-03 20:19:00
+-- Dump completed on 2019-05-30 19:09:03
 -- MySQL dump 10.13  Distrib 5.7.26, for Linux (x86_64)
 --
 -- Host: 127.0.0.1    Database: xj_test
 -- ------------------------------------------------------
--- Server version	5.7.25
+-- Server version	5.7.26
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -773,7 +684,7 @@ CREATE TABLE `voice` (
 
 LOCK TABLES `schema_version` WRITE;
 /*!40000 ALTER TABLE `schema_version` DISABLE KEYS */;
-INSERT INTO `schema_version` VALUES (1,'1','user auth','SQL','V1__user_auth.sql',447090788,'root','2018-08-30 15:48:58',154,1),(2,'2','account','SQL','V2__account.sql',-728725086,'root','2018-08-30 15:48:58',157,1),(3,'3','credit','SQL','V3__credit.sql',-385750700,'root','2018-08-30 15:48:58',79,1),(4,'4','library idea phase meme voice event','SQL','V4__library_idea_phase_meme_voice_event.sql',-1534808241,'root','2018-08-30 15:48:59',642,1),(5,'5','instrument meme audio chord event','SQL','V5__instrument_meme_audio_chord_event.sql',-1907897642,'root','2018-08-30 15:49:00',396,1),(6,'6','chain link chord choice','SQL','V6__chain_link_chord_choice.sql',-2093488888,'root','2018-08-30 15:49:00',331,1),(7,'7','arrangement morph point pick','SQL','V7__arrangement_morph_point_pick.sql',-1775760070,'root','2018-08-30 15:49:00',373,1),(8,'8','user auth column renaming','SQL','V8__user_auth_column_renaming.sql',-1774157694,'root','2018-08-30 15:49:00',35,1),(9,'9','user role','SQL','V9__user_role.sql',-2040912989,'root','2018-08-30 15:49:00',85,1),(10,'10','user access token','SQL','V10__user_access_token.sql',-1589285188,'root','2018-08-30 15:49:01',91,1),(11,'11','user auth column renaming','SQL','V11__user_auth_column_renaming.sql',342405360,'root','2018-08-30 15:49:01',14,1),(12,'12','RENAME account user TO account user role','SQL','V12__RENAME_account_user_TO_account_user_role.sql',569433197,'root','2018-08-30 15:49:01',31,1),(13,'14','ALTER user DROP COLUMN admin','SQL','V14__ALTER_user_DROP_COLUMN_admin.sql',660577316,'root','2018-08-30 15:49:01',101,1),(14,'15','ALTER account ADD COLUMN name','SQL','V15__ALTER_account_ADD_COLUMN_name.sql',2013415455,'root','2018-08-30 15:49:01',99,1),(15,'16','ALTER library ADD COLUMN name','SQL','V16__ALTER_library_ADD_COLUMN_name.sql',652666977,'root','2018-08-30 15:49:01',133,1),(16,'17','RENAME ALTER account user role TO account user','SQL','V17__RENAME_ALTER_account_user_role_TO_account_user.sql',-527669089,'root','2018-08-30 15:49:01',146,1),(17,'18','ALTER chain BELONGS TO account HAS MANY library','SQL','V18__ALTER_chain_BELONGS_TO_account_HAS_MANY_library.sql',407528039,'root','2018-08-30 15:49:02',363,1),(18,'19','DROP credit ALTER idea instrument belong directly to user','SQL','V19__DROP_credit_ALTER_idea_instrument_belong_directly_to_user.sql',-940090323,'root','2018-08-30 15:49:03',992,1),(19,'20','ALTER phase choice BIGINT offset total','SQL','V20__ALTER_phase_choice_BIGINT_offset_total.sql',1174421309,'root','2018-08-30 15:49:03',661,1),(20,'21','ALTER DROP order FORM instrument idea phase meme','SQL','V21__ALTER_DROP_order_FORM_instrument_idea_phase_meme.sql',-825269746,'root','2018-08-30 15:49:04',362,1),(21,'22','ALTER phase optional values','SQL','V22__ALTER_phase_optional_values.sql',2115016285,'root','2018-08-30 15:49:04',477,1),(22,'23','ALTER audio COLUMNS waveformUrl','SQL','V23__ALTER_audio_COLUMNS_waveformUrl.sql',-1407515541,'root','2018-08-30 15:49:04',174,1),(23,'24','ALTER audio FLOAT start length','SQL','V24__ALTER_audio_FLOAT_start_length.sql',-2000888804,'root','2018-08-30 15:49:05',325,1),(24,'25','ALTER chain ADD COLUMNS name state startat stopat','SQL','V25__ALTER_chain_ADD_COLUMNS_name_state_startat_stopat.sql',1356557345,'root','2018-08-30 15:49:05',491,1),(25,'26','ALTER link FLOAT start finish','SQL','V26__ALTER_link_FLOAT_start_finish.sql',-1185447213,'root','2018-08-30 15:49:06',332,1),(26,'27','ALTER all tables ADD COLUMN createdat updatedat','SQL','V27__ALTER_all_tables_ADD_COLUMN_createdat_updatedat.sql',-794640015,'root','2018-08-30 15:49:13',6857,1),(27,'28','ALTER chain link TIMESTAMP microsecond precision','SQL','V28__ALTER_chain_link_TIMESTAMP_microsecond_precision.sql',-1850945451,'root','2018-08-30 15:49:13',660,1),(28,'29','ALTER arrangement DROP COLUMNS name density tempo','SQL','V29__ALTER_arrangement_DROP_COLUMNS_name_density_tempo.sql',-1660342705,'root','2018-08-30 15:49:14',419,1),(29,'30','ALTER pick FLOAT start length','SQL','V30__ALTER_pick_FLOAT_start_length.sql',-1842518453,'root','2018-08-30 15:49:14',358,1),(30,'31','ALTER pick ADD BELONGS TO arrangement','SQL','V31__ALTER_pick_ADD_BELONGS_TO_arrangement.sql',1953331613,'root','2018-08-30 15:49:14',367,1),(31,'32','ALTER link OPTIONAL total density key tempo','SQL','V32__ALTER_link_OPTIONAL_total_density_key_tempo.sql',-98188439,'root','2018-08-30 15:49:15',486,1),(32,'33','ALTER link UNIQUE chain offset','SQL','V33__ALTER_link_UNIQUE_chain_offset.sql',1398816976,'root','2018-08-30 15:49:15',56,1),(33,'34','ALTER audio COLUMNS waveformKey','SQL','V34__ALTER_audio_COLUMNS_waveformKey.sql',66858661,'root','2018-08-30 15:49:15',19,1),(34,'35','CREATE TABLE chain config','SQL','V35__CREATE_TABLE_chain_config.sql',-2134731909,'root','2018-08-30 15:49:15',79,1),(35,'36','CREATE TABLE chain idea','SQL','V36__CREATE_TABLE_chain_idea.sql',2038472760,'root','2018-08-30 15:49:15',101,1),(36,'37','CREATE TABLE chain instrument','SQL','V37__CREATE_TABLE_chain_instrument.sql',1486524130,'root','2018-08-30 15:49:15',94,1),(37,'38','ALTER chain ADD COLUMN type','SQL','V38__ALTER_chain_ADD_COLUMN_type.sql',608321610,'root','2018-08-30 15:49:16',126,1),(38,'39','ALTER phase MODIFY COLUMN total No Longer Required','SQL','V39__ALTER_phase_MODIFY_COLUMN_total_No_Longer_Required.sql',-1504223876,'root','2018-08-30 15:49:16',115,1),(39,'40','ALTER choice MODIFY COLUMN phase offset ULONG','SQL','V40__ALTER_choice_MODIFY_COLUMN_phase_offset_ULONG.sql',-240451169,'root','2018-08-30 15:49:16',171,1),(40,'41','CREATE TABLE link meme','SQL','V41__CREATE_TABLE_link_meme.sql',-18883080,'root','2018-08-30 15:49:16',89,1),(41,'42','ALTER phase link INT total','SQL','V42__ALTER_phase_link_INT_total.sql',-1400879099,'root','2018-08-30 15:49:16',375,1),(42,'43','CREATE TABLE link message','SQL','V43__CREATE_TABLE_link_message.sql',1616909549,'root','2018-08-30 15:49:16',83,1),(43,'44','ALTER pick BELONGS TO arrangement DROP morph point','SQL','V44__ALTER_pick_BELONGS_TO_arrangement_DROP_morph_point.sql',449955118,'root','2018-08-30 15:49:17',194,1),(44,'45','ALTER link ADD COLUMN waveform key','SQL','V45__ALTER_link_ADD_COLUMN_waveform_key.sql',-98370,'root','2018-08-30 15:49:17',127,1),(45,'46','ALTER audio ADD COLUMN state','SQL','V46__ALTER_audio_ADD_COLUMN_state.sql',-1300058820,'root','2018-08-30 15:49:17',240,1),(46,'47','ALTER chain ADD COLUMN embed key','SQL','V47__ALTER_chain_ADD_COLUMN_embed_key.sql',317233573,'root','2018-08-30 15:49:17',173,1),(47,'48','CREATE TABLE platform message','SQL','V48__CREATE_TABLE_platform_message.sql',-1332226532,'root','2018-08-30 15:49:17',76,1),(48,'49','CREATE pattern DEPRECATES idea','SQL','V49__CREATE_pattern_DEPRECATES_idea.sql',517513730,'root','2018-08-30 15:49:19',1550,1),(49,'50','REFACTOR voice BELONGS TO pattern','SQL','V50__REFACTOR_voice_BELONGS_TO_pattern.sql',1202195806,'root','2018-08-30 15:49:20',1078,1),(50,'51','DROP TABLE pick','SQL','V51__DROP_TABLE_pick.sql',-319463966,'root','2018-08-30 15:49:20',80,1),(51,'52','ALTER phase ADD COLUMN type','SQL','V52__ALTER_phase_ADD_COLUMN_type.sql',-95957482,'root','2018-08-30 15:49:20',243,1),(52,'53','ALTER chord MODIFY COLUMN position INTEGER','SQL','V53__ALTER_chord_MODIFY_COLUMN_position_INTEGER.sql',523400926,'root','2018-08-30 15:49:21',488,1),(53,'54','RENAME voice event TO phase event','SQL','V54__RENAME_voice_event_TO_phase_event.sql',-370585949,'root','2018-08-30 15:49:21',35,1),(54,'55','ALTER pattern phase ADD COLUMN state','SQL','V55__ALTER_pattern_phase_ADD_COLUMN_state.sql',-1299872216,'root','2018-08-30 15:49:22',522,1),(55,'56','ALTER chord MODIFY COLUMN position FLOAT','SQL','V56__ALTER_chord_MODIFY_COLUMN_position_FLOAT.sql',-894225407,'root','2018-08-30 15:49:22',499,1),(56,'57','REFACTORING chain segment sequence pattern','SQL','V57__REFACTORING_chain_segment_sequence_pattern.sql',-1235024870,'root','2018-08-30 15:49:26',4047,1),(57,'58','ALTER pattern ADD COLUMNS meter','SQL','V58__ALTER_pattern_ADD_COLUMNS_meter.sql',1342735981,'root','2018-08-30 15:49:27',357,1);
+INSERT INTO `schema_version` VALUES (1,'1','user auth','SQL','V1__user_auth.sql',447090788,'root','2018-08-30 15:48:58',154,1),(2,'2','account','SQL','V2__account.sql',-728725086,'root','2018-08-30 15:48:58',157,1),(3,'3','credit','SQL','V3__credit.sql',-385750700,'root','2018-08-30 15:48:58',79,1),(4,'4','library idea phase meme voice event','SQL','V4__library_idea_phase_meme_voice_event.sql',-1534808241,'root','2018-08-30 15:48:59',642,1),(5,'5','instrument meme audio chord event','SQL','V5__instrument_meme_audio_chord_event.sql',-1907897642,'root','2018-08-30 15:49:00',396,1),(6,'6','chain link chord choice','SQL','V6__chain_link_chord_choice.sql',-2093488888,'root','2018-08-30 15:49:00',331,1),(7,'7','arrangement morph point pick','SQL','V7__arrangement_morph_point_pick.sql',-1775760070,'root','2018-08-30 15:49:00',373,1),(8,'8','user auth column renaming','SQL','V8__user_auth_column_renaming.sql',-1774157694,'root','2018-08-30 15:49:00',35,1),(9,'9','user role','SQL','V9__user_role.sql',-2040912989,'root','2018-08-30 15:49:00',85,1),(10,'10','user access token','SQL','V10__user_access_token.sql',-1589285188,'root','2018-08-30 15:49:01',91,1),(11,'11','user auth column renaming','SQL','V11__user_auth_column_renaming.sql',342405360,'root','2018-08-30 15:49:01',14,1),(12,'12','RENAME account user TO account user role','SQL','V12__RENAME_account_user_TO_account_user_role.sql',569433197,'root','2018-08-30 15:49:01',31,1),(13,'14','ALTER user DROP COLUMN admin','SQL','V14__ALTER_user_DROP_COLUMN_admin.sql',660577316,'root','2018-08-30 15:49:01',101,1),(14,'15','ALTER account ADD COLUMN name','SQL','V15__ALTER_account_ADD_COLUMN_name.sql',2013415455,'root','2018-08-30 15:49:01',99,1),(15,'16','ALTER library ADD COLUMN name','SQL','V16__ALTER_library_ADD_COLUMN_name.sql',652666977,'root','2018-08-30 15:49:01',133,1),(16,'17','RENAME ALTER account user role TO account user','SQL','V17__RENAME_ALTER_account_user_role_TO_account_user.sql',-527669089,'root','2018-08-30 15:49:01',146,1),(17,'18','ALTER chain BELONGS TO account HAS MANY library','SQL','V18__ALTER_chain_BELONGS_TO_account_HAS_MANY_library.sql',407528039,'root','2018-08-30 15:49:02',363,1),(18,'19','DROP credit ALTER idea instrument belong directly to user','SQL','V19__DROP_credit_ALTER_idea_instrument_belong_directly_to_user.sql',-940090323,'root','2018-08-30 15:49:03',992,1),(19,'20','ALTER phase choice BIGINT offset total','SQL','V20__ALTER_phase_choice_BIGINT_offset_total.sql',1174421309,'root','2018-08-30 15:49:03',661,1),(20,'21','ALTER DROP order FORM instrument idea phase meme','SQL','V21__ALTER_DROP_order_FORM_instrument_idea_phase_meme.sql',-825269746,'root','2018-08-30 15:49:04',362,1),(21,'22','ALTER phase optional values','SQL','V22__ALTER_phase_optional_values.sql',2115016285,'root','2018-08-30 15:49:04',477,1),(22,'23','ALTER audio COLUMNS waveformUrl','SQL','V23__ALTER_audio_COLUMNS_waveformUrl.sql',-1407515541,'root','2018-08-30 15:49:04',174,1),(23,'24','ALTER audio FLOAT start length','SQL','V24__ALTER_audio_FLOAT_start_length.sql',-2000888804,'root','2018-08-30 15:49:05',325,1),(24,'25','ALTER chain ADD COLUMNS name state startat stopat','SQL','V25__ALTER_chain_ADD_COLUMNS_name_state_startat_stopat.sql',1356557345,'root','2018-08-30 15:49:05',491,1),(25,'26','ALTER link FLOAT start finish','SQL','V26__ALTER_link_FLOAT_start_finish.sql',-1185447213,'root','2018-08-30 15:49:06',332,1),(26,'27','ALTER all tables ADD COLUMN createdat updatedat','SQL','V27__ALTER_all_tables_ADD_COLUMN_createdat_updatedat.sql',-794640015,'root','2018-08-30 15:49:13',6857,1),(27,'28','ALTER chain link TIMESTAMP microsecond precision','SQL','V28__ALTER_chain_link_TIMESTAMP_microsecond_precision.sql',-1850945451,'root','2018-08-30 15:49:13',660,1),(28,'29','ALTER arrangement DROP COLUMNS name density tempo','SQL','V29__ALTER_arrangement_DROP_COLUMNS_name_density_tempo.sql',-1660342705,'root','2018-08-30 15:49:14',419,1),(29,'30','ALTER pick FLOAT start length','SQL','V30__ALTER_pick_FLOAT_start_length.sql',-1842518453,'root','2018-08-30 15:49:14',358,1),(30,'31','ALTER pick ADD BELONGS TO arrangement','SQL','V31__ALTER_pick_ADD_BELONGS_TO_arrangement.sql',1953331613,'root','2018-08-30 15:49:14',367,1),(31,'32','ALTER link OPTIONAL total density key tempo','SQL','V32__ALTER_link_OPTIONAL_total_density_key_tempo.sql',-98188439,'root','2018-08-30 15:49:15',486,1),(32,'33','ALTER link UNIQUE chain offset','SQL','V33__ALTER_link_UNIQUE_chain_offset.sql',1398816976,'root','2018-08-30 15:49:15',56,1),(33,'34','ALTER audio COLUMNS waveformKey','SQL','V34__ALTER_audio_COLUMNS_waveformKey.sql',66858661,'root','2018-08-30 15:49:15',19,1),(34,'35','CREATE TABLE chain config','SQL','V35__CREATE_TABLE_chain_config.sql',-2134731909,'root','2018-08-30 15:49:15',79,1),(35,'36','CREATE TABLE chain idea','SQL','V36__CREATE_TABLE_chain_idea.sql',2038472760,'root','2018-08-30 15:49:15',101,1),(36,'37','CREATE TABLE chain instrument','SQL','V37__CREATE_TABLE_chain_instrument.sql',1486524130,'root','2018-08-30 15:49:15',94,1),(37,'38','ALTER chain ADD COLUMN type','SQL','V38__ALTER_chain_ADD_COLUMN_type.sql',608321610,'root','2018-08-30 15:49:16',126,1),(38,'39','ALTER phase MODIFY COLUMN total No Longer Required','SQL','V39__ALTER_phase_MODIFY_COLUMN_total_No_Longer_Required.sql',-1504223876,'root','2018-08-30 15:49:16',115,1),(39,'40','ALTER choice MODIFY COLUMN phase offset ULONG','SQL','V40__ALTER_choice_MODIFY_COLUMN_phase_offset_ULONG.sql',-240451169,'root','2018-08-30 15:49:16',171,1),(40,'41','CREATE TABLE link meme','SQL','V41__CREATE_TABLE_link_meme.sql',-18883080,'root','2018-08-30 15:49:16',89,1),(41,'42','ALTER phase link INT total','SQL','V42__ALTER_phase_link_INT_total.sql',-1400879099,'root','2018-08-30 15:49:16',375,1),(42,'43','CREATE TABLE link message','SQL','V43__CREATE_TABLE_link_message.sql',1616909549,'root','2018-08-30 15:49:16',83,1),(43,'44','ALTER pick BELONGS TO arrangement DROP morph point','SQL','V44__ALTER_pick_BELONGS_TO_arrangement_DROP_morph_point.sql',449955118,'root','2018-08-30 15:49:17',194,1),(44,'45','ALTER link ADD COLUMN waveform key','SQL','V45__ALTER_link_ADD_COLUMN_waveform_key.sql',-98370,'root','2018-08-30 15:49:17',127,1),(45,'46','ALTER audio ADD COLUMN state','SQL','V46__ALTER_audio_ADD_COLUMN_state.sql',-1300058820,'root','2018-08-30 15:49:17',240,1),(46,'47','ALTER chain ADD COLUMN embed key','SQL','V47__ALTER_chain_ADD_COLUMN_embed_key.sql',317233573,'root','2018-08-30 15:49:17',173,1),(47,'48','CREATE TABLE platform message','SQL','V48__CREATE_TABLE_platform_message.sql',-1332226532,'root','2018-08-30 15:49:17',76,1),(48,'49','CREATE pattern DEPRECATES idea','SQL','V49__CREATE_pattern_DEPRECATES_idea.sql',517513730,'root','2018-08-30 15:49:19',1550,1),(49,'50','REFACTOR voice BELONGS TO pattern','SQL','V50__REFACTOR_voice_BELONGS_TO_pattern.sql',1202195806,'root','2018-08-30 15:49:20',1078,1),(50,'51','DROP TABLE pick','SQL','V51__DROP_TABLE_pick.sql',-319463966,'root','2018-08-30 15:49:20',80,1),(51,'52','ALTER phase ADD COLUMN type','SQL','V52__ALTER_phase_ADD_COLUMN_type.sql',-95957482,'root','2018-08-30 15:49:20',243,1),(52,'53','ALTER chord MODIFY COLUMN position INTEGER','SQL','V53__ALTER_chord_MODIFY_COLUMN_position_INTEGER.sql',523400926,'root','2018-08-30 15:49:21',488,1),(53,'54','RENAME voice event TO phase event','SQL','V54__RENAME_voice_event_TO_phase_event.sql',-370585949,'root','2018-08-30 15:49:21',35,1),(54,'55','ALTER pattern phase ADD COLUMN state','SQL','V55__ALTER_pattern_phase_ADD_COLUMN_state.sql',-1299872216,'root','2018-08-30 15:49:22',522,1),(55,'56','ALTER chord MODIFY COLUMN position FLOAT','SQL','V56__ALTER_chord_MODIFY_COLUMN_position_FLOAT.sql',-894225407,'root','2018-08-30 15:49:22',499,1),(56,'57','REFACTORING chain segment sequence pattern','SQL','V57__REFACTORING_chain_segment_sequence_pattern.sql',-1235024870,'root','2018-08-30 15:49:26',4047,1),(57,'58','ALTER pattern ADD COLUMNS meter','SQL','V58__ALTER_pattern_ADD_COLUMNS_meter.sql',1342735981,'root','2018-08-30 15:49:27',357,1),(58,'59','CREATE TABLE sequence pattern','SQL','V59__CREATE_TABLE_sequence_pattern.sql',1320106708,'root','2019-05-25 17:21:14',269,1),(59,'60','DELETE FROM sequence pattern WHERE sequence type rhythm','SQL','V60__DELETE_FROM_sequence_pattern_WHERE_sequence_type_rhythm.sql',1944103054,'root','2019-05-25 17:21:14',4,1),(60,'61','segment ALTER cached basis JSON','SQL','V61__segment_ALTER_cached_basis_JSON.sql',731785769,'root','2019-05-25 17:21:14',126,1),(61,'62','TRANSMOGRIFY sequence pattern meme','SQL','V62__TRANSMOGRIFY_sequence_pattern_meme.sql',434684979,'root','2019-05-25 17:21:14',119,1),(62,'63','ALTER choice REMOVE sequence pattern offset ADD sequence pattern id','SQL','V63__ALTER_choice_REMOVE_sequence_pattern_offset_ADD_sequence_pattern_id.sql',489451701,'root','2019-05-25 17:21:15',622,1),(63,'64','DROP TABLES choice arrangement segment meme segment chord','SQL','V64__DROP_TABLES_choice_arrangement_segment_meme_segment_chord.sql',604046966,'root','2019-05-25 17:21:15',323,1),(64,'65','ALTER segment basis renamed to content','SQL','V65__ALTER_segment_basis_renamed_to_content.sql',469917346,'root','2019-05-25 17:21:16',124,1),(65,'66','DROP TABLES segment message','SQL','V66__DROP_TABLES_segment_message.sql',772486821,'root','2019-05-28 15:46:35',76,1);
 /*!40000 ALTER TABLE `schema_version` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -786,4 +697,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-05-03 20:19:00
+-- Dump completed on 2019-05-30 19:09:03

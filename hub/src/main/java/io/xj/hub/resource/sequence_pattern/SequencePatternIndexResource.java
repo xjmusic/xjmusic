@@ -11,10 +11,9 @@ import io.xj.core.model.sequence_pattern.SequencePattern;
 import io.xj.core.model.sequence_pattern.SequencePatternWrapper;
 import io.xj.core.model.sequence_pattern_meme.SequencePatternMeme;
 import io.xj.core.model.user_role.UserRoleType;
+import io.xj.core.transport.GsonProvider;
 import io.xj.core.transport.HttpResponseProvider;
-import io.xj.core.transport.JSON;
 import io.xj.hub.HubResource;
-import org.json.JSONArray;
 
 import javax.annotation.security.RolesAllowed;
 import javax.jws.WebResult;
@@ -75,7 +74,7 @@ public class SequencePatternIndexResource extends HubResource {
 
     try {
       return Response
-        .accepted(JSON.wrap(readAllIncludingRelationships(Access.fromContext(crc))).toString())
+        .accepted(gsonProvider.gson().toJson(readAllIncludingRelationships(Access.fromContext(crc))))
         .type(MediaType.APPLICATION_JSON)
         .build();
 
@@ -91,15 +90,15 @@ public class SequencePatternIndexResource extends HubResource {
    @return map of entity plural key to array of chords
    @throws Exception on failure
    */
-  private Map<String, JSONArray> readAllIncludingRelationships(Access access) throws Exception {
-    Map<String, JSONArray> out = Maps.newHashMap();
+  private Map<String, Collection> readAllIncludingRelationships(Access access) throws Exception {
+    Map<String, Collection> out = Maps.newHashMap();
 
     Collection<SequencePattern> sequencePatterns = sequencePatternDAO.readAll(access, ImmutableList.of(new BigInteger(sequenceId)));
-    out.put(SequencePattern.KEY_MANY, JSON.arrayOf(sequencePatterns));
+    out.put(SequencePattern.KEY_MANY, sequencePatterns);
     Collection<BigInteger> sequencePatternIds = sequencePatternIds(sequencePatterns);
 
     if (Objects.nonNull(include) && include.contains(Meme.KEY_MANY))
-      out.put(SequencePatternMeme.KEY_MANY, JSON.arrayOf(sequencePatternMemeDAO.readAll(access, sequencePatternIds)));
+      out.put(SequencePatternMeme.KEY_MANY, sequencePatternMemeDAO.readAll(access, sequencePatternIds));
 
     return out;
   }

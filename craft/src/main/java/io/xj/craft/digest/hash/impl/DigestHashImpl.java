@@ -1,20 +1,17 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.craft.digest.hash.impl;
 
-import io.xj.craft.digest.DigestType;
-import io.xj.craft.ingest.Ingest;
-import io.xj.craft.digest.hash.DigestHash;
-import io.xj.craft.digest.impl.DigestImpl;
-import io.xj.core.model.entity.Entity;
-import io.xj.core.transport.CSV;
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.hash.Hashing;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-
-import org.json.JSONObject;
+import io.xj.core.ingest.Ingest;
+import io.xj.core.model.entity.Entity;
+import io.xj.core.transport.CSV;
+import io.xj.craft.digest.DigestType;
+import io.xj.craft.digest.hash.DigestHash;
+import io.xj.craft.digest.impl.DigestImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,12 +73,7 @@ public class DigestHashImpl extends DigestImpl implements DigestHash {
    Digest the ingest entities into a hash map
    */
   private void digest() {
-    ingest.all().forEach(entity -> hash.put(hashKey(entity), hashValue(entity)));
-  }
-
-  @Override
-  public JSONObject toJSONObject() {
-    return new JSONObject(hash);
+    ingest.getAllEntities().forEach(entity -> hash.put(hashKey(entity), hashValue(entity)));
   }
 
   @Override

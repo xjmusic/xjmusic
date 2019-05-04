@@ -1,7 +1,7 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.model.chain_config;
 
-import io.xj.core.exception.BusinessException;
+import io.xj.core.exception.CoreException;
 import io.xj.core.transport.CSV;
 import io.xj.core.util.Text;
 
@@ -37,16 +37,16 @@ public enum ChainConfigType {
 
    @param typeString to cast to enum
    @return config type enum
-   @throws BusinessException on failure
+   @throws CoreException on failure
    */
-  public static ChainConfigType validate(String typeString) throws BusinessException {
+  public static ChainConfigType validate(String typeString) throws CoreException {
     if (Objects.isNull(typeString))
-      throw new BusinessException("Type is required.");
+      throw new CoreException("Type is required.");
 
     try {
       return valueOf(typeString);
     } catch (Exception e) {
-      throw new BusinessException("'" + typeString + "' is not a valid type (" + CSV.joinEnum(ChainConfigType.values()) + ").", e);
+      throw new CoreException("'" + typeString + "' is not a valid type (" + CSV.joinEnum(ChainConfigType.values()) + ").", e);
     }
   }
 
@@ -63,11 +63,11 @@ public enum ChainConfigType {
    Get default value for a chain configuration type
 
    @return default value
-   @throws BusinessException if no default value exists
+   @throws CoreException if no default value exists
    */
-  public String defaultValue() throws BusinessException {
+  public String defaultValue() throws CoreException {
     if (!DEFAULT_VALUES.containsKey(this))
-      throw new BusinessException(String.format("No default value for type %s", this));
+      throw new CoreException(String.format("No default value for type %s", this));
 
     return DEFAULT_VALUES.get(this);
   }

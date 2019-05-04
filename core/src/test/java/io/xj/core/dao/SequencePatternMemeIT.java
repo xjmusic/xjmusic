@@ -1,39 +1,37 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.dao;
 
-import io.xj.core.CoreModule;
-import io.xj.core.access.impl.Access;
-import io.xj.core.exception.BusinessException;
-import io.xj.core.integration.IntegrationTestEntity;
-import io.xj.core.model.sequence.SequenceState;
-import io.xj.core.model.sequence.SequenceType;
-import io.xj.core.model.pattern.PatternState;
-import io.xj.core.model.pattern.PatternType;
-import io.xj.core.model.sequence_pattern_meme.SequencePatternMeme;
-import io.xj.core.model.user_auth.UserAuthType;
-import io.xj.core.model.user_role.UserRoleType;
-import io.xj.core.transport.JSON;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.junit.After;
+import io.xj.core.CoreModule;
+import io.xj.core.access.impl.Access;
+import io.xj.core.exception.CoreException;
+import io.xj.core.integration.IntegrationTestEntity;
+import io.xj.core.model.pattern.PatternState;
+import io.xj.core.model.pattern.PatternType;
+import io.xj.core.model.sequence.SequenceState;
+import io.xj.core.model.sequence.SequenceType;
+import io.xj.core.model.sequence_pattern_meme.SequencePatternMeme;
+import io.xj.core.model.user_auth.UserAuthType;
+import io.xj.core.model.user_role.UserRoleType;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.math.BigInteger;
+import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 
 // future test: permissions of different users to readMany vs. create vs. update or delete pattern memes
 public class SequencePatternMemeIT {
   private final Injector injector = Guice.createInjector(new CoreModule());
+  @Rule
+  public ExpectedException failure = ExpectedException.none();
   private SequencePatternMemeDAO testDAO;
 
   @Before
@@ -45,43 +43,40 @@ public class SequencePatternMemeIT {
 
     // John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
     IntegrationTestEntity.insertUser(2, "john", "john@email.com", "http://pictures.com/john.gif");
-    IntegrationTestEntity.insertUserRole(1, 2, UserRoleType.User);
-    IntegrationTestEntity.insertUserRole(2, 2, UserRoleType.Admin);
-    IntegrationTestEntity.insertAccountUser(3, 1, 2);
-    IntegrationTestEntity.insertUserAuth(102, 2, UserAuthType.Google, "external_access_token_123", "external_refresh_token_123", "22222");
-    IntegrationTestEntity.insertUserAccessToken(2, 102, "this-is-my-actual-access-token");
+    IntegrationTestEntity.insertUserRole(2, UserRoleType.User);
+    IntegrationTestEntity.insertUserRole(2, UserRoleType.Admin);
+    IntegrationTestEntity.insertAccountUser(1, 2);
+    IntegrationTestEntity.insertUserAuth(2, UserAuthType.Google, "external_access_token_123", "external_refresh_token_123", "22222");
+    IntegrationTestEntity.insertUserAccessToken(2, UserAuthType.Google, "this-is-my-actual-access-token");
 
     // Jenny has a "user" role and belongs to account "bananas"
     IntegrationTestEntity.insertUser(3, "jenny", "jenny@email.com", "http://pictures.com/jenny.gif");
-    IntegrationTestEntity.insertUserRole(4, 3, UserRoleType.User);
-    IntegrationTestEntity.insertAccountUser(5, 1, 3);
+    IntegrationTestEntity.insertUserRole(3, UserRoleType.User);
+    IntegrationTestEntity.insertAccountUser(1, 3);
 
     // Bill has a "user" role but no account membership
     IntegrationTestEntity.insertUser(4, "bill", "bill@email.com", "http://pictures.com/bill.gif");
-    IntegrationTestEntity.insertUserRole(6, 4, UserRoleType.User);
+    IntegrationTestEntity.insertUserRole(4, UserRoleType.User);
 
     // Library "palm tree" has sequence "leaves"
     IntegrationTestEntity.insertLibrary(1, 1, "palm tree");
     IntegrationTestEntity.insertSequence(1, 2, 1, SequenceType.Main, SequenceState.Published, "leaves", 0.342, "C#", 120.4);
 
     // Sequence "leaves" has pattern "growth" and pattern "decay"
-    IntegrationTestEntity.insertPatternAndSequencePattern(1, 1, PatternType.Main, PatternState.Published, 0, 16, "growth", 0.342, "C#", 120.4);
-    IntegrationTestEntity.insertPatternAndSequencePattern(2, 1, PatternType.Main, PatternState.Published, 1, 16, "decay", 0.25, "F#", 110.3);
+    IntegrationTestEntity.insertPattern(1, 1, PatternType.Main, PatternState.Published, 16, "growth", 0.342, "C#", 120.4);
+    IntegrationTestEntity.insertSequencePattern(110, 1, 1, 0);
+    IntegrationTestEntity.insertPattern(2, 1, PatternType.Main, PatternState.Published, 16, "decay", 0.25, "F#", 110.3);
+    IntegrationTestEntity.insertSequencePattern(211, 1, 2, 1);
 
     // Pattern "growth" has memes "ants" and "mold"
-    IntegrationTestEntity.insertSequencePatternMeme(1, 1, 1, "Gravel");
-    IntegrationTestEntity.insertSequencePatternMeme(2, 1, 1, "Fuzz");
+    IntegrationTestEntity.insertSequencePatternMeme(110, "Gravel");
+    IntegrationTestEntity.insertSequencePatternMeme(110, "Fuzz");
 
     // Pattern "decay" has meme "peel"
-    IntegrationTestEntity.insertSequencePatternMeme(3, 1, 2, "Peel");
+    IntegrationTestEntity.insertSequencePatternMeme(211, "Peel");
 
     // Instantiate the test subject
     testDAO = injector.getInstance(SequencePatternMemeDAO.class);
-  }
-
-  @After
-  public void tearDown() throws Exception {
-    testDAO = null;
   }
 
   @Test
@@ -92,18 +87,14 @@ public class SequencePatternMemeIT {
       "accounts", "1"
     ));
     SequencePatternMeme inputData = new SequencePatternMeme()
-      .setSequencePatternId(BigInteger.valueOf(1L))
+      .setSequencePatternId(BigInteger.valueOf(110L))
       .setName("  !!2gnarLY    ");
 
-    JSONObject result = JSON.objectFrom(testDAO.create(access, inputData));
-
-    assertNotNull(result);
-    assertEquals(1, result.get("sequencePatternId"));
-    assertEquals("Gnarly", result.get("name"));
+    testDAO.create(access, inputData);
   }
 
-  @Test(expected = BusinessException.class)
-  public void create_FailsWithoutPatternID() throws Exception {
+  @Test(expected = CoreException.class)
+  public void create_FailsWithoutSequencePatternID() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
@@ -114,14 +105,14 @@ public class SequencePatternMemeIT {
     testDAO.create(access, inputData);
   }
 
-  @Test(expected = BusinessException.class)
+  @Test(expected = CoreException.class)
   public void create_FailsWithoutName() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
     SequencePatternMeme inputData = new SequencePatternMeme()
-      .setSequencePatternId(BigInteger.valueOf(1L));
+      .setSequencePatternId(BigInteger.valueOf(110L));
 
     testDAO.create(access, inputData);
   }
@@ -129,21 +120,23 @@ public class SequencePatternMemeIT {
   @Test
   public void create_MacroSequencePatternMeme() throws Exception {
     IntegrationTestEntity.insertSequence(15, 2, 1, SequenceType.Macro, SequenceState.Published, "foods", 0.342, "C#", 120.4);
-    IntegrationTestEntity.insertPatternAndSequencePattern(21, 15, PatternType.Macro, PatternState.Published, 0, 16, "meat", 0.342, "C#", 120.4);
-    IntegrationTestEntity.insertPatternAndSequencePattern(22, 15, PatternType.Macro, PatternState.Published, 1, 16, "vegetable", 0.25, "F#", 110.3);
-    IntegrationTestEntity.insertSequencePatternMeme(51, 15, 21, "Squash");
+    IntegrationTestEntity.insertPattern(21, 15, PatternType.Macro, PatternState.Published, 16, "meat", 0.342, "C#", 120.4);
+    IntegrationTestEntity.insertSequencePattern(21150, 15, 21, 0);
+    IntegrationTestEntity.insertPattern(22, 15, PatternType.Macro, PatternState.Published, 16, "vegetable", 0.25, "F#", 110.3);
+    IntegrationTestEntity.insertSequencePattern(22151, 15, 22, 1);
+    IntegrationTestEntity.insertSequencePatternMeme(22151, "Squash");
     Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "1"
     ));
     SequencePatternMeme inputData = new SequencePatternMeme()
-      .setSequencePatternId(BigInteger.valueOf(21L))
+      .setSequencePatternId(BigInteger.valueOf(22151))
       .setName("Ham");
 
     SequencePatternMeme result = testDAO.create(access, inputData);
 
     assertNotNull(result);
-    assertEquals(BigInteger.valueOf(21L), result.getSequencePatternId());
+    assertEquals(BigInteger.valueOf(22151), result.getSequencePatternId());
     assertEquals("Ham", result.getName());
   }
 
@@ -154,11 +147,10 @@ public class SequencePatternMemeIT {
       "accounts", "1"
     ));
 
-    SequencePatternMeme result = testDAO.readOne(access, BigInteger.valueOf(2L));
+    SequencePatternMeme result = testDAO.readOne(access, BigInteger.valueOf(110001L));
 
     assertNotNull(result);
-    assertEquals(BigInteger.valueOf(2L), result.getId());
-    assertEquals(BigInteger.valueOf(1L), result.getSequencePatternId());
+    assertEquals(BigInteger.valueOf(110L), result.getSequencePatternId());
     assertEquals("Fuzz", result.getName());
   }
 
@@ -168,10 +160,10 @@ public class SequencePatternMemeIT {
       "roles", "Artist",
       "accounts", "326"
     ));
+    failure.expect(CoreException.class);
+    failure.expectMessage("does not exist");
 
-    SequencePatternMeme result = testDAO.readOne(access, BigInteger.valueOf(1L));
-
-    assertNull(result);
+    testDAO.readOne(access, BigInteger.valueOf(110001L));
   }
 
   @Test
@@ -181,14 +173,9 @@ public class SequencePatternMemeIT {
       "accounts", "1"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1L))));
+    Collection<SequencePatternMeme> result = testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(110L)));
 
-    assertNotNull(result);
-    assertEquals(2L, (long) result.length());
-    JSONObject result1 = (JSONObject) result.get(0);
-    assertEquals("Gravel", result1.get("name"));
-    JSONObject result2 = (JSONObject) result.get(1);
-    assertEquals("Fuzz", result2.get("name"));
+    assertEquals(2L, result.size());
   }
 
   @Test
@@ -198,10 +185,9 @@ public class SequencePatternMemeIT {
       "accounts", "345"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(1L))));
+    Collection<SequencePatternMeme> result = testDAO.readAll(access, ImmutableList.of(BigInteger.valueOf(110L)));
 
-    assertNotNull(result);
-    assertEquals(0L, (long) result.length());
+    assertEquals(0L, result.size());
   }
 
   @Test
@@ -210,19 +196,20 @@ public class SequencePatternMemeIT {
       "roles", "Artist",
       "accounts", "1"
     ));
-    testDAO.destroy(access, BigInteger.valueOf(1L));
+    testDAO.destroy(access, BigInteger.valueOf(110000L));
 
-    SequencePatternMeme result = testDAO.readOne(Access.internal(), BigInteger.valueOf(1L));
-    assertNull(result);
+    IntegrationTestEntity.assertNotExist(testDAO, BigInteger.valueOf(110000L));
   }
 
-  @Test(expected = BusinessException.class)
+  @Test
   public void delete_failsIfNotInAccount() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "Artist",
       "accounts", "2"
     ));
+    failure.expect(CoreException.class);
+    failure.expectMessage("does not exist");
 
-    testDAO.destroy(access, BigInteger.valueOf(1L));
+    testDAO.destroy(access, BigInteger.valueOf(110000L));
   }
 }

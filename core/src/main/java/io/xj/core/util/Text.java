@@ -32,6 +32,7 @@ public interface Text {
 //  Pattern oneOrMorePeriod = Pattern.compile("\\.+");
   String UNDERSCORE = "_";
   String NOTHING = "";
+  char SINGLE_QUOTE = '\'';
 //  Comparator<? super String> byStringLengthDescending = (o1, o2) -> -Integer.compare(o2.length(), o1.length());
 
   /**
@@ -296,9 +297,9 @@ public interface Text {
    @param entities for format a comma-separated list of the # occurences of each class
    @return comma-separated list in text
    */
-  static <N extends Entity> String entityHistogram(Collection<N> entities) {
+  static <E extends Entity> String entityHistogram(Collection<E> entities) {
     Multiset<String> entityHistogram = ConcurrentHashMultiset.create();
-    entities.forEach((N entity) -> entityHistogram.add(entity.getClass().getSimpleName()));
+    entities.forEach((E entity) -> entityHistogram.add(entity.getClass().getSimpleName()));
     List<String> descriptors = Lists.newArrayList();
     entityHistogram.elementSet().forEach((String name) -> descriptors.add(String.format("%d %s", entityHistogram.count(name), name)));
     return String.join(", ", descriptors);
@@ -310,9 +311,18 @@ public interface Text {
    @param entities to format a comma-separated list of
    @return comma-separated list in text
    */
-  static <N extends Entity> String entities(List<N> entities) {
+  static <E extends Entity> String entities(List<E> entities) {
     List<String> descriptors = Lists.newArrayList();
-    entities.forEach((N entity) -> descriptors.add(entity.toString()));
+    entities.forEach((E entity) -> descriptors.add(entity.toString()));
     return String.join(", ", descriptors);
+  }
+
+  /**
+   Return single-quoted version of string
+   @param value to single-quote
+   @return single-quoted value
+   */
+  static String singleQuoted(String value) {
+    return String.format("%s%s%s", SINGLE_QUOTE, value, SINGLE_QUOTE);
   }
 }

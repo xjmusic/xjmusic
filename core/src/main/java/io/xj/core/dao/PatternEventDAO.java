@@ -2,6 +2,7 @@
 package io.xj.core.dao;
 
 import io.xj.core.access.impl.Access;
+import io.xj.core.exception.CoreException;
 import io.xj.core.model.pattern_event.PatternEvent;
 
 import java.math.BigInteger;
@@ -16,6 +17,6 @@ public interface PatternEventDAO extends DAO<PatternEvent> {
    @param voiceId to read events for
    @return events
    */
-  Collection<PatternEvent> readAllOfVoice(Access access, BigInteger voiceId) throws Exception;
+  Collection<PatternEvent> readAllOfVoice(Access access, BigInteger voiceId) throws CoreException;
 
 }

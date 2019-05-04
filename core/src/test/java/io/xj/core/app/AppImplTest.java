@@ -5,7 +5,7 @@ import io.xj.core.CoreModule;
 import io.xj.core.access.AccessLogFilterProvider;
 import io.xj.core.access.AccessTokenAuthFilter;
 import io.xj.core.app.impl.AppImpl;
-import io.xj.core.exception.ConfigException;
+import io.xj.core.exception.CoreException;
 import io.xj.core.transport.HttpServerProvider;
 import io.xj.core.transport.ResourceConfigProvider;
 
@@ -31,12 +31,18 @@ import static org.junit.Assert.assertEquals;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AppImplTest extends Mockito {
-  @Mock private ResourceConfigProvider resourceConfigProvider;
-  @Mock private ResourceConfig resourceConfig;
-  @Mock private HttpServerProvider httpServerProvider;
-  @Mock private HttpServer httpServer;
-  @Mock private AccessLogFilterProvider accessLogFilterProvider;
-  @Mock private AccessTokenAuthFilter accessTokenAuthFilter;
+  @Mock
+  private ResourceConfigProvider resourceConfigProvider;
+  @Mock
+  private ResourceConfig resourceConfig;
+  @Mock
+  private HttpServerProvider httpServerProvider;
+  @Mock
+  private HttpServer httpServer;
+  @Mock
+  private AccessLogFilterProvider accessLogFilterProvider;
+  @Mock
+  private AccessTokenAuthFilter accessTokenAuthFilter;
   private Injector injector;
   private App app;
 
@@ -57,7 +63,7 @@ public class AppImplTest extends Mockito {
   }
 
   @Test
-  public void ConfigureAndStart() throws IOException, ConfigException {
+  public void ConfigureAndStart() throws IOException, CoreException {
     when(httpServerProvider.get())
       .thenReturn(httpServer);
     when(resourceConfigProvider.get("io.xj.core.resource"))
@@ -70,13 +76,13 @@ public class AppImplTest extends Mockito {
     verify(httpServer).start();
   }
 
-  @Test(expected = ConfigException.class)
-  public void Start_FailureToConfigureFirst() throws IOException, ConfigException {
+  @Test(expected = CoreException.class)
+  public void Start_FailureToConfigureFirst() throws IOException, CoreException {
     app.start();
   }
 
   @Test(expected = IOException.class)
-  public void Start_IOFailure() throws IOException, ConfigException {
+  public void Start_IOFailure() throws IOException, CoreException {
     when(httpServerProvider.get())
       .thenReturn(httpServer);
     doThrow(new IOException("this is a test of application start failed"))

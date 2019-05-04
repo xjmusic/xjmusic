@@ -1,39 +1,36 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.dao;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
-import io.xj.core.exception.BusinessException;
+import io.xj.core.exception.CoreException;
 import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.model.user.User;
 import io.xj.core.model.user_access_token.UserAccessToken;
 import io.xj.core.model.user_auth.UserAuth;
 import io.xj.core.model.user_auth.UserAuthType;
 import io.xj.core.model.user_role.UserRoleType;
-import io.xj.core.transport.JSON;
-
-import com.google.common.collect.ImmutableMap;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-
 import org.assertj.core.util.Lists;
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import java.math.BigInteger;
+import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class UserIT {
-  @Rule public ExpectedException failure = ExpectedException.none();
   private final Injector injector = Guice.createInjector(new CoreModule());
+  @Rule
+  public ExpectedException failure = ExpectedException.none();
   private UserDAO testDAO;
 
   @Before
@@ -45,28 +42,23 @@ public class UserIT {
 
     // John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
     IntegrationTestEntity.insertUser(2, "john", "john@email.com", "http://pictures.com/john.gif");
-    IntegrationTestEntity.insertUserRole(1, 2, UserRoleType.User);
-    IntegrationTestEntity.insertUserRole(2, 2, UserRoleType.Admin);
-    IntegrationTestEntity.insertAccountUser(3, 1, 2);
-    IntegrationTestEntity.insertUserAuth(102, 2, UserAuthType.Google, "external_access_token_123", "external_refresh_token_123", "22222");
-    IntegrationTestEntity.insertUserAccessToken(2, 102, "this-is-my-actual-access-token");
+    IntegrationTestEntity.insertUserRole(2, UserRoleType.User);
+    IntegrationTestEntity.insertUserRole(2, UserRoleType.Admin);
+    IntegrationTestEntity.insertAccountUser(1, 2);
+    IntegrationTestEntity.insertUserAuth(2, UserAuthType.Google, "external_access_token_123", "external_refresh_token_123", "22222");
+    IntegrationTestEntity.insertUserAccessToken(2, UserAuthType.Google, "this-is-my-actual-access-token");
 
     // Jenny has a "user" role and belongs to account "bananas"
     IntegrationTestEntity.insertUser(3, "jenny", "jenny@email.com", "http://pictures.com/jenny.gif");
-    IntegrationTestEntity.insertUserRole(5, 3, UserRoleType.User);
-    IntegrationTestEntity.insertAccountUser(6, 1, 3);
+    IntegrationTestEntity.insertUserRole(3, UserRoleType.User);
+    IntegrationTestEntity.insertAccountUser(1, 3);
 
     // Bill has a "user" role but no account membership
     IntegrationTestEntity.insertUser(4, "bill", "bill@email.com", "http://pictures.com/bill.gif");
-    IntegrationTestEntity.insertUserRole(7, 4, UserRoleType.User);
+    IntegrationTestEntity.insertUserRole(4, UserRoleType.User);
 
     // Instantiate the test subject
     testDAO = injector.getInstance(UserDAO.class);
-  }
-
-  @After
-  public void tearDown() throws Exception {
-    testDAO = null;
   }
 
   @Test
@@ -157,25 +149,6 @@ public class UserIT {
   }
 
   @Test
-  public void readOne_toJSONObject() throws Exception {
-    Access access = new Access(ImmutableMap.of(
-      "roles", "User",
-      "accounts", "1"
-    ));
-
-    User result = testDAO.readOne(access, BigInteger.valueOf(2L));
-    assertNotNull(result);
-    JSONObject resultJSON = JSON.objectFrom(result);
-
-    assertNotNull(resultJSON);
-    assertEquals(2, resultJSON.get("id"));
-    assertEquals("john@email.com", resultJSON.get("email"));
-    assertEquals("http://pictures.com/john.gif", resultJSON.get("avatarUrl"));
-    assertEquals("john", resultJSON.get("name"));
-    assertEquals("User,Admin", resultJSON.get("roles"));
-  }
-
-  @Test
   public void readOne_UserSeesAnotherUserWithCommonAccountMembership() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "User",
@@ -198,10 +171,10 @@ public class UserIT {
       "roles", "User",
       "accounts", "1"
     ));
+    failure.expect(CoreException.class);
+    failure.expectMessage("does not exist");
 
-    User result = testDAO.readOne(access, BigInteger.valueOf(4L));
-
-    assertNull(result);
+    testDAO.readOne(access, BigInteger.valueOf(4L));
   }
 
   @Test
@@ -225,10 +198,9 @@ public class UserIT {
       "accounts", "1"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, Lists.newArrayList()));
+    Collection<User> result = testDAO.readAll(access, Lists.newArrayList());
 
-    assertNotNull(result);
-    assertEquals(3L, (long) result.length());
+    assertEquals(3L, result.size());
   }
 
   @Test
@@ -238,10 +210,9 @@ public class UserIT {
       "accounts", "1"
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, Lists.newArrayList()));
+    Collection<User> result = testDAO.readAll(access, Lists.newArrayList());
 
-    assertNotNull(result);
-    assertEquals(2L, (long) result.length());
+    assertEquals(2L, result.size());
   }
 
   @Test
@@ -252,21 +223,23 @@ public class UserIT {
       "accounts", ""
     ));
 
-    JSONArray result = JSON.arrayOf(testDAO.readAll(access, Lists.newArrayList()));
+    Collection<User> result = testDAO.readAll(access, Lists.newArrayList());
 
     assertNotNull(result);
-    assertEquals(1L, (long) result.length());
-    JSONObject resultSub = (JSONObject) result.get(0);
-    assertEquals("bill", resultSub.get("name"));
+    assertEquals(1L, result.size());
+    assertEquals("bill", result.iterator().next().getName());
   }
 
   @Test
   public void destroyAllTokens() throws Exception {
     testDAO.destroyAllTokens(BigInteger.valueOf(2L));
 
-    UserAccessToken result = testDAO.readOneAccessToken(Access.internal(), "this-is-my-actual-access-token");
-    assertNull(result);
-    // future test: token destroyed in Redis
+    try {
+      testDAO.readOneAccessToken(Access.internal(), "this-is-my-actual-access-token");
+      fail();
+    } catch (CoreException e) {
+      assertTrue(e.getMessage().contains("does not exist"));
+    }
   }
 
   @Test
@@ -280,13 +253,22 @@ public class UserIT {
     testDAO.updateUserRolesAndDestroyTokens(access, BigInteger.valueOf(2L), inputData);
 
     // Access Token deleted
-    UserAccessToken result = testDAO.readOneAccessToken(Access.internal(), "this-is-my-actual-access-token");
-    assertNull(result);
+    try {
+      testDAO.readOneAccessToken(Access.internal(), "this-is-my-actual-access-token");
+      fail();
+    } catch (CoreException e) {
+      assertTrue(e.getMessage().contains("does not exist"));
+    }
     // future test: token destroyed in Redis
     // Added artist role
     assertNotNull(testDAO.readOneRole(Access.internal(), BigInteger.valueOf(2L), UserRoleType.Artist));
     // Removed admin role
-    assertNull(testDAO.readOneRole(Access.internal(), BigInteger.valueOf(2L), UserRoleType.Admin));
+    try {
+      testDAO.readOneRole(Access.internal(), BigInteger.valueOf(2L), UserRoleType.Admin);
+      fail();
+    } catch (CoreException e) {
+      assertTrue(e.getMessage().contains("does not exist"));
+    }
   }
 
   /**
@@ -295,8 +277,8 @@ public class UserIT {
   @Test
   public void updateUserRoles_fromLegacyFormat() throws Exception {
     IntegrationTestEntity.insertUser(53, "julio", "julio.rodriguez@xj.io", "http://pictures.com/julio.gif");
-    IntegrationTestEntity.insertUserRole(152, 53, "user");
-    IntegrationTestEntity.insertUserRole(153, 53, "artist");
+    IntegrationTestEntity.insertUserRole(53, "user");
+    IntegrationTestEntity.insertUserRole(53, "artist");
     Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
@@ -317,8 +299,8 @@ public class UserIT {
   @Test
   public void updateUserRoles_withLegacyFormat() throws Exception {
     IntegrationTestEntity.insertUser(53, "julio", "julio.rodriguez@xj.io", "http://pictures.com/julio.gif");
-    IntegrationTestEntity.insertUserRole(152, 53, "user");
-    IntegrationTestEntity.insertUserRole(153, 53, "artist");
+    IntegrationTestEntity.insertUserRole(53, "user");
+    IntegrationTestEntity.insertUserRole(53, "artist");
     Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
@@ -339,15 +321,15 @@ public class UserIT {
   @Test
   public void updateUserRoles_cannotRemoveAllRoles() throws Exception {
     IntegrationTestEntity.insertUser(53, "julio", "julio.rodriguez@xj.io", "http://pictures.com/julio.gif");
-    IntegrationTestEntity.insertUserRole(152, 53, UserRoleType.User);
-    IntegrationTestEntity.insertUserRole(153, 53, UserRoleType.Artist);
+    IntegrationTestEntity.insertUserRole(53, UserRoleType.User);
+    IntegrationTestEntity.insertUserRole(53, UserRoleType.Artist);
     Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
     User inputData = new User()
       .setRoles(",");
 
-    failure.expect(BusinessException.class);
+    failure.expect(CoreException.class);
     failure.expectMessage("Valid Role is required");
 
     testDAO.updateUserRolesAndDestroyTokens(access, BigInteger.valueOf(53L), inputData);
@@ -359,15 +341,15 @@ public class UserIT {
   @Test
   public void updateUserRoles_cannotRemoveAllRoles_invalidRole() throws Exception {
     IntegrationTestEntity.insertUser(53, "julio", "julio.rodriguez@xj.io", "http://pictures.com/julio.gif");
-    IntegrationTestEntity.insertUserRole(152, 53, UserRoleType.User);
-    IntegrationTestEntity.insertUserRole(153, 53, UserRoleType.Artist);
+    IntegrationTestEntity.insertUserRole(53, UserRoleType.User);
+    IntegrationTestEntity.insertUserRole(53, UserRoleType.Artist);
     Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
     User inputData = new User()
       .setRoles("shmengineer");
 
-    failure.expect(BusinessException.class);
+    failure.expect(CoreException.class);
     failure.expectMessage("'Shmengineer' is not a valid role");
 
     testDAO.updateUserRolesAndDestroyTokens(access, BigInteger.valueOf(53L), inputData);

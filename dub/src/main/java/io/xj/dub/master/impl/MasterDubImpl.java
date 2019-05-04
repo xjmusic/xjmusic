@@ -4,18 +4,17 @@ package io.xj.dub.master.impl;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import io.xj.core.access.impl.Access;
 import io.xj.core.cache.audio.AudioCacheProvider;
 import io.xj.core.config.Config;
-import io.xj.core.dao.SegmentMessageDAO;
-import io.xj.core.exception.BusinessException;
+import io.xj.core.exception.CoreException;
+import io.xj.core.fabricator.Fabricator;
 import io.xj.core.model.audio.Audio;
 import io.xj.core.model.chain_config.ChainConfigType;
 import io.xj.core.model.message.MessageType;
 import io.xj.core.model.pick.Pick;
 import io.xj.core.model.segment_message.SegmentMessage;
 import io.xj.core.util.Text;
-import io.xj.craft.basis.Basis;
+import io.xj.craft.exception.CraftException;
 import io.xj.dub.master.MasterDub;
 import io.xj.mixer.Mixer;
 import io.xj.mixer.MixerConfig;
@@ -34,31 +33,29 @@ import java.util.Objects;
  [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
  */
 public class MasterDubImpl implements MasterDub {
+  private static final int MICROSECONDS_PER_SECOND = 1000000;
   private final Logger log = LoggerFactory.getLogger(MasterDubImpl.class);
-  private final Basis basis;
+  private final Fabricator fabricator;
   private final MixerFactory mixerFactory;
-  private final SegmentMessageDAO segmentMessageDAO;
   private final List<String> warnings = Lists.newArrayList();
   private final AudioCacheProvider audioCacheProvider;
+  private final long audioAttackMicros = Config.getMixerSampleAttackMicros();
+  private final long audioReleaseMicros = Config.getMixerSampleReleaseMicros();
   private Mixer _mixer;
-  private long audioAttackMicros = Config.getMixerSampleAttackMicros();
-  private long audioReleaseMicros = Config.getMixerSampleReleaseMicros();
 
   @Inject
   public MasterDubImpl(
-    @Assisted("basis") Basis basis,
+    @Assisted("basis") Fabricator fabricator,
     AudioCacheProvider audioCacheProvider,
-    SegmentMessageDAO segmentMessageDAO,
     MixerFactory mixerFactory
     /*-*/) {
     this.audioCacheProvider = audioCacheProvider;
-    this.basis = basis;
-    this.segmentMessageDAO = segmentMessageDAO;
+    this.fabricator = fabricator;
     this.mixerFactory = mixerFactory;
   }
 
   @Override
-  public void doWork() throws BusinessException {
+  public void doWork() throws CoreException, CraftException {
     try {
       doMixerSourceLoading();
       doMixerTargetSetting();
@@ -66,12 +63,12 @@ public class MasterDubImpl implements MasterDub {
       reportWarnings();
       report();
 
-    } catch (BusinessException e) {
+    } catch (CoreException e) {
       throw e;
     } catch (Exception e) {
-      throw new BusinessException(
+      throw new CoreException(
         String.format("Failed to do %s-type MasterDub for segment #%s",
-          basis.type(), basis.segment().getId().toString()), e);
+          fabricator.getType(), fabricator.getSegment().getId().toString()), e);
     }
   }
 
@@ -79,8 +76,8 @@ public class MasterDubImpl implements MasterDub {
    @throws Exception if failed to stream data of item from cache
    */
   private void doMixerSourceLoading() throws Exception {
-    for (BigInteger audioId : basis.segmentAudioIds()) {
-      Audio audio = basis.segmentAudio(audioId);
+    for (BigInteger audioId : fabricator.getAllSegmentAudioIds()) {
+      Audio audio = fabricator.getSegmentAudio(audioId);
       String key = audio.getWaveformKey();
 
       try {
@@ -98,8 +95,8 @@ public class MasterDubImpl implements MasterDub {
   /**
    Implements Mixer module to set playback for Picks in current Segment
    */
-  private void doMixerTargetSetting() throws Exception {
-    for (Pick pick : basis.picks())
+  private void doMixerTargetSetting() {
+    for (Pick pick : fabricator.getSegment().getPicks())
       try {
         setupTarget(pick);
       } catch (Exception e) {
@@ -116,13 +113,13 @@ public class MasterDubImpl implements MasterDub {
    @param pick to set playback for
    */
   private void setupTarget(Pick pick) throws Exception {
-    double pitchRatio = basis.segmentAudio(pick.getAudioId()).getPitch() / pick.getPitch();
-    double offsetStart = basis.segmentAudio(pick.getAudioId()).getStart() / pitchRatio;
+    double pitchRatio = fabricator.getSegmentAudio(pick.getAudioId()).getPitch() / pick.getPitch();
+    double offsetStart = fabricator.getSegmentAudio(pick.getAudioId()).getStart() / pitchRatio;
 
     mixer().put(
       pick.getAudioId().toString(),
-      basis.atMicros(pick.getStart() - offsetStart),
-      basis.atMicros(pick.getStart() + pick.getLength()),
+      toMicros(pick.getStart() - offsetStart),
+      toMicros(pick.getStart() + pick.getLength()),
       audioAttackMicros,
       audioReleaseMicros,
       pick.getAmplitude(), pitchRatio, 0);
@@ -132,8 +129,8 @@ public class MasterDubImpl implements MasterDub {
    MasterDub implements Mixer module to mix final output to waveform streamed directly to Amazon S3
    */
   private void doMix() throws Exception {
-    float quality = Float.valueOf(basis.chainConfig(ChainConfigType.OutputEncodingQuality).getValue());
-    mixer().mixToFile(OutputEncoder.OGG_VORBIS, basis.outputFilePath(), quality);
+    float quality = Float.valueOf(fabricator.getChainConfig(ChainConfigType.OutputEncodingQuality).getValue());
+    mixer().mixToFile(OutputEncoder.OGG_VORBIS, fabricator.getOutputFilePath(), quality);
   }
 
   /**
@@ -144,7 +141,7 @@ public class MasterDubImpl implements MasterDub {
    */
   private Mixer mixer() throws Exception {
     if (Objects.isNull(_mixer)) {
-      MixerConfig config = new MixerConfig(basis.outputAudioFormat(), basis.segmentTotalLength())
+      MixerConfig config = new MixerConfig(fabricator.getOutputAudioFormat(), fabricator.getSegmentTotalLength())
         .setNormalizationMax(Config.getMixerNormalizationMax())
         .setDSPBufferSize(Config.getDSPBufferSize())
         .setCompressRatioMax(Config.getMixerCompressRatioMax())
@@ -160,21 +157,12 @@ public class MasterDubImpl implements MasterDub {
     return _mixer;
   }
 
-  /**
-   get output audio container from chain config
-
-   @return output container
-   @throws Exception on failure
-   */
-  private OutputEncoder outputAudioContainer() throws Exception {
-    return OutputEncoder.valueOf(basis.chainConfig(ChainConfigType.OutputContainer).getValue());
-  }
 
   /**
    Report
    */
   private void report() {
-    // basis.report() anything else interesting from the dub operation
+    // fabricator.report() anything else interesting from the dub operation
   }
 
   /**
@@ -198,13 +186,23 @@ public class MasterDubImpl implements MasterDub {
    */
   private void createSegmentMessage(MessageType type, String body) {
     try {
-      segmentMessageDAO.create(Access.internal(), new SegmentMessage()
+      fabricator.add(new SegmentMessage()
         .setType(type.toString())
-        .setSegmentId(basis.segment().getId())
+        .setSegmentId(fabricator.getSegment().getId())
         .setBody(body));
     } catch (Exception e1) {
       log.warn("Failed to create SegmentMessage", e1);
     }
+  }
+
+  /**
+   Microseconds of seconds
+
+   @param seconds to convert
+   @return microseconds
+   */
+  private Long toMicros(Double seconds) {
+    return (long) (seconds * MICROSECONDS_PER_SECOND);
   }
 
 }

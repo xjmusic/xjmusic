@@ -3,8 +3,7 @@ package io.xj.core.external.google;
 
 import io.xj.core.config.Config;
 import io.xj.core.config.Exposure;
-import io.xj.core.exception.AccessException;
-import io.xj.core.exception.ConfigException;
+import io.xj.core.exception.CoreException;
 
 import com.google.api.client.auth.oauth2.AuthorizationCodeRequestUrl;
 import com.google.api.client.auth.oauth2.TokenResponseException;
@@ -29,12 +28,12 @@ import java.io.IOException;
 import java.util.Collection;
 
 public class GoogleProviderImpl implements GoogleProvider {
-  private final static String CALLBACK_PATH = "auth/google/callback";
-  private final static Collection<String> SCOPES = ImmutableList.of("profile", "email");
-  private final static String API_PEOPLE_ENDPOINT = "https://www.googleapis.com/plus/v1/people/me";
-  private static Logger log = LoggerFactory.getLogger(GoogleProviderImpl.class);
-  private GoogleHttpProvider googleHttpProvider;
-  private JsonFactory jsonFactory;
+  private static final String CALLBACK_PATH = "auth/google/callback";
+  private static final Collection<String> SCOPES = ImmutableList.of("profile", "email");
+  private static final String API_PEOPLE_ENDPOINT = "https://www.googleapis.com/plus/v1/people/me";
+  private static final Logger log = LoggerFactory.getLogger(GoogleProviderImpl.class);
+  private final GoogleHttpProvider googleHttpProvider;
+  private final JsonFactory jsonFactory;
 
   private String clientId;
   private String clientSecret;
@@ -47,15 +46,15 @@ public class GoogleProviderImpl implements GoogleProvider {
     this.googleHttpProvider = googleHttpProvider;
     this.jsonFactory = jsonFactory;
     try {
-      this.clientId = Config.authGoogleId();
-      this.clientSecret = Config.authGoogleSecret();
-    } catch (ConfigException e) {
-      log.error("Failed to initialize Google Provider: " + e.getMessage());
+      clientId = Config.authGoogleId();
+      clientSecret = Config.authGoogleSecret();
+    } catch (CoreException e) {
+      log.error("Failed to initialize Google Provider: {}", e.getMessage());
     }
   }
 
   @Override
-  public String getAuthCodeRequestUrl() throws ConfigException {
+  public String getAuthCodeRequestUrl() throws CoreException {
     return new AuthorizationCodeRequestUrl(GoogleOAuthConstants.AUTHORIZATION_SERVER_URL, clientId)
       .setResponseTypes(ImmutableList.of("code"))
       .setRedirectUri(getCallbackUrl())
@@ -65,43 +64,42 @@ public class GoogleProviderImpl implements GoogleProvider {
   }
 
   @Override
-  public String getCallbackUrl() throws ConfigException {
+  public String getCallbackUrl() {
     return Exposure.apiUrlString(CALLBACK_PATH);
   }
 
   @Override
-  public GoogleTokenResponse getTokenFromCode(String code) throws AccessException, ConfigException {
-    GoogleAuthorizationCodeTokenRequest request;
+  public GoogleTokenResponse getTokenFromCode(String code) throws CoreException {
     GoogleTokenResponse response;
     try {
       HttpTransport httpTransport = googleHttpProvider.getTransport();
-      request = new GoogleAuthorizationCodeTokenRequest(httpTransport, jsonFactory,
+      GoogleAuthorizationCodeTokenRequest request = new GoogleAuthorizationCodeTokenRequest(httpTransport, jsonFactory,
         clientId, clientSecret,
-        code, this.getCallbackUrl());
+        code, getCallbackUrl());
       response = request.execute();
     } catch (TokenResponseException e) {
       log.error("GoogleProvider.getTokenFromCode failed to retrieve token response: {}", detailsOfTokenException(e));
-      throw new AccessException("Failed to retrieve token response for Google OAuth2 code.");
+      throw new CoreException("Failed to retrieve token response for Google OAuth2 code.", e);
     } catch (IOException e) {
       log.error("GoogleProvider.getTokenFromCode had I/O failure!", e);
-      throw new AccessException("I/O failure.");
+      throw new CoreException("I/O failure.", e);
     }
 
     return response;
   }
 
-  private String detailsOfTokenException(TokenResponseException e) {
+  private static String detailsOfTokenException(TokenResponseException e) {
     return
-      (e.getMessage() != null ? e.getMessage() : "") +
-        (e.getDetails() != null ? (
-          (e.getDetails().getError() != null ? e.getDetails().getError() : "") +
-            (e.getDetails().getErrorDescription() != null ? e.getDetails().getErrorDescription() : "") +
-            (e.getDetails().getErrorUri() != null ? e.getDetails().getErrorUri() : "")
+      (null != e.getMessage() ? e.getMessage() : "") +
+        (null != e.getDetails() ? (
+          (null != e.getDetails().getError() ? e.getDetails().getError() : "") +
+            (null != e.getDetails().getErrorDescription() ? e.getDetails().getErrorDescription() : "") +
+            (null != e.getDetails().getErrorUri() ? e.getDetails().getErrorUri() : "")
         ) : "");
   }
 
   @Override
-  public Person getMe(String externalAccessToken) throws AccessException {
+  public Person getMe(String externalAccessToken) throws CoreException {
     GoogleCredential credential = new GoogleCredential()
       .setAccessToken(externalAccessToken)
       .createScoped(SCOPES);
@@ -114,16 +112,14 @@ public class GoogleProviderImpl implements GoogleProvider {
       HttpResponse response = request.execute();
       responseJson = response.parseAsString();
     } catch (IOException e) {
-      log.error("Failed to request profile from Google+ API: {}", e);
-      throw new AccessException("Failed to request profile from Google+ API: " + e.getMessage());
+      throw new CoreException("Failed to request profile from Google+ API: ", e);
     }
 
     Person person;
     try {
       person = jsonFactory.createJsonParser(responseJson).parse(Person.class);
     } catch (Exception e) {
-      log.error("Google API result is not isValid JSON", e);
-      throw new AccessException("Google API result is not isValid JSON: " + e);
+      throw new CoreException("Google API result is not isValid JSON", e);
     }
 
     return person;

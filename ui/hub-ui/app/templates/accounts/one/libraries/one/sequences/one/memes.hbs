@@ -3,43 +3,38 @@
 <!-- Inner Content -->
 {{outlet}}
 
-<!-- Container -->
-<div class="form-horizontal container-fluid">
-
-  <!-- Only show list of records if non-empty -->
-  {{#if model.sequenceMemes.length}}
-
-    <!-- List of Records -->
-    <div class="col-sm-12">
-      <div class="table-list">
-        <table class="table">
-          <thead>
-          <tr>
-            <th>Name</th>
-            <th>Action</th>
-          </tr>
-          </thead>
-          <tbody>
-          {{#each model.sequenceMemes as |sequenceMeme|}}
-            <tr>
-              <td>{{sequenceMeme.name}}</td>
-              <td>
-                <button {{action "destroySequenceMeme" sequenceMeme}}>Remove</button>
-              </td>
-            </tr>
-          {{/each}}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  {{else}}
+<!-- Only show list of records if non-empty -->
+{{#if model.sequenceMemes.length}}
+  <div class="table-list">
+    <table class="table">
+      <thead>
+      <tr>
+        <th>Name</th>
+        <th>Action</th>
+      </tr>
+      </thead>
+      <tbody>
+      {{#each model.sequenceMemes as |sequenceMeme|}}
+        <tr>
+          <td>{{sequenceMeme.name}}</td>
+          <td>
+            <button {{action "destroySequenceMeme" sequenceMeme}}>Remove</button>
+          </td>
+        </tr>
+      {{/each}}
+      </tbody>
+    </table>
+  </div>
+{{else}}
+  <div class="form-horizontal container-fluid">
     <div class="col-sm-12">
       <p>No Memes are bound to this Sequence.</p>
     </div>
-  {{/if}}
+  </div>
+{{/if}}
 
-  <!-- Add a Meme to this Sequence -->
-
+<!-- Add a Meme to this Sequence -->
+<div class="form-horizontal container-fluid">
   <div class="form-group row">
     <label class="col-sm-2 control-label">Meme to add</label>
     <div class="col-sm-10">
@@ -56,5 +51,4 @@
       </button>
     </div>
   </div>
-
 </div>

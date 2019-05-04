@@ -1,8 +1,8 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.external.google;
 
-import io.xj.core.exception.AccessException;
-import io.xj.core.exception.ConfigException;
+import io.xj.core.exception.CoreException;
+import io.xj.core.exception.CoreException;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
 import com.google.api.services.plus.model.Person;
@@ -14,26 +14,26 @@ public interface GoogleProvider {
    auth.google.secret
 
    @return String authorization code request URL
-   @throws ConfigException if required system properties are not set
+   @throws CoreException if required system properties are not set
    */
-  String getAuthCodeRequestUrl() throws ConfigException;
+  String getAuthCodeRequestUrl() throws CoreException;
 
   /**
    URI that the authorization server directs the resource owner's user-agent back to
 
    @return String URI
-   @throws ConfigException if required system properties are not set.
+   @throws CoreException if required system properties are not set.
    */
-  String getCallbackUrl() throws ConfigException;
+  String getCallbackUrl() throws CoreException;
 
   /**
    Submits the access code to the token server for an OAuth2 access_token
 
    @param code from the first leg of the OAuth2 flow
    @return String access_token from a successful completed OAuth2 flow
-   @throws AccessException if authentication fails
+   @throws CoreException if authentication fails
    */
-  GoogleTokenResponse getTokenFromCode(String code) throws AccessException, ConfigException;
+  GoogleTokenResponse getTokenFromCode(String code) throws CoreException, CoreException;
 
   /**
    Retrieves the authenticating user's Google API person data.
@@ -80,7 +80,7 @@ public interface GoogleProvider {
 
    @param access_token for OAuth2 access to Google API on behalf of authenticating user
    @return profile as JSON
-   @throws AccessException if auth fails
+   @throws CoreException if auth fails
    */
-  Person getMe(String access_token) throws AccessException;
+  Person getMe(String access_token) throws CoreException;
 }

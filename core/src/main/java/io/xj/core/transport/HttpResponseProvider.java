@@ -3,8 +3,6 @@ package io.xj.core.transport;
 
 import io.xj.core.model.entity.Entity;
 
-import org.json.JSONObject;
-
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import java.util.Collection;
@@ -84,22 +82,12 @@ public interface HttpResponseProvider {
   Response notAcceptable(String message);
 
   /**
-   Return a response that one record has been read, else an error
+   Return a response having read a POJO
 
-   @param keyOne key for one record
-   @param entity of record that was read, or null if a 404 ought to be returned instead
+   @param obj any POJO (should be a wrapper that names all entities at the root)
    @return response
    */
-  Response readOne(String keyOne, Entity entity);
-
-  /**
-   Return a response that one JSON object has been read, else an error
-
-   @param keyOne key for one record
-   @param obj    of JSON object that was read, or null if a 404 ought to be returned instead
-   @return response
-   */
-  Response readOne(String keyOne, JSONObject obj);
+  Response readOne(String key, Object obj);
 
   /**
    Return a response that many records have been read, else an error
@@ -108,7 +96,7 @@ public interface HttpResponseProvider {
    @param results of records that were read, or null if a 404 ought to be returned instead
    @return response
    */
-  <J extends Entity> Response readMany(String keyMany, Collection<J> results) throws Exception;
+  Response readMany(String keyMany, Collection results) throws Exception;
 
   /**
    Return a response that the request has been created, else an error

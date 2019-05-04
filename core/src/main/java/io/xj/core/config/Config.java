@@ -1,10 +1,19 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.config;
 
-import io.xj.core.exception.ConfigException;
+import com.google.common.collect.Maps;
+import io.xj.core.exception.CoreException;
+import io.xj.core.model.chain.ChainState;
+import io.xj.core.model.chain.ChainType;
+import io.xj.core.model.chain_config.ChainConfigType;
+import io.xj.core.model.instrument.InstrumentType;
+import io.xj.core.model.pattern.PatternType;
+import io.xj.core.model.segment.SegmentState;
+import io.xj.core.model.sequence.SequenceType;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -79,23 +88,23 @@ public interface Config {
   int DEFAULT_WORK_CONCURRENCY = 10;
   int DEFAULT_WORK_ENQUEUE_NOW_DELAY_MILLIS = 10;
 
-  static String authGoogleId() throws ConfigException {
+  static String authGoogleId() throws CoreException {
     return get("auth.google.id");
   }
 
-  static String authGoogleSecret() throws ConfigException {
+  static String authGoogleSecret() throws CoreException {
     return get("auth.google.secret");
   }
 
-  static String awsAccessKeyId() throws ConfigException {
+  static String awsAccessKeyId() throws CoreException {
     return get("aws.accessKeyId");
   }
 
-  static String awsSecretKey() throws ConfigException {
+  static String awsSecretKey() throws CoreException {
     return get("aws.secretKey");
   }
 
-  static String audioFileBucket() throws ConfigException {
+  static String audioFileBucket() throws CoreException {
     return get("audio.file.bucket");
   }
 
@@ -166,42 +175,42 @@ public interface Config {
   /**
    @return Audio File upload expire # minutes (for Amazon S3)
    */
-  static int audioFileUploadExpireMinutes() throws ConfigException {
+  static int audioFileUploadExpireMinutes() throws CoreException {
     return getInt("audio.file.upload.expire.minutes");
   }
 
   /**
    @return Audio file upload ACL (for Amazon S3)
    */
-  static String audioFileUploadACL() throws ConfigException {
+  static String audioFileUploadACL() throws CoreException {
     return get("audio.file.upload.acl");
   }
 
   /**
    @return Audio base URL (for Amazon S3)
    */
-  static String audioBaseUrl() throws ConfigException {
+  static String audioBaseUrl() throws CoreException {
     return get("audio.url.base");
   }
 
   /**
    @return Audio upload URL (for Amazon S3)
    */
-  static String audioUploadUrl() throws ConfigException {
+  static String audioUploadUrl() throws CoreException {
     return get("audio.url.upload");
   }
 
   /**
    @return Segment File Bucket (for Amazon S3)
    */
-  static String segmentFileBucket() throws ConfigException {
+  static String segmentFileBucket() throws CoreException {
     return get("segment.file.bucket");
   }
 
   /**
    @return Segments base URL (for Amazon S3)
    */
-  static String segmentBaseUrl() throws ConfigException {
+  static String segmentBaseUrl() throws CoreException {
     return get("segment.url.base");
   }
 
@@ -272,7 +281,7 @@ public interface Config {
   /**
    @return platform heartbeat key
    */
-  static String platformHeartbeatKey() throws ConfigException {
+  static String platformHeartbeatKey() throws CoreException {
     return get("platform.heartbeat.key");
   }
 
@@ -517,7 +526,7 @@ public interface Config {
     }
   }
 
-  static Boolean is(String key) throws ConfigException {
+  static Boolean is(String key) throws CoreException {
     String value = get(key);
     return Boolean.valueOf(value);
   }
@@ -532,7 +541,7 @@ public interface Config {
   static Boolean isOrDefault(String key, Boolean defaultValue) {
     try {
       return is(key);
-    } catch (ConfigException ignored) {
+    } catch (CoreException ignored) {
       return defaultValue;
     }
   }
@@ -542,9 +551,9 @@ public interface Config {
 
    @param key of system property to get
    @return value
-   @throws ConfigException if the system property is not set
+   @throws CoreException if the system property is not set
    */
-  static Integer getInt(String key) throws ConfigException {
+  static Integer getInt(String key) throws CoreException {
     String value = get(key);
     return Integer.valueOf(value);
   }
@@ -554,9 +563,9 @@ public interface Config {
 
    @param key of system property to get
    @return value
-   @throws ConfigException if the system property is not set
+   @throws CoreException if the system property is not set
    */
-  static Long getLong(String key) throws ConfigException {
+  static Long getLong(String key) throws CoreException {
     String value = get(key);
     return Long.valueOf(value);
   }
@@ -566,9 +575,9 @@ public interface Config {
 
    @param key of system property to get
    @return value
-   @throws ConfigException if the system property is not set
+   @throws CoreException if the system property is not set
    */
-  static Double getDouble(String key) throws ConfigException {
+  static Double getDouble(String key) throws CoreException {
     String value = get(key);
     return Double.valueOf(value);
   }
@@ -583,7 +592,7 @@ public interface Config {
   static Integer getIntOrDefault(String key, Integer defaultValue) {
     try {
       return getInt(key);
-    } catch (ConfigException ignored) {
+    } catch (CoreException ignored) {
       return defaultValue;
     }
   }
@@ -598,7 +607,7 @@ public interface Config {
   static Long getLongOrDefault(String key, Long defaultValue) {
     try {
       return getLong(key);
-    } catch (ConfigException ignored) {
+    } catch (CoreException ignored) {
       return defaultValue;
     }
   }
@@ -613,7 +622,7 @@ public interface Config {
   static Double getDoubleOrDefault(String key, Double defaultValue) {
     try {
       return getDouble(key);
-    } catch (ConfigException ignored) {
+    } catch (CoreException ignored) {
       return defaultValue;
     }
   }
@@ -623,12 +632,12 @@ public interface Config {
 
    @param key of system property to get
    @return value
-   @throws ConfigException if the system property is not set
+   @throws CoreException if the system property is not set
    */
-  static String get(String key) throws ConfigException {
+  static String get(String key) throws CoreException {
     String value = System.getProperty(key);
     if (Objects.isNull(value)) {
-      throw new ConfigException("Must set system property: " + key);
+      throw new CoreException("Must set system property: " + key);
     }
     return value;
   }
@@ -643,7 +652,7 @@ public interface Config {
   static String getOrDefault(String key, String defaultValue) {
     try {
       return get(key);
-    } catch (ConfigException ignored) {
+    } catch (CoreException ignored) {
       return defaultValue;
     }
   }
@@ -763,4 +772,5 @@ public interface Config {
   static Integer getMixerSampleReleaseMicros() {
     return getIntOrDefault("mixer.sample.release.micros", DEFAULT_MIXER_SAMPLE_RELEASE_MICROS);
   }
+
 }

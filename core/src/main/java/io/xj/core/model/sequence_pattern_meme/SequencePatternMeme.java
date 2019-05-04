@@ -1,7 +1,9 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.model.sequence_pattern_meme;
 
-import io.xj.core.exception.BusinessException;
+import io.xj.core.exception.CoreException;
+import io.xj.core.model.entity.Entity;
+import io.xj.core.model.entity.impl.EntityImpl;
 import io.xj.core.model.meme.Meme;
 import io.xj.core.util.Text;
 
@@ -18,10 +20,11 @@ import java.util.Objects;
  <p>
  NOTE: There can only be ONE of any getter/setter (with the same # of input params)
  */
-public class SequencePatternMeme extends Meme {
+public class SequencePatternMeme extends EntityImpl implements Meme {
   public static final String KEY_ONE = "sequencePatternMeme";
   public static final String KEY_MANY = "sequencePatternMemes";
   private BigInteger sequencePatternId;
+  private String name;
 
   public BigInteger getSequencePatternId() {
     return sequencePatternId;
@@ -30,6 +33,11 @@ public class SequencePatternMeme extends Meme {
   public SequencePatternMeme setSequencePatternId(BigInteger sequencePatternId) {
     this.sequencePatternId = sequencePatternId;
     return this;
+  }
+
+  @Override
+  public String getName() {
+    return name;
   }
 
   @Override
@@ -44,11 +52,13 @@ public class SequencePatternMeme extends Meme {
   }
 
   @Override
-  public void validate() throws BusinessException {
+  public void validate() throws CoreException {
     if (Objects.isNull(sequencePatternId)) {
-      throw new BusinessException("Sequence Pattern ID is required.");
+      throw new CoreException("Sequence Pattern ID is required.");
     }
-    super.validate();
+    if (Objects.isNull(name) || name.isEmpty()) {
+      throw new CoreException("Name is required.");
+    }
   }
 
 }

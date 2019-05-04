@@ -1,8 +1,9 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.model.point;
 
-import io.xj.core.exception.BusinessException;
+import io.xj.core.exception.CoreException;
 import io.xj.core.model.entity.Entity;
+import io.xj.core.model.entity.impl.EntityImpl;
 import io.xj.core.util.Text;
 
 import java.math.BigInteger;
@@ -19,8 +20,7 @@ or decoding messages received by JAX-RS resources.
  <p>
  NOTE: There can only be ONE of any getter/setter (with the same # of input params)
  */
-public class Point extends Entity {
-
+public class Point extends EntityImpl {
   public static final String KEY_ONE = "point";
   public static final String KEY_MANY = "points";
   private BigInteger morphId;
@@ -90,21 +90,21 @@ public class Point extends Entity {
   }
 
   @Override
-  public void validate() throws BusinessException {
+  public void validate() throws CoreException {
     if (this.morphId == null) {
-      throw new BusinessException("Morph ID is required.");
+      throw new CoreException("Morph ID is required.");
     }
     if (this.patternEventId == null) {
-      throw new BusinessException("PatternEvent ID is required.");
+      throw new CoreException("PatternEvent ID is required.");
     }
     if (this.position == null) {
-      throw new BusinessException("Position is required.");
+      throw new CoreException("Position is required.");
     }
     if (this.duration == null || this.duration == (double) 0) {
-      throw new BusinessException("Duration is required.");
+      throw new CoreException("Duration is required.");
     }
     if (this.note == null || this.note.length() == 0) {
-      throw new BusinessException("Note is required.");
+      throw new CoreException("Note is required.");
     }
   }
 

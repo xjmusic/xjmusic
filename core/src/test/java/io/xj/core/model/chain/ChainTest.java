@@ -1,7 +1,7 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.model.chain;
 
-import io.xj.core.exception.BusinessException;
+import io.xj.core.exception.CoreException;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -14,7 +14,8 @@ import static org.junit.Assert.assertNull;
 
 public class ChainTest {
 
-  @Rule public ExpectedException failure = ExpectedException.none();
+  @Rule
+  public ExpectedException failure = ExpectedException.none();
 
   @Test
   public void validateProductionChain() throws Exception {
@@ -51,7 +52,7 @@ public class ChainTest {
 
   @Test
   public void validateProductionChain_failsWithoutAccountID() throws Exception {
-    failure.expect(BusinessException.class);
+    failure.expect(CoreException.class);
     failure.expectMessage("Account ID is required");
 
     new Chain()
@@ -78,7 +79,7 @@ public class ChainTest {
 
   @Test
   public void validateProductionChain_failsWithInvalidType() throws Exception {
-    failure.expect(BusinessException.class);
+    failure.expect(CoreException.class);
     failure.expectMessage("'bungle' is not a valid type");
 
     new Chain()
@@ -107,7 +108,7 @@ public class ChainTest {
 
   @Test
   public void validateProductionChain_failsWithInvalidState() throws Exception {
-    failure.expect(BusinessException.class);
+    failure.expect(CoreException.class);
     failure.expectMessage("'dangling' is not a valid state");
 
     new Chain()
@@ -122,7 +123,7 @@ public class ChainTest {
 
   @Test
   public void validateProductionChain_failsWithoutName() throws Exception {
-    failure.expect(BusinessException.class);
+    failure.expect(CoreException.class);
     failure.expectMessage("Name is required");
 
     new Chain()
@@ -136,7 +137,7 @@ public class ChainTest {
 
   @Test
   public void validateProductionChain_failsWithoutStartAt() throws Exception {
-    failure.expect(BusinessException.class);
+    failure.expect(CoreException.class);
     failure.expectMessage("Start-at is required");
 
     new Chain()
@@ -149,7 +150,7 @@ public class ChainTest {
 
   @Test
   public void validateProductionChain_failsWithInvalidStopTime() throws Exception {
-    failure.expect(BusinessException.class);
+    failure.expect(CoreException.class);
     failure.expectMessage("Stop-at is not isValid");
 
     new Chain()
@@ -184,7 +185,7 @@ public class ChainTest {
    */
   @Test
   public void reviveChain_failsIfNotFabricateState() throws Exception {
-    failure.expect(BusinessException.class);
+    failure.expect(CoreException.class);
     failure.expectMessage("Fabricate-state Chain");
 
     new Chain()
@@ -202,7 +203,7 @@ public class ChainTest {
    */
   @Test
   public void reviveChain_failsIfNotProductionType() throws Exception {
-    failure.expect(BusinessException.class);
+    failure.expect(CoreException.class);
     failure.expectMessage("Production-type Chain");
 
     new Chain()
@@ -213,6 +214,19 @@ public class ChainTest {
       .setStartAt("2014-08-12 12:17:02.527142")
       .setStopAt("2015-08-12 12:17:02.527142")
       .revived();
+  }
+
+  @Test
+  public void create_okToSetNullTimestamp() throws Exception {
+    new Chain()
+      .setAccountId(BigInteger.valueOf(1L))
+      .setName("manuts")
+      .setState("Draft")
+      .setEmbedKey("my $% favorite THINGS")
+      .setType("Production")
+      .setStartAt("2009-08-12 12:17:02.527142")
+      .setStopAt(null)
+      .validate();
   }
 
 }

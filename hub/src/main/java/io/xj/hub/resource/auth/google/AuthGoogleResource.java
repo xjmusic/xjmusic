@@ -1,7 +1,7 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.resource.auth.google;
 
-import io.xj.core.exception.ConfigException;
+import io.xj.core.exception.CoreException;
 import io.xj.core.external.google.GoogleProvider;
 import io.xj.hub.HubResource;
 import org.slf4j.Logger;
@@ -34,7 +34,7 @@ public class AuthGoogleResource extends HubResource {
     String url;
     try {
       url = authGoogleProvider.getAuthCodeRequestUrl();
-    } catch (ConfigException e) {
+    } catch (CoreException e) {
       log.error("Google Auth Provider Failed!", e);
       return Response.serverError().build();
     }

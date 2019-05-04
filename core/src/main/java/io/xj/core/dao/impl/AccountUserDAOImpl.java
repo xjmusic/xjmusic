@@ -3,8 +3,8 @@ package io.xj.core.dao.impl;
 
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.AccountUserDAO;
-import io.xj.core.exception.BusinessException;
-import io.xj.core.exception.ConfigException;
+import io.xj.core.exception.CoreException;
+import io.xj.core.exception.CoreException;
 import io.xj.core.model.account_user.AccountUser;
 import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import io.xj.core.persistence.sql.impl.SQLConnection;
@@ -37,11 +37,11 @@ public class AccountUserDAOImpl extends DAOImpl implements AccountUserDAO {
    @param db     context
    @param entity for new AccountUser
    @return new record
-   @throws Exception         if database failure
-   @throws ConfigException   if not configured properly
-   @throws BusinessException if fails business rule
+   @throws CoreException         if database failure
+   @throws CoreException   if not configured properly
+   @throws CoreException if fails business rule
    */
-  private static AccountUser create(DSLContext db, Access access, AccountUser entity) throws Exception {
+  private static AccountUser create(DSLContext db, Access access, AccountUser entity) throws CoreException {
     entity.validate();
 
     Map<Field, Object> fieldValues = fieldValueMap(entity);
@@ -52,7 +52,7 @@ public class AccountUserDAOImpl extends DAOImpl implements AccountUserDAO {
       .where(ACCOUNT_USER.ACCOUNT_ID.eq(ULong.valueOf(entity.getAccountId())))
       .and(ACCOUNT_USER.USER_ID.eq(ULong.valueOf(entity.getUserId())))
       .fetchOne())
-      throw new BusinessException("Account User already exists!");
+      throw new CoreException("Account User already exists!");
 
     return modelFrom(executeCreate(db, ACCOUNT_USER, fieldValues), AccountUser.class);
   }
@@ -65,7 +65,7 @@ public class AccountUserDAOImpl extends DAOImpl implements AccountUserDAO {
    @param id     of record
    @return record
    */
-  private static AccountUser readOne(DSLContext db, Access access, ULong id) throws BusinessException {
+  private static AccountUser readOne(DSLContext db, Access access, ULong id) throws CoreException {
     if (access.isTopLevel())
       return modelFrom(db.selectFrom(ACCOUNT_USER)
         .where(ACCOUNT_USER.ID.eq(id))
@@ -85,7 +85,7 @@ public class AccountUserDAOImpl extends DAOImpl implements AccountUserDAO {
    @param accountIds of parent
    @return array of child records
    */
-  private static Collection<AccountUser> readAll(DSLContext db, Access access, Collection<ULong> accountIds) throws BusinessException {
+  private static Collection<AccountUser> readAll(DSLContext db, Access access, Collection<ULong> accountIds) throws CoreException {
     if (access.isTopLevel())
       return modelsFrom(db.selectFrom(ACCOUNT_USER)
         .where(ACCOUNT_USER.ACCOUNT_ID.in(accountIds))
@@ -103,9 +103,9 @@ public class AccountUserDAOImpl extends DAOImpl implements AccountUserDAO {
    @param db     context
    @param access control
    @param id     of record
-   @throws BusinessException on failure
+   @throws CoreException on failure
    */
-  private static void delete(DSLContext db, Access access, ULong id) throws BusinessException {
+  private static void delete(DSLContext db, Access access, ULong id) throws CoreException {
     requireTopLevel(access);
     db.deleteFrom(ACCOUNT_USER)
       .where(ACCOUNT_USER.ID.eq(id))
@@ -127,47 +127,47 @@ public class AccountUserDAOImpl extends DAOImpl implements AccountUserDAO {
   }
 
   @Override
-  public AccountUser create(Access access, AccountUser entity) throws Exception {
+  public AccountUser create(Access access, AccountUser entity) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(create(tx.getContext(), access, entity));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public AccountUser readOne(Access access, BigInteger id) throws Exception {
+  public AccountUser readOne(Access access, BigInteger id) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readOne(tx.getContext(), access, ULong.valueOf(id)));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public Collection<AccountUser> readAll(Access access, Collection<BigInteger> parentIds) throws Exception {
+  public Collection<AccountUser> readAll(Access access, Collection<BigInteger> parentIds) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readAll(tx.getContext(), access, uLongValuesOf(parentIds)));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public void update(Access access, BigInteger id, AccountUser entity) throws Exception {
-    throw new BusinessException("Not allowed to update AccountUser record.");
+  public void update(Access access, BigInteger id, AccountUser entity) throws CoreException {
+    throw new CoreException("Not allowed to update AccountUser record.");
   }
 
   @Override
-  public void destroy(Access access, BigInteger id) throws Exception {
+  public void destroy(Access access, BigInteger id) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       delete(tx.getContext(), access, ULong.valueOf(id));
       tx.success();
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }

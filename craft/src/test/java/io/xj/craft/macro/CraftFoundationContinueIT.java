@@ -1,37 +1,26 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.craft.macro;
 
+import com.google.common.collect.Lists;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import io.xj.core.CoreModule;
 import io.xj.core.access.impl.Access;
-import io.xj.core.dao.ChoiceDAO;
-import io.xj.core.dao.SegmentChordDAO;
 import io.xj.core.dao.SegmentDAO;
-import io.xj.core.dao.SegmentMemeDAO;
+import io.xj.core.fabricator.Fabricator;
+import io.xj.core.fabricator.FabricatorFactory;
+import io.xj.core.fabricator.FabricatorType;
 import io.xj.core.integration.IntegrationTestEntity;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
 import io.xj.core.model.choice.Choice;
 import io.xj.core.model.segment.Segment;
+import io.xj.core.model.segment.SegmentFactory;
 import io.xj.core.model.segment.SegmentState;
-import io.xj.core.model.segment_chord.SegmentChord;
-import io.xj.core.model.segment_meme.SegmentMeme;
-import io.xj.core.model.sequence.SequenceState;
 import io.xj.core.model.sequence.SequenceType;
-import io.xj.core.model.pattern.PatternState;
-import io.xj.core.model.pattern.PatternType;
-import io.xj.core.model.user_role.UserRoleType;
-import io.xj.core.testing.Testing;
-import io.xj.craft.basis.Basis;
-import io.xj.craft.basis.BasisFactory;
+import io.xj.craft.BaseIT;
 import io.xj.craft.CraftFactory;
 import io.xj.craft.CraftModule;
-
-import com.google.common.collect.ImmutableList;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-
-import org.json.JSONObject;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -39,92 +28,66 @@ import org.junit.rules.ExpectedException;
 
 import java.math.BigInteger;
 import java.sql.Timestamp;
-import java.util.Collection;
-import java.util.Iterator;
 
+import static io.xj.core.Assert.assertExactChords;
+import static io.xj.core.Assert.assertExactMemes;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
-public class CraftFoundationContinueIT {
-  @Rule public ExpectedException failure = ExpectedException.none();
+public class CraftFoundationContinueIT extends BaseIT {
   private final Injector injector = Guice.createInjector(new CoreModule(), new CraftModule());
+  @Rule
+  public ExpectedException failure = ExpectedException.none();
   private CraftFactory craftFactory;
-  private BasisFactory basisFactory;
+  private FabricatorFactory fabricatorFactory;
 
   // Testing entities for reference
   private Segment segment4;
 
   @Before
   public void setUp() throws Exception {
+    fabricatorFactory = injector.getInstance(FabricatorFactory.class);
+    craftFactory = injector.getInstance(CraftFactory.class);
+    SegmentFactory segmentFactory = injector.getInstance(SegmentFactory.class);
+
+    // Fixtures
     IntegrationTestEntity.reset();
-
-    // Account "bananas"
-    IntegrationTestEntity.insertAccount(1, "bananas");
-
-    // John has "user" and "admin" roles, belongs to account "bananas", has "google" auth
-    IntegrationTestEntity.insertUser(2, "john", "john@email.com", "http://pictures.com/john.gif");
-    IntegrationTestEntity.insertUserRole(1, 2, UserRoleType.Admin);
-
-    // Jenny has a "user" role and belongs to account "bananas"
-    IntegrationTestEntity.insertUser(3, "jenny", "jenny@email.com", "http://pictures.com/jenny.gif");
-    IntegrationTestEntity.insertUserRole(2, 3, UserRoleType.User);
-    IntegrationTestEntity.insertAccountUser(3, 1, 3);
-
-    // Library "house"
-    IntegrationTestEntity.insertLibrary(2, 1, "house");
-
-    // "Tropical, Wild to Cozy" macro-sequence in house library
-    IntegrationTestEntity.insertSequence(4, 3, 2, SequenceType.Macro, SequenceState.Published, "Tropical, Wild to Cozy", 0.5, "C", 120);
-    IntegrationTestEntity.insertSequenceMeme(2, 4, "Tropical");
-    IntegrationTestEntity.insertPatternAndSequencePattern(3, 4, PatternType.Macro, PatternState.Published, 0, 64, "Start Wild", 0.6, "C", 125);
-    IntegrationTestEntity.insertSequencePatternMeme(3, 4, 3, "Wild");
-    IntegrationTestEntity.insertPatternChord(3, 3, 0, "C");
-    IntegrationTestEntity.insertPatternAndSequencePattern(4, 4, PatternType.Macro, PatternState.Published, 1, 64, "Finish Finish Cozy", 0.4, "Bb minor", 115);
-    IntegrationTestEntity.insertSequencePatternMeme(4, 4, 4, "Cozy");
-    IntegrationTestEntity.insertPatternChord(4, 4, 0, "Bb minor");
-
-    // Main sequence
-    IntegrationTestEntity.insertSequence(5, 3, 2, SequenceType.Main, SequenceState.Published, "Main Jam", 0.2, "Gb minor", 140);
-    IntegrationTestEntity.insertSequenceMeme(3, 5, "Outlook");
-    IntegrationTestEntity.insertPatternAndSequencePattern(15, 5, PatternType.Main, PatternState.Published, 0, 16, "Intro", 0.5, "Gb minor", 135.0);
-    IntegrationTestEntity.insertSequencePatternMeme(6, 5, 15, "Pessimism");
-    IntegrationTestEntity.insertPatternChord(12, 15, 0, "Gb minor");
-    IntegrationTestEntity.insertPatternChord(14, 15, 8, "G minor");
-    IntegrationTestEntity.insertPatternAndSequencePattern(16, 5, PatternType.Main, PatternState.Published, 1, 16, "Intro", 0.5, "G major", 135.0);
-    IntegrationTestEntity.insertSequencePatternMeme(7, 5, 16, "Optimism");
-    IntegrationTestEntity.insertPatternChord(16, 16, 0, "D minor");
-    IntegrationTestEntity.insertPatternChord(18, 16, 8, "G major");
-
-    // [#154090557] this Chord should be ignored, because it's past the end of the main-pattern total
-    IntegrationTestEntity.insertPatternChord(42, 16, 75, "G-9");
-
-    // Extra sequences
-    IntegrationTestEntity.insertSequence(6, 3, 2, SequenceType.Rhythm, SequenceState.Published, "Beat Jam", 0.6, "D#", 150);
-    IntegrationTestEntity.insertSequence(7, 3, 2, SequenceType.Detail, SequenceState.Published, "Detail Jam", 0.3, "Cb minor", 170);
+    insertLibraryB1();
+    insertLibraryB2();
 
     // Chain "Test Print #1" has 5 total segments
     IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, null);
-    IntegrationTestEntity.insertSegment(1, 1, 0, SegmentState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120, "chain-1-segment-97898asdf7892.wav", new JSONObject());
-    IntegrationTestEntity.insertSegment(2, 1, 1, SegmentState.Dubbing, Timestamp.valueOf("2017-02-14 12:01:32.000001"), Timestamp.valueOf("2017-02-14 12:02:04.000001"), "Db minor", 64, 0.85, 120, "chain-1-segment-97898asdf7892.wav", new JSONObject());
+    IntegrationTestEntity.insertSegment_NoContent(1, 1, 0, SegmentState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120, "chain-1-segment-9f7s89d8a7892.wav");
+    IntegrationTestEntity.insertSegment_NoContent(2, 1, 1, SegmentState.Dubbing, Timestamp.valueOf("2017-02-14 12:01:32.000001"), Timestamp.valueOf("2017-02-14 12:02:04.000001"), "Db minor", 64, 0.85, 120, "chain-1-segment-9f7s89d8a7892.wav");
 
     // Chain "Test Print #1" has this segment that was just crafted
-    IntegrationTestEntity.insertSegment(3, 1, 2, SegmentState.Crafted, Timestamp.valueOf("2017-02-14 12:02:04.000001"), Timestamp.valueOf("2017-02-14 12:02:36.000001"), "F major", 64, 0.30, 120, "chain-1-segment-97898asdf7892.wav", new JSONObject());
-    IntegrationTestEntity.insertChoice(25, 3, 4, SequenceType.Macro, 1, 3);
-    IntegrationTestEntity.insertChoice(26, 3, 5, SequenceType.Main, 0, 5);
+    Segment seg3 = segmentFactory.newSegment(BigInteger.valueOf(3))
+      .setChainId(BigInteger.valueOf(1))
+      .setOffset(BigInteger.valueOf(2))
+      .setStateEnum(SegmentState.Crafted)
+      .setBeginAt("2017-02-14 12:02:04.000001")
+      .setEndAt("2017-02-14 12:02:36.000001")
+      .setKey("F Major")
+      .setTotal(64)
+      .setDensity(0.30)
+      .setTempo(120.0)
+      .setWaveformKey("chain-1-segment-9f7s89d8a7892.wav");
+    seg3.add(new Choice()
+      .setSegmentId(BigInteger.valueOf(3))
+      .setSequencePatternId(BigInteger.valueOf(441))
+      .setTypeEnum(SequenceType.Macro)
+      .setTranspose(3));
+    seg3.add(new Choice()
+      .setSegmentId(BigInteger.valueOf(3))
+      .setSequencePatternId(BigInteger.valueOf(1550))
+      .setTypeEnum(SequenceType.Main)
+      .setTranspose(5));
+    IntegrationTestEntity.insert(seg3);
 
     // Chain "Test Print #1" has a planned segment
-    segment4 = IntegrationTestEntity.insertSegment_Planned(4, 1, 3, Timestamp.valueOf("2017-02-14 12:03:08.000001"), new JSONObject());
+    segment4 = IntegrationTestEntity.insertSegment_Planned(4, 1, 3, Timestamp.valueOf("2017-02-14 12:03:08.000001"));
 
     // Bind the library to the chain
-    IntegrationTestEntity.insertChainLibrary(1, 1, 2);
-
-    // Instantiate the test subject
-    craftFactory = injector.getInstance(CraftFactory.class);
-    basisFactory = injector.getInstance(BasisFactory.class);
-  }
-
-  @After
-  public void tearDown() throws Exception {
+    IntegrationTestEntity.insertChainLibrary(1, 2);
   }
 
   /**
@@ -132,51 +95,25 @@ public class CraftFoundationContinueIT {
    */
   @Test
   public void craftFoundationContinue() throws Exception {
-    Basis basis = basisFactory.createBasis(segment4);
+    Fabricator fabricator = fabricatorFactory.fabricate(segment4);
 
-    craftFactory.macroMain(basis).doWork();
+    craftFactory.macroMain(fabricator).doWork();
 
-    Segment resultSegment = injector.getInstance(SegmentDAO.class).readOneAtChainOffset(Access.internal(), BigInteger.valueOf(1), BigInteger.valueOf(3));
-    assertEquals(Timestamp.valueOf("2017-02-14 12:03:15.8425"), resultSegment.getEndAt());
-    assertEquals(Integer.valueOf(16), resultSegment.getTotal());
-    assertEquals(Double.valueOf(0.45), resultSegment.getDensity());
-    assertEquals("D major", resultSegment.getKey());
-    assertEquals(Double.valueOf(125), resultSegment.getTempo());
-
-    JSONObject resultBasis = resultSegment.getBasis();
-    assertEquals("Continue", resultBasis.get("type"));
-
-    Collection<SegmentMeme> resultSegmentMemes = injector.getInstance(SegmentMemeDAO.class).readAll(Access.internal(), ImmutableList.of(resultSegment.getId()));
-
-    assertEquals(4, resultSegmentMemes.size());
-    resultSegmentMemes.forEach(segmentMemeRecord -> Testing.assertIn(new String[]{"Cozy", "Tropical", "Outlook", "Optimism"}, segmentMemeRecord.getName()));
-
-    Collection<SegmentChord> resultSegmentChords = injector.getInstance(SegmentChordDAO.class).readAll(Access.internal(), ImmutableList.of(resultSegment.getId()));
-    assertEquals(2, resultSegmentChords.size());
-    Iterator<SegmentChord> it = resultSegmentChords.iterator();
-
-    SegmentChord chordOne = it.next();
-    assertEquals(Double.valueOf(0), chordOne.getPosition());
-    assertEquals("A minor", chordOne.getName());
-
-    SegmentChord chordTwo = it.next();
-    assertEquals(Double.valueOf(8), chordTwo.getPosition());
-    assertEquals("D major", chordTwo.getName());
-
-    // choice of macro-type sequence
-    Choice resultMacroChoice = injector.getInstance(ChoiceDAO.class).readOneSegmentTypeWithAvailablePatternOffsets(Access.internal(), BigInteger.valueOf(4), SequenceType.Macro);
-    assertNotNull(resultMacroChoice);
-    assertEquals(BigInteger.valueOf(4), resultMacroChoice.getSequenceId());
-    assertEquals(Integer.valueOf(3), resultMacroChoice.getTranspose());
-    assertEquals(BigInteger.valueOf(1), resultMacroChoice.getSequencePatternOffset());
-
-    // choice of main-type sequence
-    Choice resultMainChoice = injector.getInstance(ChoiceDAO.class).readOneSegmentTypeWithAvailablePatternOffsets(Access.internal(), BigInteger.valueOf(4), SequenceType.Main);
-    assertNotNull(resultMainChoice);
-    assertEquals(BigInteger.valueOf(5), resultMainChoice.getSequenceId());
-    assertEquals(Integer.valueOf(-5), resultMainChoice.getTranspose());
-    assertEquals(BigInteger.valueOf(1), resultMainChoice.getSequencePatternOffset());
-
+    Segment result = injector.getInstance(SegmentDAO.class).readOneAtChainOffset(Access.internal(), BigInteger.valueOf(1), BigInteger.valueOf(3));
+    assertEquals(Timestamp.valueOf("2017-02-14 12:03:23.682501"), result.getEndAt());
+    assertEquals(Integer.valueOf(32), result.getTotal());
+    assertEquals(Double.valueOf(0.45), result.getDensity());
+    assertEquals("Ab minor", result.getKey());
+    assertEquals(Double.valueOf(125), result.getTempo());
+    assertEquals(FabricatorType.Continue, result.getType());
+    assertExactMemes(Lists.newArrayList("Outlook", "Tropical", "Cozy", "Wild", "Pessimism"), result.getMemes());
+    assertExactChords(Lists.newArrayList("B minor", "C# major"), result.getChords());
+    assertEquals(BigInteger.valueOf(4), fabricator.getSequenceOfChoice(result.getChoiceOfType(SequenceType.Macro)).getId());
+    assertEquals(Integer.valueOf(3), result.getChoiceOfType(SequenceType.Macro).getTranspose());
+    assertEquals(BigInteger.valueOf(1), fabricator.getSequencePatternOffsetForChoice(result.getChoiceOfType(SequenceType.Macro)));
+    assertEquals(BigInteger.valueOf(5), fabricator.getSequenceOfChoice(result.getChoiceOfType(SequenceType.Main)).getId());
+    assertEquals(Integer.valueOf(1), result.getChoiceOfType(SequenceType.Main).getTranspose());
+    assertEquals(BigInteger.valueOf(1), fabricator.getSequencePatternOffsetForChoice(result.getChoiceOfType(SequenceType.Main)));
   }
 
 }

@@ -6,53 +6,49 @@ import com.google.inject.assistedinject.Assisted;
 import io.xj.core.access.impl.Access;
 import io.xj.core.config.Config;
 import io.xj.core.dao.SegmentDAO;
-import io.xj.core.dao.SegmentMessageDAO;
-import io.xj.core.exception.BusinessException;
-import io.xj.core.exception.ConfigException;
+import io.xj.core.exception.CoreException;
+import io.xj.core.fabricator.Fabricator;
+import io.xj.core.fabricator.FabricatorFactory;
 import io.xj.core.model.message.MessageType;
 import io.xj.core.model.segment.Segment;
 import io.xj.core.model.segment.SegmentState;
 import io.xj.core.model.segment_message.SegmentMessage;
 import io.xj.core.work.WorkManager;
 import io.xj.craft.CraftFactory;
-import io.xj.craft.basis.Basis;
-import io.xj.craft.basis.BasisFactory;
+import io.xj.craft.exception.CraftException;
 import io.xj.dub.DubFactory;
 import io.xj.worker.job.SegmentFabricateJob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigInteger;
-import java.util.Objects;
 
 public class SegmentFabricateJobImpl implements SegmentFabricateJob {
   private static final Logger log = LoggerFactory.getLogger(SegmentFabricateJobImpl.class);
 
   private final SegmentDAO segmentDAO;
-  private final SegmentMessageDAO segmentMessageDAO;
   private final BigInteger entityId;
-  private final BasisFactory basisFactory;
+  private final FabricatorFactory fabricatorFactory;
   private final CraftFactory craftFactory;
   private final DubFactory dubFactory;
   private final WorkManager workManager;
-  private Basis basis;
+  private final Access access = Access.internal();
+  private Fabricator fabricator;
   private Segment segment;
 
   @Inject
   public SegmentFabricateJobImpl(
     @Assisted("entityId") BigInteger entityId,
     CraftFactory craftFactory,
-    BasisFactory basisFactory,
+    FabricatorFactory fabricatorFactory,
     SegmentDAO segmentDAO,
-    SegmentMessageDAO segmentMessageDAO,
     DubFactory dubFactory,
     WorkManager workManager
   ) {
     this.entityId = entityId;
     this.craftFactory = craftFactory;
-    this.basisFactory = basisFactory;
+    this.fabricatorFactory = fabricatorFactory;
     this.segmentDAO = segmentDAO;
-    this.segmentMessageDAO = segmentMessageDAO;
     this.dubFactory = dubFactory;
     this.workManager = workManager;
   }
@@ -64,22 +60,17 @@ public class SegmentFabricateJobImpl implements SegmentFabricateJob {
   public void run() {
     try {
       log.info("[segId={}] will read Segment for fabrication", entityId);
-      segment = segmentDAO.readOne(Access.internal(), entityId);
-    } catch (Exception e) {
+      segment = segmentDAO.readOne(access, entityId);
+    } catch (CoreException e) {
       didFailWhile("retrieving", e);
       return;
     }
 
-    if (Objects.isNull(segment)) {
-      didFailWhile("retrieving null");
-      return;
-    }
-
     try {
-      log.info("[segId={}] will prepare basis", entityId);
-      basis = basisFactory.createBasis(segment);
-    } catch (ConfigException e) {
-      didFailWhile("creating basis", e);
+      log.info("[segId={}] will prepare fabricator", entityId);
+      fabricator = fabricatorFactory.fabricate(segment);
+    } catch (CoreException e) {
+      didFailWhile("creating fabricator", e);
       return;
     }
 
@@ -108,13 +99,14 @@ public class SegmentFabricateJobImpl implements SegmentFabricateJob {
 
   /**
    [#158610991] Engineer wants a Segment to be reverted, and re-queued for Craft, in the event that such a Segment has just failed its Craft process, in order to ensure Chain fabrication fault tolerance
+   [#166132897] SegmentBasis POJO via gson only (no JSONObject), so reverting simply means resetting the basis
    */
   private void revertAndRequeue() {
     try {
-      updateSegmentState(basis.segment().getState(), SegmentState.Planned);
-      segmentDAO.revert(Access.internal(), basis.segment().getId());
-      workManager.scheduleSegmentFabricate(Config.segmentRequeueSeconds(), basis.segment().getId());
-    } catch (Exception e) {
+      updateSegmentState(fabricator.getSegment().getState(), SegmentState.Planned);
+      segmentDAO.revert(access, fabricator.getSegment().getId());
+      workManager.scheduleSegmentFabricate(Config.segmentRequeueSeconds(), fabricator.getSegment().getId());
+    } catch (CoreException e) {
       didFailWhile("reverting and re-queueing segment", e);
     }
   }
@@ -122,34 +114,34 @@ public class SegmentFabricateJobImpl implements SegmentFabricateJob {
   /**
    Finish work on Segment
    */
-  private void finishWork() throws Exception {
+  private void finishWork() throws CoreException {
     updateSegmentState(SegmentState.Dubbing, SegmentState.Dubbed);
-    log.info("[segId={}] Worked for {} seconds", entityId, basis.elapsedSeconds());
+    log.info("[segId={}] Worked for {} seconds", entityId, fabricator.getElapsedSeconds());
   }
 
   /**
    Craft a Segment, or fail
 
-   @throws ConfigException   on configuration failure
-   @throws BusinessException on failure
+   @throws CoreException on configuration failure
+   @throws CoreException on failure
    */
-  private void doCraftWork() throws Exception {
+  private void doCraftWork() throws CoreException, CraftException {
     updateSegmentState(SegmentState.Planned, SegmentState.Crafting);
-    craftFactory.macroMain(basis).doWork();
-    craftFactory.rhythm(basis).doWork();
-    craftFactory.harmonicDetail(basis).doWork();
+    craftFactory.macroMain(fabricator).doWork();
+    craftFactory.rhythm(fabricator).doWork();
+    craftFactory.harmonicDetail(fabricator).doWork();
   }
 
   /**
    Dub a Segment, or fail
 
-   @throws ConfigException   if mis-configured
-   @throws BusinessException on failure
+   @throws CoreException if mis-configured
+   @throws CoreException on failure
    */
-  protected void doDubWork() throws Exception {
+  protected void doDubWork() throws CoreException, CraftException {
     updateSegmentState(SegmentState.Crafting, SegmentState.Dubbing);
-    dubFactory.master(basis).doWork();
-    dubFactory.ship(basis).doWork();
+    dubFactory.master(fabricator).doWork();
+    dubFactory.ship(fabricator).doWork();
   }
 
   /**
@@ -164,16 +156,6 @@ public class SegmentFabricateJobImpl implements SegmentFabricateJob {
   }
 
   /**
-   Log and create segment message of error that job failed while (message)
-
-   @param message phrased like "Doing work"
-   */
-  private void didFailWhile(String message) {
-    createSegmentMessage(MessageType.Error, String.format("Failed while %s for Segment #%s", message, entityId));
-    log.error("[segId={}] Failed while {}", entityId, message);
-  }
-
-  /**
    Create a segment message
 
    @param type of message
@@ -181,27 +163,26 @@ public class SegmentFabricateJobImpl implements SegmentFabricateJob {
    */
   protected void createSegmentMessage(MessageType type, String body) {
     try {
-      segmentMessageDAO.create(Access.internal(),
-        new SegmentMessage()
-          .setSegmentId(entityId)
-          .setBody(body)
-          .setType(type.toString()));
-    } catch (Exception e) {
-      log.error("[segId={}] Could not create Segment Message", entityId, e);
+      fabricator.add(new SegmentMessage()
+        .setBody(body)
+        .setType(type.toString()));
+      segmentDAO.update(access, fabricator.getSegment().getId(), fabricator.getSegment());
+    } catch (CoreException e) {
+      log.error("[segId={}] Could not create SegmentMessage, reason={}", entityId, e.getMessage());
     }
   }
 
   /**
    Update Segment to Working state
 
-   @throws Exception on failure
+   @throws CoreException on failure
    */
-  private void updateSegmentState(SegmentState fromState, SegmentState toState) throws Exception {
+  private void updateSegmentState(SegmentState fromState, SegmentState toState) throws CoreException {
     if (fromState != segment.getState()) {
       log.error("[segId={}] {} requires Segment must be in {} state.", entityId, toState, fromState);
       return;
     }
-    segmentDAO.updateState(Access.internal(), segment.getId(), toState);
+    segmentDAO.updateState(access, segment.getId(), toState);
     segment.setStateEnum(toState);
     log.info("[segId={}] Segment transitioned to state {} OK", entityId, toState);
   }

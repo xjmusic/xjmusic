@@ -7,7 +7,7 @@ import io.xj.core.access.impl.Access;
 import io.xj.core.app.App;
 import io.xj.core.config.Config;
 import io.xj.core.dao.PlatformMessageDAO;
-import io.xj.core.exception.ConfigException;
+import io.xj.core.exception.CoreException;
 import io.xj.core.model.message.MessageType;
 import io.xj.core.model.platform_message.PlatformMessage;
 import io.xj.core.transport.HttpServerProvider;
@@ -94,9 +94,9 @@ public class AppImpl implements App {
    exposing JAX-RS resources defined in this application.
    */
   @Override
-  public void start() throws IOException, ConfigException {
+  public void start() throws IOException, CoreException {
     if (null == resourceConfig) {
-      throw new ConfigException("Failed to app.start(); must configureServer() first!");
+      throw new CoreException("Failed to app.start(); must configureServer() first!");
     }
 
     if (Objects.nonNull(jobFactory)) {

@@ -10,6 +10,7 @@ export default DS.Model.extend({
   tempo: DS.attr('number'),
   type: DS.attr('string'),
 
+  sequencePatterns: DS.hasMany('sequence-pattern'),
   memes: DS.hasMany('sequence-meme'),
   voices: DS.hasMany('voice'),
   patterns: DS.hasMany('pattern'),

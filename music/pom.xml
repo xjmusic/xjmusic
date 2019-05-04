@@ -56,7 +56,7 @@
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
-      <version>24.0-jre</version>
+      <version>27.1-jre</version>
     </dependency>
 
     <!-- currently used only in tests: https://mvnrepository.com/artifact/org.yaml/snakeyaml -->
@@ -127,7 +127,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>2.17</version>
+        <version>2.22.2</version>
         <configuration>
           <useSystemClassLoader>false</useSystemClassLoader>
         </configuration>

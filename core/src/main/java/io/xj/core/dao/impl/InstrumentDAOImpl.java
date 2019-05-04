@@ -1,21 +1,18 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.dao.impl;
 
+import com.google.api.client.util.Maps;
+import com.google.inject.Inject;
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.InstrumentDAO;
-import io.xj.core.exception.BusinessException;
-import io.xj.core.exception.ConfigException;
+import io.xj.core.exception.CoreException;
 import io.xj.core.model.instrument.Instrument;
 import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import io.xj.core.persistence.sql.impl.SQLConnection;
 import io.xj.core.work.WorkManager;
-
 import org.jooq.DSLContext;
 import org.jooq.Field;
 import org.jooq.types.ULong;
-
-import com.google.api.client.util.Maps;
-import com.google.inject.Inject;
 
 import javax.annotation.Nullable;
 import java.math.BigInteger;
@@ -23,7 +20,6 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
 
-import static io.xj.core.Tables.ARRANGEMENT;
 import static io.xj.core.Tables.AUDIO;
 import static io.xj.core.Tables.CHAIN_INSTRUMENT;
 import static io.xj.core.Tables.INSTRUMENT;
@@ -49,24 +45,16 @@ public class InstrumentDAOImpl extends DAOImpl implements InstrumentDAO {
    @param access control
    @param entity for new record
    @return newly readMany record
-   @throws BusinessException on failure
+   @throws CoreException on failure
    */
-  private static Instrument create(DSLContext db, Access access, Instrument entity) throws BusinessException {
+  private static Instrument create(DSLContext db, Access access, Instrument entity) throws CoreException {
     entity.validate();
 
     Map<Field, Object> fieldValues = fieldValueMap(entity);
 
-    if (access.isTopLevel())
-      requireExists("Library",
-        db.selectCount().from(LIBRARY)
-          .where(LIBRARY.ID.eq(ULong.valueOf(entity.getLibraryId())))
-          .fetchOne(0, int.class));
-    else
-      requireExists("Library",
-        db.selectCount().from(LIBRARY)
-          .where(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
-          .and(LIBRARY.ID.eq(ULong.valueOf(entity.getLibraryId())))
-          .fetchOne(0, int.class));
+    // This entity's parent is a Library
+    requireLibraryAccess(db, access, entity);
+
     fieldValues.put(INSTRUMENT.USER_ID, access.getUserId());
 
     return modelFrom(executeCreate(db, INSTRUMENT, fieldValues), Instrument.class);
@@ -81,7 +69,7 @@ public class InstrumentDAOImpl extends DAOImpl implements InstrumentDAO {
    @return record
    */
   @Nullable
-  private static Instrument readOne(DSLContext db, Access access, ULong id) throws BusinessException {
+  private static Instrument readOne(DSLContext db, Access access, ULong id) throws CoreException {
     if (access.isTopLevel())
       return modelFrom(db.selectFrom(INSTRUMENT)
         .where(INSTRUMENT.ID.eq(id))
@@ -103,7 +91,7 @@ public class InstrumentDAOImpl extends DAOImpl implements InstrumentDAO {
    @param accountId of parent
    @return array of records
    */
-  private static Collection<Instrument> readAllInAccount(DSLContext db, Access access, ULong accountId) throws BusinessException {
+  private static Collection<Instrument> readAllInAccount(DSLContext db, Access access, ULong accountId) throws CoreException {
     if (access.isTopLevel())
       return modelsFrom(db.select(INSTRUMENT.fields())
         .from(INSTRUMENT)
@@ -129,7 +117,7 @@ public class InstrumentDAOImpl extends DAOImpl implements InstrumentDAO {
    @param libraryIds of parent
    @return array of records
    */
-  private static Collection<Instrument> readAllInLibraries(DSLContext db, Access access, Collection<ULong> libraryIds) throws BusinessException {
+  private static Collection<Instrument> readAllInLibraries(DSLContext db, Access access, Collection<ULong> libraryIds) throws CoreException {
     if (access.isTopLevel())
       return modelsFrom(db.select(INSTRUMENT.fields())
         .from(INSTRUMENT)
@@ -153,7 +141,7 @@ public class InstrumentDAOImpl extends DAOImpl implements InstrumentDAO {
    @param access control
    @return array of records
    */
-  private static Collection<Instrument> readAll(DSLContext db, Access access) throws BusinessException {
+  private static Collection<Instrument> readAll(DSLContext db, Access access) throws CoreException {
     if (access.isTopLevel())
       return modelsFrom(db.select(INSTRUMENT.fields())
         .from(INSTRUMENT)
@@ -176,7 +164,7 @@ public class InstrumentDAOImpl extends DAOImpl implements InstrumentDAO {
    @param chainId of parent
    @return array of records
    */
-  private static Collection<Instrument> readAllBoundToChain(DSLContext db, Access access, ULong chainId) throws Exception {
+  private static Collection<Instrument> readAllBoundToChain(DSLContext db, Access access, ULong chainId) throws CoreException {
     requireTopLevel(access);
     return modelsFrom(db.select(INSTRUMENT.fields()).from(INSTRUMENT)
       .join(CHAIN_INSTRUMENT).on(CHAIN_INSTRUMENT.INSTRUMENT_ID.eq(INSTRUMENT.ID))
@@ -191,32 +179,23 @@ public class InstrumentDAOImpl extends DAOImpl implements InstrumentDAO {
    @param access control
    @param id     of record
    @param entity to update with
-   @throws BusinessException if a Business Rule is violated
-   @throws Exception         on database failure
+   @throws CoreException if a Business Rule is violated
+   @throws CoreException on database failure
    */
-  private static void update(DSLContext db, Access access, ULong id, Instrument entity) throws Exception {
+  private static void update(DSLContext db, Access access, ULong id, Instrument entity) throws CoreException {
     entity.validate();
 
     Map<Field, Object> fieldValues = fieldValueMap(entity);
     fieldValues.put(INSTRUMENT.ID, id);
 
-    if (access.isTopLevel())
-      requireExists("Library",
-        db.selectCount().from(LIBRARY)
-          .where(LIBRARY.ID.eq(ULong.valueOf(entity.getLibraryId())))
-          .fetchOne(0, int.class));
-    else
-      requireExists("Library",
-        db.selectCount().from(LIBRARY)
-          .where(LIBRARY.ACCOUNT_ID.in(access.getAccountIds()))
-          .and(LIBRARY.ID.eq(ULong.valueOf(entity.getLibraryId())))
-          .fetchOne(0, int.class));
+    // This entity's parent is a Library
+    requireLibraryAccess(db, access, entity);
 
     // Never update user ID! [#156030760] Artist expects owner of Sequence or Instrument to always remain the same as when it was created, even after being updated by another user.
     fieldValues.remove(INSTRUMENT.USER_ID);
 
     if (0 == executeUpdate(db, INSTRUMENT, fieldValues))
-      throw new BusinessException("No records updated.");
+      throw new CoreException("No records updated.");
   }
 
   /**
@@ -224,11 +203,11 @@ public class InstrumentDAOImpl extends DAOImpl implements InstrumentDAO {
 
    @param db context
    @param id to delete
-   @throws Exception         if database failure
-   @throws ConfigException   if not configured properly
-   @throws BusinessException if fails business rule
+   @throws CoreException if database failure
+   @throws CoreException if not configured properly
+   @throws CoreException if fails business rule
    */
-  private static void delete(DSLContext db, Access access, ULong id) throws Exception {
+  private static void delete(DSLContext db, Access access, ULong id) throws CoreException {
     if (!access.isTopLevel())
       requireExists("Instrument belonging to you", db.selectCount().from(INSTRUMENT)
         .join(LIBRARY).on(INSTRUMENT.LIBRARY_ID.eq(LIBRARY.ID))
@@ -244,10 +223,6 @@ public class InstrumentDAOImpl extends DAOImpl implements InstrumentDAO {
     requireNotExists("Meme in Instrument", db.selectCount().from(INSTRUMENT_MEME)
       .where(INSTRUMENT_MEME.INSTRUMENT_ID.eq(id))
       .fetchOne(0, int.class));
-
-    db.deleteFrom(ARRANGEMENT)
-      .where(ARRANGEMENT.INSTRUMENT_ID.eq(id))
-      .execute();
 
     db.deleteFrom(INSTRUMENT)
       .where(INSTRUMENT.ID.eq(id))
@@ -272,94 +247,94 @@ public class InstrumentDAOImpl extends DAOImpl implements InstrumentDAO {
   }
 
   @Override
-  public Instrument create(Access access, Instrument entity) throws Exception {
+  public Instrument create(Access access, Instrument entity) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(create(tx.getContext(), access, entity));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public Instrument clone(Access access, BigInteger cloneId, Instrument entity) throws Exception {
+  public Instrument clone(Access access, BigInteger cloneId, Instrument entity) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(clone(tx.getContext(), access, cloneId, entity));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
   @Nullable
-  public Instrument readOne(Access access, BigInteger id) throws Exception {
+  public Instrument readOne(Access access, BigInteger id) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readOne(tx.getContext(), access, ULong.valueOf(id)));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public Collection<Instrument> readAllInAccount(Access access, BigInteger accountId) throws Exception {
+  public Collection<Instrument> readAllInAccount(Access access, BigInteger accountId) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readAllInAccount(tx.getContext(), access, ULong.valueOf(accountId)));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public Collection<Instrument> readAll(Access access, Collection<BigInteger> parentIds) throws Exception {
+  public Collection<Instrument> readAll(Access access, Collection<BigInteger> parentIds) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readAllInLibraries(tx.getContext(), access, uLongValuesOf(parentIds)));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public Collection<Instrument> readAll(Access access) throws Exception {
+  public Collection<Instrument> readAll(Access access) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readAll(tx.getContext(), access));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public Collection<Instrument> readAllBoundToChain(Access access, BigInteger chainId) throws Exception {
+  public Collection<Instrument> readAllBoundToChain(Access access, BigInteger chainId) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readAllBoundToChain(tx.getContext(), access, ULong.valueOf(chainId)));
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public void update(Access access, BigInteger id, Instrument entity) throws Exception {
+  public void update(Access access, BigInteger id, Instrument entity) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       update(tx.getContext(), access, ULong.valueOf(id), entity);
       tx.success();
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public void destroy(Access access, BigInteger id) throws Exception {
+  public void destroy(Access access, BigInteger id) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       delete(tx.getContext(), access, ULong.valueOf(id));
       tx.success();
-    } catch (Exception e) {
+    } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
@@ -372,11 +347,11 @@ public class InstrumentDAOImpl extends DAOImpl implements InstrumentDAO {
    @param cloneId of instrument to clone
    @param entity  for the new Account User.
    @return newly readMany record
-   @throws BusinessException on failure
+   @throws CoreException on failure
    */
-  private Instrument clone(DSLContext db, Access access, BigInteger cloneId, Instrument entity) throws BusinessException {
+  private Instrument clone(DSLContext db, Access access, BigInteger cloneId, Instrument entity) throws CoreException {
     Instrument from = readOne(db, access, ULong.valueOf(cloneId));
-    if (Objects.isNull(from)) throw new BusinessException("Can't clone nonexistent Instrument");
+    if (Objects.isNull(from)) throw new CoreException("Can't clone nonexistent Instrument");
 
     entity.setUserId(from.getUserId());
     entity.setDensity(from.getDensity());

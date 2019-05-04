@@ -74,12 +74,12 @@ public class AudioCloneJobIT {
 
     // Ted has "user" and "admin" roles, belongs to account "pilots", has "google" auth
     IntegrationTestEntity.insertUser(2, "ted", "ted@email.com", "http://pictures.com/ted.gif");
-    IntegrationTestEntity.insertUserRole(1, 2, UserRoleType.Admin);
+    IntegrationTestEntity.insertUserRole(2, UserRoleType.Admin);
 
     // Sally has a "user" role and belongs to account "pilots"
     IntegrationTestEntity.insertUser(3, "sally", "sally@email.com", "http://pictures.com/sally.gif");
-    IntegrationTestEntity.insertUserRole(2, 3, UserRoleType.User);
-    IntegrationTestEntity.insertAccountUser(3, 1, 3);
+    IntegrationTestEntity.insertUserRole(3, UserRoleType.User);
+    IntegrationTestEntity.insertAccountUser(1, 3);
 
     // Library "house" and "pajamas"
     IntegrationTestEntity.insertLibrary(2, 1, "house");
@@ -87,18 +87,18 @@ public class AudioCloneJobIT {
 
     // Instrument "808" and "2020"
     IntegrationTestEntity.insertInstrument(1, 2, 2, "808 Drums", InstrumentType.Percussive, 0.9);
-    IntegrationTestEntity.insertInstrumentMeme(1, 1, "heavy");
+    IntegrationTestEntity.insertInstrumentMeme(1, "heavy");
     IntegrationTestEntity.insertInstrument(12, 42, 2, "2020 Drums", InstrumentType.Percussive, 0.9);
 
     // Audio "Kick"
     IntegrationTestEntity.insertAudio(1, 1, "Published", "Kick", "instrument-1-audio-asdg709a709835789agw73yh87.wav", 0.01, 2.123, 120.0, 440);
-    IntegrationTestEntity.insertAudioEvent(1, 1, 2.5, 1, "KICK", "Eb", 0.8, 1.0);
-    IntegrationTestEntity.insertAudioChord(1, 1, 0, "Db7");
+    IntegrationTestEntity.insertAudioEvent(1, 2.5, 1, "KICK", "Eb", 0.8, 1.0);
+    IntegrationTestEntity.insertAudioChord(1, 0, "Db7");
 
     // Audio "Snare"
     IntegrationTestEntity.insertAudio(2, 1, "Published", "Snare", "instrument-1-audio-978as789dgih35hi897gjhyi8f.wav", 0.01, 1.5, 120.0, 1200);
-    IntegrationTestEntity.insertAudioEvent(2, 2, 3, 1, "SNARE", "Ab", 0.1, 0.8);
-    IntegrationTestEntity.insertAudioChord(2, 2, 0, "Gm9");
+    IntegrationTestEntity.insertAudioEvent(2, 3, 1, "SNARE", "Ab", 0.1, 0.8);
+    IntegrationTestEntity.insertAudioChord(2, 0, "Gm9");
 
     // Newly cloned audios -- awaiting AudioClone job to run, and create their child entities
     IntegrationTestEntity.insertAudio(3, 1, "Published", "Kick", "instrument-1-audio-superAwesomeKey1.wav", 0.01, 2.123, 120.0, 440);

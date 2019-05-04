@@ -1,8 +1,8 @@
 //  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-import { get } from '@ember/object';
-import $ from 'jquery';
-import Service, { inject as service } from '@ember/service';
+import {get} from '@ember/object';
+import fetch from 'fetch';
+import Service, {inject as service} from '@ember/service';
 import RSVP from "rsvp";
 
 export default Service.extend({
@@ -76,8 +76,12 @@ export default Service.extend({
     return new RSVP.Promise(
       function (resolve, reject) {
 
-        $.ajax({
-          url: '/api/1/config'
+        fetch('/api/1/config', {
+          headers: {
+            'Content-Type': 'application/json'
+          },
+        }).then(function (response) {
+          return response.json();
         }).then(
           (data) => {
             if (data.hasOwnProperty('config')) {
@@ -85,12 +89,10 @@ export default Service.extend({
             } else {
               self.sendRejection(reject, 'Platform configuration is invalid.');
             }
-
           },
           (error) => {
             self.sendRejection(reject, 'Failed to get platform configuration: ' + error);
           });
-
       });
   },
 

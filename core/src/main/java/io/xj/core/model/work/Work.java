@@ -1,12 +1,13 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.model.work;
 
-import io.xj.core.exception.BusinessException;
+import io.xj.core.exception.CoreException;
 import io.xj.core.model.entity.Entity;
+import io.xj.core.model.entity.impl.EntityImpl;
 
 import java.math.BigInteger;
 
-public class Work extends Entity {
+public class Work extends EntityImpl {
   public static final String KEY_ONE = "work";
   public static final String KEY_MANY = "works";
   public static final String KEY_SOURCE_ID = "sourceId";
@@ -49,12 +50,12 @@ public class Work extends Entity {
   }
 
   @Override
-  public void validate() throws BusinessException {
+  public void validate() throws CoreException {
     if (null == targetId) {
-      throw new BusinessException("Target ID is required.");
+      throw new CoreException("Target ID is required.");
     }
     if (null == type || type.toString().isEmpty()) {
-      throw new BusinessException("Type is required.");
+      throw new CoreException("Type is required.");
     }
   }
 

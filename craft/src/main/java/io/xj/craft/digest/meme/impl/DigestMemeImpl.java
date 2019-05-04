@@ -4,21 +4,20 @@ package io.xj.craft.digest.meme.impl;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+import io.xj.core.exception.CoreException;
+import io.xj.core.ingest.Ingest;
 import io.xj.core.model.instrument.Instrument;
-import io.xj.core.model.meme.Meme;
-import io.xj.core.model.pattern.Pattern;
+import io.xj.core.model.instrument_meme.InstrumentMeme;
 import io.xj.core.model.sequence.Sequence;
+import io.xj.core.model.sequence_meme.SequenceMeme;
+import io.xj.core.model.sequence_pattern.SequencePattern;
+import io.xj.core.model.sequence_pattern_meme.SequencePatternMeme;
 import io.xj.craft.digest.DigestType;
 import io.xj.craft.digest.impl.DigestImpl;
 import io.xj.craft.digest.meme.DigestMeme;
-import io.xj.craft.ingest.Ingest;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.math.BigInteger;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
@@ -28,7 +27,7 @@ import java.util.Map;
  [#154234716] Architect wants ingest of library contents, to modularize graph mathematics used during craft, and provide the Artist with useful insight for developing the library.
  */
 public class DigestMemeImpl extends DigestImpl implements DigestMeme {
-  protected final Map<String, DigestMemesItem> memes = Maps.newConcurrentMap();
+  private final Map<String, DigestMemesItem> memes = Maps.newConcurrentMap();
   private final Logger log = LoggerFactory.getLogger(DigestMemeImpl.class);
 
   /**
@@ -51,39 +50,30 @@ public class DigestMemeImpl extends DigestImpl implements DigestMeme {
   /**
    Digest entities from ingest
    */
-  private void digest() throws Exception {
-    // in-memory caches of original objects
-    Map<BigInteger, Collection<? extends Meme>> instrumentMemes = Maps.newConcurrentMap();
-    Map<BigInteger, Collection<? extends Meme>> sequenceMemes = Maps.newConcurrentMap();
-    Map<BigInteger, Map<BigInteger, Collection<? extends Meme>>> sequencePatternMemes = Maps.newConcurrentMap();
-
-    // for each sequence, stash collection of sequence memes and prepare map of patterns
-    for (Sequence sequence : ingest.sequences()) {
-      sequenceMemes.put(sequence.getId(), ingest.sequenceMemes(sequence.getId()));
-      sequencePatternMemes.put(sequence.getId(), Maps.newConcurrentMap());
-
-      // for each pattern in sequence, stash collection of pattern memes
-      for (Pattern pattern : ingest.patterns(sequence.getId())) {
-        sequencePatternMemes.get(sequence.getId()).put(pattern.getId(), ingest.patternMemes(pattern.getId()));
+  private void digest() {
+    // for each sequence, stash collection of sequence memes and prepare map of sequence patterns
+    for (Sequence sequence : ingest.getAllSequences()) {
+      for (SequenceMeme sequenceMeme : ingest.getSequenceMemesOfSequence(sequence.getId())) {
+        digestMemesItem(sequenceMeme.getName()).addSequenceId(sequence.getId());
+      }
+      // for each sequence pattern in sequence, stash collection of sequence pattern memes
+      try {
+        for (SequencePattern sequencePattern : ingest.getSequencePatternsOfSequence(sequence.getId())) {
+          for (SequencePatternMeme sequencePatternMeme : ingest.getSequencePatternMemesOfSequencePattern(sequencePattern.getId())) {
+            digestMemesItem(sequencePatternMeme.getName()).addSequencePattern(sequencePattern);
+          }
+        }
+      } catch (CoreException e) {
+        log.warn("Failed to get sequence patterns of sequenceId={}", sequence.getId());
       }
     }
 
     // for each instrument, stash collection of instrument memes
-    for (Instrument instrument : ingest.instruments()) {
-      instrumentMemes.put(instrument.getId(), ingest.instrumentMemes(instrument.getId()));
+    for (Instrument instrument : ingest.getAllInstruments()) {
+      for (InstrumentMeme instrumentMeme : ingest.getMemesOfInstrument(instrument.getId())) {
+        digestMemesItem(instrumentMeme.getName()).addInstrumentId(instrument.getId());
+      }
     }
-
-    // reverse-match everything and store it
-    sequenceMemes.forEach((sequenceId, memesInSequence) -> memesInSequence.forEach(meme -> {
-      digestMemesItem(meme.getName()).addSequenceId(sequenceId);
-    }));
-    sequencePatternMemes.forEach((sequenceId, sequencePatterns) ->
-      sequencePatterns.forEach((patternId, patternMemes) -> {
-        patternMemes.forEach(meme -> digestMemesItem(meme.getName()).addSequencePatternId(sequenceId, patternId));
-      }));
-    instrumentMemes.forEach((instrumentId, memesInInstrument) -> memesInInstrument.forEach(meme -> {
-      digestMemesItem(meme.getName()).addInstrumentId(instrumentId);
-    }));
   }
 
   /**
@@ -107,7 +97,10 @@ public class DigestMemeImpl extends DigestImpl implements DigestMeme {
     return memes.get(name);
   }
 
-  @Override
+  /*
+  TODO: custom JSON serializer for DigestChordProgression
+
+
   public JSONObject toJSONObject() {
     JSONObject result = new JSONObject();
     JSONObject memeUsage = new JSONObject();
@@ -125,7 +118,7 @@ public class DigestMemeImpl extends DigestImpl implements DigestMeme {
       memeObj.put(KEY_INSTRUMENTS, memeInstrumentsArr);
 
       JSONArray memeSequencesArr = new JSONArray();
-      memeDigestItem.getPatternSequenceIds().forEach(sequenceId -> {
+      memeDigestItem.getSequenceIds().forEach(sequenceId -> {
         JSONObject sequenceObj = new JSONObject();
         JSONArray sequencePatternsArr = new JSONArray();
         memeDigestItem.getPatternIds(sequenceId).forEach(patternId -> {
@@ -143,7 +136,7 @@ public class DigestMemeImpl extends DigestImpl implements DigestMeme {
         memeSequencesArr.put(sequenceObj);
       });
       memeDigestItem.getSequenceIds().forEach(sequenceId -> {
-        if (memeDigestItem.getPatternSequenceIds().contains(sequenceId)) return;
+        if (memeDigestItem.getSequenceIds().contains(sequenceId)) return;
         JSONObject sequenceObj = new JSONObject();
         sequenceObj.put(KEY_SEQUENCE_ID, sequenceId);
         sequenceObj.put(KEY_SEQUENCE_TYPE, getSequence(sequenceId).getType());
@@ -159,5 +152,7 @@ public class DigestMemeImpl extends DigestImpl implements DigestMeme {
     result.put(KEY_MEME_USAGE, memeUsage);
     return result;
   }
+
+   */
 
 }

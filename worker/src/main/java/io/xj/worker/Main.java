@@ -4,7 +4,7 @@ package io.xj.worker;
 import io.xj.core.CoreModule;
 import io.xj.core.app.App;
 import io.xj.core.config.Config;
-import io.xj.core.exception.ConfigException;
+import io.xj.core.exception.CoreException;
 import io.xj.core.persistence.sql.migration.MigrationService;
 import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import io.xj.craft.CraftModule;
@@ -35,7 +35,7 @@ public class Main {
    @param args arguments
    @throws IOException if execution fails
    */
-  public static void main(String[] args) throws IOException, ConfigException {
+  public static void main(String[] args) throws IOException, CoreException {
     // Default port
     Config.setDefault("app.port", "8043");
 
@@ -45,7 +45,7 @@ public class Main {
     // Database migration validation check, to avoid operations on wrong database.
     try {
       MigrationService.validate(sqlDatabaseProvider);
-    } catch (ConfigException e) {
+    } catch (CoreException e) {
       log.error("Migration validation failed! Worker App will not start.", e);
       System.exit(1);
     }

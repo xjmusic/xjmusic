@@ -1,14 +1,11 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.model.message;
 
-import io.xj.core.exception.BusinessException;
-import io.xj.core.model.entity.Entity;
-
-import java.util.Objects;
+import io.xj.core.exception.CoreException;
 
 /**
  POJO for persisting data in memory while performing business logic,
-or decoding messages received by JAX-RS resources.
+ or decoding messages received by JAX-RS resources.
  a.k.a. JSON input will be stored into an instance of this object
  <p>
  Business logic ought to be performed beginning with an instance of this object,
@@ -16,46 +13,19 @@ or decoding messages received by JAX-RS resources.
  <p>
  NOTE: There can only be ONE of any getter/setter (with the same # of input params)
  */
-public abstract class Message extends Entity {
+public interface Message {
+  String KEY_ONE = "message";
+  String KEY_MANY = "messages";
 
-  private String _type;
-  private MessageType type;
+  void validate() throws CoreException;
 
-  @Override
-  public void validate() throws BusinessException {
-    // throws its own BusinessException on failure
-    type = MessageType.validate(_type);
+  String getBody();
 
-    if (Objects.isNull(type)) {
-      throw new BusinessException("Type is required.");
-    }
-  }
+  Message setBody(String body);
 
-  public static final String KEY_ONE = "message";
-  public static final String KEY_MANY = "messages";
+  Message setType(String type) throws CoreException;
 
-  public String getBody() {
-    return body;
-  }
+  MessageType getType();
 
-  public Message setBody(String body) {
-    this.body = body;
-    return this;
-  }
-
-  public Message setType(String type) {
-    _type = type;
-    return this;
-  }
-
-  protected String body;
-
-  public MessageType getType() {
-    return type;
-  }
-
-  public Message setTypeEnum(MessageType type) {
-    this.type = type;
-    return this;
-  }
+  Message setTypeEnum(MessageType type);
 }

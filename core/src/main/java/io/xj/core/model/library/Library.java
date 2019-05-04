@@ -1,8 +1,8 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.model.library;
 
-import io.xj.core.exception.BusinessException;
-import io.xj.core.model.entity.Entity;
+import io.xj.core.exception.CoreException;
+import io.xj.core.model.entity.impl.EntityImpl;
 
 import java.math.BigInteger;
 import java.util.Objects;
@@ -17,7 +17,7 @@ import java.util.Objects;
  <p>
  NOTE: There can only be ONE of any getter/setter (with the same # of input params)
  */
-public class Library extends Entity {
+public class Library extends EntityImpl {
   public static final String KEY_ONE = "library";
   public static final String KEY_MANY = "libraries";
   private String name;
@@ -58,12 +58,12 @@ public class Library extends Entity {
   }
 
   @Override
-  public void validate() throws BusinessException {
+  public void validate() throws CoreException {
     if (Objects.isNull(name) || name.isEmpty()) {
-      throw new BusinessException("Name is required.");
+      throw new CoreException("Name is required.");
     }
     if (Objects.isNull(accountId)) {
-      throw new BusinessException("Account ID is required.");
+      throw new CoreException("Account ID is required.");
     }
   }
 

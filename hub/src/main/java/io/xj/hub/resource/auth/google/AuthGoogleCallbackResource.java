@@ -2,12 +2,9 @@
 package io.xj.hub.resource.auth.google;
 
 import com.google.api.client.auth.oauth2.AuthorizationCodeResponseUrl;
-
 import io.xj.core.access.AccessControlProvider;
 import io.xj.core.config.Config;
-import io.xj.core.exception.AccessException;
-import io.xj.core.exception.ConfigException;
-import io.xj.core.exception.DatabaseException;
+import io.xj.core.exception.CoreException;
 import io.xj.core.transport.HttpResponseProvider;
 import io.xj.hub.HubResource;
 import org.slf4j.Logger;
@@ -20,6 +17,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.util.Objects;
 
 /**
  Root resource (exposed at "o2" path)
@@ -44,10 +42,10 @@ public class AuthGoogleCallbackResource extends HubResource {
     AuthorizationCodeResponseUrl authResponse;
     try {
       authResponse = new AuthorizationCodeResponseUrl(ui.getRequestUri().toString());
-      if (authResponse.getError() != null) {
+      if (Objects.nonNull(authResponse.getError())) {
         return errorResponse("Authorization denied: " + authResponse.getErrorDescription());
       }
-    } catch (java.lang.IllegalArgumentException e) {
+    } catch (IllegalArgumentException e) {
       return errorResponse("Authorization code response URL missing required parameter(s)");
     } catch (Exception e) {
       return errorResponse("Unknown error while parse authorization code response URL", e);
@@ -56,12 +54,8 @@ public class AuthGoogleCallbackResource extends HubResource {
     String accessToken;
     try {
       accessToken = accessControlProvider.authenticate(authResponse.getCode());
-    } catch (AccessException e) {
+    } catch (CoreException e) {
       return errorResponse("Authentication failed:" + e.getMessage());
-    } catch (ConfigException e) {
-      return errorResponse("Configuration error" + e.getMessage());
-    } catch (DatabaseException e) {
-      return errorResponse("Database error" + e.getMessage());
     } catch (Exception e) {
       return errorResponse("Unknown error with authenticating access code", e);
     }

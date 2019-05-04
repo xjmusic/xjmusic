@@ -40,9 +40,12 @@ import static org.mockito.Mockito.when;
 public class AccessTokenAuthFilterImplTest {
   private Injector injector;
   private AccessTokenAuthFilter subject;
-  @Mock private AccessControlProvider accessControlProvider;
-  @Mock private ContainerRequestContext requestContext;
-  @Mock private ResourceInfo resourceInfo;
+  @Mock
+  private AccessControlProvider accessControlProvider;
+  @Mock
+  private ContainerRequestContext requestContext;
+  @Mock
+  private ResourceInfo resourceInfo;
 
   private static Injector createInjector() {
     return Guice.createInjector(Modules.override(new CoreModule()).with(

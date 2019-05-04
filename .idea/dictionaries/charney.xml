@@ -17,6 +17,8 @@
       <w>doneness</w>
       <w>dropdown</w>
       <w>farkas</w>
+      <w>gson</w>
+      <w>guice</w>
       <w>heartbeater</w>
       <w>highpass</w>
       <w>iamus</w>
@@ -38,8 +40,10 @@
       <w>nobuild</w>
       <w>noop</w>
       <w>ogg</w>
+      <w>outro</w>
       <w>paam</w>
       <w>pluggable</w>
+      <w>pojo</w>
       <w>poom</w>
       <w>qmon</w>
       <w>requeues</w>

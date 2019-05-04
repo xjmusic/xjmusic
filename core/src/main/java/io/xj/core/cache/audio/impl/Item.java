@@ -2,7 +2,7 @@
 package io.xj.core.cache.audio.impl;
 
 import io.xj.core.config.Config;
-import io.xj.core.exception.ConfigException;
+import io.xj.core.exception.CoreException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Objects;
 
 public class Item {
   private final String _key;
@@ -31,9 +32,9 @@ public class Item {
    [#153228109] During Dubbing, when the audio cache refreshes an item, filenames should be unique in order to avoid deletion-collision
 
    @param key of item to cache
-   @throws ConfigException when missing required configurations
+   @throws CoreException when missing required configurations
    */
-  public Item(String key) throws ConfigException {
+  public Item(String key) throws CoreException {
     _key = key;
     String bucket = Config.audioFileBucket();
     _path = pathPrefix +
@@ -67,10 +68,14 @@ public class Item {
    @throws IOException on failure
    */
   public void writeFrom(InputStream data) throws IOException {
-    OutputStream toFile = FileUtils.openOutputStream(new File(_path));
-    _bytes = IOUtils.copy(data, toFile);
-    toFile.close();
-    log.info("Wrote media item to disk cache: {} ({} bytes)", _path, _bytes);
+    if (Objects.nonNull(data)) {
+      OutputStream toFile = FileUtils.openOutputStream(new File(_path));
+      _bytes = IOUtils.copy(data, toFile);
+      toFile.close();
+      log.info("Did write media item to disk cache: {} ({} bytes)", _path, _bytes);
+    } else {
+      log.warn("Will not write 0 bytes to disk cache: {}", _path);
+    }
   }
 
   /**

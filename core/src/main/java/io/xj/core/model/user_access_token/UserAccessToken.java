@@ -1,13 +1,13 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.model.user_access_token;
 
-import io.xj.core.exception.BusinessException;
+import io.xj.core.exception.CoreException;
 import io.xj.core.model.entity.Entity;
+import io.xj.core.model.entity.impl.EntityImpl;
 
 import java.math.BigInteger;
 
-public class UserAccessToken extends Entity {
-
+public class UserAccessToken extends EntityImpl {
   private BigInteger userAuthId;
   private BigInteger userId;
 
@@ -16,13 +16,8 @@ public class UserAccessToken extends Entity {
     return userId;
   }
 
-  /**
-   Validate data.
-
-   @throws BusinessException if invalid.
-   */
   @Override
-  public void validate() throws BusinessException {
+  public void validate() throws CoreException {
 
   }
 

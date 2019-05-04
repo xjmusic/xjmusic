@@ -1,7 +1,7 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.model.role;
 
-import io.xj.core.exception.BusinessException;
+import io.xj.core.exception.CoreException;
 import io.xj.core.model.user_role.UserRoleType;
 
 import org.junit.Rule;
@@ -12,7 +12,8 @@ import static org.junit.Assert.assertEquals;
 
 public class UserRoleTypeTest {
 
-  @Rule public ExpectedException failure = ExpectedException.none();
+  @Rule
+  public ExpectedException failure = ExpectedException.none();
 
   @Test
   public void validate() throws Exception {
@@ -23,7 +24,7 @@ public class UserRoleTypeTest {
     assertEquals(UserRoleType.Banned, UserRoleType.validate("Banned"));
   }
 
-  @Test(expected = BusinessException.class)
+  @Test(expected = CoreException.class)
   public void validate_not() throws Exception {
     UserRoleType.validate("garbage");
   }

@@ -2,17 +2,15 @@
 package io.xj.pulse;
 
 
-import io.xj.pulse.util.EnvironmentProvider;
-
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.LambdaLogger;
+import io.xj.pulse.config.Config;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.json.JSONObject;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,43 +21,42 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.net.URI;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PulseTest {
-  @Mock private HttpClient httpClient;
-  @Mock private Context context;
-  @Mock private LambdaLogger lambdaLogger;
-  @Mock private EnvironmentProvider environmentProdiver;
-  @Mock private HttpResponse httpResponse;
-  @Mock private StatusLine statusLine;
+  @Mock
+  public HttpClient httpClient;
+  @Mock
+  public Context context;
+  @Mock
+  public LambdaLogger lambdaLogger;
+  @Mock
+  public HttpResponse httpResponse;
+  @Mock
+  public StatusLine statusLine;
+  @Mock
+  public Config config;
   private Pulse subject;
 
   @Before
-  public void setUp() throws Exception {
-    subject = new Pulse();
-    subject.mock(httpClient, environmentProdiver);
-  }
-
-  @After
-  public void tearDown() throws Exception {
-    subject = null;
+  public void setUp() {
+    subject = new Pulse(config, httpClient);
   }
 
   @Test
   public void handleRequest() throws Exception {
     when(context.getLogger()).thenReturn(lambdaLogger);
-    when(environmentProdiver.getRequired("platform_heartbeat_key")).thenReturn("1234");
-    when(environmentProdiver.getRequired("platform_heartbeat_url")).thenReturn("https://test.com");
-    ArgumentCaptor<HttpPost> argument = ArgumentCaptor.forClass(HttpPost.class);
-    when(httpClient.execute(argument.capture())).thenReturn(httpResponse);
+    when(config.getHeartbeatKey()).thenReturn("1234");
+    when(config.getHeartbeatURL()).thenReturn("https://test.com");
+    when(httpClient.execute(any())).thenReturn(httpResponse);
     when(httpResponse.getStatusLine()).thenReturn(statusLine);
     when(statusLine.getStatusCode()).thenReturn(202); // HttpStatus.SC_ACCEPTED
 
     JSONObject result = subject.handleRequest(new JSONObject("{\"input\":\"test\"}"), context);
 
+    ArgumentCaptor<HttpPost> argument = ArgumentCaptor.forClass(HttpPost.class);
+    verify(httpClient).execute(argument.capture());
     verify(lambdaLogger, times(1)).log("Input: {\"input\":\"test\"}");
     assertEquals(new URI("https://test.com"), argument.getValue().getURI());
     assertEquals("POST", argument.getValue().getMethod());

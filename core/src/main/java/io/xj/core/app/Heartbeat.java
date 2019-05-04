@@ -1,10 +1,8 @@
 //  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.app;
 
-import io.xj.core.model.work.Work;
-import org.json.JSONObject;
-
 import java.util.Collection;
+import java.util.Map;
 
 /**
  App heartbeat pulse
@@ -16,7 +14,8 @@ public interface Heartbeat {
   /**
    Do heartbeat pulse
    @throws Exception if unable to pulse heart
+   @return
    */
-  JSONObject pulse() throws Exception;
+  Map<String, Collection> pulse() throws Exception;
 
 }

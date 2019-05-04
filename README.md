@@ -67,17 +67,6 @@ We use [Docker](https://www.docker.com/) and [Docker Compose](https://docs.docke
 
 In the above example, `-d` tells Docker to start the containers in the background (as Daemons).
 
-You'll want to have hostnames defined to point at the docker-compose network. To automatically update /etc/hosts:
-
-    sudo bin/update_hosts
-
-Your **/etc/hosts** file should now contain these lines at the end:
-
-    127.0.0.1 localhost
-    172.16.217.10 hub01xj1
-    172.16.217.50 mysql01xj1
-    172.16.217.60 redis01xj1
-
 Note that `localhost` simply points to the local loopback. Docker-compose maps maps local port 80 to the `hub01xj1` docker container port 80.
 
 Assuming the docker containers are up and the hosts configured, you'll be able to open the main UI in a browser at [http://localhost/](http://localhost/)
@@ -97,7 +86,7 @@ To compile the Java server-side applications and package them for deployment:
 
 To build and deploy the platform during local development, we run this a lot:
 
-    bin/package && docker restart hub01xj1 work01xj1
+    bin/package && docker restart hub01xj1 worker01xj1
 
 For a complete rebuild, including configurations and front-end, we could run:
 
@@ -381,21 +370,6 @@ To clean, build and package artifacts for shipment:
 To run local migrations (in the `core` submodule via the Flyway plugin):
 
     mvn flyway:migrate
-
-
-
-## DNS
-
-To automatically update /etc/hosts:
-
-    sudo bin/update_hosts
-
-For development, your local machine needs to have the domain `localhost` pointed to `172.16.217.10` (the address set for hub01xj1 in the docker-compose.yml file) in `/etc/hosts`; it's helpful to have `redis01xj1` and `mysql01xj1` as well:
-
-    172.16.217.50 mysql01xj1
-    172.16.217.60 redis01xj1
-    172.16.217.10 hub01xj1
-    172.16.217.10 localhost
 
 
 

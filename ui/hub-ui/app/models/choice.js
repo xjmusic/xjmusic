@@ -3,11 +3,11 @@ import DS from 'ember-data';
 
 export default DS.Model.extend({
   segment: DS.belongsTo({}),
-  sequencePatternOffset: DS.attr('number'),
+  sequencePattern: DS.belongsTo({}),
   transpose: DS.attr('number'),
   type: DS.attr('string'),
   sequence: DS.belongsTo({}),
-  arrangements: DS.hasMany('arrangement'),
+  // arrangements: DS.hasMany('arrangement'), FUTURE: bind inner segment entities in ember models
 });
 
 

@@ -1,13 +1,12 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.resource;
 
-import io.xj.core.CoreModule;
-import io.xj.core.config.Exposure;
-import io.xj.core.transport.StatsProvider;
-import io.xj.core.transport.JSON;
-
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import io.xj.core.CoreModule;
+import io.xj.core.config.Exposure;
+import io.xj.core.transport.GsonProvider;
+import io.xj.core.transport.StatsProvider;
 
 import javax.annotation.security.PermitAll;
 import javax.ws.rs.GET;
@@ -29,9 +28,9 @@ import javax.ws.rs.core.Response;
  */
 @Path("stats")
 public class StatsResource {
-
   private static final Injector injector = Guice.createInjector(new CoreModule());
   private final StatsProvider statsProvider = injector.getInstance(StatsProvider.class);
+  private final GsonProvider gsonProvider = injector.getInstance(GsonProvider.class);
 
   /**
    Method handling HTTP GET requests. The returned object will be sent
@@ -44,7 +43,7 @@ public class StatsResource {
   @PermitAll
   public Response status() {
     return Response
-      .accepted(JSON.wrap(Exposure.KEY_STATS, statsProvider.getJSON()).toString())
+      .accepted(gsonProvider.wrap(Exposure.STATS, statsProvider.getJSON()))
       .type(MediaType.APPLICATION_JSON)
       .build();
   }

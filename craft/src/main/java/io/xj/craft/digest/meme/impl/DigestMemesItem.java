@@ -1,9 +1,9 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.craft.digest.meme.impl;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import io.xj.core.model.sequence_pattern.SequencePattern;
 
 import java.math.BigInteger;
 import java.util.Collection;
@@ -19,7 +19,7 @@ public class DigestMemesItem {
   private final String name;
   private final Collection<BigInteger> instrumentIds = Lists.newArrayList();
   private final Collection<BigInteger> sequenceIds = Lists.newArrayList();
-  private final Map<BigInteger, Collection<BigInteger>> sequencePatternIds = Maps.newConcurrentMap();
+  private final Map<BigInteger, Collection<BigInteger>> patternIds = Maps.newConcurrentMap(); // sequenceId: collection of patternIds mapped to it
 
   /**
    New instance
@@ -52,15 +52,20 @@ public class DigestMemesItem {
   /**
    Add a sequence id, if it isn't already in the list
 
-   @param sequenceId parent of pattern
-   @param patternId        of pattern to add
+   @param sequencePattern to add
    */
-  public void addSequencePatternId(BigInteger sequenceId, BigInteger patternId) {
-    if (!sequencePatternIds.containsKey(sequenceId))
-      sequencePatternIds.put(sequenceId, Lists.newArrayList());
+  public void addSequencePattern(SequencePattern sequencePattern) {
+    addSequenceId(sequencePattern.getSequenceId());
 
-    if (!sequencePatternIds.get(sequenceId).contains(patternId))
-      sequencePatternIds.get(sequenceId).add(patternId);
+    BigInteger sequenceId = sequencePattern.getSequenceId();
+    if (!patternIds.containsKey(sequenceId)) {
+      patternIds.put(sequenceId, Lists.newArrayList());
+    }
+
+    BigInteger patternId = sequencePattern.getPatternId();
+    if (!patternIds.get(sequenceId).contains(patternId)) {
+      patternIds.get(sequenceId).add(patternId);
+    }
   }
 
   /**
@@ -96,17 +101,8 @@ public class DigestMemesItem {
 
    @return collection of sequence id
    */
-  public Collection<BigInteger> getPatternSequenceIds() {
-    return sequencePatternIds.keySet();
-  }
-
-  /**
-   Get the pattern ids in which this meme is used, for a given sequence
-
-   @param sequenceId to get patterns in which the meme is used
-   @return collection of sequence pattern id
-   */
   public Collection<BigInteger> getPatternIds(BigInteger sequenceId) {
-    return sequencePatternIds.getOrDefault(sequenceId, ImmutableList.of());
+    return patternIds.getOrDefault(sequenceId, Lists.newArrayList());
   }
+
 }

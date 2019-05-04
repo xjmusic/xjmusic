@@ -1,7 +1,7 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.craft.generation;
 
-import io.xj.craft.ingest.Ingest;
+import io.xj.core.ingest.Ingest;
 import org.json.JSONObject;
 
 public interface Generation {
@@ -26,7 +26,7 @@ public interface Generation {
 
    @return Ingest
    */
-  Ingest ingest() throws Exception;
+  Ingest ingest();
 
   /**
    Yes, the order of elements in JSON arrays is preserved,

@@ -2,7 +2,6 @@
 package io.xj.core.model.choice;
 
 import io.xj.core.util.Chance;
-
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

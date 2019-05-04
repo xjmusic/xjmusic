@@ -27,6 +27,7 @@ public class ChainEraseJobImpl implements ChainEraseJob {
   private final ChainDAO chainDAO;
   private final SegmentDAO segmentDAO;
   private final WorkManager workManager;
+  private final Access access = Access.internal();
 
   @Inject
   public ChainEraseJobImpl(
@@ -44,7 +45,7 @@ public class ChainEraseJobImpl implements ChainEraseJob {
   @Override
   public void run() {
     try {
-      eraseChain();
+      doWork();
 
     } catch (Exception e) {
       log.error("{}:{} failed ({})",
@@ -58,14 +59,16 @@ public class ChainEraseJobImpl implements ChainEraseJob {
 
    @throws Exception on failure
    */
-  private void eraseChain() throws Exception {
-    Collection<Segment> segments = segmentDAO.readAll(Access.internal(), ImmutableList.of(entityId));
+  private void doWork() throws Exception {
+    Collection<Segment> segments = segmentDAO.readAll(access, ImmutableList.of(entityId));
     if (segments.isEmpty())
       try {
         log.info("Found ZERO segments in chainId={}; attempting to delete...", entityId);
-        chainDAO.destroy(Access.internal(), entityId);
+        chainDAO.destroy(access, entityId);
+        log.info("Did destroy chainId={} OK", entityId);
+
       } catch (Exception e) {
-        log.warn("Failed to delete chainId={}", entityId, e);
+        log.warn("Did not delete chainId={}, reason={}", entityId, e.getMessage());
         workManager.stopChainErase(entityId);
       }
     else {
@@ -100,7 +103,7 @@ public class ChainEraseJobImpl implements ChainEraseJob {
    @throws Exception on failure
    */
   private void eraseSegment(Segment segment) throws Exception {
-    segmentDAO.destroy(Access.internal(), segment.getId());
+    segmentDAO.destroy(access, segment.getId());
     log.info("Erased Segment #{}, destroyed child entities, and deleted s3 object {}", segment.getId(), segment.getWaveformKey());
   }
 

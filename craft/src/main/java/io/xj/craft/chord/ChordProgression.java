@@ -6,6 +6,7 @@ import io.xj.core.model.chord.Chord;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
+import io.xj.core.util.Value;
 
 import java.util.Collections;
 import java.util.List;
@@ -30,7 +31,7 @@ public class ChordProgression {
    */
   public ChordProgression(String progression) {
     chordNodes = Lists.newArrayList();
-    List<String> pieces = Splitter.on(Chord.SEPARATOR_DESCRIPTOR).splitToList(progression);
+    List<String> pieces = Splitter.on(Value.CHORD_SEPARATOR_DESCRIPTOR).splitToList(progression);
     pieces.forEach(piece -> chordNodes.add(new ChordNode(piece)));
   }
 
@@ -246,7 +247,7 @@ public class ChordProgression {
     if (chordNodes.isEmpty()) return "";
     List<String> pieces = Lists.newArrayList();
     chordNodes.forEach(chordDescriptorUnit -> pieces.add(chordDescriptorUnit.toString()));
-    return Joiner.on(Chord.SEPARATOR_DESCRIPTOR).join(pieces);
+    return Joiner.on(Value.CHORD_SEPARATOR_DESCRIPTOR).join(pieces);
   }
 
 }

@@ -1,14 +1,15 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.craft.digest.impl;
 
-import io.xj.craft.digest.Digest;
-import io.xj.craft.digest.DigestType;
-import io.xj.craft.ingest.Ingest;
-import io.xj.craft.ingest.IngestState;
+import io.xj.core.ingest.Ingest;
+import io.xj.core.ingest.IngestState;
 import io.xj.core.model.audio.Audio;
 import io.xj.core.model.instrument.Instrument;
-import io.xj.core.model.sequence.Sequence;
 import io.xj.core.model.pattern.Pattern;
+import io.xj.core.model.sequence.Sequence;
+import io.xj.craft.digest.Digest;
+import io.xj.craft.digest.DigestType;
+import io.xj.craft.exception.CraftException;
 
 import java.math.BigInteger;
 
@@ -36,7 +37,7 @@ public abstract class DigestImpl implements Digest {
    @return audio
    */
   public Audio getAudio(BigInteger id) {
-    return ingest.audioMap().get(id);
+    return ingest.getAudioMap().get(id);
   }
 
   /**
@@ -46,7 +47,7 @@ public abstract class DigestImpl implements Digest {
    @return sequence
    */
   public Sequence getSequence(BigInteger id) {
-    return ingest.sequenceMap().get(id);
+    return ingest.getSequenceMap().get(id);
   }
 
   /**
@@ -56,7 +57,7 @@ public abstract class DigestImpl implements Digest {
    @return pattern
    */
   public Pattern getPattern(BigInteger id) {
-    return ingest.patternMap().get(id);
+    return ingest.getPatternMap().get(id);
   }
 
   /**
@@ -66,7 +67,7 @@ public abstract class DigestImpl implements Digest {
    @return instrument
    */
   public Instrument getInstrument(BigInteger id) {
-    return ingest.instrumentMap().get(id);
+    return ingest.getInstrumentMap().get(id);
   }
 
 
@@ -97,6 +98,37 @@ public abstract class DigestImpl implements Digest {
    */
   public DigestType getType() {
     return type;
+  }
+
+  /**
+   Create a new CraftException prefixed with a segment id
+
+   @param message to include in exception
+   @return CraftException to throw
+   */
+  public CraftException exception(String message) {
+    return new CraftException(formatLog(message));
+  }
+
+  /**
+   Create a new CraftException prefixed with a segment id, including sub-exception
+
+   @param message to include in exception
+   @param e       Exception to include in exception
+   @return CraftException to throw
+   */
+  public CraftException exception(String message, Exception e) {
+    return new CraftException(formatLog(message), e);
+  }
+
+  /**
+   Format a message with the segmentId as prefix
+
+   @param message to format
+   @return formatted message with segmentId as prefix
+   */
+  private String formatLog(String message) {
+    return String.format("[digest|type=%s|state=%s] %s", type, state, message);
   }
 
 

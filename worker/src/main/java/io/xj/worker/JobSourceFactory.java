@@ -1,7 +1,7 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.worker;
 
-import io.xj.core.exception.WorkException;
+import io.xj.core.exception.CoreException;
 import io.xj.core.model.work.Work;
 import io.xj.core.model.work.WorkType;
 
@@ -41,7 +41,7 @@ public class JobSourceFactory implements JobFactory {
     WorkType workType = WorkType.validate(job.getClassName());
     Map<String, Object> vars = job.getVars();
     if (Objects.isNull(vars) || 1 > vars.size()) {
-      throw new WorkException("Job ought to have been created with at least 1 named variable");
+      throw new CoreException("Job ought to have been created with at least 1 named variable");
     }
 
     return makeTarget(workType, vars);
@@ -54,7 +54,7 @@ public class JobSourceFactory implements JobFactory {
    @param workType type of job
    @param vars     target arguments (the first one needs to be a BigInteger target entity id)
    */
-  private Runnable makeTarget(WorkType workType, Map<String, Object> vars) throws WorkException {
+  private Runnable makeTarget(WorkType workType, Map<String, Object> vars) throws CoreException {
     switch (workType) {
 
       case AudioClone:
@@ -88,7 +88,7 @@ public class JobSourceFactory implements JobFactory {
         return jobTargetFactory.makePatternEraseJob(entityId(vars.get(Work.KEY_TARGET_ID)));
 
       default:
-        throw new WorkException("Invalid Job Type");
+        throw new CoreException("Invalid Job Type");
     }
   }
 
@@ -97,12 +97,12 @@ public class JobSourceFactory implements JobFactory {
 
    @param arg to parse
    @return id value
-   @throws WorkException on failure
+   @throws CoreException on failure
    */
-  private static BigInteger entityId(Object arg) throws WorkException {
+  private static BigInteger entityId(Object arg) throws CoreException {
     BigInteger entityId = new BigInteger(String.valueOf(arg));
     if (0 == entityId.compareTo(BigInteger.valueOf(0))) {
-      throw new WorkException("Job requires non-zero entity id");
+      throw new CoreException("Job requires non-zero entity id");
     }
     return entityId;
   }
