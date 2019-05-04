@@ -5,7 +5,6 @@ Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 **Composite Music Fabrication Platform**
 
 Also see: Documents in `site/docs` which are published to https://docs.xi.io
-
 # Laws
 
   * There is only one code repository.
@@ -14,7 +13,6 @@ Also see: Documents in `site/docs` which are published to https://docs.xi.io
   * There are no launches, pertaining instead only to the spanning of time, and the availability of said platform and its components.
   * The platform does not implement passwords; it relies on OAuth.
   * The platform does not send or receive email; it relies on vendors for all external communications.
-  
 ## Workflow
 
   * Features are described as the desire of a person to take an action for a particular reason, e.g. "Artist wants Sequence and Pattern to be named according to musical norms, in order to make the most sense of XJ as a musical instrument."
@@ -29,9 +27,13 @@ Also see: Documents in `site/docs` which are published to https://docs.xi.io
     - Hot Fixes are `hotfix/890-should-do-that`
   * `TODO` comments are used only in working branches. Upon completion of branch work, any remaining `TODO` should be a new tracker issue.
 
+
+
 ## Chain Work
 
 This term refers (in the **xj** universe) to a layer of work performed on the Segments (sequentially, by their offset) in a Chain.
+
+
 
 ## Excellent JavaScript testing with Jest
 
@@ -45,7 +47,11 @@ Or, to launch the active development interface:
    
 NOTE: Hub UI still has Ember tests. See: [#158271368](https://www.pivotaltracker.com/story/show/158271368) Developer wants Hub UI to be tested from Jest for excellent testing experience.
 
+
+
 # Usage
+
+
 
 ## Getting Started
 
@@ -151,6 +157,8 @@ You will need to create two databases in your local MySQL server, `xj` and `xj_t
 
 *note that the latest codebase may run migrations on top of that ^^^, and of course it had better pass checksum ;)*
 
+
+
 ## XJ Website
 
 The main website is located in **ui/xj-site/** and is published to https://xj.io
@@ -165,11 +173,15 @@ See also the **/reference** folder. By Accessing the contents of that folder, yo
 
 > Please only read that file on your machine and then delete. Please do Not email that file anywhere, or upload it to any other servers. I prefer that (because it is in its 12-month non-disclosed "provisional" state with the U.S.P.T.O.) the file only be read directly by a person with access to my VPN wherein all work pertaining to it is stored. Thanks!
 
+
+
 ## Additional commands
 
 To only setup the workflow and check dependencies:
 
     bin/setup
+
+
 
 ## Environment (System) properties
 
@@ -180,6 +192,8 @@ To list all Java system properties:
 The default java properties are in the file **/default.env** which is copied to a new file **/runtime.env** on project setup. Developers modify their local runtime.env file with private keys and configuration. The runtime.env file is never committed to the repository. The **default.env** file is kept up-to-date with all environment variables expected by **bin/common/bootstrap**.
 
 Also note, ***by design 100% of platform Java system properties are read via Config`***
+
+
 
 ## Run local platform in Docker containers
 
@@ -228,6 +242,8 @@ The front-end user interface (ui/hub-ui) is served via Nginx from the local ui/d
     cd ui/hub-ui
     ember build --watch
 
+
+
 ## Compile server-side platform
 
 Compile the Java server-side application:
@@ -242,12 +258,16 @@ Compile & Package the Java server-side application, e.g. as JAR files:
 
     bin/package
 
+
+
 ## MySQL database
 
 By default, you'll need to create two MySQL databases:
 
   * `xj` (for running services)
   * `xj_test` (for build processes, and running integration tests)
+
+
 
 ## Redis server
 
@@ -256,6 +276,8 @@ The docker container `redis01xj1` exposes a Redis server on local port 6300.  Th
     bin/redis_cli
 
 For more information on Redis and production, see [the README in the .redis/ folder](.redis/README.md).
+
+
 
 ## Integration testing
 
@@ -267,11 +289,15 @@ Also, the integration test suite is run by default during a `bin/package` or `bi
 
 Integration uses the Docker `mysql01xj1` and `redis01xj1` databases.
 
+
+
 ## Database migration
 
 Migrate the local database (not usually necessary; migration happens automatically on application start):
 
     bin/migrate
+
+
 
 ## Web user interface (UI)    
 
@@ -283,6 +309,8 @@ Build and serve (with live updates) the Web user interface:
 
     bin/ui-serve
 
+
+
 ## Run local platform manually
 
 Run a local **Hub** on its default port 8042:
@@ -292,6 +320,8 @@ Run a local **Hub** on its default port 8042:
 Run a local **Work** on its default port 8043:
 
     bin/work    
+
+
 
 ## Release Java platform for deployment to AWS Elastic Beanstalk
 
@@ -310,6 +340,8 @@ The production deployment procedure is:
   5. Monitor health checks until confirmed consistently OK.
   6. Invalidate the CloudFront cache for hub.xj.io   
 
+
+
 ## Player UI
 
 While docker containers are up, and running the `bin/ui/develop` script, the Player UI is accessed in a browser at a URL that looks like this:
@@ -317,6 +349,8 @@ While docker containers are up, and running the `bin/ui/develop` script, the Pla
     http://localhost/player/#embedKey=coolambience&startAtMillisUTC=1528750706104
     
 It's a bare-metal JavaScript app designed for speed of delivery to customer.
+
+
 
 ## Cleanup
 
@@ -332,6 +366,8 @@ Clean away all IntelliJ related files:
 
     bin/clean_idea
 
+
+
 ## Maven
 
 To clean, build and install all artifacts:
@@ -346,6 +382,8 @@ To run local migrations (in the `core` submodule via the Flyway plugin):
 
     mvn flyway:migrate
 
+
+
 ## DNS
 
 To automatically update /etc/hosts:
@@ -359,9 +397,13 @@ For development, your local machine needs to have the domain `localhost` pointed
     172.16.217.10 hub01xj1
     172.16.217.10 localhost
 
+
+
 ## Google Authentication
 
 Login to the app using Google authentication. The redirect URL for local development is http://xj.io/auth/google/callback
+
+
 
 # Debugging
 
@@ -378,6 +420,8 @@ Also remember, it is necessary to send an authentication cookie in the header of
 
     curl -b Access-Token
 
+
+
 # Audio File Uploading
 
 Note that after an audio file is uploaded, it can be played back (on a GNU/Linux system) like:
@@ -390,6 +434,8 @@ Here are the public-facing Amazon CloudFront-backed URLs for audio files, and th
   * [https://audio.stage.xj.io](https://audio.stage.xj.io) is the staging URL, backed by [https://xj-stage-audio.s3.amazonaws.com](https://xj-stage-audio.s3.amazonaws.com)
   * [https://audio.dev.xj.io](https://audio.dev.xj.io) is the development URL, backed by [https://xj-dev-audio.s3.amazonaws.com](https://xj-dev-audio.s3.amazonaws.com)
 
+
+
 # Amazon S3
 
 The `/.mysql/dump/*` files are generated from data in the production environment, and refer to audio files located in the dev S3 bucket (synced from the production S3 bucket), xj-dev-audio.
@@ -401,6 +447,8 @@ Therefore, it is helpful to be able to sync the audio files from production into
     aws s3 sync s3://xj-prod-audio/ s3://xj-dev-audio/
 
 Note that in order to use that command, the source bucket (xj-prod-audio) must grant `s3:ListBucket` and `s3:GetObject` permission, and the target bucket (xj-dev-audio) must grant `s3:ListBucket` and `s3:PutObject` to the IAM user your AWS CLI is authenticated as.
+
+
 
 ## Environment Variables
 
@@ -419,7 +467,11 @@ Certain environment variables must be set in order for the correct Upload Policy
 
 The file upload ACL `bucket-owner-full-control` affords the administration of uploaded objects by the bucket owner.
 
+
+
 # Components
+
+
 
 ## ui/hub-ui
 
@@ -433,9 +485,21 @@ Connects to:
 
   * xj/hub
 
+Requires installing some NPM packages globally:
+
+    sudo npm install -g ember-cli jest npm-upgrade gulp 
+    
+Also possibly helpful is `npm-upgrade` for upgrading dependencies in a package.json at once:
+
+    sudo npm install -g npm-upgrade    
+
+
+
 ## core
 
 Common models and utilities. Built with Java, Guice, Tomcat, Maven.
+
+
 
 ## hub
 
@@ -456,7 +520,11 @@ There's a convenience script to send cURL to Hub and trigger heartbeat in develo
 
     bin/heartbeat
 
+
+
 ## worker
+
+
 
 ## pulse
 
@@ -486,11 +554,15 @@ Connects to:
   * SQL Database
   * Filesystem
 
+
+
 # Mix
 
 **Mix** is a Java implementation of the Go project [https://github.com/go-mix/mix](go-mix).
 
 The project has its own [README](mix/README.md)
+
+
 
 # Music
 
@@ -498,42 +570,64 @@ The project has its own [README](mix/README.md)
 
 The project has its own [README](music/README.md)
 
+
+
 ## Note
 
 A Note is used to represent the relative duration and pitch of a sound.
+
+
 
 ## Key
 
 The key of a piece is a group of pitches, or scale upon which a music composition is created in classical, Western art, and Western pop music.
 
+
+
 ## Chord
 
 In music theory, a chord is any harmonic set of three or more notes that is heard as if sounding simultaneously.
+
+
 
 ## Scale
 
 In music theory, a scale is any set of musical notes ordered by fundamental frequency or pitch.
 
+
+
 # App Standards
+
+
 
 ## Port
 
   * hub: 8042
   * worker: 8043
 
+
+
 ## Healthcheck Endpoint
 
 **GET /o2**
+
+
 
 ## The Dao of Database Access Objects (D.A.O.) in the xj universe
 
 1. ***All DAO methods require an AccessControl object!***
 
+
+
 # References
+
+
 
 ## Intro to Google OAuth2
 
 https://developers.google.com/+/web/samples/java
+
+
 
 ## Intro to Jersey and Grizzly2
 
@@ -543,6 +637,8 @@ Bootstrap a Grizzly2 quickstart with:
 
 mvn archetype:generate -DarchetypeArtifactId=jersey-quickstart-grizzly2 -DarchetypeGroupId=org.glassfish.jersey.archetypes -DinteractiveMode=false -DgroupId=io.xj -DartifactId=strap -Dpackage=io.xj.strap -DarchetypeVersion=2.17
 
+
+
 ## AWS Elastic Beanstalk
 
 The `.ebextensions` and `.ebsettings` folder contain configurations proprietary to [AWS Elastic Beanstalk](http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/java-tomcat-platform.html#java-tomcat-proxy).
@@ -551,11 +647,17 @@ Ops engineers may prefer to use the [The Elastic Beanstalk Command Line Interfac
 
 ***Look out for `eb` trying to modify and/or change git version control for the `.config` folder when you do a `eb init`-- revert anything it tries to change!***
 
+
+
 ## Jersey
 
 [Latest User Guide](https://jersey.java.net/documentation/latest/user-guide.html)
 
+
+
 # Developer Setup Gotchas
+
+
 
 ## IntelliJ IDEA
 
@@ -563,7 +665,11 @@ Here's the official XJ Music Inc copyright Velocity template:
 
     Copyright (c) 1999-${today.year}, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
+
+
 ## GNU/Linux
+
+
 
 ### MySQL run as non-root user
 
@@ -574,6 +680,8 @@ Get a MySQL shell with `sudo mysql -u root` and then run all of the following:
     DROP USER 'root'@'localhost';
     CREATE USER 'root'@'%' IDENTIFIED BY '';
     GRANT ALL PRIVILEGES ON *.* TO 'root'@'%';
+
+
 
 ### Docker run as non-root user
 
@@ -587,6 +695,8 @@ Get a MySQL shell with `sudo mysql -u root` and then run all of the following:
 
  - log out/in to activate the changes to groups.
 
+
+
 ## OSX
 
 On OSX, because we are unable to connect to the container from the host, we are using the following workarounds, which are built in to the cross-platform workflow:
@@ -596,6 +706,8 @@ On OSX, because we are unable to connect to the container from the host, we are 
 
 Docker documentation: https://docs.docker.com/docker-for-mac/networking/#per-container-ip-addressing-is-not-possible
 GitHub Open Issue: https://github.com/docker/for-mac/issues/155
+
+
 
 # Open Source Web Player on GitHub
 

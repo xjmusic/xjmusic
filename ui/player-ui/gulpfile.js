@@ -3,8 +3,8 @@
 /* globals require */
 const gulp = require('gulp');
 const sass = require('gulp-sass');
-const minifyCss = require('gulp-minify-css');
-const autoprefixer = require('gulp-autoprefixer');
+let cleanCSS = require('gulp-clean-css');
+ const autoprefixer = require('gulp-autoprefixer');
 const htmlmin = require('gulp-htmlmin');
 const uglify = require('gulp-uglify');
 const babel = require('gulp-babel');
@@ -22,8 +22,8 @@ const srcPath = 'src',
 // Configuration
 const config = {
   babel: {
-    presets: ['es2015', 'es2017'],
-    plugins: ["transform-class-properties"]
+    presets: ['@babel/env'],
+    plugins: ['@babel/plugin-proposal-class-properties']
   },
   src: {
     html: `${srcPath}/**/*.html`,
@@ -41,28 +41,30 @@ const config = {
   }
 };
 
-gulp.task('sass', () => {
+gulp.task('sass', (done) => {
   pump([
     gulp.src(config.src.sass),
     plumber(err => console.error(err)),
     sass({style: 'compressed'}).on('error', sass.logError),
     autoprefixer({browsers: ['last 2 versions']}),
-    minifyCss(),
+    cleanCSS(),
     gulp.dest(config.dist.css)
     // browserSync.stream({match: '**/*.css'})
   ]);
+  done();
 });
 
-gulp.task('html', () => {
+gulp.task('html', (done) => {
   pump([
     gulp.src(config.src.html),
     plumber(err => console.error(err)),
     htmlmin({collapseWhitespace: true, removeComments: true}),
     gulp.dest(config.dist.base)
   ]);
+  done();
 });
 
-gulp.task('js', () => {
+gulp.task('js', (done) => {
   pump([
     gulp.src(config.src.js),
     filter(['**', '!**/__mocks__/**', '!**/__tests__/**']),
@@ -72,27 +74,30 @@ gulp.task('js', () => {
     gulp.dest(config.dist.js)
     // browserSync.stream()
   ]);
+  done();
 });
 
-gulp.task('vendor', () => {
+gulp.task('vendor', (done) => {
   pump([
     gulp.src(config.src.vendArr),
     plumber(err => console.error(err)),
     gulp.dest(config.dist.vendor)
     // browserSync.stream()
   ]);
+  done();
 });
 
-gulp.task('image', () => {
+gulp.task('image', (done) => {
   pump([
     gulp.src(config.src.img),
     plumber(err => console.error(err)),
     imagemin({verbose: true}),
     gulp.dest(config.dist.img)
   ]);
+  done();
 });
 
-gulp.task('watch', ['sass', 'js', 'image', 'vendor', 'html'], () => {
+gulp.task('watch', gulp.series(['sass', 'js', 'image', 'vendor', 'html']), (done) => {
 
   /*
     // Not useful to launch http://localhost:3000/ because XJ Player is developed via Docker and docker-compose
@@ -108,7 +113,8 @@ gulp.task('watch', ['sass', 'js', 'image', 'vendor', 'html'], () => {
   gulp.watch(config.src.img, ['image']);
   // gulp.watch(config.src.html).on('change', browserSync.reload);
   // gulp.watch(config.src.js).on('change', browserSync.reload);
+  done();
 });
 
-gulp.task('default', ['sass', 'js', 'image', 'vendor', 'html']);
+gulp.task('default', gulp.series(['sass', 'js', 'image', 'vendor', 'html']));
 
