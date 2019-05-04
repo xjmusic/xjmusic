@@ -1,8 +1,8 @@
 # Based on official
-FROM ubuntu:12.04.5
+FROM ubuntu:18.04
 
-# Software Properties (Ubuntu 12 uses python-software-properties; newer versions use softare-properties-common)
-RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install python-software-properties
+# Software Properties
+RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install software-properties-common
 
 # C Build Tools
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install build-essential make
@@ -20,10 +20,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install dnsutils
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install curl
 
 # MySQL Client Libraries
-RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install libmysqlclient-dev libmysql-ruby
-
-# PHP5 CLI
-RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install php5-cli
+RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install libmysqlclient-dev
 
 # FFI dev lib
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install libffi-dev
@@ -39,22 +36,16 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install python3-
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install python-pip
 
 # Install Java.
-RUN \
-  echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | debconf-set-selections && \
-  add-apt-repository -y ppa:webupd8team/java && \
-  apt-get update && \
-  apt-get install -y oracle-java8-installer && \
-  rm -rf /var/lib/apt/lists/* && \
-  rm -rf /var/cache/oracle-jdk8-installer
+RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install openjdk-8-jdk
+
+# Define commonly used JAVA_HOME variable
+# ENV JAVA_HOME /usr/lib/jvm/java-8-oracle
 
 # Define working directory.
 WORKDIR /data
 
-# Define commonly used JAVA_HOME variable
-ENV JAVA_HOME /usr/lib/jvm/java-8-oracle
-
 # Tomcat 6
-RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install tomcat6
+RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install tomcat8
 
 # Less
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install less
@@ -66,18 +57,10 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install tree
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install telnet
 
 # Redis CLI
-RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install libjemalloc1 libjemalloc-dev
-RUN \
-  cd /tmp && \
-  wget http://download.redis.io/redis-stable.tar.gz && \
-  tar xvzf redis-stable.tar.gz && \
-  cd redis-stable && \
-  make && \
-  cp src/redis-cli /usr/local/bin/ && \
-  chmod 755 /usr/local/bin/redis-cli
+RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install redis-tools
 
-# Netcat (traditional)
-RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install netcat-traditional
+# Network tools
+RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install net-tools
 
 # MySQL Client
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install mysql-client
