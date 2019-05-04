@@ -1,10 +1,10 @@
 # Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
--- MySQL dump 10.13  Distrib 5.5.62, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 5.7.26, for Linux (x86_64)
 --
--- Host: xj-prod.c4xei3cvxtkt.us-east-1.rds.amazonaws.com    Database: ebdb
+-- Host: 127.0.0.1    Database: xj_production
 -- ------------------------------------------------------
--- Server version	5.7.16-log
+-- Server version	5.7.25
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -78,7 +78,7 @@ CREATE TABLE `arrangement` (
   CONSTRAINT `arrangement_fk_choice` FOREIGN KEY (`choice_id`) REFERENCES `choice` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   CONSTRAINT `arrangement_fk_instrument` FOREIGN KEY (`instrument_id`) REFERENCES `instrument` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   CONSTRAINT `arrangement_fk_voice` FOREIGN KEY (`voice_id`) REFERENCES `voice` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=15447122 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=16478514 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -104,7 +104,7 @@ CREATE TABLE `audio` (
   UNIQUE KEY `id_UNIQUE` (`id`),
   KEY `audio_fk_instrument_idx` (`instrument_id`),
   CONSTRAINT `audio_fk_instrument` FOREIGN KEY (`instrument_id`) REFERENCES `instrument` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=1011 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=1041 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -150,7 +150,7 @@ CREATE TABLE `audio_event` (
   UNIQUE KEY `id_UNIQUE` (`id`),
   KEY `event_fk_audio_idx` (`audio_id`),
   CONSTRAINT `event_fk_audio` FOREIGN KEY (`audio_id`) REFERENCES `audio` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=970 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=1009 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -176,7 +176,7 @@ CREATE TABLE `chain` (
   UNIQUE KEY `unique_embed_key` (`embed_key`),
   KEY `chain_fk_account` (`account_id`),
   CONSTRAINT `chain_fk_account` FOREIGN KEY (`account_id`) REFERENCES `account` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=359 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=362 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -241,7 +241,7 @@ CREATE TABLE `chain_library` (
   KEY `chain_library_fk_library_idx` (`library_id`),
   CONSTRAINT `chain_library_fk_chain` FOREIGN KEY (`chain_id`) REFERENCES `chain` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   CONSTRAINT `chain_library_fk_library` FOREIGN KEY (`library_id`) REFERENCES `library` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=335 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=338 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -263,7 +263,7 @@ CREATE TABLE `chain_sequence` (
   KEY `chain_sequence_fk_sequence` (`sequence_id`),
   CONSTRAINT `chain_sequence_fk_chain` FOREIGN KEY (`chain_id`) REFERENCES `chain` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   CONSTRAINT `chain_sequence_fk_sequence` FOREIGN KEY (`sequence_id`) REFERENCES `sequence` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=128 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -288,7 +288,7 @@ CREATE TABLE `choice` (
   KEY `choice_fk_sequence` (`sequence_id`),
   CONSTRAINT `choice_fk_segment` FOREIGN KEY (`segment_id`) REFERENCES `segment` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   CONSTRAINT `choice_fk_sequence` FOREIGN KEY (`sequence_id`) REFERENCES `sequence` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=10303708 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=11077254 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -449,7 +449,7 @@ CREATE TABLE `platform_message` (
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `id_UNIQUE` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=905 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=921 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -501,7 +501,7 @@ CREATE TABLE `segment` (
   UNIQUE KEY `id_UNIQUE` (`id`),
   UNIQUE KEY `unique_chain_offset_index` (`chain_id`,`offset`),
   CONSTRAINT `segment_fk_chain` FOREIGN KEY (`chain_id`) REFERENCES `chain` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=4961261 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=5219147 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -522,7 +522,7 @@ CREATE TABLE `segment_chord` (
   UNIQUE KEY `id_UNIQUE` (`id`),
   KEY `chord_fk_segment` (`segment_id`),
   CONSTRAINT `chord_fk_segment` FOREIGN KEY (`segment_id`) REFERENCES `segment` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=17445268 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=18457870 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -542,7 +542,7 @@ CREATE TABLE `segment_meme` (
   UNIQUE KEY `id_UNIQUE` (`id`),
   KEY `meme_fk_segment` (`segment_id`),
   CONSTRAINT `meme_fk_segment` FOREIGN KEY (`segment_id`) REFERENCES `segment` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=8179709 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=8632802 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -563,7 +563,7 @@ CREATE TABLE `segment_message` (
   UNIQUE KEY `id_UNIQUE` (`id`),
   KEY `message_fk_segment` (`segment_id`),
   CONSTRAINT `message_fk_segment` FOREIGN KEY (`segment_id`) REFERENCES `segment` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=2513357 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=2518322 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -611,7 +611,7 @@ CREATE TABLE `sequence_meme` (
   UNIQUE KEY `id_UNIQUE` (`id`),
   KEY `sequence_meme_fk_sequence` (`sequence_id`),
   CONSTRAINT `sequence_meme_fk_sequence` FOREIGN KEY (`sequence_id`) REFERENCES `sequence` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=131 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=147 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -634,7 +634,7 @@ CREATE TABLE `sequence_pattern` (
   KEY `sequence_pattern_fk_pattern` (`pattern_id`),
   CONSTRAINT `sequence_pattern_fk_pattern` FOREIGN KEY (`pattern_id`) REFERENCES `pattern` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   CONSTRAINT `sequence_pattern_fk_sequence` FOREIGN KEY (`sequence_id`) REFERENCES `sequence` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=801 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=800 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -654,7 +654,7 @@ CREATE TABLE `sequence_pattern_meme` (
   UNIQUE KEY `id_UNIQUE` (`id`),
   KEY `sequence_pattern_meme_fk_pattern` (`sequence_pattern_id`),
   CONSTRAINT `sequence_pattern_meme_fk_pattern` FOREIGN KEY (`sequence_pattern_id`) REFERENCES `sequence_pattern` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=1121 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=1114 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -673,7 +673,7 @@ CREATE TABLE `user` (
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `id_UNIQUE` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=38 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -696,7 +696,7 @@ CREATE TABLE `user_access_token` (
   KEY `user_access_token_fk_user_auth_idx` (`user_auth_id`),
   CONSTRAINT `user_access_token_fk_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   CONSTRAINT `user_access_token_fk_user_auth` FOREIGN KEY (`user_auth_id`) REFERENCES `user_auth` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=329 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=340 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -719,7 +719,7 @@ CREATE TABLE `user_auth` (
   UNIQUE KEY `id_UNIQUE` (`id`),
   KEY `user_auth_fk_user_idx` (`user_id`),
   CONSTRAINT `user_auth_fk_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=38 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -739,7 +739,7 @@ CREATE TABLE `user_role` (
   UNIQUE KEY `id_UNIQUE` (`id`),
   KEY `user_role_fk_user_idx` (`user_id`),
   CONSTRAINT `user_role_fk_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=82 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=85 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -772,12 +772,12 @@ CREATE TABLE `voice` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-04-03 22:30:30
--- MySQL dump 10.13  Distrib 5.5.62, for Linux (x86_64)
+-- Dump completed on 2019-05-03 20:19:00
+-- MySQL dump 10.13  Distrib 5.7.26, for Linux (x86_64)
 --
--- Host: xj-prod.c4xei3cvxtkt.us-east-1.rds.amazonaws.com    Database: ebdb
+-- Host: 127.0.0.1    Database: xj_production
 -- ------------------------------------------------------
--- Server version	5.7.16-log
+-- Server version	5.7.25
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -809,4 +809,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-04-03 22:30:30
+-- Dump completed on 2019-05-03 20:19:00
