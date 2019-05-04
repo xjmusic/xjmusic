@@ -70,9 +70,9 @@ step_ok
 
 #
 step "Add nginx locations for Elastic Beanstalk config to target"
-mkdir -p ${PWD}/target/.ebextensions/nginx/conf.d/elasticbeanstalk
+mkdir -p ${PWD}/target/.ebextensions/nginx/conf.d/locations
 cp ${PWD}/.nginx/locations.conf \
-   ${PWD}/target/.ebextensions/nginx/conf.d/elasticbeanstalk/00_application.conf
+   ${PWD}/target/.ebextensions/nginx/conf.d/locations/00_application.conf
 step_ok
 
 #

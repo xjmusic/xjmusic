@@ -77,10 +77,10 @@ EXPOSE 80
 ADD \
   .docker/nginx/nginx.conf \
   /etc/nginx/nginx.conf
-RUN mkdir -p /etc/nginx/conf.d/elasticbeanstalk
+RUN mkdir -p /etc/nginx/conf.d/locations
 ADD \
   .nginx/locations.conf \
-  /etc/nginx/conf.d/elasticbeanstalk/00_application.conf
+  /etc/nginx/conf.d/locations/00_application.conf
 
 ###
 ### App-specific content follows
