@@ -86,7 +86,8 @@ public interface Fabricator {
    Compute using an integral
    the seconds from start for any given position in beats
    Velocity of Segment meter (beats per minute) increases linearly from the beginning of the Segment (at the previous Segment's tempo) to the end of the Segment (arriving at the current Segment's tempo, only at its end)
-   <p>
+
+   [#166370833] Segment should *never* be fabricated longer than its total beats.
    [#153542275] Segment wherein tempo changes expect perfectly smooth sound from previous segment through to following segment
 
    @param p position in beats
@@ -408,13 +409,6 @@ public interface Fabricator {
   Audio getSegmentAudio(BigInteger audioId) throws CoreException;
 
   /**
-   Segment begin-at timestamp
-
-   @return begin at
-   */
-    Timestamp getSegmentBeginAt();
-
-  /**
    Fetch a segment in a chain, by offset
 
    @param chainId to fetch segment in
@@ -491,7 +485,7 @@ public interface Fabricator {
    @param key   to put
    @param value to put
    */
-  void putReport(String key, String value);
+  void putReport(String key, Object value);
 
   /**
 

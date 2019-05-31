@@ -14,7 +14,7 @@ CMD_DUMP_RECORDS="bin/mysql/dump/records"
 CMD_DUMP_SCHEMA="bin/mysql/dump/schema"
 
 # Database
-MYSQL_DB_MAIN="xj_production"
+MYSQL_DB_MAIN="xj"
 MYSQL_DB_TEST="xj_test"
 
 # Output

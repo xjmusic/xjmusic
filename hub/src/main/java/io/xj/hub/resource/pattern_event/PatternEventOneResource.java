@@ -3,6 +3,7 @@ package io.xj.hub.resource.pattern_event;
 
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.PatternEventDAO;
+import io.xj.core.exception.CoreException;
 import io.xj.core.model.pattern_event.PatternEvent;
 import io.xj.core.model.pattern_event.PatternEventWrapper;
 import io.xj.core.model.user_role.UserRoleType;
@@ -50,6 +51,9 @@ public class PatternEventOneResource extends HubResource {
         patternEventDAO.readOne(
           Access.fromContext(crc),
           new BigInteger(id)));
+
+    } catch (CoreException ignored) {
+      return response.notFound("Pattern Event");
 
     } catch (Exception e) {
       return response.failure(e);

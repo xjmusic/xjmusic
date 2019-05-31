@@ -42,6 +42,10 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
   private static final double SCORE_MAIN_ENTROPY = 0.5;
   private static final long NANOS_PER_SECOND = 1_000_000_000;
   private final Logger log = LoggerFactory.getLogger(MacroMainCraftImpl.class);
+  private Pattern macroPattern;
+  private Pattern mainPattern;
+  private Sequence macroSequence;
+  private Sequence mainSequence;
 
   @Inject
   public MacroMainCraftImpl(
@@ -59,7 +63,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
       .setDensity(segmentDensity())
       .setTempo(segmentTempo())
       .setKey(segmentKey())
-      .setTotal(segmentTotal())
+      .setTotal(chooseMainPattern().getTotal())
       .setEndAtTimestamp(segmentEndTimestamp());
     try {
       getFabricator().updateSegment();
@@ -148,7 +152,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
    */
   private void doChordCraft() throws CraftException {
     try {
-      getFabricator().getSourceMaterial().getChordsOfPattern(getMainPattern().getId())
+      getFabricator().getSourceMaterial().getChordsOfPattern(chooseMainPattern().getId())
         .forEach(patternChord -> {
 
           if (patternChord.getPosition() < getFabricator().getSegment().getTotal()) {
@@ -264,7 +268,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
    */
   private Integer getMainTranspose() throws CraftException {
     return Key.delta(getMainSequence().getKey(),
-      Value.eitherOr(getMacroPattern().getKey(), getMacroSequence().getKey()),
+      Value.eitherOr(chooseMacroPattern().getKey(), getMacroSequence().getKey()),
       getMacroTranspose());
   }
 
@@ -323,44 +327,59 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
   }
 
   /**
-   Fetch current pattern of macro-type sequence
+   Choose a pattern of macro-type sequence
+   <p>
+   *ONLY CHOOSES ONCE, then returns that choice every time.**
 
    @return pattern
    @throws CraftException on failure
    */
-  private Pattern getMacroPattern() throws CraftException {
-    try {
-      return getFabricator().getSourceMaterial().fetchOnePattern(
-        getFabricator().getRandomSequencePatternAtOffset(getMacroSequence().getId(), getMacroPatternOffset()).getPatternId());
+  private Pattern chooseMacroPattern() throws CraftException {
+    if (Objects.isNull(macroPattern))
+      try {
+        macroPattern = getFabricator().getSourceMaterial().fetchOnePattern(
+          getFabricator().getRandomSequencePatternAtOffset(getMacroSequence().getId(), getMacroPatternOffset()).getPatternId());
 
-    } catch (CoreException e) {
-      throw exception("Failed to get Macro Pattern", e);
-    }
+      } catch (CoreException e) {
+        throw exception("Failed to get Macro Pattern", e);
+      }
+
+    return macroPattern;
   }
 
   /**
-   Fetch current pattern of main-type sequence
+   Choose a pattern of main-type sequence
+   <p>
+   *ONLY CHOOSES ONCE, then returns that choice every time.**
 
    @return pattern
    @throws CraftException on failure
    */
-  private Pattern getMainPattern() throws CraftException {
-    try {
-      return getFabricator().getSourceMaterial().fetchOnePattern(
-        getFabricator().getRandomSequencePatternAtOffset(getMainSequence().getId(), getMainPatternOffset()).getPatternId());
+  private Pattern chooseMainPattern() throws CraftException {
+    if (Objects.isNull(mainPattern))
+      try {
+        mainPattern = getFabricator().getSourceMaterial().fetchOnePattern(
+          getFabricator().getRandomSequencePatternAtOffset(getMainSequence().getId(), getMainPatternOffset()).getPatternId());
 
-    } catch (CoreException e) {
-      throw exception("Failed to get Main Pattern", e);
-    }
+      } catch (CoreException e) {
+        throw exception("Failed to get Main Pattern", e);
+      }
+
+    return mainPattern;
   }
 
   /**
    Choose macro sequence
+   <p>
+   *ONLY CHOOSES ONCE, then returns that choice every time.**
 
    @return macro-type sequence
    @throws CraftException on failure
    */
   private Sequence chooseMacro() throws CraftException {
+    if (Objects.nonNull(macroSequence))
+      return macroSequence;
+
     EntityRank<Sequence> entityRank = new EntityRank<>();
 
     // (1) retrieve sequences bound to chain
@@ -392,14 +411,18 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
 
     // (4) return the top choice
     try {
-      return entityRank.getTop();
+      macroSequence = entityRank.getTop();
     } catch (CoreException e) {
       throw exception("Found no macro-type sequence bound to Chain!", e);
     }
+
+    return macroSequence;
   }
 
   /**
    Choose main sequence
+   <p>
+   *ONLY CHOOSES ONCE, then returns that choice every time.**
 
    @return main-type Sequence
    @throws CraftException on failure
@@ -407,6 +430,9 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
    future: don't we need to pass in the current pattern of the macro sequence?
    */
   private Sequence chooseMain() throws CraftException {
+    if (Objects.nonNull(mainSequence))
+      return mainSequence;
+
     EntityRank<Sequence> entityRank = new EntityRank<>();
 
     // future: only choose major sequences for major keys, minor for minor! [#223] Key of first Pattern of chosen Main-Sequence must match the `minor` or `major` with the Key of the current Segment.
@@ -433,10 +459,12 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
 
     // (4) return the top choice
     try {
-      return entityRank.getTop();
+      mainSequence = entityRank.getTop();
     } catch (CoreException e) {
       throw exception("Found no main-type sequence bound to Chain!", e);
     }
+
+    return mainSequence;
   }
 
   /**
@@ -539,14 +567,13 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
 
   /**
    Get Segment length, in nanoseconds
-   If a previous segment exists, the tempo is averaged with its tempo, because the tempo will increase at a linear rate from start to finish.
 
    @return segment length, in nanoseconds
    @throws CraftException on failure
    */
   private long segmentLengthNanos() throws CraftException {
     try {
-      return (long) (getFabricator().computeSecondsAtPosition(segmentTotal()) * NANOS_PER_SECOND);
+      return (long) (getFabricator().computeSecondsAtPosition(chooseMainPattern().getTotal()) * NANOS_PER_SECOND);
     } catch (CoreException e) {
       throw exception("Failed to compute seconds at position", e);
     }
@@ -560,18 +587,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
    @throws CraftException on failure
    */
   private Timestamp segmentEndTimestamp() throws CraftException {
-    return Timestamp.from(getFabricator().getSegmentBeginAt().toInstant().plusNanos(segmentLengthNanos()));
-  }
-
-  /**
-   Compute the total # of beats of the current segment
-   Segment Total (# Beats) = from current Pattern of Main-Sequence
-
-   @return # beats total
-   @throws CraftException on failure
-   */
-  private Integer segmentTotal() throws CraftException {
-    return getMainPattern().getTotal();
+    return Timestamp.from(getFabricator().getSegment().getBeginAt().toInstant().plusNanos(segmentLengthNanos()));
   }
 
   /**
@@ -582,7 +598,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
    @throws CraftException on failure
    */
   private String segmentKey() throws CraftException {
-    String mainKey = getMainPattern().getKey();
+    String mainKey = chooseMainPattern().getKey();
     if (null == mainKey || mainKey.isEmpty()) {
       mainKey = getMainSequence().getKey();
     }
@@ -596,8 +612,8 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
    @throws CraftException on failure
    */
   private double segmentTempo() throws CraftException {
-    return (Value.eitherOr(getMacroPattern().getTempo(), getMacroSequence().getTempo()) +
-      Value.eitherOr(getMainPattern().getTempo(), getMainSequence().getTempo())) / 2;
+    return (Value.eitherOr(chooseMacroPattern().getTempo(), getMacroSequence().getTempo()) +
+      Value.eitherOr(chooseMainPattern().getTempo(), getMainSequence().getTempo())) / 2;
   }
 
   /**
@@ -608,8 +624,8 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
    @throws CraftException on failure
    */
   private Double segmentDensity() throws CraftException {
-    return (Value.eitherOr(getMacroPattern().getDensity(), getMacroSequence().getDensity()) +
-      Value.eitherOr(getMainPattern().getDensity(), getMainSequence().getDensity())) / 2;
+    return (Value.eitherOr(chooseMacroPattern().getDensity(), getMacroSequence().getDensity()) +
+      Value.eitherOr(chooseMainPattern().getDensity(), getMainSequence().getDensity())) / 2;
   }
 
 }

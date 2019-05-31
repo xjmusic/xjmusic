@@ -3,6 +3,7 @@ package io.xj.hub.resource.chain;
 
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.ChainDAO;
+import io.xj.core.exception.CoreException;
 import io.xj.core.model.chain.Chain;
 import io.xj.core.model.chain.ChainWrapper;
 import io.xj.core.model.user_role.UserRoleType;
@@ -55,6 +56,9 @@ public class ChainOneResource extends HubResource {
     try {
       if (Text.isInteger(id)) return readOneById(access);
       else return readOneByEmbedKey(access);
+
+    } catch (CoreException ignored) {
+      return response.notFound("Chain");
 
     } catch (Exception e) {
       return response.failure(e);

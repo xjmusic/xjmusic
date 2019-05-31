@@ -3,6 +3,7 @@ package io.xj.hub.resource.sequence;
 
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.SequenceDAO;
+import io.xj.core.exception.CoreException;
 import io.xj.core.model.sequence.Sequence;
 import io.xj.core.model.sequence.SequenceWrapper;
 import io.xj.core.model.user_role.UserRoleType;
@@ -50,6 +51,9 @@ public class SequenceOneResource extends HubResource {
         sequenceDAO.readOne(
           Access.fromContext(crc),
           new BigInteger(id)));
+
+    } catch (CoreException ignored) {
+      return response.notFound("Sequence");
 
     } catch (Exception e) {
       return response.failure(e);

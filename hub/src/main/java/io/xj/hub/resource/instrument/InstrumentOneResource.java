@@ -3,6 +3,7 @@ package io.xj.hub.resource.instrument;
 
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.InstrumentDAO;
+import io.xj.core.exception.CoreException;
 import io.xj.core.model.instrument.Instrument;
 import io.xj.core.model.instrument.InstrumentWrapper;
 import io.xj.core.model.user_role.UserRoleType;
@@ -50,6 +51,9 @@ public class InstrumentOneResource extends HubResource {
         instrumentDAO.readOne(
           Access.fromContext(crc),
           new BigInteger(id)));
+
+    } catch (CoreException ignored) {
+      return response.notFound("Instrument");
 
     } catch (Exception e) {
       return response.failure(e);

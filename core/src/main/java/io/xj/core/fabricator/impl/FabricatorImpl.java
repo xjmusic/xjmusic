@@ -16,6 +16,8 @@ import io.xj.core.dao.SegmentDAO;
 import io.xj.core.exception.CoreException;
 import io.xj.core.fabricator.Fabricator;
 import io.xj.core.fabricator.FabricatorType;
+import io.xj.core.fabricator.TimeComputer;
+import io.xj.core.fabricator.TimeComputerFactory;
 import io.xj.core.ingest.Ingest;
 import io.xj.core.ingest.cache.IngestCacheProvider;
 import io.xj.core.isometry.Isometry;
@@ -46,7 +48,6 @@ import io.xj.core.model.sequence_pattern.SequencePattern;
 import io.xj.core.transport.CSV;
 import io.xj.core.util.Chance;
 import io.xj.core.util.Value;
-import io.xj.music.BPM;
 import io.xj.music.Chord;
 import io.xj.music.MusicalException;
 import io.xj.music.Note;
@@ -56,7 +57,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.sound.sampled.AudioFormat;
 import java.math.BigInteger;
-import java.sql.Timestamp;
 import java.time.Duration;
 import java.util.Collection;
 import java.util.Collections;
@@ -68,7 +68,6 @@ import java.util.UUID;
  [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
  */
 public class FabricatorImpl implements Fabricator {
-  private static final double COMPUTE_INTEGRAL_DX = 0.25d; // # beats granularity to compute tempo change integral
   private static final double NANOS_PER_SECOND = 1000000000.0;
   private final ChainConfigDAO chainConfigDAO;
   private final ChainInstrumentDAO chainInstrumentDAO;
@@ -86,6 +85,7 @@ public class FabricatorImpl implements Fabricator {
   // FUTURE: [#165815496] Chain fabrication access control
   private final Access access = Access.internal();
   private final Segment segment;
+  private final TimeComputerFactory timeComputerFactory;
   private final Map<String, Segment> segmentByOffset = Maps.newConcurrentMap();
   private Ingest sourceMaterial;
   private Map<ChainConfigType, ChainConfig> allChainConfigs;
@@ -99,7 +99,8 @@ public class FabricatorImpl implements Fabricator {
     ChainSequenceDAO chainSequenceDAO,
     ChainInstrumentDAO chainInstrumentDAO,
     IngestCacheProvider ingestProvider,
-    SegmentDAO segmentDAO
+    SegmentDAO segmentDAO,
+    TimeComputerFactory timeComputerFactory
   ) throws CoreException {
     this.chainConfigDAO = chainConfigDAO;
     this.chainLibraryDAO = chainLibraryDAO;
@@ -110,6 +111,7 @@ public class FabricatorImpl implements Fabricator {
 
     // Ingest Segment
     this.segment = segment;
+    this.timeComputerFactory = timeComputerFactory;
     tuning = computeTuning();
     startTime = System.nanoTime();
   }
@@ -146,42 +148,7 @@ public class FabricatorImpl implements Fabricator {
 
   @Override
   public Double computeSecondsAtPosition(double p) {
-    double T = getSegment().getTotal().doubleValue();
-    double v2 = BPM.velocity(getSegment().getTempo()); // velocity at current segment tempo
-
-    double v1;
-    try {
-      Segment previous = getPreviousSegment();
-      // velocity at previous segment tempo
-      v1 = BPM.velocity(previous.getTempo());
-    } catch (Exception ignored) {
-      v1 = v2;
-    }
-
-    if (0 > p) {
-      // before beginning, at tempo of previous segment
-      return p * v1;
-
-    } else if (T < p) {
-      // after end, at tempo of current segment
-      // recursively use same function to get end of current segment; can't infinitely recurse because T < T impossible
-      return computeSecondsAtPosition(T) + ((p - T) * v2);
-
-    } else {
-      // TODO test the fuck out of this because it might be responsible for [#166370833] Segment should *never* be fabricated longer than its total beats.
-
-
-      // computed by integral, smoothly fading from previous segment tempo to current
-      double sum = 0.0d;
-      Double x = 0.0d;
-      Double dx = COMPUTE_INTEGRAL_DX;
-      while (x < p) {
-        sum += Math.min(dx, p - x) * // increment by dx, unless in the last (less than p-x) segment
-          (v1 + (v2 - v1) * x / T);
-        x += dx;
-      }
-      return sum;
-    }
+    return getTimeComputer().getSecondsAtPosition(p);
   }
 
   @Override
@@ -550,11 +517,6 @@ public class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public Timestamp getSegmentBeginAt() {
-    return getSegment().getBeginAt();
-  }
-
-  @Override
   public Segment getSegmentByOffset(BigInteger chainId, BigInteger offset) throws CoreException {
     String key = String.format("%s_%s", chainId, offset);
     if (!segmentByOffset.containsKey(key)) {
@@ -661,7 +623,7 @@ public class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public void putReport(String key, String value) {
+  public void putReport(String key, Object value) {
     getSegment().getReport().put(key, value);
   }
 
@@ -737,6 +699,29 @@ public class FabricatorImpl implements Fabricator {
    */
   private String formatLog(String message) {
     return String.format("[segId=%s] %s", getSegment().getId(), message);
+  }
+
+  /**
+   Get a time computer, configured for the current segment.
+   Don't use it before this segment has enough choices to determine its time computer
+
+   @return Time Computer
+   */
+  private TimeComputer getTimeComputer() {
+    double toTempo = getSegment().getTempo(); // velocity at current segment tempo
+    double fromTempo;
+    try {
+      Segment previous = getPreviousSegment();
+      // velocity at previous segment tempo
+      fromTempo = previous.getTempo();
+    } catch (Exception ignored) {
+      fromTempo = toTempo;
+    }
+    double totalBeats = getSegment().getTotal().doubleValue();
+    putReport("totalBeats", totalBeats);
+    putReport("fromTempo", fromTempo);
+    putReport("toTempo", toTempo);
+    return timeComputerFactory.create(totalBeats, fromTempo, toTempo);
   }
 
   /**

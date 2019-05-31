@@ -1,7 +1,7 @@
 //  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
-import { get } from '@ember/object';
+import {get} from '@ember/object';
 
-import { inject as service } from '@ember/service';
+import {inject as service} from '@ember/service';
 import Route from '@ember/routing/route';
 
 export default Route.extend({
@@ -26,12 +26,13 @@ export default Route.extend({
   actions: {
 
     createLibrary(model) {
+      let self = this;
       model.save().then(
-        () => {
-          get(this, 'display').success('Created library ' + model.get('name') + '.');
-          this.transitionTo('accounts.one.libraries.one', model);
+        (savedModel) => {
+          get(self, 'display').success('Created library ' + savedModel.get('name') + '.');
+          self.transitionTo('accounts.one.libraries.one', savedModel);
         }, (error) => {
-          get(this, 'display').error(error);
+          get(self, 'display').error(error);
         });
     },
 

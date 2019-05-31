@@ -3,6 +3,7 @@ package io.xj.hub.resource.segment;
 
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.SegmentDAO;
+import io.xj.core.exception.CoreException;
 import io.xj.core.model.segment.Segment;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.transport.HttpResponseProvider;
@@ -45,6 +46,9 @@ public class SegmentOneResource extends HubResource {
         segmentDAO.readOne(
           Access.fromContext(crc),
           new BigInteger(id)));
+
+    } catch (CoreException ignored) {
+      return response.notFound("Segment");
 
     } catch (Exception e) {
       return response.failure(e);

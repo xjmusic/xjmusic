@@ -3,6 +3,7 @@ package io.xj.hub.resource.audio;
 
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.AudioDAO;
+import io.xj.core.exception.CoreException;
 import io.xj.core.model.audio.Audio;
 import io.xj.core.model.audio.AudioWrapper;
 import io.xj.core.model.user_role.UserRoleType;
@@ -51,6 +52,9 @@ public class AudioOneResource extends HubResource {
         audioDAO.readOne(
           Access.fromContext(crc),
           new BigInteger(id)));
+
+    } catch (CoreException ignored) {
+      return response.notFound("Audio");
 
     } catch (Exception e) {
       return response.failure(e);

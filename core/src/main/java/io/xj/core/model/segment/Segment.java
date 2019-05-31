@@ -205,7 +205,7 @@ public interface Segment extends Entity {
 
    @return ing
    */
-  Map<String, String> getReport();
+  Map<String, Object> getReport();
 
   /**
    Get state of Segment
@@ -381,7 +381,7 @@ public interface Segment extends Entity {
 
    @param input to set
    */
-  void setReport(Map<String, String> input);
+  void setReport(Map<String, Object> input);
 
   /**
    Set state of Segment

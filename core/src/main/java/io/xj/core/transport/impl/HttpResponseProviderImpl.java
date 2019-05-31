@@ -142,7 +142,7 @@ public class HttpResponseProviderImpl implements HttpResponseProvider {
 
     return Response
       .created(Exposure.apiURI(keyMany + "/" + entity.getId()))
-      .entity(gsonProvider.wrap(keyOne, gsonProvider.gson().toJson(entity)))
+      .entity(gsonProvider.wrap(keyOne, entity))
       .build();
   }
 }

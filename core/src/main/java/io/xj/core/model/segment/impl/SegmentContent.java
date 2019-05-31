@@ -32,7 +32,7 @@ import java.util.Map;
  }
  */
 public class SegmentContent {
-  private final Map<String, String> report = Maps.newConcurrentMap();
+  private final Map<String, Object> report = Maps.newConcurrentMap();
   private final Collection<SegmentMeme> memes = Lists.newArrayList();
   private final Collection<SegmentMessage> messages = Lists.newArrayList();
   private final Collection<Choice> choices = Lists.newArrayList();
@@ -128,7 +128,7 @@ public class SegmentContent {
 
    @return ing
    */
-  public Map<String, String> getReport() {
+  public Map<String, Object> getReport() {
     return report;
   }
 
@@ -206,7 +206,7 @@ public class SegmentContent {
 
    @param report to set
    */
-  public void setReport(Map<String, String> report) {
+  public void setReport(Map<String, Object> report) {
     this.report.clear();
     this.report.putAll(report);
   }

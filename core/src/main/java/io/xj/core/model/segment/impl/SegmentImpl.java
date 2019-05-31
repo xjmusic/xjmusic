@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
  */
 public class SegmentImpl extends EntityImpl implements Segment {
   private final GsonProvider gsonProvider;
-  private final Map<String, String> report = Maps.newConcurrentMap();
+  private final Map<String, Object> report = Maps.newConcurrentMap();
   private final Map<UUID, Arrangement> arrangementMap = Maps.newConcurrentMap();
   private final Map<UUID, Choice> choiceMap = Maps.newConcurrentMap();
   private final Map<UUID, Pick> pickMap = Maps.newConcurrentMap();
@@ -250,7 +250,7 @@ public class SegmentImpl extends EntityImpl implements Segment {
   }
 
   @Override
-  public Map<String, String> getReport() {
+  public Map<String, Object> getReport() {
     return report;
   }
 
@@ -421,7 +421,7 @@ public class SegmentImpl extends EntityImpl implements Segment {
   }
 
   @Override
-  public void setReport(Map<String, String> input) {
+  public void setReport(Map<String, Object> input) {
     input.forEach(report::put);
   }
 

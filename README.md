@@ -629,6 +629,34 @@ Ops engineers may prefer to use the [The Elastic Beanstalk Command Line Interfac
 
 
 
+# Musical debugging
+
+This MySQL query confirms that all segments begin where the preceding one ended:
+
+```
+SELECT
+  A.offset "prev_offset",
+  B.offset "next_offset",
+  TIMESTAMPDIFF(SECOND, A.end_at, B.begin_at) "gap"
+  FROM segment A
+  JOIN segment B ON B.offset = A.offset+1; 
+```
+
+This MySQL query will reveal if any of the segment lengths are wildly off, given their relative lengths and totals:
+
+```
+SELECT
+  offset,
+  json_extract(content, '$.type') AS "type",
+  total,
+  tempo,
+  TIMESTAMPDIFF(SECOND, begin_at, end_at) AS "length_seconds",
+  TIMESTAMPDIFF(SECOND, begin_at, end_at)/total AS "time_per_beat"
+  FROM segment
+  WHERE chain_id=10; 
+```
+
+
 # Developer Setup Gotchas
 
 

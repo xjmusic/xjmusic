@@ -81,7 +81,10 @@ import io.xj.core.external.google.GoogleProvider;
 import io.xj.core.external.google.GoogleProviderImpl;
 import io.xj.core.fabricator.Fabricator;
 import io.xj.core.fabricator.FabricatorFactory;
+import io.xj.core.fabricator.TimeComputer;
+import io.xj.core.fabricator.TimeComputerFactory;
 import io.xj.core.fabricator.impl.FabricatorImpl;
+import io.xj.core.fabricator.impl.TimeComputerImpl;
 import io.xj.core.ingest.Ingest;
 import io.xj.core.ingest.IngestFactory;
 import io.xj.core.ingest.cache.IngestCacheProvider;
@@ -117,16 +120,8 @@ public class CoreModule extends AbstractModule {
     bindFabricatorFactory();
     bindIngestFactory();
     bindSegmentFactory();
+    bindTimeComputerFactory();
     install(new MixerModule());
-  }
-
-  /**
-   [#166317849] Segment is an interface provided by a SegmentFactory
-   */
-  private void bindSegmentFactory() {
-    install(new FactoryModuleBuilder()
-      .implement(Segment.class, SegmentImpl.class)
-      .build(SegmentFactory.class));
   }
 
   private void bindApp() {
@@ -191,11 +186,25 @@ public class CoreModule extends AbstractModule {
       .build(FabricatorFactory.class));
   }
 
+  private void bindTimeComputerFactory() {
+    install(new FactoryModuleBuilder()
+      .implement(TimeComputer.class, TimeComputerImpl.class)
+      .build(TimeComputerFactory.class));
+  }
+
   private void bindIngestFactory() {
     bind(IngestCacheProvider.class).to(IngestCacheProviderImpl.class);
     install(new FactoryModuleBuilder()
       .implement(Ingest.class, IngestImpl.class)
       .build(IngestFactory.class));
   }
-
+  
+  /**
+   [#166317849] Segment is an interface provided by a SegmentFactory
+   */
+  private void bindSegmentFactory() {
+    install(new FactoryModuleBuilder()
+      .implement(Segment.class, SegmentImpl.class)
+      .build(SegmentFactory.class));
+  }
 }

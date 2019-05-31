@@ -3,6 +3,7 @@ package io.xj.hub.resource.pattern_chord;
 
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.PatternChordDAO;
+import io.xj.core.exception.CoreException;
 import io.xj.core.model.pattern_chord.PatternChord;
 import io.xj.core.model.pattern_chord.PatternChordWrapper;
 import io.xj.core.model.user_role.UserRoleType;
@@ -50,6 +51,9 @@ public class PatternChordOneResource extends HubResource {
         patternChordDAO.readOne(
           Access.fromContext(crc),
           new BigInteger(id)));
+
+    } catch (CoreException ignored) {
+      return response.notFound("Pattern Chord");
 
     } catch (Exception e) {
       return response.failure(e);

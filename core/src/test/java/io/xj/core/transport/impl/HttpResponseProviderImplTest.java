@@ -3,11 +3,16 @@
 package io.xj.core.transport.impl;
 
 import com.google.common.collect.ImmutableList;
+import com.google.gson.JsonObject;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import io.xj.core.CoreModule;
 import io.xj.core.exception.CoreException;
+import io.xj.core.model.library.LibraryWrapper;
+import io.xj.core.model.segment_meme.SegmentMeme;
 import io.xj.core.model.sequence_meme.SequenceMeme;
+import io.xj.core.model.sequence_meme.SequenceMemeWrapper;
+import io.xj.core.transport.GsonProvider;
 import io.xj.core.transport.HttpResponseProvider;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,6 +26,7 @@ import static org.junit.Assert.assertEquals;
 public class HttpResponseProviderImplTest {
   Injector injector = Guice.createInjector(new CoreModule());
   HttpResponseProvider subject;
+  private GsonProvider gsonProvider;
 
   private static SequenceMeme meme(String name) {
     return new SequenceMeme()
@@ -31,6 +37,7 @@ public class HttpResponseProviderImplTest {
 
   @Before
   public void setUp() throws Exception {
+    gsonProvider = injector.getInstance(GsonProvider.class);
     subject = injector.getInstance(HttpResponseProvider.class);
   }
 
@@ -108,9 +115,11 @@ public class HttpResponseProviderImplTest {
 
   @Test
   public void readOne() {
-    Response result = subject.readOne("meme", meme("Red"));
+    Response result = subject.readOne("sequenceMeme", meme("Red"));
 
     assertEquals(202, result.getStatus());
+    SequenceMeme resultModel = gsonProvider.gson().fromJson(String.valueOf(result.getEntity()), SequenceMemeWrapper.class).getSequenceMeme();
+    assertEquals("Red", resultModel.getName());
   }
 
   @Test
@@ -129,10 +138,15 @@ public class HttpResponseProviderImplTest {
     assertEquals("{\"memes\":[]}", result.getEntity());
   }
 
+  /**
+    FIX [#166383443] Ember-data should have the id of a newly created entity-- problem was, Response wrapper is returning JSON enclosed in a string
+   */
   @Test
   public void create() {
-    Response result = subject.create("memes", "meme", meme("Purple"));
+    Response result = subject.create("sequenceMemes", "sequenceMeme", meme("Purple"));
 
     assertEquals(201, result.getStatus());
+    SequenceMeme resultModel = gsonProvider.gson().fromJson(String.valueOf(result.getEntity()), SequenceMemeWrapper.class).getSequenceMeme();
+    assertEquals("Purple", resultModel.getName());
   }
 }

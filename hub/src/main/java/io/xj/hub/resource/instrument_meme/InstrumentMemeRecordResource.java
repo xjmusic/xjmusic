@@ -3,6 +3,7 @@ package io.xj.hub.resource.instrument_meme;
 
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.InstrumentMemeDAO;
+import io.xj.core.exception.CoreException;
 import io.xj.core.model.instrument_meme.InstrumentMeme;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.transport.HttpResponseProvider;
@@ -46,6 +47,9 @@ public class InstrumentMemeRecordResource extends HubResource {
         instrumentMemeDAO.readOne(
           Access.fromContext(crc),
           new BigInteger(id)));
+
+    } catch (CoreException ignored) {
+      return response.notFound("Instrument Meme");
 
     } catch (Exception e) {
       return response.failure(e);

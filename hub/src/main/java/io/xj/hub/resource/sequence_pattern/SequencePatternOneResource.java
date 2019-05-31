@@ -3,6 +3,7 @@ package io.xj.hub.resource.sequence_pattern;
 
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.SequencePatternDAO;
+import io.xj.core.exception.CoreException;
 import io.xj.core.model.sequence_pattern.SequencePattern;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.transport.HttpResponseProvider;
@@ -46,6 +47,9 @@ public class SequencePatternOneResource extends HubResource {
         sequencePatternDAO.readOne(
           Access.fromContext(crc),
           new BigInteger(id)));
+
+    } catch (CoreException ignored) {
+      return response.notFound("Sequence-Pattern Binding");
 
     } catch (Exception e) {
       return response.failure(e);

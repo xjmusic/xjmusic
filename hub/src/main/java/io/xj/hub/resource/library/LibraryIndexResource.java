@@ -1,6 +1,8 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.hub.resource.library;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.LibraryDAO;
 import io.xj.core.model.library.Library;
@@ -8,9 +10,6 @@ import io.xj.core.model.library.LibraryWrapper;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.transport.HttpResponseProvider;
 import io.xj.hub.HubResource;
-
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 
 import javax.annotation.security.RolesAllowed;
 import javax.jws.WebResult;
@@ -47,17 +46,12 @@ public class LibraryIndexResource extends HubResource {
   @WebResult
   @RolesAllowed(UserRoleType.USER)
   public Response readAll(@Context ContainerRequestContext crc) throws IOException {
-
-    if (Objects.nonNull(accountId) && accountId.isEmpty()) {
-      accountId = null;
-    }
-
     try {
       return response.readMany(
         Library.KEY_MANY,
         libraryDAO.readAll(
           Access.fromContext(crc),
-          Objects.nonNull(accountId) ? ImmutableList.of(new BigInteger(accountId)) : Lists.newArrayList()));
+          Objects.nonNull(accountId) && !accountId.isEmpty() ? ImmutableList.of(new BigInteger(accountId)) : Lists.newArrayList()));
 
     } catch (Exception e) {
       return response.failure(e);

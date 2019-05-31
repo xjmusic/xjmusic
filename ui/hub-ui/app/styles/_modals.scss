@@ -2,6 +2,7 @@
 
 @import "ember-modal-dialog/ember-modal-structure";
 @import "ember-modal-dialog/ember-modal-appearance";
+@import "palette";
 
 #modal-overlays {
   z-index: 40000;
@@ -14,7 +15,7 @@
   .ember-modal-dialog {
     z-index: 60000;
     position: fixed;
-    background-color: $lower-gray;
+    background-color: $dark-gray;
     color: #fff;
     max-height: 100%;
     max-width: 100%;

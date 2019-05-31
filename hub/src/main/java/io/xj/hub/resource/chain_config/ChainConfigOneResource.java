@@ -3,6 +3,7 @@ package io.xj.hub.resource.chain_config;
 
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.ChainConfigDAO;
+import io.xj.core.exception.CoreException;
 import io.xj.core.model.chain_config.ChainConfig;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.transport.HttpResponseProvider;
@@ -46,6 +47,9 @@ public class ChainConfigOneResource extends HubResource {
         chainConfigDAO.readOne(
           Access.fromContext(crc),
           new BigInteger(id)));
+
+    } catch (CoreException ignored) {
+      return response.notFound("Chain Config");
 
     } catch (Exception e) {
       return response.failure(e);

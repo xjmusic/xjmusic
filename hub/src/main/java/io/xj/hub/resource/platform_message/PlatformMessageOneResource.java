@@ -3,6 +3,7 @@ package io.xj.hub.resource.platform_message;
 
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.PlatformMessageDAO;
+import io.xj.core.exception.CoreException;
 import io.xj.core.model.platform_message.PlatformMessage;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.transport.HttpResponseProvider;
@@ -45,6 +46,9 @@ public class PlatformMessageOneResource extends HubResource {
         platformMessageDAO.readOne(
           Access.fromContext(crc),
           new BigInteger(id)));
+
+    } catch (CoreException ignored) {
+      return response.notFound("Platform Message");
 
     } catch (Exception e) {
       return response.failure(e);

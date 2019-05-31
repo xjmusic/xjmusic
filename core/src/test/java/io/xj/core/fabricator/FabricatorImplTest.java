@@ -18,7 +18,6 @@ import io.xj.core.dao.SequenceDAO;
 import io.xj.core.dao.SequenceMemeDAO;
 import io.xj.core.dao.SequencePatternMemeDAO;
 import io.xj.core.dao.VoiceDAO;
-import io.xj.core.exception.CoreException;
 import io.xj.core.model.arrangement.Arrangement;
 import io.xj.core.model.choice.Choice;
 import io.xj.core.model.pick.Pick;
@@ -38,39 +37,46 @@ import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyDouble;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class FabricatorImplTest {
   @Rule
   public ExpectedException failure = ExpectedException.none();
+  @Mock
+  public TimeComputerFactory timeComputerFactory;
+  @Mock
+  public TimeComputer timeComputer;
+  @Mock
+  public AudioDAO audioDAO;
+  @Mock
+  public AudioEventDAO audioEventDAO;
+  @Mock
+  public ChainConfigDAO chainConfigDAO;
+  @Mock
+  public SequenceDAO sequenceDAO;
+  @Mock
+  public SequenceMemeDAO sequenceMemeDAO;
+  @Mock
+  public InstrumentMemeDAO instrumentMemeDAO;
+  @Mock
+  public SegmentDAO segmentDAO;
+  @Mock
+  public PatternDAO patternDAO;
+  @Mock
+  public SequencePatternMemeDAO sequencePatternMemeDAO;
+  @Mock
+  public Tuning tuning;
+  @Mock
+  public VoiceDAO voiceDAO;
+  @Mock
+  public PatternEventDAO patternEventDAO;
+  //
   private Fabricator subject;
   private FabricatorFactory fabricatorFactory;
-  @Mock
-  private AudioDAO audioDAO;
-  @Mock
-  private AudioEventDAO audioEventDAO;
-  @Mock
-  private ChainConfigDAO chainConfigDAO;
-  @Mock
-  private SequenceDAO sequenceDAO;
-  @Mock
-  private SequenceMemeDAO sequenceMemeDAO;
-  @Mock
-  private InstrumentMemeDAO instrumentMemeDAO;
-  @Mock
-  private SegmentDAO segmentDAO;
-  @Mock
-  private PatternDAO patternDAO;
-  @Mock
-  private SequencePatternMemeDAO sequencePatternMemeDAO;
-  @Mock
-  private Tuning tuning;
-  @Mock
-  private VoiceDAO voiceDAO;
-  @Mock
-  private PatternEventDAO patternEventDAO;
   private SegmentFactory segmentFactory;
 
   @Before
@@ -91,6 +97,7 @@ public class FabricatorImplTest {
           bind(Tuning.class).toInstance(tuning);
           bind(VoiceDAO.class).toInstance(voiceDAO);
           bind(PatternEventDAO.class).toInstance(patternEventDAO);
+          bind(TimeComputerFactory.class).toInstance(timeComputerFactory);
         }
       }));
     segmentFactory = injector.getInstance(SegmentFactory.class);
@@ -98,43 +105,117 @@ public class FabricatorImplTest {
   }
 
   @Test
-  public void secondsAtPosition_zero() throws Exception {
-    setupSecondsAtPositionTest();
+  public void timeComputer() throws Exception {
+    when(segmentDAO.readOneAtChainOffset(any(), eq(BigInteger.valueOf(977)), eq(BigInteger.valueOf(1)))).thenReturn(segmentFactory.newSegment(BigInteger.valueOf(4212))
+      .setOffset(BigInteger.valueOf(1))
+      .setDensity(0.6)
+      .setKey("F major")
+      .setState("Crafted")
+      .setTempo(120.0)
+      .setChainId(BigInteger.valueOf(977))
+      .setTotal(8)
+      .setBeginAt("2017-12-12 01:00:08.000000")
+      .setEndAt("2017-12-12 01:00:16.000000"));
+    subject = fabricatorFactory.fabricate(segmentFactory.newSegment(BigInteger.valueOf(4213))
+      .setOffset(BigInteger.valueOf(2))
+      .setDensity(0.6)
+      .setKey("G major")
+      .setState("Crafting")
+      .setTempo(240.0)
+      .setChainId(BigInteger.valueOf(977))
+      .setTotal(8)
+      .setBeginAt("2017-12-12 01:00:16.000000")
+      .setEndAt("2017-12-12 01:00:22.000000"));
+    when(timeComputerFactory.create(anyDouble(), anyDouble(), anyDouble())).thenReturn(timeComputer);
+    when(timeComputer.getSecondsAtPosition(anyDouble())).thenReturn(Double.valueOf(0));
 
-    assertEquals(Double.valueOf(0), subject.computeSecondsAtPosition(0));
+    assertEquals(Double.valueOf(0), subject.computeSecondsAtPosition(0)); // instantiates a time computer; see expectation above
+
+    verify(timeComputerFactory).create(8.0, 120, 240.0);
   }
 
   @Test
-  public void secondsAtPosition_beforeZero() throws Exception {
-    setupSecondsAtPositionTest();
+  public void timeComputer_variedSegmentTotals() throws Exception {
+    when(segmentDAO.readOneAtChainOffset(any(), eq(BigInteger.valueOf(977)), eq(BigInteger.valueOf(1)))).thenReturn(segmentFactory.newSegment(BigInteger.valueOf(4212))
+      .setOffset(BigInteger.valueOf(1))
+      .setDensity(0.6)
+      .setKey("F major")
+      .setState("Crafted")
+      .setTempo(120.0)
+      .setChainId(BigInteger.valueOf(977))
+      .setTotal(32)
+      .setBeginAt("2017-12-12 01:00:08.000000")
+      .setEndAt("2017-12-12 01:00:16.000000"));
+    subject = fabricatorFactory.fabricate(segmentFactory.newSegment(BigInteger.valueOf(4213))
+      .setOffset(BigInteger.valueOf(2))
+      .setDensity(0.6)
+      .setKey("G major")
+      .setState("Crafting")
+      .setTempo(240.0)
+      .setChainId(BigInteger.valueOf(977))
+      .setTotal(16)
+      .setBeginAt("2017-12-12 01:00:16.000000")
+      .setEndAt("2017-12-12 01:00:22.000000"));
+    when(timeComputerFactory.create(anyDouble(), anyDouble(), anyDouble())).thenReturn(timeComputer);
+    when(timeComputer.getSecondsAtPosition(anyDouble())).thenReturn(Double.valueOf(0));
 
-    assertEquals(Double.valueOf(-1), subject.computeSecondsAtPosition(-1));
+    assertEquals(Double.valueOf(0), subject.computeSecondsAtPosition(0)); // instantiates a time computer; see expectation above
+
+    verify(timeComputerFactory).create(16, 120, 240.0);
   }
 
   @Test
-  public void secondsAtPosition_afterEnd() throws Exception {
-    setupSecondsAtPositionTest();
+  public void timeComputer_weirdSegmentTotalsAndTempos() throws Exception {
+    when(segmentDAO.readOneAtChainOffset(any(), eq(BigInteger.valueOf(977)), eq(BigInteger.valueOf(1)))).thenReturn(segmentFactory.newSegment(BigInteger.valueOf(4212))
+      .setOffset(BigInteger.valueOf(1))
+      .setDensity(0.6)
+      .setKey("F major")
+      .setState("Crafted")
+      .setTempo(67.0)
+      .setChainId(BigInteger.valueOf(977))
+      .setTotal(23)
+      .setBeginAt("2017-12-12 01:00:08.000000")
+      .setEndAt("2017-12-12 01:00:16.000000"));
+    subject = fabricatorFactory.fabricate(segmentFactory.newSegment(BigInteger.valueOf(4213))
+      .setOffset(BigInteger.valueOf(2))
+      .setDensity(0.6)
+      .setKey("G major")
+      .setState("Crafting")
+      .setTempo(121.0)
+      .setChainId(BigInteger.valueOf(977))
+      .setTotal(79)
+      .setBeginAt("2017-12-12 01:00:16.000000")
+      .setEndAt("2017-12-12 01:00:22.000000"));
+    when(timeComputerFactory.create(anyDouble(), anyDouble(), anyDouble())).thenReturn(timeComputer);
+    when(timeComputer.getSecondsAtPosition(anyDouble())).thenReturn(Double.valueOf(0));
 
-    assertEquals(Double.valueOf(8.0625), subject.computeSecondsAtPosition(12));
-  }
+    assertEquals(Double.valueOf(0), subject.computeSecondsAtPosition(0)); // instantiates a time computer; see expectation above
 
-  @Test
-  public void secondsAtPosition_tempoChangeMiddle() throws Exception {
-    setupSecondsAtPositionTest();
-
-    assertEquals(Double.valueOf(3.53125), subject.computeSecondsAtPosition(4));
-  }
-
-  @Test
-  public void secondsAtPosition_tempoChangeEnd() throws Exception {
-    setupSecondsAtPositionTest();
-
-    assertEquals(Double.valueOf(6.0625), subject.computeSecondsAtPosition(8));
+    verify(timeComputerFactory).create(79, 67.0, 121.0);
   }
 
   @Test
   public void pick_returned_by_picks() throws Exception {
-    setupSecondsAtPositionTest();
+    when(segmentDAO.readOneAtChainOffset(any(), eq(BigInteger.valueOf(977)), eq(BigInteger.valueOf(1)))).thenReturn(segmentFactory.newSegment(BigInteger.valueOf(4212))
+      .setOffset(BigInteger.valueOf(1))
+      .setDensity(0.6)
+      .setKey("F major")
+      .setState("Crafted")
+      .setTempo(120.0)
+      .setChainId(BigInteger.valueOf(977))
+      .setTotal(8)
+      .setBeginAt("2017-12-12 01:00:08.000000")
+      .setEndAt("2017-12-12 01:00:16.000000"));
+    subject = fabricatorFactory.fabricate(segmentFactory.newSegment(BigInteger.valueOf(4213))
+      .setOffset(BigInteger.valueOf(2))
+      .setDensity(0.6)
+      .setKey("G major")
+      .setState("Crafting")
+      .setTempo(120.0)
+      .setChainId(BigInteger.valueOf(977))
+      .setTotal(8)
+      .setBeginAt("2017-12-12 01:00:16.000000")
+      .setEndAt("2017-12-12 01:00:22.000000"));
     Choice choice = subject.add(new Choice()
       .setSequenceId(BigInteger.valueOf(5))
       .setTypeEnum(SequenceType.Rhythm)
@@ -162,34 +243,6 @@ public class FabricatorImplTest {
     assertEquals(1.571, resultPick.getLength(), 0.001);
     assertEquals(0.8, resultPick.getAmplitude(), 0.1);
     assertEquals(432.0, resultPick.getPitch(), 0.1);
-  }
-
-  /**
-   secondsAtPosition test have shared fixture
-
-   @throws CoreException on failure to setup
-   */
-  private void setupSecondsAtPositionTest() throws CoreException {
-    when(segmentDAO.readOneAtChainOffset(any(), eq(BigInteger.valueOf(977)), eq(BigInteger.valueOf(1)))).thenReturn(segmentFactory.newSegment(BigInteger.valueOf(4212))
-      .setOffset(BigInteger.valueOf(1))
-      .setDensity(0.6)
-      .setKey("F major")
-      .setState("Crafted")
-      .setTempo(60.0)
-      .setChainId(BigInteger.valueOf(977))
-      .setTotal(8)
-      .setBeginAt("2017-12-12 01:00:08.000000")
-      .setEndAt("2017-12-12 01:00:16.000000"));
-    subject = fabricatorFactory.fabricate(segmentFactory.newSegment(BigInteger.valueOf(4213))
-      .setOffset(BigInteger.valueOf(2))
-      .setDensity(0.6)
-      .setKey("G major")
-      .setState("Crafting")
-      .setTempo(120.0)
-      .setChainId(BigInteger.valueOf(977))
-      .setTotal(8)
-      .setBeginAt("2017-12-12 01:00:16.000000")
-      .setEndAt("2017-12-12 01:00:22.000000"));
   }
 
 

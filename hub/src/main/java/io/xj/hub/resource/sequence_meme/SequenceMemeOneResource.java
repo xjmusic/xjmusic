@@ -3,6 +3,7 @@ package io.xj.hub.resource.sequence_meme;
 
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.SequenceMemeDAO;
+import io.xj.core.exception.CoreException;
 import io.xj.core.model.sequence_meme.SequenceMeme;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.transport.HttpResponseProvider;
@@ -46,6 +47,9 @@ public class SequenceMemeOneResource extends HubResource {
         sequenceMemeDAO.readOne(
           Access.fromContext(crc),
           new BigInteger(id)));
+
+    } catch (CoreException ignored) {
+      return response.notFound("Sequence Meme");
 
     } catch (Exception e) {
       return response.failure(e);

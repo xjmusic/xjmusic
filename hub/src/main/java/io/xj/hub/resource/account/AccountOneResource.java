@@ -4,6 +4,7 @@ package io.xj.hub.resource.account;
 
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.AccountDAO;
+import io.xj.core.exception.CoreException;
 import io.xj.core.model.account.Account;
 import io.xj.core.model.account.AccountWrapper;
 import io.xj.core.model.user_role.UserRoleType;
@@ -50,6 +51,9 @@ public class AccountOneResource extends HubResource {
         accountDAO.readOne(
           Access.fromContext(crc),
           new BigInteger(id)));
+
+    } catch (CoreException ignored) {
+      return response.notFound("Account");
 
     } catch (Exception e) {
       return response.failure(e);

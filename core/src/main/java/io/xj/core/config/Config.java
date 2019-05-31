@@ -1,19 +1,10 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.config;
 
-import com.google.common.collect.Maps;
 import io.xj.core.exception.CoreException;
-import io.xj.core.model.chain.ChainState;
-import io.xj.core.model.chain.ChainType;
-import io.xj.core.model.chain_config.ChainConfigType;
-import io.xj.core.model.instrument.InstrumentType;
-import io.xj.core.model.pattern.PatternType;
-import io.xj.core.model.segment.SegmentState;
-import io.xj.core.model.sequence.SequenceType;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -45,7 +36,6 @@ public interface Config {
   int DEFAULT_DIGEST_CACHE_EXPIRE_MINUTES = 3;
   int DEFAULT_DIGEST_CACHE_REFRESH_MINUTES = 1;
   long DEFAULT_DIGEST_CACHE_SIZE = 1_000_000L;
-  int DEFAULT_ENTITY_CACHE_SECONDS = 60;
   int DEFAULT_GENERATION_SEQUENCE_PATTERNS_MULTIPLIER = 3;
   int DEFAULT_GENERATION_SPLICE_SAFETY_MARGIN = 1;
   int DEFAULT_INGEST_ACHE_SECONDS = 60;
@@ -87,6 +77,8 @@ public interface Config {
   int DEFAULT_WORK_CHAIN_RECUR_SECONDS = 2;
   int DEFAULT_WORK_CONCURRENCY = 10;
   int DEFAULT_WORK_ENQUEUE_NOW_DELAY_MILLIS = 10;
+  int DEFAULT_COMPUTE_TIME_FRAMES_PER_BEAT = 64;
+  int DEFAULT_COMPUTE_TIME_RESOLUTION_HZ = 1000000;
 
   static String authGoogleId() throws CoreException {
     return get("auth.google.id");
@@ -114,13 +106,6 @@ public interface Config {
 
   static int awsS3RetryLimit() {
     return getIntOrDefault("aws.s3.retry.limit", DEFAULT_AWS_S3_RETRY_LIMIT);
-  }
-
-  /**
-   @return number of seconds to cache an entity before re-reading it from the DAOs
-   */
-  static int entityCacheSeconds() {
-    return getIntOrDefault("entity.cache.seconds", DEFAULT_ENTITY_CACHE_SECONDS);
   }
 
   /**
@@ -532,21 +517,6 @@ public interface Config {
   }
 
   /**
-   Get a Boolean value from a system property, else (if null) return default value
-
-   @param key          of system property to get
-   @param defaultValue to return if no system property is set
-   @return value
-   */
-  static Boolean isOrDefault(String key, Boolean defaultValue) {
-    try {
-      return is(key);
-    } catch (CoreException ignored) {
-      return defaultValue;
-    }
-  }
-
-  /**
    Get an Integer value from a system property
 
    @param key of system property to get
@@ -773,4 +743,11 @@ public interface Config {
     return getIntOrDefault("mixer.sample.release.micros", DEFAULT_MIXER_SAMPLE_RELEASE_MICROS);
   }
 
+  static Integer computeTimeFramesPerBeat() {
+    return getIntOrDefault("compute.time.frames.per.beat", DEFAULT_COMPUTE_TIME_FRAMES_PER_BEAT);
+  }
+
+  static Integer computeTimeResolutionHz() {
+    return getIntOrDefault("compute.time.resolution.hz", DEFAULT_COMPUTE_TIME_RESOLUTION_HZ);
+  }
 }

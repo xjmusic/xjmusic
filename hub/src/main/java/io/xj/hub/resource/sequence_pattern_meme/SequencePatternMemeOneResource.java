@@ -50,6 +50,9 @@ public class SequencePatternMemeOneResource extends HubResource {
           Access.fromContext(crc),
           new BigInteger(id)));
 
+    } catch (CoreException ignored) {
+      return response.notFound("Sequence-Pattern Bound Meme");
+
     } catch (Exception e) {
       return Response.serverError().header("error", e.getMessage()).build();
     }

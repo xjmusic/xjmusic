@@ -3,6 +3,7 @@ package io.xj.hub.resource.pattern;
 
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.PatternDAO;
+import io.xj.core.exception.CoreException;
 import io.xj.core.model.pattern.Pattern;
 import io.xj.core.model.pattern.PatternWrapper;
 import io.xj.core.model.user_role.UserRoleType;
@@ -50,6 +51,9 @@ public class PatternOneResource extends HubResource {
         patternDAO.readOne(
           Access.fromContext(crc),
           new BigInteger(id)));
+
+    } catch (CoreException ignored) {
+      return response.notFound("Pattern");
 
     } catch (Exception e) {
       return response.failure(e);
