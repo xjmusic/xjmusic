@@ -10,7 +10,7 @@ deps() {
   ensure_version "npm -v" "NPM"
   ensure_version "ember -v" "EmberJS CLI"
   ensure_version "phantomjs -v" "PhantomJS"
-  ensure_or_copy_file "${PWD}/runtime.env" "Environment variables file" "${PWD}/default.env"
+  ensure_or_copy_file "${PWD}/.env" "Environment variables file" "${PWD}/.config/.env.default"
 }
 
 # Docker

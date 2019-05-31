@@ -59,9 +59,9 @@ Setup workflow, build and package Java server-side application and build Web fro
 
     make
 
-The preceding command will also create a blank environment variables file called **runtime.env** which is never checked in to version control or released with the distribution. It is up to you, the developer, to obtain keys and fill in the values of your own environment variables. Because the application only has **one single common bootstrap** (located at bin/common/bootstrap) the use of environment variables is federated across development and production deployments, while all actual configurations are kept outside the scope of the code.
+The preceding command will also create a blank environment variables file called **.env** which is never checked in to version control or released with the distribution. It is up to you, the developer, to obtain keys and fill in the values of your own environment variables. Because the application only has **one single common bootstrap** (located at bin/common/bootstrap) the use of environment variables is federated across development and production deployments, while all actual configurations are kept outside the scope of the code.
 
-We use [Docker](https://www.docker.com/) and [Docker Compose](https://docs.docker.com/compose/) for local development with uncanny parity to production. Once your **runtime.env** file is configured, it's time to bring up the `hub01xj1` server and its supporting resources such as `mysql01xj1` and `redis01xj1`:
+We use [Docker](https://www.docker.com/) and [Docker Compose](https://docs.docker.com/compose/) for local development with uncanny parity to production. Once your **.env** file is configured, it's time to bring up the `hub01xj1` server and its supporting resources such as `mysql01xj1` and `redis01xj1`:
 
     docker-compose up -d
 
@@ -178,7 +178,7 @@ To list all Java system properties:
 
     bin/properties
 
-The default java properties are in the file **/default.env** which is copied to a new file **/runtime.env** on project setup. Developers modify their local runtime.env file with private keys and configuration. The runtime.env file is never committed to the repository. The **default.env** file is kept up-to-date with all environment variables expected by **bin/common/bootstrap**.
+The default java properties are in the file **/.config/.env.default** which is copied to a new file **/.env** on project setup. Developers modify their local .env file with private keys and configuration. The .env file is never committed to the repository. The **.config/.env.default** file is kept up-to-date with all environment variables expected by **bin/common/bootstrap**.
 
 Also note, ***by design 100% of platform Java system properties are read via Config`***
 

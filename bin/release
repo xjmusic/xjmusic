@@ -104,10 +104,10 @@ cp ${PWD}/bin/common/bootstrap ${PWD}/target/bin/
 step_ok
 
 #
-step "Add .config/production.env"
+step "Add .config/.env.production"
 indent "(set secret environment vars via the 'eb' CLI)"
-indent "${PWD}/target/runtime.env"
-cp ${PWD}/.config/production.env ${PWD}/target/runtime.env
+indent "${PWD}/target/.env"
+cp ${PWD}/.config/.env.production ${PWD}/target/.env
 step_ok
 
 #

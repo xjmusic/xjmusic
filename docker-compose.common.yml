@@ -10,4 +10,5 @@ services:
     volumes:
       - .:/var/app/current
       - ./log:/var/log
-      - ./runtime.env:/data/runtime.env
+    env_file:
+      - .env

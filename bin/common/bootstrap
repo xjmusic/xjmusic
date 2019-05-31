@@ -47,26 +47,46 @@ ACCESS_LOG=${LOG_DIR}/${APP}.access.log
 touch ${ACCESS_LOG}
 chmod +w ${ACCESS_LOG}
 
-# Java System Properties
-#
-# The default system properties are in the file: /default.env
-# which is copied to a new file on project setup: /runtime.env
-#
-# Developers modify the .gitignored file: /runtime.env
-# (e.g. to add private keys and test specific configurations)
-#
-if [ -a ${PWD}/runtime.env ]; then
-  printf "Loaded Java Properties from ${PWD}/runtime.env\n\n"
-  . ${PWD}/runtime.env
-else
-  printf "\n\nCan't find ${PWD}/runtime.env!\nPlease create one based on default.env.\n\n"
-  exit 1
-fi
-
 #
 printf "[$(date)]\n"
+printf "Environment:\n"
+printenv
 printf "Starting java: ${JAR}\n"
 printf "   stdout log: ${STDOUT_LOG}\n"
 printf "   stderr log: ${STDERR_LOG}\n"
 printf "   access log: ${ACCESS_LOG}\n"
-java ${JAVA_ARGS} -jar ${JAR} 1> ${STDOUT_LOG} 2> ${STDERR_LOG}
+java \
+  -Daccess.token.max.age=${ACCESS_TOKEN_EXPIRE_SECONDS} \
+  -Dapp.hostname=${HOSTNAME} \
+  -Dapp.name=${APP} \
+  -Dapp.url.api=${APP_URL_API} \
+  -Dapp.url.base=${APP_URL_BASE} \
+  -Daudio.file.bucket=${AUDIO_FILE_BUCKET} \
+  -Daudio.url.base=${AUDIO_URL_BASE} \
+  -Daudio.url.upload=${AUDIO_URL_UPLOAD} \
+  -Dauth.google.id=${GOOGLE_ID} \
+  -Dauth.google.secret=${GOOGLE_SECRET} \
+  -Daws.accessKeyId=${AWS_ID} \
+  -Daws.secretKey=${AWS_SECRET} \
+  -Dcache.file.allocate.bytes=${CACHE_FILE_ALLOCATE_BYTES} \
+  -Dcache.file.path.prefix=/var/cache/${APP}/ \
+  -Ddb.mysql.database=${MYSQL_DATABASE} \
+  -Ddb.mysql.host=${MYSQL_HOST} \
+  -Ddb.mysql.pass=${MYSQL_PASS} \
+  -Ddb.mysql.port=${MYSQL_PORT} \
+  -Ddb.mysql.user=${MYSQL_USER} \
+  -Ddb.redis.host=${REDIS_HOST} \
+  -Ddb.redis.port=${REDIS_PORT} \
+  -Dlog.access.entities.all=true \
+  -Dlog.access.filename=/var/log/${APP}/${APP}.access.log \
+  -Dplatform.heartbeat.key=${PLATFORM_HEARTBEAT_KEY} \
+  -Dsegment.file.bucket=${SEGMENT_FILE_BUCKET} \
+  -Dsegment.file.upload.${SEGMENT_FILE_UPLOAD} \
+  -Dsegment.file.upload.${SEGMENT_FILE_UPLOAD} \
+  -Dsegment.url.base=${SEGMENT_URL_BASE} \
+  -Dsegment.url.upload=${SEGMENT_URL_UPLOAD} \
+  -Dwork.batch.size=${WORK_BATCH_SIZE} \
+  -Dwork.chain.delay.seconds=${WORK_CHAIN_DELAY_SECONDS} \
+  -Dwork.chain.recur.seconds=${WORK_CHAIN_RECUR_SECONDS} \
+  -Dwork.concurrency=${WORK_CONCURRENCY} \
+  -jar ${JAR} 1> ${STDOUT_LOG} 2> ${STDERR_LOG}

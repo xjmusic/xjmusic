@@ -168,6 +168,9 @@ public class FabricatorImpl implements Fabricator {
       return computeSecondsAtPosition(T) + ((p - T) * v2);
 
     } else {
+      // TODO test the fuck out of this because it might be responsible for [#166370833] Segment should *never* be fabricated longer than its total beats.
+
+
       // computed by integral, smoothly fading from previous segment tempo to current
       double sum = 0.0d;
       Double x = 0.0d;

@@ -14,10 +14,10 @@ services:
       - mysql
       - redis
 
-  worker:
+  work:
     environment:
       APPS: worker
-    container_name: worker01xj1
+    container_name: work01xj1
     extends:
       file: docker-compose.common.yml
       service: base
