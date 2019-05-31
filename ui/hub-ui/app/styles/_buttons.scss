@@ -13,6 +13,7 @@
     opacity: 0.6;
     background: url("/assets/icons/open.png") no-repeat center center rgba(128, 128, 128, 0.6);
     background-size: 1.612em 1.612em;
+
     &:hover {
       opacity: 1.0;
     }
@@ -20,16 +21,21 @@
 
   &.btn-safety {
     opacity: 0.3;
+
     &:hover, &:active {
       opacity: 1;
     }
   }
 }
 
-.xj-music .action, .action-destroy {
+.xj-music .action {
   margin-left: 0.6rem;
   margin-right: 0.6rem;
-  opacity: 0.15;
+}
+
+.xj-music .action-destroy {
+  opacity: 0.3;
+
   &:hover, &:active, &:focus {
     opacity: 1.0;
   }
