@@ -9,7 +9,7 @@ const API_BASE_URL = '/api/1/';
  * Access the Hub API at same JavaScript origin
  */
 export class API {
-  name = 'XJ Music™ API';
+  name = 'XJ Music® API';
 
   /**
    * @type {Object} to cache configuration in

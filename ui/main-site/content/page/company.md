@@ -1,7 +1,7 @@
 +++
 industries = []
 date = "2017-09-01T00:00:00-00:00"
-description = "The XJ Music™ platform is an entirely new AI powered medium, transforming the experience of music in shared spaces."
+description = "The XJ Music® platform is an entirely new AI powered medium, transforming the experience of music in shared spaces."
 draft = false
 images = []
 tags = ["company","contact","email","address"]

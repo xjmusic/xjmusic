@@ -9,7 +9,7 @@ draft = false
 
 +++
 
-Welcome to XJ Music™ (**"XJ Music"**, **"XJ"**, **"we"**, **"our"**, or **"us"**).
+Welcome to XJ Music® (**"XJ Music"**, **"XJ"**, **"we"**, **"our"**, or **"us"**).
 
 These Terms of Use govern your use of xj.io (the **"Website"**), our mobile and desktop apps (our **"Apps"**) and all related players, widgets, tools, applications, data, software, APIs (which may also be subject to separate API Terms of Use) and other services provided by XJ™ (the **"Services"**).
 

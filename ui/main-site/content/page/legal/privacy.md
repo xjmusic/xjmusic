@@ -12,7 +12,7 @@ draft = false
 
 +++
 
-Welcome to XJ Music™ (**"XJ Music"**, **"XJ"**, **"we"**, **"our"**, or **"us"**).
+Welcome to XJ Music® (**"XJ Music"**, **"XJ"**, **"we"**, **"our"**, or **"us"**).
 
 Your privacy is important to us. This Privacy Policy explains how we collect, store, use and disclose your information when you use xj.io (the **"Website"**), our mobile and desktop apps (our **"Apps"**) and all related players, widgets, tools, applications, data, software, APIs and other services provided by XJ™ (the **"Services"**).
 

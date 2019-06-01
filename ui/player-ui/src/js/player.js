@@ -59,7 +59,7 @@ export class Player {
   /**
    * @type {string} name of this module
    */
-  name = 'XJ Music™';
+  name = 'XJ Music®';
 
   /**
    * @type {boolean} whether in debug mode, which writes HTML output

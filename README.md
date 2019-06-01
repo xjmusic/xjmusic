@@ -1,4 +1,4 @@
-# XJ Music™
+# XJ Music®
 
 Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
@@ -713,6 +713,6 @@ GitHub Open Issue: https://github.com/docker/for-mac/issues/155
 
 # Open Source Web Player on GitHub
 
-Architect wants minimal, open-source web browser based XJ Music™ player, in order to embed XJ Music™ on any website, and ensure that the experience is as widely accessible as possible.
+Architect wants minimal, open-source web browser based XJ Music® player, in order to embed XJ Music® on any website, and ensure that the experience is as widely accessible as possible.
 
 See [player-ui README](ui/player-ui/README.md)

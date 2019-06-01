@@ -90,7 +90,7 @@ Or export WAV via stdout `> demo/output.wav`:
 
 [Charney Kaye](http://w.charney.io)
 
-[XJ Music™](https://xj.io)
+[XJ Music®](https://xj.io)
 
 ### What?
 
