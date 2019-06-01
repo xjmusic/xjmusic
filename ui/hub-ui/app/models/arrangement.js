@@ -3,7 +3,7 @@ import DS from 'ember-data';
 
 export default DS.Model.extend({
   segment: DS.belongsTo({}),
-  // choice: DS.belongsTo({}), FUTURE: bind inner segment entities in ember models
+  choice: DS.belongsTo({}),
   voice: DS.belongsTo({}),
   instrument: DS.belongsTo({}),
 });

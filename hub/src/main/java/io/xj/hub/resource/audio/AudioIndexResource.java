@@ -14,7 +14,6 @@ import io.xj.core.model.audio_chord.AudioChord;
 import io.xj.core.model.audio_event.AudioEvent;
 import io.xj.core.model.event.Event;
 import io.xj.core.model.user_role.UserRoleType;
-import io.xj.core.transport.GsonProvider;
 import io.xj.core.transport.HttpResponseProvider;
 import io.xj.hub.HubResource;
 
@@ -40,12 +39,10 @@ import java.util.Objects;
  */
 @Path("audios")
 public class AudioIndexResource extends HubResource {
-  private static final String CHORDS = "chords";
   private final AudioDAO audioDAO = injector.getInstance(AudioDAO.class);
   private final AudioEventDAO audioEventDAO = injector.getInstance(AudioEventDAO.class);
   private final AudioChordDAO audioChordDAO = injector.getInstance(AudioChordDAO.class);
   private final HttpResponseProvider response = injector.getInstance(HttpResponseProvider.class);
-  private final GsonProvider gsonProvider = injector.getInstance(GsonProvider.class);
 
   @QueryParam("instrumentId")
   String instrumentId;
@@ -83,7 +80,7 @@ public class AudioIndexResource extends HubResource {
 
     try {
       return Response
-        .accepted(gsonProvider.gson().toJson(readAllIncludingRelationships(Access.fromContext(crc)).toString()))
+        .accepted(gsonProvider.gson().toJson(readAllIncludingRelationships(Access.fromContext(crc))))
         .type(MediaType.APPLICATION_JSON)
         .build();
 

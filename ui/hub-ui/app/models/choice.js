@@ -7,7 +7,7 @@ export default DS.Model.extend({
   transpose: DS.attr('number'),
   type: DS.attr('string'),
   sequence: DS.belongsTo({}),
-  // arrangements: DS.hasMany('arrangement'), FUTURE: bind inner segment entities in ember models
+  arrangements: DS.hasMany('arrangement'),
 });
 
 
