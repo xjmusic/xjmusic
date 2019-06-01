@@ -1,23 +1,24 @@
 //  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-import {expect} from 'chai';
-import {describe, it} from 'mocha';
-import {setupRenderingTest} from 'ember-mocha';
-import {render} from '@ember/test-helpers';
+import { module, test } from 'qunit';
+import { setupRenderingTest } from 'ember-qunit';
+import { render } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 
-describe('ChordProgressionUsagesComponent', function () {
-  setupRenderingTest();
+module('ChordProgressionUsagesComponent', function (hooks) {
+  setupRenderingTest(hooks);
 
-  it('renders inline', async function () {
+  test('renders inline', async function (assert) {
     await render(hbs`{{chord-progression-usages}}`);
-    expect(this.$().text().trim()).to.contain('Sequence #');
-    expect(this.$().text().trim()).to.contain('Pattern #');
+
+    assert.contains(this.element.textContent, 'Sequence #');
+    assert.contains(this.element.textContent, 'Pattern #');
   });
 
-  it('renders block', async function () {
+  test('renders block', async function (assert) {
     await render(hbs`{{#chord-progression-usages}}dummy content{{/chord-progression-usages}}`);
-    expect(this.$().text().trim()).to.contain('dummy content');
+
+    assert.contains(this.element.textContent, 'dummy content');
   });
 
 });

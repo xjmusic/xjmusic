@@ -75,10 +75,12 @@ public interface Config {
   int DEFAULT_WORK_CHAIN_DELAY_SECONDS = 1;
   int DEFAULT_WORK_CHAIN_ERASE_RECUR_SECONDS = 10;
   int DEFAULT_WORK_CHAIN_RECUR_SECONDS = 2;
-  int DEFAULT_WORK_CONCURRENCY = 10;
+  int DEFAULT_WORK_CONCURRENCY = 12;
   int DEFAULT_WORK_ENQUEUE_NOW_DELAY_MILLIS = 10;
   int DEFAULT_COMPUTE_TIME_FRAMES_PER_BEAT = 64;
   int DEFAULT_COMPUTE_TIME_RESOLUTION_HZ = 1000000;
+  String DEFAULT_AUDIO_FILE_UPLOAD_ACL = "bucket-owner-full-control";
+  Integer DEFAULT_AUDIO_FILE_UPLOAD_EXPIRE_MINUTES = 60;
 
   static String authGoogleId() throws CoreException {
     return get("auth.google.id");
@@ -160,15 +162,15 @@ public interface Config {
   /**
    @return Audio File upload expire # minutes (for Amazon S3)
    */
-  static int audioFileUploadExpireMinutes() throws CoreException {
-    return getInt("audio.file.upload.expire.minutes");
+  static int audioFileUploadExpireMinutes() {
+    return getIntOrDefault("audio.file.upload.expire.minutes", DEFAULT_AUDIO_FILE_UPLOAD_EXPIRE_MINUTES);
   }
 
   /**
    @return Audio file upload ACL (for Amazon S3)
    */
-  static String audioFileUploadACL() throws CoreException {
-    return get("audio.file.upload.acl");
+  static String audioFileUploadACL() {
+    return getOrDefault("audio.file.upload.acl", DEFAULT_AUDIO_FILE_UPLOAD_ACL);
   }
 
   /**
@@ -210,7 +212,6 @@ public interface Config {
    @return API path
    */
   static String apiPath() {
-    // this is not a file separator! it's part of the W3C spec.
     return getOrDefault("app.url.api", DEFAULT_API_PATH);
   }
 

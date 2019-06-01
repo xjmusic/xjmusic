@@ -4,7 +4,7 @@ package io.xj.pulse.config;
 import java.util.Objects;
 
 public class Config {
-  private static final Integer DEFAULT_TIMEOUT_MILLIS = 60000;
+  private static final Integer DEFAULT_TIMEOUT_MILLIS = 20000;
   private final String heartbeatKey;
   private final String heartbeatURL;
   private final Integer timeoutMillis;

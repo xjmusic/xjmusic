@@ -1,15 +1,15 @@
 //  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
-import { expect } from 'chai';
-import { describe, it } from 'mocha';
-import { setupRenderingTest } from 'ember-mocha';
-import { render } from '@ember/test-helpers';
+import {module, test} from 'qunit';
+import {setupRenderingTest} from 'ember-qunit';
+import {render} from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 
-describe('DigestTypeHelper', function() {
-  setupRenderingTest();
+module('DigestTypeHelper', function (hooks) {
+  setupRenderingTest(hooks);
 
-  it('renders', async function() {
+  test('it renders', async function (assert) {
     await render(hbs`{{digest-type "1234"}}`);
-    expect(this.$().text().trim()).to.equal('Digest1234');
+
+    assert.equals(this.element.textContent, 'Digest1234');
   });
 });

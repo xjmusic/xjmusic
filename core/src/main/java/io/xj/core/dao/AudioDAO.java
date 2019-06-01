@@ -6,11 +6,10 @@ import io.xj.core.exception.CoreException;
 import io.xj.core.model.audio.Audio;
 import io.xj.core.model.audio.AudioState;
 
-import org.json.JSONObject;
-
 import javax.annotation.Nullable;
 import java.math.BigInteger;
 import java.util.Collection;
+import java.util.Map;
 
 public interface AudioDAO extends DAO<Audio> {
 
@@ -27,13 +26,12 @@ public interface AudioDAO extends DAO<Audio> {
   /**
    Generate an Upload policy to upload the corresponding file to 3rd-party storage (e.g. Amazon S3)
 
-   @param access control
-   @param id     of audio
    @return retrieved record
    @throws CoreException on failure
+   @param access control
+   @param id     of audio
    */
-  @Nullable
-  JSONObject authorizeUpload(Access access, BigInteger id) throws CoreException;
+  Map<String, String> authorizeUpload(Access access, BigInteger id) throws CoreException;
 
   /**
    Fetch all Audio in a certain state

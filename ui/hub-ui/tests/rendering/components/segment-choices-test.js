@@ -1,22 +1,23 @@
 //  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-import {expect} from 'chai';
-import {describe, it} from 'mocha';
-import {setupRenderingTest} from 'ember-mocha';
-import {render} from '@ember/test-helpers';
+import { module, test } from 'qunit';
+import { setupRenderingTest } from 'ember-qunit';
+import { render } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 
-describe('SegmentChoicesComponent', function () {
-  setupRenderingTest();
+module('SegmentChoicesComponent', function (hooks) {
+  setupRenderingTest(hooks);
 
-  it('renders inline', async function () {
+  test('it renders inline', async function (assert) {
     await render(hbs`{{segment-choices}}`);
-    expect(this.$().text().trim()).to.equal('');
+
+    assert.equals(this.element.textContent, '');
   });
 
-  it('renders block', async function () {
+  test('it renders block', async function (assert) {
     await render(hbs`{{#segment-choices}}dummy content{{/segment-choices}}`);
-    expect(this.$().text().trim()).to.equal('dummy content');
+
+    assert.equals(this.element.textContent, 'dummy content');
   });
 
 });

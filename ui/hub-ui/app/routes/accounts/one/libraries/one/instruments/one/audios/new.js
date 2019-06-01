@@ -1,9 +1,9 @@
 //  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
-import { later } from '@ember/runloop';
-import { isEmpty } from '@ember/utils';
+import {later} from '@ember/runloop';
+import {isEmpty} from '@ember/utils';
 import $ from 'jquery';
-import { set, get } from '@ember/object';
-import { inject as service } from '@ember/service';
+import {get, set} from '@ember/object';
+import {inject as service} from '@ember/service';
 import Route from '@ember/routing/route';
 import Uploader from 'ember-uploader/uploaders/uploader';
 import RSVP from "rsvp";
@@ -27,7 +27,7 @@ export default Route.extend({
 
   /**
    * Route Model
-   * @returns {RSVP.Promise}
+   * @returns {Promise}
    */
   model: function () {
     let self = this;
@@ -89,8 +89,7 @@ export default Route.extend({
       }
     },
 
-    cancelCreateAudio()
-    {
+    cancelCreateAudio() {
       let model = this.controller.get('model');
       if (model.get('hasDirtyAttributes')) {
         let confirmation = confirm("Your changes haven't saved yet. Would you like to leave this form?");
@@ -164,10 +163,22 @@ export default Route.extend({
    * @param waveformKey
    * @param uploadPolicy
    * @param signature
+   * @param awsAccessKeyId
+   * @param bucketName
+   * @param acl
    */
   uploadFile(file, waveformKey, uploadPolicy, signature, awsAccessKeyId, bucketName, acl) {
     let self = this;
-    self.uploader.upload(file, {
+    console.debug("Will uploadFile(...)", {
+      file: file,
+      waveformKey: waveformKey,
+      uploadPolicy: uploadPolicy,
+      signature: signature,
+      awsAccessKeyId: awsAccessKeyId,
+      bucketName: bucketName,
+      acl: acl
+    });
+    self.get("uploader").upload(file, {
       key: waveformKey,
       policy: uploadPolicy,
       signature: signature,
@@ -185,7 +196,7 @@ export default Route.extend({
    * we have uploaded the file successfully
    * @param waveformKey
    */
-  didUploadFile (waveformKey) {
+  didUploadFile(waveformKey) {
     get(this, 'display').success('Uploaded "' + this.audioBaseUrl + waveformKey);
     let model = this.controller.get('model');
     let instrument = model.get("instrument");
@@ -202,7 +213,7 @@ export default Route.extend({
    * @param error
    * @param waveformKey
    */
-  failedToUploadFile (error, waveformKey) {
+  failedToUploadFile(error, waveformKey) {
     this.throwError('Failed to upload "' + this.audioBaseUrl + waveformKey, error);
   },
 

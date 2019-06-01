@@ -1,22 +1,23 @@
 //  Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-import {expect} from 'chai';
-import {describe, it} from 'mocha';
-import {setupRenderingTest} from 'ember-mocha';
-import {render} from '@ember/test-helpers';
+import { module, test } from 'qunit';
+import { setupRenderingTest } from 'ember-qunit';
+import { render } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 
-describe('ChordMarkovObservationsComponent', function () {
-  setupRenderingTest();
+module('ChordMarkovObservationsComponent', function (hooks) {
+  setupRenderingTest(hooks);
 
-  it('renders inline', async function () {
+  test('renders inline', async function (assert) {
     await render(hbs`{{chord-markov-observations}}`);
-    expect(this.$().text().trim()).to.equal('');
+
+    assert.equals(this.textContent.trim()).to.equal('');
   });
 
-  it('renders block', async function () {
+  test('renders block', async function (assert) {
     await render(hbs`{{#chord-markov-observations}}dummy content{{/chord-markov-observations}}`);
-    expect(this.$().text().trim()).to.equal('dummy content');
+
+    assert.equals(this.textContent.trim()).to.equal('dummy content');
   });
 
 });

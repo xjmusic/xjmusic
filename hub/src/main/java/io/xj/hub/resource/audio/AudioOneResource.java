@@ -9,7 +9,6 @@ import io.xj.core.model.audio.AudioWrapper;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.transport.HttpResponseProvider;
 import io.xj.hub.HubResource;
-import org.json.JSONObject;
 
 import javax.annotation.security.RolesAllowed;
 import javax.jws.WebResult;
@@ -25,6 +24,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.Map;
 
 /**
  Audio record
@@ -108,9 +108,9 @@ public class AudioOneResource extends HubResource {
   @Path("/upload")
   @WebResult
   @RolesAllowed(UserRoleType.ARTIST)
-  public Response uploadOne(@Context ContainerRequestContext crc) throws IOException {
+  public Response uploadOne(@Context ContainerRequestContext crc) {
     try {
-      JSONObject result = audioDAO.authorizeUpload(Access.fromContext(crc), new BigInteger(id));
+      Map<String, String> result = audioDAO.authorizeUpload(Access.fromContext(crc), new BigInteger(id));
       if (null != result) {
         return Response
           .accepted(gsonProvider.wrap(Audio.KEY_ONE, result))

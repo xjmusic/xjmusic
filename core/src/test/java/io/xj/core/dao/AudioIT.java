@@ -22,7 +22,6 @@ import io.xj.core.model.sequence.SequenceState;
 import io.xj.core.model.sequence.SequenceType;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.work.WorkManager;
-import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -36,6 +35,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.io.File;
 import java.math.BigInteger;
 import java.util.Collection;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -240,7 +240,7 @@ public class AudioIT {
     when(amazonProvider.getAudioUploadACL())
       .thenReturn("bucket-owner-is-awesome");
 
-    JSONObject result = testDAO.authorizeUpload(access, BigInteger.valueOf(2L));
+    Map<String, String> result = testDAO.authorizeUpload(access, BigInteger.valueOf(2L));
 
     assertNotNull(result);
     assertEquals("instrument" + File.separator + "percussion" + File.separator + "808" + File.separator + "snare.wav", result.get("waveformKey"));

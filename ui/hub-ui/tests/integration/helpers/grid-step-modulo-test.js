@@ -1,26 +1,48 @@
-import { expect } from 'chai';
-import { describe, it } from 'mocha';
-import { setupComponentTest } from 'ember-mocha';
+import { module, test } from 'qunit';
+import { setupRenderingTest } from 'ember-qunit';
+import { render } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 
-describe('Integration | Helper | grid-step-modulo', function() {
-  setupComponentTest('grid-step-modulo', {
-    integration: true
+module('Integration | Helper | grid-step-modulo', function(hooks) {
+  setupRenderingTest(hooks);
+
+  // Replace this with your real tests.
+  test('it renders', async function(assert) {
+    this.set('inputValue', '1234');
+
+    await render(hbs`{{grid-step-modulo inputValue}}`);
+
+    assert.equal(this.element.textContent.trim(), '1234');
   });
 
-  it('returns "measure" at the top of a measure', function() {
-    this.render(hbs`{{grid-step-modulo 16 4 4}}`);
-    expect(this.$().text().trim()).to.equal('measure');
+  test('it returns "measure" at the top of a measure', async function(assert) {
+    this.set('valueA', '16');
+    this.set('valueB','4');
+    this.set('valueC','4');
+
+    await render(hbs`{{grid-step-modulo valueA valueB valueC}}`);
+
+    assert.equal(this.element.textContent.trim(), 'measure');
   });
 
-  it('returns "beat" at the top of a beat', function() {
-    this.render(hbs`{{grid-step-modulo 12 4 4}}`);
-    expect(this.$().text().trim()).to.equal('beat');
+  test('it returns "beat" at the top of a beat', async function(assert) {
+    this.set('valueA', '12');
+    this.set('valueB','4');
+    this.set('valueC','4');
+
+    await render(hbs`{{grid-step-modulo valueA valueB valueC}}`);
+
+    assert.equal(this.element.textContent.trim(), 'beat');
   });
 
-  it('returns "step" at the top of a step', function() {
-    this.render(hbs`{{grid-step-modulo 11 4 4}}`);
-    expect(this.$().text().trim()).to.equal('step');
+  test('it returns "step" at the top of a step', async function(assert) {
+    this.set('valueA', '11');
+    this.set('valueB','4');
+    this.set('valueC','4');
+
+    await render(hbs`{{grid-step-modulo valueA valueB valueC}}`);
+
+    assert.equal(this.element.textContent.trim(), 'step');
   });
+
 });
-

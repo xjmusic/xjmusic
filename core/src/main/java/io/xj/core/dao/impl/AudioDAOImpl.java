@@ -21,11 +21,9 @@ import org.jooq.DSLContext;
 import org.jooq.Field;
 import org.jooq.Record;
 import org.jooq.types.ULong;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
 import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Locale;
@@ -199,7 +197,6 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
   }
 
   @Override
-  @Nullable
   public Audio readOne(Access access, BigInteger id) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
@@ -210,8 +207,7 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
   }
 
   @Override
-  @Nullable
-  public JSONObject authorizeUpload(Access access, BigInteger id) throws CoreException {
+  public Map<String, String> authorizeUpload(Access access, BigInteger id) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(authorizeUpload(tx.getContext(), access, ULong.valueOf(id)));
@@ -221,7 +217,6 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
   }
 
   @Override
-  @Nullable
   public Collection<Audio> readAll(Access access, Collection<BigInteger> parentIds) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
@@ -349,9 +344,10 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
    @param db     context
    @param access control
    @param id     to update
+   @return
    @throws CoreException if failure
    */
-  private JSONObject authorizeUpload(DSLContext db, Access access, ULong id) throws CoreException {
+  private Map<String, String> authorizeUpload(DSLContext db, Access access, ULong id) throws CoreException {
     Record audioRecord;
 
     if (access.isTopLevel())
@@ -369,7 +365,7 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
 
     requireExists("Audio", audioRecord);
 
-    JSONObject uploadAuthorization = new JSONObject();
+    Map<String, String> uploadAuthorization = Maps.newConcurrentMap();
     S3UploadPolicy uploadPolicy = amazonProvider.generateAudioUploadPolicy();
     String waveformKey = audioRecord.get(AUDIO.WAVEFORM_KEY);
     uploadAuthorization.put(Exposure.KEY_WAVEFORM_KEY, waveformKey);

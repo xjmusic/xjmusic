@@ -8,22 +8,22 @@ import {setupRenderingTest} from 'ember-mocha';
 import {render} from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 
-describe('PatternStepmaticComponent', function () {
-  setupRenderingTest();
+describe('PatternStepmaticComponent', function (hooks) {
+  setupRenderingTest(hooks);
 
   it('renders inline', async function () {
     await render(hbs`{{pattern-stepmatic}}`);
-    expect(this.$().text().trim()).to.contain('Measure');
-    expect(this.$().text().trim()).to.contain('Subdiv');
-    expect(this.$().text().trim()).to.contain('Swing');
-    expect(this.$().text().trim()).to.contain('Clear');
-    expect(this.$().text().trim()).to.contain('Revert');
-    expect(this.$().text().trim()).to.contain('Apply');
+    expect(this.element.innerHTML).to.contain('Measure');
+    expect(this.element.innerHTML).to.contain('Subdiv');
+    expect(this.element.innerHTML).to.contain('Swing');
+    expect(this.element.innerHTML).to.contain('Clear');
+    expect(this.element.innerHTML).to.contain('Revert');
+    expect(this.element.innerHTML).to.contain('Apply');
   });
 
   it('renders block', async function () {
     await render(hbs`{{#pattern-stepmatic}}dummy content{{/pattern-stepmatic}}`);
-    expect(this.$().text().trim()).to.contain('dummy content');
+    expect(this.element.innerHTML).to.contain('dummy content');
   });
 
 });

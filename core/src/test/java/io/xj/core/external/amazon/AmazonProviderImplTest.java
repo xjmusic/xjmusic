@@ -59,13 +59,6 @@ public class AmazonProviderImplTest {
     assertNotNull(policy);
   }
 
-  @Test(expected = CoreException.class)
-  public void generateUploadPolicy_failsWithoutConfigs() throws Exception {
-    System.clearProperty("audio.file.upload.expire.minutes");
-
-    amazonProvider.generateAudioUploadPolicy();
-  }
-
   @Test
   public void generateKey() throws Exception {
     when(tokenGenerator.generateShort())

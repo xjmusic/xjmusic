@@ -1,24 +1,38 @@
-import { expect } from 'chai';
-import { describe, it } from 'mocha';
-import { setupComponentTest } from 'ember-mocha';
+import {module, test} from 'qunit';
+import {setupRenderingTest} from 'ember-qunit';
+import {render} from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 
-describe('Integration | Helper | fraction', function() {
-  setupComponentTest('fraction', {
-    integration: true
+module('Integration | Helper | fraction', function (hooks) {
+  setupRenderingTest(hooks);
+
+  // Replace this with your real tests.
+  test('it renders', async function (assert) {
+    this.set('inputValue', '1234');
+
+    await render(hbs`{{fraction inputValue}}`);
+
+    assert.equal(this.element.textContent.trim(), '1234');
   });
 
-  it('renders 1/4', function() {
-    this.render(hbs`{{fraction 1 4}}`);
-    expect(this.$().text().trim()).to.contain('1');
-    expect(this.$().text().trim()).to.contain('4');
+  test('it renders 1/4', async function (assert) {
+    this.set('valueA', '1');
+    this.set('valueB', '4');
+
+    await render(hbs`{{fraction valueA valueB}}`);
+
+    assert.contains(this.element.textContent.trim(), '1');
+    assert.contains(this.element.textContent.trim(), '4');
   });
 
-  it('renders 1/666', function() {
-    this.render(hbs`{{fraction 1 666}}`);
-    expect(this.$().text().trim()).to.contain('1');
-    expect(this.$().text().trim()).to.contain('666');
+  test('it renders 1/666', async function (assert) {
+    this.set('valueA', '1');
+    this.set('valueB', '666');
+
+    await render(hbs`{{fraction valueA valueB}}`);
+
+    assert.contains(this.element.textContent.trim(), '1');
+    assert.contains(this.element.textContent.trim(), '666');
   });
 
 });
-

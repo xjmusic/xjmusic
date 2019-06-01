@@ -29,9 +29,9 @@ public class Pulse implements RequestHandler<JSONObject, JSONObject> {
   Integer timeoutMillis;
 
   /**
-   * Instantiate a new Pulse app
-   *
-   * @throws Exception if environment parameter is not set
+   Instantiate a new Pulse app
+
+   @throws Exception if environment parameter is not set
    */
   public Pulse() throws Exception {
     config = new Config();
@@ -39,7 +39,7 @@ public class Pulse implements RequestHandler<JSONObject, JSONObject> {
   }
 
   /**
-   * Instantiate a new Pulse app with specified internal components
+   Instantiate a new Pulse app with specified internal components
    */
   public Pulse(Config config, HttpClient httpClient) {
     this.config = config;
@@ -47,11 +47,23 @@ public class Pulse implements RequestHandler<JSONObject, JSONObject> {
   }
 
   /**
-   * Handles a Lambda Function request
-   *
-   * @param input   The Lambda Function input
-   * @param context The Lambda execution environment context object.
-   * @return The Lambda Function output
+   Build JSON of result
+
+   @param msg to encapsulate
+   @return string of JSON object
+   */
+  private static JSONObject resultJSON(String msg) {
+    JSONObject json = new JSONObject();
+    json.put("message", msg);
+    return json;
+  }
+
+  /**
+   Handles a Lambda Function request
+
+   @param input   The Lambda Function input
+   @param context The Lambda execution environment context object.
+   @return The Lambda Function output
    */
   @Override
   public JSONObject handleRequest(JSONObject input, Context context) {
@@ -60,9 +72,9 @@ public class Pulse implements RequestHandler<JSONObject, JSONObject> {
   }
 
   /**
-   * Send the request
-   *
-   * @return JSON results
+   Send the request
+
+   @return JSON results
    */
   public JSONObject send() {
     try {
@@ -97,6 +109,9 @@ public class Pulse implements RequestHandler<JSONObject, JSONObject> {
     } catch (IOException e) {
 
       return resultJSON(String.format("HTTP request failure: %s", e));
+
+    } finally {
+      httpRequest.releaseConnection();
     }
 
     int code = response.getStatusLine().getStatusCode();
@@ -104,18 +119,6 @@ public class Pulse implements RequestHandler<JSONObject, JSONObject> {
       return resultJSON(String.format("Pulse success, code %d", CODE_SUCCESS));
     }
     return resultJSON(String.format("Pulse failure, code %d", code));
-  }
-
-  /**
-   * Build JSON of result
-   *
-   * @param msg to encapsulate
-   * @return string of JSON object
-   */
-  private static JSONObject resultJSON(String msg) {
-    JSONObject json = new JSONObject();
-    json.put("message", msg);
-    return json;
   }
 
 }
