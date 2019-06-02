@@ -84,7 +84,8 @@ public class DemoIT {
         assertTrue("Demo output does not match reference audio for " + referenceName + "!",
           Files.equal(new File(filename), resourceFile(getReferenceAudioFilename(referenceName))));
         break;
-      case OGG_VORBIS:
+      case OGG:
+      case AAC:
         assertTrue("Demo output does not match file size +/-2% of reference audio for " + referenceName + "!",
           isFileSizeWithin(new File(filename), resourceFile(getReferenceAudioFilename(referenceName)), 0.02f)
         );
@@ -231,7 +232,16 @@ public class DemoIT {
 
   @Test
   public void demo_48000Hz_2ch_OggVorbis() throws Exception {
-    assertMixOutputEqualsReferenceAudio(OutputEncoder.OGG_VORBIS, AudioFormat.Encoding.PCM_FLOAT, 48000, 32, 2, "48000Hz_Float_32bit_2ch.ogg");
+    assertMixOutputEqualsReferenceAudio(OutputEncoder.OGG, AudioFormat.Encoding.PCM_FLOAT, 48000, 32, 2, "48000Hz_Float_32bit_2ch.ogg");
   }
+
+  /**
+   [#162361712] AAC output
+   */
+  @Test
+  public void demo_48000Hz_2ch_AAC() throws Exception {
+    assertMixOutputEqualsReferenceAudio(OutputEncoder.AAC, AudioFormat.Encoding.PCM_SIGNED, 48000, 16, 2, "48000Hz_Signed_16bit_2ch.aac");
+  }
+
 
 }

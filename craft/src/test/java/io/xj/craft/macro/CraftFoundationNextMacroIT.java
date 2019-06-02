@@ -98,7 +98,7 @@ public class CraftFoundationNextMacroIT extends BaseIT {
 
     craftFactory.macroMain(fabricator).doWork();
 
-    assertEquals(Timestamp.valueOf("2017-02-14 12:03:15.697116384"), segment4.getEndAt());
+    assertEquals(Timestamp.valueOf("2017-02-14 12:03:15.692609"), segment4.getEndAt());
     assertEquals(Integer.valueOf(16), segment4.getTotal());
     assertEquals(Double.valueOf(0.55), segment4.getDensity());
     assertEquals("F minor", segment4.getKey());

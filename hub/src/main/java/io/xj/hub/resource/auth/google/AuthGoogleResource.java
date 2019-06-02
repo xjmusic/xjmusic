@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.security.PermitAll;
-import javax.jws.WebResult;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
@@ -27,7 +26,6 @@ public class AuthGoogleResource extends HubResource {
    @return Response redirection to auth code request URL
    */
   @GET
-  @WebResult
   @PermitAll
   public Response redirectToAuthCodeRequestUrl() {
     GoogleProvider authGoogleProvider = injector.getInstance(GoogleProvider.class);

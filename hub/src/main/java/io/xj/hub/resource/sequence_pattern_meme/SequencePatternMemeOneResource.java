@@ -12,7 +12,6 @@ import io.xj.hub.HubResource;
 import org.apache.http.HttpStatus;
 
 import javax.annotation.security.RolesAllowed;
-import javax.jws.WebResult;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -40,7 +39,6 @@ public class SequencePatternMemeOneResource extends HubResource {
    @return application/json response.
    */
   @GET
-  @WebResult
   @RolesAllowed(UserRoleType.ARTIST)
   public Response readOne(@Context ContainerRequestContext crc) throws IOException {
     try {

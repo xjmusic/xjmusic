@@ -32,7 +32,7 @@ public interface DubFactory {
 
   /**
    Create Ship Dub instance for a particular segment
-   [#264] Segment audio is compressed to OGG_VORBIS and shipped to https://segment.xj.io
+   [#264] Segment audio is compressed to OGG and shipped to https://segment.xj.io
 
    @param fabricator of dub
    @return ShipDub

@@ -126,14 +126,14 @@
     </plugins>
   </build>
   <properties>
-    <jersey.version>2.25</jersey.version>
+    <jersey.version>2.28</jersey.version>
     <db.url>jdbc:mysql://localhost:3300/${db.database}</db.url>
     <org.jooq.version>3.8.6</org.jooq.version>
     <db.driver>com.mysql.cj.jdbc.Driver</db.driver>
-    <maven.compiler.target>1.8</maven.compiler.target>
+    <maven.compiler.target>11</maven.compiler.target>
     <db.username>root</db.username>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.source>11</maven.compiler.source>
     <db.database>xj_test</db.database>
   </properties>
 </project>

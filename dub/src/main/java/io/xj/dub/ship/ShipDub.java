@@ -5,7 +5,7 @@ import io.xj.core.exception.CoreException;
 import io.xj.craft.exception.CraftException;
 
 /**
- [#264] Segment audio is compressed to OGG_VORBIS and shipped to https://segment.xj.io
+ [#264] Segment audio is compressed to OGG and shipped to https://segment.xj.io
  */
 public interface ShipDub {
 

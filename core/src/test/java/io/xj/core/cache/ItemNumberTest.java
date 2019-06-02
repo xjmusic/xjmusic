@@ -1,6 +1,6 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+//  Copyright (c) 2019, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-package io.xj.core.cache.audio;// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+package io.xj.core.cache;// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
 import io.xj.core.cache.audio.impl.ItemNumber;
 

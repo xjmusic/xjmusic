@@ -5,7 +5,6 @@ import io.xj.core.access.impl.Access;
 import io.xj.core.model.user_role.UserRoleType;
 
 import javax.annotation.security.RolesAllowed;
-import javax.jws.WebResult;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.container.ContainerRequestContext;
@@ -25,7 +24,6 @@ public class AuthResource {
    @return application/json response.
    */
   @GET
-  @WebResult
   @RolesAllowed(UserRoleType.USER)
   public static Response getCurrentAuthentication(@Context ContainerRequestContext crc) {
     Access access = Access.fromContext(crc);

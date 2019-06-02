@@ -8,9 +8,9 @@ import io.xj.core.transport.GsonProvider;
 import io.xj.hub.HubResource;
 
 import javax.annotation.security.PermitAll;
-import javax.jws.WebResult;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -28,7 +28,6 @@ public class ConfigResource extends HubResource {
    @return application/json response.
    */
   @GET
-  @WebResult
   @PermitAll
   public static Response getConfig(@Context ContainerRequestContext crc) throws CoreException {
     return Response

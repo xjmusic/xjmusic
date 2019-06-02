@@ -18,7 +18,6 @@ import io.xj.core.util.Text;
 import io.xj.hub.HubResource;
 
 import javax.annotation.security.PermitAll;
-import javax.jws.WebResult;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
@@ -58,7 +57,6 @@ public class SegmentIndexResource extends HubResource {
    @return application/json response.
    */
   @GET
-  @WebResult
   @PermitAll
   public Response readAll(@Context ContainerRequestContext crc) throws IOException {
 

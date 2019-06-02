@@ -130,7 +130,7 @@ public class MasterDubImpl implements MasterDub {
    */
   private void doMix() throws Exception {
     float quality = Float.valueOf(fabricator.getChainConfig(ChainConfigType.OutputEncodingQuality).getValue());
-    mixer().mixToFile(OutputEncoder.OGG_VORBIS, fabricator.getOutputFilePath(), quality);
+    mixer().mixToFile(OutputEncoder.parse(fabricator.getChainConfig(ChainConfigType.OutputContainer)), fabricator.getOutputFilePath(), quality);
   }
 
   /**

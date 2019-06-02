@@ -3,10 +3,8 @@ package io.xj.core.util;// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-
 import org.jooq.types.ULong;
 import org.junit.Test;
-import org.omg.CORBA.ULongLongSeqHelper;
 
 import java.math.BigInteger;
 

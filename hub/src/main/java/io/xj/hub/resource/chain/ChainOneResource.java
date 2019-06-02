@@ -13,7 +13,6 @@ import io.xj.hub.HubResource;
 
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
-import javax.jws.WebResult;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -45,7 +44,6 @@ public class ChainOneResource extends HubResource {
    @return application/json response.
    */
   @GET
-  @WebResult
   @PermitAll
   public Response readOne(@Context ContainerRequestContext crc) throws IOException {
     Access access = Access.fromContext(crc);

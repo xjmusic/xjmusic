@@ -8,12 +8,14 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import io.xj.core.access.impl.Access;
 import io.xj.core.config.Config;
+import io.xj.core.config.Exposure;
 import io.xj.core.dao.ChainConfigDAO;
 import io.xj.core.dao.ChainInstrumentDAO;
 import io.xj.core.dao.ChainLibraryDAO;
 import io.xj.core.dao.ChainSequenceDAO;
 import io.xj.core.dao.SegmentDAO;
 import io.xj.core.exception.CoreException;
+import io.xj.core.external.amazon.AmazonProvider;
 import io.xj.core.fabricator.Fabricator;
 import io.xj.core.fabricator.FabricatorType;
 import io.xj.core.fabricator.TimeComputer;
@@ -24,6 +26,7 @@ import io.xj.core.isometry.Isometry;
 import io.xj.core.isometry.MemeIsometry;
 import io.xj.core.model.arrangement.Arrangement;
 import io.xj.core.model.audio.Audio;
+import io.xj.core.model.chain.Chain;
 import io.xj.core.model.chain_config.ChainConfig;
 import io.xj.core.model.chain_config.ChainConfigType;
 import io.xj.core.model.chain_instrument.ChainInstrument;
@@ -60,6 +63,7 @@ import java.math.BigInteger;
 import java.time.Duration;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
@@ -75,18 +79,17 @@ public class FabricatorImpl implements Fabricator {
   private final ChainSequenceDAO chainSequenceDAO;
   private final Collection<Segment> cachedPreviousSegmentsWithThisMainSequence = Lists.newArrayList();
   private final IngestCacheProvider ingestProvider;
+  private final AmazonProvider amazonProvider;
   private final Logger log = LoggerFactory.getLogger(FabricatorImpl.class);
   private final long startTime;
-
   private final Map<UUID, Collection<Arrangement>> presetChoiceArrangements = Maps.newConcurrentMap();
-
   private final SegmentDAO segmentDAO;
   private final Tuning tuning;
-  // FUTURE: [#165815496] Chain fabrication access control
-  private final Access access = Access.internal();
   private final Segment segment;
   private final TimeComputerFactory timeComputerFactory;
   private final Map<String, Segment> segmentByOffset = Maps.newConcurrentMap();
+  // FUTURE: [#165815496] Chain fabrication access control
+  private final Access access = Access.internal();
   private Ingest sourceMaterial;
   private Map<ChainConfigType, ChainConfig> allChainConfigs;
   private Collection<Segment> previousSegmentsWithSameMainSequence;
@@ -100,13 +103,15 @@ public class FabricatorImpl implements Fabricator {
     ChainInstrumentDAO chainInstrumentDAO,
     IngestCacheProvider ingestProvider,
     SegmentDAO segmentDAO,
-    TimeComputerFactory timeComputerFactory
+    TimeComputerFactory timeComputerFactory,
+    AmazonProvider amazonProvider
   ) throws CoreException {
     this.chainConfigDAO = chainConfigDAO;
     this.chainLibraryDAO = chainLibraryDAO;
     this.chainSequenceDAO = chainSequenceDAO;
     this.chainInstrumentDAO = chainInstrumentDAO;
     this.ingestProvider = ingestProvider;
+    this.amazonProvider = amazonProvider;
     this.segmentDAO = segmentDAO;
 
     // Ingest Segment
@@ -114,6 +119,7 @@ public class FabricatorImpl implements Fabricator {
     this.timeComputerFactory = timeComputerFactory;
     tuning = computeTuning();
     startTime = System.nanoTime();
+    ensureWaveformKey();
   }
 
   @Override
@@ -658,6 +664,19 @@ public class FabricatorImpl implements Fabricator {
   }
 
   /**
+   General a Segment URL
+
+   @param chainId to generate URL for
+   @return URL as string
+   */
+  private String generateWaveformKey(BigInteger chainId) throws CoreException {
+    String prefix = String.format("%s-%s-%s", Chain.KEY_ONE,chainId, Segment.KEY_ONE);
+    String extension = getChainConfig(ChainConfigType.OutputContainer).getValue().toLowerCase(Locale.ENGLISH);
+    return amazonProvider.generateKey(prefix, extension);
+  }
+
+
+  /**
    [#255] Tuning based on root note configured in environment parameters.
    */
   private Tuning computeTuning() throws CoreException {
@@ -836,6 +855,17 @@ public class FabricatorImpl implements Fabricator {
    */
   private int getOutputSampleBits() throws CoreException {
     return Integer.parseInt(getChainConfig(ChainConfigType.OutputSampleBits).getValue());
+  }
+
+  /**
+   Ensure the current segment has a waveform key; if not, add a waveform key to this Segment
+
+   @throws CoreException on failure to ensure generate waveform key
+   */
+  private void ensureWaveformKey() throws CoreException {
+    if (Objects.isNull(segment.getWaveformKey()) || segment.getWaveformKey().isEmpty()) {
+      segment.setWaveformKey(generateWaveformKey(segment.getChainId()));
+    }
   }
 
 }

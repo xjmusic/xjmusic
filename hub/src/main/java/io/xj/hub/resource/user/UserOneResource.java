@@ -11,7 +11,6 @@ import io.xj.core.transport.HttpResponseProvider;
 import io.xj.hub.HubResource;
 
 import javax.annotation.security.RolesAllowed;
-import javax.jws.WebResult;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
@@ -40,7 +39,6 @@ public class UserOneResource extends HubResource {
    @return application/json response.
    */
   @GET
-  @WebResult
   @RolesAllowed(UserRoleType.USER)
   public Response readOne(@Context ContainerRequestContext crc) throws IOException {
     try {

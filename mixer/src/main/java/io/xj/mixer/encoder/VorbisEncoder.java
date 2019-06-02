@@ -1,5 +1,5 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
-package io.xj.mixer.util;
+//  Copyright (c) 2019, XJ Music Inc. (https://xj.io) All Rights Reserved.
+package io.xj.mixer.encoder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,7 +88,7 @@ public class VorbisEncoder {
   }
 
   /**
-   Encode OGG_VORBIS VorbisEncoder@param stream      input channels of floating point samples
+   Encode OGG VorbisEncoder@param stream      input channels of floating point samples
 
    @param output to write OGG Vorbis data
    */

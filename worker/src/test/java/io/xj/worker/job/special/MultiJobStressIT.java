@@ -117,8 +117,8 @@ public class MultiJobStressIT extends BaseIT {
 
   @Test
   public void clonesPatternWhileChainFabrication() throws Exception {
-    when(amazonProvider.generateKey("chain-1-segment", "ogg"))
-      .thenReturn("chain-1-segment-12345.ogg");
+    when(amazonProvider.generateKey("chain-1-segment", "aac"))
+      .thenReturn("chain-1-segment-12345.aac");
     app.getWorkManager().startChainFabrication(BigInteger.valueOf(1));
 
     // Start app, wait until at least one segment has been fabricated, then begin another job

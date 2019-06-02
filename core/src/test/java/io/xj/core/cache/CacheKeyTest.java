@@ -1,18 +1,15 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+//  Copyright (c) 2019, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-package io.xj.craft.cache;// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
-
-import io.xj.core.access.impl.Access;
-import io.xj.core.cache.CacheKey;
-import io.xj.core.model.audio.Audio;
-import io.xj.core.model.instrument.Instrument;
-import io.xj.core.model.library.Library;
-import io.xj.core.model.sequence.Sequence;
-import io.xj.core.model.pattern.Pattern;
+package io.xj.core.cache;// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-
+import io.xj.core.access.impl.Access;
+import io.xj.core.model.audio.Audio;
+import io.xj.core.model.instrument.Instrument;
+import io.xj.core.model.library.Library;
+import io.xj.core.model.pattern.Pattern;
+import io.xj.core.model.sequence.Sequence;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

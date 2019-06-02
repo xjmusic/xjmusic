@@ -35,8 +35,11 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install python3-
 # Python PIP
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install python-pip
 
-# Install Java.
-RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install openjdk-8-jdk
+# Install Java 11
+RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install openjdk-11-jdk
+
+# Install Fraunhofer
+RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install libfdk-aac-dev
 
 # Define commonly used JAVA_HOME variable
 # ENV JAVA_HOME /usr/lib/jvm/java-8-oracle

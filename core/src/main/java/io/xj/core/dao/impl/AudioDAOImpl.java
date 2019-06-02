@@ -12,6 +12,7 @@ import io.xj.core.external.amazon.AmazonProvider;
 import io.xj.core.external.amazon.S3UploadPolicy;
 import io.xj.core.model.audio.Audio;
 import io.xj.core.model.audio.AudioState;
+import io.xj.core.model.instrument.Instrument;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import io.xj.core.persistence.sql.impl.SQLConnection;
@@ -332,10 +333,8 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
    @return URL as string
    */
   private String generateKey(BigInteger instrumentId) {
-    return amazonProvider.generateKey(
-      Exposure.FILE_INSTRUMENT + Exposure.FILE_SEPARATOR +
-        instrumentId + Exposure.FILE_SEPARATOR +
-        Exposure.FILE_AUDIO, Audio.FILE_EXTENSION);
+    String prefix = String.format("%s-%s-%s", Instrument.KEY_ONE, instrumentId, Audio.KEY_ONE);
+    return amazonProvider.generateKey(prefix, Audio.FILE_EXTENSION);
   }
 
   /**
@@ -344,7 +343,6 @@ public class AudioDAOImpl extends DAOImpl implements AudioDAO {
    @param db     context
    @param access control
    @param id     to update
-   @return
    @throws CoreException if failure
    */
   private Map<String, String> authorizeUpload(DSLContext db, Access access, ULong id) throws CoreException {

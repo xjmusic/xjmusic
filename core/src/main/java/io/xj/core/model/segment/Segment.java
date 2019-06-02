@@ -22,7 +22,6 @@ import java.util.Map;
 public interface Segment extends Entity {
   String KEY_ONE = "segment";
   String KEY_MANY = "segments";
-  String FILE_EXTENSION = "ogg";
 
   /**
    Add an Arrangement to Segment

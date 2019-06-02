@@ -10,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.security.PermitAll;
-import javax.jws.WebResult;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -37,7 +36,6 @@ public class HeartbeatResource extends HubResource {
    @return application/json response.
    */
   @POST
-  @WebResult
   @PermitAll
   public Response getConfig(@Context ContainerRequestContext crc) throws CoreException {
     if (Objects.isNull(key)) {

@@ -134,6 +134,9 @@ public class SegmentIT {
     System.clearProperty("segment.file.bucket");
   }
 
+  /**
+   [#162361712] Segment waveform_key is set by fabricator (which knows the chain configuration) NOT on creation
+   */
   @Test
   public void create() throws Exception {
     Access access = new Access(ImmutableMap.of(
@@ -165,11 +168,14 @@ public class SegmentIT {
     assertEquals(0.74, result.getDensity(), 0.01);
     assertEquals("C# minor 7 b9", result.getKey());
     assertEquals(120.0, result.getTempo(), 0.01);
-    assertNotNull(result.getWaveformKey());
+    assertNull(result.getWaveformKey());
   }
 
+  /**
+   [#162361712] Segment waveform_key is set by fabricator (which knows the chain configuration) NOT on creation
+   [#126] Segments are always readMany in PLANNED state
+   */
   @Test
-  // [#126] Segments are always readMany in PLANNED state
   public void create_alwaysInPlannedState() throws Exception {
     Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
@@ -200,7 +206,7 @@ public class SegmentIT {
     assertEquals(0.74, result.getDensity(), 0.01);
     assertEquals("C# minor 7 b9", result.getKey());
     assertEquals(120.0, result.getTempo(), 0.1);
-    assertNotNull(result.getWaveformKey());
+    assertNull(result.getWaveformKey());
   }
 
   @Test

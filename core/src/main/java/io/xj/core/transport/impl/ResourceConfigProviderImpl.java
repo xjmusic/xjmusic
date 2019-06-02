@@ -3,7 +3,7 @@ package io.xj.core.transport.impl;
 
 import io.xj.core.transport.ResourceConfigProvider;
 
-import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
+import org.glassfish.jersey.jackson.internal.jackson.jaxrs.json.JacksonJsonProvider;
 import org.glassfish.jersey.server.ResourceConfig;
 
 public class ResourceConfigProviderImpl implements ResourceConfigProvider {

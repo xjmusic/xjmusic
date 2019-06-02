@@ -1,6 +1,6 @@
 //  Copyright (c) 2019, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-package io.xj.core.transport.impl;
+package io.xj.core.transport;
 
 import com.google.common.collect.ImmutableList;
 import com.google.gson.Gson;

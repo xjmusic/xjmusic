@@ -11,7 +11,6 @@ import io.xj.core.transport.HttpResponseProvider;
 import io.xj.hub.HubResource;
 
 import javax.annotation.security.RolesAllowed;
-import javax.jws.WebResult;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.container.ContainerRequestContext;
@@ -33,7 +32,6 @@ public class UserIndexResource extends HubResource {
    @return application/json response.
    */
   @GET
-  @WebResult
   @RolesAllowed(UserRoleType.USER)
   public Response readAll(@Context ContainerRequestContext crc) throws IOException {
     try {

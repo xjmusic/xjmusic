@@ -2,8 +2,9 @@
 package io.xj.mixer.impl.audio;
 
 import io.xj.mixer.OutputEncoder;
+import io.xj.mixer.encoder.VorbisEncoder;
 import io.xj.mixer.impl.exception.FormatException;
-import io.xj.mixer.util.VorbisEncoder;
+import org.sheinbergon.aac.sound.AACFileTypes;
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
@@ -65,7 +66,7 @@ public class AudioStreamWriter {
 
    @param outputFilePath path
    @param specs          format
-   @param outputEncoder  container, e.g. WAV or OGG_VORBIS
+   @param outputEncoder  container, e.g. WAV or OGG
    @param totalFrames    frames
    @throws IOException on failure
    */
@@ -77,8 +78,12 @@ public class AudioStreamWriter {
         writeWAV(outputFile, specs, totalFrames);
         break;
 
-      case OGG_VORBIS:
+      case OGG:
         writeOggVorbis(outputFile, specs, quality);
+        break;
+
+      case AAC:
+        writeAAC(outputFile, specs, totalFrames);
         break;
 
       default:
@@ -89,32 +94,32 @@ public class AudioStreamWriter {
   /**
    Write output bytes to WAV container
 
-   @param outputFile   to write output to
-   @param outputFormat of output
-   @param totalFrames  to write
+   @param outputFile  to write output to
+   @param specs       of output
+   @param totalFrames to write
    @throws IOException on failure
    */
-  private void writeWAV(File outputFile, AudioFormat outputFormat, int totalFrames) throws IOException, FormatException {
-    switch (outputFormat.getEncoding().toString()) {
+  private void writeWAV(File outputFile, AudioFormat specs, int totalFrames) throws IOException, FormatException {
+    switch (specs.getEncoding().toString()) {
       case "PCM_SIGNED":
       case "PCM_UNSIGNED":
         break;
       case "PCM_FLOAT":
         throw new FormatException("floating-point .WAV output is not currently supported!");
       default:
-        throw new FormatException("unsupported .WAV encoding \"" + outputFormat.getEncoding().toString() + "\" for AudioStreamWriter.writeToFile(...)");
+        throw new FormatException("unsupported .WAV encoding \"" + specs.getEncoding().toString() + "\" for AudioStreamWriter.writeToFile(...)");
     }
 
-    ByteBuffer outputBytes = byteBufferOf(stream, totalFrames, outputFormat);
+    ByteBuffer outputBytes = byteBufferOf(stream, totalFrames, specs);
     AudioInputStream ais = new AudioInputStream(
-      new ByteArrayInputStream(outputBytes.array()), outputFormat,
+      new ByteArrayInputStream(outputBytes.array()), specs,
       totalFrames
     );
     AudioSystem.write(ais, AudioFileFormat.Type.WAVE, outputFile);
   }
 
   /**
-   Write output bytes to OGG_VORBIS-compressed container
+   Write output bytes to OGG-compressed container
 
    @param outputFile to write output to
    @param specs      of output
@@ -122,6 +127,22 @@ public class AudioStreamWriter {
    */
   private void writeOggVorbis(File outputFile, AudioFormat specs, float quality) throws IOException {
     new VorbisEncoder(stream, (int) Math.floor(specs.getFrameRate()), quality).encode(new FileOutputStream(outputFile));
+  }
+
+  /**
+   [#162361712] Write output bytes to AAC-compressed container
+
+   @param outputFile to write output to
+   @param specs      of output
+   @throws IOException on failure
+   */
+  private void writeAAC(File outputFile, AudioFormat specs, int totalFrames) throws IOException, FormatException {
+    ByteBuffer outputBytes = byteBufferOf(stream, totalFrames, specs);
+    AudioInputStream ais = new AudioInputStream(
+      new ByteArrayInputStream(outputBytes.array()), specs,
+      totalFrames
+    );
+    AudioSystem.write(ais, AACFileTypes.AAC_LC, outputFile);
   }
 
 }

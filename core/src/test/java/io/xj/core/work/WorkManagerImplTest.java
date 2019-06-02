@@ -1,6 +1,6 @@
-// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+//  Copyright (c) 2019, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-package io.xj.core.work.impl;// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
+package io.xj.core.work;// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
 import com.google.api.client.util.Maps;
 import com.google.common.collect.Lists;
@@ -29,7 +29,6 @@ import io.xj.core.model.work.Work;
 import io.xj.core.model.work.WorkState;
 import io.xj.core.model.work.WorkType;
 import io.xj.core.persistence.redis.RedisDatabaseProvider;
-import io.xj.core.work.WorkManager;
 import net.greghaines.jesque.Job;
 import net.greghaines.jesque.client.Client;
 import net.greghaines.jesque.worker.JobFactory;
@@ -54,7 +53,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -91,10 +89,8 @@ public class WorkManagerImplTest {
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     System.clearProperty("work.queue.name");
-
-    subject = null;
   }
 
   @Test

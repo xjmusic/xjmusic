@@ -478,7 +478,8 @@ public class SegmentDAOImpl extends DAOImpl implements SegmentDAO {
     fieldValues.put(SEGMENT.DENSITY, valueOrNull(entity.getDensity()));
     fieldValues.put(SEGMENT.KEY, valueOrNull(entity.getKey()));
     fieldValues.put(SEGMENT.TEMPO, valueOrNull(entity.getTempo()));
-    // Exclude SEGMENT.WAVEFORM_KEY, SEGMENT.CHAIN_ID and SEGMENT.OFFSET because they are read-only
+    fieldValues.put(SEGMENT.WAVEFORM_KEY, valueOrNull(entity.getWaveformKey()));
+    // Exclude SEGMENT.CHAIN_ID and SEGMENT.OFFSET because they are read-only
     return fieldValues;
   }
 
@@ -668,8 +669,6 @@ public class SegmentDAOImpl extends DAOImpl implements SegmentDAO {
     // [#126] Segments are always readMany in PLANNED state
     fieldValues.put(SEGMENT.STATE, SegmentState.Planned);
 
-    // [#267] Segment has `waveform_key` referencing xj-segment-* S3 bucket object key
-    fieldValues.put(SEGMENT.WAVEFORM_KEY, generateKey(entity.getChainId()));
 
     // Chain ID and offset are read-only, set at creation
     requireNotExists("Segment at same offset in Chain", db.selectCount().from(SEGMENT)
@@ -680,19 +679,6 @@ public class SegmentDAOImpl extends DAOImpl implements SegmentDAO {
     fieldValues.put(SEGMENT.OFFSET, entity.getOffset());
 
     return modelFrom(executeCreate(db, SEGMENT, fieldValues));
-  }
-
-  /**
-   General a Segment URL
-
-   @param chainId to generate URL for
-   @return URL as string
-   */
-  private String generateKey(BigInteger chainId) {
-    return amazonProvider.generateKey(
-      Exposure.FILE_CHAIN + Exposure.FILE_SEPARATOR +
-        chainId + Exposure.FILE_SEPARATOR +
-        Exposure.FILE_SEGMENT, Segment.FILE_EXTENSION);
   }
 
   /**

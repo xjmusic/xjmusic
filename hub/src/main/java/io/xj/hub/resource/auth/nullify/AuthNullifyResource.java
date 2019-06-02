@@ -8,7 +8,6 @@ import io.xj.core.transport.HttpResponseProvider;
 import io.xj.hub.HubResource;
 
 import javax.annotation.security.PermitAll;
-import javax.jws.WebResult;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.container.ContainerRequestContext;
@@ -32,7 +31,6 @@ public class AuthNullifyResource extends HubResource {
    @return JSONObject that will be returned as an application/json response.
    */
   @GET
-  @WebResult
   @PermitAll
   public Response nullifyAuthentication(@Context ContainerRequestContext crc) throws IOException {
     Access access = Access.fromContext(crc);

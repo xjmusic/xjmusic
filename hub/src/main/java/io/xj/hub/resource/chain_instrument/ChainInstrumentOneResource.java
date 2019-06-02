@@ -10,7 +10,6 @@ import io.xj.core.transport.HttpResponseProvider;
 import io.xj.hub.HubResource;
 
 import javax.annotation.security.RolesAllowed;
-import javax.jws.WebResult;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -38,7 +37,6 @@ public class ChainInstrumentOneResource extends HubResource {
    @return application/json response.
    */
   @GET
-  @WebResult
   @RolesAllowed(UserRoleType.USER)
   public Response readOne(@Context ContainerRequestContext crc) throws IOException {
     try {

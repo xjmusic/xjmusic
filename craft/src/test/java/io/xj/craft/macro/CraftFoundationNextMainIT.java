@@ -101,7 +101,7 @@ public class CraftFoundationNextMainIT extends BaseIT {
     craftFactory.macroMain(fabricator).doWork();
 
     Segment result = injector.getInstance(SegmentDAO.class).readOneAtChainOffset(Access.internal(), BigInteger.valueOf(1), BigInteger.valueOf(3));
-    assertEquals(Timestamp.valueOf("2017-02-14 12:03:15.8425"), result.getEndAt());
+    assertEquals(Timestamp.valueOf("2017-02-14 12:03:15.840157"), result.getEndAt());
     assertEquals(Integer.valueOf(16), result.getTotal());
     assertEquals(Double.valueOf(0.45), result.getDensity());
     assertEquals("G minor", result.getKey());

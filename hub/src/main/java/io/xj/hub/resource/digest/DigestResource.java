@@ -16,7 +16,6 @@ import io.xj.core.ingest.Ingest;
 import io.xj.hub.HubResource;
 
 import javax.annotation.security.RolesAllowed;
-import javax.jws.WebResult;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
@@ -49,7 +48,6 @@ public class DigestResource extends HubResource {
    @return application/json response.
    */
   @GET
-  @WebResult
   @RolesAllowed({UserRoleType.ARTIST, UserRoleType.ENGINEER})
   public Response digest(@Context ContainerRequestContext crc) {
 

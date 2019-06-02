@@ -2,17 +2,15 @@
 
 package io.xj.core.access.impl;// Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-import io.xj.core.CoreModule;
-import io.xj.core.access.AccessControlProvider;
-import io.xj.core.access.AccessTokenAuthFilter;
-import io.xj.core.model.user_role.UserRoleType;
-
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.util.Modules;
-
+import io.xj.core.CoreModule;
+import io.xj.core.access.AccessControlProvider;
+import io.xj.core.access.AccessTokenAuthFilter;
+import io.xj.core.model.user_role.UserRoleType;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,7 +20,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
-import javax.jws.WebResult;
 import javax.ws.rs.GET;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ResourceInfo;
@@ -67,8 +64,6 @@ public class AccessTokenAuthFilterImplTest {
 
   @After
   public void tearDown() throws Exception {
-    subject = null;
-    injector = null;
     System.clearProperty("auth.google.secret");
     System.clearProperty("auth.google.id");
   }
@@ -80,7 +75,6 @@ public class AccessTokenAuthFilterImplTest {
   public void filter_allowedWithNoAccounts() throws Exception {
     class TestResource {
       @GET
-      @WebResult
       @RolesAllowed(UserRoleType.USER)
       public Response get(@Context ContainerRequestContext crc) {
         Access access = Access.fromContext(crc);
@@ -113,7 +107,6 @@ public class AccessTokenAuthFilterImplTest {
   public void filter_allowedPermitAllRoute_withAccessToken() throws Exception {
     class TestResource {
       @GET
-      @WebResult
       @PermitAll
       public Response get(@Context ContainerRequestContext crc) {
         Access access = Access.fromContext(crc);

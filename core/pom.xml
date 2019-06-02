@@ -25,9 +25,9 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <maven.compiler.version>2.5.1</maven.compiler.version>
-    <maven.compiler.source>1.8</maven.compiler.source>
-    <maven.compiler.target>1.8</maven.compiler.target>
-    <jersey.version>2.25</jersey.version>
+    <maven.compiler.source>11</maven.compiler.source>
+    <maven.compiler.target>11</maven.compiler.target>
+    <jersey.version>2.28</jersey.version>
     <db.database>xj</db.database>
     <db.username>root</db.username>
     <db.driver>com.mysql.cj.jdbc.Driver</db.driver>
@@ -45,6 +45,13 @@
       <version>1.1.1</version>
     </dependency>
 
+    <!-- javax activation -->
+    <dependency>
+      <groupId>javax.activation</groupId>
+      <artifactId>activation</artifactId>
+      <version>1.1</version>
+    </dependency>
+
     <!-- https://mvnrepository.com/artifact/org.assertj/assertj-core -->
     <dependency>
       <groupId>org.assertj</groupId>
@@ -57,14 +64,14 @@
     <dependency>
       <groupId>net.greghaines</groupId>
       <artifactId>jesque</artifactId>
-      <version>2.1.2</version>
+      <version>2.1.3</version>
     </dependency>
 
-    <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-io -->
+    <!-- https://mvnrepository.com/artifact/commons-io/commons-io -->
     <dependency>
-      <groupId>org.apache.commons</groupId>
+      <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
-      <version>1.3.2</version>
+      <version>2.6</version>
     </dependency>
 
     <!-- Fuzzy Wuzzy text matching based on Levenshtein distance -->
@@ -95,24 +102,20 @@
       <version>1.18</version>
     </dependency>
 
-    <!-- HTTP server container: grizzly2 jersey container -->
+    <!-- Jersey -->
     <dependency>
       <groupId>org.glassfish.jersey.containers</groupId>
       <artifactId>jersey-container-grizzly2-http</artifactId>
       <version>${jersey.version}</version>
     </dependency>
-
-    <!-- HTTP server: https://mvnrepository.com/artifact/org.glassfish.jersey.core/jersey-common -->
-    <dependency>
-      <groupId>org.glassfish.jersey.core</groupId>
-      <artifactId>jersey-common</artifactId>
-      <version>${jersey.version}</version>
-    </dependency>
-
-    <!-- JSON for server interactions -->
     <dependency>
       <groupId>org.glassfish.jersey.media</groupId>
       <artifactId>jersey-media-json-jackson</artifactId>
+      <version>${jersey.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.glassfish.jersey.inject</groupId>
+      <artifactId>jersey-hk2</artifactId>
       <version>${jersey.version}</version>
     </dependency>
 
@@ -219,14 +222,14 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.11</version>
+      <version>4.12</version>
     </dependency>
 
     <!-- test: mockito - https://mvnrepository.com/artifact/org.mockito/mockito-all -->
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-all</artifactId>
-      <version>1.9.5</version>
+      <version>1.10.19</version>
     </dependency>
 
     <!-- logging: https://mvnrepository.com/artifact/org.slf4j/slf4j-api -->

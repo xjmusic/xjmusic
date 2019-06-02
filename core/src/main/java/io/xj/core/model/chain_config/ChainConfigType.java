@@ -21,7 +21,7 @@ public enum ChainConfigType {
   OutputChannels,
   OutputEncoding,
   OutputEncodingQuality,
-  OutputContainer;
+  OutputContainer,;
 
   private static final Map<ChainConfigType, String> DEFAULT_VALUES = ImmutableMap.<ChainConfigType, String>builder()
     .put(OutputSampleBits, "16")
@@ -29,7 +29,7 @@ public enum ChainConfigType {
     .put(OutputChannels, "2")
     .put(OutputEncoding, AudioFormat.Encoding.PCM_SIGNED.toString())
     .put(OutputEncodingQuality, "0.618")
-    .put(OutputContainer, "OGV")
+    .put(OutputContainer, "OGG")
     .build();
 
   /**
