@@ -2,7 +2,6 @@
 package io.xj.core.model.sequence_pattern_meme;
 
 import io.xj.core.exception.CoreException;
-import io.xj.core.model.entity.Entity;
 import io.xj.core.model.entity.impl.EntityImpl;
 import io.xj.core.model.meme.Meme;
 import io.xj.core.util.Text;

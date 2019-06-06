@@ -7,7 +7,7 @@ import io.xj.core.model.segment.Segment;
 import io.xj.core.model.segment.SegmentState;
 
 import java.math.BigInteger;
-import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.Collection;
 
 public interface SegmentDAO extends DAO<Segment> {
@@ -32,7 +32,7 @@ public interface SegmentDAO extends DAO<Segment> {
    @return Segment if found
    @throws CoreException on failure
    */
-  Segment readOneInState(Access access, BigInteger chainId, SegmentState segmentState, Timestamp segmentBeginBefore) throws CoreException;
+  Segment readOneInState(Access access, BigInteger chainId, SegmentState segmentState, Instant segmentBeginBefore) throws CoreException;
 
   /**
    Fetch many records for many parents by id, if accessible
@@ -94,13 +94,13 @@ public interface SegmentDAO extends DAO<Segment> {
    <p>
    [#278] Chain Player lives in navbar, and handles all playback (audio waveform, segment waveform, continuous chain) so the user always has central control over listening.
 
+   @return array of segments as JSON
+   @throws CoreException on failure
    @param access         control
    @param chainId        to read all segments from
    @param fromSecondsUTC to read segments from
-   @return array of segments as JSON
-   @throws CoreException on failure
    */
-  Collection<Segment> readAllFromSecondsUTC(Access access, BigInteger chainId, BigInteger fromSecondsUTC) throws CoreException;
+  Collection<Segment> readAllFromSecondsUTC(Access access, BigInteger chainId, Long fromSecondsUTC) throws CoreException;
 
   /**
    Read all Segments that are accessible, by Chain Embed Key, starting at a particular time in seconds UTC since epoch.
@@ -108,12 +108,12 @@ public interface SegmentDAO extends DAO<Segment> {
    <p>
    [#150279540] Unauthenticated public Client wants to access a Chain by embed key (as alias for chain id) in order to provide data for playback.
 
-   @param chainEmbedKey  to read all segments from
-   @param fromSecondsUTC to read segments from
    @return array of segments as JSON
    @throws CoreException on failure
+   @param chainEmbedKey  to read all segments from
+   @param fromSecondsUTC to read segments from
    */
-  Collection<Segment> readAllFromSecondsUTC(String chainEmbedKey, BigInteger fromSecondsUTC) throws CoreException;
+  Collection<Segment> readAllFromSecondsUTC(String chainEmbedKey, Long fromSecondsUTC) throws CoreException;
 
   /**
    Update the state of a specified Segment

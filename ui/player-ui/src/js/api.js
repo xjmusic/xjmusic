@@ -26,14 +26,16 @@ export class API {
     if (self._config) {
       thenFunc(self._config);
     } else {
-      $.getJSON(API_BASE_URL + 'config', function (data) {
-        if ('config' in data) {
-          self._config = data['config'];
-          thenFunc(self._config);
-        } else {
-          console.error("Failed to load configuration from API!", data);
-        }
-      });
+      fetch(API_BASE_URL + 'config')
+        .then((resp) => resp.json())
+        .then(function (data) {
+          if ('config' in data) {
+            self._config = data['config'];
+            thenFunc(self._config);
+          } else {
+            console.error("Failed to load configuration from API!", data);
+          }
+        });
     }
   }
 
@@ -43,13 +45,15 @@ export class API {
    * @param {Function} thenFunc to execute with configuration data
    */
   chain(identifier, thenFunc) {
-    $.getJSON(API_BASE_URL + 'chains/' + identifier, function (data) {
-      if ('chain' in data) {
-        thenFunc(data['chain']);
-      } else {
-        console.error("Failed to load chain #" + identifier + " from API!", data);
-      }
-    });
+    fetch(API_BASE_URL + 'chains/' + identifier)
+      .then((resp) => resp.json())
+      .then(function (data) {
+        if ('chain' in data) {
+          thenFunc(data['chain']);
+        } else {
+          console.error("Failed to load chain #" + identifier + " from API!", data);
+        }
+      });
   }
 
   /**
@@ -58,13 +62,15 @@ export class API {
    * @param {Function} thenFunc to execute with configuration data
    */
   segments(identifier, thenFunc) {
-    $.getJSON(API_BASE_URL + 'segments?chainId=' + identifier, function (data) {
-      if ('segments' in data) {
-        thenFunc(data['segments']);
-      } else {
-        console.error("Failed to load segments for chain #" + identifier + " from API!", data);
-      }
-    });
+    fetch(API_BASE_URL + 'segments?chainId=' + identifier)
+      .then((resp) => resp.json())
+      .then(function (data) {
+        if ('segments' in data) {
+          thenFunc(data['segments']);
+        } else {
+          console.error("Failed to load segments for chain #" + identifier + " from API!", data);
+        }
+      });
   }
 
 }

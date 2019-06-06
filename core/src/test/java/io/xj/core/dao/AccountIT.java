@@ -18,7 +18,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import java.math.BigInteger;
-import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
@@ -137,7 +137,7 @@ public class AccountIT {
       "roles", "Admin",
       "accounts", "1"
     ));
-    IntegrationTestEntity.insertChain(1, 1, "Test", ChainType.Preview, ChainState.Draft, Timestamp.valueOf("2009-08-12 12:17:02.527142"), Timestamp.valueOf("2009-08-12 12:17:02.527142"), null);
+    IntegrationTestEntity.insertChain(1, 1, "Test", ChainType.Preview, ChainState.Draft, Instant.parse("2009-08-12T12:17:02.527142Z"), Instant.parse("2009-08-12T12:17:02.527142Z"), null);
 
     failure.expect(CoreException.class);
     failure.expectMessage("Found Chain in Account");

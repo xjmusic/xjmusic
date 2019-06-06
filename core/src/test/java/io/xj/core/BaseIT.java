@@ -2,36 +2,28 @@
 
 package io.xj.core;
 
-import com.google.common.collect.Maps;
+import io.xj.core.exception.CoreException;
 import io.xj.core.integration.IntegrationTestEntity;
-import io.xj.core.model.chord.Chord;
 import io.xj.core.model.instrument.InstrumentType;
-import io.xj.core.model.meme.Meme;
 import io.xj.core.model.pattern.PatternState;
 import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.sequence.SequenceState;
 import io.xj.core.model.sequence.SequenceType;
 import io.xj.core.model.user_role.UserRoleType;
-import io.xj.core.util.Text;
-
 import java.sql.Timestamp;
-import java.util.Collection;
-import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import java.time.Instant;
 
 public class BaseIT {
 
   /**
    [#165954673] Integration tests use shared scenario fixtures as much as possible
    */
-  protected static void insertLibraryA() {
+  protected static void insertLibraryA() throws CoreException {
     IntegrationTestEntity.insertAccount(1, "testing");
     IntegrationTestEntity.insertUser(101, "john", "john@email.com", "http://pictures.com/john.gif");
     IntegrationTestEntity.insertUserRole(101, UserRoleType.Admin);
-    Timestamp at = Timestamp.valueOf("2014-08-12 12:17:02.527142");
+    Instant at = Instant.parse("2014-08-12T12:17:02.527142Z");
     //
     IntegrationTestEntity.insertLibrary(10000001, 1, "leaves", at);
     IntegrationTestEntity.insertInstrument(201, 10000001, 101, "808 Drums", InstrumentType.Percussive, 0.9, at);

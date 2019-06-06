@@ -7,7 +7,6 @@ import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import io.xj.core.access.impl.Access;
 import io.xj.core.config.Config;
-import io.xj.core.config.Exposure;
 import io.xj.core.dao.SegmentDAO;
 import io.xj.core.exception.CoreException;
 import io.xj.core.external.amazon.AmazonProvider;
@@ -29,8 +28,8 @@ import javax.annotation.Nullable;
 import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Collection;
-import java.util.Date;
 import java.util.Map;
 import java.util.Objects;
 
@@ -38,7 +37,6 @@ import static io.xj.core.tables.Chain.CHAIN;
 import static io.xj.core.tables.Segment.SEGMENT;
 
 public class SegmentDAOImpl extends DAOImpl implements SegmentDAO {
-  private static final long MILLIS_PER_SECOND = 1000L;
   private final SegmentFactory segmentFactory;
   private final GsonProvider gsonProvider;
   private final AmazonProvider amazonProvider;
@@ -170,13 +168,13 @@ public class SegmentDAOImpl extends DAOImpl implements SegmentDAO {
    @return Segment if found
    @throws CoreException on failure
    */
-  private Segment readOneInState(DSLContext db, Access access, ULong chainId, SegmentState segmentState, Timestamp segmentBeginBefore) throws CoreException {
+  private Segment readOneInState(DSLContext db, Access access, ULong chainId, SegmentState segmentState, Instant segmentBeginBefore) throws CoreException {
     requireTopLevel(access);
 
     return modelFrom(db.select(SEGMENT.fields()).from(SEGMENT)
       .where(SEGMENT.CHAIN_ID.eq(chainId))
       .and(SEGMENT.STATE.eq(segmentState.toString()))
-      .and(SEGMENT.BEGIN_AT.lessOrEqual(segmentBeginBefore))
+      .and(SEGMENT.BEGIN_AT.lessOrEqual(Timestamp.from(segmentBeginBefore)))
       .orderBy(SEGMENT.OFFSET.asc())
       .limit(1)
       .fetchOne());
@@ -341,18 +339,17 @@ public class SegmentDAOImpl extends DAOImpl implements SegmentDAO {
    @param fromSecondsUTC to read segments
    @return array of records
    */
-  private Collection<Segment> readAllFromSecondsUTC(DSLContext db, Access access, ULong chainId, ULong fromSecondsUTC) throws CoreException {
-    // play buffer delay/ahead seconds
-    Instant from = new Date(fromSecondsUTC.longValue() * MILLIS_PER_SECOND).toInstant();
-    Timestamp maxBeginAt = Timestamp.from(from.plusSeconds(Config.playBufferAheadSeconds()));
-    Timestamp minEndAt = Timestamp.from(from.minusSeconds(Config.playBufferDelaySeconds()));
+  private Collection<Segment> readAllFromSecondsUTC(DSLContext db, Access access, ULong chainId, Long fromSecondsUTC) throws CoreException {
+    Instant from = Instant.ofEpochSecond(fromSecondsUTC);
+    Instant maxBeginAt = from.plusSeconds(Config.playBufferAheadSeconds());
+    Instant minEndAt = from.minusSeconds(Config.playBufferDelaySeconds());
 
     if (access.isTopLevel())
       return modelsFrom(db.select(SEGMENT.fields())
         .from(SEGMENT)
         .where(SEGMENT.CHAIN_ID.eq(chainId))
-        .and(SEGMENT.BEGIN_AT.lessOrEqual(maxBeginAt))
-        .and(SEGMENT.END_AT.greaterOrEqual(minEndAt))
+        .and(SEGMENT.BEGIN_AT.lessOrEqual(Timestamp.from(maxBeginAt)))
+        .and(SEGMENT.END_AT.greaterOrEqual(Timestamp.from(minEndAt)))
         .orderBy(SEGMENT.OFFSET.desc())
         .limit(Config.limitSegmentReadSize())
         .fetch());
@@ -361,8 +358,8 @@ public class SegmentDAOImpl extends DAOImpl implements SegmentDAO {
         .from(SEGMENT)
         .join(CHAIN).on(CHAIN.ID.eq(SEGMENT.CHAIN_ID))
         .where(SEGMENT.CHAIN_ID.eq(chainId))
-        .and(SEGMENT.BEGIN_AT.lessOrEqual(maxBeginAt))
-        .and(SEGMENT.END_AT.greaterOrEqual(minEndAt))
+        .and(SEGMENT.BEGIN_AT.lessOrEqual(Timestamp.from(maxBeginAt)))
+        .and(SEGMENT.END_AT.greaterOrEqual(Timestamp.from(minEndAt)))
         .and(CHAIN.ACCOUNT_ID.in(access.getAccountIds()))
         .orderBy(SEGMENT.OFFSET.desc())
         .limit(Config.limitSegmentReadSize())
@@ -380,18 +377,17 @@ public class SegmentDAOImpl extends DAOImpl implements SegmentDAO {
    @param fromSecondsUTC to read segments
    @return array of records
    */
-  private Collection<Segment> readAllFromSecondsUTC(DSLContext db, String chainEmbedKey, ULong fromSecondsUTC) throws CoreException {
-    // play buffer delay/ahead seconds
-    Instant from = new Date(fromSecondsUTC.longValue() * MILLIS_PER_SECOND).toInstant();
-    Timestamp maxBeginAt = Timestamp.from(from.plusSeconds(Config.playBufferAheadSeconds()));
-    Timestamp minEndAt = Timestamp.from(from.minusSeconds(Config.playBufferDelaySeconds()));
+  private Collection<Segment> readAllFromSecondsUTC(DSLContext db, String chainEmbedKey, Long fromSecondsUTC) throws CoreException {
+    Instant from = Instant.ofEpochSecond(fromSecondsUTC);
+    Instant maxBeginAt = from.plusSeconds(Config.playBufferAheadSeconds());
+    Instant minEndAt = from.minusSeconds(Config.playBufferDelaySeconds());
 
     return modelsFrom(db.select(SEGMENT.fields())
       .from(SEGMENT)
       .join(CHAIN).on(CHAIN.ID.eq(SEGMENT.CHAIN_ID))
       .where(CHAIN.EMBED_KEY.eq(chainEmbedKey))
-      .and(SEGMENT.BEGIN_AT.lessOrEqual(maxBeginAt))
-      .and(SEGMENT.END_AT.greaterOrEqual(minEndAt))
+      .and(SEGMENT.BEGIN_AT.lessOrEqual(Timestamp.from(maxBeginAt)))
+      .and(SEGMENT.END_AT.greaterOrEqual(Timestamp.from(minEndAt)))
       .orderBy(SEGMENT.OFFSET.desc())
       .limit(Config.limitSegmentReadSize())
       .fetch());
@@ -472,8 +468,10 @@ public class SegmentDAOImpl extends DAOImpl implements SegmentDAO {
     Map<Field, Object> fieldValues = Maps.newHashMap();
     fieldValues.put(SEGMENT.CONTENT, gsonProvider.gson().toJson(entity.getContent()));
     fieldValues.put(SEGMENT.STATE, entity.getState());
-    fieldValues.put(SEGMENT.BEGIN_AT, entity.getBeginAt());
-    fieldValues.put(SEGMENT.END_AT, valueOrNull(entity.getEndAt()));
+    fieldValues.put(SEGMENT.BEGIN_AT, Timestamp.from(entity.getBeginAt().truncatedTo(ChronoUnit.MICROS)));
+    Timestamp endTimestamp = Objects.nonNull(entity.getEndAt()) ?
+      Timestamp.from(entity.getEndAt().truncatedTo(ChronoUnit.MICROS)) : null;
+    fieldValues.put(SEGMENT.END_AT, valueOrNull(endTimestamp));
     fieldValues.put(SEGMENT.TOTAL, valueOrNull(entity.getTotal()));
     fieldValues.put(SEGMENT.DENSITY, valueOrNull(entity.getDensity()));
     fieldValues.put(SEGMENT.KEY, valueOrNull(entity.getKey()));
@@ -514,7 +512,7 @@ public class SegmentDAOImpl extends DAOImpl implements SegmentDAO {
   }
 
   @Override
-  public Segment readOneInState(Access access, BigInteger chainId, SegmentState segmentState, Timestamp segmentBeginBefore) throws CoreException {
+  public Segment readOneInState(Access access, BigInteger chainId, SegmentState segmentState, Instant segmentBeginBefore) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(readOneInState(tx.getContext(), access, ULong.valueOf(chainId), segmentState, segmentBeginBefore));
@@ -587,20 +585,20 @@ public class SegmentDAOImpl extends DAOImpl implements SegmentDAO {
   }
 
   @Override
-  public Collection<Segment> readAllFromSecondsUTC(Access access, BigInteger chainId, BigInteger fromSecondsUTC) throws CoreException {
+  public Collection<Segment> readAllFromSecondsUTC(Access access, BigInteger chainId, Long fromSecondsUTC) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readAllFromSecondsUTC(tx.getContext(), access, ULong.valueOf(chainId), ULong.valueOf(fromSecondsUTC)));
+      return tx.success(readAllFromSecondsUTC(tx.getContext(), access, ULong.valueOf(chainId), fromSecondsUTC));
     } catch (CoreException e) {
       throw tx.failure(e);
     }
   }
 
   @Override
-  public Collection<Segment> readAllFromSecondsUTC(String chainEmbedKey, BigInteger fromSecondsUTC) throws CoreException {
+  public Collection<Segment> readAllFromSecondsUTC(String chainEmbedKey, Long fromSecondsUTC) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
-      return tx.success(readAllFromSecondsUTC(tx.getContext(), chainEmbedKey, ULong.valueOf(fromSecondsUTC)));
+      return tx.success(readAllFromSecondsUTC(tx.getContext(), chainEmbedKey, fromSecondsUTC));
     } catch (CoreException e) {
       throw tx.failure(e);
     }

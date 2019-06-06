@@ -30,7 +30,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import java.math.BigInteger;
-import java.sql.Timestamp;
+import java.time.Instant;
 
 import static io.xj.core.Assert.assertExactChords;
 import static io.xj.core.Assert.assertExactMemes;
@@ -59,17 +59,17 @@ public class CraftFoundationNextMainIT extends BaseIT {
     insertLibraryB2();
 
     // Chain "Test Print #1" has 5 total segments
-    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, null);
-    IntegrationTestEntity.insertSegment_NoContent(1, 1, 0, SegmentState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120, "chain-1-segment-9f7s89d8a7892.wav");
-    IntegrationTestEntity.insertSegment_NoContent(2, 1, 1, SegmentState.Dubbing, Timestamp.valueOf("2017-02-14 12:01:32.000001"), Timestamp.valueOf("2017-02-14 12:02:04.000001"), "Db minor", 64, 0.85, 120, "chain-1-segment-9f7s89d8a7892.wav");
+    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null);
+    IntegrationTestEntity.insertSegment_NoContent(1, 1, 0, SegmentState.Dubbed, Instant.parse("2017-02-14T12:01:00.000001Z"), Instant.parse("2017-02-14T12:01:32.000001Z"), "D major", 64, 0.73, 120, "chain-1-segment-9f7s89d8a7892.wav");
+    IntegrationTestEntity.insertSegment_NoContent(2, 1, 1, SegmentState.Dubbing, Instant.parse("2017-02-14T12:01:32.000001Z"), Instant.parse("2017-02-14T12:02:04.000001Z"), "Db minor", 64, 0.85, 120, "chain-1-segment-9f7s89d8a7892.wav");
 
     // Chain "Test Print #1" has this segment that was just crafted
     Segment seg3 = segmentFactory.newSegment(BigInteger.valueOf(3))
       .setChainId(BigInteger.valueOf(1))
       .setOffset(BigInteger.valueOf(2))
       .setStateEnum(SegmentState.Crafted)
-      .setBeginAt("2017-02-14 12:02:04.000001")
-      .setEndAt("2017-02-14 12:02:36.000001")
+      .setBeginAt("2017-02-14T12:02:04.000001Z")
+      .setEndAt("2017-02-14T12:02:36.000001Z")
       .setKey("F Major")
       .setTotal(64)
       .setDensity(0.30)
@@ -88,7 +88,7 @@ public class CraftFoundationNextMainIT extends BaseIT {
     IntegrationTestEntity.insert(seg3);
 
     // Chain "Test Print #1" has a planned segment
-    segment4 = IntegrationTestEntity.insertSegment_Planned(4, 1, 3, Timestamp.valueOf("2017-02-14 12:03:08.000001"));
+    segment4 = IntegrationTestEntity.insertSegment_Planned(4, 1, 3, Instant.parse("2017-02-14T12:03:08.000001Z"));
 
     // Bind the library to the chain
     IntegrationTestEntity.insertChainLibrary(1, 2);
@@ -101,7 +101,7 @@ public class CraftFoundationNextMainIT extends BaseIT {
     craftFactory.macroMain(fabricator).doWork();
 
     Segment result = injector.getInstance(SegmentDAO.class).readOneAtChainOffset(Access.internal(), BigInteger.valueOf(1), BigInteger.valueOf(3));
-    assertEquals(Timestamp.valueOf("2017-02-14 12:03:15.840157"), result.getEndAt());
+    assertEquals("2017-02-14T12:03:15.840157Z", result.getEndAt().toString());
     assertEquals(Integer.valueOf(16), result.getTotal());
     assertEquals(Double.valueOf(0.45), result.getDensity());
     assertEquals("G minor", result.getKey());

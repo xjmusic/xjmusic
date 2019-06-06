@@ -26,7 +26,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import java.math.BigInteger;
-import java.sql.Timestamp;
+import java.time.Instant;
 
 import static io.xj.core.Assert.assertExactChords;
 import static io.xj.core.Assert.assertExactMemes;
@@ -53,8 +53,8 @@ public class CraftFoundationInitialIT extends BaseIT {
     insertLibraryB1();
 
     // Chain "Print #2" has 1 initial planned segment
-    IntegrationTestEntity.insertChain(2, 1, "Print #2", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, null);
-    segment6 = IntegrationTestEntity.insertSegment_Planned(6, 2, 0, Timestamp.valueOf("2017-02-14 12:01:00.000001"));
+    IntegrationTestEntity.insertChain(2, 1, "Print #2", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null);
+    segment6 = IntegrationTestEntity.insertSegment_Planned(6, 2, 0, Instant.parse("2017-02-14T12:01:00.000001Z"));
     // bind the library to the chain
     IntegrationTestEntity.insertChainLibrary(2, 2);
   }
@@ -66,7 +66,7 @@ public class CraftFoundationInitialIT extends BaseIT {
     craftFactory.macroMain(fabricator).doWork();
 
     Segment result = injector.getInstance(SegmentDAO.class).readOneAtChainOffset(Access.internal(), BigInteger.valueOf(2), BigInteger.valueOf(0));
-    assertEquals(Timestamp.valueOf("2017-02-14 12:01:07.384616"), result.getEndAt());
+    assertEquals("2017-02-14T12:01:07.384616Z", result.getEndAt().toString());
     assertEquals(Integer.valueOf(16), result.getTotal());
     assertEquals(0.55, result.getDensity(), 0.01);
     assertEquals("G major", result.getKey());

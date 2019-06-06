@@ -42,12 +42,12 @@ public class ChainSerializationTest {
       .setAccountId(BigInteger.valueOf(5))
       .setTypeEnum(ChainType.Production)
       .setName("Bingo Ambience")
-      .setStartAt("2014-07-12 12:00:00.00")
-      .setStopAt("2014-08-12 12:00:00.00")
+      .setStartAt("2014-07-12T12:00:00.00Z")
+      .setStopAt("2014-08-12T12:00:00.00Z")
       .setEmbedKey("bingo_ambience");
-    subject.setCreatedAt("2014-09-11 12:14:00.00");
-    subject.setUpdatedAt("2014-09-11 12:15:00.00");
-    subjectJson = "{\"id\":7,\"state\":\"Fabricate\",\"accountId\":5,\"type\":\"Production\",\"name\":\"Bingo Ambience\",\"startAt\":\"2014-07-12 12:00:00.0Z\",\"stopAt\":\"2014-08-12 12:00:00.0Z\",\"embedKey\":\"bingo_ambience\",\"createdAt\":\"2014-09-11 12:14:00.0Z\",\"updatedAt\":\"2014-09-11 12:15:00.0Z\"}";
+    subject.setCreatedAt("2014-09-11T12:14:00.00Z");
+    subject.setUpdatedAt("2014-09-11T12:15:00.00Z");
+    subjectJson = "{\"id\":7,\"state\":\"Fabricate\",\"accountId\":5,\"type\":\"Production\",\"name\":\"Bingo Ambience\",\"startAt\":\"2014-07-12T12:00:00Z\",\"stopAt\":\"2014-08-12T12:00:00Z\",\"embedKey\":\"bingo_ambience\",\"createdAt\":\"2014-09-11T12:14:00Z\",\"updatedAt\":\"2014-09-11T12:15:00Z\"}";
   }
 
   @Test

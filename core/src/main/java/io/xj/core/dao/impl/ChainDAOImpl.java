@@ -31,7 +31,6 @@ import io.xj.core.persistence.sql.impl.SQLConnection;
 import io.xj.core.tables.records.ChainRecord;
 import io.xj.core.tables.records.SegmentRecord;
 import io.xj.core.transport.CSV;
-import io.xj.core.util.TimestampUTC;
 import io.xj.core.work.WorkManager;
 import org.jooq.DSLContext;
 import org.jooq.Field;
@@ -46,6 +45,7 @@ import javax.annotation.Nullable;
 import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
@@ -185,8 +185,8 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
    @param db     context
    @param access control
    @param id     to delete
-   @throws CoreException         if database failure
-   @throws CoreException   if not configured properly
+   @throws CoreException if database failure
+   @throws CoreException if not configured properly
    @throws CoreException if fails business rule
    */
   private static void delete(DSLContext db, Access access, ULong id) throws CoreException {
@@ -262,8 +262,10 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
     fieldValues.put(CHAIN.NAME, entity.getName());
     fieldValues.put(CHAIN.TYPE, entity.getType());
     fieldValues.put(CHAIN.STATE, entity.getState());
-    fieldValues.put(CHAIN.START_AT, entity.getStartAt());
-    fieldValues.put(CHAIN.STOP_AT, entity.getStopAt());
+    fieldValues.put(CHAIN.START_AT, Timestamp.from(entity.getStartAt().truncatedTo(ChronoUnit.MICROS)));
+    Timestamp stopTimestamp = Objects.nonNull(entity.getStopAt()) ?
+      Timestamp.from(entity.getStopAt().truncatedTo(ChronoUnit.MICROS)) : null;
+    fieldValues.put(CHAIN.STOP_AT, stopTimestamp);
     fieldValues.put(CHAIN.EMBED_KEY, entity.getEmbedKey());
     return fieldValues;
   }
@@ -362,7 +364,7 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
   }
 
   @Override
-  public Segment buildNextSegmentOrComplete(Access access, Chain chain, Timestamp segmentBeginBefore, Timestamp chainStopCompleteBefore) throws CoreException {
+  public Segment buildNextSegmentOrComplete(Access access, Chain chain, Instant segmentBeginBefore, Instant chainStopCompleteBefore) throws CoreException {
     SQLConnection tx = dbProvider.getConnection();
     try {
       return tx.success(buildNextSegmentOrComplete(tx.getContext(), access, chain, segmentBeginBefore, chainStopCompleteBefore));
@@ -457,9 +459,9 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
       case Preview:
         requireRole("Artist to create preview Chain", access, UserRoleType.Artist);
         fieldValues.put(CHAIN.START_AT,
-          Timestamp.from(Instant.now().minusSeconds(previewLengthMax)));
+          Instant.from(Instant.now().minusSeconds(previewLengthMax)));
         fieldValues.put(CHAIN.STOP_AT,
-          Timestamp.from(Instant.now()));
+          Instant.from(Instant.now()));
 
         // [#402] Preview Chain cannot be public
         fieldValues.put(CHAIN.EMBED_KEY, DSL.val((String) null));
@@ -490,7 +492,6 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
     // Cannot update ACCOUNT_ID of chain
     fieldValues.remove(CHAIN.ACCOUNT_ID);
 
-    fieldValues.put(CHAIN.ID, id);
     update(db, access, id, fieldValues);
   }
 
@@ -617,7 +618,7 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
     // [#116] cannot change chain startAt time after has segments
     Object updateStartAt = fieldValues.get(CHAIN.START_AT);
     if (Objects.nonNull(updateStartAt)
-      && !Objects.equals(chain.getStartAt(), Timestamp.valueOf(updateStartAt.toString())))
+      && !chain.getStartAt().toInstant().equals(Timestamp.valueOf(String.valueOf(updateStartAt)).toInstant()))
       requireNotExists(
         "cannot change chain startAt time after it has segments",
         db.select(SEGMENT.ID).from(SEGMENT)
@@ -671,7 +672,7 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
    @return Segment template
    */
   @Nullable
-  private Segment buildNextSegmentOrComplete(DSLContext db, Access access, Chain chain, Timestamp segmentBeginBefore, Timestamp chainStopCompleteBefore) throws CoreException {
+  private Segment buildNextSegmentOrComplete(DSLContext db, Access access, Chain chain, Instant segmentBeginBefore, Instant chainStopCompleteBefore) throws CoreException {
     requireTopLevel(access);
 
     Record lastRecordWithNoEndAtTime = db.select(SEGMENT.CHAIN_ID)
@@ -702,14 +703,14 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
     if (Objects.isNull(lastSegmentInChain)) {
       Segment pilotTemplate = segmentFactory.newSegment(BigInteger.valueOf(4));
       pilotTemplate.setChainId(chain.getId());
-      pilotTemplate.setBeginAtTimestamp(chain.getStartAt());
+      pilotTemplate.setBeginAtInstant(chain.getStartAt());
       pilotTemplate.setOffset(BigInteger.ZERO);
       pilotTemplate.setState(SegmentState.Planned.toString());
       return pilotTemplate;
     }
 
     // If the last segment begins after our boundary, we're here early; get outta here.
-    if (lastSegmentInChain.getBeginAt().after(segmentBeginBefore)) {
+    if (lastSegmentInChain.getBeginAt().toInstant().isAfter(segmentBeginBefore)) {
       return null;
     }
 
@@ -718,9 +719,9 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
      */
     if (Objects.nonNull(lastSegmentInChain.getEndAt())
       && Objects.nonNull(chain.getStopAt())
-      && lastSegmentInChain.getEndAt().after(chain.getStopAt())) {
+      && lastSegmentInChain.getEndAt().toInstant().isAfter(chain.getStopAt())) {
       // this is where we check to see if the chain is ready to be COMPLETE.
-      if (chain.getStopAt().before(chainStopCompleteBefore)
+      if (chain.getStopAt().isBefore(chainStopCompleteBefore)
         // and [#122] require the last segment in the chain to be in state DUBBED.
         && Objects.equals(lastSegmentInChain.getState(), SegmentState.Dubbed.toString())) {
         updateState(db, access, ULong.valueOf(chain.getId()), ChainState.Complete);
@@ -732,7 +733,7 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
     Segment pilotTemplate = segmentFactory.newSegment(BigInteger.valueOf(4));
     ULong pilotOffset = ULong.valueOf(lastSegmentInChain.getOffset().toBigInteger().add(BigInteger.valueOf(1L)));
     pilotTemplate.setChainId(chain.getId());
-    pilotTemplate.setBeginAtTimestamp(lastSegmentInChain.getEndAt());
+    pilotTemplate.setBeginAtInstant(lastSegmentInChain.getEndAt().toInstant());
     pilotTemplate.setOffset(pilotOffset.toBigInteger());
     pilotTemplate.setState(SegmentState.Planned.toString());
     return pilotTemplate;
@@ -808,8 +809,8 @@ public class ChainDAOImpl extends DAOImpl implements ChainDAO {
 
     Collection<Chain> revivedChains = Lists.newArrayList();
     Collection<ULong> stalledChainIds = Lists.newArrayList();
-    Timestamp thresholdChainStartAt = TimestampUTC.nowMinusSeconds(Config.chainReviveThresholdStartSeconds());
-    Timestamp thresholdChainHeadAt = TimestampUTC.nowMinusSeconds(Config.chainReviveThresholdHeadSeconds());
+    Timestamp thresholdChainStartAt = Timestamp.from(Instant.now().minusSeconds(Config.chainReviveThresholdStartSeconds()));
+    Timestamp thresholdChainHeadAt = Timestamp.from(Instant.now().minusSeconds(Config.chainReviveThresholdHeadSeconds()));
 
     // recursive queries for stalled chains
     for (ChainRecord record : db.selectFrom(CHAIN)

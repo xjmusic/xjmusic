@@ -15,7 +15,7 @@ import io.xj.core.model.segment_message.SegmentMessage;
 import io.xj.core.model.sequence.SequenceType;
 
 import java.math.BigInteger;
-import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Map;
 
@@ -98,7 +98,7 @@ public interface Segment extends Entity {
 
    @return begin-at time
    */
-  Timestamp getBeginAt();
+  Instant getBeginAt();
 
   /**
    Get Chain ID
@@ -155,7 +155,7 @@ public interface Segment extends Entity {
 
    @return end-at time
    */
-  Timestamp getEndAt();
+  Instant getEndAt();
 
   /**
    Get key for the segment
@@ -282,7 +282,7 @@ public interface Segment extends Entity {
    @param beginAt time to set
    @return this Segment (for chaining setters)
    */
-  Segment setBeginAtTimestamp(Timestamp beginAt);
+  Segment setBeginAtInstant(Instant beginAt);
 
   /**
    Set Chain ID
@@ -336,7 +336,7 @@ public interface Segment extends Entity {
    @param endAt time to set
    @return this Segment (for chaining setters)
    */
-  Segment setEndAtTimestamp(Timestamp endAt);
+  Segment setEndAtInstant(Instant endAt);
 
   /**
    Set the key for the segment

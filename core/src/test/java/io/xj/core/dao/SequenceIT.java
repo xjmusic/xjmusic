@@ -32,7 +32,7 @@ import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigInteger;
-import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -283,7 +283,7 @@ public class SequenceIT {
 
   @Test
   public void readAllBoundToChain() throws Exception {
-    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, null);
+    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null);
     IntegrationTestEntity.insertChainSequence(1, 1);
 
     Collection<Sequence> result = testDAO.readAllBoundToChain(Access.internal(), BigInteger.valueOf(1L));
@@ -462,14 +462,14 @@ public class SequenceIT {
     Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
-    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Ready, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"), null);
+    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Ready, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-09-11T12:17:01.047563Z"), null);
     SegmentContent content1 = new SegmentContent();
     content1.getChoices().add(new Choice()
       .setSegmentId(BigInteger.valueOf(1))
       .setSequencePatternId(BigInteger.valueOf(303))
       .setTypeEnum(SequenceType.Macro)
       .setTranspose(-5));
-    IntegrationTestEntity.insertSegment_NoContent(1, 1, 0, SegmentState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
+    IntegrationTestEntity.insertSegment_NoContent(1, 1, 0, SegmentState.Dubbed, Instant.parse("2017-02-14T12:01:00.000001Z"), Instant.parse("2017-02-14T12:01:32.000001Z"), "D major", 64, 0.73, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
 
     testDAO.destroy(access, BigInteger.valueOf(2L));
 

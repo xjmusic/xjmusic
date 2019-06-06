@@ -27,7 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigInteger;
-import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Objects;
 
@@ -64,7 +64,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
       .setTempo(segmentTempo())
       .setKey(segmentKey())
       .setTotal(chooseMainPattern().getTotal())
-      .setEndAtTimestamp(segmentEndTimestamp());
+      .setEndAtInstant(segmentEndInstant());
     try {
       getFabricator().updateSegment();
     } catch (CoreException e) {
@@ -329,7 +329,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
   /**
    Choose a pattern of macro-type sequence
    <p>
-   *ONLY CHOOSES ONCE, then returns that choice every time.**
+   ONLY CHOOSES ONCE, then returns that choice every time.**
 
    @return pattern
    @throws CraftException on failure
@@ -350,7 +350,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
   /**
    Choose a pattern of main-type sequence
    <p>
-   *ONLY CHOOSES ONCE, then returns that choice every time.**
+   ONLY CHOOSES ONCE, then returns that choice every time.**
 
    @return pattern
    @throws CraftException on failure
@@ -371,7 +371,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
   /**
    Choose macro sequence
    <p>
-   *ONLY CHOOSES ONCE, then returns that choice every time.**
+   ONLY CHOOSES ONCE, then returns that choice every time.**
 
    @return macro-type sequence
    @throws CraftException on failure
@@ -422,7 +422,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
   /**
    Choose main sequence
    <p>
-   *ONLY CHOOSES ONCE, then returns that choice every time.**
+   ONLY CHOOSES ONCE, then returns that choice every time.**
 
    @return main-type Sequence
    @throws CraftException on failure
@@ -586,8 +586,8 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
    @return end timestamp
    @throws CraftException on failure
    */
-  private Timestamp segmentEndTimestamp() throws CraftException {
-    return Timestamp.from(getFabricator().getSegment().getBeginAt().toInstant().plusNanos(segmentLengthNanos()));
+  private Instant segmentEndInstant() throws CraftException {
+    return getFabricator().getSegment().getBeginAt().plusNanos(segmentLengthNanos());
   }
 
   /**

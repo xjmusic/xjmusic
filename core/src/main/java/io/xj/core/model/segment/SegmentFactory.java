@@ -2,7 +2,6 @@
 package io.xj.core.model.segment;
 
 import com.google.inject.assistedinject.Assisted;
-import io.xj.core.exception.CoreException;
 
 import java.math.BigInteger;
 

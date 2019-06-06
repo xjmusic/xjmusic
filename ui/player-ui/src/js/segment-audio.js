@@ -1,6 +1,6 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-import {BinaryResource} from 'binary-resource';
+import {DOM} from "dom";
 
 /**
  * RegExp to test for a valid URL
@@ -26,21 +26,11 @@ const MILLIS_PER_SECOND = 1000;
 const STANDBY = 'Standby';
 const SYNCING = 'Syncing';
 const PLAYING = 'Playing';
-const ALL_STATES = [STANDBY, SYNCING, PLAYING];
 
 /**
  SegmentAudio object, a wrapper to play the audio for a single segment in a chain.
 
  Manages this segment audio's buffer and playback in the audio context
-
- Required to be injected on construction:
-
- * audioContext
- * binaryResource
- * segmentId
- * waveformUrl
- * beginTime
- * endTime
 
  */
 export class SegmentAudio {
@@ -64,7 +54,7 @@ export class SegmentAudio {
    * To load audio into; for playback
    * @type {Object}
    */
-  bufferSource = null;
+  source = null;
 
   /**
    * Time (seconds, floating point) to begin playback in WebAudio context
@@ -88,20 +78,22 @@ export class SegmentAudio {
    * @param {number} audioContextStartMillisUTC
    * @param {object} segment to play
    * @param {string} segmentBaseUrl
+   * @param {boolean} isDebugMode
    */
-  constructor(audioContext, audioContextStartMillisUTC,
-              segment, segmentBaseUrl) {
+  constructor(audioContext, audioContextStartMillisUTC, segment, segmentBaseUrl, isDebugMode) {
     this.audioContext = audioContext;
     this.segmentBaseUrl = segmentBaseUrl;
     this.segment = segment;
+    this.isDebugMode = isDebugMode;
     let self = this;
 
     // compute time-related properties
     self.beginAtTime = (Date.parse(self.segment.beginAt) - audioContextStartMillisUTC) / MILLIS_PER_SECOND;
     self.endAtTime = (Date.parse(self.segment.endAt) - audioContextStartMillisUTC) / MILLIS_PER_SECOND;
+    self.debug(`Parsed from startMillisUTC=${audioContextStartMillisUTC}, begin(${self.segment.beginAt})=${self.beginAtTime}, end(${self.segment.endAt})=${self.endAtTime}`)
 
     if (!self.hasValidWaveformUrl()) {
-      self.error('Invalid waveform URL', self.waveformUrl());
+      self.error(`Invalid waveform URL: ${self.getWaveformUrl()}`);
       return;
     }
 
@@ -111,8 +103,8 @@ export class SegmentAudio {
         self.playWebAudio();
       });
     } else {
-      self.bufferSource = null;
-      self.warn("Skipped", '@', self.segment.beginAt);
+      self.source = null;
+      self.warn(`Skipped @ ${new Date(self.segment.beginAt).toISOString()}`);
     }
   }
 
@@ -122,11 +114,11 @@ export class SegmentAudio {
    */
   playWebAudio() {
     let self = this;
+    self.debug(`Will play ${self.getWaveformUrl()} @ ${new Date(self.segment.beginAt).toISOString()} (T-${self.beginAtTime - self.getCurrentTime()}s)`);
     if (self.isFutureEnough()) {
       self.transitionToState(PLAYING);
-      self.bufferSource.start(self.beginAtTime, 0);
-      self.info(self.waveformUrl(),
-        '@', self.segment.beginAt);
+      self.source.start(self.beginAtTime, 0);
+      self.info(`${self.getWaveformUrl()} @ ${self.beginAtTime}`);
     } else {
       self.warn("Skipped playback of audio without sufficient lead time to in WebAudio context");
     }
@@ -137,7 +129,7 @@ export class SegmentAudio {
    */
   stopWebAudio() {
     try {
-      this.bufferSource.stop();
+      this.source.stop();
     } catch (e) {
       // noop
     }
@@ -150,37 +142,43 @@ export class SegmentAudio {
    */
   loadAudio(onSuccess) {
     let self = this;
-
-    BinaryResource.send('GET', self.waveformUrl(), (audioData) => {
-        self.audioContext.decodeAudioData(audioData).then((buffer) => {
-            let bufferSource = self.audioContext.createBufferSource();
-            bufferSource.buffer = buffer;
-            bufferSource.connect(self.audioContext.destination);
-            self.bufferSource = bufferSource;
+    self.source = self.audioContext.createBufferSource();
+    let request = new XMLHttpRequest();
+    request.open('GET', self.getWaveformUrl(), true);
+    request.responseType = 'arraybuffer';
+    request.onload = function () {
+      let audioData = request.response;
+      self.debug(`Fetched audio data from ${self.getWaveformUrl()}`);
+      try {
+        self.audioContext.decodeAudioData(audioData,
+          (buffer) => {
+            self.source.buffer = buffer;
+            self.source.connect(self.audioContext.destination);
             self.debug('loaded buffer source');
             onSuccess();
           },
-          (error) => {
-            self.error('Failed to decode audio data', error);
-          });
-      },
-      (error) => {
-        self.error('Failed to load segment audio buffer', error);
+          (e) => {
+            self.error("Problem decoding audio data", e);
+          }
+        );
+      } catch (e) {
+        self.error("Caught exception while decoding audio data", e);
       }
-    );
+    }
+    request.send();
   }
 
   /**
    has valid waveform url?
    */
   hasValidWaveformUrl() {
-    return rgxValidUrl.test(this.waveformUrl());
+    return rgxValidUrl.test(this.getWaveformUrl());
   }
 
   /**
    * @return {string} url of waveform
    */
-  waveformUrl() {
+  getWaveformUrl() {
     return this.segmentBaseUrl + this.segment.waveformKey;
   }
 
@@ -205,7 +203,7 @@ export class SegmentAudio {
    */
   isPlaying() {
     return this.shouldBePlaying() &&
-      null !== this.bufferSource &&
+      null !== this.source &&
       PLAYING === this.state;
   }
 
@@ -213,8 +211,8 @@ export class SegmentAudio {
    should this segment be playing now?
    */
   shouldBePlaying() {
-    return this.beginAtTime < this.audioContext.currentTime &&
-      this.endAtTime > this.audioContext.currentTime;
+    let currentTime = this.getCurrentTime();
+    return 0 < currentTime ? this.beginAtTime < currentTime && this.endAtTime > currentTime : 0;
   }
 
   /**
@@ -261,7 +259,13 @@ export class SegmentAudio {
    * @param args
    */
   log(level, message, ...args) {
-    console[level]('    [segment@' + this.segment.offset + '] ' + message, ...args);
+    let text = `    [segment@${this.segment.offset}] ${message}`;
+    let info = args && args.length ? args.join(', ') : '';
+    console[level](text, ...args);
+    let el = document.createElement('p');
+    DOM.addClass(el, level);
+    DOM.setHTML(el, `${text} ${info}`);
+    DOM.prepend(document.getElementById('messages'), el);
   }
 
   /**
@@ -270,7 +274,16 @@ export class SegmentAudio {
    * @returns {boolean}
    */
   isFutureEnough() {
-    return this.beginAtTime > this.audioContext.currentTime + ENFORCE_WEBAUDIO_SCHEDULE_PLAYBACK_AHEAD_SECONDS;
+    return this.beginAtTime > this.getCurrentTime() + ENFORCE_WEBAUDIO_SCHEDULE_PLAYBACK_AHEAD_SECONDS;
   }
+
+  /**
+   The player's current time, in seconds (float precision) since context start
+   */
+  getCurrentTime() {
+    return this.audioContext ? this.audioContext.currentTime : 0;
+  }
+
+
 }
 

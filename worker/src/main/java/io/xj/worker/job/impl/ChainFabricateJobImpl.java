@@ -11,7 +11,6 @@ import io.xj.core.exception.CoreException;
 import io.xj.core.model.chain.Chain;
 import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.segment.Segment;
-import io.xj.core.util.TimestampUTC;
 import io.xj.core.work.WorkManager;
 import io.xj.craft.exception.CraftException;
 import io.xj.worker.job.ChainFabricateJob;
@@ -19,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigInteger;
+import java.time.Instant;
 import java.util.Objects;
 
 public class ChainFabricateJobImpl implements ChainFabricateJob {
@@ -75,8 +75,8 @@ public class ChainFabricateJobImpl implements ChainFabricateJob {
     Segment segmentToCreate = chainDAO.buildNextSegmentOrComplete(
       access,
       chain,
-      TimestampUTC.nowPlusSeconds(bufferSeconds),
-      TimestampUTC.nowMinusSeconds(bufferSeconds));
+      Instant.now().plusSeconds(bufferSeconds),
+      Instant.now().minusSeconds(bufferSeconds));
 
     if (Objects.nonNull(segmentToCreate)) {
       createSegmentAndJobs(segmentToCreate);

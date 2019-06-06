@@ -10,4 +10,4 @@ external_url = "https://docs.xj.io/"
 publication = "XJ Music"
 +++
 
-Intended for composing and performing artists to use the XJ Music<sup>&trade;</sup> platform.
+Intended for composing and performing artists to use the XJ Music<sup>&reg;</sup> platform.

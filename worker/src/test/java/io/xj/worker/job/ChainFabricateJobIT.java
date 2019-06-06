@@ -26,7 +26,7 @@ import io.xj.core.model.segment_message.SegmentMessage;
 import io.xj.core.model.work.Work;
 import io.xj.core.model.work.WorkState;
 import io.xj.core.model.work.WorkType;
-import io.xj.core.util.TimestampUTC;
+import java.time.Instant;
 import io.xj.craft.CraftModule;
 import io.xj.dub.DubModule;
 import io.xj.worker.BaseIT;
@@ -75,7 +75,7 @@ public class ChainFabricateJobIT extends BaseIT {
     insertLibraryA();
 
     // Chain "Test Print #1" is ready to begin
-    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, TimestampUTC.nowMinusSeconds(1000), null, null);
+    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.now().minusSeconds(1000), null, null);
 
     // Bind the library to the chain
     IntegrationTestEntity.insertChainLibrary(1, 2);
@@ -179,7 +179,7 @@ public class ChainFabricateJobIT extends BaseIT {
     injector.getInstance(PatternDAO.class).destroy(Access.internal(), BigInteger.valueOf(416));
 
     // this segment is already in planned state-- it will end up reverted a.k.a. back in planned state
-    IntegrationTestEntity.insertSegment_Planned(101, 1, 0, TimestampUTC.nowMinusSeconds(1000));
+    IntegrationTestEntity.insertSegment_Planned(101, 1, 0, Instant.now().minusSeconds(1000));
 
     // This ensures that the re-queued work does not get executed before the end of the test
     System.setProperty("segment.requeue.seconds", "666");

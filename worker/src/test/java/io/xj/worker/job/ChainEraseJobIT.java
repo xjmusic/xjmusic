@@ -40,8 +40,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigInteger;
-import java.sql.Timestamp;
-import java.util.Date;
+import java.time.Instant;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -75,17 +74,17 @@ public class ChainEraseJobIT extends BaseIT {
     insertLibraryA();
 
     // Chain "Test Print #1" has 5 total segments
-    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Erase, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, null);
-    IntegrationTestEntity.insertSegment_NoContent(1, 1, 0, SegmentState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120, "chain-1-segment-9f7s89d8a7892-ONE.wav");
-    IntegrationTestEntity.insertSegment_NoContent(2, 1, 1, SegmentState.Dubbing, Timestamp.valueOf("2017-02-14 12:01:32.000001"), Timestamp.valueOf("2017-02-14 12:02:04.000001"), "Db minor", 64, 0.85, 120, "chain-1-segment-2807f2d5g2h32-TWO.wav");
+    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Erase, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null);
+    IntegrationTestEntity.insertSegment_NoContent(1, 1, 0, SegmentState.Dubbed, Instant.parse("2017-02-14T12:01:00.000001Z"), Instant.parse("2017-02-14T12:01:32.000001Z"), "D major", 64, 0.73, 120, "chain-1-segment-9f7s89d8a7892-ONE.wav");
+    IntegrationTestEntity.insertSegment_NoContent(2, 1, 1, SegmentState.Dubbing, Instant.parse("2017-02-14T12:01:32.000001Z"), Instant.parse("2017-02-14T12:02:04.000001Z"), "Db minor", 64, 0.85, 120, "chain-1-segment-2807f2d5g2h32-TWO.wav");
 
     // Chain "Test Print #1" has this segment that was just dubbed
     Segment segment3 = segmentFactory.newSegment(BigInteger.valueOf(3))
       .setChainId(BigInteger.valueOf(1))
       .setOffset(BigInteger.valueOf(2))
       .setStateEnum(SegmentState.Dubbed)
-      .setBeginAt("2017-02-14 12:02:04.000001")
-      .setEndAt("2017-02-14 12:02:36.000001")
+      .setBeginAt("2017-02-14T12:02:04.000001Z")
+      .setEndAt("2017-02-14T12:02:36.000001Z")
       .setKey("Ab minor")
       .setTotal(64)
       .setDensity(0.30)
@@ -113,8 +112,8 @@ public class ChainEraseJobIT extends BaseIT {
       .setChainId(BigInteger.valueOf(1))
       .setOffset(BigInteger.valueOf(3))
       .setStateEnum(SegmentState.Dubbing)
-      .setBeginAt("2017-02-14 12:03:08.000001")
-      .setEndAt("2017-02-14 12:03:15.836735")
+      .setBeginAt("2017-02-14T12:03:08.000001Z")
+      .setEndAt("2017-02-14T12:03:15.836735Z")
       .setKey("F minor")
       .setTotal(16)
       .setDensity(0.45)
@@ -154,7 +153,7 @@ public class ChainEraseJobIT extends BaseIT {
     IntegrationTestEntity.insert(segment4);
 
     // Chain "Test Print #1" is ready to begin
-    IntegrationTestEntity.insertChain(2, 1, "Test Print #1", ChainType.Production, ChainState.Erase, Timestamp.from(new Date().toInstant().minusSeconds(300)), Timestamp.from(new Date().toInstant()), null);
+    IntegrationTestEntity.insertChain(2, 1, "Test Print #1", ChainType.Production, ChainState.Erase, Instant.now().minusSeconds(300), Instant.now(), null);
 
     // Bind the library to the chains
     IntegrationTestEntity.insertChainLibrary(1, 2);

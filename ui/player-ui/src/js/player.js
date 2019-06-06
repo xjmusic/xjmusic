@@ -1,7 +1,7 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
-
 import {SegmentAudio} from "segment-audio";
 import {API} from "api";
+import {DOM} from 'dom';
 
 /**
  State constants
@@ -65,11 +65,6 @@ export class Player {
    * @type {boolean} whether in debug mode, which writes HTML output
    */
   isDebugMode = false;
-
-  /**
-   * @type {boolean} whether to simulate blocked autoplay, for development purposes
-   */
-  simulateBlockedAutoplay = false;
 
   /**
    * @type {string} Chain identifier (embed key or id)
@@ -146,17 +141,19 @@ export class Player {
 
     if (Player.contains(options, 'debug')) {
       self.isDebugMode = true;
-    }
-
-    if (Player.contains(options, 'autoplay')) {
-      self.simulateBlockedAutoplay = true;
+    } else {
+      DOM.hide(document.getElementById('debug-container'));
     }
 
     if (Player.contains(options, 'startAtMillisUTC')) {
       self.audioContextStartMillisUTC = options['startAtMillisUTC'];
-      self.info('Playback will begin from specified millis UTC', self.audioContextStartMillisUTC);
+      self.info(`Playback will begin from specified millis UTC: ${self.audioContextStartMillisUTC}`);
+    } else {
+      self.audioContextStartMillisUTC = Date.now();
+      self.info(`Playback will begin from millis UTC: ${self.audioContextStartMillisUTC}`);
     }
 
+    self.createAudioContext();
     self.updateStatus();
   }
 
@@ -172,7 +169,7 @@ export class Player {
       self.chainIdentifier = chainIdentifier;
       self.api.chain(self.chainIdentifier, (chain) => {
         self.chain = chain;
-        self.info('Chain', '#' + chain.embedKey, '(' + chain.name + ')');
+        self.info('Chain', '#' + chain['embedKey'], '(' + chain.name + ')');
         self.suspend();
       });
     });
@@ -184,12 +181,51 @@ export class Player {
    */
   suspend() {
     this.transitionToState(SUSPEND);
-    let body = $('body');
+    let body = document.querySelector('body');
     let self = this;
-    body.on('click', function () {
-      body.off();
-      self.resume();
-    });
+    body.onclick = () => {
+      body.onclick = null;
+      self.unlock(function () {
+        self.resume();
+      });
+    };
+  }
+
+  /**
+   * @type {boolean} true if Web Audio is unlocked
+   */
+  isUnlocked = false;
+
+  /**
+   * Unlock Web Autio
+   * @param {Function} callbackFn execute this function
+   <p>
+   Also dry-fire an empty sound in a further attempt to enable to WebAudio context on iOS devices
+   [#159579536] Apple iOS user (on Chrome or Firefox mobile browser) expects to be able to hear XJ Music Player embedded a in web browser.
+   */
+  unlock(callbackFn) {
+    let self = this;
+    if (self.isUnlocked) {
+      callbackFn();
+      return;
+    }
+
+    // create empty buffer and play it
+    let buffer = self.audioContext.createBuffer(1, 1, 22050);
+    let source = self.audioContext.createBufferSource();
+    source.buffer = buffer;
+    source.connect(self.audioContext.destination);
+    source.start(0);
+
+    // by checking the play state after some time, we know if we're really unlocked
+    setTimeout(function () {
+      if ((source['playbackState'] === source['PLAYING_STATE'] || source['playbackState'] === source['FINISHED_STATE'])) {
+        self.isUnlocked = true;
+        callbackFn();
+      } else {
+        alert("Failed to unlock Web Audio!");
+      }
+    }, 50);
   }
 
   /**
@@ -198,9 +234,10 @@ export class Player {
    */
   resume() {
     let self = this;
-    self.createAudioContext();
     self.info('XJ Player did create WebAudio context on page interaction.');
     self.transitionToState(SYNCING);
+    if (self.isDebugMode)
+      DOM.hide(document.querySelector('table.status'));
     self.api.config((config) => {
       self.segmentBaseUrl = config.segmentBaseUrl;
       self.startCycle();
@@ -252,7 +289,7 @@ export class Player {
    */
   refreshDataThenUpdate() {
     if (Player.nonNull(this.chain)) {
-      let fromSecondsUTC = Math.floor((this.playFromMillisUTC / MILLIS_PER_SECOND) + this.currentTime());
+      let fromSecondsUTC = Math.floor((this.playFromMillisUTC / MILLIS_PER_SECOND) + this.getCurrentTime());
       this.refreshCurrentChainDataThenUpdate(fromSecondsUTC);
     }
   }
@@ -260,7 +297,7 @@ export class Player {
   /**
    The player's current time, in seconds (float precision) since context start
    */
-  currentTime() {
+  getCurrentTime() {
     return this.audioContext ? this.audioContext.currentTime : 0;
   }
 
@@ -283,20 +320,19 @@ export class Player {
     let self = this;
     let segments = this.activeSegments;
     let activeSegmentIds = [];
-    let segmentsHtml = '';
     if (null !== self.audioContext) {
       self.api.config((config) => {
         segments.forEach(segment => {
           self.updateSegmentAudio(config.segmentBaseUrl, segment);
           activeSegmentIds.push(segment.id);
-          segmentsHtml += '<li>' + segment.state + '@<strong>' + segment.offset + '</strong>: ' + segment.waveformKey + '</li>';
         });
         self.teardownSegmentAudioExcept(activeSegmentIds);
         self.updateStatus();
         if (self.isDebugMode) {
-          $('#chain-name').html(self.chain.name);
-          $('#now-utc').html(new Date().toISOString());
-          $('#segments').html(segmentsHtml);
+          DOM.setHTML(document.getElementById('chain-name'),
+            `${self.chain.name} (${self.state})`)
+          DOM.setHTML(document.getElementById('now-time'),
+            `Now ${new Date().toISOString()}, ${self.getCurrentTime()}s into WebAudio context`)
         }
       });
     }
@@ -306,23 +342,24 @@ export class Player {
    * Update status displayed in Player UI
    */
   updateStatus() {
-    let body = $('body');
-    let statusText = $('div#status-text');
+    let body = document.querySelector('body');
+    let statusText = document.getElementById('status-text');
     ALL_STATES.forEach((possibleState) => {
       let stateClass = 'state-' + possibleState.toLowerCase();
       if (possibleState === this.state) {
-        body.addClass(stateClass);
+        DOM.addClass(body, stateClass);
       } else {
-        body.removeClass(stateClass);
+        DOM.removeClass(body, stateClass);
       }
     });
-    statusText.html(HTML_STATUS[this.state]);
+    DOM.setHTML(statusText, HTML_STATUS[this.state]);
   }
 
   /**
    Update a segment audio
    @param segmentBaseUrl of segment waveforms
    @param segment
+   @return {SegmentAudio} segment audio object
    */
   updateSegmentAudio(segmentBaseUrl, segment) {
     let self = this;
@@ -331,7 +368,7 @@ export class Player {
 
     // Must be dubbed in order to instantiate segment audio
     if (segment.state.toLowerCase() === 'dubbed' && !segmentAudio) {
-      segmentAudio = new SegmentAudio(self.audioContext, self.audioContextStartMillisUTC, segment, segmentBaseUrl);
+      segmentAudio = new SegmentAudio(self.audioContext, self.audioContextStartMillisUTC, segment, segmentBaseUrl, self.isDebugMode);
       self.segmentAudios.set(segmentId, segmentAudio);
     }
 
@@ -344,9 +381,12 @@ export class Player {
 
       if (self.isDebugMode) {
         let URL = segmentBaseUrl + segment.waveformKey;
-        $('#now-playing').html('<a href="' + URL + '" target="_blank">' + URL + '</a>');
+        DOM.setHTML(document.getElementById('now-playing'),
+          `<a href="${URL}" target="_blank">${URL}</a>`);
       }
     }
+
+    return segmentAudio;
   }
 
   /**
@@ -453,39 +493,24 @@ export class Player {
    */
   log(level, message, ...args) {
     console[level]('[' + this.name + '] ' + message, ...args);
+    let info = args && args.length ? args.join(', ') : '';
+    if (this.isDebugMode) {
+      let el = document.createElement('p');
+      DOM.addClass(el, level);
+      DOM.setHTML(el, `${message} ${info}`);
+      DOM.prepend(document.getElementById('messages'), el);
+    }
   }
 
   /**
    Initialize WebAudio context
-   <p>
+
    See API: https://developer.mozilla.org/en-US/docs/Web/API/AudioContext
-   <p>
-   Also see tutorial which includes reasoning for using the more complex constructor of the window.* context below: https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API/Using_Web_Audio_API
-   <p>
-   Also dry-fire an empty sound in a further attempt to enable to WebAudio context on iOS devices
-   [#159579536] Apple iOS user (on Chrome or Firefox mobile browser) expects to be able to hear XJ Music Player embedded a in web browser.
+
+   See tutorial which includes reasoning for using the more complex constructor of the window.* context below: https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API/Using_Web_Audio_API
    */
   createAudioContext() {
-    let self = this;
-    if (window.AudioContext) {
-      self.audioContext = new window.AudioContext();
-    } else {
-      self.audioContext = new window.webkitAudioContext();
-    }
-    if (0 === self.audioContextStartMillisUTC) {
-      self.audioContextStartMillisUTC = Date.now();
-    }
-
-    // create empty buffer
-    let buffer = self.audioContext.createBuffer(1, 1, 22050);
-    let dryFire = self.audioContext.createBufferSource();
-    dryFire.buffer = buffer;
-
-    // connect to output (your speakers)
-    dryFire.connect(self.audioContext.destination);
-
-    // play the file
-    dryFire.start(0);
+    this.audioContext = new (window.AudioContext || window['webkitAudioContext'])();
   }
 
   /**

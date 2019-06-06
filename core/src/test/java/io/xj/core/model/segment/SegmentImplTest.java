@@ -23,7 +23,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import java.math.BigInteger;
-import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.UUID;
 
 import static io.xj.core.Assert.assertExactChords;
@@ -57,8 +57,8 @@ public class SegmentImplTest {
   public void validate() throws Exception {
     segment
       .setChainId(BigInteger.valueOf(180923L))
-      .setBeginAt("2014-08-12 12:17:02.527142")
-      .setEndAt("2014-09-12 12:17:34.262679")
+      .setBeginAt("2014-08-12T12:17:02.527142Z")
+      .setEndAt("2014-09-12T12:17:34.262679Z")
       .setTotal(64)
       .setDensity(0.754)
       .setOffset(BigInteger.valueOf(473L))
@@ -72,8 +72,8 @@ public class SegmentImplTest {
   public void validate_setAsTimestamps() throws Exception {
     segment
       .setChainId(BigInteger.valueOf(180923L))
-      .setBeginAtTimestamp(Timestamp.valueOf("2014-08-12 12:17:02.527142"))
-      .setEndAtTimestamp(Timestamp.valueOf("2014-09-12 12:17:34.262679"))
+      .setBeginAtInstant(Instant.parse("2014-08-12T12:17:02.527142Z"))
+      .setEndAtInstant(Instant.parse("2014-09-12T12:17:34.262679Z"))
       .setTotal(64)
       .setDensity(0.754)
       .setOffset(BigInteger.valueOf(473L))
@@ -87,7 +87,7 @@ public class SegmentImplTest {
   public void validate_withMinimalAttributes() throws Exception {
     segment
       .setChainId(BigInteger.valueOf(180923L))
-      .setBeginAt("2014-08-12 12:17:02.527142")
+      .setBeginAt("2014-08-12T12:17:02.527142Z")
       .setOffset(BigInteger.valueOf(473L))
       .setState("Crafted")
       .validate();
@@ -99,8 +99,8 @@ public class SegmentImplTest {
     failure.expectMessage("Chain ID is required");
 
     segment
-      .setBeginAt("2014-08-12 12:17:02.527142")
-      .setEndAt("2014-09-12 12:17:34.262679")
+      .setBeginAt("2014-08-12T12:17:02.527142Z")
+      .setEndAt("2014-09-12T12:17:34.262679Z")
       .setTotal(64)
       .setDensity(0.754)
       .setOffset(BigInteger.valueOf(473L))
@@ -117,7 +117,7 @@ public class SegmentImplTest {
 
     segment
       .setChainId(BigInteger.valueOf(180923L))
-      .setEndAt("2014-09-12 12:17:34.262679")
+      .setEndAt("2014-09-12T12:17:34.262679Z")
       .setTotal(64)
       .setDensity(0.754)
       .setOffset(BigInteger.valueOf(473L))
@@ -134,8 +134,8 @@ public class SegmentImplTest {
 
     segment
       .setChainId(BigInteger.valueOf(180923L))
-      .setBeginAt("2014-08-12 12:17:02.527142")
-      .setEndAt("2014-09-12 12:17:34.262679")
+      .setBeginAt("2014-08-12T12:17:02.527142Z")
+      .setEndAt("2014-09-12T12:17:34.262679Z")
       .setTotal(64)
       .setDensity(0.754)
       .setKey("G minor")
@@ -151,8 +151,8 @@ public class SegmentImplTest {
 
     segment
       .setChainId(BigInteger.valueOf(180923L))
-      .setBeginAt("2014-08-12 12:17:02.527142")
-      .setEndAt("2014-09-12 12:17:34.262679")
+      .setBeginAt("2014-08-12T12:17:02.527142Z")
+      .setEndAt("2014-09-12T12:17:34.262679Z")
       .setTotal(64)
       .setDensity(0.754)
       .setOffset(BigInteger.valueOf(473L))
@@ -168,8 +168,8 @@ public class SegmentImplTest {
 
     segment
       .setChainId(BigInteger.valueOf(180923L))
-      .setBeginAt("2014-08-12 12:17:02.527142")
-      .setEndAt("2014-09-12 12:17:34.262679")
+      .setBeginAt("2014-08-12T12:17:02.527142Z")
+      .setEndAt("2014-09-12T12:17:34.262679Z")
       .setTotal(64)
       .setDensity(0.754)
       .setOffset(BigInteger.valueOf(473L))
@@ -183,8 +183,8 @@ public class SegmentImplTest {
   public void validate_okWithSetEnumState() throws Exception {
     segment
       .setChainId(BigInteger.valueOf(180923L))
-      .setBeginAt("2014-08-12 12:17:02.527142")
-      .setEndAt("2014-09-12 12:17:34.262679")
+      .setBeginAt("2014-08-12T12:17:02.527142Z")
+      .setEndAt("2014-09-12T12:17:34.262679Z")
       .setTotal(64)
       .setDensity(0.754)
       .setOffset(BigInteger.valueOf(473L))
@@ -235,8 +235,8 @@ public class SegmentImplTest {
     // segment
     segment
       .setChainId(BigInteger.valueOf(180923L))
-      .setBeginAt("2014-08-12 12:17:02.527142")
-      .setEndAt("2014-09-12 12:17:34.262679")
+      .setBeginAt("2014-08-12T12:17:02.527142Z")
+      .setEndAt("2014-09-12T12:17:34.262679Z")
       .setTotal(64)
       .setDensity(0.754)
       .setOffset(BigInteger.valueOf(473L))
@@ -278,8 +278,8 @@ public class SegmentImplTest {
     // segment
     segment
       .setChainId(BigInteger.valueOf(180923L))
-      .setBeginAt("2014-08-12 12:17:02.527142")
-      .setEndAt("2014-09-12 12:17:34.262679")
+      .setBeginAt("2014-08-12T12:17:02.527142Z")
+      .setEndAt("2014-09-12T12:17:34.262679Z")
       .setTotal(64)
       .setDensity(0.754)
       .setOffset(BigInteger.valueOf(473L))
@@ -749,8 +749,8 @@ public class SegmentImplTest {
   public void customJsonSerialization() throws CoreException {
     segment
       .setChainId(BigInteger.valueOf(180923L))
-      .setBeginAt("2014-08-12 12:17:02.527142")
-      .setEndAt("2014-09-12 12:17:34.262679")
+      .setBeginAt("2014-08-12T12:17:02.527142Z")
+      .setEndAt("2014-09-12T12:17:34.262679Z")
       .setTotal(64)
       .setDensity(0.754)
       .setOffset(BigInteger.valueOf(473L))
@@ -759,7 +759,7 @@ public class SegmentImplTest {
       .setState("Crafted");
     String result = gsonProvider.gson().toJson(segment);
 
-    assertEquals("{\"id\":4,\"chainId\":180923,\"offset\":473,\"state\":\"Crafted\",\"beginAt\":\"2014-08-12 12:17:02.527142Z\",\"endAt\":\"2014-09-12 12:17:34.262679Z\",\"total\":64,\"density\":0.754,\"key\":\"G minor\",\"tempo\":121.0}", result);
+    assertEquals("{\"id\":4,\"chainId\":180923,\"offset\":473,\"state\":\"Crafted\",\"beginAt\":\"2014-08-12T12:17:02.527142Z\",\"endAt\":\"2014-09-12T12:17:34.262679Z\",\"total\":64,\"density\":0.754,\"key\":\"G minor\",\"tempo\":121.0}", result);
   }
 
   @Test

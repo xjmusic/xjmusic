@@ -49,7 +49,7 @@ public class SegmentIndexResource extends HubResource {
   BigInteger fromOffset;
 
   @QueryParam("fromSecondsUTC")
-  BigInteger fromSecondsUTC;
+  Long fromSecondsUTC;
 
   /**
    Get all segments.

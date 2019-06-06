@@ -1,25 +1,23 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.dao.impl;
 
+import com.google.api.client.util.Maps;
+import com.google.inject.Inject;
 import io.xj.core.access.impl.Access;
 import io.xj.core.dao.PlatformMessageDAO;
-import io.xj.core.exception.CoreException;
 import io.xj.core.exception.CoreException;
 import io.xj.core.model.platform_message.PlatformMessage;
 import io.xj.core.model.user_role.UserRoleType;
 import io.xj.core.persistence.sql.SQLDatabaseProvider;
 import io.xj.core.persistence.sql.impl.SQLConnection;
-import io.xj.core.util.TimestampUTC;
-
 import org.jooq.DSLContext;
 import org.jooq.Field;
 import org.jooq.types.ULong;
 
-import com.google.api.client.util.Maps;
-import com.google.inject.Inject;
-
 import javax.annotation.Nullable;
 import java.math.BigInteger;
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Map;
 
@@ -82,7 +80,7 @@ public class PlatformMessageDAOImpl extends DAOImpl implements PlatformMessageDA
 
     return modelsFrom(db.select(PLATFORM_MESSAGE.fields())
       .from(PLATFORM_MESSAGE)
-      .where(PLATFORM_MESSAGE.CREATED_AT.ge(TimestampUTC.nowMinusSeconds(previousDays * secondsPerDay)))
+      .where(PLATFORM_MESSAGE.CREATED_AT.ge(Timestamp.from(Instant.now().minusSeconds(previousDays * secondsPerDay))))
       .orderBy(PLATFORM_MESSAGE.CREATED_AT.desc())
       .fetch(), PlatformMessage.class);
   }
@@ -92,8 +90,8 @@ public class PlatformMessageDAOImpl extends DAOImpl implements PlatformMessageDA
 
    @param db context
    @param id to delete
-   @throws CoreException         if database failure
-   @throws CoreException   if not configured properly
+   @throws CoreException if database failure
+   @throws CoreException if not configured properly
    @throws CoreException if fails business rule
    */
   private static void delete(DSLContext db, Access access, ULong id) throws CoreException {

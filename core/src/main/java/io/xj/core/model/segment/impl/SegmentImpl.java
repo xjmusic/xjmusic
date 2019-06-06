@@ -19,11 +19,10 @@ import io.xj.core.model.segment_meme.SegmentMeme;
 import io.xj.core.model.segment_message.SegmentMessage;
 import io.xj.core.model.sequence.SequenceType;
 import io.xj.core.transport.GsonProvider;
-import io.xj.core.util.TimestampUTC;
 import io.xj.core.util.Value;
 
 import java.math.BigInteger;
-import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
@@ -45,9 +44,9 @@ public class SegmentImpl extends EntityImpl implements Segment {
   private final Map<UUID, SegmentMessage> messageMap = Maps.newConcurrentMap();
   private BigInteger chainId;
   private SegmentState state;
-  private Timestamp beginAt;
+  private Instant beginAt;
   private String beginAtError;
-  private Timestamp endAt; // optional
+  private Instant endAt; // optional
   private String endAtError;
   private String key;
   private Integer total;
@@ -58,7 +57,7 @@ public class SegmentImpl extends EntityImpl implements Segment {
   private FabricatorType type;
 
   /**
-   Constructor with guice injection, including Segment id
+   Constructor with Segment id
    */
   @AssistedInject
   public SegmentImpl(
@@ -70,7 +69,7 @@ public class SegmentImpl extends EntityImpl implements Segment {
   }
 
   /**
-   Constructor with guice injection, no id
+   Constructor with no id
    */
   @AssistedInject
   public SegmentImpl(
@@ -161,7 +160,7 @@ public class SegmentImpl extends EntityImpl implements Segment {
   }
 
   @Override
-  public Timestamp getBeginAt() {
+  public Instant getBeginAt() {
     return beginAt;
   }
 
@@ -208,7 +207,7 @@ public class SegmentImpl extends EntityImpl implements Segment {
   }
 
   @Override
-  public Timestamp getEndAt() {
+  public Instant getEndAt() {
     return endAt;
   }
 
@@ -309,7 +308,7 @@ public class SegmentImpl extends EntityImpl implements Segment {
   @Override
   public Segment setBeginAt(String beginAt) {
     try {
-      this.beginAt = TimestampUTC.valueOf(beginAt);
+      this.beginAt = Instant.parse(beginAt);
     } catch (Exception e) {
       beginAtError = e.getMessage();
     }
@@ -317,7 +316,7 @@ public class SegmentImpl extends EntityImpl implements Segment {
   }
 
   @Override
-  public Segment setBeginAtTimestamp(Timestamp beginAt) {
+  public Segment setBeginAtInstant(Instant beginAt) {
     this.beginAt = beginAt;
     return this;
   }
@@ -367,7 +366,7 @@ public class SegmentImpl extends EntityImpl implements Segment {
   @Override
   public Segment setEndAt(String endAt) {
     try {
-      this.endAt = TimestampUTC.valueOf(endAt);
+      this.endAt = Instant.parse(endAt);
     } catch (Exception e) {
       endAtError = e.getMessage();
     }
@@ -375,7 +374,7 @@ public class SegmentImpl extends EntityImpl implements Segment {
   }
 
   @Override
-  public Segment setEndAtTimestamp(Timestamp endAt) {
+  public Segment setEndAtInstant(Instant endAt) {
     this.endAt = endAt;
     return this;
   }

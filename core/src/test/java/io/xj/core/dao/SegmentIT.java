@@ -35,7 +35,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigInteger;
-import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -77,14 +77,14 @@ public class SegmentIT {
     IntegrationTestEntity.insertAudio(1, 9, "Published", "Kick", "instrument/percussion/808/kick1.wav", 0.01, 2.123, 120.0, 440.0);
 
     // Chain "Test Print #1" has one segment
-    IntegrationTestEntity.insertChain(3, 1, "Test Print #1", ChainType.Production, ChainState.Erase, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"), null);
+    IntegrationTestEntity.insertChain(3, 1, "Test Print #1", ChainType.Production, ChainState.Erase, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-09-11T12:17:01.047563Z"), null);
     // segment-17 at offset-0 of chain-3
     Segment seg17 = segmentFactory.newSegment(BigInteger.valueOf(17))
       .setChainId(BigInteger.valueOf(3))
       .setOffset(BigInteger.valueOf(0))
       .setStateEnum(SegmentState.Dubbed)
-      .setBeginAt("2017-02-14 12:01:00.000001")
-      .setEndAt("2017-02-14 12:01:32.000001")
+      .setBeginAt("2017-02-14T12:01:00.000001Z")
+      .setEndAt("2017-02-14T12:01:32.000001Z")
       .setKey("D Major")
       .setTotal(64)
       .setDensity(0.73)
@@ -116,14 +116,14 @@ public class SegmentIT {
 
     // Account "Testing" has chain "Test Print #1"
     IntegrationTestEntity.insertAccount(1, "Testing");
-    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, null);
+    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null);
 
     // Chain "Test Print #1" has 5 sequential segments
-    IntegrationTestEntity.insertSegment_NoContent(1, 1, 0, SegmentState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
-    IntegrationTestEntity.insertSegment_NoContent(2, 1, 1, SegmentState.Dubbing, Timestamp.valueOf("2017-02-14 12:01:32.000001"), Timestamp.valueOf("2017-02-14 12:02:04.000001"), "Db minor", 64, 0.85, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
-    IntegrationTestEntity.insertSegment_NoContent(3, 1, 2, SegmentState.Crafted, Timestamp.valueOf("2017-02-14 12:02:04.000001"), Timestamp.valueOf("2017-02-14 12:02:36.000001"), "F major", 64, 0.30, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
-    IntegrationTestEntity.insertSegment_NoContent(4, 1, 3, SegmentState.Crafting, Timestamp.valueOf("2017-02-14 12:02:36.000001"), Timestamp.valueOf("2017-02-14 12:03:08.000001"), "E minor", 64, 0.41, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
-    IntegrationTestEntity.insertSegment_Planned(5, 1, 4, Timestamp.valueOf("2017-02-14 12:03:08.000001"));
+    IntegrationTestEntity.insertSegment_NoContent(1, 1, 0, SegmentState.Dubbed, Instant.parse("2017-02-14T12:01:00.000001Z"), Instant.parse("2017-02-14T12:01:32.000001Z"), "D major", 64, 0.73, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
+    IntegrationTestEntity.insertSegment_NoContent(2, 1, 1, SegmentState.Dubbing, Instant.parse("2017-02-14T12:01:32.000001Z"), Instant.parse("2017-02-14T12:02:04.000001Z"), "Db minor", 64, 0.85, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
+    IntegrationTestEntity.insertSegment_NoContent(3, 1, 2, SegmentState.Crafted, Instant.parse("2017-02-14T12:02:04.000001Z"), Instant.parse("2017-02-14T12:02:36.000001Z"), "F major", 64, 0.30, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
+    IntegrationTestEntity.insertSegment_NoContent(4, 1, 3, SegmentState.Crafting, Instant.parse("2017-02-14T12:02:36.000001Z"), Instant.parse("2017-02-14T12:03:08.000001Z"), "E minor", 64, 0.41, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
+    IntegrationTestEntity.insertSegment_Planned(5, 1, 4, Instant.parse("2017-02-14T12:03:08.000001Z"));
 
     // Instantiate the test subject
     testDAO = injector.getInstance(SegmentDAO.class);
@@ -146,8 +146,8 @@ public class SegmentIT {
       .setChainId(BigInteger.valueOf(1L))
       .setOffset(BigInteger.valueOf(5L))
       .setState("Planned")
-      .setBeginAt("1995-04-28 11:23:00.000001")
-      .setEndAt("1995-04-28 11:23:32.000001")
+      .setBeginAt("1995-04-28T11:23:00.000001Z")
+      .setEndAt("1995-04-28T11:23:32.000001Z")
       .setTotal(64)
       .setDensity(0.74)
       .setKey("C# minor 7 b9")
@@ -162,8 +162,8 @@ public class SegmentIT {
     assertEquals(BigInteger.valueOf(1L), result.getChainId());
     assertEquals(BigInteger.valueOf(5L), result.getOffset());
     assertEquals(SegmentState.Planned, result.getState());
-    assertEquals(Timestamp.valueOf("1995-04-28 11:23:00.000001"), result.getBeginAt());
-    assertEquals(Timestamp.valueOf("1995-04-28 11:23:32.000001"), result.getEndAt());
+    assertEquals("1995-04-28T11:23:00.000001Z", result.getBeginAt().toString());
+    assertEquals("1995-04-28T11:23:32.000001Z", result.getEndAt().toString());
     assertEquals(Integer.valueOf(64), result.getTotal());
     assertEquals(0.74, result.getDensity(), 0.01);
     assertEquals("C# minor 7 b9", result.getKey());
@@ -184,8 +184,8 @@ public class SegmentIT {
       .setChainId(BigInteger.valueOf(1L))
       .setOffset(BigInteger.valueOf(5L))
       .setState("Crafting")
-      .setBeginAt("1995-04-28 11:23:00.000001")
-      .setEndAt("1995-04-28 11:23:32.000001")
+      .setBeginAt("1995-04-28T11:23:00.000001Z")
+      .setEndAt("1995-04-28T11:23:32.000001Z")
       .setTotal(64)
       .setDensity(0.74)
       .setKey("C# minor 7 b9")
@@ -200,8 +200,8 @@ public class SegmentIT {
     assertEquals(BigInteger.valueOf(1L), result.getChainId());
     assertEquals(BigInteger.valueOf(5L), result.getOffset());
     assertEquals(SegmentState.Planned, result.getState());
-    assertEquals(Timestamp.valueOf("1995-04-28 11:23:00.000001"), result.getBeginAt());
-    assertEquals(Timestamp.valueOf("1995-04-28 11:23:32.000001"), result.getEndAt());
+    assertEquals("1995-04-28T11:23:00.000001Z", result.getBeginAt().toString());
+    assertEquals("1995-04-28T11:23:32.000001Z", result.getEndAt().toString());
     assertEquals(Integer.valueOf(64), result.getTotal());
     assertEquals(0.74, result.getDensity(), 0.01);
     assertEquals("C# minor 7 b9", result.getKey());
@@ -218,8 +218,8 @@ public class SegmentIT {
       .setChainId(BigInteger.valueOf(1L))
       .setOffset(BigInteger.valueOf(4L))
       .setState("Crafting")
-      .setBeginAt("1995-04-28 11:23:00.000001")
-      .setEndAt("1995-04-28 11:23:32.000001")
+      .setBeginAt("1995-04-28T11:23:00.000001Z")
+      .setEndAt("1995-04-28T11:23:32.000001Z")
       .setTotal(64)
       .setDensity(0.74)
       .setKey("C# minor 7 b9")
@@ -243,8 +243,8 @@ public class SegmentIT {
       .setChainId(BigInteger.valueOf(1L))
       .setOffset(BigInteger.valueOf(4L))
       .setState("Crafting")
-      .setBeginAt("1995-04-28 11:23:00.000001")
-      .setEndAt("1995-04-28 11:23:32.000001")
+      .setBeginAt("1995-04-28T11:23:00.000001Z")
+      .setEndAt("1995-04-28T11:23:32.000001Z")
       .setTotal(64)
       .setDensity(0.74)
       .setKey("C# minor 7 b9")
@@ -267,8 +267,8 @@ public class SegmentIT {
     Segment inputData = segmentFactory.newSegment(BigInteger.valueOf(4))
       .setOffset(BigInteger.valueOf(4L))
       .setState("Crafting")
-      .setBeginAt("1995-04-28 11:23:00.000001")
-      .setEndAt("1995-04-28 11:23:32.000001")
+      .setBeginAt("1995-04-28T11:23:00.000001Z")
+      .setEndAt("1995-04-28T11:23:32.000001Z")
       .setTotal(64)
       .setDensity(0.74)
       .setKey("C# minor 7 b9")
@@ -297,8 +297,8 @@ public class SegmentIT {
     assertEquals(BigInteger.valueOf(1L), result.getChainId());
     assertEquals(BigInteger.valueOf(1L), result.getOffset());
     assertEquals(SegmentState.Dubbing, result.getState());
-    assertEquals(Timestamp.valueOf("2017-02-14 12:01:32.000001"), result.getBeginAt());
-    assertEquals(Timestamp.valueOf("2017-02-14 12:02:04.000001"), result.getEndAt());
+    assertEquals("2017-02-14T12:01:32.000001Z", result.getBeginAt().toString());
+    assertEquals("2017-02-14T12:02:04.000001Z", result.getEndAt().toString());
     assertEquals(Integer.valueOf(64), result.getTotal());
     assertEquals(Double.valueOf(0.85), result.getDensity());
     assertEquals("Db minor", result.getKey());
@@ -348,12 +348,12 @@ public class SegmentIT {
 
   @Test
   public void readAll_byChainEmbedKey() throws Exception {
-    IntegrationTestEntity.insertChain(5, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, "JamSandwich");
-    IntegrationTestEntity.insertSegment_NoContent(51, 5, 0, SegmentState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
-    IntegrationTestEntity.insertSegment_NoContent(52, 5, 1, SegmentState.Dubbing, Timestamp.valueOf("2017-02-14 12:01:32.000001"), Timestamp.valueOf("2017-02-14 12:02:04.000001"), "Db minor", 64, 0.85, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
-    IntegrationTestEntity.insertSegment_NoContent(53, 5, 2, SegmentState.Crafted, Timestamp.valueOf("2017-02-14 12:02:04.000001"), Timestamp.valueOf("2017-02-14 12:02:36.000001"), "F major", 64, 0.30, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
-    IntegrationTestEntity.insertSegment_NoContent(54, 5, 3, SegmentState.Crafting, Timestamp.valueOf("2017-02-14 12:02:36.000001"), Timestamp.valueOf("2017-02-14 12:03:08.000001"), "E minor", 64, 0.41, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
-    IntegrationTestEntity.insertSegment_Planned(55, 5, 4, Timestamp.valueOf("2017-02-14 12:03:08.000001"));
+    IntegrationTestEntity.insertChain(5, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "JamSandwich");
+    IntegrationTestEntity.insertSegment_NoContent(51, 5, 0, SegmentState.Dubbed, Instant.parse("2017-02-14T12:01:00.000001Z"), Instant.parse("2017-02-14T12:01:32.000001Z"), "D major", 64, 0.73, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
+    IntegrationTestEntity.insertSegment_NoContent(52, 5, 1, SegmentState.Dubbing, Instant.parse("2017-02-14T12:01:32.000001Z"), Instant.parse("2017-02-14T12:02:04.000001Z"), "Db minor", 64, 0.85, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
+    IntegrationTestEntity.insertSegment_NoContent(53, 5, 2, SegmentState.Crafted, Instant.parse("2017-02-14T12:02:04.000001Z"), Instant.parse("2017-02-14T12:02:36.000001Z"), "F major", 64, 0.30, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
+    IntegrationTestEntity.insertSegment_NoContent(54, 5, 3, SegmentState.Crafting, Instant.parse("2017-02-14T12:02:36.000001Z"), Instant.parse("2017-02-14T12:03:08.000001Z"), "E minor", 64, 0.41, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
+    IntegrationTestEntity.insertSegment_Planned(55, 5, 4, Instant.parse("2017-02-14T12:03:08.000001Z"));
 
     Collection<Segment> result = testDAO.readAll("JamSandwich");
 
@@ -421,12 +421,12 @@ public class SegmentIT {
 
   @Test
   public void readAllFromOffset_byChainEmbedKey() throws Exception {
-    IntegrationTestEntity.insertChain(5, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, "JamSandwich");
-    IntegrationTestEntity.insertSegment_NoContent(51, 5, 0, SegmentState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
-    IntegrationTestEntity.insertSegment_NoContent(52, 5, 1, SegmentState.Dubbing, Timestamp.valueOf("2017-02-14 12:01:32.000001"), Timestamp.valueOf("2017-02-14 12:02:04.000001"), "Db minor", 64, 0.85, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
-    IntegrationTestEntity.insertSegment_NoContent(53, 5, 2, SegmentState.Crafted, Timestamp.valueOf("2017-02-14 12:02:04.000001"), Timestamp.valueOf("2017-02-14 12:02:36.000001"), "F major", 64, 0.30, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
-    IntegrationTestEntity.insertSegment_NoContent(54, 5, 3, SegmentState.Crafting, Timestamp.valueOf("2017-02-14 12:02:36.000001"), Timestamp.valueOf("2017-02-14 12:03:08.000001"), "E minor", 64, 0.41, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
-    IntegrationTestEntity.insertSegment_Planned(55, 5, 4, Timestamp.valueOf("2017-02-14 12:03:08.000001"));
+    IntegrationTestEntity.insertChain(5, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "JamSandwich");
+    IntegrationTestEntity.insertSegment_NoContent(51, 5, 0, SegmentState.Dubbed, Instant.parse("2017-02-14T12:01:00.000001Z"), Instant.parse("2017-02-14T12:01:32.000001Z"), "D major", 64, 0.73, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
+    IntegrationTestEntity.insertSegment_NoContent(52, 5, 1, SegmentState.Dubbing, Instant.parse("2017-02-14T12:01:32.000001Z"), Instant.parse("2017-02-14T12:02:04.000001Z"), "Db minor", 64, 0.85, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
+    IntegrationTestEntity.insertSegment_NoContent(53, 5, 2, SegmentState.Crafted, Instant.parse("2017-02-14T12:02:04.000001Z"), Instant.parse("2017-02-14T12:02:36.000001Z"), "F major", 64, 0.30, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
+    IntegrationTestEntity.insertSegment_NoContent(54, 5, 3, SegmentState.Crafting, Instant.parse("2017-02-14T12:02:36.000001Z"), Instant.parse("2017-02-14T12:03:08.000001Z"), "E minor", 64, 0.41, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
+    IntegrationTestEntity.insertSegment_Planned(55, 5, 4, Instant.parse("2017-02-14T12:03:08.000001Z"));
 
     Collection<Segment> result = testDAO.readAllFromOffset("JamSandwich", BigInteger.valueOf(2L));
 
@@ -448,7 +448,7 @@ public class SegmentIT {
       "accounts", "1"
     ));
 
-    Collection<Segment> result = testDAO.readAllFromSecondsUTC(access, BigInteger.valueOf(1L), BigInteger.valueOf(1487102524L));
+    Collection<Segment> result = testDAO.readAllFromSecondsUTC(access, BigInteger.valueOf(1L), 1487073724L);
 
     assertEquals(3L, result.size());
     Iterator<Segment> it = result.iterator();
@@ -462,14 +462,14 @@ public class SegmentIT {
 
   @Test
   public void readAllFromSecondsUTC_byChainEmbedKey() throws Exception {
-    IntegrationTestEntity.insertChain(5, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, "JamSandwich");
-    IntegrationTestEntity.insertSegment_NoContent(51, 5, 0, SegmentState.Dubbed, Timestamp.valueOf("2017-02-14 12:01:00.000001"), Timestamp.valueOf("2017-02-14 12:01:32.000001"), "D major", 64, 0.73, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
-    IntegrationTestEntity.insertSegment_NoContent(52, 5, 1, SegmentState.Dubbing, Timestamp.valueOf("2017-02-14 12:01:32.000001"), Timestamp.valueOf("2017-02-14 12:02:04.000001"), "Db minor", 64, 0.85, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
-    IntegrationTestEntity.insertSegment_NoContent(53, 5, 2, SegmentState.Crafted, Timestamp.valueOf("2017-02-14 12:02:04.000001"), Timestamp.valueOf("2017-02-14 12:02:36.000001"), "F major", 64, 0.30, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
-    IntegrationTestEntity.insertSegment_NoContent(54, 5, 3, SegmentState.Crafting, Timestamp.valueOf("2017-02-14 12:02:36.000001"), Timestamp.valueOf("2017-02-14 12:03:08.000001"), "E minor", 64, 0.41, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
-    IntegrationTestEntity.insertSegment_Planned(55, 5, 4, Timestamp.valueOf("2017-02-14 12:03:08.000001"));
+    IntegrationTestEntity.insertChain(5, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, "JamSandwich");
+    IntegrationTestEntity.insertSegment_NoContent(51, 5, 0, SegmentState.Dubbed, Instant.parse("2017-02-14T12:01:00.000001Z"), Instant.parse("2017-02-14T12:01:32.000001Z"), "D major", 64, 0.73, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
+    IntegrationTestEntity.insertSegment_NoContent(52, 5, 1, SegmentState.Dubbing, Instant.parse("2017-02-14T12:01:32.000001Z"), Instant.parse("2017-02-14T12:02:04.000001Z"), "Db minor", 64, 0.85, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
+    IntegrationTestEntity.insertSegment_NoContent(53, 5, 2, SegmentState.Crafted, Instant.parse("2017-02-14T12:02:04.000001Z"), Instant.parse("2017-02-14T12:02:36.000001Z"), "F major", 64, 0.30, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
+    IntegrationTestEntity.insertSegment_NoContent(54, 5, 3, SegmentState.Crafting, Instant.parse("2017-02-14T12:02:36.000001Z"), Instant.parse("2017-02-14T12:03:08.000001Z"), "E minor", 64, 0.41, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
+    IntegrationTestEntity.insertSegment_Planned(55, 5, 4, Instant.parse("2017-02-14T12:03:08.000001Z"));
 
-    Collection<Segment> result = testDAO.readAllFromSecondsUTC("JamSandwich", BigInteger.valueOf(1487102524L));
+    Collection<Segment> result = testDAO.readAllFromSecondsUTC("JamSandwich", 1487073724L);
 
     assertEquals(3L, result.size());
     Iterator<Segment> it = result.iterator();
@@ -487,13 +487,13 @@ public class SegmentIT {
       "roles", "internal"
     ));
 
-    Segment result = testDAO.readOneInState(access, BigInteger.valueOf(1L), SegmentState.Planned, Timestamp.valueOf("2017-02-14 12:03:08.000001"));
+    Segment result = testDAO.readOneInState(access, BigInteger.valueOf(1L), SegmentState.Planned, Instant.parse("2017-02-14T12:03:08.000001Z"));
 
     assertEquals(BigInteger.valueOf(5L), result.getId());
     assertEquals(BigInteger.valueOf(1L), result.getChainId());
     assertEquals(BigInteger.valueOf(4L), result.getOffset());
     assertEquals(SegmentState.Planned, result.getState());
-    assertEquals(Timestamp.valueOf("2017-02-14 12:03:08.000001"), result.getBeginAt());
+    assertEquals("2017-02-14T12:03:08.000001Z", result.getBeginAt().toString());
     assertNull(result.getEndAt());
   }
 
@@ -502,11 +502,11 @@ public class SegmentIT {
     Access access = new Access(ImmutableMap.of(
       "roles", "internal"
     ));
-    IntegrationTestEntity.insertChain(2, 1, "Test Print #2", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, null);
+    IntegrationTestEntity.insertChain(2, 1, "Test Print #2", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null);
     failure.expect(CoreException.class);
     failure.expectMessage("does not exist");
 
-    testDAO.readOneInState(access, BigInteger.valueOf(2L), SegmentState.Planned, Timestamp.valueOf("2017-02-14 12:03:08.000001"));
+    testDAO.readOneInState(access, BigInteger.valueOf(2L), SegmentState.Planned, Instant.parse("2017-02-14T12:03:08.000001Z"));
   }
 
   @Test
@@ -530,8 +530,8 @@ public class SegmentIT {
       .setChainId(BigInteger.valueOf(1L))
       .setOffset(BigInteger.valueOf(5L))
       .setState("Dubbed")
-      .setBeginAt("1995-04-28 11:23:00.000001")
-      .setEndAt("1995-04-28 11:23:32.000001")
+      .setBeginAt("1995-04-28T11:23:00.000001Z")
+      .setEndAt("1995-04-28T11:23:32.000001Z")
       .setTotal(64)
       .setDensity(0.74)
       .setKey("C# minor 7 b9")
@@ -544,8 +544,8 @@ public class SegmentIT {
     assertEquals("C# minor 7 b9", result.getKey());
     assertEquals(BigInteger.valueOf(1L), result.getChainId());
     assertEquals(SegmentState.Dubbed, result.getState());
-    assertEquals(Timestamp.valueOf("1995-04-28 11:23:00.000001"), result.getBeginAt());
-    assertEquals(Timestamp.valueOf("1995-04-28 11:23:32.000001"), result.getEndAt());
+    assertEquals("1995-04-28T11:23:00.000001Z", result.getBeginAt().toString());
+    assertEquals("1995-04-28T11:23:32.000001Z", result.getEndAt().toString());
   }
 
   /**
@@ -560,8 +560,8 @@ public class SegmentIT {
       .setChainId(BigInteger.valueOf(1L))
       .setOffset(BigInteger.valueOf(5L))
       .setState("Dubbed")
-      .setBeginAt("1995-04-28 11:23:00.000001")
-      .setEndAt("1995-04-28 11:23:32.000001")
+      .setBeginAt("1995-04-28T11:23:00.000001Z")
+      .setEndAt("1995-04-28T11:23:32.000001Z")
       .setTotal(64)
       .setDensity(0.74)
       .setKey("C# minor 7 b9")
@@ -595,8 +595,8 @@ public class SegmentIT {
     Segment inputData = segmentFactory.newSegment(BigInteger.valueOf(4))
       .setOffset(BigInteger.valueOf(4L))
       .setState("Crafting")
-      .setBeginAt("1995-04-28 11:23:00.000001")
-      .setEndAt("1995-04-28 11:23:32.000001")
+      .setBeginAt("1995-04-28T11:23:00.000001Z")
+      .setEndAt("1995-04-28T11:23:32.000001Z")
       .setTotal(64)
       .setDensity(0.74)
       .setKey("C# minor 7 b9")
@@ -617,8 +617,8 @@ public class SegmentIT {
       .setChainId(BigInteger.valueOf(12L))
       .setOffset(BigInteger.valueOf(4L))
       .setState("Crafting")
-      .setBeginAt("1995-04-28 11:23:00.000001")
-      .setEndAt("1995-04-28 11:23:32.000001")
+      .setBeginAt("1995-04-28T11:23:00.000001Z")
+      .setEndAt("1995-04-28T11:23:32.000001Z")
       .setTotal(64)
       .setDensity(0.74)
       .setKey("C# minor 7 b9")

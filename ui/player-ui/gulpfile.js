@@ -30,7 +30,7 @@ const config = {
     img: `${srcPath}/img/*`,
     js: `${srcPath}/js/**/*.js`,
     sass: `${srcPath}/sass/**/*.scss`,
-    vendArr: [`${srcPath}/vendor/*`, `${npmPath}/howler/dist/*`,  `${npmPath}/jquery/dist/*`],
+    vendArr: [`${srcPath}/vendor/*`],
   },
   dist: {
     base: `./${distPath}`,
@@ -97,7 +97,7 @@ gulp.task('image', (done) => {
   done();
 });
 
-gulp.task('watch', gulp.series(['sass', 'js', 'image', 'vendor', 'html']), (done) => {
+gulp.task('watch', gulp.series('sass', 'js', 'image', 'vendor', 'html', function(){
 
   /*
     // Not useful to launch http://localhost:3000/ because XJ Player is developed via Docker and docker-compose
@@ -107,14 +107,13 @@ gulp.task('watch', gulp.series(['sass', 'js', 'image', 'vendor', 'html']), (done
     });
   */
 
-  gulp.watch(config.src.sass, ['sass']);
-  gulp.watch(config.src.js, ['js']);
-  gulp.watch(config.src.html, ['html']);
-  gulp.watch(config.src.img, ['image']);
+  gulp.watch(config.src.sass, gulp.series('sass'));
+  gulp.watch(config.src.js, gulp.series('js'));
+  gulp.watch(config.src.html, gulp.series('html'));
+  gulp.watch(config.src.img, gulp.series('image'));
   // gulp.watch(config.src.html).on('change', browserSync.reload);
   // gulp.watch(config.src.js).on('change', browserSync.reload);
-  done();
-});
+}));
 
 gulp.task('default', gulp.series(['sass', 'js', 'image', 'vendor', 'html']));
 

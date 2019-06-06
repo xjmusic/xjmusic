@@ -3,7 +3,6 @@ package io.xj.core.model.segment;
 
 import com.google.common.collect.Lists;
 import io.xj.core.exception.CoreException;
-import io.xj.core.exception.CoreException;
 import io.xj.core.transport.CSV;
 import io.xj.core.util.Text;
 

@@ -30,7 +30,6 @@ import io.xj.core.model.sequence_meme.SequenceMeme;
 import io.xj.core.model.sequence_pattern.SequencePattern;
 import io.xj.core.model.sequence_pattern_meme.SequencePatternMeme;
 import io.xj.core.model.voice.Voice;
-import io.xj.core.util.TimestampUTC;
 import io.xj.music.PitchClass;
 import org.junit.Before;
 import org.junit.Rule;
@@ -40,6 +39,7 @@ import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigInteger;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
@@ -50,10 +50,18 @@ import static org.junit.Assert.assertSame;
 @RunWith(MockitoJUnitRunner.class)
 public class IngestIT extends BaseIT {
   private final Injector injector = Guice.createInjector(new CoreModule());
-  private IngestFactory ingestFactory;
-
   @Rule
   public ExpectedException failure = ExpectedException.none();
+  private IngestFactory ingestFactory;
+
+  private static Map<Class, Integer> classTally(Collection<Entity> allEntities) {
+    Map<Class, Integer> out = Maps.newConcurrentMap();
+    allEntities.forEach(entity -> {
+      Class clazz = entity.getClass();
+      out.put(clazz, out.containsKey(clazz) ? out.get(clazz) + 1 : 1);
+    });
+    return out;
+  }
 
   @Before
   public void setUp() throws Exception {
@@ -163,7 +171,7 @@ public class IngestIT extends BaseIT {
 
   @Test
   public void getSequenceMemesOfSequence() throws Exception {
-    IntegrationTestEntity.insertSequenceMeme(701, "More Ants", TimestampUTC.now());
+    IntegrationTestEntity.insertSequenceMeme(701, "More Ants", Instant.now());
     Ingest ingest = ingestFactory.evaluate(Access.internal(), ImmutableList.of(new Library(10000001)));
 
     assertEquals(2, ingest.getSequenceMemesOfSequence(BigInteger.valueOf(701)).size());
@@ -219,7 +227,7 @@ public class IngestIT extends BaseIT {
 
   @Test
   public void getSequencePatternsOfSequenceAtOffset() throws Exception {
-    IntegrationTestEntity.insertSequencePattern(999, 701, 902, 5, TimestampUTC.now());
+    IntegrationTestEntity.insertSequencePattern(999, 701, 902, 5, Instant.now());
     Ingest ingest = ingestFactory.evaluate(Access.internal(), ImmutableList.of(new Library(10000001)));
 
     assertEquals(1, ingest.getSequencePatternsOfSequenceAtOffset(BigInteger.valueOf(701), BigInteger.valueOf(2)).size());
@@ -235,7 +243,7 @@ public class IngestIT extends BaseIT {
 
   @Test
   public void getInstrumentsOfType() throws Exception {
-    IntegrationTestEntity.insertInstrument(1201, 10000001, 101, "Dreamy", InstrumentType.Harmonic, 0.9, TimestampUTC.now());
+    IntegrationTestEntity.insertInstrument(1201, 10000001, 101, "Dreamy", InstrumentType.Harmonic, 0.9, Instant.now());
     Ingest ingest = ingestFactory.evaluate(Access.internal(), ImmutableList.of(new Library(10000001)));
 
     assertEquals(2, ingest.getInstrumentsOfType(InstrumentType.Percussive).size());
@@ -251,7 +259,7 @@ public class IngestIT extends BaseIT {
 
   @Test
   public void getFirstEventsOfAudiosOfInstrument() throws Exception {
-    IntegrationTestEntity.insertAudioEvent(402, 0, 1, "PING", "G", 0.1, 0.8, TimestampUTC.now());
+    IntegrationTestEntity.insertAudioEvent(402, 0, 1, "PING", "G", 0.1, 0.8, Instant.now());
     Ingest ingest = ingestFactory.evaluate(Access.internal(), ImmutableList.of(new Library(10000001)));
 
     assertEquals(2, ingest.getFirstEventsOfAudiosOfInstrument(BigInteger.valueOf(201)).size());
@@ -288,7 +296,7 @@ public class IngestIT extends BaseIT {
 
   @Test
   public void getAudiosOfInstrument() throws Exception {
-    IntegrationTestEntity.insertAudio(403, 202, "Published", "Chords Cm to D", "instrument/percussion/909/kick1.wav", 0.01, 2.123, 120.0, 440, TimestampUTC.now());
+    IntegrationTestEntity.insertAudio(403, 202, "Published", "Chords Cm to D", "instrument/percussion/909/kick1.wav", 0.01, 2.123, 120.0, 440, Instant.now());
     Ingest ingest = ingestFactory.evaluate(Access.internal(), ImmutableList.of(new Library(10000001)));
 
     assertEquals(2, ingest.getAudiosOfInstrument(BigInteger.valueOf(201)).size());
@@ -297,7 +305,7 @@ public class IngestIT extends BaseIT {
 
   @Test
   public void getAudiosEventsOfInstrument() throws Exception {
-    IntegrationTestEntity.insertAudio(403, 202, "Published", "Chords Cm to D", "instrument/percussion/909/kick1.wav", 0.01, 2.123, 120.0, 440, TimestampUTC.now());
+    IntegrationTestEntity.insertAudio(403, 202, "Published", "Chords Cm to D", "instrument/percussion/909/kick1.wav", 0.01, 2.123, 120.0, 440, Instant.now());
     IntegrationTestEntity.insertAudioEvent(403, 0, 1, "X", "C", 1, 1);
     IntegrationTestEntity.insertAudioEvent(403, 1, 1, "X", "C", 1, 1);
     IntegrationTestEntity.insertAudioEvent(403, 2, 1, "X", "C", 1, 1);
@@ -360,7 +368,7 @@ public class IngestIT extends BaseIT {
 
   @Test
   public void getVoicesOfSequence() throws Exception {
-    IntegrationTestEntity.insertVoice(1299, 702, InstrumentType.Harmonic, "Bass", TimestampUTC.now());
+    IntegrationTestEntity.insertVoice(1299, 702, InstrumentType.Harmonic, "Bass", Instant.now());
     Ingest ingest = ingestFactory.evaluate(Access.internal(), ImmutableList.of(new Library(10000001)));
 
     assertEquals(1, ingest.getVoicesOfSequence(BigInteger.valueOf(701)).size());
@@ -422,15 +430,6 @@ public class IngestIT extends BaseIT {
     Ingest ingest = ingestFactory.evaluate(Access.internal(), ImmutableList.of(new Library(10000001)));
 
     assertEquals("4 PatternEvent, 2 Pattern, 6 PatternChord, 8 SequencePatternMeme, 3 Sequence, 3 InstrumentMeme, 2 Instrument, 4 AudioEvent, 1 Library, 2 Audio, 6 AudioChord, 3 SequenceMeme, 6 SequencePattern, 2 Voice", ingest.toString());
-  }
-
-  private static Map<Class, Integer> classTally(Collection<Entity> allEntities) {
-    Map<Class, Integer> out = Maps.newConcurrentMap();
-    allEntities.forEach(entity -> {
-      Class clazz = entity.getClass();
-      out.put(clazz, out.containsKey(clazz) ? out.get(clazz) + 1 : 1);
-    });
-    return out;
   }
 
 }

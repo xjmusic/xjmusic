@@ -21,6 +21,8 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nullable;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigInteger;
+import java.sql.Timestamp;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
@@ -406,9 +408,13 @@ public class DAOImpl {
           break;
 
         case "Timestamp":
+          model.getClass().getMethod(setterName, String.class)
+            .invoke(model, Timestamp.valueOf(String.valueOf(value)).toInstant().truncatedTo(ChronoUnit.MICROS).toString());
+          break;
 
         default:
-          model.getClass().getMethod(setterName, String.class).invoke(model, String.valueOf(value));
+          model.getClass().getMethod(setterName, String.class)
+            .invoke(model, String.valueOf(value));
           break;
       }
     } catch (InvocationTargetException ignored) {

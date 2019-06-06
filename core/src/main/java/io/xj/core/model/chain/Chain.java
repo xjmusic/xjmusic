@@ -4,11 +4,11 @@ package io.xj.core.model.chain;
 import io.xj.core.exception.CoreException;
 import io.xj.core.model.entity.impl.EntityImpl;
 import io.xj.core.util.Text;
-import io.xj.core.util.TimestampUTC;
 
 import javax.annotation.Nullable;
 import java.math.BigInteger;
-import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 
 /**
@@ -30,9 +30,9 @@ public class Chain extends EntityImpl {
   private ChainState state;
   private String _type; // hold value before validation
   private ChainType type;
-  private Timestamp startAt;
+  private Instant startAt;
   private String startAtError;
-  private Timestamp stopAt;
+  private Instant stopAt;
   private String stopAtError;
   @Nullable
   private String embedKey;
@@ -90,39 +90,47 @@ public class Chain extends EntityImpl {
     return this;
   }
 
-  public Timestamp getStartAt() {
+  public Instant getStartAt() {
     return startAt;
   }
 
+  /**
+   Set Chain start-at time, or set it to "now" for the current time.
+
+   @param value "now" for current time, or ISO-8601 timestamp
+   @return this Chain (for chaining setters)
+   */
   public Chain setStartAt(String value) {
-    try {
-      startAt = TimestampUTC.valueOf(value);
+    if (Objects.equals("now", Text.toLowerSlug(value))) {
+      startAt = Instant.now();
+    } else try {
+      startAt = Instant.parse(value);
     } catch (Exception e) {
       startAtError = e.getMessage();
     }
     return this;
   }
 
-  public void setStartAtTimestamp(Timestamp startAtTimestamp) {
-    startAt = startAtTimestamp;
+  public void setStartAtInstant(Instant startAtInstant) {
+    startAt = startAtInstant;
   }
 
-  public Timestamp getStopAt() {
+  public Instant getStopAt() {
     return stopAt;
   }
 
   public Chain setStopAt(String value) {
     if (Objects.nonNull(value) && !value.isEmpty())
       try {
-        stopAt = TimestampUTC.valueOf(value);
+        stopAt = Instant.parse(value);
       } catch (Exception e) {
         stopAtError = e.getMessage();
       }
     return this;
   }
 
-  public void setStopAtTimestamp(Timestamp stopAtTimestamp) {
-    stopAt = stopAtTimestamp;
+  public void setStopAtInstant(Instant stopAtInstant) {
+    stopAt = stopAtInstant;
   }
 
   @Nullable
@@ -184,8 +192,8 @@ public class Chain extends EntityImpl {
     return "Chain{" +
       "accountId=" + accountId +
       ", name=" + Text.singleQuoted(name) +
-      ", state=" + Text.singleQuoted(state.toString()) +
-      ", type=" + Text.singleQuoted(type.toString()) +
+      ", state=" + Text.singleQuoted(String.valueOf(state)) +
+      ", type=" + Text.singleQuoted(String.valueOf(type)) +
       ", startAt=" + startAt +
       ", startAtError=" + Text.singleQuoted(startAtError) +
       ", stopAt=" + stopAt +
@@ -214,7 +222,7 @@ public class Chain extends EntityImpl {
     copy.setAccountId(accountId);
     copy.setEmbedKey(embedKey);
     copy.setName(name);
-    copy.setStartAtTimestamp(TimestampUTC.now());
+    copy.setStartAtInstant(Instant.now());
     copy.setStateEnum(state);
     copy.setTypeEnum(type);
     return copy;

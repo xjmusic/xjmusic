@@ -21,6 +21,7 @@ import io.xj.core.model.segment.Segment;
 import io.xj.core.model.segment.SegmentState;
 import io.xj.core.model.sequence.SequenceState;
 import io.xj.core.model.sequence.SequenceType;
+import java.time.Instant;
 import io.xj.core.work.WorkManager;
 import org.junit.After;
 import org.junit.Before;
@@ -32,7 +33,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigInteger;
-import java.sql.Timestamp;
 import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
@@ -63,8 +63,8 @@ public class ChainIT {
 
     // Account "fish" has chain "school" and chain "bucket"
     IntegrationTestEntity.insertAccount(1, "fish");
-    IntegrationTestEntity.insertChain(1, 1, "school", ChainType.Production, ChainState.Ready, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"), null);
-    IntegrationTestEntity.insertChain(2, 1, "bucket", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2015-05-10 12:17:02.527142"), Timestamp.valueOf("2015-06-09 12:17:01.047563"), null);
+    IntegrationTestEntity.insertChain(1, 1, "school", ChainType.Production, ChainState.Ready, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-09-11T12:17:01.047563Z"), null);
+    IntegrationTestEntity.insertChain(2, 1, "bucket", ChainType.Production, ChainState.Fabricate, Instant.parse("2015-05-10T12:17:02.527142Z"), Instant.parse("2015-06-09T12:17:01.047563Z"), null);
 
     // Account "boat" has no chains
     IntegrationTestEntity.insertAccount(2, "boat");
@@ -99,8 +99,8 @@ public class ChainIT {
       .setName("manuts")
       .setState("Draft")
       .setType("Production")
-      .setStartAt("2009-08-12 12:17:02.527142")
-      .setStopAt("2009-09-11 12:17:01.047563");
+      .setStartAt("2009-08-12T12:17:02.527142Z")
+      .setStopAt("2009-09-11T12:17:01.047563Z");
 
     Chain result = testDAO.create(access, inputData);
 
@@ -109,8 +109,8 @@ public class ChainIT {
     assertEquals("manuts", result.getName());
     assertEquals(ChainState.Draft, result.getState());
     assertEquals(ChainType.Production, result.getType());
-    assertEquals(Timestamp.valueOf("2009-08-12 12:17:02.527142"), result.getStartAt());
-    assertEquals(Timestamp.valueOf("2009-09-11 12:17:01.047563"), result.getStopAt());
+    assertEquals("2009-08-12T12:17:02.527142Z", result.getStartAt().toString());
+    assertEquals("2009-09-11T12:17:01.047563Z", result.getStopAt().toString());
   }
 
   @Test
@@ -124,8 +124,8 @@ public class ChainIT {
       .setState("Draft")
       .setEmbedKey("my $% favorite THINGS")
       .setType("Production")
-      .setStartAt("2009-08-12 12:17:02.527142")
-      .setStopAt("2009-09-11 12:17:01.047563");
+      .setStartAt("2009-08-12T12:17:02.527142Z")
+      .setStopAt("2009-09-11T12:17:01.047563Z");
 
     Chain result = testDAO.create(access, inputData);
 
@@ -135,13 +135,13 @@ public class ChainIT {
     assertEquals(ChainState.Draft, result.getState());
     assertEquals(ChainType.Production, result.getType());
     assertEquals("my_favorite_things", result.getEmbedKey());
-    assertEquals(Timestamp.valueOf("2009-08-12 12:17:02.527142"), result.getStartAt());
-    assertEquals(Timestamp.valueOf("2009-09-11 12:17:01.047563"), result.getStopAt());
+    assertEquals("2009-08-12T12:17:02.527142Z", result.getStartAt().toString());
+    assertEquals("2009-09-11T12:17:01.047563Z", result.getStopAt().toString());
   }
 
   @Test
   public void create_withEmbedKey_failsIfEmbedKeyAlreadyExists() throws Exception {
-    IntegrationTestEntity.insertChain(3, 1, "bucket", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2015-05-10 12:17:02.527142"), Timestamp.valueOf("2015-06-09 12:17:01.047563"), "my_favorite_things");
+    IntegrationTestEntity.insertChain(3, 1, "bucket", ChainType.Production, ChainState.Fabricate, Instant.parse("2015-05-10T12:17:02.527142Z"), Instant.parse("2015-06-09T12:17:01.047563Z"), "my_favorite_things");
     failure.expect(CoreException.class);
     failure.expectMessage("Found Existing Chain with this embed_key");
 
@@ -154,8 +154,8 @@ public class ChainIT {
       .setState("Draft")
       .setEmbedKey("my_favorite_things")
       .setType("Production")
-      .setStartAt("2009-08-12 12:17:02.527142")
-      .setStopAt("2009-09-11 12:17:01.047563");
+      .setStartAt("2009-08-12T12:17:02.527142Z")
+      .setStopAt("2009-09-11T12:17:01.047563Z");
 
     testDAO.create(access, inputData);
   }
@@ -170,8 +170,8 @@ public class ChainIT {
       .setName("manuts")
       .setState("Draft")
       .setType("Preview")
-      .setStartAt("2009-08-12 12:17:02.527142")
-      .setStopAt("2009-09-11 12:17:01.047563");
+      .setStartAt("2009-08-12T12:17:02.527142Z")
+      .setStopAt("2009-09-11T12:17:01.047563Z");
 
     Chain result = testDAO.create(access, inputData);
 
@@ -181,8 +181,8 @@ public class ChainIT {
     assertEquals(ChainState.Draft, result.getState());
     assertEquals(ChainType.Preview, result.getType());
     // future test: time from startAt to stopAt relative to [#190] specs
-//    assertEquals(Timestamp.valueOf("2009-08-12 12:17:02.527142"), result.getStartAt());
-//    assertEquals(Timestamp.valueOf("2009-09-11 12:17:01.047563"), result.getStopAt());
+//    assertEquals("2009-08-12 12:17:02.527142", result.getStartAt().toString());
+//    assertEquals("2009-09-11 12:17:01.047563", result.getStopAt().toString());
   }
 
   @Test
@@ -196,8 +196,8 @@ public class ChainIT {
       .setName("manuts")
       .setType("Production")
       .setState("Fabricate")
-      .setStartAt("2009-08-12 12:17:02.527142")
-      .setStopAt("2009-09-11 12:17:01.047563");
+      .setStartAt("2009-08-12T12:17:02.527142Z")
+      .setStopAt("2009-09-11T12:17:01.047563Z");
 
     Chain result = testDAO.create(access, inputData);
 
@@ -206,8 +206,8 @@ public class ChainIT {
     assertEquals("manuts", result.getName());
     assertEquals(ChainType.Production, result.getType());
     assertEquals(ChainState.Draft, result.getState());
-    assertEquals(Timestamp.valueOf("2009-08-12 12:17:02.527142"), result.getStartAt());
-    assertEquals(Timestamp.valueOf("2009-09-11 12:17:01.047563"), result.getStopAt());
+    assertEquals("2009-08-12T12:17:02.527142Z", result.getStartAt().toString());
+    assertEquals("2009-09-11T12:17:01.047563Z", result.getStopAt().toString());
   }
 
   @Test
@@ -220,7 +220,7 @@ public class ChainIT {
       .setName("manuts")
       .setType("Production")
       .setState("Draft")
-      .setStartAt("2009-08-12 12:17:02.527142");
+      .setStartAt("2009-08-12T12:17:02.527142Z");
 
     Chain result = testDAO.create(access, inputData);
 
@@ -229,7 +229,7 @@ public class ChainIT {
     assertEquals("manuts", result.getName());
     assertEquals(ChainState.Draft, result.getState());
     assertEquals(ChainType.Production, result.getType());
-    assertEquals(Timestamp.valueOf("2009-08-12 12:17:02.527142"), result.getStartAt());
+    assertEquals("2009-08-12T12:17:02.527142Z", result.getStartAt().toString());
     assertNull(result.getStopAt());
   }
 
@@ -243,7 +243,7 @@ public class ChainIT {
       .setName("manuts")
       .setState("Draft")
       .setType("Production")
-      .setStartAt("2009-08-12 12:17:02.527142");
+      .setStartAt("2009-08-12T12:17:02.527142Z");
 
     Chain result = testDAO.create(access, inputData);
 
@@ -252,7 +252,7 @@ public class ChainIT {
     assertEquals("manuts", result.getName());
     assertEquals(ChainState.Draft, result.getState());
     assertEquals(ChainType.Production, result.getType());
-    assertEquals(Timestamp.valueOf("2009-08-12 12:17:02.527142"), result.getStartAt());
+    assertEquals("2009-08-12T12:17:02.527142Z", result.getStartAt().toString());
     assertNull(result.getStopAt());
   }
 
@@ -265,8 +265,8 @@ public class ChainIT {
       .setName("manuts")
       .setState("Draft")
       .setType("Production")
-      .setStartAt("2009-08-12 12:17:02.527142")
-      .setStopAt("2009-09-11 12:17:01.047563");
+      .setStartAt("2009-08-12T12:17:02.527142Z")
+      .setStopAt("2009-09-11T12:17:01.047563Z");
 
     failure.expect(CoreException.class);
     failure.expectMessage("Account ID is required");
@@ -284,8 +284,8 @@ public class ChainIT {
       .setName("manuts")
       .setType("Production")
       .setState("bullshit state")
-      .setStartAt("2009-08-12 12:17:02.527142")
-      .setStopAt("2009-09-11 12:17:01.047563");
+      .setStartAt("2009-08-12T12:17:02.527142Z")
+      .setStopAt("2009-09-11T12:17:01.047563Z");
 
     failure.expect(CoreException.class);
     failure.expectMessage("'bullshit state' is not a valid state");
@@ -320,8 +320,8 @@ public class ChainIT {
     assertEquals("bucket", result.getName());
     assertEquals(ChainState.Fabricate, result.getState());
     assertEquals(ChainType.Production, result.getType());
-    assertEquals(Timestamp.valueOf("2015-05-10 12:17:02.527142"), result.getStartAt());
-    assertEquals(Timestamp.valueOf("2015-06-09 12:17:01.047563"), result.getStopAt());
+    assertEquals("2015-05-10T12:17:02.527142Z", result.getStartAt().toString());
+    assertEquals("2015-06-09T12:17:01.047563Z", result.getStopAt().toString());
   }
 
   /**
@@ -329,7 +329,7 @@ public class ChainIT {
    */
   @Test
   public void readOne_byEmbedKey_unauthenticatedOk() throws Exception {
-    IntegrationTestEntity.insertChain(102, 1, "cats test", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2015-05-10 12:17:02.527142"), Timestamp.valueOf("2015-06-09 12:17:01.047563"), "cats");
+    IntegrationTestEntity.insertChain(102, 1, "cats test", ChainType.Production, ChainState.Fabricate, Instant.parse("2015-05-10T12:17:02.527142Z"), Instant.parse("2015-06-09T12:17:01.047563Z"), "cats");
     Access access = Access.unauthenticated();
 
     Chain result = testDAO.readOne(access, "cats");
@@ -340,8 +340,8 @@ public class ChainIT {
     assertEquals("cats test", result.getName());
     assertEquals(ChainState.Fabricate, result.getState());
     assertEquals(ChainType.Production, result.getType());
-    assertEquals(Timestamp.valueOf("2015-05-10 12:17:02.527142"), result.getStartAt());
-    assertEquals(Timestamp.valueOf("2015-06-09 12:17:01.047563"), result.getStopAt());
+    assertEquals("2015-05-10T12:17:02.527142Z", result.getStartAt().toString());
+    assertEquals("2015-06-09T12:17:01.047563Z", result.getStopAt().toString());
     assertEquals("cats", result.getEmbedKey());
   }
 
@@ -371,7 +371,7 @@ public class ChainIT {
 
   @Test
   public void readAll_excludesChainsInEraseState() throws Exception {
-    IntegrationTestEntity.insertChain(17, 1, "sham", ChainType.Production, ChainState.Erase, Timestamp.valueOf("2015-05-10 12:17:02.527142"), Timestamp.valueOf("2015-06-09 12:17:01.047563"), null);
+    IntegrationTestEntity.insertChain(17, 1, "sham", ChainType.Production, ChainState.Erase, Instant.parse("2015-05-10T12:17:02.527142Z"), Instant.parse("2015-06-09T12:17:01.047563Z"), null);
     Access access = new Access(ImmutableMap.of(
       "roles", "User",
       "accounts", "1"
@@ -416,8 +416,8 @@ public class ChainIT {
       .setName("manuts")
       .setType("Production")
       .setState("Complete")
-      .setStartAt("2009-08-12 12:17:02.687327")
-      .setStopAt("2009-09-11 12:17:01.989941");
+      .setStartAt("2009-08-12T12:17:02.687327Z")
+      .setStopAt("2009-09-11T12:17:01.989941Z");
 
     testDAO.update(access, BigInteger.valueOf(2L), inputData);
 
@@ -427,8 +427,8 @@ public class ChainIT {
     assertEquals(BigInteger.valueOf(1L), result.getAccountId());
     assertEquals(ChainState.Complete, result.getState());
     assertEquals(ChainType.Production, result.getType());
-    assertEquals(Timestamp.valueOf("2009-08-12 12:17:02.687327"), result.getStartAt());
-    assertEquals(Timestamp.valueOf("2009-09-11 12:17:01.989941"), result.getStopAt());
+    assertEquals("2009-08-12T12:17:02.687327Z", result.getStartAt().toString());
+    assertEquals("2009-09-11T12:17:01.989941Z", result.getStopAt().toString());
   }
 
   @Test
@@ -442,8 +442,8 @@ public class ChainIT {
       .setType("Production")
       .setEmbedKey("twenty %$** four HOURS")
       .setState("Complete")
-      .setStartAt("2009-08-12 12:17:02.687327")
-      .setStopAt("2009-09-11 12:17:01.989941");
+      .setStartAt("2009-08-12T12:17:02.687327Z")
+      .setStopAt("2009-09-11T12:17:01.989941Z");
 
     testDAO.update(access, BigInteger.valueOf(2L), inputData);
 
@@ -454,13 +454,13 @@ public class ChainIT {
     assertEquals(BigInteger.valueOf(1L), result.getAccountId());
     assertEquals(ChainState.Complete, result.getState());
     assertEquals(ChainType.Production, result.getType());
-    assertEquals(Timestamp.valueOf("2009-08-12 12:17:02.687327"), result.getStartAt());
-    assertEquals(Timestamp.valueOf("2009-09-11 12:17:01.989941"), result.getStopAt());
+    assertEquals("2009-08-12T12:17:02.687327Z", result.getStartAt().toString());
+    assertEquals("2009-09-11T12:17:01.989941Z", result.getStopAt().toString());
   }
 
   @Test
   public void update_removeEmbedKey() throws Exception {
-    IntegrationTestEntity.insertChain(3, 1, "bucket", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2015-05-10 12:17:02.527142"), Timestamp.valueOf("2015-06-09 12:17:01.047563"), "twenty_four_hours");
+    IntegrationTestEntity.insertChain(3, 1, "bucket", ChainType.Production, ChainState.Fabricate, Instant.parse("2015-05-10T12:17:02.527142Z"), Instant.parse("2015-06-09T12:17:01.047563Z"), "twenty_four_hours");
     Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
@@ -470,8 +470,8 @@ public class ChainIT {
       .setEmbedKey("")
       .setType("Production")
       .setState("Complete")
-      .setStartAt("2009-08-12 12:17:02.687327")
-      .setStopAt("2009-09-11 12:17:01.989941");
+      .setStartAt("2009-08-12T12:17:02.687327Z")
+      .setStopAt("2009-09-11T12:17:01.989941Z");
 
     testDAO.update(access, BigInteger.valueOf(3L), inputData);
 
@@ -482,13 +482,13 @@ public class ChainIT {
     assertEquals(BigInteger.valueOf(1L), result.getAccountId());
     assertEquals(ChainState.Complete, result.getState());
     assertEquals(ChainType.Production, result.getType());
-    assertEquals(Timestamp.valueOf("2009-08-12 12:17:02.687327"), result.getStartAt());
-    assertEquals(Timestamp.valueOf("2009-09-11 12:17:01.989941"), result.getStopAt());
+    assertEquals("2009-08-12T12:17:02.687327Z", result.getStartAt().toString());
+    assertEquals("2009-09-11T12:17:01.989941Z", result.getStopAt().toString());
   }
 
   @Test
   public void update_addEmbedKey_failsIfEmbedKeyAlreadyExists() throws Exception {
-    IntegrationTestEntity.insertChain(3, 1, "bucket", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2015-05-10 12:17:02.527142"), Timestamp.valueOf("2015-06-09 12:17:01.047563"), "twenty_four_hours");
+    IntegrationTestEntity.insertChain(3, 1, "bucket", ChainType.Production, ChainState.Fabricate, Instant.parse("2015-05-10T12:17:02.527142Z"), Instant.parse("2015-06-09T12:17:01.047563Z"), "twenty_four_hours");
     failure.expect(CoreException.class);
     failure.expectMessage("Found Existing Chain with this embed_key");
 
@@ -501,8 +501,8 @@ public class ChainIT {
       .setType("Production")
       .setEmbedKey("twenty_four_hours")
       .setState("Complete")
-      .setStartAt("2009-08-12 12:17:02.687327")
-      .setStopAt("2009-09-11 12:17:01.989941");
+      .setStartAt("2009-08-12T12:17:02.687327Z")
+      .setStopAt("2009-09-11T12:17:01.989941Z");
 
     testDAO.update(access, BigInteger.valueOf(2L), inputData);
   }
@@ -512,15 +512,15 @@ public class ChainIT {
     Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
-    IntegrationTestEntity.insertChain(274, 1, "school", ChainType.Production, ChainState.Ready, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"), "jabberwocky");
+    IntegrationTestEntity.insertChain(274, 1, "school", ChainType.Production, ChainState.Ready, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-09-11T12:17:01.047563Z"), "jabberwocky");
     Chain inputData = new Chain()
       .setAccountId(BigInteger.valueOf(274L))
       .setName("manuts")
       .setType("Production")
       .setState("Ready")
       .setEmbedKey("jabberwocky")
-      .setStartAt("2009-08-12 12:17:02.687327")
-      .setStopAt("2009-09-11 12:17:01.989941");
+      .setStartAt("2009-08-12T12:17:02.687327Z")
+      .setStopAt("2009-09-11T12:17:01.989941Z");
 
     testDAO.update(access, BigInteger.valueOf(274L), inputData);
 
@@ -531,8 +531,8 @@ public class ChainIT {
     assertEquals(BigInteger.valueOf(1L), result.getAccountId());
     assertEquals(ChainState.Ready, result.getState());
     assertEquals(ChainType.Production, result.getType());
-    assertEquals(Timestamp.valueOf("2009-08-12 12:17:02.687327"), result.getStartAt());
-    assertEquals(Timestamp.valueOf("2009-09-11 12:17:01.989941"), result.getStopAt());
+    assertEquals("2009-08-12T12:17:02.687327Z", result.getStartAt().toString());
+    assertEquals("2009-09-11T12:17:01.989941Z", result.getStopAt().toString());
   }
 
 
@@ -546,8 +546,8 @@ public class ChainIT {
       .setName("manuts")
       .setType("Preview")
       .setState("Complete")
-      .setStartAt("2009-08-12 12:17:02.687327")
-      .setStopAt("2009-09-11 12:17:01.989941");
+      .setStartAt("2009-08-12T12:17:02.687327Z")
+      .setStopAt("2009-09-11T12:17:01.989941Z");
 
     testDAO.update(access, BigInteger.valueOf(2L), inputData);
 
@@ -557,8 +557,8 @@ public class ChainIT {
     assertEquals(BigInteger.valueOf(1L), result.getAccountId());
     assertEquals(ChainState.Complete, result.getState());
     assertEquals(ChainType.Production, result.getType());
-    assertEquals(Timestamp.valueOf("2009-08-12 12:17:02.687327"), result.getStartAt());
-    assertEquals(Timestamp.valueOf("2009-09-11 12:17:01.989941"), result.getStopAt());
+    assertEquals("2009-08-12T12:17:02.687327Z", result.getStartAt().toString());
+    assertEquals("2009-09-11T12:17:01.989941Z", result.getStopAt().toString());
   }
 
   @Test
@@ -571,9 +571,9 @@ public class ChainIT {
       .setName("bucket")
       .setType("Production")
       .setState("Fabricate")
-      .setStartAt("2015-05-10 12:17:03.527142")
-      .setStopAt("2015-06-09 12:17:01.047563");
-    IntegrationTestEntity.insertSegment_NoContent(6, 2, 5, SegmentState.Crafted, Timestamp.valueOf("2015-05-10 12:18:02.527142"), Timestamp.valueOf("2015-05-10 12:18:32.527142"), "A major", 64, 0.52, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
+      .setStartAt("2015-05-10T12:17:03.527142Z")
+      .setStopAt("2015-06-09T12:17:01.047563Z");
+    IntegrationTestEntity.insertSegment_NoContent(6, 2, 5, SegmentState.Crafted, Instant.parse("2015-05-10T12:18:02.527142Z"), Instant.parse("2015-05-10T12:18:32.527142Z"), "A major", 64, 0.52, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
 
     failure.expect(CoreException.class);
     failure.expectMessage("cannot change chain startAt time after it has segments");
@@ -591,9 +591,9 @@ public class ChainIT {
       .setName("manuts")
       .setState("Fabricate")
       .setType("Production")
-      .setStartAt("2015-05-10 12:17:02.527142")
-      .setStopAt("2015-06-09 12:17:01.047563");
-    IntegrationTestEntity.insertSegment_NoContent(6, 2, 5, SegmentState.Crafted, Timestamp.valueOf("2015-05-10 12:18:02.527142"), Timestamp.valueOf("2015-05-10 12:18:32.527142"), "A major", 64, 0.52, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
+      .setStartAt("2015-05-10T12:17:02.527142Z")
+      .setStopAt("2015-06-09T12:17:01.047563Z");
+    IntegrationTestEntity.insertSegment_NoContent(6, 2, 5, SegmentState.Crafted, Instant.parse("2015-05-10T12:18:02.527142Z"), Instant.parse("2015-05-10T12:18:32.527142Z"), "A major", 64, 0.52, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
 
     testDAO.update(access, BigInteger.valueOf(2L), inputData);
 
@@ -603,8 +603,8 @@ public class ChainIT {
     assertEquals(BigInteger.valueOf(1L), result.getAccountId());
     assertEquals(ChainState.Fabricate, result.getState());
     assertEquals(ChainType.Production, result.getType());
-    assertEquals(Timestamp.valueOf("2015-05-10 12:17:02.527142"), result.getStartAt());
-    assertEquals(Timestamp.valueOf("2015-06-09 12:17:01.047563"), result.getStopAt());
+    assertEquals("2015-05-10T12:17:02.527142Z", result.getStartAt().toString());
+    assertEquals("2015-06-09T12:17:01.047563Z", result.getStopAt().toString());
   }
 
   @Test
@@ -617,7 +617,7 @@ public class ChainIT {
       .setName("manuts")
       .setType("Production")
       .setState("Complete")
-      .setStartAt("2009-08-12 12:17:02.687327");
+      .setStartAt("2009-08-12T12:17:02.687327Z");
 
     testDAO.update(access, BigInteger.valueOf(2L), inputData);
 
@@ -627,7 +627,7 @@ public class ChainIT {
     assertEquals(BigInteger.valueOf(1L), result.getAccountId());
     assertEquals(ChainState.Complete, result.getState());
     assertEquals(ChainType.Production, result.getType());
-    assertEquals(Timestamp.valueOf("2009-08-12 12:17:02.687327"), result.getStartAt());
+    assertEquals("2009-08-12T12:17:02.687327Z", result.getStartAt().toString());
     assertNull(result.getStopAt());
   }
 
@@ -640,8 +640,8 @@ public class ChainIT {
       .setName("manuts")
       .setState("Draft")
       .setType("Production")
-      .setStartAt("2009-08-12 12:17:02.527142")
-      .setStopAt("2009-09-11 12:17:01.047563");
+      .setStartAt("2009-08-12T12:17:02.527142Z")
+      .setStopAt("2009-09-11T12:17:01.047563Z");
 
     failure.expect(CoreException.class);
     failure.expectMessage("Account ID is required");
@@ -658,8 +658,8 @@ public class ChainIT {
       .setAccountId(BigInteger.valueOf(1L))
       .setState("Draft")
       .setType("Production")
-      .setStartAt("2009-08-12 12:17:02.527142")
-      .setStopAt("2009-09-11 12:17:01.047563");
+      .setStartAt("2009-08-12T12:17:02.527142Z")
+      .setStopAt("2009-09-11T12:17:01.047563Z");
 
     failure.expect(CoreException.class);
     failure.expectMessage("Name is required");
@@ -677,8 +677,8 @@ public class ChainIT {
       .setName("manuts")
       .setState("Complete")
       .setType("Production")
-      .setStartAt("2009-08-12 12:17:02.527142")
-      .setStopAt("2009-09-11 12:17:01.047563");
+      .setStartAt("2009-08-12T12:17:02.527142Z")
+      .setStopAt("2009-09-11T12:17:01.047563Z");
 
     testDAO.update(access, BigInteger.valueOf(2L), inputData);
 
@@ -742,7 +742,7 @@ public class ChainIT {
 
   @Test
   public void updateState_WithAccountAccess_FailsWithoutArtistOrEngineerRole_ForPreviewChain() throws Exception {
-    IntegrationTestEntity.insertChain(3, 1, "bucket", ChainType.Preview, ChainState.Fabricate, Timestamp.valueOf("2015-05-10 12:17:02.527142"), Timestamp.valueOf("2015-06-09 12:17:01.047563"), null);
+    IntegrationTestEntity.insertChain(3, 1, "bucket", ChainType.Preview, ChainState.Fabricate, Instant.parse("2015-05-10T12:17:02.527142Z"), Instant.parse("2015-06-09T12:17:01.047563Z"), null);
     Access access = new Access(ImmutableMap.of(
       "roles", "User",
       "accounts", "1"
@@ -756,7 +756,7 @@ public class ChainIT {
 
   @Test
   public void updateState_outOfDraft_WithoutEntitiesBound_Fails() throws Exception {
-    IntegrationTestEntity.insertChain(3, 1, "bucket", ChainType.Production, ChainState.Draft, Timestamp.valueOf("2015-05-10 12:17:02.527142"), null, null);
+    IntegrationTestEntity.insertChain(3, 1, "bucket", ChainType.Production, ChainState.Draft, Instant.parse("2015-05-10T12:17:02.527142Z"), null, null);
     Access access = new Access(ImmutableMap.of(
       "roles", "User,Artist,Engineer",
       "accounts", "1"
@@ -770,7 +770,7 @@ public class ChainIT {
 
   @Test
   public void updateState_outOfDraft_BoundToLibrary() throws Exception {
-    IntegrationTestEntity.insertChain(3, 1, "bucket", ChainType.Production, ChainState.Draft, Timestamp.valueOf("2015-05-10 12:17:02.527142"), null, null);
+    IntegrationTestEntity.insertChain(3, 1, "bucket", ChainType.Production, ChainState.Draft, Instant.parse("2015-05-10T12:17:02.527142Z"), null, null);
     IntegrationTestEntity.insertLibrary(3, 1, "pajamas");
     IntegrationTestEntity.insertChainLibrary(3, 3);
 
@@ -789,7 +789,7 @@ public class ChainIT {
   @Test
   public void updateState_outOfDraft_BoundToSequence() throws Exception {
     IntegrationTestEntity.insertUser(3, "jenny", "jenny@email.com", "http://pictures.com/jenny.gif");
-    IntegrationTestEntity.insertChain(3, 1, "bucket", ChainType.Production, ChainState.Draft, Timestamp.valueOf("2015-05-10 12:17:02.527142"), null, null);
+    IntegrationTestEntity.insertChain(3, 1, "bucket", ChainType.Production, ChainState.Draft, Instant.parse("2015-05-10T12:17:02.527142Z"), null, null);
     IntegrationTestEntity.insertLibrary(3, 1, "pajamas");
     IntegrationTestEntity.insertSequence(3, 3, 3, SequenceType.Main, SequenceState.Published, "fonds", 0.342, "C#", 0.286);
     IntegrationTestEntity.insertChainSequence(3, 3);
@@ -809,7 +809,7 @@ public class ChainIT {
   @Test
   public void updateState_outOfDraft_BoundToMultipleSequences() throws Exception {
     IntegrationTestEntity.insertUser(3, "jenny", "jenny@email.com", "http://pictures.com/jenny.gif");
-    IntegrationTestEntity.insertChain(3, 1, "bucket", ChainType.Production, ChainState.Draft, Timestamp.valueOf("2015-05-10 12:17:02.527142"), null, null);
+    IntegrationTestEntity.insertChain(3, 1, "bucket", ChainType.Production, ChainState.Draft, Instant.parse("2015-05-10T12:17:02.527142Z"), null, null);
     IntegrationTestEntity.insertLibrary(3, 1, "pajamas");
     IntegrationTestEntity.insertSequence(3, 3, 3, SequenceType.Main, SequenceState.Published, "fonds", 0.342, "C#", 0.286);
     IntegrationTestEntity.insertSequence(4, 3, 3, SequenceType.Macro, SequenceState.Published, "trees A to B", 0.7, "D#", 0.4);
@@ -835,7 +835,7 @@ public class ChainIT {
   @Test
   public void updateState_outOfDraft_BoundToInstrument() throws Exception {
     IntegrationTestEntity.insertUser(3, "jenny", "jenny@email.com", "http://pictures.com/jenny.gif");
-    IntegrationTestEntity.insertChain(3, 1, "bucket", ChainType.Production, ChainState.Draft, Timestamp.valueOf("2015-05-10 12:17:02.527142"), null, null);
+    IntegrationTestEntity.insertChain(3, 1, "bucket", ChainType.Production, ChainState.Draft, Instant.parse("2015-05-10T12:17:02.527142Z"), null, null);
     IntegrationTestEntity.insertLibrary(3, 1, "pajamas");
     IntegrationTestEntity.insertInstrument(3, 3, 3, "fonds", InstrumentType.Harmonic, 0.342);
     IntegrationTestEntity.insertChainInstrument(3, 3);
@@ -861,7 +861,7 @@ public class ChainIT {
       "roles", "User,Admin,Artist,Engineer",
       "accounts", "1,2"
     ));
-    IntegrationTestEntity.insertChain(274, 1, "school", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"), "jabberwocky");
+    IntegrationTestEntity.insertChain(274, 1, "school", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-09-11T12:17:01.047563Z"), "jabberwocky");
     IntegrationTestEntity.insertLibrary(3, 1, "pajamas");
     IntegrationTestEntity.insertChainLibrary(274, 3);
 
@@ -906,7 +906,7 @@ public class ChainIT {
     Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
-    IntegrationTestEntity.insertChain(274, 1, "school", ChainType.Production, ChainState.Ready, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"), "jabberwocky");
+    IntegrationTestEntity.insertChain(274, 1, "school", ChainType.Production, ChainState.Ready, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-09-11T12:17:01.047563Z"), "jabberwocky");
     IntegrationTestEntity.insertLibrary(3, 1, "pajamas");
     IntegrationTestEntity.insertChainLibrary(274, 3);
     failure.expect(CoreException.class);
@@ -924,7 +924,7 @@ public class ChainIT {
       "roles", "Engineer",
       "accounts", "1"
     ));
-    IntegrationTestEntity.insertChain(274, 1, "school", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"), "jabberwocky");
+    IntegrationTestEntity.insertChain(274, 1, "school", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-09-11T12:17:01.047563Z"), "jabberwocky");
     IntegrationTestEntity.insertLibrary(3, 1, "pajamas");
     IntegrationTestEntity.insertChainLibrary(274, 3);
 
@@ -946,7 +946,7 @@ public class ChainIT {
     Access access = new Access(ImmutableMap.of(
       "roles", "Artist"
     ));
-    IntegrationTestEntity.insertChain(274, 1, "school", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"), "jabberwocky");
+    IntegrationTestEntity.insertChain(274, 1, "school", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-09-11T12:17:01.047563Z"), "jabberwocky");
     IntegrationTestEntity.insertLibrary(3, 1, "pajamas");
     IntegrationTestEntity.insertChainLibrary(274, 3);
     failure.expect(CoreException.class);
@@ -965,7 +965,7 @@ public class ChainIT {
       "accounts", "1"
     ));
     IntegrationTestEntity.insertUser(3, "jenny", "jenny@email.com", "http://pictures.com/jenny.gif");
-    IntegrationTestEntity.insertChain(274, 1, "school", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"), "jabberwocky");
+    IntegrationTestEntity.insertChain(274, 1, "school", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-09-11T12:17:01.047563Z"), "jabberwocky");
     IntegrationTestEntity.insertChainConfig(274, ChainConfigType.OutputFrameRate, "1,4,35");
     IntegrationTestEntity.insertChainConfig(274, ChainConfigType.OutputChannels, "2,83,4");
     IntegrationTestEntity.insertLibrary(3, 1, "pajamas");
@@ -995,7 +995,7 @@ public class ChainIT {
    */
   @Test
   public void checkAndReviveAll() throws Exception {
-    IntegrationTestEntity.insertSegment_NoContent(6, 2, 5, SegmentState.Dubbed, Timestamp.valueOf("2015-05-10 12:18:02.527142"), Timestamp.valueOf("2015-05-10 12:18:32.527142"), "A major", 64, 0.52, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
+    IntegrationTestEntity.insertSegment_NoContent(6, 2, 5, SegmentState.Dubbed, Instant.parse("2015-05-10T12:18:02.527142Z"), Instant.parse("2015-05-10T12:18:32.527142Z"), "A major", 64, 0.52, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
     IntegrationTestEntity.insertLibrary(3, 1, "pajamas");
     IntegrationTestEntity.insertChainLibrary(2, 3);
 
@@ -1025,19 +1025,19 @@ public class ChainIT {
     Access access = new Access(ImmutableMap.of(
       "roles", "internal"
     ));
-    IntegrationTestEntity.insertChain(12, 1, "Test Print #2", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-02-14 12:03:40.000001"), Timestamp.valueOf("2014-02-14 14:03:40.000001"), null);
-    IntegrationTestEntity.insertSegment_NoContent(6, 12, 5, SegmentState.Crafting, Timestamp.valueOf("2014-02-14 12:03:40.000001"), Timestamp.valueOf("2014-02-14 12:04:10.000001"), "E minor", 64, 0.41, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
+    IntegrationTestEntity.insertChain(12, 1, "Test Print #2", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-02-14T12:03:40.000001Z"), Instant.parse("2014-02-14T14:03:40.000001Z"), null);
+    IntegrationTestEntity.insertSegment_NoContent(6, 12, 5, SegmentState.Crafting, Instant.parse("2014-02-14T12:03:40.000001Z"), Instant.parse("2014-02-14T12:04:10.000001Z"), "E minor", 64, 0.41, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
 
     Chain fromChain = new Chain();
     fromChain.setId(BigInteger.valueOf(12L));
-    fromChain.setStartAtTimestamp(Timestamp.valueOf("2014-02-14 12:03:40.000001"));
-    fromChain.setStopAtTimestamp(Timestamp.valueOf("2014-02-14 14:03:40.000001"));
-    Segment result = testDAO.buildNextSegmentOrComplete(access, fromChain, Timestamp.valueOf("2014-02-14 12:03:40.000001"), Timestamp.valueOf("2014-02-14 11:53:40.000001"));
+    fromChain.setStartAtInstant(Instant.parse("2014-02-14T12:03:40.000001Z"));
+    fromChain.setStopAtInstant(Instant.parse("2014-02-14T14:03:40.000001Z"));
+    Segment result = testDAO.buildNextSegmentOrComplete(access, fromChain, Instant.parse("2014-02-14T12:03:40.000001Z"), Instant.parse("2014-02-14T11:53:40.000001Z"));
 
     assertNotNull(result);
     assertEquals(BigInteger.valueOf(12L), result.getChainId());
     assertEquals(BigInteger.valueOf(6L), result.getOffset());
-    assertEquals(Timestamp.valueOf("2014-02-14 12:04:10.000001"), result.getBeginAt());
+    assertEquals("2014-02-14T12:04:10.000001Z", result.getBeginAt().toString());
   }
 
   @Test
@@ -1045,14 +1045,14 @@ public class ChainIT {
     Access access = new Access(ImmutableMap.of(
       "roles", "internal"
     ));
-    IntegrationTestEntity.insertChain(12, 1, "Test Print #2", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-02-14 12:03:40.000001"), Timestamp.valueOf("2014-02-14 14:03:40.000001"), null);
-    IntegrationTestEntity.insertSegment_NoContent(6, 12, 5, SegmentState.Crafting, Timestamp.valueOf("2014-02-14 14:03:15.000001"), Timestamp.valueOf("2014-02-14 14:03:45.000001"), "E minor", 64, 0.41, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
+    IntegrationTestEntity.insertChain(12, 1, "Test Print #2", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-02-14T12:03:40.000001Z"), Instant.parse("2014-02-14T14:03:40.000001Z"), null);
+    IntegrationTestEntity.insertSegment_NoContent(6, 12, 5, SegmentState.Crafting, Instant.parse("2014-02-14T14:03:15.000001Z"), Instant.parse("2014-02-14T14:03:45.000001Z"), "E minor", 64, 0.41, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
 
     Chain fromChain = new Chain();
     fromChain.setId(BigInteger.valueOf(12L));
-    fromChain.setStopAtTimestamp(Timestamp.valueOf("2014-02-14 12:03:40.000001"));
-    fromChain.setStopAtTimestamp(Timestamp.valueOf("2014-02-14 14:03:40.000001"));
-    Segment result = testDAO.buildNextSegmentOrComplete(access, fromChain, Timestamp.valueOf("2014-02-14 14:03:50.000001"), Timestamp.valueOf("2014-02-14 13:53:50.000001"));
+    fromChain.setStopAtInstant(Instant.parse("2014-02-14T12:03:40.000001Z"));
+    fromChain.setStopAtInstant(Instant.parse("2014-02-14T14:03:40.000001Z"));
+    Segment result = testDAO.buildNextSegmentOrComplete(access, fromChain, Instant.parse("2014-02-14T14:03:50.000001Z"), Instant.parse("2014-02-14T13:53:50.000001Z"));
 
     assertNull(result);
     Chain resultFinal = testDAO.readOne(Access.internal(), BigInteger.valueOf(12L));
@@ -1065,14 +1065,14 @@ public class ChainIT {
     Access access = new Access(ImmutableMap.of(
       "roles", "internal"
     ));
-    IntegrationTestEntity.insertChain(12, 1, "Test Print #2", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-02-14 12:03:40.000001"), Timestamp.valueOf("2014-02-14 14:03:40.000001"), null);
-    IntegrationTestEntity.insertSegment_NoContent(6, 12, 5, SegmentState.Dubbing, Timestamp.valueOf("2014-02-14 14:03:15.000001"), Timestamp.valueOf("2014-02-14 14:03:45.000001"), "E minor", 64, 0.41, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
+    IntegrationTestEntity.insertChain(12, 1, "Test Print #2", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-02-14T12:03:40.000001Z"), Instant.parse("2014-02-14T14:03:40.000001Z"), null);
+    IntegrationTestEntity.insertSegment_NoContent(6, 12, 5, SegmentState.Dubbing, Instant.parse("2014-02-14T14:03:15.000001Z"), Instant.parse("2014-02-14T14:03:45.000001Z"), "E minor", 64, 0.41, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
 
     Chain fromChain = new Chain();
     fromChain.setId(BigInteger.valueOf(12L));
-    fromChain.setStartAtTimestamp(Timestamp.valueOf("2014-02-14 12:03:40.000001"));
-    fromChain.setStopAtTimestamp(Timestamp.valueOf("2014-02-14 14:03:40.000001"));
-    Segment result = testDAO.buildNextSegmentOrComplete(access, fromChain, Timestamp.valueOf("2014-02-14 14:03:50.000001"), Timestamp.valueOf("2014-02-14 14:15:50.000001"));
+    fromChain.setStartAtInstant(Instant.parse("2014-02-14T12:03:40.000001Z"));
+    fromChain.setStopAtInstant(Instant.parse("2014-02-14T14:03:40.000001Z"));
+    Segment result = testDAO.buildNextSegmentOrComplete(access, fromChain, Instant.parse("2014-02-14T14:03:50.000001Z"), Instant.parse("2014-02-14T14:15:50.000001Z"));
     assertNull(result);
 
     Chain resultFinal = testDAO.readOne(Access.internal(), BigInteger.valueOf(12L));
@@ -1085,14 +1085,14 @@ public class ChainIT {
     Access access = new Access(ImmutableMap.of(
       "roles", "internal"
     ));
-    IntegrationTestEntity.insertChain(12, 1, "Test Print #2", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-02-14 12:03:40.000001"), Timestamp.valueOf("2014-02-14 14:03:40.000001"), null);
-    IntegrationTestEntity.insertSegment_NoContent(6, 12, 5, SegmentState.Dubbed, Timestamp.valueOf("2014-02-14 14:03:15.000001"), Timestamp.valueOf("2014-02-14 14:03:45.000001"), "E minor", 64, 0.41, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
+    IntegrationTestEntity.insertChain(12, 1, "Test Print #2", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-02-14T12:03:40.000001Z"), Instant.parse("2014-02-14T14:03:40.000001Z"), null);
+    IntegrationTestEntity.insertSegment_NoContent(6, 12, 5, SegmentState.Dubbed, Instant.parse("2014-02-14T14:03:15.000001Z"), Instant.parse("2014-02-14T14:03:45.000001Z"), "E minor", 64, 0.41, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
 
     Chain fromChain = new Chain();
     fromChain.setId(BigInteger.valueOf(12L));
-    fromChain.setStartAtTimestamp(Timestamp.valueOf("2014-02-14 12:03:40.000001"));
-    fromChain.setStopAtTimestamp(Timestamp.valueOf("2014-02-14 14:03:40.000001"));
-    Segment result = testDAO.buildNextSegmentOrComplete(access, fromChain, Timestamp.valueOf("2014-02-14 14:03:50.000001"), Timestamp.valueOf("2014-02-14 14:15:50.000001"));
+    fromChain.setStartAtInstant(Instant.parse("2014-02-14T12:03:40.000001Z"));
+    fromChain.setStopAtInstant(Instant.parse("2014-02-14T14:03:40.000001Z"));
+    Segment result = testDAO.buildNextSegmentOrComplete(access, fromChain, Instant.parse("2014-02-14T14:03:50.000001Z"), Instant.parse("2014-02-14T14:15:50.000001Z"));
     assertNull(result);
 
     Chain resultFinal = testDAO.readOne(Access.internal(), BigInteger.valueOf(12L));
@@ -1105,13 +1105,13 @@ public class ChainIT {
     Access access = new Access(ImmutableMap.of(
       "roles", "internal"
     ));
-    IntegrationTestEntity.insertChain(12, 1, "Test Print #2", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-02-14 12:03:40.000001"), Timestamp.valueOf("2014-02-14 14:03:40.000001"), null);
-    IntegrationTestEntity.insertSegment_NoContent(6, 12, 5, SegmentState.Dubbed, Timestamp.valueOf("2014-02-14 14:03:15.000001"), Timestamp.valueOf("2014-02-14 14:03:45.000001"), "E minor", 64, 0.41, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
+    IntegrationTestEntity.insertChain(12, 1, "Test Print #2", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-02-14T12:03:40.000001Z"), Instant.parse("2014-02-14T14:03:40.000001Z"), null);
+    IntegrationTestEntity.insertSegment_NoContent(6, 12, 5, SegmentState.Dubbed, Instant.parse("2014-02-14T14:03:15.000001Z"), Instant.parse("2014-02-14T14:03:45.000001Z"), "E minor", 64, 0.41, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
 
     Chain fromChain = new Chain();
     fromChain.setId(BigInteger.valueOf(12L));
-    fromChain.setStartAtTimestamp(Timestamp.valueOf("2014-02-14 12:03:40.000001"));
-    Segment result = testDAO.buildNextSegmentOrComplete(access, fromChain, Timestamp.valueOf("2014-02-14 14:03:50.000001"), Timestamp.valueOf("2014-02-14 14:15:50.000001"));
+    fromChain.setStartAtInstant(Instant.parse("2014-02-14T12:03:40.000001Z"));
+    Segment result = testDAO.buildNextSegmentOrComplete(access, fromChain, Instant.parse("2014-02-14T14:03:50.000001Z"), Instant.parse("2014-02-14T14:15:50.000001Z"));
     assertNotNull(result);
 
     Chain resultFinal = testDAO.readOne(Access.internal(), BigInteger.valueOf(12L));
@@ -1124,13 +1124,13 @@ public class ChainIT {
     Access access = new Access(ImmutableMap.of(
       "roles", "internal"
     ));
-    IntegrationTestEntity.insertSegment_Planned(5, 1, 4, Timestamp.valueOf("2017-02-14 12:03:08.000001"));
+    IntegrationTestEntity.insertSegment_Planned(5, 1, 4, Instant.parse("2017-02-14T12:03:08.000001Z"));
 
     Chain fromChain = new Chain();
     fromChain.setId(BigInteger.valueOf(1L));
-    fromChain.setStartAtTimestamp(Timestamp.valueOf("2015-02-14 12:03:40.000001"));
+    fromChain.setStartAtInstant(Instant.parse("2015-02-14T12:03:40.000001Z"));
     fromChain.setStopAt(null);
-    Segment result = testDAO.buildNextSegmentOrComplete(access, fromChain, Timestamp.valueOf("2014-08-12 14:03:38.000001"), Timestamp.valueOf("2014-08-12 13:53:38.000001"));
+    Segment result = testDAO.buildNextSegmentOrComplete(access, fromChain, Instant.parse("2014-08-12T14:03:38.000001Z"), Instant.parse("2014-08-12T13:53:38.000001Z"));
 
     assertNull(result);
   }
@@ -1140,19 +1140,19 @@ public class ChainIT {
     Access access = new Access(ImmutableMap.of(
       "roles", "internal"
     ));
-    IntegrationTestEntity.insertChain(12, 1, "Test Print #2", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), Timestamp.valueOf("2014-09-11 12:17:01.047563"), null);
-    IntegrationTestEntity.insertSegment_NoContent(6, 12, 5, SegmentState.Crafted, Timestamp.valueOf("2014-08-12 14:03:08.000001"), Timestamp.valueOf("2014-08-12 14:03:38.000001"), "A major", 64, 0.52, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
+    IntegrationTestEntity.insertChain(12, 1, "Test Print #2", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), Instant.parse("2014-09-11T12:17:01.047563Z"), null);
+    IntegrationTestEntity.insertSegment_NoContent(6, 12, 5, SegmentState.Crafted, Instant.parse("2014-08-12T14:03:08.000001Z"), Instant.parse("2014-08-12T14:03:38.000001Z"), "A major", 64, 0.52, 120.0, "chain-1-segment-9f7s89d8a7892.wav");
 
     Chain fromChain = new Chain();
     fromChain.setId(BigInteger.valueOf(12L));
-    fromChain.setStartAtTimestamp(Timestamp.valueOf("2014-08-12 12:17:02.527142"));
-    fromChain.setStopAtTimestamp(Timestamp.valueOf("2014-09-11 12:17:01.047563"));
-    Segment result = testDAO.buildNextSegmentOrComplete(access, fromChain, Timestamp.valueOf("2014-08-12 14:03:38.000001"), Timestamp.valueOf("2014-08-12 13:53:38.000001"));
+    fromChain.setStartAtInstant(Instant.parse("2014-08-12T12:17:02.527142Z"));
+    fromChain.setStopAtInstant(Instant.parse("2014-09-11T12:17:01.047563Z"));
+    Segment result = testDAO.buildNextSegmentOrComplete(access, fromChain, Instant.parse("2014-08-12T14:03:38.000001Z"), Instant.parse("2014-08-12T13:53:38.000001Z"));
 
     assertNotNull(result);
     assertEquals(BigInteger.valueOf(12L), result.getChainId());
     assertEquals(BigInteger.valueOf(6L), result.getOffset());
-    assertEquals(Timestamp.valueOf("2014-08-12 14:03:38.000001"), result.getBeginAt());
+    assertEquals("2014-08-12T14:03:38.000001Z", result.getBeginAt().toString());
   }
 
   @Test
@@ -1160,18 +1160,18 @@ public class ChainIT {
     Access access = new Access(ImmutableMap.of(
       "roles", "internal"
     ));
-    IntegrationTestEntity.insertChain(12, 1, "Test Print #2", ChainType.Production, ChainState.Ready, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, null);
+    IntegrationTestEntity.insertChain(12, 1, "Test Print #2", ChainType.Production, ChainState.Ready, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null);
 
     Chain fromChain = new Chain();
     fromChain.setId(BigInteger.valueOf(12L));
-    fromChain.setStartAtTimestamp(Timestamp.valueOf("2014-08-12 12:17:02.527142"));
+    fromChain.setStartAtInstant(Instant.parse("2014-08-12T12:17:02.527142Z"));
     fromChain.setStopAt(null);
-    Segment result = testDAO.buildNextSegmentOrComplete(access, fromChain, Timestamp.valueOf("2014-08-12 14:03:38.000001"), Timestamp.valueOf("2014-08-12 13:53:38.000001"));
+    Segment result = testDAO.buildNextSegmentOrComplete(access, fromChain, Instant.parse("2014-08-12T14:03:38.000001Z"), Instant.parse("2014-08-12T13:53:38.000001Z"));
 
     assertNotNull(result);
     assertEquals(BigInteger.valueOf(12L), result.getChainId());
     assertEquals(BigInteger.valueOf(0L), result.getOffset());
-    assertEquals(Timestamp.valueOf("2014-08-12 12:17:02.527142"), result.getBeginAt());
+    assertEquals("2014-08-12T12:17:02.527142Z", result.getBeginAt().toString());
   }
 
   @Test
@@ -1205,7 +1205,7 @@ public class ChainIT {
 
   @Test
   public void erase_inDraftState() throws Exception {
-    IntegrationTestEntity.insertChain(3, 1, "bucket", ChainType.Production, ChainState.Draft, Timestamp.valueOf("2015-05-10 12:17:02.527142"), Timestamp.valueOf("2015-06-09 12:17:01.047563"), null);
+    IntegrationTestEntity.insertChain(3, 1, "bucket", ChainType.Production, ChainState.Draft, Instant.parse("2015-05-10T12:17:02.527142Z"), Instant.parse("2015-06-09T12:17:01.047563Z"), null);
     Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
@@ -1219,7 +1219,7 @@ public class ChainIT {
 
   @Test
   public void erase_inCompleteState() throws Exception {
-    IntegrationTestEntity.insertChain(3, 1, "bucket", ChainType.Production, ChainState.Complete, Timestamp.valueOf("2015-05-10 12:17:02.527142"), Timestamp.valueOf("2015-06-09 12:17:01.047563"), null);
+    IntegrationTestEntity.insertChain(3, 1, "bucket", ChainType.Production, ChainState.Complete, Instant.parse("2015-05-10T12:17:02.527142Z"), Instant.parse("2015-06-09T12:17:01.047563Z"), null);
     Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
@@ -1236,7 +1236,7 @@ public class ChainIT {
    */
   @Test
   public void erase_removesEmbedKey() throws Exception {
-    IntegrationTestEntity.insertChain(3, 1, "bucket", ChainType.Production, ChainState.Complete, Timestamp.valueOf("2015-05-10 12:17:02.527142"), Timestamp.valueOf("2015-06-09 12:17:01.047563"), "play_me");
+    IntegrationTestEntity.insertChain(3, 1, "bucket", ChainType.Production, ChainState.Complete, Instant.parse("2015-05-10T12:17:02.527142Z"), Instant.parse("2015-06-09T12:17:01.047563Z"), "play_me");
     Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
@@ -1251,7 +1251,7 @@ public class ChainIT {
 
   @Test
   public void erase_inFailedState() throws Exception {
-    IntegrationTestEntity.insertChain(3, 1, "bucket", ChainType.Production, ChainState.Failed, Timestamp.valueOf("2015-05-10 12:17:02.527142"), Timestamp.valueOf("2015-06-09 12:17:01.047563"), null);
+    IntegrationTestEntity.insertChain(3, 1, "bucket", ChainType.Production, ChainState.Failed, Instant.parse("2015-05-10T12:17:02.527142Z"), Instant.parse("2015-06-09T12:17:01.047563Z"), null);
     Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
@@ -1265,7 +1265,7 @@ public class ChainIT {
 
   @Test
   public void erase_failsInFabricateState() throws Exception {
-    IntegrationTestEntity.insertChain(3, 1, "bucket", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2015-05-10 12:17:02.527142"), Timestamp.valueOf("2015-06-09 12:17:01.047563"), null);
+    IntegrationTestEntity.insertChain(3, 1, "bucket", ChainType.Production, ChainState.Fabricate, Instant.parse("2015-05-10T12:17:02.527142Z"), Instant.parse("2015-06-09T12:17:01.047563Z"), null);
     Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));
@@ -1278,7 +1278,7 @@ public class ChainIT {
 
   @Test
   public void erase_failsInReadyState() throws Exception {
-    IntegrationTestEntity.insertChain(3, 1, "bucket", ChainType.Production, ChainState.Ready, Timestamp.valueOf("2015-05-10 12:17:02.527142"), Timestamp.valueOf("2015-06-09 12:17:01.047563"), null);
+    IntegrationTestEntity.insertChain(3, 1, "bucket", ChainType.Production, ChainState.Ready, Instant.parse("2015-05-10T12:17:02.527142Z"), Instant.parse("2015-06-09T12:17:01.047563Z"), null);
     Access access = new Access(ImmutableMap.of(
       "roles", "Admin"
     ));

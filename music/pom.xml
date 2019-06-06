@@ -26,6 +26,8 @@
     <maven.compiler.version>2.5.1</maven.compiler.version>
     <maven.compiler.source>11</maven.compiler.source>
     <maven.compiler.target>11</maven.compiler.target>
+    <guice.version>4.0</guice.version>
+    <guava.version>27.1-jre</guava.version>
   </properties>
 
   <!-- deps -->
@@ -38,25 +40,25 @@
       <version>20160810</version>
     </dependency>
 
-    <!-- injection: https://mvnrepository.com/artifact/com.google.inject/guice -->
+    <!-- https://mvnrepository.com/artifact/com.google.inject/guice -->
     <dependency>
       <groupId>com.google.inject</groupId>
       <artifactId>guice</artifactId>
-      <version>4.0</version>
+      <version>${guice.version}</version>
     </dependency>
 
     <!-- https://mvnrepository.com/artifact/com.google.inject.extensions/guice-assistedinject -->
     <dependency>
       <groupId>com.google.inject.extensions</groupId>
       <artifactId>guice-assistedinject</artifactId>
-      <version>4.0</version>
+      <version>${guice.version}</version>
     </dependency>
 
     <!-- https://mvnrepository.com/artifact/com.google.guava/guava -->
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
-      <version>27.1-jre</version>
+      <version>${guava.version}</version>
     </dependency>
 
     <!-- currently used only in tests: https://mvnrepository.com/artifact/org.yaml/snakeyaml -->

@@ -38,8 +38,8 @@ public class UserSerializationTest {
       .setAvatarUrl("http://pictures.com/avatar.jpg")
       .setEmail("my@email.com")
       .setName("Joe");
-    subject.setCreatedAt("2014-09-11 12:14:00.00");
-    subject.setUpdatedAt("2014-09-11 12:15:00.00");
+    subject.setCreatedAt("2014-09-11T12:14:00.00Z");
+    subject.setUpdatedAt("2014-09-11T12:15:00.00Z");
     subjectJson = "{\"id\":7,\"name\":\"Joe\",\"avatarUrl\":\"http://pictures.com/avatar.jpg\",\"email\":\"my@email.com\",\"roles\":\"User,Admin\"}";
   }
 

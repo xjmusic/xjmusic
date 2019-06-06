@@ -28,7 +28,7 @@ import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigInteger;
-import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -824,7 +824,7 @@ public class PatternIT {
       "roles", "Artist",
       "accounts", "1"
     ));
-    IntegrationTestEntity.insertSequencePattern(1901, 1, 1, 0, Timestamp.valueOf("2017-02-14 12:01:00.000001"));
+    IntegrationTestEntity.insertSequencePattern(1901, 1, 1, 0, Instant.parse("2017-02-14T12:01:00.000001Z"));
     IntegrationTestEntity.insertSequencePatternMeme(1901, "mashup");
     IntegrationTestEntity.insertPatternChord(1, 0, "G");
     IntegrationTestEntity.insertPatternChord(1, 2, "D");

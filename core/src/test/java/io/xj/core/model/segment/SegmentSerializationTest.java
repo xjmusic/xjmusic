@@ -51,16 +51,16 @@ public class SegmentSerializationTest {
       .setChainId(BigInteger.valueOf(5))
     .setOffset(BigInteger.valueOf(25))
       .setStateEnum(SegmentState.Dubbed)
-    .setBeginAt("2014-08-12 12:17:02.52714")
-      .setEndAt("2014-09-11 12:17:01.0475")
+    .setBeginAt("2014-08-12T12:17:02.52714Z")
+      .setEndAt("2014-09-11T12:17:01.0475Z")
     .setTotal(16)
       .setDensity(0.85)
     .setKey("G Major")
       .setTempo(120.0)
       .setWaveformKey("a1b2c3d4e5g6.ogg");
-    segment.setCreatedAt("2014-09-11 12:14:00.00");
-    segment.setUpdatedAt("2014-09-11 12:15:00.00");
-    subjectJson = "{\"id\":7,\"chainId\":5,\"offset\":25,\"state\":\"Dubbed\",\"beginAt\":\"2014-08-12 12:17:02.52714Z\",\"endAt\":\"2014-09-11 12:17:01.0475Z\",\"total\":16,\"density\":0.85,\"key\":\"G Major\",\"tempo\":120.0,\"createdAt\":\"2014-09-11 12:14:00.0Z\",\"updatedAt\":\"2014-09-11 12:15:00.0Z\",\"waveformKey\":\"a1b2c3d4e5g6.ogg\"}";
+    segment.setCreatedAt("2014-09-11T12:14:00.00Z");
+    segment.setUpdatedAt("2014-09-11T12:15:00.00Z");
+    subjectJson = "{\"id\":7,\"chainId\":5,\"offset\":25,\"state\":\"Dubbed\",\"beginAt\":\"2014-08-12T12:17:02.527140Z\",\"endAt\":\"2014-09-11T12:17:01.047500Z\",\"total\":16,\"density\":0.85,\"key\":\"G Major\",\"tempo\":120.0,\"createdAt\":\"2014-09-11T12:14:00Z\",\"updatedAt\":\"2014-09-11T12:15:00Z\",\"waveformKey\":\"a1b2c3d4e5g6.ogg\"}";
   }
 
   @Test

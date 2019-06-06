@@ -117,9 +117,9 @@ public class CoreModule extends AbstractModule {
     bindApp();
     bindDAO();
     bindExternal();
+    bindSegmentFactory();
     bindFabricatorFactory();
     bindIngestFactory();
-    bindSegmentFactory();
     bindTimeComputerFactory();
     install(new MixerModule());
   }

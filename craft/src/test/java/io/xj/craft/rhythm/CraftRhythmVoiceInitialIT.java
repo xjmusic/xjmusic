@@ -30,7 +30,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import java.math.BigInteger;
-import java.sql.Timestamp;
+import java.time.Instant;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -58,7 +58,7 @@ public class CraftRhythmVoiceInitialIT extends BaseIT {
     insertLibraryB3();
 
     // Chain "Print #2" has 1 initial segment in crafting state - Foundation is complete
-    IntegrationTestEntity.insertChain(2, 1, "Print #2", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, null);
+    IntegrationTestEntity.insertChain(2, 1, "Print #2", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null);
 
     // bind the library to the chain
     IntegrationTestEntity.insertChainLibrary(2, 2);
@@ -113,8 +113,8 @@ public class CraftRhythmVoiceInitialIT extends BaseIT {
       .setChainId(BigInteger.valueOf(2))
       .setOffset(BigInteger.valueOf(3))
       .setStateEnum(SegmentState.Crafting)
-      .setBeginAt("2017-02-14 12:01:00.000001")
-      .setEndAt("2017-02-14 12:01:07.384616")
+      .setBeginAt("2017-02-14T12:01:00.000001Z")
+      .setEndAt("2017-02-14T12:01:07.384616Z")
       .setKey("D Major")
       .setTotal(32)
       .setDensity(0.55)

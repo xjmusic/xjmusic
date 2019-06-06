@@ -11,22 +11,50 @@ body {
     background-color: lighten(gray, 20%);
     color: darken(gray, 20%);
   }
+
   &.state-suspend {
     background-color: lighten(gray, 40%);
     color: darken(gray, 25%);
     cursor: pointer;
   }
+
   &.state-syncing {
     background-color: lighten(yellow, 20%);
     color: darken(yellow, 20%);
   }
+
   &.state-playing {
     background-color: lighten(green, 50%);
     color: darken(green, 5%);
   }
+
   &.unsupported-browser {
     background-color: lighten(red, 45%);
     color: darken(red, 5%);
+  }
+}
+
+div#debug-container {
+  div#messages {
+    background: #101010;
+    font-family: monospace;
+    font-size: 8pt;
+
+    .debug {
+      color: gray;
+    }
+
+    .info {
+      color: white;
+    }
+
+    .warn {
+      color: yellow;
+    }
+
+    .error {
+      color: red;
+    }
   }
 }
 
@@ -67,6 +95,7 @@ table.status {
   vertical-align: middle;
   text-align: center;
   font-size: 1rem;
+
   small {
     font-weight: 200;
     font-size: 0.8rem;

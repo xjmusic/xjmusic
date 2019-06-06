@@ -1,11 +1,10 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 package io.xj.core.model.chain_config;
 
+import com.google.common.collect.ImmutableMap;
 import io.xj.core.exception.CoreException;
 import io.xj.core.transport.CSV;
 import io.xj.core.util.Text;
-
-import com.google.common.collect.ImmutableMap;
 
 import javax.sound.sampled.AudioFormat;
 import java.util.List;

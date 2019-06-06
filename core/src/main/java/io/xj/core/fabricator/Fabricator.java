@@ -26,7 +26,6 @@ import io.xj.music.Note;
 
 import javax.sound.sampled.AudioFormat;
 import java.math.BigInteger;
-import java.sql.Timestamp;
 import java.time.Duration;
 import java.util.Collection;
 import java.util.Map;
@@ -86,14 +85,14 @@ public interface Fabricator {
    Compute using an integral
    the seconds from start for any given position in beats
    Velocity of Segment meter (beats per minute) increases linearly from the beginning of the Segment (at the previous Segment's tempo) to the end of the Segment (arriving at the current Segment's tempo, only at its end)
-
+   <p>
    [#166370833] Segment should *never* be fabricated longer than its total beats.
    [#153542275] Segment wherein tempo changes expect perfectly smooth sound from previous segment through to following segment
 
    @param p position in beats
    @return seconds from start
    */
-    Double computeSecondsAtPosition(double p) throws CoreException;
+  Double computeSecondsAtPosition(double p) throws CoreException;
 
   /**
    FUTURE: [#165815496] Chain fabrication access control
@@ -101,7 +100,7 @@ public interface Fabricator {
    @return Access control
    @throws CoreException on failure to establish access
    */
-    Access getAccess() throws CoreException;
+  Access getAccess() throws CoreException;
 
   /**
    Get all entities bound to chain
@@ -109,7 +108,7 @@ public interface Fabricator {
    @return collection of entities
    @throws CoreException on failure
    */
-    Collection<Entity> getAllAvailableEntities() throws CoreException;
+  Collection<Entity> getAllAvailableEntities() throws CoreException;
 
   /**
    Chain configurations
@@ -117,7 +116,7 @@ public interface Fabricator {
 
    @return map of chain config type to value
    */
-    Map<ChainConfigType, ChainConfig> getAllChainConfigs();
+  Map<ChainConfigType, ChainConfig> getAllChainConfigs();
 
   /**
    id of all audio picked for current segment
@@ -142,14 +141,14 @@ public interface Fabricator {
    @param chainConfigType of config to fetch
    @return chain config value
    */
-    ChainConfig getChainConfig(ChainConfigType chainConfigType) throws CoreException;
+  ChainConfig getChainConfig(ChainConfigType chainConfigType) throws CoreException;
 
   /**
    Chain id, from segment
 
    @return chain id
    */
-    BigInteger getChainId();
+  BigInteger getChainId();
 
   /**
    Get current Chord for any position in Segment.
@@ -166,7 +165,7 @@ public interface Fabricator {
    @return macro-type segment choice
    @throws CoreException on failure
    */
-    Choice getCurrentMacroChoice() throws CoreException;
+  Choice getCurrentMacroChoice() throws CoreException;
 
   /**
    macro-type sequence pattern in current segment
@@ -174,7 +173,7 @@ public interface Fabricator {
    @return pattern
    @throws CoreException on failure
    */
-    Pattern getCurrentMacroOffset() throws CoreException;
+  Pattern getCurrentMacroOffset() throws CoreException;
 
   /**
    fetch the main-type choice for the current segment in the chain
@@ -182,7 +181,7 @@ public interface Fabricator {
    @return main-type segment choice
    @throws CoreException on failure
    */
-    Choice getCurrentMainChoice() throws CoreException;
+  Choice getCurrentMainChoice() throws CoreException;
 
   /**
    fetch the rhythm-type choice for the current segment in the chain
@@ -190,7 +189,7 @@ public interface Fabricator {
    @return rhythm-type segment choice
    @throws CoreException on failure
    */
-    Choice getCurrentRhythmChoice() throws CoreException;
+  Choice getCurrentRhythmChoice() throws CoreException;
 
   /**
    @return Seconds elapsed since content was instantiated
@@ -205,7 +204,7 @@ public interface Fabricator {
 
    @return Ingest
    */
-    Ingest getSourceMaterial() throws CoreException;
+  Ingest getSourceMaterial() throws CoreException;
 
   /**
    Get max available sequence pattern offset for a given choice
@@ -214,7 +213,7 @@ public interface Fabricator {
    @return max available sequence pattern offset
    @throws CoreException on attempt to get max available SequencePattern offset of choice with no SequencePattern
    */
-    BigInteger getMaxAvailableSequencePatternOffset(Choice choice) throws CoreException;
+  BigInteger getMaxAvailableSequencePatternOffset(Choice choice) throws CoreException;
 
   /**
    Compute the pattern-meme constellations of any previous segments which selected the same main sequence
@@ -223,7 +222,7 @@ public interface Fabricator {
 
    @return map of all previous segment meme constellations (as keys) to a collection of arrangements made
    */
-    Map<String, Collection<Arrangement>> getMemeConstellationArrangementsOfPreviousSegment() throws CoreException;
+  Map<String, Collection<Arrangement>> getMemeConstellationArrangementsOfPreviousSegment() throws CoreException;
 
   /**
    Compute the pattern-meme constellations of any previous segments which selected the same main sequence
@@ -232,7 +231,7 @@ public interface Fabricator {
 
    @return map of all previous segment meme constellations (as keys) to a collection of choices made
    */
-    Map<String, Collection<Choice>> getMemeConstellationChoicesOfPreviousSegment() throws CoreException;
+  Map<String, Collection<Choice>> getMemeConstellationChoicesOfPreviousSegment() throws CoreException;
 
   /**
    Get any sequence by id
@@ -242,7 +241,7 @@ public interface Fabricator {
 
    @return map of all previous segment meme constellations (as keys) to a collection of picks extracted from their content JSON
    */
-    Map<String, Collection<Pick>> getMemeConstellationPicksOfPreviousSegment() throws CoreException;
+  Map<String, Collection<Pick>> getMemeConstellationPicksOfPreviousSegment() throws CoreException;
 
   /**
    Get meme isometry for the current offset in this macro-choice
@@ -250,7 +249,7 @@ public interface Fabricator {
    @return MemeIsometry for macro-choice
    @throws CoreException on failure
    */
-    MemeIsometry getMemeIsometryOfCurrentMacro() throws CoreException;
+  MemeIsometry getMemeIsometryOfCurrentMacro() throws CoreException;
 
   /**
    Get meme isometry for the next offset in the previous segment's macro-choice
@@ -258,7 +257,7 @@ public interface Fabricator {
    @return MemeIsometry for previous macro-choice
    @throws CoreException on failure
    */
-    MemeIsometry getMemeIsometryOfNextPatternInPreviousMacro() throws CoreException;
+  MemeIsometry getMemeIsometryOfNextPatternInPreviousMacro() throws CoreException;
 
   /**
    Get meme isometry for the current segment
@@ -266,7 +265,7 @@ public interface Fabricator {
    @return MemeIsometry for current segment
    @throws CoreException on failure
    */
-    MemeIsometry getMemeIsometryOfSegment() throws CoreException;
+  MemeIsometry getMemeIsometryOfSegment() throws CoreException;
 
   /**
    Get all memes for a given Choice id
@@ -276,7 +275,7 @@ public interface Fabricator {
    @return memes for choice
    @throws CoreException on failure
    */
-    Collection<Meme> getMemesOfChoice(Choice choice) throws CoreException;
+  Collection<Meme> getMemesOfChoice(Choice choice) throws CoreException;
 
   /**
    Given a Choice having a SequencePattern,
@@ -287,7 +286,7 @@ public interface Fabricator {
    @return next available SequencePattern offset of the chosen sequence, or zero (if past the end of the available SequencePattern offsets)
    @throws CoreException on attempt to get next SequencePattern offset of choice with no SequencePattern
    */
-    BigInteger getNextSequencePatternOffset(Choice choice) throws CoreException;
+  BigInteger getNextSequencePatternOffset(Choice choice) throws CoreException;
 
   /**
    Note, for any pitch in Hz
@@ -301,14 +300,14 @@ public interface Fabricator {
 
    @return output audio format
    */
-    AudioFormat getOutputAudioFormat() throws CoreException;
+  AudioFormat getOutputAudioFormat() throws CoreException;
 
   /**
    Output file path
 
    @return output file path
    */
-    String getOutputFilePath() throws CoreException;
+  String getOutputFilePath() throws CoreException;
 
   /**
    Pitch for any Note, in Hz
@@ -318,7 +317,7 @@ public interface Fabricator {
    @param note to get pitch for
    @return pitch of note, in Hz
    */
-    Double getPitch(Note note);
+  Double getPitch(Note note);
 
   /**
    Get the preset choice arrangements, stored after scanning previous segments choosing same sequences
@@ -334,7 +333,7 @@ public interface Fabricator {
    @return macro-type segment choice, null if none found
    @throws CoreException on failure
    */
-    Choice getPreviousMacroChoice() throws CoreException;
+  Choice getPreviousMacroChoice() throws CoreException;
 
   /**
    macro-type sequence pattern in previous segment
@@ -342,7 +341,7 @@ public interface Fabricator {
    @return pattern, null if none exists
    @throws CoreException on failure
    */
-    Pattern getPreviousMacroNextOffset() throws CoreException;
+  Pattern getPreviousMacroNextOffset() throws CoreException;
 
   /**
    fetch the main-type choice for the previous segment in the chain
@@ -350,14 +349,14 @@ public interface Fabricator {
    @return main-type segment choice, null if none found
    @throws CoreException on failure
    */
-    Choice getPreviousMainChoice() throws CoreException;
+  Choice getPreviousMainChoice() throws CoreException;
 
   /**
    fetch the previous segment in the chain
 
    @return previousSegment
    */
-    Segment getPreviousSegment() throws CoreException;
+  Segment getPreviousSegment() throws CoreException;
 
   /**
    Read all previous segments with the same main sequence as this one
@@ -365,7 +364,7 @@ public interface Fabricator {
 
    @return collection of segments
    */
-    Collection<Segment> getPreviousSegmentsWithSameMainSequence();
+  Collection<Segment> getPreviousSegmentsWithSameMainSequence();
 
   /**
    [#165954619]
@@ -377,7 +376,7 @@ public interface Fabricator {
    @return Pattern model
    @throws CoreException on failure
    */
-    Pattern getRandomPatternByType(BigInteger sequenceId, PatternType patternType) throws CoreException;
+  Pattern getRandomPatternByType(BigInteger sequenceId, PatternType patternType) throws CoreException;
 
   /**
    [#165954619]
@@ -391,7 +390,7 @@ public interface Fabricator {
    @return SequencePattern model
    @throws CoreException on failure
    */
-    SequencePattern getRandomSequencePatternAtOffset(BigInteger sequenceId, BigInteger sequencePatternOffset) throws CoreException;
+  SequencePattern getRandomSequencePatternAtOffset(BigInteger sequenceId, BigInteger sequencePatternOffset) throws CoreException;
 
   /**
    The segment being fabricated
@@ -416,7 +415,7 @@ public interface Fabricator {
    @return Segment
    @throws CoreException on failure
    */
-    Segment getSegmentByOffset(BigInteger chainId, BigInteger offset) throws CoreException;
+  Segment getSegmentByOffset(BigInteger chainId, BigInteger offset) throws CoreException;
 
   /**
    Total length of segment from beginning to end
@@ -424,7 +423,7 @@ public interface Fabricator {
    @return total length
    @throws CoreException if unable to compute
    */
-    Duration getSegmentTotalLength() throws CoreException;
+  Duration getSegmentTotalLength() throws CoreException;
 
   /**
    [#165954619] Get the sequence for a Choice either directly (rhythm- and detail-type sequences), or by sequence-pattern (macro- or main-type sequences)
@@ -433,7 +432,7 @@ public interface Fabricator {
    @return Sequence for choice
    @throws CoreException on failure
    */
-    Sequence getSequenceOfChoice(Choice choice) throws CoreException;
+  Sequence getSequenceOfChoice(Choice choice) throws CoreException;
 
   /**
    Get the sequence pattern offset of a given Choice
@@ -442,14 +441,14 @@ public interface Fabricator {
    @return sequence pattern offset
    @throws CoreException on attempt to get next SequencePattern offset of choice with no SequencePattern
    */
-    BigInteger getSequencePatternOffsetForChoice(Choice choice) throws CoreException;
+  BigInteger getSequencePatternOffsetForChoice(Choice choice) throws CoreException;
 
   /**
    Determine type of content, e.g. initial segment in chain, or next macro-sequence
 
    @return macro-craft type
    */
-    FabricatorType getType() throws CoreException;
+  FabricatorType getType() throws CoreException;
 
   /**
    Whether the current Segment Choice has one or more sequence pattern offsets
@@ -459,7 +458,7 @@ public interface Fabricator {
    @return true if it has at least one more sequence pattern offset
    @throws CoreException on attempt to get next SequencePattern offset of choice with no SequencePattern
    */
-    boolean hasOneMoreSequencePatternOffset(Choice choice) throws CoreException;
+  boolean hasOneMoreSequencePatternOffset(Choice choice) throws CoreException;
 
   /**
    Whether the current Segment Choice has two or more sequence pattern offsets
@@ -469,14 +468,14 @@ public interface Fabricator {
    @return true if it has at least two more sequence pattern offsets
    @throws CoreException on attempt to get next SequencePattern offset of choice with no SequencePattern
    */
-    boolean hasTwoMoreSequencePatternOffsets(Choice choice) throws CoreException;
+  boolean hasTwoMoreSequencePatternOffsets(Choice choice) throws CoreException;
 
   /**
    is initial segment?
 
    @return whether this is the initial segment in a chain
    */
-    Boolean isInitialSegment();
+  Boolean isInitialSegment();
 
   /**
    Put a key-value pair into the report
@@ -488,7 +487,6 @@ public interface Fabricator {
   void putReport(String key, Object value);
 
   /**
-
    Set the cached contents of the choice arrangements array@param choice     to set content for
 
    @param arrangements to return for content choice arrangements

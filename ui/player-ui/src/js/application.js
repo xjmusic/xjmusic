@@ -1,6 +1,7 @@
 // Copyright (c) 2018, XJ Music Inc. (https://xj.io) All Rights Reserved.
 
 import {Player} from "player";
+import {DOM} from "dom";
 
 /**
  Browser constants
@@ -13,13 +14,6 @@ const FIREFOX = 'Firefox';
 const OPERA = 'Opera';
 const SAFARI = 'Safari';
 const UNKNOWN = 'Unknown';
-
-/**
- * HTML and class to add to body of page when browser is unsupported
- */
-const UNSUPPORTED_BROWSER_BODY_CLASS = 'unsupported-browser';
-const UNSUPPORTED_BROWSER_PRE_HTML = '<strong>';
-const UNSUPPORTED_BROWSER_POST_HTML = '</strong><br/><small>web browser unsupported!</small>';
 
 /**
  Application
@@ -53,10 +47,10 @@ export class Application {
     switch (this.browser) {
       case EXPLORER:
       case EXPLORER_6:
-        let body = $('body');
-        let statusText = $('div#status-text');
-            body.addClass(UNSUPPORTED_BROWSER_BODY_CLASS);
-        statusText.html(UNSUPPORTED_BROWSER_PRE_HTML + this.browser + UNSUPPORTED_BROWSER_POST_HTML);
+        let bodyEl = document.querySelector('bodyEl');
+        let statusEl = document.getElementById('status-text');
+        DOM.addClass(bodyEl, 'unsupported-browser');
+        DOM.setHTML(statusEl, `<strong>${this.browser}</strong><br/><small>web browser unsupported!</small>`);
         console.error(this.browser, 'web browser is not supported');
         break;
       default:
@@ -75,8 +69,7 @@ export class Application {
   }
 
   /**
-   * XSS attack proof.
-   * @see https://stackoverflow.com/questions/1822598/getting-url-hash-location-and-using-it-in-jquery
+   * XSS attack protection
    * @param {String} url of application, including hash of options key-values
    * @returns {Object} key-values of options found after hash in URL
    */
@@ -100,8 +93,8 @@ export class Application {
    * @returns {string} constant of detected browser
    */
   static detectBrowser() {
-    if (!!navigator.userAgent.match(/Version\/[\d\.]+.*Safari/)) return SAFARI;
-    if (navigator.appName == 'Microsoft Internet Explorer') return EXPLORER;
+    if (!!navigator.userAgent.match(/Version\/[\d.]+.*Safari/)) return SAFARI;
+    if (navigator.appName === 'Microsoft Internet Explorer') return EXPLORER;
     if (navigator.userAgent.toLowerCase().indexOf('firefox') > -1) return FIREFOX;
     if (navigator.userAgent.match(/Opera\/9.80/i)) return OPERA;
     if (!!window.chrome) return CHROME;

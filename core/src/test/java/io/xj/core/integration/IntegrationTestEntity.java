@@ -29,9 +29,9 @@ import io.xj.core.model.pattern.PatternType;
 import io.xj.core.model.pattern_chord.PatternChord;
 import io.xj.core.model.pattern_event.PatternEvent;
 import io.xj.core.model.segment.Segment;
-import io.xj.core.model.segment.impl.SegmentContent;
 import io.xj.core.model.segment.SegmentFactory;
 import io.xj.core.model.segment.SegmentState;
+import io.xj.core.model.segment.impl.SegmentContent;
 import io.xj.core.model.sequence.Sequence;
 import io.xj.core.model.sequence.SequenceState;
 import io.xj.core.model.sequence.SequenceType;
@@ -73,7 +73,6 @@ import io.xj.core.tables.records.UserRoleRecord;
 import io.xj.core.tables.records.VoiceRecord;
 import io.xj.core.transport.GsonProvider;
 import io.xj.core.util.Text;
-import io.xj.core.util.TimestampUTC;
 import org.jooq.DSLContext;
 import org.jooq.Result;
 import org.jooq.types.UInteger;
@@ -725,24 +724,24 @@ public enum IntegrationTestEntity {
   }
 
   public static void insertLibrary(long id, long accountId, String name) {
-    insertLibrary(id, accountId, name, Timestamp.from(Instant.now()));
+    insertLibrary(id, accountId, name, Instant.now());
   }
 
-  public static void insertLibrary(long id, long accountId, String name, Timestamp createdUpdatedAt) {
+  public static void insertLibrary(long id, long accountId, String name, Instant createdUpdatedAt) {
     LibraryRecord record = IntegrationTestService.getDb().newRecord(LIBRARY);
     record.setId(ULong.valueOf(id));
     record.setAccountId(ULong.valueOf(accountId));
     record.setName(name);
-    record.setCreatedAt(createdUpdatedAt);
-    record.setUpdatedAt(createdUpdatedAt);
+    record.setCreatedAt(Timestamp.from(createdUpdatedAt));
+    record.setUpdatedAt(Timestamp.from(createdUpdatedAt));
     record.store();
   }
 
   public static Sequence insertSequence(long id, long userId, long libraryId, SequenceType type, SequenceState state, String name, double density, String key, double tempo) {
-    return insertSequence(id, userId, libraryId, type, state, name, density, key, tempo, Timestamp.from(Instant.now()));
+    return insertSequence(id, userId, libraryId, type, state, name, density, key, tempo, Instant.now());
   }
 
-  public static Sequence insertSequence(long id, long userId, long libraryId, SequenceType type, SequenceState state, String name, double density, String key, double tempo, Timestamp createdUpdatedAt) {
+  public static Sequence insertSequence(long id, long userId, long libraryId, SequenceType type, SequenceState state, String name, double density, String key, double tempo, Instant createdUpdatedAt) {
     SequenceRecord record = IntegrationTestService.getDb().newRecord(SEQUENCE);
     record.setId(ULong.valueOf(id));
     record.setUserId(ULong.valueOf(userId));
@@ -752,8 +751,8 @@ public enum IntegrationTestEntity {
     record.setDensity(density);
     record.setKey(key);
     record.setTempo(tempo);
-    record.setCreatedAt(createdUpdatedAt);
-    record.setUpdatedAt(createdUpdatedAt);
+    record.setCreatedAt(Timestamp.from(createdUpdatedAt));
+    record.setUpdatedAt(Timestamp.from(createdUpdatedAt));
     record.setState(state.toString());
     record.store();
 
@@ -770,24 +769,24 @@ public enum IntegrationTestEntity {
   }
 
   public static void insertSequenceMeme(long sequenceId, String name) {
-    insertSequenceMeme(sequenceId, name, Timestamp.from(Instant.now()));
+    insertSequenceMeme(sequenceId, name, Instant.now());
   }
 
-  public static void insertSequenceMeme(long sequenceId, String name, Timestamp createdUpdatedAt) {
+  public static void insertSequenceMeme(long sequenceId, String name, Instant createdUpdatedAt) {
     SequenceMemeRecord record = IntegrationTestService.getDb().newRecord(SEQUENCE_MEME);
     record.setId(ULong.valueOf(nextUniqueId(SequenceMeme.class, sequenceId)));
     record.setSequenceId(ULong.valueOf(sequenceId));
     record.setName(name);
-    record.setCreatedAt(createdUpdatedAt);
-    record.setUpdatedAt(createdUpdatedAt);
+    record.setCreatedAt(Timestamp.from(createdUpdatedAt));
+    record.setUpdatedAt(Timestamp.from(createdUpdatedAt));
     record.store();
   }
 
   public static void insertPattern(long id, long sequenceId, PatternType type, PatternState state, long total, String name, double density, String key, double tempo) {
-    insertPattern(id, sequenceId, type, state, total, name, density, key, tempo, Timestamp.from(Instant.now()), 4, 4, 0);
+    insertPattern(id, sequenceId, type, state, total, name, density, key, tempo, Instant.now(), 4, 4, 0);
   }
 
-  public static void insertPattern(long id, long sequenceId, PatternType type, PatternState state, long total, String name, double density, String key, double tempo, Timestamp createdUpdatedAt, int meterSuper, int meterSub, int meterSwing) {
+  public static void insertPattern(long id, long sequenceId, PatternType type, PatternState state, long total, String name, double density, String key, double tempo, Instant createdUpdatedAt, int meterSuper, int meterSub, int meterSwing) {
     PatternRecord record = IntegrationTestService.getDb().newRecord(PATTERN);
     record.setId(ULong.valueOf(id));
     record.setSequenceId(ULong.valueOf(sequenceId));
@@ -798,8 +797,8 @@ public enum IntegrationTestEntity {
     record.setTempo(tempo);
     record.setType(type.toString());
     record.setState(state.toString());
-    record.setCreatedAt(createdUpdatedAt);
-    record.setUpdatedAt(createdUpdatedAt);
+    record.setCreatedAt(Timestamp.from(createdUpdatedAt));
+    record.setUpdatedAt(Timestamp.from(createdUpdatedAt));
     record.setMeterSuper(meterSuper);
     record.setMeterSub(meterSub);
     record.setMeterSwing(meterSwing);
@@ -807,79 +806,79 @@ public enum IntegrationTestEntity {
   }
 
   public static void insertSequencePattern(long id, long sequenceId, long patternId, long offset) {
-    insertSequencePattern(id, sequenceId, patternId, offset, TimestampUTC.now());
+    insertSequencePattern(id, sequenceId, patternId, offset, Instant.now());
   }
 
-  public static void insertSequencePattern(long id, long sequenceId, long patternId, long offset, Timestamp createdUpdatedAt) {
+  public static void insertSequencePattern(long id, long sequenceId, long patternId, long offset, Instant createdUpdatedAt) {
     SequencePatternRecord record = IntegrationTestService.getDb().newRecord(SEQUENCE_PATTERN);
     record.setId(ULong.valueOf(id));
     record.setSequenceId(ULong.valueOf(sequenceId));
     record.setPatternId(ULong.valueOf(patternId));
     record.setOffset(ULong.valueOf(offset));
-    record.setCreatedAt(createdUpdatedAt);
-    record.setUpdatedAt(createdUpdatedAt);
+    record.setCreatedAt(Timestamp.from(createdUpdatedAt));
+    record.setUpdatedAt(Timestamp.from(createdUpdatedAt));
     record.store();
   }
 
   public static void insertSequencePatternMeme(long sequencePatternId, String name) {
-    insertSequencePatternMeme(sequencePatternId, name, Timestamp.from(Instant.now()));
+    insertSequencePatternMeme(sequencePatternId, name, Instant.now());
   }
 
   public static void insertSequencePatternAndMeme(long sequenceId, long patternId, long offset, String name) {
-    insertSequencePatternAndMeme(sequenceId, patternId, offset, name, Timestamp.from(Instant.now()));
+    insertSequencePatternAndMeme(sequenceId, patternId, offset, name, Instant.now());
   }
 
-  public static void insertSequencePatternMeme(long sequencePatternId, String name, Timestamp createdUpdatedAt) {
+  public static void insertSequencePatternMeme(long sequencePatternId, String name, Instant createdUpdatedAt) {
     SequencePatternMemeRecord record = IntegrationTestService.getDb().newRecord(SEQUENCE_PATTERN_MEME);
     record.setId(ULong.valueOf(nextUniqueId(SequencePatternMeme.class, sequencePatternId)));
     record.setSequencePatternId(ULong.valueOf(sequencePatternId));
     record.setName(name);
-    record.setCreatedAt(createdUpdatedAt);
-    record.setUpdatedAt(createdUpdatedAt);
+    record.setCreatedAt(Timestamp.from(createdUpdatedAt));
+    record.setUpdatedAt(Timestamp.from(createdUpdatedAt));
     record.store();
   }
 
-  public static void insertSequencePatternAndMeme(long sequenceId, long patternId, long offset, String name, Timestamp createdUpdatedAt) {
+  public static void insertSequencePatternAndMeme(long sequenceId, long patternId, long offset, String name, Instant createdUpdatedAt) {
     long sequencePatternId = nextUniqueId(SequencePatternMeme.class, sequenceId, patternId);
     insertSequencePattern(sequencePatternId, sequenceId, patternId, offset, createdUpdatedAt);
     insertSequencePatternMeme(sequencePatternId, name, createdUpdatedAt);
   }
 
   public static void insertPatternChord(long patternId, long position, String name) {
-    insertPatternChord(patternId, position, name, Timestamp.from(Instant.now()));
+    insertPatternChord(patternId, position, name, Instant.now());
   }
 
-  public static void insertPatternChord(long patternId, double position, String name, Timestamp createdUpdatedAt) {
+  public static void insertPatternChord(long patternId, double position, String name, Instant createdUpdatedAt) {
     PatternChordRecord record = IntegrationTestService.getDb().newRecord(PATTERN_CHORD);
     record.setId(ULong.valueOf(nextUniqueId(PatternChord.class, patternId)));
     record.setPatternId(ULong.valueOf(patternId));
     record.setPosition(position);
     record.setName(name);
-    record.setCreatedAt(createdUpdatedAt);
-    record.setUpdatedAt(createdUpdatedAt);
+    record.setCreatedAt(Timestamp.from(createdUpdatedAt));
+    record.setUpdatedAt(Timestamp.from(createdUpdatedAt));
     record.store();
   }
 
   public static void insertVoice(long id, long sequenceId, InstrumentType type, String description) {
-    insertVoice(id, sequenceId, type, description, Timestamp.from(Instant.now()));
+    insertVoice(id, sequenceId, type, description, Instant.now());
   }
 
-  public static void insertVoice(long id, long sequenceId, InstrumentType type, String description, Timestamp createdUpdatedAt) {
+  public static void insertVoice(long id, long sequenceId, InstrumentType type, String description, Instant createdUpdatedAt) {
     VoiceRecord record = IntegrationTestService.getDb().newRecord(VOICE);
     record.setId(ULong.valueOf(id));
     record.setSequenceId(ULong.valueOf(sequenceId));
     record.setType(type.toString());
     record.setDescription(description);
-    record.setCreatedAt(createdUpdatedAt);
-    record.setUpdatedAt(createdUpdatedAt);
+    record.setCreatedAt(Timestamp.from(createdUpdatedAt));
+    record.setUpdatedAt(Timestamp.from(createdUpdatedAt));
     record.store();
   }
 
   public static void insertPatternEvent(long patternId, long voiceId, double position, double duration, String inflection, String note, double tonality, double velocity) {
-    insertPatternEvent(patternId, voiceId, position, duration, inflection, note, tonality, velocity, Timestamp.from(Instant.now()));
+    insertPatternEvent(patternId, voiceId, position, duration, inflection, note, tonality, velocity, Instant.now());
   }
 
-  public static void insertPatternEvent(long patternId, long voiceId, double position, double duration, String inflection, String note, double tonality, double velocity, Timestamp createdUpdatedAt) {
+  public static void insertPatternEvent(long patternId, long voiceId, double position, double duration, String inflection, String note, double tonality, double velocity, Instant createdUpdatedAt) {
     PatternEventRecord record = IntegrationTestService.getDb().newRecord(PATTERN_EVENT);
     record.setId(ULong.valueOf(nextUniqueId(PatternEvent.class, patternId, voiceId)));
     record.setPatternId(ULong.valueOf(patternId));
@@ -890,16 +889,16 @@ public enum IntegrationTestEntity {
     record.setNote(note);
     record.setTonality(tonality);
     record.setVelocity(velocity);
-    record.setCreatedAt(createdUpdatedAt);
-    record.setUpdatedAt(createdUpdatedAt);
+    record.setCreatedAt(Timestamp.from(createdUpdatedAt));
+    record.setUpdatedAt(Timestamp.from(createdUpdatedAt));
     record.store();
   }
 
   public static void insertInstrument(long id, long libraryId, long userId, String description, InstrumentType type, double density) {
-    insertInstrument(id, libraryId, userId, description, type, density, Timestamp.from(Instant.now()));
+    insertInstrument(id, libraryId, userId, description, type, density, Instant.now());
   }
 
-  public static void insertInstrument(long id, long libraryId, long userId, String description, InstrumentType type, double density, Timestamp createdUpdatedAt) {
+  public static void insertInstrument(long id, long libraryId, long userId, String description, InstrumentType type, double density, Instant createdUpdatedAt) {
     InstrumentRecord record = IntegrationTestService.getDb().newRecord(INSTRUMENT);
     record.setId(ULong.valueOf(id));
     record.setUserId(ULong.valueOf(userId));
@@ -907,30 +906,30 @@ public enum IntegrationTestEntity {
     record.setType(type.toString());
     record.setDescription(description);
     record.setDensity(density);
-    record.setCreatedAt(createdUpdatedAt);
-    record.setUpdatedAt(createdUpdatedAt);
+    record.setCreatedAt(Timestamp.from(createdUpdatedAt));
+    record.setUpdatedAt(Timestamp.from(createdUpdatedAt));
     record.store();
   }
 
   public static void insertInstrumentMeme(long instrumentId, String name) {
-    insertInstrumentMeme(instrumentId, name, Timestamp.from(Instant.now()));
+    insertInstrumentMeme(instrumentId, name, Instant.now());
   }
 
-  public static void insertInstrumentMeme(long instrumentId, String name, Timestamp createdUpdatedAt) {
+  public static void insertInstrumentMeme(long instrumentId, String name, Instant createdUpdatedAt) {
     InstrumentMemeRecord record = IntegrationTestService.getDb().newRecord(INSTRUMENT_MEME);
     record.setId(ULong.valueOf(nextUniqueId(InstrumentMeme.class, instrumentId)));
     record.setInstrumentId(ULong.valueOf(instrumentId));
     record.setName(name);
-    record.setCreatedAt(createdUpdatedAt);
-    record.setUpdatedAt(createdUpdatedAt);
+    record.setCreatedAt(Timestamp.from(createdUpdatedAt));
+    record.setUpdatedAt(Timestamp.from(createdUpdatedAt));
     record.store();
   }
 
   public static void insertAudio(long id, long instrumentId, String state, String name, String waveformKey, double start, double length, double tempo, double pitch) {
-    insertAudio(id, instrumentId, state, name, waveformKey, start, length, tempo, pitch, Timestamp.from(Instant.now()));
+    insertAudio(id, instrumentId, state, name, waveformKey, start, length, tempo, pitch, Instant.now());
   }
 
-  public static void insertAudio(long id, long instrumentId, String state, String name, String waveformKey, double start, double length, double tempo, double pitch, Timestamp createdUpdatedAt) {
+  public static void insertAudio(long id, long instrumentId, String state, String name, String waveformKey, double start, double length, double tempo, double pitch, Instant createdUpdatedAt) {
     AudioRecord record = IntegrationTestService.getDb().newRecord(AUDIO);
     record.setId(ULong.valueOf(id));
     record.setInstrumentId(ULong.valueOf(instrumentId));
@@ -941,16 +940,16 @@ public enum IntegrationTestEntity {
     record.setTempo(tempo);
     record.setPitch(pitch);
     record.setState(state);
-    record.setCreatedAt(createdUpdatedAt);
-    record.setUpdatedAt(createdUpdatedAt);
+    record.setCreatedAt(Timestamp.from(createdUpdatedAt));
+    record.setUpdatedAt(Timestamp.from(createdUpdatedAt));
     record.store();
   }
 
   public static void insertAudioEvent(long audioId, double position, double duration, String inflection, String note, double tonality, double velocity) {
-    insertAudioEvent(audioId, position, duration, inflection, note, tonality, velocity, Timestamp.from(Instant.now()));
+    insertAudioEvent(audioId, position, duration, inflection, note, tonality, velocity, Instant.now());
   }
 
-  public static void insertAudioEvent(long audioId, double position, double duration, String inflection, String note, double tonality, double velocity, Timestamp createdUpdatedAt) {
+  public static void insertAudioEvent(long audioId, double position, double duration, String inflection, String note, double tonality, double velocity, Instant createdUpdatedAt) {
     AudioEventRecord record = IntegrationTestService.getDb().newRecord(AUDIO_EVENT);
     record.setId(ULong.valueOf(nextUniqueId(AudioEvent.class, audioId)));
     record.setAudioId(ULong.valueOf(audioId));
@@ -960,36 +959,36 @@ public enum IntegrationTestEntity {
     record.setNote(note);
     record.setTonality(tonality);
     record.setVelocity(velocity);
-    record.setCreatedAt(createdUpdatedAt);
-    record.setUpdatedAt(createdUpdatedAt);
+    record.setCreatedAt(Timestamp.from(createdUpdatedAt));
+    record.setUpdatedAt(Timestamp.from(createdUpdatedAt));
     record.store();
   }
 
   public static void insertAudioChord(long audioId, long position, String name) {
-    insertAudioChord(audioId, position, name, Timestamp.from(Instant.now()));
+    insertAudioChord(audioId, position, name, Instant.now());
   }
 
-  public static void insertAudioChord(long audioId, double position, String name, Timestamp createdUpdatedAt) {
+  public static void insertAudioChord(long audioId, double position, String name, Instant createdUpdatedAt) {
     AudioChordRecord record = IntegrationTestService.getDb().newRecord(AUDIO_CHORD);
     record.setId(ULong.valueOf(nextUniqueId(AudioChord.class, audioId)));
     record.setAudioId(ULong.valueOf(audioId));
     record.setPosition(position);
     record.setName(name);
-    record.setCreatedAt(createdUpdatedAt);
-    record.setUpdatedAt(createdUpdatedAt);
+    record.setCreatedAt(Timestamp.from(createdUpdatedAt));
+    record.setUpdatedAt(Timestamp.from(createdUpdatedAt));
     record.store();
   }
 
-  public static Chain insertChain(long id, long accountId, String name, ChainType type, ChainState state, Timestamp startAt, @Nullable Timestamp stopAt, String embedKey) {
+  public static Chain insertChain(long id, long accountId, String name, ChainType type, ChainState state, Instant startAt, @Nullable Instant stopAt, String embedKey) {
     ChainRecord record = IntegrationTestService.getDb().newRecord(CHAIN);
     record.setId(ULong.valueOf(id));
     record.setAccountId(ULong.valueOf(accountId));
     record.setType(type.toString());
     record.setName(name);
     record.setState(state.toString());
-    record.setStartAt(startAt);
+    record.setStartAt(Timestamp.from(startAt));
     if (Objects.nonNull(stopAt)) {
-      record.setStopAt(stopAt);
+      record.setStopAt(Timestamp.from(stopAt));
     }
     if (Objects.nonNull(embedKey)) {
       record.setEmbedKey(embedKey);
@@ -1002,9 +1001,9 @@ public enum IntegrationTestEntity {
     result.setTypeEnum(type);
     result.setName(name);
     result.setStateEnum(state);
-    result.setStartAtTimestamp(startAt);
+    result.setStartAtInstant(startAt);
     if (Objects.nonNull(stopAt)) {
-      result.setStopAtTimestamp(stopAt);
+      result.setStopAtInstant(stopAt);
     }
     if (Objects.nonNull(embedKey)) {
       result.setEmbedKey(embedKey);
@@ -1045,14 +1044,14 @@ public enum IntegrationTestEntity {
     record.store();
   }
 
-  public static Segment insertSegment_NoContent(long id, long chainId, long offset, SegmentState state, Timestamp beginAt, Timestamp endAt, String key, int total, double density, double tempo, String waveformKey) throws CoreException {
+  public static Segment insertSegment_NoContent(long id, long chainId, long offset, SegmentState state, Instant beginAt, Instant endAt, String key, int total, double density, double tempo, String waveformKey) throws CoreException {
     SegmentRecord record = IntegrationTestService.getDb().newRecord(SEGMENT);
     record.setId(ULong.valueOf(id));
     record.setChainId(ULong.valueOf(chainId));
     record.setOffset(ULong.valueOf(offset));
     record.setState(state.toString());
-    record.setBeginAt(beginAt);
-    record.setEndAt(endAt);
+    record.setBeginAt(Timestamp.from(beginAt));
+    record.setEndAt(Timestamp.from(endAt));
     record.setTotal(UInteger.valueOf(total));
     record.setKey(key);
     record.setDensity(density);
@@ -1066,8 +1065,8 @@ public enum IntegrationTestEntity {
     result.setChainId(BigInteger.valueOf(chainId));
     result.setOffset(BigInteger.valueOf(offset));
     result.setState(state.toString());
-    result.setBeginAtTimestamp(beginAt);
-    result.setEndAtTimestamp(endAt);
+    result.setBeginAtInstant(beginAt);
+    result.setEndAtInstant(endAt);
     result.setTotal(total);
     result.setKey(key);
     result.setDensity(density);
@@ -1086,13 +1085,13 @@ public enum IntegrationTestEntity {
     return injector.getInstance(SegmentFactory.class);
   }
 
-  public static Segment insertSegment_Planned(long id, long chainId, long offset, Timestamp beginAt) {
+  public static Segment insertSegment_Planned(long id, long chainId, long offset, Instant beginAt) {
     SegmentRecord record = IntegrationTestService.getDb().newRecord(SEGMENT);
     record.setId(ULong.valueOf(id));
     record.setChainId(ULong.valueOf(chainId));
     record.setOffset(ULong.valueOf(offset));
     record.setState(SegmentState.Planned.toString());
-    record.setBeginAt(beginAt);
+    record.setBeginAt(Timestamp.from(beginAt));
     record.setContent(gsonProvider().gson().toJson(new SegmentContent()));
     record.store();
 
@@ -1101,7 +1100,7 @@ public enum IntegrationTestEntity {
     result.setChainId(BigInteger.valueOf(chainId));
     result.setOffset(BigInteger.valueOf(offset));
     result.setStateEnum(SegmentState.Planned);
-    result.setBeginAtTimestamp(beginAt);
+    result.setBeginAtInstant(beginAt);
     return result;
   }
 
@@ -1116,8 +1115,8 @@ public enum IntegrationTestEntity {
     record.setChainId(ULong.valueOf(segment.getChainId()));
     record.setOffset(ULong.valueOf(segment.getOffset()));
     record.setState(segment.getState().toString());
-    record.setBeginAt(segment.getBeginAt());
-    record.setEndAt(segment.getEndAt());
+    record.setBeginAt(Timestamp.from(segment.getBeginAt()));
+    record.setEndAt(Timestamp.from(segment.getEndAt()));
     record.setTotal(UInteger.valueOf(segment.getTotal()));
     record.setKey(segment.getKey());
     record.setDensity(segment.getDensity());
@@ -1127,12 +1126,12 @@ public enum IntegrationTestEntity {
     record.store();
   }
 
-  public static void insertPlatformMessage(long id, MessageType type, String body, Timestamp createdAt) {
+  public static void insertPlatformMessage(long id, MessageType type, String body, Instant createdAt) {
     PlatformMessageRecord record = IntegrationTestService.getDb().newRecord(PLATFORM_MESSAGE);
     record.setId(ULong.valueOf(id));
     record.setType(type.toString());
     record.setBody(body);
-    record.setCreatedAt(createdAt);
+    record.setCreatedAt(Timestamp.from(createdAt));
     record.store();
   }
 

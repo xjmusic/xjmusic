@@ -30,7 +30,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import java.math.BigInteger;
-import java.sql.Timestamp;
+import java.time.Instant;
 
 public class DubMasterInitialIT extends BaseIT {
   private final Injector injector = Guice.createInjector(new CoreModule(), new CraftModule(), new DubModule());
@@ -54,14 +54,14 @@ public class DubMasterInitialIT extends BaseIT {
     insertLibraryA();
 
     // Chain "Print #2" has 1 initial segment in dubbing state - Master is complete
-    IntegrationTestEntity.insertChain(2, 1, "Print #2", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, null);
+    IntegrationTestEntity.insertChain(2, 1, "Print #2", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null);
 
     segment6 = segmentFactory.newSegment(BigInteger.valueOf(6))
       .setChainId(BigInteger.valueOf(2))
       .setOffset(BigInteger.valueOf(0))
       .setStateEnum(SegmentState.Dubbing)
-      .setBeginAt("2017-02-14 12:01:00.000001")
-      .setEndAt("2017-02-14 12:01:07.384616")
+      .setBeginAt("2017-02-14T12:01:00.000001Z")
+      .setEndAt("2017-02-14T12:01:07.384616Z")
       .setKey("C minor")
       .setTotal(16)
       .setDensity(0.55)

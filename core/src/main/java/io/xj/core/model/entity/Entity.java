@@ -6,7 +6,7 @@ import io.xj.core.exception.CoreException;
 
 import javax.annotation.Nullable;
 import java.math.BigInteger;
-import java.sql.Timestamp;
+import java.time.Instant;
 
 public interface Entity {
   String KEY_ONE = "entity";
@@ -35,12 +35,12 @@ public interface Entity {
   BigInteger getParentId();
 
   /**
-   Get created-at timestamp
+   Get created-at instant
 
-   @return created-at timestamp
+   @return created-at instant
    */
   @Nullable
-  Timestamp getCreatedAt();
+  Instant getCreatedAt();
 
   /**
    Set created at time
@@ -56,7 +56,7 @@ public interface Entity {
    @return updated-at time
    */
   @Nullable
-  Timestamp getUpdatedAt();
+  Instant getUpdatedAt();
 
   /**
    Set updated-at time

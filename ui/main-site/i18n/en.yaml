@@ -38,10 +38,7 @@
   translation: "Links"
 
 - id: xjIsTheFutureOfAmbientMusic
-  translation: "<strong>XJ</strong> is the future of ambient&nbsp;music."
-
-- id: xjSplashSentence
-  translation: "The <strong>XJ Music<sup>&trade;</sup></strong> platform is&nbsp;an&nbsp;entirely&nbsp;new <strong>AI&nbsp;powered&nbsp;medium</strong>, transforming the experience of music in shared&nbsp;spaces."
+  translation: "<strong>XJ</strong> is an AI-powered instrument for collaborative music production."
 
 - id: signIn
   translation: "Sign In"
@@ -53,7 +50,7 @@
   translation: "We are defining a completely new, information age sound."
 
 - id: loginBlurb
-  translation: "The XJ Music<sup>&trade;</sup> platform is currently in private beta testing."
+  translation: "Our cloud-based software platform is now undergoing private Beta testing."
 
 - id: contactMadeIn
   translation: "Made in"
@@ -74,4 +71,4 @@
   translation: "Solutions"
 
 - id: contactSolutionsBody
-  translation: "Research, design, and implementation exclusively by [Aircraft](https://ambience.co/)<sup>&trade;</sup>"
+  translation: "Research, design, and implementation exclusively by [Aircraft](https://ambience.co/)<sup>&reg;</sup>"

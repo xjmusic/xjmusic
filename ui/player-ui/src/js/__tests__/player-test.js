@@ -16,10 +16,3 @@ it('takes an chain id configuration parameter', () => {
   });
   expect(subject.chainIdentifier).toBe('coolambience');
 });
-
-it('takes a start at time configuration parameter', () => {
-  let subject = new Player({
-    startAtMillisUTC: 1528750454027
-  });
-  expect(subject.audioContextStartMillisUTC).toBe(1528750454027);
-});

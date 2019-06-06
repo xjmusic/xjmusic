@@ -3,7 +3,6 @@ package io.xj.core.model.chord;
 
 import io.xj.core.exception.CoreException;
 
-import java.math.BigInteger;
 import java.util.Objects;
 
 /**

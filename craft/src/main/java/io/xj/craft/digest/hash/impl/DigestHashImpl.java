@@ -19,6 +19,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  In-memory cache of ingest of all hash in a library
@@ -26,7 +27,6 @@ import java.util.Map;
  [#154234716] Architect wants ingest of library contents, to modularize graph mathematics used during craft, and provide the Artist with useful insight for developing the library.
  */
 public class DigestHashImpl extends DigestImpl implements DigestHash {
-  private final Logger log = LoggerFactory.getLogger(DigestHashImpl.class);
   private final Map<String, String> hash = Maps.newConcurrentMap();
 
   /**
@@ -42,6 +42,7 @@ public class DigestHashImpl extends DigestImpl implements DigestHash {
     try {
       digest();
     } catch (Exception e) {
+      Logger log = LoggerFactory.getLogger(DigestHashImpl.class);
       log.error("Failed to digest hash of ingest {}", ingest, e);
     }
   }
@@ -66,7 +67,7 @@ public class DigestHashImpl extends DigestImpl implements DigestHash {
    */
   private static String hashValue(Entity entity) {
     return String.format("%d",
-      entity.getUpdatedAt().toInstant().getEpochSecond());
+      Objects.requireNonNull(entity.getUpdatedAt()).getEpochSecond());
   }
 
   /**

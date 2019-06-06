@@ -114,8 +114,8 @@ public class FabricatorImplTest {
       .setTempo(120.0)
       .setChainId(BigInteger.valueOf(977))
       .setTotal(8)
-      .setBeginAt("2017-12-12 01:00:08.000000")
-      .setEndAt("2017-12-12 01:00:16.000000"));
+      .setBeginAt("2017-12-12T01:00:08.000000Z")
+      .setEndAt("2017-12-12T01:00:16.000000Z"));
     subject = fabricatorFactory.fabricate(segmentFactory.newSegment(BigInteger.valueOf(4213))
       .setOffset(BigInteger.valueOf(2))
       .setDensity(0.6)
@@ -124,8 +124,8 @@ public class FabricatorImplTest {
       .setTempo(240.0)
       .setChainId(BigInteger.valueOf(977))
       .setTotal(8)
-      .setBeginAt("2017-12-12 01:00:16.000000")
-      .setEndAt("2017-12-12 01:00:22.000000"));
+      .setBeginAt("2017-12-12T01:00:16.000000Z")
+      .setEndAt("2017-12-12T01:00:22.000000Z"));
     when(timeComputerFactory.create(anyDouble(), anyDouble(), anyDouble())).thenReturn(timeComputer);
     when(timeComputer.getSecondsAtPosition(anyDouble())).thenReturn(Double.valueOf(0));
 
@@ -144,8 +144,8 @@ public class FabricatorImplTest {
       .setTempo(120.0)
       .setChainId(BigInteger.valueOf(977))
       .setTotal(32)
-      .setBeginAt("2017-12-12 01:00:08.000000")
-      .setEndAt("2017-12-12 01:00:16.000000"));
+      .setBeginAt("2017-12-12T01:00:08.000000Z")
+      .setEndAt("2017-12-12T01:00:16.000000Z"));
     subject = fabricatorFactory.fabricate(segmentFactory.newSegment(BigInteger.valueOf(4213))
       .setOffset(BigInteger.valueOf(2))
       .setDensity(0.6)
@@ -154,8 +154,8 @@ public class FabricatorImplTest {
       .setTempo(240.0)
       .setChainId(BigInteger.valueOf(977))
       .setTotal(16)
-      .setBeginAt("2017-12-12 01:00:16.000000")
-      .setEndAt("2017-12-12 01:00:22.000000"));
+      .setBeginAt("2017-12-12T01:00:16.000000Z")
+      .setEndAt("2017-12-12T01:00:22.000000Z"));
     when(timeComputerFactory.create(anyDouble(), anyDouble(), anyDouble())).thenReturn(timeComputer);
     when(timeComputer.getSecondsAtPosition(anyDouble())).thenReturn(Double.valueOf(0));
 
@@ -174,8 +174,8 @@ public class FabricatorImplTest {
       .setTempo(67.0)
       .setChainId(BigInteger.valueOf(977))
       .setTotal(23)
-      .setBeginAt("2017-12-12 01:00:08.000000")
-      .setEndAt("2017-12-12 01:00:16.000000"));
+      .setBeginAt("2017-12-12T01:00:08.000000Z")
+      .setEndAt("2017-12-12T01:00:16.000000Z"));
     subject = fabricatorFactory.fabricate(segmentFactory.newSegment(BigInteger.valueOf(4213))
       .setOffset(BigInteger.valueOf(2))
       .setDensity(0.6)
@@ -184,8 +184,8 @@ public class FabricatorImplTest {
       .setTempo(121.0)
       .setChainId(BigInteger.valueOf(977))
       .setTotal(79)
-      .setBeginAt("2017-12-12 01:00:16.000000")
-      .setEndAt("2017-12-12 01:00:22.000000"));
+      .setBeginAt("2017-12-12T01:00:16.000000Z")
+      .setEndAt("2017-12-12T01:00:22.000000Z"));
     when(timeComputerFactory.create(anyDouble(), anyDouble(), anyDouble())).thenReturn(timeComputer);
     when(timeComputer.getSecondsAtPosition(anyDouble())).thenReturn(Double.valueOf(0));
 
@@ -204,8 +204,8 @@ public class FabricatorImplTest {
       .setTempo(120.0)
       .setChainId(BigInteger.valueOf(977))
       .setTotal(8)
-      .setBeginAt("2017-12-12 01:00:08.000000")
-      .setEndAt("2017-12-12 01:00:16.000000"));
+      .setBeginAt("2017-12-12T01:00:08.000000Z")
+      .setEndAt("2017-12-12T01:00:16.000000Z"));
     subject = fabricatorFactory.fabricate(segmentFactory.newSegment(BigInteger.valueOf(4213))
       .setOffset(BigInteger.valueOf(2))
       .setDensity(0.6)
@@ -214,8 +214,8 @@ public class FabricatorImplTest {
       .setTempo(120.0)
       .setChainId(BigInteger.valueOf(977))
       .setTotal(8)
-      .setBeginAt("2017-12-12 01:00:16.000000")
-      .setEndAt("2017-12-12 01:00:22.000000"));
+      .setBeginAt("2017-12-12T01:00:16.000000Z")
+      .setEndAt("2017-12-12T01:00:22.000000Z"));
     Choice choice = subject.add(new Choice()
       .setSequenceId(BigInteger.valueOf(5))
       .setTypeEnum(SequenceType.Rhythm)

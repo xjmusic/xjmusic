@@ -2,7 +2,6 @@
 package io.xj.core.model.sequence_pattern;
 
 import io.xj.core.exception.CoreException;
-import io.xj.core.model.entity.Entity;
 import io.xj.core.model.entity.impl.EntityImpl;
 
 import java.math.BigInteger;

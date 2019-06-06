@@ -7,7 +7,6 @@ import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.inject.Inject;
-import io.xj.core.fabricator.FabricatorFactory;
 import io.xj.core.model.arrangement.Arrangement;
 import io.xj.core.model.arrangement.ArrangementSerializer;
 import io.xj.core.model.chain.Chain;
@@ -30,10 +29,11 @@ import io.xj.core.model.segment_message.SegmentMessage;
 import io.xj.core.model.segment_message.SegmentMessageSerializer;
 import io.xj.core.model.user.User;
 import io.xj.core.model.user.UserSerializer;
+import io.xj.core.time.InstantDeserializer;
+import io.xj.core.time.InstantSerializer;
 import io.xj.core.transport.GsonProvider;
-import io.xj.core.transport.HttpResponseProvider;
 
-import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.Map;
 
 public class GsonProviderImpl implements GsonProvider {
@@ -56,8 +56,8 @@ public class GsonProviderImpl implements GsonProvider {
     g.registerTypeHierarchyAdapter(SegmentChord.class, new SegmentChordSerializer());
     g.registerTypeHierarchyAdapter(SegmentMeme.class, new SegmentMemeSerializer());
     g.registerTypeHierarchyAdapter(SegmentMessage.class, new SegmentMessageSerializer());
-    g.registerTypeHierarchyAdapter(Timestamp.class, new TimestampDeserializer());
-    g.registerTypeHierarchyAdapter(Timestamp.class, new TimestampSerializer());
+    g.registerTypeHierarchyAdapter(Instant.class, new InstantDeserializer());
+    g.registerTypeHierarchyAdapter(Instant.class, new InstantSerializer());
     g.registerTypeHierarchyAdapter(User.class, new UserSerializer());
     g.registerTypeAdapter(Segment.class, new SegmentInstanceCreator(segmentFactory));
     g.disableInnerClassSerialization();

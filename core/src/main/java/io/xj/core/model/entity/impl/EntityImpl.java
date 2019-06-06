@@ -2,11 +2,10 @@
 package io.xj.core.model.entity.impl;
 
 import io.xj.core.model.entity.Entity;
-import io.xj.core.util.TimestampUTC;
 
 import javax.annotation.Nullable;
 import java.math.BigInteger;
-import java.sql.Timestamp;
+import java.time.Instant;
 
 /**
  POJO for persisting data in memory while performing business logic,
@@ -21,45 +20,51 @@ import java.sql.Timestamp;
 public abstract class EntityImpl implements Entity {
   protected BigInteger id;
   @Nullable
-  protected Timestamp createdAt;
+  protected Instant createdAt;
   @Nullable
-  protected Timestamp updatedAt;
+  protected Instant updatedAt;
 
-  @Override public BigInteger getId() {
+  @Override
+  public BigInteger getId() {
     return id;
   }
 
-  @Override public Entity setId(BigInteger id) {
+  @Override
+  public Entity setId(BigInteger id) {
     this.id = id;
     return this;
   }
 
-  @Override@Nullable
-  public Timestamp getCreatedAt() {
+  @Override
+  @Nullable
+  public Instant getCreatedAt() {
     return createdAt;
   }
 
-  @Override public Entity setCreatedAt(String createdAt) {
+  @Override
+  public Entity setCreatedAt(String createdAt) {
     try {
-      this.createdAt = TimestampUTC.valueOf(createdAt);
+      this.createdAt = Instant.parse(createdAt);
     } catch (Exception e) {
       this.createdAt = null;
     }
     return this;
   }
 
-  @Override@Nullable
-  public Timestamp getUpdatedAt() {
+  @Override
+  @Nullable
+  public Instant getUpdatedAt() {
     return updatedAt;
   }
 
-  @Override public Entity setUpdatedAt(String updatedAt) {
+  @Override
+  public Entity setUpdatedAt(String updatedAt) {
     try {
-      this.updatedAt = TimestampUTC.valueOf(updatedAt);
+      this.updatedAt = Instant.parse(updatedAt);
     } catch (Exception e) {
       this.updatedAt = null;
     }
     return this;
   }
 
-  }
+}

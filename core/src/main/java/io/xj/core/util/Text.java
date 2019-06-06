@@ -283,7 +283,7 @@ public interface Text {
    @param values to include
    @return array of string values
    */
-  static List<String> stringValues(Object... values) {
+  static List<String> stringValues(Object[] values) {
     ImmutableList.Builder<String> valuesBuilder = ImmutableList.builder();
     for (Object value : values) {
       valuesBuilder.add(value.toString());

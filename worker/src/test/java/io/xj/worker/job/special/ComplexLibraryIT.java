@@ -18,7 +18,7 @@ import io.xj.core.model.segment.Segment;
 import io.xj.core.model.segment.SegmentState;
 import io.xj.core.model.work.Work;
 import io.xj.core.model.work.WorkType;
-import io.xj.core.util.TimestampUTC;
+import java.time.Instant;
 import io.xj.craft.CraftModule;
 import io.xj.dub.DubModule;
 import io.xj.worker.BaseIT;
@@ -65,7 +65,7 @@ public class ComplexLibraryIT extends BaseIT {
     IntegrationTestEntity.insertLibraryGenerated(3);
 
     // Chain "Test Print #1" is ready to begin
-    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, TimestampUTC.nowMinusSeconds(1000), null, null);
+    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.now().minusSeconds(1000), null, null);
 
     // Bind the library to the chain
     IntegrationTestEntity.insertChainLibrary(1, 1);

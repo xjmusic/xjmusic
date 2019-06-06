@@ -4,11 +4,10 @@ package io.xj.core.fabricator.impl;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+import com.google.inject.assistedinject.AssistedInject;
 import io.xj.core.access.impl.Access;
 import io.xj.core.config.Config;
-import io.xj.core.config.Exposure;
 import io.xj.core.dao.ChainConfigDAO;
 import io.xj.core.dao.ChainInstrumentDAO;
 import io.xj.core.dao.ChainLibraryDAO;
@@ -94,7 +93,7 @@ public class FabricatorImpl implements Fabricator {
   private Map<ChainConfigType, ChainConfig> allChainConfigs;
   private Collection<Segment> previousSegmentsWithSameMainSequence;
 
-  @Inject
+  @AssistedInject
   public FabricatorImpl(
     @Assisted("segment") Segment segment,
     ChainConfigDAO chainConfigDAO,
@@ -541,7 +540,7 @@ public class FabricatorImpl implements Fabricator {
     if (Objects.isNull(getSegment().getEndAt()))
       throw exception("Cannot compute total length of segment with no end!");
 
-    return Duration.ofMillis(getSegment().getEndAt().getTime() - getSegment().getBeginAt().getTime());
+    return Duration.between(getSegment().getBeginAt(), getSegment().getEndAt());
   }
 
   @Override
@@ -670,7 +669,7 @@ public class FabricatorImpl implements Fabricator {
    @return URL as string
    */
   private String generateWaveformKey(BigInteger chainId) throws CoreException {
-    String prefix = String.format("%s-%s-%s", Chain.KEY_ONE,chainId, Segment.KEY_ONE);
+    String prefix = String.format("%s-%s-%s", Chain.KEY_ONE, chainId, Segment.KEY_ONE);
     String extension = getChainConfig(ChainConfigType.OutputContainer).getValue().toLowerCase(Locale.ENGLISH);
     return amazonProvider.generateKey(prefix, extension);
   }

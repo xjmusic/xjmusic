@@ -3,9 +3,8 @@ package io.xj.core.ingest.cache.impl;
 
 import io.xj.core.config.Config;
 import io.xj.core.ingest.Ingest;
-import io.xj.core.util.TimestampUTC;
 
-import java.sql.Timestamp;
+import java.time.Instant;
 
 /**
  Evaluate any combination of Entities for ingest. Assumes inclusion of child entities of all entities provided
@@ -13,7 +12,7 @@ import java.sql.Timestamp;
  Where N is configurable in system properties `ingest.cache.seconds`
  */
 public class IngestCacheItem {
-  private final Timestamp createdAt;
+  private final Instant createdAt;
   private final Ingest ingest;
 
   /**
@@ -23,7 +22,7 @@ public class IngestCacheItem {
    */
   IngestCacheItem(Ingest ingest) {
     this.ingest = ingest;
-    createdAt = TimestampUTC.now();
+    createdAt = Instant.now();
   }
 
   /**
@@ -33,8 +32,8 @@ public class IngestCacheItem {
    @return true if expired
    */
   Boolean isValid() {
-    return TimestampUTC.now().toInstant().getEpochSecond() <
-      createdAt.toInstant().getEpochSecond() + Config.ingestCacheSeconds();
+    return Instant.now().getEpochSecond() <
+      createdAt.getEpochSecond() + Config.ingestCacheSeconds();
   }
 
   /**

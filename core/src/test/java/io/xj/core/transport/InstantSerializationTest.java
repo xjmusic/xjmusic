@@ -5,23 +5,23 @@ package io.xj.core.transport;
 import com.google.gson.Gson;
 import com.google.inject.Guice;
 import io.xj.core.CoreModule;
-import io.xj.core.transport.GsonProvider;
+import io.xj.core.exception.CoreException;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.sql.Timestamp;
+import java.time.Instant;
 
 import static org.junit.Assert.assertEquals;
 
-public class TimestampSerializationTest {
+public class InstantSerializationTest {
   Gson gson = Guice.createInjector(new CoreModule()).getInstance(GsonProvider.class).gson();
-  private Timestamp subject;
+  private Instant subject;
   private String subjectJson;
 
   @Before
-  public void setUp() {
-    subject = Timestamp.valueOf("2014-09-11 12:17:00.00");
-    subjectJson = "\"2014-09-11 12:17:00.0Z\"";
+  public void setUp() throws CoreException {
+    subject = Instant.parse("2014-09-11T12:17:00.679314Z");
+    subjectJson = "\"2014-09-11T12:17:00.679314Z\"";
   }
 
   @Test
@@ -33,7 +33,7 @@ public class TimestampSerializationTest {
 
   @Test
   public void deserialize() {
-    Timestamp result = gson.fromJson(subjectJson, Timestamp.class);
+    Instant result = gson.fromJson(subjectJson, Instant.class);
 
     assertEquals(subject, result);
   }

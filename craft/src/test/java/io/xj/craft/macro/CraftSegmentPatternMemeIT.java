@@ -26,7 +26,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import java.math.BigInteger;
-import java.sql.Timestamp;
+import java.time.Instant;
 
 import static io.xj.core.Assert.assertExactMemes;
 
@@ -48,15 +48,15 @@ public class CraftSegmentPatternMemeIT extends BaseIT {
     insertLibraryB2();
 
     // Chain "Test Print #1" has 5 total segments
-    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, null);
+    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null);
 
     // Chain "Test Print #1" has this segment that was just crafted
     Segment seg3 = segmentFactory.newSegment(BigInteger.valueOf(1))
       .setChainId(BigInteger.valueOf(1))
       .setOffset(BigInteger.valueOf(1))
       .setStateEnum(SegmentState.Crafted)
-      .setBeginAt("2017-02-14 12:02:04.000001")
-      .setEndAt("2017-02-14 12:02:36.000001")
+      .setBeginAt("2017-02-14T12:02:04.000001Z")
+      .setEndAt("2017-02-14T12:02:36.000001Z")
       .setKey("F Major")
       .setTotal(64)
       .setDensity(0.30)
@@ -83,7 +83,7 @@ public class CraftSegmentPatternMemeIT extends BaseIT {
    */
   @Test
   public void craftSegmentMemesDirectlyFromSequencePatternBinding() throws Exception {
-    Segment seg2 = craftSegment(2, 1, 2, Timestamp.valueOf("2017-02-14 12:02:36.000001"));
+    Segment seg2 = craftSegment(2, 1, 2, Instant.parse("2017-02-14T12:02:36.000001Z"));
     Segment seg3 = craftSegment(3, 1, 3, seg2.getEndAt());
     Segment seg4 = craftSegment(4, 1, 4, seg3.getEndAt());
     Segment seg5 = craftSegment(5, 1, 5, seg4.getEndAt());
@@ -102,7 +102,7 @@ public class CraftSegmentPatternMemeIT extends BaseIT {
    @return crafted segment
    @throws Exception on failure
    */
-  private Segment craftSegment(int id, int chainId, int offset, Timestamp from) throws Exception {
+  private Segment craftSegment(int id, int chainId, int offset, Instant from) throws Exception {
     IntegrationTestEntity.insertSegment_Planned(id, chainId, offset, from);
     injector.getInstance(SegmentDAO.class).updateState(Access.internal(), BigInteger.valueOf(id), SegmentState.Crafting);
     Segment craftingSegment = injector.getInstance(SegmentDAO.class).readOne(Access.internal(), BigInteger.valueOf(id));

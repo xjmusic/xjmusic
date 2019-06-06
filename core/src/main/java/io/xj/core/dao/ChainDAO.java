@@ -9,7 +9,7 @@ import io.xj.core.model.segment.Segment;
 
 import javax.annotation.Nullable;
 import java.math.BigInteger;
-import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.Collection;
 
 public interface ChainDAO extends DAO<Chain> {
@@ -47,13 +47,13 @@ public interface ChainDAO extends DAO<Chain> {
   /**
    [INTERNAL USE ONLY]
    Build a template for the next segment in this Chain,
-   or set the Chain state to COMPLETE.
-
-   @param chain                   to build segment for
+   or set the Chain state to COMPLETE.@param chain                   to build segment for
    @param segmentBeginBefore      ahead to create Segment before end of previous Segment  @return array of chain Ids
    @param chainStopCompleteBefore behind to consider a chain complete
+
+
    */
-  Segment buildNextSegmentOrComplete(Access access, Chain chain, Timestamp segmentBeginBefore, Timestamp chainStopCompleteBefore) throws CoreException;
+  Segment buildNextSegmentOrComplete(Access access, Chain chain, Instant segmentBeginBefore, Instant chainStopCompleteBefore) throws CoreException;
 
   /**
    Erase a specified Chain (mark it for deletion by worker)

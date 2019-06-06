@@ -9,7 +9,7 @@ import io.xj.core.model.chain.ChainState;
 import io.xj.core.model.chain.ChainType;
 import io.xj.core.model.message.MessageType;
 import io.xj.core.model.platform_message.PlatformMessage;
-import io.xj.core.util.TimestampUTC;
+import java.time.Instant;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Guice;
@@ -22,7 +22,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import java.math.BigInteger;
-import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
@@ -42,13 +42,13 @@ public class PlatformMessageIT {
 
     // Account "Testing" has chain "Test Print #1"
     IntegrationTestEntity.insertAccount(1, "Testing");
-    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Timestamp.valueOf("2014-08-12 12:17:02.527142"), null, null);
+    IntegrationTestEntity.insertChain(1, 1, "Test Print #1", ChainType.Production, ChainState.Fabricate, Instant.parse("2014-08-12T12:17:02.527142Z"), null, null);
 
     // One platform already has a message
-    IntegrationTestEntity.insertPlatformMessage(12, MessageType.Info, "Consider yourself informed.", TimestampUTC.nowMinusSeconds(10L * secondsPerDay));
-    IntegrationTestEntity.insertPlatformMessage(3, MessageType.Warning, "Consider yourself warned, too.", TimestampUTC.nowMinusSeconds(10L * secondsPerDay));
-    IntegrationTestEntity.insertPlatformMessage(14, MessageType.Info, "Others were informed.", TimestampUTC.nowMinusSeconds(10L * secondsPerDay));
-    IntegrationTestEntity.insertPlatformMessage(15, MessageType.Info, "Even further persons were warned twice.", TimestampUTC.nowMinusSeconds(10L * secondsPerDay));
+    IntegrationTestEntity.insertPlatformMessage(12, MessageType.Info, "Consider yourself informed.", Instant.now().minusSeconds(10L * secondsPerDay));
+    IntegrationTestEntity.insertPlatformMessage(3, MessageType.Warning, "Consider yourself warned, too.", Instant.now().minusSeconds(10L * secondsPerDay));
+    IntegrationTestEntity.insertPlatformMessage(14, MessageType.Info, "Others were informed.", Instant.now().minusSeconds(10L * secondsPerDay));
+    IntegrationTestEntity.insertPlatformMessage(15, MessageType.Info, "Even further persons were warned twice.", Instant.now().minusSeconds(10L * secondsPerDay));
 
     // Instantiate the test subject
     testDAO = injector.getInstance(PlatformMessageDAO.class);
