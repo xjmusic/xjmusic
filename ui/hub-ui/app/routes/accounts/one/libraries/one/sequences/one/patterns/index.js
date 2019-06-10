@@ -98,6 +98,7 @@ export default Route.extend({
 
     addMeme(sequencePattern) {
       let name = prompt("Meme to add:");
+      if (!name || 0 === name.length) return;
       let sequencePatternMeme = this.store.createRecord('sequence-pattern-meme', {
         sequencePattern: sequencePattern,
         name: name
